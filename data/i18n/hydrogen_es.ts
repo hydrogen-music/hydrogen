@@ -1122,6 +1122,34 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
         <translation>La Cadena de Licencia del drumkit especificado no cumple con la licencia elegida en el desplegable.</translation>
     </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Eliminar instrumento</translation>
+    </message>
+    <message>
+        <source>Drop instrument</source>
+        <translation>Dejar caer instrumento</translation>
+    </message>
+    <message>
+        <source>Switch drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4604,14 +4632,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Mover instrumento</translation>
     </message>
     <message>
-        <source>Drop instrument</source>
-        <translation>Dejar caer instrumento</translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation>Eliminar instrumento </translation>
-    </message>
-    <message>
         <source>Add piano roll note ( %1, %2 )</source>
         <translation>Añadir nota piano roll ( %1, %2 )</translation>
     </message>
@@ -4654,26 +4674,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Alterando la longitud del patrón actual</translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename component</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add song to playlist</source>

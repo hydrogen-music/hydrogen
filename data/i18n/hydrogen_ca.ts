@@ -1119,6 +1119,34 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Eliminar instrument</translation>
+    </message>
+    <message>
+        <source>Drop instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4560,14 +4588,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drop instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add piano roll note ( %1, %2 )</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4609,26 +4629,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>Altering the length of the current pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

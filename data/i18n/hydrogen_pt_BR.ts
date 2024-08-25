@@ -1121,6 +1121,34 @@ Are you sure?</source>
         <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
         <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
     </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Deletar instrumento</translation>
+    </message>
+    <message>
+        <source>Drop instrument</source>
+        <translation>Remover instrumento</translation>
+    </message>
+    <message>
+        <source>Switch drumkit</source>
+        <translation>Trocando drumkits</translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation>Substituir drumkit da canção com um drumkit novo e vazio</translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation>Adicionando componente</translation>
+    </message>
+    <message>
+        <source>Delete component</source>
+        <translation>Deletar componente</translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation>Renomear componente</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4602,14 +4630,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Mover instrumento</translation>
     </message>
     <message>
-        <source>Drop instrument</source>
-        <translation>Remover instrumento</translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation>Deletar instrumento</translation>
-    </message>
-    <message>
         <source>Add piano roll note ( %1, %2 )</source>
         <translation>Adicionar nota de piano roll ( %1, %2 )</translation>
     </message>
@@ -4652,26 +4672,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Alterar o comprimento do padrão atual</translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation>Trocando drumkits</translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation>Substituir drumkit da canção com um drumkit novo e vazio</translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation>Adicionando componente</translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation>Remover componente</translation>
-    </message>
-    <message>
-        <source>Rename component</source>
-        <translation>Renomear componente</translation>
     </message>
     <message>
         <source>Add song to playlist</source>

@@ -557,6 +557,24 @@ CommonStrings::CommonStrings(){
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
+	/** Representing an instrument deletion in the undo history */
+	m_sActionDeleteInstrument = tr( "Delete instrument" );
+	/** Representing a drag&drop event for an instrument in the undo history */
+	m_sActionDropInstrument = tr( "Drop instrument" );
+	/** Representing a drumkit loading in the undo history */
+	m_sActionSwitchDrumkit = tr( "Switch drumkit" );
+	/** Representing the creation of a new drumkit in the undo history */
+	m_sActionNewDrumkit = tr( "Replace song drumkit with new and empty one" );
+	/** Representing adding a new component to the currently selected instrument
+	 * in the undo history */
+	m_sActionAddComponent = tr( "Adding component" );
+	/** Representing deletion of a component from the currently selected
+	 * instrument in the undo history */
+	m_sActionDeleteComponent = tr( "Delete component" );
+	/** Representing renaming a component of the currently selected instrument
+	 * in the undo history */
+	m_sActionRenameComponent = tr( "Rename component" );
+
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
 	 *  song path in the Playlist editor.*/

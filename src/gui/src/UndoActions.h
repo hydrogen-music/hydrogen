@@ -1013,7 +1013,8 @@ public:
 	SE_dragInstrumentAction( const QString& sDrumkitPath,
 							 const QString& sInstrumentName,
 							 int nTargetInstrument ){
-		setText( QObject::tr( "Drop instrument" ) );
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		setText( pCommonStrings->getActionDropInstrument() );
 		__sDrumkitPath = sDrumkitPath;
 		__sInstrumentName = sInstrumentName;
 		__nTargetInstrument = nTargetInstrument;
@@ -1050,8 +1051,9 @@ public:
 							   int nIndex )
 		: m_pInstrument( pInstrument )
 		, m_nIndex( nIndex ) {
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		setText( QString( "%1 [%2]" )
-				 .arg( QObject::tr( "Delete instrument" ) )
+				 .arg( pCommonStrings->getActionDeleteInstrument() )
 				 .arg( pInstrument->get_name() ) );
 	}
 	~SE_deleteInstrumentAction(){}
@@ -1074,7 +1076,8 @@ class SE_mainMenuAddInstrumentAction : public QUndoCommand
 {
 public:
 	SE_mainMenuAddInstrumentAction(){
-		setText( QObject::tr( "Drop instrument" ) );
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		setText( pCommonStrings->getActionDropInstrument() );
 	}
 	virtual void undo()
 	{
@@ -1115,19 +1118,19 @@ class SE_switchDrumkitAction : public QUndoCommand {
 			m_pNewDrumkit( pNewDrumkit ),
 			m_pOldDrumkit( pOldDrumkit )
 		{
-			switch ( type ) {
+			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+				switch ( type ) {
 			case Type::SwitchDrumkit:
 				setText( QString( "%1: [%2] -> [%3]" )
-						 .arg( QObject::tr( "Switching drumkits" ) )
+						 .arg( pCommonStrings->getActionSwitchDrumkit() )
 						 .arg( pOldDrumkit != nullptr ? pOldDrumkit->getName() : "nullptr" )
 						 .arg( pNewDrumkit != nullptr ? pNewDrumkit->getName() : "nullptr" ) );
 				break;
 			case Type::NewDrumkit:
-				setText( QObject::tr( "Replace song drumkit with new and empty one" ) );
+				setText( pCommonStrings->getActionNewDrumkit() );
 				break;
 			case Type::EditProperties:
-				setText( HydrogenApp::get_instance()->getCommonStrings()
-						 ->getActionEditDrumkitProperties() );
+				setText( pCommonStrings->getActionEditDrumkitProperties() );
 				break;
 			}
 		}
@@ -1176,20 +1179,21 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			m_pNew( pNew ),
 			m_pOld( pOld )
 		{
-			switch ( type ) {
+			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+				switch ( type ) {
 			case Type::AddComponent:
 				setText( QString( "%1 [%2]" )
-						 .arg( QObject::tr( "Adding component" ) )
+						 .arg( pCommonStrings->getActionAddComponent() )
 						 .arg( sName ) );
 				break;
 			case Type::DeleteComponent:
 				setText( QString( "%1 [%2]" )
-						 .arg( QObject::tr( "Remove component" ) )
+						 .arg( pCommonStrings->getActionDeleteComponent() )
 						 .arg( sName ) );
 				break;
 			case Type::DeleteLastInstrument:
 				setText( QString( "%1 [%2]" )
-						 .arg( QObject::tr( "Delete instrument" ) )
+						 .arg( pCommonStrings->getActionDeleteInstrument() )
 						 .arg( sName ) );
 				break;
 			default:
@@ -1217,8 +1221,9 @@ class SE_renameComponentAction : public QUndoCommand {
 			m_sNewName( sNewName ),
 			m_sOldName( sOldName ),
 			m_nComponentId( nComponentId ) {
-			setText( QString( "%1: [%2] -> [%3]" )
-					 .arg( QObject::tr( "Rename component" ) )
+			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+				setText( QString( "%1: [%2] -> [%3]" )
+					 .arg( pCommonStrings->getActionRenameComponent() )
 					 .arg( sOldName ).arg( sNewName ) );
 		}
 		virtual void undo() {

@@ -1121,6 +1121,34 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
         <translation>La ligne de licence du kit de batterie spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
     </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Effacer l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Drop instrument</source>
+        <translation>Déposer l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>Switch drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4605,14 +4633,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Déplacer l&apos;instrument</translation>
     </message>
     <message>
-        <source>Drop instrument</source>
-        <translation>Déposer l&apos;instrument</translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation>Effacer l&apos;instrument </translation>
-    </message>
-    <message>
         <source>Add piano roll note ( %1, %2 )</source>
         <translation>Ajouter une note de piano roll ( %1, %2 )</translation>
     </message>
@@ -4655,26 +4675,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Modification de la durée du motif en cours</translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename component</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add song to playlist</source>

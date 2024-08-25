@@ -1121,6 +1121,34 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
         <translation>Gesetzte Lizenz Beschreibung stimmt nicht mit der Lizenz in der Auswahlbox überein.</translation>
     </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Instrument löschen</translation>
+    </message>
+    <message>
+        <source>Drop instrument</source>
+        <translation>Füge Instrument ein (Drop)</translation>
+    </message>
+    <message>
+        <source>Switch drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4592,14 +4620,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Verschiebe Instrument</translation>
     </message>
     <message>
-        <source>Drop instrument</source>
-        <translation>Füge Instrument ein (Drop)</translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation>Lösche Instrument </translation>
-    </message>
-    <message>
         <source>Add piano roll note ( %1, %2 )</source>
         <translation>Füge Piano-Roll Note hinzu ( %1, %2 )</translation>
     </message>
@@ -4642,26 +4662,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Länge des aktuellen Patterns ändern</translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename component</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add song to playlist</source>
