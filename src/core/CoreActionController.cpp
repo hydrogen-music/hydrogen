@@ -1640,8 +1640,6 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 	// that this does not mean the instrument will be destructed. GUI can still
 	// hold a shared pointer as part of an undo/redo action (that's why it is so
 	// important to unload the samples).
-	QString sNewName = QString( "deathrow_%1" ).arg( pInstrument->get_name() );
-	pInstrument->set_name( sNewName );
 	pHydrogen->addInstrumentToDeathRow( pInstrument );
 
 	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
