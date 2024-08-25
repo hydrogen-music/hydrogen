@@ -32,26 +32,26 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Pattern.h>
 #include <core/Basics/AutomationPath.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
-#include "MainForm.h"
-#include "InstrumentRack.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
-#include "SongEditor/SongEditor.h"
-#include "SongEditor/SongEditorPanel.h"
-#include "SongEditor/PatternFillDialog.h"
-
+#include "InstrumentRack.h"
+#include "MainForm.h"
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
+#include "SongEditor/PatternFillDialog.h"
+#include "SongEditor/SongEditor.h"
+#include "SongEditor/SongEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
 
