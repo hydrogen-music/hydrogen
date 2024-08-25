@@ -34,6 +34,8 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
@@ -595,6 +597,32 @@ Note* Note::load_from( const XMLNode& node, bool bSilent )
 	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;
+}
+
+QString Note::prettyName() const {
+	QString sInstrument, sPattern;
+
+	if ( __instrument != nullptr ) {
+		sInstrument = QString( "instr: [%1]" ).arg( __instrument->get_name() );
+	} else {
+		sInstrument = QString( "type: [%1]" ).arg( m_sType );
+	}
+
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		const auto pPattern = pSong->getPatternList()->get( __pattern_idx );
+		if ( pPattern != nullptr ) {
+			sPattern = QString( "Pat: [%1]" ).arg( pPattern->get_name() );
+		}
+	}
+	if ( sPattern.isEmpty() ) {
+		sPattern = "No pat";
+	}
+
+	return QString( "%1, %2, pos: %3, key: %4, octave: %5" )
+		.arg( sPattern ).arg( sInstrument ).arg( __position )
+		.arg( KeyToQString( __key ) )
+		.arg( OctaveToQString( __octave ) );
 }
 
 QString Note::toQString( const QString& sPrefix, bool bShort ) const {

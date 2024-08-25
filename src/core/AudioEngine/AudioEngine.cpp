@@ -2957,7 +2957,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( ", m_midiNoteQueue: [" );
 		for ( const auto& nn : m_midiNoteQueue ) {
 			if ( nn != nullptr ) {
-				sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( ", " );
+				sOutput.append( QString( "[%1], " ).arg( nn->prettyName() ) );
 			}
 		}
 		sOutput.append( QString( "], m_pMetronomeInstrument: %1" )

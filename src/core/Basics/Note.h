@@ -367,6 +367,13 @@ class Note : public H2Core::Object<Note>
 	 * in humanice() but separately.
 	 */
 	void swing();
+
+		/** Returns a short but expressive string using which the particular
+		 * note instance can be identified.
+		 *
+		 * Note that the ability to uniquely identify the note is only ensured
+		 * if no identical notes exist in any pattern (de-duplication). */
+		QString prettyName() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

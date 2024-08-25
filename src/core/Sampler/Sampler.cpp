@@ -1518,12 +1518,12 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( "m_playingNotesQueue: [" );
 		for ( const auto& ppNote : m_playingNotesQueue ) {
 			sOutput.append( QString( "[%1] " )
-							.arg( ppNote->toQString( "", bShort ) ) );
+							.arg( ppNote->prettyName() ) );
 		}
 		sOutput.append( QString( "], m_queuedNoteOffs: [" ) );
 		for ( const auto& ppNote : m_queuedNoteOffs ) {
 			sOutput.append( QString( "[%1] " )
-							.arg( ppNote->toQString( "", bShort ) ) );
+							.arg( ppNote->prettyName() ) );
 		}
 		sOutput.append(
 			QString( "], m_pPlaybackTrackInstrument: %1" )
