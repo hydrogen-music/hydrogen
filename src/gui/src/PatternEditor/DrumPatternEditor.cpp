@@ -1104,6 +1104,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 			// Notes not associated with any instrument can not be copied for
 			// now.
 			if ( posIt->second == nullptr || posIt->second->get_instrument() == nullptr ) {
+				++posIt;
 				continue;
 			}
 
