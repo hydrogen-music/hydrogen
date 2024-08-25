@@ -1581,12 +1581,16 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 		ERRORLOG( "Song not ready yet" );
 		return false;
 	}
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
 
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDrumkit = pSong->getDrumkit();
 
 	pAudioEngine->lock( RIGHT_HERE );
 
+	pInstrument->load_samples( pAudioEngine->getTransportPosition()->getBpm() );
 	pDrumkit->addInstrument( pInstrument, nIndex );
 	pHydrogen->renameJackPorts( pSong );
 	pSong->getPatternList()->mapTo( pDrumkit );
@@ -1647,6 +1651,7 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 	}
 
 	pHydrogen->renameJackPorts( pSong );
+	pSong->getPatternList()->mapTo( pDrumkit );
 
 	pAudioEngine->unlock();
 
@@ -1681,7 +1686,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	if ( pNewInstrument != nullptr && pNewInstrument->hasSamples() ) {
+	if ( pNewInstrument != nullptr ) {
 		pNewInstrument->load_samples( fBpm );
 	}
 
@@ -1695,8 +1700,6 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	// that this does not mean the instrument will be destructed. GUI can still
 	// hold a shared pointer as part of an undo/redo action (that's why it is so
 	// important to unload the samples).
-	QString sNewName = QString( "deathrow_%1" ).arg( pOldInstrument->get_name() );
-	pOldInstrument->set_name( sNewName );
 	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
 
 	pDrumkit->addInstrument( pNewInstrument );
