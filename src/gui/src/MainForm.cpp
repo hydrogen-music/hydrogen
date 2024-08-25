@@ -20,59 +20,57 @@
  *
  */
 
-#include <core/H2Exception.h>
-#include <core/EventQueue.h>
-#include <core/Version.h>
-#include <core/Hydrogen.h>
+#include "MainForm.h"
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/SMF/SMF.h>
-#include <core/Timeline.h>
-#include <core/Helpers/Files.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
+#include <core/EventQueue.h>
+#include <core/H2Exception.h>
+#include <core/Helpers/Files.h>
+#include <core/Hydrogen.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Lilipond/Lilypond.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
+#include <core/SMF/SMF.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/Timeline.h>
+#include <core/Version.h>
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
 #include "CommonStrings.h"
-#include "ExportSongDialog.h"
+#include "Director.h"
 #include "ExportMidiDialog.h"
+#include "ExportSongDialog.h"
 #include "HydrogenApp.h"
-#include "Skin.h"
-#include "InstrumentRack.h"
 #include "InstrumentEditor/InstrumentEditor.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
-#include "MainForm.h"
-#include "PlayerControl.h"
-#include "PlaylistEditor/PlaylistEditor.h"
+#include "InstrumentRack.h"
 #include "LadspaFXProperties.h"
-#include "SongPropertiesDialog.h"
-#include "UndoActions.h"
-#include "Widgets/InfoBar.h"
-#include "Widgets/FileDialog.h"
-#include "Widgets/InputCaptureDialog.h"
-
-#include "Director.h"
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
+#include "PlaylistEditor/PlaylistEditor.h"
+#include "PlayerControl.h"
+#include "Skin.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
+#include "SongPropertiesDialog.h"
 #include "SoundLibrary/SoundLibraryOnlineImportDialog.h"
 #include "SoundLibrary/DrumkitOpenDialog.h"
 #include "SoundLibrary/DrumkitPropertiesDialog.h"
-#include "PlaylistEditor/PlaylistEditor.h"
+#include "UndoActions.h"
+#include "Widgets/FileDialog.h"
+#include "Widgets/InfoBar.h"
+#include "Widgets/InputCaptureDialog.h"
 
 #include <QtGui>
 #include <QtWidgets>
