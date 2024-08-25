@@ -69,6 +69,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __muted( false )
 	, __mute_group( -1 )
 	, __queued( 0 )
+	  , m_enqueuedBy( QStringList() )
 	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
@@ -133,6 +134,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __muted( other->is_muted() )
 	, __mute_group( other->get_mute_group() )
 	, __queued( 0 )
+	  , m_enqueuedBy( QStringList() )
 	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
@@ -153,7 +155,13 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	}
 }
 
-Instrument::~Instrument() {}
+Instrument::~Instrument() {
+	if ( __queued > 0 ) {
+		WARNINGLOG( QString( "Instrument [%1] is destroyed while still being enqueued! __queued: %2,\nm_enqueuedNotes:\n\t%3" )
+					.arg( __name ).arg( __queued )
+					.arg( m_enqueuedBy.join( "\n\t" ) ) );
+	}
+}
 
 std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 												   const QString& sDrumkitPath,
@@ -566,6 +574,27 @@ void Instrument::save_to( XMLNode& node, bool bSongKit ) const
 	}
 }
 
+void Instrument::enqueue( Note* pNote ) {
+	__queued++;
+
+	m_enqueuedBy.push_back( pNote->prettyName() );
+}
+
+void Instrument::dequeue( Note* pNote ) {
+	if ( __queued <= 0 ) {
+		ERRORLOG( QString( "[%1] is not queued!" ).arg( __name ) );
+		return;
+	}
+
+	__queued--;
+
+	if ( __queued > 0 ) {
+		m_enqueuedBy.removeOne( pNote->prettyName() );
+	} else {
+		m_enqueuedBy.clear();
+	}
+}
+
 void Instrument::set_adsr( std::shared_ptr<ADSR> adsr )
 {
 	__adsr = adsr;
@@ -688,7 +717,9 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( __mute_group ) )
 			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( __queued ) ) ;
+					 .arg( __queued ) )
+			.append( QString( "%1%2m_enqueuedBy: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_enqueuedBy.join( "\n" + sPrefix + s + s  ) ) );
 		sOutput.append( QString( "%1%2fx_level: [ " ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
@@ -744,7 +775,9 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", soloed: %1" ).arg( __soloed ) )
 			.append( QString( ", muted: %1" ).arg( __muted ) )
 			.append( QString( ", mute_group: %1" ).arg( __mute_group ) )
-			.append( QString( ", queued: %1" ).arg( __queued ) ) ;
+			.append( QString( ", queued: %1" ).arg( __queued ) )
+			.append( QString( ", m_enqueuedBy: [%1]" )
+					 .arg( m_enqueuedBy.join( " ; " ) ) );
 		sOutput.append( QString( ", fx_level: [ " ) );
 		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );

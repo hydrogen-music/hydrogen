@@ -1322,7 +1322,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				// Current note is skipped with a certain probability.
 				if ( fNoteProbability < (float) rand() / (float) RAND_MAX ) {
 					m_songNoteQueue.pop();
-					pNote->get_instrument()->dequeue();
+					pNote->get_instrument()->dequeue( pNote );
 					continue;
 				}
 			}
@@ -1341,7 +1341,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 			if ( ! pNote->get_instrument()->hasSamples() ) {
 				m_songNoteQueue.pop();
-				pNote->get_instrument()->dequeue();
+				pNote->get_instrument()->dequeue( pNote );
 				delete pNote;
 				continue;
 			}
@@ -1353,7 +1353,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 			m_pSampler->noteOn( pNote );
 			m_songNoteQueue.pop();
-			pNote->get_instrument()->dequeue();
+			pNote->get_instrument()->dequeue( pNote );
 			
 			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->get_instrument() );
 			if( pNote->get_note_off() ){
@@ -1377,10 +1377,11 @@ void AudioEngine::clearNoteQueues()
 {
 	// delete all copied notes in the note queues
 	while ( !m_songNoteQueue.empty() ) {
-		if ( m_songNoteQueue.top()->get_instrument() != nullptr ) {
-			m_songNoteQueue.top()->get_instrument()->dequeue();
+		auto pNote = m_songNoteQueue.top();
+		if ( pNote->get_instrument() != nullptr ) {
+			pNote->get_instrument()->dequeue( pNote );
 		}
-		delete m_songNoteQueue.top();
+		delete pNote;
 		m_songNoteQueue.pop();
 	}
 
@@ -2452,7 +2453,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			}
 
 			m_midiNoteQueue.pop_front();
-			pNote->get_instrument()->enqueue();
+			pNote->get_instrument()->enqueue( pNote );
 			pNote->computeNoteStart();
 			pNote->humanize();
 			m_songNoteQueue.push( pNote );
@@ -2556,7 +2557,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 												 0.f, // pan
 												 -1,
 												 fPitch );
-				m_pMetronomeInstrument->enqueue();
+				m_pMetronomeInstrument->enqueue( pMetronomeNote );
 				pMetronomeNote->computeNoteStart();
 				m_songNoteQueue.push( pMetronomeNote );
 			}
@@ -2656,7 +2657,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 								  .arg( pCopiedNote->toQString() ) );
 #endif
 
-						pCopiedNote->get_instrument()->enqueue();
+						pCopiedNote->get_instrument()->enqueue( pCopiedNote );
 						m_songNoteQueue.push( pCopiedNote );
 					}
 				}

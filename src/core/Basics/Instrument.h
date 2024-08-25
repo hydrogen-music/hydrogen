@@ -40,11 +40,12 @@
 namespace H2Core
 {
 
-class XMLNode;
 class ADSR;
 class Drumkit;
 class InstrumentLayer;
 class InstrumentComponent;
+class Note;
+class XMLNode;
 
 
 /**
@@ -241,10 +242,10 @@ class Instrument : public H2Core::Object<Instrument>
 		/** get the soloed status of the instrument */
 		bool is_soloed() const;
 
-		/** enqueue the instrument */
-		void enqueue();
-		/** dequeue the instrument */
-		void dequeue();
+		/** enqueue the instrument for @a pNote */
+		void enqueue( Note* pNote );
+		/** dequeue the instrument for @a pNote */
+		void dequeue( Note* pNote );
 		/** get the queued status of the instrument */
 		bool is_queued() const;
 
@@ -371,6 +372,9 @@ class Instrument : public H2Core::Object<Instrument>
 		bool					__muted;				///< is the instrument muted?
 		int						__mute_group;			///< mute group of the instrument
 		int						__queued;				///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
+		/** List of short string representations of notes for which this
+		 * instrument was enqueued. */
+		QStringList				m_enqueuedBy;
 		float					__fx_level[MAX_FX];		///< Ladspa FX level array
 		int						__hihat_grp;			///< the instrument is part of a hihat
 		int						__lower_cc;				///< lower cc level
@@ -600,17 +604,6 @@ inline void Instrument::set_soloed( bool soloed )
 inline bool Instrument::is_soloed() const
 {
 	return __soloed;
-}
-
-inline void Instrument::enqueue()
-{
-	__queued++;
-}
-
-inline void Instrument::dequeue()
-{
-	assert( __queued > 0 );
-	__queued--;
 }
 
 inline bool Instrument::is_queued() const

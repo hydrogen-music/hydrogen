@@ -129,7 +129,7 @@ void Sampler::process( uint32_t nFrames )
 		Note * pOldNote = m_playingNotesQueue[ 0 ];
 		m_playingNotesQueue.erase( m_playingNotesQueue.begin() );
 		if ( pOldNote->get_instrument() != nullptr ) {
-			pOldNote->get_instrument()->dequeue();
+			pOldNote->get_instrument()->dequeue( pOldNote );
 			WARNINGLOG( QString( "Number of playing notes [%1] exceeds maximum [%2]. Dropping note [%3]" )
 						.arg( m_playingNotesQueue.size() ).arg( nMaxNotes )
 						.arg( pOldNote->toQString() ) );
@@ -151,7 +151,7 @@ void Sampler::process( uint32_t nFrames )
 			// End of note was reached during rendering.
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			if ( pNote->get_instrument() != nullptr ) {
-				pNote->get_instrument()->dequeue();
+				pNote->get_instrument()->dequeue( pNote );
 			} else {
 				ERRORLOG( QString( "Playing note in sampler does not have instrument! [%1]" )
 						  .arg( pNote->prettyName() ) );
@@ -246,7 +246,7 @@ void Sampler::noteOn(Note *pNote )
 		}
 	}
 
-	pInstr->enqueue();
+	pInstr->enqueue( pNote );
 	if ( ! pNote->get_note_off() ){
 		m_playingNotesQueue.push_back( pNote );
 	}
@@ -1367,8 +1367,8 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 			Note *pNote = m_playingNotesQueue[ i ];
 			assert( pNote );
 			if ( pNote->get_instrument() == pInstr ) {
+				pInstr->dequeue( pNote );
 				delete pNote;
-				pInstr->dequeue();
 				m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			}
 			++i;
@@ -1379,7 +1379,7 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ++i ) {
 			Note *pNote = m_playingNotesQueue[i];
 			if ( pNote->get_instrument() != nullptr ) {
-				pNote->get_instrument()->dequeue();
+				pNote->get_instrument()->dequeue( pNote );
 			}
 			delete pNote;
 		}
