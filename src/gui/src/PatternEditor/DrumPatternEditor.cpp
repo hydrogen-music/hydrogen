@@ -1180,7 +1180,6 @@ void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
 	int nInstrument = pInstrList->index( note->get_instrument() );
 	if ( nInstrument == -1 ) {
-		ERRORLOG( "Instrument not found..skipping note" );
 		return;
 	}
 
