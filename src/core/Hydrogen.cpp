@@ -1103,9 +1103,6 @@ void Hydrogen::killInstruments() {
 		m_instrumentDeathRow.pop_front();
 
 		if ( pInstr != nullptr  ) {
-			INFOLOG( QString( "Unloading samples of instrument [%1]. [%2] left." )
-					 .arg( pInstr->get_name() )
-					 .arg( m_instrumentDeathRow.size() ) );
 			pInstr->unload_samples();
 		}
 	}
