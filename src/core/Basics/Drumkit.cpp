@@ -574,6 +574,48 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 		pInstrument->set_id( nNewId );
 	}
 
+	// Instrument types must be unique in a kit.
+	if ( ! pInstrument->getType().isEmpty() ) {
+		bool bTypeExists = false;
+		const auto pDrumkitMap = toDrumkitMap();
+		pDrumkitMap->getId( pInstrument->getType(), &bTypeExists );
+
+		if ( bTypeExists ) {
+			// We add a number to the type and increment it till it is unique.
+			// In case there already is a trailing number, we use this one right
+			// as a starting point.
+			auto parts = pInstrument->getType().split( ' ' );
+			bool bHasTrailingNumber = false;
+			int nTrailingNumber = parts.last().toInt( &bHasTrailingNumber, 10 );
+			if ( bHasTrailingNumber ) {
+				parts.removeLast();
+			} else {
+				// No trailing number in type string.
+				nTrailingNumber = 0;
+			}
+			QString sNewType = pInstrument->getType();
+
+			const int nMaxAttempts = 150;
+			int nnAttempt = 0;
+			while ( bTypeExists ) {
+				sNewType = parts.join( ' ' ).append( " " )
+					.append( QString::number( ++nTrailingNumber ) );
+				pDrumkitMap->getId( sNewType, &bTypeExists );
+
+				++nnAttempt;
+				if ( nnAttempt >= nMaxAttempts ) {
+					ERRORLOG( "Could not find unique instrument type in time" );
+					break;
+				}
+			}
+
+			INFOLOG( QString( "Instrument type [%1] is already present in kit. It will be replaced by [%2]" )
+					 .arg( pInstrument->getType() ).arg( sNewType ) );
+
+			pInstrument->setType( sNewType );
+		}
+	}
+
 	if ( nIndex > -1 && nIndex < m_pInstruments->size() ) {
 		m_pInstruments->insert( nIndex, pInstrument );
 	} else {
