@@ -305,8 +305,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 			}
 #endif
 		}
-		/** cares itself for acquiring the lock */
 		m_pAudioEngine->prepare();
+
+		if ( pCurrentSong->getDrumkit() != nullptr ) {
+			pCurrentSong->getDrumkit()->unloadSamples();
+		}
 	}
 
 	// In order to allow functions like audioEngine_setupLadspaFX() to
