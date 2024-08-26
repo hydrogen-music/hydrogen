@@ -537,19 +537,6 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 		return;
 	}
 
-	// In case a new instrument was added manually, there is no associated
-	// drumkit to load samples from.
-	std::shared_ptr<Drumkit> pInstrumentKit = nullptr;
-	if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
-		pInstrumentKit = Hydrogen::get_instance()->getSoundLibraryDatabase()
-			->getDrumkit( pInstrument->get_drumkit_path() );
-		if ( pInstrumentKit == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve kit [%1] associated with instrument." )
-					  .arg( pInstrument->get_drumkit_path() ) );
-			return;
-		}
-	}
-
 	// Check whether the instrument's id is valid and not present yet.
 	bool bIdValid = true;
 	if ( pInstrument->get_id() >= 0 ) {
