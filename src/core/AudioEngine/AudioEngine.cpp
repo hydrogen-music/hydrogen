@@ -21,7 +21,6 @@
  */
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
 
 #ifdef WIN32
 #    include "core/Timehelper.h"
@@ -30,44 +29,42 @@
 #    include <sys/time.h>
 #endif
 
+#include <limits>
 #include <sstream>
 
-#include <core/EventQueue.h>
-#include <core/FX/Effects.h>
+#include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Song.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/AutomationPath.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/InstrumentComponent.h>
-#include <core/Sampler/Sampler.h>
+#include <core/Basics/Song.h>
+#include <core/EventQueue.h>
+#include <core/FX/Effects.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Random.h>
-
+#include <core/Hydrogen.h>
+#include <core/IO/AlsaAudioDriver.h>
+#include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/AudioOutput.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/CoreMidiDriver.h>
+#include <core/IO/DiskWriterDriver.h>
+#include <core/IO/FakeDriver.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/JackMidiDriver.h>
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
-#include <core/IO/CoreMidiDriver.h>
+#include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
-#include <core/IO/FakeDriver.h>
-#include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/PortAudioDriver.h>
-#include <core/IO/DiskWriterDriver.h>
-#include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/JackMidiDriver.h>
 #include <core/IO/PortMidiDriver.h>
-#include <core/IO/CoreAudioDriver.h>
 #include <core/IO/PulseAudioDriver.h>
-
-#include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
-
-#include <limits>
+#include <core/Sampler/Sampler.h>
 
 #define AUDIO_ENGINE_DEBUG 0
 

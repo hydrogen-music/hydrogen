@@ -24,19 +24,17 @@
 #define AUDIO_ENGINE_H
 
 #include <core/AudioEngine/AudioEngineTests.h>
-
 #include <core/config.h>
-#include <core/Object.h>
-#include <core/Hydrogen.h>
-#include <core/Sampler/Sampler.h>
-#include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
-#include <core/Preferences/Preferences.h>
-
+#include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeDriver.h>
+#include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Sampler.h>
+
 
 #include <memory>
 #include <string>
@@ -64,11 +62,13 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 namespace H2Core
 {
-	class MidiOutput;
-	class MidiInput;
-	class EventQueue;
-	class PatternList;
 	class Drumkit;
+	class EventQueue;
+	class Instrument;
+	class MidiInput;
+	class MidiOutput;
+	class Note;
+	class PatternList;
 	class Song;
 	class TransportPosition;
 	
