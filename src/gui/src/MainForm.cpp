@@ -1624,7 +1624,9 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 			}
 			else {
 
-				if ( ! switchDrumkit( pDrumkit ) ) {
+				// Pass copy to allow kit in the SoundLibraryDatabase to stay in
+				// a pristine shape.
+				if ( ! switchDrumkit( std::shared_ptr<Drumkit>( pDrumkit ) ) ) {
 					ERRORLOG( QString( "Unable to switch to freshly imported kit [%1]" )
 							  .arg( sFileName ) );
 				}
@@ -2939,10 +2941,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::LoadNextDrumkit:
-				switchDrumkit( pSoundLibraryDataBase->getNextDrumkit() );
+				// Pass copy to not alter the original kit.
+				switchDrumkit( std::shared_ptr<Drumkit>(
+								   pSoundLibraryDataBase->getNextDrumkit() ) );
 				break;
 			case Shortcuts::Action::LoadPrevDrumkit:
-				switchDrumkit( pSoundLibraryDataBase->getPreviousDrumkit() );
+				// Pass copy to not alter the original kit.
+				switchDrumkit( std::shared_ptr<Drumkit>(
+								   pSoundLibraryDataBase->getPreviousDrumkit() ) );
 				break;
 
 				//////////////////////////////////////////////////////

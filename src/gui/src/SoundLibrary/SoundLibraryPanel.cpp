@@ -599,7 +599,9 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	MainForm::switchDrumkit( pDrumkit );
+	// Pass a copy of the kit since we do not want to alter the settings of the
+	// original one.
+	MainForm::switchDrumkit( std::shared_ptr<Drumkit>( pDrumkit ) );
 }
 
 void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
@@ -608,13 +610,6 @@ void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrum
 		ERRORLOG( "Invalid drumkit provided" );
 		return;
 	}
-
-	// Unload all samples in order to save memory. The `setDrumkit` function
-	// will take care of loading the new ones. In addition, in case any of the
-	// samples were delete between undo and redo, we do not get into trouble but
-	// just print some error messages during the attempt sample load.
-	pOldDrumkit->unloadSamples();
-	pNewDrumkit->unloadSamples();
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 

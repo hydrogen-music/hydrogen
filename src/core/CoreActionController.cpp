@@ -1105,8 +1105,8 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
 	return setDrumkit( pDrumkit );
 }
 
-bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
-	if ( pDrumkit == nullptr ) {
+bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
+	if ( pNewDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
@@ -1119,14 +1119,24 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+	auto pPreviousDrumkit = pSong->getDrumkit();
+	if ( pPreviousDrumkit == pNewDrumkit ) {
+		return true;
+	}
 
-	INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
-			.arg( pDrumkit->getName() ).arg( pDrumkit->getPath() ) );
+	if ( pPreviousDrumkit == nullptr ) {
+		INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
+				 .arg( pNewDrumkit->getName() ).arg( pNewDrumkit->getPath() ) );
+	} else {
+		INFOLOG( QString( "Switching drumkits [%1] -> [%2] located at [%3]" )
+				 .arg( pPreviousDrumkit->getName() )
+				 .arg( pNewDrumkit->getName() ).arg( pNewDrumkit->getPath() ) );
+	}
 
-	// Use a cloned version of the kit from e.g. the SoundLibrary in
-	// order to not overwrite the original when altering the properties
-	// of the current kit.
-	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	// Ensure instruments of the new kit aren't already in the death row.
+	for ( const auto& ppInstrument : *pNewDrumkit->getInstruments() ) {
+		pHydrogen->removeInstrumentFromDeathRow( ppInstrument );
+	}
 
 	// It would be more clean to lock the audio engine _before_ loading
 	// the samples. We might pass a tempo marker while loading and users
@@ -1138,23 +1148,27 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	pSong->setDrumkit( pNewDrumkit );
-
-	for ( auto& pPattern : *pSong->getPatternList() ) {
-		for ( auto& pNote : *pPattern->get_notes() ) {
-			pNote.second->mapTo( pNewDrumkit );
+	// Add all instruments of the previous drumkit to the death row. This way
+	// all notes in audio engine and sampler queue can be rendered till they are
+	// done. Unloading their samples will be done at a latter point.
+	if ( pPreviousDrumkit != nullptr ) {
+		for ( const auto& ppInstrument : *pPreviousDrumkit->getInstruments() ) {
+			pHydrogen->addInstrumentToDeathRow( ppInstrument );
 		}
 	}
 
-	pHydrogen->renameJackPorts( pSong );
+	pSong->setDrumkit( pNewDrumkit );
+	pSong->getPatternList()->mapTo( pNewDrumkit );
 
-	pAudioEngine->unlock();
+	pHydrogen->renameJackPorts( pSong );
 
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
 			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false );
 	}
+
+	pAudioEngine->unlock();
 
 	initExternalControlInterfaces();
 
@@ -1590,7 +1604,10 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 
 	pAudioEngine->lock( RIGHT_HERE );
 
+	// Ensure instrument isn't already in the death row.
+	pHydrogen->removeInstrumentFromDeathRow( pInstrument );
 	pInstrument->load_samples( pAudioEngine->getTransportPosition()->getBpm() );
+
 	pDrumkit->addInstrument( pInstrument, nIndex );
 	pHydrogen->renameJackPorts( pSong );
 	pSong->getPatternList()->mapTo( pDrumkit );
@@ -1687,6 +1704,8 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	pAudioEngine->lock( RIGHT_HERE );
 
 	if ( pNewInstrument != nullptr ) {
+		// Ensure instrument isn't already in the death row.
+		pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
 		pNewInstrument->load_samples( fBpm );
 	}
 
