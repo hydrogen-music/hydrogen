@@ -352,10 +352,10 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 	// version 1.0.0-beta till 1.2.X (within the <drumkit_pattern> element).
 	pPattern->setAuthor( root.read_string(
 							 "author", pPattern->getAuthor(),
-							 false, false, false ) );
+							 true, false, true ) );
 	const License license( root.read_string(
 							   "license", pPattern->getLicense().getLicenseString(),
-							   false, false, false ) );
+							   true, false, true ) );
 	pPattern->setLicense( license );
 
 	XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );

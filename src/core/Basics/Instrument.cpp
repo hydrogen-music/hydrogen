@@ -196,12 +196,12 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName = node.read_string( "drumkit", "", false,
-													 false, bSilent );
+													 true, bSilent );
 		
 		if ( ! node.firstChildElement( "drumkitPath" ).isNull() ) {
 			// Current format
 			sInstrumentDrumkitPath = node.read_string( "drumkitPath", "",
-														 false, false, bSilent  );
+														 false, true, bSilent  );
 
 			if ( ! sInstrumentDrumkitPath.isEmpty() ) {
 #ifdef H2CORE_HAVE_APPIMAGE

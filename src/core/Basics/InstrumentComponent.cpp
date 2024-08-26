@@ -107,13 +107,13 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 {
 	auto pInstrumentComponent = std::make_shared<InstrumentComponent>();
 	pInstrumentComponent->m_sName = node.read_string(
-		"name", pInstrumentComponent->m_sName, true, false, bSilent );
+		"name", pInstrumentComponent->m_sName, true, false, true );
 	pInstrumentComponent->m_fGain = node.read_float(
 		"gain", pInstrumentComponent->m_fGain, true, false, bSilent );
 	pInstrumentComponent->m_bIsMuted = node.read_bool(
-		"isMuted", pInstrumentComponent->m_bIsMuted, true, false, bSilent );
+		"isMuted", pInstrumentComponent->m_bIsMuted, true, false, true );
 	pInstrumentComponent->m_bIsSoloed = node.read_bool(
-		"isSoloed", pInstrumentComponent->m_bIsSoloed, true, false, bSilent );
+		"isSoloed", pInstrumentComponent->m_bIsSoloed, true, false, true );
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {

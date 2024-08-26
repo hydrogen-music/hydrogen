@@ -222,9 +222,9 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 	pLayer->set_pitch( node.read_float( "pitch", 0.0,
 										  true, false, bSilent ) );
 	pLayer->m_bIsMuted = node.read_bool(
-		"isMuted", pLayer->m_bIsMuted, true, false, bSilent );
+		"isMuted", pLayer->m_bIsMuted, true, false, true );
 	pLayer->m_bIsSoloed = node.read_bool(
-		"isSoloed", pLayer->m_bIsSoloed, true, false, bSilent );
+		"isSoloed", pLayer->m_bIsSoloed, true, false, true );
 	return pLayer;
 }
 

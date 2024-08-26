@@ -581,7 +581,7 @@ Note* Note::load_from( const XMLNode& node, bool bSilent )
 	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
 	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
 	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
-	note->setType( node.read_string( "type", "", true, false, bSilent ) );
+	note->setType( node.read_string( "type", "", true, true, bSilent ) );
 	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;

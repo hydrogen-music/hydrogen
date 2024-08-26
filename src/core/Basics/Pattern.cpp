@@ -147,7 +147,7 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 	pPattern->m_nVersion = node.read_int(
 		"userVersion", pPattern->m_nVersion, false, false, bSilent );
 	pPattern->m_sAuthor = node.read_string(
-		"author", pPattern->m_sAuthor, false, false, bSilent );
+		"author", pPattern->m_sAuthor, false, true, bSilent );
 	const License license( node.read_string(
 							   "license", pPattern->m_license.getLicenseString(),
 							   false, false, bSilent ) );

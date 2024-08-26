@@ -72,9 +72,9 @@ bool SoundLibraryInfo::load( const QString& sPath ) {
 	if ( ! rootNode.isNull() )
 	{
 		setType( "pattern" );
-		setAuthor( rootNode.read_string( "author", "undefined author", false, false ) );
-		setLicense( H2Core::License( rootNode.read_string( "license", "", false, false ) ) );
 
+		setAuthor( rootNode.read_string( "author", "undefined author", true, false, true ) );
+		setLicense( H2Core::License( rootNode.read_string( "license", "", true, false, true ) ) );
 		XMLNode patternNode = rootNode.firstChildElement( "pattern" );
 		// Try legacy format fist.
 		setName( patternNode.read_string( "pattern_name", "", true, true ) );
@@ -82,10 +82,18 @@ bool SoundLibraryInfo::load( const QString& sPath ) {
 			// Try current format.
 			setName( patternNode.read_string( "name", "", false, false ) );
 		}
+		if ( getAuthor() == "undefined author" ) {
+			// current format
+			setAuthor( patternNode.read_string( "author", "undefined author", true, false, true ) );
+		}
+		if ( getLicense().isEmpty() ) {
+			// current format
+			setLicense( H2Core::License( patternNode.read_string( "license", "", true, false, true ) ) );
+		}
 		setInfo( patternNode.read_string( "info", "No information available.", false, true, true ) );
 		setCategory( patternNode.read_string( "category", "", false, true ) );
 
-		QString sDrumkitName = rootNode.read_string( "drumkit_name", "", false, false );
+		QString sDrumkitName = rootNode.read_string( "drumkit_name", "", true, false, true );
 		if ( sDrumkitName.isEmpty() ) {
 			sDrumkitName = rootNode.read_string( "pattern_for_drumkit", "" );
 		}
