@@ -40,7 +40,7 @@
 <xsd:element name="note">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="position"	type="xsd:nonNegativeInteger"/>
+			<xsd:element name="position"	type="xsd:float"/>
 			<xsd:element name="leadlag"		type="xsd:float"/>
 			<xsd:element name="velocity"	type="h2:psfloat"/>
 			<xsd:choice minOccurs="0" maxOccurs="1">
