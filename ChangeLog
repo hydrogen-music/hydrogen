@@ -44,9 +44,13 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			it. All actions in the Main Menu > Drumkit only affect the song's kit. All
 			actions in the Sound Library do only affect the selected kit and not the one
 			of the current song (except loading).
-		- .h2song file format changed. (forward compatible only with v1.2.3 and newer).
-		- Drumkit format XSD changed. Adjustments done in the Sample Editor are now
-			stored in the kit as well (previously, this was only possible in songs).
+		- .h2song file format changed. (forward compatible only with v1.2.4 and newer).
+		- Drumkit format changed.
+				- Adjustments done in the Sample Editor are now stored in the kit as
+				  well (previously, this was only possible in songs).
+				- Drumkit components (`<componentList>`) were dropped.
+		- (Instrument) Components are now independent of each other and can be added
+			separately for each instrument.
 		- Notes in .h2pattern files as well as instruments in .h2drumkits do now have
 			a new property `type`.
 		- Prerelease version suffix (alpha, beta, rc..) are now appended to
@@ -84,6 +88,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
 			dropped. Instead, both will always be restored automatically. In order to
 			start with a blank song/playlist, load a new one before quitting.
+		- Component mixer strips have been dropped.
 
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.4
