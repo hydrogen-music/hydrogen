@@ -1149,6 +1149,10 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>Instrument hinzufügen</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1896,10 +1900,6 @@ Wert</translation>
 <context>
     <name>InstrumentLine</name>
     <message>
-        <source>Delete instrument</source>
-        <translation>Instrument löschen</translation>
-    </message>
-    <message>
         <source>Fill notes ...</source>
         <translation>Mit Noten füllen ...</translation>
     </message>
@@ -1992,10 +1992,6 @@ Wert</translation>
     <message>
         <source>Delete all notes on %1</source>
         <translation>Lösche alle Noten auf %1</translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
-        <translation>Instrument hinzufügen</translation>
     </message>
     <message>
         <source>imported from</source>

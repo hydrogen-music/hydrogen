@@ -1149,6 +1149,10 @@ Are you sure?</source>
         <source>Rename component</source>
         <translation>Renomear componente</translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>Adicionar instrumento</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1898,10 +1902,6 @@ Valor</translation>
 <context>
     <name>InstrumentLine</name>
     <message>
-        <source>Delete instrument</source>
-        <translation>Deletar instrumento</translation>
-    </message>
-    <message>
         <source>Fill notes ...</source>
         <translation>Preencher notas ...</translation>
     </message>
@@ -1994,10 +1994,6 @@ Valor</translation>
     <message>
         <source>Delete all notes on %1</source>
         <translation>Deletar todas as notas em %1</translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
-        <translation>Adicionar instrumento</translation>
     </message>
     <message>
         <source>imported from</source>

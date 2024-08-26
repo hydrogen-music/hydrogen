@@ -557,6 +557,10 @@ CommonStrings::CommonStrings(){
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
+	/** Representing adding a new instrument in the undo history as well as
+	 * names the action presenting when right-clicking the instrument list in
+	 * the pattern editor. */
+	m_sActionAddInstrument = tr( "Add instrument" );
 	/** Representing an instrument deletion in the undo history */
 	m_sActionDeleteInstrument = tr( "Delete instrument" );
 	/** Representing a drag&drop event for an instrument in the undo history */

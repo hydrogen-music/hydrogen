@@ -1146,6 +1146,10 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1939,10 +1943,6 @@ Value</source>
         <translation></translation>
     </message>
     <message>
-        <source>Delete instrument</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation></translation>
     </message>
@@ -1980,10 +1980,6 @@ Value</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
         <translation></translation>
     </message>
     <message>

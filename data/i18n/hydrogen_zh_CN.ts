@@ -1147,6 +1147,10 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>添加乐器</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1942,10 +1946,6 @@ Value</source>
         <translation>重命名乐器</translation>
     </message>
     <message>
-        <source>Delete instrument</source>
-        <translation>删除乐器</translation>
-    </message>
-    <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation>该乐器的一个或多个采样无法加载。这可能是因为乐曲文件使用了旧的默认鼓组。打开新的鼓组可能解决该问题。</translation>
     </message>
@@ -1984,10 +1984,6 @@ Value</source>
     <message>
         <source>Delete all notes on %1</source>
         <translation>删除 %1 的所有音符</translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
-        <translation>添加乐器</translation>
     </message>
     <message>
         <source>imported from</source>

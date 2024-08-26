@@ -1146,6 +1146,10 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1913,10 +1917,6 @@ Value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete instrument</source>
-        <translation>Izbriši instrument</translation>
-    </message>
-    <message>
         <source>Mute instrument</source>
         <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
         <translation type="unfinished"></translation>
@@ -1980,10 +1980,6 @@ Value</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

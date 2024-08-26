@@ -132,11 +132,12 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addAction( tr( "Delete notes" ), this, SLOT( functionDeleteNotesAllPatterns() ) );
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
-	m_pFunctionPopup->addAction( tr( "Add instrument" ),
+	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
 								 HydrogenApp::get_instance()->getMainForm(),
 								 SLOT( action_drumkit_addInstrument() ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
-	auto deleteAction = m_pFunctionPopup->addAction( tr( "Delete instrument" ) );
+	auto deleteAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
 	connect( deleteAction, &QAction::triggered, this, [=](){
 		HydrogenApp::get_instance()->getMainForm()->
 			functionDeleteInstrument( m_nInstrumentNumber );} );
@@ -872,6 +873,10 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 	auto pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	int nInstruments = pInstrumentList->size();
 	if ( nInstruments >= MAX_INSTRUMENTS ) {
@@ -939,15 +944,32 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			nTargetInstrument = pInstrumentList->size();
 		}
 
-		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-		
-		if ( sDrumkitPath.isEmpty() ) {
-			QMessageBox::critical( this, "Hydrogen", pCommonString->getInstrumentLoadError() );
+		// Load Instrument
+		const auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
+
+		const auto pNewDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
+		if ( pNewDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
+					  .arg( sDrumkitPath ).arg( sInstrumentName ) );
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonString->getInstrumentLoadError() );
+			return;
+		}
+		const auto pTargetInstrument = pNewDrumkit->getInstruments()->find( sInstrumentName );
+		if ( pTargetInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
+					  .arg( sInstrumentName ).arg( sDrumkitPath ) );
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonString->getInstrumentLoadError() );
 			return;
 		}
 
-		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitPath, sInstrumentName, nTargetInstrument );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		// We provide a copy of the instrument in order to not leak any changes
+		// into the original kit.
+		auto pAction = new SE_addInstrumentAction(
+			std::make_shared<Instrument>(pTargetInstrument), nTargetInstrument,
+			SE_addInstrumentAction::Type::DropInstrument );
+		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 		event->acceptProposedAction();
 	}

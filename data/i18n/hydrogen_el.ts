@@ -1146,6 +1146,10 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1923,10 +1927,6 @@ Value</source>
         <translation>Συμπλήρωμα 1/8 στιγμάτων</translation>
     </message>
     <message>
-        <source>Delete instrument</source>
-        <translation>Διαγραφή οργάνου</translation>
-    </message>
-    <message>
         <source>Rename instrument</source>
         <translation>Μετονομασία οργάνου</translation>
     </message>
@@ -1980,10 +1980,6 @@ Value</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

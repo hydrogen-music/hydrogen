@@ -1006,94 +1006,6 @@ private:
 	int __nTargetInstrument;
 };
 
-/** \ingroup docGUI*/
-class SE_dragInstrumentAction : public QUndoCommand
-{
-public:
-	SE_dragInstrumentAction( const QString& sDrumkitPath,
-							 const QString& sInstrumentName,
-							 int nTargetInstrument ){
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		setText( pCommonStrings->getActionDropInstrument() );
-		__sDrumkitPath = sDrumkitPath;
-		__sInstrumentName = sInstrumentName;
-		__nTargetInstrument = nTargetInstrument;
-	}
-
-	~SE_dragInstrumentAction() {}
-
-	virtual void undo()
-	{
-		//qDebug() << "drop Instrument Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument, false );
-	}
-
-	virtual void redo()
-	{
-		//qDebug() << "drop Instrument Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitPath, __sInstrumentName, __nTargetInstrument );
-	}
-
-private:
-	QString __sDrumkitPath;
-	QString __sInstrumentName;
-	int __nTargetInstrument;
-};
-
-
-/** \ingroup docGUI*/
-class SE_deleteInstrumentAction : public QUndoCommand
-{
-public:
-	SE_deleteInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
-							   int nIndex )
-		: m_pInstrument( pInstrument )
-		, m_nIndex( nIndex ) {
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		setText( QString( "%1 [%2]" )
-				 .arg( pCommonStrings->getActionDeleteInstrument() )
-				 .arg( pInstrument->get_name() ) );
-	}
-	~SE_deleteInstrumentAction(){}
-
-	virtual void undo() {
-		H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
-	}
-	virtual void redo() {
-		H2Core::CoreActionController::removeInstrument( m_pInstrument );
-	}
-	private:
-		std::shared_ptr<H2Core::Instrument> m_pInstrument;
-		int m_nIndex;
-};
-
-
-
-/** \ingroup docGUI*/
-class SE_mainMenuAddInstrumentAction : public QUndoCommand
-{
-public:
-	SE_mainMenuAddInstrumentAction(){
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		setText( pCommonStrings->getActionDropInstrument() );
-	}
-	virtual void undo()
-	{
-		//qDebug() << "drop Instrument Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionAddEmptyInstrumentUndo();
-	}
-	virtual void redo()
-	{
-		//qDebug() << "drop Instrument Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionAddEmptyInstrumentRedo();
-	}
-private:
-};
-
 // ~pattern editor commands
 
 class SE_switchDrumkitAction : public QUndoCommand {
@@ -1148,6 +1060,74 @@ class SE_switchDrumkitAction : public QUndoCommand {
 	private:
 		std::shared_ptr<H2Core::Drumkit> m_pNewDrumkit;
 		std::shared_ptr<H2Core::Drumkit> m_pOldDrumkit;
+};
+
+/** \ingroup docGUI*/
+class SE_addInstrumentAction : public QUndoCommand {
+	public:
+		enum class Type {
+			/** Create and add a new instrument */
+			AddEmptyInstrument = 0,
+			/** Add an instrument from another drumkit. */
+			DropInstrument = 1
+		};
+		SE_addInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
+								int nIndex, Type type )
+		: m_pInstrument( pInstrument )
+		, m_nIndex( nIndex ) {
+			const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+				switch ( type ) {
+			case Type::AddEmptyInstrument:
+				setText( pCommonStrings->getActionAddInstrument() );
+				break;
+			case Type::DropInstrument:
+				setText( QString( "%1 [%2]" )
+						 .arg( pCommonStrings->getActionDropInstrument() )
+						 .arg( pInstrument != nullptr ? pInstrument->get_name() :
+							   "nullptr" ) );
+				break;
+			default:
+				___ERRORLOG( QString( "Unknown type [%1]" )
+							 .arg( static_cast<int>(type) ) );
+			}
+		}
+
+		virtual void undo() {
+			H2Core::CoreActionController::removeInstrument( m_pInstrument );
+		}
+		virtual void redo() {
+			H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
+		}
+	private:
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
+		/** `-1` indicates that the instrument will be appended. */
+		int m_nIndex;
+};
+
+/** \ingroup docGUI*/
+class SE_deleteInstrumentAction : public QUndoCommand
+{
+public:
+	SE_deleteInstrumentAction( std::shared_ptr<H2Core::Instrument> pInstrument,
+							   int nIndex )
+		: m_pInstrument( pInstrument )
+		, m_nIndex( nIndex ) {
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		setText( QString( "%1 [%2]" )
+				 .arg( pCommonStrings->getActionDeleteInstrument() )
+				 .arg( pInstrument->get_name() ) );
+	}
+	~SE_deleteInstrumentAction(){}
+
+	virtual void undo() {
+		H2Core::CoreActionController::addInstrument( m_pInstrument, m_nIndex );
+	}
+	virtual void redo() {
+		H2Core::CoreActionController::removeInstrument( m_pInstrument );
+	}
+	private:
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
+		int m_nIndex;
 };
 
 /** Instruments are self-contained units within a #H2Core::Drumkit. Each

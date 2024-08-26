@@ -1324,7 +1324,9 @@ void MainForm::action_window_showAutomationArea()
 
 void MainForm::action_drumkit_addInstrument()
 {
-	SE_mainMenuAddInstrumentAction *pAction = new SE_mainMenuAddInstrumentAction();
+	auto pAction = new SE_addInstrumentAction(
+		std::make_shared<Instrument>(), -1,
+		SE_addInstrumentAction::Type::AddEmptyInstrument );
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
