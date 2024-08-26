@@ -1078,6 +1078,17 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	killInstruments();
 }
 
+void Hydrogen::removeInstrumentFromDeathRow( std::shared_ptr<Instrument> pInstr ) {
+	for ( auto it = m_instrumentDeathRow.begin();
+		  it != m_instrumentDeathRow.end(); ) {
+        if ( *it == pInstr ) {
+            it = m_instrumentDeathRow.erase( it );
+		} else {
+            ++it;
+		}
+    }
+}
+
 void Hydrogen::killInstruments() {
 	std::shared_ptr<Instrument> pInstr;
 

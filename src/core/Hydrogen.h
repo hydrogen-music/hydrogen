@@ -425,6 +425,12 @@ public:
 	 */
 	void addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr );
 
+		/** Since we are flushing the samples of the instruments in the death
+		 * row at a delayed point in time (like when stopping transport), we
+		 * have to take care not to get into trouble when switching
+		 * instrument/kits back and forth (like in undo/redo). */
+		void removeInstrumentFromDeathRow( std::shared_ptr<Instrument> pInstr );
+
 	/**
 	 * Processes the patterns added to any virtual ones in the
 	 * #PatternList of the current #Song and ensure both the playing
@@ -459,7 +465,7 @@ private:
 	 */
 	Hydrogen();
 
-	void killInstruments();
+		void killInstruments();
 
 	void			midiNoteOn( Note *note );
 
