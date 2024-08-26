@@ -174,6 +174,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * function of #m_pInstruments.
 		 */
 		void unloadSamples();
+		/** return true if the samples are loaded */
+		const bool areSamplesLoaded() const;
 
 	/**
 	 * Returns the base name used when exporting the drumkit.
@@ -266,8 +268,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void setImageLicense( const License& imageLicense );
 		/** #m_imageLicense accessor */
 		const License& getImageLicense() const;
-		/** return true if the samples are loaded */
-		const bool areSamplesLoaded() const;
 
 	/**
 	 * Returns vector of lists containing instrument name, component
@@ -326,7 +326,6 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QString m_sImage;				///< drumkit image filename
 		License m_imageLicense;			///< drumkit image license
 
-		bool m_bSamplesLoaded;			///< true if the instrument samples are loaded
 		std::shared_ptr<InstrumentList> m_pInstruments;  ///< the list of instruments
 
 
@@ -458,11 +457,6 @@ inline void Drumkit::setImageLicense( const License& imageLicense )
 inline const License& Drumkit::getImageLicense() const
 {
 	return m_imageLicense;
-}
-
-inline const bool Drumkit::areSamplesLoaded() const
-{
-	return m_bSamplesLoaded;
 }
 
 };

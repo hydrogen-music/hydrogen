@@ -64,7 +64,6 @@ Drumkit::Drumkit() : m_context( Context::User ),
 					 m_license( License() ),
 					 m_sImage( "" ),
 					 m_imageLicense( License() ),
-					 m_bSamplesLoaded( false ),
 					 m_pInstruments( std::make_shared<InstrumentList>() )
 {
 	QDir usrDrumkitPath( Filesystem::usr_drumkits_dir() );
@@ -81,8 +80,7 @@ Drumkit::Drumkit( std::shared_ptr<Drumkit> other ) :
 	m_sInfo( other->getInfo() ),
 	m_license( other->getLicense() ),
 	m_sImage( other->getImage() ),
-	m_imageLicense( other->getImageLicense() ),
-	m_bSamplesLoaded( other->areSamplesLoaded() )
+	m_imageLicense( other->getImageLicense() )
 {
 	m_pInstruments = std::make_shared<InstrumentList>( other->getInstruments() );
 }
@@ -286,15 +284,6 @@ void Drumkit::fixupTypes( bool bSilent ) {
 	}
 }
 
-void Drumkit::loadSamples( float fBpm )
-{
-	INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( m_sName ) );
-	if( !m_bSamplesLoaded ) {
-		m_pInstruments->load_samples( fBpm );
-		m_bSamplesLoaded = true;
-	}
-}
-
 void Drumkit::upgrade( bool bSilent ) {
 	if ( !bSilent ) {
 		INFOLOG( QString( "Upgrading drumkit [%1] in [%2]" )
@@ -311,12 +300,18 @@ void Drumkit::upgrade( bool bSilent ) {
 	save( "", bSilent);
 }
 
+void Drumkit::loadSamples( float fBpm ) {
+	INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( m_sName ) );
+	m_pInstruments->load_samples( fBpm );
+}
+
 void Drumkit::unloadSamples() {
-        INFOLOG( QString( "Unloading drumkit %1 instrument samples" ).arg( m_sName ) );
-	if( m_bSamplesLoaded ) {
-		m_pInstruments->unload_samples();
-		m_bSamplesLoaded = false;
-	}
+	INFOLOG( QString( "Unloading drumkit %1 instrument samples" ).arg( m_sName ) );
+	m_pInstruments->unload_samples();
+}
+
+const bool Drumkit::areSamplesLoaded() const {
+	return m_pInstruments->isAnyInstrumentSampleLoaded();
 }
 
 QString Drumkit::getExportName() const {
@@ -526,10 +521,8 @@ QString Drumkit::getAbsoluteImagePath() const {
 	}
 }
 
-void Drumkit::setInstruments( std::shared_ptr<InstrumentList> pInstruments )
-{
+void Drumkit::setInstruments( std::shared_ptr<InstrumentList> pInstruments ) {
 	m_pInstruments = pInstruments;
-	m_bSamplesLoaded = pInstruments->isAnyInstrumentSampleLoaded();
 }
 
 
@@ -1260,7 +1253,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString() ) )
 			.append( QString( "%1%2image: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sImage ) )
 			.append( QString( "%1%2imageLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_imageLicense.toQString() ) )
-			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bSamplesLoaded ) )
+			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pInstruments->isAnyInstrumentSampleLoaded() ) )
 			.append( QString( "%1" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) );
 		sOutput.append( QString( "%1%2]\n" ).arg( sPrefix ).arg( s ) );
 
@@ -1276,7 +1270,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", license: %1" ).arg( m_license.toQString() ) )
 			.append( QString( ", image: %1" ).arg( m_sImage ) )
 			.append( QString( ", imageLicense: %1" ).arg( m_imageLicense.toQString() ) )
-			.append( QString( ", samples_loaded: %1" ).arg( m_bSamplesLoaded ) )
+			.append( QString( ", samples_loaded: %1" )
+					 .arg( m_pInstruments->isAnyInstrumentSampleLoaded() ) )
 			.append( QString( ", [%1]" ).arg( m_pInstruments->toQString( sPrefix + s, bShort ) ) );
 		sOutput.append( "]\n" );
 	}
