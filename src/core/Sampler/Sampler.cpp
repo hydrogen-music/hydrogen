@@ -1359,7 +1359,6 @@ bool Sampler::renderNoteResample(
 	return bRetValue;
 }
 
-
 void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 {
 	if ( pInstr != nullptr ) { // stop all notes using this instrument
@@ -1387,7 +1386,16 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 	}
 }
 
-
+void Sampler::releasePlayingNotes( std::shared_ptr<Instrument> pInstr )
+{
+	for ( auto ppNote : m_playingNotesQueue ) {
+		if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
+			 ( pInstr == nullptr ||
+			 ( pInstr != nullptr && pInstr == ppNote->get_instrument() ) ) ) {
+			ppNote->get_adsr()->release();
+		}
+	}
+}
 
 /// Preview, uses only the first layer
 void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )

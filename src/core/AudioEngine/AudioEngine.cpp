@@ -1370,22 +1370,62 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	}
 }
 
-void AudioEngine::clearNoteQueues()
+void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 {
-	// delete all copied notes in the note queues
-	while ( !m_songNoteQueue.empty() ) {
-		auto pNote = m_songNoteQueue.top();
-		if ( pNote->get_instrument() != nullptr ) {
-			pNote->get_instrument()->dequeue( pNote );
+	// notes in the song queue. Attention: their instruments are enqueued.
+	if ( pInstrument == nullptr ) {
+		// delete all copied notes in the note queues
+		while ( !m_songNoteQueue.empty() ) {
+			auto pNote = m_songNoteQueue.top();
+			if ( pNote != nullptr ) {
+				if ( pNote->get_instrument() != nullptr ) {
+					pNote->get_instrument()->dequeue( pNote );
+				}
+				delete pNote;
+			}
+			m_songNoteQueue.pop();
 		}
-		delete pNote;
-		m_songNoteQueue.pop();
+	}
+	else {
+		// delete just notes of a particular instrument
+		//
+		// AFAICS we can not erase from m_songNoteQueue since it is a priority
+		// queue. Instead, we construct it anew.
+		std::vector<Note*> notes;
+		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
+			auto ppNote = m_songNoteQueue.top();
+			if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
+				 ppNote->get_instrument() == pInstrument ) {
+				if ( ppNote->get_instrument() != nullptr ) {
+					ppNote->get_instrument()->dequeue( ppNote );
+				}
+				if ( ppNote != nullptr ) {
+					delete ppNote;
+				}
+			}
+			else {
+				// We keep this one
+				notes.push_back( ppNote );
+			}
+		}
+		for ( auto& ppNote : notes ) {
+			m_songNoteQueue.push( ppNote );
+		}
+
 	}
 
-	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
-		delete m_midiNoteQueue[i];
+	// Notes of MIDI note queue (no instrument enqueued in here).
+	for ( auto it = m_midiNoteQueue.begin(); it != m_midiNoteQueue.end(); ) {
+		auto ppNote = *it;
+		if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
+			 ( pInstrument == nullptr ||
+			   ppNote->get_instrument() == pInstrument ) ) {
+			delete ppNote;
+			it = m_midiNoteQueue.erase( it );
+		} else {
+			++it;
+		}
 	}
-	m_midiNoteQueue.clear();
 }
 
 int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )

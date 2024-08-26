@@ -186,6 +186,12 @@ public:
 	void midiKeyboardNoteOff( int key );
 
 	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
+		/** Stop playing notes gracefully by making them enter their release
+		 * phase (ADSR).
+		 *
+		 * @param pInstr particular instrument for which notes will be release
+		 *   (`nullptr` to release them all) */
+		void releasePlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
 
 	int getPlayingNotesNumber() const {
 		return m_playingNotesQueue.size();

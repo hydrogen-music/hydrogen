@@ -461,6 +461,11 @@ public:
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	friend bool CoreActionController::activateSongMode( bool );
 	friend bool CoreActionController::activateLoopMode( bool );
+	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> );
+	friend bool CoreActionController::removeInstrument(
+		std::shared_ptr<Instrument> );
+	friend bool CoreActionController::replaceInstrument(
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 
@@ -496,7 +501,12 @@ private:
 	 */
 	double coarseGrainTick( double fTick );
 
-	void			clearNoteQueues();
+		/** Flush the incoming MIDI note queue and song note queue.
+		 *
+		 * @param pInstrument particular instrument for which notes will be
+		 *   removed (`nullptr` to release them all) */
+	void			clearNoteQueues(
+		std::shared_ptr<Instrument> pInstrument = nullptr );
 	/** Clear all audio buffers.
 	 */
 	void			clearAudioBuffers( uint32_t nFrames );

@@ -1157,6 +1157,12 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 		}
 	}
 
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues();
+	pAudioEngine->getSampler()->releasePlayingNotes();
+
 	pSong->setDrumkit( pNewDrumkit );
 	pSong->getPatternList()->mapTo( pNewDrumkit );
 
@@ -1659,6 +1665,12 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 	// important to unload the samples).
 	pHydrogen->addInstrumentToDeathRow( pInstrument );
 
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues( pInstrument );
+	pAudioEngine->getSampler()->releasePlayingNotes( pInstrument );
+
 	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 	if ( nSelectedInstrument == nInstrumentNumber ||
 		 nSelectedInstrument >= pDrumkit->getInstruments()->size() ) {
@@ -1720,6 +1732,12 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	// hold a shared pointer as part of an undo/redo action (that's why it is so
 	// important to unload the samples).
 	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
+
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues( pOldInstrument );
+	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
 
 	pDrumkit->addInstrument( pNewInstrument );
 	pSong->getPatternList()->mapTo( pDrumkit );
