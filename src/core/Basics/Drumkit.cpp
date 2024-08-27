@@ -945,6 +945,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	char buff[ nBufferSize ];
 	int nBytesRead, nRet;
 
+	bool bUseUtf8Encoding = true;
+	if ( NULL == setlocale( LC_ALL, "en_US.UTF-8" ) ) {
+		ERRORLOG( "No en_US.UTF-8 locale not available on this system" );
+		bUseUtf8Encoding = false;
+	}
+
 	a = archive_write_new();
 	if ( a == nullptr ) {
 		ERRORLOG( "Unable to create new archive" );
@@ -1012,10 +1018,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			set_name( sOldDrumkitName );
 			return false;
 		}
-		// IMPORTANT: for now do _not_ use archive_entry_set_pathname_utf8()!
-		// This leads to segfaults in some libarchive versions, like 3.7.2 and
-		// 3.6.2.
-		archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
+
+		if ( bUseUtf8Encoding ) {
+			archive_entry_set_pathname_utf8(entry, sTargetFilename.toUtf8().constData());
+		} else {
+			archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
+		}
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);
