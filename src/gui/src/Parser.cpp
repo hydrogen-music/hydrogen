@@ -38,10 +38,13 @@ Parser::~Parser() {
 }
 
 bool Parser::parse( int argc, char* argv[] ) {
-
-	QCoreApplication* pApp = new QCoreApplication( argc, argv );
-	pApp->setApplicationVersion(
-		QString::fromStdString( H2Core::get_version() ) );
+	QCoreApplication* pApp = nullptr;
+	if ( QCoreApplication::instance() == nullptr) {
+		pApp = new QCoreApplication( argc, argv );
+		pApp->setApplicationVersion(
+			QString::fromStdString( H2Core::get_version() ) );
+		assert( QCoreApplication::instance() == pApp );
+	}
 
 	QCommandLineParser parser;
 
@@ -132,7 +135,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 
 	// Evaluate the options
-	parser.process( *pApp );
+	parser.process( *( QCoreApplication::instance() ) );
 
 	m_sAudioDriver = parser.value( audioDriverOption );
 	m_sPlaylistFilename = parser.value( playlistFileNameOption );
@@ -193,7 +196,9 @@ bool Parser::parse( int argc, char* argv[] ) {
 		}
 	}
 
-	delete pApp;
+	if ( pApp != nullptr ) {
+		delete pApp;
+	}
 
 	return true;
 }

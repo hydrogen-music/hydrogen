@@ -214,6 +214,8 @@ int main(int argc, char *argv[])
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 		QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
+		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
+		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
 
 		Parser parser;
 		if ( ! parser.parse( argc, argv ) ) {
@@ -304,6 +306,7 @@ int main(int argc, char *argv[])
 				H2Core::Preferences::parseAudioDriver( parser.getAudioDriver() );
 		}
 
+		delete pBootStrApp;
 		H2QApplication* pQApp = new H2QApplication( argc, argv );
 		pQApp->setApplicationName( "Hydrogen" );
 		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
