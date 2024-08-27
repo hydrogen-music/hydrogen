@@ -33,9 +33,7 @@ class DrumkitExportTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( DrumkitExportTest );
 #ifdef H2CORE_HAVE_LIBARCHIVE
 		CPPUNIT_TEST( testDrumkitExportAndImport );
-		// Do not activate unless proper UTF-8 support is introduced via
-		// `libarchive`.
-		// CPPUNIT_TEST( testDrumkitExportAndImportUtf8 );
+		CPPUNIT_TEST( testDrumkitExportAndImportUtf8 );
 #endif
 	CPPUNIT_TEST_SUITE_END();
 

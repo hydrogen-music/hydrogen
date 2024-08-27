@@ -141,10 +141,6 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	}
 
 	// Load the kit and export it.
-	//
-	// This is not supposed to work yet. There is an issue with libarchive UTF8
-	// support that needs to be addressed upstream first. But if for some reason
-	// it miraculously starts to work, we want the test to inform us .
 	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmp_dir() ) );
 
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
