@@ -98,7 +98,7 @@ void XmlTest::testDrumkitFormatIntegrity() {
 
 	CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
-	H2TEST_ASSERT_XML_FILES_EQUAL(
+	H2TEST_ASSERT_DRUMKIT_FILES_EQUAL(
 		H2Core::Filesystem::drumkit_file( sTestFolder ), sTmpDrumkitXml );
 
 	// Cleanup
@@ -487,7 +487,7 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 		sDuplicateFolder, false, true );
 	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
 
-	H2TEST_ASSERT_XML_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
+	H2TEST_ASSERT_DRUMKIT_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
 								   sDuplicateFolder + "/drumkit.xml" );
 
 	const QString sTmpRef = H2Core::Filesystem::tmp_dir() + "ref-saved";
@@ -497,7 +497,7 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 	CPPUNIT_ASSERT( pDrumkitRef->save( sTmpRef ) );
 	CPPUNIT_ASSERT( pDrumkitDuplicates->save( sTmpDuplicate ) );
 
-	H2TEST_ASSERT_XML_FILES_EQUAL( sTmpRef + "/drumkit.xml",
+	H2TEST_ASSERT_DRUMKIT_FILES_EQUAL( sTmpRef + "/drumkit.xml",
 								   sTmpDuplicate + "/drumkit.xml" );
 	H2TEST_ASSERT_DIRS_EQUAL( sTmpRef, sTmpDuplicate );
 
@@ -546,7 +546,7 @@ void XmlTest::testShippedDrumkits()
 
 		CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
-		H2TEST_ASSERT_XML_FILES_EQUAL(
+		H2TEST_ASSERT_DRUMKIT_FILES_EQUAL(
 			H2Core::Filesystem::drumkit_file(
 				QString( "%1/%2" ).arg( H2Core::Filesystem::sys_drumkits_dir() )
 				.arg( ssKit ) ), sTmpDrumkitXml );

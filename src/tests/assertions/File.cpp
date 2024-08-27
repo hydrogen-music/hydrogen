@@ -122,7 +122,7 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 		if ( bEquality ) {
 			// Does not match. Let's compare it line by line to produce a more
 			// helpful assert message.
-			const QStringList expectedLines = sDocExpected.split( "\n" );
+			QStringList expectedLines = sDocExpected.split( "\n" );
 			QStringList actualLines = sDocActual.split( "\n" );
 
 			if ( fileType == FileType::Preferences ) {
@@ -154,6 +154,42 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 				for ( const auto& ssRemoveLine : linesToRemove ) {
 					CPPUNIT_ASSERT( actualLines.removeAll( ssRemoveLine ) == 1 );
 				}
+			}
+			else if ( fileType == FileType::Drumkit ) {
+#ifdef WIN32
+				// Drop all comment lines (Drumkit GPL license notice) as their
+				// line break mess up comparison within the AppVeyor Windows
+				// pipeline (but not locally which is why I use this more
+				// sluggish way of dealing with it).
+				QStringList actualLinesToRemove;
+				for ( const auto& ssLine : actualLines ) {
+					// Ignore both command lines and those which do not contain
+					// a valid XML element.
+					if ( ssLine.contains( "<!--" ) ||
+						 ssLine.contains( "-->" ) ||
+						 ! ( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
+							 ssLine.contains( "</" ) && ssLine.contains( ">" ) ) ) {
+						actualLinesToRemove << ssLine;
+					}
+				}
+				QStringList expectedLinesToRemove;
+				for ( const auto& ssLine : expectedLines ) {
+					// Ignore both command lines and those which do not contain
+					// a valid XML element.
+					if ( ssLine.contains( "<!--" ) ||
+						 ssLine.contains( "-->" ) ||
+						 ! ( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
+							 ssLine.contains( "</" ) && ssLine.contains( ">" ) ) ) {
+						expectedLinesToRemove << ssLine;
+					}
+				}
+				for ( const auto& ssRemoveLine : actualLinesToRemove ) {
+					actualLines.removeAll( ssRemoveLine );
+				}
+				for ( const auto& ssRemoveLine : expectedLinesToRemove ) {
+					expectedLines.removeAll( ssRemoveLine );
+				}
+#endif
 			}
 
 			const int nMaxLines =
@@ -268,7 +304,7 @@ void H2Test::checkFileArgs( const QString& sExpected, QFile& f1,
 	// We omit the test for file size on Windows since it can/does introduce
 	// additional carriage return and line feed symbols in <info> elements
 	// breaking the unit tests.
-	if ( f1.size() != f2.size() && bEquality && fileType == FileType::Xml ) {
+	if ( f1.size() != f2.size() && bEquality && fileType == FileType::Drumkit ) {
 		CppUnit::Message msg(
 			"File size differ",
 			std::string( "Expected: " ) + sExpected.toStdString(),
