@@ -586,6 +586,11 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 	
 #ifdef H2CORE_HAVE_LIBARCHIVE
 	int nRet;
+
+	if ( nullptr == setlocale( LC_ALL, "en_US.UTF-8" ) ) {
+		INFOLOG( "No en_US.UTF-8 locale not available on this system" );
+	}
+
 	struct archive* a;
 	struct archive_entry* entry;
 
