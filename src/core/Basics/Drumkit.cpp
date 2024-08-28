@@ -1057,7 +1057,6 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 		if ( sNewPath.isEmpty() ) {
 			sNewPath = QString( archive_entry_pathname( entry ) );
 		}
-		sNewPath.prepend( sDrumkitDir );
 
 		if ( sNewPath.contains( Filesystem::drumkit_xml() ) ) {
 			QFileInfo newPathInfo( sNewPath );
@@ -1066,19 +1065,20 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 
 		if ( ! bUseUtf8Encoding ) {
 			// In case `libarchive` is not able to support UTF-8 on the system,
-			// we remove all characters outside of the Latin-1 range. Else they
-			// will be represented by wacky characters and the calling routine
-			// would have no idea where the resulting kit did end up.
+			// we remove (a lot of) characters. Else they will be represented by
+			// wacky ones and the calling routine would have no idea where the
+			// resulting kit did end up.
 			const auto sNewPathTrimmed = Filesystem::removeUtf8Characters( sNewPath );
 			if ( sNewPathTrimmed != sNewPath ) {
+				ERRORLOG( QString( "Encoding error (no UTF-8 available)! File was renamed [%1] -> [%2]" )
+						  .arg( sNewPath ).arg( sNewPathTrimmed ) );
 				if ( pEncodingIssuesDetected != nullptr ) {
-					ERRORLOG( QString( "Encoding error (no UTF-8 available)! File was renamed [%1] -> [%2]" )
-							  .arg( sNewPath ).arg( sNewPathTrimmed ) );
 					*pEncodingIssuesDetected = true;
 				}
 				sNewPath = sNewPathTrimmed;
 			}
 		}
+		sNewPath.prepend( sDrumkitDir );
 
 		if ( pInstalledPath != nullptr &&
 			 sNewPath.contains( Filesystem::drumkit_xml() ) ) {

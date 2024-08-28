@@ -206,7 +206,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   kit was installed to. In most cases this will coincide with a
 		 *   folder within @a sTargetPath named like the kit itself. But in case
 		 *   the system does not support UTF-8 encoding and @a sTargetPath
-		 *   contains non-Latin1 characters, those might be omitted and the
+		 *   contains characters other than those whitelisted in
+		 *   #Filesystem::removeUtf8Characters, those might be omitted and the
 		 *   directory and files created using `libarchive` might differ.
 		 * \param pEncodingIssuesDetected will be set to `true` in case at least
 		 *   one filepath of extracted kit had to be altered in order to not run
