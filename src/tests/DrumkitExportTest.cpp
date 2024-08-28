@@ -129,14 +129,14 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit( sTestKitPath ) );
+	QString sInstalledPath;
+	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+						sTestKitPath, "", &sInstalledPath ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit =
-		Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 );
-	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
+	const auto pDrumkit = pDB->getDrumkit( sInstalledPath );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameUtf8 );
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
@@ -146,7 +146,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	// Load the kit and export it.
 	bool bUtf8SupportOnSystem;
 	const auto bDrumkitExportSuccessful = pDrumkit->exportTo(
-		Filesystem::tmp_dir(), "", true, &bUtf8SupportOnSystem );
+		Filesystem::tmp_dir(), -1, true, &bUtf8SupportOnSystem );
 	if ( ! bUtf8SupportOnSystem ) {
 		___WARNINGLOG( "UTF-8 support couldn't be enforced. Unit test not applicable." )
 		___INFOLOG( "skipped" );
@@ -165,11 +165,11 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
-	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
+	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sInstalledPath );
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
-	H2Core::Filesystem::rm( sExportPath, false, true );
+	H2Core::Filesystem::rm( sInstalledPath, true, true );
 
 	___INFOLOG( "passed" );
 }

@@ -1435,6 +1435,11 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	// since this function is intended to be used for validating or
 	// upgrading drumkits via CLI or OSC command. It should always
 	// refer to the latest copy found on disk.
+	if ( bIsCompressed == nullptr || sTemporaryFolder == nullptr ||
+		 sDrumkitDir == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return nullptr;
+	}
 
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";
@@ -1488,7 +1493,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 		// Providing the path to a compressed .h2drumkit file. It will
 		// be extracted to a temporary folder and loaded from there.
-		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), nullptr, true ) ) {
+		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), sDrumkitDir,
+								 nullptr, true ) ) {
 			ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 					  .arg( sDrumkitPath ).arg( tmpDir.path() ) );
 			return nullptr;
@@ -1516,8 +1522,6 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 			return nullptr;
 		}
 
-		*sDrumkitDir = tmpDir.path() + "/" + extractedFolders[0];
-		
 		pDrumkit = Drumkit::load( *sDrumkitDir, false, true );
 		
 	} else {
@@ -1529,9 +1533,16 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	return pDrumkit;
 }
 
-bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir ) {
+bool CoreActionController::extractDrumkit( const QString& sDrumkitPath,
+										   const QString& sTargetDir,
+										   QString* pInstalledPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
+
+	// Ensure variables are always set/initialized.
+	if ( pInstalledPath != nullptr ) {
+		*pInstalledPath = "";
+	}
 
 	QString sTarget;
 	bool bInstall = false;
@@ -1559,7 +1570,8 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 		return false;
 	}
 
-	if ( ! Drumkit::install( sDrumkitPath, sTarget, nullptr, true ) ) {
+	if ( ! Drumkit::install( sDrumkitPath, sTarget, pInstalledPath, nullptr,
+							 true ) ) {
 		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 				  .arg( sDrumkitPath ).arg( sTarget ) );
 		return false;

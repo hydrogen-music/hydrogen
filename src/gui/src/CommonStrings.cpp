@@ -494,7 +494,12 @@ CommonStrings::CommonStrings(){
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
 	m_sExportDrumkitFailure = tr( "Unable to export drumkit" );
+	/*: Shown in a dialog on successful drumkit import. The path imported kit
+	 *  will be appended to the translated string.*/
+	m_sImportDrumkitSuccess = tr( "Drumkit imported in" );
 	m_sImportDrumkitFailure = tr( "Unable to import drumkit" );
+	m_sImportDrumkitEncodingFailure =
+		tr( "\nBut there were encoding issues.\n\nPlease set your system's locale to UTF-8!" );
 	m_sPlaylistSaveFailure = tr( "Unable to save playlist" );
 	/*: Shown e.g. as suffix in a window title in case an underlying file was
 	 *  modified */
