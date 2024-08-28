@@ -144,7 +144,16 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	}
 
 	// Load the kit and export it.
-	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmp_dir() ) );
+	bool bUtf8SupportOnSystem;
+	const auto bDrumkitExportSuccessful = pDrumkit->exportTo(
+		Filesystem::tmp_dir(), "", true, &bUtf8SupportOnSystem );
+	if ( ! bUtf8SupportOnSystem ) {
+		___WARNINGLOG( "UTF-8 support couldn't be enforced. Unit test not applicable." )
+		___INFOLOG( "skipped" );
+		return;
+	}
+
+	CPPUNIT_ASSERT( bDrumkitExportSuccessful );
 
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
 	// just exported.

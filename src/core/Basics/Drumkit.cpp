@@ -1150,7 +1150,11 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 }
 
 bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
-						bool bRecentVersion, bool bSilent ) {
+						bool bRecentVersion, bool* bUtf8Encoded, bool bSilent ) {
+	if ( bUtf8Encoded != nullptr ) {
+		// Ensure the variable is always set/initialized.
+		*bUtf8Encoded = false;
+	}
 
 	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
@@ -1316,6 +1320,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 				 .arg( ARCHIVE_VERSION_STRING ) );
 	}
 
+	bool bUseUtf8Encoding = true;
+	if ( nullptr == setlocale( LC_ALL, "en_US.UTF-8" ) ) {
+		ERRORLOG( "No en_US.UTF-8 locale not available on this system" );
+		bUseUtf8Encoding = false;
+	}
+
 	struct archive *a;
 	struct archive_entry *entry;
 	struct stat st;
@@ -1323,10 +1333,9 @@ bool Drumkit::exportTo( const QString& sTargetDir, int nComponentId,
 	char buff[ nBufferSize ];
 	int nBytesRead, nRet;
 
-	bool bUseUtf8Encoding = true;
-	if ( NULL == setlocale( LC_ALL, "en_US.UTF-8" ) ) {
-		ERRORLOG( "No en_US.UTF-8 locale not available on this system" );
-		bUseUtf8Encoding = false;
+	// Write it back for the calling routine.
+	if ( bUtf8Encoded != nullptr ) {
+		*bUtf8Encoded = bUseUtf8Encoding;
 	}
 
 	a = archive_write_new();

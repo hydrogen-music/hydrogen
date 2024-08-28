@@ -1277,7 +1277,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 			sExportPath = sourceFileInfo.dir().absolutePath();
 		}
 		
-		if ( ! pDrumkit->exportTo( sExportPath, -1, true, false ) ) {
+		if ( ! pDrumkit->exportTo( sExportPath, -1, true, nullptr, false ) ) {
 			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
 					  .arg( sExportPath ) );
 			return false;
