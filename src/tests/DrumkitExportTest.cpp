@@ -127,8 +127,10 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 
 	// Import test kit into Hydrogen.
 	QString sInstalledPath;
+	bool bEncodingIssuesDetected;
 	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
-						sTestKitPath, "", &sInstalledPath ) );
+						sTestKitPath, "", &sInstalledPath,
+						&bEncodingIssuesDetected ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
@@ -136,8 +138,13 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	const auto pDrumkit = pDB->getDrumkit( sInstalledPath, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->get_name() == m_sTestKitNameUtf8 );
-	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
-		CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+	if ( ! bEncodingIssuesDetected ) {
+		// This can cause file names of sample files to extracted from the tar
+		// ball to get altered. But as we do not touch the drumkit definition
+		// itself, they will be considered a missing sample.
+		for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
+			CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+		}
 	}
 
 	// Load the kit and export it.
