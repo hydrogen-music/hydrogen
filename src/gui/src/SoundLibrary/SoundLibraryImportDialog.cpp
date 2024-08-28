@@ -722,7 +722,11 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 	QString sError = tr( "An error occurred importing the SoundLibrary."  );
 	
 	try {
-		if ( ! H2Core::Drumkit::install( SoundLibraryPathTxt->text() ) ) {
+		QString sImportedPath;
+		bool bEncodingIssues;
+		if ( ! H2Core::Drumkit::install(
+				 SoundLibraryPathTxt->text(), "", &sImportedPath,
+				 &bEncodingIssues, false ) ) {
 			QApplication::restoreOverrideCursor();
 			
 			// Check whether encoding might be the problem in here.
@@ -741,12 +745,22 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 					 
 			return;
 		}
+
 		// update the drumkit list
 		H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase()->update();
 		QApplication::restoreOverrideCursor();
-		QMessageBox::information( this, "Hydrogen",
-								  QString( tr( "SoundLibrary imported in %1" )
-										   .arg( H2Core::Filesystem::usr_data_path() )  ) );
+		if ( ! bEncodingIssues ) {
+			QMessageBox::information( this, "Hydrogen",
+									  QString( tr( "SoundLibrary imported in %1" )
+											   .arg( sImportedPath ) ) );
+		}
+		else {
+			QMessageBox::warning(
+				this, "Hydrogen",
+				QString( tr( "SoundLibrary imported in %1" )
+						 .arg( sImportedPath ) )
+				.append( tr( "\nBut there were encoding issues.\n\nPlease set your system's locale to UTF-8!" ) ) );
+		}
 	}
 	catch( H2Core::H2Exception ex ) {
 		QApplication::restoreOverrideCursor();

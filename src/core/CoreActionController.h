@@ -314,23 +314,30 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   definition or also all previous versions should be checked.
 	 */
 	bool validateDrumkit( const QString& sDrumkitPath, bool bCheckLegacyVersions = false );
-	/**
-	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
-	 * @a sTargetDir.
-	 *
-	 * The function does not automatically load the extracted kit into
-	 * the current Hydrogen session in case a custom @a sTargetDir was
-	 * supplied. To do so, the name of the folder contained in the
-	 * tarball is required (might differ from the name of the tarball)
-	 * and it is not easily obtained.
-	 *
-	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit
-	 * extension
-	 * \param sTargetDir Folder to extract the drumkit to. If the
-	 * folder is not present yet, it will be created. If left empty,
-	 * the drumkit will be installed to the users drumkit data folder.
-	 */
-	bool extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir = "" );
+		/**
+		 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into @a
+		 * sTargetDir.
+		 *
+		 * The function does not automatically load the extracted kit into the
+		 * current Hydrogen session in case a custom @a sTargetDir was supplied.
+		 * To do so, the name of the folder contained in the tarball is required
+		 * (might differ from the name of the tarball) and it is not easily
+		 * obtained.
+		 *
+		 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit extension
+		 * \param sTargetDir Folder to extract the drumkit to. If the folder is
+		 *   not present yet, it will be created. If left empty, the drumkit
+		 *   will be installed to the users drumkit data folder.
+		 * \param pInstalledPath Will contain the actual name of the folder the
+		 *   kit was installed to. In most cases this will coincide with a
+		 *   folder within @a sTargetPath named like the kit itself. But in case
+		 *   the system does not support UTF-8 encoding and @a sTargetPath
+		 *   contains non-Latin1 characters, those might be omitted and the
+		 *   directory and files created using `libarchive` might differ.
+		 */
+		bool extractDrumkit( const QString& sDrumkitPath,
+							 const QString& sTargetDir = "",
+							 QString* pInstalledPath = nullptr );
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 

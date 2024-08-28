@@ -1140,6 +1140,17 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 	return sDrumkitPath;
 #endif
 }
+
+QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
+	QString sCleaned;
+	for ( const auto& cchar : sEncodedString ) {
+		if ( cchar.toLatin1() != 0 ) {
+			sCleaned.append( cchar );
+		}
+	}
+
+	return sCleaned;
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

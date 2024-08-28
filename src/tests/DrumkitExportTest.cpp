@@ -126,14 +126,14 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sTestKitPath ) );
+	QString sInstalledPath;
+	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
+						sTestKitPath, "", &sInstalledPath ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit =
-		Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 );
-	const auto pDrumkit = pDB->getDrumkit( sExtractedKit, true );
+	const auto pDrumkit = pDB->getDrumkit( sInstalledPath, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->get_name() == m_sTestKitNameUtf8 );
 	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
@@ -162,10 +162,11 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
-	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
+	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sInstalledPath );
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
+	H2Core::Filesystem::rm( sInstalledPath, true, true );
 
 	___INFOLOG( "passed" );
 }
