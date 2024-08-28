@@ -153,25 +153,29 @@ class Drumkit : public H2Core::Object<Drumkit>
 	/**
 	 * Compresses the drumkit into a .h2drumkit file.
 	 *
-	 * The name of the created file will be a concatenation of #__name
-	 * and Filesystem::drumkit_ext.
+	 * The name of the created file will be a concatenation of #__name and
+	 * Filesystem::drumkit_ext.
 	 *
-	 * exportTo() ? well, export is a protected name within C++. So,
-	 * we needed a less obvious name. 
+	 * exportTo() ? well, export is a protected name within C++. So, we needed a
+	 * less obvious name.
 	 *
-	 * \param sTargetDir Folder which will contain the resulting
-	 * .h2drumkit file.
-	 * \param sComponentName Name of a particular component used in
-	 * case just a single component should be exported.
-	 * \param bRecentVersion Whether the drumkit format should be
-	 * supported by Hydrogen 0.9.7 or higher (whether it should be
-	 * composed of DrumkitComponents).
-	 * \param bSilent Whether debug and info messages should be
-	 * logged.
+	 * \param sTargetDir Folder which will contain the resulting .h2drumkit
+	 *   file.
+	 * \param sComponentName Name of a particular component used in case just a
+	 *   single component should be exported.
+	 * \param bRecentVersion Whether the drumkit format should be supported by
+	 *   Hydrogen 0.9.7 or higher (whether it should be composed of
+	 *   DrumkitComponents).
+	 * \param bUtf8Encoded will be set to true in case we were able to enforce
+	 *   'UTF-8' as system locale in `libarchive`. If this didn't work, export
+	 *   will be done using classic Latin1 encoded filenames.
+	 * \param bSilent Whether debug and info messages should be logged.
 	 *
 	 * \return true on success 
 	 */
-	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
+	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "",
+				   bool bRecentVersion = true, bool* bUtf8Encoded = nullptr,
+				   bool bSilent = false );
 		/**
 		 * remove a drumkit from the disk
 		 *
