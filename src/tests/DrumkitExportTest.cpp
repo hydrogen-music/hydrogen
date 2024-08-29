@@ -45,8 +45,12 @@ void DrumkitExportTest::setUp() {
 
 	// We do not check return value as the folder should not exist in the first
 	// place.
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	}
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	}
 
 	Hydrogen::get_instance()->getCoreActionController()->openSong(
 		H2TEST_FILE( "functional/test.h2song" ) );
@@ -54,8 +58,12 @@ void DrumkitExportTest::setUp() {
 
 void DrumkitExportTest::tearDown() {
 	// Remove the test kit from the system.
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	}
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	}
 
 	// Discard all changes to the test song.
 	Hydrogen::get_instance()->getCoreActionController()->openSong(
