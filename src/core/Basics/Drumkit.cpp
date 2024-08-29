@@ -1068,9 +1068,13 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			return false;
 		}
 
+#if defined(WIN32) and ARCHIVE_VERSION_NUMBER >= 3005000
 		if ( bUseUtf8Encoding ) {
 			archive_entry_set_pathname_utf8(entry, sTargetFilename.toUtf8().constData());
 		} else {
+#else
+		{
+#endif
 			archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
 		}
 		archive_entry_set_size(entry, st.st_size);
