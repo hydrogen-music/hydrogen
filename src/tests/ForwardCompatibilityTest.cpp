@@ -161,10 +161,35 @@ void ForwardCompatibilityTest::testPlaylist()
 {
 	___INFOLOG( "" );
 
-	auto pPlaylistLoaded = H2Core::Playlist::load_file(
-		H2TEST_FILE( "forwardCompatibility/future.h2playlist" ), false );
-	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
-	CPPUNIT_ASSERT( pPlaylistLoaded->size() == 2 );
+	// Playlist upgrades are done automatically. Check whether this does happen
+	// (we do not want it since the user might just try a former version and
+	// jumps right back to the more recent one).
+	const QString sPath = H2TEST_FILE( "forwardCompatibility/future.h2playlist" );
+	const QString sTmp = H2Core::Filesystem::tmp_dir() + "future.h2playlist";
+	H2Core::Filesystem::file_copy( sPath, sTmp, true, false );
+
+	H2Core::XMLDoc docExpected, docActual;
+	CPPUNIT_ASSERT( docExpected.read( sPath ) );
+	const QString sDocExpected = docExpected.toString();
+
+	auto pPlaylist = H2Core::Playlist::load_file( sPath, false );
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
+
+	CPPUNIT_ASSERT( docActual.read( sPath ) );
+	const QString sDocActual = docActual.toString();
+
+	if ( sDocActual != sDocExpected ) {
+		___ERRORLOG( QString( "Playlist file updated!\nPre : [%1]\nPost: [%2]" )
+					 .arg( sDocExpected ).arg( sDocActual ) );
+		H2Core::Filesystem::file_copy( sTmp, sPath, true, false );
+		CPPUNIT_ASSERT( sDocActual == sDocExpected );
+	}
+
+	CPPUNIT_ASSERT( pPlaylist->size() == 2 );
+
+	delete pPlaylist;
+
+	H2Core::Filesystem::rm( sTmp );
 
 	___INFOLOG( "passed" );
 }

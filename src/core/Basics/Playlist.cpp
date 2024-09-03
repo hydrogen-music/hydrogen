@@ -90,7 +90,7 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 	// Check whether the file was created using a newer version of Hydrogen.
 	auto formatVersionNode = node->firstChildElement( "formatVersion" );
 	if ( ! formatVersionNode.isNull() ) {
-		WARNINGLOG( QString( "PLyalist file [%1] was created with a more recent version of Hydrogen than the current one!" )
+		WARNINGLOG( QString( "Playlist file [%1] was created with a more recent version of Hydrogen than the current one!" )
 					.arg( fileInfo.absoluteFilePath() ) );
 	}
 
