@@ -87,12 +87,6 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 
 Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelativePaths )
 {
-	QString filename = node->read_string( "name", "", false, false );
-	if ( filename.isEmpty() ) {
-		ERRORLOG( "Playlist has no name, abort" );
-		return nullptr;
-	}
-
 	// Check whether the file was created using a newer version of Hydrogen.
 	auto formatVersionNode = node->firstChildElement( "formatVersion" );
 	if ( ! formatVersionNode.isNull() ) {
