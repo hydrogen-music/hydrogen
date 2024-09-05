@@ -45,8 +45,12 @@ void DrumkitExportTest::setUp() {
 
 	// We do not check return value as the folder should not exist in the first
 	// place.
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	}
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	}
 
 	Hydrogen::get_instance()->getCoreActionController()->openSong(
 		H2TEST_FILE( "functional/test.h2song" ) );
@@ -54,8 +58,12 @@ void DrumkitExportTest::setUp() {
 
 void DrumkitExportTest::tearDown() {
 	// Remove the test kit from the system.
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	}
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ) ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	}
 
 	// Discard all changes to the test song.
 	Hydrogen::get_instance()->getCoreActionController()->openSong(
@@ -126,26 +134,38 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sTestKitPath ) );
+	QString sInstalledPath;
+	bool bEncodingIssuesDetected;
+	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
+						sTestKitPath, "", &sInstalledPath,
+						&bEncodingIssuesDetected ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit =
-		Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 );
-	const auto pDrumkit = pDB->getDrumkit( sExtractedKit, true );
+	const auto pDrumkit = pDB->getDrumkit( sInstalledPath, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->get_name() == m_sTestKitNameUtf8 );
-	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
-		CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+	if ( ! bEncodingIssuesDetected ) {
+		// This can cause file names of sample files to extracted from the tar
+		// ball to get altered. But as we do not touch the drumkit definition
+		// itself, they will be considered a missing sample.
+		for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
+			CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+		}
 	}
 
 	// Load the kit and export it.
-	//
-	// This is not supposed to work yet. There is an issue with libarchive UTF8
-	// support that needs to be addressed upstream first. But if for some reason
-	// it miraculously starts to work, we want the test to inform us .
-	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmp_dir() ) );
+	bool bUtf8SupportOnSystem;
+	const auto bDrumkitExportSuccessful = pDrumkit->exportTo(
+		Filesystem::tmp_dir(), "", true, &bUtf8SupportOnSystem );
+	if ( ! bUtf8SupportOnSystem ) {
+		___WARNINGLOG( "UTF-8 support couldn't be enforced. Unit test not applicable." )
+		___INFOLOG( "skipped" );
+		return;
+	}
+
+	CPPUNIT_ASSERT( bDrumkitExportSuccessful );
 
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
 	// just exported.
@@ -157,10 +177,11 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	CPPUNIT_ASSERT( pCoreActionController->extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
-	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
+	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sInstalledPath );
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
+	H2Core::Filesystem::rm( sInstalledPath, true, true );
 
 	___INFOLOG( "passed" );
 }

@@ -1152,7 +1152,7 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 			sExportPath = sourceFileInfo.dir().absolutePath();
 		}
 		
-		if ( ! pDrumkit->exportTo( sExportPath, "", true, false ) ) {
+		if ( ! pDrumkit->exportTo( sExportPath, "", true, nullptr, false ) ) {
 			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
 					  .arg( sExportPath ) );
 			return false;
@@ -1259,6 +1259,11 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	// function is intended to be used for validating or upgrading
 	// drumkits via CLI or OSC command. It should always refer to the
 	// latest copy found on disk.
+	if ( bIsCompressed == nullptr || sTemporaryFolder == nullptr ||
+		 sDrumkitDir == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return nullptr;
+	}
 
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";
@@ -1298,8 +1303,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 		
 		// Temporary folder used to extract a compressed drumkit (
 		// .h2drumkit ).
-		QString sTemplateName( Filesystem::tmp_dir() + "/" +
-							   sourceFileInfo.baseName() + "_XXXXXX" );
+		QString sTemplateName( Filesystem::tmp_dir() + "/XXXXXX" );
 		QTemporaryDir tmpDir( sTemplateName );
 		tmpDir.setAutoRemove( false );
 		if ( ! tmpDir.isValid() ) {
@@ -1312,7 +1316,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 		// Providing the path to a compressed .h2drumkit file. It will
 		// be extracted to a temporary folder and loaded from there.
-		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), true ) ) {
+		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), sDrumkitDir,
+								 nullptr, true ) ) {
 			ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 					  .arg( sDrumkitPath ).arg( tmpDir.path() ) );
 			return nullptr;
@@ -1340,8 +1345,6 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 			return nullptr;
 		}
 
-		*sDrumkitDir = tmpDir.path() + "/" + extractedFolders[0];
-		
 		pDrumkit = Drumkit::load( *sDrumkitDir, false, true );
 		
 	} else {
@@ -1353,7 +1356,17 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	return pDrumkit;
 }
 
-bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir ) {
+bool CoreActionController::extractDrumkit( const QString& sDrumkitPath,
+										   const QString& sTargetDir,
+										   QString* pInstalledPath,
+										   bool* pEncodingIssuesDetected ) {
+	// Ensure variables are always set/initialized.
+	if ( pInstalledPath != nullptr ) {
+		*pInstalledPath = "";
+	}
+	if ( pEncodingIssuesDetected != nullptr ) {
+		*pEncodingIssuesDetected = false;
+	}
 
 	QString sTarget;
 	bool bInstall = false;
@@ -1381,7 +1394,8 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 		return false;
 	}
 
-	if ( ! Drumkit::install( sDrumkitPath, sTarget, true ) ) {
+	if ( ! Drumkit::install( sDrumkitPath, sTarget, pInstalledPath,
+							 pEncodingIssuesDetected, true ) ) {
 		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 				  .arg( sDrumkitPath ).arg( sTarget ) );
 		return false;

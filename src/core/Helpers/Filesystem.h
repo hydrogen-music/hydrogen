@@ -494,6 +494,10 @@ namespace H2Core
 		 */
 		static QString rerouteDrumkitPath( const QString& sDrumkitPath );
 
+			/** Removes all characters not within the Latin-1 range of @a
+			 * sEncodedString. */
+			static QString removeUtf8Characters( const QString& sEncodedString );
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
