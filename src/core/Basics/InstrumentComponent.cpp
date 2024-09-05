@@ -93,11 +93,12 @@ int InstrumentComponent::getMaxLayers()
 
 std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* pNode, const QString& sDrumkitPath, const License& drumkitLicense, bool bSilent )
 {
+	// Component IDs are essential. But in InstrumentComponents created in
+	// version >= v2.0 they are not present anymore. Instead, we just fallback
+	// to the default value and replace them at a later point of the loading
+	// process.
 	int nId = pNode->read_int( "component_id", EMPTY_INSTR_ID,
-							  false, false, bSilent );
-	if ( nId == EMPTY_INSTR_ID ) {
-		return nullptr;
-	}
+							   true, false, true );
 
 	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( nId );
 	pInstrumentComponent->set_gain( pNode->read_float( "gain", 1.0f,

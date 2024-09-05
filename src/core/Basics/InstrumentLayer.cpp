@@ -196,6 +196,10 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 			pSample->set_pan_envelope( panEnvelope );
 		}
 	}
+	else {
+		WARNINGLOG( QString( "Sample file [%1] does not exist" )
+					.arg( sAbsoluteFilename ) );
+	}
 	
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 	pLayer->set_start_velocity( pNode->read_float( "min", 0.0,

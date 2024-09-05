@@ -26,17 +26,23 @@
 #include <memory>
 #include <vector>
 
+#include <QString>
+
 namespace H2Core {
 
+class Drumkit;
 class DrumkitComponent;
 class XMLNode;
 
-/** Ensures compatibility with the song format introduced in Hydrogen v1.3.0.
+/** Ensures compatibility with XML files created with Hydrogen version >= v2.0.
  *
  * This code is meant only for the 1.2.X release branch! */
 class Future : public H2Core::Object<Future> {
 		H2_OBJECT(Future)
 public:
+		static std::shared_ptr<H2Core::Drumkit> loadDrumkit(
+			XMLNode& node, const QString& sDrumkitPath,
+			bool bSilent = false );
 	static std::vector<std::shared_ptr<DrumkitComponent>> loadDrumkitComponentsFromKit(
 		XMLNode* pNode );
 };

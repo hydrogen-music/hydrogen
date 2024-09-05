@@ -44,7 +44,8 @@
 #include "TestHelper.h"
 #include "assertions/File.h"
 
-static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded )
+static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk,
+								bool loaded, int nInstruments )
 {
 	int count = 0;
 	H2Core::InstrumentComponent::setMaxLayers( 16 );
@@ -53,10 +54,12 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 		count++;
 		auto pInstr = ( *instruments )[i];
 		for ( const auto& pComponent : *pInstr->get_components() ) {
+			CPPUNIT_ASSERT( pComponent != nullptr );
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				auto pLayer = pComponent->get_layer( nLayer );
 				if( pLayer ) {
 					auto pSample = pLayer->get_sample();
+					CPPUNIT_ASSERT( pSample != nullptr );
 					if( loaded ) {
 						if( pSample->get_data_l()==nullptr || pSample->get_data_r()==nullptr ) {
 							return false;
@@ -71,7 +74,8 @@ static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded
 			}
 		}
 	}
-	return ( count==4 );
+
+	return ( count == nInstruments );
 }
 
 
@@ -82,21 +86,20 @@ void ForwardCompatibilityTest::testDrumkits()
 
 	// (Almost) empty kit.
 	auto pDrumkitLoaded = H2Core::Drumkit::load(
-		H2TEST_FILE( "forwardCompatibility/drumkits/format-integrity-future" ) );
+		H2TEST_FILE( "forwardCompatibility/drumkits/future" ) );
 	CPPUNIT_ASSERT( pDrumkitLoaded != nullptr );
 	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded() == false );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
+	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false, 4 ) );
 	CPPUNIT_ASSERT_EQUAL( 4, pDrumkitLoaded->get_instruments()->size() );
 	CPPUNIT_ASSERT( 2 == pDrumkitLoaded->get_components()->size() );
 
 	// Check if drumkit was valid (what we assume in this test)
 	CPPUNIT_ASSERT( TestHelper::get_instance()->findDrumkitBackupFiles(
-						"forwardCompatibility/drumkits/format/" ).size() == 0 );
+						"forwardCompatibility/drumkits/future/" ).size() == 0 );
 	
 	// manually load samples
 	pDrumkitLoaded->load_samples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
 
 	// load with samples
 	pDrumkitLoaded = H2Core::Drumkit::load(
@@ -105,12 +108,12 @@ void ForwardCompatibilityTest::testDrumkits()
 
 	pDrumkitLoaded->load_samples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
+	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true, 18 ) );
 	
 	// unload samples
 	pDrumkitLoaded->unload_samples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==false );
-	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
+	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false, 18 ) );
 	
 	___INFOLOG( "passed" );
 }
@@ -120,7 +123,7 @@ void ForwardCompatibilityTest::testPattern()
 	___INFOLOG( "" );
 
 	auto pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "forwardCompatibility/drumkits/format-integrity-future" ) );
+		H2TEST_FILE( "forwardCompatibility/drumkits/future" ) );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->get_instruments() );
 

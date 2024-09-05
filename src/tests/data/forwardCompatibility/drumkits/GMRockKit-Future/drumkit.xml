@@ -65,7 +65,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Kick-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
@@ -84,7 +84,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Kick-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.202899</min>
      <max>0.369565</max>
      <gain>1</gain>
@@ -103,7 +103,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Kick-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.369565</min>
      <max>0.731884</max>
      <gain>1</gain>
@@ -122,7 +122,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Kick-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.731884</min>
      <max>0.865942</max>
      <gain>1</gain>
@@ -141,7 +141,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Kick-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.865942</min>
      <max>1</max>
      <gain>1</gain>
@@ -199,7 +199,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SideStick-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.188406</max>
      <gain>1</gain>
@@ -218,7 +218,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SideStick-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.188406</min>
      <max>0.402174</max>
      <gain>1</gain>
@@ -237,7 +237,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SideStick-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.402174</min>
      <max>0.597826</max>
      <gain>1</gain>
@@ -256,7 +256,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SideStick-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.597826</min>
      <max>0.782609</max>
      <gain>1</gain>
@@ -275,7 +275,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SideStick-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
@@ -333,7 +333,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Snare-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
@@ -352,7 +352,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Snare-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.202899</min>
      <max>0.376812</max>
      <gain>1</gain>
@@ -371,7 +371,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Snare-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.376812</min>
      <max>0.568841</max>
      <gain>1</gain>
@@ -390,7 +390,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Snare-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.568841</min>
      <max>0.782609</max>
      <gain>1</gain>
@@ -409,7 +409,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Snare-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
@@ -467,7 +467,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HandClap.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
@@ -525,7 +525,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SnareRimshot-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.188406</max>
      <gain>1</gain>
@@ -544,7 +544,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SnareRimshot-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.188406</min>
      <max>0.380435</max>
      <gain>1</gain>
@@ -563,7 +563,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SnareRimshot-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.380435</min>
      <max>0.594203</max>
      <gain>1</gain>
@@ -582,7 +582,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SnareRimshot-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.594203</min>
      <max>0.728261</max>
      <gain>1</gain>
@@ -601,7 +601,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/SnareRimshot-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.728261</min>
      <max>1</max>
      <gain>1</gain>
@@ -659,7 +659,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/TomFloor-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.199275</max>
      <gain>1</gain>
@@ -678,7 +678,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/TomFloor-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.199275</min>
      <max>0.394928</max>
      <gain>1</gain>
@@ -697,7 +697,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/TomFloor-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.394928</min>
      <max>0.608696</max>
      <gain>1</gain>
@@ -716,7 +716,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/TomFloor-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.608696</min>
      <max>0.786232</max>
      <gain>1</gain>
@@ -735,7 +735,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/TomFloor-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.786232</min>
      <max>1</max>
      <gain>1</gain>
@@ -793,7 +793,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatClosed-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.173913</max>
      <gain>1</gain>
@@ -812,7 +812,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatClosed-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.173913</min>
      <max>0.373188</max>
      <gain>1</gain>
@@ -831,7 +831,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatClosed-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.373188</min>
      <max>0.576087</max>
      <gain>1</gain>
@@ -850,7 +850,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatClosed-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.576087</min>
      <max>0.786232</max>
      <gain>1</gain>
@@ -869,7 +869,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatClosed-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.786232</min>
      <max>1</max>
      <gain>1</gain>
@@ -927,7 +927,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom2-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.177536</max>
      <gain>1</gain>
@@ -946,7 +946,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom2-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.177536</min>
      <max>0.373188</max>
      <gain>1</gain>
@@ -965,7 +965,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom2-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.373188</min>
      <max>0.576087</max>
      <gain>1</gain>
@@ -984,7 +984,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom2-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.576087</min>
      <max>0.782609</max>
      <gain>1</gain>
@@ -1003,7 +1003,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom2-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
@@ -1061,7 +1061,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatPedal-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.210145</max>
      <gain>1</gain>
@@ -1080,7 +1080,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatPedal-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.210145</min>
      <max>0.384058</max>
      <gain>1</gain>
@@ -1099,7 +1099,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatPedal-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.384058</min>
      <max>0.594203</max>
      <gain>1</gain>
@@ -1118,7 +1118,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatPedal-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.594203</min>
      <max>0.797101</max>
      <gain>1</gain>
@@ -1137,7 +1137,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatPedal-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.797101</min>
      <max>1</max>
      <gain>1</gain>
@@ -1195,7 +1195,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom1-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
@@ -1214,7 +1214,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom1-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.202899</min>
      <max>0.394928</max>
      <gain>1</gain>
@@ -1233,7 +1233,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom1-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.394928</min>
      <max>0.605072</max>
      <gain>1</gain>
@@ -1252,7 +1252,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom1-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.605072</min>
      <max>0.786232</max>
      <gain>1</gain>
@@ -1271,7 +1271,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Tom1-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.786232</min>
      <max>1</max>
      <gain>1</gain>
@@ -1329,7 +1329,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatOpen-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
@@ -1348,7 +1348,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatOpen-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.202899</min>
      <max>0.398551</max>
      <gain>1</gain>
@@ -1367,7 +1367,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatOpen-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.398551</min>
      <max>0.605072</max>
      <gain>1</gain>
@@ -1386,7 +1386,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatOpen-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.605072</min>
      <max>0.797101</max>
      <gain>1</gain>
@@ -1405,7 +1405,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/HatOpen-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.797101</min>
      <max>1</max>
      <gain>1</gain>
@@ -1463,7 +1463,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Cowbell-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.184783</max>
      <gain>1</gain>
@@ -1482,7 +1482,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Cowbell-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.184783</min>
      <max>0.384058</max>
      <gain>1</gain>
@@ -1501,7 +1501,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Cowbell-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.384058</min>
      <max>0.576087</max>
      <gain>1</gain>
@@ -1520,7 +1520,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>../../../../../data/drumkits/GMRockKit/Cowbell-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.576087</min>
      <max>0.782609</max>
      <gain>1</gain>
@@ -1539,7 +1539,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Cowbell-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
@@ -1597,7 +1597,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>Ride-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.195652</max>
      <gain>1</gain>
@@ -1616,7 +1616,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Ride-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.195652</min>
      <max>0.376812</max>
      <gain>1</gain>
@@ -1635,7 +1635,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Ride-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.376812</min>
      <max>0.572464</max>
      <gain>1</gain>
@@ -1654,7 +1654,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Ride-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.572464</min>
      <max>0.782609</max>
      <gain>1</gain>
@@ -1673,7 +1673,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Ride-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
@@ -1731,7 +1731,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>Crash-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.199275</max>
      <gain>1</gain>
@@ -1750,7 +1750,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Crash-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.199275</min>
      <max>0.384058</max>
      <gain>1</gain>
@@ -1769,7 +1769,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Crash-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.384058</min>
      <max>0.59058</max>
      <gain>1</gain>
@@ -1788,7 +1788,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Crash-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.59058</min>
      <max>0.789855</max>
      <gain>1</gain>
@@ -1807,7 +1807,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Crash-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.789855</min>
      <max>1</max>
      <gain>1</gain>
@@ -1865,7 +1865,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>24Ride-5.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.8</min>
      <max>1</max>
      <gain>1</gain>
@@ -1884,7 +1884,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>24Ride-4.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.6</min>
      <max>0.8</max>
      <gain>1</gain>
@@ -1903,7 +1903,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>24Ride-3.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.4</min>
      <max>0.6</max>
      <gain>1</gain>
@@ -1922,7 +1922,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>24Ride-2.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.2</min>
      <max>0.4</max>
      <gain>1</gain>
@@ -1941,7 +1941,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>24Ride-1.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.2</max>
      <gain>1</gain>
@@ -1999,7 +1999,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>Splash-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.195652</max>
      <gain>1</gain>
@@ -2018,7 +2018,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Splash-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.195652</min>
      <max>0.362319</max>
      <gain>1</gain>
@@ -2037,7 +2037,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Splash-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.362319</min>
      <max>0.568841</max>
      <gain>1</gain>
@@ -2056,7 +2056,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Splash-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.568841</min>
      <max>0.75</max>
      <gain>1</gain>
@@ -2075,7 +2075,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Splash-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.75</min>
      <max>1</max>
      <gain>1</gain>
@@ -2133,7 +2133,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>HatSemiOpen-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.188406</max>
      <gain>1</gain>
@@ -2152,7 +2152,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>HatSemiOpen-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.188406</min>
      <max>0.380435</max>
      <gain>1</gain>
@@ -2171,7 +2171,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>HatSemiOpen-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.380435</min>
      <max>0.57971</max>
      <gain>1</gain>
@@ -2190,7 +2190,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>HatSemiOpen-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.57971</min>
      <max>0.782609</max>
      <gain>1</gain>
@@ -2209,7 +2209,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>HatSemiOpen-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
@@ -2267,7 +2267,7 @@ p, li { white-space: pre-wrap; }
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
     <layer>
-     <filename>Bell-Softest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
      <max>0.210145</max>
      <gain>1</gain>
@@ -2286,7 +2286,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Bell-Soft.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.210145</min>
      <max>0.405797</max>
      <gain>1</gain>
@@ -2305,7 +2305,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Bell-Med.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.405797</min>
      <max>0.605072</max>
      <gain>1</gain>
@@ -2324,7 +2324,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Bell-Hard.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.605072</min>
      <max>0.786232</max>
      <gain>1</gain>
@@ -2343,7 +2343,7 @@ p, li { white-space: pre-wrap; }
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>Bell-Hardest.wav</filename>
+     <filename>emptySample.flac</filename>
      <min>0.786232</min>
      <max>1</max>
      <gain>1</gain>

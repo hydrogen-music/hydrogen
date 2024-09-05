@@ -32,8 +32,15 @@
 <xsd:element name="instrumentComponent">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="component_id"	type="xsd:integer"/>
+			<xsd:element name="component_id"	type="xsd:integer"
+						 minOccurs="0"	maxOccurs="1"/>
+			<xsd:element name="name"				type="xsd:string"
+						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="gain"			type="xsd:float"/>
+			<xsd:element name="isMuted"				type="h2:bool"
+						 minOccurs="0"	maxOccurs="1"/>
+			<xsd:element name="isSoloed"			type="h2:bool"
+						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:sequence>
 				<xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
@@ -81,6 +88,10 @@
 			<xsd:element name="max"				type="xsd:float"/>
 			<xsd:element name="gain"			type="xsd:float"/>
 			<xsd:element name="pitch"			type="xsd:float"/>
+			<xsd:element name="isMuted"				type="h2:bool"
+						 minOccurs="0"	maxOccurs="1"/>
+			<xsd:element name="isSoloed"			type="h2:bool"
+						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="ismodified"		type="h2:bool" minOccurs="0"/>
 			<xsd:element name="smode"			type="xsd:string" minOccurs="0"/>
 			<xsd:element name="startframe"		type="xsd:nonNegativeInteger" minOccurs="0"/>
@@ -107,6 +118,8 @@
 		<xsd:sequence>
 			<xsd:element name="id"					type="xsd:integer"/>
 			<xsd:element name="name"				type="xsd:string"/>
+			<xsd:element name="type"				type="xsd:string"
+						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="drumkitPath"			type="xsd:string" minOccurs="0"/>
 			<xsd:element name="drumkit"				type="xsd:string" minOccurs="0"/>
 			<xsd:element name="volume"				type="xsd:decimal"/>
@@ -153,13 +166,18 @@
 <xsd:element name="drumkit_info">
 	<xsd:complexType>
 		<xsd:sequence>
+			<xsd:element name="formatVersion" type="xsd:nonNegativeInteger"
+						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="name"			type="xsd:string"/>
+			<xsd:element name="userVersion" type="xsd:nonNegativeInteger"
+						 minOccurs="0"	maxOccurs="1"/>
 			<xsd:element name="author"			type="xsd:string"/>
 			<xsd:element name="info"			type="xsd:string"/>
 			<xsd:element name="license"			type="xsd:string"/>
 			<xsd:element name="image"			type="xsd:string"/>
 			<xsd:element name="imageLicense"	type="xsd:string"/>
-			<xsd:element name="componentList">
+			<xsd:element name="componentList"
+						 minOccurs="0"	maxOccurs="1">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element ref="h2:drumkitComponent" maxOccurs="1000"/>
