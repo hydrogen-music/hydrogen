@@ -41,7 +41,14 @@ std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit( XMLNode& node,
 
 	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 
-	pDrumkit->set_path( sDrumkitPath );
+	if ( sDrumkitPath.isEmpty() ) {
+		const QString sPath = node.read_string( "drumkitPath", "", false, false,
+												bSilent );
+		pDrumkit->set_path( sPath );
+	}
+	else {
+		pDrumkit->set_path( sDrumkitPath );
+	}
 	pDrumkit->set_name( sDrumkitName );
 	pDrumkit->set_author( node.read_string( "author", "undefined author",
 											true, true, true ) );

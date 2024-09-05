@@ -193,6 +193,31 @@ p, li { white-space: pre-wrap; }
       <rubberPitch>1</rubberPitch>
      </layer>
     </instrumentComponent>
+    <instrumentComponent>
+     <name>Second</name>
+     <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>../../../../data/drumkits/GMRockKit/Kick-Softest.wav</filename>
+      <min>0</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
    </instrument>
    <instrument>
     <id>20</id>

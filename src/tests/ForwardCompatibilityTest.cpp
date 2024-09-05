@@ -143,19 +143,14 @@ void ForwardCompatibilityTest::testSong()
 {
 	___INFOLOG( "" );
 
-	auto pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "forwardCompatibility/drumkits/format-integrity-future" ) );
-	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	CPPUNIT_ASSERT( pDrumkit->get_instruments() );
-
 	auto pSong = H2Core::Song::load(
 		H2TEST_FILE( "forwardCompatibility/future.h2song" ) );
 
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( pSong->getInstrumentList() != nullptr );
-	CPPUNIT_ASSERT( pSong->getInstrumentList()->size() != 21 );
+	CPPUNIT_ASSERT( pSong->getInstrumentList()->size() == 21 );
 	CPPUNIT_ASSERT( pSong->getComponents() != nullptr );
-	CPPUNIT_ASSERT( pSong->getComponents()->size() != 2 );
+	CPPUNIT_ASSERT( pSong->getComponents()->size() == 2 );
 	CPPUNIT_ASSERT( pSong->getAllNotes().size() != 0 );
 	___INFOLOG( "passed" );
 }
