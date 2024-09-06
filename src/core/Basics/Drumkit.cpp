@@ -44,8 +44,9 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 
-#include <core/Helpers/Xml.h>
+#include <core/Helpers/Future.h>
 #include <core/Helpers/Legacy.h>
+#include <core/Helpers/Xml.h>
 
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -99,9 +100,9 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
 	
-	bool bReadingSuccessful = true;
-	
 	XMLDoc doc;
+
+	bool bReadingSuccessful = true;
 	if ( !doc.read( sDrumkitFile, Filesystem::drumkit_xsd_path(), true ) ) {
 		// Drumkit does not comply with the XSD schema
 		// definition. It's probably an old one. load_from() will try
@@ -118,10 +119,25 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		return nullptr;
 	}
 
-	auto pDrumkit =
-		Drumkit::load_from( &root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
-							bSilent );
-	
+	std::shared_ptr<Drumkit> pDrumkit = nullptr;
+
+	const QString sDrumkitDir =
+		sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) );
+
+	// Check whether the file was created using a newer version of Hydrogen.
+	auto formatVersionNode = root.firstChildElement( "formatVersion" );
+	if ( ! formatVersionNode.isNull() ) {
+		WARNINGLOG( QString( "Drumkit [%1] was created with a more recent version of Hydrogen than the current one!" )
+					.arg( sDrumkitPath ) );
+		// Even in case the future version is invalid with respect to the XSD
+		// file, the most recent version of the format will be the most
+		// successful one.
+		pDrumkit = Future::loadDrumkit( root, sDrumkitDir, bSilent );
+	}
+	else {
+		pDrumkit = Drumkit::load_from( &root, sDrumkitDir, bSilent );
+	}
+
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
@@ -466,7 +482,9 @@ bool Drumkit::save_samples( const QString& sDrumkitFolder, bool bSilent ) const
 	for ( int i = 0; i < pInstrList->size(); i++ ) {
 		auto pInstrument = ( *pInstrList )[i];
 		for ( const auto& pComponent : *pInstrument->get_components() ) {
-
+			if ( pComponent == nullptr ) {
+				continue;
+			}
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				auto pLayer = pComponent->get_layer( n );
 				if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
@@ -509,6 +527,126 @@ bool Drumkit::save_image( const QString& sDrumkitDir, bool bSilent ) const
 		}
 	}
 	return true;
+}
+
+std::shared_ptr<DrumkitComponent> Drumkit::getComponent( int nID ) const
+{
+	for ( const auto& pComponent : *__components ) {
+		if ( pComponent->get_id() == nID ) {
+			return pComponent;
+		}
+	}
+
+	return nullptr;
+}
+
+int Drumkit::findUnusedComponentId() const {
+	int nNewId = __components->size();
+	for ( int ii = 0; ii < __components->size(); ++ii ) {
+		bool bIsPresent = false;
+		for ( const auto& ppComp : *__components ) {
+			if ( ppComp != nullptr && ppComp->get_id() == ii ) {
+				bIsPresent = true;
+				break;
+			}
+		}
+
+		if ( ! bIsPresent ){
+			nNewId = ii;
+			break;
+		}
+	}
+
+	return nNewId;
+}
+
+void Drumkit::addComponent( std::shared_ptr<DrumkitComponent> pComponent ) {
+	// Sanity check
+	if ( pComponent == nullptr ) {
+		ERRORLOG( "Invalid component" );
+		return;
+	}
+
+	for ( const auto& ppComponent : *__components ) {
+		if ( ppComponent == pComponent ) {
+			ERRORLOG( "Component is already present" );
+			return;
+		}
+	}
+
+	__components->push_back( pComponent );
+
+	for ( auto& ppInstrument : *__instruments ) {
+		ppInstrument->get_components()->push_back(
+			std::make_shared<InstrumentComponent>(pComponent->get_id()) );
+	}
+}
+
+void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "invalid instrument" );
+		return;
+	}
+
+	// Ensure instrument components are contained in the Drumkit (compared by
+	// name). If not, add them.
+	for ( const auto& ppInstrumentComponent : *pInstrument->get_components() ) {
+		if ( ppInstrumentComponent == nullptr ) {
+			continue;
+		}
+
+		const int nComponentId = ppInstrumentComponent->get_drumkit_componentID();
+		if ( getComponent( nComponentId ) == nullptr ) {
+			ERRORLOG( QString( "No component of id [%1] found! Creating a new one" )
+					  .arg( nComponentId ) );
+
+			addComponent( std::make_shared<DrumkitComponent>(
+							  nComponentId, QString::number( nComponentId ) ) );
+		}
+	}
+
+	// Add components of this drumkit not already present in the instrument.
+	for ( const auto& ppThisKitsComponent : *__components ) {
+		if ( ppThisKitsComponent != nullptr ) {
+			bool bIsPresent = false;
+			for ( const auto& ppInstrumentCompnent : *pInstrument->get_components() ) {
+				if ( ppInstrumentCompnent != nullptr &&
+					 ppInstrumentCompnent->get_drumkit_componentID() ==
+					 ppThisKitsComponent->get_id() ) {
+					bIsPresent = true;
+					break;
+				}
+			}
+
+			if ( ! bIsPresent ){
+				auto pNewInstrCompo = std::make_shared<InstrumentComponent>(
+					ppThisKitsComponent->get_id() );
+				pInstrument->get_components()->push_back( pNewInstrCompo );
+			}
+		}
+	}
+
+	// create a new valid ID for this instrument
+	int nNewId = __instruments->size();
+	for ( int ii = 0; ii < __instruments->size(); ++ii ) {
+		bool bIsPresent = false;
+		for ( const auto& ppInstrument : *__instruments ) {
+			if ( ppInstrument != nullptr &&
+				 ppInstrument->get_id() == ii ) {
+				bIsPresent = true;
+				break;
+			}
+		}
+
+		if ( ! bIsPresent ) {
+			nNewId = ii;
+			break;
+		}
+	}
+
+	pInstrument->set_id( nNewId );
+
+	__instruments->add( pInstrument );
 }
 
 void Drumkit::set_instruments( std::shared_ptr<InstrumentList> instruments )

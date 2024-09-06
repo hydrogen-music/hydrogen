@@ -1,5 +1,6 @@
 /*
  * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2024 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
@@ -19,34 +20,28 @@
  *
  */
 
-#ifndef H2C_FUTURE_H
-#define H2C_FUTURE_H
+#ifndef FORWARD_COMPATIBILITY_TEST_H
+#define FORWARD_COMPATIBILITY_TEST_H
 
-#include <core/Object.h>
-#include <memory>
-#include <vector>
+#include <cppunit/extensions/HelperMacros.h>
 
-#include <QString>
+class ForwardCompatibilityTest : public CppUnit::TestCase {
+	CPPUNIT_TEST_SUITE(ForwardCompatibilityTest);
+	CPPUNIT_TEST(testDrumkits);
+	CPPUNIT_TEST(testPattern);
+	CPPUNIT_TEST(testPlaylist);
+	CPPUNIT_TEST(testSong);
+	CPPUNIT_TEST_SUITE_END();
 
-namespace H2Core {
-
-class Drumkit;
-class DrumkitComponent;
-class XMLNode;
-
-/** Ensures compatibility with XML files created with Hydrogen version >= v2.0.
- *
- * This code is meant only for the 1.2.X release branch! */
-class Future : public H2Core::Object<Future> {
-		H2_OBJECT(Future)
-public:
-		static std::shared_ptr<H2Core::Drumkit> loadDrumkit(
-			XMLNode& node, const QString& sDrumkitPath,
-			bool bSilent = false );
-	static std::vector<std::shared_ptr<DrumkitComponent>> loadDrumkitComponentsFromKit(
-		XMLNode* pNode );
+	public:
+		// Removes all .bak backup files from the test data folder.
+		void tearDown();
+		void testDrumkits();
+		void testPattern();
+		void testPlaylist();
+		void testSong();
+	
 };
 
-};
 
-#endif  // H2C_FUTURE_H
+#endif

@@ -372,12 +372,26 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 	}
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
-	XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info" );
-	if ( ! drumkitNode.isNull() ) {
-		// Starting with Hydrogen 1.3.0 a proper drumkit will be stored as part
-		// of a song.
-		auto pDrumkitComponents = Future::loadDrumkitComponentsFromKit( &drumkitNode );
-		pSong->m_pComponents = std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>(pDrumkitComponents);
+	auto formatVersionNode = pRootNode->firstChildElement( "formatVersion" );
+	if ( ! formatVersionNode.isNull() ) {
+		WARNINGLOG( QString( "Song [%1] was created with a more recent version of Hydrogen than the current one!" )
+					.arg( sFilename ) );
+		XMLNode drumkitNode = pRootNode->firstChildElement( "drumkit_info" );
+		const auto pDrumkit = Future::loadDrumkit( drumkitNode, "", bSilent );
+		if ( pDrumkit != nullptr ) {
+			pSong->setInstrumentList( pDrumkit->get_instruments() );
+			pSong->getInstrumentList()->load_samples( fBpm );
+			pSong->m_pComponents = pDrumkit->get_components();
+		}
+		else {
+			ERRORLOG( "Unable to load drumkit contained in song" );
+
+			pSong->setInstrumentList( std::make_shared<InstrumentList>() );
+			pSong->m_pComponents =
+				std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
+			auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
+			pSong->getComponents()->push_back( pDrumkitComponent );
+		}
 	}
 	else {
 		XMLNode componentListNode = pRootNode->firstChildElement( "componentList" );
@@ -396,34 +410,24 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 			auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 			pSong->getComponents()->push_back( pDrumkitComponent );
 		}
-	}
 
-	// Instrument List
-	std::shared_ptr<InstrumentList> pInstrumentList;
-	if ( ! drumkitNode.isNull() ) {
-		// >= 1.3.0
-		pInstrumentList = InstrumentList::load_from( &drumkitNode,
-													 "", // sDrumkitPath
-													 "", // sDrumkitName
-													 License(), // per-instrument licenses
-													 bSilent );
-	}
-	else {
+		// Instrument List
+		//
 		// By supplying no drumkit path the individual drumkit meta infos
 		// stored in the 'instrument' nodes will be used.
-		pInstrumentList = InstrumentList::load_from( pRootNode,
-													 "", // sDrumkitPath
-													 "", // sDrumkitName
-													 License(), // per-instrument licenses
-													 bSilent );
-	}
+		auto pInstrumentList = InstrumentList::load_from( pRootNode,
+														  "", // sDrumkitPath
+														  "", // sDrumkitName
+														  License(), // per-instrument licenses
+														  bSilent );
 
-	if ( pInstrumentList == nullptr ) {
-		return nullptr;
-	}
+		if ( pInstrumentList == nullptr ) {
+			return nullptr;
+		}
 
-	pInstrumentList->load_samples( fBpm );
-	pSong->setInstrumentList( pInstrumentList );
+		pInstrumentList->load_samples( fBpm );
+		pSong->setInstrumentList( pInstrumentList );
+	}
 
 	QString sLastLoadedDrumkitPath =
 		pRootNode->read_string( "last_loaded_drumkit", "", true, false, true );

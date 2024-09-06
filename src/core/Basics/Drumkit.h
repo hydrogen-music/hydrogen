@@ -233,6 +233,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
+		std::shared_ptr<DrumkitComponent> getComponent( int nID ) const;
+		int findUnusedComponentId() const;
+
+		void addComponent( std::shared_ptr<DrumkitComponent> pComponent );
+		/** Adds an instrument and takes care of registering `DrumkitComponent`s
+		 * missing for contained `InstrumentComponent`s (based on their ID). */
+		void addInstrument( std::shared_ptr<Instrument> pInstrument );
+
 	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> get_components();
 	void set_components( std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> components );
 

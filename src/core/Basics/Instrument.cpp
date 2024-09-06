@@ -639,8 +639,9 @@ void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion, 
 	}
 	
 	for ( auto& pComponent : *__components ) {
-		if( component_id == -1 ||
-			pComponent->get_drumkit_componentID() == component_id ) {
+		if ( pComponent != nullptr &&
+			 ( component_id == -1 ||
+			   pComponent->get_drumkit_componentID() == component_id ) ) {
 			pComponent->save_to( &InstrumentNode, component_id, bRecentVersion, bFull );
 		}
 	}
