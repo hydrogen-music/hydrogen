@@ -1123,6 +1123,18 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation>La Cadena de Licencia del drumkit especificado no cumple con la licencia elegida en el desplegable.</translation>
     </message>
     <message>
+        <source>Drumkit imported in</source>
+        <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+But there were encoding issues.
+
+Please set your system&apos;s locale to UTF-8!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Delete instrument</source>
         <translation>Eliminar instrumento</translation>
     </message>
@@ -2664,10 +2676,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Import drumkit</source>
         <translation>Importar drumkit</translation>
-    </message>
-    <message>
-        <source>Drumkit imported in %1</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>

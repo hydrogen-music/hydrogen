@@ -123,7 +123,6 @@ QStringList Filesystem::__ladspa_paths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
-/* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 							const QString& sUserConfigPath,
 							const QString& sLogFile )
@@ -133,6 +132,9 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 	} else {
 		return false;
 	}
+
+	// A QCoreApplication instance is needed for applicationDirPath etc.
+	assert( QCoreApplication::instance() != nullptr );
 
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
@@ -1255,6 +1257,11 @@ QString Filesystem::TypeToQString( const Type& type ) {
 	default:
 		return "Unknown";
 	}
+}
+
+QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
+	QString sCleaned( sEncodedString );
+	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/]" ) );
 }
 };
 

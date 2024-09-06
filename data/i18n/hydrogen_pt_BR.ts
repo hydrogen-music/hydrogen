@@ -1122,6 +1122,18 @@ Are you sure?</source>
         <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
     </message>
     <message>
+        <source>Drumkit imported in</source>
+        <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
+        <translation>Drumkit importado em</translation>
+    </message>
+    <message>
+        <source>
+But there were encoding issues.
+
+Please set your system&apos;s locale to UTF-8!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Delete instrument</source>
         <translation>Deletar instrumento</translation>
     </message>
@@ -2652,10 +2664,6 @@ Você tem certeza que quer salvar?</translation>
     <message>
         <source>Import drumkit</source>
         <translation>Importar drumkit</translation>
-    </message>
-    <message>
-        <source>Drumkit imported in %1</source>
-        <translation>Drumkit importado em %1</translation>
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>

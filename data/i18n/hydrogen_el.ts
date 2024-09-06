@@ -1119,6 +1119,18 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Drumkit imported in</source>
+        <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+But there were encoding issues.
+
+Please set your system&apos;s locale to UTF-8!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Delete instrument</source>
         <translation>Διαγραφή οργάνου</translation>
     </message>
@@ -2650,10 +2662,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Import drumkit</source>
         <translation>Εισαγωγή ομάδας κρουστών</translation>
-    </message>
-    <message>
-        <source>Drumkit imported in %1</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>

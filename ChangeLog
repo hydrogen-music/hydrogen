@@ -133,9 +133,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix synchronization problems while using JACK Timebase support (#1953).
 		- Fix compilation error on macOS with case-sensitive filesystem (#1938).
 		- Fix usability with large QT_SCALE_FACTOR (#1933).
-		- Fix MIDI, WAV, and LilyPond export with with non-ASCII filenames on
-			Windows (#1957). Import and export of drumkits can, however, still fail if
-			system encoding is not UTF-8.
+		- Fix MIDI, WAV, and LilyPond export as well as drumkit import and export
+			with with non-ASCII filenames (#1957).
 		- Paths to songs and scripts are now properly saved relative to a
 			`.h2playlist` file (in case the corresponding option was set).
 		- Fix grid line rendering with resolution set to `off` (#2015).

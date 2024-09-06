@@ -504,6 +504,9 @@ namespace H2Core
 											   bool bSilent = false );
 
 			static QString getAutoSaveFilename( const Type& type, const QString& sBaseName );
+			/** Removes all characters not within the Latin-1 range of @a
+			 * sEncodedString. */
+			static QString removeUtf8Characters( const QString& sEncodedString );
 
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger

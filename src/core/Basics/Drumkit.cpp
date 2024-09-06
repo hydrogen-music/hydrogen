@@ -651,7 +651,17 @@ std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent(
 }
 
 bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
-					   QString* pInstalledPath, bool bSilent ) {
+					   QString* pInstalledPath, bool* pEncodingIssuesDetected,
+					   bool bSilent )
+{
+	// Ensure variables are always set/initialized.
+	if ( pInstalledPath != nullptr ) {
+		*pInstalledPath = "";
+	}
+	if ( pEncodingIssuesDetected != nullptr ) {
+		*pEncodingIssuesDetected = false;
+	}
+
 	if ( sTargetPath.isEmpty() ) {
 		if ( ! bSilent ) {
 			INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
@@ -670,6 +680,13 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 	
 #ifdef H2CORE_HAVE_LIBARCHIVE
 	int nRet;
+
+	bool bUseUtf8Encoding = true;
+	if ( nullptr == setlocale( LC_ALL, "en_US.UTF-8" ) ) {
+		INFOLOG( "No en_US.UTF-8 locale not available on this system" );
+		bUseUtf8Encoding = false;
+	}
+
 	struct archive* a;
 	struct archive_entry* entry;
 
@@ -759,13 +776,36 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 		if ( sNewPath.isEmpty() ) {
 			sNewPath = QString( archive_entry_pathname( entry ) );
 		}
-		sNewPath.prepend( sDrumkitDir );
 
 		if ( sNewPath.contains( Filesystem::drumkit_xml() ) ) {
 			QFileInfo newPathInfo( sNewPath );
 			sExtractedDir = newPathInfo.absoluteDir().absolutePath();
 		}
 
+		if ( ! bUseUtf8Encoding ) {
+			// In case `libarchive` is not able to support UTF-8 on the system,
+			// we remove (a lot of) characters. Else they will be represented by
+			// wacky ones and the calling routine would have no idea where the
+			// resulting kit did end up.
+			const auto sNewPathTrimmed = Filesystem::removeUtf8Characters( sNewPath );
+			if ( sNewPathTrimmed != sNewPath ) {
+				ERRORLOG( QString( "Encoding error (no UTF-8 available)! File was renamed [%1] -> [%2]" )
+						  .arg( sNewPath ).arg( sNewPathTrimmed ) );
+				if ( pEncodingIssuesDetected != nullptr ) {
+					*pEncodingIssuesDetected = true;
+				}
+				sNewPath = sNewPathTrimmed;
+			}
+		}
+		sNewPath.prepend( sDrumkitDir );
+
+		if ( pInstalledPath != nullptr &&
+			 sNewPath.contains( Filesystem::drumkit_xml() ) ) {
+			// This file must be part of every kit and allows us to set this
+			// variable only once.
+			QFileInfo installInfo( sNewPath );
+			*pInstalledPath = installInfo.absoluteDir().absolutePath();
+		}
 		QByteArray newpath = sNewPath.toUtf8();
 
 		archive_entry_set_pathname( entry, newpath.data() );
@@ -788,10 +828,6 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 		ERRORLOG( QString("Couldn't close archive: %1" )
 				  .arg( archive_error_string( a ) ) );
 		return false;
-	}
-
-	if ( pInstalledPath != nullptr ) {
-		*pInstalledPath = sExtractedDir;
 	}
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
@@ -863,7 +899,12 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 #endif
 }
 
-bool Drumkit::exportTo( const QString& sTargetDir, bool bSilent ) {
+bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
+						bool bSilent ) {
+	if ( pUtf8Encoded != nullptr ) {
+		// Ensure the variable is always set/initialized.
+		*pUtf8Encoded = false;
+	}
 
 	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
@@ -954,12 +995,23 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool bSilent ) {
 				 .arg( ARCHIVE_VERSION_STRING ) );
 	}
 
+	bool bUseUtf8Encoding = true;
+	if ( nullptr == setlocale( LC_ALL, "en_US.UTF-8" ) ) {
+		ERRORLOG( "No en_US.UTF-8 locale not available on this system" );
+		bUseUtf8Encoding = false;
+	}
+
 	struct archive *a;
 	struct archive_entry *entry;
 	struct stat st;
 	const int nBufferSize = 8192;
 	char buff[ nBufferSize ];
 	int nBytesRead, nRet;
+
+	// Write it back for the calling routine.
+	if ( pUtf8Encoded != nullptr ) {
+		*pUtf8Encoded = bUseUtf8Encoding;
+	}
 
 	a = archive_write_new();
 	if ( a == nullptr ) {
@@ -1027,10 +1079,16 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool bSilent ) {
 			setName( sOldDrumkitName );
 			return false;
 		}
-		// IMPORTANT: for now do _not_ use archive_entry_set_pathname_utf8()!
-		// This leads to segfaults in some libarchive versions, like 3.7.2 and
-		// 3.6.2.
-		archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
+
+#if defined(WIN32) and ARCHIVE_VERSION_NUMBER >= 3005000
+		if ( bUseUtf8Encoding ) {
+			archive_entry_set_pathname_utf8(entry, sTargetFilename.toUtf8().constData());
+		} else {
+#else
+		{
+#endif
+			archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
+		}
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);

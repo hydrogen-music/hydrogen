@@ -661,12 +661,26 @@ void SoundLibraryOnlineImportDialog::on_DownloadBtn_clicked()
 					updateDownloadBtn();
 
 					if ( sType == "drumkit" ) {
-						if ( H2Core::Drumkit::install( sLocalFile ) ) {
+						QString sImportedPath;
+						bool bEncodingIssues;
+						if ( H2Core::Drumkit::install(
+								 sLocalFile, "", &sImportedPath,
+								 &bEncodingIssues ) ) {
 							QDir dir;
 							dir.remove( sLocalFile );
 							bUpdateDrumkits = true;
 
 							installedDrumkits << sName;
+							if ( bEncodingIssues ) {
+								QApplication::restoreOverrideCursor();
+								QMessageBox::warning(
+									this, "Hydrogen",
+									QString( "%1: %2 [%3]%4" ).arg( sName )
+									.arg( pCommonStrings->getImportDrumkitSuccess() )
+									.arg( sImportedPath )
+									.arg( pCommonStrings->getImportDrumkitEncodingFailure() ) );
+								QApplication::setOverrideCursor( Qt::WaitCursor );
+							}
 						}
 						else {
 							QApplication::restoreOverrideCursor();
