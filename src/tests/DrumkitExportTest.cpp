@@ -45,10 +45,10 @@ void DrumkitExportTest::setUp() {
 
 	// We do not check return value as the folder should not exist in the first
 	// place.
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ) ) ) {
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ), true ) ) {
 		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
 	}
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ) ) ) {
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true ) ) {
 		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
 	}
 
@@ -59,10 +59,10 @@ void DrumkitExportTest::setUp() {
 
 void DrumkitExportTest::tearDown() {
 	// Remove the test kit from the system.
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ) ) ) {
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ), true ) ) {
 		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
 	}
-	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ) ) ) {
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true ) ) {
 		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
 	}
 
@@ -175,12 +175,19 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	const QString sExportPath = QString( "%1%2%3" )
 		.arg( Filesystem::tmp_dir() ).arg( m_sTestKitNameUtf8 )
 		.arg( Filesystem::drumkit_ext );
+
 	QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
-	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sInstalledPath );
+	QDir exportDir( exportValidation.path() );
+	// Should contain just the drumkit folder.
+	auto exportDirContent =
+		exportDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+	CPPUNIT_ASSERT( exportDirContent.size() == 1 );
+	H2TEST_ASSERT_DIRS_EQUAL( exportDir.filePath( exportDirContent[ 0 ] ),
+							  sInstalledPath );
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );

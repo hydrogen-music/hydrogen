@@ -1499,8 +1499,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 			return nullptr;
 		}
 
-		// INFOLOG( QString( "Extracting drumkit [%1] into [%2]" )
-		// 		 .arg( sDrumkitPath ).arg( tmpDir.path() ) );
+		INFOLOG( QString( "Extracting drumkit [%1] into [%2]" )
+				 .arg( sDrumkitPath ).arg( tmpDir.path() ) );
 
 		// The extracted folder is expected to contain a single
 		// directory named as the drumkit itself. But some kits

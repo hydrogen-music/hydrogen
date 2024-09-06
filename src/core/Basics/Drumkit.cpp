@@ -1111,10 +1111,6 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 		return false;
 	}
 
-	if ( pInstalledPath != nullptr ) {
-		*pInstalledPath = sExtractedDir;
-	}
-
 #if ARCHIVE_VERSION_NUMBER < 3000000
 	archive_read_finish( a );
 #else
