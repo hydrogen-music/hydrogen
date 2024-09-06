@@ -45,8 +45,12 @@ void DrumkitExportTest::setUp() {
 
 	// We do not check return value as the folder should not exist in the first
 	// place.
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ), true ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	}
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	}
 
 	auto pSong = CoreActionController::loadSong(
 		H2TEST_FILE( "functional/test.h2song" ) );
@@ -55,8 +59,12 @@ void DrumkitExportTest::setUp() {
 
 void DrumkitExportTest::tearDown() {
 	// Remove the test kit from the system.
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
-	Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitName ), true ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitName ), true, true );
+	}
+	if ( Filesystem::dir_exists( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true ) ) {
+		Filesystem::rm( Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 ), true, true );
+	}
 
 	// Discard all changes to the test song.
 	auto pSong = CoreActionController::loadSong(
@@ -129,42 +137,61 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 						sTestKitPath, false ) );
 
 	// Import test kit into Hydrogen.
-	CPPUNIT_ASSERT( CoreActionController::extractDrumkit( sTestKitPath ) );
+	QString sInstalledPath;
+	bool bEncodingIssuesDetected;
+	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
+						sTestKitPath, "", &sInstalledPath,
+						&bEncodingIssuesDetected ) );
 
 	// Check whether import worked, the UTF-8 path and name was read properly,
 	// and all samples are present.
 	const auto pDB = pHydrogen->getSoundLibraryDatabase();
-	const QString sExtractedKit =
-		Filesystem::drumkit_usr_path( m_sTestKitNameUtf8 );
-	const auto pDrumkit = pDB->getDrumkit( sExtractedKit );
+	const auto pDrumkit = pDB->getDrumkit( sInstalledPath );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameUtf8 );
-	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
-		CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+	if ( ! bEncodingIssuesDetected ) {
+		// This can cause file names of sample files to extracted from the tar
+		// ball to get altered. But as we do not touch the drumkit definition
+		// itself, they will be considered a missing sample.
+		for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
+			CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+		}
 	}
 
 	// Load the kit and export it.
-	//
-	// This is not supposed to work yet. There is an issue with libarchive UTF8
-	// support that needs to be addressed upstream first. But if for some reason
-	// it miraculously starts to work, we want the test to inform us .
-	CPPUNIT_ASSERT( pDrumkit->exportTo( Filesystem::tmp_dir() ) );
+	bool bUtf8SupportOnSystem;
+	const auto bDrumkitExportSuccessful = pDrumkit->exportTo(
+		Filesystem::tmp_dir(), -1, true, &bUtf8SupportOnSystem );
+	if ( ! bUtf8SupportOnSystem ) {
+		___WARNINGLOG( "UTF-8 support couldn't be enforced. Unit test not applicable." )
+		___INFOLOG( "skipped" );
+		return;
+	}
+
+	CPPUNIT_ASSERT( bDrumkitExportSuccessful );
 
 	// Bitwise comparison of the (!extracted!) original drumkit and the one we
 	// just exported.
 	const QString sExportPath = QString( "%1%2%3" )
 		.arg( Filesystem::tmp_dir() ).arg( m_sTestKitNameUtf8 )
 		.arg( Filesystem::drumkit_ext );
+
 	QTemporaryDir exportValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
 	exportValidation.setAutoRemove( false );
 	CPPUNIT_ASSERT( CoreActionController::extractDrumkit(
 						sExportPath, exportValidation.path() ) );
 
-	H2TEST_ASSERT_DIRS_EQUAL( exportValidation.path(), sExtractedKit );
+	QDir exportDir( exportValidation.path() );
+	// Should contain just the drumkit folder.
+	auto exportDirContent =
+		exportDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+	CPPUNIT_ASSERT( exportDirContent.size() == 1 );
+	H2TEST_ASSERT_DIRS_EQUAL( exportDir.filePath( exportDirContent[ 0 ] ),
+							  sInstalledPath );
 
 	// Cleanup
 	H2Core::Filesystem::rm( exportValidation.path(), true, true );
-	H2Core::Filesystem::rm( sExportPath, false, true );
+	H2Core::Filesystem::rm( sInstalledPath, true, true );
 
 	___INFOLOG( "passed" );
 }

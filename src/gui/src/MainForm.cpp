@@ -1520,7 +1520,9 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
 	QString sImportedPath;
-	if ( ! H2Core::Drumkit::install( sFileName, "", &sImportedPath ) ) {
+	bool bEncodingIssues;
+	if ( ! H2Core::Drumkit::install( sFileName, "", &sImportedPath,
+									 &bEncodingIssues, false ) ) {
 		QApplication::restoreOverrideCursor();
 		if ( checkDrumkitPathEncoding(
 				 sFileName, pCommonStrings->getImportDrumkitFailure() ) ) {
@@ -1564,10 +1566,19 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 	}
 
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information(
-		this, "Hydrogen",
-		QString( tr( "Drumkit imported in %1" )
-				 .arg( H2Core::Filesystem::usr_data_path() ) ) );
+	if ( ! bEncodingIssues ) {
+		QMessageBox::information( this, "Hydrogen",
+								  QString( "%1 [%2]" )
+								  .arg( pCommonStrings->getImportDrumkitSuccess() )
+								  .arg( sImportedPath ) );
+	}
+	else {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( "%1 [%2]%3" ).arg( pCommonStrings->getImportDrumkitSuccess() )
+			.arg( sImportedPath )
+			.arg( pCommonStrings->getImportDrumkitEncodingFailure() ) );
+	}
 }
 
 void MainForm::action_drumkit_onlineImport()

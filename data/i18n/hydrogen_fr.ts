@@ -1121,6 +1121,18 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
         <translation>La ligne de licence du kit de batterie spécifiée ne correspond pas à la licence sélectionnée dans la liste déroulante.</translation>
     </message>
+    <message>
+        <source>Drumkit imported in</source>
+        <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+But there were encoding issues.
+
+Please set your system&apos;s locale to UTF-8!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
@@ -2732,10 +2744,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Import drumkit</source>
         <translation>Importer un kit de batterie</translation>
-    </message>
-    <message>
-        <source>Drumkit imported in %1</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>

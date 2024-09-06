@@ -202,41 +202,52 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param sTargetPath Absolute path to where the new drumkit should be
 		 *   extracted to. If left empty, the user's drumkit folder will be
 		 *   used.
-		 * \param pImportedDir When using libarchive to extract the kit, this
-		 *   variable will be set to the path of the folder the kit was
-		 *   extracted to.
+		 * \param pInstalledPath Will contain the actual name of the folder the
+		 *   kit was installed to. In most cases this will coincide with a
+		 *   folder within @a sTargetPath named like the kit itself. But in case
+		 *   the system does not support UTF-8 encoding and @a sTargetPath
+		 *   contains characters other than those whitelisted in
+		 *   #Filesystem::removeUtf8Characters, those might be omitted and the
+		 *   directory and files created using `libarchive` might differ.
+		 * \param pEncodingIssuesDetected will be set to `true` in case at least
+		 *   one filepath of extracted kit had to be altered in order to not run
+		 *   into UTF-8 issues.
 		 * \param bSilent Whether debug and info messages should be logged.
 		 *
 		 * \return true on success
 		 */
 	static bool install( const QString& sSourcePath,
 						 const QString& sTargetPath = "",
-						 QString* pImportedDir = nullptr,
+						 QString* pInstalledPath = nullptr,
+						 bool* pEncodingIssuesDetected = nullptr,
 						 bool bSilent = false );
 
 	/**
 	 * Compresses the drumkit into a .h2drumkit file.
 	 *
-	 * The name of the created file will be a concatenation of #m_sName
-	 * and Filesystem::drumkit_ext.
+	 * The name of the created file will be a concatenation of #m_sName and
+	 * Filesystem::drumkit_ext.
 	 *
-	 * exportTo() ? well, export is a protected name within C++. So,
-	 * we needed a less obvious name.
+	 * exportTo() ? well, export is a protected name within C++. So, we needed a
+	 * less obvious name.
 	 *
-	 * \param sTargetDir Folder which will contain the resulting
-	 *   .h2drumkit file.
-	 * \param nComponentId ID of a particular component used in
-	 *   case just a single component should be exported.
-	 * \param bRecentVersion Whether the drumkit format should be
-	 *   supported by Hydrogen 0.9.7 or higher (whether it should be
-	 *   composed of DrumkitComponents).
-	 * \param bSilent Whether debug and info messages should be
-	 *   logged.
+	 * \param sTargetDir Folder which will contain the resulting .h2drumkit
+	 *   file.
+	 * \param nComponentID ID of a particular component used in case just a
+	 *   single component should be exported.
+	 * \param bRecentVersion Whether the drumkit format should be supported by
+	 *   Hydrogen 0.9.7 or higher (whether it should be composed of
+	 *   DrumkitComponents).
+	 * \param pUtf8Encoded will be set to true in case we were able to enforce
+	 *   'UTF-8' as system locale in `libarchive`. If this didn't work, export
+	 *   will be done using classic Latin1 encoded filenames.
+	 * \param bSilent Whether debug and info messages should be logged.
 	 *
 	 * \return true on success
 	 */
 	bool exportTo( const QString& sTargetDir, int nComponentId = -1,
-				   bool bRecentVersion = true, bool bSilent = false );
+				   bool bRecentVersion = true, bool* pUtf8Encoded = nullptr,
+				   bool bSilent = false );
 
 		/** Removes an instrument from the drumkit and cleans up its
 		 * components.
