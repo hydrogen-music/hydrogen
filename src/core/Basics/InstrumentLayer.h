@@ -47,18 +47,25 @@ namespace H2Core
 		H2_OBJECT(InstrumentLayer)
 		public:
 		/** constructor
-		 * \param sample the sample to use
+		 * \param pSample the sample to use. It won't be deep-copied but just
+		 *   assigned.
 		 * */
-		InstrumentLayer( std::shared_ptr<Sample> sample );
-		/** copy constructor, will be initialized with an empty sample
-		 * \param other the instrument layer to copy from
-		 */
-		InstrumentLayer( std::shared_ptr<InstrumentLayer> other );
+		InstrumentLayer( std::shared_ptr<Sample> pSample );
 		/** copy constructor
+		 *
+		 * The #H2Core::Sample file contained in @a pOther will be deep-copied
+		 * too.
+		 *
 		 * \param other the instrument layer to copy from
-		 * \param sample the sample to use
 		 */
-		InstrumentLayer( std::shared_ptr<InstrumentLayer> other, std::shared_ptr<Sample> sample );
+		InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther );
+		/** copy constructor
+		 * \param pOther the instrument layer to copy from
+		 * \param pSample the sample to use. It won't be deep-copied but just
+		 *   assigned.
+		 */
+		InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther,
+						 std::shared_ptr<Sample> pSample );
 		/** destructor */
 		~InstrumentLayer();
 

@@ -45,24 +45,27 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) :
 {
 }
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other ) : Object( *other ),
-	__start_velocity( other->get_start_velocity() ),
-	__end_velocity( other->get_end_velocity() ),
-	__pitch( other->get_pitch() ),
-	__gain( other->get_gain() ),
-	m_bIsMuted( other->m_bIsMuted ),
-	m_bIsSoloed( other->m_bIsSoloed ),
-	__sample( other->get_sample() )
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther ) : Object( *pOther ),
+	__start_velocity( pOther->get_start_velocity() ),
+	__end_velocity( pOther->get_end_velocity() ),
+	__pitch( pOther->get_pitch() ),
+	__gain( pOther->get_gain() ),
+	m_bIsMuted( pOther->m_bIsMuted ),
+	m_bIsSoloed( pOther->m_bIsSoloed ),
+	__sample( nullptr )
 {
+	if ( pOther->__sample != nullptr ) {
+		__sample = std::make_shared<Sample>( pOther->__sample );
+	}
 }
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other, std::shared_ptr<Sample> sample ) : Object( *other ),
-	__start_velocity( other->get_start_velocity() ),
-	__end_velocity( other->get_end_velocity() ),
-	__pitch( other->get_pitch() ),
-	__gain( other->get_gain() ),
-	m_bIsMuted( other->m_bIsMuted ),
-	m_bIsSoloed( other->m_bIsSoloed ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther, std::shared_ptr<Sample> sample ) : Object( *pOther ),
+	__start_velocity( pOther->get_start_velocity() ),
+	__end_velocity( pOther->get_end_velocity() ),
+	__pitch( pOther->get_pitch() ),
+	__gain( pOther->get_gain() ),
+	m_bIsMuted( pOther->m_bIsMuted ),
+	m_bIsSoloed( pOther->m_bIsSoloed ),
 	__sample( sample )
 {
 }
