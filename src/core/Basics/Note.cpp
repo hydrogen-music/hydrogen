@@ -365,6 +365,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 	else {
 		// Select an instrument layer.
 		std::vector<int> possibleLayersVector;
+		int nLayersEncountered = 0;
 		float fRoundRobinID;
 		auto pSong = Hydrogen::get_instance()->getSong();
 		
@@ -373,6 +374,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 			if ( pLayer == nullptr ) {
 				continue;
 			}
+			++nLayersEncountered;
 
 			if ( ( __velocity >= pLayer->get_start_velocity() ) &&
 				 ( __velocity <= pLayer->get_end_velocity() ) ) {
@@ -384,6 +386,10 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 					fRoundRobinID = pLayer->get_start_velocity();
 				}
 			}
+		}
+
+		if ( nLayersEncountered == 0 ) {
+			return nullptr;
 		}
 
 		// In some instruments the start and end velocities of a layer
