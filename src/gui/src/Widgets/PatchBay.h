@@ -39,10 +39,6 @@
 #include "LCDCombo.h"
 #include "LCDDisplay.h"
 
-/** Custom widget to map instruments and components onto eachother when
- * switching drumkits.
- *
- * \ingroup docGUI docWidgets*/
 class PatchBay : public QDialog, public H2Core::Object<PatchBay>
 {
 	H2_OBJECT(PatchBay)

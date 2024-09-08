@@ -31,23 +31,28 @@
 #include <memory>
 
 #include "EventListener.h"
-#include "Types/Patch.h"
 #include "Widgets/WidgetWithScalableFont.h"
 
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/PatternList.h>
 
 class HydrogenApp;
+class InfoBar;
 class QUndoView;///debug only
+
+namespace H2Core {
+	class Drumkit;
+}
 
 ///
 /// Main window
 ///
 /** \ingroup docGUI*/
-class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<MainForm>
+class MainForm :  public QMainWindow,
+				  protected WidgetWithScalableFont<8, 10, 12>,
+				  public EventListener,
+				  public H2Core::Object<MainForm>
 {
 		H2_OBJECT(MainForm)
 	Q_OBJECT
@@ -85,6 +90,7 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 
 		void setPreviousAutoSavePlaylistFile( const QString& sFile );
 
+		static void exportDrumkit( std::shared_ptr<H2Core::Drumkit> pDrumkit );
 		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;

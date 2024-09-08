@@ -839,7 +839,7 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hy
 		return false;
 	}
 	
-	auto pLayer = pComponent->get_layer( layer_id );
+	auto pLayer = pComponent->getLayer( layer_id );
 	if( pLayer == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
 		return false;
@@ -886,7 +886,7 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 		return false;
 	}
 	
-	auto pLayer = pComponent->get_layer( layer_id );
+	auto pLayer = pComponent->getLayer( layer_id );
 	if( pLayer == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
 		return false;

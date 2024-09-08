@@ -28,7 +28,6 @@
 #include "SoundLibraryTree.h"
 
 #include "DrumkitPropertiesDialog.h"
-#include "DrumkitExportDialog.h"
 
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
@@ -600,7 +599,9 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	MainForm::switchDrumkit( pDrumkit );
+	// Pass a copy of the kit since we do not want to alter the settings of the
+	// original one.
+	MainForm::switchDrumkit( std::shared_ptr<Drumkit>( pDrumkit ) );
 }
 
 void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
@@ -609,13 +610,6 @@ void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrum
 		ERRORLOG( "Invalid drumkit provided" );
 		return;
 	}
-
-	// Unload all samples in order to save memory. The `setDrumkit` function
-	// will take care of loading the new ones. In addition, in case any of the
-	// samples were delete between undo and redo, we do not get into trouble but
-	// just print some error messages during the attempt sample load.
-	pOldDrumkit->unloadSamples();
-	pNewDrumkit->unloadSamples();
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -675,7 +669,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 			 ppInstrument->get_drumkit_path() == sDrumkitPath ) {
 			for ( const auto& ppComponent : *ppInstrument->get_components() ) {
 				if ( ppComponent != nullptr ) {
-					for ( const auto& ppLayer : ppComponent->get_layers() ) {
+					for ( const auto& ppLayer : ppComponent->getLayers() ) {
 						if ( ppLayer != nullptr &&
 							 ppLayer->get_sample() != nullptr &&
 							 ! ppLayer->get_sample()->get_filepath().isEmpty() &&
@@ -737,9 +731,8 @@ void SoundLibraryPanel::on_drumkitExportAction()
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	QString sDrumkitPath = m_drumkitRegister[ sDrumkitName ];
 	auto pDrumkit = pSoundLibraryDatabase->getDrumkit( sDrumkitPath );
-	
-	DrumkitExportDialog exportDialog( this, std::make_shared<Drumkit>(pDrumkit) );
-	exportDialog.exec();
+
+	MainForm::exportDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
 }
 
 void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {

@@ -40,12 +40,12 @@
 namespace H2Core
 {
 
-class XMLNode;
 class ADSR;
 class Drumkit;
-class DrumkitComponent;
 class InstrumentLayer;
 class InstrumentComponent;
+class Note;
+class XMLNode;
 
 
 /**
@@ -69,7 +69,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param name the name of the instrument
 		 * \param adsr attack decay sustain release instance
 		 */
-		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="Empty Instrument", std::shared_ptr<ADSR> adsr=nullptr );
+		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="", std::shared_ptr<ADSR> adsr=nullptr );
 		/** copy constructor */
 		Instrument( std::shared_ptr<Instrument> other );
 		/** destructor */
@@ -92,11 +92,6 @@ class Instrument : public H2Core::Object<Instrument>
 		 * save the instrument within the given XMLNode
 		 *
 		 * \param node the XMLNode to feed
-		 * \param component_id Identifier of the corresponding
-		 *   component.
-		 * \param bRecentVersion Whether the drumkit format should be
-		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
-		 *   composed of DrumkitComponents).
 		 * \param bSongKit Whether the instrument is part of a
 		 *   stand-alone kit or part of a song. In the latter case all samples
 		 *   located in the corresponding drumkit folder and are referenced by
@@ -104,8 +99,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void save_to( XMLNode& node, int component_id,
-					  bool bRecentVersion = true, bool bSongKit = false ) const;
+		void save_to( XMLNode& node, bool bSongKit = false ) const;
 
 		/**
 		 * load an instrument from an XMLNode
@@ -248,12 +242,13 @@ class Instrument : public H2Core::Object<Instrument>
 		/** get the soloed status of the instrument */
 		bool is_soloed() const;
 
-		/** enqueue the instrument */
-		void enqueue();
-		/** dequeue the instrument */
-		void dequeue();
+		/** enqueue the instrument for @a pNote */
+		void enqueue( Note* pNote );
+		/** dequeue the instrument for @a pNote */
+		void dequeue( Note* pNote );
 		/** get the queued status of the instrument */
 		bool is_queued() const;
+		const QStringList& getEnqueuedBy() const;
 
 		/** set the stop notes status of the instrument */
 		void set_stop_notes( bool stopnotes );
@@ -290,7 +285,11 @@ class Instrument : public H2Core::Object<Instrument>
 		bool is_metronome_instrument() const;
 
 		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components() const;
-		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID ) const;
+		/** Select a component via its index in the corresponding vector. */
+		std::shared_ptr<InstrumentComponent> get_component( int nIdx ) const;
+		void addComponent( std::shared_ptr<InstrumentComponent> pComponent );
+		void removeComponent( std::shared_ptr<InstrumentComponent> pComponent );
+		void removeComponent( int nIdx );
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
@@ -374,6 +373,9 @@ class Instrument : public H2Core::Object<Instrument>
 		bool					__muted;				///< is the instrument muted?
 		int						__mute_group;			///< mute group of the instrument
 		int						__queued;				///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
+		/** List of short string representations of notes for which this
+		 * instrument was enqueued. */
+		QStringList				m_enqueuedBy;
 		float					__fx_level[MAX_FX];		///< Ladspa FX level array
 		int						__hihat_grp;			///< the instrument is part of a hihat
 		int						__lower_cc;				///< lower cc level
@@ -383,7 +385,7 @@ class Instrument : public H2Core::Object<Instrument>
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
-		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;		///< InstrumentLayer array
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;
 };
 
 // DEFINITIONS
@@ -605,20 +607,13 @@ inline bool Instrument::is_soloed() const
 	return __soloed;
 }
 
-inline void Instrument::enqueue()
-{
-	__queued++;
-}
-
-inline void Instrument::dequeue()
-{
-	assert( __queued > 0 );
-	__queued--;
-}
-
 inline bool Instrument::is_queued() const
 {
 	return ( __queued > 0 );
+}
+
+inline const QStringList& Instrument::getEnqueuedBy() const {
+	return m_enqueuedBy;
 }
 
 inline void Instrument::set_stop_notes( bool stopnotes )

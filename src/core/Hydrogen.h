@@ -258,8 +258,6 @@ public:
 		AudioOutput*		getAudioOutput() const;
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
-		/** Delete an #Instrument.*/
-		void			removeInstrument( int nInstrumentNumber );
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
@@ -416,16 +414,22 @@ public:
 	bool			getSessionIsExported() const;
 
 	/**
-	 * Add @a pInstr to m_instrumentDeathRow and triggers
-	 * killInstruments().
+	 * Add @a pInstr to death row.
 	 *
-	 * Since there might still be some notes of @a pInstr left in one
-	 * of the note queues, the instrument can not be deleted right
-	 * away. Instead, this function will add it to a list of
-	 * instruments marked for deletion and it will be dealt with at a
-	 * later time.
+	 * Since there might still be some notes using @a pInstr left in one of the
+	 * note queues, the instrument's samples must not be unloaded right away
+	 * (the instrumet's destructor might not be called after deleting it since
+	 * it might live on in the undo/redo stack of the GUI). Instead, this
+	 * function will add it to a list of instruments marked for deletion and it
+	 * will be dealt with at a later time (after audio rendering was stopped).
 	 */
 	void addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr );
+
+		/** Since we are flushing the samples of the instruments in the death
+		 * row at a delayed point in time (like when stopping transport), we
+		 * have to take care not to get into trouble when switching
+		 * instrument/kits back and forth (like in undo/redo). */
+		void removeInstrumentFromDeathRow( std::shared_ptr<Instrument> pInstr );
 
 	/**
 	 * Processes the patterns added to any virtual ones in the
@@ -461,7 +465,7 @@ private:
 	 */
 	Hydrogen();
 
-	void killInstruments();
+		void killInstruments();
 
 	void			midiNoteOn( Note *note );
 

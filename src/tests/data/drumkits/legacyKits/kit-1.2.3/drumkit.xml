@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<drumkit_info xmlns="http://www.hydrogen-music.org/drumkit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
- <!--Copyright (C) 2024  Philipp Mueller
+<drumkit_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit">
+ <!--Copyright (C) 2024  Glen MacArthur / Sebastian Moors
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,23 +14,28 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.-->
- <formatVersion>2</formatVersion>
- <name>SampleKit</name>
- <userVersion>0</userVersion>
- <author>Philipp Mueller</author>
- <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;span style=" font-family:'Lucida Grande';">Testing kit&lt;/span>&lt;/p>&lt;/body>&lt;/html></info>
- <license>GPL</license>
+ <name>Legacy-1.2.3</name>
+ <author>Hydrogen Dev</author>
+ <info></info>
+ <license>CC0</license>
  <image></image>
  <imageLicense>undefined license</imageLicense>
+ <componentList>
+  <drumkitComponent>
+   <id>3</id>
+   <name>First</name>
+   <volume>1</volume>
+  </drumkitComponent>
+  <drumkitComponent>
+   <id>36</id>
+   <name>Second</name>
+   <volume>1</volume>
+  </drumkitComponent>
+ </componentList>
  <instrumentList>
   <instrument>
-   <id>18</id>
-   <name>Sample</name>
-   <type>LongSample</type>
+   <id>0</id>
+   <name>Kick</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
@@ -39,7 +44,7 @@ p, li { white-space: pre-wrap; }
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <applyVelocity>false</applyVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -49,7 +54,7 @@ p, li { white-space: pre-wrap; }
    <Release>999</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>54</midiOutNote>
+   <midiOutNote>36</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>
@@ -60,28 +65,25 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <name>Main</name>
+    <component_id>36</component_id>
     <gain>1</gain>
-    <isMuted>false</isMuted>
-    <isSoloed>false</isSoloed>
     <layer>
-     <filename>longSample.flac</filename>
+     <filename>emptySample.flac</filename>
      <min>0</min>
+     <max>0.4</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
+   <instrumentComponent>
+    <component_id>3</component_id>
+    <gain>1</gain>
+    <layer>
+     <filename>emptySample.flac</filename>
+     <min>0.4</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
-     <isMuted>false</isMuted>
-     <isSoloed>false</isSoloed>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>

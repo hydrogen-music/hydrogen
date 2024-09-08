@@ -34,6 +34,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
+#include <core/Basics/Song.h>
 #include "core/OscServer.h"
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
@@ -1104,8 +1105,8 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
 	return setDrumkit( pDrumkit );
 }
 
-bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
-	if ( pDrumkit == nullptr ) {
+bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
+	if ( pNewDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
@@ -1118,14 +1119,24 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+	auto pPreviousDrumkit = pSong->getDrumkit();
+	if ( pPreviousDrumkit == pNewDrumkit ) {
+		return true;
+	}
 
-	INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
-			.arg( pDrumkit->getName() ).arg( pDrumkit->getPath() ) );
+	if ( pPreviousDrumkit == nullptr ) {
+		INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
+				 .arg( pNewDrumkit->getName() ).arg( pNewDrumkit->getPath() ) );
+	} else {
+		INFOLOG( QString( "Switching drumkits [%1] -> [%2] located at [%3]" )
+				 .arg( pPreviousDrumkit->getName() )
+				 .arg( pNewDrumkit->getName() ).arg( pNewDrumkit->getPath() ) );
+	}
 
-	// Use a cloned version of the kit from e.g. the SoundLibrary in
-	// order to not overwrite the original when altering the properties
-	// of the current kit.
-	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	// Ensure instruments of the new kit aren't already in the death row.
+	for ( const auto& ppInstrument : *pNewDrumkit->getInstruments() ) {
+		pHydrogen->removeInstrumentFromDeathRow( ppInstrument );
+	}
 
 	// It would be more clean to lock the audio engine _before_ loading
 	// the samples. We might pass a tempo marker while loading and users
@@ -1137,25 +1148,33 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	pSong->setDrumkit( pNewDrumkit );
-
-	// Remap instruments in pattern list to ensure component indices for
-	// SelectedLayerInfo's are up to date for the current kit.
-	for ( auto& pPattern : *pSong->getPatternList() ) {
-		for ( auto& pNote : *pPattern->get_notes() ) {
-			pNote.second->mapTo( pNewDrumkit );
+	// Add all instruments of the previous drumkit to the death row. This way
+	// all notes in audio engine and sampler queue can be rendered till they are
+	// done. Unloading their samples will be done at a latter point.
+	if ( pPreviousDrumkit != nullptr ) {
+		for ( const auto& ppInstrument : *pPreviousDrumkit->getInstruments() ) {
+			pHydrogen->addInstrumentToDeathRow( ppInstrument );
 		}
 	}
 
-	pHydrogen->renameJackPorts( pSong );
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues();
+	pAudioEngine->getSampler()->releasePlayingNotes();
 
-	pAudioEngine->unlock();
+	pSong->setDrumkit( pNewDrumkit );
+	pSong->getPatternList()->mapTo( pNewDrumkit );
+
+	pHydrogen->renameJackPorts( pSong );
 
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
 			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false );
 	}
+
+	pAudioEngine->unlock();
 
 	initExternalControlInterfaces();
 
@@ -1261,7 +1280,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 		sPath = sDrumkitDir;
 	}
 
-	if ( ! pDrumkit->save( sPath, -1, true, true ) ) {
+	if ( ! pDrumkit->save( sPath, true ) ) {
 		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
 				  .arg( sPath ) );
 		return false;
@@ -1277,7 +1296,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 			sExportPath = sourceFileInfo.dir().absolutePath();
 		}
 		
-		if ( ! pDrumkit->exportTo( sExportPath, -1, true, nullptr, false ) ) {
+		if ( ! pDrumkit->exportTo( sExportPath, nullptr, false ) ) {
 			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
 					  .arg( sExportPath ) );
 			return false;
@@ -1586,7 +1605,171 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath,
 
 	return true;
 }
-	
+
+bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrument,
+										  int nIndex ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	// Ensure instrument isn't already in the death row.
+	pHydrogen->removeInstrumentFromDeathRow( pInstrument );
+	pInstrument->load_samples( pAudioEngine->getTransportPosition()->getBpm() );
+
+	pDrumkit->addInstrument( pInstrument, nIndex );
+	pHydrogen->renameJackPorts( pSong );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+
+	const int nInstrumentNumber = pDrumkit->getInstruments()->index( pInstrument );
+	if ( nInstrumentNumber == -1 ) {
+		ERRORLOG( "Provided instrument is not part of current drumkit!" );
+		return false;
+	}
+
+	if ( pDrumkit->getInstruments()->size() == 1 ) {
+		ERRORLOG( "This is the last instrument. It can not be removed." );
+		return false;
+	}
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	pDrumkit->removeInstrument( pInstrument );
+
+	// At this point the instrument has been removed from both the current
+	// drumkit and every pattern in the song. But it still lives on as a shared
+	// pointer in all Notes within the queues of the AudioEngine and Sampler.
+	// Thus, it will be added to the death row, which guarantuees that its
+	// samples will be unloaded once all notes referencing it are gone. Note
+	// that this does not mean the instrument will be destructed. GUI can still
+	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// important to unload the samples).
+	pHydrogen->addInstrumentToDeathRow( pInstrument );
+
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues( pInstrument );
+	pAudioEngine->getSampler()->releasePlayingNotes( pInstrument );
+
+	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+	if ( nSelectedInstrument == nInstrumentNumber ||
+		 nSelectedInstrument >= pDrumkit->getInstruments()->size() ) {
+		pHydrogen->setSelectedInstrumentNumber(
+			std::clamp( nSelectedInstrument, 0,
+						static_cast<int>(pDrumkit->getInstruments()->size() - 1 ) ) );
+	}
+
+	pHydrogen->renameJackPorts( pSong );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
+											  std::shared_ptr<Instrument> pOldInstrument ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+	const int nOldInstrumentNumber = pDrumkit->getInstruments()->index(
+		pOldInstrument );
+	if ( nOldInstrumentNumber == -1 ) {
+		ERRORLOG( "Old instrument is not part of current drumkit!" );
+		return false;
+	}
+
+	const auto fBpm = pAudioEngine->getTransportPosition()->getBpm();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	if ( pNewInstrument != nullptr ) {
+		// Ensure instrument isn't already in the death row.
+		pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
+		pNewInstrument->load_samples( fBpm );
+	}
+
+	pDrumkit->removeInstrument( pOldInstrument );
+
+	// At this point the instrument has been removed from both the current
+	// drumkit and every pattern in the song. But it still lives on as a shared
+	// pointer in all Notes within the queues of the AudioEngine and Sampler.
+	// Thus, it will be added to the death row, which guarantuees that its
+	// samples will be unloaded once all notes referencing it are gone. Note
+	// that this does not mean the instrument will be destructed. GUI can still
+	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// important to unload the samples).
+	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
+
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues( pOldInstrument );
+	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
+
+	pDrumkit->addInstrument( pNewInstrument,
+							 nOldInstrumentNumber );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	// Unloading the samples of the old instrument will be done in the death
+	// row.
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( H2Core::EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN

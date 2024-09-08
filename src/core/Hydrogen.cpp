@@ -46,7 +46,6 @@
 #include <core/EventQueue.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/H2Exception.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -306,8 +305,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 			}
 #endif
 		}
-		/** cares itself for acquiring the lock */
 		m_pAudioEngine->prepare();
+
+		if ( pCurrentSong->getDrumkit() != nullptr ) {
+			pCurrentSong->getDrumkit()->unloadSamples();
+		}
 	}
 
 	// In order to allow functions like audioEngine_setupLadspaFX() to
@@ -742,31 +744,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return m_pAudioEngine->getMidiOutDriver();
 }
 
-void Hydrogen::removeInstrument( int nInstrumentNumber ) {
-	auto pSong = getSong();
-	if ( pSong != nullptr ) {
-
-		m_pAudioEngine->lock( RIGHT_HERE );
-
-		pSong->removeInstrument( nInstrumentNumber );
-		
-		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
-			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
-		} else if ( m_nSelectedInstrumentNumber >=
-					pSong->getDrumkit()->getInstruments()->size() ) {
-			setSelectedInstrumentNumber( std::max( 0, pSong->getDrumkit()->getInstruments()->size() - 1 ) );
-		}
-
-		if ( hasJackAudioDriver() ) {
-			renameJackPorts( m_pSong );
-		}
-
-		m_pAudioEngine->unlock();
-		
-		setIsModified( true );
-	}
-}
-
 void Hydrogen::onTapTempoAccelEvent()
 {
 #ifndef WIN32
@@ -1104,25 +1081,38 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	killInstruments();
 }
 
-void Hydrogen::killInstruments() {
-	if ( m_instrumentDeathRow.size() > 0 ) {
-		std::shared_ptr<Instrument> pInstr = nullptr;
-		while ( m_instrumentDeathRow.size()
-				&& m_instrumentDeathRow.front()->is_queued() == 0 ) {
-			pInstr = m_instrumentDeathRow.front();
-			m_instrumentDeathRow.pop_front();
-			INFOLOG( QString( "Deleting unused instrument (%1). "
-							  "%2 unused remain." )
-					 . arg( pInstr->get_name() )
-					 . arg( m_instrumentDeathRow.size() ) );
-			pInstr = nullptr;
+void Hydrogen::removeInstrumentFromDeathRow( std::shared_ptr<Instrument> pInstr ) {
+	for ( auto it = m_instrumentDeathRow.begin();
+		  it != m_instrumentDeathRow.end(); ) {
+        if ( *it == pInstr ) {
+            it = m_instrumentDeathRow.erase( it );
+		} else {
+            ++it;
 		}
-		if ( m_instrumentDeathRow.size() ) {
-			pInstr = m_instrumentDeathRow.front();
-			INFOLOG( QString( "Instrument %1 still has %2 active notes. "
-							  "Delaying 'delete instrument' operation." )
-					 . arg( pInstr->get_name() )
-					 . arg( pInstr->is_queued() ) );
+    }
+}
+
+void Hydrogen::killInstruments() {
+	std::shared_ptr<Instrument> pInstr;
+
+	while ( m_instrumentDeathRow.size() > 0 &&
+			( m_instrumentDeathRow.front() == nullptr ||
+			  ( m_instrumentDeathRow.front() != nullptr &&
+				m_instrumentDeathRow.front()->is_queued() == 0 ) ) ) {
+		pInstr = m_instrumentDeathRow.front();
+		m_instrumentDeathRow.pop_front();
+
+		if ( pInstr != nullptr  ) {
+			pInstr->unload_samples();
+		}
+	}
+
+	if ( m_instrumentDeathRow.size() > 0 ) {
+		pInstr = m_instrumentDeathRow.front();
+		if ( pInstr != nullptr ) {
+			INFOLOG( QString( "Instrument [%1] still has active notes:\n\t%2 " )
+					 .arg( pInstr->get_name() )
+					 .arg( pInstr->getEnqueuedBy().join( "\n\t" ) ) );
 		}
 	}
 }
@@ -1536,7 +1526,7 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 
 	std::shared_ptr<Instrument> pInstrument = nullptr;
 	
-	if ( m_pSong != nullptr ) {
+	if ( m_pSong != nullptr && m_pSong->getDrumkit() != nullptr ) {
 		
 		m_pAudioEngine->lock( RIGHT_HERE );
 

@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
@@ -117,18 +116,15 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	return pInstrumentList;
 }
 
-void InstrumentList::save_to( XMLNode& node,
-							  int component_id,
-							  bool bRecentVersion,
-							  bool bSongKit ) const
+void InstrumentList::save_to( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : __instruments ) {
-		assert( pInstrument );
-		assert( pInstrument->get_adsr() );
 		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
-			pInstrument->save_to( instruments_node, component_id, bRecentVersion,
-								  bSongKit );
+			pInstrument->save_to( instruments_node, bSongKit );
+		}
+		else {
+			ERRORLOG( "Invalid instrument!" );
 		}
 	}
 }
@@ -289,7 +285,7 @@ void InstrumentList::move( int idx_a, int idx_b )
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
 }
 
-std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const {
+std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent() const {
 	std::vector<std::shared_ptr<InstrumentList::Content>> results;
 
 	for ( const auto& ppInstrument : __instruments ) {
@@ -300,26 +296,9 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 						if ( ppInstrumentLayer != nullptr ) {
 							auto pSample = ppInstrumentLayer->get_sample();
 							if ( pSample != nullptr ) {
-								// Map component ID to component
-								// name.
-								bool bFound = false;
-								QString sComponentName;
-								for ( const auto& ppDrumkitComponent : *pDrumkitComponents ) {
-									if ( ppInstrumentComponent->get_drumkit_componentID() ==
-										 ppDrumkitComponent->get_id() ) {
-										bFound = true;
-										sComponentName = ppDrumkitComponent->get_name();
-										break;
-									}
-								}
-
-								if ( ! bFound ) {
-									sComponentName = pDrumkitComponents->front()->get_name();
-								}
-
 								results.push_back( std::make_shared<Content>(
 									ppInstrument->get_name(), // m_sInstrumentName
-									sComponentName, // m_sComponentName
+									ppInstrumentComponent->getName(),
 									pSample->get_filename(), // m_sSampleName
 									pSample->get_filepath(), // m_sFullSamplePath
 									pSample->getLicense() // m_license
@@ -426,7 +405,7 @@ bool InstrumentList::isAnyInstrumentSampleLoaded() const {
 		if ( pInstrument != nullptr ) {
 			for ( const auto& pCompo : *pInstrument->get_components() ) {
 				if ( pCompo != nullptr ) {
-					for ( const auto& pLayer : pCompo->get_layers() ) {
+					for ( const auto& pLayer : pCompo->getLayers() ) {
 						if ( pLayer != nullptr &&
 							 pLayer->get_sample() != nullptr &&
 							 pLayer->get_sample()->isLoaded() ) {

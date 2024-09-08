@@ -325,8 +325,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		
 		QMessageBox licenseWarning( this );
 
-		auto drumkitContent =
-			pSong->getDrumkit()->getInstruments()->summarizeContent( pSong->getDrumkit()->getComponents() );
+		auto drumkitContent = pInstrumentList->summarizeContent();
 
 		bool bHasAttribution = false;
 		bool bIsCopyleft = false;
@@ -873,17 +872,19 @@ bool ExportSongDialog::checkUseOfRubberband()
 		if ( pInstr != nullptr ){
 			for ( const auto& pCompo : *pInstr->get_components() ) {
 				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-					auto pLayer = pCompo->get_layer( nLayer );
-					if ( pLayer != nullptr ) {
-						auto pSample = pLayer->get_sample();
-						if ( pSample != nullptr ) {
-							if ( pSample->get_rubberband().use ) {
-								return true;
+					if ( pCompo != nullptr ) {
+						auto pLayer = pCompo->getLayer( nLayer );
+						if ( pLayer != nullptr ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
+								if ( pSample->get_rubberband().use ) {
+									return true;
+								}
 							}
-						}
-						else {
-							WARNINGLOG( QString( "Invalid sample [%1]" )
-										.arg( nLayer ) );
+							else {
+								WARNINGLOG( QString( "Invalid sample [%1]" )
+											.arg( nLayer ) );
+							}
 						}
 					}
 				}

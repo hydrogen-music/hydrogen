@@ -168,13 +168,8 @@ class Note : public H2Core::Object<Note>
 		void setType( DrumkitMap::Type sType );
 		DrumkitMap::Type getType() const;
 
-		/**
-		 * #__specific_compo_id setter
-		 * \param value the new value
-		 */
-		void set_specific_compo_id( int value );
-		/** #__specific_compo_id accessor */
-		int get_specific_compo_id() const;
+		void setSpecificCompoIdx( int value );
+		int getSpecificCompoIdx() const;
 		/**
 		 * #__position setter
 		 * \param value the new value
@@ -248,12 +243,7 @@ class Note : public H2Core::Object<Note>
 		/** #__just_recorded accessor */
 		bool get_just_recorded() const;
 
-		/*
-		 * selected sample
-		 * */
-	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID ) const;
-	const std::map<int, std::shared_ptr<SelectedLayerInfo>>& get_layers_selected() const;
-
+	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int nIdx ) const;
 
 		void set_probability( float value );
 		float get_probability() const;
@@ -377,6 +367,13 @@ class Note : public H2Core::Object<Note>
 	 * in humanice() but separately.
 	 */
 	void swing();
+
+		/** Returns a short but expressive string using which the particular
+		 * note instance can be identified.
+		 *
+		 * Note that the ability to uniquely identify the note is only ensured
+		 * if no identical notes exist in any pattern (de-duplication). */
+		QString prettyName() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -410,7 +407,7 @@ class Note : public H2Core::Object<Note>
 
 	/**
 	 * Returns the sample associated with the note for a specific
-	 * InstrumentComponent @a nComponentID.
+	 * InstrumentComponent @a nComponentIdx.
 	 *
 	 * A sample of the InstrumentComponent is a possible candidate if
 	 * the note velocity falls within the start and end velocity of an
@@ -423,14 +420,13 @@ class Note : public H2Core::Object<Note>
 	 * and will reuse this parameter in every following call while
 	 * disregarding the provided @a nSelectedLayer.
 	 */
-	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 ) const;
+	std::shared_ptr<Sample> getSample( int nComponentIdx, int nSelectedLayer = -1 ) const;
 
 	private:
 		int				__instrument_id;        ///< the id of the instrument played by this note
 		/** Drumkit-independent identifier used to relate a note/pattern to a
 		 * different kit */
 		DrumkitMap::Type m_sType;
-		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
 		int				__position;             ///< note position in
 												///ticks inside the pattern
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
@@ -494,7 +490,13 @@ class Note : public H2Core::Object<Note>
 	 */
 	float m_fUsedTickSize;
 
-	std::map< int, std::shared_ptr<SelectedLayerInfo>> __layers_selected;
+		/** Play a specific component, -1 if playing all */
+		int				m_nSpecificCompoIdx;
+
+		/** One #SelectedLayerInfo for each #InstrumentComponent in
+		 * #__instrument. It assumes the same order as
+		 * #Instrument::__components. */
+	std::vector<std::shared_ptr<SelectedLayerInfo>> __layers_selected;
 
 		/** the instrument to be played by this note */
 		std::shared_ptr<Instrument>		__instrument;
@@ -534,14 +536,14 @@ inline DrumkitMap::Type Note::getType() const {
 	return m_sType;
 }
 
-inline void Note::set_specific_compo_id( int value )
+inline void Note::setSpecificCompoIdx( int value )
 {
-	__specific_compo_id = value;
+	m_nSpecificCompoIdx = value;
 }
 
-inline int Note::get_specific_compo_id() const
+inline int Note::getSpecificCompoIdx() const
 {
-	return __specific_compo_id;
+	return m_nSpecificCompoIdx;
 }
 
 inline void Note::set_position( int value )
@@ -634,14 +636,12 @@ inline void Note::set_probability( float value )
 	__probability = value;
 }
 
-inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID ) const
+inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int nCompoIdx ) const
 {
-	return __layers_selected.at( CompoID );
-}
-
-inline const std::map<int, std::shared_ptr<SelectedLayerInfo>>& Note::get_layers_selected() const
-{
-	return __layers_selected;
+	if ( nCompoIdx < 0 || nCompoIdx >= __layers_selected.size() ) {
+		return nullptr;
+	}
+	return __layers_selected.at( nCompoIdx );
 }
 
 inline int Note::get_humanize_delay() const

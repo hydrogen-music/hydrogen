@@ -355,10 +355,19 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	typesTable->clearContents();
 	typesTable->setRowCount( pInstrumentList->size() );
 
-	const auto types = pDatabase->getAllTypes();
+	auto types = pDatabase->getAllTypes();
+	types.merge( m_pDrumkit->getAllTypes() );
+
+	QStringList allTypeStrings;
+ 	for ( const auto& ssType : types ) {
+		allTypeStrings << ssType;
+	 }
+
+	// Sort them alphabetically in ascending order.
+	allTypeStrings.sort();
 
 	QMenu* pTypesMenu = new QMenu( this );
-	for ( const auto& ssType : types ) {
+	for ( const auto& ssType : allTypeStrings ) {
 		pTypesMenu->addAction( ssType );
 	}
 
@@ -383,7 +392,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 		int nIndex = -1;
 		int nnType = 0;
 		LCDCombo* pInstrumentType = new LCDCombo( nullptr);
-		for ( const auto& ssType : types ) {
+		for ( const auto& ssType : allTypeStrings ) {
 			pInstrumentType->addItem( ssType );
 
 			if ( ssType == sTextType ) {

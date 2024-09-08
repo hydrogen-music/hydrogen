@@ -64,7 +64,8 @@ EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), fram
 
 
 Sample::Sample( const QString& filepath, const License& license, int frames, int sample_rate, float* data_l, float* data_r ) 
-  : __filepath( filepath ),
+  : m_bIsLoaded( false ),
+	__filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
 	__data_l( data_l ),
@@ -77,7 +78,9 @@ Sample::Sample( const QString& filepath, const License& license, int frames, int
 	}
 }
 
-Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
+Sample::Sample( std::shared_ptr<Sample> pOther ) :
+	Object( *pOther ),
+	m_bIsLoaded( pOther->m_bIsLoaded ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),
@@ -255,7 +258,27 @@ bool Sample::load( float fBpm )
 	}
 #endif
 
+	m_bIsLoaded = true;
+
 	return true;
+}
+
+void Sample::unload()
+{
+	if ( __data_l != nullptr ) {
+		delete [] __data_l;
+	}
+
+	if ( __data_r != nullptr ) {
+		delete [] __data_r;
+	}
+	__frames = __sample_rate = 0;
+	/** #__is_modified = false; leave this unchanged as pan,
+	    velocity, loop and rubberband are kept unchanged */
+
+	__data_l = __data_r = nullptr;
+
+	m_bIsLoaded = false;
 }
 
 bool Sample::apply_loops()
@@ -812,6 +835,8 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bIsLoaded: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsLoaded ) )
 			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( __filepath ) )
 			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s )
@@ -842,7 +867,8 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 		sOutput = QString( "[Sample]" )
-			.append( QString( " filepath: %1" ).arg( __filepath ) )
+			.append( QString( " m_bIsLoaded: %1" ).arg( m_bIsLoaded ) )
+			.append( QString( ", filepath: %1" ).arg( __filepath ) )
 			.append( QString( ", frames: %1" ).arg( __frames ) )
 			.append( QString( ", sample_rate: %1" ).arg( __sample_rate ) )
 			.append( QString( ", is_modified: %1" ).arg( __is_modified ) )

@@ -45,6 +45,16 @@ class XMLNode;
 class Legacy : public H2Core::Object<Legacy> {
 		H2_OBJECT(Legacy)
 	public:
+
+		/** Backward compatibility for kits created between 0.9.7 and 1.2.X.
+		 * These included an element called `DrumkitComponent` holding some
+		 * parameters now included in `InstrumentComponent`. This function
+		 * searches for those parameters and assignes them to the components in
+		 * @a pInstrumentList. */
+		static void loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList,
+										const XMLNode& rootNode,
+										bool bSilent = false );
+
 	/** backward compatibility for loading the current drumkit from songs saved
 	 * prior to version 1.3.0.
 	 *
@@ -60,17 +70,6 @@ class Legacy : public H2Core::Object<Legacy> {
 	static std::shared_ptr<Drumkit> loadEmbeddedSongDrumkit( const XMLNode& pRootNode,
 															 const QString& sSongPath = "",
 															 bool bSilent = false );
-
-	/** backward compatibility for saving the current drumkit parts to .h2song
-	 * in versions prior to 1.3.0.
-	 *
-	 * These did not store proper drumkits but raw instrument lists and
-	 * components as well as some meta data. this is already about 90% of make a
-	 * drumkit a drumkit but the pieces missing let to various inconsistencies
-	 * and bugs.*/
-	static	void saveEmbeddedSongDrumkit( XMLNode& pRootNode,
-								  std::shared_ptr<Drumkit> pDrumkit,
-								  bool bSilent = false );
 
 	/** Backward compatibility code to load an #InstrumentComponent
 	 *	from an #Instrument which itself did not contain one yet.

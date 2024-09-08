@@ -32,7 +32,6 @@
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -70,6 +69,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __muted( false )
 	, __mute_group( -1 )
 	, __queued( 0 )
+	  , m_enqueuedBy( QStringList() )
 	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
@@ -78,24 +78,34 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples( false )
-	, __components( nullptr )
+	, __components( std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>() )
 {
+	/*: Name assigned to an Instrument created either as part of a fresh kit
+	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
+	 *  action. */
+	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Instrument", "New Instrument");
+
+	if ( name.isEmpty() ) {
+		__name = sInstrumentName;
+	}
+
 	if ( __adsr == nullptr ) {
 		__adsr = std::make_shared<ADSR>();
 	}
 
     if( __midi_out_note < MIDI_OUT_NOTE_MIN ){
-		__midi_out_note = MIDI_OUT_NOTE_MIN;	
+		__midi_out_note = MIDI_OUT_NOTE_MIN;
 	}
-	
+
 	if( __midi_out_note > MIDI_OUT_NOTE_MAX ){
-		__midi_out_note = MIDI_OUT_NOTE_MAX;	
+		__midi_out_note = MIDI_OUT_NOTE_MAX;
 	}
-	
+
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
-	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
+
+	__components->push_back( std::make_shared<InstrumentComponent>() );
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
@@ -123,7 +133,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __soloed( other->is_soloed() )
 	, __muted( other->is_muted() )
 	, __mute_group( other->get_mute_group() )
-	, __queued( other->is_queued() )
+	, __queued( 0 )
+	  , m_enqueuedBy( QStringList() )
 	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
@@ -144,7 +155,13 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	}
 }
 
-Instrument::~Instrument() {}
+Instrument::~Instrument() {
+	if ( __queued > 0 ) {
+		WARNINGLOG( QString( "Instrument [%1] is destroyed while still being enqueued! __queued: %2,\nm_enqueuedNotes:\n\t%3" )
+					.arg( __name ).arg( __queued )
+					.arg( m_enqueuedBy.join( "\n\t" ) ) );
+	}
+}
 
 std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 												   const QString& sDrumkitPath,
@@ -179,12 +196,12 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName = node.read_string( "drumkit", "", false,
-													 false, bSilent );
+													 true, bSilent );
 		
 		if ( ! node.firstChildElement( "drumkitPath" ).isNull() ) {
 			// Current format
 			sInstrumentDrumkitPath = node.read_string( "drumkitPath", "",
-														 false, false, bSilent  );
+														 false, true, bSilent  );
 
 			if ( ! sInstrumentDrumkitPath.isEmpty() ) {
 #ifdef H2CORE_HAVE_APPIMAGE
@@ -378,14 +395,17 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 		}
 	}
 
+	std::vector<std::shared_ptr<InstrumentComponent>> componentsLoaded;
 	if ( ! node.firstChildElement( "instrumentComponent" ).isNull() ) {
 		// current format
 		XMLNode componentNode = node.firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
-			pInstrument->get_components()->
-				push_back( InstrumentComponent::load_from(
-							   componentNode, pInstrument->get_drumkit_path(),
-							   sSongPath, instrumentLicense, bSilent ) );
+			auto ppComponent = InstrumentComponent::loadFrom(
+				componentNode, pInstrument->get_drumkit_path(),
+				sSongPath, instrumentLicense, bSilent );
+			if ( ppComponent != nullptr ) {
+				componentsLoaded.push_back( ppComponent );
+			}
 			componentNode = componentNode.nextSiblingElement( "instrumentComponent" ) ;
 		}
 	}
@@ -399,8 +419,16 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 					  .arg( pInstrument->get_name() ) );
 			return nullptr;
 		}
+		componentsLoaded.push_back( pCompo );
+	}
 
-		pInstrument->get_components()->push_back( pCompo );
+	// Each new instrument comes with a fallback/default component. Only discard
+	// it in case we did successfully loaded components from file.
+	if ( componentsLoaded.size() > 0 ) {
+		pInstrument->__components->clear();
+		for ( const auto& ppComponent : componentsLoaded ) {
+			pInstrument->get_components()->push_back( ppComponent );
+		}
 	}
 
 	// Sanity checks
@@ -408,7 +436,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 	// There has to be at least one InstrumentComponent
 	if ( pInstrument->get_components()->size() == 0 ) {
 		pInstrument->get_components()->push_back(
-			std::make_shared<InstrumentComponent>( 0 ) );
+			std::make_shared<InstrumentComponent>() );
 	}
 
 	// Check whether there are missing samples
@@ -449,7 +477,7 @@ void Instrument::load_samples( float fBpm )
 {
 	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->getLayer( i );
 			if ( pLayer != nullptr ) {
 				pLayer->load_sample( fBpm );
 			}
@@ -461,7 +489,7 @@ void Instrument::unload_samples()
 {
 	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->getLayer( i );
 			if( pLayer ){
 				pLayer->unload_sample();
 			}
@@ -469,10 +497,7 @@ void Instrument::unload_samples()
 	}
 }
 
-void Instrument::save_to( XMLNode& node,
-						  int component_id,
-						  bool bRecentVersion,
-						  bool bSongKit ) const
+void Instrument::save_to( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
@@ -541,10 +566,32 @@ void Instrument::save_to( XMLNode& node,
 	}
 
 	for ( const auto& pComponent : *__components ) {
-		if ( component_id == -1 ||
-			pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->save_to( InstrumentNode, bRecentVersion, bSongKit );
+		if ( pComponent != nullptr ) {
+			pComponent->saveTo( InstrumentNode, bSongKit );
+		} else {
+			ERRORLOG( "Invalid component!" );
 		}
+	}
+}
+
+void Instrument::enqueue( Note* pNote ) {
+	__queued++;
+
+	m_enqueuedBy.push_back( pNote->prettyName() );
+}
+
+void Instrument::dequeue( Note* pNote ) {
+	if ( __queued <= 0 ) {
+		ERRORLOG( QString( "[%1] is not queued!" ).arg( __name ) );
+		return;
+	}
+
+	__queued--;
+
+	if ( __queued > 0 ) {
+		m_enqueuedBy.removeOne( pNote->prettyName() );
+	} else {
+		m_enqueuedBy.clear();
 	}
 }
 
@@ -562,15 +609,38 @@ void Instrument::set_pitch_offset( float fValue )
 	__pitch_offset = std::clamp( fValue, fPitchMin, fPitchMax );
 }
 
-std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID ) const
+std::shared_ptr<InstrumentComponent> Instrument::get_component( int nIdx ) const
 {
-	for ( const auto& pComponent : *get_components() ) {
-		if( pComponent->get_drumkit_componentID() == DrumkitComponentID ) {
-			return pComponent;
-		}
+	if ( nIdx < 0 || nIdx >= __components->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIdx ).arg( __components->size() ) );
+		return nullptr;
 	}
 
-	return nullptr;
+	return __components->at( nIdx );
+}
+
+void Instrument::addComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
+	__components->push_back( pComponent );
+}
+
+void Instrument::removeComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
+	for ( int ii = 0; ii < __components->size(); ++ii ) {
+		if ( pComponent == __components->at( ii ) ) {
+			__components->erase( __components->begin() + ii );
+			return;
+		}
+	}
+}
+
+void Instrument::removeComponent( int nIdx ) {
+	if ( nIdx < 0 || nIdx >= __components->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIdx ).arg( __components->size() ) );
+		return;
+	}
+
+	__components->erase( __components->begin() + nIdx );
 }
 
 const QString& Instrument::get_drumkit_path() const
@@ -647,7 +717,9 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( __mute_group ) )
 			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( __queued ) ) ;
+					 .arg( __queued ) )
+			.append( QString( "%1%2m_enqueuedBy: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_enqueuedBy.join( "\n" + sPrefix + s + s  ) ) );
 		sOutput.append( QString( "%1%2fx_level: [ " ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
@@ -703,7 +775,9 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", soloed: %1" ).arg( __soloed ) )
 			.append( QString( ", muted: %1" ).arg( __muted ) )
 			.append( QString( ", mute_group: %1" ).arg( __mute_group ) )
-			.append( QString( ", queued: %1" ).arg( __queued ) ) ;
+			.append( QString( ", queued: %1" ).arg( __queued ) )
+			.append( QString( ", m_enqueuedBy: [%1]" )
+					 .arg( m_enqueuedBy.join( " ; " ) ) );
 		sOutput.append( QString( ", fx_level: [ " ) );
 		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
@@ -720,10 +794,10 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", components: [" ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
-				sOutput.append( QString( " %1" ).arg( cc->get_drumkit_componentID() ) );
+				sOutput.append( QString( " %1" ).arg( cc->getName() ) );
 			}
 		}
-		sOutput.append(" ]\n");
+		sOutput.append("]\n");
 	}
 		
 	return sOutput;

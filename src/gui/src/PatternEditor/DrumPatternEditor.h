@@ -107,16 +107,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 										   int nSelectedInstrument,
 										   int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
-		void functionDropInstrumentUndoAction( int nTargetInstrument );
-		void functionDropInstrumentRedoAction( const QString& sDrumkitPath,
-											   const QString& sInstrumentName,
-											   int nTargetInstrument );
-		void functionDeleteInstrumentUndoAction( const std::list< H2Core::Note* >& noteList,
-												 int nSelectedInstrument,
-												 const QString& instrumentName,
-												 const QString& drumkitName );
-		void functionAddEmptyInstrumentUndo();
-		void functionAddEmptyInstrumentRedo();
 		void functionPasteNotesRedoAction( H2Core::PatternList* pCopiedNotesPattnerList,
 										   H2Core::PatternList* pAppliedPatternList);
 		void functionPasteNotesUndoAction( H2Core::PatternList* pAppliedPatternList);

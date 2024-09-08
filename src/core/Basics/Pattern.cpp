@@ -147,7 +147,7 @@ Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
 	pPattern->m_nVersion = node.read_int(
 		"userVersion", pPattern->m_nVersion, false, false, bSilent );
 	pPattern->m_sAuthor = node.read_string(
-		"author", pPattern->m_sAuthor, false, false, bSilent );
+		"author", pPattern->m_sAuthor, false, true, bSilent );
 	const License license( node.read_string(
 							   "license", pPattern->m_license.getLicenseString(),
 							   false, false, bSilent ) );
@@ -471,7 +471,9 @@ void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
 	}
 
 	for ( auto& [ _, ppNote ] : __notes ) {
-		ppNote->mapTo( pDrumkit );
+		if ( ppNote != nullptr ) {
+			ppNote->mapTo( pDrumkit );
+		}
 	}
 }
 
@@ -569,15 +571,10 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", denominator: %1" ).arg( __denominator ) )
 			.append( QString( ", category: %1" ).arg( __category ) )
 			.append( QString( ", info: %1" ).arg( __info ) )
-			.append( QString( ", [Notes: " ) );
+			.append( QString( ", notes: [" ) );
 		for ( const auto& [ _, ppNote ] : __notes ) {
 			if ( ppNote != nullptr ) {
-				sOutput.append( QString( "[type: %1, pos: %2, instrument: %3] " )
-								.arg( ppNote->getType() )
-								.arg( ppNote->get_position() )
-								.arg( ppNote->get_instrument() != nullptr ?
-									  ppNote->get_instrument()->get_name() :
-									  "nullptr" ) );
+				sOutput.append( QString( "[%1], " ).arg( ppNote->prettyName() ) );
 			}
 		}
 		sOutput.append( "]" );

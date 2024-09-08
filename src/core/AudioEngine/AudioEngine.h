@@ -24,19 +24,17 @@
 #define AUDIO_ENGINE_H
 
 #include <core/AudioEngine/AudioEngineTests.h>
-
 #include <core/config.h>
-#include <core/Object.h>
-#include <core/Hydrogen.h>
-#include <core/Sampler/Sampler.h>
-#include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
-#include <core/Preferences/Preferences.h>
-
+#include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeDriver.h>
+#include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Sampler.h>
+
 
 #include <memory>
 #include <string>
@@ -64,11 +62,13 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 namespace H2Core
 {
-	class MidiOutput;
-	class MidiInput;
-	class EventQueue;
-	class PatternList;
 	class Drumkit;
+	class EventQueue;
+	class Instrument;
+	class MidiInput;
+	class MidiOutput;
+	class Note;
+	class PatternList;
 	class Song;
 	class TransportPosition;
 	
@@ -461,6 +461,11 @@ public:
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	friend bool CoreActionController::activateSongMode( bool );
 	friend bool CoreActionController::activateLoopMode( bool );
+	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> );
+	friend bool CoreActionController::removeInstrument(
+		std::shared_ptr<Instrument> );
+	friend bool CoreActionController::replaceInstrument(
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 
@@ -496,7 +501,12 @@ private:
 	 */
 	double coarseGrainTick( double fTick );
 
-	void			clearNoteQueues();
+		/** Flush the incoming MIDI note queue and song note queue.
+		 *
+		 * @param pInstrument particular instrument for which notes will be
+		 *   removed (`nullptr` to release them all) */
+	void			clearNoteQueues(
+		std::shared_ptr<Instrument> pInstrument = nullptr );
 	/** Clear all audio buffers.
 	 */
 	void			clearAudioBuffers( uint32_t nFrames );

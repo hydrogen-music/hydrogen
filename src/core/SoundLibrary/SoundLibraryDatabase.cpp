@@ -319,10 +319,7 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const {
 	return drumkitFolders;
 }
 
-QStringList SoundLibraryDatabase::getAllTypes() const {
-	QStringList results;
-
-	// All types available
+std::set<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
 	std::set<DrumkitMap::Type> allTypes;
 	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
 		if ( ppDrumkit != nullptr ) {
@@ -330,14 +327,7 @@ QStringList SoundLibraryDatabase::getAllTypes() const {
 		}
 	}
 
- 	for ( const auto& ssType : allTypes ) {
-		results << ssType;
-	 }
-
-	// Sort them alphabetically in ascending order.
-	results.sort();
-
-	return results;
+	return allTypes;
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )

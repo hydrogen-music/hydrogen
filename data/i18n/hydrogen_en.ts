@@ -1130,32 +1130,37 @@ But there were encoding issues.
 Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ComponentMixerLine</name>
     <message>
-        <source>Mute</source>
-        <translation></translation>
+        <source>Delete instrument</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Solo</source>
-        <translation></translation>
+        <source>Drop instrument</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation></translation>
+        <source>Switch drumkit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Volume</source>
-        <translation></translation>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation></translation>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set volume [%1] of component</source>
-        <translation></translation>
+        <source>Delete component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add instrument</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1199,82 +1204,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>New Drumkit</source>
         <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Main</source>
-        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Instrument</source>
-        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog</name>
-    <message>
-        <source>&amp;Export</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Directory</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -1832,6 +1761,22 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
+    <name>Instrument</name>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentComponent</name>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to an InstrumentComponent of a fresh instrument.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
@@ -1883,10 +1828,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>New component name</source>
         <translation></translation>
     </message>
     <message>
@@ -1952,6 +1893,10 @@ Value</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New component name</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
@@ -2010,10 +1955,6 @@ Value</source>
         <translation></translation>
     </message>
     <message>
-        <source>Delete instrument</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation></translation>
     </message>
@@ -2051,10 +1992,6 @@ Value</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
         <translation></translation>
     </message>
     <message>
@@ -2520,10 +2457,6 @@ Are you sure you want to save?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Add &amp;Component</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation></translation>
     </message>
@@ -2700,6 +2633,22 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Save &amp;To Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4626,14 +4575,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Drop instrument</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Add piano roll note ( %1, %2 )</source>
         <translation></translation>
     </message>
@@ -4676,26 +4617,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Altering the length of the current pattern</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename component</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add song to playlist</source>
@@ -5373,10 +5294,6 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>Add component to current drumkit</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Show playlist editor</source>
         <translation></translation>
     </message>
@@ -5658,6 +5575,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Switch to previous drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component to current instrument</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

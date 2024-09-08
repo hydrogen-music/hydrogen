@@ -35,6 +35,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(XmlTest);
 	CPPUNIT_TEST(testDrumkitFormatIntegrity);
 	CPPUNIT_TEST(testDrumkit);
+	CPPUNIT_TEST(testDrumkitLegacy);
 	CPPUNIT_TEST(testDrumkit_UpgradeInvalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
 	CPPUNIT_TEST(testDrumkitInstrumentTypeUniqueness);
@@ -53,6 +54,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testSong);
 	CPPUNIT_TEST(testSongLegacy);
 	CPPUNIT_TEST(testPreferencesFormatIntegrity);
+	CPPUNIT_TEST(testShippedPreferences);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -62,6 +64,7 @@ class XmlTest : public CppUnit::TestCase {
 		/** Checks whether the format of `drumkit.xml` files did change. */
 		void testDrumkitFormatIntegrity();
 		void testDrumkit();
+		void testDrumkitLegacy();
 		void testDrumkit_UpgradeInvalidADSRValues();
 		void testDrumkitUpgrade();
 		void testDrumkitInstrumentTypeUniqueness();
@@ -104,6 +107,8 @@ class XmlTest : public CppUnit::TestCase {
 		/** Checks whether the format of our preferences file `hydrogen.conf`
 		 * did change. */
 		void testPreferencesFormatIntegrity();
+		// Check whether the shipped default/fallback config file is up-to-date.
+		void testShippedPreferences();
 
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,

@@ -151,14 +151,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sFilename Absolute path to write the song to.
-	 * @param bLegacy Whether the current format containing a proper
-	 *   #H2Core::Drumkit or the legacy format (prior to version 2.0.0)
-	 *   containing only selected drumkit parts should be used.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */
-	bool 			save( const QString& sFilename, bool bLegacy = false,
-						  bool bSilent = false );
+	bool 			save( const QString& sFilename, bool bSilent = false );
 
 		static constexpr int nDefaultResolution = 48;
 	bool getIsTimelineActivated() const;
@@ -290,8 +286,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::shared_ptr<Timeline> getTimeline() const;
 
-	void removeInstrument( int nInstrumentNumber );
-
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
 		const QString& getLastLoadedDrumkitPath() const;
@@ -312,7 +306,7 @@ private:
 	static std::shared_ptr<Song> loadFrom( const XMLNode& pNode,
 										   const QString& sFilename,
 										   bool bSilent = false );
-	void saveTo( XMLNode& pNode, bool bLegacy, bool bSilent = false ) const;
+	void saveTo( XMLNode& pNode, bool bSilent = false ) const;
 
 	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
 	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );

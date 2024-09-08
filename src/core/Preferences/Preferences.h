@@ -161,11 +161,11 @@ public:
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
 	enum class JackTrackOutputMode {
-		/** Applies layer, component, and instrument gain, note and
-		instrument pan, note velocity, and main component and
-		instrument volume to the samples. */
+		/** Applies layer, component, and instrument gain, note and instrument
+		 * pan, note velocity, and instrument volume to the samples. */
 		postFader = 0,
-		/** Only layer gain and note velocity will be applied to the samples.*/
+		/** Only layer and component gain and note velocity will be applied to
+		 * the samples.*/
 		preFader = 1
 	};
 

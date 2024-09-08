@@ -240,6 +240,15 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
 
+		const QString& getActionAddInstrument() const { return m_sActionAddInstrument; }
+		const QString& getActionDeleteInstrument() const { return m_sActionDeleteInstrument; }
+		const QString& getActionDropInstrument() const { return m_sActionDropInstrument; }
+		const QString& getActionSwitchDrumkit() const { return m_sActionSwitchDrumkit; }
+		const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
+		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
+		const QString& getActionDeleteComponent() const { return m_sActionDeleteComponent; }
+		const QString& getActionRenameComponent() const { return m_sActionRenameComponent; }
+
 		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
 		const QString& getErrorNotFoundShort() const { return m_sErrorNotFoundShort; }
 
@@ -435,6 +444,15 @@ private:
 
 		QString m_sActionEditDrumkitProperties;
 		QString m_sActionIrreversible;
+
+		QString m_sActionAddInstrument;
+		QString m_sActionDeleteInstrument;
+		QString m_sActionDropInstrument;
+		QString m_sActionSwitchDrumkit;
+		QString m_sActionNewDrumkit;
+		QString m_sActionAddComponent;
+		QString m_sActionDeleteComponent;
+		QString m_sActionRenameComponent;
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;

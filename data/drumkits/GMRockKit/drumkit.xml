@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<drumkit_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit">
+<drumkit_info xmlns="http://www.hydrogen-music.org/drumkit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <!--Copyright (C) 2024  Glen MacArthur / Sebastian Moors
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.-->
+ <formatVersion>2</formatVersion>
  <name>GMRockKit</name>
+ <userVersion>0</userVersion>
  <author>Glen MacArthur / Sebastian Moors</author>
  <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
@@ -10,22 +26,16 @@ p, li { white-space: pre-wrap; }
  <license>GPL</license>
  <image></image>
  <imageLicense>undefined license</imageLicense>
- <componentList>
-  <drumkitComponent>
-   <id>0</id>
-   <name>Main</name>
-   <volume>1</volume>
-  </drumkitComponent>
- </componentList>
  <instrumentList>
   <instrument>
    <id>0</id>
    <name>Kick</name>
-	 <type>Kick</type>
+   <type>Kick</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -50,14 +60,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Kick-Softest.wav</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Kick-Soft.wav</filename>
@@ -65,6 +89,18 @@ p, li { white-space: pre-wrap; }
      <max>0.369565</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Kick-Med.wav</filename>
@@ -72,6 +108,18 @@ p, li { white-space: pre-wrap; }
      <max>0.731884</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Kick-Hard.wav</filename>
@@ -79,6 +127,18 @@ p, li { white-space: pre-wrap; }
      <max>0.865942</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Kick-Hardest.wav</filename>
@@ -86,17 +146,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>1</id>
    <name>Stick</name>
-	 <type>Stick</type>
+   <type>Stick</type>
    <volume>0.99569</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.3</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.7</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -121,14 +194,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>SideStick-Softest.wav</filename>
      <min>0</min>
      <max>0.188406</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SideStick-Soft.wav</filename>
@@ -136,6 +223,18 @@ p, li { white-space: pre-wrap; }
      <max>0.402174</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SideStick-Med.wav</filename>
@@ -143,6 +242,18 @@ p, li { white-space: pre-wrap; }
      <max>0.597826</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SideStick-Hard.wav</filename>
@@ -150,6 +261,18 @@ p, li { white-space: pre-wrap; }
      <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SideStick-Hardest.wav</filename>
@@ -157,17 +280,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>2</id>
    <name>Snare</name>
-	 <type>Snare</type>
+   <type>Snare</type>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.3</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.7</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -192,14 +328,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Snare-Softest.wav</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Snare-Soft.wav</filename>
@@ -207,6 +357,18 @@ p, li { white-space: pre-wrap; }
      <max>0.376812</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Snare-Med.wav</filename>
@@ -214,6 +376,18 @@ p, li { white-space: pre-wrap; }
      <max>0.568841</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Snare-Hard.wav</filename>
@@ -221,6 +395,18 @@ p, li { white-space: pre-wrap; }
      <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Snare-Hardest.wav</filename>
@@ -228,17 +414,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>3</id>
    <name>Hand Clap</name>
-	 <type>Hand Clap</type>
+   <type>Hand Clap</type>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.3</pan>
+   <pan_L>0.7</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -263,25 +462,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>HandClap.wav</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>4</id>
    <name>Snare Rimshot</name>
-	 <type>Snare Rimshot</type>
+   <type>Snare Rimshot</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.3</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.7</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -306,14 +520,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>SnareRimshot-Softest.wav</filename>
      <min>0</min>
      <max>0.188406</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SnareRimshot-Soft.wav</filename>
@@ -321,6 +549,18 @@ p, li { white-space: pre-wrap; }
      <max>0.380435</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SnareRimshot-Med.wav</filename>
@@ -328,6 +568,18 @@ p, li { white-space: pre-wrap; }
      <max>0.594203</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SnareRimshot-Hard.wav</filename>
@@ -335,6 +587,18 @@ p, li { white-space: pre-wrap; }
      <max>0.728261</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>SnareRimshot-Hardest.wav</filename>
@@ -342,17 +606,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>5</id>
    <name>Floor Tom</name>
-	 <type>Tom Floor</type>
+   <type>Tom Floor</type>
    <volume>1.04741</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.56</pan>
+   <pan_L>0.44</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -377,14 +654,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>TomFloor-Softest.wav</filename>
      <min>0</min>
      <max>0.199275</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>TomFloor-Soft.wav</filename>
@@ -392,6 +683,18 @@ p, li { white-space: pre-wrap; }
      <max>0.394928</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>TomFloor-Med.wav</filename>
@@ -399,6 +702,18 @@ p, li { white-space: pre-wrap; }
      <max>0.608696</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>TomFloor-Hard.wav</filename>
@@ -406,6 +721,18 @@ p, li { white-space: pre-wrap; }
      <max>0.786232</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>TomFloor-Hardest.wav</filename>
@@ -413,17 +740,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>6</id>
    <name>Hat Closed</name>
-	 <type>Hi-hat Closed</type>
+   <type>Hi-hat Closed</type>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -448,14 +788,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>HatClosed-Softest.wav</filename>
      <min>0</min>
      <max>0.173913</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatClosed-Soft.wav</filename>
@@ -463,6 +817,18 @@ p, li { white-space: pre-wrap; }
      <max>0.373188</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatClosed-Med.wav</filename>
@@ -470,6 +836,18 @@ p, li { white-space: pre-wrap; }
      <max>0.576087</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatClosed-Hard.wav</filename>
@@ -477,6 +855,18 @@ p, li { white-space: pre-wrap; }
      <max>0.786232</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatClosed-Hardest.wav</filename>
@@ -484,17 +874,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>7</id>
    <name>Tom 2</name>
-	 <type>Tom Low</type>
+   <type>Tom Low</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.24</pan>
+   <pan_L>0.76</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -519,14 +922,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Tom2-Softest.wav</filename>
      <min>0</min>
      <max>0.177536</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom2-Soft.wav</filename>
@@ -534,6 +951,18 @@ p, li { white-space: pre-wrap; }
      <max>0.373188</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom2-Med.wav</filename>
@@ -541,6 +970,18 @@ p, li { white-space: pre-wrap; }
      <max>0.576087</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom2-Hard.wav</filename>
@@ -548,6 +989,18 @@ p, li { white-space: pre-wrap; }
      <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom2-Hardest.wav</filename>
@@ -555,17 +1008,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>8</id>
    <name>Hat Pedal</name>
-	 <type>Hi-hat Pedal</type>
+   <type>Hi-hat Pedal</type>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -590,14 +1056,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>HatPedal-Softest.wav</filename>
      <min>0</min>
      <max>0.210145</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatPedal-Soft.wav</filename>
@@ -605,6 +1085,18 @@ p, li { white-space: pre-wrap; }
      <max>0.384058</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatPedal-Med.wav</filename>
@@ -612,6 +1104,18 @@ p, li { white-space: pre-wrap; }
      <max>0.594203</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatPedal-Hard.wav</filename>
@@ -619,6 +1123,18 @@ p, li { white-space: pre-wrap; }
      <max>0.797101</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatPedal-Hardest.wav</filename>
@@ -626,17 +1142,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>9</id>
    <name>Tom 1</name>
-	 <type>Tom Mid</type>
+   <type>Tom Mid</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.2</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.8</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -661,14 +1190,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Tom1-Softest.wav</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom1-Soft.wav</filename>
@@ -676,6 +1219,18 @@ p, li { white-space: pre-wrap; }
      <max>0.394928</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom1-Med.wav</filename>
@@ -683,6 +1238,18 @@ p, li { white-space: pre-wrap; }
      <max>0.605072</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom1-Hard.wav</filename>
@@ -690,6 +1257,18 @@ p, li { white-space: pre-wrap; }
      <max>0.786232</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Tom1-Hardest.wav</filename>
@@ -697,17 +1276,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>10</id>
    <name>Hat Open</name>
-	 <type>Hi-hat Open</type>
+   <type>Hi-hat Open</type>
    <volume>0.698276</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -732,14 +1324,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>HatOpen-Softest.wav</filename>
      <min>0</min>
      <max>0.202899</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatOpen-Soft.wav</filename>
@@ -747,6 +1353,18 @@ p, li { white-space: pre-wrap; }
      <max>0.398551</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatOpen-Med.wav</filename>
@@ -754,6 +1372,18 @@ p, li { white-space: pre-wrap; }
      <max>0.605072</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatOpen-Hard.wav</filename>
@@ -761,6 +1391,18 @@ p, li { white-space: pre-wrap; }
      <max>0.797101</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatOpen-Hardest.wav</filename>
@@ -768,17 +1410,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>11</id>
    <name>Cowbell</name>
-	 <type>Cowbell</type>
+   <type>Cowbell</type>
    <volume>0.568965</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.68</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.32</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -803,14 +1458,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Cowbell-Softest.wav</filename>
      <min>0</min>
      <max>0.184783</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Cowbell-Soft.wav</filename>
@@ -818,6 +1487,18 @@ p, li { white-space: pre-wrap; }
      <max>0.384058</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Cowbell-Med.wav</filename>
@@ -825,6 +1506,18 @@ p, li { white-space: pre-wrap; }
      <max>0.576087</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Cowbell-Hard.wav</filename>
@@ -832,6 +1525,18 @@ p, li { white-space: pre-wrap; }
      <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Cowbell-Hardest.wav</filename>
@@ -839,17 +1544,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>12</id>
    <name>Ride</name>
-	 <type>Ride Bow</type>
+   <type>Ride Bow</type>
    <volume>0.633621</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.44</pan>
+   <pan_L>0.56</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -874,14 +1592,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Ride-Softest.wav</filename>
      <min>0</min>
      <max>0.195652</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Ride-Soft.wav</filename>
@@ -889,6 +1621,18 @@ p, li { white-space: pre-wrap; }
      <max>0.376812</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Ride-Med.wav</filename>
@@ -896,6 +1640,18 @@ p, li { white-space: pre-wrap; }
      <max>0.572464</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Ride-Hard.wav</filename>
@@ -903,6 +1659,18 @@ p, li { white-space: pre-wrap; }
      <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Ride-Hardest.wav</filename>
@@ -910,17 +1678,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>13</id>
    <name>Crash</name>
-	 <type>Crash</type>
+   <type>Crash</type>
    <volume>0.517241</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.26</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.74</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -945,14 +1726,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Crash-Softest.wav</filename>
      <min>0</min>
      <max>0.199275</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Crash-Soft.wav</filename>
@@ -960,6 +1755,18 @@ p, li { white-space: pre-wrap; }
      <max>0.384058</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Crash-Med.wav</filename>
@@ -967,6 +1774,18 @@ p, li { white-space: pre-wrap; }
      <max>0.59058</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Crash-Hard.wav</filename>
@@ -974,6 +1793,18 @@ p, li { white-space: pre-wrap; }
      <max>0.789855</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Crash-Hardest.wav</filename>
@@ -981,17 +1812,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>14</id>
    <name>Ride 2</name>
-	 <type>Ride Bow 2</type>
+   <type>Ride Bow 2</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.5</pan>
+   <pan_L>0.5</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>0.6</gain>
@@ -1016,14 +1860,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>24Ride-5.wav</filename>
      <min>0.8</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>24Ride-4.wav</filename>
@@ -1031,6 +1889,18 @@ p, li { white-space: pre-wrap; }
      <max>0.8</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>24Ride-3.wav</filename>
@@ -1038,6 +1908,18 @@ p, li { white-space: pre-wrap; }
      <max>0.6</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>24Ride-2.wav</filename>
@@ -1045,6 +1927,18 @@ p, li { white-space: pre-wrap; }
      <max>0.4</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>24Ride-1.wav</filename>
@@ -1052,17 +1946,30 @@ p, li { white-space: pre-wrap; }
      <max>0.2</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>15</id>
    <name>Splash</name>
-	 <type>Splash</type>
+   <type>Splash</type>
    <volume>0.543103</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.02</pan>
+   <pan_L>0.98</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -1087,14 +1994,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Splash-Softest.wav</filename>
      <min>0</min>
      <max>0.195652</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Splash-Soft.wav</filename>
@@ -1102,6 +2023,18 @@ p, li { white-space: pre-wrap; }
      <max>0.362319</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Splash-Med.wav</filename>
@@ -1109,6 +2042,18 @@ p, li { white-space: pre-wrap; }
      <max>0.568841</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Splash-Hard.wav</filename>
@@ -1116,6 +2061,18 @@ p, li { white-space: pre-wrap; }
      <max>0.75</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Splash-Hardest.wav</filename>
@@ -1123,17 +2080,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>16</id>
    <name>Hat Semi-Open</name>
-	 <type>Hi-hat Semi-Open</type>
+   <type>Hi-hat Semi-Open</type>
    <volume>0.69</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.52</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -1158,14 +2128,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>HatSemiOpen-Softest.wav</filename>
      <min>0</min>
      <max>0.188406</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatSemiOpen-Soft.wav</filename>
@@ -1173,6 +2157,18 @@ p, li { white-space: pre-wrap; }
      <max>0.380435</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatSemiOpen-Med.wav</filename>
@@ -1180,6 +2176,18 @@ p, li { white-space: pre-wrap; }
      <max>0.57971</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatSemiOpen-Hard.wav</filename>
@@ -1187,6 +2195,18 @@ p, li { white-space: pre-wrap; }
      <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>HatSemiOpen-Hardest.wav</filename>
@@ -1194,17 +2214,30 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>17</id>
    <name>Bell</name>
-	 <type>Ride Bell</type>
+   <type>Ride Bell</type>
    <volume>0.534828</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.44</pan>
+   <pan_L>0.56</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -1229,14 +2262,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>Bell-Softest.wav</filename>
      <min>0</min>
      <max>0.210145</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Bell-Soft.wav</filename>
@@ -1244,6 +2291,18 @@ p, li { white-space: pre-wrap; }
      <max>0.405797</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Bell-Med.wav</filename>
@@ -1251,6 +2310,18 @@ p, li { white-space: pre-wrap; }
      <max>0.605072</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Bell-Hard.wav</filename>
@@ -1258,6 +2329,18 @@ p, li { white-space: pre-wrap; }
      <max>0.786232</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
      <filename>Bell-Hardest.wav</filename>
@@ -1265,6 +2348,18 @@ p, li { white-space: pre-wrap; }
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>

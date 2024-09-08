@@ -36,7 +36,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>

@@ -21,7 +21,6 @@
  */
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
 
 #ifdef WIN32
 #    include "core/Timehelper.h"
@@ -30,45 +29,42 @@
 #    include <sys/time.h>
 #endif
 
+#include <limits>
 #include <sstream>
 
-#include <core/EventQueue.h>
-#include <core/FX/Effects.h>
+#include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Song.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/DrumkitComponent.h>
-#include <core/Basics/AutomationPath.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/InstrumentComponent.h>
-#include <core/Sampler/Sampler.h>
+#include <core/Basics/Song.h>
+#include <core/EventQueue.h>
+#include <core/FX/Effects.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Random.h>
-
+#include <core/Hydrogen.h>
+#include <core/IO/AlsaAudioDriver.h>
+#include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/AudioOutput.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/CoreMidiDriver.h>
+#include <core/IO/DiskWriterDriver.h>
+#include <core/IO/FakeDriver.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/JackMidiDriver.h>
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
-#include <core/IO/CoreMidiDriver.h>
+#include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
-#include <core/IO/FakeDriver.h>
-#include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/PortAudioDriver.h>
-#include <core/IO/DiskWriterDriver.h>
-#include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/JackMidiDriver.h>
 #include <core/IO/PortMidiDriver.h>
-#include <core/IO/CoreAudioDriver.h>
 #include <core/IO/PulseAudioDriver.h>
-
-#include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
-
-#include <limits>
+#include <core/Sampler/Sampler.h>
 
 #define AUDIO_ENGINE_DEBUG 0
 
@@ -130,9 +126,12 @@ AudioEngine::AudioEngine()
 	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
-	auto pCompo = std::make_shared<InstrumentComponent>( 0 );
-	pCompo->set_layer(pLayer, 0);
-	m_pMetronomeInstrument->get_components()->push_back( pCompo );
+	auto pComponent = m_pMetronomeInstrument->get_component( 0 );
+	if ( pComponent != nullptr ) {
+		pComponent->setLayer( pLayer, 0 );
+	} else {
+		___ERRORLOG( "Invalid default component" );
+	}
 	m_pMetronomeInstrument->set_is_metronome_instrument(true);
 	m_pMetronomeInstrument->set_volume(
 		Preferences::get_instance()->m_fMetronomeVolume );
@@ -1320,7 +1319,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				// Current note is skipped with a certain probability.
 				if ( fNoteProbability < (float) rand() / (float) RAND_MAX ) {
 					m_songNoteQueue.pop();
-					pNote->get_instrument()->dequeue();
+					pNote->get_instrument()->dequeue( pNote );
 					continue;
 				}
 			}
@@ -1339,7 +1338,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 			if ( ! pNote->get_instrument()->hasSamples() ) {
 				m_songNoteQueue.pop();
-				pNote->get_instrument()->dequeue();
+				pNote->get_instrument()->dequeue( pNote );
 				delete pNote;
 				continue;
 			}
@@ -1351,7 +1350,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 			m_pSampler->noteOn( pNote );
 			m_songNoteQueue.pop();
-			pNote->get_instrument()->dequeue();
+			pNote->get_instrument()->dequeue( pNote );
 			
 			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->get_instrument() );
 			if( pNote->get_note_off() ){
@@ -1371,21 +1370,62 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	}
 }
 
-void AudioEngine::clearNoteQueues()
+void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 {
-	// delete all copied notes in the note queues
-	while ( !m_songNoteQueue.empty() ) {
-		if ( m_songNoteQueue.top()->get_instrument() != nullptr ) {
-			m_songNoteQueue.top()->get_instrument()->dequeue();
+	// notes in the song queue. Attention: their instruments are enqueued.
+	if ( pInstrument == nullptr ) {
+		// delete all copied notes in the note queues
+		while ( !m_songNoteQueue.empty() ) {
+			auto pNote = m_songNoteQueue.top();
+			if ( pNote != nullptr ) {
+				if ( pNote->get_instrument() != nullptr ) {
+					pNote->get_instrument()->dequeue( pNote );
+				}
+				delete pNote;
+			}
+			m_songNoteQueue.pop();
 		}
-		delete m_songNoteQueue.top();
-		m_songNoteQueue.pop();
+	}
+	else {
+		// delete just notes of a particular instrument
+		//
+		// AFAICS we can not erase from m_songNoteQueue since it is a priority
+		// queue. Instead, we construct it anew.
+		std::vector<Note*> notes;
+		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
+			auto ppNote = m_songNoteQueue.top();
+			if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
+				 ppNote->get_instrument() == pInstrument ) {
+				if ( ppNote->get_instrument() != nullptr ) {
+					ppNote->get_instrument()->dequeue( ppNote );
+				}
+				if ( ppNote != nullptr ) {
+					delete ppNote;
+				}
+			}
+			else {
+				// We keep this one
+				notes.push_back( ppNote );
+			}
+		}
+		for ( auto& ppNote : notes ) {
+			m_songNoteQueue.push( ppNote );
+		}
+
 	}
 
-	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
-		delete m_midiNoteQueue[i];
+	// Notes of MIDI note queue (no instrument enqueued in here).
+	for ( auto it = m_midiNoteQueue.begin(); it != m_midiNoteQueue.end(); ) {
+		auto ppNote = *it;
+		if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
+			 ( pInstrument == nullptr ||
+			   ppNote->get_instrument() == pInstrument ) ) {
+			delete ppNote;
+			it = m_midiNoteQueue.erase( it );
+		} else {
+			++it;
+		}
 	}
-	m_midiNoteQueue.clear();
 }
 
 int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
@@ -2450,7 +2490,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			}
 
 			m_midiNoteQueue.pop_front();
-			pNote->get_instrument()->enqueue();
+			pNote->get_instrument()->enqueue( pNote );
 			pNote->computeNoteStart();
 			pNote->humanize();
 			m_songNoteQueue.push( pNote );
@@ -2554,7 +2594,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 												 0.f, // pan
 												 -1,
 												 fPitch );
-				m_pMetronomeInstrument->enqueue();
+				m_pMetronomeInstrument->enqueue( pMetronomeNote );
 				pMetronomeNote->computeNoteStart();
 				m_songNoteQueue.push( pMetronomeNote );
 			}
@@ -2654,7 +2694,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 								  .arg( pCopiedNote->toQString() ) );
 #endif
 
-						pCopiedNote->get_instrument()->enqueue();
+						pCopiedNote->get_instrument()->enqueue( pCopiedNote );
 						m_songNoteQueue.push( pCopiedNote );
 					}
 				}
@@ -2955,7 +2995,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( ", m_midiNoteQueue: [" );
 		for ( const auto& nn : m_midiNoteQueue ) {
 			if ( nn != nullptr ) {
-				sOutput.append( nn->toQString( sPrefix + s, bShort ) ).append( ", " );
+				sOutput.append( QString( "[%1], " ).arg( nn->prettyName() ) );
 			}
 		}
 		sOutput.append( QString( "], m_pMetronomeInstrument: %1" )

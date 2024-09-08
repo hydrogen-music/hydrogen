@@ -600,7 +600,7 @@ void SongEditorPanel::updatePlaybackTrackIfNecessary()
 			auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
 				getPlaybackTrackInstrument()->get_components()->front();
 			
-			m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->get_layer(0) );
+			m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->getLayer(0) );
 		}
 	}
 }

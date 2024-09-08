@@ -161,7 +161,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 	// Load the kit and export it.
 	bool bUtf8SupportOnSystem;
 	const auto bDrumkitExportSuccessful = pDrumkit->exportTo(
-		Filesystem::tmp_dir(), -1, true, &bUtf8SupportOnSystem );
+		Filesystem::tmp_dir(), &bUtf8SupportOnSystem );
 	if ( ! bUtf8SupportOnSystem ) {
 		___WARNINGLOG( "UTF-8 support couldn't be enforced. Unit test not applicable." )
 		___INFOLOG( "skipped" );
