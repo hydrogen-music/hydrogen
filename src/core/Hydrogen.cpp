@@ -1526,7 +1526,7 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 
 	std::shared_ptr<Instrument> pInstrument = nullptr;
 	
-	if ( m_pSong != nullptr ) {
+	if ( m_pSong != nullptr && m_pSong->getDrumkit() != nullptr ) {
 		
 		m_pAudioEngine->lock( RIGHT_HERE );
 

@@ -738,6 +738,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	}
 
 	selectLayer( m_nSelectedLayer );
+	selectComponent( m_nSelectedComponent );
 }
 
 // In here we just check those parameters that can be altered by MIDI
@@ -1511,7 +1512,7 @@ void InstrumentEditor::addComponentAction() {
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 	// New components will be appended.
-	selectComponent( m_pInstrument->get_components()->size() - 1 );
+	selectComponent( m_pInstrument->get_components()->size() );
 }
 
 void InstrumentEditor::deleteComponentAction() {
