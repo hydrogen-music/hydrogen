@@ -1754,7 +1754,8 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	pAudioEngine->clearNoteQueues( pOldInstrument );
 	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
 
-	pDrumkit->addInstrument( pNewInstrument );
+	pDrumkit->addInstrument( pNewInstrument,
+							 nOldInstrumentNumber );
 	pSong->getPatternList()->mapTo( pDrumkit );
 
 	// Unloading the samples of the old instrument will be done in the death
