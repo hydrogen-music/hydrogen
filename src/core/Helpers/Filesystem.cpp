@@ -118,7 +118,7 @@ QString Filesystem::m_sPreferencesOverwritePath = "";
 
 QStringList Filesystem::m_supportedSampleFormats = QStringList()
 	<< "wav" << "flac" << "aifc" << "aif" << "aiff" << "au" << "caf" << "w64"
-	<< "ogg" << "pcm" << "l16" << "vob" << "mp1" << "mp2" << "mp3";
+	<< "ogg" << "pcm" << "l16" << "voc" << "mp1" << "mp2" << "mp3";
 
 
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
