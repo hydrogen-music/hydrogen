@@ -508,6 +508,14 @@ namespace H2Core
 			 * sEncodedString. */
 			static QString removeUtf8Characters( const QString& sEncodedString );
 
+			/** Returns a list of lower-case suffixes Hydrogen should be able to
+			 * handle.
+			 *
+			 * Which format is supported is determined by the `libsndfile`
+			 * version Hydrogen is linked against (see
+			 * https://libsndfile.github.io/libsndfile/api.html#open). */
+			 static const QStringList& supportedSampleFormats();
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
@@ -554,6 +562,7 @@ namespace H2Core
 		static QString __usr_cfg_path;      ///< the path to the user config file
 		static QString __usr_log_path;      ///< the path to the log file
 		static QStringList __ladspa_paths;  ///< paths to laspa plugins
+			static QStringList m_supportedSampleFormats;
 	};
 
 	inline const QString& Filesystem::getPreferencesOverwritePath() {
