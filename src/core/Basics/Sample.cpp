@@ -161,6 +161,9 @@ bool Sample::load( float fBpm )
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info = {0};
 
+	DEBUGLOG( QString( "Using libsndfile version [%1]" )
+			  .arg( QString( sf_version_string() ) ) );
+
 	// Opens file in read-only mode.
 #ifdef WIN32
 	// On Windows we use a special version of sf_open to ensure we get all
@@ -719,6 +722,9 @@ Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& sMode )
 
 bool Sample::write( const QString& path, int format ) const
 {
+	DEBUGLOG( QString( "Using libsndfile version [%1]" )
+			  .arg( QString( sf_version_string() ) ) );
+
 	float* obuf = new float[ SAMPLE_CHANNELS * __frames ];
 	for ( int i = 0; i < __frames; ++i ) {
 		float value_l = __data_l[i];
