@@ -61,7 +61,9 @@ void* diskWriterDriver_thread( void* param )
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
-	__INFOLOG( "DiskWriterDriver thread start" );
+	__INFOLOG( QString( "DiskWriterDriver thread started using libsndfile version [%1]" )
+			   .arg( QString( sf_version_string() ) ) );
+
 
 	// always rolling, no user interaction
 	pAudioEngine->play();
