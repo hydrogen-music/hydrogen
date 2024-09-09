@@ -116,6 +116,11 @@ QStringList Filesystem::__ladspa_paths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
+QStringList Filesystem::m_supportedSampleFormats = QStringList()
+	<< "wav" << "flac" << "aifc" << "aif" << "aiff" << "au" << "caf" << "w64"
+	<< "ogg" << "pcm" << "l16" << "vob" << "mp1" << "mp2" << "mp3";
+
+
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 							const QString& sUserConfigPath,
 							const QString& sLogFile )
@@ -1146,6 +1151,9 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
 	QString sCleaned( sEncodedString );
 	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
+}
+const QStringList& Filesystem::supportedSampleFormats() {
+	return m_supportedSampleFormats;
 }
 };
 
