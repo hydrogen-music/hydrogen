@@ -136,6 +136,7 @@ void* diskWriterDriver_thread( void* param )
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
 		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -164,6 +165,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
 					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
 		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -295,6 +297,7 @@ void* diskWriterDriver_thread( void* param )
 							.arg( res )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
+				pDriver->m_bWritingFailed = true;
 			}
 
 			// Sampler is still rendering notes put we seem to have
@@ -339,7 +342,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_nBufferSize( 1024 )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
-		, m_bDoneWriting( false ) {
+		, m_bDoneWriting( false )
+		, m_bWritingFailed( false ) {
 }
 
 
