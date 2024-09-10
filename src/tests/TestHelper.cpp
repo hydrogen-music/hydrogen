@@ -158,6 +158,10 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 							 int nSampleRate, int nSampleDepth )
 {
+	___INFOLOG( QString( "sSongFile: %1, sFileName: %2, nSampleRate: %3, nSampleDepth: %4" )
+				.arg( sSongFile ).arg( sFileName ).arg( nSampleRate )
+				.arg( nSampleDepth ) );
+
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -190,6 +194,9 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
 		nSleeps++;
 	}
+
+	CPPUNIT_ASSERT( ! pDriver->writingFailed() );
+
 	pHydrogen->stopExportSession();
 
 	auto t1 = std::chrono::high_resolution_clock::now();

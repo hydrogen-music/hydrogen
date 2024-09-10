@@ -64,7 +64,11 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		bool isDoneWriting() const {
 			return m_bDoneWriting;
 		}
+		bool writingFailed() const {
+			return m_bWritingFailed;
+		}
 		bool m_bDoneWriting;
+		bool m_bWritingFailed;
 
 		virtual unsigned getBufferSize() override {
 			return m_nBufferSize;

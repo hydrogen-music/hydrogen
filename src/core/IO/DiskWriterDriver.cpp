@@ -135,6 +135,7 @@ void* diskWriterDriver_thread( void* param )
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
 		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -163,6 +164,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
 					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
 		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -244,6 +246,7 @@ void* diskWriterDriver_thread( void* param )
 			if ( ! pDriver->m_bIsRunning ) {
 				__ERRORLOG( "Driver was stop before export was completed." );
 				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
 			}
@@ -265,6 +268,7 @@ void* diskWriterDriver_thread( void* param )
 					__ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
 					
 					EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+					pDriver->m_bWritingFailed = true;
 					tearDown();
 					return nullptr;
 				}
@@ -331,8 +335,9 @@ void* diskWriterDriver_thread( void* param )
 							.arg( res )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
-					
+
 				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
 			}
@@ -371,7 +376,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
 		, m_bIsRunning( false )
-		, m_bDoneWriting( false ) {
+		, m_bDoneWriting( false )
+		, m_bWritingFailed( false ) {
 }
 
 
@@ -448,7 +454,9 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( "%1%2m_bIsRunning: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bIsRunning ) )
 			.append( QString( "%1%2m_bDoneWriting: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bDoneWriting ) );
+					 .arg( m_bDoneWriting ) )
+			.append( QString( "%1%2m_bWritingFailed: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bWritingFailed ) );
 	} else {
 		sOutput = QString( "[DiskWriterDriver]" )
 			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
@@ -456,7 +464,8 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
 			.append( QString( ", m_nSampleDepth: %1" ).arg( m_nSampleDepth ) )
 			.append( QString( ", m_bIsRunning: %1" ).arg( m_bIsRunning ) )
-			.append( QString( ", m_bDoneWriting: %1" ).arg( m_bDoneWriting ) );
+			.append( QString( ", m_bDoneWriting: %1" ).arg( m_bDoneWriting ) )
+			.append( QString( ", m_bWritingFailed: %1" ).arg( m_bWritingFailed ) );
 	}
 
 	return sOutput;
