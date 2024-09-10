@@ -74,37 +74,63 @@ void* diskWriterDriver_thread( void* param )
 	int sfformat = 0x010000; //wav format (default)
 	int bits = 0x0002; //16 bit PCM (default)
 	//sf_format switch
-	if( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ){
+
+	// Determine audio format based on the provided file suffix.
+	const QString sFilenameLower = pDriver->m_sFilename.toLower();
+	if ( sFilenameLower.endsWith( ".aiff" ) ||
+		 sFilenameLower.endsWith( ".aif" ) ||
+ 		 sFilenameLower.endsWith( ".aifc" ) ) {
 		sfformat =  0x020000; //Apple/SGI AIFF format (big endian)
 	}
-	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ){
+	else if ( sFilenameLower.endsWith( ".flac" ) ) {
 		sfformat =  0x170000; //FLAC lossless file format
 	}
-	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){
-		bits = 0x0001; //Signed 8 bit data works with aiff
+	else if ( sFilenameLower.endsWith( ".wav" ) ) {
+		sfformat =  0x010000;
 	}
-	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".wav") || pDriver->m_sFilename.endsWith(".WAV") ) ){
-		bits = 0x0005; //Unsigned 8 bit data needed for Microsoft WAV format
+	else if ( sFilenameLower.endsWith( ".au" ) ) {
+		sfformat =  0x030000;
 	}
-	if( pDriver->m_nSampleDepth == 16 ){
+	else if ( sFilenameLower.endsWith( ".caf" ) ) {
+		sfformat =  0x180000;
+	}
+	else if ( sFilenameLower.endsWith( ".w64" ) ) {
+		sfformat =  0x0B0000;
+	}
+	else if ( sFilenameLower.endsWith( ".ogg" ) ) {
+		sfformat = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+	}
+	else if ( sFilenameLower.endsWith( ".voc" ) ) {
+		sfformat =  0x080000;
+	}
+	else if ( sFilenameLower.endsWith( ".mp3" ) ) {
+		sfformat =  0x230000;
+	}
+
+	// Handle sample depth
+	if ( pDriver->m_nSampleDepth == 8 ) {
+		// WAV and raw PCM data are handled differently.
+		if ( sFilenameLower.endsWith(".wav") ) {
+			bits = 0x0005; //Unsigned 8 bit data needed for Microsoft WAV format
+		} else {
+			bits = 0x0001; //Signed 8 bit data works with aiff
+		}
+	}
+	else if ( pDriver->m_nSampleDepth == 16 ) {
 		bits = 0x0002; //Signed 16 bit data
 	}
-	if( pDriver->m_nSampleDepth == 24 ){
+	else if ( pDriver->m_nSampleDepth == 24 ) {
 		bits = 0x0003; //Signed 24 bit data
 	}
-	if( pDriver->m_nSampleDepth == 32 ){
+	else if ( pDriver->m_nSampleDepth == 32 ) {
 		bits = 0x0004; ////Signed 32 bit data
 	}
 
-	soundInfo.format =  sfformat|bits;
-
-//	#ifdef HAVE_OGGVORBIS
-
-	//ogg vorbis option
-	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) ) {
-		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+	if ( sFilenameLower.endsWith( ".ogg" ) ) {
+		soundInfo.format =  sfformat;
+	} else {
+		soundInfo.format =  sfformat|bits;
 	}
-//	#endif
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
