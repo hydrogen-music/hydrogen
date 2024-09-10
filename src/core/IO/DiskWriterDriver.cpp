@@ -106,6 +106,15 @@ void* diskWriterDriver_thread( void* param )
 	else if ( sFilenameLower.endsWith( ".mp3" ) ) {
 		sfformat =  0x230000;
 	}
+	else {
+		__ERRORLOG( QString( "Unsupported file extension [%1]" )
+					.arg( pDriver->m_sFilename ) );
+		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
+		pthread_exit( nullptr );
+		return nullptr;
+
+	}
 
 	// Handle sample depth
 	if ( pDriver->m_nSampleDepth == 8 ) {
