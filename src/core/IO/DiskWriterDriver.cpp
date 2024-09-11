@@ -142,11 +142,7 @@ void* diskWriterDriver_thread( void* param )
 		bits = SF_FORMAT_PCM_32; ////Signed 32 bit data
 	}
 
-	if ( sFilenameLower.endsWith( ".ogg" ) ) {
-		soundInfo.format =  sfformat;
-	} else {
-		soundInfo.format =  sfformat|bits;
-	}
+	soundInfo.format =  sfformat|bits;
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
