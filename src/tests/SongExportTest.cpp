@@ -71,8 +71,26 @@ void SongExportTest::testSongExport() {
 						.arg( nnSampleRate )
 						.arg( nnSampleDepth )
 						.arg( ssExtension );
+					// See https://libsndfile.github.io/libsndfile/formats.html
+					// for which parameters are suppored for the particular
+					// formats.
+					//
+					// Instead of making audio export fail on non-supported
+					// parameter combinations, we tailor this test and UI to
+					// only allow valid ones. It would be bad UX to provide an
+					// invalid option.
 					if ( ssExtension == "ogg" &&
 						 ( nnSampleRate != 48000 || nnSampleDepth != 16 ) ) {
+						continue;
+					}
+					if ( ssExtension == "flac" && nnSampleDepth == 32 ) {
+						continue;
+					}
+					if ( ssExtension == "voc" && nnSampleDepth > 16 ) {
+						continue;
+					}
+					if ( ssExtension == "mp3" &&
+						 ( nnSampleDepth != 16 || nnSampleRate > 48000 ) ) {
 						continue;
 					}
 

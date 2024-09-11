@@ -116,6 +116,10 @@ void* diskWriterDriver_thread( void* param )
 
 	}
 
+	// Instead of making audio export fail on non-supported parameter
+	// combinations, we tailor this test and UI to only allow valid ones. It
+	// would be bad UX to provide an invalid option.
+
 	// Handle sample depth
 	if ( pDriver->m_nSampleDepth == 8 ) {
 		// WAV and other raw PCM formats are handled differently.
