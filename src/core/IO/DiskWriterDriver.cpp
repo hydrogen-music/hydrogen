@@ -105,7 +105,7 @@ void* diskWriterDriver_thread( void* param )
 		sfformat =  SF_FORMAT_VOC;
 	}
 	else if ( sFilenameLower.endsWith( ".mp3" ) ) {
-		sfformat =  SF_FORMAT_MPEG;
+		sfformat =  SF_FORMAT_MPEG | SF_FORMAT_MPEG_LAYER_III;
 	}
 	else {
 		__ERRORLOG( QString( "Unsupported file extension [%1]" )
