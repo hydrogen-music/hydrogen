@@ -80,7 +80,7 @@ void SongExportTest::testSongExport() {
 					// only allow valid ones. It would be bad UX to provide an
 					// invalid option.
 					if ( ssExtension == "ogg" &&
-						 ( nnSampleRate != 48000 || nnSampleDepth != 16 ) ) {
+						 ( nnSampleRate != 48000 || nnSampleDepth != 32 ) ) {
 						continue;
 					}
 					if ( ssExtension == "flac" && nnSampleDepth == 32 ) {
