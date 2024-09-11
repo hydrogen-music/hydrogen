@@ -62,31 +62,22 @@ void SongExportTest::testSongExport() {
 
 	for ( const auto& ssExtension : fileExtensions ) {
 		for ( const auto& iinterpolationMode : interpolations ) {
-			pSampler->setInterpolateMode( iinterpolationMode );
-			if ( ssExtension == "ogg" ) {
-				// Just a single sample rate and depth supported for Opus encoded
-				// files.
-				// TODO why?
-				const QString sFilename = QString( "%1/song-%2.%3" )
-					.arg( exportDir.path() )
-					.arg( Interpolation::ModeToQString( iinterpolationMode ) )
-					.arg( ssExtension );
-				TestHelper::exportSong( sSong, sFilename );
-			}
-			else {
-				// All other file types
-				for ( const auto& nnSampleRate : sampleRates ) {
-					for ( const auto& nnSampleDepth : sampleDepths ) {
-						const QString sFilename = QString( "%1/song-%2-%3-%4.%5" )
-							.arg( exportDir.path() )
-							.arg( Interpolation::ModeToQString( iinterpolationMode ) )
-							.arg( nnSampleRate )
-							.arg( nnSampleDepth )
-							.arg( ssExtension );
-						TestHelper::exportSong(
-							sSong, sFilename, nnSampleRate, nnSampleDepth );
-
+			for ( const auto& nnSampleRate : sampleRates ) {
+				for ( const auto& nnSampleDepth : sampleDepths ) {
+					pSampler->setInterpolateMode( iinterpolationMode );
+					const QString sFilename = QString( "%1/song-%2-%3-%4.%5" )
+						.arg( exportDir.path() )
+						.arg( Interpolation::ModeToQString( iinterpolationMode ) )
+						.arg( nnSampleRate )
+						.arg( nnSampleDepth )
+						.arg( ssExtension );
+					if ( ssExtension == "ogg" &&
+						 ( nnSampleRate != 48000 || nnSampleDepth != 16 ) ) {
+						continue;
 					}
+
+					TestHelper::exportSong(
+						sSong, sFilename, nnSampleRate, nnSampleDepth );
 				}
 			}
 		}
