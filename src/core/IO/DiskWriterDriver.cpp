@@ -119,8 +119,10 @@ void* diskWriterDriver_thread( void* param )
 
 	// Handle sample depth
 	if ( pDriver->m_nSampleDepth == 8 ) {
-		// WAV and raw PCM data are handled differently.
-		if ( sFilenameLower.endsWith(".wav") ) {
+		// WAV and other raw PCM formats are handled differently.
+		if ( sFilenameLower.endsWith( ".wav" ) ||
+			 sFilenameLower.endsWith( ".voc" ) ||
+			 sFilenameLower.endsWith( ".w64" ) ) {
 			bits = SF_FORMAT_PCM_U8; //Unsigned 8 bit data needed for Microsoft WAV format
 		} else {
 			bits = SF_FORMAT_PCM_S8; //Signed 8 bit data works with aiff
