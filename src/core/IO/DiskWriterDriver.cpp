@@ -71,8 +71,8 @@ void* diskWriterDriver_thread( void* param )
 //	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
 	soundInfo.channels = 2;
 	//default format
-	int sfformat = 0x010000; //wav format (default)
-	int bits = 0x0002; //16 bit PCM (default)
+	int sfformat = SF_FORMAT_WAV; //wav format (default)
+	int bits = SF_FORMAT_PCM_16; //16 bit PCM (default)
 	//sf_format switch
 
 	// Determine audio format based on the provided file suffix.
@@ -80,31 +80,31 @@ void* diskWriterDriver_thread( void* param )
 	if ( sFilenameLower.endsWith( ".aiff" ) ||
 		 sFilenameLower.endsWith( ".aif" ) ||
  		 sFilenameLower.endsWith( ".aifc" ) ) {
-		sfformat =  0x020000; //Apple/SGI AIFF format (big endian)
+		sfformat =  SF_FORMAT_AIFF;
 	}
 	else if ( sFilenameLower.endsWith( ".flac" ) ) {
-		sfformat =  0x170000; //FLAC lossless file format
+		sfformat =  SF_FORMAT_FLAC;
 	}
 	else if ( sFilenameLower.endsWith( ".wav" ) ) {
-		sfformat =  0x010000;
+		sfformat =  SF_FORMAT_WAV;
 	}
 	else if ( sFilenameLower.endsWith( ".au" ) ) {
-		sfformat =  0x030000;
+		sfformat =  SF_FORMAT_AU;
 	}
 	else if ( sFilenameLower.endsWith( ".caf" ) ) {
-		sfformat =  0x180000;
+		sfformat =  SF_FORMAT_CAF;
 	}
 	else if ( sFilenameLower.endsWith( ".w64" ) ) {
-		sfformat =  0x0B0000;
+		sfformat =  SF_FORMAT_W64;
 	}
 	else if ( sFilenameLower.endsWith( ".ogg" ) ) {
 		sfformat = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
 	}
 	else if ( sFilenameLower.endsWith( ".voc" ) ) {
-		sfformat =  0x080000;
+		sfformat =  SF_FORMAT_VOC;
 	}
 	else if ( sFilenameLower.endsWith( ".mp3" ) ) {
-		sfformat =  0x230000;
+		sfformat =  SF_FORMAT_MPEG;
 	}
 	else {
 		__ERRORLOG( QString( "Unsupported file extension [%1]" )
@@ -120,19 +120,19 @@ void* diskWriterDriver_thread( void* param )
 	if ( pDriver->m_nSampleDepth == 8 ) {
 		// WAV and raw PCM data are handled differently.
 		if ( sFilenameLower.endsWith(".wav") ) {
-			bits = 0x0005; //Unsigned 8 bit data needed for Microsoft WAV format
+			bits = SF_FORMAT_PCM_U8; //Unsigned 8 bit data needed for Microsoft WAV format
 		} else {
-			bits = 0x0001; //Signed 8 bit data works with aiff
+			bits = SF_FORMAT_PCM_S8; //Signed 8 bit data works with aiff
 		}
 	}
 	else if ( pDriver->m_nSampleDepth == 16 ) {
-		bits = 0x0002; //Signed 16 bit data
+		bits = SF_FORMAT_PCM_16; //Signed 16 bit data
 	}
 	else if ( pDriver->m_nSampleDepth == 24 ) {
-		bits = 0x0003; //Signed 24 bit data
+		bits = SF_FORMAT_PCM_24; //Signed 24 bit data
 	}
 	else if ( pDriver->m_nSampleDepth == 32 ) {
-		bits = 0x0004; ////Signed 32 bit data
+		bits = SF_FORMAT_PCM_32; ////Signed 32 bit data
 	}
 
 	if ( sFilenameLower.endsWith( ".ogg" ) ) {
