@@ -232,6 +232,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 							 int nSampleRate, int nSampleDepth )
 {
+	qDebug() << "[TestHelper::exportSong] " << sFileName;
 	___INFOLOG( QString( "sSongFile: %1, sFileName: %2, nSampleRate: %3, nSampleDepth: %4" )
 				.arg( sSongFile ).arg( sFileName ).arg( nSampleRate )
 				.arg( nSampleDepth ) );
