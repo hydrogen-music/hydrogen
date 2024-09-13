@@ -1261,7 +1261,7 @@ QString Filesystem::TypeToQString( const Type& type ) {
 
 QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
 	QString sCleaned( sEncodedString );
-	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/]" ) );
+	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
 }
 };
 
