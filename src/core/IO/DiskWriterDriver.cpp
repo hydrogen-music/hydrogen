@@ -60,9 +60,7 @@ void* diskWriterDriver_thread( void* param )
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
-	__INFOLOG( QString( "DiskWriterDriver thread started using libsndfile version [%1]" )
-			   .arg( QString( sf_version_string() ) ) );
-
+	__INFOLOG( "DiskWriterDriver thread started" );
 
 	// always rolling, no user interaction
 	pAudioEngine->play();
@@ -82,9 +80,11 @@ void* diskWriterDriver_thread( void* param )
  		 sFilenameLower.endsWith( ".aifc" ) ) {
 		sfformat =  SF_FORMAT_AIFF;
 	}
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
 	else if ( sFilenameLower.endsWith( ".flac" ) ) {
 		sfformat =  SF_FORMAT_FLAC;
 	}
+#endif
 	else if ( sFilenameLower.endsWith( ".wav" ) ) {
 		sfformat =  SF_FORMAT_WAV;
 	}
@@ -97,18 +97,22 @@ void* diskWriterDriver_thread( void* param )
 	else if ( sFilenameLower.endsWith( ".w64" ) ) {
 		sfformat =  SF_FORMAT_W64;
 	}
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
 	else if ( sFilenameLower.endsWith( ".ogg" ) ) {
 		sfformat = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
 	}
+#endif
 	else if ( sFilenameLower.endsWith( ".voc" ) ) {
 		sfformat =  SF_FORMAT_VOC;
 	}
+#ifdef H2CORE_HAVE_MP3_SUPPORT
 	else if ( sFilenameLower.endsWith( ".mp3" ) ) {
 		sfformat =  SF_FORMAT_MPEG | SF_FORMAT_MPEG_LAYER_III;
 	}
+#endif
 	else {
-		__ERRORLOG( QString( "Unsupported file extension [%1]" )
-					.arg( pDriver->m_sFilename ) );
+		__ERRORLOG( QString( "Unsupported file extension [%1] using libsndfile [%2]" )
+					.arg( pDriver->m_sFilename ).arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
 		pthread_exit( nullptr );
@@ -144,7 +148,8 @@ void* diskWriterDriver_thread( void* param )
 	soundInfo.format =  sfformat|bits;
 
 	if ( !sf_format_check( &soundInfo ) ) {
-		__ERRORLOG( "Error in soundInfo" );
+		__ERRORLOG( QString( "Error while checking format using libsndfile [%1]" )
+					.arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
 		pthread_exit( nullptr );
@@ -170,9 +175,10 @@ void* diskWriterDriver_thread( void* param )
 #endif
 
 	if ( m_file == nullptr ) {
-		__ERRORLOG( QString( "Unable to open file [%1] with format [%2]: %3" )
+		__ERRORLOG( QString( "Unable to open file [%1] with format [%2] using libsndfile [%3]: %4" )
 					.arg( pDriver->m_sFilename )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
+					.arg( sf_version_string() )
 					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
@@ -342,8 +348,8 @@ void* diskWriterDriver_thread( void* param )
 			
 			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
-				__ERRORLOG( QString( "Error during sf_write_float. Floats written: [%1], target: [%2]. %3" )
-							.arg( res )
+				__ERRORLOG( QString( "Error during sf_write_float using [%1]. Floats written: [%2], target: [%3]. %4" )
+							.arg( sf_version_string() ).arg( res )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
 
