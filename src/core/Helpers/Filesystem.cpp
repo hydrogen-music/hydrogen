@@ -116,15 +116,15 @@ QStringList Filesystem::__ladspa_paths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
-// `mp3` is a special case and should only be supported for `libsndfile`
-// versions bigger than 1.1. But since the project only provides a version
-// string we always add it. It is quite unlikely for a newer Hydrogen version
-// (containing this code) to be linked against such an old `libsndfile` version
-// and the possible harm caused by a parsing error of a version string defined
-// upstream is probably higher.
 QStringList Filesystem::m_supportedSampleFormats = QStringList()
-	<< "wav" << "flac" << "aifc" << "aif" << "aiff" << "au" << "caf" << "w64"
-	<< "ogg" << "voc" << "mp3";
+	<< "wav" << "aifc" << "aif" << "aiff" << "au" << "caf" << "w64"
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
+	<< "ogg" << "flac"
+#endif
+#ifdef H2CORE_HAVE_MP3_SUPPORT
+	<< "mp3"
+#endif
+	<< "voc";
 
 
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
