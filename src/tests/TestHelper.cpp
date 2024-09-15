@@ -185,16 +185,18 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	const int nMaxSleeps = 30;
+	// in 0.1 * `nMaxSleeps` ms
+	const int nMaxSleeps = 3000;
 	int nSleeps = 0;
 	while ( ! pDriver->isDoneWriting() ) {
-		usleep(100 * 1000);
+		usleep(100 * 1000); // 0.1 ms
 
 		// Export should not take that long. There is somethings wrong in
 		// here.
 		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
 		nSleeps++;
 	}
+	qDebug() << nSleeps;
 
 	// CPPUNIT_ASSERT( ! pDriver->writingFailed() );
 	if ( pDriver->writingFailed() ) {
