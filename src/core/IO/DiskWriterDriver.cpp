@@ -53,14 +53,14 @@ pthread_t diskWriterDriverThread;
 
 void* diskWriterDriver_thread( void* param )
 {
-	Base * __object = ( Base * )param;
+
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
-	__INFOLOG( "DiskWriterDriver thread started" );
+	___INFOLOG( "DiskWriterDriver thread started" );
 
 	// always rolling, no user interaction
 	pAudioEngine->play();
@@ -111,7 +111,7 @@ void* diskWriterDriver_thread( void* param )
 	}
 #endif
 	else {
-		__ERRORLOG( QString( "Unsupported file extension [%1] using libsndfile [%2]" )
+		___ERRORLOG( QString( "Unsupported file extension [%1] using libsndfile [%2]" )
 					.arg( pDriver->m_sFilename ).arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
@@ -148,7 +148,7 @@ void* diskWriterDriver_thread( void* param )
 	soundInfo.format =  sfformat|bits;
 
 	if ( !sf_format_check( &soundInfo ) ) {
-		__ERRORLOG( QString( "Error while checking format using libsndfile [%1]" )
+		___ERRORLOG( QString( "Error while checking format using libsndfile [%1]" )
 					.arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
@@ -175,7 +175,7 @@ void* diskWriterDriver_thread( void* param )
 #endif
 
 	if ( m_file == nullptr ) {
-		__ERRORLOG( QString( "Unable to open file [%1] with format [%2] using libsndfile [%3]: %4" )
+		___ERRORLOG( QString( "Unable to open file [%1] with format [%2] using libsndfile [%3]: %4" )
 					.arg( pDriver->m_sFilename )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
 					.arg( sf_version_string() )
@@ -206,7 +206,7 @@ void* diskWriterDriver_thread( void* param )
 
 		sf_close( m_file );
 
-		__INFOLOG( "DiskWriterDriver thread end" );
+		___INFOLOG( "DiskWriterDriver thread end" );
 
 		pthread_exit( nullptr );
 	};
@@ -261,7 +261,7 @@ void* diskWriterDriver_thread( void* param )
 			// and the call to pDriver->m_processCallback) can not
 			// acquire the lock).
 			if ( ! pDriver->m_bIsRunning ) {
-				__ERRORLOG( "Driver was stop before export was completed." );
+				___ERRORLOG( "Driver was stop before export was completed." );
 				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
@@ -282,7 +282,7 @@ void* diskWriterDriver_thread( void* param )
 				// already introduces a delay.
 				nMutexLockAttempts++;
 				if ( nMutexLockAttempts > 30 ) {
-					__ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
+					___ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
 					
 					EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
 					pDriver->m_bWritingFailed = true;
@@ -348,7 +348,7 @@ void* diskWriterDriver_thread( void* param )
 			
 			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
-				__ERRORLOG( QString( "Error during sf_write_float using [%1]. Floats written: [%2], target: [%3]. %4" )
+				___ERRORLOG( QString( "Error during sf_write_float using [%1]. Floats written: [%2], target: [%3]. %4" )
 							.arg( sf_version_string() ).arg( res )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
@@ -379,6 +379,7 @@ void* diskWriterDriver_thread( void* param )
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 	
 	tearDown();
+
 	return nullptr;
 }
 
