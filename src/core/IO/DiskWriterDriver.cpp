@@ -100,7 +100,8 @@ void* diskWriterDriver_thread( void* param )
 	}
 #ifdef H2CORE_HAVE_FLAC_SUPPORT
 	else if ( sFilenameLower.endsWith( ".ogg" ) ) {
-		sfformat = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+		sfformat = SF_FORMAT_OGG;
+		bits = SF_FORMAT_VORBIS;
 	}
 #endif
 	else if ( sFilenameLower.endsWith( ".voc" ) ) {
@@ -108,7 +109,8 @@ void* diskWriterDriver_thread( void* param )
 	}
 #ifdef H2CORE_HAVE_MP3_SUPPORT
 	else if ( sFilenameLower.endsWith( ".mp3" ) ) {
-		sfformat =  SF_FORMAT_MPEG | SF_FORMAT_MPEG_LAYER_III;
+		sfformat =  SF_FORMAT_MPEG;
+		bits = SF_FORMAT_MPEG_LAYER_III;
 	}
 #endif
 	else {
@@ -125,25 +127,28 @@ void* diskWriterDriver_thread( void* param )
 	// combinations, we tailor this test and UI to only allow valid ones. It
 	// would be bad UX to provide an invalid option.
 
-	// Handle sample depth
-	if ( pDriver->m_nSampleDepth == 8 ) {
-		// WAV and other raw PCM formats are handled differently.
-		if ( sFilenameLower.endsWith( ".wav" ) ||
-			 sFilenameLower.endsWith( ".voc" ) ||
-			 sFilenameLower.endsWith( ".w64" ) ) {
-			bits = SF_FORMAT_PCM_U8; //Unsigned 8 bit data needed for Microsoft WAV format
-		} else {
-			bits = SF_FORMAT_PCM_S8; //Signed 8 bit data works with aiff
+	if ( ! sFilenameLower.endsWith( ".ogg" ) &&
+		 ! sFilenameLower.endsWith( ".mp3" ) ) {
+		// Handle sample depth
+		if ( pDriver->m_nSampleDepth == 8 ) {
+			// WAV and other raw PCM formats are handled differently.
+			if ( sFilenameLower.endsWith( ".wav" ) ||
+				 sFilenameLower.endsWith( ".voc" ) ||
+				 sFilenameLower.endsWith( ".w64" ) ) {
+				bits = SF_FORMAT_PCM_U8; //Unsigned 8 bit data needed for Microsoft WAV format
+			} else {
+				bits = SF_FORMAT_PCM_S8; //Signed 8 bit data works with aiff
+			}
 		}
-	}
-	else if ( pDriver->m_nSampleDepth == 16 ) {
-		bits = SF_FORMAT_PCM_16; //Signed 16 bit data
-	}
-	else if ( pDriver->m_nSampleDepth == 24 ) {
-		bits = SF_FORMAT_PCM_24; //Signed 24 bit data
-	}
-	else if ( pDriver->m_nSampleDepth == 32 ) {
-		bits = SF_FORMAT_PCM_32; ////Signed 32 bit data
+		else if ( pDriver->m_nSampleDepth == 16 ) {
+			bits = SF_FORMAT_PCM_16; //Signed 16 bit data
+		}
+		else if ( pDriver->m_nSampleDepth == 24 ) {
+			bits = SF_FORMAT_PCM_24; //Signed 24 bit data
+		}
+		else if ( pDriver->m_nSampleDepth == 32 ) {
+			bits = SF_FORMAT_PCM_32; ////Signed 32 bit data
+		}
 	}
 
 	soundInfo.format =  sfformat|bits;
