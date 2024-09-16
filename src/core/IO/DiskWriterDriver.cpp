@@ -62,19 +62,16 @@ void* diskWriterDriver_thread( void* param )
 	
 	___INFOLOG( "DiskWriterDriver thread started" );
 
-	// always rolling, no user interaction
-	pAudioEngine->play();
+	const QString sFilenameLower = pDriver->m_sFilename.toLower();
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
-//	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
 	soundInfo.channels = 2;
-	//default format
+
+	// default format
 	int sfformat = SF_FORMAT_WAV; //wav format (default)
 	int bits = SF_FORMAT_PCM_16; //16 bit PCM (default)
-	//sf_format switch
 
 	// Determine audio format based on the provided file suffix.
-	const QString sFilenameLower = pDriver->m_sFilename.toLower();
 	if ( sFilenameLower.endsWith( ".aiff" ) ||
 		 sFilenameLower.endsWith( ".aif" ) ||
  		 sFilenameLower.endsWith( ".aifc" ) ) {
@@ -171,15 +168,15 @@ void* diskWriterDriver_thread( void* param )
 
 	sPaddedPath.toWCharArray( encodedFilename );
 	
-	SNDFILE* m_file = sf_wchar_open( encodedFilename, SFM_WRITE,
+	SNDFILE* pSndfile = sf_wchar_open( encodedFilename, SFM_WRITE,
 								   &soundInfo );
 	delete encodedFilename;
 #else
-	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE,
+	SNDFILE* pSndfile = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE,
 							   &soundInfo );
 #endif
 
-	if ( m_file == nullptr ) {
+	if ( pSndfile == nullptr ) {
 		___ERRORLOG( QString( "Unable to open file [%1] with format [%2] using libsndfile [%3]: %4" )
 					.arg( pDriver->m_sFilename )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
@@ -191,7 +188,18 @@ void* diskWriterDriver_thread( void* param )
 		return nullptr;
 	}
 
-	float *pData = new float[ pDriver->m_nBufferSize * 2 ]; // always stereo
+	// Perform some per-file settings.
+#ifdef H2CORE_HAVE_MP3_SUPPORT
+	if ( sFilenameLower.endsWith( ".mp3" ) ) {
+		int nBitrateMode = SF_BITRATE_MODE_VARIABLE;
+		if ( sf_command( pSndfile, SFC_SET_BITRATE_MODE, &nBitrateMode,
+						 sizeof(int) ) != SF_TRUE ) {
+			___WARNINGLOG( QString( "Unable to set variable bitrate for MP3 encoding: %1" )
+						  .arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
+		}
+	}
+#endif
+	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 
 	float *pData_L = pDriver->m_pOut_L;
 	float *pData_R = pDriver->m_pOut_R;
@@ -199,6 +207,9 @@ void* diskWriterDriver_thread( void* param )
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
+
+	// always rolling, no user interaction
+	pAudioEngine->play();
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
@@ -209,7 +220,7 @@ void* diskWriterDriver_thread( void* param )
 		delete[] pData;
 		pData = nullptr;
 
-		sf_close( m_file );
+		sf_close( pSndfile );
 
 		___INFOLOG( "DiskWriterDriver thread end" );
 
@@ -351,7 +362,7 @@ void* diskWriterDriver_thread( void* param )
 				}
 			}
 			
-			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
+			const int res = sf_writef_float( pSndfile, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
 				___ERRORLOG( QString( "Error during sf_write_float using [%1]. Floats written: [%2], target: [%3]. %4" )
 							.arg( sf_version_string() ).arg( res )
