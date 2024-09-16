@@ -20,7 +20,7 @@
  *
  */
 #include <unistd.h>
-
+#include <algorithm>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
@@ -199,6 +199,21 @@ void* diskWriterDriver_thread( void* param )
 		}
 	}
 #endif
+
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
+	// FLAC (and OGG/Vorbis) is the oldest format supporting this setting.
+	if ( sFilenameLower.endsWith( ".mp3" ) || sFilenameLower.endsWith( ".ogg" ) ||
+		 sFilenameLower.endsWith( ".flac" ) ) {
+		if ( sf_command( pSndfile, SFC_SET_COMPRESSION_LEVEL,
+						 &pDriver->m_fCompressionLevel,
+						 sizeof(double) ) != SF_TRUE ) {
+			___WARNINGLOG( QString( "Unable to set compression level [%1]: %2" )
+						  .arg( pDriver->m_fCompressionLevel )
+						  .arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
+		}
+	}
+#endif
+
 	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 
 	float *pData_L = pDriver->m_pOut_L;
@@ -411,7 +426,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_pOut_R( nullptr )
 		, m_bIsRunning( false )
 		, m_bDoneWriting( false )
-		, m_bWritingFailed( false ) {
+		, m_bWritingFailed( false )
+		, m_fCompressionLevel( 0.0 ) {
 }
 
 
@@ -503,5 +519,15 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 	}
 
 	return sOutput;
+}
+
+void DiskWriterDriver::setCompressionLevel( double fCompressionLevel ) {
+	if ( fCompressionLevel > 1.0 || fCompressionLevel < 0.0 ) {
+		ERRORLOG( QString( "Provided compression level [%1] out of bound [0.0, 1.0]. Assigning nearest possible value." )
+				  .arg( fCompressionLevel ) );
+		fCompressionLevel = std::clamp( fCompressionLevel, 0.0, 1.0 );
+	}
+
+	m_fCompressionLevel = fCompressionLevel;
 }
 };

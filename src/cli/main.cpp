@@ -205,6 +205,9 @@ int main(int argc, char *argv[])
 		QCommandLineOption rateOption(
 			QStringList() << "r" << "rate", "Set bitrate while exporting file",
 			"int", "44100" );
+		QCommandLineOption compressionLevelOption(
+			QStringList() << "" << "compression-level", "Trade-off between max. quality (0.0) and max. compression (1.0).",
+			"double", "0.0" );
 		QCommandLineOption outputFileOption(
 			QStringList() << "o" << "outfile", "Output to file (export)", "File" );
 		QCommandLineOption interpolationOption(
@@ -249,6 +252,7 @@ int main(int argc, char *argv[])
 		parser.addOption( configFileOption );
 		parser.addOption( rateOption );
 		parser.addOption( bitsOption );
+		parser.addOption( compressionLevelOption );
 		parser.addOption( kitOption );
 		parser.addOption( kitToDrumkitMapOption );
 		parser.addOption( interpolationOption );
@@ -298,6 +302,13 @@ int main(int argc, char *argv[])
 		const int nRate = parser.value( rateOption ).toInt( &bOk );
 		if ( ! bOk ) {
 			std::cerr << "Unable to parse 'rate' option. Please provide an integer value"
+				<< std::endl;
+			exit( 1 );
+		}
+		const double fCompressionLevel =
+			parser.value( compressionLevelOption ).toDouble( &bOk );
+		if ( ! bOk ) {
+			std::cerr << "Unable to parse 'compressionLevel' option. Please provide an double precision value between 0.0 and 1.0"
 				<< std::endl;
 			exit( 1 );
 		}
@@ -493,7 +504,7 @@ int main(int argc, char *argv[])
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
 			}
-			pHydrogen->startExportSession(nRate, bits);
+			pHydrogen->startExportSession(nRate, bits, fCompressionLevel);
 			pHydrogen->startExportSong( sOutFilename );
 			std::cout << "Export Progress ... ";
 			bExportMode = true;

@@ -454,8 +454,9 @@ void ExportSongDialog::on_okBtn_clicked()
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
 
-		if ( ! pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
-											  sampleDepthCombo->currentText().toInt()) ) {
+		if ( ! pHydrogen->startExportSession(
+				 sampleRateCombo->currentText().toInt(),
+				 sampleDepthCombo->currentText().toInt(), 0.0 ) ) {
 			QMessageBox::critical( this, "Hydrogen",
 								   pCommonStrings->getExportSongFailure() );
 			return;
@@ -464,10 +465,11 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 
-	if ( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ) {
+	if ( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
 		m_bExportTrackouts = true;
-		pHydrogen->startExportSession(sampleRateCombo->currentText().toInt(),
-									  sampleDepthCombo->currentText().toInt());
+		pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
+										 sampleDepthCombo->currentText().toInt(),
+										 0.0 );
 		exportTracks();
 		return;
 	}
