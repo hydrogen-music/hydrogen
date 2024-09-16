@@ -424,7 +424,8 @@ void ExportSongDialog::on_okBtn_clicked()
 		}
 
 		if ( ! m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
-												sampleDepthCombo->currentText().toInt()) ) {
+												sampleDepthCombo->currentText().toInt(),
+												0.0 ) ) {
 			QMessageBox::critical( this, "Hydrogen", tr( "Unable to export song" ) );
 			return;
 		}
@@ -432,9 +433,11 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 
-	if( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
+	if ( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
 		m_bExportTrackouts = true;
-		m_pHydrogen->startExportSession(sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
+										 sampleDepthCombo->currentText().toInt(),
+										 0.0 );
 		exportTracks();
 		return;
 	}

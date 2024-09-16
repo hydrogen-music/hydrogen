@@ -57,6 +57,7 @@ void SongExportTest::testSongExport() {
 
 	const std::vector<int> sampleRates{ 22050, 44100, 48000, 88200, 96000, 192000 };
 	const std::vector<int> sampleDepths{ 8, 16, 24, 32 };
+	const std::vector<double> compressionLevels{ 0.0, 0.1, 0.25, 0.5, 0.75, 0.8263534124364, 1.0 };
 
 	const QStringList fileExtensions = Filesystem::supportedSampleFormats();
 
@@ -64,38 +65,51 @@ void SongExportTest::testSongExport() {
 		for ( const auto& iinterpolationMode : interpolations ) {
 			for ( const auto& nnSampleRate : sampleRates ) {
 				for ( const auto& nnSampleDepth : sampleDepths ) {
-					pSampler->setInterpolateMode( iinterpolationMode );
-					const QString sFilename = QString( "%1/song-%2-%3-%4.%5" )
-						.arg( exportDir.path() )
-						.arg( Interpolation::ModeToQString( iinterpolationMode ) )
-						.arg( nnSampleRate )
-						.arg( nnSampleDepth )
-						.arg( ssExtension );
-					// See https://libsndfile.github.io/libsndfile/formats.html
-					// for which parameters are suppored for the particular
-					// formats.
-					//
-					// Instead of making audio export fail on non-supported
-					// parameter combinations, we tailor this test and UI to
-					// only allow valid ones. It would be bad UX to provide an
-					// invalid option.
-					if ( ssExtension == "ogg" &&
-						 ( nnSampleRate != 48000 || nnSampleDepth != 32 ) ) {
-						continue;
-					}
-					if ( ssExtension == "flac" && nnSampleDepth == 32 ) {
-						continue;
-					}
-					if ( ssExtension == "voc" && nnSampleDepth > 16 ) {
-						continue;
-					}
-					if ( ssExtension == "mp3" &&
-						 ( nnSampleDepth != 16 || nnSampleRate > 48000 ) ) {
-						continue;
-					}
+					for ( const auto& ffCompressionLevel : compressionLevels ) {
+						pSampler->setInterpolateMode( iinterpolationMode );
+						const QString sFilename = QString( "%1/song-%2-%3-%4-%5.%6" )
+							.arg( exportDir.path() )
+							.arg( Interpolation::ModeToQString( iinterpolationMode ) )
+							.arg( nnSampleRate )
+							.arg( nnSampleDepth )
+							.arg( ffCompressionLevel )
+							.arg( ssExtension );
+						if ( ssExtension != "ogg" && ssExtension != "flac" &&
+							 ssExtension != "mp3" &&
+							 ffCompressionLevel != compressionLevels[ 0 ] ) {
+							// Only for these ones compression/quality
+							// trade-offs are supported.
+							continue;
+						}
 
-					TestHelper::exportSong(
-						sSong, sFilename, nnSampleRate, nnSampleDepth );
+						// See
+						// https://libsndfile.github.io/libsndfile/formats.html
+						// for which parameters are suppored for the particular
+						// formats.
+						//
+						// Instead of making audio export fail on non-supported
+						// parameter combinations, we tailor this test and UI to
+						// only allow valid ones. It would be bad UX to provide
+						// an invalid option.
+						if ( ssExtension == "ogg" &&
+							 ( nnSampleRate != 48000 || nnSampleDepth != 32 ) ) {
+							continue;
+						}
+						if ( ssExtension == "flac" && nnSampleDepth == 32 ) {
+							continue;
+						}
+						if ( ssExtension == "voc" && nnSampleDepth > 16 ) {
+							continue;
+						}
+						if ( ssExtension == "mp3" &&
+							 ( nnSampleDepth != 16 || nnSampleRate > 48000 ) ) {
+							continue;
+						}
+
+						TestHelper::exportSong(
+							sSong, sFilename, nnSampleRate, nnSampleDepth,
+							ffCompressionLevel );
+					}
 				}
 			}
 		}

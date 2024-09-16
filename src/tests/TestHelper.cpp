@@ -230,12 +230,13 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 }
 
 void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
-							 int nSampleRate, int nSampleDepth )
+							 int nSampleRate, int nSampleDepth,
+							 double fCompressionLevel )
 {
 	qDebug() << "[TestHelper::exportSong] " << sFileName;
-	___INFOLOG( QString( "sSongFile: %1, sFileName: %2, nSampleRate: %3, nSampleDepth: %4" )
+	___INFOLOG( QString( "sSongFile: %1, sFileName: %2, nSampleRate: %3, nSampleDepth: %4, fCompressionLevel: %5" )
 				.arg( sSongFile ).arg( sFileName ).arg( nSampleRate )
-				.arg( nSampleDepth ) );
+				.arg( nSampleDepth ).arg( fCompressionLevel ) );
 
 	auto t0 = std::chrono::high_resolution_clock::now();
 
@@ -252,7 +253,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
-	pHydrogen->startExportSession( nSampleRate, nSampleDepth );
+	pHydrogen->startExportSession( nSampleRate, nSampleDepth, fCompressionLevel );
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver =
@@ -298,7 +299,7 @@ void TestHelper::exportSong( const QString& sFileName )
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
-	pHydrogen->startExportSession( 44100, 16 );
+	pHydrogen->startExportSession( 44100, 16, 5 );
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver =
