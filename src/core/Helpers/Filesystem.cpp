@@ -121,6 +121,9 @@ QStringList Filesystem::m_supportedSampleFormats = QStringList()
 #ifdef H2CORE_HAVE_FLAC_SUPPORT
 	<< "ogg" << "flac"
 #endif
+#ifdef H2CORE_HAVE_OPUS_SUPPORT
+	<< "opus"
+#endif
 #ifdef H2CORE_HAVE_MP3_SUPPORT
 	<< "mp3"
 #endif

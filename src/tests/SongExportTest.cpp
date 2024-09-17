@@ -75,7 +75,7 @@ void SongExportTest::testSongExport() {
 							.arg( ffCompressionLevel )
 							.arg( ssExtension );
 						if ( ssExtension != "ogg" && ssExtension != "flac" &&
-							 ssExtension != "mp3" &&
+							 ssExtension != "mp3" && ssExtension != "opus" &&
 							 ffCompressionLevel != compressionLevels[ 0 ] ) {
 							// Only for these ones compression/quality
 							// trade-offs are supported.
@@ -91,7 +91,7 @@ void SongExportTest::testSongExport() {
 						// parameter combinations, we tailor this test and UI to
 						// only allow valid ones. It would be bad UX to provide
 						// an invalid option.
-						if ( ssExtension == "ogg" &&
+						if ( ( ssExtension == "ogg" || ssExtension == "opus" ) &&
 							 ( nnSampleRate != 48000 || nnSampleDepth != 32 ) ) {
 							continue;
 						}

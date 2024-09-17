@@ -101,6 +101,12 @@ void* diskWriterDriver_thread( void* param )
 		bits = SF_FORMAT_VORBIS;
 	}
 #endif
+#ifdef H2CORE_HAVE_OPUS_SUPPORT
+	else if ( sFilenameLower.endsWith( ".opus" ) ) {
+		sfformat = SF_FORMAT_OGG;
+		bits = SF_FORMAT_OPUS;
+	}
+#endif
 	else if ( sFilenameLower.endsWith( ".voc" ) ) {
 		sfformat =  SF_FORMAT_VOC;
 	}
@@ -125,6 +131,7 @@ void* diskWriterDriver_thread( void* param )
 	// would be bad UX to provide an invalid option.
 
 	if ( ! sFilenameLower.endsWith( ".ogg" ) &&
+		 ! sFilenameLower.endsWith( ".opus" ) &&
 		 ! sFilenameLower.endsWith( ".mp3" ) ) {
 		// Handle sample depth
 		if ( pDriver->m_nSampleDepth == 8 ) {
@@ -204,6 +211,7 @@ void* diskWriterDriver_thread( void* param )
 #ifdef H2CORE_HAVE_FLAC_SUPPORT
 	// FLAC (and OGG/Vorbis) is the oldest format supporting this setting.
 	if ( sFilenameLower.endsWith( ".mp3" ) || sFilenameLower.endsWith( ".ogg" ) ||
+		 sFilenameLower.endsWith( ".opus" ) ||
 		 sFilenameLower.endsWith( ".flac" ) ) {
 		if ( sf_command( pSndfile, SFC_SET_COMPRESSION_LEVEL,
 						 &pDriver->m_fCompressionLevel,
