@@ -132,7 +132,8 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 	on_readyReadStandardError();
 	on_readyReadStandardOutput();
 
-	if ( m_pChild->exitStatus() != QProcess::NormalExit ) {
+	if ( m_pChild->exitStatus() != QProcess::NormalExit
+		 || m_pChild->exitCode() != 0 ) {
 
 		char *argv[] = { (char *)"-" };
 		int argc = 1;
