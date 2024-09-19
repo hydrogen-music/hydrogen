@@ -59,9 +59,7 @@ void SongExportTest::testSongExport() {
 	const std::vector<int> sampleDepths{ 8, 16, 24, 32 };
 	const std::vector<double> compressionLevels{ 0.0, 0.1, 0.25, 0.5, 0.75, 0.8263534124364, 1.0 };
 
-	const QStringList fileExtensions = Filesystem::supportedSampleFormats();
-
-	for ( const auto& ssExtension : fileExtensions ) {
+	for ( const auto& fformat : Filesystem::supportedAudioFormats() ) {
 		for ( const auto& iinterpolationMode : interpolations ) {
 			for ( const auto& nnSampleRate : sampleRates ) {
 				for ( const auto& nnSampleDepth : sampleDepths ) {
@@ -73,9 +71,11 @@ void SongExportTest::testSongExport() {
 							.arg( nnSampleRate )
 							.arg( nnSampleDepth )
 							.arg( ffCompressionLevel )
-							.arg( ssExtension );
-						if ( ssExtension != "ogg" && ssExtension != "flac" &&
-							 ssExtension != "mp3" && ssExtension != "opus" &&
+							.arg( Filesystem::AudioFormatToSuffix( fformat ) );
+						if ( fformat != Filesystem::AudioFormat::Ogg &&
+							 fformat != Filesystem::AudioFormat::Flac &&
+							 fformat != Filesystem::AudioFormat::Opus &&
+							 fformat != Filesystem::AudioFormat::Mp3 &&
 							 ffCompressionLevel != compressionLevels[ 0 ] ) {
 							// Only for these ones compression/quality
 							// trade-offs are supported.
@@ -91,17 +91,20 @@ void SongExportTest::testSongExport() {
 						// parameter combinations, we tailor this test and UI to
 						// only allow valid ones. It would be bad UX to provide
 						// an invalid option.
-						if ( ( ssExtension == "ogg" || ssExtension == "opus" ) &&
+						if ( ( fformat == Filesystem::AudioFormat::Ogg ||
+							   fformat == Filesystem::AudioFormat::Opus ) &&
 							 ( nnSampleRate != 48000 || nnSampleDepth != 32 ) ) {
 							continue;
 						}
-						if ( ssExtension == "flac" && nnSampleDepth == 32 ) {
+						if ( fformat == Filesystem::AudioFormat::Flac &&
+							 nnSampleDepth == 32 ) {
 							continue;
 						}
-						if ( ssExtension == "voc" && nnSampleDepth > 16 ) {
+						if ( fformat == Filesystem::AudioFormat::Voc &&
+							 nnSampleDepth > 16 ) {
 							continue;
 						}
-						if ( ssExtension == "mp3" &&
+						if ( fformat == Filesystem::AudioFormat::Mp3 &&
 							 ( nnSampleDepth != 16 || nnSampleRate > 48000 ) ) {
 							continue;
 						}

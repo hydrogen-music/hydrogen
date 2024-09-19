@@ -62,7 +62,8 @@ void* diskWriterDriver_thread( void* param )
 	
 	___INFOLOG( "DiskWriterDriver thread started" );
 
-	const QString sFilenameLower = pDriver->m_sFilename.toLower();
+	const auto format = Filesystem::AudioFormatFromSuffix( pDriver->m_sFilename );
+
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
 	soundInfo.channels = 2;
@@ -72,45 +73,45 @@ void* diskWriterDriver_thread( void* param )
 	int bits = SF_FORMAT_PCM_16; //16 bit PCM (default)
 
 	// Determine audio format based on the provided file suffix.
-	if ( sFilenameLower.endsWith( ".aiff" ) ||
-		 sFilenameLower.endsWith( ".aif" ) ||
- 		 sFilenameLower.endsWith( ".aifc" ) ) {
+	if ( format == Filesystem::AudioFormat::Aiff ||
+		 format == Filesystem::AudioFormat::Aifc ||
+		 format == Filesystem::AudioFormat::Aif ) {
 		sfformat =  SF_FORMAT_AIFF;
 	}
 #ifdef H2CORE_HAVE_FLAC_SUPPORT
-	else if ( sFilenameLower.endsWith( ".flac" ) ) {
+	else if ( format == Filesystem::AudioFormat::Flac ) {
 		sfformat =  SF_FORMAT_FLAC;
 	}
 #endif
-	else if ( sFilenameLower.endsWith( ".wav" ) ) {
+	else if ( format == Filesystem::AudioFormat::Wav ) {
 		sfformat =  SF_FORMAT_WAV;
 	}
-	else if ( sFilenameLower.endsWith( ".au" ) ) {
+	else if ( format == Filesystem::AudioFormat::Au ) {
 		sfformat =  SF_FORMAT_AU;
 	}
-	else if ( sFilenameLower.endsWith( ".caf" ) ) {
+	else if ( format == Filesystem::AudioFormat::Caf ) {
 		sfformat =  SF_FORMAT_CAF;
 	}
-	else if ( sFilenameLower.endsWith( ".w64" ) ) {
+	else if ( format == Filesystem::AudioFormat::W64 ) {
 		sfformat =  SF_FORMAT_W64;
 	}
 #ifdef H2CORE_HAVE_FLAC_SUPPORT
-	else if ( sFilenameLower.endsWith( ".ogg" ) ) {
+	else if ( format == Filesystem::AudioFormat::Ogg ) {
 		sfformat = SF_FORMAT_OGG;
 		bits = SF_FORMAT_VORBIS;
 	}
 #endif
 #ifdef H2CORE_HAVE_OPUS_SUPPORT
-	else if ( sFilenameLower.endsWith( ".opus" ) ) {
+	else if ( format == Filesystem::AudioFormat::Opus ) {
 		sfformat = SF_FORMAT_OGG;
 		bits = SF_FORMAT_OPUS;
 	}
 #endif
-	else if ( sFilenameLower.endsWith( ".voc" ) ) {
+	else if ( format == Filesystem::AudioFormat::Voc ) {
 		sfformat =  SF_FORMAT_VOC;
 	}
 #ifdef H2CORE_HAVE_MP3_SUPPORT
-	else if ( sFilenameLower.endsWith( ".mp3" ) ) {
+	else if ( format == Filesystem::AudioFormat::Mp3 ) {
 		sfformat =  SF_FORMAT_MPEG;
 		bits = SF_FORMAT_MPEG_LAYER_III;
 	}
@@ -129,15 +130,15 @@ void* diskWriterDriver_thread( void* param )
 	// combinations, we tailor this test and UI to only allow valid ones. It
 	// would be bad UX to provide an invalid option.
 
-	if ( ! sFilenameLower.endsWith( ".ogg" ) &&
-		 ! sFilenameLower.endsWith( ".opus" ) &&
-		 ! sFilenameLower.endsWith( ".mp3" ) ) {
+	if ( format != Filesystem::AudioFormat::Ogg &&
+		 format != Filesystem::AudioFormat::Opus &&
+		 format != Filesystem::AudioFormat::Mp3 ) {
 		// Handle sample depth
 		if ( pDriver->m_nSampleDepth == 8 ) {
 			// WAV and other raw PCM formats are handled differently.
-			if ( sFilenameLower.endsWith( ".wav" ) ||
-				 sFilenameLower.endsWith( ".voc" ) ||
-				 sFilenameLower.endsWith( ".w64" ) ) {
+			if ( format == Filesystem::AudioFormat::Voc ||
+				 format == Filesystem::AudioFormat::W64 ||
+				 format == Filesystem::AudioFormat::Wav ) {
 				bits = SF_FORMAT_PCM_U8; //Unsigned 8 bit data needed for Microsoft WAV format
 			} else {
 				bits = SF_FORMAT_PCM_S8; //Signed 8 bit data works with aiff
@@ -197,7 +198,7 @@ void* diskWriterDriver_thread( void* param )
 
 	// Perform some per-file settings.
 #ifdef H2CORE_HAVE_MP3_SUPPORT
-	if ( sFilenameLower.endsWith( ".mp3" ) ) {
+	if ( format == Filesystem::AudioFormat::Mp3 ) {
 		int nBitrateMode = SF_BITRATE_MODE_VARIABLE;
 		if ( sf_command( pSndfile, SFC_SET_BITRATE_MODE, &nBitrateMode,
 						 sizeof(int) ) != SF_TRUE ) {
@@ -209,9 +210,10 @@ void* diskWriterDriver_thread( void* param )
 
 #ifdef H2CORE_HAVE_FLAC_SUPPORT
 	// FLAC (and OGG/Vorbis) is the oldest format supporting this setting.
-	if ( sFilenameLower.endsWith( ".mp3" ) || sFilenameLower.endsWith( ".ogg" ) ||
-		 sFilenameLower.endsWith( ".opus" ) ||
-		 sFilenameLower.endsWith( ".flac" ) ) {
+	if ( format == Filesystem::AudioFormat::Mp3 ||
+		 format == Filesystem::AudioFormat::Ogg ||
+		 format == Filesystem::AudioFormat::Opus ||
+		 format == Filesystem::AudioFormat::Flac ) {
 		if ( sf_command( pSndfile, SFC_SET_COMPRESSION_LEVEL,
 						 &pDriver->m_fCompressionLevel,
 						 sizeof(double) ) != SF_TRUE ) {

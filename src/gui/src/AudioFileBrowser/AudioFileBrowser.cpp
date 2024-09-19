@@ -66,8 +66,9 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
 
 	QStringList nameFilters;
-	for ( const auto& ssSuffix : Filesystem::supportedSampleFormats() ) {
-		const QString ssFilter = QString( "*.%1" ).arg( ssSuffix );
+	for ( const auto& fformat : Filesystem::supportedAudioFormats() ) {
+		const QString ssFilter = QString( "*.%1" )
+			.arg( Filesystem::AudioFormatToSuffix( fformat ) );
 		nameFilters << ssFilter << ssFilter.toUpper();
 	}
 
@@ -152,15 +153,8 @@ AudioFileBrowser::~AudioFileBrowser()
 
 bool AudioFileBrowser::isFileSupported( const QString& filename )
 {
-	const QString sFilenameLower = filename.toLower();
-	for ( const auto& ssSuffix : Filesystem::supportedSampleFormats() ) {
-		if ( sFilenameLower.endsWith( ssSuffix ) ) {
-			DEBUGLOG( ssSuffix );
-			return true;
-		}
-	}
-
-	return false;
+	return Filesystem::AudioFormatFromSuffix( filename ) !=
+		Filesystem::AudioFormat::Unknown;
 }
 
 

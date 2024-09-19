@@ -942,7 +942,10 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 	// image.
 	// The list does not have to be comprehensive as a "leakage" of
 	// audio files in the resulting .h2drumkit is not a big problem.
-	const QStringList suffixBlacklist = Filesystem::supportedSampleFormats();
+	QStringList suffixBlacklist;
+	for ( const auto& fformat : Filesystem::supportedAudioFormats() ) {
+		suffixBlacklist << Filesystem::AudioFormatToSuffix( fformat );
+	}
 
 	QStringList filesUsed;
 	bool bSampleFound;
