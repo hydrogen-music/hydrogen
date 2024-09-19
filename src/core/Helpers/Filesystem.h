@@ -26,6 +26,8 @@
 #include <core/Object.h>
 #include <QtCore/QString>
 
+#include <vector>
+
 namespace H2Core
 {
 
@@ -83,6 +85,32 @@ namespace H2Core
 			 * and is writable.*/
 			SessionReadWrite = 3
 		};
+
+			/** All audio file formats supported by Hydrogen */
+			enum class AudioFormat {
+				/** synonym for Aiff */
+				Aif,
+				/** synonym for Aiff */
+				Aifc,
+				Aiff,
+				Au,
+				Caf,
+				Flac,
+				Mp3,
+				Ogg,
+				Opus,
+				Unknown,
+				Voc,
+				W64,
+				Wav
+			};
+			/** Converts @a format to the default lower case suffix of the
+			 * format. */
+			static QString AudioFormatToSuffix( const AudioFormat& format );
+			/** Determines the audio format of the provided filename or path
+			 * based on its suffix. */
+			static AudioFormat AudioFormatFromSuffix( const QString& sFile );
+
 
 		static const QString songs_ext;
 		static const QString scripts_ext;
@@ -498,13 +526,10 @@ namespace H2Core
 			 * sEncodedString. */
 			static QString removeUtf8Characters( const QString& sEncodedString );
 
-			/** Returns a list of lower-case suffixes Hydrogen should be able to
-			 * handle.
-			 *
-			 * Which format is supported is determined by the `libsndfile`
-			 * version Hydrogen is linked against (see
+			/** Which format is supported is determined by the `libsndfile`
+			 * version Hydrogen is linked against during compile time (see
 			 * https://libsndfile.github.io/libsndfile/api.html#open). */
-			 static const QStringList& supportedSampleFormats();
+			 static const std::vector<AudioFormat>& supportedAudioFormats();
 
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
@@ -557,7 +582,7 @@ namespace H2Core
 		static QString __usr_cfg_path;      ///< the path to the user config file
 		static QString __usr_log_path;      ///< the path to the log file
 		static QStringList __ladspa_paths;  ///< paths to laspa plugins
-			static QStringList m_supportedSampleFormats;
+			static std::vector<AudioFormat> m_supportedAudioFormats;
 	};
 
 	inline const QString& Filesystem::getPreferencesOverwritePath() {

@@ -1060,7 +1060,10 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	// image.
 	// The list does not have to be comprehensive as a "leakage" of
 	// audio files in the resulting .h2drumkit is not a big problem.
-	const QStringList suffixBlacklist = Filesystem::supportedSampleFormats();
+	QStringList suffixBlacklist;
+	for ( const auto& fformat : Filesystem::supportedAudioFormats() ) {
+		suffixBlacklist << Filesystem::AudioFormatToSuffix( fformat );
+	}
 
 	bool bSampleFound;
 	
