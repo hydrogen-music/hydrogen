@@ -193,7 +193,8 @@ Preferences::Preferences()
 	, m_nExportSampleDepthIdx( 0 )
 	, m_nExportSampleRateIdx( 0 )
 	, m_nExportModeIdx( 0 )
-	, m_nExportTemplateIdx( 0 )
+	, m_exportFormat( Filesystem::AudioFormat::Flac )
+	, m_fExportCompressionLevel( 0.0 )
 	, m_nMidiExportMode( 0 )
 	, m_bShowExportSongLicenseWarning( true )
 	, m_bShowExportDrumkitLicenseWarning( true )
@@ -376,7 +377,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nExportSampleDepthIdx( pOther->m_nExportSampleDepthIdx )
 	, m_nExportSampleRateIdx( pOther->m_nExportSampleRateIdx )
 	, m_nExportModeIdx( pOther->m_nExportModeIdx )
-	, m_nExportTemplateIdx( pOther->m_nExportTemplateIdx )
+	, m_exportFormat( pOther->m_exportFormat )
+	, m_fExportCompressionLevel( pOther->m_fExportCompressionLevel )
 	, m_nMidiExportMode( pOther->m_nMidiExportMode )
 	, m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning )
 	, m_bShowExportDrumkitLicenseWarning( pOther->m_bShowExportDrumkitLicenseWarning )
@@ -895,9 +897,14 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_sLastExportThemeDirectory, true, false, bSilent );
 
 		// export dialog properties
-		pPref->m_nExportTemplateIdx = guiNode.read_int(
-			"exportDialogTemplate",
-			pPref->m_nExportTemplateIdx, false, false, bSilent );
+		pPref->m_exportFormat = Filesystem::AudioFormatFromSuffix(
+			guiNode.read_string(
+				"exportDialogFormat",
+				Filesystem::AudioFormatToSuffix( pPref->m_exportFormat ),
+				true, true ) );
+		pPref->m_fExportCompressionLevel = guiNode.read_float(
+			"exportDialogCompressionLevel",
+			pPref->m_fExportCompressionLevel, true, true );
 		pPref->m_nExportModeIdx = guiNode.read_int(
 			"exportDialogMode", pPref->m_nExportModeIdx, false, false, bSilent );
 		pPref->m_nExportSampleRateIdx = guiNode.read_int(
@@ -1299,7 +1306,10 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 				
 		//ExportSongDialog
 		guiNode.write_int( "exportDialogMode", m_nExportModeIdx );
-		guiNode.write_int( "exportDialogTemplate", m_nExportTemplateIdx );
+		guiNode.write_string( "exportDialogFormat",
+							  Filesystem::AudioFormatToSuffix( m_exportFormat ) );
+		guiNode.write_float( "exportDialogCompressionLevel",
+							 m_fExportCompressionLevel );
 		guiNode.write_int( "exportDialogSampleRate",  m_nExportSampleRateIdx );
 		guiNode.write_int( "exportDialogSampleDepth", m_nExportSampleDepthIdx );
 		guiNode.write_bool( "showExportSongLicenseWarning", m_bShowExportSongLicenseWarning );
@@ -1863,8 +1873,11 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nExportSampleRateIdx ) )
 			.append( QString( "%1%2m_nExportModeIdx: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nExportModeIdx ) )
-			.append( QString( "%1%2m_nExportTemplateIdx: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nExportTemplateIdx ) )
+			.append( QString( "%1%2m_exportFormat: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( Filesystem::AudioFormatToSuffix(
+										m_exportFormat ) ) )
+			.append( QString( "%1%2m_fExportCompressionLevel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fExportCompressionLevel ) )
 			.append( QString( "%1%2m_nMidiExportMode: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nMidiExportMode ) )
 			.append( QString( "%1%2m_bShowExportSongLicenseWarning: %3\n" ).arg( sPrefix )
@@ -2109,8 +2122,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nExportSampleRateIdx ) )
 			.append( QString( ", m_nExportModeIdx: %1" )
 					 .arg( m_nExportModeIdx ) )
-			.append( QString( ", m_nExportTemplateIdx: %1" )
-					 .arg( m_nExportTemplateIdx ) )
+			.append( QString( ", m_exportFormat: %1" )
+					 .arg( Filesystem::AudioFormatToSuffix( m_exportFormat ) ) )
+			.append( QString( ", m_fExportCompressionLevel: %1" )
+					 .arg( m_fExportCompressionLevel ) )
 			.append( QString( ", m_nMidiExportMode: %1" )
 					 .arg( m_nMidiExportMode ) )
 			.append( QString( ", m_bShowExportSongLicenseWarning: %1" )

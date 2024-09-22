@@ -33,6 +33,7 @@
 
 #include <core/MidiAction.h>
 #include <core/Globals.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 
 #include <QStringList>
@@ -561,8 +562,10 @@ public:
 	void			setExportSampleRateIdx( int nExportSampleRateIdx );
 	int				getExportModeIdx() const;
 	void			setExportModeIdx(int nExportMode);
-	int				getExportTemplateIdx() const;
-	void			setExportTemplateIdx( int nExportTemplateIdx );
+	Filesystem::AudioFormat getExportFormat() const;
+	void			setExportFormat( Filesystem::AudioFormat format );
+	float 			getExportCompressionLevel() const;
+	void			setExportCompressionLevel( float fCompressionLevel );
 
 		// Export MIDI dialog
     int				getMidiExportMode() const;
@@ -699,7 +702,9 @@ private:
 	int						m_nExportSampleDepthIdx;
 	int						m_nExportSampleRateIdx;
 	int						m_nExportModeIdx;
-	int						m_nExportTemplateIdx;
+	Filesystem::AudioFormat m_exportFormat;
+	float					m_fExportCompressionLevel;
+	// ~ Export dialog
 
     // Export midi dialog
     int						m_nMidiExportMode;
@@ -865,14 +870,24 @@ inline void Preferences::setExportSampleRateIdx(int ExportSampleRate)
 	m_nExportSampleRateIdx = ExportSampleRate;
 }
 
-inline int Preferences::getExportTemplateIdx() const
+inline Filesystem::AudioFormat Preferences::getExportFormat() const
 {
-	return m_nExportTemplateIdx;
+	return m_exportFormat;
 }
 
-inline void Preferences::setExportTemplateIdx(int ExportTemplateIdx)
+inline void Preferences::setExportFormat( Filesystem::AudioFormat format )
 {
-	m_nExportTemplateIdx = ExportTemplateIdx;
+	m_exportFormat = format;
+}
+
+inline float Preferences::getExportCompressionLevel() const
+{
+	return m_fExportCompressionLevel;
+}
+
+inline void Preferences::setExportCompressionLevel( float fCompressionLevel )
+{
+	m_fExportCompressionLevel = fCompressionLevel;
 }
 
 inline const QString& Preferences::getDefaultEditor() const {
