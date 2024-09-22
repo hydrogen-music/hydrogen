@@ -119,6 +119,8 @@ Preferences::Preferences()
 	m_nExportModeIdx = 0;
 	m_nExportSampleRateIdx = 0;
 	m_nExportSampleDepthIdx = 0;
+	m_exportFormat = Filesystem::AudioFormat::Flac;
+	m_fExportCompressionLevel = 0.0;
 	m_bShowExportSongLicenseWarning = true;
 	m_bShowExportDrumkitLicenseWarning = true;
 	m_bShowExportDrumkitCopyleftWarning = true;
@@ -638,7 +640,10 @@ bool Preferences::loadPreferences( bool bGlobal )
 				m_sLastExportThemeDirectory = guiNode.read_string( "lastExportThemeDirectory", QDir::homePath(), true, false, true );
 
 				//export dialog properties
-				m_nExportTemplateIdx = guiNode.read_int( "exportDialogTemplate", 0, false, false );
+				m_exportFormat = Filesystem::AudioFormatFromSuffix(
+					guiNode.read_string( "exportDialogFormat", "flac", true, true ) );
+				m_fExportCompressionLevel = guiNode.read_float(
+					"exportDialogCompressionLevel", 0.0, true, true );
 				m_nExportModeIdx = guiNode.read_int( "exportDialogMode", 0, false, false );
 				m_nExportSampleRateIdx = guiNode.read_int( "exportDialogSampleRate", 0, false, false );
 				m_nExportSampleDepthIdx = guiNode.read_int( "exportDialogSampleDepth", 0, false, false );
@@ -1081,7 +1086,10 @@ bool Preferences::savePreferences()
 				
 		//ExportSongDialog
 		guiNode.write_int( "exportDialogMode", m_nExportModeIdx );
-		guiNode.write_int( "exportDialogTemplate", m_nExportTemplateIdx );
+		guiNode.write_string( "exportDialogFormat",
+							  Filesystem::AudioFormatToSuffix( m_exportFormat ) );
+		guiNode.write_float( "exportDialogCompressionLevel",
+							 m_fExportCompressionLevel );
 		guiNode.write_int( "exportDialogSampleRate",  m_nExportSampleRateIdx );
 		guiNode.write_int( "exportDialogSampleDepth", m_nExportSampleDepthIdx );
 		guiNode.write_bool( "showExportSongLicenseWarning", m_bShowExportSongLicenseWarning );
