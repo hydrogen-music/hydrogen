@@ -199,7 +199,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 	}
 	qDebug() << nSleeps;
 
-	// CPPUNIT_ASSERT( ! pDriver->writingFailed() );
+	CPPUNIT_ASSERT( ! pDriver->writingFailed() );
 	if ( pDriver->writingFailed() ) {
 		qDebug() << sFileName;
 	}
