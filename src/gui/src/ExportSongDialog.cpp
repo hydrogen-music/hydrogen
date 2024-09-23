@@ -392,6 +392,29 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 
+	int nSampleRate = sampleRateCombo->currentText().toInt();
+	int nSampleDepth = sampleDepthCombo->currentText().toInt();
+	const float fCompressionLevel = compressionLevelSpinBox->value();
+
+	// Some formats only support a certain set of parameters and need special
+	// treatment.
+	const auto format = m_formatMap[ formatCombo->currentIndex() ];
+	if ( format == Filesystem::AudioFormat::Ogg ||
+		 format == Filesystem::AudioFormat::Flac ||
+		 format == Filesystem::AudioFormat::Opus ) {
+		nSampleDepth = 32;
+		nSampleRate = 48000;
+	}
+	else if ( format == Filesystem::AudioFormat::Voc ) {
+		nSampleDepth = std::min( 16, nSampleDepth );
+	}
+	else if ( format == Filesystem::AudioFormat::Mp3 ) {
+		nSampleDepth = 16;
+		nSampleRate = 48000;
+	}
+
+	auto pPref = Preferences::get_instance();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	// License related export warnings
@@ -529,9 +552,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		}
 
 		if ( ! pHydrogen->startExportSession(
-				 sampleRateCombo->currentText().toInt(),
-				 sampleDepthCombo->currentText().toInt(),
-				 compressionLevelSpinBox->value() ) ) {
+				 nSampleRate, nSampleDepth, fCompressionLevel ) ) {
 			QMessageBox::critical( this, "Hydrogen",
 								   pCommonStrings->getExportSongFailure() );
 			return;
@@ -542,9 +563,12 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	if ( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
 		m_bExportTrackouts = true;
-		pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
-										 sampleDepthCombo->currentText().toInt(),
-										 compressionLevelSpinBox->value() );
+		if ( ! pHydrogen->startExportSession(
+				 nSampleRate, nSampleDepth, fCompressionLevel ) ) {
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonStrings->getExportSongFailure() );
+			return;
+		}
 		exportTracks();
 		return;
 	}
@@ -748,6 +772,18 @@ void ExportSongDialog::formatComboIndexChanged( int nIndex )
 		break;
 	}
 
+	if ( format == Filesystem::AudioFormat::Voc ) {
+		// Voc files do only support sample rates up to 16 bits
+		if ( sampleDepthCombo->count() == 4 ) {
+			sampleDepthCombo->removeItem( 3 );
+			sampleDepthCombo->removeItem( 2 );
+		}
+	}
+	else {
+		if ( sampleDepthCombo->count() == 2 ) {
+			sampleDepthCombo->addItems( QStringList() << "24" << "32" );
+		}
+	}
 
 	m_sExtension = Filesystem::AudioFormatToSuffix( format );
 
