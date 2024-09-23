@@ -413,8 +413,6 @@ void ExportSongDialog::on_okBtn_clicked()
 		nSampleRate = 48000;
 	}
 
-	auto pPref = Preferences::get_instance();
-	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	// License related export warnings
