@@ -104,7 +104,7 @@
         </layout>
        </item>
        <item row="2" column="0">
-        <widget class="QLabel" name="templateLabel">
+        <widget class="QLabel" name="formatLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -112,72 +112,22 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Templates: </string>
+          <string>Format:</string>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QComboBox" name="templateCombo">
+        <widget class="QComboBox" name="formatCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <item>
-          <property name="text">
-           <string>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WAV LOFI &quot;22.05kHz, 8 bit PCM </string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>FLAC lossless compressor in good quality &quot;48 kHz&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QLabel" name="sampleRateLable">
+        <widget class="QLabel" name="sampleRateLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -236,7 +186,7 @@
         </widget>
        </item>
        <item row="4" column="0">
-        <widget class="QLabel" name="sampleDepthLable">
+        <widget class="QLabel" name="sampleDepthLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -284,7 +234,7 @@
          </item>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="resapelingLbl">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -309,7 +259,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="8" column="1">
         <widget class="QComboBox" name="resampleComboBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -353,14 +303,14 @@
          </item>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="10" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Modus:</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="10" column="1">
         <widget class="QComboBox" name="exportTypeCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -370,7 +320,7 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="1">
+       <item row="13" column="1">
         <widget class="QCheckBox" name="toggleTimeLineBPMCheckBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -386,7 +336,7 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
+       <item row="14" column="1">
         <widget class="QCheckBox" name="toggleRubberbandCheckBox">
          <property name="enabled">
           <bool>true</bool>
@@ -411,7 +361,7 @@
          </property>
         </widget>
        </item>
-       <item row="16" column="1">
+       <item row="18" column="1">
         <widget class="QProgressBar" name="m_pProgressBar">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -424,7 +374,7 @@
          </property>
         </widget>
        </item>
-       <item row="18" column="0" colspan="2">
+       <item row="20" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QPushButton" name="okBtn">
@@ -496,6 +446,23 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="compressionLevelLabel">
+         <property name="text">
+          <string>Compression Level:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QDoubleSpinBox" name="compressionLevelSpinBox">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

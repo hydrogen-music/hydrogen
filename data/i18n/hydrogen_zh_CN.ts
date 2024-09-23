@@ -1373,50 +1373,6 @@ Overwrite the existing file?</source>
         <translation>Alt+B</translation>
     </message>
     <message>
-        <source>Templates: </source>
-        <translation>模板： </translation>
-    </message>
-    <message>
-        <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
-        <translation>CD 品质的 WAV “44.1 赫兹，16 比特 PCM”</translation>
-    </message>
-    <message>
-        <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>ADAT 品质的 WAV “48 赫兹，16 比特 PCM”</translation>
-    </message>
-    <message>
-        <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>更好品质的 WAV “48 赫兹，24 比特 PCM”</translation>
-    </message>
-    <message>
-        <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation>WAV LOFI “22.05 赫兹，8 比特 PCM” </translation>
-    </message>
-    <message>
-        <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation>最佳 Mixdown 品质的 WAV “96 赫兹，32 比特 PCM”</translation>
-    </message>
-    <message>
-        <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
-        <translation>ADAT 品质的 WAV “41 赫兹，16 比特 PCM”</translation>
-    </message>
-    <message>
-        <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>ADAT 品质的 AIFF “48 赫兹，16 比特 PCM”</translation>
-    </message>
-    <message>
-        <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>更好品质的 AIFF “48 赫兹，24 比特 PCM”</translation>
-    </message>
-    <message>
-        <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
-        <translation>高品质无损压缩 FLAC “48 赫兹”</translation>
-    </message>
-    <message>
-        <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
-        <translation>高品质有损压缩 OGG Vorbis &quot;VBR&quot;</translation>
-    </message>
-    <message>
         <source>Samplerate in Hz:</source>
         <translation>采样率（赫兹）：</translation>
     </message>
@@ -1527,6 +1483,14 @@ Overwrite the existing file?</source>
     <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compression Level:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1424,50 +1424,6 @@ Overwrite the existing file?</source>
         <translation>32</translation>
     </message>
     <message>
-        <source>Templates: </source>
-        <translation>Шаблони: </translation>
-    </message>
-    <message>
-        <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
-        <translation>WAV ЦД квалитета „44,1kHz, 16 bit PCM“</translation>
-    </message>
-    <message>
-        <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>WAV АДАТ квалитета „48kHz, 16 bit PCM“</translation>
-    </message>
-    <message>
-        <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>WAV бољи квалитет „48kHz, 24 bit PCM“</translation>
-    </message>
-    <message>
-        <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation>WAV лошијег квалитета „22,05kHz, 8 bit PCM“</translation>
-    </message>
-    <message>
-        <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation>WAV измешано најбољег квалитета „96kHz, 32 bit PCM“</translation>
-    </message>
-    <message>
-        <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
-        <translation>AIFF ЦД квалитета „44,1kHz, 16 bit PCM“</translation>
-    </message>
-    <message>
-        <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>AIFF АДАТ квалитета „48kHz, 16 bit PCM“</translation>
-    </message>
-    <message>
-        <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>AIFF бољег квалитета „48kHz, 24 bit PCM“</translation>
-    </message>
-    <message>
-        <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
-        <translation>ФЛАК доброг квалитета „48 kHz“</translation>
-    </message>
-    <message>
-        <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
-        <translation>ОГГ аудио (oga) доброг квалитета „VBR“</translation>
-    </message>
-    <message>
         <source>Interpolation: </source>
         <translation>Интерполација: </translation>
     </message>
@@ -1525,6 +1481,14 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compression Level:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
