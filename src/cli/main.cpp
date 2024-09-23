@@ -547,9 +547,16 @@ int main(int argc, char *argv[])
 	
 					if ( event.value < 100 ) {
 						std::cout << "\rExport Progress ... " << event.value << "%";
-					} else {
+					}
+					else {
+						const auto pDriver = static_cast<DiskWriterDriver*>(
+							pHydrogen->getAudioEngine()->getAudioDriver());
+						if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
+							std::cerr << "\rExport FAILED" << std::endl;
+						} else {
+							std::cout << "\rExport Progress ... DONE" << std::endl;
+						}
 						pHydrogen->stopExportSession();
-						std::cout << "\rExport Progress ... DONE" << std::endl;
 						quit = true;
 					}
 					break;
