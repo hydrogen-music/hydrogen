@@ -122,6 +122,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( pDriver->m_sFilename ).arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 
@@ -163,6 +164,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -193,6 +195,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
