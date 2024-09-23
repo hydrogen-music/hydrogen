@@ -42,6 +42,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
+#include <core/IO/DiskWriterDriver.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Sampler/Sampler.h>
@@ -742,24 +743,37 @@ void ExportSongDialog::progressEvent( int nValue )
 
 		m_bExporting = false;
 
-		if( m_nInstrument == Hydrogen::get_instance()->getSong()->getInstrumentList()->size()){
+		// Check whether an error occured during export.
+		const auto pDriver = static_cast<DiskWriterDriver*>(
+			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver());
+		if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
+			QMessageBox::critical( this, "Hydrogen",
+								   tr( "Unable to export song" ),
+								   QMessageBox::Ok );
+			m_pProgressBar->setValue( 0 );
 		}
+		else {
+			if ( m_nInstrument ==
+				 Hydrogen::get_instance()->getSong()->getInstrumentList()->size() ) {
+				m_nInstrument = 0;
+				m_bExportTrackouts = false;
+			}
 
-		if( m_bExportTrackouts ){
-			exportTracks();
+			if ( m_bExportTrackouts ) {
+				exportTracks();
+			}
 		}
 	}
 
 	if ( nValue < 100 ) {
-		closeBtn->setEnabled(false);
-		resampleComboBox->setEnabled(false);
-
-	}else
-	{
-		closeBtn->setEnabled(true);
-		resampleComboBox->setEnabled(true);
+		closeBtn->setEnabled( false );
+		resampleComboBox->setEnabled( false );
+	}
+	else {
+		closeBtn->setEnabled( true );
+		resampleComboBox->setEnabled( true );
 	}
 }
 
