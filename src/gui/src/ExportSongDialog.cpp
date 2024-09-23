@@ -106,9 +106,47 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	m_bQfileDialog = false;
 	m_bExportTrackouts = false;
 	m_nInstrument = 0;
-	m_sExtension = ".wav";
+	m_sExtension = Filesystem::AudioFormatToSuffix( Filesystem::AudioFormat::Flac );
 	m_bOverwriteFiles = false;
 	m_bOldRubberbandBatchMode = m_pPreferences->getRubberBandBatchMode();
+
+	// Format combo box
+	formatCombo->addItem( "FLAC (Free Lossless Audio Codec)" );
+	m_formatMap[ 0 ] = Filesystem::AudioFormat::Flac;
+	formatCombo->addItem( "OPUS (Opus Compressed Audio)" );
+	m_formatMap[ 1 ] = Filesystem::AudioFormat::Opus;
+	formatCombo->addItem( "OGG (Vorbis Compressed Audio)" );
+	m_formatMap[ 2 ] = Filesystem::AudioFormat::Ogg;
+	formatCombo->addItem( "MP3 (MP3 Compressed Audio)" );
+	m_formatMap[ 3 ] = Filesystem::AudioFormat::Mp3;
+	formatCombo->addItem( "WAV (Waveform Audio)" );
+	m_formatMap[ 4 ] = Filesystem::AudioFormat::Wav;
+	formatCombo->addItem( "AIFF (Audio Interchange File Format)" );
+	m_formatMap[ 5 ] = Filesystem::AudioFormat::Aiff;
+	formatCombo->addItem( "AU (Sun/NeXT Audio)" );
+	m_formatMap[ 6 ] = Filesystem::AudioFormat::Au;
+	formatCombo->addItem( "CAF (Core Audio Format)" );
+	m_formatMap[ 7 ] = Filesystem::AudioFormat::Caf;
+	formatCombo->addItem( "VOC (Creative Voice)" );
+	m_formatMap[ 8 ] = Filesystem::AudioFormat::Voc;
+	formatCombo->addItem( "W64 (Sonic Foundry’s 64 bit RIFF/WAV)" );
+	m_formatMap[ 9 ] = Filesystem::AudioFormat::W64;
+
+	// Per-default FLAC format is chosen, for which we only provide compression
+	// level but no sample rate and depth settings (IMHO providing them and
+	// setting sample rates smaller than 48k does only make sense when encoding
+	// speech and not for music yet alone drumkits.)
+	formatCombo->setCurrentIndex( 0 );
+	connect( formatCombo, SIGNAL(currentIndexChanged(int)),
+			 this, SLOT(formatComboIndexChanged(int) ) );
+
+	sampleRateCombo->hide();
+	sampleRateLabel->hide();
+	sampleDepthCombo->hide();
+	sampleDepthLabel->hide();
+	// Best-possible quality (MP3, Vorbis, Opus) / fastest encoding (FLAC) as
+	// default.
+	compressionLevelSpinBox->setValue( 0.0 );
 
 	// use of rubberband batch
 	if( checkUseOfRubberband() ) {
@@ -159,8 +197,7 @@ QString ExportSongDialog::createDefaultFilename()
 
 	sDefaultFilename.replace( '*', "_" );
 	sDefaultFilename.replace( Filesystem::songs_ext, "" );
-	sDefaultFilename += m_sExtension;
-	return sDefaultFilename;
+	return QString( "%1.%2" ).arg( sDefaultFilename ).arg( m_sExtension );
 }
 
 void ExportSongDialog::saveSettingsToPreferences()
@@ -180,29 +217,48 @@ void ExportSongDialog::saveSettingsToPreferences()
 	
 	// saving other options
 	m_pPreferences->setExportModeIdx( exportTypeCombo->currentIndex() );
-	m_pPreferences->setExportTemplateIdx( templateCombo->currentIndex() );
+	m_pPreferences->setExportFormat( m_formatMap[ formatCombo->currentIndex() ] );
+	m_pPreferences->setExportCompressionLevel(compressionLevelSpinBox->value() );
 	m_pPreferences->setExportSampleRateIdx( sampleRateCombo->currentIndex() );
 	m_pPreferences->setExportSampleDepthIdx( sampleDepthCombo->currentIndex() );
 }
 
 void ExportSongDialog::restoreSettingsFromPreferences()
 {
-	// loading previous directory and filling filename text field
-	
-	// loading default filename on a first run and storing it in static field
-	if( sLastFilename.isEmpty() ) {
+	// In case the filename used in the last session is invalid, we discard it.
+	if ( ! sLastFilename.isEmpty() ) {
+		QFileInfo info( sLastFilename );
+		if ( info.suffix().isEmpty() ||
+			 Filesystem::AudioFormatFromSuffix( info.suffix() ) ==
+			 Filesystem::AudioFormat::Unknown ) {
+			sLastFilename = "";
+		}
+	}
+
+	if ( sLastFilename.isEmpty() ) {
 		sLastFilename = createDefaultFilename();
 	}
 
+	// loading previous directory
 	QString sDirPath = m_pPreferences->getLastExportSongDirectory();
 	QDir qd = QDir( sDirPath );
-	
 	// joining filepath with dirname
 	QString sFullPath = qd.absoluteFilePath( sLastFilename );
+
 	exportNameTxt->setText( sFullPath );
 	
 	// loading rest of the options
-	templateCombo->setCurrentIndex( m_pPreferences->getExportTemplateIdx() );
+	const auto previousFormat = m_pPreferences->getExportFormat();
+	if ( previousFormat != Filesystem::AudioFormat::Unknown ) {
+		for ( const auto [ nnIndex, fformat ] : m_formatMap ) {
+			if ( fformat == previousFormat ) {
+				formatCombo->setCurrentIndex( nnIndex );
+				break;
+			}
+		}
+	}
+	compressionLevelSpinBox->setValue(
+		m_pPreferences->getExportCompressionLevel() );
 	exportTypeCombo->setCurrentIndex( m_pPreferences->getExportModeIdx() );
 	
 	int nExportSampleRateIdx = m_pPreferences->getExportSampleRateIdx();
@@ -231,14 +287,38 @@ void ExportSongDialog::on_browseBtn_clicked()
 	FileDialog fd(this);
 	fd.setFileMode(QFileDialog::AnyFile);
 
-	if( templateCombo->currentIndex() <= 4 ) {
+	const auto format = m_formatMap[ formatCombo->currentIndex() ];
+
+	switch ( format ) {
+	case Filesystem::AudioFormat::Wav:
 		fd.setNameFilter("Microsoft WAV (*.wav *.WAV)");
-	} else if ( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) {
+		break;
+	case Filesystem::AudioFormat::Aiff:
 		fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
-	} else if ( templateCombo->currentIndex() == 8 ) {
+		break;
+	case Filesystem::AudioFormat::Flac:
 		fd.setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
-	} else if ( templateCombo->currentIndex() == 9 ) {
+		break;
+	case Filesystem::AudioFormat::Ogg:
 		fd.setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
+		break;
+	case Filesystem::AudioFormat::Mp3:
+		fd.setNameFilter( "MPEG Layer 3 (*.mp3 *.MP3)");
+		break;
+	case Filesystem::AudioFormat::Au:
+		fd.setNameFilter( "Sun/NeXT AU (*.au *.AU)");
+		break;
+	case Filesystem::AudioFormat::Caf:
+		fd.setNameFilter( "Core Audio Format (*.caf *.CAF)");
+		break;
+	case Filesystem::AudioFormat::Voc:
+		fd.setNameFilter( "Creative Voice File (*.voc *.VOC)");
+		break;
+	case Filesystem::AudioFormat::Unknown:
+	default:
+		ERRORLOG( QString( "Unhandle combo index [%1]" )
+				  .arg( formatCombo->currentIndex() ) );
+		return;
 	}
 
 	fd.setDirectory( sPath );
@@ -249,29 +329,21 @@ void ExportSongDialog::on_browseBtn_clicked()
 
 	fd.selectFile(defaultFilename);
 
-	QString filename = "";
-	if (fd.exec()) {
-		filename = fd.selectedFiles().first();
+	QString sFilename = "";
+	if ( fd.exec() ) {
+		sFilename = fd.selectedFiles().first();
 		m_bQfileDialog = true;
 	}
 
-	if ( !filename.isEmpty() ) {
-		//this second extension check is mostly important if you leave a dot
-		//without a regular extionsion in a filename
-		if( !filename.endsWith( m_sExtension ) ){
-			filename.append(m_sExtension);
+	if ( !sFilename.isEmpty() ) {
+		// this second extension check is mostly important if you leave a dot
+		// without a regular extionsion in a sFilename
+		if( ! sFilename.endsWith( m_sExtension ) ){
+			sFilename.append( QString( ".%1" ).arg( m_sExtension ) );
 		}
 
-		exportNameTxt->setText(filename);
+		exportNameTxt->setText( sFilename );
 	}
-
-	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
-		sampleRateCombo->hide();
-		sampleDepthCombo->hide();
-		sampleRateLable->hide();
-		sampleDepthLable->hide();
-	}
-
 }
 
 bool ExportSongDialog::validateUserInput() 
@@ -423,9 +495,10 @@ void ExportSongDialog::on_okBtn_clicked()
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
 
-		if ( ! m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
-												sampleDepthCombo->currentText().toInt(),
-												0.0 ) ) {
+		if ( ! m_pHydrogen->startExportSession(
+				 sampleRateCombo->currentText().toInt(),
+				 sampleDepthCombo->currentText().toInt(),
+				 compressionLevelSpinBox->value() ) ) {
 			QMessageBox::critical( this, "Hydrogen", tr( "Unable to export song" ) );
 			return;
 		}
@@ -437,7 +510,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		m_bExportTrackouts = true;
 		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
 										 sampleDepthCombo->currentText().toInt(),
-										 0.0 );
+										 compressionLevelSpinBox->value() );
 		exportTracks();
 		return;
 	}
@@ -517,14 +590,23 @@ void ExportSongDialog::exportTracks()
 		if( !filenameList.isEmpty() ){
 			firstItem = filenameList.first();
 		}
-		QString newItem = firstItem + "-" + findUniqueExportFilenameForInstrument( pInstrumentList->get( m_nInstrument ) );
+		const QString sFilename = QString( "%1-%2.%3" ).arg( firstItem )
+			.arg( findUniqueExportFilenameForInstrument(
+					  pInstrumentList->get( m_nInstrument ) ) )
+			.arg( m_sExtension );
 
-		QString filename = newItem.append( m_sExtension );
-
-		if ( QFile( filename ).exists() == true && m_bQfileDialog == false && !m_bOverwriteFiles) {
-			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
-			if (res == QMessageBox::No ) return;
-			if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
+		if ( QFile( sFilename ).exists() == true && m_bQfileDialog == false &&
+			 ! m_bOverwriteFiles ) {
+			const int nRes = QMessageBox::information(
+				this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?")
+				.arg( sFilename ),
+				QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
+			if ( nRes == QMessageBox::No ) {
+				return;
+			}
+			if ( nRes == QMessageBox::YesToAll ) {
+				m_bOverwriteFiles = true;
+			}
 		}
 		
 		if( m_nInstrument > 0 ){
@@ -538,7 +620,7 @@ void ExportSongDialog::exportTracks()
 		
 		pSong->getInstrumentList()->get(m_nInstrument)->set_currently_exported( true );
 		
-		m_pHydrogen->startExportSong( filename );
+		m_pHydrogen->startExportSong( sFilename );
 
 		if(! (m_nInstrument == pInstrumentList->size()) ){
 			m_nInstrument++;
@@ -575,160 +657,80 @@ void ExportSongDialog::closeExport() {
 }
 
 
-void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
+void ExportSongDialog::formatComboIndexChanged( int nIndex )
 {
-	/**index
-	 * 0 = wav 44100 | 16
-	 * 1 = wav 48000 | 16
-	 * 2 = wav 48000 | 24
-	 * 3 = wav 22050 | 8
-	 * 4 = wav 96000 | 32
-	 * 5 = aiff 44100 | 16
-	 * 6 = aiff 48000 | 16
-	 * 7 = aiff 48000 | 24
-	 * 8 = flac 48000
-	 * 9 = ogg VBR , disable comboboxes
-	 **/
-
-	QString filename;
-	QStringList splitty;
-
-	filename = exportNameTxt->text();
-	splitty = filename.split(".");
-	splitty.removeLast();
-	filename = splitty.join( "." );
-
-	switch ( index ) {
-	case 0:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
-		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename += ".wav";
-		m_sExtension = ".wav";
-		break;
-	case 1:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
-		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename += ".wav";
-		m_sExtension = ".wav";
-		break;
-	case 2:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
-		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename += ".wav";
-		m_sExtension = ".wav";
-		break;
-	case 3:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 0 ); //22050hz
-		sampleDepthCombo->setCurrentIndex ( 0 ); //8bit
-		filename += ".wav";
-		m_sExtension = ".wav";
-		break;
-	case 4:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 4 ); //96000hz
-		sampleDepthCombo->setCurrentIndex ( 3 ); //32bit
-		filename += ".wav";
-		m_sExtension = ".wav";
-		break;
-	case 5:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
-		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename += ".aiff";
-		m_sExtension = ".aiff";
-		break;
-	case 6:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
-		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename += ".aiff";
-		m_sExtension = ".aiff";
-		break;
-	case 7:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
-		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename += ".aiff";
-		m_sExtension = ".aiff";
-		break;
-	case 8:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 2 ); //48000hz
-		sampleDepthCombo->setCurrentIndex ( 2 ); //24bit
-		filename += ".flac";
-		m_sExtension = ".flac";
-		break;
-	case 9:
-		sampleRateCombo->hide();
-		sampleDepthCombo->hide();
-		sampleRateLable->hide();
-		sampleDepthLable->hide();
-		filename += ".ogg";
-		m_sExtension = ".ogg";
-		break;
-
-	default:
-		sampleRateCombo->show();
-		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 1 ); //44100hz
-		sampleDepthCombo->setCurrentIndex ( 1 ); //16bit
-		filename += ".wav";
-		m_sExtension = ".wav";
+	const auto format = m_formatMap[ nIndex ];
+	if ( format == Filesystem::AudioFormat::Unknown ) {
+		ERRORLOG( QString( "Invalid index [%1]" ).arg( nIndex ) );
+		return;
 	}
 
-	exportNameTxt->setText(filename);
+	switch( format ) {
+	case Filesystem::AudioFormat::Wav:
+	case Filesystem::AudioFormat::Aiff:
+	case Filesystem::AudioFormat::Aif:
+	case Filesystem::AudioFormat::Aifc:
+	case Filesystem::AudioFormat::Au:
+	case Filesystem::AudioFormat::Caf:
+	case Filesystem::AudioFormat::Voc:
+	case Filesystem::AudioFormat::W64:
+		sampleRateCombo->show();
+		sampleRateLabel->show();
+		sampleDepthCombo->show();
+		sampleDepthLabel->show();
+		compressionLevelSpinBox->hide();
+		compressionLevelLabel->hide();
+		break;
+	case Filesystem::AudioFormat::Mp3:
+	case Filesystem::AudioFormat::Ogg:
+	case Filesystem::AudioFormat::Flac:
+	case Filesystem::AudioFormat::Opus:
+	default:
+		sampleRateCombo->hide();
+		sampleRateLabel->hide();
+		sampleDepthCombo->hide();
+		sampleDepthLabel->hide();
+		compressionLevelSpinBox->show();
+		compressionLevelLabel->show();
+		break;
+	}
 
+
+	m_sExtension = Filesystem::AudioFormatToSuffix( format );
+
+	if ( ! exportNameTxt->text().isEmpty() ) {
+		const QString sPreviousFilename = exportNameTxt->text();
+		auto splitty = sPreviousFilename.split(".");
+		splitty.removeLast();
+		exportNameTxt->setText( QString( "%1.%2" )
+								.arg( splitty.join( "." ) ).arg( m_sExtension ) );
+	}
 }
-
 
 void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 {
-	QString filename = exportNameTxt->text();
-	if ( ! filename.isEmpty() ) {
-		okBtn->setEnabled(true);
-	}
-	else {
-		okBtn->setEnabled(false);
-	}
+	const QString sFilenameLower = exportNameTxt->text().toLower();
+	okBtn->setEnabled( ! sFilenameLower.isEmpty() );
 
-	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
-		if( templateCombo->currentIndex() != 9 ){
-			templateCombo->setCurrentIndex( 9 );//ogg
-		}
-	}
-	else if( filename.endsWith( ".flac" ) || filename.endsWith( ".FLAC" ) ){
-		sampleRateLable->show();
-		sampleDepthLable->show();
-		if( templateCombo->currentIndex() != 8 ){
-			templateCombo->setCurrentIndex( 8 );//flac
-		}
-	}
-	else if( filename.endsWith( ".aiff" ) || filename.endsWith( ".AIFF" ) ){
-		sampleRateLable->show();
-		sampleDepthLable->show();
-		if( templateCombo->currentIndex() < 5 || templateCombo->currentIndex() > 7 ){
-			templateCombo->setCurrentIndex( 5 );//aiff
-		}
-	}
-	else if( filename.endsWith( ".wav" ) || filename.endsWith( ".WAV" ) ){
-		sampleRateLable->show();
-		sampleDepthLable->show();
-		if( templateCombo->currentIndex() > 4 ){
-			templateCombo->setCurrentIndex( 0 );//wav
+	const auto splittedFilename = exportNameTxt->text().split(".");
 
+	const auto format = Filesystem::AudioFormatFromSuffix(
+		splittedFilename.last() );
+
+	if ( format == Filesystem::AudioFormat::Unknown ) {
+		ERRORLOG( QString( "Unknown file format in filename [%1]" )
+				  .arg( exportNameTxt->text() ) );
+		okBtn->setEnabled( false );
+		return;
+	}
+	const auto previousFormat = m_formatMap[ formatCombo->currentIndex() ];
+
+	if ( previousFormat != format ) {
+		for ( const auto [ nnIndex, fformat ] : m_formatMap ) {
+			if ( fformat == format ) {
+				formatCombo->setCurrentIndex( nnIndex );
+				break;
+			}
 		}
 	}
 }
@@ -810,13 +812,15 @@ bool ExportSongDialog::checkUseOfRubberband()
 			assert( pInstr );
 			if ( pInstr ){
 				for ( const auto& pCompo : *pInstr->get_components() ) {
-					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						auto pLayer = pCompo->get_layer( nLayer );
-						if ( pLayer ) {
-							auto pSample = pLayer->get_sample();
-							if ( pSample != nullptr ) {
-								if( pSample->get_rubberband().use ) {
-									return true;
+					if ( pCompo != nullptr ) {
+						for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
+							auto pLayer = pCompo->get_layer( nLayer );
+							if ( pLayer ) {
+								auto pSample = pLayer->get_sample();
+								if ( pSample != nullptr ) {
+									if( pSample->get_rubberband().use ) {
+										return true;
+									}
 								}
 							}
 						}
