@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
 			QStringList() << "r" << "rate", "Set bitrate while exporting file",
 			"int", "44100" );
 		QCommandLineOption compressionLevelOption(
-			QStringList() << "" << "compression-level", "Trade-off between max. quality (0.0) and max. compression (1.0).",
+			QStringList() << "compression-level", "Trade-off between max. quality (0.0) and max. compression (1.0).",
 			"double", "0.0" );
 		QCommandLineOption outputFileOption(
 			QStringList() << "o" << "outfile", "Output to file (export)", "File" );
@@ -623,6 +623,7 @@ int main(int argc, char *argv[])
 							pHydrogen->getAudioEngine()->getAudioDriver());
 						if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
 							std::cerr << "\rExport FAILED" << std::endl;
+							nReturnCode = 1;
 						} else {
 							std::cout << "\rExport Progress ... DONE" << std::endl;
 						}
