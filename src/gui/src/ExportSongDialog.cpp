@@ -395,7 +395,6 @@ void ExportSongDialog::on_okBtn_clicked()
 	// treatment.
 	const auto format = m_formatMap[ formatCombo->currentIndex() ];
 	if ( format == Filesystem::AudioFormat::Ogg ||
-		 format == Filesystem::AudioFormat::Flac ||
 		 format == Filesystem::AudioFormat::Opus ) {
 		nSampleDepth = 32;
 		nSampleRate = 48000;
@@ -403,7 +402,8 @@ void ExportSongDialog::on_okBtn_clicked()
 	else if ( format == Filesystem::AudioFormat::Voc ) {
 		nSampleDepth = std::min( 16, nSampleDepth );
 	}
-	else if ( format == Filesystem::AudioFormat::Mp3 ) {
+	else if ( format == Filesystem::AudioFormat::Flac ||
+			  format == Filesystem::AudioFormat::Mp3 ) {
 		nSampleDepth = 16;
 		nSampleRate = 48000;
 	}
