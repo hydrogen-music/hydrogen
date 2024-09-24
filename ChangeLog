@@ -22,6 +22,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			- `--compression-level` for `h2cli` to set the trade-off between max.
 				quality (`.mp3` and `.ogg`)/max. speed (`.flac`) (`0.0`) and max.
 				compression (`1.0`) for exported audio files.
+		- Adding support for importing and exporting audio files of format `.mp3`,
+			`.opus`, `.au`, `.caf`, `.voc`, `.w64`. Drumkits containing those formats
+			can be loaded with older versions of Hydrogen too. `libsndfile` >= `1.1.0`
+			is required on your system for MP3 support. (#2023)
 	* Changed
 		- Brazilian translation updated.
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
