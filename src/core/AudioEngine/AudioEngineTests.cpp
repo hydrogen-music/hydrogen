@@ -2456,7 +2456,9 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 	}
 
 	if ( pHydrogen->getSong() != nullptr ) {
+		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->handleDriverChange();
+		pAudioEngine->unlock();
 	}
 
 	INFOLOG( "DONE Starting custom JACK audio driver." );
