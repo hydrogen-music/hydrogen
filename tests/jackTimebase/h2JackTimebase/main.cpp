@@ -183,6 +183,8 @@ int main(int argc, char *argv[])
 		QCommandLineOption logFileOption(
 			QStringList() << "L" << "log-file",
 			"Alternative log file path", "Path" );
+		QCommandLineOption configFileOption(
+			QStringList() << "config", "Use an alternate config file", "Path" );
 		QCommandLineOption timebaseStateOption(
 			QStringList() << "timebase-state",
 			"Initial JACK timebase base (1 - master, 0 - listener, -1 - none)",
@@ -200,6 +202,7 @@ int main(int argc, char *argv[])
 		parser.addOption( timebaseStateOption );
 		parser.addOption( verboseOption );
 		parser.addOption( logFileOption );
+		parser.addOption( configFileOption );
 		parser.addHelpOption();
 		parser.addVersionOption();
 		// Evaluate the options
@@ -209,6 +212,7 @@ int main(int argc, char *argv[])
 		const QString sSongFilename = parser.value( songFileOption );
 		const QString sVerbosityString = parser.value( verboseOption );
 		const QString sLogFile = parser.value( logFileOption );
+		const QString sConfigFilePath = parser.value( configFileOption );
 
 		int nOscPort = -1;
 #ifdef H2CORE_HAVE_OSC
@@ -250,7 +254,7 @@ int main(int argc, char *argv[])
 		Logger* pLogger = Logger::bootstrap( logLevelOpt,
 											sLogFile, true, true );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
-		Filesystem::bootstrap( pLogger );
+		Filesystem::bootstrap( pLogger, "", sConfigFilePath, sLogFile );
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();

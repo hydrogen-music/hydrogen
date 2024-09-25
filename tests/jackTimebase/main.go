@@ -182,7 +182,8 @@ func startTestBinary(ctx context.Context, logFileSuffix string,
     cmd := exec.CommandContext(ctx, testBinaryPath,
         "-L", testBinaryLogFileBase + "-" + logFileSuffix + ".log",
         "--timebase-state", strconv.FormatInt(timebaseState, 10),
-        "-s", testFile, "-O", strconv.FormatInt(oscPort, 10), "-V", "Debug")
+        "--config", hydrogenConfFile, "-s", testFile,
+        "-O", strconv.FormatInt(oscPort, 10), "-V", "Debug")
     output, err := cmd.CombinedOutput()
     if err == nil {
         log.Println("[startTestBinary] SUCCESS!")
