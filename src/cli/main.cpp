@@ -638,6 +638,7 @@ int main(int argc, char *argv[])
 		pPref->save();
 		delete pHydrogen;
 		delete pQueue;
+		delete pApp;
 
 		delete MidiActionManager::get_instance();
 
