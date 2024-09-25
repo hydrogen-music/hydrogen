@@ -581,6 +581,7 @@ int main(int argc, char *argv[])
 		preferences->savePreferences();
 		delete pHydrogen;
 		delete pQueue;
+		delete pApp;
 		delete preferences;
 
 		delete MidiMap::get_instance();
