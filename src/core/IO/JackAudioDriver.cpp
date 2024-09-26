@@ -322,12 +322,18 @@ bool JackAudioDriver::isBBTValid( const jack_position_t& pos ) {
 		 pos.beats_per_minute > MAX_BPM ||
 		 pos.tick < 0 ||
 		 pos.tick >= pos.ticks_per_beat ||
-		 pos.ticks_per_beat < 1 ) {
+		 pos.ticks_per_beat < 1 ||
+		 std::isnan( pos.bar_start_tick ) ||
+		 std::isnan( pos.beats_per_bar ) ||
+		 std::isnan( pos.beat_type ) ||
+		 std::isnan( pos.ticks_per_beat ) ||
+		 std::isnan( pos.beats_per_minute ) ) {
 #if JACK_DEBUG
-		J_DEBUGLOG( QString( "Invalid BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7" )
-				  .arg( pos.beat_type ).arg( pos.bar ).arg( pos.beat )
-				  .arg( pos.tick ).arg( pos.beats_per_bar )
-				  .arg( pos.beats_per_minute ).arg( pos.ticks_per_beat ) );
+		J_DEBUGLOG( QString( "Invalid BBT content. beat_type: %1, bar: %2, beat: %3, tick: %4, beats_per_bar: %5, beats_per_minute: %6, ticks_per_beat: %7, bar_start_tick: %8, beat_type: %9" )
+					.arg( pos.beat_type ).arg( pos.bar ).arg( pos.beat )
+					.arg( pos.tick ).arg( pos.beats_per_bar )
+					.arg( pos.beats_per_minute ).arg( pos.ticks_per_beat )
+					.arg( pos.bar_start_tick ).arg( pos.beat_type ) );
 #endif
 		ERRORLOG( "Invalid timebase information. Hydrogen falls back to frame-based relocation. In case you encounter this error frequently, you might considering to disabling JACK timebase support in the Preferences in order to avoid glitches." );
 		return false;
