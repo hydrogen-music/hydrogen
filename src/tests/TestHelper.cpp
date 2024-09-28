@@ -159,7 +159,6 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 							 int nSampleRate, int nSampleDepth,
 							 double fCompressionLevel )
 {
-	qDebug() << "[TestHelper::exportSong] " << sFileName;
 	___INFOLOG( QString( "sSongFile: %1, sFileName: %2, nSampleRate: %3, nSampleDepth: %4, fCompressionLevel: %5" )
 				.arg( sSongFile ).arg( sFileName ).arg( nSampleRate )
 				.arg( nSampleDepth ).arg( fCompressionLevel ) );
@@ -197,12 +196,8 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
 		nSleeps++;
 	}
-	qDebug() << nSleeps;
 
 	CPPUNIT_ASSERT( ! pDriver->writingFailed() );
-	if ( pDriver->writingFailed() ) {
-		qDebug() << sFileName;
-	}
 
 	pHydrogen->stopExportSession();
 
