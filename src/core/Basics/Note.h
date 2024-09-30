@@ -26,6 +26,7 @@
 #include <memory>
 
 #include <core/Object.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Sample.h>
 
@@ -88,6 +89,8 @@ struct SelectedLayerInfo {
 	 * started, it is important to not rescale the whole length of the note but
 	 * just the fraction between #fSamplePosition and the former #nNoteLength.*/
 	int nNoteLength;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
 
 /**
@@ -100,10 +103,11 @@ class Note : public H2Core::Object<Note>
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
-	static QString KeyToQString( Key key );
+	static QString KeyToQString( const Key& key );
 	
 		/** possible octaves */
 		enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
+		static QString OctaveToQString( const Octave& octave );
 
 		/**
 		 * constructor
@@ -136,18 +140,19 @@ class Note : public H2Core::Object<Note>
 		/**
 		 * load a note from an XMLNode
 		 * \param node the XMLDode to read from
-		 * \param instruments the current instrument list to search instrument into
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Note instance
 		 */
-	static Note* load_from( const XMLNode& node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
+	static Note* load_from( const XMLNode& node, bool bSilent = false );
 
 		/**
-		 * find the corresponding instrument and point to it, or an empty instrument
-		 * \param instruments the list of instrument to look into
+		 * Find the instrument corresponding to `m_sType` and assign it as
+		 * `__instrument`.
+		 *
+		 * \param pDrumkit Most likely the currently used kit.
 		 */
-		void map_instrument( std::shared_ptr<InstrumentList> instruments );
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
 		/** #__instrument accessor */
 		std::shared_ptr<Instrument> get_instrument() const;
 		/** return true if #__instrument is set */
@@ -159,13 +164,12 @@ class Note : public H2Core::Object<Note>
 		void set_instrument_id( int value );
 		/** #__instrument_id accessor */
 		int get_instrument_id() const;
-		/**
-		 * #__specific_compo_id setter
-		 * \param value the new value
-		 */
-		void set_specific_compo_id( int value );
-		/** #__specific_compo_id accessor */
-		int get_specific_compo_id() const;
+
+		void setType( DrumkitMap::Type sType );
+		DrumkitMap::Type getType() const;
+
+		void setSpecificCompoIdx( int value );
+		int getSpecificCompoIdx() const;
 		/**
 		 * #__position setter
 		 * \param value the new value
@@ -239,12 +243,7 @@ class Note : public H2Core::Object<Note>
 		/** #__just_recorded accessor */
 		bool get_just_recorded() const;
 
-		/*
-		 * selected sample
-		 * */
-	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID ) const;
-	const std::map<int, std::shared_ptr<SelectedLayerInfo>>& get_layers_selected() const;
-
+	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int nIdx ) const;
 
 		void set_probability( float value );
 		float get_probability() const;
@@ -368,6 +367,13 @@ class Note : public H2Core::Object<Note>
 	 * in humanice() but separately.
 	 */
 	void swing();
+
+		/** Returns a short but expressive string using which the particular
+		 * note instance can be identified.
+		 *
+		 * Note that the ability to uniquely identify the note is only ensured
+		 * if no identical notes exist in any pattern (de-duplication). */
+		QString prettyName() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -401,7 +407,7 @@ class Note : public H2Core::Object<Note>
 
 	/**
 	 * Returns the sample associated with the note for a specific
-	 * InstrumentComponent @a nComponentID.
+	 * InstrumentComponent @a nComponentIdx.
 	 *
 	 * A sample of the InstrumentComponent is a possible candidate if
 	 * the note velocity falls within the start and end velocity of an
@@ -414,12 +420,13 @@ class Note : public H2Core::Object<Note>
 	 * and will reuse this parameter in every following call while
 	 * disregarding the provided @a nSelectedLayer.
 	 */
-	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 ) const;
+	std::shared_ptr<Sample> getSample( int nComponentIdx, int nSelectedLayer = -1 ) const;
 
 	private:
-		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
-		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
+		/** Drumkit-independent identifier used to relate a note/pattern to a
+		 * different kit */
+		DrumkitMap::Type m_sType;
 		int				__position;             ///< note position in
 												///ticks inside the pattern
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
@@ -450,7 +457,6 @@ class Note : public H2Core::Object<Note>
 		 * It is incorporated in the #m_nNoteStart.
 		 */
 		int				__humanize_delay;
-	std::map< int, std::shared_ptr<SelectedLayerInfo>> __layers_selected;
 		float			__bpfb_l;             ///< left band pass filter buffer
 		float			__bpfb_r;             ///< right band pass filter buffer
 		float			__lpfb_l;             ///< left low pass filter buffer
@@ -483,6 +489,17 @@ class Note : public H2Core::Object<Note>
 	 * during processing and not written to disk.
 	 */
 	float m_fUsedTickSize;
+
+		/** Play a specific component, -1 if playing all */
+		int				m_nSpecificCompoIdx;
+
+		/** One #SelectedLayerInfo for each #InstrumentComponent in
+		 * #__instrument. It assumes the same order as
+		 * #Instrument::__components. */
+	std::vector<std::shared_ptr<SelectedLayerInfo>> __layers_selected;
+
+		/** the instrument to be played by this note */
+		std::shared_ptr<Instrument>		__instrument;
 };
 
 // DEFINITIONS
@@ -512,14 +529,21 @@ inline int Note::get_instrument_id() const
 	return __instrument_id;
 }
 
-inline void Note::set_specific_compo_id( int value )
-{
-	__specific_compo_id = value;
+inline void Note::setType( DrumkitMap::Type sType ) {
+	m_sType = sType;
+}
+inline DrumkitMap::Type Note::getType() const {
+	return m_sType;
 }
 
-inline int Note::get_specific_compo_id() const
+inline void Note::setSpecificCompoIdx( int value )
 {
-	return __specific_compo_id;
+	m_nSpecificCompoIdx = value;
+}
+
+inline int Note::getSpecificCompoIdx() const
+{
+	return m_nSpecificCompoIdx;
 }
 
 inline void Note::set_position( int value )
@@ -612,14 +636,12 @@ inline void Note::set_probability( float value )
 	__probability = value;
 }
 
-inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID ) const
+inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int nCompoIdx ) const
 {
-	return __layers_selected.at( CompoID );
-}
-
-inline const std::map<int, std::shared_ptr<SelectedLayerInfo>>& Note::get_layers_selected() const
-{
-	return __layers_selected;
+	if ( nCompoIdx < 0 || nCompoIdx >= __layers_selected.size() ) {
+		return nullptr;
+	}
+	return __layers_selected.at( nCompoIdx );
 }
 
 inline int Note::get_humanize_delay() const
@@ -676,11 +698,12 @@ inline Note::Octave Note::get_octave() const
 
 inline int Note::get_midi_key() const
 {
-	/* TODO ???
-	if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
-	*/
-	return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key +
-		__instrument->get_midi_out_note() - MidiMessage::instrumentOffset;
+	int nMidiKey = ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key;
+	if ( __instrument != nullptr ) {
+		nMidiKey += __instrument->get_midi_out_note() -
+			MidiMessage::instrumentOffset;
+	}
+	return nMidiKey;
 }
 
 inline int Note::get_midi_velocity() const
@@ -722,21 +745,21 @@ inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 
 inline void Note::compute_lr_values( float* val_l, float* val_r )
 {
-	/* TODO ???
-	if( !has_instrument() ) {
+	if ( __instrument == nullptr ) {
 		*val_l = 0.0f;
 		*val_r = 0.0f;
 		return;
 	}
-	*/
-	float cut_off = __instrument->get_filter_cutoff();
-	float resonance = __instrument->get_filter_resonance();
-	__bpfb_l  =  resonance * __bpfb_l  + cut_off * ( *val_l - __lpfb_l );
-	__lpfb_l +=  cut_off   * __bpfb_l;
-	__bpfb_r  =  resonance * __bpfb_r  + cut_off * ( *val_r - __lpfb_r );
-	__lpfb_r +=  cut_off   * __bpfb_r;
-	*val_l = __lpfb_l;
-	*val_r = __lpfb_r;
+	else {
+		const float fCutOff = __instrument->get_filter_cutoff();
+		const float fResonance = __instrument->get_filter_resonance();
+		__bpfb_l  =  fResonance * __bpfb_l  + fCutOff * ( *val_l - __lpfb_l );
+		__lpfb_l +=  fCutOff   * __bpfb_l;
+		__bpfb_r  =  fResonance * __bpfb_r  + fCutOff * ( *val_r - __lpfb_r );
+		__lpfb_r +=  fCutOff   * __bpfb_r;
+		*val_l = __lpfb_l;
+		*val_r = __lpfb_r;
+	}
 }
 
 inline long long Note::getNoteStart() const {

@@ -144,7 +144,8 @@ class Playlist : public H2Core::Object<Playlist>
 		int m_nActiveSongNumber;
 		bool m_bIsModified;
 
-
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline const QString& PlaylistEntry::getSongPath() const {

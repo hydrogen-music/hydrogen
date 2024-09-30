@@ -102,5 +102,22 @@ void FakeDriver::processCallback()
 	}
 }
 
+QString FakeDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[FakeDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nBufferSize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBufferSize ) )
+			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSampleRate ) );
+	} else {
+		sOutput = QString( "[FakeDriver]" )
+			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
+			.append( QString( ", m_nSampleRate: %1" ).arg( m_nSampleRate ) );
+	}
+
+	return sOutput;
+}
 
 };

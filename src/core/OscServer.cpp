@@ -284,7 +284,7 @@ int OscServer::generic_handler(const char *	path,
 			}
 		}
 	}
-	
+
 	QRegExp rxStripFilterCutoffAbs( "/Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/(\\d+)" );
 	pos = rxStripFilterCutoffAbs.indexIn( oscPath );
 	if ( pos > -1 ) {
@@ -352,41 +352,42 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : m_bInitialized( false )
+OscServer::OscServer() : m_bInitialized( false )
 {
-	m_pPreferences = pPreferences;
+	auto pPref = H2Core::Preferences::get_instance();
 	
-	if( m_pPreferences->getOscServerEnabled() )
-	{
-		int port = m_pPreferences->getOscServerPort();
+	if ( pPref->getOscServerEnabled() ) {
+		int nPort;
+		if ( pPref->m_nOscTemporaryPort != -1  ) {
+			nPort = pPref->m_nOscTemporaryPort;
+		} else {
+			nPort = pPref->getOscServerPort();
+		}
 	
-		m_pServerThread = new lo::ServerThread( port );
+		m_pServerThread = new lo::ServerThread( nPort );
 		
 		// If there is already another service registered to the same
 		// port, the OSC server is not valid an can not be started.
-		if ( !m_pServerThread->is_valid() ) {
-			int tmpPort;
-			
+		if ( ! m_pServerThread->is_valid() ) {
 			delete m_pServerThread;
 			
 			// Instead, let the liblo library choose a working
 			// port on their own (nullptr argument).
 			m_pServerThread = new lo::ServerThread( nullptr );
 			
-			tmpPort = m_pServerThread->port();
+			const int nTmpPort = m_pServerThread->port();
 			
-			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.").arg(port).arg(tmpPort));
+			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.")
+					  .arg( nPort ).arg( nTmpPort ) );
 
-			m_pPreferences->m_nOscTemporaryPort = tmpPort;
+			pPref->m_nOscTemporaryPort = nTmpPort;
 			
-			H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
-		} else {
-			INFOLOG( QString( "OSC server running on port %1" ).arg( port ) );
+			H2Core::EventQueue::get_instance()->push_event(
+				H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
 		}
-	} else {
-		
+	}
+	else {
 		m_pServerThread = nullptr;
-		
 	}
 }
 
@@ -401,10 +402,10 @@ OscServer::~OscServer(){
 	__instance = nullptr;
 }
 
-void OscServer::create_instance( H2Core::Preferences* pPreferences )
+void OscServer::create_instance()
 {
 	if( __instance == nullptr ) {
-		__instance = new OscServer( pPreferences );
+		__instance = new OscServer();
 	}
 }
 
@@ -637,6 +638,15 @@ void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
 
 	// Null song handling done in MidiActionManager.
 	MidiActionManager::get_instance()->handleAction( pAction );
+}
+
+
+void OscServer::INSTRUMENT_PITCH_Handler( lo_arg** argv, int )
+{
+	INFOLOG( "processing message" );
+
+	H2Core::CoreActionController::setInstrumentPitch(
+		static_cast<int>( argv[0]->f ), argv[1]->f );
 }
 
 void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
@@ -927,13 +937,25 @@ void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 
 void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	bool bConditionalLoad = true;
-	if ( argc > 1 ) {
-		bConditionalLoad = argv[1]->f == 0 ? false : true;
-	}
-	
+
 	H2Core::CoreActionController::setDrumkit(
-		QString::fromUtf8( &argv[0]->s ), bConditionalLoad );
+		QString::fromUtf8( &argv[0]->s ) );
+}
+
+void OscServer::LOAD_NEXT_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+
+	std::shared_ptr<Action> pAction =
+		std::make_shared<Action>("LOAD_NEXT_DRUMKIT");
+	MidiActionManager::get_instance()->handleAction( pAction );
+}
+
+void OscServer::LOAD_PREV_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	INFOLOG( "processing message" );
+
+	std::shared_ptr<Action> pAction =
+		std::make_shared<Action>("LOAD_PREV_DRUMKIT");
+	MidiActionManager::get_instance()->handleAction( pAction );
 }
 
 void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
@@ -1069,9 +1091,7 @@ void OscServer::broadcastMessage( const char* msgText, const lo_message& message
 
 void OscServer::handleAction( std::shared_ptr<Action> pAction )
 {
-	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
-	
-	if( !pPref->getOscFeedbackEnabled() ){
+	if ( ! H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		return;
 	}
 	
@@ -1259,6 +1279,9 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/UNMUTE", "f", UNMUTE_Handler);
 	m_pServerThread->add_method("/Hydrogen/MUTE_TOGGLE", "", MUTE_TOGGLE_Handler);
 	m_pServerThread->add_method("/Hydrogen/MUTE_TOGGLE", "f", MUTE_TOGGLE_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/INSTRUMENT_PITCH", "ff",
+								INSTRUMENT_PITCH_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/NEXT_BAR", "", NEXT_BAR_Handler);
 	m_pServerThread->add_method("/Hydrogen/NEXT_BAR", "f", NEXT_BAR_Handler);
@@ -1333,7 +1356,10 @@ bool OscServer::init()
 
 	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "sf", LOAD_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "", LOAD_PREV_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_PREV_DRUMKIT", "f", LOAD_PREV_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_NEXT_DRUMKIT", "", LOAD_NEXT_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_NEXT_DRUMKIT", "f", LOAD_NEXT_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "s", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "ss", UPGRADE_DRUMKIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "s", VALIDATE_DRUMKIT_Handler);
@@ -1378,13 +1404,15 @@ bool OscServer::start() {
 	m_pServerThread->start();
 
 	int nOscPortUsed;
-	if ( m_pPreferences->m_nOscTemporaryPort != -1 ) {
-		nOscPortUsed = m_pPreferences->m_nOscTemporaryPort;
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( pPref->m_nOscTemporaryPort != -1 ) {
+		nOscPortUsed = pPref->m_nOscTemporaryPort;
 	} else {
-		nOscPortUsed = m_pPreferences->getOscServerPort();
+		nOscPortUsed = pPref->getOscServerPort();
 	}
 	
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( nOscPortUsed ));
+	INFOLOG( QString( "Osc server started. Listening on port %1" )
+			 .arg( nOscPortUsed ) );
 
 	return true;
 }

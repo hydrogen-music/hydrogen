@@ -46,7 +46,6 @@
 #include <core/EventQueue.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/H2Exception.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -69,7 +68,6 @@
 
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
-#include "MidiMap.h"
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -165,9 +163,11 @@ Hydrogen::~Hydrogen()
 		delete pOscServer;
 	}
 #endif
-	
+
+	m_pAudioEngine->lock( RIGHT_HERE );
 	m_pAudioEngine->prepare();
-	
+	m_pAudioEngine->unlock();
+
 	killInstruments();
 
 	delete m_pAudioEngine;
@@ -180,14 +180,13 @@ void Hydrogen::create_instance()
 	// Create all the other instances that we need
 	// ....and in the right order
 	Logger::create_instance();
-	MidiMap::create_instance();
 	Preferences::create_instance();
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance( Preferences::get_instance() );
+	OscServer::create_instance();
 #endif
 
 	if ( __instance == nullptr ) {
@@ -209,7 +208,9 @@ void Hydrogen::initBeatcounter()
 void Hydrogen::sequencerPlay()
 {
 	std::shared_ptr<Song> pSong = getSong();
-	pSong->getPatternList()->set_to_old();
+	if ( pSong != nullptr ) {
+		pSong->getPatternList()->set_to_old();
+	}
 	m_pAudioEngine->play();
 }
 
@@ -276,15 +277,19 @@ void Hydrogen::loadPlaybackTrack( const QString& sFilename )
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
-	assert ( pSong );
+	if ( pSong == nullptr ) {
+		WARNINGLOG( "setting nullptr!" );
+	}
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
 		return;
 	}
 
+	m_pAudioEngine->lock( RIGHT_HERE );
+
 	// Move to the beginning.
-	setSelectedPatternNumber( 0 );
+	setSelectedPatternNumber( 0, false );
 
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
@@ -294,12 +299,17 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
 				// different location.
-				pSong->setFilename( pCurrentSong->getFilename() );
+				if ( pSong != nullptr ) {
+					pSong->setFilename( pCurrentSong->getFilename() );
+				}
 			}
 #endif
 		}
-		/** cares itself for acquiring the lock */
 		m_pAudioEngine->prepare();
+
+		if ( pCurrentSong->getDrumkit() != nullptr ) {
+			pCurrentSong->getDrumkit()->unloadSamples();
+		}
 	}
 
 	// In order to allow functions like audioEngine_setupLadspaFX() to
@@ -307,11 +317,15 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	// are activated, m_pSong has to be set prior to the call of
 	// AudioEngine::setSong().
 	m_pSong = pSong;
-	pSong->getDrumkit()->loadSamples();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		pSong->getDrumkit()->loadSamples();
+	}
 
 	// Ensure the selected instrument is within the range of new
 	// instrument list.
-	if ( m_nSelectedInstrumentNumber >= m_pSong->getDrumkit()->getInstruments()->size() ) {
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 m_nSelectedInstrumentNumber >=
+		 m_pSong->getDrumkit()->getInstruments()->size() ) {
 		m_nSelectedInstrumentNumber =
 			std::max( m_pSong->getDrumkit()->getInstruments()->size() - 1, 0 );
 	}
@@ -321,6 +335,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// load new playback track information
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
+
+	m_pAudioEngine->unlock();
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
@@ -340,11 +356,11 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
-	bool bPlaySelectedInstrument = pPref->__playselectedinstrument;
+	bool bPlaySelectedInstrument = pPref->m_bPlaySelectedInstrument;
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
 	int currentPatternNumber;
 
@@ -637,8 +653,8 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	pAudioEngine->stopAudioDrivers();
 	DEBUGLOG( "post stopAudioDrivers" );
 
-	AudioOutput* pDriver =
-		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
+	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
+		Preferences::AudioDriver::Disk );
 
 	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
@@ -689,6 +705,10 @@ void Hydrogen::stopExportSession()
 {
 	DEBUGLOG( "" );
 	std::shared_ptr<Song> pSong = getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	pSong->setMode( m_oldEngineMode );
 	if ( m_bOldLoopEnabled ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
@@ -722,31 +742,6 @@ MidiInput* Hydrogen::getMidiInput() const
 MidiOutput* Hydrogen::getMidiOutput() const
 {
 	return m_pAudioEngine->getMidiOutDriver();
-}
-
-void Hydrogen::removeInstrument( int nInstrumentNumber ) {
-	auto pSong = getSong();
-	if ( pSong != nullptr ) {
-
-		m_pAudioEngine->lock( RIGHT_HERE );
-
-		pSong->removeInstrument( nInstrumentNumber );
-		
-		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
-			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
-		} else if ( m_nSelectedInstrumentNumber >=
-					pSong->getDrumkit()->getInstruments()->size() ) {
-			setSelectedInstrumentNumber( std::max( 0, pSong->getDrumkit()->getInstruments()->size() - 1 ) );
-		}
-
-		if ( hasJackAudioDriver() ) {
-			renameJackPorts( m_pSong );
-		}
-
-		m_pAudioEngine->unlock();
-		
-		setIsModified( true );
-	}
 }
 
 void Hydrogen::onTapTempoAccelEvent()
@@ -820,6 +815,7 @@ void Hydrogen::onTapTempoAccelEvent()
 
 	CoreActionController::setBpm( fBPM );
 #endif
+
 }
 
 void Hydrogen::restartLadspaFX()
@@ -945,10 +941,10 @@ void Hydrogen::setBcOffsetAdjust()
 {
 	//individual fine tuning for the m_nBeatCounter
 	//to adjust  ms_offset from different people and controller
-	Preferences *pPreferences = Preferences::get_instance();
+	const auto pPreferences = Preferences::get_instance();
 
-	m_nCountOffset = pPreferences->m_countOffset;
-	m_nStartOffset = pPreferences->m_startOffset;
+	m_nCountOffset = pPreferences->m_nCountOffset;
+	m_nStartOffset = pPreferences->m_nStartOffset;
 }
 
 bool Hydrogen::handleBeatCounter()
@@ -1007,8 +1003,8 @@ bool Hydrogen::handleBeatCounter()
 					/ 100;
 			
 			CoreActionController::setBpm( fBeatCountBpm );
-			
-			if (Preferences::get_instance()->m_mmcsetplay
+
+			if (Preferences::get_instance()->m_bMmcSetPlay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
 				m_nEventCount = 1;
@@ -1085,25 +1081,38 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	killInstruments();
 }
 
-void Hydrogen::killInstruments() {
-	if ( m_instrumentDeathRow.size() > 0 ) {
-		std::shared_ptr<Instrument> pInstr = nullptr;
-		while ( m_instrumentDeathRow.size()
-				&& m_instrumentDeathRow.front()->is_queued() == 0 ) {
-			pInstr = m_instrumentDeathRow.front();
-			m_instrumentDeathRow.pop_front();
-			INFOLOG( QString( "Deleting unused instrument (%1). "
-							  "%2 unused remain." )
-					 . arg( pInstr->get_name() )
-					 . arg( m_instrumentDeathRow.size() ) );
-			pInstr = nullptr;
+void Hydrogen::removeInstrumentFromDeathRow( std::shared_ptr<Instrument> pInstr ) {
+	for ( auto it = m_instrumentDeathRow.begin();
+		  it != m_instrumentDeathRow.end(); ) {
+        if ( *it == pInstr ) {
+            it = m_instrumentDeathRow.erase( it );
+		} else {
+            ++it;
 		}
-		if ( m_instrumentDeathRow.size() ) {
-			pInstr = m_instrumentDeathRow.front();
-			INFOLOG( QString( "Instrument %1 still has %2 active notes. "
-							  "Delaying 'delete instrument' operation." )
-					 . arg( pInstr->get_name() )
-					 . arg( pInstr->is_queued() ) );
+    }
+}
+
+void Hydrogen::killInstruments() {
+	std::shared_ptr<Instrument> pInstr;
+
+	while ( m_instrumentDeathRow.size() > 0 &&
+			( m_instrumentDeathRow.front() == nullptr ||
+			  ( m_instrumentDeathRow.front() != nullptr &&
+				m_instrumentDeathRow.front()->is_queued() == 0 ) ) ) {
+		pInstr = m_instrumentDeathRow.front();
+		m_instrumentDeathRow.pop_front();
+
+		if ( pInstr != nullptr  ) {
+			pInstr->unload_samples();
+		}
+	}
+
+	if ( m_instrumentDeathRow.size() > 0 ) {
+		pInstr = m_instrumentDeathRow.front();
+		if ( pInstr != nullptr ) {
+			INFOLOG( QString( "Instrument [%1] still has active notes:\n\t%2 " )
+					 .arg( pInstr->get_name() )
+					 .arg( pInstr->getEnqueuedBy().join( "\n\t" ) ) );
 		}
 	}
 }
@@ -1135,7 +1144,7 @@ bool Hydrogen::hasJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
-			 Preferences::get_instance()->m_bJackTransportMode ==
+			 Preferences::get_instance()->m_nJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
 		}
@@ -1152,13 +1161,16 @@ float Hydrogen::getMasterBpm() const {
 	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
 		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
 	  } else {
-		  return std::nan("No JACK driver");
+		  ERRORLOG("No JACK driver");
+		  return std::nan("");
 	  }
   } else {
-	  return std::nan("No audio driver");
+	  ERRORLOG("No audio driver");
+	  return std::nan("");
   }
 #else
-  return std::nan("No JACK support");
+  ERRORLOG("No JACK support");
+  return std::nan("");
 #endif
 }
 
@@ -1191,9 +1203,9 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( m_pSong->getIsTimelineActivated() &&
+	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
-		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+		 getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
 		return true;
 	}
 
@@ -1256,7 +1268,7 @@ void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 }
 
 Song::PatternMode Hydrogen::getPatternMode() const {
-	if ( getMode() == Song::Mode::Pattern ) {
+	if ( m_pSong != nullptr && getMode() == Song::Mode::Pattern ) {
 		return m_pSong->getPatternMode();
 	}
 	return Song::PatternMode::None;
@@ -1290,12 +1302,12 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
-	if ( getMode() == Song::Mode::Song ) {
-		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-			return Tempo::Jack;
-		} else if ( getSong()->getIsTimelineActivated() ) {
-			return Tempo::Timeline;
-		}
+	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+		return Tempo::Jack;
+	}
+	else if ( getMode() == Song::Mode::Song &&
+			  m_pSong != nullptr && m_pSong->getIsTimelineActivated() ) {
+		return Tempo::Timeline;
 	}
 
 	return Tempo::Song;
@@ -1318,7 +1330,7 @@ void Hydrogen::recreateOscServer() {
 		delete pOscServer;
 	}
 
-	OscServer::create_instance( Preferences::get_instance() );
+	OscServer::create_instance();
 	
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
@@ -1365,7 +1377,6 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 			// 		  .arg( bEnabled )
 			// 		  .arg( getSong()->getIsTimelineActivated()) );
 		
-			pPref->setUseTimelineBpm( bEnabled );
 			getSong()->setIsTimelineActivated( bEnabled );
 
 			if ( bEnabled ) {
@@ -1385,7 +1396,15 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const
 {
 	std::shared_ptr<Song> pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		const int nPatternSize = MAX_NOTES;
+		const int nColumn = static_cast<int>(
+			std::floor( static_cast<float>( nTick ) /
+						static_cast<float>( nPatternSize ) ) );
+		*pPatternStartTick = static_cast<long>(nColumn * nPatternSize);
+		return nColumn;
+	}
 
 	long nTotalTick = 0;
 
@@ -1454,7 +1473,10 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 long Hydrogen::getTickForColumn( int nColumn ) const
 {
 	auto pSong = getSong();
-	assert( pSong );
+	if ( pSong == nullptr ) {
+		// Fallback
+		return static_cast<long>(nColumn * MAX_NOTES);
+	}
 
 	const int nPatternGroups = pSong->getPatternGroupVector()->size();
 	if ( nPatternGroups == 0 ) {
@@ -1504,7 +1526,7 @@ std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
 
 	std::shared_ptr<Instrument> pInstrument = nullptr;
 	
-	if ( m_pSong != nullptr ) {
+	if ( m_pSong != nullptr && m_pSong->getDrumkit() != nullptr ) {
 		
 		m_pAudioEngine->lock( RIGHT_HERE );
 
@@ -1557,22 +1579,32 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_fTaktoMeterCompute: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTaktoMeterCompute ) )
-			.append( QString( "%1%2m_nBeatsToCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeatsToCount ) )
-			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nEventCount ) )
-			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeatCount ) )
+		sOutput.append( QString( "%1%2m_fTaktoMeterCompute: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTaktoMeterCompute ) )
+			.append( QString( "%1%2m_nBeatsToCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatsToCount ) )
+			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nEventCount ) )
+			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatCount ) )
 			.append( QString( "%1%2m_fBeatDiffs: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& dd : m_fBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
-			.append( QString( "%1%2m_nCountOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nCountOffset ) )
-			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nStartOffset ) )
+		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s )
+					 .arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
+			.append( QString( "%1%2m_nCountOffset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nCountOffset ) )
+			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nStartOffset ) )
 			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<int>(m_oldEngineMode) ) )
-			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bOldLoopEnabled ) )
-			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bExportSessionIsActive ) )
-			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>( m_GUIState ) ) )
+					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
+			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bOldLoopEnabled ) )
+			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bExportSessionIsActive ) )
+			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( GUIStateToQString( m_GUIState ) ) )
 			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
@@ -1587,7 +1619,17 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "nullptr\n" ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSelectedInstrumentNumber ) )
+			.append( QString( "%1%2m_nSelectedPatternNumber: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSelectedPatternNumber ) )
+			.append( QString( "%1%2m_bSessionIsExported: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bSessionIsExported ) )
+			.append( QString( "%1%2m_nLastRecordedMIDINoteTick: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nInstrumentLookupTable[ 0 ] )
+					 .arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) )
 			.append( QString( "%1%2m_pAudioEngine:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
@@ -1595,13 +1637,20 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
+		sOutput.append(
+			QString( "%1%2m_pSoundLibraryDatabase: %3\n" )
+			.arg( sPrefix ).arg( s )
+			.arg( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
+				  m_pSoundLibraryDatabase->toQString( sPrefix + s, bShort) ) )
+			.append( QString( "%1%2m_pPlaylist: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pPlaylist == nullptr ? "nullptr" :
+						   m_pPlaylist->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nHihatOpenness ) )
+			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s )
 						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
-			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
-			.append( QString( "%1%2m_nHihatOpenness: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nHihatOpenness ) )
-			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
+			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nLastMidiEventParameter ) );
 	}
 	else {
 		
@@ -1624,10 +1673,11 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nCountOffset: %1" ).arg( m_nCountOffset ) )
 			.append( QString( ", m_nStartOffset: %1" ).arg( m_nStartOffset ) )
 			.append( QString( ", m_oldEngineMode: %1" )
-					 .arg( static_cast<int>(m_oldEngineMode) ) )
+					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
-			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) );
+			.append( QString( ", m_GUIState: %1" ).
+					 arg( GUIStateToQString( m_GUIState ) ) );
 		sOutput.append( QString( ", m_pTimeline: " ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix, bShort ) ) );
@@ -1642,7 +1692,17 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( " nullptr" ) );
 			}
 		}
-		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" )
+						.arg( m_nSelectedInstrumentNumber ) )
+			.append( QString( ", m_nSelectedPatternNumber: %1" )
+						.arg( m_nSelectedPatternNumber ) )
+			.append( QString( ", m_bSessionIsExported: %1" )
+						.arg( m_bSessionIsExported ) )
+			.append( QString( ", m_nLastRecordedMIDINoteTick: %1" )
+						.arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
+					 .arg( m_nInstrumentLookupTable[ 0 ] )
+					 .arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) )
 			.append( ", m_pAudioEngine:" );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
@@ -1650,16 +1710,36 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( " nullptr" ) );
 		}
-		sOutput.append( QString( ", lastMidiEvent: %1" )
-						.arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
-			.append( QString( ", lastMidiEventParameter: %1" )
-					 .arg( m_nLastMidiEventParameter ) )
+		sOutput.append( ", m_pSoundLibraryDatabase: %1" )
+			.append( m_pSoundLibraryDatabase == nullptr ? "nullptr" :
+					 m_pSoundLibraryDatabase->toQString( "", bShort) )
+			.append( QString( ", m_pPlaylist: %1" )
+					 .arg( m_pPlaylist == nullptr ? "nullptr" :
+						   m_pPlaylist->toQString( "", bShort ) ) )
 			.append( QString( ", m_nHihatOpenness: %1" ).arg( m_nHihatOpenness ) )
-			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
+			.append( QString( ", lastMidiEvent: %1" )
+					 .arg( MidiMessage::EventToQString( m_lastMidiEvent ) ) )
+			.append( QString( ", lastMidiEventParameter: %1" )
+					 .arg( m_nLastMidiEventParameter ) );
 	}
 		
 	return sOutput;
+}
+
+QString Hydrogen::GUIStateToQString( const GUIState& state ) {
+	switch( state ) {
+	case GUIState::startup:
+		return "startup";
+	case GUIState::headless:
+		return "headless";
+	case GUIState::ready:
+		return "ready";
+	case GUIState::shutdown:
+		return "shutdown";
+	default:
+		return QString( "Unknown GUIState [%1]" )
+			.arg( static_cast<int>(state) );
+	}
 }
 
 }; /* Namespace */

@@ -128,7 +128,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
 	
 	const QString& getJackTBMMasterTooltip() const { return m_sJackTBMMasterTooltip; }
-	const QString& getJackTBMSlaveTooltip() const { return m_sJackTBMSlaveTooltip; }
+	const QString& getJackTBMListenerTooltip() const { return m_sJackTBMListenerTooltip; }
 	const QString& getJackMasterDisabledTooltip() const { return m_sJackMasterDisabledTooltip; }
 	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
@@ -147,7 +147,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		
 	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
 	const QString& getTimelineDisabledPatternMode() const { return m_sTimelineDisabledPatternMode; }
-	const QString& getTimelineDisabledTimebaseSlave() const { return m_sTimelineDisabledTimebaseSlave; }
+	const QString& getTimelineDisabledTimebaseListener() const { return m_sTimelineDisabledTimebaseListener; }
 	const QString& getPatternEditorLocked() const { return m_sPatternEditorLocked; }
 
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
@@ -156,6 +156,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getPreferencesShortcutCapture() const { return m_sPreferencesShortcutCapture; }
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
+	const QString& getButtonApply() const { return m_sButtonApply; }
 	const QString& getButtonSave() const { return m_sButtonSave; }
 	const QString& getButtonCancel() const { return m_sButtonCancel; }
 	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
@@ -165,6 +166,13 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getSavingChanges() const { return m_sSavingChanges; }
 
 	const QString& getMutableDialog() const { return m_sMutableDialog; }
+	const QString& getTabGeneralDialog() const { return m_sTabGeneralDialog; }
+	const QString& getTabLicensesDialog() const { return m_sTabLicensesDialog; }
+	const QString& getNameDialog() const { return m_sNameDialog; }
+	const QString& getVersionDialog() const { return m_sVersionDialog; }
+	const QString& getLicenseDialog() const { return m_sLicenseDialog; }
+	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
+	const QString& getNotesDialog() const { return m_sNotesDialog; }
 
 	// const QString& getDialogSongLoadError() const { return m_sDialogSongLoadError; }
 	// const QString& getDialogUnsavedChangesH1() const { return m_sDialogUnsavedChangedH1; }
@@ -177,6 +185,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseCopyleftWarning() const { return m_sLicenseCopyleftWarning; }
 	const QString& getLicenseAttributionWarning() const { return m_sLicenseAttributionWarning; }
 	const QString& getLicenseWarningWindowTitle() const { return m_sLicenseWarningWindowTitle; }
+	const QString& getLicenseMismatchingUserInput() const { return m_sLicenseMismatchingUserInput; }
 
 	const QString& getInputCaptureBpm() const { return m_sInputCaptureBpm; }
 	const QString& getInputCaptureVolume() const { return m_sInputCaptureVolume; }
@@ -191,9 +200,18 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInputCapturePan() const { return m_sInputCapturePan; }
 	const QString& getInputCaptureFilterCutoff() const { return m_sInputCaptureFilterCutoff; }
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
-	
+
+	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
+	const QString& getSoundLibrarySystemSuffix() const { return m_sSoundLibrarySystemSuffix; }
+	const QString& getSoundLibrarySessionSuffix() const { return m_sSoundLibrarySessionSuffix; }
+
+	const QString& getEncodingError() const { return m_sEncodingError; }
+
 	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
 	const QString& getExportDrumkitFailure() const { return m_sExportDrumkitFailure; }
+	const QString& getImportDrumkitSuccess() const { return m_sImportDrumkitSuccess; }
+	const QString& getImportDrumkitFailure() const { return m_sImportDrumkitFailure; }
+	const QString& getImportDrumkitEncodingFailure() const { return m_sImportDrumkitEncodingFailure; }
 	const QString& getPlaylistSaveFailure() const { return m_sPlaylistSaveFailure; }
 	const QString& getIsModified() const { return m_sIsModified; }
 	const QString& getReadOnlyAdvice() const { return m_sReadOnlyAdvice; }
@@ -221,6 +239,15 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
+
+		const QString& getActionAddInstrument() const { return m_sActionAddInstrument; }
+		const QString& getActionDeleteInstrument() const { return m_sActionDeleteInstrument; }
+		const QString& getActionDropInstrument() const { return m_sActionDropInstrument; }
+		const QString& getActionSwitchDrumkit() const { return m_sActionSwitchDrumkit; }
+		const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
+		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
+		const QString& getActionDeleteComponent() const { return m_sActionDeleteComponent; }
+		const QString& getActionRenameComponent() const { return m_sActionRenameComponent; }
 
 		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
 		const QString& getErrorNotFoundShort() const { return m_sErrorNotFoundShort; }
@@ -310,7 +337,7 @@ private:
 	QString m_sAudioDriverNotPresent;
 
 	QString m_sJackTBMMasterTooltip;
-	QString m_sJackTBMSlaveTooltip;
+	QString m_sJackTBMListenerTooltip;
 	QString m_sJackMasterDisabledTooltip;
 	
 	QString m_sMidiSenseWindowTitle;
@@ -328,7 +355,7 @@ private:
 	QString m_sStatusDisabled;
 	QString m_sTimelineEnabled;
 	QString m_sTimelineDisabledPatternMode;
-	QString m_sTimelineDisabledTimebaseSlave;
+	QString m_sTimelineDisabledTimebaseListener;
 	QString m_sPatternEditorLocked;
 	
 	QString m_sPreferencesNotCompiled;
@@ -337,6 +364,7 @@ private:
 	QString m_sPreferencesShortcutCapture;
 
 	QString m_sButtonOk;
+	QString m_sButtonApply;
 	QString m_sButtonSave;
 	QString m_sButtonCancel;
 	QString m_sButtonDiscard;
@@ -346,6 +374,13 @@ private:
 	QString m_sSavingChanges;
 	
 	QString m_sMutableDialog;
+	QString m_sTabGeneralDialog;
+	QString m_sTabLicensesDialog;
+	QString m_sNameDialog;
+	QString m_sVersionDialog;
+	QString m_sLicenseDialog;
+	QString m_sAuthorDialog;
+	QString m_sNotesDialog;
 	
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was
@@ -361,6 +396,7 @@ private:
 	QString m_sLicenseCopyleftWarning;
 	QString m_sLicenseAttributionWarning;
 	QString m_sLicenseWarningWindowTitle;
+	QString m_sLicenseMismatchingUserInput;
 	
 	QString m_sInputCaptureBpm;
 	QString m_sInputCaptureVolume;
@@ -378,6 +414,9 @@ private:
 
 	QString m_sExportSongFailure;
 	QString m_sExportDrumkitFailure;
+	QString m_sImportDrumkitSuccess;
+	QString m_sImportDrumkitFailure;
+	QString m_sImportDrumkitEncodingFailure;
 	QString m_sPlaylistSaveFailure;
 	QString m_sIsModified;
 	QString m_sReadOnlyAdvice;
@@ -406,7 +445,22 @@ private:
 		QString m_sActionEditDrumkitProperties;
 		QString m_sActionIrreversible;
 
+		QString m_sActionAddInstrument;
+		QString m_sActionDeleteInstrument;
+		QString m_sActionDropInstrument;
+		QString m_sActionSwitchDrumkit;
+		QString m_sActionNewDrumkit;
+		QString m_sActionAddComponent;
+		QString m_sActionDeleteComponent;
+		QString m_sActionRenameComponent;
+
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;
+
+	QString m_sSoundLibraryFailedPreDrumkitLoad;
+	QString m_sSoundLibrarySystemSuffix;
+	QString m_sSoundLibrarySessionSuffix;
+
+	QString m_sEncodingError;
 };
 #endif

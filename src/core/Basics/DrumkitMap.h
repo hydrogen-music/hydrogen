@@ -32,15 +32,16 @@
 namespace H2Core
 {
 
+class XMLDoc;
 class XMLNode;
 
 /**
- * DrumkitMap defines the mapping of all #H2Core::Instrument of a
- * #H2Core::Drumkit to some general type strings.
+ * DrumkitMap defines a 1:1 mapping of all #H2Core::Instrument of a
+ * #H2Core::Drumkit to general type strings.
  *
- * By relating two mappings using the type as keys we can switch between two
- * #H2Core::Drumkit when e.g. loading a different kit or importing a
- * #H2Core::Pattern without distorting the pattern's content.
+ * By relating two maps using the general type as keys we can load another
+ * #H2Core::Drumkit or import a #H2Core::Pattern without distorting the
+ * pattern's content or any other loss of information.
 */
 /** \ingroup docCore docDataStructure */
 class DrumkitMap : public H2Core::Object<DrumkitMap>
@@ -63,21 +64,22 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	 * \return A #H2Core::DrumkitMap on success, an empty map otherwise.
 	 */
 	static std::shared_ptr<DrumkitMap> load( const QString& sPath,
-												 bool bSilent = false );
+											 bool bSilent = false );
 
 	/**
 	 * Load #H2Core::DrumkitMap from a XML node.
 	 *
-	 * \param pNode An XML node to load the mapping from, e.g. as part of a
+	 * \param node An XML node to load the mapping from, e.g. as part of a
 	 * .h2song file
 	 * \param bSilent if set to true, all log messages except of
 	 *   errors and warnings are suppressed.
 	 *
 	 * \return A #H2Core::DrumkitMap on success, an empty map otherwise.
 	 */
-	static std::shared_ptr<DrumkitMap> loadFrom( const XMLNode& pNode,
-													 bool bSilent = false );
+	static std::shared_ptr<DrumkitMap> loadFrom( const XMLNode& node,
+												 bool bSilent = false );
 
+		XMLDoc toXml( bool bSilent = false ) const;
 	/**
 	 * Save a #H2Core::DrumkitMap to disk (as a .h2map).
 	 *
@@ -92,20 +94,25 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 	/**
 	 * Save a #H2Core::DrumkitMap to an XML node.
 	 *
-	 * \param pNode XML node to write the mapping to.
+	 * \param node XML node to write the mapping to.
 	 * \param bSilent if set to true, all log messages except of
 	 * errors and warnings are suppressed.
 	 *
 	 * \return true on success
 	 */
-	void saveTo( XMLNode& pNode, bool bSilent = false ) const;
+	void saveTo( XMLNode& node, bool bSilent = false ) const;
 
-	/** Get all types for @a nId */
-	std::vector<Type> getTypes( int nId ) const;
+		/**
+		 * \param sType for which to get the corresponding id
+		 * \param pOk set to `true` in case @a sType was found.
+		 */
+		int getId( const Type& sType, bool* pOk ) const;
+	/** Get type for @a nId */
+	Type getType( int nId ) const;
 	/** Returns all unique types found #m_mapping */
 	std::set<Type> getAllTypes() const;
 
-	void addMapping( int nId, const Type& sType );
+	bool addMapping( int nId, const Type& sType );
 
 	/** Whether there are mappings present in the map */
 	bool isEmpty() const;
@@ -133,13 +140,16 @@ class DrumkitMap : public H2Core::Object<DrumkitMap>
 
   private:
 	/**
-	 * Map instrument IDs to instrument type strings.
+	 * Map instrument IDs to instrument type strings (1:1).
 	 *
 	 * Instrument IDs are defined in each individual drumkit while the type
 	 * strings are arbitrary strings using which instruments of different
 	 * kits can be mapped onto each other.
 	 */
-	std::multimap<int, Type> m_mapping;
+	std::map<int, Type> m_mapping;
+
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline void DrumkitMap::clear() {

@@ -19,6 +19,10 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
+
+#include <sstream>
+#include <iterator>
+
 #include <QObject>
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -26,7 +30,9 @@
 #include <core/EventQueue.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -39,11 +45,8 @@
 #include <core/Preferences/Preferences.h>
 #include <core/MidiAction.h>
 
-#include <core/Basics/Drumkit.h>
 
 // #include <QFileInfo>
-
-#include <sstream>
 
 using namespace H2Core;
 
@@ -182,6 +185,8 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
 	m_actionMap.insert(std::make_pair("PAN_ABSOLUTE", std::make_pair( &MidiActionManager::pan_absolute, 1 ) ));
 	m_actionMap.insert(std::make_pair("PAN_ABSOLUTE_SYM", std::make_pair( &MidiActionManager::pan_absolute_sym, 1 ) ));
+	m_actionMap.insert(std::make_pair("INSTRUMENT_PITCH",
+									  std::make_pair( &MidiActionManager::instrument_pitch, 1 ) ));
 	m_actionMap.insert(std::make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::filter_cutoff_level_absolute, 1 ) ));
 	m_actionMap.insert(std::make_pair("BEATCOUNTER", std::make_pair( &MidiActionManager::beatcounter, 0 ) ));
 	m_actionMap.insert(std::make_pair("TAP_TEMPO", std::make_pair( &MidiActionManager::tap_tempo, 0 ) ));
@@ -196,6 +201,11 @@ MidiActionManager::MidiActionManager() {
 										  &MidiActionManager::clear_selected_instrument, 0 ) ));
 	m_actionMap.insert(std::make_pair("CLEAR_PATTERN", std::make_pair(
 										  &MidiActionManager::clear_pattern, 0 ) ));
+	m_actionMap.insert(std::make_pair("LOAD_NEXT_DRUMKIT", std::make_pair(
+										  &MidiActionManager::loadNextDrumkit, 0 ) ));
+	m_actionMap.insert(std::make_pair("LOAD_PREV_DRUMKIT", std::make_pair(
+										  &MidiActionManager::loadPrevDrumkit, 0 ) ));
+
 	/*
 	  the m_actionList holds all Action identifiers which hydrogen is able to interpret.
 	*/
@@ -829,7 +839,7 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hy
 		return false;
 	}
 	
-	auto pLayer = pComponent->get_layer( layer_id );
+	auto pLayer = pComponent->getLayer( layer_id );
 	if( pLayer == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
 		return false;
@@ -876,22 +886,40 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 		return false;
 	}
 	
-	auto pLayer = pComponent->get_layer( layer_id );
+	auto pLayer = pComponent->getLayer( layer_id );
 	if( pLayer == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
 		return false;
 	}
 	
-	if( pitch_param != 0 ){
-		pLayer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
+	if ( pitch_param != 0 ) {
+		pLayer->set_pitch(
+			( Instrument::fPitchMax - Instrument::fPitchMin ) *
+			( (float) (pitch_param / 127.0 ) ) + Instrument::fPitchMin );
 	} else {
-		pLayer->set_pitch( -24.5 );
+		pLayer->set_pitch( Instrument::fPitchMin );
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
+}
+
+bool MidiActionManager::instrument_pitch( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+
+	bool ok;
+	float fPitch;
+	const int nInstrument = pAction->getParameter1().toInt(&ok,10);
+	const int nPitchMidi = pAction->getValue().toInt(&ok,10);
+	if ( nPitchMidi != 0 ) {
+		fPitch = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
+			( (float) (nPitchMidi / 127.0 ) ) + Instrument::fPitchMin;
+	} else {
+		fPitch = Instrument::fPitchMin;
+	}
+
+	return CoreActionController::setInstrumentPitch( nInstrument, fPitch );
 }
 
 bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
@@ -1259,6 +1287,18 @@ bool MidiActionManager::undo_action( std::shared_ptr<Action> , Hydrogen* ) {
 bool MidiActionManager::redo_action( std::shared_ptr<Action> , Hydrogen* ) {
 	EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
 	return true;
+}
+
+bool MidiActionManager::loadNextDrumkit( std::shared_ptr<Action>, Hydrogen* ) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	return CoreActionController::setDrumkit(
+		pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() );
+}
+
+bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<Action>, Hydrogen* ) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	return CoreActionController::setDrumkit(
+		pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() );
 }
 
 int MidiActionManager::getParameterNumber( const QString& sActionType ) const {

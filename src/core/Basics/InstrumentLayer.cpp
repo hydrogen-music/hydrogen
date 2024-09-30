@@ -21,10 +21,11 @@
  */
 
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/Sample.h>
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
-#include <core/Basics/Sample.h>
 #include <core/License.h>
 #include <core/Hydrogen.h>
 #include <core/NsmClient.h>
@@ -38,24 +39,33 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) :
 	__end_velocity( 1.0 ),
 	__pitch( 0.0 ),
 	__gain( 1.0 ),
+	m_bIsMuted( false ),
+	m_bIsSoloed( false ),
 	__sample( sample )
 {
 }
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other ) : Object( *other ),
-	__start_velocity( other->get_start_velocity() ),
-	__end_velocity( other->get_end_velocity() ),
-	__pitch( other->get_pitch() ),
-	__gain( other->get_gain() ),
-	__sample( other->get_sample() )
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther ) : Object( *pOther ),
+	__start_velocity( pOther->get_start_velocity() ),
+	__end_velocity( pOther->get_end_velocity() ),
+	__pitch( pOther->get_pitch() ),
+	__gain( pOther->get_gain() ),
+	m_bIsMuted( pOther->m_bIsMuted ),
+	m_bIsSoloed( pOther->m_bIsSoloed ),
+	__sample( nullptr )
 {
+	if ( pOther->__sample != nullptr ) {
+		__sample = std::make_shared<Sample>( pOther->__sample );
+	}
 }
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other, std::shared_ptr<Sample> sample ) : Object( *other ),
-	__start_velocity( other->get_start_velocity() ),
-	__end_velocity( other->get_end_velocity() ),
-	__pitch( other->get_pitch() ),
-	__gain( other->get_gain() ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther, std::shared_ptr<Sample> sample ) : Object( *pOther ),
+	__start_velocity( pOther->get_start_velocity() ),
+	__end_velocity( pOther->get_end_velocity() ),
+	__pitch( pOther->get_pitch() ),
+	__gain( pOther->get_gain() ),
+	m_bIsMuted( pOther->m_bIsMuted ),
+	m_bIsSoloed( pOther->m_bIsSoloed ),
 	__sample( sample )
 {
 }
@@ -67,6 +77,15 @@ InstrumentLayer::~InstrumentLayer()
 void InstrumentLayer::set_sample( std::shared_ptr<Sample> sample )
 {
 	__sample = sample;
+}
+
+void InstrumentLayer::set_pitch( float fValue )
+{
+	if ( fValue < Instrument::fPitchMin || fValue > Instrument::fPitchMax ) {
+		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to nearest allowed value." )
+					.arg( Instrument::fPitchMin ).arg( Instrument::fPitchMax ) );
+	}
+	__pitch = std::clamp( fValue, Instrument::fPitchMin, Instrument::fPitchMax );
 }
 
 void InstrumentLayer::load_sample( float fBpm )
@@ -116,7 +135,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 			QFileInfo songPathInfo( sSongPath );
 			sFilePath = songPathInfo.absoluteDir().absoluteFilePath( sFilename );
 		}
-		else {
+		else if ( ! sDrumkitPath.isEmpty() ){
 			// Plain filenames of samples associated with an installed drumkit.
 			QFileInfo drumkitPathInfo( sDrumkitPath );
 			if ( drumkitPathInfo.isDir() ) {
@@ -131,13 +150,9 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;
-	if ( Filesystem::file_exists( sFilePath, true ) ) {
+	if ( ! sFilePath.isEmpty() && Filesystem::file_exists( sFilePath, true ) ) {
 		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
 
-		// If 'ismodified' is not present, InstrumentLayer was stored as
-		// part of a drumkit. All the additional Sample info, like Loops,
-		// envelopes etc., were not written to disk and we won't load the
-		// sample.
 		const bool bIsModified =
 			node.read_bool( "ismodified", false, true, false, true );
 		pSample->set_is_modified( bIsModified );
@@ -160,7 +175,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 
 			// Check whether the rubberband executable is present.
 			if ( ! Filesystem::file_exists( Preferences::get_instance()->
-											m_rubberBandCLIexecutable ) ) {
+											m_sRubberBandCLIexecutable ) ) {
 				rubberband.use = false;
 			}
 			pSample->set_rubberband( rubberband );
@@ -188,10 +203,16 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 			}
 			pSample->set_pan_envelope( panEnvelope );
 		}
-	} else {
-		ERRORLOG( QString( "Unable to find sample file [%1] based on filename [%2], sDrumkitPath [%3], sSongPath [%4]" )
-				  .arg( sFilePath ).arg( sFilename ).arg( sDrumkitPath )
-				  .arg( sSongPath ) );
+	}
+	else {
+		if ( sFilePath.isEmpty() ) {
+			ERRORLOG( QString( "Unable to find sample [%1] from sDrumkitPath [%2], sSongPath [%3]" )
+					  .arg( sFilename ).arg( sDrumkitPath ).arg( sSongPath ) );
+		} else {
+			ERRORLOG( QString( "Unable to find sample file [%1] based on filename [%2], sDrumkitPath [%3], sSongPath [%4]" )
+					  .arg( sFilePath ).arg( sFilename ).arg( sDrumkitPath )
+					  .arg( sSongPath ) );
+		}
 	}
 
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
@@ -203,6 +224,10 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 										 true, false, bSilent ) );
 	pLayer->set_pitch( node.read_float( "pitch", 0.0,
 										  true, false, bSilent ) );
+	pLayer->m_bIsMuted = node.read_bool(
+		"isMuted", pLayer->m_bIsMuted, true, false, true );
+	pLayer->m_bIsSoloed = node.read_bool(
+		"isSoloed", pLayer->m_bIsSoloed, true, false, true );
 	return pLayer;
 }
 
@@ -230,6 +255,8 @@ void InstrumentLayer::save_to( XMLNode& node, bool bSongKit ) const
 	layer_node.write_float( "max", __end_velocity );
 	layer_node.write_float( "gain", __gain );
 	layer_node.write_float( "pitch", __pitch );
+	layer_node.write_bool( "isMuted", m_bIsMuted );
+	layer_node.write_bool( "isSoloed", m_bIsSoloed );
 
 	layer_node.write_bool( "ismodified", pSample->get_is_modified() );
 	layer_node.write_string( "smode", pSample->get_loop_mode_string() );
@@ -267,7 +294,11 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
 			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
 			.append( QString( "%1%2start_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __start_velocity ) )
-			.append( QString( "%1%2end_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __end_velocity ) );
+			.append( QString( "%1%2end_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __end_velocity ) )
+			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsMuted ) )
+			.append( QString( "%1%2m_bIsSoloed: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsSoloed ) );
 		if ( __sample != nullptr ) {
 			sOutput.append( QString( "%1" )
 							.arg( __sample->toQString( sPrefix + s, bShort ) ) );
@@ -280,7 +311,9 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 			.append( QString( " gain: %1" ).arg( __gain ) )
 			.append( QString( ", pitch: %1" ).arg( __pitch ) )
 			.append( QString( ", start_velocity: %1" ).arg( __start_velocity ) )
-			.append( QString( ", end_velocity: %1" ).arg( __end_velocity ) );
+			.append( QString( ", end_velocity: %1" ).arg( __end_velocity ) )
+			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
+			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) );
 		if ( __sample != nullptr ) { 
 			sOutput.append( QString( ", sample: %1\n" ).arg( __sample->get_filepath() ) );
 		} else {

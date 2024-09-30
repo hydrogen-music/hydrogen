@@ -27,12 +27,10 @@
 
 #include <core/Helpers/Legacy.h>
 
-#include "Version.h"
 #include <core/Helpers/Xml.h>
 #include <core/License.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -47,37 +45,103 @@
 
 namespace H2Core {
 
+void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList,
+								 const XMLNode &rootNode, bool bSilent ) {
+	if ( pInstrumentList == nullptr ) {
+		ERRORLOG( "Invalid instrument list" );
+	}
+
+	// Formerly `InstrumentComponent`s features an int parameter - called
+	// `component_id` - linking it with a `DrumkitComponent` of the same Id. The
+	// latter did hold the name of the component. The following map will search
+	// for all components and uses ID as key and name as value.
+	std::map<int, QString> componentMap;
+
+	XMLNode componentListNode = rootNode.firstChildElement( "componentList" );
+	if ( ! componentListNode.isNull() ) {
+		 XMLNode componentNode =
+			 componentListNode.firstChildElement( "drumkitComponent" );
+		 while ( ! componentNode.isNull()  ) {
+			 const int nId = componentNode.read_int(
+				 "id", -1, false, false, bSilent );
+			 if ( nId != -1 ) {
+				 // -1 was used as the null element.
+				 componentMap[ nId ] = componentNode.read_string(
+					 "name", "", false, false, bSilent );
+			 }
+
+			 componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
+		 }
+	}
+
+	if ( componentMap.size() > 0 ) {
+		const XMLNode instrumentListNode =
+			rootNode.firstChildElement( "instrumentList" );
+		if ( instrumentListNode.isNull() ) {
+			ERRORLOG( "No <instrumentList> node found" );
+			return;
+		}
+
+		XMLNode instrumentNode =
+			instrumentListNode.firstChildElement( "instrument" );
+		while ( !instrumentNode.isNull() ) {
+
+
+			const int nInstrumentId = instrumentNode.read_int(
+				"id", -2, false, false, bSilent );
+			auto pInstrument = pInstrumentList->get( nInstrumentId );
+			if ( pInstrument == nullptr ) {
+				if ( ! bSilent ) {
+					WARNINGLOG( QString( "No instrument found for ID [%1]" )
+								.arg( nInstrumentId ) );
+				}
+				instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
+				continue;
+			}
+
+			// In current versions of Hydrogen there is no dedicated ID but the
+			// component is defined by its position in the component vector.
+			int nnComponent = 0;
+
+			XMLNode instrumentComponentNode =
+				instrumentNode.firstChildElement( "instrumentComponent" );
+			while ( ! instrumentComponentNode.isNull() ) {
+				const int nComponentId = instrumentComponentNode.read_int(
+					"component_id", -1, false, false, bSilent );
+				if ( auto search = componentMap.find( nComponentId );
+					 search != componentMap.end() ){
+					// There is a name available for this instrument component.
+					auto pInstrumentComponent =
+						pInstrument->get_component( nnComponent );
+					if ( pInstrumentComponent != nullptr ) {
+						pInstrumentComponent->setName(
+							componentMap[ nComponentId ] );
+					}
+					else if ( ! bSilent ) {
+						WARNINGLOG( QString( "No InstrumentComponent found for [%1]" )
+									.arg( nnComponent ) );
+					}
+				}
+				++nnComponent;
+				instrumentComponentNode =
+					instrumentComponentNode.nextSiblingElement( "instrumentComponent" );
+			}
+
+			instrumentNode = instrumentNode.nextSiblingElement( "instrument" );
+		}
+	}
+}
+
 std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	const XMLNode& node, const QString& sSongPath, bool bSilent )
 {
 
-	// These old kits contain only an instrument list and all instrument
-	// components and rely on sample loading per-instrument. How the kit itself
-	// is called was only introduced somewhere after 1.0.0 and might not be
-	// present at all. We try to determine the name and use all metadata of the
-	// kit in case it is installed. If not, we just fall back to sane defaults
-	// and a drumkit name indicating legacy loading.
-
-	std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pComponents =
-		std::make_shared<std::vector<std::shared_ptr<DrumkitComponent>>>();
-	XMLNode componentListNode = node.firstChildElement( "componentList" );
-	if ( ( ! componentListNode.isNull()  ) ) {
-		// Song was written after the introduction of components.
-		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
-		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( componentNode );
-			if ( pDrumkitComponent != nullptr ) {
-				pComponents->push_back( pDrumkitComponent );
-			}
-
-			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
-		}
-	}
-	else {
-		// No components here yet. Fall back to default one.
-		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
-		pComponents->push_back( pDrumkitComponent );
-	}
+	// These old kits contain only an instrument list and former
+	// DrumkitComponent and rely on sample loading per-instrument. How the kit
+	// itself is called was only introduced somewhere after 1.0.0 and might not
+	// be present at all. We try to determine the name and use all metadata of
+	// the kit in case it is installed. If not, we just fall back to sane
+	// defaults and a drumkit name indicating legacy loading.
 
 	// Since drumkit parts were stored at root level, we have access to all
 	// other data in here too.
@@ -98,6 +162,8 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	if ( pInstrumentList == nullptr ) {
 		return nullptr;
 	}
+
+	Legacy::loadComponentNames( pInstrumentList, node );
 
 	QString sLastLoadedDrumkitPath =
 		node.read_string( "last_loaded_drumkit", "", true, false, true );
@@ -172,27 +238,11 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	}
 
 	// Assign the loaded parts and load samples.
-	pNewDrumkit->setComponents( pComponents );
 	pNewDrumkit->setInstruments( pInstrumentList );
 
+	pNewDrumkit->fixupTypes( bSilent );
+
 	return pNewDrumkit;
-}
-
-void Legacy::saveEmbeddedSongDrumkit( XMLNode& rootNode,
-									  std::shared_ptr<Drumkit> pDrumkit,
-									  bool bSilent ) {
-
-	rootNode.write_string( "last_loaded_drumkit", pDrumkit->getPath() );
-	rootNode.write_string( "last_loaded_drumkit_name", pDrumkit->getName() );
-
-	XMLNode componentListNode = rootNode.createNode( "componentList" );
-	for ( const auto& ppComponent : *pDrumkit->getComponents() ) {
-		if ( ppComponent != nullptr ) {
-			ppComponent->save_to( componentListNode );
-		}
-	}
-
-	pDrumkit->getInstruments()->save_to( rootNode, -1, true, true );
 }
 
 std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
@@ -208,7 +258,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 
 	if ( node.firstChildElement( "filename" ).isNull() ) {
 		// not that old but no component yet.
-		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+		auto pCompo = std::make_shared<InstrumentComponent>();
 
 		XMLNode layerNode = node.firstChildElement( "layer" );
 		int nLayer = 0;
@@ -223,7 +273,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 			auto pLayer = InstrumentLayer::load_from(
 				layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 			if ( pLayer != nullptr ) {
-				pCompo->set_layer( pLayer, nLayer );
+				pCompo->setLayer( pLayer, nLayer );
 				nLayer++;
 			}
 			layerNode = layerNode.nextSiblingElement( "layer" );
@@ -261,20 +311,17 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 			ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 		}
 	
-		auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+		auto pCompo = std::make_shared<InstrumentComponent>();
 		auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-		pCompo->set_layer( pLayer, 0 );
+		pCompo->setLayer( pLayer, 0 );
 		return pCompo;
 	}
 }
 
-Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_ptr<InstrumentList> pInstrumentList ) {
+Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
+	WARNINGLOG( QString( "loading pattern with legacy code" ) );
+
 	Pattern* pPattern = nullptr;
-	if ( version_older_than( 0, 9, 8 ) ) {
-		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
-	} else {
-		WARNINGLOG( QString( "loading pattern with legacy code" ) );
-	}
 	XMLDoc doc;
 	if( !doc.read( pattern_path ) ) {
 		return nullptr;
@@ -301,10 +348,15 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 	//default nDenominator = 4 since old patterns have not <denominator> setting
 	pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
 
-	if ( pInstrumentList == nullptr ) {
-		ERRORLOG( "invalid instrument list provided" );
-		return pPattern;
-	}
+	// Try to load author and license present in .h2pattern created in Hydrogen
+	// version 1.0.0-beta till 1.2.X (within the <drumkit_pattern> element).
+	pPattern->setAuthor( root.read_string(
+							 "author", pPattern->getAuthor(),
+							 true, false, true ) );
+	const License license( root.read_string(
+							   "license", pPattern->getLicense().getLicenseString(),
+							   true, false, true ) );
+	pPattern->setLicense( license );
 
 	XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );
 
@@ -328,20 +380,12 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
 
-			auto instrRef = pInstrumentList->find( instrId );
-			if ( !instrRef ) {
-				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
-				note_node = note_node.nextSiblingElement( "note" );
-				
-				continue;
-			}
-			//assert( instrRef );
 			bool noteoff = false;
 			if ( nNoteOff == "true" ) {
 				noteoff = true;
 			}
 
-			pNote = new Note( instrRef, nPosition, fVelocity, fPan, nLength, nPitch);
+			pNote = new Note( nullptr, nPosition, fVelocity, fPan, nLength, nPitch);
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag(fLeadLag);
 			pNote->set_note_off( noteoff );
@@ -366,19 +410,12 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 
 				int nInstrId = noteNode.read_int( "instrument", -1 );
 
-				auto pInstr = pInstrumentList->find( nInstrId );
-				if ( pInstr == nullptr ) {
-					ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-							  .arg( nInstrId ) );
-					continue;
-				}
-
 				// convert to single pan parameter
 				float fPanL = noteNode.read_float( "pan_L", 0.5 );
 				float fPanR = noteNode.read_float( "pan_R", 0.5 );
 				float fPan = Sampler::getRatioPan( fPanL, fPanR );
 
-				Note* pNote = new Note( pInstr,
+				Note* pNote = new Note( nullptr,
 										noteNode.read_int( "position", 0 ),
 										noteNode.read_float( "velocity", 0.8f ),
 										fPan,
@@ -399,11 +436,8 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, std::shared_
 
 std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 {
-	if ( version_older_than( 0, 9, 8 ) ) {
-		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
-	} else {
-		WARNINGLOG( QString( "loading playlist with legacy code" ) );
-	}
+	WARNINGLOG( QString( "loading playlist with legacy code" ) );
+
 	XMLDoc doc;
 	if( !doc.read( pl_path ) ) {
 		return nullptr;
@@ -416,8 +450,7 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 	QFileInfo fileInfo = QFileInfo( pl_path );
 	QString filename = root.read_string( "Name", "", false, false );
 	if ( filename.isEmpty() ) {
-		ERRORLOG( "Playlist has no name, abort" );
-		return nullptr;
+		WARNINGLOG( "Playlist has no name, abort" );
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();

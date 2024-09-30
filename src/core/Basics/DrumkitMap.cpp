@@ -50,7 +50,10 @@ std::shared_ptr<DrumkitMap> DrumkitMap::load( const QString& sPath, bool bSilent
 		WARNINGLOG( QString( "Mapping file [%1] is not valid with respect to [%2]. Loading might fail." )
 					.arg( sPath )
 					.arg( Filesystem::drumkit_map_xsd_path() ) );
-		auto ret = doc.read( sPath, nullptr, bSilent );
+		if ( ! doc.read( sPath, nullptr, bSilent ) ) {
+			WARNINGLOG( QString( "Mapping file [%1] could not be loaded cleanly without XSD file either" )
+						.arg( sPath ) );
+		}
 	}
 
 	XMLNode rootNode = doc.firstChildElement( "drumkit_map" );
@@ -67,28 +70,34 @@ std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( const XMLNode& node, bool bSil
 
 	std::shared_ptr<DrumkitMap> pDrumkitMap = std::make_shared<DrumkitMap>();
 
-	std::multimap<int, Type> map;
+	std::map<int, Type> map;
 
 	XMLNode mappingNode = node.firstChildElement( "mapping" );
 
 	while ( !mappingNode.isNull() ) {
-		const QString sType =
-			mappingNode.read_string( "type", "", false, false, false );
 		const int nInstrumentID =
 			mappingNode.read_int( "instrumentID", -1, false, false, false );
+		const QString sType =
+			mappingNode.read_string( "type", "", false, false, false );
 
-		DEBUGLOG( QString( "stype: %1, nInstrumetnID: %2" ).arg( sType ).arg( nInstrumentID ) );
-		if ( !sType.isEmpty() && nInstrumentID != -1 ) {
-			map.emplace(
-				std::pair( nInstrumentID, static_cast<Type>( sType ) ) );
+		if ( ! sType.isEmpty() && nInstrumentID != -1 ) {
+			// Ensure types to be unique and takes care of error logging.
+			pDrumkitMap->addMapping( nInstrumentID, static_cast<Type>( sType ) );
 		}
 
 		// Move on to the next entry until there is none left.
 		mappingNode = mappingNode.nextSiblingElement( "mapping" );
 	}
 
-	pDrumkitMap->m_mapping = map;
 	return pDrumkitMap;
+}
+
+XMLDoc DrumkitMap::toXml( bool bSilent ) const {
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "drumkit_map", "drumkit_map" );
+	saveTo( root, bSilent );
+
+	return std::move( doc );
 }
 
 bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
@@ -101,7 +110,6 @@ bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
 
 	INFOLOG( QString( "Saving drumkit mappings in [%1]" ).arg( sPath ) );
 
-	// Save drumkit.xml
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_map", "drumkit_map" );
 	
@@ -111,6 +119,8 @@ bool DrumkitMap::save( const QString& sPath, bool bSilent ) const {
 
 void DrumkitMap::saveTo( XMLNode& node, bool bSilent ) const {
 
+	node.write_int( "formatVersion", nCurrentFormatVersion );
+
 	for ( const auto& [nnId, ssType] : m_mapping ) {
 		XMLNode mappingNode = node.createNode( "mapping" );
 		mappingNode.write_int( "instrumentID", nnId );
@@ -118,19 +128,51 @@ void DrumkitMap::saveTo( XMLNode& node, bool bSilent ) const {
 	}
 }
 
-void DrumkitMap::addMapping( int nId, const DrumkitMap::Type& sType ) {
-	m_mapping.insert( { nId, sType } );
-}
-
-std::vector<DrumkitMap::Type> DrumkitMap::getTypes( int nId ) const {
-	std::vector<Type> results;
-
-	auto range = m_mapping.equal_range( nId );
-	for ( auto ii = range.first; ii != range.second; ++ii ) {
-		results.push_back( ii->second );
+bool DrumkitMap::addMapping( int nId, const DrumkitMap::Type& sType ) {
+	// Since .h2map files are intended to be read-only and shipped by us, we
+	// just fill them carefully and do not support modification.
+	if ( m_mapping.find( nId ) != m_mapping.end() ) {
+		ERRORLOG( QString( "Unable to assign type [%1]. There is already one present for instrument [%2]: %3" )
+				  .arg( sType ).arg( nId ).arg( m_mapping[ nId ] ) );
+		return false;
 	}
 
-	return std::move( results );
+	// Ensure uniqueness of type
+	std::set<Type> types;
+	for ( const auto& [ _, ssType ] : m_mapping ) {
+		types.insert( ssType );
+	}
+	const auto [ _, bUnique ] = types.insert( sType );
+	if ( ! bUnique ) {
+		ERRORLOG( QString( "Type [%1] is already present and those have to be unique!" )
+				  .arg( sType ) );
+		return false;
+	}
+
+	const auto [ __, bSuccess] = m_mapping.insert( { nId, sType } );
+	return bSuccess;
+}
+
+int DrumkitMap::getId( const Type& sType, bool* pOk ) const {
+	for ( const auto& [ nnId, ssType ] : m_mapping ) {
+		if ( ssType == sType ) {
+			*pOk = true;
+			return nnId;
+		}
+	}
+
+	*pOk = false;
+	return -1;
+}
+
+DrumkitMap::Type DrumkitMap::getType( int nId ) const {
+	const auto it = m_mapping.find( nId );
+	if ( it == m_mapping.end() ) {
+		WARNINGLOG( QString( "No type found for id [%1]" ).arg( nId ) );
+		return "";
+	}
+
+	return it->second;
 }
 
 std::set<DrumkitMap::Type> DrumkitMap::getAllTypes() const {

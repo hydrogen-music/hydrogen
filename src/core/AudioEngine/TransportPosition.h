@@ -27,6 +27,7 @@
 #include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/AudioEngineTests.h>
+#include <core/IO/JackAudioDriver.h>
 
 namespace H2Core
 {
@@ -50,6 +51,7 @@ class TransportPosition : public H2Core::Object<TransportPosition>
 public:
 
 	TransportPosition( const QString& sLabel = "" );
+	TransportPosition( std::shared_ptr<TransportPosition> pOther );
 	~TransportPosition();
 
 	const QString& getLabel() const;
@@ -120,6 +122,11 @@ public:
 	 * @return frame
 	 */
 	static long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 );
+
+	friend bool operator==( std::shared_ptr<TransportPosition> lhs,
+							 std::shared_ptr<TransportPosition> rhs );
+	friend bool operator!=( std::shared_ptr<TransportPosition> lhs,
+							 std::shared_ptr<TransportPosition> rhs );
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -133,6 +140,7 @@ public:
 
 	friend class AudioEngine;
 	friend class AudioEngineTests;
+	friend class JackAudioDriver;
 
 private:
 	/**
@@ -246,7 +254,7 @@ private:
 	 *
 	 * 3. Both #Song and #Timeline tempo are superseded by the BPM
 	 * broadcasted by the JACK timebase master application once
-	 * Hydrogen acts as timebase slave. The corresponding value
+	 * Hydrogen acts as timebase listener. The corresponding value
 	 * depends entirely on the external application and will not be
 	 * stored by Hydrogen.
 	 */

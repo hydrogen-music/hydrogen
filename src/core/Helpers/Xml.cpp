@@ -306,6 +306,10 @@ void XMLNode::write_bool( const QString& name, const bool value )
 
 XMLDoc::XMLDoc( ) { }
 
+XMLDoc::XMLDoc( const QString& sSerialized ) {
+	setContent( sSerialized );
+}
+
 bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath,
 				   bool bSilent )
 {
@@ -322,20 +326,27 @@ bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath,
 	schema.setMessageHandler( &handler );
 	
 	bool bSchemaUsable = false;
+	bool bSuccess = true;
 	
 	if ( ! sSchemaPath.isEmpty() ) {
 		QFile file( sSchemaPath );
 		if ( !file.open( QIODevice::ReadOnly ) ) {
+			// Non-fatal since a bricked setup (missing or ill-formatted XSD
+			// files) should not keep the user from loading valid files.
 			ERRORLOG( QString( "Unable to open XML schema [%1] for reading." )
 					  .arg( sSchemaPath ) );
+			bSuccess = false;
 		} else {
 			schema.load( &file, QUrl::fromLocalFile( file.fileName() ) );
 			file.close();
 			if ( schema.isValid() ) {
 				bSchemaUsable = true;
 			} else {
+				// Non-fatal since a bricked setup (missing or ill-formatted XSD
+				// files) should not keep the user from loading valid files.
 				ERRORLOG( QString( "XML schema [%1] is not valid. File [%2] will not be validated" )
 						  .arg( sSchemaPath ).arg( sFilePath ) );
+				bSuccess = false;
 			}
 		}
 	}
@@ -378,7 +389,7 @@ bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath,
 	}
 	file.close();
 	
-	return true;
+	return bSuccess;
 }
 
 bool XMLDoc::write( const QString& filepath )

@@ -20,17 +20,21 @@
  *
  */
 
+#include <QDir>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
+#include <core/Basics/Song.h>
 #include "core/OscServer.h"
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
@@ -90,6 +94,33 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	}
 
 	return false;
+}
+
+bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit" );
+		return false;
+	}
+	auto pInstrumentList = pDrumkit->getInstruments();
+	auto pInstrument = pInstrumentList->get( nInstrument );
+	if( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" )
+				  .arg( nInstrument ) );
+		return false;
+	}
+
+	pInstrument->set_pitch_offset( fValue );
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED,
+											nInstrument );
+
+	return true;
 }
 
 bool CoreActionController::setMetronomeIsActive( bool isActive )
@@ -248,7 +279,7 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 	}
 #endif
 	
-	MidiMap* pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
@@ -275,7 +306,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"),
 																   QString("%1").arg( nStrip ) );
@@ -289,7 +320,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( pPref->getOscFeedbackEnabled() ) {
@@ -302,7 +333,7 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	}
 #endif
 	
-	MidiMap* pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("TOGGLE_METRONOME"));
 	
@@ -330,8 +361,8 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 	}
 #endif
 
-	MidiMap*	pMidiMap = MidiMap::get_instance();
-	
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
+
 	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MUTE_TOGGLE") );
 
 	return handleOutgoingControlChanges( ccParamValues,
@@ -356,7 +387,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_MUTE_TOGGLE"),
 																   QString("%1").arg( nStrip ) );
@@ -386,7 +417,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 		}
 #endif
 
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_SOLO_TOGGLE"),
 																   QString("%1").arg( nStrip ) );
 	
@@ -415,7 +446,7 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 		}
 #endif
 	
-		MidiMap* pMidiMap = MidiMap::get_instance();
+		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE"),
 																   QString("%1").arg( nStrip ) );
 
@@ -431,7 +462,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
 
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -693,6 +724,37 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	return true;
 }
 
+std::shared_ptr<Preferences> CoreActionController::loadPreferences( const QString& sPath ) {
+	return Preferences::load( sPath, false );
+}
+
+bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPreferences ) {
+	if ( pPreferences == nullptr ) {
+		ERRORLOG( "invalid preferences" );
+		return false;
+	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	Preferences::get_instance()->replaceInstance( pPreferences );
+
+	pAudioEngine->getMetronomeInstrument()->set_volume(
+		pPreferences->m_fMetronomeVolume );
+
+	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
+
+	// If the GUI is active, we have to update it to reflect the
+	// changes in the preferences.
+	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
+		H2Core::EventQueue::get_instance()->push_event(
+			H2Core::EVENT_UPDATE_PREFERENCES, 1 );
+	}
+
+	return true;
+}
+
 bool CoreActionController::savePreferences() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
@@ -704,23 +766,14 @@ bool CoreActionController::savePreferences() {
 		return true;
 	}
 	
-	return Preferences::get_instance()->savePreferences();
+	return Preferences::get_instance()->save();
 }
 
 bool CoreActionController::quit() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
+	EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
-		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
-	} else {
-		// TODO: Close Hydrogen with no GUI present.
-		
-		ERRORLOG( QString( "Error: Closing the application via the core part is not supported yet!" ) );
-		return false;
-		
-	}
-	
 	return true;
 }
 
@@ -747,7 +800,8 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 
 	pHydrogen->setIsTimelineActivated( bActivate );
 	
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+	if ( pHydrogen->getJackTimebaseState() ==
+		 JackAudioDriver::Timebase::Listener ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
@@ -848,7 +902,7 @@ bool CoreActionController::deleteTag( int nPosition ) {
 bool CoreActionController::toggleJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	if ( Preferences::get_instance()->m_bJackTransportMode ==
+	if ( Preferences::get_instance()->m_nJackTransportMode ==
 		 Preferences::USE_JACK_TRANSPORT ) {
 		activateJackTransport( false );
 	} else {
@@ -870,9 +924,9 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 	
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
-		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
+		Preferences::get_instance()->m_nJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 	} else {
-		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
+		Preferences::get_instance()->m_nJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	
@@ -1037,7 +1091,7 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 	return true;
 }
 
-bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditional ) {
+bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pDrumkit = pHydrogen->getSoundLibraryDatabase()
@@ -1048,11 +1102,11 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit, bool bConditiona
 		return false;
 	}
 
-	return setDrumkit( pDrumkit, bConditional );
+	return setDrumkit( pDrumkit );
 }
 
-bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional ) {
-	if ( pDrumkit == nullptr ) {
+bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
+	if ( pNewDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );
 		return false;
 	}
@@ -1065,15 +1119,24 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+	auto pPreviousDrumkit = pSong->getDrumkit();
+	if ( pPreviousDrumkit == pNewDrumkit ) {
+		return true;
+	}
 
-	INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
-			.arg( pDrumkit->getName() )
-			.arg( pDrumkit->getPath() ) );
+	if ( pPreviousDrumkit == nullptr ) {
+		INFOLOG( QString( "Setting drumkit [%1] located at [%2]" )
+				 .arg( pNewDrumkit->getName() ).arg( pNewDrumkit->getPath() ) );
+	} else {
+		INFOLOG( QString( "Switching drumkits [%1] -> [%2] located at [%3]" )
+				 .arg( pPreviousDrumkit->getName() )
+				 .arg( pNewDrumkit->getName() ).arg( pNewDrumkit->getPath() ) );
+	}
 
-	// Use a cloned version of the kit from e.g. the SoundLibrary in
-	// order to not overwrite the original when altering the properties
-	// of the current kit.
-	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
+	// Ensure instruments of the new kit aren't already in the death row.
+	for ( const auto& ppInstrument : *pNewDrumkit->getInstruments() ) {
+		pHydrogen->removeInstrumentFromDeathRow( ppInstrument );
+	}
 
 	// It would be more clean to lock the audio engine _before_ loading
 	// the samples. We might pass a tempo marker while loading and users
@@ -1083,33 +1146,41 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool b
 	pNewDrumkit->loadSamples(
 		pAudioEngine->getTransportPosition()->getBpm());
 
-	pAudioEngine->lock(RIGHT_HERE);
+	pAudioEngine->lock( RIGHT_HERE );
 
-	pSong->setDrumkit(pNewDrumkit);
-
-	// Remap instruments in pattern list to ensure component indices for
-	// SelectedLayerInfo's are up to date for the current kit.
-	for ( auto& pPattern : *pSong->getPatternList() ) {
-		for ( auto& pNote : *pPattern->get_notes() ) {
-			pNote.second->map_instrument( pNewDrumkit->getInstruments() );
+	// Add all instruments of the previous drumkit to the death row. This way
+	// all notes in audio engine and sampler queue can be rendered till they are
+	// done. Unloading their samples will be done at a latter point.
+	if ( pPreviousDrumkit != nullptr ) {
+		for ( const auto& ppInstrument : *pPreviousDrumkit->getInstruments() ) {
+			pHydrogen->addInstrumentToDeathRow( ppInstrument );
 		}
 	}
 
-	pHydrogen->renameJackPorts(pSong);
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues();
+	pAudioEngine->getSampler()->releasePlayingNotes();
 
-	pAudioEngine->unlock();
+	pSong->setDrumkit( pNewDrumkit );
+	pSong->getPatternList()->mapTo( pNewDrumkit );
+
+	pHydrogen->renameJackPorts( pSong );
 
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
-			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false);
+			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false );
 	}
+
+	pAudioEngine->unlock();
 
 	initExternalControlInterfaces();
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event(EVENT_DRUMKIT_LOADED, 0);
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 
 	return true;
 }
@@ -1209,7 +1280,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 		sPath = sDrumkitDir;
 	}
 
-	if ( ! pDrumkit->save( sPath, -1, true, true ) ) {
+	if ( ! pDrumkit->save( sPath, true ) ) {
 		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
 				  .arg( sPath ) );
 		return false;
@@ -1225,7 +1296,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 			sExportPath = sourceFileInfo.dir().absolutePath();
 		}
 		
-		if ( ! pDrumkit->exportTo( sExportPath, -1, true, false ) ) {
+		if ( ! pDrumkit->exportTo( sExportPath, nullptr, false ) ) {
 			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
 					  .arg( sExportPath ) );
 			return false;
@@ -1238,7 +1309,7 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 
 	// Upgrade was successful. Cleanup
 	if ( ! sTemporaryFolder.isEmpty() ) {
-		// Filesystem::rm( sTemporaryFolder, true, true );
+		Filesystem::rm( sTemporaryFolder, true, true );
 	}
 
 	INFOLOG( QString( "Drumkit [%1] successfully upgraded!" )
@@ -1358,6 +1429,11 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 		return false;
 	}
 
+	// Everything is valid. No need to keep temporary artifacts.
+	if ( ! sTemporaryFolder.isEmpty() ) {
+		Filesystem::rm( sTemporaryFolder, true, true );
+	}
+
 	INFOLOG( QString( "Drumkit [%1] is valid!" )
 			 .arg( sDrumkitPath ) );
 	
@@ -1378,6 +1454,11 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	// since this function is intended to be used for validating or
 	// upgrading drumkits via CLI or OSC command. It should always
 	// refer to the latest copy found on disk.
+	if ( bIsCompressed == nullptr || sTemporaryFolder == nullptr ||
+		 sDrumkitDir == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return nullptr;
+	}
 
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";
@@ -1391,8 +1472,13 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 		pDrumkit = Drumkit::load( sDrumkitPath, false, true );
 		*sDrumkitDir = sDrumkitPath;
 		
-	} else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() &&
-				Filesystem::file_readable( sDrumkitPath, true ) ) {
+	}
+	else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() ) {
+		if ( ! Filesystem::file_readable( sDrumkitPath, true ) ) {
+			ERRORLOG( QString( "Drumkit file [%1] not readable" )
+					  .arg( sDrumkitPath ) );
+			return nullptr;
+		}
 
 		// Providing the path of a drumkit.xml file within a drumkit
 		// folder.
@@ -1400,15 +1486,19 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 		pDrumkit = Drumkit::load( sDrumkitDirPath, false, true );
 		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
 			
-	} else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext &&
-				Filesystem::file_readable( sDrumkitPath, true ) ) {
+	}
+	else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext ) {
+		if ( ! Filesystem::file_readable( sDrumkitPath, true ) ) {
+			ERRORLOG( QString( "Drumkit archive [%1] not readable" )
+					  .arg( sDrumkitPath ) );
+			return nullptr;
+		}
 
 		*bIsCompressed = true;
 		
 		// Temporary folder used to extract a compressed drumkit (
 		// .h2drumkit ).
-		QString sTemplateName( Filesystem::tmp_dir() + "/" +
-							   sourceFileInfo.baseName() + "_XXXXXX" );
+		QString sTemplateName( Filesystem::tmp_dir() + "/XXXXXX" );
 		QTemporaryDir tmpDir( sTemplateName );
 		tmpDir.setAutoRemove( false );
 		if ( ! tmpDir.isValid() ) {
@@ -1421,14 +1511,15 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 
 		// Providing the path to a compressed .h2drumkit file. It will
 		// be extracted to a temporary folder and loaded from there.
-		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), nullptr, true ) ) {
+		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), sDrumkitDir,
+								 nullptr, true ) ) {
 			ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 					  .arg( sDrumkitPath ).arg( tmpDir.path() ) );
 			return nullptr;
 		}
 
-		// INFOLOG( QString( "Extracting drumkit [%1] into [%2]" )
-		// 		 .arg( sDrumkitPath ).arg( tmpDir.path() ) );
+		INFOLOG( QString( "Extracting drumkit [%1] into [%2]" )
+				 .arg( sDrumkitPath ).arg( tmpDir.path() ) );
 
 		// The extracted folder is expected to contain a single
 		// directory named as the drumkit itself. But some kits
@@ -1449,8 +1540,6 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 			return nullptr;
 		}
 
-		*sDrumkitDir = tmpDir.path() + "/" + extractedFolders[0];
-		
 		pDrumkit = Drumkit::load( *sDrumkitDir, false, true );
 		
 	} else {
@@ -1462,9 +1551,20 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	return pDrumkit;
 }
 
-bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir ) {
+bool CoreActionController::extractDrumkit( const QString& sDrumkitPath,
+										   const QString& sTargetDir,
+										   QString* pInstalledPath,
+										   bool* pEncodingIssuesDetected ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
+
+	// Ensure variables are always set/initialized.
+	if ( pInstalledPath != nullptr ) {
+		*pInstalledPath = "";
+	}
+	if ( pEncodingIssuesDetected != nullptr ) {
+		*pEncodingIssuesDetected = false;
+	}
 
 	QString sTarget;
 	bool bInstall = false;
@@ -1492,7 +1592,8 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 		return false;
 	}
 
-	if ( ! Drumkit::install( sDrumkitPath, sTarget, nullptr, true ) ) {
+	if ( ! Drumkit::install( sDrumkitPath, sTarget, pInstalledPath,
+							 pEncodingIssuesDetected, true ) ) {
 		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
 				  .arg( sDrumkitPath ).arg( sTarget ) );
 		return false;
@@ -1504,7 +1605,171 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 
 	return true;
 }
-	
+
+bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrument,
+										  int nIndex ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	// Ensure instrument isn't already in the death row.
+	pHydrogen->removeInstrumentFromDeathRow( pInstrument );
+	pInstrument->load_samples( pAudioEngine->getTransportPosition()->getBpm() );
+
+	pDrumkit->addInstrument( pInstrument, nIndex );
+	pHydrogen->renameJackPorts( pSong );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+
+	const int nInstrumentNumber = pDrumkit->getInstruments()->index( pInstrument );
+	if ( nInstrumentNumber == -1 ) {
+		ERRORLOG( "Provided instrument is not part of current drumkit!" );
+		return false;
+	}
+
+	if ( pDrumkit->getInstruments()->size() == 1 ) {
+		ERRORLOG( "This is the last instrument. It can not be removed." );
+		return false;
+	}
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	pDrumkit->removeInstrument( pInstrument );
+
+	// At this point the instrument has been removed from both the current
+	// drumkit and every pattern in the song. But it still lives on as a shared
+	// pointer in all Notes within the queues of the AudioEngine and Sampler.
+	// Thus, it will be added to the death row, which guarantuees that its
+	// samples will be unloaded once all notes referencing it are gone. Note
+	// that this does not mean the instrument will be destructed. GUI can still
+	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// important to unload the samples).
+	pHydrogen->addInstrumentToDeathRow( pInstrument );
+
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues( pInstrument );
+	pAudioEngine->getSampler()->releasePlayingNotes( pInstrument );
+
+	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+	if ( nSelectedInstrument == nInstrumentNumber ||
+		 nSelectedInstrument >= pDrumkit->getInstruments()->size() ) {
+		pHydrogen->setSelectedInstrumentNumber(
+			std::clamp( nSelectedInstrument, 0,
+						static_cast<int>(pDrumkit->getInstruments()->size() - 1 ) ) );
+	}
+
+	pHydrogen->renameJackPorts( pSong );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
+											  std::shared_ptr<Instrument> pOldInstrument ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready yet" );
+		return false;
+	}
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDrumkit = pSong->getDrumkit();
+	const int nOldInstrumentNumber = pDrumkit->getInstruments()->index(
+		pOldInstrument );
+	if ( nOldInstrumentNumber == -1 ) {
+		ERRORLOG( "Old instrument is not part of current drumkit!" );
+		return false;
+	}
+
+	const auto fBpm = pAudioEngine->getTransportPosition()->getBpm();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	if ( pNewInstrument != nullptr ) {
+		// Ensure instrument isn't already in the death row.
+		pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
+		pNewInstrument->load_samples( fBpm );
+	}
+
+	pDrumkit->removeInstrument( pOldInstrument );
+
+	// At this point the instrument has been removed from both the current
+	// drumkit and every pattern in the song. But it still lives on as a shared
+	// pointer in all Notes within the queues of the AudioEngine and Sampler.
+	// Thus, it will be added to the death row, which guarantuees that its
+	// samples will be unloaded once all notes referencing it are gone. Note
+	// that this does not mean the instrument will be destructed. GUI can still
+	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// important to unload the samples).
+	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
+
+	// Instead of letting all notes associated with this instrument ring till
+	// the end, we discard those for which playback did not started yet and make
+	// the remaining ones enter ADSR release phase.
+	pAudioEngine->clearNoteQueues( pOldInstrument );
+	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
+
+	pDrumkit->addInstrument( pNewInstrument,
+							 nOldInstrumentNumber );
+	pSong->getPatternList()->mapTo( pDrumkit );
+
+	// Unloading the samples of the old instrument will be done in the death
+	// row.
+
+	pAudioEngine->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( H2Core::EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
@@ -1576,7 +1841,7 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	}
 	
 	auto pPatternList = pSong->getPatternList();
-	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getDrumkit()->getInstruments() );
+	Pattern* pNewPattern = Pattern::load_file( sPath );
 
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );
@@ -1594,12 +1859,16 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	auto pPatternList = pHydrogen->getSong()->getPatternList();
+
+	pPattern->mapTo( pSong->getDrumkit() );
+
+	auto pPatternList = pSong->getPatternList();
 
 	// Check whether the name of the new pattern is unique.
 	if ( !pPatternList->check_name( pPattern->get_name() ) ){
@@ -1847,7 +2116,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 }
 
 bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pSong = pHydrogen->getSong();
@@ -1861,7 +2130,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	std::shared_ptr<Instrument> pInstrument = nullptr;
 	QString sMode;
 
-	if ( pPref->__playselectedinstrument ){
+	if ( pPref->m_bPlaySelectedInstrument ){
 		nInstrument = pHydrogen->getSelectedInstrumentNumber();
 		pInstrument = pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
 		if ( pInstrument == nullptr ) {
@@ -1927,24 +2196,6 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
 }
 
-bool CoreActionController::updatePreferences() {
-	auto pHydrogen = Hydrogen::get_instance();
-	ASSERT_HYDROGEN
-	auto pPref = Preferences::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	pAudioEngine->getMetronomeInstrument()->set_volume(
-		pPref->m_fMetronomeVolume );
-
-	// If the GUI is active, we have to update it to reflect the
-	// changes in the preferences.
-	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
-		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
-	}
-
-	return true;
-}
-
 void CoreActionController::insertRecentFile( const QString& sFilename ){
 	auto pPref = Preferences::get_instance();
 
@@ -1952,26 +2203,15 @@ void CoreActionController::insertRecentFile( const QString& sFilename ){
 	// duplicates are removed later on.
 	bool bAlreadyContained = false;
 
-	std::vector<QString> recentFiles = pPref->getRecentFiles();
-	
-	recentFiles.insert( recentFiles.begin(), sFilename );
+	QStringList recentFiles = pPref->getRecentFiles();
 
-	if ( std::find( recentFiles.begin(), recentFiles.end(),
-					sFilename ) != recentFiles.end() ) {
-		// Eliminate all duplicates in the list while keeping the one
-		// inserted at the beginning. Also, in case the file got renamed,
-		// remove it's previous name from the list.
-		std::vector<QString> sTmpVec;
-		for ( const auto& ssFilename : recentFiles ) {
-			if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename ) ==
-				 sTmpVec.end() ) {
-				// Particular file is not contained yet.
-				sTmpVec.push_back( ssFilename );
-			}
-		}
+	// We have to normalize directory separators. Else opening a
+	// song via double click from file browser and from within
+    // Hydrogen will give to distinct entries on Windows.
+    const QString sFilenameCleaned = QDir::cleanPath( sFilename );
 
-		recentFiles = sTmpVec;
-	}
+    recentFiles.push_front( sFilenameCleaned );
+	recentFiles.removeDuplicates();
 
 	pPref->setRecentFiles( recentFiles );
 }

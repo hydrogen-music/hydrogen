@@ -26,12 +26,16 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core
 {
+
+QString SoundLibraryDatabase::m_sPatternBaseCategory = "not_categorized";
 
 SoundLibraryDatabase::SoundLibraryDatabase()
 {
@@ -200,19 +204,67 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 	return m_drumkitDatabase.at( sDrumkitPath );
 }
 
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return nullptr;
+	}
+
+	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+
+	if ( sLastLoadedDrumkitPath.isEmpty() || search == m_drumkitDatabase.end() ) {
+		// In case we do not find the last loaded kit, we start at the top.
+		return m_drumkitDatabase.begin()->second;
+	}
+	else if ( search == m_drumkitDatabase.begin() ) {
+		// Periodic boundary conditions. The previous with respect to the first
+		// one is the last.
+		return std::prev( m_drumkitDatabase.end(), 1 )->second;
+	}
+
+	return std::prev( search, 1 )->second;
+}
+
+std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return nullptr;
+	}
+
+	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
+	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+
+	if ( sLastLoadedDrumkitPath.isEmpty() || search == m_drumkitDatabase.end() ||
+		 std::next( m_drumkitDatabase.find( sLastLoadedDrumkitPath ), 1 ) ==
+		 m_drumkitDatabase.end() ) {
+		// In case we do not find the last loaded kit or it is located at the
+		// very bottom, we start at the top.
+		return m_drumkitDatabase.begin()->second;
+	}
+
+	return std::next( search, 1 )->second;
+}
+
 void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,
 												std::shared_ptr<Drumkit> pDrumkit ) {
 
 	QString sLabel = pDrumkit->getName();
-	const auto drumkitType = pDrumkit->getType();
+	const auto drumkitContext = pDrumkit->getContext();
 
-	if ( drumkitType == Drumkit::Type::System ) {
+	if ( drumkitContext == Drumkit::Context::System ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "system" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
 	}
-	else if ( drumkitType == Drumkit::Type::SessionReadOnly ||
-			  drumkitType == Drumkit::Type::SessionReadWrite ) {
+	else if ( drumkitContext == Drumkit::Context::SessionReadOnly ||
+			  drumkitContext == Drumkit::Context::SessionReadWrite ) {
 		/*: suffix appended to a drumkit name in order to make in unique.*/
 		QString sSuffix = QT_TRANSLATE_NOOP( "SoundLibraryDatabase", "session" );
 		sLabel.append( QString( " (%1)" ).arg( sSuffix ) );
@@ -267,46 +319,15 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const {
 	return drumkitFolders;
 }
 
-std::vector<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
-	std::vector<DrumkitMap::Type> results;
-
-	// All types available
-	std::multiset<DrumkitMap::Type> allTypes;
+std::set<DrumkitMap::Type> SoundLibraryDatabase::getAllTypes() const {
+	std::set<DrumkitMap::Type> allTypes;
 	for ( const auto& [ _, ppDrumkit ] : m_drumkitDatabase ) {
 		if ( ppDrumkit != nullptr ) {
-			allTypes.merge( ppDrumkit->getDrumkitMap().getAllTypes() );
-			allTypes.merge( ppDrumkit->getDrumkitMapFallback().getAllTypes() );
+			allTypes.merge( ppDrumkit->getAllTypes() );
 		}
 	}
 
-	// Count number of occurrences of types
-	std::multimap<int, DrumkitMap::Type> typesCounted;
-	DrumkitMap::Type sLastType;
-	for ( const auto& ssType : allTypes ) {
-		if ( sLastType != ssType ) {
-			typesCounted.insert( {
-				static_cast<int>(allTypes.count( ssType )),
-				ssType } );
-			sLastType = ssType;
-		}
-	}
-
-	// Create sorted list of types (sorting is done by map internally as we used
-	// the number of occurrences as keys).
-	results.resize( typesCounted.size() );
-	// Reverse insertion order to have highest key (most occurrences) first in
-	// resulting vector.
-	int ii = static_cast<int>(typesCounted.size()) - 1;
- 	for ( const auto& [ _, ssType ] : typesCounted ) {
-		if ( ii < 0 ) {
-			ERRORLOG( "Unexpected index" );
-			break;
-		}
-		 results[ ii ] = ssType;
-		 --ii;
-	 }
-
-	return results;
+	return allTypes;
 }
 
 void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
@@ -355,8 +376,7 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& [ ssPath, ddrumkit ] : m_drumkitDatabase ) {
 			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
-							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) )
-				.append( QString( "%1%2%2%2mapping:\n" ).arg( sPrefix ).arg( s ) );
+							.arg( ssPath ).arg( ddrumkit->toQString( "", true ) ) );
 		}
 		sOutput.append( QString( "%1%2m_drumkitUniqueLabels:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& [ ssPath, ssLabel ] : m_drumkitUniqueLabels ) {
@@ -369,48 +389,34 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort ) c
 							.arg( ppatternInfo->toQString( sPrefix + s + s, bShort ) ) );
 		}
 		sOutput.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( m_patternCategories.join( ", " ) ) );
-		sOutput.append( QString( "%1%2m_customDrumkitPaths:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitPaths ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
-		sOutput.append( QString( "%1%2m_customDrumkitFolders:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitFolders ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
+						.arg( m_patternCategories.join( ", " ) ) )
+			.append( QString( "%1%2m_customDrumkitPaths: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_customDrumkitPaths.join( ", " ) ) )
+			.append( QString( "%1%2m_customDrumkitFolders: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_customDrumkitFolders.join( ", " ) ) );
 	}
 	else {
-
-		sOutput = QString( "%1[SoundLibraryDatabase]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_drumkitDatabase:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput = QString( "[SoundLibraryDatabase] " )
+			.append( "m_drumkitDatabase: " );
 		for ( const auto& [ ssPath, ppDrumkit ] : m_drumkitDatabase ) {
-			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+			sOutput.append( QString( "[%1: %2] " )
 							.arg( ssPath ).arg( ppDrumkit->getName() ) );
 		}
-		sOutput.append( QString( "%1%2m_drumkitUniqueLabels:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( ", m_drumkitUniqueLabels: " );
 		for ( const auto& [ ssPath, ssLabel ] : m_drumkitUniqueLabels ) {
-			sOutput.append( QString( "%1%2%2%3: %4\n" ).arg( sPrefix ).arg( s )
+			sOutput.append( QString( "[%1: %2] " )
 							.arg( ssPath ).arg( ssLabel ) );
 		}
-		sOutput.append( QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( ", m_patternInfoVector: " );
 		for ( const auto& ppatternInfo : m_patternInfoVector ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ppatternInfo->getPath() ) );
+			sOutput.append( QString( "%1, " ).arg( ppatternInfo->getPath() ) );
 		}
-		sOutput.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( m_patternCategories.join( ", " ) ) );
-		sOutput.append( QString( "%1%2m_customDrumkitPaths:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitPaths ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
-		sOutput.append( QString( "%1%2m_customDrumkitFolders:\n" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& ssCustomPath : m_customDrumkitFolders ) {
-			sOutput.append( QString( "%1%2%2%3\n" ).arg( sPrefix ).arg( s )
-							.arg( ssCustomPath ) );
-		}
+		sOutput.append( QString( ", m_patternCategories: %1" )
+						.arg( m_patternCategories.join( ", " ) ) )
+			.append( QString( ", m_customDrumkitPaths: %1" )
+						.arg( m_customDrumkitPaths.join( ", " ) ) )
+			.append( QString( ", m_customDrumkitFolders: %1" )
+						.arg( m_customDrumkitFolders.join( ", " ) ) );
 	}
 
 	return sOutput;

@@ -37,14 +37,25 @@ void License::setType( const LicenseType& license ) {
 	m_sLicenseString = LicenseTypeToQString( license );
 }
 
+bool License::isEmpty() const {
+	if ( m_license == License::Unspecified &&
+		 ( m_sCopyrightHolder.isEmpty() ||
+		   m_sCopyrightHolder == "Unknown Author" ) ) {
+		return true;
+	}
+
+	return false;
+}
+
 void License::parse( const QString& sLicenseString ) {
 
 	m_sLicenseString = sLicenseString;
 
-	QString sUp = sLicenseString.toUpper();
+	const QString sUp = sLicenseString.toUpper();
 
-	if ( sLicenseString.isEmpty() ||
-		 sLicenseString == "undefined license" ) {
+	if ( sUp.isEmpty() ||
+		 sUp == "UNDEFINED LICENSE" ||
+		 sUp == "UNKNOWN LICENSE" ) {
 		m_sLicenseString = "undefined license";
 		m_license = License::Unspecified;
 	}

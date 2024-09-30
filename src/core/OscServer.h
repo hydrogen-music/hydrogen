@@ -30,15 +30,11 @@
 
 #include <core/Object.h>
 #include <cassert>
+#include <memory>
 
 namespace lo
 {
 	class ServerThread;
-}
-
-namespace H2Core
-{
-	class Preferences;
 }
 
 /**
@@ -102,20 +98,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		~OscServer();
 	
-		/**		 
-		 * If #__instance equals nullptr, a new OscServer singleton
-		 * will be created by calling the OscServer() constructor and
-		 * stored in #__instance.
-		 *
-		 * It is called in
-		 * H2Core::Hydrogen::create_instance().
-		 *
-		 * \param pPreferences Pointer to the H2Core::Preferences
-		 * singleton. Although it could be accessed internally using
-		 * H2Core::Preferences::get_instance(), this is an appetizer
-		 * for internal changes happening after the 1.0 release.
-		 */
-		static void create_instance( H2Core::Preferences* pPreferences );
+		static void create_instance();
 		/**
 		 * Returns a pointer to the current OscServer
 		 * singleton stored in #__instance.
@@ -253,6 +236,9 @@ class OscServer : public H2Core::Object<OscServer>
 		 * clients. 
 		 */
 		void handleAction(std::shared_ptr<Action> pAction);
+
+		/** Should be only used within the integration tests! */
+	lo::ServerThread* getServerThread() const;
 
 		/**
 		 * Creates an Action of type @b PLAY and passes its
@@ -489,6 +475,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
 		static void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
+		static void INSTRUMENT_PITCH_Handler( lo_arg **argv, int t);
 		/**
 		 * Creates an Action of type @b FILTER_CUTOFF_LEVEL_ABSOLUTE
 		 * and passes its references to
@@ -803,6 +790,12 @@ class OscServer : public H2Core::Object<OscServer>
 		 * contain notes, is optional. The default choice will be true.
 		 */
 	static void LOAD_DRUMKIT_Handler( lo_arg **argv, int argc );
+
+		/** Triggers #H2Core::MidiActionManager::loadNextDrumkit(). */
+		static void LOAD_NEXT_DRUMKIT_Handler( lo_arg **argv, int argc );
+		/** Triggers #H2Core::MidiActionManager::loadPrevDrumkit(). */
+		static void LOAD_PREV_DRUMKIT_Handler( lo_arg **argv, int argc );
+
 		/**
 		 * Triggers CoreActionController::upgradeDrumkit().
 		 *
@@ -884,27 +877,12 @@ class OscServer : public H2Core::Object<OscServer>
 								int argc, lo_message data, void *user_data);
 
 	private:
-		/**
-		 * Private constructor creating a new OSC server thread using
-		 * the port H2Core::Preferences::m_nOscServerPort and
-		 * assigning the object to #m_pServerThread.
-		 *
-		 * \param pPreferences Pointer to the H2Core::Preferences
-		 * singleton. Although it could be accessed internally using
-		 * H2Core::Preferences::get_instance(), this is an appetizer
-		 * for internal changes happening after the 1.0 release.
-		 */
-		OscServer( H2Core::Preferences* pPreferences );
+		OscServer();
 		
 		/** Helper function which sends a message with msgText to all 
 		 * connected clients. **/
 		void broadcastMessage( const char* msgText, const lo_message& message);
-	
-		/** Pointer to the H2Core::Preferences singleton. Although it
-		 * could be accessed internally using
-		 * H2Core::Preferences::get_instance(), this is an appetizer
-		 * for internal changes happening after the 1.0 release.*/
-		H2Core::Preferences*			m_pPreferences;
+
 		/**
 		 * Used to determine whether the callback methods were already
 		 * added to #m_pServerThread.
@@ -930,6 +908,10 @@ class OscServer : public H2Core::Object<OscServer>
 		 */
 		std::list<lo_address> m_pClientRegistry;
 };
+
+inline lo::ServerThread* OscServer::getServerThread() const {
+	return m_pServerThread;
+}
 
 #endif /* H2CORE_HAVE_OSC */
 

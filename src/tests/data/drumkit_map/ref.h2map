@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_map xmlns="http://www.hydrogen-music.org/drumkit_map" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <formatVersion>2</formatVersion>
+ <mapping>
+  <instrumentID>0</instrumentID>
+  <type>Kick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>1</instrumentID>
+  <type>Stick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>2</instrumentID>
+  <type>Snare</type>
+ </mapping>
+ <mapping>
+  <instrumentID>3</instrumentID>
+  <type>Hand Clap</type>
+ </mapping>
+</drumkit_map>

@@ -37,7 +37,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/MidiMap.h>
 
 using std::cout;
 using std::endl;
@@ -79,14 +78,13 @@ int main(int argc, char** argv){
 
 	QString filename = argv[1];
 
-	MidiMap::create_instance();
 	H2Core::Preferences::create_instance();
 	H2Core::Hydrogen::create_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
 	// Tell the core that we are done initializing the most basic parts.
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
-	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
+	auto pPref = H2Core::Preferences::get_instance();
 
 	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
 	if (pSong == nullptr) {
@@ -111,12 +109,17 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				pHydrogen->sequencerStop();
 
+				pPref->save();
 				pSong = nullptr;
 				delete pHydrogen;
 				delete H2Core::EventQueue::get_instance();
-				preferences->savePreferences();
-				delete preferences;
 				delete H2Core::Logger::get_instance();
+
+				// There is no particular need to clean up the Preferences
+				// outselves. This is just done in order for it to not appear in
+				// the objects map printed below.
+				pPref->replaceInstance( nullptr );
+				pPref = nullptr;
 
 				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;
 				H2Core::Base::write_objects_map_to_cerr();

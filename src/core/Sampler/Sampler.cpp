@@ -33,7 +33,6 @@
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -61,10 +60,13 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& filep
 	auto pInstrument = std::make_shared<Instrument>( id, filepath );
 	pInstrument->set_volume( volume );
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
-	auto pComponent = std::make_shared<InstrumentComponent>( 0 );
-	
-	pComponent->set_layer( pLayer, 0 );
-	pInstrument->get_components()->push_back( pComponent );
+	auto pComponent = pInstrument->get_component( 0 );
+	if ( pComponent != nullptr ) {
+		pComponent->setLayer( pLayer, 0 );
+	} else {
+		___ERRORLOG( "Invalid default component" );
+	}
+
 	return pInstrument;
 }
 
@@ -126,11 +128,18 @@ void Sampler::process( uint32_t nFrames )
 	while ( ( int )m_playingNotesQueue.size() > nMaxNotes ) {
 		Note * pOldNote = m_playingNotesQueue[ 0 ];
 		m_playingNotesQueue.erase( m_playingNotesQueue.begin() );
-		pOldNote->get_instrument()->dequeue();
-		WARNINGLOG( QString( "Number of playing notes [%1] exceeds maximum [%2]. Dropping note [%3]" )
-					.arg( m_playingNotesQueue.size() ).arg( nMaxNotes )
-					.arg( pOldNote->toQString() ) );
-		delete  pOldNote;	// FIXME: send note-off instead of removing the note from the list?
+		if ( pOldNote->get_instrument() != nullptr ) {
+			pOldNote->get_instrument()->dequeue( pOldNote );
+			WARNINGLOG( QString( "Number of playing notes [%1] exceeds maximum [%2]. Dropping note [%3]" )
+						.arg( m_playingNotesQueue.size() ).arg( nMaxNotes )
+						.arg( pOldNote->toQString() ) );
+			delete pOldNote;
+		}
+		else {
+			ERRORLOG( QString( "Old note in Sampler has no instrument! [%1]" )
+					  .arg( pOldNote->toQString() ) );
+			delete pOldNote;
+		}
 	}
 
 	// Render next `nFrames` audio frames of all playing notes.
@@ -141,7 +150,12 @@ void Sampler::process( uint32_t nFrames )
 		if ( renderNote( pNote, nFrames ) ) {
 			// End of note was reached during rendering.
 			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
-			pNote->get_instrument()->dequeue();
+			if ( pNote->get_instrument() != nullptr ) {
+				pNote->get_instrument()->dequeue( pNote );
+			} else {
+				ERRORLOG( QString( "Playing note in sampler does not have instrument! [%1]" )
+						  .arg( pNote->prettyName() ) );
+			}
 			m_queuedNoteOffs.push_back( pNote );
 		} else {
 			// As finished notes are poped above 
@@ -155,13 +169,20 @@ void Sampler::process( uint32_t nFrames )
 			//Queue midi note off messages for notes that have a length specified for them
 			while ( ! m_queuedNoteOffs.empty() ) {
 				pNote =  m_queuedNoteOffs[0];
-		
-				if ( ! pNote->get_instrument()->is_muted() ){
-					pMidiOut->handleQueueNoteOff(
-						pNote->get_instrument()->get_midi_out_channel(), 
-						pNote->get_midi_key(),
-						pNote->get_midi_velocity() );
+
+				if ( pNote->get_instrument() != nullptr ) {
+					if ( ! pNote->get_instrument()->is_muted() ){
+						pMidiOut->handleQueueNoteOff(
+							pNote->get_instrument()->get_midi_out_channel(),
+							pNote->get_midi_key(),
+							pNote->get_midi_velocity() );
+					}
 				}
+				else {
+					ERRORLOG( QString( "Queued note off in sampler does not have instrument! [%1]" )
+							  .arg( pNote->toQString() ) );
+				}
+
 		
 				m_queuedNoteOffs.erase( m_queuedNoteOffs.begin() );
 		
@@ -189,6 +210,12 @@ void Sampler::noteOn(Note *pNote )
 		return;
 	}
 
+	if ( pNote->get_instrument() == nullptr ||
+		 pNote->get_adsr() == nullptr ) {
+		ERRORLOG( QString( "Invalid note [%1]" ).arg( pNote->toQString() ) );
+		return;
+	}
+
 	pNote->get_adsr()->attack();
 	auto pInstr = pNote->get_instrument();
 
@@ -197,8 +224,11 @@ void Sampler::noteOn(Note *pNote )
 	if ( nMuteGrp != -1 ) {
 		// remove all notes using the same mute group
 		for ( const auto& pOtherNote: m_playingNotesQueue ) {	// delete older note
-			if ( ( pOtherNote->get_instrument() != pInstr )  &&
-				 ( pOtherNote->get_instrument()->get_mute_group() == nMuteGrp ) ) {
+			if ( pOtherNote != nullptr &&
+				 pOtherNote->get_instrument() != nullptr &&
+				 pOtherNote->get_adsr() != nullptr &&
+				 pOtherNote->get_instrument() != pInstr  &&
+				 pOtherNote->get_instrument()->get_mute_group() == nMuteGrp ) {
 				pOtherNote->get_adsr()->release();
 			}
 		}
@@ -207,15 +237,17 @@ void Sampler::noteOn(Note *pNote )
 	//note off notes
 	if ( pNote->get_note_off() ){
 		for ( const auto& pOtherNote: m_playingNotesQueue ) {
-			if ( ( pOtherNote->get_instrument() == pInstr ) ) {
-				//ERRORLOG("note_off");
+			if ( pOtherNote != nullptr &&
+				 pOtherNote->get_instrument() != nullptr &&
+				 pOtherNote->get_adsr() != nullptr &&
+				 pOtherNote->get_instrument() == pInstr ) {
 				pOtherNote->get_adsr()->release();
 			}
 		}
 	}
 
-	pInstr->enqueue();
 	if ( ! pNote->get_note_off() ){
+		pInstr->enqueue( pNote );
 		m_playingNotesQueue.push_back( pNote );
 	}
 }
@@ -223,7 +255,8 @@ void Sampler::noteOn(Note *pNote )
 void Sampler::midiKeyboardNoteOff( int key )
 {
 	for ( const auto& pNote: m_playingNotesQueue ) {
-		if ( ( pNote->get_midi_msg() == key) ) {
+		if ( pNote->get_midi_msg() == key &&
+			 pNote->get_adsr() != nullptr ) {
 			pNote->get_adsr()->release();
 		}
 	}
@@ -235,10 +268,13 @@ void Sampler::midiKeyboardNoteOff( int key )
 void Sampler::noteOff(Note* pNote )
 {
 	auto pInstr = pNote->get_instrument();
-	// find the notes using the same instrument, and release them
-	for ( const auto& pNote: m_playingNotesQueue ) {
-		if ( pNote->get_instrument() == pInstr ) {
-			pNote->get_adsr()->release();
+	if ( pInstr != nullptr ) {
+		// find the notes using the same instrument, and release them
+		for ( const auto& pNote: m_playingNotesQueue ) {
+			if ( pNote->get_instrument() == pInstr &&
+				 pNote->get_adsr() != nullptr ) {
+				pNote->get_adsr()->release();
+			}
 		}
 	}
 	
@@ -425,6 +461,10 @@ void Sampler::handleTimelineOrTempoChange() {
 	for ( auto& ppNote : m_playingNotesQueue ) {
 		ppNote->computeNoteStart();
 
+		if ( ppNote->get_instrument() == nullptr ) {
+			continue;
+		}
+
 		// For notes of custom length we have to rescale the amount of the
 		// sample still left for rendering to properly adopt the tempo change.
 		//
@@ -441,12 +481,13 @@ void Sampler::handleTimelineOrTempoChange() {
 			 ppNote->getUsedTickSize() != -1 ) {
 
 			double fTickMismatch;
-			const auto pSong = Hydrogen::get_instance()->getSong();
 
 			// Do so for all layers of all components current processed.
-			for ( auto& [ nnCompo, ppLayer ] : ppNote->get_layers_selected() ) {
-				const auto pSample = ppNote->getSample( nnCompo,
-														ppLayer->nSelectedLayer );
+			for ( int ii = 0; ii <=
+					  ppNote->get_instrument()->get_components()->size(); ++ii ) {
+				const auto ppSelectedLayerInfo = ppNote->get_layer_selected( ii );
+				const auto pSample = ppNote->getSample(
+					ii, ppSelectedLayerInfo->nSelectedLayer );
 				const int nNewNoteLength =
 					TransportPosition::computeFrameFromTick(
 						ppNote->get_position() + ppNote->get_length(),
@@ -466,13 +507,13 @@ void Sampler::handleTimelineOrTempoChange() {
 				// change is required. But this is too much of an edge-case and
 				// won't be covered here.
 				const int nSamplePosition =
-					static_cast<int>(std::floor(ppLayer->fSamplePosition));
+					static_cast<int>(std::floor(ppSelectedLayerInfo->fSamplePosition));
 
-				ppLayer->nNoteLength = nSamplePosition +
+				ppSelectedLayerInfo->nNoteLength = nSamplePosition +
 					static_cast<int>(std::round(
-						static_cast<float>(ppLayer->nNoteLength - nSamplePosition) *
+						static_cast<float>(ppSelectedLayerInfo->nNoteLength - nSamplePosition) *
 						nNewNoteLength /
-						static_cast<float>(ppLayer->nNoteLength)));
+						static_cast<float>(ppSelectedLayerInfo->nNoteLength)));
 			}
 		}
 	}
@@ -627,37 +668,25 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 			continue;
 		}
 
-		std::shared_ptr<DrumkitComponent> pMainCompo = nullptr;
-
-		if ( pNote->get_specific_compo_id() != -1 &&
-			 pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
+		// Check whether only a specific instrument component should be played
+		// back (layer preview and sample editor).
+		if ( pNote->getSpecificCompoIdx() != -1 &&
+			 pNote->getSpecificCompoIdx() != ii ) {
 			continue;
 		}
 
-		if ( pInstr->is_preview_instrument() ||
-			 pInstr->is_metronome_instrument() ){
-			pMainCompo = pSong->getDrumkit()->getComponents()->front();
-		} else {
-			int nComponentID = pCompo->get_drumkit_componentID();
-			if ( nComponentID >= 0 ) {
-				pMainCompo = pSong->getDrumkit()->getComponent( nComponentID );
-			} else {
-				/* Invalid component found. This is possible on loading older or broken song files. */
-				pMainCompo = pSong->getDrumkit()->getComponents()->front();
-			}
-		}
-
-		assert(pMainCompo);
-
-		auto pSample = pNote->getSample( pCompo->get_drumkit_componentID(),
-										 nAlreadySelectedLayer );
+		auto pSample = pNote->getSample( ii, nAlreadySelectedLayer );
 		if ( pSample == nullptr ) {
 			returnValues[ ii ] = true;
 			continue;
 		}
 
-		auto pSelectedLayer =
-			pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
+		auto pSelectedLayer = pNote->get_layer_selected( ii );
+		if ( pSelectedLayer == nullptr ) {
+			ERRORLOG( "Invalid selection layer." );
+			returnValues[ ii ] = true;
+			continue;
+		}
 
 		// For round robin and random selection we will use the same
 		// layer again for all other samples.
@@ -666,12 +695,18 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 			nAlreadySelectedLayer = pSelectedLayer->nSelectedLayer;
 		}
 
-		if( pSelectedLayer->nSelectedLayer == -1 ) {
+		if ( pSelectedLayer->nSelectedLayer == -1 ) {
 			ERRORLOG( "Sample selection did not work." );
 			returnValues[ ii ] = true;
 			continue;
 		}
-		auto pLayer = pCompo->get_layer( pSelectedLayer->nSelectedLayer );
+		auto pLayer = pCompo->getLayer( pSelectedLayer->nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve layer [%1]" )
+					  .arg( pSelectedLayer->nSelectedLayer ) );
+			returnValues[ ii ] = true;
+			continue;
+		}
 		float fLayerGain = pLayer->get_gain();
 		float fLayerPitch = pLayer->get_pitch();
 
@@ -695,23 +730,47 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		float fCostTrack_L = 1.0f;
 		float fCostTrack_R = 1.0f;
 		
+		/*
+		 *  Is instrument/component/sample muted?
+		 *
+		 *  This can be the case either if:
+		 *   - the song, instrument, component, or layer is muted
+		 *   - if we're in an export session and we're doing per-instruments
+		 *     exports but this instrument is not currently being exported.
+		 *   - if another instrument  or component/layer of the same
+		 *     instrument is soloed.
+		 */
 		bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
 								 ! pInstr->is_currently_exported() );
-		bool bAnyInstrumentIsSoloed = pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
+		bool bAnyInstrumentIsSoloed =
+			pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
 		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
 									   ! pInstr->is_soloed() );
-		
-		/*
-		 *  Is instrument muted?
-		 *
-		 *  This can be the case either if: 
-		 *   - the song, instrument or component is muted 
-		 *   - if we're in an export session and we're doing per-instruments exports, 
-		 *       but this instrument is not currently being exported.
-		 *   - if at least one instrument is soloed (but not this instrument)
-		 */
+
+		// check wether another component of this instrument is muted
+		if ( ! bIsMutedBecauseOfSolo ) {
+			for ( int jj = 0; jj < pComponents->size(); ++jj ) {
+				if ( jj != ii && pComponents->at( ii ) != nullptr &&
+					 pComponents->at( ii )->getIsSoloed() ) {
+					bIsMutedBecauseOfSolo = true;
+					break;
+				}
+			}
+		}
+
+		// check whether another sample of the same component is soloed
+		if ( ! bIsMutedBecauseOfSolo ) {
+			for ( const auto& ppLayer : pCompo->getLayers() ) {
+				if ( ppLayer != nullptr && ppLayer != pLayer &&
+					 ppLayer->getIsSoloed() ) {
+					bIsMutedBecauseOfSolo = true;
+					break;
+				}
+			}
+		}
+
 		if ( bIsMutedForExport || pInstr->is_muted() || pSong->getIsMuted() ||
-			 pMainCompo->is_muted() || bIsMutedBecauseOfSolo) {	
+			 pCompo->getIsMuted() || pLayer->getIsMuted() || bIsMutedBecauseOfSolo ) {
 			fCost_L = 0.0;
 			fCost_R = 0.0;
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
@@ -728,8 +787,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 
 			fMonoGain *= fLayerGain;				// layer gain
 			fMonoGain *= pInstr->get_gain();		// instrument gain
-			fMonoGain *= pCompo->get_gain();		// Component gain
-			fMonoGain *= pMainCompo->get_volume();	// Component volument
+			fMonoGain *= pCompo->getGain();	    	// Component gain
 			fMonoGain *= pInstr->get_volume();		// instrument volume
 			fMonoGain *= pSong->getVolume();		// song volume
 
@@ -749,6 +807,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 				fCostTrack_L *= pNote->get_velocity();
 			}
 			fCostTrack_L *= fLayerGain;
+			fCostTrack_L *= pCompo->getGain();
 			
 			fCostTrack_R = fCostTrack_L;
 
@@ -772,7 +831,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
 		}
 
 		// Actual rendering.
-		returnValues[ ii ] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R, fLayerPitch );
+		returnValues[ ii ] = renderNoteResample(
+			pSample, pNote, pSelectedLayer, pCompo, ii, nBufferSize,
+			nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R,
+			fLayerPitch );
 	}
 
 	for ( const auto& bReturnValue : returnValues ) {
@@ -864,8 +926,9 @@ void resample( float *__restrict__ pBuffer_L, float *__restrict__ pBuffer_R,
 	// Initial safe iterations to avoid reading off the beginning of the sample
 	for ( nFrame = 0; nFrame < nFrames; nFrame++) {
 		int nSamplePos = static_cast<int>(fSamplePos);
-		if (nSamplePos >= 1)
+		if ( nSamplePos >= 1 ) {
 			break;
+		}
 		double fDiff = fSamplePos - nSamplePos;
 		getSampleFrames( 0, l0, l1, l2, l3, r0, r1, r2, r3);
 
@@ -976,7 +1039,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
-	auto pSample = pCompo->get_layer(0)->get_sample();
+	auto pSample = pCompo->getLayer(0)->get_sample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to process playback track" );
 		EventQueue::get_instance()->push_event( EVENT_ERROR,
@@ -1043,7 +1106,7 @@ bool Sampler::renderNoteResample(
 	Note *pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	std::shared_ptr<InstrumentComponent> pCompo,
-	std::shared_ptr<DrumkitComponent> pDrumCompo,
+	int nComponentIdx,
 	int nBufferSize,
 	int nInitialBufferPos,
 	float fCost_L,
@@ -1073,7 +1136,7 @@ bool Sampler::renderNoteResample(
 	}
 
 	auto pInstrument = pNote->get_instrument();
-	if ( pInstrument == nullptr ) {
+	if ( pInstrument == nullptr || pNote->get_adsr() == nullptr ) {
 		ERRORLOG( "Invalid note instrument" );
 		return true;
 	}
@@ -1179,8 +1242,10 @@ bool Sampler::renderNoteResample(
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if ( pJackAudioDriver != nullptr ) {
-			pTrackOutL = pJackAudioDriver->getTrackOut_L( pInstrument, pCompo );
-			pTrackOutR = pJackAudioDriver->getTrackOut_R( pInstrument, pCompo );
+			pTrackOutL = pJackAudioDriver->getTrackOut_L(
+				pInstrument, nComponentIdx );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R(
+				pInstrument, nComponentIdx );
 		}
 	}
 #endif
@@ -1251,10 +1316,6 @@ bool Sampler::renderNoteResample(
 	pInstrument->set_peak_l( std::max( pInstrument->get_peak_l(), fSamplePeak_L ) );
 	pInstrument->set_peak_r( std::max( pInstrument->get_peak_r(), fSamplePeak_R ) );
 
-	// Component peak
-	pDrumCompo->set_peak_l( std::max( pDrumCompo->get_peak_l(), fSamplePeak_L ) );
-	pDrumCompo->set_peak_r( std::max( pDrumCompo->get_peak_r(), fSamplePeak_R ) );
-
 	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// Note is still ringing, do not end.
 		bRetValue = false;
@@ -1298,32 +1359,43 @@ bool Sampler::renderNoteResample(
 	return bRetValue;
 }
 
-
 void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 {
-	if ( pInstr ) { // stop all notes using this instrument
+	if ( pInstr != nullptr ) { // stop all notes using this instrument
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ) {
 			Note *pNote = m_playingNotesQueue[ i ];
 			assert( pNote );
 			if ( pNote->get_instrument() == pInstr ) {
+				pInstr->dequeue( pNote );
 				delete pNote;
-				pInstr->dequeue();
 				m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			}
 			++i;
 		}
-	} else { // stop all notes
+	}
+	else { // stop all notes
 		// delete all copied notes in the playing notes queue
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ++i ) {
 			Note *pNote = m_playingNotesQueue[i];
-			pNote->get_instrument()->dequeue();
+			if ( pNote->get_instrument() != nullptr ) {
+				pNote->get_instrument()->dequeue( pNote );
+			}
 			delete pNote;
 		}
 		m_playingNotesQueue.clear();
 	}
 }
 
-
+void Sampler::releasePlayingNotes( std::shared_ptr<Instrument> pInstr )
+{
+	for ( auto ppNote : m_playingNotesQueue ) {
+		if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
+			 ( pInstr == nullptr ||
+			 ( pInstr != nullptr && pInstr == ppNote->get_instrument() ) ) ) {
+			ppNote->get_adsr()->release();
+		}
+	}
+}
 
 /// Preview, uses only the first layer
 void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
@@ -1340,7 +1412,11 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
-		auto pLayer = pComponent->get_layer( 0 );
+		if ( pComponent == nullptr ) {
+			ERRORLOG( "Invalid component" );
+			continue;
+		}
+		auto pLayer = pComponent->getLayer( 0 );
 
 		pLayer->set_sample( pSample );
 
@@ -1382,11 +1458,13 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
-bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument ) const
+bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument ) const
 {
-	if ( instrument ) { // stop all notes using this instrument
+	if ( pInstrument != nullptr ) { // stop all notes using this instrument
 		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {
-			if ( instrument->get_name() == m_playingNotesQueue[ j ]->get_instrument()->get_name()){
+			if ( m_playingNotesQueue[ j ]->get_instrument() != nullptr &&
+				 pInstrument->get_name() ==
+				 m_playingNotesQueue[ j ]->get_instrument()->get_name() ) {
 				return true;
 			}
 		}
@@ -1411,9 +1489,69 @@ void Sampler::reinitializePlaybackTrack()
 	
 	auto  pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
 
-	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
+	m_pPlaybackTrackInstrument->get_components()->front()->setLayer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;
 }
+
+QString Sampler::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Sampler]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_playingNotesQueue: [\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppNote : m_playingNotesQueue ) {
+			sOutput.append( ppNote->toQString( sPrefix + s, bShort ) );
+		}
+		sOutput.append( QString( "]\n%1%2m_queuedNoteOffs: [\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppNote : m_queuedNoteOffs ) {
+			sOutput.append( ppNote->toQString( sPrefix + s, bShort ) );
+		}
+		sOutput.append(
+			QString( "]\n%1%2m_pPlaybackTrackInstrument: %3\n" ).arg( sPrefix ).arg( s )
+			.arg( m_pPlaybackTrackInstrument == nullptr ? "nullptr" :
+				  m_pPlaybackTrackInstrument->toQString( sPrefix + s, bShort) ) )
+			.append(
+				QString( "%1%2m_pPreviewInstrument: %3\n" ).arg( sPrefix ).arg( s )
+				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
+					  m_pPreviewInstrument->toQString( sPrefix + s, bShort) ) )
+			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nMaxLayers ) )
+			.append( QString( "%1%2m_nPlayBackSamplePosition: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nPlayBackSamplePosition ) )
+			.append( QString( "%1%2m_interpolateMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) );
+	}
+	else {
+		sOutput = QString( "[Sampler] " )
+			.append( "m_playingNotesQueue: [" );
+		for ( const auto& ppNote : m_playingNotesQueue ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppNote->prettyName() ) );
+		}
+		sOutput.append( QString( "], m_queuedNoteOffs: [" ) );
+		for ( const auto& ppNote : m_queuedNoteOffs ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppNote->prettyName() ) );
+		}
+		sOutput.append(
+			QString( "], m_pPlaybackTrackInstrument: %1" )
+			.arg( m_pPlaybackTrackInstrument == nullptr ? "nullptr" :
+				  m_pPlaybackTrackInstrument->toQString( "", bShort) ) )
+			.append(
+				QString( ", m_pPreviewInstrument: %1" )
+				.arg( m_pPreviewInstrument == nullptr ? "nullptr" :
+					  m_pPreviewInstrument->toQString( "", bShort) ) )
+			.append( QString( ", m_nMaxLayers: %1" )
+					 .arg( m_nMaxLayers ) )
+			.append( QString( ", m_nPlayBackSamplePosition: %1" )
+					 .arg( m_nPlayBackSamplePosition ) )
+			.append( QString( ", m_interpolateMode: %1" )
+					 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) );
+	}
+
+	return sOutput;
+}
+
 
 };
 

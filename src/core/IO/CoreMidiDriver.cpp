@@ -244,6 +244,10 @@ void CoreMidiDriver::handleQueueNote(Note* pNote)
 		ERRORLOG( "cmH2Dst = 0 " );
 		return;
 	}
+	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return;
+	}
 
 	int channel = pNote->get_instrument()->get_midi_out_channel();
 	if (channel < 0) {

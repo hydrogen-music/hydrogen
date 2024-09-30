@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
+ <formatVersion>2</formatVersion>
+ <mapping>
+  <instrumentID>1</instrumentID>
+  <type>Kick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>2</instrumentID>
+  <type>Kick 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>4</instrumentID>
+  <type>Hand Clap</type>
+ </mapping>
+ <mapping>
+  <instrumentID>6</instrumentID>
+  <type>Conga Low</type>
+ </mapping>
+ <mapping>
+  <instrumentID>7</instrumentID>
+  <type>Hi-hat Closed</type>
+ </mapping>
+ <mapping>
+  <instrumentID>8</instrumentID>
+  <type>Conga High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>9</instrumentID>
+  <type>Hi-hat Pedal</type>
+ </mapping>
+ <mapping>
+  <instrumentID>11</instrumentID>
+  <type>Hi-hat Open</type>
+ </mapping>
+</drumkit_map>

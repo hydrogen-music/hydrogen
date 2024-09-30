@@ -29,10 +29,13 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Adsr.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
@@ -43,9 +46,8 @@ namespace H2Core
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
 Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVelocity, float fPan, int nLength, float fPitch )
-	: __instrument( pInstrument ),
-	  __instrument_id( 0 ),
-	  __specific_compo_id( -1 ),
+	: __instrument_id( 0 ),
+	  m_sType( "" ),
 	  __position( nPosition ),
 	  __velocity( fVelocity ),
 	  __length( nLength ),
@@ -67,30 +69,40 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 	  __just_recorded( false ),
 	  __probability( 1.0f ),
 	  m_nNoteStart( 0 ),
-	  m_fUsedTickSize( std::nan("") )
+	  m_fUsedTickSize( std::nan("") ),
+	  m_nSpecificCompoIdx( -1 ),
+	  __instrument( pInstrument )
 {
 	if ( pInstrument != nullptr ) {
 		__adsr = pInstrument->copy_adsr();
 		__instrument_id = pInstrument->get_id();
+		m_sType = pInstrument->getType();
 
-		for ( const auto& pCompo : *pInstrument->get_components() ) {
-			std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
-			pSampleInfo->nSelectedLayer = -1;
-			pSampleInfo->fSamplePosition = 0;
-			pSampleInfo->nNoteLength = -1;
+		__layers_selected.resize( __instrument->get_components()->size() );
+		for ( int ii = 0; ii < pInstrument->get_components()->size(); ++ii ) {
+			const auto pCompo = pInstrument->get_component( ii );
+			if ( pCompo != nullptr ) {
+				std::shared_ptr<SelectedLayerInfo> pSampleInfo =
+					std::make_shared<SelectedLayerInfo>();
+				pSampleInfo->nSelectedLayer = -1;
+				pSampleInfo->fSamplePosition = 0;
+				pSampleInfo->nNoteLength = -1;
 
-			__layers_selected[ pCompo->get_drumkit_componentID() ] = pSampleInfo;
+				__layers_selected[ ii ] = pSampleInfo;
+			}
+			else {
+				__layers_selected[ ii ] = nullptr;
+			}
 		}
 	}
 
 	setPan( fPan ); // this checks the boundaries
 }
 
-Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
+Note::Note( Note* other, std::shared_ptr<Instrument> pInstrument )
 	: Object( *other ),
-	  __instrument( other->get_instrument() ),
 	  __instrument_id( 0 ),
-	  __specific_compo_id( -1 ),
+	  m_sType( other->getType() ),
 	  __position( other->get_position() ),
 	  __velocity( other->get_velocity() ),
 	  m_fPan( other->getPan() ),
@@ -113,21 +125,33 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 	  __just_recorded( other->get_just_recorded() ),
 	  __probability( other->get_probability() ),
 	  m_nNoteStart( other->getNoteStart() ),
-	  m_fUsedTickSize( other->getUsedTickSize() )
+	  m_fUsedTickSize( other->getUsedTickSize() ),
+	  m_nSpecificCompoIdx( other->m_nSpecificCompoIdx ),
+	  __instrument( other->get_instrument() )
 {
-	if ( instrument != nullptr ) __instrument = instrument;
+	if ( pInstrument != nullptr ) {
+		__instrument = pInstrument;
+	}
 	if ( __instrument != nullptr ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
-	}
 
-	for ( const auto& mm : other->__layers_selected ) {
-		std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
-		pSampleInfo->nSelectedLayer = mm.second->nSelectedLayer;
-		pSampleInfo->fSamplePosition = mm.second->fSamplePosition;
-		pSampleInfo->nNoteLength = mm.second->nNoteLength;
+		__layers_selected.resize( __instrument->get_components()->size() );
+		for ( int ii = 0; ii < __instrument->get_components()->size(); ++ii ) {
+			const auto ppSelectedLayerInfo = other->__layers_selected[ ii ];
+			if ( ppSelectedLayerInfo != nullptr ) {
+				std::shared_ptr<SelectedLayerInfo> pSampleInfo =
+					std::make_shared<SelectedLayerInfo>();
+				pSampleInfo->nSelectedLayer = ppSelectedLayerInfo->nSelectedLayer;
+				pSampleInfo->fSamplePosition = ppSelectedLayerInfo->fSamplePosition;
+				pSampleInfo->nNoteLength = ppSelectedLayerInfo->nNoteLength;
 		
-		__layers_selected[ mm.first ] = pSampleInfo;
+				__layers_selected[ ii ] = pSampleInfo;
+			}
+			else {
+				__layers_selected[ ii ] = nullptr;
+			}
+		}
 	}
 }
 
@@ -165,32 +189,60 @@ void Note::set_humanize_delay( int nValue )
 	}
 }
 
-void Note::map_instrument( std::shared_ptr<InstrumentList> pInstrumentList )
+void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 {
-	if ( pInstrumentList == nullptr ) {
-		assert( pInstrumentList );
-		ERRORLOG( "Invalid instrument list" );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
-	
-	auto pInstr = pInstrumentList->find( __instrument_id );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Instrument with ID [%1] not found. Using empty instrument." )
-				  .arg( __instrument_id ) );
-		__instrument = std::make_shared<Instrument>();
+	const auto pDrumkitMap = pDrumkit->toDrumkitMap();
+
+	std::shared_ptr<Instrument> pInstrument;
+	// In case drumkit and note feature a type string, we use this one to
+	// retrieve the matching instrument. Else we restore to "historical" loading
+	// using instrument IDs. This is used both for patterns created prior to
+	// version 2.0 of Hydrogen and patterns created with a kit with missing
+	// types (either legacy one or freshly created instrument).
+	if ( ! m_sType.isEmpty() && pDrumkitMap->getAllTypes().size() > 0 ) {
+		bool bFound;
+		const int nId = pDrumkitMap->getId( m_sType, &bFound );
+		if ( bFound ) {
+			pInstrument = pDrumkit->getInstruments()->find( nId );
+		}
 	}
 	else {
-		__instrument = pInstr;
-		__adsr = pInstr->copy_adsr();
+		pInstrument = pDrumkit->getInstruments()->find( __instrument_id );
+	}
 
-		for ( const auto& ppCompo : *pInstr->get_components() ) {
-			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
-			sampleInfo->nSelectedLayer = -1;
-			sampleInfo->fSamplePosition = 0;
-			sampleInfo->nNoteLength = -1;
+	if ( pInstrument != nullptr ) {
+		__instrument = pInstrument;
+		__adsr = pInstrument->copy_adsr();
+		__instrument_id = pInstrument->get_id();
 
-			__layers_selected[ ppCompo->get_drumkit_componentID() ] = sampleInfo;
+		__layers_selected.clear();
+		__layers_selected.resize( pInstrument->get_components()->size() );
+		for ( int ii = 0; ii < pInstrument->get_components()->size(); ++ii ) {
+			const auto pCompo = pInstrument->get_component( ii );
+			if ( pCompo != nullptr ) {
+				std::shared_ptr<SelectedLayerInfo> sampleInfo =
+					std::make_shared<SelectedLayerInfo>();
+				sampleInfo->nSelectedLayer = -1;
+				sampleInfo->fSamplePosition = 0;
+				sampleInfo->nNoteLength = -1;
+
+				__layers_selected[ ii ] = sampleInfo;
+			}
+			else {
+				__layers_selected[ ii ] = nullptr;
+			}
 		}
+	}
+	else {
+		ERRORLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
+				  .arg( m_sType ).arg( __instrument_id ) );
+		__instrument = nullptr;
+		__adsr = nullptr;
+		__layers_selected.clear();
 	}
 }
 
@@ -222,7 +274,7 @@ bool Note::isPartiallyRendered() const {
 	bool bRes = false;
 
 	for ( const auto& ll : __layers_selected ) {
-		if ( ll.second->fSamplePosition > 0 ) {
+		if ( ll != nullptr && ll->fSamplePosition > 0 ) {
 			bRes = true;
 			break;
 		}
@@ -259,7 +311,7 @@ void Note::computeNoteStart() {
 	}
 }
 
-std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) const {
+std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer ) const {
 
 	std::shared_ptr<Sample> pSample;
 	
@@ -268,22 +320,22 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 		return nullptr;
 	}
 
-	auto pInstrCompo = __instrument->get_component( nComponentID );
+	auto pInstrCompo = __instrument->get_component( nComponentIdx );
 	if ( pInstrCompo == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve component [%1] of instrument [%2]" )
-				  .arg( nComponentID ).arg( __instrument->get_name() ) );
+				  .arg( nComponentIdx ).arg( __instrument->get_name() ) );
 		return nullptr;
 	}
 	
-	auto pSelectedLayer = get_layer_selected( nComponentID );
+	auto pSelectedLayer = get_layer_selected( nComponentIdx );
 	if ( pSelectedLayer == nullptr ) {
-		WARNINGLOG( QString( "No SelectedLayer for component ID [%1] of instrument [%2]" )
-					.arg( nComponentID ).arg( __instrument->get_name() ) );
+		WARNINGLOG( QString( "No SelectedLayer for component [%1] of instrument [%2]" )
+					.arg( pInstrCompo->getName() ).arg( __instrument->get_name() ) );
 		return nullptr;
 	}
 
-	if( pSelectedLayer->nSelectedLayer != -1 ||
-		nSelectedLayer != -1 ) {
+	if ( pSelectedLayer->nSelectedLayer != -1 ||
+		 nSelectedLayer != -1 ) {
 		// This function was already called for this note and a
 		// specific layer the sample will be taken from was already
 		// selected or it is provided as an input argument.
@@ -299,27 +351,30 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 						.arg( nSelectedLayer ) );
 		}
 		
-		auto pLayer = pInstrCompo->get_layer( nLayer );
+		auto pLayer = pInstrCompo->getLayer( nLayer );
 		if ( pLayer == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve layer [%1] selected for component [%2] of instrument [%3]" )
-					  .arg( nLayer )
-					  .arg( nComponentID ).arg( __instrument->get_name() ) );
+					  .arg( nLayer ).arg( pInstrCompo->getName() )
+					  .arg( __instrument->get_name() ) );
 			return nullptr;
 		}
 		
 		pSample = pLayer->get_sample();
 			
-	} else {
+	}
+	else {
 		// Select an instrument layer.
 		std::vector<int> possibleLayersVector;
+		int nLayersEncountered = 0;
 		float fRoundRobinID;
 		auto pSong = Hydrogen::get_instance()->getSong();
 		
 		for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); ++nLayer ) {
-			auto pLayer = pInstrCompo->get_layer( nLayer );
+			auto pLayer = pInstrCompo->getLayer( nLayer );
 			if ( pLayer == nullptr ) {
 				continue;
 			}
+			++nLayersEncountered;
 
 			if ( ( __velocity >= pLayer->get_start_velocity() ) &&
 				 ( __velocity <= pLayer->get_end_velocity() ) ) {
@@ -333,6 +388,10 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 			}
 		}
 
+		if ( nLayersEncountered == 0 ) {
+			return nullptr;
+		}
+
 		// In some instruments the start and end velocities of a layer
 		// are not set perfectly giving rise to some 'holes'.
 		// Occasionally the velocity of a note can fall into it
@@ -340,14 +399,13 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 		// search for the nearest sample and play this one instead.
 		if ( possibleLayersVector.size() == 0 ){
 			WARNINGLOG( QString( "Velocity [%1] did fall into a hole between the instrument layers for component [%2] of instrument [%3]." )
-						.arg( __velocity )
-						.arg( nComponentID )
+						.arg( __velocity ).arg( pInstrCompo->getName() )
 						.arg( __instrument->get_name() ) );
 			
 			float shortestDistance = 1.0f;
 			int nearestLayer = -1;
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); ++nLayer ){
-				auto pLayer = pInstrCompo->get_layer( nLayer );
+				auto pLayer = pInstrCompo->getLayer( nLayer );
 				if ( pLayer == nullptr ){
 					continue;
 				}
@@ -367,16 +425,17 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 				possibleLayersVector.push_back( nearestLayer );
 				if ( __instrument->sample_selection_alg() == Instrument::ROUND_ROBIN ) {
 					fRoundRobinID =
-						pInstrCompo->get_layer( nearestLayer )->get_start_velocity();
+						pInstrCompo->getLayer( nearestLayer )->get_start_velocity();
 				}
 			} else {
 				ERRORLOG( QString( "No sample found for component [%1] of instrument [%2]" )
-						  .arg( nComponentID ).arg( __instrument->get_name() ) );
+						  .arg( pInstrCompo->getName() )
+						  .arg( __instrument->get_name() ) );
 				return nullptr;
 			}
 		}
 
-		if( possibleLayersVector.size() > 0 ) {
+		if ( possibleLayersVector.size() > 0 ) {
 
 			int nLayerPicked;
 			switch ( __instrument->sample_selection_alg() ) {
@@ -409,7 +468,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 			} 
 
 			pSelectedLayer->nSelectedLayer = nLayerPicked;
-			auto pLayer = pInstrCompo->get_layer( nLayerPicked );
+			auto pLayer = pInstrCompo->getLayer( nLayerPicked );
 			pSample = pLayer->get_sample();
 
 		} else {
@@ -494,13 +553,13 @@ void Note::save_to( XMLNode& node ) const
 	node.write_float( "pitch", __pitch );
 	node.write_string( "key", key_to_string() );
 	node.write_int( "length", __length );
-	node.write_int( "instrument", get_instrument()->get_id() );
+	node.write_int( "instrument", __instrument_id );
+	node.write_string( "type", m_sType );
 	node.write_bool( "note_off", __note_off );
 	node.write_float( "probability", __probability );
 }
 
-Note* Note::load_from( const XMLNode& node,
-					   std::shared_ptr<InstrumentList> instruments, bool bSilent )
+Note* Note::load_from( const XMLNode& node, bool bSilent )
 {
 	bool bFound, bFound2;
 	float fPan = node.read_float( "pan", 0.f, &bFound, true, false, true );
@@ -528,10 +587,36 @@ Note* Note::load_from( const XMLNode& node,
 	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
 	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
 	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
-	note->map_instrument( instruments );
+	note->setType( node.read_string( "type", "", true, true, bSilent ) );
 	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
 
 	return note;
+}
+
+QString Note::prettyName() const {
+	QString sInstrument, sPattern;
+
+	if ( __instrument != nullptr ) {
+		sInstrument = QString( "instr: [%1]" ).arg( __instrument->get_name() );
+	} else {
+		sInstrument = QString( "type: [%1]" ).arg( m_sType );
+	}
+
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		const auto pPattern = pSong->getPatternList()->get( __pattern_idx );
+		if ( pPattern != nullptr ) {
+			sPattern = QString( "Pat: [%1]" ).arg( pPattern->get_name() );
+		}
+	}
+	if ( sPattern.isEmpty() ) {
+		sPattern = "No pat";
+	}
+
+	return QString( "%1, %2, pos: %3, key: %4, octave: %5" )
+		.arg( sPattern ).arg( sInstrument ).arg( __position )
+		.arg( KeyToQString( __key ) )
+		.arg( OctaveToQString( __octave ) );
 }
 
 QString Note::toQString( const QString& sPrefix, bool bShort ) const {
@@ -539,73 +624,97 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
-			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
-			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
-			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
-			.append( QString( "%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nNoteStart ) )
-			.append( QString( "%1%2m_fUsedTickSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fUsedTickSize ) )
-			.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __velocity ) )
-			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
-			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
-			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
-			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
-			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) );
+			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __instrument_id ) )
+			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sType ) )
+			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __position ) )
+			.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __velocity ) )
+			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fPan ) )
+			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __length ) )
+			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __pitch ) )
+			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( KeyToQString( __key ) ) )
+			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( OctaveToQString( __octave ) ) );
 		if ( __adsr != nullptr ) {
 			sOutput.append( QString( "%1" )
 							.arg( __adsr->toQString( sPrefix + s, bShort ) ) );
 		} else {
 			sOutput.append( QString( "%1%2adsr: nullptr\n" ).arg( sPrefix ).arg( s ) );
 		}
-
-		sOutput.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s ).arg( __lead_lag ) )
-			.append( QString( "%1%2cut_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __cut_off ) )
-			.append( QString( "%1%2resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __resonance ) )
-			.append( QString( "%1%2humanize_delay: %3\n" ).arg( sPrefix ).arg( s ).arg( __humanize_delay ) )
-			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
-			.append( QString( "%1%2bpfb_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __bpfb_l ) )
-			.append( QString( "%1%2bpfb_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __bpfb_r ) )
-			.append( QString( "%1%2lpfb_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __lpfb_l ) )
-			.append( QString( "%1%2lpfb_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __lpfb_r ) )
-			.append( QString( "%1%2pattern_idx: %3\n" ).arg( sPrefix ).arg( s ).arg( __pattern_idx ) )
-			.append( QString( "%1%2midi_msg: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_msg ) )
-			.append( QString( "%1%2note_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __note_off ) )
-			.append( QString( "%1%2just_recorded: %3\n" ).arg( sPrefix ).arg( s ).arg( __just_recorded ) )
-			.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s ).arg( __probability ) );
-		if ( __instrument != nullptr ) {		
+		sOutput.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __lead_lag ) )
+			.append( QString( "%1%2cut_off: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __cut_off ) )
+			.append( QString( "%1%2resonance: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __resonance ) )
+			.append( QString( "%1%2humanize_delay: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __humanize_delay ) )
+			.append( QString( "%1%2bpfb_l: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __bpfb_l ) )
+			.append( QString( "%1%2bpfb_r: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __bpfb_r ) )
+			.append( QString( "%1%2lpfb_l: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __lpfb_l ) )
+			.append( QString( "%1%2lpfb_r: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __lpfb_r ) )
+			.append( QString( "%1%2pattern_idx: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __pattern_idx ) )
+			.append( QString( "%1%2midi_msg: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __midi_msg ) )
+			.append( QString( "%1%2note_off: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __note_off ) )
+			.append( QString( "%1%2just_recorded: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __just_recorded ) )
+			.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __probability ) )
+			.append( QString( "%1%2__key_str: [" ).arg( sPrefix ).arg( s ) );
+			for ( int ii = KEY_MIN; ii <= KEY_MAX; ++ii ) {
+					 sOutput.append( QString( "%1, " ).arg(
+										 QString::fromUtf8( __key_str[ ii ], -1 ) ) );
+			}
+			sOutput.append( QString( "]\n%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nNoteStart ) )
+			.append( QString( "%1%2m_fUsedTickSize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fUsedTickSize ) )
+			.append( QString( "%1%2m_nSpecificCompoIdx: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSpecificCompoIdx ) )
+			.append( QString( "%1%2layers_selected:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppLayer : __layers_selected ) {
+			if ( ppLayer != nullptr ) {
+				sOutput.append( QString( "%1%2[%3]\n" )
+								.arg( sPrefix ).arg( s + s )
+								.arg( ppLayer->toQString( "", true ) ) );
+			} else {
+				sOutput.append( QString( "%1%2[SelectedLayerInfo: nullptr]\n" )
+								.arg( sPrefix ).arg( s + s ) );
+			}
+		}
+		if ( __instrument != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( __instrument->toQString( sPrefix + s, bShort ) ) );
 		} else {
 			sOutput.append( QString( "%1%2instrument: nullptr\n" ).arg( sPrefix ).arg( s ) );
-		}
-		sOutput.append( QString( "%1%2layers_selected:\n" )
-						.arg( sPrefix ).arg( s ) );
-		for ( const auto& ll : __layers_selected ) {
-			if ( ll.second != nullptr ) {
-				sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5, note length: %6]\n" )
-								.arg( sPrefix ).arg( s + s )
-								.arg( ll.first )
-								.arg( ll.second->nSelectedLayer )
-								.arg( ll.second->fSamplePosition )
-								.arg( ll.second->nNoteLength ) );
-			} else {
-				sOutput.append( QString( "%1%2[component: %3, selected layer info: nullptr]\n" )
-								.arg( sPrefix ).arg( s + s )
-								.arg( ll.first ) );
-			}
 		}
 	} else {
 
 		sOutput = QString( "[Note]" )
 			.append( QString( ", instrument_id: %1" ).arg( __instrument_id ) )
-			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
+			.append( QString( ", m_sType: %1" ).arg( m_sType ) )
 			.append( QString( ", position: %1" ).arg( __position ) )
-			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )
-			.append( QString( ", m_fUsedTickSize: %1" ).arg( m_fUsedTickSize ) )
 			.append( QString( ", velocity: %1" ).arg( __velocity ) )
 			.append( QString( ", pan: %1" ).arg( m_fPan ) )
 			.append( QString( ", length: %1" ).arg( __length ) )
 			.append( QString( ", pitch: %1" ).arg( __pitch ) )
-			.append( QString( ", key: %1" ).arg( __key ) )
-			.append( QString( ", octave: %1" ).arg( __octave ) );
+			.append( QString( ", key: %1" )
+					 .arg( KeyToQString( __key ) ) )
+			.append( QString( ", octave: %1" )
+					 .arg( OctaveToQString( __octave ) ) );
 		if ( __adsr != nullptr ) {
 			sOutput.append( QString( ", [%1" )
 							.arg( __adsr->toQString( sPrefix + s, bShort )
@@ -618,7 +727,6 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", cut_off: %1" ).arg( __cut_off ) )
 			.append( QString( ", resonance: %1" ).arg( __resonance ) )
 			.append( QString( ", humanize_delay: %1" ).arg( __humanize_delay ) )
-			.append( QString( ", key: %1" ).arg( __key ) )
 			.append( QString( ", bpfb_l: %1" ).arg( __bpfb_l ) )
 			.append( QString( ", bpfb_r: %1" ).arg( __bpfb_r ) )
 			.append( QString( ", lpfb_l: %1" ).arg( __lpfb_l ) )
@@ -627,74 +735,109 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", midi_msg: %1" ).arg( __midi_msg ) )
 			.append( QString( ", note_off: %1" ).arg( __note_off ) )
 			.append( QString( ", just_recorded: %1" ).arg( __just_recorded ) )
-			.append( QString( ", probability: %1" ).arg( __probability ) );
+			.append( QString( ", probability: %1" ).arg( __probability ) )
+			.append( ", __key_str: [" );
+			for ( int ii = KEY_MIN; ii <= KEY_MAX; ++ii ) {
+					 sOutput.append( QString( "%1, " ).arg(
+										 QString::fromUtf8( __key_str[ ii ], -1 ) ) );
+			}
+			sOutput.append( QString( "], m_nNoteStart: %1" ).arg( m_nNoteStart ) )
+			.append( QString( ", m_fUsedTickSize: %1" ).arg( m_fUsedTickSize ) )
+			.append( QString( ", m_nSpecificCompoIdx: %1" )
+					 .arg( m_nSpecificCompoIdx ) )
+			.append( QString( ", layers_selected: " ) );
+		for ( const auto& ppLayer : __layers_selected ) {
+			if ( ppLayer != nullptr ) {
+				sOutput.append( QString( "[%1] " )
+								.arg( ppLayer->toQString( "", true ) ) );
+			} else {
+				sOutput.append( "[SelectedLayerInfo: nullptr] " );
+			}
+		}
 		if ( __instrument != nullptr ) {
 			sOutput.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) );
 		} else {
 			sOutput.append( QString( ", instrument: nullptr" ) );
 		}
-		sOutput.append( QString( ", layers_selected: " ) );
-		for ( const auto& ll : __layers_selected ) {
-			if ( ll.second != nullptr ) {
-				sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3, note length: %4] " )
-								.arg( ll.first )
-								.arg( ll.second->nSelectedLayer )
-								.arg( ll.second->fSamplePosition )
-								.arg( ll.second->nNoteLength ) );
-			} else {
-				sOutput.append( QString( "[component: %1, selected layer info: nullptr]" )
-								.arg( ll.first ) );
-			}
-		}
 	}
 	return sOutput;
 }
 
-QString Note::KeyToQString( Key key ) {
-	QString s;
-
+QString Note::KeyToQString( const Key& key ) {
 	switch( key ) {
 	case Key::C:
-		s = QString( "C" );
-		break;
+		return "C";
 	case Key::Cs:
-		s = QString( "Cs" );
-		break;
+		return "Cs";
 	case Key::D:
-		s = QString( "D" );
-		break;
+		return "D";
 	case Key::Ef:
-		s = QString( "Ef" );
-		break;
+		return "Ef";
 	case Key::E:
-		s = QString( "E" );
-		break;
+		return "E";
 	case Key::F:
-		s = QString( "F" );
-		break;
+		return "F";
 	case Key::Fs:
-		s = QString( "Fs" );
-		break;
+		return "Fs";
 	case Key::G:
-		s = QString( "G" );
-		break;
+		return "G";
 	case Key::Af:
-		s = QString( "Af" );
-		break;
+		return "Af";
 	case Key::A:
-		s = QString( "A" );
-		break;
+		return "A";
 	case Key::Bf:
-		s = QString( "Bf" );
-		break;
+		return "Bf";
 	case Key::B:
-		s = QString( "B" );
-		break;
+		return "B";
 	default:
-		ERRORLOG(QString( "Unknown Key value [%1]" ).arg( key ) );
+		return QString( "Unknown Key value [%1]" ).arg( key );
+	}
+}
+
+QString Note::OctaveToQString( const Octave& octave ) {
+	switch( octave ) {
+	case Octave::P8Z:
+		return "P8Z";
+	case Octave::P8Y:
+		return "P8Y";
+	case Octave::P8X:
+		return "P8X";
+	case Octave::P8:
+		return "P8";
+	case Octave::P8A:
+		return "P8A";
+	case Octave::P8B:
+		return "P8B";
+	case Octave::P8C:
+		return "P8C";
+	default:
+		return QString( "Unknown octave value [%1]" ).arg( octave );
+	}
+}
+
+QString SelectedLayerInfo::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SelectedLayerInfo]\n" ).arg( sPrefix )
+			.append( QString( "%1%2nSelectedLayer: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( nSelectedLayer ) )
+			.append( QString( "%1%2fSamplePosition: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( fSamplePosition ) )
+			.append( QString( "%1%2nNoteLength: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( nNoteLength ) );
+	}
+	else {
+		sOutput = QString( "[SelectedLayerInfo] " )
+			.append( QString( "nSelectedLayer: %1" )
+					 .arg( nSelectedLayer ) )
+			.append( QString( ", fSamplePosition: %1" )
+					 .arg( fSamplePosition ) )
+			.append( QString( ", nNoteLength: %1" )
+					 .arg( nNoteLength ) );
 	}
 
-	return s;
+	return sOutput;
 }
 };
 

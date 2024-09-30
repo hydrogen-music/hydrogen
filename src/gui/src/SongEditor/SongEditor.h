@@ -41,8 +41,9 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core {
-	class Hydrogen;
 	class AudioEngine;
+	class Hydrogen;
+	class License;
 }
 
 class SongEditor;
@@ -104,6 +105,9 @@ class SongEditor : public QWidget
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
 
 	static constexpr int nMargin = 10;
+		/** Default value of Preferences::m_nSongEditorGridHeight * 5
+		 * (patterns)*/
+		static constexpr int m_nMinimumHeight = 90;
 
 	public slots:
 
@@ -272,12 +276,18 @@ class SongEditorPatternList :  public QWidget
 		void createBackground();
 		void invalidateBackground();
 		void movePatternLine( int, int );
-		void acceptPatternPropertiesDialogSettings( const QString& newPatternName,
+		void acceptPatternPropertiesDialogSettings( const int nNewVersion,
+													const QString& newPatternName,
+													const QString& sNewAuthor,
 													const QString& newPatternInfo,
+													const H2Core::License& newLicense,
 													const QString& newPatternCategory,
 													int patternNr );
-		void revertPatternPropertiesDialogSettings( const QString& oldPatternName,
+		void revertPatternPropertiesDialogSettings( const int nOldVersion,
+													const QString& oldPatternName,
+													const QString& sOldAuthor,
 													const QString& oldPatternInfo,
+													const H2Core::License& oldLicense,
 													const QString& oldPatternCategory,
 													int patternNr);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
@@ -314,7 +324,7 @@ class SongEditorPatternList :  public QWidget
 		H2Core::AudioEngine* 	m_pAudioEngine;
 		uint 				m_nGridHeight;
 		uint 				m_nWidth;
-		static const uint 	m_nInitialHeight = 10;
+		static constexpr uint 	m_nInitialHeight = 10;
 		int m_nRowClicked;
 
 		QPixmap *			m_pBackgroundPixmap;
@@ -384,6 +394,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	virtual void jackTimebaseStateChangedEvent() override;
 
 	static int tickToColumn( float fTick, uint nGridWidth );
+		static constexpr int m_nMinimumHeight = 50;
 
 	public slots:
 		void updatePosition();
@@ -398,7 +409,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		H2Core::AudioEngine* 	m_pAudioEngine;
 		QTimer *			m_pTimer;
 		uint				m_nGridWidth;
-		static constexpr uint	m_nHeight = 50;
 
 	int m_nActiveBpmWidgetColumn;
 	int m_nHoveredColumn;

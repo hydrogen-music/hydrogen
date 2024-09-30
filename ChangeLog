@@ -1,5 +1,5 @@
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
-	* Release 1.3.0
+	* Release 2.0.0
 	* Added
 		- PortMidi driver does open a input/output port which can be
 		  discovered and connected to by other applications when port was
@@ -23,8 +23,20 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- `PLAYLIST_ADD_SONG`
 				- `PLAYLIST_ADD_CURRENT_SONG`
 				- `PLAYLIST_REMOVE_SONG`
+				- `LOAD_PREV_DRUMKIT` (cycling through drumkits)
+				- `LOAD_NEXT_DRUMKIT` (cycling through drumkits)
+		- new MIDI actions:
+				- `LOAD_PREV_DRUMKIT` (cycling through drumkits)
+				- `LOAD_NEXT_DRUMKIT` (cycling through drumkits)
 		- `.h2playlist` files are now backed up by and can be restored from autosave
 			files as well.
+		- CLI options:
+				- `kitToDrumkitMap`: to extract a .h2map file from a drumkit
+		- Patterns are now independent of Drumkits and the latter can switched
+			without the need to adjust the patterns. Mapping between the two will be
+			done using "instrument types".
+		- `<instrumentComponent>` and `<instrumentLayer>` elements in drumkit XML
+			definitions contain two new elements: `<isMuted>` and `<isSoloed>`.
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound
@@ -32,9 +44,15 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			it. All actions in the Main Menu > Drumkit only affect the song's kit. All
 			actions in the Sound Library do only affect the selected kit and not the one
 			of the current song (except loading).
-		- .h2song file format changed. (forward compatible only with v1.2.3 and newer).
-		- Drumkit format XSD changed. Adjustments done in the Sample Editor are now
-			stored in the kit as well (previously, this was only possible in songs).
+		- .h2song file format changed. (forward compatible only with v1.2.4 and newer).
+		- Drumkit format changed.
+				- Adjustments done in the Sample Editor are now stored in the kit as
+				  well (previously, this was only possible in songs).
+				- Drumkit components (`<componentList>`) were dropped.
+		- (Instrument) Components are now independent of each other and can be added
+			separately for each instrument.
+		- Notes in .h2pattern files as well as instruments in .h2drumkits do now have
+			a new property `type`.
 		- Prerelease version suffix (alpha, beta, rc..) are now appended to
 			the shared library of the core, `libhydrogen-core-X.X.X.so/.dll`.
 		- Preferences dialog can now be smoothly resized.
@@ -53,13 +71,24 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				  samples. Linked ones are not supported) as available as session kits
 				  in the Sound Library.
 				- New action in Main Menu to save kit to session folder.
+		- Online import dialog now allows for multiple downloads at once (#1143).
+		- `userVersion` element was added to `.h2song`, `.h2pattern`, and drumkit
+			files. It can be set using the corresponding properties dialog and can
+			help to tell different artifact versions apart.
+		- `formatVersion` element was added to `.h2song`, `.h2pattern`, `.h2playlist`,
+			drumkit and config files. This integer will be increment each time the
+			format will be changed.
+		- pre-fader gain does now include component gain as well.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
+		- Paths to songs and scripts are now properly saved relative to a
+			`.h2playlist` file (in case the corresponding option was set).
 	* Removed
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
 			dropped. Instead, both will always be restored automatically. In order to
 			start with a blank song/playlist, load a new one before quitting.
+		- Component mixer strips have been dropped.
 
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.4
@@ -68,26 +97,47 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- `CLEAR_SELECTED_INSTRUMENT` - to remove all notes of the selected
 				  pattern associated with the currently selected instrument.
 				- `CLEAR_PATTERN` - to remove all notes of the selected pattern.
+				- `INSTRUMENT_PITCH` - to adjust the pitch of an instrument.
 		- OSC commands
 				- `NOTE_ON` and `NOTE_OFF` which are handled like incoming MIDI events
 				  without triggering their associated actions.
 				- `CLEAR_INSTRUMENT` - to remove all notes of the selected pattern
  				  associated with the provided instrument number.
+		- CLI option:
+			- `-O`/`--osc-port` to use a custom OSC port in both `hydrogen`
+			  and `h2cli`.
+			- `-L`/`--log-file` to provide a path to an alternative log file.
+			- `-T`/`--log-timestamps` to add timestamps to all log messages.
+			- `--config` to use a different user-level config file.
 	* Changed
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
 			this is the space the patterns in rather than objects in their own right.
 		- Virtual keyboard strokes are now mapped exactly as incoming MIDI `NOTE_ON`
 			events (respecting both "Use output note as input note" and hihat pressure
 			groups). But do not trigger associated actions (#1770).
+		- CLI option `-d` understand driver names regardless of capitalization.
+		- `h2cli` option `-V` is now able to handle whitespaces between flag and
+			argument.
+		- `h2cli` long option for `-k` is renamed `--drumkit` -> `kit` in order to
+			align the naming with the one used in `hydrogen` CLI options.
+		- Smaller keyboard cursor size with resolution set to `off`.
 	* Fixed
 		- Fix potential segfault on ill-formated notes in .h2song files.
 		- Fix buzzing sound during startup when using Port Audio (#1932).
-		- Fix build failure without precompiled headers (e.g. on Gentoo) (#1944)
+		- Fix build failure without precompiled headers (e.g. on Gentoo) (#1944).
 		- Fix persistent of hihat pressure group settings while changing/restarting
 			MIDI drivers.
 		- Fix mapping of `NOTE_OFF` MIDI messages in hihat pressure groups.
 		- Fix segfault when using MIDI sense button in table of Preferences > MIDI
 			after removing rows above it from the table.
+		- Fix synchronization problems while using JACK Timebase support (#1953).
+		- Fix compilation error on macOS with case-sensitive filesystem (#1938).
+		- Fix usability with large QT_SCALE_FACTOR (#1933).
+		- Fix MIDI, WAV, and LilyPond export as well as drumkit import and export
+			with with non-ASCII filenames (#1957).
+		- Paths to songs and scripts are now properly saved relative to a
+			`.h2playlist` file (in case the corresponding option was set).
+		- Fix grid line rendering with resolution set to `off` (#2015).
 	* Removed
 		- Dropped `JACK` support in provided Windows 32 binaries (as the upstream
 			jack2 MSYS package was dropped)

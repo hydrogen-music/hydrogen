@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<song>
+ <version>1.3.0-alpha-'d19d5a2d6'</version>
+ <formatVersion>2</formatVersion>
+ <bpm>120</bpm>
+ <volume>0.5</volume>
+ <isMuted>false</isMuted>
+ <metronomeVolume>0.5</metronomeVolume>
+ <userVersion>0</userVersion>
+ <name>Untitled Song</name>
+ <author>hydrogen</author>
+ <notes></notes>
+ <license>undefined license</license>
+ <loopEnabled>false</loopEnabled>
+ <patternModeMode>true</patternModeMode>
+ <playbackTrackFilename></playbackTrackFilename>
+ <playbackTrackEnabled>false</playbackTrackEnabled>
+ <playbackTrackVolume>0</playbackTrackVolume>
+ <action_mode>0</action_mode>
+ <isPatternEditorLocked>false</isPatternEditorLocked>
+ <isTimelineActivated>false</isTimelineActivated>
+ <mode>pattern</mode>
+ <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
+ <pan_law_k_norm>1.33333</pan_law_k_norm>
+ <humanize_time>0</humanize_time>
+ <humanize_velocity>0</humanize_velocity>
+ <swing_factor>0</swing_factor>
+ <drumkit_info>
+  <formatVersion>2</formatVersion>
+  <name>empty</name>
+  <userVersion>0</userVersion>
+  <author>undefined author</author>
+  <info>No information available.</info>
+  <license>undefined license</license>
+  <image></image>
+  <imageLicense>undefined license</imageLicense>
+  <instrumentList>
+   <instrument>
+    <id>-1</id>
+    <name>New Instrument</name>
+    <type></type>
+    <drumkitPath></drumkitPath>
+    <drumkit></drumkit>
+    <volume>1</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
+    <gain>1</gain>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>35</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
+     <gain>1</gain>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+    </instrumentComponent>
+   </instrument>
+  </instrumentList>
+ </drumkit_info>
+ <lastLoadedDrumkitPath></lastLoadedDrumkitPath>
+ <ladspa>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+  <fx>
+   <name>no plugin</name>
+   <filename>-</filename>
+   <enabled>false</enabled>
+   <volume>0</volume>
+  </fx>
+ </ladspa>
+ <BPMTimeLine/>
+ <timeLineTag/>
+ <automationPaths>
+  <path adjust="velocity"/>
+ </automationPaths>
+</song>

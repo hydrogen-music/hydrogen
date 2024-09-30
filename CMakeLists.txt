@@ -124,6 +124,7 @@ endif()
 option(WANT_APPIMAGE "Build Linux AppImage" OFF)
 
 option(WANT_CPPUNIT         "Include CppUnit test suite" ON)
+option(WANT_INTEGRATION_TESTS "Include integration tests" OFF)
 
 include(Sanitizers)
 include(StatusSupportOptions)
@@ -171,9 +172,9 @@ else()
 endif()
 
 if(WANT_DEBUG)
-	set(CMAKE_CXX_FLAGS "$ENV{CMAKE_CXX_FLAGS} -O0")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 else()
-	set(CMAKE_CXX_FLAGS "$ENV{CMAKE_CXX_FLAGS} -O3 -ffast-math")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math")
 endif()
 
 if(WANT_APPIMAGE)
@@ -304,8 +305,8 @@ endif()
 if(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
     FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices)
-    find_helper(COREAUDIO CoreAudio-2.0 coreaudio.h coreaudio)
-    find_helper(COREMIDI CoreMidi coremidi.h coremidi)
+    find_helper(COREAUDIO CoreAudio-2.0 CoreAudio.h CoreAudio)
+    find_helper(COREMIDI CoreMidi CoreMIDI.h CoreMIDI)
 endif()
 find_helper(PORTAUDIO portaudio-2.0 portaudio.h portaudio)
 find_helper(PORTMIDI portmidi portmidi.h portmidi)
@@ -358,6 +359,12 @@ else()
 	set(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${PC_LIBSNDFILE_VERSION}")
 endif()
 
+if(H2CORE_HAVE_CPPUNIT AND WANT_INTEGRATION_TESTS AND WANT_DEBUG AND NOT MINGW AND NOT APPLE)
+    set(HAVE_INTEGRATION_TESTS TRUE)
+else()
+    set(HAVE_INTEGRATION_TESTS FALSE)
+endif()
+
 # RUBBERBAND information
 set(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
 *				 Because the current implementation produce wrong timing!
@@ -390,7 +397,8 @@ color_message("${cyan}Installation Summary${reset}
 * macOS bundle                 : ${H2CORE_HAVE_BUNDLE}
 * Windows fat build            : ${H2CORE_HAVE_FAT_BUILD}
 * AppImage build               : ${H2CORE_HAVE_APPIMAGE}
-* Dynamic JACK support check   : ${H2CORE_HAVE_DYNAMIC_JACK_CHECK}\n"
+* Dynamic JACK support check   : ${H2CORE_HAVE_DYNAMIC_JACK_CHECK}
+* Build integration tests      : ${HAVE_INTEGRATION_TESTS}\n"
 )
 
 color_message("${cyan}Main librarires${reset}")
@@ -476,6 +484,10 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
 else()
     color_message("${red}ERROR while building documentation${reset}:\n\tSubmodule not initialized.${reset} Please run\n\t`git submodule update --init --recursive` first.\n")
 endif()
+if(HAVE_INTEGRATION_TESTS)
+    add_subdirectory(tests/jackTimebase/h2JackTimebase)
+endif()
+
 install(DIRECTORY data DESTINATION ${H2_DATA_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 if(NOT MINGW AND NOT APPLE)
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.metainfo.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo")

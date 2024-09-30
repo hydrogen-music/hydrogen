@@ -24,46 +24,48 @@
 
 #include <cassert>
 
-#include <core/AudioEngine/AudioEngine.h>
-
-#include <core/Helpers/Xml.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/License.h>
-
-#include <core/Basics/Adsr.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Helpers/Xml.h>
+
 
 namespace H2Core
 {
 
 int InstrumentComponent::m_nMaxLayers = 16;
 
-InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
-	: __related_drumkit_componentID( related_drumkit_componentID )
-	, __gain( 1.0 )
+InstrumentComponent::InstrumentComponent( const QString& sName, float fGain )
+	: m_sName( sName )
+	, m_fGain( fGain )
+	, m_bIsMuted( false )
+	, m_bIsSoloed( false )
 {
-	__layers.resize( m_nMaxLayers );
+	/*: Name assigned to an InstrumentComponent of a fresh instrument. */
+	const QString sComponentName =
+		QT_TRANSLATE_NOOP( "InstrumentComponent", "Main");
+
+	if ( sName.isEmpty() ) {
+		m_sName = sComponentName;
+	}
+
+	m_layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		__layers[i] = nullptr;
+		m_layers[i] = nullptr;
 	}
 }
 
 InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
-	: __related_drumkit_componentID( other->__related_drumkit_componentID )
-	, __gain( other->__gain )
+	: m_sName( other->m_sName )
+	, m_fGain( other->m_fGain )
+	, m_bIsMuted( other->m_bIsMuted )
+	, m_bIsSoloed( other->m_bIsSoloed )
 {
-	__layers.resize( m_nMaxLayers );
+	m_layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		std::shared_ptr<InstrumentLayer> other_layer = other->get_layer( i );
+		std::shared_ptr<InstrumentLayer> other_layer = other->getLayer( i );
 		if ( other_layer ) {
-			__layers[i] = std::make_shared<InstrumentLayer>( other_layer );
+			m_layers[i] = std::make_shared<InstrumentLayer>( other_layer );
 		} else {
-			__layers[i] = nullptr;
+			m_layers[i] = nullptr;
 		}
 	}
 }
@@ -71,14 +73,14 @@ InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> o
 InstrumentComponent::~InstrumentComponent()
 {
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		__layers[i] = nullptr;
+		m_layers[i] = nullptr;
 	}
 }
 
-void InstrumentComponent::set_layer( std::shared_ptr<InstrumentLayer> layer, int idx )
+void InstrumentComponent::setLayer( std::shared_ptr<InstrumentLayer> layer, int idx )
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
-	__layers[ idx ] = layer;
+	m_layers[ idx ] = layer;
 }
 
 void InstrumentComponent::setMaxLayers( int nLayers )
@@ -96,22 +98,22 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
+std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
 	const License& drumkitLicense,
 	bool bSilent )
 {
-	int nId = node.read_int( "component_id", EMPTY_INSTR_ID,
-							  false, false, bSilent );
-	if ( nId == EMPTY_INSTR_ID ) {
-		return nullptr;
-	}
-
-	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( nId );
-	pInstrumentComponent->set_gain( node.read_float( "gain", 1.0f,
-													  true, false, bSilent ) );
+	auto pInstrumentComponent = std::make_shared<InstrumentComponent>();
+	pInstrumentComponent->m_sName = node.read_string(
+		"name", pInstrumentComponent->m_sName, true, false, true );
+	pInstrumentComponent->m_fGain = node.read_float(
+		"gain", pInstrumentComponent->m_fGain, true, false, bSilent );
+	pInstrumentComponent->m_bIsMuted = node.read_bool(
+		"isMuted", pInstrumentComponent->m_bIsMuted, true, false, true );
+	pInstrumentComponent->m_bIsSoloed = node.read_bool(
+		"isSoloed", pInstrumentComponent->m_bIsSoloed, true, false, true );
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {
@@ -124,7 +126,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
 		auto pLayer = InstrumentLayer::load_from(
 			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
-			pInstrumentComponent->set_layer( pLayer, nLayer );
+			pInstrumentComponent->setLayer( pLayer, nLayer );
 			nLayer++;
 		}
 		layer_node = layer_node.nextSiblingElement( "layer" );
@@ -133,24 +135,19 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from(
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::save_to( XMLNode& node,
-								   bool bRecentVersion,
-								   bool bSongKit ) const
+void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode component_node;
-	if ( bRecentVersion ) {
-		component_node = node.createNode( "instrumentComponent" );
-		component_node.write_int( "component_id", __related_drumkit_componentID );
-		component_node.write_float( "gain", __gain );
-	}
+	component_node = node.createNode( "instrumentComponent" );
+	component_node.write_string( "name", m_sName );
+	component_node.write_float( "gain", m_fGain );
+	component_node.write_bool( "isMuted", m_bIsMuted );
+	component_node.write_bool( "isSoloed", m_bIsSoloed );
+
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
-		auto pLayer = get_layer( n );
+		auto pLayer = getLayer( n );
 		if ( pLayer != nullptr ) {
-			if ( bRecentVersion ) {
-				pLayer->save_to( component_node, bSongKit );
-			} else {
-				pLayer->save_to( node, bSongKit );
-			}
+			pLayer->save_to( component_node, bSongKit );
 		}
 	}
 }
@@ -160,24 +157,33 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )
-			.append( QString( "%1%2related_drumkit_componentID: %3\n" ).arg( sPrefix ).arg( s ).arg( __related_drumkit_componentID ) )
-			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
-			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxLayers ) )
-			.append( QString( "%1%2layers:\n" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sName ) )
+			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fGain ) )
+			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsMuted ) )
+			.append( QString( "%1%2m_bIsSoloed: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsSoloed ) )
+			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nMaxLayers ) )
+			.append( QString( "%1%2m_layers:\n" ).arg( sPrefix ).arg( s ) );
 	
-		for ( const auto& ll : __layers ) {
+		for ( const auto& ll : m_layers ) {
 			if ( ll != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ll->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
 	} else {
-		sOutput = QString( "[InstrumentComponent]" )
-			.append( QString( " related_drumkit_componentID: %1" ).arg( __related_drumkit_componentID ) )
-			.append( QString( ", gain: %1" ).arg( __gain ) )
+		sOutput = QString( "[InstrumentComponent] " )
+			.append( QString( "m_sName: %1" ).arg( m_sName ) )
+			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
+			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
+			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) )
 			.append( QString( ", m_nMaxLayers: %1" ).arg( m_nMaxLayers ) )
-			.append( QString( ", [layers:" ) );
+			.append( QString( ", m_layers: [" ) );
 	
-		for ( const auto& ll : __layers ) {
+		for ( const auto& ll : m_layers ) {
 			if ( ll != nullptr ) {
 				sOutput.append( QString( " [%1" ).arg( ll->toQString( sPrefix + s + s, bShort ).replace( "\n", "]" ) ) );
 			}
@@ -190,9 +196,9 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	return sOutput;
 }
 
-const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::get_layers() const {
+const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::getLayers() const {
 	std::vector<std::shared_ptr<InstrumentLayer>> layersUsed;
-	for ( const auto& layer : __layers ) {
+	for ( const auto& layer : m_layers ) {
 		if ( layer != nullptr ) {
 			layersUsed.push_back( layer );
 		}
@@ -202,11 +208,11 @@ const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::get_lay
 }
 
 std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::begin() {
-	return __layers.begin();
+	return m_layers.begin();
 }
 
 std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::end() {
-	return __layers.end();
+	return m_layers.end();
 }
 };
 

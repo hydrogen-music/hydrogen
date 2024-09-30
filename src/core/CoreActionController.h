@@ -27,14 +27,16 @@
 #include <memory>
 
 #include <core/Object.h>
-#include <core/Basics/Song.h>
 
 namespace H2Core
 {
 	class Drumkit;
 	class Instrument;
+	class Pattern;
 	class Playlist;
 	struct PlaylistEntry;
+	class Preferences;
+	class Song;
 
 
 /** \ingroup docCore docAutomation */
@@ -64,9 +66,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * should be selected.
 		 */
 		static bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
+		static bool setInstrumentPitch( int nInstrument, float fValue );
 		static bool setMetronomeIsActive( bool isActive );
 		static bool setMasterIsMuted( bool isMuted );
-		
+
 		static bool setStripIsMuted( int nStrip, bool isMuted );
 		static bool toggleStripIsMuted( int nStrip );
 		
@@ -127,10 +130,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		static bool saveSongAs( const QString& sNewFilename );
 		/**
-		 * Saves the current state of the #H2Core::Preferences.
-		 *
-		 * \return true on success
-		 */
+		 * Loads an instance of #H2Core::Preferences from the corresponding XML
+		 * file. */
+		static std::shared_ptr<Preferences> loadPreferences( const QString& sPath );
+		/**
+		 * Replaces the current #H2Core::Preferences singleton with the provided
+		 * instance. */
+		static bool setPreferences( std::shared_ptr<Preferences> pPreferences );
+		/**
+		 * Saves the current state of the #H2Core::Preferences. */
 		static bool savePreferences();
 		/**
 		 * Triggers the shutdown of Hydrogen.
@@ -256,10 +264,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @param sDrumkit Can be either the name of a #Drumkit or a
 	 * relative or absolute path pointing to it.
-	 * \param bConditional Whether to remove all redundant
-	 * H2Core::Instrument regardless of their content.
 	 */
-	static bool setDrumkit( const QString& sDrumkit, bool bConditional = true );
+	static bool setDrumkit( const QString& sDrumkit );
 	/**
 	 * Sets Drumkit @a pDrumkit as the one used in the current #Song.
 	 *
@@ -269,10 +275,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * drumkit to its default values.
 	 *
 	 * \param pDrumkit Full-fledged #H2Core::Drumkit to load.
-	 * \param bConditional Whether to remove all redundant
-	 * H2Core::Instrument regardless of their content.
 	 */
-	static bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit, bool bConditional = true );
+	static bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
 	/** 
 	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
 	 *
@@ -305,13 +309,43 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * tarball is required (might differ from the name of the tarball)
 	 * and it is not easily obtained.
 	 *
-	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit
-	 * extension
-	 * \param sTargetDir Folder to extract the drumkit to. If the
-	 * folder is not present yet, it will be created. If left empty,
-	 * the drumkit will be installed to the users drumkit data folder.
+	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit extension
+	 * \param sTargetDir Folder to extract the drumkit to. If the folder is not
+	 *   present yet, it will be created. If left empty, the drumkit will be
+	 *   installed to the users drumkit data folder.
+	 * \param pInstalledPath Will contain the actual name of the folder the kit
+	 *   was installed to. In most cases this will coincide with a folder within
+	 *   @a sTargetPath named like the kit itself. But in case the system does
+	 *   not support UTF-8 encoding and @a sTargetPath contains characters other
+	 *   than those whitelisted in #Filesystem::removeUtf8Characters, those
+	 *   might be omitted and the directory and files created using `libarchive`
+	 *   might differ.
+	 * \param pEncodingIssuesDetected will be set to `true` in case at least one
+	 *   filepath of extracted kit had to be altered in order to not run into
+	 *   UTF-8 issues.
 	 */
-	static bool extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir = "" );
+	static bool extractDrumkit( const QString& sDrumkitPath,
+								const QString& sTargetDir = "",
+								QString* pInstalledPath = nullptr,
+								bool* pEncodingIssuesDetected = nullptr );
+
+		/** Adds @a pInstrument to the current drumkit.
+		 *
+		 * In case @a nIndex is `-1` @a pInstrument will be appended to the
+		 * instrument list.*/
+		static bool addInstrument( std::shared_ptr<Instrument> pInstrument,
+								   int nIndex = -1 );
+		/** Removes @a pInstrument from the current drumkit and adds it to the
+		 * instrument death row. This way it is guarantueed that its samples
+		 * stay loaded until the last #H2Core::Note is done rendering it.
+		 * Afterwards, its samples will be unloaded. */
+		static bool removeInstrument( std::shared_ptr<Instrument> pInstrument );
+		/** Replaces @a pOldInstrument by @a pNewInstrument in the current
+		 * drumkit without clearing notes, changing the selected instrument
+		 * number, etc. */
+		static bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
+									   std::shared_ptr<Instrument> pOldInstrument );
+
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 
@@ -393,13 +427,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * @return bool true on success */
 		static bool handleNote( int nNote, float fVelocity, bool bNoteOff = false );
-
-	/**
-	 * In case a different preferences file was loaded with Hydrogen
-	 * already fully set up this function refreshes all corresponding
-	 * values and informs the GUI.
-	 */
-	static bool updatePreferences();
 
 	/**
 	 * Loads the drumkit specified in @a sDrumkitPath.

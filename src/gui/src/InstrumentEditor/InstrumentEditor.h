@@ -142,6 +142,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		ClickableLabel* m_pPitchCoarseLbl;
 		ClickableLabel* m_pPitchFineLbl;
 		ClickableLabel* m_pPitchRandomLbl;
+		void setInstrumentPitch();
 
 		// Low pass filter
 		Button *m_pFilterBypassBtn;
@@ -226,10 +227,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		QStringList m_itemsCompo;
 		QMenu *m_pComponentMenu;
 		void populateComponentMenu();
-		void updateComponentLabels();
-		/** Maps a compoment Id to an unique component label used within the
-		 * InstrumentEditor.*/
-		std::map<int, QString> m_uniqueComponentLabels;
 
 		Rotary *m_pCompoGainRotary;
 		LCDDisplay *m_pCompoGainLCD;

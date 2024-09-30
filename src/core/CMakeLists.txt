@@ -54,6 +54,7 @@ target_link_libraries(hydrogen-core-${VERSION}
 	Qt5::Core
 	Qt5::Xml
 	Qt5::XmlPatterns
+    Qt5::Test
 	Qt5::Gui # For QColor
 )
 

@@ -46,6 +46,7 @@ namespace H2Core
 class Song;
 class Instrument;
 class InstrumentComponent;
+class TransportPosition;
 
 /**
  * JACK (Jack Audio Connection Kit) server driver.
@@ -72,19 +73,18 @@ class InstrumentComponent;
  *
  * __Timebase Master__:
  *
- * The timebase master is responsible for providing additional
- * transport information to the JACK server apart from the transport
- * position in frames, like current beat, bar, tick, tick size, speed
- * etc. Of all these information Hydrogen does only use the provided
- * tempo (and overrides all internal ones). Therefore, unlike many
- * other application, it does _not_ respond to changes in measure
- * (since these would have to be mapped to the length of the current
- * pattern). Every client can be registered as timebase master by
- * supplying a callback (for Hydrogen this would be
- * JackTimebaseCallback()) but there can be at most one timebase
- * master at a time. Having none at all is perfectly fine too. Apart
- * from this additional responsibility, the registered client has no
- * other rights compared to others.
+ * The timebase master is responsible for providing additional transport
+ * information to the JACK server apart from the transport position in frames,
+ * like current beat, bar, tick, tick size, speed etc. Unlike many other
+ * application, Hydrogen does _not_ respond to changes in measure since these
+ * would have to be mapped to the length of the current pattern (In case this
+ * leads to repeated glitches or unwanted behavior Timebae synchronization can
+ * be turned off entirely using #Preferences::m_bJackTimebaseEnabled). Every
+ * client can be registered as timebase master by supplying a callback (for
+ * Hydrogen this would be JackTimebaseCallback()) but there can be at most one
+ * timebase master at a time. Having none at all is perfectly fine too. Apart
+ * from this additional responsibility, the registered client has no other
+ * rights compared to others.
  *
  * After the status of the JACK transport has changed from
  * _JackTransportStarting_ to _JackTransportRolling_, the timebase
@@ -99,15 +99,20 @@ public:
 	 * Whether Hydrogen or another program is Jack timebase master.
 	 */
 	enum class Timebase {
-		/** Hydrogen itself is timebase master.*/
+		/** Hydrogen itself is timebase master. Relocations will no longer be
+		 * shared via relocateTransport() but via JackTimebaseCallback().*/
 		Master = 1,
 		/** An external program is timebase master and Hydrogen will
          * disregard all tempo markers on the Timeline and, instead,
-         * only use the BPM provided by JACK.*/
-		Slave = 0,
+         * only use the BPM provided by JACK.
+         *
+         * Note: the JACK standard is using a different term we do not want to
+         * repeat or spread. */
+		Listener = 0,
 		/** Only normal clients registered */
 		None = -1
 	};
+	static QString TimebaseToQString( const Timebase& t );
 	
 	/** 
 	 * Object holding the external client session with the JACK
@@ -216,35 +221,29 @@ public:
 	 */
 	float* getTrackOut_R( unsigned nTrack );
 	/** 
-	 * Convenience function looking up the track number of a component
-	 * of an instrument using in #m_trackMap using their IDs
-	 * Instrument::__id and
-	 * InstrumentComponent::__related_drumkit_componentID. Using the
-	 * track number it then calls getTrackOut_L( unsigned ) and
-	 * returns its result.
+	 * Convenience function looking up the track number of a component of an
+	 * instrument in #m_trackMap. Using the number it then calls
+	 * getTrackOut_L( unsigned ) and returns its result.
 	 *
 	 * \param instr Pointer to an Instrument
-	 * \param pCompo Pointer to one of the instrument's components.
+	 * \param nComponentIdx Component position in component vector.
 	 *
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getTrackOut_L( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo );
+	float* getTrackOut_L( std::shared_ptr<Instrument> instr, int nComponentIdx );
 	/** 
-	 * Convenience function looking up the track number of a component
-	 * of an instrument using in #m_trackMap using their IDs
-	 * Instrument::__id and
-	 * InstrumentComponent::__related_drumkit_componentID. Using the
-	 * track number it then calls getTrackOut_R( unsigned ) and
-	 * returns its result.
+	 * Convenience function looking up the track number of a component of an
+	 * instrument in #m_trackMap. Using the number it then calls
+	 * getTrackOut_R( unsigned ) and returns its result.
 	 *
 	 * \param instr Pointer to an Instrument
-	 * \param pCompo Pointer to one of the instrument's components.
+	 * \param nComponentIdx Component position in component vector.
 	 *
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getTrackOut_R( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo );
+	float* getTrackOut_R( std::shared_ptr<Instrument> instr, int nComponentIdx );
 
 	/**
 	 * Initializes the JACK audio driver.
@@ -355,33 +354,56 @@ public:
 	 *
 	 * This type of operation is triggered whenever the transport
 	 * position gets relocated or the tempo is changed using Jack in
-	 * the presence of an external timebase master.*/
+	 * the presence of an external timebase master. */
 	void relocateUsingBBT();
+		/** Used within the unit tests and checks whether the last JACK
+		 * transport position retrieved has valid BBT information. */
+		bool checkBBTPos() const;
 
-	/**
-	 * Attempts to call several JACK executables in order to check for
-	 * existing JACK support.
-	 *
-	 * In an earlier version I tried checking the presence of the
-	 * `libjack.so` shared library. But this one comes preinstalled
-	 * with most Linux distribution regardless of JACK itself is
-	 * present or not.
-	 *
-	 * @return Whether or not JACK support appears to be functional.
-	 */
-	static bool checkSupport();
+		const jack_position_t& getJackPosition() const;
 
+		static bool isBBTValid( const jack_position_t& pos );
+		static double bbtToTick( const jack_position_t& pos );
+		static void transportToBBT( const TransportPosition& transportPos,
+									jack_position_t* pPos );
+		static QString JackTransportPosToQString( const jack_position_t& pPos );
+
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
+		friend class AudioEngineTests;
 private:
 
-	/** Compares the BBT information stored in #m_JackTransportPos and
-	 * #m_previousJackTransportPos with respect to the tempo and the
-	 * transport position in bars, beats, and ticks.
-	 *
-	 * @return true If #m_JackTransportPos is expected to follow
-	 * #m_previousJackTransportPos.
-	 */
-	bool compareAdjacentBBT() const;
-	
+		/** Used internally to keep track of the current Timebase state.
+		 *
+		 * While Hydrogen can unregister as timebase master on its own, it can
+		 * not be observed directly whether another application has taken over
+		 * as timebase master. When the JACK server is releasing Hydrogen in the
+		 * later case, it won't advertise this fact but simply won't call the
+		 * JackTimebaseCallback() anymore. But since this will be called in
+		 * every cycle after updateTransportPosition(), we make the former set
+		 * the tracking state to #Valid and the latter to #OnHold. If we
+		 * encounter a second process cycle with #OnHold, we have been released.
+		 *
+		 * A second use case is relocation triggered by a JACK client other than
+		 * the Timebase master. The JACK server won't have any corresponding BBT
+		 * information at hand and distribute the frame information without the
+		 * BBT capability. The process cycle afterwards the master starts again
+		 * to send BBT. This intermediate state will be covered by #OnHold too,
+		 * as we do not want the timebase state (and timeline support) to glitch
+		 * on each relocation. Instead we cache the last tempo and pretend to
+		 * still have BBT information. will be updated accordingly.
+		 */
+		enum class TimebaseTracking {
+			/** Current timebase state is on par with JACK server. */
+			Valid,
+			/** We are uncertain of the current timebase state and wait a
+			 * processing cycle to determine what to do next.*/
+			OnHold,
+			/** Null element */
+			None
+		};
+		static QString TimebaseTrackingToQString( const TimebaseTracking& t );
+
 	/**
 	 * Callback function for the JACK server to supply additional
 	 * timebase information.
@@ -426,7 +448,7 @@ private:
 	 */	
 	static void jackDriverShutdown( void* arg );
 
-	static void printJackTransportPos( const jack_position_t* pPos );
+	static QString JackTransportStateToQString( const jack_transport_state_t& pPos );
 
 	/** Show debugging information.*/
 	void printState() const;
@@ -529,11 +551,10 @@ private:
 	 *   video frame
 	 */
 	jack_position_t			m_JackTransportPos;
-	/** Used for detecting changes in the BBT transport information
-	 * with external timebase master application, which do not
-	 * propagate these changes on time.
-	 */
-	jack_position_t			m_previousJackTransportPos;
+
+	/** Use for relocation if Hydrogen is Timebase master (and needs to provide
+	 * valid BBT information in addition to just a frame). */
+	jack_position_t			m_nextJackTransportPos;
 
 	/**
 	 * Specifies whether the default left and right (master) audio
@@ -541,47 +562,65 @@ private:
 	 * when registering the JACK client in connect().
 	 */
 	bool				m_bConnectDefaults;
-	/**
-	 * Whether Hydrogen or another program is Jack timebase master.
-	 *
-	 * - #m_nTimebaseTracking > 0 - Hydrogen itself is timebase
-          master.
-	 * - #m_nTimebaseTracking == 0 - an external program is timebase
-          master and Hydrogen will disregard all tempo marker on the
-          Timeline and, instead, only use the BPM provided by JACK.
-	 * - #m_nTimebaseTracking < 0 - only normal clients registered.
-	 *
-	 * While Hydrogen can unregister as timebase master on its own, it
-	 * can not be observed directly whether another application has
-	 * taken over as timebase master. When the JACK server is
-	 * releasing Hydrogen in the later case, it won't advertise this
-	 * fact but simply won't call the JackTimebaseCallback()
-	 * anymore. But since this will be called in every cycle after
-	 * updateTransportPosition(), we can use this variable to determine if
-	 * Hydrogen is still timebase master.
-	 *
-	 * As Hydrogen registered as timebase master using
-	 * initTimebaseMaster() it will be initialized with 1, decremented
-	 * in updateTransportPosition(), and reset to 1 in
-	 * JackTimebaseCallback(). Whenever it is zero in
-	 * updateTransportPosition(), #m_nTimebaseTracking will be updated
-	 * accordingly.
-	 */
-	int				m_nTimebaseTracking;
 
 	/**
-	 * More user-friendly version of #m_nTimebaseTracking.
+	 * Whether Hydrogen is receiving relocation and tempo changes as part of BBT
+	 * information, it sends them itself, or just uses internal position
+	 * information.
 	 */ 
 	Timebase m_timebaseState;
 
-	/**
-	 * Calls @a sExecutable in a subprocess using the @a sOption CLI
-	 * option and reports the results.
-	 *
-	 * @return An empty string indicates, that the call exited with a
-	 *   code other than zero.
-	 */
-	static QString checkExecutable( const QString& sExecutable, const QString& sOption );
+		/** Whether the current timebase state is stable or about to change. */
+		TimebaseTracking m_timebaseTracking;
+
+		/** Stores the last tempo sent by an external Timebase master.
+		 *
+		 * In case of #Timebase::Listener and #TimebaseTracking::OnHold - a
+		 * relocation was done by a client other than the current master - the
+		 * JACK server does not have any BBT information to share for at least
+		 * one cycle. We have guard against this or else we have some spurious
+		 * state changes. If such a thing happens, it is very likely that the
+		 * master will still be master and we will still be listener once transport
+		 * is starting again. Therefore, we pretend to still be in this state
+		 * instead of dropping Timebase state too and offer the last tempo to
+		 * the remainder of Hydrogen. */
+		float m_fLastTimebaseBpm;
+
+		/** Stores an intended deviation of our transport position from the one
+		 * hold by the JACK server.
+		 *
+		 * In case we act as listener we will relocate based on the provided BBT
+		 * information. This is done by converting them into a tick and
+		 * calculating the corresponding frame. That resultant frame does not
+		 * necessarily have to coincide with the one broadcasted by the JACK
+		 * server. But this is no problems as BBT takes precedeence. */
+		long long m_nTimebaseFrameOffset;
+
+		/** Remembers the BBT capability bit received in a JACK process cycle.
+		 *
+		 * In case a regular client triggeres a relocation, the transport bit
+		 * will be 0 and we rely on just the frame position to relocate
+		 * internally. However, in the next process cycle the JACK timebase
+		 * master will have added additional BBT information to that location.
+		 * Since we want to use its tempo, we also have to use the remainder of
+		 * the BBT information and trigger a relocation (although the overall
+		 * frame might not even have changed). In additionn, the Timebase master
+		 * could alter its capabilities.
+		 *
+		 * The behavior above has the negativ side effect that we might not
+		 * relocate to the exact frame we requested ourselves. But AFAICS this
+		 * is a bug in the JACK API. */
+		int m_lastTransportBits;
+
+#ifdef HAVE_INTEGRATION_TESTS
+		/** Remember the last location we relocate to in order to detect
+		 * relocation loops during the integration tests.*/
+		static long m_nIntegrationLastRelocationFrame;
+		/** Whether a relocation loop took place (the same position is
+		 * considered a relocation over and over again.)*/
+		bool m_bIntegrationRelocationLoop;
+		bool m_bIntegrationCheckRelocationLoop;
+#endif
 };
 
 }; // H2Core namespace
@@ -603,11 +642,15 @@ public:
 		Master = 1,
 		/** An external program is timebase master and Hydrogen will
          * disregard all tempo marker on the Timeline and, instead,
-         * only use the BPM provided by JACK.*/
-		Slave = 0,
+         * only use the BPM provided by JACK.
+		 *
+         * Note: the JACK standard is using a different term we do not want to
+         * repeat or spread. */
+		Listener = 0,
 		/** Only normal clients registered */
 		None = -1
 	};
+	static QString TimebaseToQString( const Timebase& t ) { return "Not supported"; };
 	/**
 	 * Fallback version of the JackAudioDriver in case
 	 * #H2CORE_HAVE_JACK was not defined during the configuration

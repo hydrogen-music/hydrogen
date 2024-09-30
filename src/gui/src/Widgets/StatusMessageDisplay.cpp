@@ -70,11 +70,10 @@ void StatusMessageDisplay::onPreferencesChanged( const H2Core::Preferences::Chan
 // integrate into the current GUI design using the active LCDDisplay
 // foreground and background colors.
 void StatusMessageDisplay::updateStyleSheet() {
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	QColor textColor = pPref->getTheme().m_color.m_windowTextColor;
-	QColor backgroundColor = pPref->getTheme().m_color.m_windowColor;
+	QColor textColor = theme.m_color.m_windowTextColor;
+	QColor backgroundColor = theme.m_color.m_windowColor;
 
 	QString sStyleSheet = QString( "\
 QLineEdit { \
@@ -88,15 +87,14 @@ QLineEdit { \
 }
 
 void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {
-
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
 	LCDDisplay::paintEvent( ev );
 
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
-		QColor colorHighlightActive = pPref->getTheme().m_color.m_highlightColor;
+		QColor colorHighlightActive = theme.m_color.m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to

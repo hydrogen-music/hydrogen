@@ -36,7 +36,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -71,7 +70,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	, m_mode( Mode::None )
 {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
@@ -153,7 +152,7 @@ void PatternEditor::zoomOut()
 QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	float fRed, fGreen, fBlue;
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	QColor fullColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityFullColor;
 	QColor defaultColor = pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor;
@@ -208,7 +207,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 		return;
 	}
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor noteColor( pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
 	const QColor noteInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 150 ) );
@@ -672,10 +671,10 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 		}
 	}
 	if ( !duplicates.empty() ) {
-		Preferences *pPreferences = Preferences::get_instance();
+		auto pPref = Preferences::get_instance();
 		bool bOk = true;
 
-		if ( pPreferences->getShowNoteOverwriteWarning() ) {
+		if ( pPref->getShowNoteOverwriteWarning() ) {
 			m_selection.cancelGesture();
 			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
 			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
@@ -684,7 +683,7 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 			messageBox.checkBox()->setChecked( false );
 			bOk = messageBox.exec() == QMessageBox::Ok;
 			if ( messageBox.checkBox()->isChecked() ) {
-				pPreferences->setShowNoteOverwriteWarning( false );
+				pPref->setShowNoteOverwriteWarning( false );
 			}
 		}
 
@@ -811,7 +810,7 @@ QPoint PatternEditor::movingGridOffset( ) const {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	const std::vector<QColor> colorsActive = {
 		QColor( pPref->getTheme().m_color.m_patternEditor_line1Color ),
 		QColor( pPref->getTheme().m_color.m_patternEditor_line2Color ),
@@ -827,8 +826,6 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 250 ) ),
 	};
 
-	int nGranularity = granularity() * m_nResolution;
-
 	if ( !m_bUseTriplets ) {
 
 		// Draw vertical lines. To minimise pen colour changes (and
@@ -842,49 +839,81 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		// |   :   |   :   |   :   |   :     - second pass, odd 1/8th notes
 		// | . : . | . : . | . : . | . : .   - third pass, odd 1/16th notes
 
-		uint nRes = 4;
-		float fStep = nGranularity / nRes * m_fGridWidth;
-
-		// First, quarter note markers. All the quarter note markers must be drawn.
-		if ( m_nResolution >= nRes ) {
-			float x = PatternEditor::nMargin;
-			p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
-			while ( x < m_nActiveWidth ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep;
-			}
-			
-			p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
-			while ( x < m_nEditorWidth ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep;
-			}
+		// First, quarter note markers. All the quarter note markers must be
+		// drawn. These will be drawn on all resolutions.
+		const int nRes = 4;
+		float fStep = MAX_NOTES / nRes * m_fGridWidth;
+		float x = PatternEditor::nMargin;
+		p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
+		while ( x < m_nActiveWidth ) {
+			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			x += fStep;
 		}
-		nRes *= 2;
-		fStep /= 2;
+			
+		p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
+		while ( x < m_nEditorWidth ) {
+			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			x += fStep;
+		}
+
+		// Resolution 4 was already taken into account above;
+		std::vector<int> availableResolutions = { 8, 16, 32, 64, MAX_NOTES };
 
 		// For each successive set of finer-spaced lines, the even
 		// lines will have already been drawn at the previous coarser
 		// pitch, so only the odd numbered lines need to be drawn.
 		int nColour = 1;
-		while ( m_nResolution >= nRes ) {
-			nColour++;
+		for ( int nnRes : availableResolutions ) {
+			if ( nnRes > m_nResolution ) {
+				break;
+			}
+
+			fStep = MAX_NOTES / nnRes * m_fGridWidth;
 			float x = PatternEditor::nMargin + fStep;
 			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
 							1, style ) );
-			while ( x < m_nActiveWidth + fStep ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep * 2;
+
+			if ( nnRes != MAX_NOTES ) {
+				// With each increase of resolution 1/4 -> 1/8 -> 1/16 -> 1/32
+				// -> 1/64 the number of available notes doubles and all we need
+				// to do is to draw another grid line right between two existing
+				// ones.
+				while ( x < m_nActiveWidth + fStep ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
+			}
+			else {
+				// When turning resolution off, things get a bit more tricky.
+				// Between 1/64 -> 1/192 (1/MAX_NOTES) the space between
+				// existing grid line will be filled by two instead of one new
+				// line.
+				while ( x < m_nActiveWidth + fStep ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep;
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
 			}
 
 			p.setPen( QPen( colorsInactive[ std::min( nColour, static_cast<int>(colorsInactive.size()) - 1 ) ],
 							1, style ) );
-			while ( x < m_nEditorWidth ) {
-				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
-				x += fStep * 2;
+			if ( nnRes != MAX_NOTES ) {
+				while ( x < m_nEditorWidth ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
 			}
-			nRes *= 2;
-			fStep /= 2;
+			else {
+				while ( x < m_nEditorWidth ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep;
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+					x += fStep * 2;
+				}
+			}
+
+			nColour++;
 		}
 
 	} else {
@@ -927,7 +956,7 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 
 QColor PatternEditor::selectedNoteColor() const {
 	
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( hasFocus() ) {
 		const QColor selectHighlightColor( pPref->getTheme().m_color.m_selectionHighlightColor );

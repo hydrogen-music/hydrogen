@@ -58,7 +58,12 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 		, Object ()
 {
 	setupUi ( this );
-	
+
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePositionRuler()));
@@ -115,11 +120,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 	openDisplays();
 	getAllFrameInfos();
 
-	adjustSize();
-	setFixedSize ( width(), height() );
-
 #ifndef H2CORE_HAVE_RUBBERBAND
-	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {
+	if ( !Filesystem::file_executable( Preferences::get_instance()->m_sRubberBandCLIexecutable , true /* silent */) ) {
 		RubberbandCframe->setDisabled ( true );
 		setClean();
 	}
@@ -190,7 +192,7 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 		return nullptr;
 	}
 
-	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+	auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 	if ( pLayer == nullptr ) {
 		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
 		assert( pLayer );
@@ -215,7 +217,7 @@ void SampleEditor::getAllFrameInfos()
 		return;
 	}
 
-	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+	auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 	if ( pLayer == nullptr ) {
 		ERRORLOG( QString( "Invalid layer [%1]" ).arg( m_nSelectedLayer ) );
 		assert( pLayer );
@@ -458,7 +460,7 @@ void SampleEditor::createNewLayer()
 		
 		std::shared_ptr<H2Core::InstrumentLayer> pLayer = nullptr;
 		if( pInstrument != nullptr ) {
-			pLayer = pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
+			pLayer = pInstrument->get_component( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
 
 			// insert new sample from newInstrument
 			pLayer->set_sample( pEditSample );
@@ -621,12 +623,12 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pCompo == nullptr ) {
 		return;
 	}
-	auto pLayer = pCompo->get_layer( selectedLayer );
+	auto pLayer = pCompo->getLayer( selectedLayer );
 	if ( pLayer == nullptr ) {
 		return;
 	}
 	Note *pNote = new Note( pInstr, 0, pLayer->get_end_velocity() - 0.01 );
-	pNote->set_specific_compo_id( m_nSelectedComponent );
+	pNote->setSpecificCompoIdx( m_nSelectedComponent );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 
 	setSamplelengthFrames();
@@ -682,7 +684,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	// have to construct a temporary instrument. Otherwise pInstrument would be
 	// deleted if consumed by preview_instrument.
 	auto pTmpInstrument = std::make_shared<Instrument>( pInstrument );
-	auto pNewSample = Sample::load( pInstrument->get_component( m_nSelectedComponent )->get_layer( nSelectedlayer )->get_sample()->get_filepath() );
+	auto pNewSample = Sample::load( pInstrument->get_component( m_nSelectedComponent )->getLayer( nSelectedlayer )->get_sample()->get_filepath() );
 
 	if ( pNewSample != nullptr ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );

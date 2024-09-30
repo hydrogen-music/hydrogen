@@ -53,6 +53,9 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	SoundLibraryDatabase();
 	~SoundLibraryDatabase();
 
+		/** Null element of the category list*/
+		static QString m_sPatternBaseCategory;
+
 	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfoVector() const {
 		return m_patternInfoVector;
 	}
@@ -73,6 +76,16 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	 *   (containing a drumkit.xml) file as unique identifier.
 	 */
 	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
+
+		/** Based on #Song::m_sLastLoadedDrumkitPath get the previous drumkit in
+		 * the data base (the one shown above the last loaded one in the Sound
+		 * Library widget) */
+		std::shared_ptr<Drumkit> getPreviousDrumkit() const;
+		/** Based on #Song::m_sLastLoadedDrumkitPath get the next drumkit in the
+		 * data base (the one shown below the last loaded one in the Sound
+		 * Library widget) */
+		std::shared_ptr<Drumkit> getNextDrumkit() const;
+
 	const std::map<QString, std::shared_ptr<Drumkit>>& getDrumkitDatabase() const {
 		return m_drumkitDatabase;
 	}
@@ -92,9 +105,8 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	/** Retrieves all #H2Core::DrumkitMap::Type found in the registered
 	 * drumkits.
 	 *
-	 * @return The list of unique types sorted by number of occurrence in
-	 * descending order.*/
-	 std::vector<DrumkitMap::Type> getAllTypes() const;
+	 * @return The list of unique types sorted alphabetically.*/
+	 std::set<DrumkitMap::Type> getAllTypes() const;
 	
 	void updatePatterns( bool bTriggerEvent = true );
 	void printPatterns() const;
@@ -112,6 +124,9 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
+		void registerUniqueLabel( const QString& sDrumkitPath,
+								  std::shared_ptr<Drumkit> pDrumkit );
+
 	std::map<QString, std::shared_ptr<Drumkit>> m_drumkitDatabase;
 		/** The absolute path to a drumkit folder is not the most accessible way
 		 * to refer to a kit in the GUI. Instead, each kit will also have an
@@ -139,9 +154,6 @@ private:
 		/** Whole folders that will be scanned for drumkits in addition to the
 		 * system and user drumkti folder. */
 		QStringList m_customDrumkitFolders;
-
-		void registerUniqueLabel( const QString& sDrumkitPath,
-							  std::shared_ptr<Drumkit> pDrumkit );
 };
 }; // namespace H2Core
 

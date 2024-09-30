@@ -185,28 +185,29 @@ for:
     build_script: |-
       git submodule init && git submodule update
 
-      export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
+      export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
-      mkdir build && cd build && \
-        cmake -DWANT_LASH=1 \
-              -DWANT_LRDF=1 \
-              -DWANT_PORTMIDI=1 \
-              -DWANT_PORTAUDIO=1 \
-              -DWANT_RUBBERBAND=1 \
-              -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache .. \
-          && \
-        make -j $CPUS
+      mkdir build || exit 1
+      cd build || exit 1
+      cmake -DWANT_LASH=1 \
+            -DWANT_LRDF=1 \
+            -DWANT_PORTMIDI=1 \
+            -DWANT_PORTAUDIO=1 \
+            -DWANT_RUBBERBAND=1 \
+            -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache .. || exit 1
+      make -j $CPUS || exit 1
 
-      ccache -s
+      ccache -s || exit 1
 
       wait
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
 
     test_script: |-
 
+      # Do not exit on test failure since we still need to upload artifacts.
       TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
 
       res=$?;
@@ -334,7 +335,7 @@ for:
 
       export PATH=$HOME/Qt/5.15.2/gcc_64/bin:$PATH
       export Qt5Widgets_DIR=$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5Widgets
-      export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
+      export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
@@ -600,6 +601,8 @@ for:
           if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
+          REM *** The angleproject package does not seem to be available for 32bit Windows and Qt does not find its libGLESv2.dll anymore ***
+          if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-angleproject
           c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
           c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
 
@@ -642,7 +645,12 @@ for:
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Deploy Qt ***
-          %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe
+          set "DEPLOY_ARGS=-xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
+
+          REM *** No OpenGL ES support via pacman on 32bit Windows
+          if %job_name%==Windows32 set "DEPLOY_ARGS=%DEPLOY_ARGS% --no-angle"
+
+          %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python

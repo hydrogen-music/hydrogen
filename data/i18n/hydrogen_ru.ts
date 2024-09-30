@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Общие</translation>
     </message>
     <message>
@@ -954,7 +956,9 @@ Are you sure?</source>
     </message>
     <message>
         <source>License</source>
-        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the license of the particular artifact.
+----------
+Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Лицензия</translation>
     </message>
     <message>
@@ -1060,31 +1064,102 @@ Are you sure?</source>
         <extracomment>Window title of the dialog showing the undo history.</extracomment>
         <translation>История действий</translation>
     </message>
-</context>
-<context>
-    <name>ComponentMixerLine</name>
     <message>
-        <source>Mute</source>
-        <translation>Тихо</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation>Соло</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Название компонента</translation>
-    </message>
-    <message>
-        <source>Volume</source>
+        <source>Unable to import drumkit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Peak</source>
+        <source>system</source>
+        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set volume [%1] of component</source>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The provided filename can not be handled by your current encoding</source>
+        <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Apply</source>
+        <extracomment>Text displayed on an Apply button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
+        <translation>Версия</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
+        <translation>Автор</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Ноты</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit imported in</source>
+        <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+But there were encoding issues.
+
+Please set your system&apos;s locale to UTF-8!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Удалить инструмент</translation>
+    </message>
+    <message>
+        <source>Drop instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add instrument</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1130,82 +1205,6 @@ Are you sure?</source>
         <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Main</source>
-        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Instrument</source>
-        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog</name>
-    <message>
-        <source>&amp;Export</source>
-        <translation>&amp;Экспорт</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Directory</source>
-        <translation>Каталог</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>Все</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation>Экспорт</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отменить</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Расположение</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Просмотреть...</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Версия</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation>0.9.7 и новее</translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation>0.9.6 и старше</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>Компонент</translation>
-    </message>
 </context>
 <context>
     <name>DrumkitOpenDialog</name>
@@ -1216,14 +1215,6 @@ Are you sure?</source>
 </context>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
-    <message>
-        <source>General</source>
-        <translation>Общие</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Информация</translation>
-    </message>
     <message>
         <source>Image License</source>
         <translation>Лицензия на изображение</translation>
@@ -1237,32 +1228,12 @@ Are you sure?</source>
         <translation>Лицензия на драмкит</translation>
     </message>
     <message>
-        <source>Author</source>
-        <translation>Автор</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Название</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>Изображение</translation>
     </message>
     <message>
-        <source>Mapping</source>
+        <source>Types</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Сохранить</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отменить</translation>
     </message>
 </context>
 <context>
@@ -1611,10 +1582,6 @@ Overwrite the existing file?</source>
         <translation>Файлы изображений (*.png *.jpg *.jpeg)</translation>
     </message>
     <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1648,6 +1615,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1792,6 +1763,22 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
+    <name>Instrument</name>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentComponent</name>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to an InstrumentComponent of a fresh instrument.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
@@ -1832,10 +1819,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Layer pitch (Fine)</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New component name</source>
-        <translation>Новое название компонента</translation>
     </message>
     <message>
         <source>Component name</source>
@@ -1912,13 +1895,13 @@ Value</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>New component name</source>
+        <translation>Новое название компонента</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
-    <message>
-        <source>Delete instrument</source>
-        <translation>Удалить инструмент</translation>
-    </message>
     <message>
         <source>Fill notes ...</source>
         <translation>Заполнить ноты...</translation>
@@ -2011,10 +1994,6 @@ Value</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2498,10 +2477,6 @@ MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add &amp;Component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2686,14 +2661,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Импортировать драмкит</translation>
     </message>
     <message>
-        <source>Drumkit imported in %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Во время импорта библиотеки звуков произошла ошибка.</translation>
-    </message>
-    <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2703,6 +2670,22 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Save &amp;To Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3219,6 +3202,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Drumkit used in the current song</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
@@ -3276,36 +3263,16 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>О&amp;тменить</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+т</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+о</translation>
     </message>
     <message>
-        <source>New Pattern Name</source>
-        <translation>Новое название паттерна</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>Категория ритм. рисунков</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation>Описание ритм. рисунка</translation>
     </message>
 </context>
 <context>
@@ -4340,22 +4307,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BBT sync method</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Audio System</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4663,14 +4614,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drop instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add piano roll note ( %1, %2 )</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4712,26 +4655,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Altering the length of the current pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rename component</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5415,10 +5338,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add component to current drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show playlist editor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5694,6 +5613,18 @@ p, li { white-space: pre-wrap; }
         <source>Save current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch to next drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to previous drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component to current instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -5936,40 +5867,12 @@ Overwrite the existing pattern?</source>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Notes</source>
-        <translation>Ноты</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Автор</translation>
-    </message>
-    <message>
-        <source>Song name</source>
-        <translation>Название композиции</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>О&amp;тменить</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+т</translation>
     </message>
     <message>
-        <source> &amp;OK</source>
-        <translation>&amp;OK</translation>
-    </message>
-    <message>
         <source>Alt+O</source>
         <translation>Alt+о</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>Лицензия</translation>
     </message>
 </context>
 <context>
@@ -6040,12 +5943,12 @@ Overwrite the existing pattern?</source>
         <translation>Скачивается библиотека звуков...</translation>
     </message>
     <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Библиотека звуков импортирована в %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Во время импорта библиотеки звуков произошла ошибка.</translation>
+        <source>Drumkits
+
+- %1
+
+imported into %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6126,17 +6029,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Drumkit deletion failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keep</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

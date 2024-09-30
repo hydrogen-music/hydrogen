@@ -80,6 +80,7 @@ namespace H2Core
 		static const QString drumkit_ext;
 		static const QString drumkit_map_ext;
 		static const QString themes_ext;
+		static const QString drumkit_filter_name;
 		static const QString songs_filter_name;
 		static const QString themes_filter_name;
 		static const QString scripts_filter_name;
@@ -88,10 +89,18 @@ namespace H2Core
 
 		/**
 		 * check user and system filesystem usability
+		 *
+		 * If either @a sSysDataPath, @a sLogFile, or @a sUserConfigFile are not
+		 * provided or empty, the corresponding default values will be used
+		 *
 		 * \param logger is a pointer to the logger instance which will be used
-		 * \param sys_path an alternate system data path
+		 * \param sSysDataPath path to an alternate system data folder
+		 * \param sUserConfigFile path to an alternate hydrogen.conf config file
+		 * \param sLogFile path to alternate log file
 		 */
-		static bool bootstrap( Logger* logger, const QString& sys_path=nullptr );
+		static bool bootstrap( Logger* logger, const QString& sSysDataPath = "",
+							   const QString& sUserConfigFile = "",
+							   const QString& sLogFile = "" );
 
 		/** returns system data path */
 		static const QString& sys_data_path();
@@ -103,8 +112,10 @@ namespace H2Core
 
 		/** returns system config path */
 		static QString sys_config_path();
-		/** returns user config path */
-		static const QString& usr_config_path();
+		/** @return user config path. This is either
+		 * $HOME/.hydrogen/hydrogen.conf or the alternative path provided via
+		 * CLI (see #m_sPreferencesOverwritePath) */
+		static QString usr_config_path();
 		/** returns system empty sample file path */
 		static QString empty_sample_path();
 		/**
@@ -186,7 +197,6 @@ namespace H2Core
 		/** returns user drumkits path */
 		static QString usr_drumkits_dir();
 		static QString sys_drumkit_maps_dir();
-		static QString usr_drumkit_maps_dir();
 		/** returns user playlist path */
 		static QString playlists_dir();
 		/** returns user playlist path, add file extension */
@@ -452,30 +462,15 @@ namespace H2Core
 		/** \param sPath Sets m_sPreferencesOverwritePath*/
 		static void setPreferencesOverwritePath( const QString& sPath );
 
-		/** Retrieves the #H2Core::DrumkitMap file for a drumkit folder @a
-		 * sDrumkitPath.
+		/** Retrieves a #H2Core::DrumkitMap file for a kit names @a sDrumkitName
 		 *
-		 * @param sDrumkitPath Absolute path to the drumkit directory
-		 *   (containing a drumkit.xml) file as unique identifier.
-		 *
-		 * @return an empty string in case no file was found.
-		 */
-		static QString getDrumkitMapFromKit( const QString& sDrumkitPath );
-		/** Retrieves a #h2Core::DrumkitMap file for a kit names @a sDrumkitPath
-		 * from either the system or the user data folder.
-		 *
-		 * It checks either #Filesystem::usr_drumkit_maps_dir() and
-		 * #Filesystem::sys_drumkit_maps_dir() (depending on @a bUser) for a @a
-		 * sDrumkitPath.h2map file. E.g. /data/drumkits/GMRockKit/ is associated
-		 * with data/drumkit_maps/GMRockKit.h2map but
-		 * data/drumkit_maps/gmrockkit.h2map is not.
-		 *
-		 * @param sDrumkitName Name of a drumkit
-		 * @param bUser Whether to search the user or system data folder.
+		 * @param sDrumkitName Name of a drumkit.
+		 * @param bSilent Whether to output additional log messages.
 		 *
 		 * @return an empty string in case no file was found.
 		 **/
-		static QString getDrumkitMapFromDir( const QString& sDrumkitName, bool bUser );
+		static QString getDrumkitMap( const QString& sDrumkitName,
+									  bool bSilent = false );
 
 		/**
 		 * Reroutes stored drumkit paths pointing to a temporary
@@ -505,9 +500,13 @@ namespace H2Core
 			/** If @a sUniqueFilePath contains a prefix introduced by
 			 * addUniquePrefix(), this function removes it and restores the
 			 * original base name of the file.*/
-			static QString removeUniquePrefix( const QString& sUniqueFilePath );
+			static QString removeUniquePrefix( const QString& sUniqueFilePath,
+											   bool bSilent = false );
 
 			static QString getAutoSaveFilename( const Type& type, const QString& sBaseName );
+			/** Removes all characters not within the Latin-1 range of @a
+			 * sEncodedString. */
+			static QString removeUtf8Characters( const QString& sEncodedString );
 
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger

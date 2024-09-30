@@ -35,7 +35,6 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
@@ -46,16 +45,19 @@ using namespace H2Core;
 
 #include <cassert>
 
-#define MIXER_STRIP_WIDTH	56
-#define MASTERMIXER_STRIP_WIDTH	126
-
 Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
 {
 	setWindowTitle( tr( "Mixer" ) );
-	setMaximumHeight( 284 );
-	setMinimumHeight( 284 );
-	setFixedHeight( 284 );
+
+	const int nMinimumFaderPanelWidth = MixerLine::nWidth * 4;
+	const int nFXFrameWidth = 213;
+	const int nFixedHeight = MasterMixerLine::nHeight;
+
+	setMinimumSize( nMinimumFaderPanelWidth +
+					nFXFrameWidth + MasterMixerLine::nWidth +
+					8, // Small margin for scrollbar
+					nFixedHeight + 6 );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
@@ -63,15 +65,16 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderHBox->setMargin( 0 );
 
 	m_pFaderPanel = new QWidget( nullptr );
-	m_pFaderPanel->resize( MIXER_STRIP_WIDTH * MAX_INSTRUMENTS, height() );
-
+	m_pFaderPanel->resize( MixerLine::nWidth * MAX_INSTRUMENTS, nFixedHeight );
+	m_pFaderPanel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	m_pFaderPanel->setMinimumSize( nMinimumFaderPanelWidth, nFixedHeight );
+	m_pFaderPanel->setMaximumSize( 16777215, nFixedHeight );
 	m_pFaderPanel->setLayout( m_pFaderHBox );
 
 	m_pFaderScrollArea = new QScrollArea( nullptr );
 	m_pFaderScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pFaderScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pFaderScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-	m_pFaderScrollArea->setMinimumWidth( MIXER_STRIP_WIDTH * 4 );
 	m_pFaderScrollArea->setWidget( m_pFaderPanel );
 
 	for ( uint i = 0; i < MAX_INSTRUMENTS; ++i ) {
@@ -87,7 +90,7 @@ Mixer::Mixer( QWidget* pParent )
 #endif
 	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setObjectName( "MixerFXRack" );
-	m_pFXFrame->setFixedSize( 213, height() );
+	m_pFXFrame->setFixedSize( nFXFrameWidth, nFixedHeight );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXLine[nFX] = new LadspaFXMixerLine( m_pFXFrame );
@@ -118,7 +121,6 @@ Mixer::Mixer( QWidget* pParent )
 // Master frame
 	m_pMasterLine = new MasterMixerLine( nullptr );
 	m_pMasterLine->setObjectName( "MasterMixerLine" );
-	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 	
 	m_pOpenMixerSettingsBtn = new Button( m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "", false, QSize( 13, 13 ), tr( "Mixer Settings" ) );
@@ -154,7 +156,25 @@ Mixer::Mixer( QWidget* pParent )
 	pLayout->addWidget( m_pFaderScrollArea );
 	pLayout->addWidget( m_pFXFrame );
 	pLayout->addWidget( m_pMasterLine );
-	this->setLayout( pLayout );
+
+	QWidget* pMainWidget = new QWidget();
+	pMainWidget->setLayout( pLayout );
+	pMainWidget->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+	pMainWidget->setMinimumSize( nMinimumFaderPanelWidth +
+								 nFXFrameWidth + MasterMixerLine::nWidth, nFixedHeight );
+	pMainWidget->setMaximumSize( 16777215, nFixedHeight );
+
+	auto pMainScrollArea = new QScrollArea();
+	pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	pMainScrollArea->setWidget( pMainWidget );
+	pMainScrollArea->setWidgetResizable( true );
+
+	auto pMainLayout = new QHBoxLayout();
+	pMainLayout->setSpacing( 0 );
+	pMainLayout->setMargin( 0 );
+	pMainLayout->addWidget( pMainScrollArea );
+	setLayout( pMainLayout );
 
 
 	m_pUpdateTimer = new QTimer( this );
@@ -198,23 +218,6 @@ void Mixer::closeEvent( QCloseEvent* ev )
 	HydrogenApp::get_instance()->showMixer(false);
 }
 
-
-ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
-{
-	ComponentMixerLine *pMixerLine = new ComponentMixerLine( nullptr , theCompoID);
-	pMixerLine->setObjectName( "ComponentMixerLine" );
-	pMixerLine->setVolume( 0.2 );
-	pMixerLine->setMuteClicked( false );
-	pMixerLine->setSoloClicked( false );
-
-	connect( pMixerLine, SIGNAL( muteBtnClicked(ComponentMixerLine*) ), this, SLOT( muteClicked(ComponentMixerLine*) ) );
-	connect( pMixerLine, SIGNAL( soloBtnClicked(ComponentMixerLine*) ), this, SLOT( soloClicked(ComponentMixerLine*) ) );
-	connect( pMixerLine, SIGNAL( volumeChanged(ComponentMixerLine*) ), this, SLOT( volumeChanged(ComponentMixerLine*) ) );
-
-	return pMixerLine;
-}
-
-
 void Mixer::muteClicked(MixerLine* ref)
 {
 	int nLine = findMixerLineByRef(ref);
@@ -224,39 +227,6 @@ void Mixer::muteClicked(MixerLine* ref)
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 
 	CoreActionController::setStripIsMuted( nLine, isMuteClicked );
-}
-
-void Mixer::muteClicked(ComponentMixerLine* ref)
-{
-	auto pSong = Hydrogen::get_instance()->getSong();
-	bool isMuteClicked = ref->isMuteClicked();
-
-	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
-
-	pCompo->set_muted( isMuteClicked );
-	Hydrogen::get_instance()->setIsModified( true );
-}
-
-void Mixer::soloClicked(ComponentMixerLine* ref)
-{
-	bool isSoloClicked = ref->isSoloClicked();
-	int nLine = findCompoMixerLineByRef(ref);
-	
-	ComponentMixerLine* pComponentMixerLine = m_pComponentMixerLine[nLine];
-	
-	pComponentMixerLine->setSoloClicked( isSoloClicked );
-	Hydrogen::get_instance()->setIsModified( true );
-}
-
-void Mixer::volumeChanged(ComponentMixerLine* ref)
-{
-	auto pSong = Hydrogen::get_instance()->getSong();
-	float newVolume = ref->getVolume();
-
-	auto pCompo = pSong->getDrumkit()->getComponent( ref->getComponentID() );
-
-	pCompo->set_volume( newVolume );
-	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void Mixer::soloClicked(MixerLine* ref)
@@ -372,19 +342,6 @@ uint Mixer::findMixerLineByRef(MixerLine* ref)
 	return 0;
 }
 
-
-uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
-{
-	for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
-		if(it->second == ref) {
-			return it->first;
-		}
-	}
-
-	return 0;
-}
-
-
 void Mixer::volumeChanged(MixerLine* ref) {
 	int nLine = findMixerLineByRef(ref);
 	CoreActionController::setStripVolume( nLine, ref->getVolume(), true );
@@ -403,21 +360,19 @@ void Mixer::updateMixer()
 		// Skip redundant updates if mixer is not visible.
 		return;
 	}
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	bool bShowPeaks = pPref->showInstrumentPeaks();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	auto pDrumkitComponentList = pSong->getDrumkit()->getComponents();
 
 	uint nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
 	float fallOff = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 
 	int nInstruments = pInstrList->size();
-	int nCompo = pDrumkitComponentList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
@@ -425,7 +380,7 @@ void Mixer::updateMixer()
 				delete m_pMixerLine[ nInstr ];
 				m_pMixerLine[ nInstr ] = nullptr;
 
-				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+				int newWidth = MixerLine::nWidth * nInstruments;
 				if ( m_pFaderPanel->width() != newWidth ) {
 					m_pFaderPanel->resize( newWidth, height() );
 				}
@@ -438,7 +393,7 @@ void Mixer::updateMixer()
 				m_pMixerLine[ nInstr ] = createMixerLine( nInstr );
 				m_pFaderHBox->insertWidget( nInstr, m_pMixerLine[ nInstr ] );
 
-				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
+				int newWidth = MixerLine::nWidth * nInstruments;
 				if ( m_pFaderPanel->width() != newWidth ) {
 					m_pFaderPanel->resize( newWidth, height() );
 				}
@@ -516,96 +471,6 @@ void Mixer::updateMixer()
 			pLine->updateMixerLine();
 		}
 	}
-
-	for (auto& pDrumkitComponent : *pDrumkitComponentList) {
-
-		if( m_pComponentMixerLine.find(pDrumkitComponent->get_id()) == m_pComponentMixerLine.end() ) {
-			// the mixerline doesn't exists..I'll create a new one!
-			m_pComponentMixerLine[ pDrumkitComponent->get_id() ] = createComponentMixerLine( pDrumkitComponent->get_id() );
-			m_pFaderHBox->addWidget( m_pComponentMixerLine[ pDrumkitComponent->get_id() ] );
-
-			int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
-			if ( m_pFaderPanel->width() != newWidth ) {
-				m_pFaderPanel->resize( newWidth, height() );
-			}
-		}
-
-		ComponentMixerLine *pLine = m_pComponentMixerLine[ pDrumkitComponent->get_id() ];
-
-		float fNewPeak_L = pDrumkitComponent->get_peak_l();
-		pDrumkitComponent->set_peak_l( 0.0f );	// reset instrument peak
-
-		float fNewPeak_R = pDrumkitComponent->get_peak_r();
-		pDrumkitComponent->set_peak_r( 0.0f );	// reset instrument peak
-
-		bool bMuted = pDrumkitComponent->is_muted();
-
-		QString sName = pDrumkitComponent->get_name();
-
-		float fOldPeak_L = pLine->getPeak_L();
-		float fOldPeak_R = pLine->getPeak_R();
-
-		if (!bShowPeaks) {
-			fNewPeak_L = 0.0f;
-			fNewPeak_R = 0.0f;
-		}
-
-		if ( fNewPeak_L >= fOldPeak_L) {	// LEFT peak
-			pLine->setPeak_L( fNewPeak_L );
-		}
-		else {
-			pLine->setPeak_L( fOldPeak_L / fallOff );
-		}
-		if ( fNewPeak_R >= fOldPeak_R) {	// Right peak
-			pLine->setPeak_R( fNewPeak_R );
-		}
-		else {
-			pLine->setPeak_R( fOldPeak_R / fallOff );
-		}
-
-		// fader position
-		float fNewVolume = pDrumkitComponent->get_volume();
-		float fOldVolume = pLine->getVolume();
-		if (fOldVolume != fNewVolume) {
-			pLine->setVolume(fNewVolume);
-		}
-
-		// mute
-		pLine->setMuteClicked( bMuted );
-
-		// instr name
-		pLine->setName( sName );
-
-		pLine->updateMixerLine();
-	}
-
-	if( pDrumkitComponentList->size() < m_pComponentMixerLine.size() ) {
-		std::vector<int> IdsToDelete;
-		for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
-
-			bool bFoundExistingRelatedComponent = false;
-			for ( const auto& pComponent : *pDrumkitComponentList ) {
-				if ( pComponent->get_id() == it->first ) {
-					bFoundExistingRelatedComponent = true;
-					break;
-				}
-			}
-			if ( !bFoundExistingRelatedComponent ) {
-				IdsToDelete.push_back( it->first ) ;
-			}
-		}
-
-		for ( const int nCompoID : IdsToDelete ) {
-			delete m_pComponentMixerLine[nCompoID];
-			m_pComponentMixerLine.erase( nCompoID );
-
-			int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
-			if ( m_pFaderPanel->width() != newWidth ) {
-				m_pFaderPanel->resize( newWidth, height() );
-			}
-		}
-	}
-
 
 	// update MasterPeak
 	float fOldPeak_L = m_pMasterLine->getPeak_L();
@@ -777,7 +642,7 @@ void Mixer::showFXPanelClicked()
 
 void Mixer::showPeaksBtnClicked()
 {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 
 	if ( m_pShowPeaksBtn->isChecked() ) {
 		pPref->setInstrumentPeaks( true );

@@ -23,12 +23,15 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "AdsrTest.h"
+#include "AssertionTest.cpp"
 #include "AudioBenchmark.h"
 #include "AudioDriverTest.h"
 #include "AutomationPathSerializerTest.cpp"
 #include "AutomationPathTest.cpp"
+#include "CliTest.h"
 #include "CoreActionControllerTest.h"
 #include "EventQueueTest.cpp"
+#include "DrumkitExportTest.h"
 #include "FilesystemTest.h"
 #include "FunctionalTests.cpp"
 #include "InstrumentListTest.cpp"
@@ -47,12 +50,18 @@
 #include "XmlTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( AssertionTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
+#if not defined(WIN32) and not defined (__APPLE__)
+  // For now h2cli is just part of our Linux package.
+  CPPUNIT_TEST_SUITE_REGISTRATION( CliTest );
+#endif
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( InstrumentListTest );

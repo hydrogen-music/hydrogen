@@ -100,6 +100,7 @@ const QString Filesystem::playlist_ext = ".h2playlist";
 const QString Filesystem::drumkit_ext = ".h2drumkit";
 const QString Filesystem::drumkit_map_ext = ".h2map";
 const QString Filesystem::scripts_filter_name = "Hydrogen Scripts (*.sh)";
+const QString Filesystem::drumkit_filter_name = "Hydrogen Drumkit (*.h2drumkit)";
 const QString Filesystem::songs_filter_name = "Hydrogen Songs (*.h2song)";
 const QString Filesystem::themes_filter_name = "Hydrogen Theme (*.h2theme)";
 const QString Filesystem::patterns_filter_name = "Hydrogen Patterns (*.h2pattern)";
@@ -122,14 +123,18 @@ QStringList Filesystem::__ladspa_paths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
-/* TODO QCoreApplication is not instantiated */
-bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
+bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
+							const QString& sUserConfigPath,
+							const QString& sLogFile )
 {
 	if( __logger==nullptr && logger!=nullptr ) {
 		__logger = logger;
 	} else {
 		return false;
 	}
+
+	// A QCoreApplication instance is needed for applicationDirPath etc.
+	assert( QCoreApplication::instance() != nullptr );
 
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
@@ -153,7 +158,23 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
 	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #endif
-	if( sys_path!=nullptr ) __sys_data_path = sys_path;
+	if ( ! sSysDataPath.isEmpty() ) {
+		INFOLOG( QString( "Using custom system data folder [%1]" )
+				 .arg( sSysDataPath ) );
+		__sys_data_path = sSysDataPath;
+	}
+
+	if ( ! sUserConfigPath.isEmpty() ) {
+		INFOLOG( QString( "Using custom user-level config file [%1]" )
+				 .arg( sUserConfigPath ) );
+		__usr_cfg_path = sUserConfigPath;
+	}
+
+	if ( ! sLogFile.isEmpty() ) {
+		// No need for an info log. This is done within the bootstrap of the
+		// logger.
+		Filesystem::__usr_log_path = sLogFile;
+	}
 
 	if( !dir_readable( __sys_data_path ) ) {
 		__sys_data_path = QCoreApplication::applicationDirPath().append( "/" LOCAL_DATA_PATH );
@@ -441,10 +462,9 @@ bool Filesystem::check_sys_paths()
 bool Filesystem::check_usr_paths() {
 	QStringList pathsUsable = { tmp_dir(),			__usr_data_path,
 								cache_dir(),		repositories_cache_dir(),
-								usr_drumkits_dir(), usr_drumkit_maps_dir(),
-								patterns_dir(),		playlists_dir(),
-								plugins_dir(),		scripts_dir(),
-								songs_dir(),		usr_theme_dir() };
+								usr_drumkits_dir(), patterns_dir(),
+								playlists_dir(),    plugins_dir(),
+								scripts_dir(), songs_dir(),	usr_theme_dir() };
 
 	QStringList filesWritable = { usr_config_path() };
 	
@@ -487,9 +507,13 @@ QString Filesystem::sys_config_path()
 {
        return __sys_data_path + SYS_CONFIG;
 }
-const QString& Filesystem::usr_config_path()
+QString Filesystem::usr_config_path()
 {
-       return __usr_cfg_path;
+	if ( ! m_sPreferencesOverwritePath.isEmpty() ) {
+		return m_sPreferencesOverwritePath;
+	} else {
+		return __usr_cfg_path;
+	}
 }
 QString Filesystem::empty_sample_path()
 {
@@ -645,10 +669,6 @@ QString Filesystem::sys_drumkit_maps_dir()
 {
 	return __sys_data_path + DRUMKIT_MAPS;
 }
-QString Filesystem::usr_drumkit_maps_dir()
-{
-	return __usr_data_path + DRUMKIT_MAPS;
-}
 QString Filesystem::playlists_dir()
 {
 	return __usr_data_path + PLAYLISTS;
@@ -685,7 +705,7 @@ QString Filesystem::tmp_file_path( const QString &base )
 {
 	// Ensure template base will produce a valid filename
 	QString validBase = base;
-	validBase.remove( QRegExp( "[^a-zA-Z0-9._]" ) );
+	validBase.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	QFileInfo f( validBase );
 	QString templateName( tmp_dir() + "/" );
@@ -946,7 +966,7 @@ QString Filesystem::validateFilePath( const QString& sPath ) {
 	// Ensure the name will be a valid filename
 	QString sValidName( sPath );
 	sValidName.replace( " ", "_" );
-	sValidName.remove( QRegExp( "[^a-zA-Z0-9_-]" ) );
+	sValidName.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	return sValidName;
 }
@@ -979,11 +999,12 @@ void Filesystem::info()
 	INFOLOG( QString( "Default config             : %1" ).arg( sys_config_path() ) );
 	INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
 	INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
-	// new_tutorial
 	INFOLOG( QString( "XSD dir                    : %1" ).arg( xsd_dir() ) );
-	INFOLOG( QString( "drumkit pattern XSD        : %1" ).arg( pattern_xsd_path() ) );
-	INFOLOG( QString( "drumkit XSD                : %1" ).arg( drumkit_xsd_path() ) );
-	INFOLOG( QString( "drumkit XSD                : %1" ).arg( playlist_xsd_path() ) );
+	INFOLOG( QString( "Pattern XSD                : %1" ).arg( pattern_xsd_path() ) );
+	INFOLOG( QString( "Drumkit XSD                : %1" ).arg( drumkit_xsd_path() ) );
+	INFOLOG( QString( "Playlist XSD               : %1" ).arg( playlist_xsd_path() ) );
+	INFOLOG( QString( "Drumkit Map XSD            : %1" )
+			 .arg( drumkit_map_xsd_path() ) );
 	// USR
 	INFOLOG( QString( "User config                : %1" ).arg( usr_config_path() ) );			// FIXME
 	INFOLOG( QString( "User Click file            : %1" ).arg( usr_click_file_path() ) );
@@ -1081,57 +1102,12 @@ QString Filesystem::rerouteDrumkitPath( const QString& sDrumkitPath ) {
 #endif
 }
 
-QString Filesystem::getDrumkitMapFromKit( const QString& sDrumkitPath ) {
-
-	if ( sDrumkitPath.isEmpty() ) {
-		// We have to be careful to not create a QDir with an empty
-		// string as this would represent the current working
-		// directory.
-		ERRORLOG( "Empty drumkit path" );
-		return QString();
-	}
-
-	QDir drumkitDir( sDrumkitPath );
-	if ( ! dir_readable( sDrumkitPath ) ) {
-		ERRORLOG( QString( "Unable to access drumkit folder [%1]" )
-					  .arg( sDrumkitPath ) );
-		return QString();
-	}
-
-	// Search for a .h2map within the drumkit folder.
-	QStringList mapFiles =
-		drumkitDir.entryList( { QString( "*%1" ).arg( drumkit_map_ext ) } );
-
-	if ( mapFiles.size() == 0 ) {
-		DEBUGLOG( QString( "No drumkit map file found in kit folder [%1]" )
-					  .arg( sDrumkitPath ) );
-		return QString();
-	}
-
-	if ( mapFiles.size() > 1 ) {
-		WARNINGLOG( QString( "More than one drumkit map file detected in "
-							 "drumkit folder [%1]: [%2]. Using [%3]" )
-						.arg( sDrumkitPath )
-						.arg( mapFiles.join( "," ) )
-						.arg( mapFiles[0] ) );
-	}
-
-	DEBUGLOG( QString( "Using drumkit map file [%1] for kit [%2]" )
-				  .arg( drumkitDir.filePath( mapFiles[0] ) )
-				  .arg( sDrumkitPath ) );
-	return drumkitDir.filePath( mapFiles[0] );
-}
-
-QString Filesystem::getDrumkitMapFromDir( const QString& sDrumkitName, bool bUser ) {
-	QString sMapDir;
-	if ( bUser ) {
-		sMapDir = usr_drumkit_maps_dir();
-	} else {
-		sMapDir = sys_drumkit_maps_dir();
-	}
+QString Filesystem::getDrumkitMap( const QString& sDrumkitName,
+								   bool bSilent ) {
+	const QString sMapDir = sys_drumkit_maps_dir();
 
 	if ( ! dir_readable( sMapDir ) ) {
-		ERRORLOG( QString( "Unable to access drumkit map folder [%1]" )
+		ERRORLOG( QString( "Unable to access system drumkit map folder [%1]" )
 					  .arg( sMapDir ) );
 		return QString();
 	}
@@ -1141,15 +1117,17 @@ QString Filesystem::getDrumkitMapFromDir( const QString& sDrumkitName, bool bUse
 	
 	QDir mapDir( sMapDir );
 	// The mapping file must exactly match drumkit name.
-	if ( mapDir.exists( sTarget ) ) {
-		DEBUGLOG(
-			QString( "Found map file [%1] for kit [%2]" )
-				.arg( mapDir.filePath( sTarget ) )
-				.arg( sDrumkitName ) );
-		return mapDir.filePath( sTarget );
+	if ( ! mapDir.exists( sTarget ) ) {
+		WARNINGLOG( QString( "No .h2map fallback file for kit [%1] found. Please add types in the kit's Properties dialog yourself" )
+					.arg( sDrumkitName ) );
+		return QString();
 	}
 
-	return QString();
+	if ( bSilent ) {
+		INFOLOG(QString( "Found map file [%1] for kit [%2]" )
+				 .arg( mapDir.filePath( sTarget ) ).arg( sDrumkitName ) );
+	}
+	return mapDir.filePath( sTarget );
 }
 
 QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
@@ -1196,7 +1174,8 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 	return std::move( sUniquePath );
 }
 
-QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
+QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath,
+										bool bSilent ) {
 	QRegExp prefix( "tmp-[\\w]{6}-+" );
 
 	if ( sUniqueFilePath.contains( prefix ) ) {
@@ -1206,8 +1185,10 @@ QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath ) {
 			absoluteFilePath( info.fileName().remove( prefix ) );
 	}
 	else {
-		WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )
-					.arg( sUniqueFilePath ) );
+		if ( ! bSilent ) {
+			WARNINGLOG( QString( "Path [%1] does not contain unique prefix" )
+						.arg( sUniqueFilePath ) );
+		}
 		return sUniqueFilePath;
 	}
 }
@@ -1276,6 +1257,11 @@ QString Filesystem::TypeToQString( const Type& type ) {
 	default:
 		return "Unknown";
 	}
+}
+
+QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
+	QString sCleaned( sEncodedString );
+	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
 }
 };
 

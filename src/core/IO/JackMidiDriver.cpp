@@ -278,8 +278,8 @@ JackMidiDriver::JackMidiDriver()
 	QString jackMidiClientId = "Hydrogen";
 
 #ifdef H2CORE_HAVE_OSC
-	Preferences* pref = Preferences::get_instance();
-	QString nsmClientId = pref->getNsmClientId();
+	auto  pPref = Preferences::get_instance();
+	QString nsmClientId = pPref->getNsmClientId();
 
 	if(!nsmClientId.isEmpty()){
 		jackMidiClientId = nsmClientId;
@@ -385,6 +385,10 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 
 void JackMidiDriver::handleQueueNote(Note* pNote)
 {
+	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return;
+	}
 
 	uint8_t buffer[4];
 	int channel;
@@ -470,6 +474,30 @@ void JackMidiDriver::handleQueueAllNoteOff()
 
 		handleQueueNoteOff(channel, key, 0);
 	}
+}
+
+QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[JackMidiDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bActive: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bActive ) )
+			.append( QString( "%1%2running: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( running ) )
+			.append( QString( "%1%2rx_in_pos: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( rx_in_pos ) )
+			.append( QString( "%1%2rx_out_pos: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( rx_out_pos ) );
+	} else {
+		sOutput = QString( "[JackMidiDriver]" )
+			.append( QString( " m_bActive: %1" ).arg( m_bActive ) )
+			.append( QString( ", running: %1" ).arg( running ) )
+			.append( QString( ", rx_in_pos: %1" ).arg( rx_in_pos ) )
+			.append( QString( ", rx_out_pos: %1" ).arg( rx_out_pos ) );
+	}
+
+	return sOutput;
 }
 
 };

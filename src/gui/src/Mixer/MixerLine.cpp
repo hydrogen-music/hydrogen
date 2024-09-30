@@ -44,22 +44,12 @@ using namespace H2Core;
 
 #include "MixerLine.h"
 
-#define MIXERLINE_WIDTH			56
-#define MIXERLINE_HEIGHT		254
-#define MASTERMIXERLINE_WIDTH	126
-#define MASTERMIXERLINE_HEIGHT	284
-#define MIXERLINE_LABEL_H		115
-#define MASTERMIXERLINE_FADER_H	75
-
 using namespace H2Core;
 
 MixerLine::MixerLine(QWidget* parent, int nInstr)
  : PixmapWidget( parent )
 {
-//	
 
-	m_nWidth = MIXERLINE_WIDTH;
-	m_nHeight = MIXERLINE_HEIGHT;
 	m_fMaxPeak = 0.0;
 	m_nActivity = 0;
 	m_bIsSelected = false;
@@ -67,8 +57,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	std::shared_ptr<Action> pAction;
 
-	resize( m_nWidth, m_nHeight );
-	setFixedSize( m_nWidth, m_nHeight );
+	resize( nWidth, nHeight );
+	setFixedSize( nWidth, nHeight );
 
 	setPixmap( "/mixerPanel/mixerline_background.png" );
 
@@ -139,7 +129,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 		connect( m_pFxRotary[i], SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( knobChanged( WidgetWithInput* ) ) );
 	}
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
@@ -392,220 +382,15 @@ void MixerLine::setSelected( bool bIsSelected )
 
 // ::::::::::::::::::::::::::::
 
-
-ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
- : PixmapWidget( parent )
-{
-//	
-
-	m_nComponentID = CompoID;
-
-	m_nWidth = MIXERLINE_WIDTH;
-	m_nHeight = MIXERLINE_HEIGHT;
-	m_fMaxPeak = 0.0;
-	m_nActivity = 0;
-	m_bIsSelected = false;
-	m_nPeakTimer = 0;
-
-	resize( m_nWidth, m_nHeight );
-	setFixedSize( m_nWidth, m_nHeight );
-
-	setPixmap( "/mixerPanel/componentmixerline_background.png" );
-
-	// Mute button
-	m_pMuteBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
-	m_pMuteBtn->move( 5, 16 );
-	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteBtnClicked() ));
-
-	// Solo button
-	m_pSoloBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
-	m_pSoloBtn->move( 28, 16 );
-	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloBtnClicked() ));
-
-	Preferences *pPref = Preferences::get_instance();
-
-	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
-	fFalloffTemp = (fFalloffTemp * 20) - 2;
-	m_nFalloff = (int)fFalloffTemp;
-
-	QPixmap textBackground;
-	bool ok = textBackground.load( Skin::getImagePath() + "/mixerPanel/mixerline_text_background.png" );
-	if( ok == false ){
-		ERRORLOG( "Error loading pixmap" );
-	}
-
-	// instrument name widget
-	m_pNameWidget = new InstrumentNameWidget( this );
-	m_pNameWidget->move( 6, 128 );
-	m_pNameWidget->setToolTip( tr( "Component name" ) );
-
-	// m_pFader
-	m_pFader = new Fader( this, Fader::Type::Normal, tr( "Volume" ), false, false, 0.0, 1.5 );
-	m_pFader->move( 23, 128 );
-	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( faderChanged( WidgetWithInput* ) ) );
-
-	//pAction = new MidiAction("STRIP_VOLUME_ABSOLUTE");
-	//pAction->setParameter1( QString::number(nInstr) );
-	//m_pFader->setAction( pAction );
-
-
-	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
-	m_pPeakLCD->move( 8, 105 );
-	m_pPeakLCD->setText( "0.00" );
-	m_pPeakLCD->setToolTip( tr( "Peak" ) );
-	QPalette lcdPalette;
-	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
-	m_pPeakLCD->setPalette( lcdPalette );
-}
-
-
-
-ComponentMixerLine::~ComponentMixerLine() {
-}
-
-void ComponentMixerLine::updateMixerLine()
-{
-	if ( m_nPeakTimer > m_nFalloff ) {
-		if ( m_fMaxPeak > 0.05f ) {
-			m_fMaxPeak = m_fMaxPeak - 0.05f;
-		}
-		else {
-			m_fMaxPeak = 0.0f;
-			m_nPeakTimer = 0;
-		}
-		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
-		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setUseRedFont( true );
-		}
-		else {
-			m_pPeakLCD->setUseRedFont( false );
-		}
-	}
-	m_nPeakTimer++;
-}
-
-void ComponentMixerLine::muteBtnClicked() {
-	emit muteBtnClicked(this);
-}
-
-void ComponentMixerLine::soloBtnClicked() {
-	emit soloBtnClicked(this);
-}
-
-void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
-
-	assert( pRef );
-	
-	Hydrogen::get_instance()->setIsModified( true );
-	emit volumeChanged(this);
-
-	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
-	double value = (double) pFader->getValue();
-	
-	QString sMessage = tr( "Set volume [%1] of component" )
-		.arg( value, 0, 'f', 2 );
-	sMessage.append( QString( " [%1]" )
-					 .arg( m_pNameWidget->text() ) );
-	QString sCaller = QString( "%1:faderChanged:%2" )
-		.arg( class_name() ).arg( m_pNameWidget->text() );
-	
-	( HydrogenApp::get_instance() )->
-		showStatusBarMessage( sMessage, sCaller );
-}
-
-bool ComponentMixerLine::isMuteClicked() {
-	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) ||
-			 ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
-}
-
-void ComponentMixerLine::setMuteClicked(bool isClicked) {
-	if ( ! m_pMuteBtn->isDown() ) {
-		m_pMuteBtn->setChecked(isClicked);
-	}
-}
-
-bool ComponentMixerLine::isSoloClicked() {
-	return ( ( m_pSoloBtn->isChecked() && ! m_pSoloBtn->isDown() ) || ( ! m_pSoloBtn->isChecked() && m_pSoloBtn->isDown() ) );
-}
-
-void ComponentMixerLine::setSoloClicked(bool isClicked) {
-	if ( ! m_pSoloBtn->isDown() ) {
-		m_pSoloBtn->setChecked(isClicked);
-	}
-}
-
-float ComponentMixerLine::getVolume()
-{
-	return m_pFader->getValue();
-}
-
-void ComponentMixerLine::setVolume( float value ) {
-	m_pFader->setValue( value );
-}
-
-void ComponentMixerLine::setPeak_L( float peak ) {
-	if (peak != getPeak_L() ) {
-		m_pFader->setPeak_L( peak );
-		if (peak > m_fMaxPeak) {
-			if ( peak < 0.1f ) {
-				peak = 0.0f;
-			}
-			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
-			if ( peak > 1.0 ) {
-				m_pPeakLCD->setUseRedFont( true );
-			}
-			else {
-				m_pPeakLCD->setUseRedFont( false );
-			}
-			m_fMaxPeak = peak;
-			m_nPeakTimer = 0;
-		}
-	}
-}
-
-float ComponentMixerLine::getPeak_L() {
-	return m_pFader->getPeak_L();
-}
-
-void ComponentMixerLine::setPeak_R( float peak ) {
-	if (peak != getPeak_R() ) {
-		m_pFader->setPeak_R( peak );
-		if (peak > m_fMaxPeak) {
-			if ( peak < 0.1f ) {
-				peak = 0.0f;
-			}
-			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
-			if ( peak > 1.0 ) {
-				m_pPeakLCD->setUseRedFont( true );
-			}
-			else {
-				m_pPeakLCD->setUseRedFont( false );
-		}
-			m_fMaxPeak = peak;
-			m_nPeakTimer = 0;
-		}
-	}
-}
-
-float ComponentMixerLine::getPeak_R() {
-	return m_pFader->getPeak_R();
-}
-
-
-// ::::::::::::::::::::::::::::
-
 MasterMixerLine::MasterMixerLine(QWidget* parent)
  : PixmapWidget( parent )
 {
-	m_nWidth = MASTERMIXERLINE_WIDTH;
-	m_nHeight = MASTERMIXERLINE_HEIGHT;
 	m_fMaxPeak = 0.0f;
 	m_nPeakTimer = 0;
 
-	setMinimumSize( m_nWidth, m_nHeight );
-	setMaximumSize( m_nWidth, m_nHeight );
-	resize( m_nWidth, m_nHeight );
+	setMinimumSize( nWidth, nHeight );
+	setMaximumSize( nWidth, nHeight );
+	resize( nWidth, nHeight );
 	QPalette defaultPalette;
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
@@ -613,14 +398,14 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	// Background image
 	setPixmap( "/mixerPanel/masterMixerline_background.png" );
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
 	m_nFalloff = (int)fFalloffTemp;
 
 	m_pMasterFader = new Fader( this, Fader::Type::Master, tr( "Master volume" ), false, false, 0.0, 1.5 );
-	m_pMasterFader->move( 24, MASTERMIXERLINE_FADER_H );
+	m_pMasterFader->move( 24, 75 );
 	connect( m_pMasterFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
@@ -850,7 +635,7 @@ InstrumentNameWidget::~InstrumentNameWidget()
 void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	PixmapWidget::paintEvent( ev );
 

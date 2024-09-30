@@ -38,7 +38,6 @@ namespace H2Core
 class Note;
 class Song;
 class Sample;
-class DrumkitComponent;
 class Instrument;
 struct SelectedLayerInfo;
 class InstrumentComponent;
@@ -187,6 +186,12 @@ public:
 	void midiKeyboardNoteOff( int key );
 
 	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
+		/** Stop playing notes gracefully by making them enter their release
+		 * phase (ADSR).
+		 *
+		 * @param pInstr particular instrument for which notes will be release
+		 *   (`nullptr` to release them all) */
+		void releasePlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
 
 	int getPlayingNotesNumber() const {
 		return m_playingNotesQueue.size();
@@ -237,11 +242,37 @@ public:
 	void handleSongSizeChange();
 
 	const std::vector<Note*>& getPlayingNotesQueue() const;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	
 private:
+	/** function to direct the computation to the selected pan law function
+	 */
+	float panLaw( float fPan, std::shared_ptr<Song> pSong );
+
+	bool processPlaybackTrack(int nBufferSize);
+
+    /** @return false - the note is not ended, true - the note is ended */
+	bool renderNote( Note* pNote, unsigned nBufferSize );
+
+	bool renderNoteResample(
+		std::shared_ptr<Sample> pSample,
+		Note *pNote,
+		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
+		std::shared_ptr<InstrumentComponent> pCompo,
+		int nComponentIdx,
+		int nBufferSize,
+		int nInitialBufferPos,
+		float cost_L,
+		float cost_R,
+		float cost_track_L,
+		float cost_track_R,
+		float fLayerPitch
+	);
+
 	std::vector<Note*> m_playingNotesQueue;
 	std::vector<Note*> m_queuedNoteOffs;
-	
+
 	/// Instrument used for the playback track feature.
 	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
 
@@ -254,40 +285,10 @@ private:
 	    inferred from Preferences::m_nMaxLayers. Default value
 	    assigned in Preferences::Preferences(): 16.*/
 	int m_nMaxLayers;
-	
+
 	int m_nPlayBackSamplePosition;
-	
-	/** function to direct the computation to the selected pan law function
-	 */
-	float panLaw( float fPan, std::shared_ptr<Song> pSong );
-
-
-
-	bool processPlaybackTrack(int nBufferSize);
-
-    /**
-	 * Render a note
-	 *
-	 * @return false - the note is not ended, true - the note is ended
-	 */
-	bool renderNote( Note* pNote, unsigned nBufferSize );
 
 	Interpolation::InterpolateMode m_interpolateMode;
-
-	bool renderNoteResample(
-		std::shared_ptr<Sample> pSample,
-		Note *pNote,
-		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
-		std::shared_ptr<InstrumentComponent> pCompo,
-		std::shared_ptr<DrumkitComponent> pDrumCompo,
-		int nBufferSize,
-		int nInitialBufferPos,
-		float cost_L,
-		float cost_R,
-		float cost_track_L,
-		float cost_track_R,
-		float fLayerPitch
-	);
 };
 
 inline const std::vector<Note*>& Sampler::getPlayingNotesQueue() const {

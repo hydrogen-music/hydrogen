@@ -20,45 +20,46 @@
  *
  */
 
-#include <core/Hydrogen.h>
+#include <cmath>
+
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/EventQueue.h>
-using namespace H2Core;
+#include <core/Hydrogen.h>
 
-
-#include "HydrogenApp.h"
-#include "PatternEditorPanel.h"
-#include "PatternEditorInstrumentList.h"
-#include "PatternEditorRuler.h"
-#include "NotePropertiesRuler.h"
 #include "DrumPatternEditor.h"
+#include "NotePropertiesRuler.h"
+#include "PatternEditorInstrumentList.h"
+#include "PatternEditorPanel.h"
+#include "PatternEditorRuler.h"
 #include "PianoRollEditor.h"
 
-#include "../UndoActions.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
-#include "../Widgets/Fader.h"
-#include "../Widgets/PixmapWidget.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/PatchBay.h"
+#include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
+#include "../UndoActions.h"
 
-#include "../CommonStrings.h"
-#include "../SongEditor/SongEditorPanel.h"
+using namespace H2Core;
 
-#include <cmath>
 
 
 void PatternEditorPanel::updateDrumkitLabel( )
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pTheme = H2Core::Preferences::get_instance()->getTheme();
 	
-	QFont font( Preferences::get_instance()->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pTheme.m_font.m_sApplicationFontFamily,
+				getPointSize( pTheme.m_font.m_fontSize ) );
 	font.setBold( true );
 	m_pDrumkitLabel->setFont( font );
 
@@ -80,7 +81,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 {
 	setAcceptDrops(true);
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
@@ -142,19 +144,25 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pSizeResolLayout->setSpacing( 2 );
 
 	// PATTERN size
-	m_pPatternSizeLbl = new ClickableLabel( m_pSizeResol, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
+	m_pPatternSizeLbl = new ClickableLabel(
+		m_pSizeResol, QSize( 0, 0 ), pCommonStrings->getPatternSizeLabel(),
+		ClickableLabel::Color::Dark );
 	m_pPatternSizeLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pPatternSizeLbl );
 	
-	m_pLCDSpinBoxNumerator = new LCDSpinBox( this, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0, true );
+	m_pLCDSpinBoxNumerator = new LCDSpinBox(
+		this, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0, true );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
-	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
-	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed,
+			 this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ),
+			 this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
 	m_pLCDSpinBoxNumerator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxNumerator );
 			
-	auto pLabel1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
+	auto pLabel1 = new ClickableLabel(
+		m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	pLabel1->resize( QSize( 20, 17 ) );
 	pLabel1->setText( "/" );
 	pLabel1->setFont( boldFont );
@@ -162,17 +170,23 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pLabel1->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( pLabel1 );
 	
-	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192, true );
+	m_pLCDSpinBoxDenominator = new LCDSpinBox(
+		m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192, true );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
-	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
-	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed,
+			 this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ),
+			 this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxDenominator->setKeyboardTracking( false );
-	m_pLCDSpinBoxDenominator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pLCDSpinBoxDenominator->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxDenominator );
 	pSizeResolLayout->addSpacing( nLabelSpacing );
 	
 	// GRID resolution
-	m_pResolutionLbl = new ClickableLabel( m_pSizeResol, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
+	m_pResolutionLbl = new ClickableLabel(
+		m_pSizeResol, QSize( 0, 0 ), pCommonStrings->getResolutionLabel(),
+		ClickableLabel::Color::Dark );
 	m_pResolutionLbl->setAlignment( Qt::AlignRight );
 	m_pResolutionLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pResolutionLbl );
@@ -205,7 +219,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionCombo->setMaximumSize( QSize( 500, 18 ) );
 	m_pResolutionCombo->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	// is triggered from inside PatternEditorPanel()
-	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
+	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( gridResolutionChanged( int ) ) );
 	pSizeResolLayout->addWidget( m_pResolutionCombo );
 
 	m_pRec = new QWidget( nullptr );
@@ -219,15 +234,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pRecLayout->setSpacing( 2 );
 
 	// Hear notes btn
-	m_pHearNotesLbl = new ClickableLabel( m_pRec, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
+	m_pHearNotesLbl = new ClickableLabel(
+		m_pRec, QSize( 0, 0 ), pCommonStrings->getHearNotesLabel(),
+		ClickableLabel::Color::Dark );
 	m_pHearNotesLbl->setAlignment( Qt::AlignRight );
 	m_pHearNotesLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	pRecLayout->addWidget( m_pHearNotesLbl );
 	
-	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle,
-								  "speaker.svg", "", false, QSize( 15, 13 ),
-								  tr( "Hear new notes" ), false, true );
-	connect( m_pHearNotesBtn, SIGNAL( clicked() ), this, SLOT( hearNotesBtnClick() ) );
+	m_pHearNotesBtn = new Button(
+		m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false,
+		QSize( 15, 13 ), tr( "Hear new notes" ), false, true );
+	connect( m_pHearNotesBtn, SIGNAL( clicked() ),
+			 this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
 	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
 	m_pHearNotesBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
@@ -235,32 +253,40 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pRecLayout->addSpacing( nLabelSpacing );
 
 	// quantize
-	m_pQuantizeEventsLbl = new ClickableLabel( m_pRec, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
+	m_pQuantizeEventsLbl = new ClickableLabel(
+		m_pRec, QSize( 0, 0 ), pCommonStrings->getQuantizeEventsLabel(),
+		ClickableLabel::Color::Dark );
 	m_pQuantizeEventsLbl->setAlignment( Qt::AlignRight );
-	m_pQuantizeEventsLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+	m_pQuantizeEventsLbl->setSizePolicy(
+		QSizePolicy::Preferred, QSizePolicy::Fixed );
 	pRecLayout->addWidget( m_pQuantizeEventsLbl );
 	
-	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ),
-									   Button::Type::Toggle, "quantization.svg",
-									   "", false, QSize( 15, 14 ),
-									   tr( "Quantize keyboard/midi events to grid" ),
-									   false, true );
+	m_pQuantizeEventsBtn = new Button(
+		m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "",
+		false, QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ),
+		false, true );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
-	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ), this, SLOT( quantizeEventsBtnClick() ) );
+	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ),
+			 this, SLOT( quantizeEventsBtnClick() ) );
 	m_pQuantizeEventsBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pRecLayout->addWidget( m_pQuantizeEventsBtn );
 	pRecLayout->addSpacing( nLabelSpacing );
 
 	// Editor mode
-	m_pShowPianoLbl = new ClickableLabel( m_pRec, QSize( 0, 0 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
+	m_pShowPianoLbl = new ClickableLabel(
+		m_pRec, QSize( 0, 0 ), pCommonStrings->getShowPianoLabel(),
+		ClickableLabel::Color::Dark );
 	m_pShowPianoLbl->setAlignment( Qt::AlignRight );
 	m_pShowPianoLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	pRecLayout->addWidget( m_pShowPianoLbl );
 
-	__show_drum_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false, QSize( 17, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+	__show_drum_btn = new Button(
+		m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false,
+		QSize( 17, 13 ), pCommonStrings->getShowPianoRollEditorTooltip() );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
-	connect( __show_drum_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
+	connect( __show_drum_btn, SIGNAL( clicked() ),
+			 this, SLOT( showDrumEditorBtnClick() ) );
 	__show_drum_btn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pRecLayout->addWidget( __show_drum_btn );
 
@@ -272,21 +298,39 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// of whether it is hidden or not. But since this behavior might
 	// change in future versions of Qt the tooltip will be assigned to
 	// both of them.
-	__show_piano_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "piano.svg", "", false, QSize( 19, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+	__show_piano_btn = new Button(
+		m_pRec, QSize( 25, 18 ), Button::Type::Push, "piano.svg", "", false,
+		QSize( 19, 15 ), pCommonStrings->getShowPianoRollEditorTooltip() );
 	__show_piano_btn->move( 178, 1 );
 	__show_piano_btn->setObjectName( "ShowPianoBtn" );
 	__show_piano_btn->hide();
-	connect( __show_piano_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
+	connect( __show_piano_btn, SIGNAL( clicked() ),
+			 this, SLOT( showDrumEditorBtnClick() ) );
 	__show_piano_btn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pRecLayout->addWidget( __show_piano_btn );
 
+	m_pPatchBayBtn = new Button(
+		m_pRec, QSize( 25, 18 ), Button::Type::Push, "patchBay.svg", "", false,
+		QSize( 19, 15 ), tr( "Show PatchBay" ) );
+	m_pPatchBayBtn->move( 209, 1 );
+	m_pPatchBayBtn->hide();
+	m_pPatchBayBtn->setObjectName( "ShowPatchBayBtn" );
+	connect( m_pPatchBayBtn, SIGNAL( clicked() ),
+			 this, SLOT( patchBayBtnClicked() ) );
+	m_pPatchBayBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	pRecLayout->addWidget( m_pPatchBayBtn );
+
 	// zoom-in btn
-	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
+	Button *zoom_in_btn = new Button(
+		nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false,
+		QSize( 9, 9 ), tr( "Zoom in" ) );
 	connect( zoom_in_btn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
-	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ), tr( "Zoom out" ) );
+	Button *zoom_out_btn = new Button(
+		nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false,
+		QSize( 9, 9 ), tr( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 
@@ -305,8 +349,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorRuler->setFocusPolicy( Qt::ClickFocus );
 
 	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
-	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
-																			SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
 
@@ -325,7 +369,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// Editor
-	m_pDrumPatternEditor = new DrumPatternEditor( m_pEditorScrollView->viewport(), this );
+	m_pDrumPatternEditor = new DrumPatternEditor(
+		m_pEditorScrollView->viewport(), this );
 
 	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
 	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
@@ -333,10 +378,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
 
-	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ), this,
-																			SLOT( on_patternEditorVScroll( int ) ) );
-	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this, 
-																			SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorVScroll(int) ) );
+	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 m_pDrumPatternEditor, &DrumPatternEditor::onPreferencesChanged );
 
@@ -719,18 +764,62 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	int nResolution;
 	bool bUseTriplets = false;
 
-	if ( nSelected == 11 ) {
-		nResolution = MAX_NOTES;
-	}
-	else if ( nSelected > 4 ) {
+	switch( nSelected ) {
+	case 0:
+		// 1/4
+		nResolution = 4;
+		bUseTriplets = false;
+		break;
+	case 1:
+		// 1/8
+		nResolution = 8;
+		bUseTriplets = false;
+		break;
+	case 2:
+		// 1/16
+		nResolution = 16;
+		bUseTriplets = false;
+		break;
+	case 3:
+		// 1/32
+		nResolution = 32;
+		bUseTriplets = false;
+		break;
+	case 4:
+		// 1/64
+		nResolution = 64;
+		bUseTriplets = false;
+		break;
+	case 6:
+		// 1/4T
+		nResolution = 8;
 		bUseTriplets = true;
-		nResolution = 0x1 << ( nSelected - 3 );
+		break;
+	case 7:
+		// 1/8T
+		nResolution = 16;
+		bUseTriplets = true;
+		break;
+	case 8:
+		// 1/16T
+		nResolution = 32;
+		bUseTriplets = true;
+		break;
+	case 9:
+		// 1/32T
+		nResolution = 64;
+		bUseTriplets = true;
+		break;
+	case 11:
+		// off
+		nResolution = MAX_NOTES;
+		bUseTriplets = false;
+		break;
+	default:
+		ERRORLOG( QString( "Invalid resolution selection [%1]" )
+				  .arg( nSelected ) );
+		return;
 	}
-	else {
-		nResolution = 0x1 << ( nSelected + 2 );
-	}
-
-	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
 
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
@@ -743,8 +832,9 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
 	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
 
-	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
-	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
+	auto pPref = Preferences::get_instance();
+	pPref->setPatternEditorGridResolution( nResolution );
+	pPref->setPatternEditorUsingTriplets( bUseTriplets );
 }
 
 
@@ -780,8 +870,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 void PatternEditorPanel::hearNotesBtnClick()
 {
-	Preferences *pref = ( Preferences::get_instance() );
-	pref->setHearNewNotes( m_pHearNotesBtn->isChecked() );
+	Preferences::get_instance()->setHearNewNotes( m_pHearNotesBtn->isChecked() );
 
 	if ( m_pHearNotesBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = On" ) );
@@ -792,8 +881,8 @@ void PatternEditorPanel::hearNotesBtnClick()
 
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
-	Preferences *pref = ( Preferences::get_instance() );
-	pref->setQuantizeEvents( m_pQuantizeEventsBtn->isChecked() );
+	Preferences::get_instance()->setQuantizeEvents(
+		m_pQuantizeEventsBtn->isChecked() );
 
 	if ( m_pQuantizeEventsBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ) );
@@ -932,9 +1021,10 @@ void PatternEditorPanel::zoomInBtnClicked()
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoomIn();
-	
-	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
-	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
+
+	auto pPref = Preferences::get_instance();
+	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
 	resizeEvent( nullptr );
 }
@@ -951,9 +1041,10 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	m_pPianoRollEditor->zoomOut();
 
 	resizeEvent( nullptr );
-	
-	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
-	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
+
+	auto pPref = Preferences::get_instance();
+	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 }
 
 void PatternEditorPanel::updatePatternInfo() {
@@ -1256,7 +1347,7 @@ int PatternEditorPanel::moveCursorRight( int n )
 }
 
 void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
@@ -1277,7 +1368,7 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 
 void PatternEditorPanel::updateStyleSheet() {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	int nFactorTop = 112;
 	
 	QColor topColorLight = pPref->getTheme().m_color.m_midColor.lighter( nFactorTop );
@@ -1344,4 +1435,17 @@ NotePropertiesRuler::Mode PatternEditorPanel::getNotePropertiesMode() const
 	}
 
 	return mode;
+}
+
+void PatternEditorPanel::patchBayBtnClicked() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No Song set" );
+		return;
+	}
+
+	auto pPatchBay = new PatchBay(
+		nullptr, pSong->getPatternList(), pSong->getDrumkit() );
+	pPatchBay->exec();
+	delete pPatchBay;
 }

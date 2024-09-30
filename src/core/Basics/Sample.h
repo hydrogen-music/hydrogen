@@ -129,6 +129,9 @@ class Sample : public H2Core::Object<Sample>
 				QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 		};
 
+	static QString sndfileErrorToQString( int nError );
+	static QString sndfileFormatToQString( int nFormat );
+
 		/**
 		 * Sample constructor
 		 * \param filepath the path to the sample
@@ -301,7 +304,9 @@ class Sample : public H2Core::Object<Sample>
 		 * \param fBpm tempo the Rubberband transformation will target
 		 */
 		bool exec_rubberband_cli( float fBpm );
-	
+
+		/** Convenience variable not written to disk. */
+		bool				m_bIsLoaded;
 		QString				__filepath;          ///< filepath of the sample
 		int					__frames;            ///< number of frames in this sample
 		int					__sample_rate;       ///< samplerate for this sample
@@ -332,24 +337,8 @@ class Sample : public H2Core::Object<Sample>
 
 // DEFINITIONS
 
-inline void Sample::unload()
-{
-	if ( __data_l != nullptr ) {
-		delete [] __data_l;
-	}
-	
-	if ( __data_r != nullptr ) {
-		delete [] __data_r;
-	}
-	__frames = __sample_rate = 0;
-	/** #__is_modified = false; leave this unchanged as pan,
-	    velocity, loop and rubberband are kept unchanged */
-
-	__data_l = __data_r = nullptr;
-}
-
 inline bool Sample::isLoaded() const {
-	return __frames != 0;
+	return m_bIsLoaded;
 }
 
 inline void Sample::set_filepath( const QString& sFilepath )

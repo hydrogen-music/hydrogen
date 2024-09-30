@@ -81,6 +81,9 @@ public:
 	const QString& getCopyrightHolder() const;
 	void setCopyrightHolder( const QString& sCopyrightHolder );
 
+		/** Whether a dedicated license string or copyright holder was set. */
+		bool isEmpty() const;
+
 	bool isCopyleft() const;
 	bool hasAttribution() const;
 

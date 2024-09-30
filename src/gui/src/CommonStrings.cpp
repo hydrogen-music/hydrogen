@@ -315,7 +315,7 @@ CommonStrings::CommonStrings(){
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
 	m_sJackTBMMasterTooltip = tr("Register Hydrogen as JACK Timebase master");
-	m_sJackTBMSlaveTooltip = tr("Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.");
+	m_sJackTBMListenerTooltip = tr("Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.");
 	m_sJackMasterDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
 	
 	/*: Title of the window displayed when using the MIDI learning
@@ -348,7 +348,7 @@ CommonStrings::CommonStrings(){
 		
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode = tr( "The Timeline is only available in Song Mode" );
-	m_sTimelineDisabledTimebaseSlave = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
+	m_sTimelineDisabledTimebaseListener = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
 	m_sPatternEditorLocked = tr( "Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode." );
 	
 	/*: Displayed in the Preferences dialog in the info section for a
@@ -369,6 +369,10 @@ CommonStrings::CommonStrings(){
 	  the '&' symbol can be used as a hotkey and the '&' symbol itself
 	  will not be displayed.*/
 	m_sButtonOk = tr( "&Ok" );
+	/*: Text displayed on an Apply button of a dialog. The character after the
+	  '&' symbol can be used as a hotkey and the '&' symbol itself will not be
+	  displayed.*/
+	m_sButtonApply = tr( "&Apply" );
 	/*: Text displayed on a Save button of a dialog. The character after
 	  the '&' symbol can be used as a hotkey and the '&' symbol itself
 	  will not be displayed.*/
@@ -397,6 +401,27 @@ CommonStrings::CommonStrings(){
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
 	m_sMutableDialog = tr( "Don't show this message again" );
+	/*: Label of the tab in pattern/song/drumkit properties dialog containing
+	 *  artifact parameters, like name or author. */
+	m_sTabGeneralDialog = tr( "General" );
+	/*: Label of the tab in pattern/song/drumkit properties dialog holding a
+	 *  table of all contained licenses. */
+	m_sTabLicensesDialog = tr( "Licenses" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the name of the particular artifact. */
+	m_sNameDialog = tr( "Name" );
+	/*: Label of the spin box in pattern/song/drumkit properties dialog to set
+	 *  the version of the particular artifact. */
+	m_sVersionDialog = tr( "Version" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the license of the particular artifact. */
+	m_sLicenseDialog = tr( "License" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to set
+	 *  the author of the particular artifact. */
+	m_sAuthorDialog = tr( "Author" );
+	/*: Label of the text input in pattern/song/drumkit properties dialog to
+	 *  fill in notes about the particular artifact. */
+	m_sNotesDialog = tr( "Notes" );
 	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could
@@ -422,6 +447,9 @@ CommonStrings::CommonStrings(){
 	/*: Shown as title in dialogs used to inform the user about
 	  license issues and information.*/
 	m_sLicenseWarningWindowTitle = tr( "License Warning" );
+	/*: Shown in a warning dialog in case the user inserted a license string
+	 *  which does not comply with her selected license (in the combo box). */
+	m_sLicenseMismatchingUserInput = tr( "Specified drumkit License String does not comply with the license selected in the combo box." );
 	
 	/*: Label shown in the input capture dialog for querying a new
 	  tempo value. */
@@ -466,6 +494,12 @@ CommonStrings::CommonStrings(){
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
 	m_sExportDrumkitFailure = tr( "Unable to export drumkit" );
+	/*: Shown in a dialog on successful drumkit import. The path imported kit
+	 *  will be appended to the translated string.*/
+	m_sImportDrumkitSuccess = tr( "Drumkit imported in" );
+	m_sImportDrumkitFailure = tr( "Unable to import drumkit" );
+	m_sImportDrumkitEncodingFailure =
+		tr( "\nBut there were encoding issues.\n\nPlease set your system's locale to UTF-8!" );
 	m_sPlaylistSaveFailure = tr( "Unable to save playlist" );
 	/*: Shown e.g. as suffix in a window title in case an underlying file was
 	 *  modified */
@@ -528,10 +562,44 @@ CommonStrings::CommonStrings(){
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
+	/** Representing adding a new instrument in the undo history as well as
+	 * names the action presenting when right-clicking the instrument list in
+	 * the pattern editor. */
+	m_sActionAddInstrument = tr( "Add instrument" );
+	/** Representing an instrument deletion in the undo history */
+	m_sActionDeleteInstrument = tr( "Delete instrument" );
+	/** Representing a drag&drop event for an instrument in the undo history */
+	m_sActionDropInstrument = tr( "Drop instrument" );
+	/** Representing a drumkit loading in the undo history */
+	m_sActionSwitchDrumkit = tr( "Switch drumkit" );
+	/** Representing the creation of a new drumkit in the undo history */
+	m_sActionNewDrumkit = tr( "Replace song drumkit with new and empty one" );
+	/** Representing adding a new component to the currently selected instrument
+	 * in the undo history */
+	m_sActionAddComponent = tr( "Adding component" );
+	/** Representing deletion of a component from the currently selected
+	 * instrument in the undo history */
+	m_sActionDeleteComponent = tr( "Delete component" );
+	/** Representing renaming a component of the currently selected instrument
+	 * in the undo history */
+	m_sActionRenameComponent = tr( "Rename component" );
+
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
 	 *  song path in the Playlist editor.*/
 	m_sErrorNotFoundShort = tr( "File not found" );
+
+	/*: Suffix appended to a drumkit, song, or pattern name in case it
+	 * is found on system-level and is read-only. */
+	m_sSoundLibrarySystemSuffix = tr( "system" );
+	/*: Suffix appended to a drumkit that are loaded non-persistently
+	 *  into the current Hydrogen session. */
+	m_sSoundLibrarySessionSuffix = tr( "session" );
+
+	/*: Displayed in a warning message in case the user tries to read
+	 * or write data to a file/path Hydrogen can not handle in the
+	 * current encoding.*/
+	m_sEncodingError = tr( "The provided filename can not be handled by your current encoding" );
 }
 
 CommonStrings::~CommonStrings(){}

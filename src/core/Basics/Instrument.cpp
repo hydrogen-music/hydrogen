@@ -32,7 +32,6 @@
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -47,6 +46,9 @@ namespace H2Core
 Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR> adsr )
 	: __id( id )
 	, __name( name )
+	, m_type( "" )
+	, __drumkit_path( "" )
+	, __drumkit_name( "" )
 	, __gain( 1.0 )
 	, __volume( 1.0 )
 	, m_fPan( 0.f )
@@ -67,37 +69,51 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __muted( false )
 	, __mute_group( -1 )
 	, __queued( 0 )
+	  , m_enqueuedBy( QStringList() )
 	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
-	, __components( nullptr )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples( false )
+	, __components( std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>() )
 {
+	/*: Name assigned to an Instrument created either as part of a fresh kit
+	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
+	 *  action. */
+	const QString sInstrumentName = QT_TRANSLATE_NOOP( "Instrument", "New Instrument");
+
+	if ( name.isEmpty() ) {
+		__name = sInstrumentName;
+	}
+
 	if ( __adsr == nullptr ) {
 		__adsr = std::make_shared<ADSR>();
 	}
 
     if( __midi_out_note < MIDI_OUT_NOTE_MIN ){
-		__midi_out_note = MIDI_OUT_NOTE_MIN;	
+		__midi_out_note = MIDI_OUT_NOTE_MIN;
 	}
-	
+
 	if( __midi_out_note > MIDI_OUT_NOTE_MAX ){
-		__midi_out_note = MIDI_OUT_NOTE_MAX;	
+		__midi_out_note = MIDI_OUT_NOTE_MAX;
 	}
-	
+
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
-	__components = std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
+
+	__components->push_back( std::make_shared<InstrumentComponent>() );
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
 	: __id( other->get_id() )
 	, __name( other->get_name() )
+	, m_type( other->m_type )
+	, __drumkit_path( other->get_drumkit_path() )
+	, __drumkit_name( other->__drumkit_name )
 	, __gain( other->__gain )
 	, __volume( other->get_volume() )
 	, m_fPan( other->getPan() )
@@ -107,8 +123,8 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __filter_active( other->is_filter_active() )
 	, __filter_cutoff( other->get_filter_cutoff() )
 	, __filter_resonance( other->get_filter_resonance() )
-	, __pitch_offset( other->get_pitch_offset() )
 	, __random_pitch_factor( other->get_random_pitch_factor() )
+	, __pitch_offset( other->get_pitch_offset() )
 	, __midi_out_note( other->get_midi_out_note() )
 	, __midi_out_channel( other->get_midi_out_channel() )
 	, __stop_notes( other->is_stop_notes() )
@@ -117,18 +133,17 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __soloed( other->is_soloed() )
 	, __muted( other->is_muted() )
 	, __mute_group( other->get_mute_group() )
-	, __queued( other->is_queued() )
+	, __queued( 0 )
+	  , m_enqueuedBy( QStringList() )
 	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
-	, __components( nullptr )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( other->get_apply_velocity() )
 	, __current_instr_for_export(false)
 	, m_bHasMissingSamples(other->has_missing_samples())
-	, __drumkit_path( other->get_drumkit_path() )
-	, __drumkit_name( other->__drumkit_name )
+	, __components( nullptr )
 {
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = other->get_fx_level( i );
@@ -140,7 +155,13 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	}
 }
 
-Instrument::~Instrument() {}
+Instrument::~Instrument() {
+	if ( __queued > 0 ) {
+		WARNINGLOG( QString( "Instrument [%1] is destroyed while still being enqueued! __queued: %2,\nm_enqueuedNotes:\n\t%3" )
+					.arg( __name ).arg( __queued )
+					.arg( m_enqueuedBy.join( "\n\t" ) ) );
+	}
+}
 
 std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 												   const QString& sDrumkitPath,
@@ -167,20 +188,20 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 									node.read_float( "Sustain", 1.0f, true, false, bSilent ),
 									node.read_int( "Release", 1000, true, false, bSilent ) ) );
 
+	pInstrument->setType( node.read_string( "type", "", true, true, bSilent ) );
+
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
 	if ( bSongKit ) {
-
-		bool bNoDrumkitRequired = false;
 
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName = node.read_string( "drumkit", "", false,
-													 false, bSilent );
+													 true, bSilent );
 		
 		if ( ! node.firstChildElement( "drumkitPath" ).isNull() ) {
 			// Current format
 			sInstrumentDrumkitPath = node.read_string( "drumkitPath", "",
-														 false, false, bSilent  );
+														 false, true, bSilent  );
 
 			if ( ! sInstrumentDrumkitPath.isEmpty() ) {
 #ifdef H2CORE_HAVE_APPIMAGE
@@ -201,16 +222,13 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 					sInstrumentDrumkitPath = "";
 				}
 			}
-			else if ( sInstrumentDrumkitName.isEmpty() ) {
-				// Both empty drumkit path and name indicate that the instrument
-				// was added as a new one to the drumkit instead of importing it
-				// from another kit. It must only hold absolute paths for
-				// samples.
-				bNoDrumkitRequired = true;
-			}
 		}
 
-		if ( sInstrumentDrumkitPath.isEmpty() && ! bNoDrumkitRequired ) {
+		// Both empty drumkit path and name indicate that the instrument was
+		// added as a new one to the drumkit instead of importing it from
+		// another kit. It must only hold absolute paths for samples.
+		if ( sInstrumentDrumkitPath.isEmpty() &&
+			 ! sInstrumentDrumkitName.isEmpty() ) {
 			if ( ! node.firstChildElement( "drumkitLookup" ).isNull() ) {
 				// Format introduced in #1f2a06b and used in (at least)
 				// releases 1.1.0-beta1, 1.1.0, and 1.1.1.
@@ -218,12 +236,11 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 				// Using the additional lookup variable two drumkits holding
 				// the same name but one of the residing in user-space and
 				// the other one in system-space can be distinguished.
-				Filesystem::Lookup lookup =
-					static_cast<Filesystem::Lookup>(
-						node.read_int( "drumkitLookup",
-										 static_cast<int>(Filesystem::Lookup::stacked),
-										 false, false, bSilent ) );
-			
+				Filesystem::Lookup lookup = static_cast<Filesystem::Lookup>(
+					node.read_int( "drumkitLookup",
+								   static_cast<int>(Filesystem::Lookup::stacked),
+								   false, false, bSilent ) );
+
 				sInstrumentDrumkitPath =
 					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
 													 lookup, true );
@@ -354,7 +371,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 
 	// This license will be applied to all samples contained in this
 	// instrument.
-	License instrumentLicense;
+	License instrumentLicense = License();
 	if ( license == License() ) {
 		// No/empty license supplied. We will use the license stored
 		// in the drumkit.xml file found in __drumkit_name. But since
@@ -363,7 +380,8 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 		// the drumkit is not present yet, the License will be loaded
 		// directly.
 		auto pSoundLibraryDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
-		if ( pSoundLibraryDatabase != nullptr ) {
+		if ( pSoundLibraryDatabase != nullptr &&
+			 ! pInstrument->get_drumkit_path().isEmpty() ) {
 
 			// It is important to _not_ load the drumkit into the
 			// database as this code is part of the drumkit load
@@ -373,25 +391,22 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 				pInstrument->get_drumkit_path() );
 			if ( pDrumkit != nullptr ) {
 				instrumentLicense = pDrumkit->getLicense();
-			} else {
-				// Associated drumkit could not be found on disk. Use unknown
-				// License as fallback.
-				instrumentLicense = License();
 			}
 		}
-	} else {
-		instrumentLicense = license;
 	}
 
+	std::vector<std::shared_ptr<InstrumentComponent>> componentsLoaded;
 	if ( ! node.firstChildElement( "instrumentComponent" ).isNull() ) {
 		// current format
 		XMLNode componentNode = node.firstChildElement( "instrumentComponent" );
 		while ( ! componentNode.isNull() ) {
-			pInstrument->get_components()->
-				push_back( InstrumentComponent::load_from(
-							   componentNode, pInstrument->get_drumkit_path(),
-							   sSongPath, instrumentLicense, bSilent ) );
-			componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
+			auto ppComponent = InstrumentComponent::loadFrom(
+				componentNode, pInstrument->get_drumkit_path(),
+				sSongPath, instrumentLicense, bSilent );
+			if ( ppComponent != nullptr ) {
+				componentsLoaded.push_back( ppComponent );
+			}
+			componentNode = componentNode.nextSiblingElement( "instrumentComponent" ) ;
 		}
 	}
 	else {
@@ -404,8 +419,16 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 					  .arg( pInstrument->get_name() ) );
 			return nullptr;
 		}
+		componentsLoaded.push_back( pCompo );
+	}
 
-		pInstrument->get_components()->push_back( pCompo );
+	// Each new instrument comes with a fallback/default component. Only discard
+	// it in case we did successfully loaded components from file.
+	if ( componentsLoaded.size() > 0 ) {
+		pInstrument->__components->clear();
+		for ( const auto& ppComponent : componentsLoaded ) {
+			pInstrument->get_components()->push_back( ppComponent );
+		}
 	}
 
 	// Sanity checks
@@ -413,7 +436,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 	// There has to be at least one InstrumentComponent
 	if ( pInstrument->get_components()->size() == 0 ) {
 		pInstrument->get_components()->push_back(
-			std::make_shared<InstrumentComponent>( 0 ) );
+			std::make_shared<InstrumentComponent>() );
 	}
 
 	// Check whether there are missing samples
@@ -454,7 +477,7 @@ void Instrument::load_samples( float fBpm )
 {
 	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->getLayer( i );
 			if ( pLayer != nullptr ) {
 				pLayer->load_sample( fBpm );
 			}
@@ -466,7 +489,7 @@ void Instrument::unload_samples()
 {
 	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			auto pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->getLayer( i );
 			if( pLayer ){
 				pLayer->unload_sample();
 			}
@@ -474,14 +497,13 @@ void Instrument::unload_samples()
 	}
 }
 
-void Instrument::save_to( XMLNode& node,
-						  int component_id,
-						  bool bRecentVersion,
-						  bool bSongKit ) const
+void Instrument::save_to( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
 	InstrumentNode.write_string( "name", __name );
+
+	InstrumentNode.write_string( "type", m_type );
 
 	if ( bSongKit ) {
 		InstrumentNode.write_string( "drumkitPath", __drumkit_path );
@@ -542,12 +564,34 @@ void Instrument::save_to( XMLNode& node,
 		InstrumentNode.write_float( QString( "FX%1Level" )
 									.arg( i+1 ), __fx_level[i] );
 	}
-	
+
 	for ( const auto& pComponent : *__components ) {
-		if ( component_id == -1 ||
-			pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->save_to( InstrumentNode, bRecentVersion, bSongKit );
+		if ( pComponent != nullptr ) {
+			pComponent->saveTo( InstrumentNode, bSongKit );
+		} else {
+			ERRORLOG( "Invalid component!" );
 		}
+	}
+}
+
+void Instrument::enqueue( Note* pNote ) {
+	__queued++;
+
+	m_enqueuedBy.push_back( pNote->prettyName() );
+}
+
+void Instrument::dequeue( Note* pNote ) {
+	if ( __queued <= 0 ) {
+		ERRORLOG( QString( "[%1] is not queued!" ).arg( __name ) );
+		return;
+	}
+
+	__queued--;
+
+	if ( __queued > 0 ) {
+		m_enqueuedBy.removeOne( pNote->prettyName() );
+	} else {
+		m_enqueuedBy.clear();
 	}
 }
 
@@ -556,15 +600,47 @@ void Instrument::set_adsr( std::shared_ptr<ADSR> adsr )
 	__adsr = adsr;
 }
 
-std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID ) const
+void Instrument::set_pitch_offset( float fValue )
 {
-	for ( const auto& pComponent : *get_components() ) {
-		if( pComponent->get_drumkit_componentID() == DrumkitComponentID ) {
-			return pComponent;
-		}
+	if ( fValue < fPitchMin || fValue > fPitchMax ) {
+		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to nearest allowed value." )
+					.arg( fPitchMin ).arg( fPitchMax ) );
+	}
+	__pitch_offset = std::clamp( fValue, fPitchMin, fPitchMax );
+}
+
+std::shared_ptr<InstrumentComponent> Instrument::get_component( int nIdx ) const
+{
+	if ( nIdx < 0 || nIdx >= __components->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIdx ).arg( __components->size() ) );
+		return nullptr;
 	}
 
-	return nullptr;
+	return __components->at( nIdx );
+}
+
+void Instrument::addComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
+	__components->push_back( pComponent );
+}
+
+void Instrument::removeComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
+	for ( int ii = 0; ii < __components->size(); ++ii ) {
+		if ( pComponent == __components->at( ii ) ) {
+			__components->erase( __components->begin() + ii );
+			return;
+		}
+	}
+}
+
+void Instrument::removeComponent( int nIdx ) {
+	if ( nIdx < 0 || nIdx >= __components->size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2)" )
+				  .arg( nIdx ).arg( __components->size() ) );
+		return;
+	}
+
+	__components->erase( __components->begin() + nIdx );
 }
 
 const QString& Instrument::get_drumkit_path() const
@@ -593,43 +669,78 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )
-			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
-			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
-			.append( QString( "%1%2drumkit_path: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_path ) )
-			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
-			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
-			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
-			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
-			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_l ) )
-			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_r ) )
+			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __id ) )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __name ) )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_type ) )
+			.append( QString( "%1%2drumkit_path: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __drumkit_path ) )
+			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __drumkit_name ) )
+			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __gain ) )
+			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __volume ) )
+			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fPan ) )
+			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __peak_l ) )
+			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __peak_r ) )
 			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2filter_active: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_active ) )
-			.append( QString( "%1%2filter_cutoff: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_cutoff ) )
-			.append( QString( "%1%2filter_resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_resonance ) )
-			.append( QString( "%1%2random_pitch_factor: %3\n" ).arg( sPrefix ).arg( s ).arg( __random_pitch_factor ) )
-			.append( QString( "%1%2pitch_offset: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch_offset ) )
-			.append( QString( "%1%2midi_out_note: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_out_note ) )
-			.append( QString( "%1%2midi_out_channel: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_out_channel ) )
-			.append( QString( "%1%2stop_notes: %3\n" ).arg( sPrefix ).arg( s ).arg( __stop_notes ) )
-			.append( QString( "%1%2sample_selection_alg: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_selection_alg ) )
-			.append( QString( "%1%2active: %3\n" ).arg( sPrefix ).arg( s ).arg( __active ) )
-			.append( QString( "%1%2soloed: %3\n" ).arg( sPrefix ).arg( s ).arg( __soloed ) )
-			.append( QString( "%1%2muted: %3\n" ).arg( sPrefix ).arg( s ).arg( __muted ) )
-			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s ).arg( __mute_group ) )
-			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s ).arg( __queued ) ) ;
+			.append( QString( "%1%2filter_active: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filter_active ) )
+			.append( QString( "%1%2filter_cutoff: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filter_cutoff ) )
+			.append( QString( "%1%2filter_resonance: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filter_resonance ) )
+			.append( QString( "%1%2random_pitch_factor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __random_pitch_factor ) )
+			.append( QString( "%1%2pitch_offset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __pitch_offset ) )
+			.append( QString( "%1%2midi_out_note: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __midi_out_note ) )
+			.append( QString( "%1%2midi_out_channel: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __midi_out_channel ) )
+			.append( QString( "%1%2stop_notes: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __stop_notes ) )
+			.append( QString( "%1%2sample_selection_alg: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( SampleSelectionAlgoToQString( __sample_selection_alg ) ) )
+			.append( QString( "%1%2active: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __active ) )
+			.append( QString( "%1%2soloed: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __soloed ) )
+			.append( QString( "%1%2muted: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __muted ) )
+			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __mute_group ) )
+			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __queued ) )
+			.append( QString( "%1%2m_enqueuedBy: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_enqueuedBy.join( "\n" + sPrefix + s + s  ) ) );
 		sOutput.append( QString( "%1%2fx_level: [ " ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
 		}
 		sOutput.append( QString( "]\n" ) )
-			.append( QString( "%1%2hihat_grp: %3\n" ).arg( sPrefix ).arg( s ).arg( __hihat_grp ) )
-			.append( QString( "%1%2lower_cc: %3\n" ).arg( sPrefix ).arg( s ).arg( __lower_cc ) )
-			.append( QString( "%1%2higher_cc: %3\n" ).arg( sPrefix ).arg( s ).arg( __higher_cc ) )
-			.append( QString( "%1%2is_preview_instrument: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_preview_instrument ) )
-			.append( QString( "%1%2is_metronome_instrument: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_metronome_instrument ) )
-			.append( QString( "%1%2apply_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __apply_velocity ) )
-			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s ).arg( __current_instr_for_export ) )
-			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bHasMissingSamples ) )
+			.append( QString( "%1%2hihat_grp: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __hihat_grp ) )
+			.append( QString( "%1%2lower_cc: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __lower_cc ) )
+			.append( QString( "%1%2higher_cc: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __higher_cc ) )
+			.append( QString( "%1%2is_preview_instrument: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __is_preview_instrument ) )
+			.append( QString( "%1%2is_metronome_instrument: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __is_metronome_instrument ) )
+			.append( QString( "%1%2apply_velocity: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __apply_velocity ) )
+			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __current_instr_for_export ) )
+			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bHasMissingSamples ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
@@ -641,6 +752,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[Instrument]" )
 			.append( QString( " id: %1" ).arg( __id ) )
 			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", m_type: %1" ).arg( m_type ) )
 			.append( QString( ", drumkit_path: %1" ).arg( __drumkit_path ) )
 			.append( QString( ", drumkit_name: %1" ).arg( __drumkit_name ) )
 			.append( QString( ", gain: %1" ).arg( __gain ) )
@@ -657,12 +769,15 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", midi_out_note: %1" ).arg( __midi_out_note ) )
 			.append( QString( ", midi_out_channel: %1" ).arg( __midi_out_channel ) )
 			.append( QString( ", stop_notes: %1" ).arg( __stop_notes ) )
-			.append( QString( ", sample_selection_alg: %1" ).arg( __sample_selection_alg ) )
+			.append( QString( ", sample_selection_alg: %1" )
+					 .arg( SampleSelectionAlgoToQString( __sample_selection_alg ) ) )
 			.append( QString( ", active: %1" ).arg( __active ) )
 			.append( QString( ", soloed: %1" ).arg( __soloed ) )
 			.append( QString( ", muted: %1" ).arg( __muted ) )
 			.append( QString( ", mute_group: %1" ).arg( __mute_group ) )
-			.append( QString( ", queued: %1" ).arg( __queued ) ) ;
+			.append( QString( ", queued: %1" ).arg( __queued ) )
+			.append( QString( ", m_enqueuedBy: [%1]" )
+					 .arg( m_enqueuedBy.join( " ; " ) ) );
 		sOutput.append( QString( ", fx_level: [ " ) );
 		for ( const auto& ff : __fx_level ) {
 			sOutput.append( QString( "%1 " ).arg( ff ) );
@@ -679,14 +794,29 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", components: [" ) );
 		for ( const auto& cc : *__components ) {
 			if ( cc != nullptr ) {
-				sOutput.append( QString( " %1" ).arg( cc->get_drumkit_componentID() ) );
+				sOutput.append( QString( " %1" ).arg( cc->getName() ) );
 			}
 		}
-		sOutput.append(" ]\n");
+		sOutput.append("]\n");
 	}
 		
 	return sOutput;
 }
+
+QString Instrument::SampleSelectionAlgoToQString( const SampleSelectionAlgo& sampleSelectionAlgo ) {
+	switch( sampleSelectionAlgo ) {
+	case SampleSelectionAlgo::VELOCITY:
+		return "Velocity";
+	case SampleSelectionAlgo::ROUND_ROBIN:
+		return "Round Robin";
+	case SampleSelectionAlgo::RANDOM:
+		return "Random";
+	default:
+		return QString( "Unknown sampleSelectionAlgo [%1]" )
+			.arg( static_cast<int>(sampleSelectionAlgo) );
+	}
+}
+
 
 };
 

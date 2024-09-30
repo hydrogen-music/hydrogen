@@ -22,11 +22,16 @@
 
 #include "core/Logger.h"
 #include "core/Helpers/Filesystem.h"
+#include <core/Version.h>
 
 #include <cstdio>
 #include <chrono>
 #include <thread>
 #include <QtCore/QDir>
+#include <QDateTime>
+#include <QFile>
+#include <QTextStream>
+#include <QTextCodec>
 
 #ifdef WIN32
 #include <windows.h>
@@ -42,79 +47,105 @@ thread_local QString *Logger::pCrashContext = nullptr;
 pthread_t loggerThread;
 
 void* loggerThread_func( void* param ) {
-	if ( param == nullptr ) return nullptr;
-	Logger* logger = ( Logger* )param;
+	if ( param == nullptr ) {
+		return nullptr;
+	}
+	Logger* pLogger = ( Logger* )param;
 #ifdef WIN32
 #  ifdef H2CORE_HAVE_DEBUG
 	::AllocConsole();
 //	::SetConsoleTitle( "Hydrogen debug log" );
+	SetConsoleOutputCP( CP_UTF8 );
 	freopen( "CONOUT$", "wt", stdout );
 #  endif
 #endif
-	FILE* log_file = nullptr;
-	if ( logger->__use_file ) {
-		log_file = fopen( logger->m_sLogFilePath.toLocal8Bit().data(), "w" );
-		if ( ! log_file ) {
-			fprintf( stderr, "%s",
-					 QString( "Error: can't open log file [%1] for writing...\n" )
-					 .arg( logger->m_sLogFilePath ).toLocal8Bit().data() );
-		}
+
+	QTextStream stdoutStream( stdout );
+	stdoutStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
+	QTextStream stderrStream( stderr );
+	stderrStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
+
+	bool bUseLogFile = true;
+	QFile logFile( pLogger->m_sLogFilePath );
+	QTextStream logFileStream = QTextStream();
+	if ( logFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
+		logFileStream.setDevice( &logFile );
+		logFileStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 	}
-	Logger::queue_t* queue = &logger->__msg_queue;
+	else {
+		stderrStream <<
+			QString( "Error: can't open log file [%1] for writing...\n" )
+			.arg( pLogger->m_sLogFilePath );
+		stderrStream.flush();
+		bUseLogFile = false;
+	}
+	Logger::queue_t* queue = &pLogger->__msg_queue;
 	Logger::queue_t::iterator it, last;
 
-	while ( logger->__running ) {
-		pthread_mutex_lock( &logger->__mutex );
-		pthread_cond_wait( &logger->__messages_available, &logger->__mutex );
-		pthread_mutex_unlock( &logger->__mutex );
-		if( !queue->empty() ) {
-			for( it = last = queue->begin() ; it != queue->end() ; ++it ) {
+	while ( pLogger->__running ) {
+		pthread_mutex_lock( &pLogger->__mutex );
+		pthread_cond_wait( &pLogger->__messages_available, &pLogger->__mutex );
+		pthread_mutex_unlock( &pLogger->__mutex );
+		if ( !queue->empty() ) {
+			for ( it = last = queue->begin() ; it != queue->end() ; ++it ) {
 				last = it;
-				if ( logger->m_bUseStdout ) {
-					fprintf( stdout, "%s", it->toLocal8Bit().data() );
-					fflush( stdout );
+				if ( pLogger->m_bUseStdout ) {
+					stdoutStream << *it;
+					stdoutStream.flush();
 				}
-				if( log_file ) {
-					fprintf( log_file, "%s", it->toLocal8Bit().data() );
-					fflush( log_file );
+				if ( bUseLogFile ) {
+					logFileStream << *it;
+					logFileStream.flush();
 				}
 			}
 			// remove all in front of last
-			pthread_mutex_lock( &logger->__mutex );
+			pthread_mutex_lock( &pLogger->__mutex );
 			queue->erase( queue->begin(), last );
 			queue->pop_front();
-			pthread_mutex_unlock( &logger->__mutex );
+			pthread_mutex_unlock( &pLogger->__mutex );
 		}
 	}
-	if ( log_file ) {
-		fprintf( log_file, "Stop logger" );
-		fclose( log_file );
+	if ( bUseLogFile ) {
+		logFileStream << "Stop logger";
 	}
+	logFile.close();
 #ifdef WIN32
 	::FreeConsole();
 #endif
 
-	fflush( stdout );
+	stderrStream.flush();
+	stdoutStream.flush();
 	pthread_exit( nullptr );
 	return nullptr;
 }
 
-Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath, bool bUseStdout ) {
+Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
+						   bool bUseStdout, bool bLogTimestamps ) {
 	Logger::set_bit_mask( msk );
-	return Logger::create_instance( sLogFilePath, bUseStdout );
+	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps );
 }
 
-Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout ) {
-	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout );
+Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
+								 bool bLogTimestamps ) {
+	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout,
+														  bLogTimestamps );
 	return __instance;
 }
 
-Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
-	__use_file( true ),
+Logger::Logger( const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamps ) :
 	__running( true ),
 	m_sLogFilePath( sLogFilePath ),
-	m_bUseStdout( bUseStdout ) {
+	m_bUseStdout( bUseStdout ),
+	m_bLogTimestamps( bLogTimestamps ) {
 	__instance = this;
+
+	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
+#ifdef WIN32
+	m_colorList << "" << "" << "" << "" << "" << "" << "";
+#else
+	m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
+				<< "\033[35;1m" << "\033[35;1m";
+#endif
 
 	// Sanity checks.
 	QFileInfo fiLogFile( m_sLogFilePath );
@@ -127,12 +158,19 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout ) :
 	if ( m_sLogFilePath.isEmpty() ) {
 		m_sLogFilePath = Filesystem::log_file_path();
 	}
-	
+
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, nullptr );
 	pthread_cond_init( &__messages_available, nullptr );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
+
+	if ( should_log( Info ) ) {
+		log( Info, "Logger", "Logger", QString( "Starting Hydrogen version [%1]" )
+			 .arg( QString::fromStdString( get_version() ) ) );
+		log( Info, "Logger", "Logger", QString( "Using log file [%1]" )
+			 .arg( m_sLogFilePath ) );
+	}
 }
 
 Logger::~Logger() {
@@ -141,18 +179,12 @@ Logger::~Logger() {
 	pthread_join( loggerThread, nullptr );
 }
 
-void Logger::log( unsigned level, const QString& class_name, const char* func_name, const QString& msg ) {
+void Logger::log( unsigned level, const QString& sClassName, const char* func_name,
+				  const QString& sMsg, const QString& sColor ) {
 
 	if( level == None ){
 		return;
 	}
-
-	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) ", "(C)", "(L) " };
-#ifdef WIN32
-	const char* color[] = { "", "", "", "", "", "", "" };
-#else
-	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m", "\033[35;1m", "\033[35;1m" };
-#endif // WIN32
 
 	int i;
 	switch( level ) {
@@ -179,12 +211,17 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 		break;
 	}
 
-	QString tmp = QString( "%1%2%3::%4 %5\033[0m\n" )
-				  .arg( color[i] )
-				  .arg( prefix[i] )
-				  .arg( class_name )
-				  .arg( func_name )
-				  .arg( msg );
+	QString sTimestampPrefix;
+	if ( m_bLogTimestamps ) {
+		sTimestampPrefix = QString( "[%1] " )
+			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
+	}
+
+	const QString sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
+
+	const QString tmp = QString( "%1%2%3[%4::%5] %6\033[0m\n" )
+		.arg( sCol ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
+		.arg( sClassName ).arg( func_name ).arg( sMsg );
 
 	pthread_mutex_lock( &__mutex );
 	__msg_queue.push_back( tmp );

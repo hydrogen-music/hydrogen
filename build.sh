@@ -35,9 +35,10 @@ CMAKE_OPTIONS="
     -DWANT_LASH=0 \
     -DWANT_LRDF=1 \
     -DWANT_COREAUDIO=1 \
-    -DWANT_COREMIDI=1
+    -DWANT_COREMIDI=1 \
+    -DWANT_INTEGRATION_TESTS=1
 "
-CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
+CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 MAKE_OPTS="-j 3"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
@@ -54,7 +55,7 @@ function cmake_init() {
     fi
     cd $BUILD_DIR || exit 1
     if [ ! -e CMakeCache.txt ]; then
-        CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} cmake ${CMAKE_OPTIONS} .. || exit 1
+        CXXFLAGS=${CXXFLAGS} cmake ${CMAKE_OPTIONS} .. || exit 1
     fi
     cd .. || exit 1
 }
@@ -182,6 +183,20 @@ function cmake_tests() {
     echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests || exit 1
 }
 
+function cmake_integration_tests() {
+    cmake_init
+
+    echo -e " * execute integration tests\n"
+
+    echo -e " * \texecute JACK teardown test\n"
+
+    go run -C ./tests/jackTearDown main.go || exit 1
+
+    echo -e "\n * \texecute JACK timebase test\n"
+
+    go run -C ./tests/jackTimebase main.go || exit 1
+}
+
 function cmake_pkg() {
     cmake_init
     echo -e " * execute hydrogen\n" && cd $BUILD_DIR && make package_source && cd .. || exit 1
@@ -245,20 +260,21 @@ function update_translations() {
 if [ $# -eq 0 ]; then
     echo "usage $0 [cmds list]"
     echo "cmds may be"
-    echo "   r[m]      => all built, temp and cache files"
-    echo "   c[lean]   => remove cache files"
-    echo "   m[ake]    => launch the build process"
-    echo "   mm        => launch the build process using ccache"
-    echo "   mt        => launch the build process with clang tidy checks enabled"
-    echo "   d[oc]     => build html documentation"
-    echo "   g[raph]   => draw a dependencies graph"
-    echo "   h[elp]    => show the build options"
-    echo "   x[exec]   => execute hydrogen"
-    echo "   t[ests]   => execute tests"
-    echo "   p[kg]     => build source package"
-    echo "   translate => update all translation files"
-	echo "   appimage  => build an AppImage file"
-    echo "   z         => build using ccache and run from tree"
+    echo "   r[m]          => all built, temp and cache files"
+    echo "   c[lean]       => remove cache files"
+    echo "   m[ake]        => launch the build process"
+    echo "   mm            => launch the build process using ccache"
+    echo "   mt            => launch the build process with clang tidy checks enabled"
+    echo "   d[oc]         => build html documentation"
+    echo "   g[raph]       => draw a dependencies graph"
+    echo "   h[elp]        => show the build options"
+    echo "   x[exec]       => execute hydrogen"
+    echo "   t[ests]       => execute tests"
+    echo "   p[kg]         => build source package"
+    echo "   i[ntegration] => execute integration tests"
+    echo "   translate     => update all translation files"
+	echo "   appimage      => build an AppImage file"
+    echo "   z             => build using ccache and run from tree"
     echo "ex: $0 r m pkg x"
     exit 1
 fi
@@ -271,6 +287,8 @@ for arg in $@; do
 			cmd="cmake_appimage";;
         c|clean)
             cmd="cmake_clean";;
+        i|integration)
+            cmd="cmake_integration_tests";;
         r|rm)
             cmd="cmake_rm";;
         m|make)

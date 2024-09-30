@@ -51,12 +51,12 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	//infoLog( "INIT" );
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_backgroundColor );
 
 	m_pPattern = nullptr;
-	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
+	m_fGridWidth = pPref->getPatternEditorGridWidth();
 
 	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
@@ -330,7 +330,7 @@ void PatternEditorRuler::createBackground()
 	} else {
 		pDrumPatternEditor = nullptr;
 	}
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -409,7 +409,7 @@ void PatternEditorRuler::createBackground()
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	DrumPatternEditor* pDrumPatternEditor;
 	if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {

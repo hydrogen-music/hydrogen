@@ -373,7 +373,9 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>General</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.</extracomment>
+        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold seven characters but is quite flexible.
+----------
+Label of the tab in pattern/song/drumkit properties dialog containing * artifact parameters, like name or author.</extracomment>
         <translation>Geral</translation>
     </message>
     <message>
@@ -410,7 +412,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
         <source>B
 C</source>
         <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
-		<translation>B
+        <translation>B
 C</translation>
     </message>
     <message>
@@ -418,7 +420,7 @@ C</translation>
 U
 B</source>
         <extracomment>Text displayed on the button to activate the resampling using Rubberband. Its size is designed to hold three characters in two separate rows.</extracomment>
-		<translation>R
+        <translation>R
 U
 B</translation>
     </message>
@@ -823,13 +825,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
         <translation>Tocar &amp;amostra original</translation>
     </message>
     <message>
-        <source>Unsaved changes left. These changes will be lost.
-Are you sure?</source>
-        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
-&apos; character introduces a linebreak and must not be translated</extracomment>
-        <translation>Ainda há mudanças não salvas. Elas serão perdidas.</translation>
-    </message>
-    <message>
         <source>Don&apos;t show this message again</source>
         <translation>Não mostrar essa mensagem novamente</translation>
     </message>
@@ -849,11 +844,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>You used drumkit samples holding a &lt;b&gt;copyleft license&lt;/b&gt;. Be aware that &lt;b&gt;you are legally obliged to make a copy publicly available and can not prevent its redistribution by others.&lt;/b&gt;</source>
-		<translation>Você usou amostras de drumkits que usam uma &lt;b&gt;licença copyleft&lt;b;&gt;; Esteja avisado que você &lt;b&gt;é legalmente obrigado a fazer uma cópia disponível publicamente e não pode impedir sua redistribuição para outros.&lt;b&gt;</translation>
+        <translation>Você usou amostras de drumkits que usam uma &lt;b&gt;licença copyleft&lt;b;&gt;; Esteja avisado que você &lt;b&gt;é legalmente obrigado a fazer uma cópia disponível publicamente e não pode impedir sua redistribuição para outros.&lt;b&gt;</translation>
     </message>
     <message>
         <source>All license containing the letters &apos;CC BY&apos; &lt;b&gt;require you to give an attribution&lt;/b&gt; by naming drumkit, author, as well as the license itself.</source>
-		<translation>Toda licença contendo as letras &apos;CC BY&apos; &lt;b&gt; requer que você atribua&lt;/b&gt; nomeando drumkit e autor(a), assim como a licença.</translation>
+        <translation>Toda licença contendo as letras &apos;CC BY&apos; &lt;b&gt; requer que você atribua&lt;/b&gt; nomeando drumkit e autor(a), assim como a licença.</translation>
     </message>
     <message>
         <source>License Warning</source>
@@ -957,7 +952,9 @@ Are you sure?</source>
     </message>
     <message>
         <source>License</source>
-        <extracomment>Shown in table headers when referring to a license of an object.</extracomment>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the license of the particular artifact.
+----------
+Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Lincença</translation>
     </message>
     <message>
@@ -1063,32 +1060,110 @@ Are you sure?</source>
         <extracomment>Window title of the dialog showing the undo history.</extracomment>
         <translation>Desfazer histórico</translation>
     </message>
-</context>
-<context>
-    <name>ComponentMixerLine</name>
     <message>
-        <source>Mute</source>
-        <translation>Mudo</translation>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
+&apos; character introduces a linebreak and must not be translated</extracomment>
+        <translation>Ainda há mudanças não salvas. Elas serão perdidas.</translation>
     </message>
     <message>
-        <source>Solo</source>
-        <translation>Solo</translation>
+        <source>Unable to import drumkit</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Component name</source>
-        <translation>Nome do componente</translation>
+        <source>system</source>
+        <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
+        <translation>sistema</translation>
     </message>
     <message>
-        <source>Volume</source>
-        <translation>Volume</translation>
+        <source>session</source>
+        <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
+        <translation>sessão</translation>
     </message>
     <message>
-        <source>Peak</source>
-        <translation>Pico</translation>
+        <source>The provided filename can not be handled by your current encoding</source>
+        <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set volume [%1] of component</source>
-        <translation>Define volume [%1] do componente</translation>
+        <source>&amp;Apply</source>
+        <extracomment>Text displayed on an Apply button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
+        <translation>Versão</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
+        <translation>Autor</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
+        <translation>Nome</translation>
+    </message>
+    <message>
+        <source>Licenses</source>
+        <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
+        <translation>Licenças</translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
+        <translation>Notas</translation>
+    </message>
+    <message>
+        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
+        <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
+        <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
+    </message>
+    <message>
+        <source>Drumkit imported in</source>
+        <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
+        <translation>Drumkit importado em</translation>
+    </message>
+    <message>
+        <source>
+But there were encoding issues.
+
+Please set your system&apos;s locale to UTF-8!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete instrument</source>
+        <translation>Deletar instrumento</translation>
+    </message>
+    <message>
+        <source>Drop instrument</source>
+        <translation>Remover instrumento</translation>
+    </message>
+    <message>
+        <source>Switch drumkit</source>
+        <translation>Trocando drumkits</translation>
+    </message>
+    <message>
+        <source>Replace song drumkit with new and empty one</source>
+        <translation>Substituir drumkit da canção com um drumkit novo e vazio</translation>
+    </message>
+    <message>
+        <source>Adding component</source>
+        <translation>Adicionando componente</translation>
+    </message>
+    <message>
+        <source>Delete component</source>
+        <translation>Deletar componente</translation>
+    </message>
+    <message>
+        <source>Rename component</source>
+        <translation>Renomear componente</translation>
+    </message>
+    <message>
+        <source>Add instrument</source>
+        <translation>Adicionar instrumento</translation>
     </message>
 </context>
 <context>
@@ -1133,82 +1208,6 @@ Are you sure?</source>
         <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
         <translation>Novo Drumkit</translation>
     </message>
-    <message>
-        <source>Main</source>
-        <extracomment>Name assigned to a DrumkitComponent of a fresh kit created via the Main * Menu &gt; Drumkit &gt; New.</extracomment>
-        <translation>Principal</translation>
-    </message>
-    <message>
-        <source>New Instrument</source>
-        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
-        <translation>Novo Instrumento</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog</name>
-    <message>
-        <source>&amp;Export</source>
-        <translation>&amp;Exportar</translation>
-    </message>
-    <message>
-        <source>Export Drumkit</source>
-        <translation>Exportar Drumkit</translation>
-    </message>
-    <message>
-        <source>invalid drumkit</source>
-        <translation>drumkit inválido</translation>
-    </message>
-    <message>
-        <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation>O arquivo [%1] existe e será sobrescrito.</translation>
-    </message>
-    <message>
-        <source>Drumkit exported to</source>
-        <translation>Drumkit exportado para</translation>
-    </message>
-    <message>
-        <source>Directory</source>
-        <translation>Diretório</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>Todos</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitExportDialog_UI</name>
-    <message>
-        <source>Export</source>
-        <translation>Exportar</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation>Caminho</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Procurar...</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Versão</translation>
-    </message>
-    <message>
-        <source>0.9.7 and higher</source>
-        <translation>0.9.7 e mais recente</translation>
-    </message>
-    <message>
-        <source>0.9.6 and lower</source>
-        <translation>0.9.6 e mais antiga</translation>
-    </message>
-    <message>
-        <source>Component</source>
-        <translation>Component</translation>
-    </message>
 </context>
 <context>
     <name>DrumkitOpenDialog</name>
@@ -1219,14 +1218,6 @@ Are you sure?</source>
 </context>
 <context>
     <name>DrumkitPropertiesDialog_UI</name>
-    <message>
-        <source>General</source>
-        <translation>Geral</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informação</translation>
-    </message>
     <message>
         <source>Image License</source>
         <translation>Licença da imagem</translation>
@@ -1240,32 +1231,12 @@ Are you sure?</source>
         <translation>Licença do drumkit</translation>
     </message>
     <message>
-        <source>Author</source>
-        <translation>Autor</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nome</translation>
-    </message>
-    <message>
         <source>Image</source>
         <translation>Imagem</translation>
     </message>
     <message>
-        <source>Mapping</source>
-        <translation>Mapeamento</translation>
-    </message>
-    <message>
-        <source>Licenses</source>
-        <translation>Licenças</translation>
-    </message>
-    <message>
-        <source>Save </source>
-        <translation>Salvar </translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <source>Types</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1299,7 +1270,7 @@ Are you sure?</source>
         <translation>Diretório %1 não existe</translation>
     </message>
     <message>
-        <source>The file %1 exists.
+        <source>The file %1 exists. 
 Overwrite the existing file?</source>
         <translation>O arquivo %1 já existe.
 Sobrescrever o arquivo existente?</translation>
@@ -1351,12 +1322,6 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Exportar música</translation>
     </message>
     <message>
-        <source>The file %1 exists.
-Overwrite the existing file?</source>
-        <translation>O arquivo %1 já existe.
-Sobrescrever o arquivo existente?</translation>
-    </message>
-    <message>
         <source>Export to a single track</source>
         <translation>Exportar para uma única faixa</translation>
     </message>
@@ -1383,6 +1348,12 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Be sure you satisfy all license conditions and give the required attribution.</source>
         <translation>Certifique-se que você satisfaz todas as condições da licença e dê as atribuições necessárias.</translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation>O arquivo %1 já existe.
+Sobrescrever o arquivo existente?</translation>
     </message>
 </context>
 <context>
@@ -1614,10 +1585,6 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Arquivos de Imagem (*.png *.jpg *.jpeg)</translation>
     </message>
     <message>
-        <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
-        <translation>A licença do drumkit não cumpre a licença selecionada.</translation>
-    </message>
-    <message>
         <source>Specified image License String does not comply with the license selected in the combo box.</source>
         <translation>A imagem especificada de Texto de Licença não cumpre com a licença na caixa de combo.</translation>
     </message>
@@ -1652,6 +1619,10 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation>Salva uma cópia do drumkit atual para a pasta de sessão NSM</translation>
+    </message>
+    <message>
+        <source>Instrument types must be unique!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1795,6 +1766,22 @@ Sobrescrever o arquivo existente?</translation>
     </message>
 </context>
 <context>
+    <name>Instrument</name>
+    <message>
+        <source>New Instrument</source>
+        <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
+        <translation>Novo Instrumento</translation>
+    </message>
+</context>
+<context>
+    <name>InstrumentComponent</name>
+    <message>
+        <source>Main</source>
+        <extracomment>Name assigned to an InstrumentComponent of a fresh instrument.</extracomment>
+        <translation>Principal</translation>
+    </message>
+</context>
+<context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
@@ -1837,10 +1824,6 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Tom da camada (Fino)</translation>
     </message>
     <message>
-        <source>New component name</source>
-        <translation>Novo nome do componente</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation>Nome do componente</translation>
     </message>
@@ -1880,7 +1863,7 @@ Sobrescrever o arquivo existente?</translation>
         <source>Length of Attack phase.
 
 Value</source>
-		<translation>Tamanho da fase de Ataque.
+        <translation>Tamanho da fase de Ataque.
 
 Valor</translation>
     </message>
@@ -1888,7 +1871,7 @@ Valor</translation>
         <source>Length of Decay phase.
 
 Value</source>
-		<translation>Tamanho da fase de Decaímento.
+        <translation>Tamanho da fase de Decaímento.
 
 Valor</translation>
     </message>
@@ -1896,7 +1879,7 @@ Valor</translation>
         <source>Sample volume in Sustain phase.
 
 Value</source>
-		<translation>Volume da amostra na fase de Sustentação.
+        <translation>Volume da amostra na fase de Sustentação.
 
 Valor</translation>
     </message>
@@ -1904,7 +1887,7 @@ Valor</translation>
         <source>Length of Release phase.
 
 Value</source>
-		<translation>Tamanho da fase de Repouso (Release).
+        <translation>Tamanho da fase de Repouso (Release).
 
 Valor</translation>
     </message>
@@ -1923,13 +1906,13 @@ Valor</translation>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
         <translation>Aleatório</translation>
     </message>
+    <message>
+        <source>New component name</source>
+        <translation>Novo nome do componente</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentLine</name>
-    <message>
-        <source>Delete instrument</source>
-        <translation>Deletar instrumento</translation>
-    </message>
     <message>
         <source>Fill notes ...</source>
         <translation>Preencher notas ...</translation>
@@ -2023,10 +2006,6 @@ Valor</translation>
     <message>
         <source>Delete all notes on %1</source>
         <translation>Deletar todas as notas em %1</translation>
-    </message>
-    <message>
-        <source>Add instrument</source>
-        <translation>Adicionar instrumento</translation>
     </message>
     <message>
         <source>imported from</source>
@@ -2470,19 +2449,19 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
-		<translation>Exportar &amp;Arquivo MIDI</translation>
+        <translation>Exportar &amp;Arquivo MIDI</translation>
     </message>
     <message>
         <source>&amp;Export Song</source>
-		<translation>&amp;Exportar Canção</translation>
+        <translation>&amp;Exportar Canção</translation>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-		<translation>Exportar &amp;Arquivo LilyPond</translation>
+        <translation>Exportar &amp;Arquivo LilyPond</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
-		<translation>&amp;Propriedades</translation>
+        <translation>&amp;Propriedades</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -2490,7 +2469,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Import</source>
-		<translation>&amp;Importar</translation>
+        <translation>&amp;Importar</translation>
     </message>
     <message>
         <source>On&amp;line Import</source>
@@ -2501,16 +2480,12 @@ MIDI = %2</translation>
         <translation>Adicionar Instrumento</translation>
     </message>
     <message>
-        <source>Add &amp;Component</source>
-        <translation>Adicionar Componente</translation>
-    </message>
-    <message>
         <source>Play&amp;list Editor</source>
         <translation>Editor de Playlist</translation>
     </message>
     <message>
         <source>&amp;Director</source>
-		<translation>&amp;Diretor</translation>
+        <translation>&amp;Diretor</translation>
     </message>
     <message>
         <source>&amp;Automation Path</source>
@@ -2615,7 +2590,7 @@ MIDI = %2</translation>
     <message>
         <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
 Are you sure you want to save?</source>
-		<translation>Algumas amostras usadas nessa canção não foram carregadas. Se você salvar essa canção agora, as amostras faltantes serão removidas da canção.
+        <translation>Algumas amostras usadas nessa canção não foram carregadas. Se você salvar essa canção agora, as amostras faltantes serão removidas da canção.
 Você tem certeza que quer salvar?</translation>
     </message>
     <message>
@@ -2637,16 +2612,6 @@ Você tem certeza que quer salvar?</translation>
     <message>
         <source>Could not write to temporary directory %1.</source>
         <translation>Não é possível escrever no diretório temporário %1.</translation>
-    </message>
-    <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GMRockKit, and that you do not use triplet.
-		</source>
-		<translation>
-A exportação para LilyPond é uma feature experimental.
-Deveria funcionar corretamente dado que você usou o GMRockKit e que você não está usando tercinas.
-		</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
@@ -2701,14 +2666,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Importar drumkit</translation>
     </message>
     <message>
-        <source>Drumkit imported in %1</source>
-        <translation>Drumkit importado em %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ocorreu um erro ao importar Biblioteca de Som.</translation>
-    </message>
-    <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
         <translation>Substituir o drumkit da canção atual com um vazio?</translation>
     </message>
@@ -2719,6 +2676,32 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Save &amp;To Session</source>
         <translation>Salvar &amp;Para Sessão</translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GMRockKit, and that you do not use triplet.
+</source>
+        <translation>
+A exportação para LilyPond é uma feature experimental.
+Deveria funcionar corretamente dado que você usou o GMRockKit e que você não está usando tercinas.
+    </translation>
+    </message>
+    <message>
+        <source>Export Drumkit</source>
+        <translation>Exportar Drumkit</translation>
+    </message>
+    <message>
+        <source>invalid drumkit</source>
+        <translation>drumkit inválido</translation>
+    </message>
+    <message>
+        <source>The file [%1] does already exist and will be overwritten.</source>
+        <translation>O arquivo [%1] existe e será sobrescrito.</translation>
+    </message>
+    <message>
+        <source>Drumkit exported to</source>
+        <translation>Drumkit exportado para</translation>
     </message>
 </context>
 <context>
@@ -3224,7 +3207,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>You can use the &apos;/&apos; inside the pattern size spin boxes to switch back and forth.</source>
-		<translation>Você pode usar o &apos;/&apos; dentro dos campos de tamanho do padrão para alternar. </translation>
+        <translation>Você pode usar o &apos;/&apos; dentro dos campos de tamanho do padrão para alternar. </translation>
     </message>
     <message>
         <source>Pattern editor - No pattern selected</source>
@@ -3233,6 +3216,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Drumkit used in the current song</source>
         <translation>Drumkit usado na canção atual</translation>
+    </message>
+    <message>
+        <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3291,36 +3278,16 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Cancelar</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
-        <source>New Pattern Name</source>
-        <translation>Nome do novo padrão</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Forma1</translation>
-    </message>
-    <message>
         <source>Pattern category</source>
         <translation>Categoria do padrão</translation>
-    </message>
-    <message>
-        <source>Pattern description</source>
-        <translation>Descrição do padrão</translation>
     </message>
 </context>
 <context>
@@ -3454,7 +3421,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>JACK transport on/off</source>
         <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
-		<translation>Transporte JACK Lig./Des.</translation>
+        <translation>Transporte JACK Lig./Des.</translation>
     </message>
     <message>
         <source>JACK transport will work only with JACK driver.</source>
@@ -3502,7 +3469,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
-		<translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Somente terá efeito quando o transporte JACK BBT for desativado ou ao fazer do Hydrogen o Timebase principal.</translation>
+        <translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Somente terá efeito quando o transporte JACK BBT for desativado ou ao fazer do Hydrogen o Timebase principal.</translation>
     </message>
     <message>
         <source>JACK Timebase mode</source>
@@ -3748,7 +3715,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Simple audio driver [/dev/dsp]</source>
-		<translation>Simple audio driver [/dev/dsp]</translation>
+        <translation>Simple audio driver [/dev/dsp]</translation>
     </message>
     <message>
         <source>JACK Audio Connection Kit Driver</source>
@@ -4345,7 +4312,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
-		<translation>segundo passo, ajuste o offset entre o último controlador/teclado e a inicialização adiada do sequenciador</translation>
+        <translation>segundo passo, ajuste o offset entre o último controlador/teclado e a inicialização adiada do sequenciador</translation>
     </message>
     <message>
         <source>Maximum number of instrument layers</source>
@@ -4354,22 +4321,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Maximum number of layers (requires restart of Hydrogen)</source>
         <translation>Número máximo de camadas (requer a reinicialização de Hydrogen)</translation>
-    </message>
-    <message>
-        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation>Especifica a variavable, que deve ser constante para garantir uma sincronização e relocação na presenção de outro Jack Timebase principal.</translation>
-    </message>
-    <message>
-        <source>BBT sync method</source>
-        <translation>Método de sincronização BBT</translation>
-    </message>
-    <message>
-        <source>constant measure</source>
-        <translation>medida constante</translation>
-    </message>
-    <message>
-        <source>matching bars</source>
-        <translation>compassos iguais</translation>
     </message>
     <message>
         <source>Audio System</source>
@@ -4381,7 +4332,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
-		<translation>Cria portas de saída JACK padrão &amp;por instrumento</translation>
+        <translation>Cria portas de saída JACK padrão &amp;por instrumento</translation>
     </message>
     <message>
         <source>Enable JACK &amp;timebase master support</source>
@@ -4473,7 +4424,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-		<translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Colors</source>
@@ -4640,11 +4591,11 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Load/drag pattern</source>
-		<translation>Carregar/arrastar padrão</translation>
+        <translation>Carregar/arrastar padrão</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
-		<translation>Preencher/remover intervalo do padrão</translation>
+        <translation>Preencher/remover intervalo do padrão</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
@@ -4681,14 +4632,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Move instrument</source>
         <translation>Mover instrumento</translation>
-    </message>
-    <message>
-        <source>Drop instrument</source>
-        <translation>Remover instrumento</translation>
-    </message>
-    <message>
-        <source>Delete instrument </source>
-        <translation>Deletar instrumento</translation>
     </message>
     <message>
         <source>Add piano roll note ( %1, %2 )</source>
@@ -4733,26 +4676,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Altering the length of the current pattern</source>
         <translation>Alterar o comprimento do padrão atual</translation>
-    </message>
-    <message>
-        <source>Switching drumkits</source>
-        <translation>Trocando drumkits</translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <translation>Substituir drumkit da canção com um drumkit novo e vazio</translation>
-    </message>
-    <message>
-        <source>Adding component</source>
-        <translation>Adicionando componente</translation>
-    </message>
-    <message>
-        <source>Remove component</source>
-        <translation>Remover componente</translation>
-    </message>
-    <message>
-        <source>Rename component</source>
-        <translation>Renomear componente</translation>
     </message>
     <message>
         <source>Add song to playlist</source>
@@ -5154,11 +5077,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Start/Pause playback</source>
-		<translation>Iniciar/Pausar playback</translation>
+        <translation>Iniciar/Pausar playback</translation>
     </message>
     <message>
         <source>Start/Stop playback</source>
-		<translation>Iniciar/Parar playback</translation>
+        <translation>Iniciar/Parar playback</translation>
     </message>
     <message>
         <source>Start playback at keyboard cursor</source>
@@ -5190,7 +5113,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Mute toggling of master output</source>
-		<translation>Ativar/desativar master output</translation>
+        <translation>Ativar/desativar master output</translation>
     </message>
     <message>
         <source>Increase volume of master output</source>
@@ -5262,7 +5185,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Toggle song/pattern mode</source>
-		<translation>Alternar modo canção/padrão</translation>
+        <translation>Alternar modo canção/padrão</translation>
     </message>
     <message>
         <source>Toggle loop mode</source>
@@ -5451,10 +5374,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Clear all instruments in current drumkit</source>
         <translation>Limpar todos os instrumentos no drumkit atual</translation>
-    </message>
-    <message>
-        <source>Add component to current drumkit</source>
-        <translation>Adicionar componente ao drumkit atual</translation>
     </message>
     <message>
         <source>Show playlist editor</source>
@@ -5732,6 +5651,18 @@ p, li { white-space: pre-wrap; }
         <source>Save current drumkit to NSM session folder</source>
         <translation>Salvar drumkit atual para pasta da sessão NSM</translation>
     </message>
+    <message>
+        <source>Switch to next drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to previous drumkit of soundlibrary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component to current instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditor</name>
@@ -5922,18 +5853,12 @@ Está certo disto?</translation>
         <translation>Padrão Virtual</translation>
     </message>
     <message>
-        <source>The pattern-file exists.
-Overwrite the existing pattern?</source>
-        <translation>O padrão-arquivo existe.
-Sobrescrever o padrão existente?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Exportar Padrão</translation>
     </message>
     <message>
         <source>Fill/Clear...</source>
-		<translation>Preencher/Limpar...</translation>
+        <translation>Preencher/Limpar...</translation>
     </message>
     <message>
         <source>Could not save pattern to temporary directory.</source>
@@ -5955,6 +5880,12 @@ Sobrescrever o padrão existente?</translation>
         <source>Open Pattern to Replace </source>
         <translation>Abrir Padrão para Substituir</translation>
     </message>
+    <message>
+        <source>The pattern-file exists. 
+Overwrite the existing pattern?</source>
+        <translation>O padrão-arquivo existe.
+Sobrescrever o padrão existente?</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPositionRuler</name>
@@ -5973,40 +5904,12 @@ Sobrescrever o padrão existente?</translation>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
-        <source>Song name</source>
-        <translation>Nome da música</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Autor</translation>
-    </message>
-    <message>
-        <source>Notes</source>
-        <translation>Notas</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Cancelar</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source> &amp;OK</source>
-        <translation> &amp;OK</translation>
-    </message>
-    <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
     <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation>Lincença</translation>
     </message>
 </context>
 <context>
@@ -6077,12 +5980,12 @@ Sobrescrever o padrão existente?</translation>
         <translation>Baixando Biblioteca de Som</translation>
     </message>
     <message>
-        <source>SoundLibrary imported in %1</source>
-        <translation>Biblioteca de som importada em %1</translation>
-    </message>
-    <message>
-        <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ocorreu um erro ao importar Biblioteca de Som.</translation>
+        <source>Drumkits
+
+- %1
+
+imported into %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6167,20 +6070,6 @@ Está certo disto?</translation>
         <translation>Remoção do drumkit falhou.</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation>Manter</translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation>O kit existente possui %1 instrumentos, mas o novo possui apenas %2.
-Os primeiros %2 instrumentos serão substituídos pelos novos instrumentos e manterão suas notas, mas alguns dos instrumentos restantes têm notas.
-Você gostaria de manter ou descartar os instrumentos e anotações restantes?
-</translation>
-    </message>
-    <message>
         <source>Double click to expand the list</source>
         <translation>Clique duplo pra expandir a lista</translation>
     </message>
@@ -6198,12 +6087,12 @@ Você gostaria de manter ou descartar os instrumentos e anotações restantes?
         <translation>é um kit de apenas leitura e não pode ser removido.</translation>
     </message>
     <message>
-        <source>It is not possible to delete drumkit:
+        <source>It is not possible to delete drumkit: 
   [%1]
 It contains samples used and loaded in the current song kit.</source>
-		<translation>Não foi possível deletar o drumkit:
-			[%1]
-	Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
+        <translation>Não foi possível deletar o drumkit:
+  [%1]
+Ele contém samples usados e carregados no kit de sons usado atualmente.</translation>
     </message>
 </context>
 <context>

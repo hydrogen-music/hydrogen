@@ -28,6 +28,7 @@
 
 #include <map>
 #include <unistd.h>
+#include <memory>
 
 #include "EventListener.h"
 #include "Widgets/WidgetWithScalableFont.h"
@@ -37,13 +38,21 @@
 #include <core/Preferences/Preferences.h>
 
 class HydrogenApp;
+class InfoBar;
 class QUndoView;///debug only
+
+namespace H2Core {
+	class Drumkit;
+}
 
 ///
 /// Main window
 ///
 /** \ingroup docGUI*/
-class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<MainForm>
+class MainForm :  public QMainWindow,
+				  protected WidgetWithScalableFont<8, 10, 12>,
+				  public EventListener,
+				  public H2Core::Object<MainForm>
 {
 		H2_OBJECT(MainForm)
 	Q_OBJECT
@@ -63,24 +72,26 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
 		 *
-		 * If \a nValue is 0 - the H2Core::Preferences should be saved
-		 * - it triggers savePreferences() to write the state of the
-		 * GUI into the H2Core::Preferences instance and write it
-		 * subsequentially to disk using
-		 * H2Core::Preferences::savePreferences(). If, on the other
-		 * hand, \a nValue is 1 and the configuration file has been
-		 * reloaded, it gets a fresh version of H2Core::Preferences
-		 * and updates #m_pInstrumentAction and #m_pDrumkitAction to
-		 * reflect the changes in the configuration.
-		 *
-		 * \param nValue If 0, H2Core::Preferences was save. If 1, it was
-		 *     loaded.
-		 */
+		 * If \a nValue is
+		 *  - `0`: H2Core::Preferences should be saved
+		 *  - `1`: H2Core::Preferences has been reloaded. Update its
+		 *    representation. */
 		virtual void updatePreferencesEvent( int nValue ) override;
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
+		/** Due to limitations in `libarchive` we do not support UTF-8 encoding
+		 * in drumkit import and export.
+		 *
+		 * This functions takes care of informing the user via a warning dialog
+		 * and indicates success using its return value. */
+		static bool checkDrumkitPathEncoding( const QString& sPath,
+											  const QString& sContext );
+
 		void setPreviousAutoSavePlaylistFile( const QString& sFile );
+
+		static void exportDrumkit( std::shared_ptr<H2Core::Drumkit> pDrumkit );
+		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
 
@@ -101,7 +112,7 @@ public slots:
 		 * server must be used or the restart of the session fails.
 		 */
 		void action_file_new();
-		
+
 		/**
 		 * Project > Open / Import into Session handling function.
 		 *
@@ -126,7 +137,7 @@ public slots:
 	 */
 		bool action_file_save( const QString& sNewFilename );
 	bool action_file_save();
-		
+
 		/**
 		 * Project > Save As / Export from Session handling function.
 		 *
@@ -166,7 +177,7 @@ public slots:
 
 		void functionDeleteInstrument( int nInstrument );
 
-		
+
 		void action_window_showMixer();
 		void action_window_showPlaylistEditor();
 		void action_window_show_DirectorWidget();
@@ -187,15 +198,15 @@ public slots:
 		void action_debug_showAudioEngineInfo();
 		void action_debug_showFilesystemInfo();
 		void action_debug_openLogfile();
-		
+
 
 		void action_debug_logLevel_none();
 		void action_debug_logLevel_error();
 		void action_debug_logLevel_warn();
 		void action_debug_logLevel_info();
 		void action_debug_logLevel_debug();
-		
-		
+
+
 		void closeEvent( QCloseEvent* ev ) override;
 
 		void action_file_open_recent( QAction *pAction );
@@ -205,19 +216,17 @@ public slots:
 		void openUndoStack();
 		void action_undo();
 		void action_redo();
-		
+
 		void action_inputMode_instrument();
 		void action_inputMode_drumkit();
 
 		void handleSigUsr1();
-		/** Wrapper around savePreferences() and quit() method of
-			#m_pQApp.*/
 		void closeAll();
 		/** Stores the current state of the GUI (position, width,
 		 * height, and visibility of the widgets) in the
 		 * H2Core::Preferences.
 		 */
-		void savePreferences();
+		void saveWindowProperties();
 		void checkMidiSetup();
 		void checkMissingSamples();
 
@@ -226,7 +235,6 @@ public slots:
 			setFixedSize( w, h );
 		}
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-
 
 	private slots:
 		void onAutoSaveTimer();
@@ -238,12 +246,14 @@ public slots:
 	void editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession );
 		void updateRecentUsedSongList();
 
+		void loadDrumkit( const QString& sFileName, bool bLoad );
+
 		HydrogenApp*	h2app;
 
 		static int sigusr1Fd[2];
 		QSocketNotifier *snUsr1;
 
-		QMenu *		m_pLogLevelMenu;		
+		QMenu *		m_pLogLevelMenu;
 		QMenu *		m_pInputModeMenu;
 		QAction *	m_pViewPlaylistEditorAction;
 		QAction *	m_pViewDirectorAction;
@@ -270,7 +280,7 @@ public slots:
 
 		/** Create the menubar */
 		void createMenuBar();
-		
+
 		void checkNecessaryDirectories();
 
 		QString getAutoSaveFilename();

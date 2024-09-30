@@ -23,36 +23,34 @@
 #include <cstring>
 
 #include "PreferencesDialog.h"
+
+#include <QMessageBox>
+#include <QStyleFactory>
+#include <QPixmap>
+#include <QFontDatabase>
+#include <QTreeWidgetItemIterator>
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/EventQueue.h>
+#include <core/Helpers/Translations.h>
+#include <core/Hydrogen.h>
+#include <core/IO/AlsaAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/MidiInput.h>
+#include <core/IO/PortAudioDriver.h>
+#include <core/Lash/LashClient.h>
+#include <core/Sampler/Sampler.h>
+
+#include "../SongEditor/SongEditor.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../CommonStrings.h"
 
-#include "qmessagebox.h"
-#include "qstylefactory.h"
-
-#include <QPixmap>
-#include <QFontDatabase>
-#include <QTreeWidgetItemIterator>
-#include "../Widgets/MidiTable.h"
-#include "../Widgets/ShortcutCaptureDialog.h"
-
-#include <core/EventQueue.h>
-#include <core/MidiMap.h>
-#include <core/Hydrogen.h>
-#include <core/IO/MidiInput.h>
-#include <core/Lash/LashClient.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/Helpers/Translations.h>
-#include <core/Sampler/Sampler.h>
-#include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/FileDialog.h"
-
-#include <core/IO/PortAudioDriver.h>
-#include <core/IO/CoreAudioDriver.h>
-#include <core/IO/AlsaAudioDriver.h>
-
+#include "../Widgets/MidiTable.h"
+#include "../Widgets/ShortcutCaptureDialog.h"
 
 using namespace H2Core;
 
@@ -60,27 +58,29 @@ using namespace H2Core;
 DeviceComboBox::DeviceComboBox( QWidget *pParent )
 	: LCDCombo( pParent)
 {
-	m_sDriver = "";
+	m_driver = Preferences::AudioDriver::None;
 }
 
 void DeviceComboBox::showPopup()
 {
 	clear();
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	if ( m_sDriver == "PortAudio" ) {
+	if ( m_driver == Preferences::AudioDriver::PortAudio ) {
 #ifdef H2CORE_HAVE_PORTAUDIO
 		// Get device list for PortAudio based on current value of the API combo box
 		for ( QString s : PortAudioDriver::getDevices( m_sHostAPI ) ) {
 			addItem( s );
 		}
 #endif
-	} else if ( m_sDriver == "CoreAudio" ) {
+	}
+	else if ( m_driver == Preferences::AudioDriver::CoreAudio ) {
 #ifdef H2CORE_HAVE_COREAUDIO
 		for ( QString s : CoreAudioDriver::getDevices() ) {
 			addItem( s );
 		}
 #endif
-	} else if ( m_sDriver == "ALSA" ) {
+	}
+	else if ( m_driver == Preferences::AudioDriver::Alsa ) {
 #ifdef H2CORE_HAVE_ALSA
 		for ( QString s : AlsaAudioDriver::getDevices() ) {
 			addItem( s );
@@ -159,12 +159,15 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( tr( "Preferences" ) );
-
-	setMinimumSize( width(), height() );
+	// Show and enable maximize button. This is key when enlarging the
+	// application using a scaling factor and allows the OS to force its size
+	// beyond the minimum and make the scrollbars appear.
+	setWindowFlags( windowFlags() | Qt::CustomizeWindowHint |
+					Qt::WindowMinMaxButtonsHint );
 
 	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -177,19 +180,19 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
 
 	// General tab - restore the right m_bsetlash value
-	if ( pPref->m_brestartLash == true ){
-		if (pPref->m_bsetLash == false ){
-			pPref->m_bsetLash = true ;
-			pPref->m_brestartLash = false;
+	if ( pPref->m_bRestartLash == true ){
+		if (pPref->m_bSetLash == false ){
+			pPref->m_bSetLash = true ;
+			pPref->m_bRestartLash = false;
 		}
 
 	}
-	useLashCheckbox->setChecked( pPref->m_bsetLash );
+	useLashCheckbox->setChecked( pPref->m_bSetLash );
 
 	sBcountOffset->setSize( generalTabWidgetSize );
-	sBcountOffset->setValue( pPref->m_countOffset );
+	sBcountOffset->setValue( pPref->m_nCountOffset );
 	sBstartOffset->setSize( generalTabWidgetSize );
-	sBstartOffset->setValue( pPref->m_startOffset );
+	sBstartOffset->setValue( pPref->m_nStartOffset );
 
 	sBmaxBars->setSize( generalTabWidgetSize );
 	sBmaxBars->setValue( pPref->getMaxBars() );
@@ -198,7 +201,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	autosaveSpinBox->setSize( generalTabWidgetSize );
 	autosaveSpinBox->setValue( pPref->m_nAutosavesPerHour );
 
-	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
+	QString pathtoRubberband = pPref->m_sRubberBandCLIexecutable;
 	rubberbandLineEdit->setText( pathtoRubberband );
 
 #ifdef H2CORE_HAVE_RUBBERBAND
@@ -237,18 +240,23 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	driverComboBox->setSize( audioTabWidgetSizeTop );
 	driverComboBox->clear();
-	driverComboBox->addItem( "Auto" );
-	for ( const QString& ssDriver : pHydrogen->getAudioEngine()->getSupportedAudioDrivers() ) {
-		driverComboBox->addItem( ssDriver );
+	driverComboBox->addItem(
+		Preferences::audioDriverToQString( Preferences::AudioDriver::Auto ) );
+	for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
+		driverComboBox->addItem(
+			Preferences::audioDriverToQString( ddriver ) );
 	}
 
-	if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
-		driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
+	const auto sAudioDriver =
+		Preferences::audioDriverToQString( pPref->m_audioDriver );
+	const auto nAudioDriverIndex = driverComboBox->findText( sAudioDriver );
+	if ( nAudioDriverIndex > -1 ) {
+		driverComboBox->setCurrentIndex( nAudioDriverIndex );
 	}
-	else
-	{
+	else {
 		driverInfoLbl->setText( tr("Select your Audio Driver" ));
-		ERRORLOG( "Unknown audio driver from preferences [" + pPref->m_sAudioDriver + "]" );
+		ERRORLOG( QString( "Unknown audio driver from preferences [%1]" )
+				  .arg( sAudioDriver ) );
 	}
 	connect( driverComboBox, SIGNAL(activated(int)), this,
 			 SLOT(driverComboBoxActivated(int)));
@@ -313,19 +321,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	default:
 		ERRORLOG( QString( "Unknown JACK track output mode [%1]" )
 				  .arg( static_cast<int>( pPref->m_JackTrackOutputMode ) ) );
-	}
-
-	jackBBTSyncComboBox->setSize( audioTabWidgetSizeTop );
-	switch ( pPref->m_JackBBTSync ) {
-	case Preferences::JackBBTSyncMethod::constMeasure:
-		jackBBTSyncComboBox->setCurrentIndex( 0 );
-		break;
-	case Preferences::JackBBTSyncMethod::identicalBars:
-		jackBBTSyncComboBox->setCurrentIndex( 1 );
-		break;
-	default:
-		ERRORLOG( QString( "Unknown JACK BBT synchronization method [%1]" )
-				  .arg( static_cast<int>(pPref->m_JackBBTSync) ) );
 	}
 	// Audio tab - ~JACK
 
@@ -661,19 +656,19 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::on_cancelBtn_clicked()
 {
-	Preferences *preferencesMng = Preferences::get_instance();
-	preferencesMng->loadPreferences( false );	// reload old user's preferences
+	auto pPref = CoreActionController::loadPreferences(
+		Filesystem::usr_config_path() );
 
-	//restore the right m_bsetlash value
-	if ( preferencesMng->m_brestartLash == true ){
-		if (preferencesMng->m_bsetLash == false ){
-			preferencesMng->m_bsetLash = true ;
-			preferencesMng->m_brestartLash = false;
-		}
-
+	if ( pPref != nullptr ) {
+		pPref->setTheme( m_previousTheme );
+		CoreActionController::setPreferences( pPref );
 	}
-	
-	H2Core::Preferences::get_instance()->setTheme( m_previousTheme );
+	else {
+		// This happens when opening the preferences dialog during the first
+		// startup. There is no user-level Preferences file yet.
+		Preferences::get_instance()->setTheme( m_previousTheme );
+	}
+
 	HydrogenApp::get_instance()->changePreferences( m_changes );
 
 	reject();
@@ -685,55 +680,66 @@ void PreferencesDialog::audioDeviceTxtChanged( const QString& )
 }
 
 void PreferencesDialog::updateDriverPreferences() {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
 	bool bAudioOptionAltered = false;
-	QString sPrevAudioDriver = pPref->m_sAudioDriver;
-	
-	// Selected audio driver
-	if (driverComboBox->currentText() == "JACK" ) {
-		pPref->m_sAudioDriver = "JACK";
-	}
-	else if ( driverComboBox->currentText() == "ALSA" ||
-			  ( driverComboBox->currentText() == "Auto" &&
-				dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) ) {
-		pPref->m_sAudioDriver = "ALSA";
-		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
-	}
-	else if ( driverComboBox->currentText() == "OSS" ||
-			  ( driverComboBox->currentText() == "Auto" &&
-				dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) ) {
-		pPref->m_sAudioDriver = "OSS";
-		pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
-	}
-	else if (driverComboBox->currentText() == "PortAudio" ||
-			 ( driverComboBox->currentText() == "Auto" &&
-			   dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) ) {
-		pPref->m_sAudioDriver = "PortAudio";
-		pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
-		pPref->m_sPortAudioHostAPI = portaudioHostAPIComboBox->currentText();
-		pPref->m_nLatencyTarget = latencyTargetSpinBox->value();
-	}
-	else if (driverComboBox->currentText() == "CoreAudio" ||
-			 ( driverComboBox->currentText() == "Auto" &&
-			   dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) ) {
-		pPref->m_sAudioDriver = "CoreAudio";
-		pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
-	}
-	else if (driverComboBox->currentText() == "PulseAudio" ) {
-		pPref->m_sAudioDriver = "PulseAudio";
-	}
-	else if (driverComboBox->currentText() == "Auto" ) {
-		pPref->m_sAudioDriver = "Auto";
-	}
-	else {
-		ERRORLOG( "[okBtnClicked] Invalid audio driver: " + driverComboBox->currentText() );
-	}
+	const auto prevAudioDriver = pPref->m_audioDriver;
+	const auto selectedDriver = Preferences::parseAudioDriver(
+		driverComboBox->currentText() );
 
-	if ( pPref->m_sAudioDriver != sPrevAudioDriver ) {
-		bAudioOptionAltered = true;
-	}		
+	if ( prevAudioDriver != selectedDriver ) {
+		if ( selectedDriver != Preferences::AudioDriver::None ) {
+			pPref->m_audioDriver = selectedDriver;
+			bAudioOptionAltered = true;
+		}
+		else {
+			ERRORLOG( QString( "Invalid audio driver: [%1]" )
+					  .arg( driverComboBox->currentText() ) );
+		}
+	}
+	
+	// Driver-specific settings
+	if ( selectedDriver == Preferences::AudioDriver::Alsa ||
+			  ( selectedDriver == Preferences::AudioDriver::Auto &&
+				dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) ) {
+		if ( pPref->m_sAlsaAudioDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
+			pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
+			bAudioOptionAltered = true;
+		}
+	}
+	else if ( selectedDriver == Preferences::AudioDriver::Oss ||
+			  ( selectedDriver == Preferences::AudioDriver::Auto &&
+				dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) ) {
+		if ( pPref->m_sOSSDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
+			pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
+			bAudioOptionAltered = true;
+		}
+	}
+	else if ( selectedDriver == Preferences::AudioDriver::PortAudio ||
+			 ( selectedDriver == Preferences::AudioDriver::Auto &&
+			   dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) ) {
+		if ( pPref->m_sPortAudioDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
+			pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
+			bAudioOptionAltered = true;
+		}
+		if ( pPref->m_sPortAudioHostAPI != portaudioHostAPIComboBox->currentText() ) {
+			pPref->m_sPortAudioHostAPI = portaudioHostAPIComboBox->currentText();
+			bAudioOptionAltered = true;
+		}
+		if ( pPref->m_nLatencyTarget != latencyTargetSpinBox->value() ) {
+			pPref->m_nLatencyTarget = latencyTargetSpinBox->value();
+			bAudioOptionAltered = true;
+		}
+	}
+	else if (selectedDriver == Preferences::AudioDriver::CoreAudio ||
+			 ( selectedDriver == Preferences::AudioDriver::Auto &&
+			   dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) ) {
+		if ( pPref->m_sCoreAudioDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
+			pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
+			bAudioOptionAltered = true;
+		}
+	}
 
 	// JACK
 	if ( pPref->m_bJackConnectDefaults != connectDefaultsCheckBox->isChecked() ) {
@@ -770,23 +776,6 @@ void PreferencesDialog::updateDriverPreferences() {
 		break;
 	default:
 		ERRORLOG( QString( "Unexpected track output value" ) );
-	}
-
-	switch ( jackBBTSyncComboBox->currentIndex() ) {
-	case 0:
-		if ( pPref->m_JackBBTSync != Preferences::JackBBTSyncMethod::constMeasure ) {
-			pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
-			bAudioOptionAltered = true;
-		}
-		break;
-	case 1:
-		if ( pPref->m_JackBBTSync != Preferences::JackBBTSyncMethod::identicalBars ) {
-			pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
-			bAudioOptionAltered = true;
-		}
-		break;
-	default:
-		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
 	}
 	// ~ JACK
 
@@ -909,12 +898,8 @@ void PreferencesDialog::on_okBtn_clicked()
 	// MIDI tab
 	//////////////////////////////////////////////////////////////////
 	bool bMidiOptionAltered = false;
-
-	MidiMap *mM = MidiMap::get_instance();
-	mM->reset_instance();
-
-	midiTable->saveMidiTable();
 	if ( m_bMidiTableChanged ) {
+		midiTable->saveMidiTable();
 		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
 	}
 
@@ -1033,8 +1018,8 @@ void PreferencesDialog::on_okBtn_clicked()
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->m_bsetLash != useLashCheckbox->isChecked() ) {
-		pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref
+	if ( pPref->m_bSetLash != useLashCheckbox->isChecked() ) {
+		pPref->m_bSetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref
 		bGeneralOptionAltered = true;
 	}
 	
@@ -1044,24 +1029,24 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	//path to rubberband
-	if ( pPref->m_rubberBandCLIexecutable != rubberbandLineEdit->text() ) {
-		pPref->m_rubberBandCLIexecutable = rubberbandLineEdit->text();
+	if ( pPref->m_sRubberBandCLIexecutable != rubberbandLineEdit->text() ) {
+		pPref->m_sRubberBandCLIexecutable = rubberbandLineEdit->text();
 		bGeneralOptionAltered = true;
 	}
 
 	//check preferences
-	if ( pPref->m_brestartLash == true ){
-		pPref->m_bsetLash = true ;
+	if ( pPref->m_bRestartLash == true ){
+		pPref->m_bSetLash = true ;
 	}
 
-	if ( pPref->m_countOffset != sBcountOffset->value() ) {
-		pPref->m_countOffset = sBcountOffset->value();
+	if ( pPref->m_nCountOffset != sBcountOffset->value() ) {
+		pPref->m_nCountOffset = sBcountOffset->value();
 		pHydrogen->setBcOffsetAdjust();
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->m_startOffset != sBstartOffset->value() ) {
-		pPref->m_startOffset = sBstartOffset->value();
+	if ( pPref->m_nStartOffset != sBstartOffset->value() ) {
+		pPref->m_nStartOffset = sBstartOffset->value();
 		pHydrogen->setBcOffsetAdjust();
 		bGeneralOptionAltered = true;
 	}
@@ -1115,7 +1100,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//////////////////////////////////////////////////////////////////
 	// Write all changes to disk.
-	pPref->savePreferences();
+	pPref->save();
 	
 	// Notify other components of Hydrogen about the changes
 	pH2App->changePreferences( m_changes );
@@ -1140,7 +1125,7 @@ void PreferencesDialog::portaudioHostAPIComboBoxActivated( int index )
 
 void PreferencesDialog::updateDriverInfo()
 {
-	Preferences *pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
@@ -1165,8 +1150,10 @@ void PreferencesDialog::updateDriverInfo()
 		ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
 	}
 
+	const auto selectedAudioDriver = Preferences::parseAudioDriver(
+		driverComboBox->currentText() );
 
-	if ( driverComboBox->currentText() == "Auto" ) {
+	if ( selectedAudioDriver == Preferences::AudioDriver::Auto ) {
 
 		if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoJack();
@@ -1188,7 +1175,7 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		else {
 		
-			m_pAudioDeviceTxt->setDriver( "Null" );
+			m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Null );
 			m_pAudioDeviceTxt->setIsActive( false );
 			m_pAudioDeviceTxt->lineEdit()->setText( "" );
 			bufferSizeSpinBox->setIsActive( false );
@@ -1204,10 +1191,6 @@ void PreferencesDialog::updateDriverInfo()
 			connectDefaultsCheckBox->hide();
 			enableTimebaseCheckBox->setEnabled( false );
 			enableTimebaseCheckBox->hide();
-			jackBBTSyncComboBox->setIsActive( false );
-			jackBBTSyncLbl->setEnabled( false );
-			jackBBTSyncComboBox->hide();
-			jackBBTSyncLbl->hide();
 			portaudioHostAPIComboBox->hide();
 			portaudioHostAPILabel->hide();
 			latencyTargetLabel->hide();
@@ -1215,27 +1198,27 @@ void PreferencesDialog::updateDriverInfo()
 			latencyValueLabel->hide();
 		}
 	}
-	else if ( driverComboBox->currentText() == "OSS" ) {
+	else if ( selectedAudioDriver == Preferences::AudioDriver::Oss ) {
 		setDriverInfoOss();
 	}
-	else if ( driverComboBox->currentText() == "JACK" ) {
+	else if ( selectedAudioDriver == Preferences::AudioDriver::Jack ) {
 		setDriverInfoJack();
 	}
-	else if ( driverComboBox->currentText() == "ALSA" ) {
+	else if ( selectedAudioDriver == Preferences::AudioDriver::Alsa ) {
 		setDriverInfoAlsa();
 	}
-	else if ( driverComboBox->currentText() == "PortAudio" ) {
+	else if ( selectedAudioDriver == Preferences::AudioDriver::PortAudio ) {
 		setDriverInfoPortAudio();
 	}
-	else if ( driverComboBox->currentText() == "CoreAudio" ) {
+	else if ( selectedAudioDriver == Preferences::AudioDriver::CoreAudio ) {
 		setDriverInfoCoreAudio();
 	}
-	else if ( driverComboBox->currentText() == "PulseAudio" ) {
+	else if ( selectedAudioDriver == Preferences::AudioDriver::PulseAudio ) {
 		setDriverInfoPulseAudio();
 	}
 	else {
-		QString selectedDriver = driverComboBox->currentText();
-		ERRORLOG( "Unknown driver = " + selectedDriver );
+		ERRORLOG( QString( "Unknown driver [%1]" )
+				  .arg( Preferences::audioDriverToQString( selectedAudioDriver ) ) );
 	}
 
 	metronomeVolumeSpinBox->setEnabled(true);
@@ -1248,7 +1231,8 @@ void PreferencesDialog::updateDriverInfoLabel() {
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 	QString sInfo;
 
-	if ( driverComboBox->currentText() == "Auto" ) {
+	if ( driverComboBox->currentText() ==
+		 Preferences::audioDriverToQString( Preferences::AudioDriver::Auto ) ) {
 		sInfo.append( tr("Automatic driver selection") )
 			.append( "<br><br>" );
 	}
@@ -1328,7 +1312,8 @@ void PreferencesDialog::updateDriverInfoLabel() {
 	}
 	else {
 		
-		if ( driverComboBox->currentText() == "Auto" ) {
+		if ( driverComboBox->currentText() ==
+			 Preferences::audioDriverToQString( Preferences::AudioDriver::Auto ) ) {
 		
 			// Display the selected driver as well.
 			sInfo.append( "<b>" )
@@ -1348,9 +1333,9 @@ void PreferencesDialog::updateDriverInfoLabel() {
 }
 
 void PreferencesDialog::setDriverInfoOss() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
-	m_pAudioDeviceTxt->setDriver( "OSS" );
+	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Oss );
 	m_pAudioDeviceTxt->setIsActive(true);
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
 	bufferSizeSpinBox->setIsActive(true);
@@ -1360,8 +1345,6 @@ void PreferencesDialog::setDriverInfoOss() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1373,9 +1356,9 @@ void PreferencesDialog::setDriverInfoOss() {
 }
 
 void PreferencesDialog::setDriverInfoAlsa() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
-	m_pAudioDeviceTxt->setDriver( "ALSA" );
+	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Alsa );
 	m_pAudioDeviceTxt->setIsActive(true);
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
 	bufferSizeSpinBox->setIsActive(true);
@@ -1385,8 +1368,6 @@ void PreferencesDialog::setDriverInfoAlsa() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1398,9 +1379,9 @@ void PreferencesDialog::setDriverInfoAlsa() {
 }
 
 void PreferencesDialog::setDriverInfoJack() {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
-	m_pAudioDeviceTxt->setDriver( "JACK" );
+	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::Jack );
 	m_pAudioDeviceTxt->setIsActive(false);
 	m_pAudioDeviceTxt->lineEdit()->setText( "" );
 	bufferSizeSpinBox->setIsActive(false);
@@ -1409,15 +1390,11 @@ void PreferencesDialog::setDriverInfoJack() {
 	connectDefaultsCheckBox->setEnabled( true );
 	enableTimebaseCheckBox->setEnabled( true );
 	trackOutsCheckBox->setEnabled( true );
-	jackBBTSyncComboBox->setIsActive( true );
-	jackBBTSyncLbl->setEnabled( true );
 	trackOutputComboBox->show();
 	trackOutputLbl->show();
 	connectDefaultsCheckBox->show();
 	enableTimebaseCheckBox->show();
 	trackOutsCheckBox->show();
-	jackBBTSyncComboBox->show();
-	jackBBTSyncLbl->show();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1429,9 +1406,9 @@ void PreferencesDialog::setDriverInfoJack() {
 }
 
 void PreferencesDialog::setDriverInfoCoreAudio() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
-	m_pAudioDeviceTxt->setDriver( "CoreAudio" );
+	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::CoreAudio );
 	m_pAudioDeviceTxt->setIsActive( true );
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
 	bufferSizeSpinBox->setIsActive( true );
@@ -1441,8 +1418,6 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1454,9 +1429,9 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 }
 
 void PreferencesDialog::setDriverInfoPortAudio() {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 
-	m_pAudioDeviceTxt->setDriver( "PortAudio" );
+	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::PortAudio );
 	m_pAudioDeviceTxt->setIsActive( true );
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
 	bufferSizeSpinBox->setIsActive(false);
@@ -1466,8 +1441,6 @@ void PreferencesDialog::setDriverInfoPortAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->show();
 	portaudioHostAPILabel->show();
 	latencyTargetLabel->show();
@@ -1491,7 +1464,7 @@ void PreferencesDialog::setDriverInfoPortAudio() {
 
 void PreferencesDialog::setDriverInfoPulseAudio() {
 	
-	m_pAudioDeviceTxt->setDriver( "PulseAudio" );
+	m_pAudioDeviceTxt->setDriver( Preferences::AudioDriver::PulseAudio );
 	m_pAudioDeviceTxt->setIsActive(false);
 	m_pAudioDeviceTxt->lineEdit()->setText("");
 	bufferSizeSpinBox->setIsActive(true);
@@ -1501,8 +1474,6 @@ void PreferencesDialog::setDriverInfoPulseAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
-	jackBBTSyncComboBox->hide();
-	jackBBTSyncLbl->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1514,7 +1485,7 @@ void PreferencesDialog::setDriverInfoPulseAudio() {
 }
 
 void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	m_currentTheme.m_font.m_sApplicationFontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sApplicationFontFamily = font.family();
@@ -1527,7 +1498,7 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 }
 
 void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	m_currentTheme.m_font.m_sLevel2FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel2FontFamily = font.family();
@@ -1540,7 +1511,7 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 }
 
 void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 
 	m_currentTheme.m_font.m_sLevel3FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel3FontFamily = font.family();
@@ -1614,9 +1585,7 @@ void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex )
 		 m_currentTheme.m_interface.m_layout !=
 		 m_previousTheme.m_interface.m_layout ) {
 		UIChangeWarningLabel->show();
-		INFOLOG( "hosw" );
 	} else {
-		INFOLOG( "hide" );
 		UIChangeWarningLabel->hide();
 	}
 	m_currentTheme.m_interface.m_uiScalingPolicy =
@@ -1711,7 +1680,7 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 }
 
 void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
-	Preferences *pPref = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 	
 	if ( nIndex == 0 ) {
 		m_currentTheme.m_interface.m_fMixerFalloffSpeed =
@@ -1766,7 +1735,6 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	
 	updateDriverPreferences();
-	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->restartDrivers();
 	
@@ -1778,7 +1746,6 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 							   tr( "Unable to start audio driver" ) );
 	}
 	
-	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
 	updateDriverInfo();
 }
@@ -1822,11 +1789,11 @@ void PreferencesDialog::styleComboBoxActivated( int index )
 void PreferencesDialog::on_useLashCheckbox_clicked()
 {
 	if ( useLashCheckbox->isChecked() ){
-		Preferences::get_instance()->m_brestartLash = true;
+		Preferences::get_instance()->m_bRestartLash = true;
 	}
 	else
 	{
-		Preferences::get_instance()->m_bsetLash = false ;
+		Preferences::get_instance()->m_bSetLash = false ;
 	}
 	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
@@ -2259,7 +2226,8 @@ void PreferencesDialog::vsliderChanged( int nValue ) {
 }
 
 void PreferencesDialog::importTheme() {
-	QString sPath = H2Core::Preferences::get_instance()->getLastImportThemeDirectory();
+	auto pPref = H2Core::Preferences::get_instance();
+	QString sPath = pPref->getLastImportThemeDirectory();
 	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::sys_theme_dir();
 	}
@@ -2281,7 +2249,7 @@ void PreferencesDialog::importTheme() {
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
 	QString sSelectedPath = fileInfo.absoluteFilePath();
-	H2Core::Preferences::get_instance()->setLastImportThemeDirectory( fd.directory().absolutePath() );
+	pPref->setLastImportThemeDirectory( fd.directory().absolutePath() );
 
 	if ( sSelectedPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Theme couldn't be found.") );
@@ -2294,7 +2262,7 @@ void PreferencesDialog::importTheme() {
 		return;
 	}
 	m_currentTheme = *pTheme;
-	H2Core::Preferences::get_instance()->setTheme( m_currentTheme );
+	pPref->setTheme( m_currentTheme );
 	if ( m_nCurrentId == 0 ) {
 		m_pCurrentColor = nullptr;
 		updateColorTree();
@@ -2318,7 +2286,8 @@ void PreferencesDialog::importTheme() {
 }
 
 void PreferencesDialog::exportTheme() {
-	QString sPath = H2Core::Preferences::get_instance()->getLastExportThemeDirectory();
+	auto pPref = H2Core::Preferences::get_instance();
+	QString sPath = pPref->getLastExportThemeDirectory();
 	if ( ! H2Core::Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::usr_theme_dir();
 	}
@@ -2346,7 +2315,7 @@ void PreferencesDialog::exportTheme() {
 		return;
 	}
 
-	H2Core::Preferences::get_instance()->setLastExportThemeDirectory( fd.directory().absolutePath() );
+	pPref->setLastExportThemeDirectory( fd.directory().absolutePath() );
 
 	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme exported to " ) +
 													   sSelectedPath );

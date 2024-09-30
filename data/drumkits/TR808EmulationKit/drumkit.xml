@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<drumkit_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit">
+<drumkit_info xmlns="http://www.hydrogen-music.org/drumkit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <!--Copyright (C) 2024  ArtemioLabs [http://artemiolabs.com]
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.-->
+ <formatVersion>2</formatVersion>
  <name>TR808EmulationKit</name>
+ <userVersion>0</userVersion>
  <author>ArtemioLabs [http://artemiolabs.com]</author>
  <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
@@ -10,21 +26,16 @@ p, li { white-space: pre-wrap; }
  <license>GPL</license>
  <image></image>
  <imageLicense>undefined license</imageLicense>
- <componentList>
-  <drumkitComponent>
-   <id>0</id>
-   <name>Main</name>
-   <volume>1</volume>
-  </drumkitComponent>
- </componentList>
  <instrumentList>
   <instrument>
    <id>0</id>
    <name>Kick Long</name>
+   <type>Kick</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -49,24 +60,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Kick_Long.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>1</id>
    <name>Kick Short</name>
+   <type>Kick 2</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -91,24 +118,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Kick_Short.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>2</id>
    <name>Snare 1</name>
+   <type>Snare</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -133,24 +176,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Snare_1.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>3</id>
    <name>Snare 2</name>
+   <type>Snare 2</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -175,24 +234,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Snare_2.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>4</id>
    <name>Clap</name>
+   <type>Hand Clap</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -217,24 +292,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Clap.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>5</id>
    <name>Tom Low</name>
+   <type>Tom Floor</type>
    <volume>0.77</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>-0.48</pan>
+   <pan_L>1</pan_L>
+   <pan_R>0.52</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -259,24 +350,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Tom_Low.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>6</id>
    <name>Tom Mid</name>
+   <type>Tom Low</type>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -301,24 +408,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Tom_Mid.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>7</id>
    <name>Tom Hi</name>
+   <type>Tom Mid</type>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.52</pan>
+   <pan_L>0.48</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -343,24 +466,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Tom_Hi.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>8</id>
    <name>Closed Hat</name>
+   <type>Hi-hat Closed</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -385,24 +524,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Hat_Closed.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>9</id>
    <name>Pedal Hat</name>
+   <type>Hi-hat Pedal</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -427,24 +582,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Hat_Pedal.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>10</id>
    <name>Open Hat</name>
+   <type>Hi-hat Open</type>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -469,24 +640,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Hat_Open.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>11</id>
    <name>Cymbal</name>
+   <type>Crash</type>
    <volume>0.82</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -511,24 +698,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Cymbal.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>12</id>
    <name>Shaker</name>
+   <type>Shaker</type>
    <volume>0.84</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0</pan>
+   <pan_L>1</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -553,24 +756,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Shaker.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>13</id>
    <name>Conga</name>
+   <type>Conga High</type>
    <volume>0.88</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.1</pan>
+   <pan_L>0.9</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -595,24 +814,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Conga.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>14</id>
    <name>Clave</name>
+   <type>Claves</type>
    <volume>0.84</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.04</pan>
+   <pan_L>0.96</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -637,24 +872,40 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Clave.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
    <id>15</id>
    <name>Cowbell</name>
+   <type>Cowbell</type>
    <volume>0.85</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan>0.04</pan>
+   <pan_L>0.96</pan_L>
+   <pan_R>1</pan_R>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -679,14 +930,28 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <instrumentComponent>
-    <component_id>0</component_id>
+    <name>Main</name>
     <gain>1</gain>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
     <layer>
      <filename>808_Cowbell.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
     </layer>
    </instrumentComponent>
   </instrument>

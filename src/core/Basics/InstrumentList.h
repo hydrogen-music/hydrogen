@@ -33,7 +33,6 @@ namespace H2Core
 
 class XMLNode;
 class Instrument;
-class DrumkitComponent;
 
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...
@@ -173,11 +172,6 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * save the instrument list within the given XMLNode
 		 *
 		 * \param node the XMLNode to feed
-		 * \param component_id Identifier of the corresponding
-		 *   component.
-		 * \param bRecentVersion Whether the drumkit format should be
-		 *   supported by Hydrogen 0.9.7 or higher (whether it should be
-		 *   composed of DrumkitComponents).
 		 * \param bSongKit Whether the instruments are part of a
 		 *   stand-alone kit or part of a song. In the latter case all samples
 		 *   located in the corresponding drumkit folder and are referenced by
@@ -185,8 +179,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void save_to( XMLNode& node, int component_id, bool bRecentVersion = true,
-					  bool bSongKit = false ) const;
+		void save_to( XMLNode& node, bool bSongKit = false ) const;
 
 		/**
 		 * load an instrument list from an XMLNode
@@ -221,7 +214,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
 	 */
-	std::vector<std::shared_ptr<Content>> summarizeContent( const std::shared_ptr<std::vector<std::shared_ptr<DrumkitComponent>>> pDrumkitComponents ) const;
+	std::vector<std::shared_ptr<Content>> summarizeContent() const;
 
 		/**
 		 * Check if all instruments have assigned the same

@@ -36,3 +36,11 @@ GTAGS
 
 # Ignore cache folder of clangd used in LSP editor support.
 .cache/
+
+# Test artifacts
+tests/jackTearDown/jackTearDown
+tests/jackTearDown/h2cli.log
+tests/jackTimebase/jackTimebase
+tests/jackTimebase/hydrogen.log
+tests/jackTimebase/test*.log
+src/tests/data/playlist/tmp-duplicate-test.h2playlist

@@ -145,8 +145,7 @@ QStringList PortAudioDriver::getDevices( const QString& sHostAPI ) {
 }
 
 QStringList PortAudioDriver::getDevices() {
-	Preferences *pPreferences = Preferences::get_instance();
-	return getDevices( pPreferences->m_sPortAudioHostAPI );
+	return getDevices( Preferences::get_instance()->m_sPortAudioHostAPI );
 }
 
 //
@@ -157,7 +156,7 @@ QStringList PortAudioDriver::getDevices() {
 int PortAudioDriver::connect()
 {
 	bool bUseDefaultStream = true;
-	Preferences *pPreferences = Preferences::get_instance();
+	const auto pPreferences = Preferences::get_instance();
 	INFOLOG( "[connect]" );
 
 	m_pOut_L = new float[ MAX_BUFFER_SIZE ];
@@ -347,6 +346,27 @@ float* PortAudioDriver::getOut_L()
 float* PortAudioDriver::getOut_R()
 {
 	return m_pOut_R;
+}
+
+QString PortAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PortAudioDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSampleRate ) )
+			.append( QString( "%1%2m_sDevice: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sDevice ) )
+			.append( QString( "%1%2m_bInitialised: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bInitialised ) );
+	} else {
+		sOutput = QString( "[PortAudioDriver]" )
+			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
+			.append( QString( ", m_sDevice: %1" ).arg( m_sDevice ) )
+			.append( QString( ", m_bInitialised: %1" ).arg( m_bInitialised ) );
+	}
+
+	return sOutput;
 }
 
 };

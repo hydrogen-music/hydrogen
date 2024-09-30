@@ -20,20 +20,15 @@
  *
  */
 
-#include "Version.h"
 
 #include <cassert>
 #include <memory>
 
+#include <core/Basics/Song.h>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-
-#include <core/Preferences/Preferences.h>
-#include <core/EventQueue.h>
-#include <core/FX/Effects.h>
-#include <core/Globals.h>
-#include <core/Timeline.h>
-#include <core/Basics/Song.h>
+#include <core/AutomationPathSerializer.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -43,15 +38,20 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/AutomationPath.h>
-#include <core/AutomationPathSerializer.h>
-#include <core/Hydrogen.h>
+#include <core/EventQueue.h>
+#include <core/FX/Effects.h>
+#include <core/Globals.h>
 #include <core/Helpers/Legacy.h>
+#include <core/Hydrogen.h>
+#ifdef H2CORE_HAVE_OSC
+  #include <core/NsmClient.h>
+#endif
+#include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/Timeline.h>
+#include <core/Version.h>
 
-#ifdef H2CORE_HAVE_OSC
-#include <core/NsmClient.h>
-#endif
 
 #include <QDir>
 
@@ -65,8 +65,9 @@ namespace H2Core
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
 	: m_bIsTimelineActivated( false )
 	, m_bIsMuted( false )
-	, m_resolution( 48 )
+	, m_resolution( nDefaultResolution )
 	, m_fBpm( fBpm )
+	, m_nVersion( 0 )
 	, m_sName( sName )
 	, m_sAuthor( sAuthor )
 	, m_fVolume( fVolume )
@@ -91,6 +92,9 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
+	, m_sLastLoadedDrumkitPath( "" )
+	, m_pDrumkit( std::make_shared<Drumkit>() )
+	, m_pTimeline( std::make_shared<Timeline>() )
 {
 	if ( m_sName.isEmpty() ){
 		m_sName = Filesystem::untitled_song_name();
@@ -98,8 +102,6 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	INFOLOG( QString( "INIT '%1'" ).arg( m_sName ) );
 
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
-
-	m_pTimeline = std::make_shared<Timeline>();
 }
 
 Song::~Song()
@@ -127,7 +129,9 @@ Song::~Song()
 
 void Song::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	m_pDrumkit = pDrumkit;
-	m_pDrumkit->setType( Drumkit::Type::Song );
+	m_pDrumkit->setContext( Drumkit::Context::Song );
+
+	m_sLastLoadedDrumkitPath = pDrumkit->getPath();
 }
 
 void Song::setBpm( float fBpm ) {
@@ -233,20 +237,25 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	float fBpm = rootNode.read_float( "bpm", 120, false, false, bSilent );
 	float fVolume = rootNode.read_float( "volume", 0.5, false, false, bSilent );
-	QString sName( rootNode.read_string( "name", "Untitled Song",
-										   false, false, bSilent ) );
-	QString sAuthor( rootNode.read_string( "author", "Unknown Author",
-											 false, false, bSilent ) );
+	const QString sName( rootNode.read_string( "name", "Untitled Song",
+											   false, false, bSilent ) );
+	const QString sAuthor( rootNode.read_string( "author", "Unknown Author",
+												 false, false, bSilent ) );
 
 	std::shared_ptr<Song> pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
+
+	pSong->m_nVersion = rootNode.read_int(
+		"userVersion", pSong->m_nVersion, true, false, bSilent );
 
 	pSong->setIsMuted( rootNode.read_bool( "isMuted", false, true, false,
 											 bSilent ) );
 	pSong->setMetronomeVolume( rootNode.read_float( "metronomeVolume", 0.5,
 													  false, false, bSilent ) );
 	pSong->setNotes( rootNode.read_string( "notes", "...", false, false, bSilent ) );
-	pSong->setLicense( License( rootNode.read_string( "license", "",
-														false, false, bSilent ), sAuthor ) );
+	const License license =
+		License( rootNode.read_string( "license", "",
+									   false, false, bSilent ), sAuthor );
+	pSong->setLicense( license );
 	if ( rootNode.read_bool( "loopEnabled", false, false, false, bSilent ) ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {
@@ -307,19 +316,10 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	pSong->setIsPatternEditorLocked( rootNode.read_bool( "isPatternEditorLocked",
 														   false, true, false, true ) );
 
-	bool bContainsIsTimelineActivated;
-	bool bIsTimelineActivated =
-		rootNode.read_bool( "isTimelineActivated", false,
-							  &bContainsIsTimelineActivated, true, false, true );
-	if ( ! bContainsIsTimelineActivated ) {
-		// .h2song file was created in an older version of
-		// Hydrogen. Using the Timeline state in the
-		// Preferences as a fallback.
-		bIsTimelineActivated = pPreferences->getUseTimelineBpm();
-	} else {
-		pPreferences->setUseTimelineBpm( bIsTimelineActivated );
-	}
-	pSong->setIsTimelineActivated( bIsTimelineActivated );
+	pSong->setIsTimelineActivated( rootNode.read_bool(
+									   "isTimelineActivated",
+									   pSong->getIsTimelineActivated(),
+									   true, false, true ) );
 
 	// pan law
 	QString sPanLawType( rootNode.read_string( "pan_law_type",
@@ -392,11 +392,17 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		pDrumkit = std::make_shared<Drumkit>();
 	}
 	pSong->setDrumkit( pDrumkit );
+	pSong->setLastLoadedDrumkitPath(
+		rootNode.read_string( "lastLoadedDrumkitPath", "", true, true,
+								bSilent ) );
 
 	// Pattern list
-	pSong->setPatternList( PatternList::load_from( rootNode,
-												   pSong->getDrumkit()->getInstruments(),
-												   bSilent ) );
+	auto pPatternList = PatternList::load_from(
+		rootNode, pDrumkit->getExportName(), bSilent );
+	if ( pPatternList != nullptr ) {
+		pPatternList->mapTo( pDrumkit );
+	}
+	pSong->setPatternList( pPatternList );
 
 	// Virtual Patterns
 	pSong->loadVirtualPatternsFrom( rootNode, bSilent );
@@ -524,7 +530,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 }
 
 /// Save a song to file
-bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
+bool Song::save( const QString& sFilename, bool bSilent )
 {
 	QFileInfo fi( sFilename );
 	if ( ( Filesystem::file_exists( sFilename, true ) &&
@@ -551,7 +557,7 @@ bool Song::save( const QString& sFilename, bool bLegacy, bool bSilent )
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
 
-	saveTo( rootNode, bLegacy, bSilent );
+	saveTo( rootNode, bSilent );
 
 	setFilename( sFilename );
 	setIsModified( false );
@@ -676,6 +682,10 @@ void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
 }
 
 void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
+	if ( m_pPatternList == nullptr ) {
+		return;
+	}
+
 	XMLNode virtualPatternListNode = node.createNode( "virtualPatternList" );
 	for ( const auto& pPattern : *m_pPatternList ) {
 		if ( ! pPattern->get_virtual_patterns()->empty() ) {
@@ -690,6 +700,10 @@ void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
 }
 
 void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
+	if ( m_pPatternGroupSequence == nullptr ) {
+		return;
+	}
+
 	XMLNode patternSequenceNode = node.createNode( "patternSequence" );
 	for ( const auto& pPatternList : *m_pPatternGroupSequence ) {
 		if ( pPatternList != nullptr ) {
@@ -704,12 +718,14 @@ void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
 	}
 }
 
-void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
+void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
+	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_float( "bpm", m_fBpm );
 	rootNode.write_float( "volume", m_fVolume );
 	rootNode.write_bool( "isMuted", m_bIsMuted );
 	rootNode.write_float( "metronomeVolume", m_fMetronomeVolume );
+	rootNode.write_int( "userVersion", m_nVersion );
 	rootNode.write_string( "name", m_sName );
 	rootNode.write_string( "author", m_sAuthor );
 	rootNode.write_string( "notes", m_sNotes );
@@ -783,25 +799,19 @@ void Song::saveTo( XMLNode& rootNode, bool bLegacy, bool bSilent ) const {
 	rootNode.write_float( "humanize_velocity", m_fHumanizeVelocityValue );
 	rootNode.write_float( "swing_factor", m_fSwingFactor );
 
-	if ( !bLegacy ) {
-		// Current format
-		//
-		// "drumkit_info" instead of "drumkit" seem unintuitive but is dictated
-		// by a ancient design desicion and we will stick to it.
-		auto drumkitNode = rootNode.createNode( "drumkit_info" );
-		m_pDrumkit->saveTo( drumkitNode,
-							-1, // All components
-							true, // Use the most-recent format
-							true, // Enable per-instrument sample loading
-							bSilent );
-	} else {
-		Legacy::saveEmbeddedSongDrumkit( rootNode, m_pDrumkit, bSilent );
+	// "drumkit_info" instead of "drumkit" seem unintuitive but is dictated by a
+	// ancient design desicion and we will stick to it.
+	auto drumkitNode = rootNode.createNode( "drumkit_info" );
+	m_pDrumkit->saveTo( drumkitNode,
+						true, // Enable per-instrument sample loading
+						bSilent );
+
+	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
+
+	if ( m_pPatternList != nullptr ) {
+		m_pPatternList->save_to( rootNode, nullptr );
 	}
-
-	m_pPatternList->save_to( rootNode, nullptr );
-
 	saveVirtualPatternsTo( rootNode, bSilent );
-
 	savePatternGroupVectorTo( rootNode, bSilent );
 
 	XMLNode ladspaFxNode = rootNode.createNode( "ladspa" );
@@ -902,7 +912,6 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 		Pattern*		pEmptyPattern = new Pattern();
 
 		pEmptyPattern->set_name( QString( "Pattern %1" ).arg( nn + 1 ) );
-		pEmptyPattern->set_category( QString( "not_categorized" ) );
 		pPatternList->add( pEmptyPattern );
 
 		if ( nn == 0 ) {
@@ -1039,133 +1048,6 @@ bool Song::saveTempPatternList( const QString& sFilename ) const
 	return doc.write( sFilename );
 }
 
-QString Song::copyInstrumentLineToString( int nSelectedInstrument ) const
-{
-	auto pInstrument = getDrumkit()->getInstruments()->get( nSelectedInstrument );
-	if ( pInstrument == nullptr ) {
-		assert( pInstrument );
-		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
-		return QString();
-	}
-
-	XMLDoc doc;
-	XMLNode rootNode = doc.set_root( "instrument_line" );
-	rootNode.write_string( "author", getAuthor() );
-	rootNode.write_string( "license", getLicense().getLicenseString() );
-
-	m_pPatternList->save_to( rootNode, pInstrument );
-
-	// Serialize document
-	return doc.toString();
-}
-
-bool Song::pasteInstrumentLineFromString( const QString& sSerialized,
-										  int nSelectedInstrument,
-										  std::list<Pattern *>& patterns ) const
-{
-	XMLDoc doc;
-	if ( ! doc.setContent( sSerialized ) ) {
-		return false;
-	}
-
-	// Get current instrument
-	auto pInstr = getDrumkit()->getInstruments()->get( nSelectedInstrument );
-	assert( pInstr );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to find instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
-		return false;
-	}
-
-	// Get pattern list
-	PatternList *pList = getPatternList();
-	XMLNode patternNode;
-	bool bIsNoteSelection = false;
-	bool is_single = true;
-
-	// Check if document has correct structure
-	XMLNode rootNode = doc.firstChildElement( "instrument_line" );	// root element
-	if ( ! rootNode.isNull() ) {
-		// Find pattern list
-		XMLNode patternList = rootNode.firstChildElement( "patternList" );
-		if ( patternList.isNull() ) {
-			return false;
-		}
-
-		// Parse each pattern if needed
-		patternNode = patternList.firstChildElement( "pattern" );
-		if ( ! patternNode.isNull() ) {
-			is_single = (( XMLNode )patternNode.nextSiblingElement( "pattern" )).isNull();
-		}
-	}
-	else {
-		rootNode = doc.firstChildElement( "noteSelection" );
-		if ( ! rootNode.isNull() ) {
-			// Found a noteSelection. This contains a noteList, as a <pattern> does, so treat this as an anonymous pattern.
-			bIsNoteSelection = true;
-			is_single = true;
-			patternNode = rootNode;
-
-		} else {
-			ERRORLOG( "Error pasting Clipboard:instrument_line or noteSelection node not found ");
-			return false;
-		}
-	}
-
-	while ( ! patternNode.isNull() )
-	{
-		QString patternName( patternNode.read_string( "name", "", false, false ) );
-
-		// Check if pattern name specified
-		if ( patternName.length() > 0 || bIsNoteSelection ) {
-			// Try to find pattern by name
-			Pattern* pat = pList->find(patternName);
-
-			// If OK - check if need to add this pattern to result
-			// If there is only one pattern, we always add it to list
-			// If there is no selected pattern, we add all existing patterns to list (match by name)
-			// Otherwise we add only existing selected pattern to list (match by name)
-			if ( is_single || pat != nullptr ) {
-
-				pat = new Pattern( patternName,
-								   patternNode.read_string( "info", "", true, false ),
-								   patternNode.read_string( "category", "unknown", true, false ),
-								   patternNode.read_int( "size", -1, true, false ),
-								   patternNode.read_int( "denominator", 4, true, false ) );
-
-				// Parse pattern data
-				XMLNode pNoteListNode = patternNode.firstChildElement( "noteList" );
-				if ( ! pNoteListNode.isNull() )
-				{
-					// Parse note-by-note
-					XMLNode noteNode = pNoteListNode.firstChildElement( "note" );
-					while ( ! noteNode.isNull() )
-					{
-						XMLNode instrument = noteNode.firstChildElement( "instrument" );
-						XMLNode instrumentText = instrument.firstChild();
-
-						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
-						Note *pNote = Note::load_from( noteNode, getDrumkit()->getInstruments() );
-
-						pat->insert_note( pNote ); // Add note to created pattern
-
-						noteNode = noteNode.nextSiblingElement( "note" );
-					}
-				}
-
-				// Add loaded pattern to apply-list
-				patterns.push_back(pat);
-			}
-		}
-
-		patternNode = patternNode.nextSiblingElement( "pattern" );
-	}
-
-	return true;
-}
-
-
 void Song::setPanLawKNorm( float fKNorm ) {
 	if ( fKNorm >= 0. ) {
 		m_fPanLawKNorm = fKNorm;
@@ -1173,36 +1055,6 @@ void Song::setPanLawKNorm( float fKNorm ) {
 		WARNINGLOG("negative kNorm. Set default" );
 		m_fPanLawKNorm = Sampler::K_NORM_DEFAULT;
 	}
-}
-
-void Song::removeInstrument( int nInstrumentNumber ) {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pInstr = m_pDrumkit->getInstruments()->get( nInstrumentNumber );
-	if ( pInstr == nullptr ) {
-		// Error log is already printed by get().
-		return;
-	}
-
-	for ( const auto& pPattern : *m_pPatternList ) {
-		pPattern->purge_instrument( pInstr, false );
-	}
-
-	// delete the instrument from the instruments list
-	m_pDrumkit->removeInstrument( nInstrumentNumber );
-
-	// Ensure there is always one instrument left.
-	if ( m_pDrumkit->getInstruments()->size() < 1 ) {
-		m_pDrumkit->addInstrument( std::make_shared<Instrument>() );
-	}
-
-	// At this point the instrument has been removed from both the
-	// instrument list and every pattern in the song.  Hence there's no way
-	// (NOTE) to play on that instrument, and once all notes have stopped
-	// playing it will be save to delete.
-	// the ugly name is just for debugging...
-	QString xxx_name = QString( "XXX_%1" ).arg( pInstr->get_name() );
-	pInstr->set_name( xxx_name );
-	pHydrogen->addInstrumentToDeathRow( pInstr );
 }
 
 std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
@@ -1249,20 +1101,103 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 	return notes;
 }
 
+QString Song::ModeToQString( const Mode& mode ) {
+	switch( mode ) {
+	case Mode::Pattern:
+		return "Pattern";
+	case Mode::Song:
+		return "Song";
+	case Mode::None:
+		return "None";
+	default:
+		return QString( "Unknown mode [%1]" )
+			.arg( static_cast<int>(mode) );
+	}
+}
+
+QString Song::ActionModeToQString( const ActionMode& actionMode ) {
+	switch( actionMode ) {
+	case ActionMode::selectMode:
+		return "selectMode";
+	case ActionMode::drawMode:
+		return "drawMode";
+	case ActionMode::None:
+		return "None";
+	default:
+		return QString( "Unknown actionMode [%1]" )
+			.arg( static_cast<int>(actionMode) );
+	}
+}
+
+QString Song::LoopModeToQString( const LoopMode& loopMode ) {
+	switch( loopMode ) {
+	case LoopMode::Disabled:
+		return "Disabled";
+	case LoopMode::Enabled:
+		return "Enabled";
+	case LoopMode::Finishing:
+		return "Finishing";
+	default:
+		return QString( "Unknown loopMode [%1]" )
+			.arg( static_cast<int>(loopMode) );
+	}
+}
+
+QString Song::PatternModeToQString( const PatternMode& patternMode ) {
+	switch( patternMode ) {
+	case PatternMode::Stacked:
+		return "Stacked";
+	case PatternMode::Selected:
+		return "Selected";
+	case PatternMode::None:
+		return "None";
+	default:
+		return QString( "Unknown patternMode [%1]" )
+			.arg( static_cast<int>(patternMode) );
+	}
+}
+
+QString Song::PlaybackTrackToQString( const PlaybackTrack& playbackTrack ) {
+	switch( playbackTrack ) {
+	case PlaybackTrack::Unavailable:
+		return "Unavailable";
+	case PlaybackTrack::Muted:
+		return "Muted";
+	case PlaybackTrack::Enabled:
+		return "Enabled";
+	case PlaybackTrack::None:
+		return "None";
+	default:
+		return QString( "Unknown playbackTrack [%1]" )
+			.arg( static_cast<int>(playbackTrack) );
+	}
+}
+
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Song]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_bIsTimelineActivated: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsTimelineActivated ) )
-			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsMuted ) )
-			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s ).arg( m_resolution ) )
-			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fBpm ) )
-			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
-			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
-			.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fVolume ) )
-			.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMetronomeVolume ) )
-			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
+			.append( QString( "%1%2m_bIsTimelineActivated: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsTimelineActivated ) )
+			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsMuted ) )
+			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_resolution ) )
+			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fBpm ) )
+			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nVersion ) )
+			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sName ) )
+			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sAuthor ) )
+			.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fVolume ) )
+			.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fMetronomeVolume ) )
+			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sNotes ) )
 			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& pp : *m_pPatternGroupSequence ) {
@@ -1270,34 +1205,59 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1" ).arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
-			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_loopMode) ) )
-			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeTimeValue ) )
-			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeVelocityValue ) )
-			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
-			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) )
+		if ( m_pDrumkit != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2m_pDrumkit: nullptr\n" ).arg( sPrefix )
+							.arg( s ) );
+		}
+		sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sFilename ) )
+			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( LoopModeToQString( m_loopMode ) ) )
+			.append( QString( "%1%2m_patternMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( PatternModeToQString( m_patternMode ) ) )
+			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fHumanizeTimeValue ) )
+			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fHumanizeVelocityValue ) )
+			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fSwingFactor ) )
+			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsModified ) )
 			.append( QString( "%1%2m_latestRoundRobins\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& mm : m_latestRoundRobins ) {
-			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( mm.first ).arg( mm.second ) );
+			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s )
+					 .arg( mm.first ).arg( mm.second ) );
 		}
-		sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s )
-						.arg( static_cast<int>(m_mode )) )
-			.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPlaybackTrackFilename ) )
-			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bPlaybackTrackEnabled ) )
-			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPlaybackTrackVolume ) )
+		sOutput.append( QString( "%1%2m_mode: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( ModeToQString( m_mode ) ) )
+			.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sPlaybackTrackFilename ) )
+			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bPlaybackTrackEnabled ) )
+			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fPlaybackTrackVolume ) )
 			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_actionMode: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<int>(m_actionMode) ) )
-			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
-			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) )
+					 .arg( ActionModeToQString( m_actionMode ) ) )
+			.append( QString( "%1%2m_bIsPatternEditorLocked: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsPatternEditorLocked ) )
+			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nPanLawType ) )
+			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fPanLawKNorm ) )
 			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
+			sOutput.append( QString( "%1%2m_sLastLoadedDrumkitPath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sLastLoadedDrumkitPath ) );
 	} else {
 
 		sOutput = QString( "[Song]" )
@@ -1305,6 +1265,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_resolution: %1" ).arg( m_resolution ) )
 			.append( QString( ", m_fBpm: %1" ).arg( m_fBpm ) )
+			.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 			.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
 			.append( QString( ", m_fVolume: %1" ).arg( m_fVolume ) )
@@ -1317,9 +1278,17 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1" ).arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
-			.append( QString( ", m_loopMode: %1" ).arg( static_cast<int>(m_loopMode) ) )
+		if ( m_pDrumkit != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( m_pDrumkit->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( ", m_pDrumkit: nullptr" );
+		}
+		sOutput.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_loopMode: %1" )
+					 .arg( LoopModeToQString( m_loopMode ) ) )
+			.append( QString( ", m_patternMode: %1" )
+					 .arg( PatternModeToQString( m_patternMode ) ) )
 			.append( QString( ", m_fHumanizeTimeValue: %1" ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( ", m_fHumanizeVelocityValue: %1" ).arg( m_fHumanizeVelocityValue ) )
 			.append( QString( ", m_fSwingFactor: %1" ).arg( m_fSwingFactor ) )
@@ -1329,13 +1298,16 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( ", %1 : %4" ).arg( mm.first ).arg( mm.second ) );
 		}
 		sOutput.append( QString( ", m_mode: %1" )
-						.arg( static_cast<int>(m_mode) ) )
+						.arg( ModeToQString( m_mode ) ) )
 			.append( QString( ", m_sPlaybackTrackFilename: %1" ).arg( m_sPlaybackTrackFilename ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
 			.append( QString( ", m_license: %1" ).arg( m_license.toQString( sPrefix, bShort ) ) )
-			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
+			.append( QString( ", m_actionMode: %1" ).
+					 arg( ActionModeToQString( m_actionMode ) ) )
+			.append( QString( ", m_bIsPatternEditorLocked: %1" )
+					 .arg( m_bIsPatternEditorLocked ) )
 			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
 			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) )
 			.append( QString( ", m_pTimeline: " ) );
@@ -1344,6 +1316,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
+			sOutput.append( QString( ", m_sLastLoadedDrumkitPath: %1" )
+							.arg( m_sLastLoadedDrumkitPath ) );
 	}
 
 	return sOutput;

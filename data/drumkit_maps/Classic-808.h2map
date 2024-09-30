@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit_map">
+ <formatVersion>2</formatVersion>
+ <mapping>
+  <instrumentID>0</instrumentID>
+  <type>Kick</type>
+ </mapping>
+ <mapping>
+  <instrumentID>1</instrumentID>
+  <type>Kick 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>2</instrumentID>
+  <type>Snare Rimshot</type>
+ </mapping>
+ <mapping>
+  <instrumentID>3</instrumentID>
+  <type>Snare 3</type>
+ </mapping>
+ <mapping>
+  <instrumentID>4</instrumentID>
+  <type>Snare 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>5</instrumentID>
+  <type>Snare</type>
+ </mapping>
+ <mapping>
+  <instrumentID>6</instrumentID>
+  <type>Hand Clap</type>
+ </mapping>
+ <mapping>
+  <instrumentID>7</instrumentID>
+  <type>Tom Floor</type>
+ </mapping>
+ <mapping>
+  <instrumentID>8</instrumentID>
+  <type>Tom Low</type>
+ </mapping>
+ <mapping>
+  <instrumentID>9</instrumentID>
+  <type>Tom Mid</type>
+ </mapping>
+ <mapping>
+  <instrumentID>10</instrumentID>
+  <type>Hi-hat Closed</type>
+ </mapping>
+ <mapping>
+  <instrumentID>11</instrumentID>
+  <type>Hi-hat Open</type>
+ </mapping>
+ <mapping>
+  <instrumentID>12</instrumentID>
+  <type>Crash</type>
+ </mapping>
+ <mapping>
+  <instrumentID>13</instrumentID>
+  <type>Conga Low</type>
+ </mapping>
+ <mapping>
+  <instrumentID>14</instrumentID>
+  <type>Conga High</type>
+ </mapping>
+ <mapping>
+  <instrumentID>15</instrumentID>
+  <type>Conga High 2</type>
+ </mapping>
+ <mapping>
+  <instrumentID>16</instrumentID>
+  <type>Claves</type>
+ </mapping>
+ <mapping>
+  <instrumentID>17</instrumentID>
+  <type>Cowbell</type>
+ </mapping>
+ <mapping>
+  <instrumentID>18</instrumentID>
+  <type>Maracas</type>
+ </mapping>
+</drumkit_map>

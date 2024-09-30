@@ -20,27 +20,30 @@
  *
  */
 
+#include <cassert>
+
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
-#include "UndoActions.h"
-#include <cassert>
+#include "../HydrogenApp.h"
+#include "../Skin.h"
+#include "../UndoActions.h"
 
-#include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
+
+
 using namespace H2Core;
-
-#include "../HydrogenApp.h"
-#include "../Skin.h"
-
 
 PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 								  QScrollArea *pScrollView)
@@ -135,7 +138,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		return;
 	}
 	
-	auto pPref = Preferences::get_instance();
+	const auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
@@ -176,14 +179,13 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
-										m_fGridWidth*6, m_nGridHeight+3 ), 4, 4 );
+		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
 }
 
 void PianoRollEditor::drawFocus( QPainter& painter ) {
 
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( ! m_bEntered && ! hasFocus() ) {
 		return;
@@ -214,7 +216,7 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 
 void PianoRollEditor::createBackground()
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
 	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
@@ -375,7 +377,8 @@ void PianoRollEditor::drawPattern()
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForeground )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pNote->get_instrument() == pHydrogen->getSelectedInstrument() ) {
+	if ( pNote != nullptr && pNote->get_instrument() != nullptr &&
+		 pNote->get_instrument() == pHydrogen->getSelectedInstrument() ) {
 		QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
 		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
@@ -431,8 +434,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 
 	if ( pOldNote == nullptr ) {
 		// hear note
-		Preferences *pref = Preferences::get_instance();
-		if ( pref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
+		const auto pPref = Preferences::get_instance();
+		if ( pPref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
 			Note *pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
 			m_pAudioEngine->getSampler()->noteOn( pNote2 );
@@ -851,7 +854,8 @@ void PianoRollEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
+	const auto pDrumkit = Hydrogen::get_instance()->getSong()->getDrumkit();
+	const auto pInstrList = pDrumkit->getInstruments();
 	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;
@@ -923,7 +927,8 @@ void PianoRollEditor::paste()
 
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
-			Note *pNote = Note::load_from( n, pInstrList );
+			Note *pNote = Note::load_from( n );
+			pNote->mapTo( pDrumkit );
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
 
@@ -1242,9 +1247,18 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 ///
 QRect PianoRollEditor::getKeyboardCursorRect()
 {
-	QPoint pos = cursorPosition();
-	return QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
-				  m_fGridWidth*6, m_nGridHeight+3 );
+	const QPoint pos = cursorPosition();
+	float fHalfWidth;
+	if ( m_nResolution != MAX_NOTES ) {
+		// Corresponds to the distance between grid lines on 1/64 resolution.
+		fHalfWidth = m_fGridWidth * 3;
+	} else {
+		// Corresponds to the distance between grid lines set to resolution
+		// "off".
+		fHalfWidth = m_fGridWidth;
+	}
+	return QRect( pos.x() - fHalfWidth, pos.y()-2,
+				  fHalfWidth * 2, m_nGridHeight+3 );
 }
 
 void PianoRollEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )

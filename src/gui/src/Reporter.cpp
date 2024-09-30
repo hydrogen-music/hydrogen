@@ -18,15 +18,19 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
+#include "Reporter.h"
+#include "Parser.h"
+
 #include <iostream>
 #include <signal.h>
-#include "core/Hydrogen.h"
-#include "core/Helpers/Filesystem.h"
-#include "core/Logger.h"
-#include "Reporter.h"
+
+#include <core/Hydrogen.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Logger.h>
 
 
 QString Reporter::m_sPrefix = "Fatal error in: ";
+QString Reporter::m_sLogFile;
 
 std::set<QProcess *> Reporter::m_children;
 
@@ -63,6 +67,10 @@ Reporter::Reporter( QProcess *pChild )
 	assert( pChild != nullptr );
 	this->m_pChild = pChild;
 	m_children.insert( pChild );
+
+	if ( m_sLogFile.isEmpty() ) {
+		m_sLogFile = H2Core::Filesystem::log_file_path();
+	}
 
 	connect( pChild, &QProcess::readyReadStandardOutput,
 			 this, &Reporter::on_readyReadStandardOutput );
@@ -116,7 +124,7 @@ void Reporter::on_readyReadStandardOutput( void )
 void Reporter::on_openLog( void )
 {
 	qDebug() << "Open log...";
-	QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::log_file_path() ) );
+	QDesktopServices::openUrl( QUrl::fromLocalFile( Reporter::m_sLogFile ) );
 }
 
 void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
@@ -124,7 +132,8 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 	on_readyReadStandardError();
 	on_readyReadStandardOutput();
 
-	if ( m_pChild->exitStatus() != QProcess::NormalExit ) {
+	if ( m_pChild->exitStatus() != QProcess::NormalExit
+		 || m_pChild->exitCode() != 0 ) {
 
 		char *argv[] = { (char *)"-" };
 		int argc = 1;
@@ -177,7 +186,7 @@ void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 			QAbstractButton *pPushed = msgBox.clickedButton();
 			
 			if ( pLogButton == pPushed ) {
-				QDesktopServices::openUrl( QUrl::fromLocalFile( H2Core::Filesystem::log_file_path() ) );
+				QDesktopServices::openUrl( QUrl::fromLocalFile( Reporter::m_sLogFile ) );
 
 			} else if ( pPushed == pIssuesButton ) {
 				QDesktopServices::openUrl( QUrl( "https://github.com/hydrogen-music/hydrogen/issues") );
@@ -214,16 +223,30 @@ static void handleSignal( int nSignal ) {
 
 void Reporter::spawn(int argc, char *argv[])
 {
-	QStringList arguments;
-	for ( int i = 1; i < argc; i++ ) {
-		if ( argv[i] == QString("--child") ) {
-			return;
-		}
-		arguments << QString( argv[i] );
+	Parser parser;
+	if ( ! parser.parse( argc, argv ) ) {
+		std::cerr << "ERROR: Unable to parse CLI arguments. Abort..."
+				  << std::endl;
+		exit( 1 );
 	}
 
-	QProcess subProcess;
+	// --child option was supplied indicating that we do not want to use the
+	// Reporter.
+	if ( parser.getNoReporter() ) {
+		return;
+	}
+
+	if ( ! parser.getLogFile().isEmpty() ) {
+		Reporter::m_sLogFile = parser.getLogFile();
+	}
+
+	QStringList arguments;
+	for ( int ii = 1; ii < argc; ii++ ) {
+		arguments << QString( argv[ii] );
+	}
 	arguments << "--child";
+
+	QProcess subProcess;
 	subProcess.start(argv[0], arguments);
 
 	// Signal handler

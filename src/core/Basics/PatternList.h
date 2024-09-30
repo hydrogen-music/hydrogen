@@ -23,17 +23,21 @@
 #ifndef H2C_PATTERN_LIST_H
 #define H2C_PATTERN_LIST_H
 
+#include <memory>
 #include <vector>
 #include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/DrumkitMap.h>
 
 namespace H2Core
 {
 
+class Drumkit;
 class Pattern;
 class AudioEngineLocking;
 class InstrumentList;
 class XMLNode;
+class Note;
 
 /**
  * PatternList is a collection of patterns
@@ -56,13 +60,14 @@ class XMLNode;
 		/**
 		 * load a #PatternList from an XMLNode
 		 * \param pNode the XMLDode to read from
-		 * \param pInstrumentList the current instrument list to search instrument into
+		 * \param sDrumkitName kit the pattern was created for (only used as
+		 *   fallback).
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
 	static PatternList* load_from( const XMLNode& pNode,
-								   std::shared_ptr<InstrumentList> pInstrumentList,
+								   const QString& sDrumkitName,
 								   bool bSilent = false );
 	void save_to( XMLNode& pNode,
 				  const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
@@ -175,6 +180,16 @@ class XMLNode;
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
 		int longest_pattern_length( bool bIncludeVirtuals = true ) const;
+
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+		std::set<DrumkitMap::Type> getAllTypes() const;
+		std::vector<H2Core::Note*> getAllNotesOfType(
+			const DrumkitMap::Type& sType ) const;
+
+		friend bool operator==( const PatternList& lhs, const PatternList& rhs );
+		friend bool operator!=( const PatternList& lhs, const PatternList& rhs );
+
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -188,6 +203,8 @@ class XMLNode;
 		/** Iteration */
 		std::vector<Pattern*>::iterator begin();
 		std::vector<Pattern*>::iterator end();
+		std::vector<Pattern*>::const_iterator cbegin() const;
+		std::vector<Pattern*>::const_iterator cend() const;
 
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns

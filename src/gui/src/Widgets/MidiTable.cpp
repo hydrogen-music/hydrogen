@@ -26,12 +26,12 @@
 #include "MidiSenseWidget.h"
 #include "MidiTable.h"
 
-#include <core/MidiMap.h>
-#include <core/IO/MidiCommon.h>
-#include <core/Preferences/Preferences.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
-#include <core/Basics/InstrumentComponent.h>
+#include <core/IO/MidiCommon.h>
+#include <core/MidiMap.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QHeaderView>
 
@@ -229,7 +229,7 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction,
 
 void MidiTable::setupMidiTable()
 {
-	MidiMap *pMidiMap = MidiMap::get_instance();
+	const auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
 
 	QStringList items;
 	items << "" << tr("Incoming Event")  << tr("E. Para.")
@@ -301,7 +301,8 @@ void MidiTable::setupMidiTable()
 
 void MidiTable::saveMidiTable()
 {
-	MidiMap *mM = MidiMap::get_instance();
+	auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
+	pMidiMap.reset();
 	
 	for ( int row = 0; row < m_nRowCount; row++ ) {
 
@@ -332,15 +333,15 @@ void MidiTable::saveMidiTable()
 
 			switch ( event ) {
 			case H2Core::MidiMessage::Event::CC:
-				mM->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
+				pMidiMap->registerCCEvent( eventSpinner->cleanText().toInt() , pAction );
 				break;
 				
 			case H2Core::MidiMessage::Event::Note:
-				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
+				pMidiMap->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
 				break;
 				
 			case H2Core::MidiMessage::Event::PC:
-				mM->registerPCEvent( pAction );
+				pMidiMap->registerPCEvent( pAction );
 				break;
 				
 			case H2Core::MidiMessage::Event::Null:
@@ -350,7 +351,7 @@ void MidiTable::saveMidiTable()
 			default:
 				// All remaining events should be different trades of
 				// MMC events. If not, registerMMCEvent will handle it.
-				mM->registerMMCEvent( sEventString , pAction );
+				pMidiMap->registerMMCEvent( sEventString , pAction );
 			}
 		}
 	}

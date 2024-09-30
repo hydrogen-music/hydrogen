@@ -28,7 +28,7 @@
 #include <QtWidgets>
 #include <QTextBrowser>
 
-#include "ui_about_dialog.h"
+#include "ui_AboutDialog_UI.h"
 
 /** \ingroup docGUI*/
 class AboutDialog : public QDialog, public Ui_AboutDialog_UI

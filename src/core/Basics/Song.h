@@ -67,6 +67,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 				editor are not ready to operate yet.*/
 			None = 2
 		};
+		static QString ModeToQString( const Mode& mode );
 
 		/** Defines the type of user interaction experienced in the 
 			SongEditor.*/
@@ -81,6 +82,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 				editor are not ready to operate yet.*/
 			None = 2
 		};
+		static QString ActionModeToQString( const ActionMode& actionMode );
 
 		enum class LoopMode {
 			Disabled = 0,
@@ -92,6 +94,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 			 */
 			Finishing = 2
 		};
+		static QString LoopModeToQString( const LoopMode& loopMode );
 
 	/** Determines how patterns will be added to
 	 * AudioEngine::m_pPlayingPatterns if transport is in
@@ -108,6 +111,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 */
 		None = 2
 	};
+		static QString PatternModeToQString( const PatternMode& patternMode );
 
 	/** Determines the state of the Playback track with respect to
 		audio processing*/
@@ -122,6 +126,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * present*/
 		None = 3
 	};
+		static QString PlaybackTrackToQString( const PlaybackTrack& playbackTrack );
 
 		/** Please do not #H2Core::Hydrogen::setSong() a song created using this
 		 * constructor. It is just a minimal version with not all its members
@@ -146,15 +151,12 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sFilename Absolute path to write the song to.
-	 * @param bLegacy Whether the current format containing a proper
-	 *   #H2Core::Drumkit or the legacy format (prior to version 1.3.0)
-	 *   containing only selected drumkit parts should be used.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */
-	bool 			save( const QString& sFilename, bool bLegacy = false,
-						  bool bSilent = false );
+	bool 			save( const QString& sFilename, bool bSilent = false );
 
+		static constexpr int nDefaultResolution = 48;
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
 	
@@ -169,6 +171,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		float getBpm() const;
 		void setBpm( float fBpm );
+
+		int getVersion() const;
+		void setVersion( int nVersion );
 
 		const QString& getName() const;
 		void setName( const QString& sName );
@@ -242,11 +247,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void			loadTempPatternList( const QString& sFilename );
 		bool			saveTempPatternList( const QString& sFilename ) const;
 							
-		QString			copyInstrumentLineToString( int selectedInstrument ) const;
-		bool			pasteInstrumentLineFromString( const QString& sSerialized,
-													   int nSelectedInstrument,
-													   std::list<Pattern *>& patterns ) const;
-							
 		int			getLatestRoundRobin( float fStartVelocity ) const;
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
 		/** \return #m_sPlaybackTrackFilename */
@@ -286,9 +286,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::shared_ptr<Timeline> getTimeline() const;
 
-	void removeInstrument( int nInstrumentNumber );
-
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
+
+		const QString& getLastLoadedDrumkitPath() const;
+		void setLastLoadedDrumkitPath( const QString& sPath );
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -305,7 +306,7 @@ private:
 	static std::shared_ptr<Song> loadFrom( const XMLNode& pNode,
 										   const QString& sFilename,
 										   bool bSilent = false );
-	void saveTo( XMLNode& pNode, bool bLegacy, bool bSilent = false ) const;
+	void saveTo( XMLNode& pNode, bool bSilent = false ) const;
 
 	void loadVirtualPatternsFrom( const XMLNode& pNode, bool bSilent = false );
 	void loadPatternGroupVectorFrom( const XMLNode& pNode, bool bSilent = false );
@@ -326,6 +327,8 @@ private:
 		 * different tempo instances work.
 		 */
 		float m_fBpm;
+
+		int m_nVersion;
 		
 		///< song name
 		QString m_sName;
@@ -431,23 +434,18 @@ private:
 
 	/** Unique identifier of the drumkit last loaded.
 	 *
-	 * As the instruments and corresponding samples use their own
-	 * drumkits stored within them, this variable only serves for
-	 * references when storing patterns, highlighting in the GUI, and
-	 * other helper purposes.
+	 * This is a convenience variable allowing to cycle through the different
+	 * kits using MIDI and OSC commands (load next/previous kit).
 	 *
-	 * It's only semi-useful to associate the last loaded drumkit with
-	 * a song as the user is free to remove instruments and add an
-	 * arbitrary number of instruments from other drumkits. But the
-	 * most common use case of Hydrogen is probably with a stack or
-	 * custom drumkit loaded and not altering the associated
-	 * instrument list.
+	 * Note: In older versions of Hydrogen (< 1.3.0) this variable was used to
+	 * determine the location of samples of the current song with relative file
+	 * paths. This is not done anymore since a song does now contain a proper
+	 * #H2Core::Drumkit. That's why this member variable was repurposed.
 	 */
 	QString m_sLastLoadedDrumkitPath;
-	/** Convenience variable holding the name of the drumkit last
-	 * loaded. */
-	QString m_sLastLoadedDrumkitName;
 
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline bool Song::getIsTimelineActivated() const {
@@ -493,6 +491,14 @@ inline float Song::getBpm() const
 {
 	return m_fBpm;
 }
+
+inline void Song::setVersion( int nVersion ) {
+	m_nVersion = nVersion;
+}
+inline int Song::getVersion() const {
+	return m_nVersion;
+}
+
 
 inline void Song::setName( const QString& sName )
 {
@@ -731,6 +737,12 @@ inline int Song::getPanLawType() const {
 
 inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
+}
+inline void Song::setLastLoadedDrumkitPath( const QString& sPath ) {
+	m_sLastLoadedDrumkitPath = sPath;
+}
+inline const QString& Song::getLastLoadedDrumkitPath() const {
+	return m_sLastLoadedDrumkitPath;
 }
 };
 

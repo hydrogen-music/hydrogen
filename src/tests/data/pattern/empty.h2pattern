@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_pattern xmlns="http://www.hydrogen-music.org/drumkit_pattern" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <drumkit_name>GMRockKit</drumkit_name>
+ <pattern>
+  <formatVersion>2</formatVersion>
+  <userVersion>0</userVersion>
+  <name>test</name>
+  <author></author>
+  <info>ladida</info>
+  <license>undefined license</license>
+  <category>not_categorized</category>
+  <size>1</size>
+  <denominator>1</denominator>
+  <noteList/>
+ </pattern>
+</drumkit_pattern>

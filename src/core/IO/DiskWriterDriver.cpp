@@ -22,13 +22,13 @@
 #include <unistd.h>
 
 
-#include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
 #include <core/IO/DiskWriterDriver.h>
 
 #include <pthread.h>
@@ -104,51 +104,37 @@ void* diskWriterDriver_thread( void* param )
 	}
 //	#endif
 
-
-///formats
-//          SF_FORMAT_WAV          = 0x010000,     /* Microsoft WAV format (little endian). */
-//          SF_FORMAT_AIFF         = 0x020000,     /* Apple/SGI AIFF format (big endian). */
-//          SF_FORMAT_AU           = 0x030000,     /* Sun/NeXT AU format (big endian). */
-//          SF_FORMAT_RAW          = 0x040000,     /* RAW PCM data. */
-//          SF_FORMAT_PAF          = 0x050000,     /* Ensoniq PARIS file format. */
-//          SF_FORMAT_SVX          = 0x060000,     /* Amiga IFF / SVX8 / SV16 format. */
-//          SF_FORMAT_NIST         = 0x070000,     /* Sphere NIST format. */
-//          SF_FORMAT_VOC          = 0x080000,     /* VOC files. */
-//          SF_FORMAT_IRCAM        = 0x0A0000,     /* Berkeley/IRCAM/CARL */
-//          SF_FORMAT_W64          = 0x0B0000,     /* Sonic Foundry's 64 bit RIFF/WAV */
-//          SF_FORMAT_MAT4         = 0x0C0000,     /* Matlab (tm) V4.2 / GNU Octave 2.0 */
-//          SF_FORMAT_MAT5         = 0x0D0000,     /* Matlab (tm) V5.0 / GNU Octave 2.1 */
-//          SF_FORMAT_PVF          = 0x0E0000,     /* Portable Voice Format */
-//          SF_FORMAT_XI           = 0x0F0000,     /* Fasttracker 2 Extended Instrument */
-//          SF_FORMAT_HTK          = 0x100000,     /* HMM Tool Kit format */
-//          SF_FORMAT_SDS          = 0x110000,     /* Midi Sample Dump Standard */
-//          SF_FORMAT_AVR          = 0x120000,     /* Audio Visual Research */
-//          SF_FORMAT_WAVEX        = 0x130000,     /* MS WAVE with WAVEFORMATEX */
-//          SF_FORMAT_SD2          = 0x160000,     /* Sound Designer 2 */
-//          SF_FORMAT_FLAC         = 0x170000,     /* FLAC lossless file format */
-//          SF_FORMAT_CAF          = 0x180000,     /* Core Audio File format */
-//	    SF_FORMAT_OGG
-///bits
-//          SF_FORMAT_PCM_S8       = 0x0001,       /* Signed 8 bit data */
-//          SF_FORMAT_PCM_16       = 0x0002,       /* Signed 16 bit data */
-//          SF_FORMAT_PCM_24       = 0x0003,       /* Signed 24 bit data */
-//          SF_FORMAT_PCM_32       = 0x0004,       /* Signed 32 bit data */
-///used for ogg
-//          SF_FORMAT_VORBIS
-
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+		pDriver->m_bDoneWriting = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
 
-	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE, &soundInfo );
+#ifdef WIN32
+	// On Windows we use a special version of sf_open to ensure we get all
+	// characters of the filename entered in the GUI right. No matter which
+	// encoding was used locally.
+	// We have to terminate the string using a null character ourselves.
+	QString sPaddedPath = pDriver->m_sFilename.append( '\0' );
+	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+
+	sPaddedPath.toWCharArray( encodedFilename );
+	
+	SNDFILE* m_file = sf_wchar_open( encodedFilename, SFM_WRITE,
+								   &soundInfo );
+	delete encodedFilename;
+#else
+	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE,
+							   &soundInfo );
+#endif
+
 	if ( m_file == nullptr ) {
-		__ERRORLOG( QString( "Unable to open file [%1] using libsndfile: %2" )
+		__ERRORLOG( QString( "Unable to open file [%1] with format [%2]: %3" )
 					.arg( pDriver->m_sFilename )
-					.arg( sf_strerror( nullptr ) ) );
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
+					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
+		pDriver->m_bDoneWriting = true;
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -167,6 +153,7 @@ void* diskWriterDriver_thread( void* param )
 
 	// Used to cleanly terminate this thread and close all handlers.
 	auto tearDown = [&](){
+		pDriver->m_bDoneWriting = true;
 		delete[] pData;
 		pData = nullptr;
 
@@ -355,7 +342,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_nBufferSize( 1024 )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
-		, m_bIsRunning( false ) {
+		, m_bIsRunning( false )
+		, m_bDoneWriting( false ) {
 }
 
 
@@ -414,5 +402,35 @@ void DiskWriterDriver::disconnect()
 unsigned DiskWriterDriver::getSampleRate()
 {
 	return m_nSampleRate;
+}
+
+QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[DiskWriterDriver]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSampleRate ) )
+			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sFilename ) )
+			.append( QString( "%1%2m_nBufferSize: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBufferSize ) )
+			.append( QString( "%1%2m_nSampleDepth: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nSampleDepth ) )
+			.append( QString( "%1%2m_bIsRunning: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsRunning ) )
+			.append( QString( "%1%2m_bDoneWriting: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bDoneWriting ) );
+	} else {
+		sOutput = QString( "[DiskWriterDriver]" )
+			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
+			.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
+			.append( QString( ", m_nSampleDepth: %1" ).arg( m_nSampleDepth ) )
+			.append( QString( ", m_bIsRunning: %1" ).arg( m_bIsRunning ) )
+			.append( QString( ", m_bDoneWriting: %1" ).arg( m_bDoneWriting ) );
+	}
+
+	return sOutput;
 }
 };

@@ -122,6 +122,9 @@ public:
 
 	void	setSelected( bool bIsSelected );
 
+		static constexpr int nWidth = 56;
+		static constexpr int nHeight = 254;
+
 signals:
 	void	muteBtnClicked(MixerLine *ref);
 	void	soloBtnClicked(MixerLine *ref);
@@ -166,68 +169,6 @@ private:
 };
 
 /** \ingroup docGUI*/
-class ComponentMixerLine: public PixmapWidget, public H2Core::Object<ComponentMixerLine>
-{
-	H2_OBJECT(ComponentMixerLine)
-	Q_OBJECT
-
-public:
-	ComponentMixerLine(QWidget* parent, int CompoID);
-	~ComponentMixerLine();
-
-	void	updateMixerLine();
-
-	bool	isMuteClicked();
-	void	setMuteClicked(bool isClicked);
-
-	bool	isSoloClicked();
-	void	setSoloClicked(bool isClicked);
-
-	float	getVolume();
-	void	setVolume(float value);
-
-	void	setPeak_L( float peak );
-	float	getPeak_L();
-
-	void	setPeak_R( float peak );
-	float	getPeak_R();
-
-	void	setName( const QString& name ) {     m_pNameWidget->setText( name );        }
-	const QString& getName() {      return m_pNameWidget->text();        }
-
-	int		getComponentID(){ return m_nComponentID; }
-
-signals:
-	void	muteBtnClicked(ComponentMixerLine *ref);
-	void	soloBtnClicked(ComponentMixerLine *ref);
-	void	volumeChanged(ComponentMixerLine *ref);
-
-public slots:
-	void	soloBtnClicked();
-	void	muteBtnClicked();
-	
-	void	faderChanged(WidgetWithInput *ref);
-
-
-private:
-	int		m_nComponentID;
-	uint	m_nWidth;
-	uint	m_nHeight;
-	bool	m_bIsSelected;
-
-	uint	m_nActivity;
-	uint	m_nPeakTimer;
-	float	m_fMaxPeak;
-	float	m_nFalloff;
-		
-	Fader *					m_pFader;
-	InstrumentNameWidget *	m_pNameWidget;
-	Button *			m_pMuteBtn;
-	Button *			m_pSoloBtn;
-	LCDDisplay *			m_pPeakLCD;
-};
-
-/** \ingroup docGUI*/
 class MasterMixerLine: public PixmapWidget, public H2Core::Object<MasterMixerLine>
 {
 	H2_OBJECT(MasterMixerLine)
@@ -247,6 +188,9 @@ public:
 
 	void	setPeak_R(float peak);
 	float	getPeak_R();
+
+		static constexpr int nWidth = 126;
+		static constexpr int nHeight = 284;
 
 
 signals:

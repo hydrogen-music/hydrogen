@@ -27,12 +27,14 @@
 #include <memory>
 #include <core/License.h>
 #include <core/Object.h>
+#include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Note.h>
 #include <core/Helpers/Xml.h>
 
 namespace H2Core
 {
 
+class Drumkit;
 class XMLNode;
 class Instrument;
 class InstrumentList;
@@ -71,7 +73,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param length the length of the pattern
 		 * \param denominator the denominator for meter representation (eg 4/4)
 		 */
-		Pattern( const QString& name="Pattern", const QString& info="", const QString& category="not_categorized", int length=MAX_NOTES, int denominator=4 );
+		Pattern( const QString& name="Pattern", const QString& info="", const QString& sCategory = "", int length=MAX_NOTES, int denominator=4 );
 		/** copy constructor */
 		Pattern( Pattern* other );
 		/** destructor */
@@ -80,20 +82,19 @@ class Pattern : public H2Core::Object<Pattern>
 		/**
 		 * load a pattern from a file
 		 * \param pattern_path the path to the file to load the pattern from
-		 * \param instruments the current instrument list to search instrument into
 		 */
-		static Pattern* load_file( const QString& pattern_path, std::shared_ptr<InstrumentList> instruments );
+		static Pattern* load_file( const QString& pattern_path );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
-		 * \param instruments the current instrument list to search
-		 * instrument into
+		 * \param sDrumkitName kit the pattern was created for (only used as
+		 *   fallback).
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
 	static Pattern* load_from( const XMLNode& node,
-							   std::shared_ptr<InstrumentList> instruments,
+							   const QString& sDrumkitName,
 							   bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
@@ -104,8 +105,16 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite=false ) const;
+		bool save_file( const QString& drumkit_name, const QString& pattern_path, bool overwrite=false ) const;
 
+		void setVersion( int nVersion );
+		int getVersion() const;
+		void setDrumkitName( const QString& sDrumkitName );
+		const QString& getDrumkitName() const;
+		void setAuthor( const QString& sAuthor );
+		const QString& getAuthor() const;
+		void setLicense( const License& sLicense );
+		const License& getLicense() const;
 		///< set the name of the pattern
 		void set_name( const QString& name );
 		///< get the name of the pattern
@@ -231,6 +240,15 @@ class Pattern : public H2Core::Object<Pattern>
 		 */
 		void save_to( XMLNode& node,
 					  const std::shared_ptr<Instrument> instrumentOnly = nullptr ) const;
+
+
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+
+		/** Aggregates all types of the contained notes. */
+		std::set<DrumkitMap::Type> getAllTypes() const;
+		std::vector<H2Core::Note*> getAllNotesOfType(
+			const DrumkitMap::Type& sType ) const;
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -242,6 +260,14 @@ class Pattern : public H2Core::Object<Pattern>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+		int m_nVersion;
+		/** Name of the kit using which the pattern was written. This is mainly
+		 * used for backward compatibility. */
+		QString m_sDrumkitName;
+
+		QString m_sAuthor;
+		License m_license;
+
 	/**
 	 * Determines the accessible range or notes within the
 	 * pattern.
@@ -266,7 +292,11 @@ class Pattern : public H2Core::Object<Pattern>
 	 *
 	 * \return true on success.
 	 */
-	static bool loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent = false );
+	static bool loadDoc( const QString& sPatternPath, XMLDoc* pDoc,
+						 bool bSilent = false );
+
+		/** Used to indicate changes in the underlying XSD file. */
+		static constexpr int nCurrentFormatVersion = 2;
 };
 
 /** Iterate over all provided notes in an immutable way. */
@@ -306,7 +336,30 @@ class Pattern : public H2Core::Object<Pattern>
 	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->get_length(); (_it)++ )
 
 // DEFINITIONS
-
+inline void Pattern::setVersion( int nVersion ) {
+	m_nVersion = nVersion;
+}
+inline int Pattern::getVersion() const {
+	return m_nVersion;
+}
+inline void Pattern::setDrumkitName( const QString& sDrumkitName ) {
+	m_sDrumkitName = sDrumkitName;
+}
+inline const QString& Pattern::getDrumkitName() const {
+	return m_sDrumkitName;
+}
+inline void Pattern::setAuthor( const QString& sAuthor ) {
+	m_sAuthor = sAuthor;
+}
+inline const QString& Pattern::getAuthor() const {
+	return m_sAuthor;
+}
+inline void Pattern::setLicense( const License& license ) {
+	m_license = license;
+}
+inline const License& Pattern::getLicense() const {
+	return m_license;
+}
 inline void Pattern::set_name( const QString& name )
 {
 	__name = name;

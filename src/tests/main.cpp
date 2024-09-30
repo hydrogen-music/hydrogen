@@ -49,10 +49,10 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
 	/* Logger */
 	H2Core::Logger* pLogger = nullptr;
 	if ( ! sLogFilePath.isEmpty() ) {
-		pLogger = H2Core::Logger::bootstrap( log_level, sLogFilePath, false );
+		pLogger = H2Core::Logger::bootstrap( log_level, sLogFilePath, false, true );
 	}
 	else {
-		pLogger = H2Core::Logger::bootstrap( log_level );
+		pLogger = H2Core::Logger::bootstrap( log_level, "", true, true );
 	}
 	/* Test helper */
 	TestHelper::createInstance();
@@ -65,9 +65,10 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
 	
 	/* Use fake audio driver */
 	H2Core::Preferences::create_instance();
-	H2Core::Preferences* preferences = H2Core::Preferences::get_instance();
-	preferences->m_sAudioDriver = "Fake";
-	preferences->m_nBufferSize = 1024;
+	auto pPref = H2Core::Preferences::get_instance();
+	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
+	pPref->m_nBufferSize = 1024;
+	pPref->setUseRelativeFilenamesForPlaylists( true );
 	
 	H2Core::Hydrogen::create_instance();
 	// Prevent the EventQueue from flooding the log since we will push

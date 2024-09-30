@@ -27,7 +27,7 @@
 
 namespace H2Core {
 Shortcuts::Shortcuts() :
-	m_bRequiresDefaults( false ) {
+	m_bRequiresDefaults( true ) {
 }
 
 Shortcuts::Shortcuts( const std::shared_ptr<Shortcuts> pOther ) {
@@ -78,6 +78,7 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilen
 	else {
 		XMLNode shortcutNode = shortcutsNode.firstChildElement( "shortcut" );
 
+		bool bShortcutsFound = false;
 		while ( ! shortcutNode.isNull() ) {
 			const auto keySequence = QKeySequence::fromString(
 				shortcutNode.read_string( "keySequence", "", false, false, bSilent ),
@@ -88,8 +89,15 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilen
 					keySequence,
 					static_cast<Action>(shortcutNode.read_int( "action", 0,
 															   false, false, bSilent )) );
+				bShortcutsFound = true;
 			}
 			shortcutNode = shortcutNode.nextSiblingElement( "shortcut" );
+		}
+
+		if ( bShortcutsFound ) {
+			// There was at least one valid shortcut. Make sure we do not
+			// replace it with teh default ones.
+			pShortcuts->m_bRequiresDefaults = false;
 		}
 	}
 
@@ -399,6 +407,13 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::LoopModeToggle, Category::CommandNoArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Toggle loop mode" ) );
 
+	insertActionInfo( Shortcuts::Action::LoadNextDrumkit, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Switch to next drumkit of soundlibrary" ) );
+	insertActionInfo( Shortcuts::Action::LoadPrevDrumkit, Category::CommandNoArgs,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Switch to previous drumkit of soundlibrary" ) );
+
 	// commands with 1 argument
 	insertActionInfo( Shortcuts::Action::BPM, Category::Command1Args,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Set BPM" ) );
@@ -539,7 +554,7 @@ void Shortcuts::createActionInfoMap() {
 										 "Clear all instruments in current drumkit" ) );
 	insertActionInfo( Shortcuts::Action::AddComponent, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
-										 "Add component to current drumkit" ) );
+										 "Add component to current instrument" ) );
 
 	insertActionInfo( Shortcuts::Action::ShowPlaylist, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",

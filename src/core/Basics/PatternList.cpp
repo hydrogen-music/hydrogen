@@ -24,6 +24,7 @@
 #include <core/Basics/PatternList.h>
 
 #include <core/Helpers/Xml.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 
@@ -54,7 +55,7 @@ PatternList::~PatternList()
 }
 
 PatternList* PatternList::load_from( const XMLNode& node,
-									 std::shared_ptr<InstrumentList> pInstrumentList,
+									 const QString& sDrumkitName,
 									 bool bSilent ) {
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
@@ -68,7 +69,8 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		Pattern* pPattern = Pattern::load_from( patternNode, pInstrumentList, bSilent );
+		Pattern* pPattern =
+			Pattern::load_from( patternNode, sDrumkitName, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -98,7 +100,7 @@ void PatternList::save_to( XMLNode& node, const std::shared_ptr<Instrument> pIns
 	
 void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( "Provided pattern is invalid" );
 		return;
@@ -142,7 +144,7 @@ void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 
 void PatternList::insert( int nIdx, Pattern* pPattern )
 {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	// do nothing if already in __patterns
 	if ( index( pPattern ) != -1 ) {
 		return;
@@ -153,20 +155,9 @@ void PatternList::insert( int nIdx, Pattern* pPattern )
 	__patterns.insert( __patterns.begin() + nIdx, pPattern );
 }
 
-// Pattern* PatternList::get( int idx )
-// {
-// 	assertAudioEngineLocked();
-// 	if ( idx < 0 || idx >= __patterns.size() ) {
-// 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-// 		return nullptr;
-// 	}
-// 	assert( idx >= 0 && idx < __patterns.size() );
-// 	return __patterns[idx];
-// }
-
 Pattern* PatternList::get( int idx ) const
 {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
@@ -187,7 +178,7 @@ int PatternList::index( const Pattern* pattern ) const
 
 Pattern* PatternList::del( int idx )
 {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	if ( idx >= 0 && idx < __patterns.size() ) {
 		Pattern* pattern = __patterns[idx];
 		__patterns.erase( __patterns.begin() + idx );
@@ -198,7 +189,7 @@ Pattern* PatternList::del( int idx )
 
 Pattern* PatternList::del( Pattern* pattern )
 {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if( __patterns[i]==pattern ) {
 			return del( i );
@@ -209,7 +200,7 @@ Pattern* PatternList::del( Pattern* pattern )
 
 Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	/*
 	 * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
 	 * idx is > __pattern.size(). that's why i add +1 to assert expression
@@ -248,7 +239,7 @@ Pattern*  PatternList::find( const QString& name ) const
 
 void PatternList::move( int idx_a, int idx_b )
 {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	assert( idx_a >= 0 && idx_a < __patterns.size() );
 	assert( idx_b >= 0 && idx_b < __patterns.size() );
 	if( idx_a == idx_b ) return;
@@ -341,6 +332,40 @@ int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	return nMax;
 }
 
+void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
+	for ( auto& ppPattern : __patterns ) {
+		ppPattern->mapTo( pDrumkit );
+	}
+}
+
+bool operator==( const PatternList& pLhs, const PatternList& pRhs ) {
+	if ( pLhs.size() != pRhs.size() ) {
+		return false;
+	}
+
+	for ( int ii = 0; ii < pLhs.size(); ii++ ) {
+		if ( pLhs.get( ii ) != pRhs.get( ii ) ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool operator!=( const PatternList& pLhs, const PatternList& pRhs ) {
+	if ( pLhs.size() != pRhs.size() ) {
+		return true;
+	}
+
+	for ( int ii = 0; ii < pLhs.size(); ii++ ) {
+		if ( pLhs.get( ii ) != pRhs.get( ii ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -363,13 +388,50 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
+	std::set<DrumkitMap::Type> types;
+
+	for ( const auto& ppPattern : __patterns ) {
+		if ( ppPattern != nullptr ) {
+			types.merge( ppPattern->getAllTypes() );
+		}
+	}
+
+	return types;
+}
+
+std::vector<H2Core::Note*> PatternList::getAllNotesOfType(
+	const DrumkitMap::Type& sType ) const
+{
+	std::vector<H2Core::Note*> notes;
+
+	for ( const auto& ppPattern : __patterns ) {
+		if ( ppPattern != nullptr ) {
+			auto patternNotes = ppPattern->getAllNotesOfType( sType );
+			notes.insert(
+				notes.end(), patternNotes.begin(), patternNotes.end() );
+		}
+	}
+
+	return notes;
+}
+
 
 std::vector<Pattern*>::iterator PatternList::begin() {
-	assertAudioEngineLocked();
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	return __patterns.begin();
 }
 
 std::vector<Pattern*>::iterator PatternList::end() {
+	return __patterns.end();
+}
+
+std::vector<Pattern*>::const_iterator PatternList::cbegin() const {
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
+	return __patterns.begin();
+}
+
+std::vector<Pattern*>::const_iterator PatternList::cend() const {
 	return __patterns.end();
 }
  

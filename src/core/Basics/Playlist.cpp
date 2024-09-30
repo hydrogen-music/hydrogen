@@ -60,9 +60,6 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 	else {
 		XMLNode root = doc.firstChildElement( "playlist" );
 		if ( ! root.isNull() ) {
-			if ( root.read_string( "name", "", false, false ).isEmpty() ) {
-				WARNINGLOG( "Playlist does not contain name" );
-			}
 			pPlaylist = Playlist::load_from( root, sPath );
 		}
 		else {
@@ -88,13 +85,30 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& node,
 		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {
 
-			QString songPath = nextNode.read_string( "path", "", false, false );
-			if ( !songPath.isEmpty() ) {
-				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
+			const QString sSongPath =
+				nextNode.read_string( "path", "", false, false );
+			if ( !sSongPath.isEmpty() ) {
+				// In case `sSongPath` is relative, it will be resolved with
+				// respect to the folder containing the playlist file. In case
+				// it is absolute, that path is used without further
+				// modification.
+				//
+				// In here we ignore the users choice whether or not to use the
+				// relative paths but, instead, cover both cases for
+				// convenience' sake.
+				QFileInfo songPathInfo( fileInfo.absoluteDir(), sSongPath );
 				auto pEntry = std::make_shared<PlaylistEntry>(
-					songPathInfo.absoluteFilePath(),
-					nextNode.read_string( "scriptPath", "" ),
+					songPathInfo.absoluteFilePath(), "",
 					nextNode.read_bool( "scriptEnabled", false ) );
+
+				// The same relative path handling for the script too.
+				const QString sScriptPath =
+					nextNode.read_string( "scriptPath", "", true, true );
+				if ( ! sScriptPath.isEmpty() ) {
+					QFileInfo scriptPathInfo( fileInfo.absoluteDir(),
+											  sScriptPath );
+					pEntry->setScriptPath( scriptPathInfo.absoluteFilePath() );
+				}
 				pPlaylist->add( pEntry );
 			}
 
@@ -130,8 +144,7 @@ bool Playlist::save( bool bSilent ) const {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "playlist", "playlist" );
 
-	QFileInfo info( m_sFilename );
-	root.write_string( "name", info.fileName() );
+	root.write_int( "formatVersion", nCurrentFormatVersion );
 
 	saveTo( root );
 	return doc.write( m_sFilename );
@@ -139,16 +152,24 @@ bool Playlist::save( bool bSilent ) const {
 
 void Playlist::saveTo( XMLNode& node ) const
 {
+	QFileInfo fileInfo( m_sFilename );
+
 	XMLNode songs = node.createNode( "songs" );
 
 	for ( const auto& pEntry : m_entries ) {
-		QString sPath = pEntry->getSongPath();
+		QString sSongPath = pEntry->getSongPath();
+		QString sScriptPath = pEntry->getScriptPath();
 		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
-			sPath = QDir( Filesystem::playlists_dir() ).relativeFilePath( sPath );
+			if ( ! sSongPath.isEmpty() ) {
+				sSongPath = fileInfo.absoluteDir().relativeFilePath( sSongPath );
+			}
+			if ( ! sScriptPath.isEmpty() ) {
+				sScriptPath = fileInfo.absoluteDir().relativeFilePath( sScriptPath );
+			}
 		}
 		XMLNode song_node = songs.createNode( "song" );
-		song_node.write_string( "path", sPath );
-		song_node.write_string( "scriptPath", pEntry->getScriptPath() );
+		song_node.write_string( "path", sSongPath );
+		song_node.write_string( "scriptPath", sScriptPath );
 		song_node.write_bool( "scriptEnabled", pEntry->getScriptEnabled() );
 	}
 }
@@ -310,7 +331,6 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
-			.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {
@@ -318,11 +338,11 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 								.arg( pEntry->toQString( s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
+		sOutput.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
+		.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
 	} else {
 		sOutput = QString( "[Playlist]" )
 			.append( QString( " m_sFilename: %1" ).arg( m_sFilename ) )
-			.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {
@@ -330,7 +350,8 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 								.arg( pEntry->toQString( "", bShort ) ) );
 			}
 		}
-		sOutput.append( QString( "}, m_bIsModified: %1\n" ).arg( m_bIsModified ) );
+		sOutput.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
+			.append( QString( "}, m_bIsModified: %1\n" ).arg( m_bIsModified ) );
 	}
 
 	return sOutput;

@@ -107,19 +107,9 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 										   int nSelectedInstrument,
 										   int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
-		void functionDropInstrumentUndoAction( int nTargetInstrument );
-		void functionDropInstrumentRedoAction( const QString& sDrumkitPath,
-											   const QString& sInstrumentName,
-											   int nTargetInstrument );
-		void functionDeleteInstrumentUndoAction( const std::list< H2Core::Note* >& noteList,
-												 int nSelectedInstrument,
-												 const QString& instrumentName,
-												 const QString& drumkitName );
-		void functionAddEmptyInstrumentUndo();
-		void functionAddEmptyInstrumentRedo();
-		void functionPasteNotesRedoAction( const std::list<H2Core::Pattern*>& changeList,
-										   std::list<H2Core::Pattern*>& appliedList);
-		void functionPasteNotesUndoAction( std::list<H2Core::Pattern*>& appliedList);
+		void functionPasteNotesRedoAction( H2Core::PatternList* pCopiedNotesPattnerList,
+										   H2Core::PatternList* pAppliedPatternList);
+		void functionPasteNotesUndoAction( H2Core::PatternList* pAppliedPatternList);
 
 		// Synthetic UI events from selection manager
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;

@@ -26,6 +26,9 @@
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+
 using namespace H2Core;
 
 AutomationPathView::AutomationPathView(QWidget *parent)
@@ -37,8 +40,7 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	  m_fTick( 0 )
 {
 	setFocusPolicy( Qt::ClickFocus );
-	Preferences *pPref = Preferences::get_instance();
-	m_nMaxPatternSequence = pPref->getMaxBars();
+	m_nMaxPatternSequence = Preferences::get_instance()->getMaxBars();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &AutomationPathView::onPreferencesChanged );
 	
@@ -203,15 +205,15 @@ void AutomationPathView::paintEvent(QPaintEvent *ev)
 
 void AutomationPathView::createBackground() {
 	
-	auto pPref = H2Core::Preferences::get_instance();
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	updateAutomationPath();
 
 	QColor backgroundColor =
-		pPref->getTheme().m_color.m_songEditor_automationBackgroundColor;
+		theme.m_color.m_songEditor_automationBackgroundColor;
 	QColor automationLineColor =
-		pPref->getTheme().m_color.m_songEditor_automationLineColor;
-	QColor nodeColor = pPref->getTheme().m_color.m_songEditor_automationNodeColor;
-	QColor textColor = pPref->getTheme().m_color.m_songEditor_textColor;
+		theme.m_color.m_songEditor_automationLineColor;
+	QColor nodeColor = theme.m_color.m_songEditor_automationNodeColor;
+	QColor textColor = theme.m_color.m_songEditor_textColor;
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -274,7 +276,7 @@ void AutomationPathView::createBackground() {
 	QPen circlePen( nodeColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
-	painter.setBrush(QBrush( pPref->getTheme().m_color.m_windowColor ));
+	painter.setBrush(QBrush( theme.m_color.m_windowColor ));
 
 	for ( const auto& point : *_path) {
 
@@ -416,5 +418,6 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
  **/
 void AutomationPathView::autoResize()
 {
-	resize( SongEditor::nMargin + m_nMaxPatternSequence * m_nGridWidth, 64 );
+	resize( SongEditor::nMargin + m_nMaxPatternSequence * m_nGridWidth,
+			m_nMinimumHeight );
 }

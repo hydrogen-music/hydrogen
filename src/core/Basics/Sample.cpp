@@ -64,7 +64,8 @@ EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), fram
 
 
 Sample::Sample( const QString& filepath, const License& license, int frames, int sample_rate, float* data_l, float* data_r ) 
-  : __filepath( filepath ),
+  : m_bIsLoaded( false ),
+	__filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
 	__data_l( data_l ),
@@ -77,7 +78,9 @@ Sample::Sample( const QString& filepath, const License& license, int frames, int
 	}
 }
 
-Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
+Sample::Sample( std::shared_ptr<Sample> pOther ) :
+	Object( *pOther ),
+	m_bIsLoaded( pOther->m_bIsLoaded ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),
@@ -159,9 +162,29 @@ bool Sample::load( float fBpm )
 	SF_INFO sound_info = {0};
 
 	// Opens file in read-only mode.
-	SNDFILE* file = sf_open( get_filepath().toLocal8Bit(), SFM_READ, &sound_info );
-	if ( !file ) {
-		ERRORLOG( QString( "Error loading file %1" ).arg( get_filepath() ) );
+#ifdef WIN32
+	// On Windows we use a special version of sf_open to ensure we get all
+	// characters of the filename entered in the GUI right. No matter which
+	// encoding was used locally.
+	// We have to terminate the string using a null character ourselves.
+	QString sPath( get_filepath() );
+	const QString sPaddedPath = sPath.append( '\0' );
+	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
+
+	sPaddedPath.toWCharArray( encodedFilename );
+
+	SNDFILE* file = sf_wchar_open( encodedFilename, SFM_READ,
+								   &sound_info );
+	delete encodedFilename;
+#else
+	SNDFILE* file = sf_open( get_filepath().toLocal8Bit(), SFM_READ,
+							 &sound_info );
+#endif
+	if ( file == nullptr ) {
+		ERRORLOG( QString( "Error loading file [%1] with format [%2]: %3" )
+				  .arg( get_filepath() )
+				  .arg( sndfileFormatToQString( sound_info.format ) )
+				  .arg( sndfileErrorToQString( sf_error( nullptr ) ) ) );
 		return false;
 	}
 	
@@ -235,7 +258,27 @@ bool Sample::load( float fBpm )
 	}
 #endif
 
+	m_bIsLoaded = true;
+
 	return true;
+}
+
+void Sample::unload()
+{
+	if ( __data_l != nullptr ) {
+		delete [] __data_l;
+	}
+
+	if ( __data_r != nullptr ) {
+		delete [] __data_r;
+	}
+	__frames = __sample_rate = 0;
+	/** #__is_modified = false; leave this unchanged as pan,
+	    velocity, loop and rubberband are kept unchanged */
+
+	__data_l = __data_r = nullptr;
+
+	m_bIsLoaded = false;
 }
 
 bool Sample::apply_loops()
@@ -586,7 +629,7 @@ bool Sample::exec_rubberband_cli( float fBpm )
 	}
 	
 	//set the path to rubberband-cli
-	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+	QString program = Preferences::get_instance()->m_sRubberBandCLIexecutable;
 	//test the path. if test fails return NULL
 	if ( QFile( program ).exists() == false && __rubberband.use ) {
 		ERRORLOG( QString( "Rubberband executable: File %1 not found" ).arg( program ) );
@@ -700,15 +743,33 @@ bool Sample::write( const QString& path, int format ) const
 	sf_info.samplerate = __sample_rate;
 	sf_info.format = format;
 	if ( !sf_format_check( &sf_info ) ) {
-		___ERRORLOG( "SF_INFO error" );
+		ERRORLOG( "SF_INFO error" );
 		delete[] obuf;
 		return false;
 	}
 
-	SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info ) ;
+#ifdef WIN32
+	// On Windows we use a special version of sf_open to ensure we get all
+	// characters of the filename entered in the GUI right. No matter which
+	// encoding was used locally.
+	// We have to terminate the string using a null character ourselves.
+	QString sPaddedPath = QString( path ).append( '\0' );
+	wchar_t* encodedFilename = new wchar_t[ sPaddedPath.size() ];
 
-	if ( sf_file==nullptr ) {
-		___ERRORLOG( QString( "sf_open error : %1" ).arg( sf_strerror( sf_file ) ) );
+	sPaddedPath.toWCharArray( encodedFilename );
+	
+	SNDFILE* sf_file = sf_wchar_open( encodedFilename, SFM_WRITE,
+								   &sf_info );
+	delete encodedFilename;
+#else
+	SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info );
+#endif
+
+	if ( sf_file == nullptr ) {
+		ERRORLOG( QString( "Unable to create file [%1] with format [%2]: %3" )
+				  .arg( path )
+				  .arg( sndfileFormatToQString( format ) )
+				  .arg( sndfileErrorToQString( sf_error( nullptr ) ) ) );
 		sf_close( sf_file );
 		delete[] obuf;
 		return false;
@@ -717,7 +778,7 @@ bool Sample::write( const QString& path, int format ) const
 	sf_count_t res = sf_writef_float( sf_file, obuf, __frames );
 
 	if ( res<=0 ) {
-		___ERRORLOG( QString( "sf_writef_float error : %1" ).arg( sf_strerror( sf_file ) ) );
+		ERRORLOG( QString( "sf_writef_float error : %1" ).arg( sf_strerror( sf_file ) ) );
 		sf_close( sf_file );
 		delete[] obuf;
 		return false;
@@ -774,25 +835,231 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
-			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( s ).arg( __filepath ) )
-			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s ).arg( __frames ) )
-			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_rate ) )
-			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_modified ) )
-			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString() ) )
-			.append( QString( "%1" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
-	} else {
+			.append( QString( "%1%2m_bIsLoaded: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsLoaded ) )
+			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __filepath ) )
+			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __frames ) )
+			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __sample_rate ) )
+			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( __is_modified ) )
+			.append( QString( "%1%2__pan_envelope: [\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppoint : __pan_envelope ) {
+			sOutput.append( QString( "%1%2%2frame: %3, value: %4" ).arg( sPrefix ).arg( s )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+		sOutput.append( QString( "]\n%1%2__velocity_envelope: [\n" )
+						.arg( sPrefix ).arg( s ) );
+		for ( const auto& ppoint : __velocity_envelope ) {
+			sOutput.append( QString( "%1%2%2frame: %3, value: %4" ).arg( sPrefix ).arg( s )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+			sOutput.append( QString( "]\n%1" )
+					 .arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1" )
+					 .arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1" )
+					 .arg( __rubberband.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_license.toQString( sPrefix + s, bShort ) ) );
+	}
+	else {
 		sOutput = QString( "[Sample]" )
-			.append( QString( " filepath: %1" ).arg( __filepath ) )
+			.append( QString( " m_bIsLoaded: %1" ).arg( m_bIsLoaded ) )
+			.append( QString( ", filepath: %1" ).arg( __filepath ) )
 			.append( QString( ", frames: %1" ).arg( __frames ) )
 			.append( QString( ", sample_rate: %1" ).arg( __sample_rate ) )
 			.append( QString( ", is_modified: %1" ).arg( __is_modified ) )
-			.append( QString( ", m_license: %1" ).arg( m_license.toQString() ) )
-			.append( QString( ", [%1]" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", [%1]\n" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
+			.append( ", __pan_envelope: [" );
+		for ( const auto& ppoint : __pan_envelope ) {
+			sOutput.append( QString( "[frame: %1, value: %2] " )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+		sOutput.append( "], __velocity_envelope: [" );
+		for ( const auto& ppoint : __velocity_envelope ) {
+			sOutput.append( QString( "[frame: %1, value: %2] " )
+							.arg( ppoint.frame ).arg( ppoint.value ) );
+		}
+		sOutput.append( QString( "], [%1]" )
+					 .arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", [%1]\n" )
+					 .arg( __rubberband.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", m_license: %1" )
+					 .arg( m_license.toQString( sPrefix, bShort ) ) );
 	}
 	
 	return sOutput;
+}
+
+QString Sample::sndfileErrorToQString( int nError ) {
+	switch( nError ) {
+	case 0:
+		return QString( "No error" );
+	case 1:
+		return QString( "Unrecognized format" );
+	case 2:
+		return QString( "System" );
+	case 3:
+		return QString( "Malformed file" );
+	case 4:
+		return QString( "Unsupported encoding" );
+	}
+
+	return QString( "Unknown error code [%1]" ).arg( nError );
+}
+
+QString Sample::sndfileFormatToQString( int nFormat ) {
+	QString sFormat;
+	if ( nFormat & 0x010000 ) {
+		sFormat = "Microsoft WAV format (little endian)";
+	} else if ( nFormat & 0x020000 ) {
+		sFormat = "Apple/SGI AIFF format (big endian)";
+	} else if ( nFormat & 0x030000 ) {
+		sFormat = "Sun/NeXT AU format (big endian)";
+	} else if ( nFormat & 0x040000 ) {
+		sFormat = "RAW PCM data";
+	} else if ( nFormat & 0x050000 ) {
+		sFormat = "Ensoniq PARIS file format";
+	} else if ( nFormat & 0x060000 ) {
+		sFormat = "Amiga IFF / SVX8 / SV16 format";
+	} else if ( nFormat & 0x070000 ) {
+		sFormat = "Sphere NIST format";
+	} else if ( nFormat & 0x080000 ) {
+		sFormat = "VOC files";
+	} else if ( nFormat & 0x0A0000 ) {
+		sFormat = "Berkeley/IRCAM/CARL";
+	} else if ( nFormat & 0x0B0000 ) {
+		sFormat = "Sonic Foundry's 64 bit RIFF/WAV";
+	} else if ( nFormat & 0x0C0000 ) {
+		sFormat = "Matlab (tm) V4.2 / GNU Octave 2.0";
+	} else if ( nFormat & 0x0D0000 ) {
+		sFormat = "Matlab (tm) V5.0 / GNU Octave 2.1";
+	} else if ( nFormat & 0x0E0000 ) {
+		sFormat = "Portable Voice Format";
+	} else if ( nFormat & 0x0F0000 ) {
+		sFormat = "Fasttracker 2 Extended Instrument";
+	} else if ( nFormat & 0x100000 ) {
+		sFormat = "HMM Tool Kit format";
+	} else if ( nFormat & 0x110000 ) {
+		sFormat = "Midi Sample Dump Standard";
+	} else if ( nFormat & 0x120000 ) {
+		sFormat = "Audio Visual Research";
+	} else if ( nFormat & 0x130000 ) {
+		sFormat = "MS WAVE with WAVEFORMATEX";
+	} else if ( nFormat & 0x160000 ) {
+		sFormat = "Sound Designer 2";
+	} else if ( nFormat & 0x170000 ) {
+		sFormat = "FLAC lossless file format";
+	} else if ( nFormat & 0x180000 ) {
+		sFormat = "Core Audio File format";
+	} else if ( nFormat & 0x190000 ) {
+		sFormat = "Psion WVE format";
+	} else if ( nFormat & 0x200000 ) {
+		sFormat = "Xiph OGG container";
+	} else if ( nFormat & 0x210000 ) {
+		sFormat = "Akai MPC 2000 sampler";
+	} else if ( nFormat & 0x220000 ) {
+		sFormat = "RF64 WAV file";
+	} else if ( nFormat & 0x230000 ) {
+		sFormat = "MPEG-1/2 audio stream_FORMAT_OGG";
+	} else {
+		return QString( "Unknown format [%1]" ).arg( nFormat );
+	}
+
+	QString sSubType;
+	if ( nFormat & 0x0001 ) {
+		sSubType = "Signed 8 bit data";
+	} else if ( nFormat & 0x0002 ) {
+		sSubType = "Signed 16 bit data";
+	} else if ( nFormat & 0x0003 ) {
+		sSubType = "Signed 24 bit data";
+	} else if ( nFormat & 0x0004 ) {
+		sSubType = "Signed 32 bit data";
+	} else if ( nFormat & 0x0005 ) {
+		sSubType = "Unsigned 8 bit data (WAV and RAW only)";
+	} else if ( nFormat & 0x0006 ) {
+		sSubType = "32 bit float data";
+	} else if ( nFormat & 0x0007 ) {
+		sSubType = "64 bit float data";
+	} else if ( nFormat & 0x0010 ) {
+		sSubType = "U-Law encoded";
+	} else if ( nFormat & 0x0011 ) {
+		sSubType = "A-Law encoded";
+	} else if ( nFormat & 0x0012 ) {
+		sSubType = "IMA ADPCM";
+	} else if ( nFormat & 0x0013 ) {
+		sSubType = "Microsoft ADPCM";
+	} else if ( nFormat & 0x0020 ) {
+		sSubType = "GSM 6.10 encoding";
+	} else if ( nFormat & 0x0021 ) {
+		sSubType = "OKI / Dialogix ADPCM";
+	} else if ( nFormat & 0x0022 ) {
+		sSubType = "16kbs NMS G721-variant encoding";
+	} else if ( nFormat & 0x0023 ) {
+		sSubType = "24kbs NMS G721-variant encoding";
+	} else if ( nFormat & 0x0024 ) {
+		sSubType = "32kbs NMS G721-variant encoding";
+	} else if ( nFormat & 0x0030 ) {
+		sSubType = "32kbs G721 ADPCM encoding";
+	} else if ( nFormat & 0x0031 ) {
+		sSubType = "24kbs G723 ADPCM encoding";
+	} else if ( nFormat & 0x0032 ) {
+		sSubType = "40kbs G723 ADPCM encoding";
+	} else if ( nFormat & 0x0040 ) {
+		sSubType = "12 bit Delta Width Variable Word encoding";
+	} else if ( nFormat & 0x0041 ) {
+		sSubType = "16 bit Delta Width Variable Word encoding";
+	} else if ( nFormat & 0x0042 ) {
+		sSubType = "24 bit Delta Width Variable Word encoding";
+	} else if ( nFormat & 0x0043 ) {
+		sSubType = "N bit Delta Width Variable Word encoding";
+	} else if ( nFormat & 0x0050 ) {
+		sSubType = "8 bit differential PCM (XI only)";
+	} else if ( nFormat & 0x0051 ) {
+		sSubType = "16 bit differential PCM (XI only)";
+	} else if ( nFormat & 0x0060 ) {
+		sSubType = "Xiph Vorbis encoding";
+	} else if ( nFormat & 0x0064 ) {
+		sSubType = "Xiph/Skype Opus encoding";
+	} else if ( nFormat & 0x0070 ) {
+		sSubType = "Apple Lossless Audio Codec (16 bit)";
+	} else if ( nFormat & 0x0071 ) {
+		sSubType = "Apple Lossless Audio Codec (20 bit)";
+	} else if ( nFormat & 0x0072 ) {
+		sSubType = "Apple Lossless Audio Codec (24 bit)";
+	} else if ( nFormat & 0x0073 ) {
+		sSubType = "Apple Lossless Audio Codec (32 bit)";
+	} else if ( nFormat & 0x0080 ) {
+		sSubType = "MPEG-1 Audio Layer I";
+	} else if ( nFormat & 0x0081 ) {
+		sSubType = "MPEG-1 Audio Layer II";
+	} else if ( nFormat & 0x0082 ) {
+		sSubType = "MPEG-2 Audio Layer III";
+	} else {
+		INFOLOG( QString( "Unknown subtype [%1]" ).arg( nFormat ) );
+	}
+
+	QString sEndianness;
+	if ( nFormat & 0x00000000 ) {
+		sEndianness = "Default file endian-ness";
+	} else if ( nFormat & 0x10000000 ) {
+		sEndianness = "Force little endian-ness";
+	} else if ( nFormat & 0x20000000 ) {
+		sEndianness = "Force big endian-ness";
+	} else if ( nFormat & 0x30000000 ) {
+		sEndianness = "Force CPU endian-ness";
+	}
+	
+	if ( ! sSubType.isEmpty() ) {
+		sFormat.append( QString( " - %1" ).arg( sSubType ) );
+	}
+	if ( ! sEndianness.isEmpty() ) {
+		sFormat.append( QString( " - %1" ).arg( sEndianness ) );
+	}
+
+	return sFormat;
 }
 
 #ifdef H2CORE_HAVE_RUBBERBAND

@@ -12,12 +12,12 @@
   <xsd:element name="mapping">
 	  <xsd:complexType>
 	    <xsd:sequence>
-		    <xsd:element name="type" type="xsd:string"/>
 		    <!-- Determined by the position of the instrument in the
 		         instrument list within the Pattern Editor. This property
 		         is called `id` within an `instrument` element in
 		         `drumkit.xml`.-->
 		    <xsd:element name="instrumentID"	type="xsd:integer"/>
+		    <xsd:element name="type" type="xsd:string"/>
 	    </xsd:sequence>
 	  </xsd:complexType>
   </xsd:element>
@@ -25,8 +25,11 @@
   <xsd:element name="drumkit_map">
 	  <xsd:complexType>
 	    <xsd:sequence>
-		    <xsd:element ref="h2:mapping" minOccurs="0" maxOccurs="unbounded"/>
-	    </xsd:sequence>
+        <xsd:element name="formatVersion" type="xsd:nonNegativeInteger"/>
+	      <xsd:sequence>
+		      <xsd:element ref="h2:mapping" minOccurs="0" maxOccurs="unbounded"/>
+	      </xsd:sequence>
+      </xsd:sequence>
 	  </xsd:complexType>
   </xsd:element>
 
