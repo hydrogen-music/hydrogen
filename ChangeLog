@@ -49,6 +49,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Paths to songs and scripts are now properly saved relative to a
 			`.h2playlist` file (in case the corresponding option was set).
 		- Fix grid line rendering with resolution set to `off` (#2015).
+		- Fix handling of adjacent tags with same content in Director by @aldimond
+			(#2036).
 	* Removed
 		- Dropped `JACK` support in provided Windows 32 binaries (as the upstream
 			jack2 MSYS package was dropped)
