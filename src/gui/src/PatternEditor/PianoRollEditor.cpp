@@ -379,7 +379,9 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForegro
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( pNote != nullptr && pNote->get_instrument() != nullptr &&
 		 pNote->get_instrument() == pHydrogen->getSelectedInstrument() ) {
-		QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
+		QPoint pos ( PatternEditor::nMargin +
+					 ( pNote->get_lead_lag() * AudioEngine::getLeadLagInTicks() +
+					   pNote->get_position() ) * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
 		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
 	}
