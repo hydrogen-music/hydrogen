@@ -643,7 +643,8 @@ void Hydrogen::restartDrivers()
 	m_pAudioEngine->restartAudioDrivers();
 }
 
-bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
+bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
+								   double fCompressionLevel )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
@@ -685,6 +686,7 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 	
 	pDiskWriterDriver->setSampleRate( static_cast<unsigned>(nSampleRate) );
 	pDiskWriterDriver->setSampleDepth( nSampleDepth );
+	pDiskWriterDriver->setCompressionLevel( fCompressionLevel );
 
 	m_bExportSessionIsActive = true;
 
@@ -726,7 +728,8 @@ void Hydrogen::stopExportSession()
 	}
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
+
+	pAudioEngine->stop();
  	pAudioEngine->restartAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );

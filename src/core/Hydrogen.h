@@ -363,8 +363,17 @@ void			previewSample( Sample *pSample );
 	
 	//export management
 	bool			getIsExportSessionActive() const;
-	/** \return true on success.*/
-	bool			startExportSession( int rate, int depth );
+	/**
+	 * @param nSampleRate sample rate using which to export
+	 * @param nSampleDepth sample depth using which to export
+	 * @param fCompressionLevel Trades off audio quality against compression
+	 *   rate defined between 0.0 (maximum quality) and 1.0 (maximum
+	 *   compression).
+	 *
+	 * \return true on success
+	 * .*/
+	bool			startExportSession( int nSampleRate, int nSampleDepth,
+										double fCompressionLevel = 0.0 );
 	void			stopExportSession();
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();

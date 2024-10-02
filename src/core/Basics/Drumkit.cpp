@@ -1061,10 +1061,10 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	// The list does not have to be comprehensive as a "leakage" of
 	// audio files in the resulting .h2drumkit is not a big problem.
 	QStringList suffixBlacklist;
-	suffixBlacklist << "wav" << "flac" << "aifc" << "aif" << "aiff" << "au"
-					 << "caf" << "w64" << "ogg" << "pcm" << "l16" << "vob"
-					 << "mp1" << "mp2" << "mp3";
-	
+	for ( const auto& fformat : Filesystem::supportedAudioFormats() ) {
+		suffixBlacklist << Filesystem::AudioFormatToSuffix( fformat );
+	}
+
 	bool bSampleFound;
 	
 	for ( const auto& ssFile : sourceFilesList ) {

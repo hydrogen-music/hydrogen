@@ -25,9 +25,11 @@
 #define EXPORT_SONG_DIALOG_H
 
 #include <memory>
+#include <map>
 
 #include "ui_ExportSongDialog_UI.h"
 #include "EventListener.h"
+#include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 #include <core/Sampler/Sampler.h>
 
@@ -61,7 +63,7 @@ private slots:
 	void		on_closeBtn_clicked();
 	void		on_okBtn_clicked();
 	void		on_exportNameTxt_textChanged(const QString& text);
-	void		on_templateCombo_currentIndexChanged(int index);
+	void		formatComboIndexChanged(int index);
 	void		toggleRubberbandBatchMode(bool toggled);
 	void		toggleTimeLineBPMMode(bool toggled);
 	void		resampleComboBoIndexChanged(int index);
@@ -94,7 +96,8 @@ private:
 	bool					m_bQfileDialog;
 	H2Core::Hydrogen *		m_pHydrogen;
 	H2Core::Preferences*	m_pPreferences;
-	
+
+		std::map<int, H2Core::Filesystem::AudioFormat> m_formatMap;
 	static QString 			sLastFilename;
 };
 

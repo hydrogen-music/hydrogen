@@ -230,8 +230,13 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 }
 
 void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
-							 int nSampleRate, int nSampleDepth )
+							 int nSampleRate, int nSampleDepth,
+							 double fCompressionLevel )
 {
+	___INFOLOG( QString( "sSongFile: %1, sFileName: %2, nSampleRate: %3, nSampleDepth: %4, fCompressionLevel: %5" )
+				.arg( sSongFile ).arg( sFileName ).arg( nSampleRate )
+				.arg( nSampleDepth ).arg( fCompressionLevel ) );
+
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -247,23 +252,27 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
-	pHydrogen->startExportSession( nSampleRate, nSampleDepth );
+	pHydrogen->startExportSession( nSampleRate, nSampleDepth, fCompressionLevel );
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver =
 		dynamic_cast<H2Core::DiskWriterDriver*>(pHydrogen->getAudioOutput());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	const int nMaxSleeps = 30;
+	// in 0.1 * `nMaxSleeps` ms
+	const int nMaxSleeps = 3000;
 	int nSleeps = 0;
 	while ( ! pDriver->isDoneWriting() ) {
-		usleep(100 * 1000);
+		usleep(100 * 1000); // 0.1 ms
 
 		// Export should not take that long. There is somethings wrong in
 		// here.
 		CPPUNIT_ASSERT( nSleeps < nMaxSleeps );
 		nSleeps++;
 	}
+
+	CPPUNIT_ASSERT( ! pDriver->writingFailed() );
+
 	pHydrogen->stopExportSession();
 
 	auto t1 = std::chrono::high_resolution_clock::now();
@@ -285,7 +294,7 @@ void TestHelper::exportSong( const QString& sFileName )
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
-	pHydrogen->startExportSession( 44100, 16 );
+	pHydrogen->startExportSession( 44100, 16, 5 );
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver =

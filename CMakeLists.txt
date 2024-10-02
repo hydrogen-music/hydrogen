@@ -73,8 +73,6 @@ else()
 endif()
 message(STATUS "${DISPLAY_VERSION}")
 
-set(LIBSNDFILE_VERSION_PREV "1.0.17")
-
 #
 # CONFIG OPTIONS
 #
@@ -352,12 +350,32 @@ foreach( _pkg ${STATUS_LIST})
     compute_pkgs_flags(${_pkg})
 endforeach()
 
+# Indention used for the second column.
+set(TABLE_INDENT " 				 ")
+
 # LIBSNDFILE CHECKS
-string( COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIBSNDFILE_VERSION_OK)
-if(LIBSNDFILE_VERSION_OK)
-    set(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
+# All these are the versions _prior_ to when the support was added.
+set(LIBSNDFILE_VERSION_FLAC_OGG "1.0.17")
+set(LIBSNDFILE_VERSION_OPUS "1.0.28")
+set(LIBSNDFILE_VERSION_MP3 "1.0.31")
+
+string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_FLAC_OGG}" H2CORE_HAVE_FLAC_SUPPORT)
+string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_OPUS}" H2CORE_HAVE_OPUS_SUPPORT)
+string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_MP3}" H2CORE_HAVE_MP3_SUPPORT)
+if(H2CORE_HAVE_FLAC_SUPPORT)
+    set(LIBSNDFILE_MSG "FLAC: supported, OGG/Vorbis: supported")
 else()
-	set(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${PC_LIBSNDFILE_VERSION}")
+	set(LIBSNDFILE_MSG "FLAC: not supported, OGG/Vorbis: not supported (>=${LIBSNDFILE_VERSION_FLAC_OGG} required)")
+endif()
+if(H2CORE_HAVE_OPUS_SUPPORT)
+    set(LIBSNDFILE_MSG "${LIBSNDFILE_MSG}\n${TABLE_INDENT}OGG/Opus: supported")
+else()
+	set(LIBSNDFILE_MSG "${LIBSNDFILE_MSG}\n${TABLE_INDENT}OGG/Opus: not supported (>=${LIBSNDFILE_VERSION_OPUS} required)")
+endif()
+if(H2CORE_HAVE_MP3_SUPPORT)
+    set(LIBSNDFILE_MSG "${LIBSNDFILE_MSG}\n${TABLE_INDENT}MP3: supported")
+else()
+	set(LIBSNDFILE_MSG "${LIBSNDFILE_MSG}\n${TABLE_INDENT}MP3: not supported (>=${LIBSNDFILE_VERSION_MP3} required)")
 endif()
 
 if(H2CORE_HAVE_CPPUNIT AND WANT_INTEGRATION_TESTS AND WANT_DEBUG AND NOT MINGW AND NOT APPLE)
@@ -368,10 +386,10 @@ endif()
 
 # RUBBERBAND information
 set(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
-*				 Because the current implementation produce wrong timing!
-*				 So long this bug isn't solved, please disable this option.
-*				 If rubberband-cli is installed, the hydrogen rubberband-function
-*				 will work properly as expected.")
+${TABLE_INDENT}Because the current implementation produce wrong timing!
+${TABLE_INDENT}So long this bug isn't solved, please disable this option.
+${TABLE_INDENT}If rubberband-cli is installed, the hydrogen rubberband-function
+${TABLE_INDENT}will work properly as expected.")
 
 if(WIN32)
     set(CMAKE_COLOR_MAKEFILE OFF)
