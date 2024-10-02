@@ -848,6 +848,11 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
 		Note *note = it->second;
 		int nInstrument = pInstrList->index( note->get_instrument() );
+		if ( nInstrument == -1 ) {
+			// Instrument corresponding to note not found. (Probably created
+			// using a different kit).
+			continue;
+		}
 		uint x_pos = PatternEditor::nMargin + (it->first * m_fGridWidth);
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
@@ -915,6 +920,11 @@ void DrumPatternEditor::deleteSelection()
 		// addOrDeleteNoteAction may delete duplicate notes in undefined order.
 		std::list< QUndoCommand *> actions;
 		for ( Note *pNote : m_selection ) {
+			if ( pInstrumentList->index( pNote->get_instrument() ) == -1 ) {
+				// In versions prior to v2.0 all notes not belonging to any
+				// instrument will just be ignored.
+				continue;
+			}
 			if ( m_selection.isSelected( pNote ) ) {
 				actions.push_back( new SE_addOrDeleteNoteAction( pNote->get_position(),
 																 pInstrumentList->index( pNote->get_instrument() ),
@@ -1110,6 +1120,13 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 			auto noteIt = posIt;
 			while ( noteIt != pNotes->end() && noteIt->second->get_position() == nPosition ) {
 				Note *pNote = noteIt->second;
+
+				if ( pInstrList->index( pNote->get_instrument() ) == -1 ) {
+					// In versions prior to v2.0 all notes not belonging to any
+					// instrument will just be ignored.
+					++noteIt;
+					continue;
+				}
 
 				int nInstrumentID = pNote->get_instrument_id();
 				// An ID of -1 corresponds to an empty instrument.

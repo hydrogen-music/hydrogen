@@ -394,6 +394,12 @@ void PatternEditor::copy()
 		int nPitch = pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET;
 		int nPos = pNote->get_position();
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
+		if ( nInstrument == -1 ) {
+			// In versions prior to v2.0 all notes not belonging to any
+			// instrument will just be ignored.
+			continue;
+		}
+
 		if ( bWroteNote ) {
 			nLowestPos = std::min( nPos, nLowestPos );
 			nLowestInstrument = std::min( nInstrument, nLowestInstrument );
