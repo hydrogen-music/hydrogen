@@ -519,7 +519,9 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( "%1%2m_bDoneWriting: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bDoneWriting ) )
 			.append( QString( "%1%2m_bWritingFailed: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bWritingFailed ) );
+					 .arg( m_bWritingFailed ) )
+			.append( QString( "%1%2m_fCompressionLevel: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fCompressionLevel ) );
 	} else {
 		sOutput = QString( "[DiskWriterDriver]" )
 			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
@@ -528,7 +530,9 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_nSampleDepth: %1" ).arg( m_nSampleDepth ) )
 			.append( QString( ", m_bIsRunning: %1" ).arg( m_bIsRunning ) )
 			.append( QString( ", m_bDoneWriting: %1" ).arg( m_bDoneWriting ) )
-			.append( QString( ", m_bWritingFailed: %1" ).arg( m_bWritingFailed ) );
+			.append( QString( ", m_bWritingFailed: %1" ).arg( m_bWritingFailed ) )
+			.append( QString( ", m_fCompressionLevel: %1" )
+					 .arg( m_fCompressionLevel ) );
 	}
 
 	return sOutput;
