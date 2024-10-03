@@ -626,7 +626,6 @@ void Hydrogen::restartDrivers()
 bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 								   double fCompressionLevel )
 {
-	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
@@ -650,9 +649,7 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 	 * which is not the DiskWriter driver.
 	 * Stop the current driver and fire up the DiskWriter.
 	 */
-	DEBUGLOG( "pre stopAudioDrivers" );
 	pAudioEngine->stopAudioDrivers();
-	DEBUGLOG( "post stopAudioDrivers" );
 
 	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
 		Preferences::AudioDriver::Disk );
@@ -673,15 +670,12 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 
 	m_bExportSessionIsActive = true;
 
-	DEBUGLOG( "done" );
-
 	return true;
 }
 
 /// Export a song to a wav file
 void Hydrogen::startExportSong( const QString& filename)
 {
-	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	CoreActionController::locateToTick( 0 );
 	pAudioEngine->play();
@@ -689,23 +683,18 @@ void Hydrogen::startExportSong( const QString& filename)
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
-	DEBUGLOG( "pre write()" );
 	pDiskWriterDriver->write();
-	DEBUGLOG( "done" );
 }
 
 void Hydrogen::stopExportSong()
 {
-	DEBUGLOG( "" );
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
 	CoreActionController::locateToTick( 0 );
-	DEBUGLOG( "done" );
 }
 
 void Hydrogen::stopExportSession()
 {
-	DEBUGLOG( "" );
 	std::shared_ptr<Song> pSong = getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -725,7 +714,6 @@ void Hydrogen::stopExportSession()
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
-	DEBUGLOG( "post restartAudioDrivers" );
 	m_bExportSessionIsActive = false;
 }
 
@@ -1375,10 +1363,6 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 			
 			pAudioEngine->lock( RIGHT_HERE );
 			
-			// DEBUGLOG( QString( "bEnabled: %1, getSong()->getIsTimelineActivated(): %2" )
-			// 		  .arg( bEnabled )
-			// 		  .arg( getSong()->getIsTimelineActivated()) );
-		
 			getSong()->setIsTimelineActivated( bEnabled );
 
 			if ( bEnabled ) {
