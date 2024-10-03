@@ -273,28 +273,34 @@ void ExportSongDialog::on_browseBtn_clicked()
 
 	switch ( format ) {
 	case Filesystem::AudioFormat::Wav:
-		fd.setNameFilter("Microsoft WAV (*.wav *.WAV)");
+		fd.setNameFilter( "Microsoft WAV (*.wav *.WAV)" );
 		break;
 	case Filesystem::AudioFormat::Aiff:
-		fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
+		fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)" );
 		break;
 	case Filesystem::AudioFormat::Flac:
-		fd.setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
+		fd.setNameFilter( "Lossless Flac (*.flac *.FLAC)" );
+		break;
+	case Filesystem::AudioFormat::Opus:
+		fd.setNameFilter( "Compressed Ogg/Opus (*.opus *.OPUS)" );
 		break;
 	case Filesystem::AudioFormat::Ogg:
-		fd.setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
+		fd.setNameFilter( "Compressed Ogg/Vorbis (*.ogg *.OGG)" );
 		break;
 	case Filesystem::AudioFormat::Mp3:
-		fd.setNameFilter( "MPEG Layer 3 (*.mp3 *.MP3)");
+		fd.setNameFilter( "Compressed MPEG Layer 3 (*.mp3 *.MP3)" );
 		break;
 	case Filesystem::AudioFormat::Au:
-		fd.setNameFilter( "Sun/NeXT AU (*.au *.AU)");
+		fd.setNameFilter( "Sun/NeXT AU (*.au *.AU)" );
 		break;
 	case Filesystem::AudioFormat::Caf:
-		fd.setNameFilter( "Core Audio Format (*.caf *.CAF)");
+		fd.setNameFilter( "Core Audio Format (*.caf *.CAF)" );
 		break;
 	case Filesystem::AudioFormat::Voc:
-		fd.setNameFilter( "Creative Voice File (*.voc *.VOC)");
+		fd.setNameFilter( "Creative Voice File (*.voc *.VOC)" );
+		break;
+	case Filesystem::AudioFormat::W64:
+		fd.setNameFilter( "Sonic Foundrys' 64 bit RIFF/WAV (*.w64 *.W64)" );
 		break;
 	case Filesystem::AudioFormat::Unknown:
 	default:
