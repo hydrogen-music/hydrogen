@@ -123,6 +123,95 @@ QStringList Filesystem::__ladspa_paths;
 
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
+std::vector<Filesystem::AudioFormat> Filesystem::m_supportedAudioFormats = {
+	AudioFormat::Wav,
+	AudioFormat::Aif,
+	AudioFormat::Aifc,
+	AudioFormat::Aiff,
+	AudioFormat::Au,
+	AudioFormat::Caf,
+	AudioFormat::Voc,
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
+	AudioFormat::Ogg,
+	AudioFormat::Flac,
+#endif
+#ifdef H2CORE_HAVE_OPUS_SUPPORT
+	AudioFormat::Opus,
+#endif
+#ifdef H2CORE_HAVE_MP3_SUPPORT
+	AudioFormat::Mp3,
+#endif
+	AudioFormat::W64
+};
+
+QString Filesystem::AudioFormatToSuffix( const AudioFormat& format ) {
+	switch( format ) {
+		case AudioFormat::Aif:
+		case AudioFormat::Aifc:
+		case AudioFormat::Aiff:
+			return "aiff";
+		case AudioFormat::Au:
+			return "au";
+		case AudioFormat::Caf:
+			return "caf";
+		case AudioFormat::Flac:
+			return "flac";
+		case AudioFormat::Mp3:
+			return "mp3";
+		case AudioFormat::Ogg:
+			return "ogg";
+		case AudioFormat::Opus:
+			return "opus";
+		case AudioFormat::Voc:
+			return "voc";
+		case AudioFormat::W64:
+			return "w64";
+		case AudioFormat::Wav:
+			return "wav";
+		case AudioFormat::Unknown:
+		default:
+			ERRORLOG( "Unknown audio format" );
+			return "";
+	}
+}
+
+Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath ) {
+	const QString sPathLower = sPath.toLower();
+	if ( sPathLower.endsWith( "aiff" ) ) {
+		return AudioFormat::Aif;
+	}
+	else if ( sPathLower.endsWith( "au" ) ) {
+		return AudioFormat::Au;
+	}
+	else if ( sPathLower.endsWith( "caf" ) ) {
+		return AudioFormat::Caf;
+	}
+	else if ( sPathLower.endsWith( "flac" ) ) {
+		return AudioFormat::Flac;
+	}
+	else if ( sPathLower.endsWith( "mp3" ) ) {
+		return AudioFormat::Mp3;
+	}
+	else if ( sPathLower.endsWith( "ogg" ) ) {
+		return AudioFormat::Ogg;
+	}
+	else if ( sPathLower.endsWith( "opus" ) ) {
+		return AudioFormat::Opus;
+	}
+	else if ( sPathLower.endsWith( "voc" ) ) {
+		return AudioFormat::Voc;
+	}
+	else if ( sPathLower.endsWith( "w64" ) ) {
+		return AudioFormat::W64;
+	}
+	else if ( sPathLower.endsWith( "wav" ) ) {
+		return AudioFormat::Wav;
+	} else {
+		ERRORLOG( QString( "Unknown suffix in [%1]" ).arg( sPath ) );
+		return AudioFormat::Unknown;
+	}
+}
+
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 							const QString& sUserConfigPath,
 							const QString& sLogFile )
@@ -1262,6 +1351,9 @@ QString Filesystem::TypeToQString( const Type& type ) {
 QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
 	QString sCleaned( sEncodedString );
 	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
+}
+const std::vector<Filesystem::AudioFormat>& Filesystem::supportedAudioFormats() {
+	return m_supportedAudioFormats;
 }
 };
 

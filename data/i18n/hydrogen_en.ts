@@ -1370,50 +1370,6 @@ Overwrite the existing file?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Templates: </source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Samplerate in Hz:</source>
         <translation></translation>
     </message>
@@ -1524,6 +1480,14 @@ Overwrite the existing file?</source>
     <message>
         <source>Alt+C</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compression Level:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

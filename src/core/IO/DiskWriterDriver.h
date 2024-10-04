@@ -47,6 +47,9 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		QString					m_sFilename;
 		unsigned				m_nBufferSize;
 		int						m_nSampleDepth;
+		/** A value between 0.0 (maximum quality) and 1.0 (maximum
+		 * compression). */
+		double					m_fCompressionLevel;
 		audioProcessCallback	m_processCallback;
 		float*					m_pOut_L;
 		float*					m_pOut_R;
@@ -64,7 +67,11 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		bool isDoneWriting() const {
 			return m_bDoneWriting;
 		}
+		bool writingFailed() const {
+			return m_bWritingFailed;
+		}
 		bool m_bDoneWriting;
+		bool m_bWritingFailed;
 
 		virtual unsigned getBufferSize() override {
 			return m_nBufferSize;
@@ -77,6 +84,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 	void setSampleDepth( int nNewDepth ) {
 		m_nSampleDepth = nNewDepth;
 	}
+		void setCompressionLevel( double fCompressionLevel );
 
 		virtual float* getOut_L() override {
 			return m_pOut_L;

@@ -1429,50 +1429,6 @@ Overwrite the existing file?</source>
         <translation>32</translation>
     </message>
     <message>
-        <source>Templates: </source>
-        <translation>Format : </translation>
-    </message>
-    <message>
-        <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
-        <translation>WAV en qualité CD  &quot;44,1kHz, 16 bit PCM&quot;</translation>
-    </message>
-    <message>
-        <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>WAV en qualité ADAT &quot;48 kHz, 16 bit PCM&quot;</translation>
-    </message>
-    <message>
-        <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>WAV en meilleure qualité &quot;48 kHz, 24 bit PCM&quot;</translation>
-    </message>
-    <message>
-        <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation>WAV LOFI &quot;22.05kHz, 8 bit PCM </translation>
-    </message>
-    <message>
-        <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation>WAV meilleure qualité MixDown &quot;96kHz, 32 bit PCM&quot;</translation>
-    </message>
-    <message>
-        <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
-        <translation>AIFF en qualité CD &quot;41 kHz, 16 bit PCM&quot;</translation>
-    </message>
-    <message>
-        <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>AIFF en qualité ADAT &quot;48 kHz, 16 bit PCM&quot;</translation>
-    </message>
-    <message>
-        <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>AIFF en meilleure qualité &quot;48 kHz, 24 bit PCM&quot;</translation>
-    </message>
-    <message>
-        <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
-        <translation>FLAC sans perte compressé en bonne qualité &quot;48kHz&quot;</translation>
-    </message>
-    <message>
-        <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
-        <translation>OGG Vorbis avec perte compressé en bonne qualité &quot;VBR&quot;</translation>
-    </message>
-    <message>
         <source>Interpolation: </source>
         <translation>Interpolation : </translation>
     </message>
@@ -1531,6 +1487,14 @@ Overwrite the existing file?</source>
     <message>
         <source>Choose type of interpolation method</source>
         <translation>Choisir le type de la méthode d&apos;interpolation</translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compression Level:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

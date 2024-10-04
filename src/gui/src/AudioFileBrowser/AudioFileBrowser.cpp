@@ -65,10 +65,17 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 	m_bAllowMultiSelect = bAllowMultiSelect;
 	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
 
+	QStringList nameFilters;
+	for ( const auto& fformat : Filesystem::supportedAudioFormats() ) {
+		const QString ssFilter = QString( "*.%1" )
+			.arg( Filesystem::AudioFormatToSuffix( fformat ) );
+		nameFilters << ssFilter << ssFilter.toUpper();
+	}
+
 	m_pDirModel = new QFileSystemModel();
 	m_pDirModel->setRootPath(""); //see https://forum.qt.io/topic/99513/qfilesystemmodel-qtreeview-doesn-t-sort/2
 	m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
-	m_pDirModel->setNameFilters( QStringList() << "*.ogg" << "*.OGG" << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
+	m_pDirModel->setNameFilters( nameFilters );
 	m_pDirModel->setNameFilterDisables(false);
 
 	 m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
@@ -146,22 +153,8 @@ AudioFileBrowser::~AudioFileBrowser()
 
 bool AudioFileBrowser::isFileSupported( const QString& filename )
 {
-	if 	(
-		( filename.endsWith( ".ogg" ) ) ||
-		( filename.endsWith( ".OGG" ) ) ||
-		( filename.endsWith( ".wav" ) ) ||
-		( filename.endsWith( ".WAV" ) ) ||
-		( filename.endsWith( ".au" ) ) ||
-		( filename.endsWith( ".AU" ) ) ||
-		( filename.endsWith( ".aiff" ) ) ||
-		( filename.endsWith( ".AIFF" ) ) ||
-		( filename.endsWith( ".flac" ) ) ||
-		( filename.endsWith( ".FLAC" ) )
-		){
-			return true;
-		} else {
-			return false;
-		}
+	return Filesystem::AudioFormatFromSuffix( filename ) !=
+		Filesystem::AudioFormat::Unknown;
 }
 
 
