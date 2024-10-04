@@ -71,24 +71,26 @@ class TransportPosition;
  * happens for the transport information of the JACK server but in
  * parallel.
  *
- * __Timebase Master__:
+ * __Timebase support__:
  *
- * The timebase master is responsible for providing additional transport
- * information to the JACK server apart from the transport position in frames,
- * like current beat, bar, tick, tick size, speed etc. Unlike many other
+ * The JACK Timebase controller is responsible for providing additional
+ * transport information to the JACK server apart from the transport position in
+ * frames, like current beat, bar, tick, tick size, speed etc. Unlike many other
  * application, Hydrogen does _not_ respond to changes in measure since these
  * would have to be mapped to the length of the current pattern (In case this
- * leads to repeated glitches or unwanted behavior Timebae synchronization can
+ * leads to repeated glitches or unwanted behavior Timebase synchronization can
  * be turned off entirely using #Preferences::m_bJackTimebaseEnabled). Every
- * client can be registered as timebase master by supplying a callback (for
- * Hydrogen this would be JackTimebaseCallback()) but there can be at most one
- * timebase master at a time. Having none at all is perfectly fine too. Apart
- * from this additional responsibility, the registered client has no other
- * rights compared to others.
+ * client can take control by supplying a callback (for Hydrogen this would be
+ * JackTimebaseCallback()) but there can be at most one Timebase controller at a
+ * time. Having none at all is perfectly fine too. Apart from this additional
+ * responsibility, the registered client has no other rights compared to others.
  *
  * After the status of the JACK transport has changed from
- * _JackTransportStarting_ to _JackTransportRolling_, the timebase
- * master needs an additional cycle to update its information.
+ * _JackTransportStarting_ to _JackTransportRolling_, the Timebase
+ * controller needs an additional cycle to update its information.
+ *
+ * Note that we do not use the original terms coined in the Timebase API.
+ * Instead, we refer to controller and listener.
  */
 /** \ingroup docCore docAudioDriver */
 class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput
@@ -96,13 +98,13 @@ class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput
 	H2_OBJECT(JackAudioDriver)
 public:
 	/**
-	 * Whether Hydrogen or another program is Jack timebase master.
+	 * Whether Hydrogen or another program is in Timebase control.
 	 */
 	enum class Timebase {
-		/** Hydrogen itself is timebase master. Relocations will no longer be
-		 * shared via relocateTransport() but via JackTimebaseCallback().*/
-		Master = 1,
-		/** An external program is timebase master and Hydrogen will
+		/** Hydrogen itself is Timebase controller and provides its current
+		 * tempo to other Timebase listeners.*/
+		Controller = 1,
+		/** An external program is Timebase controller and Hydrogen will
          * disregard all tempo markers on the Timeline and, instead,
          * only use the BPM provided by JACK.
          *
@@ -294,17 +296,16 @@ public:
 	void updateTransportPosition();
 
 	/**
-	 * Registers Hydrogen as JACK timebase master.
+	 * Acquires control of JACK Timebase.
 	 */ 
-	void initTimebaseMaster();
+	void initTimebaseControl();
 	/**
-	 * Release Hydrogen from the JACK timebase master
-	 *  responsibilities.
+	 * Release Hydrogen from the JACK Timebase control.
 	 *
 	 * This causes the JackTimebaseCallback() callback function to not
 	 * be called by the JACK server anymore.
 	 */
-	void releaseTimebaseMaster();
+	void releaseTimebaseControl();
 	
 	/**
 	 * \return #m_timebaseState
@@ -350,17 +351,17 @@ public:
 	/** Report an XRun event to the GUI.*/
 	static int jackXRunCallback( void* arg );
 
-	/** \return the BPM reported by the timebase master or NAN if there
-		is no external timebase master.*/
-	float getMasterBpm() const;
+	/** \return the BPM reported by the current (external) Timebase controller
+		or NAN if there is none.*/
+	float getTimebaseControllerBpm() const;
 
 	/** 
 	 * Uses the bar-beat-tick information to relocate the transport
 	 * position.
 	 *
-	 * This type of operation is triggered whenever the transport
-	 * position gets relocated or the tempo is changed using Jack in
-	 * the presence of an external timebase master. */
+	 * This type of operation is triggered whenever the transport position gets
+	 * relocated or the tempo is changed using JACK in the presence of an
+	 * external Timebase controller. */
 	void relocateUsingBBT();
 		/** Used within the unit tests and checks whether the last JACK
 		 * transport position retrieved has valid BBT information. */
@@ -379,23 +380,24 @@ private:
 
 		/** Used internally to keep track of the current Timebase state.
 		 *
-		 * While Hydrogen can unregister as timebase master on its own, it can
-		 * not be observed directly whether another application has taken over
-		 * as timebase master. When the JACK server is releasing Hydrogen in the
-		 * later case, it won't advertise this fact but simply won't call the
-		 * JackTimebaseCallback() anymore. But since this will be called in
+		 * While Hydrogen can drop Timebase control on its own, it can not be
+		 * observed directly whether another application has taken over as
+		 * Timebase controller. When the JACK server is releasing Hydrogen in
+		 * the later case, it won't advertise this fact but simply won't call
+		 * the JackTimebaseCallback() anymore. But since this will be called in
 		 * every cycle after updateTransportPosition(), we make the former set
 		 * the tracking state to #Valid and the latter to #OnHold. If we
 		 * encounter a second process cycle with #OnHold, we have been released.
 		 *
 		 * A second use case is relocation triggered by a JACK client other than
-		 * the Timebase master. The JACK server won't have any corresponding BBT
-		 * information at hand and distribute the frame information without the
-		 * BBT capability. The process cycle afterwards the master starts again
-		 * to send BBT. This intermediate state will be covered by #OnHold too,
-		 * as we do not want the timebase state (and timeline support) to glitch
-		 * on each relocation. Instead we cache the last tempo and pretend to
-		 * still have BBT information. will be updated accordingly.
+		 * the Timebase controller. The JACK server won't have any corresponding
+		 * BBT information at hand and distribute the frame information without
+		 * the BBT capability. The process cycle afterwards the controller
+		 * starts again to send BBT. This intermediate state will be covered by
+		 * #OnHold too, as we do not want the timebase state (and timeline
+		 * support) to glitch on each relocation. Instead, we cache the last
+		 * tempo and pretend to still have BBT information. will be updated
+		 * accordingly.
 		 */
 		enum class TimebaseTracking {
 			/** Current timebase state is on par with JACK server. */
@@ -555,7 +557,7 @@ private:
 	 * The __valid__ member of #m_JackTransportPos will show which
 	 * fields contain valid data. Thus, if it is set to
 	 * _JackPositionBBT_, bar, beat, and tick information are
-	 * provided by the current timebase master in addition to the
+	 * provided by the current Timebase controller in addition to the
 	 * transport information in frames. It is of class
 	 * _jack_position_bits_t_ (jack/types.h) and is an enumerator
 	 * with five different options:
@@ -570,8 +572,8 @@ private:
 	 */
 	jack_position_t			m_JackTransportPos;
 
-	/** Use for relocation if Hydrogen is Timebase master (and needs to provide
-	 * valid BBT information in addition to just a frame). */
+	/** Use for relocation if Hydrogen is Timebase controller (and needs to
+	 * provide valid BBT information in addition to just a frame). */
 	jack_position_t			m_nextJackTransportPos;
 
 	/**
@@ -591,17 +593,17 @@ private:
 		/** Whether the current timebase state is stable or about to change. */
 		TimebaseTracking m_timebaseTracking;
 
-		/** Stores the last tempo sent by an external Timebase master.
+		/** Stores the last tempo sent by an external Timebase controller.
 		 *
 		 * In case of #Timebase::Listener and #TimebaseTracking::OnHold - a
-		 * relocation was done by a client other than the current master - the
-		 * JACK server does not have any BBT information to share for at least
-		 * one cycle. We have guard against this or else we have some spurious
-		 * state changes. If such a thing happens, it is very likely that the
-		 * master will still be master and we will still be listener once transport
-		 * is starting again. Therefore, we pretend to still be in this state
-		 * instead of dropping Timebase state too and offer the last tempo to
-		 * the remainder of Hydrogen. */
+		 * relocation was done by a client other than the current Timebase
+		 * controller - the JACK server does not have any BBT information to
+		 * share for at least one cycle. We have guard against this or else we
+		 * have some spurious state changes. If such a thing happens, it is very
+		 * likely that the controller will still be controller and we will still
+		 * be listener once transport is starting again. Therefore, we pretend
+		 * to still be in this state instead of dropping Timebase state too and
+		 * offer the last tempo to the remainder of Hydrogen. */
 		float m_fLastTimebaseBpm;
 
 		/** Stores an intended deviation of our transport position from the one
@@ -618,12 +620,12 @@ private:
 		 *
 		 * In case a regular client triggeres a relocation, the transport bit
 		 * will be 0 and we rely on just the frame position to relocate
-		 * internally. However, in the next process cycle the JACK timebase
-		 * master will have added additional BBT information to that location.
-		 * Since we want to use its tempo, we also have to use the remainder of
-		 * the BBT information and trigger a relocation (although the overall
-		 * frame might not even have changed). In additionn, the Timebase master
-		 * could alter its capabilities.
+		 * internally. However, in the next process cycle the JACK Timebase
+		 * controller will have added additional BBT information to that
+		 * location. Since we want to use its tempo, we also have to use the
+		 * remainder of the BBT information and trigger a relocation (although
+		 * the overall frame might not even have changed). In addition, the
+		 * Timebase controller could alter its capabilities.
 		 *
 		 * The behavior above has the negativ side effect that we might not
 		 * relocate to the exact frame we requested ourselves. But AFAICS this
@@ -652,20 +654,9 @@ namespace H2Core {
 class JackAudioDriver : public NullDriver {
 	H2_OBJECT(JackAudioDriver)
 public:
-	/**
-	 * Whether Hydrogen or another program is Jack timebase master.
-	 */
 	enum class Timebase {
-		/** Hydrogen itself is timebase master.*/
-		Master = 1,
-		/** An external program is timebase master and Hydrogen will
-         * disregard all tempo marker on the Timeline and, instead,
-         * only use the BPM provided by JACK.
-		 *
-         * Note: the JACK standard is using a different term we do not want to
-         * repeat or spread. */
+		Controller = 1,
 		Listener = 0,
-		/** Only normal clients registered */
 		None = -1
 	};
 	static QString TimebaseToQString( const Timebase& t ) { return "Not supported"; };

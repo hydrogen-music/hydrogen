@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 			QStringList() << "config", "Use an alternate config file", "Path" );
 		QCommandLineOption timebaseStateOption(
 			QStringList() << "timebase-state",
-			"Initial JACK timebase base (1 - master, 0 - listener, -1 - none)",
+			"Initial JACK timebase base (1 - controller, 0 - listener, -1 - none)",
 			"int", "-1" );
 #ifdef H2CORE_HAVE_OSC
 		QCommandLineOption oscPortOption(
@@ -262,10 +262,10 @@ int main(int argc, char *argv[])
 		if ( nOscPort != -1 ) {
 			preferences->m_nOscTemporaryPort = nOscPort;
 		}
-		if ( timebaseState == JackAudioDriver::Timebase::Master ) {
-			preferences->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
+		if ( timebaseState == JackAudioDriver::Timebase::Controller ) {
+			preferences->m_bJackTimebaseMode = Preferences::USE_JACK_TIMEBASE_CONTROL;
 		} else {
-			preferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
+			preferences->m_bJackTimebaseMode = Preferences::NO_JACK_TIMEBASE_CONTROL;
 		}
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );

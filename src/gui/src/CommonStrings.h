@@ -67,7 +67,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getBeatCounterSetPlayButtonOn() const { return m_sBeatCounterSetPlayButtonOn; }
 	const QString& getRubberbandButton() const { return m_sRubberbandButton; }
 	const QString& getJackTransportButton() const { return m_sJackTransportButton; }
-	const QString& getJackMasterButton() const { return m_sJackMasterButton; }
+	const QString& getJackTimebaseButton() const { return m_sJackTimebaseButton; }
 	const QString& getMixerButton() const { return m_sMixerButton; }
 	const QString& getInstrumentRackButton() const { return m_sInstrumentRackButton; }
 	const QString& getPatternModeButton() const { return m_sPatternModeButton; }
@@ -127,9 +127,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getAudioDriverErrorHint() const { return m_sAudioDriverErrorHint; }
 	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
 	
-	const QString& getJackTBMMasterTooltip() const { return m_sJackTBMMasterTooltip; }
-	const QString& getJackTBMListenerTooltip() const { return m_sJackTBMListenerTooltip; }
-	const QString& getJackMasterDisabledTooltip() const { return m_sJackMasterDisabledTooltip; }
+	const QString& getJackTimebaseTooltip() const { return m_sJackTimebaseTooltip; }
+	const QString& getJackTimebaseListenerTooltip() const { return m_sJackTimebaseListenerTooltip; }
+	const QString& getJackTimebaseDisabledTooltip() const { return m_sJackTimebaseDisabledTooltip; }
 	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
@@ -206,7 +206,7 @@ private:
 	QString m_sBeatCounterSetPlayButtonOn;
 	QString m_sRubberbandButton;
 	QString m_sJackTransportButton;
-	QString m_sJackMasterButton;
+	QString m_sJackTimebaseButton;
 	QString m_sMixerButton;
 	QString m_sInstrumentRackButton;
 	QString m_sPatternModeButton;
@@ -266,9 +266,9 @@ private:
 	QString m_sAudioDriverErrorHint;
 	QString m_sAudioDriverNotPresent;
 
-	QString m_sJackTBMMasterTooltip;
-	QString m_sJackTBMListenerTooltip;
-	QString m_sJackMasterDisabledTooltip;
+	QString m_sJackTimebaseTooltip;
+	QString m_sJackTimebaseListenerTooltip;
+	QString m_sJackTimebaseDisabledTooltip;
 	
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;

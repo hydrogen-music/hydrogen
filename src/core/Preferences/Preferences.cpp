@@ -216,7 +216,7 @@ Preferences::Preferences()
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
 	m_bJackTimebaseEnabled = false;
-	m_bJackMasterMode = NO_JACK_TIME_MASTER;
+	m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 
 	// OSC configuration
@@ -485,15 +485,16 @@ bool Preferences::loadPreferences( bool bGlobal )
 						m_bJackTransportMode = USE_JACK_TRANSPORT;
 					}
 
-					//jack time master
+					// We stick to the old Timebase strings (? why strings for a
+					// boolean option?) for backward and forward compatibility
+					// of old versions still in use.
 					m_bJackTimebaseEnabled = jackDriverNode.read_bool( "jack_timebase_enabled", false, false, false );
 					QString tmMode = jackDriverNode.read_string( "jack_transport_mode_master", "NO_JACK_TIME_MASTER", false, false );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
-						m_bJackMasterMode = NO_JACK_TIME_MASTER;
+						m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
 					} else if ( tmMode == "USE_JACK_TIME_MASTER" ) {
-						m_bJackMasterMode = USE_JACK_TIME_MASTER;
+						m_bJackTimebaseMode = USE_JACK_TIMEBASE_CONTROL;
 					}
-					// ~ jack time master
 
 					m_bJackTrackOuts = jackDriverNode.read_bool( "jack_track_outs", m_bJackTrackOuts, false, false );
 					m_bJackConnectDefaults = jackDriverNode.read_bool( "jack_connect_defaults", m_bJackConnectDefaults, false, false );
@@ -977,16 +978,17 @@ bool Preferences::savePreferences()
 			}
 			jackDriverNode.write_string( "jack_transport_mode", sMode );
 
-			//jack time master
 			jackDriverNode.write_bool( "jack_timebase_enabled", m_bJackTimebaseEnabled );
+			// We stick to the old Timebase strings (? why strings for a boolean
+			// option?) for backward and forward compatibility of old versions
+			// still in use.
 			QString tmMode;
-			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
+			if ( m_bJackTimebaseMode == NO_JACK_TIMEBASE_CONTROL ) {
 				tmMode = "NO_JACK_TIME_MASTER";
-			} else if (  m_bJackMasterMode == USE_JACK_TIME_MASTER ) {
+			} else if (  m_bJackTimebaseMode == USE_JACK_TIMEBASE_CONTROL ) {
 				tmMode = "USE_JACK_TIME_MASTER";
 			}
 			jackDriverNode.write_string( "jack_transport_mode_master", tmMode );
-			// ~ jack time master
 
 			// jack default connection
 			jackDriverNode.write_bool( "jack_connect_defaults", m_bJackConnectDefaults );

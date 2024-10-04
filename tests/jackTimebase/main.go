@@ -218,8 +218,8 @@ func nextTest(ctx context.Context) {
         sendMsg(testBinaryClient, osc.NewMessage("/h2JackTimebase/TransportTests"))
 
     case 1:
-        log.Println("[nextTest] Test binary as Timebase master")
-        // The test binary is registered as JACK Timebase master and the
+        log.Println("[nextTest] Test binary as Timebase controller")
+        // The test binary is registered as JACK Timebase controller and the
         // reference application as listener.
 
         // Update timebase state of reference application. Note: the state of
@@ -229,7 +229,7 @@ func nextTest(ctx context.Context) {
             osc.NewMessage("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", float64(0)))
         sendMsg(hydrogenClient, osc.NewMessage("/Hydrogen/STOP"))
 
-        go startTestBinary(ctx, "timebase-master", 1, oscTestBinaryPort,
+        go startTestBinary(ctx, "timebase-controller", 1, oscTestBinaryPort,
             hydrogenTestSongPath)
         // Wait for the test binary to be ready.
         time.Sleep(hydrogenStartupTime * time.Millisecond)
@@ -238,8 +238,8 @@ func nextTest(ctx context.Context) {
 
     case 2:
         log.Println("[nextTest] Test binary as Timebase listener")
-        // The reference application is registered as JACK Timebase master and
-        // the test binary as listener.
+        // The reference application is registered as JACK Timebase controller
+        // and the test binary as listener.
         //
         // Note that this test does not check transport repositing using BBT
         // information. All relocations are triggered by the listener (test
@@ -263,7 +263,7 @@ func nextTest(ctx context.Context) {
         log.Println("[nextTest] BBT relocation test")
 
         // Start a dedicated test binary instead of the main application. We
-        // want to test whether relocations happening within the master are
+        // want to test whether relocations happening within the controller are
         // properly handled when received by the listener (relocate using the
         // actual BBT information). For this we need two applications with
         // patched JACK process callback.
@@ -271,7 +271,7 @@ func nextTest(ctx context.Context) {
 
         go startTestBinary(ctx, "bbt-relocation-listener", 0,
             oscTestBinaryListenerPort, hydrogenTestSongListenerPath)
-        go startTestBinary(ctx, "bbt-relocation-master", 1, oscTestBinaryPort,
+        go startTestBinary(ctx, "bbt-relocation-controller", 1, oscTestBinaryPort,
             hydrogenTestSongPath )
         // Wait for the test binary to be ready.
         time.Sleep(hydrogenStartupTime * time.Millisecond)
