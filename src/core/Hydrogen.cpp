@@ -1044,24 +1044,24 @@ bool Hydrogen::handleBeatCounter()
 }
 // ~ m_nBeatCounter
 
-void Hydrogen::offJackMaster()
+void Hydrogen::releaseJackTimebaseControl()
 {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( hasJackTransport() ) {
-		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->releaseTimebaseMaster();
+		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->releaseTimebaseControl();
 	}
 #endif
 }
 
-void Hydrogen::onJackMaster()
+void Hydrogen::initJackTimebaseControl()
 {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( hasJackTransport() ) {
-		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->initTimebaseMaster();
+		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->initTimebaseControl();
 	}
 #endif
 }
@@ -1145,11 +1145,11 @@ bool Hydrogen::hasJackTransport() const {
 #endif	
 }
 
-float Hydrogen::getMasterBpm() const {
+float Hydrogen::getJackTimebaseControllerBpm() const {
 #ifdef H2CORE_HAVE_JACK
   if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
-		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
+		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getTimebaseControllerBpm();
 	  } else {
 		  ERRORLOG("No JACK driver");
 		  return std::nan("");

@@ -802,7 +802,7 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 	
 	if ( pHydrogen->getJackTimebaseState() ==
 		 JackAudioDriver::Timebase::Listener ) {
-		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )
+		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK Timebase controller." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as Pattern Mode is still activated." )
@@ -939,36 +939,38 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 #endif
 }
 
-bool CoreActionController::toggleJackTimebaseMaster() {
+bool CoreActionController::toggleJackTimebaseControl() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	if ( Preferences::get_instance()->m_bJackMasterMode ==
-		 Preferences::USE_JACK_TIME_MASTER ) {
-		activateJackTimebaseMaster( false );
+	if ( Preferences::get_instance()->m_bJackTimebaseMode ==
+		 Preferences::USE_JACK_TIMEBASE_CONTROL ) {
+		activateJackTimebaseControl( false );
 	} else {
-		activateJackTimebaseMaster( true );
+		activateJackTimebaseControl( true );
 	}
 
 	return true;
 }
 
-bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
+bool CoreActionController::activateJackTimebaseControl( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
 #ifdef H2CORE_HAVE_JACK
 	if ( !pHydrogen->hasJackAudioDriver() ) {
-		ERRORLOG( "Unable to (de)activate Jack timebase master. Please select the Jack driver first." );
+		ERRORLOG( "Unable to (de)activate JACK Timebase support. Please select the JACK driver first." );
 		return false;
 	}
 	
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
-		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
-		pHydrogen->onJackMaster();
+		Preferences::get_instance()->m_bJackTimebaseMode =
+			Preferences::USE_JACK_TIMEBASE_CONTROL;
+		pHydrogen->initJackTimebaseControl();
 	} else {
-		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-		pHydrogen->offJackMaster();
+		Preferences::get_instance()->m_bJackTimebaseMode =
+			Preferences::NO_JACK_TIMEBASE_CONTROL;
+		pHydrogen->releaseJackTimebaseControl();
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	
@@ -977,7 +979,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 	
 	return true;
 #else
-	ERRORLOG( "Unable to (de)activate Jack timebase master. Your Hydrogen version was not compiled with jack support." );
+	ERRORLOG( "Unable to (de)activate JACK Timebase support. Your Hydrogen version was not compiled with JACK support." );
 	return false;
 #endif
 }

@@ -225,7 +225,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_sBCOnOffBtnToolTip = tr("Toggle the BeatCounter Panel");
 	m_sBCOnOffBtnTimelineToolTip = tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
-	m_sBCOnOffBtnJackTimebaseToolTip = tr( "In the presence of an external JACK Timebase master the BeatCounter can not be used" );
+	m_sBCOnOffBtnJackTimebaseToolTip = tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
 	m_pBCOnOffBtn = new Button( pControlsBBTBConoffPanel, QSize( 13, 42 ),
 								Button::Type::Toggle, "",
 								pCommonStrings->getBeatCounterButton(), false,
@@ -321,7 +321,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 // BPM
 	m_sLCDBPMSpinboxToolTip = tr("Alter the Playback Speed");
 	m_sLCDBPMSpinboxTimelineToolTip = tr( "While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position" );
-	m_sLCDBPMSpinboxJackTimebaseToolTip = tr( "In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK" );
+	m_sLCDBPMSpinboxJackTimebaseToolTip = tr( "In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK" );
 
 	PixmapWidget *pBPMPanel = new PixmapWidget( nullptr );
 	pBPMPanel->setFixedSize( 145, 43 );
@@ -410,49 +410,45 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect(m_pJackTransportBtn, SIGNAL( clicked() ), this, SLOT( jackTransportBtnClicked() ));
 	m_pJackTransportBtn->move( 3, 24 );
 
-	//jack time master
-	/* Using the JACK Timebase Master functionality one of the
-	  connected programs can broadcast both speed and measure information to
-	  all other connected applications in order to have a more fine-grained
-	  transport control.*/
-	m_pJackMasterBtn = new Button( pJackPanel, QSize( 53, 16 ),
-								   Button::Type::Toggle, "",
-								   pCommonStrings->getJackMasterButton(), false,
-								   QSize(), pCommonStrings->getJackTBMMasterTooltip(),
-								   false, true );
-	m_pJackMasterBtn->setObjectName( "PlayerControlJackMasterButton" );
+	m_pJackTimebaseBtn = new Button(
+		pJackPanel, QSize( 64, 16 ), Button::Type::Toggle, "",
+		pCommonStrings->getJackTimebaseButton(), false, QSize(),
+		pCommonStrings->getJackTimebaseTooltip(), false, true );
+	m_pJackTimebaseBtn->setObjectName( "PlayerControlJackTimebaseButton" );
 	if ( ! m_pHydrogen->hasJackAudioDriver() ) {
-		m_pJackMasterBtn->hide();
+		m_pJackTimebaseBtn->hide();
 	}
 			
 	if ( pPref->m_bJackTimebaseEnabled ) {
 		if ( m_pHydrogen->hasJackTransport() ) {
 			if ( m_pHydrogen->getJackTimebaseState() ==
-				 JackAudioDriver::Timebase::Master ) {
-				m_pJackMasterBtn->setChecked( true );
+				 JackAudioDriver::Timebase::Controller ) {
+				m_pJackTimebaseBtn->setChecked( true );
 			}
 			else if ( m_pHydrogen->getJackTimebaseState() ==
 					  JackAudioDriver::Timebase::Listener ) {
-				m_pJackMasterBtn->setChecked( true );
-				m_pJackMasterBtn->setUseRedBackground( true );
-				m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMListenerTooltip() );
+				m_pJackTimebaseBtn->setChecked( true );
+				m_pJackTimebaseBtn->setUseRedBackground( true );
+				m_pJackTimebaseBtn->setToolTip(
+					pCommonStrings->getJackTimebaseListenerTooltip() );
 			}
 			else {
-				m_pJackMasterBtn->setChecked( false );
+				m_pJackTimebaseBtn->setChecked( false );
 			}
 		}
 		else {
-			m_pJackMasterBtn->setIsActive( false );
+			m_pJackTimebaseBtn->setIsActive( false );
 		}
 	}
 	else {
-		m_pJackMasterBtn->setIsActive( false );
-		m_pJackMasterBtn->setBaseToolTip( pCommonStrings->getJackMasterDisabledTooltip() );
+		m_pJackTimebaseBtn->setIsActive( false );
+		m_pJackTimebaseBtn->setBaseToolTip(
+			pCommonStrings->getJackTimebaseDisabledTooltip() );
 	}
 
-	connect(m_pJackMasterBtn, SIGNAL( clicked() ), this, SLOT( jackMasterBtnClicked() ));
-	m_pJackMasterBtn->move( 56, 24 );
-	// ~ jack time master
+	connect( m_pJackTimebaseBtn, SIGNAL( clicked() ), this,
+			SLOT( jackTimebaseBtnClicked() ) );
+	m_pJackTimebaseBtn->move( 56, 24 );
 
 	// CPU load widget
 	m_pCpuLoadWidget = new CpuLoadWidget( pJackPanel );
@@ -911,8 +907,7 @@ void PlayerControl::jackTransportBtnClicked()
 }
 
 
-//jack time master
-void PlayerControl::jackMasterBtnClicked()
+void PlayerControl::jackTimebaseBtnClicked()
 {
 #ifdef H2CORE_HAVE_JACK
 	if ( !m_pHydrogen->hasJackTransport() ) {
@@ -920,16 +915,16 @@ void PlayerControl::jackMasterBtnClicked()
 		return;
 	}
 
-	const auto pPref = Preferences::get_instance();
-	if ( pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
-		CoreActionController::activateJackTimebaseMaster( false );
+	auto pPref = Preferences::get_instance();
+
+	if ( pPref->m_bJackTimebaseMode == Preferences::USE_JACK_TIMEBASE_CONTROL ) {
+		CoreActionController::activateJackTimebaseControl( false );
 	}
 	else {
-		CoreActionController::activateJackTimebaseMaster( true );
+		CoreActionController::activateJackTimebaseControl( true );
 	}
 #endif
 }
-// ~ jack time master
 
 void PlayerControl::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1094,7 +1089,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.") );
 		} else if ( pHydrogen->getTempoSource() ==
 					H2Core::Hydrogen::Tempo::Jack ) {
-			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.") );
+			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.") );
 		}
 	}
 }
@@ -1102,14 +1097,14 @@ void PlayerControl::tempoChangedEvent( int nValue )
 void PlayerControl::driverChangedEvent() {
 	if ( m_pHydrogen->hasJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
-		m_pJackMasterBtn->show();
+		m_pJackTimebaseBtn->show();
 
 		jackTimebaseStateChangedEvent();
 		jackTransportActivationEvent();
 	}
 	else {
 		m_pJackTransportBtn->hide();
-		m_pJackMasterBtn->hide();
+		m_pJackTimebaseBtn->hide();
 	}
 }
 
@@ -1126,7 +1121,7 @@ void PlayerControl::jackTransportActivationEvent( )
 		HydrogenApp::get_instance()->showStatusBarMessage( tr("JACK transport mode = On") );
 
 		if ( pPref->m_bJackTimebaseEnabled ) {
-			m_pJackMasterBtn->setIsActive( true );
+			m_pJackTimebaseBtn->setIsActive( true );
 			jackTimebaseStateChangedEvent();
 		}
 	}
@@ -1135,8 +1130,8 @@ void PlayerControl::jackTransportActivationEvent( )
 		if ( ! m_pJackTransportBtn->isDown() ) {
 			m_pJackTransportBtn->setChecked( false );
 		}
-		m_pJackMasterBtn->setChecked( false );
-		m_pJackMasterBtn->setIsActive( false );
+		m_pJackTimebaseBtn->setChecked( false );
+		m_pJackTimebaseBtn->setIsActive( false );
 		HydrogenApp::get_instance()->showStatusBarMessage( tr("JACK transport mode = Off") );
 	}
 }
@@ -1153,35 +1148,35 @@ void PlayerControl::jackTimebaseStateChangedEvent()
 	QString sMessage = tr("JACK Timebase mode" ) + QString( " = " );
 	
 	switch( pHydrogen->getJackTimebaseState() ) {
-	case JackAudioDriver::Timebase::Master:
+	case JackAudioDriver::Timebase::Controller:
 
-		if ( ! m_pJackMasterBtn->isDown() ) {
-			m_pJackMasterBtn->setChecked( true );
+		if ( ! m_pJackTimebaseBtn->isDown() ) {
+			m_pJackTimebaseBtn->setChecked( true );
 		}
-		m_pJackMasterBtn->setUseRedBackground( false );
-		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMMasterTooltip() );
+		m_pJackTimebaseBtn->setUseRedBackground( false );
+		m_pJackTimebaseBtn->setToolTip( pCommonStrings->getJackTimebaseTooltip() );
 		
-		sMessage.append( "master" );
+		sMessage.append( "Controller" );
 		break;
 
 	case JackAudioDriver::Timebase::Listener:
 
-		if ( ! m_pJackMasterBtn->isDown() ) {
-			m_pJackMasterBtn->setChecked( true );
+		if ( ! m_pJackTimebaseBtn->isDown() ) {
+			m_pJackTimebaseBtn->setChecked( true );
 		}
-		m_pJackMasterBtn->setUseRedBackground( true );
-		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMListenerTooltip() );
+		m_pJackTimebaseBtn->setUseRedBackground( true );
+		m_pJackTimebaseBtn->setToolTip( pCommonStrings->getJackTimebaseListenerTooltip() );
 		
 		sMessage.append( "Listener" );
 		break;
 
 	default:
 
-		if ( ! m_pJackMasterBtn->isDown() ) {
-			m_pJackMasterBtn->setChecked( false );
+		if ( ! m_pJackTimebaseBtn->isDown() ) {
+			m_pJackTimebaseBtn->setChecked( false );
 		}		
-		m_pJackMasterBtn->setUseRedBackground( false );
-		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMMasterTooltip() );
+		m_pJackTimebaseBtn->setUseRedBackground( false );
+		m_pJackTimebaseBtn->setToolTip( pCommonStrings->getJackTimebaseTooltip() );
 
 		sMessage.append( pCommonStrings->getStatusOff() );
 	}
@@ -1198,17 +1193,17 @@ void PlayerControl::onPreferencesChanged( const H2Core::Preferences::Changes& ch
 
 		if ( Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 			if ( Hydrogen::get_instance()->hasJackTransport() ) {
-				m_pJackMasterBtn->setIsActive( true );
+				m_pJackTimebaseBtn->setIsActive( true );
 				jackTimebaseStateChangedEvent();
 			}
 			else {
-				m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMMasterTooltip() );
+				m_pJackTimebaseBtn->setToolTip( pCommonStrings->getJackTimebaseTooltip() );
 			}
 		}
 		else {
-			m_pJackMasterBtn->setChecked( false );
-			m_pJackMasterBtn->setIsActive( false );
-			m_pJackMasterBtn->setBaseToolTip( pCommonStrings->getJackMasterDisabledTooltip() );
+			m_pJackTimebaseBtn->setChecked( false );
+			m_pJackTimebaseBtn->setIsActive( false );
+			m_pJackTimebaseBtn->setBaseToolTip( pCommonStrings->getJackTimebaseDisabledTooltip() );
 		}
 	}
 }
