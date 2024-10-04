@@ -381,7 +381,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 // JACK
 	PixmapWidget *pJackPanel = new PixmapWidget( nullptr );
-	pJackPanel->setFixedSize( 113, 43 );
+	pJackPanel->setFixedSize( 124, 43 );
 	pJackPanel->setPixmap( "/playerControlPanel/background_Jack.png" );
 	pJackPanel->setObjectName( "JackPanel" );
 	hbox->addWidget( pJackPanel );
