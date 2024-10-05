@@ -891,9 +891,6 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate ) {
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	
-	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-											static_cast<int>(pHydrogen->getJackTimebaseState()) );
-	
 	return true;
 #else
 	ERRORLOG( "Unable to (de)activate JACK Timebase support. Your Hydrogen version was not compiled with JACK support." );
