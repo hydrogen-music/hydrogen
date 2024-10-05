@@ -1311,7 +1311,10 @@ void JackAudioDriver::releaseTimebaseControl()
 	}
 
 	m_timebaseTracking = TimebaseTracking::Valid;
-	if ( m_JackTransportPos.valid & JackPositionBBT ) {
+	if ( m_JackTransportPos.valid & JackPositionBBT &&
+		 m_timebaseState != Timebase::Controller ) {
+		// Having an external controller while this function is called should be
+		// rarely the case. But we still have to handle it.
 		m_timebaseState = Timebase::Listener;
 	}
 	else {
