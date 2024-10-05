@@ -60,7 +60,6 @@ public:
 	virtual void timelineActivationEvent() override;
 	virtual void tempoChangedEvent( int nValue ) override;
 	virtual void jackTransportActivationEvent() override;
-	virtual void jackTimebaseStateChangedEvent() override;
 	/**
 	 * Shared GUI update when activating Song or Pattern mode via
 	 * button click or via OSC command.
@@ -78,6 +77,7 @@ public:
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void activateSongMode( bool bActivate );
+	virtual void jackTimebaseStateChangedEvent( int nState ) override;
 
 private slots:
 	void recBtnClicked();

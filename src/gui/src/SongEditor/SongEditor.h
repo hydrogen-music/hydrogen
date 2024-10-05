@@ -384,7 +384,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	
 	virtual void timelineActivationEvent() override;
 	virtual void timelineUpdateEvent( int nValue ) override;
-	virtual void jackTimebaseStateChangedEvent() override;
 
 	static int tickToColumn( float fTick, uint nGridWidth );
 		static constexpr int m_nMinimumHeight = 50;
@@ -396,6 +395,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 		void createBackground();
 		void invalidateBackground();
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
