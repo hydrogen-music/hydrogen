@@ -51,7 +51,7 @@ class EventListener
 		virtual void timelineActivationEvent(){}
 		virtual void timelineUpdateEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void jackTransportActivationEvent(){}
-		virtual void jackTimebaseStateChangedEvent(){}
+		virtual void jackTimebaseStateChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void songModeActivationEvent(){}
 		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void loopModeActivationEvent(){}

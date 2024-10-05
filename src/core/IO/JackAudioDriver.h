@@ -115,6 +115,7 @@ public:
 		None = -1
 	};
 	static QString TimebaseToQString( const Timebase& t );
+		static Timebase TimebaseFromInt( int nState );
 	
 	/** 
 	 * Object holding the external client session with the JACK
@@ -642,6 +643,7 @@ public:
 		None = -1
 	};
 	static QString TimebaseToQString( const Timebase& t ) { return "Not supported"; };
+		static Timebase TimebaseFromInt( int nState ) { return Timebase::None; };
 	/**
 	 * Fallback version of the JackAudioDriver in case
 	 * #H2CORE_HAVE_JACK was not defined during the configuration

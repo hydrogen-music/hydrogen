@@ -98,8 +98,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		virtual void gridCellToggledEvent() override;
 	virtual void patternModifiedEvent() override;
 
-		virtual void jackTimebaseStateChangedEvent() override;
-
 		virtual void playingPatternsChangedEvent() override;
 
 	virtual void patternEditorLockedEvent() override;
@@ -120,6 +118,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 			timelineBtnClicked();
 		}
 		void toggleAutomationAreaVisibility();
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+
 
 	private slots:
 		void vScrollTo( int value );

@@ -1497,6 +1497,17 @@ QString JackAudioDriver::TimebaseTrackingToQString( const TimebaseTracking& t ) 
 			return "Unknown";
 	}
 }
+JackAudioDriver::Timebase JackAudioDriver::TimebaseFromInt( int nState ) {
+	switch( nState ) {
+	case static_cast<int>(Timebase::Listener):
+		return Timebase::Listener;
+	case static_cast<int>(Timebase::Controller):
+		return Timebase::Controller;
+	case static_cast<int>(Timebase::None):
+	default:
+		return Timebase::None;
+	}
+}
 
 QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
