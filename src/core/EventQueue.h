@@ -137,10 +137,10 @@ enum EventType {
 	/** Tells the GUI some parts of the Timeline (tempo markers or
 		tags) were modified.*/
 	EVENT_TIMELINE_UPDATE,
-	/** Toggles the button indicating the usage Jack transport.*/
+	/** Toggles the button indicating the usage JACK transport.*/
 	EVENT_JACK_TRANSPORT_ACTIVATION,
-	/** Toggles the button indicating the usage Jack timebase master
-		and informs the GUI about a state change.*/
+	/** Toggles the button indicating the usage JACK Timebase control and
+		informs the GUI about a state change.*/
 	EVENT_JACK_TIMEBASE_STATE_CHANGED,
 	EVENT_SONG_MODE_ACTIVATION,
 	/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected

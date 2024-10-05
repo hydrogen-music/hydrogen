@@ -85,8 +85,7 @@ private slots:
 	void stopBtnClicked();
 	void updatePlayerControl();
 	void jackTransportBtnClicked();
-	//jack time master
-	void jackMasterBtnClicked();	// ~ jack time master
+	void jackTimebaseBtnClicked();
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
@@ -141,9 +140,7 @@ private:
 	Button *m_pRubberBPMChange;
 
 	Button *m_pJackTransportBtn;
-	//jack time master
-	Button *m_pJackMasterBtn;
-	// ~ jack time master
+	Button *m_pJackTimebaseBtn;
 
 	CpuLoadWidget *m_pCpuLoadWidget;
 	LED *m_pMidiActivityLED;

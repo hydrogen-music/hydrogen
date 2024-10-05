@@ -917,9 +917,9 @@ void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc)
 
 	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
-		pController->activateJackTimebaseMaster( true );
+		pController->activateJackTimebaseControl( true );
 	} else {
-		pController->activateJackTimebaseMaster( false );
+		pController->activateJackTimebaseControl( false );
 	}
 }
 
