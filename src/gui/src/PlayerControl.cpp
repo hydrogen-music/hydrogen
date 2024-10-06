@@ -714,7 +714,8 @@ void PlayerControl::updateSongEvent( int nValue ) {
 		loopModeActivationEvent();
 		timelineActivationEvent();
 		jackTransportActivationEvent();
-		jackTimebaseStateChangedEvent();
+		jackTimebaseStateChangedEvent(
+			static_cast<int>(Hydrogen::get_instance()->getJackTimebaseState()) );
 		updatePlayerControl();
 	}
 }
@@ -1101,7 +1102,8 @@ void PlayerControl::driverChangedEvent() {
 		m_pJackTransportBtn->show();
 		m_pJackTimebaseBtn->show();
 
-		jackTimebaseStateChangedEvent();
+		jackTimebaseStateChangedEvent(
+			static_cast<int>(Hydrogen::get_instance()->getJackTimebaseState() ));
 		jackTransportActivationEvent();
 	}
 	else {
@@ -1124,7 +1126,8 @@ void PlayerControl::jackTransportActivationEvent( )
 
 		if ( pPref->m_bJackTimebaseEnabled ) {
 			m_pJackTimebaseBtn->setIsActive( true );
-			jackTimebaseStateChangedEvent();
+			jackTimebaseStateChangedEvent(
+				static_cast<int>(Hydrogen::get_instance()->getJackTimebaseState()) );
 		}
 	}
 	else {
@@ -1138,7 +1141,7 @@ void PlayerControl::jackTransportActivationEvent( )
 	}
 }
 
-void PlayerControl::jackTimebaseStateChangedEvent()
+void PlayerControl::jackTimebaseStateChangedEvent( int nState )
 {
 	auto pPref = Preferences::get_instance();
 	if ( ! pPref->m_bJackTimebaseEnabled ) {
@@ -1146,11 +1149,11 @@ void PlayerControl::jackTimebaseStateChangedEvent()
 	}
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
 
 	QString sMessage = tr("JACK Timebase mode" ) + QString( " = " );
+	const auto state = JackAudioDriver::TimebaseFromInt( nState );
 	
-	switch( pHydrogen->getJackTimebaseState() ) {
+	switch( state ) {
 	case JackAudioDriver::Timebase::Controller:
 
 		if ( ! m_pJackTimebaseBtn->isDown() ) {
@@ -1194,11 +1197,13 @@ void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		auto pPref = Preferences::get_instance();
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		auto pHydrogen = Hydrogen::get_instance();
 
 		if ( pPref->m_bJackTimebaseEnabled ) {
-			if ( Hydrogen::get_instance()->hasJackTransport() ) {
+			if ( pHydrogen->hasJackTransport() ) {
 				m_pJackTimebaseBtn->setIsActive( true );
-				jackTimebaseStateChangedEvent();
+				jackTimebaseStateChangedEvent(
+					static_cast<int>(pHydrogen->getJackTimebaseState()) );
 			}
 			else {
 				m_pJackTimebaseBtn->setToolTip( pCommonStrings->getJackTimebaseTooltip() );

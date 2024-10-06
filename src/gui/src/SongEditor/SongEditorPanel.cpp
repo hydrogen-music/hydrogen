@@ -752,7 +752,8 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 	if ( nValue == 0 ) { // different song opened
 		actionModeChangeEvent( 0 );
 		stackedModeActivationEvent( 0 );
-		jackTimebaseStateChangedEvent();
+		jackTimebaseStateChangedEvent(
+			static_cast<int>(Hydrogen::get_instance()->getJackTimebaseState()) );
 		// Calls patternEditorLockedEvent() internally.
 		songModeActivationEvent();
 		timelineActivationEvent();
@@ -1054,10 +1055,11 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 }
 
 
-void SongEditorPanel::jackTimebaseStateChangedEvent() {
+void SongEditorPanel::jackTimebaseStateChangedEvent( int nState ) {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+	const auto state = JackAudioDriver::TimebaseFromInt( nState );
+	if ( state == JackAudioDriver::Timebase::Listener ) {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip(
 			pCommonStrings->getTimelineDisabledTimebaseListener() );

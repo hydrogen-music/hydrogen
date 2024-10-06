@@ -1305,7 +1305,10 @@ void JackAudioDriver::releaseTimebaseControl()
 	}
 
 	m_timebaseTracking = TimebaseTracking::Valid;
-	if ( m_JackTransportPos.valid & JackPositionBBT ) {
+	if ( m_JackTransportPos.valid & JackPositionBBT &&
+		 m_timebaseState != Timebase::Controller ) {
+		// Having an external controller while this function is called should be
+		// rarely the case. But we still have to handle it.
 		m_timebaseState = Timebase::Listener;
 	}
 	else {
@@ -1486,6 +1489,17 @@ QString JackAudioDriver::TimebaseTrackingToQString( const TimebaseTracking& t ) 
 			return "None";
 		default:
 			return "Unknown";
+	}
+}
+JackAudioDriver::Timebase JackAudioDriver::TimebaseFromInt( int nState ) {
+	switch( nState ) {
+	case static_cast<int>(Timebase::Listener):
+		return Timebase::Listener;
+	case static_cast<int>(Timebase::Controller):
+		return Timebase::Controller;
+	case static_cast<int>(Timebase::None):
+	default:
+		return Timebase::None;
 	}
 }
 };
