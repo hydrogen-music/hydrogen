@@ -132,7 +132,7 @@ Preferences::Preferences()
 	, m_bJackTrackOuts( false )
 	, m_JackTrackOutputMode( JackTrackOutputMode::postFader )
 	, m_bJackTimebaseEnabled( false )
-	, m_bJackMasterMode( NO_JACK_TIME_MASTER )
+	, m_bJackTimebaseMode( NO_JACK_TIMEBASE_CONTROL )
 	, m_nAutosavesPerHour( 60 )
 	, m_sDefaultEditor( "" )
 	, m_sPreferredLanguage( "" )
@@ -314,7 +314,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bJackTrackOuts( pOther->m_bJackTrackOuts )
 	, m_JackTrackOutputMode( pOther->m_JackTrackOutputMode )
 	, m_bJackTimebaseEnabled( pOther->m_bJackTimebaseEnabled )
-	, m_bJackMasterMode( pOther->m_bJackMasterMode )
+	, m_bJackTimebaseMode( pOther->m_bJackTimebaseMode )
 	, m_nAutosavesPerHour( pOther->m_nAutosavesPerHour )
 	, m_sRubberBandCLIexecutable( pOther->m_sRubberBandCLIexecutable )
 	, m_sDefaultEditor( pOther->m_sDefaultEditor )
@@ -651,10 +651,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			const QString sJackMasterMode = jackDriverNode.read_string(
 				"jack_transport_mode_master", "", false, false, bSilent );
 			if ( sJackMasterMode == "NO_JACK_TIME_MASTER" ) {
-				pPref->m_bJackMasterMode = NO_JACK_TIME_MASTER;
+				pPref->m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
 			}
 			else if ( sJackMasterMode == "USE_JACK_TIME_MASTER" ) {
-				pPref->m_bJackMasterMode = USE_JACK_TIME_MASTER;
+				pPref->m_bJackTimebaseMode = USE_JACK_TIMEBASE_CONTROL;
 			}
 			else if ( ! sJackMasterMode.isEmpty() ){
 				WARNINGLOG( QString( "Unable to parse <jack_transport_mode_master>: [%1]" )
@@ -1192,16 +1192,17 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			}
 			jackDriverNode.write_string( "jack_transport_mode", sMode );
 
-			//jack time master
 			jackDriverNode.write_bool( "jack_timebase_enabled", m_bJackTimebaseEnabled );
+			// We stick to the old Timebase strings (? why strings for a boolean
+			// option?) for backward and forward compatibility of old versions
+			// still in use.
 			QString tmMode;
-			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
+			if ( m_bJackTimebaseMode == NO_JACK_TIMEBASE_CONTROL ) {
 				tmMode = "NO_JACK_TIME_MASTER";
-			} else if (  m_bJackMasterMode == USE_JACK_TIME_MASTER ) {
+			} else if (  m_bJackTimebaseMode == USE_JACK_TIMEBASE_CONTROL ) {
 				tmMode = "USE_JACK_TIME_MASTER";
 			}
 			jackDriverNode.write_string( "jack_transport_mode_master", tmMode );
-			// ~ jack time master
 
 			// jack default connection
 			jackDriverNode.write_bool( "jack_connect_defaults", m_bJackConnectDefaults );
@@ -1740,8 +1741,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( static_cast<int>(m_JackTrackOutputMode) ) )
 			.append( QString( "%1%2m_bJackTimebaseEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bJackTimebaseEnabled ) )
-			.append( QString( "%1%2m_bJackMasterMode: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bJackMasterMode ) )
+			.append( QString( "%1%2m_bJackTimebaseMode: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bJackTimebaseMode ) )
 			.append( QString( "%1%2m_nAutosavesPerHour: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nAutosavesPerHour ) )
 			.append( QString( "%1%2m_sRubberBandCLIexecutable: %3\n" ).arg( sPrefix )
@@ -1988,8 +1989,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( static_cast<int>(m_JackTrackOutputMode) ) )
 			.append( QString( ", m_bJackTimebaseEnabled: %1" )
 					 .arg( m_bJackTimebaseEnabled ) )
-			.append( QString( ", m_bJackMasterMode: %1" )
-					 .arg( m_bJackMasterMode ) )
+			.append( QString( ", m_bJackTimebaseMode: %1" )
+					 .arg( m_bJackTimebaseMode ) )
 			.append( QString( ", m_nAutosavesPerHour: %1" )
 					 .arg( m_nAutosavesPerHour ) )
 			.append( QString( ", m_sRubberBandCLIexecutable: %1" )

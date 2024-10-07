@@ -814,9 +814,9 @@ void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	if ( argv[0]->f != 0 ) {
-		H2Core::CoreActionController::activateJackTimebaseMaster( true );
+		H2Core::CoreActionController::activateJackTimebaseControl( true );
 	} else {
-		H2Core::CoreActionController::activateJackTimebaseMaster( false );
+		H2Core::CoreActionController::activateJackTimebaseControl( false );
 	}
 }
 

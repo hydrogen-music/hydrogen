@@ -107,9 +107,10 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button to activate the JACK transport control. Its
 	  size is designed to hold seven characters and is moderately flexible.*/
 	m_sJackTransportButton = tr( "J.Trans" );
-	/*: Text displayed on the button to activate the JACK Timebase master control. Its
-	  size is designed to hold eight characters and is moderately flexible.*/
-	m_sJackMasterButton = tr( "J.Master" );
+	/*: Text displayed on the button to register Hydrogen to be in the JACK
+	  Timebase control. Its size is designed to hold eight characters and is
+	  moderately flexible.*/
+	m_sJackTimebaseButton = tr( "Timebase" );
 	/*: Text displayed on the button to show the Mixer window. Its
 	  size is designed to hold five characters and is flexible.*/
 	m_sMixerButton = tr( "Mixer" );
@@ -314,9 +315,9 @@ CommonStrings::CommonStrings(){
 	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
-	m_sJackTBMMasterTooltip = tr("Register Hydrogen as JACK Timebase master");
-	m_sJackTBMListenerTooltip = tr("Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.");
-	m_sJackMasterDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
+	m_sJackTimebaseTooltip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
+	m_sJackTimebaseListenerTooltip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
+	m_sJackTimebaseDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/
@@ -348,7 +349,7 @@ CommonStrings::CommonStrings(){
 		
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode = tr( "The Timeline is only available in Song Mode" );
-	m_sTimelineDisabledTimebaseListener = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
+	m_sTimelineDisabledTimebaseListener = tr( "In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen" );
 	m_sPatternEditorLocked = tr( "Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode." );
 	
 	/*: Displayed in the Preferences dialog in the info section for a

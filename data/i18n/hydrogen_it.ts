@@ -427,11 +427,6 @@ B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>J.Master</source>
-        <extracomment>Text displayed on the button to activate the JACK Timebase master control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
         <translation>Mixer</translation>
@@ -706,14 +701,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Register Hydrogen as JACK Timebase master</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>JACK timebase support is disabled in the Preferences</source>
         <translation type="unfinished"></translation>
     </message>
@@ -766,10 +753,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>The Timeline is only available in Song Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1161,6 +1144,23 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Add instrument</source>
         <translation>Aggiungi strumenti</translation>
+    </message>
+    <message>
+        <source>Timebase</source>
+        <extracomment>Text displayed on the button to register Hydrogen to be in the JACK Timebase control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3370,19 +3370,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In the presence of an external JACK Timebase master the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Alter the Playback Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3394,11 +3386,19 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
+        <source>JACK Timebase mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JACK Timebase mode</source>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4263,10 +4263,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable JACK &amp;timebase master support</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Apply and restart output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4484,6 +4480,10 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable JACK &amp;Timebase support</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -2944,7 +2944,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				H2Core::CoreActionController::toggleJackTransport();
 				break;
 			case Shortcuts::Action::JackTimebaseToggle:
-				H2Core::CoreActionController::toggleJackTimebaseMaster();
+				H2Core::CoreActionController::toggleJackTimebaseControl();
 				break;
 			case Shortcuts::Action::SongModeToggle:
 				H2Core::CoreActionController::toggleSongMode();

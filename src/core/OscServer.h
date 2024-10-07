@@ -662,13 +662,13 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activateJackTimebaseMaster().
+		 * Triggers CoreActionController::activateJackTimebaseControl().
 		 *
-		 * \param argv The "f" field does contain the value supplied
-		 * by the user. If it is 0, the Jack timebase master will be
-		 * deactivated. Else, it will be activated instead.
+		 * \param argv The "f" field does contain the value supplied by the
+		 *   user. If it is `0`, Hydrogen will drop JACK Timebase control. Else,
+		 *   it tries to register as Timebase controller instead.
 		 * \param argc Unused number of arguments passed by the OSC
-		 * message.*/
+		 *   message.*/
 		static void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
 		 * Triggers CoreActionController::activateSongMode().

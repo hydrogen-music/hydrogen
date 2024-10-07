@@ -60,7 +60,6 @@ public:
 	virtual void timelineActivationEvent() override;
 	virtual void tempoChangedEvent( int nValue ) override;
 	virtual void jackTransportActivationEvent() override;
-	virtual void jackTimebaseStateChangedEvent() override;
 	/**
 	 * Shared GUI update when activating Song or Pattern mode via
 	 * button click or via OSC command.
@@ -78,6 +77,7 @@ public:
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void activateSongMode( bool bActivate );
+	virtual void jackTimebaseStateChangedEvent( int nState ) override;
 
 private slots:
 	void recBtnClicked();
@@ -85,8 +85,7 @@ private slots:
 	void stopBtnClicked();
 	void updatePlayerControl();
 	void jackTransportBtnClicked();
-	//jack time master
-	void jackMasterBtnClicked();	// ~ jack time master
+	void jackTimebaseBtnClicked();
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
@@ -141,9 +140,7 @@ private:
 	Button *m_pRubberBPMChange;
 
 	Button *m_pJackTransportBtn;
-	//jack time master
-	Button *m_pJackMasterBtn;
-	// ~ jack time master
+	Button *m_pJackTimebaseBtn;
 
 	CpuLoadWidget *m_pCpuLoadWidget;
 	LED *m_pMidiActivityLED;

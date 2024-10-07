@@ -2089,9 +2089,10 @@ void AudioEngineTests::testTransportProcessingJack() {
 		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
 	}
 
-	// In case the reference Hydrogen is JACK Timebase master, Timeline of this
-	// instance is deactivated and we are listening to tempo changes broadcasted
-	// by the JACK server. We need to verify we actually receive them.
+	// In case the reference Hydrogen is JACK Timebase controller, Timeline of
+	// this instance is deactivated and we are listening to tempo changes
+	// broadcasted by the JACK server. We need to verify we actually receive
+	// them.
 	bool bTempoChangeEncountered;
 	float fBpm;
 
@@ -2137,7 +2138,7 @@ void AudioEngineTests::testTransportProcessingJack() {
 
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener &&
 		 ! bTempoChangeEncountered ) {
-		throwException( "[testTransportProcessingJack] no tempo changes received from JACK Timebase master" );
+		throwException( "[testTransportProcessingJack] no tempo changes received from JACK Timebase controller" );
 	}
 
 	stopJackAudioDriver();
@@ -2431,15 +2432,15 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 
 	// Driver needs to be initialized in order to properly set its timebase
 	// state.
-	if ( pDriver->m_timebaseState == JackAudioDriver::Timebase::Master &&
-		 m_referenceTimebase != JackAudioDriver::Timebase::Master ) {
-		INFOLOG( "Releasing test binary as Timebase master" );
-		pDriver->releaseTimebaseMaster();
+	if ( pDriver->m_timebaseState == JackAudioDriver::Timebase::Controller &&
+		 m_referenceTimebase != JackAudioDriver::Timebase::Controller ) {
+		INFOLOG( "Releasing test binary as Timebase controller" );
+		pDriver->releaseTimebaseControl();
 	}
-	else if ( pDriver->m_timebaseState != JackAudioDriver::Timebase::Master &&
-		 m_referenceTimebase == JackAudioDriver::Timebase::Master ) {
-		INFOLOG( "Register test binary as Timebase master" );
-		pDriver->initTimebaseMaster();
+	else if ( pDriver->m_timebaseState != JackAudioDriver::Timebase::Controller &&
+		 m_referenceTimebase == JackAudioDriver::Timebase::Controller ) {
+		INFOLOG( "Register test binary as Timebase controller" );
+		pDriver->initTimebaseControl();
 	}
 	pDriver->m_timebaseState = m_referenceTimebase;
 	pDriver->m_timebaseTracking = JackAudioDriver::TimebaseTracking::Valid;

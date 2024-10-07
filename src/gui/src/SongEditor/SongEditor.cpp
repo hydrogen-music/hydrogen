@@ -2773,7 +2773,7 @@ void SongEditorPositionRuler::timelineActivationEvent() {
 	update();
 }
 
-void SongEditorPositionRuler::jackTimebaseStateChangedEvent() {
+void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int nState ) {
 	invalidateBackground();
 	update();
 }

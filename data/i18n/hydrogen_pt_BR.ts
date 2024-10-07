@@ -430,11 +430,6 @@ B</translation>
         <translation>J.Trans</translation>
     </message>
     <message>
-        <source>J.Master</source>
-        <extracomment>Text displayed on the button to activate the JACK Timebase master control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
-        <translation>J.Master</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
         <translation>Mixer</translation>
@@ -709,14 +704,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
         <translation>Driver de áudio não estabelecido!</translation>
     </message>
     <message>
-        <source>Register Hydrogen as JACK Timebase master</source>
-        <translation>Registrar Hydrogan como master de JACK Timebase</translation>
-    </message>
-    <message>
-        <source>Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.</source>
-        <translation>Hydrogen está ouvindo informações de andamento e posição. Pressione para registrar como um master de JACK Timebase.</translation>
-    </message>
-    <message>
         <source>JACK timebase support is disabled in the Preferences</source>
         <translation>Suporte a JACK Timebase desativado nas Preferências</translation>
     </message>
@@ -770,10 +757,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     <message>
         <source>The Timeline is only available in Song Mode</source>
         <translation>A Linha do Tempo só está disponível no Modo Canção</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
-        <translation>Na presença de um JACK Timebase principal, o andamento não pode ser alterado pelo Hydrogen</translation>
     </message>
     <message>
         <source>Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode.</source>
@@ -1164,6 +1147,23 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Add instrument</source>
         <translation>Adicionar instrumento</translation>
+    </message>
+    <message>
+        <source>Timebase</source>
+        <extracomment>Text displayed on the button to register Hydrogen to be in the JACK Timebase control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3408,20 +3408,12 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Por favor desative a Linha do Tempo primeiro para usar o Contador de Beat</translation>
     </message>
     <message>
-        <source>In the presence of an external JACK Timebase master the BeatCounter can not be used</source>
-        <translation>Na presença de um JACK Timebase principal externo, o BeatCounter não pode ser usado</translation>
-    </message>
-    <message>
         <source>Alter the Playback Speed</source>
         <translation>Alterar a Velocidade de Playback</translation>
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
         <translation>Enquanto a Linha do Tempo está ativa, esse widget é somente leitura e apenas mostra o andamento definido usando a posição atual da Linha do Tempo.</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
-        <translation>Na presençã de um JACK Timebase principal externo, esse widget apenas mostra o andamento transmitido pelo JACK</translation>
     </message>
     <message>
         <source>JACK-transport will work only with JACK driver.</source>
@@ -3432,12 +3424,20 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Ela será usada apenas depois que a Linha do Tempo for desativada e voltará do primeiro Marcador de Andamento quando ativada novamnete..</translation>
     </message>
     <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
-        <translation>Uma mudança de andamento via MIDI, OSC, BeatCounter, ou TapTempo foi detectada. Somente terá efeito quando o transporte JACK BBT for desativado ou ao fazer do Hydrogen o Timebase principal.</translation>
-    </message>
-    <message>
         <source>JACK Timebase mode</source>
         <translation>Modo JACK Timebase</translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4299,10 +4299,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Cria portas de saída JACK padrão &amp;por instrumento</translation>
     </message>
     <message>
-        <source>Enable JACK &amp;timebase master support</source>
-        <translation>Habilita suporte JACK timebase master</translation>
-    </message>
-    <message>
         <source>Apply and restart output</source>
         <translation>Aplicar e reiniciar saída</translation>
     </message>
@@ -4525,6 +4521,10 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Duplicate</source>
         <translation>Duplicar</translation>
+    </message>
+    <message>
+        <source>Enable JACK &amp;Timebase support</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

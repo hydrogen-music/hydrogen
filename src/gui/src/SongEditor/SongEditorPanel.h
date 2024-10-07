@@ -79,8 +79,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void restoreGroupVector( const QString& filename );
 		// ~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
-		 * JACK timebase master is detected and enables it when it's
-		 * gone or Hydrogen itself becomes the timebase master.
+		 * JACK Timebase controller is detected and enables it when it's
+		 * gone or Hydrogen itself takes over Timebase control.
 		 */
 		void updateTimelineUsage();
 
@@ -97,8 +97,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		virtual void actionModeChangeEvent( int nValue ) override;
 		virtual void gridCellToggledEvent() override;
 	virtual void patternModifiedEvent() override;
-
-		virtual void jackTimebaseStateChangedEvent() override;
 
 		virtual void playingPatternsChangedEvent() override;
 
@@ -120,6 +118,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 			timelineBtnClicked();
 		}
 		void toggleAutomationAreaVisibility();
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+
 
 	private slots:
 		void vScrollTo( int value );
