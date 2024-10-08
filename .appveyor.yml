@@ -259,7 +259,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_fresh_2 # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_libsndfile # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -287,7 +287,7 @@ for:
 
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update || exit 1
-        sudo apt-get install -y clang libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libflac-dev libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev libogg-dev libvorbis-dev mesa-common-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 || exit 1
+        sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev libogg-dev libvorbis-dev mesa-common-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 || exit 1
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils || exit 1
 
         # The doxygen version provided in the repo is bricked and
@@ -301,6 +301,17 @@ for:
         git checkout OpenSSL_1_1_1t || exit 1
         ./config || exit 1
         make -j $(nproc) || exit 1
+        sudo make install || exit 1
+        cd ..
+
+        # Compile and ship a more recent libsndfile version to support MP3
+        # export in AppImages.
+        git clone https://github.com/libsndfile/libsndfile || exit 1
+        cd libsndfile || exit 1
+        git checkout 1.2.2 || exit 1
+        autoreconf -vif || exit 1
+        ./configure || exit 1
+        make || exit 1
         sudo make install || exit 1
         cd ..
 
