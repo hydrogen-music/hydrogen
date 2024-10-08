@@ -390,6 +390,7 @@ for:
       LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/5.15.2/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
+        --library /usr/local/lib/libsndfile.so.1 \
         --desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
         --icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
         --plugin qt \
