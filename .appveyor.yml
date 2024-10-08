@@ -259,7 +259,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_libsndfile # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_libsndfile_5 # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -288,7 +288,7 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update || exit 1
         sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev libogg-dev libvorbis-dev mesa-common-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 autogen || exit 1
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libflac-dev libopus-dev libvorbis-dev libmpg123-dev || exit 1
 
         # The doxygen version provided in the repo is bricked and
         # would crash the `liblo` build.
@@ -387,9 +387,15 @@ for:
       cp /usr/local/lib/libssl.so.1.1 AppDir/usr/lib || exit 1
       cp /usr/local/lib/libcrypto.so.1.1 AppDir/usr/lib || exit 1
 
+      ## Copy the version compiled above to shadow the system library. Else
+      ## `linuxdeploy` will ship the system one which is too old to support MP3,
+      ## Opus and FLAC.
+      cp /usr/local/lib/libsndfile.so.1 AppDir/usr/lib || exit 1
+
       LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/5.15.2/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
+        --library AppDir/usr/lib/libsndfile.so.1 \
         --desktop-file AppDir/usr/share/applications/org.hydrogenmusic.Hydrogen.desktop \
         --icon-file AppDir/usr/share/hydrogen/data/img/gray/icon.svg \
         --plugin qt \
