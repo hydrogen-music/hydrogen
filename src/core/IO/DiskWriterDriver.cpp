@@ -191,7 +191,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( pDriver->m_sFilename )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
 					.arg( sf_version_string() )
-					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
+					.arg( sf_strerror( pSndfile ) ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
 		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
@@ -206,7 +206,7 @@ void* diskWriterDriver_thread( void* param )
 		if ( sf_command( pSndfile, SFC_SET_BITRATE_MODE, &nBitrateMode,
 						 sizeof(int) ) != SF_TRUE ) {
 			___WARNINGLOG( QString( "Unable to set variable bitrate for MP3 encoding: %1" )
-						  .arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
+						  .arg( sf_strerror( pSndfile ) ) );
 		}
 	}
 #endif
@@ -222,7 +222,7 @@ void* diskWriterDriver_thread( void* param )
 						 sizeof(double) ) != SF_TRUE ) {
 			___WARNINGLOG( QString( "Unable to set compression level [%1]: %2" )
 						  .arg( pDriver->m_fCompressionLevel )
-						  .arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
+						  .arg( sf_strerror( pSndfile ) ) );
 		}
 	}
 #endif

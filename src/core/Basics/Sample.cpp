@@ -184,7 +184,7 @@ bool Sample::load( float fBpm )
 		ERRORLOG( QString( "Error loading file [%1] with format [%2]: %3" )
 				  .arg( get_filepath() )
 				  .arg( sndfileFormatToQString( sound_info.format ) )
-				  .arg( sndfileErrorToQString( sf_error( nullptr ) ) ) );
+				  .arg( sf_strerror( file ) ) );
 		return false;
 	}
 	
@@ -769,7 +769,7 @@ bool Sample::write( const QString& path, int format ) const
 		ERRORLOG( QString( "Unable to create file [%1] with format [%2]: %3" )
 				  .arg( path )
 				  .arg( sndfileFormatToQString( format ) )
-				  .arg( sndfileErrorToQString( sf_error( nullptr ) ) ) );
+				  .arg( sf_strerror( sf_file ) ) );
 		sf_close( sf_file );
 		delete[] obuf;
 		return false;
@@ -891,23 +891,6 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	
 	return sOutput;
-}
-
-QString Sample::sndfileErrorToQString( int nError ) {
-	switch( nError ) {
-	case 0:
-		return QString( "No error" );
-	case 1:
-		return QString( "Unrecognized format" );
-	case 2:
-		return QString( "System" );
-	case 3:
-		return QString( "Malformed file" );
-	case 4:
-		return QString( "Unsupported encoding" );
-	}
-
-	return QString( "Unknown error code [%1]" ).arg( nError );
 }
 
 QString Sample::sndfileFormatToQString( int nFormat ) {
