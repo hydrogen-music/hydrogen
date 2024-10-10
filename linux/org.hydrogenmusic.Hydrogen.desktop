@@ -28,3 +28,4 @@ StartupNotify=true
 
 Icon=org.hydrogenmusic.Hydrogen
 X-NSM-Capable=true
+X-NSM-Exec=hydrogen
