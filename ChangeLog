@@ -26,7 +26,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			`.opus`, `.au`, `.caf`, `.voc`, `.w64`. Drumkits containing those formats
 			can be loaded with older versions of Hydrogen too. `libsndfile` >= `1.1.0`
 			is required on your system for MP3 support. (#2023)
-		- `X-NSM-Exec` entry added to `org.hydrogenmusic.Hydrogen.desktop`.
+		- `X-NSM-Exec` entry added to `org.hydrogenmusic.Hydrogen.desktop` by
+			@grammoboy2 (#2042).
 	* Changed
 		- Brazilian translation updated.
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
