@@ -122,6 +122,23 @@ void* loggerThread_func( void* param ) {
 Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
 						   bool bUseStdout, bool bLogTimestamps ) {
 	Logger::set_bit_mask( msk );
+
+	// When starting Hydrogen after a fresh install with no user-level .hydrogen
+	// folder, opening the log file will fail as the .hydrogen folder as whole
+	// does not exist yet. It is created as part of the bootstrap of
+	// `Filesystem`.
+	QFileInfo logFileInfo;
+	if ( ! sLogFilePath.isEmpty() ) {
+		logFileInfo = QFileInfo( sLogFilePath );
+	}
+	else {
+		logFileInfo = QFileInfo( Filesystem::log_file_path() );
+	}
+	const auto dir = logFileInfo.absoluteDir();
+	if ( ! dir.exists() ) {
+		Filesystem::mkdir( dir.absolutePath() );
+	}
+
 	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps );
 }
 
