@@ -662,6 +662,21 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition(0);
 
+	} else if ( ev->key() == Qt::Key_Delete ) {
+		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
+		bUnhideCursor = false;
+		if ( m_selection.begin() != m_selection.end() ) {
+			// Delete selected notes if any
+			m_pPatternEditorPanel->getDrumPatternEditor()->
+				deleteSelection();
+		} else {
+			// Delete note under the keyboard cursor.
+			m_pPatternEditorPanel->getDrumPatternEditor()->
+				addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+								 pHydrogen->getSelectedInstrumentNumber(),
+								 /*bDoAdd=*/false, /*bDoDelete=*/true );
+		}
+
 	} else {
 
 		// Value adjustments
