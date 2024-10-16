@@ -1357,24 +1357,24 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
-				//paint the octave
-				uint x_pos = 17 + pNote->get_position() * m_fGridWidth;
-				uint y_pos = (4-pNote->get_octave())*10-3;
-				p.setBrush( DrumPatternEditor::computeNoteColor( pNote->get_velocity() ) );
-				p.drawEllipse( x_pos, y_pos, 6, 6);
+				// paint the octave
+				const int nRadiusOctave = 3;
+				const int nX = PatternEditor::nMargin +
+					pNote->get_position() * m_fGridWidth;
+				const int nOctaveY = ( 4 - pNote->get_octave() ) * 10;
+				p.setBrush( DrumPatternEditor::computeNoteColor(
+								pNote->get_velocity() ) );
+				p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave,
+							   nRadiusOctave );
 
-				//paint note
-				int d = 8;
-				int k = pNote->get_key();
-				x_pos = 16 + pNote->get_position() * m_fGridWidth;
-				y_pos = 200-(k*10)-4;
+				// paint note
+				const int nRadiusKey = 5;
+				const int nKeyY = 200 - ( pNote->get_key() * 10 );
 
-				x_pos -= 1;
-				y_pos -= 1;
-				d += 2;
 				p.setPen( QPen( Qt::black, 1 ) );
-				p.setBrush( DrumPatternEditor::computeNoteColor( pNote->get_velocity() ) );
-				p.drawEllipse( x_pos, y_pos, d, d);
+				p.setBrush( DrumPatternEditor::computeNoteColor(
+								pNote->get_velocity() ) );
+				p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
 
 				// Paint selection outlines
 				int nLineWidth = 3;
