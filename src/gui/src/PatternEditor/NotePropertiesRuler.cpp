@@ -1324,6 +1324,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		p.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
 	}
 
+	drawGridLines( p, Qt::DotLine );
+
 	// Annotate with note class names
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
 								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
