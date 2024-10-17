@@ -1414,6 +1414,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 					pNote->get_position() * m_fGridWidth;
 				const int nOctaveY = ( 4 - pNote->get_octave() ) *
 					NotePropertiesRuler::nNoteKeyLineHeight;
+				p.setPen( QPen( Qt::black, 1 ) );
 				p.setBrush( DrumPatternEditor::computeNoteColor(
 								pNote->get_velocity() ) );
 				p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave,
@@ -1425,20 +1426,22 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 					( ( pNote->get_key() + 1 ) *
 					  NotePropertiesRuler::nNoteKeyLineHeight );
 
-				p.setPen( QPen( Qt::black, 1 ) );
 				p.setBrush( DrumPatternEditor::computeNoteColor(
 								pNote->get_velocity() ) );
 				p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
 
 				// Paint selection outlines
-				int nLineWidth = 3;
 				if ( m_selection.isSelected( pNote ) ) {
 					p.setPen( selectedPen );
 					p.setBrush( Qt::NoBrush );
 					p.setRenderHint( QPainter::Antialiasing );
-					p.drawRoundedRect( nX - 1 -2 +3, 2,
-									   nLineWidth + 4 + 4,  height() - 4,
-									   4, 4 );
+					// Octave
+					p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 1,
+								   nRadiusOctave + 1 );
+
+					// Key
+					p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey + 1,
+								   nRadiusKey + 1 );
 				}
 			}
 		}
