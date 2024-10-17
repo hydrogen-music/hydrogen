@@ -49,8 +49,8 @@ void Timeline::deactivate() {
 void Timeline::addTempoMarkers( const std::vector<std::shared_ptr<TempoMarker>>& tempoMarkers) {
 	// Sanity checks
 	for ( auto& mmarker : tempoMarkers ) {
-		if ( hasColumnTag( mmarker->nColumn ) ) {
-			ERRORLOG( QString( "There is already a tag present in column %1. Please remove it first." )
+		if ( hasColumnTempoMarker( mmarker->nColumn ) ) {
+			ERRORLOG( QString( "There is already a tempo marker present in column %1. Please remove it first." )
 					  .arg( mmarker->nColumn ) );
 			return;
 		}
