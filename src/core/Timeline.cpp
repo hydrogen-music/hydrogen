@@ -93,13 +93,21 @@ void Timeline::addTempoMarker( int nColumn, float fBpm ) {
 					.arg( fBpm ).arg( MAX_BPM ) );
 	}
 
-	if ( hasColumnTempoMarker( nColumn ) ) {
-		ERRORLOG( QString( "There is already a tempo marker present in column %1. Please remove it first." )
-				  .arg( nColumn ) );
-		return;
+	// If a marker is already present in the provided column, we just replace
+	// it.
+	bool bTempoMarkerFound = false;
+	for ( int ii = 0; ii < m_tempoMarkers.size(); ++ii ){
+		if ( m_tempoMarkers[ ii ] != nullptr &&
+			 m_tempoMarkers[ ii ]->nColumn == nColumn ) {
+			m_tempoMarkers[ ii ] = std::make_shared<TempoMarker>( nColumn, fBpm );
+			bTempoMarkerFound = true;
+			break;
+		}
 	}
 
-	m_tempoMarkers.push_back( std::make_shared<TempoMarker>(nColumn, fBpm) );
+	if ( ! bTempoMarkerFound ) {
+		m_tempoMarkers.push_back( std::make_shared<TempoMarker>(nColumn, fBpm) );
+	}
 	updateTempoMarkers();
 }
 
@@ -108,7 +116,7 @@ void Timeline::deleteTempoMarker( int nColumn ) {
 	if ( m_tempoMarkers.size() >= 1 ){
 		for ( int t = 0; t < m_tempoMarkers.size(); t++ ){
 			if ( m_tempoMarkers[t]->nColumn == nColumn ) {
-				m_tempoMarkers.erase( m_tempoMarkers.begin() +  t);
+				m_tempoMarkers.erase( m_tempoMarkers.begin() + t );
 			}
 		}
 	}
@@ -177,7 +185,7 @@ std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( i
 
 void Timeline::updateTempoMarkers() {
 	if ( isFirstTempoMarkerSpecial() ) {
-		
+
 		std::shared_ptr<TempoMarker> pTempoMarker =
 			std::make_shared<TempoMarker>( 0, m_fDefaultBpm );
 

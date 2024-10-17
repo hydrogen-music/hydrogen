@@ -832,7 +832,6 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 	}
 	pAudioEngine->lock( RIGHT_HERE );
 
-	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
 	pHydrogen->getAudioEngine()->handleTimelineChange();
 
