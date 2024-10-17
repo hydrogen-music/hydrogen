@@ -28,6 +28,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			is required on your system for MP3 support. (#2023)
 		- `X-NSM-Exec` entry added to `org.hydrogenmusic.Hydrogen.desktop` by
 			@grammoboy2 (#2042).
+		- Delete key does now remove selected notes and notes under cursor in
+			NotePropertiesRuler.
 	* Changed
 		- Brazilian translation updated.
 		- Grid lines in the Song Editor are now rendered dotted to emphasize that
