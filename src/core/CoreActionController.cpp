@@ -823,6 +823,13 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 		return false;
 	}
 
+	if ( pTimeline->hasColumnTempoMarker( nPosition ) ) {
+		const auto pPreviousMarker = pTimeline->getTempoMarkerAtColumn( nPosition );
+		if ( fBpm == pPreviousMarker->fBpm ) {
+			// Markers is already present. Nothing to do.
+			return true;
+		}
+	}
 	pAudioEngine->lock( RIGHT_HERE );
 
 	pTimeline->deleteTempoMarker( nPosition );
@@ -846,6 +853,11 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
+	}
+
+	if ( ! pHydrogen->getTimeline()->hasColumnTempoMarker( nPosition ) ) {
+		// Nothing to do
+		return true;
 	}
 
 	pAudioEngine->lock( RIGHT_HERE );
