@@ -2230,8 +2230,9 @@ bool CoreActionController::setBpm( float fBpm ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set yet" );
 		return false;
 	}
@@ -2245,7 +2246,10 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->unlock();
 
 	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( fBpm );
+	pSong->setBpm( fBpm );
+	if ( pSong->getTimeline() != nullptr ) {
+		pSong->getTimeline()->setDefaultBpm( fBpm );
+	}
 
 	pHydrogen->setIsModified( true );
 	

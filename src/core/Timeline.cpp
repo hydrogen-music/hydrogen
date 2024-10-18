@@ -46,6 +46,10 @@ void Timeline::activate() {
 void Timeline::deactivate() {
 }
 
+void Timeline::setDefaultBpm( float fDefaultBpm ) {
+	m_fDefaultBpm = fDefaultBpm;
+}
+
 void Timeline::addTempoMarkers( const std::vector<std::shared_ptr<TempoMarker>>& tempoMarkers) {
 	// Sanity checks
 	for ( auto& mmarker : tempoMarkers ) {
