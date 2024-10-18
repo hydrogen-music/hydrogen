@@ -114,6 +114,8 @@ public:
 	 */
 	void deactivate();
 
+		void setDefaultBpm( float fDefaultBpm );
+
 	/** Adds a TempoMarker to the Timeline.
 	 *
 	 * Fails if there is already a #TempoMarker present at @a nColumn.

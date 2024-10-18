@@ -823,9 +823,15 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 		return false;
 	}
 
+	if ( pTimeline->hasColumnTempoMarker( nPosition ) ) {
+		const auto pPreviousMarker = pTimeline->getTempoMarkerAtColumn( nPosition );
+		if ( fBpm == pPreviousMarker->fBpm ) {
+			// Markers is already present. Nothing to do.
+			return true;
+		}
+	}
 	pAudioEngine->lock( RIGHT_HERE );
 
-	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
 	pHydrogen->getAudioEngine()->handleTimelineChange();
 
@@ -846,6 +852,11 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
+	}
+
+	if ( ! pHydrogen->getTimeline()->hasColumnTempoMarker( nPosition ) ) {
+		// Nothing to do
+		return true;
 	}
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -2219,8 +2230,9 @@ bool CoreActionController::setBpm( float fBpm ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set yet" );
 		return false;
 	}
@@ -2234,7 +2246,10 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->unlock();
 
 	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( fBpm );
+	pSong->setBpm( fBpm );
+	if ( pSong->getTimeline() != nullptr ) {
+		pSong->getTimeline()->setDefaultBpm( fBpm );
+	}
 
 	pHydrogen->setIsModified( true );
 	
