@@ -40,14 +40,17 @@ Timeline::~Timeline() {
 }
 
 void Timeline::activate() {
-	m_fDefaultBpm = Hydrogen::get_instance()->getSong()->getBpm();
+	setDefaultBpm( Hydrogen::get_instance()->getSong()->getBpm() );
 }
 
 void Timeline::deactivate() {
 }
 
 void Timeline::setDefaultBpm( float fDefaultBpm ) {
-	m_fDefaultBpm = fDefaultBpm;
+	if ( m_fDefaultBpm != fDefaultBpm ) {
+		m_fDefaultBpm = fDefaultBpm;
+		updateTempoMarkers();
+	}
 }
 
 void Timeline::addTempoMarkers( const std::vector<std::shared_ptr<TempoMarker>>& tempoMarkers) {
