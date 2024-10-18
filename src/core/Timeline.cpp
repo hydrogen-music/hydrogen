@@ -44,6 +44,10 @@ void Timeline::activate() {
 
 void Timeline::deactivate() {
 }
+
+void Timeline::setDefaultBpm( float fDefaultBpm ) {
+	m_fDefaultBpm = fDefaultBpm;
+}
 	
 void Timeline::addTempoMarker( int nColumn, float fBpm ) {
 	if ( fBpm < MIN_BPM ) {

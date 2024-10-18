@@ -141,6 +141,10 @@ void Song::setBpm( float fBpm ) {
 	} else {
 		m_fBpm = fBpm;
 	}
+
+	if ( m_pTimeline != nullptr ) {
+		m_pTimeline->setDefaultBpm( m_fBpm );
+	}
 }
 
 void Song::setActionMode( Song::ActionMode actionMode ) {
