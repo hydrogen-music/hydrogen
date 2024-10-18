@@ -445,7 +445,7 @@ for:
       export MACOSX_DEPLOYMENT_TARGET=10.12
       sudo ln -s /usr/local /opt/local;
 
-      cache_tag=usr_local_1 # this can be modified to rebuild deps
+      cache_tag=brew_libsndfile_2 # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
