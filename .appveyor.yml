@@ -469,6 +469,7 @@ for:
         python3 ./treestate.py scan /usr/local usrlocal.json
 
         brew update
+        brew upgrade
         # Build our own versions of these for macOS 10.12 target systems.
         brew install --build-from-source ./macos/HomebrewFormulae/berkeley-db.rb
         brew install --build-from-source ./macos/HomebrewFormulae/libogg.rb
