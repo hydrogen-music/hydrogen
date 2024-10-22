@@ -153,6 +153,26 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();
+	// The menu bar will be created anew each time the shortcuts are altered in
+	// the Preferences. But we need to wire the corresponding actions only once
+	// or they are triggered each 1 + N times the number of shortcut changes.
+	connect( h2app->m_pUndoStack, &QUndoStack::canUndoChanged,
+			 []( bool bCanUndo ) {
+				 auto pUndoAction =
+					 HydrogenApp::get_instance()->getMainForm()->m_pUndoAction;
+				 if ( pUndoAction != nullptr ) {
+					 pUndoAction->setEnabled( bCanUndo );
+				 }
+			 } );
+	connect( h2app->m_pUndoStack, &QUndoStack::canRedoChanged,
+			 []( bool bCanRedo ) {
+				 auto pRedoAction =
+					 HydrogenApp::get_instance()->getMainForm()->m_pRedoAction;
+				 if ( pRedoAction != nullptr ) {
+					 pRedoAction->setEnabled( bCanRedo );
+				 }
+			 } );
+
 	checkMidiSetup();
 	checkMissingSamples();
 	checkNecessaryDirectories();
@@ -355,28 +375,14 @@ void MainForm::createMenuBar()
 
 	// Undo menu
 	m_pUndoMenu = pMenubar->addMenu( pCommonStrings->getUndoMenuUndo() );
-	auto pUndoAction =
-		m_pUndoMenu->addAction(
-			pCommonStrings->getUndoMenuUndo(), this, SLOT( action_undo() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
-	pUndoAction->setEnabled( false );
-	connect( h2app->m_pUndoStack, &QUndoStack::canUndoChanged,
-			 [=]( bool bCanUndo ) {
-				 if ( pUndoAction != nullptr ) {
-					 pUndoAction->setEnabled( bCanUndo );
-				 }
-			 } );
-	auto pRedoAction =
-		m_pUndoMenu->addAction(
-			pCommonStrings->getUndoMenuRedo(), this, SLOT( action_redo() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
-	pRedoAction->setEnabled( false );
-	connect( h2app->m_pUndoStack, &QUndoStack::canRedoChanged,
-			 [=]( bool bCanRedo ) {
-				 if ( pRedoAction != nullptr ) {
-					 pRedoAction->setEnabled( bCanRedo );
-				 }
-			 } );
+	m_pUndoAction = m_pUndoMenu->addAction(
+		pCommonStrings->getUndoMenuUndo(), this, SLOT( action_undo() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	m_pUndoAction->setEnabled( false );
+	m_pRedoAction = m_pUndoMenu->addAction(
+		pCommonStrings->getUndoMenuRedo(), this, SLOT( action_redo() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	m_pRedoAction->setEnabled( false );
 
 	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
 							SLOT( openUndoStack() ),
