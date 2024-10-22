@@ -378,11 +378,11 @@ void MainForm::createMenuBar()
 	m_pUndoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuUndo(), this, SLOT( action_undo() ),
 		pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
-	m_pUndoAction->setEnabled( false );
+	m_pUndoAction->setEnabled( h2app->m_pUndoStack->canUndo() );
 	m_pRedoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuRedo(), this, SLOT( action_redo() ),
 		pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
-	m_pRedoAction->setEnabled( false );
+	m_pRedoAction->setEnabled( h2app->m_pUndoStack->canRedo() );
 
 	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
 							SLOT( openUndoStack() ),
