@@ -159,8 +159,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/**
 		 * (De)activates the usage of the Timeline.
 		 *
-		 * Note that this function will fail in the presence of the
-		 * Jack audio driver and an external timebase master (see Hydrogen::getJackTimebaseState()).
+		 * Note that this function will fail in the presence of both JACK audio
+		 * driver and an external Timebase controller (see
+		 * Hydrogen::getJackTimebaseState()).
 		 *
 		 * @param bActivate If true - activate or if false -
 		 * deactivate.
@@ -223,18 +224,18 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		static bool activateJackTransport( bool bActivate );
 	static bool toggleJackTransport();
 		/**
-		 * (De)activates the usage of Jack timebase master.
+		 * (Un)registers Hydrogen as JACK Timebase constroller.
 		 *
-		 * Note that this function will fail if Jack is not used as
-		 * audio driver.
+		 * Note that this function will fail if JACK is not used as audio
+		 * driver.
 		 *
 		 * @param bActivate If true - activate or if false -
 		 * deactivate.
 		 *
 		 * @return bool true on success
 		 */
-		static bool activateJackTimebaseMaster( bool bActivate );
-	static bool toggleJackTimebaseMaster();
+		static bool activateJackTimebaseControl( bool bActivate );
+	static bool toggleJackTimebaseControl();
 
 		/**
 		 * Switches between Song and Pattern mode of playback.

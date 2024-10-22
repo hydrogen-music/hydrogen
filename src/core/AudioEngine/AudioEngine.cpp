@@ -1155,13 +1155,13 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		// Hydrogen is using the BPM broadcasted by the JACK
 		// server. This one does solely depend on external
 		// applications and will NOT be stored in the Song.
-		const float fJackMasterBpm = pHydrogen->getMasterBpm();
-		if ( ! std::isnan( fJackMasterBpm ) ) {
-			if ( fBpm != fJackMasterBpm ) {
-				fBpm = fJackMasterBpm;
+		const float fJackTimebaseBpm = pHydrogen->getJackTimebaseControllerBpm();
+		if ( ! std::isnan( fJackTimebaseBpm ) ) {
+			if ( fBpm != fJackTimebaseBpm ) {
+				fBpm = fJackTimebaseBpm;
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "Tempo update by the JACK server [%1]")
-							 .arg( fJackMasterBpm ) );
+							 .arg( fJackTimebaseBpm ) );
 #endif
 			}
 		} else {

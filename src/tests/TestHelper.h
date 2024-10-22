@@ -62,10 +62,15 @@ class TestHelper {
 	 * \param sFileName Output file name
 	 * @param nSampleRate sample rate using which to export
 	 * @param nSampleDepth sample depth using which to export
+	 * @param fCompressionLevel Trades off audio quality against compression
+	 *   rate defined between 0.0 (maximum quality) and 1.0 (maximum
+	 *   compression).
 	 */
 	static void exportSong( const QString& sSongFile,
 							const QString& sFileName,
-							int nSampleRate = 44100, int nSampleDepth = 16 );
+							int nSampleRate = 44100,
+							int nSampleDepth = 16,
+							double fCompressionLevel = 0.0 );
 	/**
 	 * Export the current song within Hydrogen to audio file @a sFileName;
 	 *

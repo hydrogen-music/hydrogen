@@ -802,7 +802,7 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 	
 	if ( pHydrogen->getJackTimebaseState() ==
 		 JackAudioDriver::Timebase::Listener ) {
-		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )
+		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK Timebase controller." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as Pattern Mode is still activated." )
@@ -823,9 +823,15 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 		return false;
 	}
 
+	if ( pTimeline->hasColumnTempoMarker( nPosition ) ) {
+		const auto pPreviousMarker = pTimeline->getTempoMarkerAtColumn( nPosition );
+		if ( fBpm == pPreviousMarker->fBpm ) {
+			// Markers is already present. Nothing to do.
+			return true;
+		}
+	}
 	pAudioEngine->lock( RIGHT_HERE );
 
-	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
 	pHydrogen->getAudioEngine()->handleTimelineChange();
 
@@ -846,6 +852,11 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
+	}
+
+	if ( ! pHydrogen->getTimeline()->hasColumnTempoMarker( nPosition ) ) {
+		// Nothing to do
+		return true;
 	}
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -939,45 +950,44 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 #endif
 }
 
-bool CoreActionController::toggleJackTimebaseMaster() {
+bool CoreActionController::toggleJackTimebaseControl() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
-	if ( Preferences::get_instance()->m_bJackMasterMode ==
-		 Preferences::USE_JACK_TIME_MASTER ) {
-		activateJackTimebaseMaster( false );
+	if ( Preferences::get_instance()->m_bJackTimebaseMode ==
+		 Preferences::USE_JACK_TIMEBASE_CONTROL ) {
+		activateJackTimebaseControl( false );
 	} else {
-		activateJackTimebaseMaster( true );
+		activateJackTimebaseControl( true );
 	}
 
 	return true;
 }
 
-bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
+bool CoreActionController::activateJackTimebaseControl( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
 #ifdef H2CORE_HAVE_JACK
 	if ( !pHydrogen->hasJackAudioDriver() ) {
-		ERRORLOG( "Unable to (de)activate Jack timebase master. Please select the Jack driver first." );
+		ERRORLOG( "Unable to (de)activate JACK Timebase support. Please select the JACK driver first." );
 		return false;
 	}
 	
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
-		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
-		pHydrogen->onJackMaster();
+		Preferences::get_instance()->m_bJackTimebaseMode =
+			Preferences::USE_JACK_TIMEBASE_CONTROL;
+		pHydrogen->initJackTimebaseControl();
 	} else {
-		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-		pHydrogen->offJackMaster();
+		Preferences::get_instance()->m_bJackTimebaseMode =
+			Preferences::NO_JACK_TIMEBASE_CONTROL;
+		pHydrogen->releaseJackTimebaseControl();
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	
-	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
-											static_cast<int>(pHydrogen->getJackTimebaseState()) );
-	
 	return true;
 #else
-	ERRORLOG( "Unable to (de)activate Jack timebase master. Your Hydrogen version was not compiled with jack support." );
+	ERRORLOG( "Unable to (de)activate JACK Timebase support. Your Hydrogen version was not compiled with JACK support." );
 	return false;
 #endif
 }
@@ -2220,8 +2230,9 @@ bool CoreActionController::setBpm( float fBpm ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set yet" );
 		return false;
 	}
@@ -2235,7 +2246,10 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->unlock();
 
 	// Store it's value in the .h2song file.
-	pHydrogen->getSong()->setBpm( fBpm );
+	pSong->setBpm( fBpm );
+	if ( pSong->getTimeline() != nullptr ) {
+		pSong->getTimeline()->setDefaultBpm( fBpm );
+	}
 
 	pHydrogen->setIsModified( true );
 	

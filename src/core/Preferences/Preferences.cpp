@@ -132,7 +132,7 @@ Preferences::Preferences()
 	, m_bJackTrackOuts( false )
 	, m_JackTrackOutputMode( JackTrackOutputMode::postFader )
 	, m_bJackTimebaseEnabled( false )
-	, m_bJackMasterMode( NO_JACK_TIME_MASTER )
+	, m_bJackTimebaseMode( NO_JACK_TIMEBASE_CONTROL )
 	, m_nAutosavesPerHour( 60 )
 	, m_sDefaultEditor( "" )
 	, m_sPreferredLanguage( "" )
@@ -193,7 +193,8 @@ Preferences::Preferences()
 	, m_nExportSampleDepthIdx( 0 )
 	, m_nExportSampleRateIdx( 0 )
 	, m_nExportModeIdx( 0 )
-	, m_nExportTemplateIdx( 0 )
+	, m_exportFormat( Filesystem::AudioFormat::Flac )
+	, m_fExportCompressionLevel( 0.0 )
 	, m_nMidiExportMode( 0 )
 	, m_bShowExportSongLicenseWarning( true )
 	, m_bShowExportDrumkitLicenseWarning( true )
@@ -313,7 +314,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bJackTrackOuts( pOther->m_bJackTrackOuts )
 	, m_JackTrackOutputMode( pOther->m_JackTrackOutputMode )
 	, m_bJackTimebaseEnabled( pOther->m_bJackTimebaseEnabled )
-	, m_bJackMasterMode( pOther->m_bJackMasterMode )
+	, m_bJackTimebaseMode( pOther->m_bJackTimebaseMode )
 	, m_nAutosavesPerHour( pOther->m_nAutosavesPerHour )
 	, m_sRubberBandCLIexecutable( pOther->m_sRubberBandCLIexecutable )
 	, m_sDefaultEditor( pOther->m_sDefaultEditor )
@@ -376,7 +377,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nExportSampleDepthIdx( pOther->m_nExportSampleDepthIdx )
 	, m_nExportSampleRateIdx( pOther->m_nExportSampleRateIdx )
 	, m_nExportModeIdx( pOther->m_nExportModeIdx )
-	, m_nExportTemplateIdx( pOther->m_nExportTemplateIdx )
+	, m_exportFormat( pOther->m_exportFormat )
+	, m_fExportCompressionLevel( pOther->m_fExportCompressionLevel )
 	, m_nMidiExportMode( pOther->m_nMidiExportMode )
 	, m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning )
 	, m_bShowExportDrumkitLicenseWarning( pOther->m_bShowExportDrumkitLicenseWarning )
@@ -649,10 +651,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			const QString sJackMasterMode = jackDriverNode.read_string(
 				"jack_transport_mode_master", "", false, false, bSilent );
 			if ( sJackMasterMode == "NO_JACK_TIME_MASTER" ) {
-				pPref->m_bJackMasterMode = NO_JACK_TIME_MASTER;
+				pPref->m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
 			}
 			else if ( sJackMasterMode == "USE_JACK_TIME_MASTER" ) {
-				pPref->m_bJackMasterMode = USE_JACK_TIME_MASTER;
+				pPref->m_bJackTimebaseMode = USE_JACK_TIMEBASE_CONTROL;
 			}
 			else if ( ! sJackMasterMode.isEmpty() ){
 				WARNINGLOG( QString( "Unable to parse <jack_transport_mode_master>: [%1]" )
@@ -895,9 +897,14 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 			pPref->m_sLastExportThemeDirectory, true, false, bSilent );
 
 		// export dialog properties
-		pPref->m_nExportTemplateIdx = guiNode.read_int(
-			"exportDialogTemplate",
-			pPref->m_nExportTemplateIdx, false, false, bSilent );
+		pPref->m_exportFormat = Filesystem::AudioFormatFromSuffix(
+			guiNode.read_string(
+				"exportDialogFormat",
+				Filesystem::AudioFormatToSuffix( pPref->m_exportFormat ),
+				true, true ) );
+		pPref->m_fExportCompressionLevel = guiNode.read_float(
+			"exportDialogCompressionLevel",
+			pPref->m_fExportCompressionLevel, true, true );
 		pPref->m_nExportModeIdx = guiNode.read_int(
 			"exportDialogMode", pPref->m_nExportModeIdx, false, false, bSilent );
 		pPref->m_nExportSampleRateIdx = guiNode.read_int(
@@ -1185,16 +1192,17 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 			}
 			jackDriverNode.write_string( "jack_transport_mode", sMode );
 
-			//jack time master
 			jackDriverNode.write_bool( "jack_timebase_enabled", m_bJackTimebaseEnabled );
+			// We stick to the old Timebase strings (? why strings for a boolean
+			// option?) for backward and forward compatibility of old versions
+			// still in use.
 			QString tmMode;
-			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
+			if ( m_bJackTimebaseMode == NO_JACK_TIMEBASE_CONTROL ) {
 				tmMode = "NO_JACK_TIME_MASTER";
-			} else if (  m_bJackMasterMode == USE_JACK_TIME_MASTER ) {
+			} else if (  m_bJackTimebaseMode == USE_JACK_TIMEBASE_CONTROL ) {
 				tmMode = "USE_JACK_TIME_MASTER";
 			}
 			jackDriverNode.write_string( "jack_transport_mode_master", tmMode );
-			// ~ jack time master
 
 			// jack default connection
 			jackDriverNode.write_bool( "jack_connect_defaults", m_bJackConnectDefaults );
@@ -1299,7 +1307,10 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 				
 		//ExportSongDialog
 		guiNode.write_int( "exportDialogMode", m_nExportModeIdx );
-		guiNode.write_int( "exportDialogTemplate", m_nExportTemplateIdx );
+		guiNode.write_string( "exportDialogFormat",
+							  Filesystem::AudioFormatToSuffix( m_exportFormat ) );
+		guiNode.write_float( "exportDialogCompressionLevel",
+							 m_fExportCompressionLevel );
 		guiNode.write_int( "exportDialogSampleRate",  m_nExportSampleRateIdx );
 		guiNode.write_int( "exportDialogSampleDepth", m_nExportSampleDepthIdx );
 		guiNode.write_bool( "showExportSongLicenseWarning", m_bShowExportSongLicenseWarning );
@@ -1730,8 +1741,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( static_cast<int>(m_JackTrackOutputMode) ) )
 			.append( QString( "%1%2m_bJackTimebaseEnabled: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bJackTimebaseEnabled ) )
-			.append( QString( "%1%2m_bJackMasterMode: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bJackMasterMode ) )
+			.append( QString( "%1%2m_bJackTimebaseMode: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bJackTimebaseMode ) )
 			.append( QString( "%1%2m_nAutosavesPerHour: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nAutosavesPerHour ) )
 			.append( QString( "%1%2m_sRubberBandCLIexecutable: %3\n" ).arg( sPrefix )
@@ -1863,8 +1874,11 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nExportSampleRateIdx ) )
 			.append( QString( "%1%2m_nExportModeIdx: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nExportModeIdx ) )
-			.append( QString( "%1%2m_nExportTemplateIdx: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nExportTemplateIdx ) )
+			.append( QString( "%1%2m_exportFormat: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( Filesystem::AudioFormatToSuffix(
+										m_exportFormat ) ) )
+			.append( QString( "%1%2m_fExportCompressionLevel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fExportCompressionLevel ) )
 			.append( QString( "%1%2m_nMidiExportMode: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nMidiExportMode ) )
 			.append( QString( "%1%2m_bShowExportSongLicenseWarning: %3\n" ).arg( sPrefix )
@@ -1975,8 +1989,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( static_cast<int>(m_JackTrackOutputMode) ) )
 			.append( QString( ", m_bJackTimebaseEnabled: %1" )
 					 .arg( m_bJackTimebaseEnabled ) )
-			.append( QString( ", m_bJackMasterMode: %1" )
-					 .arg( m_bJackMasterMode ) )
+			.append( QString( ", m_bJackTimebaseMode: %1" )
+					 .arg( m_bJackTimebaseMode ) )
 			.append( QString( ", m_nAutosavesPerHour: %1" )
 					 .arg( m_nAutosavesPerHour ) )
 			.append( QString( ", m_sRubberBandCLIexecutable: %1" )
@@ -2109,8 +2123,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nExportSampleRateIdx ) )
 			.append( QString( ", m_nExportModeIdx: %1" )
 					 .arg( m_nExportModeIdx ) )
-			.append( QString( ", m_nExportTemplateIdx: %1" )
-					 .arg( m_nExportTemplateIdx ) )
+			.append( QString( ", m_exportFormat: %1" )
+					 .arg( Filesystem::AudioFormatToSuffix( m_exportFormat ) ) )
+			.append( QString( ", m_fExportCompressionLevel: %1" )
+					 .arg( m_fExportCompressionLevel ) )
 			.append( QString( ", m_nMidiExportMode: %1" )
 					 .arg( m_nMidiExportMode ) )
 			.append( QString( ", m_bShowExportSongLicenseWarning: %1" )

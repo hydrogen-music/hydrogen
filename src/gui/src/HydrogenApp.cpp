@@ -963,7 +963,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
-				pListener->jackTimebaseStateChangedEvent();
+				pListener->jackTimebaseStateChangedEvent( event.value );
 				break;
 				
 			case EVENT_SONG_MODE_ACTIVATION:

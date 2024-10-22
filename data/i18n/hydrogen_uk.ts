@@ -427,11 +427,6 @@ B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>J.Master</source>
-        <extracomment>Text displayed on the button to activate the JACK Timebase master control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
         <translation>Мікшер</translation>
@@ -706,14 +701,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Register Hydrogen as JACK Timebase master</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>JACK timebase support is disabled in the Preferences</source>
         <translation type="unfinished"></translation>
     </message>
@@ -766,10 +753,6 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>The Timeline is only available in Song Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1162,6 +1145,23 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Add instrument</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Timebase</source>
+        <extracomment>Text displayed on the button to register Hydrogen to be in the JACK Timebase control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1424,50 +1424,6 @@ Overwrite the existing file?</source>
         <translation>32</translation>
     </message>
     <message>
-        <source>Templates: </source>
-        <translation>Шаблони:</translation>
-    </message>
-    <message>
-        <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
-        <translation>WAV з якістю CD: 44,1 КГц, 16-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>WAV з якістю ADAT: 48 КГц, 16-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>WAV з покращеною якістю: 48 КГц, 24-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation>WAV низької якості: 22,05 КГц, 8-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation>WAV з найвищою якістю: 96КГц, 32-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
-        <translation>AIFF з якістю CD: 41 КГц, 16-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation>AIFF з якістю ADAT: 48 КГц, 16-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation>AIFF з покращеною якістю: 48КГц, 24-розрядний PCM</translation>
-    </message>
-    <message>
-        <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
-        <translation>FLAC, без втрат, з хорошою якістю: 48КГц</translation>
-    </message>
-    <message>
-        <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
-        <translation>Ogg Vorbis, зі втратами, але з хорошою якістю: VBR</translation>
-    </message>
-    <message>
         <source>Interpolation: </source>
         <translation>Інтерполяція:</translation>
     </message>
@@ -1525,6 +1481,14 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compression Level:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3430,19 +3394,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>In the presence of an external JACK Timebase master the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Alter the Playback Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase master this widget just displays the tempo broadcasted by JACK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3454,11 +3410,19 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.</source>
+        <source>JACK Timebase mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JACK Timebase mode</source>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4325,10 +4289,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable JACK &amp;timebase master support</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Apply and restart output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4546,6 +4506,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable JACK &amp;Timebase support</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

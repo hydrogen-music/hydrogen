@@ -20,7 +20,7 @@
  *
  */
 #include <unistd.h>
-
+#include <algorithm>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
@@ -53,60 +53,117 @@ pthread_t diskWriterDriverThread;
 
 void* diskWriterDriver_thread( void* param )
 {
-	Base * __object = ( Base * )param;
+
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
-	__INFOLOG( "DiskWriterDriver thread start" );
+	___INFOLOG( "DiskWriterDriver thread started" );
 
-	// always rolling, no user interaction
-	pAudioEngine->play();
+	const auto format = Filesystem::AudioFormatFromSuffix( pDriver->m_sFilename );
+
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
-//	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
 	soundInfo.channels = 2;
-	//default format
-	int sfformat = 0x010000; //wav format (default)
-	int bits = 0x0002; //16 bit PCM (default)
-	//sf_format switch
-	if( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ){
-		sfformat =  0x020000; //Apple/SGI AIFF format (big endian)
+
+	// default format
+	int sfformat = SF_FORMAT_WAV; //wav format (default)
+	int bits = SF_FORMAT_PCM_16; //16 bit PCM (default)
+
+	// Determine audio format based on the provided file suffix.
+	if ( format == Filesystem::AudioFormat::Aiff ||
+		 format == Filesystem::AudioFormat::Aifc ||
+		 format == Filesystem::AudioFormat::Aif ) {
+		sfformat =  SF_FORMAT_AIFF;
 	}
-	if( pDriver->m_sFilename.endsWith(".flac") || pDriver->m_sFilename.endsWith(".FLAC") ){
-		sfformat =  0x170000; //FLAC lossless file format
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
+	else if ( format == Filesystem::AudioFormat::Flac ) {
+		sfformat =  SF_FORMAT_FLAC;
 	}
-	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".aiff") || pDriver->m_sFilename.endsWith(".AIFF") ) ){
-		bits = 0x0001; //Signed 8 bit data works with aiff
+#endif
+	else if ( format == Filesystem::AudioFormat::Wav ) {
+		sfformat =  SF_FORMAT_WAV;
 	}
-	if( ( pDriver->m_nSampleDepth == 8 ) && ( pDriver->m_sFilename.endsWith(".wav") || pDriver->m_sFilename.endsWith(".WAV") ) ){
-		bits = 0x0005; //Unsigned 8 bit data needed for Microsoft WAV format
+	else if ( format == Filesystem::AudioFormat::Au ) {
+		sfformat =  SF_FORMAT_AU;
 	}
-	if( pDriver->m_nSampleDepth == 16 ){
-		bits = 0x0002; //Signed 16 bit data
+	else if ( format == Filesystem::AudioFormat::Caf ) {
+		sfformat =  SF_FORMAT_CAF;
 	}
-	if( pDriver->m_nSampleDepth == 24 ){
-		bits = 0x0003; //Signed 24 bit data
+	else if ( format == Filesystem::AudioFormat::W64 ) {
+		sfformat =  SF_FORMAT_W64;
 	}
-	if( pDriver->m_nSampleDepth == 32 ){
-		bits = 0x0004; ////Signed 32 bit data
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
+	else if ( format == Filesystem::AudioFormat::Ogg ) {
+		sfformat = SF_FORMAT_OGG;
+		bits = SF_FORMAT_VORBIS;
+	}
+#endif
+#ifdef H2CORE_HAVE_OPUS_SUPPORT
+	else if ( format == Filesystem::AudioFormat::Opus ) {
+		sfformat = SF_FORMAT_OGG;
+		bits = SF_FORMAT_OPUS;
+	}
+#endif
+	else if ( format == Filesystem::AudioFormat::Voc ) {
+		sfformat =  SF_FORMAT_VOC;
+	}
+#ifdef H2CORE_HAVE_MP3_SUPPORT
+	else if ( format == Filesystem::AudioFormat::Mp3 ) {
+		sfformat =  SF_FORMAT_MPEG;
+		bits = SF_FORMAT_MPEG_LAYER_III;
+	}
+#endif
+	else {
+		___ERRORLOG( QString( "Unsupported file extension [%1] using libsndfile [%2]" )
+					.arg( pDriver->m_sFilename ).arg( sf_version_string() ) );
+		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+		pthread_exit( nullptr );
+		return nullptr;
+
+	}
+
+	// Instead of making audio export fail on non-supported parameter
+	// combinations, we tailor this test and UI to only allow valid ones. It
+	// would be bad UX to provide an invalid option.
+
+	if ( format != Filesystem::AudioFormat::Ogg &&
+		 format != Filesystem::AudioFormat::Opus &&
+		 format != Filesystem::AudioFormat::Mp3 ) {
+		// Handle sample depth
+		if ( pDriver->m_nSampleDepth == 8 ) {
+			// WAV and other raw PCM formats are handled differently.
+			if ( format == Filesystem::AudioFormat::Voc ||
+				 format == Filesystem::AudioFormat::W64 ||
+				 format == Filesystem::AudioFormat::Wav ) {
+				bits = SF_FORMAT_PCM_U8; //Unsigned 8 bit data needed for Microsoft WAV format
+			} else {
+				bits = SF_FORMAT_PCM_S8; //Signed 8 bit data works with aiff
+			}
+		}
+		else if ( pDriver->m_nSampleDepth == 16 ) {
+			bits = SF_FORMAT_PCM_16; //Signed 16 bit data
+		}
+		else if ( pDriver->m_nSampleDepth == 24 ) {
+			bits = SF_FORMAT_PCM_24; //Signed 24 bit data
+		}
+		else if ( pDriver->m_nSampleDepth == 32 ) {
+			bits = SF_FORMAT_PCM_32; ////Signed 32 bit data
+		}
 	}
 
 	soundInfo.format =  sfformat|bits;
 
-//	#ifdef HAVE_OGGVORBIS
-
-	//ogg vorbis option
-	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) ) {
-		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
-	}
-//	#endif
-
 	if ( !sf_format_check( &soundInfo ) ) {
-		__ERRORLOG( "Error in soundInfo" );
+		___ERRORLOG( QString( "Error while checking format using libsndfile [%1]" )
+					.arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -121,25 +178,56 @@ void* diskWriterDriver_thread( void* param )
 
 	sPaddedPath.toWCharArray( encodedFilename );
 	
-	SNDFILE* m_file = sf_wchar_open( encodedFilename, SFM_WRITE,
+	SNDFILE* pSndfile = sf_wchar_open( encodedFilename, SFM_WRITE,
 								   &soundInfo );
 	delete encodedFilename;
 #else
-	SNDFILE* m_file = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE,
+	SNDFILE* pSndfile = sf_open( pDriver->m_sFilename.toLocal8Bit(), SFM_WRITE,
 							   &soundInfo );
 #endif
 
-	if ( m_file == nullptr ) {
-		__ERRORLOG( QString( "Unable to open file [%1] with format [%2]: %3" )
+	if ( pSndfile == nullptr ) {
+		___ERRORLOG( QString( "Unable to open file [%1] with format [%2] using libsndfile [%3]: %4" )
 					.arg( pDriver->m_sFilename )
 					.arg( Sample::sndfileFormatToQString( soundInfo.format ) )
-					.arg( Sample::sndfileErrorToQString( sf_error( nullptr ) ) ) );
+					.arg( sf_version_string() )
+					.arg( sf_strerror( pSndfile ) ) );
 		pDriver->m_bDoneWriting = true;
+		pDriver->m_bWritingFailed = true;
+		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
 
-	float *pData = new float[ pDriver->m_nBufferSize * 2 ]; // always stereo
+	// Perform some per-file settings.
+#ifdef H2CORE_HAVE_MP3_SUPPORT
+	if ( format == Filesystem::AudioFormat::Mp3 ) {
+		int nBitrateMode = SF_BITRATE_MODE_VARIABLE;
+		if ( sf_command( pSndfile, SFC_SET_BITRATE_MODE, &nBitrateMode,
+						 sizeof(int) ) != SF_TRUE ) {
+			___WARNINGLOG( QString( "Unable to set variable bitrate for MP3 encoding: %1" )
+						  .arg( sf_strerror( pSndfile ) ) );
+		}
+	}
+#endif
+
+#ifdef H2CORE_HAVE_FLAC_SUPPORT
+	// FLAC (and OGG/Vorbis) is the oldest format supporting this setting.
+	if ( format == Filesystem::AudioFormat::Mp3 ||
+		 format == Filesystem::AudioFormat::Ogg ||
+		 format == Filesystem::AudioFormat::Opus ||
+		 format == Filesystem::AudioFormat::Flac ) {
+		if ( sf_command( pSndfile, SFC_SET_COMPRESSION_LEVEL,
+						 &pDriver->m_fCompressionLevel,
+						 sizeof(double) ) != SF_TRUE ) {
+			___WARNINGLOG( QString( "Unable to set compression level [%1]: %2" )
+						  .arg( pDriver->m_fCompressionLevel )
+						  .arg( sf_strerror( pSndfile ) ) );
+		}
+	}
+#endif
+
+	float *pData = new float[ pDriver->m_nBufferSize * 2 ];	// always stereo
 
 	float *pData_L = pDriver->m_pOut_L;
 	float *pData_R = pDriver->m_pOut_R;
@@ -147,6 +235,9 @@ void* diskWriterDriver_thread( void* param )
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
+
+	// always rolling, no user interaction
+	pAudioEngine->play();
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
@@ -157,9 +248,9 @@ void* diskWriterDriver_thread( void* param )
 		delete[] pData;
 		pData = nullptr;
 
-		sf_close( m_file );
+		sf_close( pSndfile );
 
-		__INFOLOG( "DiskWriterDriver thread end" );
+		___INFOLOG( "DiskWriterDriver thread end" );
 
 		pthread_exit( nullptr );
 	};
@@ -214,8 +305,9 @@ void* diskWriterDriver_thread( void* param )
 			// and the call to pDriver->m_processCallback) can not
 			// acquire the lock).
 			if ( ! pDriver->m_bIsRunning ) {
-				__ERRORLOG( "Driver was stop before export was completed." );
+				___ERRORLOG( "Driver was stop before export was completed." );
 				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
 			}
@@ -234,9 +326,10 @@ void* diskWriterDriver_thread( void* param )
 				// already introduces a delay.
 				nMutexLockAttempts++;
 				if ( nMutexLockAttempts > 30 ) {
-					__ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
+					___ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
 					
 					EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+					pDriver->m_bWritingFailed = true;
 					tearDown();
 					return nullptr;
 				}
@@ -297,14 +390,15 @@ void* diskWriterDriver_thread( void* param )
 				}
 			}
 			
-			const int res = sf_writef_float( m_file, pData, nBufferWriteLength );
+			const int res = sf_writef_float( pSndfile, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
-				__ERRORLOG( QString( "Error during sf_write_float. Floats written: [%1], target: [%2]. %3" )
-							.arg( res )
+				___ERRORLOG( QString( "Error during sf_write_float using [%1]. Floats written: [%2], target: [%3]. %4" )
+							.arg( sf_version_string() ).arg( res )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
-					
+
 				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
 			}
@@ -329,6 +423,7 @@ void* diskWriterDriver_thread( void* param )
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
 	
 	tearDown();
+
 	return nullptr;
 }
 
@@ -343,7 +438,9 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
 		, m_bIsRunning( false )
-		, m_bDoneWriting( false ) {
+		, m_bDoneWriting( false )
+		, m_bWritingFailed( false )
+		, m_fCompressionLevel( 0.0 ) {
 }
 
 
@@ -420,7 +517,11 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( "%1%2m_bIsRunning: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bIsRunning ) )
 			.append( QString( "%1%2m_bDoneWriting: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bDoneWriting ) );
+					 .arg( m_bDoneWriting ) )
+			.append( QString( "%1%2m_bWritingFailed: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bWritingFailed ) )
+			.append( QString( "%1%2m_fCompressionLevel: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fCompressionLevel ) );
 	} else {
 		sOutput = QString( "[DiskWriterDriver]" )
 			.append( QString( " m_nSampleRate: %1" ).arg( m_nSampleRate ) )
@@ -428,9 +529,22 @@ QString DiskWriterDriver::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
 			.append( QString( ", m_nSampleDepth: %1" ).arg( m_nSampleDepth ) )
 			.append( QString( ", m_bIsRunning: %1" ).arg( m_bIsRunning ) )
-			.append( QString( ", m_bDoneWriting: %1" ).arg( m_bDoneWriting ) );
+			.append( QString( ", m_bDoneWriting: %1" ).arg( m_bDoneWriting ) )
+			.append( QString( ", m_bWritingFailed: %1" ).arg( m_bWritingFailed ) )
+			.append( QString( ", m_fCompressionLevel: %1" )
+					 .arg( m_fCompressionLevel ) );
 	}
 
 	return sOutput;
+}
+
+void DiskWriterDriver::setCompressionLevel( double fCompressionLevel ) {
+	if ( fCompressionLevel > 1.0 || fCompressionLevel < 0.0 ) {
+		ERRORLOG( QString( "Provided compression level [%1] out of bound [0.0, 1.0]. Assigning nearest possible value." )
+				  .arg( fCompressionLevel ) );
+		fCompressionLevel = std::clamp( fCompressionLevel, 0.0, 1.0 );
+	}
+
+	m_fCompressionLevel = fCompressionLevel;
 }
 };

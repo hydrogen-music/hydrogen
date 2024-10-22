@@ -2773,7 +2773,7 @@ void SongEditorPositionRuler::timelineActivationEvent() {
 	update();
 }
 
-void SongEditorPositionRuler::jackTimebaseStateChangedEvent() {
+void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int nState ) {
 	invalidateBackground();
 	update();
 }
@@ -3269,7 +3269,7 @@ void SongEditorPositionRuler::updatePosition()
 	const auto pTransportPos = m_pAudioEngine->getTransportPosition();
 	const auto pPatternGroupVector =
 		m_pHydrogen->getSong()->getPatternGroupVector();
-	const auto m_nColumn = std::max( pTransportPos->getColumn(), 0 );
+	m_nColumn = std::max( pTransportPos->getColumn(), 0 );
 
 	float fTick = static_cast<float>(m_nColumn);
 

@@ -97,6 +97,19 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 	private:
 
+		/** Height of a single line in the key section. */
+		static constexpr int nNoteKeyLineHeight = 10;
+		/** Height of the whole octave section. */
+		static constexpr int nNoteKeyOctaveHeight = 90;
+		/** Height of the non-interactive space in NoteKey editor between octave
+		 * and key section. It is contained within the octave part. */
+		static constexpr int nNoteKeySpaceHeight = 10;
+		/** The height of the overall NoteKey Editor. It will be calculated
+		 * during runtime using the other constexprs. */
+		static int nNoteKeyHeight;
+		/** Height of all editors except the NoteKey one. */
+		static constexpr int nDefaultHeight = 100;
+
 		bool m_bNeedsUpdate;
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );

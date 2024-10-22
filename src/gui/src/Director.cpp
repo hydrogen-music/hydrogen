@@ -306,7 +306,7 @@ void Director::paintEvent( QPaintEvent* ev )
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( m_nBeat) );
 
 	if( m_sTagNext == m_sTagCurrent ){
-		m_sTagCurrent = "";
+		m_sTagNext = "";
 	}
 	
 	//draw current bar tag

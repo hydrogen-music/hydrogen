@@ -40,6 +40,11 @@ using namespace H2Core;
 #include "PianoRollEditor.h"
 #include "../Skin.h"
 
+int NotePropertiesRuler::nNoteKeyHeight =
+	NotePropertiesRuler::nNoteKeyOctaveHeight +
+	NotePropertiesRuler::nNoteKeyLineHeight * KEYS_PER_OCTAVE;
+
+
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, PatternEditor::Mode mode )
 	: PatternEditor( parent, pPatternEditorPanel )
 	, m_bEntered( false )
@@ -55,10 +60,10 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_bValueHasBeenSet = false;
 
 	if ( m_mode == PatternEditor::Mode::NoteKey ) {
-		m_nEditorHeight = 210;
+		m_nEditorHeight = NotePropertiesRuler::nNoteKeyHeight;
 	}
 	else {
-		m_nEditorHeight = 100;
+		m_nEditorHeight = NotePropertiesRuler::nDefaultHeight;
 	}
 
 	resize( m_nEditorWidth, m_nEditorHeight );
@@ -256,7 +261,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	QPoint movingOffset = m_selection.movingOffset();
 	if ( m_mode == PatternEditor::Mode::NoteKey ) {
-		fDelta = (float)-movingOffset.y() / 10;
+		fDelta = (float)-movingOffset.y() /
+			static_cast<float>(NotePropertiesRuler::nNoteKeyLineHeight);
 	} else {
 		fDelta = (float)-movingOffset.y() / height();
 	}
@@ -445,7 +451,6 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	else if (val < 0.0) {
 		val = 0.0;
 	}
-	int keyval = val;
 	val = val / height(); // val is normalized, in [0;1]
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
@@ -495,21 +500,31 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			if ( ev->button() != Qt::MiddleButton &&
 				 ! ( ev->modifiers() == Qt::ControlModifier &&
 					 ev->button() == Qt::LeftButton ) ) {
-				//set the note height
-				int k = 666;
-				int o = 666;
-				if( keyval >= 6 && keyval <= 125 ) {
-					k = ( keyval - 6 ) / 10;
+				int nKey = 666;
+				int nOctave = 666;
+				if ( ev->y() > 0 &&
+					 ev->y() <= NotePropertiesRuler::nNoteKeyOctaveHeight ) {
+					nOctave = std::round(
+						( NotePropertiesRuler::nNoteKeyOctaveHeight / 2 +
+						  NotePropertiesRuler::nNoteKeyLineHeight / 2 -
+						  ev->y() -
+						  NotePropertiesRuler::nNoteKeyLineHeight / 2 ) /
+						NotePropertiesRuler::nNoteKeyLineHeight );
+					nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
 				}
-				else if( keyval >= 135 && keyval <= 205 ) {
-					o = ( keyval - 166 ) / 10;
-					if ( o == -4 ) {
-						o = -3; // 135
-					}
+				else if ( ev->y() >= NotePropertiesRuler::nNoteKeyOctaveHeight &&
+						  ev->y() < NotePropertiesRuler::nNoteKeyHeight ) {
+					nKey = ( height() - ev->y() -
+							 NotePropertiesRuler::nNoteKeyLineHeight / 2 ) /
+						NotePropertiesRuler::nNoteKeyLineHeight;
+					nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
 				}
-				m_fLastSetValue = o * 12 + k;
-				bValueSet = true;
-				pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
+
+				if ( nKey != 666 || nOctave != 666 ) {
+					m_fLastSetValue = nOctave * KEYS_PER_OCTAVE + nKey;
+					bValueSet = true;
+					pNote->set_key_octave((Note::Key)nKey,(Note::Octave)nOctave); // won't set wrong values see Note::set_key_octave
+				}
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::Probability && !pNote->get_note_off() ) {
@@ -557,7 +572,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 	bool bValueSet = false;
 	
 	switch (m_mode) {
-	case PatternEditor::Mode::Velocity:
+	case PatternEditor::Mode::Velocity: {
 		if ( !pNote->get_note_off() ) {
 			float fVelocity = qBound(  VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
 			pNote->set_velocity( fVelocity );
@@ -565,7 +580,8 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
-	case PatternEditor::Mode::Pan:
+	}
+	case PatternEditor::Mode::Pan: {
 		if ( !pNote->get_note_off() ) {
 			float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta; // value in [0,1] or slight out of boundaries
 			pNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
@@ -573,6 +589,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
+	}
 	case PatternEditor::Mode::LeadLag: {
 		float fLeadLag = qBound( LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
 		pNote->set_lead_lag( fLeadLag );
@@ -580,7 +597,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		bValueSet = true;
 		break;
 	}
-	case PatternEditor::Mode::Probability:
+	case PatternEditor::Mode::Probability: {
 		if ( !pNote->get_note_off() ) {
 			float fProbability = qBound( 0.0f, pOldNote->get_probability() + fDelta, 1.0f );
 			pNote->set_probability( fProbability );
@@ -588,24 +605,24 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
+	}
 	case PatternEditor::Mode::NoteKey: {
-		int nPitch = qBound( 12 * OCTAVE_MIN, (int)( pOldNote->get_notekey_pitch() + fDelta ),
-							 12 * OCTAVE_MAX + KEY_MAX );
+		int nPitch = qBound( KEYS_PER_OCTAVE * OCTAVE_MIN, (int)( pOldNote->get_notekey_pitch() + fDelta ),
+							 KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
 		Note::Octave octave;
 		if ( nPitch >= 0 ) {
-			octave = (Note::Octave)( nPitch / 12 );
+			octave = (Note::Octave)( nPitch / KEYS_PER_OCTAVE );
 		} else {
-			octave = (Note::Octave)( (nPitch-11) / 12 );
+			octave = (Note::Octave)( (nPitch-11) / KEYS_PER_OCTAVE );
 		}
-		Note::Key key = (Note::Key)( nPitch - 12 * (int)octave );
+		Note::Key key = (Note::Key)( nPitch - KEYS_PER_OCTAVE * (int)octave );
 
 		pNote->set_key_octave( key, octave );
-		m_fLastSetValue = 12 * octave + key;
+		m_fLastSetValue = KEYS_PER_OCTAVE * octave + key;
 
 		bValueSet = true;
 		break;
 	}
-
 	case PatternEditor::Mode::None:
 	default:
 		ERRORLOG("No mode set. No note property adjusted.");
@@ -661,6 +678,21 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition(0);
+
+	} else if ( ev->key() == Qt::Key_Delete ) {
+		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
+		bUnhideCursor = false;
+		if ( m_selection.begin() != m_selection.end() ) {
+			// Delete selected notes if any
+			m_pPatternEditorPanel->getDrumPatternEditor()->
+				deleteSelection();
+		} else {
+			// Delete note under the keyboard cursor.
+			m_pPatternEditorPanel->getDrumPatternEditor()->
+				addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+								 pHydrogen->getSelectedInstrumentNumber(),
+								 /*bDoAdd=*/false, /*bDoDelete=*/true );
+		}
 
 	} else {
 
@@ -1293,21 +1325,33 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	QPainter p( pixmap );
 	p.fillRect( 0, 0, m_nEditorWidth, m_nEditorHeight, backgroundInactiveColor );
-	drawDefaultBackground( p, 80, 10 );
+	drawDefaultBackground( p, NotePropertiesRuler::nNoteKeyOctaveHeight -
+						   NotePropertiesRuler::nNoteKeySpaceHeight,
+						   NotePropertiesRuler::nNoteKeyLineHeight );
 
 	// fill the background of the key region;
-	for ( unsigned y = 90; y < 210; y = y + 10 ) {
-		
-		if ( y == 100 || y == 120 || y == 140 || y == 170 || y == 190) {
+	for ( unsigned y = NotePropertiesRuler::nNoteKeyOctaveHeight;
+		  y < NotePropertiesRuler::nNoteKeyHeight;
+		  y = y + NotePropertiesRuler::nNoteKeyLineHeight ) {
+
+		const int nRow = ( y - NotePropertiesRuler::nNoteKeyOctaveHeight ) /
+			NotePropertiesRuler::nNoteKeyLineHeight;
+		if ( nRow == 1 ||  nRow == 3 || nRow == 5 || nRow == 8 || nRow == 10 ) {
+			// Draw rows of semi tones in a different color.
 			p.setPen( QPen( alternateRowColor,
-							9, Qt::SolidLine, Qt::FlatCap ) );
+							NotePropertiesRuler::nNoteKeyLineHeight - 1,
+							Qt::SolidLine, Qt::FlatCap ) );
 		}
 		else {
-			p.setPen( QPen( octaveColor, 9, Qt::SolidLine, Qt::FlatCap) );
+			p.setPen( QPen( octaveColor,
+							NotePropertiesRuler::nNoteKeyLineHeight - 1,
+							Qt::SolidLine, Qt::FlatCap ) );
 		}
 					
 		p.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
 	}
+
+	drawGridLines( p, Qt::DotLine );
 
 	// Annotate with note class names
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
@@ -1317,20 +1361,32 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	
 	p.setFont( font );
 	p.setPen( textColor );
-	for ( int n = 0; n < 12; n++ ) {
-		p.drawText( 3, 90 + 10 * n +3, noteNames[n] );
+	for ( int n = 0; n < KEYS_PER_OCTAVE; n++ ) {
+		p.drawText( 3, NotePropertiesRuler::nNoteKeyOctaveHeight +
+					NotePropertiesRuler::nNoteKeyLineHeight * n +3,
+					noteNames[n] );
 	}
 
 	// Horizontal grid lines in the key region
 	p.setPen( QPen( lineColor, 1, Qt::SolidLine));
-	for (unsigned y = 90; y <= 210; y = y + 10 ) {
-		p.drawLine( PatternEditor::nMargin, y - 5, m_nActiveWidth, y-5);
+	for ( unsigned y = NotePropertiesRuler::nNoteKeyOctaveHeight;
+		  y <= NotePropertiesRuler::nNoteKeyHeight;
+		  y = y + NotePropertiesRuler::nNoteKeyLineHeight ) {
+		p.drawLine( PatternEditor::nMargin,
+					y - NotePropertiesRuler::nNoteKeyLineHeight / 2,
+					m_nActiveWidth,
+					y - NotePropertiesRuler::nNoteKeyLineHeight / 2 );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 		p.setPen( lineInactiveColor );
-		for (unsigned y = 90; y <= 210; y = y + 10 ) {
-			p.drawLine( m_nActiveWidth, y - 5, m_nEditorWidth, y-5);
+		for ( unsigned y = NotePropertiesRuler::nNoteKeyOctaveHeight;
+			  y <= NotePropertiesRuler::nNoteKeyHeight;
+			  y = y + NotePropertiesRuler::nNoteKeyLineHeight ) {
+			p.drawLine( m_nActiveWidth,
+						y - NotePropertiesRuler::nNoteKeyLineHeight / 2,
+						m_nEditorWidth,
+						y - NotePropertiesRuler::nNoteKeyLineHeight / 2 );
 		}
 	}
 
@@ -1352,34 +1408,40 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
-				//paint the octave
-				uint x_pos = 17 + pNote->get_position() * m_fGridWidth;
-				uint y_pos = (4-pNote->get_octave())*10-3;
-				p.setBrush( DrumPatternEditor::computeNoteColor( pNote->get_velocity() ) );
-				p.drawEllipse( x_pos, y_pos, 6, 6);
-
-				//paint note
-				int d = 8;
-				int k = pNote->get_key();
-				x_pos = 16 + pNote->get_position() * m_fGridWidth;
-				y_pos = 200-(k*10)-4;
-
-				x_pos -= 1;
-				y_pos -= 1;
-				d += 2;
+				// paint the octave
+				const int nRadiusOctave = 3;
+				const int nX = PatternEditor::nMargin +
+					pNote->get_position() * m_fGridWidth;
+				const int nOctaveY = ( 4 - pNote->get_octave() ) *
+					NotePropertiesRuler::nNoteKeyLineHeight;
 				p.setPen( QPen( Qt::black, 1 ) );
-				p.setBrush( DrumPatternEditor::computeNoteColor( pNote->get_velocity() ) );
-				p.drawEllipse( x_pos, y_pos, d, d);
+				p.setBrush( DrumPatternEditor::computeNoteColor(
+								pNote->get_velocity() ) );
+				p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave,
+							   nRadiusOctave );
+
+				// paint note
+				const int nRadiusKey = 5;
+				const int nKeyY = NotePropertiesRuler::nNoteKeyHeight -
+					( ( pNote->get_key() + 1 ) *
+					  NotePropertiesRuler::nNoteKeyLineHeight );
+
+				p.setBrush( DrumPatternEditor::computeNoteColor(
+								pNote->get_velocity() ) );
+				p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
 
 				// Paint selection outlines
-				int nLineWidth = 3;
 				if ( m_selection.isSelected( pNote ) ) {
 					p.setPen( selectedPen );
 					p.setBrush( Qt::NoBrush );
 					p.setRenderHint( QPainter::Antialiasing );
-					p.drawRoundedRect( x_pos - 1 -2 +3, 2,
-									   nLineWidth + 4 + 4,  height() - 4,
-									   4, 4 );
+					// Octave
+					p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 1,
+								   nRadiusOctave + 1 );
+
+					// Key
+					p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey + 1,
+								   nRadiusKey + 1 );
 				}
 			}
 		}

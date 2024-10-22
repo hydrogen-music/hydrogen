@@ -410,7 +410,10 @@ public:
 		m_bTempoMarkerPresent = bTempoMarkerPresent;
 	}
 	virtual void undo() {
-		if( m_bTempoMarkerPresent ){
+		if ( m_bTempoMarkerPresent ){
+			if ( m_nOldColumn != m_nNewColumn ) {
+				H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
+			}
 			H2Core::CoreActionController::addTempoMarker( m_nOldColumn, m_fOldBpm );
 		} else {
 			H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
@@ -420,7 +423,9 @@ public:
 	}
 
 	virtual void redo() {
-		H2Core::CoreActionController::deleteTempoMarker( m_nOldColumn );
+		if ( m_nOldColumn != m_nNewColumn ) {
+			H2Core::CoreActionController::deleteTempoMarker( m_nOldColumn );
+		}
 		H2Core::CoreActionController::addTempoMarker( m_nNewColumn, m_fNewBpm );
 		HydrogenApp::get_instance()->getSongEditorPanel()->
 			getSongEditorPositionRuler()->createBackground();

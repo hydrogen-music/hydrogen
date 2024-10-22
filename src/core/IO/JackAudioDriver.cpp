@@ -375,7 +375,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 		// in BBT information.
 		//
 		// We also have to convert between the tick size used within
-		// Hydrogen and the one used by the current timebase master.
+		// Hydrogen and the one used by the current Timebase controller.
 		nBarTicks = pos.bar_start_tick * ( fTicksPerBeat / pos.ticks_per_beat );
 
 		// Check whether the resulting ticks exceeds the end of the song.
@@ -501,7 +501,7 @@ void JackAudioDriver::relocateUsingBBT()
 		return;
 	}
 	if ( m_timebaseState != Timebase::Listener ) {
-		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another Jack timebase master" ) );
+		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another JACK Timebase controller" ) );
 		return;
 	}
 
@@ -633,8 +633,8 @@ void JackAudioDriver::updateTransportPosition()
 	// is called. But since this is not happening while transport is stopped or
 	// starting, we have to omit those cases.
 	if ( bTimebaseEnabled && m_JackTransportState == JackTransportRolling ) {
-		// Update the status regrading JACK timebase master.
-		if ( m_timebaseState == Timebase::Master ) {
+		// Update the status regrading JACK Timebase.
+		if ( m_timebaseState == Timebase::Controller ) {
 			if ( m_timebaseTracking == TimebaseTracking::Valid ) {
 				m_timebaseTracking = TimebaseTracking::OnHold;
 			}
@@ -651,7 +651,7 @@ void JackAudioDriver::updateTransportPosition()
 
 #if JACK_DEBUG
 				J_DEBUGLOG( QString( "Updating Timebase [0] [%1] -> [%2]" )
-							.arg( TimebaseToQString( Timebase::Master ) )
+							.arg( TimebaseToQString( Timebase::Controller ) )
 							.arg( TimebaseToQString( m_timebaseState ) ) );
 #endif
 
@@ -662,9 +662,9 @@ void JackAudioDriver::updateTransportPosition()
 			}
 		}
 		else {
-			// Update state with respect to an external Timebase master
+			// Update state with respect to an external Timebase controller
 			if ( m_JackTransportPos.valid & JackPositionBBT ) {
-				// There is an external master
+				// There is an external controller
 				if ( m_timebaseState != Timebase::Listener ) {
 
 #if JACK_DEBUG
@@ -1048,9 +1048,9 @@ int JackAudioDriver::init( unsigned bufferSize )
 #endif
 
 	if ( pPreferences->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
-		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
+		 pPreferences->m_bJackTimebaseMode == Preferences::USE_JACK_TIMEBASE_CONTROL &&
 		 pPreferences->m_bJackTimebaseEnabled ){
-		initTimebaseMaster();
+		initTimebaseControl();
 	}
 
 	// TODO: Apart from the makeTrackOutputs() all other calls should
@@ -1205,9 +1205,9 @@ void JackAudioDriver::locateTransport( long long nFrame )
 	const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	if ( m_pClient != nullptr ) {
-		if ( m_timebaseState == Timebase::Master ) {
+		if ( m_timebaseState == Timebase::Controller ) {
 			// We have to provided all BBT information as well when relocating
-			// as timebase master.
+			// as Timebase controller.
 			m_nextJackTransportPos.frame = nFrame;
 			transportToBBT( *pAudioEngine->getTransportPosition(),
 							&m_nextJackTransportPos );
@@ -1227,8 +1227,8 @@ void JackAudioDriver::locateTransport( long long nFrame )
 			if ( m_timebaseState == Timebase::Listener ) {
 				// We have to guard against negative values which themselves are
 				// nothing bad. They just tell that time was rescaled by a
-				// measure change in the master in such a way, Hydrogen expects
-				// the origin of transport beyond 0.
+				// measure change in the controller in such a way, Hydrogen
+				// expects the origin of transport beyond 0.
 				nNewFrame = std::max( static_cast<long long>(0),
 									  nFrame - m_nTimebaseFrameOffset );
 			}
@@ -1252,7 +1252,7 @@ void JackAudioDriver::locateTransport( long long nFrame )
 	}
 }
 
-void JackAudioDriver::initTimebaseMaster()
+void JackAudioDriver::initTimebaseControl()
 {
 	if ( m_pClient == nullptr ) {
 		ERRORLOG( "No client yet" );
@@ -1260,45 +1260,17 @@ void JackAudioDriver::initTimebaseMaster()
 	}
 
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
-		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
+		ERRORLOG( "This function should not have been called with JACK Timebase disabled in the Preferences" );
 		return;
 	}
 
 	auto pPreferences = Preferences::get_instance();
-	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
-		// Defined in jack/transport.h
-		// Register as timebase master for the JACK
-		// subsystem.
-		//
-		// The timebase master registers a callback that
-		// updates extended position information such as
-		// beats or timecode whenever necessary.  Without
-		// this extended information, there is no need for
-		// this function.
-		//
-		// There is never more than one master at a time.
-		// When a new client takes over, the former @a
-		// timebase_callback is no longer called.  Taking
-		// over the timebase may be done conditionally, so
-		// it fails if there was a master already.
-		//
-		// @param client the JACK client structure.
-		// @param conditional non-zero for a conditional
-		// request.
-		// @param timebase_callback is a realtime function
-		// that returns position information.
-		// @param arg an argument for the @a timebase_callback
-		// function.
-		// @return
-		//   - 0 on success;
-		//   - EBUSY if a conditional request fails because
-		// there was already a timebase master;
-		//   - other non-zero error code.
+	if ( pPreferences->m_bJackTimebaseMode == Preferences::USE_JACK_TIMEBASE_CONTROL ) {
 		int nReturnValue = jack_set_timebase_callback(m_pClient, 0,
 						     JackTimebaseCallback, this);
 		if ( nReturnValue != 0 ){
-			pPreferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-			WARNINGLOG( QString( "Hydrogen was not able to register itself as Timebase Master: [%1]" )
+			pPreferences->m_bJackTimebaseMode = Preferences::NO_JACK_TIMEBASE_CONTROL;
+			WARNINGLOG( QString( "Hydrogen was not able to register itself as Timebase controller: [%1]" )
 						.arg( nReturnValue ) );
 		}
 		else {
@@ -1307,22 +1279,22 @@ void JackAudioDriver::initTimebaseMaster()
 #if JACK_DEBUG
 			J_DEBUGLOG( QString( "Updating Timebase [2] [%1] -> [%2]" )
 						.arg( TimebaseToQString( m_timebaseState ) )
-						.arg( TimebaseToQString( Timebase::Master ) ) );
+						.arg( TimebaseToQString( Timebase::Controller ) ) );
 #endif
 
-			m_timebaseState = Timebase::Master;
+			m_timebaseState = Timebase::Controller;
 			EventQueue::get_instance()->push_event(
 				EVENT_JACK_TIMEBASE_STATE_CHANGED,
 				static_cast<int>(m_timebaseState) );
 		}
 	}
 	else {
-		WARNINGLOG( "Timebase master usage is disabled in the Preferences" );
-	    releaseTimebaseMaster();
+		WARNINGLOG( "Timebase control should currently not be requested by Hydrogen" );
+	    releaseTimebaseControl();
 	}
 }
 
-void JackAudioDriver::releaseTimebaseMaster()
+void JackAudioDriver::releaseTimebaseControl()
 {
 	if ( m_pClient == nullptr ) {
 		ERRORLOG( QString( "Not fully initialized yet" ) );
@@ -1335,11 +1307,14 @@ void JackAudioDriver::releaseTimebaseMaster()
 	}
 
 	if ( jack_release_timebase( m_pClient ) ) {
-		ERRORLOG( "Unable to release timebase master state" );
+		ERRORLOG( "Unable to release Timebase control" );
 	}
 
 	m_timebaseTracking = TimebaseTracking::Valid;
-	if ( m_JackTransportPos.valid & JackPositionBBT ) {
+	if ( m_JackTransportPos.valid & JackPositionBBT &&
+		 m_timebaseState != Timebase::Controller ) {
+		// Having an external controller while this function is called should be
+		// rarely the case. But we still have to handle it.
 		m_timebaseState = Timebase::Listener;
 	}
 	else {
@@ -1348,7 +1323,7 @@ void JackAudioDriver::releaseTimebaseMaster()
 
 #if JACK_DEBUG
 	J_DEBUGLOG( QString( "Updating Timebase [%1] -> [%2]" )
-				.arg( TimebaseToQString( Timebase::Master ) )
+				.arg( TimebaseToQString( Timebase::Controller ) )
 				.arg( TimebaseToQString( m_timebaseState ) ) );
 #endif
 
@@ -1406,19 +1381,19 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		posFromFrame( nSecondFrame, pJackPosition );
 	}
 
-	// Tell Hydrogen it is still timebase master.
+	// Tell Hydrogen it is still in Timebase control.
 	if ( pDriver->m_timebaseTracking != TimebaseTracking::Valid ) {
 		pDriver->m_timebaseTracking = TimebaseTracking::Valid;
 	}
-	if ( pDriver->m_timebaseState != Timebase::Master ) {
+	if ( pDriver->m_timebaseState != Timebase::Controller ) {
 
 #if JACK_DEBUG
 		J_DEBUGLOG( QString( "Updating Timebase [%1] -> [%2]" )
 					.arg( TimebaseToQString( pDriver->m_timebaseState ) )
-					.arg( TimebaseToQString( Timebase::Master ) ) );
+					.arg( TimebaseToQString( Timebase::Controller ) ) );
 #endif
 
-		pDriver->m_timebaseState = Timebase::Master;
+		pDriver->m_timebaseState = Timebase::Controller;
 
 		EventQueue::get_instance()->push_event(
 			EVENT_JACK_TIMEBASE_STATE_CHANGED,
@@ -1443,7 +1418,7 @@ JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
 	return Timebase::None;
 }
 
-float JackAudioDriver::getMasterBpm() const {
+float JackAudioDriver::getTimebaseControllerBpm() const {
 	if ( m_timebaseState != Timebase::Listener ) {
 		return std::nan("no tempo, no masters");
 	}
@@ -1484,8 +1459,8 @@ QString JackAudioDriver::TimebaseToQString( const JackAudioDriver::Timebase& t )
 			return "None";
 		case Timebase::Listener:
 			return "Listener";
-		case Timebase::Master:
-			return "Master";
+		case Timebase::Controller:
+			return "Controller";
 		default:
 			return "Unknown";
 	}
@@ -1520,6 +1495,17 @@ QString JackAudioDriver::TimebaseTrackingToQString( const TimebaseTracking& t ) 
 			return "None";
 		default:
 			return "Unknown";
+	}
+}
+JackAudioDriver::Timebase JackAudioDriver::TimebaseFromInt( int nState ) {
+	switch( nState ) {
+	case static_cast<int>(Timebase::Listener):
+		return Timebase::Listener;
+	case static_cast<int>(Timebase::Controller):
+		return Timebase::Controller;
+	case static_cast<int>(Timebase::None):
+	default:
+		return Timebase::None;
 	}
 }
 

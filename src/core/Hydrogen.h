@@ -61,12 +61,11 @@ public:
 		Song = 0,
 		/** Only tempo markers on the Timeline are considered.*/
 		Timeline = 1,
-		/** Hydrogen will disregard all internal tempo settings and
-			uses the ones provided by the JACK server instead. This
-			mode is only used in case the JACK audio driver is used,
-			JACK timebase support is activated in the Preferences, and
-			an external timebase master is registered to the JACK
-			server.*/
+		/** Hydrogen will disregard all internal tempo settings and uses the
+			ones provided by the JACK server instead. This mode is only used in
+			case the JACK audio driver is used, JACK Timebase support is
+			activated in the Preferences, and an external Timebase controller is
+			registered to the JACK server.*/
 		Jack = 2
 	};
 
@@ -328,12 +327,12 @@ public:
 	bool			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
-	/** Calling JackAudioDriver::releaseTimebaseMaster() directly from
+	/** Calling JackAudioDriver::releaseTimebaseControl() directly from
 	    the GUI*/
-	void			offJackMaster();
-	/** Calling JackAudioDriver::initTimebaseMaster() directly from
+	void			releaseJackTimebaseControl();
+	/** Calling JackAudioDriver::initTimebaseControl() directly from
 	    the GUI*/
-	void			onJackMaster();
+	void			initJackTimebaseControl();
 
 	void			panic();
 	std::shared_ptr<Timeline>	getTimeline() const;
@@ -341,8 +340,17 @@ public:
 	
 	//export management
 	bool			getIsExportSessionActive() const;
-	/** \return true on success.*/
-	bool			startExportSession( int rate, int depth );
+	/**
+	 * @param nSampleRate sample rate using which to export
+	 * @param nSampleDepth sample depth using which to export
+	 * @param fCompressionLevel Trades off audio quality against compression
+	 *   rate defined between 0.0 (maximum quality) and 1.0 (maximum
+	 *   compression).
+	 *
+	 * \return true on success
+	 * .*/
+	bool			startExportSession( int nSampleRate, int nSampleDepth,
+										double fCompressionLevel = 0.0 );
 	void			stopExportSession();
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();
@@ -379,12 +387,12 @@ public:
 	 * (#H2Core::Preferences::m_nJackTransportMode).
 	 */
 	bool			hasJackTransport() const;
-        float			getMasterBpm() const;
+        float			getJackTimebaseControllerBpm() const;
 
 	/**
-	 * Convenience function checking whether using the Timeline tempo
-	 * is set in the Preferences, Song::SONG_MODE is set, and there is
-	 * a JACK timebase master present.
+	 * Convenience function checking whether using the Timeline tempo is set in
+	 * the Preferences, Song::SONG_MODE is set, and there is an external JACK
+	 * Timebase controller (application) present.
 	 *
 	 * \return Whether the Timeline is used to determine the current speed.
 	 */
@@ -400,10 +408,10 @@ public:
 	Tempo getTempoSource() const;
 	
 	/**
-	 * \return Whether we hasJackTransport() and there is an external
-	 * JACK timebase master broadcasting us tempo information and
-	 * making use disregard Hydrogen's Timeline information (see
-	 * #H2Core::JackAudioDriver::m_timebaseState).
+	 * \return Whether we hasJackTransport() and there is an external JACK
+	 *   Timebase controller broadcasting tempo information. If so, we disregard
+	 *   Hydrogen's Timeline information (see
+	 *   #H2Core::JackAudioDriver::m_timebaseState).
 	 */
 	JackAudioDriver::Timebase		getJackTimebaseState() const;
 	/** \return NsmClient::m_bUnderSessionManagement if NSM is

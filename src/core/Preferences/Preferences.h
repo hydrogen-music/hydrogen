@@ -33,6 +33,7 @@
 
 #include <core/MidiAction.h>
 #include <core/Globals.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 
 #include <QStringList>
@@ -95,12 +96,15 @@ public:
 	       */
 	      USE_JACK_TRANSPORT = 0,
 	      /**
-	       * Specifies that Hydrogen is using in the time master
-	       * mode and will thus control specific aspects of the
-	       * transport like the overall tempo. Its counterpart is
-	       * #NO_JACK_TIME_MASTER.
+	       * Specifies that Hydrogen should attempt to acquire JACK Timebase
+	       * control.
+	       *
+	       * This represent the state desired by the user. The actual one is
+	       * stored in H2Core::JackAudioDriver::m_timebaseState.
+	       *
+	       * Its counterpart is #NO_JACK_TIMEBASE_CONTROL.
 	       */
-	      USE_JACK_TIME_MASTER = 0,
+	      USE_JACK_TIMEBASE_CONTROL = 0,
 	      SET_PLAY_ON = 0,
 	      BC_ON = 0,/** 
 	       * Specifies whether or not to use JACK transport
@@ -111,11 +115,17 @@ public:
 	       */
 	      NO_JACK_TRANSPORT = 1,
 	      /**
-	       * Specifies that Hydrogen is note using in the time
-	       * master mode. Its counterpart is
-	       * #USE_JACK_TIME_MASTER.
+	       * Specifies that Hydrogen should not be in control of JACK Timebase
+	       * information. This could mean both that there is an external
+	       * application controlling position and tempo of Hydrogen and that
+	       * there are just equal JACK clients.
+	       *
+	       * This represent the state desired by the user. The actual one is
+	       * stored in H2Core::JackAudioDriver::m_timebaseState.
+	       *
+	       * Its counterpart is #USE_JACK_TIMEBASE_CONTROL.
 	       */
-	      NO_JACK_TIME_MASTER = 1,
+	      NO_JACK_TIMEBASE_CONTROL = 1,
 	      SET_PLAY_OFF = 1,
 	      BC_OFF = 1
 	};
@@ -372,21 +382,22 @@ public:
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
 	JackTrackOutputMode		m_JackTrackOutputMode;
-	//jack time master
 
 	/**
-	 * External applications with a faulty JACK timebase master
-	 * implementation can mess up the transport within Hydrogen. To
-	 * guarantee the basic functionality, the user can disable
-	 * timebase support and make Hydrogen only listen to the frame
-	 * number broadcast by the JACK server.
+	 * External applications with a faulty JACK Timebase implementation can mess
+	 * up the transport within Hydrogen. To guarantee the basic functionality,
+	 * the user can disable Timebase support and make Hydrogen only listen to
+	 * the frame number broadcast by the JACK server.
 	 */
 	bool				m_bJackTimebaseEnabled;
 	/**
-	 * Specifies if Hydrogen should run as JACK time master. It
-	 * has two states: Preferences::USE_JACK_TIME_MASTER and
-	 * Preferences::NO_JACK_TIME_MASTER. */
-	int					m_bJackMasterMode;
+	 * Specifies if Hydrogen support the of JACK Timebase protocol. It has two
+	 * states: Preferences::USE_JACK_TIMEBASE_CONTROL and Preferences::NO_JACK_TIMEBASE_CONTROL.
+	 * It is set to Preferences::NO_JACK_TIMEBASE_CONTROL by the
+	 * JackAudioDriver::initTimebaseControl() if Hydrogen couldn't acquire
+	 * Timebase control.
+	 */
+	int					m_bJackTimebaseMode;
 	// ~ jack driver properties
 
 	int				m_nAutosavesPerHour;
@@ -561,8 +572,10 @@ public:
 	void			setExportSampleRateIdx( int nExportSampleRateIdx );
 	int				getExportModeIdx() const;
 	void			setExportModeIdx(int nExportMode);
-	int				getExportTemplateIdx() const;
-	void			setExportTemplateIdx( int nExportTemplateIdx );
+	Filesystem::AudioFormat getExportFormat() const;
+	void			setExportFormat( Filesystem::AudioFormat format );
+	float 			getExportCompressionLevel() const;
+	void			setExportCompressionLevel( float fCompressionLevel );
 
 		// Export MIDI dialog
     int				getMidiExportMode() const;
@@ -699,7 +712,9 @@ private:
 	int						m_nExportSampleDepthIdx;
 	int						m_nExportSampleRateIdx;
 	int						m_nExportModeIdx;
-	int						m_nExportTemplateIdx;
+	Filesystem::AudioFormat m_exportFormat;
+	float					m_fExportCompressionLevel;
+	// ~ Export dialog
 
     // Export midi dialog
     int						m_nMidiExportMode;
@@ -865,14 +880,24 @@ inline void Preferences::setExportSampleRateIdx(int ExportSampleRate)
 	m_nExportSampleRateIdx = ExportSampleRate;
 }
 
-inline int Preferences::getExportTemplateIdx() const
+inline Filesystem::AudioFormat Preferences::getExportFormat() const
 {
-	return m_nExportTemplateIdx;
+	return m_exportFormat;
 }
 
-inline void Preferences::setExportTemplateIdx(int ExportTemplateIdx)
+inline void Preferences::setExportFormat( Filesystem::AudioFormat format )
 {
-	m_nExportTemplateIdx = ExportTemplateIdx;
+	m_exportFormat = format;
+}
+
+inline float Preferences::getExportCompressionLevel() const
+{
+	return m_fExportCompressionLevel;
+}
+
+inline void Preferences::setExportCompressionLevel( float fCompressionLevel )
+{
+	m_fExportCompressionLevel = fCompressionLevel;
 }
 
 inline const QString& Preferences::getDefaultEditor() const {
