@@ -17,8 +17,6 @@
 # Linux ccache     256Mb
 # Windows64 ccache 256Mb
 #
-# 32-bit Windows is not cached since it's not regularly built.
-#
 # Caching the macOS Homebrew configuration is the single largest
 # impact on Appveyor build times, since Howebrew on the Appveyor images
 # is very out of date, and some prerequisites require rebuilding.
@@ -61,25 +59,7 @@ environment:
 
     - job_name: 'Windows64'
       job_group: 'Windows'
-      MSYS: 'C:\msys64\mingw64'
-      MSYS_REPO: 'mingw64/mingw-w64-x86_64'
-      PACKAGE_PREFIX: 'mingw-w64-x86_64'
-      BUILD_TYPE: "Release"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON"
       appveyor_build_worker_image: Visual Studio 2019
-      LIBSSL: libssl-3-x64.dll
-      LIBCRYPTO: libcrypto-3-x64.dll
-
-    # - job_name: 'Windows32'
-    #   job_group: 'Windows'
-    #   MSYS: 'C:\msys64\mingw32'
-    #   MSYS_REPO: 'mingw32/mingw-w64-i686'
-    #   PACKAGE_PREFIX: 'mingw-w64-i686'
-    #   BUILD_TYPE: "Release"
-    #   CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF -DWANT_JACK=OFF"
-    #   appveyor_build_worker_image: Visual Studio 2019
-    #   LIBSSL: libssl-3.dll
-    #   LIBCRYPTO: libcrypto-3.dll
 
 build:
   verbosity: detailed
@@ -591,8 +571,7 @@ for:
           set DISPLAY_VERSION=%DISPLAY_VERSION:'=%
           echo %DISPLAY_VERSION%
 
-          if not %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32 appveyor exit
-
+          set MSYS=C:\msys64\mingw64
           set QTDIR=%MSYS%
           set CMAKE_PREFIX_PATH=%QTDIR%
           set PATH=%MSYS%\bin;%PATH%
@@ -605,21 +584,19 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -y
 
           REM *** Install dependencies ***
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libsndfile
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-cppunit
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portmidi
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-winpthreads-git
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
-          REM *** The jack2 package does not seem to be available for 32bit Windows anymore ***
-          if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-jack2
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
-          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-liblo
-          REM *** The angleproject package does not seem to be available for 32bit Windows and Qt does not find its libGLESv2.dll anymore ***
-          if not %job_name%==Windows32 c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-angleproject
-          c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-5.15.5-1-any.pkg.tar.zst
-          c:\msys64\usr\bin\pacman --noconfirm --assume-installed %PACKAGE_PREFIX%-gettext -U https://repo.msys2.org/mingw/%MSYS_REPO%-qt5-tools-5.15.9-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-libarchive
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-libsndfile
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-cppunit
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-portaudio
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-portmidi
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-winpthreads-git
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-ladspa-sdk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-jack2
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-ccache
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-liblo
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed mingw-w64-x86_64-gettext -U https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-qt5-5.15.5-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm --assume-installed mingw-w64-x86_64-gettext -U https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-qt5-tools-5.15.9-1-any.pkg.tar.zst
 
           ccache -M 256M
           ccache -s
@@ -632,12 +609,10 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
-          if not %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32 exit
-
           REM *** Build ***
           set VERBOSE=1
           cmake --build . -j %NUMBER_OF_PROCESSORS%
@@ -662,9 +637,6 @@ for:
           REM *** Deploy Qt ***
           set "DEPLOY_ARGS=-xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
 
-          REM *** No OpenGL ES support via pacman on 32bit Windows
-          if %job_name%==Windows32 set "DEPLOY_ARGS=%DEPLOY_ARGS% --no-angle"
-
           %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
           REM *** Deploy other libraries ***
@@ -673,8 +645,8 @@ for:
           %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-%TARGET_VERSION%.dll
 
           REM *** libcrypto and libssl are not picked up by the Python script above and needs to be copied manually ***
-          copy %MSYS%\bin\%LIBSSL% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
-          copy %MSYS%\bin\%LIBCRYPTO% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          copy %MSYS%\bin\libssl-3-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          copy %MSYS%\bin\libcrypto-3-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Build installer ***
           cpack -G NSIS -v
@@ -692,8 +664,7 @@ on_finish:
   - cmd: if %UPLOAD_ARTIFACTS%=="true"  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeConfigureLog.yaml
   - cmd: if EXIST %APPVEYOR_BUILD_FOLDER%\build\testOutput.log appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\testOutput.log
 
-  - cmd: if %UPLOAD_ARTIFACTS%=="true" if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%DISPLAY_VERSION%-win64.exe || cmd /c "exit /b 1"
-  - cmd: if %UPLOAD_ARTIFACTS%=="true" if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%DISPLAY_VERSION%-win32.exe || cmd /c "exit /b 1"
+  - cmd: if %UPLOAD_ARTIFACTS%=="true" appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-%DISPLAY_VERSION%-win64.exe || cmd /c "exit /b 1"
 
   - cmd: |
       if %UPLOAD_ARTIFACTS%=="true" curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
