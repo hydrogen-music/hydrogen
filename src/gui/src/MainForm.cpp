@@ -153,6 +153,26 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();
+	// The menu bar will be created anew each time the shortcuts are altered in
+	// the Preferences. But we need to wire the corresponding actions only once
+	// or they are triggered each 1 + N times the number of shortcut changes.
+	connect( h2app->m_pUndoStack, &QUndoStack::canUndoChanged,
+			 []( bool bCanUndo ) {
+				 auto pUndoAction =
+					 HydrogenApp::get_instance()->getMainForm()->m_pUndoAction;
+				 if ( pUndoAction != nullptr ) {
+					 pUndoAction->setEnabled( bCanUndo );
+				 }
+			 } );
+	connect( h2app->m_pUndoStack, &QUndoStack::canRedoChanged,
+			 []( bool bCanRedo ) {
+				 auto pRedoAction =
+					 HydrogenApp::get_instance()->getMainForm()->m_pRedoAction;
+				 if ( pRedoAction != nullptr ) {
+					 pRedoAction->setEnabled( bCanRedo );
+				 }
+			 } );
+
 	checkMidiSetup();
 	checkMissingSamples();
 	checkNecessaryDirectories();
@@ -355,28 +375,14 @@ void MainForm::createMenuBar()
 
 	// Undo menu
 	m_pUndoMenu = pMenubar->addMenu( pCommonStrings->getUndoMenuUndo() );
-	auto pUndoAction =
-		m_pUndoMenu->addAction(
-			pCommonStrings->getUndoMenuUndo(), this, SLOT( action_undo() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
-	pUndoAction->setEnabled( false );
-	connect( h2app->m_pUndoStack, &QUndoStack::canUndoChanged,
-			 [=]( bool bCanUndo ) {
-				 if ( pUndoAction != nullptr ) {
-					 pUndoAction->setEnabled( bCanUndo );
-				 }
-			 } );
-	auto pRedoAction =
-		m_pUndoMenu->addAction(
-			pCommonStrings->getUndoMenuRedo(), this, SLOT( action_redo() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
-	pRedoAction->setEnabled( false );
-	connect( h2app->m_pUndoStack, &QUndoStack::canRedoChanged,
-			 [=]( bool bCanRedo ) {
-				 if ( pRedoAction != nullptr ) {
-					 pRedoAction->setEnabled( bCanRedo );
-				 }
-			 } );
+	m_pUndoAction = m_pUndoMenu->addAction(
+		pCommonStrings->getUndoMenuUndo(), this, SLOT( action_undo() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	m_pUndoAction->setEnabled( h2app->m_pUndoStack->canUndo() );
+	m_pRedoAction = m_pUndoMenu->addAction(
+		pCommonStrings->getUndoMenuRedo(), this, SLOT( action_redo() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	m_pRedoAction->setEnabled( h2app->m_pUndoStack->canRedo() );
 
 	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
 							SLOT( openUndoStack() ),
@@ -430,36 +436,31 @@ void MainForm::createMenuBar()
 	// VIEW MENU
 	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
 
-	m_pViewPlaylistEditorAction =
-		m_pViewMenu->addAction( tr("Play&list Editor"), this,
-								SLOT( action_window_showPlaylistEditor() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaylist ) );
+	m_pViewPlaylistEditorAction = m_pViewMenu->addAction(
+		tr("Play&list Editor"), this, SLOT( action_window_showPlaylistEditor() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaylist ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
-	m_pViewDirectorAction =
-		m_pViewMenu->addAction( tr("&Director"), this,
-								SLOT( action_window_show_DirectorWidget() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ShowDirector ) );
+	m_pViewDirectorAction = m_pViewMenu->addAction(
+		tr("&Director"), this, SLOT( action_window_show_DirectorWidget() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowDirector ) );
 	m_pViewDirectorAction->setCheckable( true );
 
 	m_pFileMenu->addSeparator();
-	m_pViewMixerAction =
-		m_pViewMenu->addAction( tr("&Mixer"), this,
-								SLOT( action_window_showMixer() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ShowMixer ) );
+	m_pViewMixerAction = m_pViewMenu->addAction(
+		tr("&Mixer"), this, SLOT( action_window_showMixer() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowMixer ) );
 	m_pViewMixerAction->setCheckable( true );
 	update_mixer_checkbox();						// if checkbox need to be checked.
 
-	m_pViewMixerInstrumentRackAction =
-		m_pViewMenu->addAction( tr("&Instrument Rack"), this,
-								SLOT( action_window_showInstrumentRack() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ShowInstrumentRack ) );
+	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction(
+		tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowInstrumentRack ) );
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
 	update_instrument_checkbox( pPref->getInstrumentRackProperties().visible );
 
-	m_pViewAutomationPathAction =
-		m_pViewMenu->addAction( tr("&Automation Path"), this,
-								SLOT( action_window_showAutomationArea() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ShowAutomation ) );
+	m_pViewAutomationPathAction = m_pViewMenu->addAction(
+		tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowAutomation ) );
 	m_pViewAutomationPathAction->setCheckable( true );
 	if ( pPref->getShowAutomationArea() ){
 		m_pViewAutomationPathAction->setChecked(true);	
@@ -469,16 +470,14 @@ void MainForm::createMenuBar()
 
 	m_pViewMenu->addSeparator();				// -----
 
-	m_pViewTimelineAction =
-		m_pViewMenu->addAction( tr("&Timeline"), this,
-								SLOT( action_window_showTimeline() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ShowTimeline ) );
+	m_pViewTimelineAction = m_pViewMenu->addAction(
+		tr("&Timeline"), this, SLOT( action_window_showTimeline() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowTimeline ) );
 	m_pViewTimelineAction->setCheckable( true );
 	
-	m_pViewPlaybackTrackAction =
-		m_pViewMenu->addAction( tr("&Playback Track"), this,
-								SLOT( action_window_showPlaybackTrack() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaybackTrack ) );
+	m_pViewPlaybackTrackAction = m_pViewMenu->addAction(
+		tr("&Playback Track"), this, SLOT( action_window_showPlaybackTrack() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaybackTrack ) );
 	m_pViewPlaybackTrackAction->setCheckable( true );
 
 	m_pViewPlaybackTrackActionGroup = new QActionGroup( this );
@@ -503,16 +502,14 @@ void MainForm::createMenuBar()
 	m_pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
 
 	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input &Mode" ) );
-	m_pInstrumentAction =
-		m_pInputModeMenu->addAction( tr( "&Instrument" ), this,
-									 SLOT( action_inputMode_instrument() ),
-									 pShortcuts->getKeySequence( Shortcuts::Action::InputInstrument ) );
+	m_pInstrumentAction = m_pInputModeMenu->addAction(
+		tr( "&Instrument" ), this, SLOT( action_inputMode_instrument() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::InputInstrument ) );
 	m_pInstrumentAction->setCheckable( true );
 
-	m_pDrumkitAction =
-		m_pInputModeMenu->addAction( tr( "&Drumkit" ), this,
-									 SLOT( action_inputMode_drumkit() ),
-									 pShortcuts->getKeySequence( Shortcuts::Action::InputDrumkit ) );
+	m_pDrumkitAction = m_pInputModeMenu->addAction(
+		tr( "&Drumkit" ), this, SLOT( action_inputMode_drumkit() ),
+		pShortcuts->getKeySequence( Shortcuts::Action::InputDrumkit ) );
 	m_pDrumkitAction->setCheckable( true );
 
 	if ( pPref->m_bPlaySelectedInstrument ) {
