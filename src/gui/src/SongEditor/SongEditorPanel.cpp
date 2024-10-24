@@ -73,23 +73,24 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
 	// time line toggle button
+	m_bLastIsTimelineActivated = pSong->getIsTimelineActivated();
 	m_pTimelineBtn = new Button( pBackPanel, QSize( 98, 17 ), Button::Type::Toggle, "",
 								 pCommonStrings->getTimelineBigButton(), false, QSize(),
 								 pCommonStrings->getTimelineEnabled() );
 	m_pTimelineBtn->move( 94, 4 );
 	m_pTimelineBtn->setObjectName( "TimelineBtn" );
+	m_pTimelineBtn->setChecked( m_bLastIsTimelineActivated );
 	connect( m_pTimelineBtn, SIGNAL( clicked() ), this, SLOT( timelineBtnClicked() ) );
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
 		m_pTimelineBtn->setToolTip(
 			pCommonStrings->getTimelineDisabledTimebaseListener() );
 		m_pTimelineBtn->setIsActive( false );
-	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
-		m_pTimelineBtn->setIsActive( false );
-	} else {
-		m_pTimelineBtn->setChecked( m_bLastIsTimelineActivated );
 	}
-	m_bLastIsTimelineActivated = pSong->getIsTimelineActivated();
+	else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledPatternMode() );
+		m_pTimelineBtn->setIsActive( false );
+	}
 
 	// clear sequence button
 	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 61, 21 ), Button::Type::Push, "", pCommonStrings->getClearButton(), false, QSize(), tr("Clear pattern sequence") );
