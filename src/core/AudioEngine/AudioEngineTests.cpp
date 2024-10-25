@@ -124,7 +124,6 @@ void AudioEngineTests::testTransportProcessing() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	// Check consistency of updated frames, ticks, and queuing
 	// position while using a random buffer size (e.g. like PulseAudio
@@ -172,7 +171,6 @@ void AudioEngineTests::testTransportProcessing() {
 	}
 
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
@@ -211,8 +209,6 @@ void AudioEngineTests::testTransportProcessing() {
 	}
 
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
-
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 
@@ -336,7 +332,6 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	// Check consistency of updated frames, ticks, and queuing
 	// position while using a random buffer size (e.g. like PulseAudio
@@ -387,7 +382,6 @@ void AudioEngineTests::testTransportProcessingTimeline() {
 	// "classical" bpm change".
 
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	resetVariables();
 
 	float fBpm;
@@ -453,7 +447,6 @@ void AudioEngineTests::testLoopMode() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	// Check consistency of updated frames, ticks, and queuing
 	// position while using a random buffer size (e.g. like PulseAudio
@@ -665,7 +658,6 @@ void AudioEngineTests::testTransportRelocation() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	// Check consistency of updated frames and ticks while relocating
 	// transport.
@@ -703,7 +695,6 @@ void AudioEngineTests::testTransportRelocation() {
 	}
 
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 }
@@ -719,7 +710,6 @@ void AudioEngineTests::testSongSizeChange() {
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
 	
@@ -781,7 +771,6 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	const uint32_t nFrames = 500;
 	const double fInitialSongSize = pAE->m_fSongSizeInTicks;
@@ -870,7 +859,6 @@ void AudioEngineTests::testNoteEnqueuing() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	// Check consistency of updated frames and ticks while using a
 	// random buffer size (e.g. like PulseAudio does).
@@ -1076,7 +1064,6 @@ void AudioEngineTests::testNoteEnqueuing() {
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	nLoops = 1;
 
@@ -1148,7 +1135,6 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 	// For reset() the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	AudioEngineTests::resetSampler( __PRETTY_FUNCTION__ );
 
 	uint32_t nFrames;
@@ -1248,7 +1234,6 @@ void AudioEngineTests::testHumanization() {
 	// For reset() the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	// Rolls playback from beginning to the end of the song and
 	// captures all notes added to the Sampler.
@@ -2009,7 +1994,6 @@ void AudioEngineTests::resetSampler( const QString& sContext ) {
 	}
 	
 	pAE->reset( false );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 }
 
 void AudioEngineTests::testUpdateTransportPosition() {
@@ -2020,7 +2004,6 @@ void AudioEngineTests::testUpdateTransportPosition() {
 
 	pAE->lock( RIGHT_HERE );
 	pAE->reset( true );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 
 	// Check whether the transport positions in the audio engine are untouched
 	// by updateTransportPosition.
@@ -2079,7 +2062,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 
 	pAE->lock( RIGHT_HERE );
 	pAE->reset( true );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
 	auto pDriver = startJackAudioDriver();
@@ -2131,7 +2113,6 @@ void AudioEngineTests::testTransportProcessingJack() {
 		pAE->stopPlayback();
 	}
 	pAE->reset( true );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener &&
@@ -2158,7 +2139,6 @@ void AudioEngineTests::testTransportRelocationJack() {
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
 	pAE->reset( true );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
 	auto pDriver = startJackAudioDriver();
@@ -2390,7 +2370,6 @@ void AudioEngineTests::testTransportRelocationJack() {
 	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
 	pAE->reset( true );
-	pAE->m_fSongSizeInTicks = pSong->lengthInTicks();
 	pAE->unlock();
 
 	stopJackAudioDriver();

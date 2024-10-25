@@ -355,7 +355,6 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_nLoopsDone = 0;
 	m_bLookaheadApplied = false;
 
-	m_fSongSizeInTicks = MAX_NOTES;
 	setNextBpm( 120 );
 
 	m_pTransportPosition->reset();
@@ -1261,8 +1260,6 @@ void AudioEngine::handleSelectedPattern() {
 }
 
 void AudioEngine::handleSongModeChanged() {
-	reset( true );
-
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		AE_ERRORLOG( "no song set" );
@@ -1270,6 +1267,7 @@ void AudioEngine::handleSongModeChanged() {
 	}
 
 	m_fSongSizeInTicks = pSong->lengthInTicks();
+	reset( true );
 	setNextBpm( pSong->getBpm() );
 }
 
@@ -1677,17 +1675,19 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		setupLadspaFX();
 	}
 
-	// Reset (among other things) the transport position. This causes
-	// the locate() call below to update the playing patterns.
-	reset( false );
+	float fNextBpm;
 	if ( pNewSong != nullptr ) {
-		setNextBpm( pNewSong->getBpm() );
+		fNextBpm = pNewSong->getBpm();
 		m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
 	}
 	else {
-		setNextBpm( MIN_BPM );
+		fNextBpm = MIN_BPM;
 		m_fSongSizeInTicks = MAX_NOTES;
 	}
+	// Reset (among other things) the transport position. This causes
+	// the locate() call below to update the playing patterns.
+	reset( false );
+	setNextBpm( fNextBpm );
 
 	pHydrogen->renameJackPorts( pNewSong );
 
@@ -1721,6 +1721,7 @@ void AudioEngine::removeSong()
 
 	m_pSampler->stopPlayingNotes();
 	reset();
+	m_fSongSizeInTicks = MAX_NOTES;
 
 	setState( State::Prepared );
 }
