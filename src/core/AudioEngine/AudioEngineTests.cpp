@@ -2066,7 +2066,7 @@ void AudioEngineTests::testTransportProcessingJack() {
 
 	auto pDriver = startJackAudioDriver();
 	if ( pDriver == nullptr ) {
-		throwException( "[testTransportRelocationJack] Unable to use JACK driver" );
+		throwException( "[testTransportProcessingJack] Unable to use JACK driver" );
 	}
 
 	// In case the reference Hydrogen is JACK Timebase controller, Timeline of
@@ -2169,9 +2169,9 @@ void AudioEngineTests::testTransportRelocationJack() {
 		const int nIncrement = 100;
 
 		// We send the tick value to and received it back from the JACK server
-		// via rountines in the libjack2 library. We have to relaxed about the
+		// via routines of the libjack2 library. We have to be relaxed about the
 		// precision we can expect from relocating.
-		while( true ) {
+		while ( true ) {
 
 			long long nCurrentFrame;
 			if ( pHydrogen->getJackTimebaseState() ==
@@ -2265,19 +2265,21 @@ void AudioEngineTests::testTransportRelocationJack() {
 
 			pAE->lock( RIGHT_HERE );
 
+			// Ensure we relocate to a new position. Else the assertions in this
+			// test will fail.
 			while ( std::abs( fNewTick - pTransportPos->getDoubleTick() ) < 1 ) {
 				fNewTick = tickDist( randomEngine );
 			}
 
-			INFOLOG( QString( "relocate to tick [%1]" ).arg( fNewTick ) );
+			INFOLOG( QString( "relocate to tick [%1]->[%2]" )
+					 .arg( pTransportPos->getDoubleTick() ).arg( fNewTick ) );
 			pAE->locate( fNewTick, true );
 			pAE->unlock();
 
-
 			waitForRelocation( fNewTick, -1 );
-			// We send the tick value to and received it back from the JACK
-			// server via rountines in the libjack2 library. We have to relaxed
-			// about the precision we can expect from relocating.
+			// We send the tick value to and receive it from the JACK server via
+			// routines in the libjack2 library. We have to be relaxed about the
+			// precision we can expect.
 			if ( abs( pTransportPos->getDoubleTick() - fNewTick ) > 1e-1 ) {
 				throwException( QString( "[testTransportRelocationJack::tick] failed to relocate to tick. [%1] != [%2]" )
 								.arg( pTransportPos->getDoubleTick() ).arg( fNewTick ) );
@@ -2327,7 +2329,8 @@ void AudioEngineTests::testTransportRelocationJack() {
 		}
 #endif
 
-		INFOLOG( QString( "relocate to frame [%1]" ).arg( nNewFrame ) );
+		INFOLOG( QString( "relocate to frame [%1]->[%2]" )
+				 .arg( pTransportPos->getFrame() ).arg( nNewFrame ) );
 		pDriver->locateTransport( nNewFrame );
 		pAE->unlock();
 
