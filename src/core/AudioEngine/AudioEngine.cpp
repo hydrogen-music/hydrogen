@@ -710,7 +710,19 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 	
 	const float fOldBpm = pPos->getBpm();
 	
-	const float fNewBpm = getBpmAtColumn( pPos->getColumn() );
+	float fNewBpm = getBpmAtColumn( pPos->getColumn() );
+	// If we are in Pattern mode or Timeline is not activated in Song Mode +
+	// there is no external application controling tempo of Hydrogen, we are
+	// free to apply a new tempo. This was set by the user either via UI or
+	// MIDI/OSC message.
+	if ( pHydrogen->getJackTimebaseState() !=
+		 JackAudioDriver::Timebase::Listener &&
+		 ( ( pSong != nullptr && ! pSong->getIsTimelineActivated() ) ||
+				pHydrogen->getMode() != Song::Mode::Song ) &&
+		 fNewBpm != m_fNextBpm ) {
+		fNewBpm = m_fNextBpm;
+	}
+
 	if ( fNewBpm != fOldBpm ) {
 		pPos->setBpm( fNewBpm );
 		if ( pPos == m_pTransportPosition ) {
@@ -1186,8 +1198,10 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 #if AUDIO_ENGINE_DEBUG
 			AE_DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
 					  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+			// We do not return AudioEngine::m_fNextBpm since it is considered
+			// transient until applied in updateBpmAndTickSize(). It's not the
+			// current tempo.
 #endif
-			fBpm = pAudioEngine->getNextBpm();
 		}
 	}
 	return fBpm;
