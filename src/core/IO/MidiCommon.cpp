@@ -196,6 +196,21 @@ QString MidiMessage::TypeToQString( MidiMessageType type ) {
 	case MidiMessageType::QUARTER_FRAME:
 		sType = "QUARTER_FRAME";
 		break;
+	case MidiMessageType::SONG_SELECT:
+		sType = "SONG_SELECT";
+		break;
+	case MidiMessageType::TUNE_REQUEST:
+		sType = "TUNE_REQUEST";
+		break;
+	case MidiMessageType::TIMING_CLOCK:
+		sType = "TIMING_CLOCK";
+		break;
+	case MidiMessageType::ACTIVE_SENSING:
+		sType = "ACTIVE_SENSING";
+		break;
+	case MidiMessageType::RESET:
+		sType = "RESET";
+		break;
 	case MidiMessageType::UNKNOWN:
 	default:
 		sType = "Unknown MIDI message type";
