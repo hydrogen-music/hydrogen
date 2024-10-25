@@ -107,6 +107,12 @@ public:
 	 */
 	static void testTransportProcessingJack();
 	/**
+	 * Unit test similar to testTransportProcessingJack() but is altering tempo
+	 * and song size during playback as well in order to test the handling of
+	 * all frame offsets.
+	 */
+	static void testTransportProcessingOffsetsJack();
+	/**
 	 * Unit test checking the relocation of the transport position in
 	 * audioEngine_process() using the JACK audio driver.
 	 */

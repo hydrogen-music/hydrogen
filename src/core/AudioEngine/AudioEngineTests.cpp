@@ -2123,6 +2123,94 @@ void AudioEngineTests::testTransportProcessingJack() {
 	stopJackAudioDriver();
 }
 
+void AudioEngineTests::testTransportProcessingOffsetsJack() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pTransportPos = pAE->getTransportPosition();
+
+	// When being JACK Timebase listener Hydrogen will adopt tempo setting
+	// provided by an external application and discards internal changes. This
+	// test would be identical to testTransportProcessingJack.
+	if ( pHydrogen->getJackTimebaseState() ==
+		 JackAudioDriver::Timebase::Listener ) {
+		return;
+	}
+
+	// Check whether all frames are covered when running playback in song mode
+	// without looping.
+	pCoreActionController->activateLoopMode( false );
+	pCoreActionController->activateTimeline( false );
+
+    std::random_device randomSeed;
+    std::default_random_engine randomEngine( randomSeed() );
+	std::uniform_real_distribution<float> tempoDist( MIN_BPM, MAX_BPM );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->reset( true );
+	pAE->unlock();
+
+	auto pDriver = startJackAudioDriver();
+	if ( pDriver == nullptr ) {
+		throwException( "[testTransportProcessingOffsetsJack] Unable to use JACK driver" );
+	}
+
+	float fBpm, fLastBpm;
+	bool bTempoChanged = false;
+
+	pAE->lock( RIGHT_HERE );
+	fLastBpm = pAE->getBpmAtColumn( 0 );
+	// The callback function registered to the JACK server will take care of
+	// consistency checking. In here we just start playback and wait till it's
+	// done.
+	pAE->play();
+	pAE->unlock();
+
+	// Transport is started via the JACK server. We have to give it some time to
+	// communicate transport start back to us.
+	QTest::qSleep( 400 );
+
+	const int nMaxMilliSeconds = 11500;
+	int nMilliSeconds = 0;
+	const int nIncrement = 100;
+	while ( pAE->getState() == AudioEngine::State::Playing ||
+			pAE->getNextState() == AudioEngine::State::Playing ) {
+		if ( ! bTempoChanged && fLastBpm != pAE->getBpmAtColumn( 0 ) ) {
+			bTempoChanged = true;
+		}
+
+		if ( nMilliSeconds >= nMaxMilliSeconds ) {
+			AudioEngineTests::throwException(
+				QString( "[testTransportProcessingOffsetsJack] playback takes too long" ) );
+		}
+
+		QTest::qSleep( nIncrement );
+		nMilliSeconds += nIncrement;
+
+		fBpm = tempoDist( randomEngine );
+		pAE->lock( RIGHT_HERE );
+		INFOLOG( QString( "[testTransportProcessingOffsetsJack] changing tempo [%1]->[%2]" )
+				.arg( pAE->getBpmAtColumn( 0 ) ).arg( fBpm ) );
+		pAE->setNextBpm( fBpm );
+		pAE->unlock();
+	}
+
+	pAE->lock( RIGHT_HERE );
+	pAE->stop();
+	if ( pAE->getState() == AudioEngine::State::Playing ) {
+		pAE->stopPlayback();
+	}
+	pAE->reset( true );
+	pAE->unlock();
+
+	if ( ! bTempoChanged ) {
+		throwException( "[testTransportProcessingOffsetsJack] tempo was not change. Decrease time increments!" );
+	}
+
+	stopJackAudioDriver();
+}
+
 void AudioEngineTests::testTransportRelocationJack() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();

@@ -49,6 +49,20 @@ void TransportTestsTimebase::testTransportProcessingJack() {
 	___INFOLOG( "\npassed\n" );
 }
 
+void TransportTestsTimebase::testTransportProcessingOffsetsJack() {
+	___INFOLOG( "\n\n" );
+#ifdef H2CORE_HAVE_JACK
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+
+	perform( &AudioEngineTests::testTransportProcessingOffsetsJack );
+#else
+	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+#endif
+
+	___INFOLOG( "\npassed\n" );
+}
+
 void TransportTestsTimebase::testTransportRelocationJack() {
 	___INFOLOG( "\n\n" );
 #ifdef H2CORE_HAVE_JACK
