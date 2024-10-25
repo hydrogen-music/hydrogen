@@ -666,12 +666,12 @@ void AudioEngineTests::testTransportRelocation() {
 		}
 		else if ( nn < nProcessCycles - 1 ) {
 			// Resulted in an unfortunate rounding error due to the
-			// song end at 2112. 
-			fNewTick = 2111.928009209;
+			// song end.
+			fNewTick = pSong->lengthInTicks() - 1 + 0.928009209;
 		}
 		else {
 			// There was a rounding error at this particular tick.
-			fNewTick = 960;
+			fNewTick = std::fmin( 960, pSong->lengthInTicks() );
 		}
 
 		pAE->locate( fNewTick, false );
@@ -2256,12 +2256,12 @@ void AudioEngineTests::testTransportRelocationJack() {
 			}
 			else if ( nn < nProcessCycles - 1 ) {
 				// Resulted in an unfortunate rounding error due to the
-				// song end at 2112.
-				fNewTick = 2111.928009209;
+				// song end.
+				fNewTick = pSong->lengthInTicks() - 1 + 0.928009209;
 			}
 			else {
 				// There was a rounding error at this particular tick.
-				fNewTick = 960;
+				fNewTick = std::fmin( 960, pSong->lengthInTicks() );
 			}
 
 			pAE->lock( RIGHT_HERE );
@@ -2304,7 +2304,9 @@ void AudioEngineTests::testTransportRelocationJack() {
 				tickDist( randomEngine ), &fTickMismatch );
 		} else {
 			// With this one there were rounding mishaps in v1.2.3
-			nNewFrame = 2174246;
+			nNewFrame = std::min( static_cast<long long>(2174246),
+								  TransportPosition::computeFrameFromTick(
+									  pSong->lengthInTicks(), &fTickMismatch ) );
 		}
 
 		pAE->lock( RIGHT_HERE );
