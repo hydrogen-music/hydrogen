@@ -117,6 +117,12 @@ public:
 	 * audioEngine_process() using the JACK audio driver.
 	 */
 	static void testTransportRelocationJack();
+	/**
+	 * Unit test similar to testTransportRelocationJack() but is altering tempo
+	 * and song size during playback as well in order to test the handling of
+	 * all frame offsets.
+	 */
+	static void testTransportRelocationOffsetsJack();
 
 		/** Process callback for the testing instance of the
 		 * #H2Core::JackAudioDriver */
@@ -178,6 +184,8 @@ private:
 
 #ifdef H2CORE_HAVE_JACK
 	static void stopJackAudioDriver();
+		static void waitForRelocation( JackAudioDriver* pDriver,
+									   double fTick, long long nFrame );
 #endif
 };
 };

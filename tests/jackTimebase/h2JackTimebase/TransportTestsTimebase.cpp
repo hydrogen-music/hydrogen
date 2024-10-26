@@ -77,6 +77,20 @@ void TransportTestsTimebase::testTransportRelocationJack() {
 	___INFOLOG( "\npassed\n" );
 }
 
+void TransportTestsTimebase::testTransportRelocationOffsetsJack() {
+	___INFOLOG( "\n\n" );
+#ifdef H2CORE_HAVE_JACK
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+
+	perform( &AudioEngineTests::testTransportRelocationOffsetsJack );
+#else
+	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+#endif
+
+	___INFOLOG( "\npassed\n" );
+}
+
 void TransportTestsTimebase::perform( std::function<void()> func ) {
 	try {
 		func();
