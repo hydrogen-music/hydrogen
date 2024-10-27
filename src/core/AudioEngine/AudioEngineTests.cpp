@@ -2352,18 +2352,16 @@ void AudioEngineTests::testTransportRelocationJack() {
 			nCurrentFrame = pDriver->m_JackTransportPos.frame;
 		}
 		else {
-			nCurrentFrame = pTransportPos->getFrame() -
-				pTransportPos->getFrameOffsetTempo();
+			nCurrentFrame = pTransportPos->getFrame();
 		}
 
 		if ( nNewFrame != nCurrentFrame ) {
-			throwException( QString( "[testTransportRelocationJack::frame] failed to relocate to frame. timebase state: [%1], nNewFrame [%2] != nCurrentFrame [%3], pPos->getFrame(): [%4], pPos->getFrameOffsetTempo: [%5]" )
+			throwException( QString( "[testTransportRelocationJack::frame] failed to relocate to frame. timebase state: [%1], nNewFrame [%2] != nCurrentFrame [%3], pPos->getFrame(): [%4]" )
 							.arg( JackAudioDriver::TimebaseToQString(
 									  pDriver->getTimebaseState() ) )
 							.arg( nNewFrame )
 							.arg( nCurrentFrame )
-							.arg( pTransportPos->getFrame() )
-							.arg( pTransportPos->getFrameOffsetTempo() ) );
+							.arg( pTransportPos->getFrame() ) );
 		}
 
 #ifdef HAVE_INTEGRATION_TESTS
@@ -2547,18 +2545,16 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 			nCurrentFrame = pDriver->m_JackTransportPos.frame;
 		}
 		else {
-			nCurrentFrame = pTransportPos->getFrame() -
-				pTransportPos->getFrameOffsetTempo();
+			nCurrentFrame = pTransportPos->getFrame();
 		}
 
 		if ( nNewFrame != nCurrentFrame ) {
-			throwException( QString( "[testTransportRelocationOffsetsJack::frame] failed to relocate to frame. timebase state: [%1], nNewFrame [%2] != nCurrentFrame [%3], pPos->getFrame(): [%4], pPos->getFrameOffsetTempo: [%5]" )
+			throwException( QString( "[testTransportRelocationOffsetsJack::frame] failed to relocate to frame. timebase state: [%1], nNewFrame [%2] != nCurrentFrame [%3], pPos->getFrame(): [%4]" )
 							.arg( JackAudioDriver::TimebaseToQString(
 									  pDriver->getTimebaseState() ) )
 							.arg( nNewFrame )
 							.arg( nCurrentFrame )
-							.arg( pTransportPos->getFrame() )
-							.arg( pTransportPos->getFrameOffsetTempo() ) );
+							.arg( pTransportPos->getFrame() ) );
 		}
 
 #ifdef HAVE_INTEGRATION_TESTS
@@ -2717,8 +2713,7 @@ void AudioEngineTests::waitForRelocation( JackAudioDriver* pDriver,
 			 JackAudioDriver::Timebase::Listener ) {
 			nCurrentFrame = pDriver->m_JackTransportPos.frame;
 		} else {
-			nCurrentFrame = pTransportPos->getFrame() -
-				pTransportPos->getFrameOffsetTempo();
+			nCurrentFrame = pTransportPos->getFrame();
 		}
 
 		if ( ( nFrame != -1 && nFrame == nCurrentFrame ) ||
