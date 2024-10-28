@@ -2575,6 +2575,12 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		pAE->setNextBpm( fBpm );
 		pAE->unlock();
 
+		// Give Hydrogen some time to apply the tempo changes. Else, we might
+		// run into race conditions with relocation being triggered before tempo
+		// was applied. In such a case we loose the former offsets and won't be
+		// able to properly check for matching position.
+		QTest::qSleep( 25 );
+
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocationOffsetsJack::tempo] mismatch after tempo change" );
 	}
