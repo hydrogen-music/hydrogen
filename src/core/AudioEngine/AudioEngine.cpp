@@ -663,7 +663,13 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		// While the current tick position is constantly increasing,
 		// m_nPatternStartTick is only defined between 0 and
 		// m_fSongSizeInTicks. We will take care of the looping next.
-		if ( fTick >= m_fSongSizeInTicks && m_fSongSizeInTicks != 0 ) {
+		if ( nNewColumn == -1 ) {
+			// Loop mode is not activated and the new position lies beyond the
+			// end of the song. We jump to the beginning to indicated transport
+			// is "finished".
+			pPos->setPatternTickPosition( 0 );
+		}
+		else if ( fTick >= m_fSongSizeInTicks && m_fSongSizeInTicks != 0 ) {
 			pPos->setPatternTickPosition(
 				std::fmod( std::floor( fTick ) - nPatternStartTick,
 						   m_fSongSizeInTicks ) );
