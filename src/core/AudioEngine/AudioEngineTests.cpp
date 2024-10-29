@@ -2159,6 +2159,9 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 
 	float fBpm, fLastBpm;
 	bool bTempoChanged = false;
+	const int nToggleColumn = 4;
+	const int nToggleRow = 4;
+	const float fOriginalSongSize = pAE->m_fSongSizeInTicks;
 
 	pAE->lock( RIGHT_HERE );
 	fLastBpm = pAE->getBpmAtColumn( 0 );
@@ -2192,7 +2195,7 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		CoreActionController::toggleGridCell( 3, 4 );
+		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportProcessingOffsetsJack] song size did not change." );
 		}
@@ -2228,6 +2231,12 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 
 	if ( ! bTempoChanged ) {
 		throwException( "[testTransportProcessingOffsetsJack] tempo was not change. Decrease time increments!" );
+	}
+
+	// Ensure the additional grid cell we activate/deactivate is set to its
+	// original state.
+	if ( pAE->m_fSongSizeInTicks != fOriginalSongSize ) {
+		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
 	}
 
 	stopJackAudioDriver();
@@ -2443,6 +2452,9 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 	}
 	float fBpm, fLastBpm;
 	bool bTempoChanged = false;
+	const int nToggleColumn = 4;
+	const int nToggleRow = 4;
+	const float fOriginalSongSize = pAE->m_fSongSizeInTicks;
 
 	pAE->lock( RIGHT_HERE );
 	fLastBpm = pAE->getBpmAtColumn( 0 );
@@ -2527,7 +2539,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		CoreActionController::toggleGridCell( 4, 4 );
+		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportRelocationOffsetsJack] song size did not change." );
 		}
@@ -2633,6 +2645,12 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 
 	if ( ! bTempoChanged ) {
 		throwException( "[testTransportRelocationOffsetsJack] tempo was not change." );
+	}
+
+	// Ensure the additional grid cell we activate/deactivate is set to its
+	// original state.
+	if ( pAE->m_fSongSizeInTicks != fOriginalSongSize ) {
+		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
 	}
 
 	stopJackAudioDriver();
