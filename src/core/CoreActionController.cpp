@@ -2056,6 +2056,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	}
 	
 	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPatternList = pSong->getPatternList();
 	std::vector<PatternList*>* pColumns = pSong->getPatternGroupVector();
 
@@ -2073,7 +2074,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 		return false;
 	}
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	pAudioEngine->lock( RIGHT_HERE );
 	if ( nColumn >= 0 && nColumn < pColumns->size() ) {
 		PatternList *pColumn = ( *pColumns )[ nColumn ];
 		auto pPattern = pColumn->del( pNewPattern );
@@ -2094,7 +2095,8 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 				}
 			}
 		}
-	} else if ( nColumn >= pColumns->size() ) {
+	}
+	else if ( nColumn >= pColumns->size() ) {
 		// We need to add some new columns..
 		PatternList *pColumn;
 
@@ -2103,17 +2105,19 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 			pColumns->push_back( pColumn );
 		}
 		pColumn->add( pNewPattern );
-	} else {
+	}
+	else {
 		// nColumn < 0
 		ERRORLOG( QString( "Provided column [%1] is out of bound [0,%2]" )
 				  .arg( nColumn ).arg( pColumns->size() ) );
+		pAudioEngine->unlock();
 		return false;
 	}
 	
 	pHydrogen->updateSongSize();
 	pHydrogen->updateSelectedPattern( false );
 	
-	pHydrogen->getAudioEngine()->unlock();
+	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
 	
