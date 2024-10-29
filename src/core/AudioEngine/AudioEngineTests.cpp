@@ -2185,6 +2185,24 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 				QString( "[testTransportProcessingOffsetsJack] playback takes too long" ) );
 		}
 
+		// Alter song size
+		//
+		// It's alright to not lock the AudioEngine when accessing the current
+		// song size. It should never change during regular playback (which is
+		// covered by a separate test).
+		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
+		pCoreActionController->toggleGridCell( 3, 4 );
+		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
+			throwException( "[testTransportProcessingOffsetsJack] song size did not change." );
+		}
+		INFOLOG( QString( "[testTransportProcessingOffsetsJack] update song size [%1] -> [%2]" )
+				 .arg( nOldSongSize ).arg( pAE->m_fSongSizeInTicks ) );
+
+		AudioEngineTests::checkTransportPosition(
+			pTransportPos, "[testTransportProcessingOffsetsJack] mismatch after song size update" );
+
+		// The sleep helps us to keep song size and tempo-based exceptions
+		// apart.
 		QTest::qSleep( nIncrement );
 		nMilliSeconds += nIncrement;
 
@@ -2194,6 +2212,9 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 				.arg( pAE->getBpmAtColumn( 0 ) ).arg( fBpm ) );
 		pAE->setNextBpm( fBpm );
 		pAE->unlock();
+
+		QTest::qSleep( nIncrement );
+		nMilliSeconds += nIncrement;
 	}
 
 	pAE->lock( RIGHT_HERE );
@@ -2501,6 +2522,19 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 				pTransportPos, "[testTransportRelocationOffsetsJack::tick] mismatch tick-based" );
 		}
 
+		// Alter song size
+		//
+		// It's alright to not lock the AudioEngine when accessing the current
+		// song size. It should never change during regular playback (which is
+		// covered by a separate test).
+		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
+		pCoreActionController->toggleGridCell( 4, 4 );
+		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
+			throwException( "[testTransportRelocationOffsetsJack] song size did not change." );
+		}
+		INFOLOG( QString( "[testTransportRelocationOffsetsJack] update song size [%1] -> [%2]" )
+				 .arg( nOldSongSize ).arg( pAE->m_fSongSizeInTicks ) );
+
 		// Frame-based relocation
 		// We sample ticks and convert them since we are using tempo markers.
 		if ( nn < nProcessCycles - 1 ) {
@@ -2531,6 +2565,9 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 			JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 		}
 #endif
+
+		AudioEngineTests::checkTransportPosition(
+			pTransportPos, "[testTransportRelocationOffsetsJack] mismatch after song size update" );
 
 		INFOLOG( QString( "relocate to frame [%1]->[%2]" )
 				 .arg( pTransportPos->getFrame() ).arg( nNewFrame ) );
@@ -2569,6 +2606,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		AudioEngineTests::checkTransportPosition(
 			pTransportPos, "[testTransportRelocationOffsetsJack::frame] mismatch frame-based" );
 
+		// Alter tempo
 		fBpm = tempoDist( randomEngine );
 		pAE->lock( RIGHT_HERE );
 		INFOLOG( QString( "[testTransportRelocationOffsetsJack] changing tempo [%1]->[%2]" )
