@@ -1788,6 +1788,9 @@ void AudioEngine::updateSongSize() {
 	updatePatternSize( m_pQueuingPosition );
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		AE_INFOLOG( QString( "[Pattern] Size update: [%1] -> [%2]" )
+					.arg( m_fSongSizeInTicks )
+					.arg( static_cast<double>( pSong->lengthInTicks() ) ) );
 		m_fSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 		
 		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
@@ -1837,6 +1840,9 @@ void AudioEngine::updateSongSize() {
 				);
 #endif
 
+	AE_INFOLOG( QString( "[Song] Size update: [%1] -> [%2]" )
+				.arg( m_fSongSizeInTicks ).arg( fNewSongSizeInTicks ) );
+
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	auto endOfSongReached = [&](){
@@ -1845,7 +1851,6 @@ void AudioEngine::updateSongSize() {
 			stopPlayback();
 		}
 		locate( 0 );
-
 
 #if AUDIO_ENGINE_DEBUG
 		AE_DEBUGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
