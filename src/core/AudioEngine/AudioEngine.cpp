@@ -101,7 +101,7 @@ AudioEngine::AudioEngine()
 		, m_pMidiDriverOut( nullptr )
 		, m_state( State::Initialized )
 		, m_pMetronomeInstrument( nullptr )
-		, m_fSongSizeInTicks( 0 )
+		, m_fSongSizeInTicks( MAX_NOTES )
 		, m_nRealtimeFrame( 0 )
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
@@ -355,7 +355,6 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_nLoopsDone = 0;
 	m_bLookaheadApplied = false;
 
-	m_fSongSizeInTicks = MAX_NOTES;
 	setNextBpm( 120 );
 
 	m_pTransportPosition->reset();
@@ -431,16 +430,12 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 			fNewTick, &fTickMismatch );
 
 #if AUDIO_ENGINE_DEBUG
-		AE_DEBUGLOG( QString( "[Locate via JACK server] fTick: %1, fNewTick: %2, resulting frame: %3, nNewFrame: %4, FrameOffsetTempo: %5" )
-					 .arg( fTick ).arg( fNewTick )
-					 .arg( nNewFrame - m_pTransportPosition->getFrameOffsetTempo() )
-					 .arg( nNewFrame )
-					 .arg( m_pTransportPosition->getFrameOffsetTempo() ) );
+		AE_DEBUGLOG( QString( "[Locate via JACK server] fTick: %1, fNewTick: %2, nNewFrame: %3" )
+					 .arg( fTick ).arg( fNewTick ) .arg( nNewFrame ) );
 #endif
 
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->
-			locateTransport( nNewFrame -
-							 m_pTransportPosition->getFrameOffsetTempo() );
+			locateTransport( nNewFrame );
 		return;
 	}
 #endif
@@ -671,7 +666,13 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 		// While the current tick position is constantly increasing,
 		// m_nPatternStartTick is only defined between 0 and
 		// m_fSongSizeInTicks. We will take care of the looping next.
-		if ( fTick >= m_fSongSizeInTicks && m_fSongSizeInTicks != 0 ) {
+		if ( nNewColumn == -1 ) {
+			// Loop mode is not activated and the new position lies beyond the
+			// end of the song. We jump to the beginning to indicated transport
+			// is "finished".
+			pPos->setPatternTickPosition( 0 );
+		}
+		else if ( fTick >= m_fSongSizeInTicks && m_fSongSizeInTicks != 0 ) {
 			pPos->setPatternTickPosition(
 				std::fmod( std::floor( fTick ) - nPatternStartTick,
 						   m_fSongSizeInTicks ) );
@@ -714,7 +715,19 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 	
 	const float fOldBpm = pPos->getBpm();
 	
-	const float fNewBpm = getBpmAtColumn( pPos->getColumn() );
+	float fNewBpm = getBpmAtColumn( pPos->getColumn() );
+	// If we are in Pattern mode or Timeline is not activated in Song Mode +
+	// there is no external application controling tempo of Hydrogen, we are
+	// free to apply a new tempo. This was set by the user either via UI or
+	// MIDI/OSC message.
+	if ( pHydrogen->getJackTimebaseState() !=
+		 JackAudioDriver::Timebase::Listener &&
+		 ( ( pSong != nullptr && ! pSong->getIsTimelineActivated() ) ||
+				pHydrogen->getMode() != Song::Mode::Song ) &&
+		 fNewBpm != m_fNextBpm ) {
+		fNewBpm = m_fNextBpm;
+	}
+
 	if ( fNewBpm != fOldBpm ) {
 		pPos->setBpm( fNewBpm );
 		if ( pPos == m_pTransportPosition ) {
@@ -1190,8 +1203,10 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 #if AUDIO_ENGINE_DEBUG
 			AE_DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
 					  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+			// We do not return AudioEngine::m_fNextBpm since it is considered
+			// transient until applied in updateBpmAndTickSize(). It's not the
+			// current tempo.
 #endif
-			fBpm = pAudioEngine->getNextBpm();
 		}
 	}
 	return fBpm;
@@ -1261,8 +1276,6 @@ void AudioEngine::handleSelectedPattern() {
 }
 
 void AudioEngine::handleSongModeChanged() {
-	reset( true );
-
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		AE_ERRORLOG( "no song set" );
@@ -1270,6 +1283,7 @@ void AudioEngine::handleSongModeChanged() {
 	}
 
 	m_fSongSizeInTicks = pSong->lengthInTicks();
+	reset( true );
 	setNextBpm( pSong->getBpm() );
 }
 
@@ -1677,17 +1691,19 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		setupLadspaFX();
 	}
 
-	// Reset (among other things) the transport position. This causes
-	// the locate() call below to update the playing patterns.
-	reset( false );
+	float fNextBpm;
 	if ( pNewSong != nullptr ) {
-		setNextBpm( pNewSong->getBpm() );
+		fNextBpm = pNewSong->getBpm();
 		m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
 	}
 	else {
-		setNextBpm( MIN_BPM );
+		fNextBpm = MIN_BPM;
 		m_fSongSizeInTicks = MAX_NOTES;
 	}
+	// Reset (among other things) the transport position. This causes
+	// the locate() call below to update the playing patterns.
+	reset( false );
+	setNextBpm( fNextBpm );
 
 	pHydrogen->renameJackPorts( pNewSong );
 
@@ -1721,6 +1737,7 @@ void AudioEngine::removeSong()
 
 	m_pSampler->stopPlayingNotes();
 	reset();
+	m_fSongSizeInTicks = MAX_NOTES;
 
 	setState( State::Prepared );
 }
@@ -1747,6 +1764,9 @@ void AudioEngine::updateSongSize() {
 	updatePatternSize( m_pQueuingPosition );
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		AE_INFOLOG( QString( "[Pattern] Size update: [%1] -> [%2]" )
+					.arg( m_fSongSizeInTicks )
+					.arg( static_cast<double>( pSong->lengthInTicks() ) ) );
 		m_fSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 		
 		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
@@ -1796,6 +1816,9 @@ void AudioEngine::updateSongSize() {
 				);
 #endif
 
+	AE_INFOLOG( QString( "[Song] Size update: [%1] -> [%2]" )
+				.arg( m_fSongSizeInTicks ).arg( fNewSongSizeInTicks ) );
+
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	auto endOfSongReached = [&](){
@@ -1804,7 +1827,6 @@ void AudioEngine::updateSongSize() {
 			stopPlayback();
 		}
 		locate( 0 );
-
 
 #if AUDIO_ENGINE_DEBUG
 		AE_DEBUGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )

@@ -301,13 +301,14 @@ private:
 	double 				m_fTickMismatch;
 
 	/**
-	 * Frame offset introduced when changing the tempo of the song.
+	 * Frame offset introduced when changing the tempo of the song, switching to
+	 * Timeline, adding or remove an Tempo Marker while Timeline is active, or
+	 * encountering an external tempo change by a JACK Timebase controller.
 	 *
-	 * In case the #Timeline is deactivate each tempo change does
-	 * alter #m_fTickSize and results in #m_nFrame and #m_fTick to not
-	 * be consistent anymore. We will handle this by compensating the
-	 * difference in frames (#m_fTick is kept constant during a tempo
-	 * change while #m_nFrame gets rescaled) using
+	 * Each tempo or Tempo Marker change does alter #m_fTickSize and results in
+	 * #m_nFrame and #m_fTick to not be consistent anymore. We will handle this
+	 * by compensating the difference in frames (#m_fTick is kept constant
+	 * during a tempo change while #m_nFrame gets rescaled) using
 	 * #m_nFrameOffsetTempo as an additive offset internally.
 	 *
 	 * When locating transport or stopping playback both #m_nFrame and
