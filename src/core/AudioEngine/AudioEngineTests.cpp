@@ -2192,7 +2192,7 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		pCoreActionController->toggleGridCell( 3, 4 );
+		CoreActionController::toggleGridCell( 3, 4 );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportProcessingOffsetsJack] song size did not change." );
 		}
@@ -2527,7 +2527,7 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		pCoreActionController->toggleGridCell( 4, 4 );
+		CoreActionController::toggleGridCell( 4, 4 );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportRelocationOffsetsJack] song size did not change." );
 		}
