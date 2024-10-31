@@ -30,12 +30,16 @@
 class TransportTestsTimebase : public CppUnit::TestCase {
 		CPPUNIT_TEST_SUITE( TransportTestsTimebase );
 		CPPUNIT_TEST( testTransportProcessingJack );
+		CPPUNIT_TEST( testTransportProcessingOffsetsJack );
 		CPPUNIT_TEST( testTransportRelocationJack );
+		CPPUNIT_TEST( testTransportRelocationOffsetsJack );
 		CPPUNIT_TEST_SUITE_END();
 
 public:
 	void testTransportProcessingJack();
+	void testTransportProcessingOffsetsJack();
 	void testTransportRelocationJack();
+	void testTransportRelocationOffsetsJack();
 
 		virtual void tearDown() override {
 			// The tests in here tend to produce a very large number of log
