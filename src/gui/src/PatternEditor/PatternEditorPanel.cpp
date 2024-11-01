@@ -839,31 +839,25 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
+	updatePatternInfo();
 
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	m_nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
-
-	if ( ( m_nSelectedPatternNumber != -1 ) &&
-		 ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
+	if ( m_pPattern != nullptr ) {
 		// update pattern name text
-		m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
 		QString sCurrentPatternName = m_pPattern->get_name();
 		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
 		// update pattern size LCD
 		updatePatternSizeLCD();
-		updateDB();
-		updateEditors();
-		
+
 	}
 	else {
-		m_pPattern = nullptr;
-
 		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
 		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
-		updateDB();
 	}
+
+	updateDB();
+	updateEditors();
 
 	resizeEvent( nullptr ); // force an update of the scrollbars
 }
@@ -1049,22 +1043,21 @@ void PatternEditorPanel::zoomOutBtnClicked()
 
 void PatternEditorPanel::updatePatternInfo() {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	const auto pSong = pHydrogen->getSong();
 
 	m_pPattern = nullptr;
 	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 
 	if ( pSong != nullptr ) {
-		PatternList *pPatternList = pSong->getPatternList();
-		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
+		const auto pPatternList = pSong->getPatternList();
+		if ( m_nSelectedPatternNumber != -1 &&
+			 m_nSelectedPatternNumber < pPatternList->size() ) {
 			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
 		}
 	}
 }
 
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
-
-	updatePatternInfo();
 
 	// Changes of pattern may leave the cursor out of bounds.
 	setCursorPosition( getCursorPosition() );
@@ -1236,6 +1229,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		selectedPatternChangedEvent();
 		selectedInstrumentChangedEvent();
 		updateDrumkitLabel();
+		updatePatternInfo();
 		updateDB();
 		updateEditors( true );
 		m_pPatternEditorRuler->updatePosition();
