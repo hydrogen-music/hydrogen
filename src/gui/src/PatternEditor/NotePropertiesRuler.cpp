@@ -1510,21 +1510,6 @@ void NotePropertiesRuler::createBackground()
 	m_bBackgroundInvalid = false;
 }
 
-
-void NotePropertiesRuler::selectedPatternChangedEvent()
-{
-	updateEditor();
-}
-
-void NotePropertiesRuler::selectedInstrumentChangedEvent()
-{
-	updateEditor();
-}
-
-void NotePropertiesRuler::songModeActivationEvent() {
-	updateEditor();
-}
-
 std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( const QRect& r ) {
 	std::vector<SelectionIndex> result;
 	if ( m_pPattern == nullptr ) {

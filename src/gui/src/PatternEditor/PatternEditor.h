@@ -158,10 +158,6 @@ public:
 	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
 	virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 
-
-	virtual void songModeActivationEvent() override;
-	virtual void stackedModeActivationEvent( int nValue ) override;
-
 	static constexpr int nMargin = 20;
 
 	/** Caches the AudioEngine::m_nPatternTickPosition in the member

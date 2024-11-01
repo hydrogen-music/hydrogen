@@ -1153,19 +1153,6 @@ void PatternEditor::updateWidth() {
 	}
 }
 
-void PatternEditor::songModeActivationEvent()
-{
-	// May need to draw (or hide) other background patterns
-	update();
-}
-
-void PatternEditor::stackedModeActivationEvent( int nValue )
-{
-	UNUSED( nValue );
-	// May need to draw (or hide) other background patterns
-	update();
-}
-
 void PatternEditor::updatePosition( float fTick ) {
 	if ( m_nTick == (int)fTick ) {
 		return;

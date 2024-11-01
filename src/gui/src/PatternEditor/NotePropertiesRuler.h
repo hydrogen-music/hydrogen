@@ -132,13 +132,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
 
-
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void songModeActivationEvent() override;
-		// ~ Implements EventListener interface
-		
 		int m_nSelectedPatternNumber;
 
 		//! Map of notes currently in the pattern -> old notes with their properties. Populated at the

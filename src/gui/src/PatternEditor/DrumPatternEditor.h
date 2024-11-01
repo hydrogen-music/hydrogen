@@ -52,12 +52,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel);
 		~DrumPatternEditor();
 
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void drumkitLoadedEvent() override;
-	virtual void songModeActivationEvent() override;
-		// ~ Implements EventListener interface
 		void addOrDeleteNoteAction(		int nColumn,
 										int row,
 										int selectedPatternNumber,

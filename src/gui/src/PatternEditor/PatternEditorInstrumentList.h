@@ -144,8 +144,6 @@ class PatternEditorInstrumentList :  public QWidget,
 		virtual void dropEvent(QDropEvent *event) override;
 
 	virtual void selectedInstrumentChangedEvent() override;
-	virtual void updateSongEvent( int nEvent ) override;
-	virtual void drumkitLoadedEvent() override;
 	virtual void instrumentParametersChangedEvent( int ) override;
 	
 	void repaintInstrumentLines();

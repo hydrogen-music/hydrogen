@@ -770,16 +770,6 @@ InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 	return pLine;
 }
 
-void PatternEditorInstrumentList::updateSongEvent( int nEvent ) {
-	if ( nEvent == 0 || nEvent == 1 ) {
-		updateInstrumentLines();
-	}
-}
-
-void PatternEditorInstrumentList::drumkitLoadedEvent() {
-	updateInstrumentLines();
-}
-
 void PatternEditorInstrumentList::repaintInstrumentLines() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();

@@ -193,6 +193,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 	private:
 	void updateStyleSheet();
+		void updatePatternName();
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
 		/** Prints the content of #m_db as a debug level log message for

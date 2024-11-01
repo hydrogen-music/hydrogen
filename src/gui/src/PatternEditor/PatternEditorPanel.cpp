@@ -64,7 +64,25 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
+	const auto pHydrogen = Hydrogen::get_instance();
+	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong != nullptr ) {
+		const auto pPatternList = pSong->getPatternList();
+		if ( m_nSelectedPatternNumber != -1 &&
+			 m_nSelectedPatternNumber < pPatternList->size() ) {
+			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		}
+		else {
+			m_pPattern = nullptr;
+		}
+	}
+	else {
+		m_pPattern = nullptr;
+	}
+	updateDB();
+
 	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
@@ -102,12 +120,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pDrumkitLabel->move( 10, 3 );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
 	m_pEditorTop1_hbox->addWidget( m_pDrumkitLabel );
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		auto pDrumkit = pSong->getDrumkit();
-		if ( pDrumkit != nullptr ) {
-			m_pDrumkitLabel->setText( pDrumkit->getName() );
-		}
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
 	}
 	connect( m_pDrumkitLabel, &ClickableLabel::labelClicked,
 			 [=]() { HydrogenApp::get_instance()->getMainForm()->
@@ -163,6 +177,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxDenominator );
 	pSizeResolLayout->addSpacing( nLabelSpacing );
+	updatePatternSizeLCD();
 	
 	// GRID resolution
 	m_pResolutionLbl = new ClickableLabel(
@@ -567,7 +582,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pPatternNameLbl, &ClickableLabel::labelClicked,
 			 [=]() { HydrogenApp::get_instance()->getSongEditorPanel()->
 					 getSongEditorPatternList()->patternPopup_properties(); } );
-
+	updatePatternName();
 
 // NOTE_PROPERTIES BUTTONS
 	PixmapWidget *pPropertiesPanel = new PixmapWidget( nullptr );
@@ -669,14 +684,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditorPanel::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &PatternEditorPanel::onPreferencesChanged );
 
 	// update
 	m_pPropertiesCombo->setCurrentIndex( 0 );
 	propertiesComboChanged( 0 );
-	selectedPatternChangedEvent();
 	updateStyleSheet();
-	updateDB();
 }
 
 PatternEditorPanel::~PatternEditorPanel()
@@ -704,6 +718,8 @@ void PatternEditorPanel::updateDrumkitLabel( )
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateDrumkitLabel();
 	updateDB();
+	updateEditors();
+	m_pInstrumentList->updateInstrumentLines();
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -840,22 +856,6 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
 	updatePatternInfo();
-
-	if ( m_pPattern != nullptr ) {
-		// update pattern name text
-		QString sCurrentPatternName = m_pPattern->get_name();
-		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
-		m_pPatternNameLbl->setText( sCurrentPatternName );
-
-		// update pattern size LCD
-		updatePatternSizeLCD();
-
-	}
-	else {
-		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
-		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
-	}
-
 	updateDB();
 	updateEditors();
 
@@ -927,6 +927,7 @@ void PatternEditorPanel::contentsMoving( int dummy )
 
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
+	updateEditors();
 	resizeEvent( nullptr );	// force a scrollbar update
 }
 
@@ -951,7 +952,7 @@ void PatternEditorPanel::showDrumEditor()
 	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
 	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
 
-	m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
+	m_pDrumPatternEditor->updateEditor(); // force an update
 
 	m_pDrumPatternEditor->selectNone();
 	m_pPianoRollEditor->selectNone();
@@ -977,7 +978,6 @@ void PatternEditorPanel::showPianoRollEditor()
 	m_pDrumPatternEditor->selectNone();
 	m_pPianoRollEditor->selectNone();
 
-	m_pPianoRollEditor->selectedPatternChangedEvent();
 	m_pPianoRollEditor->updateEditor(); // force an update
 	// force a re-sync of extern scrollbars
 	resizeEvent( nullptr );
@@ -1055,6 +1055,23 @@ void PatternEditorPanel::updatePatternInfo() {
 			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
 		}
 	}
+
+	updatePatternName();
+	updatePatternSizeLCD();
+}
+
+void PatternEditorPanel::updatePatternName() {
+	if ( m_pPattern != nullptr ) {
+		// update pattern name text
+		QString sCurrentPatternName = m_pPattern->get_name();
+		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
+		m_pPatternNameLbl->setText( sCurrentPatternName );
+
+	}
+	else {
+		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
+		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
+	}
 }
 
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
@@ -1073,7 +1090,9 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
-	selectedPatternChangedEvent();
+	updatePatternInfo();
+	updateEditors();
+	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
@@ -1226,13 +1245,13 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
 		// Performs an editor update with updateEditor() (and no argument).
-		selectedPatternChangedEvent();
-		selectedInstrumentChangedEvent();
 		updateDrumkitLabel();
 		updatePatternInfo();
 		updateDB();
 		updateEditors( true );
 		m_pPatternEditorRuler->updatePosition();
+		m_pInstrumentList->updateInstrumentLines();
+		resizeEvent( nullptr );
 	}
 }
 

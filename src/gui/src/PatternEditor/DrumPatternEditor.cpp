@@ -1403,24 +1403,6 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 	UNUSED( ev );
 }
 
-void DrumPatternEditor::selectedInstrumentChangedEvent()
-{
-	updateEditor();
-}
-
-void DrumPatternEditor::selectedPatternChangedEvent()
-{
-	updateEditor();
-}
-
-void DrumPatternEditor::drumkitLoadedEvent() {
-	updateEditor();
-}
-
-void DrumPatternEditor::songModeActivationEvent() {
-	updateEditor();
-}
-
 ///NotePropertiesRuler undo redo action
 void DrumPatternEditor::undoRedoAction( int column,
 										const PatternEditor::Mode& mode,

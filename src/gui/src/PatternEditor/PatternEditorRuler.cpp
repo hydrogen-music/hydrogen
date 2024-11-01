@@ -568,29 +568,9 @@ void PatternEditorRuler::zoomOut()
 	}
 }
 
-
-void PatternEditorRuler::songModeActivationEvent()
-{
-	updateEditor( true );
-}
-
 void PatternEditorRuler::stateChangedEvent( const H2Core::AudioEngine::State& )
 {
 	updatePosition();
-}
-	
-void PatternEditorRuler::selectedPatternChangedEvent()
-{
-	updateEditor( true );
-}
-
-void PatternEditorRuler::playingPatternsChangedEvent() {
-	if ( ! PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
-		if ( updateActiveRange() ) {
-			invalidateBackground();
-			update();
-		}
-	}
 }
 
 void PatternEditorRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )

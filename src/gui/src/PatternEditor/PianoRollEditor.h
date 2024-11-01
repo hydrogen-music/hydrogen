@@ -45,13 +45,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 						 QScrollArea *pScrollView );
 		~PianoRollEditor();
 
-
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void songModeActivationEvent() override;
-		// ~ Implements EventListener interface
-
 		void addOrDeleteNoteAction( int nColumn,
 									int pressedLine,
 									int selectedPatternNumber,

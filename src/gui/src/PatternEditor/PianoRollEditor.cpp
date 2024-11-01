@@ -117,21 +117,6 @@ void PianoRollEditor::finishUpdateEditor()
 	m_bNeedsBackgroundUpdate = false;
 }
 
-void PianoRollEditor::selectedInstrumentChangedEvent()
-{
-	// Update pattern only
-	updateEditor( true );
-}
-
-void PianoRollEditor::selectedPatternChangedEvent()
-{
-	updateEditor();
-}
-
-void PianoRollEditor::songModeActivationEvent() {
-	updateEditor();
-}
-
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
 {
 	if (!isVisible()) {
