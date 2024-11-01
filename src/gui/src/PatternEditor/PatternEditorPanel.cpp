@@ -53,31 +53,12 @@
 using namespace H2Core;
 
 
-
-void PatternEditorPanel::updateDrumkitLabel( )
-{
-	const auto pTheme = H2Core::Preferences::get_instance()->getTheme();
-	
-	QFont font( pTheme.m_font.m_sApplicationFontFamily,
-				getPointSize( pTheme.m_font.m_fontSize ) );
-	font.setBold( true );
-	m_pDrumkitLabel->setFont( font );
-
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		auto pDrumkit = pSong->getDrumkit();
-		if ( pDrumkit != nullptr ) {
-			m_pDrumkitLabel->setText( pDrumkit->getName() );
-		}
-	}
-}
-
-
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
- : QWidget( pParent )
- , m_pPattern( nullptr )
- , m_nSelectedPatternNumber( -1 )
- , m_bArmPatternSizeSpinBoxes( true )
+	: QWidget( pParent )
+	, m_pPattern( nullptr )
+	, m_nSelectedPatternNumber( -1 )
+	, m_nSelectedRowDB( 0 )
+	, m_bArmPatternSizeSpinBoxes( true )
 {
 	setAcceptDrops(true);
 
@@ -695,17 +676,34 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	propertiesComboChanged( 0 );
 	selectedPatternChangedEvent();
 	updateStyleSheet();
+	updateDB();
 }
-
-
-
 
 PatternEditorPanel::~PatternEditorPanel()
 {
 }
 
+void PatternEditorPanel::updateDrumkitLabel( )
+{
+	const auto pTheme = H2Core::Preferences::get_instance()->getTheme();
+
+	QFont font( pTheme.m_font.m_sApplicationFontFamily,
+				getPointSize( pTheme.m_font.m_fontSize ) );
+	font.setBold( true );
+	m_pDrumkitLabel->setFont( font );
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit != nullptr ) {
+			m_pDrumkitLabel->setText( pDrumkit->getName() );
+		}
+	}
+}
+
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateDrumkitLabel();
+	updateDB();
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -855,6 +853,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 		// update pattern size LCD
 		updatePatternSizeLCD();
+		updateDB();
 		updateEditors();
 		
 	}
@@ -863,6 +862,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
 		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
+		updateDB();
 	}
 
 	resizeEvent( nullptr ); // force an update of the scrollbars
@@ -1236,6 +1236,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		selectedPatternChangedEvent();
 		selectedInstrumentChangedEvent();
 		updateDrumkitLabel();
+		updateDB();
 		updateEditors( true );
 		m_pPatternEditorRuler->updatePosition();
 	}
@@ -1448,4 +1449,74 @@ void PatternEditorPanel::patchBayBtnClicked() {
 		nullptr, pSong->getPatternList(), pSong->getDrumkit() );
 	pPatchBay->exec();
 	delete pPatchBay;
+}
+
+void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
+	if ( nNewRow == m_nSelectedRowDB ) {
+		return;
+	}
+
+	if ( m_db.find( nNewRow ) == m_db.end() ) {
+		ERRORLOG( QString( "Provided row [%1] is not registered in DB." )
+				  .arg( nNewRow ) );
+		return;
+	}
+
+	m_nSelectedRowDB = nNewRow;
+}
+
+void PatternEditorPanel::updateDB() {
+	m_db.clear();
+	m_nSelectedRowDB = -1;
+
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "song not ready yet" );
+		return;
+	}
+
+	int nIndex = 0;
+
+	// First we add all instruments of the current drumkit in the order author
+	// of the kit intended.
+	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		if ( ppInstrument != nullptr ) {
+			m_db[ nIndex ] = { ppInstrument->get_id(), ppInstrument->getType() };
+			++nIndex;
+		}
+	}
+
+	// Next we add rows for all notes in the selected pattern not covered by any
+	// of the instruments above.
+	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
+	std::set<DrumkitMap::Type> additionalTypes;
+	for ( const auto& [ _, ppNote ] : *m_pPattern->get_notes() ) {
+		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
+			 kitTypes.find( ppNote->getType() ) == kitTypes.end() ) {
+			// Note is not associated with current kit.
+			if ( additionalTypes.find( ppNote->getType() ) ==
+				 additionalTypes.end() ) {
+				additionalTypes.insert( ppNote->getType() );
+				m_db[ nIndex ] = { -1, ppNote->getType() };
+				++nIndex;
+			}
+		}
+	}
+
+	printDB();
+}
+
+void PatternEditorPanel::printDB() {
+	QString sMsg = "PatternEditorPanel database:";
+	for ( const auto& [ nnRow, ddrumPatternRow ] : m_db ) {
+		sMsg.append( QString( "\n\t[%1] ID: %2, Type: %3" )
+					 .arg( nnRow ).arg( ddrumPatternRow.nInstrumentID )
+					 .arg( ddrumPatternRow.sType ) );
+	}
+
+	DEBUGLOG( sMsg );
 }

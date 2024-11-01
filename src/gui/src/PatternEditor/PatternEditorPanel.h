@@ -45,14 +45,56 @@ class LCDSpinBox;
 
 enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
+/** Properties of a single row in #DrumPatternEditor.
+ *
+ * It is used to correlate an instrument ID and instrument type with a row in
+ * the editor. Since either of them can be absent, this struct helps to all
+ * widgets in the pattern editor part to decided which #H2Core::Note to render
+ * based on the currently selected row of #DrumPatternEditor.
+ *
+ * In addition, it also carries state parameters for the actual row in
+ * #DrumPatternEditor. */
+struct DrumPatternRow {
+	/** Associated #H2Core::Instrument::__id in the current #H2Core::Drumkit.
+	 *
+	 * If set to `-1`, the row does not correspond to any. This happens in case
+	 * #H2Core::Note were created with a different #H2Core::Drumkit using an
+	 * instrument type not present in the current one. The note can not be
+	 * played back with the current kit but can be copy/pasted etc. like a
+	 * regular one.
+	 *
+	 * Single source of truth for the current instrument ID is
+	 * #H2Core::Hydrogen::m_nSelectedInstrumentNumber.
+	 * #PatternEditorPanel::m_nSelectedRowDB in combination with
+	 * #PatternEditorPanel::m_db serves only as a copy. (This is done as the
+	 * current instrument is important to the core itself when rendering
+	 * incoming MIDI notes.)
+	 *
+	 * Null element: -1 */
+	int nInstrumentID;
+	/** Associated #H2Core::DrumkitMap::Type.
+	 *
+	 * If set to an empty string, the row does not correspond to any. This
+	 * happens in case #H2Core::Note were created for an #H2Core::Instrument not
+	 * associated with a type yet, e.g. an import of a custom legacy (pre 2.0)
+	 * kit.
+	 *
+	 * Single source of truth for the current instrument type is
+	 * #PatternEditorPanel::m_nSelectedRowDB in combination with
+	 * #PatternEditorPanel::m_db.
+	 *
+	 * Null element: "" (empty string) */
+	QString sType;
+};
+
 namespace H2Core
 {
 	class Pattern;
 }
 
-///
-/// Pattern Editor Panel
-///
+/** Central widget bundling all individual parts of the pattern editor, serving
+ * as the single source of truth for their most important properties, and
+ * provided a number of buttons in a panel. */
 /** \ingroup docGUI*/
 class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<PatternEditorPanel>
 {
@@ -99,6 +141,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void patternEditorLockedEvent() override;
 	virtual void relocationEvent() override;
 		// ~ Implements EventListener interface
+
+		const std::map<int, DrumPatternRow>& getDB() const;
+		int getSelectedRowDB() const;
+		void setSelectedRowDB( int nNewRow );
 
 		void ensureCursorVisible();
 		int getCursorPosition();
@@ -147,9 +193,23 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 	private:
 	void updateStyleSheet();
+		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
+		void updateDB();
+		/** Prints the content of #m_db as a debug level log message for
+		 * debugging purposes. */
+		void printDB();
 	
 		H2Core::Pattern *	m_pPattern;
 	int m_nSelectedPatternNumber;
+
+		/** Single source of truth for which #H2Core::Note to display (in which
+		 * row) for all parts of the pattern editor.*/
+		std::map<int, DrumPatternRow> m_db;
+		/** Currently activate row of #m_db.
+		 *
+		 * `-1` indicates no row is selected/available. */
+		int m_nSelectedRowDB;
+
 		QPixmap				m_backgroundPixmap;
 		ClickableLabel*		m_pDrumkitLabel;
 
@@ -243,7 +303,11 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		virtual void showEvent(QShowEvent *ev) override;
 };
 
-
-
+inline const std::map<int, DrumPatternRow>& PatternEditorPanel::getDB() const {
+	return m_db;
+}
+inline int PatternEditorPanel::getSelectedRowDB() const {
+	return m_nSelectedRowDB;
+}
 
 #endif
