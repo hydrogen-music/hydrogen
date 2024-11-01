@@ -634,8 +634,12 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 		}
 	}
-		
-	EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+
+	// Be sure to not make GUI render its content twice by triggering this
+	// during startup.
+	if ( pHydrogen->getGUIState() == Hydrogen::GUIState::ready ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+	}
 
 	// In case the song is read-only, autosave won't work.
 	if ( ! Filesystem::file_writable( pSong->getFilename() ) ) {
