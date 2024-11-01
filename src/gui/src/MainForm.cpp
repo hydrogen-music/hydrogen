@@ -1747,6 +1747,8 @@ void MainForm::closeAll(){
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::shutdown );
 
+	disconnect( h2app->m_pUndoStack, nullptr, nullptr, nullptr );
+
 	saveWindowProperties();
 	m_pQApp->quit();
 }
