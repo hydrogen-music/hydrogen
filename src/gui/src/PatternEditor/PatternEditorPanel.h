@@ -154,8 +154,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void selectInstrumentNotes( int nInstrument );
 
-		void updatePatternInfo();
-
 		void updateEditors( bool bPatternOnly = false );
 
 	void patternSizeChangedAction( int nLength, double fDenominator,
@@ -192,7 +190,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void patchBayBtnClicked();
 
 	private:
-	void updateStyleSheet();
+
+		void updatePatternInfo();
+		void updateStyleSheet();
 		void updatePatternName();
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
