@@ -201,7 +201,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void printDB();
 	
 		H2Core::Pattern *	m_pPattern;
-	int m_nSelectedPatternNumber;
 
 		/** Single source of truth for which #H2Core::Note to display (in which
 		 * row) for all parts of the pattern editor.*/

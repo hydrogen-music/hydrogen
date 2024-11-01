@@ -880,12 +880,13 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 void NotePropertiesRuler::addUndoAction()
 {
-	if ( m_nSelectedPatternNumber == -1 ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
 	}
 
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
 		QUndoStack *pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
@@ -897,22 +898,23 @@ void NotePropertiesRuler::addUndoAction()
 		}
 		for ( auto it : m_oldNotes ) {
 			Note *pNewNote = it.first, *pOldNote = it.second;
-			pUndoStack->push( new SE_editNotePropertiesVolumeAction( pNewNote->get_position(),
-																	 m_mode,
-																	 m_nSelectedPatternNumber,
-																	 pInstrumentList->index( pNewNote->get_instrument() ),
-																	 pNewNote->get_velocity(),
-																	 pOldNote->get_velocity(),
-																	 pNewNote->getPan(),
-																	 pOldNote->getPan(),
-																	 pNewNote->get_lead_lag(),
-																	 pOldNote->get_lead_lag(),
-																	 pNewNote->get_probability(),
-																	 pOldNote->get_probability(),
-																	 pNewNote->get_key(),
-																	 pOldNote->get_key(),
-																	 pNewNote->get_octave(),
-																	 pOldNote->get_octave() ) );
+			pUndoStack->push( new SE_editNotePropertiesVolumeAction(
+								  pNewNote->get_position(),
+								  m_mode,
+								  pHydrogen->getSelectedPatternNumber(),
+								  pInstrumentList->index( pNewNote->get_instrument() ),
+								  pNewNote->get_velocity(),
+								  pOldNote->get_velocity(),
+								  pNewNote->getPan(),
+								  pOldNote->getPan(),
+								  pNewNote->get_lead_lag(),
+								  pOldNote->get_lead_lag(),
+								  pNewNote->get_probability(),
+								  pOldNote->get_probability(),
+								  pNewNote->get_key(),
+								  pOldNote->get_key(),
+								  pNewNote->get_octave(),
+								  pOldNote->get_octave() ) );
 		}
 		if ( nSize != 1 ) {
 			pUndoStack->endMacro();
@@ -1474,7 +1476,6 @@ void NotePropertiesRuler::updateEditor( bool )
 	else {
 		m_pPattern = nullptr;
 	}
-	m_nSelectedPatternNumber = nSelectedPatternNumber;
 
 	updateWidth();
 	resize( m_nEditorWidth, height() );

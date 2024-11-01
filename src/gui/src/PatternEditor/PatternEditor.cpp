@@ -471,9 +471,10 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 /// Align selected (or all) notes to the current grid
 ///
 void PatternEditor::alignToGrid() {
+	auto pHydrogen = Hydrogen::get_instance();
 
 	// Align selected notes to grid.
-	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
 	}
@@ -482,8 +483,6 @@ void PatternEditor::alignToGrid() {
 	if ( m_selection.isEmpty() ) {
 		return;
 	}
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -514,17 +513,23 @@ void PatternEditor::alignToGrid() {
 		// 1/8th triplest, and hitting 'align'.
 		int nNewPosition = nGranularity * ( (nPosition+(nGranularity/2)+1) / nGranularity );
 		// Move note
-		pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
-											nNewPosition, nNewInstrument, pNote ) );
+		pUndo->push( new SE_moveNoteAction(
+						 nPosition,
+						 nInstrument,
+						 pHydrogen->getSelectedPatternNumber(),
+						 nNewPosition,
+						 nNewInstrument,
+						 pNote ) );
 	}
 
 	pUndo->endMacro();
 }
 
 
-void PatternEditor::randomizeVelocity()
-{
-	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+void PatternEditor::randomizeVelocity() {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected. Nothing to be randomized.
 		return;
 	}
@@ -533,8 +538,6 @@ void PatternEditor::randomizeVelocity()
 	if ( m_selection.isEmpty() ) {
 		return;
 	}
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -559,22 +562,23 @@ void PatternEditor::randomizeVelocity()
 		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
 						   0.0, 1.0 );
 		SE_editNotePropertiesVolumeAction *action =
-			new SE_editNotePropertiesVolumeAction( pNote->get_position(),
-												   PatternEditor::Mode::Velocity,
-												   m_nSelectedPatternNumber,
-												   pInstrumentList->index( pNote->get_instrument() ),
-												   fVal,
-												   pNote->get_velocity(),
-												   pNote->getPan(),
-												   pNote->getPan(),
-												   pNote->get_lead_lag(),
-												   pNote->get_lead_lag(),
-												   pNote->get_probability(),
-												   pNote->get_probability(),
-												   pNote->get_key(),
-												   pNote->get_key(),
-												   pNote->get_octave(),
-												   pNote->get_octave() );
+			new SE_editNotePropertiesVolumeAction(
+				pNote->get_position(),
+				PatternEditor::Mode::Velocity,
+				pHydrogen->getSelectedPatternNumber(),
+				pInstrumentList->index( pNote->get_instrument() ),
+				fVal,
+				pNote->get_velocity(),
+				pNote->getPan(),
+				pNote->getPan(),
+				pNote->get_lead_lag(),
+				pNote->get_lead_lag(),
+				pNote->get_probability(),
+				pNote->get_probability(),
+				pNote->get_key(),
+				pNote->get_key(),
+				pNote->get_octave(),
+				pNote->get_octave() );
 		pUndo->push( action );
 	}
 
@@ -774,12 +778,12 @@ void PatternEditor::updatePatternInfo() {
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	m_pPattern = nullptr;
-	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 
 	if ( pSong != nullptr ) {
+		const auto nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 		PatternList *pPatternList = pSong->getPatternList();
-		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
-			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		if ( ( nSelectedPatternNumber != -1 ) && ( nSelectedPatternNumber < pPatternList->size() ) ) {
+			m_pPattern = pPatternList->get( nSelectedPatternNumber );
 		}
 	}
 }
@@ -1331,8 +1335,10 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 
 	UNUSED( ev );
 	unsetCursor();
+
+	auto pHydrogen = Hydrogen::get_instance();
 	
-	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		return;
 	}
 
@@ -1347,7 +1353,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 										 m_nRow,
 										 m_pDraggedNote->get_length(),
 										 m_nOldLength,
-										 m_nSelectedPatternNumber,
+										 pHydrogen->getSelectedPatternNumber(),
 										 m_nSelectedInstrumentNumber,
 										 m_editor );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
@@ -1365,7 +1371,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		new SE_editNotePropertiesAction( m_pDraggedNote->get_position(),
 										 m_pDraggedNote->get_position(),
 										 m_nRow,
-										 m_nSelectedPatternNumber,
+										 pHydrogen->getSelectedPatternNumber(),
 										 m_nSelectedInstrumentNumber,
 										 m_mode,
 										 m_editor,

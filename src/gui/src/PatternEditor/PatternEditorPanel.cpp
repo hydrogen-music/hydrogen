@@ -56,7 +56,6 @@ using namespace H2Core;
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
-	, m_nSelectedPatternNumber( -1 )
 	, m_nSelectedRowDB( 0 )
 	, m_bArmPatternSizeSpinBoxes( true )
 {
@@ -65,14 +64,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pHydrogen = Hydrogen::get_instance();
-	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
+		const auto nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 		const auto pPatternList = pSong->getPatternList();
-		if ( m_nSelectedPatternNumber != -1 &&
-			 m_nSelectedPatternNumber < pPatternList->size() ) {
-			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		if ( nSelectedPatternNumber != -1 &&
+			 nSelectedPatternNumber < pPatternList->size() ) {
+			m_pPattern = pPatternList->get( nSelectedPatternNumber );
 		}
 		else {
 			m_pPattern = nullptr;
@@ -81,9 +79,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	else {
 		m_pPattern = nullptr;
 	}
+
 	updateDB();
 
-	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily,
+					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
@@ -1046,13 +1046,12 @@ void PatternEditorPanel::updatePatternInfo() {
 	const auto pSong = pHydrogen->getSong();
 
 	m_pPattern = nullptr;
-	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-
 	if ( pSong != nullptr ) {
+		const auto nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 		const auto pPatternList = pSong->getPatternList();
-		if ( m_nSelectedPatternNumber != -1 &&
-			 m_nSelectedPatternNumber < pPatternList->size() ) {
-			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		if ( nSelectedPatternNumber != -1 &&
+			 nSelectedPatternNumber < pPatternList->size() ) {
+			m_pPattern = pPatternList->get( nSelectedPatternNumber );
 		}
 	}
 
@@ -1191,11 +1190,12 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
 							.arg( fNewNumerator ).arg( fNewDenominator ) );
 
-	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
-													   m_pPattern->get_length(),
-													   fNewDenominator,
-													   m_pPattern->get_denominator(),
-													   m_nSelectedPatternNumber ) );
+	pUndoStack->push( new SE_patternSizeChangedAction(
+						  nNewLength,
+						  m_pPattern->get_length(),
+						  fNewDenominator,
+						  m_pPattern->get_denominator(),
+						  pHydrogen->getSelectedPatternNumber() ) );
 	pUndoStack->endMacro();
 }
 

@@ -104,13 +104,13 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 										 bool bDoAdd, bool bDoDelete,
 										 bool bIsNoteOff ) {
-
-	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
 	}
 	
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set" );
 		return;
@@ -153,21 +153,22 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		fProbability = pOldNote->get_probability();
 	}
 
-	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
-																	 nRow,
-																	 m_nSelectedPatternNumber,
-																	 oldLength,
-																	 oldVelocity,
-																	 fOldPan,
-																	 oldLeadLag,
-																	 oldNoteKeyVal,
-																	 oldOctaveKeyVal,
-																	 fProbability,
-																	 pOldNote != nullptr,
-																	 Preferences::get_instance()->getHearNewNotes(),
-																	 false,
-																	 false,
-																	 isNoteOff );
+	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction(
+		nColumn,
+		nRow,
+		pHydrogen->getSelectedPatternNumber(),
+		oldLength,
+		oldVelocity,
+		fOldPan,
+		oldLeadLag,
+		oldNoteKeyVal,
+		oldOctaveKeyVal,
+		fProbability,
+		pOldNote != nullptr,
+		Preferences::get_instance()->getHearNewNotes(),
+		false,
+		false,
+		isNoteOff );
 
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
@@ -179,7 +180,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		return;
 	}
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -551,7 +552,8 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 ///
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
-	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
 	}
@@ -562,7 +564,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		// Move with no effect.
 		return;
 	}
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
+	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 
 	validateSelection();
 
@@ -597,45 +599,52 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				// Copying a note to an out-of-range location. Nothing to do.
 			} else {
 				// Note is moved out of range. Delete it.
-				pUndo->push( new SE_addOrDeleteNoteAction( nPosition,
-														   nInstrument,
-														   m_nSelectedPatternNumber,
-														   pNote->get_length(),
-														   pNote->get_velocity(),
-														   pNote->getPan(),
-														   pNote->get_lead_lag(),
-														   pNote->get_key(),
-														   pNote->get_octave(),
-														   pNote->get_probability(),
-														   true,
-														   false,
-														   false,
-														   false,
-														   pNote->get_note_off() ) );
+				pUndo->push( new SE_addOrDeleteNoteAction(
+								 nPosition,
+								 nInstrument,
+								 pHydrogen->getSelectedPatternNumber(),
+								 pNote->get_length(),
+								 pNote->get_velocity(),
+								 pNote->getPan(),
+								 pNote->get_lead_lag(),
+								 pNote->get_key(),
+								 pNote->get_octave(),
+								 pNote->get_probability(),
+								 true,
+								 false,
+								 false,
+								 false,
+								 pNote->get_note_off() ) );
 			}
 
 		} else {
 			if ( m_bCopyNotMove ) {
 				// Copy note to a new note.
-				pUndo->push( new SE_addOrDeleteNoteAction( nNewPosition,
-														   nNewInstrument,
-														   m_nSelectedPatternNumber,
-														   pNote->get_length(),
-														   pNote->get_velocity(),
-														   pNote->getPan(),
-														   pNote->get_lead_lag(),
-														   pNote->get_key(),
-														   pNote->get_octave(),
-														   pNote->get_probability(),
-														   false,
-														   false,
-														   false,
-														   false,
-														   pNote->get_note_off() ) );
+				pUndo->push( new SE_addOrDeleteNoteAction(
+								 nNewPosition,
+								 nNewInstrument,
+								 pHydrogen->getSelectedPatternNumber(),
+								 pNote->get_length(),
+								 pNote->get_velocity(),
+								 pNote->getPan(),
+								 pNote->get_lead_lag(),
+								 pNote->get_key(),
+								 pNote->get_octave(),
+								 pNote->get_probability(),
+								 false,
+								 false,
+								 false,
+								 false,
+								 pNote->get_note_off() ) );
 			} else {
 				// Move note
-				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
-													nNewPosition, nNewInstrument, pNote ) );
+				pUndo->push( new SE_moveNoteAction(
+								 nPosition,
+								 nInstrument,
+								 pHydrogen->getSelectedPatternNumber(),
+								 nNewPosition,
+								 nNewInstrument,
+								 pNote ) );
 			}
 		}
 	}
@@ -900,14 +909,14 @@ void DrumPatternEditor::selectAll()
 
 void DrumPatternEditor::deleteSelection()
 {
-	if ( m_nSelectedPatternNumber == -1 ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
 	}
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Selection exists, delete it.
-		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
@@ -917,21 +926,22 @@ void DrumPatternEditor::deleteSelection()
 		std::list< QUndoCommand *> actions;
 		for ( Note *pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
-				actions.push_back( new SE_addOrDeleteNoteAction( pNote->get_position(),
-																 pInstrumentList->index( pNote->get_instrument() ),
-																 m_nSelectedPatternNumber,
-																 pNote->get_length(),
-																 pNote->get_velocity(),
-																 pNote->getPan(),
-																 pNote->get_lead_lag(),
-																 pNote->get_key(),
-																 pNote->get_octave(),
-																 pNote->get_probability(),
-																 true, // noteExisted
-																 false, // listen
-																 false,
-																 false,
-																 pNote->get_note_off() ) );
+				actions.push_back( new SE_addOrDeleteNoteAction(
+									   pNote->get_position(),
+									   pInstrumentList->index( pNote->get_instrument() ),
+									   pHydrogen->getSelectedPatternNumber(),
+									   pNote->get_length(),
+									   pNote->get_velocity(),
+									   pNote->getPan(),
+									   pNote->get_lead_lag(),
+									   pNote->get_key(),
+									   pNote->get_octave(),
+									   pNote->get_probability(),
+									   true, // noteExisted
+									   false, // listen
+									   false,
+									   false,
+									   pNote->get_note_off() ) );
 			}
 		}
 		m_selection.clearSelection();
@@ -952,14 +962,15 @@ void DrumPatternEditor::deleteSelection()
 ///
 void DrumPatternEditor::paste()
 {
-	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( m_pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
 	}
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	const auto pDrumkit = Hydrogen::get_instance()->getSong()->getDrumkit();
+	const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
 	const auto pInstrList = pDrumkit->getInstruments();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaInstrument = 0;
@@ -1037,22 +1048,22 @@ void DrumPatternEditor::paste()
 
 			if ( nPos >= 0 && nPos < m_pPattern->get_length()
 				 && nInstrument >= 0 && nInstrument < pInstrList->size() ) {
-				pUndo->push( new SE_addOrDeleteNoteAction( nPos,
-														   nInstrument,
-														   m_nSelectedPatternNumber,
-														   pNote->get_length(),
-														   pNote->get_velocity(),
-														   pNote->getPan(),
-														   pNote->get_lead_lag(),
-														   pNote->get_key(),
-														   pNote->get_octave(),
-														   pNote->get_probability(),
-														   false, // isDelete
-														   false, // listen
-														   false, // isMidi
-														   false, // isInstrumentMode
-														   pNote->get_note_off()
-														   ) );
+				pUndo->push( new SE_addOrDeleteNoteAction(
+								 nPos,
+								 nInstrument,
+								 pHydrogen->getSelectedPatternNumber(),
+								 pNote->get_length(),
+								 pNote->get_velocity(),
+								 pNote->getPan(),
+								 pNote->get_lead_lag(),
+								 pNote->get_key(),
+								 pNote->get_octave(),
+								 pNote->get_probability(),
+								 false, // isDelete
+								 false, // listen
+								 false, // isMidi
+								 false, // isInstrumentMode
+								 pNote->get_note_off() ) );
 			}
 			delete pNote;
 		}
