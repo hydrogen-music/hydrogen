@@ -38,14 +38,14 @@ namespace H2Core
 
 Pattern::Pattern( const QString& name, const QString& info, const QString& sCategory, int length, int denominator )
 	: m_nVersion( 0 )
+	, m_sDrumkitName( "" )
+	, m_sAuthor( "" )
+	, m_license( License() )
 	, __length( length )
 	, __denominator( denominator)
 	, __name( name )
-	, __info( info )
 	, __category( sCategory )
-	  , m_sDrumkitName( "" )
-	  , m_sAuthor( "" )
-	  , m_license( License() )
+	, __info( info )
 {
 	if ( sCategory.isEmpty() ) {
 		__category = SoundLibraryDatabase::m_sPatternBaseCategory;
@@ -54,17 +54,25 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& sCate
 
 Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 	: m_nVersion( pOther->m_nVersion )
-	, __length( pOther->get_length() )
-	, __denominator( pOther->get_denominator() )
-	, __name( pOther->get_name() )
-	, __info( pOther->get_info() )
-	, __category( pOther->get_category() )
 	, m_sDrumkitName( pOther->m_sDrumkitName )
 	, m_sAuthor( pOther->m_sAuthor )
 	, m_license( pOther->m_license )
+	, __length( pOther->get_length() )
+	, __denominator( pOther->get_denominator() )
+	, __name( pOther->get_name() )
+	, __category( pOther->get_category() )
+	, __info( pOther->get_info() )
 {
 	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->get_notes(),it ) {
 		__notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
+	}
+
+	for ( const auto& ppPattern : pOther->__virtual_patterns ) {
+		__virtual_patterns.insert( std::make_shared<Pattern>( ppPattern ) );
+	}
+	for ( const auto& ppPattern : pOther->__flattened_virtual_patterns ) {
+		__flattened_virtual_patterns.insert(
+			std::make_shared<Pattern>( ppPattern ) );
 	}
 }
 
