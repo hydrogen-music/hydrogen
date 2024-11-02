@@ -53,10 +53,10 @@ void MemoryLeakageTest::testConstructors() {
 	int nAliveReference = H2Core::Base::getAliveObjectCount();
 
 	{
-		auto ADSR = std::make_shared<H2Core::ADSR>();
-		auto ADSR2 = new H2Core::ADSR( ADSR );
-		ADSR = nullptr;
-		delete ADSR2;
+		auto pADSR = std::make_shared<H2Core::ADSR>();
+		auto pADSR2 = std::make_shared<H2Core::ADSR>( pADSR );
+		pADSR = nullptr;
+		pADSR2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -76,37 +76,37 @@ void MemoryLeakageTest::testConstructors() {
 
 	{
 		auto pADSR = std::make_shared<H2Core::ADSR>();
-		auto Instrument = std::make_shared<H2Core::Instrument>( 0, "ladida", pADSR );
-		auto Instrument2 = new H2Core::Instrument( Instrument );
-		delete Instrument2;
-		Instrument = nullptr;
+		auto pInstrument = std::make_shared<H2Core::Instrument>( 0, "ladida", pADSR );
+		auto pInstrument2 = std::make_shared<H2Core::Instrument>( pInstrument );
+		pInstrument = nullptr;
+		pInstrument2 = nullptr;
 		pADSR = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
 		auto pSample = std::make_shared<H2Core::Sample>( H2TEST_FILE( "/drumkits/baseKit/kick.wav" ) );
-		auto InstrumentLayer = std::make_shared<H2Core::InstrumentLayer>( pSample );
-		auto InstrumentLayer2 = new H2Core::InstrumentLayer( InstrumentLayer );
-		InstrumentLayer = nullptr;
+		auto pInstrumentLayer = std::make_shared<H2Core::InstrumentLayer>( pSample );
+		auto pInstrumentLayer2 = std::make_shared<H2Core::InstrumentLayer>( pInstrumentLayer );
+		pInstrumentLayer = nullptr;
 		pSample = nullptr;
-		delete InstrumentLayer2;
+		pInstrumentLayer2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
 		auto pInstrumentList = std::make_shared<H2Core::InstrumentList>();
-		auto pInstrumentList2 = std::shared_ptr<H2Core::InstrumentList>( pInstrumentList );
+		auto pInstrumentList2 = std::make_shared<H2Core::InstrumentList>( pInstrumentList );
 		pInstrumentList = nullptr;
 		pInstrumentList2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
-		auto InstrumentComponent = std::make_shared<H2Core::InstrumentComponent>();
-		auto InstrumentComponent2 = new H2Core::InstrumentComponent( InstrumentComponent );
-		InstrumentComponent = nullptr;
-		delete InstrumentComponent2;
+		auto pInstrumentComponent = std::make_shared<H2Core::InstrumentComponent>();
+		auto pInstrumentComponent2 = std::make_shared<H2Core::InstrumentComponent>( pInstrumentComponent );
+		pInstrumentComponent = nullptr;
+		pInstrumentComponent2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -139,16 +139,16 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto Sample = std::make_shared<H2Core::Sample>( H2TEST_FILE( "/drumkits/baseKit/kick.wav" ) );
-		auto Sample2 = new H2Core::Sample( Sample );
-		Sample = nullptr;
-		delete Sample2;
+		auto pSample = std::make_shared<H2Core::Sample>( H2TEST_FILE( "/drumkits/baseKit/kick.wav" ) );
+		auto pSample2 = std::make_shared<H2Core::Sample>( pSample );
+		pSample = nullptr;
+		pSample2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
-		auto Song = new H2Core::Song( "ladida", "ladida", 120, 1 );
-		delete Song;
+		auto pSong = std::make_shared<H2Core::Song>( "ladida", "ladida", 120, 1 );
+		pSong = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 	
@@ -210,37 +210,37 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto pInstrument = new H2Core::Instrument( pDrumkitProper->getInstruments()->get( 0 ) );
+		auto pInstrument = std::make_shared<H2Core::Instrument>( pDrumkitProper->getInstruments()->get( 0 ) );
 		CPPUNIT_ASSERT( pInstrument != nullptr );
-		delete pInstrument;
+		pInstrument = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
-		auto pADSR = new H2Core::ADSR( pDrumkitProper->getInstruments()->get( 0 )->get_adsr() );
+		auto pADSR = std::make_shared<H2Core::ADSR>( pDrumkitProper->getInstruments()->get( 0 )->get_adsr() );
 		CPPUNIT_ASSERT( pADSR != nullptr );
-		delete pADSR;
+		pADSR = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
-		auto pInstrumentComponent = new H2Core::InstrumentComponent( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 ) );
+		auto pInstrumentComponent = std::make_shared<H2Core::InstrumentComponent>( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 ) );
 		CPPUNIT_ASSERT( pInstrumentComponent != nullptr );
-		delete pInstrumentComponent;
+		pInstrumentComponent = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
-		auto pInstrumentLayer = new H2Core::InstrumentLayer( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->getLayer( 0 ) );
+		auto pInstrumentLayer = std::make_shared<H2Core::InstrumentLayer>( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->getLayer( 0 ) );
 		CPPUNIT_ASSERT( pInstrumentLayer != nullptr );
-		delete pInstrumentLayer;
+		pInstrumentLayer = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
 	{
-		auto pSample = new H2Core::Sample( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->getLayer( 0 )->get_sample() );
+		auto pSample = std::make_shared<H2Core::Sample>( pDrumkitProper->getInstruments()->get( 0 )->get_component( 0 )->getLayer( 0 )->get_sample() );
 		CPPUNIT_ASSERT( pSample != nullptr );
-		delete pSample;
+		pSample = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 	
