@@ -42,6 +42,7 @@ class DrumPatternEditor;
 class PianoRollEditor;
 class ClickableLabel;
 class LCDSpinBox;
+class PixmapWidget;
 
 enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
@@ -124,7 +125,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		const QScrollBar* getVerticalScrollBar() const { return m_pPatternEditorVScrollBar; }
 		const QScrollBar* getHorizontalScrollBar() const { return m_pPatternEditorHScrollBar; }
 	NotePropertiesRuler::Mode getNotePropertiesMode() const;
-	
+
+		/** Allow to create other parts of pattern editor _after_ this class is
+		 * fully initialized in order used it as the single source of truth. */
+		void createEditors();
 
 		void updateDrumkitLabel();
 
@@ -241,6 +245,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		//note properties combo
 		LCDCombo *			m_pPropertiesCombo;
+		PixmapWidget*		m_pPropertiesPanel;
 
 		// drum editor
 		QScrollArea*		m_pEditorScrollView;
@@ -280,6 +285,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		QScrollBar *		m_pPatternEditorHScrollBar;
 		QScrollBar *		m_pPatternEditorVScrollBar;
+		QWidget*			m_pPatternEditorHScrollBarContainer;
 
 		// TOOLBAR
 		ClickableLabel*			m_pPatternNameLbl;

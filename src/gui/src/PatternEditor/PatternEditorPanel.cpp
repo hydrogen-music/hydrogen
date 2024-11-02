@@ -331,236 +331,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // End Editor TOP
 
 
-// RULER____________________________________
-
-	// Ruler ScrollView
-	m_pRulerScrollView = new WidgetScrollArea( nullptr );
-	m_pRulerScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
-	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pRulerScrollView->setFixedHeight( 25 );
-	// Ruler
-	m_pPatternEditorRuler = new PatternEditorRuler( m_pRulerScrollView->viewport() );
-	m_pPatternEditorRuler->setFocusPolicy( Qt::ClickFocus );
-
-	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
-	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
-
-
-// ~ RULER
-
-
-// EDITOR _____________________________________
-	// Editor scrollview
-	m_pEditorScrollView = new WidgetScrollArea( nullptr );
-	m_pEditorScrollView->setObjectName( "EditorScrollView" );
-	m_pEditorScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
-	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-
-
-	// Editor
-	m_pDrumPatternEditor = new DrumPatternEditor(
-		m_pEditorScrollView->viewport(), this );
-
-	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
-	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
-	m_pEditorScrollView->setFocusProxy( m_pDrumPatternEditor );
-
-	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
-
-	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ),
-			 this, SLOT( on_patternEditorVScroll(int) ) );
-	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pDrumPatternEditor, &DrumPatternEditor::onPreferencesChanged );
-
-//PianoRollEditor
-	m_pPianoRollScrollView = new WidgetScrollArea( nullptr );
-	m_pPianoRollScrollView->setObjectName( "PianoRollScrollView" );
-	m_pPianoRollScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
-	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
-	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
-	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
-	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
-	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
-			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pPianoRollEditor, &PianoRollEditor::onPreferencesChanged );
-
-	m_pPianoRollScrollView->hide();
-	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
-
-	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
-
-// ~ EDITOR
-
-
-
-
-
-
-// INSTRUMENT LIST
-	// Instrument list scrollview
-	m_pInstrListScrollView = new WidgetScrollArea( nullptr );
-	m_pInstrListScrollView->setObjectName( "InstrListScrollView" );
-	m_pInstrListScrollView->setFocusPolicy( Qt::ClickFocus );
-	m_pInstrListScrollView->setFrameShape( QFrame::NoFrame );
-	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-
-	// Instrument list
-	m_pInstrumentList = new PatternEditorInstrumentList( m_pInstrListScrollView->viewport(), this );
-	m_pInstrListScrollView->setWidget( m_pInstrumentList );
-	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
-	m_pInstrumentList->setFocusPolicy( Qt::ClickFocus );
-	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
-
-	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
-	m_pInstrListScrollView->setFocusProxy( m_pInstrumentList );
-
-// ~ INSTRUMENT LIST
-
-
-
-
-// NOTE_VELOCITY EDITOR
-	m_pNoteVelocityScrollView = new WidgetScrollArea( nullptr );
-	m_pNoteVelocityScrollView->setObjectName( "NoteVelocityScrollView" );
-	m_pNoteVelocityScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pNoteVelocityScrollView->setFrameShape( QFrame::NoFrame );
-	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this,
-													 NotePropertiesRuler::Mode::Velocity );
-	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
-	m_pNoteVelocityScrollView->setFixedHeight( 100 );
-	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 m_pNoteVelocityEditor, SLOT( scrolled( int ) ) );
-
-	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
-
-// ~ NOTE_VELOCITY EDITOR
-
-
-// NOTE_PAN EDITOR
-	m_pNotePanScrollView = new WidgetScrollArea( nullptr );
-	m_pNotePanScrollView->setObjectName( "NotePanScrollView" );
-	m_pNotePanScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
-	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this,
-												NotePropertiesRuler::Mode::Pan );
-	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
-	m_pNotePanScrollView->setFixedHeight( 100 );
-
-	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 m_pNotePanEditor, SLOT( scrolled( int ) ) );
-
-	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
-
-// ~ NOTE_PAN EDITOR
-
-
-// NOTE_LEADLAG EDITOR
-	m_pNoteLeadLagScrollView = new WidgetScrollArea( nullptr );
-	m_pNoteLeadLagScrollView->setObjectName( "NoteLeadLagScrollView" );
-	m_pNoteLeadLagScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
-	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this,
-													NotePropertiesRuler::Mode::LeadLag );
-	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
-	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
-
-	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 m_pNoteLeadLagEditor, SLOT( scrolled( int ) ) );
-
-	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
-
-// ~ NOTE_LEADLAG EDITOR
-
-
-// NOTE_NOTEKEY EDITOR
-
-
-	m_pNoteNoteKeyScrollView = new WidgetScrollArea( nullptr );
-	m_pNoteNoteKeyScrollView->setObjectName( "NoteNoteKeyScrollView" );
-	m_pNoteNoteKeyScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
-	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this,
-													NotePropertiesRuler::Mode::NoteKey );
-	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
-	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
-			 this, SLOT( on_patternEditorHScroll( int ) ) );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
-			 m_pNoteNoteKeyEditor, SLOT( scrolled( int ) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pNoteNoteKeyEditor, &NotePropertiesRuler::onPreferencesChanged );
-	
-	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
-
-// ~ NOTE_NOTEKEY EDITOR
-
-// NOTE_PROBABILITY EDITOR
-	m_pNoteProbabilityScrollView = new WidgetScrollArea( nullptr );
-	m_pNoteProbabilityScrollView->setObjectName( "NoteProbabilityScrollView" );
-	m_pNoteProbabilityScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
-	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this,
-														NotePropertiesRuler::Mode::Probability );
-	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
-	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
-	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
-			 m_pNoteProbabilityEditor, SLOT( scrolled( int ) ) );
-	
-	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
-
-// ~ NOTE_PROBABILITY EDITOR
-
-
-
 	// external horizontal scrollbar
 	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , nullptr  );
 	m_pPatternEditorHScrollBar->setObjectName( "PatternEditorHScrollBar" );
-	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ), this,
-																	SLOT( syncToExternalHorizontalScrollbar( int ) ) );
+	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
+			 this, SLOT( syncToExternalHorizontalScrollbar( int ) ) );
 
 	// external vertical scrollbar
 	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
 	m_pPatternEditorVScrollBar->setObjectName( "PatternEditorVScrollBar" );
-	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged( int)), this,
-																	SLOT( syncToExternalHorizontalScrollbar(int) ) );
-	connect( m_pPatternEditorVScrollBar, SIGNAL( valueChanged( int ) ),
-			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
-	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
-			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
-	
+	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged( int)),
+			 this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
+
 	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
 	pPatternEditorHScrollBarLayout->setSpacing( 0 );
 	pPatternEditorHScrollBarLayout->setMargin( 0 );
@@ -568,8 +350,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPatternEditorHScrollBarLayout->addWidget( zoom_in_btn );
 	pPatternEditorHScrollBarLayout->addWidget( zoom_out_btn );
 
-	QWidget *pPatternEditorHScrollBarContainer = new QWidget();
-	pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
+	m_pPatternEditorHScrollBarContainer = new QWidget();
+	m_pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
 
 
 	QPalette label_palette;
@@ -583,67 +365,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			 [=]() { HydrogenApp::get_instance()->getSongEditorPanel()->
 					 getSongEditorPatternList()->patternPopup_properties(); } );
 	updatePatternName();
-
-// NOTE_PROPERTIES BUTTONS
-	PixmapWidget *pPropertiesPanel = new PixmapWidget( nullptr );
-	pPropertiesPanel->setObjectName( "PropertiesPanel" );
-	pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
-
-	pPropertiesPanel->setFixedSize( 181, 100 );
-
-	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( pPropertiesPanel );
-	pPropertiesVBox->setSpacing( 0 );
-	pPropertiesVBox->setMargin( 0 );
-
-
-	m_pPropertiesCombo =
-		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
-	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
-	m_pPropertiesCombo->addItem( tr("Velocity") );
-	m_pPropertiesCombo->addItem( tr("Pan") );
-	m_pPropertiesCombo->addItem( tr("Lead and Lag") );
-	m_pPropertiesCombo->addItem( tr("NoteKey") );
-	m_pPropertiesCombo->addItem( tr("Probability") );
-	/* m_pPropertiesCombo->addItem( tr("Cutoff") ); */
-	/* m_pPropertiesCombo->addItem( tr("Resonance") ); */
-	// is triggered here below
-	m_pPropertiesCombo->setObjectName( "PropertiesCombo" );
-	connect( m_pPropertiesCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
-
-	pPropertiesVBox->addWidget( m_pPropertiesCombo );
-
-// ~ NOTE_PROPERTIES BUTTONS
-
-
-// LAYOUT
-	QWidget *pMainPanel = new QWidget();
-
-	QGridLayout *pGrid = new QGridLayout();
-	pGrid->setSpacing( 0 );
-	pGrid->setMargin( 0 );
-
-	pGrid->addWidget( m_pEditorTop1, 0, 0 );
-	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 2 );
-	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
-	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
-
-	pGrid->addWidget( m_pInstrListScrollView, 2, 0 );
-
-	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
-	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
-
-	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
-	pGrid->addWidget( pPatternEditorHScrollBarContainer, 10, 1 );
-	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
-	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteNoteKeyScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteProbabilityScrollView, 4, 1 );
-
-	pGrid->addWidget( pPropertiesPanel, 4, 0 );
-	pGrid->setRowStretch( 2, 100 );
-	pMainPanel->setLayout( pGrid );
-
 
 	// restore grid resolution
 	int nIndex;
@@ -674,27 +395,261 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	}
 	m_pResolutionCombo->setCurrentIndex( nIndex );
 
-	// LAYOUT
+	HydrogenApp::get_instance()->addEventListener( this );
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &PatternEditorPanel::onPreferencesChanged );
+
+	updateStyleSheet();
+}
+
+PatternEditorPanel::~PatternEditorPanel()
+{
+}
+
+void PatternEditorPanel::createEditors() {
+
+	// Ruler ScrollView
+	m_pRulerScrollView = new WidgetScrollArea( nullptr );
+	m_pRulerScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
+	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pRulerScrollView->setFixedHeight( 25 );
+	// Ruler
+	m_pPatternEditorRuler = new PatternEditorRuler( m_pRulerScrollView->viewport() );
+	m_pPatternEditorRuler->setFocusPolicy( Qt::ClickFocus );
+
+	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
+	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
+
+	// Drum Pattern
+	m_pEditorScrollView = new WidgetScrollArea( nullptr );
+	m_pEditorScrollView->setObjectName( "EditorScrollView" );
+	m_pEditorScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
+	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+
+	m_pDrumPatternEditor = new DrumPatternEditor(
+		m_pEditorScrollView->viewport(), this );
+
+	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
+	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
+	m_pEditorScrollView->setFocusProxy( m_pDrumPatternEditor );
+
+	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
+
+	connect( m_pPatternEditorVScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
+	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
+	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorVScroll(int) ) );
+	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pDrumPatternEditor, &DrumPatternEditor::onPreferencesChanged );
+
+	// PianoRollEditor
+	m_pPianoRollScrollView = new WidgetScrollArea( nullptr );
+	m_pPianoRollScrollView->setObjectName( "PianoRollScrollView" );
+	m_pPianoRollScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
+	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
+	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
+	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pPianoRollEditor, &PianoRollEditor::onPreferencesChanged );
+
+	m_pPianoRollScrollView->hide();
+	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
+
+	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
+	// Instrument list
+	m_pInstrListScrollView = new WidgetScrollArea( nullptr );
+	m_pInstrListScrollView->setObjectName( "InstrListScrollView" );
+	m_pInstrListScrollView->setFocusPolicy( Qt::ClickFocus );
+	m_pInstrListScrollView->setFrameShape( QFrame::NoFrame );
+	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+
+	m_pInstrumentList = new PatternEditorInstrumentList( m_pInstrListScrollView->viewport(), this );
+	m_pInstrListScrollView->setWidget( m_pInstrumentList );
+	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
+	m_pInstrumentList->setFocusPolicy( Qt::ClickFocus );
+	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
+
+	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
+	m_pInstrListScrollView->setFocusProxy( m_pInstrumentList );
+
+	// NOTE_VELOCITY EDITOR
+	m_pNoteVelocityScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteVelocityScrollView->setObjectName( "NoteVelocityScrollView" );
+	m_pNoteVelocityScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pNoteVelocityScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this,
+													 NotePropertiesRuler::Mode::Velocity );
+	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
+	m_pNoteVelocityScrollView->setFixedHeight( 100 );
+	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteVelocityEditor, SLOT( scrolled( int ) ) );
+
+	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
+	// NOTE_PAN EDITOR
+	m_pNotePanScrollView = new WidgetScrollArea( nullptr );
+	m_pNotePanScrollView->setObjectName( "NotePanScrollView" );
+	m_pNotePanScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this,
+												NotePropertiesRuler::Mode::Pan );
+	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
+	m_pNotePanScrollView->setFixedHeight( 100 );
+
+	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNotePanEditor, SLOT( scrolled( int ) ) );
+
+	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
+	// NOTE_LEADLAG EDITOR
+	m_pNoteLeadLagScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteLeadLagScrollView->setObjectName( "NoteLeadLagScrollView" );
+	m_pNoteLeadLagScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this,
+													NotePropertiesRuler::Mode::LeadLag );
+	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
+	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
+
+	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteLeadLagEditor, SLOT( scrolled( int ) ) );
+
+	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
+	// NOTE_NOTEKEY EDITOR
+	m_pNoteNoteKeyScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteNoteKeyScrollView->setObjectName( "NoteNoteKeyScrollView" );
+	m_pNoteNoteKeyScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this,
+													NotePropertiesRuler::Mode::NoteKey );
+	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
+	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 this, SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pNoteNoteKeyEditor, SLOT( scrolled( int ) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pNoteNoteKeyEditor, &NotePropertiesRuler::onPreferencesChanged );
+
+	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
+	// NOTE_PROBABILITY EDITOR
+	m_pNoteProbabilityScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteProbabilityScrollView->setObjectName( "NoteProbabilityScrollView" );
+	m_pNoteProbabilityScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this,
+														NotePropertiesRuler::Mode::Probability );
+	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
+	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
+	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteProbabilityEditor, SLOT( scrolled( int ) ) );
+
+	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
+	m_pPropertiesPanel = new PixmapWidget( nullptr );
+	m_pPropertiesPanel->setObjectName( "PropertiesPanel" );
+	m_pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
+
+	m_pPropertiesPanel->setFixedSize( 181, 100 );
+
+	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( m_pPropertiesPanel );
+	pPropertiesVBox->setSpacing( 0 );
+	pPropertiesVBox->setMargin( 0 );
+
+	m_pPropertiesCombo =
+		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
+	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
+	m_pPropertiesCombo->addItem( tr("Velocity") );
+	m_pPropertiesCombo->addItem( tr("Pan") );
+	m_pPropertiesCombo->addItem( tr("Lead and Lag") );
+	m_pPropertiesCombo->addItem( tr("NoteKey") );
+	m_pPropertiesCombo->addItem( tr("Probability") );
+	/* m_pPropertiesCombo->addItem( tr("Cutoff") ); */
+	/* m_pPropertiesCombo->addItem( tr("Resonance") ); */
+	// is triggered here below
+	m_pPropertiesCombo->setObjectName( "PropertiesCombo" );
+	connect( m_pPropertiesCombo, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( propertiesComboChanged( int ) ) );
+	m_pPropertiesCombo->setCurrentIndex( 0 );
+	propertiesComboChanged( 0 );
+
+	pPropertiesVBox->addWidget( m_pPropertiesCombo );
+
+	// Layout
+	QWidget *pMainPanel = new QWidget();
+	QGridLayout *pGrid = new QGridLayout();
+	pGrid->setSpacing( 0 );
+	pGrid->setMargin( 0 );
+
+	pGrid->addWidget( m_pEditorTop1, 0, 0 );
+	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 2 );
+	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
+	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
+
+	pGrid->addWidget( m_pInstrListScrollView, 2, 0 );
+
+	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
+	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
+
+	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
+	pGrid->addWidget( m_pPatternEditorHScrollBarContainer, 10, 1 );
+	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
+	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteNoteKeyScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteProbabilityScrollView, 4, 1 );
+
+	pGrid->addWidget( m_pPropertiesPanel, 4, 0 );
+	pGrid->setRowStretch( 2, 100 );
+	pMainPanel->setLayout( pGrid );
+
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
 	pVBox->setMargin( 0 );
 	this->setLayout( pVBox );
 
 	pVBox->addWidget( pMainPanel );
-
-	HydrogenApp::get_instance()->addEventListener( this );
-
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 this, &PatternEditorPanel::onPreferencesChanged );
-
-	// update
-	m_pPropertiesCombo->setCurrentIndex( 0 );
-	propertiesComboChanged( 0 );
-	updateStyleSheet();
-}
-
-PatternEditorPanel::~PatternEditorPanel()
-{
 }
 
 void PatternEditorPanel::updateDrumkitLabel( )
