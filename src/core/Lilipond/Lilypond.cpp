@@ -125,7 +125,7 @@ void H2Core::LilyPond::write( const QString &sFilename ) const {
 void H2Core::LilyPond::addPatternList( const PatternList &list, notes_t &to ) {
 	to.clear();
 	for ( unsigned nPattern = 0; nPattern < list.size(); nPattern++ ) {
-		if ( const Pattern *pPattern = list.get( nPattern ) ) {
+		if ( const auto& pPattern = list.get( nPattern ) ) {
 			addPattern( *pPattern, to );
 		}
 	}

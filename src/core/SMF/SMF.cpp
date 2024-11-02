@@ -249,7 +249,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 		for ( unsigned nPattern = 0 ;
 			  nPattern < pPatternList->size() ;
 			  nPattern++ ) {
-			Pattern *pPattern = pPatternList->get( nPattern );
+			auto pPattern = pPatternList->get( nPattern );
 			// infoLog( "      |-> pattern: " + pPattern->getName() );
 			if ( ( int )pPattern->get_length() > nMaxPatternLength ) {
 				nMaxPatternLength = pPattern->get_length();

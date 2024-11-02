@@ -195,7 +195,7 @@ public:
 	 * patterns (determined by getPattersToShow()) or just the
 	 * currently selected one.
 	 */
-	static bool isUsingAdditionalPatterns( const H2Core::Pattern* pPattern );
+	static bool isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern );
 
 protected:
 
@@ -282,10 +282,7 @@ protected:
 	//! Get notes to show in pattern editor.
 	//! This may include "background" notes that are in currently-playing patterns
 	//! rather than the current pattern.
-	std::vector< H2Core::Pattern *> getPatternsToShow( void );
-
-	//! Update current pattern information
-	void updatePatternInfo();
+	std::vector<std::shared_ptr<H2Core::Pattern>> getPatternsToShow( void );
 
 	/** Updates #m_pBackgroundPixmap to show the latest content. */
 	virtual void createBackground();

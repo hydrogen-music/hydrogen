@@ -318,10 +318,9 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 	}
 }
 
-Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
+std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 	WARNINGLOG( QString( "loading pattern with legacy code" ) );
 
-	Pattern* pPattern = nullptr;
 	XMLDoc doc;
 	if( !doc.read( pattern_path ) ) {
 		return nullptr;
@@ -346,7 +345,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 	int nSize = pattern_node.read_int( "size", -1, false, false );
 		
 	//default nDenominator = 4 since old patterns have not <denominator> setting
-	pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
+	auto pPattern = std::make_shared<Pattern>( sName, sInfo, sCategory, nSize, 4 );
 
 	// Try to load author and license present in .h2pattern created in Hydrogen
 	// version 1.0.0-beta till 1.2.X (within the <drumkit_pattern> element).
@@ -495,7 +494,7 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
 		PatternList* pPatternSequence = new PatternList();
 		QString sPatId = pPatternIDNode.firstChildElement().text();
 
-		Pattern* pPattern = nullptr;
+		std::shared_ptr<Pattern> pPattern = nullptr;
 		for ( const auto& ppPat : *pPatternList ) {
 			if ( ppPat != nullptr ) {
 				if ( ppPat->get_name() == sPatId ) {

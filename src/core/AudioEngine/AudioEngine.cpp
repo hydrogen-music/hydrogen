@@ -2016,7 +2016,7 @@ void AudioEngine::updateSongSize() {
 	EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
 }
 
-void AudioEngine::removePlayingPattern( Pattern* pPattern ) {
+void AudioEngine::removePlayingPattern( std::shared_ptr<Pattern> pPattern ) {
 	auto removePattern = [&]( std::shared_ptr<TransportPosition> pPos ) {
 		auto pPlayingPatterns = pPos->getPlayingPatterns();
 		
@@ -2644,7 +2644,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		const auto pPlayingPatterns = m_pQueuingPosition->getPlayingPatterns();
 		if ( pPlayingPatterns->size() != 0 ) {
 			for ( auto nPat = 0; nPat < pPlayingPatterns->size(); ++nPat ) {
-				Pattern *pPattern = pPlayingPatterns->get( nPat );
+				auto pPattern = pPlayingPatterns->get( nPat );
 				assert( pPattern != nullptr );
 				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
 

@@ -1840,7 +1840,7 @@ bool CoreActionController::newPattern( const QString& sPatternName ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
-	Pattern* pPattern = new Pattern( sPatternName );
+	auto pPattern = std::make_shared<Pattern>( sPatternName );
 	
 	return setPattern( pPattern, pPatternList->size() );
 }
@@ -1855,7 +1855,7 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	}
 	
 	auto pPatternList = pSong->getPatternList();
-	Pattern* pNewPattern = Pattern::load_file( sPath );
+	auto pNewPattern = Pattern::load_file( sPath );
 
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );
@@ -1869,7 +1869,8 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	return setPattern( pNewPattern, nPatternPosition );
 }
 
-bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition ) {
+bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
+									   int nPatternPosition ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
@@ -1936,7 +1937,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	// Ensure there is always at least one pattern present in the
 	// list.
 	if ( pPatternList->size() == 0 ) {
-		Pattern* pEmptyPattern = new Pattern( "Pattern 1" );
+		auto pEmptyPattern = std::make_shared<Pattern>( "Pattern 1" );
 		pPatternList->add( pEmptyPattern );
 	}
 
@@ -2007,8 +2008,6 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 
 	pHydrogen->updateVirtualPatterns();
 	pHydrogen->setIsModified( true );
-	
-	delete pPattern;
 	
 	return true;
 }

@@ -643,20 +643,15 @@ void XmlTest::testPattern()
 	QString sPatternPath =
 		H2Core::Filesystem::tmp_dir() + "pattern.h2pattern";
 
-	H2Core::Pattern* pPatternLoaded = nullptr;
-	H2Core::Pattern* pPatternCopied = nullptr;
-	H2Core::Pattern* pPatternNew = nullptr;
-	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
-	std::shared_ptr<H2Core::InstrumentList> pInstrumentList = nullptr;
 	H2Core::XMLDoc doc;
 
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
+	auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
 									  false, true );
 	CPPUNIT_ASSERT( pDrumkit!=nullptr );
-	pInstrumentList = pDrumkit->getInstruments();
+	auto pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
-	pPatternLoaded = H2Core::Pattern::load_file(
+	auto pPatternLoaded = H2Core::Pattern::load_file(
 		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
 	CPPUNIT_ASSERT( pPatternLoaded->save_file( "GMRockKit", sPatternPath, true ) );
@@ -665,12 +660,12 @@ void XmlTest::testPattern()
 								   sPatternPath );
 
 	// Check for double freeing when destructing both copy and original.
-	pPatternCopied = new H2Core::Pattern( pPatternLoaded );
+	auto pPatternCopied = std::make_shared<H2Core::Pattern>( pPatternLoaded );
 
 	// Check whether the constructor produces valid patterns.
 	QString sEmptyPatternPath =
 		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
-	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
+	auto pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
 	CPPUNIT_ASSERT( pPatternNew->save_file( "GMRockKit", sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath,
 							  H2Core::Filesystem::pattern_xsd_path() ) );
@@ -680,9 +675,6 @@ void XmlTest::testPattern()
 	// Cleanup
 	H2Core::Filesystem::rm( sPatternPath );
 	H2Core::Filesystem::rm( sEmptyPatternPath );
-	delete pPatternLoaded;
-	delete pPatternCopied;
-	delete pPatternNew;
 	___INFOLOG( "passed" );
 }
 
@@ -693,12 +685,10 @@ void XmlTest::testPatternLegacy() {
 	legacyPatterns << H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" )
 				   << H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" );
 
-	H2Core::Pattern* pPattern;
 	for ( const auto& ssPattern : legacyPatterns ) {
-		pPattern = H2Core::Pattern::load_file( ssPattern );
+		auto pPattern = H2Core::Pattern::load_file( ssPattern );
 		CPPUNIT_ASSERT( pPattern );
 	}
-	delete pPattern;
 
 	___INFOLOG( "passed" );
 }
@@ -744,10 +734,6 @@ void XmlTest::testPatternInstrumentTypes()
 	// CPPUNIT_ASSERT( pPatternMismatch->save_file( "GMRockKit", sTmpMismatch ) );
 	// H2TEST_ASSERT_XML_FILES_EQUAL(
 	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
-
-	delete pPatternRef;
-	delete pPatternWithoutTypes;
-	delete pPatternMismatch;
 
 	H2Core::Filesystem::rm( sTmpWithoutTypes );
 	H2Core::Filesystem::rm( sTmpMismatch );

@@ -55,15 +55,15 @@ class Pattern : public H2Core::Object<Pattern>
 		///< multimap note const iterator type
 		typedef notes_t::const_iterator notes_cst_it_t;
 		///< note set type;
-		typedef std::set <Pattern*> virtual_patterns_t;
+		typedef std::set<std::shared_ptr<Pattern>> virtual_patterns_t;
 		///< note set iterator type;
 		typedef virtual_patterns_t::iterator virtual_patterns_it_t;
 		///< note set const iterator type;
 		typedef virtual_patterns_t::const_iterator virtual_patterns_cst_it_t;
 
 	/** allow iteration of all contained virtual patterns.*/
-	std::set<Pattern*>::iterator begin();
-	std::set<Pattern*>::iterator end();
+	std::set<std::shared_ptr<Pattern>>::iterator begin();
+	std::set<std::shared_ptr<Pattern>>::iterator end();
 	
 		/**
 		 * constructor
@@ -73,9 +73,11 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param length the length of the pattern
 		 * \param denominator the denominator for meter representation (eg 4/4)
 		 */
-		Pattern( const QString& name="Pattern", const QString& info="", const QString& sCategory = "", int length=MAX_NOTES, int denominator=4 );
+		Pattern( const QString& name="Pattern", const QString& info="",
+				 const QString& sCategory = "", int length=MAX_NOTES,
+				 int denominator=4 );
 		/** copy constructor */
-		Pattern( Pattern* other );
+		Pattern( std::shared_ptr<Pattern> pOther );
 		/** destructor */
 		~Pattern();
 
@@ -83,7 +85,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * load a pattern from a file
 		 * \param pattern_path the path to the file to load the pattern from
 		 */
-		static Pattern* load_file( const QString& pattern_path );
+		static std::shared_ptr<Pattern> load_file( const QString& pattern_path );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
@@ -93,9 +95,9 @@ class Pattern : public H2Core::Object<Pattern>
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static Pattern* load_from( const XMLNode& node,
-							   const QString& sDrumkitName,
-							   bool bSilent = false );
+	static std::shared_ptr<Pattern> load_from( const XMLNode& node,
+											   const QString& sDrumkitName,
+											   bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
 		 * \param drumkit_name the name of the drumkit it is supposed to play with
@@ -105,7 +107,8 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& drumkit_name, const QString& pattern_path, bool overwrite=false ) const;
+		bool save_file( const QString& drumkit_name, const QString& pattern_path,
+						bool overwrite=false ) const;
 
 		void setVersion( int nVersion );
 		int getVersion() const;
@@ -199,11 +202,11 @@ class Pattern : public H2Core::Object<Pattern>
 		 * add a pattern to __virtual_patterns
 		 * \param pattern the pattern to add
 		 */
-		void virtual_patterns_add( Pattern* pattern );
+		void virtual_patterns_add( std::shared_ptr<Pattern> pPattern );
 		/**
 		 * remove a pattern from virtual_pattern set, flattened virtual patterns have to be rebuilt
 		 *                   */
-		void virtual_patterns_del( Pattern* pattern );
+		void virtual_patterns_del( std::shared_ptr<Pattern> pPattern );
 		///< clear flattened_virtual_patterns
 		void flattened_virtual_patterns_clear();
 		/**
@@ -440,14 +443,14 @@ inline void Pattern::virtual_patterns_clear()
 	__virtual_patterns.clear();
 }
 
-inline void Pattern::virtual_patterns_add( Pattern* pattern )
+inline void Pattern::virtual_patterns_add( std::shared_ptr<Pattern> pPattern )
 {
-	__virtual_patterns.insert( pattern );
+	__virtual_patterns.insert( pPattern );
 }
 
-inline void Pattern::virtual_patterns_del( Pattern* pattern )
+inline void Pattern::virtual_patterns_del( std::shared_ptr<Pattern> pPattern )
 {
-	virtual_patterns_cst_it_t it = __virtual_patterns.find( pattern );
+	virtual_patterns_cst_it_t it = __virtual_patterns.find( pPattern );
 	if ( it!=__virtual_patterns.end() ) __virtual_patterns.erase( it );
 }
 

@@ -174,14 +174,14 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 
 	// Duplicate the playing patterns vector before finding the pattern numbers of the playing patterns. This
 	// avoids doing a linear search in the critical section.
-	std::vector<Pattern *> currentPatterns;
+	std::vector<std::shared_ptr<Pattern>> currentPatterns;
 	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
 		currentPatterns.push_back( pPlayingPatterns->get( ii ) );
 	}
 	m_pAudioEngine->unlock();
 
 	std::vector<int> playingRows;
-	for ( Pattern *pPattern : currentPatterns ) {
+	for ( const auto& pPattern : currentPatterns ) {
 		playingRows.push_back( pSongPatterns->index( pPattern ) );
 	}
 
@@ -350,7 +350,7 @@ void SongEditor::selectAll() {
 	std::vector<PatternList*>* pColumns = m_pHydrogen->getSong()->getPatternGroupVector();
 	m_selection.clearSelection();
 	for ( int nRow = 0; nRow < pPatternList->size(); nRow++ ) {
-		H2Core::Pattern *pPattern = pPatternList->get( nRow );
+		auto pPattern = pPatternList->get( nRow );
 		for ( int nCol = 0; nCol < pColumns->size(); nCol++ ) {
 			PatternList *pColumn = ( *pColumns )[ nCol ];
 			for ( uint i = 0; i < pColumn->size(); i++) {
@@ -1206,14 +1206,14 @@ void SongEditor::updateGridCells() {
 		int nMaxLength = pColumn->longest_pattern_length();
 
 		for ( uint nPat = 0; nPat < pColumn->size(); nPat++ ) {
-			Pattern *pPattern = (*pColumn)[ nPat ];
+			auto pPattern = (*pColumn)[ nPat ];
 			int y = pPatternList->index( pPattern );
 			assert( y != -1 );
 			GridCell *pCell = &( m_gridCells[ QPoint( nColumn, y ) ] );
 			pCell->m_bActive = true;
 			pCell->m_fWidth = (float) pPattern->get_length() / nMaxLength;
 
-			for ( Pattern *pVPattern : *( pPattern->get_flattened_virtual_patterns() ) ) {
+			for ( const auto& pVPattern : *( pPattern->get_flattened_virtual_patterns() ) ) {
 				GridCell *pVCell = &( m_gridCells[ QPoint( nColumn, pPatternList->index( pVPattern ) ) ] );
 				pVCell->m_bDrawnVirtual = true;
 				pVCell->m_fWidth = (float) pVPattern->get_length() / nMaxLength;
@@ -1785,7 +1785,7 @@ void SongEditorPatternList::createBackground()
 
 	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
-		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
+		auto pPattern = pSong->getPatternList()->get(i);
 		if ( pPattern == nullptr ) {
 			continue;
 		}
@@ -1865,7 +1865,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 	
 	auto pPatternClicked = pPatternList->get( m_nRowClicked );
 
-	std::map<QString, Pattern*> patternNameMap;
+	std::map<QString, std::shared_ptr<Pattern>> patternNameMap;
 
 	for ( const auto& pPattern : *pPatternList ) {
 		QString sPatternName = pPattern->get_name();
@@ -1927,7 +1927,7 @@ void SongEditorPatternList::patternPopup_load()
 		return;
 	}
 
-	Pattern* pPattern = pSong->getPatternList()->get( m_nRowClicked );
+	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString sPath = pPref->getLastOpenPatternDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
@@ -2049,7 +2049,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *patternList = pSong->getPatternList();
-	H2Core::Pattern *pattern = patternList->get( patternNr );
+	auto pattern = patternList->get( patternNr );
 	pattern->setVersion( nNewVersion );
 	pattern->set_name( newPatternName );
 	pattern->setAuthor( sNewAuthor );
@@ -2075,7 +2075,7 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *patternList = pSong->getPatternList();
-	H2Core::Pattern *pattern = patternList->get( patternNr );
+	auto pattern = patternList->get( patternNr );
 	pattern->setVersion( nOldVersion );
 	pattern->set_name( oldPatternName );
 	pattern->setAuthor( sOldAuthor );
@@ -2136,7 +2136,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	PatternList *pPatternList = pSong->getPatternList();
 	auto pPattern = pPatternList->get( m_nRowClicked );
 
-	H2Core::Pattern *pNewPattern = new Pattern( pPattern );
+	auto pNewPattern = std::make_shared<Pattern>( pPattern );
 
 	// In case the original pattern does not feature license and/or author, fall
 	// back to the ones set in the song. This way user can just set those
@@ -2168,7 +2168,6 @@ void SongEditorPatternList::patternPopup_duplicate()
 	}
 
 	delete dialog;
-	delete pNewPattern;
 }
 
 void SongEditorPatternList::patternPopup_fill()
@@ -2194,7 +2193,7 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
-	H2Core::Pattern *pPattern = pPatternList->get( nPattern );
+	auto pPattern = pPatternList->get( nPattern );
 	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();	// E' la lista di "colonne" di pattern
 	PatternList *pColumn = nullptr;
 
@@ -2318,10 +2317,10 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 			QString patternFilePath = urlList.at(i).toLocalFile();
 			if( patternFilePath.endsWith(".h2pattern") )
 			{
-				Pattern* pPattern = Pattern::load_file( patternFilePath );
+				auto pPattern = Pattern::load_file( patternFilePath );
 				if ( pPattern)
 				{
-					H2Core::Pattern *pNewPattern = pPattern;
+					auto pNewPattern = pPattern;
 			
 					if(!pPatternList->check_name( pNewPattern->get_name() ) ){
 						pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
@@ -2345,7 +2344,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		QString sPatternName = tokens.at( 1 );
 
 		//create a unique sequencefilename
-		Pattern *pPattern = pSong->getPatternList()->get( nTargetPattern );
+		auto pPattern = pSong->getPatternList()->get( nTargetPattern );
 		HydrogenApp *pHydrogenApp = HydrogenApp::get_instance();
 
 		QString oldPatternName = pPattern->get_name();
@@ -2371,17 +2370,17 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 
 
 		// move patterns...
-		H2Core::Pattern *pSourcePattern = pPatternList->get( nSourcePattern );
+		auto pSourcePattern = pPatternList->get( nSourcePattern );
 		if ( nSourcePattern < nTargetPattern) {
 			for (int nPatr = nSourcePattern; nPatr < nTargetPattern; nPatr++) {
-				H2Core::Pattern *pPattern = pPatternList->get(nPatr + 1);
+				auto pPattern = pPatternList->get(nPatr + 1);
 				pPatternList->replace( nPatr, pPattern );
 			}
 			pPatternList->replace( nTargetPattern, pSourcePattern );
 		}
 		else {
 			for (int nPatr = nSourcePattern; nPatr > nTargetPattern; nPatr--) {
-				H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
+				auto pPattern = pPatternList->get(nPatr - 1);
 				pPatternList->replace( nPatr, pPattern );
 			}
 			pPatternList->replace( nTargetPattern, pSourcePattern );
@@ -2424,7 +2423,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	if ( row >= (int)pPatternList->size() ) {
 		return;
 	}
-	Pattern *pPattern = pPatternList->get( row );
+	auto pPattern = pPatternList->get( row );
 	QString sName = "<unknown>";
 	if ( pPattern ) {
 		sName = pPattern->get_name();

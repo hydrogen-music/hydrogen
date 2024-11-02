@@ -1159,7 +1159,7 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
-	H2Core::Pattern* pPattern = nullptr;
+	std::shared_ptr<H2Core::Pattern> pPattern = nullptr;
 
 	if ( ( nSelectedPatternNumber != -1 ) &&
 		 ( nSelectedPatternNumber < pPatternList->size() ) ) {

@@ -417,29 +417,12 @@ void InstrumentLine::mouseDoubleClickEvent( QMouseEvent* ev ) {
 	functionRenameInstrument();
 }
 
-H2Core::Pattern* InstrumentLine::getCurrentPattern()
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
-	assert( pPatternList != nullptr );
-
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	if ( nSelectedPatternNumber != -1 &&
-		 nSelectedPatternNumber < pPatternList->size() ) {
-		Pattern* pCurrentPattern = pPatternList->get( nSelectedPatternNumber );
-		return pCurrentPattern;
-	}
-	return nullptr;
-}
-
-
-
-
 void InstrumentLine::functionClearNotes()
 {
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
 	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
-	Pattern *pPattern = getCurrentPattern();
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 	auto pSelectedInstrument = pHydrogen->getSong()->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
@@ -575,7 +558,7 @@ void InstrumentLine::functionDeleteNotesAllPatterns()
 	pUndo->beginMacro( tr( "Delete all notes on %1" ).arg( pSelectedInstrument->get_name()  ) );
 	for ( int nPattern = 0; nPattern < pPatternList->size(); nPattern++ ) {
 		std::list< Note* > noteList;
-		Pattern *pPattern = pPatternList->get( nPattern );
+		auto pPattern = pPatternList->get( nPattern );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it) {
 			if ( it->second->get_instrument() == pSelectedInstrument ) {
@@ -629,7 +612,8 @@ void InstrumentLine::functionFillNotes( int every )
 
 	QStringList notePositions;
 
-	Pattern* pCurrentPattern = getCurrentPattern();
+	auto pCurrentPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
 		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();

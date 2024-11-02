@@ -1443,7 +1443,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	Pattern *pPattern = nullptr;
+	std::shared_ptr<Pattern> pPattern = nullptr;
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
@@ -1503,7 +1503,7 @@ void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, i
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	PatternList* pPatternList = pSong->getPatternList();
-	Pattern* pPattern = pPatternList->get( nPatternNumber );
+	auto pPattern = pPatternList->get( nPatternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Couldn't find pattern [%1]" )
 				  .arg( nPatternNumber ) );
@@ -1528,7 +1528,7 @@ void DrumPatternEditor::functionClearNotesUndoAction( const std::list< H2Core::N
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	PatternList* pPatternList = pHydrogen->getSong()->getPatternList();
-	Pattern* pPattern = pPatternList->get( patternNumber );
+	auto pPattern = pPatternList->get( patternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Couldn't find pattern [%1]" )
 				  .arg( patternNumber ) );
@@ -1643,7 +1643,7 @@ void DrumPatternEditor::functionPasteNotesRedoAction(
 
 		// Create applied pattern. (We do not need an exact copie. The name is
 		// enough)
-		auto pApplied = new Pattern( pPattern->get_name() );
+		auto pApplied = std::make_shared<Pattern>( pPattern->get_name() );
 
 		// Add all notes of source pattern to destination pattern
 		// and store all applied notes in applied pattern
@@ -1706,7 +1706,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( const QStringList& noteList
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	PatternList* pPatternList = pSong->getPatternList();
-	Pattern* pPattern = pPatternList->get( patternNumber );
+	auto pPattern = pPatternList->get( patternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Couldn't find pattern [%1]" )
 				  .arg( patternNumber ) );
@@ -1750,7 +1750,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( const QStringList& noteList
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	PatternList* pPatternList = pSong->getPatternList();
-	Pattern* pPattern = pPatternList->get( patternNumber );
+	auto pPattern = pPatternList->get( patternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Couldn't find pattern [%1]" )
 				  .arg( patternNumber ) );
@@ -1786,7 +1786,7 @@ void DrumPatternEditor::functionRandomVelocityAction( const QStringList& noteVel
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	PatternList* pPatternList = pSong->getPatternList();
-	Pattern* pPattern = pPatternList->get( selectedPatternNumber );
+	auto pPattern = pPatternList->get( selectedPatternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Couldn't find pattern [%1]" )
 				  .arg( selectedPatternNumber ) );

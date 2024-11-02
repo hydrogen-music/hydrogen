@@ -52,18 +52,18 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& sCate
 	}
 }
 
-Pattern::Pattern( Pattern* other )
-	: m_nVersion( other->m_nVersion )
-	, __length( other->get_length() )
-	, __denominator( other->get_denominator() )
-	, __name( other->get_name() )
-	, __info( other->get_info() )
-	, __category( other->get_category() )
-	, m_sDrumkitName( other->m_sDrumkitName )
-	, m_sAuthor( other->m_sAuthor )
-	, m_license( other->m_license )
+Pattern::Pattern( std::shared_ptr<Pattern> pOther )
+	: m_nVersion( pOther->m_nVersion )
+	, __length( pOther->get_length() )
+	, __denominator( pOther->get_denominator() )
+	, __name( pOther->get_name() )
+	, __info( pOther->get_info() )
+	, __category( pOther->get_category() )
+	, m_sDrumkitName( pOther->m_sDrumkitName )
+	, m_sAuthor( pOther->m_sAuthor )
+	, m_license( pOther->m_license )
 {
-	FOREACH_NOTE_CST_IT_BEGIN_END( other->get_notes(),it ) {
+	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->get_notes(),it ) {
 		__notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
 	}
 }
@@ -115,14 +115,14 @@ bool Pattern::loadDoc( const QString& sPatternPath, XMLDoc* pDoc, bool bSilent )
 	return bReadingSuccessful;
 }
 
-Pattern* Pattern::load_file( const QString& sPatternPath )
+std::shared_ptr<Pattern> Pattern::load_file( const QString& sPatternPath )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 
 	XMLDoc doc;
 	if ( ! loadDoc( sPatternPath, &doc, false ) ) {
 		// Try former pattern version
-		return Legacy::load_drumkit_pattern( sPatternPath );
+		return Legacy::loadPattern( sPatternPath );
 	}
 
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
@@ -132,10 +132,11 @@ Pattern* Pattern::load_file( const QString& sPatternPath )
 	return load_from( pattern_node, sDrumkitName );
 }
 
-Pattern* Pattern::load_from( const XMLNode& node, const QString& sDrumkitName,
-							 bool bSilent )
+std::shared_ptr<Pattern> Pattern::load_from( const XMLNode& node,
+											 const QString& sDrumkitName,
+											 bool bSilent )
 {
-	Pattern* pPattern = new Pattern(
+	auto pPattern = std::make_shared<Pattern>(
 	    node.read_string( "name", nullptr, false, false ),
 	    node.read_string( "info", "", false, true ),
 	    node.read_string( "category", "unknown", false, true, true ),
@@ -509,11 +510,11 @@ std::vector<H2Core::Note*> Pattern::getAllNotesOfType(
 	return notes;
 }
 
-std::set<Pattern*>::iterator Pattern::begin() {
+std::set<std::shared_ptr<Pattern>>::iterator Pattern::begin() {
 	return __flattened_virtual_patterns.begin();
 }
 
-std::set<Pattern*>::iterator Pattern::end() {
+std::set<std::shared_ptr<Pattern>>::iterator Pattern::end() {
 	return __flattened_virtual_patterns.end();
 }
 

@@ -106,7 +106,6 @@ public slots:
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void paintEvent( QPaintEvent* ev ) override;
-		H2Core::Pattern* getCurrentPattern();
 
 	void updateStyleSheet();
 

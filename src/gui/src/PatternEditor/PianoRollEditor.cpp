@@ -731,7 +731,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 		return;
 	}
 
-	Pattern *pPattern = pPatternList->get( nPattern );
+	auto pPattern = pPatternList->get( nPattern );
 
 	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
 		Note *pCandidateNote = it->second;

@@ -1027,7 +1027,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		return;
 	}
 	
-	Pattern *pPattern = pSong->getPatternList()->get( nPatternRow );
+	auto pPattern = pSong->getPatternList()->get( nPatternRow );
 	if ( pPattern == nullptr ){
 		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
 				  .arg( nPatternRow ) );

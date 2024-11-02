@@ -34,7 +34,10 @@
 
 using namespace H2Core;
 
-PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern, int nselectedPattern, bool savepattern)
+PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
+												  std::shared_ptr<Pattern> pattern,
+												  int nselectedPattern,
+												  bool savepattern)
  : QDialog(parent)
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();

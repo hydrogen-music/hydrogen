@@ -390,7 +390,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * @return bool true on success
 		 */
-		static bool setPattern( Pattern* pPattern, int nPatternNumber );
+		static bool setPattern( std::shared_ptr<Pattern> pPattern,
+								int nPatternNumber );
 		/** Removes a pattern from the pattern list.
 		 *
 		 * @param nPatternNumber Specifies the position/row of the pattern.

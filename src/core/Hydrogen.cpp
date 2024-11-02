@@ -384,7 +384,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 
 	// Get current pattern and column
-	const Pattern* pCurrentPattern = nullptr;
+	std::shared_ptr<Pattern> pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
 	const float fPan = 0;
 
@@ -411,7 +411,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		PatternList *pColumn = ( *pColumns )[ nColumn ];
 		currentPatternNumber = -1;
 		for ( int n = 0; n < pColumn->size(); n++ ) {
-			Pattern *pPattern = pColumn->get( n );
+			auto pPattern = pColumn->get( n );
 			int nIndex = pPatternList->index( pPattern );
 			if ( nIndex > currentPatternNumber ) {
 				currentPatternNumber = nIndex;
@@ -1487,8 +1487,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
 	long totalTick = 0;
 	int nPatternSize;
-	Pattern *pPattern = nullptr;
-	
+
 	for ( int i = 0; i < nColumn; ++i ) {
 		PatternList *pColumn = ( *pColumns )[ i ];
 		

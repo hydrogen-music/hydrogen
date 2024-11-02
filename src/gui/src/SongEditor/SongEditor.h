@@ -339,7 +339,7 @@ class SongEditorPatternList :  public QWidget
 							
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
-		H2Core::Pattern *	m_pPatternBeingEdited;
+		std::shared_ptr<H2Core::Pattern>	m_pPatternBeingEdited;
 
 		DragScroller *		m_pDragScroller;
 		

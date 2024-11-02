@@ -387,7 +387,7 @@ public:
 	 */
 	void updateSongSize();
 
-	void removePlayingPattern( Pattern* pPattern );
+	void removePlayingPattern( std::shared_ptr<Pattern> pPattern );
 	/**
 	 * Update the list of currently played patterns associated with
 	 * #m_pTransportPosition and #m_pQueuingPosition.

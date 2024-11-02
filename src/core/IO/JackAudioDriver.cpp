@@ -423,10 +423,10 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 	}
 
 	// We use the longest playing pattern as reference.
-	Pattern* pPattern = nullptr;
+	std::shared_ptr<Pattern> pPattern = nullptr;
 	int nPatternLength = 0;
 	auto pPatternList = transportPos.getPlayingPatterns();
-	for ( std::vector<Pattern*>::const_iterator ppPattern = pPatternList->cbegin();
+	for ( std::vector<std::shared_ptr<Pattern>>::const_iterator ppPattern = pPatternList->cbegin();
 		  ppPattern < pPatternList ->cend(); ppPattern++ ) {
 		if ( (*ppPattern)->get_length() > nPatternLength ) {
 			nPatternLength = (*ppPattern)->get_length();

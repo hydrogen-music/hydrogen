@@ -77,57 +77,58 @@ class Note;
 
 		/**
 		 * add a pattern to the list
-		 * \param new_pattern a pointer to the pattern to add
+		 * \param pNewPattern a pointer to the pattern to add
 		 */
-		void operator<<( Pattern* new_pattern );
+		void operator<<( std::shared_ptr<Pattern> pNewPattern );
 		/**
 		 * get a pattern from  the list
 		 * \param idx the index to get the pattern from
 		 */
-		Pattern* operator[]( int idx ) const;
+		std::shared_ptr<Pattern> operator[]( int idx ) const;
 		/**
 		 * add a pattern to the list
 		 * \param pattern a pointer to the pattern to add
 		 * \param bAddVirtuals Whether virtual patterns contained in
 		 * @a pattern should be added too.
 		 */
-	void add( Pattern* pattern, bool bAddVirtuals = false );
+	void add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals = false );
 		/**
 		 * insert a pattern into the list
 		 * \param idx the index to insert the pattern at
-		 * \param pattern a pointer to the pattern to add
+		 * \param pPattern a pointer to the pattern to add
 		 */
-		void insert( int idx, Pattern* pattern );
+		void insert( int idx, std::shared_ptr<Pattern> pPattern );
 		/**
 		 * get a pattern from  the list
 		 * \param idx the index to get the pattern from
 		 */
-		Pattern* get( int idx ) const;
+		std::shared_ptr<Pattern> get( int idx ) const;
 		/**
 		 * remove the pattern at a given index, does not delete it
 		 * \param idx the index
 		 * \return a pointer to the removed pattern
 		 */
-		Pattern* del( int idx );
+		std::shared_ptr<Pattern> del( int idx );
 		/**
-		 * remove a pattern from the list, does not delete it
+		 * remove a pPattern from the list, does not delete it
 		 * \param pattern the pattern to be removed
 		 * \return a pointer to the removed pattern, 0 if not found
 		 */
-		Pattern* del( Pattern* pattern );
+		std::shared_ptr<Pattern> del( std::shared_ptr<Pattern> pPattern );
 		/**
 		 * get the index of the pattern within the patterns
-		 * \param pattern a pointer to the pattern to find
+		 * \param pPattern a pointer to the pattern to find
 		 * \return -1 if not found
 		 */
-		int index( const Pattern* pattern ) const;
+		int index( const std::shared_ptr<Pattern> pPattern ) const;
 		/**
 		 * replace the pattern at a given index with a new one
 		 * \param idx the index
-		 * \param pattern the new pattern to insert
+		 * \param pPattern the new pattern to insert
 		 * \return a pointer to the removed pattern, 0 if index out of bounds
 		 */
-		Pattern* replace( int idx, Pattern* pattern );
+		std::shared_ptr<Pattern> replace( int idx,
+										  std::shared_ptr<Pattern> pPattern );
 		/**
 		 * empty the pattern list
 		 */
@@ -141,7 +142,7 @@ class Note;
 		 * \param name the name of the pattern to find
 		 * \return 0 if not found
 		 */
-		Pattern* find( const QString& name ) const;
+		std::shared_ptr<Pattern> find( const QString& name ) const;
 		/**
 		 * move a pattern from a position to another
 		 * \param idx_a the start index
@@ -154,21 +155,23 @@ class Note;
 		void flattened_virtual_patterns_compute();
 		/**
 		 * call del_virtual_pattern on each pattern
-		 * \param pattern the pattern to remove where it's found
+		 * \param pPattern the pattern to remove where it's found
 		 */
-		void virtual_pattern_del( Pattern* pattern );
+		void virtual_pattern_del( std::shared_ptr<Pattern> pPattern );
 		/**
 		 * check if a pattern with name patternName already exists in this list
 		 * \param patternName name of a pattern to check
-		 * \param ignore optional pattern in the list to ignore
+		 * \param pIgnore optional pattern in the list to ignore
 		 */
-		bool check_name( const QString& patternName, Pattern* ignore = nullptr ) const;
+		bool check_name( const QString& patternName,
+						 std::shared_ptr<Pattern> pIgnore = nullptr ) const;
 		/**
 		 * find unused patternName
 		 * \param sourceName base name to start with
-		 * \param ignore optional pattern in the list to ignore
+		 * \param pIgnore optional pattern in the list to ignore
 		 */
-		QString find_unused_pattern_name( const QString& sourceName, Pattern* ignore = nullptr ) const;
+		QString find_unused_pattern_name( const QString& sourceName,
+										  std::shared_ptr<Pattern> pIgnore = nullptr ) const;
 
 		/**
 		 * Get the length of the longest pattern in the list
@@ -201,13 +204,13 @@ class Note;
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 		/** Iteration */
-		std::vector<Pattern*>::iterator begin();
-		std::vector<Pattern*>::iterator end();
-		std::vector<Pattern*>::const_iterator cbegin() const;
-		std::vector<Pattern*>::const_iterator cend() const;
+		std::vector<std::shared_ptr<Pattern>>::iterator begin();
+		std::vector<std::shared_ptr<Pattern>>::iterator end();
+		std::vector<std::shared_ptr<Pattern>>::const_iterator cbegin() const;
+		std::vector<std::shared_ptr<Pattern>>::const_iterator cend() const;
 
 	private:
-		std::vector<Pattern*> __patterns;            ///< the list of patterns
+		std::vector<std::shared_ptr<Pattern>> __patterns;            ///< the list of patterns
 
 };
 
@@ -223,12 +226,12 @@ inline void PatternList::clear()
 	__patterns.clear();
 }
 
-inline void PatternList::operator<<( Pattern* pattern )
+inline void PatternList::operator<<( std::shared_ptr<Pattern> pattern )
 {
 	add( pattern );
 }
 
-inline Pattern *PatternList::operator[]( int idx ) const {
+inline std::shared_ptr<Pattern> PatternList::operator[]( int idx ) const {
 	return get( idx );
 }
 

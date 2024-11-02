@@ -1053,10 +1053,10 @@ void PatternEditor::createBackground() {
 //! Get notes to show in pattern editor.
 //! This may include "background" notes that are in currently-playing patterns
 //! rather than the current pattern.
-std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
+std::vector<std::shared_ptr<Pattern>> PatternEditor::getPatternsToShow( void )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::vector<Pattern *> patterns;
+	std::vector<std::shared_ptr<Pattern>> patterns;
 	auto pPattern =
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 
@@ -1068,7 +1068,7 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 			 ! pHydrogen->isPatternEditorLocked() ) ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		if ( m_pAudioEngine->getPlayingPatterns()->size() > 0 ) {
-			std::set< Pattern *> patternSet;
+			std::set<std::shared_ptr<Pattern>> patternSet;
 
 			std::vector<const PatternList*> patternLists;
 			patternLists.push_back( m_pAudioEngine->getPlayingPatterns() );
@@ -1076,15 +1076,15 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 				patternLists.push_back( m_pAudioEngine->getNextPatterns() );
 			}
 		
-			for ( const PatternList *pPatternList : patternLists ) {
+			for ( const auto& pPatternList : patternLists ) {
 				for ( int i = 0; i <  pPatternList->size(); i++) {
-					Pattern *ppPattern = pPatternList->get( i );
+					auto ppPattern = pPatternList->get( i );
 					if ( ppPattern != pPattern ) {
 						patternSet.insert( ppPattern );
 					}
 				}
 			}
-			for ( Pattern *ppPattern : patternSet ) {
+			for ( const auto& ppPattern : patternSet ) {
 				patterns.push_back( ppPattern );
 			}
 		}
@@ -1109,7 +1109,7 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 	return patterns;
 }
 
-bool PatternEditor::isUsingAdditionalPatterns( const H2Core::Pattern* pPattern ) {
+bool PatternEditor::isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
@@ -1405,12 +1405,8 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 
-	H2Core::Pattern* pPattern = nullptr;
-	if ( nSelectedPatternNumber != -1 &&
-		 nSelectedPatternNumber < pPatternList->size() ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1481,12 +1477,8 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 
-	H2Core::Pattern* pPattern = nullptr;
-	if ( nSelectedPatternNumber != -1 &&
-		 nSelectedPatternNumber < pPatternList->size() ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}

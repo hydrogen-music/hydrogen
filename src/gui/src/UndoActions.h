@@ -252,25 +252,25 @@ private:
 class SE_insertPatternAction : public QUndoCommand
 {
 public:
-	SE_insertPatternAction( int patternPosition, H2Core::Pattern* pPattern )
+	SE_insertPatternAction( int patternPosition,
+							std::shared_ptr<H2Core::Pattern> pPattern )
 	{
 		setText( QObject::tr( "Add pattern" ) );
 		m_nPatternPosition = patternPosition;
 		m_pNewPattern =  pPattern;
 	}
-	~SE_insertPatternAction()
-	{
-		delete m_pNewPattern;
+	~SE_insertPatternAction() {
 	}
 	virtual void undo() {
 		H2Core::CoreActionController::removePattern( m_nPatternPosition );
 	}
 	virtual void redo() {
-		H2Core::CoreActionController::setPattern( new H2Core::Pattern( m_pNewPattern ),
+		H2Core::CoreActionController::setPattern(
+			std::make_shared<H2Core::Pattern>( m_pNewPattern ),
 																				 m_nPatternPosition );
 	}
 private:
-	H2Core::Pattern* m_pNewPattern;
+	std::shared_ptr<H2Core::Pattern> m_pNewPattern;
 
 	int m_nPatternPosition;
 };

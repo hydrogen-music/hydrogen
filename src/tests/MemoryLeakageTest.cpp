@@ -123,10 +123,10 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto Pattern = new H2Core::Pattern( "ladida", "ladida", "ladida" );
-		auto Pattern2 = new H2Core::Pattern( Pattern );
-		delete Pattern;
-		delete Pattern2;
+		auto pPattern = std::make_shared<H2Core::Pattern>( "ladida", "ladida", "ladida" );
+		auto pPattern2 = std::make_shared<H2Core::Pattern>( pPattern );
+		pPattern = nullptr;
+		pPattern2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -195,9 +195,9 @@ void MemoryLeakageTest::testConstructors() {
 	}
 	
 	{
-		auto pPattern = new H2Core::Pattern( pSongProper->getPatternList()->get( 0 ) );
+		auto pPattern = std::make_shared<H2Core::Pattern>( pSongProper->getPatternList()->get( 0 ) );
 		CPPUNIT_ASSERT( pPattern != nullptr );
-		delete pPattern;
+		pPattern = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -347,7 +347,7 @@ void MemoryLeakageTest::testLoading() {
 		auto pPattern = H2Core::Pattern::load_file(
 			H2TEST_FILE( "pattern/pattern.h2pattern" ) );
 		CPPUNIT_ASSERT( pPattern != nullptr );
-		delete pPattern;
+		pPattern = nullptr;
 		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
@@ -406,10 +406,10 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		auto pPattern = H2Core::Legacy::load_drumkit_pattern(
+		auto pPattern = H2Core::Legacy::loadPattern(
 			H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" ) );
 		CPPUNIT_ASSERT( pPattern != nullptr );
-		delete pPattern;
+		pPattern = nullptr;
 		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
