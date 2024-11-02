@@ -55,7 +55,6 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_backgroundColor );
 
-	m_pPattern = nullptr;
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 
 	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
@@ -97,6 +96,8 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 	
 	bool bIsSelectedPatternPlaying = false;	// is the pattern playing now?
 
@@ -114,7 +115,7 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 
 		auto pList = pAudioEngine->getPlayingPatterns();
 		for (uint i = 0; i < pList->size(); i++) {
-			if ( m_pPattern == pList->get(i) ) {
+			if ( pPattern == pList->get(i) ) {
 				bIsSelectedPatternPlaying = true;
 				break;
 			}
@@ -294,15 +295,6 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	//https://github.com/hydrogen-music/hydrogen/issues/857	
 	if( pHydrogen->getIsExportSessionActive() ) {
 		return;
-	}
-	
-	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() )  ) {
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-	else {
-		m_pPattern = nullptr;
 	}
 
 	const bool bActiveRangeUpdated = updateActiveRange();

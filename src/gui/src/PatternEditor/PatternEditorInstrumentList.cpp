@@ -719,7 +719,6 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 	HydrogenApp::get_instance()->addEventListener( this );
 	
 	//INFOLOG("INIT");
-	m_pPattern = nullptr;
 	m_pPatternEditorPanel = pPatternEditorPanel;
 
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();

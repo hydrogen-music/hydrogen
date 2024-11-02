@@ -38,7 +38,6 @@ namespace H2Core
 {
 	class AudioEngine;
 	class Note;
-	class Pattern;
 	class Instrument;
 }
 
@@ -240,8 +239,6 @@ protected:
 
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
-
-	H2Core::Pattern *m_pPattern;
 
 	uint m_nResolution;
 	bool m_bUseTriplets;

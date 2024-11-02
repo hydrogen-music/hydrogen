@@ -96,7 +96,6 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		QTimer *m_pTimer;
 		int m_nTick;
-		H2Core::Pattern *m_pPattern;
 
 	int m_nHoveredColumn;
 	/**

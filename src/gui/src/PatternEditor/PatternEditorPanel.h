@@ -146,6 +146,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void relocationEvent() override;
 		// ~ Implements EventListener interface
 
+		H2Core::Pattern* getPattern() const;
+
 		const std::map<int, DrumPatternRow>& getDB() const;
 		int getSelectedRowDB() const;
 		void setSelectedRowDB( int nNewRow );
@@ -204,7 +206,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * debugging purposes. */
 		void printDB();
 	
-		H2Core::Pattern *	m_pPattern;
+		H2Core::Pattern*	m_pPattern;
 
 		/** Single source of truth for which #H2Core::Note to display (in which
 		 * row) for all parts of the pattern editor.*/
@@ -309,6 +311,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		virtual void showEvent(QShowEvent *ev) override;
 };
 
+inline H2Core::Pattern* PatternEditorPanel::getPattern() const {
+	return m_pPattern;
+}
 inline const std::map<int, DrumPatternRow>& PatternEditorPanel::getDB() const {
 	return m_db;
 }

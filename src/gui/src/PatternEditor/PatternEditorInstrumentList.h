@@ -153,7 +153,6 @@ class PatternEditorInstrumentList :  public QWidget,
 
 	protected:
 		PatternEditorPanel *m_pPatternEditorPanel;
-		H2Core::Pattern *m_pPattern;
 		uint m_nGridHeight;
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;

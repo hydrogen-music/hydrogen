@@ -101,7 +101,9 @@ NotePropertiesRuler::~NotePropertiesRuler()
 void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( m_pPattern == nullptr ) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
 		return;
 	}
 
@@ -146,7 +148,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			notes.push_back( pNote );
 		}
 	} else {
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->get_notes(), it, nColumn, pPattern ) {
 			notes.push_back( it->second );
 		}
 	}
@@ -212,9 +214,11 @@ void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
 	
 	// Update cursor position
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
+		auto pPattern =
+			HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
-		if ( ( m_pPattern != nullptr &&
-			   nColumn >= (int)m_pPattern->get_length() ) ||
+		if ( ( pPattern != nullptr &&
+			   nColumn >= (int)pPattern->get_length() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
 			return;
 		}
@@ -246,7 +250,9 @@ void NotePropertiesRuler::mouseDragEndEvent( QMouseEvent *ev ) {
 
 
 void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
-	if ( m_pPattern == nullptr ) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
 		return;
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -350,14 +356,16 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 
 void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( m_pPattern == nullptr ) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
 		return;
 	}
 	
 	if ( ev->buttons() == Qt::NoButton ) {
 		int nColumn = getColumn( ev->x() );
 		bool bFound = false;
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->get_notes(), it, nColumn, pPattern ) {
 			bFound = true;
 			break;
 		}
@@ -385,7 +393,9 @@ void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 //! Preserve current note properties at position x (or in selection, if any) for use in later UndoAction.
 void NotePropertiesRuler::prepareUndoAction( int x )
 {
-	if ( m_pPattern == nullptr ) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
 		return;
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -409,8 +419,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	} else {
 		// No notes are selected. The target notes to adjust are all those at column given by 'x', so we preserve these.
 		int nColumn = getColumn( x );
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it,
-										  nColumn, m_pPattern ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->get_notes(), it,
+										  nColumn, pPattern ) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
@@ -424,7 +434,9 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 //! set. This occurs either when the mouse is released, or when the pointer moves off of the note's column.
 void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 {
-	if (m_pPattern == nullptr) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if (pPattern == nullptr) {
 		return;
 	}
 
@@ -460,7 +472,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	bool bValueSet = false;
 
-	FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
+	FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->get_notes(), it, nColumn, pPattern ) {
 		Note *pNote = it->second;
 
 		if ( pNote->get_instrument() != pSelectedInstrument &&
@@ -639,7 +651,9 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
-	if ( m_pPattern == nullptr ) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
 		return;
 	}
 	
@@ -665,7 +679,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
-		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+		m_pPatternEditorPanel->setCursorPosition( pPattern->get_length() );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
@@ -761,7 +775,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					notes.push_back( pNote );
 				}
 			} else {
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, column, m_pPattern ) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->get_notes(), it, column, pPattern ) {
 					Note *pNote = it->second;
 					assert( pNote );
 					assert( pNote->get_position() == column );
@@ -1110,6 +1124,8 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 
 	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
@@ -1118,7 +1134,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 	drawDefaultBackground( p );
 
 	// draw velocity lines
-	if ( m_pPattern != nullptr ) {
+	if ( pPattern != nullptr ) {
 		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
@@ -1128,13 +1144,13 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
+		const Pattern::notes_t* notes = pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, m_pPattern) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSelectedInstrument
@@ -1195,6 +1211,8 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 	
 	QColor baseLineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
@@ -1213,7 +1231,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 					m_nEditorWidth, height() / 2.0);
 	}
 
-	if ( m_pPattern != nullptr ) {
+	if ( pPattern != nullptr ) {
 		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
@@ -1223,13 +1241,13 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
+		const Pattern::notes_t* notes = pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
 			Note *pposNote = it->second;
 			assert( pposNote );
 			uint pos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, m_pPattern) {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_note_off() || (pNote->get_instrument()
@@ -1392,7 +1410,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		}
 	}
 
-	if ( m_pPattern != nullptr ) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern != nullptr ) {
 		auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			DEBUGLOG( "No instrument selected" );
@@ -1401,8 +1421,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
+		const Pattern::notes_t* notes = pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() != pSelectedInstrument
@@ -1467,16 +1487,6 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::updateEditor( bool )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-	else {
-		m_pPattern = nullptr;
-	}
-
 	updateWidth();
 	resize( m_nEditorWidth, height() );
 
@@ -1513,13 +1523,15 @@ void NotePropertiesRuler::createBackground()
 
 std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( const QRect& r ) {
 	std::vector<SelectionIndex> result;
-	if ( m_pPattern == nullptr ) {
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
 		return std::move( result );
 	}
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	const Pattern::notes_t* notes = pPattern->get_notes();
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
@@ -1536,7 +1548,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	}
 	rNormalized += QMargins( 4, 4, 4, 4 );
 
-	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, m_pPattern) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
 		if ( it->second->get_instrument() != pSelectedInstrument
 			 && !m_selection.isSelected( it->second ) ) {
 			continue;
