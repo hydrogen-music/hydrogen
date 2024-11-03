@@ -622,12 +622,12 @@ void XmlTest::testShippedDrumkitMaps()
 void XmlTest::testPatternFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "/pattern/pattern.h2pattern" );
-	const auto pPattern = H2Core::Pattern::load_file( sTestFile );
+	const auto pPattern = H2Core::Pattern::load( sTestFile );
 	CPPUNIT_ASSERT( pPattern != nullptr );
 
 	const QString sTmpPattern =
 		H2Core::Filesystem::tmp_file_path( "pattern-format-integrity.h2pattern" );
-	CPPUNIT_ASSERT( pPattern->save_file( "GMRockKit", sTmpPattern, true ) );
+	CPPUNIT_ASSERT( pPattern->save( "GMRockKit", sTmpPattern, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
 
@@ -651,10 +651,10 @@ void XmlTest::testPattern()
 	auto pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
-	auto pPatternLoaded = H2Core::Pattern::load_file(
+	auto pPatternLoaded = H2Core::Pattern::load(
 		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
-	CPPUNIT_ASSERT( pPatternLoaded->save_file( "GMRockKit", sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternLoaded->save( "GMRockKit", sPatternPath, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
 								   sPatternPath );
@@ -666,7 +666,7 @@ void XmlTest::testPattern()
 	QString sEmptyPatternPath =
 		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
 	auto pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
-	CPPUNIT_ASSERT( pPatternNew->save_file( "GMRockKit", sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternNew->save( "GMRockKit", sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath,
 							  H2Core::Filesystem::pattern_xsd_path() ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
@@ -686,7 +686,7 @@ void XmlTest::testPatternLegacy() {
 				   << H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" );
 
 	for ( const auto& ssPattern : legacyPatterns ) {
-		auto pPattern = H2Core::Pattern::load_file( ssPattern );
+		auto pPattern = H2Core::Pattern::load( ssPattern );
 		CPPUNIT_ASSERT( pPattern );
 	}
 
@@ -710,16 +710,16 @@ void XmlTest::testPatternInstrumentTypes()
 	}
 
 	// Check whether the reference pattern is valid.
-	const auto pPatternRef = H2Core::Pattern::load_file(
+	const auto pPatternRef = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern.h2pattern") );
 	CPPUNIT_ASSERT( pPatternRef != nullptr );
 
 	// The version of the reference without any type information should be
 	// filled with those obtained from the shipped .h2map file.
-	const auto pPatternWithoutTypes = H2Core::Pattern::load_file(
+	const auto pPatternWithoutTypes = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern-without-types.h2pattern") );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
-	CPPUNIT_ASSERT( pPatternWithoutTypes->save_file(
+	CPPUNIT_ASSERT( pPatternWithoutTypes->save(
 						"GMRockKit", sTmpWithoutTypes ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
@@ -727,11 +727,11 @@ void XmlTest::testPatternInstrumentTypes()
 	// In this file an instrument id is off. But this should heal itself when
 	// switching to another kit and back (as only instrument types are used
 	// during switching and the ids are reassigned).
-	const auto pPatternMismatch = H2Core::Pattern::load_file(
+	const auto pPatternMismatch = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern") );
 	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
 	// TODO switch back and forth
-	// CPPUNIT_ASSERT( pPatternMismatch->save_file( "GMRockKit", sTmpMismatch ) );
+	// CPPUNIT_ASSERT( pPatternMismatch->save( "GMRockKit", sTmpMismatch ) );
 	// H2TEST_ASSERT_XML_FILES_EQUAL(
 	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
 

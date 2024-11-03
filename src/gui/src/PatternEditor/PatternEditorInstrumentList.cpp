@@ -435,7 +435,7 @@ void InstrumentLine::functionClearNotes()
 	}
 
 	std::list< Note* > noteList;
-	const Pattern::notes_t* notes = pPattern->get_notes();
+	const Pattern::notes_t* notes = pPattern->getNotes();
 	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 		Note *pNote = it->second;
 		assert( pNote );
@@ -522,7 +522,7 @@ void InstrumentLine::functionPasteAllInstrumentPatterns()
 	// up in the wrong row.
 	for ( auto& ppPattern : *pPatternList ) {
 		if ( ppPattern != nullptr ) {
-			for ( auto& [ _, ppNote ] : *ppPattern->get_notes() ) {
+			for ( auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr ) {
 					ppNote->set_instrument_id( m_nInstrumentNumber );
 					ppNote->setType(
@@ -559,7 +559,7 @@ void InstrumentLine::functionDeleteNotesAllPatterns()
 	for ( int nPattern = 0; nPattern < pPatternList->size(); nPattern++ ) {
 		std::list< Note* > noteList;
 		auto pPattern = pPatternList->get( nPattern );
-		const Pattern::notes_t* notes = pPattern->get_notes();
+		const Pattern::notes_t* notes = pPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it) {
 			if ( it->second->get_instrument() == pSelectedInstrument ) {
 				noteList.push_back( it->second );
@@ -615,7 +615,7 @@ void InstrumentLine::functionFillNotes( int every )
 	auto pCurrentPattern =
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 	if (pCurrentPattern != nullptr) {
-		int nPatternSize = pCurrentPattern->get_length();
+		int nPatternSize = pCurrentPattern->getLength();
 		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
@@ -625,7 +625,7 @@ void InstrumentLine::functionFillNotes( int every )
 
 		for (int i = 0; i < nPatternSize; i += nResolution) {
 			bool noteAlreadyPresent = false;
-			const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+			const Pattern::notes_t* notes = pCurrentPattern->getNotes();
 			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pCurrentPattern) {
 				Note *pNote = it->second;
 				if ( pNote->get_instrument() == pSelectedInstrument ) {

@@ -124,7 +124,7 @@ if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		return;
 	}
 	
-	H2Core::Note *pOldNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
+	H2Core::Note *pOldNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument );
 
 	int oldLength = -1;
 	float oldVelocity = 0.8f;
@@ -202,7 +202,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		nRealColumn = ( ev->x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
 	}
 
-	if ( nColumn >= (int)pPattern->get_length() ) {
+	if ( nColumn >= (int)pPattern->getLength() ) {
 		return;
 	}
 	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( row );
@@ -273,7 +273,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 			HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 		if ( ( pPattern != nullptr &&
-			   nColumn >= (int)pPattern->get_length() ) ||
+			   nColumn >= (int)pPattern->getLength() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
 			return;
 		}
@@ -329,7 +329,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 					m_fGridWidth));
 		}
 
-		m_pDraggedNote = pPattern->find_note( nColumn, nRealColumn,
+		m_pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
 												pSelectedInstrument, false );
 
 		// Store note-specific properties.
@@ -406,7 +406,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 	if ( isDelete ) {
 
 		// Find and delete an existing (matching) note.
-		Pattern::notes_t *notes = (Pattern::notes_t *)pPattern->get_notes();
+		Pattern::notes_t *notes = (Pattern::notes_t *)pPattern->getNotes();
 		bool bFound = false;
 		FOREACH_NOTE_IT_BOUND_END( notes, it, nColumn ) {
 			Note *pNote = it->second;
@@ -452,7 +452,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			pNote->set_probability( fProbability );
 		}
 		pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
-		pPattern->insert_note( pNote );
+		pPattern->insertNote( pNote );
 
 		if ( m_bSelectNewNotes ) {
 			m_selection.addToSelection( pNote );
@@ -505,7 +505,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 	auto pFromInstrument = pInstrumentList->get( nRow );
 	auto pToInstrument = pInstrumentList->get( nNewRow );
 
-	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->getNotes(), it, nColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pFromInstrument
 			 && pCandidateNote->get_key() == pNote->get_key()
@@ -527,13 +527,13 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		return;
 	}
 
-	pPattern->remove_note( pFoundNote );
+	pPattern->removeNote( pFoundNote );
 	if ( pFromInstrument == pToInstrument ) {
 		// Note can simply be moved.
 		pFoundNote->set_position( nNewColumn );
-		pPattern->insert_note( pFoundNote );
+		pPattern->insertNote( pFoundNote );
 	} else {
-		pPattern->remove_note( pFoundNote );
+		pPattern->removeNote( pFoundNote );
 		Note *pNewNote = new Note( pFoundNote, pToInstrument );
 
 		if ( m_selection.isSelected( pFoundNote) ) {
@@ -542,7 +542,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		}
 		pNewNote->set_position( nNewColumn );
 		m_selection.addToSelection( pNewNote );
-		pPattern->insert_note( pNewNote );
+		pPattern->insertNote( pNewNote );
 		delete pFoundNote;
 	}
 
@@ -603,7 +603,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		int nNewInstrument = nInstrument + offset.y();
 		int nNewPosition = nPosition + offset.x();
 		if ( nNewInstrument < 0 || nNewInstrument >= pInstrumentList->size()
-			 || nNewPosition < 0 || nNewPosition >= pPattern->get_length() ) {
+			 || nNewPosition < 0 || nNewPosition >= pPattern->getLength() ) {
 
 			if ( m_bCopyNotMove ) {
 				// Copying a note to an out-of-range location. Nothing to do.
@@ -700,7 +700,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
-		m_pPatternEditorPanel->setCursorPosition( pPattern->get_length() );
+		m_pPatternEditorPanel->setCursorPosition( pPattern->getLength() );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
@@ -867,7 +867,7 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	int x_min = (rNormalized.left() - PatternEditor::nMargin - 1) / m_fGridWidth;
 	int x_max = (rNormalized.right() - PatternEditor::nMargin) / m_fGridWidth;
 
-	const Pattern::notes_t* notes = pPattern->get_notes();
+	const Pattern::notes_t* notes = pPattern->getNotes();
 
 	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
 		Note *note = it->second;
@@ -916,7 +916,7 @@ void DrumPatternEditor::selectAll()
 	}
 	
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(pPattern->get_notes(), it, pPattern) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(pPattern->getNotes(), it, pPattern) {
 		m_selection.addToSelection( it->second );
 	}
 	m_selection.updateWidgetGroup();
@@ -1064,7 +1064,7 @@ void DrumPatternEditor::paste()
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nInstrument = pInstrList->index( pNote->get_instrument() ) + nDeltaInstrument;
 
-			if ( nPos >= 0 && nPos < pPattern->get_length()
+			if ( nPos >= 0 && nPos < pPattern->getLength()
 				 && nInstrument >= 0 && nInstrument < pInstrList->size() ) {
 				pUndo->push( new SE_addOrDeleteNoteAction(
 								 nPos,
@@ -1115,7 +1115,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	validateSelection();
 
 	for ( const auto& ppPattern : getPatternsToShow() ) {
-		const Pattern::notes_t *pNotes = ppPattern->get_notes();
+		const Pattern::notes_t *pNotes = ppPattern->getNotes();
 		if ( pNotes->size() == 0 ) {
 			continue;
 		}
@@ -1128,7 +1128,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		// markers for instruments which have more than one note in the same position (a chord or genuine
 		// duplicates)
 		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
-			if ( posIt->first >= ppPattern->get_length() ) {
+			if ( posIt->first >= ppPattern->getLength() ) {
 				// Notes are located beyond the active length of the
 				// editor and aren't visible even when drawn.
 				break;
@@ -1451,7 +1451,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 	}
 
 	if( pPattern != nullptr ) {
-		const Pattern::notes_t* notes = pPattern->get_notes();
+		const Pattern::notes_t* notes = pPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BOUND_END(notes,it,column) {
 			Note *pNote = it->second;
 			assert( pNote );
@@ -1517,7 +1517,7 @@ void DrumPatternEditor::functionClearNotesRedoAction( int nSelectedInstrument, i
 		return;
 	}
 
-	pPattern->purge_instrument( pSelectedInstrument );
+	pPattern->purgeInstrument( pSelectedInstrument );
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
@@ -1540,7 +1540,7 @@ void DrumPatternEditor::functionClearNotesUndoAction( const std::list< H2Core::N
 		Note *pNote;
 		pNote = new Note(*pos);
 		assert( pNote );
-		pPattern->insert_note( pNote );
+		pPattern->insertNote( pNote );
 	}
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
@@ -1566,18 +1566,18 @@ void DrumPatternEditor::functionPasteNotesUndoAction(
 		}
 
 		// Find destination pattern to perform undo
-		auto pPattern = pPatternList->find( ppAppliedPattern->get_name() );
+		auto pPattern = pPatternList->find( ppAppliedPattern->getName() );
 		if ( pPattern == nullptr ) {
 			ERRORLOG( QString( "No pattern [%1] found in current pattern list" )
-					  .arg( ppAppliedPattern->get_name() ) );
+					  .arg( ppAppliedPattern->getName() ) );
 			continue;
 		}
 
 		// Remove all notes of applied pattern from destination pattern
-		auto pAppliedNotes = ppAppliedPattern->get_notes();
+		auto pAppliedNotes = ppAppliedPattern->getNotes();
 
 		// Const removed by cast since we do inplace changees.
-		Pattern::notes_t* pSongNotes = (Pattern::notes_t *)pPattern->get_notes();
+		Pattern::notes_t* pSongNotes = (Pattern::notes_t *)pPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END( pAppliedNotes, it ) {
 			const auto pNote = it->second;
 			if ( pNote == nullptr ) {
@@ -1634,21 +1634,21 @@ void DrumPatternEditor::functionPasteNotesRedoAction(
 			continue;
 		}
 
-		auto pPattern = pPatternList->find( ppCopiedPattern->get_name() );
+		auto pPattern = pPatternList->find( ppCopiedPattern->getName() );
 		if ( pPattern == nullptr ) {
 			ERRORLOG( QString( "No pattern [%1] found in current pattern list" )
-					  .arg( ppCopiedPattern->get_name() ) );
+					  .arg( ppCopiedPattern->getName() ) );
 			continue;
 		}
 
 		// Create applied pattern. (We do not need an exact copie. The name is
 		// enough)
-		auto pApplied = std::make_shared<Pattern>( pPattern->get_name() );
+		auto pApplied = std::make_shared<Pattern>( pPattern->getName() );
 
 		// Add all notes of source pattern to destination pattern
 		// and store all applied notes in applied pattern
-		const Pattern::notes_t* pCopiedNotes = ppCopiedPattern->get_notes();
-		const Pattern::notes_t* pSongNotes = pPattern->get_notes();
+		const Pattern::notes_t* pCopiedNotes = ppCopiedPattern->getNotes();
+		const Pattern::notes_t* pSongNotes = pPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END( pCopiedNotes, it ) {
 			const auto pNote = it->second;
 			if ( pNote == nullptr ) {
@@ -1677,13 +1677,13 @@ void DrumPatternEditor::functionPasteNotesRedoAction(
 
 			// Apply note and store it as applied
 			if ( ! bNoteExists ) {
-				pApplied->insert_note( new Note( pNote ) );
+				pApplied->insertNote( new Note( pNote ) );
 
 				// The note inserted in the song's pattern list needs to be
 				// armed properly.
 				Note* pNewNote = new Note( pNote );
 				pNewNote->mapTo( pDrumkit );
-				pPattern->insert_note( pNewNote );
+				pPattern->insertNote( pNewNote );
 			}
 		}
 
@@ -1724,7 +1724,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( const QStringList& noteList
 
 	for (int i = 0; i < noteList.size(); i++ ) {
 		int nColumn  = noteList.value(i).toInt();
-		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
+		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->getNotes();
 		FOREACH_NOTE_IT_BOUND_END(notes,it,nColumn) {
 			Note *pNote = it->second;
 			assert( pNote );
@@ -1770,7 +1770,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( const QStringList& noteList
 		// create the new note
 		int position = noteList.value(i).toInt();
 		Note *pNote = new Note( pSelectedInstrument, position );
-		pPattern->insert_note( pNote );
+		pPattern->insertNote( pNote );
 	}
 	m_pAudioEngine->unlock();	// unlock the audio engine
 
@@ -1804,8 +1804,8 @@ void DrumPatternEditor::functionRandomVelocityAction( const QStringList& noteVel
 
 	int nResolution = granularity();
 	int positionCount = 0;
-	for (int i = 0; i < pPattern->get_length(); i += nResolution) {
-		const Pattern::notes_t* notes = pPattern->get_notes();
+	for (int i = 0; i < pPattern->getLength(); i += nResolution) {
+		const Pattern::notes_t* notes = pPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i, pPattern) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() ==  pSelectedInstrument) {

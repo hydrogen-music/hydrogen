@@ -428,14 +428,14 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 	auto pPatternList = transportPos.getPlayingPatterns();
 	for ( std::vector<std::shared_ptr<Pattern>>::const_iterator ppPattern = pPatternList->cbegin();
 		  ppPattern < pPatternList ->cend(); ppPattern++ ) {
-		if ( (*ppPattern)->get_length() > nPatternLength ) {
-			nPatternLength = (*ppPattern)->get_length();
+		if ( (*ppPattern)->getLength() > nPatternLength ) {
+			nPatternLength = (*ppPattern)->getLength();
 			pPattern = *ppPattern;
 		}
 
-		for ( const auto& ppVirtualPattern : *(*ppPattern)->get_flattened_virtual_patterns() ) {
-			if ( ppVirtualPattern->get_length() > nPatternLength ) {
-				nPatternLength = ppVirtualPattern->get_length();
+		for ( const auto& ppVirtualPattern : *(*ppPattern)->getFlattenedVirtualPatterns() ) {
+			if ( ppVirtualPattern->getLength() > nPatternLength ) {
+				nPatternLength = ppVirtualPattern->getLength();
 				pPattern = ppVirtualPattern;
 			}
 		}
@@ -443,8 +443,8 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 
 	float fNumerator, fDenumerator;
 	if ( pPattern != nullptr ) {
-		fNumerator = nPatternLength * pPattern->get_denominator() / MAX_NOTES;
-		fDenumerator = pPattern->get_denominator();
+		fNumerator = nPatternLength * pPattern->getDenominator() / MAX_NOTES;
+		fDenumerator = pPattern->getDenominator();
 	}
 	else {
 		fNumerator = 4;

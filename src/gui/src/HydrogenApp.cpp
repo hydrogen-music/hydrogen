@@ -1046,11 +1046,11 @@ void HydrogenApp::onEventQueueTimer()
 		
 		// find if a (pitch matching) note is already present
 		Note* pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )->
-			find_note( pQueue->m_addMidiNoteVector[0].m_column,
-					   pQueue->m_addMidiNoteVector[0].m_column,
-					   pInstrument,
-					   pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-					   pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+			findNote( pQueue->m_addMidiNoteVector[0].m_column,
+					  pQueue->m_addMidiNoteVector[0].m_column,
+					  pInstrument,
+					  pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+					  pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
 		
 		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndoStack->beginMacro( tr( "Input Midi Note" ) );

@@ -606,7 +606,7 @@ QString Note::prettyName() const {
 	if ( pSong != nullptr ) {
 		const auto pPattern = pSong->getPatternList()->get( __pattern_idx );
 		if ( pPattern != nullptr ) {
-			sPattern = QString( "Pat: [%1]" ).arg( pPattern->get_name() );
+			sPattern = QString( "Pat: [%1]" ).arg( pPattern->getName() );
 		}
 	}
 	if ( sPattern.isEmpty() ) {

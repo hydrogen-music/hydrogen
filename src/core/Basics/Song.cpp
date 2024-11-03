@@ -588,7 +588,7 @@ void Song::loadVirtualPatternsFrom( const XMLNode& node, bool bSilent ) {
 
 		std::shared_ptr<Pattern> pCurPattern = nullptr;
 		for ( const auto& pPattern : *m_pPatternList ) {
-			if ( pPattern->get_name() == sName ) {
+			if ( pPattern->getName() == sName ) {
 				pCurPattern = pPattern;
 				break;
 			}
@@ -602,14 +602,14 @@ void Song::loadVirtualPatternsFrom( const XMLNode& node, bool bSilent ) {
 				std::shared_ptr<Pattern> pVirtualPattern = nullptr;
 				for ( const auto& pPattern : *m_pPatternList ) {
 					if ( pPattern != nullptr &&
-						 pPattern->get_name() == sVirtualPatternName ) {
+						 pPattern->getName() == sVirtualPatternName ) {
 						pVirtualPattern = pPattern;
 						break;
 					}
 				}
 
 				if ( pVirtualPattern != nullptr ) {
-					pCurPattern->virtual_patterns_add( pVirtualPattern );
+					pCurPattern->virtualPatternsAdd( pVirtualPattern );
 				}
 				else if ( ! bSilent ) {
 					ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
@@ -659,7 +659,7 @@ void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
 				std::shared_ptr<Pattern> pPattern = nullptr;
 				for ( const auto& ppPat : *m_pPatternList ) {
 					if ( ppPat != nullptr ) {
-						if ( ppPat->get_name() == sPatternName ) {
+						if ( ppPat->getName() == sPatternName ) {
 							pPattern = ppPat;
 							break;
 						}
@@ -688,12 +688,12 @@ void Song::saveVirtualPatternsTo( XMLNode& node, bool bSilent ) const {
 
 	XMLNode virtualPatternListNode = node.createNode( "virtualPatternList" );
 	for ( const auto& pPattern : *m_pPatternList ) {
-		if ( ! pPattern->get_virtual_patterns()->empty() ) {
+		if ( ! pPattern->getVirtualPatterns()->empty() ) {
 			XMLNode patternNode = virtualPatternListNode.createNode( "pattern" );
-			patternNode.write_string( "name", pPattern->get_name() );
+			patternNode.write_string( "name", pPattern->getName() );
 
-			for ( const auto& pVirtualPattern : *( pPattern->get_virtual_patterns() ) ) {
-				patternNode.write_string( "virtual", pVirtualPattern->get_name() );
+			for ( const auto& pVirtualPattern : *( pPattern->getVirtualPatterns() ) ) {
+				patternNode.write_string( "virtual", pVirtualPattern->getName() );
 			}
 		}
 	}
@@ -711,7 +711,7 @@ void Song::savePatternGroupVectorTo( XMLNode& node, bool bSilent ) const {
 
 			for ( const auto& pPattern : *pPatternList ) {
 				if ( pPattern != nullptr ) {
-					groupNode.write_string( "patternID", pPattern->get_name() );
+					groupNode.write_string( "patternID", pPattern->getName() );
 				}
 			}
 		}
@@ -911,7 +911,7 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	for ( int nn = 0; nn < 10; ++nn ) {
 		auto pEmptyPattern = std::make_shared<Pattern>();
 
-		pEmptyPattern->set_name( QString( "Pattern %1" ).arg( nn + 1 ) );
+		pEmptyPattern->setName( QString( "Pattern %1" ).arg( nn + 1 ) );
 		pPatternList->add( pEmptyPattern );
 
 		if ( nn == 0 ) {
@@ -1075,7 +1075,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 		else {
 			for ( const auto& ppattern : *pColumn ) {
 				if ( ppattern != nullptr ) {
-					FOREACH_NOTE_CST_IT_BEGIN_LENGTH( ppattern->get_notes(), it, ppattern ) {
+					FOREACH_NOTE_CST_IT_BEGIN_LENGTH( ppattern->getNotes(), it, ppattern ) {
 						if ( it->second != nullptr ) {
 							// Use the copy constructor to not mess
 							// with the song itself.

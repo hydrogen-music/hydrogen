@@ -202,7 +202,7 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto notes = pSongProper->getPatternList()->get( 0 )->get_notes();
+		auto notes = pSongProper->getPatternList()->get( 0 )->getNotes();
 		auto pNote = new H2Core::Note( notes->begin()->second );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		delete pNote;
@@ -344,7 +344,7 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::load_from( node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit" );
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
-		auto pPattern = H2Core::Pattern::load_file(
+		auto pPattern = H2Core::Pattern::load(
 			H2TEST_FILE( "pattern/pattern.h2pattern" ) );
 		CPPUNIT_ASSERT( pPattern != nullptr );
 		pPattern = nullptr;

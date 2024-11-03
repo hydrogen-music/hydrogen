@@ -449,7 +449,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 
 		//we have to make sure that no beat is added on the last displayed note in a bar
 		//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.
-		if ( qcolumn == pCurrentPattern->get_length() ){
+		if ( qcolumn == pCurrentPattern->getLength() ){
 			qcolumn = 0;
 		}
 		nTickInPattern = qcolumn;
@@ -478,14 +478,14 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 
 		INFOLOG( QString( "Recording [%1] to pattern: %2 (%3), tick: [%4/%5]." )
 				 .arg( bNoteOff ? "NoteOff" : "NoteOn")
-				 .arg( currentPatternNumber ).arg( pCurrentPattern->get_name() )
-				 .arg( nTickInPattern ).arg( pCurrentPattern->get_length() ) );
+				 .arg( currentPatternNumber ).arg( pCurrentPattern->getName() )
+				 .arg( nTickInPattern ).arg( pCurrentPattern->getLength() ) );
 
 		bool bIsModified = false;
 
 		if ( bNoteOff ) {
 			
-			int nPatternSize = pCurrentPattern->get_length();
+			int nPatternSize = pCurrentPattern->getLength();
 			int nNoteLength =
 				static_cast<int>(pAudioEngine->getTransportPosition()->getPatternTickPosition()) -
 				m_nLastRecordedMIDINoteTick;
@@ -497,7 +497,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 			}
 
 			for ( unsigned nNote = 0; nNote < nPatternSize; nNote++ ) {
-				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nNote, pCurrentPattern ) {
 					Note *pNote = it->second;
 					if ( pNote != nullptr &&

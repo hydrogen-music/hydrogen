@@ -160,7 +160,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 				
 				for ( unsigned j = 0; j < pColumn->size(); j++ ) {
 					const auto pPattern = pColumn->get( j );
-					int nPatternSize = pPattern->get_length();	
+					int nPatternSize = pPattern->getLength();
 					
 					if(maxPatternSize < nPatternSize) {
 						maxPatternSize = nPatternSize;

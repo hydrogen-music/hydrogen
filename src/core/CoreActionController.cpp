@@ -1855,7 +1855,7 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	}
 	
 	auto pPatternList = pSong->getPatternList();
-	auto pNewPattern = Pattern::load_file( sPath );
+	auto pNewPattern = Pattern::load( sPath );
 
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );
@@ -1886,8 +1886,8 @@ bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
 	auto pPatternList = pSong->getPatternList();
 
 	// Check whether the name of the new pattern is unique.
-	if ( !pPatternList->check_name( pPattern->get_name() ) ){
-		pPattern->set_name( pPatternList->find_unused_pattern_name( pPattern->get_name() ) );
+	if ( !pPatternList->check_name( pPattern->getName() ) ){
+		pPattern->setName( pPatternList->find_unused_pattern_name( pPattern->getName() ) );
 	}
 
 	pPatternList->insert( nPatternPosition, pPattern );
@@ -2000,9 +2000,9 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	for ( const auto& ppattern : *pPatternList ) {
 
 		Pattern::virtual_patterns_cst_it_t it =
-			ppattern->get_virtual_patterns()->find( pPattern );
-		if ( it != ppattern->get_virtual_patterns()->end() ) {
-			ppattern->virtual_patterns_del( *it );
+			ppattern->getVirtualPatterns()->find( pPattern );
+		if ( it != ppattern->getVirtualPatterns()->end() ) {
+			ppattern->virtualPatternsDel( *it );
 		}
 	}
 
@@ -2042,7 +2042,7 @@ bool CoreActionController::clearInstrumentInPattern( int nInstrument,
 		return false;
 	}
 
-	pPattern->purge_instrument( pInstrument, true );
+	pPattern->purgeInstrument( pInstrument, true );
 
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 

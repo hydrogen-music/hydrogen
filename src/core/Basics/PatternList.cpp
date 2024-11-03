@@ -64,7 +64,7 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		auto pPattern = Pattern::load_from( patternNode, sDrumkitName, bSilent );
+		auto pPattern = Pattern::loadFrom( patternNode, sDrumkitName, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -88,7 +88,7 @@ void PatternList::save_to( XMLNode& node,
 	
 	for ( const auto& pPattern : __patterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->save_to( patternListNode, pInstrumentOnly );
+			pPattern->saveTo( patternListNode, pInstrumentOnly );
 		}
 	}
 }
@@ -110,7 +110,7 @@ void PatternList::add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals )
 		// Check whether the pattern is contained as a virtual
 		// pattern.
 		for ( const auto& ppPattern : __patterns ) {
-			auto pVirtualPatterns = ppPattern->get_virtual_patterns();
+			auto pVirtualPatterns = ppPattern->getVirtualPatterns();
 			if ( pVirtualPatterns->find( pPattern ) != pVirtualPatterns->end() ) {
 				// Provided pattern is already contained as virtual pattern
 				return;
@@ -122,7 +122,7 @@ void PatternList::add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals )
 	// individual patterns it encompasses in case one of them was
 	// already activated. (They will be only activated as virtual
 	// patterns from here on).
-	auto pVirtualPatterns = pPattern->get_virtual_patterns();
+	auto pVirtualPatterns = pPattern->getVirtualPatterns();
 	for ( int ii = __patterns.size() - 1; ii >= 0 && ii < __patterns.size(); --ii ) {
 		auto ppPattern = __patterns[ ii ];
 		if ( pVirtualPatterns->find( ppPattern ) != pVirtualPatterns->end() ) {
@@ -220,14 +220,14 @@ std::shared_ptr<Pattern> PatternList::replace( int idx,
 void PatternList::set_to_old()
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
-		__patterns[i]->set_to_old();
+		__patterns[i]->setToOld();
 	}
 }
 
 std::shared_ptr<Pattern>  PatternList::find( const QString& name ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
-		if ( __patterns[i]->get_name()==name ) {
+		if ( __patterns[i]->getName()==name ) {
 			return __patterns[i];
 		}
 	}
@@ -249,17 +249,17 @@ void PatternList::move( int idx_a, int idx_b )
 void PatternList::flattened_virtual_patterns_compute()
 {
 	for ( int i=0 ; i<__patterns.size() ; i++ ) {
-		__patterns[i]->flattened_virtual_patterns_clear();
+		__patterns[i]->flattenedVirtualPatternsClear();
 	}
 	for ( int i=0 ; i<__patterns.size() ; i++ ) {
-		__patterns[i]->flattened_virtual_patterns_compute();
+		__patterns[i]->flattenedVirtualPatternsCompute();
 	}
 }
 
 void PatternList::virtual_pattern_del( std::shared_ptr<Pattern> pPattern )
 {
 	for ( int i = 0; i < __patterns.size(); i++ ) {
-		__patterns[ i ]->virtual_patterns_del( pPattern );
+		__patterns[ i ]->virtualPatternsDel( pPattern );
 	}
 }
 
@@ -272,7 +272,7 @@ bool PatternList::check_name( const QString& sPatternName,
 
 	for ( int i = 0; i < __patterns.size(); i++ ) {
 		if ( __patterns[ i ] != pIgnore &&
-			 __patterns[ i ]->get_name() == sPatternName ) {
+			 __patterns[ i ]->getName() == sPatternName ) {
 			return false;
 		}
 	}
@@ -318,14 +318,14 @@ QString PatternList::find_unused_pattern_name( const QString& sSourceName,
 int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	int nMax = -1;
 	for ( const auto& ppPattern : __patterns ) {
-		if ( ppPattern->get_length() > nMax ) {
-			nMax = ppPattern->get_length();
+		if ( ppPattern->getLength() > nMax ) {
+			nMax = ppPattern->getLength();
 		}
 
 		if ( bIncludeVirtuals ) {
-			for ( const auto& ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
-				if ( ppVirtualPattern->get_length() > nMax ) {
-					nMax = ppVirtualPattern->get_length();
+			for ( const auto& ppVirtualPattern : *ppPattern->getFlattenedVirtualPatterns() ) {
+				if ( ppVirtualPattern->getLength() > nMax ) {
+					nMax = ppVirtualPattern->getLength();
 				}
 			}
 		}
@@ -381,7 +381,7 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[PatternList] " );
 		for ( const auto& pp : __patterns ) {
 			if ( pp != nullptr ) {
-				sOutput.append( QString( "[%1] " ).arg( pp->get_name() ) );
+				sOutput.append( QString( "[%1] " ).arg( pp->getName() ) );
 			}
 		}
 	}

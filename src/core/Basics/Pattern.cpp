@@ -36,19 +36,20 @@
 namespace H2Core
 {
 
-Pattern::Pattern( const QString& name, const QString& info, const QString& sCategory, int length, int denominator )
+Pattern::Pattern( const QString& sName, const QString& sInfo,
+				  const QString& sCategory, int nLength, int nDenominator )
 	: m_nVersion( 0 )
 	, m_sDrumkitName( "" )
 	, m_sAuthor( "" )
 	, m_license( License() )
-	, __length( length )
-	, __denominator( denominator)
-	, __name( name )
-	, __category( sCategory )
-	, __info( info )
+	, m_nLength( nLength )
+	, m_nDenominator( nDenominator )
+	, m_sName( sName )
+	, m_sCategory( sCategory )
+	, m_sInfo( sInfo )
 {
 	if ( sCategory.isEmpty() ) {
-		__category = SoundLibraryDatabase::m_sPatternBaseCategory;
+		m_sCategory = SoundLibraryDatabase::m_sPatternBaseCategory;
 	}
 }
 
@@ -57,28 +58,28 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 	, m_sDrumkitName( pOther->m_sDrumkitName )
 	, m_sAuthor( pOther->m_sAuthor )
 	, m_license( pOther->m_license )
-	, __length( pOther->get_length() )
-	, __denominator( pOther->get_denominator() )
-	, __name( pOther->get_name() )
-	, __category( pOther->get_category() )
-	, __info( pOther->get_info() )
+	, m_nLength( pOther->getLength() )
+	, m_nDenominator( pOther->getDenominator() )
+	, m_sName( pOther->getName() )
+	, m_sCategory( pOther->getCategory() )
+	, m_sInfo( pOther->getInfo() )
 {
-	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->get_notes(),it ) {
-		__notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
+	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->getNotes(),it ) {
+		m_notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
 	}
 
-	for ( const auto& ppPattern : pOther->__virtual_patterns ) {
-		__virtual_patterns.insert( std::make_shared<Pattern>( ppPattern ) );
+	for ( const auto& ppPattern : pOther->m_virtualPatterns ) {
+		m_virtualPatterns.insert( std::make_shared<Pattern>( ppPattern ) );
 	}
-	for ( const auto& ppPattern : pOther->__flattened_virtual_patterns ) {
-		__flattened_virtual_patterns.insert(
+	for ( const auto& ppPattern : pOther->m_flattenedVirtualPatterns ) {
+		m_flattenedVirtualPatterns.insert(
 			std::make_shared<Pattern>( ppPattern ) );
 	}
 }
 
 Pattern::~Pattern()
 {
-	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
+	for( notes_cst_it_t it=m_notes.begin(); it!=m_notes.end(); it++ ) {
 		delete it->second;
 	}
 }
@@ -123,7 +124,7 @@ bool Pattern::loadDoc( const QString& sPatternPath, XMLDoc* pDoc, bool bSilent )
 	return bReadingSuccessful;
 }
 
-std::shared_ptr<Pattern> Pattern::load_file( const QString& sPatternPath )
+std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 
@@ -137,10 +138,10 @@ std::shared_ptr<Pattern> Pattern::load_file( const QString& sPatternPath )
 	const QString sDrumkitName =
 		root.read_string( "drumkit_name", "", false, false, false );
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	return load_from( pattern_node, sDrumkitName );
+	return loadFrom( pattern_node, sDrumkitName );
 }
 
-std::shared_ptr<Pattern> Pattern::load_from( const XMLNode& node,
+std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 											 const QString& sDrumkitName,
 											 bool bSilent )
 {
@@ -169,7 +170,7 @@ std::shared_ptr<Pattern> Pattern::load_from( const XMLNode& node,
 			Note* pNote = Note::load_from( note_node, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr ) {
-				pPattern->insert_note( pNote );
+				pPattern->insertNote( pNote );
 			}
 			note_node = note_node.nextSiblingElement( "note" );
 		}
@@ -183,7 +184,7 @@ std::shared_ptr<Pattern> Pattern::load_from( const XMLNode& node,
 	// instrument id -> instrument type mapping in there we can use it as a
 	// fallback to obtain types.
 	bool bMissingType = false;
-	for ( const auto& [ _ , ppNote ] : pPattern->__notes ) {
+	for ( const auto& [ _ , ppNote ] : pPattern->m_notes ) {
 		if ( ppNote != nullptr && ppNote->getType().isEmpty() ) {
 			bMissingType = true;
 			break;
@@ -199,7 +200,7 @@ std::shared_ptr<Pattern> Pattern::load_from( const XMLNode& node,
 			if ( pDrumkitMap != nullptr ) {
 				// We do not replace any type but only set those not defined
 				// yet.
-				for ( const auto& [ _, ppNote ] : pPattern->__notes ) {
+				for ( const auto& [ _, ppNote ] : pPattern->m_notes ) {
 					if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
 						 ! pDrumkitMap->getType(
 							 ppNote->get_instrument_id() ).isEmpty() ) {
@@ -210,12 +211,12 @@ std::shared_ptr<Pattern> Pattern::load_from( const XMLNode& node,
 			}
 			else {
 				ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types in notes for pattern [%2]" )
-						  .arg( sMapFile ).arg( pPattern->get_name() ) );
+						  .arg( sMapFile ).arg( pPattern->getName() ) );
 			}
 		}
 		else if ( ! bSilent ) {
 			INFOLOG( QString( "There are missing Types for notes in pattern [%1] and no corresponding .h2map file for registered drumkit [%2]." )
-					 .arg( pPattern->get_name() )
+					 .arg( pPattern->getName() )
 					 .arg( pPattern->getDrumkitName() ) );
 		}
 	}
@@ -223,37 +224,39 @@ std::shared_ptr<Pattern> Pattern::load_from( const XMLNode& node,
 	return pPattern;
 }
 
-bool Pattern::save_file( const QString& drumkit_name, const QString& pattern_path, bool overwrite ) const
+bool Pattern::save( const QString& sDrumkitName, const QString& sPatternPath,
+					bool bOverwrite ) const
 {
-	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
-	if( !overwrite && Filesystem::file_exists( pattern_path, true ) ) {
-		ERRORLOG( QString( "pattern %1 already exists" ).arg( pattern_path ) );
+	INFOLOG( QString( "Saving pattern into %1" ).arg( sPatternPath ) );
+	if ( ! bOverwrite && Filesystem::file_exists( sPatternPath, true ) ) {
+		ERRORLOG( QString( "pattern %1 already exists" ).arg( sPatternPath ) );
 		return false;
 	}
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-	root.write_string( "drumkit_name", drumkit_name );
-	save_to( root );
-	return doc.write( pattern_path );
+	root.write_string( "drumkit_name", sDrumkitName );
+	saveTo( root );
+	return doc.write( sPatternPath );
 }
 
-void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrumentOnly ) const
+void Pattern::saveTo( XMLNode& node,
+					  const std::shared_ptr<Instrument> pInstrumentOnly ) const
 {
 	XMLNode pattern_node =  node.createNode( "pattern" );
 	pattern_node.write_int( "formatVersion", nCurrentFormatVersion );
 	pattern_node.write_int( "userVersion", m_nVersion );
-	pattern_node.write_string( "name", __name );
+	pattern_node.write_string( "name", m_sName );
 	pattern_node.write_string( "author", m_sAuthor );
-	pattern_node.write_string( "info", __info );
+	pattern_node.write_string( "info", m_sInfo );
 	pattern_node.write_string( "license", m_license.getLicenseString() );
-	pattern_node.write_string( "category", __category );
-	pattern_node.write_int( "size", __length );
-	pattern_node.write_int( "denominator", __denominator );
+	pattern_node.write_string( "category", m_sCategory );
+	pattern_node.write_int( "size", m_nLength );
+	pattern_node.write_int( "denominator", m_nDenominator );
 	
 	int nId = ( pInstrumentOnly == nullptr ? -1 : pInstrumentOnly->get_id() );
 	
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
-	for( auto it = __notes.cbegin(); it != __notes.cend(); ++it ) {
+	for ( auto it = m_notes.cbegin(); it != m_notes.cend(); ++it ) {
 		auto pNote = it->second;
 		if ( pNote != nullptr &&
 			 ( pInstrumentOnly == nullptr ||
@@ -264,72 +267,90 @@ void Pattern::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrum
 	}
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, Note::Key key, Note::Octave octave, bool strict ) const
+Note* Pattern::findNote( int nIdx_a, int nIdx_b,
+						 std::shared_ptr<Instrument> pInstrument, Note::Key key,
+						 Note::Octave octave, bool bStrict ) const
 {
-	for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
-		Note* note = it->second;
-		assert( note );
-		if ( note->match( instrument, key, octave ) ) return note;
+	for ( notes_cst_it_t it = m_notes.lower_bound( nIdx_a );
+		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
+		auto pNote = it->second;
+		assert( pNote );
+		if ( pNote->match( pInstrument, key, octave ) ) {
+			return pNote;
+		}
 	}
-	if( idx_b==-1 ) return nullptr;
-	for( notes_cst_it_t it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
-		Note* note = it->second;
-		assert( note );
-		if ( note->match( instrument, key, octave ) ) return note;
+	if ( nIdx_b == -1 ) {
+		return nullptr;
 	}
-	if( strict ) return nullptr;
-	// TODO maybe not start from 0 but idx_b-X
-	for ( int n=0; n<idx_b; n++ ) {
-		for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
-			Note* note = it->second;
-			assert( note );
-			if ( note->match( instrument, key, octave ) && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
+	for ( notes_cst_it_t it = m_notes.lower_bound( nIdx_b );
+		  it != m_notes.upper_bound( nIdx_b ); it++ ) {
+		auto pNote = it->second;
+		assert( pNote );
+		if ( pNote->match( pInstrument, key, octave ) ) {
+			return pNote;
+		}
+	}
+	if ( bStrict ) {
+		return nullptr;
+	}
+
+	// TODO maybe not start from 0 but nIdx_b-X
+	for ( int n = 0; n < nIdx_b; n++ ) {
+		for ( notes_cst_it_t it = m_notes.lower_bound( n );
+			  it != m_notes.upper_bound( n ); it++ ) {
+			auto pNote = it->second;
+			assert( pNote );
+			if ( pNote->match( pInstrument, key, octave ) &&
+				 ( nIdx_b <= pNote->get_position() + pNote->get_length() &&
+				   nIdx_b >= pNote->get_position() ) ) {
+				return pNote;
+			}
 		}
 	}
 	return nullptr;
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b,
+Note* Pattern::findNote( int nIdx_a, int nIdx_b,
 						  std::shared_ptr<Instrument> pInstrument,
-						  bool strict ) const
+						  bool bStrict ) const
 {
 	if ( pInstrument == nullptr ) {
 		return nullptr;
 	}
 
 	notes_cst_it_t it;
-	for ( it = __notes.lower_bound( idx_a );
-		  it != __notes.upper_bound( idx_a ); it++ ) {
-		Note* pNote = it->second;
+	for ( it = m_notes.lower_bound( nIdx_a );
+		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
+		auto pNote = it->second;
 		assert( pNote );
 		if ( pNote->get_instrument() == pInstrument ) {
 			return pNote;
 		}
 	}
-	if ( idx_b == -1 ) {
+	if ( nIdx_b == -1 ) {
 		return nullptr;
 	}
-	for ( it = __notes.lower_bound( idx_b );
-		  it != __notes.upper_bound( idx_b ); it++ ) {
-		Note* pNote = it->second;
+	for ( it = m_notes.lower_bound( nIdx_b );
+		  it != m_notes.upper_bound( nIdx_b ); it++ ) {
+		auto pNote = it->second;
 		assert( pNote );
 		if ( pNote->get_instrument() == pInstrument ) {
 			return pNote;
 		}
 	}
-	if ( strict ) {
+	if ( bStrict ) {
 		return nullptr;
 	}
 
-	// TODO maybe not start from 0 but idx_b-X
-	for ( int n=0; n<idx_b; n++ ) {
-		for ( it = __notes.lower_bound( n );
-			  it != __notes.upper_bound( n ); it++ ) {
-			Note* pNote = it->second;
+	// TODO maybe not start from 0 but nIdx_b-X
+	for ( int n=0; n<nIdx_b; n++ ) {
+		for ( it = m_notes.lower_bound( n );
+			  it != m_notes.upper_bound( n ); it++ ) {
+			auto pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_instrument() == pInstrument &&
-				 ( ( idx_b <= pNote->get_position() + pNote->get_length() )
-				   && idx_b >= pNote->get_position() ) ) {
+				 ( ( nIdx_b <= pNote->get_position() + pNote->get_length() )
+				   && nIdx_b >= pNote->get_position() ) ) {
 				return pNote;
 			}
 		}
@@ -338,12 +359,13 @@ Note* Pattern::find_note( int idx_a, int idx_b,
 	return nullptr;
 }
 
-void Pattern::remove_note( Note* note )
+void Pattern::removeNote( Note* pNote )
 {
-	int pos = note->get_position();
-	for( notes_it_t it=__notes.lower_bound( pos ); it!=__notes.end() && it->first == pos; ++it ) {
-		if( it->second==note ) {
-			__notes.erase( it );
+	int nPos = pNote->get_position();
+	for ( notes_it_t it = m_notes.lower_bound( nPos );
+		  it != m_notes.end() && it->first == nPos; ++it ) {
+		if ( it->second == pNote ) {
+			m_notes.erase( it );
 			break;
 		}
 	}
@@ -355,7 +377,7 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 		return false;
 	}
 
-	for ( const auto& [ _, ppNote ] : __notes ) {
+	for ( const auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr && ppNote->get_instrument() == pInstrument ) {
 			return true;
 		}
@@ -363,7 +385,7 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 	return false;
 }
 
-void Pattern::purge_instrument( std::shared_ptr<Instrument> pInstrument,
+void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument,
 								bool bRequiresLock )
 {
 	if ( pInstrument == nullptr ) {
@@ -372,16 +394,16 @@ void Pattern::purge_instrument( std::shared_ptr<Instrument> pInstrument,
 
 	bool locked = false;
 	std::list< Note* > slate;
-	for ( notes_it_t it=__notes.begin(); it!=__notes.end(); ) {
-		Note* note = it->second;
-		assert( note );
-		if ( note->get_instrument() == pInstrument ) {
+	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
+		auto pNote = it->second;
+		assert( pNote );
+		if ( pNote->get_instrument() == pInstrument ) {
 			if ( !locked && bRequiresLock ) {
 				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 				locked = true;
 			}
-			slate.push_back( note );
-			__notes.erase( it++ );
+			slate.push_back( pNote );
+			m_notes.erase( it++ );
 		} else {
 			++it;
 		}
@@ -402,11 +424,11 @@ void Pattern::clear( bool bRequiresLock )
 		pAudioEngine->lock( RIGHT_HERE );
 	}
 	std::list< Note* > slate;
-	for ( notes_it_t it=__notes.begin(); it!=__notes.end(); ) {
-		Note* note = it->second;
-		assert( note );
-		slate.push_back( note );
-		__notes.erase( it++ );
+	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
+		auto pNote = it->second;
+		assert( pNote );
+		slate.push_back( pNote );
+		m_notes.erase( it++ );
 	}
 	if ( bRequiresLock ) {
 		pAudioEngine->unlock();
@@ -418,51 +440,59 @@ void Pattern::clear( bool bRequiresLock )
 	}
 }
 
-void Pattern::set_to_old()
+void Pattern::setToOld()
 {
-	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
-		Note* note = it->second;
-		assert( note );
-		note->set_just_recorded( false );
+	for ( notes_cst_it_t it = m_notes.begin(); it != m_notes.end(); it++ ) {
+		auto pNote = it->second;
+		assert( pNote );
+		pNote->set_just_recorded( false );
 	}
 }
 
-void Pattern::flattened_virtual_patterns_compute()
+void Pattern::flattenedVirtualPatternsCompute()
 {
-	// __flattened_virtual_patterns must have been cleared before
-	if( __flattened_virtual_patterns.size() >= __virtual_patterns.size() ) return;
+	// m_flattenedVirtualPatterns must have been cleared before
+	if ( m_flattenedVirtualPatterns.size() >= m_virtualPatterns.size() ) {
+		return;
+	}
+
 	// for each virtual pattern
-	for( virtual_patterns_cst_it_t it0=__virtual_patterns.begin(); it0!=__virtual_patterns.end(); ++it0 ) {
-		__flattened_virtual_patterns.insert( *it0 );        // add it
-		( *it0 )->flattened_virtual_patterns_compute();     // build it's flattened virtual patterns set
+	for ( virtual_patterns_cst_it_t it0 = m_virtualPatterns.begin();
+		  it0 != m_virtualPatterns.end(); ++it0 ) {
+		// add it
+		m_flattenedVirtualPatterns.insert( *it0 );
+		// build it's flattened virtual patterns set
+		( *it0 )->flattenedVirtualPatternsCompute();
 		// for each pattern of it's flattened virtual pattern set
-		for( virtual_patterns_cst_it_t it1=( *it0 )->get_flattened_virtual_patterns()->begin(); it1!=( *it0 )->get_flattened_virtual_patterns()->end(); ++it1 ) {
+		for ( virtual_patterns_cst_it_t it1 =
+				  ( *it0 )->getFlattenedVirtualPatterns()->begin();
+			  it1 != ( *it0 )->getFlattenedVirtualPatterns()->end(); ++it1 ) {
 			// add the pattern
-			__flattened_virtual_patterns.insert( *it1 );
+			m_flattenedVirtualPatterns.insert( *it1 );
 		}
 	}
 }
 
 void Pattern::addFlattenedVirtualPatterns( PatternList* pPatternList ) {
-	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
-		 it!=__flattened_virtual_patterns.end(); ++it ) {
+	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
+		 it != m_flattenedVirtualPatterns.end(); ++it ) {
 		pPatternList->add( *it, true );
 	}
 }
 
 void Pattern::removeFlattenedVirtualPatterns( PatternList* pPatternList ) {
-	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
-		 it!=__flattened_virtual_patterns.end(); ++it ) {
+	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
+		 it != m_flattenedVirtualPatterns.end(); ++it ) {
 		pPatternList->del( *it );
 	}
 }
 
 int Pattern::longestVirtualPatternLength() const {
-	int nMax = __length;
-	for ( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
-		 it!=__flattened_virtual_patterns.end(); ++it ) {
-		if ( (*it)->__length > nMax ) {
-			nMax = (*it)->__length;
+	int nMax = m_nLength;
+	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
+		 it != m_flattenedVirtualPatterns.end(); ++it ) {
+		if ( (*it)->m_nLength > nMax ) {
+			nMax = (*it)->m_nLength;
 		}
 	}
 
@@ -470,7 +500,7 @@ int Pattern::longestVirtualPatternLength() const {
 }
 
 bool Pattern::isVirtual() const {
-	return __flattened_virtual_patterns.size() > 0;
+	return m_flattenedVirtualPatterns.size() > 0;
 }
 
 void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
@@ -479,7 +509,7 @@ void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
 		return;
 	}
 
-	for ( auto& [ _, ppNote ] : __notes ) {
+	for ( auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr ) {
 			ppNote->mapTo( pDrumkit );
 		}
@@ -489,7 +519,7 @@ void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
 std::set<DrumkitMap::Type> Pattern::getAllTypes() const {
 	std::set<DrumkitMap::Type> types;
 
-	for ( const auto& [ _, ppNote ] : __notes ) {
+	for ( const auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() ) {
 			if ( auto search = types.find( ppNote->getType() );
 				 search == types.end() ) {
@@ -509,7 +539,7 @@ std::vector<H2Core::Note*> Pattern::getAllNotesOfType(
 {
 	std::vector<H2Core::Note*> notes;
 
-	for ( const auto& [ _, ppNote ] : __notes ) {
+	for ( const auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr && ppNote->getType() == sType ) {
 			notes.push_back( ppNote );
 		}
@@ -519,11 +549,11 @@ std::vector<H2Core::Note*> Pattern::getAllNotesOfType(
 }
 
 std::set<std::shared_ptr<Pattern>>::iterator Pattern::begin() {
-	return __flattened_virtual_patterns.begin();
+	return m_flattenedVirtualPatterns.begin();
 }
 
 std::set<std::shared_ptr<Pattern>>::iterator Pattern::end() {
-	return __flattened_virtual_patterns.end();
+	return m_flattenedVirtualPatterns.end();
 }
 
 QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
@@ -531,7 +561,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )
-			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
 			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nVersion ) )
 			.append( QString( "%1%2m_sDrumkitName: %3\n" ).arg( sPrefix )
@@ -540,28 +570,28 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_sAuthor ) )
 			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_license.toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
-			.append( QString( "%1%2denominator: %3\n" ).arg( sPrefix ).arg( s ).arg( __denominator ) )
-			.append( QString( "%1%2category: %3\n" ).arg( sPrefix ).arg( s ).arg( __category ) )
-			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
-			.append( QString( "%1%2Notes:\n" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "%1%2m_nLength: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLength ) )
+			.append( QString( "%1%2m_nDenominator: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nDenominator ) )
+			.append( QString( "%1%2m_sCategory: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCategory ) )
+			.append( QString( "%1%2m_sInfo: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInfo ) )
+			.append( QString( "%1%2m_notes:\n" ).arg( sPrefix ).arg( s ) );
 				 
-		for ( const auto& [ _, ppNote ] : __notes ) {
+		for ( const auto& [ _, ppNote ] : m_notes ) {
 			if ( ppNote != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ppNote->toQString(
 					sPrefix + s + s, bShort ) ) );
 			}
 		}
 
-		sOutput.append( QString( "%1%2Virtual_patterns:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto ii : __virtual_patterns ) {
+		sOutput.append( QString( "%1%2m_virtualPatterns:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto ii : m_virtualPatterns ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
 
-		sOutput.append( QString( "%1%2Flattened_virtual_patterns:\n" ).arg( sPrefix ).arg( s ) );
-		for ( auto ii : __flattened_virtual_patterns ) {
+		sOutput.append( QString( "%1%2m_flattenedVirtualPatterns:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto ii : m_flattenedVirtualPatterns ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			}
@@ -570,40 +600,40 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 	else {
 
 		sOutput = QString( "[Pattern]" )
-			.append( QString( " name: %1" ).arg( __name ) )
+			.append( QString( " m_sName: %1" ).arg( m_sName ) )
 			.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 			.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName ) )
 			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
 			.append( QString( ", m_license: %1" )
 					 .arg( m_license.toQString( sPrefix, bShort ) ) )
-			.append( QString( ", length: %1" ).arg( __length ) )
-			.append( QString( ", denominator: %1" ).arg( __denominator ) )
-			.append( QString( ", category: %1" ).arg( __category ) )
-			.append( QString( ", info: %1" ).arg( __info ) )
-			.append( QString( ", notes: [" ) );
-		for ( const auto& [ _, ppNote ] : __notes ) {
+			.append( QString( ", m_nLength: %1" ).arg( m_nLength ) )
+			.append( QString( ", m_nDenominator: %1" ).arg( m_nDenominator ) )
+			.append( QString( ", m_sCategory: %1" ).arg( m_sCategory ) )
+			.append( QString( ", m_sInfo: %1" ).arg( m_sInfo ) )
+			.append( QString( ", m_notes: [" ) );
+		for ( const auto& [ _, ppNote ] : m_notes ) {
 			if ( ppNote != nullptr ) {
 				sOutput.append( QString( "[%1], " ).arg( ppNote->prettyName() ) );
 			}
 		}
 		sOutput.append( "]" );
-		if ( __virtual_patterns.size() != 0 ) {
-			sOutput.append( ", Virtual_patterns: {" );
+		if ( m_virtualPatterns.size() != 0 ) {
+			sOutput.append( ", m_virtualPatterns: {" );
 		}
-		for ( auto ii : __virtual_patterns ) {
+		for ( auto ii : m_virtualPatterns ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		if ( __flattened_virtual_patterns.size() != 0 ) {
-			sOutput.append( "}, Flattened_virtual_patterns: {" );
+		if ( m_flattenedVirtualPatterns.size() != 0 ) {
+			sOutput.append( "}, m_flattenedVirtualPatterns: {" );
 		}
-		for ( auto ii : __flattened_virtual_patterns ) {
+		for ( auto ii : m_flattenedVirtualPatterns ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		if ( __flattened_virtual_patterns.size() != 0 ) {
+		if ( m_flattenedVirtualPatterns.size() != 0 ) {
 			sOutput.append( "}" );
 		}
 	}	

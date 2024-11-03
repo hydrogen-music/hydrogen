@@ -389,7 +389,7 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 			pNote->set_lead_lag(fLeadLag);
 			pNote->set_note_off( noteoff );
 			pNote->set_probability( fProbability );
-			pPattern->insert_note( pNote );
+			pPattern->insertNote( pNote );
 
 			note_node = note_node.nextSiblingElement( "note" );
 		}
@@ -422,7 +422,7 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 										noteNode.read_float( "pitch", 0.0, false, false ) );
 				pNote->set_lead_lag( noteNode.read_float( "leadlag", 0.0, false, false ) );
 
-				pPattern->insert_note( pNote );
+				pPattern->insertNote( pNote );
 
 				noteNode = noteNode.nextSiblingElement( "note" );
 			}
@@ -497,7 +497,7 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
 		std::shared_ptr<Pattern> pPattern = nullptr;
 		for ( const auto& ppPat : *pPatternList ) {
 			if ( ppPat != nullptr ) {
-				if ( ppPat->get_name() == sPatId ) {
+				if ( ppPat->getName() == sPatId ) {
 					pPattern = ppPat;
 					break;
 				}

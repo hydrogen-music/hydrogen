@@ -132,13 +132,13 @@ void H2Core::LilyPond::addPatternList( const PatternList &list, notes_t &to ) {
 }
 
 void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
-	notes.reserve( pattern.get_length() );
-	for ( unsigned nNote = 0; nNote < pattern.get_length(); nNote++ ) {
+	notes.reserve( pattern.getLength() );
+	for ( unsigned nNote = 0; nNote < pattern.getLength(); nNote++ ) {
 		if ( nNote >= notes.size() ) {
 			notes.push_back( std::vector<std::pair<int, float> >() );
 		}
 
-		const Pattern::notes_t *pPatternNotes = pattern.get_notes();
+		const Pattern::notes_t *pPatternNotes = pattern.getNotes();
 		if ( !pPatternNotes ) {
 			continue;
 		}

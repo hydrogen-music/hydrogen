@@ -63,7 +63,7 @@ namespace H2Core
 			return nullptr;
 		}
 
-		if ( !pPattern->save_file( drumkitName, fileInfo.absoluteFilePath(), true ) ) {
+		if ( !pPattern->save( drumkitName, fileInfo.absoluteFilePath(), true ) ) {
 			return nullptr;
 		}
 

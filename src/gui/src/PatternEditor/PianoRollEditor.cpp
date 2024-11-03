@@ -344,7 +344,7 @@ void PianoRollEditor::drawPattern()
 	// for each note...
 	for ( const auto& ppPattern : getPatternsToShow() ) {
 		bool bIsForeground = ( ppPattern == pPattern );
-		const Pattern::notes_t* notes = ppPattern->get_notes();
+		const Pattern::notes_t* notes = ppPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, ppPattern ) {
 			Note *note = it->second;
 			assert( note );
@@ -388,8 +388,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		return;
 	}
 
-	Note* pOldNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
-										  notekey, octave );
+	Note* pOldNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument,
+										 notekey, octave );
 
 	int nLength = -1;
 	float fVelocity = 0.8f;
@@ -461,7 +461,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 
-	if ( nColumn >= (int)pPattern->get_length() ) {
+	if ( nColumn >= (int)pPattern->getLength() ) {
 		update( 0, 0, width(), height() );
 		return;
 	}
@@ -488,7 +488,9 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		}
 
 		if ( ev->modifiers() & Qt::ShiftModifier ) {
-			H2Core::Note *pNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
+			H2Core::Note *pNote = pPattern->findNote(
+				nColumn, nRealColumn, pSelectedInstrument, pressednotekey,
+				pressedoctave );
 			if ( pNote != nullptr ) {
 				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction(
 					nColumn,
@@ -558,7 +560,7 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 
 		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 		if ( ( pPattern != nullptr &&
-			   nColumn >= (int)pPattern->get_length() ) ||
+			   nColumn >= (int)pPattern->getLength() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
 			return;
 		}
@@ -608,10 +610,9 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 					m_fGridWidth));
 		}
 
-		m_pDraggedNote = pPattern->find_note( nColumn, nRealColumn,
-												pSelectedInstrument,
-												pressedNoteKey,
-												pressedOctave, false );
+		m_pDraggedNote = pPattern->findNote(
+			nColumn, nRealColumn, pSelectedInstrument, pressedNoteKey,
+			pressedOctave, false );
 
 		// Store note-specific properties.
 		storeNoteProperties( m_pDraggedNote );
@@ -668,10 +669,11 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 
 	if ( isDelete ) {
-		Note* note = pPattern->find_note( nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
+		Note* note = pPattern->findNote(
+			nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
 		if ( note ) {
 			// the note exists...remove it!
-			pPattern->remove_note( note );
+			pPattern->removeNote( note );
 			delete note;
 		} else {
 			ERRORLOG( "Could not find note to delete" );
@@ -696,7 +698,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		}
 		pNote->set_key_octave( pressednotekey, pressedoctave );
 		pNote->set_probability( fProbability );
-		pPattern->insert_note( pNote );
+		pPattern->insertNote( pNote );
 		if ( m_bSelectNewNotes ) {
 			m_selection.addToSelection( pNote );
 		}
@@ -733,7 +735,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 	auto pPattern = pPatternList->get( nPattern );
 
-	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->getNotes(), it, nColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pNote->get_instrument()
 			 && pCandidateNote->get_octave() == octave
@@ -756,9 +758,9 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	}
 
 	// Remove and insert at new position
-	pPattern->remove_note( pFoundNote );
+	pPattern->removeNote( pFoundNote );
 	pFoundNote->set_position( nNewColumn );
-	pPattern->insert_note( pFoundNote );
+	pPattern->insertNote( pFoundNote );
 	pFoundNote->set_key_octave( newKey, newOctave );
 
 	pHydrogen->setIsModified( true );
@@ -926,7 +928,7 @@ void PianoRollEditor::paste()
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
 
-			if ( nPos >= 0 && nPos < pPattern->get_length() && nPitch >= 12 * OCTAVE_MIN && nPitch < 12 * (OCTAVE_MAX+1) ) {
+			if ( nPos >= 0 && nPos < pPattern->getLength() && nPitch >= 12 * OCTAVE_MIN && nPitch < 12 * (OCTAVE_MAX+1) ) {
 				int nLine = pitchToLine( nPitch );
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction(
 								 nPos,
@@ -979,7 +981,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
-		m_pPatternEditorPanel->setCursorPosition( pPattern->get_length() );
+		m_pPatternEditorPanel->setCursorPosition( pPattern->getLength() );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
@@ -1158,7 +1160,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 		Note::Octave newOctave = Note::pitchToOctave( nNewPitch );
 		Note::Key newKey = Note::pitchToKey( nNewPitch );
 		bool bNoteInRange = ( newOctave >= OCTAVE_MIN && newOctave <= OCTAVE_MAX && nNewPosition >= 0
-							  && nNewPosition < pPattern->get_length() );
+							  && nNewPosition < pPattern->getLength() );
 
 		if ( m_bCopyNotMove ) {
 			if ( bNoteInRange ) {
@@ -1226,7 +1228,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	int x_min = (rNormalized.left() - w - PatternEditor::nMargin) / m_fGridWidth;
 	int x_max = (rNormalized.right() + w - PatternEditor::nMargin) / m_fGridWidth;
 
-	const Pattern::notes_t* pNotes = pPattern->get_notes();
+	const Pattern::notes_t* pNotes = pPattern->getNotes();
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		Note *pNote = it->second;

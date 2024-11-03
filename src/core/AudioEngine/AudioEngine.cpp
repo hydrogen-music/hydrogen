@@ -2646,7 +2646,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			for ( auto nPat = 0; nPat < pPlayingPatterns->size(); ++nPat ) {
 				auto pPattern = pPlayingPatterns->get( nPat );
 				assert( pPattern != nullptr );
-				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
+				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->getNotes();
 
 				// Loop over all notes at tick nPatternTickPosition
 				// (associated tick is determined by Note::__position
@@ -2706,7 +2706,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 							pCopiedNote->set_length(
 								std::min(
 									static_cast<long>(pCopiedNote->get_length()),
-									static_cast<long>(pPattern->get_length()) -
+									static_cast<long>(pPattern->getLength()) -
 									m_pQueuingPosition->getPatternTickPosition() ) );
 						}
 

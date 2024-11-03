@@ -83,9 +83,9 @@ class Pattern : public H2Core::Object<Pattern>
 
 		/**
 		 * load a pattern from a file
-		 * \param pattern_path the path to the file to load the pattern from
+		 * \param sPatternPath the path to the file to load the pattern from
 		 */
-		static std::shared_ptr<Pattern> load_file( const QString& pattern_path );
+		static std::shared_ptr<Pattern> load( const QString& sPatternPath );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
@@ -95,20 +95,26 @@ class Pattern : public H2Core::Object<Pattern>
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static std::shared_ptr<Pattern> load_from( const XMLNode& node,
+	static std::shared_ptr<Pattern> loadFrom( const XMLNode& node,
 											   const QString& sDrumkitName,
 											   bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
-		 * \param drumkit_name the name of the drumkit it is supposed to play with
-		 * \param author the name of the author
-		 * \param license the license that applies to it
-		 * \param pattern_path the path to save the pattern into
-		 * \param overwrite allows to write over existing pattern file
+		 * \param sDrumkitName the name of the drumkit it is supposed to play with
+		 * \param sPatternPath the path to save the pattern into
+		 * \param bOverwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& drumkit_name, const QString& pattern_path,
-						bool overwrite=false ) const;
+		bool save( const QString& sDrumkitName, const QString& sPatternPath,
+						bool bOverwrite=false ) const;
+
+		/**
+		 * save the pattern within the given XMLNode
+		 * \param node the XMLNode to feed
+		 * \param pInstrumentOnly export only the notes of that instrument if given
+		 */
+		void saveTo( XMLNode& node,
+					 const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
 
 		void setVersion( int nVersion );
 		int getVersion() const;
@@ -119,111 +125,116 @@ class Pattern : public H2Core::Object<Pattern>
 		void setLicense( const License& sLicense );
 		const License& getLicense() const;
 		///< set the name of the pattern
-		void set_name( const QString& name );
+		void setName( const QString& sName );
 		///< get the name of the pattern
-		const QString& get_name() const;
+		const QString& getName() const;
 		///< set the category of the pattern
-		void set_category( const QString& category );
-		///< set the info of the pattern
-		void set_info( const QString& info );
-		///< get the info of the pattern
-		const QString& get_info() const;
+		void setCategory( const QString& sCategory );
 		///< get the category of the pattern
-		const QString& get_category() const;
+		const QString& getCategory() const;
+		///< set the info of the pattern
+		void setInfo( const QString& sInfo );
+		///< get the info of the pattern
+		const QString& getInfo() const;
 		///< set the length of the pattern
-		void set_length( int length );
+		void setLength( int nLength );
 		///< get the length of the pattern
-		int get_length() const;
+		int getLength() const;
 		///< set the denominator of the pattern
-		void set_denominator( int denominator );
+		void setDenominator( int nDenominator );
 		///< get the denominator of the pattern
-		int get_denominator() const;
+		int getDenominator() const;
 		///< get the note multimap
-		const notes_t* get_notes() const;
+		const notes_t* getNotes() const;
 		///< get the virtual pattern set
-		const virtual_patterns_t* get_virtual_patterns() const;
+		const virtual_patterns_t* getVirtualPatterns() const;
 		///< get the flattened virtual pattern set
-		const virtual_patterns_t* get_flattened_virtual_patterns() const;
+		const virtual_patterns_t* getFlattenedVirtualPatterns() const;
 
 		/**
-		 * insert a new note within __notes
-		 * \param note the note to be inserted
+		 * insert a new note within m_notes
+		 * \param pNote the note to be inserted
 		 */
-		void insert_note( Note* note );
+		void insertNote( Note* pNote );
 		/**
-		 * search for a note at a given index within __notes which correspond to the given arguments
-		 * \param idx_a the first __notes index to search in
-		 * \param idx_b the second __notes index to search in, will be omitted if is -1
-		 * \param instrument the instrument the note should be playing
-		 * \param strict if set to false, will search for a note around the given idx
+		 * search for a note at a given index within m_notes which correspond to the given arguments
+		 * \param nIdx_a the first m_notes index to search in
+		 * \param nIdx_b the second m_notes index to search in, will be omitted if is -1
+		 * \param pInstrument the instrument the note should be playing
+		 * \param bStrict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, bool strict=true ) const;
+		Note* findNote( int nIdx_a, int nIdx_b,
+						 std::shared_ptr<Instrument> pInstrument,
+						 bool bStrict = true ) const;
 		/**
-		 * search for a note at a given index within __notes which correspond to the given arguments
-		 * \param idx_a the first __notes index to search in
-		 * \param idx_b the second __notes index to search in, will be omitted if is -1
-		 * \param instrument the instrument the note should be playing
+		 * search for a note at a given index within m_notes which correspond to the given arguments
+		 * \param nIdx_a the first m_notes index to search in
+		 * \param nIdx_b the second m_notes index to search in, will be omitted if is -1
+		 * \param pInstrument the instrument the note should be playing
 		 * \param key the key that should be set to the note
 		 * \param octave the octave that should be set to the note
-		 * \param strict if set to false, will search for a note around the given idx
+		 * \param bStrict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, Note::Key key, Note::Octave octave, bool strict=true) const;
+		Note* findNote( int nIdx_a, int nIdx_b,
+						std::shared_ptr<Instrument> pInstrument, Note::Key key,
+						Note::Octave octave, bool bStrict = true ) const;
 		/**
-		 * removes a given note from __notes, it's not deleted
-		 * \param note the note to be removed
+		 * removes a given note from m_notes, it's not deleted
+		 * \param pNote the note to be removed
 		 */
-		void remove_note( Note* note );
+		void removeNote( Note* pNote );
 
 		/**
 		 * check if this pattern contains a note referencing the given instrument
-		 * \param instr the instrument
+		 * \param pInstr the instrument
 		*/
-		bool references( std::shared_ptr<Instrument> instr ) const;
+		bool references( std::shared_ptr<Instrument> pInstr ) const;
 		/**
 		 * delete the notes referencing the given instrument
 		 * The function is thread safe (it locks the audio data while deleting notes)
-		 * \param instr the instrument
+		 * \param pInstr the instrument
 		*/
-	void purge_instrument( std::shared_ptr<Instrument> instr, bool bRequiredLock = true );
+		void purgeInstrument( std::shared_ptr<Instrument> pInstr,
+							  bool bRequiredLock = true );
 		/** Erase all notes. */
 		void clear( bool bRequiredLock = true );
 		/**
 		 * mark all notes as old
 		 */
-		void set_to_old();
+		void setToOld();
 
-		///< return true if __virtual_patterns is empty
-		bool virtual_patterns_empty() const;
-		///< clear __virtual_patterns
-		void virtual_patterns_clear();
+		///< return true if m_virtualPatterns is empty
+		bool virtualPatternsEmpty() const;
+		///< clear m_virtualPatterns
+		void virtualPatternsClear();
 		/**
-		 * add a pattern to __virtual_patterns
+		 * add a pattern to m_virtualPatterns
 		 * \param pattern the pattern to add
 		 */
-		void virtual_patterns_add( std::shared_ptr<Pattern> pPattern );
+		void virtualPatternsAdd( std::shared_ptr<Pattern> pPattern );
 		/**
 		 * remove a pattern from virtual_pattern set, flattened virtual patterns have to be rebuilt
 		 *                   */
-		void virtual_patterns_del( std::shared_ptr<Pattern> pPattern );
+		void virtualPatternsDel( std::shared_ptr<Pattern> pPattern );
 		///< clear flattened_virtual_patterns
-		void flattened_virtual_patterns_clear();
+		void flattenedVirtualPatternsClear();
 		/**
 		 * compute virtual_pattern_transitive_closure_set based on virtual_pattern_transitive_closure_set
 		 * virtual_pattern_transitive_closure_set must have been cleared before which is the case is called
 		 * from PatternList::compute_flattened_virtual_patterns
 		 */
-		void flattened_virtual_patterns_compute();
+		void flattenedVirtualPatternsCompute();
 	/**
-	 * Add content of __flattened_virtual_patterns into @a
+	 * Add content of m_flattenedVirtualPatterns into @a
 	 * pPatternList.
 	 *
 	 * Companion function of removeFlattenedVirtualPatterns();
 	 */
 	void addFlattenedVirtualPatterns( PatternList* pPatternList );
 	/**
-	 * Add content of __flattened_virtual_patterns into @a
+	 * Add content of m_flattenedVirtualPatterns into @a
 	 * pPatternList.
 	 *
 	 * Companion function of addFlattenedVirtualPatterns();
@@ -235,14 +246,6 @@ class Pattern : public H2Core::Object<Pattern>
 	 * Whether the pattern holds at least one virtual pattern.
 	 */
 	bool isVirtual() const;
-
-		/**
-		 * save the pattern within the given XMLNode
-		 * \param node the XMLNode to feed
-		 * \param instrumentOnly export only the notes of that instrument if given
-		 */
-		void save_to( XMLNode& node,
-					  const std::shared_ptr<Instrument> instrumentOnly = nullptr ) const;
 
 
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
@@ -276,19 +279,26 @@ class Pattern : public H2Core::Object<Pattern>
 	 * pattern.
 	 *
 	 * Notes are allow to be located at positions larger than
-	 * #__length. This can happen when programming a pattern and
+	 * #m_nLength. This can happen when programming a pattern and
 	 * decreasing its length later on. Those notes will be stored in
 	 * the associated .h2pattern and .h2song but won't be played back
 	 * or exported into a MIDI file. 
 	 */
-		int __length;
-		int __denominator;                                           ///< the meter denominator of the pattern used in meter (eg 4/4)
-		QString __name;                                         ///< the name of thepattern
-		QString __category;                                     ///< the category of the pattern
-		QString __info;											///< a description of the pattern
-		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
-		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
-		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
+		int m_nLength;
+		/** meter denominator of the pattern used in meter (eg 4/4) */
+		int m_nDenominator;
+		/** name of the pattern */
+		QString m_sName;
+		/** category of the pattern */
+		QString m_sCategory;
+		/** a description of the pattern */
+		QString m_sInfo;
+		/** multimap (hash with possible multiple values for one key) of note */
+		notes_t m_notes;
+		/** list of patterns directly referenced by this one */
+		virtual_patterns_t m_virtualPatterns;
+		/** complete list of virtual patterns */
+		virtual_patterns_t m_flattenedVirtualPatterns;
 	/**
 	 * Loads the pattern stored in @a sPatternPath into @a pDoc and
 	 * takes care of all the error handling.
@@ -321,22 +331,22 @@ class Pattern : public H2Core::Object<Pattern>
 /** Iterate over all accessible notes between position 0 and length of
  * @a _pattern in an immutable way. */
 #define FOREACH_NOTE_CST_IT_BEGIN_LENGTH(_notes,_it,_pattern)			\
-	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end() && (_it)->first < (_pattern)->get_length(); (_it)++ )
+	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end() && (_it)->first < (_pattern)->getLength(); (_it)++ )
 
 /** Iterate over all notes in column @a _bound in an immutable way if
  * it is contained in @a _pattern. */
 #define FOREACH_NOTE_CST_IT_BOUND_LENGTH(_notes,_it,_bound,_pattern) \
-	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->get_length(); (_it)++ )
+	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->getLength(); (_it)++ )
 
 /** Iterate over all accessible notes between position 0 and length of
  * @a _pattern in a mutable way. */
 #define FOREACH_NOTE_IT_BEGIN_LENGTH(_notes,_it,_pattern) \
-	for( Pattern::notes_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end() && (_it)->first < (_pattern)->get_length(); (_it)++ )
+	for( Pattern::notes_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end() && (_it)->first < (_pattern)->getLength(); (_it)++ )
 
 /** Iterate over all notes in column @a _bound in a mutable way if
  * it is contained in @a _pattern. */
 #define FOREACH_NOTE_IT_BOUND_LENGTH(_notes,_it,_bound,_pattern) \
-	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->get_length(); (_it)++ )
+	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound) && (_it)->first < (_pattern)->getLength(); (_it)++ )
 
 // DEFINITIONS
 inline void Pattern::setVersion( int nVersion ) {
@@ -363,100 +373,100 @@ inline void Pattern::setLicense( const License& license ) {
 inline const License& Pattern::getLicense() const {
 	return m_license;
 }
-inline void Pattern::set_name( const QString& name )
+inline void Pattern::setName( const QString& name )
 {
-	__name = name;
+	m_sName = name;
 }
 
-inline const QString& Pattern::get_name() const
+inline const QString& Pattern::getName() const
 {
-	return __name;
+	return m_sName;
 }
 
-inline void Pattern::set_info( const QString& info )
+inline void Pattern::setInfo( const QString& info )
 {
-	__info = info;
+	m_sInfo = info;
 }
 
-inline const QString& Pattern::get_info() const
+inline const QString& Pattern::getInfo() const
 {
-	return __info;
+	return m_sInfo;
 }
 
-inline void Pattern::set_category( const QString& category )
+inline void Pattern::setCategory( const QString& category )
 {
-	__category = category;
+	m_sCategory = category;
 }
 
-inline const QString& Pattern::get_category() const
+inline const QString& Pattern::getCategory() const
 {
-	return __category;
+	return m_sCategory;
 }
 
-inline void Pattern::set_length( int length )
+inline void Pattern::setLength( int length )
 {
-	__length = length;
+	m_nLength = length;
 }
 
-inline int Pattern::get_length() const
+inline int Pattern::getLength() const
 {
-	return __length;
+	return m_nLength;
 }
 
-inline void Pattern::set_denominator( int denominator )
+inline void Pattern::setDenominator( int denominator )
 {
-	__denominator = denominator;
+	m_nDenominator = denominator;
 }
 
-inline int Pattern::get_denominator() const
+inline int Pattern::getDenominator() const
 {
-	return __denominator;
+	return m_nDenominator;
 }
 
-inline const Pattern::notes_t* Pattern::get_notes() const
+inline const Pattern::notes_t* Pattern::getNotes() const
 {
-	return &__notes;
+	return &m_notes;
 }
 
-inline const Pattern::virtual_patterns_t* Pattern::get_virtual_patterns() const
+inline const Pattern::virtual_patterns_t* Pattern::getVirtualPatterns() const
 {
-	return &__virtual_patterns;
+	return &m_virtualPatterns;
 }
 
-inline const Pattern::virtual_patterns_t* Pattern::get_flattened_virtual_patterns() const
+inline const Pattern::virtual_patterns_t* Pattern::getFlattenedVirtualPatterns() const
 {
-	return &__flattened_virtual_patterns;
+	return &m_flattenedVirtualPatterns;
 }
 
-inline void Pattern::insert_note( Note* note )
+inline void Pattern::insertNote( Note* note )
 {
-	__notes.insert( std::make_pair( note->get_position(), note ) );
+	m_notes.insert( std::make_pair( note->get_position(), note ) );
 }
 
-inline bool Pattern::virtual_patterns_empty() const
+inline bool Pattern::virtualPatternsEmpty() const
 {
-	return __virtual_patterns.empty();
+	return m_virtualPatterns.empty();
 }
 
-inline void Pattern::virtual_patterns_clear()
+inline void Pattern::virtualPatternsClear()
 {
-	__virtual_patterns.clear();
+	m_virtualPatterns.clear();
 }
 
-inline void Pattern::virtual_patterns_add( std::shared_ptr<Pattern> pPattern )
+inline void Pattern::virtualPatternsAdd( std::shared_ptr<Pattern> pPattern )
 {
-	__virtual_patterns.insert( pPattern );
+	m_virtualPatterns.insert( pPattern );
 }
 
-inline void Pattern::virtual_patterns_del( std::shared_ptr<Pattern> pPattern )
+inline void Pattern::virtualPatternsDel( std::shared_ptr<Pattern> pPattern )
 {
-	virtual_patterns_cst_it_t it = __virtual_patterns.find( pPattern );
-	if ( it!=__virtual_patterns.end() ) __virtual_patterns.erase( it );
+	virtual_patterns_cst_it_t it = m_virtualPatterns.find( pPattern );
+	if ( it!=m_virtualPatterns.end() ) m_virtualPatterns.erase( it );
 }
 
-inline void Pattern::flattened_virtual_patterns_clear()
+inline void Pattern::flattenedVirtualPatternsClear()
 {
-	__flattened_virtual_patterns.clear();
+	m_flattenedVirtualPatterns.clear();
 }
 
 };

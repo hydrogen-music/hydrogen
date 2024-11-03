@@ -1017,7 +1017,7 @@ void PatternEditorPanel::updatePatternInfo() {
 void PatternEditorPanel::updatePatternName() {
 	if ( m_pPattern != nullptr ) {
 		// update pattern name text
-		QString sCurrentPatternName = m_pPattern->get_name();
+		QString sCurrentPatternName = m_pPattern->getName();
 		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
@@ -1086,7 +1086,7 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 
 	m_bArmPatternSizeSpinBoxes = false;
 
-	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
+	double fNewDenominator = static_cast<double>( m_pPattern->getDenominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
 		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
@@ -1096,7 +1096,7 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 		m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
 	}
 
-	double fNewNumerator = static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES );
+	double fNewNumerator = static_cast<double>( m_pPattern->getLength() * m_pPattern->getDenominator() ) / static_cast<double>( MAX_NOTES );
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
 	}
@@ -1137,7 +1137,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	int nNewLength =
 		std::round( static_cast<double>( MAX_NOTES ) / fNewDenominator * fNewNumerator );
 
-	if ( nNewLength == m_pPattern->get_length() ) {
+	if ( nNewLength == m_pPattern->getLength() ) {
 		return;
 	}
 
@@ -1147,9 +1147,9 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	pUndoStack->push( new SE_patternSizeChangedAction(
 						  nNewLength,
-						  m_pPattern->get_length(),
+						  m_pPattern->getLength(),
 						  fNewDenominator,
-						  m_pPattern->get_denominator(),
+						  m_pPattern->getDenominator(),
 						  pHydrogen->getSelectedPatternNumber() ) );
 	pUndoStack->endMacro();
 }
@@ -1174,8 +1174,8 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 
 	pAudioEngine->lock( RIGHT_HERE );
 	// set length and denominator				
-	pPattern->set_length( nLength );
-	pPattern->set_denominator( static_cast<int>( fDenominator ) );
+	pPattern->setLength( nLength );
+	pPattern->setDenominator( static_cast<int>( fDenominator ) );
 	pHydrogen->updateSongSize();
 	pAudioEngine->unlock();
 	
@@ -1284,8 +1284,8 @@ void PatternEditorPanel::setCursorPosition(int nCursorPosition)
 {
 	if ( nCursorPosition < 0 ) {
 		m_nCursorPosition = 0;
-	} else if ( m_pPattern != nullptr && nCursorPosition >= m_pPattern->get_length() ) {
-		m_nCursorPosition = m_pPattern->get_length() - m_nCursorIncrement;
+	} else if ( m_pPattern != nullptr && nCursorPosition >= m_pPattern->getLength() ) {
+		m_nCursorPosition = m_pPattern->getLength() - m_nCursorIncrement;
 	} else {
 		m_nCursorPosition = nCursorPosition;
 	}
@@ -1308,7 +1308,7 @@ int PatternEditorPanel::moveCursorRight( int n )
 	}
 	
 	m_nCursorPosition = std::min( m_nCursorPosition + m_nCursorIncrement * n,
-								  m_pPattern->get_length() - m_nCursorIncrement );
+								  m_pPattern->getLength() - m_nCursorIncrement );
 
 	ensureCursorVisible();
 
@@ -1462,7 +1462,7 @@ void PatternEditorPanel::updateDB() {
 	// of the instruments above.
 	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
 	std::set<DrumkitMap::Type> additionalTypes;
-	for ( const auto& [ _, ppNote ] : *m_pPattern->get_notes() ) {
+	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
 		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
 			 kitTypes.find( ppNote->getType() ) == kitTypes.end() ) {
 			// Note is not associated with current kit.

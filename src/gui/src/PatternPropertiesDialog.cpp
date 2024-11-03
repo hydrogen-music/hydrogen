@@ -85,11 +85,11 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 		if ( pattern->getLicense().getType() == License::Unspecified ) {
 			licenseStringTxt->hide();
 		}
-		patternDescTxt->setText( pattern->get_info() );
-		patternNameTxt->setText( pattern->get_name() );
-		defaultNameCheck( pattern->get_name(), savepattern );
+		patternDescTxt->setText( pattern->getInfo() );
+		patternNameTxt->setText( pattern->getName() );
+		defaultNameCheck( pattern->getName(), savepattern );
 
-		sCategory = pattern->get_category();
+		sCategory = pattern->getCategory();
 	}
 
 	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
@@ -191,21 +191,21 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		if ( pattern->getVersion() != nVersion ) {
 			pattern->setVersion( nVersion );
 		}
-		pattern->set_name( sPattName );
+		pattern->setName( sPattName );
 		pattern->setAuthor( sAuthor );
-		pattern->set_info( sPattInfo );
+		pattern->setInfo( sPattInfo );
 		pattern->setLicense( license );
-		pattern->set_category( sPattCategory );
+		pattern->setCategory( sPattCategory );
 	}
 	else if ( pattern->getVersion() != nVersion ||
-			  pattern->get_name() != sPattName  ||
+			  pattern->getName() != sPattName  ||
 			  pattern->getAuthor() != sAuthor   ||
-			  pattern->get_info() != sPattInfo  ||
+			  pattern->getInfo() != sPattInfo  ||
 			  pattern->getLicense() != license  ||
-			  pattern->get_category() != sPattCategory ) {
+			  pattern->getCategory() != sPattCategory ) {
 		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(
-			pattern->getVersion(), pattern->get_name(), pattern->getAuthor(),
-			pattern->get_info(), pattern->getLicense(), pattern->get_category(),
+			pattern->getVersion(), pattern->getName(), pattern->getAuthor(),
+			pattern->getInfo(), pattern->getLicense(), pattern->getCategory(),
 			nVersion, sPattName, sAuthor, sPattInfo, license, sPattCategory,
 			__nselectedPattern );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );

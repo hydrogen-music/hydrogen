@@ -1043,7 +1043,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	FileDialog fd(this);
 	fd.setWindowTitle( title );
 	fd.setDirectory( sPath );
-	fd.selectFile( pPattern->get_name() );
+	fd.selectFile( pPattern->getName() );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
@@ -1058,11 +1058,11 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
 	QString filePath = fileInfo.absoluteFilePath();
 
-	QString originalName = pPattern->get_name();
-	pPattern->set_name( fileInfo.baseName() );
+	QString originalName = pPattern->getName();
+	pPattern->setName( fileInfo.baseName() );
 	QString path = Files::savePatternPath( filePath, pPattern, pSong,
 										   pDrumkit->getName() );
-	pPattern->set_name( originalName );
+	pPattern->setName( originalName );
 
 	if ( path.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
@@ -1118,7 +1118,7 @@ void MainForm::action_file_openPattern()
 
 		for ( const auto& ssFilename : fd.selectedFiles() ) {
 
-			auto pNewPattern = Pattern::load_file( ssFilename );
+			auto pNewPattern = Pattern::load( ssFilename );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {

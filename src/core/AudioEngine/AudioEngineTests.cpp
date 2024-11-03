@@ -1000,11 +1000,11 @@ void AudioEngineTests::testNoteEnqueuing() {
 	int nLoops = 5;
 	notesInSong.clear();
 	for ( int ii = 0; ii < nLoops; ++ii ) {
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( pPattern->get_notes(), it, pPattern ) {
+		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( pPattern->getNotes(), it, pPattern ) {
 			if ( it->second != nullptr ) {
 				auto note = std::make_shared<Note>( it->second );
 				note->set_position( note->get_position() +
-									ii * pPattern->get_length() );
+									ii * pPattern->getLength() );
 				notesInSong.push_back( note );
 			}
 		}
@@ -1014,14 +1014,14 @@ void AudioEngineTests::testNoteEnqueuing() {
 	notesInSamplerQueue.clear();
 
 	nMaxCycles =
-		static_cast<int>(std::max( static_cast<float>(pPattern->get_length()) *
+		static_cast<int>(std::max( static_cast<float>(pPattern->getLength()) *
 								   static_cast<float>(nLoops) *
 								   pTransportPos->getTickSize() * 4 /
 								   static_cast<float>(pPref->m_nBufferSize),
 								   static_cast<float>(MAX_NOTES) *
 								   static_cast<float>(nLoops) ));
 	nn = 0;
-	while ( pQueuingPos->getDoubleTick() < pPattern->get_length() * nLoops ) {
+	while ( pQueuingPos->getDoubleTick() < pPattern->getLength() * nLoops ) {
 
 		nFrames = frameDist( randomEngine );
 		pAE->updateNoteQueue( nFrames );
@@ -1035,7 +1035,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 		for ( int ii = 0; ii < nNoteNumber; ++ii ) {
 			auto pNote = queue->at( nNoteNumber - 1 - ii );
 			if ( pNote != nullptr &&
-				 pNote->get_position() >= pPattern->get_length() * nLoops ) {
+				 pNote->get_position() >= pPattern->getLength() * nLoops ) {
 				queue->pop_back();
 			} else {
 				break;
@@ -1257,7 +1257,7 @@ void AudioEngineTests::testHumanization() {
 
 		QString sPlayingPatterns;
 		for ( const auto& pattern : *pTransportPos->getPlayingPatterns() ) {
-			sPlayingPatterns += " " + pattern->get_name();
+			sPlayingPatterns += " " + pattern->getName();
 		}
 		
 		int nn = 0;

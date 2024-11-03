@@ -271,8 +271,8 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 			// if there is a stop-note to the right of this note, only draw-
 			// its length till there.
 			int nLength = pNote->get_length();
-			auto notes = pPattern->get_notes();
-			for ( const auto& [ _, ppNote ] : *pPattern->get_notes() ) {
+			auto notes = pPattern->getNotes();
+			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
 				if ( ppNote != nullptr &&
 					 // noteOff note
 					 ppNote->get_note_off() &&
@@ -461,7 +461,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(pPattern->get_notes(), it, pPattern) {
+	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(pPattern->getNotes(), it, pPattern) {
 		if ( it->second->get_instrument() == pInstrument ) {
 			m_selection.addToSelection( it->second );
 		}
@@ -674,7 +674,7 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 			// Already marked pNote as a duplicate of some other pNote. Skip it.
 			continue;
 		}
-		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->get_notes(), it, pNote->get_position() ) {
+		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, pNote->get_position() ) {
 			// Duplicate note of a selected note is anything occupying the same position. Multiple notes
 			// sharing the same location might be selected; we count these as duplicates too. They will appear
 			// in both the duplicates and selection lists.
@@ -729,7 +729,7 @@ void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *
 	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
 	// same position.
 	m_pAudioEngine->lock( RIGHT_HERE );
-	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( pPattern->get_notes() );
+	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( pPattern->getNotes() );
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
 		bool bFoundExact = false;
@@ -769,11 +769,11 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::No
 	m_pAudioEngine->lock( RIGHT_HERE );
 	for ( auto pNote : overwritten ) {
 		Note *pNewNote = new Note( pNote );
-		pPattern->insert_note( pNewNote );
+		pPattern->insertNote( pNewNote );
 	}
 	// Select the previously-selected notes
 	for ( auto pNote : selected ) {
-		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->get_notes(), it, pNote->get_position() ) {
+		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, pNote->get_position() ) {
 			if ( notesMatchExactly( it->second, pNote ) ) {
 				m_selection.addToSelection( it->second );
 				break;
@@ -982,7 +982,7 @@ void PatternEditor::validateSelection()
 	// Rebuild selection from valid notes.
 	std::set<Note *> valid;
 	std::vector< Note *> invalidated;
-	FOREACH_NOTE_CST_IT_BEGIN_END(pPattern->get_notes(), it) {
+	FOREACH_NOTE_CST_IT_BEGIN_END(pPattern->getNotes(), it) {
 		if ( m_selection.isSelected( it->second ) ) {
 			valid.insert( it->second );
 		}
@@ -1092,7 +1092,7 @@ std::vector<std::shared_ptr<Pattern>> PatternEditor::getPatternsToShow( void )
 	}
 	else if ( pPattern != nullptr &&
 			  pHydrogen->getMode() == Song::Mode::Song &&
-			  pPattern->get_virtual_patterns()->size() > 0 ) {
+			  pPattern->getVirtualPatterns()->size() > 0 ) {
 		// A virtual pattern was selected in song mode without the
 		// pattern editor being locked. Virtual patterns in selected
 		// pattern mode are handled using the playing pattern above.
@@ -1129,7 +1129,7 @@ void PatternEditor::updateWidth() {
 	
 	if ( pPattern != nullptr ) {
 		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
-			pPattern->get_length();
+			pPattern->getLength();
 		
 		// In case there are other patterns playing which are longer
 		// than the selected one, their notes will be placed using a
@@ -1426,10 +1426,10 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
 		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
 
-		auto pDraggedNote = pPattern->find_note( nColumn, nRealColumn,
-												 pSelectedInstrument,
-												 pressedNoteKey, pressedOctave,
-												 false );
+		auto pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
+												pSelectedInstrument,
+												pressedNoteKey, pressedOctave,
+												false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
 		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
@@ -1437,7 +1437,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 			ERRORLOG( "No instrument selected" );
 			return;
 		}
-		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+		pDraggedNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument, false );
 	}
 	else {
 		ERRORLOG( QString( "Unsupported editor [%1]" )
@@ -1499,10 +1499,10 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
 		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
 
-		pDraggedNote = pPattern->find_note( nColumn, nRealColumn,
-												 pSelectedInstrument,
-												 pressedNoteKey, pressedOctave,
-												 false );
+		pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
+										   pSelectedInstrument,
+										   pressedNoteKey, pressedOctave,
+										   false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
 		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
@@ -1510,7 +1510,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 			ERRORLOG( "No instrument selected" );
 			return;
 		}
-		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+		pDraggedNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument, false );
 	}
 	else {
 		ERRORLOG( QString( "Unsupported editor [%1]" )
