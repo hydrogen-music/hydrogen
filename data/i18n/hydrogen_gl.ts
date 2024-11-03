@@ -5785,12 +5785,6 @@ Está seguro?</translation>
         <translation>Cargar un patrón</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Xa existe o ficheiro patrón. 
-Sobrescribir o patrón existente?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Exportar un patron</translation>
     </message>

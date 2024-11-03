@@ -627,7 +627,7 @@ void XmlTest::testPatternFormatIntegrity() {
 
 	const QString sTmpPattern =
 		H2Core::Filesystem::tmp_file_path( "pattern-format-integrity.h2pattern" );
-	CPPUNIT_ASSERT( pPattern->save( "GMRockKit", sTmpPattern, true ) );
+	CPPUNIT_ASSERT( pPattern->save( sTmpPattern, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
 
@@ -654,7 +654,7 @@ void XmlTest::testPattern()
 	auto pPatternLoaded = H2Core::Pattern::load(
 		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
-	CPPUNIT_ASSERT( pPatternLoaded->save( "GMRockKit", sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternLoaded->save( sPatternPath, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
 								   sPatternPath );
@@ -666,7 +666,7 @@ void XmlTest::testPattern()
 	QString sEmptyPatternPath =
 		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
 	auto pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
-	CPPUNIT_ASSERT( pPatternNew->save( "GMRockKit", sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath,
 							  H2Core::Filesystem::pattern_xsd_path() ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
@@ -719,8 +719,7 @@ void XmlTest::testPatternInstrumentTypes()
 	const auto pPatternWithoutTypes = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern-without-types.h2pattern") );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
-	CPPUNIT_ASSERT( pPatternWithoutTypes->save(
-						"GMRockKit", sTmpWithoutTypes ) );
+	CPPUNIT_ASSERT( pPatternWithoutTypes->save( sTmpWithoutTypes ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
 
@@ -731,7 +730,7 @@ void XmlTest::testPatternInstrumentTypes()
 		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern") );
 	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
 	// TODO switch back and forth
-	// CPPUNIT_ASSERT( pPatternMismatch->save( "GMRockKit", sTmpMismatch ) );
+	// CPPUNIT_ASSERT( pPatternMismatch->save( sTmpMismatch ) );
 	// H2TEST_ASSERT_XML_FILES_EQUAL(
 	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
 

@@ -5754,12 +5754,6 @@ Confermi?</translation>
         <translation>Modello Virtuale</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Il file del modello esiste.
-Sovrascrivere il modello esistente?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation type="unfinished"></translation>
     </message>

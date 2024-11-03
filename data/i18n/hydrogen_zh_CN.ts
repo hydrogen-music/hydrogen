@@ -5815,12 +5815,6 @@ Are you sure?</source>
         <translation>无法导出音序。</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>样式文件存在。
-覆盖现有样式？</translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation>样式已保存。</translation>
     </message>

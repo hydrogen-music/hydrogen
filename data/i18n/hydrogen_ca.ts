@@ -5756,11 +5756,6 @@ N&apos;estàs segur?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Could not export pattern.</source>
         <translation>No ha estat possible exportar el patró.</translation>
     </message>

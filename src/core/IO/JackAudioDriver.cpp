@@ -42,7 +42,6 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
-#include <core/Helpers/Files.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Globals.h>

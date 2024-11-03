@@ -5803,12 +5803,6 @@ Are you sure?</source>
         <translation>Віртуальний патерн</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Такий файл патерна вже є.
-Перезаписати його?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Експортувати патерн</translation>
     </message>

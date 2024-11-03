@@ -5819,12 +5819,6 @@ Are you sure?</source>
         <translation>Patrón Virtual</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>El archivo de patrones existe. 
-¿Sobreescribir el patron actual?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Exportar Patrón</translation>
     </message>

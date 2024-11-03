@@ -34,7 +34,6 @@
 #include <core/Basics/Playlist.h>
 #include <core/EventQueue.h>
 #include <core/H2Exception.h>
-#include <core/Helpers/Files.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Lilipond/Lilypond.h>
@@ -1002,10 +1001,11 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_export_pattern_as( int nPatternRow )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pPref = Preferences::get_instance();
 
-	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencerStop();
 	}
 
@@ -1018,15 +1018,11 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		return;
 	}
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ){
 		return;
 	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		return;
-	}
-	
+
 	auto pPattern = pSong->getPatternList()->get( nPatternRow );
 	if ( pPattern == nullptr ){
 		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
@@ -1039,15 +1035,16 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		sPath = Filesystem::patterns_dir();
 	}
 
-	QString title = tr( "Save Pattern as ..." );
+	const QString sTitle = tr( "Save Pattern as ..." );
 	FileDialog fd(this);
-	fd.setWindowTitle( title );
+	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
 	fd.selectFile( pPattern->getName() );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
+	fd.setSidebarUrls( fd.sidebarUrls() <<
+					   QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
 	fd.setDefaultSuffix( Filesystem::patterns_ext );
 
 	if ( fd.exec() != QDialog::Accepted ) {
@@ -1056,25 +1053,22 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
 	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
-	QString filePath = fileInfo.absoluteFilePath();
+	QString sFilePath = fileInfo.absoluteFilePath();
 
-	QString originalName = pPattern->getName();
+	QString sOriginalName = pPattern->getName();
 	pPattern->setName( fileInfo.baseName() );
-	QString path = Files::savePatternPath( filePath, pPattern, pSong,
-										   pDrumkit->getName() );
-	pPattern->setName( originalName );
-
-	if ( path.isEmpty() ) {
+	if ( ! pPattern->save( sFilePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
-		return;
+	}
+	else {
+		h2app->showStatusBarMessage( tr( "Pattern saved." ) );
+
+		if ( sFilePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
+			pHydrogen->getSoundLibraryDatabase()->updatePatterns();
+		}
 	}
 
-	h2app->showStatusBarMessage( tr( "Pattern saved." ) );
-
-	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
-		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
-
-	}
+	pPattern->setName( sOriginalName );
 }
 
 void MainForm::action_file_open() {

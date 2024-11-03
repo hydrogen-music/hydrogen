@@ -5738,11 +5738,6 @@ Da li to želiš napraviti?</translation>
 <context>
     <name>SongEditorPatternList</name>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>Spremi uzorak</translation>
     </message>

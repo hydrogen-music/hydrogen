@@ -32,7 +32,6 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
-#include <core/Helpers/Files.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
@@ -1918,16 +1917,14 @@ void SongEditorPatternList::patternPopup_load()
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-
 	if ( pSong == nullptr ) {
-		return;
-	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
 		return;
 	}
 
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
+	if ( pPattern == nullptr ) {
+		return;
+	}
 
 	QString sPath = pPref->getLastOpenPatternDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
@@ -1945,33 +1942,33 @@ void SongEditorPatternList::patternPopup_load()
 	if (fd.exec() != QDialog::Accepted) {
 		return;
 	}
-	QString patternPath = fd.selectedFiles().first();
+	const QString sPatternPath = fd.selectedFiles().first();
 
-	QString prevPatternPath =
-		Files::savePatternTmp( pPattern->getName(), pPattern, pSong,
-							   pDrumkit->getName() );
-
-	if ( prevPatternPath.isEmpty() ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
+	const QString sPrevPatternPath = Filesystem::tmp_file_path(
+		"patternLoad.h2pattern" );
+	if ( ! pPattern->save( sPrevPatternPath ) ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  tr("Could not save pattern to temporary directory.") );
 		return;
 	}
-	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( !pSong->saveTempPatternList( sequencePath ) ) {
+	const QString sSequencePath = Filesystem::tmp_file_path(
+		"patternLoad-SEQ.xml" );
+	if ( ! pSong->saveTempPatternList( sSequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
 	pPref->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
 	SE_loadPatternAction *action =
-		new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath,
+		new SE_loadPatternAction( sPatternPath, sPrevPatternPath, sSequencePath,
 								  m_nRowClicked, false );
-	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-	hydrogenApp->m_pUndoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 void SongEditorPatternList::patternPopup_export()
 {
-	HydrogenApp::get_instance()->getMainForm()->action_file_export_pattern_as( m_nRowClicked );
+	HydrogenApp::get_instance()->getMainForm()->
+		action_file_export_pattern_as( m_nRowClicked );
 	return;
 }
 
@@ -1984,37 +1981,26 @@ void SongEditorPatternList::patternPopup_save()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
+
+	const auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
+	if ( pPattern == nullptr ) {
 		return;
 	}
 
-	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
+	// TODO: fix me. This should access the path the pattern was stored at
+	// previously.
+	const QString sPath = QString( "%1/%2%3" )
+		.arg( Filesystem::patterns_dir() ).arg( pPattern->getName() )
+		.arg( Filesystem::patterns_ext );
 
-	QString sPath = Files::savePatternNew( pPattern->getName(), pPattern,
-										   pSong, pDrumkit->getName() );
-	if ( sPath.isEmpty() ) {
-		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
-									   pCommonStrings->getButtonOk(),
-									   pCommonStrings->getButtonCancel(),
-									   nullptr, 1 ) != 0 ) {
-			return;
-		}
-		sPath = Files::savePatternOver( pPattern->getName(), pPattern,
-										pSong, pDrumkit->getName() );
-	}
-
-	if ( sPath.isEmpty() ) {
+	if ( ! pPattern->save( sPath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
-		return;
 	}
-
-	pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
-
-	pHydrogen->getSoundLibraryDatabase()->updatePatterns();
+	else {
+		pHydrogenApp->showStatusBarMessage( tr( "Pattern saved." ) );
+		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
+	}
 }
-
-
 
 void SongEditorPatternList::patternPopup_edit()
 {
@@ -2095,46 +2081,45 @@ void SongEditorPatternList::patternPopup_delete()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
+
+	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
+	if ( pPattern == nullptr ) {
 		return;
 	}
 
-	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
+	const QString sPatternPath = Filesystem::tmp_file_path(
+		"patternDelete.h2pattern" );
 
-	QString patternPath =
-		Files::savePatternTmp( pPattern->getName(), pPattern, pSong,
-							   pDrumkit->getName() );
-	if ( patternPath.isEmpty() ) {
+	if ( ! pPattern->save( sPatternPath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
 	}
-	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( !pSong->saveTempPatternList( sequencePath ) ) {
+
+	const QString sSequencePath = Filesystem::tmp_file_path(
+		"patternDelete-SEQ.xml" );
+	if ( ! pSong->saveTempPatternList( sSequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
 
 	SE_deletePatternFromListAction *action =
-		new SE_deletePatternFromListAction( patternPath, sequencePath,
+		new SE_deletePatternFromListAction( sPatternPath, sSequencePath,
 											m_nRowClicked );
-	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-	hydrogenApp->m_pUndoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 void SongEditorPatternList::patternPopup_duplicate()
 {
-	auto pSong = m_pHydrogen->getSong();
+	const auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
+
+	const PatternList *pPatternList = pSong->getPatternList();
+	const auto pPattern = pPatternList->get( m_nRowClicked );
+	if ( pPattern == nullptr ) {
 		return;
 	}
-
-	PatternList *pPatternList = pSong->getPatternList();
-	auto pPattern = pPatternList->get( m_nRowClicked );
 
 	auto pNewPattern = std::make_shared<Pattern>( pPattern );
 
@@ -2152,19 +2137,20 @@ void SongEditorPatternList::patternPopup_duplicate()
 		pNewPattern->setLicense( pSong->getLicense() );
 	}
 
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, m_nRowClicked, true );
+	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(
+		this, pNewPattern, m_nRowClicked, true );
 
 	if ( dialog->exec() == QDialog::Accepted ) {
-		QString filePath = Files::savePatternTmp( pNewPattern->getName(),
-												  pNewPattern, pSong,
-												  pDrumkit->getName() );
-		if ( filePath.isEmpty() ) {
+		const QString sPath = Filesystem::tmp_file_path(
+			"patternDuplicate.h2pattern" );
+		if ( ! pPattern->save( sPath ) ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
-			return;
 		}
-		SE_duplicatePatternAction *action =
-			new SE_duplicatePatternAction( filePath, m_nRowClicked + 1 );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		else {
+			SE_duplicatePatternAction *action =
+				new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		}
 	}
 
 	delete dialog;

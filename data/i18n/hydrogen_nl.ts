@@ -5747,11 +5747,6 @@ Ben je zeker?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation type="unfinished"></translation>
     </message>

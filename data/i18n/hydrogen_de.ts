@@ -5807,12 +5807,6 @@ Fortsetzen?</translation>
         <translation>Virtuelles Pattern</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Die Pattern-Datei existiert bereits.
-Soll sie überschrieben werden?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Exportiere Pattern</translation>
     </message>

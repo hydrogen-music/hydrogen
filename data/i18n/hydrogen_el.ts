@@ -5810,13 +5810,6 @@ Are you sure?</source>
         <translation>Εικονική Μήτρα</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Υπάρχει το αρχείο μήτρας.
-
-Να επανωγραφεί η υπάρχουσα μήτρα;</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Εξαγωγής Μήτρας</translation>
     </message>

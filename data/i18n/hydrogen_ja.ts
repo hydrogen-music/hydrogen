@@ -5787,12 +5787,6 @@ Are you sure?</source>
         <translation>仮想パターン</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>パターンファイルが存在しています。
-上書きしますか？</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation type="unfinished"></translation>
     </message>

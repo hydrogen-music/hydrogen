@@ -224,23 +224,30 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	return pPattern;
 }
 
-bool Pattern::save( const QString& sDrumkitName, const QString& sPatternPath,
-					bool bOverwrite ) const
+bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
 {
-	INFOLOG( QString( "Saving pattern into %1" ).arg( sPatternPath ) );
-	if ( ! bOverwrite && Filesystem::file_exists( sPatternPath, true ) ) {
-		ERRORLOG( QString( "pattern %1 already exists" ).arg( sPatternPath ) );
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
+
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Saving pattern into [%1]" ).arg( sPatternPath ) );
+	}
+
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-	root.write_string( "drumkit_name", sDrumkitName );
-	saveTo( root );
+
+	// For backward compatibility we will also add the name of the current
+	// drumkit.
+	root.write_string( "drumkit_name", pSong->getDrumkit()->getExportName() );
+	saveTo( root, nullptr, bSilent );
 	return doc.write( sPatternPath );
 }
 
 void Pattern::saveTo( XMLNode& node,
-					  const std::shared_ptr<Instrument> pInstrumentOnly ) const
+					  const std::shared_ptr<Instrument> pInstrumentOnly,
+					  bool bSilent ) const
 {
 	XMLNode pattern_node =  node.createNode( "pattern" );
 	pattern_node.write_int( "formatVersion", nCurrentFormatVersion );

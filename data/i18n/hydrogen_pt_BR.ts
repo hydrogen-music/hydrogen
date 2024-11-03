@@ -5844,12 +5844,6 @@ Está certo disto?</translation>
         <source>Open Pattern to Replace </source>
         <translation>Abrir Padrão para Substituir</translation>
     </message>
-    <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>O padrão-arquivo existe.
-Sobrescrever o padrão existente?</translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPositionRuler</name>

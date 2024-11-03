@@ -5794,12 +5794,6 @@ Are you sure?</source>
         <translation>Учитај мустру</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Датотека предлошка већ постоји. 
-Да ли да преписујем преко ње?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Извези мустру</translation>
     </message>

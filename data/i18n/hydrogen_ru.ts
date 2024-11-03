@@ -5780,12 +5780,6 @@ Are you sure?</source>
         <translation>Виртуальный паттерн</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Такой файл паттерна уже существует.
-Перезаписать его?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Экспортировать паттерн</translation>
     </message>

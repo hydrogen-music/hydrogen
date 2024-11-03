@@ -5820,11 +5820,6 @@ Voulez-vous continuer?</translation>
         <translation>Motif virtuel</translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Le fichier de motif existe. Écraser le motif existant ?</translation>
-    </message>
-    <message>
         <source>Export Pattern</source>
         <translation>Exporter le motif</translation>
     </message>

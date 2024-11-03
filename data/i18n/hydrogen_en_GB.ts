@@ -5746,11 +5746,6 @@ Are you sure?</source>
         <translation></translation>
     </message>
     <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Pattern saved.</source>
         <translation></translation>
     </message>

@@ -100,21 +100,21 @@ class Pattern : public H2Core::Object<Pattern>
 											   bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
-		 * \param sDrumkitName the name of the drumkit it is supposed to play with
 		 * \param sPatternPath the path to save the pattern into
-		 * \param bOverwrite allows to write over existing pattern file
+		 * \param bSilent whever to log info and debug messages.
 		 * \return true on success
 		 */
-		bool save( const QString& sDrumkitName, const QString& sPatternPath,
-						bool bOverwrite=false ) const;
+		bool save( const QString& sPatternPath, bool bSilent = false ) const;
 
 		/**
 		 * save the pattern within the given XMLNode
 		 * \param node the XMLNode to feed
 		 * \param pInstrumentOnly export only the notes of that instrument if given
+		 * \param bSilent whever to log info and debug messages.
 		 */
 		void saveTo( XMLNode& node,
-					 const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
+					 const std::shared_ptr<Instrument> pInstrumentOnly = nullptr,
+					 bool bSilent = false ) const;
 
 		void setVersion( int nVersion );
 		int getVersion() const;
