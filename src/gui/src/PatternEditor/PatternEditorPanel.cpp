@@ -1427,9 +1427,9 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 		return;
 	}
 
-	if ( m_db.find( nNewRow ) == m_db.end() ) {
-		ERRORLOG( QString( "Provided row [%1] is not registered in DB." )
-				  .arg( nNewRow ) );
+	if ( nNewRow < 0 || nNewRow >= m_db.size() ) {
+		ERRORLOG( QString( "Provided row [%1] is out of DB bound [0,%2]" )
+				  .arg( nNewRow ).arg( m_db.size() ) );
 		return;
 	}
 
@@ -1449,14 +1449,11 @@ void PatternEditorPanel::updateDB() {
 		return;
 	}
 
-	int nIndex = 0;
-
 	// First we add all instruments of the current drumkit in the order author
 	// of the kit intended.
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
 		if ( ppInstrument != nullptr ) {
-			m_db[ nIndex ] = { ppInstrument->get_id(), ppInstrument->getType() };
-			++nIndex;
+			m_db.push_back( { ppInstrument->get_id(), ppInstrument->getType() } );
 		}
 	}
 
@@ -1471,8 +1468,7 @@ void PatternEditorPanel::updateDB() {
 			if ( additionalTypes.find( ppNote->getType() ) ==
 				 additionalTypes.end() ) {
 				additionalTypes.insert( ppNote->getType() );
-				m_db[ nIndex ] = { -1, ppNote->getType() };
-				++nIndex;
+				m_db.push_back( { -1, ppNote->getType() } );
 			}
 		}
 	}
@@ -1484,10 +1480,10 @@ void PatternEditorPanel::updateDB() {
 
 void PatternEditorPanel::printDB() {
 	QString sMsg = "PatternEditorPanel database:";
-	for ( const auto& [ nnRow, ddrumPatternRow ] : m_db ) {
+	for ( int ii = 0; ii < m_db.size(); ++ii ) {
 		sMsg.append( QString( "\n\t[%1] ID: %2, Type: %3" )
-					 .arg( nnRow ).arg( ddrumPatternRow.nInstrumentID )
-					 .arg( ddrumPatternRow.sType ) );
+					 .arg( ii ).arg( m_db[ ii ].nInstrumentID )
+					 .arg( m_db[ ii ].sType ) );
 	}
 
 	DEBUGLOG( sMsg );

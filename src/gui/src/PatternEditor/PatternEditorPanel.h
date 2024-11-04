@@ -148,7 +148,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		std::shared_ptr<H2Core::Pattern> getPattern() const;
 
-		const std::map<int, DrumPatternRow>& getDB() const;
+		const std::vector<DrumPatternRow>& getDB() const;
 		int getSelectedRowDB() const;
 		void setSelectedRowDB( int nNewRow );
 
@@ -210,7 +210,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		/** Single source of truth for which #H2Core::Note to display (in which
 		 * row) for all parts of the pattern editor.*/
-		std::map<int, DrumPatternRow> m_db;
+		std::vector<DrumPatternRow> m_db;
 		/** Currently activate row of #m_db.
 		 *
 		 * `-1` indicates no row is selected/available. */
@@ -314,7 +314,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 inline std::shared_ptr<H2Core::Pattern> PatternEditorPanel::getPattern() const {
 	return m_pPattern;
 }
-inline const std::map<int, DrumPatternRow>& PatternEditorPanel::getDB() const {
+inline const std::vector<DrumPatternRow>& PatternEditorPanel::getDB() const {
 	return m_db;
 }
 inline int PatternEditorPanel::getSelectedRowDB() const {
