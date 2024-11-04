@@ -374,6 +374,32 @@ int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 	}
 }
 
+void PatternEditor::mouseEventToColumnRow( QMouseEvent* pEvent, int* pColumn,
+										   int* pRow, int* pRealColumn,
+										   bool bUseFineGrained ) const {
+	if ( pRow != nullptr ) {
+		*pRow = static_cast<int>(
+			std::floor( static_cast<float>(pEvent->y()) /
+						static_cast<float>(m_nGridHeight) ) );
+	}
+
+	if ( pColumn != nullptr ) {
+		*pColumn = getColumn( pEvent->x(), bUseFineGrained );
+	}
+
+	if ( pRealColumn != nullptr ) {
+		if ( pEvent->x() > PatternEditor::nMargin ) {
+			*pRealColumn = static_cast<int>(
+				std::floor( ( pEvent->x() -
+							  static_cast<float>(PatternEditor::nMargin) ) /
+							static_cast<float>(m_fGridWidth) ) );
+		}
+		else {
+			*pRealColumn = 0;
+		}
+	}
+}
+
 void PatternEditor::selectNone()
 {
 	m_selection.clearSelection();
@@ -1206,8 +1232,10 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
+	int nColumn, nRow, nRealColumn;
+	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
+
 	// Move cursor.
-	int nColumn = getColumn( ev->x() );
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
 	// Hide cursor.
@@ -1222,26 +1250,15 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 
-	int nRealColumn = 0;
-
 	if ( ev->button() == Qt::RightButton ) {
 
-		int nPressedLine =
-			std::floor(static_cast<float>(ev->y()) / static_cast<float>(m_nGridHeight));
 		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-		
-		if( ev->x() > PatternEditor::nMargin ) {
-			nRealColumn =
-				static_cast<int>(std::floor(
-					static_cast<float>((ev->x() - PatternEditor::nMargin)) /
-					m_fGridWidth));
-		}
 
 		// Needed for undo changes in the note length
 		m_nOldPoint = ev->y();
 		m_nRealColumn = nRealColumn;
 		m_nColumn = nColumn;
-		m_nPressedLine = nPressedLine;
+		m_nPressedLine = nRow;
 		m_nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
 	}
 

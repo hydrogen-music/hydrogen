@@ -105,7 +105,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPattern =
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
 	}
@@ -180,8 +180,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		return;
 	}
@@ -190,36 +189,27 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
-	int row = (int)( ev->y()  / (float)m_nGridHeight);
-	if (row >= nInstruments) {
+	if ( pHydrogen->getSong() == nullptr ) {
 		return;
 	}
-	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
-	int nRealColumn = 0;
 
-	if( ev->x() > PatternEditor::nMargin ) {
-		nRealColumn = ( ev->x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
-	}
-
-	if ( nColumn >= (int)pPattern->getLength() ) {
+	int nRow, nColumn, nRealColumn;
+	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
+						   /* fineGrained */true );
 		return;
 	}
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( row );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( row ) );
+
 		return;
 	}
 
 	if ( ev->button() == Qt::LeftButton ) {
-
 		// Pressing Shift causes the added note to be of NoteOff type.
-		addOrRemoveNote( nColumn, nRealColumn, row, true, true,
+		addOrRemoveNote( nColumn, nRealColumn, nRow, true, true,
 						 ev->modifiers() & Qt::ShiftModifier );
 		m_selection.clearSelection();
 
-	} else if ( ev->button() == Qt::RightButton ) {
-
+	}
+	else if ( ev->button() == Qt::RightButton ) {
 		showPopupMenu( ev->globalPos() );
 	}
 
@@ -266,13 +256,12 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 		update();
 	}
 
+	int nRow, nColumn;
+	mouseEventToColumnRow( ev, &nColumn, &nRow, nullptr, /* fineGrained */true );
 	// Update cursor position
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		auto pPattern =
-			HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
-		if ( ( pPattern != nullptr &&
-			   nColumn >= (int)pPattern->getLength() ) ||
+		const auto pPattern = m_pPatternEditorPanel->getPattern();
+		if ( ( pPattern != nullptr && nColumn >= pPattern->getLength() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
 			return;
 		}
@@ -289,8 +278,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 
 void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -298,12 +286,11 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	// Set the selected instrument _before_ it will be stored in
-	// PatternEditor::mouseDragStartEvent.
-	int nRow = std::floor(static_cast<float>(ev->y()) /
-						  static_cast<float>(m_nGridHeight));
 	pHydrogen->setSelectedInstrumentNumber( nRow );
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	int nRow, nColumn, nRealColumn;
+	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
+						   /* fineGrained */true );
 
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( QString( "Couldn't find instrument [%1]" )
@@ -315,19 +302,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	// properties.
 	PatternEditor::mouseDragStartEvent( ev );
 	
-	int nColumn = getColumn( ev->x() );
-	
 	if ( ev->button() == Qt::RightButton ) {
-		// Right button drag: adjust note length
-		int nRealColumn = 0;
-
-		if( ev->x() > PatternEditor::nMargin ) {
-			nRealColumn =
-				static_cast<int>(std::floor(
-					static_cast<float>((ev->x() - PatternEditor::nMargin)) /
-					m_fGridWidth));
-		}
-
 		m_pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
 												pSelectedInstrument, false );
 
@@ -343,10 +318,10 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 ///
 void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
-	int nRow = MAX_INSTRUMENTS - 1 -
-		static_cast<int>(std::floor(static_cast<float>(ev->y())  /
-									static_cast<float>(m_nGridHeight)));
-	if ( nRow >= MAX_INSTRUMENTS ) {
+	int nRow;
+	mouseEventToColumnRow( ev, nullptr, &nRow );
+
+	if ( nRow <= -1 ) {
 		return;
 	}
 

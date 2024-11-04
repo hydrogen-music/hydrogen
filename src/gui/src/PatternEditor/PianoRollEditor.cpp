@@ -445,48 +445,40 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 
 void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		return;
 	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
-	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
-	if ( nPressedLine >= (int) m_nOctaves * 12 ) {
+	int nRow, nColumn, nRealColumn;
+	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
+						   /* fine grained */ true );
+	if ( nRow >= (int) m_nOctaves * 12 ) {
 		return;
 	}
 
-	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
-
-	if ( nColumn >= (int)pPattern->getLength() ) {
+	if ( nColumn >= pPattern->getLength() ) {
 		update( 0, 0, width(), height() );
 		return;
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
-	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
-	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
 	
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
 	}
 
-	int nPitch = lineToPitch( nPressedLine );
+	int nPitch = lineToPitch( nRow );
 	Note::Octave pressedoctave = Note::pitchToOctave( nPitch );
 	Note::Key pressednotekey = Note::pitchToKey( nPitch );
 	m_nCursorPitch = nPitch;
 
-	if (ev->button() == Qt::LeftButton ) {
-
-		unsigned nRealColumn = 0;
-		if( ev->x() > PatternEditor::nMargin ) {
-			nRealColumn = (ev->x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
-		}
-
+	if ( ev->button() == Qt::LeftButton ) {
 		if ( ev->modifiers() & Qt::ShiftModifier ) {
 			H2Core::Note *pNote = pPattern->findNote(
 				nColumn, nRealColumn, pSelectedInstrument, pressednotekey,
@@ -494,7 +486,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 			if ( pNote != nullptr ) {
 				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction(
 					nColumn,
-					nPressedLine,
+					nRow,
 					pHydrogen->getSelectedPatternNumber(),
 					nSelectedInstrumentnumber,
 					pNote->get_length(),
@@ -509,7 +501,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 			} else {
 				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction(
 					nColumn,
-					nPressedLine,
+					nRow,
 					pHydrogen->getSelectedPatternNumber(),
 					nSelectedInstrumentnumber );
 				pHydrogenApp->m_pUndoStack->push( action );
@@ -517,14 +509,12 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 			return;
 		}
 
-		addOrRemoveNote( nColumn, nRealColumn, nPressedLine, pressednotekey, pressedoctave );
+		addOrRemoveNote( nColumn, nRealColumn, nRow, pressednotekey, pressedoctave );
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
 		showPopupMenu( ev->globalPos() );
-
 	}
-
 }
 
 void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
@@ -550,17 +540,17 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 
 	// Update cursor position
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
-		auto pPattern =
-			HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-		int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
-		if ( nPressedLine >= (int) m_nOctaves * 12 ) {
+		auto pPattern = m_pPatternEditorPanel->getPattern();
+		int nRow, nColumn;
+		mouseEventToColumnRow( ev, &nColumn, &nRow, nullptr,
+							   /* fine grained */ true );
+		if ( nRow >= (int) m_nOctaves * 12 ) {
 			return;
 		}
-		m_nCursorPitch = lineToPitch( nPressedLine );	
+		m_nCursorPitch = lineToPitch( nRow );
 
-		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 		if ( ( pPattern != nullptr &&
-			   nColumn >= (int)pPattern->getLength() ) ||
+			   nColumn >= pPattern->getLength() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
 			return;
 		}
@@ -574,8 +564,7 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 
 void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -586,30 +575,20 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	
 	m_pDraggedNote = nullptr;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nColumn = getColumn( ev->x() );
+	int nRow, nColumn, nRealColumn;
+	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
+
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		DEBUGLOG( "No instrument selected" );
 		return;
 	}
 
-	int nRow = std::floor(static_cast<float>(ev->y()) /
-						  static_cast<float>(m_nGridHeight));
-
 	Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
 	Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
 	m_nCursorPitch = lineToPitch( nRow );
 
 	if (ev->button() == Qt::RightButton ) {
-
-		int nRealColumn = 0;
-		if( ev->x() > PatternEditor::nMargin ) {
-			nRealColumn =
-				static_cast<int>(std::floor(
-					static_cast<float>((ev->x() - PatternEditor::nMargin)) /
-					m_fGridWidth));
-		}
-
 		m_pDraggedNote = pPattern->findNote(
 			nColumn, nRealColumn, pSelectedInstrument, pressedNoteKey,
 			pressedOctave, false );
@@ -623,8 +602,8 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
-	int nRow = std::floor(static_cast<float>(ev->y()) /
-						  static_cast<float>(m_nGridHeight));
+	int nRow;
+	mouseEventToColumnRow( ev, nullptr, &nRow );
 	if ( nRow >= (int) m_nOctaves * 12 ) {
 		return;
 	}
@@ -669,12 +648,12 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 
 	if ( isDelete ) {
-		Note* note = pPattern->findNote(
+		auto pNote = pPattern->findNote(
 			nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
-		if ( note ) {
-			// the note exists...remove it!
-			pPattern->removeNote( note );
-			delete note;
+		if ( pNote ) {
+			// the pNote exists...remove it!
+			pPattern->removeNote( pNote );
+			delete pNote;
 		} else {
 			ERRORLOG( "Could not find note to delete" );
 		}
@@ -691,7 +670,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			nLength = 1;
 		}
 		
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
+		auto pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
 		pNote->set_note_off( noteOff );
 		if ( ! noteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -841,8 +820,7 @@ void PianoRollEditor::deleteSelection()
 void PianoRollEditor::paste()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
@@ -1121,9 +1099,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || nSelectedPatternNumber == -1 ) {
 		// No pattern selected. Nothing to be selected.
 		return;
