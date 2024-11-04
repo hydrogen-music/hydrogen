@@ -65,7 +65,6 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	m_nActiveWidth = m_nEditorWidth;
 	resize( m_nEditorWidth, m_nEditorHeight );
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
 	createBackground();
 }
 
