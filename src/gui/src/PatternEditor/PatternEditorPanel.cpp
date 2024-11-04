@@ -56,7 +56,6 @@ using namespace H2Core;
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
-	, m_nSelectedRowDB( 0 )
 	, m_bArmPatternSizeSpinBoxes( true )
 {
 	setAcceptDrops(true);
@@ -64,6 +63,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pHydrogen = Hydrogen::get_instance();
+	m_nSelectedRowDB = pHydrogen->getSelectedInstrumentNumber();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		const auto nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
@@ -882,6 +882,7 @@ void PatternEditorPanel::contentsMoving( int dummy )
 
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
+	m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	updateEditors();
 	resizeEvent( nullptr );	// force a scrollbar update
 }
@@ -1435,7 +1436,6 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 
 void PatternEditorPanel::updateDB() {
 	m_db.clear();
-	m_nSelectedRowDB = -1;
 
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -1474,6 +1474,8 @@ void PatternEditorPanel::updateDB() {
 			}
 		}
 	}
+
+	m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 
 	printDB();
 }
