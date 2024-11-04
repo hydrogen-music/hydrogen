@@ -149,8 +149,21 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		std::shared_ptr<H2Core::Pattern> getPattern() const;
 
 		const std::vector<DrumPatternRow>& getDB() const;
+		/** Instead of using the exception-based range check of std::vector - a
+		 * paradigm not used in the code base - we return null elements for
+		 * instrument id and type - an empty row - in case @a nRow does not
+		 * exist. */
+		const DrumPatternRow getRowDB( int nRow ) const;
 		int getSelectedRowDB() const;
 		void setSelectedRowDB( int nNewRow );
+		int getRowNumberDB() const;
+		/** Returns the instrument corresponding to the currently selected row
+		 * of the DB.
+		 *
+		 * In case this row is not associated with an instrument in the current
+		 * drumkit - only instrument type set - or no row was selected at all, a
+		 * nullptr is returned. */
+		std::shared_ptr<H2Core::Instrument> getSelectedInstrument() const;
 
 		void ensureCursorVisible();
 		int getCursorPosition();

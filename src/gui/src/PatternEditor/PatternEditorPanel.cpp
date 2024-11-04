@@ -1278,9 +1278,10 @@ int PatternEditorPanel::getCursorPosition()
 
 void PatternEditorPanel::ensureCursorVisible()
 {
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	uint y = nSelectedInstrument * Preferences::get_instance()->getPatternEditorGridHeight();
-	m_pEditorScrollView->ensureVisible( m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
+	uint y = m_nSelectedRowDB *
+		Preferences::get_instance()->getPatternEditorGridHeight();
+	m_pEditorScrollView->ensureVisible(
+		m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
 }
 
 void PatternEditorPanel::setCursorPosition(int nCursorPosition)
@@ -1422,6 +1423,15 @@ void PatternEditorPanel::patchBayBtnClicked() {
 	delete pPatchBay;
 }
 
+const DrumPatternRow PatternEditorPanel::getRowDB( int nRow ) const {
+	if ( nRow < 0 || nRow >= m_db.size() ) {
+		return { -1, "" };
+	}
+	else {
+		return m_db.at( nRow );
+	}
+}
+
 void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 	if ( nNewRow == m_nSelectedRowDB ) {
 		return;
@@ -1433,7 +1443,45 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 		return;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		if ( nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
+			pHydrogen->setSelectedInstrumentNumber( nNewRow );
+		}
+		else {
+			pHydrogen->setSelectedInstrumentNumber( -1 );
+		}
+	}
+	else {
+		pHydrogen->setSelectedInstrumentNumber( -1 );
+	}
+
 	m_nSelectedRowDB = nNewRow;
+}
+
+int PatternEditorPanel::getRowNumberDB() const {
+	return m_db.size();
+}
+
+std::shared_ptr<H2Core::Instrument> PatternEditorPanel::getSelectedInstrument() const {
+	if ( m_nSelectedRowDB < 0 || m_nSelectedRowDB >= m_db.size() ) {
+		return nullptr;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return nullptr;
+	}
+
+	auto row = m_db.at( m_nSelectedRowDB );
+	if ( row.nInstrumentID == -1 ) {
+		// Row is associated with a type but not an instrument of the current
+		// kit.
+		return nullptr;
+	}
+
+	return pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
 }
 
 void PatternEditorPanel::updateDB() {

@@ -359,7 +359,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForegro
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( pNote != nullptr && pNote->get_instrument() != nullptr &&
-		 pNote->get_instrument() == pHydrogen->getSelectedInstrument() ) {
+		 pNote->get_instrument() == m_pPatternEditorPanel->getSelectedInstrument() ) {
 		QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
 		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
@@ -381,8 +381,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	
 	Note::Octave octave = (Note::Octave)nOctave;
 	Note::Key notekey = (Note::Key)nNotekey;
-	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		DEBUGLOG( "No instrument selected" );
 		return;
@@ -429,7 +429,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		nColumn,
 		nLine,
 		pHydrogen->getSelectedPatternNumber(),
-		nSelectedInstrumentnumber,
+		nSelectedRow,
 		nLength,
 		fVelocity,
 		fPan,
@@ -452,10 +452,10 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	int nRow, nColumn, nRealColumn;
-	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
+	int nNewRow, nColumn, nRealColumn;
+	mouseEventToColumnRow( ev, &nColumn, &nNewRow, &nRealColumn,
 						   /* fine grained */ true );
-	if ( nRow >= (int) m_nOctaves * 12 ) {
+	if ( nNewRow >= (int) m_nOctaves * 12 ) {
 		return;
 	}
 
@@ -465,15 +465,15 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
-	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
-	
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
+
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
 	}
 
-	int nPitch = lineToPitch( nRow );
+	int nPitch = lineToPitch( nNewRow );
 	Note::Octave pressedoctave = Note::pitchToOctave( nPitch );
 	Note::Key pressednotekey = Note::pitchToKey( nPitch );
 	m_nCursorPitch = nPitch;
@@ -486,9 +486,9 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 			if ( pNote != nullptr ) {
 				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction(
 					nColumn,
-					nRow,
+					nNewRow,
 					pHydrogen->getSelectedPatternNumber(),
-					nSelectedInstrumentnumber,
+					nSelectedRow,
 					pNote->get_length(),
 					pNote->get_velocity(),
 					pNote->getPan(),
@@ -501,15 +501,15 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 			} else {
 				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction(
 					nColumn,
-					nRow,
+					nNewRow,
 					pHydrogen->getSelectedPatternNumber(),
-					nSelectedInstrumentnumber );
+					nSelectedRow );
 				pHydrogenApp->m_pUndoStack->push( action );
 			}
 			return;
 		}
 
-		addOrRemoveNote( nColumn, nRealColumn, nRow, pressednotekey, pressedoctave );
+		addOrRemoveNote( nColumn, nRealColumn, nNewRow, pressednotekey, pressedoctave );
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
@@ -578,7 +578,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int nRow, nColumn, nRealColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
 
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		DEBUGLOG( "No instrument selected" );
 		return;
@@ -772,8 +772,8 @@ void PianoRollEditor::deleteSelection()
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Delete a selection.
-		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			DEBUGLOG( "No instrument selected" );
 			return;
@@ -789,7 +789,7 @@ void PianoRollEditor::deleteSelection()
 										   pNote->get_position(),
 										   nLine,
 										   pHydrogen->getSelectedPatternNumber(),
-										   nSelectedInstrumentNumber,
+										   nSelectedRow,
 										   pNote->get_length(),
 										   pNote->get_velocity(),
 										   pNote->getPan(),
@@ -830,7 +830,7 @@ void PianoRollEditor::paste()
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
 	const auto pInstrList = pDrumkit->getInstruments();
-	int nInstrument = pHydrogen->getSelectedInstrumentNumber();
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaPitch = 0;
 
@@ -912,7 +912,7 @@ void PianoRollEditor::paste()
 								 nPos,
 								 nLine,
 								 pHydrogen->getSelectedPatternNumber(),
-								 nInstrument,
+								 nSelectedRow,
 								 pNote->get_length(),
 								 pNote->get_velocity(),
 								 pNote->getPan(),
@@ -1097,8 +1097,8 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 	validateSelection();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+	const int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || nSelectedPatternNumber == -1 ) {
 		// No pattern selected. Nothing to be selected.
@@ -1143,7 +1143,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nNewPosition,
 																	nLine,
 																	nSelectedPatternNumber,
-																	nSelectedInstrumentNumber,
+																	nSelectedRow,
 																	pNote->get_length(),
 																	pNote->get_velocity(),
 																	pNote->getPan(),
@@ -1160,7 +1160,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
 																	nLine - offset.y(),
 																	nSelectedPatternNumber,
-																	nSelectedInstrumentNumber,
+																	nSelectedRow,
 																	pNote->get_length(),
 																	pNote->get_velocity(),
 																	pNote->getPan(),
@@ -1180,15 +1180,14 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
 std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( const QRect& r )
 {
 	std::vector<SelectionIndex> result;
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return std::move( result );
 	}
 	
 	int w = 8;
 	int h = m_nGridHeight - 2;
-	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		DEBUGLOG( "No instrument selected" );
 		return std::move( result );

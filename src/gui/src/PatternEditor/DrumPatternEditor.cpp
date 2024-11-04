@@ -184,11 +184,6 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		return;
 	}
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
 	if ( pHydrogen->getSong() == nullptr ) {
 		return;
 	}
@@ -196,9 +191,17 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	int nRow, nColumn, nRealColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
+	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( drumPatternRow.nInstrumentID == -1 && drumPatternRow.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
+				  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
 		return;
 	}
 
+	if ( nColumn >= pPattern->getLength() ) {
+		DEBUGLOG( QString( "Clicked beyond pattern length. x: %1, nColumn: %2, nMargin: %3, m_fGridWidth: %4, nRealColumn: %5" )
+				  .arg( ev->x() ).arg( nColumn ).arg( PatternEditor::nMargin )
+				  .arg( m_fGridWidth ).arg( nRealColumn ) );
 		return;
 	}
 
@@ -234,14 +237,9 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
-	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
-	if ( nRow >= nInstruments || nRow < 0 ) {
+	if ( pHydrogen->getSong() == nullptr ) {
 		return;
 	}
-	
-	pHydrogen->setSelectedInstrumentNumber( nRow );
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
@@ -258,6 +256,15 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 
 	int nRow, nColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, nullptr, /* fineGrained */true );
+	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( drumPatternRow.nInstrumentID == -1 && drumPatternRow.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
+				  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
+		return;
+	}
+
+	m_pPatternEditorPanel->setSelectedRowDB( nRow );
+
 	// Update cursor position
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		const auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -266,11 +273,9 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 			return;
 		}
 
-		pHydrogen->setSelectedInstrumentNumber( nRow );
 		m_pPatternEditorPanel->setCursorPosition( nColumn );
 	
 		update();
-		m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 }
@@ -286,15 +291,20 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	pHydrogen->setSelectedInstrumentNumber( nRow );
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 	int nRow, nColumn, nRealColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
+	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( drumPatternRow.nInstrumentID == -1 && drumPatternRow.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
+				  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
+		return;
+	}
 
+	m_pPatternEditorPanel->setSelectedRowDB( nRow );
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( nRow ) );
+		ERRORLOG( QString( "Couldn't find instrument [%1]" ).arg( nRow ) );
 		return;
 	}
 
@@ -304,7 +314,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	
 	if ( ev->button() == Qt::RightButton ) {
 		m_pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
-												pSelectedInstrument, false );
+											 pSelectedInstrument, false );
 
 		// Store note-specific properties.
 		storeNoteProperties( m_pDraggedNote );
@@ -644,19 +654,18 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 ///
 void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
 	
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	
 	const int nBlockSize = 5, nWordSize = 5;
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-	int nMaxInstrument = pHydrogen->getSong()->getDrumkit()->getInstruments()->size();
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+	const int nMaxRows = m_pPatternEditorPanel->getRowNumberDB();
 	bool bUnhideCursor = true;
 
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
@@ -664,86 +673,102 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by Selection
-	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToNextChar ) ||
+				ev->matches( QKeySequence::SelectNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
 
-	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ev->matches( QKeySequence::SelectNextWord ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToNextWord ) ||
+				ev->matches( QKeySequence::SelectNextWord ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight( nWordSize );
 
-	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ||
+				ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( pPattern->getLength() );
 
-	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ||
+				ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
 
-	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ev->matches( QKeySequence::SelectPreviousWord ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) ||
+				ev->matches( QKeySequence::SelectPreviousWord ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
 
-	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ||
+				ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition( 0 );
 
-	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
-		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
-			pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
+	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ||
+				ev->matches( QKeySequence::SelectNextLine ) ) {
+		if ( nSelectedRow + 1 < nMaxRows ) {
+			m_pPatternEditorPanel->setSelectedRowDB( nSelectedRow + 1 );
 		}
-	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
-		pHydrogen->setSelectedInstrumentNumber( std::min( nSelectedInstrument + nBlockSize,
-													nMaxInstrument-1 ) );
+	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) ||
+				ev->matches( QKeySequence::SelectEndOfBlock ) ) {
+		m_pPatternEditorPanel->setSelectedRowDB(
+			std::min( nSelectedRow + nBlockSize, nMaxRows-1 ) );
 
-	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
-		// Page down, scroll by the number of instruments that fit into the viewport
+	} else if ( ev->matches( QKeySequence::MoveToNextPage ) ||
+				ev->matches( QKeySequence::SelectNextPage ) ) {
+		// Page down, scroll by the number of instruments that fit into the
+		// viewport
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
 		assert( pParent );
-		nSelectedInstrument += pParent->height() / m_nGridHeight;
+		m_pPatternEditorPanel->setSelectedRowDB(
+			std::min( nMaxRows - 1,
+					  nSelectedRow + static_cast<int>(pParent->height() /
+													  m_nGridHeight) ) );
 
-		if ( nSelectedInstrument >= nMaxInstrument ) {
-			nSelectedInstrument = nMaxInstrument - 1;
+	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ||
+				ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+		m_pPatternEditorPanel->setSelectedRowDB( nMaxRows-1 );
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ||
+				ev->matches( QKeySequence::SelectPreviousLine ) ) {
+		if ( nSelectedRow > 0 ) {
+			m_pPatternEditorPanel->setSelectedRowDB( nSelectedRow - 1 );
 		}
-		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument );
+	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) ||
+				ev->matches( QKeySequence::SelectStartOfBlock ) ) {
+		m_pPatternEditorPanel->setSelectedRowDB(
+			std::max( nSelectedRow - nBlockSize, 0 ) );
 
-	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
-		pHydrogen->setSelectedInstrumentNumber( nMaxInstrument-1 );
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
-		if ( nSelectedInstrument > 0 ) {
-			pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
-		}
-	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
-		pHydrogen->setSelectedInstrumentNumber( std::max( nSelectedInstrument - nBlockSize, 0 ) );
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) ||
+				ev->matches( QKeySequence::SelectPreviousPage ) ) {
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
 		assert( pParent );
-		nSelectedInstrument -= pParent->height() / m_nGridHeight;
-		if ( nSelectedInstrument < 0 ) {
-			nSelectedInstrument = 0;
-		}
-		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument );
+		m_pPatternEditorPanel->setSelectedRowDB(
+			std::max( nSelectedRow - static_cast<int>(pParent->height() /
+													  m_nGridHeight),
+					  0 ) );
 
-	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
-		pHydrogen->setSelectedInstrumentNumber( 0 );
+	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ||
+				ev->matches( QKeySequence::SelectStartOfDocument ) ) {
+		m_pPatternEditorPanel->setSelectedRowDB( 0 );
 
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter / Return: add or remove note at current position
 		m_selection.clearSelection();
-		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
+		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+						 nSelectedRow );
 
 	} else if ( ev->key() == Qt::Key_Delete ) {
-		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
+		// Key: Delete / Backspace: delete selected notes, or note under
+		// keyboard cursor
 		bUnhideCursor = false;
 		if ( m_selection.begin() != m_selection.end() ) {
 			// Delete selected notes if any
 			deleteSelection();
 		} else {
 			// Delete note under the keyboard cursor.
-			addOrRemoveNote(  m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument,
-							  /*bDoAdd=*/false, /*bDoDelete=*/true);
+			addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+							 nSelectedRow, /*bDoAdd=*/false,
+							 /*bDoDelete=*/true);
 
 		}
 
@@ -865,9 +890,8 @@ QRect DrumPatternEditor::getKeyboardCursorRect()
 
 	const uint x = PatternEditor::nMargin +
 		m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-	const int nSelectedInstrument =
-		Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	const uint y = nSelectedInstrument * m_nGridHeight;
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+	const uint y = nSelectedRow * m_nGridHeight;
 	float fHalfWidth;
 	if ( m_nResolution != MAX_NOTES ) {
 		// Corresponds to the distance between grid lines on 1/64 resolution.
@@ -953,8 +977,11 @@ void DrumPatternEditor::deleteSelection()
 void DrumPatternEditor::paste()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
 		// No pattern selected.
 		return;
@@ -962,7 +989,7 @@ void DrumPatternEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
+	const auto pDrumkit = pSong->getDrumkit();
 	const auto pInstrList = pDrumkit->getInstruments();
 	XMLNode noteList;
 	int nDeltaPos = 0, nDeltaInstrument = 0;
@@ -990,11 +1017,12 @@ void DrumPatternEditor::paste()
 		// it to adjust the location relative to the current keyboard
 		// input cursor.
 		if ( !positionNode.isNull() ) {
-			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
-			int nCurrentInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+			const int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
+			const int nCurrentRow = m_pPatternEditorPanel->getSelectedRowDB();
 
 			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
-			nDeltaInstrument = nCurrentInstrument - positionNode.read_int( "instrument", nCurrentInstrument );
+			nDeltaInstrument = nCurrentRow -
+				positionNode.read_int( "instrument", nCurrentRow );
 		}
 
 	} else {
@@ -1201,28 +1229,31 @@ void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 void DrumPatternEditor::drawBackground( QPainter& p)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	
-	const QColor backgroundColor( pPref->getTheme().m_color.m_patternEditor_backgroundColor );
-	const QColor backgroundInactiveColor( pPref->getTheme().m_color.m_windowColor );
-	const QColor alternateRowColor( pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
-	const QColor selectedRowColor( pPref->getTheme().m_color.m_patternEditor_selectedRowColor );
-	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+	const QColor backgroundColor(
+		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
+	const QColor backgroundInactiveColor(
+		pPref->getTheme().m_color.m_windowColor );
+	const QColor alternateRowColor(
+		pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
+	const QColor selectedRowColor(
+		pPref->getTheme().m_color.m_patternEditor_selectedRowColor );
+	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 
 	p.fillRect(0, 0, m_nActiveWidth, m_nEditorHeight, backgroundColor);
 	if ( m_nActiveWidth < m_nEditorWidth ) {
-		p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, m_nEditorHeight,
-				   backgroundInactiveColor);
+		p.fillRect( m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth,
+					m_nEditorHeight, backgroundInactiveColor);
 	}
 
-	for ( int ii = 0; ii < nInstruments; ii++ ) {
+	for ( int ii = 0; ii < nRows; ii++ ) {
 		int y = static_cast<int>(m_nGridHeight) * ii;
-		if ( ii == nSelectedInstrument ) {
+		if ( ii == nSelectedRow ) {
 			p.fillRect( 0, y, m_nActiveWidth, m_nGridHeight,
 							  selectedRowColor );
 		}
@@ -1234,8 +1265,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	// We skip the grid and cursor in case there is no pattern. This
 	// way it may be more obvious that it is not armed and does not
 	// expect user interaction.
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1243,9 +1273,9 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 
 	// The grid lines above are drawn full height. We will erase the
 	// upper part.
-	for ( int ii = 0; ii < nInstruments; ii++ ) {
+	for ( int ii = 0; ii < nRows; ii++ ) {
 		int y = static_cast<int>(m_nGridHeight) * ii;
-		if ( ii == nSelectedInstrument ) {
+		if ( ii == nSelectedRow ) {
 			p.fillRect( 0, y, m_nActiveWidth, (int)( m_nGridHeight * 0.7 ), selectedRowColor );
 		} else {
 			if ( ( ii % 2 ) == 0 ) {
@@ -1262,14 +1292,14 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 
 	// horizontal lines
 	p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
-	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
+	for ( uint i = 0; i < (uint)nRows; i++ ) {
 		uint y = m_nGridHeight * i + m_nGridHeight;
 		p.drawLine( 0, y, m_nActiveWidth, y);
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 		p.setPen( QPen( lineInactiveColor, 1, Qt::SolidLine ) );
-		for ( uint i = 0; i < (uint)nInstruments; i++ ) {
+		for ( uint i = 0; i < (uint)nRows; i++ ) {
 			uint y = m_nGridHeight * i + m_nGridHeight;
 			p.drawLine( m_nActiveWidth, y, m_nEditorWidth, y);
 		}
@@ -1318,23 +1348,25 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	const auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_bBackgroundInvalid ) {
 		createBackground();
 	}
 	
 	QPainter painter( this );
-	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, QRectF( pixelRatio * ev->rect().x(),
-															pixelRatio * ev->rect().y(),
-															pixelRatio * ev->rect().width(),
-															pixelRatio * ev->rect().height() ) );
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * ev->rect().x(),
+								pixelRatio * ev->rect().y(),
+								pixelRatio * ev->rect().width(),
+								pixelRatio * ev->rect().height() ) );
 
 	// Draw playhead
 	if ( m_nTick != -1 ) {
 
-		int nOffset = Skin::getPlayheadShaftOffset();
-		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
-								  static_cast<float>(m_nTick) *
-								  m_fGridWidth );
+		const int nOffset = Skin::getPlayheadShaftOffset();
+		const int nX = static_cast<int>(
+			static_cast<float>(PatternEditor::nMargin) +
+			static_cast<float>(m_nTick) * m_fGridWidth );
 		Skin::setPlayheadPen( &painter, false );
 		painter.drawLine( nX, 0, nX, height() );
 	}
@@ -1345,9 +1377,10 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 
 	// Draw cursor
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		uint y = nSelectedInstrument * m_nGridHeight;
+		const uint x = PatternEditor::nMargin +
+			m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+		const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+		const uint y = nSelectedRow * m_nGridHeight;
 		QPen p( pPref->getTheme().m_color.m_cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );
@@ -1355,7 +1388,6 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
-
 }
 
 void DrumPatternEditor::drawFocus( QPainter& painter ) {

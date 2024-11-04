@@ -135,7 +135,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	pHydrogenApp->setHideKeyboardCursor( true );
 
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -257,7 +257,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -402,7 +402,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	clearOldNotes();
 
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -464,7 +464,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		val = 0.0;
 	}
 	val = val / height(); // val is normalized, in [0;1]
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -704,7 +704,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			// Delete note under the keyboard cursor.
 			m_pPatternEditorPanel->getDrumPatternEditor()->
 				addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
-								 pHydrogen->getSelectedInstrumentNumber(),
+								 m_pPatternEditorPanel->getSelectedRowDB(),
 								 /*bDoAdd=*/false, /*bDoDelete=*/true );
 		}
 
@@ -759,7 +759,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		if ( fDelta != 0.0 || bRepeatLastValue ) {
 			int column = m_pPatternEditorPanel->getCursorPosition();
 
-			auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+			auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 			if ( pSelectedInstrument == nullptr ) {
 				ERRORLOG( "No instrument selected" );
 				return;
@@ -1135,7 +1135,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 
 	// draw velocity lines
 	if ( pPattern != nullptr ) {
-		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1232,7 +1232,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	}
 
 	if ( pPattern != nullptr ) {
-		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
 			return;
@@ -1410,10 +1410,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		}
 	}
 
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern != nullptr ) {
-		auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			DEBUGLOG( "No instrument selected" );
 			return;
@@ -1532,7 +1531,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	const Pattern::notes_t* notes = pPattern->getNotes();
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();;
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return std::move( result );

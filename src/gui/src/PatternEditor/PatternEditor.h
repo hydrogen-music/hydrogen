@@ -213,7 +213,6 @@ public slots:
 	virtual void alignToGrid();
 	virtual void randomizeVelocity();
 	virtual void selectInstrumentNotes( int nInstrument );
-	void setCurrentInstrument( int nInstrument );
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void scrolled( int nValue );
 

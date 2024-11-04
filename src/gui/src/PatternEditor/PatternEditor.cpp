@@ -455,8 +455,10 @@ void PatternEditor::copy()
 		positionNode.write_int( "instrument", nLowestInstrument );
 		positionNode.write_int( "note", nHighestPitch );
 	} else {
-		positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
-		positionNode.write_int( "instrument", pHydrogen->getSelectedInstrumentNumber() );
+		positionNode.write_int( "position",
+								m_pPatternEditorPanel->getCursorPosition() );
+		positionNode.write_int( "instrument",
+								m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -617,11 +619,6 @@ void PatternEditor::randomizeVelocity() {
 
 	pUndo->endMacro();
 
-}
-
-void PatternEditor::setCurrentInstrument( int nInstrument ) {
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
-	m_pPatternEditorPanel->updateEditors();
 }
 
 void PatternEditor::mousePressEvent( QMouseEvent *ev )
@@ -1252,14 +1249,12 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 	if ( ev->button() == Qt::RightButton ) {
 
-		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-
 		// Needed for undo changes in the note length
 		m_nOldPoint = ev->y();
 		m_nRealColumn = nRealColumn;
 		m_nColumn = nColumn;
 		m_nPressedLine = nRow;
-		m_nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+		m_nSelectedInstrumentNumber = m_pPatternEditorPanel->getSelectedRowDB();
 	}
 
 }
