@@ -87,7 +87,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
-	m_nCursorIncrement = 0;
 
 	// Spacing between a label and the widget to its label.
 	const int nLabelSpacing = 6;
@@ -368,11 +367,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// restore grid resolution
 	int nIndex;
-	int nRes = pPref->getPatternEditorGridResolution();
-	if ( nRes == MAX_NOTES ) {
+	const int nResolution = pPref->getPatternEditorGridResolution();
+	const bool bUseTriplets = pPref->isPatternEditorUsingTriplets();
+
+	if ( nResolution == MAX_NOTES ) {
 		nIndex = 11;
-	} else if ( pPref->isPatternEditorUsingTriplets() == false ) {
-		switch ( nRes ) {
+	} else if ( ! bUseTriplets ) {
+		switch ( nResolution ) {
 			case  4: nIndex = 0; break;
 			case  8: nIndex = 1; break;
 			case 16: nIndex = 2; break;
@@ -383,7 +384,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
 		}
 	} else {
-		switch ( nRes ) {
+		switch ( nResolution ) {
 			case  8: nIndex = 6; break;
 			case 16: nIndex = 7; break;
 			case 32: nIndex = 8; break;
@@ -394,6 +395,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		}
 	}
 	m_pResolutionCombo->setCurrentIndex( nIndex );
+	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
