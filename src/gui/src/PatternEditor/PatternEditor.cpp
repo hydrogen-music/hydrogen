@@ -57,8 +57,6 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	, QWidget( pParent )
 	, m_selection( this )
 	, m_bEntered( false )
-	, m_nResolution( 8 )
-	, m_bUseTriplets( false )
 	, m_pDraggedNote( nullptr )
 	, m_pPatternEditorPanel( panel )
 	, m_bSelectNewNotes( false )
@@ -70,7 +68,9 @@ PatternEditor::PatternEditor( QWidget *pParent,
 {
 
 	const auto pPref = H2Core::Preferences::get_instance();
-	
+
+	m_nResolution = pPref->getPatternEditorGridResolution();
+	m_bUseTriplets = pPref->isPatternEditorUsingTriplets();
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nActiveWidth = m_nEditorWidth;
