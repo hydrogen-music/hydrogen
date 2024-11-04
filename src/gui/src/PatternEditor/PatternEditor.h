@@ -317,7 +317,7 @@ protected:
 	/** Cached properties used when adjusting a note property via
 	 * right-press mouse movement.
 	 */
-	int m_nSelectedInstrumentNumber = 0;
+	int m_nSelectedRow = 0;
 	int m_nRealColumn = 0;
 	int m_nColumn = 0;
 	int m_nRow = 0;

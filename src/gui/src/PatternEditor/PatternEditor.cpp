@@ -65,6 +65,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	, m_nTick( -1 )
 	, m_editor( Editor::None )
 	, m_mode( Mode::None )
+	, m_nSelectedRow( 0 )
 {
 
 	const auto pPref = H2Core::Preferences::get_instance();
@@ -1254,7 +1255,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		m_nRealColumn = nRealColumn;
 		m_nColumn = nColumn;
 		m_nPressedLine = nRow;
-		m_nSelectedInstrumentNumber = m_pPatternEditorPanel->getSelectedRowDB();
+		m_nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	}
 
 }
@@ -1372,7 +1373,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 										 m_pDraggedNote->get_length(),
 										 m_nOldLength,
 										 pHydrogen->getSelectedPatternNumber(),
-										 m_nSelectedInstrumentNumber,
+										 m_nSelectedRow,
 										 m_editor );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
@@ -1390,7 +1391,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 										 m_pDraggedNote->get_position(),
 										 m_nRow,
 										 pHydrogen->getSelectedPatternNumber(),
-										 m_nSelectedInstrumentNumber,
+										 m_nSelectedRow,
 										 m_mode,
 										 m_editor,
 										 m_fVelocity,
