@@ -419,18 +419,20 @@ void InstrumentLine::mouseDoubleClickEvent( QMouseEvent* ev ) {
 
 void InstrumentLine::functionClearNotes()
 {
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-	auto pSelectedInstrument = pHydrogen->getSong()->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
-	if ( selectedPatternNr == -1 ) {
-		// No pattern selected. Nothing to be clear.
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+	auto pSelectedInstrument =
+		pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
 		return;
 	}
 
@@ -444,7 +446,11 @@ void InstrumentLine::functionClearNotes()
 		}
 	}
 	if( noteList.size() > 0 ){
-		SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
+		SE_clearNotesPatternEditorAction *action =
+			new SE_clearNotesPatternEditorAction(
+				noteList,
+				m_nInstrumentNumber,
+				HydrogenApp::get_instance()->getPatternEditorPanel()->getPatternNumber() );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
@@ -591,8 +597,14 @@ void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 void InstrumentLine::functionFillNotes( int every )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-		// No pattern selected. Nothing to be filled.
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pPattern =
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	if ( pPattern == nullptr ) {
 		return;
 	}
 
@@ -607,42 +619,36 @@ void InstrumentLine::functionFillNotes( int every )
 	}
 	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
 
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
 	QStringList notePositions;
 
-	auto pCurrentPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-	if (pCurrentPattern != nullptr) {
-		int nPatternSize = pCurrentPattern->getLength();
-		auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
-		if ( pSelectedInstrument == nullptr ) {
-			ERRORLOG( "No instrument selected" );
-			return;
-		}
-		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-
-		for (int i = 0; i < nPatternSize; i += nResolution) {
-			bool noteAlreadyPresent = false;
-			const Pattern::notes_t* notes = pCurrentPattern->getNotes();
-			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pCurrentPattern) {
-				Note *pNote = it->second;
-				if ( pNote->get_instrument() == pSelectedInstrument ) {
-					// note already exists
-					noteAlreadyPresent = true;
-					break;
-				}
-			}
-
-			if ( noteAlreadyPresent == false ) {
-				notePositions << QString("%1").arg(i);
-			}
-		}
-		SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	int nPatternSize = pPattern->getLength();
+	auto pSelectedInstrument = pPatternEditorPanel->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
 	}
+	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
+	for (int i = 0; i < nPatternSize; i += nResolution) {
+		bool noteAlreadyPresent = false;
+		const Pattern::notes_t* notes = pPattern->getNotes();
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pPattern) {
+			Note *pNote = it->second;
+			if ( pNote->get_instrument() == pSelectedInstrument ) {
+				// note already exists
+				noteAlreadyPresent = true;
+				break;
+			}
+		}
+
+		if ( noteAlreadyPresent == false ) {
+			notePositions << QString("%1").arg(i);
+		}
+	}
+	SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction(
+		notePositions, nSelectedInstrument,
+		pPatternEditorPanel->getPatternNumber() );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 

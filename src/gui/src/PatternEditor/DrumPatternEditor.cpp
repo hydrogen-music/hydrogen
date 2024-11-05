@@ -105,7 +105,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPattern =
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
 	}
@@ -156,7 +156,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction(
 		nColumn,
 		nRow,
-		pHydrogen->getSelectedPatternNumber(),
+		m_pPatternEditorPanel->getPatternNumber(),
 		oldLength,
 		oldVelocity,
 		fOldPan,
@@ -181,7 +181,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( pPattern == nullptr ) {
 		return;
 	}
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -366,8 +366,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 
 	if ( nSelectedPatternNumber < 0 ||
 		 nSelectedPatternNumber >= pPatternList->size() ) {
-		ERRORLOG( QString( "Invalid pattern number [%1]" )
-				  .arg( nSelectedPatternNumber ) );
+		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
+				  .arg( nSelectedPatternNumber ).arg( pPatternList->size() ) );
 		return;
 	}
 	
@@ -545,9 +545,8 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
 	}
@@ -596,7 +595,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				pUndo->push( new SE_addOrDeleteNoteAction(
 								 nPosition,
 								 nInstrument,
-								 pHydrogen->getSelectedPatternNumber(),
+								 m_pPatternEditorPanel->getPatternNumber(),
 								 pNote->get_length(),
 								 pNote->get_velocity(),
 								 pNote->getPan(),
@@ -617,7 +616,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				pUndo->push( new SE_addOrDeleteNoteAction(
 								 nNewPosition,
 								 nNewInstrument,
-								 pHydrogen->getSelectedPatternNumber(),
+								 m_pPatternEditorPanel->getPatternNumber(),
 								 pNote->get_length(),
 								 pNote->get_velocity(),
 								 pNote->getPan(),
@@ -635,7 +634,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				pUndo->push( new SE_moveNoteAction(
 								 nPosition,
 								 nInstrument,
-								 pHydrogen->getSelectedPatternNumber(),
+								 m_pPatternEditorPanel->getPatternNumber(),
 								 nNewPosition,
 								 nNewInstrument,
 								 pNote ) );
@@ -907,8 +906,7 @@ QRect DrumPatternEditor::getKeyboardCursorRect()
 
 void DrumPatternEditor::selectAll()
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -924,7 +922,8 @@ void DrumPatternEditor::selectAll()
 void DrumPatternEditor::deleteSelection()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
 	}
@@ -943,7 +942,7 @@ void DrumPatternEditor::deleteSelection()
 				actions.push_back( new SE_addOrDeleteNoteAction(
 									   pNote->get_position(),
 									   pInstrumentList->index( pNote->get_instrument() ),
-									   pHydrogen->getSelectedPatternNumber(),
+									   m_pPatternEditorPanel->getPatternNumber(),
 									   pNote->get_length(),
 									   pNote->get_velocity(),
 									   pNote->getPan(),
@@ -982,7 +981,7 @@ void DrumPatternEditor::paste()
 		return;
 	}
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
 	}
@@ -1071,7 +1070,7 @@ void DrumPatternEditor::paste()
 				pUndo->push( new SE_addOrDeleteNoteAction(
 								 nPos,
 								 nInstrument,
-								 pHydrogen->getSelectedPatternNumber(),
+								 m_pPatternEditorPanel->getPatternNumber(),
 								 pNote->get_length(),
 								 pNote->get_velocity(),
 								 pNote->getPan(),
@@ -1449,14 +1448,21 @@ void DrumPatternEditor::undoRedoAction( int column,
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	std::shared_ptr<Pattern> pPattern = nullptr;
-	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
-
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
 	}
 
-	if( pPattern != nullptr ) {
+	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
+	if ( nSelectedPatternNumber < 0 ||
+		 nSelectedPatternNumber >= pPatternList->size() ) {
+		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
+				  .arg( nSelectedPatternNumber ).arg( pPatternList->size() ) );
+		return;
+	}
+
+	auto pPattern = pPatternList->get( nSelectedPatternNumber );
+
+	if ( pPattern != nullptr ) {
 		const Pattern::notes_t* notes = pPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BOUND_END(notes,it,column) {
 			Note *pNote = it->second;

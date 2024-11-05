@@ -147,6 +147,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// ~ Implements EventListener interface
 
 		std::shared_ptr<H2Core::Pattern> getPattern() const;
+		int getPatternNumber() const;
 
 		const std::vector<DrumPatternRow>& getDB() const;
 		/** Instead of using the exception-based range check of std::vector - a
@@ -218,8 +219,11 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		/** Prints the content of #m_db as a debug level log message for
 		 * debugging purposes. */
 		void printDB();
-	
+
+		/** Currently selected pattern cached in frontend for convenience.*/
 		std::shared_ptr<H2Core::Pattern>	m_pPattern;
+		/** Number corresponding to #m_pPattern. */
+		int m_nPatternNumber;
 
 		/** Single source of truth for which #H2Core::Note to display (in which
 		 * row) for all parts of the pattern editor.*/
@@ -326,6 +330,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 inline std::shared_ptr<H2Core::Pattern> PatternEditorPanel::getPattern() const {
 	return m_pPattern;
+}
+inline int PatternEditorPanel::getPatternNumber() const {
+	return m_nPatternNumber;
 }
 inline const std::vector<DrumPatternRow>& PatternEditorPanel::getDB() const {
 	return m_db;

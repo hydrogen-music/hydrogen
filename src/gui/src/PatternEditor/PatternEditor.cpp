@@ -508,7 +508,7 @@ void PatternEditor::alignToGrid() {
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 
 	// Align selected notes to grid.
-	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
 	}
@@ -550,7 +550,7 @@ void PatternEditor::alignToGrid() {
 		pUndo->push( new SE_moveNoteAction(
 						 nPosition,
 						 nInstrument,
-						 pHydrogen->getSelectedPatternNumber(),
+						 m_pPatternEditorPanel->getPatternNumber(),
 						 nNewPosition,
 						 nNewInstrument,
 						 pNote ) );
@@ -565,7 +565,7 @@ void PatternEditor::randomizeVelocity() {
 	auto pPattern =
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
 
-	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( pPattern == nullptr ) {
 		// No pattern selected. Nothing to be randomized.
 		return;
 	}
@@ -601,7 +601,7 @@ void PatternEditor::randomizeVelocity() {
 			new SE_editNotePropertiesVolumeAction(
 				pNote->get_position(),
 				PatternEditor::Mode::Velocity,
-				pHydrogen->getSelectedPatternNumber(),
+				m_pPatternEditorPanel->getPatternNumber(),
 				pInstrumentList->index( pNote->get_instrument() ),
 				fVal,
 				pNote->get_velocity(),
@@ -1353,11 +1353,9 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	UNUSED( ev );
 	unsetCursor();
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
-	if ( pPattern == nullptr || pHydrogen->getSelectedPatternNumber() == -1 ) {
+	if ( pPattern == nullptr ) {
 		return;
 	}
 
@@ -1372,7 +1370,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 										 m_nRow,
 										 m_pDraggedNote->get_length(),
 										 m_nOldLength,
-										 pHydrogen->getSelectedPatternNumber(),
+										 m_pPatternEditorPanel->getPatternNumber(),
 										 m_nSelectedRow,
 										 m_editor );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
@@ -1390,7 +1388,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		new SE_editNotePropertiesAction( m_pDraggedNote->get_position(),
 										 m_pDraggedNote->get_position(),
 										 m_nRow,
-										 pHydrogen->getSelectedPatternNumber(),
+										 m_pPatternEditorPanel->getPatternNumber(),
 										 m_nSelectedRow,
 										 m_mode,
 										 m_editor,
@@ -1418,8 +1416,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1490,8 +1487,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1560,8 +1556,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 
 	m_pAudioEngine->unlock();
 
-	if ( bValueChanged &&
-		 m_pPatternEditorPanel != nullptr ) {
+	if ( bValueChanged && m_pPatternEditorPanel != nullptr ) {
 		pHydrogen->setIsModified( true );
 		m_pPatternEditorPanel->updateEditors( true );
 	}

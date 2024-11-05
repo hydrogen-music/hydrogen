@@ -895,7 +895,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 void NotePropertiesRuler::addUndoAction()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
 	}
@@ -915,7 +916,7 @@ void NotePropertiesRuler::addUndoAction()
 			pUndoStack->push( new SE_editNotePropertiesVolumeAction(
 								  pNewNote->get_position(),
 								  m_mode,
-								  pHydrogen->getSelectedPatternNumber(),
+								  m_pPatternEditorPanel->getPatternNumber(),
 								  pInstrumentList->index( pNewNote->get_instrument() ),
 								  pNewNote->get_velocity(),
 								  pOldNote->get_velocity(),

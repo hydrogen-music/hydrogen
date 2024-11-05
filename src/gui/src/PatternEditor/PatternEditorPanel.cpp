@@ -66,11 +66,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_nSelectedRowDB = pHydrogen->getSelectedInstrumentNumber();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
-		const auto nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+		m_nPatternNumber = pHydrogen->getSelectedPatternNumber();
 		const auto pPatternList = pSong->getPatternList();
-		if ( nSelectedPatternNumber != -1 &&
-			 nSelectedPatternNumber < pPatternList->size() ) {
-			m_pPattern = pPatternList->get( nSelectedPatternNumber );
+		if ( m_nPatternNumber != -1 &&
+			 m_nPatternNumber < pPatternList->size() ) {
+			m_pPattern = pPatternList->get( m_nPatternNumber );
 		}
 		else {
 			m_pPattern = nullptr;
@@ -1005,11 +1005,11 @@ void PatternEditorPanel::updatePatternInfo() {
 
 	m_pPattern = nullptr;
 	if ( pSong != nullptr ) {
-		const auto nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+		m_nPatternNumber = pHydrogen->getSelectedPatternNumber();
 		const auto pPatternList = pSong->getPatternList();
-		if ( nSelectedPatternNumber != -1 &&
-			 nSelectedPatternNumber < pPatternList->size() ) {
-			m_pPattern = pPatternList->get( nSelectedPatternNumber );
+		if ( m_nPatternNumber != -1 &&
+			 m_nPatternNumber < pPatternList->size() ) {
+			m_pPattern = pPatternList->get( m_nPatternNumber );
 		}
 	}
 
@@ -1153,7 +1153,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 						  m_pPattern->getLength(),
 						  fNewDenominator,
 						  m_pPattern->getDenominator(),
-						  pHydrogen->getSelectedPatternNumber() ) );
+						  m_nPatternNumber ) );
 	pUndoStack->endMacro();
 }
 
