@@ -59,6 +59,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	, m_bIsSelected( false )
 	, m_bEntered( false )
 {
+	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -266,8 +267,9 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 							  backgroundColor, bHovered );
 
 	// Draw border indicating cursor position
-	if (  m_bIsSelected && pHydrogenApp->getPatternEditorPanel() != nullptr &&
-		  pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->hasFocus() &&
+	if (  m_bIsSelected &&
+		  m_pPatternEditorPanel->getDrumPatternEditor() != nullptr &&
+		  m_pPatternEditorPanel->getDrumPatternEditor()->hasFocus() &&
 		  ! pHydrogenApp->hideKeyboardCursor() ) {
 
 		QPen pen;
@@ -380,18 +382,18 @@ void InstrumentLine::sampleWarningClicked()
 
 void InstrumentLine::selectInstrumentNotes()
 {
-	HydrogenApp::get_instance()->getPatternEditorPanel()->selectInstrumentNotes( m_nInstrumentNumber );
+	m_pPatternEditorPanel->selectInstrumentNotes( m_nInstrumentNumber );
 }
 
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( m_nInstrumentNumber );
-	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+	m_pPatternEditorPanel->setSelectedRowDB( m_nInstrumentNumber );
+	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
 
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		if ( pSong == nullptr ) {
+		if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 			ERRORLOG( "No song set yet" );
 			return;
 		}
@@ -424,8 +426,7 @@ void InstrumentLine::functionClearNotes()
 		return;
 	}
 
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -450,7 +451,7 @@ void InstrumentLine::functionClearNotes()
 			new SE_clearNotesPatternEditorAction(
 				noteList,
 				m_nInstrumentNumber,
-				HydrogenApp::get_instance()->getPatternEditorPanel()->getPatternNumber() );
+				m_pPatternEditorPanel->getPatternNumber() );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
@@ -602,14 +603,12 @@ void InstrumentLine::functionFillNotes( int every )
 		return;
 	}
 
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
 
-	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
-	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
+	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 	int nBase;
 	if ( pPatternEditor->isUsingTriplets() ) {
 		nBase = 3;
@@ -622,7 +621,7 @@ void InstrumentLine::functionFillNotes( int every )
 	QStringList notePositions;
 
 	int nPatternSize = pPattern->getLength();
-	auto pSelectedInstrument = pPatternEditorPanel->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -647,7 +646,7 @@ void InstrumentLine::functionFillNotes( int every )
 	}
 	SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction(
 		notePositions, nSelectedInstrument,
-		pPatternEditorPanel->getPatternNumber() );
+		m_pPatternEditorPanel->getPatternNumber() );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
@@ -702,14 +701,14 @@ void InstrumentLine::onPreferencesChanged( const H2Core::Preferences::Changes& c
 
 //////
 
-PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel )
+PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent )
  : QWidget( parent )
  {
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	
 	//INFOLOG("INIT");
-	m_pPatternEditorPanel = pPatternEditorPanel;
+	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
@@ -762,6 +761,9 @@ InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 void PatternEditorInstrumentList::repaintInstrumentLines() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
 	unsigned nInstruments = pInstrList->size();
@@ -777,6 +779,9 @@ void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
@@ -799,6 +804,9 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
 
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
@@ -975,14 +983,14 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 		return;
 	}
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
 	}
 
-	QString sText = QString("move instrument:%1").arg( pSelectedInstrument->get_name() );
+	QString sText = QString("move instrument:%1")
+		.arg( pSelectedInstrument->get_name() );
 
 	QDrag *pDrag = new QDrag(this);
 	QMimeData *pMimeData = new QMimeData;
@@ -1000,7 +1008,11 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 
 
 void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrumentNumber ) {
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	if ( nInstrumentNumber == -1 ) {
 		// Update all lines.

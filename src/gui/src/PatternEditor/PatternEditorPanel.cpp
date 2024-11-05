@@ -437,7 +437,7 @@ void PatternEditorPanel::createEditors() {
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
 	m_pDrumPatternEditor = new DrumPatternEditor(
-		m_pEditorScrollView->viewport(), this );
+		m_pEditorScrollView->viewport() );
 
 	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
 	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
@@ -463,7 +463,8 @@ void PatternEditorPanel::createEditors() {
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
+	m_pPianoRollEditor = new PianoRollEditor(
+		m_pPianoRollScrollView->viewport(), m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
@@ -487,7 +488,8 @@ void PatternEditorPanel::createEditors() {
 	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
-	m_pInstrumentList = new PatternEditorInstrumentList( m_pInstrListScrollView->viewport(), this );
+	m_pInstrumentList = new PatternEditorInstrumentList(
+		m_pInstrListScrollView->viewport() );
 	m_pInstrListScrollView->setWidget( m_pInstrumentList );
 	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
 	m_pInstrumentList->setFocusPolicy( Qt::ClickFocus );
@@ -503,8 +505,9 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteVelocityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this,
-													 NotePropertiesRuler::Mode::Velocity );
+	m_pNoteVelocityEditor = new NotePropertiesRuler(
+		m_pNoteVelocityScrollView->viewport(),
+		NotePropertiesRuler::Mode::Velocity );
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
@@ -520,8 +523,8 @@ void PatternEditorPanel::createEditors() {
 	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this,
-												NotePropertiesRuler::Mode::Pan );
+	m_pNotePanEditor = new NotePropertiesRuler(
+		m_pNotePanScrollView->viewport(), NotePropertiesRuler::Mode::Pan );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
 
@@ -539,8 +542,9 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this,
-													NotePropertiesRuler::Mode::LeadLag );
+	m_pNoteLeadLagEditor = new NotePropertiesRuler(
+		m_pNoteLeadLagScrollView->viewport(),
+		NotePropertiesRuler::Mode::LeadLag );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
 
@@ -558,8 +562,9 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this,
-													NotePropertiesRuler::Mode::NoteKey );
+	m_pNoteNoteKeyEditor = new NotePropertiesRuler(
+		m_pNoteNoteKeyScrollView->viewport(),
+		NotePropertiesRuler::Mode::NoteKey );
 	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
 	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
@@ -578,8 +583,9 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this,
-														NotePropertiesRuler::Mode::Probability );
+	m_pNoteProbabilityEditor = new NotePropertiesRuler(
+		m_pNoteProbabilityScrollView->viewport(),
+		NotePropertiesRuler::Mode::Probability );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
@@ -664,11 +670,8 @@ void PatternEditorPanel::updateDrumkitLabel( )
 	m_pDrumkitLabel->setFont( font );
 
 	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		auto pDrumkit = pSong->getDrumkit();
-		if ( pDrumkit != nullptr ) {
-			m_pDrumkitLabel->setText( pDrumkit->getName() );
-		}
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
 	}
 }
 

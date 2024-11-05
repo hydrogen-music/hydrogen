@@ -79,9 +79,7 @@ public:
 	};
 	static QString modeToQString( const Mode& mode );
 	
-	PatternEditor( QWidget *pParent,
-				   PatternEditorPanel *panel );
-
+	PatternEditor( QWidget *pParent );
 	~PatternEditor();
 
 
@@ -249,7 +247,7 @@ protected:
 	
 	H2Core::AudioEngine* m_pAudioEngine;
 
-	PatternEditorPanel *m_pPatternEditorPanel;
+	PatternEditorPanel* m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
 	QList< QAction * > m_selectionActions;

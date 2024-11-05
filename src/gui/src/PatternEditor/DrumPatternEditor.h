@@ -49,7 +49,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 	Q_OBJECT
 
 	public:
-		DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel);
+		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
 
 		void addOrDeleteNoteAction(		int nColumn,

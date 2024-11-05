@@ -92,6 +92,7 @@ public slots:
 
 
 	private:
+		PatternEditorPanel* m_pPatternEditorPanel;
 		QMenu *m_pFunctionPopup;
 		QMenu *m_pFunctionPopupSub;
 		QLabel *m_pNameLbl;
@@ -132,7 +133,7 @@ class PatternEditorInstrumentList :  public QWidget,
 	Q_OBJECT
 
 	public:
-		PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel );
+		PatternEditorInstrumentList( QWidget *parent );
 		~PatternEditorInstrumentList();
 
 		virtual void mousePressEvent(QMouseEvent *event) override;
@@ -151,7 +152,7 @@ class PatternEditorInstrumentList :  public QWidget,
 
 
 	protected:
-		PatternEditorPanel *m_pPatternEditorPanel;
+		PatternEditorPanel* m_pPatternEditorPanel;
 		uint m_nGridHeight;
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;

@@ -42,8 +42,6 @@ namespace H2Core
 	class NoteKey;
 }
 
-class PatternEditorPanel;
-
 /** \ingroup docGUI*/
 //! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
 //! which property it edits. There are individual instances for each property which are hidden and
@@ -54,7 +52,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 	Q_OBJECT
 	public:
 
-		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, Mode mode );
+		NotePropertiesRuler( QWidget *parent, Mode mode );
 		~NotePropertiesRuler();
 		
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;

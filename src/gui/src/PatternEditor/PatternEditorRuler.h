@@ -88,6 +88,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
+		PatternEditorPanel* m_pPatternEditorPanel;
 		uint m_nRulerWidth;
 		uint m_nRulerHeight;
 		float m_fGridWidth;

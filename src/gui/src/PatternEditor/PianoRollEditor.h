@@ -41,8 +41,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
     H2_OBJECT(PianoRollEditor)
     Q_OBJECT
 	public:
-		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
-						 QScrollArea *pScrollView );
+		PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView );
 		~PianoRollEditor();
 
 		void addOrDeleteNoteAction( int nColumn,

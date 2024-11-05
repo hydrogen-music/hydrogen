@@ -48,6 +48,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setMouseTracking( true );
+	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
 	//infoLog( "INIT" );
 
@@ -96,8 +97,7 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
 	bool bIsSelectedPatternPlaying = false;	// is the pattern playing now?
 
@@ -145,16 +145,13 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 			nTick = -1;
 		}
 
-		auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
-		if ( pPatternEditorPanel != nullptr ) {
-			pPatternEditorPanel->getDrumPatternEditor()->updatePosition( nTick );
-			pPatternEditorPanel->getPianoRollEditor()->updatePosition( nTick );
-			pPatternEditorPanel->getVelocityEditor()->updatePosition( nTick );
-			pPatternEditorPanel->getPanEditor()->updatePosition( nTick );
-			pPatternEditorPanel->getLeadLagEditor()->updatePosition( nTick );
-			pPatternEditorPanel->getNoteKeyEditor()->updatePosition( nTick );
-			pPatternEditorPanel->getProbabilityEditor()->updatePosition( nTick );
-		}
+		m_pPatternEditorPanel->getDrumPatternEditor()->updatePosition( nTick );
+		m_pPatternEditorPanel->getPianoRollEditor()->updatePosition( nTick );
+		m_pPatternEditorPanel->getVelocityEditor()->updatePosition( nTick );
+		m_pPatternEditorPanel->getPanEditor()->updatePosition( nTick );
+		m_pPatternEditorPanel->getLeadLagEditor()->updatePosition( nTick );
+		m_pPatternEditorPanel->getNoteKeyEditor()->updatePosition( nTick );
+		m_pPatternEditorPanel->getProbabilityEditor()->updatePosition( nTick );
 	}
 }
 
@@ -199,13 +196,7 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 	if ( ev->button() == Qt::LeftButton &&
 		 ev->x() < m_nWidthActive ) {
 		auto pHydrogen = Hydrogen::get_instance();
-		auto pHydrogenApp = HydrogenApp::get_instance();
-		DrumPatternEditor* pDrumPatternEditor;
-		if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
-			pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
-		} else {
-			pDrumPatternEditor = nullptr;
-		}
+		auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 
 		// Fall back to default values in case the GUI is starting and the
 		// pattern editor is not ready yet.
@@ -244,24 +235,12 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 	if ( ev->x() < m_nWidthActive ) {
 	
 		auto pHydrogenApp = HydrogenApp::get_instance();
-		DrumPatternEditor* pDrumPatternEditor;
-		if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
-			pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
-		} else {
-			pDrumPatternEditor = nullptr;
-		}
+		auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 
 		// Fall back to default values in case the GUI is starting and the
 		// pattern editor is not ready yet.
-		float fResolution;
-		bool bIsUsingTriplets;
-		if ( pDrumPatternEditor != nullptr ) {
-			fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
-			bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
-		} else {
-			fResolution = 8;
-			bIsUsingTriplets = false;
-		}
+		float fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
+		bool bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
 
 		float fTripletFactor;
 		if ( bIsUsingTriplets ) {
@@ -315,13 +294,7 @@ void PatternEditorRuler::invalidateBackground()
 
 void PatternEditorRuler::createBackground()
 {
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	DrumPatternEditor* pDrumPatternEditor;
-	if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
-		pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
-	} else {
-		pDrumPatternEditor = nullptr;
-	}
+	auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	// Resize pixmap if pixel ratio has changed
@@ -403,12 +376,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	DrumPatternEditor* pDrumPatternEditor;
-	if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
-		pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
-	} else {
-		pDrumPatternEditor = nullptr;
-	}
+	auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 
 	if (!isVisible()) {
 		return;
@@ -427,20 +395,17 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 															pixelRatio * ev->rect().height() ) );
 
 	// draw cursor
-	if ( pHydrogenApp->getPatternEditorPanel() != nullptr &&
-		 ( pDrumPatternEditor->hasFocus() ||
-		   pHydrogenApp->getPatternEditorPanel()->getVelocityEditor()->hasFocus() ||
-		   pHydrogenApp->getPatternEditorPanel()->getPanEditor()->hasFocus() ||
-		   pHydrogenApp->getPatternEditorPanel()->getLeadLagEditor()->hasFocus() ||
-		   pHydrogenApp->getPatternEditorPanel()->getNoteKeyEditor()->hasFocus() ||
-		   pHydrogenApp->getPatternEditorPanel()->getProbabilityEditor()->hasFocus() ||
-		   pHydrogenApp->getPatternEditorPanel()->getPianoRollEditor()->hasFocus() ) &&
+	if ( ( pDrumPatternEditor->hasFocus() ||
+		   m_pPatternEditorPanel->getVelocityEditor()->hasFocus() ||
+		   m_pPatternEditorPanel->getPanEditor()->hasFocus() ||
+		   m_pPatternEditorPanel->getLeadLagEditor()->hasFocus() ||
+		   m_pPatternEditorPanel->getNoteKeyEditor()->hasFocus() ||
+		   m_pPatternEditorPanel->getProbabilityEditor()->hasFocus() ||
+		   m_pPatternEditorPanel->getPianoRollEditor()->hasFocus() ) &&
 		! pHydrogenApp->hideKeyboardCursor() ) {
 
-		int nCursorX = m_fGridWidth *
-			pHydrogenApp->getPatternEditorPanel()->getCursorPosition() +
-			PatternEditor::nMargin - 4 -
-			m_fGridWidth * 5;
+		int nCursorX = m_fGridWidth * m_pPatternEditorPanel->getCursorPosition() +
+			PatternEditor::nMargin - 4 - m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
 		painter.setPen( QPen( pPref->getTheme().m_color.m_cursorColor, 2 ) );

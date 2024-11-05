@@ -45,9 +45,8 @@
 
 using namespace H2Core;
 
-PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
-								  QScrollArea *pScrollView)
-	: PatternEditor( pParent, panel )
+PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
+	: PatternEditor( pParent )
 	, m_pScrollView( pScrollView )
 {
 	m_editor = PatternEditor::Editor::PianoRoll;
@@ -180,10 +179,11 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 		color.setAlpha( 125 );
 	}
 
-	int nStartY = HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->verticalScrollBar()->value();
-	int nStartX = HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->horizontalScrollBar()->value();
-	int nEndY = nStartY + HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->viewport()->size().height();
-	int nEndX = std::min( nStartX + HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->viewport()->size().width(), width() );
+	const auto pScrollArea = m_pPatternEditorPanel->getPianoRollEditorScrollArea();
+	int nStartY = pScrollArea->verticalScrollBar()->value();
+	int nStartX = pScrollArea->horizontalScrollBar()->value();
+	int nEndY = nStartY + pScrollArea->viewport()->size().height();
+	int nEndX = std::min( nStartX + pScrollArea->viewport()->size().width(), width() );
 
 	QPen pen( color );
 	pen.setWidth( 4 );
@@ -326,8 +326,10 @@ void PianoRollEditor::createBackground()
 
 void PianoRollEditor::drawPattern()
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
 
 	validateSelection();
 
@@ -622,8 +624,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 											 bool noteOff,
 											 bool isDelete )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -933,8 +934,7 @@ void PianoRollEditor::paste()
 
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}

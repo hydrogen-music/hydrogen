@@ -54,8 +54,8 @@
 
 using namespace H2Core;
 
-DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
- : PatternEditor( parent, panel )
+DrumPatternEditor::DrumPatternEditor( QWidget* parent )
+ : PatternEditor( parent )
 {
 	m_editor = PatternEditor::Editor::DrumPattern;
 	const auto pPref = H2Core::Preferences::get_instance();
@@ -103,8 +103,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 										 bool bDoAdd, bool bDoDelete,
 										 bool bIsNoteOff ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
@@ -466,8 +465,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 										int nNewRow,
 										Note *pNote)
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -837,8 +835,7 @@ void DrumPatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
 std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsIntersecting( const QRect& r )
 {
 	std::vector<SelectionIndex> result;
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return std::move( result );
 	}
@@ -1098,8 +1095,7 @@ void DrumPatternEditor::paste()
 ///
 void DrumPatternEditor::drawPattern(QPainter& painter)
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1208,8 +1204,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 ///
 void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1406,11 +1401,11 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 		color.setAlpha( 125 );
 	}
 
-	int nStartY = HydrogenApp::get_instance()->getPatternEditorPanel()->getVerticalScrollBar()->value();
-	int nStartX = HydrogenApp::get_instance()->getPatternEditorPanel()->getHorizontalScrollBar()->value();
+	int nStartY = m_pPatternEditorPanel->getVerticalScrollBar()->value();
+	int nStartX = m_pPatternEditorPanel->getHorizontalScrollBar()->value();
 	int nEndY = std::min( static_cast<int>( m_nGridHeight ) * Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments()->size(),
-						 nStartY + HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditorScrollArea()->viewport()->size().height() );
-	int nEndX = std::min( nStartX + HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditorScrollArea()->viewport()->size().width(), width() );
+						 nStartY + m_pPatternEditorPanel->getDrumPatternEditorScrollArea()->viewport()->size().height() );
+	int nEndX = std::min( nStartX + m_pPatternEditorPanel->getDrumPatternEditorScrollArea()->viewport()->size().width(), width() );
 
 	QPen pen( color );
 	pen.setWidth( 4 );

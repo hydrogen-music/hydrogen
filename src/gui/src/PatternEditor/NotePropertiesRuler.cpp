@@ -45,8 +45,8 @@ int NotePropertiesRuler::nNoteKeyHeight =
 	NotePropertiesRuler::nNoteKeyLineHeight * KEYS_PER_OCTAVE;
 
 
-NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, PatternEditor::Mode mode )
-	: PatternEditor( parent, pPatternEditorPanel )
+NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditor::Mode mode )
+	: PatternEditor( parent )
 	, m_bEntered( false )
 {
 
@@ -101,8 +101,7 @@ NotePropertiesRuler::~NotePropertiesRuler()
 void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -214,8 +213,7 @@ void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
 	
 	// Update cursor position
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
-		auto pPattern =
-			HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+		auto pPattern = m_pPatternEditorPanel->getPattern();
 		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 		if ( ( pPattern != nullptr &&
 			   nColumn >= (int)pPattern->getLength() ) ||
@@ -250,8 +248,7 @@ void NotePropertiesRuler::mouseDragEndEvent( QMouseEvent *ev ) {
 
 
 void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -356,8 +353,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 
 void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -393,8 +389,7 @@ void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 //! Preserve current note properties at position x (or in selection, if any) for use in later UndoAction.
 void NotePropertiesRuler::prepareUndoAction( int x )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -434,8 +429,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 //! set. This occurs either when the mouse is released, or when the pointer moves off of the note's column.
 void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if (pPattern == nullptr) {
 		return;
 	}
@@ -651,8 +645,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1008,19 +1001,19 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 	
 	switch ( m_mode ) {
 	case PatternEditor::Mode::Velocity:
-		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteVelocityScrollArea();
+		pScrollArea = m_pPatternEditorPanel->getNoteVelocityScrollArea();
 		break;
 	case PatternEditor::Mode::Pan:
-		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNotePanScrollArea();
+		pScrollArea = m_pPatternEditorPanel->getNotePanScrollArea();
 		break;
 	case PatternEditor::Mode::LeadLag:
-		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteLeadLagScrollArea();
+		pScrollArea = m_pPatternEditorPanel->getNoteLeadLagScrollArea();
 		break;
 	case PatternEditor::Mode::NoteKey:
-		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteNoteKeyScrollArea();
+		pScrollArea = m_pPatternEditorPanel->getNoteNoteKeyScrollArea();
 		break;
 	case PatternEditor::Mode::Probability:
-		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteProbabilityScrollArea();
+		pScrollArea = m_pPatternEditorPanel->getNoteProbabilityScrollArea();
 		break;
 	case PatternEditor::Mode::None:
 	default:
@@ -1125,8 +1118,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
@@ -1212,8 +1204,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
 	QColor baseLineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
@@ -1523,8 +1514,7 @@ void NotePropertiesRuler::createBackground()
 
 std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( const QRect& r ) {
 	std::vector<SelectionIndex> result;
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return std::move( result );
 	}

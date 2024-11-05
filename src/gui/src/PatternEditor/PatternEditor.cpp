@@ -51,14 +51,12 @@ using namespace std;
 using namespace H2Core;
 
 
-PatternEditor::PatternEditor( QWidget *pParent,
-							  PatternEditorPanel *panel )
+PatternEditor::PatternEditor( QWidget *pParent )
 	: Object()
 	, QWidget( pParent )
 	, m_selection( this )
 	, m_bEntered( false )
 	, m_pDraggedNote( nullptr )
-	, m_pPatternEditorPanel( panel )
 	, m_bSelectNewNotes( false )
 	, m_bFineGrained( false )
 	, m_bCopyNotMove( false )
@@ -67,6 +65,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	, m_mode( Mode::None )
 	, m_nSelectedRow( 0 )
 {
+	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
 	const auto pPref = H2Core::Preferences::get_instance();
 
@@ -203,8 +202,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 									H2Core::Note *pNote,
 									bool bIsForeground ) const
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -480,8 +478,7 @@ void PatternEditor::cut()
 
 void PatternEditor::selectInstrumentNotes( int nInstrument )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -504,10 +501,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 ///
 void PatternEditor::alignToGrid() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-
-	// Align selected notes to grid.
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
@@ -562,9 +556,7 @@ void PatternEditor::alignToGrid() {
 
 void PatternEditor::randomizeVelocity() {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
-
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected. Nothing to be randomized.
 		return;
@@ -683,8 +675,7 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 
 bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& elements )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return false;
 	}
@@ -744,8 +735,7 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
 											   const std::vector< H2Core::Note *>& overwritten )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -782,8 +772,7 @@ void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *
 void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
 												   const std::vector< H2Core::Note *>& overwritten )
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -997,8 +986,7 @@ QColor PatternEditor::selectedNoteColor() const {
 ///
 void PatternEditor::validateSelection()
 {
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1081,8 +1069,7 @@ std::vector<std::shared_ptr<Pattern>> PatternEditor::getPatternsToShow( void )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::vector<std::shared_ptr<Pattern>> patterns;
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	// When using song mode without the pattern editor being locked
 	// only the current pattern will be shown. In every other base
@@ -1148,8 +1135,7 @@ bool PatternEditor::isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pat
 
 void PatternEditor::updateWidth() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
 	if ( pPattern != nullptr ) {
 		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
@@ -1262,8 +1248,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 
-	auto pPattern =
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPattern();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || m_pDraggedNote == nullptr ) {
 		return;
 	}
@@ -1343,9 +1328,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	m_pAudioEngine->unlock(); // unlock the audio engine
 	Hydrogen::get_instance()->setIsModified( true );
 
-	if ( m_pPatternEditorPanel != nullptr ) {
-		m_pPatternEditorPanel->updateEditors( true );
-	}
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
@@ -1354,7 +1337,6 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	unsetCursor();
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1464,9 +1446,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	
 	pHydrogen->setIsModified( true );
 
-	if ( m_pPatternEditorPanel != nullptr ) {
-		m_pPatternEditorPanel->updateEditors( true );
-	}
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 
@@ -1556,7 +1536,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 
 	m_pAudioEngine->unlock();
 
-	if ( bValueChanged && m_pPatternEditorPanel != nullptr ) {
+	if ( bValueChanged ) {
 		pHydrogen->setIsModified( true );
 		m_pPatternEditorPanel->updateEditors( true );
 	}
