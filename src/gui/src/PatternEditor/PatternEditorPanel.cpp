@@ -213,7 +213,36 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionCombo->setMinimumSize( QSize( 24, 18 ) );
 	m_pResolutionCombo->setMaximumSize( QSize( 500, 18 ) );
 	m_pResolutionCombo->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
-	// is triggered from inside PatternEditorPanel()
+
+	int nIndex;
+	const int nResolution = pPref->getPatternEditorGridResolution();
+	const bool bUseTriplets = pPref->isPatternEditorUsingTriplets();
+
+	if ( nResolution == MAX_NOTES ) {
+		nIndex = 11;
+	} else if ( ! bUseTriplets ) {
+		switch ( nResolution ) {
+			case  4: nIndex = 0; break;
+			case  8: nIndex = 1; break;
+			case 16: nIndex = 2; break;
+			case 32: nIndex = 3; break;
+			case 64: nIndex = 4; break;
+			default:
+				nIndex = 0;
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+		}
+	} else {
+		switch ( nResolution ) {
+			case  8: nIndex = 6; break;
+			case 16: nIndex = 7; break;
+			case 32: nIndex = 8; break;
+			case 64: nIndex = 9; break;
+			default:
+				nIndex = 6;
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+		}
+	}
+	m_pResolutionCombo->setCurrentIndex( nIndex );
 	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( gridResolutionChanged( int ) ) );
 	pSizeResolLayout->addWidget( m_pResolutionCombo );
@@ -366,35 +395,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	updatePatternName();
 
 	// restore grid resolution
-	int nIndex;
-	const int nResolution = pPref->getPatternEditorGridResolution();
-	const bool bUseTriplets = pPref->isPatternEditorUsingTriplets();
-
-	if ( nResolution == MAX_NOTES ) {
-		nIndex = 11;
-	} else if ( ! bUseTriplets ) {
-		switch ( nResolution ) {
-			case  4: nIndex = 0; break;
-			case  8: nIndex = 1; break;
-			case 16: nIndex = 2; break;
-			case 32: nIndex = 3; break;
-			case 64: nIndex = 4; break;
-			default:
-				nIndex = 0;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
-		}
-	} else {
-		switch ( nResolution ) {
-			case  8: nIndex = 6; break;
-			case 16: nIndex = 7; break;
-			case 32: nIndex = 8; break;
-			case 64: nIndex = 9; break;
-			default:
-				nIndex = 6;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
-		}
-	}
-	m_pResolutionCombo->setCurrentIndex( nIndex );
 	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
 
 	HydrogenApp::get_instance()->addEventListener( this );
