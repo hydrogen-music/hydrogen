@@ -152,6 +152,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix grid line rendering with resolution set to `off` (#2015).
 		- Fix handling of adjacent tags with same content in Director by @aldimond
 			(#2036).
+		- Fix copy/cut/paste in PianoRollEditor.
 	* Removed
 		- Windows 32bit support dropped (due to upstream limitations).
 

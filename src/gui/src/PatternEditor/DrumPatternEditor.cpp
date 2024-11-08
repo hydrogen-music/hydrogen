@@ -1016,9 +1016,10 @@ void DrumPatternEditor::paste()
 			const int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
 			const int nCurrentRow = m_pPatternEditorPanel->getSelectedRowDB();
 
-			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
+			nDeltaPos = nCurrentPos -
+				positionNode.read_int( "minColumn", nCurrentPos );
 			nDeltaInstrument = nCurrentRow -
-				positionNode.read_int( "instrument", nCurrentRow );
+				positionNode.read_int( "minRow", nCurrentRow );
 		}
 
 	} else {
