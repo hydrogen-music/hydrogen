@@ -227,7 +227,6 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 }
 
 void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
-
 	if ( ev->x() > m_nActiveWidth ) {
 		return;
 	}
@@ -267,8 +266,9 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	// Update cursor position
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		const auto pPattern = m_pPatternEditorPanel->getPattern();
-		if ( ( pPattern != nullptr && nColumn >= pPattern->getLength() ) ||
-			 nColumn >= MAX_INSTRUMENTS ) {
+		if ( pPattern != nullptr &&
+			 nColumn >= m_pPatternEditorPanel->getPatternEditorRuler()->
+				 getWidthActive() ) {
 			return;
 		}
 
