@@ -181,13 +181,6 @@ public:
 								   float fProbability );
 	static void triggerStatusMessage( H2Core::Note* pNote, const Mode& mode );
 
-	// Pitch / line conversions
-	int lineToPitch( int nLine ) {
-		return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nLine;
-	}
-	int pitchToLine( int nPitch ) {
-		return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nPitch;
-	}
 	/**
 	 * Determines whether to pattern editor should show further
 	 * patterns (determined by getPattersToShow()) or just the
@@ -306,8 +299,6 @@ protected:
 	virtual void focusOutEvent( QFocusEvent *ev ) override;
 
 	int m_nTick;
-		
-	unsigned m_nOctaves = 7;
 
 	/** Stores the properties of @a pNote in member variables.*/
 	void storeNoteProperties( const H2Core::Note* pNote );

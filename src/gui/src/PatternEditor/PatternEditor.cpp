@@ -1415,8 +1415,8 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 			return;
 		}
 		
-		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
-		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
+		Note::Octave pressedOctave = Note::pitchToOctave( Note::lineToPitch( nRow ) );
+		Note::Key pressedNoteKey = Note::pitchToKey( Note::lineToPitch( nRow ) );
 
 		auto pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
 												pSelectedInstrument,
@@ -1485,8 +1485,8 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 			return;
 		}
 		
-		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
-		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
+		Note::Octave pressedOctave = Note::pitchToOctave( Note::lineToPitch( nRow ) );
+		Note::Key pressedNoteKey = Note::pitchToKey( Note::lineToPitch( nRow ) );
 
 		pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
 										   pSelectedInstrument,

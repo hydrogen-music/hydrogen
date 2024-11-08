@@ -38,6 +38,7 @@
 #define OCTAVE_MAX              3
 #define OCTAVE_OFFSET           3
 #define OCTAVE_DEFAULT          0
+#define OCTAVE_NUMBER           7
 #define KEYS_PER_OCTAVE         12
 
 #define VELOCITY_MIN            0.0f
@@ -284,12 +285,6 @@ class Note : public H2Core::Object<Note>
 		 * __octave * KEYS_PER_OCTAVE + __key
 		 * \endcode */
 		float get_notekey_pitch() const;
-	/**
-	 *
-	 * @returns
-	 * \code{.cpp}
-	 * __octave * 12 + __key + __pitch + __instrument->get_pitch_offset()
-	 * \endcode*/ 
 		float get_total_pitch() const;
 
 		/** return a string representation of key-octave */
@@ -403,6 +398,14 @@ class Note : public H2Core::Object<Note>
 		}
 		static inline int octaveKeyToPitch( Octave octave, Key key ) {
 			return KEYS_PER_OCTAVE * (int)octave + (int)key;
+		}
+
+		/** Pitch / line conversions used in GUI. */
+		static int lineToPitch( int nLine ) {
+			return KEYS_PER_OCTAVE * ( OCTAVE_MIN + OCTAVE_NUMBER ) - 1 - nLine;
+		}
+		static int pitchToLine( int nPitch ) {
+			return KEYS_PER_OCTAVE * ( OCTAVE_MIN + OCTAVE_NUMBER ) - 1 - nPitch;
 		}
 
 	/**
