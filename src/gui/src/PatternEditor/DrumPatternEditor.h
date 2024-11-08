@@ -87,7 +87,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 								float probability,
 								int noteKeyVal,
 								int octaveKeyVal );
-		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
 										   int nSelectedInstrument,
 										   int patternNumber );
