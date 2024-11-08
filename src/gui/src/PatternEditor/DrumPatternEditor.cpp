@@ -1526,7 +1526,6 @@ void DrumPatternEditor::functionClearNotesUndoAction( const std::list< H2Core::N
 		assert( pNote );
 		pPattern->insertNote( pNote );
 	}
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 	m_pPatternEditorPanel->updateEditors();
 }
@@ -1593,7 +1592,6 @@ void DrumPatternEditor::functionPasteNotesUndoAction(
 	m_pAudioEngine->unlock();
 
 	// Update editors
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	m_pPatternEditorPanel->updateEditors();
 }
 
@@ -1676,7 +1674,6 @@ void DrumPatternEditor::functionPasteNotesRedoAction(
 	}
 	m_pAudioEngine->unlock();
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	// Update editors
 	m_pPatternEditorPanel->updateEditors();
 }
@@ -1722,7 +1719,6 @@ void DrumPatternEditor::functionFillNotesUndoAction( const QStringList& noteList
 	}
 	m_pAudioEngine->unlock();	// unlock the audio engine
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	m_pPatternEditorPanel->updateEditors();
 }
 
@@ -1758,7 +1754,6 @@ void DrumPatternEditor::functionFillNotesRedoAction( const QStringList& noteList
 	}
 	m_pAudioEngine->unlock();	// unlock the audio engine
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	m_pPatternEditorPanel->updateEditors();
 }
 
@@ -1802,7 +1797,6 @@ void DrumPatternEditor::functionRandomVelocityAction( const QStringList& noteVel
 	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();	// unlock the audio engine
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	m_pPatternEditorPanel->updateEditors();
 }
 
