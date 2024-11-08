@@ -1264,37 +1264,39 @@ public:
 	{
 		//qDebug() << "Add Piano Roll note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
-																					 __pressedLine,
-																					 __selectedPatternNumber,
-																					 __nSelectedInstrumentnumber,
-																					 __oldLength,
-																					 __oldVelocity,
-																					 m_fOldPan,
-																					 __oldLeadLag,
-																					 __oldNoteKeyVal,
-																					 __oldOctaveKeyVal,
-																					 __probability,
-																					 false,
-																					 !__isDelete );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction(
+			__nColumn,
+			__pressedLine,
+			__selectedPatternNumber,
+			__nSelectedInstrumentnumber,
+			__oldLength,
+			__oldVelocity,
+			m_fOldPan,
+			__oldLeadLag,
+			__oldNoteKeyVal,
+			__oldOctaveKeyVal,
+			__probability,
+			false,
+			!__isDelete );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Add Piano Roll Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
-																					 __pressedLine,
-																					 __selectedPatternNumber,
-																					 __nSelectedInstrumentnumber,
-																					 __oldLength,
-																					 __oldVelocity,
-																					 m_fOldPan,
-																					 __oldLeadLag,
-																					 __oldNoteKeyVal,
-																					 __oldOctaveKeyVal,
-																					 __probability,
-																					 false,
-																					 __isDelete );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction(
+			__nColumn,
+			__pressedLine,
+			__selectedPatternNumber,
+			__nSelectedInstrumentnumber,
+			__oldLength,
+			__oldVelocity,
+			m_fOldPan,
+			__oldLeadLag,
+			__oldNoteKeyVal,
+			__oldOctaveKeyVal,
+			__probability,
+			false,
+			__isDelete );
 	}
 private:
 	int __nColumn;
