@@ -998,8 +998,10 @@ void DrumPatternEditor::paste()
 			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
 			int nCurrentInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 
-			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
-			nDeltaInstrument = nCurrentInstrument - positionNode.read_int( "instrument", nCurrentInstrument );
+			nDeltaPos = nCurrentPos -
+				positionNode.read_int( "minColumn", nCurrentPos );
+			nDeltaInstrument = nCurrentInstrument -
+				positionNode.read_int( "minRow", nCurrentInstrument );
 		}
 
 	} else {
