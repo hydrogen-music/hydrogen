@@ -881,8 +881,10 @@ void PianoRollEditor::paste()
 		if ( !positionNode.isNull() ) {
 			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
 
-			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
-			nDeltaPitch = m_nCursorPitch - positionNode.read_int( "pitch", m_nCursorPitch );
+			nDeltaPos = nCurrentPos -
+				positionNode.read_int( "minColumn", nCurrentPos );
+			nDeltaPitch = m_nCursorPitch -
+				positionNode.read_int( "maxPitch", m_nCursorPitch );
 		}
 	} else {
 
