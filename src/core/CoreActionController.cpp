@@ -1770,6 +1770,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pDrumkit->addInstrument( pNewInstrument,
 							 nOldInstrumentNumber );
+	pHydrogen->renameJackPorts( pSong );
 	pSong->getPatternList()->mapTo( pDrumkit );
 
 	// Unloading the samples of the old instrument will be done in the death
