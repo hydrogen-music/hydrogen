@@ -1397,8 +1397,12 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
+	std::shared_ptr<H2Core::Pattern> pPattern;
 
-	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( nSelectedPatternNumber != -1 &&
+		 nSelectedPatternNumber < pPatternList->size() ) {
+		pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
 	if ( pPattern == nullptr ) {
 		return;
 	}
@@ -1466,8 +1470,12 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
+	std::shared_ptr<H2Core::Pattern> pPattern;
 
-	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( nSelectedPatternNumber != -1 &&
+		 nSelectedPatternNumber < pPatternList->size() ) {
+		pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
 	if ( pPattern == nullptr ) {
 		return;
 	}
