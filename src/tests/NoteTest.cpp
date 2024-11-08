@@ -33,12 +33,13 @@
 using namespace H2Core;
 
 class NoteTest : public CppUnit::TestCase {
-	CPPUNIT_TEST_SUITE( NoteTest );
-	CPPUNIT_TEST( testMidiDefaultOffset );
-	CPPUNIT_TEST( testVirtualKeyboard );
-	CPPUNIT_TEST( testProbability );
-	CPPUNIT_TEST( testSerializeProbability );
-	CPPUNIT_TEST_SUITE_END();
+		CPPUNIT_TEST_SUITE( NoteTest );
+		CPPUNIT_TEST( testMidiDefaultOffset );
+		CPPUNIT_TEST( testPitchConversions );
+		CPPUNIT_TEST( testVirtualKeyboard );
+		CPPUNIT_TEST( testProbability );
+		CPPUNIT_TEST( testSerializeProbability );
+		CPPUNIT_TEST_SUITE_END();
 
 	void testMidiDefaultOffset() {
 		___INFOLOG( "" );
@@ -46,6 +47,51 @@ class NoteTest : public CppUnit::TestCase {
 							  ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) );
 		___INFOLOG( "passed" );
 	}
+
+		void testPitchConversions() {
+			___INFOLOG( "" );
+
+			CPPUNIT_ASSERT( H2Core::Note::C == KEY_MIN );
+			CPPUNIT_ASSERT( H2Core::Note::B == KEY_MAX );
+			CPPUNIT_ASSERT( KEYS_PER_OCTAVE == KEY_MAX - KEY_MIN + 1 );
+			CPPUNIT_ASSERT( H2Core::Note::P8Z == OCTAVE_MIN );
+			CPPUNIT_ASSERT( H2Core::Note::P8C == OCTAVE_MAX );
+			CPPUNIT_ASSERT( OCTAVE_NUMBER == OCTAVE_MAX - OCTAVE_MIN + 1 );
+			CPPUNIT_ASSERT( H2Core::Note::P8 == OCTAVE_DEFAULT );
+
+			std::vector<int> octaves = { H2Core::Note::P8Z, H2Core::Note::P8Y,
+				H2Core::Note::P8X, H2Core::Note::P8, H2Core::Note::P8A,
+				H2Core::Note::P8B, H2Core::Note::P8C, OCTAVE_MIN, OCTAVE_MAX,
+				OCTAVE_DEFAULT };
+
+			std::vector<int> keys = { H2Core::Note::C, H2Core::Note::Cs,
+				H2Core::Note::D, H2Core::Note::Ef, H2Core::Note::E,
+				H2Core::Note::Fs, H2Core::Note::G, H2Core::Note::Af,
+				H2Core::Note::A, H2Core::Note::Bf, H2Core::Note::B,
+				KEY_MIN, KEY_MAX };
+
+			auto pInstrument = std::make_shared<H2Core::Instrument>();
+			for ( const auto ooctave : octaves ) {
+				for ( const auto kkey : keys ) {
+					auto pNote = std::make_shared<H2Core::Note>( pInstrument );
+					pNote->set_key_octave(
+						static_cast<H2Core::Note::Key>(kkey),
+						static_cast<H2Core::Note::Octave>(ooctave) );
+
+					const float fNoteKeyPitch = pNote->get_notekey_pitch();
+					const int nLine = Note::pitchToLine( fNoteKeyPitch );
+					const int nPitch = Note::lineToPitch( nLine );
+					CPPUNIT_ASSERT( static_cast<int>(fNoteKeyPitch) == nPitch );
+
+					const auto key = Note::pitchToKey( nPitch );
+					const auto octave = Note::pitchToOctave( nPitch );
+					CPPUNIT_ASSERT( key == kkey );
+					CPPUNIT_ASSERT( octave == ooctave );
+				}
+			}
+
+			___INFOLOG( "passed" );
+		}
 
 	/** Check whether notes entered via the virtual keyboard can be
 	 * handled properly */
