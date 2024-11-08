@@ -991,176 +991,180 @@ Shown in table headers when referring to a license of an object.</extracomment>
     </message>
     <message>
         <source>Edit Drumkit Properties of Current Song</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>This action can not be undone!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>File could not be found!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Unable to export drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Unable to save playlist</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>modified</source>
         <extracomment>Shown e.g. as suffix in a window title in case an underlying file was * modified</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Do you want to save the changes?</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Use &apos;Save as&apos; to enable autosave.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>File not found</source>
         <extracomment>Shorter version of missing file warning. E.g. used as a prefix for the * song path in the Playlist editor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Undo</source>
         <extracomment>Used both as name for the undo menu in the main and playlist menu bar as * well as for the undo action itself. Mind the &amp; symbol. The character * right after it will be used as default shortcut (Alt + character) for * this action. You can place it somewhere else or even just drop it. But * please mind possible conflicts (double assignments) with other * shortcuts.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Redo</source>
         <extracomment>Used name for the redo action in undo menus. Mind the &amp; symbol. The * character right after it will be used as default shortcut (Alt + * character) for this action. You can place it somewhere else or even just * drop it. But please mind possible conflicts (double assignments) with * other shortcuts.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Undo &amp;History</source>
         <extracomment>Used name for the action in undo menus opening a context menu showing * the particular undo history. Mind the &amp; symbol. The character right * after it will be used as default shortcut (Alt + character) for this * action. You can place it somewhere else or even just drop it. But please * mind possible conflicts (double assignments) with other shortcuts.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Undo history</source>
         <extracomment>Window title of the dialog showing the undo history.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Unable to import drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>system</source>
         <extracomment>Suffix appended to a drumkit, song, or pattern name in case it * is found on system-level and is read-only.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>session</source>
         <extracomment>Suffix appended to a drumkit that are loaded non-persistently * into the current Hydrogen session.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>The provided filename can not be handled by your current encoding</source>
         <extracomment>Displayed in a warning message in case the user tries to read * or write data to a file/path Hydrogen can not handle in the * current encoding.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Apply</source>
         <extracomment>Text displayed on an Apply button of a dialog. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Version</source>
         <extracomment>Label of the spin box in pattern/song/drumkit properties dialog to set * the version of the particular artifact.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Author</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the author of the particular artifact.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to set * the name of the particular artifact.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Licenses</source>
         <extracomment>Label of the tab in pattern/song/drumkit properties dialog holding a * table of all contained licenses.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Notes</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Specified drumkit License String does not comply with the license selected in the combo box.</source>
         <extracomment>Shown in a warning dialog in case the user inserted a license string * which does not comply with her selected license (in the combo box).</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Drumkit imported in</source>
         <extracomment>Shown in a dialog on successful drumkit import. The path imported kit * will be appended to the translated string.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>
 But there were encoding issues.
 
 Please set your system&apos;s locale to UTF-8!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Delete instrument</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Drop instrument</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Switch drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Replace song drumkit with new and empty one</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Adding component</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Delete component</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Rename component</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Add instrument</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Timebase</source>
         <extracomment>Text displayed on the button to register Hydrogen to be in the JACK Timebase control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1203,7 +1207,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>New Drumkit</source>
         <extracomment>Name assigned to a fresh Drumkit created via the Main Menu &gt; Drumkit &gt; * New.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1233,7 +1237,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Types</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1483,11 +1487,11 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Compression Level:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1561,27 +1565,27 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>The current drumkit is read-only. Please use &apos;Duplicate&apos; to move a copy into user space.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Save a copy of the current drumkit to the Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Overwrite existing drumkit stored in</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Unable to load pixmap</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Instrument types must be unique!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1627,7 +1631,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Edit tags</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1678,43 +1682,43 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Error loading playlist.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Song is read-only.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Playlist is read-only.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Some sample licenses deviate from the one assigned to the overall drumkit [%1] and will be overwritten. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>The current &lt;b&gt;Song&lt;/b&gt; contains unsaved changes.</source>
         <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Song` in bold letters. Please do not alter them but translate the enclosed `Song` instead.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>The current &lt;b&gt;Playlist&lt;/b&gt; contains unsaved changes.</source>
         <extracomment>The symbols `&lt;b&gt;` and `&lt;/b&gt;` correspond to HTML code printing the enclosed `Playlist` in bold letters. Please do not alter them but translate the enclosed `Playlist` instead.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>New Song</source>
         <extracomment>Object containing unsaved changes.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>New Playlist</source>
         <extracomment>Object containing unsaved changes.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1729,7 +1733,7 @@ Overwrite the existing file?</source>
     <message>
         <source>New Instrument</source>
         <extracomment>Name assigned to an Instrument created either as part of a fresh kit * created via the Main Menu &gt; Drumkit &gt; New or via the &quot;Add Instrument&quot; * action.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1737,7 +1741,7 @@ Overwrite the existing file?</source>
     <message>
         <source>Main</source>
         <extracomment>Name assigned to an InstrumentComponent of a fresh instrument.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1845,21 +1849,21 @@ Value</source>
     <message>
         <source>First in Velocity</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Round Robin</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Random</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1915,15 +1919,7 @@ Value</source>
         <translation></translation>
     </message>
     <message>
-        <source>Rename instrument</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
         <translation></translation>
     </message>
     <message>
@@ -1961,7 +1957,7 @@ Value</source>
     <message>
         <source>imported from</source>
         <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2589,31 +2585,31 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Replace the drumkit of the current song with an empty one?</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Save To Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Save &amp;To Session</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Export Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>invalid drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>The file [%1] does already exist and will be overwritten.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Drumkit exported to</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2981,19 +2977,19 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>A&amp;lign to grid</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Randomize velocity</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Align notes to grid</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Random velocity</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3127,11 +3123,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Drumkit used in the current song</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Show PatchBay</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3377,15 +3373,15 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3526,27 +3522,27 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Add Songs to PlayList</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Unable to open playlist</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Unable to open selected file with write access</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>The new file is executable by the owner of the file!</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Edit playlist scripts</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Edit playlist</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3560,19 +3556,19 @@ The path to the script and the scriptname must without whitespaces.</source>
     <name>PlaylistTableWidget</name>
     <message>
         <source>Song list</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Script</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>exec Script</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>no Script</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3924,7 +3920,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Theme couldn&apos;t be imported</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4465,7 +4461,7 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Enable JACK &amp;Timebase support</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4584,15 +4580,15 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Add song to playlist</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Remove song to playlist</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Replace playlist</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5527,23 +5523,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Save current drumkit to Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Save current drumkit to NSM session folder</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Switch to next drumkit of soundlibrary</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Switch to previous drumkit of soundlibrary</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Add component to current instrument</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5792,12 +5788,12 @@ Are you sure?</source>
     <message>
         <source>system</source>
         <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>session</source>
         <extracomment>suffix appended to a drumkit name in order to make in unique.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5860,7 +5856,7 @@ Are you sure?</source>
 - %1
 
 imported into %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5963,7 +5959,7 @@ Are you sure?</source>
         <source>It is not possible to delete drumkit: 
   [%1]
 It contains samples used and loaded in the current song kit.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>

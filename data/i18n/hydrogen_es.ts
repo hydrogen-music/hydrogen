@@ -1166,6 +1166,10 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation>Renombrar instrumento</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1923,14 +1927,6 @@ Valor</translation>
     <message>
         <source>Fill 1/16 notes</source>
         <translation>Llenar notas 1/16</translation>
-    </message>
-    <message>
-        <source>Rename instrument</source>
-        <translation>Renombrar instrumento</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>Nombre de instrumento nuevo</translation>
     </message>
     <message>
         <source>Some samples for this instrument failed to load.</source>

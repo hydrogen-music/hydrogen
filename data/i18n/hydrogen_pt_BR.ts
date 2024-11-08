@@ -1165,6 +1165,10 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation>Renomear instrumento</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1914,14 +1918,6 @@ Valor</translation>
         <source>Solo</source>
         <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
         <translation>Solo</translation>
-    </message>
-    <message>
-        <source>Rename instrument</source>
-        <translation>Renomear instrumento</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>Novo nome para o instrumento</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>

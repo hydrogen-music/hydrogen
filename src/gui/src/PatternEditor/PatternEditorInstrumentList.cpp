@@ -136,7 +136,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
 								 HydrogenApp::get_instance()->getMainForm(),
 								 SLOT( action_drumkit_addInstrument() ) );
-	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
+	m_pFunctionPopup->addAction( pCommonStrings->getActionRenameInstrument(),
+								 this, SLOT( functionRenameInstrument() ) );
 	auto deleteAction =
 		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
 	connect( deleteAction, &QAction::triggered, this, [=](){
@@ -655,32 +656,33 @@ void InstrumentLine::functionRenameInstrument()
 {
 	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
 	// in InstrumentEditor.cpp
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	auto pSelectedInstrument = pHydrogen->getSong()->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	auto pSelectedInstrument =
+		pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
 	}
 
-	QString sOldName = pSelectedInstrument->get_name();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const QString sOldName = pSelectedInstrument->get_name();
 	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
-	if ( bIsOkPressed  ) {
-		pSelectedInstrument->set_name( sNewName );
+	const QString sNewName = QInputDialog::getText(
+		this, "Hydrogen", pCommonStrings->getActionRenameInstrument(),
+		QLineEdit::Normal, sOldName, &bIsOkPressed );
+	if ( bIsOkPressed ) {
+		auto pNewInstrument = std::make_shared<Instrument>(pSelectedInstrument);
+		pNewInstrument->set_name( sNewName );
 
-		if ( pHydrogen->hasJackAudioDriver() ) {
-			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-			pHydrogen->renameJackPorts( pHydrogen->getSong() );
-			pHydrogen->getAudioEngine()->unlock();
-		}
-
-		// this will force an update...
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
-	}
-	else
-	{
-		// user entered nothing or pressed Cancel
+		auto pAction = new SE_replaceInstrumentAction(
+			pNewInstrument, pSelectedInstrument,
+			SE_replaceInstrumentAction::Type::RenameInstrument,
+			sNewName, sOldName );
+		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 	}
 }
 

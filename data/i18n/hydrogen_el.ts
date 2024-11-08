@@ -1162,6 +1162,10 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation>Μετονομασία οργάνου</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1901,14 +1905,6 @@ Value</source>
     <message>
         <source>Fill 1/8 notes</source>
         <translation>Συμπλήρωμα 1/8 στιγμάτων</translation>
-    </message>
-    <message>
-        <source>Rename instrument</source>
-        <translation>Μετονομασία οργάνου</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>Όνομα του νέου οργάνου</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>

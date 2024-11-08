@@ -1152,13 +1152,18 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			/** There must be at least one instrument in a drumkit. Instead of
 			 * the deleting the last one, it will be replaced by an empty
 			 * one. */
-			DeleteLastInstrument = 2
+			DeleteLastInstrument = 2,
+			/** This could definitely be done more efficiently. But compared to
+			 * altering other instrument parameters, its name will most probably
+			 * only change very rarely. */
+			RenameInstrument = 3
 		};
 
 		SE_replaceInstrumentAction( std::shared_ptr<H2Core::Instrument> pNew,
 									std::shared_ptr<H2Core::Instrument> pOld,
 									SE_replaceInstrumentAction::Type type,
-									const QString& sName ) :
+									const QString& sName,
+									const QString& sOldName = "" ) :
 			m_pNew( pNew ),
 			m_pOld( pOld )
 		{
@@ -1178,6 +1183,11 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 				setText( QString( "%1 [%2]" )
 						 .arg( pCommonStrings->getActionDeleteInstrument() )
 						 .arg( sName ) );
+				break;
+			case Type::RenameInstrument:
+				setText( QString( "%1 [%2] -> [%3]" )
+						 .arg( pCommonStrings->getActionRenameInstrument() )
+						 .arg( sOldName ).arg( sName ) );
 				break;
 			default:
 				___ERRORLOG( QString( "Unknown type [%1]" )

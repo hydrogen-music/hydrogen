@@ -1163,6 +1163,10 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation>重命名乐器</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1918,16 +1922,8 @@ Value</source>
         <translation>填充 1/16 音符</translation>
     </message>
     <message>
-        <source>Rename instrument</source>
-        <translation>重命名乐器</translation>
-    </message>
-    <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation>该乐器的一个或多个采样无法加载。这可能是因为乐曲文件使用了旧的默认鼓组。打开新的鼓组可能解决该问题。</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>新乐器名称</translation>
     </message>
     <message>
         <source>Delete notes</source>
