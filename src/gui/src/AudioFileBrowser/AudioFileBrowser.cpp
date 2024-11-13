@@ -224,11 +224,11 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 {
 	QString path = m_pDirModel->filePath( index );
 
-	if( m_SingleClick ) {
+	if ( m_SingleClick ) {
 		browseTree( index );
 	}
 
-	if( isFileSupported( path ) ) {
+	if ( Filesystem::file_exists( path, true ) && isFileSupported( path ) ) {
 		browseTree( index );
 	}
 }
@@ -277,8 +277,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	if( isFileSupported( path2 ) )
-	{
+	if ( isFileSupported( path2 ) ) {
 
 		filelineedit->setText( fleTxt );
 		auto pNewSample = Sample::load( path2 );
@@ -369,16 +368,16 @@ void AudioFileBrowser::on_cancelBTN_clicked()
 
 void AudioFileBrowser::on_openBTN_clicked()
 {
-	if( m_pTree->selectionModel()->selectedRows().size() > 0) {
+	if ( m_pTree->selectionModel()->selectedRows().size() > 0 ) {
 		QList<QModelIndex>::iterator i;
 		QList<QModelIndex> list = m_pTree->selectionModel()->selectedRows();
 
 		for (i = list.begin(); i != list.end(); ++i) {
 			QString path2 = (*i).data().toString();
-			if( isFileSupported( path2 ) ){
+			if ( isFileSupported( path2 ) ){
 				QString path = pathLineEdit->text();
 				
-				if(! path.endsWith("/")) {
+				if (! path.endsWith("/") ) {
 					path = path + "/";
 				}
 				
