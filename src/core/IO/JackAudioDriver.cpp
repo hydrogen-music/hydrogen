@@ -994,7 +994,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 
 	/* display an XRun event in the GUI.*/
 	if ( jack_set_xrun_callback( m_pClient, jackXRunCallback, nullptr ) != 0 ) {
-		ERRORLOG( "Unable to set buffersize callback" );
+		ERRORLOG( "Unable to set XRun callback" );
 	}
 
 	/* tell the JACK server to call `jack_shutdown()' if
@@ -1022,14 +1022,14 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort1 ),
 							JACK_METADATA_PRETTY_NAME, "Main Output L",
 							"text/plain" ) != 0 ) {
-		ERRORLOG( "Unable to set pretty name of left main output" );
+		INFOLOG( "Unable to set pretty name of left main output" );
 	}
 	m_pOutputPort2 = jack_port_register( m_pClient, "out_R", JACK_DEFAULT_AUDIO_TYPE,
 					    JackPortIsOutput, 0 );
 	if ( jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort2 ),
 							JACK_METADATA_PRETTY_NAME, "Main Output R",
 							"text/plain" ) != 0 ) {
-		ERRORLOG( "Unable to set pretty name of left main output" );
+		INFOLOG( "Unable to set pretty name of right main output" );
 	}
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	if ( ( m_pOutputPort1 == nullptr ) || ( m_pOutputPort2 == nullptr ) ) {
