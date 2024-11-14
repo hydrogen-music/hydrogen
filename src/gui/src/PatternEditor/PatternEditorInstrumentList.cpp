@@ -389,7 +389,6 @@ void InstrumentLine::selectInstrumentNotes()
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
 	m_pPatternEditorPanel->setSelectedRowDB( m_nInstrumentNumber );
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
 
