@@ -80,8 +80,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	HydrogenApp::get_instance()->addEventListener( this );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditor::onPreferencesChanged );
 	
-	m_pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) ) );
@@ -742,7 +740,8 @@ void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *
 	
 	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
 	// same position.
-	m_pAudioEngine->lock( RIGHT_HERE );
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( pPattern->getNotes() );
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
@@ -764,8 +763,8 @@ void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *
 			}
 		}
 	}
-	Hydrogen::get_instance()->setIsModified( true );
-	m_pAudioEngine->unlock();
+	pHydrogen->getAudioEngine()->unlock();
+	pHydrogen->setIsModified( true );
 }
 
 
@@ -777,9 +776,10 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::No
 		return;
 	}
 	
+	auto pHydrogen = Hydrogen::get_instance();
 	// Restore previously-overwritten notes, and select notes that were selected before.
 	m_selection.clearSelection( /* bCheck=*/false );
-	m_pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	for ( auto pNote : overwritten ) {
 		Note *pNewNote = new Note( pNote );
 		pPattern->insertNote( pNewNote );
@@ -793,8 +793,8 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::No
 			}
 		}
 	}
-	Hydrogen::get_instance()->setIsModified( true );
-	m_pAudioEngine->unlock();
+	pHydrogen->getAudioEngine()->unlock();
+	pHydrogen->setIsModified( true );
 	m_pPatternEditorPanel->updateEditors();
 }
 
@@ -1067,9 +1067,10 @@ void PatternEditor::createBackground() {
 //! rather than the current pattern.
 std::vector<std::shared_ptr<Pattern>> PatternEditor::getPatternsToShow( void )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::vector<std::shared_ptr<Pattern>> patterns;
 	auto pPattern = m_pPatternEditorPanel->getPattern();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	// When using song mode without the pattern editor being locked
 	// only the current pattern will be shown. In every other base
@@ -1077,14 +1078,14 @@ std::vector<std::shared_ptr<Pattern>> PatternEditor::getPatternsToShow( void )
 	// as well.
 	if ( ! ( pHydrogen->getMode() == Song::Mode::Song &&
 			 ! pHydrogen->isPatternEditorLocked() ) ) {
-		m_pAudioEngine->lock( RIGHT_HERE );
-		if ( m_pAudioEngine->getPlayingPatterns()->size() > 0 ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
 			std::set<std::shared_ptr<Pattern>> patternSet;
 
 			std::vector<const PatternList*> patternLists;
-			patternLists.push_back( m_pAudioEngine->getPlayingPatterns() );
+			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
 			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-				patternLists.push_back( m_pAudioEngine->getNextPatterns() );
+				patternLists.push_back( pAudioEngine->getNextPatterns() );
 			}
 		
 			for ( const auto& pPatternList : patternLists ) {
@@ -1099,7 +1100,7 @@ std::vector<std::shared_ptr<Pattern>> PatternEditor::getPatternsToShow( void )
 				patterns.push_back( ppPattern );
 			}
 		}
-		m_pAudioEngine->unlock();
+		pAudioEngine->unlock();
 	}
 	else if ( pPattern != nullptr &&
 			  pHydrogen->getMode() == Song::Mode::Song &&
@@ -1257,9 +1258,10 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 		return;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
 	int nTickColumn = getColumn( ev->x() );
 
-	m_pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	int nLen = nTickColumn - m_pDraggedNote->get_position();
 
 	if ( nLen <= 0 ) {
@@ -1325,8 +1327,8 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 		m_nOldPoint = ev->y();
 	}
 
-	m_pAudioEngine->unlock(); // unlock the audio engine
-	Hydrogen::get_instance()->setIsModified( true );
+	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+	pHydrogen->setIsModified( true );
 
 	m_pPatternEditorPanel->updateEditors( true );
 }
@@ -1407,7 +1409,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 		return;
 	}
 
-	m_pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	// Find the note to edit
 	Note* pDraggedNote = nullptr;
@@ -1416,6 +1418,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentnumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			pHydrogen->getAudioEngine()->unlock();
 			return;
 		}
 		
@@ -1431,6 +1434,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			pHydrogen->getAudioEngine()->unlock();
 			return;
 		}
 		pDraggedNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument, false );
@@ -1438,7 +1442,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	else {
 		ERRORLOG( QString( "Unsupported editor [%1]" )
 				  .arg( static_cast<int>(editor) ) );
-		m_pAudioEngine->unlock();
+		pHydrogen->getAudioEngine()->unlock();
 		return;
 	}	
 		
@@ -1446,7 +1450,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 		pDraggedNote->set_length( nLength );
 	}
 
-	m_pAudioEngine->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 	
 	pHydrogen->setIsModified( true );
 
@@ -1480,7 +1484,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		return;
 	}
 
-	m_pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	// Find the note to edit
 	Note* pDraggedNote = nullptr;
@@ -1490,6 +1494,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentNumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			pHydrogen->getAudioEngine()->unlock();
 			return;
 		}
 		
@@ -1505,6 +1510,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			pHydrogen->getAudioEngine()->unlock();
 			return;
 		}
 		pDraggedNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument, false );
@@ -1512,7 +1518,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	else {
 		ERRORLOG( QString( "Unsupported editor [%1]" )
 				  .arg( static_cast<int>(editor) ) );
-		m_pAudioEngine->unlock();
+		pHydrogen->getAudioEngine()->unlock();
 		return;
 	}
 
@@ -1542,7 +1548,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		ERRORLOG("note could not be found");
 	}
 
-	m_pAudioEngine->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 
 	if ( bValueChanged ) {
 		pHydrogen->setIsModified( true );

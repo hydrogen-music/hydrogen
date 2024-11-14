@@ -421,7 +421,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		if ( pPref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
 			Note *pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
-			m_pAudioEngine->getSampler()->noteOn( pNote2 );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn( pNote2 );
 		}
 	}
 
@@ -643,7 +643,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	Note::Octave pressedoctave = Note::pitchToOctave( Note::lineToPitch( pressedLine ) );
 	Note::Key pressednotekey = Note::pitchToKey( Note::lineToPitch( pressedLine ) );
 
-	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
 
 	if ( isDelete ) {
 		auto pNote = pPattern->findNote(
@@ -683,7 +683,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		}
 	}
 	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock(); // unlock the audio engine
+	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 
 	m_pPatternEditorPanel->updateEditors( true );
 }
@@ -702,13 +702,13 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	m_pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	PatternList *pPatternList = pSong->getPatternList();
 	Note *pFoundNote = nullptr;
 
 	if ( nPattern < 0 || nPattern > pPatternList->size() ) {
 		ERRORLOG( "Invalid pattern number" );
-		m_pAudioEngine->unlock();
+		pHydrogen->getAudioEngine()->unlock();
 		return;
 	}
 
@@ -732,7 +732,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	}
 	if ( pFoundNote == nullptr ) {
 		ERRORLOG( "Couldn't find note to move" );
-		m_pAudioEngine->unlock();
+		pHydrogen->getAudioEngine()->unlock();
 		return;
 	}
 
@@ -742,8 +742,8 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	pPattern->insertNote( pFoundNote );
 	pFoundNote->set_key_octave( newKey, newOctave );
 
+	pHydrogen->getAudioEngine()->unlock();
 	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();
 
 	m_pPatternEditorPanel->updateEditors( true );
 }

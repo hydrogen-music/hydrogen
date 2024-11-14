@@ -36,7 +36,6 @@
 
 namespace H2Core
 {
-	class AudioEngine;
 	class Note;
 	class Instrument;
 }
@@ -238,8 +237,6 @@ protected:
 	bool m_bSelectNewNotes;
 	H2Core::Note *m_pDraggedNote;
 	
-	H2Core::AudioEngine* m_pAudioEngine;
-
 	PatternEditorPanel* m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
