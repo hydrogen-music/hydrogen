@@ -282,8 +282,8 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 		return nullptr;
 	}
 
-	if( pSelectedLayer->nSelectedLayer != -1 ||
-		nSelectedLayer != -1 ) {
+	if ( pSelectedLayer->nSelectedLayer != -1 ||
+		 nSelectedLayer != -1 ) {
 		// This function was already called for this note and a
 		// specific layer the sample will be taken from was already
 		// selected or it is provided as an input argument.
@@ -333,17 +333,16 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 			}
 		}
 
-		// In some instruments the start and end velocities of a layer
-		// are not set perfectly giving rise to some 'holes'.
-		// Occasionally the velocity of a note can fall into it
-		// causing the sampler to just skip it. Instead, we will
-		// search for the nearest sample and play this one instead.
+		// In some instruments the start and end velocities of a layer are not
+		// set perfectly giving rise to some 'holes'. Occasionally, the velocity
+		// of a note will fall into it. We have to take care of that by
+		// searching for the nearest sample and play this one instead.
+		//
+		// Apart from that, when having multiple components but not an
+		// associated sample for all of them in all instruments (this is
+		// especially likely to happen with kits created in Hydrogen version >=
+		// 2.0), we might not find a sample in here.
 		if ( possibleLayersVector.size() == 0 ){
-			WARNINGLOG( QString( "Velocity [%1] did fall into a hole between the instrument layers for component [%2] of instrument [%3]." )
-						.arg( __velocity )
-						.arg( nComponentID )
-						.arg( __instrument->get_name() ) );
-			
 			float shortestDistance = 1.0f;
 			int nearestLayer = -1;
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); ++nLayer ){
@@ -362,21 +361,20 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 				}
 			}
 
-			// Check whether the search was successful and assign the results.
 			if ( nearestLayer > -1 ){
+				// velocity fell into a hole.
 				possibleLayersVector.push_back( nearestLayer );
 				if ( __instrument->sample_selection_alg() == Instrument::ROUND_ROBIN ) {
 					fRoundRobinID =
 						pInstrCompo->get_layer( nearestLayer )->get_start_velocity();
 				}
 			} else {
-				ERRORLOG( QString( "No sample found for component [%1] of instrument [%2]" )
-						  .arg( nComponentID ).arg( __instrument->get_name() ) );
+				// there is no sample.
 				return nullptr;
 			}
 		}
 
-		if( possibleLayersVector.size() > 0 ) {
+		if ( possibleLayersVector.size() > 0 ) {
 
 			int nLayerPicked;
 			switch ( __instrument->sample_selection_alg() ) {
