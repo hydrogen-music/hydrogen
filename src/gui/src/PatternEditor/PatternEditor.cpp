@@ -1301,6 +1301,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 			pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			m_pAudioEngine->unlock();
 			return;
 		}
 		
@@ -1316,6 +1317,7 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			m_pAudioEngine->unlock();
 			return;
 		}
 		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
@@ -1378,6 +1380,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 			pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			m_pAudioEngine->unlock();
 			return;
 		}
 		
@@ -1393,6 +1396,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
 		if ( pSelectedInstrument == nullptr ) {
 			ERRORLOG( "No instrument selected" );
+			m_pAudioEngine->unlock();
 			return;
 		}
 		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
