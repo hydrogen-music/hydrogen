@@ -328,8 +328,8 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 }
 
 void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
-												int nInstrumentRow,
-												int nSelectedPatternNumber,
+												int nRow,
+												int nPatternNumber,
 												int oldLength,
 												float oldVelocity,
 												float fOldPan,
@@ -346,31 +346,29 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return;
 	}
 	
 	PatternList *pPatternList = pSong->getPatternList();
-
-	if ( nSelectedPatternNumber < 0 ||
-		 nSelectedPatternNumber >= pPatternList->size() ) {
+	if ( nPatternNumber < 0 ||
+		 nPatternNumber >= pPatternList->size() ) {
 		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
-				  .arg( nSelectedPatternNumber ).arg( pPatternList->size() ) );
+				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
 		return;
 	}
 	
-	auto pPattern = pPatternList->get( nSelectedPatternNumber );
+	auto pPattern = pPatternList->get( nPatternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Pattern found for pattern number [%1] is not valid" )
-				  .arg( nSelectedPatternNumber ) );
+				  .arg( nPatternNumber ) );
 		return;
 	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrumentRow );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( nInstrumentRow ) );
+	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( row.nInstrumentID == -1 && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
 	}
 
@@ -387,7 +385,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 				ERRORLOG( "Invalid note" );
 				continue;
 			}
-			if ( pNote->get_instrument_id() == pSelectedInstrument->get_id() &&
+			if ( pNote->get_instrument_id() == row.nInstrumentID &&
+				 pNote->getType() == row.sType &&
 				 ( ( isNoteOff && pNote->get_note_off() ) ||
 				   ( pNote->get_key() == oldNoteKeyVal &&
 					 pNote->get_octave() == oldOctaveKeyVal &&
@@ -417,8 +416,22 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			nLength = 1;
 			fProbability = 1.0;
 		}
-		
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength );
+
+		std::shared_ptr<Instrument> pInstrument = nullptr;
+		if ( row.nInstrumentID != -1 ) {
+			pInstrument =
+				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
+			if ( pInstrument == nullptr ) {
+				ERRORLOG( QString( "Instrument [%1] could not be found" )
+						  .arg( row.nInstrumentID ) );
+				pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+				return;
+			}
+		}
+
+		auto pNote = new Note( pInstrument, nPosition, fVelocity, fPan, nLength );
+		pNote->set_instrument_id( row.nInstrumentID );
+		pNote->setType( row.sType );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -435,8 +448,9 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			pNote->set_just_recorded(true);
 		}
 		// hear note
-		if ( listen && !isNoteOff && pSelectedInstrument->hasSamples() ) {
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength);
+		if ( listen && !isNoteOff && pInstrument != nullptr &&
+			 pInstrument->hasSamples() ) {
+			auto pNote2 = new Note( pInstrument, 0, fVelocity, fPan, nLength);
 			pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote2);
 		}
 	}

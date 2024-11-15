@@ -54,7 +54,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 
 		void addOrDeleteNoteAction(		int nColumn,
 										int row,
-										int selectedPatternNumber,
+										int nPatternNumber,
 										int oldLength,
 										float oldVelocity,
 										float fOldPan,
