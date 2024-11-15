@@ -1455,8 +1455,10 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 											  float fPan,
 											  float fLeadLag,
 											  float fProbability,
-											  int nNoteKey,
-											  int nOctaveKey )
+											  int nNewNoteKey,
+											  int nOldNoteKey,
+											  int nNewOctaveKey,
+											  int nOldOctaveKey )
 {
 	auto pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -1486,8 +1488,8 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 	else {
 		pNote = pPattern->findNote(
 			nColumn, nColumn, row.nInstrumentID, row.sType,
-			static_cast<Note::Key>(nNoteKey),
-			static_cast<Note::Octave>(nOctaveKey), false );
+			static_cast<Note::Key>(nOldNoteKey),
+			static_cast<Note::Octave>(nOldOctaveKey), false );
 	}
 
 	bool bValueChanged = false;
@@ -1513,10 +1515,10 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 			}
 			break;
 		case Mode::NoteKey:
-			if ( pNote->get_key() != nNoteKey ||
-				 pNote->get_octave() != nOctaveKey ) {
-				pNote->set_key_octave( static_cast<Note::Key>(nNoteKey),
-									   static_cast<Note::Octave>(nOctaveKey) );
+			if ( pNote->get_key() != nNewNoteKey ||
+				 pNote->get_octave() != nNewOctaveKey ) {
+				pNote->set_key_octave( static_cast<Note::Key>(nNewNoteKey),
+									   static_cast<Note::Octave>(nNewOctaveKey) );
 				bValueChanged = true;
 			}
 			break;

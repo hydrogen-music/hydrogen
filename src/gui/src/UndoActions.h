@@ -821,7 +821,9 @@ public:
 												 m_fOldLeadLag,
 												 m_fOldProbability,
 												 m_nOldNoteKey,
-												 m_nOldOctaveKey );
+												 m_nNoteKey,
+												 m_nOldOctaveKey,
+												 m_nOctaveKey );
 	}
 	virtual void redo() {
 		PatternEditor::editNotePropertiesAction( m_mode,
@@ -834,7 +836,9 @@ public:
 												 m_fLeadLag,
 												 m_fProbability,
 												 m_nNoteKey,
-												 m_nOctaveKey );
+												 m_nOldNoteKey,
+												 m_nOctaveKey,
+												 m_nOldOctaveKey );
 	}
 
 private:

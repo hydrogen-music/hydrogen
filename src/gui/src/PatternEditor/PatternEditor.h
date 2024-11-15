@@ -166,7 +166,12 @@ public:
 							   int nSelectedPatternNumber,
 							   int nSelectedInstrumentnumber,
 							   const Editor& editor );
-	
+
+		/** For notes in #PianoRollEditor and the note key version of
+		 * #NotePropertiesEditor @a nOldNoteKey and @a nOldOctaveKey will be
+		 * used to find the actual #H2Core::Note to alter. In the latter
+		 * adjusting note/octave can be done too. This is covered using @a
+		 * nNewNoteKey and @a nNewOctaveKey. */
 	static void editNotePropertiesAction( const Mode& mode,
 										  const Editor& editor,
 										  int nPatternNumber,
@@ -176,8 +181,10 @@ public:
 										  float fPan,
 										  float fLeadLag,
 										  float fProbability,
-										  int nNoteKey,
-										  int nOctaveKey );
+										  int nNewNoteKey,
+										  int nOldNoteKey,
+										  int nNewOctaveKey,
+										  int nOldOctaveKey );
 	static void triggerStatusMessage( H2Core::Note* pNote, const Mode& mode );
 
 	/**
