@@ -456,17 +456,20 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	int nInstrumentNumber;
-	if ( bPlaySelectedInstrument ) {
-		nInstrumentNumber = getSelectedInstrumentNumber();
-	} else {
-		nInstrumentNumber = m_nInstrumentLookupTable[ nInstrument ];
+	int nInstrumentId = -1;
+	if ( bPlaySelectedInstrument && m_nSelectedInstrumentNumber >= 0 &&
+		 m_nSelectedInstrumentNumber < pInstrumentList->size() ) {
+		nInstrumentId =
+			pInstrumentList->get( m_nSelectedInstrumentNumber )->get_id();
 	}
-	auto pInstr = pInstrumentList->get( nInstrumentNumber );
+	else {
+		nInstrumentId = m_nInstrumentLookupTable[ nInstrument ];
+	}
+	auto pInstr = pInstrumentList->find( nInstrumentId );
 	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieved instrument [%1]. Plays selected instrument: [%2]" )
-				  .arg( nInstrumentNumber )
-				  .arg( bPlaySelectedInstrument ) );
+		ERRORLOG( QString( "Unable to retrieved instrument [id: %1]. Plays selected instrument [%2]: %3" )
+				  .arg( nInstrumentId ).arg( bPlaySelectedInstrument )
+				  .arg( m_nSelectedInstrumentNumber ) );
 		pAudioEngine->unlock();
 		return false;
 	}
@@ -517,7 +520,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.m_column = nTickInPattern;
-			noteAction.m_row = nInstrumentNumber;
+			noteAction.m_instrumentId = nInstrumentId;
 			noteAction.m_pattern = currentPatternNumber;
 			noteAction.f_velocity = fVelocity;
 			noteAction.f_pan = fPan;

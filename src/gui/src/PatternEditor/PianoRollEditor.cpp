@@ -382,14 +382,15 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Note::Octave octave = (Note::Octave)nOctave;
 	Note::Key notekey = (Note::Key)nNotekey;
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row" );
 		return;
 	}
 
-	Note* pOldNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument,
-										 notekey, octave );
+	Note* pOldNote = pPattern->findNote(
+		nColumn, nRealColumn, selectedRow.nInstrumentID, selectedRow.sType,
+		notekey, octave );
 
 	int nLength = -1;
 	float fVelocity = 0.8f;
@@ -397,15 +398,15 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	float fLeadLag = 0.0f;
 	float fProbability = 1.0f;
 
-	if ( pOldNote && !bDoDelete ) {
+	if ( pOldNote != nullptr && !bDoDelete ) {
 		// Found an old note, but we don't want to delete, so just return.
 		return;
-	} else if ( !pOldNote && !bDoAdd ) {
+	} else if ( pOldNote == nullptr && !bDoAdd ) {
 		// No note there, but we don't want to add a new one, so return.
 		return;
 	}
 
-	if ( pOldNote ) {
+	if ( pOldNote != nullptr ) {
 		nLength = pOldNote->get_length();
 		fVelocity = pOldNote->get_velocity();
 		fPan = pOldNote->getPan();
@@ -415,13 +416,14 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		fProbability = pOldNote->get_probability();
 	}
 
-	if ( pOldNote == nullptr ) {
-		// hear note
-		const auto pPref = Preferences::get_instance();
-		if ( pPref->getHearNewNotes() && pSelectedInstrument->hasSamples() ) {
-			Note *pNote2 = new Note( pSelectedInstrument );
+	if ( pOldNote == nullptr && Preferences::get_instance()->getHearNewNotes() &&
+		 selectedRow.nInstrumentID != -1 ) {
+		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
+		if ( pSelectedInstrument->hasSamples() ) {
+			auto pNote2 = new Note( m_pPatternEditorPanel->getSelectedInstrument() );
 			pNote2->set_key_octave( notekey, octave );
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn( pNote2 );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+				noteOn( pNote2 );
 		}
 	}
 
@@ -465,10 +467,9 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row clicked" );
 		return;
 	}
 
@@ -480,8 +481,8 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	if ( ev->button() == Qt::LeftButton ) {
 		if ( ev->modifiers() & Qt::ShiftModifier ) {
 			H2Core::Note *pNote = pPattern->findNote(
-				nColumn, nRealColumn, pSelectedInstrument, pressednotekey,
-				pressedoctave );
+				nColumn, nRealColumn, selectedRow.nInstrumentID,
+				selectedRow.sType, pressednotekey, pressedoctave );
 			if ( pNote != nullptr ) {
 				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction(
 					nColumn,
@@ -577,9 +578,10 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int nRow, nColumn, nRealColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
 
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row clicked" );
 		return;
 	}
 
@@ -587,15 +589,15 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	Note::Key pressedNoteKey = Note::pitchToKey( Note::lineToPitch( nRow ) );
 	m_nCursorPitch = Note::lineToPitch( nRow );
 
-	if (ev->button() == Qt::RightButton ) {
+	if ( ev->button() == Qt::RightButton ) {
 		m_pDraggedNote = pPattern->findNote(
-			nColumn, nRealColumn, pSelectedInstrument, pressedNoteKey,
-			pressedOctave, false );
+			nColumn, nRealColumn, selectedRow.nInstrumentID,
+			selectedRow.sType, pressedNoteKey, pressedOctave, false );
 
 		// Store note-specific properties.
 		storeNoteProperties( m_pDraggedNote );
 		
-		m_nRow = nRow;
+		m_nDragStartRow = nRow;
 	}
 }
 
@@ -613,7 +615,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 											 int pressedLine,
 											 int selectedPatternNumber,
-											 int selectedinstrument,
+											 int nRow,
 											 int oldLength,
 											 float oldVelocity,
 											 float fOldPan,
@@ -631,12 +633,15 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( selectedinstrument );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Instrument [%1] could not be found" )
-				  .arg( selectedinstrument ) );
+	PatternList *pPatternList = pSong->getPatternList();
+
+	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( row.nInstrumentID == -1 && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
 	}
 
@@ -647,7 +652,8 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 
 	if ( isDelete ) {
 		auto pNote = pPattern->findNote(
-			nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
+			nColumn, -1, row.nInstrumentID, row.sType, pressednotekey,
+			pressedoctave );
 		if ( pNote != nullptr ) {
 			// the pNote exists...remove it!
 			pPattern->removeNote( pNote );
@@ -668,9 +674,23 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			fPan = 0.f;
 			nLength = 1;
 		}
-		
-		auto pNote = new Note( pSelectedInstrument, nPosition, fVelocity,
+
+		std::shared_ptr<Instrument> pInstrument = nullptr;
+		if ( row.nInstrumentID != -1 ) {
+			pInstrument =
+				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
+			if ( pInstrument == nullptr ) {
+				ERRORLOG( QString( "Instrument [%1] could not be found" )
+						  .arg( row.nInstrumentID ) );
+				pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+				return;
+			}
+		}
+
+		auto pNote = new Note( pInstrument, nPosition, fVelocity,
 							   fPan, nLength );
+		pNote->set_instrument_id( row.nInstrumentID );
+		pNote->setType( row.sType );
 		pNote->set_note_off( noteOff );
 		if ( ! noteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -682,8 +702,8 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			m_selection.addToSelection( pNote );
 		}
 	}
-	pHydrogen->setIsModified( true );
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+	pHydrogen->setIsModified( true );
 
 	m_pPatternEditorPanel->updateEditors( true );
 }
@@ -772,7 +792,7 @@ void PianoRollEditor::deleteSelection()
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Delete a selection.
-		const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+		const int nRow = m_pPatternEditorPanel->getSelectedRowDB();
 		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 		if ( pSelectedInstrument == nullptr ) {
 			DEBUGLOG( "No instrument selected" );
@@ -789,7 +809,7 @@ void PianoRollEditor::deleteSelection()
 										   pNote->get_position(),
 										   nLine,
 										   m_pPatternEditorPanel->getPatternNumber(),
-										   nSelectedRow,
+										   m_pPatternEditorPanel->getSelectedRowDB(),
 										   pNote->get_length(),
 										   pNote->get_velocity(),
 										   pNote->getPan(),

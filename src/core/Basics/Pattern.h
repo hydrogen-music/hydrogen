@@ -157,28 +157,36 @@ class Pattern : public H2Core::Object<Pattern>
 		 */
 		void insertNote( Note* pNote );
 		/**
-		 * search for a note at a given index within m_notes which correspond to the given arguments
+		 * search for a note at a given index within m_notes which correspond to
+		 * the given arguments
+		 *
 		 * \param nIdx_a the first m_notes index to search in
 		 * \param nIdx_b the second m_notes index to search in, will be omitted if is -1
-		 * \param pInstrument the instrument the note should be playing
+		 * \param nInstrumentId the instrument ID the note should be associated
+		 *   with
+		 * \param sInstrumentType the instrument type the note should be
+		 *   associated with
 		 * \param bStrict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* findNote( int nIdx_a, int nIdx_b,
-						 std::shared_ptr<Instrument> pInstrument,
-						 bool bStrict = true ) const;
+		Note* findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
+						const QString& sInstrumentType,
+						bool bStrict = true ) const;
 		/**
 		 * search for a note at a given index within m_notes which correspond to the given arguments
 		 * \param nIdx_a the first m_notes index to search in
 		 * \param nIdx_b the second m_notes index to search in, will be omitted if is -1
-		 * \param pInstrument the instrument the note should be playing
+		 * \param nInstrumentId the instrument ID the note should be associated
+		 *   with
+		 * \param sInstrumentType the instrument type the note should be
+		 *   associated with
 		 * \param key the key that should be set to the note
 		 * \param octave the octave that should be set to the note
 		 * \param bStrict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* findNote( int nIdx_a, int nIdx_b,
-						std::shared_ptr<Instrument> pInstrument, Note::Key key,
+		Note* findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
+						const QString& sInstrumentType, Note::Key key,
 						Note::Octave octave, bool bStrict = true ) const;
 		/**
 		 * removes a given note from m_notes, it's not deleted

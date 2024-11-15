@@ -274,15 +274,15 @@ void Pattern::saveTo( XMLNode& node,
 	}
 }
 
-Note* Pattern::findNote( int nIdx_a, int nIdx_b,
-						 std::shared_ptr<Instrument> pInstrument, Note::Key key,
+Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
+						 const QString& sInstrumentType, Note::Key key,
 						 Note::Octave octave, bool bStrict ) const
 {
 	for ( notes_cst_it_t it = m_notes.lower_bound( nIdx_a );
 		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote->match( pInstrument, key, octave ) ) {
+		if ( pNote->match( nInstrumentId, sInstrumentType, key, octave ) ) {
 			return pNote;
 		}
 	}
@@ -293,7 +293,7 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b,
 		  it != m_notes.upper_bound( nIdx_b ); it++ ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote->match( pInstrument, key, octave ) ) {
+		if ( pNote->match( nInstrumentId, sInstrumentType, key, octave ) ) {
 			return pNote;
 		}
 	}
@@ -307,7 +307,7 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b,
 			  it != m_notes.upper_bound( n ); it++ ) {
 			auto pNote = it->second;
 			assert( pNote );
-			if ( pNote->match( pInstrument, key, octave ) &&
+			if ( pNote->match( nInstrumentId, sInstrumentType, key, octave ) &&
 				 ( nIdx_b <= pNote->get_position() + pNote->get_length() &&
 				   nIdx_b >= pNote->get_position() ) ) {
 				return pNote;
@@ -317,20 +317,17 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b,
 	return nullptr;
 }
 
-Note* Pattern::findNote( int nIdx_a, int nIdx_b,
-						  std::shared_ptr<Instrument> pInstrument,
+Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
+						  const QString& sInstrumentType,
 						  bool bStrict ) const
 {
-	if ( pInstrument == nullptr ) {
-		return nullptr;
-	}
-
 	notes_cst_it_t it;
 	for ( it = m_notes.lower_bound( nIdx_a );
 		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote->get_instrument() == pInstrument ) {
+		if ( pNote->get_instrument_id() == nInstrumentId &&
+			 pNote->getType() == sInstrumentType ) {
 			return pNote;
 		}
 	}
@@ -341,7 +338,8 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b,
 		  it != m_notes.upper_bound( nIdx_b ); it++ ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote->get_instrument() == pInstrument ) {
+		if ( pNote->get_instrument_id() == nInstrumentId &&
+			 pNote->getType() == sInstrumentType ) {
 			return pNote;
 		}
 	}
@@ -355,7 +353,8 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b,
 			  it != m_notes.upper_bound( n ); it++ ) {
 			auto pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() == pInstrument &&
+			if ( pNote->get_instrument_id() == nInstrumentId &&
+				 pNote->getType() == sInstrumentType &&
 				 ( ( nIdx_b <= pNote->get_position() + pNote->get_length() )
 				   && nIdx_b >= pNote->get_position() ) ) {
 				return pNote;

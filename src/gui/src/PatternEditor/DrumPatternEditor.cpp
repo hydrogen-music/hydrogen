@@ -108,21 +108,15 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		// No pattern selected.
 		return;
 	}
-	
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set" );
+
+	auto row = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( row.nInstrumentID == -1 && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
 	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( nRow ) );
-		return;
-	}
-	
-	H2Core::Note *pOldNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument );
+	H2Core::Note *pOldNote = pPattern->findNote(
+		nColumn, nRealColumn, row.nInstrumentID, row.sType );
 
 	int oldLength = -1;
 	float oldVelocity = 0.8f;
@@ -133,15 +127,15 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	Note::Octave oldOctaveKeyVal = Note::P8;
 	bool isNoteOff = bIsNoteOff;
 
-	if ( pOldNote && !bDoDelete ) {
+	if ( pOldNote != nullptr && !bDoDelete ) {
 		// Found an old note, but we don't want to delete, so just return.
 		return;
-	} else if ( !pOldNote && !bDoAdd ) {
+	} else if ( pOldNote == nullptr && !bDoAdd ) {
 		// No note there, but we don't want to add a new one, so return.
 		return;
 	}
 
-	if ( pOldNote ) {
+	if ( pOldNote != nullptr ) {
 		oldLength = pOldNote->get_length();
 		oldVelocity = pOldNote->get_velocity();
 		fOldPan = pOldNote->getPan();
@@ -301,24 +295,20 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	}
 
 	m_pPatternEditorPanel->setSelectedRowDB( nRow );
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" ).arg( nRow ) );
-		return;
-	}
 
 	// Handles cursor repositioning and hiding and stores general
 	// properties.
 	PatternEditor::mouseDragStartEvent( ev );
 	
 	if ( ev->button() == Qt::RightButton ) {
-		m_pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
-											 pSelectedInstrument, false );
+		m_pDraggedNote = pPattern->findNote(
+			nColumn, nRealColumn, drumPatternRow.nInstrumentID,
+			drumPatternRow.sType, false );
 
 		// Store note-specific properties.
 		storeNoteProperties( m_pDraggedNote );
 		
-		m_nRow = nRow;
+		m_nDragStartRow = nRow;
 	}
 }
 

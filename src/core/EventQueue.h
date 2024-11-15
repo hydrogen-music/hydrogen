@@ -292,8 +292,8 @@ public:/**
 	Event pop_event();
 
 	struct AddMidiNoteVector {
-		int m_column;       //position
-		int m_row;          //instrument row
+		int m_column;       // position
+		int m_instrumentId; // specifies the instrument triggered
 		int m_pattern;      // pattern number
 		int m_length;
 		float f_velocity;

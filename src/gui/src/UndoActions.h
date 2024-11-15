@@ -722,18 +722,18 @@ private:
 class SE_editNoteLengthAction : public QUndoCommand
 {
 public:
-	SE_editNoteLengthAction( int nColumn, int nRealColumn, int nRow, int nLength,
-							 int nOldLength, int nSelectedPatternNumber,
-							 int nSelectedInstrumentNumber,
+	SE_editNoteLengthAction( int nColumn, int nRealColumn, int nDragStartRow,
+							 int nLength, int nOldLength,
+							 int nSelectedPatternNumber, int nSelectedRow,
 							 const PatternEditor::Editor& editor ){
 		setText( QObject::tr( "Change note length" ) );
 		m_nColumn = nColumn;
 		m_nRealColumn = nRealColumn;
-		m_nRow = nRow;
+		m_nDragStartRow = nDragStartRow;
 		m_nLength = nLength;
 		m_nOldLength = nOldLength;
 		m_nSelectedPatternNumber = nSelectedPatternNumber;
-		m_nSelectedInstrumentNumber = nSelectedInstrumentNumber;
+		m_nSelectedRow = nSelectedRow;
 		m_editor = editor;
 	}
 	virtual void undo()
@@ -742,9 +742,9 @@ public:
 		// PatternEditor will execute the call to
 		// editNoteLengthAction(). 
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
-			->editNoteLengthAction( m_nColumn, m_nRealColumn, m_nRow,
+			->editNoteLengthAction( m_nColumn, m_nRealColumn, m_nDragStartRow,
 									m_nOldLength, m_nSelectedPatternNumber,
-									m_nSelectedInstrumentNumber, m_editor );
+									m_nSelectedRow, m_editor );
 	}
 	virtual void redo()
 	{
@@ -752,18 +752,18 @@ public:
 		// PatternEditor will execute the call to
 		// editNoteLengthAction(). 
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
-			->editNoteLengthAction( m_nColumn, m_nRealColumn, m_nRow,
+			->editNoteLengthAction( m_nColumn, m_nRealColumn, m_nDragStartRow,
 									m_nLength, m_nSelectedPatternNumber,
-									m_nSelectedInstrumentNumber, m_editor );
+									m_nSelectedRow, m_editor );
 	}
 private:
 	int m_nColumn;
 	int m_nRealColumn;
-	int m_nRow;
+	int m_nDragStartRow;
 	int m_nLength;
 	int m_nOldLength;
 	int m_nSelectedPatternNumber;
-	int m_nSelectedInstrumentNumber;
+	int m_nSelectedRow;
 	PatternEditor::Editor m_editor;
 };
 
@@ -774,9 +774,9 @@ class SE_editNotePropertiesAction : public QUndoCommand
 public:
 	SE_editNotePropertiesAction( int nColumn,
 								 int nRealColumn,
-								 int nRow,
+								 int nDragStartRow,
 								 int nSelectedPatternNumber,
-								 int nSelectedInstrumentNumber,
+								 int nSelectedRow,
 								 const PatternEditor::Mode& mode,
 								 const PatternEditor::Editor& editor,
 								 float fVelocity,
@@ -792,9 +792,9 @@ public:
 						  .arg( PatternEditor::modeToQString( mode ) ) ) );
 		m_nColumn = nColumn;
 		m_nRealColumn = nRealColumn;
-		m_nRow = nRow;
+		m_nDragStartRow = nDragStartRow;
 		m_nSelectedPatternNumber = nSelectedPatternNumber;
-		m_nSelectedInstrumentNumber = nSelectedInstrumentNumber;
+		m_nSelectedRow = nSelectedRow;
 		m_mode = mode;
 		m_editor = editor;
 		m_fVelocity = fVelocity;
@@ -810,13 +810,13 @@ public:
 	{
 		// For now it does not matter which derived class of the
 		// PatternEditor will execute the call to
-		// editNoteLengthAction(). 
+		// editNotePropertiesAction().
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()->
 			editNotePropertiesAction( m_nColumn,
 									  m_nRealColumn,
-									  m_nRow,
+									  m_nDragStartRow,
 									  m_nSelectedPatternNumber,
-									  m_nSelectedInstrumentNumber,
+									  m_nSelectedRow,
 									  m_mode,
 									  m_editor,
 									  m_fOldVelocity,
@@ -828,13 +828,13 @@ public:
 	{
 		// For now it does not matter which derived class of the
 		// PatternEditor will execute the call to
-		// editNoteLengthAction(). 
+		// editNotePropertiesAction().
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()->
 			editNotePropertiesAction( m_nColumn,
 									  m_nRealColumn,
-									  m_nRow,
+									  m_nDragStartRow,
 									  m_nSelectedPatternNumber,
-									  m_nSelectedInstrumentNumber,
+									  m_nSelectedRow,
 									  m_mode,
 									  m_editor,
 									  m_fVelocity,
@@ -846,9 +846,9 @@ public:
 private:
 	int m_nColumn;
 	int m_nRealColumn;
-	int m_nRow;
+	int m_nDragStartRow;
 	int m_nSelectedPatternNumber;
-	int m_nSelectedInstrumentNumber;
+	int m_nSelectedRow;
 	PatternEditor::Mode m_mode;
 	PatternEditor::Editor m_editor;
 	float m_fVelocity;
@@ -1244,7 +1244,7 @@ public:
 	SE_addOrDeleteNotePianoRollAction( int nColumn,
 									   int pressedLine,
 									   int selectedPatternNumber,
-									   int nSelectedInstrumentnumber,
+									   int nSelectedRow,
 									   int oldLength,
 									   float oldVelocity,
 									   float fOldPan,
@@ -1253,11 +1253,12 @@ public:
 									   int oldOctaveKeyVal,
 									   float fProbability,
 									   bool isDelete ) {
-		setText( QObject::tr( "Add piano roll note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
+		setText( QObject::tr( "Add piano roll note ( %1, %2 )" )
+				 .arg( nColumn ).arg( pressedLine ) );
 		__nColumn = nColumn;
 		__pressedLine = pressedLine;
 		__selectedPatternNumber = selectedPatternNumber;
-		__nSelectedInstrumentnumber = nSelectedInstrumentnumber;
+		__nSelectedRow = nSelectedRow;
 		__oldLength = oldLength;
 		__oldVelocity = oldVelocity;
 		m_fOldPan = fOldPan;
@@ -1276,7 +1277,7 @@ public:
 			__nColumn,
 			__pressedLine,
 			__selectedPatternNumber,
-			__nSelectedInstrumentnumber,
+			__nSelectedRow,
 			__oldLength,
 			__oldVelocity,
 			m_fOldPan,
@@ -1295,7 +1296,7 @@ public:
 			__nColumn,
 			__pressedLine,
 			__selectedPatternNumber,
-			__nSelectedInstrumentnumber,
+			__nSelectedRow,
 			__oldLength,
 			__oldVelocity,
 			m_fOldPan,
@@ -1310,7 +1311,7 @@ private:
 	int __nColumn;
 	int __pressedLine;
 	int __selectedPatternNumber;
-	int __nSelectedInstrumentnumber;
+	int __nSelectedRow;
 	int __oldLength;
 	float __oldVelocity;
 	float m_fOldPan;
@@ -1325,31 +1326,53 @@ private:
 class SE_addPianoRollNoteOffAction : public QUndoCommand
 {
 public:
-	SE_addPianoRollNoteOffAction( int nColumn, int pressedLine, int selectedPatternNumber, int nSelectedInstrumentnumber ){
+	SE_addPianoRollNoteOffAction( int nColumn, int pressedLine,
+								  int selectedPatternNumber,
+								  int nSelectedRow ){
 		setText( QObject::tr( "Add  piano roll NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
 		__nColumn = nColumn;
 		__pressedLine = pressedLine;
 		__selectedPatternNumber = selectedPatternNumber;
-		__nSelectedInstrumentnumber = nSelectedInstrumentnumber;
+		__nSelectedRow = nSelectedRow;
 	}
-	virtual void undo()
-	{
-		//qDebug() << "Add off note Note Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.f, 0.0, 0, 0 , 1.0f, true, true );
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
+														 __pressedLine,
+														 __selectedPatternNumber,
+														 __nSelectedRow,
+														 -1,
+														 0.8f,
+														 0.f,
+														 0.0,
+														 0,
+														 0,
+														 1.0f,
+														 true,
+														 true );
 	}
-	virtual void redo()
-	{
-		//qDebug() << "Add off note Note Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, true, false );
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->
+			getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
+														 __pressedLine,
+														 __selectedPatternNumber,
+														 __nSelectedRow,
+														 -1,
+														 0.8f,
+														 0.f,
+														 0.0,
+														 0,
+														 0,
+														 1.0f,
+														 true,
+														 false );
 
 	}
 private:
 	int __nColumn;
 	int __pressedLine;
 	int __selectedPatternNumber;
-	int __nSelectedInstrumentnumber;
+	int __nSelectedRow;
 };
 
 /** \ingroup docGUI*/

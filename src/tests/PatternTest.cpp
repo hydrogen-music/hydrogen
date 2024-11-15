@@ -35,10 +35,12 @@ void PatternTest::testPurgeInstrument()
 
 	auto pPattern = std::make_shared<Pattern>();
 	pPattern->insertNote( pNote );
-	CPPUNIT_ASSERT( pPattern->findNote( 1, -1, pInstrument) != nullptr );
+	CPPUNIT_ASSERT( pPattern->findNote( 1, -1, pInstrument->get_id(),
+										pInstrument->getType() ) != nullptr );
 
 	pPattern->purgeInstrument( pInstrument );
-	CPPUNIT_ASSERT( pPattern->findNote( 1, -1, pInstrument) == nullptr );
+	CPPUNIT_ASSERT( pPattern->findNote( 1, -1, pInstrument->get_id(),
+										pInstrument->getType() ) == nullptr );
 
 	___INFOLOG( "passed" );
 }

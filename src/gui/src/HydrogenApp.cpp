@@ -1040,55 +1040,81 @@ void HydrogenApp::onEventQueueTimer()
 
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstrument = pSong->getDrumkit()->getInstruments()->
-			get( pQueue->m_addMidiNoteVector[0].m_row );
+		auto pSong = Hydrogen::get_instance()->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+
+		// The core registers the ID of the instrument the note is associated
+		// with. We have to correlate it to a specific row in the DB of the
+		// pattern editor.
+		bool bFound = false;
+		int nRow = 0;
+		DrumPatternRow row;
+		for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
+			if ( rrow.nInstrumentID ==
+				 pQueue->m_addMidiNoteVector[0].m_instrumentId ) {
+				row = rrow;
+				bFound = true;
+				break;
+			}
+			++nRow;
+		}
+
+		if ( ! bFound ) {
+			ERRORLOG( QString( "Could not find row in Pattern Editor corresponding to instrument ID [%1]" )
+					  .arg( pQueue->m_addMidiNoteVector[0].m_instrumentId ) );
+			return;
+		}
 		
 		// find if a (pitch matching) note is already present
-		Note* pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )->
+		const auto pOldNote = pSong->getPatternList()->
+			get( pQueue->m_addMidiNoteVector[0].m_pattern )->
 			findNote( pQueue->m_addMidiNoteVector[0].m_column,
 					  pQueue->m_addMidiNoteVector[0].m_column,
-					  pInstrument,
+					  row.nInstrumentID, row.sType,
 					  pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 					  pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
 		
 		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndoStack->beginMacro( tr( "Input Midi Note" ) );
-		if( pOldNote ) { // note found => remove it
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pOldNote->get_position(),
-																	 pOldNote->get_instrument_id(),
-																	 pQueue->m_addMidiNoteVector[0].m_pattern,
-																	 pOldNote->get_length(),
-																	 pOldNote->get_velocity(),
-																	 pOldNote->getPan(),
-																	 pOldNote->get_lead_lag(),
-																	 pOldNote->get_key(),
-																	 pOldNote->get_octave(),
-																	 pOldNote->get_probability(),
-																	 /*isDelete*/ true,
-																	 /*hearNote*/ false,
-																	 /*isMidi*/ false,
-																	 /*isInstrumentMode*/ false,
-																	 /*isNoteOff*/ false );
+		if ( pOldNote != nullptr ) { // note found => remove it
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction(
+				pOldNote->get_position(),
+				pOldNote->get_instrument_id(),
+				pQueue->m_addMidiNoteVector[0].m_pattern,
+				pOldNote->get_length(),
+				pOldNote->get_velocity(),
+				pOldNote->getPan(),
+				pOldNote->get_lead_lag(),
+				pOldNote->get_key(),
+				pOldNote->get_octave(),
+				pOldNote->get_probability(),
+				/*isDelete*/ true,
+				/*hearNote*/ false,
+				/*isMidi*/ false,
+				/*isInstrumentMode*/ false,
+				/*isNoteOff*/ false );
 			pUndoStack->push( action );
 		}
 		
 		// add the new note
-		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
-																	 pQueue->m_addMidiNoteVector[0].m_row,
-																	 pQueue->m_addMidiNoteVector[0].m_pattern,
-																	 pQueue->m_addMidiNoteVector[0].m_length,
-																	 pQueue->m_addMidiNoteVector[0].f_velocity,
-																	 pQueue->m_addMidiNoteVector[0].f_pan,
-																	 0.0,
-																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-																	 1.0f,
-																	 /*isDelete*/ false,
-																	 /*hearNote*/ false,
-																	 pQueue->m_addMidiNoteVector[0].b_isMidi,
-																	 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
-																	 /*isNoteOff*/ false );
+		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction(
+			pQueue->m_addMidiNoteVector[0].m_column,
+			nRow,
+			pQueue->m_addMidiNoteVector[0].m_pattern,
+			pQueue->m_addMidiNoteVector[0].m_length,
+			pQueue->m_addMidiNoteVector[0].f_velocity,
+			pQueue->m_addMidiNoteVector[0].f_pan,
+			0.0,
+			pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+			pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+			1.0f,
+			/*isDelete*/ false,
+			/*hearNote*/ false,
+			pQueue->m_addMidiNoteVector[0].b_isMidi,
+			pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
+			/*isNoteOff*/ false );
 		pUndoStack->push( action );
 		pUndoStack->endMacro();
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );

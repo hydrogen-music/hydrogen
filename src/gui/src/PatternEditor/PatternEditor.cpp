@@ -663,7 +663,7 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 }
 
 bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
-	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
+	return ( pNoteA->match( pNoteB )
 			 && pNoteA->get_position() == pNoteB->get_position()
 			 && pNoteA->get_velocity() == pNoteB->get_velocity()
 			 && pNoteA->getPan() == pNoteB->getPan()
@@ -1351,7 +1351,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		SE_editNoteLengthAction *action =
 			new SE_editNoteLengthAction( m_pDraggedNote->get_position(),
 										 m_pDraggedNote->get_position(),
-										 m_nRow,
+										 m_nDragStartRow,
 										 m_pDraggedNote->get_length(),
 										 m_nOldLength,
 										 m_pPatternEditorPanel->getPatternNumber(),
@@ -1371,7 +1371,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	SE_editNotePropertiesAction *action =
 		new SE_editNotePropertiesAction( m_pDraggedNote->get_position(),
 										 m_pDraggedNote->get_position(),
-										 m_nRow,
+										 m_nDragStartRow,
 										 m_pPatternEditorPanel->getPatternNumber(),
 										 m_nSelectedRow,
 										 m_mode,
@@ -1389,10 +1389,10 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 
 void PatternEditor::editNoteLengthAction( int nColumn,
 										  int nRealColumn,
-										  int nRow,
+										  int nDragStartRow,
 										  int nLength,
 										  int nSelectedPatternNumber,
-										  int nSelectedInstrumentnumber,
+										  int nSelectedRow,
 										  const Editor& editor)
 {
 
@@ -1409,43 +1409,37 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 		return;
 	}
 
+	DrumPatternRow row;
+	if ( editor == Editor::PianoRoll ) {
+		row = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+	}
+	else if ( editor == Editor::DrumPattern ) {
+		row = m_pPatternEditorPanel->getRowDB( nDragStartRow );
+	}
+	else {
+		ERRORLOG( QString( "Unsupported editor [%1]" )
+				  .arg( static_cast<int>(editor) ) );
+		return;
+	}
+
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	// Find the note to edit
 	Note* pDraggedNote = nullptr;
 	if ( editor == Editor::PianoRoll ) {
-		auto pSelectedInstrument =
-			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentnumber );
-		if ( pSelectedInstrument == nullptr ) {
-			ERRORLOG( "No instrument selected" );
-			pHydrogen->getAudioEngine()->unlock();
-			return;
-		}
-		
-		Note::Octave pressedOctave = Note::pitchToOctave( Note::lineToPitch( nRow ) );
-		Note::Key pressedNoteKey = Note::pitchToKey( Note::lineToPitch( nRow ) );
+		Note::Octave pressedOctave =
+			Note::pitchToOctave( Note::lineToPitch( nDragStartRow ) );
+		Note::Key pressedNoteKey =
+			Note::pitchToKey( Note::lineToPitch( nDragStartRow ) );
 
-		auto pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
-												pSelectedInstrument,
-												pressedNoteKey, pressedOctave,
-												false );
+		auto pDraggedNote = pPattern->findNote(
+			nColumn, nRealColumn, row.nInstrumentID, row.sType,
+			pressedNoteKey, pressedOctave, false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
-		if ( pSelectedInstrument == nullptr ) {
-			ERRORLOG( "No instrument selected" );
-			pHydrogen->getAudioEngine()->unlock();
-			return;
-		}
-		pDraggedNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument, false );
+		pDraggedNote = pPattern->findNote(
+			nColumn, nRealColumn, row.nInstrumentID, row.sType, false );
 	}
-	else {
-		ERRORLOG( QString( "Unsupported editor [%1]" )
-				  .arg( static_cast<int>(editor) ) );
-		pHydrogen->getAudioEngine()->unlock();
-		return;
-	}	
-		
 
 	if ( pDraggedNote != nullptr && pDraggedNote->get_length() != nLength ) {
 		pDraggedNote->set_length( nLength );
@@ -1460,9 +1454,9 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 
 void PatternEditor::editNotePropertiesAction( int nColumn,
 											  int nRealColumn,
-											  int nRow,
+											  int nDragStartRow,
 											  int nSelectedPatternNumber,
-											  int nSelectedInstrumentNumber,
+											  int nSelectedRow,
 											  const Mode& mode,
 											  const Editor& editor,
 											  float fVelocity,
@@ -1483,43 +1477,36 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	if ( pPattern == nullptr ) {
 		return;
 	}
+	DrumPatternRow row;
+	if ( editor == Editor::PianoRoll ) {
+		row = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+	}
+	else if ( editor == Editor::DrumPattern ) {
+		row = m_pPatternEditorPanel->getRowDB( nDragStartRow );
+	}
+	else {
+		ERRORLOG( QString( "Unsupported editor [%1]" )
+				  .arg( static_cast<int>(editor) ) );
+		return;
+	}
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	// Find the note to edit
 	Note* pDraggedNote = nullptr;
 	if ( editor == Editor::PianoRoll ) {
-		
-		auto pSelectedInstrument =
-			pSong->getDrumkit()->getInstruments()->get( nSelectedInstrumentNumber );
-		if ( pSelectedInstrument == nullptr ) {
-			ERRORLOG( "No instrument selected" );
-			pHydrogen->getAudioEngine()->unlock();
-			return;
-		}
-		
-		Note::Octave pressedOctave = Note::pitchToOctave( Note::lineToPitch( nRow ) );
-		Note::Key pressedNoteKey = Note::pitchToKey( Note::lineToPitch( nRow ) );
+		Note::Octave pressedOctave =
+			Note::pitchToOctave( Note::lineToPitch( nDragStartRow ) );
+		Note::Key pressedNoteKey =
+			Note::pitchToKey( Note::lineToPitch( nDragStartRow ) );
 
-		pDraggedNote = pPattern->findNote( nColumn, nRealColumn,
-										   pSelectedInstrument,
-										   pressedNoteKey, pressedOctave,
-										   false );
+		pDraggedNote = pPattern->findNote(
+			nColumn, nRealColumn, row.nInstrumentID, row.sType,
+			pressedNoteKey, pressedOctave, false );
 	}
 	else if ( editor == Editor::DrumPattern ) {
-		auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nRow );
-		if ( pSelectedInstrument == nullptr ) {
-			ERRORLOG( "No instrument selected" );
-			pHydrogen->getAudioEngine()->unlock();
-			return;
-		}
-		pDraggedNote = pPattern->findNote( nColumn, nRealColumn, pSelectedInstrument, false );
-	}
-	else {
-		ERRORLOG( QString( "Unsupported editor [%1]" )
-				  .arg( static_cast<int>(editor) ) );
-		pHydrogen->getAudioEngine()->unlock();
-		return;
+		pDraggedNote = pPattern->findNote(
+			nColumn, nRealColumn, row.nInstrumentID, row.sType, false );
 	}
 
 	bool bValueChanged = false;

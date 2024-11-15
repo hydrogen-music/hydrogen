@@ -311,12 +311,15 @@ class Note : public H2Core::Object<Note>
 		/** get the ADSR of the note */
 		std::shared_ptr<ADSR> get_adsr() const;
 
-		/** return true if instrument, key and octave matches with internal
-		 * \param instrument the instrument to match with #__instrument
+		/** @returns true if instrument id and type as well as key and octave
+		 * matches with internal
+		 *
+		 * \param nInstrumentId the instrument ID to match with #__instrument_id
+		 * \param sInstrumentType the instrument type to match with #m_sType
 		 * \param key the key to match with #__key
 		 * \param octave the octave to match with #__octave
 		 */
-		bool match( std::shared_ptr<Instrument> instrument, Key key, Octave octave ) const;
+		bool match( int nInstrumentId, const QString& sType, Key key, Octave octave ) const;
 
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const Note *pNote ) const;
@@ -732,18 +735,22 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg )
 	__midi_msg = msg;
 }
 
-inline bool Note::match( std::shared_ptr<Instrument> instrument, Key key, Octave octave ) const
+inline bool Note::match( int nInstrumentId, const QString& sType, Key key,
+						 Octave octave ) const
 {
-	return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
+	return __instrument_id == nInstrumentId && m_sType == sType &&
+		__key == key && __octave==octave;
 }
 
 inline bool Note::match( const Note *pNote ) const
 {
-	return match( pNote->__instrument, pNote->__key, pNote->__octave );
+	return match( pNote->__instrument_id, pNote->m_sType, pNote->__key,
+				  pNote->__octave );
 }
 inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
-	return match( pNote->__instrument, pNote->__key, pNote->__octave );
+	return match( pNote->__instrument_id, pNote->m_sType, pNote->__key,
+				  pNote->__octave );
 }
 
 inline void Note::compute_lr_values( float* val_l, float* val_r )
