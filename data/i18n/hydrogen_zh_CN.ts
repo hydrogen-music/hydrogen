@@ -4588,14 +4588,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>添加钢琴辊 NOTE_OFF 音符 ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Change note properties piano roll</source>
-        <translation>更改钢琴辊音符属性</translation>
-    </message>
-    <message>
-        <source>Edit note property %1</source>
-        <translation>编辑音符属性 %1</translation>
-    </message>
-    <message>
         <source>Add point</source>
         <translation>添加节点</translation>
     </message>
@@ -4634,6 +4626,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Replace playlist</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit note property %1</source>
+        <translation>编辑音符属性 %1</translation>
     </message>
 </context>
 <context>

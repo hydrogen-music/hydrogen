@@ -77,16 +77,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void addOrRemoveNote( int nColumn, int nRealColumn, int row,
 							  bool bDoAdd = true, bool bDoDelete = true,
 							  bool bIsNoteOff = false );
-		void undoRedoAction(    int column,
-								const NotePropertiesRuler::Mode& mode,
-								int nSelectedPatternNumber,
-								int nSelectedInstrument,
-								float velocity,
-								float pan,
-								float leadLag,
-								float probability,
-								int noteKeyVal,
-								int octaveKeyVal );
 		void functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
 										   int nSelectedInstrument,
 										   int patternNumber );

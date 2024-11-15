@@ -4543,14 +4543,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Change note properties piano roll</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Edit note property %1</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Add point</source>
         <translation></translation>
     </message>
@@ -4588,6 +4580,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Replace playlist</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Edit note property %1</source>
         <translation></translation>
     </message>
 </context>

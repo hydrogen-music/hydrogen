@@ -4562,14 +4562,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Change note properties piano roll</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit note property %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add point</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4607,6 +4599,10 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>Replace playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit note property %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

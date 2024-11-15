@@ -4592,14 +4592,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Füge Piano-Roll NOTE_OFF Note hinzu ( %1, %2 )</translation>
     </message>
     <message>
-        <source>Change note properties piano roll</source>
-        <translation>Ändere Eigenschaft einer Piano-Roll Note</translation>
-    </message>
-    <message>
-        <source>Edit note property %1</source>
-        <translation>Editiere Noten-Eigenschaft %1</translation>
-    </message>
-    <message>
         <source>Add point</source>
         <translation>Punkt hinzufügen</translation>
     </message>
@@ -4638,6 +4630,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Replace playlist</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit note property %1</source>
+        <translation>Noten Eigenschaft %1 geändert</translation>
     </message>
 </context>
 <context>

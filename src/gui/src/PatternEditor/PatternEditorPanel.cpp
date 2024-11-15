@@ -1467,6 +1467,23 @@ int PatternEditorPanel::getRowNumberDB() const {
 	return m_db.size();
 }
 
+int PatternEditorPanel::findRowDB( Note* pNote ) const {
+	if ( pNote != nullptr ) {
+		for ( int ii = 0; ii < m_db.size(); ++ii ) {
+			if ( pNote->get_instrument_id() == m_db[ ii ].nInstrumentID &&
+				 pNote->getType() == m_db[ ii ].sType ) {
+				return ii;
+			}
+		}
+
+		ERRORLOG( QString( "Note [%1] is not contained in DB" )
+				  .arg( pNote->toQString() ) );
+		printDB();
+	}
+
+	return -1;
+}
+
 std::shared_ptr<H2Core::Instrument> PatternEditorPanel::getSelectedInstrument() const {
 	if ( m_nSelectedRowDB < 0 || m_nSelectedRowDB >= m_db.size() ) {
 		return nullptr;
@@ -1529,7 +1546,7 @@ void PatternEditorPanel::updateDB() {
 	printDB();
 }
 
-void PatternEditorPanel::printDB() {
+void PatternEditorPanel::printDB() const {
 	QString sMsg = "PatternEditorPanel database:";
 	for ( int ii = 0; ii < m_db.size(); ++ii ) {
 		sMsg.append( QString( "\n\t[%1] ID: %2, Type: %3" )

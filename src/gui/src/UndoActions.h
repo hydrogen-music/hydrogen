@@ -772,13 +772,11 @@ private:
 class SE_editNotePropertiesAction : public QUndoCommand
 {
 public:
-	SE_editNotePropertiesAction( int nColumn,
-								 int nRealColumn,
-								 int nDragStartRow,
-								 int nSelectedPatternNumber,
-								 int nSelectedRow,
-								 const PatternEditor::Mode& mode,
+	SE_editNotePropertiesAction( const PatternEditor::Mode& mode,
 								 const PatternEditor::Editor& editor,
+								 int nPatternNumber,
+								 int nColumn,
+								 int nRowDB,
 								 float fVelocity,
 								 float fOldVelocity,
 								 float fPan,
@@ -786,79 +784,79 @@ public:
 								 float fLeadLag,
 								 float fOldLeadLag,
 								 float fProbability,
-								 float fOldProbability ){
-		setText( QObject::tr( "Change note properties piano roll" )
-				 .append( QString( ": [%1" )
-						  .arg( PatternEditor::modeToQString( mode ) ) ) );
-		m_nColumn = nColumn;
-		m_nRealColumn = nRealColumn;
-		m_nDragStartRow = nDragStartRow;
-		m_nSelectedPatternNumber = nSelectedPatternNumber;
-		m_nSelectedRow = nSelectedRow;
-		m_mode = mode;
-		m_editor = editor;
-		m_fVelocity = fVelocity;
-		m_fOldVelocity = fOldVelocity;
-		m_fPan = fPan;
-		m_fOldPan = fOldPan;
-		m_fLeadLag = fLeadLag;
-		m_fOldLeadLag = fOldLeadLag;
-		m_fProbability = fProbability;
-		m_fOldProbability = fOldProbability;
+								 float fOldProbability,
+								 int nNoteKey,
+								 int nOldNoteKey,
+								 int nOctaveKey,
+								 int nOldOctaveKey ) :
+		m_mode( mode ),
+		m_editor( editor ),
+		m_nPatternNumber( nPatternNumber ),
+		m_nColumn( nColumn ),
+		m_nRowDB( nRowDB ),
+		m_fVelocity( fVelocity ),
+		m_fOldVelocity( fOldVelocity ),
+		m_fPan( fPan ),
+		m_fOldPan( fOldPan ),
+		m_fLeadLag( fLeadLag ),
+		m_fOldLeadLag( fOldLeadLag ),
+		m_fProbability( fProbability ),
+		m_fOldProbability( fOldProbability ),
+		m_nNoteKey( nNoteKey ),
+		m_nOldNoteKey( nOldNoteKey ),
+		m_nOctaveKey( nOctaveKey ),
+		m_nOldOctaveKey( nOldOctaveKey ) {
+
+		setText( QObject::tr( "Edit note property %1" )
+				 .arg( PatternEditor::modeToQString( mode ) ) );
 	}
-	virtual void undo()
-	{
-		// For now it does not matter which derived class of the
-		// PatternEditor will execute the call to
-		// editNotePropertiesAction().
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()->
-			editNotePropertiesAction( m_nColumn,
-									  m_nRealColumn,
-									  m_nDragStartRow,
-									  m_nSelectedPatternNumber,
-									  m_nSelectedRow,
-									  m_mode,
-									  m_editor,
-									  m_fOldVelocity,
-									  m_fOldPan,
-									  m_fOldLeadLag,
-									  m_fOldProbability );
+	virtual void undo() {
+		PatternEditor::editNotePropertiesAction( m_mode,
+												 m_editor,
+												 m_nPatternNumber,
+												 m_nColumn,
+												 m_nRowDB,
+												 m_fOldVelocity,
+												 m_fOldPan,
+												 m_fOldLeadLag,
+												 m_fOldProbability,
+												 m_nOldNoteKey,
+												 m_nOldOctaveKey );
 	}
-	virtual void redo()
-	{
-		// For now it does not matter which derived class of the
-		// PatternEditor will execute the call to
-		// editNotePropertiesAction().
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()->
-			editNotePropertiesAction( m_nColumn,
-									  m_nRealColumn,
-									  m_nDragStartRow,
-									  m_nSelectedPatternNumber,
-									  m_nSelectedRow,
-									  m_mode,
-									  m_editor,
-									  m_fVelocity,
-									  m_fPan,
-									  m_fLeadLag,
-									  m_fProbability );
+	virtual void redo() {
+		PatternEditor::editNotePropertiesAction( m_mode,
+												 m_editor,
+												 m_nPatternNumber,
+												 m_nColumn,
+												 m_nRowDB,
+												 m_fVelocity,
+												 m_fPan,
+												 m_fLeadLag,
+												 m_fProbability,
+												 m_nNoteKey,
+												 m_nOctaveKey );
 	}
 
 private:
-	int m_nColumn;
-	int m_nRealColumn;
-	int m_nDragStartRow;
-	int m_nSelectedPatternNumber;
-	int m_nSelectedRow;
-	PatternEditor::Mode m_mode;
-	PatternEditor::Editor m_editor;
-	float m_fVelocity;
-	float m_fOldVelocity;
-	float m_fPan;
-	float m_fOldPan;
-	float m_fLeadLag;
-	float m_fOldLeadLag;
-	float m_fProbability;
-	float m_fOldProbability;
+		PatternEditor::Mode m_mode;
+		PatternEditor::Editor m_editor;
+		int m_nPatternNumber;
+		int m_nColumn;
+		/** Row selected in #DrumPatternEditor the moment the action was
+		 * created. */
+		int m_nRowDB;
+		float m_fVelocity;
+		float m_fOldVelocity;
+		float m_fPan;
+		float m_fOldPan;
+		float m_fLeadLag;
+		float m_fOldLeadLag;
+		float m_fProbability;
+		float m_fOldProbability;
+		int m_nNoteKey;
+		int m_nOldNoteKey;
+		int m_nOctaveKey;
+		int m_nOldOctaveKey;
 };
 
 /** \ingroup docGUI*/
@@ -1425,107 +1423,6 @@ class SE_moveNotePianoRollAction : public QUndoCommand
 };
 
 // ~piano roll editor commands
-//=====================================================================================================================================
-//Note Properties Ruler commands
-
-/** \ingroup docGUI*/
-class SE_editNotePropertiesVolumeAction : public QUndoCommand
-{
-public:
-
-	SE_editNotePropertiesVolumeAction( int undoColumn,
-									   const NotePropertiesRuler::Mode& mode,
-					   int nSelectedPatternNumber,
-					   int nSelectedInstrument,
-					   float velocity,
-					   float oldVelocity,
-					   float pan,
-					   float oldPan,
-					   float leadLag,
-					   float oldLeadLag,
-					   float probability,
-					   float oldProbability,
-					   int noteKeyVal,
-					   int oldNoteKeyVal,
-					   int octaveKeyVal,
-					   int oldOctaveKeyVal)
-	{
-		setText( QObject::tr( "Edit note property %1" )
-				 .arg( NotePropertiesRuler::modeToQString( mode ) ) );
-		__undoColumn = undoColumn;
-		__mode = mode;
-		__nSelectedPatternNumber = nSelectedPatternNumber;
-		__nSelectedInstrument = nSelectedInstrument;
-		__velocity = velocity;
-		__oldVelocity = oldVelocity;
-		m_fPan = pan;
-		m_fOldPan = oldPan;
-		__leadLag = leadLag;
-		__oldLeadLag = oldLeadLag;
-		__probability = probability;
-		__oldProbability = oldProbability;
-		__noteKeyVal = noteKeyVal;
-		__oldNoteKeyVal = oldNoteKeyVal;
-		__octaveKeyVal = octaveKeyVal;
-		__oldOctaveKeyVal = oldOctaveKeyVal;
-	}
-	
-	virtual void undo()
-	{
-		//qDebug() << "edit note property Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
-											__mode,
-											__nSelectedPatternNumber,
-											__nSelectedInstrument,
-											__oldVelocity,
-											m_fOldPan,
-											__oldLeadLag,
-											__oldProbability,
-											__oldNoteKeyVal,
-											__oldOctaveKeyVal );
-	}
-	virtual void redo()
-	{
-		//qDebug() << "edit note property Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
-											__mode,
-											__nSelectedPatternNumber,
-											__nSelectedInstrument,
-											__velocity,
-											m_fPan,
-											__leadLag,
-											__probability,
-											__noteKeyVal,
-											__octaveKeyVal );
-	}
-private:
-
-
-	int __undoColumn;
-	NotePropertiesRuler::Mode __mode;
-	int __nSelectedPatternNumber;
-	int __nSelectedInstrument;
-	float __velocity;
-	float __oldVelocity;
-	float m_fPan;
-	float m_fOldPan;
-	float __leadLag;
-	float __oldLeadLag;
-	float __probability;
-	float __oldProbability;
-	int __noteKeyVal;
-	int __oldNoteKeyVal;
-	int __octaveKeyVal;
-	int __oldOctaveKeyVal;
-};
-
-// ~Note Properties Ruler commands
-//=====================================================================================================================================
-
-
 
 /** \ingroup docGUI*/
 class SE_automationPathAddPointAction : public QUndoCommand

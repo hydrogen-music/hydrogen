@@ -894,23 +894,29 @@ void NotePropertiesRuler::addUndoAction()
 		return;
 	}
 
-	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
 		QUndoStack *pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 
 		if ( nSize != 1 ) {
 			pUndoStack->beginMacro( QString( tr( "Edit [%1] property of [%2] notes" ) )
-									.arg( NotePropertiesRuler::modeToQString( m_mode ) )
+									.arg( PatternEditor::modeToQString( m_mode ) )
 									.arg( nSize ) );
 		}
 		for ( auto it : m_oldNotes ) {
 			Note *pNewNote = it.first, *pOldNote = it.second;
-			pUndoStack->push( new SE_editNotePropertiesVolumeAction(
-								  pNewNote->get_position(),
+
+			const int nRow = m_pPatternEditorPanel->findRowDB( pOldNote );
+			if ( nRow == -1 ) {
+				ERRORLOG( "Selected note not found" );
+				continue;
+			}
+			pUndoStack->push( new SE_editNotePropertiesAction(
 								  m_mode,
+								  PatternEditor::Editor::NotePropertiesRuler,
 								  m_pPatternEditorPanel->getPatternNumber(),
-								  pInstrumentList->index( pNewNote->get_instrument() ),
+								  pNewNote->get_position(),
+								  nRow,
 								  pNewNote->get_velocity(),
 								  pOldNote->get_velocity(),
 								  pNewNote->getPan(),

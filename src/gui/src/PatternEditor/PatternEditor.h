@@ -167,17 +167,17 @@ public:
 							   int nSelectedInstrumentnumber,
 							   const Editor& editor );
 	
-	void editNotePropertiesAction( int nColumn,
-								   int nRealColumn,
-								   int nRow,
-								   int nSelectedPatternNumber,
-								   int nSelectedInstrumentNumber,
-								   const Mode& mode,
-								   const Editor& editor,
-								   float fVelocity,
-								   float fPan,
-								   float fLeadLag,
-								   float fProbability );
+	static void editNotePropertiesAction( const Mode& mode,
+										  const Editor& editor,
+										  int nPatternNumber,
+										  int nColumn,
+										  int nRowDB,
+										  float fVelocity,
+										  float fPan,
+										  float fLeadLag,
+										  float fProbability,
+										  int nNoteKey,
+										  int nOctaveKey );
 	static void triggerStatusMessage( H2Core::Note* pNote, const Mode& mode );
 
 	/**

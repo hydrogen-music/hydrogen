@@ -4605,14 +4605,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Ajouter une note NOTE_OFF de piano roll( %1, %2 )</translation>
     </message>
     <message>
-        <source>Change note properties piano roll</source>
-        <translation>Modifier les propriétés de note de piano roll</translation>
-    </message>
-    <message>
-        <source>Edit note property %1</source>
-        <translation>Modifier la propriété %1 de note</translation>
-    </message>
-    <message>
         <source>Add point</source>
         <translation>Ajouter un point</translation>
     </message>
@@ -4651,6 +4643,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Replace playlist</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit note property %1</source>
+        <translation>Modifier la propriété %1 de note</translation>
     </message>
 </context>
 <context>

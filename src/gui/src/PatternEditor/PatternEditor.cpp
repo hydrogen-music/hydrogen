@@ -564,35 +564,27 @@ void PatternEditor::randomizeVelocity() {
 	if ( m_selection.isEmpty() ) {
 		return;
 	}
-
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "invalid song" );
-		return;
-	}
-
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "invalid drumkit" );
-		return;
-	}
-
-	auto pInstrumentList = pDrumkit->getInstruments();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	pUndo->beginMacro( tr( "Random velocity" ) );
 
-	for ( Note *pNote : m_selection ) {
+	for ( const auto pNote : m_selection ) {
+		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
+		if ( nRow == -1 ) {
+			ERRORLOG( "Selected note not found" );
+			continue;
+		}
 
 		float fVal = ( rand() % 100 ) / 100.0;
 		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
 						   0.0, 1.0 );
-		SE_editNotePropertiesVolumeAction *action =
-			new SE_editNotePropertiesVolumeAction(
-				pNote->get_position(),
+		SE_editNotePropertiesAction* pAction =
+			new SE_editNotePropertiesAction(
 				PatternEditor::Mode::Velocity,
+				PatternEditor::Editor::NotePropertiesRuler,
 				m_pPatternEditorPanel->getPatternNumber(),
-				pInstrumentList->index( pNote->get_instrument() ),
+				pNote->get_position(),
+				nRow,
 				fVal,
 				pNote->get_velocity(),
 				pNote->getPan(),
@@ -605,7 +597,7 @@ void PatternEditor::randomizeVelocity() {
 				pNote->get_key(),
 				pNote->get_octave(),
 				pNote->get_octave() );
-		pUndo->push( action );
+		pUndo->push( pAction );
 	}
 
 	pUndo->endMacro();
@@ -1367,15 +1359,13 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		m_fOldProbability == m_fProbability ) {
 		return;
 	}
-		
+
 	SE_editNotePropertiesAction *action =
-		new SE_editNotePropertiesAction( m_pDraggedNote->get_position(),
-										 m_pDraggedNote->get_position(),
-										 m_nDragStartRow,
-										 m_pPatternEditorPanel->getPatternNumber(),
-										 m_nSelectedRow,
-										 m_mode,
+		new SE_editNotePropertiesAction( m_mode,
 										 m_editor,
+										 m_pPatternEditorPanel->getPatternNumber(),
+										 m_pDraggedNote->get_position(),
+										 m_nSelectedRow,
 										 m_fVelocity,
 										 m_fOldVelocity,
 										 m_fPan,
@@ -1383,7 +1373,11 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 										 m_fLeadLag,
 										 m_fOldLeadLag,
 										 m_fProbability,
-										 m_fOldProbability );
+										 m_fOldProbability,
+										 m_pDraggedNote->get_key(),
+										 m_pDraggedNote->get_key(),
+										 m_pDraggedNote->get_octave(),
+										 m_pDraggedNote->get_octave() );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
@@ -1452,88 +1446,83 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 }
 
 
-void PatternEditor::editNotePropertiesAction( int nColumn,
-											  int nRealColumn,
-											  int nDragStartRow,
-											  int nSelectedPatternNumber,
-											  int nSelectedRow,
-											  const Mode& mode,
+void PatternEditor::editNotePropertiesAction( const Mode& mode,
 											  const Editor& editor,
+											  int nPatternNumber,
+											  int nColumn,
+											  int nRowDB,
 											  float fVelocity,
 											  float fPan,
 											  float fLeadLag,
-											  float fProbability )
+											  float fProbability,
+											  int nNoteKey,
+											  int nOctaveKey )
 {
-
+	auto pPatternEditorPanel =
+		HydrogenApp::get_instance()->getPatternEditorPanel();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 	std::shared_ptr<H2Core::Pattern> pPattern;
 
-	if ( nSelectedPatternNumber != -1 &&
-		 nSelectedPatternNumber < pPatternList->size() ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
+	if ( nPatternNumber != -1 &&
+		 nPatternNumber < pPatternList->size() ) {
+		pPattern = pPatternList->get( nPatternNumber );
 	}
 	if ( pPattern == nullptr ) {
 		return;
 	}
-	DrumPatternRow row;
-	if ( editor == Editor::PianoRoll ) {
-		row = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	}
-	else if ( editor == Editor::DrumPattern ) {
-		row = m_pPatternEditorPanel->getRowDB( nDragStartRow );
-	}
-	else {
-		ERRORLOG( QString( "Unsupported editor [%1]" )
-				  .arg( static_cast<int>(editor) ) );
-		return;
-	}
+
+	const DrumPatternRow row = pPatternEditorPanel->getRowDB( nRowDB );
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	// Find the note to edit
-	Note* pDraggedNote = nullptr;
-	if ( editor == Editor::PianoRoll ) {
-		Note::Octave pressedOctave =
-			Note::pitchToOctave( Note::lineToPitch( nDragStartRow ) );
-		Note::Key pressedNoteKey =
-			Note::pitchToKey( Note::lineToPitch( nDragStartRow ) );
-
-		pDraggedNote = pPattern->findNote(
-			nColumn, nRealColumn, row.nInstrumentID, row.sType,
-			pressedNoteKey, pressedOctave, false );
+	Note* pNote = nullptr;
+	if ( editor == Editor::DrumPattern ) {
+		pNote = pPattern->findNote(
+			nColumn, nColumn, row.nInstrumentID, row.sType, false );
 	}
-	else if ( editor == Editor::DrumPattern ) {
-		pDraggedNote = pPattern->findNote(
-			nColumn, nRealColumn, row.nInstrumentID, row.sType, false );
+	else {
+		pNote = pPattern->findNote(
+			nColumn, nColumn, row.nInstrumentID, row.sType,
+			static_cast<Note::Key>(nNoteKey),
+			static_cast<Note::Octave>(nOctaveKey), false );
 	}
 
 	bool bValueChanged = false;
 
-	if ( pDraggedNote != nullptr ){
+	if ( pNote != nullptr ){
 		switch ( mode ) {
 		case Mode::Velocity:
-			if ( pDraggedNote->get_velocity() != fVelocity ) {
-				pDraggedNote->set_velocity( fVelocity );
+			if ( pNote->get_velocity() != fVelocity ) {
+				pNote->set_velocity( fVelocity );
 				bValueChanged = true;
 			}
 			break;
 		case Mode::Pan:
-			if ( pDraggedNote->getPan() != fPan ) {
-				pDraggedNote->setPan( fPan );
+			if ( pNote->getPan() != fPan ) {
+				pNote->setPan( fPan );
 				bValueChanged = true;
 			}
 			break;
 		case Mode::LeadLag:
-			if ( pDraggedNote->get_lead_lag() != fLeadLag ) {
-				pDraggedNote->set_lead_lag( fLeadLag );
+			if ( pNote->get_lead_lag() != fLeadLag ) {
+				pNote->set_lead_lag( fLeadLag );
+				bValueChanged = true;
+			}
+			break;
+		case Mode::NoteKey:
+			if ( pNote->get_key() != nNoteKey ||
+				 pNote->get_octave() != nOctaveKey ) {
+				pNote->set_key_octave( static_cast<Note::Key>(nNoteKey),
+									   static_cast<Note::Octave>(nOctaveKey) );
 				bValueChanged = true;
 			}
 			break;
 		case Mode::Probability:
-			if ( pDraggedNote->get_probability() != fProbability ) {
-				pDraggedNote->set_probability( fProbability );
+			if ( pNote->get_probability() != fProbability ) {
+				pNote->set_probability( fProbability );
 				bValueChanged = true;
 			}
 			break;
@@ -1549,8 +1538,8 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 
 	if ( bValueChanged ) {
 		pHydrogen->setIsModified( true );
-		PatternEditor::triggerStatusMessage( pDraggedNote, mode );
-		m_pPatternEditorPanel->updateEditors( true );
+		PatternEditor::triggerStatusMessage( pNote, mode );
+		pPatternEditorPanel->updateEditors( true );
 	}
 }
 

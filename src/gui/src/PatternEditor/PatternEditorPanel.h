@@ -157,6 +157,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		const DrumPatternRow getRowDB( int nRow ) const;
 		int getSelectedRowDB() const;
 		void setSelectedRowDB( int nNewRow );
+		/** Retrieves the row number @a pNote is located in. */
+		int findRowDB( H2Core::Note* pNote ) const;
 		int getRowNumberDB() const;
 		/** Returns the instrument corresponding to the currently selected row
 		 * of the DB.
@@ -218,7 +220,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void updateDB();
 		/** Prints the content of #m_db as a debug level log message for
 		 * debugging purposes. */
-		void printDB();
+		void printDB() const;
 
 		/** Currently selected pattern cached in frontend for convenience.*/
 		std::shared_ptr<H2Core::Pattern>	m_pPattern;
