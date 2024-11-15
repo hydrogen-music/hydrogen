@@ -101,7 +101,6 @@ NotePropertiesRuler::~NotePropertiesRuler()
 //! discrete.
 void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
@@ -135,9 +134,11 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	pHydrogenApp->setHideKeyboardCursor( true );
 
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row" );
 		return;
 	}
 
@@ -148,7 +149,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			notes.push_back( pNote );
 		}
 	} else {
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn, pPattern ) {
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn,
+										  pPattern ) {
 			notes.push_back( it->second );
 		}
 	}
@@ -156,7 +158,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	bool bValueChanged = false;
 	for ( Note *pNote : notes ) {
 		assert( pNote );
-		if ( pNote->get_instrument() != pSelectedInstrument && !m_selection.isSelected( pNote ) ) {
+		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+				 pNote->getType() == selectedRow.sType ) &&
+			 ! m_selection.isSelected( pNote ) ) {
 			continue;
 		}
 		bValueChanged = true;

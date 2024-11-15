@@ -356,11 +356,20 @@ void PianoRollEditor::drawPattern()
 }
 
 
-void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForeground )
+void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter,
+								bool bIsForeground )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pNote != nullptr && pNote->get_instrument() != nullptr &&
-		 pNote->get_instrument() == m_pPatternEditorPanel->getSelectedInstrument() ) {
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row" );
+		return;
+	}
+
+	if ( pNote != nullptr &&
+		 ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+		   pNote->getType() == selectedRow.sType ) ) {
 		QPoint pos( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
 					m_nGridHeight * Note::pitchToLine( pNote->get_notekey_pitch() )
 					+ 1);
@@ -420,8 +429,9 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	if ( pOldNote == nullptr && Preferences::get_instance()->getHearNewNotes() &&
 		 selectedRow.nInstrumentID != EMPTY_INSTR_ID ) {
 		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-		if ( pSelectedInstrument->hasSamples() ) {
-			auto pNote2 = new Note( m_pPatternEditorPanel->getSelectedInstrument() );
+		if ( pSelectedInstrument != nullptr &&
+			 pSelectedInstrument->hasSamples() ) {
+			auto pNote2 = new Note( pSelectedInstrument );
 			pNote2->set_key_octave( notekey, octave );
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 				noteOn( pNote2 );
@@ -802,33 +812,35 @@ void PianoRollEditor::deleteSelection()
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Delete a selection.
-		const int nRow = m_pPatternEditorPanel->getSelectedRowDB();
-		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-		if ( pSelectedInstrument == nullptr ) {
-			DEBUGLOG( "No instrument selected" );
+		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->getSelectedRowDB() );
+		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+			 selectedRow.sType.isEmpty() ) {
+			DEBUGLOG( "Empty row" );
 			return;
 		}
+
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		validateSelection();
 		std::list< QUndoCommand * > actions;
 		for ( const auto& pNote : m_selection ) {
-			if ( m_selection.isSelected( pNote ) ) {
-				if ( pNote->get_instrument() == pSelectedInstrument ) {
-					int nLine = Note::pitchToLine( pNote->get_notekey_pitch() );
-					actions.push_back( new SE_addOrDeleteNotePianoRollAction(
-										   pNote->get_position(),
-										   nLine,
-										   m_pPatternEditorPanel->getPatternNumber(),
-										   m_pPatternEditorPanel->getSelectedRowDB(),
-										   pNote->get_length(),
-										   pNote->get_velocity(),
-										   pNote->getPan(),
-										   pNote->get_lead_lag(),
-										   pNote->get_key(),
-										   pNote->get_octave(),
-										   pNote->get_probability(),
-										   true ) );
-				}
+			if ( m_selection.isSelected( pNote ) ||
+				 pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+				 pNote->getType() == selectedRow.sType ) {
+				int nLine = Note::pitchToLine( pNote->get_notekey_pitch() );
+				actions.push_back( new SE_addOrDeleteNotePianoRollAction(
+									   pNote->get_position(),
+									   nLine,
+									   m_pPatternEditorPanel->getPatternNumber(),
+									   m_pPatternEditorPanel->getSelectedRowDB(),
+									   pNote->get_length(),
+									   pNote->get_velocity(),
+									   pNote->getPan(),
+									   pNote->get_lead_lag(),
+									   pNote->get_key(),
+									   pNote->get_octave(),
+									   pNote->get_probability(),
+									   true ) );
 			}
 		}
 		m_selection.clearSelection();
@@ -1228,14 +1240,17 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	if ( pPattern == nullptr ) {
 		return std::move( result );
 	}
+
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row" );
+		return std::move( result );
+	}
 	
 	int w = 8;
 	int h = m_nGridHeight - 2;
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
-		return std::move( result );
-	}
 
 	auto rNormalized = r.normalized();
 	if ( rNormalized.top() == rNormalized.bottom() &&
@@ -1251,9 +1266,12 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		Note *pNote = it->second;
-		if ( pNote->get_instrument() == pSelectedInstrument ) {
-			uint start_x = PatternEditor::nMargin + pNote->get_position() * m_fGridWidth;
-			uint start_y = m_nGridHeight * Note::pitchToLine( pNote->get_notekey_pitch() ) + 1;
+		if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+			 pNote->getType() == selectedRow.sType ) {
+			uint start_x = PatternEditor::nMargin +
+				pNote->get_position() * m_fGridWidth;
+			uint start_y = m_nGridHeight *
+				Note::pitchToLine( pNote->get_notekey_pitch() ) + 1;
 
 			if ( rNormalized.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
 				result.push_back( pNote );
