@@ -568,9 +568,6 @@ private:
 	 */
 	int				m_nLastRecordedMIDINoteTick;
 
-	///midi lookuptable
-	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
-
 	/**
 	 * Central instance of the audio engine. 
 	 */

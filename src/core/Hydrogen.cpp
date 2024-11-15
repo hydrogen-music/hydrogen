@@ -138,10 +138,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 
 	m_pAudioEngine->startAudioDrivers();
 
-	for(int i = 0; i< MAX_INSTRUMENTS; i++){
-		m_nInstrumentLookupTable[i] = i;
-	}
-
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
@@ -456,23 +452,32 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	int nInstrumentId = -1;
-	if ( bPlaySelectedInstrument && m_nSelectedInstrumentNumber >= 0 &&
-		 m_nSelectedInstrumentNumber < pInstrumentList->size() ) {
-		nInstrumentId =
-			pInstrumentList->get( m_nSelectedInstrumentNumber )->get_id();
+	std::shared_ptr<Instrument> pInstrument = nullptr;
+	if ( bPlaySelectedInstrument ) {
+		if ( m_nSelectedInstrumentNumber >= 0 &&
+			 m_nSelectedInstrumentNumber < pInstrumentList->size() ) {
+			pInstrument = pInstrumentList->get( m_nSelectedInstrumentNumber );
+		}
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve selected instrument [%1]" )
+					  .arg( m_nSelectedInstrumentNumber ) );
+		}
 	}
 	else {
-		nInstrumentId = m_nInstrumentLookupTable[ nInstrument ];
+		// We retrieve the instrument based on order of the instrument list. Not
+		// based on the ID of the instrument.
+		pInstrument = pInstrumentList->get( nInstrument );
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+					  .arg( nInstrument ) );
+		}
+
 	}
-	auto pInstr = pInstrumentList->find( nInstrumentId );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieved instrument [id: %1]. Plays selected instrument [%2]: %3" )
-				  .arg( nInstrumentId ).arg( bPlaySelectedInstrument )
-				  .arg( m_nSelectedInstrumentNumber ) );
+	if ( pInstrument == nullptr ) {
 		pAudioEngine->unlock();
 		return false;
 	}
+	const int nInstrumentId = pInstrument->get_id();
 
 	// Record note
 	if ( pCurrentPattern != nullptr &&
@@ -505,7 +510,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 					Note *pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->get_position() == m_nLastRecordedMIDINoteTick &&
-						 pInstr == pNote->get_instrument() ) {
+						 pInstrument == pNote->get_instrument() ) {
 						
 						if ( m_nLastRecordedMIDINoteTick + nNoteLength > nPatternSize ) {
 							nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
@@ -552,19 +557,19 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 
 	// Play back the note.
-	if ( ! pInstr->hasSamples() ) {
+	if ( ! pInstrument->hasSamples() ) {
 		pAudioEngine->unlock();
 		return true;
 	}
 	
 	if ( bPlaySelectedInstrument ) {
 		if ( bNoteOff ) {
-			if ( pSampler->isInstrumentPlaying( pInstr ) ) {
+			if ( pSampler->isInstrumentPlaying( pInstrument ) ) {
 				pSampler->midiKeyboardNoteOff( nNote );
 			}
 		}
 		else { // note on
-			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan );
+			Note *pNote2 = new Note( pInstrument, nRealColumn, fVelocity, fPan );
 
 			int divider = nNote / 12;
 			Note::Octave octave = (Note::Octave)(divider -3);
@@ -576,14 +581,14 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	}
 	else {
 		if ( bNoteOff ) {
-			if ( pSampler->isInstrumentPlaying( pInstr ) ) {
-				Note *pNoteOff = new Note( pInstr );
+			if ( pSampler->isInstrumentPlaying( pInstrument ) ) {
+				Note *pNoteOff = new Note( pInstrument );
 				pNoteOff->set_note_off( true );
 				midiNoteOn( pNoteOff );
 			}
 		}
 		else { // note on
-			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan );
+			Note *pNote2 = new Note( pInstrument, nRealColumn, fVelocity, fPan );
 			midiNoteOn( pNote2 );
 		}
 	}
@@ -1615,9 +1620,6 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bSessionIsExported ) )
 			.append( QString( "%1%2m_nLastRecordedMIDINoteTick: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nLastRecordedMIDINoteTick ) )
-			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nInstrumentLookupTable[ 0 ] )
-					 .arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) )
 			.append( QString( "%1%2m_pAudioEngine:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
@@ -1688,9 +1690,6 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 						.arg( m_bSessionIsExported ) )
 			.append( QString( ", m_nLastRecordedMIDINoteTick: %1" )
 						.arg( m_nLastRecordedMIDINoteTick ) )
-			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
-					 .arg( m_nInstrumentLookupTable[ 0 ] )
-					 .arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) )
 			.append( ", m_pAudioEngine:" );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
