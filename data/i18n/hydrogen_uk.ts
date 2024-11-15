@@ -3029,6 +3029,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Random velocity</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Change note length</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -4557,10 +4561,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Overwrite %1 notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change note length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

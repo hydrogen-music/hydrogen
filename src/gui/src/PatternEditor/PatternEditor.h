@@ -74,7 +74,10 @@ public:
 		LeadLag = 2,
 		NoteKey = 3,
 		Probability = 4,
-		None = 5
+		/** For this mode we a dedicated NotePropertiesEditor but solely use it
+		 * within undo/redo actions.*/
+		Length = 5,
+		None = 6
 	};
 	static QString modeToQString( const Mode& mode );
 	
@@ -159,13 +162,6 @@ public:
 	/** Caches the AudioEngine::m_nPatternTickPosition in the member
 		variable #m_nTick and triggers an update(). */
 	void updatePosition( float fTick );
-	void editNoteLengthAction( int nColumn,
-							   int nRealColumn,
-							   int nRow,
-							   int nLength,
-							   int nSelectedPatternNumber,
-							   int nSelectedInstrumentnumber,
-							   const Editor& editor );
 
 		/** For notes in #PianoRollEditor and the note key version of
 		 * #NotePropertiesEditor @a nOldNoteKey and @a nOldOctaveKey will be
@@ -181,6 +177,7 @@ public:
 										  float fPan,
 										  float fLeadLag,
 										  float fProbability,
+										  int nLength,
 										  int nNewNoteKey,
 										  int nOldNoteKey,
 										  int nNewOctaveKey,

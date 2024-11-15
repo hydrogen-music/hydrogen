@@ -3046,6 +3046,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Random velocity</source>
         <translation>Vélocité aléatoire</translation>
     </message>
+    <message>
+        <source>Change note length</source>
+        <translation>Changer la longueur de la note</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -4575,10 +4579,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Overwrite %1 notes</source>
         <translation>Écraser les notes %1</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>Changer la longueur de la note</translation>
     </message>
     <message>
         <source>Clear notes</source>

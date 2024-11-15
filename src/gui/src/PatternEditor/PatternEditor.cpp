@@ -593,6 +593,8 @@ void PatternEditor::randomizeVelocity() {
 				pNote->get_lead_lag(),
 				pNote->get_probability(),
 				pNote->get_probability(),
+				pNote->get_length(),
+				pNote->get_length(),
 				pNote->get_key(),
 				pNote->get_key(),
 				pNote->get_octave(),
@@ -1340,23 +1342,34 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	}
 
 	if ( m_pDraggedNote->get_length() != m_nOldLength ) {
-		SE_editNoteLengthAction *action =
-			new SE_editNoteLengthAction( m_pDraggedNote->get_position(),
-										 m_pDraggedNote->get_position(),
-										 m_nDragStartRow,
-										 m_pDraggedNote->get_length(),
-										 m_nOldLength,
-										 m_pPatternEditorPanel->getPatternNumber(),
-										 m_nSelectedRow,
-										 m_editor );
+		SE_editNotePropertiesAction *action =
+			new SE_editNotePropertiesAction( Mode::Length,
+											 m_editor,
+											 m_pPatternEditorPanel->getPatternNumber(),
+											 m_pDraggedNote->get_position(),
+											 m_nSelectedRow,
+											 m_fVelocity,
+											 m_fOldVelocity,
+											 m_fPan,
+											 m_fOldPan,
+											 m_fLeadLag,
+											 m_fOldLeadLag,
+											 m_fProbability,
+											 m_fOldProbability,
+											 m_pDraggedNote->get_length(),
+											 m_nOldLength,
+											 m_pDraggedNote->get_key(),
+											 m_pDraggedNote->get_key(),
+											 m_pDraggedNote->get_octave(),
+											 m_pDraggedNote->get_octave() );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 
-	if( m_fVelocity == m_fOldVelocity &&
-		m_fOldPan == m_fPan &&
-		m_fOldLeadLag == m_fLeadLag &&
-		m_fOldProbability == m_fProbability ) {
+	if ( m_fVelocity == m_fOldVelocity &&
+		 m_fOldPan == m_fPan &&
+		 m_fOldLeadLag == m_fLeadLag &&
+		 m_fOldProbability == m_fProbability ) {
 		return;
 	}
 
@@ -1374,77 +1387,14 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 										 m_fOldLeadLag,
 										 m_fProbability,
 										 m_fOldProbability,
+										 m_pDraggedNote->get_length(),
+										 m_nOldLength,
 										 m_pDraggedNote->get_key(),
 										 m_pDraggedNote->get_key(),
 										 m_pDraggedNote->get_octave(),
 										 m_pDraggedNote->get_octave() );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
-
-void PatternEditor::editNoteLengthAction( int nColumn,
-										  int nRealColumn,
-										  int nDragStartRow,
-										  int nLength,
-										  int nSelectedPatternNumber,
-										  int nSelectedRow,
-										  const Editor& editor)
-{
-
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	auto pPatternList = pSong->getPatternList();
-	std::shared_ptr<H2Core::Pattern> pPattern;
-
-	if ( nSelectedPatternNumber != -1 &&
-		 nSelectedPatternNumber < pPatternList->size() ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	DrumPatternRow row;
-	if ( editor == Editor::PianoRoll ) {
-		row = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	}
-	else if ( editor == Editor::DrumPattern ) {
-		row = m_pPatternEditorPanel->getRowDB( nDragStartRow );
-	}
-	else {
-		ERRORLOG( QString( "Unsupported editor [%1]" )
-				  .arg( static_cast<int>(editor) ) );
-		return;
-	}
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	// Find the note to edit
-	Note* pDraggedNote = nullptr;
-	if ( editor == Editor::PianoRoll ) {
-		Note::Octave pressedOctave =
-			Note::pitchToOctave( Note::lineToPitch( nDragStartRow ) );
-		Note::Key pressedNoteKey =
-			Note::pitchToKey( Note::lineToPitch( nDragStartRow ) );
-
-		auto pDraggedNote = pPattern->findNote(
-			nColumn, nRealColumn, row.nInstrumentID, row.sType,
-			pressedNoteKey, pressedOctave, false );
-	}
-	else if ( editor == Editor::DrumPattern ) {
-		pDraggedNote = pPattern->findNote(
-			nColumn, nRealColumn, row.nInstrumentID, row.sType, false );
-	}
-
-	if ( pDraggedNote != nullptr && pDraggedNote->get_length() != nLength ) {
-		pDraggedNote->set_length( nLength );
-		pHydrogen->setIsModified( true );
-	}
-
-	pHydrogen->getAudioEngine()->unlock();
-
-	m_pPatternEditorPanel->updateEditors( true );
-}
-
 
 void PatternEditor::editNotePropertiesAction( const Mode& mode,
 											  const Editor& editor,
@@ -1455,6 +1405,7 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 											  float fPan,
 											  float fLeadLag,
 											  float fProbability,
+											  int nLength,
 											  int nNewNoteKey,
 											  int nOldNoteKey,
 											  int nNewOctaveKey,
@@ -1528,6 +1479,12 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 				bValueChanged = true;
 			}
 			break;
+		case Mode::Length:
+			if ( pNote->get_length() != nLength ) {
+				pNote->set_length( nLength );
+				bValueChanged = true;
+			}
+			break;
 		case Mode::None:
 		default:
 			ERRORLOG("No mode set. No note property adjusted.");
@@ -1564,6 +1521,9 @@ QString PatternEditor::modeToQString( const Mode& mode ) {
 		break;
 	case PatternEditor::Mode::Probability:
 		s = "Probability";
+		break;
+	case PatternEditor::Mode::Length:
+		s = "Length";
 		break;
 	default:
 		s = QString( "Unknown mode [%1]" ).arg( static_cast<int>(mode) ) ;
@@ -1649,6 +1609,14 @@ void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
 		}
 		sCaller.append( ":Probability" );
+		break;
+
+	case PatternEditor::Mode::Length:
+		if ( ! pNote->get_note_off() ) {
+			s = tr( "Change note length" )
+				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
+		}
+		sCaller.append( ":Length" );
 		break;
 
 	default:

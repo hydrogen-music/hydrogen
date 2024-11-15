@@ -3045,6 +3045,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Random velocity</source>
         <translation>Velocidad al azar</translation>
     </message>
+    <message>
+        <source>Change note length</source>
+        <translation>Cambiar longitud de nota</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -4574,10 +4578,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Overwrite %1 notes</source>
         <translation>Sobreescribir %1 notas</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>Cambiar longitud de nota</translation>
     </message>
     <message>
         <source>Clear notes</source>

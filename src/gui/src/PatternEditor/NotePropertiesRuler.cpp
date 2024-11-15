@@ -948,6 +948,8 @@ void NotePropertiesRuler::addUndoAction()
 								  pOldNote->get_lead_lag(),
 								  pNewNote->get_probability(),
 								  pOldNote->get_probability(),
+								  pNewNote->get_length(),
+								  pOldNote->get_length(),
 								  pNewNote->get_key(),
 								  pOldNote->get_key(),
 								  pNewNote->get_octave(),

@@ -719,56 +719,6 @@ private:
 };
 
 /** \ingroup docGUI*/
-class SE_editNoteLengthAction : public QUndoCommand
-{
-public:
-	SE_editNoteLengthAction( int nColumn, int nRealColumn, int nDragStartRow,
-							 int nLength, int nOldLength,
-							 int nSelectedPatternNumber, int nSelectedRow,
-							 const PatternEditor::Editor& editor ){
-		setText( QObject::tr( "Change note length" ) );
-		m_nColumn = nColumn;
-		m_nRealColumn = nRealColumn;
-		m_nDragStartRow = nDragStartRow;
-		m_nLength = nLength;
-		m_nOldLength = nOldLength;
-		m_nSelectedPatternNumber = nSelectedPatternNumber;
-		m_nSelectedRow = nSelectedRow;
-		m_editor = editor;
-	}
-	virtual void undo()
-	{
-		// For now it does not matter which derived class of the
-		// PatternEditor will execute the call to
-		// editNoteLengthAction(). 
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
-			->editNoteLengthAction( m_nColumn, m_nRealColumn, m_nDragStartRow,
-									m_nOldLength, m_nSelectedPatternNumber,
-									m_nSelectedRow, m_editor );
-	}
-	virtual void redo()
-	{
-		// For now it does not matter which derived class of the
-		// PatternEditor will execute the call to
-		// editNoteLengthAction(). 
-		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
-			->editNoteLengthAction( m_nColumn, m_nRealColumn, m_nDragStartRow,
-									m_nLength, m_nSelectedPatternNumber,
-									m_nSelectedRow, m_editor );
-	}
-private:
-	int m_nColumn;
-	int m_nRealColumn;
-	int m_nDragStartRow;
-	int m_nLength;
-	int m_nOldLength;
-	int m_nSelectedPatternNumber;
-	int m_nSelectedRow;
-	PatternEditor::Editor m_editor;
-};
-
-
-/** \ingroup docGUI*/
 class SE_editNotePropertiesAction : public QUndoCommand
 {
 public:
@@ -785,6 +735,8 @@ public:
 								 float fOldLeadLag,
 								 float fProbability,
 								 float fOldProbability,
+								 int nLength,
+								 int nOldLength,
 								 int nNoteKey,
 								 int nOldNoteKey,
 								 int nOctaveKey,
@@ -802,6 +754,8 @@ public:
 		m_fOldLeadLag( fOldLeadLag ),
 		m_fProbability( fProbability ),
 		m_fOldProbability( fOldProbability ),
+		m_nLength( nLength ),
+		m_nOldLength( nOldLength ),
 		m_nNoteKey( nNoteKey ),
 		m_nOldNoteKey( nOldNoteKey ),
 		m_nOctaveKey( nOctaveKey ),
@@ -820,6 +774,7 @@ public:
 												 m_fOldPan,
 												 m_fOldLeadLag,
 												 m_fOldProbability,
+												 m_nOldLength,
 												 m_nOldNoteKey,
 												 m_nNoteKey,
 												 m_nOldOctaveKey,
@@ -835,6 +790,7 @@ public:
 												 m_fPan,
 												 m_fLeadLag,
 												 m_fProbability,
+												 m_nLength,
 												 m_nNoteKey,
 												 m_nOldNoteKey,
 												 m_nOctaveKey,
@@ -857,6 +813,8 @@ private:
 		float m_fOldLeadLag;
 		float m_fProbability;
 		float m_fOldProbability;
+		int m_nLength;
+		int m_nOldLength;
 		int m_nNoteKey;
 		int m_nOldNoteKey;
 		int m_nOctaveKey;

@@ -3029,6 +3029,10 @@ LilyPond 导出是一项实验性功能。
         <source>Random velocity</source>
         <translation>随机化力度</translation>
     </message>
+    <message>
+        <source>Change note length</source>
+        <translation>修改音符长度</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -4558,10 +4562,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Overwrite %1 notes</source>
         <translation>覆盖 %1 音符</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>修改音符长度</translation>
     </message>
     <message>
         <source>Clear notes</source>
