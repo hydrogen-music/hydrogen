@@ -1446,13 +1446,13 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 		return;
 	}	
 		
-	if ( pDraggedNote != nullptr ){
+
+	if ( pDraggedNote != nullptr && pDraggedNote->get_length() != nLength ) {
 		pDraggedNote->set_length( nLength );
+		pHydrogen->setIsModified( true );
 	}
 
 	pHydrogen->getAudioEngine()->unlock();
-	
-	pHydrogen->setIsModified( true );
 
 	m_pPatternEditorPanel->updateEditors( true );
 }
@@ -1522,28 +1522,38 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		return;
 	}
 
-	bool bValueChanged = true;
+	bool bValueChanged = false;
 
 	if ( pDraggedNote != nullptr ){
 		switch ( mode ) {
 		case Mode::Velocity:
-			pDraggedNote->set_velocity( fVelocity );
+			if ( pDraggedNote->get_velocity() != fVelocity ) {
+				pDraggedNote->set_velocity( fVelocity );
+				bValueChanged = true;
+			}
 			break;
 		case Mode::Pan:
-			pDraggedNote->setPan( fPan );
+			if ( pDraggedNote->getPan() != fPan ) {
+				pDraggedNote->setPan( fPan );
+				bValueChanged = true;
+			}
 			break;
 		case Mode::LeadLag:
-			pDraggedNote->set_lead_lag( fLeadLag );
+			if ( pDraggedNote->get_lead_lag() != fLeadLag ) {
+				pDraggedNote->set_lead_lag( fLeadLag );
+				bValueChanged = true;
+			}
 			break;
 		case Mode::Probability:
-			pDraggedNote->set_probability( fProbability );
+			if ( pDraggedNote->get_probability() != fProbability ) {
+				pDraggedNote->set_probability( fProbability );
+				bValueChanged = true;
+			}
 			break;
 		case Mode::None:
 		default:
 			ERRORLOG("No mode set. No note property adjusted.");
 		}			
-		bValueChanged = true;
-		PatternEditor::triggerStatusMessage( pDraggedNote, mode );
 	} else {
 		ERRORLOG("note could not be found");
 	}
@@ -1552,6 +1562,7 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 
 	if ( bValueChanged ) {
 		pHydrogen->setIsModified( true );
+		PatternEditor::triggerStatusMessage( pDraggedNote, mode );
 		m_pPatternEditorPanel->updateEditors( true );
 	}
 }
