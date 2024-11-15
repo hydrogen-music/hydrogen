@@ -614,7 +614,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 											 int pressedLine,
-											 int selectedPatternNumber,
+											 int nPatternNumber,
 											 int nRow,
 											 int oldLength,
 											 float oldVelocity,
@@ -626,11 +626,6 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 											 bool noteOff,
 											 bool isDelete )
 {
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-	
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -638,6 +633,18 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	}
 
 	PatternList *pPatternList = pSong->getPatternList();
+	if ( nPatternNumber < 0 ||
+		 nPatternNumber >= pPatternList->size() ) {
+		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
+				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
+		return;
+	}
+	auto pPattern = pPatternList->get( nPatternNumber );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern found for pattern number [%1] is not valid" )
+				  .arg( nPatternNumber ) );
+		return;
+	}
 
 	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 	if ( row.nInstrumentID == -1 && row.sType.isEmpty() ) {
