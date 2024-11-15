@@ -130,8 +130,9 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
 
-		//! Map of notes currently in the pattern -> old notes with their properties. Populated at the
-		//! beginning of a properties editing gesture.
+		//! Map of notes currently in the pattern -> old notes with their
+		//! properties. Populated at the beginning of a properties editing
+		//! gesture.
 		std::map< H2Core::Note *, H2Core::Note *> m_oldNotes;
 		void clearOldNotes();
 
