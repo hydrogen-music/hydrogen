@@ -58,11 +58,11 @@ enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SEL
 struct DrumPatternRow {
 	/** Associated #H2Core::Instrument::__id in the current #H2Core::Drumkit.
 	 *
-	 * If set to `-1`, the row does not correspond to any. This happens in case
-	 * #H2Core::Note were created with a different #H2Core::Drumkit using an
-	 * instrument type not present in the current one. The note can not be
-	 * played back with the current kit but can be copy/pasted etc. like a
-	 * regular one.
+	 * If set to #EMPTY_INSTR_ID, the row does not correspond to any. This
+	 * happens in case #H2Core::Note were created with a different
+	 * #H2Core::Drumkit using an instrument type not present in the current one.
+	 * The note can not be played back with the current kit but can be
+	 * copy/pasted etc. like a regular one.
 	 *
 	 * Single source of truth for the current instrument ID is
 	 * #H2Core::Hydrogen::m_nSelectedInstrumentNumber.
@@ -71,7 +71,7 @@ struct DrumPatternRow {
 	 * current instrument is important to the core itself when rendering
 	 * incoming MIDI notes.)
 	 *
-	 * Null element: -1 */
+	 * Null element: #EMPTY_INSTR_ID */
 	int nInstrumentID;
 	/** Associated #H2Core::DrumkitMap::Type.
 	 *

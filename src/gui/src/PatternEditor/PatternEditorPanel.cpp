@@ -1428,7 +1428,7 @@ void PatternEditorPanel::patchBayBtnClicked() {
 
 const DrumPatternRow PatternEditorPanel::getRowDB( int nRow ) const {
 	if ( nRow < 0 || nRow >= m_db.size() ) {
-		return { -1, "" };
+		return { EMPTY_INSTR_ID, "" };
 	}
 	else {
 		return m_db.at( nRow );
@@ -1453,11 +1453,11 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 			pHydrogen->setSelectedInstrumentNumber( nNewRow );
 		}
 		else {
-			pHydrogen->setSelectedInstrumentNumber( -1 );
+			pHydrogen->setSelectedInstrumentNumber( EMPTY_INSTR_ID );
 		}
 	}
 	else {
-		pHydrogen->setSelectedInstrumentNumber( -1 );
+		pHydrogen->setSelectedInstrumentNumber( EMPTY_INSTR_ID );
 	}
 
 	m_nSelectedRowDB = nNewRow;
@@ -1495,7 +1495,7 @@ std::shared_ptr<H2Core::Instrument> PatternEditorPanel::getSelectedInstrument() 
 	}
 
 	auto row = m_db.at( m_nSelectedRowDB );
-	if ( row.nInstrumentID == -1 ) {
+	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
 		// Row is associated with a type but not an instrument of the current
 		// kit.
 		return nullptr;
@@ -1536,7 +1536,7 @@ void PatternEditorPanel::updateDB() {
 			if ( additionalTypes.find( ppNote->getType() ) ==
 				 additionalTypes.end() ) {
 				additionalTypes.insert( ppNote->getType() );
-				m_db.push_back( { -1, ppNote->getType() } );
+				m_db.push_back( { EMPTY_INSTR_ID, ppNote->getType() } );
 			}
 		}
 	}

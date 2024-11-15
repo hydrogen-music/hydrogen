@@ -256,7 +256,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row clicked" );
 		return;
 	}
@@ -400,7 +401,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row clicked" );
 		return;
 	}
@@ -447,7 +449,8 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row clicked" );
 		return;
 	}
@@ -771,7 +774,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 			const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 				m_pPatternEditorPanel->getSelectedRowDB() );
-			if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+			if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+				 selectedRow.sType.isEmpty() ) {
 				DEBUGLOG( "Empty row" );
 				return;
 			}
@@ -1163,7 +1167,8 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 	if ( pPattern != nullptr ) {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+			 selectedRow.sType.isEmpty() ) {
 			DEBUGLOG( "Empty row" );
 			return;
 		}
@@ -1261,7 +1266,8 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	if ( pPattern != nullptr ) {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+			 selectedRow.sType.isEmpty() ) {
 			DEBUGLOG( "Empty row" );
 			return;
 		}
@@ -1452,7 +1458,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( pPattern != nullptr ) {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+			 selectedRow.sType.isEmpty() ) {
 			DEBUGLOG( "Empty row" );
 			return;
 		}
@@ -1570,7 +1577,8 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row" );
 		return std::move( result );
 	}

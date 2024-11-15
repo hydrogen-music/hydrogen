@@ -110,7 +110,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	}
 
 	auto row = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( row.nInstrumentID == -1 && row.sType.isEmpty() ) {
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
 	}
@@ -185,7 +185,8 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
 	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( drumPatternRow.nInstrumentID == -1 && drumPatternRow.sType.isEmpty() ) {
+	if ( drumPatternRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 drumPatternRow.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
 				  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
 		return;
@@ -249,7 +250,8 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	int nRow, nColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, nullptr, /* fineGrained */true );
 	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( drumPatternRow.nInstrumentID == -1 && drumPatternRow.sType.isEmpty() ) {
+	if ( drumPatternRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 drumPatternRow.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
 				  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
 		return;
@@ -288,7 +290,8 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
 	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( drumPatternRow.nInstrumentID == -1 && drumPatternRow.sType.isEmpty() ) {
+	if ( drumPatternRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 drumPatternRow.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
 				  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
 		return;
@@ -367,7 +370,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 	}
 
 	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( row.nInstrumentID == -1 && row.sType.isEmpty() ) {
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
 	}
@@ -418,7 +421,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( row.nInstrumentID != -1 ) {
+		if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
 			pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
 			if ( pInstrument == nullptr ) {

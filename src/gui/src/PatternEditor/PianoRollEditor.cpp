@@ -383,7 +383,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Note::Key notekey = (Note::Key)nNotekey;
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row" );
 		return;
 	}
@@ -417,7 +418,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	}
 
 	if ( pOldNote == nullptr && Preferences::get_instance()->getHearNewNotes() &&
-		 selectedRow.nInstrumentID != -1 ) {
+		 selectedRow.nInstrumentID != EMPTY_INSTR_ID ) {
 		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 		if ( pSelectedInstrument->hasSamples() ) {
 			auto pNote2 = new Note( m_pPatternEditorPanel->getSelectedInstrument() );
@@ -468,7 +469,8 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row clicked" );
 		return;
 	}
@@ -580,7 +582,8 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == -1 && selectedRow.sType.isEmpty() ) {
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
 		DEBUGLOG( "Empty row clicked" );
 		return;
 	}
@@ -647,7 +650,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	}
 
 	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( row.nInstrumentID == -1 && row.sType.isEmpty() ) {
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
 	}
@@ -683,7 +686,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( row.nInstrumentID != -1 ) {
+		if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
 			pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
 			if ( pInstrument == nullptr ) {
