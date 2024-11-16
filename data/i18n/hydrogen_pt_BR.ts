@@ -1199,13 +1199,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>DrumPatternEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>Não é possível colar seleção de multi-padrão</translation>
-    </message>
-</context>
-<context>
     <name>Drumkit</name>
     <message>
         <source>New Drumkit</source>
@@ -3047,6 +3040,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Change note length</source>
         <translation>Mudar tamanho da nota</translation>
     </message>
+    <message>
+        <source>Cannot paste multi-pattern selection</source>
+        <translation>Não é possível colar seleção de multi-padrão</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -3252,13 +3249,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Pattern category</source>
         <translation>Categoria do padrão</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>Não é possível colar seleção multi-padrão</translation>
     </message>
 </context>
 <context>
@@ -4592,14 +4582,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Move instrument</source>
         <translation>Mover instrumento</translation>
-    </message>
-    <message>
-        <source>Add piano roll note ( %1, %2 )</source>
-        <translation>Adicionar nota de piano roll ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Add  piano roll NOTE_OFF note ( %1, %2 )</source>
-        <translation>Adicionar nota NOTE_OFF de piano roll ( %1, %2 )</translation>
     </message>
     <message>
         <source>Add point</source>

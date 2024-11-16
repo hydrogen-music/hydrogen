@@ -1079,27 +1079,24 @@ void HydrogenApp::onEventQueueTimer()
 		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndoStack->beginMacro( tr( "Input Midi Note" ) );
 		if ( pOldNote != nullptr ) { // note found => remove it
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction(
-				pOldNote->get_position(),
-				pOldNote->get_instrument_id(),
-				pQueue->m_addMidiNoteVector[0].m_pattern,
-				pOldNote->get_length(),
-				pOldNote->get_velocity(),
-				pOldNote->getPan(),
-				pOldNote->get_lead_lag(),
-				pOldNote->get_key(),
-				pOldNote->get_octave(),
-				pOldNote->get_probability(),
-				/*isDelete*/ true,
-				/*hearNote*/ false,
-				/*isMidi*/ false,
-				/*isInstrumentMode*/ false,
-				/*isNoteOff*/ false );
-			pUndoStack->push( action );
+			pUndoStack->push( new SE_addOrRemoveNoteAction(
+								  pOldNote->get_position(),
+								  pOldNote->get_instrument_id(),
+								  pQueue->m_addMidiNoteVector[0].m_pattern,
+								  pOldNote->get_length(),
+								  pOldNote->get_velocity(),
+								  pOldNote->getPan(),
+								  pOldNote->get_lead_lag(),
+								  pOldNote->get_key(),
+								  pOldNote->get_octave(),
+								  pOldNote->get_probability(),
+								  /*isDelete*/ true,
+								  /*isMidi*/ false,
+								  /*isNoteOff*/ false ) );
 		}
 		
 		// add the new note
-		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction(
+		pUndoStack->push( new SE_addOrRemoveNoteAction(
 			pQueue->m_addMidiNoteVector[0].m_column,
 			nRow,
 			pQueue->m_addMidiNoteVector[0].m_pattern,
@@ -1111,11 +1108,8 @@ void HydrogenApp::onEventQueueTimer()
 			pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 			1.0f,
 			/*isDelete*/ false,
-			/*hearNote*/ false,
 			pQueue->m_addMidiNoteVector[0].b_isMidi,
-			pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
-			/*isNoteOff*/ false );
-		pUndoStack->push( action );
+			/*isNoteOff*/ false ) );
 		pUndoStack->endMacro();
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
 	}

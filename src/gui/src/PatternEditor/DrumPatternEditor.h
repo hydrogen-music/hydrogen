@@ -52,31 +52,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
 
-		void addOrDeleteNoteAction(		int nColumn,
-										int row,
-										int nPatternNumber,
-										int oldLength,
-										float oldVelocity,
-										float fOldPan,
-										float oldLeadLag,
-										int oldNoteKeyVal,
-										int oldOctaveKeyVal,
-										float probability,
-										bool listen,
-										bool isMidi,
-										bool isInstrumentMode,
-										bool isNoteOff,
-										bool isDelete );
-		void moveNoteAction( int nColumn,
-							 int nRow,
-							 int nPattern,
-							 int nNewColumn,
-							 int nNewRow,
-							 H2Core::Note *note);
-
-		void addOrRemoveNote( int nColumn, int nRealColumn, int row,
-							  bool bDoAdd = true, bool bDoDelete = true,
-							  bool bIsNoteOff = false );
 		void functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
 										   int nSelectedInstrument,
 										   int patternNumber );
@@ -98,7 +73,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk
@@ -111,8 +85,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
-		virtual void deleteSelection() override;
-		virtual void paste() override;
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:

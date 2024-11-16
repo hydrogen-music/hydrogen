@@ -1199,13 +1199,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>DrumPatternEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>Kann Multi-Pattern Auswahl nicht einfügen</translation>
-    </message>
-</context>
-<context>
     <name>Drumkit</name>
     <message>
         <source>New Drumkit</source>
@@ -3043,6 +3036,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Change note length</source>
         <translation>Ändere Länge der Note</translation>
     </message>
+    <message>
+        <source>Cannot paste multi-pattern selection</source>
+        <translation>Multi-Pattern Auswahl konnte nicht eingefügt werden</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -3248,13 +3245,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Pattern category</source>
         <translation>Pattern-Kategorie</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>Kann Multi-Pattern Selektion nicht einfügen</translation>
     </message>
 </context>
 <context>
@@ -4582,14 +4572,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Move instrument</source>
         <translation>Verschiebe Instrument</translation>
-    </message>
-    <message>
-        <source>Add piano roll note ( %1, %2 )</source>
-        <translation>Füge Piano-Roll Note hinzu ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Add  piano roll NOTE_OFF note ( %1, %2 )</source>
-        <translation>Füge Piano-Roll NOTE_OFF Note hinzu ( %1, %2 )</translation>
     </message>
     <message>
         <source>Add point</source>

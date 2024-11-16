@@ -536,11 +536,9 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 				int divider = nNote / 12;
 				noteAction.no_octaveKeyVal = (Note::Octave)(divider -3);
 				noteAction.nk_noteKeyVal = (Note::Key)(nNote - (12 * divider));
-				noteAction.b_isInstrumentMode = true;
 			} else {
 				noteAction.no_octaveKeyVal = (Note::Octave)0;
 				noteAction.nk_noteKeyVal = (Note::Key)0;
-				noteAction.b_isInstrumentMode = false;
 			}
 
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);

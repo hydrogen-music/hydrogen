@@ -719,10 +719,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 				deleteSelection();
 		} else {
 			// Delete note under the keyboard cursor.
-			m_pPatternEditorPanel->getDrumPatternEditor()->
-				addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
-								 m_pPatternEditorPanel->getSelectedRowDB(),
-								 /*bDoAdd=*/false, /*bDoDelete=*/true );
+			addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+							 m_pPatternEditorPanel->getSelectedRowDB(),
+							 KEY_MIN, OCTAVE_DEFAULT,
+							 /*bDoAdd=*/false, /*bDoDelete=*/true );
 		}
 
 	} else {

@@ -1197,13 +1197,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
-    <name>DrumPatternEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>无法粘贴多样式选择</translation>
-    </message>
-</context>
-<context>
     <name>Drumkit</name>
     <message>
         <source>New Drumkit</source>
@@ -3033,6 +3026,10 @@ LilyPond 导出是一项实验性功能。
         <source>Change note length</source>
         <translation>修改音符长度</translation>
     </message>
+    <message>
+        <source>Cannot paste multi-pattern selection</source>
+        <translation>无法粘贴多样式选择</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -3238,13 +3235,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>无法粘贴多样式选择</translation>
     </message>
 </context>
 <context>
@@ -4578,14 +4568,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Move instrument</source>
         <translation>移动乐器</translation>
-    </message>
-    <message>
-        <source>Add piano roll note ( %1, %2 )</source>
-        <translation>添加钢琴辊音符 ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Add  piano roll NOTE_OFF note ( %1, %2 )</source>
-        <translation>添加钢琴辊 NOTE_OFF 音符 ( %1, %2 )</translation>
     </message>
     <message>
         <source>Add point</source>

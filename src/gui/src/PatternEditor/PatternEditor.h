@@ -101,6 +101,12 @@ public:
 		m_selection.clearSelection();
 	}
 
+	/** Move or copy notes.
+	 *
+	 * Moves or copies notes at the end of a Selection move, handling the
+	 * behaviours necessary for out-of-range moves or copies.*/
+	virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
+
 	//! Calculate colour to use for note representation based on note velocity. 
 	static QColor computeNoteColor( float velocity );
 
@@ -163,6 +169,20 @@ public:
 		variable #m_nTick and triggers an update(). */
 	void updatePosition( float fTick );
 
+	static void addOrRemoveNoteAction( int nColumn,
+									   int nRow,
+									   int nPatternNumber,
+									   int nOldLength,
+									   float fOldVelocity,
+									   float fOldPan,
+									   float fOldLeadLag,
+									   int nOldNoteKeyVal,
+									   int nOldOctaveKeyVal,
+									   float fOldProbability,
+									   bool bIsDelete,
+									   bool bIsMidi,
+									   bool bIsNoteOff );
+
 		/** For notes in #PianoRollEditor and the note key version of
 		 * #NotePropertiesEditor @a nOldNoteKey and @a nOldOctaveKey will be
 		 * used to find the actual #H2Core::Note to alter. In the latter
@@ -200,9 +220,9 @@ public slots:
 	virtual void updateEditor( bool bPatternOnly = false ) = 0;
 	virtual void selectAll() = 0;
 	virtual void selectNone();
-	virtual void deleteSelection() = 0;
+	void deleteSelection();
 	virtual void copy();
-	virtual void paste() = 0;
+	void paste();
 	virtual void cut();
 	virtual void alignToGrid();
 	virtual void randomizeVelocity();
@@ -223,6 +243,12 @@ protected:
 		}
 		return 4 * MAX_NOTES / ( nBase * m_nResolution );
 	}
+
+		void addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
+							  int nNoteKey = KEY_MIN,
+							  int nOctave = OCTAVE_DEFAULT,
+							  bool bDoAdd = true, bool bDoDelete = true,
+							  bool bIsNoteOff = false );
 
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
@@ -300,6 +326,11 @@ protected:
 	virtual void focusOutEvent( QFocusEvent *ev ) override;
 
 	int m_nTick;
+
+		// Note pitch position of cursor in PianoRollEditor
+		int m_nCursorRow;
+
+		QPoint cursorPosition();
 
 	/** Stores the properties of @a pNote in member variables.*/
 	void storeNoteProperties( const H2Core::Note* pNote );

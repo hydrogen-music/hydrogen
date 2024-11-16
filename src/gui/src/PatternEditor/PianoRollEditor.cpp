@@ -59,8 +59,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 
 	m_pTemp = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
-	m_nCursorPitch = 0;
-
 	resize( m_nEditorWidth, m_nEditorHeight );
 	
 	createBackground();
@@ -377,85 +375,6 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter,
 	}
 }
 
-
-void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
-									   int nNotekey, int nOctave,
-									   bool bDoAdd, bool bDoDelete )
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		// No pattern selected.
-		return;
-	}
-	
-	Note::Octave octave = (Note::Octave)nOctave;
-	Note::Key notekey = (Note::Key)nNotekey;
-	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
-	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row" );
-		return;
-	}
-
-	Note* pOldNote = pPattern->findNote(
-		nColumn, nRealColumn, selectedRow.nInstrumentID, selectedRow.sType,
-		notekey, octave );
-
-	int nLength = -1;
-	float fVelocity = 0.8f;
-	float fPan = 0.0f;
-	float fLeadLag = 0.0f;
-	float fProbability = 1.0f;
-
-	if ( pOldNote != nullptr && !bDoDelete ) {
-		// Found an old note, but we don't want to delete, so just return.
-		return;
-	} else if ( pOldNote == nullptr && !bDoAdd ) {
-		// No note there, but we don't want to add a new one, so return.
-		return;
-	}
-
-	if ( pOldNote != nullptr ) {
-		nLength = pOldNote->get_length();
-		fVelocity = pOldNote->get_velocity();
-		fPan = pOldNote->getPan();
-		fLeadLag = pOldNote->get_lead_lag();
-		notekey = pOldNote->get_key();
-		octave = pOldNote->get_octave();
-		fProbability = pOldNote->get_probability();
-	}
-
-	if ( pOldNote == nullptr && Preferences::get_instance()->getHearNewNotes() &&
-		 selectedRow.nInstrumentID != EMPTY_INSTR_ID ) {
-		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-		if ( pSelectedInstrument != nullptr &&
-			 pSelectedInstrument->hasSamples() ) {
-			auto pNote2 = new Note( pSelectedInstrument );
-			pNote2->set_key_octave( notekey, octave );
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-				noteOn( pNote2 );
-		}
-	}
-
-	SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction(
-		nColumn,
-		nLine,
-		m_pPatternEditorPanel->getPatternNumber(),
-		nSelectedRow,
-		nLength,
-		fVelocity,
-		fPan,
-		fLeadLag,
-		notekey,
-		octave,
-		fProbability,
-		pOldNote != nullptr );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
-
-}
-
-
 void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -485,43 +404,14 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 
-	int nPitch = Note::lineToPitch( nNewRow );
-	Note::Octave pressedoctave = Note::pitchToOctave( nPitch );
-	Note::Key pressednotekey = Note::pitchToKey( nPitch );
-	m_nCursorPitch = nPitch;
+	m_nCursorRow = Note::lineToPitch( nNewRow );
+	const Note::Octave octave = Note::pitchToOctave( m_nCursorRow );
+	const Note::Key noteKey = Note::pitchToKey( m_nCursorRow );
 
 	if ( ev->button() == Qt::LeftButton ) {
-		if ( ev->modifiers() & Qt::ShiftModifier ) {
-			H2Core::Note *pNote = pPattern->findNote(
-				nColumn, nRealColumn, selectedRow.nInstrumentID,
-				selectedRow.sType, pressednotekey, pressedoctave );
-			if ( pNote != nullptr ) {
-				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction(
-					nColumn,
-					nNewRow,
-					m_pPatternEditorPanel->getPatternNumber(),
-					nSelectedRow,
-					pNote->get_length(),
-					pNote->get_velocity(),
-					pNote->getPan(),
-					pNote->get_lead_lag(),
-					pNote->get_key(),
-					pNote->get_octave(),
-					pNote->get_probability(),
-					pNote != nullptr );
-				pHydrogenApp->m_pUndoStack->push( action );
-			} else {
-				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction(
-					nColumn,
-					nNewRow,
-					m_pPatternEditorPanel->getPatternNumber(),
-					nSelectedRow );
-				pHydrogenApp->m_pUndoStack->push( action );
-			}
-			return;
-		}
-
-		addOrRemoveNote( nColumn, nRealColumn, nNewRow, pressednotekey, pressedoctave );
+		addOrRemoveNote( nColumn, nRealColumn, nSelectedRow,
+						 noteKey, octave, /* bDoAdd */true, /* bDoDelete */true,
+						 /* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
@@ -559,7 +449,7 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 		if ( nRow >= (int) OCTAVE_NUMBER * KEYS_PER_OCTAVE ) {
 			return;
 		}
-		m_nCursorPitch = Note::lineToPitch( nRow );
+		m_nCursorRow = Note::lineToPitch( nRow );
 
 		if ( ( pPattern != nullptr &&
 			   nColumn >= pPattern->getLength() ) ||
@@ -600,7 +490,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 	Note::Octave pressedOctave = Note::pitchToOctave( Note::lineToPitch( nRow ) );
 	Note::Key pressedNoteKey = Note::pitchToKey( Note::lineToPitch( nRow ) );
-	m_nCursorPitch = Note::lineToPitch( nRow );
+	m_nCursorRow = Note::lineToPitch( nRow );
 
 	if ( ev->button() == Qt::RightButton ) {
 		m_pDraggedNote = pPattern->findNote(
@@ -625,365 +515,23 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 	PatternEditor::mouseDragUpdateEvent( ev );
 }
 
-void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
-											 int pressedLine,
-											 int nPatternNumber,
-											 int nRow,
-											 int oldLength,
-											 float oldVelocity,
-											 float fOldPan,
-											 float oldLeadLag,
-											 int oldNoteKeyVal,
-											 int oldOctaveKeyVal,
-											 float fProbability,
-											 bool noteOff,
-											 bool isDelete )
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-
-	PatternList *pPatternList = pSong->getPatternList();
-	if ( nPatternNumber < 0 ||
-		 nPatternNumber >= pPatternList->size() ) {
-		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
-				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
-		return;
-	}
-	auto pPattern = pPatternList->get( nPatternNumber );
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Pattern found for pattern number [%1] is not valid" )
-				  .arg( nPatternNumber ) );
-		return;
-	}
-
-	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
-		return;
-	}
-
-	Note::Octave pressedoctave = Note::pitchToOctave( Note::lineToPitch( pressedLine ) );
-	Note::Key pressednotekey = Note::pitchToKey( Note::lineToPitch( pressedLine ) );
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
-
-	if ( isDelete ) {
-		auto pNote = pPattern->findNote(
-			nColumn, -1, row.nInstrumentID, row.sType, pressednotekey,
-			pressedoctave );
-		if ( pNote != nullptr ) {
-			// the pNote exists...remove it!
-			pPattern->removeNote( pNote );
-			delete pNote;
-		} else {
-			ERRORLOG( "Could not find note to delete" );
-		}
-	}
-	else {
-		// create the new note
-		unsigned nPosition = nColumn;
-		float fVelocity = oldVelocity;
-		float fPan = fOldPan;
-		int nLength = oldLength;
-
-		if ( noteOff ) {
-			fVelocity = 0.0f;
-			fPan = 0.f;
-			nLength = 1;
-		}
-
-		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
-			pInstrument =
-				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
-			if ( pInstrument == nullptr ) {
-				ERRORLOG( QString( "Instrument [%1] could not be found" )
-						  .arg( row.nInstrumentID ) );
-				pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
-				return;
-			}
-		}
-
-		auto pNote = new Note( pInstrument, nPosition, fVelocity,
-							   fPan, nLength );
-		pNote->set_instrument_id( row.nInstrumentID );
-		pNote->setType( row.sType );
-		pNote->set_note_off( noteOff );
-		if ( ! noteOff ) {
-			pNote->set_lead_lag( oldLeadLag );
-		}
-		pNote->set_key_octave( pressednotekey, pressedoctave );
-		pNote->set_probability( fProbability );
-		pPattern->insertNote( pNote );
-		if ( m_bSelectNewNotes ) {
-			m_selection.addToSelection( pNote );
-		}
-	}
-	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
-	pHydrogen->setIsModified( true );
-
-	m_pPatternEditorPanel->updateEditors( true );
-}
-
-
-// Find a note that matches pNote, and move it from (nColumn, nRow) to (nNewColumn, nNewRow)
-void PianoRollEditor::moveNoteAction( int nColumn,
-									  Note::Octave octave,
-									  Note::Key key,
-									  int nPattern,
-									  int nNewColumn,
-									  Note::Octave newOctave,
-									  Note::Key newKey,
-									  Note *pNote)
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	PatternList *pPatternList = pSong->getPatternList();
-	Note *pFoundNote = nullptr;
-
-	if ( nPattern < 0 || nPattern > pPatternList->size() ) {
-		ERRORLOG( "Invalid pattern number" );
-		pHydrogen->getAudioEngine()->unlock();
-		return;
-	}
-
-	auto pPattern = pPatternList->get( nPattern );
-
-	FOREACH_NOTE_IT_BOUND_END((Pattern::notes_t *)pPattern->getNotes(), it, nColumn) {
-		Note *pCandidateNote = it->second;
-		if ( pCandidateNote->get_instrument() == pNote->get_instrument()
-			 && pCandidateNote->get_octave() == octave
-			 && pCandidateNote->get_key() == key
-			 && pCandidateNote->get_velocity() == pNote->get_velocity()
-			 && pCandidateNote->get_lead_lag() == pNote->get_lead_lag()
-			 && pCandidateNote->getPan() == pNote->getPan()
-			 && pCandidateNote->get_note_off() == pNote->get_note_off() ) {
-			pFoundNote = pCandidateNote;
-			if ( m_selection.isSelected( pFoundNote ) ) {
-				// If a candidate note is in the selection, this will be the one to move.
-				break;
-			}
-		}
-	}
-	if ( pFoundNote == nullptr ) {
-		ERRORLOG( "Couldn't find note to move" );
-		pHydrogen->getAudioEngine()->unlock();
-		return;
-	}
-
-	// Remove and insert at new position
-	pPattern->removeNote( pFoundNote );
-	pFoundNote->set_position( nNewColumn );
-	pPattern->insertNote( pFoundNote );
-	pFoundNote->set_key_octave( newKey, newOctave );
-
-	pHydrogen->getAudioEngine()->unlock();
-	pHydrogen->setIsModified( true );
-
-	m_pPatternEditorPanel->updateEditors( true );
-}
-
-
-QPoint PianoRollEditor::cursorPosition()
-{
-	uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-	uint y = m_nGridHeight * Note::pitchToLine( m_nCursorPitch ) + 1;
-	return QPoint(x, y);
-}
-
 void PianoRollEditor::selectAll()
 {
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 }
 
-
-void PianoRollEditor::deleteSelection()
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		// No pattern selected.
-		return;
-	}
-
-	if ( m_selection.begin() != m_selection.end() ) {
-		// Delete a selection.
-		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-			 selectedRow.sType.isEmpty() ) {
-			DEBUGLOG( "Empty row" );
-			return;
-		}
-
-		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-		validateSelection();
-		std::list< QUndoCommand * > actions;
-		for ( const auto& pNote : m_selection ) {
-			if ( m_selection.isSelected( pNote ) ||
-				 pNote->get_instrument_id() == selectedRow.nInstrumentID ||
-				 pNote->getType() == selectedRow.sType ) {
-				int nLine = Note::pitchToLine( pNote->get_notekey_pitch() );
-				actions.push_back( new SE_addOrDeleteNotePianoRollAction(
-									   pNote->get_position(),
-									   nLine,
-									   m_pPatternEditorPanel->getPatternNumber(),
-									   m_pPatternEditorPanel->getSelectedRowDB(),
-									   pNote->get_length(),
-									   pNote->get_velocity(),
-									   pNote->getPan(),
-									   pNote->get_lead_lag(),
-									   pNote->get_key(),
-									   pNote->get_octave(),
-									   pNote->get_probability(),
-									   true ) );
-			}
-		}
-		m_selection.clearSelection();
-
-		pUndo->beginMacro("delete notes");
-		for ( QUndoCommand * pAction : actions ) {
-			pUndo->push( pAction );
-		}
-		pUndo->endMacro();
-	}
-}
-
-
-///
-/// Paste selection
-///
-/// Selection is XML containing notes, contained in a root 'note_selection' element.
-///
-void PianoRollEditor::paste()
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		// No pattern selected.
-		return;
-	}
-
-	QClipboard *clipboard = QApplication::clipboard();
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	const auto pDrumkit = pSong->getDrumkit();
-	const auto pInstrList = pDrumkit->getInstruments();
-	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
-	XMLNode noteList;
-	int nDeltaPos = 0, nDeltaPitch = 0;
-
-
-	XMLDoc doc;
-	if ( ! doc.setContent( clipboard->text() ) ) {
-		// Pasted something that's not valid XML.
-		return;
-	}
-
-	XMLNode selection = doc.firstChildElement( "noteSelection" );
-	if ( ! selection.isNull() ) {
-
-		// Got a noteSelection.
-		// <noteSelection>
-		//   <noteList>
-		//     <note> ...
-		noteList = selection.firstChildElement( "noteList" );
-		if ( noteList.isNull() ) {
-			return;
-		}
-
-		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
-
-		// If position information is supplied in the selection, use
-		// it to adjust the location relative to the current keyboard
-		// input cursor.
-		if ( !positionNode.isNull() ) {
-			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
-
-			nDeltaPos = nCurrentPos -
-				positionNode.read_int( "minColumn", nCurrentPos );
-			nDeltaPitch = m_nCursorPitch -
-				positionNode.read_int( "maxPitch", m_nCursorPitch );
-		}
-	} else {
-
-		XMLNode instrumentLine = doc.firstChildElement( "instrument_line" );
-		if ( ! instrumentLine.isNull() ) {
-			// Found 'instrument_line', structure is:
-			// <instrument_line>
-			//   <patternList>
-			//     <pattern>
-			//       <noteList>
-			//         <note> ...
-			XMLNode patternList = instrumentLine.firstChildElement( "patternList" );
-			if ( patternList.isNull() ) {
-				return;
-			}
-			XMLNode pattern = patternList.firstChildElement( "pattern" );
-			if ( pattern.isNull() ) {
-				return;
-			}
-			// Don't attempt to paste multiple patterns
-			if ( ! pattern.nextSiblingElement( "pattern" ).isNull() ) {
-				QMessageBox::information( this, "Hydrogen", tr( "Cannot paste multi-pattern selection" ) );
-				return;
-			}
-			noteList = pattern.firstChildElement( "noteList" );
-			if ( noteList.isNull() ) {
-				return;
-			}
-		}
-	}
-
-	m_selection.clearSelection();
-	m_bSelectNewNotes = true;
-
-	if ( noteList.hasChildNodes() ) {
-
-		pUndo->beginMacro( "paste notes" );
-		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
-			Note *pNote = Note::load_from( n );
-			pNote->mapTo( pDrumkit );
-			int nPos = pNote->get_position() + nDeltaPos;
-			int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
-
-			if ( nPos >= 0 && nPos < pPattern->getLength() &&
-				 nPitch >= KEYS_PER_OCTAVE * OCTAVE_MIN &&
-				 nPitch < KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
-				int nLine = Note::pitchToLine( nPitch );
-				pUndo->push( new SE_addOrDeleteNotePianoRollAction(
-								 nPos,
-								 nLine,
-								 m_pPatternEditorPanel->getPatternNumber(),
-								 nSelectedRow,
-								 pNote->get_length(),
-								 pNote->get_velocity(),
-								 pNote->getPan(),
-								 pNote->get_lead_lag(),
-								 0,
-								 0,
-								 pNote->get_probability(),
-								 false ) );
-			}
-			delete pNote;
-		}
-		pUndo->endMacro();
-	}
-
-	m_bSelectNewNotes = false;
-}
-
-
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row [%1]" );
 		return;
 	}
 
@@ -1022,49 +570,50 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		m_pPatternEditorPanel->setCursorPosition( 0 );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
-		if ( m_nCursorPitch > Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ) ) {
-			m_nCursorPitch --;
+		if ( m_nCursorRow > Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ) ) {
+			m_nCursorRow --;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
-		m_nCursorPitch = std::max( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ),
-								   m_nCursorPitch - nBlockSize );
+		m_nCursorRow = std::max( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ),
+								   m_nCursorRow - nBlockSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
 		// Page down -- move down by a whole octave
 		int nMinPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
-		m_nCursorPitch -= KEYS_PER_OCTAVE;
-		if ( m_nCursorPitch < nMinPitch ) {
-			m_nCursorPitch = nMinPitch;
+		m_nCursorRow -= KEYS_PER_OCTAVE;
+		if ( m_nCursorRow < nMinPitch ) {
+			m_nCursorRow = nMinPitch;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
-		m_nCursorPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
+		m_nCursorRow = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
-		if ( m_nCursorPitch < Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ) ) {
-			m_nCursorPitch ++;
+		if ( m_nCursorRow < Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ) ) {
+			m_nCursorRow ++;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
-		m_nCursorPitch = std::min( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ),
-								   m_nCursorPitch + nBlockSize );
+		m_nCursorRow = std::min( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ),
+								   m_nCursorRow + nBlockSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
 		int nMaxPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
-		m_nCursorPitch += KEYS_PER_OCTAVE;
-		if ( m_nCursorPitch >= nMaxPitch ) {
-			m_nCursorPitch = nMaxPitch;
+		m_nCursorRow += KEYS_PER_OCTAVE;
+		if ( m_nCursorRow >= nMaxPitch ) {
+			m_nCursorRow = nMaxPitch;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
-		m_nCursorPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
+		m_nCursorRow = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
 
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter/Return : Place or remove note at current position
-		int pressedline = Note::pitchToLine( m_nCursorPitch );
+		int pressedline = Note::pitchToLine( m_nCursorRow );
 		int nPitch = Note::lineToPitch( pressedline );
-		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, pressedline,
+		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+						 m_pPatternEditorPanel->getSelectedRowDB(),
 						 Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ) );
 
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
@@ -1084,10 +633,12 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 			deleteSelection();
 		} else {
 			// Delete a note under the keyboard cursor
-			int pressedline = Note::pitchToLine( m_nCursorPitch );
+			int pressedline = Note::pitchToLine( m_nCursorRow );
 			int nPitch = Note::lineToPitch( pressedline );
-			addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, pressedline,
-							 Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ),
+			addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+							 m_pPatternEditorPanel->getSelectedRowDB(),
+							 Note::pitchToKey( nPitch ),
+							 Note::pitchToOctave( nPitch ),
 							 /*bDoAdd=*/false, /*bDoDelete=*/true );
 		}
 
@@ -1129,108 +680,6 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	
 	updateEditor( true );
 	ev->accept();
-}
-
-// Selection manager interface
-void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
-{
-	updateModifiers( ev );
-
-	QPoint offset = movingGridOffset();
-	if ( offset.x() == 0 && offset.y() == 0 ) {
-		// Move with no effect.
-		return;
-	}
-
-	validateSelection();
-
-	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		// No pattern selected. Nothing to be selected.
-		return;
-	}
-
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-
-	if (m_bCopyNotMove) {
-		pUndo->beginMacro( "copy notes" );
-	} else {
-		pUndo->beginMacro( "move notes" );
-	}
-	std::list< Note * > selectedNotes;
-	for ( auto pNote : m_selection ) {
-		selectedNotes.push_back( pNote );
-	}
-
-	if ( m_bCopyNotMove ) {
-		// Clear selection so the new notes can be selection instead
-		// of the originals.
-		m_selection.clearSelection();
-	}
-	m_bSelectNewNotes = true;
-
-	for ( auto pNote : selectedNotes ) {
-		int nPosition = pNote->get_position();
-		int nNewPosition = nPosition + offset.x();
-
-		Note::Octave octave = pNote->get_octave();
-		Note::Key key = pNote->get_key();
-		// Transpose note
-		int nNewPitch = pNote->get_notekey_pitch() - offset.y();
-		int nLine = Note::pitchToLine( nNewPitch );
-		Note::Octave newOctave = Note::pitchToOctave( nNewPitch );
-		Note::Key newKey = Note::pitchToKey( nNewPitch );
-		bool bNoteInRange = ( newOctave >= OCTAVE_MIN && newOctave <= OCTAVE_MAX && nNewPosition >= 0
-							  && nNewPosition < pPattern->getLength() );
-
-		if ( m_bCopyNotMove ) {
-			if ( bNoteInRange ) {
-				pUndo->push( new SE_addOrDeleteNotePianoRollAction(
-								 nNewPosition,
-								 nLine,
-								 m_pPatternEditorPanel->getPatternNumber(),
-								 nSelectedRow,
-								 pNote->get_length(),
-								 pNote->get_velocity(),
-								 pNote->getPan(),
-								 pNote->get_lead_lag(),
-								 newKey,
-								 newOctave,
-								 pNote->get_probability(),
-								 false ) );
-			}
-		} else {
-			if ( bNoteInRange ) {
-				pUndo->push( new SE_moveNotePianoRollAction(
-								 nPosition,
-								 octave,
-								 key,
-								 m_pPatternEditorPanel->getPatternNumber(),
-								 nNewPosition,
-								 newOctave,
-								 newKey,
-								 pNote ) );
-			} else {
-				pUndo->push( new SE_addOrDeleteNotePianoRollAction(
-								 pNote->get_position(),
-								 nLine - offset.y(),
-								 m_pPatternEditorPanel->getPatternNumber(),
-								 nSelectedRow,
-								 pNote->get_length(),
-								 pNote->get_velocity(),
-								 pNote->getPan(),
-								 pNote->get_lead_lag(),
-								 key,
-								 octave,
-								 pNote->get_probability(),
-								 true ) );
-			}
-		}
-	}
-
-	m_bSelectNewNotes = false;
-	pUndo->endMacro();
 }
 
 std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( const QRect& r )

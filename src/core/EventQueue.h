@@ -301,7 +301,6 @@ public:/**
 		Note::Key nk_noteKeyVal;
 		Note::Octave no_octaveKeyVal;
 		bool b_isMidi;
-		bool b_isInstrumentMode;
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 

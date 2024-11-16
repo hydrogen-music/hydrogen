@@ -44,30 +44,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView );
 		~PianoRollEditor();
 
-		void addOrDeleteNoteAction( int nColumn,
-									int pressedLine,
-									int selectedPatternNumber,
-									int nRow,
-									int oldLength,
-									float oldVelocity,
-									float fOldPan,
-									float oldLeadLag,
-									int oldNoteKeyVal,
-									int oldOctaveKeyVal,
-									float fProbability,
-									bool noteOff,
-									bool isDelete );
-
-		void moveNoteAction( int nColumn,
-							 H2Core::Note::Octave octave,
-							 H2Core::Note::Key key,
-							 int nPattern,
-							 int nNewColumn,
-							 H2Core::Note::Octave newOctave,
-							 H2Core::Note::Key newKey,
-							 H2Core::Note *pNote);
-
-
 		// Selection manager interface
 		//! Selections are indexed by Note pointers.
 
@@ -76,15 +52,12 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 		virtual QRect getKeyboardCursorRect() override;
 
 
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
-		virtual void deleteSelection() override;
-		virtual void paste() override;
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
@@ -102,10 +75,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		 */
 	void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
 
-		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
-							  int nNotekey, int nOctave,
-							  bool bDoAdd = true, bool bDoDelete = true );
-
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
 		
@@ -116,10 +85,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		QPixmap *m_pBackground;
 		QPixmap *m_pTemp;
-
-		// Note pitch position of cursor
-		int m_nCursorPitch;
-		QPoint cursorPosition();
 
 		QScrollArea *m_pScrollView;
 };

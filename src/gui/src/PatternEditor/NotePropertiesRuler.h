@@ -86,10 +86,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
-		virtual void deleteSelection() override {}
-		virtual void copy() override {}
-		virtual void paste() override {}
-		virtual void cut() override {}
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void scrolled( int );
 
