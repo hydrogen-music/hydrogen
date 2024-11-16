@@ -477,7 +477,8 @@ void Sampler::handleTimelineOrTempoChange() {
 		// properly handled in here. But since this only occurs seldomly and
 		// this code only takes effect if a note with custom length is currently
 		// rendered, we skip this edge case.
-		if ( ppNote->isPartiallyRendered() && ppNote->get_length() != -1 &&
+		if ( ppNote->isPartiallyRendered() &&
+			 ppNote->get_length() != LENGTH_ENTIRE_SAMPLE &&
 			 ppNote->getUsedTickSize() != -1 ) {
 
 			double fTickMismatch;
@@ -1190,9 +1191,9 @@ bool Sampler::renderNoteResample(
 	// If the user set a custom length of the note in the PatternEditor, we will
 	// use it to trigger the releases of the note. Otherwise, the whole sample
 	// will be played back.
-	if ( pNote->get_length() != -1 &&
+	if ( pNote->get_length() != LENGTH_ENTIRE_SAMPLE &&
 		 pNote->get_adsr()->getState() != ADSR::State::Release ) {
-		if ( pSelectedLayerInfo->nNoteLength == -1 ) {
+		if ( pSelectedLayerInfo->nNoteLength == LENGTH_ENTIRE_SAMPLE ) {
 			// The length of a note is only calculated once when first
 			// encountering it. This makes us robust again glitches due to tempo
 			// changes.
@@ -1420,7 +1421,8 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 
 		pLayer->set_sample( pSample );
 
-		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, nLength );
+		Note *pPreviewNote = new Note(
+			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
 
 		stopPlayingNotes( m_pPreviewInstrument );
 		noteOn( pPreviewNote );
@@ -1452,7 +1454,8 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 	m_pPreviewInstrument = pInstr;
 	pInstr->set_is_preview_instrument(true);
 
-	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, MAX_NOTES );
+	Note *pPreviewNote = new Note(
+		m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
 
 	noteOn( pPreviewNote );	// exclusive note
 	Hydrogen::get_instance()->getAudioEngine()->unlock();

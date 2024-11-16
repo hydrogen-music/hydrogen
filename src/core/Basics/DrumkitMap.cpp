@@ -20,6 +20,7 @@
  */
 
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Instrument.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 
@@ -76,11 +77,12 @@ std::shared_ptr<DrumkitMap> DrumkitMap::loadFrom( const XMLNode& node, bool bSil
 
 	while ( !mappingNode.isNull() ) {
 		const int nInstrumentID =
-			mappingNode.read_int( "instrumentID", -1, false, false, false );
+			mappingNode.read_int( "instrumentID", EMPTY_INSTR_ID, false,
+								  false, false );
 		const QString sType =
 			mappingNode.read_string( "type", "", false, false, false );
 
-		if ( ! sType.isEmpty() && nInstrumentID != -1 ) {
+		if ( ! sType.isEmpty() && nInstrumentID != EMPTY_INSTR_ID ) {
 			// Ensure types to be unique and takes care of error logging.
 			pDrumkitMap->addMapping( nInstrumentID, static_cast<Type>( sType ) );
 		}
@@ -162,7 +164,7 @@ int DrumkitMap::getId( const Type& sType, bool* pOk ) const {
 	}
 
 	*pOk = false;
-	return -1;
+	return EMPTY_INSTR_ID;
 }
 
 DrumkitMap::Type DrumkitMap::getType( int nId ) const {

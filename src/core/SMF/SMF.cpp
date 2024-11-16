@@ -280,7 +280,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 						}
 						
 						int nLength = pNote->get_length();
-						if ( nLength == -1 ) {
+						if ( nLength == LENGTH_ENTIRE_SAMPLE ) {
 							nLength = NOTE_LENGTH;
 						}
 						

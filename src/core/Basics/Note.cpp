@@ -52,10 +52,10 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 	  __velocity( fVelocity ),
 	  __length( nLength ),
 	  __pitch( fPitch ),
-	  __key( C ),
-	  __octave( P8 ),
+	  __key( static_cast<Note::Key>(KEY_MIN) ),
+	  __octave( static_cast<Note::Octave>(OCTAVE_DEFAULT) ),
 	  __adsr( nullptr ),
-	  __lead_lag( 0.0 ),
+	  __lead_lag( LEAD_LAG_DEFAULT ),
 	  __cut_off( 1.0 ),
 	  __resonance( 0.0 ),
 	  __humanize_delay( 0 ),
@@ -67,7 +67,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 	  __midi_msg( -1 ),
 	  __note_off( false ),
 	  __just_recorded( false ),
-	  __probability( 1.0f ),
+	  __probability( PROBABILITY_DEFAULT ),
 	  m_nNoteStart( 0 ),
 	  m_fUsedTickSize( std::nan("") ),
 	  m_nSpecificCompoIdx( -1 ),
@@ -86,7 +86,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 					std::make_shared<SelectedLayerInfo>();
 				pSampleInfo->nSelectedLayer = -1;
 				pSampleInfo->fSamplePosition = 0;
-				pSampleInfo->nNoteLength = -1;
+				pSampleInfo->nNoteLength = LENGTH_ENTIRE_SAMPLE;
 
 				__layers_selected[ ii ] = pSampleInfo;
 			}
@@ -228,7 +228,7 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 					std::make_shared<SelectedLayerInfo>();
 				sampleInfo->nSelectedLayer = -1;
 				sampleInfo->fSamplePosition = 0;
-				sampleInfo->nNoteLength = -1;
+				sampleInfo->nNoteLength = LENGTH_ENTIRE_SAMPLE;
 
 				__layers_selected[ ii ] = sampleInfo;
 			}
@@ -562,7 +562,7 @@ void Note::save_to( XMLNode& node ) const
 Note* Note::load_from( const XMLNode& node, bool bSilent )
 {
 	bool bFound, bFound2;
-	float fPan = node.read_float( "pan", 0.f, &bFound, true, false, true );
+	float fPan = node.read_float( "pan", PAN_DEFAULT, &bFound, true, false, true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <=
 		// 1.1 ) with the pair (pan_L, pan_R)
@@ -578,17 +578,19 @@ Note* Note::load_from( const XMLNode& node, bool bSilent )
 	Note* note = new Note(
 		nullptr,
 		node.read_int( "position", 0, false, false, bSilent ),
-		node.read_float( "velocity", 0.8f, false, false, bSilent ),
+		node.read_float( "velocity", VELOCITY_DEFAULT, false, false, bSilent ),
 		fPan,
-		node.read_int( "length", -1, true, false, bSilent ),
-		node.read_float( "pitch", 0.0f, false, false, bSilent )
+		node.read_int( "length", LENGTH_ENTIRE_SAMPLE, true, false, bSilent ),
+		node.read_float( "pitch", PITCH_DEFAULT, false, false, bSilent )
 	);
-	note->set_lead_lag( node.read_float( "leadlag", 0, false, false, bSilent ) );
+	note->set_lead_lag(
+		node.read_float( "leadlag", LEAD_LAG_DEFAULT, false, false, bSilent ) );
 	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
 	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
 	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
 	note->setType( node.read_string( "type", "", true, true, bSilent ) );
-	note->set_probability( node.read_float( "probability", 1.0f, false, false, bSilent ));
+	note->set_probability(
+		node.read_float( "probability", PROBABILITY_DEFAULT, false, false, bSilent ));
 
 	return note;
 }

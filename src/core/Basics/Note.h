@@ -42,11 +42,19 @@
 #define KEYS_PER_OCTAVE         12
 
 #define VELOCITY_MIN            0.0f
+#define VELOCITY_DEFAULT        0.8f
 #define VELOCITY_MAX            1.0f
 #define PAN_MIN                 -1.0f
+#define PAN_DEFAULT             0.0f
 #define PAN_MAX                 1.0f
 #define LEAD_LAG_MIN            -1.0f
+#define LEAD_LAG_DEFAULT        0.0f
 #define LEAD_LAG_MAX            1.0f
+#define LENGTH_ENTIRE_SAMPLE    -1
+#define PITCH_DEFAULT           0.0f
+#define PROBABILITY_MIN         0.0f
+#define PROBABILITY_DEFAULT     1.0f
+#define PROBABILITY_MAX         1.0f
 
 namespace H2Core
 {
@@ -122,7 +130,9 @@ class Note : public H2Core::Object<Note>
 		 * be used instead.
 		 * \param fPitch it's pitch
 		 */
-	Note( std::shared_ptr<Instrument> pInstrument, int nPosition = 0, float fVelocity = 0.8, float fPan = 0.0, int nLength = -1, float fPitch = 0.0 );
+	Note( std::shared_ptr<Instrument> pInstrument, int nPosition = 0,
+		  float fVelocity = VELOCITY_DEFAULT, float fPan = PAN_DEFAULT,
+		  int nLength = LENGTH_ENTIRE_SAMPLE, float fPitch = PITCH_DEFAULT );
 
 		/**
 		 * copy constructor with an optional parameter
@@ -190,7 +200,8 @@ class Note : public H2Core::Object<Note>
 		void setPan( float val );
 		/** set pan of the note, assuming the input range in [0;1] */
 		void setPanWithRangeFrom0To1( float fVal ) {
-			this->setPan( -1.f + 2.f * fVal ); // scale and translate into [-1;1]
+			// scale and translate into [-1;1]
+			this->setPan( PAN_MIN + ( PAN_MAX - PAN_MIN ) * fVal );
 		};
 		/** get pan of the note. Output pan range: [-1;1] */
 		float getPan() const;

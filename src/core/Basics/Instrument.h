@@ -173,9 +173,7 @@ class Instrument : public H2Core::Object<Instrument>
 		/** set pan of the instrument */
 		void setPan( float val );
 		/** set pan of the instrument, assuming the input range in [0;1] */
-		void setPanWithRangeFrom0To1( float fVal ) {
-			this->setPan( -1.f + 2.f * fVal ); // scale and translate into [-1;1]
-		};
+		void setPanWithRangeFrom0To1( float fVal );
 		/** get pan of the instrument */
 		float getPan() const;
 		/** get pan of the instrument scaling and translating the range from [-1;1] to [0;1] */

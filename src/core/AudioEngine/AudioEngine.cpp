@@ -2601,10 +2601,10 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			// two different sounds and events will be used.
 			if ( nMetronomeTickPosition == 0 ) {
 				fPitch = 3;
-				fVelocity = 1.0;
+				fVelocity = VELOCITY_MAX;
 			} else {
-				fPitch = 0;
-				fVelocity = 0.8;
+				fPitch = PITCH_DEFAULT;
+				fVelocity = VELOCITY_DEFAULT;
 			}
 			
 			// Only trigger the sounds if the user enabled the
@@ -2613,8 +2613,8 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
 												 nnTick,
 												 fVelocity,
-												 0.f, // pan
-												 -1,
+												 PAN_DEFAULT, // pan
+												 LENGTH_ENTIRE_SAMPLE,
 												 fPitch );
 				m_pMetronomeInstrument->enqueue( pMetronomeNote );
 				pMetronomeNote->computeNoteStart();
@@ -2702,7 +2702,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 
 						// Ensure the custom length of the note does not exceed
 						// the length of the current pattern.
-						if ( pCopiedNote->get_length() != -1 ) {
+						if ( pCopiedNote->get_length() != LENGTH_ENTIRE_SAMPLE ) {
 							pCopiedNote->set_length(
 								std::min(
 									static_cast<long>(pCopiedNote->get_length()),

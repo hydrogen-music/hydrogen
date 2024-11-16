@@ -401,7 +401,8 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		if ( pInstr != nullptr && pInstr->hasSamples() ) {
 
 			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
-			const float fVelocity = std::min((float)ev->x()/(float)nWidth, 1.0f);
+			const float fVelocity = std::min(
+				(float)ev->x()/(float)nWidth, VELOCITY_MAX );
 			Note *pNote = new Note( pInstr, 0, fVelocity);
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		}

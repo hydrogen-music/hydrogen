@@ -1103,10 +1103,10 @@ void HydrogenApp::onEventQueueTimer()
 			pQueue->m_addMidiNoteVector[0].m_length,
 			pQueue->m_addMidiNoteVector[0].f_velocity,
 			pQueue->m_addMidiNoteVector[0].f_pan,
-			0.0,
+			LEAD_LAG_DEFAULT,
 			pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 			pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-			1.0f,
+			PROBABILITY_DEFAULT,
 			/*isDelete*/ false,
 			pQueue->m_addMidiNoteVector[0].b_isMidi,
 			/*isNoteOff*/ false ) );

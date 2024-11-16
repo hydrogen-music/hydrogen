@@ -629,7 +629,9 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 	}
 	case PatternEditor::Mode::Probability: {
 		if ( !pNote->get_note_off() ) {
-			float fProbability = qBound( 0.0f, pOldNote->get_probability() + fDelta, 1.0f );
+			float fProbability = qBound( PROBABILITY_MIN,
+										 pOldNote->get_probability() + fDelta,
+										 PROBABILITY_MAX );
 			pNote->set_probability( fProbability );
 			m_fLastSetValue = fProbability;
 			bValueSet = true;

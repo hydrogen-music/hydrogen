@@ -165,9 +165,9 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	float fWeightHalf = 0;
 	float fWeightZero = 0;
 
-	if ( fVelocity >= 1.0 ) {
+	if ( fVelocity >= VELOCITY_MAX ) {
 		fWeightFull = 1.0;
-	} else if ( fVelocity >= 0.8 ) {
+	} else if ( fVelocity >= VELOCITY_DEFAULT ) {
 		fWeightDefault = ( 1.0 - fVelocity )/ ( 1.0 - 0.8 );
 		fWeightFull = 1.0 - fWeightDefault;
 	} else if ( fVelocity >= 0.5 ) {
@@ -262,8 +262,8 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 		}
 
 		// Draw tail
-		if ( pNote->get_length() != -1 ) {
-			float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
+		if ( pNote->get_length() != LENGTH_ENTIRE_SAMPLE ) {
+			float fNotePitch = pNote->get_notekey_pitch();
 			float fStep = Note::pitchToFrequency( ( double )fNotePitch );
 
 			// if there is a stop-note to the right of this note, only draw-
@@ -321,7 +321,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 			p.setBrush( Qt::NoBrush );
 			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
 			// Moving tail
-			if ( pNote->get_length() != -1 ) {
+			if ( pNote->get_length() != LENGTH_ENTIRE_SAMPLE ) {
 				p.setPen( movingPen );
 				p.setBrush( Qt::NoBrush );
 				p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y_pos, width+4, 3+4, 4, 4 );
@@ -1565,7 +1565,7 @@ void PatternEditor::storeNoteProperties( const Note* pNote ) {
 		m_fLeadLag = m_fOldLeadLag;
 	}
 	else {
-		m_nOldLength = -1;
+		m_nOldLength = LENGTH_ENTIRE_SAMPLE;
 	}
 }
 
@@ -1917,19 +1917,14 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		bNoteOff = pOldNote->get_note_off();
 	}
 	else {
-		// Set those values to the default one used in the Note constructor
-		std::shared_ptr<Instrument> pInstrument = nullptr;
-		Note* pDefaultNote = new Note( pInstrument );
-
-		nOldLength = pDefaultNote->get_length();
-		fOldVelocity = pDefaultNote->get_velocity();
-		fOldPan = pDefaultNote->getPan();
-		fOldLeadLag = pDefaultNote->get_lead_lag();
-		nOldNoteKey = pDefaultNote->get_key();
-		nOldOctave = pDefaultNote->get_octave();
-		fProbability = pDefaultNote->get_probability();
+		nOldLength = LENGTH_ENTIRE_SAMPLE;
+		fOldVelocity = VELOCITY_DEFAULT;
+		fOldPan = PAN_DEFAULT;
+		fOldLeadLag = LEAD_LAG_DEFAULT;
+		nOldNoteKey = KEY_MIN;
+		nOldOctave = OCTAVE_DEFAULT;
+		fProbability = PROBABILITY_DEFAULT;
 		bNoteOff = bIsNoteOff;
-		delete pDefaultNote;
 	}
 
 	if ( m_editor == Editor::PianoRoll ) {
@@ -2037,10 +2032,10 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 		int nLength = nOldLength;
 
 		if ( bIsNoteOff ) {
-			fVelocity = 0.0f;
-			fPan = 0.f;
+			fVelocity = VELOCITY_MIN;
+			fPan = PAN_DEFAULT;
 			nLength = 1;
-			fOldProbability = 1.0;
+			fOldProbability = PROBABILITY_DEFAULT;
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;

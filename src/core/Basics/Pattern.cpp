@@ -260,7 +260,8 @@ void Pattern::saveTo( XMLNode& node,
 	pattern_node.write_int( "size", m_nLength );
 	pattern_node.write_int( "denominator", m_nDenominator );
 	
-	int nId = ( pInstrumentOnly == nullptr ? -1 : pInstrumentOnly->get_id() );
+	int nId = ( pInstrumentOnly == nullptr ? EMPTY_INSTR_ID :
+				pInstrumentOnly->get_id() );
 	
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	for ( auto it = m_notes.cbegin(); it != m_notes.cend(); ++it ) {

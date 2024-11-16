@@ -2445,7 +2445,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			CoreActionController::handleNote(
 				static_cast<int>(action) - 400 + MidiMessage::instrumentOffset,
-				0.8, false );
+				VELOCITY_DEFAULT, false );
 		}
 		else if ( static_cast<int>(action) >
 				  static_cast<int>(Shortcuts::Action::FirstWith1Args) &&

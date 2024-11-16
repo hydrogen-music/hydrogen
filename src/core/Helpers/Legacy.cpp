@@ -366,15 +366,19 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 		while ( !note_node.isNull() ) {
 			Note* pNote = nullptr;
 			unsigned nPosition = note_node.read_int( "position", 0 );
-			float fLeadLag = note_node.read_float( "leadlag", 0.0 , false , false);
-			float fVelocity = note_node.read_float( "velocity", 0.8f );
+			float fLeadLag = note_node.read_float(
+				"leadlag", LEAD_LAG_DEFAULT, false , false);
+			float fVelocity = note_node.read_float( "velocity", VELOCITY_DEFAULT );
 			float fPanL = note_node.read_float( "pan_L", 0.5 );
 			float fPanR = note_node.read_float( "pan_R", 0.5 );
 			float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
 
-			int nLength = note_node.read_int( "length", -1, true );
-			float nPitch = note_node.read_float( "pitch", 0.0, false, false );
-			float fProbability = note_node.read_float( "probability", 1.0 , false , false );
+			int nLength = note_node.read_int(
+				"length", LENGTH_ENTIRE_SAMPLE, true );
+			float nPitch = note_node.read_float(
+				"pitch", PITCH_DEFAULT, false, false );
+			float fProbability = note_node.read_float(
+				"probability", PROBABILITY_DEFAULT , false , false );
 			QString sKey = note_node.read_string( "key", "C0", false, false );
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
@@ -407,20 +411,22 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 			XMLNode noteNode = noteListNode.firstChildElement( "note" );
 			while ( !noteNode.isNull() ) {
 
-				int nInstrId = noteNode.read_int( "instrument", -1 );
+				int nInstrId = noteNode.read_int( "instrument", EMPTY_INSTR_ID );
 
 				// convert to single pan parameter
 				float fPanL = noteNode.read_float( "pan_L", 0.5 );
 				float fPanR = noteNode.read_float( "pan_R", 0.5 );
 				float fPan = Sampler::getRatioPan( fPanL, fPanR );
 
-				Note* pNote = new Note( nullptr,
-										noteNode.read_int( "position", 0 ),
-										noteNode.read_float( "velocity", 0.8f ),
-										fPan,
-										noteNode.read_int( "length", -1, true ),
-										noteNode.read_float( "pitch", 0.0, false, false ) );
-				pNote->set_lead_lag( noteNode.read_float( "leadlag", 0.0, false, false ) );
+				Note* pNote = new Note(
+					nullptr,
+					noteNode.read_int( "position", 0 ),
+					noteNode.read_float( "velocity", VELOCITY_DEFAULT ),
+					fPan,
+					noteNode.read_int( "length", LENGTH_ENTIRE_SAMPLE, true ),
+					noteNode.read_float( "pitch", PITCH_DEFAULT, false, false ) );
+				pNote->set_lead_lag( noteNode.read_float(
+										 "leadlag", LEAD_LAG_DEFAULT, false, false ) );
 
 				pPattern->insertNote( pNote );
 

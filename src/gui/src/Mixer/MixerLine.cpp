@@ -101,7 +101,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pSoloBtn->setAction(pAction);
 
 	// pan rotary
-	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
+	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false,
+							   PAN_MIN, PAN_MAX );
 	m_pPanRotary->setObjectName( "PanRotary" );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
