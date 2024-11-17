@@ -499,8 +499,6 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 		// Store note-specific properties.
 		storeNoteProperties( m_pDraggedNote );
-		
-		m_nDragStartRow = nRow;
 	}
 }
 

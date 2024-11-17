@@ -347,7 +347,6 @@ protected:
 	int m_nSelectedRow = 0;
 	int m_nRealColumn = 0;
 	int m_nColumn = 0;
-	int m_nDragStartRow = 0;
 	int m_nPressedLine = 0;
 	int m_nOldPoint;
 	
