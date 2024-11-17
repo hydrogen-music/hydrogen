@@ -86,7 +86,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
-	m_nCursorPosition = 0;
+	m_nCursorColumn = 0;
 
 	// Spacing between a label and the widget to its label.
 	const int nLabelSpacing = 6;
@@ -804,7 +804,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
 
 	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
-	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
+	m_nCursorColumn = m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement );
 
 	auto pPref = Preferences::get_instance();
 	pPref->setPatternEditorGridResolution( nResolution );
@@ -1037,7 +1037,7 @@ void PatternEditorPanel::updatePatternName() {
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 
 	// Changes of pattern may leave the cursor out of bounds.
-	setCursorPosition( getCursorPosition() );
+	setCursorColumn( getCursorColumn() );
 
 	m_pPatternEditorRuler->updateEditor( true );
 	m_pNoteVelocityEditor->updateEditor();
@@ -1274,9 +1274,9 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	}
 }
 
-int PatternEditorPanel::getCursorPosition()
+int PatternEditorPanel::getCursorColumn()
 {
-	return m_nCursorPosition;
+	return m_nCursorColumn;
 }
 
 void PatternEditorPanel::ensureCursorVisible()
@@ -1284,28 +1284,28 @@ void PatternEditorPanel::ensureCursorVisible()
 	uint y = m_nSelectedRowDB *
 		Preferences::get_instance()->getPatternEditorGridHeight();
 	m_pEditorScrollView->ensureVisible(
-		m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
+		m_nCursorColumn * m_pPatternEditorRuler->getGridWidth(), y );
 }
 
-void PatternEditorPanel::setCursorPosition(int nCursorPosition)
+void PatternEditorPanel::setCursorColumn(int nCursorPosition)
 {
 	if ( nCursorPosition < 0 ) {
-		m_nCursorPosition = 0;
+		m_nCursorColumn = 0;
 	} else if ( m_pPattern != nullptr && nCursorPosition >= m_pPattern->getLength() ) {
-		m_nCursorPosition = m_pPattern->getLength() - m_nCursorIncrement;
+		m_nCursorColumn = m_pPattern->getLength() - m_nCursorIncrement;
 	} else {
-		m_nCursorPosition = nCursorPosition;
+		m_nCursorColumn = nCursorPosition;
 	}
 }
 
 int PatternEditorPanel::moveCursorLeft( int n )
 {
-	m_nCursorPosition = std::max( m_nCursorPosition - m_nCursorIncrement * n,
+	m_nCursorColumn = std::max( m_nCursorColumn - m_nCursorIncrement * n,
 								  0 );
 
 	ensureCursorVisible();
 
-	return m_nCursorPosition;
+	return m_nCursorColumn;
 }
 
 int PatternEditorPanel::moveCursorRight( int n )
@@ -1314,12 +1314,12 @@ int PatternEditorPanel::moveCursorRight( int n )
 		return 0;
 	}
 	
-	m_nCursorPosition = std::min( m_nCursorPosition + m_nCursorIncrement * n,
+	m_nCursorColumn = std::min( m_nCursorColumn + m_nCursorIncrement * n,
 								  m_pPattern->getLength() - m_nCursorIncrement );
 
 	ensureCursorVisible();
 
-	return m_nCursorPosition;
+	return m_nCursorColumn;
 }
 
 void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {

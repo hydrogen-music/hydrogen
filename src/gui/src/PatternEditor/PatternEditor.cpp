@@ -454,7 +454,7 @@ void PatternEditor::copy()
 		positionNode.write_int( "maxPitch", nMaxPitch );
 	} else {
 		positionNode.write_int( "minColumn",
-								m_pPatternEditorPanel->getCursorPosition() );
+								m_pPatternEditorPanel->getCursorColumn() );
 		positionNode.write_int( "minRow",
 								m_pPatternEditorPanel->getSelectedRowDB() );
 	}
@@ -462,8 +462,8 @@ void PatternEditor::copy()
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText( doc.toString() );
 
-	// This selection will probably be pasted at some point. So show the keyboard cursor as this is the place
-	// where the selection will be pasted.
+	// This selection will probably be pasted at some point. So show the
+	// keyboard cursor as this is the place where the selection will be pasted.
 	HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 }
 
@@ -528,7 +528,7 @@ void PatternEditor::paste()
 		// it to adjust the location relative to the current keyboard
 		// input cursor.
 		if ( ! positionNode.isNull() ) {
-			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
+			int nCurrentPos = m_pPatternEditorPanel->getCursorColumn();
 			nDeltaPos = nCurrentPos -
 				positionNode.read_int( "minColumn", nCurrentPos );
 
@@ -1578,7 +1578,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
 
 	// Move cursor.
-	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorColumn( nColumn );
 
 	// Hide cursor.
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
@@ -2201,9 +2201,43 @@ void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 	}
 }
 
-QPoint PatternEditor::cursorPosition()
+QPoint PatternEditor::getCursorPosition()
 {
-	uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-	uint y = m_nGridHeight * Note::pitchToLine( m_nCursorRow ) + 1;
-	return QPoint(x, y);
+	const int nX = PatternEditor::nMargin +
+		m_pPatternEditorPanel->getCursorColumn() * m_fGridWidth;
+	int nY;
+	if ( m_editor == Editor::PianoRoll ) {
+		nY = m_nGridHeight * Note::pitchToLine( m_nCursorRow ) + 1;
+	}
+	else {
+		nY = m_nGridHeight * m_pPatternEditorPanel->getSelectedRowDB();
+	}
+
+	return QPoint( nX, nY );
+}
+
+QRect PatternEditor::getKeyboardCursorRect()
+{
+	QPoint pos = getCursorPosition();
+
+	float fHalfWidth;
+	if ( m_nResolution != MAX_NOTES ) {
+		// Corresponds to the distance between grid lines on 1/64 resolution.
+		fHalfWidth = m_fGridWidth * 3;
+	} else {
+		// Corresponds to the distance between grid lines set to resolution
+		// "off".
+		fHalfWidth = m_fGridWidth;
+	}
+	if ( m_editor == Editor::DrumPattern ) {
+		return QRect( pos.x() - fHalfWidth, pos.y() + 2,
+					  fHalfWidth * 2, m_nGridHeight - 3 );
+	}
+	else if ( m_editor == Editor::PianoRoll ){
+		return QRect( pos.x() - fHalfWidth, pos.y()-2,
+					  fHalfWidth * 2, m_nGridHeight+3 );
+	}
+	else {
+		return QRect( pos.x() - fHalfWidth, 3, fHalfWidth * 2, height() - 6 );
+	}
 }

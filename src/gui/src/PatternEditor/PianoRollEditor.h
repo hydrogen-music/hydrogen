@@ -52,7 +52,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual QRect getKeyboardCursorRect() override;
 
 
 	public slots:

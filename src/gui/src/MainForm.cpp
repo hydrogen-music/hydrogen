@@ -2362,7 +2362,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorPosition();
+		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorColumn();
 		
 		if ( ! H2Core::CoreActionController::locateToTick( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.

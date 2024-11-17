@@ -148,7 +148,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 
 	// Draw cursor
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		QPoint pos = cursorPosition();
+		QPoint pos = getCursorPosition();
 
 		QPen pen( pPref->getTheme().m_color.m_cursorColor );
 		pen.setWidth( 2 );
@@ -394,7 +394,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		update( 0, 0, width(), height() );
 		return;
 	}
-	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorColumn( nColumn );
 
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
@@ -457,7 +457,7 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 			return;
 		}
 
-		m_pPatternEditorPanel->setCursorPosition( nColumn );
+		m_pPatternEditorPanel->setCursorColumn( nColumn );
 	
 		update();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
@@ -555,7 +555,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
-		m_pPatternEditorPanel->setCursorPosition( pPattern->getLength() );
+		m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
@@ -567,7 +567,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
-		m_pPatternEditorPanel->setCursorPosition( 0 );
+		m_pPatternEditorPanel->setCursorColumn( 0 );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
 		if ( m_nCursorRow > Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ) ) {
@@ -612,7 +612,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		// Key: Enter/Return : Place or remove note at current position
 		int pressedline = Note::pitchToLine( m_nCursorRow );
 		int nPitch = Note::lineToPitch( pressedline );
-		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+		addOrRemoveNote( m_pPatternEditorPanel->getCursorColumn(), -1,
 						 m_pPatternEditorPanel->getSelectedRowDB(),
 						 Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ) );
 
@@ -635,7 +635,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 			// Delete a note under the keyboard cursor
 			int pressedline = Note::pitchToLine( m_nCursorRow );
 			int nPitch = Note::lineToPitch( pressedline );
-			addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1,
+			addOrRemoveNote( m_pPatternEditorPanel->getCursorColumn(), -1,
 							 m_pPatternEditorPanel->getSelectedRowDB(),
 							 Note::pitchToKey( nPitch ),
 							 Note::pitchToOctave( nPitch ),
@@ -666,7 +666,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	}
 
 	// Update editor
-	QPoint pos = cursorPosition();
+	QPoint pos = getCursorPosition();
 	if ( bUnhideCursor ) {
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
@@ -729,25 +729,6 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	}
 	updateEditor( true );
 	return std::move( result );
-}
-
-///
-/// Position of keyboard input cursor on screen
-///
-QRect PianoRollEditor::getKeyboardCursorRect()
-{
-	const QPoint pos = cursorPosition();
-	float fHalfWidth;
-	if ( m_nResolution != MAX_NOTES ) {
-		// Corresponds to the distance between grid lines on 1/64 resolution.
-		fHalfWidth = m_fGridWidth * 3;
-	} else {
-		// Corresponds to the distance between grid lines set to resolution
-		// "off".
-		fHalfWidth = m_fGridWidth;
-	}
-	return QRect( pos.x() - fHalfWidth, pos.y()-2,
-				  fHalfWidth * 2, m_nGridHeight+3 );
 }
 
 void PianoRollEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )

@@ -404,7 +404,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		   m_pPatternEditorPanel->getPianoRollEditor()->hasFocus() ) &&
 		! pHydrogenApp->hideKeyboardCursor() ) {
 
-		int nCursorX = m_fGridWidth * m_pPatternEditorPanel->getCursorPosition() +
+		int nCursorX = m_fGridWidth * m_pPatternEditorPanel->getCursorColumn() +
 			PatternEditor::nMargin - 4 - m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick

@@ -79,7 +79,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 		virtual void selectionMoveCancelEvent() override;
-		virtual QRect getKeyboardCursorRect() override;
 		//! @}
 
 

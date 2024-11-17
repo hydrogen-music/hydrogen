@@ -162,6 +162,7 @@ public:
 	virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
 	virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual QRect getKeyboardCursorRect() override;
 
 	static constexpr int nMargin = 20;
 
@@ -327,10 +328,14 @@ protected:
 
 	int m_nTick;
 
-		// Note pitch position of cursor in PianoRollEditor
+		// Row the keyboard cursor is residing in.
+		//
+		// Only in #PianoRollEditor this variable is relevant and updated. In
+		// #DrumPatternEditor #PatternEditorPanel::m_nSelectedRowDB is used
+		// instead and #NotePropertiesPanel does only contain a single row.
 		int m_nCursorRow;
 
-		QPoint cursorPosition();
+		QPoint getCursorPosition();
 
 	/** Stores the properties of @a pNote in member variables.*/
 	void storeNoteProperties( const H2Core::Note* pNote );

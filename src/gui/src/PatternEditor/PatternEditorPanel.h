@@ -169,8 +169,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		std::shared_ptr<H2Core::Instrument> getSelectedInstrument() const;
 
 		void ensureCursorVisible();
-		int getCursorPosition();
-		void setCursorPosition(int nCursorPosition);
+		/** The row of the particular editor is maintained by the editor itself
+		 * and can be accessed via #PatternEditor::getCursorPosition. */
+		int getCursorColumn();
+		void setCursorColumn( int nCursorColumn );
 		int moveCursorLeft( int n = 1 );
 		int moveCursorRight( int n = 1 );
 
@@ -319,7 +321,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		bool				m_bEnablePatternResize;
 
 		// Cursor positioning
-		int					m_nCursorPosition;
+		int					m_nCursorColumn;
 		int					m_nCursorIncrement;
 		// ~ Cursor
 

@@ -80,8 +80,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		// the selection.
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
-		virtual QRect getKeyboardCursorRect() override;
-
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
