@@ -1704,59 +1704,74 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		return;
 	}
 
-	if ( m_pDraggedNote->get_length() != m_nOldLength ) {
-		SE_editNotePropertiesAction *action =
-			new SE_editNotePropertiesAction( Mode::Length,
-											 m_editor,
-											 m_pPatternEditorPanel->getPatternNumber(),
-											 m_pDraggedNote->get_position(),
-											 m_nSelectedRow,
-											 m_fVelocity,
-											 m_fOldVelocity,
-											 m_fPan,
-											 m_fOldPan,
-											 m_fLeadLag,
-											 m_fOldLeadLag,
-											 m_fProbability,
-											 m_fOldProbability,
-											 m_pDraggedNote->get_length(),
-											 m_nOldLength,
-											 m_pDraggedNote->get_key(),
-											 m_pDraggedNote->get_key(),
-											 m_pDraggedNote->get_octave(),
-											 m_pDraggedNote->get_octave() );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
-	}
+	const bool bPropertyEdited = m_fVelocity != m_fOldVelocity ||
+		m_fOldPan != m_fPan ||
+		m_fOldLeadLag != m_fLeadLag ||
+		m_fOldProbability != m_fProbability;
+	const bool bLengthEdited = m_pDraggedNote->get_length() != m_nOldLength;
 
-
-	if ( m_fVelocity == m_fOldVelocity &&
-		 m_fOldPan == m_fPan &&
-		 m_fOldLeadLag == m_fLeadLag &&
-		 m_fOldProbability == m_fProbability ) {
+	if ( ! bPropertyEdited && ! bLengthEdited ) {
+		// nothing to do
 		return;
 	}
 
-	SE_editNotePropertiesAction *action =
-		new SE_editNotePropertiesAction( m_mode,
-										 m_editor,
-										 m_pPatternEditorPanel->getPatternNumber(),
-										 m_pDraggedNote->get_position(),
-										 m_nSelectedRow,
-										 m_fVelocity,
-										 m_fOldVelocity,
-										 m_fPan,
-										 m_fOldPan,
-										 m_fLeadLag,
-										 m_fOldLeadLag,
-										 m_fProbability,
-										 m_fOldProbability,
-										 m_pDraggedNote->get_length(),
-										 m_nOldLength,
-										 m_pDraggedNote->get_key(),
-										 m_pDraggedNote->get_key(),
-										 m_pDraggedNote->get_octave(),
-										 m_pDraggedNote->get_octave() );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+
+	if ( bPropertyEdited && bLengthEdited ) {
+		// Allow user to undo all changes done in this single drag action with a
+		// single undo.
+		pUndoStack->beginMacro( tr( "edit note properties by dragging" ) );
+	}
+
+	if ( bLengthEdited ) {
+		pUndoStack->push( new SE_editNotePropertiesAction(
+							  Mode::Length,
+							  m_editor,
+							  m_pPatternEditorPanel->getPatternNumber(),
+							  m_pDraggedNote->get_position(),
+							  m_nSelectedRow,
+							  m_fVelocity,
+							  m_fOldVelocity,
+							  m_fPan,
+							  m_fOldPan,
+							  m_fLeadLag,
+							  m_fOldLeadLag,
+							  m_fProbability,
+							  m_fOldProbability,
+							  m_pDraggedNote->get_length(),
+							  m_nOldLength,
+							  m_pDraggedNote->get_key(),
+							  m_pDraggedNote->get_key(),
+							  m_pDraggedNote->get_octave(),
+							  m_pDraggedNote->get_octave() ) );
+	}
+
+	if ( bPropertyEdited ) {
+		pUndoStack->push( new SE_editNotePropertiesAction(
+							  m_mode,
+							  m_editor,
+							  m_pPatternEditorPanel->getPatternNumber(),
+							  m_pDraggedNote->get_position(),
+							  m_nSelectedRow,
+							  m_fVelocity,
+							  m_fOldVelocity,
+							  m_fPan,
+							  m_fOldPan,
+							  m_fLeadLag,
+							  m_fOldLeadLag,
+							  m_fProbability,
+							  m_fOldProbability,
+							  m_pDraggedNote->get_length(),
+							  m_nOldLength,
+							  m_pDraggedNote->get_key(),
+							  m_pDraggedNote->get_key(),
+							  m_pDraggedNote->get_octave(),
+							  m_pDraggedNote->get_octave() ) );
+	}
+
+	if ( bPropertyEdited && bLengthEdited ) {
+		pUndoStack->endMacro();
+	}
 }
 
 void PatternEditor::editNotePropertiesAction( const Mode& mode,

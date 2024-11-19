@@ -3046,6 +3046,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Cannot paste multi-pattern selection</source>
         <translation>No se puede pegar selección multi-patrón</translation>
     </message>
+    <message>
+        <source>edit note properties by dragging</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>

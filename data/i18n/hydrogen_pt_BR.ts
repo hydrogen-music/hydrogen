@@ -3044,6 +3044,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Cannot paste multi-pattern selection</source>
         <translation>Não é possível colar seleção de multi-padrão</translation>
     </message>
+    <message>
+        <source>edit note properties by dragging</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>

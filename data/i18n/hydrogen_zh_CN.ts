@@ -3030,6 +3030,10 @@ LilyPond 导出是一项实验性功能。
         <source>Cannot paste multi-pattern selection</source>
         <translation>无法粘贴多样式选择</translation>
     </message>
+    <message>
+        <source>edit note properties by dragging</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>

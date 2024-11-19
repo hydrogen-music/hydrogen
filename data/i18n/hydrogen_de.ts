@@ -3040,6 +3040,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Cannot paste multi-pattern selection</source>
         <translation>Multi-Pattern Auswahl konnte nicht eingefügt werden</translation>
     </message>
+    <message>
+        <source>edit note properties by dragging</source>
+        <translation>Noteneigenschaft durch Ziehen der Maus angepasst</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>

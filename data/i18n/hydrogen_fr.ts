@@ -3047,6 +3047,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Cannot paste multi-pattern selection</source>
         <translation>Impossible de coller une sélection multi-motifs</translation>
     </message>
+    <message>
+        <source>edit note properties by dragging</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
