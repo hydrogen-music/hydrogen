@@ -2062,9 +2062,10 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 							   static_cast<Note::Octave>(nOldOctave) );
 		pPattern->insertNote( pNote );
 
-		// if ( m_bSelectNewNotes ) {
-		// 	m_selection.addToSelection( pNote );
-		// }
+		auto pCurrentEditor = pPatternEditorPanel->getVisibleEditor();
+		if ( pCurrentEditor->getSelectNewNotes() ) {
+			pCurrentEditor->m_selection.addToSelection( pNote );
+		}
 
 		if ( bIsMidi ) {
 			pNote->set_just_recorded(true);

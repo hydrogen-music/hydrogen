@@ -183,6 +183,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	void patternSizeChangedAction( int nLength, double fDenominator,
 								   int nSelectedPatternNumber );
 
+		/** Returns either #DrumPatternEditor or #PianoRollEditor, depending on
+		 * which of them is currently visible. */
+		PatternEditor* getVisibleEditor() const;
+
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();

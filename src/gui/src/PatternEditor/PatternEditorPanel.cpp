@@ -961,6 +961,12 @@ void PatternEditorPanel::showDrumEditorBtnClick()
 	}
 }
 
+PatternEditor* PatternEditorPanel::getVisibleEditor() const {
+	if ( m_pEditorScrollView->isVisible() ) {
+		return m_pDrumPatternEditor;
+	}
+	return m_pPianoRollEditor;
+}
 
 void PatternEditorPanel::zoomInBtnClicked()
 {

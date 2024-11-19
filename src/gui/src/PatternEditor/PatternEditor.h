@@ -170,6 +170,10 @@ public:
 		variable #m_nTick and triggers an update(). */
 	void updatePosition( float fTick );
 
+		/** Whether new notes added to the editor should be automatically
+		 * selected. */
+		bool getSelectNewNotes() const;
+
 	static void addOrRemoveNoteAction( int nColumn,
 									   int nRow,
 									   int nPatternNumber,
@@ -362,5 +366,9 @@ protected:
 	Editor m_editor;
 	Mode m_mode;
 };
+
+inline bool PatternEditor::getSelectNewNotes() const {
+	return m_bSelectNewNotes;
+}
 
 #endif // PATERN_EDITOR_H
