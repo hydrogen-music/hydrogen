@@ -176,8 +176,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		int moveCursorLeft( int n = 1 );
 		int moveCursorRight( int n = 1 );
 
-		void selectInstrumentNotes( int nInstrument );
-
 		void updateEditors( bool bPatternOnly = false );
 
 	void patternSizeChangedAction( int nLength, double fDenominator,

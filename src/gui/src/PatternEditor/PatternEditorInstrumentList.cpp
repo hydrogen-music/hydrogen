@@ -383,7 +383,8 @@ void InstrumentLine::sampleWarningClicked()
 
 void InstrumentLine::selectInstrumentNotes()
 {
-	m_pPatternEditorPanel->selectInstrumentNotes( m_nInstrumentNumber );
+	m_pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
+		m_nInstrumentNumber );
 }
 
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)

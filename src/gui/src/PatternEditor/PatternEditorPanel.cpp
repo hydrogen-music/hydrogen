@@ -892,15 +892,6 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 	resizeEvent( nullptr );	// force a scrollbar update
 }
 
-void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
-{
-	if ( __show_drum_btn->isChecked() ) {
-		m_pPianoRollEditor->selectInstrumentNotes( nInstrument );
-	} else {
-		m_pDrumPatternEditor->selectInstrumentNotes( nInstrument );
-	}
-}
-
 void PatternEditorPanel::showDrumEditor()
 {
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );

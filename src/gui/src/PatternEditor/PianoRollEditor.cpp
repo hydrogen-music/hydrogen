@@ -515,7 +515,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 void PianoRollEditor::selectAll()
 {
-	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	selectAllNotesInRow( m_pPatternEditorPanel->getSelectedRowDB() );
 }
 
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )

@@ -231,7 +231,7 @@ public slots:
 	virtual void cut();
 	virtual void alignToGrid();
 	virtual void randomizeVelocity();
-	virtual void selectInstrumentNotes( int nInstrument );
+	virtual void selectAllNotesInRow( int nRow );
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void scrolled( int nValue );
 

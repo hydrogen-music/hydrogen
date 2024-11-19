@@ -650,20 +650,25 @@ void PatternEditor::paste()
 	m_bSelectNewNotes = false;
 }
 
-void PatternEditor::selectInstrumentNotes( int nInstrument )
+void PatternEditor::selectAllNotesInRow( int nRow )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
-	
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-	auto pInstrument = pInstrumentList->get( nInstrument );
 
+	auto row = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Invalid row [%1]" ).arg( nRow ) );
+		return;
+	}
+	
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(pPattern->getNotes(), it, pPattern) {
-		if ( it->second->get_instrument() == pInstrument ) {
-			m_selection.addToSelection( it->second );
+	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		if ( ppNote != nullptr &&
+			 ppNote->get_instrument_id() == row.nInstrumentID &&
+			 ppNote->getType() == row.sType ) {
+			m_selection.addToSelection( ppNote );
 		}
 	}
 	m_selection.updateWidgetGroup();

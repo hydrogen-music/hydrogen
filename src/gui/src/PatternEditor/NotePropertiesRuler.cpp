@@ -1622,7 +1622,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 
 void NotePropertiesRuler::selectAll()
 {
-	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	selectAllNotesInRow( m_pPatternEditorPanel->getSelectedRowDB() );
 }
 
 void NotePropertiesRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
