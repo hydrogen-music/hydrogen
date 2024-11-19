@@ -853,7 +853,6 @@ void DrumPatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes
 ///undo / redo actions from pattern editor instrument list
 
 void DrumPatternEditor::functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
-													  int nSelectedInstrument,
 													  int patternNumber )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -1029,23 +1028,26 @@ void DrumPatternEditor::functionPasteNotesRedoAction(
 
 
 void DrumPatternEditor::functionFillNotesUndoAction( const QStringList& noteList,
-													 int nSelectedInstrument,
-													 int patternNumber )
+													 int nRow,
+													 int nPatternNumber )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	PatternList* pPatternList = pSong->getPatternList();
-	auto pPattern = pPatternList->get( patternNumber );
+	auto pPattern = pPatternList->get( nPatternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Couldn't find pattern [%1]" )
-				  .arg( patternNumber ) );
+				  .arg( nPatternNumber ) );
 		return;
 	}
 	
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
+	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
 	}
 
@@ -1055,9 +1057,10 @@ void DrumPatternEditor::functionFillNotesUndoAction( const QStringList& noteList
 		int nColumn  = noteList.value(i).toInt();
 		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->getNotes();
 		FOREACH_NOTE_IT_BOUND_END(notes,it,nColumn) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
+			auto pNote = it->second;
+			if ( pNote != nullptr &&
+				 pNote->get_instrument_id() == row.nInstrumentID &&
+				 pNote->getType() == row.sType ) {
 				// the note exists...remove it!
 				notes->erase( it );
 				delete pNote;
@@ -1072,24 +1075,38 @@ void DrumPatternEditor::functionFillNotesUndoAction( const QStringList& noteList
 
 
 void DrumPatternEditor::functionFillNotesRedoAction( const QStringList& noteList,
-													 int nSelectedInstrument,
-													 int patternNumber )
+													 int nRow,
+													 int nPatternNumber )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	PatternList* pPatternList = pSong->getPatternList();
-	auto pPattern = pPatternList->get( patternNumber );
+	auto pPattern = pPatternList->get( nPatternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Couldn't find pattern [%1]" )
-				  .arg( patternNumber ) );
+				  .arg( nPatternNumber ) );
 		return;
 	}
 	
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
+	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
 		return;
+	}
+
+	std::shared_ptr<Instrument> pInstrument = nullptr;
+	if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
+		pInstrument =
+			pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Couldn't find instrument of ID [%1]" )
+					  .arg( row.nInstrumentID ) );
+			return;
+		}
 	}
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
@@ -1097,57 +1114,15 @@ void DrumPatternEditor::functionFillNotesRedoAction( const QStringList& noteList
 
 		// create the new note
 		int position = noteList.value(i).toInt();
-		Note *pNote = new Note( pSelectedInstrument, position );
+		Note *pNote = new Note( pInstrument, position );
+		pNote->set_instrument_id( row.nInstrumentID );
+		pNote->setType( row.sType );
 		pPattern->insertNote( pNote );
 	}
 	pHydrogen->getAudioEngine()->unlock();	// unlock the audio engine
 
 	m_pPatternEditorPanel->updateEditors();
 }
-
-
-void DrumPatternEditor::functionRandomVelocityAction( const QStringList& noteVeloValue,
-													  int nSelectedInstrument,
-													  int selectedPatternNumber )
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	PatternList* pPatternList = pSong->getPatternList();
-	auto pPattern = pPatternList->get( selectedPatternNumber );
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Couldn't find pattern [%1]" )
-				  .arg( selectedPatternNumber ) );
-		return;
-	}
-	
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nSelectedInstrument );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" )
-				  .arg( nSelectedInstrument ) );
-		return;
-	}
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
-
-	int nResolution = granularity();
-	int positionCount = 0;
-	for (int i = 0; i < pPattern->getLength(); i += nResolution) {
-		const Pattern::notes_t* notes = pPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i, pPattern) {
-			Note *pNote = it->second;
-			if ( pNote->get_instrument() ==  pSelectedInstrument) {
-				float velocity = noteVeloValue.value( positionCount ).toFloat();
-				pNote->set_velocity(velocity);
-				positionCount++;
-			}
-		}
-	}
-	pHydrogen->setIsModified( true );
-	pHydrogen->getAudioEngine()->unlock();	// unlock the audio engine
-
-	m_pPatternEditorPanel->updateEditors();
-}
-
 
 void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,
 													  int nTargetInstrument )
@@ -1168,7 +1143,7 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,
 		pHydrogen->renameJackPorts( pSong );
 
 		pHydrogen->getAudioEngine()->unlock();
-		pHydrogen->setSelectedInstrumentNumber( nTargetInstrument );
+		m_pPatternEditorPanel->setSelectedRowDB( nTargetInstrument );
 
 		pHydrogen->setIsModified( true );
 }

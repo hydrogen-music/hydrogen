@@ -53,17 +53,11 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		~DrumPatternEditor();
 
 		void functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
-										   int nSelectedInstrument,
 										   int patternNumber );
 		void functionFillNotesUndoAction( const QStringList& noteList,
-										  int nSelectedInstrument,
-										  int patternNumber );
+										  int nRow, int nPatternNumber );
 		void functionFillNotesRedoAction( const QStringList& noteList,
-										  int nSelectedInstrument,
-										  int patternNumber );
-		void functionRandomVelocityAction( const QStringList& noteVeloValue,
-										   int nSelectedInstrument,
-										   int selectedPatternNumber );
+										  int nRow, int nPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionPasteNotesRedoAction( H2Core::PatternList* pCopiedNotesPattnerList,
 										   H2Core::PatternList* pAppliedPatternList);

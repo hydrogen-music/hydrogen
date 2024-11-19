@@ -797,7 +797,8 @@ public:
 	{
 		//qDebug() << "clear note sequence Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesUndoAction( __noteList, __nSelectedInstrument, __selectedPatternNumber );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->
+			functionClearNotesUndoAction( __noteList, __selectedPatternNumber );
 	}
 	virtual void redo() {
 		H2Core::CoreActionController::clearInstrumentInPattern(
@@ -858,29 +859,29 @@ class SE_fillNotesRightClickAction : public QUndoCommand
 {
 public:
 	SE_fillNotesRightClickAction( const QStringList& notePositions,
-								  int nSelectedInstrument,
-								  int selectedPatternNumber  ){
+								  int nRow,
+								  int nPatternNumber  ){
 		setText( QObject::tr( "Fill notes" ) );
-		__notePositions = notePositions;
-		__nSelectedInstrument= nSelectedInstrument;
-		__selectedPatternNumber = selectedPatternNumber;
+		m_notePositions = notePositions;
+		m_nRow= nRow;
+		m_nPatternNumber = nPatternNumber;
 	}
 	virtual void undo()
 	{
 		//qDebug() << "fill notes Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( m_notePositions, m_nRow, m_nPatternNumber );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "fill notes Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction( m_notePositions, m_nRow, m_nPatternNumber );
 	}
 private:
-	QStringList __notePositions;
-	int __nSelectedInstrument;
-	int __selectedPatternNumber;
+	QStringList m_notePositions;
+	int m_nRow;
+	int m_nPatternNumber;
 };
 
 
