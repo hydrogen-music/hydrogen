@@ -579,7 +579,7 @@ void PatternEditor::paste()
 
 	if ( noteList.hasChildNodes() ) {
 
-		pUndo->beginMacro( "paste notes" );
+		pUndo->beginMacro( tr( "paste notes" ) );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull();
 			  n = n.nextSiblingElement() ) {
 			auto pNote = Note::load_from( n );
@@ -1240,7 +1240,7 @@ void PatternEditor::deleteSelection()
 		m_selection.clearSelection();
 
 		if ( actions.size() > 0 ) {
-			pUndo->beginMacro("delete notes");
+			pUndo->beginMacro( tr( "delete notes" ) );
 			for ( QUndoCommand *pAction : actions ) {
 				pUndo->push( pAction );
 			}
@@ -1273,9 +1273,9 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 	if ( m_bCopyNotMove ) {
-		pUndo->beginMacro( "copy notes" );
+		pUndo->beginMacro( tr( "copy notes" ) );
 	} else {
-		pUndo->beginMacro( "move notes" );
+		pUndo->beginMacro( tr( "move notes" ) );
 	}
 	std::list< Note * > selectedNotes;
 	for ( auto pNote : m_selection ) {

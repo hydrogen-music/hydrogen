@@ -1154,7 +1154,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	}
 
 	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
+	pUndoStack->beginMacro( tr( "Change pattern size to %1/%2" )
 							.arg( fNewNumerator ).arg( fNewDenominator ) );
 
 	pUndoStack->push( new SE_patternSizeChangedAction(

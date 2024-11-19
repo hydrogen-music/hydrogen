@@ -3051,6 +3051,22 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>edit note properties by dragging</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>paste notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delete notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -3187,6 +3203,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

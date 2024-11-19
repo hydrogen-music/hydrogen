@@ -3050,6 +3050,22 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>edit note properties by dragging</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>paste notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delete notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -3186,6 +3202,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
     <message>
         <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

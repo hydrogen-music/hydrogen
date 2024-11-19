@@ -3034,6 +3034,22 @@ LilyPond 导出是一项实验性功能。
         <source>edit note properties by dragging</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>paste notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>delete notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
@@ -3170,6 +3186,10 @@ LilyPond 导出是一项实验性功能。
     </message>
     <message>
         <source>Show PatchBay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
