@@ -935,6 +935,22 @@ void NotePropertiesRuler::addUndoAction()
 		for ( auto it : m_oldNotes ) {
 			Note *pNewNote = it.first, *pOldNote = it.second;
 
+			const int nNewKey = pNewNote->get_key();
+			const int nNewOctave = pNewNote->get_octave();
+			if ( pNewNote->get_key() != pOldNote->get_key() ||
+				 pNewNote->get_octave() != pOldNote->get_octave() ) {
+				// Note pitch was altered during the editing (drag update). We
+				// have to temporarily reset the note key/octave (without
+				// redrawing!) in order to allow for the redo part of the action
+				// below to find the corresponding note.
+				//
+				// For all other note property edits this is not critical as the
+				// note will be found and one the edit will be skip since the
+				// note already holds the proper value.
+				pNewNote->set_key_octave( pOldNote->get_key(),
+										  pOldNote->get_octave() );
+			}
+
 			const int nRow = m_pPatternEditorPanel->findRowDB( pOldNote );
 			if ( nRow == -1 ) {
 				ERRORLOG( "Selected note not found" );
@@ -956,9 +972,9 @@ void NotePropertiesRuler::addUndoAction()
 								  pOldNote->get_probability(),
 								  pNewNote->get_length(),
 								  pOldNote->get_length(),
-								  pNewNote->get_key(),
+								  nNewKey,
 								  pOldNote->get_key(),
-								  pNewNote->get_octave(),
+								  nNewOctave,
 								  pOldNote->get_octave() ) );
 		}
 		if ( nSize != 1 ) {
