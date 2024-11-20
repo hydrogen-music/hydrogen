@@ -413,6 +413,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	clearOldNotes();
 
+	const int nColumn = getColumn( x );
+
 	if ( m_selection.begin() != m_selection.end() ) {
 		// If there is a selection, preserve the initial state of all the
 		// selected notes.
@@ -427,7 +429,6 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	} else {
 		// No notes are selected. The target notes to adjust are all those at
 		// column given by 'x', so we preserve these.
-		int nColumn = getColumn( x );
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it,
 										  nColumn, pPattern ) {
 			Note *pNote = it->second;
@@ -437,6 +438,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 			}
 		}
 	}
+
+	m_nDragPreviousColumn = nColumn;
 }
 
 //! Update notes for a property adjust drag, in response to the mouse moving.
