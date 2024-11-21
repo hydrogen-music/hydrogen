@@ -359,9 +359,21 @@ set(LIBSNDFILE_VERSION_FLAC_OGG "1.0.17")
 set(LIBSNDFILE_VERSION_OPUS "1.0.28")
 set(LIBSNDFILE_VERSION_MP3 "1.0.31")
 
-string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_FLAC_OGG}" H2CORE_HAVE_FLAC_SUPPORT)
-string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_OPUS}" H2CORE_HAVE_OPUS_SUPPORT)
-string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_MP3}" H2CORE_HAVE_MP3_SUPPORT)
+if (DEFINED PC_LIBSNDFILE_VERSION AND PC_LIBSNDFILE_VERSION STRGREATER "")
+    string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_FLAC_OGG}" H2CORE_HAVE_FLAC_SUPPORT)
+    string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_OPUS}" H2CORE_HAVE_OPUS_SUPPORT)
+    string(COMPARE GREATER "${PC_LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_MP3}" H2CORE_HAVE_MP3_SUPPORT)
+else()
+    # Depending on how libsndfile was built and packaged, we can find it using
+    # pkg-config and use the provided version or have to fall back to another
+    # discovery scheme with no version information available. But since the
+    # libsndfile offers MP3 support for quite a while, we are optimistic and
+    # assume support for all formats in case we have no version.
+    set(H2CORE_HAVE_FLAC_SUPPORT TRUE)
+    set(H2CORE_HAVE_OPUS_SUPPORT TRUE)
+    set(H2CORE_HAVE_MP3_SUPPORT TRUE)
+endif()
+
 if(H2CORE_HAVE_FLAC_SUPPORT)
     set(LIBSNDFILE_MSG "FLAC: supported, OGG/Vorbis: supported")
 else()
