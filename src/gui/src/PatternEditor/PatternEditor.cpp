@@ -277,15 +277,21 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 					 // noteOff note
 					 ppNote->get_note_off() &&
 					 // located in the same row
-					 ppNote->get_instrument() == pNote->get_instrument() &&
-					 // left of the NoteOff
-					 pNote->get_position() < ppNote->get_position() &&
-					 // custom length reaches beyond NoteOff
-					 pNote->get_position() + pNote->get_length() >
-					 ppNote->get_position() ) {
-					// In case there are multiple stop-notes present, take the
-					// shortest distance.
-					nLength = std::min( ppNote->get_position() - pNote->get_position(), nLength );
+					 ppNote->get_instrument() == pNote->get_instrument() ) {
+					const int nNotePos = ppNote->get_position() +
+						ppNote->get_lead_lag() *
+						AudioEngine::getLeadLagInTicks();
+
+					if ( // left of the NoteOff
+						pNote->get_position() < nNotePos &&
+						// custom length reaches beyond NoteOff
+						pNote->get_position() + pNote->get_length() >
+						nNotePos ) {
+
+						// In case there are multiple stop-notes present, take the
+						// shortest distance.
+						nLength = std::min( nNotePos - pNote->get_position(), nLength );
+					}
 				}
 			}
 
