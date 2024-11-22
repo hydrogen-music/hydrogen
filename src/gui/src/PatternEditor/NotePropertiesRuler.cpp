@@ -527,7 +527,8 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				pNote->set_lead_lag( m_fLastSetValue );
 			}
 		}
-		else if ( m_mode == PatternEditor::Mode::KeyOctave ){
+		else if ( m_mode == PatternEditor::Mode::KeyOctave &&
+				  ! pNote->get_note_off() ) {
 			if ( ev->button() != Qt::MiddleButton &&
 				 ! ( ev->modifiers() == Qt::ControlModifier &&
 					 ev->button() == Qt::LeftButton ) ) {
@@ -558,8 +559,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				}
 			}
 		}
-		else if ( m_mode == PatternEditor::Mode::Probability &&
-				  ! pNote->get_note_off() ) {
+		else if ( m_mode == PatternEditor::Mode::Probability ) {
 			m_fLastSetValue = val;
 			bValueSet = true;
 			pNote->set_probability( val );
@@ -1128,7 +1128,10 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor borderColor(
+		pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor noteOffColor(
+		pPref->getTheme().m_color.m_patternEditor_noteOffColor );
 	const QColor lineInactiveColor(
 		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 	QPainter p( pixmap );
@@ -1157,14 +1160,18 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+				// NoteOff notes can have a custom probability. But having a
+				// velocity would not make any sense for them.
+				if ( ( pNote->get_note_off() &&
+					   m_mode != PatternEditor::Mode::Probability ) ||
+					! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
 						 pNote->getType() == selectedRow.sType ) &&
 					 ! m_selection.isSelected( pNote ) ) {
 					continue;
 				}
+
 				uint x_pos = PatternEditor::nMargin + pos * m_fGridWidth;
 				uint line_end = height();
-
 
 				uint value = 0;
 				if ( m_mode == PatternEditor::Mode::Velocity ) {
@@ -1174,8 +1181,14 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 					value = (uint)(pNote->get_probability() * height());
 				}
 				uint line_start = line_end - value;
-				QColor noteColor = DrumPatternEditor::computeNoteColor(
-					pNote->get_velocity() );
+
+				QColor noteColor;
+				if ( ! pNote->get_note_off() ) {
+					noteColor = DrumPatternEditor::computeNoteColor(
+						pNote->get_velocity() );
+				} else {
+					noteColor = noteOffColor;
+				}
 				int nLineWidth = 3;
 
 				p.fillRect( x_pos - 1 + xoffset, line_start,
@@ -1218,9 +1231,14 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
-	QColor baseLineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
-	QColor borderColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+	const QColor baseLineColor(
+		pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor noteOffColor(
+		pPref->getTheme().m_color.m_patternEditor_noteOffColor );
+	const QColor borderColor(
+		pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
 	QPainter p( pixmap );
 
@@ -1256,7 +1274,10 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, pPattern) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_note_off() ||
+				// NoteOff notes can have a custom lead/lag. But having a pan
+				// would not make any sense for them.
+				if ( ( pNote->get_note_off() &&
+					   m_mode != PatternEditor::Mode::LeadLag ) ||
 					 ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
 						   pNote->getType() == selectedRow.sType ) &&
 					   ! m_selection.isSelected( pNote ) ) ) {
@@ -1264,8 +1285,13 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 				}
 				uint x_pos = PatternEditor::nMargin +
 					pNote->get_position() * m_fGridWidth;
-				QColor noteColor = DrumPatternEditor::computeNoteColor(
-					pNote->get_velocity() );
+				QColor noteColor;
+				if ( ! pNote->get_note_off() ) {
+					noteColor = DrumPatternEditor::computeNoteColor(
+						pNote->get_velocity() );
+				} else {
+					noteColor = noteOffColor;
+				}
 
 				p.setPen( Qt::NoPen );
 

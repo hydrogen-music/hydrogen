@@ -330,7 +330,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 			}
 		}
 	}
-	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ) {
+	else if ( pNote->get_note_off() ) {
 
 		QBrush noteOffBrush( noteoffColor );
 		if ( !bIsForeground ) {
@@ -1677,6 +1677,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	int nColumn, nRow, nRealColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
 
+	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
 
 	// Move cursor.
 	m_pPatternEditorPanel->setCursorColumn( nColumn );
@@ -1728,7 +1729,11 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 			return;
 		}
 
-		if ( pDraggedNote == nullptr || pDraggedNote->get_note_off() ) {
+		// NoteOff notes can have both a custom lead/lag and probability. But
+		// all other properties won't take effect.
+		if ( pDraggedNote == nullptr ||
+			 ( pDraggedNote->get_note_off() &&
+			   ( m_mode != Mode::LeadLag || m_mode != Mode::Probability ) ) ) {
 			return;
 		}
 
@@ -1742,7 +1747,9 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 			// notes will be edited.
 			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
 				if ( ppNote != nullptr && m_selection.isSelected( ppNote ) &&
-					 ! ppNote->get_note_off() ) {
+					 ! ( ppNote->get_note_off() &&
+						 ( m_mode != Mode::LeadLag &&
+						   m_mode != Mode::Probability ) ) ) {
 					m_draggedNotes[ ppNote ] = new Note( ppNote );
 				}
 			}
@@ -1764,7 +1771,6 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	const int nTickColumn = getColumn( ev->x() );
-	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	int nLen = nTickColumn - m_nDragStartColumn;
@@ -2184,7 +2190,6 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 			fVelocity = VELOCITY_MIN;
 			fPan = PAN_DEFAULT;
 			nLength = 1;
-			fOldProbability = PROBABILITY_DEFAULT;
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
@@ -2203,9 +2208,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 		pNote->set_instrument_id( row.nInstrumentID );
 		pNote->setType( row.sType );
 		pNote->set_note_off( bIsNoteOff );
-		if ( ! bIsNoteOff ) {
-			pNote->set_lead_lag( fOldLeadLag );
-		}
+		pNote->set_lead_lag( fOldLeadLag );
 		pNote->set_probability( fOldProbability );
 		pNote->set_key_octave( static_cast<Note::Key>(nOldKey),
 							   static_cast<Note::Octave>(nOldOctave) );
@@ -2320,18 +2323,18 @@ void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 		break;
 
 	case PatternEditor::Mode::KeyOctave:
-		s = QString( tr( "Set pitch" ) ).append( ": " ).append( tr( "key" ) )
-			.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
-			.append( tr( "octave" ) )
-			.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
-		sCaller.append( ":KeyOctave" );
+		if ( ! pNote->get_note_off() ) {
+			s = QString( tr( "Set pitch" ) ).append( ": " ).append( tr( "key" ) )
+				.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
+				.append( tr( "octave" ) )
+				.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
+			sCaller.append( ":KeyOctave" );
+		}
 		break;
 
 	case PatternEditor::Mode::Probability:
-		if ( ! pNote->get_note_off() ) {
-			s = tr( "Set note probability to" )
-				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
-		}
+		s = tr( "Set note probability to" )
+			.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
 		sCaller.append( ":Probability" );
 		break;
 
@@ -2339,8 +2342,8 @@ void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 		if ( ! pNote->get_note_off() ) {
 			s = tr( "Change note length" )
 				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
-		}
 		sCaller.append( ":Length" );
+		}
 		break;
 
 	default:
