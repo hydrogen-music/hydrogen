@@ -861,6 +861,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	if ( bValueChanged ) {
 		invalidateBackground();
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
 	}
 	handleKeyboardCursor( bUnhideCursor );
 	update();
