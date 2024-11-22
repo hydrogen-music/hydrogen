@@ -215,6 +215,8 @@ public:
 	 */
 	static bool isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern );
 
+		QPoint getCursorPosition();
+
 protected:
 
 	//! The Selection object.
@@ -334,11 +336,14 @@ protected:
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;
+		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;
 
+		void handleKeyboardCursor( bool bUnhideCursor );
 	int m_nTick;
 
 		// Row the keyboard cursor is residing in.
@@ -347,8 +352,6 @@ protected:
 		// #DrumPatternEditor #PatternEditorPanel::m_nSelectedRowDB is used
 		// instead and #NotePropertiesPanel does only contain a single row.
 		int m_nCursorRow;
-
-		QPoint getCursorPosition();
 
 	Editor m_editor;
 	Mode m_mode;

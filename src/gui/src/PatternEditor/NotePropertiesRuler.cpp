@@ -163,8 +163,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			 ! m_selection.isSelected( pNote ) ) {
 			continue;
 		}
-		bValueChanged = true;
-		adjustNotePropertyDelta( pNote, fDelta, /* bMessage=*/ true );
+		bValueChanged = adjustNotePropertyDelta(
+			pNote, fDelta, /* bMessage=*/ true );
 	}
 	
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
@@ -298,8 +298,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
 			}
 
-			adjustNotePropertyDelta( pNote, fDelta, bSendStatusMsg );
-			bValueChanged = true;
+			bValueChanged = adjustNotePropertyDelta(
+				pNote, fDelta, bSendStatusMsg );
 		}
 	}
 
@@ -597,65 +597,84 @@ void NotePropertiesRuler::propertyDragEnd()
 //! Adjust a note's property by applying a delta to the current value, and
 //! clipping to the appropriate range. Optionally, show a message with the value
 //! for some properties.
-void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bool bMessage )
+bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
+												   float fDelta,
+												   bool bMessage )
 {
 	Note *pOldNote = m_oldNotes[ pNote ];
 	assert( pOldNote );
 
-	bool bValueSet = false;
+	bool bValueChanged = false;
 	
-	switch (m_mode) {
+	switch( m_mode ) {
 	case PatternEditor::Mode::Velocity: {
-		if ( !pNote->get_note_off() ) {
-			float fVelocity = qBound(  VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
-			pNote->set_velocity( fVelocity );
-			m_fLastSetValue = fVelocity;
-			bValueSet = true;
+		if ( ! pNote->get_note_off() ) {
+			const float fVelocity = qBound(
+				VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
+
+			if ( fVelocity != pNote->get_velocity() ) {
+				pNote->set_velocity( fVelocity );
+				m_fLastSetValue = fVelocity;
+				bValueChanged = true;
+			}
 		}
 		break;
 	}
 	case PatternEditor::Mode::Pan: {
-		if ( !pNote->get_note_off() ) {
-			float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta; // value in [0,1] or slight out of boundaries
-			pNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
-			m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
-			bValueSet = true;
+		if ( ! pNote->get_note_off() ) {
+			// value in [0,1] or slight out of boundaries
+			const float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta;
+			if ( fVal != pNote->getPanWithRangeFrom0To1() ) {
+				// Does check boundaries internally.
+				pNote->setPanWithRangeFrom0To1( fVal );
+				m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
+				bValueChanged = true;
+			}
 		}
 		break;
 	}
 	case PatternEditor::Mode::LeadLag: {
-		float fLeadLag = qBound( LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
-		pNote->set_lead_lag( fLeadLag );
-		m_fLastSetValue = fLeadLag;
-		bValueSet = true;
+		const float fLeadLag = qBound(
+			LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
+		if ( fLeadLag != pNote->get_lead_lag() ) {
+			pNote->set_lead_lag( fLeadLag );
+			m_fLastSetValue = fLeadLag;
+			bValueChanged = true;
+		}
 		break;
 	}
 	case PatternEditor::Mode::Probability: {
-		if ( !pNote->get_note_off() ) {
-			float fProbability = qBound( PROBABILITY_MIN,
-										 pOldNote->get_probability() + fDelta,
-										 PROBABILITY_MAX );
-			pNote->set_probability( fProbability );
-			m_fLastSetValue = fProbability;
-			bValueSet = true;
+		if ( ! pNote->get_note_off() ) {
+			const float fProbability = qBound(
+				PROBABILITY_MIN, pOldNote->get_probability() + fDelta,
+				PROBABILITY_MAX );
+			if ( fProbability != pNote->get_probability() ) {
+				pNote->set_probability( fProbability );
+				m_fLastSetValue = fProbability;
+				bValueChanged = true;
+			}
 		}
 		break;
 	}
 	case PatternEditor::Mode::KeyOctave: {
-		int nPitch = qBound( KEYS_PER_OCTAVE * OCTAVE_MIN, (int)( pOldNote->get_pitch_from_key_octave() + fDelta ),
-							 KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
+		const int nPitch = qBound(
+			KEYS_PER_OCTAVE * OCTAVE_MIN,
+			static_cast<int>(pOldNote->get_pitch_from_key_octave() + fDelta ),
+			KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
 		Note::Octave octave;
 		if ( nPitch >= 0 ) {
-			octave = (Note::Octave)( nPitch / KEYS_PER_OCTAVE );
+			octave = static_cast<Note::Octave>( nPitch / KEYS_PER_OCTAVE );
 		} else {
-			octave = (Note::Octave)( (nPitch-11) / KEYS_PER_OCTAVE );
+			octave = static_cast<Note::Octave>( (nPitch-11) / KEYS_PER_OCTAVE );
 		}
-		Note::Key key = (Note::Key)( nPitch - KEYS_PER_OCTAVE * (int)octave );
+		Note::Key key = static_cast<Note::Key>(
+			nPitch - KEYS_PER_OCTAVE * static_cast<int>(octave) );
 
-		pNote->set_key_octave( key, octave );
-		m_fLastSetValue = KEYS_PER_OCTAVE * octave + key;
-
-		bValueSet = true;
+		if ( key != pNote->get_key() || octave != pNote->get_octave() ) {
+			pNote->set_key_octave( key, octave );
+			m_fLastSetValue = KEYS_PER_OCTAVE * octave + key;
+			bValueChanged = true;
+		}
 		break;
 	}
 	case PatternEditor::Mode::None:
@@ -663,13 +682,15 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		ERRORLOG("No mode set. No note property adjusted.");
 	}
 
-	if ( bValueSet ) {
+	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
 		m_bValueHasBeenSet = true;
 		if ( bMessage ) {
 			PatternEditor::triggerStatusMessage( pNote, m_mode );
 		}
 	}
+
+	return bValueChanged;
 }
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
@@ -678,44 +699,28 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	if ( pPattern == nullptr ) {
 		return;
 	}
+
+	auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row [%1]" );
+		return;
+	}
 	
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	
-	const int nWordSize = 5;
-	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
+	const bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
 
 	bool bValueChanged = false;
+	// Value adjustments
+	float fDelta = 0.0;
+	bool bRepeatLastValue = false;
+
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
-	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
-		// ->
-		m_pPatternEditorPanel->moveCursorRight();
-
-	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ev->matches( QKeySequence::SelectNextWord ) ) {
-		// ->
-		m_pPatternEditorPanel->moveCursorRight( nWordSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
-		// -->|
-		m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
-		// <-
-		m_pPatternEditorPanel->moveCursorLeft();
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ev->matches( QKeySequence::SelectPreviousWord ) ) {
-		// <-
-		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
-		// |<--
-		m_pPatternEditorPanel->setCursorColumn(0);
-
-	} else if ( ev->key() == Qt::Key_Delete ) {
+	}
+	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
 		bUnhideCursor = false;
 		if ( m_selection.begin() != m_selection.end() ) {
@@ -729,192 +734,137 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 							 KEY_MIN, OCTAVE_DEFAULT,
 							 /*bDoAdd=*/false, /*bDoDelete=*/true );
 		}
-
-	} else {
-
-		// Value adjustments
-		float fDelta = 0.0;
-		bool bRepeatLastValue = false;
-
-		if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
-			// Key: Up: increase note parameter value
-			fDelta = 0.1;
-
-		} else if ( ev->key() == Qt::Key_Up && ev->modifiers() & Qt::AltModifier ) {
-			// Key: Alt+Up: increase parameter slightly
-			fDelta = 0.01;
-
-		} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
-			// Key: Down: decrease note parameter value
-			fDelta = -0.1;
-
-		} else if ( ev->key() == Qt::Key_Down && ev->modifiers() & Qt::AltModifier ) {
-			// Key: Alt+Up: decrease parameter slightly
-			fDelta = -0.01;
-
-		} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
-			// Key: MoveToStartOfDocument: increase parameter to maximum value
-			fDelta = 1.0;
-
-		} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
-			// Key: MoveEndOfDocument: decrease parameter to minimum value
-			fDelta = -1.0;
-
-		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-			// Key: Enter/Return: repeat last parameter value set.
-			if ( m_bValueHasBeenSet ) {
-				bRepeatLastValue = true;
-			}
-
-		} else if ( ev->matches( QKeySequence::SelectAll ) ) {
-			// Key: Ctrl + A: Select all
-			bUnhideCursor = false;
-			selectAll();
-
-		} else if ( ev->matches( QKeySequence::Deselect ) ) {
-			// Key: Shift + Ctrl + A: clear selection
-			bUnhideCursor = false;
-			selectNone();
-
+	}
+	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
+		// Key: Up: increase note parameter value
+		fDelta = 0.1;
+	}
+	else if ( ev->key() == Qt::Key_Up && ev->modifiers() & Qt::AltModifier ) {
+		// Key: Alt+Up: increase parameter slightly
+		fDelta = 0.01;
+	}
+	else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
+		// Key: Down: decrease note parameter value
+		fDelta = -0.1;
+	}
+	else if ( ev->key() == Qt::Key_Down && ev->modifiers() & Qt::AltModifier ) {
+		// Key: Alt+Up: decrease parameter slightly
+		fDelta = -0.01;
+	}
+	else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
+		// Key: MoveToStartOfDocument: increase parameter to maximum value
+		fDelta = 1.0;
+	}
+	else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
+		// Key: MoveEndOfDocument: decrease parameter to minimum value
+		fDelta = -1.0;
+	}
+	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		// Key: Enter/Return: repeat last parameter value set.
+		if ( m_bValueHasBeenSet ) {
+			bRepeatLastValue = true;
 		}
+	}
+	else {
+		PatternEditor::keyPressEvent( ev );
+		return;
+	}
 
-		if ( fDelta != 0.0 || bRepeatLastValue ) {
-			int column = m_pPatternEditorPanel->getCursorColumn();
+	// Value change
+	if ( fDelta != 0.0 || bRepeatLastValue ) {
+		const int nColumn = m_pPatternEditorPanel->getCursorColumn();
 
-			const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-				m_pPatternEditorPanel->getSelectedRowDB() );
-			if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-				 selectedRow.sType.isEmpty() ) {
-				DEBUGLOG( "Empty row" );
-				return;
-			}
-
-			int nNotes = 0;
-
-			// Collect notes to apply the change to
-			std::list< Note *> notes;
-			if ( m_selection.begin() != m_selection.end() ) {
-				for ( Note *pNote : m_selection ) {
-					nNotes++;
+		// Collect notes to apply the change to
+		std::list<Note*> notes;
+		if ( m_selection.begin() != m_selection.end() ) {
+			for ( Note *pNote : m_selection ) {
+				if ( pNote != nullptr ) {
 					notes.push_back( pNote );
 				}
-			} else {
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, column, pPattern ) {
-					Note *pNote = it->second;
-					assert( pNote );
-					assert( pNote->get_position() == column );
-					if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
-						 pNote->getType() == selectedRow.sType ) {
-						nNotes++;
-						notes.push_back( pNote );
-					}
-				}
 			}
-
-			// For the KeyOctave Editor, adjust the pitch by a whole semitone
-			if ( m_mode == PatternEditor::Mode::KeyOctave ) {
-				if ( fDelta > 0.0 ) {
-					fDelta = 1;
-				} else if ( fDelta < 0.0 ) {
-					fDelta = -1;
-				}
-			}
-
-			prepareUndoAction( PatternEditor::nMargin + column * m_fGridWidth );
-
-			for ( Note *pNote : notes ) {
-				bValueChanged = true;
-
-				if ( !bRepeatLastValue ) {
-					
-					// Apply delta to the property
-					adjustNotePropertyDelta( pNote, fDelta, nNotes == 1 );
-
-				} else {
-
-					bool bValueSet = false;
-					
-					// Repeating last value
-					switch (m_mode) {
-					case PatternEditor::Mode::Velocity:
-						if ( !pNote->get_note_off() ) {
-							pNote->set_velocity( m_fLastSetValue );
-							bValueSet = true;
-						}
-						break;
-					case PatternEditor::Mode::Pan:
-						if ( !pNote->get_note_off() ) {
-							if ( m_fLastSetValue > 1. ) { // TODO whats this for? is it ever reached?
-								ERRORLOG( QString( "reached m_fLastSetValue [%1] > 1" )
-										  .arg( m_fLastSetValue ) );
-								pNote->setPanWithRangeFrom0To1( m_fLastSetValue );
-							}
-							bValueSet = true;
-						}
-						break;
-					case PatternEditor::Mode::LeadLag:
-						pNote->set_lead_lag( m_fLastSetValue );
-							bValueSet = true;
-						break;
-					case PatternEditor::Mode::Probability:
-						if ( !pNote->get_note_off() ) {
-							pNote->set_probability( m_fLastSetValue );
-							bValueSet = true;
-						}
-						break;
-					case PatternEditor::Mode::KeyOctave:
-						pNote->set_key_octave( (Note::Key)( (int)m_fLastSetValue % 12 ),
-											   (Note::Octave)( (int)m_fLastSetValue / 12 ) );
-						bValueSet = true;
-						break;
-
-					case PatternEditor::Mode::None:
-					default:
-						ERRORLOG("No mode set. No note property adjusted.");
-					}
-
-					if ( bValueSet ) {
-						if ( nNotes == 1 ) {
-							PatternEditor::triggerStatusMessage( pNote, m_mode );
-						}
-						Hydrogen::get_instance()->setIsModified( true );
-					}
-				}
-			}
-			addUndoAction();
-		} else {
-			pHydrogenApp->setHideKeyboardCursor( true );
-			ev->ignore();
-			
-			// Cursor either just got hidden.
-			if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-				// Immediate update to prevent visual delay.
-				m_pPatternEditorPanel->getPatternEditorRuler()->update();
-				update();
-			}
-			return;
 		}
-	}
-	if ( bUnhideCursor ) {
-		pHydrogenApp->setHideKeyboardCursor( false );
+		else {
+			FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn, pPattern ) {
+				Note *pNote = it->second;
+				if ( pNote != nullptr && pNote->get_position() == nColumn &&
+					 pNote->get_instrument_id() == selectedRow.nInstrumentID &&
+					 pNote->getType() == selectedRow.sType ) {
+					notes.push_back( pNote );
+				}
+			}
+		}
+
+		// For the KeyOctave Editor, adjust the pitch by a whole semitone
+		if ( m_mode == PatternEditor::Mode::KeyOctave ) {
+			if ( fDelta > 0.0 ) {
+				fDelta = 1;
+			} else if ( fDelta < 0.0 ) {
+				fDelta = -1;
+			}
+		}
+
+		prepareUndoAction( PatternEditor::nMargin + nColumn * m_fGridWidth );
+
+		for ( Note *pNote : notes ) {
+
+			if ( ! bRepeatLastValue ) {
+				// Apply delta to the property
+				bValueChanged = adjustNotePropertyDelta(
+					pNote, fDelta, notes.size() == 1 );
+			}
+			else {
+				// Repeating last value
+				switch ( m_mode ) {
+				case PatternEditor::Mode::Velocity:
+					if ( ! pNote->get_note_off() ) {
+						pNote->set_velocity( m_fLastSetValue );
+						bValueChanged = true;
+					}
+					break;
+				case PatternEditor::Mode::Pan:
+					if ( ! pNote->get_note_off() ) {
+						pNote->setPanWithRangeFrom0To1( m_fLastSetValue );
+						bValueChanged = true;
+					}
+					break;
+				case PatternEditor::Mode::LeadLag:
+					pNote->set_lead_lag( m_fLastSetValue );
+					bValueChanged = true;
+					break;
+				case PatternEditor::Mode::Probability:
+					if ( ! pNote->get_note_off() ) {
+						pNote->set_probability( m_fLastSetValue );
+						bValueChanged = true;
+					}
+					break;
+				case PatternEditor::Mode::KeyOctave:
+					pNote->set_key_octave( (Note::Key)( (int)m_fLastSetValue % 12 ),
+										   (Note::Octave)( (int)m_fLastSetValue / 12 ) );
+					bValueChanged = true;
+						break;
+
+				case PatternEditor::Mode::None:
+				default:
+					ERRORLOG("No mode set. No note property adjusted.");
+				}
+
+				if ( bValueChanged ) {
+					if ( notes.size() == 1 ) {
+						PatternEditor::triggerStatusMessage( pNote, m_mode );
+					}
+					Hydrogen::get_instance()->setIsModified( true );
+				}
+			}
+		}
+		addUndoAction();
 	}
 
-	// Cursor either just got hidden or was moved.
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() || 
-		bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-
-	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
-	
 	if ( bValueChanged ) {
 		invalidateBackground();
 	}
+	handleKeyboardCursor( bUnhideCursor );
 	update();
-	
 	ev->accept();
-
 }
 
 void NotePropertiesRuler::addUndoAction()

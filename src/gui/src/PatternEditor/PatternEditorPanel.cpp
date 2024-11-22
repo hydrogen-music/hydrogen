@@ -1277,10 +1277,14 @@ int PatternEditorPanel::getCursorColumn()
 
 void PatternEditorPanel::ensureCursorVisible()
 {
-	uint y = m_nSelectedRowDB *
-		Preferences::get_instance()->getPatternEditorGridHeight();
-	m_pEditorScrollView->ensureVisible(
-		m_nCursorColumn * m_pPatternEditorRuler->getGridWidth(), y );
+	if ( m_pEditorScrollView->isVisible() ) {
+		const auto pos = m_pDrumPatternEditor->getCursorPosition();
+		m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
+	}
+	else {
+		const auto pos = m_pPianoRollEditor->getCursorPosition();
+		m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
+	}
 }
 
 void PatternEditorPanel::setCursorColumn(int nCursorPosition)

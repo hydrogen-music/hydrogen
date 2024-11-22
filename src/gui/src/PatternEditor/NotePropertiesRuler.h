@@ -125,7 +125,9 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		std::map< H2Core::Note *, H2Core::Note *> m_oldNotes;
 		void clearOldNotes();
 
-		void adjustNotePropertyDelta( H2Core::Note *pNote, float fDelta, bool bMessage = false );
+		bool adjustNotePropertyDelta( H2Core::Note *pNote,
+									  float fDelta,
+									  bool bMessage = false );
 
 		int m_nDragPreviousColumn;
 		bool m_bEntered;

@@ -1377,6 +1377,116 @@ void PatternEditor::scrolled( int nValue ) {
 	update();
 }
 
+void PatternEditor::keyPressEvent( QKeyEvent *ev )
+{
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+
+	const int nWordSize = 5;
+	bool bUnhideCursor = true;
+
+	updateModifiers( ev );
+
+	if ( ev->matches( QKeySequence::MoveToNextChar ) ||
+				ev->matches( QKeySequence::SelectNextChar ) ) {
+		// ->
+		m_pPatternEditorPanel->moveCursorRight();
+	}
+	else if ( ev->matches( QKeySequence::MoveToNextWord ) ||
+				ev->matches( QKeySequence::SelectNextWord ) ) {
+		// -->
+		m_pPatternEditorPanel->moveCursorRight( nWordSize );
+	}
+	else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ||
+				ev->matches( QKeySequence::SelectEndOfLine ) ) {
+		// -->|
+		m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
+	}
+	else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ||
+				ev->matches( QKeySequence::SelectPreviousChar ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft();
+	}
+	else if ( ev->matches( QKeySequence::MoveToPreviousWord ) ||
+				ev->matches( QKeySequence::SelectPreviousWord ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
+	}
+	else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ||
+				ev->matches( QKeySequence::SelectStartOfLine ) ) {
+		// |<--
+		m_pPatternEditorPanel->setCursorColumn( 0 );
+	}
+	else if ( ev->matches( QKeySequence::SelectAll ) ) {
+		// Key: Ctrl + A: Select all
+		bUnhideCursor = false;
+		selectAll();
+	}
+	else if ( ev->matches( QKeySequence::Deselect ) ) {
+		// Key: Shift + Ctrl + A: clear selection
+		bUnhideCursor = false;
+		selectNone();
+	}
+	else if ( ev->matches( QKeySequence::Copy ) ) {
+		bUnhideCursor = false;
+		copy();
+	}
+	else if ( ev->matches( QKeySequence::Paste ) ) {
+		bUnhideCursor = false;
+		paste();
+	}
+	else if ( ev->matches( QKeySequence::Cut ) ) {
+		bUnhideCursor = false;
+		cut();
+	}
+	else {
+		ev->ignore();
+		pHydrogenApp->setHideKeyboardCursor( true );
+
+		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+			m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+			m_pPatternEditorPanel->getPatternEditorRuler()->update();
+			update();
+		}
+		return;
+	}
+
+	handleKeyboardCursor( bUnhideCursor );
+	update();
+	ev->accept();
+
+}
+
+void PatternEditor::handleKeyboardCursor( bool bUnhideCursor ) {
+	if ( bUnhideCursor ) {
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
+	}
+	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
+	m_pPatternEditorPanel->ensureCursorVisible();
+
+	if ( m_selection.isLasso() ) {
+		// Since event was used to alter the note selection, we invalidate
+		// background and force a repainting of all note symbols (including
+		// whether or not they are selected).
+		invalidateBackground();
+	}
+
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
+}
+
+void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
+	updateModifiers( ev );
+}
+
 void PatternEditor::enterEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = true;

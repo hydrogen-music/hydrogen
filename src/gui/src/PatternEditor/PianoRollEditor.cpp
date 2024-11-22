@@ -495,98 +495,64 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		return;
 	}
 
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-		
-	const int nBlockSize = 5, nWordSize = 5;
+	const int nBlockSize = 5;
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
 	updateModifiers( ev );
 
 	if ( bIsSelectionKey ) {
 		// Selection key, nothing more to do (other than update editor)
-	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
-		// ->
-		m_pPatternEditorPanel->moveCursorRight();
-
-	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ev->matches( QKeySequence::SelectNextWord ) ) {
-		// ->
-		m_pPatternEditorPanel->moveCursorRight( nWordSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
-		// -->|
-		m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
-		// <-
-		m_pPatternEditorPanel->moveCursorLeft();
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ev->matches( QKeySequence::SelectPreviousWord ) ) {
-		// <-
-		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
-		// |<--
-		m_pPatternEditorPanel->setCursorColumn( 0 );
-
-	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
 		if ( m_nCursorRow > Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ) ) {
 			m_nCursorRow --;
 		}
-
-	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
 		m_nCursorRow = std::max( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ),
 								   m_nCursorRow - nBlockSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
 		// Page down -- move down by a whole octave
 		int nMinPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
 		m_nCursorRow -= KEYS_PER_OCTAVE;
 		if ( m_nCursorRow < nMinPitch ) {
 			m_nCursorRow = nMinPitch;
 		}
-
-	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
 		m_nCursorRow = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
 		if ( m_nCursorRow < Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ) ) {
 			m_nCursorRow ++;
 		}
-
-	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
 		m_nCursorRow = std::min( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ),
 								   m_nCursorRow + nBlockSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
 		int nMaxPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
 		m_nCursorRow += KEYS_PER_OCTAVE;
 		if ( m_nCursorRow >= nMaxPitch ) {
 			m_nCursorRow = nMaxPitch;
 		}
-
-	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
+	}
+	else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
 		m_nCursorRow = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
-
-	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+	}
+	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter/Return : Place or remove note at current position
+		m_selection.clearSelection();
 		int pressedline = Note::pitchToLine( m_nCursorRow );
 		int nPitch = Note::lineToPitch( pressedline );
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorColumn(), -1,
 						 m_pPatternEditorPanel->getSelectedRowDB(),
-						 Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ) );
-
-	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
-		// Key: Ctrl + A: Select all
-		bUnhideCursor = false;
-		selectAll();
-
-	} else if ( ev->matches( QKeySequence::Deselect ) ) {
-		// Key: Shift + Ctrl + A: clear selection
-		bUnhideCursor = false;
-		selectNone();
-
-	} else if ( ev->key() == Qt::Key_Delete ) {
+						 Note::pitchToKey( nPitch ),
+						 Note::pitchToOctave( nPitch ) );
+	}
+	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete: delete selection or note at keyboard cursor
 		bUnhideCursor = false;
 		if ( m_selection.begin() != m_selection.end() ) {
@@ -601,43 +567,12 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 							 Note::pitchToOctave( nPitch ),
 							 /*bDoAdd=*/false, /*bDoDelete=*/true );
 		}
-
-	} else if ( ev->matches( QKeySequence::Copy ) ) {
-		bUnhideCursor = false;
-		copy();
-
-	} else if ( ev->matches( QKeySequence::Paste ) ) {
-		bUnhideCursor = false;
-		paste();
-
-	} else if ( ev->matches( QKeySequence::Cut ) ) {
-		bUnhideCursor = false;
-		cut();
-
-	} else {
-		ev->ignore();
-		pHydrogenApp->setHideKeyboardCursor( true );
-		
-		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-			m_pPatternEditorPanel->getPatternEditorRuler()->update();
-			update();
-		}
-		return;
+	}
+	else {
+		PatternEditor::keyPressEvent( ev );
 	}
 
-	// Update editor
-	QPoint pos = getCursorPosition();
-	if ( bUnhideCursor ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
-	}
-	m_pScrollView->ensureVisible( pos.x(), pos.y() );
-	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
-
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-	
+	handleKeyboardCursor( bUnhideCursor );
 	updateEditor( true );
 	ev->accept();
 }
