@@ -72,7 +72,7 @@ public:
 		Velocity = 0,
 		Pan = 1,
 		LeadLag = 2,
-		NoteKey = 3,
+		KeyOctave = 3,
 		Probability = 4,
 		/** For this mode we a dedicated NotePropertiesEditor but solely use it
 		 * within undo/redo actions.*/
@@ -181,18 +181,18 @@ public:
 									   float fOldVelocity,
 									   float fOldPan,
 									   float fOldLeadLag,
-									   int nOldNoteKeyVal,
-									   int nOldOctaveKeyVal,
+									   int nOldKey,
+									   int nOldOctave,
 									   float fOldProbability,
 									   bool bIsDelete,
 									   bool bIsMidi,
 									   bool bIsNoteOff );
 
 		/** For notes in #PianoRollEditor and the note key version of
-		 * #NotePropertiesEditor @a nOldNoteKey and @a nOldOctaveKey will be
+		 * #NotePropertiesEditor @a nOldKey and @a nOldOctave will be
 		 * used to find the actual #H2Core::Note to alter. In the latter
 		 * adjusting note/octave can be done too. This is covered using @a
-		 * nNewNoteKey and @a nNewOctaveKey. */
+		 * nNewKey and @a nNewOctave. */
 	static void editNotePropertiesAction( const Mode& mode,
 										  int nPatternNumber,
 										  int nColumn,
@@ -202,10 +202,10 @@ public:
 										  float fLeadLag,
 										  float fProbability,
 										  int nLength,
-										  int nNewNoteKey,
-										  int nOldNoteKey,
-										  int nNewOctaveKey,
-										  int nOldOctaveKey );
+										  int nNewKey,
+										  int nOldKey,
+										  int nNewOctave,
+										  int nOldOctave );
 	static void triggerStatusMessage( H2Core::Note* pNote, const Mode& mode );
 
 	/**
@@ -249,7 +249,7 @@ protected:
 	}
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
-							  int nNoteKey = KEY_MIN,
+							  int nKey = KEY_MIN,
 							  int nOctave = OCTAVE_DEFAULT,
 							  bool bDoAdd = true, bool bDoDelete = true,
 							  bool bIsNoteOff = false );

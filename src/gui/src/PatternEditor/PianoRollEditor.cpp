@@ -369,7 +369,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter,
 		 ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
 		   pNote->getType() == selectedRow.sType ) ) {
 		QPoint pos( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
-					m_nGridHeight * Note::pitchToLine( pNote->get_notekey_pitch() )
+					m_nGridHeight * Note::pitchToLine( pNote->get_pitch_from_key_octave() )
 					+ 1);
 		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
 	}
@@ -680,7 +680,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 			uint start_x = PatternEditor::nMargin +
 				pNote->get_position() * m_fGridWidth;
 			uint start_y = m_nGridHeight *
-				Note::pitchToLine( pNote->get_notekey_pitch() ) + 1;
+				Note::pitchToLine( pNote->get_pitch_from_key_octave() ) + 1;
 
 			if ( rNormalized.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
 				result.push_back( pNote );

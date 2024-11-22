@@ -295,7 +295,7 @@ class Note : public H2Core::Object<Note>
 		 * \code{.cpp}
 		 * __octave * KEYS_PER_OCTAVE + __key
 		 * \endcode */
-		float get_notekey_pitch() const;
+		float get_pitch_from_key_octave() const;
 		float get_total_pitch() const;
 
 		/** return a string representation of key-octave */
@@ -728,7 +728,7 @@ inline int Note::get_midi_velocity() const
 	return __velocity * 127;
 }
 
-inline float Note::get_notekey_pitch() const
+inline float Note::get_pitch_from_key_octave() const
 {
 	return __octave * KEYS_PER_OCTAVE + __key;
 }

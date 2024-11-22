@@ -150,7 +150,7 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 		m_pPatternEditorPanel->getVelocityEditor()->updatePosition( nTick );
 		m_pPatternEditorPanel->getPanEditor()->updatePosition( nTick );
 		m_pPatternEditorPanel->getLeadLagEditor()->updatePosition( nTick );
-		m_pPatternEditorPanel->getNoteKeyEditor()->updatePosition( nTick );
+		m_pPatternEditorPanel->getKeyOctaveEditor()->updatePosition( nTick );
 		m_pPatternEditorPanel->getProbabilityEditor()->updatePosition( nTick );
 	}
 }
@@ -399,7 +399,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		   m_pPatternEditorPanel->getVelocityEditor()->hasFocus() ||
 		   m_pPatternEditorPanel->getPanEditor()->hasFocus() ||
 		   m_pPatternEditorPanel->getLeadLagEditor()->hasFocus() ||
-		   m_pPatternEditorPanel->getNoteKeyEditor()->hasFocus() ||
+		   m_pPatternEditorPanel->getKeyOctaveEditor()->hasFocus() ||
 		   m_pPatternEditorPanel->getProbabilityEditor()->hasFocus() ||
 		   m_pPatternEditorPanel->getPianoRollEditor()->hasFocus() ) &&
 		! pHydrogenApp->hideKeyboardCursor() ) {

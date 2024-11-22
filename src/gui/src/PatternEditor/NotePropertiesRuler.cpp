@@ -40,9 +40,9 @@ using namespace H2Core;
 #include "PianoRollEditor.h"
 #include "../Skin.h"
 
-int NotePropertiesRuler::nNoteKeyHeight =
-	NotePropertiesRuler::nNoteKeyOctaveHeight +
-	NotePropertiesRuler::nNoteKeyLineHeight * KEYS_PER_OCTAVE;
+int NotePropertiesRuler::nKeyOctaveHeight =
+	NotePropertiesRuler::nOctaveHeight +
+	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE;
 
 
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditor::Mode mode )
@@ -59,8 +59,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditor::Mode m
 	m_fLastSetValue = 0.0;
 	m_bValueHasBeenSet = false;
 
-	if ( m_mode == PatternEditor::Mode::NoteKey ) {
-		m_nEditorHeight = NotePropertiesRuler::nNoteKeyHeight;
+	if ( m_mode == PatternEditor::Mode::KeyOctave ) {
+		m_nEditorHeight = NotePropertiesRuler::nKeyOctaveHeight;
 	}
 	else {
 		m_nEditorHeight = NotePropertiesRuler::nDefaultHeight;
@@ -269,9 +269,9 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	float fDelta;
 
 	QPoint movingOffset = m_selection.movingOffset();
-	if ( m_mode == PatternEditor::Mode::NoteKey ) {
+	if ( m_mode == PatternEditor::Mode::KeyOctave ) {
 		fDelta = (float)-movingOffset.y() /
-			static_cast<float>(NotePropertiesRuler::nNoteKeyLineHeight);
+			static_cast<float>(NotePropertiesRuler::nKeyLineHeight);
 	} else {
 		fDelta = (float)-movingOffset.y() / height();
 	}
@@ -337,7 +337,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 		case PatternEditor::Mode::LeadLag:
 			pNote->set_lead_lag( pOldNote->get_lead_lag() );
 			break;
-		case PatternEditor::Mode::NoteKey:
+		case PatternEditor::Mode::KeyOctave:
 			pNote->set_key_octave( pOldNote->get_key(), pOldNote->get_octave() );
 			break;
 		case PatternEditor::Mode::Probability:
@@ -527,27 +527,27 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				pNote->set_lead_lag( m_fLastSetValue );
 			}
 		}
-		else if ( m_mode == PatternEditor::Mode::NoteKey ){
+		else if ( m_mode == PatternEditor::Mode::KeyOctave ){
 			if ( ev->button() != Qt::MiddleButton &&
 				 ! ( ev->modifiers() == Qt::ControlModifier &&
 					 ev->button() == Qt::LeftButton ) ) {
 				int nKey = 666;
 				int nOctave = 666;
 				if ( ev->y() > 0 &&
-					 ev->y() <= NotePropertiesRuler::nNoteKeyOctaveHeight ) {
+					 ev->y() <= NotePropertiesRuler::nOctaveHeight ) {
 					nOctave = std::round(
-						( NotePropertiesRuler::nNoteKeyOctaveHeight / 2 +
-						  NotePropertiesRuler::nNoteKeyLineHeight / 2 -
+						( NotePropertiesRuler::nOctaveHeight / 2 +
+						  NotePropertiesRuler::nKeyLineHeight / 2 -
 						  ev->y() -
-						  NotePropertiesRuler::nNoteKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nNoteKeyLineHeight );
+						  NotePropertiesRuler::nKeyLineHeight / 2 ) /
+						NotePropertiesRuler::nKeyLineHeight );
 					nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
 				}
-				else if ( ev->y() >= NotePropertiesRuler::nNoteKeyOctaveHeight &&
-						  ev->y() < NotePropertiesRuler::nNoteKeyHeight ) {
+				else if ( ev->y() >= NotePropertiesRuler::nOctaveHeight &&
+						  ev->y() < NotePropertiesRuler::nKeyOctaveHeight ) {
 					nKey = ( height() - ev->y() -
-							 NotePropertiesRuler::nNoteKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nNoteKeyLineHeight;
+							 NotePropertiesRuler::nKeyLineHeight / 2 ) /
+						NotePropertiesRuler::nKeyLineHeight;
 					nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
 				}
 
@@ -641,8 +641,8 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		}
 		break;
 	}
-	case PatternEditor::Mode::NoteKey: {
-		int nPitch = qBound( KEYS_PER_OCTAVE * OCTAVE_MIN, (int)( pOldNote->get_notekey_pitch() + fDelta ),
+	case PatternEditor::Mode::KeyOctave: {
+		int nPitch = qBound( KEYS_PER_OCTAVE * OCTAVE_MIN, (int)( pOldNote->get_pitch_from_key_octave() + fDelta ),
 							 KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
 		Note::Octave octave;
 		if ( nPitch >= 0 ) {
@@ -811,8 +811,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 				}
 			}
 
-			// For the NoteKeyEditor, adjust the pitch by a whole semitone
-			if ( m_mode == PatternEditor::Mode::NoteKey ) {
+			// For the KeyOctave Editor, adjust the pitch by a whole semitone
+			if ( m_mode == PatternEditor::Mode::KeyOctave ) {
 				if ( fDelta > 0.0 ) {
 					fDelta = 1;
 				} else if ( fDelta < 0.0 ) {
@@ -862,7 +862,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 							bValueSet = true;
 						}
 						break;
-					case PatternEditor::Mode::NoteKey:
+					case PatternEditor::Mode::KeyOctave:
 						pNote->set_key_octave( (Note::Key)( (int)m_fLastSetValue % 12 ),
 											   (Note::Octave)( (int)m_fLastSetValue / 12 ) );
 						bValueSet = true;
@@ -1062,8 +1062,8 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 	case PatternEditor::Mode::LeadLag:
 		pScrollArea = m_pPatternEditorPanel->getNoteLeadLagScrollArea();
 		break;
-	case PatternEditor::Mode::NoteKey:
-		pScrollArea = m_pPatternEditorPanel->getNoteNoteKeyScrollArea();
+	case PatternEditor::Mode::KeyOctave:
+		pScrollArea = m_pPatternEditorPanel->getNoteKeyOctaveScrollArea();
 		break;
 	case PatternEditor::Mode::Probability:
 		pScrollArea = m_pPatternEditorPanel->getNoteProbabilityScrollArea();
@@ -1391,7 +1391,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	}
 }
 
-void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
+void NotePropertiesRuler::createKeyOctaveBackground(QPixmap *pixmap)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	QColor backgroundColor =
@@ -1409,26 +1409,26 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	QPainter p( pixmap );
 	p.fillRect( 0, 0, m_nEditorWidth, m_nEditorHeight, backgroundInactiveColor );
-	drawDefaultBackground( p, NotePropertiesRuler::nNoteKeyOctaveHeight -
-						   NotePropertiesRuler::nNoteKeySpaceHeight,
-						   NotePropertiesRuler::nNoteKeyLineHeight );
+	drawDefaultBackground( p, NotePropertiesRuler::nOctaveHeight -
+						   NotePropertiesRuler::nKeyOctaveSpaceHeight,
+						   NotePropertiesRuler::nKeyLineHeight );
 
 	// fill the background of the key region;
-	for ( unsigned y = NotePropertiesRuler::nNoteKeyOctaveHeight;
-		  y < NotePropertiesRuler::nNoteKeyHeight;
-		  y = y + NotePropertiesRuler::nNoteKeyLineHeight ) {
+	for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
+		  y < NotePropertiesRuler::nKeyOctaveHeight;
+		  y = y + NotePropertiesRuler::nKeyLineHeight ) {
 
-		const int nRow = ( y - NotePropertiesRuler::nNoteKeyOctaveHeight ) /
-			NotePropertiesRuler::nNoteKeyLineHeight;
+		const int nRow = ( y - NotePropertiesRuler::nOctaveHeight ) /
+			NotePropertiesRuler::nKeyLineHeight;
 		if ( nRow == 1 ||  nRow == 3 || nRow == 5 || nRow == 8 || nRow == 10 ) {
 			// Draw rows of semi tones in a different color.
 			p.setPen( QPen( alternateRowColor,
-							NotePropertiesRuler::nNoteKeyLineHeight - 1,
+							NotePropertiesRuler::nKeyLineHeight - 1,
 							Qt::SolidLine, Qt::FlatCap ) );
 		}
 		else {
 			p.setPen( QPen( octaveColor,
-							NotePropertiesRuler::nNoteKeyLineHeight - 1,
+							NotePropertiesRuler::nKeyLineHeight - 1,
 							Qt::SolidLine, Qt::FlatCap ) );
 		}
 					
@@ -1448,31 +1448,31 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	p.setFont( font );
 	p.setPen( textColor );
 	for ( int n = 0; n < KEYS_PER_OCTAVE; n++ ) {
-		p.drawText( 3, NotePropertiesRuler::nNoteKeyOctaveHeight +
-					NotePropertiesRuler::nNoteKeyLineHeight * n +3,
+		p.drawText( 3, NotePropertiesRuler::nOctaveHeight +
+					NotePropertiesRuler::nKeyLineHeight * n +3,
 					noteNames[n] );
 	}
 
 	// Horizontal grid lines in the key region
 	p.setPen( QPen( lineColor, 1, Qt::SolidLine));
-	for ( unsigned y = NotePropertiesRuler::nNoteKeyOctaveHeight;
-		  y <= NotePropertiesRuler::nNoteKeyHeight;
-		  y = y + NotePropertiesRuler::nNoteKeyLineHeight ) {
+	for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
+		  y <= NotePropertiesRuler::nKeyOctaveHeight;
+		  y = y + NotePropertiesRuler::nKeyLineHeight ) {
 		p.drawLine( PatternEditor::nMargin,
-					y - NotePropertiesRuler::nNoteKeyLineHeight / 2,
+					y - NotePropertiesRuler::nKeyLineHeight / 2,
 					m_nActiveWidth,
-					y - NotePropertiesRuler::nNoteKeyLineHeight / 2 );
+					y - NotePropertiesRuler::nKeyLineHeight / 2 );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 		p.setPen( lineInactiveColor );
-		for ( unsigned y = NotePropertiesRuler::nNoteKeyOctaveHeight;
-			  y <= NotePropertiesRuler::nNoteKeyHeight;
-			  y = y + NotePropertiesRuler::nNoteKeyLineHeight ) {
+		for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
+			  y <= NotePropertiesRuler::nKeyOctaveHeight;
+			  y = y + NotePropertiesRuler::nKeyLineHeight ) {
 			p.drawLine( m_nActiveWidth,
-						y - NotePropertiesRuler::nNoteKeyLineHeight / 2,
+						y - NotePropertiesRuler::nKeyLineHeight / 2,
 						m_nEditorWidth,
-						y - NotePropertiesRuler::nNoteKeyLineHeight / 2 );
+						y - NotePropertiesRuler::nKeyLineHeight / 2 );
 		}
 	}
 
@@ -1505,7 +1505,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			const int nX = PatternEditor::nMargin +
 				pNote->get_position() * m_fGridWidth;
 			const int nOctaveY = ( 4 - pNote->get_octave() ) *
-				NotePropertiesRuler::nNoteKeyLineHeight;
+				NotePropertiesRuler::nKeyLineHeight;
 			p.setPen( QPen( Qt::black, 1 ) );
 			p.setBrush( DrumPatternEditor::computeNoteColor(
 							pNote->get_velocity() ) );
@@ -1514,9 +1514,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 			// paint note
 			const int nRadiusKey = 5;
-			const int nKeyY = NotePropertiesRuler::nNoteKeyHeight -
+			const int nKeyY = NotePropertiesRuler::nKeyOctaveHeight -
 				( ( pNote->get_key() + 1 ) *
-				  NotePropertiesRuler::nNoteKeyLineHeight );
+				  NotePropertiesRuler::nKeyLineHeight );
 
 			p.setBrush( DrumPatternEditor::computeNoteColor(
 							pNote->get_velocity() ) );
@@ -1583,8 +1583,8 @@ void NotePropertiesRuler::createBackground()
 			  m_mode == PatternEditor::Mode::LeadLag ) {
 		createCenteredBackground( m_pBackgroundPixmap );
 	}
-	else if ( m_mode == PatternEditor::Mode::NoteKey ) {
-		createNoteKeyBackground( m_pBackgroundPixmap );
+	else if ( m_mode == PatternEditor::Mode::KeyOctave ) {
+		createKeyOctaveBackground( m_pBackgroundPixmap );
 	}
 	
 	m_bBackgroundInvalid = false;

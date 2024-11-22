@@ -557,25 +557,25 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
 	// NOTE_NOTEKEY EDITOR
-	m_pNoteNoteKeyScrollView = new WidgetScrollArea( nullptr );
-	m_pNoteNoteKeyScrollView->setObjectName( "NoteNoteKeyScrollView" );
-	m_pNoteNoteKeyScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
-	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyEditor = new NotePropertiesRuler(
-		m_pNoteNoteKeyScrollView->viewport(),
-		NotePropertiesRuler::Mode::NoteKey );
-	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
-	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+	m_pNoteKeyOctaveScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteKeyOctaveScrollView->setObjectName( "NoteNoteKeyScrollView" );
+	m_pNoteKeyOctaveScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pNoteKeyOctaveScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteKeyOctaveScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteKeyOctaveScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteKeyOctaveEditor = new NotePropertiesRuler(
+		m_pNoteKeyOctaveScrollView->viewport(),
+		NotePropertiesRuler::Mode::KeyOctave );
+	m_pNoteKeyOctaveScrollView->setWidget( m_pNoteKeyOctaveEditor );
+	m_pNoteKeyOctaveScrollView->setFixedHeight( 210 );
+	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 this, SLOT( on_patternEditorHScroll( int ) ) );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
-			 m_pNoteNoteKeyEditor, SLOT( scrolled( int ) ) );
+	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pNoteKeyOctaveEditor, SLOT( scrolled( int ) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pNoteNoteKeyEditor, &NotePropertiesRuler::onPreferencesChanged );
+			 m_pNoteKeyOctaveEditor, &NotePropertiesRuler::onPreferencesChanged );
 
-	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+	m_pNoteKeyOctaveEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
 	// NOTE_PROBABILITY EDITOR
 	m_pNoteProbabilityScrollView = new WidgetScrollArea( nullptr );
@@ -644,7 +644,7 @@ void PatternEditorPanel::createEditors() {
 	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
 	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
 	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteNoteKeyScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteKeyOctaveScrollView, 4, 1 );
 	pGrid->addWidget( m_pNoteProbabilityScrollView, 4, 1 );
 
 	pGrid->addWidget( m_pPropertiesPanel, 4, 0 );
@@ -708,7 +708,7 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 	m_pNoteLeadLagScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 
 	// notekey ruler
-	m_pNoteNoteKeyScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+	m_pNoteKeyOctaveScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 
 	// Probability ruler
 	m_pNoteProbabilityScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
@@ -798,7 +798,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
 	m_pNoteVelocityEditor->setResolution( nResolution, bUseTriplets );
 	m_pNoteLeadLagEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteNoteKeyEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteKeyOctaveEditor->setResolution( nResolution, bUseTriplets );
 	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
 	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
 
@@ -864,7 +864,7 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	syncScrollBarSize( m_pNoteVelocityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 	syncScrollBarSize( m_pNotePanScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 	syncScrollBarSize( m_pNoteLeadLagScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() ) ;
-	syncScrollBarSize( m_pNoteNoteKeyScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 	syncScrollBarSize( m_pNoteProbabilityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 }
 
@@ -968,7 +968,7 @@ void PatternEditorPanel::zoomInBtnClicked()
 	m_pDrumPatternEditor->zoomIn();
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
-	m_pNoteNoteKeyEditor->zoomIn();
+	m_pNoteKeyOctaveEditor->zoomIn();
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoomIn();
@@ -986,7 +986,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	m_pDrumPatternEditor->zoomOut();
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
-	m_pNoteNoteKeyEditor->zoomOut();
+	m_pNoteKeyOctaveEditor->zoomOut();
 	m_pNoteProbabilityEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
 	m_pPianoRollEditor->zoomOut();
@@ -1039,7 +1039,7 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pNoteVelocityEditor->updateEditor();
 	m_pNotePanEditor->updateEditor();
 	m_pNoteLeadLagEditor->updateEditor();
-	m_pNoteNoteKeyEditor->updateEditor();
+	m_pNoteKeyOctaveEditor->updateEditor();
 	m_pNoteProbabilityEditor->updateEditor();
 	m_pPianoRollEditor->updateEditor( bPatternOnly );
 	m_pDrumPatternEditor->updateEditor();
@@ -1217,7 +1217,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	if ( nSelected == 0 ) {				// Velocity
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNoteVelocityScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
@@ -1226,7 +1226,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	else if ( nSelected == 1 ) {		// Pan
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNotePanScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
@@ -1235,25 +1235,25 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	else if ( nSelected == 2 ) {		// Lead and Lag
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNoteLeadLagScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
 		m_pNoteLeadLagEditor->updateEditor();
 	}
-	else if ( nSelected == 3 ) {		// NoteKey
+	else if ( nSelected == 3 ) {		// KeyOctave
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->show();
+		m_pNoteKeyOctaveScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteNoteKeyEditor->updateEditor();
+		m_pNoteKeyOctaveEditor->updateEditor();
 	}
 	else if ( nSelected == 4 ) {		// Probability
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteProbabilityScrollView->show();
 
@@ -1396,7 +1396,7 @@ NotePropertiesRuler::Mode PatternEditorPanel::getNotePropertiesMode() const
 		mode = NotePropertiesRuler::Mode::LeadLag;
 		break;
 	case 3:
-		mode = NotePropertiesRuler::Mode::NoteKey;
+		mode = NotePropertiesRuler::Mode::KeyOctave;
 		break;
 	case 4:
 		mode = NotePropertiesRuler::Mode::Probability;

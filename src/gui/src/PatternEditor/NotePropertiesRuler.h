@@ -36,12 +36,6 @@
 
 #include "PatternEditor.h"
 
-namespace H2Core
-{
-	class Pattern;
-	class NoteKey;
-}
-
 /** \ingroup docGUI*/
 //! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
 //! which property it edits. There are individual instances for each property which are hidden and
@@ -91,16 +85,16 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 	private:
 
 		/** Height of a single line in the key section. */
-		static constexpr int nNoteKeyLineHeight = 10;
+		static constexpr int nKeyLineHeight = 10;
 		/** Height of the whole octave section. */
-		static constexpr int nNoteKeyOctaveHeight = 90;
-		/** Height of the non-interactive space in NoteKey editor between octave
-		 * and key section. It is contained within the octave part. */
-		static constexpr int nNoteKeySpaceHeight = 10;
-		/** The height of the overall NoteKey Editor. It will be calculated
+		static constexpr int nOctaveHeight = 90;
+		/** Height of the non-interactive space in KeyOctave editor between
+		 * octave and key section. It is contained within the octave part. */
+		static constexpr int nKeyOctaveSpaceHeight = 10;
+		/** The height of the overall KeyOctave Editor. It will be calculated
 		 * during runtime using the other constexprs. */
-		static int nNoteKeyHeight;
-		/** Height of all editors except the NoteKey one. */
+		static int nKeyOctaveHeight;
+		/** Height of all editors except the KeyOctave one. */
 		static constexpr int nDefaultHeight = 100;
 
 		bool m_bNeedsUpdate;
@@ -113,7 +107,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		void createNormalizedBackground(QPixmap *pixmap);
 		void createCenteredBackground(QPixmap *pixmap);
-		void createNoteKeyBackground(QPixmap *pixmap);
+		void createKeyOctaveBackground(QPixmap *pixmap);
 
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;

@@ -78,10 +78,10 @@ class NoteTest : public CppUnit::TestCase {
 						static_cast<H2Core::Note::Key>(kkey),
 						static_cast<H2Core::Note::Octave>(ooctave) );
 
-					const float fNoteKeyPitch = pNote->get_notekey_pitch();
-					const int nLine = Note::pitchToLine( fNoteKeyPitch );
+					const float fPitch = pNote->get_pitch_from_key_octave();
+					const int nLine = Note::pitchToLine( fPitch );
 					const int nPitch = Note::lineToPitch( nLine );
-					CPPUNIT_ASSERT( static_cast<int>(fNoteKeyPitch) == nPitch );
+					CPPUNIT_ASSERT( static_cast<int>(fPitch) == nPitch );
 
 					const auto key = Note::pitchToKey( nPitch );
 					const auto octave = Note::pitchToOctave( nPitch );

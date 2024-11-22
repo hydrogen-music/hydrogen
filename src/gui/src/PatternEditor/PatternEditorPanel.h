@@ -110,7 +110,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		NotePropertiesRuler* getVelocityEditor() {	return m_pNoteVelocityEditor;	}
 		NotePropertiesRuler* getPanEditor() {	return m_pNotePanEditor;	}
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
-		NotePropertiesRuler* getNoteKeyEditor() {	return m_pNoteNoteKeyEditor;	}
+		NotePropertiesRuler* getKeyOctaveEditor() {	return m_pNoteKeyOctaveEditor;	}
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
@@ -120,7 +120,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		const QScrollArea* getNoteVelocityScrollArea() const { return m_pNoteVelocityScrollView; }
 		const QScrollArea* getNotePanScrollArea() const { return m_pNotePanScrollView; }
 		const QScrollArea* getNoteLeadLagScrollArea() const { return m_pNoteLeadLagScrollView; }
-		const QScrollArea* getNoteNoteKeyScrollArea() const { return m_pNoteNoteKeyScrollView; }
+		const QScrollArea* getNoteKeyOctaveScrollArea() const { return m_pNoteKeyOctaveScrollView; }
 		const QScrollArea* getNoteProbabilityScrollArea() const { return m_pNoteProbabilityScrollView; }
 		const QScrollBar* getVerticalScrollBar() const { return m_pPatternEditorVScrollBar; }
 		const QScrollBar* getHorizontalScrollBar() const { return m_pPatternEditorHScrollBar; }
@@ -301,8 +301,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		NotePropertiesRuler *m_pNoteLeadLagEditor;
 
 		// note notekey editor
-		QScrollArea*		m_pNoteNoteKeyScrollView;
-		NotePropertiesRuler *m_pNoteNoteKeyEditor;
+		QScrollArea*		m_pNoteKeyOctaveScrollView;
+		NotePropertiesRuler *m_pNoteKeyOctaveEditor;
 
 		// note probability editor
 		QScrollArea *       m_pNoteProbabilityScrollView;

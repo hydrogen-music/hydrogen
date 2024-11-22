@@ -510,7 +510,7 @@ public:
 							  float fOldVelocity,
 							  float fOldPan,
 							  float fOldLeadLag,
-							  int nOldNoteKey,
+							  int nOldKey,
 							  int nOldOctave,
 							  float fOldProbability,
 							  bool bIsDelete,
@@ -531,7 +531,7 @@ public:
 		m_fOldVelocity = fOldVelocity;
 		m_fOldPan = fOldPan;
 		m_fOldLeadLag = fOldLeadLag;
-		m_nOldNoteKey = nOldNoteKey;
+		m_nOldKey = nOldKey;
 		m_nOldOctave = nOldOctave;
 		m_fOldProbability = fOldProbability;
 		m_bIsDelete = bIsDelete;
@@ -547,7 +547,7 @@ public:
 											  m_fOldVelocity,
 											  m_fOldPan,
 											  m_fOldLeadLag,
-											  m_nOldNoteKey,
+											  m_nOldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  ! m_bIsDelete,
@@ -562,7 +562,7 @@ public:
 											  m_fOldVelocity,
 											  m_fOldPan,
 											  m_fOldLeadLag,
-											  m_nOldNoteKey,
+											  m_nOldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  m_bIsDelete,
@@ -577,7 +577,7 @@ private:
 	float m_fOldVelocity;
 	float m_fOldPan;
 	float m_fOldLeadLag;
-	int m_nOldNoteKey;
+	int m_nOldKey;
 	int m_nOldOctave;
 	float m_fOldProbability;
 	bool m_bIsDelete;
@@ -679,10 +679,10 @@ public:
 								 float fOldProbability,
 								 int nLength,
 								 int nOldLength,
-								 int nNoteKey,
-								 int nOldNoteKey,
-								 int nOctaveKey,
-								 int nOldOctaveKey ) :
+								 int nKey,
+								 int nOldKey,
+								 int nOctave,
+								 int nOldOctave ) :
 		m_mode( mode ),
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
@@ -697,10 +697,10 @@ public:
 		m_fOldProbability( fOldProbability ),
 		m_nLength( nLength ),
 		m_nOldLength( nOldLength ),
-		m_nNoteKey( nNoteKey ),
-		m_nOldNoteKey( nOldNoteKey ),
-		m_nOctaveKey( nOctaveKey ),
-		m_nOldOctaveKey( nOldOctaveKey ) {
+		m_nKey( nKey ),
+		m_nOldKey( nOldKey ),
+		m_nOctaveKey( nOctave ),
+		m_nOldOctaveKey( nOldOctave ) {
 
 		setText( QObject::tr( "Edit note property %1" )
 				 .arg( PatternEditor::modeToQString( mode ) ) );
@@ -715,8 +715,8 @@ public:
 												 m_fOldLeadLag,
 												 m_fOldProbability,
 												 m_nOldLength,
-												 m_nOldNoteKey,
-												 m_nNoteKey,
+												 m_nOldKey,
+												 m_nKey,
 												 m_nOldOctaveKey,
 												 m_nOctaveKey );
 	}
@@ -730,8 +730,8 @@ public:
 												 m_fLeadLag,
 												 m_fProbability,
 												 m_nLength,
-												 m_nNoteKey,
-												 m_nOldNoteKey,
+												 m_nKey,
+												 m_nOldKey,
 												 m_nOctaveKey,
 												 m_nOldOctaveKey );
 	}
@@ -753,8 +753,8 @@ private:
 		float m_fOldProbability;
 		int m_nLength;
 		int m_nOldLength;
-		int m_nNoteKey;
-		int m_nOldNoteKey;
+		int m_nKey;
+		int m_nOldKey;
 		int m_nOctaveKey;
 		int m_nOldOctaveKey;
 };

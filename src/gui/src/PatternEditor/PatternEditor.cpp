@@ -265,7 +265,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 
 		// Draw tail
 		if ( pNote->get_length() != LENGTH_ENTIRE_SAMPLE ) {
-			float fNotePitch = pNote->get_notekey_pitch();
+			float fNotePitch = pNote->get_pitch_from_key_octave();
 			float fStep = Note::pitchToFrequency( ( double )fNotePitch );
 
 			// if there is a stop-note to the right of this note, only draw-
@@ -433,7 +433,7 @@ void PatternEditor::copy()
 	int nMinColumn, nMinRow, nMaxPitch;
 
 	for ( Note *pNote : m_selection ) {
-		const int nPitch = pNote->get_notekey_pitch();
+		const int nPitch = pNote->get_pitch_from_key_octave();
 		const int nColumn = pNote->get_position();
 		const int nRow = pInstrumentList->index( pNote->get_instrument() );
 		if ( bWroteNote ) {
@@ -613,20 +613,20 @@ void PatternEditor::paste()
 				continue;
 			}
 
-			int nNoteKey, nOctave;
+			int nKey, nOctave;
 			if ( m_editor == Editor::PianoRoll ) {
-				const int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
+				const int nPitch = pNote->get_pitch_from_key_octave() + nDeltaPitch;
 				if ( nPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
 					 nPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
 					delete pNote;
 					continue;
 				}
 
-				nNoteKey = Note::pitchToKey( nPitch );
+				nKey = Note::pitchToKey( nPitch );
 				nOctave = Note::pitchToOctave( nPitch );
 			}
 			else {
-				nNoteKey = pNote->get_key();
+				nKey = pNote->get_key();
 				nOctave = pNote->get_octave();
 			}
 
@@ -638,7 +638,7 @@ void PatternEditor::paste()
 							 pNote->get_velocity(),
 							 pNote->getPan(),
 							 pNote->get_lead_lag(),
-							 nNoteKey,
+							 nKey,
 							 nOctave,
 							 pNote->get_probability(),
 							 /* bIsDelete */ false,
@@ -1308,12 +1308,12 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			nNewRow += offset.y();
 		}
 
-		int nNewNoteKey = pNote->get_key();
+		int nNewKey = pNote->get_key();
 		int nNewOctave = pNote->get_octave();
-		int nNewPitch = pNote->get_notekey_pitch();
+		int nNewPitch = pNote->get_pitch_from_key_octave();
 		if ( m_editor == Editor::PianoRoll && offset.y() != 0 ) {
 			nNewPitch -= offset.y();
-			nNewNoteKey = Note::pitchToKey( nNewPitch );
+			nNewKey = Note::pitchToKey( nNewPitch );
 			nNewOctave = Note::pitchToOctave( nNewPitch );
 		}
 
@@ -1359,7 +1359,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 							 pNote->get_velocity(),
 							 pNote->getPan(),
 							 pNote->get_lead_lag(),
-							 nNewNoteKey,
+							 nNewKey,
 							 nNewOctave,
 							 pNote->get_probability(),
 							 /* bIsDelete */ false,
@@ -1567,6 +1567,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	int nColumn, nRow, nRealColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
 
+
 	// Move cursor.
 	m_pPatternEditorPanel->setCursorColumn( nColumn );
 
@@ -1663,7 +1664,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	}
 
 	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
-		float fNotePitch = ppNote->get_notekey_pitch();
+		float fNotePitch = ppNote->get_pitch_from_key_octave();
 		float fStep = 0;
 		if ( nLen > -1 ){
 			fStep = Note::pitchToFrequency( ( double )fNotePitch );
@@ -1674,7 +1675,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 
 
 		// edit note property. We do not support the note key property.
-		if ( m_mode != Mode::NoteKey ) {
+		if ( m_mode != Mode::KeyOctave ) {
 			float fValue = 0.0;
 			if ( m_mode == Mode::Velocity ) {
 				fValue = ppNote->get_velocity();
@@ -1814,10 +1815,10 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 											  float fLeadLag,
 											  float fProbability,
 											  int nLength,
-											  int nNewNoteKey,
-											  int nOldNoteKey,
-											  int nNewOctaveKey,
-											  int nOldOctaveKey )
+											  int nNewKey,
+											  int nOldKey,
+											  int nNewOctave,
+											  int nOldOctave )
 {
 	auto pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -1841,8 +1842,8 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 	// Find the note to edit
 	auto pNote = pPattern->findNote(
 		nColumn, nColumn, row.nInstrumentID, row.sType,
-		static_cast<Note::Key>(nOldNoteKey),
-		static_cast<Note::Octave>(nOldOctaveKey), false );
+		static_cast<Note::Key>(nOldKey),
+		static_cast<Note::Octave>(nOldOctave), false );
 
 	bool bValueChanged = false;
 
@@ -1866,11 +1867,11 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 				bValueChanged = true;
 			}
 			break;
-		case Mode::NoteKey:
-			if ( pNote->get_key() != nNewNoteKey ||
-				 pNote->get_octave() != nNewOctaveKey ) {
-				pNote->set_key_octave( static_cast<Note::Key>(nNewNoteKey),
-									   static_cast<Note::Octave>(nNewOctaveKey) );
+		case Mode::KeyOctave:
+			if ( pNote->get_key() != nNewKey ||
+				 pNote->get_octave() != nNewOctave ) {
+				pNote->set_key_octave( static_cast<Note::Key>(nNewKey),
+									   static_cast<Note::Octave>(nNewOctave) );
 				bValueChanged = true;
 			}
 			break;
@@ -1904,7 +1905,7 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 }
 
 void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
-									 int nNoteKey, int nOctave,
+									 int nKey, int nOctave,
 									 bool bDoAdd, bool bDoDelete,
 									 bool bIsNoteOff ) {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1924,7 +1925,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	if ( m_editor == Editor::PianoRoll ) {
 		pOldNote = pPattern->findNote(
 			nColumn, nRealColumn, row.nInstrumentID, row.sType,
-			static_cast<Note::Key>(nNoteKey), static_cast<Note::Octave>(nOctave) );
+			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
 	}
 	else {
 		// When deleting a note under cursor NotePropertiesRuler works the same
@@ -1940,7 +1941,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		return;
 	}
 
-	int nOldLength, nOldNoteKey, nOldOctave;
+	int nOldLength, nOldKey, nOldOctave;
 	float fOldVelocity, fOldPan, fOldLeadLag, fProbability;
 	bool bNoteOff;
 
@@ -1949,7 +1950,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		fOldVelocity = pOldNote->get_velocity();
 		fOldPan = pOldNote->getPan();
 		fOldLeadLag = pOldNote->get_lead_lag();
-		nOldNoteKey = pOldNote->get_key();
+		nOldKey = pOldNote->get_key();
 		nOldOctave = pOldNote->get_octave();
 		fProbability = pOldNote->get_probability();
 		bNoteOff = pOldNote->get_note_off();
@@ -1959,14 +1960,14 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		fOldVelocity = VELOCITY_DEFAULT;
 		fOldPan = PAN_DEFAULT;
 		fOldLeadLag = LEAD_LAG_DEFAULT;
-		nOldNoteKey = KEY_MIN;
+		nOldKey = KEY_MIN;
 		nOldOctave = OCTAVE_DEFAULT;
 		fProbability = PROBABILITY_DEFAULT;
 		bNoteOff = bIsNoteOff;
 	}
 
 	if ( m_editor == Editor::PianoRoll ) {
-		nOldNoteKey = nNoteKey;
+		nOldKey = nKey;
 		nOldOctave = nOctave;
 	}
 
@@ -1977,7 +1978,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		if ( pSelectedInstrument != nullptr &&
 			 pSelectedInstrument->hasSamples() ) {
 			auto pNote2 = new Note( pSelectedInstrument );
-			pNote2->set_key_octave( static_cast<Note::Key>(nNoteKey),
+			pNote2->set_key_octave( static_cast<Note::Key>(nKey),
 									static_cast<Note::Octave>(nOctave) );
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 				noteOn( pNote2 );
@@ -1993,7 +1994,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 			fOldVelocity,
 			fOldPan,
 			fOldLeadLag,
-			nOldNoteKey,
+			nOldKey,
 			nOldOctave,
 			fProbability,
 			/* bIsDelete */ pOldNote != nullptr,
@@ -2008,7 +2009,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 										   float nOldVelocity,
 										   float fOldPan,
 										   float fOldLeadLag,
-										   int nOldNoteKey,
+										   int nOldKey,
 										   int nOldOctave,
 										   float fOldProbability,
 										   bool bIsDelete,
@@ -2051,7 +2052,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 		// Find and delete an existing (matching) note.
 		auto pNote = pPattern->findNote(
 			nColumn, -1, row.nInstrumentID, row.sType,
-			static_cast<Note::Key>(nOldNoteKey),
+			static_cast<Note::Key>(nOldKey),
 			static_cast<Note::Octave>(nOldOctave) );
 		if ( pNote != nullptr ) {
 			pPattern->removeNote( pNote );
@@ -2096,7 +2097,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 			pNote->set_lead_lag( fOldLeadLag );
 		}
 		pNote->set_probability( fOldProbability );
-		pNote->set_key_octave( static_cast<Note::Key>(nOldNoteKey),
+		pNote->set_key_octave( static_cast<Note::Key>(nOldKey),
 							   static_cast<Note::Octave>(nOldOctave) );
 		pPattern->insertNote( pNote );
 
@@ -2129,7 +2130,7 @@ QString PatternEditor::modeToQString( const Mode& mode ) {
 	case PatternEditor::Mode::LeadLag:
 		s = pCommonStrings->getNotePropertyLeadLag();
 		break;
-	case PatternEditor::Mode::NoteKey:
+	case PatternEditor::Mode::KeyOctave:
 		s = pCommonStrings->getNotePropertyKeyOctave();
 		break;
 	case PatternEditor::Mode::Probability:
@@ -2208,12 +2209,12 @@ void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 		sCaller.append( ":LeadLag" );
 		break;
 
-	case PatternEditor::Mode::NoteKey:
+	case PatternEditor::Mode::KeyOctave:
 		s = QString( tr( "Set pitch" ) ).append( ": " ).append( tr( "key" ) )
 			.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
 			.append( tr( "octave" ) )
 			.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
-		sCaller.append( ":NoteKey" );
+		sCaller.append( ":KeyOctave" );
 		break;
 
 	case PatternEditor::Mode::Probability:
