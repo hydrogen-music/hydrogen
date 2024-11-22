@@ -643,7 +643,9 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Velocity</source>
-        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.
+----------
+Name of note property adjustable in NotePropertiesRuler, using * humanization in Mixer, or using automation path.</extracomment>
         <translation>Intensidad</translation>
     </message>
     <message>
@@ -903,7 +905,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pan</source>
-        <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler and via input * capture actions.</extracomment>
         <translation>Balance</translation>
     </message>
     <message>
@@ -1169,6 +1171,26 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Rename instrument</source>
         <translation>Renombrar instrumento</translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation>Desfase Negativo y Positivo</translation>
+    </message>
+    <message>
+        <source>Key and Octave</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Probability</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation>Probabilidad</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2783,10 +2805,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Solo</translation>
     </message>
     <message>
-        <source>Pan</source>
-        <translation>Balance</translation>
-    </message>
-    <message>
         <source>FX %1 send</source>
         <translation>FX %1 envío</translation>
     </message>
@@ -3117,24 +3135,8 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Seleccionar propiedades de nota</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>Intensidad</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>Balance</translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation>No se ha seleccionado un patrón</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation>Desfase Negativo y Positivo</translation>
-    </message>
-    <message>
-        <source>NoteKey</source>
-        <translation>Clave de Nota</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -3143,10 +3145,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Show drum editor</source>
         <translation>Mostrar drum editor</translation>
-    </message>
-    <message>
-        <source>Probability</source>
-        <translation>Probabilidad</translation>
     </message>
     <message>
         <source>quarter</source>
@@ -5734,10 +5732,6 @@ Are you sure?</source>
     <message>
         <source>Adjust parameter values in time</source>
         <translation>Ajustar valores de parámetros en tiempo</translation>
-    </message>
-    <message>
-        <source>Velocity</source>
-        <translation>Intensidad</translation>
     </message>
     <message>
         <source>selected pattern mode</source>

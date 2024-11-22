@@ -57,7 +57,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
  {
 	const auto pPref = Preferences::get_instance();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
@@ -365,7 +365,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pAutomationCombo = new LCDCombo( nullptr, QSize( m_nPatternListWidth, 18 ), true );
 	m_pAutomationCombo->setToolTip( tr("Adjust parameter values in time") );
-	m_pAutomationCombo->addItem( tr("Velocity") );
+	m_pAutomationCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
 	m_pAutomationCombo->setCurrentIndex( 0 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, nullptr );

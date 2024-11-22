@@ -197,7 +197,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInputCaptureLayer() const { return m_sInputCaptureLayer; }
 	const QString& getInputCaptureFXLevel() const { return m_sInputCaptureFXLevel; }
 	const QString& getInputCaptureFXNumber() const { return m_sInputCaptureFXNumber; }
-	const QString& getInputCapturePan() const { return m_sInputCapturePan; }
 	const QString& getInputCaptureFilterCutoff() const { return m_sInputCaptureFilterCutoff; }
 	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
 
@@ -249,6 +248,18 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
 		const QString& getActionDeleteComponent() const { return m_sActionDeleteComponent; }
 		const QString& getActionRenameComponent() const { return m_sActionRenameComponent; }
+
+		const QString& getNotePropertyVelocity() const {
+			return m_sNotePropertyVelocity; }
+		const QString& getNotePropertyPan() const { return m_sNotePropertyPan; }
+		const QString& getNotePropertyLeadLag() const {
+			return m_sNotePropertyLeadLag; }
+		const QString& getNotePropertyKeyOctave() const {
+			return m_sNotePropertyKeyOctave; }
+		const QString& getNotePropertyProbability() const {
+			return m_sNotePropertyProbability; }
+		const QString& getNotePropertyLength() const {
+			return m_sNotePropertyLength; }
 
 		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
 		const QString& getErrorNotFoundShort() const { return m_sErrorNotFoundShort; }
@@ -409,7 +420,6 @@ private:
 	QString m_sInputCaptureLayer;
 	QString m_sInputCaptureFXLevel;
 	QString m_sInputCaptureFXNumber;
-	QString m_sInputCapturePan;
 	QString m_sInputCaptureFilterCutoff;
 	QString m_sInputCaptureTag;
 
@@ -462,6 +472,13 @@ private:
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySystemSuffix;
 	QString m_sSoundLibrarySessionSuffix;
+
+		QString m_sNotePropertyVelocity;
+		QString m_sNotePropertyPan;
+		QString m_sNotePropertyLeadLag;
+		QString m_sNotePropertyKeyOctave;
+		QString m_sNotePropertyProbability;
+		QString m_sNotePropertyLength;
 
 	QString m_sEncodingError;
 };

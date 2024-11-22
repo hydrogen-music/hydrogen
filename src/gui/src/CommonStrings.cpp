@@ -483,9 +483,6 @@ CommonStrings::CommonStrings(){
 	  FX number of the specified instrument. */
 	m_sInputCaptureFXNumber = tr( "FX Number" );
 	/*: Label shown in the input capture dialog for querying a
-	  new pan value for a specified instrument. */
-	m_sInputCapturePan = tr( "Pan" );
-	/*: Label shown in the input capture dialog for querying a
 	  new filter cutoff value for a specified instrument. */
 	m_sInputCaptureFilterCutoff = tr( "Filter Cutoff" );
 	/*: Label shown in the input capture dialog for querying
@@ -599,6 +596,22 @@ CommonStrings::CommonStrings(){
 	/*: Suffix appended to a drumkit that are loaded non-persistently
 	 *  into the current Hydrogen session. */
 	m_sSoundLibrarySessionSuffix = tr( "session" );
+
+	/*: Name of note property adjustable in NotePropertiesRuler, using
+	 *  humanization in Mixer, or using automation path. */
+	m_sNotePropertyVelocity = tr( "Velocity" );
+	/*: Name of note property adjustable in NotePropertiesRuler and via input
+	 *  capture actions. */
+	m_sNotePropertyPan = tr( "Pan" );
+	/*: Name of note property adjustable in NotePropertiesRuler. */
+	m_sNotePropertyLeadLag = tr( "Lead and Lag" );
+	/*: Name of note property adjustable in NotePropertiesRuler. */
+	m_sNotePropertyKeyOctave = tr( "Key and Octave" );
+	/*: Name of note property adjustable in NotePropertiesRuler. */
+	m_sNotePropertyProbability = tr( "Probability" );
+	/*: Name of note property adjustable by right click-dragging in
+	 *  DrumPatternEditor and PianoRollEditor. */
+	m_sNotePropertyLength = tr( "Length" );
 
 	/*: Displayed in a warning message in case the user tries to read
 	 * or write data to a file/path Hydrogen can not handle in the

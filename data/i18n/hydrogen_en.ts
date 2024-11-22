@@ -640,7 +640,9 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Velocity</source>
-        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.
+----------
+Name of note property adjustable in NotePropertiesRuler, using * humanization in Mixer, or using automation path.</extracomment>
         <translation></translation>
     </message>
     <message>
@@ -899,7 +901,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pan</source>
-        <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler and via input * capture actions.</extracomment>
         <translation></translation>
     </message>
     <message>
@@ -1164,6 +1166,26 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Rename instrument</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Key and Octave</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Probability</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
         <translation></translation>
     </message>
 </context>
@@ -2729,10 +2751,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
-        <source>Pan</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>FX %1 send</source>
         <translation></translation>
     </message>
@@ -2994,23 +3012,23 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>edit note properties by dragging</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>paste notes</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>delete notes</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>copy notes</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>move notes</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3044,26 +3062,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Select note properties</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Velocity</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>NoteKey</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Probability</source>
         <translation></translation>
     </message>
     <message>
@@ -3152,7 +3150,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Change pattern size to %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -5635,10 +5633,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Adjust parameter values in time</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Velocity</source>
         <translation></translation>
     </message>
     <message>

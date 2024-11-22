@@ -2606,7 +2606,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				}
 				else if ( action == Shortcuts::Action::StripPan ) {
 					sAction = "PAN_ABSOLUTE";
-					sLabel1 = pCommonStrings->getInputCapturePan();
+					sLabel1 = pCommonStrings->getNotePropertyPan();
 				}
 				else if ( action == Shortcuts::Action::StripFilterCutoff ) {
 					sAction = "FILTER_CUTOFF_LEVEL_ABSOLUTE";

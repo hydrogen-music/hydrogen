@@ -641,7 +641,9 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Velocity</source>
-        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.
+----------
+Name of note property adjustable in NotePropertiesRuler, using * humanization in Mixer, or using automation path.</extracomment>
         <translation>ベロシティー</translation>
     </message>
     <message>
@@ -900,7 +902,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pan</source>
-        <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler and via input * capture actions.</extracomment>
         <translation>パン</translation>
     </message>
     <message>
@@ -1165,6 +1167,26 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Rename instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key and Octave</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Probability</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2766,10 +2788,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>ソロ</translation>
     </message>
     <message>
-        <source>Pan</source>
-        <translation>パン</translation>
-    </message>
-    <message>
         <source>FX %1 send</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3104,32 +3122,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>ノートのプロパティーを選択</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>ベロシティー</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>パン</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>NoteKey</source>
-        <translation>ノートキー</translation>
-    </message>
-    <message>
         <source>Show piano roll editor</source>
         <translation>ピアノロールエディターの表示</translation>
     </message>
     <message>
         <source>Show drum editor</source>
         <translation>ドラムエディターの表示</translation>
-    </message>
-    <message>
-        <source>Probability</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>quarter</source>
@@ -5702,10 +5700,6 @@ Are you sure?</source>
     <message>
         <source>Adjust parameter values in time</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Velocity</source>
-        <translation>ベロシティー</translation>
     </message>
     <message>
         <source>selected pattern mode</source>

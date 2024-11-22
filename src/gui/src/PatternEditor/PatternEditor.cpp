@@ -2116,26 +2116,27 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 }
 
 QString PatternEditor::modeToQString( const Mode& mode ) {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString s;
 	
 	switch ( mode ) {
 	case PatternEditor::Mode::Velocity:
-		s = "Velocity";
+		s = pCommonStrings->getNotePropertyVelocity();
 		break;
 	case PatternEditor::Mode::Pan:
-		s = "Pan";
+		s = pCommonStrings->getNotePropertyPan();
 		break;
 	case PatternEditor::Mode::LeadLag:
-		s = "LeadLag";
+		s = pCommonStrings->getNotePropertyLeadLag();
 		break;
 	case PatternEditor::Mode::NoteKey:
-		s = "NoteKey";
+		s = pCommonStrings->getNotePropertyKeyOctave();
 		break;
 	case PatternEditor::Mode::Probability:
-		s = "Probability";
+		s = pCommonStrings->getNotePropertyProbability();
 		break;
 	case PatternEditor::Mode::Length:
-		s = "Length";
+		s = pCommonStrings->getNotePropertyLength();
 		break;
 	default:
 		s = QString( "Unknown mode [%1]" ).arg( static_cast<int>(mode) ) ;

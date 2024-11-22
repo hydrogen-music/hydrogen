@@ -410,6 +410,7 @@ PatternEditorPanel::~PatternEditorPanel()
 }
 
 void PatternEditorPanel::createEditors() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	// Ruler ScrollView
 	m_pRulerScrollView = new WidgetScrollArea( nullptr );
@@ -608,13 +609,11 @@ void PatternEditorPanel::createEditors() {
 	m_pPropertiesCombo =
 		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
-	m_pPropertiesCombo->addItem( tr("Velocity") );
-	m_pPropertiesCombo->addItem( tr("Pan") );
-	m_pPropertiesCombo->addItem( tr("Lead and Lag") );
-	m_pPropertiesCombo->addItem( tr("NoteKey") );
-	m_pPropertiesCombo->addItem( tr("Probability") );
-	/* m_pPropertiesCombo->addItem( tr("Cutoff") ); */
-	/* m_pPropertiesCombo->addItem( tr("Resonance") ); */
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyPan() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyLeadLag() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyKeyOctave() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyProbability() );
 	// is triggered here below
 	m_pPropertiesCombo->setObjectName( "PropertiesCombo" );
 	connect( m_pPropertiesCombo, SIGNAL( currentIndexChanged( int ) ),
