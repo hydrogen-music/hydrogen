@@ -666,7 +666,6 @@ class SE_editNotePropertiesAction : public QUndoCommand
 {
 public:
 	SE_editNotePropertiesAction( const PatternEditor::Mode& mode,
-								 const PatternEditor::Editor& editor,
 								 int nPatternNumber,
 								 int nColumn,
 								 int nRowDB,
@@ -685,7 +684,6 @@ public:
 								 int nOctaveKey,
 								 int nOldOctaveKey ) :
 		m_mode( mode ),
-		m_editor( editor ),
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
 		m_nRowDB( nRowDB ),
@@ -709,7 +707,6 @@ public:
 	}
 	virtual void undo() {
 		PatternEditor::editNotePropertiesAction( m_mode,
-												 m_editor,
 												 m_nPatternNumber,
 												 m_nColumn,
 												 m_nRowDB,
@@ -725,7 +722,6 @@ public:
 	}
 	virtual void redo() {
 		PatternEditor::editNotePropertiesAction( m_mode,
-												 m_editor,
 												 m_nPatternNumber,
 												 m_nColumn,
 												 m_nRowDB,
@@ -742,7 +738,6 @@ public:
 
 private:
 		PatternEditor::Mode m_mode;
-		PatternEditor::Editor m_editor;
 		int m_nPatternNumber;
 		int m_nColumn;
 		/** Row selected in #DrumPatternEditor the moment the action was

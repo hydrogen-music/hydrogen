@@ -194,7 +194,6 @@ public:
 		 * adjusting note/octave can be done too. This is covered using @a
 		 * nNewNoteKey and @a nNewOctaveKey. */
 	static void editNotePropertiesAction( const Mode& mode,
-										  const Editor& editor,
 										  int nPatternNumber,
 										  int nColumn,
 										  int nRowDB,
@@ -270,8 +269,18 @@ protected:
 	bool m_bCopyNotMove;
 
 	bool m_bSelectNewNotes;
-	H2Core::Note *m_pDraggedNote;
-	
+
+		void clearDraggedNotes();
+		/** Keeps track of all notes being drag-edited using the right mouse
+		 * button. It maps the new, updated version of a note to an copy of
+		 * itself still bearing the original values.*/
+		std::map<H2Core::Note*, H2Core::Note*> m_draggedNotes;
+		/** Column a click-drag event did started in.*/
+		int m_nDragStartColumn;
+		/** Latest vertical position of a drag event. Adjusted in every drag
+		 * update. */
+		int m_nDragY;
+
 	PatternEditorPanel* m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
@@ -341,28 +350,6 @@ protected:
 
 		QPoint getCursorPosition();
 
-	/** Stores the properties of @a pNote in member variables.*/
-	void storeNoteProperties( const H2Core::Note* pNote );
-	
-	/** Cached properties used when adjusting a note property via
-	 * right-press mouse movement.
-	 */
-	/** Selected row in the DB / DrumPatternEditor */
-	int m_nSelectedRow = 0;
-	int m_nRealColumn = 0;
-	int m_nColumn = 0;
-	int m_nPressedLine = 0;
-	int m_nOldPoint;
-	
-	int m_nOldLength = 0;
-	float m_fVelocity = 0;
-	float m_fOldVelocity = 0;
-	float m_fPan = 0;
-	float m_fOldPan = 0;
-	float m_fLeadLag = 0;
-	float m_fOldLeadLag = 0;
-	float m_fProbability = 0;
-	float m_fOldProbability = 0;
 	Editor m_editor;
 	Mode m_mode;
 };

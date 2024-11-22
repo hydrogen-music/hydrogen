@@ -961,7 +961,6 @@ void NotePropertiesRuler::addUndoAction()
 			}
 			pUndoStack->push( new SE_editNotePropertiesAction(
 								  m_mode,
-								  PatternEditor::Editor::NotePropertiesRuler,
 								  m_pPatternEditorPanel->getPatternNumber(),
 								  pNewNote->get_position(),
 								  nRow,

@@ -464,44 +464,6 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 	}
 }
 
-void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	// Handles cursor repositioning and hiding and stores general
-	// properties.
-	PatternEditor::mouseDragStartEvent( ev );
-	
-	m_pDraggedNote = nullptr;
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nRow, nColumn, nRealColumn;
-	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
-
-	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row clicked" );
-		return;
-	}
-
-	Note::Octave pressedOctave = Note::pitchToOctave( Note::lineToPitch( nRow ) );
-	Note::Key pressedNoteKey = Note::pitchToKey( Note::lineToPitch( nRow ) );
-	m_nCursorRow = Note::lineToPitch( nRow );
-
-	if ( ev->button() == Qt::RightButton ) {
-		m_pDraggedNote = pPattern->findNote(
-			nColumn, nRealColumn, selectedRow.nInstrumentID,
-			selectedRow.sType, pressedNoteKey, pressedOctave, false );
-
-		// Store note-specific properties.
-		storeNoteProperties( m_pDraggedNote );
-	}
-}
-
 void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
 	int nRow;

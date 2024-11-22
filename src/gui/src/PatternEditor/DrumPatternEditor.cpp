@@ -212,9 +212,6 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		return;
 	}
 	
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-
 	int nRow, nColumn, nRealColumn;
 	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
@@ -228,18 +225,8 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 	m_pPatternEditorPanel->setSelectedRowDB( nRow );
 
-	// Handles cursor repositioning and hiding and stores general
-	// properties.
+	// Handles cursor repositioning and hiding and note property editing.
 	PatternEditor::mouseDragStartEvent( ev );
-	
-	if ( ev->button() == Qt::RightButton ) {
-		m_pDraggedNote = pPattern->findNote(
-			nColumn, nRealColumn, drumPatternRow.nInstrumentID,
-			drumPatternRow.sType, false );
-
-		// Store note-specific properties.
-		storeNoteProperties( m_pDraggedNote );
-	}
 }
 
 ///

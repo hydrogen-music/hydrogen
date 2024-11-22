@@ -56,15 +56,15 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, QWidget( pParent )
 	, m_selection( this )
 	, m_bEntered( false )
-	, m_pDraggedNote( nullptr )
 	, m_bSelectNewNotes( false )
 	, m_bFineGrained( false )
 	, m_bCopyNotMove( false )
 	, m_nTick( -1 )
 	, m_editor( Editor::None )
 	, m_mode( Mode::None )
-	, m_nSelectedRow( 0 )
 	, m_nCursorRow( 0 )
+	  , m_nDragStartColumn( 0 )
+	  , m_nDragY( 0 )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -101,6 +101,8 @@ PatternEditor::PatternEditor( QWidget *pParent )
 
 PatternEditor::~PatternEditor()
 {
+	clearDraggedNotes();
+
 	if ( m_pBackgroundPixmap ) {
 		delete m_pBackgroundPixmap;
 	}
@@ -781,28 +783,25 @@ void PatternEditor::randomizeVelocity() {
 		float fVal = ( rand() % 100 ) / 100.0;
 		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
 						   0.0, 1.0 );
-		SE_editNotePropertiesAction* pAction =
-			new SE_editNotePropertiesAction(
-				PatternEditor::Mode::Velocity,
-				PatternEditor::Editor::NotePropertiesRuler,
-				m_pPatternEditorPanel->getPatternNumber(),
-				pNote->get_position(),
-				nRow,
-				fVal,
-				pNote->get_velocity(),
-				pNote->getPan(),
-				pNote->getPan(),
-				pNote->get_lead_lag(),
-				pNote->get_lead_lag(),
-				pNote->get_probability(),
-				pNote->get_probability(),
-				pNote->get_length(),
-				pNote->get_length(),
-				pNote->get_key(),
-				pNote->get_key(),
-				pNote->get_octave(),
-				pNote->get_octave() );
-		pUndo->push( pAction );
+		pUndo->push( new SE_editNotePropertiesAction(
+						 PatternEditor::Mode::Velocity,
+						 m_pPatternEditorPanel->getPatternNumber(),
+						 pNote->get_position(),
+						 nRow,
+						 fVal,
+						 pNote->get_velocity(),
+						 pNote->getPan(),
+						 pNote->getPan(),
+						 pNote->get_lead_lag(),
+						 pNote->get_lead_lag(),
+						 pNote->get_probability(),
+						 pNote->get_probability(),
+						 pNote->get_length(),
+						 pNote->get_length(),
+						 pNote->get_key(),
+						 pNote->get_key(),
+						 pNote->get_octave(),
+						 pNote->get_octave() ) );
 	}
 
 	pUndo->endMacro();
@@ -1556,25 +1555,11 @@ void PatternEditor::updatePosition( float fTick ) {
 	}
 }
 
-void PatternEditor::storeNoteProperties( const Note* pNote ) {
-	if( pNote != nullptr ){
-		m_nOldLength = pNote->get_length();
-		//needed to undo note properties
-		m_fOldVelocity = pNote->get_velocity();
-		m_fOldPan = pNote->getPan();
-
-		m_fOldLeadLag = pNote->get_lead_lag();
-
-		m_fVelocity = m_fOldVelocity;
-		m_fPan = m_fOldPan;
-		m_fLeadLag = m_fOldLeadLag;
-	}
-	else {
-		m_nOldLength = LENGTH_ENTIRE_SAMPLE;
-	}
-}
-
 void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1589,7 +1574,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	
 	pHydrogenApp->setHideKeyboardCursor( true );
-	
+
 	// Cursor either just got hidden or was moved.
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
@@ -1598,96 +1583,138 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	}
 
 	if ( ev->button() == Qt::RightButton ) {
+		// Adjusting note properties.
 
-		// Needed for undo changes in the note length
-		m_nOldPoint = ev->y();
-		m_nRealColumn = nRealColumn;
-		m_nColumn = nColumn;
-		m_nPressedLine = nRow;
-		m_nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+		// Assemble all notes to be edited.
+		DrumPatternRow row;
+		if ( m_editor == Editor::DrumPattern ) {
+			row = m_pPatternEditorPanel->getRowDB( nRow );
+		}
+		else {
+			row = m_pPatternEditorPanel->getRowDB(
+				m_pPatternEditorPanel->getSelectedRowDB() );
+		}
+		if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+			DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
+					  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
+			return;
+		}
+
+		// Note clicked by the user.
+		Note* pDraggedNote = nullptr;
+		if ( m_editor == Editor::DrumPattern ) {
+			pDraggedNote = pPattern->findNote(
+				nColumn, nRealColumn, row.nInstrumentID, row.sType, false );
+		}
+		else if ( m_editor == Editor::PianoRoll ) {
+			pDraggedNote = pPattern->findNote(
+				nColumn, nRealColumn, row.nInstrumentID, row.sType,
+				Note::pitchToKey( Note::lineToPitch( nRow ) ),
+				Note::pitchToOctave( Note::lineToPitch( nRow ) ), false );
+		}
+		else {
+			ERRORLOG( "general click-dragging not implemented for NotePropertiesRuler" );
+			return;
+		}
+
+		if ( pDraggedNote == nullptr || pDraggedNote->get_note_off() ) {
+			return;
+		}
+
+		clearDraggedNotes();
+
+		if ( ! m_selection.isEmpty() ) {
+			validateSelection();
+		}
+		if ( m_selection.isSelected( pDraggedNote ) ) {
+			// The clicked note is part of the current selection. All selected
+			// notes will be edited.
+			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+				if ( ppNote != nullptr && m_selection.isSelected( ppNote ) &&
+					 ! ppNote->get_note_off() ) {
+					m_draggedNotes[ ppNote ] = new Note( ppNote );
+				}
+			}
+		}
+		else {
+			m_draggedNotes[ pDraggedNote ] = new Note( pDraggedNote );
+		}
+		m_nDragStartColumn = pDraggedNote->get_position();
+		m_nDragY = ev->y();
 	}
-
 }
 
 void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr || m_pDraggedNote == nullptr ) {
-		return;
-	}
-
-	if ( m_pDraggedNote->get_note_off() ) {
+	if ( pPattern == nullptr || m_draggedNotes.size() == 0 ) {
 		return;
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
-	int nTickColumn = getColumn( ev->x() );
+	const int nTickColumn = getColumn( ev->x() );
+	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	int nLen = nTickColumn - m_pDraggedNote->get_position();
+	int nLen = nTickColumn - m_nDragStartColumn;
 
 	if ( nLen <= 0 ) {
 		nLen = -1;
 	}
 
-	float fNotePitch = m_pDraggedNote->get_notekey_pitch();
-	float fStep = 0;
-	if ( nLen > -1 ){
-		fStep = Note::pitchToFrequency( ( double )fNotePitch );
-	} else {
-		fStep = 1.0;
-	}
-	m_pDraggedNote->set_length( nLen * fStep);
+	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
+		float fNotePitch = ppNote->get_notekey_pitch();
+		float fStep = 0;
+		if ( nLen > -1 ){
+			fStep = Note::pitchToFrequency( ( double )fNotePitch );
+		} else {
+			fStep=  1.0;
+		}
+		ppNote->set_length( nLen * fStep );
 
-	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
 
-	// edit note property. We do not support the note key property.
-	if ( m_mode != Mode::NoteKey ) {
-
-		float fValue = 0.0;
-		if ( m_mode == Mode::Velocity ) {
-			fValue = m_pDraggedNote->get_velocity();
-		}
-		else if ( m_mode == Mode::Pan ) {
-			fValue = m_pDraggedNote->getPanWithRangeFrom0To1();
-		}
-		else if ( m_mode == Mode::LeadLag ) {
-			fValue = ( m_pDraggedNote->get_lead_lag() - 1.0 ) / -2.0 ;
-		}
-		else if ( m_mode == Mode::Probability ) {
-			fValue = m_pDraggedNote->get_probability();
-		}
+		// edit note property. We do not support the note key property.
+		if ( m_mode != Mode::NoteKey ) {
+			float fValue = 0.0;
+			if ( m_mode == Mode::Velocity ) {
+				fValue = ppNote->get_velocity();
+			}
+			else if ( m_mode == Mode::Pan ) {
+				fValue = ppNote->getPanWithRangeFrom0To1();
+			}
+			else if ( m_mode == Mode::LeadLag ) {
+				fValue = ( ppNote->get_lead_lag() - 1.0 ) / -2.0 ;
+			}
+			else if ( m_mode == Mode::Probability ) {
+				fValue = ppNote->get_probability();
+			}
 		
-		float fMoveY = m_nOldPoint - ev->y();
-		fValue = fValue  + (fMoveY / 100);
-		if ( fValue > 1 ) {
-			fValue = 1;
-		}
-		else if ( fValue < 0.0 ) {
-			fValue = 0.0;
-		}
+			float fMoveY = m_nDragY - ev->y();
+			fValue = fValue  + (fMoveY / 100);
+			if ( fValue > 1 ) {
+				fValue = 1;
+			}
+			else if ( fValue < 0.0 ) {
+				fValue = 0.0;
+			}
 
-		if ( m_mode == Mode::Velocity ) {
-			m_pDraggedNote->set_velocity( fValue );
-			m_fVelocity = fValue;
-		}
-		else if ( m_mode == Mode::Pan ) {
-			m_pDraggedNote->setPanWithRangeFrom0To1( fValue );
-			m_fPan = m_pDraggedNote->getPan();
-		}
-		else if ( m_mode == Mode::LeadLag ) {
-			m_pDraggedNote->set_lead_lag( ( fValue * -2.0 ) + 1.0 );
-			m_fLeadLag = ( fValue * -2.0 ) + 1.0;
-		}
-		else if ( m_mode == Mode::Probability ) {
-			m_pDraggedNote->set_probability( fValue );
-			m_fProbability = fValue;
-		}
+			if ( m_mode == Mode::Velocity ) {
+				ppNote->set_velocity( fValue );
+			}
+			else if ( m_mode == Mode::Pan ) {
+				ppNote->setPanWithRangeFrom0To1( fValue );
+			}
+			else if ( m_mode == Mode::LeadLag ) {
+				ppNote->set_lead_lag( ( fValue * -2.0 ) + 1.0 );
+			}
+			else if ( m_mode == Mode::Probability ) {
+				ppNote->set_probability( fValue );
+			}
 
-		PatternEditor::triggerStatusMessage( m_pDraggedNote, m_mode );
-		
-		m_nOldPoint = ev->y();
+			PatternEditor::triggerStatusMessage( ppNote, m_mode );
+		}
 	}
+	m_nDragY = ev->y();
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
@@ -1705,82 +1732,80 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		return;
 	}
 
-	if ( m_pDraggedNote == nullptr || m_pDraggedNote->get_note_off() ) {
-		return;
-	}
-
-	const bool bPropertyEdited = m_fVelocity != m_fOldVelocity ||
-		m_fOldPan != m_fPan ||
-		m_fOldLeadLag != m_fLeadLag ||
-		m_fOldProbability != m_fProbability;
-	const bool bLengthEdited = m_pDraggedNote->get_length() != m_nOldLength;
-
-	if ( ! bPropertyEdited && ! bLengthEdited ) {
-		// nothing to do
+	if ( m_draggedNotes.size() == 0 ) {
 		return;
 	}
 
 	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-
-	if ( bPropertyEdited && bLengthEdited ) {
-		// Allow user to undo all changes done in this single drag action with a
-		// single undo.
+	bool bMacroStarted = false;
+	if ( m_draggedNotes.size() > 1 ) {
 		pUndoStack->beginMacro( tr( "edit note properties by dragging" ) );
+		bMacroStarted = true;
+	}
+	else {
+		// Just a single note was edited.
+		for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
+			if ( ( ppUpdatedNote->get_velocity() !=
+				   ppOriginalNote->get_velocity() ||
+				   ppUpdatedNote->getPan() !=
+				   ppOriginalNote->getPan() ||
+				   ppUpdatedNote->get_lead_lag() !=
+				   ppOriginalNote->get_lead_lag() ||
+				   ppUpdatedNote->get_probability() !=
+				   ppOriginalNote->get_probability() ) &&
+				 ppUpdatedNote->get_length() != ppOriginalNote->get_length() ) {
+				// Both length and another property have been edited.
+				pUndoStack->beginMacro( tr( "edit note properties by dragging" ) );
+				bMacroStarted = true;
+			}
+		}
 	}
 
-	if ( bLengthEdited ) {
+	auto editNoteProperty = [=]( PatternEditor::Mode mode, Note* pNewNote,
+								  Note* pOldNote ) {
 		pUndoStack->push( new SE_editNotePropertiesAction(
-							  Mode::Length,
-							  m_editor,
+							  mode,
 							  m_pPatternEditorPanel->getPatternNumber(),
-							  m_pDraggedNote->get_position(),
-							  m_nSelectedRow,
-							  m_fVelocity,
-							  m_fOldVelocity,
-							  m_fPan,
-							  m_fOldPan,
-							  m_fLeadLag,
-							  m_fOldLeadLag,
-							  m_fProbability,
-							  m_fOldProbability,
-							  m_pDraggedNote->get_length(),
-							  m_nOldLength,
-							  m_pDraggedNote->get_key(),
-							  m_pDraggedNote->get_key(),
-							  m_pDraggedNote->get_octave(),
-							  m_pDraggedNote->get_octave() ) );
+							  pNewNote->get_position(),
+							  m_pPatternEditorPanel->findRowDB( pNewNote ),
+							  pNewNote->get_velocity(),
+							  pOldNote->get_velocity(),
+							  pNewNote->getPan(),
+							  pOldNote->getPan(),
+							  pNewNote->get_lead_lag(),
+							  pOldNote->get_lead_lag(),
+							  pNewNote->get_probability(),
+							  pOldNote->get_probability(),
+							  pNewNote->get_length(),
+							  pOldNote->get_length(),
+							  pNewNote->get_key(),
+							  pOldNote->get_key(),
+							  pNewNote->get_octave(),
+							  pOldNote->get_octave() ) );
+	};
+
+	for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
+		if ( ppUpdatedNote->get_length() != ppOriginalNote->get_length() ) {
+			editNoteProperty( Mode::Length, ppUpdatedNote, ppOriginalNote );
+		}
+
+		if ( ppUpdatedNote->get_velocity() != ppOriginalNote->get_velocity() ||
+			 ppUpdatedNote->getPan() != ppOriginalNote->getPan() ||
+			 ppUpdatedNote->get_lead_lag() != ppOriginalNote->get_lead_lag() ||
+			 ppUpdatedNote->get_probability() !=
+			 ppOriginalNote->get_probability() ) {
+			editNoteProperty( m_mode, ppUpdatedNote, ppOriginalNote );
+		}
 	}
 
-	if ( bPropertyEdited ) {
-		pUndoStack->push( new SE_editNotePropertiesAction(
-							  m_mode,
-							  m_editor,
-							  m_pPatternEditorPanel->getPatternNumber(),
-							  m_pDraggedNote->get_position(),
-							  m_nSelectedRow,
-							  m_fVelocity,
-							  m_fOldVelocity,
-							  m_fPan,
-							  m_fOldPan,
-							  m_fLeadLag,
-							  m_fOldLeadLag,
-							  m_fProbability,
-							  m_fOldProbability,
-							  m_pDraggedNote->get_length(),
-							  m_nOldLength,
-							  m_pDraggedNote->get_key(),
-							  m_pDraggedNote->get_key(),
-							  m_pDraggedNote->get_octave(),
-							  m_pDraggedNote->get_octave() ) );
-	}
-
-	if ( bPropertyEdited && bLengthEdited ) {
+	if ( bMacroStarted ) {
 		pUndoStack->endMacro();
 	}
+
+	clearDraggedNotes();
 }
 
 void PatternEditor::editNotePropertiesAction( const Mode& mode,
-											  const Editor& editor,
 											  int nPatternNumber,
 											  int nColumn,
 											  int nRowDB,
@@ -1814,17 +1839,10 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	// Find the note to edit
-	Note* pNote = nullptr;
-	if ( editor == Editor::DrumPattern ) {
-		pNote = pPattern->findNote(
-			nColumn, nColumn, row.nInstrumentID, row.sType, false );
-	}
-	else {
-		pNote = pPattern->findNote(
-			nColumn, nColumn, row.nInstrumentID, row.sType,
-			static_cast<Note::Key>(nOldNoteKey),
-			static_cast<Note::Octave>(nOldOctaveKey), false );
-	}
+	auto pNote = pPattern->findNote(
+		nColumn, nColumn, row.nInstrumentID, row.sType,
+		static_cast<Note::Key>(nOldNoteKey),
+		static_cast<Note::Octave>(nOldOctaveKey), false );
 
 	bool bValueChanged = false;
 
@@ -2261,4 +2279,11 @@ QRect PatternEditor::getKeyboardCursorRect()
 	else {
 		return QRect( pos.x() - fHalfWidth, 3, fHalfWidth * 2, height() - 6 );
 	}
+}
+
+void PatternEditor::clearDraggedNotes() {
+	for ( auto& [ _, ppCopiedNote ] : m_draggedNotes ) {
+		delete ppCopiedNote;
+	}
+	m_draggedNotes.clear();
 }
