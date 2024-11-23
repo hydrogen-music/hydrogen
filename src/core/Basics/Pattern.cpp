@@ -169,7 +169,9 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 		while ( !note_node.isNull() ) {
 			Note* pNote = Note::load_from( note_node, bSilent );
 			assert( pNote );
-			if ( pNote != nullptr ) {
+			if ( pNote != nullptr &&
+				 ( pNote->get_instrument_id() != EMPTY_INSTR_ID ||
+				   ! pNote->getType().isEmpty() ) ) {
 				pPattern->insertNote( pNote );
 			}
 			note_node = note_node.nextSiblingElement( "note" );
@@ -260,15 +262,17 @@ void Pattern::saveTo( XMLNode& node,
 	pattern_node.write_int( "size", m_nLength );
 	pattern_node.write_int( "denominator", m_nDenominator );
 	
-	int nId = ( pInstrumentOnly == nullptr ? EMPTY_INSTR_ID :
-				pInstrumentOnly->get_id() );
+	const int nId = pInstrumentOnly == nullptr ? EMPTY_INSTR_ID :
+		pInstrumentOnly->get_id();
 	
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	for ( auto it = m_notes.cbegin(); it != m_notes.cend(); ++it ) {
 		auto pNote = it->second;
 		if ( pNote != nullptr &&
 			 ( pInstrumentOnly == nullptr ||
-			   pNote->get_instrument_id() == nId ) ) {
+			   pNote->get_instrument_id() == nId ) &&
+			 ( pNote->get_instrument_id() != EMPTY_INSTR_ID ||
+			   ! pNote->getType().isEmpty() ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
 			pNote->save_to( note_node );
 		}
