@@ -540,35 +540,65 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	const QColor backgroundColor(
-		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
-	const QColor backgroundInactiveColor(
-		pPref->getTheme().m_color.m_windowColor );
-	const QColor alternateRowColor(
-		pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
+	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	// Row clicked by the user.
 	const QColor selectedRowColor(
 		pPref->getTheme().m_color.m_patternEditor_selectedRowColor );
-	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+
+	// Rows for which there is a corresponding instrument in the current
+	// drumkit.
+	const QColor backgroundColor(
+		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
+	const QColor alternateRowColor(
+		pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
+
+	// Row for which there is no instrument and which's notes can not be played
+	// back (but they can be interacted with in the usual way).
+	const QColor backgroundTypeColor( backgroundColor.darker( 135 ) );
+	const QColor alternateRowTypeColor( alternateRowColor.darker( 135 ) );
+
+	// Everything beyond the current pattern (used when another, larger pattern
+	// is played as well).
+	const QColor backgroundInactiveColor(
+		pPref->getTheme().m_color.m_windowColor );
 	const QColor lineInactiveColor(
 		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
 	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 
-	p.fillRect(0, 0, m_nActiveWidth, m_nEditorHeight, backgroundColor);
+	// Check whether there are notes not corresponding to any instrument of the
+	// current kit.
+	int nKitHeight = m_nEditorHeight;
+	int nnRow = 0;
+	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
+		if ( rrow.nInstrumentID == EMPTY_INSTR_ID ) {
+			nKitHeight = nnRow * m_nGridHeight;
+			break;
+		}
+		++nnRow;
+	}
+
+	p.fillRect( 0, 0, m_nActiveWidth, nKitHeight, backgroundColor );
+	if ( nKitHeight < m_nEditorHeight ) {
+		p.fillRect( 0, nKitHeight, m_nActiveWidth, m_nEditorHeight - nKitHeight,
+					backgroundTypeColor );
+	}
 	if ( m_nActiveWidth < m_nEditorWidth ) {
 		p.fillRect( m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth,
 					m_nEditorHeight, backgroundInactiveColor);
 	}
 
 	for ( int ii = 0; ii < nRows; ii++ ) {
-		int y = static_cast<int>(m_nGridHeight) * ii;
+		const int y = static_cast<int>(m_nGridHeight) * ii;
 		if ( ii == nSelectedRow ) {
 			p.fillRect( 0, y, m_nActiveWidth, m_nGridHeight,
 							  selectedRowColor );
 		}
 		else if ( ( ii % 2 ) != 0 ) {
-			p.fillRect( 0, y, m_nActiveWidth, m_nGridHeight, alternateRowColor );
+			p.fillRect(
+				0, y, m_nActiveWidth, m_nGridHeight,
+				y < nKitHeight ? alternateRowColor : alternateRowTypeColor );
 		}
 	}
 
@@ -584,20 +614,28 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	// The grid lines above are drawn full height. We will erase the
 	// upper part.
 	for ( int ii = 0; ii < nRows; ii++ ) {
-		int y = static_cast<int>(m_nGridHeight) * ii;
+		const int y = static_cast<int>(m_nGridHeight) * ii;
 		if ( ii == nSelectedRow ) {
-			p.fillRect( 0, y, m_nActiveWidth, (int)( m_nGridHeight * 0.7 ), selectedRowColor );
-		} else {
+			p.fillRect(
+				0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
+				selectedRowColor );
+		}
+		else {
 			if ( ( ii % 2 ) == 0 ) {
-				p.fillRect( 0, y, m_nActiveWidth, (int)( m_nGridHeight * 0.7 ), backgroundColor );
-			} else {
-				p.fillRect( 0, y, m_nActiveWidth,
-							(int)( m_nGridHeight * 0.7 ), alternateRowColor );
+				p.fillRect(
+					0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
+						y < nKitHeight ? backgroundColor : backgroundTypeColor );
+			}
+			else {
+				p.fillRect(
+					0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
+					y < nKitHeight ? alternateRowColor : alternateRowTypeColor );
 			}
 		}
 
 		p.fillRect( m_nActiveWidth, y, m_nEditorWidth - m_nActiveWidth,
-					(int)( m_nGridHeight * 0.7 ), backgroundInactiveColor );
+					static_cast<int>( m_nGridHeight * 0.7 ),
+					backgroundInactiveColor );
 	}
 
 	// horizontal lines
