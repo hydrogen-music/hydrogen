@@ -252,9 +252,6 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }
 
-
-
-/// used in PatternEditorInstrumentList
 void Mixer::soloClicked(uint nLine)
 {
 	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {

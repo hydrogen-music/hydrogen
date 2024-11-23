@@ -32,15 +32,6 @@
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../CommonStrings.h"
-#include "../Widgets/Button.h"
-#include "../Widgets/PixmapWidget.h"
-#include "../SongEditor/SongEditorPanel.h"
-#include "../PatternEditor/PatternEditorPanel.h"
-#include "../PatternEditor/DrumPatternEditor.h"
-#include "../PatternEditor/PatternEditorInstrumentList.h"
-#include "../InstrumentRack.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h"
-#include "../UndoActions.h"
 
 #include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>

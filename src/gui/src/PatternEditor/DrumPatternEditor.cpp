@@ -23,7 +23,7 @@
 #include "DrumPatternEditor.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
-#include "PatternEditorInstrumentList.h"
+#include "PatternEditorSidebar.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -138,7 +138,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	// Cursor either just got hidden or was moved.
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+		m_pPatternEditorPanel->getSidebar()->repaintRows();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 	update();
@@ -165,7 +165,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	// Cursor just got hidden.
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+		m_pPatternEditorPanel->getSidebar()->repaintRows();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 		update();
 	}

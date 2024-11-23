@@ -46,14 +46,14 @@ class PatternEditorPanel;
 class Button;
 
 /** \ingroup docGUI*/
-class InstrumentLine : public PixmapWidget
-					 , protected WidgetWithScalableFont<8, 10, 12>
+class SidebarRow : public PixmapWidget
+				 , protected WidgetWithScalableFont<8, 10, 12>
 {
-    H2_OBJECT(InstrumentLine)
+    H2_OBJECT(SidebarRow)
 	Q_OBJECT
 
 	public:
-		explicit InstrumentLine(QWidget* pParent);
+		explicit SidebarRow(QWidget* pParent);
 
 	int getNumber() const;
 
@@ -120,21 +120,21 @@ public slots:
 	bool m_bEntered;
 };
 
-inline int InstrumentLine::getNumber() const {
+inline int SidebarRow::getNumber() const {
 	return m_nInstrumentNumber;
 }
 
 
 /** \ingroup docGUI*/
-class PatternEditorInstrumentList :  public QWidget,
-									 public EventListener,
-									 public H2Core::Object<PatternEditorInstrumentList> {
-	H2_OBJECT(PatternEditorInstrumentList)
+class PatternEditorSidebar : public QWidget,
+							 public EventListener,
+							 public H2Core::Object<PatternEditorSidebar> {
+	H2_OBJECT(PatternEditorSidebar)
 	Q_OBJECT
 
 	public:
-		PatternEditorInstrumentList( QWidget *parent );
-		~PatternEditorInstrumentList();
+		PatternEditorSidebar( QWidget *parent );
+		~PatternEditorSidebar();
 
 		virtual void mousePressEvent(QMouseEvent *event) override;
 		virtual void mouseMoveEvent(QMouseEvent *event) override;
@@ -146,9 +146,9 @@ class PatternEditorInstrumentList :  public QWidget,
 	virtual void selectedInstrumentChangedEvent() override;
 	virtual void instrumentParametersChangedEvent( int ) override;
 	
-	void repaintInstrumentLines();
+	void repaintRows();
 	public slots:
-		void updateInstrumentLines();
+		void updateRows();
 
 
 	protected:
@@ -156,13 +156,13 @@ class PatternEditorInstrumentList :  public QWidget,
 		uint m_nGridHeight;
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;
-		InstrumentLine* m_pInstrumentLine[MAX_INSTRUMENTS];
+		SidebarRow* m_pRows[MAX_INSTRUMENTS];
 		QTimer *m_pUpdateTimer;
 		DragScroller *m_pDragScroller;
 
 		QPoint __drag_start_position;
 
-		InstrumentLine* createInstrumentLine();
+		SidebarRow* createRow();
 
 private:
 	void drawFocus( QPainter& painter );

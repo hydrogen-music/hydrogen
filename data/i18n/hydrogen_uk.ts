@@ -1884,100 +1884,6 @@ Value</source>
     </message>
 </context>
 <context>
-    <name>InstrumentLine</name>
-    <message>
-        <source>Fill notes ...</source>
-        <translation>Заповнити ноти...</translation>
-    </message>
-    <message>
-        <source>Fill all notes</source>
-        <translation>Заповнити всі ноти</translation>
-    </message>
-    <message>
-        <source>Fill 1/2 notes</source>
-        <translation>Заповнити 1/2</translation>
-    </message>
-    <message>
-        <source>Fill 1/3 notes</source>
-        <translation>Заповнити 1/3</translation>
-    </message>
-    <message>
-        <source>Fill 1/4 notes</source>
-        <translation>Заповнити 1/4</translation>
-    </message>
-    <message>
-        <source>Fill 1/6 notes</source>
-        <translation>Заповнити 1/6</translation>
-    </message>
-    <message>
-        <source>Fill 1/8 notes</source>
-        <translation>Заповнити 1/8</translation>
-    </message>
-    <message>
-        <source>Mute instrument</source>
-        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
-        <translation>Приглушити інструмент</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
-        <translation>Соло</translation>
-    </message>
-    <message>
-        <source>Fill 1/12 notes</source>
-        <translation>Заповнити 1/12</translation>
-    </message>
-    <message>
-        <source>Fill 1/16 notes</source>
-        <translation>Заповнити 1/16</translation>
-    </message>
-    <message>
-        <source>Some samples for this instrument failed to load.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit all patterns</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cut notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paste notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Instrument</source>
-        <translation>Інструмент</translation>
-    </message>
-    <message>
-        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>imported from</source>
-        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
@@ -3070,13 +2976,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
     <message>
         <source>Hear new notes</source>
@@ -3188,6 +3087,13 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Change pattern size to %1/%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorSidebar</name>
+    <message>
+        <source>Unable to insert further instruments. Maximum possible number</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5607,6 +5513,100 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Add component to current instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SidebarRow</name>
+    <message>
+        <source>Mute instrument</source>
+        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
+        <translation>Приглушити інструмент</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
+        <translation>Соло</translation>
+    </message>
+    <message>
+        <source>Some samples for this instrument failed to load.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill notes ...</source>
+        <translation>Заповнити ноти...</translation>
+    </message>
+    <message>
+        <source>Fill all notes</source>
+        <translation>Заповнити всі ноти</translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <translation>Заповнити 1/2</translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <translation>Заповнити 1/3</translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <translation>Заповнити 1/4</translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <translation>Заповнити 1/6</translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <translation>Заповнити 1/8</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation>Заповнити 1/12</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation>Заповнити 1/16</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cut notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Інструмент</translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete all notes on %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

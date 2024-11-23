@@ -37,8 +37,6 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class PatternEditorInstrumentList;
-
 ///
 /// Drum pattern editor
 ///

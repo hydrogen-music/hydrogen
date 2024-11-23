@@ -32,7 +32,7 @@
 
 #include "DrumPatternEditor.h"
 #include "NotePropertiesRuler.h"
-#include "PatternEditorInstrumentList.h"
+#include "PatternEditorSidebar.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PianoRollEditor.h"
@@ -482,22 +482,22 @@ void PatternEditorPanel::createEditors() {
 	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
 	// Instrument list
-	m_pInstrListScrollView = new WidgetScrollArea( nullptr );
-	m_pInstrListScrollView->setObjectName( "InstrListScrollView" );
-	m_pInstrListScrollView->setFocusPolicy( Qt::ClickFocus );
-	m_pInstrListScrollView->setFrameShape( QFrame::NoFrame );
-	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pSidebarScrollView = new WidgetScrollArea( nullptr );
+	m_pSidebarScrollView->setObjectName( "SidebarScrollView" );
+	m_pSidebarScrollView->setFocusPolicy( Qt::ClickFocus );
+	m_pSidebarScrollView->setFrameShape( QFrame::NoFrame );
+	m_pSidebarScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pSidebarScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
-	m_pInstrumentList = new PatternEditorInstrumentList(
-		m_pInstrListScrollView->viewport() );
-	m_pInstrListScrollView->setWidget( m_pInstrumentList );
-	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
-	m_pInstrumentList->setFocusPolicy( Qt::ClickFocus );
-	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
+	m_pSidebar = new PatternEditorSidebar(
+		m_pSidebarScrollView->viewport() );
+	m_pSidebarScrollView->setWidget( m_pSidebar );
+	m_pSidebarScrollView->setFixedWidth( m_pSidebar->width() );
+	m_pSidebar->setFocusPolicy( Qt::ClickFocus );
+	m_pSidebar->setFocusProxy( m_pEditorScrollView );
 
-	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
-	m_pInstrListScrollView->setFocusProxy( m_pInstrumentList );
+	connect( m_pSidebarScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
+	m_pSidebarScrollView->setFocusProxy( m_pSidebar );
 
 	// NOTE_VELOCITY EDITOR
 	m_pNoteVelocityScrollView = new WidgetScrollArea( nullptr );
@@ -607,7 +607,7 @@ void PatternEditorPanel::createEditors() {
 	pPropertiesVBox->setMargin( 0 );
 
 	m_pPropertiesCombo =
-		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
+		new LCDCombo( nullptr, QSize( m_pSidebar->width(), 18 ), false );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
 	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
 	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyPan() );
@@ -634,7 +634,7 @@ void PatternEditorPanel::createEditors() {
 	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
 	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
 
-	pGrid->addWidget( m_pInstrListScrollView, 2, 0 );
+	pGrid->addWidget( m_pSidebarScrollView, 2, 0 );
 
 	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
 	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
@@ -678,7 +678,7 @@ void PatternEditorPanel::drumkitLoadedEvent() {
 	updateDrumkitLabel();
 	updateDB();
 	updateEditors();
-	m_pInstrumentList->updateInstrumentLines();
+	m_pSidebar->updateRows();
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -696,7 +696,7 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 	m_pRulerScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 
 	// Instrument list
-	m_pInstrListScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
+	m_pSidebarScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 	// Velocity ruler
 	m_pNoteVelocityScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
@@ -897,11 +897,11 @@ void PatternEditorPanel::showDrumEditor()
 	__show_drum_btn->setChecked( false );
 	m_pPianoRollScrollView->hide();
 	m_pEditorScrollView->show();
-	m_pInstrListScrollView->show();
+	m_pSidebarScrollView->show();
 
 	m_pEditorScrollView->setFocus();
 	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
-	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
+	m_pSidebar->setFocusProxy( m_pEditorScrollView );
 
 	m_pDrumPatternEditor->updateEditor(); // force an update
 
@@ -920,11 +920,11 @@ void PatternEditorPanel::showPianoRollEditor()
 	m_pPianoRollScrollView->show();
 	m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
 	m_pEditorScrollView->hide();
-	m_pInstrListScrollView->show();
+	m_pSidebarScrollView->show();
 
 	m_pPianoRollScrollView->setFocus();
 	m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
-	m_pInstrumentList->setFocusProxy( m_pPianoRollScrollView );
+	m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
 
 	m_pDrumPatternEditor->selectNone();
 	m_pPianoRollEditor->selectNone();
@@ -1188,14 +1188,14 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )
 {
-	m_pInstrumentList->dragEnterEvent( event );
+	m_pSidebar->dragEnterEvent( event );
 }
 
 
 
 void PatternEditorPanel::dropEvent( QDropEvent *event )
 {
-	m_pInstrumentList->dropEvent( event );
+	m_pSidebar->dropEvent( event );
 }
 
 void PatternEditorPanel::updateSongEvent( int nValue ) {
@@ -1207,7 +1207,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		updateDB();
 		updateEditors( true );
 		m_pPatternEditorRuler->updatePosition();
-		m_pInstrumentList->updateInstrumentLines();
+		m_pSidebar->updateRows();
 		resizeEvent( nullptr );
 	}
 }

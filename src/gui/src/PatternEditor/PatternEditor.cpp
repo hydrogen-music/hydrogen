@@ -22,7 +22,7 @@
 
 #include "PatternEditor.h"
 #include "PatternEditorRuler.h"
-#include "PatternEditorInstrumentList.h"
+#include "PatternEditorSidebar.h"
 #include "PatternEditorPanel.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
@@ -1441,7 +1441,7 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 		pHydrogenApp->setHideKeyboardCursor( true );
 
 		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-			m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+			m_pPatternEditorPanel->getSidebar()->repaintRows();
 			m_pPatternEditorPanel->getPatternEditorRuler()->update();
 			update();
 		}
@@ -1470,7 +1470,7 @@ void PatternEditor::handleKeyboardCursor( bool bUnhideCursor ) {
 
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+		m_pPatternEditorPanel->getSidebar()->repaintRows();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 }
@@ -1500,7 +1500,7 @@ void PatternEditor::focusInEvent( QFocusEvent *ev ) {
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getInstrumentList()->update();
+		m_pPatternEditorPanel->getSidebar()->update();
 	}
 
 	// Update to show the focus border highlight
@@ -1511,7 +1511,7 @@ void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
 	UNUSED( ev );
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getInstrumentList()->update();
+		m_pPatternEditorPanel->getSidebar()->update();
 	}
 	
 	// Update to remove the focus border highlight
@@ -1682,7 +1682,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	// Cursor either just got hidden or was moved.
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+		m_pPatternEditorPanel->getSidebar()->repaintRows();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 

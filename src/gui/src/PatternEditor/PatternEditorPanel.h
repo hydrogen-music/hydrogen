@@ -36,7 +36,7 @@
 class Button;
 class Fader;
 class PatternEditorRuler;
-class PatternEditorInstrumentList;
+class PatternEditorSidebar;
 class NotePropertiesRuler;
 class DrumPatternEditor;
 class PianoRollEditor;
@@ -112,7 +112,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
 		NotePropertiesRuler* getKeyOctaveEditor() {	return m_pNoteKeyOctaveEditor;	}
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
-		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
+		PatternEditorSidebar* getSidebar() {	return m_pSidebar;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
 		PatternEditorRuler* getPatternEditorRuler() {		return m_pPatternEditorRuler;  }
 		const QScrollArea* getDrumPatternEditorScrollArea() const { return m_pEditorScrollView; }
@@ -285,8 +285,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		PatternEditorRuler *m_pPatternEditorRuler;
 
 		// instr list
-		QScrollArea*		m_pInstrListScrollView;
-		PatternEditorInstrumentList  *m_pInstrumentList;
+		QScrollArea*		m_pSidebarScrollView;
+		PatternEditorSidebar  *m_pSidebar;
 
 		// note velocity editor
 		QScrollArea*		m_pNoteVelocityScrollView;

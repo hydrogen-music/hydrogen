@@ -20,7 +20,7 @@
  *
  */
 
-#include "PatternEditorInstrumentList.h"
+#include "PatternEditorSidebar.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/CoreActionController.h>
@@ -34,7 +34,6 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-using namespace H2Core;
 
 #include "CommonStrings.h"
 #include "UndoActions.h"
@@ -53,8 +52,9 @@ using namespace H2Core;
 #include <cassert>
 #include <algorithm> // for std::min
 
+using namespace H2Core;
 
-InstrumentLine::InstrumentLine(QWidget* pParent)
+SidebarRow::SidebarRow( QWidget* pParent )
 	: PixmapWidget(pParent)
 	, m_bIsSelected( false )
 	, m_bEntered( false )
@@ -76,26 +76,26 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
-	m_pMuteBtn = new Button( this, QSize( InstrumentLine::m_nButtonWidth, height() - 1 ),
+	m_pMuteBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
 							 Button::Type::Toggle, "",
 							 pCommonStrings->getSmallMuteButton(),
 							 true, QSize(), tr("Mute instrument"),
 							 false, true );
 	m_pMuteBtn->move( 145, 0 );
 	m_pMuteBtn->setChecked(false);
-	m_pMuteBtn->setObjectName( "InstrumentLineMuteButton" );
+	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
-	m_pSoloBtn = new Button( this, QSize( InstrumentLine::m_nButtonWidth, height() - 1 ),
+	m_pSoloBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
 							 Button::Type::Toggle, "",
 							 pCommonStrings->getSmallSoloButton(),
 							 false, QSize(), tr("Solo"),
 							 false, true );
 	m_pSoloBtn->move( 163, 0 );
 	m_pSoloBtn->setChecked(false);
-	m_pSoloBtn->setObjectName( "InstrumentLineSoloButton" );
+	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
 
 	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Icon,
@@ -124,7 +124,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	auto selectNotesAction = m_pFunctionPopup->addAction( tr( "Select notes" ) );
 	connect( selectNotesAction, &QAction::triggered, this,
-			 &InstrumentLine::selectInstrumentNotes );
+			 &SidebarRow::selectInstrumentNotes );
 
 	m_pFunctionPopup->addSection( tr( "Edit all patterns" ) );
 	m_pFunctionPopup->addAction( tr( "Cut notes"), this, SLOT( functionCutNotesAllPatterns() ) );
@@ -148,7 +148,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	updateStyleSheet();
 }
 
-void InstrumentLine::set( std::shared_ptr<Instrument> pInstrument ) {
+void SidebarRow::set( std::shared_ptr<Instrument> pInstrument ) {
 	if ( pInstrument == nullptr ) {
 		ERRORLOG( "Imvalid instrument" );
 		return;
@@ -182,14 +182,14 @@ void InstrumentLine::set( std::shared_ptr<Instrument> pInstrument ) {
 	setToolTip( sToolTip );
 }
 
-void InstrumentLine::setName(const QString& sName)
+void SidebarRow::setName(const QString& sName)
 {
 	if ( m_pNameLbl->text() != sName ){
 		m_pNameLbl->setText(sName);
 	}
 }
 
-void InstrumentLine::setToolTip(const QString& sToolTip)
+void SidebarRow::setToolTip(const QString& sToolTip)
 {
 	if ( m_pNameLbl->toolTip() != sToolTip ){
 		m_pNameLbl->setToolTip( sToolTip );
@@ -198,7 +198,7 @@ void InstrumentLine::setToolTip(const QString& sToolTip)
 
 
 
-void InstrumentLine::setSelected( bool bSelected )
+void SidebarRow::setSelected( bool bSelected )
 {
 	if ( bSelected == m_bIsSelected ) {
 		return;
@@ -210,7 +210,7 @@ void InstrumentLine::setSelected( bool bSelected )
 	update();
 }
 
-void InstrumentLine::updateStyleSheet() {
+void SidebarRow::updateStyleSheet() {
 
 	const auto pPref = H2Core::Preferences::get_instance();
 
@@ -228,19 +228,19 @@ QLabel {\
  }" ).arg( textColor.name() ) );
 }
 
-void InstrumentLine::enterEvent( QEvent* ev ) {
+void SidebarRow::enterEvent( QEvent* ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
 	update();
 }
 
-void InstrumentLine::leaveEvent( QEvent* ev ) {
+void SidebarRow::leaveEvent( QEvent* ev ) {
 	UNUSED( ev );
 	m_bEntered = false;
 	update();
 }
 
-void InstrumentLine::paintEvent( QPaintEvent* ev ) {
+void SidebarRow::paintEvent( QPaintEvent* ev ) {
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	
@@ -280,13 +280,13 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( 1, 1, width() - 2 * InstrumentLine::m_nButtonWidth - 1,
+		painter.drawRoundedRect( QRect( 1, 1, width() - 2 * SidebarRow::m_nButtonWidth - 1,
 										height() - 2 ), 4, 4 );
 	}
 }
 
 
-void InstrumentLine::setNumber(int nIndex)
+void SidebarRow::setNumber(int nIndex)
 {
 	if ( m_nInstrumentNumber != nIndex ) {
 		m_nInstrumentNumber = nIndex;
@@ -296,7 +296,7 @@ void InstrumentLine::setNumber(int nIndex)
 
 
 
-void InstrumentLine::setMuted(bool isMuted)
+void SidebarRow::setMuted(bool isMuted)
 {
 	if ( ! m_pMuteBtn->isDown() &&
 		 m_pMuteBtn->isChecked() != isMuted ) {
@@ -305,7 +305,7 @@ void InstrumentLine::setMuted(bool isMuted)
 }
 
 
-void InstrumentLine::setSoloed( bool soloed )
+void SidebarRow::setSoloed( bool soloed )
 {
 	if ( ! m_pSoloBtn->isDown() &&
 		 m_pSoloBtn->isChecked() != soloed ) {
@@ -314,7 +314,7 @@ void InstrumentLine::setSoloed( bool soloed )
 }
 
 
-void InstrumentLine::setSamplesMissing( bool bSamplesMissing )
+void SidebarRow::setSamplesMissing( bool bSamplesMissing )
 {
 	if ( bSamplesMissing ) {
 		m_pSampleWarning->show();
@@ -325,7 +325,7 @@ void InstrumentLine::setSamplesMissing( bool bSamplesMissing )
 
 
 
-void InstrumentLine::muteClicked()
+void SidebarRow::muteClicked()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -350,7 +350,7 @@ void InstrumentLine::muteClicked()
 
 
 
-void InstrumentLine::soloClicked()
+void SidebarRow::soloClicked()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -373,7 +373,7 @@ void InstrumentLine::soloClicked()
 		m_nInstrumentNumber, !pInstr->is_soloed() );
 }
 
-void InstrumentLine::sampleWarningClicked()
+void SidebarRow::sampleWarningClicked()
 {
 	QMessageBox::information( this, "Hydrogen",
 							  tr( "One or more samples for this instrument failed to load. This may be because the"
@@ -381,13 +381,13 @@ void InstrumentLine::sampleWarningClicked()
 								  "drumkit." ) );
 }
 
-void InstrumentLine::selectInstrumentNotes()
+void SidebarRow::selectInstrumentNotes()
 {
 	m_pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
 		m_nInstrumentNumber );
 }
 
-void InstrumentLine::mousePressEvent(QMouseEvent *ev)
+void SidebarRow::mousePressEvent(QMouseEvent *ev)
 {
 	m_pPatternEditorPanel->setSelectedRowDB( m_nInstrumentNumber );
 
@@ -417,11 +417,11 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	PixmapWidget::mousePressEvent(ev);
 }
 
-void InstrumentLine::mouseDoubleClickEvent( QMouseEvent* ev ) {
+void SidebarRow::mouseDoubleClickEvent( QMouseEvent* ev ) {
 	functionRenameInstrument();
 }
 
-void InstrumentLine::functionClearNotes()
+void SidebarRow::functionClearNotes()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -459,7 +459,7 @@ void InstrumentLine::functionClearNotes()
 }
 
 
-void InstrumentLine::functionCopyAllInstrumentPatterns()
+void SidebarRow::functionCopyAllInstrumentPatterns()
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -491,7 +491,7 @@ void InstrumentLine::functionCopyAllInstrumentPatterns()
 }
 
 
-void InstrumentLine::functionPasteAllInstrumentPatterns()
+void SidebarRow::functionPasteAllInstrumentPatterns()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -527,7 +527,7 @@ void InstrumentLine::functionPasteAllInstrumentPatterns()
 	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	// Those pattern contain only notes for a single instrument. This must be
-	// replaced with the one belonging to this InstrumentLine. Or notes will end
+	// replaced with the one belonging to this SidebarRow. Or notes will end
 	// up in the wrong row.
 	for ( auto& ppPattern : *pPatternList ) {
 		if ( ppPattern != nullptr ) {
@@ -553,7 +553,7 @@ void InstrumentLine::functionPasteAllInstrumentPatterns()
 	HydrogenApp::get_instance()->m_pUndoStack->push(action);
 }
 
-void InstrumentLine::functionDeleteNotesAllPatterns()
+void SidebarRow::functionDeleteNotesAllPatterns()
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
@@ -581,23 +581,23 @@ void InstrumentLine::functionDeleteNotesAllPatterns()
 	pUndo->endMacro();
 }
 
-void InstrumentLine::functionCutNotesAllPatterns()
+void SidebarRow::functionCutNotesAllPatterns()
 {
 	functionCopyAllInstrumentPatterns();
 	functionDeleteNotesAllPatterns();
 }
 
 
-void InstrumentLine::functionFillAllNotes(){ functionFillNotes(1); }
-void InstrumentLine::functionFillEveryTwoNotes(){ functionFillNotes(2); }
-void InstrumentLine::functionFillEveryThreeNotes(){ functionFillNotes(3); }
-void InstrumentLine::functionFillEveryFourNotes(){ functionFillNotes(4); }
-void InstrumentLine::functionFillEverySixNotes(){ functionFillNotes(6); }
-void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
-void InstrumentLine::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
-void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
+void SidebarRow::functionFillAllNotes(){ functionFillNotes(1); }
+void SidebarRow::functionFillEveryTwoNotes(){ functionFillNotes(2); }
+void SidebarRow::functionFillEveryThreeNotes(){ functionFillNotes(3); }
+void SidebarRow::functionFillEveryFourNotes(){ functionFillNotes(4); }
+void SidebarRow::functionFillEverySixNotes(){ functionFillNotes(6); }
+void SidebarRow::functionFillEveryEightNotes(){ functionFillNotes(8); }
+void SidebarRow::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
+void SidebarRow::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 
-void InstrumentLine::functionFillNotes( int every )
+void SidebarRow::functionFillNotes( int every )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -653,7 +653,7 @@ void InstrumentLine::functionFillNotes( int every )
 }
 
 
-void InstrumentLine::functionRenameInstrument()
+void SidebarRow::functionRenameInstrument()
 {
 	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
 	// in InstrumentEditor.cpp
@@ -687,7 +687,7 @@ void InstrumentLine::functionRenameInstrument()
 	}
 }
 
-void InstrumentLine::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
+void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
@@ -704,7 +704,7 @@ void InstrumentLine::onPreferencesChanged( const H2Core::Preferences::Changes& c
 
 //////
 
-PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent )
+PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
  : QWidget( parent )
  {
 
@@ -723,14 +723,14 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent )
 	setAcceptDrops(true);
 
 	for ( int i = 0; i < MAX_INSTRUMENTS; ++i) {
-		m_pInstrumentLine[i] = nullptr;
+		m_pRows[i] = nullptr;
 	}
 
 
-	updateInstrumentLines();
+	updateRows();
 
 	m_pUpdateTimer = new QTimer( this );
-	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateInstrumentLines() ) );
+	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateRows() ) );
 	m_pUpdateTimer->start(50);
 
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea *>( parentWidget()->parentWidget() );
@@ -740,7 +740,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent )
 
 
 
-PatternEditorInstrumentList::~PatternEditorInstrumentList()
+PatternEditorSidebar::~PatternEditorSidebar()
 {
 	//INFOLOG( "DESTROY" );
 	m_pUpdateTimer->stop();
@@ -751,17 +751,17 @@ PatternEditorInstrumentList::~PatternEditorInstrumentList()
 
 
 ///
-/// Create a new InstrumentLine
+/// Create a new SidebarRow
 ///
-InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
+SidebarRow* PatternEditorSidebar::createRow()
 {
-	InstrumentLine *pLine = new InstrumentLine(this);
+	SidebarRow *pLine = new SidebarRow(this);
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 pLine, &InstrumentLine::onPreferencesChanged );
+			 pLine, &SidebarRow::onPreferencesChanged );
 	return pLine;
 }
 
-void PatternEditorInstrumentList::repaintInstrumentLines() {
+void PatternEditorSidebar::repaintRows() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -772,13 +772,13 @@ void PatternEditorInstrumentList::repaintInstrumentLines() {
 	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 		if ( nInstr < nInstruments &&
-			 m_pInstrumentLine[ nInstr ] != nullptr ) {
-			m_pInstrumentLine[ nInstr ]->update();
+			 m_pRows[ nInstr ] != nullptr ) {
+			m_pRows[ nInstr ]->update();
 		}
 	}
 }
 
-void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
+void PatternEditorSidebar::selectedInstrumentChangedEvent() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -792,18 +792,18 @@ void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 		if ( nInstr < nInstruments &&
-			 m_pInstrumentLine[ nInstr ] != nullptr ) {
+			 m_pRows[ nInstr ] != nullptr ) {
 			
-			InstrumentLine *pLine = m_pInstrumentLine[ nInstr ];
+			SidebarRow *pLine = m_pRows[ nInstr ];
 			pLine->setSelected( nInstr == nSelectedInstr );
 		}
 	}
 }
 
 ///
-/// Update every InstrumentLine, create or destroy lines if necessary.
+/// Update every SidebarRow, create or destroy lines if necessary.
 ///
-void PatternEditorInstrumentList::updateInstrumentLines()
+void PatternEditorSidebar::updateRows()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -817,9 +817,9 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
-			if ( m_pInstrumentLine[ nInstr ] ) {
-				delete m_pInstrumentLine[ nInstr ];
-				m_pInstrumentLine[ nInstr ] = nullptr;
+			if ( m_pRows[ nInstr ] ) {
+				delete m_pRows[ nInstr ];
+				m_pRows[ nInstr ] = nullptr;
 
 				int newHeight = m_nGridHeight * nInstruments + 1;
 				resize( width(), newHeight );
@@ -827,16 +827,16 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			continue;
 		}
 		else {
-			if ( m_pInstrumentLine[ nInstr ] == nullptr ) {
+			if ( m_pRows[ nInstr ] == nullptr ) {
 				// the instrument line doesn't exists..I'll create a new one!
-				m_pInstrumentLine[ nInstr ] = createInstrumentLine();
-				m_pInstrumentLine[nInstr]->move( 0, m_nGridHeight * nInstr + 1 );
-				m_pInstrumentLine[nInstr]->show();
+				m_pRows[ nInstr ] = createRow();
+				m_pRows[nInstr]->move( 0, m_nGridHeight * nInstr + 1 );
+				m_pRows[nInstr]->show();
 
 				int newHeight = m_nGridHeight * nInstruments;
 				resize( width(), newHeight );
 			}
-			InstrumentLine *pLine = m_pInstrumentLine[ nInstr ];
+			SidebarRow *pLine = m_pRows[ nInstr ];
 			auto pInstr = pInstrList->get(nInstr);
 			assert(pInstr);
 
@@ -848,12 +848,12 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 }
 	
-void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
+void PatternEditorSidebar::dragEnterEvent(QDragEnterEvent *event)
 {
 	event->acceptProposedAction();
 }
 
-void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
+void PatternEditorSidebar::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
 	if ( ! event->mimeData()->hasFormat("text/plain") ) {
@@ -967,7 +967,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 
 
-void PatternEditorInstrumentList::mousePressEvent(QMouseEvent *event)
+void PatternEditorSidebar::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton) {
 		__drag_start_position = event->pos();
@@ -977,7 +977,7 @@ void PatternEditorInstrumentList::mousePressEvent(QMouseEvent *event)
 
 
 
-void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
+void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 {
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
@@ -1010,7 +1010,7 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrumentNumber ) {
+void PatternEditorSidebar::instrumentParametersChangedEvent( int nInstrumentNumber ) {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -1020,16 +1020,16 @@ void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrum
 	if ( nInstrumentNumber == -1 ) {
 		// Update all lines.
 		for ( int ii = 0; ii < MAX_INSTRUMENTS; ++ii ) {
-			auto pInstrumentLine = m_pInstrumentLine[ ii ];
-			if ( pInstrumentLine != nullptr ) {
+			auto pSidebarRow = m_pRows[ ii ];
+			if ( pSidebarRow != nullptr ) {
 				auto pInstrument = pInstrumentList->get( ii );
 				if ( pInstrument == nullptr ) {
-					ERRORLOG( QString( "Instrument [%1] associated to InstrumentLine [%1] not found" )
+					ERRORLOG( QString( "Instrument [%1] associated to SidebarRow [%1] not found" )
 							  .arg( ii ) );
 					return;
 				}
 
-				pInstrumentLine->set( pInstrument );
+				pSidebarRow->set( pInstrument );
 			}
 		}
 	}
@@ -1042,13 +1042,13 @@ void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrum
 			return;
 		}
 	
-		auto pInstrumentLine = m_pInstrumentLine[ nInstrumentNumber ];
-		if ( pInstrumentLine == nullptr ) {
-			ERRORLOG( QString( "No InstrumentLine for instrument [%1] created yet" )
+		auto pSidebarRow = m_pRows[ nInstrumentNumber ];
+		if ( pSidebarRow == nullptr ) {
+			ERRORLOG( QString( "No SidebarRow for instrument [%1] created yet" )
 					  .arg( nInstrumentNumber ) );
 			return;
 		}
 
-		pInstrumentLine->set( pInstrument );
+		pSidebarRow->set( pInstrument );
 	}
 }

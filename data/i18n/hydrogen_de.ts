@@ -1893,100 +1893,6 @@ Wert</translation>
     </message>
 </context>
 <context>
-    <name>InstrumentLine</name>
-    <message>
-        <source>Fill notes ...</source>
-        <translation>Mit Noten füllen ...</translation>
-    </message>
-    <message>
-        <source>Fill all notes</source>
-        <translation>(1/1) Füge alle Noten ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/2 notes</source>
-        <translation>(1/2) Füge jede zweite Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/3 notes</source>
-        <translation>(1/3) Füge jede dritte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/4 notes</source>
-        <translation>(1/4) Füge jede vierte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/6 notes</source>
-        <translation>(1/6) Füge jede sechste Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/8 notes</source>
-        <translation>(1/8) Füge jede achte Note ein</translation>
-    </message>
-    <message>
-        <source>Mute instrument</source>
-        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
-        <translation>Schalte Instrument stumm</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
-        <translation>Solo</translation>
-    </message>
-    <message>
-        <source>Fill 1/12 notes</source>
-        <translation>(1/12) Füge jede zwölfte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/16 notes</source>
-        <translation>(1/16) Füge jede sechzehnte Note ein</translation>
-    </message>
-    <message>
-        <source>Some samples for this instrument failed to load.</source>
-        <translation>Einige Sample für dieses Instrument konnten nicht geladen werden.</translation>
-    </message>
-    <message>
-        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation>Ein oder mehrere Samples für dieses Instrument konnten nicht geladen werden. Dies kann an einem veralteten Schlagzeug liegen, was durch das Laden eines neueren behoben werden kann.</translation>
-    </message>
-    <message>
-        <source>Delete notes</source>
-        <translation>Noten löschen</translation>
-    </message>
-    <message>
-        <source>Select notes</source>
-        <translation>Noten selektieren</translation>
-    </message>
-    <message>
-        <source>Edit all patterns</source>
-        <translation>Alle Pattern editieren</translation>
-    </message>
-    <message>
-        <source>Cut notes</source>
-        <translation>Noten ausschneiden</translation>
-    </message>
-    <message>
-        <source>Copy notes</source>
-        <translation>Noten kopieren</translation>
-    </message>
-    <message>
-        <source>Paste notes</source>
-        <translation>Noten einfügen</translation>
-    </message>
-    <message>
-        <source>Instrument</source>
-        <translation>Instrument</translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation>Lösche alle Noten auf %1</translation>
-    </message>
-    <message>
-        <source>imported from</source>
-        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
@@ -3080,13 +2986,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation>Kann kein weiteres Instrument einfügen. Maximal mögliche Anzahl</translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
     <message>
         <source>Hear new notes</source>
@@ -3199,6 +3098,13 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorSidebar</name>
+    <message>
+        <source>Unable to insert further instruments. Maximum possible number</source>
+        <translation>Kann kein weiteres Instrument einfügen. Maximal mögliche Anzahl</translation>
     </message>
 </context>
 <context>
@@ -5612,6 +5518,100 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Add component to current instrument</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SidebarRow</name>
+    <message>
+        <source>Mute instrument</source>
+        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
+        <translation>Schalte Instrument stumm</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Some samples for this instrument failed to load.</source>
+        <translation>Einige Sample für dieses Instrument konnten nicht geladen werden.</translation>
+    </message>
+    <message>
+        <source>Delete notes</source>
+        <translation>Noten löschen</translation>
+    </message>
+    <message>
+        <source>Fill notes ...</source>
+        <translation>Mit Noten füllen ...</translation>
+    </message>
+    <message>
+        <source>Fill all notes</source>
+        <translation>(1/1) Füge alle Noten ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <translation>(1/2) Füge jede zweite Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <translation>(1/3) Füge jede dritte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <translation>(1/4) Füge jede vierte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <translation>(1/6) Füge jede sechste Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <translation>(1/8) Füge jede achte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation>(1/12) Füge jede zwölfte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation>(1/16) Füge jede sechzehnte Note ein</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <translation>Noten selektieren</translation>
+    </message>
+    <message>
+        <source>Edit all patterns</source>
+        <translation>Alle Pattern editieren</translation>
+    </message>
+    <message>
+        <source>Cut notes</source>
+        <translation>Noten ausschneiden</translation>
+    </message>
+    <message>
+        <source>Copy notes</source>
+        <translation>Noten kopieren</translation>
+    </message>
+    <message>
+        <source>Paste notes</source>
+        <translation>Noten einfügen</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Instrument</translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation>Ein oder mehrere Samples für dieses Instrument konnten nicht geladen werden. Dies kann an einem veralteten Schlagzeug liegen, was durch das Laden eines neueren behoben werden kann.</translation>
+    </message>
+    <message>
+        <source>Delete all notes on %1</source>
+        <translation>Lösche alle Noten auf %1</translation>
     </message>
 </context>
 <context>

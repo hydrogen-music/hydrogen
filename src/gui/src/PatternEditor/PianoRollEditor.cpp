@@ -25,10 +25,9 @@
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
-#include "PatternEditorInstrumentList.h"
+#include "PatternEditorSidebar.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
-#include "../UndoActions.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
