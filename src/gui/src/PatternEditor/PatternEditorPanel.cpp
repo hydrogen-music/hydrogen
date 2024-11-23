@@ -1448,16 +1448,9 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
-	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
-		if ( nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
-			pHydrogen->setSelectedInstrumentNumber( nNewRow );
-		}
-		else {
-			pHydrogen->setSelectedInstrumentNumber( EMPTY_INSTR_ID );
-		}
-	}
-	else {
-		pHydrogen->setSelectedInstrumentNumber( EMPTY_INSTR_ID );
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
+		pHydrogen->setSelectedInstrumentNumber( nNewRow );
 	}
 
 	m_nSelectedRowDB = nNewRow;
