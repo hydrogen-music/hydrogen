@@ -24,7 +24,6 @@
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
-#include "../CommonStrings.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -42,9 +41,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
-#include "UndoActions.h"
 #include "../HydrogenApp.h"
-#include "../Mixer/Mixer.h"
 #include "../Skin.h"
 
 #include <math.h>
