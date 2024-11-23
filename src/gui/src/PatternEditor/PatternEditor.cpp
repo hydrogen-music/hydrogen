@@ -429,8 +429,6 @@ void PatternEditor::showPopupMenu( const QPoint &pos )
 ///
 void PatternEditor::copy()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
@@ -442,7 +440,7 @@ void PatternEditor::copy()
 	for ( Note *pNote : m_selection ) {
 		const int nPitch = pNote->get_pitch_from_key_octave();
 		const int nColumn = pNote->get_position();
-		const int nRow = pInstrumentList->index( pNote->get_instrument() );
+		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
 		if ( bWroteNote ) {
 			nMinColumn = std::min( nColumn, nMinColumn );
 			nMinRow = std::min( nRow, nMinRow );
@@ -498,10 +496,6 @@ void PatternEditor::paste()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
@@ -598,10 +592,6 @@ void PatternEditor::paste()
 				continue;
 			}
 
-			// Drumkit might have changed since the notes have been copied to
-			// clipboard.
-			pNote->mapTo( pSong->getDrumkit() );
-
 			const int nPos = pNote->get_position() + nDeltaPos;
 			if ( nPos < 0 || nPos >= pPattern->getLength() ) {
 				delete pNote;
@@ -697,11 +687,6 @@ void PatternEditor::alignToGrid() {
 
 	validateSelection();
 	if ( m_selection.isEmpty() ) {
-		return;
-	}
-
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
@@ -1947,6 +1932,9 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 		HydrogenApp::get_instance()->getPatternEditorPanel();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	auto pPatternList = pSong->getPatternList();
 	std::shared_ptr<H2Core::Pattern> pPattern;
 
