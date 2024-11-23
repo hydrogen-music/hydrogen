@@ -81,12 +81,9 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 
 	updateWidth();
 
-	auto pSong = pHydrogen->getSong();
-	int nInstruments = pSong->getDrumkit()->getInstruments()->size();
-
-	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
-		// the number of instruments is changed...recreate all
-		m_nEditorHeight = m_nGridHeight * nInstruments;
+	int nTargetHeight = m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
+	if ( m_nEditorHeight != nTargetHeight ) {
+		m_nEditorHeight = nTargetHeight;
 	}
 	resize( m_nEditorWidth, m_nEditorHeight );
 
@@ -425,14 +422,6 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	}
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-
-	auto  pInstrList = pSong->getDrumkit()->getInstruments();
-
 	validateSelection();
 
 	for ( const auto& ppPattern : getPatternsToShow() ) {
@@ -442,78 +431,84 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		}
 		bool bIsForeground = ( ppPattern == pPattern );
 
-		std::vector<int> noteCount; // instrument_id -> count
-		std::stack<std::shared_ptr<Instrument>> instruments;
+		std::map<int, int> noteCount; // row number -> note count
 
-		// Process notes in batches by note position, counting the notes at each instrument so we can display
-		// markers for instruments which have more than one note in the same position (a chord or genuine
-		// duplicates)
+		// Process notes in batches by note position, counting the notes in each
+		// row so we can display markers for rows which have more than one note
+		// in the same position (a chord or genuine duplicates)
 		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
 			if ( posIt->first >= ppPattern->getLength() ) {
-				// Notes are located beyond the active length of the
-				// editor and aren't visible even when drawn.
+				// Notes are located beyond the active length of the editor and
+				// aren't visible even when drawn.
 				break;
 			}
 
-			// Notes not associated with any instrument can not be copied for
-			// now.
-			if ( posIt->second == nullptr || posIt->second->get_instrument() == nullptr ) {
+			if ( posIt->second == nullptr ) {
 				++posIt;
 				continue;
 			}
 
-			int nPosition = posIt->second->get_position();
+			const int nPosition = posIt->second->get_position();
+			noteCount.clear();
 
 			// Process all notes at this position
 			auto noteIt = posIt;
-			while ( noteIt != pNotes->end() && noteIt->second->get_position() == nPosition ) {
+			while ( noteIt != pNotes->end() &&
+					noteIt->second->get_position() == nPosition ) {
 				Note *pNote = noteIt->second;
-				// Notes not associated with any instrument can not be copied for
-				// now.
-				if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+				if ( pNote == nullptr ) {
 					++noteIt;
 					continue;
 				}
 
-				int nInstrumentID = pNote->get_instrument_id();
-				// An ID of -1 corresponds to an empty instrument.
-				if ( nInstrumentID >= 0 ) {
-					if ( nInstrumentID >= noteCount.size() ) {
-						noteCount.resize( nInstrumentID+1, 0 );
+				auto nRow = m_pPatternEditorPanel->findRowDB( pNote );
+				if ( nRow != -1 ) {
+					auto row = m_pPatternEditorPanel->getRowDB( nRow );
+					if ( row.nInstrumentID == EMPTY_INSTR_ID &&
+						 row.sType.isEmpty() ) {
+						ERRORLOG( QString( "Empty row [%1]" ).arg( nRow ) );
+						++noteIt;
+						continue;
 					}
 
-					if ( ++noteCount[ nInstrumentID ] == 1) {
-						instruments.push( pNote->get_instrument() );
+					if ( noteCount.find( nRow ) == noteCount.end() ) {
+						// Insert row not present yet.
+						noteCount[ nRow ] = 1;
+					}
+					else {
+						++noteCount[ nRow ];
 					}
 
 					drawNote( pNote, painter, bIsForeground );
+				}
+				else {
+					ERRORLOG( QString( "Note is not covered in DB: %1" )
+							  .arg( pNote->toQString() ) );
+					m_pPatternEditorPanel->printDB();
 				}
 
 				++noteIt;
 			}
 
-			// Go through used instruments list, drawing markers for superimposed notes and zero'ing the
-			// counts.
-			while ( ! instruments.empty() ) {
-				auto pInstrument = instruments.top();
-				int nInstrumentID = pInstrument->get_id();
-				if ( noteCount[ nInstrumentID ] >  1 ) {
+			// Go through used rows list and draw markers for superimposed notes
+			for ( const auto [ nRow, nNotes ] : noteCount ) {
+				if ( nNotes >  1 ) {
 					// Draw "2x" text to the left of the note
-					int nInstrument = pInstrList->index( pInstrument );
-					int x = PatternEditor::nMargin + (nPosition * m_fGridWidth);
-					int y = ( nInstrument * m_nGridHeight);
+					const int x = PatternEditor::nMargin +
+						( nPosition * m_fGridWidth );
+					const int y = nRow * m_nGridHeight;
 					const int boxWidth = 128;
 
-					QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+					QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+								getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 					painter.setFont( font );
 					painter.setPen( QColor( 0, 0, 0 ) );
 
-					painter.drawText( QRect( x-boxWidth-6, y, boxWidth, m_nGridHeight),
-									  Qt::AlignRight | Qt::AlignVCenter,
-									  ( QString( "%1" ) + QChar( 0x00d7 )).arg( noteCount[ nInstrumentID ] ) );
+					painter.drawText(
+						QRect( x - boxWidth - 6, y, boxWidth, m_nGridHeight ),
+						Qt::AlignRight | Qt::AlignVCenter,
+						( QString( "%1" ) + QChar( 0x00d7 )).arg( nNotes ) );
 				}
-				noteCount[ nInstrumentID ] = 0;
-				instruments.pop();
 			}
 
 			posIt = noteIt;
@@ -526,22 +521,19 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 ///
 /// Draws a note
 ///
-void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
+void DrumPatternEditor::drawNote( Note* pNote, QPainter& p, bool bIsForeground )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-	int nInstrument = pInstrList->index( note->get_instrument() );
-	if ( nInstrument == -1 ) {
-		return;
-	}
 
-	QPoint pos ( PatternEditor::nMargin + note->get_position() * m_fGridWidth,
-				 ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3 );
+	const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
 
-	drawNoteSymbol( p, pos, note, bIsForeground );
+	QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
+				 ( nRow * m_nGridHeight) + (m_nGridHeight / 2) - 3 );
+
+	drawNoteSymbol( p, pos, pNote, bIsForeground );
 }
 
 void DrumPatternEditor::drawBackground( QPainter& p)
@@ -723,8 +715,9 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 
 	int nStartY = m_pPatternEditorPanel->getVerticalScrollBar()->value();
 	int nStartX = m_pPatternEditorPanel->getHorizontalScrollBar()->value();
-	int nEndY = std::min( static_cast<int>( m_nGridHeight ) * Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments()->size(),
-						 nStartY + m_pPatternEditorPanel->getDrumPatternEditorScrollArea()->viewport()->size().height() );
+	int nEndY = std::min(
+		static_cast<int>(m_nGridHeight) * m_pPatternEditorPanel->getRowNumberDB(),
+		nStartY + m_pPatternEditorPanel->getDrumPatternEditorScrollArea()->viewport()->size().height() );
 	int nEndX = std::min( nStartX + m_pPatternEditorPanel->getDrumPatternEditorScrollArea()->viewport()->size().width(), width() );
 
 	QPen pen( color );

@@ -150,6 +150,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		int getPatternNumber() const;
 
 		const std::vector<DrumPatternRow>& getDB() const;
+		/** Prints the content of #m_db as a debug level log message for
+		 * debugging purposes. */
+		void printDB() const;
 		/** Instead of using the exception-based range check of std::vector - a
 		 * paradigm not used in the code base - we return null elements for
 		 * instrument id and type - an empty row - in case @a nRow does not
@@ -222,9 +225,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void updatePatternName();
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
-		/** Prints the content of #m_db as a debug level log message for
-		 * debugging purposes. */
-		void printDB() const;
 
 		/** Currently selected pattern cached in frontend for convenience.*/
 		std::shared_ptr<H2Core::Pattern>	m_pPattern;

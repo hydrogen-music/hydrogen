@@ -272,12 +272,13 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 			// its length till there.
 			int nLength = pNote->get_length();
 			auto notes = pPattern->getNotes();
+			const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
 			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
 				if ( ppNote != nullptr &&
 					 // noteOff note
 					 ppNote->get_note_off() &&
 					 // located in the same row
-					 ppNote->get_instrument() == pNote->get_instrument() ) {
+					 m_pPatternEditorPanel->findRowDB( ppNote ) == nRow ) {
 					const int nNotePos = ppNote->get_position() +
 						ppNote->get_lead_lag() *
 						AudioEngine::getLeadLagInTicks();
