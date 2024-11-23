@@ -366,7 +366,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter,
 	}
 
 	if ( pNote != nullptr &&
-		 ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+		 ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
 		   pNote->getType() == selectedRow.sType ) ) {
 		QPoint pos( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
 					m_nGridHeight * Note::pitchToLine( pNote->get_pitch_from_key_octave() )
