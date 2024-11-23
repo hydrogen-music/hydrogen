@@ -197,7 +197,7 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 	}
 	const auto pDrumkitMap = pDrumkit->toDrumkitMap();
 
-	std::shared_ptr<Instrument> pInstrument;
+	std::shared_ptr<Instrument> pInstrument = nullptr;
 	// In case drumkit and note feature a type string, we use this one to
 	// retrieve the matching instrument. Else we restore to "historical" loading
 	// using instrument IDs. This is used both for patterns created prior to
@@ -238,11 +238,19 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 		}
 	}
 	else {
-		ERRORLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
-				  .arg( m_sType ).arg( __instrument_id ) );
+		INFOLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
+				 .arg( m_sType ).arg( __instrument_id ) );
 		__instrument = nullptr;
 		__adsr = nullptr;
 		__layers_selected.clear();
+
+		// In case no matching instrument was found, we reset the instrument ID.
+		// But we only do so in case the note has an associated instrument type.
+		// Else, there would be no way to map it back to the previous
+		// instrument.
+		if ( ! m_sType.isEmpty() ) {
+			__instrument_id = EMPTY_INSTR_ID;
+		}
 	}
 }
 
