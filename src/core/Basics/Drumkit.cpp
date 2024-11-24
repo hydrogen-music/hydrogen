@@ -1047,7 +1047,8 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 	const auto targetPath = sTargetNamePadded.toStdWString();
 	nRet = archive_write_open_filename_w( a, targetPath.c_str() );
 #else
-	const auto targetPath = sTargetName.toUtf8().constData();
+	const auto targetPathUtf8 = sTargetName.toUtf8();
+	const auto targetPath = targetPathUtf8.constData();
 	nRet = archive_write_open_filename( a, targetPath );
 #endif
 	if ( nRet != ARCHIVE_OK ) {
