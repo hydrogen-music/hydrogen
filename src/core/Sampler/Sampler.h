@@ -120,11 +120,10 @@ public:
 		QUADRATIC_CONST_K_NORM
 	};
 	
-	/** default k for pan law with such that L^k + R^k = const
-	 * must be initialised in Sampler.cpp
+	/** default k for pan law with -4.5dB center compensation, given L^k + R^k =
+	 * const it is the mean compromise between constant sum and constant power
 	 */
-	static const float K_NORM_DEFAULT;
-	
+	static constexpr float K_NORM_DEFAULT = 1.33333333333333;
 
 	// pan law functions
 	static float ratioStraightPolygonalPanLaw( float fPan );

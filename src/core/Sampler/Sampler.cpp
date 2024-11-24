@@ -103,11 +103,6 @@ Sampler::~Sampler()
 	m_pPlaybackTrackInstrument = nullptr;
 }
 
-/** set default k for pan law with -4.5dB center compensation, given L^k + R^k = const
- * it is the mean compromise between constant sum and constant power
- */
-float const Sampler::K_NORM_DEFAULT = 1.33333333333333;
-
 void Sampler::process( uint32_t nFrames )
 {
 	auto pHydrogen = Hydrogen::get_instance();
