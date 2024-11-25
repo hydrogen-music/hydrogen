@@ -1399,9 +1399,10 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// For the JACK driver it is very important (#1867) to not do anything while
 	// the JACK client is stopped/closed. Otherwise it will segfault on mutex
 	// locking or message logging.
-	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
-			 pAudioEngine->getState() == AudioEngine::State::Playing ) &&
-		 dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
+	if ( pAudioEngine->m_pAudioDriver == nullptr ||
+		 ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			   pAudioEngine->getState() == AudioEngine::State::Playing ) &&
+		   dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) ) {
 		return 0;
 	}
 	timeval startTimeval = currentTime2();
