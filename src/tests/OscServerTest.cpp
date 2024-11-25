@@ -96,8 +96,9 @@ void OscServerTest::testSessionManagement(){
 	lo::Address hydrogenOSC("localhost", "7362" );
 	
 	// Create the new song.
+	const auto sValidPathLocal8Bit = m_sValidPath.toLocal8Bit();
 	hydrogenOSC.send("/Hydrogen/NEW_SONG", "s", 
-					 m_sValidPath.toLocal8Bit().data());
+					 sValidPathLocal8Bit.data());
 	
 	// Store it to disk so we can retrieve it later on.
 	hydrogenOSC.send("/Hydrogen/SAVE_SONG");
@@ -105,15 +106,16 @@ void OscServerTest::testSessionManagement(){
 	CPPUNIT_ASSERT( m_sValidPath == m_pHydrogen->getSong()->getFilename() );
 
 	// Store a copy in another file.
+	const auto sValidPath2Local8Bit = m_sValidPath2.toLocal8Bit();
 	hydrogenOSC.send("/Hydrogen/SAVE_SONG_AS", "s",
-					 m_sValidPath2.toLocal8Bit().data());	
+					 sValidPath2Local8Bit.data());
 	WAIT(m_sValidPath2 == m_pHydrogen->getSong()->getFilename());
 	CPPUNIT_ASSERT( m_sValidPath2 == m_pHydrogen->getSong()->getFilename() );
 	
 	// Load the first song. This will only be successful if the
 	// SAVE_SONG did work.
 	hydrogenOSC.send("/Hydrogen/OPEN_SONG", "s",
-					 m_sValidPath.toLocal8Bit().data());
+					 sValidPathLocal8Bit.data());
 	WAIT(m_sValidPath == m_pHydrogen->getSong()->getFilename());
 	CPPUNIT_ASSERT( m_sValidPath == m_pHydrogen->getSong()->getFilename() );
 	___INFOLOG( "passed" );

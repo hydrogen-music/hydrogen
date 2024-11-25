@@ -54,7 +54,8 @@ ShotList::~ShotList() {
 }
 
 QWidget *ShotList::findWidgetInheriting( QObject *pObject, const QString& sName ) {
-	if ( pObject->inherits( sName.toLocal8Bit().data() ) ) {
+	const auto sNameLocal8Bit = sName.toLocal8Bit();
+	if ( pObject->inherits( sNameLocal8Bit.data() ) ) {
 		return dynamic_cast< QWidget *>( pObject );
 	}
 	for ( QObject *pC : pObject->children() ) {
@@ -184,21 +185,26 @@ void ShotList::shoot( const QString& s ) {
 			if ( pWidget ) {
 				___INFOLOG( QString( "Invoking '%1' on '%2'" ).arg( sMethodName, sWidgetName ) );
 				bool bSuccess = false;
+				const auto sMethodNameLocal8Bit = sMethodName.toLocal8Bit();
 				switch ( words.size() ) {
 				case 3:
-					bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection );
+					bSuccess = QMetaObject::invokeMethod(
+						pWidget, sMethodNameLocal8Bit.data(), Qt::DirectConnection );
 					break;
 				case 4:
-					bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection,
-														  Arg( words[3] ) );
+					bSuccess = QMetaObject::invokeMethod(
+						pWidget, sMethodNameLocal8Bit.data(), Qt::DirectConnection,
+						Arg( words[3] ) );
 					break;
 				case 5:
-					bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection,
-														  Arg( words[3] ), Arg( words[4] ) );
+					bSuccess = QMetaObject::invokeMethod(
+						pWidget, sMethodNameLocal8Bit.data(), Qt::DirectConnection,
+						Arg( words[3] ), Arg( words[4] ) );
 					break;
 				case 6:
-					bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection,
-														  Arg( words[3] ), Arg( words[4] ), Arg( words[5] ) );
+					bSuccess = QMetaObject::invokeMethod(
+						pWidget, sMethodNameLocal8Bit.data(), Qt::DirectConnection,
+						Arg( words[3] ), Arg( words[4] ), Arg( words[5] ) );
 					break;
 				default:
 					___ERRORLOG( "Unsupported number of arguments in %0" );

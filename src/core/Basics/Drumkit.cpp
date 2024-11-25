@@ -730,7 +730,8 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 	};
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
-	nRet = archive_read_open_file( a, sSourcePath.toUtf8().constData(), 10240 );
+	const auto sSourcePathUtf8 = sSourcePath.toUtf8();
+	nRet = archive_read_open_file( a, sSourcePathUtf8.constData(), 10240 );
 #else
   #ifdef WIN32
 	QString sSourcePathPadded = sSourcePath;
@@ -738,7 +739,8 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath,
 	auto sourcePathW = sSourcePathPadded.toStdWString();
 	nRet = archive_read_open_filename_w( a, sourcePathW.c_str(), 10240 );
   #else
-	nRet = archive_read_open_filename( a, sSourcePath.toUtf8().constData(),
+	const auto sSourcePathUtf8 = sSourcePath.toUtf8();
+	nRet = archive_read_open_filename( a, sSourcePathUtf8.constData(),
 									   10240 );
   #endif
 #endif
@@ -1073,7 +1075,8 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 			return false;
 		}
 
-		stat( sFilename.toUtf8().constData(), &st );
+		const auto sFilenameUtf8 = sFilename.toUtf8();
+		stat( sFilenameUtf8.constData(), &st );
 		entry = archive_entry_new();
 		if ( entry == nullptr ) {
 			ERRORLOG( "Unable to create new archive entry" );
@@ -1081,14 +1084,16 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 			return false;
 		}
 
+		const auto sTargetFilenameUtf8 = sTargetFilename.toUtf8();
 #if defined(WIN32) and ARCHIVE_VERSION_NUMBER >= 3005000
 		if ( bUseUtf8Encoding ) {
-			archive_entry_set_pathname_utf8(entry, sTargetFilename.toUtf8().constData());
+			archive_entry_set_pathname_utf8(
+				entry, sTargetFilenameUtf8.constData());
 		} else {
 #else
 		{
 #endif
-			archive_entry_set_pathname(entry, sTargetFilename.toUtf8().constData());
+			archive_entry_set_pathname(entry, sTargetFilenameUtf8.constData());
 		}
 		archive_entry_set_size(entry, st.st_size);
 		archive_entry_set_filetype(entry, AE_IFREG);
