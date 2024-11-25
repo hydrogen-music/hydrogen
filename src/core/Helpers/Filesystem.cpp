@@ -416,7 +416,8 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 		ERRORLOG( QString( "unable to write to %1" ).arg( dst ) );
 		return false;
 	}
-	file.write( content.toUtf8().data() );
+	const auto contentUtf8 = content.toUtf8();
+	file.write( contentUtf8.data() );
 	file.close();
 
 	return true;
