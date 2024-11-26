@@ -772,7 +772,11 @@ void PatternEditorSidebar::updateEditor() {
 ///
 void PatternEditorSidebar::updateRows()
 {
-	bool bResize = m_pPatternEditorPanel->getRowNumberDB() != m_rows.size();
+	if ( m_nEditorHeight !=
+		 m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB() ) {
+		m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
+		resize( m_nEditorWidth, m_nEditorHeight );
+	}
 
 	int nnIndex = 0;
 	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
@@ -787,6 +791,7 @@ void PatternEditorSidebar::updateRows()
 			auto pRow = std::make_shared<SidebarRow>( this, rrow );
 			pRow->setNumber( nnIndex );
 			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
+			pRow->show();
 			m_rows.push_back( pRow );
 		}
 		++nnIndex;
@@ -796,15 +801,6 @@ void PatternEditorSidebar::updateRows()
 	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
 		// There are rows not required anymore
 		m_rows.pop_back();
-		if ( ! bResize ) {
-			bResize = true;
-		}
-	}
-
-	if ( bResize ) {
-		m_nEditorHeight = m_nGridHeight * nRows;
-		resize( m_nEditorWidth, m_nEditorHeight );
-		update();
 	}
 }
 	
