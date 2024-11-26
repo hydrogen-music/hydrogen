@@ -141,15 +141,12 @@ class PatternEditorSidebar : public QWidget,
 
 		virtual void mousePressEvent(QMouseEvent *event) override;
 		virtual void mouseMoveEvent(QMouseEvent *event) override;
-
-
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
-	virtual void selectedInstrumentChangedEvent() override;
-	virtual void instrumentParametersChangedEvent( int ) override;
-	
-	void repaintRows();
+		virtual void instrumentParametersChangedEvent( int ) override;
+
+		void updateEditor();
 	public slots:
 		void updateRows();
 
@@ -160,7 +157,6 @@ class PatternEditorSidebar : public QWidget,
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;
 		std::vector<std::shared_ptr<SidebarRow>> m_rows;
-		QTimer *m_pUpdateTimer;
 		DragScroller *m_pDragScroller;
 
 		QPoint __drag_start_position;

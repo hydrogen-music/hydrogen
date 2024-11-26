@@ -1043,6 +1043,7 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pNoteProbabilityEditor->updateEditor();
 	m_pPianoRollEditor->updateEditor( bPatternOnly );
 	m_pDrumPatternEditor->updateEditor();
+	m_pSidebar->updateEditor();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {

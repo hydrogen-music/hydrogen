@@ -1441,7 +1441,7 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 		pHydrogenApp->setHideKeyboardCursor( true );
 
 		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-			m_pPatternEditorPanel->getSidebar()->repaintRows();
+			m_pPatternEditorPanel->getSidebar()->updateEditor();
 			m_pPatternEditorPanel->getPatternEditorRuler()->update();
 			update();
 		}
@@ -1470,7 +1470,7 @@ void PatternEditor::handleKeyboardCursor( bool bUnhideCursor ) {
 
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getSidebar()->repaintRows();
+		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 }
@@ -1682,7 +1682,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	// Cursor either just got hidden or was moved.
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getSidebar()->repaintRows();
+		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 

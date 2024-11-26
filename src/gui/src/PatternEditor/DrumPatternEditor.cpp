@@ -138,7 +138,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	// Cursor either just got hidden or was moved.
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getSidebar()->repaintRows();
+		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 	update();
@@ -165,7 +165,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	// Cursor just got hidden.
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getSidebar()->repaintRows();
+		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 		update();
 	}

@@ -742,10 +742,6 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 
 	updateRows();
 
-	m_pUpdateTimer = new QTimer( this );
-	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateRows() ) );
-	m_pUpdateTimer->start(50);
-
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea *>( parentWidget()->parentWidget() );
 	assert( pScrollArea );
 	m_pDragScroller = new DragScroller( pScrollArea );
@@ -756,38 +752,17 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 PatternEditorSidebar::~PatternEditorSidebar()
 {
 	//INFOLOG( "DESTROY" );
-	m_pUpdateTimer->stop();
 	delete m_pDragScroller;
 }
 
+void PatternEditorSidebar::updateEditor() {
+	updateRows();
 
-
-
-///
-/// Create a new SidebarRow
-///
-SidebarRow* PatternEditorSidebar::createRow()
-{
-	SidebarRow *pLine = new SidebarRow(this);
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 pLine, &SidebarRow::onPreferencesChanged );
-	return pLine;
-}
-
-void PatternEditorSidebar::repaintRows() {
 	for ( auto& rrow : m_rows ) {
 		rrow->update();
 	}
-}
 
-void PatternEditorSidebar::selectedInstrumentChangedEvent() {
-	const int nSelectedInstr =
-		Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	int nnIndex = 0;
-	for ( auto& rrow : m_rows ) {
-		rrow->setSelected( nnIndex == nSelectedInstr );
-		++nnIndex;
-	}
+	update();
 }
 
 ///
