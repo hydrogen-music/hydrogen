@@ -44,6 +44,7 @@ namespace H2Core
 	class Pattern;
 }
 
+class DrumPatternRow;
 class PatternEditorPanel;
 class Button;
 
@@ -55,11 +56,11 @@ class SidebarRow : public PixmapWidget
 	Q_OBJECT
 
 	public:
-		explicit SidebarRow(QWidget* pParent);
+		explicit SidebarRow( QWidget* pParent, DrumPatternRow row );
 
 	int getNumber() const;
 
-		void set( std::shared_ptr<H2Core::Instrument> pInstrument );
+		void set( DrumPatternRow row );
 		void setNumber(int nIndex);
 		void setSelected(bool isSelected);
 
@@ -163,8 +164,6 @@ class PatternEditorSidebar : public QWidget,
 		DragScroller *m_pDragScroller;
 
 		QPoint __drag_start_position;
-
-		SidebarRow* createRow();
 
 private:
 	void drawFocus( QPainter& painter );

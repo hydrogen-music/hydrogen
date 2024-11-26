@@ -5542,7 +5542,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>imported from</source>
-        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this string) an instrument (to the left of this string) is loaded from.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>

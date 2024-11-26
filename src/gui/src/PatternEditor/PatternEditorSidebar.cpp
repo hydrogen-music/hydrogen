@@ -54,7 +54,7 @@
 
 using namespace H2Core;
 
-SidebarRow::SidebarRow( QWidget* pParent )
+SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row )
 	: PixmapWidget(pParent)
 	, m_bIsSelected( false )
 	, m_bEntered( false )
@@ -63,11 +63,12 @@ SidebarRow::SidebarRow( QWidget* pParent )
 
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
+
 	int h = pPref->getPatternEditorGridHeight();
 	setFixedSize(181, h);
 
-	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
+					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize( 145, h );
@@ -82,7 +83,7 @@ SidebarRow::SidebarRow( QWidget* pParent )
 							 true, QSize(), tr("Mute instrument"),
 							 false, true );
 	m_pMuteBtn->move( 145, 0 );
-	m_pMuteBtn->setChecked(false);
+	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
@@ -94,7 +95,7 @@ SidebarRow::SidebarRow( QWidget* pParent )
 							 false, QSize(), tr("Solo"),
 							 false, true );
 	m_pSoloBtn->move( 163, 0 );
-	m_pSoloBtn->setChecked(false);
+	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
 
@@ -145,39 +146,56 @@ SidebarRow::SidebarRow( QWidget* pParent )
 			functionDeleteInstrument( m_nInstrumentNumber );} );
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
+	set( row );
+
 	updateStyleSheet();
 }
 
-void SidebarRow::set( std::shared_ptr<Instrument> pInstrument ) {
-	if ( pInstrument == nullptr ) {
-		ERRORLOG( "Imvalid instrument" );
-		return;
+void SidebarRow::set( DrumPatternRow row ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	QString sRowName, sToolTipDrumkit;
+	m_bIsSelected = false;
+	bool bIsSoloed = false, bIsMuted = false;
+
+	if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
+		auto pSong = pHydrogen->getSong();
+		if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+			const auto pInstrument =
+				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
+			if ( pInstrument != nullptr ) {
+				setSelected( pHydrogen->getSelectedInstrumentNumber() ==
+					pSong->getDrumkit()->getInstruments()->index( pInstrument ) );
+				sRowName = pInstrument->get_name();
+				setMuted( pInstrument->is_muted() );
+				setSoloed( pInstrument->is_soloed() );
+				setSamplesMissing( pInstrument->has_missing_samples() );
+
+				if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
+					// Instrument belongs to a kit in the SoundLibrary (and was
+					// not created anew).
+					QString sKit = pHydrogen->getSoundLibraryDatabase()->
+						getUniqueLabel( pInstrument->get_drumkit_path() );
+					if ( sKit.isEmpty() ) {
+						// This should not happen. But drumkit.xml files can be
+						// created by hand and we should account for it.
+						sKit = pInstrument->get_drumkit_path();
+					}
+
+					/*: Shown in a tooltop and indicating the drumkit (to the right of this string) an instrument (to the left of this string) is loaded from. */
+					sToolTipDrumkit = QString( " (" ).append( tr( "imported from" ) )
+						.append( QString( " [%1])" ).arg( sKit ) );
+				}
+			}
+		}
 	}
 
-	setName( pInstrument->get_name() );
-	setMuted( pInstrument->is_muted() );
-	setSoloed( pInstrument->is_soloed() );
-	setSamplesMissing( pInstrument->has_missing_samples() );
+	if ( ! row.sType.isEmpty() ) {
+		sRowName.append( " | " ).append( row.sType );
+	}
+	setName( sRowName );
 
 	// Create a tool tip uniquely stating the drumkit the instrument belongs to.
-	QString sToolTip( pInstrument->get_name() );
-	if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
-		// Instrument belongs to a kit in the SoundLibrary (and was not created
-		// anew).
-		QString sKit = Hydrogen::get_instance()->getSoundLibraryDatabase()->
-			getUniqueLabel( pInstrument->get_drumkit_path() );
-		if ( sKit.isEmpty() ) {
-			// This should not happen. But drumkit.xml files can be created by
-			// hand and we should account for it.
-			sKit = pInstrument->get_drumkit_path();
-		}
-
-		/*: Shown in a tooltop and indicating the drumkit (to the right of this
-		 *  string) an instrument (to the left of this string) is loaded
-		 *  from. */
-		sToolTip.append( " (" ).append( tr( "imported from" ) )
-			.append( QString( " [%1])" ).arg( sKit ) );
-	}
+	QString sToolTip = QString( "%1%2" ).arg( sRowName ).arg( sToolTipDrumkit );
 
 	setToolTip( sToolTip );
 }
@@ -716,7 +734,7 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
 	m_nEditorWidth = 181;
-	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS + 1;
+	m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
 
 	resize( m_nEditorWidth, m_nEditorHeight );
 
@@ -777,43 +795,21 @@ void PatternEditorSidebar::selectedInstrumentChangedEvent() {
 ///
 void PatternEditorSidebar::updateRows()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-
-	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
-
-	unsigned nInstruments = pInstrList->size();
-
-	const bool bResize = m_pPatternEditorPanel->getRowNumberDB() != m_rows.size();
+	bool bResize = m_pPatternEditorPanel->getRowNumberDB() != m_rows.size();
 
 	int nnIndex = 0;
 	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
 		if ( nnIndex < m_rows.size() ) {
 			// row already exists do a lazy update instead of recreating it.
 			m_rows[ nnIndex ]->setNumber( nnIndex );
-
-			if ( rrow.nInstrumentID != EMPTY_INSTR_ID ) {
-				auto pInstr = pInstrList->find( rrow.nInstrumentID );
-				m_rows[ nnIndex ]->set( pInstr );
-				m_rows[ nnIndex ]->setSelected( nnIndex = nSelectedInstr );
-			}
+			m_rows[ nnIndex ]->set( rrow );
 		}
 		else {
 			// row in DB does not has its counterpart in the sidebar yet. Create
 			// it.
-			auto pRow = std::make_shared<SidebarRow>( this );
+			auto pRow = std::make_shared<SidebarRow>( this, rrow );
 			pRow->setNumber( nnIndex );
 			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
-
-			if ( rrow.nInstrumentID != EMPTY_INSTR_ID ) {
-				auto pInstr = pInstrList->find( rrow.nInstrumentID );
-				pRow->set( pInstr );
-				pRow->setSelected( nnIndex == nSelectedInstr );
-			}
 			m_rows.push_back( pRow );
 		}
 		++nnIndex;
@@ -823,6 +819,15 @@ void PatternEditorSidebar::updateRows()
 	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
 		// There are rows not required anymore
 		m_rows.pop_back();
+		if ( ! bResize ) {
+			bResize = true;
+		}
+	}
+
+	if ( bResize ) {
+		m_nEditorHeight = m_nGridHeight * nRows;
+		resize( m_nEditorWidth, m_nEditorHeight );
+		update();
 	}
 }
 	
@@ -989,31 +994,24 @@ void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 
 
 void PatternEditorSidebar::instrumentParametersChangedEvent( int nInstrumentNumber ) {
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	if ( nInstrumentNumber == -1 ) {
 		updateRows();
 	}
 	else {
 		// Update a specific line
-		auto pInstrument = pInstrumentList->get( nInstrumentNumber );
-		if ( pInstrument == nullptr ) {
-			ERRORLOG( QString( "Instrument [%1] not found" )
-					  .arg( nInstrumentNumber ) );
-			return;
-		}
-	
-		auto pSidebarRow = m_rows[ nInstrumentNumber ];
-		if ( pSidebarRow == nullptr ) {
-			ERRORLOG( QString( "No SidebarRow for instrument [%1] created yet" )
-					  .arg( nInstrumentNumber ) );
+		const auto row = m_pPatternEditorPanel->getRowDB( nInstrumentNumber );
+		if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+			ERRORLOG( QString( "Invalid row [%1]" ).arg( nInstrumentNumber ) );
 			return;
 		}
 
-		pSidebarRow->set( pInstrument );
+		if ( nInstrumentNumber >= m_rows.size() ) {
+			// This should not happen
+			updateRows();
+		}
+		else {
+			m_rows[ nInstrumentNumber ]->set( row );
+		}
 	}
 }
