@@ -886,26 +886,24 @@ private:
 class SE_moveInstrumentAction : public QUndoCommand
 {
 public:
-	SE_moveInstrumentAction(  int nSourceInstrument, int nTargetInstrument  ){
-		setText( QObject::tr( "Move instrument" ) );
-		__nSourceInstrument = nSourceInstrument;
-		__nTargetInstrument = nTargetInstrument;
+	SE_moveInstrumentAction(  int nSourceIndex, int nTargetIndex  ){
+		setText( QObject::tr( "Move instrument" )
+				 .append( QString( " [%1] -> [%2]" ).arg( nSourceIndex )
+						  .arg( nTargetIndex ) ) );
+		m_nSourceIndex = nSourceIndex;
+		m_nTargetIndex = nTargetIndex;
 	}
-	virtual void undo()
-	{
-		//qDebug() << "move Instrument Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionMoveInstrumentAction( __nTargetInstrument, __nSourceInstrument );
+	virtual void undo() {
+		H2Core::CoreActionController::moveInstrument(
+			m_nTargetIndex, m_nSourceIndex );
 	}
-	virtual void redo()
-	{
-		//qDebug() << "move Instrument Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionMoveInstrumentAction( __nSourceInstrument, __nTargetInstrument );
+	virtual void redo() {
+		H2Core::CoreActionController::moveInstrument(
+			m_nSourceIndex, m_nTargetIndex );
 	}
 private:
-	int __nSourceInstrument;
-	int __nTargetInstrument;
+	int m_nSourceIndex;
+	int m_nTargetIndex;
 };
 
 // ~pattern editor commands

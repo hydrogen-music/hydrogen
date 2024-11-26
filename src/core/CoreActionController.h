@@ -346,6 +346,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * number, etc. */
 		static bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
 									   std::shared_ptr<Instrument> pOldInstrument );
+		/** Moves instrument @a nSourceIndex of the instrument list of the
+		 * current drumkit to index @a nTargetIndex.
+		 *
+		 * Note that both @a nSourceIndex and @a nTargetIndex are the position
+		 * within the instrument list and _not_ the ID of the instrument (which
+		 * stays the same during the move action). */
+		static bool moveInstrument( int nSourceIndex, int nTargetIndex );
 
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.

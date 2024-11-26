@@ -1064,29 +1064,5 @@ void DrumPatternEditor::functionFillNotesRedoAction( const QStringList& noteList
 	m_pPatternEditorPanel->updateEditors();
 }
 
-void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,
-													  int nTargetInstrument )
-{
-		auto pHydrogen = Hydrogen::get_instance();
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-		std::shared_ptr<Song> pSong = pHydrogen->getSong();
-		auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-
-		if ( ( nTargetInstrument > (int)pInstrumentList->size() ) || ( nTargetInstrument < 0) ) {
-			pHydrogen->getAudioEngine()->unlock();
-			return;
-		}
-
-		pInstrumentList->move( nSourceInstrument, nTargetInstrument );
-
-		pHydrogen->renameJackPorts( pSong );
-
-		pHydrogen->getAudioEngine()->unlock();
-		m_pPatternEditorPanel->setSelectedRowDB( nTargetInstrument );
-
-		pHydrogen->setIsModified( true );
-}
-
 /// ~undo / redo actions from pattern editor instrument list
 ///==========================================================

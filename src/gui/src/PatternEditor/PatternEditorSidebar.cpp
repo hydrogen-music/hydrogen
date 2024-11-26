@@ -154,7 +154,6 @@ SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row )
 void SidebarRow::set( DrumPatternRow row ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	QString sRowName, sToolTipDrumkit;
-	m_bIsSelected = false;
 	bool bIsSoloed = false, bIsMuted = false;
 
 	if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
@@ -187,6 +186,9 @@ void SidebarRow::set( DrumPatternRow row ) {
 				}
 			}
 		}
+	}
+	else {
+		m_bIsSelected = false;
 	}
 
 	if ( ! row.sType.isEmpty() ) {
@@ -864,8 +866,8 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 			return;
 		}
 		
-		SE_moveInstrumentAction *action = new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push(
+			new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument ) );
 
 		event->acceptProposedAction();
 	}

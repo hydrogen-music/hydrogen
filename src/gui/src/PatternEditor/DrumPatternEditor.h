@@ -56,7 +56,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 										  int nRow, int nPatternNumber );
 		void functionFillNotesRedoAction( const QStringList& noteList,
 										  int nRow, int nPatternNumber );
-		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionPasteNotesRedoAction( H2Core::PatternList* pCopiedNotesPattnerList,
 										   H2Core::PatternList* pAppliedPatternList);
 		void functionPasteNotesUndoAction( H2Core::PatternList* pAppliedPatternList);

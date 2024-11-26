@@ -1785,6 +1785,48 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	return true;
 }
 
+bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) {
+	if ( nSourceIndex == nTargetIndex ) {
+		return true;
+	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return false;
+	}
+
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+
+	if ( nSourceIndex > pInstrumentList->size() ||
+		 nSourceIndex < 0 ) {
+		ERRORLOG( QString( "Source index [%1] out of bound [0,%2)" )
+				  .arg( nSourceIndex ).arg( pInstrumentList->size() ) );
+		pHydrogen->getAudioEngine()->unlock();
+		return false;
+	}
+
+	if ( nTargetIndex > pInstrumentList->size() ||
+		 nTargetIndex < 0 ) {
+		ERRORLOG( QString( "Target index [%1] out of bound [0,%2)" )
+				  .arg( nTargetIndex ).arg( pInstrumentList->size() ) );
+		pHydrogen->getAudioEngine()->unlock();
+		return false;
+	}
+
+	pInstrumentList->move( nSourceIndex, nTargetIndex );
+	pHydrogen->renameJackPorts( pSong );
+
+	pHydrogen->getAudioEngine()->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
