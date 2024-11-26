@@ -24,6 +24,8 @@
 #ifndef PATTERN_EDITOR_INSTRUMENT_LIST_H
 #define PATTERN_EDITOR_INSTRUMENT_LIST_H
 
+#include <vector>
+#include <memory>
 
 #include <core/Globals.h>
 
@@ -156,7 +158,7 @@ class PatternEditorSidebar : public QWidget,
 		uint m_nGridHeight;
 		uint m_nEditorWidth;
 		uint m_nEditorHeight;
-		SidebarRow* m_pRows[MAX_INSTRUMENTS];
+		std::vector<std::shared_ptr<SidebarRow>> m_rows;
 		QTimer *m_pUpdateTimer;
 		DragScroller *m_pDragScroller;
 

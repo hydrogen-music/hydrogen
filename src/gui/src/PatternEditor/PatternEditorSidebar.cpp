@@ -722,11 +722,6 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 
 	setAcceptDrops(true);
 
-	for ( int i = 0; i < MAX_INSTRUMENTS; ++i) {
-		m_pRows[i] = nullptr;
-	}
-
-
 	updateRows();
 
 	m_pUpdateTimer = new QTimer( this );
@@ -762,41 +757,18 @@ SidebarRow* PatternEditorSidebar::createRow()
 }
 
 void PatternEditorSidebar::repaintRows() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-
-	unsigned nInstruments = pInstrList->size();
-	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
-		if ( nInstr < nInstruments &&
-			 m_pRows[ nInstr ] != nullptr ) {
-			m_pRows[ nInstr ]->update();
-		}
+	for ( auto& rrow : m_rows ) {
+		rrow->update();
 	}
 }
 
 void PatternEditorSidebar::selectedInstrumentChangedEvent() {
-
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-
-	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
-
-	unsigned nInstruments = pInstrList->size();
-	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
-		if ( nInstr < nInstruments &&
-			 m_pRows[ nInstr ] != nullptr ) {
-			
-			SidebarRow *pLine = m_pRows[ nInstr ];
-			pLine->setSelected( nInstr == nSelectedInstr );
-		}
+	const int nSelectedInstr =
+		Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	int nnIndex = 0;
+	for ( auto& rrow : m_rows ) {
+		rrow->setSelected( nnIndex == nSelectedInstr );
+		++nnIndex;
 	}
 }
 
@@ -815,37 +787,43 @@ void PatternEditorSidebar::updateRows()
 	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
 	unsigned nInstruments = pInstrList->size();
-	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
-		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
-			if ( m_pRows[ nInstr ] ) {
-				delete m_pRows[ nInstr ];
-				m_pRows[ nInstr ] = nullptr;
 
-				int newHeight = m_nGridHeight * nInstruments + 1;
-				resize( width(), newHeight );
+	const bool bResize = m_pPatternEditorPanel->getRowNumberDB() != m_rows.size();
+
+	int nnIndex = 0;
+	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
+		if ( nnIndex < m_rows.size() ) {
+			// row already exists do a lazy update instead of recreating it.
+			m_rows[ nnIndex ]->setNumber( nnIndex );
+
+			if ( rrow.nInstrumentID != EMPTY_INSTR_ID ) {
+				auto pInstr = pInstrList->find( rrow.nInstrumentID );
+				m_rows[ nnIndex ]->set( pInstr );
+				m_rows[ nnIndex ]->setSelected( nnIndex = nSelectedInstr );
 			}
-			continue;
 		}
 		else {
-			if ( m_pRows[ nInstr ] == nullptr ) {
-				// the instrument line doesn't exists..I'll create a new one!
-				m_pRows[ nInstr ] = createRow();
-				m_pRows[nInstr]->move( 0, m_nGridHeight * nInstr + 1 );
-				m_pRows[nInstr]->show();
+			// row in DB does not has its counterpart in the sidebar yet. Create
+			// it.
+			auto pRow = std::make_shared<SidebarRow>( this );
+			pRow->setNumber( nnIndex );
+			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
 
-				int newHeight = m_nGridHeight * nInstruments;
-				resize( width(), newHeight );
+			if ( rrow.nInstrumentID != EMPTY_INSTR_ID ) {
+				auto pInstr = pInstrList->find( rrow.nInstrumentID );
+				pRow->set( pInstr );
+				pRow->setSelected( nnIndex == nSelectedInstr );
 			}
-			SidebarRow *pLine = m_pRows[ nInstr ];
-			auto pInstr = pInstrList->get(nInstr);
-			assert(pInstr);
-
-			pLine->setNumber( nInstr );
-			pLine->set( pInstr );
-			pLine->setSelected( nInstr == nSelectedInstr );
+			m_rows.push_back( pRow );
 		}
+		++nnIndex;
 	}
 
+	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
+	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
+		// There are rows not required anymore
+		m_rows.pop_back();
+	}
 }
 	
 void PatternEditorSidebar::dragEnterEvent(QDragEnterEvent *event)
@@ -1018,20 +996,7 @@ void PatternEditorSidebar::instrumentParametersChangedEvent( int nInstrumentNumb
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	if ( nInstrumentNumber == -1 ) {
-		// Update all lines.
-		for ( int ii = 0; ii < MAX_INSTRUMENTS; ++ii ) {
-			auto pSidebarRow = m_pRows[ ii ];
-			if ( pSidebarRow != nullptr ) {
-				auto pInstrument = pInstrumentList->get( ii );
-				if ( pInstrument == nullptr ) {
-					ERRORLOG( QString( "Instrument [%1] associated to SidebarRow [%1] not found" )
-							  .arg( ii ) );
-					return;
-				}
-
-				pSidebarRow->set( pInstrument );
-			}
-		}
+		updateRows();
 	}
 	else {
 		// Update a specific line
@@ -1042,7 +1007,7 @@ void PatternEditorSidebar::instrumentParametersChangedEvent( int nInstrumentNumb
 			return;
 		}
 	
-		auto pSidebarRow = m_pRows[ nInstrumentNumber ];
+		auto pSidebarRow = m_rows[ nInstrumentNumber ];
 		if ( pSidebarRow == nullptr ) {
 			ERRORLOG( QString( "No SidebarRow for instrument [%1] created yet" )
 					  .arg( nInstrumentNumber ) );
