@@ -841,31 +841,31 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		return;
 	}
 
+	// Starting point for instument list is 50 lower than on the drum pattern
+	// editor
+	int nPosY;
+	if ( event->pos().x() >= m_nEditorWidth ) {
+		nPosY = event->pos().y() - 50;
+	} else {
+		nPosY = event->pos().y();
+	}
+
+	int nTargetRow = nPosY / m_nGridHeight;
+
+	// There might be rows in the pattern editor not corresponding to the
+	// current kit. Since we only support rearranging rows corresponding to
+	// valid instruments we will move the dragged one to the end of the
+	// instrument list in case it was dragged beyond it.
+	if ( nTargetRow >= pInstrumentList->size() ) {
+		nTargetRow = pInstrumentList->size() - 1;
+	}
+
 	if ( sText.startsWith( "move instrument:" ) ) {
 
 		sText.remove( 0, QString( "move instrument:" ).length() );
 
 		bool bOk = false;
 		const int nSourceRow = sText.toInt( &bOk, 10 );
-
-		// Starting point for instument list is 50 lower than
-		// on the drum pattern editor
-		int nPosY;
-		if ( event->pos().x() >= m_nEditorWidth ) {
-			nPosY = event->pos().y() - 50;
-		} else {
-			nPosY = event->pos().y();
-		}
-
-		int nTargetRow = nPosY / m_nGridHeight;
-
-		// There might be rows in the pattern editor not corresponding to the
-		// current kit. Since we only support rearranging rows corresponding to
-		// valid instruments we will move the dragged one to the end of the
-		// instrument list in case it was dragged beyond it.
-		if ( nTargetRow >= pInstrumentList->size() ) {
-			nTargetRow = pInstrumentList->size() - 1;
-		}
 
 		if ( nSourceRow == nTargetRow ) {
 			event->acceptProposedAction();
@@ -875,37 +875,22 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		HydrogenApp::get_instance()->m_pUndoStack->push(
 			new SE_moveInstrumentAction( nSourceRow, nTargetRow ) );
 
-		m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
-
 		event->acceptProposedAction();
 	}
-	if( sText.startsWith("importInstrument:") ) {
-		//an instrument was dragged from the soundlibrary browser to the patterneditor
-
-		sText.remove(0,QString("importInstrument:").length());
+	else if ( sText.startsWith( "importInstrument:" ) ) {
+		// an instrument was dragged from the soundlibrary browser to the
+		// pattern editor
+		sText.remove( 0, QString( "importInstrument:" ).length() );
 
 		QStringList tokens = sText.split( "::" );
-		QString sDrumkitPath = tokens.at( 0 );
-		QString sInstrumentName = tokens.at( 1 );
-
-		int nTargetInstrument = event->pos().y() / m_nGridHeight;
-
-		/*
-				"X > 181": border between the instrument names on the left and the grid
-				Because the right part of the grid starts above the name column, we have to subtract the difference
-		*/
-		if (  event->pos().x() > 181 ) {
-			nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
-		}
-
-		if( nTargetInstrument > pInstrumentList->size() ){
-			nTargetInstrument = pInstrumentList->size();
-		}
+		const QString sDrumkitPath = tokens.at( 0 );
+		const QString sInstrumentName = tokens.at( 1 );
 
 		// Load Instrument
 		const auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
 
-		const auto pNewDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
+		const auto pNewDrumkit =
+			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 		if ( pNewDrumkit == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
 					  .arg( sDrumkitPath ).arg( sInstrumentName ) );
@@ -913,7 +898,8 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 								   pCommonString->getInstrumentLoadError() );
 			return;
 		}
-		const auto pTargetInstrument = pNewDrumkit->getInstruments()->find( sInstrumentName );
+		const auto pTargetInstrument =
+			pNewDrumkit->getInstruments()->find( sInstrumentName );
 		if ( pTargetInstrument == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
 					  .arg( sInstrumentName ).arg( sDrumkitPath ) );
@@ -922,15 +908,28 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 			return;
 		}
 
+		// Appending in this action is done by setting the target row to -1.
+		int nTargetRowSE = nTargetRow;
+		if ( nTargetRow == pInstrumentList->size() - 1 ) {
+			nTargetRowSE = -1;
+			// Select the row after the current "end" of the drumkit.
+			++nTargetRow;
+		}
 		// We provide a copy of the instrument in order to not leak any changes
 		// into the original kit.
 		auto pAction = new SE_addInstrumentAction(
-			std::make_shared<Instrument>(pTargetInstrument), nTargetInstrument,
+			std::make_shared<Instrument>(pTargetInstrument), nTargetRowSE,
 			SE_addInstrumentAction::Type::DropInstrument );
 		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 
 		event->acceptProposedAction();
 	}
+	else {
+		// Unknown drop action
+		return;
+	}
+
+	m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
 }
 
 
