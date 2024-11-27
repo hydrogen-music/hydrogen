@@ -86,14 +86,14 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 
 	if ( pInstr->get_volume() != fVolumeValue ) {
 		pInstr->set_volume( fVolumeValue );
-	
-		if ( bSelectStrip ) {
-			pHydrogen->setSelectedInstrumentNumber( nStrip );
-		}
-	
+
 		pHydrogen->setIsModified( true );
 
 		return sendStripVolumeFeedback( nStrip );
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	return true;
@@ -120,10 +120,10 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 
 	if ( pInstrument->get_pitch_offset() != fValue ) {
 		pInstrument->set_pitch_offset( fValue );
-		Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
 		EventQueue::get_instance()->push_event(
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nInstrument );
 	}
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
 
 	return true;
 }
@@ -253,12 +253,12 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 		
 		pHydrogen->setIsModified( true );
-		
-		if ( bSelectStrip ) {
-			pHydrogen->setSelectedInstrumentNumber( nStrip );
-		}
 
 		return sendStripPanFeedback( nStrip );
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	return true;
@@ -281,12 +281,12 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 		
 		pHydrogen->setIsModified( true );
-		
-		if ( bSelectStrip ) {
-			pHydrogen->setSelectedInstrumentNumber( nStrip );
-		}
 
 		return sendStripPanFeedback( nStrip );
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	return true;
