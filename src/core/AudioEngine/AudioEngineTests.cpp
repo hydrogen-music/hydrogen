@@ -3056,8 +3056,9 @@ void AudioEngineTests::throwException( const QString& sMsg ) {
 
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
-	
-	throw std::runtime_error( sMsg.toLocal8Bit().data() );
+
+	const auto sMsgLocal8Bit = sMsg.toLocal8Bit();
+	throw std::runtime_error( sMsgLocal8Bit.data() );
 }
 
 	

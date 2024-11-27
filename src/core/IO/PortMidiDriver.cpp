@@ -205,14 +205,16 @@ void PortMidiDriver::open()
 		}
 		else {
 			if ( pInfo->input == TRUE ) {
-				if ( strcmp( pInfo->name, sMidiPortName.toLocal8Bit().constData() ) == 0 &&
+				const auto sMidiPortNameLocal8Bit = sMidiPortName.toLocal8Bit();
+				if ( strcmp( pInfo->name, sMidiPortNameLocal8Bit.constData() ) == 0 &&
 					 sMidiPortName != Preferences::getNullMidiPort() ) {
 					nDeviceId = i;
 				}
 			}
 	
 			if ( pInfo->output == TRUE ) {
-				if ( strcmp( pInfo->name, sMidiOutputPortName.toLocal8Bit().constData() ) == 0 &&
+				const auto sMidiOutputPortNameLocal8Bit = sMidiOutputPortName.toLocal8Bit();
+				if ( strcmp( pInfo->name, sMidiOutputPortNameLocal8Bit.constData() ) == 0 &&
 					 sMidiOutputPortName != Preferences::getNullMidiPort() ) {
 					nOutDeviceId = i;
 				}

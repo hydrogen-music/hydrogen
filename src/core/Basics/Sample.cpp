@@ -762,7 +762,8 @@ bool Sample::write( const QString& path, int format ) const
 								   &sf_info );
 	delete encodedFilename;
 #else
-	SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info );
+	const auto sPathLocal8Bit = path.toLocal8Bit();
+	SNDFILE* sf_file = sf_open( sPathLocal8Bit.data(), SFM_WRITE, &sf_info );
 #endif
 
 	if ( sf_file == nullptr ) {
