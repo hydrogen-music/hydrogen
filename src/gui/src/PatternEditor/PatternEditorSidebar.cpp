@@ -725,7 +725,8 @@ void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& chang
 //////
 
 PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
- : QWidget( parent )
+	: QWidget( parent )
+	, m_nDragStartY( -1 )
  {
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -811,14 +812,13 @@ void PatternEditorSidebar::dragEnterEvent(QDragEnterEvent *event)
 
 void PatternEditorSidebar::dropEvent(QDropEvent *event)
 {
-	//WARNINGLOG("Drop!");
 	if ( ! event->mimeData()->hasFormat("text/plain") ) {
 		event->ignore();
 		return;
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -833,7 +833,6 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 	}
 	
 	QString sText = event->mimeData()->text();
-	
 
 	if ( sText.startsWith("Songs:") ||
 		 sText.startsWith("Patterns:") ||
@@ -842,35 +841,48 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		return;
 	}
 
-	if (sText.startsWith("move instrument:")) {
+	if ( sText.startsWith( "move instrument:" ) ) {
 
-		int nSourceInstrument = pHydrogen->getSelectedInstrumentNumber();
+		sText.remove( 0, QString( "move instrument:" ).length() );
+
+		bool bOk = false;
+		const int nSourceRow = sText.toInt( &bOk, 10 );
 
 		// Starting point for instument list is 50 lower than
 		// on the drum pattern editor
-
-		int pos_y = ( event->pos().x() >= m_nEditorWidth ) ? event->pos().y() - 50 : event->pos().y();
-
-		int nTargetInstrument = pos_y / m_nGridHeight;
-
-		if( nTargetInstrument >= pInstrumentList->size() ){
-			nTargetInstrument = pInstrumentList->size() - 1;
+		int nPosY;
+		if ( event->pos().x() >= m_nEditorWidth ) {
+			nPosY = event->pos().y() - 50;
+		} else {
+			nPosY = event->pos().y();
 		}
 
-		if ( nSourceInstrument == nTargetInstrument ) {
+		int nTargetRow = nPosY / m_nGridHeight;
+
+		// There might be rows in the pattern editor not corresponding to the
+		// current kit. Since we only support rearranging rows corresponding to
+		// valid instruments we will move the dragged one to the end of the
+		// instrument list in case it was dragged beyond it.
+		if ( nTargetRow >= pInstrumentList->size() ) {
+			nTargetRow = pInstrumentList->size() - 1;
+		}
+
+		if ( nSourceRow == nTargetRow ) {
 			event->acceptProposedAction();
 			return;
 		}
 		
 		HydrogenApp::get_instance()->m_pUndoStack->push(
-			new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument ) );
+			new SE_moveInstrumentAction( nSourceRow, nTargetRow ) );
+
+		m_pPatternEditorPanel->setSelectedRowDB( nTargetRow );
 
 		event->acceptProposedAction();
 	}
 	if( sText.startsWith("importInstrument:") ) {
 		//an instrument was dragged from the soundlibrary browser to the patterneditor
 
-		sText = sText.remove(0,QString("importInstrument:").length());
+		sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
 		QString sDrumkitPath = tokens.at( 0 );
@@ -922,46 +934,67 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 }
 
 
-
-void PatternEditorSidebar::mousePressEvent(QMouseEvent *event)
-{
-	if (event->button() == Qt::LeftButton) {
-		__drag_start_position = event->pos();
+void PatternEditorSidebar::mousePressEvent( QMouseEvent *event ) {
+	if ( event->button() != Qt::LeftButton ) {
+		return;
 	}
 
+	if ( m_pPatternEditorPanel->getRowDB(
+			 m_pPatternEditorPanel->getSelectedRowDB() ).nInstrumentID !=
+		 EMPTY_INSTR_ID ) {
+		// Drag started at a line corresponding to an instrument of the current
+		// drumkit.
+		m_nDragStartY = event->pos().y();
+	}
+	else {
+		m_nDragStartY = -1;
+	}
 }
-
-
 
 void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 {
-	if (!(event->buttons() & Qt::LeftButton)) {
-		return;
-	}
-	if ( abs(event->pos().y() - __drag_start_position.y()) < (int)m_nGridHeight) {
-		return;
-	}
-
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
+	// Button needs to stay pressed.
+	if ( ! ( event->buttons() & Qt::LeftButton ) ) {
 		return;
 	}
 
-	QString sText = QString("move instrument:%1")
-		.arg( pSelectedInstrument->get_name() );
+	// No valid drag. Maybe it was started using a instrument type only row.
+	if ( m_nDragStartY == -1 ) {
+		return;
+	}
+
+	if ( abs( event->pos().y() - m_nDragStartY ) < m_nGridHeight ) {
+		// Still within the same row.
+		return;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	// Instrument corresponding to the selected line in the pattern editor.
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+	auto pInstrument = pSong->getDrumkit()->getInstruments()->find(
+		m_pPatternEditorPanel->getRowDB( nSelectedRow ).nInstrumentID );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "No instrument selected found for row [%1]" )
+				  .arg( nSelectedRow ) );
+		return;
+	}
+
+	const QString sText = QString( "move instrument:%1" ).arg( nSelectedRow );
 
 	QDrag *pDrag = new QDrag(this);
 	QMimeData *pMimeData = new QMimeData;
 
 	pMimeData->setText( sText );
-	pDrag->setMimeData( pMimeData);
+	pDrag->setMimeData( pMimeData );
 
 	m_pDragScroller->startDrag();
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 	m_pDragScroller->endDrag();
 
-	// propago l'evento
 	QWidget::mouseMoveEvent(event);
 }
 

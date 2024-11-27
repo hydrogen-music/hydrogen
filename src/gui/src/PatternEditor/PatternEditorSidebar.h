@@ -159,7 +159,9 @@ class PatternEditorSidebar : public QWidget,
 		std::vector<std::shared_ptr<SidebarRow>> m_rows;
 		DragScroller *m_pDragScroller;
 
-		QPoint __drag_start_position;
+		/** Vertical position the drag event started at. In case there is no
+		 * valid drag, the value will be set to -1. */
+		int m_nDragStartY;
 
 private:
 	void drawFocus( QPainter& painter );
