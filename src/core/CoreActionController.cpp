@@ -1799,7 +1799,7 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	if ( nSourceIndex > pInstrumentList->size() ||
+	if ( nSourceIndex >= pInstrumentList->size() ||
 		 nSourceIndex < 0 ) {
 		ERRORLOG( QString( "Source index [%1] out of bound [0,%2)" )
 				  .arg( nSourceIndex ).arg( pInstrumentList->size() ) );
@@ -1807,7 +1807,7 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) 
 		return false;
 	}
 
-	if ( nTargetIndex > pInstrumentList->size() ||
+	if ( nTargetIndex >= pInstrumentList->size() ||
 		 nTargetIndex < 0 ) {
 		ERRORLOG( QString( "Target index [%1] out of bound [0,%2)" )
 				  .arg( nTargetIndex ).arg( pInstrumentList->size() ) );
