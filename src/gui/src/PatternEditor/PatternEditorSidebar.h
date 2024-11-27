@@ -144,7 +144,7 @@ class PatternEditorSidebar : public QWidget,
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
-		virtual void instrumentParametersChangedEvent( int ) override;
+		virtual void instrumentMuteSoloChangedEvent( int ) override;
 
 		void updateEditor();
 	public slots:

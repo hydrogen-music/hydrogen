@@ -998,25 +998,25 @@ void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void PatternEditorSidebar::instrumentParametersChangedEvent( int nInstrumentNumber ) {
+void PatternEditorSidebar::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
 
-	if ( nInstrumentNumber == -1 ) {
+	if ( nInstrumentIndex == -1 ) {
 		updateRows();
 	}
 	else {
 		// Update a specific line
-		const auto row = m_pPatternEditorPanel->getRowDB( nInstrumentNumber );
+		const auto row = m_pPatternEditorPanel->getRowDB( nInstrumentIndex );
 		if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-			ERRORLOG( QString( "Invalid row [%1]" ).arg( nInstrumentNumber ) );
+			ERRORLOG( QString( "Invalid row [%1]" ).arg( nInstrumentIndex ) );
 			return;
 		}
 
-		if ( nInstrumentNumber >= m_rows.size() ) {
+		if ( nInstrumentIndex >= m_rows.size() ) {
 			// This should not happen
 			updateRows();
 		}
 		else {
-			m_rows[ nInstrumentNumber ]->set( row );
+			m_rows[ nInstrumentIndex ]->set( row );
 		}
 	}
 }

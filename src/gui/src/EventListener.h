@@ -35,7 +35,12 @@ class EventListener
 		virtual void songModifiedEvent() {}
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
-	virtual void instrumentParametersChangedEvent( int nInstrumentNumber ) { UNUSED( nInstrumentNumber ); }
+		virtual void instrumentParametersChangedEvent( int nInstrumentIndex ) {
+			UNUSED( nInstrumentIndex );
+		}
+		virtual void instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
+			UNUSED( nInstrumentIndex );
+		}
 		virtual void midiActivityEvent() {}
 		virtual void noteOnEvent( int nInstrument ) { UNUSED( nInstrument ); }
 		virtual void XRunEvent() {}

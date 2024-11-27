@@ -188,6 +188,8 @@ bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted )
 
 		EventQueue::get_instance()->push_event(
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_MUTE_SOLO_CHANGED, nStrip );
 	
 		pHydrogen->setIsModified( true );
 
@@ -224,6 +226,8 @@ bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 
 		EventQueue::get_instance()->push_event(
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_MUTE_SOLO_CHANGED, nStrip );
 	
 		pHydrogen->setIsModified( true );
 

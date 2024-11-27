@@ -81,6 +81,14 @@ enum EventType {
 	 * changed. `-1` indicates that multiple instruments were altered.
 	 */
 	EVENT_INSTRUMENT_PARAMETERS_CHANGED,
+	/** Mute or solo state of the instrument specified in the event parameter
+	 * changed.
+	 *
+	 * This event must always be accompanied with
+	 * #EVENT_INSTRUMENT_PARAMETERS_CHANGED and is meant to for the instrument
+	 * rows in the sidebar of the pattern editor to be updated without forcing
+	 * an update on every instrument parameter change. */
+	EVENT_INSTRUMENT_MUTE_SOLO_CHANGED,
 	EVENT_MIDI_ACTIVITY,
 	EVENT_XRUN,
 	EVENT_NOTEON,
