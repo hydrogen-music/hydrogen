@@ -80,8 +80,11 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	ASSERT_HYDROGEN
 
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
-	
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( pInstr->get_volume() != fVolumeValue ) {
 		pInstr->set_volume( fVolumeValue );
 	
 		if ( bSelectStrip ) {
@@ -93,7 +96,7 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 		return sendStripVolumeFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
@@ -115,19 +118,26 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 		return false;
 	}
 
-	pInstrument->set_pitch_offset( fValue );
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED,
-											nInstrument );
+	if ( pInstrument->get_pitch_offset() != fValue ) {
+		pInstrument->set_pitch_offset( fValue );
+		Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nInstrument );
+	}
 
 	return true;
 }
 
 bool CoreActionController::setMetronomeIsActive( bool isActive )
 {
-	Preferences::get_instance()->m_bUseMetronome = isActive;
+	auto pPref = Preferences::get_instance();
+	if ( pPref->m_bUseMetronome != isActive ) {
+		pPref->m_bUseMetronome = isActive;
 
-	return sendMetronomeIsActiveFeedback();
+		return sendMetronomeIsActiveFeedback();
+	}
+
+	return true;
 }
 
 bool CoreActionController::setMasterIsMuted( bool bIsMuted )
@@ -140,12 +150,16 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	pSong->setIsMuted( bIsMuted );
-	
-	pHydrogen->setIsModified( true );
 
-	return sendMasterIsMutedFeedback();
+	if ( pSong->getIsMuted() != bIsMuted ) {
+		pSong->setIsMuted( bIsMuted );
+	
+		pHydrogen->setIsModified( true );
+
+		return sendMasterIsMutedFeedback();
+	}
+
+	return true;
 }
 
 bool CoreActionController::toggleStripIsMuted( int nStrip )
@@ -165,17 +179,22 @@ bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( pInstr->is_muted() != bIsMuted ) {
 		pInstr->set_muted( bIsMuted );
 
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 	
 		pHydrogen->setIsModified( true );
 
 		return sendStripIsMutedFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::toggleStripIsSoloed( int nStrip )
@@ -195,18 +214,23 @@ bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( pInstr->is_soloed() != isSoloed ) {
 	
 		pInstr->set_soloed( isSoloed );
 
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 	
 		pHydrogen->setIsModified( true );
 
 		return sendStripIsSoloedFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectStrip )
@@ -214,11 +238,15 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
-	
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( pInstr->getPanWithRangeFrom0To1() != fValue ) {
 		pInstr->setPanWithRangeFrom0To1( fValue );
 		
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 		
 		pHydrogen->setIsModified( true );
 		
@@ -229,7 +257,7 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 		return sendStripPanFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 
@@ -238,11 +266,15 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
-	
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( pInstr->getPan() != fValue ) {
 		pInstr->setPan( fValue );
 		
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 		
 		pHydrogen->setIsModified( true );
 		
@@ -253,7 +285,7 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 		return sendStripPanFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::sendMasterVolumeFeedback() {
