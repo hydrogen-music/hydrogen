@@ -56,7 +56,7 @@ class SidebarRow : public PixmapWidget
 	Q_OBJECT
 
 	public:
-		explicit SidebarRow( QWidget* pParent, DrumPatternRow row );
+		explicit SidebarRow( QWidget* pParent, DrumPatternRow row, int nWidth );
 
 	int getNumber() const;
 
@@ -65,6 +65,7 @@ class SidebarRow : public PixmapWidget
 		void setSelected(bool isSelected);
 
 	static constexpr int m_nButtonWidth = 18;
+	static constexpr int m_nMargin = 10;
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -119,8 +120,9 @@ public slots:
 		void setSoloed( bool soloed );
 		void setSamplesMissing( bool bSamplesMissing );
 
-	/** Whether the cursor entered the boundary of the widget.*/
-	bool m_bEntered;
+		/** Whether the cursor entered the boundary of the widget.*/
+		bool m_bEntered;
+		int m_nWidth;
 };
 
 inline int SidebarRow::getNumber() const {

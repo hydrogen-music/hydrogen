@@ -54,10 +54,11 @@
 
 using namespace H2Core;
 
-SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row )
+SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row, int nWidth )
 	: PixmapWidget(pParent)
 	, m_bIsSelected( false )
 	, m_bEntered( false )
+	, m_nWidth( nWidth )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -65,15 +66,16 @@ SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row )
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	int h = pPref->getPatternEditorGridHeight();
-	setFixedSize(181, h);
+	resize( m_nWidth, h );
 
 	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 	m_pNameLbl = new QLabel(this);
-	m_pNameLbl->resize( 145, h );
-	m_pNameLbl->move( 10, 1 );
-	m_pNameLbl->setFont(nameFont);
+	m_pNameLbl->resize( m_nWidth - 2 * SidebarRow::m_nButtonWidth -
+						SidebarRow::m_nMargin, h );
+	m_pNameLbl->move( SidebarRow::m_nMargin, 1 );
+	m_pNameLbl->setFont( nameFont );
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
@@ -82,7 +84,7 @@ SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row )
 							 pCommonStrings->getSmallMuteButton(),
 							 true, QSize(), tr("Mute instrument"),
 							 false, true );
-	m_pMuteBtn->move( 145, 0 );
+	m_pMuteBtn->move( m_nWidth - 2 * SidebarRow::m_nButtonWidth, 0 );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
@@ -94,7 +96,7 @@ SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row )
 							 pCommonStrings->getSmallSoloButton(),
 							 false, QSize(), tr("Solo"),
 							 false, true );
-	m_pSoloBtn->move( 163, 0 );
+	m_pSoloBtn->move( m_nWidth - SidebarRow::m_nButtonWidth, 0 );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
@@ -789,7 +791,7 @@ void PatternEditorSidebar::updateRows()
 		else {
 			// row in DB does not has its counterpart in the sidebar yet. Create
 			// it.
-			auto pRow = std::make_shared<SidebarRow>( this, rrow );
+			auto pRow = std::make_shared<SidebarRow>( this, rrow, m_nEditorWidth );
 			pRow->setNumber( nnIndex );
 			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
 			pRow->show();
