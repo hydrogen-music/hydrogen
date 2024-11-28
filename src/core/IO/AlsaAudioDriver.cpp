@@ -164,10 +164,16 @@ QStringList AlsaAudioDriver::getDevices()
 			*sIOID = snd_device_name_get_hint( *pHint, "IOID");
 
 		if ( sIOID && QString( sIOID ) != "Output") {
+			free( (void *)sIOID );
+
+			if ( sName ) {
+				free( (void *)sName );
+			}
+
 			continue;
 		}
 
-		QString sDev = QString( sName );
+		const QString sDev = QString( sName );
 		if ( sName ) {
 			free( (void *)sName );
 		}

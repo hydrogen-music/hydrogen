@@ -50,7 +50,7 @@ class ShotList : public QObject, public EventListener {
 	Q_OBJECT
 
 	/// Find a widget which inherits the named class
-	static QWidget *findWidgetInheriting( QObject *pObject, QString &sName );
+	static QWidget *findWidgetInheriting( QObject *pObject, const QString &sName );
 
 	/// Find a widget by name
 	static QWidget *findWidget( QString &sName );

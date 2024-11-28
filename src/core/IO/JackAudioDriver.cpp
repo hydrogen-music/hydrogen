@@ -1038,7 +1038,8 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pPreferences->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
 		if ( lashClient->isConnected() ) {
-			lashClient->setJackClientName(sClientName.toLocal8Bit().constData());
+			const auto sClientNameLocal8Bit = sClientName.toLocal8Bit();
+			lashClient->setJackClientName(sClientNameLocal8Bit.constData());
 		}
 	}
 #endif

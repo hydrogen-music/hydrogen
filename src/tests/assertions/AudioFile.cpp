@@ -29,9 +29,10 @@ static constexpr qint64 BUFFER_SIZE = 4096;
 
 void H2Test::checkAudioFilesEqual(const QString& sExpected, const QString& sActual, CppUnit::SourceLine sourceLine)
 {
+	const auto sExpectedLocal8Bit = sExpected.toLocal8Bit();
 	SF_INFO info1 = {0};
 	std::unique_ptr<SNDFILE, decltype(&sf_close)>
-		f1{ sf_open( sExpected.toLocal8Bit().data(), SFM_READ, &info1), sf_close };
+		f1{ sf_open( sExpectedLocal8Bit.data(), SFM_READ, &info1), sf_close };
 	if ( f1 == nullptr ) {
 		CppUnit::Message msg(
 			QString( "Can't open reference file [%1]" ).arg( sExpected )
@@ -41,9 +42,10 @@ void H2Test::checkAudioFilesEqual(const QString& sExpected, const QString& sActu
 		throw CppUnit::Exception(msg, sourceLine);
 	}
 
+	const auto sActualLocal8Bit = sActual.toLocal8Bit();
 	SF_INFO info2 = {0};
 	std::unique_ptr<SNDFILE, decltype(&sf_close)>
-		f2{ sf_open( sActual.toLocal8Bit().data(), SFM_READ, &info2), sf_close };
+		f2{ sf_open( sActualLocal8Bit.data(), SFM_READ, &info2), sf_close };
 	if ( f2 == nullptr ) {
 		CppUnit::Message msg(
 			QString( "Can't open results file [%1]" ).arg( sActual )
@@ -96,9 +98,10 @@ void H2Test::checkAudioFilesEqual(const QString& sExpected, const QString& sActu
 
 void H2Test::checkAudioFilesDataEqual(const QString& sExpected, const QString& sActual, CppUnit::SourceLine sourceLine)
 {
+	const auto sExpectedLocal8Bit = sExpected.toLocal8Bit();
 	SF_INFO expectedInfo = {0};
 	std::unique_ptr<SNDFILE, decltype(&sf_close)>
-		f1{ sf_open( sExpected.toLocal8Bit().data(), SFM_READ, &expectedInfo), sf_close };
+		f1{ sf_open( sExpectedLocal8Bit.data(), SFM_READ, &expectedInfo), sf_close };
 	if ( f1 == nullptr ) {
 		CppUnit::Message msg(
 			QString( "Can't open reference file [%1]" ).arg( sExpected )
@@ -108,9 +111,10 @@ void H2Test::checkAudioFilesDataEqual(const QString& sExpected, const QString& s
 		throw CppUnit::Exception(msg, sourceLine);
 	}
 
+	const auto sActualLocal8Bit = sActual.toLocal8Bit();
 	SF_INFO actualInfo = {0};
 	std::unique_ptr<SNDFILE, decltype(&sf_close)>
-		f2{ sf_open( sActual.toLocal8Bit().data(), SFM_READ, &actualInfo), sf_close };
+		f2{ sf_open( sActualLocal8Bit.data(), SFM_READ, &actualInfo), sf_close };
 	if ( f2 == nullptr ) {
 		CppUnit::Message msg(
 			QString( "Can't open results file [%1]" ).arg( sActual )
