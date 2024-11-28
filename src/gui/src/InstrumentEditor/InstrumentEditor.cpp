@@ -727,6 +727,11 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 	Rotary* pRotary = static_cast<Rotary*>( ref );
 	auto pCoreActionController =
 		Hydrogen::get_instance()->getCoreActionController();
+
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	
 	float fVal = pRotary->getValue();
 
@@ -738,12 +743,14 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			//round fVal, since Coarse is the integer number of half steps
 			float fNewPitch = round( fVal ) + m_pPitchFineRotary->getValue();
 			pCoreActionController->setInstrumentPitch(
-				m_pInstrument->get_id(), fNewPitch );
+				pSong->getInstrumentList()->index( m_pInstrument ),
+				fNewPitch );
 		}
 		else if ( pRotary == m_pPitchFineRotary ) {
 			float fNewPitch = round( m_pPitchCoarseRotary->getValue() ) + fVal;
 			pCoreActionController->setInstrumentPitch(
-				m_pInstrument->get_id(), fNewPitch );
+				pSong->getInstrumentList()->index( m_pInstrument ),
+				fNewPitch );
 		}
 		else if ( pRotary == m_pCutoffRotary ) {
 			m_pInstrument->set_filter_cutoff( fVal );
