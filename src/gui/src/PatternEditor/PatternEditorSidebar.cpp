@@ -77,38 +77,45 @@ SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row, int nWidth )
 	m_pNameLbl->move( SidebarRow::m_nMargin, 1 );
 	m_pNameLbl->setFont( nameFont );
 
-	/*: Text displayed on the button for muting an instrument. Its
-	  size is designed for a single character.*/
-	m_pMuteBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
-							 Button::Type::Toggle, "",
-							 pCommonStrings->getSmallMuteButton(),
-							 true, QSize(), tr("Mute instrument"),
-							 false, true );
-	m_pMuteBtn->move( m_nWidth - 2 * SidebarRow::m_nButtonWidth, 0 );
-	m_pMuteBtn->setChecked( false );
-	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
-	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
+	if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
+		/*: Text displayed on the button for muting an instrument. Its
+		  size is designed for a single character.*/
+		m_pMuteBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
+								 Button::Type::Toggle, "",
+								 pCommonStrings->getSmallMuteButton(),
+								 true, QSize(), tr("Mute instrument"),
+								 false, true );
+		m_pMuteBtn->move( m_nWidth - 2 * SidebarRow::m_nButtonWidth, 0 );
+		m_pMuteBtn->setChecked( false );
+		m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
+		connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
-	/*: Text displayed on the button for soloing an instrument. Its
-	  size is designed for a single character.*/
-	m_pSoloBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
-							 Button::Type::Toggle, "",
-							 pCommonStrings->getSmallSoloButton(),
-							 false, QSize(), tr("Solo"),
-							 false, true );
-	m_pSoloBtn->move( m_nWidth - SidebarRow::m_nButtonWidth, 0 );
-	m_pSoloBtn->setChecked( false );
-	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
-	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
+		/*: Text displayed on the button for soloing an instrument. Its
+		  size is designed for a single character.*/
+		m_pSoloBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
+								 Button::Type::Toggle, "",
+								 pCommonStrings->getSmallSoloButton(),
+								 false, QSize(), tr("Solo"),
+								 false, true );
+		m_pSoloBtn->move( m_nWidth - SidebarRow::m_nButtonWidth, 0 );
+		m_pSoloBtn->setChecked( false );
+		m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
+		connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
 
-	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Icon,
-								   "warning.svg", "", false, QSize(),
-								   tr( "Some samples for this instrument failed to load." ),
-								   true );
-	m_pSampleWarning->move( 128, 5 );
-	m_pSampleWarning->hide();
-	connect(m_pSampleWarning, SIGNAL( clicked() ), this, SLOT( sampleWarningClicked() ));
-
+		m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Icon,
+									   "warning.svg", "", false, QSize(),
+									   tr( "Some samples for this instrument failed to load." ),
+									   true );
+		m_pSampleWarning->move( 128, 5 );
+		m_pSampleWarning->hide();
+		connect(m_pSampleWarning, SIGNAL( clicked() ),
+				this, SLOT( sampleWarningClicked() ));
+	}
+	else {
+		m_pMuteBtn = nullptr;
+		m_pSoloBtn = nullptr;
+		m_pSampleWarning = nullptr;
+	}
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
@@ -320,7 +327,7 @@ void SidebarRow::setNumber(int nIndex)
 
 void SidebarRow::setMuted(bool isMuted)
 {
-	if ( ! m_pMuteBtn->isDown() &&
+	if ( m_pMuteBtn != nullptr && ! m_pMuteBtn->isDown() &&
 		 m_pMuteBtn->isChecked() != isMuted ) {
 		m_pMuteBtn->setChecked(isMuted);
 	}
@@ -329,7 +336,7 @@ void SidebarRow::setMuted(bool isMuted)
 
 void SidebarRow::setSoloed( bool soloed )
 {
-	if ( ! m_pSoloBtn->isDown() &&
+	if ( m_pSoloBtn != nullptr && ! m_pSoloBtn->isDown() &&
 		 m_pSoloBtn->isChecked() != soloed ) {
 		m_pSoloBtn->setChecked( soloed );
 	}
@@ -338,10 +345,12 @@ void SidebarRow::setSoloed( bool soloed )
 
 void SidebarRow::setSamplesMissing( bool bSamplesMissing )
 {
-	if ( bSamplesMissing ) {
-		m_pSampleWarning->show();
-	} else {
-		m_pSampleWarning->hide();
+	if ( m_pSampleWarning != nullptr ) {
+		if ( bSamplesMissing ) {
+			m_pSampleWarning->show();
+		} else {
+			m_pSampleWarning->hide();
+		}
 	}
 }
 
@@ -421,7 +430,7 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 			return;
 		}
 		auto pInstr = pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
-		if ( pInstr != nullptr && pInstr->hasSamples() ) {
+		if ( m_pMuteBtn != nullptr && pInstr != nullptr && pInstr->hasSamples() ) {
 
 			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
 			const float fVelocity = std::min(
