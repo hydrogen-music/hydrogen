@@ -560,35 +560,35 @@ CommonStrings::CommonStrings(){
 	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
-	/** Representing adding a new instrument in the undo history as well as
+	/*: Representing adding a new instrument in the undo history as well as
 	 * names the action presenting when right-clicking the instrument list in
 	 * the pattern editor. */
 	m_sActionAddInstrument = tr( "Add instrument" );
-	/** Representing an instrument deletion in the undo history */
+	/*: Representing an instrument deletion in the undo history */
 	m_sActionDeleteInstrument = tr( "Delete instrument" );
-	/** Representing a drag&drop event for an instrument in the undo history */
+	/*: Representing a drag&drop event for an instrument in the undo history */
 	m_sActionDropInstrument = tr( "Drop instrument" );
-	/** Representing a renaming of an instrument in the undo history and context
+	/*: Representing a renaming of an instrument in the undo history and context
 	 * menu. */
 	m_sActionRenameInstrument = tr( "Rename instrument" );
-	/** Representing a drumkit loading in the undo history */
+	/*: Representing a drumkit loading in the undo history */
 	m_sActionSwitchDrumkit = tr( "Switch drumkit" );
-	/** Representing the creation of a new drumkit in the undo history */
+	/*: Representing the creation of a new drumkit in the undo history */
 	m_sActionNewDrumkit = tr( "Replace song drumkit with new and empty one" );
-	/** Representing adding a new component to the currently selected instrument
+	/*: Representing adding a new component to the currently selected instrument
 	 * in the undo history */
 	m_sActionAddComponent = tr( "Adding component" );
-	/** Representing deletion of a component from the currently selected
+	/*: Representing deletion of a component from the currently selected
 	 * instrument in the undo history */
 	m_sActionDeleteComponent = tr( "Delete component" );
-	/** Representing renaming a component of the currently selected instrument
+	/*: Representing renaming a component of the currently selected instrument
 	 * in the undo history */
 	m_sActionRenameComponent = tr( "Rename component" );
 
-	/** Representing deleting all notes of a specific row in the pattern editor
+	/*: Representing deleting all notes of a specific row in the pattern editor
 	 * in the undo history. The number of the row will be append. */
 	m_sActionClearAllNotesInRow = tr( "Clear notes in row" );
-	/** Representing deleting all notes in the pattern editor in the undo
+	/*: Representing deleting all notes in the pattern editor in the undo
 	 * history */
 	m_sActionClearAllNotes = tr( "Clear notes" );
 

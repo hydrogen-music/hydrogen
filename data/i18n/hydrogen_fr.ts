@@ -1120,34 +1120,42 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Delete instrument</source>
+        <extracomment>Representing an instrument deletion in the undo history</extracomment>
         <translation>Effacer l&apos;instrument</translation>
     </message>
     <message>
         <source>Drop instrument</source>
+        <extracomment>Representing a drag&amp;drop event for an instrument in the undo history</extracomment>
         <translation>Déposer l&apos;instrument</translation>
     </message>
     <message>
         <source>Switch drumkit</source>
+        <extracomment>Representing a drumkit loading in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace song drumkit with new and empty one</source>
+        <extracomment>Representing the creation of a new drumkit in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Adding component</source>
+        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete component</source>
+        <extracomment>Representing deletion of a component from the currently selected * instrument in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rename component</source>
+        <extracomment>Representing renaming a component of the currently selected instrument * in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add instrument</source>
+        <extracomment>Representing adding a new instrument in the undo history as well as * names the action presenting when right-clicking the instrument list in * the pattern editor.</extracomment>
         <translation>Ajouter un instrument</translation>
     </message>
     <message>
@@ -1169,6 +1177,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Rename instrument</source>
+        <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
         <translation>Renommer l&apos;instrument</translation>
     </message>
     <message>
@@ -1193,10 +1202,12 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Clear notes in row</source>
+        <extracomment>Representing deleting all notes of a specific row in the pattern editor * in the undo history. The number of the row will be append.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear notes</source>
+        <extracomment>Representing deleting all notes in the pattern editor in the undo * history</extracomment>
         <translation>Effacer les notes</translation>
     </message>
 </context>
