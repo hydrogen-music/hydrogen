@@ -1199,52 +1199,62 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Clear notes in row</source>
-        <extracomment>Representing deleting all notes of a specific row in the pattern editor * in the undo history. The number of the row will be append.</extracomment>
+        <extracomment>Representing deleting all notes of a specific row in the pattern editor * in the undo history (the number of the row will be append) as well as in * the right-click context menu within the sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear notes</source>
-        <extracomment>Representing deleting all notes in the pattern editor in the undo * history</extracomment>
+        <extracomment>Representing deleting all notes in the pattern editor in the undo * history as well as in the right-click context menu within the sidebar of * the pattern editor.</extracomment>
         <translation>Rensa noter</translation>
     </message>
     <message>
         <source>Fill all notes</source>
-        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history</extracomment>
+        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill 1/2 notes</source>
-        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill 1/3 notes</source>
-        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill 1/4 notes</source>
-        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill 1/6 notes</source>
-        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill 1/8 notes</source>
-        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
-        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history</extracomment>
+        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fill 1/16 notes</source>
-        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history</extracomment>
+        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cut notes</source>
+        <extracomment>Representing cutting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste notes</source>
+        <extracomment>Representing pasting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4497,10 +4507,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Paste instrument notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Move instrument</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5529,15 +5535,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cut notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copy notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paste notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

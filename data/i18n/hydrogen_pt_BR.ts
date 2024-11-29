@@ -1202,53 +1202,63 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Clear notes in row</source>
-        <extracomment>Representing deleting all notes of a specific row in the pattern editor * in the undo history. The number of the row will be append.</extracomment>
+        <extracomment>Representing deleting all notes of a specific row in the pattern editor * in the undo history (the number of the row will be append) as well as in * the right-click context menu within the sidebar of the pattern editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear notes</source>
-        <extracomment>Representing deleting all notes in the pattern editor in the undo * history</extracomment>
+        <extracomment>Representing deleting all notes in the pattern editor in the undo * history as well as in the right-click context menu within the sidebar of * the pattern editor.</extracomment>
         <translation>Limpar notas</translation>
     </message>
     <message>
         <source>Fill all notes</source>
-        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history</extracomment>
+        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencher todas as notas</translation>
     </message>
     <message>
         <source>Fill 1/2 notes</source>
-        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencha uma nota em 2</translation>
     </message>
     <message>
         <source>Fill 1/3 notes</source>
-        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencha uma nota em 3</translation>
     </message>
     <message>
         <source>Fill 1/4 notes</source>
-        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencha uma nota em 4</translation>
     </message>
     <message>
         <source>Fill 1/6 notes</source>
-        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencha uma nota em 6</translation>
     </message>
     <message>
         <source>Fill 1/8 notes</source>
-        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history</extracomment>
+        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencha uma nota em 8</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
-        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history</extracomment>
+        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencha uma nota em 12</translation>
     </message>
     <message>
         <source>Fill 1/16 notes</source>
-        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history</extracomment>
+        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>Preencha uma nota em 16</translation>
+    </message>
+    <message>
+        <source>Cut notes</source>
+        <extracomment>Representing cutting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>Cortar notas</translation>
+    </message>
+    <message>
+        <source>Paste notes</source>
+        <extracomment>Representing pasting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>Colar notas</translation>
     </message>
 </context>
 <context>
@@ -4551,10 +4561,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Sobrescrever %1 notas</translation>
     </message>
     <message>
-        <source>Paste instrument notes</source>
-        <translation>Colar notas de instrumento</translation>
-    </message>
-    <message>
         <source>Move instrument</source>
         <translation>Mover instrumento</translation>
     </message>
@@ -5606,16 +5612,8 @@ p, li { white-space: pre-wrap; }
         <translation>Editar todos os padrões</translation>
     </message>
     <message>
-        <source>Cut notes</source>
-        <translation>Cortar notas</translation>
-    </message>
-    <message>
         <source>Copy notes</source>
         <translation>Copiar notas</translation>
-    </message>
-    <message>
-        <source>Paste notes</source>
-        <translation>Colar notas</translation>
     </message>
     <message>
         <source>Instrument</source>

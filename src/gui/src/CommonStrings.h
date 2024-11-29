@@ -253,6 +253,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 			return m_sActionClearAllNotesInRow; }
 		const QString& getActionClearAllNotes() const {
 			return m_sActionClearAllNotes; }
+		const QString& getActionCutAllNotes() const {
+			return m_sActionCutAllNotes; }
+		const QString& getActionPasteAllNotes() const {
+			return m_sActionPasteAllNotes; }
 		const QString& getActionFillAllNotes() const {
 			return m_sActionFillAllNotes; }
 		const QString& getActionFillEverySecondNote() const {
@@ -489,6 +493,8 @@ private:
 
 		QString m_sActionClearAllNotesInRow;
 		QString m_sActionClearAllNotes;
+		QString m_sActionCutAllNotes;
+		QString m_sActionPasteAllNotes;
 		QString m_sActionFillAllNotes;
 		QString m_sActionFillEverySecondNote;
 		QString m_sActionFillEveryThirdNote;

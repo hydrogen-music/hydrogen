@@ -586,34 +586,52 @@ CommonStrings::CommonStrings(){
 	m_sActionRenameComponent = tr( "Rename component" );
 
 	/*: Representing deleting all notes of a specific row in the pattern editor
-	 * in the undo history. The number of the row will be append. */
+	 * in the undo history (the number of the row will be append) as well as in
+	 * the right-click context menu within the sidebar of the pattern editor. */
 	m_sActionClearAllNotesInRow = tr( "Clear notes in row" );
 	/*: Representing deleting all notes in the pattern editor in the undo
-	 * history */
+	 * history as well as in the right-click context menu within the sidebar of
+	 * the pattern editor. */
 	m_sActionClearAllNotes = tr( "Clear notes" );
+	/*: Representing cutting all notes of a particular row in all patterns in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionCutAllNotes = tr( "Cut notes" );
+	/*: Representing pasting all notes of a particular row in all patterns in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor.*/
+	m_sActionPasteAllNotes = tr( "Paste notes" );
 	/*: Representing filling all notes of a row in the pattern editor in the
-	 * undo history */
+	 * undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillAllNotes = tr( "Fill all notes" );
 	/*: Representing filling every second note of a row in the pattern editor in
-	 * the undo history */
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillEverySecondNote = tr( "Fill 1/2 notes" );
 	/*: Representing filling every third note of a row in the pattern editor in
-	 * the undo history */
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillEveryThirdNote = tr( "Fill 1/3 notes" );
 	/*: Representing filling every fourth note of a row in the pattern editor in
-	 * the undo history */
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillEveryFourthNote = tr( "Fill 1/4 notes" );
 	/*: Representing filling every sixth note of a row in the pattern editor in
-	 * the undo history */
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillEverySixthNote = tr( "Fill 1/6 notes" );
 	/*: Representing filling every eighth note of a row in the pattern editor in
-	 * the undo history */
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillEveryEighthNote = tr( "Fill 1/8 notes" );
 	/*: Representing filling every twelfth note of a row in the pattern editor
-	 * in the undo history */
+	 * in the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillEveryTwelfthNote = tr( "Fill 1/12 notes" );
 	/*: Representing filling every sixteenth note of a row in the pattern editor
-	 * in the undo history */
+	 * in the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
 	m_sActionFillEverySixteenthNote = tr( "Fill 1/16 notes" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
