@@ -809,7 +809,7 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
 	if ( m_pPatternList != nullptr ) {
-		m_pPatternList->save_to( rootNode, nullptr );
+		m_pPatternList->save_to( rootNode );
 	}
 	saveVirtualPatternsTo( rootNode, bSilent );
 	savePatternGroupVectorTo( rootNode, bSilent );

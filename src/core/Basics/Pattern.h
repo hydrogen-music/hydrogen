@@ -106,15 +106,17 @@ class Pattern : public H2Core::Object<Pattern>
 		 */
 		bool save( const QString& sPatternPath, bool bSilent = false ) const;
 
-		/**
-		 * save the pattern within the given XMLNode
-		 * \param node the XMLNode to feed
-		 * \param pInstrumentOnly export only the notes of that instrument if given
-		 * \param bSilent whever to log info and debug messages.
-		 */
-		void saveTo( XMLNode& node,
-					 const std::shared_ptr<Instrument> pInstrumentOnly = nullptr,
-					 bool bSilent = false ) const;
+		/** Stores a serialized version of the instance to the XML note @a
+		 * pNote.
+		 *
+		 * @param node the XMLNode to feed
+		 * @param nInstrumentId If set to a value other than #EMPTY_INSTR_ID, it
+		 *   is used to filter serialized notes by requiring a matching id.
+		 * @param sType If set to a non-empty value, it is used to filter
+		 *   serialized notess by requiring a matching type.
+		 * @param bSilent whever to log info and debug messages. */
+		void saveTo( XMLNode& node, int nInstrumentId = EMPTY_INSTR_ID,
+					 const QString& sType = "", bool bSilent = false ) const;
 
 		void setVersion( int nVersion );
 		int getVersion() const;

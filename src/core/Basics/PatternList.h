@@ -69,8 +69,17 @@ class Note;
 	static PatternList* load_from( const XMLNode& pNode,
 								   const QString& sDrumkitName,
 								   bool bSilent = false );
-	void save_to( XMLNode& pNode,
-				  const std::shared_ptr<Instrument> pInstrumentOnly = nullptr ) const;
+
+		/** Stores a serialized version of the instance to the XML note @a
+		 * pNote.
+		 *
+		 * @param pNode the XMLNode to feed
+		 * @param nInstrumentId If set to a value other than #EMPTY_INSTR_ID, it
+		 *   is used to filter serialized notes by requiring a matching id.
+		 * @param sType If set to a non-empty value, it is used to filter
+		 *   serialized notess by requiring a matching type. */
+		void save_to( XMLNode& pNode, int nInstrumentId = EMPTY_INSTR_ID,
+					  const QString& sType = "" ) const;
 
 		/** returns the numbers of patterns */
 		int size() const;

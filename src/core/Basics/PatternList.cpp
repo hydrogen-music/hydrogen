@@ -82,13 +82,13 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	return pPatternList;
 }
 
-void PatternList::save_to( XMLNode& node,
-						   const std::shared_ptr<Instrument> pInstrumentOnly ) const {
+void PatternList::save_to( XMLNode& node, int nInstrumentId,
+						   const QString& sType ) const {
 	XMLNode patternListNode = node.createNode( "patternList" );
 	
 	for ( const auto& pPattern : __patterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->saveTo( patternListNode, pInstrumentOnly );
+			pPattern->saveTo( patternListNode, nInstrumentId, sType );
 		}
 	}
 }

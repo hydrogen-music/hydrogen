@@ -243,12 +243,11 @@ bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
 	// For backward compatibility we will also add the name of the current
 	// drumkit.
 	root.write_string( "drumkit_name", pSong->getDrumkit()->getExportName() );
-	saveTo( root, nullptr, bSilent );
+	saveTo( root, EMPTY_INSTR_ID, "", bSilent );
 	return doc.write( sPatternPath );
 }
 
-void Pattern::saveTo( XMLNode& node,
-					  const std::shared_ptr<Instrument> pInstrumentOnly,
+void Pattern::saveTo( XMLNode& node, int nInstrumentId, const QString& sType,
 					  bool bSilent ) const
 {
 	XMLNode pattern_node =  node.createNode( "pattern" );
@@ -262,15 +261,16 @@ void Pattern::saveTo( XMLNode& node,
 	pattern_node.write_int( "size", m_nLength );
 	pattern_node.write_int( "denominator", m_nDenominator );
 	
-	const int nId = pInstrumentOnly == nullptr ? EMPTY_INSTR_ID :
-		pInstrumentOnly->get_id();
-	
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	for ( auto it = m_notes.cbegin(); it != m_notes.cend(); ++it ) {
 		auto pNote = it->second;
 		if ( pNote != nullptr &&
-			 ( pInstrumentOnly == nullptr ||
-			   pNote->get_instrument_id() == nId ) &&
+			 // Optionally filter note
+			 ( ( nInstrumentId == EMPTY_INSTR_ID ||
+				 nInstrumentId == pNote->get_instrument_id() ) &&
+			   ( sType.isEmpty() || sType == pNote->getType() ) ) &&
+			 // Check whether the note corresponds to an instrument of the
+			 // current kit at all.
 			 ( pNote->get_instrument_id() != EMPTY_INSTR_ID ||
 			   ! pNote->getType().isEmpty() ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
