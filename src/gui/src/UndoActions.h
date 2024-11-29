@@ -802,40 +802,6 @@ private:
 		H2Core::PatternList* m_pAppliedNotesPatternList;
 };
 
-
-/** \ingroup docGUI*/
-class SE_fillNotesRightClickAction : public QUndoCommand
-{
-public:
-	SE_fillNotesRightClickAction( const QStringList& notePositions,
-								  int nRow,
-								  int nPatternNumber  ){
-		setText( QObject::tr( "Fill notes" ) );
-		m_notePositions = notePositions;
-		m_nRow= nRow;
-		m_nPatternNumber = nPatternNumber;
-	}
-	virtual void undo()
-	{
-		//qDebug() << "fill notes Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( m_notePositions, m_nRow, m_nPatternNumber );
-	}
-	virtual void redo()
-	{
-		//qDebug() << "fill notes Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction( m_notePositions, m_nRow, m_nPatternNumber );
-	}
-private:
-	QStringList m_notePositions;
-	int m_nRow;
-	int m_nPatternNumber;
-};
-
-
-
-
 /** \ingroup docGUI*/
 class SE_moveInstrumentAction : public QUndoCommand
 {

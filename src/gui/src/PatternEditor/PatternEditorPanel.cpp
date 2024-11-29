@@ -1608,3 +1608,79 @@ void PatternEditorPanel::clearNotesInRow( int nRow ) {
 		pUndo->endMacro();
 	}
 }
+
+QString PatternEditorPanel::FillNotesToQString( const FillNotes& fillNotes ) {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	switch ( fillNotes ) {
+		case FillNotes::All:
+			return pCommonStrings->getActionFillAllNotes();
+		case FillNotes::EverySecond:
+			return pCommonStrings->getActionFillEverySecondNote();
+		case FillNotes::EveryThird:
+			return pCommonStrings->getActionFillEveryThirdNote();
+		case FillNotes::EveryFourth:
+			return pCommonStrings->getActionFillEveryFourthNote();
+		case FillNotes::EverySixth:
+			return pCommonStrings->getActionFillEverySixthNote();
+		case FillNotes::EveryEighth:
+			return pCommonStrings->getActionFillEveryEighthNote();
+		case FillNotes::EveryTwelfth:
+			return pCommonStrings->getActionFillEveryTwelfthNote();
+		case FillNotes::EverySixteenth:
+			return pCommonStrings->getActionFillEverySixteenthNote();
+		default:
+			return QString( "Unknown fill option [%1]" )
+				.arg( static_cast<int>(fillNotes) );
+	}
+}
+
+void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
+	int nBase;
+	if ( m_pDrumPatternEditor->isUsingTriplets() ) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+	const int nResolution = 4 * MAX_NOTES * static_cast<int>(every) /
+		( nBase * m_pDrumPatternEditor->getResolution() );
+
+	const auto row = getRowDB( nRow );
+
+	std::vector<int> notePositions;
+	const auto notes = m_pPattern->getNotes();
+	for ( int ii = 0; ii < m_pPattern->getLength(); ii += nResolution ) {
+		bool bNoteAlreadyPresent = false;
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
+			auto ppNote = it->second;
+			if ( ppNote != nullptr &&
+				 ppNote->get_instrument_id() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType ) {
+				bNoteAlreadyPresent = true;
+				break;
+			}
+		}
+
+		if ( ! bNoteAlreadyPresent ) {
+			notePositions.push_back( ii );
+		}
+	}
+
+	if ( notePositions.size() > 0 ) {
+		auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+		pUndo->beginMacro( FillNotesToQString( every ) );
+		for ( int nnPosition : notePositions ) {
+			m_pDrumPatternEditor->addOrRemoveNote(
+				nnPosition, nnPosition, nRow, KEY_MIN, OCTAVE_DEFAULT,
+				true /* bDoAdd */, false /* bDoDelete */,
+				false /* bIsNoteOff */ );
+		}
+		pUndo->endMacro();
+	}
+}

@@ -199,11 +199,29 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		  * #DrumPatternEditor.
 		  *
 		  * Note that removing all notes of rows in the #PianoRollEditor is not
-		  * supported yet.
+		  * supported.
 		  *
 		  * @param nRow If set to `-1`, all notes of all rows will be
 		  *   cleared. */
 		void clearNotesInRow( int nRow );
+
+		enum class FillNotes {
+			All = 1,
+			EverySecond = 2,
+			EveryThird = 3,
+			EveryFourth = 4,
+			EverySixth = 6,
+			EveryEighth = 8,
+			EveryTwelfth = 12,
+			EverySixteenth = 16
+		};
+		static QString FillNotesToQString( const FillNotes& fillNotes );
+
+		/** Add every @a every note to row @a nRow.
+		  *
+		  * Note that filling notes is only supported for rows of the
+		  * #DrumPatternEditor, not the #PianoRollEditor. */
+		void fillNotesInRow( int nRow, FillNotes every );
 
 	public slots:
 		void showDrumEditor();

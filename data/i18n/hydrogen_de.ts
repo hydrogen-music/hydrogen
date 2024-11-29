@@ -1210,6 +1210,46 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Representing deleting all notes in the pattern editor in the undo * history</extracomment>
         <translation>Noten löschen</translation>
     </message>
+    <message>
+        <source>Fill all notes</source>
+        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history</extracomment>
+        <translation>(1/1) Füge alle Noten ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>(1/2) Füge jede zweite Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>(1/3) Füge jede dritte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>(1/4) Füge jede vierte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>(1/6) Füge jede sechste Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>(1/8) Füge jede achte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history</extracomment>
+        <translation>(1/12) Füge jede zwölfte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history</extracomment>
+        <translation>(1/16) Füge jede sechzehnte Note ein</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4509,10 +4549,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Instrumenten-Noten einfügen</translation>
     </message>
     <message>
-        <source>Fill notes</source>
-        <translation>Fülle Pattern mit Noten</translation>
-    </message>
-    <message>
         <source>Move instrument</source>
         <translation>Verschiebe Instrument</translation>
     </message>
@@ -5554,38 +5590,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Fill notes ...</source>
         <translation>Mit Noten füllen ...</translation>
-    </message>
-    <message>
-        <source>Fill all notes</source>
-        <translation>(1/1) Füge alle Noten ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/2 notes</source>
-        <translation>(1/2) Füge jede zweite Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/3 notes</source>
-        <translation>(1/3) Füge jede dritte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/4 notes</source>
-        <translation>(1/4) Füge jede vierte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/6 notes</source>
-        <translation>(1/6) Füge jede sechste Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/8 notes</source>
-        <translation>(1/8) Füge jede achte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/12 notes</source>
-        <translation>(1/12) Füge jede zwölfte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/16 notes</source>
-        <translation>(1/16) Füge jede sechzehnte Note ein</translation>
     </message>
     <message>
         <source>Select notes</source>

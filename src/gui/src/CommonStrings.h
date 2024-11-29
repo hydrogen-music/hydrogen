@@ -253,6 +253,22 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 			return m_sActionClearAllNotesInRow; }
 		const QString& getActionClearAllNotes() const {
 			return m_sActionClearAllNotes; }
+		const QString& getActionFillAllNotes() const {
+			return m_sActionFillAllNotes; }
+		const QString& getActionFillEverySecondNote() const {
+			return m_sActionFillEverySecondNote; }
+		const QString& getActionFillEveryThirdNote() const {
+			return m_sActionFillEveryThirdNote; }
+		const QString& getActionFillEveryFourthNote() const {
+			return m_sActionFillEveryFourthNote; }
+		const QString& getActionFillEverySixthNote() const {
+			return m_sActionFillEverySixthNote; }
+		const QString& getActionFillEveryEighthNote() const {
+			return m_sActionFillEveryEighthNote; }
+		const QString& getActionFillEveryTwelfthNote() const {
+			return m_sActionFillEveryTwelfthNote; }
+		const QString& getActionFillEverySixteenthNote() const {
+			return m_sActionFillEverySixteenthNote; }
 
 		const QString& getNotePropertyVelocity() const {
 			return m_sNotePropertyVelocity; }
@@ -473,6 +489,14 @@ private:
 
 		QString m_sActionClearAllNotesInRow;
 		QString m_sActionClearAllNotes;
+		QString m_sActionFillAllNotes;
+		QString m_sActionFillEverySecondNote;
+		QString m_sActionFillEveryThirdNote;
+		QString m_sActionFillEveryFourthNote;
+		QString m_sActionFillEverySixthNote;
+		QString m_sActionFillEveryEighthNote;
+		QString m_sActionFillEveryTwelfthNote;
+		QString m_sActionFillEverySixteenthNote;
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;

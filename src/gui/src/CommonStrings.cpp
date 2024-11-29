@@ -591,6 +591,30 @@ CommonStrings::CommonStrings(){
 	/*: Representing deleting all notes in the pattern editor in the undo
 	 * history */
 	m_sActionClearAllNotes = tr( "Clear notes" );
+	/*: Representing filling all notes of a row in the pattern editor in the
+	 * undo history */
+	m_sActionFillAllNotes = tr( "Fill all notes" );
+	/*: Representing filling every second note of a row in the pattern editor in
+	 * the undo history */
+	m_sActionFillEverySecondNote = tr( "Fill 1/2 notes" );
+	/*: Representing filling every third note of a row in the pattern editor in
+	 * the undo history */
+	m_sActionFillEveryThirdNote = tr( "Fill 1/3 notes" );
+	/*: Representing filling every fourth note of a row in the pattern editor in
+	 * the undo history */
+	m_sActionFillEveryFourthNote = tr( "Fill 1/4 notes" );
+	/*: Representing filling every sixth note of a row in the pattern editor in
+	 * the undo history */
+	m_sActionFillEverySixthNote = tr( "Fill 1/6 notes" );
+	/*: Representing filling every eighth note of a row in the pattern editor in
+	 * the undo history */
+	m_sActionFillEveryEighthNote = tr( "Fill 1/8 notes" );
+	/*: Representing filling every twelfth note of a row in the pattern editor
+	 * in the undo history */
+	m_sActionFillEveryTwelfthNote = tr( "Fill 1/12 notes" );
+	/*: Representing filling every sixteenth note of a row in the pattern editor
+	 * in the undo history */
+	m_sActionFillEverySixteenthNote = tr( "Fill 1/16 notes" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the

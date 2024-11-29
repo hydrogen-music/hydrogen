@@ -67,15 +67,6 @@ public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private slots:
-		void functionFillAllNotes();
-		void functionFillEveryTwoNotes();
-		void functionFillEveryThreeNotes();
-		void functionFillEveryFourNotes();
-		void functionFillEverySixNotes();
-		void functionFillEveryEightNotes();
-		void functionFillEveryTwelveNotes();
-		void functionFillEverySixteenNotes();
-		void functionFillNotes( int every );
 		void functionCopyAllInstrumentPatterns();
 		void functionPasteAllInstrumentPatterns();
 		void functionCutNotesAllPatterns();

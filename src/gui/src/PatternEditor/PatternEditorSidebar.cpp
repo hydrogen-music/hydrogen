@@ -125,14 +125,54 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
 
 	m_pFunctionPopupSub = new QMenu( tr( "Fill notes ..." ), m_pFunctionPopup );
-	m_pFunctionPopupSub->addAction( tr( "Fill all notes" ), this, SLOT( functionFillAllNotes() ) );
-	m_pFunctionPopupSub->addAction( tr( "Fill 1/2 notes" ), this, SLOT( functionFillEveryTwoNotes() ) );
-	m_pFunctionPopupSub->addAction( tr( "Fill 1/3 notes" ), this, SLOT( functionFillEveryThreeNotes() ) );
-	m_pFunctionPopupSub->addAction( tr( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
-	m_pFunctionPopupSub->addAction( tr( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
-	m_pFunctionPopupSub->addAction( tr( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
-	m_pFunctionPopupSub->addAction( tr( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
-	m_pFunctionPopupSub->addAction( tr( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
+	auto fillAllAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillAllNotes() );
+	connect( fillAllAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::All ); } );
+	auto fillEverySecondAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillEverySecondNote() );
+	connect( fillEverySecondAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::EverySecond ); } );
+	auto fillEveryThirdAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillEveryThirdNote() );
+	connect( fillEveryThirdAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::EveryThird ); } );
+	auto fillEveryFourthAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillEveryFourthNote() );
+	connect( fillEveryFourthAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::EveryFourth ); } );
+	auto fillEverySixthAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillEverySixthNote() );
+	connect( fillEverySixthAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::EverySixth ); } );
+	auto fillEveryEighthAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillEveryEighthNote() );
+	connect( fillEveryEighthAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::EveryEighth ); } );
+	auto fillEveryTwelfthAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillEveryTwelfthNote() );
+	connect( fillEveryTwelfthAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::EveryTwelfth ); } );
+	auto fillEverySixteenthAction = m_pFunctionPopupSub->addAction(
+		pCommonStrings->getActionFillEverySixteenthNote() );
+	connect( fillEverySixteenthAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->fillNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			PatternEditorPanel::FillNotes::EverySixteenth ); } );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	auto selectNotesAction = m_pFunctionPopup->addAction( tr( "Select notes" ) );
@@ -545,72 +585,6 @@ void SidebarRow::functionCutNotesAllPatterns()
 	functionCopyAllInstrumentPatterns();
 	m_pPatternEditorPanel->clearNotesInRow( -1 );
 }
-
-
-void SidebarRow::functionFillAllNotes(){ functionFillNotes(1); }
-void SidebarRow::functionFillEveryTwoNotes(){ functionFillNotes(2); }
-void SidebarRow::functionFillEveryThreeNotes(){ functionFillNotes(3); }
-void SidebarRow::functionFillEveryFourNotes(){ functionFillNotes(4); }
-void SidebarRow::functionFillEverySixNotes(){ functionFillNotes(6); }
-void SidebarRow::functionFillEveryEightNotes(){ functionFillNotes(8); }
-void SidebarRow::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
-void SidebarRow::functionFillEverySixteenNotes(){ functionFillNotes(16); }
-
-void SidebarRow::functionFillNotes( int every )
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if ( pPatternEditor->isUsingTriplets() ) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
-
-	QStringList notePositions;
-
-	int nPatternSize = pPattern->getLength();
-	auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-
-	for (int i = 0; i < nPatternSize; i += nResolution) {
-		bool noteAlreadyPresent = false;
-		const Pattern::notes_t* notes = pPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,it,i,pPattern) {
-			Note *pNote = it->second;
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-				// note already exists
-				noteAlreadyPresent = true;
-				break;
-			}
-		}
-
-		if ( noteAlreadyPresent == false ) {
-			notePositions << QString("%1").arg(i);
-		}
-	}
-	SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction(
-		notePositions, nSelectedInstrument,
-		m_pPatternEditorPanel->getPatternNumber() );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
-}
-
 
 void SidebarRow::functionRenameInstrument()
 {

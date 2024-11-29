@@ -1207,6 +1207,46 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Representing deleting all notes in the pattern editor in the undo * history</extracomment>
         <translation>Limpar notas</translation>
     </message>
+    <message>
+        <source>Fill all notes</source>
+        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history</extracomment>
+        <translation>Encher todas as notas</translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>Encher as notas 1/2</translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>Encher as notas 1/3</translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>Encher as notas 1/4</translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>Encher as notas 1/6</translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history</extracomment>
+        <translation>Encher as notas 1/8</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history</extracomment>
+        <translation>Encher as notas 1/8 {1/12 ?}</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history</extracomment>
+        <translation>Encher as notas 1/8 {1/16 ?}</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4504,10 +4544,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fill notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Move instrument</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5536,38 +5572,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Fill notes ...</source>
         <translation>Encher notas ...</translation>
-    </message>
-    <message>
-        <source>Fill all notes</source>
-        <translation>Encher todas as notas</translation>
-    </message>
-    <message>
-        <source>Fill 1/2 notes</source>
-        <translation>Encher as notas 1/2</translation>
-    </message>
-    <message>
-        <source>Fill 1/3 notes</source>
-        <translation>Encher as notas 1/3</translation>
-    </message>
-    <message>
-        <source>Fill 1/4 notes</source>
-        <translation>Encher as notas 1/4</translation>
-    </message>
-    <message>
-        <source>Fill 1/6 notes</source>
-        <translation>Encher as notas 1/6</translation>
-    </message>
-    <message>
-        <source>Fill 1/8 notes</source>
-        <translation>Encher as notas 1/8</translation>
-    </message>
-    <message>
-        <source>Fill 1/12 notes</source>
-        <translation>Encher as notas 1/8 {1/12 ?}</translation>
-    </message>
-    <message>
-        <source>Fill 1/16 notes</source>
-        <translation>Encher as notas 1/8 {1/16 ?}</translation>
     </message>
     <message>
         <source>Select notes</source>
