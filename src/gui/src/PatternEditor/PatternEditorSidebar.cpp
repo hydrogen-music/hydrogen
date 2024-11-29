@@ -37,8 +37,6 @@
 
 #include "CommonStrings.h"
 #include "UndoActions.h"
-#include "PatternEditorPanel.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
@@ -54,8 +52,9 @@
 
 using namespace H2Core;
 
-SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row, int nWidth )
+SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth )
 	: PixmapWidget(pParent)
+	, m_row( row )
 	, m_bIsSelected( false )
 	, m_bEntered( false )
 	, m_nWidth( nWidth )
@@ -151,8 +150,9 @@ SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row, int nWidth )
 	auto deleteAction =
 		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
 	connect( deleteAction, &QAction::triggered, this, [=](){
-		HydrogenApp::get_instance()->getMainForm()->
-			functionDeleteInstrument( m_nInstrumentNumber );} );
+		MainForm::functionDeleteInstrument(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
 	set( row );
@@ -160,10 +160,12 @@ SidebarRow::SidebarRow( QWidget* pParent, DrumPatternRow row, int nWidth )
 	updateStyleSheet();
 }
 
-void SidebarRow::set( DrumPatternRow row ) {
+void SidebarRow::set( const DrumPatternRow& row )
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	QString sRowName, sToolTipDrumkit;
 	bool bIsSoloed = false, bIsMuted = false;
+	m_row = row;
 
 	if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
 		auto pSong = pHydrogen->getSong();
@@ -270,28 +272,29 @@ void SidebarRow::leaveEvent( QEvent* ev ) {
 }
 
 void SidebarRow::paintEvent( QPaintEvent* ev ) {
-	const auto pPref = Preferences::get_instance();
+	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	
 	QPainter painter(this);
 
 	QColor backgroundColor;
 	if ( m_bIsSelected ) {
-		backgroundColor = pPref->getTheme().m_color.m_patternEditor_selectedRowColor.darker( 114 );
+		backgroundColor =
+			colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
 	} else {
-		if ( m_nInstrumentNumber == 0 ||
-			 m_nInstrumentNumber % 2 == 0 ) {
-			backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor.darker( 120 );
+		// Alternating for coloring
+		int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
+		if (  nRow == 0 || nRow % 2 == 0 ) {
+			backgroundColor =
+				colorTheme.m_patternEditor_backgroundColor.darker( 120 );
 		} else {
-			backgroundColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor.darker( 132 );
+			backgroundColor =
+				colorTheme.m_patternEditor_alternateRowColor.darker( 132 );
 		}
 	}
 
 	// Make the background slightly lighter when hovered.
-	bool bHovered = false;
-	if ( m_bEntered ) {
-		bHovered = true;
-	}
+	bool bHovered = m_bEntered;
 
 	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
 							  backgroundColor, bHovered );
@@ -304,26 +307,16 @@ void SidebarRow::paintEvent( QPaintEvent* ev ) {
 
 		QPen pen;
 
-		pen.setColor( pPref->getTheme().m_color.m_cursorColor );
+		pen.setColor( colorTheme.m_cursorColor );
 
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( 1, 1, width() - 2 * SidebarRow::m_nButtonWidth - 1,
-										height() - 2 ), 4, 4 );
+		painter.drawRoundedRect(
+			QRect( 1, 1, width() - 2 * SidebarRow::m_nButtonWidth - 1,
+				   height() - 2 ), 4, 4 );
 	}
 }
-
-
-void SidebarRow::setNumber(int nIndex)
-{
-	if ( m_nInstrumentNumber != nIndex ) {
-		m_nInstrumentNumber = nIndex;
-		update();
-	}
-}
-
-
 
 void SidebarRow::setMuted(bool isMuted)
 {
@@ -354,54 +347,48 @@ void SidebarRow::setSamplesMissing( bool bSamplesMissing )
 	}
 }
 
-
-
 void SidebarRow::muteClicked()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
+
+	const int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
 	
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	auto pInstr = pInstrList->get( m_nInstrumentNumber );
+	auto pInstr =
+		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-				  .arg( m_nInstrumentNumber ) );
+		ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
+				  .arg( m_row.nInstrumentID ) );
 		return;
 	}
 	
-	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
+	m_pPatternEditorPanel->setSelectedRowDB( nRow );
 
-	H2Core::CoreActionController::setStripIsMuted(
-		m_nInstrumentNumber, !pInstr->is_muted() );
+	H2Core::CoreActionController::setStripIsMuted( nRow, ! pInstr->is_muted() );
 }
-
-
 
 void SidebarRow::soloClicked()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No song set yet" );
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
-	
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	auto pInstr = pInstrList->get( m_nInstrumentNumber );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-				  .arg( m_nInstrumentNumber ) );
-		return;
-	}
-	
-	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
 
-	H2Core::CoreActionController::setStripIsSoloed(
-		m_nInstrumentNumber, !pInstr->is_soloed() );
+	const int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
+
+	auto pInstr =
+		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
+				  .arg( m_row.nInstrumentID ) );
+		return;
+	}
+
+	m_pPatternEditorPanel->setSelectedRowDB( nRow );
+
+	H2Core::CoreActionController::setStripIsSoloed( nRow, ! pInstr->is_soloed() );
 }
 
 void SidebarRow::sampleWarningClicked()
@@ -415,21 +402,22 @@ void SidebarRow::sampleWarningClicked()
 void SidebarRow::selectInstrumentNotes()
 {
 	m_pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
-		m_nInstrumentNumber );
+		m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 }
 
 void SidebarRow::mousePressEvent(QMouseEvent *ev)
 {
-	m_pPatternEditorPanel->setSelectedRowDB( m_nInstrumentNumber );
+	m_pPatternEditorPanel->setSelectedRowDB(
+		m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 
 	if ( ev->button() == Qt::LeftButton ) {
 
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+		auto pSong = Hydrogen::get_instance()->getSong();
 		if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-			ERRORLOG( "No song set yet" );
 			return;
 		}
-		auto pInstr = pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+		auto pInstr =
+			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 		if ( m_pMuteBtn != nullptr && pInstr != nullptr && pInstr->hasSamples() ) {
 
 			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
@@ -464,7 +452,7 @@ void SidebarRow::functionClearNotes()
 		return;
 	}
 	auto pSelectedInstrument =
-		pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -483,7 +471,7 @@ void SidebarRow::functionClearNotes()
 		SE_clearNotesPatternEditorAction *action =
 			new SE_clearNotesPatternEditorAction(
 				noteList,
-				m_nInstrumentNumber,
+				m_pPatternEditorPanel->getRowIndexDB( m_row ),
 				m_pPatternEditorPanel->getPatternNumber() );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
@@ -499,7 +487,7 @@ void SidebarRow::functionCopyAllInstrumentPatterns()
 	}
 
 	const auto pSelectedInstrument =
-		pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 	if ( pSelectedInstrument == nullptr ) {
 		WARNINGLOG( "No instrument selected" );
 		return;
@@ -513,7 +501,7 @@ void SidebarRow::functionCopyAllInstrumentPatterns()
 	const QString sSerialized = doc.toString();
 	if ( sSerialized.isEmpty() ) {
 		ERRORLOG( QString( "Unable to serialize instrument line [%1]" )
-				  .arg( m_nInstrumentNumber ) );
+				  .arg( m_pPatternEditorPanel->getRowIndexDB( m_row ) ) );
 		return;
 	}
 	
@@ -564,9 +552,8 @@ void SidebarRow::functionPasteAllInstrumentPatterns()
 		if ( ppPattern != nullptr ) {
 			for ( auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr ) {
-					ppNote->set_instrument_id( m_nInstrumentNumber );
-					ppNote->setType(
-						pInstrumentList->get( m_nInstrumentNumber )->getType() );
+					ppNote->set_instrument_id( m_row.nInstrumentID );
+					ppNote->setType( m_row.sType );
 				}
 			}
 		}
@@ -588,7 +575,8 @@ void SidebarRow::functionDeleteNotesAllPatterns()
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+	auto pSelectedInstrument =
+		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -606,7 +594,10 @@ void SidebarRow::functionDeleteNotesAllPatterns()
 			}
 		}
 		if ( noteList.size() > 0 ) {
-			pUndo->push( new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber, nPattern ) );
+			pUndo->push( new SE_clearNotesPatternEditorAction(
+							 noteList,
+							 m_pPatternEditorPanel->getRowIndexDB( m_row ),
+							 nPattern ) );
 		}
 	}
 	pUndo->endMacro();
@@ -694,7 +685,7 @@ void SidebarRow::functionRenameInstrument()
 		return;
 	}
 	auto pSelectedInstrument =
-		pSong->getDrumkit()->getInstruments()->get( m_nInstrumentNumber );
+		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
 	if ( pSelectedInstrument == nullptr ) {
 		ERRORLOG( "No instrument selected" );
 		return;
@@ -794,14 +785,12 @@ void PatternEditorSidebar::updateRows()
 	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
 		if ( nnIndex < m_rows.size() ) {
 			// row already exists do a lazy update instead of recreating it.
-			m_rows[ nnIndex ]->setNumber( nnIndex );
 			m_rows[ nnIndex ]->set( rrow );
 		}
 		else {
 			// row in DB does not has its counterpart in the sidebar yet. Create
 			// it.
 			auto pRow = std::make_shared<SidebarRow>( this, rrow, m_nEditorWidth );
-			pRow->setNumber( nnIndex );
 			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
 			pRow->show();
 			m_rows.push_back( pRow );

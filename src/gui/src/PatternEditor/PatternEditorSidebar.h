@@ -26,17 +26,17 @@
 
 #include <vector>
 #include <memory>
-
-#include <core/Globals.h>
-
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/Globals.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include "../Widgets/PixmapWidget.h"
+
+#include "PatternEditorPanel.h"
 #include "../EventListener.h"
 #include "../Selection.h"
+#include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
@@ -44,8 +44,6 @@ namespace H2Core
 	class Pattern;
 }
 
-class DrumPatternRow;
-class PatternEditorPanel;
 class Button;
 
 /** \ingroup docGUI*/
@@ -56,12 +54,10 @@ class SidebarRow : public PixmapWidget
 	Q_OBJECT
 
 	public:
-		explicit SidebarRow( QWidget* pParent, DrumPatternRow row, int nWidth );
+		explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row,
+							 int nWidth );
 
-	int getNumber() const;
-
-		void set( DrumPatternRow row );
-		void setNumber(int nIndex);
+		void set( const DrumPatternRow& row );
 		void setSelected(bool isSelected);
 
 	static constexpr int m_nButtonWidth = 18;
@@ -101,7 +97,7 @@ public slots:
 		QMenu *m_pFunctionPopupSub;
 		QLabel *m_pNameLbl;
 		bool m_bIsSelected;
-		int m_nInstrumentNumber;	///< The related instrument number
+		DrumPatternRow m_row;
 		Button *m_pMuteBtn;
 		Button *m_pSoloBtn;
 		Button *m_pSampleWarning;
@@ -124,10 +120,6 @@ public slots:
 		bool m_bEntered;
 		int m_nWidth;
 };
-
-inline int SidebarRow::getNumber() const {
-	return m_nInstrumentNumber;
-}
 
 
 /** \ingroup docGUI*/
