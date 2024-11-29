@@ -1189,6 +1189,14 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Clear notes in row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes</source>
+        <translation>清除音符</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4482,10 +4490,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>覆盖 %1 音符</translation>
     </message>
     <message>
-        <source>Clear notes</source>
-        <translation>清除音符</translation>
-    </message>
-    <message>
         <source>Paste instrument notes</source>
         <translation>粘贴乐器音符</translation>
     </message>
@@ -5533,10 +5537,6 @@ p, li { white-space: pre-wrap; }
         <translation>该乐器的一些采样无法加载。</translation>
     </message>
     <message>
-        <source>Delete notes</source>
-        <translation>删除音符</translation>
-    </message>
-    <message>
         <source>Fill notes ...</source>
         <translation>填充音符</translation>
     </message>
@@ -5604,10 +5604,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation>该乐器的一个或多个采样无法加载。这可能是因为乐曲文件使用了旧的默认鼓组。打开新的鼓组可能解决该问题。</translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation>删除 %1 的所有音符</translation>
     </message>
 </context>
 <context>

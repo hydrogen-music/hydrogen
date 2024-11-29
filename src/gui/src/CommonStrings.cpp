@@ -585,6 +585,13 @@ CommonStrings::CommonStrings(){
 	 * in the undo history */
 	m_sActionRenameComponent = tr( "Rename component" );
 
+	/** Representing deleting all notes of a specific row in the pattern editor
+	 * in the undo history. The number of the row will be append. */
+	m_sActionClearAllNotesInRow = tr( "Clear notes in row" );
+	/** Representing deleting all notes in the pattern editor in the undo
+	 * history */
+	m_sActionClearAllNotes = tr( "Clear notes" );
+
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
 	 *  song path in the Playlist editor.*/

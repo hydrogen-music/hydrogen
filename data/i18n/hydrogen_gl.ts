@@ -1188,6 +1188,14 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Clear notes in row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes</source>
+        <translation>Limpar notas</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4481,10 +4489,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Clear notes</source>
-        <translation>Limpar notas</translation>
-    </message>
-    <message>
         <source>Paste instrument notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5519,10 +5523,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fill notes ...</source>
         <translation>Encher notas ...</translation>
     </message>
@@ -5589,10 +5589,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

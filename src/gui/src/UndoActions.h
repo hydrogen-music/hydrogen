@@ -760,52 +760,6 @@ private:
 };
 
 /** \ingroup docGUI*/
-class SE_clearNotesPatternEditorAction : public QUndoCommand
-{
-public:
-	SE_clearNotesPatternEditorAction( const std::list<  H2Core::Note* >& noteList,
-									  int nSelectedInstrument,
-									  int selectedPatternNumber ){
-		setText( QObject::tr( "Clear notes" ) );
-
-		for ( const auto& pNote : noteList ){
-			assert( pNote );
-			auto pNewNote = new H2Core::Note(*pNote);
-			assert( pNewNote );
-			__noteList.push_back( pNewNote );
-		}
-
-		__nSelectedInstrument = nSelectedInstrument;
-		__selectedPatternNumber = selectedPatternNumber;
-	}
-
-	~SE_clearNotesPatternEditorAction(){
-		//qDebug() << "delete left notes ";
-		while ( __noteList.size() ) {
-			delete __noteList.front();
-			__noteList.pop_front();
-		}
-
-	}
-
-	virtual void undo()
-	{
-		//qDebug() << "clear note sequence Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->
-			functionClearNotesUndoAction( __noteList, __selectedPatternNumber );
-	}
-	virtual void redo() {
-		H2Core::CoreActionController::clearInstrumentInPattern(
-			__nSelectedInstrument, __selectedPatternNumber );
-	}
-private:
-	std::list< H2Core::Note* > __noteList;
-	int __nSelectedInstrument;
-	int __selectedPatternNumber;
-};
-
-/** \ingroup docGUI*/
 class SE_pasteNotesPatternEditorAction : public QUndoCommand
 {
 public:

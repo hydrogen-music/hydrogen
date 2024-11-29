@@ -1191,6 +1191,14 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Clear notes in row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes</source>
+        <translation>Limpar notas</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4496,10 +4504,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Sobrescrever %1 notas</translation>
     </message>
     <message>
-        <source>Clear notes</source>
-        <translation>Limpar notas</translation>
-    </message>
-    <message>
         <source>Paste instrument notes</source>
         <translation>Colar notas de instrumento</translation>
     </message>
@@ -5547,10 +5551,6 @@ p, li { white-space: pre-wrap; }
         <translation>Não foi possível carregar algumas amostras para esse instrumento.</translation>
     </message>
     <message>
-        <source>Delete notes</source>
-        <translation>Deletar notas</translation>
-    </message>
-    <message>
         <source>Fill notes ...</source>
         <translation>Preencher notas ...</translation>
     </message>
@@ -5618,10 +5618,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation>Uma ou mais amostras para esse instrumento não puderam ser carregadas. Isso pode ocorrer porque o arquivo da canção usa um drumkit padrão antigo e pode ser corrigido ao abrir um novo drumkit.</translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation>Deletar todas as notas em %1</translation>
     </message>
 </context>
 <context>

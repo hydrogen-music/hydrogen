@@ -50,8 +50,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
 
-		void functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
-										   int patternNumber );
 		void functionFillNotesUndoAction( const QStringList& noteList,
 										  int nRow, int nPatternNumber );
 		void functionFillNotesRedoAction( const QStringList& noteList,

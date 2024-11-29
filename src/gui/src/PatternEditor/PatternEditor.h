@@ -173,6 +173,11 @@ public:
 		/** Whether new notes added to the editor should be automatically
 		 * selected. */
 		bool getSelectNewNotes() const;
+		void addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
+							  int nKey = KEY_MIN,
+							  int nOctave = OCTAVE_DEFAULT,
+							  bool bDoAdd = true, bool bDoDelete = true,
+							  bool bIsNoteOff = false );
 
 	static void addOrRemoveNoteAction( int nColumn,
 									   int nRow,
@@ -250,11 +255,6 @@ protected:
 		return 4 * MAX_NOTES / ( nBase * m_nResolution );
 	}
 
-		void addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
-							  int nKey = KEY_MIN,
-							  int nOctave = OCTAVE_DEFAULT,
-							  bool bDoAdd = true, bool bDoDelete = true,
-							  bool bIsNoteOff = false );
 
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;

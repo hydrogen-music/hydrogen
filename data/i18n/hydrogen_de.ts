@@ -1191,6 +1191,14 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Clear notes in row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes</source>
+        <translation>Noten löschen</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4486,10 +4494,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Überschreibe %1 Noten</translation>
     </message>
     <message>
-        <source>Clear notes</source>
-        <translation>Noten löschen</translation>
-    </message>
-    <message>
         <source>Paste instrument notes</source>
         <translation>Instrumenten-Noten einfügen</translation>
     </message>
@@ -5537,10 +5541,6 @@ p, li { white-space: pre-wrap; }
         <translation>Einige Sample für dieses Instrument konnten nicht geladen werden.</translation>
     </message>
     <message>
-        <source>Delete notes</source>
-        <translation>Noten löschen</translation>
-    </message>
-    <message>
         <source>Fill notes ...</source>
         <translation>Mit Noten füllen ...</translation>
     </message>
@@ -5608,10 +5608,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation>Ein oder mehrere Samples für dieses Instrument konnten nicht geladen werden. Dies kann an einem veralteten Schlagzeug liegen, was durch das Laden eines neueren behoben werden kann.</translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation>Lösche alle Noten auf %1</translation>
     </message>
 </context>
 <context>

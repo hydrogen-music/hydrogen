@@ -192,6 +192,19 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * which of them is currently visible. */
 		PatternEditor* getVisibleEditor() const;
 
+		////////////////////////////////////////////////////////////////////////
+		////////// Top-level actions for the overall pattern editor. ///////////
+
+		/** Remove all notes from the provided @a nRow of the
+		  * #DrumPatternEditor.
+		  *
+		  * Note that removing all notes of rows in the #PianoRollEditor is not
+		  * supported yet.
+		  *
+		  * @param nRow If set to `-1`, all notes of all rows will be
+		  *   cleared. */
+		void clearNotesInRow( int nRow );
+
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();

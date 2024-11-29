@@ -1191,6 +1191,14 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Clear notes in row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes</source>
+        <translation>Effacer les notes</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4499,10 +4507,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Écraser les notes %1</translation>
     </message>
     <message>
-        <source>Clear notes</source>
-        <translation>Effacer les notes</translation>
-    </message>
-    <message>
         <source>Paste instrument notes</source>
         <translation>Coller les notes de l&apos;instrument</translation>
     </message>
@@ -5550,10 +5554,6 @@ p, li { white-space: pre-wrap; }
         <translation>Certains échantillons pour cet instrument n&apos;ont pas pu être chargés.</translation>
     </message>
     <message>
-        <source>Delete notes</source>
-        <translation>Effacer les notes</translation>
-    </message>
-    <message>
         <source>Fill notes ...</source>
         <translation>Remplir de notes ...</translation>
     </message>
@@ -5621,10 +5621,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
         <translation type="unfinished">Un ou plusieurs échantillons pour cet instrument n&apos;ont pas pu être chargés. Cela peut être dû au fait que le fichier du morceau utilise un kit de batterie par défaut ancien. Ce problème pourrait être corrigé en ouvrant un nouveau kit de batterie.</translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation>Effacer toutes les notes sur %1</translation>
     </message>
 </context>
 <context>

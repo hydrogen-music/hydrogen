@@ -118,7 +118,11 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
-	m_pFunctionPopup->addAction( tr( "Delete notes" ), this, SLOT( functionClearNotes() ) );
+	auto clearAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionClearAllNotesInRow() );
+	connect( clearAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->clearNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
 
 	m_pFunctionPopupSub = new QMenu( tr( "Fill notes ..." ), m_pFunctionPopup );
 	m_pFunctionPopupSub->addAction( tr( "Fill all notes" ), this, SLOT( functionFillAllNotes() ) );
@@ -139,7 +143,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 	m_pFunctionPopup->addAction( tr( "Cut notes"), this, SLOT( functionCutNotesAllPatterns() ) );
 	m_pFunctionPopup->addAction( tr( "Copy notes"), this, SLOT( functionCopyAllInstrumentPatterns() ) );
 	m_pFunctionPopup->addAction( tr( "Paste notes" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
-	m_pFunctionPopup->addAction( tr( "Delete notes" ), this, SLOT( functionDeleteNotesAllPatterns() ) );
+	auto clearAllAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionClearAllNotes() );
+	connect( clearAllAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->clearNotesInRow( -1 ); } );
 
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
 	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
@@ -440,44 +447,6 @@ void SidebarRow::mouseDoubleClickEvent( QMouseEvent* ev ) {
 	functionRenameInstrument();
 }
 
-void SidebarRow::functionClearNotes()
-{
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-	auto pSelectedInstrument =
-		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-
-	std::list< Note* > noteList;
-	const Pattern::notes_t* notes = pPattern->getNotes();
-	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-		Note *pNote = it->second;
-		assert( pNote );
-		if ( pNote->get_instrument() == pSelectedInstrument ) {
-			noteList.push_back( pNote );
-		}
-	}
-	if( noteList.size() > 0 ){
-		SE_clearNotesPatternEditorAction *action =
-			new SE_clearNotesPatternEditorAction(
-				noteList,
-				m_pPatternEditorPanel->getRowIndexDB( m_row ),
-				m_pPatternEditorPanel->getPatternNumber() );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
-	}
-}
-
-
 void SidebarRow::functionCopyAllInstrumentPatterns()
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
@@ -571,42 +540,10 @@ void SidebarRow::functionPasteAllInstrumentPatterns()
 	HydrogenApp::get_instance()->m_pUndoStack->push(action);
 }
 
-void SidebarRow::functionDeleteNotesAllPatterns()
-{
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
-	auto pSelectedInstrument =
-		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-
-	pUndo->beginMacro( tr( "Delete all notes on %1" ).arg( pSelectedInstrument->get_name()  ) );
-	for ( int nPattern = 0; nPattern < pPatternList->size(); nPattern++ ) {
-		std::list< Note* > noteList;
-		auto pPattern = pPatternList->get( nPattern );
-		const Pattern::notes_t* notes = pPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it) {
-			if ( it->second->get_instrument() == pSelectedInstrument ) {
-				noteList.push_back( it->second );
-			}
-		}
-		if ( noteList.size() > 0 ) {
-			pUndo->push( new SE_clearNotesPatternEditorAction(
-							 noteList,
-							 m_pPatternEditorPanel->getRowIndexDB( m_row ),
-							 nPattern ) );
-		}
-	}
-	pUndo->endMacro();
-}
-
 void SidebarRow::functionCutNotesAllPatterns()
 {
 	functionCopyAllInstrumentPatterns();
-	functionDeleteNotesAllPatterns();
+	m_pPatternEditorPanel->clearNotesInRow( -1 );
 }
 
 

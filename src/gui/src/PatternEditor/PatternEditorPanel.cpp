@@ -1565,3 +1565,46 @@ void PatternEditorPanel::printDB() const {
 
 	DEBUGLOG( sMsg );
 }
+
+void PatternEditorPanel::clearNotesInRow( int nRow ) {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
+	const auto row = getRowDB( nRow );
+
+	std::vector<Note*> notes;
+	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
+		if ( ppNote != nullptr &&
+			 ( nRow == -1 ||
+			   ( ppNote->get_instrument_id() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType ) ) ) {
+			if ( ppNote != nullptr ) {
+				notes.push_back( ppNote );
+			}
+		}
+	}
+
+	if ( notes.size() > 0 ) {
+		auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		if ( nRow != -1 ) {
+			pUndo->beginMacro(
+				QString( "%1 [%2]" )
+				.arg( pCommonStrings->getActionClearAllNotesInRow() )
+				.arg( nRow ) );
+		}
+		else {
+			pUndo->beginMacro( pCommonStrings->getActionClearAllNotes() );
+		}
+
+		for ( const auto& ppNote : notes ) {
+			m_pDrumPatternEditor->addOrRemoveNote(
+				ppNote->get_position(), ppNote->get_position(),
+				findRowDB( ppNote ), ppNote->get_key(), ppNote->get_octave(),
+				false /* bDoAdd */, true /* bDoDelete */,
+				ppNote->get_note_off() );
+		}
+		pUndo->endMacro();
+	}
+}
