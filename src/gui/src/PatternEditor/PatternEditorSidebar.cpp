@@ -176,8 +176,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	auto selectNotesAction = m_pFunctionPopup->addAction( tr( "Select notes" ) );
-	connect( selectNotesAction, &QAction::triggered, this,
-			 &SidebarRow::selectInstrumentNotes );
+	connect( selectNotesAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
 
 	m_pFunctionPopup->addSection( tr( "Edit all patterns" ) );
 	m_pFunctionPopup->addAction( tr( "Cut notes"), this, SLOT( functionCutNotesAllPatterns() ) );
@@ -444,12 +445,6 @@ void SidebarRow::sampleWarningClicked()
 							  tr( "One or more samples for this instrument failed to load. This may be because the"
 								  " songfile uses an older default drumkit. This might be fixed by opening a new "
 								  "drumkit." ) );
-}
-
-void SidebarRow::selectInstrumentNotes()
-{
-	m_pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
-		m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 }
 
 void SidebarRow::mousePressEvent(QMouseEvent *ev)

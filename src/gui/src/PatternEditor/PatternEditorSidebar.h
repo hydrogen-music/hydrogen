@@ -76,9 +76,6 @@ public slots:
 		void soloClicked();
 		void sampleWarningClicked();
 
-		void selectInstrumentNotes();
-
-
 	private:
 		PatternEditorPanel* m_pPatternEditorPanel;
 		QMenu *m_pFunctionPopup;
