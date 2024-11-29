@@ -175,7 +175,7 @@ public slots:
 		void action_drumkit_import( bool bLoad = true );
 		void action_drumkit_onlineImport();
 
-		void functionDeleteInstrument( int nInstrument );
+		static void functionDeleteInstrument( int nInstrumentIndex );
 
 
 		void action_window_showMixer();

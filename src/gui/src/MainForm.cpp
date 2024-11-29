@@ -1356,7 +1356,7 @@ void MainForm::action_drumkit_new()
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
-void MainForm::functionDeleteInstrument( int nInstrument )
+void MainForm::functionDeleteInstrument( int nInstrumentIndex )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -1364,9 +1364,11 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 		return;
 	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
+	auto pSelectedInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentIndex );
 	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
+		ERRORLOG( QString( "Could not find instrument corresponding to index [%1]" )
+				  .arg( nInstrumentIndex ) );
 		return;
 	}
 
@@ -1381,7 +1383,7 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 	}
 	else {
 		auto pAction = new SE_deleteInstrumentAction(
-			pSelectedInstrument, nInstrument );
+			pSelectedInstrument, nInstrumentIndex );
 		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 	}
 }
