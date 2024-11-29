@@ -1457,6 +1457,21 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 	m_nSelectedRowDB = nNewRow;
 }
 
+int PatternEditorPanel::getRowIndexDB( const DrumPatternRow& row ) {
+	for ( int ii = 0; ii <= m_db.size(); ++ii ) {
+		if ( m_db[ ii ].nInstrumentID == row.nInstrumentID &&
+			 m_db[ ii ].sType == row.sType ) {
+			return ii;
+		}
+	}
+
+	ERRORLOG( QString( "Row [instrument id: %1, instrument type: %2] could not be found in DB" )
+			  .arg( row.nInstrumentID ).arg( row.sType ) );
+	printDB();
+
+	return 0;
+}
+
 int PatternEditorPanel::getRowNumberDB() const {
 	return m_db.size();
 }

@@ -160,6 +160,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		const DrumPatternRow getRowDB( int nRow ) const;
 		int getSelectedRowDB() const;
 		void setSelectedRowDB( int nNewRow );
+		/** @return the vertical position of the row in the DB.
+		 *
+		 * This is especially helpful for order-based instrument operations. */
+		int getRowIndexDB( const DrumPatternRow& row );
 		/** Retrieves the row number @a pNote is located in. */
 		int findRowDB( H2Core::Note* pNote ) const;
 		int getRowNumberDB() const;
