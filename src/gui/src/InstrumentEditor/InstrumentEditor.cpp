@@ -28,16 +28,16 @@
 #include <assert.h>
 #include <vector>
 
-#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/Basics/Adsr.h>
-#include <core/Basics/Sample.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
@@ -131,9 +131,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	/////////////
 
-	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
-			 this, SLOT( labelClicked(ClickableLabel*) ) );
-	
+	connect( m_pNameLbl, &ClickableLabel::labelClicked, this, [=](){
+		auto pSong = Hydrogen::get_instance()->getSong();
+		if ( m_pInstrument != nullptr && pSong != nullptr &&
+			 pSong->getDrumkit() != nullptr ) {
+			MainForm::action_drumkit_renameInstrument(
+				pSong->getDrumkit()->getInstruments()->index( m_pInstrument ) );}
+	} );
+
 	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ), false, false );
 	m_pPitchLCD->move( 24, 213 );
 	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 10 ),
@@ -1262,41 +1267,6 @@ void InstrumentEditor::selectComponent( int nComponent )
 	m_nSelectedComponent = nComponent;
 	m_pLayerPreview->set_selected_component( m_nSelectedComponent );
 }
-
-void InstrumentEditor::labelClicked( ClickableLabel* pRef )
-{
-	UNUSED( pRef );
-
-	if ( m_pInstrument == nullptr ) {
-		return;
-	}
-
-	QString sOldName = m_pInstrument->get_name();
-	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
-
-	if ( bIsOkPressed && sNewName != sOldName ) {
-		auto pHydrogen = Hydrogen::get_instance();
-
-		m_pInstrument->set_name( sNewName );
-		selectedInstrumentChangedEvent();
-
-		pHydrogen->setIsModified( true );
-
-#ifdef H2CORE_HAVE_JACK
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		pHydrogen->renameJackPorts( pHydrogen->getSong() );
-		pHydrogen->getAudioEngine()->unlock();
-#endif
-
-		// this will force an update...
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	}
-	else {
-		// user entered nothing or pressed Cancel
-	}
-}
-
 
 void InstrumentEditor::selectLayer( int nLayer )
 {

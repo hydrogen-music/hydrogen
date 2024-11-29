@@ -1837,10 +1837,6 @@ Overwrite the existing file?</source>
         <translation>Visa lager egenskaper</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Nytt instrument namn</translation>
-    </message>
-    <message>
         <source>Filter Cutoff</source>
         <translation type="unfinished"></translation>
     </message>

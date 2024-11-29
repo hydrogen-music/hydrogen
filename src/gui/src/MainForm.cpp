@@ -1311,16 +1311,6 @@ void MainForm::action_window_showAutomationArea()
 	h2app->getSongEditorPanel()->toggleAutomationAreaVisibility();
 }
 
-
-
-void MainForm::action_drumkit_addInstrument()
-{
-	auto pAction = new SE_addInstrumentAction(
-		std::make_shared<Instrument>(), -1,
-		SE_addInstrumentAction::Type::AddEmptyInstrument );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
-}
-
 void MainForm::action_drumkit_open()
 {
 	DrumkitOpenDialog dialog( this );
@@ -1356,7 +1346,15 @@ void MainForm::action_drumkit_new()
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
-void MainForm::functionDeleteInstrument( int nInstrumentIndex )
+void MainForm::action_drumkit_addInstrument()
+{
+	auto pAction = new SE_addInstrumentAction(
+		std::make_shared<Instrument>(), -1,
+		SE_addInstrumentAction::Type::AddEmptyInstrument );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+}
+
+void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -1388,6 +1386,37 @@ void MainForm::functionDeleteInstrument( int nInstrumentIndex )
 	}
 }
 
+void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentIndex );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument in row [%1]" )
+				  .arg( nInstrumentIndex ) );
+		return;
+	}
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const QString sOldName = pInstrument->get_name();
+	bool bIsOkPressed;
+	const QString sNewName = QInputDialog::getText(
+		nullptr, "Hydrogen", pCommonStrings->getActionRenameInstrument(),
+		QLineEdit::Normal, sOldName, &bIsOkPressed );
+	if ( bIsOkPressed ) {
+		auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
+		pNewInstrument->set_name( sNewName );
+
+		HydrogenApp::get_instance()->m_pUndoStack->push(
+			new SE_replaceInstrumentAction(
+				pNewInstrument, pInstrument,
+				SE_replaceInstrumentAction::Type::RenameInstrument,
+				sNewName, sOldName ) );
+	}
+}
 
 void MainForm::action_drumkit_export() {
 

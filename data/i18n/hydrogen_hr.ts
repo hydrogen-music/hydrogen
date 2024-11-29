@@ -1833,10 +1833,6 @@ Overwrite the existing file?</source>
         <translation>Gain razine</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Novo ime instrumenta</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Gain instrumenta</translation>
     </message>

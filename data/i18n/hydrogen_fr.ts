@@ -1864,10 +1864,6 @@ Overwrite the existing file?</source>
         <translation>Afficher les propriétés des couches</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Nouveau nom de l&apos;instrument</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation>Nom du composant</translation>
     </message>

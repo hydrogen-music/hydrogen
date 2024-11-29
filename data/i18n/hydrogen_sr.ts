@@ -1859,10 +1859,6 @@ Overwrite the existing file?</source>
         <translation>Прикажи особине слојева</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Назив новог инструмента</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation>Назив компоненте</translation>
     </message>

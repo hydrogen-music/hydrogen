@@ -1876,10 +1876,6 @@ Overwrite the existing file?</source>
         <translation>层音调（精细）</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>新乐器名称</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation>组件名称</translation>
     </message>

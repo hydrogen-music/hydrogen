@@ -189,17 +189,22 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 	connect( clearAllAction, &QAction::triggered, this, [=](){
 		m_pPatternEditorPanel->clearNotesInRow( -1 ); } );
 
-	m_pFunctionPopup->addSection( tr( "Instrument" ) );
-	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
-								 HydrogenApp::get_instance()->getMainForm(),
-								 SLOT( action_drumkit_addInstrument() ) );
-	m_pFunctionPopup->addAction( pCommonStrings->getActionRenameInstrument(),
-								 this, SLOT( functionRenameInstrument() ) );
-	auto deleteAction =
-		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
-	connect( deleteAction, &QAction::triggered, this, [=](){
-		MainForm::functionDeleteInstrument(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		m_pFunctionPopup->addSection( tr( "Instrument" ) );
+		m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
+									 HydrogenApp::get_instance()->getMainForm(),
+									 SLOT( action_drumkit_addInstrument() ) );
+		auto renameAction = m_pFunctionPopup->addAction(
+			pCommonStrings->getActionRenameInstrument() );
+		connect( renameAction, &QAction::triggered, this, [=](){
+			MainForm::action_drumkit_renameInstrument(
+				m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+		auto deleteAction =
+			m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
+		connect( deleteAction, &QAction::triggered, this, [=](){
+			MainForm::action_drumkit_deleteInstrument(
+				m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+	}
 
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
@@ -479,7 +484,10 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 }
 
 void SidebarRow::mouseDoubleClickEvent( QMouseEvent* ev ) {
-	functionRenameInstrument();
+	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		MainForm::action_drumkit_renameInstrument(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+	}
 }
 
 void SidebarRow::functionCopyAllInstrumentPatterns()
@@ -579,40 +587,6 @@ void SidebarRow::functionCutNotesAllPatterns()
 {
 	functionCopyAllInstrumentPatterns();
 	m_pPatternEditorPanel->clearNotesInRow( -1 );
-}
-
-void SidebarRow::functionRenameInstrument()
-{
-	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
-	// in InstrumentEditor.cpp
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pSelectedInstrument =
-		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const QString sOldName = pSelectedInstrument->get_name();
-	bool bIsOkPressed;
-	const QString sNewName = QInputDialog::getText(
-		this, "Hydrogen", pCommonStrings->getActionRenameInstrument(),
-		QLineEdit::Normal, sOldName, &bIsOkPressed );
-	if ( bIsOkPressed ) {
-		auto pNewInstrument = std::make_shared<Instrument>(pSelectedInstrument);
-		pNewInstrument->set_name( sNewName );
-
-		auto pAction = new SE_replaceInstrumentAction(
-			pNewInstrument, pSelectedInstrument,
-			SE_replaceInstrumentAction::Type::RenameInstrument,
-			sNewName, sOldName );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
-	}
 }
 
 void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {

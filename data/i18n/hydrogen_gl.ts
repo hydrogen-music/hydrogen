@@ -1859,10 +1859,6 @@ Sobrescribir o ficheiro existente?</translation>
         <translation>Mostrar propiedades de capas</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Novo nome do instrumento</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation type="unfinished"></translation>
     </message>

@@ -1857,10 +1857,6 @@ Overwrite the existing file?</source>
         <translation>Τόνος του στρώματος (Φίνος)</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Όνομα του νέου οργάνου</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation>Όνομα του συστατικού</translation>
     </message>

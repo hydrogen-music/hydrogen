@@ -1851,10 +1851,6 @@ Overwrite the existing file?</source>
         <translation>Ganancia de capa</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Nombre de instrumento nuevo</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Ganancia del instrumento</translation>
     </message>

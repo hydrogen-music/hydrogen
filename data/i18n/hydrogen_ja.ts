@@ -1848,10 +1848,6 @@ Overwrite the existing file?</source>
         <translation>レイヤーのゲイン</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>新しいインストルメント名</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>インストルメントのゲイン</translation>
     </message>

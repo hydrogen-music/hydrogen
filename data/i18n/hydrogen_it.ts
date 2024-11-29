@@ -1835,10 +1835,6 @@ Sovrascrivere il file esistente?</translation>
         <translation>Guadagno di livello</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Nuovo nome per lo strumento</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Guadagno dello strumento</translation>
     </message>

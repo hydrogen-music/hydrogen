@@ -1843,10 +1843,6 @@ Overwrite the existing file?</source>
         <translation>Усиление слоя</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Новое название инструмента</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Усиление инструмента</translation>
     </message>

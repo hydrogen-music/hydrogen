@@ -71,7 +71,6 @@ public slots:
 		void functionPasteAllInstrumentPatterns();
 		void functionCutNotesAllPatterns();
 
-		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
 		void sampleWarningClicked();

@@ -1850,10 +1850,6 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Ganho na camada</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Novo nome para o instrumento</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Ganho do instrumento</translation>
     </message>

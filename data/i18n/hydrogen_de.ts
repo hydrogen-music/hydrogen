@@ -1848,10 +1848,6 @@ Overwrite the existing file?</source>
         <translation>Verstärkung (gain) der Ebene</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Neuer Name für das Instrument</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Verstärkung (gain) des Instruments</translation>
     </message>

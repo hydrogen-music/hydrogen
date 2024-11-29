@@ -1857,10 +1857,6 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation type="unfinished"></translation>
     </message>

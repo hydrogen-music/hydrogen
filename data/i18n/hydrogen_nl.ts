@@ -1849,10 +1849,6 @@ Overwrite the existing file?</source>
         <translation>Toon laag eigenschappen</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Nieuwe instrument naam</translation>
-    </message>
-    <message>
         <source>Layer pitch (Coarse)</source>
         <translation>Laag picht (grof)</translation>
     </message>

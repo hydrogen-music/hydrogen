@@ -166,7 +166,6 @@ public slots:
 		void action_drumkit_new();
 		void action_drumkit_properties();
 		void action_drumkit_open();
-		void action_drumkit_addInstrument();
 		void action_drumkit_save();
 		void action_drumkit_save_to_session();
 		void action_drumkit_export();
@@ -175,8 +174,9 @@ public slots:
 		void action_drumkit_import( bool bLoad = true );
 		void action_drumkit_onlineImport();
 
-		static void functionDeleteInstrument( int nInstrumentIndex );
-
+		void action_drumkit_addInstrument();
+		static void action_drumkit_deleteInstrument( int nInstrumentIndex );
+		static void action_drumkit_renameInstrument( int nInstrumentIndex );
 
 		void action_window_showMixer();
 		void action_window_showPlaylistEditor();

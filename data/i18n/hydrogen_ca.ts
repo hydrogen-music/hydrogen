@@ -1846,10 +1846,6 @@ Overwrite the existing file?</source>
         <translation>Guany de capa</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Nom de l&apos;instrument nou</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Guany de l&apos;instrument</translation>
     </message>

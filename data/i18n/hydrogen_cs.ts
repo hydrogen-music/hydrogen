@@ -1857,10 +1857,6 @@ Overwrite the existing file?</source>
         <translation>Zobrazit vlastnosti vrstvy</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>Nový název nástroje</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation type="unfinished"></translation>
     </message>
