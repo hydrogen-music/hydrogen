@@ -760,49 +760,6 @@ private:
 };
 
 /** \ingroup docGUI*/
-class SE_pasteNotesPatternEditorAction : public QUndoCommand
-{
-public:
-	explicit SE_pasteNotesPatternEditorAction( H2Core::PatternList* pPatternList ) :
-		m_pCopiedNotesPatternList( pPatternList ) {
-		setText( QObject::tr( "Paste instrument notes" ) );
-
-		m_pAppliedNotesPatternList = new H2Core::PatternList();
-	}
-
-	~SE_pasteNotesPatternEditorAction() {
-		delete m_pCopiedNotesPatternList;
-		delete m_pAppliedNotesPatternList;
-	}
-
-	virtual void undo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()->
-			getDrumPatternEditor()->functionPasteNotesUndoAction(
-				m_pAppliedNotesPatternList );
-
-		// Discard temporary patterns.
-		for ( auto& ppPattern : *m_pAppliedNotesPatternList ) {
-			m_pAppliedNotesPatternList->del( ppPattern );
-		}
-		m_pAppliedNotesPatternList->clear();
-	}
-
-	virtual void redo() {
-		HydrogenApp::get_instance()->getPatternEditorPanel()->
-			getDrumPatternEditor()->functionPasteNotesRedoAction(
-				m_pCopiedNotesPatternList, m_pAppliedNotesPatternList );
-	}
-
-private:
-		/** Pattern list containing only the notes copied and waiting for being
-		 * pasted. */
-		H2Core::PatternList* m_pCopiedNotesPatternList;
-		/** Pattern list containing only those notes, which were actually added
-		 * to a pattern during the redo part of this class. */
-		H2Core::PatternList* m_pAppliedNotesPatternList;
-};
-
-/** \ingroup docGUI*/
 class SE_moveInstrumentAction : public QUndoCommand
 {
 public:

@@ -1566,46 +1566,77 @@ void PatternEditorPanel::printDB() const {
 	DEBUGLOG( sMsg );
 }
 
-void PatternEditorPanel::clearNotesInRow( int nRow ) {
+void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
 
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	PatternList* pPatternList = nullptr;
+	if ( nPattern != -1 ) {
+		auto pPattern = pSong->getPatternList()->get( nPattern );
+		if ( pPattern == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve pattern [%1]" )
+					  .arg( nPattern ) );
+			return;
+		}
+		pPatternList = new PatternList();
+		pPatternList->add( pPattern );
+	}
+	else {
+		pPatternList = pSong->getPatternList();
+	}
+
 	const auto row = getRowDB( nRow );
 
-	std::vector<Note*> notes;
-	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
-		if ( ppNote != nullptr &&
-			 ( nRow == -1 ||
-			   ( ppNote->get_instrument_id() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType ) ) ) {
-			if ( ppNote != nullptr ) {
-				notes.push_back( ppNote );
+	auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	if ( nRow != -1 ) {
+		pUndo->beginMacro(
+			QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionClearAllNotesInRow() )
+			.arg( nRow ) );
+	}
+	else {
+		pUndo->beginMacro( pCommonStrings->getActionClearAllNotes() );
+	}
+
+	for ( const auto& ppPattern : *pPatternList ) {
+		if ( ppPattern != nullptr ) {
+			std::vector<Note*> notes;
+			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr &&
+					 ppNote->get_instrument_id() == row.nInstrumentID &&
+					 ppNote->getType() == row.sType ) {
+					notes.push_back( ppNote );
+				}
+			}
+
+			for ( const auto& ppNote : notes ) {
+				pUndo->push( new SE_addOrRemoveNoteAction(
+								 ppNote->get_position(),
+								 nRow,
+								 pSong->getPatternList()->index( ppPattern ),
+								 ppNote->get_length(),
+								 ppNote->get_velocity(),
+								 ppNote->getPan(),
+								 ppNote->get_lead_lag(),
+								 ppNote->get_key(),
+								 ppNote->get_octave(),
+								 ppNote->get_probability(),
+								 /* bIsDelete */ true,
+								 /* bIsMidi */ false,
+								 ppNote->get_note_off() ) );
 			}
 		}
 	}
+	pUndo->endMacro();
 
-	if ( notes.size() > 0 ) {
-		auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		if ( nRow != -1 ) {
-			pUndo->beginMacro(
-				QString( "%1 [%2]" )
-				.arg( pCommonStrings->getActionClearAllNotesInRow() )
-				.arg( nRow ) );
-		}
-		else {
-			pUndo->beginMacro( pCommonStrings->getActionClearAllNotes() );
-		}
-
-		for ( const auto& ppNote : notes ) {
-			m_pDrumPatternEditor->addOrRemoveNote(
-				ppNote->get_position(), ppNote->get_position(),
-				findRowDB( ppNote ), ppNote->get_key(), ppNote->get_octave(),
-				false /* bDoAdd */, true /* bDoDelete */,
-				ppNote->get_note_off() );
-		}
-		pUndo->endMacro();
+	if ( nPattern != -1 ) {
+		delete pPatternList;
 	}
 }
 
@@ -1683,4 +1714,105 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 		}
 		pUndo->endMacro();
 	}
+}
+
+void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow ) {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready" );
+		return;
+	}
+
+	const auto row = getRowDB( nRow );
+
+	// Serialize & put to clipboard
+	H2Core::XMLDoc doc;
+	auto rootNode = doc.set_root( "serializedPatternList" );
+	pSong->getPatternList()->save_to( rootNode, row.nInstrumentID, row.sType );
+
+	const QString sSerialized = doc.toString();
+	if ( sSerialized.isEmpty() ) {
+		ERRORLOG( QString( "Unable to serialize pattern editor line [%1]" )
+				  .arg( nRow ) );
+		return;
+	}
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText( sSerialized );
+}
+
+void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow ) {
+	auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	copyNotesFromRowOfAllPatterns( nRow );
+
+	pUndo->beginMacro( pCommonStrings->getActionCutAllNotes() );
+	clearNotesInRow( nRow, -1 );
+	pUndo->endMacro();
+}
+
+void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	const auto row = getRowDB( nRow );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		return;
+	}
+
+	// Get from clipboard & deserialize
+	QClipboard *clipboard = QApplication::clipboard();
+	const QString sSerialized = clipboard->text();
+	if ( sSerialized.isEmpty() ) {
+		INFOLOG( "Serialized pattern list is empty" );
+		return;
+	}
+
+	const auto doc = H2Core::XMLDoc( sSerialized );
+	const auto rootNode = doc.firstChildElement( "serializedPatternList" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( QString( "Unable to parse serialized pattern list [%1]" )
+				  .arg( sSerialized ) );
+		return;
+	}
+
+	const auto pPatternList = PatternList::load_from(
+		rootNode, pSong->getDrumkit()->getExportName() );
+	if ( pPatternList == nullptr ) {
+		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
+				  .arg( sSerialized ) );
+		return;
+	}
+
+	auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	// Those patterns contain only notes of a single row.
+	pUndo->beginMacro( pCommonStrings->getActionPasteAllNotes() );
+	for ( auto& ppPattern : *pPatternList ) {
+		if ( ppPattern != nullptr ) {
+			for ( auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr ) {
+					pUndo->push( new SE_addOrRemoveNoteAction(
+									 ppNote->get_position(),
+									 nRow,
+									 pPatternList->index( ppPattern ),
+									 ppNote->get_length(),
+									 ppNote->get_velocity(),
+									 ppNote->getPan(),
+									 ppNote->get_lead_lag(),
+									 ppNote->get_key(),
+									 ppNote->get_octave(),
+									 ppNote->get_probability(),
+									 /* bIsDelete */ false,
+									 /* bIsMidi */ false,
+									 ppNote->get_note_off() ) );
+				}
+			}
+		}
+	}
+	pUndo->endMacro();
 }

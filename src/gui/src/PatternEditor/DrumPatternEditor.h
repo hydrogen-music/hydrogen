@@ -50,10 +50,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
 
-		void functionPasteNotesRedoAction( H2Core::PatternList* pCopiedNotesPattnerList,
-										   H2Core::PatternList* pAppliedPatternList);
-		void functionPasteNotesUndoAction( H2Core::PatternList* pAppliedPatternList);
-
 		// Synthetic UI events from selection manager
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;

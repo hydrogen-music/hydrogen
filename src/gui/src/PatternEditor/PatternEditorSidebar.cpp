@@ -122,7 +122,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 		pCommonStrings->getActionClearAllNotesInRow() );
 	connect( clearAction, &QAction::triggered, this, [=](){
 		m_pPatternEditorPanel->clearNotesInRow(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
+			m_pPatternEditorPanel->getRowIndexDB( m_row ),
+			m_pPatternEditorPanel->getPatternNumber() ); } );
 
 	m_pFunctionPopupSub = new QMenu( tr( "Fill notes ..." ), m_pFunctionPopup );
 	auto fillAllAction = m_pFunctionPopupSub->addAction(
@@ -181,13 +182,25 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
 
 	m_pFunctionPopup->addSection( tr( "Edit all patterns" ) );
-	m_pFunctionPopup->addAction( tr( "Cut notes"), this, SLOT( functionCutNotesAllPatterns() ) );
-	m_pFunctionPopup->addAction( tr( "Copy notes"), this, SLOT( functionCopyAllInstrumentPatterns() ) );
-	m_pFunctionPopup->addAction( tr( "Paste notes" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
+	auto cutNotesAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionCutAllNotes() );
+	connect( cutNotesAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->cutNotesFromRowOfAllPatterns(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
+	auto copyNotesAction = m_pFunctionPopup->addAction( tr( "Copy notes") );
+	connect( copyNotesAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->copyNotesFromRowOfAllPatterns(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
+	auto pasteNotesAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionPasteAllNotes() );
+	connect( pasteNotesAction, &QAction::triggered, this, [=](){
+		m_pPatternEditorPanel->pasteNotesToRowOfAllPatterns(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
 	auto clearAllAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionClearAllNotes() );
 	connect( clearAllAction, &QAction::triggered, this, [=](){
-		m_pPatternEditorPanel->clearNotesInRow( -1 ); } );
+		m_pPatternEditorPanel->clearNotesInRow(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ), -1 ); } );
 
 	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
 		m_pFunctionPopup->addSection( tr( "Instrument" ) );
@@ -488,105 +501,6 @@ void SidebarRow::mouseDoubleClickEvent( QMouseEvent* ev ) {
 		MainForm::action_drumkit_renameInstrument(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 	}
-}
-
-void SidebarRow::functionCopyAllInstrumentPatterns()
-{
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		ERRORLOG( "Song not ready" );
-		return;
-	}
-
-	const auto pSelectedInstrument =
-		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
-	if ( pSelectedInstrument == nullptr ) {
-		WARNINGLOG( "No instrument selected" );
-		return;
-	}
-
-	// Serialize & put to clipboard
-	H2Core::XMLDoc doc;
-	auto rootNode = doc.set_root( "serializedPatternList" );
-	pSong->getPatternList()->save_to( rootNode, pSelectedInstrument );
-
-	const QString sSerialized = doc.toString();
-	if ( sSerialized.isEmpty() ) {
-		ERRORLOG( QString( "Unable to serialize instrument line [%1]" )
-				  .arg( m_pPatternEditorPanel->getRowIndexDB( m_row ) ) );
-		return;
-	}
-	
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText( sSerialized );
-}
-
-
-void SidebarRow::functionPasteAllInstrumentPatterns()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		ERRORLOG( "Song not ready" );
-		return;
-	}
-
-	// Get from clipboard & deserialize
-	QClipboard *clipboard = QApplication::clipboard();
-	const QString sSerialized = clipboard->text();
-	if ( sSerialized.isEmpty() ) {
-		INFOLOG( "Serialized pattern list is empty" );
-		return;
-	}
-
-	const auto doc = H2Core::XMLDoc( sSerialized );
-	const auto rootNode = doc.firstChildElement( "serializedPatternList" );
-	if ( rootNode.isNull() ) {
-		ERRORLOG( QString( "Unable to parse serialized pattern list [%1]" )
-				  .arg( sSerialized ) );
-		return;
-	}
-
-	const auto pPatternList = PatternList::load_from(
-		rootNode, pSong->getDrumkit()->getExportName() );
-	if ( pPatternList == nullptr ) {
-		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
-				  .arg( sSerialized ) );
-		return;
-	}
-
-	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-
-	// Those pattern contain only notes for a single instrument. This must be
-	// replaced with the one belonging to this SidebarRow. Or notes will end
-	// up in the wrong row.
-	for ( auto& ppPattern : *pPatternList ) {
-		if ( ppPattern != nullptr ) {
-			for ( auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
-				if ( ppNote != nullptr ) {
-					ppNote->set_instrument_id( m_row.nInstrumentID );
-					ppNote->setType( m_row.sType );
-				}
-			}
-		}
-	}
-
-	// Ignore empty result
-	if ( pPatternList->size() <= 0 ) {
-		INFOLOG( "Deserialized pattern list is empty" );
-		return;
-	}
-
-	// Create action
-	SE_pasteNotesPatternEditorAction *action =
-		new SE_pasteNotesPatternEditorAction( pPatternList );
-	HydrogenApp::get_instance()->m_pUndoStack->push(action);
-}
-
-void SidebarRow::functionCutNotesAllPatterns()
-{
-	functionCopyAllInstrumentPatterns();
-	m_pPatternEditorPanel->clearNotesInRow( -1 );
 }
 
 void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {

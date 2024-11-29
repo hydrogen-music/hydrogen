@@ -67,10 +67,6 @@ public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private slots:
-		void functionCopyAllInstrumentPatterns();
-		void functionPasteAllInstrumentPatterns();
-		void functionCutNotesAllPatterns();
-
 		void muteClicked();
 		void soloClicked();
 		void sampleWarningClicked();
