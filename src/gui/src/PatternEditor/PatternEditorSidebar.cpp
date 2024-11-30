@@ -202,21 +202,23 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 		m_pPatternEditorPanel->clearNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ), -1 ); } );
 
-	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-		m_pFunctionPopup->addSection( tr( "Instrument" ) );
-		m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
-									 HydrogenApp::get_instance()->getMainForm(),
-									 SLOT( action_drumkit_addInstrument() ) );
-		auto renameAction = m_pFunctionPopup->addAction(
-			pCommonStrings->getActionRenameInstrument() );
-		connect( renameAction, &QAction::triggered, this, [=](){
-			MainForm::action_drumkit_renameInstrument(
-				m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
-		auto deleteAction =
-			m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
-		connect( deleteAction, &QAction::triggered, this, [=](){
-			MainForm::action_drumkit_deleteInstrument(
-				m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+	m_pFunctionPopup->addSection( tr( "Instrument" ) );
+	m_pFunctionPopup->addAction( pCommonStrings->getActionAddInstrument(),
+								 HydrogenApp::get_instance()->getMainForm(),
+								 SLOT( action_drumkit_addInstrument() ) );
+	auto renameAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionRenameInstrument() );
+	connect( renameAction, &QAction::triggered, this, [=](){
+		MainForm::action_drumkit_renameInstrument(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+	auto deleteAction =
+		m_pFunctionPopup->addAction( pCommonStrings->getActionDeleteInstrument() );
+	connect( deleteAction, &QAction::triggered, this, [=](){
+		MainForm::action_drumkit_deleteInstrument(
+			m_pPatternEditorPanel->getRowIndexDB( m_row ) );} );
+	if ( m_row.nInstrumentID == EMPTY_INSTR_ID ) {
+		renameAction->setEnabled( false );
+		deleteAction->setEnabled( false );
 	}
 
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
