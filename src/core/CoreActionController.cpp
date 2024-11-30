@@ -84,16 +84,16 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 		return false;
 	}
 
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+
 	if ( pInstr->get_volume() != fVolumeValue ) {
 		pInstr->set_volume( fVolumeValue );
 
 		pHydrogen->setIsModified( true );
 
 		return sendStripVolumeFeedback( nStrip );
-	}
-
-	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	return true;
@@ -246,6 +246,10 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 		return false;
 	}
 
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+
 	if ( pInstr->getPanWithRangeFrom0To1() != fValue ) {
 		pInstr->setPanWithRangeFrom0To1( fValue );
 		
@@ -255,10 +259,6 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 		pHydrogen->setIsModified( true );
 
 		return sendStripPanFeedback( nStrip );
-	}
-
-	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	return true;
@@ -274,6 +274,10 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 		return false;
 	}
 
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+
 	if ( pInstr->getPan() != fValue ) {
 		pInstr->setPan( fValue );
 		
@@ -283,10 +287,6 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 		pHydrogen->setIsModified( true );
 
 		return sendStripPanFeedback( nStrip );
-	}
-
-	if ( bSelectStrip ) {
-		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	return true;
