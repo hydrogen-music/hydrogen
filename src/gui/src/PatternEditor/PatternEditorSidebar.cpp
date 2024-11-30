@@ -267,7 +267,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 		}
 	}
 	else {
-		m_bIsSelected = false;
+		setSelected( false );
 	}
 
 	if ( ! row.sType.isEmpty() ) {
