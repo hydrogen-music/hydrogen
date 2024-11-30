@@ -75,6 +75,8 @@ public slots:
 		PatternEditorPanel* m_pPatternEditorPanel;
 		QMenu *m_pFunctionPopup;
 		QMenu *m_pFunctionPopupSub;
+		QAction* m_pRenameInstrumentAction;
+		QAction* m_pDeleteInstrumentAction;
 		QLabel *m_pNameLbl;
 		bool m_bIsSelected;
 		DrumPatternRow m_row;
