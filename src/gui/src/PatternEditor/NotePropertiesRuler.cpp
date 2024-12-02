@@ -21,9 +21,6 @@
  */
 
 #include <core/Hydrogen.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 using namespace H2Core;

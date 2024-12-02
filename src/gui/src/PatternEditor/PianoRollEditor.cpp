@@ -30,9 +30,6 @@
 #include "../Skin.h"
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>

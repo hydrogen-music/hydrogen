@@ -27,6 +27,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 
@@ -1118,10 +1119,6 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
-
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
 	m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
@@ -1161,7 +1158,11 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 												   int nSelectedPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pPatternList = pSong->getPatternList();
 	std::shared_ptr<H2Core::Pattern> pPattern = nullptr;
 
 	if ( ( nSelectedPatternNumber != -1 ) &&
@@ -1416,8 +1417,7 @@ NotePropertiesRuler::Mode PatternEditorPanel::getNotePropertiesMode() const
 
 void PatternEditorPanel::patchBayBtnClicked() {
 	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No Song set" );
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 

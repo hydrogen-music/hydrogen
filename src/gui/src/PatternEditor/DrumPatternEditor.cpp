@@ -26,15 +26,10 @@
 #include "PatternEditorSidebar.h"
 
 #include <core/Globals.h>
-#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/EventQueue.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Basics/Adsr.h>
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -95,12 +90,8 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
-		return;
-	}
-	if ( pHydrogen->getSong() == nullptr ) {
 		return;
 	}
 
@@ -152,10 +143,6 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	PatternEditor::mousePressEvent( ev );
 	
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSong() == nullptr ) {
-		return;
-	}
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
@@ -359,8 +346,6 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 		return std::move( result );
 	}
 	
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto  pInstrList = pSong->getDrumkit()->getInstruments();
 	uint h = m_nGridHeight / 3;
 
 	// Expand the region by approximately the size of the note

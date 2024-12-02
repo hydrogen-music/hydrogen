@@ -431,19 +431,21 @@ void SidebarRow::muteClicked()
 		return;
 	}
 
+
 	const int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
-	
-	auto pInstr =
-		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
-				  .arg( m_row.nInstrumentID ) );
-		return;
-	}
-	
 	m_pPatternEditorPanel->setSelectedRowDB( nRow );
 
-	H2Core::CoreActionController::setStripIsMuted( nRow, ! pInstr->is_muted() );
+	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		auto pInstr =
+			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
+		if ( pInstr == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
+					  .arg( m_row.nInstrumentID ) );
+			return;
+		}
+
+		H2Core::CoreActionController::setStripIsMuted( nRow, ! pInstr->is_muted() );
+	}
 }
 
 void SidebarRow::soloClicked()
@@ -454,18 +456,19 @@ void SidebarRow::soloClicked()
 	}
 
 	const int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
-
-	auto pInstr =
-		pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
-				  .arg( m_row.nInstrumentID ) );
-		return;
-	}
-
 	m_pPatternEditorPanel->setSelectedRowDB( nRow );
 
-	H2Core::CoreActionController::setStripIsSoloed( nRow, ! pInstr->is_soloed() );
+	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+		auto pInstr =
+			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
+		if ( pInstr == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument of ID [%1]" )
+					  .arg( m_row.nInstrumentID ) );
+			return;
+		}
+
+		H2Core::CoreActionController::setStripIsSoloed( nRow, ! pInstr->is_soloed() );
+	}
 }
 
 void SidebarRow::sampleWarningClicked()
