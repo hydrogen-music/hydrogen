@@ -60,7 +60,6 @@ class SidebarRow : public PixmapWidget
 		void setSelected(bool isSelected);
 
 	static constexpr int m_nButtonWidth = 18;
-	static constexpr int m_nMargin = 10;
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -123,6 +122,7 @@ class PatternEditorSidebar : public QWidget,
 		void updateEditor();
 
 		static constexpr int m_nWidth = 181;
+		static constexpr int m_nMargin = 10;
 	public slots:
 		void updateRows();
 

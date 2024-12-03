@@ -117,8 +117,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 										  ClickableLabel::Color::Bright, true );
 	m_pDrumkitLabel->setFont( boldFont );
 	m_pDrumkitLabel->setFixedSize(
-		PatternEditorSidebar::m_nWidth - SidebarRow::m_nMargin, 20 );
-	m_pDrumkitLabel->move( SidebarRow::m_nMargin, 3 );
+		PatternEditorSidebar::m_nWidth - PatternEditorSidebar::m_nMargin, 20 );
+	m_pDrumkitLabel->move( PatternEditorSidebar::m_nMargin, 3 );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
 	m_pEditorTop1_hbox->addWidget( m_pDrumkitLabel );
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {

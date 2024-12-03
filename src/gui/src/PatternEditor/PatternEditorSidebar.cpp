@@ -72,8 +72,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize(
 		PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-		SidebarRow::m_nMargin, h );
-	m_pNameLbl->move( SidebarRow::m_nMargin, 1 );
+		PatternEditorSidebar::m_nMargin, h );
+	m_pNameLbl->move( PatternEditorSidebar::m_nMargin, 1 );
 	m_pNameLbl->setFont( nameFont );
 
 	/*: Text displayed on the button for muting an instrument. Its size is
