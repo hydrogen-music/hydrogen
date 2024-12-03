@@ -54,8 +54,7 @@ class SidebarRow : public PixmapWidget
 	Q_OBJECT
 
 	public:
-		explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row,
-							 int nWidth );
+		explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
 
 		void set( const DrumPatternRow& row );
 		void setSelected(bool isSelected);
@@ -100,7 +99,6 @@ public slots:
 
 		/** Whether the cursor entered the boundary of the widget.*/
 		bool m_bEntered;
-		int m_nWidth;
 };
 
 
@@ -123,6 +121,8 @@ class PatternEditorSidebar : public QWidget,
 		virtual void instrumentMuteSoloChangedEvent( int ) override;
 
 		void updateEditor();
+
+		static constexpr int m_nWidth = 181;
 	public slots:
 		void updateRows();
 
@@ -130,7 +130,6 @@ class PatternEditorSidebar : public QWidget,
 	protected:
 		PatternEditorPanel* m_pPatternEditorPanel;
 		uint m_nGridHeight;
-		uint m_nEditorWidth;
 		uint m_nEditorHeight;
 		std::vector<std::shared_ptr<SidebarRow>> m_rows;
 		DragScroller *m_pDragScroller;

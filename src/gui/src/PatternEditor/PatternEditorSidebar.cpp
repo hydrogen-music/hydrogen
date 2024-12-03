@@ -52,12 +52,11 @@
 
 using namespace H2Core;
 
-SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth )
+SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	: PixmapWidget(pParent)
 	, m_row( row )
 	, m_bIsSelected( false )
 	, m_bEntered( false )
-	, m_nWidth( nWidth )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -65,46 +64,47 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row, int nWidth 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	int h = pPref->getPatternEditorGridHeight();
-	resize( m_nWidth, h );
+	resize( PatternEditorSidebar::m_nWidth, h );
 
 	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 	m_pNameLbl = new QLabel(this);
-	m_pNameLbl->resize( m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-						SidebarRow::m_nMargin, h );
+	m_pNameLbl->resize(
+		PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
+		SidebarRow::m_nMargin, h );
 	m_pNameLbl->move( SidebarRow::m_nMargin, 1 );
 	m_pNameLbl->setFont( nameFont );
 
 	/*: Text displayed on the button for muting an instrument. Its size is
 	  designed for a single character.*/
-	m_pMuteBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
-							 Button::Type::Toggle, "",
-							 pCommonStrings->getSmallMuteButton(),
-							 true, QSize(), tr("Mute instrument"),
-							 false, true );
-	m_pMuteBtn->move( m_nWidth - 2 * SidebarRow::m_nButtonWidth, 0 );
+	m_pMuteBtn = new Button(
+		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
+		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), true,
+		QSize(), tr("Mute instrument"), false, true );
+	m_pMuteBtn->move( PatternEditorSidebar::m_nWidth -
+					  2 * SidebarRow::m_nButtonWidth, 0 );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
 	/*: Text displayed on the button for soloing an instrument. Its size is
 	  designed for a single character.*/
-	m_pSoloBtn = new Button( this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
-							 Button::Type::Toggle, "",
-							 pCommonStrings->getSmallSoloButton(),
-							 false, QSize(), tr("Solo"),
-							 false, true );
-	m_pSoloBtn->move( m_nWidth - SidebarRow::m_nButtonWidth, 0 );
+	m_pSoloBtn = new Button(
+		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
+		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), false,
+		QSize(), tr("Solo"), false, true );
+	m_pSoloBtn->move( PatternEditorSidebar::m_nWidth -
+					  SidebarRow::m_nButtonWidth, 0 );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
 
-	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Icon,
-								   "warning.svg", "", false, QSize(),
-								   tr( "Some samples for this instrument failed to load." ),
-								   true );
-	m_pSampleWarning->move( 128, 5 );
+	m_pSampleWarning = new Button(
+		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", false,
+		QSize(), tr( "Some samples for this instrument failed to load." ), true );
+	m_pSampleWarning->move( PatternEditorSidebar::m_nWidth -
+					  3 * SidebarRow::m_nButtonWidth, 5 );
 	m_pSampleWarning->hide();
 	connect(m_pSampleWarning, SIGNAL( clicked() ),
 			this, SLOT( sampleWarningClicked() ));
@@ -546,10 +546,9 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
-	m_nEditorWidth = 181;
 	m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
 
-	resize( m_nEditorWidth, m_nEditorHeight );
+	resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
 
 	setAcceptDrops(true);
 
@@ -586,7 +585,7 @@ void PatternEditorSidebar::updateRows()
 	if ( m_nEditorHeight !=
 		 m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB() ) {
 		m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
-		resize( m_nEditorWidth, m_nEditorHeight );
+		resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
 	}
 
 	int nnIndex = 0;
@@ -598,7 +597,7 @@ void PatternEditorSidebar::updateRows()
 		else {
 			// row in DB does not has its counterpart in the sidebar yet. Create
 			// it.
-			auto pRow = std::make_shared<SidebarRow>( this, rrow, m_nEditorWidth );
+			auto pRow = std::make_shared<SidebarRow>( this, rrow );
 			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
 			pRow->show();
 			m_rows.push_back( pRow );
@@ -652,7 +651,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 	// Starting point for instument list is 50 lower than on the drum pattern
 	// editor
 	int nPosY;
-	if ( event->pos().x() >= m_nEditorWidth ) {
+	if ( event->pos().x() >= PatternEditorSidebar::m_nWidth ) {
 		nPosY = event->pos().y() - 50;
 	} else {
 		nPosY = event->pos().y();

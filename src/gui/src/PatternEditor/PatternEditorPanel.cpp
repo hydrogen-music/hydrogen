@@ -116,8 +116,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
 										  ClickableLabel::Color::Bright, true );
 	m_pDrumkitLabel->setFont( boldFont );
-	m_pDrumkitLabel->setFixedSize( 170, 20 );
-	m_pDrumkitLabel->move( 10, 3 );
+	m_pDrumkitLabel->setFixedSize(
+		PatternEditorSidebar::m_nWidth - SidebarRow::m_nMargin, 20 );
+	m_pDrumkitLabel->move( SidebarRow::m_nMargin, 3 );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
 	m_pEditorTop1_hbox->addWidget( m_pDrumkitLabel );
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
@@ -601,14 +602,14 @@ void PatternEditorPanel::createEditors() {
 	m_pPropertiesPanel->setObjectName( "PropertiesPanel" );
 	m_pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
 
-	m_pPropertiesPanel->setFixedSize( 181, 100 );
+	m_pPropertiesPanel->setFixedSize( PatternEditorSidebar::m_nWidth, 100 );
 
 	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( m_pPropertiesPanel );
 	pPropertiesVBox->setSpacing( 0 );
 	pPropertiesVBox->setMargin( 0 );
 
-	m_pPropertiesCombo =
-		new LCDCombo( nullptr, QSize( m_pSidebar->width(), 18 ), false );
+	m_pPropertiesCombo = new LCDCombo(
+		nullptr, QSize( PatternEditorSidebar::m_nWidth, 18 ), false );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
 	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
 	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyPan() );
