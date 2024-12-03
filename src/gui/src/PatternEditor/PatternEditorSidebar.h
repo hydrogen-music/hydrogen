@@ -45,6 +45,7 @@ namespace H2Core
 }
 
 class Button;
+class ClickableLabel;
 
 /** \ingroup docGUI*/
 class SidebarRow : public PixmapWidget
@@ -59,7 +60,8 @@ class SidebarRow : public PixmapWidget
 		void set( const DrumPatternRow& row );
 		void setSelected(bool isSelected);
 
-	static constexpr int m_nButtonWidth = 18;
+		static constexpr int m_nButtonWidth = 18;
+		static constexpr int m_nTypeLblWidth = 100;
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -75,7 +77,8 @@ public slots:
 		QMenu *m_pFunctionPopupSub;
 		QAction* m_pRenameInstrumentAction;
 		QAction* m_pDeleteInstrumentAction;
-		QLabel *m_pNameLbl;
+		ClickableLabel* m_pInstrumentNameLbl;
+		ClickableLabel* m_pTypeLbl;
 		bool m_bIsSelected;
 		DrumPatternRow m_row;
 		Button *m_pMuteBtn;
@@ -90,8 +93,6 @@ public slots:
 
 	void updateStyleSheet();
 
-		void setName(const QString& sName);
-		void setToolTip( const QString& sToolTip );
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );
 		void setSamplesMissing( bool bSamplesMissing );
@@ -121,7 +122,7 @@ class PatternEditorSidebar : public QWidget,
 
 		void updateEditor();
 
-		static constexpr int m_nWidth = 181;
+		static constexpr int m_nWidth = 301;
 		static constexpr int m_nMargin = 10;
 	public slots:
 		void updateRows();

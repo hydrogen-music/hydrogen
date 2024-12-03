@@ -41,6 +41,7 @@
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../Widgets/Button.h"
+#include "../Widgets/ClickableLabel.h"
 #include "../Skin.h"
 
 #include <QtGui>
@@ -63,18 +64,18 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	int h = pPref->getPatternEditorGridHeight();
-	resize( PatternEditorSidebar::m_nWidth, h );
+	const int nHeight = pPref->getPatternEditorGridHeight();
+	resize( PatternEditorSidebar::m_nWidth, nHeight );
 
 	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
-	m_pNameLbl = new QLabel(this);
-	m_pNameLbl->resize(
-		PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-		PatternEditorSidebar::m_nMargin, h );
-	m_pNameLbl->move( PatternEditorSidebar::m_nMargin, 1 );
-	m_pNameLbl->setFont( nameFont );
+	m_pInstrumentNameLbl = new ClickableLabel(
+		this, QSize( PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
+					 SidebarRow::m_nTypeLblWidth - PatternEditorSidebar::m_nMargin,
+					 nHeight ), "", ClickableLabel::Color::Dark, true );
+	m_pInstrumentNameLbl->move( PatternEditorSidebar::m_nMargin, 1 );
+	m_pInstrumentNameLbl->setFont( nameFont );
 
 	/*: Text displayed on the button for muting an instrument. Its size is
 	  designed for a single character.*/
@@ -82,8 +83,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), true,
 		QSize(), tr("Mute instrument"), false, true );
-	m_pMuteBtn->move( PatternEditorSidebar::m_nWidth -
-					  2 * SidebarRow::m_nButtonWidth, 0 );
+	m_pMuteBtn->move(
+		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth -
+		2 * SidebarRow::m_nButtonWidth, 0 );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
@@ -94,8 +96,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), false,
 		QSize(), tr("Solo"), false, true );
-	m_pSoloBtn->move( PatternEditorSidebar::m_nWidth -
-					  SidebarRow::m_nButtonWidth, 0 );
+	m_pSoloBtn->move(
+		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth -
+		SidebarRow::m_nButtonWidth, 0 );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
@@ -103,8 +106,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pSampleWarning = new Button(
 		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", false,
 		QSize(), tr( "Some samples for this instrument failed to load." ), true );
-	m_pSampleWarning->move( PatternEditorSidebar::m_nWidth -
-					  3 * SidebarRow::m_nButtonWidth, 5 );
+	m_pSampleWarning->move(
+		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth -
+		3 * SidebarRow::m_nButtonWidth, 5 );
 	m_pSampleWarning->hide();
 	connect(m_pSampleWarning, SIGNAL( clicked() ),
 			this, SLOT( sampleWarningClicked() ));
@@ -114,6 +118,12 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
 	}
+
+	m_pTypeLbl = new ClickableLabel(
+		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType,
+		ClickableLabel::Color::Dark, true );
+	m_pTypeLbl->move( PatternEditorSidebar::m_nWidth -
+					  SidebarRow::m_nTypeLblWidth, 1 );
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
@@ -230,7 +240,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 void SidebarRow::set( const DrumPatternRow& row )
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	QString sRowName, sToolTipDrumkit;
+	QString sToolTip;
 	bool bIsSoloed = false, bIsMuted = false;
 	m_row = row;
 
@@ -242,7 +252,12 @@ void SidebarRow::set( const DrumPatternRow& row )
 			if ( pInstrument != nullptr ) {
 				setSelected( pHydrogen->getSelectedInstrumentNumber() ==
 					pSong->getDrumkit()->getInstruments()->index( pInstrument ) );
-				sRowName = pInstrument->get_name();
+
+				const QString sInstrumentName = pInstrument->get_name();
+				if ( m_pInstrumentNameLbl->text() != sInstrumentName ){
+					m_pInstrumentNameLbl->setText( sInstrumentName );
+				}
+
 				setMuted( pInstrument->is_muted() );
 				setSoloed( pInstrument->is_soloed() );
 				setSamplesMissing( pInstrument->has_missing_samples() );
@@ -259,7 +274,8 @@ void SidebarRow::set( const DrumPatternRow& row )
 					}
 
 					/*: Shown in a tooltop and indicating the drumkit (to the right of this string) an instrument (to the left of this string) is loaded from. */
-					sToolTipDrumkit = QString( " (" ).append( tr( "imported from" ) )
+					sToolTip = QString( "%1 (" ).arg( sInstrumentName )
+						.append( tr( "imported from" ) )
 						.append( QString( " [%1])" ).arg( sKit ) );
 				}
 			}
@@ -279,32 +295,14 @@ void SidebarRow::set( const DrumPatternRow& row )
 		setSelected( false );
 	}
 
-	if ( ! row.sType.isEmpty() ) {
-		sRowName.append( " | " ).append( row.sType );
+	if ( ! row.sType.isEmpty() && m_pTypeLbl->text() != row.sType ){
+		m_pTypeLbl->setText( row.sType );
 	}
-	setName( sRowName );
 
-	// Create a tool tip uniquely stating the drumkit the instrument belongs to.
-	QString sToolTip = QString( "%1%2" ).arg( sRowName ).arg( sToolTipDrumkit );
-
-	setToolTip( sToolTip );
-}
-
-void SidebarRow::setName(const QString& sName)
-{
-	if ( m_pNameLbl->text() != sName ){
-		m_pNameLbl->setText(sName);
+	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ){
+		m_pInstrumentNameLbl->setToolTip( sToolTip );
 	}
 }
-
-void SidebarRow::setToolTip(const QString& sToolTip)
-{
-	if ( m_pNameLbl->toolTip() != sToolTip ){
-		m_pNameLbl->setToolTip( sToolTip );
-	}
-}
-
-
 
 void SidebarRow::setSelected( bool bSelected )
 {
@@ -329,7 +327,12 @@ void SidebarRow::updateStyleSheet() {
 		textColor = pPref->getTheme().m_color.m_patternEditor_textColor;
 	}
 
-	m_pNameLbl->setStyleSheet( QString( "\
+	m_pInstrumentNameLbl->setStyleSheet( QString( "\
+QLabel {\
+   color: %1;\
+   font-weight: bold;\
+ }" ).arg( textColor.name() ) );
+	m_pTypeLbl->setStyleSheet( QString( "\
 QLabel {\
    color: %1;\
    font-weight: bold;\
@@ -522,7 +525,7 @@ void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& chang
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		m_pNameLbl->setFont( QFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) ) );
+		m_pInstrumentNameLbl->setFont( QFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) ) );
 	}
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
