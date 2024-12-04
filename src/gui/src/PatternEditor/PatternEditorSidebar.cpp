@@ -41,7 +41,6 @@
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../Widgets/Button.h"
-#include "../Widgets/ClickableLabel.h"
 #include "../Skin.h"
 
 #include <QtGui>
@@ -52,6 +51,29 @@
 #include <algorithm> // for std::min
 
 using namespace H2Core;
+
+SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
+							const QString& sText )
+	: ClickableLabel( pParent, size, sText, ClickableLabel::Color::Bright,
+					  /* bIsEditable */ false )
+	, m_pParent( pParent )
+{
+	setAlignment( Qt::AlignLeft );
+}
+
+void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
+	ClickableLabel::mousePressEvent( pEvent );
+
+	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
+	if ( pSidebarRow != nullptr ) {
+		pSidebarRow->mousePressEvent( pEvent );
+	}
+}
+
+void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
+	UNUSED( pEvent );
+	emit labelDoubleClicked();
+}
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	: PixmapWidget(pParent)
@@ -70,12 +92,18 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
-	m_pInstrumentNameLbl = new ClickableLabel(
+	m_pInstrumentNameLbl = new SidebarLabel(
 		this, QSize( PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
 					 SidebarRow::m_nTypeLblWidth - PatternEditorSidebar::m_nMargin,
-					 nHeight ), "", ClickableLabel::Color::Dark, true );
+					 nHeight ), "" );
 	m_pInstrumentNameLbl->move( PatternEditorSidebar::m_nMargin, 1 );
 	m_pInstrumentNameLbl->setFont( nameFont );
+	connect( m_pInstrumentNameLbl, &SidebarLabel::labelDoubleClicked, [=](){
+		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+			MainForm::action_drumkit_renameInstrument(
+				m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+		}
+	} );
 
 	/*: Text displayed on the button for muting an instrument. Its size is
 	  designed for a single character.*/
@@ -119,9 +147,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		m_pSampleWarning->hide();
 	}
 
-	m_pTypeLbl = new ClickableLabel(
-		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType,
-		ClickableLabel::Color::Dark, true );
+	m_pTypeLbl = new SidebarLabel(
+		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType );
 	m_pTypeLbl->move( PatternEditorSidebar::m_nWidth -
 					  SidebarRow::m_nTypeLblWidth, 1 );
 
@@ -287,6 +314,9 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pDeleteInstrumentAction->setEnabled( true );
 	}
 	else {
+		if ( ! m_pInstrumentNameLbl->text().isEmpty() ) {
+			m_pInstrumentNameLbl->setText( "" );
+		}
 		m_pMuteBtn->hide();
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
@@ -295,7 +325,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 		setSelected( false );
 	}
 
-	if ( ! row.sType.isEmpty() && m_pTypeLbl->text() != row.sType ){
+	if ( m_pTypeLbl->text() != row.sType ){
 		m_pTypeLbl->setText( row.sType );
 	}
 
@@ -511,13 +541,6 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 
 	// propago l'evento al parent: serve per il drag&drop
 	PixmapWidget::mousePressEvent(ev);
-}
-
-void SidebarRow::mouseDoubleClickEvent( QMouseEvent* ev ) {
-	if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-		MainForm::action_drumkit_renameInstrument(
-			m_pPatternEditorPanel->getRowIndexDB( m_row ) );
-	}
 }
 
 void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {

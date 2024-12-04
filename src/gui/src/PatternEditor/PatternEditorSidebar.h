@@ -36,6 +36,7 @@
 #include "PatternEditorPanel.h"
 #include "../EventListener.h"
 #include "../Selection.h"
+#include "../Widgets/ClickableLabel.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
@@ -45,7 +46,23 @@ namespace H2Core
 }
 
 class Button;
-class ClickableLabel;
+
+class SidebarLabel : public ClickableLabel, public H2Core::Object<SidebarLabel>
+{
+	H2_OBJECT(SidebarLabel)
+	Q_OBJECT
+
+	public:
+		SidebarLabel( QWidget* pParent, const QSize& size, const QString& sText );
+
+	signals:
+		void labelDoubleClicked();
+
+	private:
+		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
+		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
+		QWidget* m_pParent;
+};
 
 /** \ingroup docGUI*/
 class SidebarRow : public PixmapWidget
@@ -62,6 +79,7 @@ class SidebarRow : public PixmapWidget
 
 		static constexpr int m_nButtonWidth = 18;
 		static constexpr int m_nTypeLblWidth = 100;
+		virtual void mousePressEvent(QMouseEvent *ev) override;
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -77,16 +95,14 @@ public slots:
 		QMenu *m_pFunctionPopupSub;
 		QAction* m_pRenameInstrumentAction;
 		QAction* m_pDeleteInstrumentAction;
-		ClickableLabel* m_pInstrumentNameLbl;
-		ClickableLabel* m_pTypeLbl;
+		SidebarLabel* m_pInstrumentNameLbl;
+		SidebarLabel* m_pTypeLbl;
 		bool m_bIsSelected;
 		DrumPatternRow m_row;
 		Button *m_pMuteBtn;
 		Button *m_pSoloBtn;
 		Button *m_pSampleWarning;
 
-		virtual void mousePressEvent(QMouseEvent *ev) override;
-	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void paintEvent( QPaintEvent* ev ) override;
