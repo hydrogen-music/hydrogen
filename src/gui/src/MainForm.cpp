@@ -2310,7 +2310,8 @@ void MainForm::action_drumkit_properties() {
 	editDrumkitProperties( false, false );
 }
 
-void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession )
+void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession,
+									  int nInstrumentID )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -2328,8 +2329,8 @@ void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession 
 	// leaked into the current song.
 	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 
-	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bWriteToDisk,
-									bSaveToNsmSession );
+	DrumkitPropertiesDialog dialog( nullptr, pNewDrumkit, ! bWriteToDisk,
+									bSaveToNsmSession, nInstrumentID );
 	dialog.exec();
 }
 

@@ -94,6 +94,12 @@ class MainForm :  public QMainWindow,
 		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
+		/** @param nInstrumentID If set to a value different than
+		 *   #EMPTY_INSTR_ID, the corresponding line in the type tab will be
+		 *   selected on startup. */
+		static void editDrumkitProperties( bool bWriteToDisk,
+										   bool bSaveToNsmSession,
+										   int nInstrumentID = EMPTY_INSTR_ID );
 
 public slots:
 		void showPreferencesDialog();
@@ -243,7 +249,6 @@ public slots:
 		void onFixMissingSamples();
 
 	private:
-	void editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession );
 		void updateRecentUsedSongList();
 
 		void loadDrumkit( const QString& sFileName, bool bLoad );

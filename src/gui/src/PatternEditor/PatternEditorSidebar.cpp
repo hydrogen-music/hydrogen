@@ -232,6 +232,11 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
 	m_pTypeLbl->move( PatternEditorSidebar::m_nWidth -
 					  SidebarRow::m_nTypeLblWidth, 0 );
+	connect( m_pTypeLbl, &SidebarLabel::labelDoubleClicked, [=](){
+		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+			MainForm::editDrumkitProperties( false, false, m_row.nInstrumentID );
+		}
+	} );
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );

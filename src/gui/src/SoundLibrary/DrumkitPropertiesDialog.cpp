@@ -46,7 +46,8 @@ namespace H2Core
 DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 												  std::shared_ptr<Drumkit> pDrumkit,
 												  bool bEditingNotSaving,
-												  bool bSaveToNsmSession )
+												  bool bSaveToNsmSession,
+												  int nInstrumentID )
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
  , m_bEditingNotSaving( bEditingNotSaving )
@@ -252,6 +253,17 @@ QTextEdit { \
 
 	updateLicensesTable();
 	updateTypesTable( bDrumkitWritable );
+
+	if ( nInstrumentID != EMPTY_INSTR_ID &&
+		 m_idToTypeMap.find( nInstrumentID ) != m_idToTypeMap.end() ) {
+		// Widget opened by double clicking a type of an instrument. Select the
+		// corresponding type.
+		auto pTypeWidget = m_idToTypeMap[ nInstrumentID ];
+		if ( pTypeWidget != nullptr ) {
+			tabWidget->setCurrentIndex( 1 );
+			pTypeWidget->setFocus( Qt::PopupFocusReason );
+		}
+	}
 }
 
 
@@ -343,6 +355,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	const auto pPref = Preferences::get_instance();
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
+	m_idToTypeMap.clear();
 
 	if ( m_pDrumkit == nullptr ||
 		 m_pDrumkit->getInstruments() == nullptr ) {
@@ -420,6 +433,8 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 		typesTable->setCellWidget( nCell, 0, pInstrumentId );
 		typesTable->setCellWidget( nCell, 1, pInstrumentName );
 		typesTable->setCellWidget( nCell, 2, pInstrumentType );
+
+		m_idToTypeMap[ nInstrumentId ] = pInstrumentType;
 	};
 
 	int nnCell = 0;

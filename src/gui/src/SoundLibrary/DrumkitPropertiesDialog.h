@@ -43,10 +43,14 @@ class DrumkitPropertiesDialog :  public QDialog,
 	H2_OBJECT(DrumkitPropertiesDialog)
 	Q_OBJECT
 	public:
+		/** @param nInstrumentID If set to a value different than
+		 *   #EMPTY_INSTR_ID, the corresponding line in the type tab will be
+		 *   selected on startup. */
 		DrumkitPropertiesDialog( QWidget* pParent,
 								 std::shared_ptr<Drumkit> pDrumkit,
 								 bool bEditingNotSaving,
-								 bool bSaveToNsmSession );
+								 bool bSaveToNsmSession,
+								 int nInstrumentID = EMPTY_INSTR_ID );
 		~DrumkitPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
@@ -76,7 +80,10 @@ class DrumkitPropertiesDialog :  public QDialog,
 		bool m_bSaveToNsmSession;
 
 	QString m_sNewImagePath;
-	
+
+		/** used to selected a specific instrument type row on opening based on
+		 * the provided instrument ID. */
+		std::map<int, LCDCombo*> m_idToTypeMap;
 };
 
 }
