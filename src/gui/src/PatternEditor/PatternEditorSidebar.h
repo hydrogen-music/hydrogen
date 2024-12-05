@@ -56,7 +56,11 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 					  int nIndent );
 		~SidebarLabel();
 
+		/** Text will be cleared on showPlusSign() */
 		void setText( const QString& sNewText );
+		/** Indicator to show add something new. Icon is cleared on setText() */
+		void showPlusSign();
+		void setUseBlackIcon( bool bUseBlackIcon );
 
 	public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -74,6 +78,8 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 
 		QWidget* m_pParent;
 		int m_nIndent;
+		bool m_bIsShowingPlusSign;
+		bool m_bUseBlackIcon;
 };
 
 /** \ingroup docGUI*/

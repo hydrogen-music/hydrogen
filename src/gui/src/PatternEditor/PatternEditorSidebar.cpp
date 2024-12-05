@@ -57,6 +57,8 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	: QLabel( pParent )
 	, m_pParent( pParent )
 	, m_nIndent( nIndent )
+	, m_bIsShowingPlusSign( false )
+	, m_bUseBlackIcon( false )
 {
 	setFixedSize( size );
 	setText( sText );
@@ -76,13 +78,46 @@ SidebarLabel::~SidebarLabel() {
 }
 
 void SidebarLabel::setText( const QString& sNewText ) {
-	if ( text() == sNewText ) {
+	if ( ! m_bIsShowingPlusSign && text() == sNewText ) {
 		return;
 	}
+
+	m_bIsShowingPlusSign = false;
+
+	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	QLabel::setText( sNewText );
 	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
+}
+
+void SidebarLabel::showPlusSign() {
+	if ( m_bIsShowingPlusSign ){
+		return;
+	}
+
+	m_bIsShowingPlusSign = true;
+
+	setAlignment( Qt::AlignCenter | Qt::AlignVCenter );
+
+	QString sIconPath = Skin::getSvgImagePath() + "/icons/" +
+		( m_bUseBlackIcon ? "black" : "white" ) + "/plus_transparent.svg";
+	auto icon = QIcon( sIconPath );
+	setPixmap( icon.pixmap( 15, 15 ) );
+}
+
+void SidebarLabel::setUseBlackIcon( bool bUseBlackIcon ) {
+	if ( bUseBlackIcon == m_bUseBlackIcon ) {
+		return;
+	}
+
+	m_bUseBlackIcon = bUseBlackIcon;
+
+	if ( m_bIsShowingPlusSign ) {
+		// Redraw icon
+		m_bIsShowingPlusSign = false;
+		showPlusSign();
+	}
 }
 
 void SidebarLabel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
@@ -425,9 +460,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pDeleteInstrumentAction->setEnabled( true );
 	}
 	else {
-		if ( ! m_pInstrumentNameLbl->text().isEmpty() ) {
-			m_pInstrumentNameLbl->setText( "" );
-		}
+		m_pInstrumentNameLbl->showPlusSign();
 		m_pMuteBtn->hide();
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
@@ -436,8 +469,10 @@ void SidebarRow::set( const DrumPatternRow& row )
 		setSelected( false );
 	}
 
-	if ( m_pTypeLbl->text() != row.sType ){
+	if ( ! row.sType.isEmpty() ) {
 		m_pTypeLbl->setText( row.sType );
+	} else {
+		m_pTypeLbl->showPlusSign();
 	}
 
 	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ){
@@ -450,7 +485,7 @@ void SidebarRow::setSelected( bool bSelected )
 	if ( bSelected == m_bIsSelected ) {
 		return;
 	}
-	
+
 	m_bIsSelected = bSelected;
 
 	updateStyleSheet();
@@ -464,8 +499,13 @@ void SidebarRow::updateStyleSheet() {
 	QColor textColor;
 	if ( m_bIsSelected ) {
 		textColor = pPref->getTheme().m_color.m_patternEditor_selectedRowTextColor;
-	} else {
+		m_pInstrumentNameLbl->setUseBlackIcon( true );
+		m_pTypeLbl->setUseBlackIcon( true );
+	}
+	else {
 		textColor = pPref->getTheme().m_color.m_patternEditor_textColor;
+		m_pInstrumentNameLbl->setUseBlackIcon( false );
+		m_pTypeLbl->setUseBlackIcon( false );
 	}
 
 	m_pInstrumentNameLbl->setStyleSheet( QString( "\
@@ -495,7 +535,7 @@ void SidebarRow::leaveEvent( QEvent* ev ) {
 void SidebarRow::paintEvent( QPaintEvent* ev ) {
 	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	
+
 	QPainter painter(this);
 
 	QColor backgroundColor;
@@ -640,7 +680,7 @@ void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& chang
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-		
+
 		m_pInstrumentNameLbl->setFont( QFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) ) );
 	}
 
@@ -659,7 +699,7 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
  {
 
 	HydrogenApp::get_instance()->addEventListener( this );
-	
+
 	//INFOLOG("INIT");
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -730,7 +770,7 @@ void PatternEditorSidebar::updateRows()
 		m_rows.pop_back();
 	}
 }
-	
+
 void PatternEditorSidebar::dragEnterEvent(QDragEnterEvent *event)
 {
 	event->acceptProposedAction();
@@ -757,7 +797,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 							   QString( ": %1" ).arg( MAX_INSTRUMENTS ) );
 		return;
 	}
-	
+
 	QString sText = event->mimeData()->text();
 
 	if ( sText.startsWith("Songs:") ||
@@ -797,7 +837,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 			event->acceptProposedAction();
 			return;
 		}
-		
+
 		HydrogenApp::get_instance()->m_pUndoStack->push(
 			new SE_moveInstrumentAction( nSourceRow, nTargetRow ) );
 
