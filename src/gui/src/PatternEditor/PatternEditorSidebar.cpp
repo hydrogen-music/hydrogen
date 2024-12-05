@@ -95,7 +95,7 @@ void SidebarLabel::onPreferencesChanged( const H2Core::Preferences::Changes& cha
 }
 
 void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
-	emit labelClicked();
+	emit labelClicked( pEvent );
 
 	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
 	if ( pSidebarRow != nullptr ) {
@@ -179,6 +179,30 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					 SidebarRow::m_nTypeLblWidth, nHeight ),
 		"", PatternEditorSidebar::m_nMargin );
 	m_pInstrumentNameLbl->setFont( nameFont );
+
+	// Play back a sample of specific velocity based on the horizontal position
+	// of the click event. We will do so just for the instrument label.
+	connect(
+		m_pInstrumentNameLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
+			if ( pEvent->button() == Qt::LeftButton ) {
+				auto pSong = Hydrogen::get_instance()->getSong();
+				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+					return;
+				}
+				auto pInstr = pSong->getDrumkit()->getInstruments()->
+					find( m_row.nInstrumentID );
+				if ( m_pMuteBtn != nullptr &&
+					 pInstr != nullptr && pInstr->hasSamples() ) {
+
+					const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
+					const float fVelocity = std::min(
+						(float)pEvent->x()/(float)nWidth, VELOCITY_MAX );
+					Note *pNote = new Note( pInstr, 0, fVelocity);
+					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+						noteOn(pNote);
+				}
+			}
+	} );
 	connect( m_pInstrumentNameLbl, &SidebarLabel::labelDoubleClicked, [=](){
 		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
 			MainForm::action_drumkit_renameInstrument(
@@ -234,7 +258,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					  SidebarRow::m_nTypeLblWidth, 0 );
 	connect( m_pTypeLbl, &SidebarLabel::labelDoubleClicked, [=](){
 		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-			MainForm::editDrumkitProperties( false, false, m_row.nInstrumentID );
+			MainForm::action_drumkit_renameInstrument(
+				m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 		}
 	} );
 
@@ -603,25 +628,7 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 	m_pPatternEditorPanel->setSelectedRowDB(
 		m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 
-	if ( ev->button() == Qt::LeftButton ) {
-
-		auto pSong = Hydrogen::get_instance()->getSong();
-		if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-			return;
-		}
-		auto pInstr =
-			pSong->getDrumkit()->getInstruments()->find( m_row.nInstrumentID );
-		if ( pInstr != nullptr && pInstr->hasSamples() ) {
-
-			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
-			const float fVelocity = std::min(
-				(float)ev->x()/(float)nWidth, VELOCITY_MAX );
-			Note *pNote = new Note( pInstr, 0, fVelocity);
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
-		}
-		
-	}
-	else if (ev->button() == Qt::RightButton ) {
+	if (ev->button() == Qt::RightButton ) {
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 	}
 

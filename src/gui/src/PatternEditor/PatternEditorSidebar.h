@@ -62,7 +62,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	signals:
-		void labelClicked();
+		void labelClicked( QMouseEvent* pEvent );
 		void labelDoubleClicked();
 
 	private:
