@@ -36,7 +36,6 @@
 #include "PatternEditorPanel.h"
 #include "../EventListener.h"
 #include "../Selection.h"
-#include "../Widgets/ClickableLabel.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
@@ -47,21 +46,34 @@ namespace H2Core
 
 class Button;
 
-class SidebarLabel : public ClickableLabel, public H2Core::Object<SidebarLabel>
+class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 {
 	H2_OBJECT(SidebarLabel)
 	Q_OBJECT
 
 	public:
-		SidebarLabel( QWidget* pParent, const QSize& size, const QString& sText );
+		SidebarLabel( QWidget* pParent, const QSize& size, const QString& sText,
+					  int nIndent );
+		~SidebarLabel();
+
+		void setText( const QString& sNewText );
+
+	public slots:
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	signals:
+		void labelClicked();
 		void labelDoubleClicked();
 
 	private:
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
+
+		void updateFont( const QString& sFontFamily,
+						 const H2Core::FontTheme::FontSize& fontSize );
+
 		QWidget* m_pParent;
+		int m_nIndent;
 };
 
 /** \ingroup docGUI*/

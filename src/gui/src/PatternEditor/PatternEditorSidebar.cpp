@@ -53,16 +53,49 @@
 using namespace H2Core;
 
 SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
-							const QString& sText )
-	: ClickableLabel( pParent, size, sText, ClickableLabel::Color::Bright,
-					  /* bIsEditable */ false )
+							const QString& sText, int nIndent )
+	: QLabel( pParent )
 	, m_pParent( pParent )
+	, m_nIndent( nIndent )
 {
-	setAlignment( Qt::AlignLeft );
+	setFixedSize( size );
+	setText( sText );
+	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
+	setIndent( nIndent );
+	setMargin( 1 );
+
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &SidebarLabel::onPreferencesChanged );
+}
+
+SidebarLabel::~SidebarLabel() {
+	disconnect( HydrogenApp::get_instance(), nullptr, nullptr, nullptr );
+}
+
+void SidebarLabel::setText( const QString& sNewText ) {
+	if ( text() == sNewText ) {
+		return;
+	}
+
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	QLabel::setText( sNewText );
+	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
+}
+
+void SidebarLabel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
+		updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
+	}
 }
 
 void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
-	ClickableLabel::mousePressEvent( pEvent );
+	emit labelClicked();
 
 	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
 	if ( pSidebarRow != nullptr ) {
@@ -73,6 +106,39 @@ void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
 	UNUSED( pEvent );
 	emit labelDoubleClicked();
+}
+
+void SidebarLabel::updateFont( const QString& sFontFamily,
+							   const H2Core::FontTheme::FontSize& fontSize ) {
+
+	int nShrinkage = 7;
+	switch ( fontSize ) {
+	case H2Core::FontTheme::FontSize::Small:
+		nShrinkage = 10;
+		break;
+	case H2Core::FontTheme::FontSize::Medium:
+		nShrinkage = 7;
+		break;
+	case H2Core::FontTheme::FontSize::Large:
+		nShrinkage = 2;
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size [%1]" )
+				  .arg( static_cast<int>(fontSize) ) );
+		return;
+	}
+
+	const int nPixelSize = height() - nShrinkage;
+
+	QFont font( sFontFamily );
+
+	font.setPixelSize( nPixelSize );
+	font.setBold( true );
+
+	// This method must not be called more than once in this routine. Otherwise,
+	// a repaint of the widget is triggered, which calls `updateFont()` again
+	// and we are trapped in an infinite loop.
+	setFont( font );
 }
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
@@ -94,9 +160,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pInstrumentNameLbl = new SidebarLabel(
 		this, QSize( PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-					 SidebarRow::m_nTypeLblWidth - PatternEditorSidebar::m_nMargin,
-					 nHeight ), "" );
-	m_pInstrumentNameLbl->move( PatternEditorSidebar::m_nMargin, 1 );
+					 SidebarRow::m_nTypeLblWidth, nHeight ),
+		"", PatternEditorSidebar::m_nMargin );
 	m_pInstrumentNameLbl->setFont( nameFont );
 	connect( m_pInstrumentNameLbl, &SidebarLabel::labelDoubleClicked, [=](){
 		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
@@ -148,9 +213,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	}
 
 	m_pTypeLbl = new SidebarLabel(
-		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType );
+		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
 	m_pTypeLbl->move( PatternEditorSidebar::m_nWidth -
-					  SidebarRow::m_nTypeLblWidth, 1 );
+					  SidebarRow::m_nTypeLblWidth, 0 );
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
