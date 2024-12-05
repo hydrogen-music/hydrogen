@@ -135,6 +135,22 @@ void SidebarLabel::updateFont( const QString& sFontFamily,
 	font.setPixelSize( nPixelSize );
 	font.setBold( true );
 
+	const QString sEllipsis = QString::fromUtf8("\u2026");
+	QString sText = text();
+	// Check whether the width of the text fits the available frame
+	// width of the label
+	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
+			width() - m_nIndent && sText.size() > 3 ) {
+		if ( sText.at( sText.size() - 2 ) != sEllipsis ) {
+			// First trim action
+			sText.replace( sText.size() - 2, 1, sEllipsis );
+		}
+		else {
+			sText = sText.remove( sText.size() - 3, 1 );
+		}
+	}
+	setText( sText );
+
 	// This method must not be called more than once in this routine. Otherwise,
 	// a repaint of the widget is triggered, which calls `updateFont()` again
 	// and we are trapped in an infinite loop.
