@@ -53,6 +53,17 @@
 
 using namespace H2Core;
 
+DrumPatternRow::DrumPatternRow() noexcept
+	: nInstrumentID( EMPTY_INSTR_ID)
+	, sType( "" )
+	, bAlternate( false ) {
+}
+DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
+								bool bAlt ) noexcept
+	: nInstrumentID( nId)
+	, sType( sTypeString )
+	, bAlternate( bAlt ) {
+}
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
@@ -1430,7 +1441,7 @@ void PatternEditorPanel::patchBayBtnClicked() {
 
 const DrumPatternRow PatternEditorPanel::getRowDB( int nRow ) const {
 	if ( nRow < 0 || nRow >= m_db.size() ) {
-		return { EMPTY_INSTR_ID, "" };
+		return DrumPatternRow();
 	}
 	else {
 		return m_db.at( nRow );
@@ -1527,11 +1538,16 @@ void PatternEditorPanel::updateDB() {
 		return;
 	}
 
+	int nnRow = 0;
+
 	// First we add all instruments of the current drumkit in the order author
 	// of the kit intended.
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
 		if ( ppInstrument != nullptr ) {
-			m_db.push_back( { ppInstrument->get_id(), ppInstrument->getType() } );
+			m_db.push_back(
+				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
+								nnRow % 2 != 0 ) );
+			++nnRow;
 		}
 	}
 
@@ -1546,7 +1562,10 @@ void PatternEditorPanel::updateDB() {
 			if ( additionalTypes.find( ppNote->getType() ) ==
 				 additionalTypes.end() ) {
 				additionalTypes.insert( ppNote->getType() );
-				m_db.push_back( { EMPTY_INSTR_ID, ppNote->getType() } );
+				m_db.push_back(
+					DrumPatternRow( EMPTY_INSTR_ID, ppNote->getType(),
+									nnRow % 2 != 0 ) );
+				++nnRow;
 			}
 		}
 	}

@@ -56,6 +56,11 @@ enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SEL
  * In addition, it also carries state parameters for the actual row in
  * #DrumPatternEditor. */
 struct DrumPatternRow {
+
+	explicit DrumPatternRow() noexcept;
+	explicit DrumPatternRow( int nId, const QString& sType,
+							 bool bAlternate ) noexcept;
+
 	/** Associated #H2Core::Instrument::__id in the current #H2Core::Drumkit.
 	 *
 	 * If set to #EMPTY_INSTR_ID, the row does not correspond to any. This
