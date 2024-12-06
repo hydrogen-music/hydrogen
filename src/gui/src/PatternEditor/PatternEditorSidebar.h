@@ -67,6 +67,8 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		void labelDoubleClicked();
 
 	private:
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
 		virtual void paintEvent( QPaintEvent* ev) override;
@@ -80,6 +82,8 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		QColor m_backgroundColor;
 		QColor m_textColor;
 		QColor m_plusColor;
+		/** Whether the cursor entered the boundary of the widget.*/
+		bool m_bEntered;
 };
 
 /** \ingroup docGUI*/

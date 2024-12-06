@@ -58,6 +58,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	, m_pParent( pParent )
 	, m_nIndent( nIndent )
 	, m_bShowPlusSign( false )
+	, m_bEntered( false )
 {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
@@ -129,6 +130,18 @@ QLabel {\
  }" ).arg( textColor.name() ) );
 }
 
+void SidebarLabel::enterEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void SidebarLabel::leaveEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
+}
+
 void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 	emit labelClicked( pEvent );
 
@@ -169,17 +182,20 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
             return;
           }
 
+		  QColor color = m_bEntered ? pPref->getTheme().m_color.m_highlightColor :
+			  m_plusColor;
+
           auto p = QPainter( this );
 
           // horizontal
           p.fillRect( QRect( width() / 2 - nHeight / 2,
 							 height() / 2 - nLineWidth / 2, nHeight, nLineWidth ),
-					  m_plusColor );
+					  color );
 
           // vertical
           p.fillRect( QRect( width() / 2 - nLineWidth / 2,
 							 height() / 2 - nHeight / 2, nLineWidth, nHeight ),
-					  m_plusColor );
+					  color );
         }
 }
 
