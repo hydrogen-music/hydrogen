@@ -280,7 +280,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	// of the click event. We will do so just for the instrument label.
 	connect(
 		m_pInstrumentNameLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
-			if ( pEvent->button() == Qt::LeftButton ) {
+			if ( pEvent->button() == Qt::LeftButton &&
+				 ! m_pInstrumentNameLbl->isShowingPlusSign() ) {
+				// Play a sound
 				auto pSong = Hydrogen::get_instance()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
@@ -296,6 +298,23 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					Note *pNote = new Note( pInstr, 0, fVelocity);
 					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 						noteOn(pNote);
+				}
+			}
+			else if ( pEvent->button() == Qt::LeftButton &&
+					  m_pInstrumentNameLbl->isShowingPlusSign() ) {
+				// Add a new instrument to the current row
+				bool bIsOkPressed;
+				const QString sNewName = QInputDialog::getText(
+					nullptr, "Hydrogen", pCommonStrings->getActionAddInstrument(),
+					QLineEdit::Normal, "", &bIsOkPressed );
+				if ( bIsOkPressed ) {
+					auto pNewInstrument = std::make_shared<Instrument>();
+					pNewInstrument->setType( m_row.sType );
+					pNewInstrument->set_name( sNewName );
+					auto pAction = new SE_addInstrumentAction(
+						pNewInstrument, -1,
+						SE_addInstrumentAction::Type::AddEmptyInstrument );
+					HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 				}
 			}
 	} );
