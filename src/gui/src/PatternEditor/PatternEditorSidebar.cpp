@@ -63,7 +63,8 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
-	setFixedSize( size );
+	setMinimumWidth( size.width() );
+	setFixedHeight( size.height() );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	setIndent( nIndent );
@@ -267,6 +268,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	const int nHeight = pPref->getPatternEditorGridHeight();
 	resize( PatternEditorSidebar::m_nWidth, nHeight );
 
+	auto pHBox = new QHBoxLayout();
+	pHBox->setSpacing( 0 );
+	pHBox->setMargin( 0 );
+
 	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
@@ -275,6 +280,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					 SidebarRow::m_nTypeLblWidth, nHeight ),
 		"", PatternEditorSidebar::m_nMargin );
 	m_pInstrumentNameLbl->setFont( nameFont );
+	m_pInstrumentNameLbl->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Fixed );
+	pHBox->addWidget( m_pInstrumentNameLbl );
 
 	// Play back a sample of specific velocity based on the horizontal position
 	// of the click event. We will do so just for the instrument label.
@@ -325,18 +333,25 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		}
 	} );
 
+	m_pSampleWarning = new Button(
+		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", false,
+		QSize(), tr( "Some samples for this instrument failed to load." ), true );
+	m_pSampleWarning->hide();
+	pHBox->addWidget( m_pSampleWarning );
+	connect(m_pSampleWarning, SIGNAL( clicked() ),
+			this, SLOT( sampleWarningClicked() ));
+
 	/*: Text displayed on the button for muting an instrument. Its size is
 	  designed for a single character.*/
 	m_pMuteBtn = new Button(
 		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), true,
 		QSize(), tr("Mute instrument"), false, true );
-	m_pMuteBtn->move(
-		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth -
-		2 * SidebarRow::m_nButtonWidth, 0 );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
+	pHBox->addWidget( m_pMuteBtn );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
+
 
 	/*: Text displayed on the button for soloing an instrument. Its size is
 	  designed for a single character.*/
@@ -344,22 +359,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), false,
 		QSize(), tr("Solo"), false, true );
-	m_pSoloBtn->move(
-		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth -
-		SidebarRow::m_nButtonWidth, 0 );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
+	pHBox->addWidget( m_pSoloBtn );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT(soloClicked()));
-
-	m_pSampleWarning = new Button(
-		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", false,
-		QSize(), tr( "Some samples for this instrument failed to load." ), true );
-	m_pSampleWarning->move(
-		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth -
-		3 * SidebarRow::m_nButtonWidth, 5 );
-	m_pSampleWarning->hide();
-	connect(m_pSampleWarning, SIGNAL( clicked() ),
-			this, SLOT( sampleWarningClicked() ));
 
 	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
 		m_pMuteBtn->hide();
@@ -369,8 +372,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	m_pTypeLbl = new SidebarLabel(
 		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
-	m_pTypeLbl->move( PatternEditorSidebar::m_nWidth -
-					  SidebarRow::m_nTypeLblWidth, 0 );
+	pHBox->addWidget( m_pTypeLbl );
 	connect( m_pTypeLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
 		if ( m_row.nInstrumentID != EMPTY_INSTR_ID &&
 			 m_pTypeLbl->isShowingPlusSign() ) {
@@ -382,6 +384,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			MainForm::editDrumkitProperties( false, false, m_row.nInstrumentID );
 		}
 	} );
+	m_pTypeLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
@@ -489,6 +492,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	}
 
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
+
+	setLayout( pHBox );
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &SidebarRow::onPreferencesChanged );
