@@ -82,7 +82,6 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		bool m_bShowPlusSign;
 		QColor m_backgroundColor;
 		QColor m_textColor;
-		QColor m_plusColor;
 		/** Whether the cursor entered the boundary of the widget.*/
 		bool m_bEntered;
 };

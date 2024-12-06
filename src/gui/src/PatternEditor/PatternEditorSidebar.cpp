@@ -117,16 +117,6 @@ void SidebarLabel::setColor( const QColor& backgroundColor, const QColor& textCo
 		m_textColor = textColor;
 	}
 
-	// Depending on the darkness of the background color we make the plus sign
-	// lighter or darker for maximum visibility.
-	int nHue, nSaturation, nValue;
-	m_backgroundColor.getHsv( &nHue, &nSaturation, &nValue );
-	if ( nValue < 160 ) {
-		m_plusColor = m_backgroundColor.lighter( 175 );
-	} else {
-		m_plusColor = m_backgroundColor.darker( 175 );
-	}
-
 	setStyleSheet( QString( "\
 QLabel {\
    color: %1;\
@@ -190,7 +180,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		}
 
 		QColor color = m_bEntered ? pPref->getTheme().m_color.m_highlightColor :
-			m_plusColor;
+			m_textColor;
 
 		// horizontal
 		p.fillRect( QRect( width() / 2 - nHeight / 2,
