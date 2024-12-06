@@ -121,10 +121,10 @@ void SidebarLabel::setColor( const QColor& backgroundColor, const QColor& textCo
 	// lighter or darker for maximum visibility.
 	int nHue, nSaturation, nValue;
 	m_backgroundColor.getHsv( &nHue, &nSaturation, &nValue );
-	if ( nValue >= 160 ) {
-		m_plusColor = m_backgroundColor.lighter( 155 );
+	if ( nValue < 160 ) {
+		m_plusColor = m_backgroundColor.lighter( 175 );
 	} else {
-		m_plusColor = m_backgroundColor.darker( 155 );
+		m_plusColor = m_backgroundColor.darker( 175 );
 	}
 
 	setStyleSheet( QString( "\
