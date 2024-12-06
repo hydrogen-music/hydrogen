@@ -3970,6 +3970,26 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <source>Theme couldn&apos;t be imported</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

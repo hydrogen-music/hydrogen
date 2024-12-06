@@ -59,6 +59,11 @@ ColorTheme::ColorTheme()
 	, m_patternEditor_line3Color( QColor(95, 95, 95) )
 	, m_patternEditor_line4Color( QColor(105, 105, 105) )
 	, m_patternEditor_line5Color( QColor(115, 115, 115) )
+	, m_patternEditor_instrumentRowColor( QColor( 128, 134, 152 ) )
+	, m_patternEditor_instrumentRowTextColor( QColor( 240, 240, 240 ) )
+	, m_patternEditor_instrumentAlternateRowColor( QColor( 106, 111, 126 ) )
+	, m_patternEditor_instrumentSelectedRowColor( QColor( 149, 157, 178 ) )
+	, m_patternEditor_instrumentSelectedRowTextColor( QColor( 0, 0, 0 ) )
 	, m_selectionHighlightColor( QColor( 255, 255, 255 ) )
 	, m_selectionInactiveColor( QColor( 199, 199, 199 ) )
 	, m_windowColor( QColor( 58, 62, 72 ) )
@@ -145,6 +150,16 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 	patternEditorNode.write_color( "line3Color", m_patternEditor_line3Color );
 	patternEditorNode.write_color( "line4Color", m_patternEditor_line4Color );
 	patternEditorNode.write_color( "line5Color", m_patternEditor_line5Color );
+	patternEditorNode.write_color(
+		"instrumentRowColor", m_patternEditor_instrumentRowColor );
+	patternEditorNode.write_color(
+		"instrumentRowTextColor", m_patternEditor_instrumentRowTextColor );
+	patternEditorNode.write_color(
+		"instrumentAlternateRowColor", m_patternEditor_instrumentAlternateRowColor );
+	patternEditorNode.write_color(
+		"instrumentSelectedRowColor", m_patternEditor_instrumentSelectedRowColor );
+	patternEditorNode.write_color(
+		"instrumentSelectedRowTextColor", m_patternEditor_instrumentSelectedRowTextColor );
 
 	XMLNode selectionNode = colorThemeNode.createNode( "selection" );
 	selectionNode.write_color( "highlightColor", m_selectionHighlightColor );
@@ -314,10 +329,34 @@ ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 			patternEditorNode.read_color(
 				"line4Color",
 				colorTheme.m_patternEditor_line4Color, false, false, bSilent );
-		colorTheme.m_patternEditor_line5Color =
+		colorTheme.m_patternEditor_line5Color = patternEditorNode.read_color(
+			"line5Color", colorTheme.m_patternEditor_line5Color, false, false,
+			bSilent );
+		colorTheme.m_patternEditor_instrumentRowColor =
 			patternEditorNode.read_color(
-				"line5Color",
-				colorTheme.m_patternEditor_line5Color, false, false, bSilent );
+				"instrumentRowColor",
+				colorTheme.m_patternEditor_instrumentRowColor, false, false,
+				bSilent );
+		colorTheme.m_patternEditor_instrumentRowTextColor =
+			patternEditorNode.read_color(
+				"instrumentRowTextColor",
+				colorTheme.m_patternEditor_instrumentRowTextColor, false, false,
+				bSilent );
+		colorTheme.m_patternEditor_instrumentAlternateRowColor =
+			patternEditorNode.read_color(
+				"instrumentAlternateRowColor",
+				colorTheme.m_patternEditor_instrumentAlternateRowColor, false,
+				false, bSilent );
+		colorTheme.m_patternEditor_instrumentSelectedRowColor =
+			patternEditorNode.read_color(
+				"instrumentSelectedRowColor",
+				colorTheme.m_patternEditor_instrumentSelectedRowColor, false, false,
+				bSilent );
+		colorTheme.m_patternEditor_instrumentSelectedRowTextColor =
+			patternEditorNode.read_color(
+				"instrumentSelectedRowTextColor",
+				colorTheme.m_patternEditor_instrumentSelectedRowTextColor, false, false,
+				bSilent );
 	}
 	else {
 		WARNINGLOG( "<patternEditor> node not found" );
@@ -524,6 +563,21 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_patternEditor_line4Color.name() ) )
 			.append( QString( "%1%2m_patternEditor_line5Color: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_patternEditor_line5Color.name() ) )
+			.append( QString( "%1%2m_patternEditor_instrumentRowColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_instrumentRowColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_instrumentRowTextColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_instrumentRowTextColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_instrumentAlternateRowColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_instrumentAlternateRowColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_instrumentSelectedRowColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_instrumentSelectedRowColor.name() ) )
+			.append( QString( "%1%2m_patternEditor_instrumentSelectedRowTextColor: %3\n" )
+					 .arg( sPrefix ).arg( s )
+					 .arg( m_patternEditor_instrumentSelectedRowTextColor.name() ) )
 			.append( QString( "%1%2m_selectionHighlightColor: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_selectionHighlightColor.name() ) )
 			.append( QString( "%1%2m_selectionInactiveColor: %3\n" ).arg( sPrefix )
@@ -643,6 +697,16 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_patternEditor_line4Color.name() ) )
 			.append( QString( ", m_patternEditor_line5Color: %1" )
 					 .arg( m_patternEditor_line5Color.name() ) )
+			.append( QString( ", m_patternEditor_instrumentRowColor: %1" )
+					 .arg( m_patternEditor_instrumentRowColor.name() ) )
+			.append( QString( ", m_patternEditor_instrumentRowTextColor: %1" )
+					 .arg( m_patternEditor_instrumentRowTextColor.name() ) )
+			.append( QString( ", m_patternEditor_instrumentAlternateRowColor: %1" )
+					 .arg( m_patternEditor_instrumentAlternateRowColor.name() ) )
+			.append( QString( ", m_patternEditor_instrumentSelectedRowColor: %1" )
+					 .arg( m_patternEditor_instrumentSelectedRowColor.name() ) )
+			.append( QString( ", m_patternEditor_instrumentSelectedRowTextColor: %1" )
+					 .arg( m_patternEditor_instrumentSelectedRowTextColor.name() ) )
 			.append( QString( ", m_selectionHighlightColor: %1" )
 					 .arg( m_selectionHighlightColor.name() ) )
 			.append( QString( ", m_selectionInactiveColor: %1" )

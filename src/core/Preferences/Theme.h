@@ -87,6 +87,11 @@ public:
 	QColor m_patternEditor_line3Color;
 	QColor m_patternEditor_line4Color;
 	QColor m_patternEditor_line5Color;
+	QColor m_patternEditor_instrumentRowColor;
+	QColor m_patternEditor_instrumentRowTextColor;
+	QColor m_patternEditor_instrumentAlternateRowColor;
+	QColor m_patternEditor_instrumentSelectedRowColor;
+	QColor m_patternEditor_instrumentSelectedRowTextColor;
 
 	QColor m_selectionHighlightColor;
 	QColor m_selectionInactiveColor;

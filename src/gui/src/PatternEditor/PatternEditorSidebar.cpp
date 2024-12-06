@@ -162,45 +162,48 @@ void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
 
 void SidebarLabel::paintEvent( QPaintEvent* ev )
 {
-	QLabel::paintEvent( ev );
+	auto p = QPainter( this );
+
+	Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
+							  m_backgroundColor, m_bEntered );
 
 	if ( m_bShowPlusSign ) {
-          const auto pPref = Preferences::get_instance();
+		const auto pPref = Preferences::get_instance();
 
-          int nLineWidth, nHeight;
-          switch ( pPref->getTheme().m_font.m_fontSize ) {
-          case H2Core::FontTheme::FontSize::Small:
-            nHeight = height() - 8;
+		int nLineWidth, nHeight;
+		switch ( pPref->getTheme().m_font.m_fontSize ) {
+		case H2Core::FontTheme::FontSize::Small:
+			nHeight = height() - 8;
             nLineWidth = 3;
             break;
-          case H2Core::FontTheme::FontSize::Medium:
+		case H2Core::FontTheme::FontSize::Medium:
             nHeight = height() - 7;
             nLineWidth = 4;
             break;
-          case H2Core::FontTheme::FontSize::Large:
+        case H2Core::FontTheme::FontSize::Large:
             nHeight = height() - 4;
             nLineWidth = 4;
             break;
-          default:
+        default:
             ERRORLOG( "Unknown font size" );
             return;
-          }
+		}
 
-		  QColor color = m_bEntered ? pPref->getTheme().m_color.m_highlightColor :
-			  m_plusColor;
+		QColor color = m_bEntered ? pPref->getTheme().m_color.m_highlightColor :
+			m_plusColor;
 
-          auto p = QPainter( this );
+		// horizontal
+		p.fillRect( QRect( width() / 2 - nHeight / 2,
+						   height() / 2 - nLineWidth / 2, nHeight, nLineWidth ),
+					color );
 
-          // horizontal
-          p.fillRect( QRect( width() / 2 - nHeight / 2,
-							 height() / 2 - nLineWidth / 2, nHeight, nLineWidth ),
-					  color );
+		// vertical
+		p.fillRect( QRect( width() / 2 - nLineWidth / 2,
+						   height() / 2 - nHeight / 2, nLineWidth, nHeight ),
+					color );
+	}
 
-          // vertical
-          p.fillRect( QRect( width() / 2 - nLineWidth / 2,
-							 height() / 2 - nHeight / 2, nLineWidth, nHeight ),
-					  color );
-        }
+	QLabel::paintEvent( ev );
 }
 
 void SidebarLabel::updateFont( const QString& sFontFamily,
@@ -588,25 +591,36 @@ void SidebarRow::setSelected( bool bSelected )
 void SidebarRow::updateStyleSheet() {
 	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 
-	QColor textColor;
+	QColor textColor, textPatternColor, backgroundPatternColor;
 	if ( m_bIsSelected ) {
-		m_backgroundColor =
+		backgroundPatternColor =
 			colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
-		textColor = colorTheme.m_patternEditor_selectedRowTextColor;
+		m_backgroundColor =
+			colorTheme.m_patternEditor_instrumentSelectedRowColor;
+		textPatternColor = colorTheme.m_patternEditor_selectedRowTextColor;
+		textColor = colorTheme.m_patternEditor_instrumentSelectedRowTextColor;
 	}
 	else if ( m_row.bAlternate ) {
-		m_backgroundColor =
+		backgroundPatternColor =
 			colorTheme.m_patternEditor_alternateRowColor.darker( 132 );
-		textColor = colorTheme.m_patternEditor_textColor;
+		m_backgroundColor =
+			colorTheme.m_patternEditor_instrumentAlternateRowColor;
+		textPatternColor = colorTheme.m_patternEditor_textColor;
+		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
 	}
 	else {
-		m_backgroundColor =
+		backgroundPatternColor =
 			colorTheme.m_patternEditor_backgroundColor.darker( 120 );
-		textColor = colorTheme.m_patternEditor_textColor;
+		m_backgroundColor =
+			colorTheme.m_patternEditor_instrumentRowColor;
+		textPatternColor = colorTheme.m_patternEditor_textColor;
+		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
 	}
 
+	setColor( m_backgroundColor );
+
 	m_pInstrumentNameLbl->setColor( m_backgroundColor, textColor );
-	m_pTypeLbl->setColor( m_backgroundColor, textColor );
+	m_pTypeLbl->setColor( backgroundPatternColor, textPatternColor );
 
 	m_cursorColor = colorTheme.m_cursorColor;
 }
@@ -628,11 +642,9 @@ void SidebarRow::paintEvent( QPaintEvent* ev ) {
 
 	QPainter painter(this);
 
-	// Make the background slightly lighter when hovered.
-	bool bHovered = m_bEntered;
-
+	// Required for empty spaces around and in between buttons.
 	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
-							  m_backgroundColor, bHovered );
+							  m_backgroundColor, m_bEntered );
 
 	// Draw border indicating cursor position
 	if (  m_bIsSelected &&

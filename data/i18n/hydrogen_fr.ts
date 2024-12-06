@@ -3971,6 +3971,26 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Theme couldn&apos;t be imported</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>

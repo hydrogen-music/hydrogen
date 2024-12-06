@@ -612,6 +612,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x40e, pTopLevelItem, tr( "Grid Line 4" ) );
 	new IndexedTreeItem( 0x40f, pTopLevelItem, tr( "Grid Line 5" ) );
 	new IndexedTreeItem( 0x410, pTopLevelItem, tr( "Grid Line 6" ) );
+	new IndexedTreeItem( 0x411, pTopLevelItem, tr( "Instrument Line" ) );
+	new IndexedTreeItem( 0x412, pTopLevelItem, tr( "Instrument Line Text" ) );
+	new IndexedTreeItem( 0x413, pTopLevelItem, tr( "Alternate Instrument Line" ) );
+	new IndexedTreeItem( 0x414, pTopLevelItem, tr( "Selected Instrument Line" ) );
+	new IndexedTreeItem( 0x415, pTopLevelItem, tr( "Selected Instrument Line Text" ) );
 
 	colorButton->setEnabled( false );
 
@@ -1887,6 +1892,11 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, const H2Core::
 	case 0x40e: return std::make_unique<QColor>(colorTheme.m_patternEditor_line3Color);
 	case 0x40f: return std::make_unique<QColor>(colorTheme.m_patternEditor_line4Color);
 	case 0x410: return std::make_unique<QColor>(colorTheme.m_patternEditor_line5Color);
+	case 0x411: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentRowColor);
+	case 0x412: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentRowTextColor);
+	case 0x413: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentAlternateRowColor);
+	case 0x414: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentSelectedRowColor);
+	case 0x415: return std::make_unique<QColor>(colorTheme.m_patternEditor_instrumentSelectedRowTextColor);
 	default: return nullptr;
 	}
 
@@ -2011,6 +2021,16 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x40f:  colorTheme.m_patternEditor_line4Color = color;
 		break;
 	case 0x410:  colorTheme.m_patternEditor_line5Color = color;
+		break;
+	case 0x411:  colorTheme.m_patternEditor_instrumentRowColor = color;
+		break;
+	case 0x412:  colorTheme.m_patternEditor_instrumentRowTextColor = color;
+		break;
+	case 0x413:  colorTheme.m_patternEditor_instrumentAlternateRowColor = color;
+		break;
+	case 0x414:  colorTheme.m_patternEditor_instrumentSelectedRowColor = color;
+		break;
+	case 0x415:  colorTheme.m_patternEditor_instrumentSelectedRowTextColor = color;
 		break;
 	default: WARNINGLOG( "Unknown ID" );
 	}
