@@ -61,6 +61,8 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		/** Indicator to show add something new. Icon is cleared on setText() */
 		void showPlusSign();
 		void setColor( const QColor& backgroundColor, const QColor& textColor );
+		void updateFont( const QString& sFontFamily,
+						 const H2Core::FontTheme::FontSize& fontSize );
 
 	signals:
 		void labelClicked( QMouseEvent* pEvent );
@@ -73,10 +75,8 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
 		virtual void paintEvent( QPaintEvent* ev) override;
 
-		void updateFont( const QString& sFontFamily,
-						 const H2Core::FontTheme::FontSize& fontSize );
-
 		QWidget* m_pParent;
+		QString m_sText;
 		int m_nIndent;
 		bool m_bShowPlusSign;
 		QColor m_backgroundColor;

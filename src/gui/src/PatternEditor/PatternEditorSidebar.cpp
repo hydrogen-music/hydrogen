@@ -59,6 +59,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	, m_nIndent( nIndent )
 	, m_bShowPlusSign( false )
 	, m_bEntered( false )
+	, m_sText( sText )
 {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
@@ -79,15 +80,17 @@ SidebarLabel::~SidebarLabel() {
 }
 
 void SidebarLabel::setText( const QString& sNewText ) {
-	if ( ! m_bShowPlusSign && text() == sNewText ) {
+	if ( ! m_bShowPlusSign && m_sText == sNewText ) {
 		return;
 	}
+
+	m_sText = sNewText;
 
 	m_bShowPlusSign = false;
 
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
-	QLabel::setText( sNewText );
 	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
+	update();
 }
 
 void SidebarLabel::showPlusSign() {
@@ -201,7 +204,6 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 
 void SidebarLabel::updateFont( const QString& sFontFamily,
 							   const H2Core::FontTheme::FontSize& fontSize ) {
-
 	int nShrinkage = 7;
 	switch ( fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
@@ -226,8 +228,13 @@ void SidebarLabel::updateFont( const QString& sFontFamily,
 	font.setPixelSize( nPixelSize );
 	font.setBold( true );
 
+	// This method must not be called more than once in this routine. Otherwise,
+	// a repaint of the widget is triggered, which calls `updateFont()` again
+	// and we are trapped in an infinite loop.
+	setFont( font );
+
 	const QString sEllipsis = QString::fromUtf8("\u2026");
-	QString sText = text();
+	QString sText = m_sText;
 	// Check whether the width of the text fits the available frame
 	// width of the label
 	while ( QFontMetrics( font ).size( Qt::TextSingleLine, sText ).width() >
@@ -240,12 +247,10 @@ void SidebarLabel::updateFont( const QString& sFontFamily,
 			sText = sText.remove( sText.size() - 3, 1 );
 		}
 	}
-	setText( sText );
 
-	// This method must not be called more than once in this routine. Otherwise,
-	// a repaint of the widget is triggered, which calls `updateFont()` again
-	// and we are trapped in an infinite loop.
-	setFont( font );
+	if ( sText != text() ) {
+		QLabel::setText( sText );
+	}
 }
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
@@ -460,6 +465,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	}
 
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &SidebarRow::onPreferencesChanged );
 
 	set( row );
 }
@@ -717,8 +725,12 @@ void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& chang
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
-
-		m_pInstrumentNameLbl->setFont( QFont( pPref->getTheme().m_font.m_sLevel2FontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) ) );
+		m_pInstrumentNameLbl->updateFont(
+			pPref->getTheme().m_font.m_sLevel2FontFamily,
+			pPref->getTheme().m_font.m_fontSize );
+		m_pTypeLbl->updateFont(
+			pPref->getTheme().m_font.m_sLevel2FontFamily,
+			pPref->getTheme().m_font.m_fontSize );
 	}
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
