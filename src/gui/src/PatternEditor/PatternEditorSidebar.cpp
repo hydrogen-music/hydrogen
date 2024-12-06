@@ -175,7 +175,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
             break;
           case H2Core::FontTheme::FontSize::Large:
             nHeight = height() - 4;
-            nLineWidth = 6;
+            nLineWidth = 4;
             break;
           default:
             ERRORLOG( "Unknown font size" );
