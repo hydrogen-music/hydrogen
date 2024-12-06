@@ -60,6 +60,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		void setText( const QString& sNewText );
 		/** Indicator to show add something new. Icon is cleared on setText() */
 		void showPlusSign();
+		bool isShowingPlusSign() const;
 		void setColor( const QColor& backgroundColor, const QColor& textColor );
 		void updateFont( const QString& sFontFamily,
 						 const H2Core::FontTheme::FontSize& fontSize );
@@ -85,6 +86,10 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		/** Whether the cursor entered the boundary of the widget.*/
 		bool m_bEntered;
 };
+
+inline bool SidebarLabel::isShowingPlusSign() const {
+	return m_bShowPlusSign;
+}
 
 /** \ingroup docGUI*/
 class SidebarRow : public PixmapWidget

@@ -352,10 +352,15 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
 	m_pTypeLbl->move( PatternEditorSidebar::m_nWidth -
 					  SidebarRow::m_nTypeLblWidth, 0 );
+	connect( m_pTypeLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
+		if ( m_row.nInstrumentID != EMPTY_INSTR_ID &&
+			 m_pTypeLbl->isShowingPlusSign() ) {
+			MainForm::editDrumkitProperties( false, false, m_row.nInstrumentID );
+		}
+	} );
 	connect( m_pTypeLbl, &SidebarLabel::labelDoubleClicked, [=](){
 		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-			MainForm::action_drumkit_renameInstrument(
-				m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+			MainForm::editDrumkitProperties( false, false, m_row.nInstrumentID );
 		}
 	} );
 
