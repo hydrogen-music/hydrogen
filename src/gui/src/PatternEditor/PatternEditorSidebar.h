@@ -60,10 +60,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		void setText( const QString& sNewText );
 		/** Indicator to show add something new. Icon is cleared on setText() */
 		void showPlusSign();
-		void setUseBlackIcon( bool bUseBlackIcon );
-
-	public slots:
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
+		void setColor( const QColor& backgroundColor, const QColor& textColor );
 
 	signals:
 		void labelClicked( QMouseEvent* pEvent );
@@ -72,14 +69,17 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 	private:
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
+		virtual void paintEvent( QPaintEvent* ev) override;
 
 		void updateFont( const QString& sFontFamily,
 						 const H2Core::FontTheme::FontSize& fontSize );
 
 		QWidget* m_pParent;
 		int m_nIndent;
-		bool m_bIsShowingPlusSign;
-		bool m_bUseBlackIcon;
+		bool m_bShowPlusSign;
+		QColor m_backgroundColor;
+		QColor m_textColor;
+		QColor m_plusColor;
 };
 
 /** \ingroup docGUI*/
@@ -101,6 +101,7 @@ class SidebarRow : public PixmapWidget
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
+		void update();
 
 	private slots:
 		void muteClicked();
@@ -120,6 +121,9 @@ public slots:
 		Button *m_pMuteBtn;
 		Button *m_pSoloBtn;
 		Button *m_pSampleWarning;
+
+		QColor m_backgroundColor;
+		QColor m_cursorColor;
 
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;

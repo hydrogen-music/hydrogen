@@ -57,20 +57,20 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	: QLabel( pParent )
 	, m_pParent( pParent )
 	, m_nIndent( nIndent )
-	, m_bIsShowingPlusSign( false )
-	, m_bUseBlackIcon( false )
+	, m_bShowPlusSign( false )
 {
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
 	setFixedSize( size );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	setIndent( nIndent );
 	setMargin( 1 );
 
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
-	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
-
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 this, &SidebarLabel::onPreferencesChanged );
+	updateFont( theme.m_font.m_sLevel3FontFamily,
+				theme.m_font.m_fontSize );
+	setColor( theme.m_color.m_patternEditor_backgroundColor,
+			  theme.m_color.m_patternEditor_textColor );
 }
 
 SidebarLabel::~SidebarLabel() {
@@ -78,13 +78,11 @@ SidebarLabel::~SidebarLabel() {
 }
 
 void SidebarLabel::setText( const QString& sNewText ) {
-	if ( ! m_bIsShowingPlusSign && text() == sNewText ) {
+	if ( ! m_bShowPlusSign && text() == sNewText ) {
 		return;
 	}
 
-	m_bIsShowingPlusSign = false;
-
-	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
+	m_bShowPlusSign = false;
 
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	QLabel::setText( sNewText );
@@ -92,41 +90,43 @@ void SidebarLabel::setText( const QString& sNewText ) {
 }
 
 void SidebarLabel::showPlusSign() {
-	if ( m_bIsShowingPlusSign ){
+	if ( m_bShowPlusSign ){
 		return;
 	}
 
-	m_bIsShowingPlusSign = true;
+	m_bShowPlusSign = true;
+	QLabel::setText( "" );
 
-	setAlignment( Qt::AlignCenter | Qt::AlignVCenter );
-
-	QString sIconPath = Skin::getSvgImagePath() + "/icons/" +
-		( m_bUseBlackIcon ? "black" : "white" ) + "/plus_transparent.svg";
-	auto icon = QIcon( sIconPath );
-	setPixmap( icon.pixmap( 15, 15 ) );
+	update();
 }
 
-void SidebarLabel::setUseBlackIcon( bool bUseBlackIcon ) {
-	if ( bUseBlackIcon == m_bUseBlackIcon ) {
+void SidebarLabel::setColor( const QColor& backgroundColor, const QColor& textColor ) {
+	if ( m_backgroundColor == backgroundColor && m_textColor == textColor ) {
 		return;
 	}
 
-	m_bUseBlackIcon = bUseBlackIcon;
-
-	if ( m_bIsShowingPlusSign ) {
-		// Redraw icon
-		m_bIsShowingPlusSign = false;
-		showPlusSign();
+	if ( m_backgroundColor != backgroundColor ) {
+		m_backgroundColor = backgroundColor;
 	}
-}
-
-void SidebarLabel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
-
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-		updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
+	if ( m_textColor != textColor ) {
+		m_textColor = textColor;
 	}
+
+	// Depending on the darkness of the background color we make the plus sign
+	// lighter or darker for maximum visibility.
+	int nHue, nSaturation, nValue;
+	m_backgroundColor.getHsv( &nHue, &nSaturation, &nValue );
+	if ( nValue >= 160 ) {
+		m_plusColor = m_backgroundColor.lighter( 155 );
+	} else {
+		m_plusColor = m_backgroundColor.darker( 155 );
+	}
+
+	setStyleSheet( QString( "\
+QLabel {\
+   color: %1;\
+   font-weight: bold;\
+ }" ).arg( textColor.name() ) );
 }
 
 void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
@@ -141,6 +141,46 @@ void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
 	UNUSED( pEvent );
 	emit labelDoubleClicked();
+}
+
+void SidebarLabel::paintEvent( QPaintEvent* ev )
+{
+	QLabel::paintEvent( ev );
+
+	if ( m_bShowPlusSign ) {
+          const auto pPref = Preferences::get_instance();
+
+          int nLineWidth, nHeight;
+          switch ( pPref->getTheme().m_font.m_fontSize ) {
+          case H2Core::FontTheme::FontSize::Small:
+            nHeight = height() - 8;
+            nLineWidth = 3;
+            break;
+          case H2Core::FontTheme::FontSize::Medium:
+            nHeight = height() - 7;
+            nLineWidth = 4;
+            break;
+          case H2Core::FontTheme::FontSize::Large:
+            nHeight = height() - 4;
+            nLineWidth = 6;
+            break;
+          default:
+            ERRORLOG( "Unknown font size" );
+            return;
+          }
+
+          auto p = QPainter( this );
+
+          // horizontal
+          p.fillRect( QRect( width() / 2 - nHeight / 2,
+							 height() / 2 - nLineWidth / 2, nHeight, nLineWidth ),
+					  m_plusColor );
+
+          // vertical
+          p.fillRect( QRect( width() / 2 - nLineWidth / 2,
+							 height() / 2 - nHeight / 2, nLineWidth, nHeight ),
+					  m_plusColor );
+        }
 }
 
 void SidebarLabel::updateFont( const QString& sFontFamily,
@@ -406,8 +446,6 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
 	set( row );
-
-	updateStyleSheet();
 }
 
 void SidebarRow::set( const DrumPatternRow& row )
@@ -478,6 +516,9 @@ void SidebarRow::set( const DrumPatternRow& row )
 	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ){
 		m_pInstrumentNameLbl->setToolTip( sToolTip );
 	}
+
+	updateStyleSheet();
+	update();
 }
 
 void SidebarRow::setSelected( bool bSelected )
@@ -489,35 +530,32 @@ void SidebarRow::setSelected( bool bSelected )
 	m_bIsSelected = bSelected;
 
 	updateStyleSheet();
-	update();
 }
 
 void SidebarRow::updateStyleSheet() {
-
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 
 	QColor textColor;
 	if ( m_bIsSelected ) {
-		textColor = pPref->getTheme().m_color.m_patternEditor_selectedRowTextColor;
-		m_pInstrumentNameLbl->setUseBlackIcon( true );
-		m_pTypeLbl->setUseBlackIcon( true );
+		m_backgroundColor =
+			colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
+		textColor = colorTheme.m_patternEditor_selectedRowTextColor;
+	}
+	else if ( m_row.bAlternate ) {
+		m_backgroundColor =
+			colorTheme.m_patternEditor_alternateRowColor.darker( 132 );
+		textColor = colorTheme.m_patternEditor_textColor;
 	}
 	else {
-		textColor = pPref->getTheme().m_color.m_patternEditor_textColor;
-		m_pInstrumentNameLbl->setUseBlackIcon( false );
-		m_pTypeLbl->setUseBlackIcon( false );
+		m_backgroundColor =
+			colorTheme.m_patternEditor_backgroundColor.darker( 120 );
+		textColor = colorTheme.m_patternEditor_textColor;
 	}
 
-	m_pInstrumentNameLbl->setStyleSheet( QString( "\
-QLabel {\
-   color: %1;\
-   font-weight: bold;\
- }" ).arg( textColor.name() ) );
-	m_pTypeLbl->setStyleSheet( QString( "\
-QLabel {\
-   color: %1;\
-   font-weight: bold;\
- }" ).arg( textColor.name() ) );
+	m_pInstrumentNameLbl->setColor( m_backgroundColor, textColor );
+	m_pTypeLbl->setColor( m_backgroundColor, textColor );
+
+	m_cursorColor = colorTheme.m_cursorColor;
 }
 
 void SidebarRow::enterEvent( QEvent* ev ) {
@@ -533,32 +571,15 @@ void SidebarRow::leaveEvent( QEvent* ev ) {
 }
 
 void SidebarRow::paintEvent( QPaintEvent* ev ) {
-	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	QPainter painter(this);
-
-	QColor backgroundColor;
-	if ( m_bIsSelected ) {
-		backgroundColor =
-			colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
-	} else {
-		// Alternating for coloring
-		int nRow = m_pPatternEditorPanel->getRowIndexDB( m_row );
-		if (  nRow == 0 || nRow % 2 == 0 ) {
-			backgroundColor =
-				colorTheme.m_patternEditor_backgroundColor.darker( 120 );
-		} else {
-			backgroundColor =
-				colorTheme.m_patternEditor_alternateRowColor.darker( 132 );
-		}
-	}
 
 	// Make the background slightly lighter when hovered.
 	bool bHovered = m_bEntered;
 
 	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
-							  backgroundColor, bHovered );
+							  m_backgroundColor, bHovered );
 
 	// Draw border indicating cursor position
 	if (  m_bIsSelected &&
@@ -568,7 +589,7 @@ void SidebarRow::paintEvent( QPaintEvent* ev ) {
 
 		QPen pen;
 
-		pen.setColor( colorTheme.m_cursorColor );
+		pen.setColor( m_cursorColor );
 
 		pen.setWidth( 2 );
 		painter.setPen( pen );
@@ -688,6 +709,13 @@ void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& chang
 		updateStyleSheet();
 		update();
 	}
+}
+
+void SidebarRow::update() {
+	PixmapWidget::update();
+
+	m_pInstrumentNameLbl->update();
+	m_pTypeLbl->update();
 }
 
 
