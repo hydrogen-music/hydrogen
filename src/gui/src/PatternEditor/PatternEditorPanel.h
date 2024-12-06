@@ -86,6 +86,10 @@ struct DrumPatternRow {
 	 *
 	 * Null element: "" (empty string) */
 	QString sType;
+
+	/** Odd number rows will be painted in an alternate color to make the
+	 * visually distinct. */
+	bool bAlternate;
 };
 
 namespace H2Core
