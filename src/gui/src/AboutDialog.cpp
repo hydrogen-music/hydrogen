@@ -66,9 +66,8 @@ AboutDialog::AboutDialog(QWidget* parent)
 	translatorList.push_back( Author( "Guocheng Zhu", "aaronbcn@outlook.es", "Chinese (Mainland China) translation" ) );
 	QString sAuthors;
 	sAuthors += "<b>" + tr( "Main coders and maintainers" ) + ":</b>";
-	sAuthors += "<ul><li><p>Sebastian Moors (aka Mauser) [2008-now]</li>";
-	sAuthors += "<li><p>Colin McEwan (aka cme) [2020-now]</p></li>";
-	sAuthors += "<li><p>Philipp Müller (aka theGreatWhiteShark) [2020-now]</p></li></ul></br>";
+	sAuthors += "<ul><li><p>Philipp Müller (aka theGreatWhiteShark) [2020-now]</p></li>";
+	sAuthors += "<li><p>Colin McEwan (aka cme) [2020-now]</p></li></ul></br>";
 
 	sAuthors += "<b>" + tr( "Active translators" ) + ":</b>";
 	sAuthors += "<ul>";
@@ -99,7 +98,8 @@ AboutDialog::AboutDialog(QWidget* parent)
 	
 	sAuthors += "<b>" + tr( "Former main coders and maintainers" ) + ":</b>";
 	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix) [2001-2008]</li>";
-	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li></ul></br>";
+	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li>";
+	sAuthors += "<li><p>Sebastian Moors (aka Mauser) [2008-2021]</li></ul></br>";
 
 	authorsText->setText( sAuthors );
 	authorsText->setOpenExternalLinks( true );
