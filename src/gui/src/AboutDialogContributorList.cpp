@@ -26,10 +26,7 @@
 AboutDialogContributorList::AboutDialogContributorList() {
 
 	std::vector<QString> v{
-"theGreatWhiteShark"
-,"phil"
 ,"Charbel Jacquin"
-,"Colin McEwan"
 ,"Sebastian Moors"
 ,"oddtime"
 ,"Julien de Kozak"
@@ -41,6 +38,10 @@ AboutDialogContributorList::AboutDialogContributorList() {
 ,"psykose"
 ,"Houston4444"
 ,"Dan Church"
+,"Adam Shamblin"
+,"Giovana Morais"
+,"Rosea Grammostola"
+,"Al Dimond"
 };
 	m_pContributorList = std::make_shared<std::vector<QString>>(v);
 }
