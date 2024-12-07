@@ -66,6 +66,28 @@
   <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
 
   <releases>
+    <release version="1.2.4" date="2024-12-07">
+	<description>
+	  <p>This patch release fixes a number of bugs and inconsistencies found since version 1.2.3</p>
+	  <p xml:lang="de">Korrekturversion, die eine Reihe von Fehler und Ungereimtheiten seit der 1.2.3 behebt.</p>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.2.4</url>
+	<artifacts>
+	  <artifact type="binary" platform="x86_64-linux-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.4/Hydrogen-1.2.4-x86_64.AppImage</location>
+		<checksum type="sha256">1b914794aedce19d8e85d62b1b9aa1f32adf09004b28d5a1750a1f63999f431b</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.4/Hydrogen-1.2.4.dmg</location>
+		<checksum type="sha256">5030c76305fda1ff7024dfcdcc3333732de0f98c8341a2610a292c988e365db4</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.4/Hydrogen-1.2.4-win64.exe</location>
+		<checksum type="sha256">ca60e51b916c812ba3723ab7fb680cc5419238798f6decfc2e49dfe3961020e2</checksum>
+	  </artifact>
+	</artifacts>
+    </release>
+
     <release version="1.2.3" date="2024-01-12">
 	<description>
 	  <p>This patch release introduces an AppImage build and fixes a number of bugs and inconsistencies found since version 1.2.2</p>
