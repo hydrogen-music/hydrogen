@@ -163,15 +163,15 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		int nLineWidth, nHeight;
 		switch ( pPref->getTheme().m_font.m_fontSize ) {
 		case H2Core::FontTheme::FontSize::Small:
-			nHeight = height() - 8;
-            nLineWidth = 3;
+			nHeight = height() - 11;
+            nLineWidth = 2;
             break;
 		case H2Core::FontTheme::FontSize::Medium:
-            nHeight = height() - 7;
-            nLineWidth = 4;
+            nHeight = height() - 10;
+            nLineWidth = 3;
             break;
         case H2Core::FontTheme::FontSize::Large:
-            nHeight = height() - 4;
+            nHeight = height() - 7;
             nLineWidth = 4;
             break;
         default:
