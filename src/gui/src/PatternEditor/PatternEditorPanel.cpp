@@ -1459,14 +1459,19 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 		return;
 	}
 
+	m_nSelectedRowDB = nNewRow;
+
 	auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
 		 nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber( nNewRow );
 	}
-
-	m_nSelectedRowDB = nNewRow;
+	else {
+		// No changes in the core part resulting in no event triggering the
+		// update. We have to do so within the GUI.
+		updateEditors();
+	}
 }
 
 int PatternEditorPanel::getRowIndexDB( const DrumPatternRow& row ) {

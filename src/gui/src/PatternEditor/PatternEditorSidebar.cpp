@@ -507,9 +507,6 @@ void SidebarRow::set( const DrumPatternRow& row )
 			const auto pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
 			if ( pInstrument != nullptr ) {
-				setSelected( pHydrogen->getSelectedInstrumentNumber() ==
-					pSong->getDrumkit()->getInstruments()->index( pInstrument ) );
-
 				const QString sInstrumentName = pInstrument->get_name();
 				if ( m_pInstrumentNameLbl->text() != sInstrumentName ){
 					m_pInstrumentNameLbl->setText( sInstrumentName );
@@ -550,8 +547,10 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pSampleWarning->hide();
 		m_pRenameInstrumentAction->setEnabled( false );
 		m_pDeleteInstrumentAction->setEnabled( false );
-		setSelected( false );
 	}
+
+	setSelected( m_pPatternEditorPanel->getSelectedRowDB() ==
+				 m_pPatternEditorPanel->getRowIndexDB( row ) );
 
 	if ( ! row.sType.isEmpty() ) {
 		m_pTypeLbl->setText( row.sType );
