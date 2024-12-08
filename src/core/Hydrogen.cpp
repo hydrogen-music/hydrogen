@@ -874,10 +874,18 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent 
 		return;
 	}
 
-	m_nSelectedInstrumentNumber = nInstrument;
+	if ( m_pSong != nullptr && m_pSong->getDrumkit() != nullptr &&
+		 nInstrument < m_pSong->getDrumkit()->getInstruments()->size() &&
+		 nInstrument > 0 ) {
+		m_nSelectedInstrumentNumber = nInstrument;
+	}
+	else {
+		m_nSelectedInstrumentNumber = -1;
+	}
 
 	if ( bTriggerEvent ) {
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+		EventQueue::get_instance()->push_event(
+			EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	}
 }
 
