@@ -46,7 +46,7 @@ namespace H2Core
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
 Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVelocity, float fPan, int nLength, float fPitch )
-	: __instrument_id( 0 ),
+	: __instrument_id( EMPTY_INSTR_ID ),
 	  m_sType( "" ),
 	  __position( nPosition ),
 	  __velocity( fVelocity ),
@@ -101,7 +101,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 
 Note::Note( Note* other, std::shared_ptr<Instrument> pInstrument )
 	: Object( *other ),
-	  __instrument_id( 0 ),
+	  __instrument_id( EMPTY_INSTR_ID ),
 	  m_sType( other->getType() ),
 	  __position( other->get_position() ),
 	  __velocity( other->get_velocity() ),
