@@ -26,7 +26,7 @@
 AboutDialogContributorList::AboutDialogContributorList() {
 
 	std::vector<QString> v{
-,"Charbel Jacquin"
+"Charbel Jacquin"
 ,"Sebastian Moors"
 ,"oddtime"
 ,"Julien de Kozak"
