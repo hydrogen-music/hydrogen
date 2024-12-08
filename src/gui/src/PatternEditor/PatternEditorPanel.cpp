@@ -689,9 +689,16 @@ void PatternEditorPanel::updateDrumkitLabel( )
 
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateDrumkitLabel();
+
+	const int nPreviousRows = m_db.size();
+
 	updateDB();
 	updateEditors();
 	m_pSidebar->updateRows();
+
+	if ( nPreviousRows != m_db.size() ) {
+		resizeEvent( nullptr );
+	}
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
