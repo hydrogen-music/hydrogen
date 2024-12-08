@@ -906,7 +906,10 @@ void PatternEditorPanel::contentsMoving( int dummy )
 
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
-	m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	const int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	if ( nInstrument != -1 ) {
+		m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	}
 	updateEditors();
 	resizeEvent( nullptr );	// force a scrollbar update
 }
@@ -1475,9 +1478,7 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 		pHydrogen->setSelectedInstrumentNumber( nNewRow );
 	}
 	else {
-		// No changes in the core part resulting in no event triggering the
-		// update. We have to do so within the GUI.
-		updateEditors();
+		pHydrogen->setSelectedInstrumentNumber( -1 );
 	}
 }
 
