@@ -1496,8 +1496,18 @@ int PatternEditorPanel::getRowNumberDB() const {
 int PatternEditorPanel::findRowDB( Note* pNote ) const {
 	if ( pNote != nullptr ) {
 		for ( int ii = 0; ii < m_db.size(); ++ii ) {
-			if ( pNote->get_instrument_id() == m_db[ ii ].nInstrumentID &&
-				 pNote->getType() == m_db[ ii ].sType ) {
+			// Both instrument ID and type are unique within a drumkit. But
+			// since notes live in patterns and are independent of our kit,
+			// their id/type combination does not have to match the one in the
+			// kit.
+			//
+			// Instrument ID always takes precedence over type since the former
+			// is used to associate a note to an instrument and the latter is
+			// more a means of portability between different kits.
+			if ( pNote->get_instrument_id() == m_db[ ii ].nInstrumentID ) {
+				return ii;
+			}
+			else if ( pNote->getType() == m_db[ ii ].sType ) {
 				return ii;
 			}
 		}
