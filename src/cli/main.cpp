@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 		parser.process( *pApp );
 
 		// Deal with the options
-		const QString sSongFilename = parser.value( songFileOption );
+		QString sSongFilename = parser.value( songFileOption );
 		const QString sPlaylistFilename = parser.value( playlistFileNameOption );
 		const QString sSysDataPath = parser.value( systemDataPathOption );
 		const QString sConfigFilePath = parser.value( configFileOption );
