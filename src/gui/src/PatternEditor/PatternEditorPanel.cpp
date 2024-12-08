@@ -1511,7 +1511,8 @@ int PatternEditorPanel::findRowDB( Note* pNote ) const {
 			// Instrument ID always takes precedence over type since the former
 			// is used to associate a note to an instrument and the latter is
 			// more a means of portability between different kits.
-			if ( pNote->get_instrument_id() == m_db[ ii ].nInstrumentID ) {
+			if ( pNote->get_instrument_id() != EMPTY_INSTR_ID &&
+				 pNote->get_instrument_id() == m_db[ ii ].nInstrumentID ) {
 				return ii;
 			}
 			else if ( ! pNote->getType().isEmpty() &&
