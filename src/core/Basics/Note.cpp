@@ -189,7 +189,8 @@ void Note::set_humanize_delay( int nValue )
 	}
 }
 
-void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
+void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit,
+				  std::shared_ptr<Drumkit> pOldDrumkit )
 {
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
@@ -209,9 +210,36 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit )
 		if ( bFound ) {
 			pInstrument = pDrumkit->getInstruments()->find( nId );
 		}
+
+		if ( pOldDrumkit != nullptr ) {
+			// Check whether we deal with the same kit and the type of an
+			// instrument was changed. If so, we have to change the type of all
+			// associated notes too.
+			const auto pOldDrumkitMap = pOldDrumkit->toDrumkitMap();
+			const int nOldId = pOldDrumkitMap->getId( m_sType, &bFound );
+			if ( pDrumkit->getPath() == pOldDrumkit->getPath() &&
+				 pDrumkit->getName() == pOldDrumkit->getName() &&
+				 bFound && nId != nOldId ) {
+				pInstrument = pDrumkit->getInstruments()->find( nOldId );
+				if ( pInstrument != nullptr ) {
+					m_sType = pInstrument->getType();
+				}
+			}
+		}
 	}
 	else {
 		pInstrument = pDrumkit->getInstruments()->find( __instrument_id );
+
+		if ( pOldDrumkit != nullptr && pInstrument != nullptr &&
+			 pDrumkit->getPath() == pOldDrumkit->getPath() &&
+			 pDrumkit->getName() == pOldDrumkit->getName() &&
+			 ! pInstrument->getType().isEmpty() ) {
+			// The note was associated with an instrument, which did not hold a
+			// type in the old version of the kit but was just assigned a new
+			// one. Since this was an explicit user interaction we propagate
+			// those type changes to all contained notes as well.
+			m_sType = pInstrument->getType();
+		}
 	}
 
 	if ( pInstrument != nullptr ) {

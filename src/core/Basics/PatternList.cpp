@@ -333,9 +333,10 @@ int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	return nMax;
 }
 
-void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
+void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit,
+						 std::shared_ptr<Drumkit> pOldDrumkit ) {
 	for ( auto& ppPattern : __patterns ) {
-		ppPattern->mapTo( pDrumkit );
+		ppPattern->mapTo( pDrumkit, pOldDrumkit );
 	}
 }
 

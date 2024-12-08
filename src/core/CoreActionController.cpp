@@ -1214,7 +1214,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	pAudioEngine->getSampler()->releasePlayingNotes();
 
 	pSong->setDrumkit( pNewDrumkit );
-	pSong->getPatternList()->mapTo( pNewDrumkit );
+	pSong->getPatternList()->mapTo( pNewDrumkit, pPreviousDrumkit );
 
 	pHydrogen->renameJackPorts( pSong );
 
@@ -1681,7 +1681,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 
 	pDrumkit->addInstrument( pInstrument, nIndex );
 	pHydrogen->renameJackPorts( pSong );
-	pSong->getPatternList()->mapTo( pDrumkit );
+	pSong->getPatternList()->mapTo( pDrumkit, nullptr );
 
 	pAudioEngine->unlock();
 
@@ -1745,7 +1745,7 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 	}
 
 	pHydrogen->renameJackPorts( pSong );
-	pSong->getPatternList()->mapTo( pDrumkit );
+	pSong->getPatternList()->mapTo( pDrumkit, nullptr );
 
 	pAudioEngine->unlock();
 
@@ -1807,7 +1807,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	pDrumkit->addInstrument( pNewInstrument,
 							 nOldInstrumentNumber );
 	pHydrogen->renameJackPorts( pSong );
-	pSong->getPatternList()->mapTo( pDrumkit );
+	pSong->getPatternList()->mapTo( pDrumkit, nullptr );
 
 	// Unloading the samples of the old instrument will be done in the death
 	// row.
@@ -1960,7 +1960,7 @@ bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
 		return false;
 	}
 
-	pPattern->mapTo( pSong->getDrumkit() );
+	pPattern->mapTo( pSong->getDrumkit(), nullptr );
 
 	auto pPatternList = pSong->getPatternList();
 

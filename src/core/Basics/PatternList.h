@@ -193,7 +193,8 @@ class Note;
 		 */
 		int longest_pattern_length( bool bIncludeVirtuals = true ) const;
 
-		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
+					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 		std::set<DrumkitMap::Type> getAllTypes() const;
 		std::vector<H2Core::Note*> getAllNotesOfType(
 			const DrumkitMap::Type& sType ) const;

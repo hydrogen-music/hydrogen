@@ -258,7 +258,8 @@ class Pattern : public H2Core::Object<Pattern>
 	bool isVirtual() const;
 
 
-		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
+					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 
 		/** Aggregates all types of the contained notes. */
 		std::set<DrumkitMap::Type> getAllTypes() const;

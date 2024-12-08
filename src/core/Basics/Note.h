@@ -158,12 +158,13 @@ class Note : public H2Core::Object<Note>
 	static Note* load_from( const XMLNode& node, bool bSilent = false );
 
 		/**
-		 * Find the instrument corresponding to `m_sType` and assign it as
-		 * `__instrument`.
+		 * Make the current Note work with the provided drumkit @a pDrumkit.
 		 *
 		 * \param pDrumkit Most likely the currently used kit.
+		 * \param pOldDrumkit Optionally, the former kit the note was mapped to.
 		 */
-		void mapTo( std::shared_ptr<Drumkit> pDrumkit );
+		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
+					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 		/** #__instrument accessor */
 		std::shared_ptr<Instrument> get_instrument() const;
 		/** return true if #__instrument is set */

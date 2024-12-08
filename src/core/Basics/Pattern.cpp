@@ -514,7 +514,8 @@ bool Pattern::isVirtual() const {
 	return m_flattenedVirtualPatterns.size() > 0;
 }
 
-void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
+void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit,
+					 std::shared_ptr<Drumkit> pOldDrumkit ) {
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
 		return;
@@ -522,7 +523,7 @@ void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
 
 	for ( auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr ) {
-			ppNote->mapTo( pDrumkit );
+			ppNote->mapTo( pDrumkit, pOldDrumkit );
 		}
 	}
 }
