@@ -1514,7 +1514,8 @@ int PatternEditorPanel::findRowDB( Note* pNote ) const {
 			if ( pNote->get_instrument_id() == m_db[ ii ].nInstrumentID ) {
 				return ii;
 			}
-			else if ( pNote->getType() == m_db[ ii ].sType ) {
+			else if ( ! pNote->getType().isEmpty() &&
+					  pNote->getType() == m_db[ ii ].sType ) {
 				return ii;
 			}
 		}
@@ -1580,6 +1581,14 @@ void PatternEditorPanel::updateDB() {
 	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
 		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
 			 kitTypes.find( ppNote->getType() ) == kitTypes.end() ) {
+
+			// Check whether we deal with a kit or note with missing instrument
+			// types and whether the association with the kit was done based on
+			// the instrument ID.
+			if ( ppNote->get_instrument_id() != EMPTY_INSTR_ID ) {
+				continue;
+			}
+
 			// Note is not associated with current kit.
 			if ( additionalTypes.find( ppNote->getType() ) ==
 				 additionalTypes.end() ) {
