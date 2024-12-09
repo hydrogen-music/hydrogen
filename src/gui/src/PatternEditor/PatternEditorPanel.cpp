@@ -1596,7 +1596,18 @@ void PatternEditorPanel::updateDB() {
 		}
 	}
 
-	m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	const int nSelectedInstrument =
+		Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	if ( nSelectedInstrument != -1 ) {
+		m_nSelectedRowDB = nSelectedInstrument;
+	}
+	else if ( m_nSelectedRowDB >= m_db.size() ) {
+		// Previously, a type-only row was selected. But we seem to have jumped
+		// to a pattern in which there are no notes not associated to a
+		// instrument -> no type-only rows. We selected the bottom-most
+		// instrument instead.
+		setSelectedRowDB( m_db.size() - 1 );
+	}
 
 	printDB();
 }
