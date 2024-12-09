@@ -870,7 +870,10 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock, bool bForce 
 
 void Hydrogen::setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent )
 {
-	if ( m_nSelectedInstrumentNumber == nInstrument ) {
+	// In case no instrument is selected (-1), we still perform an update since
+	// another type-only row might be selected in the GUI.
+	if ( nInstrument != -1 &&
+		 m_nSelectedInstrumentNumber == nInstrument ) {
 		return;
 	}
 
