@@ -244,7 +244,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
 		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row [%1]" );
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nSelectedRow ) );
 		return;
 	}
 
