@@ -84,12 +84,6 @@ public:
 	PatternEditor( QWidget *pParent );
 	~PatternEditor();
 
-
-	//! Set the editor grid resolution, dividing a whole note into `res` subdivisions. 
-	void setResolution( uint res, bool bUseTriplets );
-	uint getResolution() const { return m_nResolution; }
-	bool isUsingTriplets() const { return m_bUseTriplets;	}
-
 	float getGridWidth() const { return m_fGridWidth; }
 	unsigned getGridHeight() const { return m_nGridHeight; }
 	//! Zoom in / out on the time axis
@@ -244,17 +238,7 @@ public slots:
 protected:
 
 	//! Granularity of grid positioning (in ticks)
-	int granularity() const {
-		int nBase;
-		if (m_bUseTriplets) {
-			nBase = 3;
-		}
-		else {
-			nBase = 4;
-		}
-		return 4 * MAX_NOTES / ( nBase * m_nResolution );
-	}
-
+	int granularity() const;
 
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
@@ -265,8 +249,6 @@ protected:
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
 
-	uint m_nResolution;
-	bool m_bUseTriplets;
 	bool m_bFineGrained;
 	bool m_bCopyNotMove;
 

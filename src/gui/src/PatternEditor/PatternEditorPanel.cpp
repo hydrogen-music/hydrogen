@@ -91,6 +91,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	else {
 		m_pPattern = nullptr;
 	}
+	m_nResolution = pPref->getPatternEditorGridResolution();
+	m_bIsUsingTriplets = pPref->isPatternEditorUsingTriplets();
 
 	updateDB();
 
@@ -228,13 +230,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionCombo->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 
 	int nIndex;
-	const int nResolution = pPref->getPatternEditorGridResolution();
-	const bool bUseTriplets = pPref->isPatternEditorUsingTriplets();
 
-	if ( nResolution == MAX_NOTES ) {
+	if ( m_nResolution == MAX_NOTES ) {
 		nIndex = 11;
-	} else if ( ! bUseTriplets ) {
-		switch ( nResolution ) {
+	} else if ( ! m_bIsUsingTriplets ) {
+		switch ( m_nResolution ) {
 			case  4: nIndex = 0; break;
 			case  8: nIndex = 1; break;
 			case 16: nIndex = 2; break;
@@ -245,7 +245,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
 		}
 	} else {
-		switch ( nResolution ) {
+		switch ( m_nResolution ) {
 			case  8: nIndex = 6; break;
 			case 16: nIndex = 7; break;
 			case 32: nIndex = 8; break;
@@ -408,7 +408,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	updatePatternName();
 
 	// restore grid resolution
-	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
+	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) *
+		MAX_NOTES / ( m_nResolution * 3 );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -754,59 +755,56 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 
 void PatternEditorPanel::gridResolutionChanged( int nSelected )
 {
-	int nResolution;
-	bool bUseTriplets = false;
-
 	switch( nSelected ) {
 	case 0:
 		// 1/4
-		nResolution = 4;
-		bUseTriplets = false;
+		m_nResolution = 4;
+		m_bIsUsingTriplets = false;
 		break;
 	case 1:
 		// 1/8
-		nResolution = 8;
-		bUseTriplets = false;
+		m_nResolution = 8;
+		m_bIsUsingTriplets = false;
 		break;
 	case 2:
 		// 1/16
-		nResolution = 16;
-		bUseTriplets = false;
+		m_nResolution = 16;
+		m_bIsUsingTriplets = false;
 		break;
 	case 3:
 		// 1/32
-		nResolution = 32;
-		bUseTriplets = false;
+		m_nResolution = 32;
+		m_bIsUsingTriplets = false;
 		break;
 	case 4:
 		// 1/64
-		nResolution = 64;
-		bUseTriplets = false;
+		m_nResolution = 64;
+		m_bIsUsingTriplets = false;
 		break;
 	case 6:
 		// 1/4T
-		nResolution = 8;
-		bUseTriplets = true;
+		m_nResolution = 8;
+		m_bIsUsingTriplets = true;
 		break;
 	case 7:
 		// 1/8T
-		nResolution = 16;
-		bUseTriplets = true;
+		m_nResolution = 16;
+		m_bIsUsingTriplets = true;
 		break;
 	case 8:
 		// 1/16T
-		nResolution = 32;
-		bUseTriplets = true;
+		m_nResolution = 32;
+		m_bIsUsingTriplets = true;
 		break;
 	case 9:
 		// 1/32T
-		nResolution = 64;
-		bUseTriplets = true;
+		m_nResolution = 64;
+		m_bIsUsingTriplets = true;
 		break;
 	case 11:
 		// off
-		nResolution = MAX_NOTES;
-		bUseTriplets = false;
+		m_nResolution = MAX_NOTES;
+		m_bIsUsingTriplets = false;
 		break;
 	default:
 		ERRORLOG( QString( "Invalid resolution selection [%1]" )
@@ -814,20 +812,15 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 		return;
 	}
 
-	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
-	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteVelocityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteLeadLagEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteKeyOctaveEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
+	auto pPref = Preferences::get_instance();
+	pPref->setPatternEditorGridResolution( m_nResolution );
+	pPref->setPatternEditorUsingTriplets( m_bIsUsingTriplets );
 
-	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
+	m_nCursorIncrement =
+		( m_bIsUsingTriplets ? 4 : 3 ) * MAX_NOTES / ( m_nResolution * 3 );
 	m_nCursorColumn = m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement );
 
-	auto pPref = Preferences::get_instance();
-	pPref->setPatternEditorGridResolution( nResolution );
-	pPref->setPatternEditorUsingTriplets( bUseTriplets );
+	updateEditors();
 }
 
 
@@ -1724,20 +1717,20 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 	}
 
 	int nBase;
-	if ( m_pDrumPatternEditor->isUsingTriplets() ) {
+	if ( m_bIsUsingTriplets ) {
 		nBase = 3;
 	}
 	else {
 		nBase = 4;
 	}
-	const int nResolution = 4 * MAX_NOTES * static_cast<int>(every) /
-		( nBase * m_pDrumPatternEditor->getResolution() );
+	const int m_nResolution = 4 * MAX_NOTES * static_cast<int>(every) /
+		( nBase * m_nResolution );
 
 	const auto row = getRowDB( nRow );
 
 	std::vector<int> notePositions;
 	const auto notes = m_pPattern->getNotes();
-	for ( int ii = 0; ii < m_pPattern->getLength(); ii += nResolution ) {
+	for ( int ii = 0; ii < m_pPattern->getLength(); ii += m_nResolution ) {
 		bool bNoteAlreadyPresent = false;
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
 			auto ppNote = it->second;

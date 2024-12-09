@@ -70,8 +70,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	m_nResolution = pPref->getPatternEditorGridResolution();
-	m_bUseTriplets = pPref->isPatternEditorUsingTriplets();
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nActiveWidth = m_nEditorWidth;
@@ -115,16 +113,6 @@ void PatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes& ch
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->updateEditors();
 	}
-}
-
-void PatternEditor::setResolution(uint res, bool bUseTriplets)
-{
-	this->m_nResolution = res;
-	this->m_bUseTriplets = bUseTriplets;
-
-	// redraw all
-	update( 0, 0, width(), height() );
-	m_pPatternEditorPanel->updateEditors();
 }
 
 void PatternEditor::zoomIn()
@@ -1027,7 +1015,7 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 250 ) ),
 	};
 
-	if ( !m_bUseTriplets ) {
+	if ( ! m_pPatternEditorPanel->isUsingTriplets() ) {
 
 		// Draw vertical lines. To minimise pen colour changes (and
 		// avoid unnecessary division operations), we draw them in
@@ -1059,13 +1047,14 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 
 		// Resolution 4 was already taken into account above;
 		std::vector<int> availableResolutions = { 8, 16, 32, 64, MAX_NOTES };
+		const int nResolution = m_pPatternEditorPanel->getResolution();
 
 		// For each successive set of finer-spaced lines, the even
 		// lines will have already been drawn at the previous coarser
 		// pitch, so only the odd numbered lines need to be drawn.
 		int nColour = 1;
 		for ( int nnRes : availableResolutions ) {
-			if ( nnRes > m_nResolution ) {
+			if ( nnRes > nResolution ) {
 				break;
 			}
 
@@ -1367,6 +1356,17 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 void PatternEditor::scrolled( int nValue ) {
 	UNUSED( nValue );
 	update();
+}
+
+int PatternEditor::granularity() const {
+	int nBase;
+	if ( m_pPatternEditorPanel->isUsingTriplets() ) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+	return 4 * MAX_NOTES / ( nBase * m_pPatternEditorPanel->getResolution() );
 }
 
 void PatternEditor::keyPressEvent( QKeyEvent *ev )
@@ -2370,7 +2370,7 @@ QRect PatternEditor::getKeyboardCursorRect()
 	QPoint pos = getCursorPosition();
 
 	float fHalfWidth;
-	if ( m_nResolution != MAX_NOTES ) {
+	if ( m_pPatternEditorPanel->getResolution() != MAX_NOTES ) {
 		// Corresponds to the distance between grid lines on 1/64 resolution.
 		fHalfWidth = m_fGridWidth * 3;
 	} else {

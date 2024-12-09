@@ -196,30 +196,19 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 	if ( ev->button() == Qt::LeftButton &&
 		 ev->x() < m_nWidthActive ) {
 		auto pHydrogen = Hydrogen::get_instance();
-		auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-
-		// Fall back to default values in case the GUI is starting and the
-		// pattern editor is not ready yet.
-		float fResolution;
-		bool bIsUsingTriplets;
-		if ( pDrumPatternEditor != nullptr ) {
-			fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
-			bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
-		} else {
-			fResolution = 8;
-			bIsUsingTriplets = false;
-		}
 
 		float fTripletFactor;
-		if ( bIsUsingTriplets ) {
+		if ( m_pPatternEditorPanel->isUsingTriplets() ) {
 			fTripletFactor = 3;
 		} else {
 			fTripletFactor = 4;
 		}
 
-		long nNewTick = std::floor( static_cast<float>(m_nHoveredColumn) *
-									4 * static_cast<float>(MAX_NOTES) /
-									( fTripletFactor * fResolution ) );
+		long nNewTick = std::floor(
+			static_cast<float>(m_nHoveredColumn) * 4 *
+			static_cast<float>(MAX_NOTES) /
+			( fTripletFactor *
+			  static_cast<float>(m_pPatternEditorPanel->getResolution()) ) );
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 			H2Core::CoreActionController::activateSongMode( false );
@@ -235,21 +224,16 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 	if ( ev->x() < m_nWidthActive ) {
 	
 		auto pHydrogenApp = HydrogenApp::get_instance();
-		auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-
-		// Fall back to default values in case the GUI is starting and the
-		// pattern editor is not ready yet.
-		float fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
-		bool bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
 
 		float fTripletFactor;
-		if ( bIsUsingTriplets ) {
+		if ( m_pPatternEditorPanel->isUsingTriplets() ) {
 			fTripletFactor = 3;
 		} else {
 			fTripletFactor = 4;
 		}
 
-		float fColumnWidth = fTripletFactor * fResolution /
+		float fColumnWidth = fTripletFactor *
+			static_cast<float>(m_pPatternEditorPanel->getResolution()) /
 			( 4 * static_cast<float>(MAX_NOTES) * m_fGridWidth );
 
 		int nHoveredColumn =
@@ -294,7 +278,6 @@ void PatternEditorRuler::invalidateBackground()
 
 void PatternEditorRuler::createBackground()
 {
-	auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	// Resize pixmap if pixel ratio has changed
@@ -331,17 +314,7 @@ void PatternEditorRuler::createBackground()
 
 	uint nQuarter = 48;
 
-	// Fall back to default values in case the GUI is starting and the
-	// pattern editor is not ready yet.
-	int nResolution;
-	bool bIsUsingTriplets;
-	if ( pDrumPatternEditor != nullptr ) {
-		nResolution = pDrumPatternEditor->getResolution();
-		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
-	} else {
-		nResolution = 8;
-		bIsUsingTriplets = false;
-	}
+	const int nResolution = m_pPatternEditorPanel->getResolution();
 
 	// Draw numbers and quarter ticks
 	painter.setPen( textColor );
@@ -355,7 +328,7 @@ void PatternEditorRuler::createBackground()
 
 	// Draw remaining ticks
 	float fStep;
-	if ( bIsUsingTriplets ) {
+	if ( m_pPatternEditorPanel->isUsingTriplets() ) {
 		fStep = 4 * MAX_NOTES / ( 3 * nResolution ) * m_fGridWidth;
 	} else {
 		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
@@ -376,7 +349,6 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pDrumPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 
 	if (!isVisible()) {
 		return;
@@ -395,7 +367,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 															pixelRatio * ev->rect().height() ) );
 
 	// draw cursor
-	if ( ( pDrumPatternEditor->hasFocus() ||
+	if ( ( m_pPatternEditorPanel->getDrumPatternEditor()->hasFocus() ||
 		   m_pPatternEditorPanel->getVelocityEditor()->hasFocus() ||
 		   m_pPatternEditorPanel->getPanEditor()->hasFocus() ||
 		   m_pPatternEditorPanel->getLeadLagEditor()->hasFocus() ||
@@ -423,21 +395,9 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		painter.drawLine( nCursorX + m_fGridWidth * 10 + 8, height() - 6,
 						  nCursorX + m_fGridWidth * 10 + 8, height() - 7 );
 	}
-	
-	// Fall back to default values in case the GUI is starting and the
-	// pattern editor is not ready yet.
-	float fResolution;
-	bool bIsUsingTriplets;
-	if ( pDrumPatternEditor != nullptr ) {
-		fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
-		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
-	} else {
-		fResolution = 8;
-		bIsUsingTriplets = false;
-	}
 
 	float fTripletFactor;
-	if ( bIsUsingTriplets ) {
+	if ( m_pPatternEditorPanel->isUsingTriplets() ) {
 		fTripletFactor = 3;
 	} else {
 		fTripletFactor = 4;
@@ -458,7 +418,9 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	if ( m_nHoveredColumn > -1 ) {
 		int x = PatternEditor::nMargin +
 			static_cast<int>(m_nHoveredColumn * 4 * static_cast<float>(MAX_NOTES) /
-							 ( fTripletFactor * fResolution ) * m_fGridWidth);
+							 ( fTripletFactor *
+							   static_cast<float>(m_pPatternEditorPanel->getResolution())) *
+							 m_fGridWidth);
 
 		if ( x < m_nWidthActive ) {
 			int nOffset = Skin::getPlayheadShaftOffset();

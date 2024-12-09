@@ -243,6 +243,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * @a nRow. */
 		void pasteNotesToRowOfAllPatterns( int nRow );
 
+		int getResolution() const;
+		bool isUsingTriplets() const;
+
+
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
@@ -382,6 +386,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		int					m_nCursorIncrement;
 		// ~ Cursor
 
+		int m_nResolution;
+		bool m_bIsUsingTriplets;
+
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
@@ -400,6 +407,12 @@ inline const std::vector<DrumPatternRow>& PatternEditorPanel::getDB() const {
 }
 inline int PatternEditorPanel::getSelectedRowDB() const {
 	return m_nSelectedRowDB;
+}
+inline int PatternEditorPanel::getResolution() const {
+	return m_nResolution;
+}
+inline bool PatternEditorPanel::isUsingTriplets() const {
+	return m_bIsUsingTriplets;
 }
 
 #endif
