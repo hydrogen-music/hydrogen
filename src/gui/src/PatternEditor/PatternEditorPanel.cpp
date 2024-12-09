@@ -1861,4 +1861,5 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
 		}
 	}
 	pUndo->endMacro();
+	delete pPatternList;
 }
