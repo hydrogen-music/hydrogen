@@ -567,6 +567,7 @@ void PatternEditor::paste()
 
 	m_selection.clearSelection();
 	m_bSelectNewNotes = true;
+	bool bAppendedToDB = false;
 
 	if ( noteList.hasChildNodes() ) {
 
@@ -586,18 +587,37 @@ void PatternEditor::paste()
 				continue;
 			}
 
-			int nRow;
+			int nInstrumentId;
+			QString sType;
 			if ( m_editor == Editor::DrumPattern ) {
-				nRow = m_pPatternEditorPanel->findRowDB( pNote ) + nDeltaRow;
+				const auto nNoteRow = m_pPatternEditorPanel->findRowDB( pNote );
+				if ( nNoteRow != -1 ) {
+					// Note belongs to a row already present in the DB.
+					const int nRow = m_pPatternEditorPanel->findRowDB( pNote ) +
+						nDeltaRow;
+					if ( nRow < 0 ||
+						 nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
+						delete pNote;
+						continue;
+					}
+					const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+					nInstrumentId = row.nInstrumentID;
+					sType = row.sType;
+				}
+				else {
+					// Note can not be represented in the current DB. This means
+					// it might be a type-only one copied from a a different
+					// pattern. We will append it to the DB.
+					nInstrumentId = pNote->get_instrument_id();
+					sType = pNote->getType();
+					bAppendedToDB = true;
+				}
 			}
 			else {
-				nRow = nSelectedRow;
+				const auto row = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+				nInstrumentId = row.nInstrumentID;
+				sType = row.sType;
 			}
-			if ( nRow < 0 || nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
-				delete pNote;
-				continue;
-			}
-			const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 
 			int nKey, nOctave;
 			if ( m_editor == Editor::PianoRoll ) {
@@ -618,8 +638,8 @@ void PatternEditor::paste()
 
 			pUndo->push( new SE_addOrRemoveNoteAction(
 							 nPos,
-							 row.nInstrumentID,
-							 row.sType,
+							 nInstrumentId,
+							 sType,
 							 m_pPatternEditorPanel->getPatternNumber(),
 							 pNote->get_length(),
 							 pNote->get_velocity(),
@@ -634,6 +654,18 @@ void PatternEditor::paste()
 			delete pNote;
 		}
 		pUndo->endMacro();
+	}
+
+	if ( bAppendedToDB ) {
+		// We added a note to the pattern currently not represented by the DB.
+		// We have to force its update in order to avoid inconsistencies.
+		const int nOldSize = m_pPatternEditorPanel->getRowNumberDB();
+		m_pPatternEditorPanel->updateDB();
+		m_pPatternEditorPanel->updateEditors();
+		m_pPatternEditorPanel->resizeEvent( nullptr );
+
+		// Select the append line
+		m_pPatternEditorPanel->setSelectedRowDB( nOldSize );
 	}
 
 	m_bSelectNewNotes = false;

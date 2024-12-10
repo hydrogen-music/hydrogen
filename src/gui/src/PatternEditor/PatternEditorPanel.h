@@ -141,6 +141,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void updateDrumkitLabel();
 
+		virtual void resizeEvent(QResizeEvent *ev) override;
+
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
@@ -246,6 +248,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		int getResolution() const;
 		bool isUsingTriplets() const;
 
+		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
+		void updateDB();
 
 	public slots:
 		void showDrumEditor();
@@ -282,8 +286,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void updatePatternInfo();
 		void updateStyleSheet();
 		void updatePatternName();
-		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
-		void updateDB();
 
 		/** Currently selected pattern cached in frontend for convenience.*/
 		std::shared_ptr<H2Core::Pattern>	m_pPattern;
@@ -392,7 +394,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
-		virtual void resizeEvent(QResizeEvent *ev) override;
 		virtual void showEvent(QShowEvent *ev) override;
 };
 
