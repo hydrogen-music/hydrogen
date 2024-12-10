@@ -155,7 +155,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	bool bValueChanged = false;
 	for ( Note *pNote : notes ) {
 		assert( pNote );
-		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
 				 pNote->getType() == selectedRow.sType ) &&
 			 ! m_selection.isSelected( pNote ) ) {
 			continue;
@@ -286,8 +286,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	bool bValueChanged = false;
 	for ( Note *pNote : m_selection ) {
-		if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
-			 pNote->getType() == selectedRow.sType ||
+		if ( ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
+			   pNote->getType() == selectedRow.sType ) ||
 			 m_selection.isSelected( pNote ) ) {
 
 			// Record original note if not already recorded
@@ -416,8 +416,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 		// If there is a selection, preserve the initial state of all the
 		// selected notes.
 		for ( Note *pNote : m_selection ) {
-			if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
-				 pNote->getType() == selectedRow.sType ||
+			if ( ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
+				   pNote->getType() == selectedRow.sType ) ||
 				 m_selection.isSelected( pNote ) ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
 			}
@@ -489,7 +489,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn, pPattern ) {
 		Note *pNote = it->second;
 
-		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
 				 pNote->getType() == selectedRow.sType ) &&
 			 ! m_selection.isSelected( pNote ) ) {
 			continue;
@@ -1158,7 +1158,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 				// velocity would not make any sense for them.
 				if ( ( pNote->get_note_off() &&
 					   m_mode != PatternEditor::Mode::Probability ) ||
-					! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+					! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
 						 pNote->getType() == selectedRow.sType ) &&
 					 ! m_selection.isSelected( pNote ) ) {
 					continue;
@@ -1272,7 +1272,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 				// would not make any sense for them.
 				if ( ( pNote->get_note_off() &&
 					   m_mode != PatternEditor::Mode::LeadLag ) ||
-					 ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+					 ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
 						   pNote->getType() == selectedRow.sType ) &&
 					   ! m_selection.isSelected( pNote ) ) ) {
 					continue;
@@ -1464,7 +1464,7 @@ void NotePropertiesRuler::createKeyOctaveBackground(QPixmap *pixmap)
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( pNote->get_note_off() ||
-				 ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+				 ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
 					   pNote->getType() == selectedRow.sType ) &&
 				   ! m_selection.isSelected( pNote ) ) ) {
 				continue;
@@ -1588,7 +1588,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	rNormalized += QMargins( 4, 4, 4, 4 );
 
 	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
-		if ( ! ( it->second->get_instrument_id() == selectedRow.nInstrumentID ||
+		if ( ! ( it->second->get_instrument_id() == selectedRow.nInstrumentID &&
 				 it->second->getType() == selectedRow.sType ) &&
 			 ! m_selection.isSelected( it->second ) ) {
 			continue;
