@@ -1494,7 +1494,7 @@ int PatternEditorPanel::getRowNumberDB() const {
 	return m_db.size();
 }
 
-int PatternEditorPanel::findRowDB( Note* pNote ) const {
+int PatternEditorPanel::findRowDB( Note* pNote, bool bSilent ) const {
 	if ( pNote != nullptr ) {
 		for ( int ii = 0; ii < m_db.size(); ++ii ) {
 			// Both instrument ID and type are unique within a drumkit. But
@@ -1515,9 +1515,11 @@ int PatternEditorPanel::findRowDB( Note* pNote ) const {
 			}
 		}
 
-		ERRORLOG( QString( "Note [%1] is not contained in DB" )
-				  .arg( pNote->toQString() ) );
-		printDB();
+		if ( ! bSilent ) {
+			ERRORLOG( QString( "Note [%1] is not contained in DB" )
+					  .arg( pNote->toQString() ) );
+			printDB();
+		}
 	}
 
 	return -1;

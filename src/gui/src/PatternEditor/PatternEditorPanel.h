@@ -176,7 +176,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * This is especially helpful for order-based instrument operations. */
 		int getRowIndexDB( const DrumPatternRow& row );
 		/** Retrieves the row number @a pNote is located in. */
-		int findRowDB( H2Core::Note* pNote ) const;
+		int findRowDB( H2Core::Note* pNote, bool bSilent = false ) const;
 		int getRowNumberDB() const;
 		/** Returns the instrument corresponding to the currently selected row
 		 * of the DB.

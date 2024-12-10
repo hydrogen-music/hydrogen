@@ -590,11 +590,11 @@ void PatternEditor::paste()
 			int nInstrumentId;
 			QString sType;
 			if ( m_editor == Editor::DrumPattern ) {
-				const auto nNoteRow = m_pPatternEditorPanel->findRowDB( pNote );
+				const auto nNoteRow =
+					m_pPatternEditorPanel->findRowDB( pNote, true );
 				if ( nNoteRow != -1 ) {
 					// Note belongs to a row already present in the DB.
-					const int nRow = m_pPatternEditorPanel->findRowDB( pNote ) +
-						nDeltaRow;
+					const int nRow = nNoteRow + nDeltaRow;
 					if ( nRow < 0 ||
 						 nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
 						delete pNote;
