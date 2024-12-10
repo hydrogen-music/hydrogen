@@ -4527,14 +4527,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4584,6 +4576,14 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>Edit note property %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add note</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

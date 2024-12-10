@@ -1675,7 +1675,8 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
 			for ( const auto& ppNote : notes ) {
 				pUndo->push( new SE_addOrRemoveNoteAction(
 								 ppNote->get_position(),
-								 nRow,
+								 ppNote->get_instrument_id(),
+								 ppNote->getType(),
 								 pSong->getPatternList()->index( ppPattern ),
 								 ppNote->get_length(),
 								 ppNote->get_velocity(),
@@ -1855,7 +1856,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
 				if ( ppNote != nullptr ) {
 					pUndo->push( new SE_addOrRemoveNoteAction(
 									 ppNote->get_position(),
-									 nRow,
+									 ppNote->get_instrument_id(),
+									 ppNote->getType(),
 									 pPatternList->index( ppPattern ),
 									 ppNote->get_length(),
 									 ppNote->get_velocity(),

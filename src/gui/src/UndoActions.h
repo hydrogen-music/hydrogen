@@ -504,7 +504,8 @@ class SE_addOrRemoveNoteAction : public QUndoCommand
 {
 public:
 	SE_addOrRemoveNoteAction( int nColumn,
-							  int nRow,
+							  int nInstrumentId,
+							  const QString& sType,
 							  int nPatternNumber,
 							  int nOldLength,
 							  float fOldVelocity,
@@ -518,14 +519,17 @@ public:
 							  bool bIsNoteOff ){
 
 		if ( bIsDelete ){
-			setText( QObject::tr( "Delete note ( %1, %2)" )
-					 .arg( nColumn ).arg( nRow ) );
+			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
+					 .arg( QObject::tr( "Delete note" ) ).arg( nColumn ).
+					 arg( nInstrumentId ).arg( sType ).arg( nPatternNumber ) );
 		} else {
-			setText( QObject::tr( "Add note ( %1, %2)" )
-					 .arg( nColumn ).arg( nRow ) );
+			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
+					 .arg( QObject::tr( "Add note" ) ).arg( nColumn ).
+					 arg( nInstrumentId ).arg( sType ).arg( nPatternNumber ) );
 		}
 		m_nColumn = nColumn;
-		m_nRow = nRow;
+		m_nInstrumentId = nInstrumentId;
+		m_sType = sType;
 		m_nPatternNumber = nPatternNumber;
 		m_nOldLength = nOldLength;
 		m_fOldVelocity = fOldVelocity;
@@ -541,7 +545,8 @@ public:
 	virtual void undo() {
 		m_bIsMidi = false; // undo is never a midi event.
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
-											  m_nRow,
+											  m_nInstrumentId,
+											  m_sType,
 											  m_nPatternNumber,
 											  m_nOldLength,
 											  m_fOldVelocity,
@@ -556,7 +561,8 @@ public:
 	}
 	virtual void redo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
-											  m_nRow,
+											  m_nInstrumentId,
+											  m_sType,
 											  m_nPatternNumber,
 											  m_nOldLength,
 											  m_fOldVelocity,
@@ -571,7 +577,8 @@ public:
 	}
 private:
 	int m_nColumn;
-	int m_nRow;
+	int m_nInstrumentId;
+	QString m_sType;
 	int m_nPatternNumber;
 	int m_nOldLength;
 	float m_fOldVelocity;
@@ -668,7 +675,8 @@ public:
 	SE_editNotePropertiesAction( const PatternEditor::Mode& mode,
 								 int nPatternNumber,
 								 int nColumn,
-								 int nRowDB,
+								 int nInstrumentId,
+								 const QString& sType,
 								 float fVelocity,
 								 float fOldVelocity,
 								 float fPan,
@@ -686,7 +694,8 @@ public:
 		m_mode( mode ),
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
-		m_nRowDB( nRowDB ),
+		m_nInstrumentId( nInstrumentId ),
+		m_sType( sType ),
 		m_fVelocity( fVelocity ),
 		m_fOldVelocity( fOldVelocity ),
 		m_fPan( fPan ),
@@ -709,7 +718,8 @@ public:
 		PatternEditor::editNotePropertiesAction( m_mode,
 												 m_nPatternNumber,
 												 m_nColumn,
-												 m_nRowDB,
+												 m_nInstrumentId,
+												 m_sType,
 												 m_fOldVelocity,
 												 m_fOldPan,
 												 m_fOldLeadLag,
@@ -724,7 +734,8 @@ public:
 		PatternEditor::editNotePropertiesAction( m_mode,
 												 m_nPatternNumber,
 												 m_nColumn,
-												 m_nRowDB,
+												 m_nInstrumentId,
+												 m_sType,
 												 m_fVelocity,
 												 m_fPan,
 												 m_fLeadLag,
@@ -742,7 +753,8 @@ private:
 		int m_nColumn;
 		/** Row selected in #DrumPatternEditor the moment the action was
 		 * created. */
-		int m_nRowDB;
+		int m_nInstrumentId;
+		QString m_sType;
 		float m_fVelocity;
 		float m_fOldVelocity;
 		float m_fPan;

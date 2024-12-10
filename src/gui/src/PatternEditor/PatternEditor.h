@@ -174,7 +174,8 @@ public:
 							  bool bIsNoteOff = false );
 
 	static void addOrRemoveNoteAction( int nColumn,
-									   int nRow,
+									   int nInstrumentId,
+									   const QString& sType,
 									   int nPatternNumber,
 									   int nOldLength,
 									   float fOldVelocity,
@@ -195,7 +196,8 @@ public:
 	static void editNotePropertiesAction( const Mode& mode,
 										  int nPatternNumber,
 										  int nColumn,
-										  int nRowDB,
+										  int nInstrumentId,
+										  const QString& sType,
 										  float fVelocity,
 										  float fPan,
 										  float fLeadLag,

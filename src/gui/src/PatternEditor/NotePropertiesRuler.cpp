@@ -902,16 +902,12 @@ void NotePropertiesRuler::addUndoAction()
 										  pOldNote->get_octave() );
 			}
 
-			const int nRow = m_pPatternEditorPanel->findRowDB( pOldNote );
-			if ( nRow == -1 ) {
-				ERRORLOG( "Selected note not found" );
-				continue;
-			}
 			pUndoStack->push( new SE_editNotePropertiesAction(
 								  m_mode,
 								  m_pPatternEditorPanel->getPatternNumber(),
 								  pNewNote->get_position(),
-								  nRow,
+								  pOldNote->get_instrument_id(),
+								  pOldNote->getType(),
 								  pNewNote->get_velocity(),
 								  pOldNote->get_velocity(),
 								  pNewNote->getPan(),

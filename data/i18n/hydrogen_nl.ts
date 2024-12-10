@@ -4522,14 +4522,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4579,6 +4571,14 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Edit note property %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add note</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -4569,14 +4569,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Editar tag de linha do tempo</translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation>Deletar nota ( %1, %2)</translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation>Adicionar nota ( %1, %2)</translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation>Sobrescrever %1 notas</translation>
     </message>
@@ -4627,6 +4619,14 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Edit note property %1</source>
         <translation>Editar propriedade de nota %1</translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation>Deletar nota</translation>
+    </message>
+    <message>
+        <source>Add note</source>
+        <translation>Adicionar nota</translation>
     </message>
 </context>
 <context>

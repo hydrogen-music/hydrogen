@@ -597,6 +597,7 @@ void PatternEditor::paste()
 				delete pNote;
 				continue;
 			}
+			const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 
 			int nKey, nOctave;
 			if ( m_editor == Editor::PianoRoll ) {
@@ -617,7 +618,8 @@ void PatternEditor::paste()
 
 			pUndo->push( new SE_addOrRemoveNoteAction(
 							 nPos,
-							 nRow,
+							 row.nInstrumentID,
+							 row.sType,
 							 m_pPatternEditorPanel->getPatternNumber(),
 							 pNote->get_length(),
 							 pNote->get_velocity(),
@@ -689,6 +691,7 @@ void PatternEditor::alignToGrid() {
 		}
 
 		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
+		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 		const int nPosition = pNote->get_position();
 		const int nNewInstrument = nRow;
 		const int nGranularity = granularity();
@@ -703,7 +706,8 @@ void PatternEditor::alignToGrid() {
 		// Move note -> delete at source position
 		pUndo->push( new SE_addOrRemoveNoteAction(
 						 nPosition,
-						 nRow,
+						 pNote->get_instrument_id(),
+						 pNote->getType(),
 						 m_pPatternEditorPanel->getPatternNumber(),
 						 pNote->get_length(),
 						 pNote->get_velocity(),
@@ -719,7 +723,8 @@ void PatternEditor::alignToGrid() {
 		// Add at target position
 		pUndo->push( new SE_addOrRemoveNoteAction(
 						 nNewPosition,
-						 nRow,
+						 pNote->get_instrument_id(),
+						 pNote->getType(),
 						 m_pPatternEditorPanel->getPatternNumber(),
 						 pNote->get_length(),
 						 pNote->get_velocity(),
@@ -754,12 +759,6 @@ void PatternEditor::randomizeVelocity() {
 	pUndo->beginMacro( tr( "Random velocity" ) );
 
 	for ( const auto pNote : m_selection ) {
-		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
-		if ( nRow == -1 ) {
-			ERRORLOG( "Selected note not found" );
-			continue;
-		}
-
 		float fVal = ( rand() % 100 ) / 100.0;
 		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
 						   0.0, 1.0 );
@@ -767,7 +766,8 @@ void PatternEditor::randomizeVelocity() {
 						 PatternEditor::Mode::Velocity,
 						 m_pPatternEditorPanel->getPatternNumber(),
 						 pNote->get_position(),
-						 nRow,
+						 pNote->get_instrument_id(),
+						 pNote->getType(),
 						 fVal,
 						 pNote->get_velocity(),
 						 pNote->getPan(),
@@ -1208,7 +1208,8 @@ void PatternEditor::deleteSelection()
 			if ( pNote != nullptr && m_selection.isSelected( pNote ) ) {
 				actions.push_back( new SE_addOrRemoveNoteAction(
 									   pNote->get_position(),
-									   m_pPatternEditorPanel->findRowDB( pNote ),
+									   pNote->get_instrument_id(),
+									   pNote->getType(),
 									   m_pPatternEditorPanel->getPatternNumber(),
 									   pNote->get_length(),
 									   pNote->get_velocity(),
@@ -1288,6 +1289,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		if ( m_editor == Editor::DrumPattern && offset.y() != 0 ) {
 			nNewRow += offset.y();
 		}
+		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 
 		int nNewKey = pNote->get_key();
 		int nNewOctave = pNote->get_octave();
@@ -1316,7 +1318,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			// the note at the source position.
 			pUndo->push( new SE_addOrRemoveNoteAction(
 							 nPosition,
-							 nRow,
+							 row.nInstrumentID,
+							 row.sType,
 							 m_pPatternEditorPanel->getPatternNumber(),
 							 pNote->get_length(),
 							 pNote->get_velocity(),
@@ -1334,7 +1337,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			// Create a new note at the target position
 			pUndo->push( new SE_addOrRemoveNoteAction(
 							 nNewPosition,
-							 nNewRow,
+							 row.nInstrumentID,
+							 row.sType,
 							 m_pPatternEditorPanel->getPatternNumber(),
 							 pNote->get_length(),
 							 pNote->get_velocity(),
@@ -1876,7 +1880,8 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 							  mode,
 							  m_pPatternEditorPanel->getPatternNumber(),
 							  pNewNote->get_position(),
-							  m_pPatternEditorPanel->findRowDB( pNewNote ),
+							  pNewNote->get_instrument_id(),
+							  pNewNote->getType(),
 							  pNewNote->get_velocity(),
 							  pOldNote->get_velocity(),
 							  pNewNote->getPan(),
@@ -1917,7 +1922,8 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 void PatternEditor::editNotePropertiesAction( const Mode& mode,
 											  int nPatternNumber,
 											  int nColumn,
-											  int nRowDB,
+											  int nInstrumentId,
+											  const QString& sType,
 											  float fVelocity,
 											  float fPan,
 											  float fLeadLag,
@@ -1946,14 +1952,11 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 		return;
 	}
 
-	const DrumPatternRow row = pPatternEditorPanel->getRowDB( nRowDB );
-
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	// Find the note to edit
 	auto pNote = pPattern->findNote(
-		nColumn, nColumn, row.nInstrumentID, row.sType,
-		static_cast<Note::Key>(nOldKey),
+		nColumn, nColumn, nInstrumentId, sType, static_cast<Note::Key>(nOldKey),
 		static_cast<Note::Octave>(nOldOctave), false );
 
 	bool bValueChanged = false;
@@ -2099,7 +2102,8 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 	HydrogenApp::get_instance()->m_pUndoStack->push(
 		new SE_addOrRemoveNoteAction(
 			nColumn,
-			nRow,
+			row.nInstrumentID,
+			row.sType,
 			m_pPatternEditorPanel->getPatternNumber(),
 			nOldLength,
 			fOldVelocity,
@@ -2114,7 +2118,8 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 }
 
 void PatternEditor::addOrRemoveNoteAction( int nColumn,
-										   int nRow,
+										   int nInstrumentId,
+										   const QString& sType,
 										   int nPatternNumber,
 										   int nOldLength,
 										   float nOldVelocity,
@@ -2149,21 +2154,19 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 		return;
 	}
 
-	auto pPatternEditorPanel =
-		HydrogenApp::get_instance()->getPatternEditorPanel();
-	const auto row = pPatternEditorPanel->getRowDB( nRow );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
+	if ( nInstrumentId == EMPTY_INSTR_ID && sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row" ) );
 		return;
 	}
+
+	auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
 
 	if ( bIsDelete ) {
 		// Find and delete an existing (matching) note.
 		auto pNote = pPattern->findNote(
-			nColumn, -1, row.nInstrumentID, row.sType,
-			static_cast<Note::Key>(nOldKey),
+			nColumn, -1, nInstrumentId, sType, static_cast<Note::Key>(nOldKey),
 			static_cast<Note::Octave>(nOldOctave) );
 		if ( pNote != nullptr ) {
 			pPattern->removeNote( pNote );
@@ -2188,20 +2191,20 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
+		if ( nInstrumentId != EMPTY_INSTR_ID ) {
 			pInstrument =
-				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
+				pSong->getDrumkit()->getInstruments()->find( nInstrumentId );
 			if ( pInstrument == nullptr ) {
 				ERRORLOG( QString( "Instrument [%1] could not be found" )
-						  .arg( row.nInstrumentID ) );
+						  .arg( nInstrumentId ) );
 				pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 				return;
 			}
 		}
 
 		auto pNote = new Note( pInstrument, nPosition, fVelocity, fPan, nLength );
-		pNote->set_instrument_id( row.nInstrumentID );
-		pNote->setType( row.sType );
+		pNote->set_instrument_id( nInstrumentId );
+		pNote->setType( sType );
 		pNote->set_note_off( bIsNoteOff );
 		pNote->set_lead_lag( fOldLeadLag );
 		pNote->set_probability( fOldProbability );

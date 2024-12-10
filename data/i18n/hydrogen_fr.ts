@@ -4572,14 +4572,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Modifier l&apos;étiquette de la ligne temporelle</translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation>Effacer une note ( %1, %2)</translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation>Ajouter une note ( %1, %2)</translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation>Écraser les notes %1</translation>
     </message>
@@ -4630,6 +4622,14 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Edit note property %1</source>
         <translation>Modifier la propriété %1 de note</translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation>Effacer une note</translation>
+    </message>
+    <message>
+        <source>Add note</source>
+        <translation>Ajouter une note</translation>
     </message>
 </context>
 <context>

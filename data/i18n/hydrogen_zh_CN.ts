@@ -4555,14 +4555,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>编辑时间轴标签</translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation>删除音符 ( %1, %2)</translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation>添加音符 ( %1, %2)</translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation>覆盖 %1 音符</translation>
     </message>
@@ -4613,6 +4605,14 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Edit note property %1</source>
         <translation>编辑音符属性 %1</translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation>删除音符</translation>
+    </message>
+    <message>
+        <source>Add note</source>
+        <translation>添加音符</translation>
     </message>
 </context>
 <context>

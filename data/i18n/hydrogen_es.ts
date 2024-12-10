@@ -4571,14 +4571,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Editar etiqueta línea de tiempo</translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation>Borrar nota ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation>Añadir nota ( %1, %2 )</translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation>Sobreescribir %1 notas</translation>
     </message>
@@ -4629,6 +4621,14 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Edit note property %1</source>
         <translation>Editar propiedad de nota %1</translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation>Borrar nota</translation>
+    </message>
+    <message>
+        <source>Add note</source>
+        <translation>Añadir nota</translation>
     </message>
 </context>
 <context>

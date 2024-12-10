@@ -4559,14 +4559,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Editiere Timeline Tag</translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation>Lösche Note( %1, %2)</translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation>Füge Note hinzu ( %1, %2)</translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation>Überschreibe %1 Noten</translation>
     </message>
@@ -4617,6 +4609,14 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Edit note property %1</source>
         <translation>Noten Eigenschaft %1 geändert</translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation>Lösche Note</translation>
+    </message>
+    <message>
+        <source>Add note</source>
+        <translation>Füge Note hinzu</translation>
     </message>
 </context>
 <context>

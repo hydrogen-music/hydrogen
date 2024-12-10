@@ -4529,14 +4529,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4586,6 +4578,14 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>Edit note property %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add note</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

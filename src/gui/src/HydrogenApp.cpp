@@ -1086,6 +1086,7 @@ void HydrogenApp::onEventQueueTimer()
 			pUndoStack->push( new SE_addOrRemoveNoteAction(
 								  pOldNote->get_position(),
 								  pOldNote->get_instrument_id(),
+								  pOldNote->getType(),
 								  pQueue->m_addMidiNoteVector[0].m_pattern,
 								  pOldNote->get_length(),
 								  pOldNote->get_velocity(),
@@ -1102,7 +1103,8 @@ void HydrogenApp::onEventQueueTimer()
 		// add the new note
 		pUndoStack->push( new SE_addOrRemoveNoteAction(
 			pQueue->m_addMidiNoteVector[0].m_column,
-			nRow,
+			row.nInstrumentID,
+			row.sType,
 			pQueue->m_addMidiNoteVector[0].m_pattern,
 			pQueue->m_addMidiNoteVector[0].m_length,
 			pQueue->m_addMidiNoteVector[0].f_velocity,
