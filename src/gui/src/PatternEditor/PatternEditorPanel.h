@@ -202,6 +202,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		/** Returns either #DrumPatternEditor or #PianoRollEditor, depending on
 		 * which of them is currently visible. */
 		PatternEditor* getVisibleEditor() const;
+		/** Get notes to show in pattern editor. This may include "background"
+		 * notes that are in currently-playing patterns rather than the current
+		 * pattern. */
+		std::vector<std::shared_ptr<H2Core::Pattern>> getPatternsToShow() const;
 
 		////////////////////////////////////////////////////////////////////////
 		////////// Top-level actions for the overall pattern editor. ///////////

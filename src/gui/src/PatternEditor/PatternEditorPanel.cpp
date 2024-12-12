@@ -974,6 +974,61 @@ PatternEditor* PatternEditorPanel::getVisibleEditor() const {
 	return m_pPianoRollEditor;
 }
 
+std::vector<std::shared_ptr<Pattern>> PatternEditorPanel::getPatternsToShow() const
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::vector<std::shared_ptr<Pattern>> patterns;
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	// When using song mode without the pattern editor being locked
+	// only the current pattern will be shown. In every other base
+	// remaining playing patterns not selected by the user are added
+	// as well.
+	if ( ! ( pHydrogen->getMode() == Song::Mode::Song &&
+			 ! pHydrogen->isPatternEditorLocked() ) ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
+			std::set<std::shared_ptr<Pattern>> patternSet;
+
+			std::vector<const PatternList*> patternLists;
+			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
+			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+				patternLists.push_back( pAudioEngine->getNextPatterns() );
+			}
+
+			for ( const auto& pPatternList : patternLists ) {
+				for ( int i = 0; i <  pPatternList->size(); i++) {
+					auto ppPattern = pPatternList->get( i );
+					if ( ppPattern != m_pPattern ) {
+						patternSet.insert( ppPattern );
+					}
+				}
+			}
+			for ( const auto& ppPattern : patternSet ) {
+				patterns.push_back( ppPattern );
+			}
+		}
+		pAudioEngine->unlock();
+	}
+	else if ( m_pPattern != nullptr &&
+			  pHydrogen->getMode() == Song::Mode::Song &&
+			  m_pPattern->getVirtualPatterns()->size() > 0 ) {
+		// A virtual pattern was selected in song mode without the
+		// pattern editor being locked. Virtual patterns in selected
+		// pattern mode are handled using the playing pattern above.
+		for ( const auto ppVirtualPattern : *m_pPattern ) {
+			patterns.push_back( ppVirtualPattern );
+		}
+	}
+
+
+	if ( m_pPattern != nullptr ) {
+		patterns.push_back( m_pPattern );
+	}
+
+	return patterns;
+}
+
 void PatternEditorPanel::zoomInBtnClicked()
 {
 	if( m_pPatternEditorRuler->getGridWidth() >= 24 ){

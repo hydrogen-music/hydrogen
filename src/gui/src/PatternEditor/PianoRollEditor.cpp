@@ -337,7 +337,7 @@ void PianoRollEditor::drawPattern()
 								pixelRatio * rect().height() ) );
 
 	// for each note...
-	for ( const auto& ppPattern : getPatternsToShow() ) {
+	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		bool bIsForeground = ( ppPattern == pPattern );
 		const Pattern::notes_t* notes = ppPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, ppPattern ) {

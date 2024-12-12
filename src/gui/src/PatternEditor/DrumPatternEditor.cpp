@@ -409,7 +409,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 
 	validateSelection();
 
-	for ( const auto& ppPattern : getPatternsToShow() ) {
+	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const Pattern::notes_t *pNotes = ppPattern->getNotes();
 		if ( pNotes->size() == 0 ) {
 			continue;

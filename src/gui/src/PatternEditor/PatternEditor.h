@@ -301,11 +301,6 @@ protected:
 	void drawNoteSymbol( QPainter &p, const QPoint& pos, H2Core::Note *pNote,
 						 bool bIsForeground = true ) const;
 
-	//! Get notes to show in pattern editor.
-	//! This may include "background" notes that are in currently-playing patterns
-	//! rather than the current pattern.
-	std::vector<std::shared_ptr<H2Core::Pattern>> getPatternsToShow( void );
-
 	/** Updates #m_pBackgroundPixmap to show the latest content. */
 	virtual void createBackground();
 	void invalidateBackground();

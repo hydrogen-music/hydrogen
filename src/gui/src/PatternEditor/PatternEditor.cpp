@@ -1561,64 +1561,6 @@ void PatternEditor::invalidateBackground() {
 void PatternEditor::createBackground() {
 }
 
-//! Get notes to show in pattern editor.
-//! This may include "background" notes that are in currently-playing patterns
-//! rather than the current pattern.
-std::vector<std::shared_ptr<Pattern>> PatternEditor::getPatternsToShow( void )
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::vector<std::shared_ptr<Pattern>> patterns;
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	// When using song mode without the pattern editor being locked
-	// only the current pattern will be shown. In every other base
-	// remaining playing patterns not selected by the user are added
-	// as well.
-	if ( ! ( pHydrogen->getMode() == Song::Mode::Song &&
-			 ! pHydrogen->isPatternEditorLocked() ) ) {
-		pAudioEngine->lock( RIGHT_HERE );
-		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
-			std::set<std::shared_ptr<Pattern>> patternSet;
-
-			std::vector<const PatternList*> patternLists;
-			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
-			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-				patternLists.push_back( pAudioEngine->getNextPatterns() );
-			}
-		
-			for ( const auto& pPatternList : patternLists ) {
-				for ( int i = 0; i <  pPatternList->size(); i++) {
-					auto ppPattern = pPatternList->get( i );
-					if ( ppPattern != pPattern ) {
-						patternSet.insert( ppPattern );
-					}
-				}
-			}
-			for ( const auto& ppPattern : patternSet ) {
-				patterns.push_back( ppPattern );
-			}
-		}
-		pAudioEngine->unlock();
-	}
-	else if ( pPattern != nullptr &&
-			  pHydrogen->getMode() == Song::Mode::Song &&
-			  pPattern->getVirtualPatterns()->size() > 0 ) {
-		// A virtual pattern was selected in song mode without the
-		// pattern editor being locked. Virtual patterns in selected
-		// pattern mode are handled using the playing pattern above.
-		for ( const auto ppVirtualPattern : *pPattern ) {
-			patterns.push_back( ppVirtualPattern );
-		}
-	}
-			  
-
-	if ( pPattern != nullptr ) {
-		patterns.push_back( pPattern );
-	}
-
-	return patterns;
-}
 
 bool PatternEditor::isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
