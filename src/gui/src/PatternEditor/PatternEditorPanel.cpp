@@ -75,26 +75,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pHydrogen = Hydrogen::get_instance();
-	m_nSelectedRowDB = pHydrogen->getSelectedInstrumentNumber();
 	const auto pSong = pHydrogen->getSong();
-	if ( pSong != nullptr ) {
-		m_nPatternNumber = pHydrogen->getSelectedPatternNumber();
-		const auto pPatternList = pSong->getPatternList();
-		if ( m_nPatternNumber != -1 &&
-			 m_nPatternNumber < pPatternList->size() ) {
-			m_pPattern = pPatternList->get( m_nPatternNumber );
-		}
-		else {
-			m_pPattern = nullptr;
-		}
-	}
-	else {
-		m_pPattern = nullptr;
-	}
+	m_nSelectedRowDB = pHydrogen->getSelectedInstrumentNumber();
+
 	m_nResolution = pPref->getPatternEditorGridResolution();
 	m_bIsUsingTriplets = pPref->isPatternEditorUsingTriplets();
-
-	updateDB();
 
 	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -105,7 +90,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// Spacing between a label and the widget to its label.
 	const int nLabelSpacing = 6;
 // Editor TOP
-	
+
+	m_pTabBar = new QTabBar( nullptr );
+
 	m_pEditorTop1 = new QWidget( nullptr );
 	m_pEditorTop1->setFixedHeight(24);
 	m_pEditorTop1->setObjectName( "editor1" );
@@ -191,8 +178,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxDenominator );
 	pSizeResolLayout->addSpacing( nLabelSpacing );
-	updatePatternSizeLCD();
-	
+
 	// GRID resolution
 	m_pResolutionLbl = new ClickableLabel(
 		m_pSizeResol, QSize( 0, 0 ), pCommonStrings->getResolutionLabel(),
@@ -405,7 +391,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pPatternNameLbl, &ClickableLabel::labelClicked,
 			 [=]() { HydrogenApp::get_instance()->getSongEditorPanel()->
 					 getSongEditorPatternList()->patternPopup_properties(); } );
-	updatePatternName();
+
+	updatePatternInfo();
+	updateDB();
 
 	// restore grid resolution
 	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) *
@@ -643,26 +631,27 @@ void PatternEditorPanel::createEditors() {
 	pGrid->setSpacing( 0 );
 	pGrid->setMargin( 0 );
 
-	pGrid->addWidget( m_pEditorTop1, 0, 0 );
-	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 2 );
-	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
-	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
+	pGrid->addWidget( m_pTabBar, 0, 1, 1, 2 );
+	pGrid->addWidget( m_pEditorTop1, 1, 0 );
+	pGrid->addWidget( m_pEditorTop2, 1, 1, 1, 2 );
+	pGrid->addWidget( m_pPatternNameLbl, 2, 0 );
+	pGrid->addWidget( m_pRulerScrollView, 2, 1 );
 
-	pGrid->addWidget( m_pSidebarScrollView, 2, 0 );
+	pGrid->addWidget( m_pSidebarScrollView, 3, 0 );
 
-	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
-	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
+	pGrid->addWidget( m_pEditorScrollView, 3, 1 );
+	pGrid->addWidget( m_pPianoRollScrollView, 3, 1 );
 
-	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
+	pGrid->addWidget( m_pPatternEditorVScrollBar, 3, 2 );
 	pGrid->addWidget( m_pPatternEditorHScrollBarContainer, 10, 1 );
-	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
-	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteKeyOctaveScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteProbabilityScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteVelocityScrollView, 5, 1 );
+	pGrid->addWidget( m_pNotePanScrollView, 5, 1 );
+	pGrid->addWidget( m_pNoteLeadLagScrollView, 5, 1 );
+	pGrid->addWidget( m_pNoteKeyOctaveScrollView, 5, 1 );
+	pGrid->addWidget( m_pNoteProbabilityScrollView, 5, 1 );
 
-	pGrid->addWidget( m_pPropertiesPanel, 4, 0 );
-	pGrid->setRowStretch( 2, 100 );
+	pGrid->addWidget( m_pPropertiesPanel, 5, 0 );
+	pGrid->setRowStretch( 3, 100 );
 	pMainPanel->setLayout( pGrid );
 
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -1083,17 +1072,52 @@ void PatternEditorPanel::updatePatternInfo() {
 		}
 	}
 
-	updatePatternName();
-	updatePatternSizeLCD();
-}
+	// Reset the tab bar
+	for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
+		m_pTabBar->removeTab( ii );
+	}
 
-void PatternEditorPanel::updatePatternName() {
 	if ( m_pPattern != nullptr ) {
 		// update pattern name text
 		QString sCurrentPatternName = m_pPattern->getName();
-		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
+		this->setWindowTitle( ( tr( "Pattern editor - %1" )
+								.arg( sCurrentPatternName ) ) );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
+		// update pattern size LCD
+		m_bArmPatternSizeSpinBoxes = false;
+
+		const double fNewDenominator =
+			static_cast<double>( m_pPattern->getDenominator() );
+		if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
+			 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
+			m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
+
+			// Update numerator to allow only for a maximum pattern length of
+			// four measures.
+			m_pLCDSpinBoxNumerator->setMaximum(
+				4 * m_pLCDSpinBoxDenominator->value() );
+		}
+
+		const double fNewNumerator = static_cast<double>(
+			m_pPattern->getLength() * m_pPattern->getDenominator() ) /
+			static_cast<double>( MAX_NOTES );
+		if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
+			 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+			m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
+		}
+
+		m_bArmPatternSizeSpinBoxes = true;
+
+		// Update pattern tabs
+		m_pTabBar->addTab( m_pPattern->getName() );
+
+		auto patterns = getPatternsToShow();
+		for ( const auto& ppPattern : patterns ) {
+			if ( ppPattern != nullptr && ppPattern != m_pPattern ) {
+				m_pTabBar->addTab( ppPattern->getName() );
+			}
+		}
 	}
 	else {
 		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
@@ -1151,31 +1175,6 @@ void PatternEditorPanel::relocationEvent() {
 	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
 		updateEditors( true );
 	}
-}
-
-void PatternEditorPanel::updatePatternSizeLCD() {
-	if ( m_pPattern == nullptr ) {
-		return;
-	}
-
-	m_bArmPatternSizeSpinBoxes = false;
-
-	double fNewDenominator = static_cast<double>( m_pPattern->getDenominator() );
-	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
-		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
-		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-
-		// Update numerator to allow only for a maximum pattern length of
-		// four measures.
-		m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
-	}
-
-	double fNewNumerator = static_cast<double>( m_pPattern->getLength() * m_pPattern->getDenominator() ) / static_cast<double>( MAX_NOTES );
-	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
-		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
-	}
-	
-	m_bArmPatternSizeSpinBoxes = true;
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){

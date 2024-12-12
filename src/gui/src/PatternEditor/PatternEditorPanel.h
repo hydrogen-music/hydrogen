@@ -263,8 +263,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
-	/** Batch version for setting the values of the pattern size spin boxes.*/
-		void updatePatternSizeLCD();
 
 		void hearNotesBtnClick();
 		void quantizeEventsBtnClick();
@@ -289,7 +287,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void updatePatternInfo();
 		void updateStyleSheet();
-		void updatePatternName();
 
 		/** Currently selected pattern cached in frontend for convenience.*/
 		std::shared_ptr<H2Core::Pattern>	m_pPattern;
@@ -307,6 +304,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		QPixmap				m_backgroundPixmap;
 		ClickableLabel*		m_pDrumkitLabel;
 
+		QTabBar* m_pTabBar;
 	QWidget* m_pEditorTop1;
 	QWidget* m_pEditorTop2;
 	QWidget* m_pSizeResol;
