@@ -1550,23 +1550,24 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) ||
 		   ev->pos().x() < 15 ) &&
 		 m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-		
+
+		// Mark the pattern to be played once end of currently playing patterns
+		// is reached.
 		m_pHydrogen->toggleNextPattern( nRow );
 	}
 	else {
-		if ( ! ( m_pHydrogen->isPatternEditorLocked() &&
-				 m_pHydrogen->getAudioEngine()->getState() ==
-				 AudioEngine::State::Playing ) ) {
-			m_pHydrogen->setSelectedPatternNumber( nRow );
-		} else {
-			// Notify the users why nothing just happened by
-			// highlighting the pattern locked button in the
-			// SongEditorPanel.
-			HydrogenApp::get_instance()->getSongEditorPanel()->highlightPatternEditorLocked( true );
-			m_pHighlightLockedTimer->start( 250 );
+		CoreActionController::selectPattern( nRow );
+
+		// Notify the user why nothing just happened by highlighting the pattern
+		// locked button in the SongEditorPanel.
+		if ( m_pHydrogen->isPatternEditorLocked() &&
+			 m_pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Playing ) {
+			HydrogenApp::get_instance()->getSongEditorPanel()->
+				highlightPatternEditorLocked();
 		}
 		
-		if (ev->button() == Qt::RightButton)  {
+		if ( ev->button() == Qt::RightButton )  {
 			m_nRowClicked = nRow;
 			m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 		}

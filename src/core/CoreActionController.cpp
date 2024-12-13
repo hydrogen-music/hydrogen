@@ -1984,6 +1984,33 @@ bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
 	return true;
 }
 
+bool CoreActionController::selectPattern( int nPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	const auto pPatternList = pSong->getPatternList();
+	if ( nPatternNumber < 0 || nPatternNumber >= pPatternList->size() ) {
+		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
+				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
+		return false;
+	}
+
+	if ( ! ( pHydrogen->isPatternEditorLocked() &&
+			 pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Playing ) ) {
+		// Event handling will be done in Hydrogen::setSelectedPatternNumber.
+		pHydrogen->setSelectedPatternNumber( nPatternNumber );
+	}
+
+	return true;
+}
+
 bool CoreActionController::removePattern( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN

@@ -399,6 +399,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		static bool setPattern( std::shared_ptr<Pattern> pPattern,
 								int nPatternNumber );
+		/** Selects a pattern from the current pattern list while taking into
+		 * account whether the pattern editor is currently locked.
+		 *
+		 * @param nPatternNumber Row the pattern will be added to.
+		 *
+		 * @return bool true on success
+		 */
+		static bool selectPattern( int nPatternNumber );
 		/** Removes a pattern from the pattern list.
 		 *
 		 * @param nPatternNumber Specifies the position/row of the pattern.
