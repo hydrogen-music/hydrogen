@@ -1667,25 +1667,28 @@ void PatternEditorPanel::updateDB() {
 	// of the instruments above.
 	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
 	std::set<DrumkitMap::Type> additionalTypes;
-	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
-		if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
-			 kitTypes.find( ppNote->getType() ) == kitTypes.end() ) {
 
-			// Check whether we deal with a kit or note with missing instrument
-			// types and whether the association with the kit was done based on
-			// the instrument ID.
-			if ( ppNote->get_instrument_id() != EMPTY_INSTR_ID ) {
-				continue;
-			}
+	for ( const auto& ppPattern : getPatternsToShow() ) {
+		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+			if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
+				 kitTypes.find( ppNote->getType() ) == kitTypes.end() ) {
 
-			// Note is not associated with current kit.
-			if ( additionalTypes.find( ppNote->getType() ) ==
-				 additionalTypes.end() ) {
-				additionalTypes.insert( ppNote->getType() );
-				m_db.push_back(
-					DrumPatternRow( EMPTY_INSTR_ID, ppNote->getType(),
-									nnRow % 2 != 0 ) );
-				++nnRow;
+				// Check whether we deal with a kit or note with missing
+				// instrument types and whether the association with the kit was
+				// done based on the instrument ID.
+				if ( ppNote->get_instrument_id() != EMPTY_INSTR_ID ) {
+					continue;
+				}
+
+				// Note is not associated with current kit.
+				if ( additionalTypes.find( ppNote->getType() ) ==
+					 additionalTypes.end() ) {
+					additionalTypes.insert( ppNote->getType() );
+					m_db.push_back(
+						DrumPatternRow( EMPTY_INSTR_ID, ppNote->getType(),
+										nnRow % 2 != 0 ) );
+					++nnRow;
+				}
 			}
 		}
 	}
