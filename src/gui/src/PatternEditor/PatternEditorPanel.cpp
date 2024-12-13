@@ -93,6 +93,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // Editor TOP
 
 	m_pTabBar = new QTabBar( nullptr );
+	m_pTabBar->setObjectName( "patternEditorTabBar" );
 	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
 		if ( Hydrogen::get_instance()->isPatternEditorLocked() &&
 			 Hydrogen::get_instance()->getAudioEngine()->getState() ==
@@ -108,8 +109,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	});
 
 	m_pToolBar = new QWidget( nullptr );
+	m_pToolBar->setFont( boldFont );
 	m_pToolBar->setFixedHeight( 24 );
-	m_pToolBar->setObjectName( "toolbar" );
+	m_pToolBar->setObjectName( "patternEditorToolBar" );
 
 	QHBoxLayout* pToolBarHBox = new QHBoxLayout( m_pToolBar );
 	pToolBarHBox->setSpacing( 2 );
@@ -121,9 +123,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
 										  ClickableLabel::Color::Bright, true );
 	m_pDrumkitLabel->setFont( boldFont );
-	m_pDrumkitLabel->setFixedSize(
-		PatternEditorSidebar::m_nWidth - PatternEditorSidebar::m_nMargin, 20 );
-	m_pDrumkitLabel->move( PatternEditorSidebar::m_nMargin, 3 );
+	m_pDrumkitLabel->setIndent( PatternEditorSidebar::m_nMargin );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
@@ -1465,33 +1465,54 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 
 void PatternEditorPanel::updateStyleSheet() {
 
-	const auto pPref = H2Core::Preferences::get_instance();
-	int nFactorTop = 112;
-	
-	QColor topColorLight = pPref->getTheme().m_color.m_midColor.lighter( nFactorTop );
-	QColor topColorDark = pPref->getTheme().m_color.m_midColor.darker( nFactorTop );
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
 
-	QString sEditorTopStyleSheet = QString( "\
-QWidget#toolbar {\
-     background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
-                                      stop: 0 %1, stop: 1 %2); \
+	const QColor colorDrumkit =
+		colorTheme.m_patternEditor_instrumentAlternateRowColor.darker( 120 );
+	const QColor colorDrumkitText =
+		colorTheme.m_patternEditor_instrumentRowTextColor;
+	const QColor colorPattern =
+		colorTheme.m_patternEditor_alternateRowColor.darker( 120 );
+	const QColor colorPatternLighter =
+		colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
+	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
+
+	m_pToolBar->setStyleSheet( QString( "\
+QWidget#patternEditorToolBar {\
+     background-color: %1; \
+     color: %2; \
+     border: 1px solid #000;\
 }")
-		.arg( topColorLight.name() ).arg( topColorDark.name() );
-	QString sWidgetTopStyleSheet = QString( "\
+		.arg( colorPatternLighter.name() ).arg( colorPatternText.name() ) );
+	m_pTabBar->setStyleSheet( QString( "\
+QWidget#patternEditorTabBar {\
+     background-color: %1; \
+     color: %2; \
+     font-weight: bold; \
+}")
+		.arg( colorPattern.name() ).arg( colorPatternText.name() ) );
+
+	m_pDrumkitLabel->setStyleSheet( QString( "\
+QLabel {\
+     background-color: %1; \
+     color: %2; \
+     border: 1px solid #000;\
+}" ).arg( colorDrumkit.name() ).arg( colorDrumkitText.name() ) );
+
+	const QString sWidgetTopStyleSheet = QString( "\
 QWidget#sizeResol {\
     background-color: %1;\
+    color: %2;\
 } \
 QWidget#pRec {\
     background-color: %1;\
+    color: %2;\
 }" )
-		.arg( pPref->getTheme().m_color.m_midLightColor.name() );
+		.arg( colorPatternLighter.name() ).arg( colorPatternText.name() );
 
-	m_pDrumkitLabel->setStyleSheet( sEditorTopStyleSheet );
-	m_pToolBar->setStyleSheet( sEditorTopStyleSheet );
-		
 	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
 	m_pRec->setStyleSheet( sWidgetTopStyleSheet );
-									
 }
 
 void PatternEditorPanel::switchPatternSizeFocus() {
