@@ -92,6 +92,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // Editor TOP
 
 	m_pTabBar = new QTabBar( nullptr );
+	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
+		if ( Hydrogen::get_instance()->isPatternEditorLocked() &&
+			 Hydrogen::get_instance()->getAudioEngine()->getState() ==
+			 AudioEngine::State::Playing ) {
+			HydrogenApp::get_instance()->getSongEditorPanel()->
+				highlightPatternEditorLocked();
+		}
+		else {
+			// Select the corresponding pattern
+			CoreActionController::selectPattern( m_tabPatternMap[ nIndex ] );
+		}
+	});
 
 	m_pEditorTop1 = new QWidget( nullptr );
 	m_pEditorTop1->setFixedHeight(24);
@@ -1076,8 +1088,9 @@ void PatternEditorPanel::updatePatternInfo() {
 	for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
 		m_pTabBar->removeTab( ii );
 	}
+	m_tabPatternMap.clear();
 
-	if ( m_pPattern != nullptr ) {
+	if ( m_pPattern != nullptr && pSong != nullptr ) {
 		// update pattern name text
 		QString sCurrentPatternName = m_pPattern->getName();
 		this->setWindowTitle( ( tr( "Pattern editor - %1" )
@@ -1111,11 +1124,21 @@ void PatternEditorPanel::updatePatternInfo() {
 
 		// Update pattern tabs
 		m_pTabBar->addTab( m_pPattern->getName() );
+		m_tabPatternMap[ 0 ] = pSong->getPatternList()->index( m_pPattern );
 
 		auto patterns = getPatternsToShow();
+		int nnCount = 1;
+		const bool bTabsEnabled = ! ( pHydrogen->isPatternEditorLocked() &&
+									  pHydrogen->getAudioEngine()->getState() ==
+									  AudioEngine::State::Playing &&
+									  pHydrogen->getMode() == Song::Mode::Song );
 		for ( const auto& ppPattern : patterns ) {
 			if ( ppPattern != nullptr && ppPattern != m_pPattern ) {
+				m_tabPatternMap[ nnCount ] =
+					pSong->getPatternList()->index( ppPattern );
 				m_pTabBar->addTab( ppPattern->getName() );
+				m_pTabBar->setTabEnabled( nnCount, bTabsEnabled );
+				++nnCount;
 			}
 		}
 	}
@@ -1169,6 +1192,21 @@ void PatternEditorPanel::songSizeChangedEvent() {
 
 void PatternEditorPanel::patternEditorLockedEvent() {
 	updateEditors( true );
+}
+
+void PatternEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& state ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	const bool bLocked = pHydrogen->isPatternEditorLocked();
+	if ( bLocked ) {
+		const bool bEnable =
+			! ( bLocked &&
+				pHydrogen->getAudioEngine()->getState() ==
+				AudioEngine::State::Playing &&
+				pHydrogen->getMode() == Song::Mode::Song );
+		for ( int ii = 0; ii < m_pTabBar->count(); ++ii ) {
+			m_pTabBar->setTabEnabled( ii, bEnable );
+		}
+	}
 }
 
 void PatternEditorPanel::relocationEvent() {

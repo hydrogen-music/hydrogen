@@ -154,6 +154,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void stackedModeActivationEvent( int ) override;
 	virtual void songSizeChangedEvent() override;
 	virtual void patternEditorLockedEvent() override;
+	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
 	virtual void relocationEvent() override;
 		// ~ Implements EventListener interface
 
@@ -300,6 +301,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 *
 		 * `-1` indicates no row is selected/available. */
 		int m_nSelectedRowDB;
+
+		/** Uses the index of a tab in #m_pTabBar as key and the index of the
+		 * pattern associated as value.*/
+		std::map<int, int> m_tabPatternMap;
 
 		QPixmap				m_backgroundPixmap;
 		ClickableLabel*		m_pDrumkitLabel;
