@@ -3032,10 +3032,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Zmenšit</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Patern editor - %1</translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation>Není vybrán žádný patern</translation>
     </message>

@@ -3028,10 +3028,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Poslušaj nove note = Neaktivno</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Uređivač uzorka - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Kvantiziranje klavijatura/midi pokušaja u rešetku</translation>
     </message>

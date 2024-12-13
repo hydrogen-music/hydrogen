@@ -3071,10 +3071,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Escuchar notas nuevas = No</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Editor de patrones - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Cuantizar eventos de teclado/midi a la rejilla</translation>
     </message>

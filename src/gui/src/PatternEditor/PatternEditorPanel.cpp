@@ -107,23 +107,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		}
 	});
 
-	m_pEditorTop1 = new QWidget( nullptr );
-	m_pEditorTop1->setFixedHeight(24);
-	m_pEditorTop1->setObjectName( "editor1" );
+	m_pToolBar = new QWidget( nullptr );
+	m_pToolBar->setFixedHeight( 24 );
+	m_pToolBar->setObjectName( "toolbar" );
 
-	m_pEditorTop2 = new QWidget( nullptr );
-	m_pEditorTop2->setFixedHeight( 24 );
-	m_pEditorTop2->setObjectName( "editor2" );
-
-	QHBoxLayout *m_pEditorTop1_hbox = new QHBoxLayout( m_pEditorTop1 );
-	m_pEditorTop1_hbox->setSpacing( 0 );
-	m_pEditorTop1_hbox->setMargin( 0 );
-	m_pEditorTop1_hbox->setAlignment( Qt::AlignLeft );
-
-	QHBoxLayout *m_pEditorTop1_hbox_2 = new QHBoxLayout( m_pEditorTop2 );
-	m_pEditorTop1_hbox_2->setSpacing( 2 );
-	m_pEditorTop1_hbox_2->setMargin( 0 );
-	m_pEditorTop1_hbox_2->setAlignment( Qt::AlignLeft );
+	QHBoxLayout* pToolBarHBox = new QHBoxLayout( m_pToolBar );
+	pToolBarHBox->setSpacing( 2 );
+	pToolBarHBox->setMargin( 0 );
+	pToolBarHBox->setAlignment( Qt::AlignLeft );
 
 
 	//soundlibrary name
@@ -134,7 +125,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		PatternEditorSidebar::m_nWidth - PatternEditorSidebar::m_nMargin, 20 );
 	m_pDrumkitLabel->move( PatternEditorSidebar::m_nMargin, 3 );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
-	m_pEditorTop1_hbox->addWidget( m_pDrumkitLabel );
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
 	}
@@ -147,7 +137,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pSizeResol->setObjectName( "sizeResol" );
 	m_pSizeResol->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	m_pSizeResol->move( 0, 3 );
-	m_pEditorTop1_hbox_2->addWidget( m_pSizeResol );
+	pToolBarHBox->addWidget( m_pSizeResol );
 
 	QHBoxLayout* pSizeResolLayout = new QHBoxLayout( m_pSizeResol );
 	pSizeResolLayout->setContentsMargins( 2, 0, 2, 0 );
@@ -264,7 +254,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pRec->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 	m_pRec->setObjectName( "pRec" );
 	m_pRec->move( 0, 3 );
-	m_pEditorTop1_hbox_2->addWidget( m_pRec );
+	pToolBarHBox->addWidget( m_pRec );
 	
 	QHBoxLayout* pRecLayout = new QHBoxLayout( m_pRec );
 	pRecLayout->setContentsMargins( 2, 0, 2, 0 );
@@ -327,7 +317,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pRecLayout->addWidget( __show_drum_btn );
 
-	m_pEditorTop1_hbox_2->addStretch();
+	pToolBarHBox->addStretch();
 	
 	// Since the button to activate the piano roll is shown
 	// initially, both buttons get the same tooltip. Actually only the
@@ -397,14 +387,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	QPalette label_palette;
 	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
-
-	m_pPatternNameLbl = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
-											ClickableLabel::Color::Bright, true );
-	m_pPatternNameLbl->setFont( boldFont );
-	m_pPatternNameLbl->setPalette( label_palette );
-	connect( m_pPatternNameLbl, &ClickableLabel::labelClicked,
-			 [=]() { HydrogenApp::get_instance()->getSongEditorPanel()->
-					 getSongEditorPatternList()->patternPopup_properties(); } );
 
 	updatePatternInfo();
 	updateDB();
@@ -646,9 +628,8 @@ void PatternEditorPanel::createEditors() {
 	pGrid->setMargin( 0 );
 
 	pGrid->addWidget( m_pTabBar, 0, 1, 1, 2 );
-	pGrid->addWidget( m_pEditorTop1, 1, 0 );
-	pGrid->addWidget( m_pEditorTop2, 1, 1, 1, 2 );
-	pGrid->addWidget( m_pPatternNameLbl, 2, 0 );
+	pGrid->addWidget( m_pToolBar, 1, 1, 1, 2 );
+	pGrid->addWidget( m_pDrumkitLabel, 2, 0 );
 	pGrid->addWidget( m_pRulerScrollView, 2, 1 );
 
 	pGrid->addWidget( m_pSidebarScrollView, 3, 0 );
@@ -1088,12 +1069,14 @@ void PatternEditorPanel::updatePatternInfo() {
 
 	if ( m_pPattern == nullptr ) {
 		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
-		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
 
 		for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
 			m_pTabBar->removeTab( ii );
 		}
 		m_tabPatternMap.clear();
+
+		m_pTabBar->addTab( tr( "No pattern selected" ) );
+		m_pTabBar->setTabEnabled( 0, false );
 
 		return;
 	}
@@ -1124,13 +1107,6 @@ void PatternEditorPanel::updatePatternInfo() {
 			ERRORLOG( "Unable to find pattern" );
 		}
 	}
-
-
-	// update pattern name text
-	QString sCurrentPatternName = m_pPattern->getName();
-	this->setWindowTitle( ( tr( "Pattern editor - %1" )
-							.arg( sCurrentPatternName ) ) );
-	m_pPatternNameLbl->setText( sCurrentPatternName );
 
 	// update pattern size LCD
 	m_bArmPatternSizeSpinBoxes = false;
@@ -1477,7 +1453,7 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		boldFont.setBold( true );
 		m_pDrumkitLabel->setFont( boldFont );
-		m_pPatternNameLbl->setFont( boldFont );
+		m_pTabBar->setFont( boldFont );
 
 		updateStyleSheet();
 	}
@@ -1496,11 +1472,7 @@ void PatternEditorPanel::updateStyleSheet() {
 	QColor topColorDark = pPref->getTheme().m_color.m_midColor.darker( nFactorTop );
 
 	QString sEditorTopStyleSheet = QString( "\
-QWidget#editor1 {\
-     background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
-                                      stop: 0 %1, stop: 1 %2); \
-} \
-QWidget#editor2 {\
+QWidget#toolbar {\
      background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
                                       stop: 0 %1, stop: 1 %2); \
 }")
@@ -1514,8 +1486,8 @@ QWidget#pRec {\
 }" )
 		.arg( pPref->getTheme().m_color.m_midLightColor.name() );
 
-	m_pEditorTop1->setStyleSheet( sEditorTopStyleSheet );
-	m_pEditorTop2->setStyleSheet( sEditorTopStyleSheet );
+	m_pDrumkitLabel->setStyleSheet( sEditorTopStyleSheet );
+	m_pToolBar->setStyleSheet( sEditorTopStyleSheet );
 		
 	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
 	m_pRec->setStyleSheet( sWidgetTopStyleSheet );

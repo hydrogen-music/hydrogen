@@ -310,8 +310,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		ClickableLabel*		m_pDrumkitLabel;
 
 		QTabBar* m_pTabBar;
-	QWidget* m_pEditorTop1;
-	QWidget* m_pEditorTop2;
+		QWidget* m_pToolBar;
 	QWidget* m_pSizeResol;
 	QWidget* m_pRec;
 
@@ -379,11 +378,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		QScrollBar *		m_pPatternEditorHScrollBar;
 		QScrollBar *		m_pPatternEditorVScrollBar;
 		QWidget*			m_pPatternEditorHScrollBarContainer;
-
-		// TOOLBAR
-		ClickableLabel*			m_pPatternNameLbl;
-		Button *			m_pRandomVelocityBtn;
-		// ~ TOOLBAR
 
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;

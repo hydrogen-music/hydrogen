@@ -3029,10 +3029,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Pomniejszenie</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Edytor układu rytmicznego - %1</translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation>Nie wybrano żadnego układu rytmicznego</translation>
     </message>

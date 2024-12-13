@@ -3072,10 +3072,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Entendre les notes ajoutées = inactif</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Éditeur de motif - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Quantifier les événements clavier/MIDI sur la grille</translation>
     </message>

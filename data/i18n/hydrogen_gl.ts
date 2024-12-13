@@ -3056,10 +3056,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Escoitar notas novas = Non</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Editor de patróns - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Cuantizar eventos de teclado/midi á rella</translation>
     </message>

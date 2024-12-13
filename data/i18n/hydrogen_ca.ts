@@ -3030,10 +3030,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Escoltar notes noves = No</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Editor de patrons - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>quantitzar events de teclat/midi a la graella</translation>
     </message>

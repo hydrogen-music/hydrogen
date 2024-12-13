@@ -3033,10 +3033,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Uitzoomen</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Patroon editor - %1</translation>
-    </message>
-    <message>
         <source>Hear new notes = On</source>
         <translation>Speel nieuwe noten = Aan</translation>
     </message>

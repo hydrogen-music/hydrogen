@@ -3054,10 +3054,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>新しいノートの音 = Off</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>パターンエディタ - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>キーボード/MIDIイベントをグリッドにクオンタイズする</translation>
     </message>

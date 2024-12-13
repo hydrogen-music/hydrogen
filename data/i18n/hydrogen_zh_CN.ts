@@ -3067,10 +3067,6 @@ LilyPond 导出是一项实验性功能。
         <translation>选择音符属性</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>样式编辑器 - %1</translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation>未选择样式</translation>
     </message>

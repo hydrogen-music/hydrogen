@@ -3065,10 +3065,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Neue Noten hören = deaktiviert</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Pattern-Editor - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Tastatur/Midi-Eingaben ins Raster quantisieren</translation>
     </message>

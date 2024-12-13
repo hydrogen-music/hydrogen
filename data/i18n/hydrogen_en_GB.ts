@@ -3029,10 +3029,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>No pattern selected</source>
         <translation></translation>
     </message>

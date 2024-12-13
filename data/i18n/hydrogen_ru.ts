@@ -3054,10 +3054,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Слушать новые ноты = Выкл</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Редактор паттернов — %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Квантовать события с клавиатуры/MIDI по сетке</translation>
     </message>

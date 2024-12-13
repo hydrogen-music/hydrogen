@@ -3065,10 +3065,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Quantizar eventos do teclado/midi para grade</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Editor de padrões - %1</translation>
-    </message>
-    <message>
         <source>Hear new notes = On</source>
         <translation>Ouvir novas notas = Lig.</translation>
     </message>

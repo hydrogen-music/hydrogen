@@ -3050,10 +3050,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Нове ноте су чујне = Искљ</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Уредник мустре - %1</translation>
-    </message>
-    <message>
         <source>Quantize keyboard/midi events to grid</source>
         <translation>Квантизуј догађаје МИДИ/клавијатуре у мрежи</translation>
     </message>

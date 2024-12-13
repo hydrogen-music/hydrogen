@@ -3022,10 +3022,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Zooma ut</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Mönster editor - %1</translation>
-    </message>
-    <message>
         <source>Hear new notes = On</source>
         <translation>Hör nya noter = På</translation>
     </message>

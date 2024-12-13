@@ -3018,10 +3018,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Események illesztése a hálóhoz</translation>
     </message>
     <message>
-        <source>Pattern editor - %1</source>
-        <translation>Motívumok szerkesztése - %1</translation>
-    </message>
-    <message>
         <source>Hear new notes = On</source>
         <translation>Lejátsza az új hangokat = Igen</translation>
     </message>
