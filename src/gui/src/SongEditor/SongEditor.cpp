@@ -1464,11 +1464,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
 	assert( pScrollArea );
 	m_pDragScroller = new DragScroller( pScrollArea );
-	
-	m_pHighlightLockedTimer = new QTimer( this );
-	m_pHighlightLockedTimer->setSingleShot( true );
-	connect(m_pHighlightLockedTimer, &QTimer::timeout,
-			[=](){ HydrogenApp::get_instance()->getSongEditorPanel()->highlightPatternEditorLocked( false ); } );
 
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nWidth * pixelRatio,

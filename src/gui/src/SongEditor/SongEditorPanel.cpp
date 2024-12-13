@@ -411,6 +411,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
+	m_pHighlightLockedTimer = new QTimer( this );
+	m_pHighlightLockedTimer->setSingleShot( true );
+	connect(m_pHighlightLockedTimer, &QTimer::timeout,
+			[=](){ m_pPatternEditorLockedBtn->setUseRedBackground( false ); } );
+
 	m_pTimer = new QTimer(this);
 	
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlayHeadPosition() ) );
@@ -472,8 +477,9 @@ void SongEditorPanel::updatePlayHeadPosition()
 	}
 }
 
-void SongEditorPanel::highlightPatternEditorLocked( bool bUseRedBackground ) {
-	m_pPatternEditorLockedBtn->setUseRedBackground( bUseRedBackground );
+void SongEditorPanel::highlightPatternEditorLocked() {
+	m_pPatternEditorLockedBtn->setUseRedBackground( true );
+	m_pHighlightLockedTimer->start( 250 );
 }
 
 void SongEditorPanel::updatePlaybackFaderPeaks()
