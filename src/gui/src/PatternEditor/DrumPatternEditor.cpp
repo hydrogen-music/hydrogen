@@ -537,11 +537,6 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	const QColor alternateRowColor(
 		pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
 
-	// Row for which there is no instrument and which's notes can not be played
-	// back (but they can be interacted with in the usual way).
-	const QColor backgroundTypeColor( backgroundColor.darker( 135 ) );
-	const QColor alternateRowTypeColor( alternateRowColor.darker( 135 ) );
-
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
 	const QColor backgroundInactiveColor(
@@ -552,23 +547,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 
-	// Check whether there are notes not corresponding to any instrument of the
-	// current kit.
-	int nKitHeight = m_nEditorHeight;
-	int nnRow = 0;
-	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
-		if ( rrow.nInstrumentID == EMPTY_INSTR_ID ) {
-			nKitHeight = nnRow * m_nGridHeight;
-			break;
-		}
-		++nnRow;
-	}
-
-	p.fillRect( 0, 0, m_nActiveWidth, nKitHeight, backgroundColor );
-	if ( nKitHeight < m_nEditorHeight ) {
-		p.fillRect( 0, nKitHeight, m_nActiveWidth, m_nEditorHeight - nKitHeight,
-					backgroundTypeColor );
-	}
+	p.fillRect( 0, 0, m_nActiveWidth, m_nEditorHeight, backgroundColor );
 	if ( m_nActiveWidth < m_nEditorWidth ) {
 		p.fillRect( m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth,
 					m_nEditorHeight, backgroundInactiveColor);
@@ -581,9 +560,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 							  selectedRowColor );
 		}
 		else if ( ( ii % 2 ) != 0 ) {
-			p.fillRect(
-				0, y, m_nActiveWidth, m_nGridHeight,
-				y < nKitHeight ? alternateRowColor : alternateRowTypeColor );
+			p.fillRect( 0, y, m_nActiveWidth, m_nGridHeight, alternateRowColor );
 		}
 	}
 
@@ -609,12 +586,12 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 			if ( ( ii % 2 ) == 0 ) {
 				p.fillRect(
 					0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
-						y < nKitHeight ? backgroundColor : backgroundTypeColor );
+						backgroundColor );
 			}
 			else {
 				p.fillRect(
 					0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
-					y < nKitHeight ? alternateRowColor : alternateRowTypeColor );
+					alternateRowColor );
 			}
 		}
 
