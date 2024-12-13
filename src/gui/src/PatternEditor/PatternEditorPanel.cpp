@@ -69,6 +69,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
 	, m_bArmPatternSizeSpinBoxes( true )
+	, m_bPatternSelectedViaTab( false )
 {
 	setAcceptDrops(true);
 
@@ -101,6 +102,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		}
 		else {
 			// Select the corresponding pattern
+			m_bPatternSelectedViaTab = true;
 			CoreActionController::selectPattern( m_tabPatternMap[ nIndex ] );
 		}
 	});
@@ -1084,44 +1086,78 @@ void PatternEditorPanel::updatePatternInfo() {
 		}
 	}
 
-	// Reset the tab bar
-	for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
-		m_pTabBar->removeTab( ii );
+	if ( m_pPattern == nullptr ) {
+		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
+		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
+
+		for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
+			m_pTabBar->removeTab( ii );
+		}
+		m_tabPatternMap.clear();
+
+		return;
 	}
-	m_tabPatternMap.clear();
 
-	if ( m_pPattern != nullptr && pSong != nullptr ) {
-		// update pattern name text
-		QString sCurrentPatternName = m_pPattern->getName();
-		this->setWindowTitle( ( tr( "Pattern editor - %1" )
-								.arg( sCurrentPatternName ) ) );
-		m_pPatternNameLbl->setText( sCurrentPatternName );
-
-		// update pattern size LCD
-		m_bArmPatternSizeSpinBoxes = false;
-
-		const double fNewDenominator =
-			static_cast<double>( m_pPattern->getDenominator() );
-		if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
-			 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
-			m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-
-			// Update numerator to allow only for a maximum pattern length of
-			// four measures.
-			m_pLCDSpinBoxNumerator->setMaximum(
-				4 * m_pLCDSpinBoxDenominator->value() );
+	if ( ! m_bPatternSelectedViaTab ) {
+		// Reset the tab bar
+		for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
+			m_pTabBar->removeTab( ii );
+		}
+		m_tabPatternMap.clear();
+	}
+	else {
+		// But not if triggered via the tab bar. Then, we just switch the
+		// selected tab.
+		int nTabIndex = -1;
+		const int nPatternIndex = pSong->getPatternList()->index( m_pPattern );
+		for ( const auto& [ nnTab, nnPattern ] : m_tabPatternMap ) {
+			if ( nnPattern == nPatternIndex ) {
+				nTabIndex = nnTab;
+				break;
+			}
 		}
 
-		const double fNewNumerator = static_cast<double>(
-			m_pPattern->getLength() * m_pPattern->getDenominator() ) /
-			static_cast<double>( MAX_NOTES );
-		if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
-			 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
-			m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
+		if ( nTabIndex != -1 ) {
+			m_pTabBar->setCurrentIndex( nTabIndex );
 		}
+		else {
+			ERRORLOG( "Unable to find pattern" );
+		}
+	}
 
-		m_bArmPatternSizeSpinBoxes = true;
 
+	// update pattern name text
+	QString sCurrentPatternName = m_pPattern->getName();
+	this->setWindowTitle( ( tr( "Pattern editor - %1" )
+							.arg( sCurrentPatternName ) ) );
+	m_pPatternNameLbl->setText( sCurrentPatternName );
+
+	// update pattern size LCD
+	m_bArmPatternSizeSpinBoxes = false;
+
+	const double fNewDenominator =
+		static_cast<double>( m_pPattern->getDenominator() );
+	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
+		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
+
+		// Update numerator to allow only for a maximum pattern length of four
+		// measures.
+		m_pLCDSpinBoxNumerator->setMaximum(
+			4 * m_pLCDSpinBoxDenominator->value() );
+	}
+
+	const double fNewNumerator = static_cast<double>(
+		m_pPattern->getLength() * m_pPattern->getDenominator() ) /
+		static_cast<double>( MAX_NOTES );
+	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
+		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
+	}
+
+	m_bArmPatternSizeSpinBoxes = true;
+
+	if ( ! m_bPatternSelectedViaTab ) {
 		// Update pattern tabs
 		m_pTabBar->addTab( m_pPattern->getName() );
 		m_tabPatternMap[ 0 ] = pSong->getPatternList()->index( m_pPattern );
@@ -1142,9 +1178,9 @@ void PatternEditorPanel::updatePatternInfo() {
 			}
 		}
 	}
-	else {
-		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
-		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
+
+	if ( m_bPatternSelectedViaTab ) {
+		m_bPatternSelectedViaTab = false;
 	}
 }
 

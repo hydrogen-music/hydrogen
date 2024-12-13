@@ -398,6 +398,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		int m_nResolution;
 		bool m_bIsUsingTriplets;
 
+		bool m_bPatternSelectedViaTab;
+
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
