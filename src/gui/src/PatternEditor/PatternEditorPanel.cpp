@@ -1669,10 +1669,6 @@ std::shared_ptr<H2Core::Instrument> PatternEditorPanel::getSelectedInstrument() 
 void PatternEditorPanel::updateDB() {
 	m_db.clear();
 
-	if ( m_pPattern == nullptr ) {
-		return;
-	}
-
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "song not ready yet" );
