@@ -568,36 +568,35 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	// way it may be more obvious that it is not armed and does not
 	// expect user interaction.
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-	drawGridLines( p );
+	if ( pPattern != nullptr ) {
+		drawGridLines( p );
 
-	// The grid lines above are drawn full height. We will erase the
-	// upper part.
-	for ( int ii = 0; ii < nRows; ii++ ) {
-		const int y = static_cast<int>(m_nGridHeight) * ii;
-		if ( ii == nSelectedRow ) {
-			p.fillRect(
-				0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
-				selectedRowColor );
-		}
-		else {
-			if ( ( ii % 2 ) == 0 ) {
+		// The grid lines above are drawn full height. We will erase the upper
+		// part.
+		for ( int ii = 0; ii < nRows; ii++ ) {
+			const int y = static_cast<int>(m_nGridHeight) * ii;
+			if ( ii == nSelectedRow ) {
 				p.fillRect(
 					0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
-						backgroundColor );
+					selectedRowColor );
 			}
 			else {
-				p.fillRect(
-					0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
-					alternateRowColor );
+				if ( ( ii % 2 ) == 0 ) {
+					p.fillRect(
+						0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
+						backgroundColor );
+				}
+				else {
+					p.fillRect(
+						0, y, m_nActiveWidth, static_cast<int>( m_nGridHeight * 0.7 ),
+						alternateRowColor );
+				}
 			}
-		}
 
-		p.fillRect( m_nActiveWidth, y, m_nEditorWidth - m_nActiveWidth,
-					static_cast<int>( m_nGridHeight * 0.7 ),
-					backgroundInactiveColor );
+			p.fillRect( m_nActiveWidth, y, m_nEditorWidth - m_nActiveWidth,
+						static_cast<int>( m_nGridHeight * 0.7 ),
+						backgroundInactiveColor );
+		}
 	}
 
 	// horizontal lines

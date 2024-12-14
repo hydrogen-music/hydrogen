@@ -1094,6 +1094,10 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	painter.fillRect( m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth,
 					  height(), backgroundInactiveColor );
 
+	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
+		return;
+	}
+
 	drawGridLines( painter, Qt::DotLine );
 	
 	painter.setPen( lineColor );
@@ -1405,49 +1409,49 @@ void NotePropertiesRuler::createKeyOctaveBackground(QPixmap *pixmap)
 		p.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
 	}
 
-	drawGridLines( p, Qt::DotLine );
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern != nullptr ) {
+		drawGridLines( p, Qt::DotLine );
 
-	// Annotate with note class names
-	static QString noteNames[] = {
-		tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
-		tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
+		// Annotate with note class names
+		static QString noteNames[] = {
+		    tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
+		    tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
 	
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	
-	p.setFont( font );
-	p.setPen( textColor );
-	for ( int n = 0; n < KEYS_PER_OCTAVE; n++ ) {
-		p.drawText( 3, NotePropertiesRuler::nOctaveHeight +
-					NotePropertiesRuler::nKeyLineHeight * n +3,
-					noteNames[n] );
-	}
+		p.setFont( font );
+		p.setPen( textColor );
+		for ( int n = 0; n < KEYS_PER_OCTAVE; n++ ) {
+			p.drawText( 3, NotePropertiesRuler::nOctaveHeight +
+						NotePropertiesRuler::nKeyLineHeight * n +3,
+						noteNames[n] );
+		}
 
-	// Horizontal grid lines in the key region
-	p.setPen( QPen( lineColor, 1, Qt::SolidLine));
-	for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
-		  y <= NotePropertiesRuler::nKeyOctaveHeight;
-		  y = y + NotePropertiesRuler::nKeyLineHeight ) {
-		p.drawLine( PatternEditor::nMargin,
-					y - NotePropertiesRuler::nKeyLineHeight / 2,
-					m_nActiveWidth,
-					y - NotePropertiesRuler::nKeyLineHeight / 2 );
-	}
-
-	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
+		// Horizontal grid lines in the key region
+		p.setPen( QPen( lineColor, 1, Qt::SolidLine));
 		for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
 			  y <= NotePropertiesRuler::nKeyOctaveHeight;
 			  y = y + NotePropertiesRuler::nKeyLineHeight ) {
-			p.drawLine( m_nActiveWidth,
+			p.drawLine( PatternEditor::nMargin,
 						y - NotePropertiesRuler::nKeyLineHeight / 2,
-						m_nEditorWidth,
+						m_nActiveWidth,
 						y - NotePropertiesRuler::nKeyLineHeight / 2 );
 		}
-	}
 
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern != nullptr ) {
+		if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+			p.setPen( lineInactiveColor );
+			for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
+				  y <= NotePropertiesRuler::nKeyOctaveHeight;
+				  y = y + NotePropertiesRuler::nKeyLineHeight ) {
+				p.drawLine( m_nActiveWidth,
+							y - NotePropertiesRuler::nKeyLineHeight / 2,
+							m_nEditorWidth,
+							y - NotePropertiesRuler::nKeyLineHeight / 2 );
+			}
+		}
+
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
 		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&

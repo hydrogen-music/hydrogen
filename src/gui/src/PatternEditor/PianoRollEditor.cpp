@@ -267,49 +267,62 @@ void PianoRollEditor::createBackground()
 		}
 	}
 
-	//draw text
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-	p.setFont( font );
-	p.setPen( pPref->getTheme().m_color.m_patternEditor_textColor );
+	if ( m_pPatternEditorPanel->getPattern() != nullptr ) {
+		//draw text
+		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+		p.setFont( font );
+		p.setPen( pPref->getTheme().m_color.m_patternEditor_textColor );
 
-	int offset = 0;
-	int insertx = 3;
-	for ( int oct = 0; oct < (int)OCTAVE_NUMBER; oct++ ){
-		if( oct > 3 ){
-			p.drawText( insertx, m_nGridHeight  + offset, "B" );
-			p.drawText( insertx, 10 + m_nGridHeight  + offset, "A#" );
-			p.drawText( insertx, 20 + m_nGridHeight  + offset, "A" );
-			p.drawText( insertx, 30 + m_nGridHeight  + offset, "G#" );
-			p.drawText( insertx, 40 + m_nGridHeight  + offset, "G" );
-			p.drawText( insertx, 50 + m_nGridHeight  + offset, "F#" );
-			p.drawText( insertx, 60 + m_nGridHeight  + offset, "F" );
-			p.drawText( insertx, 70 + m_nGridHeight  + offset, "E" );
-			p.drawText( insertx, 80 + m_nGridHeight  + offset, "D#" );
-			p.drawText( insertx, 90 + m_nGridHeight  + offset, "D" );
-			p.drawText( insertx, 100 + m_nGridHeight  + offset, "C#" );
-			p.drawText( insertx, 110 + m_nGridHeight  + offset, "C" );
-			offset += KEYS_PER_OCTAVE * m_nGridHeight;
-		}else
-		{
-			p.drawText( insertx, m_nGridHeight  + offset, "b" );
-			p.drawText( insertx, 10 + m_nGridHeight  + offset, "a#" );
-			p.drawText( insertx, 20 + m_nGridHeight  + offset, "a" );
-			p.drawText( insertx, 30 + m_nGridHeight  + offset, "g#" );
-			p.drawText( insertx, 40 + m_nGridHeight  + offset, "g" );
-			p.drawText( insertx, 50 + m_nGridHeight  + offset, "f#" );
-			p.drawText( insertx, 60 + m_nGridHeight  + offset, "f" );
-			p.drawText( insertx, 70 + m_nGridHeight  + offset, "e" );
-			p.drawText( insertx, 80 + m_nGridHeight  + offset, "d#" );
-			p.drawText( insertx, 90 + m_nGridHeight  + offset, "d" );
-			p.drawText( insertx, 100 + m_nGridHeight  + offset, "c#" );
-			p.drawText( insertx, 110 + m_nGridHeight  + offset, "c" );
-			offset += KEYS_PER_OCTAVE * m_nGridHeight;
+		int offset = 0;
+		int insertx = 3;
+		for ( int oct = 0; oct < (int)OCTAVE_NUMBER; oct++ ){
+			if( oct > 3 ){
+				p.drawText( insertx, m_nGridHeight  + offset, "B" );
+				p.drawText( insertx, 10 + m_nGridHeight  + offset, "A#" );
+				p.drawText( insertx, 20 + m_nGridHeight  + offset, "A" );
+				p.drawText( insertx, 30 + m_nGridHeight  + offset, "G#" );
+				p.drawText( insertx, 40 + m_nGridHeight  + offset, "G" );
+				p.drawText( insertx, 50 + m_nGridHeight  + offset, "F#" );
+				p.drawText( insertx, 60 + m_nGridHeight  + offset, "F" );
+				p.drawText( insertx, 70 + m_nGridHeight  + offset, "E" );
+				p.drawText( insertx, 80 + m_nGridHeight  + offset, "D#" );
+				p.drawText( insertx, 90 + m_nGridHeight  + offset, "D" );
+				p.drawText( insertx, 100 + m_nGridHeight  + offset, "C#" );
+				p.drawText( insertx, 110 + m_nGridHeight  + offset, "C" );
+				offset += KEYS_PER_OCTAVE * m_nGridHeight;
+			}
+			else {
+				p.drawText( insertx, m_nGridHeight  + offset, "b" );
+				p.drawText( insertx, 10 + m_nGridHeight  + offset, "a#" );
+				p.drawText( insertx, 20 + m_nGridHeight  + offset, "a" );
+				p.drawText( insertx, 30 + m_nGridHeight  + offset, "g#" );
+				p.drawText( insertx, 40 + m_nGridHeight  + offset, "g" );
+				p.drawText( insertx, 50 + m_nGridHeight  + offset, "f#" );
+				p.drawText( insertx, 60 + m_nGridHeight  + offset, "f" );
+				p.drawText( insertx, 70 + m_nGridHeight  + offset, "e" );
+				p.drawText( insertx, 80 + m_nGridHeight  + offset, "d#" );
+				p.drawText( insertx, 90 + m_nGridHeight  + offset, "d" );
+				p.drawText( insertx, 100 + m_nGridHeight  + offset, "c#" );
+				p.drawText( insertx, 110 + m_nGridHeight  + offset, "c" );
+				offset += KEYS_PER_OCTAVE * m_nGridHeight;
+			}
 		}
+
+		drawGridLines( p, Qt::DashLine );
+		drawPattern();
+	}
+	else {
+		// No pattern.
+		QPainter p2( m_pTemp );
+		// copy the background image as we won't enter drawPattern.
+		p2.drawPixmap( rect(), *m_pBackgroundPixmap,
+					   QRectF( pixelRatio * rect().x(),
+							   pixelRatio * rect().y(),
+							   pixelRatio * rect().width(),
+							   pixelRatio * rect().height() ) );
 	}
 
-	drawGridLines( p, Qt::DashLine );
-	drawPattern();
-	
 	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
 	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
 
