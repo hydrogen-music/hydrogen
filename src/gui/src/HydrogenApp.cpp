@@ -297,7 +297,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// Sync the playhead position in all editors all objects are available.
 	m_pPatternEditorPanel->getPatternEditorRuler()->updatePosition( true );
 	WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
-	setWindowProperties( m_pPatternEditorPanel, patternEditorProp, SetWidth + SetHeight );
+	setWindowProperties( pSouthPanel, patternEditorProp, SetHeight );
 
 	pEditorHBox->addWidget( m_pPatternEditorPanel );
 	pEditorHBox->addWidget( m_pInstrumentRack );
