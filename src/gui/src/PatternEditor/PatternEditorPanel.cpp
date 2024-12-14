@@ -1737,8 +1737,6 @@ void PatternEditorPanel::updateDB() {
 		// instrument instead.
 		setSelectedRowDB( m_db.size() - 1 );
 	}
-
-	printDB();
 }
 
 void PatternEditorPanel::printDB() const {
