@@ -1078,7 +1078,14 @@ void PatternEditorPanel::updatePatternInfo() {
 		m_pTabBar->addTab( tr( "No pattern selected" ) );
 		m_pTabBar->setTabEnabled( 0, false );
 
+		m_pLCDSpinBoxDenominator->setIsActive( false );
+		m_pLCDSpinBoxNumerator->setIsActive( false );
+
 		return;
+	}
+	else {
+		m_pLCDSpinBoxDenominator->setIsActive( true );
+		m_pLCDSpinBoxNumerator->setIsActive( true );
 	}
 
 	if ( ! m_bPatternSelectedViaTab ) {
