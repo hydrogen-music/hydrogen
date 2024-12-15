@@ -121,14 +121,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	//soundlibrary name
 	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
-										  ClickableLabel::Color::Bright, true );
+										  ClickableLabel::Color::Bright, false );
 	m_pDrumkitLabel->setFont( boldFont );
 	m_pDrumkitLabel->setIndent( PatternEditorSidebar::m_nMargin );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
 	}
-	connect( m_pDrumkitLabel, &ClickableLabel::labelClicked,
+	connect( m_pDrumkitLabel, &ClickableLabel::labelDoubleClicked,
 			 [=]() { HydrogenApp::get_instance()->getMainForm()->
 					 action_drumkit_properties(); } );
 
