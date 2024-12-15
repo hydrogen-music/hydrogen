@@ -41,6 +41,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../PatternPropertiesDialog.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
@@ -94,6 +95,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pTabBar = new QTabBar( nullptr );
 	m_pTabBar->setObjectName( "patternEditorTabBar" );
+	// Select a different pattern
 	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
 		if ( Hydrogen::get_instance()->isPatternEditorLocked() &&
 			 Hydrogen::get_instance()->getAudioEngine()->getState() ==
@@ -105,6 +107,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			// Select the corresponding pattern
 			m_bPatternSelectedViaTab = true;
 			CoreActionController::selectPattern( m_tabPatternMap[ nIndex ] );
+		}
+	});
+	// Open the properties dialog for a particular pattern.
+	connect( m_pTabBar, &QTabBar::tabBarDoubleClicked, [&]( int nIndex ) {
+		const int nPattern = m_tabPatternMap[ nIndex ];
+		if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+			const auto pPattern =
+				Hydrogen::get_instance()->getSong()->getPatternList()->get( nPattern );
+			if ( pPattern != nullptr ) {
+				PatternPropertiesDialog dialog( this, pPattern, nPattern, false );
+				dialog.exec();
+			}
 		}
 	});
 
