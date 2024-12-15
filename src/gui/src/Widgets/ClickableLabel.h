@@ -63,9 +63,11 @@ public slots:
 
 signals:
 	void labelClicked( ClickableLabel* pLabel );
+	void labelDoubleClicked( QMouseEvent* pEvent );
 
 protected:
 	virtual void mousePressEvent( QMouseEvent * e ) override;
+	virtual void mouseDoubleClickEvent( QMouseEvent * e ) override;
 
 private:
 	void updateStyleSheet();
