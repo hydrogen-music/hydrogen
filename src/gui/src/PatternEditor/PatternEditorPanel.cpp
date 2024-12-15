@@ -1113,11 +1113,19 @@ void PatternEditorPanel::updatePatternInfo() {
 		// But not if triggered via the tab bar. Then, we just switch the
 		// selected tab.
 		int nTabIndex = -1;
-		const int nPatternIndex = pSong->getPatternList()->index( m_pPattern );
+		const auto pPatternList = pSong->getPatternList();
+		const int nPatternIndex = pPatternList->index( m_pPattern );
 		for ( const auto& [ nnTab, nnPattern ] : m_tabPatternMap ) {
+			// We also need to assure the pattern name is still valid, since it
+			// might have changed in a previous action.
+			const auto ppPattern = pPatternList->get( nnPattern );
+			if ( ppPattern != nullptr &&
+				 ppPattern->getName() != m_pTabBar->tabText( nnTab ) ) {
+				m_pTabBar->setTabText( nnTab, ppPattern->getName() );
+			}
+
 			if ( nnPattern == nPatternIndex ) {
 				nTabIndex = nnTab;
-				break;
 			}
 		}
 
