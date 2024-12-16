@@ -344,6 +344,8 @@ protected:
 
 	Editor m_editor;
 	Mode m_mode;
+		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
+		std::vector<H2Core::Note*> getNotesAtPoint( const QPoint& point );
 };
 
 inline bool PatternEditor::getSelectNewNotes() const {

@@ -2458,3 +2458,39 @@ void PatternEditor::clearDraggedNotes() {
 	}
 	m_draggedNotes.clear();
 }
+
+std::vector<Note*> PatternEditor::getNotesAtPoint( const QPoint& point ) {
+	std::vector<Note*> notesUnderPoint;
+
+	const auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return std::move( notesUnderPoint );
+	}
+
+	int nColumn, nRow, nRealColumn;
+	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
+
+	// Assemble all notes to be edited.
+	DrumPatternRow row;
+	if ( m_editor == Editor::DrumPattern ) {
+		row = m_pPatternEditorPanel->getRowDB( nRow );
+	}
+	else {
+		row = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->getSelectedRowDB() );
+	}
+
+	const auto notes = pPattern->getNotes();
+	for ( auto it = notes->lower_bound( nRealColumn );
+		  it != notes->end() && it->first <= nRealColumn; ++it ) {
+		const auto ppNote = it->second;
+		if ( ppNote != nullptr &&
+			 ! m_selection.isSelected( ppNote ) &&
+			 ppNote->get_instrument_id() == row.nInstrumentID &&
+			 ppNote->getType() == row.sType ) {
+			notesUnderPoint.push_back( ppNote );
+		}
+	}
+
+	return std::move( notesUnderPoint );
+}
