@@ -1322,6 +1322,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			nNewRow += offset.y();
 		}
 		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+		const auto newRow = m_pPatternEditorPanel->getRowDB( nNewRow );
 
 		int nNewKey = pNote->get_key();
 		int nNewOctave = pNote->get_octave();
@@ -1369,8 +1370,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			// Create a new note at the target position
 			pUndo->push( new SE_addOrRemoveNoteAction(
 							 nNewPosition,
-							 row.nInstrumentID,
-							 row.sType,
+							 newRow.nInstrumentID,
+							 newRow.sType,
 							 m_pPatternEditorPanel->getPatternNumber(),
 							 pNote->get_length(),
 							 pNote->get_velocity(),
