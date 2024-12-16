@@ -63,8 +63,8 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_editor( Editor::None )
 	, m_mode( Mode::None )
 	, m_nCursorRow( 0 )
-	  , m_nDragStartColumn( 0 )
-	  , m_nDragY( 0 )
+	, m_nDragStartColumn( 0 )
+	, m_nDragY( 0 )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -75,6 +75,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_nActiveWidth = m_nEditorWidth;
 
 	setFocusPolicy(Qt::StrongFocus);
+	setMouseTracking( true );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditor::onPreferencesChanged );
@@ -230,14 +231,36 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 
 	uint w = 8, h =  8;
 
-	if ( noteStyle == NoteStyle::Selected ) {
-		QPen selectedPen( selectedNoteColor() );
+	if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+		QColor color = selectedNoteColor();
+
+		int nFactor = 100;
+		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+			nFactor = 120;
+		}
+		else if ( noteStyle & NoteStyle::Hovered ) {
+			nFactor = 140;
+		}
+
+		if ( noteStyle & NoteStyle::Hovered ) {
+			// Depending on the selection color, we make it either darker or
+			// lighter.
+			int nHue, nSaturation, nValue;
+			color.getHsv( &nHue, &nSaturation, &nValue );
+			if ( nValue >= 130 ) {
+				color = color.darker( nFactor );
+			} else {
+				color = color.lighter( nFactor );
+			}
+		}
+
+		QPen selectedPen( color );
 		selectedPen.setWidth( 2 );
 		p.setPen( selectedPen );
 		p.setBrush( Qt::NoBrush );
 	}
 
-	bool bMoving = noteStyle == NoteStyle::Selected && m_selection.isMoving();
+	bool bMoving = noteStyle & NoteStyle::Selected && m_selection.isMoving();
 	QPen movingPen( noteColor );
 	QPoint movingOffset;
 
@@ -254,7 +277,7 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 
 		QBrush noteBrush( color );
 		QPen notePen( noteColor );
-		if ( noteStyle == NoteStyle::Background ) {
+		if ( noteStyle & NoteStyle::Background ) {
 
 			if ( nX >= m_nActiveWidth ) {
 				noteBrush.setColor( noteInactiveColor );
@@ -265,7 +288,7 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 			notePen.setStyle( Qt::DotLine );
 		}
 
-		if ( noteStyle == NoteStyle::Selected ) {
+		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 			p.drawEllipse( nX - 4 - 2, nY - 2, w + 4, h + 4 );
 		}
 
@@ -305,7 +328,7 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 			width = m_fGridWidth * nLength / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
-			if ( noteStyle == NoteStyle::Selected ) {
+			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 				p.drawRoundedRect( nX-2, nY, width+4, 3+4, 4, 4 );
 			}
 			p.setPen( notePen );
@@ -318,7 +341,7 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 			// factor.
 			int nRectOnsetX = nX;
 			int nRectWidth = width;
-			if ( noteStyle == NoteStyle::Background ) {
+			if ( noteStyle & NoteStyle::Background ) {
 				nRectOnsetX = nRectOnsetX + w/2;
 				nRectWidth = nRectWidth - w/2;
 			}
@@ -346,7 +369,7 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 	else if ( pNote->get_note_off() ) {
 
 		QBrush noteOffBrush( noteoffColor );
-		if ( noteStyle == NoteStyle::Background ) {
+		if ( noteStyle & NoteStyle::Background ) {
 			noteOffBrush.setStyle( Qt::Dense4Pattern );
 
 			if ( nX >= m_nActiveWidth ) {
@@ -354,7 +377,7 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 			}
 		}
 
-		if ( noteStyle == NoteStyle::Selected ) {
+		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 			p.drawEllipse( nX -4 -2, nY-2, w+4, h+4 );
 		}
 
@@ -900,11 +923,25 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 
 void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 {
-	updateModifiers( ev );
-	if ( m_selection.isMoving() ) {
+	// Check which note is hovered.
+	//
+	// Since we compare by pointer and all notes in a pattern should be unique,
+	// it should be enough to compare the first note.
+	const auto hoveredNotes = getNotesAtPoint( ev->pos(), false );
+	if ( hoveredNotes.size() != m_hoveredNotes.size() ||
+		 ( hoveredNotes.size() > 0 &&
+		   hoveredNotes[ 0 ] != m_hoveredNotes[ 0 ] ) ) {
+		m_hoveredNotes = hoveredNotes;
 		updateEditor( true );
 	}
-	m_selection.mouseMoveEvent( ev );
+
+	if ( ev->buttons() != Qt::NoButton ) {
+		updateModifiers( ev );
+		if ( m_selection.isMoving() ) {
+			updateEditor( true );
+		}
+		m_selection.mouseMoveEvent( ev );
+	}
 }
 
 void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
@@ -2459,7 +2496,8 @@ void PatternEditor::clearDraggedNotes() {
 	m_draggedNotes.clear();
 }
 
-std::vector<Note*> PatternEditor::getNotesAtPoint( const QPoint& point ) {
+std::vector<Note*> PatternEditor::getNotesAtPoint( const QPoint& point,
+												   bool bExcludeSelected ) {
 	std::vector<Note*> notesUnderPoint;
 
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -2485,7 +2523,8 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( const QPoint& point ) {
 		  it != notes->end() && it->first <= nRealColumn; ++it ) {
 		const auto ppNote = it->second;
 		if ( ppNote != nullptr &&
-			 ! m_selection.isSelected( ppNote ) &&
+			 ( ! bExcludeSelected ||
+			   bExcludeSelected && ! m_selection.isSelected( ppNote ) ) &&
 			 ppNote->get_instrument_id() == row.nInstrumentID &&
 			 ppNote->getType() == row.sType ) {
 			notesUnderPoint.push_back( ppNote );

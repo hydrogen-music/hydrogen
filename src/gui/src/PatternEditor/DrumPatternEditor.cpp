@@ -414,7 +414,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		if ( pNotes->size() == 0 ) {
 			continue;
 		}
-		NoteStyle style = ppPattern ==
+		const auto baseStyle = ppPattern ==
 			pPattern ? NoteStyle::Foreground : NoteStyle::Background;
 
 		std::map<int, int> noteCount; // row number -> note count
@@ -465,9 +465,10 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 						++noteCount[ nRow ];
 					}
 
-					drawNote( painter, pNote,
-							  m_selection.isSelected( pNote ) ?
-							  NoteStyle::Selected : style );
+					const auto style = static_cast<NoteStyle>(
+						m_selection.isSelected( pNote ) ?
+						NoteStyle::Selected | baseStyle : baseStyle );
+					drawNote( painter, pNote, style );
 				}
 				else {
 					ERRORLOG( QString( "Note is not covered in DB: %1" )
@@ -664,6 +665,16 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	}
 	
 	drawFocus( painter );
+
+	// Draw hovered note
+	const auto baseStyle =
+		static_cast<NoteStyle>(NoteStyle::Foreground | NoteStyle::Hovered);
+	for ( const auto& ppNote : m_hoveredNotes ) {
+		const auto style = static_cast<NoteStyle>(
+			m_selection.isSelected( ppNote ) ?
+			NoteStyle::Selected | baseStyle : baseStyle );
+		drawNote( painter, ppNote, style );
+	}
 	
 	m_selection.paintSelection( &painter );
 

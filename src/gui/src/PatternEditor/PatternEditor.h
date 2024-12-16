@@ -238,16 +238,16 @@ public slots:
 	void scrolled( int nValue );
 
 protected:
-		enum class NoteStyle {
+		enum NoteStyle {
 			/** Regular note of the current pattern. */
-			Foreground = 0,
+			Foreground = 0x000,
 			/** Regular note of another currently playing pattern. The note is
 			 * not accessible and can neither be hovered or selected. */
-			Background = 1,
+			Background = 0x001,
 			/** Note is hovered by mouse.*/
-			Hovered = 2,
+			Hovered = 0x002,
 			/** Note is part of the current selection.*/
-			Selected = 3
+			Selected = 0x004,
 		};
 
 
@@ -344,8 +344,11 @@ protected:
 
 	Editor m_editor;
 	Mode m_mode;
+
 		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
-		std::vector<H2Core::Note*> getNotesAtPoint( const QPoint& point );
+		std::vector<H2Core::Note*> getNotesAtPoint( const QPoint& point,
+													bool bExcludeSelected );
+		std::vector<H2Core::Note*> m_hoveredNotes;
 };
 
 inline bool PatternEditor::getSelectNewNotes() const {
