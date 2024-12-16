@@ -95,6 +95,8 @@ struct DrumPatternRow {
 	/** Odd number rows will be painted in an alternate color to make the
 	 * visually distinct. */
 	bool bAlternate;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
 
 namespace H2Core

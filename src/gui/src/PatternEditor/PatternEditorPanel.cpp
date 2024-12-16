@@ -66,6 +66,29 @@ DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
 	, bAlternate( bAlt ) {
 }
 
+QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[DrumPatternRow]\n" ).arg( sPrefix )
+			.append( QString( "%1%2nInstrumentID: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( nInstrumentID ) )
+			.append( QString( "%1%2sType: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( sType ) )
+			.append( QString( "%1%2bAlternate: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bAlternate ) );
+	}
+	else {
+		sOutput = QString( "[DrumPatternRow] " )
+			.append( QString( "nInstrumentID: %1" ).arg( nInstrumentID ) )
+			.append( QString( ", sType: %1" ).arg( sType ) )
+			.append( QString( ", bAlternate: %1" ).arg( bAlternate ) );
+	}
+
+	return sOutput;
+}
+
+
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
