@@ -735,39 +735,52 @@ void PatternEditor::alignToGrid() {
 		const int nNewPosition = nGranularity *
 			( (nPosition+(nGranularity/2)+1) / nGranularity );
 
+		// Cache note properties since a potential first note deletion will also
+		// call the note's destructor.
+		const int nInstrumentId = pNote->get_instrument_id();
+		const QString sType = pNote->getType();
+		const int nLength = pNote->get_length();
+		const float fVelocity = pNote->get_velocity();
+		const float fPan = pNote->getPan();
+		const float fLeadLag = pNote->get_lead_lag();
+		const int nKey = pNote->get_key();
+		const int nOctave = pNote->get_octave();
+		const float fProbability = pNote->get_probability();
+		const bool bNoteOff = pNote->get_note_off();
+
 		// Move note -> delete at source position
 		pUndo->push( new SE_addOrRemoveNoteAction(
 						 nPosition,
-						 pNote->get_instrument_id(),
-						 pNote->getType(),
+						 nInstrumentId,
+						 sType,
 						 m_pPatternEditorPanel->getPatternNumber(),
-						 pNote->get_length(),
-						 pNote->get_velocity(),
-						 pNote->getPan(),
-						 pNote->get_lead_lag(),
-						 pNote->get_key(),
-						 pNote->get_octave(),
-						 pNote->get_probability(),
+						 nLength,
+						 fVelocity,
+						 fPan,
+						 fLeadLag,
+						 nKey,
+						 nOctave,
+						 fProbability,
 						 /* bIsDelete */ true,
 						 /* bIsMidi */ false,
-						 /* bIsNoteOff */ pNote->get_note_off() ) );
+						 bNoteOff ) );
 
 		// Add at target position
 		pUndo->push( new SE_addOrRemoveNoteAction(
 						 nNewPosition,
-						 pNote->get_instrument_id(),
-						 pNote->getType(),
+						 nInstrumentId,
+						 sType,
 						 m_pPatternEditorPanel->getPatternNumber(),
-						 pNote->get_length(),
-						 pNote->get_velocity(),
-						 pNote->getPan(),
-						 pNote->get_lead_lag(),
-						 pNote->get_key(),
-						 pNote->get_octave(),
-						 pNote->get_probability(),
+						 nLength,
+						 fVelocity,
+						 fPan,
+						 fLeadLag,
+						 nKey,
+						 nOctave,
+						 fProbability,
 						 /* bIsDelete */ false,
 						 /* bIsMidi */ false,
-						 /* bIsNoteOff */ pNote->get_note_off() ) );
+						 bNoteOff ) );
 	}
 
 	pUndo->endMacro();
@@ -1346,6 +1359,17 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				nNewOctave <= OCTAVE_MAX;
 		}
 
+		// Cache note properties since a potential first note deletion will also
+		// call the note's destructor.
+		const int nLength = pNote->get_length();
+		const float fVelocity = pNote->get_velocity();
+		const float fPan = pNote->getPan();
+		const float fLeadLag = pNote->get_lead_lag();
+		const int nKey = pNote->get_key();
+		const int nOctave = pNote->get_octave();
+		const float fProbability = pNote->get_probability();
+		const bool bNoteOff = pNote->get_note_off();
+
 		if ( ! m_bCopyNotMove ) {
 			// Note is moved either out of range or to a new position. Delete
 			// the note at the source position.
@@ -1354,16 +1378,16 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 							 row.nInstrumentID,
 							 row.sType,
 							 m_pPatternEditorPanel->getPatternNumber(),
-							 pNote->get_length(),
-							 pNote->get_velocity(),
-							 pNote->getPan(),
-							 pNote->get_lead_lag(),
-							 pNote->get_key(),
-							 pNote->get_octave(),
-							 pNote->get_probability(),
+							 nLength,
+							 fVelocity,
+							 fPan,
+							 fLeadLag,
+							 nKey,
+							 nOctave,
+							 fProbability,
 							 /* bIsDelete */ true,
 							 /* bIsMidi */ false,
-							 /* bIsNoteOff */ pNote->get_note_off() ) );
+							 bNoteOff ) );
 		}
 
 		if ( bNoteInRange ) {
@@ -1373,16 +1397,16 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 							 newRow.nInstrumentID,
 							 newRow.sType,
 							 m_pPatternEditorPanel->getPatternNumber(),
-							 pNote->get_length(),
-							 pNote->get_velocity(),
-							 pNote->getPan(),
-							 pNote->get_lead_lag(),
+							 nLength,
+							 fVelocity,
+							 fPan,
+							 fLeadLag,
 							 nNewKey,
 							 nNewOctave,
-							 pNote->get_probability(),
+							 fProbability,
 							 /* bIsDelete */ false,
 							 /* bIsMidi */ false,
-							 /* bIsNoteOff */ pNote->get_note_off() ) );
+							 bNoteOff ) );
 		}
 	}
 
