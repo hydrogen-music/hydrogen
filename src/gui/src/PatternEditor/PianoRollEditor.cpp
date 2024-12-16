@@ -393,7 +393,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	int nNewRow, nColumn, nRealColumn;
-	mouseEventToColumnRow( ev, &nColumn, &nNewRow, &nRealColumn,
+	eventPointToColumnRow( ev->pos(), &nColumn, &nNewRow, &nRealColumn,
 						   /* fine grained */ true );
 	if ( nNewRow >= (int) OCTAVE_NUMBER * KEYS_PER_OCTAVE ) {
 		return;
@@ -453,7 +453,7 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		auto pPattern = m_pPatternEditorPanel->getPattern();
 		int nRow, nColumn;
-		mouseEventToColumnRow( ev, &nColumn, &nRow, nullptr,
+		eventPointToColumnRow( ev->pos(), &nColumn, &nRow, nullptr,
 							   /* fine grained */ true );
 		if ( nRow >= (int) OCTAVE_NUMBER * KEYS_PER_OCTAVE ) {
 			return;
@@ -476,7 +476,7 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
 	int nRow;
-	mouseEventToColumnRow( ev, nullptr, &nRow );
+	eventPointToColumnRow( ev->pos(), nullptr, &nRow );
 	if ( nRow >= (int) OCTAVE_NUMBER * KEYS_PER_OCTAVE ) {
 		return;
 	}

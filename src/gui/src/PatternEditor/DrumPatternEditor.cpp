@@ -96,7 +96,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 
 	int nRow, nColumn, nRealColumn;
-	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
+	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
 	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
 	if ( drumPatternRow.nInstrumentID == EMPTY_INSTR_ID &&
@@ -158,7 +158,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	}
 
 	int nRow, nColumn;
-	mouseEventToColumnRow( ev, &nColumn, &nRow, nullptr, /* fineGrained */true );
+	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, nullptr, /* fineGrained */true );
 	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
 	if ( drumPatternRow.nInstrumentID == EMPTY_INSTR_ID &&
 		 drumPatternRow.sType.isEmpty() ) {
@@ -194,7 +194,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	}
 	
 	int nRow, nColumn, nRealColumn;
-	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn,
+	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
 	const auto drumPatternRow = m_pPatternEditorPanel->getRowDB( nRow );
 	if ( drumPatternRow.nInstrumentID == EMPTY_INSTR_ID &&
@@ -216,7 +216,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
 	int nRow;
-	mouseEventToColumnRow( ev, nullptr, &nRow );
+	eventPointToColumnRow( ev->pos(), nullptr, &nRow );
 
 	if ( nRow <= -1 ) {
 		return;

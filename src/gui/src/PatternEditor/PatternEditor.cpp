@@ -369,23 +369,23 @@ int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 	}
 }
 
-void PatternEditor::mouseEventToColumnRow( QMouseEvent* pEvent, int* pColumn,
+void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 										   int* pRow, int* pRealColumn,
 										   bool bUseFineGrained ) const {
 	if ( pRow != nullptr ) {
 		*pRow = static_cast<int>(
-			std::floor( static_cast<float>(pEvent->y()) /
+			std::floor( static_cast<float>(point.y()) /
 						static_cast<float>(m_nGridHeight) ) );
 	}
 
 	if ( pColumn != nullptr ) {
-		*pColumn = getColumn( pEvent->x(), bUseFineGrained );
+		*pColumn = getColumn( point.x(), bUseFineGrained );
 	}
 
 	if ( pRealColumn != nullptr ) {
-		if ( pEvent->x() > PatternEditor::nMargin ) {
+		if ( point.x() > PatternEditor::nMargin ) {
 			*pRealColumn = static_cast<int>(
-				std::floor( ( pEvent->x() -
+				std::floor( ( point.x() -
 							  static_cast<float>(PatternEditor::nMargin) ) /
 							static_cast<float>(m_fGridWidth) ) );
 		}
@@ -1670,7 +1670,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	int nColumn, nRow, nRealColumn;
-	mouseEventToColumnRow( ev, &nColumn, &nRow, &nRealColumn );
+	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
 
 	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
 
