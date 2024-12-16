@@ -103,11 +103,14 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		return;
 	}
 
+	QPoint point;
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	prepareUndoAction( ev->position().x() ); //get all old values
+	point = ev->position().toPoint();
 #else
-	prepareUndoAction( ev->x() ); //get all old values
+	point = QPoint( ev->x(), 0 );
 #endif
+
+	prepareUndoAction( point ); //get all old values
 
 	float fDelta;
 	if ( ev->modifiers() == Qt::ControlModifier || ev->modifiers() == Qt::AltModifier ) {
@@ -119,13 +122,16 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	int nColumn = getColumn( ev->position().x() );
-#else
-	int nColumn = getColumn( ev->x() );
-#endif
+	int nColumn, nRow, nRealColumn;
+	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
 
-	m_pPatternEditorPanel->setCursorColumn( nColumn );
+	// The cursor is must only be set to positions on the grid. However, we
+	// support changing all values via mouse interaction (since this was
+	// possible in DrumPatternEditor since a long time). We only move the cursor
+	// in case point is residing on the grid.
+	if ( nColumn == nRealColumn ) {
+		m_pPatternEditorPanel->setCursorColumn( nColumn );
+	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
@@ -146,7 +152,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			notes.push_back( pNote );
 		}
 	} else {
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn,
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nRealColumn,
 										  pPattern ) {
 			notes.push_back( it->second );
 		}
@@ -232,7 +238,7 @@ void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
 
 void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
 	if ( m_selection.isMoving() ) {
-		prepareUndoAction( ev->x() );
+		prepareUndoAction( ev->pos() );
 		selectionMoveUpdateEvent( ev );
 	} else {
 		propertyDragStart( ev );
@@ -385,7 +391,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 {
 	setCursor( Qt::CrossCursor );
-	prepareUndoAction( ev->x() );
+	prepareUndoAction( ev->pos() );
 	invalidateBackground();
 	update();
 }
@@ -393,7 +399,7 @@ void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 
 //! Preserve current note properties at position x (or in selection, if any) for
 //! use in later UndoAction.
-void NotePropertiesRuler::prepareUndoAction( int x )
+void NotePropertiesRuler::prepareUndoAction( const QPoint& point )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -410,7 +416,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	clearOldNotes();
 
-	const int nColumn = getColumn( x );
+	int nColumn, nRow, nRealColumn;
+	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// If there is a selection, preserve the initial state of all the
@@ -427,7 +434,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 		// No notes are selected. The target notes to adjust are all those at
 		// column given by 'x', so we preserve these.
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it,
-										  nColumn, pPattern ) {
+										  nRealColumn, pPattern ) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
 				 pNote->getType() == selectedRow.sType ) {
@@ -436,7 +443,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 		}
 	}
 
-	m_nDragPreviousColumn = nColumn;
+	m_nDragPreviousColumn = nRealColumn;
 }
 
 //! Update notes for a property adjust drag, in response to the mouse moving.
@@ -459,9 +466,12 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		return;
 	}
 
-	int nColumn = getColumn( ev->x() );
+	int nColumn, nRow, nRealColumn;
+	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
 
-	m_pPatternEditorPanel->setCursorColumn( nColumn );
+	if ( nRealColumn == nColumn ) {
+		m_pPatternEditorPanel->setCursorColumn( nColumn );
+	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -472,7 +482,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	if ( m_nDragPreviousColumn != nColumn ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction();
-		prepareUndoAction( ev->x() );
+		prepareUndoAction( ev->pos() );
 	}
 
 	float val = height() - ev->y();
@@ -486,7 +496,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	bool bValueSet = false;
 
-	FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn, pPattern ) {
+	FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nRealColumn, pPattern ) {
 		Note *pNote = it->second;
 
 		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
@@ -800,7 +810,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 		}
 
-		prepareUndoAction( PatternEditor::nMargin + nColumn * m_fGridWidth );
+		prepareUndoAction(
+			QPoint( PatternEditor::nMargin + nColumn * m_fGridWidth, 0 ) );
 
 		for ( Note *pNote : notes ) {
 
