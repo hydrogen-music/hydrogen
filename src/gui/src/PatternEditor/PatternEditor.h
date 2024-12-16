@@ -238,6 +238,18 @@ public slots:
 	void scrolled( int nValue );
 
 protected:
+		enum class NoteStyle {
+			/** Regular note of the current pattern. */
+			Foreground = 0,
+			/** Regular note of another currently playing pattern. The note is
+			 * not accessible and can neither be hovered or selected. */
+			Background = 1,
+			/** Note is hovered by mouse.*/
+			Hovered = 2,
+			/** Note is part of the current selection.*/
+			Selected = 3
+		};
+
 
 	//! Granularity of grid positioning (in ticks)
 	int granularity() const;
