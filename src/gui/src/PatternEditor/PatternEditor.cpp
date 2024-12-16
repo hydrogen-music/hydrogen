@@ -833,9 +833,50 @@ void PatternEditor::randomizeVelocity() {
 
 }
 
-void PatternEditor::mousePressEvent( QMouseEvent *ev )
-{
+void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
+	const auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
 	updateModifiers( ev );
+
+	if ( ev->button() == Qt::LeftButton ) {
+		// When pressing and dragging a note not already in a selection, we will
+		// discard the current selection and add that very note under point.
+		int nColumn, nRow, nRealColumn;
+		eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
+
+		// Assemble all notes to be edited.
+		DrumPatternRow row;
+		if ( m_editor == Editor::DrumPattern ) {
+			row = m_pPatternEditorPanel->getRowDB( nRow );
+		}
+		else {
+			row = m_pPatternEditorPanel->getRowDB(
+				m_pPatternEditorPanel->getSelectedRowDB() );
+		}
+
+		const auto notes = pPattern->getNotes();
+		std::vector<Note*> notesUnderPoint;
+		for ( auto it = notes->lower_bound( nRealColumn );
+			  it != notes->end() && it->first <= nRealColumn; ++it ) {
+			const auto ppNote = it->second;
+			if ( ppNote != nullptr &&
+				 ! m_selection.isSelected( ppNote ) &&
+				 ppNote->get_instrument_id() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType ) {
+				notesUnderPoint.push_back( ppNote );
+			}
+		}
+
+		if ( notesUnderPoint.size() > 0 ) {
+			m_selection.clearSelection();
+			for ( const auto& ppNote : notesUnderPoint ) {
+				m_selection.addToSelection( ppNote );
+			}
+		}
+	}
 	m_selection.mousePressEvent( ev );
 }
 
