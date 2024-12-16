@@ -62,16 +62,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void createBackground() override;
 		void drawPattern();
 		void drawFocus( QPainter& painter );
-		/**
-		 * Draw a note
-		 *
-		 * @param pNote Particular note to draw
-		 * @param pPainter Painting device
-		 * @param bIsForeground Whether the @a pNote is contained in the
-		 *   pattern currently shown in the pattern editor (the one
-		 *   selected in the song editor)
-		 */
-	void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;

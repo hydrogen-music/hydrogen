@@ -414,7 +414,8 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		if ( pNotes->size() == 0 ) {
 			continue;
 		}
-		bool bIsForeground = ( ppPattern == pPattern );
+		NoteStyle style = ppPattern ==
+			pPattern ? NoteStyle::Foreground : NoteStyle::Background;
 
 		std::map<int, int> noteCount; // row number -> note count
 
@@ -464,7 +465,9 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 						++noteCount[ nRow ];
 					}
 
-					drawNote( pNote, painter, bIsForeground );
+					drawNote( painter, pNote,
+							  m_selection.isSelected( pNote ) ?
+							  NoteStyle::Selected : style );
 				}
 				else {
 					ERRORLOG( QString( "Note is not covered in DB: %1" )
@@ -499,26 +502,6 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 			posIt = noteIt;
 		}
 	}
-}
-
-
-
-///
-/// Draws a note
-///
-void DrumPatternEditor::drawNote( Note* pNote, QPainter& p, bool bIsForeground )
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
-
-	QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
-				 ( nRow * m_nGridHeight) + (m_nGridHeight / 2) - 3 );
-
-	drawNoteSymbol( p, pos, pNote, bIsForeground );
 }
 
 void DrumPatternEditor::drawBackground( QPainter& p)

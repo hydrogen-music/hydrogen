@@ -351,36 +351,17 @@ void PianoRollEditor::drawPattern()
 
 	// for each note...
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-		bool bIsForeground = ( ppPattern == pPattern );
+		NoteStyle style = ppPattern ==
+			pPattern ? NoteStyle::Foreground : NoteStyle::Background;
 		const Pattern::notes_t* notes = ppPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, ppPattern ) {
-			Note *note = it->second;
-			assert( note );
-			drawNote( note, &p, bIsForeground );
+			Note* ppNote = it->second;
+			if ( ppNote != nullptr ) {
+				drawNote( p, ppNote,
+						  m_selection.isSelected( ppNote ) ?
+						  NoteStyle::Selected : style );
+			}
 		}
-	}
-
-}
-
-
-void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter,
-								bool bIsForeground )
-{
-	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row" );
-		return;
-	}
-
-	if ( pNote != nullptr &&
-		 ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-		   pNote->getType() == selectedRow.sType ) ) {
-		QPoint pos( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
-					m_nGridHeight * Note::pitchToLine( pNote->get_pitch_from_key_octave() )
-					+ 1);
-		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
 	}
 }
 

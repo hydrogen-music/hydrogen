@@ -304,14 +304,12 @@ protected:
 	 * Draw a note
 	 *
 	 * @param p Painting device
-	 * @param pos Center of the note to draw
 	 * @param pNote Particular note to draw
-	 * @param bIsForeground Whether the @a pNote is contained in the
-	 *   pattern currently shown in the pattern editor (the one
-	 *   selected in the song editor)
+	 * @param noteStyle Whether the @a pNote is contained in the pattern
+	 *   currently shown in the pattern editor (the one selected in the song
+	 *   editor), currently hovered, or selected.
 	 */
-	void drawNoteSymbol( QPainter &p, const QPoint& pos, H2Core::Note *pNote,
-						 bool bIsForeground = true ) const;
+	void drawNote( QPainter &p, H2Core::Note *pNote, NoteStyle noteStyle ) const;
 
 	/** Updates #m_pBackgroundPixmap to show the latest content. */
 	virtual void createBackground();

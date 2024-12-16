@@ -187,14 +187,35 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 }
 
 
-void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
-									H2Core::Note *pNote,
-									bool bIsForeground ) const
+void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
+							  NoteStyle noteStyle ) const
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
+	if ( pPattern == nullptr || pNote == nullptr ) {
 		return;
 	}
+
+	// Determine the center of the note symbol.
+	int nY;
+	if ( m_editor == Editor::DrumPattern ) {
+		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
+		nY = ( nRow * m_nGridHeight) + (m_nGridHeight / 2) - 3;
+
+	}
+	else {
+		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->getSelectedRowDB() );
+		if ( pNote->get_instrument_id() != selectedRow.nInstrumentID ||
+			 pNote->getType() != selectedRow.sType ) {
+			ERRORLOG( QString( "Provided note [%1] is not part of selected row [%2]" )
+					  .arg( pNote->toQString() ).arg( selectedRow.toQString() ) );
+			return;
+		}
+
+		nY = m_nGridHeight *
+			Note::pitchToLine( pNote->get_pitch_from_key_octave() ) + 1;
+	}
+	const int nX = PatternEditor::nMargin + pNote->get_position() * m_fGridWidth;
 
 	const auto pPref = H2Core::Preferences::get_instance();
 	
@@ -208,18 +229,15 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 	QColor color = computeNoteColor( pNote->get_velocity() );
 
 	uint w = 8, h =  8;
-	uint x_pos = pos.x(), y_pos = pos.y();
 
-	bool bSelected = m_selection.isSelected( pNote );
-
-	if ( bSelected ) {
+	if ( noteStyle == NoteStyle::Selected ) {
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 		p.setPen( selectedPen );
 		p.setBrush( Qt::NoBrush );
 	}
 
-	bool bMoving = bSelected && m_selection.isMoving();
+	bool bMoving = noteStyle == NoteStyle::Selected && m_selection.isMoving();
 	QPen movingPen( noteColor );
 	QPoint movingOffset;
 
@@ -236,9 +254,9 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 
 		QBrush noteBrush( color );
 		QPen notePen( noteColor );
-		if ( !bIsForeground ) {
+		if ( noteStyle == NoteStyle::Background ) {
 
-			if ( x_pos >= m_nActiveWidth ) {
+			if ( nX >= m_nActiveWidth ) {
 				noteBrush.setColor( noteInactiveColor );
 				notePen.setColor( noteInactiveColor );
 			}
@@ -247,8 +265,8 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 			notePen.setStyle( Qt::DotLine );
 		}
 
-		if ( bSelected ) {
-			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		if ( noteStyle == NoteStyle::Selected ) {
+			p.drawEllipse( nX - 4 - 2, nY - 2, w + 4, h + 4 );
 		}
 
 		// Draw tail
@@ -287,8 +305,8 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 			width = m_fGridWidth * nLength / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
-			if ( bSelected ) {
-				p.drawRoundedRect( x_pos-2, y_pos, width+4, 3+4, 4, 4 );
+			if ( noteStyle == NoteStyle::Selected ) {
+				p.drawRoundedRect( nX-2, nY, width+4, 3+4, 4, 4 );
 			}
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
@@ -298,56 +316,56 @@ void PatternEditor::drawNoteSymbol( QPainter &p, const QPoint& pos,
 			// care about an overlap, as it ensures that there are no white
 			// artifacts between tail and note body regardless of the scale
 			// factor.
-			int nRectOnsetX = x_pos;
+			int nRectOnsetX = nX;
 			int nRectWidth = width;
-			if ( ! bIsForeground ) {
+			if ( noteStyle == NoteStyle::Background ) {
 				nRectOnsetX = nRectOnsetX + w/2;
 				nRectWidth = nRectWidth - w/2;
 			}
 
-			p.drawRect( nRectOnsetX, y_pos +2, nRectWidth, 3 );
-			p.drawLine( x_pos+width, y_pos, x_pos+width, y_pos + h );
+			p.drawRect( nRectOnsetX, nY +2, nRectWidth, 3 );
+			p.drawLine( nX+width, nY, nX+width, nY + h );
 		}
 
 		p.setPen( notePen );
 		p.setBrush( noteBrush );
-		p.drawEllipse( x_pos -4 , y_pos, w, h );
+		p.drawEllipse( nX -4 , nY, w, h );
 
 		if ( bMoving ) {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
+			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2 , w + 4, h + 4 );
 			// Moving tail
 			if ( pNote->get_length() != LENGTH_ENTIRE_SAMPLE ) {
 				p.setPen( movingPen );
 				p.setBrush( Qt::NoBrush );
-				p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y_pos, width+4, 3+4, 4, 4 );
+				p.drawRoundedRect( movingOffset.x() + nX-2, movingOffset.y() + nY, width+4, 3+4, 4, 4 );
 			}
 		}
 	}
 	else if ( pNote->get_note_off() ) {
 
 		QBrush noteOffBrush( noteoffColor );
-		if ( !bIsForeground ) {
+		if ( noteStyle == NoteStyle::Background ) {
 			noteOffBrush.setStyle( Qt::Dense4Pattern );
 
-			if ( x_pos >= m_nActiveWidth ) {
+			if ( nX >= m_nActiveWidth ) {
 				noteOffBrush.setColor( noteoffInactiveColor );
 			}
 		}
 
-		if ( bSelected ) {
-			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		if ( noteStyle == NoteStyle::Selected ) {
+			p.drawEllipse( nX -4 -2, nY-2, w+4, h+4 );
 		}
 
 		p.setPen( Qt::NoPen );
 		p.setBrush( noteOffBrush );
-		p.drawEllipse( x_pos -4 , y_pos, w, h );
+		p.drawEllipse( nX -4 , nY, w, h );
 
 		if ( bMoving ) {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, w + 4, h + 4 );
+			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2, w + 4, h + 4 );
 		}
 	}
 }
