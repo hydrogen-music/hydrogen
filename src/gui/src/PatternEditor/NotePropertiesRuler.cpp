@@ -125,14 +125,6 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int nColumn, nRow, nRealColumn;
 	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
 
-	// The cursor is must only be set to positions on the grid. However, we
-	// support changing all values via mouse interaction (since this was
-	// possible in DrumPatternEditor since a long time). We only move the cursor
-	// in case point is residing on the grid.
-	if ( nColumn == nRealColumn ) {
-		m_pPatternEditorPanel->setCursorColumn( nColumn );
-	}
-
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	pHydrogenApp->setHideKeyboardCursor( true );
@@ -406,10 +398,6 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	int nColumn, nRow, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
-
-	if ( nRealColumn == nColumn ) {
-		m_pPatternEditorPanel->setCursorColumn( nColumn );
-	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
