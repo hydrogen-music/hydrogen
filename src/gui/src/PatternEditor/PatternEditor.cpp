@@ -1829,27 +1829,8 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-
-	int nColumn, nRow, nRealColumn;
-	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
 
 	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
-
-	// Move cursor.
-	m_pPatternEditorPanel->setCursorColumn( nColumn );
-
-	// Hide cursor.
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	
-	pHydrogenApp->setHideKeyboardCursor( true );
-
-	// Cursor either just got hidden or was moved.
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getSidebar()->updateEditor();
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
 
 	if ( ev->button() == Qt::RightButton ) {
 		// Adjusting note properties.
