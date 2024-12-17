@@ -406,6 +406,12 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 		return;
 	}
 	const auto pPref = H2Core::Preferences::get_instance();
+	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+					  getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	const QColor textColor(
+		pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
+	QColor textBackgroundColor( textColor );
+	textBackgroundColor.setAlpha( 150 );
 
 	validateSelection();
 
@@ -423,8 +429,11 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	std::vector<PosCount> posCounts;
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		posCounts.clear();
-		const auto baseStyle = ppPattern ==
-			pPattern ? NoteStyle::Foreground : NoteStyle::Background;
+		const auto baseStyle = ppPattern == pPattern ?
+			NoteStyle::Foreground : NoteStyle::Background;
+
+		const auto fontColor = ppPattern == pPattern ?
+			textColor : textBackgroundColor;
 
 		for ( const auto& [ nnColumn, ppNote ] : *ppPattern->getNotes() ) {
 			if ( nnColumn >= ppPattern->getLength() ) {
@@ -482,10 +491,8 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 			const int y = nnRow * m_nGridHeight;
 			const int boxWidth = 128;
 
-			QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-						getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 			painter.setFont( font );
-			painter.setPen( QColor( 0, 0, 0 ) );
+			painter.setPen( fontColor );
 
 			painter.drawText(
 				QRect( x - boxWidth - 6, y, boxWidth, m_nGridHeight ),
