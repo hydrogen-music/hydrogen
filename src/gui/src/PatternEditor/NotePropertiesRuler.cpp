@@ -1133,6 +1133,21 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 	if ( pNote == nullptr ) {
 		return;
 	}
+
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+
+	// NoteOff notes can have a custom probability and lead lag. But having a
+	// velocity and pan would not make any sense for them.
+	if ( ( pNote->get_note_off() &&
+		   ! ( m_mode == PatternEditor::Mode::Probability ||
+			   m_mode == PatternEditor::Mode::LeadLag ) ) ||
+		 ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
+			 pNote->getType() == selectedRow.sType ) &&
+		 ! m_selection.isSelected( pNote ) ) {
+		return;
+	}
+
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	QPen highlightPen( highlightedNoteColor( noteStyle ) );
