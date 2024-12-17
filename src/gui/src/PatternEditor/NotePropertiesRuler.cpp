@@ -82,8 +82,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	m_pPopupMenu = new QMenu( this );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
-
-	setMouseTracking( true );
 }
 
 
@@ -362,33 +360,6 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 
 	clearOldNotes();
 }
-
-
-void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-	
-	if ( ev->buttons() == Qt::NoButton ) {
-		int nColumn = getColumn( ev->x() );
-		bool bFound = false;
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn, pPattern ) {
-			bFound = true;
-			break;
-		}
-		if ( bFound ) {
-			setCursor( Qt::PointingHandCursor );
-		} else {
-			unsetCursor();
-		}
-
-	} else {
-		PatternEditor::mouseMoveEvent( ev );
-	}
-}
-
 
 void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 {

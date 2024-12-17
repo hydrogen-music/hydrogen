@@ -122,8 +122,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void enterEvent( QEvent *ev ) override;
 		void leaveEvent( QEvent *ev ) override;
 
-		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
-
 		//! Map of notes currently in the pattern -> old notes with their
 		//! properties. Populated at the beginning of a properties editing
 		//! gesture.
