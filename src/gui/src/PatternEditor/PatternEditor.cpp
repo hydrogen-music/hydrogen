@@ -2538,7 +2538,17 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 			   bExcludeSelected && ! m_selection.isSelected( ppNote ) ) &&
 			 ppNote->get_instrument_id() == row.nInstrumentID &&
 			 ppNote->getType() == row.sType ) {
-			notesUnderPoint.push_back( ppNote );
+
+			// In case of the PianoRoll editor we do have to additionally
+			// differentiate between different pitches.
+			if ( m_editor != Editor::PianoRoll ||
+				 ( m_editor == Editor::PianoRoll &&
+				   ppNote->get_key() ==
+				   Note::pitchToKey( Note::lineToPitch( nRow ) ) &&
+				   ppNote->get_octave() ==
+				   Note::pitchToOctave( Note::lineToPitch( nRow ) ) ) ) {
+				notesUnderPoint.push_back( ppNote );
+			}
 		}
 	}
 
