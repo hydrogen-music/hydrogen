@@ -1155,7 +1155,6 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 	if ( noteStyle & NoteStyle::Background ) {
 
 		if ( nX >= m_nActiveWidth ) {
-			noteBrush.setColor( noteInactiveColor );
 			notePen.setColor( noteInactiveColor );
 		}
 
