@@ -187,53 +187,18 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 
 void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
-	if ( ev->button() == Qt::RightButton ) {
-		m_pPopupMenu->popup( ev->globalPos() );
+	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
+		return;
+	}
 
-	} else {
+	if ( ev->button() == Qt::LeftButton ) {
 		// Treat single click as an instantaneous drag
 		propertyDragStart( ev );
 		propertyDragUpdate( ev );
 		propertyDragEnd();
 	}
-}
 
-void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
-	if ( ev->x() > m_nActiveWidth ) {
-		return;
-	}
-
-	PatternEditor::mousePressEvent( ev );
-
-	auto pHydrogenApp = HydrogenApp::get_instance();
-
-	// Hide cursor in case this behavior was selected in the
-	// Preferences.
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	pHydrogenApp->setHideKeyboardCursor( true );
-
-	// Cursor just got hidden.
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		update();
-	}
-	
-	// Update cursor position
-	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
-		auto pPattern = m_pPatternEditorPanel->getPattern();
-		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
-		if ( ( pPattern != nullptr &&
-			   nColumn >= (int)pPattern->getLength() ) ||
-			 nColumn >= MAX_INSTRUMENTS ) {
-			return;
-		}
-
-		m_pPatternEditorPanel->setCursorColumn( nColumn );
-	
-		update();
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
+	PatternEditor::mouseClickEvent( ev );
 }
 
 void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {

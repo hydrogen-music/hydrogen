@@ -51,8 +51,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		~DrumPatternEditor();
 
 		// Synthetic UI events from selection manager
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
 
 		// Selected notes are indexed by their address to ensure that a
@@ -76,7 +74,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void showEvent ( QShowEvent *ev ) override;
 		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
-	virtual void mousePressEvent( QMouseEvent *ev ) override;
 
 		QString renameCompo( const QString& OriginalName );
 };

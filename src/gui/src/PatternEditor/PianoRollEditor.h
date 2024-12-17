@@ -48,8 +48,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		//! Selections are indexed by Note pointers.
 
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-	virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
 
 

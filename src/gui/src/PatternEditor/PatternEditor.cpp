@@ -856,46 +856,100 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	if ( pPattern == nullptr ) {
 		return;
 	}
+	if ( ev->x() > m_nActiveWidth ) {
+		return;
+	}
 
 	updateModifiers( ev );
 
 	if ( ev->button() == Qt::LeftButton ) {
+		m_notesToSelectOnMove.clear();
+
 		// When pressing and dragging a note not already in a selection, we will
 		// discard the current selection and add that very note under point.
-		int nColumn, nRow, nRealColumn;
-		eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
-
-		// Assemble all notes to be edited.
-		DrumPatternRow row;
-		if ( m_editor == Editor::DrumPattern ) {
-			row = m_pPatternEditorPanel->getRowDB( nRow );
-		}
-		else {
-			row = m_pPatternEditorPanel->getRowDB(
-				m_pPatternEditorPanel->getSelectedRowDB() );
-		}
-
-		const auto notes = pPattern->getNotes();
-		std::vector<Note*> notesUnderPoint;
-		for ( auto it = notes->lower_bound( nRealColumn );
-			  it != notes->end() && it->first <= nRealColumn; ++it ) {
-			const auto ppNote = it->second;
-			if ( ppNote != nullptr &&
-				 ! m_selection.isSelected( ppNote ) &&
-				 ppNote->get_instrument_id() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType ) {
-				notesUnderPoint.push_back( ppNote );
-			}
-		}
-
-		m_notesToSelectOnMove.clear();
-		if ( notesUnderPoint.size() > 0 ) {
-			for ( const auto& ppNote : notesUnderPoint ) {
-				m_notesToSelectOnMove.push_back( ppNote );
-			}
+		const auto notesUnderPoint = getNotesAtPoint( pPattern, ev->pos(), true );
+		for ( const auto& ppNote : notesUnderPoint ) {
+			m_notesToSelectOnMove.push_back( ppNote );
 		}
 	}
 	m_selection.mousePressEvent( ev );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	pHydrogenApp->setHideKeyboardCursor( true );
+
+	// Cursor just got hidden.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getSidebar()->updateEditor();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		update();
+	}
+}
+
+void PatternEditor::mouseClickEvent( QMouseEvent *ev )
+{
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	int nRow, nColumn, nRealColumn;
+	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
+						   /* fineGrained */true );
+
+	if ( m_editor == Editor::PianoRoll &&
+		 nRow >= static_cast<int>(OCTAVE_NUMBER * KEYS_PER_OCTAVE) ) {
+		return;
+	}
+
+	// Select the corresponding row
+	if ( m_editor == Editor::DrumPattern ) {
+		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+		if ( row.nInstrumentID != EMPTY_INSTR_ID || ! row.sType.isEmpty() ) {
+			m_pPatternEditorPanel->setSelectedRowDB( nRow );
+		}
+	}
+	else if ( m_editor == Editor::PianoRoll ) {
+		m_nCursorRow = Note::lineToPitch( nRow );
+	}
+
+	// main button action
+	if ( ev->button() == Qt::LeftButton &&
+		 m_editor != Editor::NotePropertiesRuler ) {
+
+		// Pressing Shift causes the added note to be of NoteOff type.
+		if ( m_editor == Editor::DrumPattern ) {
+			addOrRemoveNote( nColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
+							 /* bDoAdd */true, /* bDoDelete */true,
+							 /* bIsNoteOff */ev->modifiers() & Qt::ShiftModifier );
+		}
+		else if ( m_editor == Editor::PianoRoll ) {
+			const Note::Octave octave = Note::pitchToOctave( m_nCursorRow );
+			const Note::Key noteKey = Note::pitchToKey( m_nCursorRow );
+			addOrRemoveNote( nColumn, nRealColumn, nRow, noteKey, octave,
+							 /* bDoAdd */true, /* bDoDelete */true,
+							 /* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
+		}
+		m_selection.clearSelection();
+		updateHoveredNotes( ev->pos() );
+
+	}
+	else if ( ev->button() == Qt::RightButton ) {
+		showPopupMenu( ev->globalPos() );
+	}
+
+	// Update cursor position
+	m_pPatternEditorPanel->setCursorColumn( nColumn );
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		m_pPatternEditorPanel->getSidebar()->updateEditor();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
+
+	update();
 }
 
 void PatternEditor::mouseMoveEvent( QMouseEvent *ev )

@@ -152,6 +152,7 @@ public:
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 	virtual void mouseMoveEvent( QMouseEvent *ev ) override;
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 	
 	virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
