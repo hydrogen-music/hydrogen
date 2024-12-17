@@ -1766,7 +1766,7 @@ void PatternEditorPanel::updateDB() {
 	// Next we add rows for all notes in the selected pattern not covered by any
 	// of the instruments above.
 	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
-	std::set<DrumkitMap::Type> additionalTypes;
+	QStringList additionalTypes;
 
 	for ( const auto& ppPattern : getPatternsToShow() ) {
 		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
@@ -1781,16 +1781,18 @@ void PatternEditorPanel::updateDB() {
 				}
 
 				// Note is not associated with current kit.
-				if ( additionalTypes.find( ppNote->getType() ) ==
-					 additionalTypes.end() ) {
-					additionalTypes.insert( ppNote->getType() );
-					m_db.push_back(
-						DrumPatternRow( EMPTY_INSTR_ID, ppNote->getType(),
-										nnRow % 2 != 0 ) );
-					++nnRow;
+				if ( ! additionalTypes.contains( ppNote->getType() ) ) {
+					additionalTypes << ppNote->getType();
 				}
 			}
 		}
+	}
+
+	additionalTypes.sort();
+	for ( const auto& ssType : additionalTypes ) {
+		m_db.push_back( DrumPatternRow(
+							EMPTY_INSTR_ID, ssType, nnRow % 2 != 0 ) );
+		++nnRow;
 	}
 
 	const int nSelectedInstrument =
