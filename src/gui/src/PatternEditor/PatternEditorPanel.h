@@ -262,8 +262,10 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
 
-		const std::vector<H2Core::Note*>& getHoveredNotes() const;
-		void setHoveredNotes( std::vector<H2Core::Note*> hoveredNotes );
+		const std::map<std::shared_ptr<H2Core::Pattern>,
+			std::vector<H2Core::Note*>>& getHoveredNotes() const;
+		void setHoveredNotes( std::map<std::shared_ptr<H2Core::Pattern>,
+							  std::vector<H2Core::Note*>> hoveredNotes );
 
 	public slots:
 		void showDrumEditor();
@@ -403,7 +405,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		bool m_bPatternSelectedViaTab;
 
-		std::vector<H2Core::Note*> m_hoveredNotes;
+		std::map<std::shared_ptr<H2Core::Pattern>,
+			std::vector<H2Core::Note*>> m_hoveredNotes;
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
@@ -429,7 +432,8 @@ inline int PatternEditorPanel::getResolution() const {
 inline bool PatternEditorPanel::isUsingTriplets() const {
 	return m_bIsUsingTriplets;
 }
-inline const std::vector<H2Core::Note*>& PatternEditorPanel::getHoveredNotes() const {
+inline const std::map<std::shared_ptr<H2Core::Pattern>,
+	std::vector<H2Core::Note*>>& PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
 }
 

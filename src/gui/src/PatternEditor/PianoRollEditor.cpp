@@ -141,15 +141,20 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	drawFocus( painter );
 
 	// Draw hovered note
-	const auto baseStyle =
-		static_cast<NoteStyle>(NoteStyle::Foreground | NoteStyle::Hovered);
-	for ( const auto& ppNote : m_pPatternEditorPanel->getHoveredNotes() ) {
-		const auto style = static_cast<NoteStyle>(
-			m_selection.isSelected( ppNote ) ?
-			NoteStyle::Selected | baseStyle : baseStyle );
-		drawNote( painter, ppNote, style );
+	const auto pPattern = m_pPatternEditorPanel->getPattern();
+	for ( const auto& [ ppPattern, nnotes ] :
+			  m_pPatternEditorPanel->getHoveredNotes() ) {
+		const auto baseStyle = static_cast<NoteStyle>(
+			( ppPattern == pPattern ? NoteStyle::Foreground :
+			  NoteStyle::Background ) | NoteStyle::Hovered);
+		for ( const auto& ppNote : nnotes ) {
+			const auto style = static_cast<NoteStyle>(
+				m_selection.isSelected( ppNote ) ?
+				NoteStyle::Selected | baseStyle : baseStyle );
+			drawNote( painter, ppNote, style );
+		}
 	}
-	
+
 	m_selection.paintSelection( &painter );
 
 	// Draw cursor

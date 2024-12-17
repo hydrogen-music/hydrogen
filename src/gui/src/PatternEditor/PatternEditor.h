@@ -346,7 +346,8 @@ protected:
 	Mode m_mode;
 
 		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
-		std::vector<H2Core::Note*> getNotesAtPoint( const QPoint& point,
+		std::vector<H2Core::Note*> getNotesAtPoint( std::shared_ptr<H2Core::Pattern> pPattern,
+													const QPoint& point,
 													bool bExcludeSelected );
 };
 

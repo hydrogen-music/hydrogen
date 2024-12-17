@@ -1116,6 +1116,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 void PatternEditorPanel::updatePatternInfo() {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
+	m_hoveredNotes.clear();
 
 	m_pPattern = nullptr;
 	if ( pSong != nullptr ) {
@@ -1809,7 +1810,8 @@ void PatternEditorPanel::updateDB() {
 	}
 }
 
-void PatternEditorPanel::setHoveredNotes( std::vector<H2Core::Note*> hoveredNotes ) {
+void PatternEditorPanel::setHoveredNotes( std::map<std::shared_ptr<H2Core::Pattern>,
+										  std::vector<H2Core::Note*>> hoveredNotes ) {
 	if ( hoveredNotes == m_hoveredNotes ) {
 		return;
 	}

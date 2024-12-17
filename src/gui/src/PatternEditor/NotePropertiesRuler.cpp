@@ -949,18 +949,23 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	drawFocus( painter );
 
 	// Draw hovered notes
-	const auto baseStyle =
-		static_cast<NoteStyle>(NoteStyle::Foreground | NoteStyle::Hovered);
-	int nOffsetX = 0;
-	for ( const auto& ppNote : m_pPatternEditorPanel->getHoveredNotes() ) {
-		const auto style = static_cast<NoteStyle>(
-			m_selection.isSelected( ppNote ) ?
-			NoteStyle::Selected | baseStyle : baseStyle );
-		drawNote( painter, ppNote, style, nOffsetX );
+	const auto pPattern = m_pPatternEditorPanel->getPattern();
+	for ( const auto& [ ppPattern, nnotes ] :
+			  m_pPatternEditorPanel->getHoveredNotes() ) {
+		const auto baseStyle = static_cast<NoteStyle>(
+			( ppPattern == pPattern ? NoteStyle::Foreground :
+			  NoteStyle::Background ) | NoteStyle::Hovered);
+		int nOffsetX = 0;
+		for ( const auto& ppNote : nnotes ) {
+			const auto style = static_cast<NoteStyle>(
+				m_selection.isSelected( ppNote ) ?
+				NoteStyle::Selected | baseStyle : baseStyle );
+			drawNote( painter, ppNote, style, nOffsetX );
 
-		if ( m_layout != Layout::KeyOctave ) {
-			// Within the key/octave view notes should be unique.
-			++nOffsetX;
+			if ( m_layout != Layout::KeyOctave ) {
+				// Within the key/octave view notes should be unique.
+				++nOffsetX;
+			}
 		}
 	}
 

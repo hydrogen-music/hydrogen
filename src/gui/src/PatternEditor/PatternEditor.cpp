@@ -900,9 +900,19 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 
 void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 {
+	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
+		return;
+	}
+
 	// Check which note is hovered.
-	const auto hoveredNotes = getNotesAtPoint( ev->pos(), false );
-	m_pPatternEditorPanel->setHoveredNotes( hoveredNotes );
+	std::map<std::shared_ptr<Pattern>, std::vector<Note*>> hovered;
+	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+		const auto hoveredNotes = getNotesAtPoint( ppPattern, ev->pos(), false );
+		if ( hoveredNotes.size() > 0 ) {
+			hovered[ ppPattern ] = hoveredNotes;
+		}
+	}
+	m_pPatternEditorPanel->setHoveredNotes( hovered );
 
 	if ( ev->buttons() != Qt::NoButton ) {
 		updateModifiers( ev );
@@ -2487,11 +2497,10 @@ void PatternEditor::clearDraggedNotes() {
 	m_draggedNotes.clear();
 }
 
-std::vector<Note*> PatternEditor::getNotesAtPoint( const QPoint& point,
+std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Pattern> pPattern,
+												   const QPoint& point,
 												   bool bExcludeSelected ) {
 	std::vector<Note*> notesUnderPoint;
-
-	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return std::move( notesUnderPoint );
 	}
