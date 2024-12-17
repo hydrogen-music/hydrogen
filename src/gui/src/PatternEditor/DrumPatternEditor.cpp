@@ -409,98 +409,88 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 
 	validateSelection();
 
+	// We count notes in each position so we can display markers for rows which
+	// have more than one note in the same position (a chord or genuine
+	// duplicates).
+	int nLastRow = -1;
+	int nLastColumn = -1;
+	int nNotesAtPos = 0;
+	struct PosCount {
+		int nRow;
+		int nColumn;
+		int nNoteCount;
+	};
+	std::vector<PosCount> posCounts;
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-		const Pattern::notes_t *pNotes = ppPattern->getNotes();
-		if ( pNotes->size() == 0 ) {
-			continue;
-		}
+		posCounts.clear();
 		const auto baseStyle = ppPattern ==
 			pPattern ? NoteStyle::Foreground : NoteStyle::Background;
 
-		std::map<int, int> noteCount; // row number -> note count
-
-		// Process notes in batches by note position, counting the notes in each
-		// row so we can display markers for rows which have more than one note
-		// in the same position (a chord or genuine duplicates)
-		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
-			if ( posIt->first >= ppPattern->getLength() ) {
+		for ( const auto& [ nnColumn, ppNote ] : *ppPattern->getNotes() ) {
+			if ( nnColumn >= ppPattern->getLength() ) {
 				// Notes are located beyond the active length of the editor and
 				// aren't visible even when drawn.
 				break;
 			}
-
-			if ( posIt->second == nullptr ) {
-				++posIt;
+			if ( ppNote == nullptr ) {
 				continue;
 			}
 
-			const int nPosition = posIt->second->get_position();
-			noteCount.clear();
-
-			// Process all notes at this position
-			auto noteIt = posIt;
-			while ( noteIt != pNotes->end() &&
-					noteIt->second->get_position() == nPosition ) {
-				Note *pNote = noteIt->second;
-				if ( pNote == nullptr ) {
-					++noteIt;
-					continue;
-				}
-
-				auto nRow = m_pPatternEditorPanel->findRowDB( pNote );
-				if ( nRow != -1 ) {
-					auto row = m_pPatternEditorPanel->getRowDB( nRow );
-					if ( row.nInstrumentID == EMPTY_INSTR_ID &&
-						 row.sType.isEmpty() ) {
-						ERRORLOG( QString( "Empty row [%1]" ).arg( nRow ) );
-						++noteIt;
-						continue;
-					}
-
-					if ( noteCount.find( nRow ) == noteCount.end() ) {
-						// Insert row not present yet.
-						noteCount[ nRow ] = 1;
-					}
-					else {
-						++noteCount[ nRow ];
-					}
-
-					const auto style = static_cast<NoteStyle>(
-						m_selection.isSelected( pNote ) ?
-						NoteStyle::Selected | baseStyle : baseStyle );
-					drawNote( painter, pNote, style );
-				}
-				else {
-					ERRORLOG( QString( "Note is not covered in DB: %1" )
-							  .arg( pNote->toQString() ) );
-					m_pPatternEditorPanel->printDB();
-				}
-
-				++noteIt;
+			auto nRow = m_pPatternEditorPanel->findRowDB( ppNote );
+			auto row = m_pPatternEditorPanel->getRowDB( nRow );
+			if ( nRow == -1 ||
+				 ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) ) {
+				ERRORLOG( QString( "Note [%1] not associated with DB" )
+						  .arg( ppNote->toQString() ) );
+				m_pPatternEditorPanel->printDB();
+				continue;
 			}
 
-			// Go through used rows list and draw markers for superimposed notes
-			for ( const auto [ nRow, nNotes ] : noteCount ) {
-				if ( nNotes >  1 ) {
-					// Draw "2x" text to the left of the note
-					const int x = PatternEditor::nMargin +
-						( nPosition * m_fGridWidth );
-					const int y = nRow * m_nGridHeight;
-					const int boxWidth = 128;
-
-					QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-								getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-					painter.setFont( font );
-					painter.setPen( QColor( 0, 0, 0 ) );
-
-					painter.drawText(
-						QRect( x - boxWidth - 6, y, boxWidth, m_nGridHeight ),
-						Qt::AlignRight | Qt::AlignVCenter,
-						( QString( "%1" ) + QChar( 0x00d7 )).arg( nNotes ) );
+			// Check for duplicates
+			if ( nnColumn != nLastColumn || nRow != nLastRow ) {
+				// New position
+				if ( nNotesAtPos > 1 ) {
+					posCounts.push_back( { nLastRow, nLastColumn, nNotesAtPos } );
 				}
+
+				if ( nLastColumn != nnColumn ) {
+					nLastColumn = nnColumn;
+				}
+				if ( nLastRow != nRow ) {
+					nLastRow = nRow;
+				}
+				nNotesAtPos = 0;
 			}
 
-			posIt = noteIt;
+			// Since the all notes have the same size, we just point the first
+			// one.
+			if ( nNotesAtPos == 0 ) {
+				const auto style = static_cast<NoteStyle>(
+					m_selection.isSelected( ppNote ) ?
+					NoteStyle::Selected | baseStyle : baseStyle );
+				drawNote( painter, ppNote, style );
+			}
+
+			++nNotesAtPos;
+		}
+
+		// Go through used rows list and draw markers for superimposed notes
+		for ( const auto [ nnRow, nnColumn, nnNotes ] : posCounts ) {
+			// Draw "2x" text to the left of the note
+			const int x = PatternEditor::nMargin +
+				( nnColumn * m_fGridWidth );
+			const int y = nnRow * m_nGridHeight;
+			const int boxWidth = 128;
+
+			QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+						getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+			painter.setFont( font );
+			painter.setPen( QColor( 0, 0, 0 ) );
+
+			painter.drawText(
+				QRect( x - boxWidth - 6, y, boxWidth, m_nGridHeight ),
+				Qt::AlignRight | Qt::AlignVCenter,
+				( QString( "%1" ) + QChar( 0x00d7 )).arg( nnNotes ) );
 		}
 	}
 }
