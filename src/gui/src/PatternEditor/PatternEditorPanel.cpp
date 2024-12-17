@@ -995,6 +995,24 @@ PatternEditor* PatternEditorPanel::getVisibleEditor() const {
 	return m_pPianoRollEditor;
 }
 
+NotePropertiesRuler* PatternEditorPanel::getVisiblePropertiesRuler() const {
+	if ( m_pNoteVelocityEditor->isVisible() ) {
+		return m_pNoteVelocityEditor;
+	}
+	else if ( m_pNotePanEditor->isVisible() ) {
+		return m_pNotePanEditor;
+	}
+	else if ( m_pNoteLeadLagEditor->isVisible() ) {
+		return m_pNoteLeadLagEditor;
+	}
+	else if ( m_pNoteKeyOctaveEditor->isVisible() ) {
+		return m_pNoteKeyOctaveEditor;
+	}
+	else {
+		return m_pNoteProbabilityEditor;
+	}
+}
+
 std::vector<std::shared_ptr<Pattern>> PatternEditorPanel::getPatternsToShow() const
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
