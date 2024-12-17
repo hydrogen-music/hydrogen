@@ -1142,7 +1142,7 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 	}
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	QPen highlightPen( selectedNoteColor() );
+	QPen highlightPen( highlightedNoteColor( noteStyle ) );
 	highlightPen.setWidth( 2 );
 	const int nLineWidth = 3;
 
@@ -1310,7 +1310,7 @@ void NotePropertiesRuler::createKeyOctaveBackground(QPixmap *pixmap)
 			return;
 		}
 
-		QPen selectedPen( selectedNoteColor() );
+		QPen selectedPen( highlightedNoteColor( NoteStyle::Selected ) );
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = pPattern->getNotes();

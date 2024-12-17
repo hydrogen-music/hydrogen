@@ -297,8 +297,8 @@ protected:
 	//! Draw lines for note grid.
 	void drawGridLines( QPainter &p, const Qt::PenStyle& style = Qt::SolidLine ) const;
 
-	//! Colour to use for outlining selected notes
-	QColor selectedNoteColor() const;
+	//! Colour to use for outlining notes
+	QColor highlightedNoteColor( NoteStyle noteStyle ) const;
 
 	/**
 	 * Draw a note

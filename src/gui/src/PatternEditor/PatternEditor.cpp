@@ -232,31 +232,9 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 	uint w = 8, h =  8;
 
 	if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-		QColor color = selectedNoteColor();
-
-		int nFactor = 100;
-		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-			nFactor = 120;
-		}
-		else if ( noteStyle & NoteStyle::Hovered ) {
-			nFactor = 140;
-		}
-
-		if ( noteStyle & NoteStyle::Hovered ) {
-			// Depending on the selection color, we make it either darker or
-			// lighter.
-			int nHue, nSaturation, nValue;
-			color.getHsv( &nHue, &nSaturation, &nValue );
-			if ( nValue >= 130 ) {
-				color = color.darker( nFactor );
-			} else {
-				color = color.lighter( nFactor );
-			}
-		}
-
-		QPen selectedPen( color );
-		selectedPen.setWidth( 2 );
-		p.setPen( selectedPen );
+		QPen highlightedPen( highlightedNoteColor( noteStyle ) );
+		highlightedPen.setWidth( 2 );
+		p.setPen( highlightedPen );
 		p.setBrush( Qt::NoBrush );
 	}
 
@@ -1277,17 +1255,39 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 }
 
 
-QColor PatternEditor::selectedNoteColor() const {
+QColor PatternEditor::highlightedNoteColor( NoteStyle noteStyle ) const {
 	
 	const auto pPref = H2Core::Preferences::get_instance();
-	
+
+	QColor color;
 	if ( hasFocus() ) {
-		const QColor selectHighlightColor( pPref->getTheme().m_color.m_selectionHighlightColor );
-		return selectHighlightColor;
-	} else {
-		const QColor selectInactiveColor( pPref->getTheme().m_color.m_selectionInactiveColor );
-		return selectInactiveColor;
+		color = pPref->getTheme().m_color.m_selectionHighlightColor;
 	}
+	else {
+		color = pPref->getTheme().m_color.m_selectionInactiveColor;
+	}
+
+	int nFactor = 100;
+	if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+		nFactor = 120;
+	}
+	else if ( noteStyle & NoteStyle::Hovered ) {
+		nFactor = 140;
+	}
+
+	if ( noteStyle & NoteStyle::Hovered ) {
+		// Depending on the selection color, we make it either darker or
+		// lighter.
+		int nHue, nSaturation, nValue;
+		color.getHsv( &nHue, &nSaturation, &nValue );
+		if ( nValue >= 130 ) {
+			color = color.darker( nFactor );
+		} else {
+			color = color.lighter( nFactor );
+		}
+	}
+
+	return std::move( color );
 }
 
 
