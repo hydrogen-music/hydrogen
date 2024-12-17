@@ -418,8 +418,10 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		addOrRemoveNote( nColumn, nRealColumn, nSelectedRow,
 						 noteKey, octave, /* bDoAdd */true, /* bDoDelete */true,
 						 /* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
+		updateHoveredNotes( ev->pos() );
 
-	} else if ( ev->button() == Qt::RightButton ) {
+	}
+	else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
 		showPopupMenu( ev->globalPos() );
 	}

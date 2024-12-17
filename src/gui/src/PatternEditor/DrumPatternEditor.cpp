@@ -118,6 +118,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		addOrRemoveNote( nColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
 						 true, true, ev->modifiers() & Qt::ShiftModifier );
 		m_selection.clearSelection();
+		updateHoveredNotes( ev->pos() );
 
 	}
 	else if ( ev->button() == Qt::RightButton ) {
