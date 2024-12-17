@@ -888,10 +888,10 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 			}
 		}
 
+		m_notesToSelectOnMove.clear();
 		if ( notesUnderPoint.size() > 0 ) {
-			m_selection.clearSelection();
 			for ( const auto& ppNote : notesUnderPoint ) {
-				m_selection.addToSelection( ppNote );
+				m_notesToSelectOnMove.push_back( ppNote );
 			}
 		}
 	}
@@ -932,6 +932,12 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
 	updateModifiers( ev );
 	m_selection.mouseReleaseEvent( ev );
+
+	if ( m_notesToSelectOnMove.size() > 0 ) {
+		// We used a transient selection of note(s) at a single position.
+		m_selection.clearSelection();
+	}
+	m_notesToSelectOnMove.clear();
 }
 
 void PatternEditor::updateModifiers( QInputEvent *ev ) {

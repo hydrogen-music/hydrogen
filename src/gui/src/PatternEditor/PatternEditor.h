@@ -345,10 +345,24 @@ protected:
 	Editor m_editor;
 	Mode m_mode;
 
+		/** When left-click dragging a single note/multiple notes at the same
+		 * position which are not currently selected, the selection will be
+		 * cleared and filled with those notes. Else we would require the user
+		 * to lasso-select each single note before being able to move it.
+		 *
+		 * But we also have to take care of not establishing a selection
+		 * prematurely since a click event on the single note would result in
+		 * discarding the selection instead of removing the note. We thus use
+		 * this member to cache the notes and only select them in case the mouse
+		 * will be moved with left button down. */
+		std::vector<H2Core::Note*> m_notesToSelectOnMove;
+
 		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
 		std::vector<H2Core::Note*> getNotesAtPoint( std::shared_ptr<H2Core::Pattern> pPattern,
 													const QPoint& point,
 													bool bExcludeSelected );
+
+		void updateHoveredNotes( const QPoint& point );
 };
 
 inline bool PatternEditor::getSelectNewNotes() const {
