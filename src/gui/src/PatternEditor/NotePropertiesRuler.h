@@ -45,8 +45,13 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
     H2_OBJECT(NotePropertiesRuler)
 	Q_OBJECT
 	public:
+		enum class Layout {
+			Normalized,
+			Centered,
+			KeyOctave,
+		};
 
-		NotePropertiesRuler( QWidget *parent, Mode mode );
+		NotePropertiesRuler( QWidget *parent, Mode mode, Layout layout );
 		~NotePropertiesRuler();
 		
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
@@ -101,12 +106,12 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawFocus( QPainter& painter );
+		void drawNote( QPainter& painter, H2Core::Note* pNote,
+					   NoteStyle noteStyle, int nOffsetX = 0 );
 
 		double m_fLastSetValue;
 		bool m_bValueHasBeenSet;
 
-		void createNormalizedBackground(QPixmap *pixmap);
-		void createCenteredBackground(QPixmap *pixmap);
 		void createKeyOctaveBackground(QPixmap *pixmap);
 
 		void paintEvent(QPaintEvent *ev) override;
@@ -131,6 +136,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		int m_nDragPreviousColumn;
 		bool m_bEntered;
+		Layout m_layout;
 };
 
 

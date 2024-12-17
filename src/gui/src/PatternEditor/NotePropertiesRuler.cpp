@@ -42,9 +42,11 @@ int NotePropertiesRuler::nKeyOctaveHeight =
 	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE;
 
 
-NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditor::Mode mode )
+NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
+										  PatternEditor::Mode mode, Layout layout )
 	: PatternEditor( parent )
 	, m_bEntered( false )
+	, m_layout( layout )
 {
 
 	m_editor = PatternEditor::Editor::NotePropertiesRuler;
@@ -1132,247 +1134,84 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	}
 }
 
-void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
+void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
+									NoteStyle noteStyle, int nOffsetX )
 {
+	if ( pNote == nullptr ) {
+		return;
+	}
 	const auto pPref = H2Core::Preferences::get_instance();
-	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	const QColor borderColor(
-		pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor noteOffColor(
-		pPref->getTheme().m_color.m_patternEditor_noteOffColor );
-	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
-	QPainter p( pixmap );
+	QPen highlightPen( selectedNoteColor() );
+	highlightPen.setWidth( 2 );
+	const int nLineWidth = 3;
 
-	drawDefaultBackground( p );
+	p.setPen( QPen( Qt::black, 1 ) );
+	p.setRenderHint( QPainter::Antialiasing );
 
-	// draw velocity lines
-	if ( pPattern != nullptr ) {
-		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-			 selectedRow.sType.isEmpty() ) {
-			DEBUGLOG( "Empty row" );
-			return;
+	QColor noteColor;
+	if ( ! pNote->get_note_off() ) {
+		noteColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
+	} else {
+		noteColor = pPref->getTheme().m_color.m_patternEditor_noteOffColor;
+	}
+
+	float fValue = 0;
+	if ( m_mode == PatternEditor::Mode::Velocity ) {
+		fValue = std::round( pNote->get_velocity() * height() );
+	}
+	else if ( m_mode == PatternEditor::Mode::Probability ) {
+		fValue = std::round( pNote->get_probability() * height() );
+	}
+	else if ( m_mode == PatternEditor::Mode::Pan ) {
+		// Rounding in order to not miss the center due to rounding errors
+		// introduced in the Note class internals.
+		fValue = std::round( pNote->getPan() * 100 ) / 100;
+	}
+	else if ( m_mode == PatternEditor::Mode::LeadLag ) {
+		fValue = -1 * std::round( pNote->get_lead_lag() * 100 ) / 100;
+	}
+
+	const int nX = nOffsetX + PatternEditor::nMargin +
+		pNote->get_position() * m_fGridWidth;
+
+	if ( m_layout == Layout::Centered && fValue == 0 ) {
+		// value is centered - draw circle
+		const int nY = static_cast<int>(std::round( height() * 0.5 ) );
+		p.setBrush(QColor( noteColor ));
+		p.drawEllipse( nX - 4, nY - 4, 8, 8);
+		p.setBrush( Qt::NoBrush );
+
+		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+			p.setPen( highlightPen );
+			p.setRenderHint( QPainter::Antialiasing );
+			p.drawEllipse( nX - 6, nY - 6,
+						   12, 12);
 		}
-
-		QPen selectedPen( selectedNoteColor() );
-		selectedPen.setWidth( 2 );
-
-		const Pattern::notes_t* notes = pPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
-			Note *pposNote = it->second;
-			assert( pposNote );
-			uint pos = pposNote->get_position();
-			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, pPattern) {
-				Note *pNote = coit->second;
-				assert( pNote );
-				// NoteOff notes can have a custom probability. But having a
-				// velocity would not make any sense for them.
-				if ( ( pNote->get_note_off() &&
-					   m_mode != PatternEditor::Mode::Probability ) ||
-					! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-						 pNote->getType() == selectedRow.sType ) &&
-					 ! m_selection.isSelected( pNote ) ) {
-					continue;
-				}
-
-				uint x_pos = PatternEditor::nMargin + pos * m_fGridWidth;
-				uint line_end = height();
-
-				uint value = 0;
-				if ( m_mode == PatternEditor::Mode::Velocity ) {
-					value = (uint)(pNote->get_velocity() * height());
-				}
-				else if ( m_mode == PatternEditor::Mode::Probability ) {
-					value = (uint)(pNote->get_probability() * height());
-				}
-				uint line_start = line_end - value;
-
-				QColor noteColor;
-				if ( ! pNote->get_note_off() ) {
-					noteColor = DrumPatternEditor::computeNoteColor(
-						pNote->get_velocity() );
-				} else {
-					noteColor = noteOffColor;
-				}
-				int nLineWidth = 3;
-
-				p.fillRect( x_pos - 1 + xoffset, line_start,
-							nLineWidth, line_end - line_start,
-							noteColor );
-				p.setPen( QPen( Qt::black, 1 ) );
-				p.setRenderHint( QPainter::Antialiasing );
-				p.drawRoundedRect( x_pos - 1 - 1 + xoffset, line_start - 1,
-								   nLineWidth + 2, line_end - line_start + 2, 2, 2 );
-				
-				if ( m_selection.isSelected( pNote ) ) {
-					p.setPen( selectedPen );
-					p.setRenderHint( QPainter::Antialiasing );
-					p.drawRoundedRect( x_pos - 1 -2 + xoffset, line_start - 2,
-									   nLineWidth + 4,  line_end - line_start + 4 ,
-									   4, 4 );
-				}
-				xoffset++;
+	}
+	else {
+		int nY, nHeight;
+		if ( m_layout == Layout::Centered ) {
+			nHeight = 0.5 * height() * std::abs( fValue ) + 5;
+			nY = height() * 0.5 - 2;
+			if ( fValue >= 0 ) {
+				nY = nY - nHeight + 5;
 			}
 		}
-	}
-	
-	p.setPen( borderColor );
-	p.setRenderHint( QPainter::Antialiasing );
-	p.drawLine( 0, 0, m_nEditorWidth, 0 );
-	p.setPen( QPen( borderColor, 2 ) );
-	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
-	
-	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
-		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
-		p.setPen( QPen( lineInactiveColor, 2 ) );
-		p.drawLine( m_nActiveWidth, m_nEditorHeight,
-					m_nEditorWidth, m_nEditorHeight );
-	}
-}
-
-void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
-{
-	const auto pPref = H2Core::Preferences::get_instance();
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	
-	const QColor baseLineColor(
-		pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor noteOffColor(
-		pPref->getTheme().m_color.m_patternEditor_noteOffColor );
-	const QColor borderColor(
-		pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
-
-	QPainter p( pixmap );
-
-	drawDefaultBackground( p );
-
-	// central line
-	p.setPen( baseLineColor );
-	p.drawLine(0, height() / 2.0, m_nActiveWidth, height() / 2.0);
-	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
-		p.drawLine( m_nActiveWidth, height() / 2.0,
-					m_nEditorWidth, height() / 2.0);
-	}
-
-	if ( pPattern != nullptr ) {
-		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-			 selectedRow.sType.isEmpty() ) {
-			DEBUGLOG( "Empty row" );
-			return;
+		else {
+			nY = height() - fValue;
+			nHeight = fValue;
 		}
 
-		QPen selectedPen( selectedNoteColor() );
-		selectedPen.setWidth( 2 );
+		p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteColor );
+		p.drawRoundedRect( nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2,
+						   2, 2 );
 
-		const Pattern::notes_t* notes = pPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
-			Note *pposNote = it->second;
-			assert( pposNote );
-			uint pos = pposNote->get_position();
-			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes,coit,pos, pPattern) {
-				Note *pNote = coit->second;
-				assert( pNote );
-				// NoteOff notes can have a custom lead/lag. But having a pan
-				// would not make any sense for them.
-				if ( ( pNote->get_note_off() &&
-					   m_mode != PatternEditor::Mode::LeadLag ) ||
-					 ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-						   pNote->getType() == selectedRow.sType ) &&
-					   ! m_selection.isSelected( pNote ) ) ) {
-					continue;
-				}
-				uint x_pos = PatternEditor::nMargin +
-					pNote->get_position() * m_fGridWidth;
-				QColor noteColor;
-				if ( ! pNote->get_note_off() ) {
-					noteColor = DrumPatternEditor::computeNoteColor(
-						pNote->get_velocity() );
-				} else {
-					noteColor = noteOffColor;
-				}
-
-				p.setPen( Qt::NoPen );
-
-				float fValue = 0;
-				if ( m_mode == PatternEditor::Mode::Pan ) {
-					fValue = pNote->getPan();
-				} else if ( m_mode == PatternEditor::Mode::LeadLag ) {
-					fValue = -1 * pNote->get_lead_lag();
-				}
-
-				// Rounding in order to not miss the center due to
-				// rounding errors introduced in the Note class
-				// internals.
-				fValue *= 100;
-				fValue = std::round( fValue );
-				fValue /= 100;
-
-				int nLineWidth = 3;
-				p.setPen( QPen( Qt::black, 1 ) );
-				p.setRenderHint( QPainter::Antialiasing );
-				if ( fValue == 0.f ) {
-					// value is centered - draw circle
-					int y_pos = (int)( height() * 0.5 );
-					p.setBrush(QColor( noteColor ));
-					p.drawEllipse( x_pos-4 + xoffset, y_pos-4, 8, 8);
-					p.setBrush( Qt::NoBrush );
-
-					if ( m_selection.isSelected( pNote ) ) {
-						p.setPen( selectedPen );
-						p.setRenderHint( QPainter::Antialiasing );
-						p.drawEllipse( x_pos - 6 + xoffset, y_pos - 6,
-									   12, 12);
-					}
-				}
-				else {
-					// value was altered - draw a rectangle
-					int nHeight = 0.5 * height() * std::abs( fValue ) + 5;
-					int nStartY = height() * 0.5 - 2;
-					if ( fValue >= 0 ) {
-						nStartY = nStartY - nHeight + 5;
-					}
-
-					p.fillRect( x_pos - 1 + xoffset, nStartY,
-								nLineWidth, nHeight, QColor( noteColor ) );
-					p.drawRoundedRect( x_pos - 1 + xoffset - 1, nStartY - 1,
-									   nLineWidth + 2, nHeight + 2, 2, 2 );
-
-					if ( m_selection.isSelected( pNote ) ) {
-						p.setPen( selectedPen );
-						p.drawRoundedRect( x_pos - 1 - 2 + xoffset, nStartY - 2,
-										   nLineWidth + 4, nHeight + 4,
-										   4, 4 );
-					}
-				}
-				xoffset++;
-			}
+		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+			p.setPen( highlightPen );
+			p.drawRoundedRect( nX - 1 - 2, nY - 2, nLineWidth + 4, nHeight + 4 ,
+							   4, 4 );
 		}
-	}
-
-	
-	p.setPen( borderColor );
-	p.setRenderHint( QPainter::Antialiasing );
-	p.drawLine( 0, 0, m_nEditorWidth, 0 );
-	p.setPen( QPen( borderColor, 2 ) );
-	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
-	
-	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
-		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
-		p.setPen( QPen( lineInactiveColor, 2 ) );
-		p.drawLine( m_nActiveWidth, m_nEditorHeight,
-					m_nEditorWidth, m_nEditorHeight );
 	}
 }
 
@@ -1560,19 +1399,97 @@ void NotePropertiesRuler::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	if ( m_mode == PatternEditor::Mode::Velocity ||
-		 m_mode == PatternEditor::Mode::Probability ) {
-		createNormalizedBackground( m_pBackgroundPixmap );
-	}
-	else if ( m_mode == PatternEditor::Mode::Pan ||
-			  m_mode == PatternEditor::Mode::LeadLag ) {
-		createCenteredBackground( m_pBackgroundPixmap );
-	}
-	else if ( m_mode == PatternEditor::Mode::KeyOctave ) {
-		createKeyOctaveBackground( m_pBackgroundPixmap );
-	}
-	
 	m_bBackgroundInvalid = false;
+
+	if ( m_layout == Layout::KeyOctave ) {
+		return createKeyOctaveBackground( m_pBackgroundPixmap );
+	}
+
+	const auto pPref = H2Core::Preferences::get_instance();
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+
+	const QColor borderColor(
+		pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor lineInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	QPainter p( m_pBackgroundPixmap );
+
+	drawDefaultBackground( p );
+
+	// central line
+	if ( m_layout == Layout::Centered ) {
+		p.setPen( borderColor );
+		p.drawLine( 0, height() / 2.0, m_nActiveWidth, height() / 2.0 );
+		if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+			p.setPen( lineInactiveColor );
+			p.drawLine( m_nActiveWidth, height() / 2.0,
+						m_nEditorWidth, height() / 2.0 );
+		}
+	}
+
+	// draw pattern
+	if ( pPattern != nullptr ) {
+		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->getSelectedRowDB() );
+		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+			 selectedRow.sType.isEmpty() ) {
+			DEBUGLOG( "Empty row" );
+			return;
+		}
+
+		// Since properties of notes within the same row would end up being
+		// painted on top of eachother, we go through the notes column by column
+		// and add small horizontal offsets to each additional note to hint
+		// their existence.
+		int nLastPos = -1;
+		int nOffsetX = 0;
+		for ( const auto& [ nnPos, ppNote ] : *pPattern->getNotes() ) {
+			if ( ppNote == nullptr ) {
+				continue;
+			}
+
+			if ( nLastPos != nnPos ) {
+				nLastPos = nnPos;
+				nOffsetX = 0;
+			}
+
+			// NoteOff notes can have a custom probability and lead lag. But
+			// having a velocity and pan would not make any sense for them.
+			if ( ( ppNote->get_note_off() &&
+				   ! ( m_mode == PatternEditor::Mode::Probability ||
+					   m_mode == PatternEditor::Mode::LeadLag ) ) ||
+				 ! ( ppNote->get_instrument_id() == selectedRow.nInstrumentID &&
+					 ppNote->getType() == selectedRow.sType ) &&
+				 ! m_selection.isSelected( ppNote ) ) {
+				continue;
+			}
+
+			const auto style = static_cast<NoteStyle>(
+				m_selection.isSelected( ppNote ) ?
+				NoteStyle::Selected | NoteStyle::Foreground :
+				NoteStyle::Foreground);
+			drawNote( p, ppNote, style, nOffsetX );
+
+			++nOffsetX;
+		}
+	}
+
+	// draw border
+	p.setPen( borderColor );
+	p.setRenderHint( QPainter::Antialiasing );
+	p.drawLine( 0, 0, m_nEditorWidth, 0 );
+	p.setPen( QPen( borderColor, 2 ) );
+	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
+
+	// draw inactive region
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
+		p.setPen( QPen( lineInactiveColor, 2 ) );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight,
+					m_nEditorWidth, m_nEditorHeight );
+	}
 }
 
 std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( const QRect& r ) {
