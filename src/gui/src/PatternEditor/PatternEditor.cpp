@@ -1800,56 +1800,19 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	if ( ev->button() == Qt::RightButton ) {
 		// Adjusting note properties.
 
-		// Assemble all notes to be edited.
-		DrumPatternRow row;
-		if ( m_editor == Editor::DrumPattern ) {
-			row = m_pPatternEditorPanel->getRowDB( nRow );
-		}
-		else {
-			row = m_pPatternEditorPanel->getRowDB(
-				m_pPatternEditorPanel->getSelectedRowDB() );
-		}
-		if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-			DEBUGLOG( QString( "Empty row clicked. y: %1, m_nGridHeight: %2, nRow: %3" )
-					  .arg( ev->y() ).arg( m_nGridHeight ).arg( nRow ) );
-			return;
-		}
-
-		// Note clicked by the user.
-		Note* pDraggedNote = nullptr;
-		if ( m_editor == Editor::DrumPattern ) {
-			pDraggedNote = pPattern->findNote(
-				nColumn, nRealColumn, row.nInstrumentID, row.sType, false );
-		}
-		else if ( m_editor == Editor::PianoRoll ) {
-			pDraggedNote = pPattern->findNote(
-				nColumn, nRealColumn, row.nInstrumentID, row.sType,
-				Note::pitchToKey( Note::lineToPitch( nRow ) ),
-				Note::pitchToOctave( Note::lineToPitch( nRow ) ), false );
-		}
-		else {
-			ERRORLOG( "general click-dragging not implemented for NotePropertiesRuler" );
-			return;
-		}
-
-		// NoteOff notes can have both a custom lead/lag and probability. But
-		// all other properties won't take effect.
-		if ( pDraggedNote == nullptr ||
-			 ( pDraggedNote->get_note_off() &&
-			   ( m_mode != Mode::LeadLag || m_mode != Mode::Probability ) ) ) {
+		const auto notesAtPoint = getNotesAtPoint( pPattern, ev->pos(), false );
+		if ( notesAtPoint.size() == 0 ) {
 			return;
 		}
 
 		clearDraggedNotes();
-
-		if ( ! m_selection.isEmpty() ) {
-			validateSelection();
-		}
-		if ( m_selection.isSelected( pDraggedNote ) ) {
+		// Either all or none of the notes at point should be selected. It is
+		// safe to just check the first one.
+		if ( m_selection.isSelected( notesAtPoint[ 0 ] ) ) {
 			// The clicked note is part of the current selection. All selected
 			// notes will be edited.
-			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-				if ( ppNote != nullptr && m_selection.isSelected( ppNote ) &&
+			for ( const auto& ppNote : m_selection ) {
+				if ( ppNote != nullptr &&
 					 ! ( ppNote->get_note_off() &&
 						 ( m_mode != Mode::LeadLag &&
 						   m_mode != Mode::Probability ) ) ) {
@@ -1858,9 +1821,18 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 			}
 		}
 		else {
-			m_draggedNotes[ pDraggedNote ] = new Note( pDraggedNote );
+			for ( const auto& ppNote : notesAtPoint ) {
+				// NoteOff notes can have both a custom lead/lag and
+				// probability. But all other properties won't take effect.
+				if ( ! ( ppNote->get_note_off() &&
+						( m_mode != Mode::LeadLag &&
+						  m_mode != Mode::Probability ) ) ) {
+					m_draggedNotes[ ppNote ] = new Note( ppNote );
+				}
+			}
 		}
-		m_nDragStartColumn = pDraggedNote->get_position();
+		// All notes at located at the same point.
+		m_nDragStartColumn = notesAtPoint[ 0 ]->get_position();
 		m_nDragY = ev->y();
 	}
 }
