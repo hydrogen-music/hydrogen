@@ -947,7 +947,20 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	}
 	
 	drawFocus( painter );
-	
+
+	// Draw hovered notes
+	const auto baseStyle =
+		static_cast<NoteStyle>(NoteStyle::Foreground | NoteStyle::Hovered);
+	int nOffsetX = 0;
+	for ( const auto& ppNote : m_pPatternEditorPanel->getHoveredNotes() ) {
+		const auto style = static_cast<NoteStyle>(
+			m_selection.isSelected( ppNote ) ?
+			NoteStyle::Selected | baseStyle : baseStyle );
+		drawNote( painter, ppNote, style, nOffsetX );
+		++nOffsetX;
+	}
+
+
 	m_selection.paintSelection( &painter );
 
 	// cursor
