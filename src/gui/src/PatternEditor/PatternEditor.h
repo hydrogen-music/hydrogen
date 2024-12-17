@@ -348,7 +348,6 @@ protected:
 		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
 		std::vector<H2Core::Note*> getNotesAtPoint( const QPoint& point,
 													bool bExcludeSelected );
-		std::vector<H2Core::Note*> m_hoveredNotes;
 };
 
 inline bool PatternEditor::getSelectNewNotes() const {

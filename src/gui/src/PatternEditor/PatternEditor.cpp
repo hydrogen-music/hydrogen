@@ -924,16 +924,8 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 {
 	// Check which note is hovered.
-	//
-	// Since we compare by pointer and all notes in a pattern should be unique,
-	// it should be enough to compare the first note.
 	const auto hoveredNotes = getNotesAtPoint( ev->pos(), false );
-	if ( hoveredNotes.size() != m_hoveredNotes.size() ||
-		 ( hoveredNotes.size() > 0 &&
-		   hoveredNotes[ 0 ] != m_hoveredNotes[ 0 ] ) ) {
-		m_hoveredNotes = hoveredNotes;
-		updateEditor( true );
-	}
+	m_pPatternEditorPanel->setHoveredNotes( hoveredNotes );
 
 	if ( ev->buttons() != Qt::NoButton ) {
 		updateModifiers( ev );

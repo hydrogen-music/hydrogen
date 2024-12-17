@@ -24,6 +24,8 @@
 #ifndef PATTERN_EDITOR_PANEL_H
 #define PATTERN_EDITOR_PANEL_H
 
+#include <vector>
+
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -101,6 +103,7 @@ struct DrumPatternRow {
 
 namespace H2Core
 {
+	class Note;
 	class Pattern;
 }
 
@@ -258,6 +261,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
 
+		const std::vector<H2Core::Note*>& getHoveredNotes() const;
+		void setHoveredNotes( std::vector<H2Core::Note*> hoveredNotes );
+
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
@@ -396,6 +402,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		bool m_bPatternSelectedViaTab;
 
+		std::vector<H2Core::Note*> m_hoveredNotes;
+
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
@@ -419,6 +427,9 @@ inline int PatternEditorPanel::getResolution() const {
 }
 inline bool PatternEditorPanel::isUsingTriplets() const {
 	return m_bIsUsingTriplets;
+}
+inline const std::vector<H2Core::Note*>& PatternEditorPanel::getHoveredNotes() const {
+	return m_hoveredNotes;
 }
 
 #endif

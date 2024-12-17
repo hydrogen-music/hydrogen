@@ -143,7 +143,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	// Draw hovered note
 	const auto baseStyle =
 		static_cast<NoteStyle>(NoteStyle::Foreground | NoteStyle::Hovered);
-	for ( const auto& ppNote : m_hoveredNotes ) {
+	for ( const auto& ppNote : m_pPatternEditorPanel->getHoveredNotes() ) {
 		const auto style = static_cast<NoteStyle>(
 			m_selection.isSelected( ppNote ) ?
 			NoteStyle::Selected | baseStyle : baseStyle );

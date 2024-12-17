@@ -1784,6 +1784,17 @@ void PatternEditorPanel::updateDB() {
 	}
 }
 
+void PatternEditorPanel::setHoveredNotes( std::vector<H2Core::Note*> hoveredNotes ) {
+	if ( hoveredNotes == m_hoveredNotes ) {
+		return;
+	}
+
+	m_hoveredNotes = hoveredNotes;
+
+	getVisibleEditor()->updateEditor( true );
+	getVisiblePropertiesRuler()->updateEditor();
+}
+
 void PatternEditorPanel::printDB() const {
 	QString sMsg = "PatternEditorPanel database:";
 	for ( int ii = 0; ii < m_db.size(); ++ii ) {
