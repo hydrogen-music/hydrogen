@@ -957,7 +957,11 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 			m_selection.isSelected( ppNote ) ?
 			NoteStyle::Selected | baseStyle : baseStyle );
 		drawNote( painter, ppNote, style, nOffsetX );
-		++nOffsetX;
+
+		if ( m_layout != Layout::KeyOctave ) {
+			// Within the key/octave view notes should be unique.
+			++nOffsetX;
+		}
 	}
 
 
@@ -1140,227 +1144,95 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 		noteColor = pPref->getTheme().m_color.m_patternEditor_noteOffColor;
 	}
 
-	float fValue = 0;
-	if ( m_mode == PatternEditor::Mode::Velocity ) {
-		fValue = std::round( pNote->get_velocity() * height() );
-	}
-	else if ( m_mode == PatternEditor::Mode::Probability ) {
-		fValue = std::round( pNote->get_probability() * height() );
-	}
-	else if ( m_mode == PatternEditor::Mode::Pan ) {
-		// Rounding in order to not miss the center due to rounding errors
-		// introduced in the Note class internals.
-		fValue = std::round( pNote->getPan() * 100 ) / 100;
-	}
-	else if ( m_mode == PatternEditor::Mode::LeadLag ) {
-		fValue = -1 * std::round( pNote->get_lead_lag() * 100 ) / 100;
-	}
-
 	const int nX = nOffsetX + PatternEditor::nMargin +
 		pNote->get_position() * m_fGridWidth;
 
-	if ( m_layout == Layout::Centered && fValue == 0 ) {
-		// value is centered - draw circle
-		const int nY = static_cast<int>(std::round( height() * 0.5 ) );
-		p.setBrush(QColor( noteColor ));
-		p.drawEllipse( nX - 4, nY - 4, 8, 8);
-		p.setBrush( Qt::NoBrush );
+	if ( m_layout == Layout::Centered || m_layout == Layout::Normalized ) {
+		float fValue = 0;
+		if ( m_mode == PatternEditor::Mode::Velocity ) {
+			fValue = std::round( pNote->get_velocity() * height() );
+		}
+		else if ( m_mode == PatternEditor::Mode::Probability ) {
+			fValue = std::round( pNote->get_probability() * height() );
+		}
+		else if ( m_mode == PatternEditor::Mode::Pan ) {
+			// Rounding in order to not miss the center due to rounding errors
+			// introduced in the Note class internals.
+			fValue = std::round( pNote->getPan() * 100 ) / 100;
+		}
+		else if ( m_mode == PatternEditor::Mode::LeadLag ) {
+			fValue = -1 * std::round( pNote->get_lead_lag() * 100 ) / 100;
+		}
 
-		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-			p.setPen( highlightPen );
-			p.setRenderHint( QPainter::Antialiasing );
-			p.drawEllipse( nX - 6, nY - 6,
-						   12, 12);
+
+		if ( m_layout == Layout::Centered && fValue == 0 ) {
+			// value is centered - draw circle
+			const int nY = static_cast<int>(std::round( height() * 0.5 ) );
+			p.setBrush( noteColor );
+			p.drawEllipse( nX - 4, nY - 4, 8, 8);
+			p.setBrush( Qt::NoBrush );
+
+			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+				p.setPen( highlightPen );
+				p.setRenderHint( QPainter::Antialiasing );
+				p.drawEllipse( nX - 6, nY - 6, 12, 12);
+			}
+		}
+		else {
+			int nY, nHeight;
+			if ( m_layout == Layout::Centered ) {
+				nHeight = 0.5 * height() * std::abs( fValue ) + 5;
+				nY = height() * 0.5 - 2;
+				if ( fValue >= 0 ) {
+					nY = nY - nHeight + 5;
+				}
+			}
+			else {
+				nY = height() - fValue;
+				nHeight = fValue;
+			}
+
+			p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteColor );
+			p.drawRoundedRect( nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2,
+							   2, 2 );
+
+			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+				p.setPen( highlightPen );
+				p.drawRoundedRect( nX - 1 - 2, nY - 2, nLineWidth + 4,
+								   nHeight + 4, 4, 4 );
+			}
 		}
 	}
 	else {
-		int nY, nHeight;
-		if ( m_layout == Layout::Centered ) {
-			nHeight = 0.5 * height() * std::abs( fValue ) + 5;
-			nY = height() * 0.5 - 2;
-			if ( fValue >= 0 ) {
-				nY = nY - nHeight + 5;
-			}
-		}
-		else {
-			nY = height() - fValue;
-			nHeight = fValue;
-		}
+		// KeyOctave layout
 
-		p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteColor );
-		p.drawRoundedRect( nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2,
-						   2, 2 );
+		// paint the octave
+		const int nRadiusOctave = 3;
+		const int nOctaveY = ( 4 - pNote->get_octave() ) *
+			NotePropertiesRuler::nKeyLineHeight;
+		p.setBrush( noteColor );
+		p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave );
 
+		// paint note
+		const int nRadiusKey = 5;
+		const int nKeyY = NotePropertiesRuler::nKeyOctaveHeight -
+			( ( pNote->get_key() + 1 ) * NotePropertiesRuler::nKeyLineHeight );
+		p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
+
+		// Paint selection outlines
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 			p.setPen( highlightPen );
-			p.drawRoundedRect( nX - 1 - 2, nY - 2, nLineWidth + 4, nHeight + 4 ,
-							   4, 4 );
+			p.setBrush( Qt::NoBrush );
+			// Octave
+			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 1,
+						   nRadiusOctave + 1 );
+
+			// Key
+			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey + 1,
+						   nRadiusKey + 1 );
 		}
 	}
 }
-
-void NotePropertiesRuler::createKeyOctaveBackground(QPixmap *pixmap)
-{
-	const auto pPref = H2Core::Preferences::get_instance();
-	QColor backgroundColor =
-		pPref->getTheme().m_color.m_patternEditor_backgroundColor;
-	const QColor backgroundInactiveColor(
-		pPref->getTheme().m_color.m_windowColor );
-	QColor alternateRowColor =
-		pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
-	QColor octaveColor =
-		pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
-	QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
-	QColor textColor( pPref->getTheme().m_color.m_patternEditor_textColor );
-
-	QPainter p( pixmap );
-	p.fillRect( 0, 0, m_nEditorWidth, m_nEditorHeight, backgroundInactiveColor );
-	drawDefaultBackground( p, NotePropertiesRuler::nOctaveHeight -
-						   NotePropertiesRuler::nKeyOctaveSpaceHeight,
-						   NotePropertiesRuler::nKeyLineHeight );
-
-	// fill the background of the key region;
-	for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
-		  y < NotePropertiesRuler::nKeyOctaveHeight;
-		  y = y + NotePropertiesRuler::nKeyLineHeight ) {
-
-		const int nRow = ( y - NotePropertiesRuler::nOctaveHeight ) /
-			NotePropertiesRuler::nKeyLineHeight;
-		if ( nRow == 1 ||  nRow == 3 || nRow == 5 || nRow == 8 || nRow == 10 ) {
-			// Draw rows of semi tones in a different color.
-			p.setPen( QPen( alternateRowColor,
-							NotePropertiesRuler::nKeyLineHeight - 1,
-							Qt::SolidLine, Qt::FlatCap ) );
-		}
-		else {
-			p.setPen( QPen( octaveColor,
-							NotePropertiesRuler::nKeyLineHeight - 1,
-							Qt::SolidLine, Qt::FlatCap ) );
-		}
-					
-		p.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
-	}
-
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern != nullptr ) {
-		drawGridLines( p, Qt::DotLine );
-
-		// Annotate with note class names
-		static QString noteNames[] = {
-		    tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
-		    tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
-	
-		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-	
-		p.setFont( font );
-		p.setPen( textColor );
-		for ( int n = 0; n < KEYS_PER_OCTAVE; n++ ) {
-			p.drawText( 3, NotePropertiesRuler::nOctaveHeight +
-						NotePropertiesRuler::nKeyLineHeight * n +3,
-						noteNames[n] );
-		}
-
-		// Horizontal grid lines in the key region
-		p.setPen( QPen( lineColor, 1, Qt::SolidLine));
-		for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
-			  y <= NotePropertiesRuler::nKeyOctaveHeight;
-			  y = y + NotePropertiesRuler::nKeyLineHeight ) {
-			p.drawLine( PatternEditor::nMargin,
-						y - NotePropertiesRuler::nKeyLineHeight / 2,
-						m_nActiveWidth,
-						y - NotePropertiesRuler::nKeyLineHeight / 2 );
-		}
-
-		if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-			p.setPen( lineInactiveColor );
-			for ( unsigned y = NotePropertiesRuler::nOctaveHeight;
-				  y <= NotePropertiesRuler::nKeyOctaveHeight;
-				  y = y + NotePropertiesRuler::nKeyLineHeight ) {
-				p.drawLine( m_nActiveWidth,
-							y - NotePropertiesRuler::nKeyLineHeight / 2,
-							m_nEditorWidth,
-							y - NotePropertiesRuler::nKeyLineHeight / 2 );
-			}
-		}
-
-		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-			 selectedRow.sType.isEmpty() ) {
-			DEBUGLOG( "Empty row" );
-			return;
-		}
-
-		QPen selectedPen( highlightedNoteColor( NoteStyle::Selected ) );
-		selectedPen.setWidth( 2 );
-
-		const Pattern::notes_t* notes = pPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
-			Note *pNote = it->second;
-			assert( pNote );
-			if ( pNote->get_note_off() ||
-				 ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-					   pNote->getType() == selectedRow.sType ) &&
-				   ! m_selection.isSelected( pNote ) ) ) {
-				continue;
-			}
-
-			// paint the octave
-			const int nRadiusOctave = 3;
-			const int nX = PatternEditor::nMargin +
-				pNote->get_position() * m_fGridWidth;
-			const int nOctaveY = ( 4 - pNote->get_octave() ) *
-				NotePropertiesRuler::nKeyLineHeight;
-			p.setPen( QPen( Qt::black, 1 ) );
-			p.setBrush( DrumPatternEditor::computeNoteColor(
-							pNote->get_velocity() ) );
-			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave,
-						   nRadiusOctave );
-
-			// paint note
-			const int nRadiusKey = 5;
-			const int nKeyY = NotePropertiesRuler::nKeyOctaveHeight -
-				( ( pNote->get_key() + 1 ) *
-				  NotePropertiesRuler::nKeyLineHeight );
-
-			p.setBrush( DrumPatternEditor::computeNoteColor(
-							pNote->get_velocity() ) );
-			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
-
-			// Paint selection outlines
-			if ( m_selection.isSelected( pNote ) ) {
-				p.setPen( selectedPen );
-				p.setBrush( Qt::NoBrush );
-				p.setRenderHint( QPainter::Antialiasing );
-				// Octave
-				p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 1,
-							   nRadiusOctave + 1 );
-
-				// Key
-				p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey + 1,
-							   nRadiusKey + 1 );
-			}
-		}
-	}
-	
-	p.setPen( lineColor );
-	p.setRenderHint( QPainter::Antialiasing );
-	p.drawLine( 0, 0, m_nEditorWidth, 0 );
-	p.setPen( QPen( lineColor, 2 ) );
-	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
-	
-	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
-		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
-		p.setPen( QPen( lineInactiveColor, 2 ) );
-		p.drawLine( m_nActiveWidth, m_nEditorHeight,
-					m_nEditorWidth, m_nEditorHeight );
-	}
-}
-
 
 void NotePropertiesRuler::updateEditor( bool )
 {
@@ -1385,30 +1257,120 @@ void NotePropertiesRuler::createBackground()
 
 	m_bBackgroundInvalid = false;
 
-	if ( m_layout == Layout::KeyOctave ) {
-		return createKeyOctaveBackground( m_pBackgroundPixmap );
-	}
-
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	const QColor borderColor(
+	const QColor backgroundInactiveColor(
+		pPref->getTheme().m_color.m_windowColor );
+	const QColor lineColor(
 		pPref->getTheme().m_color.m_patternEditor_lineColor );
+	QColor textColor( pPref->getTheme().m_color.m_patternEditor_textColor );
 	const QColor lineInactiveColor(
 		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+	const QColor alternateRowColor =
+		pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+	const QColor octaveColor =
+		pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
 
 	QPainter p( m_pBackgroundPixmap );
 
-	drawDefaultBackground( p );
+	if ( m_layout == Layout::KeyOctave ) {
+		p.fillRect( 0, 0, m_nEditorWidth, m_nEditorHeight,
+					backgroundInactiveColor );
+		drawDefaultBackground( p, NotePropertiesRuler::nOctaveHeight -
+							   NotePropertiesRuler::nKeyOctaveSpaceHeight,
+							   NotePropertiesRuler::nKeyLineHeight );
+	}
+	else {
+		drawDefaultBackground( p );
+	}
 
-	// central line
+	// draw layout specific background design
 	if ( m_layout == Layout::Centered ) {
-		p.setPen( borderColor );
+		// central line
+		p.setPen( lineColor );
 		p.drawLine( 0, height() / 2.0, m_nActiveWidth, height() / 2.0 );
 		if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 			p.setPen( lineInactiveColor );
 			p.drawLine( m_nActiveWidth, height() / 2.0,
 						m_nEditorWidth, height() / 2.0 );
+		}
+	}
+	else if ( m_layout == Layout::KeyOctave ) {
+		// key / octave background
+		for ( int yy = NotePropertiesRuler::nOctaveHeight;
+			  yy < NotePropertiesRuler::nKeyOctaveHeight;
+			  yy += NotePropertiesRuler::nKeyLineHeight ) {
+
+			const int nRow = ( yy - NotePropertiesRuler::nOctaveHeight ) /
+				NotePropertiesRuler::nKeyLineHeight;
+			if ( nRow == 1 ||  nRow == 3 || nRow == 5 || nRow == 8 ||
+				 nRow == 10 ) {
+				// Draw rows of semi tones in a different color.
+				p.setPen( QPen( alternateRowColor,
+								NotePropertiesRuler::nKeyLineHeight - 1,
+								Qt::SolidLine, Qt::FlatCap ) );
+			}
+			else {
+				p.setPen( QPen( octaveColor,
+								NotePropertiesRuler::nKeyLineHeight - 1,
+								Qt::SolidLine, Qt::FlatCap ) );
+			}
+
+			p.drawLine( PatternEditor::nMargin, yy, m_nActiveWidth, yy );
+		}
+
+		if ( pPattern != nullptr ) {
+			drawGridLines( p, Qt::DotLine );
+
+			// Annotate with note class names
+			static QStringList noteNames = QStringList()
+				<< tr( "B" )
+				<< tr( "A#" )
+				<< tr( "A" )
+				<< tr( "G#" )
+				<< tr( "G" )
+				<< tr( "F#" )
+				<< tr( "F" )
+				<< tr( "E" )
+				<< tr( "D#" )
+				<< tr( "D" )
+				<< tr( "C#" )
+				<< tr( "C" );
+
+			QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+						getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+
+			p.setFont( font );
+			p.setPen( textColor );
+			for ( int n = 0; n < KEYS_PER_OCTAVE; n++ ) {
+				p.drawText( 3, NotePropertiesRuler::nOctaveHeight +
+							NotePropertiesRuler::nKeyLineHeight * n +3,
+							noteNames[n] );
+			}
+
+			// Horizontal grid lines in the key region
+			p.setPen( QPen( lineColor, 1, Qt::SolidLine));
+			for ( int yy = NotePropertiesRuler::nOctaveHeight;
+				  yy <= NotePropertiesRuler::nKeyOctaveHeight;
+				  yy += NotePropertiesRuler::nKeyLineHeight ) {
+				p.drawLine( PatternEditor::nMargin,
+							yy - NotePropertiesRuler::nKeyLineHeight / 2,
+							m_nActiveWidth,
+							yy - NotePropertiesRuler::nKeyLineHeight / 2 );
+			}
+
+			if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+				p.setPen( lineInactiveColor );
+				for ( int yy = NotePropertiesRuler::nOctaveHeight;
+					  yy <= NotePropertiesRuler::nKeyOctaveHeight;
+					  yy = yy + NotePropertiesRuler::nKeyLineHeight ) {
+					p.drawLine( m_nActiveWidth,
+								yy - NotePropertiesRuler::nKeyLineHeight / 2,
+								m_nEditorWidth,
+								yy - NotePropertiesRuler::nKeyLineHeight / 2 );
+				}
+			}
 		}
 	}
 
@@ -1455,15 +1417,18 @@ void NotePropertiesRuler::createBackground()
 				NoteStyle::Foreground);
 			drawNote( p, ppNote, style, nOffsetX );
 
-			++nOffsetX;
+			if ( m_layout != Layout::KeyOctave ) {
+				// Within the key/octave view notes should be unique.
+				++nOffsetX;
+			}
 		}
 	}
 
 	// draw border
-	p.setPen( borderColor );
+	p.setPen( lineColor );
 	p.setRenderHint( QPainter::Antialiasing );
 	p.drawLine( 0, 0, m_nEditorWidth, 0 );
-	p.setPen( QPen( borderColor, 2 ) );
+	p.setPen( QPen( lineColor, 2 ) );
 	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
 
 	// draw inactive region

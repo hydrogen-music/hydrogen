@@ -112,8 +112,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		double m_fLastSetValue;
 		bool m_bValueHasBeenSet;
 
-		void createKeyOctaveBackground(QPixmap *pixmap);
-
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;
 		void keyPressEvent( QKeyEvent *ev ) override;
