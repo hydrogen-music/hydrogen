@@ -1134,18 +1134,36 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 	highlightPen.setWidth( 2 );
 	const int nLineWidth = 3;
 
-	p.setPen( QPen( Qt::black, 1 ) );
-	p.setRenderHint( QPainter::Antialiasing );
-
-	QColor noteColor;
+	QColor color;
 	if ( ! pNote->get_note_off() ) {
-		noteColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
+		color = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 	} else {
-		noteColor = pPref->getTheme().m_color.m_patternEditor_noteOffColor;
+		color = pPref->getTheme().m_color.m_patternEditor_noteOffColor;
 	}
+	const QColor noteColor(
+		pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
+	const QColor noteInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 150 ) );
+	const QColor noteoffInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor );
 
 	const int nX = nOffsetX + PatternEditor::nMargin +
 		pNote->get_position() * m_fGridWidth;
+
+	QBrush noteBrush( color );
+	QPen notePen( noteColor );
+	if ( noteStyle & NoteStyle::Background ) {
+
+		if ( nX >= m_nActiveWidth ) {
+			noteBrush.setColor( noteInactiveColor );
+			notePen.setColor( noteInactiveColor );
+		}
+
+		noteBrush.setStyle( Qt::Dense4Pattern );
+		notePen.setStyle( Qt::DotLine );
+	}
+	p.setPen( notePen );
+	p.setRenderHint( QPainter::Antialiasing );
 
 	if ( m_layout == Layout::Centered || m_layout == Layout::Normalized ) {
 		float fValue = 0;
@@ -1168,7 +1186,7 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 		if ( m_layout == Layout::Centered && fValue == 0 ) {
 			// value is centered - draw circle
 			const int nY = static_cast<int>(std::round( height() * 0.5 ) );
-			p.setBrush( noteColor );
+			p.setBrush( noteBrush );
 			p.drawEllipse( nX - 4, nY - 4, 8, 8);
 			p.setBrush( Qt::NoBrush );
 
@@ -1192,7 +1210,7 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 				nHeight = fValue;
 			}
 
-			p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteColor );
+			p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteBrush );
 			p.drawRoundedRect( nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2,
 							   2, 2 );
 
@@ -1210,7 +1228,7 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 		const int nRadiusOctave = 3;
 		const int nOctaveY = ( 4 - pNote->get_octave() ) *
 			NotePropertiesRuler::nKeyLineHeight;
-		p.setBrush( noteColor );
+		p.setBrush( noteBrush );
 		p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave );
 
 		// paint note
@@ -1218,11 +1236,11 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 		const int nKeyY = NotePropertiesRuler::nKeyOctaveHeight -
 			( ( pNote->get_key() + 1 ) * NotePropertiesRuler::nKeyLineHeight );
 		p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
+		p.setBrush( Qt::NoBrush );
 
 		// Paint selection outlines
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 			p.setPen( highlightPen );
-			p.setBrush( Qt::NoBrush );
 			// Octave
 			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 1,
 						   nRadiusOctave + 1 );
@@ -1375,14 +1393,11 @@ void NotePropertiesRuler::createBackground()
 	}
 
 	// draw pattern
-	if ( pPattern != nullptr ) {
-		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-			 selectedRow.sType.isEmpty() ) {
-			DEBUGLOG( "Empty row" );
-			return;
-		}
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+		const auto baseStyle = ppPattern == pPattern ?
+			NoteStyle::Foreground : NoteStyle::Background;
 
 		// Since properties of notes within the same row would end up being
 		// painted on top of eachother, we go through the notes column by column
@@ -1390,7 +1405,7 @@ void NotePropertiesRuler::createBackground()
 		// their existence.
 		int nLastPos = -1;
 		int nOffsetX = 0;
-		for ( const auto& [ nnPos, ppNote ] : *pPattern->getNotes() ) {
+		for ( const auto& [ nnPos, ppNote ] : *ppPattern->getNotes() ) {
 			if ( ppNote == nullptr ) {
 				continue;
 			}
@@ -1413,8 +1428,7 @@ void NotePropertiesRuler::createBackground()
 
 			const auto style = static_cast<NoteStyle>(
 				m_selection.isSelected( ppNote ) ?
-				NoteStyle::Selected | NoteStyle::Foreground :
-				NoteStyle::Foreground);
+				NoteStyle::Selected | baseStyle : baseStyle );
 			drawNote( p, ppNote, style, nOffsetX );
 
 			if ( m_layout != Layout::KeyOctave ) {
