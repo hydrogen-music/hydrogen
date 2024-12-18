@@ -421,10 +421,12 @@ void PatternEditor::selectNone()
 
 void PatternEditor::showPopupMenu( const QPoint &pos )
 {
-	// Enable or disable menu actions that only operate on selections.
-	bool bEmpty = m_selection.isEmpty();
-	for ( auto & action : m_selectionActions ) {
-		action->setEnabled( !bEmpty );
+	if ( m_editor == Editor::DrumPattern || m_editor == Editor::PianoRoll ) {
+		// Enable or disable menu actions that only operate on selections.
+		const bool bEmpty = m_selection.isEmpty();
+		for ( auto & action : m_selectionActions ) {
+			action->setEnabled( !bEmpty );
+		}
 	}
 
 	m_pPopupMenu->popup( pos );
