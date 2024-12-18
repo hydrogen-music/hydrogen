@@ -864,7 +864,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 
 	updateModifiers( ev );
 
-	if ( ev->button() == Qt::LeftButton ) {
+	if ( ev->buttons() == Qt::LeftButton || ev->buttons() == Qt::RightButton ) {
 		m_notesToSelectOnMove.clear();
 
 		// When pressing and dragging a note not already in a selection, we will
@@ -979,7 +979,8 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 	}
 
 	if ( m_notesToSelectOnMove.size() > 0 ) {
-		if ( ev->buttons() == Qt::LeftButton ) {
+		if ( ev->buttons() == Qt::LeftButton ||
+			 ev->buttons() == Qt::RightButton ) {
 			m_selection.clearSelection();
 			for ( const auto& ppNote : m_notesToSelectOnMove ) {
 				m_selection.addToSelection( ppNote );
