@@ -123,7 +123,10 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		bUpdate = true;
 	}
 
-	prepareUndoAction( point ); //get all old values
+	if ( m_selection.isEmpty() ) {
+		// No notes to act on
+		return;
+	}
 
 	float fDelta;
 	if ( ev->modifiers() == Qt::ControlModifier ||
@@ -136,11 +139,16 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
+	clearOldNotes();
+
 	bool bValueChanged = false;
 	for ( auto& ppNote : m_selection ) {
-		bValueChanged =
-			adjustNotePropertyDelta( ppNote, fDelta, /* bMessage=*/ true ) ||
-			bValueChanged;
+		if ( ppNote != nullptr ) {
+			m_oldNotes[ ppNote ] = new Note( ppNote );
+			bValueChanged =
+				adjustNotePropertyDelta( ppNote, fDelta, /* bMessage=*/ true ) ||
+				bValueChanged;
+		}
 	}
 
 	// Hide cursor in case this behavior was selected in the
