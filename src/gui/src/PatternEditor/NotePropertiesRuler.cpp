@@ -125,10 +125,6 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int nColumn, nRow, nRealColumn;
 	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
 
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	pHydrogenApp->setHideKeyboardCursor( true );
-
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
@@ -161,14 +157,10 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		bValueChanged = adjustNotePropertyDelta(
 			pNote, fDelta, /* bMessage=*/ true );
 	}
-	
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		if ( ! bValueChanged ) {
-			update();
-		}
-	}
+
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	handleKeyboardCursor( false );
 
 	if ( bValueChanged ) {
 		addUndoAction();
@@ -399,12 +391,6 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	int nColumn, nRow, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
 
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	pHydrogenApp->setHideKeyboardCursor( true );
-
 	if ( m_nDragPreviousColumn != nColumn ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction();
@@ -503,12 +489,6 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			m_bValueHasBeenSet = true;
 			Hydrogen::get_instance()->setIsModified( true );
 		}
-	}
-
-	// Cursor just got hidden.
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 
 	m_nDragPreviousColumn = nColumn;
@@ -801,7 +781,11 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		invalidateBackground();
 		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
 	}
-	handleKeyboardCursor( bUnhideCursor );
+
+	if ( bUnhideCursor ) {
+		handleKeyboardCursor( bUnhideCursor );
+	}
+
 	update();
 	ev->accept();
 }
@@ -930,7 +914,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	m_selection.paintSelection( &painter );
 
 	// cursor
-	if ( hasFocus() && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPen pen( pPref->getTheme().m_color.m_cursorColor );
 		pen.setWidth( 2 );
 		painter.setPen( pen );

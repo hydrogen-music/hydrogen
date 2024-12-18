@@ -218,6 +218,7 @@ public:
 	static bool isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern );
 
 		QPoint getCursorPosition();
+		void handleKeyboardCursor( bool bVisible );
 
 protected:
 
@@ -333,7 +334,6 @@ protected:
 	virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;
 
-		void handleKeyboardCursor( bool bUnhideCursor );
 	int m_nTick;
 
 		void setCursorRow( int nCursorRow );

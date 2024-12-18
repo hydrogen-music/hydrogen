@@ -747,6 +747,10 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 	}
 
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	m_pPatternEditorPanel->getVisibleEditor()->handleKeyboardCursor( false );
+
 	// propago l'evento al parent: serve per il drag&drop
 	PixmapWidget::mousePressEvent(ev);
 }

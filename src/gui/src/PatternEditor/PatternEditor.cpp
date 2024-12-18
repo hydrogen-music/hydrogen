@@ -479,7 +479,7 @@ void PatternEditor::copy()
 
 	// This selection will probably be pasted at some point. So show the
 	// keyboard cursor as this is the place where the selection will be pasted.
-	HydrogenApp::get_instance()->setHideKeyboardCursor( false );
+	handleKeyboardCursor( true );
 }
 
 
@@ -875,20 +875,10 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		}
 	}
 	m_selection.mousePressEvent( ev );
-	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
-	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	pHydrogenApp->setHideKeyboardCursor( true );
-
-	// Cursor just got hidden.
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getSidebar()->updateEditor();
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		update();
-	}
+	handleKeyboardCursor( false );
 }
 
 void PatternEditor::mouseClickEvent( QMouseEvent *ev )
@@ -946,10 +936,6 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 	// Update cursor position
 	m_pPatternEditorPanel->setCursorColumn( nColumn );
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		m_pPatternEditorPanel->getSidebar()->updateEditor();
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
 
 	update();
 }
@@ -1657,40 +1643,42 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 	else {
 		ev->ignore();
-		pHydrogenApp->setHideKeyboardCursor( true );
-
-		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-			m_pPatternEditorPanel->getSidebar()->updateEditor();
-			m_pPatternEditorPanel->getPatternEditorRuler()->update();
-			update();
-		}
 		return;
 	}
 
-	handleKeyboardCursor( bUnhideCursor );
+	if ( bUnhideCursor ) {
+		handleKeyboardCursor( bUnhideCursor );
+	}
+
 	update();
 	ev->accept();
 
 }
 
-void PatternEditor::handleKeyboardCursor( bool bUnhideCursor ) {
-	if ( bUnhideCursor ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
-	}
-	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
-	m_pPatternEditorPanel->ensureCursorVisible();
+void PatternEditor::handleKeyboardCursor( bool bVisible ) {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 
-	if ( m_selection.isLasso() ) {
-		// Since event was used to alter the note selection, we invalidate
-		// background and force a repainting of all note symbols (including
-		// whether or not they are selected).
-		invalidateBackground();
-	}
+	pHydrogenApp->setHideKeyboardCursor( ! bVisible );
 
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
+	// Only update on state changes
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		if ( bVisible ) {
+			m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
+			m_pPatternEditorPanel->ensureCursorVisible();
+
+			if ( m_selection.isLasso() ) {
+				// Since event was used to alter the note selection, we
+				// invalidate background and force a repainting of all note
+				// symbols (including whether or not they are selected).
+				invalidateBackground();
+			}
+		}
+
 		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		m_pPatternEditorPanel->getVisibleEditor()->update();
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
 	}
 }
 
@@ -1712,9 +1700,9 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 
 void PatternEditor::focusInEvent( QFocusEvent *ev ) {
 	UNUSED( ev );
-	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
-		m_pPatternEditorPanel->ensureCursorVisible();
+	if ( ev->reason() == Qt::TabFocusReason ||
+		 ev->reason() == Qt::BacktabFocusReason ) {
+		handleKeyboardCursor( true );
 	}
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
@@ -2476,6 +2464,34 @@ QPoint PatternEditor::getCursorPosition()
 	}
 
 	return QPoint( nX, nY );
+}
+
+void PatternEditor::setCursorRow( int nCursorRow ) {
+	const int nMinPitch = Note::octaveKeyToPitch(
+		(Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
+	const int nMaxPitch = Note::octaveKeyToPitch(
+		(Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
+
+	if ( nCursorRow < nMinPitch ) {
+		nCursorRow = nMinPitch;
+	}
+	else if ( nCursorRow >= nMaxPitch ) {
+		nCursorRow = nMaxPitch;
+	}
+
+	if ( nCursorRow == m_nCursorRow ) {
+		return;
+	}
+
+	m_nCursorRow = nCursorRow;
+
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		m_pPatternEditorPanel->ensureCursorVisible();
+		m_pPatternEditorPanel->getSidebar()->updateEditor();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		m_pPatternEditorPanel->getVisibleEditor()->update();
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
+	}
 }
 
 QRect PatternEditor::getKeyboardCursorRect()

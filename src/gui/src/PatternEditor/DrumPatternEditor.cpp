@@ -208,7 +208,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 
-	handleKeyboardCursor( bUnhideCursor );
+	if ( bUnhideCursor ) {
+		handleKeyboardCursor( bUnhideCursor );
+	}
+
 	update();
 	ev->accept();
 }
@@ -559,7 +562,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	m_selection.paintSelection( &painter );
 
 	// Draw cursor
-	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPen p( pPref->getTheme().m_color.m_cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );

@@ -158,7 +158,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	m_selection.paintSelection( &painter );
 
 	// Draw cursor
-	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPoint pos = getCursorPosition();
 
 		QPen pen( pPref->getTheme().m_color.m_cursorColor );
@@ -499,7 +499,10 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		PatternEditor::keyPressEvent( ev );
 	}
 
-	handleKeyboardCursor( bUnhideCursor );
+	if ( bUnhideCursor ) {
+		handleKeyboardCursor( bUnhideCursor );
+	}
+
 	updateEditor( true );
 	ev->accept();
 }
