@@ -1908,8 +1908,8 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
-	int nColumn, nRow, nRealColumn;
-	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
+	int nColumn, nRealColumn;
+	eventPointToColumnRow( ev->pos(), &nColumn, nullptr, &nRealColumn );
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
@@ -2590,8 +2590,8 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 		return std::move( notesUnderPoint );
 	}
 
-	int nColumn, nRow, nRealColumn;
-	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
+	int nRow, nRealColumn;
+	eventPointToColumnRow( point, nullptr, &nRow, &nRealColumn );
 
 	// Assemble all notes to be edited.
 	DrumPatternRow row;

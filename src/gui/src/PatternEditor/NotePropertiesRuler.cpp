@@ -360,8 +360,8 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 	// notes. If it is moved rapidly, it might have passed several columns since
 	// the last update. We will take all notes between the current position and
 	// the last one into account.
-	int nColumn, nRow, nRealColumn;
-	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
+	int nRealColumn;
+	eventPointToColumnRow( ev->pos(), nullptr, nullptr, &nRealColumn );
 
 	if ( m_nDrawPreviousColumn == -1 ) {
 		m_nDrawPreviousColumn = nRealColumn;
