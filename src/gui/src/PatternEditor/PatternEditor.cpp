@@ -1918,10 +1918,21 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
-	const int nTickColumn = getColumn( ev->x() );
+	int nColumn, nRow, nRealColumn;
+	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	int nLen = nTickColumn - m_nDragStartColumn;
+
+	int nTargetColumn;
+	if ( ev->modifiers() == Qt::ControlModifier ||
+		 ev->modifiers() == Qt::AltModifier ) {
+		// fine control
+		nTargetColumn = nRealColumn;
+	} else {
+		nTargetColumn = nColumn;
+	}
+
+	int nLen = nTargetColumn - m_nDragStartColumn;
 
 	if ( nLen <= 0 ) {
 		nLen = -1;
