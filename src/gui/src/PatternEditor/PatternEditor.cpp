@@ -901,11 +901,6 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
 
-	if ( m_editor == Editor::PianoRoll &&
-		 nRow >= static_cast<int>(OCTAVE_NUMBER * KEYS_PER_OCTAVE) ) {
-		return;
-	}
-
 	// Select the corresponding row
 	if ( m_editor == Editor::DrumPattern ) {
 		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
@@ -914,7 +909,12 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		}
 	}
 	else if ( m_editor == Editor::PianoRoll ) {
-		m_nCursorRow = Note::lineToPitch( nRow );
+		// Update the row of the piano roll itself.
+		setCursorRow( Note::lineToPitch( nRow ) );
+
+		// Use the row of the DrumPatternEditor/DB for further note
+		// interactions.
+		nRow = m_pPatternEditorPanel->getSelectedRowDB();
 	}
 
 	// main button action

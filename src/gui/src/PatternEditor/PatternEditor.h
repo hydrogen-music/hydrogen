@@ -336,6 +336,7 @@ protected:
 		void handleKeyboardCursor( bool bUnhideCursor );
 	int m_nTick;
 
+		void setCursorRow( int nCursorRow );
 		// Row the keyboard cursor is residing in.
 		//
 		// Only in #PianoRollEditor this variable is relevant and updated. In

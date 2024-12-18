@@ -420,44 +420,54 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	if ( bIsSelectionKey ) {
 		// Selection key, nothing more to do (other than update editor)
 	}
-	else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
-		if ( m_nCursorRow > Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ) ) {
-			m_nCursorRow --;
+	else if ( ev->matches( QKeySequence::MoveToNextLine ) ||
+			  ev->matches( QKeySequence::SelectNextLine ) ) {
+		if ( m_nCursorRow > Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
+													(Note::Key)KEY_MIN ) ) {
+			setCursorRow( m_nCursorRow - 1 );
 		}
 	}
-	else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
-		m_nCursorRow = std::max( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ),
-								   m_nCursorRow - nBlockSize );
+	else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) ||
+			  ev->matches( QKeySequence::SelectEndOfBlock ) ) {
+		setCursorRow( std::max( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
+														(Note::Key)KEY_MIN ),
+								m_nCursorRow - nBlockSize ) );
 	}
-	else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
+	else if ( ev->matches( QKeySequence::MoveToNextPage ) ||
+			  ev->matches( QKeySequence::SelectNextPage ) ) {
 		// Page down -- move down by a whole octave
-		int nMinPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
-		m_nCursorRow -= KEYS_PER_OCTAVE;
-		if ( m_nCursorRow < nMinPitch ) {
-			m_nCursorRow = nMinPitch;
+		const int nMinPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
+													  (Note::Key)KEY_MIN );
+		setCursorRow( std::max( m_nCursorRow - KEYS_PER_OCTAVE, nMinPitch ) );
+	}
+	else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ||
+			  ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+		setCursorRow( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
+											  (Note::Key)KEY_MIN ) );
+	}
+	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ||
+			  ev->matches( QKeySequence::SelectPreviousLine ) ) {
+		if ( m_nCursorRow < Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
+													(Note::Key)KEY_MAX ) ) {
+			setCursorRow( m_nCursorRow + 1 );
 		}
 	}
-	else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
-		m_nCursorRow = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
+	else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) ||
+			  ev->matches( QKeySequence::SelectStartOfBlock ) ) {
+		setCursorRow( std::min( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
+														(Note::Key)KEY_MAX ),
+								m_nCursorRow + nBlockSize ) );
 	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
-		if ( m_nCursorRow < Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ) ) {
-			m_nCursorRow ++;
-		}
+	else if ( ev->matches( QKeySequence::MoveToPreviousPage ) ||
+			  ev->matches( QKeySequence::SelectPreviousPage ) ) {
+		const int nMaxPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
+													  (Note::Key)KEY_MAX );
+		setCursorRow( std::min( m_nCursorRow + KEYS_PER_OCTAVE, nMaxPitch ) );
 	}
-	else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
-		m_nCursorRow = std::min( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ),
-								   m_nCursorRow + nBlockSize );
-	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
-		int nMaxPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
-		m_nCursorRow += KEYS_PER_OCTAVE;
-		if ( m_nCursorRow >= nMaxPitch ) {
-			m_nCursorRow = nMaxPitch;
-		}
-	}
-	else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
-		m_nCursorRow = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
+	else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ||
+			  ev->matches( QKeySequence::SelectStartOfDocument ) ) {
+		setCursorRow( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
+											  (Note::Key)KEY_MAX ) );
 	}
 	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter/Return : Place or remove note at current position
