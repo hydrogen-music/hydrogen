@@ -101,15 +101,11 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		/** Height of all editors except the KeyOctave one. */
 		static constexpr int nDefaultHeight = 100;
 
-		bool m_bNeedsUpdate;
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawFocus( QPainter& painter );
 		void drawNote( QPainter& painter, H2Core::Note* pNote,
 					   NoteStyle noteStyle, int nOffsetX = 0 );
-
-		double m_fLastSetValue;
-		bool m_bValueHasBeenSet;
 
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;

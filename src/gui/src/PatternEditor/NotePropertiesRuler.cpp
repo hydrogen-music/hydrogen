@@ -55,9 +55,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	m_fGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 
-	m_fLastSetValue = 0.0;
-	m_bValueHasBeenSet = false;
-
 	if ( m_mode == PatternEditor::Mode::KeyOctave ) {
 		m_nEditorHeight = NotePropertiesRuler::nKeyOctaveHeight;
 	}
@@ -424,7 +421,6 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		}
 		if ( m_mode == PatternEditor::Mode::Velocity && !pNote->get_note_off() ) {
 			pNote->set_velocity( val );
-			m_fLastSetValue = val;
 			bValueSet = true;
 		}
 		else if ( m_mode == PatternEditor::Mode::Pan && !pNote->get_note_off() ){
@@ -434,7 +430,6 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				val = 0.5; // central pan
 			}
 			pNote->setPanWithRangeFrom0To1( val ); // checks the boundaries
-			m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
 			bValueSet = true;
 			
 		}
@@ -443,13 +438,11 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				 (ev->modifiers() == Qt::ControlModifier &&
 				  ev->button() == Qt::LeftButton) ) {
 				pNote->set_lead_lag(0.0);
-				m_fLastSetValue = 0.0;
 				bValueSet = true;
 			}
 			else {
-				m_fLastSetValue = val * -2.0 + 1.0;
+				pNote->set_lead_lag( val * -2.0 + 1.0 );
 				bValueSet = true;
-				pNote->set_lead_lag( m_fLastSetValue );
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::KeyOctave &&
@@ -478,26 +471,23 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				}
 
 				if ( nKey != 666 || nOctave != 666 ) {
-					m_fLastSetValue = nOctave * KEYS_PER_OCTAVE + nKey;
+					pNote->set_key_octave((Note::Key)nKey,(Note::Octave)nOctave);
 					bValueSet = true;
-					pNote->set_key_octave((Note::Key)nKey,(Note::Octave)nOctave); // won't set wrong values see Note::set_key_octave
 				}
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::Probability ) {
-			m_fLastSetValue = val;
-			bValueSet = true;
 			pNote->set_probability( val );
+			bValueSet = true;
 		}
 		
 		if ( bValueSet ) {
 			PatternEditor::triggerStatusMessage( pNote, m_mode );
-			m_bValueHasBeenSet = true;
 			Hydrogen::get_instance()->setIsModified( true );
 		}
 	}
 
-	m_nDragPreviousColumn = nColumn;
+	m_nDragPreviousColumn = ev->x();
 	invalidateBackground();
 	update();
 
@@ -543,10 +533,8 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 		if ( ! pNote->get_note_off() ) {
 			const float fVelocity = qBound(
 				VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
-
 			if ( fVelocity != pNote->get_velocity() ) {
 				pNote->set_velocity( fVelocity );
-				m_fLastSetValue = fVelocity;
 				bValueChanged = true;
 			}
 		}
@@ -559,7 +547,6 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 			if ( fVal != pNote->getPanWithRangeFrom0To1() ) {
 				// Does check boundaries internally.
 				pNote->setPanWithRangeFrom0To1( fVal );
-				m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
 				bValueChanged = true;
 			}
 		}
@@ -570,7 +557,6 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 			LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
 		if ( fLeadLag != pNote->get_lead_lag() ) {
 			pNote->set_lead_lag( fLeadLag );
-			m_fLastSetValue = fLeadLag;
 			bValueChanged = true;
 		}
 		break;
@@ -582,7 +568,6 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 				PROBABILITY_MAX );
 			if ( fProbability != pNote->get_probability() ) {
 				pNote->set_probability( fProbability );
-				m_fLastSetValue = fProbability;
 				bValueChanged = true;
 			}
 		}
@@ -604,7 +589,6 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 
 		if ( key != pNote->get_key() || octave != pNote->get_octave() ) {
 			pNote->set_key_octave( key, octave );
-			m_fLastSetValue = KEYS_PER_OCTAVE * octave + key;
 			bValueChanged = true;
 		}
 		break;
@@ -616,7 +600,6 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		m_bValueHasBeenSet = true;
 		if ( bMessage ) {
 			PatternEditor::triggerStatusMessage( pNote, m_mode );
 		}
@@ -638,7 +621,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	// Value adjustments
 	float fDelta = 0.0;
-	bool bRepeatLastValue = false;
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
@@ -675,12 +657,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		// Key: MoveEndOfDocument: decrease parameter to minimum value
 		fDelta = -1.0;
 	}
-	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-		// Key: Enter/Return: repeat last parameter value set.
-		if ( m_bValueHasBeenSet ) {
-			bRepeatLastValue = true;
-		}
-	}
 	else {
 		PatternEditor::keyPressEvent( ev );
 		return;
@@ -689,7 +665,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	bool bUpdate = false;
 	bool bValueChanged = false;
 	// Value change
-	if ( fDelta != 0.0 || bRepeatLastValue ) {
+	if ( fDelta != 0.0 ) {
 		// When interacting with note(s) not already in a selection, we will
 		// discard the current selection and add these notes under point to a
 		// transient one.
@@ -726,51 +702,12 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 			m_oldNotes[ ppNote ] = new Note( ppNote );
 
-			if ( ! bRepeatLastValue ) {
-				// Apply delta to the property
-				bValueChanged = adjustNotePropertyDelta(
-					ppNote, fDelta, /* bMessage */ true ) ||
-					bValueChanged;
-			}
-			else {
-				// Repeating last value
-				switch ( m_mode ) {
-				case PatternEditor::Mode::Velocity:
-					if ( ! ppNote->get_note_off() ) {
-						ppNote->set_velocity( m_fLastSetValue );
-						bValueChanged = true;
-					}
-					break;
-				case PatternEditor::Mode::Pan:
-					if ( ! ppNote->get_note_off() ) {
-						ppNote->setPanWithRangeFrom0To1( m_fLastSetValue );
-						bValueChanged = true;
-					}
-					break;
-				case PatternEditor::Mode::LeadLag:
-					ppNote->set_lead_lag( m_fLastSetValue );
-					bValueChanged = true;
-					break;
-				case PatternEditor::Mode::Probability:
-					if ( ! ppNote->get_note_off() ) {
-						ppNote->set_probability( m_fLastSetValue );
-						bValueChanged = true;
-					}
-					break;
-				case PatternEditor::Mode::KeyOctave:
-					ppNote->set_key_octave(
-						(Note::Key)( (int)m_fLastSetValue % 12 ),
-						(Note::Octave)( (int)m_fLastSetValue / 12 ) );
-					bValueChanged = true;
-					break;
-
-				case PatternEditor::Mode::None:
-				default:
-					ERRORLOG("No mode set. No note property adjusted.");
-				}
-
-			}
+			// Apply delta to the property
+			bValueChanged = adjustNotePropertyDelta(
+				ppNote, fDelta, /* bMessage */ true ) ||
+				bValueChanged;
 		}
+
 		if ( bValueChanged ) {
 			addUndoAction();
 
