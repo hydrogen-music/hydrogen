@@ -1258,6 +1258,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Representing pasting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
         <translation>粘贴音符</translation>
     </message>
+    <message>
+        <source>Delete notes</source>
+        <extracomment>Delete one or many notes. Shown in the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -3025,10 +3030,6 @@ LilyPond 导出是一项实验性功能。
     </message>
     <message>
         <source>paste notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>delete notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

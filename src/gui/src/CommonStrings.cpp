@@ -633,6 +633,8 @@ CommonStrings::CommonStrings(){
 	 * in the undo history as well as in the right-click context menu within the
 	 * sidebar of the pattern editor. */
 	m_sActionFillEverySixteenthNote = tr( "Fill 1/16 notes" );
+	/*: Delete one or many notes. Shown in the undo history. */
+	m_sActionDeleteNotes = tr( "Delete notes" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the

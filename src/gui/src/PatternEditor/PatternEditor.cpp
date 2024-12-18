@@ -913,18 +913,50 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if ( ev->button() == Qt::LeftButton &&
 		 m_editor != Editor::NotePropertiesRuler ) {
 
-		// Pressing Shift causes the added note to be of NoteOff type.
-		if ( m_editor == Editor::DrumPattern ) {
-			addOrRemoveNote( nColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
-							 /* bDoAdd */true, /* bDoDelete */true,
-							 /* bIsNoteOff */ev->modifiers() & Qt::ShiftModifier );
+		// Check whether an existing note or an empty grid cell was clicked.
+		const auto notesAtPoint = getNotesAtPoint( pPattern, ev->pos(), false );
+		if ( notesAtPoint.size() == 0 ) {
+			// Empty grid cell
+
+			// Pressing Shift causes the added note to be of NoteOff type.
+			if ( m_editor == Editor::DrumPattern ) {
+				addOrRemoveNote(
+					nColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
+					/* bDoAdd */true, /* bDoDelete */true,
+					/* bIsNoteOff */ev->modifiers() & Qt::ShiftModifier );
+			}
+			else if ( m_editor == Editor::PianoRoll ) {
+				const Note::Octave octave = Note::pitchToOctave( m_nCursorRow );
+				const Note::Key noteKey = Note::pitchToKey( m_nCursorRow );
+				addOrRemoveNote(
+					nColumn, nRealColumn, nRow, noteKey, octave,
+					/* bDoAdd */true, /* bDoDelete */true,
+					/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
+			}
 		}
-		else if ( m_editor == Editor::PianoRoll ) {
-			const Note::Octave octave = Note::pitchToOctave( m_nCursorRow );
-			const Note::Key noteKey = Note::pitchToKey( m_nCursorRow );
-			addOrRemoveNote( nColumn, nRealColumn, nRow, noteKey, octave,
-							 /* bDoAdd */true, /* bDoDelete */true,
-							 /* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
+		else {
+			// Note(s) clicked. Delete them.
+			auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+			pUndo->beginMacro( HydrogenApp::get_instance()->getCommonStrings()
+							   ->getActionDeleteNotes() );
+			for ( const auto& ppNote : notesAtPoint ) {
+				pUndo->push( new SE_addOrRemoveNoteAction(
+								 ppNote->get_position(),
+								 ppNote->get_instrument_id(),
+								 ppNote->getType(),
+								 m_pPatternEditorPanel->getPatternNumber(),
+								 ppNote->get_length(),
+								 ppNote->get_velocity(),
+								 ppNote->getPan(),
+								 ppNote->get_lead_lag(),
+								 ppNote->get_key(),
+								 ppNote->get_octave(),
+								 ppNote->get_probability(),
+								 /* bIsDelete */ true,
+								 /* bIsMidi */ false,
+								 /* bIsNoteOff */ ppNote->get_note_off() ) );
+}
+			pUndo->endMacro();
 		}
 		m_selection.clearSelection();
 		updateHoveredNotes( ev->pos() );
@@ -1415,7 +1447,8 @@ void PatternEditor::deleteSelection()
 		m_selection.clearSelection();
 
 		if ( actions.size() > 0 ) {
-			pUndo->beginMacro( tr( "delete notes" ) );
+			pUndo->beginMacro( HydrogenApp::get_instance()->getCommonStrings()
+							   ->getActionDeleteNotes() );
 			for ( QUndoCommand *pAction : actions ) {
 				pUndo->push( pAction );
 			}

@@ -273,6 +273,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 			return m_sActionFillEveryTwelfthNote; }
 		const QString& getActionFillEverySixteenthNote() const {
 			return m_sActionFillEverySixteenthNote; }
+		const QString& getActionDeleteNotes() const {
+			return m_sActionDeleteNotes; }
 
 		const QString& getNotePropertyVelocity() const {
 			return m_sNotePropertyVelocity; }
@@ -503,6 +505,7 @@ private:
 		QString m_sActionFillEveryEighthNote;
 		QString m_sActionFillEveryTwelfthNote;
 		QString m_sActionFillEverySixteenthNote;
+		QString m_sActionDeleteNotes;
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;
