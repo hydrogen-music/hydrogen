@@ -125,7 +125,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 									  float fDelta,
 									  bool bMessage = false );
 
-		int m_nDragPreviousColumn;
+		int m_nDrawPreviousColumn;
 		bool m_bEntered;
 		Layout m_layout;
 };

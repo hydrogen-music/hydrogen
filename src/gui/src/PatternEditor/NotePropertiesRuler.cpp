@@ -45,6 +45,7 @@ int NotePropertiesRuler::nKeyOctaveHeight =
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 										  PatternEditor::Mode mode, Layout layout )
 	: PatternEditor( parent )
+	, m_nDrawPreviousColumn( -1 )
 	, m_bEntered( false )
 	, m_layout( layout )
 {
@@ -188,11 +189,9 @@ void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
 		prepareUndoAction( ev->pos() );
 		selectionMoveUpdateEvent( ev );
 	}
-	else {
-		if ( ev->buttons() == Qt::RightButton ) {
-			propertyDragStart( ev );
-			propertyDragUpdate( ev );
-		}
+	else if ( ev->buttons() == Qt::RightButton ) {
+		propertyDragStart( ev );
+		propertyDragUpdate( ev );
 	}
 }
 
@@ -203,9 +202,7 @@ void NotePropertiesRuler::mouseDragUpdateEvent( QMouseEvent *ev ) {
 }
 
 void NotePropertiesRuler::mouseDragEndEvent( QMouseEvent *ev ) {
-	if ( ev->buttons() == Qt::RightButton ) {
-		propertyDragEnd();
-	}
+	propertyDragEnd();
 }
 
 
@@ -333,42 +330,18 @@ void NotePropertiesRuler::prepareUndoAction( const QPoint& point )
 		return;
 	}
 
-	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row clicked" );
-		return;
-	}
-
 	clearOldNotes();
 
-	int nColumn, nRow, nRealColumn;
-	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
-
-	if ( m_selection.begin() != m_selection.end() ) {
-		// If there is a selection, preserve the initial state of all the
-		// selected notes.
-		for ( auto& ppNote : m_selection ) {
-			if ( ppNote != nullptr ) {
-				m_oldNotes[ ppNote ] = new Note( ppNote );
-			}
-		}
-
-	} else {
-		// No notes are selected. The target notes to adjust are all those at
-		// column given by 'x', so we preserve these.
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it,
-										  nRealColumn, pPattern ) {
-			Note *pNote = it->second;
-			if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
-				 pNote->getType() == selectedRow.sType ) {
-				m_oldNotes[ pNote ] = new Note( pNote );
-			}
+	const auto notesUnderPoint = getNotesAtPoint( pPattern, point, false );
+	for ( const auto& ppNote : notesUnderPoint ) {
+		if ( ppNote != nullptr ) {
+			m_oldNotes[ ppNote ] = new Note( ppNote );
 		}
 	}
 
-	m_nDragPreviousColumn = nRealColumn;
+	if ( notesUnderPoint.size() > 0 ) {
+		m_nDrawPreviousColumn = notesUnderPoint[ 0 ]->get_position();
+	}
 }
 
 //! Update notes for a property adjust drag, in response to the mouse moving.
@@ -383,124 +356,141 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		return;
 	}
 
-	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row clicked" );
-		return;
-	}
-
+	// Issuing redo/undo actions bases on draw changes are issued in batches. In
+	// case the cursor is moved slowly, we might have updates without any new
+	// notes. If it is moved rapidly, it might have passed several columns since
+	// the last update. We will take all notes between the current position and
+	// the last one into account.
 	int nColumn, nRow, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn );
 
-	if ( m_nDragPreviousColumn != nColumn ) {
+	if ( m_nDrawPreviousColumn == -1 ) {
+		m_nDrawPreviousColumn = nRealColumn;
+	}
+
+	const int nDrawStart = std::min( m_nDrawPreviousColumn, nRealColumn );
+	const int nDrawEnd = std::max( m_nDrawPreviousColumn, nRealColumn );
+	std::vector<Note*> notesSinceLastAction;
+	const auto notes = pPattern->getNotes();
+	for ( auto it = notes->lower_bound( nDrawStart );
+		  it != notes->end() && it->first <= nDrawEnd; ++it ) {
+		const auto ppNote = it->second;
+		if ( ppNote != nullptr ) {
+			notesSinceLastAction.push_back( ppNote );
+		}
+	}
+
+	if ( notesSinceLastAction.size() == 0 ) {
+		return;
+	}
+
+	if ( m_nDrawPreviousColumn != nColumn ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction();
-		prepareUndoAction( ev->pos() );
+		for ( const auto& ppNote : notesSinceLastAction ) {
+			m_oldNotes[ ppNote ] = new Note( ppNote );
+		}
+		m_nDrawPreviousColumn = nColumn;
 	}
 
-	float val = height() - ev->y();
-	if ( val > height() ) {
-		val = height();
+	// normalized
+	const double fHeight = static_cast<double>(height());
+	float fValue = static_cast<float>(
+		std::clamp( ( fHeight - static_cast<double>(ev->y()) )/ fHeight,
+					0.0, 1.1 ));
+
+	// centered layouts support resetting the value to the baseline.
+	if ( m_layout == Layout::Centered &&
+		 ( ev->button() == Qt::MiddleButton ||
+		   ( ev->modifiers() == Qt::ControlModifier &&
+			 ev->button() == Qt::LeftButton ) )  ) {
+		fValue = 0.5;
 	}
-	else if (val < 0.0) {
-		val = 0.0;
-	}
-	val = val / height(); // val is normalized, in [0;1]
 
-	bool bValueSet = false;
+	bool bValueChanged = false;
 
-	FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nRealColumn, pPattern ) {
-		Note *pNote = it->second;
-
-		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-				 pNote->getType() == selectedRow.sType ) &&
-			 ! m_selection.isSelected( pNote ) ) {
+	for ( const auto& ppNote : notesSinceLastAction ) {
+		// If a subset of notes is selected, we only act on them.
+		if ( ! m_selection.isEmpty() == ! m_selection.isSelected( ppNote ) ) {
 			continue;
 		}
-		if ( m_mode == PatternEditor::Mode::Velocity && !pNote->get_note_off() ) {
-			pNote->set_velocity( val );
-			bValueSet = true;
-		}
-		else if ( m_mode == PatternEditor::Mode::Pan && !pNote->get_note_off() ){
-			if ( (ev->button() == Qt::MiddleButton)
-					|| (ev->modifiers() == Qt::ControlModifier &&
-						ev->button() == Qt::LeftButton) ) {
-				val = 0.5; // central pan
+		if ( m_mode == PatternEditor::Mode::Velocity && !ppNote->get_note_off() ) {
+			if ( ppNote->get_velocity() != fValue ) {
+				ppNote->set_velocity( fValue );
+				bValueChanged = true;
 			}
-			pNote->setPanWithRangeFrom0To1( val ); // checks the boundaries
-			bValueSet = true;
-			
+		}
+		else if ( m_mode == PatternEditor::Mode::Pan && !ppNote->get_note_off() ){
+			if ( ppNote->getPanWithRangeFrom0To1() != fValue ) {
+				ppNote->setPanWithRangeFrom0To1( fValue );
+				bValueChanged = true;
+			}
 		}
 		else if ( m_mode == PatternEditor::Mode::LeadLag ){
-			if ( (ev->button() == Qt::MiddleButton) ||
-				 (ev->modifiers() == Qt::ControlModifier &&
-				  ev->button() == Qt::LeftButton) ) {
-				pNote->set_lead_lag(0.0);
-				bValueSet = true;
-			}
-			else {
-				pNote->set_lead_lag( val * -2.0 + 1.0 );
-				bValueSet = true;
+			if ( ppNote->get_lead_lag() != ( fValue * -2.0 + 1.0 ) ) {
+				ppNote->set_lead_lag( fValue * -2.0 + 1.0 );
+				bValueChanged = true;
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::KeyOctave &&
-				  ! pNote->get_note_off() ) {
-			if ( ev->button() != Qt::MiddleButton &&
-				 ! ( ev->modifiers() == Qt::ControlModifier &&
-					 ev->button() == Qt::LeftButton ) ) {
-				int nKey = 666;
-				int nOctave = 666;
-				if ( ev->y() > 0 &&
-					 ev->y() <= NotePropertiesRuler::nOctaveHeight ) {
-					nOctave = std::round(
-						( NotePropertiesRuler::nOctaveHeight / 2 +
-						  NotePropertiesRuler::nKeyLineHeight / 2 -
-						  ev->y() -
-						  NotePropertiesRuler::nKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nKeyLineHeight );
-					nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
-				}
-				else if ( ev->y() >= NotePropertiesRuler::nOctaveHeight &&
-						  ev->y() < NotePropertiesRuler::nKeyOctaveHeight ) {
-					nKey = ( height() - ev->y() -
-							 NotePropertiesRuler::nKeyLineHeight / 2 ) /
-						NotePropertiesRuler::nKeyLineHeight;
-					nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
-				}
+				  ! ppNote->get_note_off() ) {
+			int nKey = 666;
+			int nOctave = 666;
+			if ( ev->y() > 0 &&
+				 ev->y() <= NotePropertiesRuler::nOctaveHeight ) {
+				nOctave = std::round(
+					( NotePropertiesRuler::nOctaveHeight / 2 +
+					  NotePropertiesRuler::nKeyLineHeight / 2 -
+					  ev->y() -
+					  NotePropertiesRuler::nKeyLineHeight / 2 ) /
+					NotePropertiesRuler::nKeyLineHeight );
+				nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
+			}
+			else if ( ev->y() >= NotePropertiesRuler::nOctaveHeight &&
+					  ev->y() < NotePropertiesRuler::nKeyOctaveHeight ) {
+				nKey = ( height() - ev->y() -
+						 NotePropertiesRuler::nKeyLineHeight / 2 ) /
+					NotePropertiesRuler::nKeyLineHeight;
+				nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
+			}
 
-				if ( nKey != 666 || nOctave != 666 ) {
-					pNote->set_key_octave((Note::Key)nKey,(Note::Octave)nOctave);
-					bValueSet = true;
-				}
+			if ( ( nKey != 666 &&
+				   nKey != static_cast<int>(ppNote->get_key()) ) ||
+				 ( nOctave != 666 &&
+				   nOctave != static_cast<int>(ppNote->get_octave()) ) ) {
+				ppNote->set_key_octave(
+					static_cast<Note::Key>(nKey),
+					static_cast<Note::Octave>(nOctave));
+				bValueChanged = true;
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::Probability ) {
-			pNote->set_probability( val );
-			bValueSet = true;
+			if ( ppNote->get_probability() != fValue ) {
+				ppNote->set_probability( fValue );
+				bValueChanged = true;
+			}
 		}
 		
-		if ( bValueSet ) {
-			PatternEditor::triggerStatusMessage( pNote, m_mode );
-			Hydrogen::get_instance()->setIsModified( true );
+		if ( bValueChanged ) {
+			PatternEditor::triggerStatusMessage( ppNote, m_mode );
 		}
 	}
 
-	m_nDragPreviousColumn = ev->x();
-	invalidateBackground();
-	update();
-
-	if ( m_mode == PatternEditor::Mode::Velocity ) {
-		// A note's velocity determines its color in the other pattern editors
-		// as well.
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-		m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+	if ( bValueChanged ) {
+		Hydrogen::get_instance()->setIsModified( true );
+		invalidateBackground();
+		update();
+		if ( m_mode == PatternEditor::Mode::Velocity ) {
+			// A note's velocity determines its color in the other pattern
+			// editors as well.
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
+		}
 	}
 }
 
 void NotePropertiesRuler::propertyDragEnd()
 {
+	m_nDrawPreviousColumn = -1;
 	addUndoAction();
 	unsetCursor();
 	invalidateBackground();
