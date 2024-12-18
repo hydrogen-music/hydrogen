@@ -57,14 +57,16 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
 		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
 
-		//! @name Property drag (or click) gestures
+		//! @name Property draw (right-click drag) gestures
 		//! 
-		//! The user can drag (or just click) on a note's bar or dot to change that property. Properties are
-		//! updated live during the drag gesture, with 'undo' information being written at the end.
+		//! The user can right-click drag notes (or just left-click a single one)
+		//! on a note's bar or dot to change that property. Properties are
+		//! updated live during the draw gesture, with 'undo' information being
+		//! written at the end.
 		//! @{
-		void propertyDragStart( QMouseEvent *ev );
-		void propertyDragUpdate( QMouseEvent *ev );
-		void propertyDragEnd();
+		void propertyDrawStart( QMouseEvent *ev );
+		void propertyDrawUpdate( QMouseEvent *ev );
+		void propertyDrawEnd();
 		//! @}
 
 		//! @name PatternEditor interfaces

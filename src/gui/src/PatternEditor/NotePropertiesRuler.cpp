@@ -32,7 +32,6 @@ using namespace H2Core;
 #include "UndoActions.h"
 #include "NotePropertiesRuler.h"
 #include "PatternEditorPanel.h"
-#include "PatternEditorRuler.h"
 #include "DrumPatternEditor.h"
 #include "PianoRollEditor.h"
 #include "../Skin.h"
@@ -176,9 +175,9 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 
 	if ( ev->button() == Qt::LeftButton ) {
 		// Treat single click as an instantaneous drag
-		propertyDragStart( ev );
-		propertyDragUpdate( ev );
-		propertyDragEnd();
+		propertyDrawStart( ev );
+		propertyDrawUpdate( ev );
+		propertyDrawEnd();
 	}
 
 	PatternEditor::mouseClickEvent( ev );
@@ -190,19 +189,19 @@ void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
 		selectionMoveUpdateEvent( ev );
 	}
 	else if ( ev->buttons() == Qt::RightButton ) {
-		propertyDragStart( ev );
-		propertyDragUpdate( ev );
+		propertyDrawStart( ev );
+		propertyDrawUpdate( ev );
 	}
 }
 
 void NotePropertiesRuler::mouseDragUpdateEvent( QMouseEvent *ev ) {
 	if ( ev->buttons() == Qt::RightButton ) {
-		propertyDragUpdate( ev );
+		propertyDrawUpdate( ev );
 	}
 }
 
 void NotePropertiesRuler::mouseDragEndEvent( QMouseEvent *ev ) {
-	propertyDragEnd();
+	propertyDrawEnd();
 }
 
 
@@ -312,7 +311,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	clearOldNotes();
 }
 
-void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
+void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
 {
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev->pos() );
@@ -349,7 +348,7 @@ void NotePropertiesRuler::prepareUndoAction( const QPoint& point )
 //! complete an undo action until the notes final value has been set. This
 //! occurs either when the mouse is released, or when the pointer moves off of
 //! the note's column.
-void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
+void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -488,7 +487,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	}
 }
 
-void NotePropertiesRuler::propertyDragEnd()
+void NotePropertiesRuler::propertyDrawEnd()
 {
 	m_nDrawPreviousColumn = -1;
 	addUndoAction();
@@ -1359,7 +1358,6 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 		m_pPatternEditorPanel->getSelectedRowDB() );
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
 		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row" );
 		return std::move( result );
 	}
 
