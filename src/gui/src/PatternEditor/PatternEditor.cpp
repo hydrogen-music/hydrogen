@@ -1333,13 +1333,7 @@ QColor PatternEditor::highlightedNoteColor( NoteStyle noteStyle ) const {
 	
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	QColor color;
-	if ( hasFocus() ) {
-		color = pPref->getTheme().m_color.m_selectionHighlightColor;
-	}
-	else {
-		color = pPref->getTheme().m_color.m_selectionInactiveColor;
-	}
+	QColor color = pPref->getTheme().m_color.m_selectionHighlightColor;
 
 	int nFactor = 100;
 	if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
