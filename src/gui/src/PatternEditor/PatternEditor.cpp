@@ -1737,7 +1737,15 @@ void PatternEditor::enterEvent( QEvent *ev ) {
 void PatternEditor::leaveEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = false;
-	update();
+
+	if ( m_pPatternEditorPanel->getHoveredNotes().size() > 0 ) {
+		std::map<std::shared_ptr<Pattern>, std::vector<Note*>> empty;
+		// Takes care of the update.
+		m_pPatternEditorPanel->setHoveredNotes( empty );
+	}
+	else {
+		update();
+	}
 }
 
 void PatternEditor::focusInEvent( QFocusEvent *ev ) {
