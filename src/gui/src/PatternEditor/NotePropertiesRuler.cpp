@@ -190,18 +190,25 @@ void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
 	if ( m_selection.isMoving() ) {
 		prepareUndoAction( ev->pos() );
 		selectionMoveUpdateEvent( ev );
-	} else {
-		propertyDragStart( ev );
-		propertyDragUpdate( ev );
+	}
+	else {
+		if ( ev->buttons() == Qt::RightButton ) {
+			propertyDragStart( ev );
+			propertyDragUpdate( ev );
+		}
 	}
 }
 
 void NotePropertiesRuler::mouseDragUpdateEvent( QMouseEvent *ev ) {
-	propertyDragUpdate( ev );
+	if ( ev->buttons() == Qt::RightButton ) {
+		propertyDragUpdate( ev );
+	}
 }
 
 void NotePropertiesRuler::mouseDragEndEvent( QMouseEvent *ev ) {
-	propertyDragEnd();
+	if ( ev->buttons() == Qt::RightButton ) {
+		propertyDragEnd();
+	}
 }
 
 
