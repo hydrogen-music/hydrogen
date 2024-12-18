@@ -1010,8 +1010,10 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 	if ( m_notesToSelectOnMove.size() > 0 ) {
 		// We used a transient selection of note(s) at a single position.
 		m_selection.clearSelection();
+		m_notesToSelectOnMove.clear();
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
 	}
-	m_notesToSelectOnMove.clear();
 }
 
 void PatternEditor::updateModifiers( QInputEvent *ev ) {
