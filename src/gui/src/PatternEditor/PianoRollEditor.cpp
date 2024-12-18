@@ -140,6 +140,9 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 
 	drawFocus( painter );
 
+	const auto row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+
 	// Draw hovered note
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	for ( const auto& [ ppPattern, nnotes ] :
@@ -148,10 +151,13 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 			( ppPattern == pPattern ? NoteStyle::Foreground :
 			  NoteStyle::Background ) | NoteStyle::Hovered);
 		for ( const auto& ppNote : nnotes ) {
-			const auto style = static_cast<NoteStyle>(
-				m_selection.isSelected( ppNote ) ?
-				NoteStyle::Selected | baseStyle : baseStyle );
-			drawNote( painter, ppNote, style );
+			if ( ppNote != nullptr && ppNote->getType() == row.sType &&
+				 ppNote->get_instrument_id() == row.nInstrumentID ) {
+				const auto style = static_cast<NoteStyle>(
+					m_selection.isSelected( ppNote ) ?
+					NoteStyle::Selected | baseStyle : baseStyle );
+				drawNote( painter, ppNote, style );
+			}
 		}
 	}
 
@@ -364,14 +370,16 @@ void PianoRollEditor::drawPattern()
 								pixelRatio * rect().width(),
 								pixelRatio * rect().height() ) );
 
+	const auto row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+
 	// for each note...
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const auto baseStyle = ppPattern ==
 			pPattern ? NoteStyle::Foreground : NoteStyle::Background;
-		const Pattern::notes_t* notes = ppPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( notes, it, ppPattern ) {
-			Note* ppNote = it->second;
-			if ( ppNote != nullptr ) {
+		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+			if ( ppNote != nullptr && ppNote->getType() == row.sType &&
+				 ppNote->get_instrument_id() == row.nInstrumentID ) {
 				const auto style = static_cast<NoteStyle>(
 					m_selection.isSelected( ppNote ) ?
 					NoteStyle::Selected | baseStyle : baseStyle );
