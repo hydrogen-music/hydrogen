@@ -362,6 +362,8 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 	// the last one into account.
 	int nRealColumn;
 	eventPointToColumnRow( ev->pos(), nullptr, nullptr, &nRealColumn );
+	const auto row = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->getSelectedRowDB() );
 
 	if ( m_nDrawPreviousColumn == -1 ) {
 		m_nDrawPreviousColumn = nRealColumn;
@@ -374,7 +376,10 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 	for ( auto it = notes->lower_bound( nDrawStart );
 		  it != notes->end() && it->first <= nDrawEnd; ++it ) {
 		const auto ppNote = it->second;
-		if ( ppNote != nullptr ) {
+		if ( ppNote != nullptr &&
+			 ( ( ppNote->get_instrument_id() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType ) ||
+			   m_selection.isSelected( ppNote ) ) ) {
 			notesSinceLastAction.push_back( ppNote );
 		}
 	}
