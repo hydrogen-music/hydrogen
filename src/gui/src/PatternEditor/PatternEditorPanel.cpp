@@ -1239,7 +1239,7 @@ void PatternEditorPanel::updatePatternInfo() {
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 
 	// Changes of pattern may leave the cursor out of bounds.
-	setCursorColumn( getCursorColumn() );
+	setCursorColumn( getCursorColumn(), false );
 
 	m_pPatternEditorRuler->updateEditor( true );
 	m_pNoteVelocityEditor->updateEditor();
@@ -1250,6 +1250,8 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pPianoRollEditor->updateEditor( bPatternOnly );
 	m_pDrumPatternEditor->updateEditor();
 	m_pSidebar->updateEditor();
+
+	ensureCursorVisible();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
@@ -1474,49 +1476,49 @@ int PatternEditorPanel::getCursorColumn()
 
 void PatternEditorPanel::ensureCursorVisible()
 {
-	if ( m_pEditorScrollView->isVisible() ) {
-		const auto pos = m_pDrumPatternEditor->getCursorPosition();
-		m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
-	}
-	else {
-		const auto pos = m_pPianoRollEditor->getCursorPosition();
-		m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
-	}
-}
-
-void PatternEditorPanel::setCursorColumn(int nCursorPosition)
-{
-	if ( nCursorPosition < 0 ) {
-		m_nCursorColumn = 0;
-	} else if ( m_pPattern != nullptr && nCursorPosition >= m_pPattern->getLength() ) {
-		m_nCursorColumn = m_pPattern->getLength() - m_nCursorIncrement;
-	} else {
-		m_nCursorColumn = nCursorPosition;
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		if ( m_pEditorScrollView->isVisible() ) {
+			const auto pos = m_pDrumPatternEditor->getCursorPosition();
+			m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
+		}
+		else {
+			const auto pos = m_pPianoRollEditor->getCursorPosition();
+			DEBUGLOG( QString( "x: %1, y:%2").arg( pos.x() ).arg( pos.y() ) );
+			m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
+		}
 	}
 }
 
-int PatternEditorPanel::moveCursorLeft( int n )
-{
-	m_nCursorColumn = std::max( m_nCursorColumn - m_nCursorIncrement * n,
-								  0 );
+void PatternEditorPanel::setCursorColumn( int nCursorColumn,
+										  bool bUpdateEditors ) {
+	if ( nCursorColumn < 0 ) {
+		nCursorColumn = 0;
+	} else if ( m_pPattern != nullptr && nCursorColumn >= m_pPattern->getLength() ) {
+		nCursorColumn = m_pPattern->getLength() - m_nCursorIncrement;
+	}
 
-	ensureCursorVisible();
+	if ( nCursorColumn == m_nCursorColumn ) {
+		return;
+	}
 
-	return m_nCursorColumn;
+	m_nCursorColumn = nCursorColumn;
+
+	if ( bUpdateEditors && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		ensureCursorVisible();
+		m_pSidebar->updateEditor();
+		m_pPatternEditorRuler->update();
+		getVisibleEditor()->update();
+		getVisiblePropertiesRuler()->update();
+	}
 }
 
-int PatternEditorPanel::moveCursorRight( int n )
-{
-	if ( m_pPattern == nullptr ) {
-		return 0;
-	}
-	
-	m_nCursorColumn = std::min( m_nCursorColumn + m_nCursorIncrement * n,
-								  m_pPattern->getLength() - m_nCursorIncrement );
+void PatternEditorPanel::moveCursorLeft( int n ) {
+	setCursorColumn( std::max( m_nCursorColumn - m_nCursorIncrement * n, 0 ) );
+}
 
-	ensureCursorVisible();
-
-	return m_nCursorColumn;
+void PatternEditorPanel::moveCursorRight( int n ) {
+	setCursorColumn( std::min( m_nCursorColumn + m_nCursorIncrement * n,
+							   m_pPattern->getLength() - m_nCursorIncrement ) );
 }
 
 void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
