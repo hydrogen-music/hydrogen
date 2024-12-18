@@ -165,6 +165,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	if ( bValueChanged ) {
 		addUndoAction();
 		invalidateBackground();
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
 		update();
 	}
 }
