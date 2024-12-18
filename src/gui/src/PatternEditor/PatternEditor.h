@@ -288,7 +288,6 @@ protected:
 
 	void showPopupMenu( const QPoint & pos );
 
-	int getColumn( int x, bool bUseFineGrained = false ) const;
 		/** Function in the same vein as getColumn() but calculates both column
 		 * and row information from the provided event position. */
 		void eventPointToColumnRow( const QPoint& point, int* pColumn,

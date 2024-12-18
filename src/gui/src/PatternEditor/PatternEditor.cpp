@@ -370,23 +370,6 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 	}
 }
 
-
-int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
-{
-	int nGranularity = 1;
-	if ( !( bUseFineGrained && m_bFineGrained ) ) {
-		nGranularity = granularity();
-	}
-	int nWidth = m_fGridWidth * nGranularity;
-	int nColumn = ( x - PatternEditor::nMargin + (nWidth / 2) ) / nWidth;
-	nColumn = nColumn * nGranularity;
-	if ( nColumn < 0 ) {
-		return 0;
-	} else {
-		return nColumn;
-	}
-}
-
 void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 										   int* pRow, int* pRealColumn,
 										   bool bUseFineGrained ) const {
@@ -397,7 +380,14 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 	}
 
 	if ( pColumn != nullptr ) {
-		*pColumn = getColumn( point.x(), bUseFineGrained );
+		int nGranularity = 1;
+		if ( !( bUseFineGrained && m_bFineGrained ) ) {
+			nGranularity = granularity();
+		}
+		const int nWidth = m_fGridWidth * nGranularity;
+		int nColumn = ( point.x() - PatternEditor::nMargin + (nWidth / 2) ) /
+			nWidth;
+		*pColumn = std::max( 0, nColumn * nGranularity );
 	}
 
 	if ( pRealColumn != nullptr ) {
