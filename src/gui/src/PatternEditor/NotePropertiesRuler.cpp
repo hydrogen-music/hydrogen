@@ -384,13 +384,13 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		return;
 	}
 
-	if ( m_nDrawPreviousColumn != nColumn ) {
+	if ( m_nDrawPreviousColumn != nRealColumn ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction();
 		for ( const auto& ppNote : notesSinceLastAction ) {
 			m_oldNotes[ ppNote ] = new Note( ppNote );
 		}
-		m_nDrawPreviousColumn = nColumn;
+		m_nDrawPreviousColumn = nRealColumn;
 	}
 
 	// normalized
