@@ -515,8 +515,12 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	invalidateBackground();
 	update();
 
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+	if ( m_mode == PatternEditor::Mode::Velocity ) {
+		// A note's velocity determines its color in the other pattern editors
+		// as well.
+		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+		m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+	}
 }
 
 void NotePropertiesRuler::propertyDragEnd()
