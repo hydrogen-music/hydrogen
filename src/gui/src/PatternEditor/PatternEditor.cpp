@@ -910,6 +910,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		nRow = m_pPatternEditorPanel->getSelectedRowDB();
 	}
 
+	bool bClickedOnGrid = false;
+
 	// main button action
 	if ( ev->button() == Qt::LeftButton &&
 		 m_editor != Editor::NotePropertiesRuler ) {
@@ -918,6 +920,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		const auto notesAtPoint = getNotesAtPoint( pPattern, ev->pos(), false );
 		if ( notesAtPoint.size() == 0 ) {
 			// Empty grid cell
+			bClickedOnGrid = true;
 
 			// Pressing Shift causes the added note to be of NoteOff type.
 			if ( m_editor == Editor::DrumPattern ) {
@@ -968,7 +971,9 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 
 	// Update cursor position
-	m_pPatternEditorPanel->setCursorColumn( nColumn );
+	if ( bClickedOnGrid && m_editor != Editor::NotePropertiesRuler ) {
+		m_pPatternEditorPanel->setCursorColumn( nColumn );
+	}
 
 	update();
 }
