@@ -60,6 +60,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	, m_bShowPlusSign( false )
 	, m_bEntered( false )
 	, m_sText( sText )
+	, m_bShowCursor( false )
 {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
@@ -73,7 +74,8 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	updateFont( theme.m_font.m_sLevel3FontFamily,
 				theme.m_font.m_fontSize );
 	setColor( theme.m_color.m_patternEditor_backgroundColor,
-			  theme.m_color.m_patternEditor_textColor );
+			  theme.m_color.m_patternEditor_textColor,
+			  theme.m_color.m_cursorColor );
 }
 
 SidebarLabel::~SidebarLabel() {
@@ -105,8 +107,12 @@ void SidebarLabel::showPlusSign() {
 	update();
 }
 
-void SidebarLabel::setColor( const QColor& backgroundColor, const QColor& textColor ) {
-	if ( m_backgroundColor == backgroundColor && m_textColor == textColor ) {
+void SidebarLabel::setColor( const QColor& backgroundColor,
+							 const QColor& textColor,
+							 const QColor& cursorColor ) {
+	if ( m_backgroundColor == backgroundColor &&
+		 m_textColor == textColor &&
+		 m_cursorColor == cursorColor ) {
 		return;
 	}
 
@@ -115,6 +121,9 @@ void SidebarLabel::setColor( const QColor& backgroundColor, const QColor& textCo
 	}
 	if ( m_textColor != textColor ) {
 		m_textColor = textColor;
+	}
+	if ( m_cursorColor != cursorColor ) {
+		m_cursorColor = cursorColor;
 	}
 
 	setStyleSheet( QString( "\
@@ -193,6 +202,17 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 					color );
 	}
 
+	if ( m_bShowCursor && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		QPen pen;
+
+		pen.setColor( m_cursorColor );
+
+		pen.setWidth( 2 );
+		p.setPen( pen );
+		p.setRenderHint( QPainter::Antialiasing );
+		p.drawRoundedRect( QRect( 1, 1, width() - 2, height() - 2 ), 4, 4 );
+	}
+
 	QLabel::paintEvent( ev );
 }
 
@@ -245,6 +265,13 @@ void SidebarLabel::updateFont( const QString& sFontFamily,
 	if ( sText != text() ) {
 		QLabel::setText( sText );
 	}
+}
+
+void SidebarLabel::setShowCursor( bool bShowCursor ) {
+	if ( bShowCursor != m_bShowCursor ) {
+		m_bShowCursor = bShowCursor;
+	}
+	update();
 }
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
@@ -574,6 +601,8 @@ void SidebarRow::setSelected( bool bSelected )
 
 	m_bIsSelected = bSelected;
 
+	m_pTypeLbl->setShowCursor( bSelected );
+
 	updateStyleSheet();
 }
 
@@ -608,10 +637,10 @@ void SidebarRow::updateStyleSheet() {
 
 	setColor( m_backgroundColor );
 
-	m_pInstrumentNameLbl->setColor( m_backgroundColor, textColor );
-	m_pTypeLbl->setColor( backgroundPatternColor, textPatternColor );
-
-	m_cursorColor = colorTheme.m_cursorColor;
+	m_pInstrumentNameLbl->setColor(
+		m_backgroundColor, textColor, colorTheme.m_cursorColor );
+	m_pTypeLbl->setColor(
+		backgroundPatternColor, textPatternColor, colorTheme.m_cursorColor );
 }
 
 void SidebarRow::enterEvent( QEvent* ev ) {
@@ -634,24 +663,6 @@ void SidebarRow::paintEvent( QPaintEvent* ev ) {
 	// Required for empty spaces around and in between buttons.
 	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
 							  m_backgroundColor, m_bEntered );
-
-	// Draw border indicating cursor position
-	if (  m_bIsSelected &&
-		  m_pPatternEditorPanel->getDrumPatternEditor() != nullptr &&
-		  m_pPatternEditorPanel->getDrumPatternEditor()->hasFocus() &&
-		  ! pHydrogenApp->hideKeyboardCursor() ) {
-
-		QPen pen;
-
-		pen.setColor( m_cursorColor );
-
-		pen.setWidth( 2 );
-		painter.setPen( pen );
-		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect(
-			QRect( 1, 1, width() - 2 * SidebarRow::m_nButtonWidth - 1,
-				   height() - 2 ), 4, 4 );
-	}
 }
 
 void SidebarRow::setMuted(bool isMuted)

@@ -61,9 +61,11 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		/** Indicator to show add something new. Icon is cleared on setText() */
 		void showPlusSign();
 		bool isShowingPlusSign() const;
-		void setColor( const QColor& backgroundColor, const QColor& textColor );
+		void setColor( const QColor& backgroundColor, const QColor& textColor,
+					   const QColor& cursorColor );
 		void updateFont( const QString& sFontFamily,
 						 const H2Core::FontTheme::FontSize& fontSize );
+		void setShowCursor( bool bShowCursor );
 
 	signals:
 		void labelClicked( QMouseEvent* pEvent );
@@ -82,8 +84,10 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		bool m_bShowPlusSign;
 		QColor m_backgroundColor;
 		QColor m_textColor;
-		/** Whether the cursor entered the boundary of the widget.*/
+		QColor m_cursorColor;
+		/** Whether the mouse pointer entered the boundary of the widget.*/
 		bool m_bEntered;
+		bool m_bShowCursor;
 };
 
 inline bool SidebarLabel::isShowingPlusSign() const {
@@ -131,7 +135,6 @@ public slots:
 		Button *m_pSampleWarning;
 
 		QColor m_backgroundColor;
-		QColor m_cursorColor;
 
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
