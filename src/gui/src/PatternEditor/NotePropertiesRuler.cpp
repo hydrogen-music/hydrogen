@@ -889,6 +889,9 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	
 	drawFocus( painter );
 
+	const auto row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+
 	// Draw hovered notes
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	for ( const auto& [ ppPattern, nnotes ] :
@@ -1080,12 +1083,9 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 
 	// NoteOff notes can have a custom probability and lead lag. But having a
 	// velocity and pan would not make any sense for them.
-	if ( ( pNote->get_note_off() &&
-		   ! ( m_mode == PatternEditor::Mode::Probability ||
-			   m_mode == PatternEditor::Mode::LeadLag ) ) ||
-		 ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-			 pNote->getType() == selectedRow.sType ) &&
-		 ! m_selection.isSelected( pNote ) ) {
+	if ( pNote->get_note_off() &&
+		 ! ( m_mode == PatternEditor::Mode::Probability ||
+			 m_mode == PatternEditor::Mode::LeadLag ) ) {
 		return;
 	}
 
