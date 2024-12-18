@@ -110,10 +110,24 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	point = QPoint( ev->x(), 0 );
 #endif
 
+	bool bUpdate = false;
+
+	// When interacting with note(s) not already in a selection, we will discard
+	// the current selection and add these notes under point to a transient one.
+	const auto notesUnderPoint = getNotesAtPoint( pPattern, point, true );
+	if ( notesUnderPoint.size() > 0 ) {
+		m_selection.clearSelection();
+		for ( const auto& ppNote : notesUnderPoint ) {
+			m_selection.addToSelection( ppNote );
+		}
+		bUpdate = true;
+	}
+
 	prepareUndoAction( point ); //get all old values
 
 	float fDelta;
-	if ( ev->modifiers() == Qt::ControlModifier || ev->modifiers() == Qt::AltModifier ) {
+	if ( ev->modifiers() == Qt::ControlModifier ||
+		 ev->modifiers() == Qt::AltModifier ) {
 		fDelta = 0.01; // fine control
 	} else {
 		fDelta = 0.05; // coarse control
@@ -122,48 +136,26 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
-	int nColumn, nRow, nRealColumn;
-	eventPointToColumnRow( point, &nColumn, &nRow, &nRealColumn );
-
-	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row" );
-		return;
-	}
-
-	// Gather notes to act on: selected or under the mouse cursor
-	std::list< Note *> notes;
-	if ( m_selection.begin() != m_selection.end() ) {
-		for ( Note *pNote : m_selection ) {
-			notes.push_back( pNote );
-		}
-	} else {
-		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nRealColumn,
-										  pPattern ) {
-			notes.push_back( it->second );
-		}
-	}
-	
 	bool bValueChanged = false;
-	for ( Note *pNote : notes ) {
-		assert( pNote );
-		if ( ! ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-				 pNote->getType() == selectedRow.sType ) &&
-			 ! m_selection.isSelected( pNote ) ) {
-			continue;
-		}
-		bValueChanged = adjustNotePropertyDelta(
-			pNote, fDelta, /* bMessage=*/ true );
+	for ( auto& ppNote : m_selection ) {
+		bValueChanged =
+			adjustNotePropertyDelta( ppNote, fDelta, /* bMessage=*/ true ) ||
+			bValueChanged;
 	}
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
 	handleKeyboardCursor( false );
 
-	if ( bValueChanged ) {
-		addUndoAction();
+	if ( bUpdate ) {
+		if ( bValueChanged ) {
+			addUndoAction();
+		}
+
+		if ( notesUnderPoint.size() > 0 ) {
+			m_selection.clearSelection();
+		}
+
 		invalidateBackground();
 		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
 		update();
@@ -352,11 +344,9 @@ void NotePropertiesRuler::prepareUndoAction( const QPoint& point )
 	if ( m_selection.begin() != m_selection.end() ) {
 		// If there is a selection, preserve the initial state of all the
 		// selected notes.
-		for ( Note *pNote : m_selection ) {
-			if ( ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-				   pNote->getType() == selectedRow.sType ) ||
-				 m_selection.isSelected( pNote ) ) {
-				m_oldNotes[ pNote ] = new Note( pNote );
+		for ( auto& ppNote : m_selection ) {
+			if ( ppNote != nullptr ) {
+				m_oldNotes[ ppNote ] = new Note( ppNote );
 			}
 		}
 
@@ -526,8 +516,17 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 												   float fDelta,
 												   bool bMessage )
 {
+	if ( pNote == nullptr ) {
+		ERRORLOG( "invaild note" );
+		return false;
+	}
+
 	Note *pOldNote = m_oldNotes[ pNote ];
-	assert( pOldNote );
+	if ( pOldNote == nullptr ) {
+		ERRORLOG( QString( "Could not find note corresponding to [%1]" )
+				  .arg( pNote->toQString() ) );
+		return false;
+	}
 
 	bool bValueChanged = false;
 	

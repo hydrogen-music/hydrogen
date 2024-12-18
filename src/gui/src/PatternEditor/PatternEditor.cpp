@@ -867,8 +867,9 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	if ( ev->buttons() == Qt::LeftButton || ev->buttons() == Qt::RightButton ) {
 		m_notesToSelectOnMove.clear();
 
-		// When pressing and dragging a note not already in a selection, we will
-		// discard the current selection and add that very note under point.
+		// When interacting with note(s) not already in a selection, we will
+		// discard the current selection and add these notes under point to a
+		// transient one.
 		const auto notesUnderPoint = getNotesAtPoint( pPattern, ev->pos(), true );
 		for ( const auto& ppNote : notesUnderPoint ) {
 			m_notesToSelectOnMove.push_back( ppNote );
