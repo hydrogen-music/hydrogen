@@ -632,39 +632,23 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 
-	auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row [%1]" );
-		return;
-	}
-	
+
 	const bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
 
-	bool bValueChanged = false;
 	// Value adjustments
 	float fDelta = 0.0;
 	bool bRepeatLastValue = false;
-
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
 	}
 	else if ( ev->key() == Qt::Key_Delete ) {
-		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
+		// Key: Delete / Backspace: delete selected notes, or note under
+		// keyboard cursor
 		bUnhideCursor = false;
-		if ( m_selection.begin() != m_selection.end() ) {
-			// Delete selected notes if any
-			m_pPatternEditorPanel->getDrumPatternEditor()->
-				deleteSelection();
-		} else {
-			// Delete note under the keyboard cursor.
-			addOrRemoveNote( m_pPatternEditorPanel->getCursorColumn(), -1,
-							 m_pPatternEditorPanel->getSelectedRowDB(),
-							 KEY_MIN, OCTAVE_DEFAULT,
-							 /*bDoAdd=*/false, /*bDoDelete=*/true );
+		if ( ! m_selection.isEmpty() ) {
+			deleteSelection();
 		}
 	}
 	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
@@ -702,28 +686,26 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 
+	bool bUpdate = false;
+	bool bValueChanged = false;
 	// Value change
 	if ( fDelta != 0.0 || bRepeatLastValue ) {
-		const int nColumn = m_pPatternEditorPanel->getCursorColumn();
-
-		// Collect notes to apply the change to
-		std::list<Note*> notes;
-		if ( m_selection.begin() != m_selection.end() ) {
-			for ( Note *pNote : m_selection ) {
-				if ( pNote != nullptr ) {
-					notes.push_back( pNote );
-				}
+		// When interacting with note(s) not already in a selection, we will
+		// discard the current selection and add these notes under point to a
+		// transient one.
+		const auto notesUnderPoint =
+			getNotesAtPoint( pPattern, getCursorPosition(), true );
+		if ( notesUnderPoint.size() > 0 ) {
+			m_selection.clearSelection();
+			for ( const auto& ppNote : notesUnderPoint ) {
+				m_selection.addToSelection( ppNote );
 			}
+			bUpdate = true;
 		}
-		else {
-			FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPattern->getNotes(), it, nColumn, pPattern ) {
-				Note *pNote = it->second;
-				if ( pNote != nullptr && pNote->get_position() == nColumn &&
-					 pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-					 pNote->getType() == selectedRow.sType ) {
-					notes.push_back( pNote );
-				}
-			}
+
+		if ( m_selection.isEmpty() ) {
+			// No notes to act on
+			return;
 		}
 
 		// For the KeyOctave Editor, adjust the pitch by a whole semitone
@@ -735,73 +717,82 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 		}
 
-		prepareUndoAction(
-			QPoint( PatternEditor::nMargin + nColumn * m_fGridWidth, 0 ) );
+		clearOldNotes();
 
-		for ( Note *pNote : notes ) {
+		for ( auto& ppNote : m_selection ) {
+			if ( ppNote == nullptr ) {
+				continue;
+			}
+
+			m_oldNotes[ ppNote ] = new Note( ppNote );
 
 			if ( ! bRepeatLastValue ) {
 				// Apply delta to the property
 				bValueChanged = adjustNotePropertyDelta(
-					pNote, fDelta, notes.size() == 1 );
+					ppNote, fDelta, /* bMessage */ true ) ||
+					bValueChanged;
 			}
 			else {
 				// Repeating last value
 				switch ( m_mode ) {
 				case PatternEditor::Mode::Velocity:
-					if ( ! pNote->get_note_off() ) {
-						pNote->set_velocity( m_fLastSetValue );
+					if ( ! ppNote->get_note_off() ) {
+						ppNote->set_velocity( m_fLastSetValue );
 						bValueChanged = true;
 					}
 					break;
 				case PatternEditor::Mode::Pan:
-					if ( ! pNote->get_note_off() ) {
-						pNote->setPanWithRangeFrom0To1( m_fLastSetValue );
+					if ( ! ppNote->get_note_off() ) {
+						ppNote->setPanWithRangeFrom0To1( m_fLastSetValue );
 						bValueChanged = true;
 					}
 					break;
 				case PatternEditor::Mode::LeadLag:
-					pNote->set_lead_lag( m_fLastSetValue );
+					ppNote->set_lead_lag( m_fLastSetValue );
 					bValueChanged = true;
 					break;
 				case PatternEditor::Mode::Probability:
-					if ( ! pNote->get_note_off() ) {
-						pNote->set_probability( m_fLastSetValue );
+					if ( ! ppNote->get_note_off() ) {
+						ppNote->set_probability( m_fLastSetValue );
 						bValueChanged = true;
 					}
 					break;
 				case PatternEditor::Mode::KeyOctave:
-					pNote->set_key_octave( (Note::Key)( (int)m_fLastSetValue % 12 ),
-										   (Note::Octave)( (int)m_fLastSetValue / 12 ) );
+					ppNote->set_key_octave(
+						(Note::Key)( (int)m_fLastSetValue % 12 ),
+						(Note::Octave)( (int)m_fLastSetValue / 12 ) );
 					bValueChanged = true;
-						break;
+					break;
 
 				case PatternEditor::Mode::None:
 				default:
 					ERRORLOG("No mode set. No note property adjusted.");
 				}
 
-				if ( bValueChanged ) {
-					if ( notes.size() == 1 ) {
-						PatternEditor::triggerStatusMessage( pNote, m_mode );
-					}
-					Hydrogen::get_instance()->setIsModified( true );
-				}
 			}
 		}
-		addUndoAction();
-	}
+		if ( bValueChanged ) {
+			addUndoAction();
 
-	if ( bValueChanged ) {
-		invalidateBackground();
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
+			if ( notesUnderPoint.size() > 0 ) {
+				m_selection.clearSelection();
+			}
+		}
 	}
 
 	if ( bUnhideCursor ) {
 		handleKeyboardCursor( bUnhideCursor );
 	}
+	if ( bValueChanged ) {
+		Hydrogen::get_instance()->setIsModified( true );
+	}
 
-	update();
+	if ( bUpdate || bValueChanged ) {
+		invalidateBackground();
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
+		update();
+	}
+
 	ev->accept();
 }
 
