@@ -389,17 +389,6 @@ void PianoRollEditor::drawPattern()
 	}
 }
 
-void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
-{
-	int nRow;
-	eventPointToColumnRow( ev->pos(), nullptr, &nRow );
-	if ( nRow >= (int) OCTAVE_NUMBER * KEYS_PER_OCTAVE ) {
-		return;
-	}
-
-	PatternEditor::mouseDragUpdateEvent( ev );
-}
-
 void PianoRollEditor::selectAll()
 {
 	selectAllNotesInRow( m_pPatternEditorPanel->getSelectedRowDB() );

@@ -87,22 +87,6 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	update();
 }
 
-
-///
-/// Update the state during a Selection drag.
-///
-void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
-{
-	int nRow;
-	eventPointToColumnRow( ev->pos(), nullptr, &nRow );
-
-	if ( nRow <= -1 ) {
-		return;
-	}
-
-	PatternEditor::mouseDragUpdateEvent( ev );
-}
-
 ///
 /// Handle key press events.
 ///

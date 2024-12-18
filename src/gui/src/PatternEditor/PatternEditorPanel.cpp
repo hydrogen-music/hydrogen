@@ -1483,7 +1483,6 @@ void PatternEditorPanel::ensureCursorVisible()
 		}
 		else {
 			const auto pos = m_pPianoRollEditor->getCursorPosition();
-			DEBUGLOG( QString( "x: %1, y:%2").arg( pos.x() ).arg( pos.y() ) );
 			m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
 		}
 	}

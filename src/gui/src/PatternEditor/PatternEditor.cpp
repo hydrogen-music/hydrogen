@@ -1857,7 +1857,6 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 }
 
 void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
-
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || m_draggedNotes.size() == 0 ) {
 		return;

@@ -50,9 +50,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
 
-		// Synthetic UI events from selection manager
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk
 		// that state pointers to deleted notes may find their way into
