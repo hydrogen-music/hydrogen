@@ -365,6 +365,10 @@ protected:
 													bool bExcludeSelected );
 
 		void updateHoveredNotes( const QPoint& point );
+
+		/** Ensure the selection lassos of the other editors match the one of
+		 * this instance. */
+		bool syncLasso();
 };
 
 inline bool PatternEditor::getSelectNewNotes() const {

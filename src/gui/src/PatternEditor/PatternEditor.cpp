@@ -870,6 +870,9 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 			m_notesToSelectOnMove.push_back( ppNote );
 		}
 	}
+
+	// propagate event to selection. This could very well cancel a lasso created
+	// via keyboard events.
 	m_selection.mousePressEvent( ev );
 
 	// Hide cursor in case this behavior was selected in the
@@ -997,22 +1000,36 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 
 	if ( ev->buttons() != Qt::NoButton ) {
 		updateModifiers( ev );
-		if ( m_selection.isMoving() ) {
-			updateEditor( true );
-		}
 		m_selection.mouseMoveEvent( ev );
+		if ( syncLasso() || m_selection.isMoving() ) {
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
+		}
 	}
 }
 
 void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
 	updateModifiers( ev );
+
+	bool bUpdate = false;
+
+	// In case we just cancelled a lasso, we have to tell the other editors.
+	const bool oldState = m_selection.getSelectionState();
 	m_selection.mouseReleaseEvent( ev );
+	if ( oldState != m_selection.getSelectionState() ) {
+		syncLasso();
+		bUpdate = true;
+	}
 
 	if ( m_notesToSelectOnMove.size() > 0 ) {
 		// We used a transient selection of note(s) at a single position.
 		m_selection.clearSelection();
 		m_notesToSelectOnMove.clear();
+		bUpdate = true;
+	}
+
+	if ( bUpdate ) {
 		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
 		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
 	}
@@ -1688,59 +1705,9 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 
 	// synchronize lassos
-	bool bFullUpdate = false;
-	if ( m_editor == Editor::NotePropertiesRuler ) {
-		auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
+	m_selection.updateKeyboardCursorPosition();
+	const bool bFullUpdate = syncLasso();
 
-		m_selection.updateKeyboardCursorPosition();
-
-		// The ruler does not feature a proper y and height coordinate. We
-		// have to ensure to either keep the one already present in the
-		// others or use the current line as fallback.
-		QRect cursorStart = m_selection.getKeyboardCursorStart();
-		QRect lasso = m_selection.getLasso();
-		QRect cursor, prevLasso;
-		if ( pVisibleEditor->m_selection.isLasso() ) {
-			cursor = pVisibleEditor->m_selection.getKeyboardCursorStart();
-			prevLasso = pVisibleEditor->m_selection.getLasso();
-		}
-		else {
-			cursor = pVisibleEditor->getKeyboardCursorRect();
-			prevLasso = cursor;
-		}
-		cursorStart.setY( cursor.y() );
-		cursorStart.setHeight( cursor.height() );
-		lasso.setY( prevLasso.y() );
-		lasso.setHeight( prevLasso.height() );
-
-		bFullUpdate = pVisibleEditor->m_selection.syncLasso(
-			m_selection.getSelectionState(), cursorStart, lasso );
-	}
-	else {
-		m_selection.updateKeyboardCursorPosition();
-
-		// DrumPattern or Piano roll
-		const auto pVisibleRuler =
-			m_pPatternEditorPanel->getVisiblePropertiesRuler();
-
-		// The ruler does not feature a proper y coordinate and height. We have
-		// to use the entire height instead.
-		QRect cursorStart = m_selection.getKeyboardCursorStart();
-		QRect lasso = m_selection.getLasso();
-		QRect lassoStart = m_selection.getKeyboardCursorStart();
-		const QRect cursor = pVisibleRuler->getKeyboardCursorRect();
-		cursorStart.setY( cursor.y() );
-		cursorStart.setHeight( cursor.height() );
-		lasso.setY( cursor.y() );
-		lasso.setHeight( cursor.height() );
-
-		pVisibleRuler->m_selection.syncLasso(
-			m_selection.getSelectionState(), cursorStart, lasso );
-
-		// We force a full update lasso could have been changed in vertical
-		// direction (note selection).
-		bFullUpdate = true;
-	}
 	if ( bUnhideCursor ) {
 		handleKeyboardCursor( bUnhideCursor );
 	}
@@ -2721,4 +2688,58 @@ void PatternEditor::updateHoveredNotes( const QPoint& point ) {
 		}
 	}
 	m_pPatternEditorPanel->setHoveredNotes( hovered );
+}
+
+bool PatternEditor::syncLasso() {
+	bool bUpdate = false;
+	if ( m_editor == Editor::NotePropertiesRuler ) {
+		auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
+
+		// The ruler does not feature a proper y and height coordinate. We
+		// have to ensure to either keep the one already present in the
+		// others or use the current line as fallback.
+		QRect cursorStart = m_selection.getKeyboardCursorStart();
+		QRect lasso = m_selection.getLasso();
+		QRect cursor, prevLasso;
+		if ( pVisibleEditor->m_selection.isLasso() ) {
+			cursor = pVisibleEditor->m_selection.getKeyboardCursorStart();
+			prevLasso = pVisibleEditor->m_selection.getLasso();
+		}
+		else {
+			cursor = pVisibleEditor->getKeyboardCursorRect();
+			prevLasso = cursor;
+		}
+		cursorStart.setY( cursor.y() );
+		cursorStart.setHeight( cursor.height() );
+		lasso.setY( prevLasso.y() );
+		lasso.setHeight( prevLasso.height() );
+
+		bUpdate = pVisibleEditor->m_selection.syncLasso(
+			m_selection.getSelectionState(), cursorStart, lasso );
+	}
+	else {
+		// DrumPattern or Piano roll
+		const auto pVisibleRuler =
+			m_pPatternEditorPanel->getVisiblePropertiesRuler();
+
+		// The ruler does not feature a proper y coordinate and height. We have
+		// to use the entire height instead.
+		QRect cursorStart = m_selection.getKeyboardCursorStart();
+		QRect lasso = m_selection.getLasso();
+		QRect lassoStart = m_selection.getKeyboardCursorStart();
+		const QRect cursor = pVisibleRuler->getKeyboardCursorRect();
+		cursorStart.setY( cursor.y() );
+		cursorStart.setHeight( cursor.height() );
+		lasso.setY( cursor.y() );
+		lasso.setHeight( cursor.height() );
+
+		pVisibleRuler->m_selection.syncLasso(
+			m_selection.getSelectionState(), cursorStart, lasso );
+
+		// We force a full update lasso could have been changed in vertical
+		// direction (note selection).
+		bUpdate = true;
+	}
+
+	return bUpdate;
 }
