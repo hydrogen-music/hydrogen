@@ -412,6 +412,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	const int nBlockSize = 5;
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
+	bool bEventUsed = true;
 	updateModifiers( ev );
 
 	if ( bIsSelectionKey ) {
@@ -478,7 +479,6 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	}
 	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete: delete selection or note at keyboard cursor
-		bUnhideCursor = false;
 		if ( m_selection.begin() != m_selection.end() ) {
 			deleteSelection();
 		} else {
@@ -493,15 +493,15 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		}
 	}
 	else {
-		PatternEditor::keyPressEvent( ev );
+		bEventUsed = false;
 	}
 
-	if ( bUnhideCursor ) {
-		handleKeyboardCursor( bUnhideCursor );
+	if ( ! bEventUsed ) {
+		ev->setAccepted( false );
 	}
 
-	updateEditor( true );
-	ev->accept();
+
+	PatternEditor::keyPressEvent( ev );
 }
 
 std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( const QRect& r )

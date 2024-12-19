@@ -1622,74 +1622,82 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 
 	const int nWordSize = 5;
-	bool bUnhideCursor = true;
 
-	updateModifiers( ev );
+	bool bUnhideCursor = ev->key() != Qt::Key_Delete;
 
-	if ( ev->matches( QKeySequence::MoveToNextChar ) ||
-				ev->matches( QKeySequence::SelectNextChar ) ) {
-		// ->
-		m_pPatternEditorPanel->moveCursorRight();
+	// Check whether the event was already handled by a method of a child class.
+	if ( ! ev->isAccepted() ) {
+		updateModifiers( ev );
+
+		if ( ev->matches( QKeySequence::MoveToNextChar ) ||
+			 ev->matches( QKeySequence::SelectNextChar ) ) {
+			// ->
+			m_pPatternEditorPanel->moveCursorRight();
+		}
+		else if ( ev->matches( QKeySequence::MoveToNextWord ) ||
+				  ev->matches( QKeySequence::SelectNextWord ) ) {
+			// -->
+			m_pPatternEditorPanel->moveCursorRight( nWordSize );
+		}
+		else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ||
+				  ev->matches( QKeySequence::SelectEndOfLine ) ) {
+			// -->|
+			m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
+		}
+		else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ||
+				  ev->matches( QKeySequence::SelectPreviousChar ) ) {
+			// <-
+			m_pPatternEditorPanel->moveCursorLeft();
+		}
+		else if ( ev->matches( QKeySequence::MoveToPreviousWord ) ||
+				  ev->matches( QKeySequence::SelectPreviousWord ) ) {
+			// <-
+			m_pPatternEditorPanel->moveCursorLeft( nWordSize );
+		}
+		else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ||
+				  ev->matches( QKeySequence::SelectStartOfLine ) ) {
+			// |<--
+			m_pPatternEditorPanel->setCursorColumn( 0 );
+		}
+		else if ( ev->matches( QKeySequence::SelectAll ) ) {
+			// Key: Ctrl + A: Select all
+			bUnhideCursor = false;
+			selectAll();
+		}
+		else if ( ev->matches( QKeySequence::Deselect ) ) {
+			// Key: Shift + Ctrl + A: clear selection
+			bUnhideCursor = false;
+			selectNone();
+		}
+		else if ( ev->matches( QKeySequence::Copy ) ) {
+			bUnhideCursor = false;
+			copy();
+		}
+		else if ( ev->matches( QKeySequence::Paste ) ) {
+			bUnhideCursor = false;
+			paste();
+		}
+		else if ( ev->matches( QKeySequence::Cut ) ) {
+			bUnhideCursor = false;
+			cut();
+		}
+		else {
+			ev->ignore();
+			return;
+		}
 	}
-	else if ( ev->matches( QKeySequence::MoveToNextWord ) ||
-				ev->matches( QKeySequence::SelectNextWord ) ) {
-		// -->
-		m_pPatternEditorPanel->moveCursorRight( nWordSize );
-	}
-	else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ||
-				ev->matches( QKeySequence::SelectEndOfLine ) ) {
-		// -->|
-		m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
-	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ||
-				ev->matches( QKeySequence::SelectPreviousChar ) ) {
-		// <-
-		m_pPatternEditorPanel->moveCursorLeft();
-	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousWord ) ||
-				ev->matches( QKeySequence::SelectPreviousWord ) ) {
-		// <-
-		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
-	}
-	else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ||
-				ev->matches( QKeySequence::SelectStartOfLine ) ) {
-		// |<--
-		m_pPatternEditorPanel->setCursorColumn( 0 );
-	}
-	else if ( ev->matches( QKeySequence::SelectAll ) ) {
-		// Key: Ctrl + A: Select all
-		bUnhideCursor = false;
-		selectAll();
-	}
-	else if ( ev->matches( QKeySequence::Deselect ) ) {
-		// Key: Shift + Ctrl + A: clear selection
-		bUnhideCursor = false;
-		selectNone();
-	}
-	else if ( ev->matches( QKeySequence::Copy ) ) {
-		bUnhideCursor = false;
-		copy();
-	}
-	else if ( ev->matches( QKeySequence::Paste ) ) {
-		bUnhideCursor = false;
-		paste();
-	}
-	else if ( ev->matches( QKeySequence::Cut ) ) {
-		bUnhideCursor = false;
-		cut();
-	}
-	else {
-		ev->ignore();
-		return;
 	}
 
 	if ( bUnhideCursor ) {
 		handleKeyboardCursor( bUnhideCursor );
 	}
 
-	update();
-	ev->accept();
+		m_pPatternEditorPanel->getVisibleEditor()->update();
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
 
+	if ( ! ev->isAccepted() ) {
+		ev->accept();
+	}
 }
 
 void PatternEditor::handleKeyboardCursor( bool bVisible ) {

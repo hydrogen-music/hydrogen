@@ -102,7 +102,6 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	const int nBlockSize = 5;
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	const int nMaxRows = m_pPatternEditorPanel->getRowNumberDB();
-	bool bUnhideCursor = true;
 	auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
 		 selectedRow.sType.isEmpty() ) {
@@ -110,6 +109,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 
+	bool bEventUsed = true;
 	const bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	updateModifiers( ev );
 
@@ -175,7 +175,6 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under
 		// keyboard cursor
-		bUnhideCursor = false;
 		if ( m_selection.begin() != m_selection.end() ) {
 			// Delete selected notes if any
 			deleteSelection();
@@ -188,16 +187,14 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		}
 	}
 	else {
-		PatternEditor::keyPressEvent( ev );
-		return;
+		bEventUsed = false;
 	}
 
-	if ( bUnhideCursor ) {
-		handleKeyboardCursor( bUnhideCursor );
+	if ( ! bEventUsed ) {
+		ev->setAccepted( false );
 	}
 
-	update();
-	ev->accept();
+	PatternEditor::keyPressEvent( ev );
 }
 
 ///

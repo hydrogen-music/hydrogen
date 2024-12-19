@@ -609,9 +609,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 
-
 	const bool bIsSelectionKey = m_selection.keyPressEvent( ev );
-	bool bUnhideCursor = true;
+	bool bEventUsed = true;
 
 	// Value adjustments
 	float fDelta = 0.0;
@@ -622,7 +621,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under
 		// keyboard cursor
-		bUnhideCursor = false;
 		if ( ! m_selection.isEmpty() ) {
 			deleteSelection();
 		}
@@ -652,8 +650,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		fDelta = -1.0;
 	}
 	else {
-		PatternEditor::keyPressEvent( ev );
-		return;
+		bEventUsed = false;
 	}
 
 	bool bUpdate = false;
@@ -708,23 +705,16 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			if ( notesUnderPoint.size() > 0 ) {
 				m_selection.clearSelection();
 			}
+
+			Hydrogen::get_instance()->setIsModified( true );
 		}
 	}
 
-	if ( bUnhideCursor ) {
-		handleKeyboardCursor( bUnhideCursor );
-	}
-	if ( bValueChanged ) {
-		Hydrogen::get_instance()->setIsModified( true );
+	if ( ! bEventUsed ) {
+		ev->setAccepted( false );
 	}
 
-	if ( bUpdate || bValueChanged ) {
-		invalidateBackground();
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
-		update();
-	}
-
-	ev->accept();
+	PatternEditor::keyPressEvent( ev );
 }
 
 void NotePropertiesRuler::addUndoAction()
