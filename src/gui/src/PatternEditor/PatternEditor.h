@@ -67,6 +67,7 @@ public:
 		NotePropertiesRuler = 2,
 		None = 3
 	};
+		static QString editorToQString( const Editor& editor );
 	
 	enum class Mode {
 		Velocity = 0,

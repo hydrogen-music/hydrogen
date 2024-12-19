@@ -2388,6 +2388,20 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 	pPatternEditorPanel->updateEditors( true );
 }
 
+QString PatternEditor::editorToQString( const Editor& editor ) {
+	switch ( editor ) {
+	case PatternEditor::Editor::DrumPattern:
+		return "DrumPattern";
+	case PatternEditor::Editor::PianoRoll:
+		return "PianoRoll";
+	case PatternEditor::Editor::NotePropertiesRuler:
+		return "NotePropertiesRuler";
+	case PatternEditor::Editor::None:
+	default:
+		return QString( "Unknown editor [%1]" ).arg( static_cast<int>(editor) ) ;
+	}
+}
+
 QString PatternEditor::modeToQString( const Mode& mode ) {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString s;
