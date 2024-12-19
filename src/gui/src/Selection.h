@@ -745,9 +745,9 @@ public:
 
 		} else {
 			// Other keys should probably also cancel lasso, but not move?
-			if ( m_selectionState == KeyboardLasso ) {
-				m_selectionState = Idle;
-				updateWidgetGroup();
+			if ( m_selectionState == KeyboardLasso &&
+				 ev->modifiers() != Qt::ShiftModifier ) {
+
 			}
 		}
 		return false;
