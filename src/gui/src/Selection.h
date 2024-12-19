@@ -757,7 +757,7 @@ public:
 	//! Update the keyboard cursor.
 	//! Called by the client widget to tell the Selection the current
 	//! location of the keyboard input cursor.
-	void updateKeyboardCursorPosition( const QRect& cursor ) {
+	void updateKeyboardCursorPosition() {
 		if ( m_selectionState == KeyboardLasso ) {
 			m_lasso = m_keyboardCursorStart.united( m_pWidget->getKeyboardCursorRect() );
 

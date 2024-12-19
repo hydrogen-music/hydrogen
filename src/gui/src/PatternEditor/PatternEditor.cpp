@@ -1709,7 +1709,7 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 	// Only update on state changes
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 		if ( bVisible ) {
-			m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
+			m_selection.updateKeyboardCursorPosition();
 			m_pPatternEditorPanel->ensureCursorVisible();
 
 			if ( m_selection.isLasso() ) {

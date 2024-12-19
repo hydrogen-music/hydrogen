@@ -663,7 +663,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
 	m_pScrollView->ensureVisible( cursorCentre.x(), cursorCentre.y() );
-	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
+	m_selection.updateKeyboardCursorPosition();
 
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
