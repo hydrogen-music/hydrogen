@@ -473,6 +473,12 @@ public:
 	}
 
 	void mouseReleaseEvent( QMouseEvent *ev ) {
+		if ( m_selectionState == SelectionState::KeyboardLasso ||
+			 m_selectionState == SelectionState::KeyboardMoving ) {
+			// There is still a former keyboard lasso active. Cancel it.
+			m_selectionState = SelectionState::Idle;
+		}
+
 		if ( m_mouseState != Up && !( ev->buttons() & m_mouseButton) ) {
 			if ( m_mouseState == Down ) {
 				mouseClick( ev );
