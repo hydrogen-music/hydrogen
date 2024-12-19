@@ -748,6 +748,12 @@ public:
 			if ( m_selectionState == KeyboardLasso &&
 				 ev->modifiers() != Qt::ShiftModifier ) {
 
+				if ( m_selectionState != Idle ) {
+					m_selectionState = Idle;
+					updateWidgetGroup();
+					// Event got consumed for canceling the lasso.
+					return true;
+				}
 			}
 		}
 		return false;
