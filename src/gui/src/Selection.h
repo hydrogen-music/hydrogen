@@ -765,6 +765,31 @@ public:
 		return false;
 	}
 
+		//! A means to synchronize the lassos of different widgets.
+		bool syncLasso( const SelectionState& selectionState,
+						const QRect& cursorStart, const QRect& lasso ) {
+			bool bUpdate = false;
+			if ( m_selectionState != selectionState ) {
+				m_selectionState = selectionState;
+				bUpdate = true;
+			}
+
+			if ( m_keyboardCursorStart != cursorStart ) {
+				m_keyboardCursorStart = cursorStart;
+				if ( m_selectionState == KeyboardMoving ) {
+					m_movingOffset = m_pWidget->getKeyboardCursorRect().topLeft() -
+						cursorStart.topLeft();
+				}
+				bUpdate = true;
+			}
+
+			if ( m_lasso != lasso ) {
+				m_lasso = lasso;
+				bUpdate = true;
+			}
+
+			return bUpdate;
+		}
 
 		const QRect& getKeyboardCursorStart() const {
 			return m_keyboardCursorStart;

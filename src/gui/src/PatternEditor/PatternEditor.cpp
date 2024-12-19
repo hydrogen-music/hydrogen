@@ -1686,14 +1686,75 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 			return;
 		}
 	}
-	}
 
+	// synchronize lassos
+	bool bFullUpdate = false;
+	if ( m_editor == Editor::NotePropertiesRuler ) {
+		auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
+
+		m_selection.updateKeyboardCursorPosition();
+
+		// The ruler does not feature a proper y and height coordinate. We
+		// have to ensure to either keep the one already present in the
+		// others or use the current line as fallback.
+		QRect cursorStart = m_selection.getKeyboardCursorStart();
+		QRect lasso = m_selection.getLasso();
+		QRect cursor, prevLasso;
+		if ( pVisibleEditor->m_selection.isLasso() ) {
+			cursor = pVisibleEditor->m_selection.getKeyboardCursorStart();
+			prevLasso = pVisibleEditor->m_selection.getLasso();
+		}
+		else {
+			cursor = pVisibleEditor->getKeyboardCursorRect();
+			prevLasso = cursor;
+		}
+		cursorStart.setY( cursor.y() );
+		cursorStart.setHeight( cursor.height() );
+		lasso.setY( prevLasso.y() );
+		lasso.setHeight( prevLasso.height() );
+
+		bFullUpdate = pVisibleEditor->m_selection.syncLasso(
+			m_selection.getSelectionState(), cursorStart, lasso );
+	}
+	else {
+		m_selection.updateKeyboardCursorPosition();
+
+		// DrumPattern or Piano roll
+		const auto pVisibleRuler =
+			m_pPatternEditorPanel->getVisiblePropertiesRuler();
+
+		// The ruler does not feature a proper y coordinate and height. We have
+		// to use the entire height instead.
+		QRect cursorStart = m_selection.getKeyboardCursorStart();
+		QRect lasso = m_selection.getLasso();
+		QRect lassoStart = m_selection.getKeyboardCursorStart();
+		const QRect cursor = pVisibleRuler->getKeyboardCursorRect();
+		cursorStart.setY( cursor.y() );
+		cursorStart.setHeight( cursor.height() );
+		lasso.setY( cursor.y() );
+		lasso.setHeight( cursor.height() );
+
+		pVisibleRuler->m_selection.syncLasso(
+			m_selection.getSelectionState(), cursorStart, lasso );
+
+		// We force a full update lasso could have been changed in vertical
+		// direction (note selection).
+		bFullUpdate = true;
+	}
 	if ( bUnhideCursor ) {
 		handleKeyboardCursor( bUnhideCursor );
 	}
 
+	if ( bFullUpdate ) {
+		// Notes have might become selected. We have to update the background as
+		// well.
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
+	}
+	else {
 		m_pPatternEditorPanel->getVisibleEditor()->update();
 		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
+	}
 
 	if ( ! ev->isAccepted() ) {
 		ev->accept();
