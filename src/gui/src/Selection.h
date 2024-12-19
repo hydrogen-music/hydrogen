@@ -201,6 +201,33 @@ class Selection {
 	std::shared_ptr< SelectionGroup > m_pSelectionGroup;
 	//! @}
 
+	//! @name Selection gestures
+	//!
+	//! The Selection class implements a few multi-step gestures:
+	//!    - Dragging a rectangular selection lasso
+	//!    - Dragging a selection to reposition it
+	//! Both of these are supported by mouse or by keyboard.
+	//!
+	//! @dot
+	//! digraph "states" {
+	//!   Idle -> MouseLasso [ label = "startDrag" ];
+	//!   MouseLasso -> Idle [ label = "endDrag" ];
+	//!   Idle -> MouseMoving [ label = "startDrag over selected" ];
+	//!   MouseMoving -> Idle [ label = "endDrag" ];
+	//!   Idle -> KeyboardLasso [ label = "Select with keyboard (shift)" ];
+	//!   KeyboardLasso -> Idle [ label = "any other input" ];
+	//!   KeyboardLasso -> KeyboardMoving [ label = "Return" ];
+	//!   Idle -> KeyboardMoving [ label = "Return over selected" ];
+	//!   KeyboardMoving -> Idle [ label = "Return or escape" ];
+	//! }
+	//! @enddot
+	enum SelectionState {
+		Idle,
+		MouseLasso,
+		MouseMoving,
+		KeyboardLasso,
+		KeyboardMoving
+	};
 
 private:
 	SelectionWidget< Elem > *m_pWidget;
@@ -228,29 +255,8 @@ private:
 	QMouseEvent *m_pClickEvent;	   //!< Mouse event to deliver as 'click' or 'drag' events
 	//! @}
 
-
-	//! @name Selection gestures
-	//!
-	//! The Selection class implements a few multi-step gestures:
-	//!    - Dragging a rectangular selection lasso
-	//!    - Dragging a selection to reposition it
-	//! Both of these are supported by mouse or by keyboard.
-	//!
-	//! @dot
-	//! digraph "states" {
-	//!   Idle -> MouseLasso [ label = "startDrag" ];
-	//!   MouseLasso -> Idle [ label = "endDrag" ];
-	//!   Idle -> MouseMoving [ label = "startDrag over selected" ];
-	//!   MouseMoving -> Idle [ label = "endDrag" ];
-	//!   Idle -> KeyboardLasso [ label = "Select with keyboard (shift)" ];
-	//!   KeyboardLasso -> Idle [ label = "any other input" ];
-	//!   KeyboardLasso -> KeyboardMoving [ label = "Return" ];
-	//!   Idle -> KeyboardMoving [ label = "Return over selected" ];
-	//!   KeyboardMoving -> Idle [ label = "Return or escape" ];
-	//! }
-	//! @enddot
 	//! @{
-	enum SelectionState { Idle, MouseLasso, MouseMoving, KeyboardLasso, KeyboardMoving } m_selectionState;
+		SelectionState m_selectionState;
 
 	QRect m_lasso;				//!< Dimensions of a current selection lasso
 	QPoint m_movingOffset;		//!< Offset that a selection has been moved by
@@ -759,6 +765,16 @@ public:
 		return false;
 	}
 
+
+		const QRect& getKeyboardCursorStart() const {
+			return m_keyboardCursorStart;
+		}
+		const QRect& getLasso() const {
+			return m_lasso;
+		}
+		const SelectionState& getSelectionState() const {
+			return m_selectionState;
+		}
 
 	//! Update the keyboard cursor.
 	//! Called by the client widget to tell the Selection the current
