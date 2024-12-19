@@ -1705,8 +1705,22 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 
 	// synchronize lassos
-	m_selection.updateKeyboardCursorPosition();
-	const bool bFullUpdate = syncLasso();
+	bool bFullUpdate = false;
+	auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
+	// In case we use keyboard events to _continue_ an existing lasso in
+	// NotePropertiesRuler started in DrumPatternEditor (followed by moving
+	// focus to NPR using tab key), DrumPatternEditor has to be used to update
+	// the shared set of selected notes. Else, only notes of the current row
+	// will be added after an update.
+	if ( m_editor == Editor::NotePropertiesRuler &&
+		 pVisibleEditor->m_selection.isLasso() && m_selection.isLasso() ) {
+		pVisibleEditor->m_selection.updateKeyboardCursorPosition();
+		bFullUpdate = pVisibleEditor->syncLasso();
+	}
+	else {
+		m_selection.updateKeyboardCursorPosition();
+		bFullUpdate = syncLasso();
+	}
 
 	if ( bUnhideCursor ) {
 		handleKeyboardCursor( bUnhideCursor );
