@@ -277,7 +277,6 @@ void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
 			// if there is a stop-note to the right of this note, only draw-
 			// its length till there.
 			int nLength = pNote->get_length();
-			auto notes = pPattern->getNotes();
 			const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
 			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
 				if ( ppNote != nullptr &&
@@ -1071,6 +1070,19 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 			 && pNoteA->getPan() == pNoteB->getPan()
 			 && pNoteA->get_lead_lag() == pNoteB->get_lead_lag()
 			 && pNoteA->get_probability() == pNoteB->get_probability() );
+}
+
+int PatternEditor::getCursorMargin() const {
+	const int nResolution = m_pPatternEditorPanel->getResolution();
+	if ( nResolution < 32 ) {
+		return PatternEditor::nDefaultCursorMargin;
+	}
+	else if ( nResolution < MAX_NOTES ) {
+		return PatternEditor::nDefaultCursorMargin / 2;
+	}
+	else {
+		return 0;
+	}
 }
 
 bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& elements )
@@ -2655,8 +2667,17 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 		return std::move( notesUnderPoint );
 	}
 
+	const int nCursorMargin = getCursorMargin();
+
 	int nRow, nRealColumn;
 	eventPointToColumnRow( point, nullptr, &nRow, &nRealColumn );
+
+	int nRealColumnLower, nRealColumnUpper;
+	eventPointToColumnRow( point - QPoint( nCursorMargin, 0 ),
+						   nullptr, nullptr, &nRealColumnLower );
+	eventPointToColumnRow( point + QPoint( nCursorMargin, 0 ),
+						   nullptr, nullptr, &nRealColumnUpper );
+
 
 	// Assemble all notes to be edited.
 	DrumPatternRow row;
@@ -2668,9 +2689,23 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 			m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 
+	// Prior to version 2.0 notes where selected by clicking its grid cell,
+	// while this caused only notes on the current grid to be accessible it also
+	// made them quite easy select. Just using the position of the mouse cursor
+	// would feel like a regression, as it would be way harded to hit the notes.
+	// Instead, we introduce a certain rectangle (manhattan distance) around the
+	// cursor which can select notes but only return those nearest to the
+	// center.
+	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
+
+	// We have to ensure to only provide notes from a single position. In case
+	// the cursor is placed exactly in the middle of two notes, the left one
+	// wins.
+	int nLastPosition = -1;
+
 	const auto notes = pPattern->getNotes();
-	for ( auto it = notes->lower_bound( nRealColumn );
-		  it != notes->end() && it->first <= nRealColumn; ++it ) {
+	for ( auto it = notes->lower_bound( nRealColumnLower );
+		  it != notes->end() && it->first <= nRealColumnUpper; ++it ) {
 		const auto ppNote = it->second;
 		if ( ppNote != nullptr &&
 			 ( ! bExcludeSelected ||
@@ -2678,15 +2713,28 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 			 ppNote->get_instrument_id() == row.nInstrumentID &&
 			 ppNote->getType() == row.sType ) {
 
-			// In case of the PianoRoll editor we do have to additionally
-			// differentiate between different pitches.
-			if ( m_editor != Editor::PianoRoll ||
-				 ( m_editor == Editor::PianoRoll &&
-				   ppNote->get_key() ==
-				   Note::pitchToKey( Note::lineToPitch( nRow ) ) &&
-				   ppNote->get_octave() ==
-				   Note::pitchToOctave( Note::lineToPitch( nRow ) ) ) ) {
-				notesUnderPoint.push_back( ppNote );
+			const int nDistance =
+				std::abs( ppNote->get_position() - nRealColumn );
+
+			if ( nDistance < nLastDistance ) {
+				// This note is nearer than (potential) previous ones.
+				notesUnderPoint.clear();
+				nLastDistance = nDistance;
+				nLastPosition = ppNote->get_position();
+			}
+
+			if ( nDistance <= nLastDistance &&
+				 ppNote->get_position() == nLastPosition ) {
+				// In case of the PianoRoll editor we do have to additionally
+				// differentiate between different pitches.
+				if ( m_editor != Editor::PianoRoll ||
+					 ( m_editor == Editor::PianoRoll &&
+					   ppNote->get_key() ==
+					   Note::pitchToKey( Note::lineToPitch( nRow ) ) &&
+					   ppNote->get_octave() ==
+					   Note::pitchToOctave( Note::lineToPitch( nRow ) ) ) ) {
+					notesUnderPoint.push_back( ppNote );
+				}
 			}
 		}
 	}
@@ -2695,11 +2743,38 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 }
 
 void PatternEditor::updateHoveredNotes( const QPoint& point ) {
+	int nRealColumn;
+	eventPointToColumnRow( point, nullptr, nullptr, &nRealColumn );
+	int nRealColumnUpper;
+	eventPointToColumnRow( point + QPoint( getCursorMargin(), 0 ),
+						   nullptr, nullptr, &nRealColumnUpper );
+
+	// getNotesAtPoint is generous in finding notes by taking a margin around
+	// the cursor into account as well. We have to ensure we only use to closest
+	// notes reported.
+	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
+
+	// In addition, we have to ensure to only provide notes from a single
+	// position. In case the cursor is placed exactly in the middle of two
+	// notes, the left one wins.
+	int nLastPosition = -1;
+
 	std::map<std::shared_ptr<Pattern>, std::vector<Note*>> hovered;
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const auto hoveredNotes = getNotesAtPoint( ppPattern, point, false );
 		if ( hoveredNotes.size() > 0 ) {
-			hovered[ ppPattern ] = hoveredNotes;
+			const int nDistance =
+				std::abs( hoveredNotes[ 0 ]->get_position() - nRealColumn );
+			if ( nDistance < nLastDistance ) {
+				// This batch of notes is nearer than (potential) previous ones.
+				hovered.clear();
+				nLastDistance = nDistance;
+				nLastPosition = hoveredNotes[ 0 ]->get_position();
+			}
+
+			if ( hoveredNotes[ 0 ]->get_position() == nLastPosition ) {
+				hovered[ ppPattern ] = hoveredNotes;
+			}
 		}
 	}
 	m_pPatternEditorPanel->setHoveredNotes( hovered );

@@ -122,6 +122,8 @@ public:
 		updateEditor( true );
 	}
 
+		virtual int getCursorMargin() const override;
+
 	//! Deselecting notes
 	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) override;
 
@@ -257,6 +259,13 @@ protected:
 		 * case the widget is not in focus. This should help users to determine
 		 * which of the editors currently holds focus. */
 		static constexpr int nOutOfFocusDim = 120;
+
+		/** Distance in pixel the cursor is allowed to be away from a note to
+		 * still be associated with it.
+		 *
+		 * Note that for very small resolutions a smaller margin will be used to
+		 * still allow adding notes to adjacent grid cells. */
+		static constexpr int nDefaultCursorMargin = 10;
 
 	//! Granularity of grid positioning (in ticks)
 	int granularity() const;
