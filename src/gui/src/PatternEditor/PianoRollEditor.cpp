@@ -74,6 +74,16 @@ PianoRollEditor::~PianoRollEditor()
 	delete m_pTemp;
 }
 
+QPoint PianoRollEditor::noteToPoint( H2Core::Note* pNote ) const {
+	if ( pNote == nullptr ) {
+		return QPoint();
+	}
+
+	return QPoint(
+		PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
+		m_nGridHeight *
+		Note::pitchToLine( pNote->get_pitch_from_key_octave() ) + 1 );
+}
 
 void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
@@ -539,12 +549,10 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 		Note *pNote = it->second;
 		if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
 			 pNote->getType() == selectedRow.sType ) {
-			uint start_x = PatternEditor::nMargin +
-				pNote->get_position() * m_fGridWidth;
-			uint start_y = m_nGridHeight *
-				Note::pitchToLine( pNote->get_pitch_from_key_octave() ) + 1;
+			const auto notePoint = noteToPoint( pNote );
 
-			if ( rNormalized.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
+			if ( rNormalized.intersects( QRect( notePoint.x() -4 , notePoint.y(),
+												w, h ) ) ) {
 				result.push_back( pNote );
 			}
 		}

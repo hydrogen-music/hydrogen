@@ -49,6 +49,8 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
+		QPoint noteToPoint( H2Core::Note* pNote ) const;
+
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
