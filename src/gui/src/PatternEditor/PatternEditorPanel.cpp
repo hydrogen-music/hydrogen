@@ -117,6 +117,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // Editor TOP
 
 	m_pTabBar = new QTabBar( nullptr );
+	m_pTabBar->setFocusPolicy( Qt::NoFocus );
 	m_pTabBar->setObjectName( "patternEditorTabBar" );
 	// Select a different pattern
 	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
