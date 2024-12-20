@@ -1713,7 +1713,8 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 	// the shared set of selected notes. Else, only notes of the current row
 	// will be added after an update.
 	if ( m_editor == Editor::NotePropertiesRuler &&
-		 pVisibleEditor->m_selection.isLasso() && m_selection.isLasso() ) {
+		 pVisibleEditor->m_selection.isLasso() && m_selection.isLasso() &&
+		 dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 		pVisibleEditor->m_selection.updateKeyboardCursorPosition();
 		bFullUpdate = pVisibleEditor->syncLasso();
 	}
@@ -2709,19 +2710,56 @@ bool PatternEditor::syncLasso() {
 	if ( m_editor == Editor::NotePropertiesRuler ) {
 		auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
 
-		// The ruler does not feature a proper y and height coordinate. We
-		// have to ensure to either keep the one already present in the
-		// others or use the current line as fallback.
+		QRect cursor, prevLasso;
 		QRect cursorStart = m_selection.getKeyboardCursorStart();
 		QRect lasso = m_selection.getLasso();
-		QRect cursor, prevLasso;
-		if ( pVisibleEditor->m_selection.isLasso() ) {
-			cursor = pVisibleEditor->m_selection.getKeyboardCursorStart();
-			prevLasso = pVisibleEditor->m_selection.getLasso();
+		if ( dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
+			// The ruler does not feature a proper y and height coordinate. We
+			// have to ensure to either keep the one already present in the
+			// others or use the current line as fallback.
+			if ( pVisibleEditor->m_selection.isLasso() ) {
+				cursor = pVisibleEditor->m_selection.getKeyboardCursorStart();
+				prevLasso = pVisibleEditor->m_selection.getLasso();
+			}
+			else {
+				cursor = pVisibleEditor->getKeyboardCursorRect();
+				prevLasso = cursor;
+			}
 		}
 		else {
-			cursor = pVisibleEditor->getKeyboardCursorRect();
-			prevLasso = cursor;
+			// PianoRollEditor
+			//
+			// All notes shown in the NotePropertiesRuler are shown in
+			// PianoRollEditor as well. But scattered all over the place. In
+			// DrumPatternEditor we just have to mark a row. In PRE we have to
+			// ensure that all notes are properly covered by the lasso. In here
+			// we expect all selected notes already being added and adjust lasso
+			// dimensions to cover them.
+			auto pPianoRoll = dynamic_cast<PianoRollEditor*>(pVisibleEditor);
+			if ( pPianoRoll == nullptr ) {
+				ERRORLOG( "this ain't piano roll" );
+				return false;
+			}
+			if ( pVisibleEditor->m_selection.isLasso() ) {
+				cursor = pVisibleEditor->m_selection.getKeyboardCursorStart();
+				prevLasso = pVisibleEditor->m_selection.getLasso();
+			}
+			else {
+				cursor = pVisibleEditor->getKeyboardCursorRect();
+				prevLasso = cursor;
+			}
+
+			for ( const auto& ppNote : m_selection ) {
+				if ( ppNote != nullptr ) {
+					const QPoint np = pPianoRoll->noteToPoint( ppNote );
+					const QRect noteRect = QRect(
+						np.x() - cursor.width() / 2, np.y() - cursor.height() / 2,
+						cursor.width(), cursor.height() );
+					if ( ! prevLasso.intersects( noteRect ) ) {
+						prevLasso = prevLasso.united( noteRect );
+					}
+				}
+			}
 		}
 		cursorStart.setY( cursor.y() );
 		cursorStart.setHeight( cursor.height() );
