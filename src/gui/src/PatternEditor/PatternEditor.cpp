@@ -923,7 +923,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			if ( m_editor == Editor::DrumPattern ) {
 				addOrRemoveNote(
 					nColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
-					/* bDoAdd */true, /* bDoDelete */true,
+					/* bDoAdd */true, /* bDoDelete */false,
 					/* bIsNoteOff */ev->modifiers() & Qt::ShiftModifier );
 			}
 			else if ( m_editor == Editor::PianoRoll ) {
@@ -931,7 +931,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 				const Note::Key noteKey = Note::pitchToKey( m_nCursorRow );
 				addOrRemoveNote(
 					nColumn, nRealColumn, nRow, noteKey, octave,
-					/* bDoAdd */true, /* bDoDelete */true,
+					/* bDoAdd */true, /* bDoDelete */false,
 					/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
 			}
 		}
