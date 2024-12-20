@@ -1807,7 +1807,7 @@ void PatternEditor::focusInEvent( QFocusEvent *ev ) {
 	}
 
 	// Update to show the focus border highlight
-	update();
+	updateEditor();
 }
 
 void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
@@ -1818,7 +1818,7 @@ void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
 	}
 	
 	// Update to remove the focus border highlight
-	update();
+	updateEditor();
 }
 
 void PatternEditor::invalidateBackground() {

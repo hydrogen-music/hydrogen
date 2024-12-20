@@ -368,16 +368,16 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	// Row clicked by the user.
-	const QColor selectedRowColor(
+	QColor selectedRowColor(
 		pPref->getTheme().m_color.m_patternEditor_selectedRowColor );
 
 	// Rows for which there is a corresponding instrument in the current
 	// drumkit.
-	const QColor backgroundColor(
+	QColor backgroundColor(
 		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
-	const QColor alternateRowColor(
+	QColor alternateRowColor(
 		pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
 
 	// Everything beyond the current pattern (used when another, larger pattern
@@ -386,6 +386,13 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 		pPref->getTheme().m_color.m_windowColor );
 	const QColor lineInactiveColor(
 		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	if ( ! hasFocus() ) {
+		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
+		backgroundColor = backgroundColor.darker( PatternEditor::nOutOfFocusDim );
+		alternateRowColor = alternateRowColor.darker( PatternEditor::nOutOfFocusDim );
+		selectedRowColor = selectedRowColor.darker( PatternEditor::nOutOfFocusDim );
+	}
 
 	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();

@@ -951,14 +951,19 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 
 	const QColor borderColor(
 		pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineColor(
+	QColor lineColor(
 		pPref->getTheme().m_color.m_patternEditor_line5Color );
 	const QColor lineInactiveColor(
 		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
-	const QColor backgroundColor(
+	QColor backgroundColor(
 		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
 	const QColor backgroundInactiveColor(
 		pPref->getTheme().m_color.m_windowColor );
+
+	if ( ! hasFocus() ) {
+		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
+		backgroundColor = backgroundColor.darker( PatternEditor::nOutOfFocusDim );
+	}
 
 	if ( nHeight == 0 ) {
 		nHeight = height();

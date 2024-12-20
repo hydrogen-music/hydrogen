@@ -253,6 +253,10 @@ protected:
 			Selected = 0x004,
 		};
 
+		/** Scaling factor by which the background colors will be made darker in
+		 * case the widget is not in focus. This should help users to determine
+		 * which of the editors currently holds focus. */
+		static constexpr int nOutOfFocusDim = 120;
 
 	//! Granularity of grid positioning (in ticks)
 	int granularity() const;

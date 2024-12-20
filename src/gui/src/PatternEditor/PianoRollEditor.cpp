@@ -222,15 +222,22 @@ void PianoRollEditor::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	
-	const QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
+	QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
 	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
-	const QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
-	const QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+	QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+	QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
 	// The line corresponding to the default pitch set to new notes
 	// will be highlighted.
 	const QColor baseNoteColor = octaveColor.lighter( 119 );
-	const QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
+	QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	if ( ! hasFocus() ) {
+		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
+		backgroundColor = backgroundColor.darker( PatternEditor::nOutOfFocusDim );
+		alternateRowColor = alternateRowColor.darker( PatternEditor::nOutOfFocusDim );
+		octaveColor = octaveColor.darker( PatternEditor::nOutOfFocusDim );
+	}
 
 	unsigned start_x = 0;
 	unsigned end_x = m_nActiveWidth;
