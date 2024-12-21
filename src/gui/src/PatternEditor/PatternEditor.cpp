@@ -1214,25 +1214,42 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::No
 
 QPoint PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
-	// Quantize offset to multiples of m_nGrid{Width,Height}
-	int nQuantX = m_fGridWidth, nQuantY = m_nGridHeight;
-	float nFactor = 1;
-	if ( ! m_bFineGrained ) {
-		nFactor = granularity();
-		nQuantX = m_fGridWidth * nFactor;
-	}
-	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
-	if ( rawOffset.y() < 0 ) {
-		y_bias = -y_bias;
-	}
-	if ( rawOffset.x() < 0 ) {
-		x_bias = -x_bias;
-	}
-	int x_off = (rawOffset.x() + x_bias) / nQuantX;
-	int y_off = (rawOffset.y() + y_bias) / nQuantY;
-	return QPoint( nFactor * x_off, y_off);
-}
 
+	const auto modifiers = m_selection.getModifiers();
+
+	// Quantization in y direction is mandatory. A note can not be placed
+	// between lines.
+	int nQuantY = m_nGridHeight;
+	int nBiasY = nQuantY / 2;
+	if ( rawOffset.y() < 0 ) {
+		nBiasY = -nBiasY;
+	}
+	const int nOffsetY = (rawOffset.y() + nBiasY) / nQuantY;
+
+	int nOffsetX;
+	if ( modifiers & Qt::AltModifier ) {
+		// No quantization
+		nOffsetX = static_cast<int>(
+			std::floor( static_cast<float>(rawOffset.x()) / m_fGridWidth ) );
+	}
+	else {
+		// Quantize offset to multiples of m_nGrid{Width,Height}
+		int nQuantX = m_fGridWidth;
+		float nFactor = 1;
+		if ( ! m_bFineGrained ) {
+			nFactor = granularity();
+			nQuantX = m_fGridWidth * nFactor;
+		}
+		int nBiasX = nQuantX / 2;
+		if ( rawOffset.x() < 0 ) {
+			nBiasX = -nBiasX;
+		}
+		nOffsetX = nFactor * static_cast<int>((rawOffset.x() + nBiasX) / nQuantX);
+	}
+
+
+	return QPoint( nOffsetX, nOffsetY);
+}
 
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
