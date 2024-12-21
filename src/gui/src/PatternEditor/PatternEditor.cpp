@@ -1676,19 +1676,25 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	bool bUnhideCursor = ev->key() != Qt::Key_Delete;
 
+	auto pCleanedEvent = new QKeyEvent(
+		QEvent::KeyPress, ev->key(), Qt::NoModifier, ev->text() );
+
 	// Check whether the event was already handled by a method of a child class.
 	if ( ! ev->isAccepted() ) {
 		updateModifiers( ev );
 
 		if ( ev->matches( QKeySequence::MoveToNextChar ) ||
-			 ev->matches( QKeySequence::SelectNextChar ) ) {
+			 ev->matches( QKeySequence::SelectNextChar ) ||
+			 ( ev->modifiers() & Qt::AltModifier && (
+				 pCleanedEvent->matches( QKeySequence::MoveToNextChar ) ||
+				 pCleanedEvent->matches( QKeySequence::SelectNextChar ) ) ) ) {
 			// ->
-			m_pPatternEditorPanel->moveCursorRight();
+			m_pPatternEditorPanel->moveCursorRight( ev );
 		}
 		else if ( ev->matches( QKeySequence::MoveToNextWord ) ||
 				  ev->matches( QKeySequence::SelectNextWord ) ) {
 			// -->
-			m_pPatternEditorPanel->moveCursorRight( nWordSize );
+			m_pPatternEditorPanel->moveCursorRight( ev, nWordSize );
 		}
 		else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ||
 				  ev->matches( QKeySequence::SelectEndOfLine ) ) {
@@ -1696,14 +1702,17 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 			m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
 		}
 		else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ||
-				  ev->matches( QKeySequence::SelectPreviousChar ) ) {
+				  ev->matches( QKeySequence::SelectPreviousChar ) ||
+				  ( ev->modifiers() & Qt::AltModifier && (
+					  pCleanedEvent->matches( QKeySequence::MoveToPreviousChar ) ||
+					  pCleanedEvent->matches( QKeySequence::SelectPreviousChar ) ) ) ) {
 			// <-
-			m_pPatternEditorPanel->moveCursorLeft();
+			m_pPatternEditorPanel->moveCursorLeft( ev );
 		}
 		else if ( ev->matches( QKeySequence::MoveToPreviousWord ) ||
 				  ev->matches( QKeySequence::SelectPreviousWord ) ) {
-			// <-
-			m_pPatternEditorPanel->moveCursorLeft( nWordSize );
+			// <--
+			m_pPatternEditorPanel->moveCursorLeft( ev, nWordSize );
 		}
 		else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ||
 				  ev->matches( QKeySequence::SelectStartOfLine ) ) {

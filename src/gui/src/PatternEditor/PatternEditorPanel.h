@@ -197,8 +197,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * and can be accessed via #PatternEditor::getCursorPosition. */
 		int getCursorColumn();
 		void setCursorColumn( int nCursorColumn, bool bUpdateEditors = true );
-		void moveCursorLeft( int n = 1 );
-		void moveCursorRight( int n = 1 );
+		void moveCursorLeft( QKeyEvent* pEvent, int n = 1 );
+		void moveCursorRight( QKeyEvent* pEvent, int n = 1 );
 
 		void updateEditors( bool bPatternOnly = false );
 

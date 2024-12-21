@@ -1512,13 +1512,50 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 	}
 }
 
-void PatternEditorPanel::moveCursorLeft( int n ) {
-	setCursorColumn( std::max( m_nCursorColumn - m_nCursorIncrement * n, 0 ) );
+void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, int n ) {
+	const int nStep = MAX_NOTES / getResolution();
+
+	int nNewColumn;
+	// By pressing the Alt button the user can bypass quantization.
+	if ( pEvent->modifiers() & Qt::AltModifier ) {
+		nNewColumn = m_nCursorColumn - 1;
+	}
+	else {
+		if ( m_nCursorColumn % nStep == 0 ) {
+			nNewColumn = m_nCursorColumn - m_nCursorIncrement * n;
+		}
+		else {
+			nNewColumn = m_nCursorColumn - m_nCursorColumn % nStep -
+				m_nCursorIncrement * ( n - 1 );
+		}
+	}
+
+	setCursorColumn( std::max( nNewColumn, 0 ) );
 }
 
-void PatternEditorPanel::moveCursorRight( int n ) {
-	setCursorColumn( std::min( m_nCursorColumn + m_nCursorIncrement * n,
-							   m_pPattern->getLength() - m_nCursorIncrement ) );
+void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
+	// By pressing the Alt button the user can bypass quantization.
+	const int nStep = MAX_NOTES / getResolution();
+
+	int nNewColumn, nIncrement;
+	// By pressing the Alt button the user can bypass quantization.
+	if ( pEvent->modifiers() & Qt::AltModifier ) {
+		nNewColumn = m_nCursorColumn + 1;
+		nIncrement = 1;
+	}
+	else {
+		nIncrement = m_nCursorIncrement;
+		if ( m_nCursorColumn % nStep == 0 ) {
+			nNewColumn = m_nCursorColumn + m_nCursorIncrement * n;
+		}
+		else {
+			nNewColumn = m_nCursorColumn + nStep - m_nCursorColumn % nStep +
+				m_nCursorIncrement * ( n - 1 );
+		}
+	}
+
+	setCursorColumn( std::min( nNewColumn,
+							   m_pPattern->getLength() - nIncrement ) );
 }
 
 void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
