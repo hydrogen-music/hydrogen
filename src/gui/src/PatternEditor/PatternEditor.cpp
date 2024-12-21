@@ -919,10 +919,15 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			// Empty grid cell
 			bClickedOnGrid = true;
 
+			// By pressing the Alt button the user can bypass quantization of
+			// new note to the grid.
+			const int nTargetColumn = ev->modifiers() & Qt::AltModifier ?
+				nRealColumn : nColumn;
+
 			// Pressing Shift causes the added note to be of NoteOff type.
 			if ( m_editor == Editor::DrumPattern ) {
 				addOrRemoveNote(
-					nColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
+					nTargetColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
 					/* bDoAdd */true, /* bDoDelete */false,
 					/* bIsNoteOff */ev->modifiers() & Qt::ShiftModifier );
 			}
@@ -930,7 +935,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 				const Note::Octave octave = Note::pitchToOctave( m_nCursorRow );
 				const Note::Key noteKey = Note::pitchToKey( m_nCursorRow );
 				addOrRemoveNote(
-					nColumn, nRealColumn, nRow, noteKey, octave,
+					nTargetColumn, nRealColumn, nRow, noteKey, octave,
 					/* bDoAdd */true, /* bDoDelete */false,
 					/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
 			}
