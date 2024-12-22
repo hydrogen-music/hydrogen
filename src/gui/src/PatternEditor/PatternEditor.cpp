@@ -2276,6 +2276,11 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		return;
 	}
 
+	if ( nColumn >= pPattern->getLength() ) {
+		// Note would be beyond the active region of the current pattern.
+		return;
+	}
+
 	auto row = m_pPatternEditorPanel->getRowDB( nRow );
 	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
 		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
