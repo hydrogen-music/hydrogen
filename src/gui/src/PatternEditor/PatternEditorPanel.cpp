@@ -1849,16 +1849,59 @@ void PatternEditorPanel::updateDB() {
 	}
 }
 
-void PatternEditorPanel::setHoveredNotes( std::map<std::shared_ptr<H2Core::Pattern>,
-										  std::vector<H2Core::Note*>> hoveredNotes ) {
-	if ( hoveredNotes == m_hoveredNotes ) {
+void PatternEditorPanel::setHoveredNotesMouse( std::map<std::shared_ptr<H2Core::Pattern>,
+											   std::vector<H2Core::Note*>> hoveredNotes ) {
+
+	if ( hoveredNotes == m_hoveredNotesMouse ) {
 		return;
 	}
 
-	m_hoveredNotes = hoveredNotes;
+	m_hoveredNotesMouse = hoveredNotes;
 
+	updateHoveredNotes();
 	getVisibleEditor()->updateEditor( true );
 	getVisiblePropertiesRuler()->updateEditor();
+}
+
+void PatternEditorPanel::setHoveredNotesKeyboard( std::map<std::shared_ptr<H2Core::Pattern>,
+												  std::vector<H2Core::Note*>> hoveredNotes ) {
+	if ( hoveredNotes == m_hoveredNotesKeyboard ) {
+		return;
+	}
+
+	m_hoveredNotesKeyboard = hoveredNotes;
+
+	updateHoveredNotes();
+	getVisibleEditor()->updateEditor( true );
+	getVisiblePropertiesRuler()->updateEditor();
+}
+
+void PatternEditorPanel::updateHoveredNotes() {
+	m_hoveredNotes = m_hoveredNotesKeyboard;
+
+	bool bFound;
+	for ( const auto& [ ppPattern, vvector ] : m_hoveredNotesMouse ) {
+		if ( m_hoveredNotes.find( ppPattern ) != m_hoveredNotes.end() ) {
+			// Pattern is already present. Merge it.
+			for ( const auto& ppNoteMouse : vvector ) {
+				bFound = false;
+				for ( const auto& ppNoteKeyboard : m_hoveredNotes[ ppPattern ] ) {
+					if ( ppNoteMouse == ppNoteKeyboard ) {
+						bFound = true;
+						break;
+					}
+				}
+
+				if ( ! bFound ) {
+					m_hoveredNotes[ ppPattern ].push_back( ppNoteMouse );
+				}
+			}
+		}
+		else {
+			// Pattern is not present yet.
+			m_hoveredNotes[ ppPattern ] = vvector;
+		}
+	}
 }
 
 void PatternEditorPanel::printDB() const {

@@ -262,10 +262,13 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
 
+		/** Returns both notex hovered by mouse and keyboard. */
 		const std::map<std::shared_ptr<H2Core::Pattern>,
 			std::vector<H2Core::Note*>>& getHoveredNotes() const;
-		void setHoveredNotes( std::map<std::shared_ptr<H2Core::Pattern>,
-							  std::vector<H2Core::Note*>> hoveredNotes );
+		void setHoveredNotesMouse( std::map<std::shared_ptr<H2Core::Pattern>,
+								   std::vector<H2Core::Note*>> hoveredNotes );
+		void setHoveredNotesKeyboard( std::map<std::shared_ptr<H2Core::Pattern>,
+									  std::vector<H2Core::Note*>> hoveredNotes );
 
 	public slots:
 		void showDrumEditor();
@@ -405,8 +408,15 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		bool m_bPatternSelectedViaTab;
 
+		void updateHoveredNotes();
+		/** Combined version of both #m_hoveredNotesMouse and
+		 * #m_hoveredNotesKeyboard. */
 		std::map<std::shared_ptr<H2Core::Pattern>,
 			std::vector<H2Core::Note*>> m_hoveredNotes;
+		std::map<std::shared_ptr<H2Core::Pattern>,
+			std::vector<H2Core::Note*>> m_hoveredNotesMouse;
+		std::map<std::shared_ptr<H2Core::Pattern>,
+			std::vector<H2Core::Note*>> m_hoveredNotesKeyboard;
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;

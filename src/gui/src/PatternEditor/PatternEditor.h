@@ -377,7 +377,8 @@ protected:
 													const QPoint& point,
 													bool bExcludeSelected );
 
-		void updateHoveredNotes( const QPoint& point );
+		void updateHoveredNotesMouse( const QPoint& point );
+		void updateHoveredNotesKeyboard();
 
 		/** Ensure the selection lassos of the other editors match the one of
 		 * this instance. */

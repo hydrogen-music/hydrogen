@@ -965,7 +965,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			pUndo->endMacro();
 		}
 		m_selection.clearSelection();
-		updateHoveredNotes( ev->pos() );
+		updateHoveredNotesMouse( ev->pos() );
 
 	}
 	else if ( ev->button() == Qt::RightButton ) {
@@ -1000,7 +1000,7 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 	}
 
 	// Check which note is hovered.
-	updateHoveredNotes( ev->pos() );
+	updateHoveredNotesMouse( ev->pos() );
 
 	if ( ev->buttons() != Qt::NoButton ) {
 		updateModifiers( ev );
@@ -1765,6 +1765,7 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 		m_selection.updateKeyboardCursorPosition();
 		bFullUpdate = syncLasso();
 	}
+	updateHoveredNotesKeyboard();
 
 	if ( bUnhideCursor ) {
 		handleKeyboardCursor( bUnhideCursor );
@@ -1794,6 +1795,7 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 
 	// Only update on state changes
 	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		updateHoveredNotesKeyboard();
 		if ( bVisible ) {
 			m_selection.updateKeyboardCursorPosition();
 			m_pPatternEditorPanel->ensureCursorVisible();
@@ -1830,7 +1832,7 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 	if ( m_pPatternEditorPanel->getHoveredNotes().size() > 0 ) {
 		std::map<std::shared_ptr<Pattern>, std::vector<Note*>> empty;
 		// Takes care of the update.
-		m_pPatternEditorPanel->setHoveredNotes( empty );
+		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
 	else {
 		update();
@@ -2778,7 +2780,7 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 	return std::move( notesUnderPoint );
 }
 
-void PatternEditor::updateHoveredNotes( const QPoint& point ) {
+void PatternEditor::updateHoveredNotesMouse( const QPoint& point ) {
 	int nRealColumn;
 	eventPointToColumnRow( point, nullptr, nullptr, &nRealColumn );
 	int nRealColumnUpper;
@@ -2813,7 +2815,23 @@ void PatternEditor::updateHoveredNotes( const QPoint& point ) {
 			}
 		}
 	}
-	m_pPatternEditorPanel->setHoveredNotes( hovered );
+	m_pPatternEditorPanel->setHoveredNotesMouse( hovered );
+}
+
+void PatternEditor::updateHoveredNotesKeyboard() {
+	const auto point = getCursorPosition();
+
+	std::map<std::shared_ptr<Pattern>, std::vector<Note*>> hovered;
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// cursor visible
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			const auto hoveredNotes = getNotesAtPoint( ppPattern, point, false );
+			if ( hoveredNotes.size() > 0 ) {
+				hovered[ ppPattern ] = hoveredNotes;
+			}
+		}
+	}
+	m_pPatternEditorPanel->setHoveredNotesKeyboard( hovered );
 }
 
 bool PatternEditor::syncLasso() {
