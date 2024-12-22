@@ -699,6 +699,23 @@ public:
 
 	bool keyPressEvent( QKeyEvent *ev ) {
 
+		// Pressing the Alt modifier won't result in the usual move operations
+		// but is consistent with a more fine-grained editing already used in
+		// NotePropertiesRuler.
+		auto pCleanedEvent = new QKeyEvent(
+			QEvent::KeyPress, ev->key(), Qt::NoModifier, ev->text() );
+		if ( ev->modifiers() & Qt::AltModifier && (
+				 pCleanedEvent->matches( QKeySequence::MoveToNextChar ) ||
+				 pCleanedEvent->matches( QKeySequence::SelectNextChar ) ||
+				 pCleanedEvent->matches( QKeySequence::MoveToPreviousChar ) ||
+				 pCleanedEvent->matches( QKeySequence::SelectPreviousChar ) ) ) {
+			// We only propagate Alt modifiers on left-right movement. This way
+			// the resulting position should always correspond the final
+			// position of the keyboard cursor. Regardless, whether the user did
+			// not press Alt on the final Enter hit or switched rows.
+			m_modifiers = ev->modifiers();
+		}
+
 		if ( ev->matches( QKeySequence::SelectNextChar )
 			 || ev->matches( QKeySequence::SelectPreviousChar )
 			 || ev->matches( QKeySequence::SelectNextLine )
