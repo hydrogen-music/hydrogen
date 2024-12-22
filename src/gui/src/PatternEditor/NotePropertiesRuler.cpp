@@ -111,7 +111,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	// When interacting with note(s) not already in a selection, we will discard
 	// the current selection and add these notes under point to a transient one.
-	const auto notesUnderPoint = getNotesAtPoint( pPattern, point, true );
+	const auto notesUnderPoint = getNotesAtPoint(
+		pPattern, point, getCursorMargin(), true );
 	if ( notesUnderPoint.size() > 0 ) {
 		m_selection.clearSelection();
 		for ( const auto& ppNote : notesUnderPoint ) {
@@ -331,7 +332,8 @@ void NotePropertiesRuler::prepareUndoAction( const QPoint& point )
 
 	clearOldNotes();
 
-	const auto notesUnderPoint = getNotesAtPoint( pPattern, point, false );
+	const auto notesUnderPoint = getNotesAtPoint(
+		pPattern, point, getCursorMargin(), false );
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
 			m_oldNotes[ ppNote ] = new Note( ppNote );
@@ -661,7 +663,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		// discard the current selection and add these notes under point to a
 		// transient one.
 		const auto notesUnderPoint =
-			getNotesAtPoint( pPattern, getCursorPosition(), true );
+			getNotesAtPoint( pPattern, getCursorPosition(), 0, true );
 		if ( notesUnderPoint.size() > 0 ) {
 			m_selection.clearSelection();
 			for ( const auto& ppNote : notesUnderPoint ) {

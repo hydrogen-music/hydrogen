@@ -375,6 +375,7 @@ protected:
 		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
 		std::vector<H2Core::Note*> getNotesAtPoint( std::shared_ptr<H2Core::Pattern> pPattern,
 													const QPoint& point,
+													int nCursorMargin,
 													bool bExcludeSelected );
 
 		void updateHoveredNotesMouse( const QPoint& point );

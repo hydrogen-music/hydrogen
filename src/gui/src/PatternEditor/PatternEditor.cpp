@@ -864,7 +864,8 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		// When interacting with note(s) not already in a selection, we will
 		// discard the current selection and add these notes under point to a
 		// transient one.
-		const auto notesUnderPoint = getNotesAtPoint( pPattern, ev->pos(), true );
+		const auto notesUnderPoint = getNotesAtPoint(
+			pPattern, ev->pos(), getCursorMargin(), true );
 		for ( const auto& ppNote : notesUnderPoint ) {
 			m_notesToSelectOnMove.push_back( ppNote );
 		}
@@ -914,7 +915,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		 m_editor != Editor::NotePropertiesRuler ) {
 
 		// Check whether an existing note or an empty grid cell was clicked.
-		const auto notesAtPoint = getNotesAtPoint( pPattern, ev->pos(), false );
+		const auto notesAtPoint = getNotesAtPoint(
+			pPattern, ev->pos(), getCursorMargin(), false );
 		if ( notesAtPoint.size() == 0 ) {
 			// Empty grid cell
 			bClickedOnGrid = true;
@@ -1960,7 +1962,8 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	if ( ev->button() == Qt::RightButton ) {
 		// Adjusting note properties.
 
-		const auto notesAtPoint = getNotesAtPoint( pPattern, ev->pos(), false );
+		const auto notesAtPoint = getNotesAtPoint(
+			pPattern, ev->pos(), getCursorMargin(), false );
 		if ( notesAtPoint.size() == 0 ) {
 			return;
 		}
@@ -2699,13 +2702,12 @@ void PatternEditor::clearDraggedNotes() {
 
 std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Pattern> pPattern,
 												   const QPoint& point,
+												   int nCursorMargin,
 												   bool bExcludeSelected ) {
 	std::vector<Note*> notesUnderPoint;
 	if ( pPattern == nullptr ) {
 		return std::move( notesUnderPoint );
 	}
-
-	const int nCursorMargin = getCursorMargin();
 
 	int nRow, nRealColumn;
 	eventPointToColumnRow( point, nullptr, &nRow, &nRealColumn );
@@ -2797,9 +2799,11 @@ void PatternEditor::updateHoveredNotesMouse( const QPoint& point ) {
 	// notes, the left one wins.
 	int nLastPosition = -1;
 
+	const int nCursorMargin = getCursorMargin();
 	std::map<std::shared_ptr<Pattern>, std::vector<Note*>> hovered;
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-		const auto hoveredNotes = getNotesAtPoint( ppPattern, point, false );
+		const auto hoveredNotes = getNotesAtPoint(
+			ppPattern, point, nCursorMargin, false );
 		if ( hoveredNotes.size() > 0 ) {
 			const int nDistance =
 				std::abs( hoveredNotes[ 0 ]->get_position() - nRealColumn );
@@ -2825,7 +2829,8 @@ void PatternEditor::updateHoveredNotesKeyboard() {
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// cursor visible
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-			const auto hoveredNotes = getNotesAtPoint( ppPattern, point, false );
+			const auto hoveredNotes = getNotesAtPoint(
+				ppPattern, point, 0, false );
 			if ( hoveredNotes.size() > 0 ) {
 				hovered[ ppPattern ] = hoveredNotes;
 			}
