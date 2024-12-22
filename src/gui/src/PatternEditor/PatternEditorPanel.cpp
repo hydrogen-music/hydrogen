@@ -2027,14 +2027,14 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 	else {
 		nBase = 4;
 	}
-	const int m_nResolution = 4 * MAX_NOTES * static_cast<int>(every) /
+	const int nResolution = 4 * MAX_NOTES * static_cast<int>(every) /
 		( nBase * m_nResolution );
 
 	const auto row = getRowDB( nRow );
 
 	std::vector<int> notePositions;
 	const auto notes = m_pPattern->getNotes();
-	for ( int ii = 0; ii < m_pPattern->getLength(); ii += m_nResolution ) {
+	for ( int ii = 0; ii < m_pPattern->getLength(); ii += nResolution ) {
 		bool bNoteAlreadyPresent = false;
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
 			auto ppNote = it->second;
