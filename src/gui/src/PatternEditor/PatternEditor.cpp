@@ -1547,11 +1547,6 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		selectedNotes.push_back( pNote );
 	}
 
-	if ( m_bCopyNotMove ) {
-		// Clear selection so the new notes can be selection instead
-		// of the originals.
-		m_selection.clearSelection();
-	}
 	m_bSelectNewNotes = true;
 
 	for ( auto pNote : selectedNotes ) {
@@ -1604,10 +1599,13 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		const float fProbability = pNote->get_probability();
 		const bool bNoteOff = pNote->get_note_off();
 
+		// We'll either select the new, duplicated note or the new, moved
+		// replacement of the note.
+		m_selection.removeFromSelection( pNote, false );
+
 		if ( ! m_bCopyNotMove ) {
 			// Note is moved either out of range or to a new position. Delete
 			// the note at the source position.
-			m_selection.removeFromSelection( pNote, false );
 			pUndo->push( new SE_addOrRemoveNoteAction(
 							 nPosition,
 							 row.nInstrumentID,
