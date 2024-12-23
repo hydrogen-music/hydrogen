@@ -330,7 +330,11 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
 	for ( it = m_notes.lower_bound( nIdx_a );
 		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
 		auto pNote = it->second;
-		assert( pNote );
+		if ( pNote == nullptr ) {
+			assert( pNote );
+			ERRORLOG( "Invalid note 0" );
+			continue;
+		}
 		if ( pNote->get_instrument_id() == nInstrumentId &&
 			 pNote->getType() == sInstrumentType ) {
 			return pNote;
@@ -342,7 +346,11 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
 	for ( it = m_notes.lower_bound( nIdx_b );
 		  it != m_notes.upper_bound( nIdx_b ); it++ ) {
 		auto pNote = it->second;
-		assert( pNote );
+		if ( pNote == nullptr ) {
+			assert( pNote );
+			ERRORLOG( "Invalid note 1" );
+			continue;
+		}
 		if ( pNote->get_instrument_id() == nInstrumentId &&
 			 pNote->getType() == sInstrumentType ) {
 			return pNote;
@@ -357,7 +365,11 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
 		for ( it = m_notes.lower_bound( n );
 			  it != m_notes.upper_bound( n ); it++ ) {
 			auto pNote = it->second;
-			assert( pNote );
+			if ( pNote == nullptr ) {
+				assert( pNote );
+				ERRORLOG( "Invalid note 2" );
+				continue;
+			}
 			if ( pNote->get_instrument_id() == nInstrumentId &&
 				 pNote->getType() == sInstrumentType &&
 				 ( ( nIdx_b <= pNote->get_position() + pNote->get_length() )
