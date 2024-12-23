@@ -2745,15 +2745,27 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 	// wins.
 	int nLastPosition = -1;
 
+	// If the user requests to exclude selected notes, we will exclude all not
+	// selected notes at the position of a selected one as well. This is key if
+	// the user e.g. moves one note on top of the position of an existing one,
+	// cancels the deduplication dialog, and wants to move the first note away
+	// from its new position (while preserving the second one).
+	int nExcludedPosition = -1;
+
 	const auto notes = pPattern->getNotes();
 	for ( auto it = notes->lower_bound( nRealColumnLower );
 		  it != notes->end() && it->first <= nRealColumnUpper; ++it ) {
 		const auto ppNote = it->second;
 		if ( ppNote != nullptr &&
-			 ( ! bExcludeSelected ||
-			   bExcludeSelected && ! m_selection.isSelected( ppNote ) ) &&
+			 ppNote->get_position() != nExcludedPosition &&
 			 ppNote->get_instrument_id() == row.nInstrumentID &&
 			 ppNote->getType() == row.sType ) {
+
+			if ( bExcludeSelected && m_selection.isSelected( ppNote ) ) {
+				notesUnderPoint.clear();
+				nExcludedPosition = ppNote->get_position();
+				continue;
+			}
 
 			const int nDistance =
 				std::abs( ppNote->get_position() - nRealColumn );
