@@ -1607,6 +1607,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		if ( ! m_bCopyNotMove ) {
 			// Note is moved either out of range or to a new position. Delete
 			// the note at the source position.
+			m_selection.removeFromSelection( pNote, false );
 			pUndo->push( new SE_addOrRemoveNoteAction(
 							 nPosition,
 							 row.nInstrumentID,
