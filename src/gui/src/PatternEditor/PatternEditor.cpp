@@ -2418,6 +2418,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 	}
 
 	auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
+	auto pVisibleEditor = pPatternEditorPanel->getVisibleEditor();
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
 
@@ -2427,6 +2428,9 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 			nColumn, -1, nInstrumentId, sType, static_cast<Note::Key>(nOldKey),
 			static_cast<Note::Octave>(nOldOctave) );
 		if ( pNote != nullptr ) {
+			if ( pVisibleEditor->m_selection.isSelected( pNote ) ) {
+				pVisibleEditor->m_selection.removeFromSelection( pNote, false );
+			}
 			pPattern->removeNote( pNote );
 			delete pNote;
 		}
@@ -2470,9 +2474,8 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 							   static_cast<Note::Octave>(nOldOctave) );
 		pPattern->insertNote( pNote );
 
-		auto pCurrentEditor = pPatternEditorPanel->getVisibleEditor();
-		if ( pCurrentEditor->getSelectNewNotes() ) {
-			pCurrentEditor->m_selection.addToSelection( pNote );
+		if ( pVisibleEditor->getSelectNewNotes() ) {
+			pVisibleEditor->m_selection.addToSelection( pNote );
 		}
 
 		if ( bIsMidi ) {
