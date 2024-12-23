@@ -636,20 +636,24 @@ public:
 	SE_deselectAndOverwriteNotesAction( const std::vector< H2Core::Note *>& selected,
 										const std::vector< H2Core::Note *>& overwritten ) {
 		setText( QObject::tr( "Overwrite %1 notes" ).arg( overwritten.size() ) );
-		for ( auto pNote : selected ) {
-			m_selected.push_back( new H2Core::Note ( pNote ) );
+		for ( auto ppNote : selected ) {
+			if ( ppNote != nullptr ) {
+				m_selected.push_back( new H2Core::Note ( ppNote ) );
+			}
 		}
-		for ( auto pNote : overwritten ) {
-			m_overwritten.push_back( new H2Core::Note ( pNote ) );
+		for ( auto ppNote : overwritten ) {
+			if ( ppNote != nullptr ) {
+				m_overwritten.push_back( new H2Core::Note ( ppNote ) );
+			}
 		}
 	}
 
 	~SE_deselectAndOverwriteNotesAction() {
-		for ( auto pNote : m_selected ) {
-			delete pNote;
+		for ( auto ppNote : m_selected ) {
+			delete ppNote;
 		}
-		for ( auto pNote : m_overwritten ) {
-			delete pNote;
+		for ( auto ppNote : m_overwritten ) {
+			delete ppNote;
 		}
 	}
 
