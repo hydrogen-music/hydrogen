@@ -334,13 +334,19 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 			}
 
 			// Since the all notes have the same size, we just point the first
-			// one.
-			if ( notesAtRow.find( nRow ) == notesAtRow.end() ) {
+			// one (except it is selected. In case the user presses Cancel on
+			// the deduplication dialog in checkDeselectElements(), there could
+			// be several notes at one position with only a subset being
+			// selected).
+			if ( notesAtRow.find( nRow ) == notesAtRow.end() ||
+				 m_selection.isSelected( ppNote ) ) {
 				const auto style = static_cast<NoteStyle>(
 					m_selection.isSelected( ppNote ) ?
 					NoteStyle::Selected | baseStyle : baseStyle );
 				drawNote( painter, ppNote, style );
+			}
 
+			if ( notesAtRow.find( nRow ) == notesAtRow.end() ) {
 				notesAtRow[ nRow ] = 1;
 			}
 			else {
