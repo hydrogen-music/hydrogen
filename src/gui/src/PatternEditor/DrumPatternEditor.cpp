@@ -280,9 +280,9 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	// We count notes in each position so we can display markers for rows which
 	// have more than one note in the same position (a chord or genuine
 	// duplicates).
-	int nLastRow = -1;
 	int nLastColumn = -1;
-	int nNotesAtPos = 0;
+	// Maps the row to the number of notes shown in this very column.
+	std::map<int,int> notesAtRow;
 	struct PosCount {
 		int nRow;
 		int nColumn;
@@ -318,31 +318,34 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 			}
 
 			// Check for duplicates
-			if ( nnColumn != nLastColumn || nRow != nLastRow ) {
-				// New position
-				if ( nNotesAtPos > 1 ) {
-					posCounts.push_back( { nLastRow, nLastColumn, nNotesAtPos } );
+			if ( nnColumn != nLastColumn ) {
+				// New column
+
+				for ( const auto& [ nnRow, nnNotes ] : notesAtRow ) {
+					if ( nnNotes > 1 ) {
+						posCounts.push_back( { nnRow, nLastColumn, nnNotes } );
+					}
 				}
 
 				if ( nLastColumn != nnColumn ) {
 					nLastColumn = nnColumn;
 				}
-				if ( nLastRow != nRow ) {
-					nLastRow = nRow;
-				}
-				nNotesAtPos = 0;
+				notesAtRow.clear();
 			}
 
 			// Since the all notes have the same size, we just point the first
 			// one.
-			if ( nNotesAtPos == 0 ) {
+			if ( notesAtRow.find( nRow ) == notesAtRow.end() ) {
 				const auto style = static_cast<NoteStyle>(
 					m_selection.isSelected( ppNote ) ?
 					NoteStyle::Selected | baseStyle : baseStyle );
 				drawNote( painter, ppNote, style );
-			}
 
-			++nNotesAtPos;
+				notesAtRow[ nRow ] = 1;
+			}
+			else {
+				++notesAtRow[ nRow ];
+			}
 		}
 
 		// Go through used rows list and draw markers for superimposed notes
