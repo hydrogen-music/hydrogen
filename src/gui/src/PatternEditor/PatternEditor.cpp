@@ -2896,8 +2896,14 @@ bool PatternEditor::syncLasso() {
 				prevLasso = cursor;
 			}
 
+			// The selection can be started in DrumPatternEditor and contain
+			// notes not shown in PianoRollEditor.
+			const auto row = m_pPatternEditorPanel->getRowDB(
+				m_pPatternEditorPanel->getSelectedRowDB() );
+
 			for ( const auto& ppNote : m_selection ) {
-				if ( ppNote != nullptr ) {
+				if ( ppNote != nullptr && ppNote->getType() == row.sType &&
+					 ppNote->get_instrument_id() == row.nInstrumentID ) {
 					const QPoint np = pPianoRoll->noteToPoint( ppNote );
 					const QRect noteRect = QRect(
 						np.x() - cursor.width() / 2, np.y() - cursor.height() / 2,
