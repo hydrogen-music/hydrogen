@@ -2913,9 +2913,18 @@ bool PatternEditor::syncLasso() {
 		cursorStart.setHeight( cursor.height() );
 		lasso.setY( prevLasso.y() );
 		lasso.setHeight( prevLasso.height() );
+		auto selectionState = m_selection.getSelectionState();
+
+		// Suppress move highlighting in drum pattern or piano roll editor. A
+		// dragging in NotePropertiesRuler does not move a note up changes its
+		// properties.
+		if ( selectionState == SelectionState::MouseMoving ) {
+			selectionState = SelectionState::Idle;
+		}
 
 		bUpdate = pVisibleEditor->m_selection.syncLasso(
-			m_selection.getSelectionState(), cursorStart, lasso );
+			selectionState, cursorStart, lasso );
+
 	}
 	else {
 		// DrumPattern or Piano roll
