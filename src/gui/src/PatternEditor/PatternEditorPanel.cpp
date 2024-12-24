@@ -948,8 +948,7 @@ void PatternEditorPanel::showDrumEditor()
 
 	m_pDrumPatternEditor->updateEditor(); // force an update
 
-	m_pDrumPatternEditor->selectNone();
-	m_pPianoRollEditor->selectNone();
+	getVisiblePropertiesRuler()->syncLasso();
 
 	// force a re-sync of extern scrollbars
 	resizeEvent( nullptr );
@@ -969,10 +968,10 @@ void PatternEditorPanel::showPianoRollEditor()
 	m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
 	m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
 
-	m_pDrumPatternEditor->selectNone();
-	m_pPianoRollEditor->selectNone();
-
 	m_pPianoRollEditor->updateEditor(); // force an update
+
+	getVisiblePropertiesRuler()->syncLasso();
+
 	// force a re-sync of extern scrollbars
 	resizeEvent( nullptr );
 }

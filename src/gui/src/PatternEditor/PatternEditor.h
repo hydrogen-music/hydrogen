@@ -223,6 +223,10 @@ public:
 		QPoint getCursorPosition();
 		void handleKeyboardCursor( bool bVisible );
 
+		/** Ensure the selection lassos of the other editors match the one of
+		 * this instance. */
+		bool syncLasso();
+
 protected:
 
 	//! The Selection object.
@@ -383,10 +387,6 @@ protected:
 
 		void updateHoveredNotesMouse( const QPoint& point );
 		void updateHoveredNotesKeyboard();
-
-		/** Ensure the selection lassos of the other editors match the one of
-		 * this instance. */
-		bool syncLasso();
 };
 
 inline bool PatternEditor::getSelectNewNotes() const {
