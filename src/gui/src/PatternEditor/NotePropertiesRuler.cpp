@@ -153,7 +153,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	// Preferences.
 	handleKeyboardCursor( false );
 
-	if ( bUpdate ) {
+	if ( bUpdate || bValueChanged ) {
 		if ( bValueChanged ) {
 			addUndoAction();
 		}
