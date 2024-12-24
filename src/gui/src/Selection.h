@@ -167,6 +167,34 @@ public slots:
 	}
 };
 
+//! @name Selection gestures
+//!
+//! The Selection class implements a few multi-step gestures:
+//!    - Dragging a rectangular selection lasso
+//!    - Dragging a selection to reposition it
+//! Both of these are supported by mouse or by keyboard.
+//!
+//! @dot
+//! digraph "states" {
+//!   Idle -> MouseLasso [ label = "startDrag" ];
+//!   MouseLasso -> Idle [ label = "endDrag" ];
+//!   Idle -> MouseMoving [ label = "startDrag over selected" ];
+//!   MouseMoving -> Idle [ label = "endDrag" ];
+//!   Idle -> KeyboardLasso [ label = "Select with keyboard (shift)" ];
+//!   KeyboardLasso -> Idle [ label = "any other input" ];
+//!   KeyboardLasso -> KeyboardMoving [ label = "Return" ];
+//!   Idle -> KeyboardMoving [ label = "Return over selected" ];
+//!   KeyboardMoving -> Idle [ label = "Return or escape" ];
+//! }
+//! @enddot
+enum SelectionState {
+	Idle,
+	MouseLasso,
+	MouseMoving,
+	KeyboardLasso,
+	KeyboardMoving
+};
+
 //! Selection management for editor widgets
 //!
 //! This template class bundles up the functionality necessary for
@@ -204,34 +232,6 @@ class Selection {
 
 	std::shared_ptr< SelectionGroup > m_pSelectionGroup;
 	//! @}
-
-	//! @name Selection gestures
-	//!
-	//! The Selection class implements a few multi-step gestures:
-	//!    - Dragging a rectangular selection lasso
-	//!    - Dragging a selection to reposition it
-	//! Both of these are supported by mouse or by keyboard.
-	//!
-	//! @dot
-	//! digraph "states" {
-	//!   Idle -> MouseLasso [ label = "startDrag" ];
-	//!   MouseLasso -> Idle [ label = "endDrag" ];
-	//!   Idle -> MouseMoving [ label = "startDrag over selected" ];
-	//!   MouseMoving -> Idle [ label = "endDrag" ];
-	//!   Idle -> KeyboardLasso [ label = "Select with keyboard (shift)" ];
-	//!   KeyboardLasso -> Idle [ label = "any other input" ];
-	//!   KeyboardLasso -> KeyboardMoving [ label = "Return" ];
-	//!   Idle -> KeyboardMoving [ label = "Return over selected" ];
-	//!   KeyboardMoving -> Idle [ label = "Return or escape" ];
-	//! }
-	//! @enddot
-	enum SelectionState {
-		Idle,
-		MouseLasso,
-		MouseMoving,
-		KeyboardLasso,
-		KeyboardMoving
-	};
 
 private:
 	SelectionWidget< Elem > *m_pWidget;
