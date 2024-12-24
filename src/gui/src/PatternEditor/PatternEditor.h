@@ -340,7 +340,10 @@ protected:
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;
-		virtual void keyPressEvent (QKeyEvent *ev) override;
+		/** @param bFullUpdate if `false`, just a simple update() of the widget
+		 *   will be triggered. If `true`, the background will be updated as
+		 *   well. */
+		void keyPressEvent ( QKeyEvent *ev, bool bFullUpdate = false );
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;

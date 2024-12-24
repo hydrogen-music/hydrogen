@@ -1663,7 +1663,7 @@ int PatternEditor::granularity() const {
 	return 4 * MAX_NOTES / ( nBase * m_pPatternEditorPanel->getResolution() );
 }
 
-void PatternEditor::keyPressEvent( QKeyEvent *ev )
+void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -1749,7 +1749,6 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 
 	// synchronize lassos
-	bool bFullUpdate = false;
 	auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
 	// In case we use keyboard events to _continue_ an existing lasso in
 	// NotePropertiesRuler started in DrumPatternEditor (followed by moving
@@ -1760,11 +1759,11 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev )
 		 pVisibleEditor->m_selection.isLasso() && m_selection.isLasso() &&
 		 dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 		pVisibleEditor->m_selection.updateKeyboardCursorPosition();
-		bFullUpdate = pVisibleEditor->syncLasso();
+		bFullUpdate = pVisibleEditor->syncLasso() || bFullUpdate;
 	}
 	else {
 		m_selection.updateKeyboardCursorPosition();
-		bFullUpdate = syncLasso();
+		bFullUpdate = syncLasso() || bFullUpdate;
 	}
 	updateHoveredNotesKeyboard();
 

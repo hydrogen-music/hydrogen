@@ -716,7 +716,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		ev->setAccepted( false );
 	}
 
-	PatternEditor::keyPressEvent( ev );
+	PatternEditor::keyPressEvent( ev, bValueChanged );
 }
 
 void NotePropertiesRuler::addUndoAction()
