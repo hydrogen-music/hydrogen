@@ -62,11 +62,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
 		
-		void finishUpdateEditor();
-		
-		bool m_bNeedsUpdate;
-		bool m_bNeedsBackgroundUpdate;
-
 		QPixmap *m_pBackground;
 		QPixmap *m_pTemp;
 

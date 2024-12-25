@@ -55,12 +55,8 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 
 	resize( m_nEditorWidth, m_nEditorHeight );
 	
-	createBackground();
-
 	HydrogenApp::get_instance()->addEventListener( this );
 
-	m_bNeedsUpdate = true;
-	m_bNeedsBackgroundUpdate = true;
 	m_bSelectNewNotes = false;
 }
 
@@ -87,29 +83,13 @@ void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
 	updateWidth();
 	
-	if ( !bPatternOnly ) {
-		m_bNeedsBackgroundUpdate = true;
-	}
-	if ( !m_bNeedsUpdate ) {
-		m_bNeedsUpdate = true;
-		update();
-	}
-}
-
-void PianoRollEditor::finishUpdateEditor()
-{
-	assert( m_bNeedsUpdate );
-	resize( m_nEditorWidth, height() );
-
-	if ( m_bNeedsBackgroundUpdate ) {
-		createBackground();
+	if ( bPatternOnly ) {
+		m_update = Update::Pattern;
 	} else {
-		drawPattern();
+		m_update = Update::Background;
 	}
-	
-	//	ERRORLOG(QString("update editor %1").arg(m_nEditorWidth));
-	m_bNeedsUpdate = false;
-	m_bNeedsBackgroundUpdate = false;
+
+	update();
 }
 
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
@@ -121,14 +101,19 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	const auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() || m_bBackgroundInvalid ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_bBackgroundInvalid || m_update == Update::Background ) {
 		createBackground();
 	}
 
 	QPainter painter( this );
-	if ( m_bNeedsUpdate ) {
-		finishUpdateEditor();
+
+	if ( m_update == Update::Background || m_update == Update::Pattern ) {
+		drawPattern();
+		m_update = Update::None;
 	}
+
+
 	painter.drawPixmap( ev->rect(), *m_pTemp,
 						QRectF( pixelRatio * ev->rect().x(),
 								pixelRatio * ev->rect().y(),
@@ -346,7 +331,6 @@ void PianoRollEditor::createBackground()
 		}
 
 		drawGridLines( p, Qt::DashLine );
-		drawPattern();
 	}
 	else {
 		// No pattern.
@@ -570,7 +554,7 @@ void PianoRollEditor::onPreferencesChanged( const H2Core::Preferences::Changes& 
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
-		invalidateBackground();
+		m_update = Update::Background;
 		update();
 	}
 }
