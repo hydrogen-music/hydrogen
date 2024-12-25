@@ -347,7 +347,8 @@ protected:
 	/** Updates #m_pBackgroundPixmap to show the latest content. */
 	virtual void createBackground();
 	void invalidateBackground();
-	QPixmap *m_pBackgroundPixmap;
+	QPixmap* m_pBackgroundPixmap;
+	QPixmap* m_pPatternPixmap;
 	bool m_bBackgroundInvalid;
 
 		/** Which parts of the editor to update in the next paint event. */

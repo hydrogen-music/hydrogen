@@ -96,7 +96,10 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
 									   height() * pixelRatio );
+	m_pPatternPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+									height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
 	m_bBackgroundInvalid = true;
 }
 
@@ -104,7 +107,10 @@ PatternEditor::~PatternEditor()
 {
 	clearDraggedNotes();
 
-	if ( m_pBackgroundPixmap ) {
+	if ( m_pPatternPixmap != nullptr ) {
+		delete m_pPatternPixmap;
+	}
+	if ( m_pBackgroundPixmap != nullptr ) {
 		delete m_pBackgroundPixmap;
 	}
 }

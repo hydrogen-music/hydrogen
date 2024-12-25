@@ -51,8 +51,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 
 	m_nEditorHeight = OCTAVE_NUMBER * KEYS_PER_OCTAVE * m_nGridHeight;
 
-	m_pTemp = new QPixmap( m_nEditorWidth, m_nEditorHeight );
-
 	resize( m_nEditorWidth, m_nEditorHeight );
 	
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -65,7 +63,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 PianoRollEditor::~PianoRollEditor()
 {
 	INFOLOG( "DESTROY" );
-	delete m_pTemp;
 }
 
 QPoint PianoRollEditor::noteToPoint( H2Core::Note* pNote ) const {
@@ -114,7 +111,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	}
 
 
-	painter.drawPixmap( ev->rect(), *m_pTemp,
+	painter.drawPixmap( ev->rect(), *m_pPatternPixmap,
 						QRectF( pixelRatio * ev->rect().x(),
 								pixelRatio * ev->rect().y(),
 								pixelRatio * ev->rect().width(),
@@ -231,11 +228,13 @@ void PianoRollEditor::createBackground()
 		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
 		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
 		delete m_pBackgroundPixmap;
-		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio,
+										   height() * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-		delete m_pTemp;
-		m_pTemp = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
-		m_pTemp->setDevicePixelRatio( pixelRatio );
+		delete m_pPatternPixmap;
+		m_pPatternPixmap = new QPixmap( width()  * pixelRatio,
+										height() * pixelRatio );
+		m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
 	m_pBackgroundPixmap->fill( backgroundInactiveColor );
@@ -332,16 +331,6 @@ void PianoRollEditor::createBackground()
 
 		drawGridLines( p, Qt::DashLine );
 	}
-	else {
-		// No pattern.
-		QPainter p2( m_pTemp );
-		// copy the background image as we won't enter drawPattern.
-		p2.drawPixmap( rect(), *m_pBackgroundPixmap,
-					   QRectF( pixelRatio * rect().x(),
-							   pixelRatio * rect().y(),
-							   pixelRatio * rect().width(),
-							   pixelRatio * rect().height() ) );
-	}
 
 	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
 	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
@@ -361,7 +350,7 @@ void PianoRollEditor::drawPattern()
 
 	qreal pixelRatio = devicePixelRatio();
 	
-	QPainter p( m_pTemp );
+	QPainter p( m_pPatternPixmap );
 	// copy the background image
 	p.drawPixmap( rect(), *m_pBackgroundPixmap,
 						QRectF( pixelRatio * rect().x(),
