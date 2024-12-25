@@ -24,6 +24,7 @@
 #include "PatternEditorRuler.h"
 #include "PatternEditorSidebar.h"
 #include "PatternEditorPanel.h"
+#include "PianoRollEditor.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../EventListener.h"

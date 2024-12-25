@@ -26,10 +26,8 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/Note.h>
-#include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
-#include "NotePropertiesRuler.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>

@@ -36,6 +36,7 @@ using namespace H2Core;
 #include "DrumPatternEditor.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorPanel.h"
+#include "PianoRollEditor.h"
 #include "NotePropertiesRuler.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
