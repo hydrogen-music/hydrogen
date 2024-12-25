@@ -66,14 +66,6 @@ DrumPatternEditor::~DrumPatternEditor()
 
 void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	if ( pAudioEngine->getState() != H2Core::AudioEngine::State::Ready &&
-		 pAudioEngine->getState() != H2Core::AudioEngine::State::Playing ) {
-		ERRORLOG( "FIXME: skipping pattern editor update (state should be READY or PLAYING)" );
-		return;
-	}
-
 	updateWidth();
 
 	int nTargetHeight = m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
