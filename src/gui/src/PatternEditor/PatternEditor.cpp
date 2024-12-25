@@ -66,6 +66,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_nCursorRow( 0 )
 	, m_nDragStartColumn( 0 )
 	, m_nDragY( 0 )
+	  , m_update( Update::Background )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 

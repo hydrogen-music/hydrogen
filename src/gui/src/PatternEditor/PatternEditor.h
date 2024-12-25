@@ -81,7 +81,21 @@ public:
 		None = 6
 	};
 	static QString modeToQString( const Mode& mode );
-	
+
+		/** Specifies which parts of the editor need updating on a paintEvent().
+		 * Bigger numerical values imply updating elements with lower ones as
+		 * well.*/
+		enum class Update {
+			/** Just paint transient elements, like hovered notes, cursor, focus
+			 * or lasso. */
+			None = 0,
+			/** Update pattern notes including selection of a cached background
+			 * image. */
+			Pattern = 1,
+			/** Update the background image. */
+			Background = 2
+		};
+
 	PatternEditor( QWidget *pParent );
 	~PatternEditor();
 
@@ -335,6 +349,9 @@ protected:
 	void invalidateBackground();
 	QPixmap *m_pBackgroundPixmap;
 	bool m_bBackgroundInvalid;
+
+		/** Which parts of the editor to update in the next paint event. */
+		Update m_update;
 
 	/**
 	 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
