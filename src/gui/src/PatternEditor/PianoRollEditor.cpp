@@ -121,38 +121,6 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	}
 }
 
-void PianoRollEditor::drawFocus( QPainter& painter ) {
-
-	const auto pPref = H2Core::Preferences::get_instance();
-	
-	if ( ! m_bEntered && ! hasFocus() ) {
-		return;
-	}
-	
-	QColor color = pPref->getTheme().m_color.m_highlightColor;
-
-	// If the mouse is placed on the widget but the user hasn't
-	// clicked it yet, the highlight will be done more transparent to
-	// indicate that keyboard inputs are not accepted yet.
-	if ( ! hasFocus() ) {
-		color.setAlpha( 125 );
-	}
-
-	const auto pScrollArea = m_pPatternEditorPanel->getPianoRollEditorScrollArea();
-	int nStartY = pScrollArea->verticalScrollBar()->value();
-	int nStartX = pScrollArea->horizontalScrollBar()->value();
-	int nEndY = nStartY + pScrollArea->viewport()->size().height();
-	int nEndX = std::min( nStartX + pScrollArea->viewport()->size().width(), width() );
-
-	QPen pen( color );
-	pen.setWidth( 4 );
-	painter.setPen( pen );
-	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
-	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
-	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
-	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
-}
-
 void PianoRollEditor::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();

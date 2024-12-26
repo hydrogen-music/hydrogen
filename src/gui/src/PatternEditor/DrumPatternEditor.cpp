@@ -541,39 +541,6 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void DrumPatternEditor::drawFocus( QPainter& painter ) {
-
-	if ( ! m_bEntered && ! hasFocus() ) {
-		return;
-	}
-	
-	const auto pPref = H2Core::Preferences::get_instance();
-	
-	QColor color = pPref->getTheme().m_color.m_highlightColor;
-
-	// If the mouse is placed on the widget but the user hasn't
-	// clicked it yet, the highlight will be done more transparent to
-	// indicate that keyboard inputs are not accepted yet.
-	if ( ! hasFocus() ) {
-		color.setAlpha( 125 );
-	}
-
-	int nStartY = m_pPatternEditorPanel->getVerticalScrollBar()->value();
-	int nStartX = m_pPatternEditorPanel->getHorizontalScrollBar()->value();
-	int nEndY = std::min(
-		static_cast<int>(m_nGridHeight) * m_pPatternEditorPanel->getRowNumberDB(),
-		nStartY + m_pPatternEditorPanel->getDrumPatternEditorScrollArea()->viewport()->size().height() );
-	int nEndX = std::min( nStartX + m_pPatternEditorPanel->getDrumPatternEditorScrollArea()->viewport()->size().width(), width() );
-
-	QPen pen( color );
-	pen.setWidth( 4 );
-	painter.setPen( pen );
-	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
-	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
-	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
-	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
-}
-
 void DrumPatternEditor::showEvent ( QShowEvent *ev )
 {
 	UNUSED( ev );

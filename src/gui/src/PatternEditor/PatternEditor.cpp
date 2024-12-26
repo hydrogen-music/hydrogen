@@ -1932,8 +1932,93 @@ void PatternEditor::invalidateBackground() {
 
 void PatternEditor::drawPattern() {
 }
+
 void PatternEditor::drawFocus( QPainter& p ) {
+
+	if ( ! m_bEntered && ! hasFocus() ) {
+		return;
+	}
+
+	const auto pPref = H2Core::Preferences::get_instance();
+
+	QColor color = pPref->getTheme().m_color.m_highlightColor;
+
+	// If the mouse is placed on the widget but the user hasn't clicked it yet,
+	// the highlight will be done more transparent to indicate that keyboard
+	// inputs are not accepted yet.
+	if ( ! hasFocus() ) {
+		color.setAlpha( 125 );
+	}
+
+	const QScrollArea* pScrollArea;
+
+	if ( m_editor == Editor::DrumPattern ) {
+		pScrollArea = m_pPatternEditorPanel->getDrumPatternEditorScrollArea();
+	}
+	else if ( m_editor == Editor::PianoRoll ) {
+		pScrollArea = m_pPatternEditorPanel->getPianoRollEditorScrollArea();
+	}
+	else if ( m_editor == Editor::NotePropertiesRuler ) {
+		switch ( m_mode ) {
+		case PatternEditor::Mode::Velocity:
+			pScrollArea = m_pPatternEditorPanel->getNoteVelocityScrollArea();
+			break;
+		case PatternEditor::Mode::Pan:
+			pScrollArea = m_pPatternEditorPanel->getNotePanScrollArea();
+			break;
+		case PatternEditor::Mode::LeadLag:
+			pScrollArea = m_pPatternEditorPanel->getNoteLeadLagScrollArea();
+			break;
+		case PatternEditor::Mode::KeyOctave:
+			pScrollArea = m_pPatternEditorPanel->getNoteKeyOctaveScrollArea();
+			break;
+		case PatternEditor::Mode::Probability:
+			pScrollArea = m_pPatternEditorPanel->getNoteProbabilityScrollArea();
+			break;
+		case PatternEditor::Mode::None:
+		default:
+			return;
+		}
+	}
+
+	const int nStartY = pScrollArea->verticalScrollBar()->value();
+	const int nStartX = pScrollArea->horizontalScrollBar()->value();
+	int nEndY = nStartY + pScrollArea->viewport()->size().height();
+	if ( m_editor == Editor::DrumPattern ) {
+		nEndY = std::min( static_cast<int>(m_nGridHeight) *
+						  m_pPatternEditorPanel->getRowNumberDB(), nEndY );
+	}
+	// In order to match the width used in the DrumPatternEditor.
+	int nEndX = std::min( nStartX + pScrollArea->viewport()->size().width(),
+								static_cast<int>( m_nEditorWidth ) );
+
+	int nMargin;
+	if ( nEndX == static_cast<int>( m_nEditorWidth ) ) {
+		nEndX = nEndX - 2;
+		nMargin = 1;
+	} else {
+		nMargin = 0;
+	}
+
+	QPen pen( color );
+	pen.setWidth( 4 );
+	p.setPen( pen );
+	p.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
+	p.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
+	p.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
+
+	if ( nMargin != 0 ) {
+		// Since for all other lines we are drawing at a border with just half
+		// of the line being painted in the visual viewport, there has to be
+		// some tweaking since the NotePropertiesRuler is paintable to the
+		// right.
+		pen.setWidth( 2 );
+		p.setPen( pen );
+	}
+	p.drawLine( QPoint( nEndX + nMargin, nStartY ),
+					  QPoint( nEndX + nMargin, nEndY ) );
 }
+
 void PatternEditor::createBackground() {
 }
 

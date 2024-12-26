@@ -106,7 +106,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawPattern() override;
-		void drawFocus( QPainter& painter ) override;
 		void drawNote( QPainter& painter, H2Core::Note* pNote,
 					   NoteStyle noteStyle, int nOffsetX = 0 );
 

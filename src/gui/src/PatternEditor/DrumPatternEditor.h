@@ -64,7 +64,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 	private:
 	void createBackground() override;
 		void drawPattern() override;
-		void drawFocus( QPainter& painter ) override;
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;
 		virtual void showEvent ( QShowEvent *ev ) override;
