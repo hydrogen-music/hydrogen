@@ -2675,7 +2675,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 										   const QString& sType,
 										   int nPatternNumber,
 										   int nOldLength,
-										   float nOldVelocity,
+										   float fOldVelocity,
 										   float fOldPan,
 										   float fOldLeadLag,
 										   int nOldKey,
@@ -2719,15 +2719,60 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 
 	if ( bIsDelete ) {
 		// Find and delete an existing (matching) note.
-		auto pNote = pPattern->findNote(
-			nColumn, -1, nInstrumentId, sType, static_cast<Note::Key>(nOldKey),
-			static_cast<Note::Octave>(nOldOctave) );
-		if ( pNote != nullptr ) {
+
+		// In case there are multiple notes at this position, use all provided
+		// properties to find right one.
+		std::vector<Note*> notesFound;
+		const auto pNotes = pPattern->getNotes();
+		for ( auto it = pNotes->lower_bound( nColumn );
+			  it != pNotes->end() && it->first <= nColumn; ++it ) {
+			auto ppNote = it->second;
+			if ( ppNote != nullptr &&
+				 ppNote->match( nInstrumentId, sType,
+									static_cast<Note::Key>(nOldKey),
+									static_cast<Note::Octave>(nOldOctave) ) ) {
+				notesFound.push_back( ppNote );
+			}
+		}
+
+		auto removeNote = [&]( Note* pNote ) {
 			if ( pVisibleEditor->m_selection.isSelected( pNote ) ) {
 				pVisibleEditor->m_selection.removeFromSelection( pNote, false );
 			}
 			pPattern->removeNote( pNote );
 			delete pNote;
+		};
+
+		if ( notesFound.size() == 1 ) {
+			// There is just a single note at this position. Remove it
+			// regardless of its properties.
+			removeNote( notesFound[ 0 ] );
+		}
+		else if ( notesFound.size() > 1 ) {
+			bool bFound = false;
+
+			for ( const auto& ppNote : notesFound ) {
+				if ( ppNote->get_length() == nOldLength &&
+					 ppNote->get_velocity() == fOldVelocity &&
+					 ppNote->getPan() == fOldPan &&
+					 ppNote->get_lead_lag() == fOldLeadLag &&
+					 ppNote->get_probability() == fOldProbability &&
+					 ppNote->get_note_off() == bIsNoteOff ) {
+					bFound = true;
+					removeNote( ppNote );
+				}
+			}
+
+			if ( ! bFound ) {
+				QStringList noteStrings;
+				for ( const auto& ppNote : notesFound ) {
+					noteStrings << "\n - " << ppNote->toQString();
+				}
+				ERRORLOG( QString( "length: %1, velocity: %2, pan: %3, lead&lag: %4, probability: %5, noteOff: %6 not found amongst notes:%7" )
+						  .arg( nOldLength ).arg( fOldVelocity ).arg( fOldPan )
+						  .arg( fOldLeadLag ).arg( fOldProbability )
+						  .arg( bIsNoteOff ).arg( noteStrings.join( "" ) ) );
+			}
 		}
 		else {
 			ERRORLOG( "Did not find note to delete" );
@@ -2737,7 +2782,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 	else {
 		// create the new note
 		unsigned nPosition = nColumn;
-		float fVelocity = nOldVelocity;
+		float fVelocity = fOldVelocity;
 		float fPan = fOldPan ;
 		int nLength = nOldLength;
 
