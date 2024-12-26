@@ -66,8 +66,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void drawPattern() override;
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;
-		virtual void showEvent ( QShowEvent *ev ) override;
-		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 
 		QString renameCompo( const QString& OriginalName );

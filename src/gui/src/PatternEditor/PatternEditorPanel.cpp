@@ -908,12 +908,6 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	syncScrollBarSize( m_pNoteProbabilityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 }
 
-void PatternEditorPanel::showEvent ( QShowEvent *ev )
-{
-	UNUSED( ev );
-}
-
-
 /// richiamato dall'uso dello scroll del mouse
 void PatternEditorPanel::contentsMoving( int dummy )
 {

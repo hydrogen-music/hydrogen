@@ -541,19 +541,6 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void DrumPatternEditor::showEvent ( QShowEvent *ev )
-{
-	UNUSED( ev );
-	updateEditor();
-}
-
-
-
-void DrumPatternEditor::hideEvent ( QHideEvent *ev )
-{
-	UNUSED( ev );
-}
-
 void DrumPatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
