@@ -56,8 +56,6 @@ DrumPatternEditor::DrumPatternEditor( QWidget* parent )
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
 	m_nActiveWidth = m_nEditorWidth;
 	resize( m_nEditorWidth, m_nEditorHeight );
-
-	createBackground();
 }
 
 DrumPatternEditor::~DrumPatternEditor()
@@ -66,16 +64,23 @@ DrumPatternEditor::~DrumPatternEditor()
 
 void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
-	updateWidth();
+	bool bFullUpdate = updateWidth();
 
-	int nTargetHeight = m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
+	const int nTargetHeight =
+		m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
 	if ( m_nEditorHeight != nTargetHeight ) {
 		m_nEditorHeight = nTargetHeight;
+		resize( m_nEditorWidth, m_nEditorHeight );
+		bFullUpdate = true;
 	}
-	resize( m_nEditorWidth, m_nEditorHeight );
 
-	// redraw all
-	invalidateBackground();
+	if ( bPatternOnly && ! bFullUpdate ) {
+		m_update = Update::Pattern;
+	}
+	else {
+		m_update = Update::Background;
+	}
+
 	update();
 }
 
@@ -253,7 +258,7 @@ void DrumPatternEditor::selectAll()
 ///
 /// Draws a pattern
 ///
-void DrumPatternEditor::drawPattern(QPainter& painter)
+void DrumPatternEditor::drawPattern()
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -268,6 +273,19 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	textBackgroundColor.setAlpha( 150 );
 
 	validateSelection();
+
+	qreal pixelRatio = devicePixelRatio();
+
+	QPainter p( m_pPatternPixmap );
+	// copy the background image
+	p.drawPixmap( rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * rect().x(),
+								pixelRatio * rect().y(),
+								pixelRatio * rect().width(),
+								pixelRatio * rect().height() ) );
+
+	const auto row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
 
 	// We count notes in each position so we can display markers for rows which
 	// have more than one note in the same position (a chord or genuine
@@ -335,7 +353,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 				const auto style = static_cast<NoteStyle>(
 					m_selection.isSelected( ppNote ) ?
 					NoteStyle::Selected | baseStyle : baseStyle );
-				drawNote( painter, ppNote, style );
+				drawNote( p, ppNote, style );
 			}
 
 			if ( notesAtRow.find( nRow ) == notesAtRow.end() ) {
@@ -354,10 +372,10 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 			const int y = nnRow * m_nGridHeight;
 			const int boxWidth = 128;
 
-			painter.setFont( font );
-			painter.setPen( fontColor );
+			p.setFont( font );
+			p.setPen( fontColor );
 
-			painter.drawText(
+			p.drawText(
 				QRect( x - boxWidth - 6, y, boxWidth, m_nGridHeight ),
 				Qt::AlignRight | Qt::AlignVCenter,
 				( QString( "%1" ) + QChar( 0x00d7 )).arg( nnNotes ) );
@@ -365,8 +383,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 	}
 }
 
-void DrumPatternEditor::drawBackground( QPainter& p)
-{
+void DrumPatternEditor::createBackground() {
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
@@ -395,6 +412,25 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 		selectedRowColor = selectedRowColor.darker( PatternEditor::nOutOfFocusDim );
 	}
 
+	// Resize pixmap if pixel ratio has changed
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
+		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
+		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+										   m_nEditorHeight * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+		delete m_pPatternPixmap;
+		m_pPatternPixmap = new QPixmap( m_nEditorWidth  * pixelRatio,
+										m_nEditorHeight * pixelRatio );
+		m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
+	}
+
+	m_pBackgroundPixmap->fill( backgroundInactiveColor );
+
+	QPainter p( m_pBackgroundPixmap );
+
 	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 
@@ -418,8 +454,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	// We skip the grid and cursor in case there is no pattern. This
 	// way it may be more obvious that it is not armed and does not
 	// expect user interaction.
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern != nullptr ) {
+	if ( m_pPatternEditorPanel->getPattern() != nullptr ) {
 		drawGridLines( p );
 
 		// The grid lines above are drawn full height. We will erase the upper
@@ -477,26 +512,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
 	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
 
-}
-
-void DrumPatternEditor::createBackground() {
 	m_bBackgroundInvalid = false;
-
-	// Resize pixmap if pixel ratio has changed
-	qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
-		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
-		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
-		delete m_pBackgroundPixmap;
-		m_pBackgroundPixmap = new QPixmap( width() * pixelRatio, height() * pixelRatio );
-		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-	}
-	
-	QPainter painter( m_pBackgroundPixmap );
-
-	drawBackground( painter );
-	
-	drawPattern( painter );
 }
 
 void DrumPatternEditor::paintEvent( QPaintEvent* ev )
@@ -507,14 +523,19 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	
 	const auto pPref = Preferences::get_instance();
 	
-	qreal pixelRatio = devicePixelRatio();
+	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 m_bBackgroundInvalid ) {
+		 m_bBackgroundInvalid || m_update == Update::Background ) {
 		createBackground();
 	}
-	
+
+	if ( m_update == Update::Background || m_update == Update::Pattern ) {
+		drawPattern();
+		m_update = Update::None;
+	}
+
 	QPainter painter( this );
-	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
+	painter.drawPixmap( ev->rect(), *m_pPatternPixmap,
 						QRectF( pixelRatio * ev->rect().x(),
 								pixelRatio * ev->rect().y(),
 								pixelRatio * ev->rect().width(),
