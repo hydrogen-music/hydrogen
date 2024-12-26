@@ -358,7 +358,7 @@ protected:
 	 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
 	 * state of the editor.
 	 */
-	void updateWidth();
+	bool updateWidth();
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;

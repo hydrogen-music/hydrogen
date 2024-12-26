@@ -1895,12 +1895,13 @@ bool PatternEditor::isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pat
 	return false;
 }
 
-void PatternEditor::updateWidth() {
+bool PatternEditor::updateWidth() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
-	
+
+	int nEditorWidth, nActiveWidth;
 	if ( pPattern != nullptr ) {
-		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
+		nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
 			pPattern->getLength();
 		
 		// In case there are other patterns playing which are longer
@@ -1910,25 +1911,36 @@ void PatternEditor::updateWidth() {
 		if ( pHydrogen->getMode() == Song::Mode::Song &&
 			 pPattern != nullptr && pPattern->isVirtual() &&
 			 ! pHydrogen->isPatternEditorLocked() ) {
-			m_nEditorWidth = 
+			nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
 						  pPattern->longestVirtualPatternLength() + 1,
-						  static_cast<float>(m_nActiveWidth) );
+						  static_cast<float>(nActiveWidth) );
 		}
 		else if ( isUsingAdditionalPatterns( pPattern ) ) {
-			m_nEditorWidth =
+			nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
 						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
-						  static_cast<float>(m_nActiveWidth) );
+						  static_cast<float>(nActiveWidth) );
 		}
 		else {
-			m_nEditorWidth = m_nActiveWidth;
+			nEditorWidth = nActiveWidth;
 		}
 	}
 	else {
-		m_nEditorWidth = PatternEditor::nMargin + MAX_NOTES * m_fGridWidth;
-		m_nActiveWidth = m_nEditorWidth;
+		nEditorWidth = PatternEditor::nMargin + MAX_NOTES * m_fGridWidth;
+		nActiveWidth = nEditorWidth;
 	}
+
+	if ( m_nEditorWidth != nEditorWidth || m_nActiveWidth != nActiveWidth ) {
+		m_nEditorWidth = nEditorWidth;
+		m_nActiveWidth = nActiveWidth;
+
+		resize( m_nEditorWidth, m_nEditorHeight );
+
+		return true;
+	}
+
+	return false;
 }
 
 void PatternEditor::updatePosition( float fTick ) {

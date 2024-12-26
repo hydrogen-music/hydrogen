@@ -1149,7 +1149,6 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 void NotePropertiesRuler::updateEditor( bool )
 {
 	updateWidth();
-	resize( m_nEditorWidth, height() );
 
 	invalidateBackground();
 	update();

@@ -78,9 +78,9 @@ QPoint PianoRollEditor::noteToPoint( H2Core::Note* pNote ) const {
 
 void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
-	updateWidth();
-	
-	if ( bPatternOnly ) {
+	const bool bFullUpdate = updateWidth();
+
+	if ( bPatternOnly && ! bFullUpdate ) {
 		m_update = Update::Pattern;
 	} else {
 		m_update = Update::Background;
