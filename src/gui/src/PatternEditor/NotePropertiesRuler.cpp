@@ -103,7 +103,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	// When interacting with note(s) not already in a selection, we will discard
 	// the current selection and add these notes under point to a transient one.
 	const auto notesUnderPoint = getNotesAtPoint(
-		pPattern, point, getCursorMargin(), true );
+		pPattern, point, getCursorMargin( ev ), true );
 	if ( notesUnderPoint.size() > 0 ) {
 		m_selection.clearSelection();
 		for ( const auto& ppNote : notesUnderPoint ) {
@@ -180,7 +180,7 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 
 void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
 	if ( m_selection.isMoving() ) {
-		prepareUndoAction( ev->pos() );
+		prepareUndoAction( ev );
 		selectionMoveUpdateEvent( ev );
 	}
 	else if ( ev->buttons() == Qt::RightButton ) {
@@ -310,7 +310,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
 {
 	setCursor( Qt::CrossCursor );
-	prepareUndoAction( ev->pos() );
+	prepareUndoAction( ev );
 
 	m_update = Update::Pattern;
 	update();
@@ -319,7 +319,7 @@ void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
 
 //! Preserve current note properties at position x (or in selection, if any) for
 //! use in later UndoAction.
-void NotePropertiesRuler::prepareUndoAction( const QPoint& point )
+void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -329,7 +329,7 @@ void NotePropertiesRuler::prepareUndoAction( const QPoint& point )
 	clearOldNotes();
 
 	const auto notesUnderPoint = getNotesAtPoint(
-		pPattern, point, getCursorMargin(), false );
+		pPattern, pEvent->pos(), getCursorMargin( pEvent ), false );
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
 			m_oldNotes[ ppNote ] = new Note( ppNote );

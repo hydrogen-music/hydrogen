@@ -873,7 +873,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		// discard the current selection and add these notes under point to a
 		// transient one.
 		const auto notesUnderPoint = getNotesAtPoint(
-			pPattern, ev->pos(), getCursorMargin(), true );
+			pPattern, ev->pos(), getCursorMargin( ev ), true );
 		for ( const auto& ppNote : notesUnderPoint ) {
 			m_notesToSelectOnMove.push_back( ppNote );
 		}
@@ -924,7 +924,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 		// Check whether an existing note or an empty grid cell was clicked.
 		const auto notesAtPoint = getNotesAtPoint(
-			pPattern, ev->pos(), getCursorMargin(), false );
+			pPattern, ev->pos(), getCursorMargin( ev ), false );
 		if ( notesAtPoint.size() == 0 ) {
 			// Empty grid cell
 			bClickedOnGrid = true;
@@ -975,7 +975,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			pUndo->endMacro();
 		}
 		m_selection.clearSelection();
-		updateHoveredNotesMouse( ev->pos() );
+		updateHoveredNotesMouse( ev );
 
 	}
 	else if ( ev->button() == Qt::RightButton ) {
@@ -1010,7 +1010,7 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 	}
 
 	// Check which note is hovered.
-	updateHoveredNotesMouse( ev->pos() );
+	updateHoveredNotesMouse( ev );
 
 	if ( ev->buttons() != Qt::NoButton ) {
 		updateModifiers( ev );
@@ -1087,8 +1087,15 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 			 && pNoteA->get_probability() == pNoteB->get_probability() );
 }
 
-int PatternEditor::getCursorMargin() const {
+int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
 	const int nResolution = m_pPatternEditorPanel->getResolution();
+
+	// The Alt modifier is used for more fine grained control throughout
+	// Hydrogen and will diminish the cursor margin.
+	if ( pEvent->modifiers() & Qt::AltModifier ) {
+		return 0;
+	}
+
 	if ( nResolution < 32 ) {
 		return PatternEditor::nDefaultCursorMargin;
 	}
@@ -2254,7 +2261,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		// Adjusting note properties.
 
 		const auto notesAtPoint = getNotesAtPoint(
-			pPattern, ev->pos(), getCursorMargin(), false );
+			pPattern, ev->pos(), getCursorMargin( ev ), false );
 		if ( notesAtPoint.size() == 0 ) {
 			return;
 		}
@@ -3133,11 +3140,13 @@ std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Patte
 	return std::move( notesUnderPoint );
 }
 
-void PatternEditor::updateHoveredNotesMouse( const QPoint& point ) {
+void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
+	const int nCursorMargin = getCursorMargin( pEvent );
+
 	int nRealColumn;
-	eventPointToColumnRow( point, nullptr, nullptr, &nRealColumn );
+	eventPointToColumnRow( pEvent->pos(), nullptr, nullptr, &nRealColumn );
 	int nRealColumnUpper;
-	eventPointToColumnRow( point + QPoint( getCursorMargin(), 0 ),
+	eventPointToColumnRow( pEvent->pos() + QPoint( nCursorMargin, 0 ),
 						   nullptr, nullptr, &nRealColumnUpper );
 
 	// getNotesAtPoint is generous in finding notes by taking a margin around
@@ -3150,11 +3159,10 @@ void PatternEditor::updateHoveredNotesMouse( const QPoint& point ) {
 	// notes, the left one wins.
 	int nLastPosition = -1;
 
-	const int nCursorMargin = getCursorMargin();
 	std::map<std::shared_ptr<Pattern>, std::vector<Note*>> hovered;
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const auto hoveredNotes = getNotesAtPoint(
-			ppPattern, point, nCursorMargin, false );
+			ppPattern, pEvent->pos(), nCursorMargin, false );
 		if ( hoveredNotes.size() > 0 ) {
 			const int nDistance =
 				std::abs( hoveredNotes[ 0 ]->get_position() - nRealColumn );

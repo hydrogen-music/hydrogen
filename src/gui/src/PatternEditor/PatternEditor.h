@@ -138,7 +138,7 @@ public:
 		updateEditor( true );
 	}
 
-		virtual int getCursorMargin() const override;
+		virtual int getCursorMargin( QInputEvent* pEvent ) const override;
 
 	//! Deselecting notes
 	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) override;
@@ -408,7 +408,7 @@ protected:
 													int nCursorMargin,
 													bool bExcludeSelected );
 
-		void updateHoveredNotesMouse( const QPoint& point );
+		void updateHoveredNotesMouse( QMouseEvent* pEvent );
 		void updateHoveredNotesKeyboard();
 };
 

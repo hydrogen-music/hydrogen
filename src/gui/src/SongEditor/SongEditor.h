@@ -230,7 +230,7 @@ public:
 		virtual QRect getKeyboardCursorRect() override;
 		virtual void validateSelection() override {};
 		virtual void updateWidget() override;
-		virtual int getCursorMargin() const override { return 0; };
+		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;

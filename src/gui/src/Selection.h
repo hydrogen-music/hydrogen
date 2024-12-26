@@ -68,7 +68,7 @@ public:
 
 		/** Retrieves a resolution-dependent margin determining how many pixel a
 		 * note is allowed to be away from mouse cursor to still be selected. */
-		virtual int getCursorMargin() const = 0;
+		virtual int getCursorMargin( QInputEvent* pEvent ) const = 0;
 
 	//! Inform the client that we're deselecting elements.
 	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) {
@@ -588,7 +588,7 @@ public:
 		if ( ev->button() == Qt::LeftButton) {
 			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
 			r += QMargins( 2, 2, 2, 2 );
-			const int nMargin = m_pWidget->getCursorMargin();
+			const int nMargin = m_pWidget->getCursorMargin( ev );
 			r += QMargins( nMargin, nMargin, nMargin, nMargin );
 			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
 
