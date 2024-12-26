@@ -352,10 +352,8 @@ protected:
 		void drawFocus( QPainter& p );
 	/** Updates #m_pBackgroundPixmap. */
 	virtual void createBackground();
-	void invalidateBackground();
 	QPixmap* m_pBackgroundPixmap;
 	QPixmap* m_pPatternPixmap;
-	bool m_bBackgroundInvalid;
 
 		/** Which parts of the editor to update in the next paint event. */
 		Update m_update;

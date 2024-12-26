@@ -153,8 +153,11 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			m_selection.clearSelection();
 		}
 
-		invalidateBackground();
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
+		if ( m_mode == Mode::Velocity ) {
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+		}
+
+		m_update = Update::Pattern;
 		update();
 	}
 }
@@ -249,7 +252,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	}
 
 	if ( bValueChanged ) {
-		invalidateBackground();
+		m_update = Update::Pattern;
 		update();
 	}
 }
@@ -257,7 +260,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	//! The "move" has already been reflected in the notes. Now just complete Undo event.
 	addUndoAction();
-	invalidateBackground();
+
+	m_update = Update::Pattern;
 	update();
 }
 
@@ -307,7 +311,8 @@ void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
 {
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev->pos() );
-	invalidateBackground();
+
+	m_update = Update::Pattern;
 	update();
 }
 
@@ -475,12 +480,12 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		invalidateBackground();
+		m_update = Update::Pattern;
 		update();
 		if ( m_mode == PatternEditor::Mode::Velocity ) {
 			// A note's velocity determines its color in the other pattern
 			// editors as well.
-			m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
 		}
 	}
 }
@@ -490,7 +495,8 @@ void NotePropertiesRuler::propertyDrawEnd()
 	m_nDrawPreviousColumn = -1;
 	addUndoAction();
 	unsetCursor();
-	invalidateBackground();
+
+	m_update = Update::Pattern;
 	update();
 }
 
@@ -1180,8 +1186,6 @@ void NotePropertiesRuler::createBackground()
 		p.drawLine( m_nActiveWidth, m_nEditorHeight,
 					m_nEditorWidth, m_nEditorHeight );
 	}
-
-	m_bBackgroundInvalid = false;
 }
 
 void NotePropertiesRuler::drawPattern() {
@@ -1288,10 +1292,6 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 			result.push_back( it->second );
 		}
 	}
-
-	// Updating selection, we may need to repaint the whole widget.
-	invalidateBackground();
-	update();
 
 	return std::move(result);
 }

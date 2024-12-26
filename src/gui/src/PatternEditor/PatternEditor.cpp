@@ -101,7 +101,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 									height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
-	m_bBackgroundInvalid = true;
 }
 
 PatternEditor::~PatternEditor()
@@ -1810,10 +1809,10 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 			m_pPatternEditorPanel->ensureCursorVisible();
 
 			if ( m_selection.isLasso() ) {
-				// Since event was used to alter the note selection, we
-				// invalidate background and force a repainting of all note
-				// symbols (including whether or not they are selected).
-				invalidateBackground();
+				// Since the event was used to alter the note selection, we need
+				// to repainting all note symbols (including whether or not they
+				// are selected).
+				m_update = Update::Pattern;
 			}
 		}
 
@@ -1885,7 +1884,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 
 	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 m_bBackgroundInvalid || m_update == Update::Background ) {
+		 m_update == Update::Background ) {
 		createBackground();
 	}
 
@@ -1925,10 +1924,6 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
-}
-
-void PatternEditor::invalidateBackground() {
-	m_bBackgroundInvalid = true;
 }
 
 void PatternEditor::drawPattern()

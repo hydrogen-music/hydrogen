@@ -378,8 +378,6 @@ void DrumPatternEditor::createBackground() {
 	
 	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
 	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
-
-	m_bBackgroundInvalid = false;
 }
 
 void DrumPatternEditor::paintEvent( QPaintEvent* ev )
