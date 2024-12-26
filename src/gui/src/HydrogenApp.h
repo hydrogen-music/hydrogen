@@ -29,6 +29,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include "EventListener.h"
+#include "MainForm.h"
 
 #include <iostream>
 #include <cstdint>
@@ -52,7 +53,6 @@ namespace H2Core
 }
 
 class SongEditorPanel;
-class MainForm;
 class PlayerControl;
 class PatternEditorPanel;
 class InstrumentEditorPanel;
@@ -77,7 +77,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		H2_OBJECT(HydrogenApp)
 	Q_OBJECT
 	public:
-		HydrogenApp( MainForm* pMainForm );
+		HydrogenApp( MainForm* pMainForm, QUndoStack* pUndoStack );
 
 		/// Returns the instance of HydrogenApp class
 		static HydrogenApp* get_instance();
@@ -132,7 +132,9 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 	std::shared_ptr<CommonStrings>			getCommonStrings();
 		InfoBar *			addInfoBar();
 
-		QUndoStack*			m_pUndoStack;
+		void pushUndoCommand( QUndoCommand* pCommand );
+		void beginUndoMacro( const QString& sText );
+		void endUndoMacro();
 
 	void showStatusBarMessage( const QString& sMessage, const QString& sCaller = "" );
 		void updateWindowTitle();
@@ -196,6 +198,7 @@ signals:
 private slots:
 	void propagatePreferences();
 
+		friend class MainForm;
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
@@ -269,7 +272,8 @@ private slots:
 	virtual void drumkitLoadedEvent() override;
 		void playlistChangedEvent( int nValue ) override;
 		void playlistLoadSongEvent() override;
-	
+
+		QUndoStack*			m_pUndoStack;
 };
 
 
@@ -348,6 +352,5 @@ inline void HydrogenApp::setHideKeyboardCursor( bool bHidden )
 		m_bHideKeyboardCursor = bHidden;
 	}
 }
-
 
 #endif

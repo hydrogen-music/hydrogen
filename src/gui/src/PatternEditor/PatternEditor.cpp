@@ -515,8 +515,8 @@ void PatternEditor::paste()
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	QClipboard *clipboard = QApplication::clipboard();
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
@@ -604,7 +604,7 @@ void PatternEditor::paste()
 
 	if ( noteList.hasChildNodes() ) {
 
-		pUndo->beginMacro( tr( "paste notes" ) );
+		pHydrogenApp->beginUndoMacro( tr( "paste notes" ) );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull();
 			  n = n.nextSiblingElement() ) {
 			auto pNote = Note::load_from( n );
@@ -669,24 +669,25 @@ void PatternEditor::paste()
 				nOctave = pNote->get_octave();
 			}
 
-			pUndo->push( new SE_addOrRemoveNoteAction(
-							 nPos,
-							 nInstrumentId,
-							 sType,
-							 m_pPatternEditorPanel->getPatternNumber(),
-							 pNote->get_length(),
-							 pNote->get_velocity(),
-							 pNote->getPan(),
-							 pNote->get_lead_lag(),
-							 nKey,
-							 nOctave,
-							 pNote->get_probability(),
-							 /* bIsDelete */ false,
-							 /* bIsMidi */ false,
-							 /* bIsNoteOff */ pNote->get_note_off() ) );
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemoveNoteAction(
+					nPos,
+					nInstrumentId,
+					sType,
+					m_pPatternEditorPanel->getPatternNumber(),
+					pNote->get_length(),
+					pNote->get_velocity(),
+					pNote->getPan(),
+					pNote->get_lead_lag(),
+					nKey,
+					nOctave,
+					pNote->get_probability(),
+					/* bIsDelete */ false,
+					/* bIsMidi */ false,
+					/* bIsNoteOff */ pNote->get_note_off() ) );
 			delete pNote;
 		}
-		pUndo->endMacro();
+		pHydrogenApp->endUndoMacro();
 	}
 
 	if ( bAppendedToDB ) {
@@ -745,10 +746,10 @@ void PatternEditor::alignToGrid() {
 		return;
 	}
 
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	// Move the notes
-	pUndo->beginMacro( tr( "Align notes to grid" ) );
+	pHydrogenApp->beginUndoMacro( tr( "Align notes to grid" ) );
 
 	for ( Note *pNote : m_selection ) {
 		if ( pNote == nullptr ) {
@@ -782,7 +783,7 @@ void PatternEditor::alignToGrid() {
 		const bool bNoteOff = pNote->get_note_off();
 
 		// Move note -> delete at source position
-		pUndo->push( new SE_addOrRemoveNoteAction(
+		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
 						 nPosition,
 						 nInstrumentId,
 						 sType,
@@ -799,7 +800,7 @@ void PatternEditor::alignToGrid() {
 						 bNoteOff ) );
 
 		// Add at target position
-		pUndo->push( new SE_addOrRemoveNoteAction(
+		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
 						 nNewPosition,
 						 nInstrumentId,
 						 sType,
@@ -816,7 +817,7 @@ void PatternEditor::alignToGrid() {
 						 bNoteOff ) );
 	}
 
-	pUndo->endMacro();
+	pHydrogenApp->endUndoMacro();
 }
 
 
@@ -832,37 +833,39 @@ void PatternEditor::randomizeVelocity() {
 	if ( m_selection.isEmpty() ) {
 		return;
 	}
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
-	pUndo->beginMacro( tr( "Random velocity" ) );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
+	pHydrogenApp->beginUndoMacro( tr( "Random velocity" ) );
 
 	for ( const auto pNote : m_selection ) {
 		float fVal = ( rand() % 100 ) / 100.0;
 		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
 						   0.0, 1.0 );
-		pUndo->push( new SE_editNotePropertiesAction(
-						 PatternEditor::Mode::Velocity,
-						 m_pPatternEditorPanel->getPatternNumber(),
-						 pNote->get_position(),
-						 pNote->get_instrument_id(),
-						 pNote->getType(),
-						 fVal,
-						 pNote->get_velocity(),
-						 pNote->getPan(),
-						 pNote->getPan(),
-						 pNote->get_lead_lag(),
-						 pNote->get_lead_lag(),
-						 pNote->get_probability(),
-						 pNote->get_probability(),
-						 pNote->get_length(),
-						 pNote->get_length(),
-						 pNote->get_key(),
-						 pNote->get_key(),
-						 pNote->get_octave(),
-						 pNote->get_octave() ) );
+		pHydrogenApp->pushUndoCommand(
+			new SE_editNotePropertiesAction(
+				PatternEditor::Mode::Velocity,
+				m_pPatternEditorPanel->getPatternNumber(),
+				pNote->get_position(),
+				pNote->get_instrument_id(),
+				pNote->getType(),
+				fVal,
+				pNote->get_velocity(),
+				pNote->getPan(),
+				pNote->getPan(),
+				pNote->get_lead_lag(),
+				pNote->get_lead_lag(),
+				pNote->get_probability(),
+				pNote->get_probability(),
+				pNote->get_length(),
+				pNote->get_length(),
+				pNote->get_key(),
+				pNote->get_key(),
+				pNote->get_octave(),
+				pNote->get_octave() ) );
 	}
 
-	pUndo->endMacro();
+	pHydrogenApp->endUndoMacro();
 
 }
 
@@ -907,6 +910,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
@@ -968,27 +972,27 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		}
 		else {
 			// Note(s) clicked. Delete them.
-			auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-			pUndo->beginMacro( HydrogenApp::get_instance()->getCommonStrings()
-							   ->getActionDeleteNotes() );
+			pHydrogenApp->beginUndoMacro(
+				pCommonStrings->getActionDeleteNotes() );
 			for ( const auto& ppNote : notesAtPoint ) {
-				pUndo->push( new SE_addOrRemoveNoteAction(
-								 ppNote->get_position(),
-								 ppNote->get_instrument_id(),
-								 ppNote->getType(),
-								 m_pPatternEditorPanel->getPatternNumber(),
-								 ppNote->get_length(),
-								 ppNote->get_velocity(),
-								 ppNote->getPan(),
-								 ppNote->get_lead_lag(),
-								 ppNote->get_key(),
-								 ppNote->get_octave(),
-								 ppNote->get_probability(),
-								 /* bIsDelete */ true,
-								 /* bIsMidi */ false,
-								 /* bIsNoteOff */ ppNote->get_note_off() ) );
+				pHydrogenApp->pushUndoCommand(
+					new SE_addOrRemoveNoteAction(
+						ppNote->get_position(),
+						ppNote->get_instrument_id(),
+						ppNote->getType(),
+						m_pPatternEditorPanel->getPatternNumber(),
+						ppNote->get_length(),
+						ppNote->get_velocity(),
+						ppNote->getPan(),
+						ppNote->get_lead_lag(),
+						ppNote->get_key(),
+						ppNote->get_octave(),
+						ppNote->get_probability(),
+						/* bIsDelete */ true,
+						/* bIsMidi */ false,
+						/* bIsNoteOff */ ppNote->get_note_off() ) );
 }
-			pUndo->endMacro();
+			pHydrogenApp->endUndoMacro();
 		}
 		m_selection.clearSelection();
 		updateHoveredNotesMouse( ev );
@@ -1166,13 +1170,12 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 		}
 
 		if ( bOk ) {
-			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-
 			std::vector< Note *>overwritten;
 			for ( Note *pNote : duplicates ) {
 				overwritten.push_back( pNote );
 			}
-			pUndo->push( new SE_deselectAndOverwriteNotesAction( elements, overwritten ) );
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_deselectAndOverwriteNotesAction( elements, overwritten ) );
 
 		} else {
 			return false;
@@ -1507,12 +1510,14 @@ void PatternEditor::deleteSelection()
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Selection exists, delete it.
-		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+		auto pHydrogenApp = HydrogenApp::get_instance();
+
 		validateSelection();
 
 		// Construct list of UndoActions to perform before performing any of them, as the
 		// addOrDeleteNoteAction may delete duplicate notes in undefined order.
-		std::list< QUndoCommand *> actions;
+		std::list<QUndoCommand*> actions;
 		for ( const auto pNote : m_selection ) {
 			if ( pNote != nullptr && m_selection.isSelected( pNote ) ) {
 				actions.push_back( new SE_addOrRemoveNoteAction(
@@ -1535,12 +1540,13 @@ void PatternEditor::deleteSelection()
 		m_selection.clearSelection();
 
 		if ( actions.size() > 0 ) {
-			pUndo->beginMacro( HydrogenApp::get_instance()->getCommonStrings()
-							   ->getActionDeleteNotes() );
+			pHydrogenApp->beginUndoMacro(
+				HydrogenApp::get_instance()->getCommonStrings()
+				->getActionDeleteNotes() );
 			for ( QUndoCommand *pAction : actions ) {
-				pUndo->push( pAction );
+				pHydrogenApp->pushUndoCommand( pAction );
 			}
-			pUndo->endMacro();
+			pHydrogenApp->endUndoMacro();
 		}
 	}
 }
@@ -1566,12 +1572,12 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 
 	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
 
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	 auto pHydrogenApp = HydrogenApp::get_instance();
 
 	if ( m_bCopyNotMove ) {
-		pUndo->beginMacro( tr( "copy notes" ) );
+		pHydrogenApp->beginUndoMacro( tr( "copy notes" ) );
 	} else {
-		pUndo->beginMacro( tr( "move notes" ) );
+		pHydrogenApp->beginUndoMacro( tr( "move notes" ) );
 	}
 	std::list< Note * > selectedNotes;
 	for ( auto pNote : m_selection ) {
@@ -1637,45 +1643,47 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		if ( ! m_bCopyNotMove ) {
 			// Note is moved either out of range or to a new position. Delete
 			// the note at the source position.
-			pUndo->push( new SE_addOrRemoveNoteAction(
-							 nPosition,
-							 row.nInstrumentID,
-							 row.sType,
-							 m_pPatternEditorPanel->getPatternNumber(),
-							 nLength,
-							 fVelocity,
-							 fPan,
-							 fLeadLag,
-							 nKey,
-							 nOctave,
-							 fProbability,
-							 /* bIsDelete */ true,
-							 /* bIsMidi */ false,
-							 bNoteOff ) );
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemoveNoteAction(
+					nPosition,
+					row.nInstrumentID,
+					row.sType,
+					m_pPatternEditorPanel->getPatternNumber(),
+					nLength,
+					fVelocity,
+					fPan,
+					fLeadLag,
+					nKey,
+					nOctave,
+					fProbability,
+					/* bIsDelete */ true,
+					/* bIsMidi */ false,
+					bNoteOff ) );
 		}
 
 		if ( bNoteInRange ) {
 			// Create a new note at the target position
-			pUndo->push( new SE_addOrRemoveNoteAction(
-							 nNewPosition,
-							 newRow.nInstrumentID,
-							 newRow.sType,
-							 m_pPatternEditorPanel->getPatternNumber(),
-							 nLength,
-							 fVelocity,
-							 fPan,
-							 fLeadLag,
-							 nNewKey,
-							 nNewOctave,
-							 fProbability,
-							 /* bIsDelete */ false,
-							 /* bIsMidi */ false,
-							 bNoteOff ) );
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemoveNoteAction(
+					nNewPosition,
+					newRow.nInstrumentID,
+					newRow.sType,
+					m_pPatternEditorPanel->getPatternNumber(),
+					nLength,
+					fVelocity,
+					fPan,
+					fLeadLag,
+					nNewKey,
+					nNewOctave,
+					fProbability,
+					/* bIsDelete */ false,
+					/* bIsMidi */ false,
+					bNoteOff ) );
 		}
 	}
 
 	m_bSelectNewNotes = false;
-	pUndo->endMacro();
+	pHydrogenApp->endUndoMacro();
 }
 
 void PatternEditor::scrolled( int nValue ) {
@@ -2415,10 +2423,11 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		return;
 	}
 
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
 	bool bMacroStarted = false;
 	if ( m_draggedNotes.size() > 1 ) {
-		pUndoStack->beginMacro( tr( "edit note properties by dragging" ) );
+		pHydrogenApp->beginUndoMacro( tr( "edit note properties by dragging" ) );
 		bMacroStarted = true;
 	}
 	else {
@@ -2434,7 +2443,8 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 				   ppOriginalNote->get_probability() ) &&
 				 ppUpdatedNote->get_length() != ppOriginalNote->get_length() ) {
 				// Both length and another property have been edited.
-				pUndoStack->beginMacro( tr( "edit note properties by dragging" ) );
+				pHydrogenApp->beginUndoMacro(
+					tr( "edit note properties by dragging" ) );
 				bMacroStarted = true;
 			}
 		}
@@ -2442,26 +2452,27 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 
 	auto editNoteProperty = [=]( PatternEditor::Mode mode, Note* pNewNote,
 								  Note* pOldNote ) {
-		pUndoStack->push( new SE_editNotePropertiesAction(
-							  mode,
-							  m_pPatternEditorPanel->getPatternNumber(),
-							  pNewNote->get_position(),
-							  pNewNote->get_instrument_id(),
-							  pNewNote->getType(),
-							  pNewNote->get_velocity(),
-							  pOldNote->get_velocity(),
-							  pNewNote->getPan(),
-							  pOldNote->getPan(),
-							  pNewNote->get_lead_lag(),
-							  pOldNote->get_lead_lag(),
-							  pNewNote->get_probability(),
-							  pOldNote->get_probability(),
-							  pNewNote->get_length(),
-							  pOldNote->get_length(),
-							  pNewNote->get_key(),
-							  pOldNote->get_key(),
-							  pNewNote->get_octave(),
-							  pOldNote->get_octave() ) );
+		pHydrogenApp->pushUndoCommand(
+			new SE_editNotePropertiesAction(
+				mode,
+				m_pPatternEditorPanel->getPatternNumber(),
+				pNewNote->get_position(),
+				pNewNote->get_instrument_id(),
+				pNewNote->getType(),
+				pNewNote->get_velocity(),
+				pOldNote->get_velocity(),
+				pNewNote->getPan(),
+				pOldNote->getPan(),
+				pNewNote->get_lead_lag(),
+				pOldNote->get_lead_lag(),
+				pNewNote->get_probability(),
+				pOldNote->get_probability(),
+				pNewNote->get_length(),
+				pOldNote->get_length(),
+				pNewNote->get_key(),
+				pOldNote->get_key(),
+				pNewNote->get_octave(),
+				pOldNote->get_octave() ) );
 	};
 
 	for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
@@ -2479,7 +2490,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	}
 
 	if ( bMacroStarted ) {
-		pUndoStack->endMacro();
+		pHydrogenApp->endUndoMacro();
 	}
 
 	clearDraggedNotes();
@@ -2670,7 +2681,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		}
 	}
 
-	HydrogenApp::get_instance()->m_pUndoStack->push(
+	HydrogenApp::get_instance()->pushUndoCommand(
 		new SE_addOrRemoveNoteAction(
 			nColumn,
 			row.nInstrumentID,

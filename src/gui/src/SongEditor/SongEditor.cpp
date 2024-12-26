@@ -329,17 +329,18 @@ QPoint SongEditor::columnRowToXy( const QPoint& p )
 
 void SongEditor::togglePatternActive( int nColumn, int nRow ) {
 	SE_togglePatternAction *action = new SE_togglePatternAction( nColumn, nRow );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	HydrogenApp::get_instance()->pushUndoCommand( action );
 }
 
 void SongEditor::setPatternActive( int nColumn, int nRow, bool bActivate )
 {
-	HydrogenApp* h2app = HydrogenApp::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	bool bPatternIsActive = pSong->isPatternActive( nColumn, nRow );
 
 	if ( bPatternIsActive && ! bActivate || ! bPatternIsActive && bActivate ) {
-		h2app->m_pUndoStack->push( new SE_togglePatternAction( nColumn, nRow ) );
+		pHydrogenApp->pushUndoCommand(
+			new SE_togglePatternAction( nColumn, nRow ) );
 	}
 }
 
@@ -371,13 +372,13 @@ void SongEditor::selectNone() {
 }
 
 void SongEditor::deleteSelection() {
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	std::vector< QPoint > addCells, deleteCells, mergeCells;
 	for ( QPoint cell : m_selection ) {
 		deleteCells.push_back( cell );
 	}
-	pUndo->push( new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
-												  tr( "Delete selected cells" ) ) );
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
+										 tr( "Delete selected cells" ) ) );
 	m_selection.clearSelection();
 }
 
@@ -425,7 +426,6 @@ void SongEditor::copy() {
 }
 
 void SongEditor::paste() {
-	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	int nDeltaColumn = 0, nDeltaRow = 0;
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	int nPatterns = pSong->getPatternList()->size();
@@ -479,8 +479,9 @@ void SongEditor::paste() {
 				}
 			}
 
-			pUndo->push( new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
-														  tr( "Paste cells" ) ) );
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
+												 tr( "Paste cells" ) ) );
 		}
 	}
 }
@@ -857,7 +858,6 @@ void SongEditor::mouseDragEndEvent( QMouseEvent *ev )
 
 void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
-	HydrogenApp *pApp = HydrogenApp::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
@@ -889,10 +889,11 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 		}
 	}
 
-	pApp->m_pUndoStack->push( new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
-															   (m_bCopyNotMove
-																? tr( "Copy selected cells" )
-																: tr( "Move selected cells" ) ) ) );
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
+										 (m_bCopyNotMove
+										  ? tr( "Copy selected cells" )
+										  : tr( "Move selected cells" ) ) ) );
 }
 
 
@@ -1634,7 +1635,7 @@ void SongEditorPatternList::inlineEditingEntered()
 											  m_pPatternBeingEdited->getLicense(),
 											  m_pPatternBeingEdited->getCategory(),
 											  pPatternList->index( m_pPatternBeingEdited ) );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	HydrogenApp::get_instance()->pushUndoCommand( action );
 }
 
 
@@ -1958,7 +1959,7 @@ void SongEditorPatternList::patternPopup_load()
 	SE_loadPatternAction *action =
 		new SE_loadPatternAction( sPatternPath, sPrevPatternPath, sSequencePath,
 								  m_nRowClicked, false );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	HydrogenApp::get_instance()->pushUndoCommand( action );
 }
 
 void SongEditorPatternList::patternPopup_export()
@@ -2101,7 +2102,7 @@ void SongEditorPatternList::patternPopup_delete()
 	SE_deletePatternFromListAction *action =
 		new SE_deletePatternFromListAction( sPatternPath, sSequencePath,
 											m_nRowClicked );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	HydrogenApp::get_instance()->pushUndoCommand( action );
 }
 
 void SongEditorPatternList::patternPopup_duplicate()
@@ -2145,7 +2146,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 		else {
 			SE_duplicatePatternAction *action =
 				new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+			HydrogenApp::get_instance()->pushUndoCommand( action );
 		}
 	}
 
@@ -2162,7 +2163,7 @@ void SongEditorPatternList::patternPopup_fill()
 
 		SE_fillRangePatternAction *action =
 			new SE_fillRangePatternAction( &range, m_nRowClicked );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		HydrogenApp::get_instance()->pushUndoCommand( action );
 	}
 
 	delete dialog;
@@ -2281,8 +2282,9 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 			return;
 		}
 
-		SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSourcePattern , nTargetPattern ) ;
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		auto pAction = new SE_movePatternListItemAction(
+			nSourcePattern , nTargetPattern ) ;
+		HydrogenApp::get_instance()->pushUndoCommand( pAction );
 
 		event->acceptProposedAction();
 	} 
@@ -2308,14 +2310,16 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 						pNewPattern->setName( pPatternList->find_unused_pattern_name( pNewPattern->getName() ) );
 					}
 					
-					SE_insertPatternAction* pInsertPatternAction = new SE_insertPatternAction( nTargetPattern + successfullyAddedPattern, pNewPattern );
-					HydrogenApp::get_instance()->m_pUndoStack->push( pInsertPatternAction );
-					
+					auto pAction = new SE_insertPatternAction(
+						nTargetPattern + successfullyAddedPattern, pNewPattern );
+					HydrogenApp::get_instance()->pushUndoCommand( pAction );
+
 					successfullyAddedPattern++;
 				}
 				else
 				{
-					ERRORLOG( QString("Error loading pattern %1").arg(patternFilePath) );
+					ERRORLOG( QString("Error loading pattern %1")
+							  .arg(patternFilePath) );
 				}
 			}
 		}
@@ -2327,16 +2331,17 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		//create a unique sequencefilename
 		auto pPattern = pSong->getPatternList()->get( nTargetPattern );
-		HydrogenApp *pHydrogenApp = HydrogenApp::get_instance();
 
 		QString oldPatternName = pPattern->getName();
 
 		QString sequenceFilename = Filesystem::tmp_file_path( "SEQ.xml" );
-		bool drag = false;
-		if( QString( tokens.at(0) ).contains( "drag pattern" )) drag = true;
-		SE_loadPatternAction *pAction = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );
+		const bool bDrag = QString( tokens.at(0) ).contains( "drag pattern" );
 
-		pHydrogenApp->m_pUndoStack->push( pAction );
+		SE_loadPatternAction *pAction = new SE_loadPatternAction(
+			sPatternName, oldPatternName, sequenceFilename, nTargetPattern,
+			bDrag );
+
+		HydrogenApp::get_instance()->pushUndoCommand( pAction );
 	}
 }
 

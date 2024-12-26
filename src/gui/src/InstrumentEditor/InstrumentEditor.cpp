@@ -1233,7 +1233,7 @@ void InstrumentEditor::renameComponentAction()
 	if ( bIsOkPressed && sOldName != sNewName ) {
 		 auto pAction = new SE_renameComponentAction(
 			 sNewName, sOldName, m_nSelectedComponent );
-		 HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+		 HydrogenApp::get_instance()->pushUndoCommand( pAction );
 	}
 }
 
@@ -1486,7 +1486,7 @@ void InstrumentEditor::addComponentAction() {
 	auto pAction = new SE_replaceInstrumentAction(
 		pNewInstrument, m_pInstrument,
 		SE_replaceInstrumentAction::Type::AddComponent, sNewName );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 
 	// New components will be appended.
 	selectComponent( m_pInstrument->get_components()->size() );
@@ -1519,7 +1519,7 @@ void InstrumentEditor::deleteComponentAction() {
 	auto pAction = new SE_replaceInstrumentAction(
 		pNewInstrument, m_pInstrument,
 		SE_replaceInstrumentAction::Type::DeleteComponent, sName );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 
 	selectComponent(
 		std::clamp( m_nSelectedComponent, 0,

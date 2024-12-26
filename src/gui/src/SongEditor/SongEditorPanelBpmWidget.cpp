@@ -27,8 +27,6 @@
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 #include "SongEditorPanelBpmWidget.h"
-#include "SongEditorPanel.h"
-#include "SongEditor.h"
 #include "../Widgets/Button.h"
 
 #include <core/Hydrogen.h>
@@ -121,8 +119,10 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 	
 	float fOldBpm = pTimeline->getTempoAtColumn( m_nColumn );
 
-	SE_editTimelineAction *action = new SE_editTimelineAction( m_nColumn, nNewColumn, fOldBpm, bpmSpinBox->value(), m_bTempoMarkerPresent );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	auto pAction = new SE_editTimelineAction(
+		m_nColumn, nNewColumn, fOldBpm, bpmSpinBox->value(),
+		m_bTempoMarkerPresent );
+	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 	accept();
 }
 
@@ -134,8 +134,8 @@ void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 
 	float fBpm = pTimeline->getTempoAtColumn( m_nColumn );
 
-	SE_deleteTimelineAction *action = new SE_deleteTimelineAction( m_nColumn, fBpm );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	auto pAction = new SE_deleteTimelineAction( m_nColumn, fBpm );
+	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 	accept();
 }
 

@@ -37,7 +37,6 @@
 
 #include "CommonStrings.h"
 #include "UndoActions.h"
-#include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../Widgets/Button.h"
@@ -342,7 +341,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					auto pAction = new SE_addInstrumentAction(
 						pNewInstrument, -1,
 						SE_addInstrumentAction::Type::AddEmptyInstrument );
-					HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+					HydrogenApp::get_instance()->pushUndoCommand( pAction );
 				}
 			}
 	} );
@@ -939,7 +938,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 			return;
 		}
 
-		HydrogenApp::get_instance()->m_pUndoStack->push(
+		HydrogenApp::get_instance()->pushUndoCommand(
 			new SE_moveInstrumentAction( nSourceRow, nTargetRow ) );
 
 		event->acceptProposedAction();
@@ -987,7 +986,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		auto pAction = new SE_addInstrumentAction(
 			std::make_shared<Instrument>(pTargetInstrument), nTargetRowSE,
 			SE_addInstrumentAction::Type::DropInstrument );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+		HydrogenApp::get_instance()->pushUndoCommand( pAction );
 
 		event->acceptProposedAction();
 	}

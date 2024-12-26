@@ -1332,17 +1332,19 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		return;
 	}
 
-	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( tr( "Change pattern size to %1/%2" )
-							.arg( fNewNumerator ).arg( fNewDenominator ) );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	pHydrogenApp->beginUndoMacro( tr( "Change pattern size to %1/%2" )
+								  .arg( fNewNumerator ).arg( fNewDenominator ) );
 
-	pUndoStack->push( new SE_patternSizeChangedAction(
-						  nNewLength,
-						  m_pPattern->getLength(),
-						  fNewDenominator,
-						  m_pPattern->getDenominator(),
-						  m_nPatternNumber ) );
-	pUndoStack->endMacro();
+	pHydrogenApp->pushUndoCommand(
+		new SE_patternSizeChangedAction(
+			nNewLength,
+			m_pPattern->getLength(),
+			fNewDenominator,
+			m_pPattern->getDenominator(),
+			m_nPatternNumber ) );
+
+	pHydrogenApp->endUndoMacro();
 }
 
 void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenominator,
@@ -1934,16 +1936,17 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
 
 	const auto row = getRowDB( nRow );
 
-	auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	if ( nRow != -1 ) {
-		pUndo->beginMacro(
+		pHydrogenApp->beginUndoMacro(
 			QString( "%1 [%2]" )
 			.arg( pCommonStrings->getActionClearAllNotesInRow() )
 			.arg( nRow ) );
 	}
 	else {
-		pUndo->beginMacro( pCommonStrings->getActionClearAllNotes() );
+		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionClearAllNotes() );
 	}
 
 	for ( const auto& ppPattern : *pPatternList ) {
@@ -1958,25 +1961,26 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
 			}
 
 			for ( const auto& ppNote : notes ) {
-				pUndo->push( new SE_addOrRemoveNoteAction(
-								 ppNote->get_position(),
-								 ppNote->get_instrument_id(),
-								 ppNote->getType(),
-								 pSong->getPatternList()->index( ppPattern ),
-								 ppNote->get_length(),
-								 ppNote->get_velocity(),
-								 ppNote->getPan(),
-								 ppNote->get_lead_lag(),
-								 ppNote->get_key(),
-								 ppNote->get_octave(),
-								 ppNote->get_probability(),
-								 /* bIsDelete */ true,
-								 /* bIsMidi */ false,
-								 ppNote->get_note_off() ) );
+				pHydrogenApp->pushUndoCommand(
+					new SE_addOrRemoveNoteAction(
+						ppNote->get_position(),
+						ppNote->get_instrument_id(),
+						ppNote->getType(),
+						pSong->getPatternList()->index( ppPattern ),
+						ppNote->get_length(),
+						ppNote->get_velocity(),
+						ppNote->getPan(),
+						ppNote->get_lead_lag(),
+						ppNote->get_key(),
+						ppNote->get_octave(),
+						ppNote->get_probability(),
+						/* bIsDelete */ true,
+						/* bIsMidi */ false,
+						ppNote->get_note_off() ) );
 			}
 		}
 	}
-	pUndo->endMacro();
+	pHydrogenApp->endUndoMacro();
 
 	if ( nPattern != -1 ) {
 		delete pPatternList;
@@ -2045,17 +2049,17 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 	}
 
 	if ( notePositions.size() > 0 ) {
-		auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-		pUndo->beginMacro( FillNotesToQString( every ) );
+		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
 			m_pDrumPatternEditor->addOrRemoveNote(
 				nnPosition, nnPosition, nRow, KEY_MIN, OCTAVE_DEFAULT,
 				true /* bDoAdd */, false /* bDoDelete */,
 				false /* bIsNoteOff */ );
 		}
-		pUndo->endMacro();
+		pHydrogenApp->endUndoMacro();
 	}
 }
 
@@ -2085,14 +2089,14 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow ) {
 }
 
 void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow ) {
-	auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	copyNotesFromRowOfAllPatterns( nRow );
 
-	pUndo->beginMacro( pCommonStrings->getActionCutAllNotes() );
+	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionCutAllNotes() );
 	clearNotesInRow( nRow, -1 );
-	pUndo->endMacro();
+	pHydrogenApp->endUndoMacro();
 }
 
 void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
@@ -2130,34 +2134,35 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
 		return;
 	}
 
-	auto pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	// Those patterns contain only notes of a single row.
-	pUndo->beginMacro( pCommonStrings->getActionPasteAllNotes() );
+	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionPasteAllNotes() );
 	for ( auto& ppPattern : *pPatternList ) {
 		if ( ppPattern != nullptr ) {
 			for ( auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr ) {
-					pUndo->push( new SE_addOrRemoveNoteAction(
-									 ppNote->get_position(),
-									 ppNote->get_instrument_id(),
-									 ppNote->getType(),
+					pHydrogenApp->pushUndoCommand(
+						new SE_addOrRemoveNoteAction(
+							ppNote->get_position(),
+							ppNote->get_instrument_id(),
+							ppNote->getType(),
 									 pPatternList->index( ppPattern ),
-									 ppNote->get_length(),
-									 ppNote->get_velocity(),
-									 ppNote->getPan(),
-									 ppNote->get_lead_lag(),
-									 ppNote->get_key(),
-									 ppNote->get_octave(),
-									 ppNote->get_probability(),
-									 /* bIsDelete */ false,
-									 /* bIsMidi */ false,
-									 ppNote->get_note_off() ) );
+							ppNote->get_length(),
+							ppNote->get_velocity(),
+							ppNote->getPan(),
+							ppNote->get_lead_lag(),
+							ppNote->get_key(),
+							ppNote->get_octave(),
+							ppNote->get_probability(),
+							/* bIsDelete */ false,
+							/* bIsMidi */ false,
+							ppNote->get_note_off() ) );
 				}
 			}
 		}
 	}
-	pUndo->endMacro();
+	pHydrogenApp->endUndoMacro();
 	delete pPatternList;
 }

@@ -727,12 +727,12 @@ void NotePropertiesRuler::addUndoAction()
 
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
-		QUndoStack *pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+		auto pHydrogenApp = HydrogenApp::get_instance();
 
 		if ( nSize != 1 ) {
-			pUndoStack->beginMacro( QString( tr( "Edit [%1] property of [%2] notes" ) )
-									.arg( PatternEditor::modeToQString( m_mode ) )
-									.arg( nSize ) );
+			pHydrogenApp->beginUndoMacro(
+				QString( tr( "Edit [%1] property of [%2] notes" ) )
+				.arg( PatternEditor::modeToQString( m_mode ) ).arg( nSize ) );
 		}
 		for ( auto it : m_oldNotes ) {
 			Note *pNewNote = it.first, *pOldNote = it.second;
@@ -753,29 +753,30 @@ void NotePropertiesRuler::addUndoAction()
 										  pOldNote->get_octave() );
 			}
 
-			pUndoStack->push( new SE_editNotePropertiesAction(
-								  m_mode,
-								  m_pPatternEditorPanel->getPatternNumber(),
-								  pNewNote->get_position(),
-								  pOldNote->get_instrument_id(),
-								  pOldNote->getType(),
-								  pNewNote->get_velocity(),
-								  pOldNote->get_velocity(),
-								  pNewNote->getPan(),
-								  pOldNote->getPan(),
-								  pNewNote->get_lead_lag(),
-								  pOldNote->get_lead_lag(),
-								  pNewNote->get_probability(),
-								  pOldNote->get_probability(),
-								  pNewNote->get_length(),
-								  pOldNote->get_length(),
-								  nNewKey,
-								  pOldNote->get_key(),
-								  nNewOctave,
-								  pOldNote->get_octave() ) );
+			pHydrogenApp->pushUndoCommand(
+				new SE_editNotePropertiesAction(
+					m_mode,
+					m_pPatternEditorPanel->getPatternNumber(),
+					pNewNote->get_position(),
+					pOldNote->get_instrument_id(),
+					pOldNote->getType(),
+					pNewNote->get_velocity(),
+					pOldNote->get_velocity(),
+					pNewNote->getPan(),
+					pOldNote->getPan(),
+					pNewNote->get_lead_lag(),
+					pOldNote->get_lead_lag(),
+					pNewNote->get_probability(),
+					pOldNote->get_probability(),
+					pNewNote->get_length(),
+					pOldNote->get_length(),
+					nNewKey,
+					pOldNote->get_key(),
+					nNewOctave,
+					pOldNote->get_octave() ) );
 		}
 		if ( nSize != 1 ) {
-			pUndoStack->endMacro();
+			pHydrogenApp->endUndoMacro();
 		}
 	}
 	clearOldNotes();

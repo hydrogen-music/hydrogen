@@ -148,14 +148,17 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	setFont( font );
 	m_pQApp->setFont( font );
 
-	h2app = new HydrogenApp( this );
+	// Setup undo stack
+	auto pUndoStack = new QUndoStack( this );
+
+	h2app = new HydrogenApp( this, pUndoStack );
 	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();
 	// The menu bar will be created anew each time the shortcuts are altered in
 	// the Preferences. But we need to wire the corresponding actions only once
 	// or they are triggered each 1 + N times the number of shortcut changes.
-	connect( h2app->m_pUndoStack, &QUndoStack::canUndoChanged,
+	connect( pUndoStack, &QUndoStack::canUndoChanged,
 			 []( bool bCanUndo ) {
 				 auto pUndoAction =
 					 HydrogenApp::get_instance()->getMainForm()->m_pUndoAction;
@@ -163,7 +166,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 					 pUndoAction->setEnabled( bCanUndo );
 				 }
 			 } );
-	connect( h2app->m_pUndoStack, &QUndoStack::canRedoChanged,
+	connect( pUndoStack, &QUndoStack::canRedoChanged,
 			 []( bool bCanRedo ) {
 				 auto pRedoAction =
 					 HydrogenApp::get_instance()->getMainForm()->m_pRedoAction;
@@ -223,7 +226,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 
 	auto pCommonStrings = h2app->getCommonStrings();
 
-	m_pUndoView = new QUndoView( h2app->m_pUndoStack );
+	m_pUndoView = new QUndoView( pUndoStack );
 	m_pUndoView->setWindowTitle( QString( "Hydrogen - %1" )
 								 .arg( pCommonStrings->getUndoHistoryTitle() ) );
 
@@ -1125,7 +1128,7 @@ void MainForm::action_file_openPattern()
 				
 				SE_insertPatternAction* pAction =
 					new SE_insertPatternAction( nRow, pNewPattern );
-				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+				HydrogenApp::get_instance()->pushUndoCommand( pAction );
 			}
 		}
 	}
@@ -1343,7 +1346,7 @@ void MainForm::action_drumkit_new()
 	auto pAction = new SE_switchDrumkitAction(
 		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(),
 		SE_switchDrumkitAction::Type::NewDrumkit );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 }
 
 void MainForm::action_drumkit_addInstrument()
@@ -1351,7 +1354,7 @@ void MainForm::action_drumkit_addInstrument()
 	auto pAction = new SE_addInstrumentAction(
 		std::make_shared<Instrument>(), -1,
 		SE_addInstrumentAction::Type::AddEmptyInstrument );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 }
 
 void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
@@ -1377,12 +1380,12 @@ void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 			std::make_shared<Instrument>(), pSelectedInstrument,
 			SE_replaceInstrumentAction::Type::DeleteLastInstrument,
 			pSelectedInstrument->get_name() );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+		HydrogenApp::get_instance()->pushUndoCommand( pAction );
 	}
 	else {
 		auto pAction = new SE_deleteInstrumentAction(
 			pSelectedInstrument, nInstrumentIndex );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+		HydrogenApp::get_instance()->pushUndoCommand( pAction );
 	}
 }
 
@@ -1410,7 +1413,7 @@ void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
 		auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
 		pNewInstrument->set_name( sNewName );
 
-		HydrogenApp::get_instance()->m_pUndoStack->push(
+		HydrogenApp::get_instance()->pushUndoCommand(
 			new SE_replaceInstrumentAction(
 				pNewInstrument, pInstrument,
 				SE_replaceInstrumentAction::Type::RenameInstrument,
@@ -2425,7 +2428,7 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 	auto pAction = new SE_switchDrumkitAction(
 		pTargetKit, Hydrogen::get_instance()->getSong()->getDrumkit(),
 		SE_switchDrumkitAction::Type::SwitchDrumkit );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 
 	return true;
 }

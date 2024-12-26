@@ -203,12 +203,22 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 			  pattern->getInfo() != sPattInfo  ||
 			  pattern->getLicense() != license  ||
 			  pattern->getCategory() != sPattCategory ) {
-		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(
-			pattern->getVersion(), pattern->getName(), pattern->getAuthor(),
-			pattern->getInfo(), pattern->getLicense(), pattern->getCategory(),
-			nVersion, sPattName, sAuthor, sPattInfo, license, sPattCategory,
-			__nselectedPattern );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		SE_modifyPatternPropertiesAction *action =
+			new SE_modifyPatternPropertiesAction(
+				pattern->getVersion(),
+				pattern->getName(),
+				pattern->getAuthor(),
+				pattern->getInfo(),
+				pattern->getLicense(),
+				pattern->getCategory(),
+				nVersion,
+				sPattName,
+				sAuthor,
+				sPattInfo,
+				license,
+				sPattCategory,
+				__nselectedPattern );
+		HydrogenApp::get_instance()->pushUndoCommand( action );
 	}
 	accept();
 }

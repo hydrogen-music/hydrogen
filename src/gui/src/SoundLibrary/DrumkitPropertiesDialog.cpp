@@ -750,7 +750,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		auto pAction = new SE_switchDrumkitAction(
 			m_pDrumkit, pSong->getDrumkit(),
 			SE_switchDrumkitAction::Type::EditProperties );
-		pHydrogenApp->m_pUndoStack->push( pAction );
+		pHydrogenApp->pushUndoCommand( pAction );
 
 		// Since we hit save on the song's drumkit, we should also save the song
 		// for the sake of consistency.

@@ -20,45 +20,39 @@
  *
  */
 
-#include <core/config.h>
-#include <core/Version.h>
-#include <core/Hydrogen.h>
-#include <core/EventQueue.h>
-#include <core/FX/LadspaFX.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Helpers/Filesystem.h>
-
 #include "HydrogenApp.h"
-#include "CommonStrings.h"
-#include "PreferencesDialog/PreferencesDialog.h"
-#include "MainForm.h"
-#include "PlayerControl.h"
-#include "AudioEngineInfoForm.h"
-#include "FilesystemInfoForm.h"
-#include "LadspaFXProperties.h"
-#include "InstrumentRack.h"
-#include "Director.h"
-
-#include "PatternEditor/PatternEditorPanel.h"
-#include "PatternEditor/PatternEditorRuler.h"
-#include "PatternEditor/NotePropertiesRuler.h"
-#include "PatternEditor/PianoRollEditor.h"
-#include "PatternEditor/DrumPatternEditor.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
-#include "SongEditor/SongEditor.h"
-#include "SongEditor/SongEditorPanel.h"
-#include "PlaylistEditor/PlaylistEditor.h"
-#include "SampleEditor/SampleEditor.h"
-#include "Mixer/Mixer.h"
-#include "Mixer/MixerLine.h"
-#include "UndoActions.h"
 
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/PatternList.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/PatternList.h>
+#include <core/config.h>
+#include <core/EventQueue.h>
+#include <core/FX/LadspaFX.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Version.h>
 
+#include "AudioEngineInfoForm.h"
+#include "CommonStrings.h"
+#include "Director.h"
+#include "FilesystemInfoForm.h"
+#include "InstrumentRack.h"
+#include "LadspaFXProperties.h"
+#include "MainForm.h"
+#include "Mixer/Mixer.h"
+#include "PatternEditor/PatternEditorPanel.h"
+#include "PatternEditor/PatternEditorRuler.h"
+#include "PlayerControl.h"
+#include "PlaylistEditor/PlaylistEditor.h"
+#include "PreferencesDialog/PreferencesDialog.h"
+#include "SongEditor/SongEditor.h"
+#include "SongEditor/SongEditorPanel.h"
+#include "SampleEditor/SampleEditor.h"
+#include "UndoActions.h"
 #include "Widgets/AutomationPathView.h"
 #include "Widgets/InfoBar.h"
+
 
 #include <QtGui>
 #include <QtWidgets>
@@ -69,7 +63,7 @@ using namespace H2Core;
 
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 
-HydrogenApp::HydrogenApp( MainForm *pMainForm )
+HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  : m_pMainForm( pMainForm )
  , m_pMixer( nullptr )
  , m_pPatternEditorPanel( nullptr )
@@ -82,6 +76,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_nPreferencesUpdateTimeout( 100 )
  , m_bufferedChanges( H2Core::Preferences::Changes::None )
  , m_pMainScrollArea( new QScrollArea )
+ , m_pUndoStack( pUndoStack )
 {
 	m_pInstance = this;
 
@@ -97,9 +92,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()), this, SLOT(propagatePreferences()) );
 
 	m_pCommonStrings = std::make_shared<CommonStrings>();
-
-	//setup the undo stack
-	m_pUndoStack = new QUndoStack( this );
 
 	updateWindowTitle();
 
@@ -380,7 +372,26 @@ InfoBar *HydrogenApp::addInfoBar() {
 	return pInfoBar;
 }
 
+void HydrogenApp::pushUndoCommand( QUndoCommand* pCommand ) {
+	m_pUndoStack->push( pCommand );
+}
 
+void HydrogenApp::beginUndoMacro( const QString& sText ) {
+	if ( ! m_pUndoStack->canUndo() && ! m_pUndoStack->canRedo() ) {
+		// There is most probably already a macro which has not been ended yet.
+		// We do not support nested marcos yet, because we a) do not need them
+		// yet and b) want to ensure all beginMacro() and endMacro() are
+		// properly balanced.
+		WARNINGLOG( "There was already an unbalanced macro. Ending it first." );
+		m_pUndoStack->endMacro();
+	}
+
+	m_pUndoStack->beginMacro( sText );
+}
+
+void HydrogenApp::endUndoMacro() {
+	m_pUndoStack->endMacro();
+}
 
 void HydrogenApp::currentTabChanged(int index)
 {
@@ -1080,43 +1091,43 @@ void HydrogenApp::onEventQueueTimer()
 					  pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 					  pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
 		
-		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-		pUndoStack->beginMacro( tr( "Input Midi Note" ) );
+		beginUndoMacro( tr( "Input Midi Note" ) );
 		if ( pOldNote != nullptr ) { // note found => remove it
-			pUndoStack->push( new SE_addOrRemoveNoteAction(
-								  pOldNote->get_position(),
-								  pOldNote->get_instrument_id(),
-								  pOldNote->getType(),
-								  pQueue->m_addMidiNoteVector[0].m_pattern,
-								  pOldNote->get_length(),
-								  pOldNote->get_velocity(),
-								  pOldNote->getPan(),
-								  pOldNote->get_lead_lag(),
-								  pOldNote->get_key(),
-								  pOldNote->get_octave(),
-								  pOldNote->get_probability(),
-								  /*isDelete*/ true,
-								  /*isMidi*/ false,
-								  /*isNoteOff*/ false ) );
+			pushUndoCommand( new SE_addOrRemoveNoteAction(
+								 pOldNote->get_position(),
+								 pOldNote->get_instrument_id(),
+								 pOldNote->getType(),
+								 pQueue->m_addMidiNoteVector[0].m_pattern,
+								 pOldNote->get_length(),
+								 pOldNote->get_velocity(),
+								 pOldNote->getPan(),
+								 pOldNote->get_lead_lag(),
+								 pOldNote->get_key(),
+								 pOldNote->get_octave(),
+								 pOldNote->get_probability(),
+								 /*isDelete*/ true,
+								 /*isMidi*/ false,
+								 /*isNoteOff*/ false ) );
 		}
 		
 		// add the new note
-		pUndoStack->push( new SE_addOrRemoveNoteAction(
-			pQueue->m_addMidiNoteVector[0].m_column,
-			row.nInstrumentID,
-			row.sType,
-			pQueue->m_addMidiNoteVector[0].m_pattern,
-			pQueue->m_addMidiNoteVector[0].m_length,
-			pQueue->m_addMidiNoteVector[0].f_velocity,
-			pQueue->m_addMidiNoteVector[0].f_pan,
-			LEAD_LAG_DEFAULT,
-			pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-			pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-			PROBABILITY_DEFAULT,
-			/*isDelete*/ false,
-			pQueue->m_addMidiNoteVector[0].b_isMidi,
-			/*isNoteOff*/ false ) );
-		pUndoStack->endMacro();
+		pushUndoCommand( new SE_addOrRemoveNoteAction(
+							 pQueue->m_addMidiNoteVector[0].m_column,
+							 row.nInstrumentID,
+							 row.sType,
+							 pQueue->m_addMidiNoteVector[0].m_pattern,
+							 pQueue->m_addMidiNoteVector[0].m_length,
+							 pQueue->m_addMidiNoteVector[0].f_velocity,
+							 pQueue->m_addMidiNoteVector[0].f_pan,
+							 LEAD_LAG_DEFAULT,
+							 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+							 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+							 PROBABILITY_DEFAULT,
+							 /*isDelete*/ false,
+							 pQueue->m_addMidiNoteVector[0].b_isMidi,
+							 /*isNoteOff*/ false ) );
+		endUndoMacro();
+
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
 	}
 }
