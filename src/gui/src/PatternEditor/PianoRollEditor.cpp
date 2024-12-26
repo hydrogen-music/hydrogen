@@ -94,41 +94,10 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	if (!isVisible()) {
 		return;
 	}
-	
-	const auto pPref = Preferences::get_instance();
-	
-	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 m_bBackgroundInvalid || m_update == Update::Background ) {
-		createBackground();
-	}
+
+	PatternEditor::paintEvent( ev );
 
 	QPainter painter( this );
-
-	if ( m_update == Update::Background || m_update == Update::Pattern ) {
-		drawPattern();
-		m_update = Update::None;
-	}
-
-
-	painter.drawPixmap( ev->rect(), *m_pPatternPixmap,
-						QRectF( pixelRatio * ev->rect().x(),
-								pixelRatio * ev->rect().y(),
-								pixelRatio * ev->rect().width(),
-								pixelRatio * ev->rect().height() ) );
-
-	// Draw playhead
-	if ( m_nTick != -1 ) {
-
-		int nOffset = Skin::getPlayheadShaftOffset();
-		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
-								  static_cast<float>(m_nTick) *
-								  m_fGridWidth );
-		Skin::setPlayheadPen( &painter, false );
-		painter.drawLine( nX, 2, nX, height() - 2 );
-	}
-
-	drawFocus( painter );
 
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
@@ -149,20 +118,6 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 				drawNote( painter, ppNote, style );
 			}
 		}
-	}
-
-	m_selection.paintSelection( &painter );
-
-	// Draw cursor
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		QPoint pos = getCursorPosition();
-
-		QPen pen( pPref->getTheme().m_color.m_cursorColor );
-		pen.setWidth( 2 );
-		painter.setPen( pen );
-		painter.setBrush( Qt::NoBrush );
-		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
 }
 
@@ -228,12 +183,12 @@ void PianoRollEditor::createBackground()
 		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
 		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
 		delete m_pBackgroundPixmap;
-		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio,
-										   height() * pixelRatio );
+		m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+										   m_nEditorHeight * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 		delete m_pPatternPixmap;
-		m_pPatternPixmap = new QPixmap( width()  * pixelRatio,
-										height() * pixelRatio );
+		m_pPatternPixmap = new QPixmap( m_nEditorWidth  * pixelRatio,
+										m_nEditorHeight * pixelRatio );
 		m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
 	}
 

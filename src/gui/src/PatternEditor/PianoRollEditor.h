@@ -56,8 +56,8 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 	private:
 		void createBackground() override;
-		void drawPattern();
-		void drawFocus( QPainter& painter );
+		void drawPattern() override;
+		void drawFocus( QPainter& painter ) override;
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;

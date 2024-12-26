@@ -344,7 +344,11 @@ protected:
 	 */
 	void drawNote( QPainter &p, H2Core::Note *pNote, NoteStyle noteStyle ) const;
 
-	/** Updates #m_pBackgroundPixmap to show the latest content. */
+		/** Update #m_pPatternPixmap based on #m_pBackgroundPixmap to show the
+		 * latest content of all active pattern. */
+		virtual void drawPattern();
+		virtual void drawFocus( QPainter& p );
+	/** Updates #m_pBackgroundPixmap. */
 	virtual void createBackground();
 	void invalidateBackground();
 	QPixmap* m_pBackgroundPixmap;
@@ -371,6 +375,7 @@ protected:
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;
+		virtual void paintEvent( QPaintEvent* ev ) override;
 
 	int m_nTick;
 

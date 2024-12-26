@@ -790,38 +790,9 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		return;
 	}
 
-	const auto pPref = Preferences::get_instance();
-	
-	const qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 m_bBackgroundInvalid || m_update == Update::Background  ) {
-		createBackground();
-	}
+	PatternEditor::paintEvent( ev );
 
-	if ( m_update == Update::Background || m_update == Update::Pattern ) {
-		drawPattern();
-		m_update = Update::None;
-	}
-
-	QPainter painter(this);
-	painter.drawPixmap( ev->rect(), *m_pPatternPixmap,
-						QRectF( pixelRatio * ev->rect().x(),
-								pixelRatio * ev->rect().y(),
-								pixelRatio * ev->rect().width(),
-								pixelRatio * ev->rect().height() ) );
-
-	// Draw playhead
-	if ( m_nTick != -1 ) {
-
-		int nOffset = Skin::getPlayheadShaftOffset();
-		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
-								  static_cast<float>(m_nTick) *
-								  m_fGridWidth );
-		Skin::setPlayheadPen( &painter, false );
-		painter.drawLine( nX, 0, nX, height() );
-	}
-	
-	drawFocus( painter );
+	QPainter painter( this );
 
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
@@ -845,18 +816,6 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 				++nOffsetX;
 			}
 		}
-	}
-
-	m_selection.paintSelection( &painter );
-
-	// cursor
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		QPen pen( pPref->getTheme().m_color.m_cursorColor );
-		pen.setWidth( 2 );
-		painter.setPen( pen );
-		painter.setBrush( Qt::NoBrush );
-		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
 }
 

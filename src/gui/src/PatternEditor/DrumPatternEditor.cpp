@@ -520,39 +520,10 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 	if (!isVisible()) {
 		return;
 	}
-	
-	const auto pPref = Preferences::get_instance();
-	
-	const qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 m_bBackgroundInvalid || m_update == Update::Background ) {
-		createBackground();
-	}
 
-	if ( m_update == Update::Background || m_update == Update::Pattern ) {
-		drawPattern();
-		m_update = Update::None;
-	}
+	PatternEditor::paintEvent( ev );
 
 	QPainter painter( this );
-	painter.drawPixmap( ev->rect(), *m_pPatternPixmap,
-						QRectF( pixelRatio * ev->rect().x(),
-								pixelRatio * ev->rect().y(),
-								pixelRatio * ev->rect().width(),
-								pixelRatio * ev->rect().height() ) );
-
-	// Draw playhead
-	if ( m_nTick != -1 ) {
-
-		const int nOffset = Skin::getPlayheadShaftOffset();
-		const int nX = static_cast<int>(
-			static_cast<float>(PatternEditor::nMargin) +
-			static_cast<float>(m_nTick) * m_fGridWidth );
-		Skin::setPlayheadPen( &painter, false );
-		painter.drawLine( nX, 0, nX, height() );
-	}
-	
-	drawFocus( painter );
 
 	// Draw hovered note
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -567,18 +538,6 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 				NoteStyle::Selected | baseStyle : baseStyle );
 			drawNote( painter, ppNote, style );
 		}
-	}
-	
-	m_selection.paintSelection( &painter );
-
-	// Draw cursor
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		QPen p( pPref->getTheme().m_color.m_cursorColor );
-		p.setWidth( 2 );
-		painter.setPen( p );
-		painter.setBrush( Qt::NoBrush );
-		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( getKeyboardCursorRect(), 4, 4 );
 	}
 }
 
