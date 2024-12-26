@@ -97,6 +97,7 @@ public:
 			/** Update the background image. */
 			Background = 2
 		};
+		static QString updateToQString( const Update& update );
 
 	PatternEditor( QWidget *pParent );
 	~PatternEditor();

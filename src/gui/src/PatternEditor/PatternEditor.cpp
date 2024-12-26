@@ -2875,6 +2875,19 @@ QString PatternEditor::modeToQString( const Mode& mode ) {
 	return s;
 }
 
+QString PatternEditor::updateToQString( const Update& update ) {
+	switch ( update ) {
+	case PatternEditor::Update::Background:
+		return "Background";
+	case PatternEditor::Update::Pattern:
+		return "Pattern";
+	case PatternEditor::Update::None:
+		return "None";
+	default:
+		return QString( "Unknown update [%1]" ).arg( static_cast<int>(update) ) ;
+	}
+}
+
 void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
 	QString s;
 	QString sCaller( _class_name() );
