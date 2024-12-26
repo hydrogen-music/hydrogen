@@ -1842,9 +1842,9 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 		// Takes care of the update.
 		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
-	else {
-		update();
-	}
+
+	// update focus and hovered notes
+	update();
 }
 
 void PatternEditor::focusInEvent( QFocusEvent *ev ) {

@@ -824,18 +824,6 @@ void NotePropertiesRuler::scrolled( int nValue ) {
 	update();
 }
 
-void NotePropertiesRuler::enterEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = true;
-	update();
-}
-
-void NotePropertiesRuler::leaveEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = false;
-	update();
-}
-
 void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 												 int nIncrement ) {
 	

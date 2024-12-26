@@ -114,8 +114,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void keyPressEvent( QKeyEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( const QPoint& point );
-		void enterEvent( QEvent *ev ) override;
-		void leaveEvent( QEvent *ev ) override;
 
 		//! Map of notes currently in the pattern -> old notes with their
 		//! properties. Populated at the beginning of a properties editing
