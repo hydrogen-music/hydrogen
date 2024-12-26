@@ -792,14 +792,19 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 
 	const auto pPref = Preferences::get_instance();
 	
-	qreal pixelRatio = devicePixelRatio();
+	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 m_bBackgroundInvalid ) {
+		 m_bBackgroundInvalid || m_update == Update::Background  ) {
 		createBackground();
 	}
 
+	if ( m_update == Update::Background || m_update == Update::Pattern ) {
+		drawPattern();
+		m_update = Update::None;
+	}
+
 	QPainter painter(this);
-	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
+	painter.drawPixmap( ev->rect(), *m_pPatternPixmap,
 						QRectF( pixelRatio * ev->rect().x(),
 								pixelRatio * ev->rect().y(),
 								pixelRatio * ev->rect().width(),
@@ -841,7 +846,6 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 			}
 		}
 	}
-
 
 	m_selection.paintSelection( &painter );
 
@@ -1146,34 +1150,27 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 	}
 }
 
-void NotePropertiesRuler::updateEditor( bool )
+void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 {
-	updateWidth();
+	const bool bFullUpdate = updateWidth();
 
-	invalidateBackground();
+	if ( bPatternOnly && ! bFullUpdate ) {
+		m_update = Update::Pattern;
+	} else {
+		m_update = Update::Background;
+	}
+
 	update();
 }
 
 void NotePropertiesRuler::createBackground()
 {
-	qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
-		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
-		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
-		delete m_pBackgroundPixmap;
-		m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio ,
-										   m_nEditorHeight * pixelRatio );
-		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-	}
-
-	m_bBackgroundInvalid = false;
-
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	const QColor backgroundInactiveColor(
 		pPref->getTheme().m_color.m_windowColor );
-	const QColor lineColor(
+	QColor lineColor(
 		pPref->getTheme().m_color.m_patternEditor_lineColor );
 	QColor textColor( pPref->getTheme().m_color.m_patternEditor_textColor );
 	const QColor lineInactiveColor(
@@ -1183,11 +1180,29 @@ void NotePropertiesRuler::createBackground()
 	const QColor octaveColor =
 		pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
 
+	if ( ! hasFocus() ) {
+		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
+	}
+
+	const qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
+		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
+		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio ,
+										   m_nEditorHeight * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+		delete m_pPatternPixmap;
+		m_pPatternPixmap = new QPixmap( m_nEditorWidth  * pixelRatio,
+										m_nEditorHeight * pixelRatio );
+		m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
+	}
+
+	m_pBackgroundPixmap->fill( backgroundInactiveColor );
+
 	QPainter p( m_pBackgroundPixmap );
 
 	if ( m_layout == Layout::KeyOctave ) {
-		p.fillRect( 0, 0, m_nEditorWidth, m_nEditorHeight,
-					backgroundInactiveColor );
 		drawDefaultBackground( p, NotePropertiesRuler::nOctaveHeight -
 							   NotePropertiesRuler::nKeyOctaveSpaceHeight,
 							   NotePropertiesRuler::nKeyLineHeight );
@@ -1285,9 +1300,46 @@ void NotePropertiesRuler::createBackground()
 		}
 	}
 
-	// draw pattern
+	// draw border
+	p.setPen( lineColor );
+	p.setRenderHint( QPainter::Antialiasing );
+	p.drawLine( 0, 0, m_nEditorWidth, 0 );
+	p.setPen( QPen( lineColor, 2 ) );
+	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
+
+	// draw inactive region
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
+		p.setPen( QPen( lineInactiveColor, 2 ) );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight,
+					m_nEditorWidth, m_nEditorHeight );
+	}
+
+	m_bBackgroundInvalid = false;
+}
+
+void NotePropertiesRuler::drawPattern() {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	validateSelection();
+
+	qreal pixelRatio = devicePixelRatio();
+
+	QPainter p( m_pPatternPixmap );
+	// copy the background image
+	p.drawPixmap( rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * rect().x(),
+								pixelRatio * rect().y(),
+								pixelRatio * rect().width(),
+								pixelRatio * rect().height() ) );
+
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
+
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const auto baseStyle = ppPattern == pPattern ?
 			NoteStyle::Foreground : NoteStyle::Background;
@@ -1329,22 +1381,6 @@ void NotePropertiesRuler::createBackground()
 				++nOffsetX;
 			}
 		}
-	}
-
-	// draw border
-	p.setPen( lineColor );
-	p.setRenderHint( QPainter::Antialiasing );
-	p.drawLine( 0, 0, m_nEditorWidth, 0 );
-	p.setPen( QPen( lineColor, 2 ) );
-	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
-
-	// draw inactive region
-	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
-		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
-		p.setPen( QPen( lineInactiveColor, 2 ) );
-		p.drawLine( m_nActiveWidth, m_nEditorHeight,
-					m_nEditorWidth, m_nEditorHeight );
 	}
 }
 
