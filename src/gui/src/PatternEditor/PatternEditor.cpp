@@ -3191,13 +3191,26 @@ void PatternEditor::updateHoveredNotesKeyboard() {
 }
 
 bool PatternEditor::syncLasso() {
+
+	const int nMargin = 5;
+
 	bool bUpdate = false;
 	if ( m_editor == Editor::NotePropertiesRuler ) {
 		auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
 
-		QRect cursor, prevLasso;
+		QRect prevLasso;
 		QRect cursorStart = m_selection.getKeyboardCursorStart();
 		QRect lasso = m_selection.getLasso();
+		QRect cursor = getKeyboardCursorRect();
+
+		// Ensure lasso is full height as we do not support lasso selecting
+		// notes by property value.
+		lasso.setY( cursor.y() );
+		lasso.setHeight( cursor.height() );
+		cursorStart.setY( cursor.y() );
+		m_selection.syncLasso( m_selection.getSelectionState(),
+							   cursorStart, lasso );
+
 		if ( dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 			// The ruler does not feature a proper y and height coordinate. We
 			// have to ensure to either keep the one already present in the
