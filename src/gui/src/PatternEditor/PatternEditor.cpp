@@ -2045,6 +2045,13 @@ void PatternEditor::drawPattern()
 			}
 		}
 
+		// Handle last column too
+		for ( const auto& [ nnRow, nnNotes ] : notesAtRow ) {
+			if ( nnNotes > 1 ) {
+				posCounts.push_back( { nnRow, nLastColumn, nnNotes } );
+			}
+		}
+
 		// Go through used rows list and draw markers for superimposed notes
 		for ( const auto [ nnRow, nnColumn, nnNotes ] : posCounts ) {
 			// Draw "2x" text to the left of the note
