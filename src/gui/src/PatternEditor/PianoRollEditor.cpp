@@ -24,8 +24,6 @@
 
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
-#include "../HydrogenApp.h"
-#include "../Skin.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Note.h>
@@ -52,8 +50,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 	m_nEditorHeight = OCTAVE_NUMBER * KEYS_PER_OCTAVE * m_nGridHeight;
 
 	resize( m_nEditorWidth, m_nEditorHeight );
-	
-	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_bSelectNewNotes = false;
 }
@@ -259,45 +255,6 @@ void PianoRollEditor::createBackground()
 	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
 
 	m_bBackgroundInvalid = false;
-}
-
-
-void PianoRollEditor::drawPattern()
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	validateSelection();
-
-	qreal pixelRatio = devicePixelRatio();
-	
-	QPainter p( m_pPatternPixmap );
-	// copy the background image
-	p.drawPixmap( rect(), *m_pBackgroundPixmap,
-						QRectF( pixelRatio * rect().x(),
-								pixelRatio * rect().y(),
-								pixelRatio * rect().width(),
-								pixelRatio * rect().height() ) );
-
-	const auto row = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-
-	// for each note...
-	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-		const auto baseStyle = ppPattern ==
-			pPattern ? NoteStyle::Foreground : NoteStyle::Background;
-		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
-			if ( ppNote != nullptr && ppNote->getType() == row.sType &&
-				 ppNote->get_instrument_id() == row.nInstrumentID ) {
-				const auto style = static_cast<NoteStyle>(
-					m_selection.isSelected( ppNote ) ?
-					NoteStyle::Selected | baseStyle : baseStyle );
-				drawNote( p, ppNote, style );
-			}
-		}
-	}
 }
 
 void PianoRollEditor::selectAll()

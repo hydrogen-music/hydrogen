@@ -19,22 +19,20 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-
-#include <core/Hydrogen.h>
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
-using namespace H2Core;
-
-#include <cassert>
+#include "NotePropertiesRuler.h"
 
 #include "../HydrogenApp.h"
 
 #include "UndoActions.h"
-#include "NotePropertiesRuler.h"
 #include "PatternEditorPanel.h"
-#include "DrumPatternEditor.h"
-#include "PianoRollEditor.h"
-#include "../Skin.h"
+
+#include <cassert>
+
+#include <core/Hydrogen.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+
+using namespace H2Core;
 
 int NotePropertiesRuler::nKeyOctaveHeight =
 	NotePropertiesRuler::nOctaveHeight +
@@ -45,7 +43,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 										  PatternEditor::Mode mode, Layout layout )
 	: PatternEditor( parent )
 	, m_nDrawPreviousColumn( -1 )
-	, m_bEntered( false )
 	, m_layout( layout )
 {
 
@@ -64,12 +61,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 
 	resize( m_nEditorWidth, m_nEditorHeight );
 	setMinimumHeight( m_nEditorHeight );
-
-	updateEditor();
-	show();
-
-	HydrogenApp::get_instance()->addEventListener( this );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &NotePropertiesRuler::onPreferencesChanged );
 
 	setFocusPolicy( Qt::StrongFocus );
 
@@ -909,7 +900,7 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 
 	QColor color;
 	if ( ! pNote->get_note_off() ) {
-		color = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
+		color = PatternEditor::computeNoteColor( pNote->get_velocity() );
 	} else {
 		color = pPref->getTheme().m_color.m_patternEditor_noteOffColor;
 	}

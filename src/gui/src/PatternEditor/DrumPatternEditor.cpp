@@ -22,8 +22,6 @@
 
 #include "DrumPatternEditor.h"
 #include "PatternEditorPanel.h"
-#include "PatternEditorRuler.h"
-#include "PatternEditorSidebar.h"
 
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
@@ -35,9 +33,6 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/Xml.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-
-#include "../HydrogenApp.h"
-#include "../Skin.h"
 
 #include <math.h>
 #include <cassert>
@@ -253,134 +248,6 @@ void DrumPatternEditor::selectAll()
 		m_selection.addToSelection( it->second );
 	}
 	m_selection.updateWidgetGroup();
-}
-
-///
-/// Draws a pattern
-///
-void DrumPatternEditor::drawPattern()
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-	const auto pPref = H2Core::Preferences::get_instance();
-	const QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-					  getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-	const QColor textColor(
-		pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
-	QColor textBackgroundColor( textColor );
-	textBackgroundColor.setAlpha( 150 );
-
-	validateSelection();
-
-	qreal pixelRatio = devicePixelRatio();
-
-	QPainter p( m_pPatternPixmap );
-	// copy the background image
-	p.drawPixmap( rect(), *m_pBackgroundPixmap,
-						QRectF( pixelRatio * rect().x(),
-								pixelRatio * rect().y(),
-								pixelRatio * rect().width(),
-								pixelRatio * rect().height() ) );
-
-	const auto row = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-
-	// We count notes in each position so we can display markers for rows which
-	// have more than one note in the same position (a chord or genuine
-	// duplicates).
-	int nLastColumn = -1;
-	// Maps the row to the number of notes shown in this very column.
-	std::map<int,int> notesAtRow;
-	struct PosCount {
-		int nRow;
-		int nColumn;
-		int nNoteCount;
-	};
-	std::vector<PosCount> posCounts;
-	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-		posCounts.clear();
-		const auto baseStyle = ppPattern == pPattern ?
-			NoteStyle::Foreground : NoteStyle::Background;
-
-		const auto fontColor = ppPattern == pPattern ?
-			textColor : textBackgroundColor;
-
-		for ( const auto& [ nnColumn, ppNote ] : *ppPattern->getNotes() ) {
-			if ( nnColumn >= ppPattern->getLength() ) {
-				// Notes are located beyond the active length of the editor and
-				// aren't visible even when drawn.
-				break;
-			}
-			if ( ppNote == nullptr ) {
-				continue;
-			}
-
-			auto nRow = m_pPatternEditorPanel->findRowDB( ppNote );
-			auto row = m_pPatternEditorPanel->getRowDB( nRow );
-			if ( nRow == -1 ||
-				 ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) ) {
-				ERRORLOG( QString( "Note [%1] not associated with DB" )
-						  .arg( ppNote->toQString() ) );
-				m_pPatternEditorPanel->printDB();
-				continue;
-			}
-
-			// Check for duplicates
-			if ( nnColumn != nLastColumn ) {
-				// New column
-
-				for ( const auto& [ nnRow, nnNotes ] : notesAtRow ) {
-					if ( nnNotes > 1 ) {
-						posCounts.push_back( { nnRow, nLastColumn, nnNotes } );
-					}
-				}
-
-				if ( nLastColumn != nnColumn ) {
-					nLastColumn = nnColumn;
-				}
-				notesAtRow.clear();
-			}
-
-			// Since the all notes have the same size, we just point the first
-			// one (except it is selected. In case the user presses Cancel on
-			// the deduplication dialog in checkDeselectElements(), there could
-			// be several notes at one position with only a subset being
-			// selected).
-			if ( notesAtRow.find( nRow ) == notesAtRow.end() ||
-				 m_selection.isSelected( ppNote ) ) {
-				const auto style = static_cast<NoteStyle>(
-					m_selection.isSelected( ppNote ) ?
-					NoteStyle::Selected | baseStyle : baseStyle );
-				drawNote( p, ppNote, style );
-			}
-
-			if ( notesAtRow.find( nRow ) == notesAtRow.end() ) {
-				notesAtRow[ nRow ] = 1;
-			}
-			else {
-				++notesAtRow[ nRow ];
-			}
-		}
-
-		// Go through used rows list and draw markers for superimposed notes
-		for ( const auto [ nnRow, nnColumn, nnNotes ] : posCounts ) {
-			// Draw "2x" text to the left of the note
-			const int x = PatternEditor::nMargin +
-				( nnColumn * m_fGridWidth );
-			const int y = nnRow * m_nGridHeight;
-			const int boxWidth = 128;
-
-			p.setFont( font );
-			p.setPen( fontColor );
-
-			p.drawText(
-				QRect( x - boxWidth - 6, y, boxWidth, m_nGridHeight ),
-				Qt::AlignRight | Qt::AlignVCenter,
-				( QString( "%1" ) + QChar( 0x00d7 )).arg( nnNotes ) );
-		}
-	}
 }
 
 void DrumPatternEditor::createBackground() {

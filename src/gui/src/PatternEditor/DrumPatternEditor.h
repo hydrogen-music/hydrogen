@@ -24,11 +24,8 @@
 #ifndef DRUM_PATTERN_EDITOR_H
 #define DRUM_PATTERN_EDITOR_H
 
-#include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
-#include "NotePropertiesRuler.h"
-#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -41,7 +38,8 @@
 /// Drum pattern editor
 ///
 /** \ingroup docGUI*/
-class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
+class DrumPatternEditor : public PatternEditor,
+						  public H2Core::Object<DrumPatternEditor>
 {
     H2_OBJECT(DrumPatternEditor)
 	Q_OBJECT
@@ -62,7 +60,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 
 	private:
 	void createBackground() override;
-		void drawPattern() override;
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;

@@ -23,9 +23,6 @@
 #ifndef NOTE_PROPERTIES_RULER_H
 #define NOTE_PROPERTIES_RULER_H
 
-#include "../EventListener.h"
-#include "../Widgets/WidgetWithScalableFont.h"
-
 #include <QtGui>
 #include <QtWidgets>
 
@@ -40,7 +37,8 @@
 //! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
 //! which property it edits. There are individual instances for each property which are hidden and
 //! shown depending on what the user selects.
-class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
+class NotePropertiesRuler : public PatternEditor,
+							public H2Core::Object<NotePropertiesRuler>
 {
     H2_OBJECT(NotePropertiesRuler)
 	Q_OBJECT
@@ -125,7 +123,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 									  bool bMessage = false );
 
 		int m_nDrawPreviousColumn;
-		bool m_bEntered;
 		Layout m_layout;
 };
 

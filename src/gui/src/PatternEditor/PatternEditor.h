@@ -25,6 +25,7 @@
 
 #include "../EventListener.h"
 #include "../Selection.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -55,6 +56,7 @@ class PatternEditorPanel;
 class PatternEditor : public QWidget,
 					  public EventListener,
 					  public H2Core::Object<PatternEditor>,
+					  protected WidgetWithScalableFont<7, 9, 11>,
 					  public SelectionWidget<H2Core::Note *>
 {
 	H2_OBJECT(PatternEditor)

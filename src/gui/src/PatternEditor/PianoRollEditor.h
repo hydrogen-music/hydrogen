@@ -28,13 +28,13 @@
 #include <core/Basics/Note.h>
 #include "../Selection.h"
 #include "PatternEditor.h"
-#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
 #include <QtWidgets>
 
 /** \ingroup docGUI*/
-class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object<PianoRollEditor>
+class PianoRollEditor: public PatternEditor,
+					   public H2Core::Object<PianoRollEditor>
 {
     H2_OBJECT(PianoRollEditor)
     Q_OBJECT
@@ -55,7 +55,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 	private:
 		void createBackground() override;
-		void drawPattern() override;
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
