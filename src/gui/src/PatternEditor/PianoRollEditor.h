@@ -52,7 +52,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		void createBackground() override;

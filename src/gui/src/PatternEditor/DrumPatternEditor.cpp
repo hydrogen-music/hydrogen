@@ -540,11 +540,3 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		}
 	}
 }
-
-void DrumPatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
-{
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-		updateEditor();
-	}
-}

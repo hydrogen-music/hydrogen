@@ -1309,13 +1309,3 @@ void NotePropertiesRuler::selectAll()
 {
 	selectAllNotesInRow( m_pPatternEditorPanel->getSelectedRowDB() );
 }
-
-void NotePropertiesRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
-{
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-
-		invalidateBackground();
-		update();
-	}
-}

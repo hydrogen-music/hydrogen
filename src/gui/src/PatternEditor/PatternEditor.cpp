@@ -115,11 +115,11 @@ PatternEditor::~PatternEditor()
 	}
 }
 
+
 void PatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 {
-	if ( changes & H2Core::Preferences::Changes::Colors ) {
-		
-		update( 0, 0, width(), height() );
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 		m_pPatternEditorPanel->updateEditors();
 	}
 }

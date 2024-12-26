@@ -461,12 +461,3 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	updateEditor( true );
 	return std::move( result );
 }
-
-void PianoRollEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
-{
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-		m_update = Update::Background;
-		update();
-	}
-}

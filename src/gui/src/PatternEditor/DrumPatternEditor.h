@@ -59,7 +59,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 	void createBackground() override;
