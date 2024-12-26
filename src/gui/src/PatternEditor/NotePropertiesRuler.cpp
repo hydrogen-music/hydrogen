@@ -1021,19 +1021,6 @@ void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
 	}
 }
 
-void NotePropertiesRuler::updateEditor( bool bPatternOnly )
-{
-	const bool bFullUpdate = updateWidth();
-
-	if ( bPatternOnly && ! bFullUpdate ) {
-		m_update = Update::Pattern;
-	} else {
-		m_update = Update::Background;
-	}
-
-	update();
-}
-
 void NotePropertiesRuler::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();

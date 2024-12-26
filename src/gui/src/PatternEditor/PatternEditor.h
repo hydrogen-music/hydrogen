@@ -250,7 +250,7 @@ protected:
 	Selection< SelectionIndex > m_selection;
 
 public slots:
-	virtual void updateEditor( bool bPatternOnly = false ) = 0;
+	virtual void updateEditor( bool bPatternOnly = false );
 	virtual void selectAll() = 0;
 	virtual void selectNone();
 	void deleteSelection();

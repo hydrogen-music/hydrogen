@@ -50,7 +50,6 @@ class PianoRollEditor: public PatternEditor,
 		QPoint noteToPoint( H2Core::Note* pNote ) const;
 
 	public slots:
-		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
 
 	private:

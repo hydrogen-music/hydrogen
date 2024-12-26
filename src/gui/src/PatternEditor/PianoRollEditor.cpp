@@ -72,19 +72,6 @@ QPoint PianoRollEditor::noteToPoint( H2Core::Note* pNote ) const {
 		Note::pitchToLine( pNote->get_pitch_from_key_octave() ) + 1 );
 }
 
-void PianoRollEditor::updateEditor( bool bPatternOnly )
-{
-	const bool bFullUpdate = updateWidth();
-
-	if ( bPatternOnly && ! bFullUpdate ) {
-		m_update = Update::Pattern;
-	} else {
-		m_update = Update::Background;
-	}
-
-	update();
-}
-
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
 {
 	if (!isVisible()) {

@@ -410,6 +410,22 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 	}
 }
 
+void PatternEditor::updateEditor( bool bPatternOnly )
+{
+	if ( updateWidth() ) {
+		m_update = Update::Background;
+	}
+	else if ( bPatternOnly && m_update != Update::Background ) {
+		// Background takes priority over Pattern.
+		m_update = Update::Pattern;
+	}
+	else {
+		m_update = Update::Background;
+	}
+
+	update();
+}
+
 void PatternEditor::selectNone()
 {
 	m_selection.clearSelection();

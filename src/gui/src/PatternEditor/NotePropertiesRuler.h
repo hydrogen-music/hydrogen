@@ -81,7 +81,6 @@ class NotePropertiesRuler : public PatternEditor,
 
 
 	public slots:
-		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
 		void scrolled( int );
 

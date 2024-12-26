@@ -59,24 +59,15 @@ DrumPatternEditor::~DrumPatternEditor()
 
 void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
-	bool bFullUpdate = updateWidth();
-
 	const int nTargetHeight =
 		m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
 	if ( m_nEditorHeight != nTargetHeight ) {
 		m_nEditorHeight = nTargetHeight;
 		resize( m_nEditorWidth, m_nEditorHeight );
-		bFullUpdate = true;
-	}
-
-	if ( bPatternOnly && ! bFullUpdate ) {
-		m_update = Update::Pattern;
-	}
-	else {
 		m_update = Update::Background;
 	}
 
-	update();
+	PatternEditor::updateEditor( bPatternOnly );
 }
 
 ///
