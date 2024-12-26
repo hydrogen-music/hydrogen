@@ -678,7 +678,7 @@ void PatternEditor::paste()
 		// We have to force its update in order to avoid inconsistencies.
 		const int nOldSize = m_pPatternEditorPanel->getRowNumberDB();
 		m_pPatternEditorPanel->updateDB();
-		m_pPatternEditorPanel->updateEditors();
+		m_pPatternEditorPanel->updateEditors( true );
 		m_pPatternEditorPanel->resizeEvent( nullptr );
 
 		// Select the append line
@@ -858,8 +858,8 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	if ( ev->x() > m_nActiveWidth ) {
 		if ( ! m_selection.isEmpty() ) {
 			m_selection.clearSelection();
-			m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
-			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
 		}
 		return;
 	}
@@ -1017,7 +1017,7 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 		m_selection.mouseMoveEvent( ev );
 		if ( syncLasso() || m_selection.isMoving() ) {
 			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
+			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
 		}
 	}
 }
@@ -1044,8 +1044,8 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 	}
 
 	if ( bUpdate ) {
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
 	}
 }
 
@@ -1231,7 +1231,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::No
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	pHydrogen->setIsModified( true );
-	m_pPatternEditorPanel->updateEditors();
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 QPoint PatternEditor::movingGridOffset( ) const {
@@ -1789,8 +1789,8 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 	if ( bFullUpdate ) {
 		// Notes have might become selected. We have to update the background as
 		// well.
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor();
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor();
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
 	}
 	else {
 		m_pPatternEditorPanel->getVisibleEditor()->update();

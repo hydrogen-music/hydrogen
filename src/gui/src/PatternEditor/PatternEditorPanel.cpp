@@ -1236,13 +1236,13 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	setCursorColumn( getCursorColumn(), false );
 
 	m_pPatternEditorRuler->updateEditor( true );
-	m_pNoteVelocityEditor->updateEditor();
-	m_pNotePanEditor->updateEditor();
-	m_pNoteLeadLagEditor->updateEditor();
-	m_pNoteKeyOctaveEditor->updateEditor();
-	m_pNoteProbabilityEditor->updateEditor();
+	m_pNoteVelocityEditor->updateEditor( bPatternOnly );
+	m_pNotePanEditor->updateEditor( bPatternOnly );
+	m_pNoteLeadLagEditor->updateEditor( bPatternOnly );
+	m_pNoteKeyOctaveEditor->updateEditor( bPatternOnly );
+	m_pNoteProbabilityEditor->updateEditor( bPatternOnly );
 	m_pPianoRollEditor->updateEditor( bPatternOnly );
-	m_pDrumPatternEditor->updateEditor();
+	m_pDrumPatternEditor->updateEditor( bPatternOnly );
 	m_pSidebar->updateEditor();
 
 	ensureCursorVisible();
@@ -1398,7 +1398,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		updateDrumkitLabel();
 		updatePatternInfo();
 		updateDB();
-		updateEditors( true );
+		updateEditors();
 		m_pPatternEditorRuler->updatePosition();
 		m_pSidebar->updateRows();
 		resizeEvent( nullptr );
@@ -1853,7 +1853,7 @@ void PatternEditorPanel::setHoveredNotesMouse( std::map<std::shared_ptr<H2Core::
 
 	updateHoveredNotes();
 	getVisibleEditor()->updateEditor( true );
-	getVisiblePropertiesRuler()->updateEditor();
+	getVisiblePropertiesRuler()->updateEditor( true );
 }
 
 void PatternEditorPanel::setHoveredNotesKeyboard( std::map<std::shared_ptr<H2Core::Pattern>,
@@ -1866,7 +1866,7 @@ void PatternEditorPanel::setHoveredNotesKeyboard( std::map<std::shared_ptr<H2Cor
 
 	updateHoveredNotes();
 	getVisibleEditor()->updateEditor( true );
-	getVisiblePropertiesRuler()->updateEditor();
+	getVisiblePropertiesRuler()->updateEditor( true );
 }
 
 void PatternEditorPanel::updateHoveredNotes() {
