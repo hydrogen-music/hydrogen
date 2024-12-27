@@ -1359,7 +1359,7 @@
                   <item row="3" column="2">
                    <widget class="QSlider" name="hslider">
                     <property name="maximum">
-                     <number>255</number>
+                     <number>359</number>
                     </property>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -1527,7 +1527,7 @@
                   <item row="3" column="1">
                    <widget class="LCDSpinBox" name="hval">
                     <property name="maximum">
-                     <double>255.000000000000000</double>
+                     <double>359.000000000000000</double>
                     </property>
                    </widget>
                   </item>
