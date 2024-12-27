@@ -13,8 +13,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		  exsiting notes to current grid.
 		- Switching drumkits, replace the current kit by a new one, as well as
 			adding, deleting, and renaming drumkit components can now be undone.
-		- Pattern and drumkit properties can be edited by clicking the corresponding
-			name in the left column of the Pattern Editor.
+		- Pattern and drumkit properties can be edited by double clicking the
+			corresponding name in the header of the Pattern Editor.
 		- new OSC commands:
 				- `NEW_PLAYLIST`
 				- `OPEN_PLAYLIST`
@@ -79,6 +79,22 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			drumkit and config files. This integer will be increment each time the
 			format will be changed.
 		- pre-fader gain does now include component gain as well.
+		- PatternEditor:
+				- Handling is now centered on interaction with existing notes. Only
+				  adding of new notes is dependent on the current grid.
+				- Alt key modifier can be used to add/move/change off the current grid.
+				- Instruments of the current kit and instrument types of all notes in a
+				  pattern are now handled separately in the sidebar.
+				- Single notes can now be dragged without prior selection.
+				- Notes not associated with an instrument of the current kit are now
+				  visible and can be handled like regular notes.
+				- Pattern name is now shown on top and several active patterns are
+				  presented in independent tabs.
+				- Property drawing can now only bound to right mouse button.
+				- Cursor, selection lasso, and selected and hovered notes are now synced
+				  between among all editors.
+				- Property changes based on wheel and key event on the same set of notes
+				  as well as property drawing can now be undone/redone in a single action.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
