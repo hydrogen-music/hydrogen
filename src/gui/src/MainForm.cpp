@@ -2269,10 +2269,14 @@ void MainForm::openUndoStack()
 }
 
 void MainForm::action_undo(){
+	// Be sure to close an existing context (cusotm macro).
+	h2app->endUndoContext();
 	h2app->m_pUndoStack->undo();
 }
 
 void MainForm::action_redo(){
+	// Be sure to close an existing context (cusotm macro).
+	h2app->endUndoContext();
 	h2app->m_pUndoStack->redo();
 }
 

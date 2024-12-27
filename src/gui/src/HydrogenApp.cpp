@@ -372,12 +372,22 @@ InfoBar *HydrogenApp::addInfoBar() {
 	return pInfoBar;
 }
 
-void HydrogenApp::pushUndoCommand( QUndoCommand* pCommand ) {
+void HydrogenApp::pushUndoCommand( QUndoCommand* pCommand,
+								   const QString& sContext ) {
+	if ( pCommand == nullptr ) {
+		return;
+	}
+
+	handleUndoContext( sContext, pCommand->text() );
+
 	m_pUndoStack->push( pCommand );
 }
 
-void HydrogenApp::beginUndoMacro( const QString& sText ) {
-	if ( ! m_pUndoStack->canUndo() && ! m_pUndoStack->canRedo() ) {
+void HydrogenApp::beginUndoMacro( const QString& sText, const QString& sContext ) {
+	handleUndoContext( sContext, sText );
+
+	if ( sContext.isEmpty() && m_pUndoStack->count() > 0 &&
+		 ! m_pUndoStack->canUndo() && ! m_pUndoStack->canRedo() ) {
 		// There is most probably already a macro which has not been ended yet.
 		// We do not support nested marcos yet, because we a) do not need them
 		// yet and b) want to ensure all beginMacro() and endMacro() are
@@ -389,8 +399,44 @@ void HydrogenApp::beginUndoMacro( const QString& sText ) {
 	m_pUndoStack->beginMacro( sText );
 }
 
-void HydrogenApp::endUndoMacro() {
+void HydrogenApp::endUndoMacro( const QString& sContext ) {
+	handleUndoContext( sContext, "endUndoMacro" );
+
 	m_pUndoStack->endMacro();
+}
+
+void HydrogenApp::endUndoContext() {
+	handleUndoContext( "", "" );
+}
+
+void HydrogenApp::handleUndoContext( const QString& sContext,
+									 const QString& sText ) {
+	if ( sContext == m_sLastUndoContext ) {
+		return;
+	}
+
+	// Close the previous batch of nested macros corresponding to an action.
+	if ( sContext != m_sLastUndoContext && ! m_sLastUndoContext.isEmpty() &&
+		 m_pUndoStack->count() > 0 ) {
+		if ( m_pUndoStack->canUndo() || m_pUndoStack->canRedo() ) {
+			WARNINGLOG( QString( "Undo stack does not seem to be in last context [%1]. Trying to end regardlessly." )
+						.arg( m_sLastUndoContext ) );
+		}
+		m_pUndoStack->endMacro();
+
+		if ( ! m_pUndoStack->canUndo() && ! m_pUndoStack->canRedo() ) {
+			ERRORLOG( QString( "Undo stack was in nested macro while ending last context [%1]" )
+					  .arg( m_sLastUndoContext ) );
+			m_pUndoStack->endMacro();
+		}
+	}
+
+	// Start a new macro for this context
+	if ( ! sContext.isEmpty() ) {
+		m_pUndoStack->beginMacro( sText );
+	}
+
+	m_sLastUndoContext = sContext;
 }
 
 void HydrogenApp::currentTabChanged(int index)

@@ -1874,6 +1874,12 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
 
+	// Ending the enclosing undo context. This is key to enable the Undo/Redo
+	// buttons in the main menu again and it feels like a good rule of thumb to
+	// consider an action done whenever the user moves mouse or cursor away from
+	// the widget.
+	HydrogenApp::get_instance()->endUndoContext();
+
 	// update focus and hovered notes
 	update();
 }

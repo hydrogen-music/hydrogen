@@ -98,6 +98,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	point = QPoint( ev->x(), 0 );
 #endif
 
+	QString sUndoContext = "NotePropertiesRuler::wheelEvent";
 	bool bUpdate = false;
 
 	// When interacting with note(s) not already in a selection, we will discard
@@ -108,6 +109,10 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		m_selection.clearSelection();
 		for ( const auto& ppNote : notesUnderPoint ) {
 			m_selection.addToSelection( ppNote );
+			sUndoContext.append( QString( "::%1:%2:%3" )
+								 .arg( ppNote->get_position() )
+								 .arg( ppNote->get_instrument_id() )
+								 .arg( ppNote->getType() ) );
 		}
 		bUpdate = true;
 	}
@@ -146,7 +151,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	if ( bUpdate || bValueChanged ) {
 		if ( bValueChanged ) {
-			addUndoAction();
+			addUndoAction( sUndoContext );
 		}
 
 		if ( notesUnderPoint.size() > 0 ) {
@@ -259,7 +264,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	//! The "move" has already been reflected in the notes. Now just complete Undo event.
-	addUndoAction();
+	addUndoAction( "" );
 
 	m_update = Update::Pattern;
 	update();
@@ -388,7 +393,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	if ( m_nDrawPreviousColumn != nRealColumn ) {
 		// Complete current undo action, and start a new one.
-		addUndoAction();
+		addUndoAction( "NotePropertiesRuler::propertyDraw" );
 		for ( const auto& ppNote : notesSinceLastAction ) {
 			m_oldNotes[ ppNote ] = new Note( ppNote );
 		}
@@ -493,7 +498,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 void NotePropertiesRuler::propertyDrawEnd()
 {
 	m_nDrawPreviousColumn = -1;
-	addUndoAction();
+	addUndoAction( "NotePropertiesRuler::propertyDraw" );
 	unsetCursor();
 
 	m_update = Update::Pattern;
@@ -610,6 +615,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	const bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bEventUsed = true;
+	QString sUndoContext = "NotePropertiesRuler::keyPressEvent";
 
 	// Value adjustments
 	float fDelta = 0.0;
@@ -665,6 +671,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			m_selection.clearSelection();
 			for ( const auto& ppNote : notesUnderPoint ) {
 				m_selection.addToSelection( ppNote );
+				sUndoContext.append( QString( "::%1:%2:%3" )
+									 .arg( ppNote->get_position() )
+									 .arg( ppNote->get_instrument_id() )
+									 .arg( ppNote->getType() ) );
 			}
 			bUpdate = true;
 		}
@@ -699,7 +709,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		}
 
 		if ( bValueChanged ) {
-			addUndoAction();
+			addUndoAction( sUndoContext );
 
 			if ( notesUnderPoint.size() > 0 ) {
 				m_selection.clearSelection();
@@ -716,7 +726,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	PatternEditor::keyPressEvent( ev, bValueChanged );
 }
 
-void NotePropertiesRuler::addUndoAction()
+void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -732,7 +742,8 @@ void NotePropertiesRuler::addUndoAction()
 		if ( nSize != 1 ) {
 			pHydrogenApp->beginUndoMacro(
 				QString( tr( "Edit [%1] property of [%2] notes" ) )
-				.arg( PatternEditor::modeToQString( m_mode ) ).arg( nSize ) );
+				.arg( PatternEditor::modeToQString( m_mode ) ).arg( nSize ),
+				sUndoContext );
 		}
 		for ( auto it : m_oldNotes ) {
 			Note *pNewNote = it.first, *pOldNote = it.second;
@@ -773,10 +784,11 @@ void NotePropertiesRuler::addUndoAction()
 					nNewKey,
 					pOldNote->get_key(),
 					nNewOctave,
-					pOldNote->get_octave() ) );
+					pOldNote->get_octave() ),
+				sUndoContext );
 		}
 		if ( nSize != 1 ) {
-			pHydrogenApp->endUndoMacro();
+			pHydrogenApp->endUndoMacro( sUndoContext );
 		}
 	}
 	clearOldNotes();

@@ -108,7 +108,7 @@ class NotePropertiesRuler : public PatternEditor,
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;
 		void keyPressEvent( QKeyEvent *ev ) override;
-		void addUndoAction();
+		void addUndoAction( const QString& sUndoContext );
 		void prepareUndoAction( QMouseEvent* pEvent );
 
 		//! Map of notes currently in the pattern -> old notes with their
