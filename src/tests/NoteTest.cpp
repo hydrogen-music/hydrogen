@@ -104,14 +104,16 @@ class NoteTest : public CppUnit::TestCase {
 
 	void testProbability()
 	{
-	___INFOLOG( "" );
-		Note n(nullptr, 0, 1.0f, 0.f, 1, 1.0f);
-		n.set_probability(0.75f);
-		CPPUNIT_ASSERT_EQUAL(0.75f, n.get_probability());
+		___INFOLOG( "" );
 
-		Note other(&n, nullptr);
-		CPPUNIT_ASSERT_EQUAL(0.75f, other.get_probability());
-	___INFOLOG( "passed" );
+		auto pNote = std::make_shared<Note>( nullptr, 0, 1.0f, 0.f, 1, 1.0f );
+		pNote->set_probability(0.75f);
+		CPPUNIT_ASSERT_EQUAL(0.75f, pNote->get_probability());
+
+		auto pOther = std::make_shared<Note>( pNote, nullptr );
+		CPPUNIT_ASSERT_EQUAL(0.75f, pOther->get_probability());
+
+		___INFOLOG( "passed" );
 	}
 
 	void testSerializeProbability()
@@ -127,11 +129,11 @@ class NoteTest : public CppUnit::TestCase {
 		pInstruments->add( pSnare );
 		pDrumkit->setInstruments( pInstruments );
 
-		Note* pIn = new Note( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
+		auto pIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
 		pIn->set_probability( 0.67f );
 		pIn->save_to( node );
 
-		Note* pOut = Note::load_from( node );
+		auto pOut = Note::load_from( node );
 		pOut->mapTo( pDrumkit );
 
 		CPPUNIT_ASSERT( pIn->get_instrument() == pOut->get_instrument() );
@@ -142,9 +144,7 @@ class NoteTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT_EQUAL( pIn->get_pitch(), pOut->get_pitch() );
 		CPPUNIT_ASSERT_EQUAL( pIn->get_probability(), pOut->get_probability() );
 
-		delete pIn;
-		delete pOut;
-	___INFOLOG( "passed" );
+		___INFOLOG( "passed" );
 	}
 };
 

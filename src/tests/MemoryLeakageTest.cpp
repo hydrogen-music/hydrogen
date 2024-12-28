@@ -113,10 +113,10 @@ void MemoryLeakageTest::testConstructors() {
 	{
 		auto pADSR = std::make_shared<H2Core::ADSR>();
 		auto pInstrument = std::make_shared<H2Core::Instrument>( 0, "ladida", pADSR );
-		auto Note = new H2Core::Note( pInstrument, 0, 0.f, 0.f, 1, 1.f );
-		auto Note2 = new H2Core::Note( Note );
-		delete Note;
-		delete Note2;
+		auto pNote = std::make_shared<H2Core::Note>( pInstrument, 0, 0.f, 0.f, 1, 1.f );
+		auto pNote2 = std::make_shared<H2Core::Note>( pNote );
+		pNote = nullptr;
+		pNote2 = nullptr;
 		pInstrument = nullptr;
 		pADSR = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -203,9 +203,9 @@ void MemoryLeakageTest::testConstructors() {
 
 	{
 		auto notes = pSongProper->getPatternList()->get( 0 )->getNotes();
-		auto pNote = new H2Core::Note( notes->begin()->second );
+		auto pNote = std::make_shared<H2Core::Note>( notes->begin()->second );
 		CPPUNIT_ASSERT( pNote != nullptr );
-		delete pNote;
+		pNote = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -320,7 +320,7 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "note" );
 		auto pNote = H2Core::Note::load_from( node );
 		CPPUNIT_ASSERT( pNote != nullptr );
-		delete pNote;
+		pNote = nullptr;
 		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
@@ -334,7 +334,7 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "note" );
 		auto pNote = H2Core::Note::load_from( node );
 		CPPUNIT_ASSERT( pNote != nullptr );
-		delete pNote;
+		pNote = nullptr;
 		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}

@@ -68,7 +68,7 @@ Patch::~Patch() {
 }
 
 void Patch::addMapping( const QString& sOldPatternType, int nNewInstrumentId,
-						std::vector<H2Core::Note*> afftectedNotes ) {
+						std::vector< std::shared_ptr<H2Core::Note> > afftectedNotes ) {
 	Mapping mapping;
 	mapping.sOldPatternType = sOldPatternType;
 	mapping.nNewInstrumentId = nNewInstrumentId;

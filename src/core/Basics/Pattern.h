@@ -49,7 +49,7 @@ class Pattern : public H2Core::Object<Pattern>
 		H2_OBJECT(Pattern)
 	public:
 		///< multimap note type
-		typedef std::multimap <int, Note*> notes_t;
+		typedef std::multimap<int, std::shared_ptr<Note>> notes_t;
 		///< multimap note iterator type
 		typedef notes_t::iterator notes_it_t;
 		///< multimap note const iterator type
@@ -157,7 +157,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * insert a new note within m_notes
 		 * \param pNote the note to be inserted
 		 */
-		void insertNote( Note* pNote );
+		void insertNote( std::shared_ptr<Note> pNote );
 		/**
 		 * search for a note at a given index within m_notes which correspond to
 		 * the given arguments
@@ -171,9 +171,9 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param bStrict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
-						const QString& sInstrumentType,
-						bool bStrict = true ) const;
+		std::shared_ptr<Note> findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
+										const QString& sInstrumentType,
+										bool bStrict = true ) const;
 		/**
 		 * search for a note at a given index within m_notes which correspond to the given arguments
 		 * \param nIdx_a the first m_notes index to search in
@@ -187,14 +187,15 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param bStrict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
-						const QString& sInstrumentType, Note::Key key,
-						Note::Octave octave, bool bStrict = true ) const;
+		std::shared_ptr<Note> findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
+										const QString& sInstrumentType,
+										Note::Key key, Note::Octave octave,
+										bool bStrict = true ) const;
 		/**
 		 * removes a given note from m_notes, it's not deleted
 		 * \param pNote the note to be removed
 		 */
-		void removeNote( Note* pNote );
+		void removeNote( std::shared_ptr<Note> pNote );
 
 		/**
 		 * check if this pattern contains a note referencing the given instrument
@@ -263,7 +264,7 @@ class Pattern : public H2Core::Object<Pattern>
 
 		/** Aggregates all types of the contained notes. */
 		std::set<DrumkitMap::Type> getAllTypes() const;
-		std::vector<H2Core::Note*> getAllNotesOfType(
+		std::vector<std::shared_ptr<Note>> getAllNotesOfType(
 			const DrumkitMap::Type& sType ) const;
 
 		/** Formatted string version for debugging purposes.
@@ -449,9 +450,11 @@ inline const Pattern::virtual_patterns_t* Pattern::getFlattenedVirtualPatterns()
 	return &m_flattenedVirtualPatterns;
 }
 
-inline void Pattern::insertNote( Note* note )
+inline void Pattern::insertNote( std::shared_ptr<Note> pNote )
 {
-	m_notes.insert( std::make_pair( note->get_position(), note ) );
+	if ( pNote != nullptr ) {
+		m_notes.insert( std::make_pair( pNote->get_position(), pNote ) );
+	}
 }
 
 inline bool Pattern::virtualPatternsEmpty() const

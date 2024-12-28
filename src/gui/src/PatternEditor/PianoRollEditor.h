@@ -24,13 +24,17 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Note.h>
 #include "../Selection.h"
 #include "PatternEditor.h"
 
 #include <QtGui>
 #include <QtWidgets>
+
+#include <memory>
+
+namespace H2Core {
+	class Note;
+}
 
 /** \ingroup docGUI*/
 class PianoRollEditor: public PatternEditor,
@@ -47,7 +51,7 @@ class PianoRollEditor: public PatternEditor,
 
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
-		QPoint noteToPoint( H2Core::Note* pNote ) const;
+		QPoint noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const;
 
 	public slots:
 		virtual void selectAll() override;

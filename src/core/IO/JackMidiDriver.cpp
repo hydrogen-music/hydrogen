@@ -383,7 +383,7 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 	nPort = 0;
 }
 
-void JackMidiDriver::handleQueueNote(Note* pNote)
+void JackMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 {
 	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
 		ERRORLOG( "Invalid note" );

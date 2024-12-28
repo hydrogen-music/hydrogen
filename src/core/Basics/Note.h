@@ -139,7 +139,8 @@ class Note : public H2Core::Object<Note>
 		 * \param pOther 
 		 * \param pInstrument if set will be used as note instrument
 		 */
-		Note( Note* pOther, std::shared_ptr<Instrument> pInstrument = nullptr );
+		Note( std::shared_ptr<Note> pOther,
+			  std::shared_ptr<Instrument> pInstrument = nullptr );
 		/** destructor */
 		~Note();
 
@@ -155,7 +156,8 @@ class Note : public H2Core::Object<Note>
 		 * be logged.
 		 * \return a new Note instance
 		 */
-	static Note* load_from( const XMLNode& node, bool bSilent = false );
+	static std::shared_ptr<Note> load_from( const XMLNode& node,
+											bool bSilent = false );
 
 		/**
 		 * Make the current Note work with the provided drumkit @a pDrumkit.
@@ -331,10 +333,10 @@ class Note : public H2Core::Object<Note>
 		 * \param key the key to match with #__key
 		 * \param octave the octave to match with #__octave
 		 */
-		bool match( int nInstrumentId, const QString& sType, Key key, Octave octave ) const;
+		bool match( int nInstrumentId, const QString& sType, Key key,
+					Octave octave ) const;
 
 		/** Return true if two notes match in instrument, key and octave. */
-		bool match( const Note *pNote ) const;
 		bool match( const std::shared_ptr<Note> pNote ) const;
 
 		/**
@@ -754,11 +756,6 @@ inline bool Note::match( int nInstrumentId, const QString& sType, Key key,
 		__key == key && __octave==octave;
 }
 
-inline bool Note::match( const Note *pNote ) const
-{
-	return match( pNote->__instrument_id, pNote->m_sType, pNote->__key,
-				  pNote->__octave );
-}
 inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
 	return match( pNote->__instrument_id, pNote->m_sType, pNote->__key,

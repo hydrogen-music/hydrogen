@@ -302,8 +302,8 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 	
-	Note *pNote = new Note( pSelectedInstrument, 0, 1.0 );
-	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
+	auto pNote = std::make_shared<Note>( pSelectedInstrument, 0, 1.0 );
+	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 }
 
 
@@ -322,9 +322,9 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 
-	Note *pNote = new Note( pSelectedInstrument, 0, 0.0 );
+	auto pNote = std::make_shared<Note>( pSelectedInstrument, 0, 0.0 );
 	pNote->set_note_off( true );
-	pHydrogen->getAudioEngine()->getSampler()->noteOff(pNote);
+	pHydrogen->getAudioEngine()->getSampler()->noteOff( pNote );
 }
 
 

@@ -105,7 +105,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 
 PatternEditor::~PatternEditor()
 {
-	clearDraggedNotes();
+	m_draggedNotes.clear();
 
 	if ( m_pPatternPixmap != nullptr ) {
 		delete m_pPatternPixmap;
@@ -196,7 +196,7 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 }
 
 
-void PatternEditor::drawNote( QPainter &p, H2Core::Note *pNote,
+void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 							  NoteStyle noteStyle ) const
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -458,10 +458,10 @@ void PatternEditor::copy()
 	// "Top left" of selection, in the three dimensional time*instrument*pitch space.
 	int nMinColumn, nMinRow, nMaxPitch;
 
-	for ( Note *pNote : m_selection ) {
-		const int nPitch = pNote->get_pitch_from_key_octave();
-		const int nColumn = pNote->get_position();
-		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
+	for ( const auto& ppNote : m_selection ) {
+		const int nPitch = ppNote->get_pitch_from_key_octave();
+		const int nColumn = ppNote->get_position();
+		const int nRow = m_pPatternEditorPanel->findRowDB( ppNote );
 		if ( bWroteNote ) {
 			nMinColumn = std::min( nColumn, nMinColumn );
 			nMinRow = std::min( nRow, nMinRow );
@@ -473,7 +473,7 @@ void PatternEditor::copy()
 			bWroteNote = true;
 		}
 		XMLNode note_node = noteList.createNode( "note" );
-		pNote->save_to( note_node );
+		ppNote->save_to( note_node );
 	}
 
 	if ( bWroteNote ) {
@@ -616,7 +616,6 @@ void PatternEditor::paste()
 
 			const int nPos = pNote->get_position() + nDeltaPos;
 			if ( nPos < 0 || nPos >= pPattern->getLength() ) {
-				delete pNote;
 				continue;
 			}
 
@@ -630,7 +629,6 @@ void PatternEditor::paste()
 					const int nRow = nNoteRow + nDeltaRow;
 					if ( nRow < 0 ||
 						 nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
-						delete pNote;
 						continue;
 					}
 					const auto row = m_pPatternEditorPanel->getRowDB( nRow );
@@ -657,7 +655,6 @@ void PatternEditor::paste()
 				const int nPitch = pNote->get_pitch_from_key_octave() + nDeltaPitch;
 				if ( nPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
 					 nPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
-					delete pNote;
 					continue;
 				}
 
@@ -685,7 +682,6 @@ void PatternEditor::paste()
 					/* bIsDelete */ false,
 					/* bIsMidi */ false,
 					/* bIsNoteOff */ pNote->get_note_off() ) );
-			delete pNote;
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -751,14 +747,14 @@ void PatternEditor::alignToGrid() {
 	// Move the notes
 	pHydrogenApp->beginUndoMacro( tr( "Align notes to grid" ) );
 
-	for ( Note *pNote : m_selection ) {
-		if ( pNote == nullptr ) {
+	for ( const auto& ppNote : m_selection ) {
+		if ( ppNote == nullptr ) {
 			continue;
 		}
 
-		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
+		const int nRow = m_pPatternEditorPanel->findRowDB( ppNote );
 		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
-		const int nPosition = pNote->get_position();
+		const int nPosition = ppNote->get_position();
 		const int nNewInstrument = nRow;
 		const int nGranularity = granularity();
 
@@ -771,16 +767,16 @@ void PatternEditor::alignToGrid() {
 
 		// Cache note properties since a potential first note deletion will also
 		// call the note's destructor.
-		const int nInstrumentId = pNote->get_instrument_id();
-		const QString sType = pNote->getType();
-		const int nLength = pNote->get_length();
-		const float fVelocity = pNote->get_velocity();
-		const float fPan = pNote->getPan();
-		const float fLeadLag = pNote->get_lead_lag();
-		const int nKey = pNote->get_key();
-		const int nOctave = pNote->get_octave();
-		const float fProbability = pNote->get_probability();
-		const bool bNoteOff = pNote->get_note_off();
+		const int nInstrumentId = ppNote->get_instrument_id();
+		const QString sType = ppNote->getType();
+		const int nLength = ppNote->get_length();
+		const float fVelocity = ppNote->get_velocity();
+		const float fPan = ppNote->getPan();
+		const float fLeadLag = ppNote->get_lead_lag();
+		const int nKey = ppNote->get_key();
+		const int nOctave = ppNote->get_octave();
+		const float fProbability = ppNote->get_probability();
+		const bool bNoteOff = ppNote->get_note_off();
 
 		// Move note -> delete at source position
 		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
@@ -838,31 +834,35 @@ void PatternEditor::randomizeVelocity() {
 
 	pHydrogenApp->beginUndoMacro( tr( "Random velocity" ) );
 
-	for ( const auto pNote : m_selection ) {
+	for ( const auto& ppNote : m_selection ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+
 		float fVal = ( rand() % 100 ) / 100.0;
-		fVal = std::clamp( pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
+		fVal = std::clamp( ppNote->get_velocity() + ( ( fVal - 0.50 ) / 2 ),
 						   0.0, 1.0 );
 		pHydrogenApp->pushUndoCommand(
 			new SE_editNotePropertiesAction(
 				PatternEditor::Mode::Velocity,
 				m_pPatternEditorPanel->getPatternNumber(),
-				pNote->get_position(),
-				pNote->get_instrument_id(),
-				pNote->getType(),
+				ppNote->get_position(),
+				ppNote->get_instrument_id(),
+				ppNote->getType(),
 				fVal,
-				pNote->get_velocity(),
-				pNote->getPan(),
-				pNote->getPan(),
-				pNote->get_lead_lag(),
-				pNote->get_lead_lag(),
-				pNote->get_probability(),
-				pNote->get_probability(),
-				pNote->get_length(),
-				pNote->get_length(),
-				pNote->get_key(),
-				pNote->get_key(),
-				pNote->get_octave(),
-				pNote->get_octave() ) );
+				ppNote->get_velocity(),
+				ppNote->getPan(),
+				ppNote->getPan(),
+				ppNote->get_lead_lag(),
+				ppNote->get_lead_lag(),
+				ppNote->get_probability(),
+				ppNote->get_probability(),
+				ppNote->get_length(),
+				ppNote->get_length(),
+				ppNote->get_key(),
+				ppNote->get_key(),
+				ppNote->get_octave(),
+				ppNote->get_octave() ) );
 	}
 
 	pHydrogenApp->endUndoMacro();
@@ -1098,7 +1098,12 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	}
 }
 
-bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
+bool PatternEditor::notesMatchExactly( std::shared_ptr<Note> pNoteA,
+									   std::shared_ptr<Note> pNoteB ) const {
+	if ( pNoteA == nullptr || pNoteB == nullptr ) {
+		return false;
+	}
+
 	return ( pNoteA->match( pNoteB )
 			 && pNoteA->get_position() == pNoteB->get_position()
 			 && pNoteA->get_velocity() == pNoteB->get_velocity()
@@ -1137,17 +1142,17 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	//	Hydrogen *pH = Hydrogen::get_instance();
-	std::set< Note *> duplicates;
-	for ( Note *pNote : elements ) {
-		if ( duplicates.find( pNote ) != duplicates.end() ) {
-			// Already marked pNote as a duplicate of some other pNote. Skip it.
+	std::set< std::shared_ptr<Note> > duplicates;
+	for ( const auto& ppNote : elements ) {
+		if ( duplicates.find( ppNote ) != duplicates.end() ) {
+			// Already marked ppNote as a duplicate of some other ppNote. Skip it.
 			continue;
 		}
-		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, pNote->get_position() ) {
+		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, ppNote->get_position() ) {
 			// Duplicate note of a selected note is anything occupying the same position. Multiple notes
 			// sharing the same location might be selected; we count these as duplicates too. They will appear
 			// in both the duplicates and selection lists.
-			if ( it->second != pNote && pNote->match( it->second ) ) {
+			if ( it->second != ppNote && ppNote->match( it->second ) ) {
 				duplicates.insert( it->second );
 			}
 		}
@@ -1170,8 +1175,8 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 		}
 
 		if ( bOk ) {
-			std::vector< Note *>overwritten;
-			for ( Note *pNote : duplicates ) {
+			std::vector< std::shared_ptr<Note> >overwritten;
+			for ( const auto& pNote : duplicates ) {
 				overwritten.push_back( pNote );
 			}
 			HydrogenApp::get_instance()->pushUndoCommand(
@@ -1185,8 +1190,8 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 }
 
 
-void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
-											   const std::vector< H2Core::Note *>& overwritten )
+void PatternEditor::deselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
+											   const std::vector< std::shared_ptr<H2Core::Note> >& overwritten )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -1203,16 +1208,17 @@ void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *
 		bool bFoundExact = false;
 		int nPosition = pSelectedNote->get_position();
 		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
-			Note *pNote = it->second;
+			auto pNote = it->second;
 			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
 				// Found an exact match. We keep this.
 				bFoundExact = true;
 				++it;
-			} else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) {
+			}
+			else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) {
 				// Something else occupying the same position (which may or may not be an exact duplicate)
 				it = pNotes->erase( it );
-				delete pNote;
-			} else {
+			}
+			else {
 				// Any other note
 				++it;
 			}
@@ -1223,8 +1229,8 @@ void PatternEditor::deselectAndOverwriteNotes( const std::vector< H2Core::Note *
 }
 
 
-void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
-												   const std::vector< H2Core::Note *>& overwritten )
+void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
+												   const std::vector< std::shared_ptr<H2Core::Note> >& overwritten )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -1235,8 +1241,8 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< H2Core::No
 	// Restore previously-overwritten notes, and select notes that were selected before.
 	m_selection.clearSelection( /* bCheck=*/false );
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	for ( auto pNote : overwritten ) {
-		Note *pNewNote = new Note( pNote );
+	for ( const auto& ppNote : overwritten ) {
+		auto pNewNote = std::make_shared<Note>( ppNote );
 		pPattern->insertNote( pNewNote );
 	}
 	// Select the previously-selected notes
@@ -1481,8 +1487,8 @@ void PatternEditor::validateSelection()
 	}
 	
 	// Rebuild selection from valid notes.
-	std::set<Note *> valid;
-	std::vector< Note *> invalidated;
+	std::set< std::shared_ptr<Note> > valid;
+	std::vector< std::shared_ptr<Note> > invalidated;
 	FOREACH_NOTE_CST_IT_BEGIN_END(pPattern->getNotes(), it) {
 		if ( m_selection.isSelected( it->second ) ) {
 			valid.insert( it->second );
@@ -1579,7 +1585,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 	} else {
 		pHydrogenApp->beginUndoMacro( tr( "move notes" ) );
 	}
-	std::list< Note * > selectedNotes;
+	std::list< std::shared_ptr<Note> > selectedNotes;
 	for ( auto pNote : m_selection ) {
 		selectedNotes.push_back( pNote );
 	}
@@ -1869,7 +1875,8 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 	m_bEntered = false;
 
 	if ( m_pPatternEditorPanel->getHoveredNotes().size() > 0 ) {
-		std::map<std::shared_ptr<Pattern>, std::vector<Note*>> empty;
+		std::map< std::shared_ptr<Pattern>,
+				  std::vector< std::shared_ptr<Note> > > empty;
 		// Takes care of the update.
 		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
@@ -2296,7 +2303,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 			return;
 		}
 
-		clearDraggedNotes();
+		m_draggedNotes.clear();
 		// Either all or none of the notes at point should be selected. It is
 		// safe to just check the first one.
 		if ( m_selection.isSelected( notesAtPoint[ 0 ] ) ) {
@@ -2307,7 +2314,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 					 ! ( ppNote->get_note_off() &&
 						 ( m_mode != Mode::LeadLag &&
 						   m_mode != Mode::Probability ) ) ) {
-					m_draggedNotes[ ppNote ] = new Note( ppNote );
+					m_draggedNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 				}
 			}
 		}
@@ -2318,7 +2325,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 				if ( ! ( ppNote->get_note_off() &&
 						( m_mode != Mode::LeadLag &&
 						  m_mode != Mode::Probability ) ) ) {
-					m_draggedNotes[ ppNote ] = new Note( ppNote );
+					m_draggedNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 				}
 			}
 		}
@@ -2456,8 +2463,9 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		}
 	}
 
-	auto editNoteProperty = [=]( PatternEditor::Mode mode, Note* pNewNote,
-								  Note* pOldNote ) {
+	auto editNoteProperty = [=]( PatternEditor::Mode mode,
+								 std::shared_ptr<Note> pNewNote,
+								 std::shared_ptr<Note> pOldNote ) {
 		pHydrogenApp->pushUndoCommand(
 			new SE_editNotePropertiesAction(
 				mode,
@@ -2499,7 +2507,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		pHydrogenApp->endUndoMacro();
 	}
 
-	clearDraggedNotes();
+	m_draggedNotes.clear();
 }
 
 void PatternEditor::editNotePropertiesAction( const Mode& mode,
@@ -2623,7 +2631,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		return;
 	}
 
-	Note* pOldNote = nullptr;
+	std::shared_ptr<Note> pOldNote = nullptr;
 	if ( m_editor == Editor::PianoRoll ) {
 		pOldNote = pPattern->findNote(
 			nColumn, nRealColumn, row.nInstrumentID, row.sType,
@@ -2679,7 +2687,7 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
 		if ( pSelectedInstrument != nullptr &&
 			 pSelectedInstrument->hasSamples() ) {
-			auto pNote2 = new Note( pSelectedInstrument );
+			auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
 			pNote2->set_key_octave( static_cast<Note::Key>(nKey),
 									static_cast<Note::Octave>(nOctave) );
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->
@@ -2757,7 +2765,7 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 
 		// In case there are multiple notes at this position, use all provided
 		// properties to find right one.
-		std::vector<Note*> notesFound;
+		std::vector< std::shared_ptr<Note> > notesFound;
 		const auto pNotes = pPattern->getNotes();
 		for ( auto it = pNotes->lower_bound( nColumn );
 			  it != pNotes->end() && it->first <= nColumn; ++it ) {
@@ -2770,12 +2778,11 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 			}
 		}
 
-		auto removeNote = [&]( Note* pNote ) {
+		auto removeNote = [&]( std::shared_ptr<Note> pNote ) {
 			if ( pVisibleEditor->m_selection.isSelected( pNote ) ) {
 				pVisibleEditor->m_selection.removeFromSelection( pNote, false );
 			}
 			pPattern->removeNote( pNote );
-			delete pNote;
 		};
 
 		if ( notesFound.size() == 1 ) {
@@ -2839,7 +2846,8 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 			}
 		}
 
-		auto pNote = new Note( pInstrument, nPosition, fVelocity, fPan, nLength );
+		auto pNote = std::make_shared<Note>( pInstrument, nPosition, fVelocity,
+											 fPan, nLength );
 		pNote->set_instrument_id( nInstrumentId );
 		pNote->setType( sType );
 		pNote->set_note_off( bIsNoteOff );
@@ -2921,7 +2929,8 @@ QString PatternEditor::updateToQString( const Update& update ) {
 	}
 }
 
-void PatternEditor::triggerStatusMessage( Note* pNote, const Mode& mode ) {
+void PatternEditor::triggerStatusMessage( std::shared_ptr<Note> pNote,
+										  const Mode& mode ) {
 	QString s;
 	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );
@@ -3085,18 +3094,13 @@ QRect PatternEditor::getKeyboardCursorRect()
 	}
 }
 
-void PatternEditor::clearDraggedNotes() {
-	for ( auto& [ _, ppCopiedNote ] : m_draggedNotes ) {
-		delete ppCopiedNote;
-	}
-	m_draggedNotes.clear();
-}
-
-std::vector<Note*> PatternEditor::getNotesAtPoint( std::shared_ptr<H2Core::Pattern> pPattern,
-												   const QPoint& point,
-												   int nCursorMargin,
-												   bool bExcludeSelected ) {
-	std::vector<Note*> notesUnderPoint;
+std::vector< std::shared_ptr<Note> > PatternEditor::getNotesAtPoint(
+	std::shared_ptr<H2Core::Pattern> pPattern,
+	const QPoint& point,
+	int nCursorMargin,
+	bool bExcludeSelected )
+{
+	std::vector< std::shared_ptr<Note> > notesUnderPoint;
 	if ( pPattern == nullptr ) {
 		return std::move( notesUnderPoint );
 	}
@@ -3205,7 +3209,8 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
 	// notes, the left one wins.
 	int nLastPosition = -1;
 
-	std::map<std::shared_ptr<Pattern>, std::vector<Note*>> hovered;
+	std::map< std::shared_ptr<Pattern>,
+			  std::vector< std::shared_ptr<Note> > > hovered;
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const auto hoveredNotes = getNotesAtPoint(
 			ppPattern, pEvent->pos(), nCursorMargin, false );
@@ -3230,7 +3235,8 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
 void PatternEditor::updateHoveredNotesKeyboard() {
 	const auto point = getCursorPosition();
 
-	std::map<std::shared_ptr<Pattern>, std::vector<Note*>> hovered;
+	std::map< std::shared_ptr<Pattern>,
+			  std::vector< std::shared_ptr<Note> > > hovered;
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// cursor visible
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {

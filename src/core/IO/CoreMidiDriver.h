@@ -31,6 +31,8 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 
+#include <memory>
+
 #if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 
 #include <CoreMIDI/CoreMIDI.h>
@@ -53,7 +55,7 @@ public:
 	virtual std::vector<QString> getInputPortList() override;
 	virtual std::vector<QString> getOutputPortList() override;
 
-	virtual void handleQueueNote(Note* pNote) override;
+	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) override;
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;

@@ -582,21 +582,27 @@ void ExportSongDialog::on_okBtn_clicked()
 bool ExportSongDialog::currentInstrumentHasNotes()
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr && pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
 	unsigned nPatterns = pSong->getPatternList()->size();
-	
+	const auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( m_nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
 	bool bInstrumentHasNotes = false;
 	
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
 		auto pPattern = pSong->getPatternList()->get( i );
 		const Pattern::notes_t* notes = pPattern->getNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it,pPattern) {
-			Note *pNote = it->second;
+			auto pNote = it->second;
 			assert( pNote );
 
-			if( pNote->get_instrument_id() == pSong->getDrumkit()->getInstruments()->get(m_nInstrument)->get_id() ){
+			if ( pNote != nullptr &&
+				 pNote->get_instrument_id() == pInstrument->get_id() ) {
 				bInstrumentHasNotes = true;
 				break;
 			}

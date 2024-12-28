@@ -633,28 +633,24 @@ private:
 class SE_deselectAndOverwriteNotesAction : public QUndoCommand
 {
 public:
-	SE_deselectAndOverwriteNotesAction( const std::vector< H2Core::Note *>& selected,
-										const std::vector< H2Core::Note *>& overwritten ) {
+	SE_deselectAndOverwriteNotesAction(
+		const std::vector< std::shared_ptr<H2Core::Note> >& selected,
+		const std::vector< std::shared_ptr<H2Core::Note> >& overwritten )
+		{
 		setText( QObject::tr( "Overwrite %1 notes" ).arg( overwritten.size() ) );
 		for ( auto ppNote : selected ) {
 			if ( ppNote != nullptr ) {
-				m_selected.push_back( new H2Core::Note ( ppNote ) );
+				m_selected.push_back( std::make_shared<H2Core::Note>( ppNote ) );
 			}
 		}
 		for ( auto ppNote : overwritten ) {
 			if ( ppNote != nullptr ) {
-				m_overwritten.push_back( new H2Core::Note ( ppNote ) );
+				m_overwritten.push_back( std::make_shared<H2Core::Note>( ppNote ) );
 			}
 		}
 	}
 
 	~SE_deselectAndOverwriteNotesAction() {
-		for ( auto ppNote : m_selected ) {
-			delete ppNote;
-		}
-		for ( auto ppNote : m_overwritten ) {
-			delete ppNote;
-		}
 	}
 
 	virtual void undo() {
@@ -668,8 +664,8 @@ public:
 	}
 
 private:
-	std::vector< H2Core::Note *> m_selected;
-	std::vector< H2Core::Note *> m_overwritten;
+	std::vector< std::shared_ptr<H2Core::Note> > m_selected;
+	std::vector< std::shared_ptr<H2Core::Note> > m_overwritten;
 };
 
 /** \ingroup docGUI*/

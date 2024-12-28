@@ -133,12 +133,12 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
-	clearOldNotes();
+	m_oldNotes.clear();
 
 	bool bValueChanged = false;
 	for ( auto& ppNote : m_selection ) {
 		if ( ppNote != nullptr ) {
-			m_oldNotes[ ppNote ] = new Note( ppNote );
+			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 			bValueChanged =
 				adjustNotePropertyDelta( ppNote, fDelta, /* bMessage=*/ true ) ||
 				bValueChanged;
@@ -233,26 +233,29 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	// was selected.
 	bool bSendStatusMsg = false;
 	int nNotes = 0;
-	for ( Note *pNote : m_selection ) {
-		++nNotes;
+	for ( const auto& ppNote : m_selection ) {
+		if ( ppNote != nullptr ) {
+			++nNotes;
+		}
 	}
 	if ( nNotes == 1 ) {
 		bSendStatusMsg = true;
 	}
 
 	bool bValueChanged = false;
-	for ( Note *pNote : m_selection ) {
-		if ( ( pNote->get_instrument_id() == selectedRow.nInstrumentID &&
-			   pNote->getType() == selectedRow.sType ) ||
-			 m_selection.isSelected( pNote ) ) {
+	for ( const auto& ppNote : m_selection ) {
+		if ( ppNote != nullptr &&
+			( ( ppNote->get_instrument_id() == selectedRow.nInstrumentID &&
+			   ppNote->getType() == selectedRow.sType ) ||
+			  m_selection.isSelected( ppNote ) ) ) {
 
 			// Record original note if not already recorded
-			if ( m_oldNotes.find( pNote ) == m_oldNotes.end() ) {
-				m_oldNotes[ pNote ] = new Note( pNote );
+			if ( m_oldNotes.find( ppNote ) == m_oldNotes.end() ) {
+				m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 			}
 
 			bValueChanged = adjustNotePropertyDelta(
-				pNote, fDelta, bSendStatusMsg );
+				ppNote, fDelta, bSendStatusMsg );
 		}
 	}
 
@@ -270,17 +273,10 @@ void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	update();
 }
 
-void NotePropertiesRuler::clearOldNotes() {
-	for ( auto it : m_oldNotes ) {
-		delete it.second;
-	}
-	m_oldNotes.clear();
-}
-
 //! Move of selection is cancelled. Revert notes to preserved state.
 void NotePropertiesRuler::selectionMoveCancelEvent() {
 	for ( auto it : m_oldNotes ) {
-		Note *pNote = it.first, *pOldNote = it.second;
+		std::shared_ptr<Note> pNote = it.first, pOldNote = it.second;
 		switch ( m_mode ) {
 		case PatternEditor::Mode::Velocity:
 			pNote->set_velocity( pOldNote->get_velocity() );
@@ -309,7 +305,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 		}
 	}
 
-	clearOldNotes();
+	m_oldNotes.clear();
 }
 
 void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
@@ -331,13 +327,13 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 		return;
 	}
 
-	clearOldNotes();
+	m_oldNotes.clear();
 
 	const auto notesUnderPoint = getNotesAtPoint(
 		pPattern, pEvent->pos(), getCursorMargin( pEvent ), false );
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
-			m_oldNotes[ ppNote ] = new Note( ppNote );
+			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 		}
 	}
 
@@ -374,7 +370,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	const int nDrawStart = std::min( m_nDrawPreviousColumn, nRealColumn );
 	const int nDrawEnd = std::max( m_nDrawPreviousColumn, nRealColumn );
-	std::vector<Note*> notesSinceLastAction;
+	std::vector< std::shared_ptr<Note> > notesSinceLastAction;
 	const auto notes = pPattern->getNotes();
 	for ( auto it = notes->lower_bound( nDrawStart );
 		  it != notes->end() && it->first <= nDrawEnd; ++it ) {
@@ -395,7 +391,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 		// Complete current undo action, and start a new one.
 		addUndoAction( "NotePropertiesRuler::propertyDraw" );
 		for ( const auto& ppNote : notesSinceLastAction ) {
-			m_oldNotes[ ppNote ] = new Note( ppNote );
+			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 		}
 		m_nDrawPreviousColumn = nRealColumn;
 	}
@@ -508,7 +504,7 @@ void NotePropertiesRuler::propertyDrawEnd()
 //! Adjust a note's property by applying a delta to the current value, and
 //! clipping to the appropriate range. Optionally, show a message with the value
 //! for some properties.
-bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
+bool NotePropertiesRuler::adjustNotePropertyDelta( std::shared_ptr<Note> pNote,
 												   float fDelta,
 												   bool bMessage )
 {
@@ -517,7 +513,7 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote,
 		return false;
 	}
 
-	Note *pOldNote = m_oldNotes[ pNote ];
+	auto pOldNote = m_oldNotes[ pNote ];
 	if ( pOldNote == nullptr ) {
 		ERRORLOG( QString( "Could not find note corresponding to [%1]" )
 				  .arg( pNote->toQString() ) );
@@ -693,14 +689,14 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 		}
 
-		clearOldNotes();
+		m_oldNotes.clear();
 
 		for ( auto& ppNote : m_selection ) {
 			if ( ppNote == nullptr ) {
 				continue;
 			}
 
-			m_oldNotes[ ppNote ] = new Note( ppNote );
+			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 
 			// Apply delta to the property
 			bValueChanged = adjustNotePropertyDelta(
@@ -746,7 +742,7 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 				sUndoContext );
 		}
 		for ( auto it : m_oldNotes ) {
-			Note *pNewNote = it.first, *pOldNote = it.second;
+			std::shared_ptr<Note> pNewNote = it.first, pOldNote = it.second;
 
 			const int nNewKey = pNewNote->get_key();
 			const int nNewOctave = pNewNote->get_octave();
@@ -791,7 +787,7 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 			pHydrogenApp->endUndoMacro( sUndoContext );
 		}
 	}
-	clearOldNotes();
+	m_oldNotes.clear();
 }
 
 void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
@@ -893,7 +889,8 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	}
 }
 
-void NotePropertiesRuler::drawNote( QPainter& p, H2Core::Note* pNote,
+void NotePropertiesRuler::drawNote( QPainter& p,
+									std::shared_ptr<H2Core::Note> pNote,
 									NoteStyle noteStyle, int nOffsetX )
 {
 	if ( pNote == nullptr ) {

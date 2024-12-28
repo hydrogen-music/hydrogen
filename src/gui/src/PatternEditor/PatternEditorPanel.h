@@ -25,6 +25,7 @@
 #define PATTERN_EDITOR_PANEL_H
 
 #include <vector>
+#include <memory>
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -182,7 +183,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * This is especially helpful for order-based instrument operations. */
 		int getRowIndexDB( const DrumPatternRow& row );
 		/** Retrieves the row number @a pNote is located in. */
-		int findRowDB( H2Core::Note* pNote, bool bSilent = false ) const;
+		int findRowDB( std::shared_ptr<H2Core::Note> pNote,
+					   bool bSilent = false ) const;
 		int getRowNumberDB() const;
 		/** Returns the instrument corresponding to the currently selected row
 		 * of the DB.
@@ -263,12 +265,15 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void updateDB();
 
 		/** Returns both notex hovered by mouse and keyboard. */
-		const std::map<std::shared_ptr<H2Core::Pattern>,
-			std::vector<H2Core::Note*>>& getHoveredNotes() const;
-		void setHoveredNotesMouse( std::map<std::shared_ptr<H2Core::Pattern>,
-								   std::vector<H2Core::Note*>> hoveredNotes );
-		void setHoveredNotesKeyboard( std::map<std::shared_ptr<H2Core::Pattern>,
-									  std::vector<H2Core::Note*>> hoveredNotes );
+		const std::map< std::shared_ptr<H2Core::Pattern>,
+						std::vector< std::shared_ptr<H2Core::Note> > >&
+			getHoveredNotes() const;
+		void setHoveredNotesMouse(
+			std::map< std::shared_ptr<H2Core::Pattern>,
+			std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes );
+		void setHoveredNotesKeyboard(
+			std::map< std::shared_ptr<H2Core::Pattern>,
+			std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes );
 
 	public slots:
 		void showDrumEditor();
@@ -411,12 +416,12 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void updateHoveredNotes();
 		/** Combined version of both #m_hoveredNotesMouse and
 		 * #m_hoveredNotesKeyboard. */
-		std::map<std::shared_ptr<H2Core::Pattern>,
-			std::vector<H2Core::Note*>> m_hoveredNotes;
-		std::map<std::shared_ptr<H2Core::Pattern>,
-			std::vector<H2Core::Note*>> m_hoveredNotesMouse;
-		std::map<std::shared_ptr<H2Core::Pattern>,
-			std::vector<H2Core::Note*>> m_hoveredNotesKeyboard;
+		std::map< std::shared_ptr<H2Core::Pattern>,
+				  std::vector< std::shared_ptr<H2Core::Note> > > m_hoveredNotes;
+		std::map< std::shared_ptr<H2Core::Pattern>,
+			std::vector< std::shared_ptr<H2Core::Note> > > m_hoveredNotesMouse;
+		std::map< std::shared_ptr<H2Core::Pattern>,
+			std::vector< std::shared_ptr<H2Core::Note> > > m_hoveredNotesKeyboard;
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
@@ -440,8 +445,9 @@ inline int PatternEditorPanel::getResolution() const {
 inline bool PatternEditorPanel::isUsingTriplets() const {
 	return m_bIsUsingTriplets;
 }
-inline const std::map<std::shared_ptr<H2Core::Pattern>,
-	std::vector<H2Core::Note*>>& PatternEditorPanel::getHoveredNotes() const {
+inline const std::map< std::shared_ptr<H2Core::Pattern>,
+	std::vector< std::shared_ptr<H2Core::Note> > >&
+	PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
 }
 

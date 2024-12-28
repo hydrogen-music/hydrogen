@@ -627,9 +627,10 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pLayer == nullptr ) {
 		return;
 	}
-	Note *pNote = new Note( pInstr, 0, pLayer->get_end_velocity() - 0.01 );
+	auto pNote = std::make_shared<Note>(
+		pInstr, 0, pLayer->get_end_velocity() - 0.01 );
 	pNote->setSpecificCompoIdx( m_nSelectedComponent );
-	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
+	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 
 	setSamplelengthFrames();
 	createPositionsRulerPath();

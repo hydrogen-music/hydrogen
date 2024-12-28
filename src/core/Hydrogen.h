@@ -475,7 +475,7 @@ private:
 
 		void killInstruments();
 
-	void			midiNoteOn( Note *note );
+	void			midiNoteOn( std::shared_ptr<Note> pNote );
 
 	/**
 	 * Auxiliary function setting a bunch of global variables.

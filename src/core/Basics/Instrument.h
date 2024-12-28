@@ -241,9 +241,9 @@ class Instrument : public H2Core::Object<Instrument>
 		bool is_soloed() const;
 
 		/** enqueue the instrument for @a pNote */
-		void enqueue( Note* pNote );
+		void enqueue( std::shared_ptr<Note> pNote );
 		/** dequeue the instrument for @a pNote */
-		void dequeue( Note* pNote );
+		void dequeue( std::shared_ptr<Note> pNote );
 		/** get the queued status of the instrument */
 		bool is_queued() const;
 		const QStringList& getEnqueuedBy() const;

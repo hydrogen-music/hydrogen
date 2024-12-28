@@ -470,7 +470,7 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 	return portList;
 }
 
-void PortMidiDriver::handleQueueNote(Note* pNote)
+void PortMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 {
 	if ( m_pMidiOut == nullptr ) {
 		return;

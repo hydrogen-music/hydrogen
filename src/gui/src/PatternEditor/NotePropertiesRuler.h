@@ -30,6 +30,7 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <map>
+#include <memory>
 
 #include "PatternEditor.h"
 
@@ -102,7 +103,7 @@ class NotePropertiesRuler : public PatternEditor,
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawPattern() override;
-		void drawNote( QPainter& painter, H2Core::Note* pNote,
+		void drawNote( QPainter& painter, std::shared_ptr<H2Core::Note> pNote,
 					   NoteStyle noteStyle, int nOffsetX = 0 );
 
 		void paintEvent(QPaintEvent *ev) override;
@@ -114,10 +115,10 @@ class NotePropertiesRuler : public PatternEditor,
 		//! Map of notes currently in the pattern -> old notes with their
 		//! properties. Populated at the beginning of a properties editing
 		//! gesture.
-		std::map< H2Core::Note *, H2Core::Note *> m_oldNotes;
-		void clearOldNotes();
+		std::map< std::shared_ptr<H2Core::Note>,
+				  std::shared_ptr<H2Core::Note> > m_oldNotes;
 
-		bool adjustNotePropertyDelta( H2Core::Note *pNote,
+		bool adjustNotePropertyDelta( std::shared_ptr<H2Core::Note> pNote,
 									  float fDelta,
 									  bool bMessage = false );
 

@@ -214,7 +214,7 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	const Pattern::notes_t* notes = pPattern->getNotes();
 
 	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
-		Note* ppNote = it->second;
+		auto ppNote = it->second;
 		const int nRow = m_pPatternEditorPanel->findRowDB( ppNote );
 		uint x_pos = PatternEditor::nMargin + (it->first * m_fGridWidth);
 		uint y_pos = ( nRow * m_nGridHeight) + ( m_nGridHeight / 2 ) - 3;

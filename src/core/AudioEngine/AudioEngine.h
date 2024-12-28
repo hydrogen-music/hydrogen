@@ -251,7 +251,7 @@ public:
 	 */
 	void			assertLocked( const QString& sClass, const char* sFunction,
 								  const QString& sMsg );
-	void			noteOn( Note *note );
+	void			noteOn( std::shared_ptr<Note> pNote );
 
 	/**
 	 * Main audio processing function called by the audio drivers whenever
@@ -685,11 +685,13 @@ private:
 	/// Song Note FIFO
 	// overload the > operator of Note objects for priority_queue
 	struct compare_pNotes {
-		bool operator() (Note* pNote1, Note* pNote2);
+		bool operator() ( std::shared_ptr<Note> pNote1,
+						  std::shared_ptr<Note> pNote2 );
 	};
 
-	std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
-	std::deque<Note*>	m_midiNoteQueue;	///< Midi Note FIFO
+	std::priority_queue<std::shared_ptr<Note>,
+		std::deque<std::shared_ptr<Note>>, compare_pNotes > m_songNoteQueue;
+	std::deque<std::shared_ptr<Note>>	m_midiNoteQueue;	///< Midi Note FIFO
 	
 	/**
 	 * Pointer to the metronome.

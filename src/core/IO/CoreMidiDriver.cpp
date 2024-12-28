@@ -238,7 +238,7 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 	return cmPortList;
 }
 
-void CoreMidiDriver::handleQueueNote(Note* pNote)
+void CoreMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );

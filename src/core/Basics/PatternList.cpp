@@ -402,10 +402,10 @@ std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
 	return types;
 }
 
-std::vector<H2Core::Note*> PatternList::getAllNotesOfType(
+std::vector<std::shared_ptr<Note>> PatternList::getAllNotesOfType(
 	const DrumkitMap::Type& sType ) const
 {
-	std::vector<H2Core::Note*> notes;
+	std::vector<std::shared_ptr<Note>> notes;
 
 	for ( const auto& ppPattern : __patterns ) {
 		if ( ppPattern != nullptr ) {

@@ -25,6 +25,7 @@
 #define PATCH_H
 
 #include <vector>
+#include <memory>
 
 #include <QString>
 
@@ -41,7 +42,7 @@ public:
 		struct Mapping {
 			QString sOldPatternType;
 			int nNewInstrumentId;
-			std::vector<H2Core::Note*> affectedNotes;
+			std::vector< std::shared_ptr<H2Core::Note> > affectedNotes;
 
 			/** Formatted string version for debugging purposes.
 			 * \param sPrefix String prefix which will be added in front of
@@ -59,7 +60,7 @@ public:
 		~Patch();
 
 		void addMapping( const QString& sOldPatternType, int nNewInstrumentId,
-						 std::vector<H2Core::Note*> affectedNotes );
+						 std::vector< std::shared_ptr<H2Core::Note> > affectedNotes );
 		const std::vector<Mapping> getMappings() const {
 			return m_mappings;
 		}

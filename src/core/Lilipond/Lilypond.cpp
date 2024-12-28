@@ -24,9 +24,10 @@
 #include <QTextCodec>
 
 #include <core/Lilipond/Lilypond.h>
-#include <core/Basics/Song.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/Song.h>
 
 /*
  * Header of LilyPond file
@@ -143,7 +144,7 @@ void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
 			continue;
 		}
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPatternNotes, it, nNote, &pattern ) {
-			if ( Note *pNote = it->second ) {
+			if ( auto pNote = it->second ) {
 				int nId = pNote->get_instrument_id();
 				float fVelocity = pNote->get_velocity();
 				notes[ nNote ].push_back( std::make_pair( nId, fVelocity ) );

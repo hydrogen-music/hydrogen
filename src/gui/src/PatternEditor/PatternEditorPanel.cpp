@@ -1725,7 +1725,8 @@ int PatternEditorPanel::getRowNumberDB() const {
 	return m_db.size();
 }
 
-int PatternEditorPanel::findRowDB( Note* pNote, bool bSilent ) const {
+int PatternEditorPanel::findRowDB( std::shared_ptr<Note> pNote,
+								   bool bSilent ) const {
 	if ( pNote != nullptr ) {
 		for ( int ii = 0; ii < m_db.size(); ++ii ) {
 			// Both instrument ID and type are unique within a drumkit. But
@@ -1844,8 +1845,9 @@ void PatternEditorPanel::updateDB() {
 	}
 }
 
-void PatternEditorPanel::setHoveredNotesMouse( std::map<std::shared_ptr<H2Core::Pattern>,
-											   std::vector<H2Core::Note*>> hoveredNotes ) {
+void PatternEditorPanel::setHoveredNotesMouse(
+	std::map< std::shared_ptr<H2Core::Pattern>,
+	std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes ) {
 
 	if ( hoveredNotes == m_hoveredNotesMouse ) {
 		return;
@@ -1858,8 +1860,9 @@ void PatternEditorPanel::setHoveredNotesMouse( std::map<std::shared_ptr<H2Core::
 	getVisiblePropertiesRuler()->updateEditor( true );
 }
 
-void PatternEditorPanel::setHoveredNotesKeyboard( std::map<std::shared_ptr<H2Core::Pattern>,
-												  std::vector<H2Core::Note*>> hoveredNotes ) {
+void PatternEditorPanel::setHoveredNotesKeyboard(
+	std::map< std::shared_ptr<H2Core::Pattern>,
+	std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes ) {
 	if ( hoveredNotes == m_hoveredNotesKeyboard ) {
 		return;
 	}
@@ -1951,7 +1954,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
 
 	for ( const auto& ppPattern : *pPatternList ) {
 		if ( ppPattern != nullptr ) {
-			std::vector<Note*> notes;
+			std::vector< std::shared_ptr<Note> > notes;
 			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr &&
 					 ppNote->get_instrument_id() == row.nInstrumentID &&

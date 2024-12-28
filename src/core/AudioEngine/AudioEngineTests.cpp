@@ -1541,29 +1541,7 @@ void AudioEngineTests::mergeQueues( std::vector<std::shared_ptr<Note>>* noteList
 		// Check whether the notes is already present.
 		for ( const auto& presentNote : *noteList ) {
 			if ( newNote != nullptr && presentNote != nullptr ) {
-				if ( newNote->match( presentNote.get() ) &&
-					 newNote->get_position() == presentNote->get_position() &&
-					 newNote->get_velocity() == presentNote->get_velocity() ) {
-					bNoteFound = true;
-				}
-			}
-		}
-
-		if ( ! bNoteFound ) {
-			noteList->push_back( std::make_shared<Note>(newNote.get()) );
-		}
-	}
-}
-
-// Used for the Sampler note queue
-void AudioEngineTests::mergeQueues( std::vector<std::shared_ptr<Note>>* noteList, std::vector<Note*> newNotes ) {
-	bool bNoteFound;
-	for ( const auto& newNote : newNotes ) {
-		bNoteFound = false;
-		// Check whether the notes is already present.
-		for ( const auto& presentNote : *noteList ) {
-			if ( newNote != nullptr && presentNote != nullptr ) {
-				if ( newNote->match( presentNote.get() ) &&
+				if ( newNote->match( presentNote ) &&
 					 newNote->get_position() == presentNote->get_position() &&
 					 newNote->get_velocity() == presentNote->get_velocity() ) {
 					bNoteFound = true;
@@ -1659,7 +1637,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 	for ( const auto& ppNewNote : newNotes ) {
 		for ( const auto& ppOldNote : oldNotes ) {
 			if ( ppOldNote != nullptr && ppNewNote != nullptr &&
-				 ppNewNote->match( ppOldNote.get() ) &&
+				 ppNewNote->match( ppOldNote ) &&
 				 ppNewNote->get_humanize_delay() == 
 				 ppOldNote->get_humanize_delay() &&
 				 ppOldNote->get_instrument() != nullptr &&
@@ -1768,18 +1746,19 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 
 std::vector<std::shared_ptr<Note>> AudioEngineTests::copySongNoteQueue() {
 	auto pAE = Hydrogen::get_instance()->getAudioEngine();
-	std::vector<Note*> rawNotes;
-	std::vector<std::shared_ptr<Note>> notes;
+	std::vector<std::shared_ptr<Note>> originalNotes;
+	std::vector<std::shared_ptr<Note>> copiedNotes;
 	for ( ; ! pAE->m_songNoteQueue.empty(); pAE->m_songNoteQueue.pop() ) {
-		rawNotes.push_back( pAE->m_songNoteQueue.top() );
-		notes.push_back( std::make_shared<Note>( pAE->m_songNoteQueue.top() ) );
+		originalNotes.push_back( pAE->m_songNoteQueue.top() );
+		copiedNotes.push_back(
+			std::make_shared<Note>( pAE->m_songNoteQueue.top() ) );
 	}
 
-	for ( auto& nnote : rawNotes ) {
+	for ( auto& nnote : originalNotes ) {
 		pAE->m_songNoteQueue.push( nnote );
 	}
 
-	return notes;
+	return copiedNotes;
 }
 
 void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext ) {

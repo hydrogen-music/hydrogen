@@ -48,6 +48,7 @@
 
 #include <cassert>
 #include <algorithm> // for std::min
+#include <memory>
 
 using namespace H2Core;
 
@@ -322,9 +323,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
 					const float fVelocity = std::min(
 						(float)pEvent->x()/(float)nWidth, VELOCITY_MAX );
-					Note *pNote = new Note( pInstr, 0, fVelocity);
+					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity);
 					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-						noteOn(pNote);
+						noteOn( pNote );
 				}
 			}
 			else if ( pEvent->button() == Qt::LeftButton &&

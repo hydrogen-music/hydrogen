@@ -364,7 +364,7 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 
 		while ( !note_node.isNull() ) {
-			Note* pNote = nullptr;
+			std::shared_ptr<Note> pNote = nullptr;
 			unsigned nPosition = note_node.read_int( "position", 0 );
 			float fLeadLag = note_node.read_float(
 				"leadlag", LEAD_LAG_DEFAULT, false , false);
@@ -388,9 +388,10 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 				noteoff = true;
 			}
 
-			pNote = new Note( nullptr, nPosition, fVelocity, fPan, nLength, nPitch);
+			pNote = std::make_shared<Note>( nullptr, nPosition, fVelocity, fPan,
+											nLength, nPitch );
 			pNote->set_key_octave( sKey );
-			pNote->set_lead_lag(fLeadLag);
+			pNote->set_lead_lag( fLeadLag );
 			pNote->set_note_off( noteoff );
 			pNote->set_probability( fProbability );
 			pPattern->insertNote( pNote );
@@ -418,7 +419,7 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 				float fPanR = noteNode.read_float( "pan_R", 0.5 );
 				float fPan = Sampler::getRatioPan( fPanL, fPanR );
 
-				Note* pNote = new Note(
+				auto pNote = std::make_shared<Note>(
 					nullptr,
 					noteNode.read_int( "position", 0 ),
 					noteNode.read_float( "velocity", VELOCITY_DEFAULT ),

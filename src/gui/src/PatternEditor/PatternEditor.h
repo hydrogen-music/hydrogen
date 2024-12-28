@@ -30,6 +30,8 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
+#include <memory>
+
 #include <QtGui>
 #if QT_VERSION >= 0x050000
 #  include <QtWidgets>
@@ -57,7 +59,7 @@ class PatternEditor : public QWidget,
 					  public EventListener,
 					  public H2Core::Object<PatternEditor>,
 					  protected WidgetWithScalableFont<7, 9, 11>,
-					  public SelectionWidget<H2Core::Note *>
+					  public SelectionWidget<std::shared_ptr<H2Core::Note>>
 {
 	H2_OBJECT(PatternEditor)
 	Q_OBJECT
@@ -159,14 +161,15 @@ public:
 
 	//! Do two notes match exactly, from the pattern editor's point of view?
 	//! They match if all user-editable properties are the same.
-	bool notesMatchExactly( H2Core::Note *pNoteA, H2Core::Note *pNoteB ) const;
+	bool notesMatchExactly( std::shared_ptr<H2Core::Note> pNoteA,
+							std::shared_ptr<H2Core::Note> pNoteB ) const;
 
 	//! Deselect some notes, and "overwrite" some others.
-	void deselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
-									const std::vector< H2Core::Note *>& overwritten );
+	void deselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
+									const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
 
-	void undoDeselectAndOverwriteNotes( const std::vector< H2Core::Note *>& selected,
-										const std::vector< H2Core::Note *>& overwritten );
+	void undoDeselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
+										const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
 
 	//! Raw Qt mouse events are passed to the Selection
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
@@ -228,7 +231,8 @@ public:
 										  int nOldKey,
 										  int nNewOctave,
 										  int nOldOctave );
-	static void triggerStatusMessage( H2Core::Note* pNote, const Mode& mode );
+	static void triggerStatusMessage( std::shared_ptr<H2Core::Note> pNote,
+									  const Mode& mode );
 
 	/**
 	 * Determines whether to pattern editor should show further
@@ -305,11 +309,11 @@ protected:
 
 	bool m_bSelectNewNotes;
 
-		void clearDraggedNotes();
 		/** Keeps track of all notes being drag-edited using the right mouse
 		 * button. It maps the new, updated version of a note to an copy of
 		 * itself still bearing the original values.*/
-		std::map<H2Core::Note*, H2Core::Note*> m_draggedNotes;
+		std::map< std::shared_ptr<H2Core::Note>,
+			std::shared_ptr<H2Core::Note> > m_draggedNotes;
 		/** Column a click-drag event did started in.*/
 		int m_nDragStartColumn;
 		/** Latest vertical position of a drag event. Adjusted in every drag
@@ -345,7 +349,8 @@ protected:
 	 *   currently shown in the pattern editor (the one selected in the song
 	 *   editor), currently hovered, or selected.
 	 */
-	void drawNote( QPainter &p, H2Core::Note *pNote, NoteStyle noteStyle ) const;
+	void drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
+				   NoteStyle noteStyle ) const;
 
 		/** Update #m_pPatternPixmap based on #m_pBackgroundPixmap to show the
 		 * latest content of all active pattern. */
@@ -401,13 +406,14 @@ protected:
 		 * discarding the selection instead of removing the note. We thus use
 		 * this member to cache the notes and only select them in case the mouse
 		 * will be moved with left button down. */
-		std::vector<H2Core::Note*> m_notesToSelectOnMove;
+		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelectOnMove;
 
 		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
-		std::vector<H2Core::Note*> getNotesAtPoint( std::shared_ptr<H2Core::Pattern> pPattern,
-													const QPoint& point,
-													int nCursorMargin,
-													bool bExcludeSelected );
+		std::vector< std::shared_ptr<H2Core::Note> > getNotesAtPoint(
+			std::shared_ptr<H2Core::Pattern> pPattern,
+			const QPoint& point,
+			int nCursorMargin,
+			bool bExcludeSelected );
 
 		void updateHoveredNotesMouse( QMouseEvent* pEvent );
 		void updateHoveredNotesKeyboard();

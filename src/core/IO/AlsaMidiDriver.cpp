@@ -546,7 +546,7 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 	ERRORLOG( "Midi port " + sPortName + " not found" );
 }
 
-void AlsaMidiDriver::handleQueueNote(Note* pNote)
+void AlsaMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 {
 	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );

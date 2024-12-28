@@ -45,7 +45,8 @@ namespace H2Core
 
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVelocity, float fPan, int nLength, float fPitch )
+Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
+			float fVelocity, float fPan, int nLength, float fPitch )
 	: __instrument_id( EMPTY_INSTR_ID ),
 	  m_sType( "" ),
 	  __position( nPosition ),
@@ -99,35 +100,34 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition, float fVeloc
 	setPan( fPan ); // this checks the boundaries
 }
 
-Note::Note( Note* other, std::shared_ptr<Instrument> pInstrument )
-	: Object( *other ),
-	  __instrument_id( EMPTY_INSTR_ID ),
-	  m_sType( other->getType() ),
-	  __position( other->get_position() ),
-	  __velocity( other->get_velocity() ),
-	  m_fPan( other->getPan() ),
-	  __length( other->get_length() ),
-	  __pitch( other->get_pitch() ),
-	  __key( other->get_key() ),
-	  __octave( other->get_octave() ),
+Note::Note( std::shared_ptr<Note> pOther, std::shared_ptr<Instrument> pInstrument )
+	: __instrument_id( EMPTY_INSTR_ID ),
+	  m_sType( pOther->getType() ),
+	  __position( pOther->get_position() ),
+	  __velocity( pOther->get_velocity() ),
+	  m_fPan( pOther->getPan() ),
+	  __length( pOther->get_length() ),
+	  __pitch( pOther->get_pitch() ),
+	  __key( pOther->get_key() ),
+	  __octave( pOther->get_octave() ),
 	  __adsr( nullptr ),
-	  __lead_lag( other->get_lead_lag() ),
-	  __cut_off( other->get_cut_off() ),
-	  __resonance( other->get_resonance() ),
-	  __humanize_delay( other->get_humanize_delay() ),
-	  __bpfb_l( other->get_bpfb_l() ),
-	  __bpfb_r( other->get_bpfb_r() ),
-	  __lpfb_l( other->get_lpfb_l() ),
-	  __lpfb_r( other->get_lpfb_r() ),
-	  __pattern_idx( other->get_pattern_idx() ),
-	  __midi_msg( other->get_midi_msg() ),
-	  __note_off( other->get_note_off() ),
-	  __just_recorded( other->get_just_recorded() ),
-	  __probability( other->get_probability() ),
-	  m_nNoteStart( other->getNoteStart() ),
-	  m_fUsedTickSize( other->getUsedTickSize() ),
-	  m_nSpecificCompoIdx( other->m_nSpecificCompoIdx ),
-	  __instrument( other->get_instrument() )
+	  __lead_lag( pOther->get_lead_lag() ),
+	  __cut_off( pOther->get_cut_off() ),
+	  __resonance( pOther->get_resonance() ),
+	  __humanize_delay( pOther->get_humanize_delay() ),
+	  __bpfb_l( pOther->get_bpfb_l() ),
+	  __bpfb_r( pOther->get_bpfb_r() ),
+	  __lpfb_l( pOther->get_lpfb_l() ),
+	  __lpfb_r( pOther->get_lpfb_r() ),
+	  __pattern_idx( pOther->get_pattern_idx() ),
+	  __midi_msg( pOther->get_midi_msg() ),
+	  __note_off( pOther->get_note_off() ),
+	  __just_recorded( pOther->get_just_recorded() ),
+	  __probability( pOther->get_probability() ),
+	  m_nNoteStart( pOther->getNoteStart() ),
+	  m_fUsedTickSize( pOther->getUsedTickSize() ),
+	  m_nSpecificCompoIdx( pOther->m_nSpecificCompoIdx ),
+	  __instrument( pOther->get_instrument() )
 {
 	if ( pInstrument != nullptr ) {
 		__instrument = pInstrument;
@@ -138,7 +138,7 @@ Note::Note( Note* other, std::shared_ptr<Instrument> pInstrument )
 
 		__layers_selected.resize( __instrument->get_components()->size() );
 		for ( int ii = 0; ii < __instrument->get_components()->size(); ++ii ) {
-			const auto ppSelectedLayerInfo = other->__layers_selected[ ii ];
+			const auto ppSelectedLayerInfo = pOther->__layers_selected[ ii ];
 			if ( ppSelectedLayerInfo != nullptr ) {
 				std::shared_ptr<SelectedLayerInfo> pSampleInfo =
 					std::make_shared<SelectedLayerInfo>();
@@ -155,8 +155,7 @@ Note::Note( Note* other, std::shared_ptr<Instrument> pInstrument )
 	}
 }
 
-Note::~Note()
-{
+Note::~Note() {
 }
 
 static inline float check_boundary( float fValue, float fMin, float fMax )
@@ -595,7 +594,7 @@ void Note::save_to( XMLNode& node ) const
 	node.write_float( "probability", __probability );
 }
 
-Note* Note::load_from( const XMLNode& node, bool bSilent )
+std::shared_ptr<Note> Note::load_from( const XMLNode& node, bool bSilent )
 {
 	bool bFound, bFound2;
 	float fPan = node.read_float( "pan", PAN_DEFAULT, &bFound, true, false, true );
@@ -611,7 +610,7 @@ Note* Note::load_from( const XMLNode& node, bool bSilent )
 		}
 	}
 
-	Note* note = new Note(
+	auto pNote = std::make_shared<Note>(
 		nullptr,
 		node.read_int( "position", 0, false, false, bSilent ),
 		node.read_float( "velocity", VELOCITY_DEFAULT, false, false, bSilent ),
@@ -619,16 +618,16 @@ Note* Note::load_from( const XMLNode& node, bool bSilent )
 		node.read_int( "length", LENGTH_ENTIRE_SAMPLE, true, false, bSilent ),
 		node.read_float( "pitch", PITCH_DEFAULT, false, false, bSilent )
 	);
-	note->set_lead_lag(
+	pNote->set_lead_lag(
 		node.read_float( "leadlag", LEAD_LAG_DEFAULT, false, false, bSilent ) );
-	note->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
-	note->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
-	note->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
-	note->setType( node.read_string( "type", "", true, true, bSilent ) );
-	note->set_probability(
+	pNote->set_key_octave( node.read_string( "key", "C0", false, false, bSilent ) );
+	pNote->set_note_off( node.read_bool( "note_off", false, false, false, bSilent ) );
+	pNote->set_instrument_id( node.read_int( "instrument", EMPTY_INSTR_ID, false, false, bSilent ) );
+	pNote->setType( node.read_string( "type", "", true, true, bSilent ) );
+	pNote->set_probability(
 		node.read_float( "probability", PROBABILITY_DEFAULT, false, false, bSilent ));
 
-	return note;
+	return pNote;
 }
 
 QString Note::prettyName() const {

@@ -126,25 +126,23 @@ void Sampler::process( uint32_t nFrames )
 	// Max notes limit
 	int nMaxNotes = Preferences::get_instance()->m_nMaxNotes;
 	while ( ( int )m_playingNotesQueue.size() > nMaxNotes ) {
-		Note * pOldNote = m_playingNotesQueue[ 0 ];
+		auto pOldNote = m_playingNotesQueue[ 0 ];
 		m_playingNotesQueue.erase( m_playingNotesQueue.begin() );
 		if ( pOldNote->get_instrument() != nullptr ) {
 			pOldNote->get_instrument()->dequeue( pOldNote );
 			WARNINGLOG( QString( "Number of playing notes [%1] exceeds maximum [%2]. Dropping note [%3]" )
 						.arg( m_playingNotesQueue.size() ).arg( nMaxNotes )
 						.arg( pOldNote->toQString() ) );
-			delete pOldNote;
 		}
 		else {
 			ERRORLOG( QString( "Old note in Sampler has no instrument! [%1]" )
 					  .arg( pOldNote->toQString() ) );
-			delete pOldNote;
 		}
 	}
 
 	// Render next `nFrames` audio frames of all playing notes.
 	unsigned i = 0;
-	Note* pNote;
+	std::shared_ptr<Note> pNote = nullptr;
 	while ( i < m_playingNotesQueue.size() ) {
 		pNote = m_playingNotesQueue[ i ];
 		if ( renderNote( pNote, nFrames ) ) {
@@ -185,11 +183,7 @@ void Sampler::process( uint32_t nFrames )
 
 		
 				m_queuedNoteOffs.erase( m_queuedNoteOffs.begin() );
-		
-				if ( pNote != nullptr ){
-					delete pNote;
-				}
-		
+
 				pNote = nullptr;
 			}
 		}
@@ -202,7 +196,7 @@ bool Sampler::isRenderingNotes() const {
 	return m_playingNotesQueue.size() > 0;
 }
 
-void Sampler::noteOn(Note *pNote )
+void Sampler::noteOn( std::shared_ptr<Note> pNote )
 {
 	assert( pNote );
 	if ( pNote == nullptr ) {
@@ -265,8 +259,12 @@ void Sampler::midiKeyboardNoteOff( int key )
 
 /// This old note_off function is only used by right click on mixer channel strip play button
 /// all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
-void Sampler::noteOff(Note* pNote )
+void Sampler::noteOff( std::shared_ptr<Note> pNote )
 {
+	if ( pNote == nullptr ) {
+		return;
+	}
+
 	auto pInstr = pNote->get_instrument();
 	if ( pInstr != nullptr ) {
 		// find the notes using the same instrument, and release them
@@ -277,8 +275,6 @@ void Sampler::noteOff(Note* pNote )
 			}
 		}
 	}
-	
-	delete pNote;
 }
 
 
@@ -556,12 +552,16 @@ void Sampler::handleSongSizeChange() {
 
 //------------------------------------------------------------------
 
-bool Sampler::renderNote( Note* pNote, unsigned nBufferSize )
+bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );
+		return true;
+	}
+
+	if ( pNote == nullptr ) {
 		return true;
 	}
 
@@ -1110,7 +1110,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 bool Sampler::renderNoteResample(
 	std::shared_ptr<Sample> pSample,
-	Note *pNote,
+	std::shared_ptr<Note> pNote,
 	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	std::shared_ptr<InstrumentComponent> pCompo,
 	int nComponentIdx,
@@ -1370,11 +1370,10 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 {
 	if ( pInstr != nullptr ) { // stop all notes using this instrument
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ) {
-			Note *pNote = m_playingNotesQueue[ i ];
+			auto pNote = m_playingNotesQueue[ i ];
 			assert( pNote );
-			if ( pNote->get_instrument() == pInstr ) {
+			if ( pNote != nullptr && pNote->get_instrument() == pInstr ) {
 				pInstr->dequeue( pNote );
-				delete pNote;
 				m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			}
 			++i;
@@ -1383,11 +1382,10 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 	else { // stop all notes
 		// delete all copied notes in the playing notes queue
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ++i ) {
-			Note *pNote = m_playingNotesQueue[i];
-			if ( pNote->get_instrument() != nullptr ) {
+			auto pNote = m_playingNotesQueue[i];
+			if ( pNote != nullptr && pNote->get_instrument() != nullptr ) {
 				pNote->get_instrument()->dequeue( pNote );
 			}
-			delete pNote;
 		}
 		m_playingNotesQueue.clear();
 	}
@@ -1427,12 +1425,11 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 
 		pLayer->set_sample( pSample );
 
-		Note *pPreviewNote = new Note(
+		auto pPreviewNote = std::make_shared<Note>(
 			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
 
 		stopPlayingNotes( m_pPreviewInstrument );
 		noteOn( pPreviewNote );
-
 	}
 
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
@@ -1460,7 +1457,7 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 	m_pPreviewInstrument = pInstr;
 	pInstr->set_is_preview_instrument(true);
 
-	Note *pPreviewNote = new Note(
+	auto pPreviewNote = std::make_shared<Note>(
 		m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
 
 	noteOn( pPreviewNote );	// exclusive note

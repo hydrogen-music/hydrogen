@@ -65,7 +65,8 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 	, m_sInfo( pOther->getInfo() )
 {
 	FOREACH_NOTE_CST_IT_BEGIN_END( pOther->getNotes(),it ) {
-		m_notes.insert( std::make_pair( it->first, new Note( it->second ) ) );
+		m_notes.insert( std::make_pair( it->first,
+										std::make_shared<Note>( it->second ) ) );
 	}
 
 	for ( const auto& ppPattern : pOther->m_virtualPatterns ) {
@@ -77,11 +78,7 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 	}
 }
 
-Pattern::~Pattern()
-{
-	for( notes_cst_it_t it=m_notes.begin(); it!=m_notes.end(); it++ ) {
-		delete it->second;
-	}
+Pattern::~Pattern() {
 }
 
 bool Pattern::loadDoc( const QString& sPatternPath, XMLDoc* pDoc, bool bSilent )
@@ -167,7 +164,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			Note* pNote = Note::load_from( note_node, bSilent );
+			auto pNote = Note::load_from( note_node, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr &&
 				 ( pNote->get_instrument_id() != EMPTY_INSTR_ID ||
@@ -279,9 +276,11 @@ void Pattern::saveTo( XMLNode& node, int nInstrumentId, const QString& sType,
 	}
 }
 
-Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
-						 const QString& sInstrumentType, Note::Key key,
-						 Note::Octave octave, bool bStrict ) const
+std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
+										 int nInstrumentId,
+										 const QString& sInstrumentType,
+										 Note::Key key, Note::Octave octave,
+										 bool bStrict ) const
 {
 	for ( notes_cst_it_t it = m_notes.lower_bound( nIdx_a );
 		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
@@ -322,9 +321,10 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
 	return nullptr;
 }
 
-Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
-						  const QString& sInstrumentType,
-						  bool bStrict ) const
+std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
+										 int nInstrumentId,
+										 const QString& sInstrumentType,
+										 bool bStrict ) const
 {
 	notes_cst_it_t it;
 	for ( it = m_notes.lower_bound( nIdx_a );
@@ -382,7 +382,7 @@ Note* Pattern::findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
 	return nullptr;
 }
 
-void Pattern::removeNote( Note* pNote )
+void Pattern::removeNote( std::shared_ptr<Note> pNote )
 {
 	int nPos = pNote->get_position();
 	for ( notes_it_t it = m_notes.lower_bound( nPos );
@@ -415,28 +415,22 @@ void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument,
 		return;
 	}
 
-	bool locked = false;
-	std::list< Note* > slate;
+	bool bLocked = false;
 	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote->get_instrument() == pInstrument ) {
-			if ( !locked && bRequiresLock ) {
+		if ( pNote != nullptr && pNote->get_instrument() == pInstrument ) {
+			if ( ! bLocked && bRequiresLock ) {
 				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-				locked = true;
+				bLocked = true;
 			}
-			slate.push_back( pNote );
 			m_notes.erase( it++ );
 		} else {
 			++it;
 		}
 	}
-	if ( locked ) {
+	if ( bLocked ) {
 		Hydrogen::get_instance()->getAudioEngine()->unlock();
-	}
-	while ( slate.size() ) {
-		delete slate.front();
-		slate.pop_front();
 	}
 }
 
@@ -446,20 +440,11 @@ void Pattern::clear( bool bRequiresLock )
 	if ( bRequiresLock ){
 		pAudioEngine->lock( RIGHT_HERE );
 	}
-	std::list< Note* > slate;
-	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
-		auto pNote = it->second;
-		assert( pNote );
-		slate.push_back( pNote );
-		m_notes.erase( it++ );
-	}
+
+	m_notes.clear();
+
 	if ( bRequiresLock ) {
 		pAudioEngine->unlock();
-	}
-
-	while ( slate.size() ) {
-		delete slate.front();
-		slate.pop_front();
 	}
 }
 
@@ -558,10 +543,10 @@ std::set<DrumkitMap::Type> Pattern::getAllTypes() const {
 	return types;
 }
 
-std::vector<H2Core::Note*> Pattern::getAllNotesOfType(
+std::vector<std::shared_ptr<Note>> Pattern::getAllNotesOfType(
 	const DrumkitMap::Type& sType ) const
 {
-	std::vector<H2Core::Note*> notes;
+	std::vector<std::shared_ptr<Note>> notes;
 
 	for ( const auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr && ppNote->getType() == sType ) {

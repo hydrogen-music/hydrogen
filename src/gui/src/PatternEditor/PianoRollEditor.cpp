@@ -61,7 +61,7 @@ PianoRollEditor::~PianoRollEditor()
 	INFOLOG( "DESTROY" );
 }
 
-QPoint PianoRollEditor::noteToPoint( H2Core::Note* pNote ) const {
+QPoint PianoRollEditor::noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const {
 	if ( pNote == nullptr ) {
 		return QPoint();
 	}
@@ -389,7 +389,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	const Pattern::notes_t* pNotes = pPattern->getNotes();
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
-		Note *pNote = it->second;
+		auto pNote = it->second;
 		if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
 			 pNote->getType() == selectedRow.sType ) {
 			const auto notePoint = noteToPoint( pNote );

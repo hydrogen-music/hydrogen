@@ -196,7 +196,7 @@ class Note;
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
 					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 		std::set<DrumkitMap::Type> getAllTypes() const;
-		std::vector<H2Core::Note*> getAllNotesOfType(
+		std::vector<std::shared_ptr<Note>> getAllNotesOfType(
 			const DrumkitMap::Type& sType ) const;
 
 		friend bool operator==( const PatternList& lhs, const PatternList& rhs );

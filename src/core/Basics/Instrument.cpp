@@ -574,13 +574,13 @@ void Instrument::save_to( XMLNode& node, bool bSongKit ) const
 	}
 }
 
-void Instrument::enqueue( Note* pNote ) {
+void Instrument::enqueue( std::shared_ptr<Note> pNote ) {
 	__queued++;
 
 	m_enqueuedBy.push_back( pNote->prettyName() );
 }
 
-void Instrument::dequeue( Note* pNote ) {
+void Instrument::dequeue( std::shared_ptr<Note> pNote ) {
 	if ( __queued <= 0 ) {
 		ERRORLOG( QString( "[%1] is not queued!" ).arg( __name ) );
 		return;

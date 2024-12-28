@@ -31,6 +31,7 @@
 #include <alsa/asoundlib.h>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace H2Core
 {
@@ -54,7 +55,7 @@ public:
 
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	virtual void handleQueueNote(Note* pNote) override;
+	virtual void handleQueueNote( std::shared_ptr<Note> pNote) override;
 	
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;

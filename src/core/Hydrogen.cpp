@@ -339,9 +339,9 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	CoreActionController::initExternalControlInterfaces();
 }
 
-void Hydrogen::midiNoteOn( Note *note )
+void Hydrogen::midiNoteOn( std::shared_ptr<Note> pNote )
 {
-	m_pAudioEngine->noteOn( note );
+	m_pAudioEngine->noteOn( pNote );
 }
 
 bool Hydrogen::addRealtimeNote(	int		nInstrument,
@@ -507,7 +507,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 			for ( unsigned nNote = 0; nNote < nPatternSize; nNote++ ) {
 				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nNote, pCurrentPattern ) {
-					Note *pNote = it->second;
+					auto pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->get_position() == m_nLastRecordedMIDINoteTick &&
 						 pInstrument == pNote->get_instrument() ) {
@@ -567,7 +567,8 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 			}
 		}
 		else { // note on
-			Note *pNote2 = new Note( pInstrument, nRealColumn, fVelocity, fPan );
+			auto pNote2 = std::make_shared<Note>(
+				pInstrument, nRealColumn, fVelocity, fPan );
 
 			int divider = nNote / 12;
 			Note::Octave octave = (Note::Octave)(divider -3);
@@ -580,13 +581,14 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	else {
 		if ( bNoteOff ) {
 			if ( pSampler->isInstrumentPlaying( pInstrument ) ) {
-				Note *pNoteOff = new Note( pInstrument );
+				auto pNoteOff = std::make_shared<Note>( pInstrument );
 				pNoteOff->set_note_off( true );
 				midiNoteOn( pNoteOff );
 			}
 		}
 		else { // note on
-			Note *pNote2 = new Note( pInstrument, nRealColumn, fVelocity, fPan );
+			auto pNote2 = std::make_shared<Note>(
+				pInstrument, nRealColumn, fVelocity, fPan );
 			midiNoteOn( pNote2 );
 		}
 	}
