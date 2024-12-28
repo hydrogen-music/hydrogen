@@ -1140,17 +1140,17 @@ void HydrogenApp::onEventQueueTimer()
 		beginUndoMacro( tr( "Input Midi Note" ) );
 		if ( pOldNote != nullptr ) { // note found => remove it
 			pushUndoCommand( new SE_addOrRemoveNoteAction(
-								 pOldNote->get_position(),
-								 pOldNote->get_instrument_id(),
+								 pOldNote->getPosition(),
+								 pOldNote->getInstrumentId(),
 								 pOldNote->getType(),
 								 pQueue->m_addMidiNoteVector[0].m_pattern,
-								 pOldNote->get_length(),
-								 pOldNote->get_velocity(),
+								 pOldNote->getLength(),
+								 pOldNote->getVelocity(),
 								 pOldNote->getPan(),
-								 pOldNote->get_lead_lag(),
-								 pOldNote->get_key(),
-								 pOldNote->get_octave(),
-								 pOldNote->get_probability(),
+								 pOldNote->getLeadLag(),
+								 pOldNote->getKey(),
+								 pOldNote->getOctave(),
+								 pOldNote->getProbability(),
 								 /*isDelete*/ true,
 								 /*isMidi*/ false,
 								 /*isNoteOff*/ false ) );

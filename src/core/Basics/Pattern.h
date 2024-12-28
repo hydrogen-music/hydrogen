@@ -453,7 +453,7 @@ inline const Pattern::virtual_patterns_t* Pattern::getFlattenedVirtualPatterns()
 inline void Pattern::insertNote( std::shared_ptr<Note> pNote )
 {
 	if ( pNote != nullptr ) {
-		m_notes.insert( std::make_pair( pNote->get_position(), pNote ) );
+		m_notes.insert( std::make_pair( pNote->getPosition(), pNote ) );
 	}
 }
 

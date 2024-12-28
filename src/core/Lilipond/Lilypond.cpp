@@ -145,8 +145,8 @@ void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
 		}
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPatternNotes, it, nNote, &pattern ) {
 			if ( auto pNote = it->second ) {
-				int nId = pNote->get_instrument_id();
-				float fVelocity = pNote->get_velocity();
+				int nId = pNote->getInstrumentId();
+				float fVelocity = pNote->getVelocity();
 				notes[ nNote ].push_back( std::make_pair( nId, fVelocity ) );
 			}
 		}

@@ -552,17 +552,17 @@ void AlsaMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}
-	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
 		ERRORLOG( "Invalid note" );
 		return;
 	}
 
-	int channel = pNote->get_instrument()->get_midi_out_channel();
+	int channel = pNote->getInstrument()->get_midi_out_channel();
 	if (channel < 0) {
 		return;
 	}
-	int key = pNote->get_midi_key();
-	int velocity = pNote->get_midi_velocity();
+	int key = pNote->getMidiKey();
+	int velocity = pNote->getMidiVelocity();
 
 	snd_seq_event_t ev;
 
@@ -616,13 +616,13 @@ void AlsaMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 		return;
 	}
 
-//	channel = pNote->get_instrument()->get_midi_out_channel();
+//	channel = pNote->getInstrument()->get_midi_out_channel();
 	if (channel < 0) {
 		return;
 	}
 
 //	key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key;
-//	int velocity = pNote->get_midi_velocity();
+//	int velocity = pNote->getMidiVelocity();
 
 	snd_seq_event_t ev;
 

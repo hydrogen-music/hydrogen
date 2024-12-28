@@ -912,24 +912,24 @@ void AudioEngineTests::testNoteEnqueuing() {
 				auto pNote = notesInSong[ ii ];
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
-							 .arg( pNote->get_instrument() != nullptr ?
-								   pNote->get_instrument()->get_name() :
+							 .arg( pNote->getInstrument() != nullptr ?
+								   pNote->getInstrument()->get_name() :
 								   "nullptr" )
-							 .arg( pNote->get_position() )
+							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
-							 .arg( pNote->get_velocity() ) );
+							 .arg( pNote->getVelocity() ) );
 			}
 			sMsg.append( "NoteQueue:\n" );
 			for ( int ii = 0; ii < notesInSongQueue.size(); ++ii  ) {
 				auto pNote = notesInSongQueue[ ii ];
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
-							 .arg( pNote->get_instrument() != nullptr ?
-								   pNote->get_instrument()->get_name() :
+							 .arg( pNote->getInstrument() != nullptr ?
+								   pNote->getInstrument()->get_name() :
 								   "nullptr" )
-							 .arg( pNote->get_position() )
+							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
-							 .arg( pNote->get_velocity() ) );
+							 .arg( pNote->getVelocity() ) );
 			}
 
 			AudioEngineTests::throwException( sMsg );
@@ -948,24 +948,24 @@ void AudioEngineTests::testNoteEnqueuing() {
 				auto pNote = notesInSong[ ii ];
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
-							 .arg( pNote->get_instrument() != nullptr ?
-								   pNote->get_instrument()->get_name() :
+							 .arg( pNote->getInstrument() != nullptr ?
+								   pNote->getInstrument()->get_name() :
 								   "nullptr" )
-							 .arg( pNote->get_position() )
+							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
-							 .arg( pNote->get_velocity() ) );
+							 .arg( pNote->getVelocity() ) );
 			}
 			sMsg.append( "SamplerQueue:\n" );
 			for ( int ii = 0; ii < notesInSamplerQueue.size(); ++ii  ) {
 				auto pNote = notesInSamplerQueue[ ii ];
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
-							 .arg( pNote->get_instrument() != nullptr ?
-								   pNote->get_instrument()->get_name() :
+							 .arg( pNote->getInstrument() != nullptr ?
+								   pNote->getInstrument()->get_name() :
 								   "nullptr" )
-							 .arg( pNote->get_position() )
+							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
-							 .arg( pNote->get_velocity() ) );
+							 .arg( pNote->getVelocity() ) );
 			}
 
 			AudioEngineTests::throwException( sMsg );
@@ -1003,7 +1003,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 		FOREACH_NOTE_CST_IT_BEGIN_LENGTH( pPattern->getNotes(), it, pPattern ) {
 			if ( it->second != nullptr ) {
 				auto note = std::make_shared<Note>( it->second );
-				note->set_position( note->get_position() +
+				note->setPosition( note->getPosition() +
 									ii * pPattern->getLength() );
 				notesInSong.push_back( note );
 			}
@@ -1035,7 +1035,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 		for ( int ii = 0; ii < nNoteNumber; ++ii ) {
 			auto pNote = queue->at( nNoteNumber - 1 - ii );
 			if ( pNote != nullptr &&
-				 pNote->get_position() >= pPattern->getLength() * nLoops ) {
+				 pNote->getPosition() >= pPattern->getLength() * nLoops ) {
 				queue->pop_back();
 			} else {
 				break;
@@ -1079,7 +1079,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 	for ( int ii = 0; ii <= nLoops; ++ii ) {
 		auto notesVec = pSong->getAllNotes();
 		for ( auto& nnote : notesVec ) {
-			nnote->set_position( nnote->get_position() +
+			nnote->setPosition( nnote->getPosition() +
 								 ii * pAE->m_fSongSizeInTicks );
 		}
 		notesInSong.insert( notesInSong.end(), notesVec.begin(), notesVec.end() );
@@ -1350,13 +1350,13 @@ void AudioEngineTests::testHumanization() {
 		auto pNoteCustomized = notesCustomized[ ii ];
 
 		if ( pNoteReference != nullptr && pNoteCustomized != nullptr ) {
-			if ( pNoteReference->get_velocity() ==
-				 pNoteCustomized->get_velocity() ) {
+			if ( pNoteReference->getVelocity() ==
+				 pNoteCustomized->getVelocity() ) {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [customization] Velocity of note [%1] was not altered" )
 					.arg( ii ) );
-			} else if ( pNoteReference->get_lead_lag() ==
-				 pNoteCustomized->get_lead_lag() ) {
+			} else if ( pNoteReference->getLeadLag() ==
+				 pNoteCustomized->getLeadLag() ) {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [customization] Lead Lag of note [%1] was not altered" )
 					.arg( ii ) );
@@ -1373,8 +1373,8 @@ void AudioEngineTests::testHumanization() {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [customization] Pan of note [%1] was not altered" )
 					.arg( ii ) );
-			} else if ( pNoteReference->get_total_pitch() ==
-				 pNoteCustomized->get_total_pitch() ) {
+			} else if ( pNoteReference->getTotalPitch() ==
+				 pNoteCustomized->getTotalPitch() ) {
 				AudioEngineTests::throwException(
 					QString( "[testHumanization] [customization] Total Pitch of note [%1] was not altered" )
 					.arg( ii ) );
@@ -1453,9 +1453,9 @@ void AudioEngineTests::testHumanization() {
 
 			if ( pNoteReference != nullptr && pNoteHumanized != nullptr ) {
 				deviationsVelocity[ ii ] =
-					pNoteReference->get_velocity() - pNoteHumanized->get_velocity();
+					pNoteReference->getVelocity() - pNoteHumanized->getVelocity();
 				deviationsPitch[ ii ] =
-					pNoteReference->get_pitch() - pNoteHumanized->get_pitch(); 
+					pNoteReference->getPitch() - pNoteHumanized->getPitch();
 				deviationsTiming[ ii ] =
 					pNoteReference->getNoteStart() - pNoteHumanized->getNoteStart();
 			} else {
@@ -1542,8 +1542,8 @@ void AudioEngineTests::mergeQueues( std::vector<std::shared_ptr<Note>>* noteList
 		for ( const auto& presentNote : *noteList ) {
 			if ( newNote != nullptr && presentNote != nullptr ) {
 				if ( newNote->match( presentNote ) &&
-					 newNote->get_position() == presentNote->get_position() &&
-					 newNote->get_velocity() == presentNote->get_velocity() ) {
+					 newNote->getPosition() == presentNote->getPosition() &&
+					 newNote->getVelocity() == presentNote->getVelocity() ) {
 					bNoteFound = true;
 				}
 			}
@@ -1638,18 +1638,18 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 		for ( const auto& ppOldNote : oldNotes ) {
 			if ( ppOldNote != nullptr && ppNewNote != nullptr &&
 				 ppNewNote->match( ppOldNote ) &&
-				 ppNewNote->get_humanize_delay() == 
-				 ppOldNote->get_humanize_delay() &&
-				 ppOldNote->get_instrument() != nullptr &&
-				 ppNewNote->get_instrument() != nullptr &&
-				 ppNewNote->get_velocity() == ppOldNote->get_velocity() ) {
+				 ppNewNote->getHumanizeDelay() ==
+				 ppOldNote->getHumanizeDelay() &&
+				 ppOldNote->getInstrument() != nullptr &&
+				 ppNewNote->getInstrument() != nullptr &&
+				 ppNewNote->getVelocity() == ppOldNote->getVelocity() ) {
 				++nNotesFound;
 
 				if ( bTestAudio ) {
 					// Check for consistency in the Sample position
 					// advanced by the Sampler upon rendering.
-					for ( int nn = 0; nn < ppNewNote->get_instrument()->get_components()->size(); nn++ ) {
-						auto pSelectedLayer = ppOldNote->get_layer_selected( nn );
+					for ( int nn = 0; nn < ppNewNote->getInstrument()->get_components()->size(); nn++ ) {
+						auto pSelectedLayer = ppOldNote->getLayerSelected( nn );
 						if ( pSelectedLayer == nullptr ) {
 							AudioEngineTests::throwException(
 								QString( "[checkAudioConsistency] [%4] Invalid selected layer" ) );
@@ -1663,23 +1663,23 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						// Sampler::renderNoteResample() was used.
 						if ( ppOldNote->getSample( nn )->get_sample_rate() !=
 							 nSampleRate ||
-							 ppOldNote->get_total_pitch() != 0.0 ) {
+							 ppOldNote->getTotalPitch() != 0.0 ) {
 							// In here we assume the layer pitch is zero.
 							fPassedFrames = static_cast<double>(nPassedFrames) *
-								Note::pitchToFrequency( ppOldNote->get_total_pitch() ) *
+								Note::pitchToFrequency( ppOldNote->getTotalPitch() ) *
 								static_cast<float>(ppOldNote->getSample( nn )->get_sample_rate()) /
 								static_cast<float>(nSampleRate);
 						}
 						
 						const int nSampleFrames =
-							ppNewNote->get_instrument()->get_component( nn )
+							ppNewNote->getInstrument()->get_component( nn )
 							->getLayer( pSelectedLayer->nSelectedLayer )
 							->get_sample()->get_frames();
 						const double fExpectedFrames =
 							std::min( static_cast<double>(pSelectedLayer->fSamplePosition) +
 									  fPassedFrames,
 									  static_cast<double>(nSampleFrames) );
-						if ( std::abs( ppNewNote->get_layer_selected( nn )->fSamplePosition -
+						if ( std::abs( ppNewNote->getLayerSelected( nn )->fSamplePosition -
 									   fExpectedFrames ) > 1 ) {
 							AudioEngineTests::throwException(
 								QString( "[checkAudioConsistency] [%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8\n" )
@@ -1689,7 +1689,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 								.arg( nSampleFrames ).arg( fExpectedFrames, 0, 'f' )
 								.arg( ppOldNote->getSample( nn )->get_sample_rate() )
 								.arg( nSampleRate )
-								.arg( ppNewNote->get_layer_selected( nn )->fSamplePosition -
+								.arg( ppNewNote->getLayerSelected( nn )->fSamplePosition -
 									  fExpectedFrames, 0, 'g', 30 ) );
 						}
 					}
@@ -1698,15 +1698,15 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 					// Check whether changes in note start position
 					// were properly applied in the note queue of the
 					// audio engine.
-					if ( ppNewNote->get_position() - fPassedTicks !=
-						 ppOldNote->get_position() ) {
+					if ( ppNewNote->getPosition() - fPassedTicks !=
+						 ppOldNote->getPosition() ) {
 						AudioEngineTests::throwException(
 							QString( "[checkAudioConsistency] [%5] glitch in note queue.\n\tPre: %1\n\tPost: %2\n\tfPassedTicks: %3, diff (new - passed - old): %4" )
 							.arg( ppOldNote->toQString( "", true ) )
 							.arg( ppNewNote->toQString( "", true ) )
 							.arg( fPassedTicks )
-							.arg( ppNewNote->get_position() - fPassedTicks -
-								  ppOldNote->get_position() ).arg( sContext ) );
+							.arg( ppNewNote->getPosition() - fPassedTicks -
+								  ppOldNote->getPosition() ).arg( sContext ) );
 					}
 				}
 			}

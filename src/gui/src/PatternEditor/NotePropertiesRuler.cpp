@@ -110,8 +110,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		for ( const auto& ppNote : notesUnderPoint ) {
 			m_selection.addToSelection( ppNote );
 			sUndoContext.append( QString( "::%1:%2:%3" )
-								 .arg( ppNote->get_position() )
-								 .arg( ppNote->get_instrument_id() )
+								 .arg( ppNote->getPosition() )
+								 .arg( ppNote->getInstrumentId() )
 								 .arg( ppNote->getType() ) );
 		}
 		bUpdate = true;
@@ -245,7 +245,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	bool bValueChanged = false;
 	for ( const auto& ppNote : m_selection ) {
 		if ( ppNote != nullptr &&
-			( ( ppNote->get_instrument_id() == selectedRow.nInstrumentID &&
+			( ( ppNote->getInstrumentId() == selectedRow.nInstrumentID &&
 			   ppNote->getType() == selectedRow.sType ) ||
 			  m_selection.isSelected( ppNote ) ) ) {
 
@@ -279,19 +279,19 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 		std::shared_ptr<Note> pNote = it.first, pOldNote = it.second;
 		switch ( m_mode ) {
 		case PatternEditor::Mode::Velocity:
-			pNote->set_velocity( pOldNote->get_velocity() );
+			pNote->setVelocity( pOldNote->getVelocity() );
 			break;
 		case PatternEditor::Mode::Pan:
 			pNote->setPan( pOldNote->getPan() );
 			break;
 		case PatternEditor::Mode::LeadLag:
-			pNote->set_lead_lag( pOldNote->get_lead_lag() );
+			pNote->setLeadLag( pOldNote->getLeadLag() );
 			break;
 		case PatternEditor::Mode::KeyOctave:
-			pNote->set_key_octave( pOldNote->get_key(), pOldNote->get_octave() );
+			pNote->setKeyOctave( pOldNote->getKey(), pOldNote->getOctave() );
 			break;
 		case PatternEditor::Mode::Probability:
-			pNote->set_probability( pOldNote->get_probability() );
+			pNote->setProbability( pOldNote->getProbability() );
 			break;
 		case PatternEditor::Mode::None:
 		default:
@@ -338,7 +338,7 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 	}
 
 	if ( notesUnderPoint.size() > 0 ) {
-		m_nDrawPreviousColumn = notesUnderPoint[ 0 ]->get_position();
+		m_nDrawPreviousColumn = notesUnderPoint[ 0 ]->getPosition();
 	}
 }
 
@@ -376,7 +376,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 		  it != notes->end() && it->first <= nDrawEnd; ++it ) {
 		const auto ppNote = it->second;
 		if ( ppNote != nullptr &&
-			 ( ( ppNote->get_instrument_id() == row.nInstrumentID &&
+			 ( ( ppNote->getInstrumentId() == row.nInstrumentID &&
 				 ppNote->getType() == row.sType ) ||
 			   m_selection.isSelected( ppNote ) ) ) {
 			notesSinceLastAction.push_back( ppNote );
@@ -417,26 +417,26 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 		if ( ! m_selection.isEmpty() == ! m_selection.isSelected( ppNote ) ) {
 			continue;
 		}
-		if ( m_mode == PatternEditor::Mode::Velocity && !ppNote->get_note_off() ) {
-			if ( ppNote->get_velocity() != fValue ) {
-				ppNote->set_velocity( fValue );
+		if ( m_mode == PatternEditor::Mode::Velocity && !ppNote->getNoteOff() ) {
+			if ( ppNote->getVelocity() != fValue ) {
+				ppNote->setVelocity( fValue );
 				bValueChanged = true;
 			}
 		}
-		else if ( m_mode == PatternEditor::Mode::Pan && !ppNote->get_note_off() ){
+		else if ( m_mode == PatternEditor::Mode::Pan && !ppNote->getNoteOff() ){
 			if ( ppNote->getPanWithRangeFrom0To1() != fValue ) {
 				ppNote->setPanWithRangeFrom0To1( fValue );
 				bValueChanged = true;
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::LeadLag ){
-			if ( ppNote->get_lead_lag() != ( fValue * -2.0 + 1.0 ) ) {
-				ppNote->set_lead_lag( fValue * -2.0 + 1.0 );
+			if ( ppNote->getLeadLag() != ( fValue * -2.0 + 1.0 ) ) {
+				ppNote->setLeadLag( fValue * -2.0 + 1.0 );
 				bValueChanged = true;
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::KeyOctave &&
-				  ! ppNote->get_note_off() ) {
+				  ! ppNote->getNoteOff() ) {
 			int nKey = 666;
 			int nOctave = 666;
 			if ( ev->y() > 0 &&
@@ -458,18 +458,18 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 			}
 
 			if ( ( nKey != 666 &&
-				   nKey != static_cast<int>(ppNote->get_key()) ) ||
+				   nKey != static_cast<int>(ppNote->getKey()) ) ||
 				 ( nOctave != 666 &&
-				   nOctave != static_cast<int>(ppNote->get_octave()) ) ) {
-				ppNote->set_key_octave(
+				   nOctave != static_cast<int>(ppNote->getOctave()) ) ) {
+				ppNote->setKeyOctave(
 					static_cast<Note::Key>(nKey),
 					static_cast<Note::Octave>(nOctave));
 				bValueChanged = true;
 			}
 		}
 		else if ( m_mode == PatternEditor::Mode::Probability ) {
-			if ( ppNote->get_probability() != fValue ) {
-				ppNote->set_probability( fValue );
+			if ( ppNote->getProbability() != fValue ) {
+				ppNote->setProbability( fValue );
 				bValueChanged = true;
 			}
 		}
@@ -524,18 +524,18 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( std::shared_ptr<Note> pNote,
 	
 	switch( m_mode ) {
 	case PatternEditor::Mode::Velocity: {
-		if ( ! pNote->get_note_off() ) {
+		if ( ! pNote->getNoteOff() ) {
 			const float fVelocity = qBound(
-				VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
-			if ( fVelocity != pNote->get_velocity() ) {
-				pNote->set_velocity( fVelocity );
+				VELOCITY_MIN, (pOldNote->getVelocity() + fDelta), VELOCITY_MAX );
+			if ( fVelocity != pNote->getVelocity() ) {
+				pNote->setVelocity( fVelocity );
 				bValueChanged = true;
 			}
 		}
 		break;
 	}
 	case PatternEditor::Mode::Pan: {
-		if ( ! pNote->get_note_off() ) {
+		if ( ! pNote->getNoteOff() ) {
 			// value in [0,1] or slight out of boundaries
 			const float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta;
 			if ( fVal != pNote->getPanWithRangeFrom0To1() ) {
@@ -548,20 +548,20 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( std::shared_ptr<Note> pNote,
 	}
 	case PatternEditor::Mode::LeadLag: {
 		const float fLeadLag = qBound(
-			LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
-		if ( fLeadLag != pNote->get_lead_lag() ) {
-			pNote->set_lead_lag( fLeadLag );
+			LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta, LEAD_LAG_MAX );
+		if ( fLeadLag != pNote->getLeadLag() ) {
+			pNote->setLeadLag( fLeadLag );
 			bValueChanged = true;
 		}
 		break;
 	}
 	case PatternEditor::Mode::Probability: {
-		if ( ! pNote->get_note_off() ) {
+		if ( ! pNote->getNoteOff() ) {
 			const float fProbability = qBound(
-				PROBABILITY_MIN, pOldNote->get_probability() + fDelta,
+				PROBABILITY_MIN, pOldNote->getProbability() + fDelta,
 				PROBABILITY_MAX );
-			if ( fProbability != pNote->get_probability() ) {
-				pNote->set_probability( fProbability );
+			if ( fProbability != pNote->getProbability() ) {
+				pNote->setProbability( fProbability );
 				bValueChanged = true;
 			}
 		}
@@ -570,7 +570,7 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( std::shared_ptr<Note> pNote,
 	case PatternEditor::Mode::KeyOctave: {
 		const int nPitch = qBound(
 			KEYS_PER_OCTAVE * OCTAVE_MIN,
-			static_cast<int>(pOldNote->get_pitch_from_key_octave() + fDelta ),
+			static_cast<int>(pOldNote->getPitchFromKeyOctave() + fDelta ),
 			KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
 		Note::Octave octave;
 		if ( nPitch >= 0 ) {
@@ -581,8 +581,8 @@ bool NotePropertiesRuler::adjustNotePropertyDelta( std::shared_ptr<Note> pNote,
 		Note::Key key = static_cast<Note::Key>(
 			nPitch - KEYS_PER_OCTAVE * static_cast<int>(octave) );
 
-		if ( key != pNote->get_key() || octave != pNote->get_octave() ) {
-			pNote->set_key_octave( key, octave );
+		if ( key != pNote->getKey() || octave != pNote->getOctave() ) {
+			pNote->setKeyOctave( key, octave );
 			bValueChanged = true;
 		}
 		break;
@@ -668,8 +668,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			for ( const auto& ppNote : notesUnderPoint ) {
 				m_selection.addToSelection( ppNote );
 				sUndoContext.append( QString( "::%1:%2:%3" )
-									 .arg( ppNote->get_position() )
-									 .arg( ppNote->get_instrument_id() )
+									 .arg( ppNote->getPosition() )
+									 .arg( ppNote->getInstrumentId() )
 									 .arg( ppNote->getType() ) );
 			}
 			bUpdate = true;
@@ -744,10 +744,10 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 		for ( auto it : m_oldNotes ) {
 			std::shared_ptr<Note> pNewNote = it.first, pOldNote = it.second;
 
-			const int nNewKey = pNewNote->get_key();
-			const int nNewOctave = pNewNote->get_octave();
-			if ( pNewNote->get_key() != pOldNote->get_key() ||
-				 pNewNote->get_octave() != pOldNote->get_octave() ) {
+			const int nNewKey = pNewNote->getKey();
+			const int nNewOctave = pNewNote->getOctave();
+			if ( pNewNote->getKey() != pOldNote->getKey() ||
+				 pNewNote->getOctave() != pOldNote->getOctave() ) {
 				// Note pitch was altered during the editing (drag update). We
 				// have to temporarily reset the note key/octave (without
 				// redrawing!) in order to allow for the redo part of the action
@@ -756,31 +756,31 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 				// For all other note property edits this is not critical as the
 				// note will be found and one the edit will be skip since the
 				// note already holds the proper value.
-				pNewNote->set_key_octave( pOldNote->get_key(),
-										  pOldNote->get_octave() );
+				pNewNote->setKeyOctave( pOldNote->getKey(),
+										  pOldNote->getOctave() );
 			}
 
 			pHydrogenApp->pushUndoCommand(
 				new SE_editNotePropertiesAction(
 					m_mode,
 					m_pPatternEditorPanel->getPatternNumber(),
-					pNewNote->get_position(),
-					pOldNote->get_instrument_id(),
+					pNewNote->getPosition(),
+					pOldNote->getInstrumentId(),
 					pOldNote->getType(),
-					pNewNote->get_velocity(),
-					pOldNote->get_velocity(),
+					pNewNote->getVelocity(),
+					pOldNote->getVelocity(),
 					pNewNote->getPan(),
 					pOldNote->getPan(),
-					pNewNote->get_lead_lag(),
-					pOldNote->get_lead_lag(),
-					pNewNote->get_probability(),
-					pOldNote->get_probability(),
-					pNewNote->get_length(),
-					pOldNote->get_length(),
+					pNewNote->getLeadLag(),
+					pOldNote->getLeadLag(),
+					pNewNote->getProbability(),
+					pOldNote->getProbability(),
+					pNewNote->getLength(),
+					pOldNote->getLength(),
 					nNewKey,
-					pOldNote->get_key(),
+					pOldNote->getKey(),
 					nNewOctave,
-					pOldNote->get_octave() ),
+					pOldNote->getOctave() ),
 				sUndoContext );
 		}
 		if ( nSize != 1 ) {
@@ -902,7 +902,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 	// NoteOff notes can have a custom probability and lead lag. But having a
 	// velocity and pan would not make any sense for them.
-	if ( pNote->get_note_off() &&
+	if ( pNote->getNoteOff() &&
 		 ! ( m_mode == PatternEditor::Mode::Probability ||
 			 m_mode == PatternEditor::Mode::LeadLag ) ) {
 		return;
@@ -915,8 +915,8 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	const int nLineWidth = 3;
 
 	QColor color;
-	if ( ! pNote->get_note_off() ) {
-		color = PatternEditor::computeNoteColor( pNote->get_velocity() );
+	if ( ! pNote->getNoteOff() ) {
+		color = PatternEditor::computeNoteColor( pNote->getVelocity() );
 	} else {
 		color = pPref->getTheme().m_color.m_patternEditor_noteOffColor;
 	}
@@ -928,7 +928,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		pPref->getTheme().m_color.m_windowTextColor );
 
 	const int nX = nOffsetX + PatternEditor::nMargin +
-		pNote->get_position() * m_fGridWidth;
+		pNote->getPosition() * m_fGridWidth;
 
 	QBrush noteBrush( color );
 	QPen notePen( noteColor );
@@ -947,10 +947,10 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	if ( m_layout == Layout::Centered || m_layout == Layout::Normalized ) {
 		float fValue = 0;
 		if ( m_mode == PatternEditor::Mode::Velocity ) {
-			fValue = std::round( pNote->get_velocity() * height() );
+			fValue = std::round( pNote->getVelocity() * height() );
 		}
 		else if ( m_mode == PatternEditor::Mode::Probability ) {
-			fValue = std::round( pNote->get_probability() * height() );
+			fValue = std::round( pNote->getProbability() * height() );
 		}
 		else if ( m_mode == PatternEditor::Mode::Pan ) {
 			// Rounding in order to not miss the center due to rounding errors
@@ -958,7 +958,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			fValue = std::round( pNote->getPan() * 100 ) / 100;
 		}
 		else if ( m_mode == PatternEditor::Mode::LeadLag ) {
-			fValue = -1 * std::round( pNote->get_lead_lag() * 100 ) / 100;
+			fValue = -1 * std::round( pNote->getLeadLag() * 100 ) / 100;
 		}
 
 
@@ -1005,7 +1005,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 		// paint the octave
 		const int nRadiusOctave = 3;
-		const int nOctaveY = ( 4 - pNote->get_octave() ) *
+		const int nOctaveY = ( 4 - pNote->getOctave() ) *
 			NotePropertiesRuler::nKeyLineHeight;
 		p.setBrush( noteBrush );
 		p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave );
@@ -1013,7 +1013,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		// paint note
 		const int nRadiusKey = 5;
 		const int nKeyY = NotePropertiesRuler::nKeyOctaveHeight -
-			( ( pNote->get_key() + 1 ) * NotePropertiesRuler::nKeyLineHeight );
+			( ( pNote->getKey() + 1 ) * NotePropertiesRuler::nKeyLineHeight );
 		p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
 		p.setBrush( Qt::NoBrush );
 
@@ -1228,10 +1228,10 @@ void NotePropertiesRuler::drawPattern() {
 
 			// NoteOff notes can have a custom probability and lead lag. But
 			// having a velocity and pan would not make any sense for them.
-			if ( ( ppNote->get_note_off() &&
+			if ( ( ppNote->getNoteOff() &&
 				   ! ( m_mode == PatternEditor::Mode::Probability ||
 					   m_mode == PatternEditor::Mode::LeadLag ) ) ||
-				 ! ( ppNote->get_instrument_id() == selectedRow.nInstrumentID &&
+				 ! ( ppNote->getInstrumentId() == selectedRow.nInstrumentID &&
 					 ppNote->getType() == selectedRow.sType ) &&
 				 ! m_selection.isSelected( ppNote ) ) {
 				continue;
@@ -1277,7 +1277,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	rNormalized += QMargins( 4, 4, 4, 4 );
 
 	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
-		if ( ! ( it->second->get_instrument_id() == selectedRow.nInstrumentID &&
+		if ( ! ( it->second->getInstrumentId() == selectedRow.nInstrumentID &&
 				 it->second->getType() == selectedRow.sType ) &&
 			 ! m_selection.isSelected( it->second ) ) {
 			continue;

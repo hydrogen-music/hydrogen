@@ -67,9 +67,9 @@ QPoint PianoRollEditor::noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const
 	}
 
 	return QPoint(
-		PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
+		PatternEditor::nMargin + pNote->getPosition() * m_fGridWidth,
 		m_nGridHeight *
-		Note::pitchToLine( pNote->get_pitch_from_key_octave() ) + 1 );
+		Note::pitchToLine( pNote->getPitchFromKeyOctave() ) + 1 );
 }
 
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
@@ -94,7 +94,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 			  NoteStyle::Background ) | NoteStyle::Hovered);
 		for ( const auto& ppNote : nnotes ) {
 			if ( ppNote != nullptr && ppNote->getType() == row.sType &&
-				 ppNote->get_instrument_id() == row.nInstrumentID ) {
+				 ppNote->getInstrumentId() == row.nInstrumentID ) {
 				const auto style = static_cast<NoteStyle>(
 					m_selection.isSelected( ppNote ) ?
 					NoteStyle::Selected | baseStyle : baseStyle );
@@ -390,7 +390,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		auto pNote = it->second;
-		if ( pNote->get_instrument_id() == selectedRow.nInstrumentID ||
+		if ( pNote->getInstrumentId() == selectedRow.nInstrumentID ||
 			 pNote->getType() == selectedRow.sType ) {
 			const auto notePoint = noteToPoint( pNote );
 

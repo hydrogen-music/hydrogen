@@ -1737,8 +1737,8 @@ int PatternEditorPanel::findRowDB( std::shared_ptr<Note> pNote,
 			// Instrument ID always takes precedence over type since the former
 			// is used to associate a note to an instrument and the latter is
 			// more a means of portability between different kits.
-			if ( pNote->get_instrument_id() != EMPTY_INSTR_ID &&
-				 pNote->get_instrument_id() == m_db[ ii ].nInstrumentID ) {
+			if ( pNote->getInstrumentId() != EMPTY_INSTR_ID &&
+				 pNote->getInstrumentId() == m_db[ ii ].nInstrumentID ) {
 				return ii;
 			}
 			else if ( ! pNote->getType().isEmpty() &&
@@ -1812,7 +1812,7 @@ void PatternEditorPanel::updateDB() {
 				// Check whether we deal with a kit or note with missing
 				// instrument types and whether the association with the kit was
 				// done based on the instrument ID.
-				if ( ppNote->get_instrument_id() != EMPTY_INSTR_ID ) {
+				if ( ppNote->getInstrumentId() != EMPTY_INSTR_ID ) {
 					continue;
 				}
 
@@ -1957,7 +1957,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
 			std::vector< std::shared_ptr<Note> > notes;
 			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr &&
-					 ppNote->get_instrument_id() == row.nInstrumentID &&
+					 ppNote->getInstrumentId() == row.nInstrumentID &&
 					 ppNote->getType() == row.sType ) {
 					notes.push_back( ppNote );
 				}
@@ -1966,20 +1966,20 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
 			for ( const auto& ppNote : notes ) {
 				pHydrogenApp->pushUndoCommand(
 					new SE_addOrRemoveNoteAction(
-						ppNote->get_position(),
-						ppNote->get_instrument_id(),
+						ppNote->getPosition(),
+						ppNote->getInstrumentId(),
 						ppNote->getType(),
 						pSong->getPatternList()->index( ppPattern ),
-						ppNote->get_length(),
-						ppNote->get_velocity(),
+						ppNote->getLength(),
+						ppNote->getVelocity(),
 						ppNote->getPan(),
-						ppNote->get_lead_lag(),
-						ppNote->get_key(),
-						ppNote->get_octave(),
-						ppNote->get_probability(),
+						ppNote->getLeadLag(),
+						ppNote->getKey(),
+						ppNote->getOctave(),
+						ppNote->getProbability(),
 						/* bIsDelete */ true,
 						/* bIsMidi */ false,
-						ppNote->get_note_off() ) );
+						ppNote->getNoteOff() ) );
 			}
 		}
 	}
@@ -2039,7 +2039,7 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
 			auto ppNote = it->second;
 			if ( ppNote != nullptr &&
-				 ppNote->get_instrument_id() == row.nInstrumentID &&
+				 ppNote->getInstrumentId() == row.nInstrumentID &&
 				 ppNote->getType() == row.sType ) {
 				bNoteAlreadyPresent = true;
 				break;
@@ -2148,20 +2148,20 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
 				if ( ppNote != nullptr ) {
 					pHydrogenApp->pushUndoCommand(
 						new SE_addOrRemoveNoteAction(
-							ppNote->get_position(),
-							ppNote->get_instrument_id(),
+							ppNote->getPosition(),
+							ppNote->getInstrumentId(),
 							ppNote->getType(),
 									 pPatternList->index( ppPattern ),
-							ppNote->get_length(),
-							ppNote->get_velocity(),
+							ppNote->getLength(),
+							ppNote->getVelocity(),
 							ppNote->getPan(),
-							ppNote->get_lead_lag(),
-							ppNote->get_key(),
-							ppNote->get_octave(),
-							ppNote->get_probability(),
+							ppNote->getLeadLag(),
+							ppNote->getKey(),
+							ppNote->getOctave(),
+							ppNote->getProbability(),
 							/* bIsDelete */ false,
 							/* bIsMidi */ false,
-							ppNote->get_note_off() ) );
+							ppNote->getNoteOff() ) );
 				}
 			}
 		}

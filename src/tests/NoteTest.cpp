@@ -74,11 +74,11 @@ class NoteTest : public CppUnit::TestCase {
 			for ( const auto ooctave : octaves ) {
 				for ( const auto kkey : keys ) {
 					auto pNote = std::make_shared<H2Core::Note>( pInstrument );
-					pNote->set_key_octave(
+					pNote->setKeyOctave(
 						static_cast<H2Core::Note::Key>(kkey),
 						static_cast<H2Core::Note::Octave>(ooctave) );
 
-					const float fPitch = pNote->get_pitch_from_key_octave();
+					const float fPitch = pNote->getPitchFromKeyOctave();
 					const int nLine = Note::pitchToLine( fPitch );
 					const int nPitch = Note::lineToPitch( nLine );
 					CPPUNIT_ASSERT( static_cast<int>(fPitch) == nPitch );
@@ -107,11 +107,11 @@ class NoteTest : public CppUnit::TestCase {
 		___INFOLOG( "" );
 
 		auto pNote = std::make_shared<Note>( nullptr, 0, 1.0f, 0.f, 1, 1.0f );
-		pNote->set_probability(0.75f);
-		CPPUNIT_ASSERT_EQUAL(0.75f, pNote->get_probability());
+		pNote->setProbability(0.75f);
+		CPPUNIT_ASSERT_EQUAL(0.75f, pNote->getProbability());
 
 		auto pOther = std::make_shared<Note>( pNote, nullptr );
-		CPPUNIT_ASSERT_EQUAL(0.75f, pOther->get_probability());
+		CPPUNIT_ASSERT_EQUAL(0.75f, pOther->getProbability());
 
 		___INFOLOG( "passed" );
 	}
@@ -130,19 +130,19 @@ class NoteTest : public CppUnit::TestCase {
 		pDrumkit->setInstruments( pInstruments );
 
 		auto pIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
-		pIn->set_probability( 0.67f );
-		pIn->save_to( node );
+		pIn->setProbability( 0.67f );
+		pIn->saveTo( node );
 
-		auto pOut = Note::load_from( node );
+		auto pOut = Note::loadFrom( node );
 		pOut->mapTo( pDrumkit );
 
-		CPPUNIT_ASSERT( pIn->get_instrument() == pOut->get_instrument() );
-		CPPUNIT_ASSERT_EQUAL( pIn->get_position(), pOut->get_position() );
-		CPPUNIT_ASSERT_EQUAL( pIn->get_velocity(), pOut->get_velocity() );
+		CPPUNIT_ASSERT( pIn->getInstrument() == pOut->getInstrument() );
+		CPPUNIT_ASSERT_EQUAL( pIn->getPosition(), pOut->getPosition() );
+		CPPUNIT_ASSERT_EQUAL( pIn->getVelocity(), pOut->getVelocity() );
 		CPPUNIT_ASSERT_EQUAL( pIn->getPan(), pOut->getPan() );
-		CPPUNIT_ASSERT_EQUAL( pIn->get_length(), pOut->get_length() );
-		CPPUNIT_ASSERT_EQUAL( pIn->get_pitch(), pOut->get_pitch() );
-		CPPUNIT_ASSERT_EQUAL( pIn->get_probability(), pOut->get_probability() );
+		CPPUNIT_ASSERT_EQUAL( pIn->getLength(), pOut->getLength() );
+		CPPUNIT_ASSERT_EQUAL( pIn->getPitch(), pOut->getPitch() );
+		CPPUNIT_ASSERT_EQUAL( pIn->getProbability(), pOut->getProbability() );
 
 		___INFOLOG( "passed" );
 	}

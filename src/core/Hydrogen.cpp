@@ -509,13 +509,13 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nNote, pCurrentPattern ) {
 					auto pNote = it->second;
 					if ( pNote != nullptr &&
-						 pNote->get_position() == m_nLastRecordedMIDINoteTick &&
-						 pInstrument == pNote->get_instrument() ) {
+						 pNote->getPosition() == m_nLastRecordedMIDINoteTick &&
+						 pInstrument == pNote->getInstrument() ) {
 						
 						if ( m_nLastRecordedMIDINoteTick + nNoteLength > nPatternSize ) {
 							nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
 						}
-						pNote->set_length( nNoteLength );
+						pNote->setLength( nNoteLength );
 						bIsModified = true;
 					}
 				}
@@ -574,7 +574,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 			Note::Octave octave = (Note::Octave)(divider -3);
 			Note::Key notehigh = (Note::Key)(nNote - (12 * divider));
 
-			pNote2->set_midi_info( notehigh, octave, nNote );
+			pNote2->setMidiInfo( notehigh, octave, nNote );
 			midiNoteOn( pNote2 );
 		}
 	}
@@ -582,7 +582,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		if ( bNoteOff ) {
 			if ( pSampler->isInstrumentPlaying( pInstrument ) ) {
 				auto pNoteOff = std::make_shared<Note>( pInstrument );
-				pNoteOff->set_note_off( true );
+				pNoteOff->setNoteOff( true );
 				midiNoteOn( pNoteOff );
 			}
 		}

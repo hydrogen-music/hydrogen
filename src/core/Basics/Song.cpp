@@ -1086,7 +1086,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 							// specifies its position within the
 							// pattern. All we need to do is to add
 							// the pattern start tick.
-							pNote->set_position( pNote->get_position() +
+							pNote->setPosition( pNote->getPosition() +
 												 nColumnStartTick );
 							notes.push_back( pNote );
 						}

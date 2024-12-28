@@ -260,26 +260,26 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nNote, pPattern ) {
 					auto pNote = it->second;
 					if ( pNote != nullptr &&
-						 pNote->get_instrument() != nullptr ) {
+						 pNote->getInstrument() != nullptr ) {
 						float rnd = (float)rand()/(float)RAND_MAX;
-						if ( pNote->get_probability() < rnd ) {
+						if ( pNote->getProbability() < rnd ) {
 							continue;
 						}
 
 						float fPos = nPatternList + (float)nNote/(float)nMaxPatternLength;
 						float fVelocityAdjustment =  pAutomationPath->get_value(fPos);
 						int nVelocity =
-							(int)( 127.0 * pNote->get_velocity() * fVelocityAdjustment );
+							(int)( 127.0 * pNote->getVelocity() * fVelocityAdjustment );
 
-						auto pInstr = pNote->get_instrument();
-						int nPitch = pNote->get_midi_key();
+						auto pInstr = pNote->getInstrument();
+						int nPitch = pNote->getMidiKey();
 						
 						int nChannel =  pInstr->get_midi_out_channel();
 						if ( nChannel == -1 ) {
 							nChannel = DRUM_CHANNEL;
 						}
 						
-						int nLength = pNote->get_length();
+						int nLength = pNote->getLength();
 						if ( nLength == LENGTH_ENTIRE_SAMPLE ) {
 							nLength = NOTE_LENGTH;
 						}

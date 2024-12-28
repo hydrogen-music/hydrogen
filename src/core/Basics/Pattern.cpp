@@ -164,10 +164,10 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			auto pNote = Note::load_from( note_node, bSilent );
+			auto pNote = Note::loadFrom( note_node, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr &&
-				 ( pNote->get_instrument_id() != EMPTY_INSTR_ID ||
+				 ( pNote->getInstrumentId() != EMPTY_INSTR_ID ||
 				   ! pNote->getType().isEmpty() ) ) {
 				pPattern->insertNote( pNote );
 			}
@@ -202,9 +202,9 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 				for ( const auto& [ _, ppNote ] : pPattern->m_notes ) {
 					if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
 						 ! pDrumkitMap->getType(
-							 ppNote->get_instrument_id() ).isEmpty() ) {
+							 ppNote->getInstrumentId() ).isEmpty() ) {
 						ppNote->setType(
-							pDrumkitMap->getType( ppNote->get_instrument_id() ) );
+							pDrumkitMap->getType( ppNote->getInstrumentId() ) );
 					}
 				}
 			}
@@ -264,14 +264,14 @@ void Pattern::saveTo( XMLNode& node, int nInstrumentId, const QString& sType,
 		if ( pNote != nullptr &&
 			 // Optionally filter note
 			 ( ( nInstrumentId == EMPTY_INSTR_ID ||
-				 nInstrumentId == pNote->get_instrument_id() ) &&
+				 nInstrumentId == pNote->getInstrumentId() ) &&
 			   ( sType.isEmpty() || sType == pNote->getType() ) ) &&
 			 // Check whether the note corresponds to an instrument of the
 			 // current kit at all.
-			 ( pNote->get_instrument_id() != EMPTY_INSTR_ID ||
+			 ( pNote->getInstrumentId() != EMPTY_INSTR_ID ||
 			   ! pNote->getType().isEmpty() ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
-			pNote->save_to( note_node );
+			pNote->saveTo( note_node );
 		}
 	}
 }
@@ -312,8 +312,8 @@ std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
 			auto pNote = it->second;
 			assert( pNote );
 			if ( pNote->match( nInstrumentId, sInstrumentType, key, octave ) &&
-				 ( nIdx_b <= pNote->get_position() + pNote->get_length() &&
-				   nIdx_b >= pNote->get_position() ) ) {
+				 ( nIdx_b <= pNote->getPosition() + pNote->getLength() &&
+				   nIdx_b >= pNote->getPosition() ) ) {
 				return pNote;
 			}
 		}
@@ -335,7 +335,7 @@ std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
 			ERRORLOG( "Invalid note 0" );
 			continue;
 		}
-		if ( pNote->get_instrument_id() == nInstrumentId &&
+		if ( pNote->getInstrumentId() == nInstrumentId &&
 			 pNote->getType() == sInstrumentType ) {
 			return pNote;
 		}
@@ -351,7 +351,7 @@ std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
 			ERRORLOG( "Invalid note 1" );
 			continue;
 		}
-		if ( pNote->get_instrument_id() == nInstrumentId &&
+		if ( pNote->getInstrumentId() == nInstrumentId &&
 			 pNote->getType() == sInstrumentType ) {
 			return pNote;
 		}
@@ -370,10 +370,10 @@ std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
 				ERRORLOG( "Invalid note 2" );
 				continue;
 			}
-			if ( pNote->get_instrument_id() == nInstrumentId &&
+			if ( pNote->getInstrumentId() == nInstrumentId &&
 				 pNote->getType() == sInstrumentType &&
-				 ( ( nIdx_b <= pNote->get_position() + pNote->get_length() )
-				   && nIdx_b >= pNote->get_position() ) ) {
+				 ( ( nIdx_b <= pNote->getPosition() + pNote->getLength() )
+				   && nIdx_b >= pNote->getPosition() ) ) {
 				return pNote;
 			}
 		}
@@ -384,7 +384,7 @@ std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
 
 void Pattern::removeNote( std::shared_ptr<Note> pNote )
 {
-	int nPos = pNote->get_position();
+	int nPos = pNote->getPosition();
 	for ( notes_it_t it = m_notes.lower_bound( nPos );
 		  it != m_notes.end() && it->first == nPos; ++it ) {
 		if ( it->second == pNote ) {
@@ -401,7 +401,7 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 	}
 
 	for ( const auto& [ _, ppNote ] : m_notes ) {
-		if ( ppNote != nullptr && ppNote->get_instrument() == pInstrument ) {
+		if ( ppNote != nullptr && ppNote->getInstrument() == pInstrument ) {
 			return true;
 		}
 	}
@@ -419,7 +419,7 @@ void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument,
 	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote != nullptr && pNote->get_instrument() == pInstrument ) {
+		if ( pNote != nullptr && pNote->getInstrument() == pInstrument ) {
 			if ( ! bLocked && bRequiresLock ) {
 				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 				bLocked = true;
@@ -453,7 +453,7 @@ void Pattern::setToOld()
 	for ( notes_cst_it_t it = m_notes.begin(); it != m_notes.end(); it++ ) {
 		auto pNote = it->second;
 		assert( pNote );
-		pNote->set_just_recorded( false );
+		pNote->setJustRecorded( false );
 	}
 }
 

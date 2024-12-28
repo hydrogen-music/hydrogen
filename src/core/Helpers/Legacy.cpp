@@ -390,10 +390,10 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 
 			pNote = std::make_shared<Note>( nullptr, nPosition, fVelocity, fPan,
 											nLength, nPitch );
-			pNote->set_key_octave( sKey );
-			pNote->set_lead_lag( fLeadLag );
-			pNote->set_note_off( noteoff );
-			pNote->set_probability( fProbability );
+			pNote->setKeyOctave( sKey );
+			pNote->setLeadLag( fLeadLag );
+			pNote->setNoteOff( noteoff );
+			pNote->setProbability( fProbability );
 			pPattern->insertNote( pNote );
 
 			note_node = note_node.nextSiblingElement( "note" );
@@ -426,7 +426,7 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 					fPan,
 					noteNode.read_int( "length", LENGTH_ENTIRE_SAMPLE, true ),
 					noteNode.read_float( "pitch", PITCH_DEFAULT, false, false ) );
-				pNote->set_lead_lag( noteNode.read_float(
+				pNote->setLeadLag( noteNode.read_float(
 										 "leadlag", LEAD_LAG_DEFAULT, false, false ) );
 
 				pPattern->insertNote( pNote );

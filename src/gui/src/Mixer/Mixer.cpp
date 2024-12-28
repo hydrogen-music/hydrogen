@@ -323,7 +323,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	}
 
 	auto pNote = std::make_shared<Note>( pSelectedInstrument, 0, 0.0 );
-	pNote->set_note_off( true );
+	pNote->setNoteOff( true );
 	pHydrogen->getAudioEngine()->getSampler()->noteOff( pNote );
 }
 

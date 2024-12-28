@@ -475,18 +475,18 @@ void PortMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 	if ( m_pMidiOut == nullptr ) {
 		return;
 	}
-	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
 		ERRORLOG( "Invalid note" );
 		return;
 	}
 
-	int channel = pNote->get_instrument()->get_midi_out_channel();
+	int channel = pNote->getInstrument()->get_midi_out_channel();
 	if ( channel < 0 ) {
 		return;
 	}
 
-	int key = pNote->get_midi_key();
-	int velocity = pNote->get_midi_velocity();
+	int key = pNote->getMidiKey();
+	int velocity = pNote->getMidiVelocity();
 
 	PmEvent event;
 	event.timestamp = 0;

@@ -318,7 +318,7 @@ void MemoryLeakageTest::testLoading() {
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
-		auto pNote = H2Core::Note::load_from( node );
+		auto pNote = H2Core::Note::loadFrom( node );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		pNote = nullptr;
 		pInstrumentList = nullptr;
@@ -332,7 +332,7 @@ void MemoryLeakageTest::testLoading() {
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
-		auto pNote = H2Core::Note::load_from( node );
+		auto pNote = H2Core::Note::loadFrom( node );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		pNote = nullptr;
 		pInstrumentList = nullptr;

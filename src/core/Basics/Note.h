@@ -148,7 +148,7 @@ class Note : public H2Core::Object<Note>
 		 * save the note within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode& node ) const;
+		void saveTo( XMLNode& node ) const;
 		/**
 		 * load a note from an XMLNode
 		 * \param node the XMLDode to read from
@@ -156,7 +156,7 @@ class Note : public H2Core::Object<Note>
 		 * be logged.
 		 * \return a new Note instance
 		 */
-	static std::shared_ptr<Note> load_from( const XMLNode& node,
+	static std::shared_ptr<Note> loadFrom( const XMLNode& node,
 											bool bSilent = false );
 
 		/**
@@ -167,17 +167,17 @@ class Note : public H2Core::Object<Note>
 		 */
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
 					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
-		/** #__instrument accessor */
-		std::shared_ptr<Instrument> get_instrument() const;
-		/** return true if #__instrument is set */
-		bool has_instrument() const;
+		/** #m_pInstrument accessor */
+		std::shared_ptr<Instrument> getInstrument() const;
+		/** return true if #m_pInstrument is set */
+		bool hasInstrument() const;
 		/**
-		 * #__instrument_id setter
+		 * #m_nInstrumentId setter
 		 * \param value the new value
 		 */
-		void set_instrument_id( int value );
-		/** #__instrument_id accessor */
-		int get_instrument_id() const;
+		void setInstrumentId( int value );
+		/** #m_nInstrumentId accessor */
+		int getInstrumentId() const;
 
 		void setType( DrumkitMap::Type sType );
 		DrumkitMap::Type getType() const;
@@ -185,19 +185,19 @@ class Note : public H2Core::Object<Note>
 		void setSpecificCompoIdx( int value );
 		int getSpecificCompoIdx() const;
 		/**
-		 * #__position setter
+		 * #m_nPosition setter
 		 * \param value the new value
 		 */
-		void set_position( int value );
-		/** #__position accessor */
-		int get_position() const;
+		void setPosition( int value );
+		/** #m_nPosition accessor */
+		int getPosition() const;
 		/**
-		 * #__velocity setter
+		 * #m_fVelocity setter
 		 * \param value the new value
 		 */
-		void set_velocity( float value );
-		/** #__velocity accessor */
-		float get_velocity() const;
+		void setVelocity( float value );
+		/** #m_fVelocity accessor */
+		float getVelocity() const;
 		
 		/** set pan of the note. assumes the input range in [-1;1]*/
 		void setPan( float val );
@@ -214,124 +214,124 @@ class Note : public H2Core::Object<Note>
 		}
 
 		/**
-		 * #__lead_lag setter
+		 * #m_fLeadLag setter
 		 * \param value the new value
 		 */
-		void set_lead_lag( float value );
-		/** #__lead_lag accessor */
-		float get_lead_lag() const;
+		void setLeadLag( float value );
+		/** #m_fLeadLag accessor */
+		float getLeadLag() const;
 		/**
-		 * #__length setter
+		 * #m_nLength setter
 		 * \param value the new value
 		 */
-		void set_length( int value );
-		/** #__length accessor */
-		int get_length() const;
+		void setLength( int value );
+		/** #m_nLength accessor */
+		int getLength() const;
 		/**
-		 * #__pitch setter
+		 * #m_fPitch setter
 		 * \param value the new value
 		 */
-		void set_pitch( float value );
-		/** #__pitch accessor */
-		float get_pitch() const;
+		void setPitch( float value );
+		/** #m_fPitch accessor */
+		float getPitch() const;
 		/**
-		 * #__note_off setter
+		 * #m_bNoteOff setter
 		 * \param value the new value
 		 */
-		void set_note_off( bool value );
-		/** #__note_off accessor */
-		bool get_note_off() const;
-		/** #__midi_msg accessor */
-		int get_midi_msg() const;
+		void setNoteOff( bool value );
+		/** #m_bNoteOff accessor */
+		bool getNoteOff() const;
+		/** #m_nMidiMsg accessor */
+		int getMidiMsg() const;
 		/**
-		 * #__pattern_idx setter
+		 * #m_nPatternIdx setter
 		 * \param value the new value
 		 */
-		void set_pattern_idx( int value );
-		/** #__pattern_idx accessor */
-		int get_pattern_idx() const;
+		void setPatternIdx( int value );
+		/** #m_nPatternIdx accessor */
+		int getPatternIdx() const;
 		/**
-		 * #__just_recorded setter
+		 * #m_bJustRecorded setter
 		 * \param value the new value
 		 */
-		void set_just_recorded( bool value );
-		/** #__just_recorded accessor */
-		bool get_just_recorded() const;
+		void setJustRecorded( bool value );
+		/** #m_bJustRecorded accessor */
+		bool getJustRecorded() const;
 
-	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int nIdx ) const;
+	std::shared_ptr<SelectedLayerInfo> getLayerSelected( int nIdx ) const;
 
-		void set_probability( float value );
-		float get_probability() const;
+		void setProbability( float value );
+		float getProbability() const;
 
 		/**
-		 * #__humanize_delay setter
+		 * #m_nHumanizeDelay setter
 		 * \param value the new value
 		 */
-		void set_humanize_delay( int value );
-		/** #__humanize_delay accessor */
-		int get_humanize_delay() const;
-		/** #__cut_off accessor */
-		float get_cut_off() const;
-		/** #__resonance accessor */
-		float get_resonance() const;
-		/** #__bpfb_l accessor */
-		float get_bpfb_l() const;
-		/** #__bpfb_r accessor */
-		float get_bpfb_r() const;
-		/** #__lpfb_l accessor */
-		float get_lpfb_l() const;
-		/** #__lpfb_r accessor */
-		float get_lpfb_r() const;
+		void setHumanizeDelay( int value );
+		/** #m_nHumanizeDelay accessor */
+		int getHumanizeDelay() const;
+		/** #m_fCutOff accessor */
+		float getCutOff() const;
+		/** #m_fResonance accessor */
+		float getResonance() const;
+		/** #m_fBpfbL accessor */
+		float getBpfbL() const;
+		/** #m_fBpfbR accessor */
+		float getBpfbR() const;
+		/** #m_fLpfbL accessor */
+		float getLpfbL() const;
+		/** #m_fLpfbR accessor */
+		float getLpfbR() const;
 		/** Filter output is sustaining note */
-		bool filter_sustain() const;
-		/** #__key accessor */
-		Key get_key() const;
-		/** #__octave accessor */
-		Octave get_octave() const;
+		bool filterSustain() const;
+		/** #m_key accessor */
+		Key getKey() const;
+		/** #m_octave accessor */
+		Octave getOctave() const;
 		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
-		int get_midi_key() const;
+		int getMidiKey() const;
 		/** midi velocity accessor 
-		 * __velocity * 127
+		 * m_fVelocity * 127
 		 * \endcode */
-		int get_midi_velocity() const;
+		int getMidiVelocity() const;
 		/** note key pitch accessor
 		 * \code{.cpp}
-		 * __octave * KEYS_PER_OCTAVE + __key
+		 * m_octave * KEYS_PER_OCTAVE + m_key
 		 * \endcode */
-		float get_pitch_from_key_octave() const;
-		float get_total_pitch() const;
+		float getPitchFromKeyOctave() const;
+		float getTotalPitch() const;
 
 		/** return a string representation of key-octave */
-		QString key_to_string() const;
+		QString keyToString() const;
 		/**
-		 * parse str and set #__key and #__octave
+		 * parse str and set #m_key and #m_octave
 		 * \param str the string to be parsed
 		 */
-		void set_key_octave( const QString& str );
+		void setKeyOctave( const QString& str );
 		/**
-		 * set #__key and #__octave only if within acceptable range
+		 * set #m_key and #m_octave only if within acceptable range
 		 * \param key the key to set
 		 * \param octave the octave to be set
 		 */
-		void set_key_octave( Key key, Octave octave );
+		void setKeyOctave( Key key, Octave octave );
 		/**
-		 * set #__key, #__octave and #__midi_msg only if within acceptable range
+		 * set #m_key, #m_octave and #m_nMidiMsg only if within acceptable range
 		 * \param key the key to set
 		 * \param octave the octave to be set
 		 * \param msg
 		 */
-		void set_midi_info( Key key, Octave octave, int msg );
+		void setMidiInfo( Key key, Octave octave, int msg );
 
 		/** get the ADSR of the note */
-		std::shared_ptr<ADSR> get_adsr() const;
+		std::shared_ptr<ADSR> getAdsr() const;
 
 		/** @returns true if instrument id and type as well as key and octave
 		 * matches with internal
 		 *
-		 * \param nInstrumentId the instrument ID to match with #__instrument_id
+		 * \param nInstrumentId the instrument ID to match with #m_nInstrumentId
 		 * \param sInstrumentType the instrument type to match with #m_sType
-		 * \param key the key to match with #__key
-		 * \param octave the octave to match with #__octave
+		 * \param key the key to match with #m_key
+		 * \param octave the octave to match with #m_octave
 		 */
 		bool match( int nInstrumentId, const QString& sType, Key key,
 					Octave octave ) const;
@@ -344,7 +344,7 @@ class Note : public H2Core::Object<Note>
 		 * \param val_l the left channel value
 		 * \param val_r the right channel value
 		 */
-		void compute_lr_values( float* val_l, float* val_r );
+		void computeLrValues( float* val_l, float* val_r );
 
 	long long getNoteStart() const;
 	float getUsedTickSize() const;
@@ -357,7 +357,7 @@ class Note : public H2Core::Object<Note>
 
 	/**
 	 * Calculates the #m_nNoteStart in frames corresponding to the
-	 * #__position in ticks and storing the used tick size in
+	 * #m_nPosition in ticks and storing the used tick size in
 	 * #m_fUsedTickSize.
 	 *
 	 * Whenever the tempo changes and the #Timeline is not
@@ -367,13 +367,13 @@ class Note : public H2Core::Object<Note>
 	void computeNoteStart();
 
 	/**
-	 * Add random contributions to #__pitch, #__humanize_delay, and
-	 * #__velocity.
+	 * Add random contributions to #m_fPitch, #m_nHumanizeDelay, and
+	 * #m_fVelocity.
 	 */
 	void humanize();
 
 	/**
-	 * Add swing contribution to #__humanize_delay.
+	 * Add swing contribution to #m_nHumanizeDelay.
 	 *
 	 * As the value applied is deterministic, it will not be handled
 	 * in humanice() but separately.
@@ -434,22 +434,22 @@ class Note : public H2Core::Object<Note>
 	 * InstrumentLayer. In case multiple samples are possible the
 	 * function will either pick the provided @a nSelectedLayer or -
 	 * for @a nSelectedLayer == -1 - the selection algorithm stored in
-	 * #__instrument to determined a layer.
+	 * #m_pInstrument to determined a layer.
 	 *
-	 * The function stores the selected layer in #__layers_selected
+	 * The function stores the selected layer in #m_layersSelected
 	 * and will reuse this parameter in every following call while
 	 * disregarding the provided @a nSelectedLayer.
 	 */
 	std::shared_ptr<Sample> getSample( int nComponentIdx, int nSelectedLayer = -1 ) const;
 
 	private:
-		int				__instrument_id;        ///< the id of the instrument played by this note
+		int				m_nInstrumentId;        ///< the id of the instrument played by this note
 		/** Drumkit-independent identifier used to relate a note/pattern to a
 		 * different kit */
 		DrumkitMap::Type m_sType;
-		int				__position;             ///< note position in
+		int				m_nPosition;             ///< note position in
 												///ticks inside the pattern
-		float			__velocity;           ///< velocity (intensity) of the note [0;1]
+		float			m_fVelocity;           ///< velocity (intensity) of the note [0;1]
 		float			m_fPan;		///< pan of the note, [-1;1] from
 									///left to right, as requested by
 									///Sampler PanLaws
@@ -458,14 +458,14 @@ class Note : public H2Core::Object<Note>
 	 * If set to -1, the Note will be rendered till the end of all
 	 * contained Samples is reached.
 	 */
-		int				__length;               ///< the length of the note
-		float			__pitch;              ///< the frequency of the note
-		Key				__key;                  ///< the key, [0;11]==[C;B]
-		Octave			 __octave;            ///< the octave [-3;3]
-		std::shared_ptr<ADSR>			__adsr;               ///< attack decay sustain release
-		float			__lead_lag;           ///< lead or lag offset of the note
-		float			__cut_off;            ///< filter cutoff [0;1]
-		float			__resonance;          ///< filter resonant
+		int				m_nLength;               ///< the length of the note
+		float			m_fPitch;              ///< the frequency of the note
+		Key				m_key;                  ///< the key, [0;11]==[C;B]
+		Octave			 m_octave;            ///< the octave [-3;3]
+		std::shared_ptr<ADSR>			m_pAdsr;               ///< attack decay sustain release
+		float			m_fLeadLag;           ///< lead or lag offset of the note
+		float			m_fCutOff;            ///< filter cutoff [0;1]
+		float			m_fResonance;          ///< filter resonant
 											  ///frequency [0;1]
 		/** Offset of the note start in frames.
 		 * 
@@ -476,18 +476,18 @@ class Note : public H2Core::Object<Note>
 		 *
 		 * It is incorporated in the #m_nNoteStart.
 		 */
-		int				__humanize_delay;
-		float			__bpfb_l;             ///< left band pass filter buffer
-		float			__bpfb_r;             ///< right band pass filter buffer
-		float			__lpfb_l;             ///< left low pass filter buffer
-		float			__lpfb_r;             ///< right low pass filter buffer
-		int				__pattern_idx;          ///< index of the pattern holding this note for undo actions
-		int				__midi_msg;             ///< TODO
-		bool			__note_off;            ///< note type on|off
-		bool			__just_recorded;       ///< used in record+delete
-		float			__probability;        ///< note probability
-		static const char* __key_str[]; ///< used to build QString
-										///from #__key an #__octave
+		int				m_nHumanizeDelay;
+		float			m_fBpfbL;             ///< left band pass filter buffer
+		float			m_fBpfbR;             ///< right band pass filter buffer
+		float			m_fLpfbL;             ///< left low pass filter buffer
+		float			m_fLpfbR;             ///< right low pass filter buffer
+		int				m_nPatternIdx;          ///< index of the pattern holding this note for undo actions
+		int				m_nMidiMsg;             ///< TODO
+		bool			m_bNoteOff;            ///< note type on|off
+		bool			m_bJustRecorded;       ///< used in record+delete
+		float			m_fProbability;        ///< note probability
+		static const char* m_keyStr[]; ///< used to build QString
+										///from #m_key an #m_octave
 	/**
 	 * Onset of the note in frames.
 	 *
@@ -514,39 +514,39 @@ class Note : public H2Core::Object<Note>
 		int				m_nSpecificCompoIdx;
 
 		/** One #SelectedLayerInfo for each #InstrumentComponent in
-		 * #__instrument. It assumes the same order as
+		 * #m_pInstrument. It assumes the same order as
 		 * #Instrument::__components. */
-	std::vector<std::shared_ptr<SelectedLayerInfo>> __layers_selected;
+	std::vector<std::shared_ptr<SelectedLayerInfo>> m_layersSelected;
 
 		/** the instrument to be played by this note */
-		std::shared_ptr<Instrument>		__instrument;
+		std::shared_ptr<Instrument>		m_pInstrument;
 };
 
 // DEFINITIONS
 
-inline std::shared_ptr<ADSR> Note::get_adsr() const
+inline std::shared_ptr<ADSR> Note::getAdsr() const
 {
-	return __adsr;
+	return m_pAdsr;
 }
 
-inline std::shared_ptr<Instrument> Note::get_instrument() const
+inline std::shared_ptr<Instrument> Note::getInstrument() const
 {
-	return __instrument;
+	return m_pInstrument;
 }
 
-inline bool Note::has_instrument() const
+inline bool Note::hasInstrument() const
 {
-	return __instrument!=nullptr;
+	return m_pInstrument!=nullptr;
 }
 
-inline void Note::set_instrument_id( int value )
+inline void Note::setInstrumentId( int value )
 {
-	__instrument_id = value;
+	m_nInstrumentId = value;
 }
 
-inline int Note::get_instrument_id() const
+inline int Note::getInstrumentId() const
 {
-	return __instrument_id;
+	return m_nInstrumentId;
 }
 
 inline void Note::setType( DrumkitMap::Type sType ) {
@@ -566,19 +566,19 @@ inline int Note::getSpecificCompoIdx() const
 	return m_nSpecificCompoIdx;
 }
 
-inline void Note::set_position( int value )
+inline void Note::setPosition( int value )
 {
-	__position = value;
+	m_nPosition = value;
 }
 
-inline int Note::get_position() const
+inline int Note::getPosition() const
 {
-	return __position;
+	return m_nPosition;
 }
 
-inline float Note::get_velocity() const
+inline float Note::getVelocity() const
 {
-	return __velocity;
+	return m_fVelocity;
 }
 
 inline float Note::getPan() const
@@ -586,198 +586,198 @@ inline float Note::getPan() const
 	return m_fPan;
 }
 
-inline float Note::get_lead_lag() const
+inline float Note::getLeadLag() const
 {
-	return __lead_lag;
+	return m_fLeadLag;
 }
 
-inline void Note::set_length( int value )
+inline void Note::setLength( int value )
 {
-	__length = value;
+	m_nLength = value;
 }
 
-inline int Note::get_length() const
+inline int Note::getLength() const
 {
-	return __length;
+	return m_nLength;
 }
 
-inline void Note::set_pitch( float value )
+inline void Note::setPitch( float value )
 {
-	__pitch = value;
+	m_fPitch = value;
 }
 
-inline float Note::get_pitch() const
+inline float Note::getPitch() const
 {
-	return __pitch;
+	return m_fPitch;
 }
 
-inline void Note::set_note_off( bool value )
+inline void Note::setNoteOff( bool value )
 {
-	__note_off = value;
+	m_bNoteOff = value;
 }
 
-inline bool Note::get_note_off() const
+inline bool Note::getNoteOff() const
 {
-	return __note_off;
+	return m_bNoteOff;
 }
 
-inline int Note::get_midi_msg() const
+inline int Note::getMidiMsg() const
 {
-	return __midi_msg;
+	return m_nMidiMsg;
 }
 
-inline void Note::set_pattern_idx( int value )
+inline void Note::setPatternIdx( int value )
 {
-	__pattern_idx = value;
+	m_nPatternIdx = value;
 }
 
-inline int Note::get_pattern_idx() const
+inline int Note::getPatternIdx() const
 {
-	return __pattern_idx;
+	return m_nPatternIdx;
 }
 
-inline void Note::set_just_recorded( bool value )
+inline void Note::setJustRecorded( bool value )
 {
-	__just_recorded = value;
+	m_bJustRecorded = value;
 }
 
-inline bool Note::get_just_recorded() const
+inline bool Note::getJustRecorded() const
 {
-	return __just_recorded;
+	return m_bJustRecorded;
 }
 
-inline float Note::get_probability() const
+inline float Note::getProbability() const
 {
-	return __probability;
+	return m_fProbability;
 }
 
-inline void Note::set_probability( float value )
+inline void Note::setProbability( float value )
 {
-	__probability = value;
+	m_fProbability = value;
 }
 
-inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int nCompoIdx ) const
+inline std::shared_ptr<SelectedLayerInfo> Note::getLayerSelected( int nCompoIdx ) const
 {
-	if ( nCompoIdx < 0 || nCompoIdx >= __layers_selected.size() ) {
+	if ( nCompoIdx < 0 || nCompoIdx >= m_layersSelected.size() ) {
 		return nullptr;
 	}
-	return __layers_selected.at( nCompoIdx );
+	return m_layersSelected.at( nCompoIdx );
 }
 
-inline int Note::get_humanize_delay() const
+inline int Note::getHumanizeDelay() const
 {
-	return __humanize_delay;
+	return m_nHumanizeDelay;
 }
 
-inline float Note::get_cut_off() const
+inline float Note::getCutOff() const
 {
-	return __cut_off;
+	return m_fCutOff;
 }
 
-inline float Note::get_resonance() const
+inline float Note::getResonance() const
 {
-	return __resonance;
+	return m_fResonance;
 }
 
-inline float Note::get_bpfb_l() const
+inline float Note::getBpfbL() const
 {
-	return __bpfb_l;
+	return m_fBpfbL;
 }
 
-inline float Note::get_bpfb_r() const
+inline float Note::getBpfbR() const
 {
-	return __bpfb_r;
+	return m_fBpfbR;
 }
 
-inline float Note::get_lpfb_l() const
+inline float Note::getLpfbL() const
 {
-	return __lpfb_l;
+	return m_fLpfbL;
 }
 
-inline float Note::get_lpfb_r() const
+inline float Note::getLpfbR() const
 {
-	return __lpfb_r;
+	return m_fLpfbR;
 }
 
-inline bool Note::filter_sustain() const
+inline bool Note::filterSustain() const
 {
 	const double fLimit = 0.001;
-	return ( fabs( __lpfb_l ) > fLimit || fabs( __lpfb_r ) > fLimit ||
-			 fabs( __bpfb_l ) > fLimit || fabs( __bpfb_r ) > fLimit );
+	return ( fabs( m_fLpfbL ) > fLimit || fabs( m_fLpfbR ) > fLimit ||
+			 fabs( m_fBpfbL ) > fLimit || fabs( m_fBpfbR ) > fLimit );
 }
 
-inline Note::Key Note::get_key() const
+inline Note::Key Note::getKey() const
 {
-	return __key;
+	return m_key;
 }
 
-inline Note::Octave Note::get_octave() const
+inline Note::Octave Note::getOctave() const
 {
-	return __octave;
+	return m_octave;
 }
 
-inline int Note::get_midi_key() const
+inline int Note::getMidiKey() const
 {
-	int nMidiKey = ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key;
-	if ( __instrument != nullptr ) {
-		nMidiKey += __instrument->get_midi_out_note() -
+	int nMidiKey = ( m_octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + m_key;
+	if ( m_pInstrument != nullptr ) {
+		nMidiKey += m_pInstrument->get_midi_out_note() -
 			MidiMessage::instrumentOffset;
 	}
 	return nMidiKey;
 }
 
-inline int Note::get_midi_velocity() const
+inline int Note::getMidiVelocity() const
 {
-	return __velocity * 127;
+	return m_fVelocity * 127;
 }
 
-inline float Note::get_pitch_from_key_octave() const
+inline float Note::getPitchFromKeyOctave() const
 {
-	return __octave * KEYS_PER_OCTAVE + __key;
+	return m_octave * KEYS_PER_OCTAVE + m_key;
 }
 
-inline void Note::set_key_octave( Key key, Octave octave )
+inline void Note::setKeyOctave( Key key, Octave octave )
 {
-	if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
-	if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
+	if( key>=KEY_MIN && key<=KEY_MAX ) m_key = key;
+	if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) m_octave = octave;
 }
 
-inline void Note::set_midi_info( Key key, Octave octave, int msg )
+inline void Note::setMidiInfo( Key key, Octave octave, int msg )
 {
-	if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
-	if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
-	__midi_msg = msg;
+	if( key>=KEY_MIN && key<=KEY_MAX ) m_key = key;
+	if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) m_octave = octave;
+	m_nMidiMsg = msg;
 }
 
 inline bool Note::match( int nInstrumentId, const QString& sType, Key key,
 						 Octave octave ) const
 {
-	return __instrument_id == nInstrumentId && m_sType == sType &&
-		__key == key && __octave==octave;
+	return m_nInstrumentId == nInstrumentId && m_sType == sType &&
+		m_key == key && m_octave==octave;
 }
 
 inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
-	return match( pNote->__instrument_id, pNote->m_sType, pNote->__key,
-				  pNote->__octave );
+	return match( pNote->m_nInstrumentId, pNote->m_sType, pNote->m_key,
+				  pNote->m_octave );
 }
 
-inline void Note::compute_lr_values( float* val_l, float* val_r )
+inline void Note::computeLrValues( float* val_l, float* val_r )
 {
-	if ( __instrument == nullptr ) {
+	if ( m_pInstrument == nullptr ) {
 		*val_l = 0.0f;
 		*val_r = 0.0f;
 		return;
 	}
 	else {
-		const float fCutOff = __instrument->get_filter_cutoff();
-		const float fResonance = __instrument->get_filter_resonance();
-		__bpfb_l  =  fResonance * __bpfb_l  + fCutOff * ( *val_l - __lpfb_l );
-		__lpfb_l +=  fCutOff   * __bpfb_l;
-		__bpfb_r  =  fResonance * __bpfb_r  + fCutOff * ( *val_r - __lpfb_r );
-		__lpfb_r +=  fCutOff   * __bpfb_r;
-		*val_l = __lpfb_l;
-		*val_r = __lpfb_r;
+		const float fCutOff = m_pInstrument->get_filter_cutoff();
+		const float fResonance = m_pInstrument->get_filter_resonance();
+		m_fBpfbL  =  fResonance * m_fBpfbL  + fCutOff * ( *val_l - m_fLpfbL );
+		m_fLpfbL +=  fCutOff   * m_fBpfbL;
+		m_fBpfbR  =  fResonance * m_fBpfbR  + fCutOff * ( *val_r - m_fLpfbR );
+		m_fLpfbR +=  fCutOff   * m_fBpfbR;
+		*val_l = m_fLpfbL;
+		*val_r = m_fLpfbR;
 	}
 }
 

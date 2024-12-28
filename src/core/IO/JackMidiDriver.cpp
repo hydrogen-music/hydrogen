@@ -385,7 +385,7 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 
 void JackMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 {
-	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
 		ERRORLOG( "Invalid note" );
 		return;
 	}
@@ -395,17 +395,17 @@ void JackMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 	int key;
 	int vel;
 
-	channel = pNote->get_instrument()->get_midi_out_channel();
+	channel = pNote->getInstrument()->get_midi_out_channel();
 	if (channel < 0 || channel > 15) {
 		return;
 	}
 
-	key = pNote->get_midi_key();
+	key = pNote->getMidiKey();
 	if (key < 0 || key > 127) {
 		return;
 	}
 
-	vel = pNote->get_midi_velocity();
+	vel = pNote->getMidiVelocity();
 	if (vel < 0 || vel > 127) {
 		return;
 	}

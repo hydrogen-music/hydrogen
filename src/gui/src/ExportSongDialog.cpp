@@ -602,7 +602,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 			assert( pNote );
 
 			if ( pNote != nullptr &&
-				 pNote->get_instrument_id() == pInstrument->get_id() ) {
+				 pNote->getInstrumentId() == pInstrument->get_id() ) {
 				bInstrumentHasNotes = true;
 				break;
 			}
