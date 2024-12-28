@@ -459,11 +459,11 @@ void Sampler::handleTimelineOrTempoChange() {
 	}
 
 	for ( auto& ppNote : m_playingNotesQueue ) {
-		ppNote->computeNoteStart();
-
-		if ( ppNote->get_instrument() == nullptr ) {
+		if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ) {
 			continue;
 		}
+
+		ppNote->computeNoteStart();
 
 		// For notes of custom length we have to rescale the amount of the
 		// sample still left for rendering to properly adopt the tempo change.
@@ -487,8 +487,14 @@ void Sampler::handleTimelineOrTempoChange() {
 			for ( int ii = 0; ii <=
 					  ppNote->get_instrument()->get_components()->size(); ++ii ) {
 				const auto ppSelectedLayerInfo = ppNote->get_layer_selected( ii );
+				if ( ppSelectedLayerInfo == nullptr ) {
+					continue;
+				}
 				const auto pSample = ppNote->getSample(
 					ii, ppSelectedLayerInfo->nSelectedLayer );
+				if ( pSample == nullptr ) {
+					continue;
+				}
 				const int nNewNoteLength =
 					TransportPosition::computeFrameFromTick(
 						ppNote->get_position() + ppNote->get_length(),
