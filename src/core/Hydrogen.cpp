@@ -203,10 +203,6 @@ void Hydrogen::initBeatcounter()
 /// Start the internal sequencer
 void Hydrogen::sequencerPlay()
 {
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong != nullptr ) {
-		pSong->getPatternList()->set_to_old();
-	}
 	m_pAudioEngine->play();
 }
 

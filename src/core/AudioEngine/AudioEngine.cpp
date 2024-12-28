@@ -2643,8 +2643,6 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 					auto pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->getInstrument() != nullptr ) {
-						pNote->setJustRecorded( false );
-						
 						auto pCopiedNote = std::make_shared<Note>( pNote );
 
 						// Lead or Lag.

@@ -57,17 +57,13 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 	  m_octave( static_cast<Note::Octave>(OCTAVE_DEFAULT) ),
 	  m_pAdsr( nullptr ),
 	  m_fLeadLag( LEAD_LAG_DEFAULT ),
-	  m_fCutOff( 1.0 ),
-	  m_fResonance( 0.0 ),
 	  m_nHumanizeDelay( 0 ),
 	  m_fBpfbL( 0.0 ),
 	  m_fBpfbR( 0.0 ),
 	  m_fLpfbL( 0.0 ),
 	  m_fLpfbR( 0.0 ),
-	  m_nPatternIdx( 0 ),
 	  m_nMidiMsg( -1 ),
 	  m_bNoteOff( false ),
-	  m_bJustRecorded( false ),
 	  m_fProbability( PROBABILITY_DEFAULT ),
 	  m_nNoteStart( 0 ),
 	  m_fUsedTickSize( std::nan("") ),
@@ -112,17 +108,13 @@ Note::Note( std::shared_ptr<Note> pOther, std::shared_ptr<Instrument> pInstrumen
 	  m_octave( pOther->getOctave() ),
 	  m_pAdsr( nullptr ),
 	  m_fLeadLag( pOther->getLeadLag() ),
-	  m_fCutOff( pOther->getCutOff() ),
-	  m_fResonance( pOther->getResonance() ),
 	  m_nHumanizeDelay( pOther->getHumanizeDelay() ),
-	  m_fBpfbL( pOther->getBpfbL() ),
-	  m_fBpfbR( pOther->getBpfbR() ),
-	  m_fLpfbL( pOther->getLpfbL() ),
-	  m_fLpfbR( pOther->getLpfbR() ),
-	  m_nPatternIdx( pOther->getPatternIdx() ),
+	  m_fBpfbL( pOther->m_fBpfbL ),
+	  m_fBpfbR( pOther->m_fBpfbR ),
+	  m_fLpfbL( pOther->m_fLpfbL ),
+	  m_fLpfbR( pOther->m_fLpfbR ),
 	  m_nMidiMsg( pOther->getMidiMsg() ),
 	  m_bNoteOff( pOther->getNoteOff() ),
-	  m_bJustRecorded( pOther->getJustRecorded() ),
 	  m_fProbability( pOther->getProbability() ),
 	  m_nNoteStart( pOther->getNoteStart() ),
 	  m_fUsedTickSize( pOther->getUsedTickSize() ),
@@ -279,11 +271,6 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 			m_nInstrumentId = EMPTY_INSTR_ID;
 		}
 	}
-}
-
-QString Note::keyToString() const
-{
-	return QString( "%1%2" ).arg( m_keyStr[m_key] ).arg( m_octave );
 }
 
 void Note::setKeyOctave( const QString& str )
@@ -586,7 +573,8 @@ void Note::saveTo( XMLNode& node ) const
 	node.write_float( "velocity", m_fVelocity );
 	node.write_float( "pan", m_fPan );
 	node.write_float( "pitch", m_fPitch );
-	node.write_string( "key", keyToString() );
+	node.write_string( "key", QString( "%1%2" )
+					   .arg( m_keyStr[m_key] ).arg( m_octave ) );
 	node.write_int( "length", m_nLength );
 	node.write_int( "instrument", m_nInstrumentId );
 	node.write_string( "type", m_sType );
@@ -631,29 +619,16 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 }
 
 QString Note::prettyName() const {
-	QString sInstrument, sPattern;
-
+	QString sInstrument;
 	if ( m_pInstrument != nullptr ) {
 		sInstrument = QString( "instr: [%1]" ).arg( m_pInstrument->get_name() );
 	} else {
 		sInstrument = QString( "type: [%1]" ).arg( m_sType );
 	}
 
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		const auto pPattern = pSong->getPatternList()->get( m_nPatternIdx );
-		if ( pPattern != nullptr ) {
-			sPattern = QString( "Pat: [%1]" ).arg( pPattern->getName() );
-		}
-	}
-	if ( sPattern.isEmpty() ) {
-		sPattern = "No pat";
-	}
-
-	return QString( "%1, %2, pos: %3, key: %4, octave: %5" )
-		.arg( sPattern ).arg( sInstrument ).arg( m_nPosition )
-		.arg( KeyToQString( m_key ) )
-		.arg( OctaveToQString( m_octave ) );
+	return QString( "%1, pos: %2, key: %3, octave: %4" )
+		.arg( sInstrument ).arg( m_nPosition )
+		.arg( KeyToQString( m_key ) ).arg( OctaveToQString( m_octave ) );
 }
 
 QString Note::toQString( const QString& sPrefix, bool bShort ) const {
@@ -687,10 +662,6 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_fLeadLag: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fLeadLag ) )
-			.append( QString( "%1%2m_fCutOff: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fCutOff ) )
-			.append( QString( "%1%2m_fResonance: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fResonance ) )
 			.append( QString( "%1%2m_nHumanizeDelay: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nHumanizeDelay ) )
 			.append( QString( "%1%2m_fBpfbL: %3\n" ).arg( sPrefix ).arg( s )
@@ -701,14 +672,10 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_fLpfbL ) )
 			.append( QString( "%1%2m_fLpfbR: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fLpfbR ) )
-			.append( QString( "%1%2m_nPatternIdx: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nPatternIdx ) )
 			.append( QString( "%1%2m_nMidiMsg: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nMidiMsg ) )
 			.append( QString( "%1%2m_bNoteOff: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bNoteOff ) )
-			.append( QString( "%1%2m_bJustRecorded: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bJustRecorded ) )
 			.append( QString( "%1%2m_fProbability: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fProbability ) )
 			.append( QString( "%1%2m_keyStr: [" ).arg( sPrefix ).arg( s ) );
@@ -761,17 +728,13 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 
 		sOutput.append( QString( ", m_fLeadLag: %1" ).arg( m_fLeadLag ) )
-			.append( QString( ", m_fCutOff: %1" ).arg( m_fCutOff ) )
-			.append( QString( ", m_fResonance: %1" ).arg( m_fResonance ) )
 			.append( QString( ", m_nHumanizeDelay: %1" ).arg( m_nHumanizeDelay ) )
 			.append( QString( ", m_fBpfbL: %1" ).arg( m_fBpfbL ) )
 			.append( QString( ", m_fBpfbR: %1" ).arg( m_fBpfbR ) )
 			.append( QString( ", m_fLlpfbL: %1" ).arg( m_fLpfbL ) )
 			.append( QString( ", m_fLpfbR: %1" ).arg( m_fLpfbR ) )
-			.append( QString( ", m_nPatternIdx: %1" ).arg( m_nPatternIdx ) )
 			.append( QString( ", m_nMidiMsg: %1" ).arg( m_nMidiMsg ) )
 			.append( QString( ", m_bNoteOff: %1" ).arg( m_bNoteOff ) )
-			.append( QString( ", m_bJustRecorded: %1" ).arg( m_bJustRecorded ) )
 			.append( QString( ", m_fProbability: %1" ).arg( m_fProbability ) )
 			.append( ", m_keyStr: [" );
 			for ( int ii = KEY_MIN; ii <= KEY_MAX; ++ii ) {

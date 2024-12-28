@@ -217,13 +217,6 @@ std::shared_ptr<Pattern> PatternList::replace( int idx,
 	return ret;
 }
 
-void PatternList::set_to_old()
-{
-	for( int i=0; i<__patterns.size(); i++ ) {
-		__patterns[i]->setToOld();
-	}
-}
-
 std::shared_ptr<Pattern>  PatternList::find( const QString& name ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {

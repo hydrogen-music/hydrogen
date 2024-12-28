@@ -448,15 +448,6 @@ void Pattern::clear( bool bRequiresLock )
 	}
 }
 
-void Pattern::setToOld()
-{
-	for ( notes_cst_it_t it = m_notes.begin(); it != m_notes.end(); it++ ) {
-		auto pNote = it->second;
-		assert( pNote );
-		pNote->setJustRecorded( false );
-	}
-}
-
 void Pattern::flattenedVirtualPatternsCompute()
 {
 	// m_flattenedVirtualPatterns must have been cleared before

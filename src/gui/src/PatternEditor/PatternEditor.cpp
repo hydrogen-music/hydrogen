@@ -2860,10 +2860,6 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 		if ( pVisibleEditor->getSelectNewNotes() ) {
 			pVisibleEditor->m_selection.addToSelection( pNote );
 		}
-
-		if ( bIsMidi ) {
-			pNote->setJustRecorded(true);
-		}
 	}
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );

@@ -169,8 +169,6 @@ class Note : public H2Core::Object<Note>
 					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 		/** #m_pInstrument accessor */
 		std::shared_ptr<Instrument> getInstrument() const;
-		/** return true if #m_pInstrument is set */
-		bool hasInstrument() const;
 		/**
 		 * #m_nInstrumentId setter
 		 * \param value the new value
@@ -227,11 +225,6 @@ class Note : public H2Core::Object<Note>
 		void setLength( int value );
 		/** #m_nLength accessor */
 		int getLength() const;
-		/**
-		 * #m_fPitch setter
-		 * \param value the new value
-		 */
-		void setPitch( float value );
 		/** #m_fPitch accessor */
 		float getPitch() const;
 		/**
@@ -243,20 +236,6 @@ class Note : public H2Core::Object<Note>
 		bool getNoteOff() const;
 		/** #m_nMidiMsg accessor */
 		int getMidiMsg() const;
-		/**
-		 * #m_nPatternIdx setter
-		 * \param value the new value
-		 */
-		void setPatternIdx( int value );
-		/** #m_nPatternIdx accessor */
-		int getPatternIdx() const;
-		/**
-		 * #m_bJustRecorded setter
-		 * \param value the new value
-		 */
-		void setJustRecorded( bool value );
-		/** #m_bJustRecorded accessor */
-		bool getJustRecorded() const;
 
 	std::shared_ptr<SelectedLayerInfo> getLayerSelected( int nIdx ) const;
 
@@ -270,18 +249,6 @@ class Note : public H2Core::Object<Note>
 		void setHumanizeDelay( int value );
 		/** #m_nHumanizeDelay accessor */
 		int getHumanizeDelay() const;
-		/** #m_fCutOff accessor */
-		float getCutOff() const;
-		/** #m_fResonance accessor */
-		float getResonance() const;
-		/** #m_fBpfbL accessor */
-		float getBpfbL() const;
-		/** #m_fBpfbR accessor */
-		float getBpfbR() const;
-		/** #m_fLpfbL accessor */
-		float getLpfbL() const;
-		/** #m_fLpfbR accessor */
-		float getLpfbR() const;
 		/** Filter output is sustaining note */
 		bool filterSustain() const;
 		/** #m_key accessor */
@@ -301,8 +268,6 @@ class Note : public H2Core::Object<Note>
 		float getPitchFromKeyOctave() const;
 		float getTotalPitch() const;
 
-		/** return a string representation of key-octave */
-		QString keyToString() const;
 		/**
 		 * parse str and set #m_key and #m_octave
 		 * \param str the string to be parsed
@@ -464,9 +429,6 @@ class Note : public H2Core::Object<Note>
 		Octave			 m_octave;            ///< the octave [-3;3]
 		std::shared_ptr<ADSR>			m_pAdsr;               ///< attack decay sustain release
 		float			m_fLeadLag;           ///< lead or lag offset of the note
-		float			m_fCutOff;            ///< filter cutoff [0;1]
-		float			m_fResonance;          ///< filter resonant
-											  ///frequency [0;1]
 		/** Offset of the note start in frames.
 		 * 
 		 * It includes contributions of the onset humanization, the
@@ -481,10 +443,8 @@ class Note : public H2Core::Object<Note>
 		float			m_fBpfbR;             ///< right band pass filter buffer
 		float			m_fLpfbL;             ///< left low pass filter buffer
 		float			m_fLpfbR;             ///< right low pass filter buffer
-		int				m_nPatternIdx;          ///< index of the pattern holding this note for undo actions
 		int				m_nMidiMsg;             ///< TODO
 		bool			m_bNoteOff;            ///< note type on|off
-		bool			m_bJustRecorded;       ///< used in record+delete
 		float			m_fProbability;        ///< note probability
 		static const char* m_keyStr[]; ///< used to build QString
 										///from #m_key an #m_octave
@@ -532,11 +492,6 @@ inline std::shared_ptr<ADSR> Note::getAdsr() const
 inline std::shared_ptr<Instrument> Note::getInstrument() const
 {
 	return m_pInstrument;
-}
-
-inline bool Note::hasInstrument() const
-{
-	return m_pInstrument!=nullptr;
 }
 
 inline void Note::setInstrumentId( int value )
@@ -601,11 +556,6 @@ inline int Note::getLength() const
 	return m_nLength;
 }
 
-inline void Note::setPitch( float value )
-{
-	m_fPitch = value;
-}
-
 inline float Note::getPitch() const
 {
 	return m_fPitch;
@@ -624,26 +574,6 @@ inline bool Note::getNoteOff() const
 inline int Note::getMidiMsg() const
 {
 	return m_nMidiMsg;
-}
-
-inline void Note::setPatternIdx( int value )
-{
-	m_nPatternIdx = value;
-}
-
-inline int Note::getPatternIdx() const
-{
-	return m_nPatternIdx;
-}
-
-inline void Note::setJustRecorded( bool value )
-{
-	m_bJustRecorded = value;
-}
-
-inline bool Note::getJustRecorded() const
-{
-	return m_bJustRecorded;
 }
 
 inline float Note::getProbability() const
@@ -667,36 +597,6 @@ inline std::shared_ptr<SelectedLayerInfo> Note::getLayerSelected( int nCompoIdx 
 inline int Note::getHumanizeDelay() const
 {
 	return m_nHumanizeDelay;
-}
-
-inline float Note::getCutOff() const
-{
-	return m_fCutOff;
-}
-
-inline float Note::getResonance() const
-{
-	return m_fResonance;
-}
-
-inline float Note::getBpfbL() const
-{
-	return m_fBpfbL;
-}
-
-inline float Note::getBpfbR() const
-{
-	return m_fBpfbR;
-}
-
-inline float Note::getLpfbL() const
-{
-	return m_fLpfbL;
-}
-
-inline float Note::getLpfbR() const
-{
-	return m_fLpfbR;
 }
 
 inline bool Note::filterSustain() const

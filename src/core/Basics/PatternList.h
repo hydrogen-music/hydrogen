@@ -143,10 +143,6 @@ class Note;
 		 */
 		void clear();
 		/**
-		 * mark all patterns as old
-		 */
-		void set_to_old();
-		/**
 		 * find a pattern within the patterns
 		 * \param name the name of the pattern to find
 		 * \return 0 if not found

@@ -211,10 +211,6 @@ class Pattern : public H2Core::Object<Pattern>
 							  bool bRequiredLock = true );
 		/** Erase all notes. */
 		void clear( bool bRequiredLock = true );
-		/**
-		 * mark all notes as old
-		 */
-		void setToOld();
 
 		///< return true if m_virtualPatterns is empty
 		bool virtualPatternsEmpty() const;
