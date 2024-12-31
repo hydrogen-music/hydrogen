@@ -100,7 +100,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
 	const auto notesUnderPoint = getNotesAtPoint(
-		pPattern, point, getCursorMargin( ev ), false );
+		pPattern, point, getCursorMargin( ev ) );
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}
@@ -336,7 +336,7 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 	m_oldNotes.clear();
 
 	const auto notesUnderPoint = getNotesAtPoint(
-		pPattern, pEvent->pos(), getCursorMargin( pEvent ), false );
+		pPattern, pEvent->pos(), getCursorMargin( pEvent ) );
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
 			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
@@ -663,7 +663,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		// the current selection, we alter the values of all selected notes. It
 		// not, we discard the selection.
 		const auto notesUnderPoint =
-			getNotesAtPoint( pPattern, getCursorPosition(), 0, false );
+			getNotesAtPoint( pPattern, getCursorPosition(), 0 );
 		if ( notesUnderPoint.size() == 0 ) {
 			return;
 		}

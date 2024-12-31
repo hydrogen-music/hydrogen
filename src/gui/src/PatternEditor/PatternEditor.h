@@ -420,8 +420,7 @@ protected:
 		std::vector< std::shared_ptr<H2Core::Note> > getNotesAtPoint(
 			std::shared_ptr<H2Core::Pattern> pPattern,
 			const QPoint& point,
-			int nCursorMargin,
-			bool bExcludeSelected );
+			int nCursorMargin );
 
 		void updateHoveredNotesMouse( QMouseEvent* pEvent );
 		void updateHoveredNotesKeyboard();
