@@ -96,25 +96,44 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	QString sUndoContext = "NotePropertiesRuler::wheelEvent";
 	bool bUpdate = false;
 
-	// When interacting with note(s) not already in a selection, we will discard
-	// the current selection and add these notes under point to a transient one.
+	// We interact only with hovered notes. I've any of them is part of the
+	// current selection, we alter the values of all selected notes. It not, we
+	// discard it.
 	const auto notesUnderPoint = getNotesAtPoint(
-		pPattern, point, getCursorMargin( ev ), true );
-	if ( notesUnderPoint.size() > 0 ) {
-		m_selection.clearSelection();
-		for ( const auto& ppNote : notesUnderPoint ) {
-			m_selection.addToSelection( ppNote );
-			sUndoContext.append( QString( "::%1:%2:%3" )
-								 .arg( ppNote->getPosition() )
-								 .arg( ppNote->getInstrumentId() )
-								 .arg( ppNote->getType() ) );
-		}
-		bUpdate = true;
+		pPattern, point, getCursorMargin( ev ), false );
+	if ( notesUnderPoint.size() == 0 ) {
+		return;
 	}
 
-	if ( m_selection.isEmpty() ) {
-		// No notes to act on
-		return;
+	bool bSelectionHovered = false;
+	for ( const auto& ppNote : notesUnderPoint ) {
+		if ( m_selection.isSelected( ppNote ) ) {
+			bSelectionHovered = true;
+			break;
+		}
+	}
+
+	std::vector< std::shared_ptr<Note> > notes;
+	std::vector< std::shared_ptr<Note> > notesStatusMessage;
+	if ( bSelectionHovered ) {
+		for ( const auto& ppNote : m_selection ) {
+			if ( ppNote != nullptr ) {
+				notes.push_back( ppNote );
+			}
+		}
+
+		// We only show status messages for notes at point. In this case, only
+		// for the selected ones.
+		for ( const auto& ppNote : notesUnderPoint ) {
+			if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
+				notesStatusMessage.push_back( ppNote );
+			}
+		}
+	}
+	else {
+		m_selection.clearSelection();
+		notes = notesUnderPoint;
+		notesStatusMessage = notesUnderPoint;
 	}
 
 	float fDelta;
@@ -130,14 +149,12 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	m_oldNotes.clear();
 
-	std::vector< std::shared_ptr<Note> > notes;
-	for ( auto& ppNote : m_selection ) {
+	for ( auto& ppNote : notes ) {
 		if ( ppNote == nullptr ) {
 			continue;
 		}
 
 		m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
-		notes.push_back( ppNote );
 	}
 
 	// Apply delta to the property
@@ -148,14 +165,10 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	handleKeyboardCursor( false );
 
 	if ( bUpdate || bValueChanged ) {
-		PatternEditor::triggerStatusMessage( notesUnderPoint, m_mode );
 
 		if ( bValueChanged ) {
+			PatternEditor::triggerStatusMessage( notesStatusMessage, m_mode );
 			addUndoAction( sUndoContext );
-		}
-
-		if ( notesUnderPoint.size() > 0 ) {
-			m_selection.clearSelection();
 		}
 
 		if ( m_mode == Mode::Velocity ) {
