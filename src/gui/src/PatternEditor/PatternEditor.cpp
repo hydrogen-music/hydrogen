@@ -94,6 +94,8 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
 
+	updateWidth();
+
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
 									   height() * pixelRatio );
