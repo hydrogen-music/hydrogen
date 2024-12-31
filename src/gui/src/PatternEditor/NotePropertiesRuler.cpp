@@ -96,9 +96,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	QString sUndoContext = "NotePropertiesRuler::wheelEvent";
 	bool bUpdate = false;
 
-	// We interact only with hovered notes. I've any of them is part of the
+	// We interact only with hovered notes. If any of them are part of the
 	// current selection, we alter the values of all selected notes. It not, we
-	// discard it.
+	// discard the selection.
 	const auto notesUnderPoint = getNotesAtPoint(
 		pPattern, point, getCursorMargin( ev ), false );
 	if ( notesUnderPoint.size() == 0 ) {
@@ -148,7 +148,6 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	}
 
 	m_oldNotes.clear();
-
 	for ( auto& ppNote : notes ) {
 		if ( ppNote == nullptr ) {
 			continue;
@@ -652,26 +651,44 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	bool bFullUpdate = false;
 	// Value change
 	if ( fDelta != 0.0 ) {
-		// When interacting with note(s) not already in a selection, we will
-		// discard the current selection and add these notes under point to a
-		// transient one.
+		// We interact only with notes under cursor. If any of them are part of
+		// the current selection, we alter the values of all selected notes. It
+		// not, we discard the selection.
 		const auto notesUnderPoint =
-			getNotesAtPoint( pPattern, getCursorPosition(), 0, true );
-		if ( notesUnderPoint.size() > 0 ) {
-			m_selection.clearSelection();
-			for ( const auto& ppNote : notesUnderPoint ) {
-				m_selection.addToSelection( ppNote );
-				sUndoContext.append( QString( "::%1:%2:%3" )
-									 .arg( ppNote->getPosition() )
-									 .arg( ppNote->getInstrumentId() )
-									 .arg( ppNote->getType() ) );
-			}
-			bFullUpdate = true;
+			getNotesAtPoint( pPattern, getCursorPosition(), 0, false );
+		if ( notesUnderPoint.size() == 0 ) {
+			return;
 		}
 
-		if ( m_selection.isEmpty() ) {
-			// No notes to act on
-			return;
+		bool bSelectionHovered = false;
+		for ( const auto& ppNote : notesUnderPoint ) {
+			if ( m_selection.isSelected( ppNote ) ) {
+				bSelectionHovered = true;
+				break;
+			}
+		}
+
+		std::vector< std::shared_ptr<Note> > notes;
+		std::vector< std::shared_ptr<Note> > notesStatusMessage;
+		if ( bSelectionHovered ) {
+			for ( const auto& ppNote : m_selection ) {
+				if ( ppNote != nullptr ) {
+					notes.push_back( ppNote );
+				}
+			}
+
+			// We only show status messages for notes at cursor. In this case,
+			// only for the selected ones.
+			for ( const auto& ppNote : notesUnderPoint ) {
+				if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
+					notesStatusMessage.push_back( ppNote );
+				}
+			}
+		}
+		else {
+			m_selection.clearSelection();
+			notes = notesUnderPoint;
+			notesStatusMessage = notesUnderPoint;
 		}
 
 		// For the KeyOctave Editor, adjust the pitch by a whole semitone
@@ -684,28 +701,21 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		}
 
 		m_oldNotes.clear();
-
-		std::vector< std::shared_ptr<Note> > notes;
-		for ( auto& ppNote : m_selection ) {
+		for ( auto& ppNote : notes ) {
 			if ( ppNote == nullptr ) {
 				continue;
 			}
 
 			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
-			notes.push_back( ppNote );
 		}
 
 		// Apply delta to the property
 		const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
 
 		if ( bValueChanged ) {
-			PatternEditor::triggerStatusMessage( notesUnderPoint, m_mode );
+			PatternEditor::triggerStatusMessage( notesStatusMessage, m_mode );
 
 			addUndoAction( sUndoContext );
-
-			if ( notesUnderPoint.size() > 0 ) {
-				m_selection.clearSelection();
-			}
 
 			Hydrogen::get_instance()->setIsModified( true );
 
