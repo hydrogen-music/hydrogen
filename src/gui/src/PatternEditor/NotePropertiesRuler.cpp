@@ -1186,14 +1186,8 @@ void NotePropertiesRuler::createBackground()
 }
 
 void NotePropertiesRuler::drawPattern() {
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
 
-	validateSelection();
-
-	qreal pixelRatio = devicePixelRatio();
+	const qreal pixelRatio = devicePixelRatio();
 
 	QPainter p( m_pPatternPixmap );
 	// copy the background image
@@ -1202,6 +1196,13 @@ void NotePropertiesRuler::drawPattern() {
 								pixelRatio * rect().y(),
 								pixelRatio * rect().width(),
 								pixelRatio * rect().height() ) );
+
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	validateSelection();
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );

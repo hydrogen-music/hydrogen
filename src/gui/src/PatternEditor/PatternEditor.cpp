@@ -1974,6 +1974,16 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 
 void PatternEditor::drawPattern()
 {
+	const qreal pixelRatio = devicePixelRatio();
+
+	QPainter p( m_pPatternPixmap );
+	// copy the background image
+	p.drawPixmap( rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * rect().x(),
+								pixelRatio * rect().y(),
+								pixelRatio * rect().width(),
+								pixelRatio * rect().height() ) );
+
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
@@ -1987,16 +1997,6 @@ void PatternEditor::drawPattern()
 	textBackgroundColor.setAlpha( 150 );
 
 	validateSelection();
-
-	qreal pixelRatio = devicePixelRatio();
-
-	QPainter p( m_pPatternPixmap );
-	// copy the background image
-	p.drawPixmap( rect(), *m_pBackgroundPixmap,
-						QRectF( pixelRatio * rect().x(),
-								pixelRatio * rect().y(),
-								pixelRatio * rect().width(),
-								pixelRatio * rect().height() ) );
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
