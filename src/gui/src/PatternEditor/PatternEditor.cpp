@@ -869,6 +869,14 @@ void PatternEditor::randomizeVelocity() {
 
 	pHydrogenApp->endUndoMacro();
 
+	std::vector< std::shared_ptr<Note> > notes;
+	for ( const auto& ppNote : m_selection ) {
+		if ( ppNote != nullptr ) {
+			notes.push_back( ppNote );
+		}
+	}
+
+	PatternEditor::triggerStatusMessage( notes, Mode::Velocity );
 }
 
 void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
@@ -2514,9 +2522,22 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 				pOldNote->getOctave() ) );
 	};
 
+	std::vector< std::shared_ptr<Note> > notesStatusLength, notesStatusProp;
+
 	for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
+		if ( ppUpdatedNote == nullptr || ppOriginalNote == nullptr ) {
+			continue;
+		}
+
 		if ( ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
 			editNoteProperty( Mode::Length, ppUpdatedNote, ppOriginalNote );
+
+			// We only trigger status messages for notes hovered by the user.
+			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
+				if ( ppNote == ppOriginalNote ) {
+					notesStatusLength.push_back( ppUpdatedNote );
+				}
+			}
 		}
 
 		if ( ppUpdatedNote->getVelocity() != ppOriginalNote->getVelocity() ||
@@ -2525,7 +2546,21 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 			 ppUpdatedNote->getProbability() !=
 			 ppOriginalNote->getProbability() ) {
 			editNoteProperty( m_mode, ppUpdatedNote, ppOriginalNote );
+
+			// We only trigger status messages for notes hovered by the user.
+			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
+				if ( ppNote == ppOriginalNote ) {
+					notesStatusProp.push_back( ppUpdatedNote );
+				}
+			}
 		}
+	}
+
+	if ( notesStatusLength.size() > 0 ) {
+		PatternEditor::triggerStatusMessage( notesStatusLength, Mode::Length );
+	}
+	if ( notesStatusProp.size() > 0 ) {
+		PatternEditor::triggerStatusMessage( notesStatusProp, m_mode );
 	}
 
 	if ( bMacroStarted ) {
@@ -2630,7 +2665,6 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 	if ( bValueChanged ) {
 		pHydrogen->setIsModified( true );
 		std::vector< std::shared_ptr<Note > > notes{ pNote };
-		PatternEditor::triggerStatusMessage( notes, mode );
 		pPatternEditorPanel->updateEditors( true );
 	}
 }
