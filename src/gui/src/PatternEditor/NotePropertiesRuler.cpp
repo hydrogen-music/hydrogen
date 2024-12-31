@@ -258,8 +258,16 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
 
+	// We only show status messages for notes at point.
+	std::vector< std::shared_ptr<Note> > notesStatusMessage;
+	for ( const auto& ppNote : m_notesHoveredOnDragStart ) {
+		if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
+			notesStatusMessage.push_back( ppNote );
+		}
+	}
+
 	if ( bValueChanged ) {
-		PatternEditor::triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
+		PatternEditor::triggerStatusMessage( notesStatusMessage, m_mode );
 		m_update = Update::Pattern;
 		update();
 	}

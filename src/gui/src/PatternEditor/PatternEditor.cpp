@@ -894,9 +894,28 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		// discard the current selection and add these notes under point to a
 		// transient one.
 		const auto notesUnderPoint = getNotesAtPoint(
-			pPattern, ev->pos(), getCursorMargin( ev ), true );
-		m_notesToSelectOnMove = notesUnderPoint;
-		m_notesHoveredOnDragStart = notesUnderPoint;
+			pPattern, ev->pos(), getCursorMargin( ev ), false );
+
+		bool bSelectionHovered = false;
+		for ( const auto& ppNote : notesUnderPoint ) {
+			if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
+				bSelectionHovered = true;
+				break;
+			}
+		}
+
+		// We honor the current selection.
+		if ( bSelectionHovered ) {
+			for ( const auto& ppNote : notesUnderPoint ) {
+				if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
+					m_notesHoveredOnDragStart.push_back( ppNote );
+				}
+			}
+		}
+		else {
+			m_notesToSelectOnMove = notesUnderPoint;
+			m_notesHoveredOnDragStart = notesUnderPoint;
+		}
 	}
 
 	// propagate event to selection. This could very well cancel a lasso created
