@@ -141,8 +141,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	}
 
 	// Apply delta to the property
-	const bool bValueChanged = adjustNotePropertyDelta(
-		notes, fDelta, /* bMessage */ false );
+	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
@@ -245,8 +244,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 		}
 	}
 
-	const bool bValueChanged = adjustNotePropertyDelta(
-		notes, fDelta, false );
+	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
 
 	if ( bValueChanged ) {
 		PatternEditor::triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
@@ -490,10 +488,9 @@ void NotePropertiesRuler::propertyDrawEnd()
 }
 
 //! Adjust note properties by applying a delta to the current values, and
-//! clipping to the appropriate range. Optionally, show a message with the
-//! values for some properties.
+//! clipping to the appropriate range.
 bool NotePropertiesRuler::adjustNotePropertyDelta(
-	std::vector< std::shared_ptr<Note> > notes, float fDelta, bool bMessage )
+	std::vector< std::shared_ptr<Note> > notes, float fDelta )
 {
 	bool bValueChanged = false;
 
@@ -582,9 +579,6 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		if ( bMessage ) {
-			PatternEditor::triggerStatusMessage( notes, m_mode );
-		}
 	}
 
 	return bValueChanged;
@@ -689,8 +683,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		}
 
 		// Apply delta to the property
-		const bool bValueChanged = adjustNotePropertyDelta(
-			notes, fDelta, /* bMessage */ false );
+		const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
 
 		if ( bValueChanged ) {
 			PatternEditor::triggerStatusMessage( notesUnderPoint, m_mode );

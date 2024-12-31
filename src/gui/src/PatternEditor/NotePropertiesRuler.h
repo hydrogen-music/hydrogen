@@ -119,8 +119,7 @@ class NotePropertiesRuler : public PatternEditor,
 				  std::shared_ptr<H2Core::Note> > m_oldNotes;
 
 		bool adjustNotePropertyDelta(
-			std::vector< std::shared_ptr<H2Core::Note> > notes,
-			float fDelta, bool bMessage = false );
+			std::vector< std::shared_ptr<H2Core::Note> > notes, float fDelta );
 
 		int m_nDrawPreviousColumn;
 		Layout m_layout;
