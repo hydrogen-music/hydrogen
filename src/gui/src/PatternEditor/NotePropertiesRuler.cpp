@@ -574,7 +574,8 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 		case PatternEditor::Mode::KeyOctave: {
 			const int nPitch = qBound(
 				KEYS_PER_OCTAVE * OCTAVE_MIN,
-				static_cast<int>(pOldNote->getPitchFromKeyOctave() + fDelta ),
+				static_cast<int>(pOldNote->getPitchFromKeyOctave() +
+								 ( fDelta > 0 ? 1 : -1 ) ),
 				KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
 			Note::Octave octave;
 			if ( nPitch >= 0 ) {
