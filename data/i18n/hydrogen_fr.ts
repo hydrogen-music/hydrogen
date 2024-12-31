@@ -2978,46 +2978,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Régler la vélocité de la note</translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation>Note panoramisée vers la droite par</translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation>Note panoramisée vers la gauche par</translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation>Note centrée</translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation>Pulsation en avance de</translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation>Pulsation en retard de</translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation>Pulsation sur le temps</translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation>Régler le pitch</translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation>clef</translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation>octave</translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation>Régler la probabilité de la note sur</translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3032,10 +2992,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Random velocity</source>
         <translation>Vélocité aléatoire</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>Changer la longueur de la note</translation>
     </message>
     <message>
         <source>Cannot paste multi-pattern selection</source>
@@ -3055,6 +3011,56 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -72,13 +72,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
 }
 
-
-
-
-NotePropertiesRuler::~NotePropertiesRuler()
-{
+NotePropertiesRuler::~NotePropertiesRuler() {
 }
-
 
 //! Scroll wheel gestures will adjust the property of notes under the mouse
 //! cursor (or selected notes, if any). Unlike drag gestures, each individual
@@ -135,21 +130,27 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	m_oldNotes.clear();
 
-	bool bValueChanged = false;
+	std::vector< std::shared_ptr<Note> > notes;
 	for ( auto& ppNote : m_selection ) {
-		if ( ppNote != nullptr ) {
-			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
-			bValueChanged =
-				adjustNotePropertyDelta( ppNote, fDelta, /* bMessage=*/ true ) ||
-				bValueChanged;
+		if ( ppNote == nullptr ) {
+			continue;
 		}
+
+		m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
+		notes.push_back( ppNote );
 	}
+
+	// Apply delta to the property
+	const bool bValueChanged = adjustNotePropertyDelta(
+		notes, fDelta, /* bMessage */ false );
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
 	handleKeyboardCursor( false );
 
 	if ( bUpdate || bValueChanged ) {
+		PatternEditor::triggerStatusMessage( notesUnderPoint, m_mode );
+
 		if ( bValueChanged ) {
 			addUndoAction( sUndoContext );
 		}
@@ -229,20 +230,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 		fDelta = (float)-movingOffset.y() / height();
 	}
 
-	// Only send a status message for the update in case a single note
-	// was selected.
-	bool bSendStatusMsg = false;
-	int nNotes = 0;
-	for ( const auto& ppNote : m_selection ) {
-		if ( ppNote != nullptr ) {
-			++nNotes;
-		}
-	}
-	if ( nNotes == 1 ) {
-		bSendStatusMsg = true;
-	}
-
-	bool bValueChanged = false;
+	std::vector< std::shared_ptr<Note> > notes;
 	for ( const auto& ppNote : m_selection ) {
 		if ( ppNote != nullptr &&
 			( ( ppNote->getInstrumentId() == selectedRow.nInstrumentID &&
@@ -253,13 +241,15 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 			if ( m_oldNotes.find( ppNote ) == m_oldNotes.end() ) {
 				m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 			}
-
-			bValueChanged = adjustNotePropertyDelta(
-				ppNote, fDelta, bSendStatusMsg );
+			notes.push_back( ppNote );
 		}
 	}
 
+	const bool bValueChanged = adjustNotePropertyDelta(
+		notes, fDelta, false );
+
 	if ( bValueChanged ) {
+		PatternEditor::triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
 		m_update = Update::Pattern;
 		update();
 	}
@@ -299,10 +289,8 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 		}
 	}
 
-	if ( m_oldNotes.size() == 0 ) {
-		for ( const auto& it : m_oldNotes ){
-			PatternEditor::triggerStatusMessage( it.second, m_mode );
-		}
+	if ( m_notesHoveredOnDragStart.size() != 0 ) {
+		PatternEditor::triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
 	}
 
 	m_oldNotes.clear();
@@ -475,7 +463,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 		}
 		
 		if ( bValueChanged ) {
-			PatternEditor::triggerStatusMessage( ppNote, m_mode );
+			PatternEditor::triggerStatusMessage( notesSinceLastAction, m_mode );
 		}
 	}
 
@@ -501,101 +489,101 @@ void NotePropertiesRuler::propertyDrawEnd()
 	update();
 }
 
-//! Adjust a note's property by applying a delta to the current value, and
-//! clipping to the appropriate range. Optionally, show a message with the value
-//! for some properties.
-bool NotePropertiesRuler::adjustNotePropertyDelta( std::shared_ptr<Note> pNote,
-												   float fDelta,
-												   bool bMessage )
+//! Adjust note properties by applying a delta to the current values, and
+//! clipping to the appropriate range. Optionally, show a message with the
+//! values for some properties.
+bool NotePropertiesRuler::adjustNotePropertyDelta(
+	std::vector< std::shared_ptr<Note> > notes, float fDelta, bool bMessage )
 {
-	if ( pNote == nullptr ) {
-		ERRORLOG( "invaild note" );
-		return false;
-	}
-
-	auto pOldNote = m_oldNotes[ pNote ];
-	if ( pOldNote == nullptr ) {
-		ERRORLOG( QString( "Could not find note corresponding to [%1]" )
-				  .arg( pNote->toQString() ) );
-		return false;
-	}
-
 	bool bValueChanged = false;
-	
-	switch( m_mode ) {
-	case PatternEditor::Mode::Velocity: {
-		if ( ! pNote->getNoteOff() ) {
-			const float fVelocity = qBound(
-				VELOCITY_MIN, (pOldNote->getVelocity() + fDelta), VELOCITY_MAX );
-			if ( fVelocity != pNote->getVelocity() ) {
-				pNote->setVelocity( fVelocity );
-				bValueChanged = true;
-			}
-		}
-		break;
-	}
-	case PatternEditor::Mode::Pan: {
-		if ( ! pNote->getNoteOff() ) {
-			// value in [0,1] or slight out of boundaries
-			const float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta;
-			if ( fVal != pNote->getPanWithRangeFrom0To1() ) {
-				// Does check boundaries internally.
-				pNote->setPanWithRangeFrom0To1( fVal );
-				bValueChanged = true;
-			}
-		}
-		break;
-	}
-	case PatternEditor::Mode::LeadLag: {
-		const float fLeadLag = qBound(
-			LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta, LEAD_LAG_MAX );
-		if ( fLeadLag != pNote->getLeadLag() ) {
-			pNote->setLeadLag( fLeadLag );
-			bValueChanged = true;
-		}
-		break;
-	}
-	case PatternEditor::Mode::Probability: {
-		if ( ! pNote->getNoteOff() ) {
-			const float fProbability = qBound(
-				PROBABILITY_MIN, pOldNote->getProbability() + fDelta,
-				PROBABILITY_MAX );
-			if ( fProbability != pNote->getProbability() ) {
-				pNote->setProbability( fProbability );
-				bValueChanged = true;
-			}
-		}
-		break;
-	}
-	case PatternEditor::Mode::KeyOctave: {
-		const int nPitch = qBound(
-			KEYS_PER_OCTAVE * OCTAVE_MIN,
-			static_cast<int>(pOldNote->getPitchFromKeyOctave() + fDelta ),
-			KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
-		Note::Octave octave;
-		if ( nPitch >= 0 ) {
-			octave = static_cast<Note::Octave>( nPitch / KEYS_PER_OCTAVE );
-		} else {
-			octave = static_cast<Note::Octave>( (nPitch-11) / KEYS_PER_OCTAVE );
-		}
-		Note::Key key = static_cast<Note::Key>(
-			nPitch - KEYS_PER_OCTAVE * static_cast<int>(octave) );
 
-		if ( key != pNote->getKey() || octave != pNote->getOctave() ) {
-			pNote->setKeyOctave( key, octave );
-			bValueChanged = true;
+	for ( auto& ppNote : notes ) {
+		if ( ppNote == nullptr ) {
+			continue;
 		}
-		break;
-	}
-	case PatternEditor::Mode::None:
-	default:
-		ERRORLOG("No mode set. No note property adjusted.");
+
+		auto pOldNote = m_oldNotes[ ppNote ];
+		if ( pOldNote == nullptr ) {
+			ERRORLOG( QString( "Could not find note corresponding to [%1]" )
+					  .arg( ppNote->toQString() ) );
+			continue;
+		}
+
+		switch( m_mode ) {
+		case PatternEditor::Mode::Velocity: {
+			if ( ! ppNote->getNoteOff() ) {
+				const float fVelocity = qBound(
+					VELOCITY_MIN, (pOldNote->getVelocity() + fDelta), VELOCITY_MAX );
+				if ( fVelocity != ppNote->getVelocity() ) {
+					ppNote->setVelocity( fVelocity );
+					bValueChanged = true;
+				}
+			}
+			break;
+		}
+		case PatternEditor::Mode::Pan: {
+			if ( ! ppNote->getNoteOff() ) {
+				// value in [0,1] or slight out of boundaries
+				const float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta;
+				if ( fVal != ppNote->getPanWithRangeFrom0To1() ) {
+					// Does check boundaries internally.
+					ppNote->setPanWithRangeFrom0To1( fVal );
+					bValueChanged = true;
+				}
+			}
+			break;
+		}
+		case PatternEditor::Mode::LeadLag: {
+			const float fLeadLag = qBound(
+				LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta, LEAD_LAG_MAX );
+			if ( fLeadLag != ppNote->getLeadLag() ) {
+				ppNote->setLeadLag( fLeadLag );
+				bValueChanged = true;
+			}
+			break;
+		}
+		case PatternEditor::Mode::Probability: {
+			if ( ! ppNote->getNoteOff() ) {
+				const float fProbability = qBound(
+					PROBABILITY_MIN, pOldNote->getProbability() + fDelta,
+					PROBABILITY_MAX );
+				if ( fProbability != ppNote->getProbability() ) {
+					ppNote->setProbability( fProbability );
+					bValueChanged = true;
+				}
+			}
+			break;
+		}
+		case PatternEditor::Mode::KeyOctave: {
+			const int nPitch = qBound(
+				KEYS_PER_OCTAVE * OCTAVE_MIN,
+				static_cast<int>(pOldNote->getPitchFromKeyOctave() + fDelta ),
+				KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
+			Note::Octave octave;
+			if ( nPitch >= 0 ) {
+				octave = static_cast<Note::Octave>( nPitch / KEYS_PER_OCTAVE );
+			} else {
+				octave = static_cast<Note::Octave>( (nPitch-11) / KEYS_PER_OCTAVE );
+			}
+			Note::Key key = static_cast<Note::Key>(
+				nPitch - KEYS_PER_OCTAVE * static_cast<int>(octave) );
+
+			if ( key != ppNote->getKey() || octave != ppNote->getOctave() ) {
+				ppNote->setKeyOctave( key, octave );
+				bValueChanged = true;
+			}
+			break;
+		}
+		case PatternEditor::Mode::None:
+		default:
+			ERRORLOG("No mode set. No note property adjusted.");
+		}
 	}
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
 		if ( bMessage ) {
-			PatternEditor::triggerStatusMessage( pNote, m_mode );
+			PatternEditor::triggerStatusMessage( notes, m_mode );
 		}
 	}
 
@@ -654,8 +642,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		bEventUsed = false;
 	}
 
-	bool bUpdate = false;
-	bool bValueChanged = false;
+	bool bFullUpdate = false;
 	// Value change
 	if ( fDelta != 0.0 ) {
 		// When interacting with note(s) not already in a selection, we will
@@ -672,7 +659,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 									 .arg( ppNote->getInstrumentId() )
 									 .arg( ppNote->getType() ) );
 			}
-			bUpdate = true;
+			bFullUpdate = true;
 		}
 
 		if ( m_selection.isEmpty() ) {
@@ -691,20 +678,23 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 		m_oldNotes.clear();
 
+		std::vector< std::shared_ptr<Note> > notes;
 		for ( auto& ppNote : m_selection ) {
 			if ( ppNote == nullptr ) {
 				continue;
 			}
 
 			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
-
-			// Apply delta to the property
-			bValueChanged = adjustNotePropertyDelta(
-				ppNote, fDelta, /* bMessage */ true ) ||
-				bValueChanged;
+			notes.push_back( ppNote );
 		}
 
+		// Apply delta to the property
+		const bool bValueChanged = adjustNotePropertyDelta(
+			notes, fDelta, /* bMessage */ false );
+
 		if ( bValueChanged ) {
+			PatternEditor::triggerStatusMessage( notesUnderPoint, m_mode );
+
 			addUndoAction( sUndoContext );
 
 			if ( notesUnderPoint.size() > 0 ) {
@@ -712,6 +702,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 
 			Hydrogen::get_instance()->setIsModified( true );
+
+			bFullUpdate = true;
 		}
 	}
 
@@ -719,7 +711,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		ev->setAccepted( false );
 	}
 
-	PatternEditor::keyPressEvent( ev, bValueChanged );
+	PatternEditor::keyPressEvent( ev, bFullUpdate );
 }
 
 void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )

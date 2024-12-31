@@ -895,9 +895,8 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		// transient one.
 		const auto notesUnderPoint = getNotesAtPoint(
 			pPattern, ev->pos(), getCursorMargin( ev ), true );
-		for ( const auto& ppNote : notesUnderPoint ) {
-			m_notesToSelectOnMove.push_back( ppNote );
-		}
+		m_notesToSelectOnMove = notesUnderPoint;
+		m_notesHoveredOnDragStart = notesUnderPoint;
 	}
 
 	// propagate event to selection. This could very well cancel a lasso created
@@ -1057,6 +1056,8 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 		syncLasso();
 		bUpdate = true;
 	}
+
+	m_notesHoveredOnDragStart.clear();
 
 	if ( m_notesToSelectOnMove.size() > 0 ) {
 		// We used a transient selection of note(s) at a single position.
@@ -2413,10 +2414,13 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 				ppNote->setProbability( fValue );
 			}
 
-			PatternEditor::triggerStatusMessage( ppNote, m_mode );
 		}
 	}
 	m_nDragY = ev->y();
+
+	if ( m_mode != Mode::KeyOctave ) {
+		PatternEditor::triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
+	}
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
@@ -2606,7 +2610,8 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 
 	if ( bValueChanged ) {
 		pHydrogen->setIsModified( true );
-		PatternEditor::triggerStatusMessage( pNote, mode );
+		std::vector< std::shared_ptr<Note > > notes{ pNote };
+		PatternEditor::triggerStatusMessage( notes, mode );
 		pPatternEditorPanel->updateEditors( true );
 	}
 }
@@ -2927,91 +2932,140 @@ QString PatternEditor::updateToQString( const Update& update ) {
 	}
 }
 
-void PatternEditor::triggerStatusMessage( std::shared_ptr<Note> pNote,
-										  const Mode& mode ) {
-	QString s;
+void PatternEditor::triggerStatusMessage(
+	const std::vector< std::shared_ptr<Note> > notes, const Mode& mode ) {
 	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );
+
+	// Aggregate all values of the provided notes
+	QStringList values;
 	float fValue;
-	
+	for ( const auto& ppNote : notes ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+
+		switch ( mode ) {
+		case PatternEditor::Mode::Velocity:
+			if ( ! ppNote->getNoteOff() ) {
+				values << QString( "%1").arg( ppNote->getVelocity(), 2, 'f', 2 );
+			}
+			break;
+
+		case PatternEditor::Mode::Pan:
+			if ( ! ppNote->getNoteOff() ) {
+
+				// Round the pan to not miss the center due to fluctuations
+				fValue = ppNote->getPan() * 100;
+				fValue = std::round( fValue );
+				fValue = fValue / 100;
+
+				if ( fValue > 0.0 ) {
+					values << QString( "%1 (%2)" ).arg( fValue / 2, 2, 'f', 2 )
+						/*: Direction used when panning a note. */
+						.arg( tr( "right" ) );
+				}
+				else if ( fValue < 0.0 ) {
+					values << QString( "%1 (%2)" )
+						/*: Direction used when panning a note. */
+						.arg( -1 * fValue / 2, 2, 'f', 2 ).arg( tr( "left" ) );
+				}
+				else {
+					/*: Direction used when panning a note. */
+					values <<  tr( "centered" );
+				}
+			}
+			break;
+
+		case PatternEditor::Mode::LeadLag:
+			// Round the pan to not miss the center due to fluctuations
+			fValue = ppNote->getLeadLag() * 100;
+			fValue = std::round( fValue );
+			fValue = fValue / 100;
+			if ( fValue < 0.0 ) {
+				values << QString( "%1 (%2)" )
+					.arg( fValue * -1 * AudioEngine::getLeadLagInTicks(),
+						  2, 'f', 2 )
+					/*: Relative temporal position when setting note lead & lag. */
+					.arg( tr( "lead" ) );
+			}
+			else if ( fValue > 0.0 ) {
+				values << QString( "%1 (%2)" )
+					.arg( fValue * AudioEngine::getLeadLagInTicks(), 2, 'f', 2 )
+					/*: Relative temporal position when setting note lead & lag. */
+					.arg( tr( "lag" ) );
+			}
+			else {
+				/*: Relative temporal position when setting note lead & lag. */
+				values << tr( "on beat" );
+			}
+			break;
+
+		case PatternEditor::Mode::KeyOctave:
+			if ( ! ppNote->getNoteOff() ) {
+				values << QString( "%1 : %2" )
+					.arg( Note::KeyToQString( ppNote->getKey() ) )
+					.arg( ppNote->getOctave() );
+			}
+			break;
+
+		case PatternEditor::Mode::Probability:
+			values << QString( "%1" ).arg( ppNote->getProbability(), 2, 'f', 2 );
+			break;
+
+		case PatternEditor::Mode::Length:
+			if ( ! ppNote->getNoteOff() ) {
+				values << QString( "%1" )
+					.arg( ppNote->getProbability(), 2, 'f', 2 );
+			}
+			break;
+
+		default:
+			ERRORLOG( PatternEditor::modeToQString( mode ) );
+			return;
+		}
+	}
+
+	if ( values.size() == 0 ) {
+		return;
+	}
+
+	// Compose the actual status message
+	QString s;
 	switch ( mode ) {
 	case PatternEditor::Mode::Velocity:
-		if ( ! pNote->getNoteOff() ) {
-			s = QString( tr( "Set note velocity" ) )
-				.append( QString( ": [%1]")
-						 .arg( pNote->getVelocity(), 2, 'f', 2 ) );
-			sCaller.append( ":Velocity" );
-		}
+		s = QString( tr( "Set note velocity" ) )
+				.append( QString( ": [%1]").arg( values.join( ", " ) ) );
+		sCaller.append( ":Velocity" );
 		break;
 		
 	case PatternEditor::Mode::Pan:
-		if ( ! pNote->getNoteOff() ) {
-
-			// Round the pan to not miss the center due to fluctuations
-			fValue = pNote->getPan() * 100;
-			fValue = std::round( fValue );
-			fValue = fValue / 100;
-			
-			if ( fValue > 0.0 ) {
-				s = QString( tr( "Note panned to the right by" ) ).
-					append( QString( ": [%1]" ).arg( fValue / 2, 2, 'f', 2 ) );
-			} else if ( fValue < 0.0 ) {
-				s = QString( tr( "Note panned to the left by" ) ).
-					append( QString( ": [%1]" ).arg( -1 * fValue / 2, 2, 'f', 2 ) );
-			} else {
-				s = QString( tr( "Note centered" ) );
-			}
-			sCaller.append( ":Pan" );
-		}
+		s = QString( tr( "Set note pan" ) )
+				.append( QString( ": [%1]").arg( values.join( ", " ) ) );
+		sCaller.append( ":Pan" );
 		break;
 		
 	case PatternEditor::Mode::LeadLag:
-		// Round the pan to not miss the center due to fluctuations
-		fValue = pNote->getLeadLag() * 100;
-		fValue = std::round( fValue );
-		fValue = fValue / 100;
-		if ( fValue < 0.0 ) {
-			s = QString( tr( "Leading beat by" ) )
-				.append( QString( ": [%1] " )
-						 .arg( fValue * -1 *
-							   AudioEngine::getLeadLagInTicks() , 2, 'f', 2 ) )
-				.append( sUnit );
-		}
-		else if ( fValue > 0.0 ) {
-			s = QString( tr( "Lagging beat by" ) )
-				.append( QString( ": [%1] " )
-						 .arg( fValue *
-							   AudioEngine::getLeadLagInTicks() , 2, 'f', 2 ) )
-				.append( sUnit );
-		}
-		else {
-			s = tr( "Note on beat" );
-		}
+		s = QString( tr( "Set note lead/lag" ) )
+			.append( QString( ": [%1]").arg( values.join( ", " ) ) );
 		sCaller.append( ":LeadLag" );
 		break;
 
 	case PatternEditor::Mode::KeyOctave:
-		if ( ! pNote->getNoteOff() ) {
-			s = QString( tr( "Set pitch" ) ).append( ": " ).append( tr( "key" ) )
-				.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->getKey() ) ) )
-				.append( tr( "octave" ) )
-				.append( QString( ": [%1]" ).arg( pNote->getOctave() ) );
-			sCaller.append( ":KeyOctave" );
-		}
+		s = QString( tr( "Set note pitch" ) )
+			.append( QString( ": [%1]").arg( values.join( ", " ) ) );
 		break;
 
 	case PatternEditor::Mode::Probability:
-		s = tr( "Set note probability to" )
-			.append( QString( ": [%1]" ).arg( pNote->getProbability(), 2, 'f', 2 ) );
+		s = tr( "Set note probability" )
+			.append( QString( ": [%1]" ).arg( values.join( ", " ) ) );
 		sCaller.append( ":Probability" );
 		break;
 
 	case PatternEditor::Mode::Length:
-		if ( ! pNote->getNoteOff() ) {
-			s = tr( "Change note length" )
-				.append( QString( ": [%1]" ).arg( pNote->getProbability(), 2, 'f', 2 ) );
+		s = tr( "Set note length" )
+			.append( QString( ": [%1]" ).arg( values.join( ", " ) ) );
 		sCaller.append( ":Length" );
-		}
 		break;
 
 	default:

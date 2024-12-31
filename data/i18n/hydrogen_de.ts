@@ -2971,46 +2971,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Anschlagshärte der Note setzen</translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation>Note nach recht geschwenkt (pan) um</translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation>Note nach links geschwenkt (pan) um</translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation>Note mittig</translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation>Dem Beat vorauseilend um</translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation>Dem Beat hinterher hängen um</translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation>Note auf Beat</translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation>Tonhöhe setzen</translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation>Tonart</translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation>Oktave</translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation>Noten Wahrscheinlichkeit gesetzt auf</translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3025,10 +2985,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Random velocity</source>
         <translation>Zufällige Anschlagsstärke</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>Ändere Länge der Note</translation>
     </message>
     <message>
         <source>Cannot paste multi-pattern selection</source>
@@ -3048,6 +3004,56 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

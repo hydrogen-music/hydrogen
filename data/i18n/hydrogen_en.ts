@@ -1260,7 +1260,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Delete notes</source>
         <extracomment>Delete one or many notes. Shown in the undo history.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2923,46 +2923,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation></translation>
     </message>
@@ -2976,10 +2936,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Random velocity</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Change note length</source>
         <translation></translation>
     </message>
     <message>
@@ -3000,6 +2956,56 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>move notes</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
         <translation></translation>
     </message>
 </context>

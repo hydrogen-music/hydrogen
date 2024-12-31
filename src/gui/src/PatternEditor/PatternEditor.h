@@ -231,8 +231,9 @@ public:
 										  int nOldKey,
 										  int nNewOctave,
 										  int nOldOctave );
-	static void triggerStatusMessage( std::shared_ptr<H2Core::Note> pNote,
-									  const Mode& mode );
+	static void triggerStatusMessage(
+		const std::vector< std::shared_ptr<H2Core::Note> > notes,
+		const Mode& mode );
 
 	/**
 	 * Determines whether to pattern editor should show further
@@ -319,6 +320,13 @@ protected:
 		/** Latest vertical position of a drag event. Adjusted in every drag
 		 * update. */
 		int m_nDragY;
+		/** When drag editing note properties using right-click drag in
+		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
+		 * indicating the value change. But when dragging a selection of notes
+		 * or multiple notes at point, it is not obvious which information to
+		 * display. We show all values changes of notes at the initial mouse
+		 * cursor position. */
+		std::vector< std::shared_ptr<H2Core::Note> > m_notesHoveredOnDragStart;
 
 	PatternEditorPanel* m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;

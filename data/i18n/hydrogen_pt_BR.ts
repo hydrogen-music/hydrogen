@@ -2975,46 +2975,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Definir velocidade da note</translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation>Nota deslocada para a direita por</translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation>Nota deslocada para a esquerda por</translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation>Nota centralizada</translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation>Beat adiantado por</translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation>Beat atrasado por</translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation>Nota no compasso</translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation>Definir tom (pitch)</translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation>clave</translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation>oitava</translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation>Defina a probabilidade da nota para</translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation>Alinhar à grade</translation>
     </message>
@@ -3029,10 +2989,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Random velocity</source>
         <translation>Velocidade aleatória</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>Mudar tamanho da nota</translation>
     </message>
     <message>
         <source>Cannot paste multi-pattern selection</source>
@@ -3052,6 +3008,56 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

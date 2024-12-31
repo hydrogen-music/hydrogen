@@ -2923,46 +2923,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2977,10 +2937,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Random velocity</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation></translation>
     </message>
     <message>
         <source>Cannot paste multi-pattern selection</source>
@@ -3000,6 +2956,56 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -2977,46 +2977,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Establecer intensidad nota</translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation>Nota paneada a la dcha en</translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation>Nota paneada a la izq en</translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation>Nota centrada</translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation>Delante del compás</translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation>Detrás del compás</translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation>Nota en el compás</translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation>Establecer tono</translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation>clave</translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation>octava</translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation>Establecer probabilidad de nota en</translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3031,10 +2991,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Random velocity</source>
         <translation>Velocidad al azar</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>Cambiar longitud de nota</translation>
     </message>
     <message>
         <source>Cannot paste multi-pattern selection</source>
@@ -3054,6 +3010,56 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
     <message>
         <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
