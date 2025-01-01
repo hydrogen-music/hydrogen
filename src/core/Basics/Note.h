@@ -310,13 +310,7 @@ class Note : public H2Core::Object<Note>
 		 * In contrast to compareStart() position in here only takes the actual
 		 * #m_nPosition into account. Neither humanization nor lead/lag.
 		 *
-		 * Comparison of pitch is done in a strange way: the lowest one wins,
-		 * while, in contrast, the largest position wins. This is done since it
-		 * is a general UX scheme within the Hydrogen UI to use the bottom-most
-		 * object first and the lower the row within #PianoRollEditor, the lower
-		 * the pitch.
-		 *
-		 * @returns `true` in case @a pNote1 wins (larger position, smaller
+		 * @returns `true` in case @a pNote1 wins (larger position, larger
 		 *   pitch) compared to @a pNote2. */
 		static bool compare( const std::shared_ptr<Note> pNote1,
 							 const std::shared_ptr<Note> pNote2 );
@@ -710,7 +704,7 @@ inline bool Note::compare( const std::shared_ptr<Note> pNote1,
 		return pNote1->getPosition() > pNote2->getPosition();
 	}
 	else {
-		return pNote1->getTotalPitch() < pNote2->getTotalPitch();
+		return pNote1->getTotalPitch() > pNote2->getTotalPitch();
 	}
 }
 
