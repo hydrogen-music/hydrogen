@@ -821,17 +821,25 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		m_pPatternEditorPanel->getSelectedRowDB() );
 
 	// Draw hovered notes
+	int nOffsetX = 0;
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	for ( const auto& [ ppPattern, nnotes ] :
 			  m_pPatternEditorPanel->getHoveredNotes() ) {
 		const auto baseStyle = static_cast<NoteStyle>(
 			( ppPattern == pPattern ? NoteStyle::Foreground :
 			  NoteStyle::Background ) | NoteStyle::Hovered);
-		int nOffsetX = 0;
 		for ( const auto& ppNote : nnotes ) {
 			const auto style = static_cast<NoteStyle>(
 				m_selection.isSelected( ppNote ) ?
 				NoteStyle::Selected | baseStyle : baseStyle );
+
+			if ( m_offsetMap.find( ppNote ) != m_offsetMap.end() ) {
+				nOffsetX = m_offsetMap[ ppNote ];
+			}
+			else {
+				nOffsetX = 0;
+			}
+
 			drawNote( painter, ppNote, style, nOffsetX );
 
 			if ( m_layout != Layout::KeyOctave ) {
@@ -1204,6 +1212,8 @@ void NotePropertiesRuler::createBackground()
 
 void NotePropertiesRuler::drawPattern() {
 
+	m_offsetMap.clear();
+
 	const qreal pixelRatio = devicePixelRatio();
 
 	QPainter p( m_pPatternPixmap );
@@ -1247,6 +1257,8 @@ void NotePropertiesRuler::drawPattern() {
 				m_selection.isSelected( ppNote ) ?
 				NoteStyle::Selected | baseStyle : baseStyle );
 			drawNote( p, ppNote, style, nOffsetX );
+
+			m_offsetMap[ ppNote ] = nOffsetX;
 
 			if ( m_layout != Layout::KeyOctave ) {
 				// Within the key/octave view notes should be unique.

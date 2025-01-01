@@ -118,6 +118,11 @@ class NotePropertiesRuler : public PatternEditor,
 		std::map< std::shared_ptr<H2Core::Note>,
 				  std::shared_ptr<H2Core::Note> > m_oldNotes;
 
+		/** In order to ensure hovering a note in another editor highlight
+		 * corresponding note in the ruler, we have to store the x offset the
+		 * note was rendered with and apply it to the hovered note as well. */
+		std::map< std::shared_ptr<H2Core::Note>, int > m_offsetMap;
+
 		bool adjustNotePropertyDelta(
 			std::vector< std::shared_ptr<H2Core::Note> > notes, float fDelta );
 
