@@ -896,7 +896,8 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 
 	updateModifiers( ev );
 
-	if ( ev->buttons() == Qt::LeftButton || ev->buttons() == Qt::RightButton ) {
+	if ( ( ev->buttons() == Qt::LeftButton || ev->buttons() == Qt::RightButton ) &&
+		 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
 		m_notesToSelectOnMove.clear();
 
 		// When interacting with note(s) not already in a selection, we will
