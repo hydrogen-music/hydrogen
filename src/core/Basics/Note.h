@@ -304,6 +304,9 @@ class Note : public H2Core::Object<Note>
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const std::shared_ptr<Note> pNote ) const;
 
+		static bool compareStart( const std::shared_ptr<Note> pNote1,
+								  const std::shared_ptr<Note> pNote2 );
+
 		/**
 		 * compute left and right output based on filters
 		 * \param val_l the left channel value
@@ -660,6 +663,15 @@ inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
 	return match( pNote->m_nInstrumentId, pNote->m_sType, pNote->m_key,
 				  pNote->m_octave );
+}
+
+inline bool Note::compareStart( const std::shared_ptr<Note> pNote1,
+								const std::shared_ptr<Note> pNote2 ) {
+	if ( pNote1 == nullptr || pNote2 == nullptr ) {
+		return false;
+	}
+
+	return pNote1->getNoteStart() > pNote2->getNoteStart();
 }
 
 inline void Note::computeLrValues( float* val_l, float* val_r )

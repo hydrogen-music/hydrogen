@@ -2726,11 +2726,7 @@ void AudioEngine::noteOn( std::shared_ptr<Note> pNote )
 
 bool AudioEngine::compare_pNotes::operator()( std::shared_ptr<Note> pNote1,
 											  std::shared_ptr<Note> pNote2 ) {
-	if ( pNote1 == nullptr || pNote2 == nullptr ) {
-		return false;
-	}
-
-	return pNote1->getNoteStart() > pNote2->getNoteStart();
+	return Note::compareStart( pNote1, pNote2 );
 }
 
 void AudioEngine::play() {
