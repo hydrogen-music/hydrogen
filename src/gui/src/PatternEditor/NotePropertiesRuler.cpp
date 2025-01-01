@@ -1224,16 +1224,42 @@ void NotePropertiesRuler::drawPattern() {
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
 
+	// Since properties of notes within the same row would end up being painted
+	// on top of eachother, we go through the notes column by column and add
+	// small horizontal offsets to each additional note to hint their existence.
+	//
+	// In addition, we first aggregate all notes residing at the same position
+	// (column) in the same row and sort them according to their pitch. This way
+	// they order is not seemingly random (else notes would be order according
+	// to the insertion time into the pattern. An unintuitive measure from user
+	// perspective with all our redo/undo facilities.)
+	std::vector< std::shared_ptr<Note> > notes;
+	auto sortAndDrawNotes = [&]( QPainter& p,
+							std::vector< std::shared_ptr<Note> > notes,
+							NoteStyle baseStyle ) {
+		if ( m_layout != Layout::KeyOctave ) {
+			std::sort( notes.begin(), notes.end(), Note::compare );
+		}
+
+		int nOffsetX = 0;
+		for ( const auto& ppNote : notes ) {
+			const auto style = static_cast<NoteStyle>(
+				m_selection.isSelected( ppNote ) ?
+				NoteStyle::Selected | baseStyle : baseStyle );
+			drawNote( p, ppNote, style, nOffsetX );
+
+			if ( m_layout != Layout::KeyOctave ) {
+				// Within the key/octave view notes should be unique.
+				++nOffsetX;
+			}
+		}
+	};
+
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const auto baseStyle = ppPattern == pPattern ?
 			NoteStyle::Foreground : NoteStyle::Background;
 
-		// Since properties of notes within the same row would end up being
-		// painted on top of eachother, we go through the notes column by column
-		// and add small horizontal offsets to each additional note to hint
-		// their existence.
 		int nLastPos = -1;
-		int nOffsetX = 0;
 		for ( const auto& [ nnPos, ppNote ] : *ppPattern->getNotes() ) {
 			if ( ppNote == nullptr ) {
 				continue;
@@ -1241,7 +1267,8 @@ void NotePropertiesRuler::drawPattern() {
 
 			if ( nLastPos != nnPos ) {
 				nLastPos = nnPos;
-				nOffsetX = 0;
+				sortAndDrawNotes( p, notes, baseStyle );
+				notes.clear();
 			}
 
 			// NoteOff notes can have a custom probability and lead lag. But
@@ -1255,15 +1282,13 @@ void NotePropertiesRuler::drawPattern() {
 				continue;
 			}
 
-			const auto style = static_cast<NoteStyle>(
-				m_selection.isSelected( ppNote ) ?
-				NoteStyle::Selected | baseStyle : baseStyle );
-			drawNote( p, ppNote, style, nOffsetX );
+			notes.push_back( ppNote );
+		}
 
-			if ( m_layout != Layout::KeyOctave ) {
-				// Within the key/octave view notes should be unique.
-				++nOffsetX;
-			}
+		// Handle last column too
+		if ( notes.size() > 0 ) {
+			sortAndDrawNotes( p, notes, baseStyle );
+			notes.clear();
 		}
 	}
 }
