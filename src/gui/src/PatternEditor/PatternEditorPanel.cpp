@@ -1878,10 +1878,10 @@ void PatternEditorPanel::updateHoveredNotes() {
 	m_hoveredNotes = m_hoveredNotesKeyboard;
 
 	bool bFound;
-	for ( const auto& [ ppPattern, vvector ] : m_hoveredNotesMouse ) {
+	for ( const auto& [ ppPattern, nnotes ] : m_hoveredNotesMouse ) {
 		if ( m_hoveredNotes.find( ppPattern ) != m_hoveredNotes.end() ) {
 			// Pattern is already present. Merge it.
-			for ( const auto& ppNoteMouse : vvector ) {
+			for ( const auto& ppNoteMouse : nnotes ) {
 				bFound = false;
 				for ( const auto& ppNoteKeyboard : m_hoveredNotes[ ppPattern ] ) {
 					if ( ppNoteMouse == ppNoteKeyboard ) {
@@ -1897,8 +1897,12 @@ void PatternEditorPanel::updateHoveredNotes() {
 		}
 		else {
 			// Pattern is not present yet.
-			m_hoveredNotes[ ppPattern ] = vvector;
+			m_hoveredNotes[ ppPattern ] = nnotes;
 		}
+	}
+
+	for ( auto& [ _, nnotes ] : m_hoveredNotes ) {
+		std::sort( nnotes.begin(), nnotes.end(), Note::compare );
 	}
 }
 
