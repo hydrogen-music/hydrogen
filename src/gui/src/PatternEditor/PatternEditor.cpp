@@ -3206,7 +3206,7 @@ QRect PatternEditor::getKeyboardCursorRect()
 
 std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	const QPoint& point, int nCursorMargin,
-	std::shared_ptr<H2Core::Pattern> pPattern ) const
+	std::shared_ptr<H2Core::Pattern> pPattern )
 {
 	std::vector< std::shared_ptr<Note> > notesUnderPoint;
 	if ( pPattern == nullptr ) {
@@ -3280,6 +3280,41 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 					   Note::pitchToOctave( Note::lineToPitch( nRow ) ) ) ) {
 					notesUnderPoint.push_back( ppNote );
 				}
+			}
+		}
+	}
+
+	// Within the ruler all selected notes are along notes of the selected row.
+	// These notes can be interacted with (property change, deselect etc.).
+	if ( m_editor == Editor::NotePropertiesRuler ) {
+		// Ensure we do not add the same note twice.
+		std::vector< std::shared_ptr<Note> > furtherNotes;
+		bool bFound = false;
+		for ( const auto& ppNote : m_selection ) {
+			bFound = false;
+			for ( const auto& ppCurrentNote : notesUnderPoint )
+				if ( ppCurrentNote == ppNote ) {
+					bFound = true;
+					break;
+				}
+			if ( ! bFound && ppNote != nullptr ) {
+				furtherNotes.push_back( ppNote );
+			}
+		}
+
+		for ( const auto& ppNote : furtherNotes ) {
+			const int nDistance = std::abs( ppNote->getPosition() - nRealColumn );
+
+			if ( nDistance < nLastDistance ) {
+				// This note is nearer than (potential) previous ones.
+				notesUnderPoint.clear();
+				nLastDistance = nDistance;
+				nLastPosition = ppNote->getPosition();
+			}
+
+			if ( nDistance <= nLastDistance &&
+				 ppNote->getPosition() == nLastPosition ) {
+				notesUnderPoint.push_back( ppNote );
 			}
 		}
 	}

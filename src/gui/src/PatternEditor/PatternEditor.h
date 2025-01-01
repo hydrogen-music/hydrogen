@@ -144,7 +144,7 @@ public:
 
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) const override;
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 
 		virtual int getCursorMargin( QInputEvent* pEvent ) const override;
 

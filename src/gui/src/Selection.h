@@ -80,7 +80,7 @@ public:
 		 * margin will be selected. */
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) const = 0;
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) = 0;
 
 	//! Inform the client that we're deselecting elements.
 	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) {

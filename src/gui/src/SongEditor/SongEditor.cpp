@@ -974,8 +974,7 @@ void SongEditor::updateWidget() {
 }
 
 std::vector<SongEditor::SelectionIndex> SongEditor::getElementsAtPoint(
-	const QPoint& point, int nCursorMargin,
-	std::shared_ptr<H2Core::Pattern> ) const {
+	const QPoint& point, int nCursorMargin, std::shared_ptr<H2Core::Pattern> ) {
 
 	std::vector<SelectionIndex> elems;
 

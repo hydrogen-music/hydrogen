@@ -234,7 +234,7 @@ public:
 		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) const override;
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
