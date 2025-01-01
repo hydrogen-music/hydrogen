@@ -1312,18 +1312,31 @@ void NotePropertiesRuler::drawPattern() {
 	auto sortAndDrawNotes = [&]( QPainter& p,
 							std::vector< std::shared_ptr<Note> > notes,
 							NoteStyle baseStyle ) {
-		if ( m_layout != Layout::KeyOctave ) {
-			std::sort( notes.begin(), notes.end(), Note::compare );
-		}
+		std::sort( notes.begin(), notes.end(), Note::compare );
 
 		// Calculate a horizontal offset based on the order established above.
-		int nOffsetX = 0;
-		for ( const auto& ppNote : notes ) {
-			m_offsetMap[ ppNote ] = nOffsetX;
-
-			if ( m_layout != Layout::KeyOctave ) {
-				// Within the key/octave view notes should be unique.
+		if ( m_layout != Layout::KeyOctave ) {
+			int nOffsetX = 0;
+			for ( const auto& ppNote : notes ) {
+				m_offsetMap[ ppNote ] = nOffsetX;
 				++nOffsetX;
+			}
+		}
+		else {
+			// Duplicate are possible in here too since we show key and octave
+			// separately. The pitch itself of the notes in here must be unqiue.
+			std::multiset<Note::Key> keys;
+			std::multiset<Note::Octave> octaves;
+			for ( const auto& ppNote : notes ) {
+				if ( ppNote == nullptr ) {
+					continue;
+				}
+				m_offsetMap[ ppNote ] = std::max(
+					keys.count( ppNote->getKey() ),
+					octaves.count( ppNote->getOctave() ) );
+
+				keys.insert( ppNote->getKey() );
+				octaves.insert( ppNote->getOctave() );
 			}
 		}
 
