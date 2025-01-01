@@ -156,15 +156,16 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 				}
 			}
 			else if ( fileType == FileType::Drumkit ) {
+				QStringList actualLinesToRemove;
+				QStringList expectedLinesToRemove;
 #ifdef WIN32
 				// Drop all comment lines (Drumkit GPL license notice) as their
 				// line break mess up comparison within the AppVeyor Windows
 				// pipeline (but not locally which is why I use this more
 				// sluggish way of dealing with it).
-				QStringList actualLinesToRemove;
 				for ( const auto& ssLine : actualLines ) {
-					// Ignore both command lines and those which do not contain
-					// a valid XML element.
+					// Ignore both comments and lines which do not contain a
+					// valid XML element.
 					if ( ssLine.contains( "<!--" ) ||
 						 ssLine.contains( "-->" ) ||
 						 ! ( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
@@ -172,10 +173,9 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 						actualLinesToRemove << ssLine;
 					}
 				}
-				QStringList expectedLinesToRemove;
 				for ( const auto& ssLine : expectedLines ) {
-					// Ignore both command lines and those which do not contain
-					// a valid XML element.
+					// Ignore both comments and lines which do not contain a
+					// valid XML element.
 					if ( ssLine.contains( "<!--" ) ||
 						 ssLine.contains( "-->" ) ||
 						 ! ( ssLine.contains( "<" ) && ssLine.contains( ">" ) ||
@@ -183,13 +183,29 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 						expectedLinesToRemove << ssLine;
 					}
 				}
+#else
+				// Ignore the copyright since it contains a timestamp and would
+				// require us to update the copyright date of our drumkits every
+				// year.
+				for ( const auto& ssLine : actualLines ) {
+					// Ignore both comments and lines which do not contain a
+					// valid XML element.
+					if ( ssLine.contains( "<!--Copyright" ) ) {
+						actualLinesToRemove << ssLine;
+					}
+				}
+				for ( const auto& ssLine : expectedLines ) {
+					if ( ssLine.contains( "<!--Copyright" ) ) {
+						expectedLinesToRemove << ssLine;
+					}
+				}
+#endif
 				for ( const auto& ssRemoveLine : actualLinesToRemove ) {
 					actualLines.removeAll( ssRemoveLine );
 				}
 				for ( const auto& ssRemoveLine : expectedLinesToRemove ) {
 					expectedLines.removeAll( ssRemoveLine );
 				}
-#endif
 			}
 
 			const int nMaxLines =
