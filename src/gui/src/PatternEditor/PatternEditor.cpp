@@ -3457,3 +3457,7 @@ bool PatternEditor::syncLasso() {
 
 	return bUpdate;
 }
+
+SelectionState PatternEditor::getSelectionState() const {
+	return m_selection.getSelectionState();
+}

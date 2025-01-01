@@ -248,6 +248,9 @@ public:
 		/** Ensure the selection lassos of the other editors match the one of
 		 * this instance. */
 		bool syncLasso();
+		SelectionState getSelectionState() const;
+
+		QPoint movingGridOffset() const;
 
 protected:
 
@@ -340,7 +343,6 @@ protected:
 		void eventPointToColumnRow( const QPoint& point, int* pColumn,
 									int* pRow, int* pRealColumn = nullptr,
 									bool bUseFineGrained = false ) const;
-	QPoint movingGridOffset() const;
 
 	//! Draw lines for note grid.
 	void drawGridLines( QPainter &p, const Qt::PenStyle& style = Qt::SolidLine ) const;

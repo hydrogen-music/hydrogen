@@ -25,6 +25,7 @@
 
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
+#include "PianoRollEditor.h"
 
 #include <cassert>
 
@@ -969,6 +970,21 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	p.setPen( notePen );
 	p.setRenderHint( QPainter::Antialiasing );
 
+	// Silhouette to show when a note is selected and moved to a different
+	// position (in another editor!).
+	auto pEditor = m_pPatternEditorPanel->getVisibleEditor();
+	const bool bMoving = noteStyle & NoteStyle::Selected &&
+		( pEditor->getSelectionState() == SelectionState::MouseMoving ||
+		  pEditor->getSelectionState() == SelectionState::KeyboardMoving );
+	QPen movingPen( noteColor );
+	QPoint movingOffset, delta;
+	if ( bMoving ) {
+		movingPen.setStyle( Qt::DotLine );
+		movingPen.setWidth( 2 );
+		delta = pEditor->movingGridOffset();
+		movingOffset = QPoint( delta.x() * m_fGridWidth, 0 );
+	}
+
 	if ( m_layout == Layout::Centered || m_layout == Layout::Normalized ) {
 		float fValue = 0;
 		if ( m_mode == PatternEditor::Mode::Velocity ) {
@@ -999,6 +1015,12 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				p.setRenderHint( QPainter::Antialiasing );
 				p.drawEllipse( nX - 6, nY - 6, 12, 12);
 			}
+
+			if ( bMoving ) {
+				p.setPen( movingPen );
+				p.setBrush( Qt::NoBrush );
+				p.drawEllipse( movingOffset.x() + nX - 6, nY - 6, 12, 12 );
+			}
 		}
 		else {
 			int nY, nHeight;
@@ -1022,6 +1044,13 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				p.setPen( highlightPen );
 				p.drawRoundedRect( nX - 1 - 2, nY - 2, nLineWidth + 4,
 								   nHeight + 4, 4, 4 );
+			}
+
+			if ( bMoving ) {
+				p.setPen( movingPen );
+				p.setBrush( Qt::NoBrush );
+				p.drawRoundedRect( movingOffset.x() + nX - 1 - 2, nY - 2,
+								   nLineWidth + 4, nHeight + 4, 4, 4 );
 			}
 		}
 	}
@@ -1052,6 +1081,39 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			// Key
 			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey + 1,
 						   nRadiusKey + 1 );
+		}
+
+		if ( bMoving ) {
+			// In case the note was moved to a different row in PianoRollEditor,
+			// we have to adjust the pitch in here as well.
+			int nMovedKeyY = nKeyY;
+			int nMovedOctaveY = nOctaveY;
+			bool bDrawMoveSilhouettes = true;
+			if ( dynamic_cast<PianoRollEditor*>( pEditor ) != nullptr ) {
+				const int nGridHeight = pEditor->getGridHeight();
+				const int nNewPitch = pNote->getPitchFromKeyOctave() - delta.y();
+				if ( nNewPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
+					 nNewPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
+					bDrawMoveSilhouettes = false;
+				}
+
+				nMovedKeyY = NotePropertiesRuler::nKeyOctaveHeight -
+					( ( Note::pitchToKey( nNewPitch ) + 1 ) *
+					  NotePropertiesRuler::nKeyLineHeight );
+				nMovedOctaveY = ( 4 - Note::pitchToOctave( nNewPitch ) ) *
+					NotePropertiesRuler::nKeyLineHeight;
+			}
+
+			if ( bDrawMoveSilhouettes ) {
+				p.setPen( movingPen );
+				p.setBrush( Qt::NoBrush );
+				p.drawEllipse( QPoint( movingOffset.x() + nX, nMovedOctaveY ),
+							   nRadiusOctave + 1, nRadiusOctave + 1 );
+
+				// Key
+				p.drawEllipse( QPoint( movingOffset.x() + nX, nMovedKeyY ),
+							   nRadiusKey + 1, nRadiusKey + 1 );
+			}
 		}
 	}
 }
