@@ -1305,6 +1305,9 @@ void NotePropertiesRuler::drawPattern() {
 	// they order is not seemingly random (else notes would be order according
 	// to the insertion time into the pattern. An unintuitive measure from user
 	// perspective with all our redo/undo facilities.)
+	//
+	// Also, we ensure selected notes will be rendered more prominently than not
+	// selected ones.
 	std::vector< std::shared_ptr<Note> > notes;
 	auto sortAndDrawNotes = [&]( QPainter& p,
 							std::vector< std::shared_ptr<Note> > notes,
@@ -1313,19 +1316,35 @@ void NotePropertiesRuler::drawPattern() {
 			std::sort( notes.begin(), notes.end(), Note::compare );
 		}
 
+		// Calculate a horizontal offset based on the order established above.
 		int nOffsetX = 0;
 		for ( const auto& ppNote : notes ) {
-			const auto style = static_cast<NoteStyle>(
-				m_selection.isSelected( ppNote ) ?
-				NoteStyle::Selected | baseStyle : baseStyle );
-			drawNote( p, ppNote, style, nOffsetX );
-
 			m_offsetMap[ ppNote ] = nOffsetX;
 
 			if ( m_layout != Layout::KeyOctave ) {
 				// Within the key/octave view notes should be unique.
 				++nOffsetX;
 			}
+		}
+
+		// Prioritze selected notes over not selected ones.
+		std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
+		for ( const auto& ppNote : notes ) {
+			if ( m_selection.isSelected( ppNote ) ) {
+				selectedNotes.push_back( ppNote );
+			}
+			else {
+				notSelectedNotes.push_back( ppNote );
+			}
+		}
+
+		for ( const auto& ppNote : notSelectedNotes ) {
+			drawNote( p, ppNote, baseStyle, m_offsetMap[ ppNote] );
+		}
+		auto selectedStyle =
+			static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
+		for ( const auto& ppNote : selectedNotes ) {
+			drawNote( p, ppNote, selectedStyle, m_offsetMap[ ppNote] );
 		}
 	};
 
