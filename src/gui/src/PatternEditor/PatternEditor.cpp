@@ -2031,16 +2031,46 @@ void PatternEditor::drawPattern()
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
 
+	// If there are multiple notes at the same position and column, the one with
+	// lowest pitch (bottom-most one in PianoRollEditor) will be rendered up
+	// front. If a subset of notes at this point is selected, the note with
+	// lowest pitch within the selection is used.
+	auto sortAndDrawNotes = [&]( QPainter& p,
+						  std::vector< std::shared_ptr<Note> > notes,
+						  NoteStyle baseStyle ) {
+		std::sort( notes.begin(), notes.end(), Note::compare );
+
+		// Prioritze selected notes over not selected ones.
+		std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
+		for ( const auto& ppNote : notes ) {
+			if ( m_selection.isSelected( ppNote ) ) {
+				selectedNotes.push_back( ppNote );
+			}
+			else {
+				notSelectedNotes.push_back( ppNote );
+			}
+		}
+
+		for ( const auto& ppNote : notSelectedNotes ) {
+			drawNote( p, ppNote, baseStyle );
+		}
+		auto selectedStyle =
+			static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
+		for ( const auto& ppNote : selectedNotes ) {
+			drawNote( p, ppNote, selectedStyle );
+		}
+	};
+
 	// We count notes in each position so we can display markers for rows which
 	// have more than one note in the same position (a chord or genuine
 	// duplicates).
 	int nLastColumn = -1;
-	// Maps the row to the number of notes shown in this very column.
-	std::map<int,int> notesAtRow;
+	// Aggregates the notes for various rows (key) and one specific column.
+	std::map< int, std::vector< std::shared_ptr<Note> > > notesAtRow;
 	struct PosCount {
 		int nRow;
 		int nColumn;
-		int nNoteCount;
+		int nNotes;
 	};
 	std::vector<PosCount> posCounts;
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
@@ -2083,43 +2113,35 @@ void PatternEditor::drawPattern()
 			if ( nnColumn != nLastColumn ) {
 				// New column
 
-				for ( const auto& [ nnRow, nnNotes ] : notesAtRow ) {
-					if ( nnNotes > 1 ) {
-						posCounts.push_back( { nnRow, nLastColumn, nnNotes } );
+				for ( const auto& [ nnRow, nnotes ] : notesAtRow ) {
+					sortAndDrawNotes( p, nnotes, baseStyle );
+					if ( nnotes.size() > 1 ) {
+						posCounts.push_back(
+							{ nnRow, nLastColumn,
+							  static_cast<int>(nnotes.size()) } );
 					}
 				}
 
-				if ( nLastColumn != nnColumn ) {
-					nLastColumn = nnColumn;
-				}
+				nLastColumn = nnColumn;
 				notesAtRow.clear();
 			}
 
-			// Since the all notes have the same size, we just point the first
-			// one (except it is selected. In case the user presses Cancel on
-			// the deduplication dialog in checkDeselectElements(), there could
-			// be several notes at one position with only a subset being
-			// selected).
-			if ( notesAtRow.find( nRow ) == notesAtRow.end() ||
-				 m_selection.isSelected( ppNote ) ) {
-				const auto style = static_cast<NoteStyle>(
-					m_selection.isSelected( ppNote ) ?
-					NoteStyle::Selected | baseStyle : baseStyle );
-				drawNote( p, ppNote, style );
-			}
 
 			if ( notesAtRow.find( nRow ) == notesAtRow.end() ) {
-				notesAtRow[ nRow ] = 1;
+				notesAtRow[ nRow ] =
+					std::vector< std::shared_ptr<Note> >{ ppNote };
 			}
 			else {
-				++notesAtRow[ nRow ];
+				notesAtRow[ nRow ].push_back( ppNote);
 			}
 		}
 
 		// Handle last column too
-		for ( const auto& [ nnRow, nnNotes ] : notesAtRow ) {
-			if ( nnNotes > 1 ) {
-				posCounts.push_back( { nnRow, nLastColumn, nnNotes } );
+		for ( const auto& [ nnRow, nnotes ] : notesAtRow ) {
+			sortAndDrawNotes( p, nnotes, baseStyle );
+			if ( nnotes.size() > 1 ) {
+				posCounts.push_back( { nnRow, nLastColumn,
+						static_cast<int>(nnotes.size()) } );
 			}
 		}
 
