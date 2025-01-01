@@ -304,6 +304,32 @@ class Note : public H2Core::Object<Note>
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const std::shared_ptr<Note> pNote ) const;
 
+		/** Compares two notes based on position (primary) and pitch
+		 * (secundary).
+		 *
+		 * In contrast to compareStart() position in here only takes the actual
+		 * #m_nPosition into account. Neither humanization nor lead/lag.
+		 *
+		 * Comparison of pitch is done in a strange way: the lowest one wins,
+		 * while, in contrast, the largest position wins. This is done since it
+		 * is a general UX scheme within the Hydrogen UI to use the bottom-most
+		 * object first and the lower the row within #PianoRollEditor, the lower
+		 * the pitch.
+		 *
+		 * @returns `true` in case @a pNote1 wins (larger position, smaller
+		 *   pitch) compared to @a pNote2. */
+		static bool compare( const std::shared_ptr<Note> pNote1,
+							 const std::shared_ptr<Note> pNote2 );
+
+		/** Performs a comparison based on starting position of the note.
+		 *
+		 * Note that this start has to be calculated first and involves random
+		 * components (humanization). It is thus something to be performed on
+		 * notes already enqueued in #AudioEngine or #Sampler and not suitable
+		 * for plain notes residing in #Pattern.
+		 *
+		 * @returns `true` in case @a pNote1 has a bigger starting position as
+		 *   @a pNote2. */
 		static bool compareStart( const std::shared_ptr<Note> pNote1,
 								  const std::shared_ptr<Note> pNote2 );
 
@@ -672,6 +698,20 @@ inline bool Note::compareStart( const std::shared_ptr<Note> pNote1,
 	}
 
 	return pNote1->getNoteStart() > pNote2->getNoteStart();
+}
+
+inline bool Note::compare( const std::shared_ptr<Note> pNote1,
+						   const std::shared_ptr<Note> pNote2 ) {
+	if ( pNote1 == nullptr || pNote2 == nullptr ) {
+		return false;
+	}
+
+	if ( pNote1->getPosition() != pNote2->getPosition() ) {
+		return pNote1->getPosition() > pNote2->getPosition();
+	}
+	else {
+		return pNote1->getTotalPitch() < pNote2->getTotalPitch();
+	}
 }
 
 inline void Note::computeLrValues( float* val_l, float* val_r )
