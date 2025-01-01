@@ -66,7 +66,8 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_nCursorRow( 0 )
 	, m_nDragStartColumn( 0 )
 	, m_nDragY( 0 )
-	  , m_update( Update::Background )
+	, m_update( Update::Background )
+	, m_bPropertyDragActive( false )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -2326,6 +2327,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 	if ( ev->button() == Qt::RightButton ) {
 		// Adjusting note properties.
+		m_bPropertyDragActive = true;
 
 		const auto notesAtPoint = getNotesAtPoint(
 			pPattern, ev->pos(), getCursorMargin( ev ) );
@@ -2464,6 +2466,8 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	if ( pPattern == nullptr ) {
 		return;
 	}
+
+	m_bPropertyDragActive = false;
 
 	if ( m_draggedNotes.size() == 0 ) {
 		return;
@@ -3301,21 +3305,26 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
 
 	std::map< std::shared_ptr<Pattern>,
 			  std::vector< std::shared_ptr<Note> > > hovered;
-	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-		const auto hoveredNotes = getNotesAtPoint(
-			ppPattern, pEvent->pos(), nCursorMargin );
-		if ( hoveredNotes.size() > 0 ) {
-			const int nDistance =
-				std::abs( hoveredNotes[ 0 ]->getPosition() - nRealColumn );
-			if ( nDistance < nLastDistance ) {
-				// This batch of notes is nearer than (potential) previous ones.
-				hovered.clear();
-				nLastDistance = nDistance;
-				nLastPosition = hoveredNotes[ 0 ]->getPosition();
-			}
+	// We do not highlight hovered notes during a property drag. Else, the
+	// hovered ones would appear in front of the dragged one in the ruler,
+	// hiding the newly adjusted value.
+	if ( ! m_bPropertyDragActive ) {
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			const auto hoveredNotes = getNotesAtPoint(
+				ppPattern, pEvent->pos(), nCursorMargin );
+			if ( hoveredNotes.size() > 0 ) {
+				const int nDistance =
+					std::abs( hoveredNotes[ 0 ]->getPosition() - nRealColumn );
+				if ( nDistance < nLastDistance ) {
+					// This batch of notes is nearer than (potential) previous ones.
+					hovered.clear();
+					nLastDistance = nDistance;
+					nLastPosition = hoveredNotes[ 0 ]->getPosition();
+				}
 
-			if ( hoveredNotes[ 0 ]->getPosition() == nLastPosition ) {
-				hovered[ ppPattern ] = hoveredNotes;
+				if ( hoveredNotes[ 0 ]->getPosition() == nLastPosition ) {
+					hovered[ ppPattern ] = hoveredNotes;
+				}
 			}
 		}
 	}

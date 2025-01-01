@@ -330,6 +330,7 @@ protected:
 		 * display. We show all values changes of notes at the initial mouse
 		 * cursor position. */
 		std::vector< std::shared_ptr<H2Core::Note> > m_notesHoveredOnDragStart;
+		bool m_bPropertyDragActive;
 
 	PatternEditorPanel* m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
