@@ -141,6 +141,11 @@ public:
 		updateEditor( true );
 	}
 
+
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) const override;
+
 		virtual int getCursorMargin( QInputEvent* pEvent ) const override;
 
 	//! Deselecting notes
@@ -418,12 +423,6 @@ protected:
 		 * this member to cache the notes and only select them in case the mouse
 		 * will be moved with left button down. */
 		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelectOnMove;
-
-		/** Gets all notes located at @a point (position of e.g. QMouseEvent)*/
-		std::vector< std::shared_ptr<H2Core::Note> > getNotesAtPoint(
-			std::shared_ptr<H2Core::Pattern> pPattern,
-			const QPoint& point,
-			int nCursorMargin );
 
 		void updateHoveredNotesMouse( QMouseEvent* pEvent );
 		void updateHoveredNotesKeyboard();

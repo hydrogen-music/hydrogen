@@ -36,6 +36,10 @@
 
 #include <core/Preferences/Preferences.h>
 
+namespace H2Core {
+	class Pattern;
+}
+
 //! SelectionWidget defines the interface used by the Selection manager to communicate with a widget
 //! implementing selection, and provides for event translation, testing for intersection with selectable
 //! objects, keyboard input cursor geometry, and screen refresh. It must be subclassed and
@@ -69,6 +73,14 @@ public:
 		/** Retrieves a resolution-dependent margin determining how many pixel a
 		 * note is allowed to be away from mouse cursor to still be selected. */
 		virtual int getCursorMargin( QInputEvent* pEvent ) const = 0;
+
+		/** Retrieve all elements currently hovered by the mouse pointer. To
+		 * ease selection in the pattern editors, a resolution-dependent margin
+		 * @a nCursorMargin can be provided. The closest elements within this
+		 * margin will be selected. */
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) const = 0;
 
 	//! Inform the client that we're deselecting elements.
 	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) {
@@ -546,8 +558,8 @@ public:
 	void mouseClick( QMouseEvent *ev ) {
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
-			QRect r = QRect( ev->pos(), ev->pos() );
-			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
+			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
+				m_pClickEvent->pos(), m_pWidget->getCursorMargin( ev ) );
 			for ( Elem e : elems) {
 				if ( m_pSelectionGroup->m_selectedElements.find( e )
 					 == m_pSelectionGroup->m_selectedElements.end() ) {
@@ -586,11 +598,8 @@ public:
 		m_pDragScroller->startDrag();
 
 		if ( ev->button() == Qt::LeftButton) {
-			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
-			r += QMargins( 2, 2, 2, 2 );
-			const int nMargin = m_pWidget->getCursorMargin( ev );
-			r += QMargins( nMargin, nMargin, nMargin, nMargin );
-			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
+			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
+				m_pClickEvent->pos(), m_pWidget->getCursorMargin( ev ) );
 
 			/* Did the user start dragging a selected element, or an unselected element?
 			 */

@@ -316,12 +316,12 @@ void SongEditor::setGridWidth( uint width )
 	}
 }
 
-QPoint SongEditor::xyToColumnRow( const QPoint& p )
+QPoint SongEditor::xyToColumnRow( const QPoint& p ) const
 {
 	return QPoint( (p.x() - SongEditor::nMargin) / (int)m_nGridWidth, p.y() / (int)m_nGridHeight );
 }
 
-QPoint SongEditor::columnRowToXy( const QPoint& p )
+QPoint SongEditor::columnRowToXy( const QPoint& p ) const
 {
 	return QPoint( SongEditor::nMargin + p.x() * m_nGridWidth, p.y() * m_nGridHeight );
 }
@@ -973,6 +973,19 @@ void SongEditor::updateWidget() {
 	m_previousMousePosition = m_currentMousePosition;
 }
 
+std::vector<SongEditor::SelectionIndex> SongEditor::getElementsAtPoint(
+	const QPoint& point, int nCursorMargin,
+	std::shared_ptr<H2Core::Pattern> ) const {
+
+	std::vector<SelectionIndex> elems;
+
+	const QPoint p = xyToColumnRow( point );
+	if ( Hydrogen::get_instance()->getSong()->isPatternActive( p.x(), p.y() ) ) {
+		elems.push_back( p );
+	}
+
+	return elems;
+}
 
 void SongEditor::updatePosition( float fTick ) {
 	if ( fTick != m_fTick ) {
