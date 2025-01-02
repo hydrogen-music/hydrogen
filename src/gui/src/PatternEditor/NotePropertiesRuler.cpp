@@ -148,7 +148,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = 0.05; // regular
 	}
 
-	if ( ev->angleDelta().y() < 0 ) {
+	// Pressing Alt results in horizontal scrolling.
+	if ( ev->angleDelta().y() < 0 ||
+		 ( ev->modifiers() & Qt::AltModifier && ev->angleDelta().x() < 0 ) ) {
 		fDelta = fDelta * -1.0;
 	}
 
