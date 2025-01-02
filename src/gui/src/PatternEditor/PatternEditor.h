@@ -354,7 +354,8 @@ protected:
 	void drawGridLines( QPainter &p, const Qt::PenStyle& style = Qt::SolidLine ) const;
 
 	//! Colour to use for outlining notes
-	QColor highlightedNoteColor( NoteStyle noteStyle ) const;
+	void applyHighlightColor( QPen* pPen, QBrush* pBrush,
+							  NoteStyle noteStyle ) const;
 
 	/**
 	 * Draw a note

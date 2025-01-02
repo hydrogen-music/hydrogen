@@ -242,16 +242,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 	uint w = 8, h =  8;
 
-	QPen highlightPen, highlightOutlinePen;
-	if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-		highlightPen.setColor( highlightedNoteColor( noteStyle ) );
-		highlightPen.setWidth( 3 );
-
-		QColor highlightOutlineColor( Qt::black );
-		highlightOutlineColor.setAlpha( 80 );
-		highlightOutlinePen.setColor( highlightOutlineColor );
-		highlightOutlinePen.setWidth( 1 );
-	}
+	QPen highlightPen;
+	QBrush highlightBrush;
+	applyHighlightColor( &highlightPen, &highlightBrush, noteStyle );
 
 	bool bMoving = noteStyle & NoteStyle::Selected && m_selection.isMoving();
 	QPen movingPen( noteColor );
@@ -282,12 +275,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 			p.setPen( highlightPen );
-			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( nX - 4 - 2, nY - 2, w + 4, h + 4 );
-
-			// Ellipse border
-			p.setPen( highlightOutlinePen );
+			p.setBrush( highlightBrush );
 			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+			p.setBrush( Qt::NoBrush );
 		}
 
 		// Draw tail
@@ -327,15 +317,11 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 				p.setPen( highlightPen );
-				p.drawRect( nX - 2, nY, width + 4, 3 + 4 );
-
-				// outline
-				p.setPen( highlightOutlinePen );
-				p.drawLine( nX + w - 3, nY - 1, nX + width + 2, nY - 1 );
-				p.drawLine( nX + width + 3, nY - 1,
-							nX + width + 3, nY - 1 + 3 + 6 );
-				p.drawLine( nX + w - 3, nY - 1 + 3 + 6,
-							nX + width + 3, nY - 1 + 3 + 6 );
+				p.setBrush( highlightBrush );
+				// Tail highlight
+				p.drawRect( nX - 3, nY - 1, width + 6, 3 + 6 );
+				p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+				p.fillRect( nX - 4, nY, width, 3 + 4, highlightBrush );
 			}
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
@@ -356,6 +342,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			p.drawLine( nX+width, nY, nX+width, nY + h );
 		}
 
+		// Draw note
 		p.setPen( notePen );
 		p.setBrush( noteBrush );
 		p.drawEllipse( nX -4 , nY, w, h );
@@ -385,12 +372,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 			p.setPen( highlightPen );
-			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( nX - 4 - 2, nY - 2, w + 4, h + 4 );
-
-			// Ellipse border
-			p.setPen( highlightOutlinePen );
+			p.setBrush( highlightBrush );
 			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+			p.setBrush( Qt::NoBrush );
 		}
 
 		p.setPen( Qt::NoPen );
@@ -1503,7 +1487,8 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 }
 
 
-QColor PatternEditor::highlightedNoteColor( NoteStyle noteStyle ) const {
+void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
+											 NoteStyle noteStyle ) const {
 	
 	const auto pPref = H2Core::Preferences::get_instance();
 
@@ -1529,7 +1514,20 @@ QColor PatternEditor::highlightedNoteColor( NoteStyle noteStyle ) const {
 		}
 	}
 
-	return std::move( color );
+	if ( pBrush != nullptr ) {
+		pBrush->setColor( color );
+		pBrush->setStyle( Qt::SolidPattern );
+	}
+
+	if ( pPen != nullptr ) {
+		int nHue, nSaturation, nValue;
+		color.getHsv( &nHue, &nSaturation, &nValue );
+		if ( nValue >= 130 ) {
+			pPen->setColor( Qt::black );
+		} else {
+			pPen->setColor( Qt::white );
+		}
+	}
 }
 
 

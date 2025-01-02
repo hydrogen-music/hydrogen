@@ -969,14 +969,6 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	}
 
 	const auto pPref = H2Core::Preferences::get_instance();
-
-	QPen highlightPen( highlightedNoteColor( noteStyle ) );
-	highlightPen.setWidth( 3 );
-	QColor highlightOutlineColor( Qt::black );
-	highlightOutlineColor.setAlpha( 80 );
-	QPen highlightOutlinePen( highlightOutlineColor );
-	highlightOutlinePen.setWidth( 1 );
-
 	const int nLineWidth = 3;
 
 	QColor color;
@@ -994,6 +986,10 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 	const int nX = nOffsetX + PatternEditor::nMargin +
 		pNote->getPosition() * m_fGridWidth;
+
+	QPen highlightPen;
+	QBrush highlightBrush;
+	applyHighlightColor( &highlightPen, &highlightBrush, noteStyle );
 
 	QBrush noteBrush( color );
 	QPen notePen( noteColor );
@@ -1048,10 +1044,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 				p.setPen( highlightPen );
-				p.setRenderHint( QPainter::Antialiasing );
-				p.drawEllipse( nX - 6, nY - 6, 12, 12 );
-
-				p.setPen( highlightOutlinePen );
+				p.setBrush( highlightBrush );
 				p.drawEllipse( nX - 7, nY - 7, 14, 14 );
 			}
 
@@ -1082,16 +1075,13 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 				p.setPen( highlightPen );
-				p.drawRoundedRect( nX - 1 - 3, nY - 3, nLineWidth + 6,
-								   nHeight + 6, 4, 4 );
-				p.setPen( highlightOutlinePen );
+				p.setBrush( highlightBrush );
 				p.drawRoundedRect( nX - 1 - 4, nY - 4, nLineWidth + 8,
-								   nHeight + 8, 4, 4 );
+								   nHeight + 8, 5, 5 );
 			}
 
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
-			// p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteBrush );
 			p.drawRoundedRect( nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2,
 							   2, 2 );
 			p.setBrush( Qt::NoBrush );
@@ -1100,7 +1090,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				p.setPen( movingPen );
 				p.setBrush( Qt::NoBrush );
 				p.drawRoundedRect( movingOffset.x() + nX - 1 - 2, nY - 2,
-								   nLineWidth + 4, nHeight + 4, 4, 4 );
+								   nLineWidth + 4, nHeight + 4, 5, 5 );
 			}
 		}
 	}
@@ -1116,15 +1106,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		// Paint selection outlines
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 			p.setPen( highlightPen );
-			// Octave
-			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 1,
-						   nRadiusOctave + 1 );
-
-			// Key
-			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey + 1,
-						   nRadiusKey + 1 );
-
-			p.setPen( highlightOutlinePen );
+			p.setBrush( highlightBrush );
 			// Octave
 			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave + 3,
 						   nRadiusOctave + 3 );
