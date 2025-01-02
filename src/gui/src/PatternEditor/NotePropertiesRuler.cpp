@@ -158,7 +158,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	}
 
 	// Apply delta to the property
-	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
+	const bool bValueChanged = adjustNotePropertyDelta(
+		notes, fDelta, ! ( ev->modifiers() & Qt::ControlModifier ) );
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
@@ -257,7 +258,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 		}
 	}
 
-	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
+	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, true );
 
 	// We only show status messages for notes at point.
 	std::vector< std::shared_ptr<Note> > notesStatusMessage;
@@ -511,7 +512,7 @@ void NotePropertiesRuler::propertyDrawEnd()
 //! Adjust note properties by applying a delta to the current values, and
 //! clipping to the appropriate range.
 bool NotePropertiesRuler::adjustNotePropertyDelta(
-	std::vector< std::shared_ptr<Note> > notes, float fDelta )
+	std::vector< std::shared_ptr<Note> > notes, float fDelta, bool bKey )
 {
 	bool bValueChanged = false;
 
@@ -573,10 +574,11 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 			break;
 		}
 		case PatternEditor::Mode::KeyOctave: {
+			const int nDelta = fDelta > 0 ? 1 : -1;
 			const int nPitch = qBound(
 				KEYS_PER_OCTAVE * OCTAVE_MIN,
 				static_cast<int>(pOldNote->getPitchFromKeyOctave() +
-								 ( fDelta > 0 ? 1 : -1 ) ),
+								 nDelta * ( bKey ? 1 : KEYS_PER_OCTAVE )),
 				KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
 			Note::Octave octave;
 			if ( nPitch >= 0 ) {
@@ -728,7 +730,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		}
 
 		// Apply delta to the property
-		const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta );
+		const bool bValueChanged = adjustNotePropertyDelta(
+			notes, fDelta, ! ( ev->modifiers() & Qt::ControlModifier ) );
 
 		if ( bValueChanged ) {
 			PatternEditor::triggerStatusMessage( notesStatusMessage, m_mode );
