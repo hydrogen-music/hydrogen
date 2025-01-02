@@ -406,13 +406,13 @@ protected:
 
 	int m_nTick;
 
-		void setCursorRow( int nCursorRow );
+		void setCursorPitch( int nCursorPitch );
 		// Row the keyboard cursor is residing in.
 		//
 		// Only in #PianoRollEditor this variable is relevant and updated. In
 		// #DrumPatternEditor #PatternEditorPanel::m_nSelectedRowDB is used
 		// instead and #NotePropertiesPanel does only contain a single row.
-		int m_nCursorRow;
+		int m_nCursorPitch;
 
 	Editor m_editor;
 	Mode m_mode;

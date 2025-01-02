@@ -63,7 +63,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_nTick( -1 )
 	, m_editor( Editor::None )
 	, m_mode( Mode::None )
-	, m_nCursorRow( 0 )
+	, m_nCursorPitch( 0 )
 	, m_nDragStartColumn( 0 )
 	, m_nDragY( 0 )
 	, m_update( Update::Background )
@@ -575,8 +575,8 @@ void PatternEditor::paste()
 
 			// In NotePropertiesRuler there is no vertical offset.
 			if ( m_editor == Editor::PianoRoll ) {
-				nDeltaPitch = m_nCursorRow -
-					positionNode.read_int( "maxPitch", m_nCursorRow );
+				nDeltaPitch = m_nCursorPitch -
+					positionNode.read_int( "maxPitch", m_nCursorPitch );
 			}
 			else if ( m_editor == Editor::DrumPattern ) {
 				nDeltaRow = nSelectedRow -
@@ -973,7 +973,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 	else if ( m_editor == Editor::PianoRoll ) {
 		// Update the row of the piano roll itself.
-		setCursorRow( Note::lineToPitch( nRow ) );
+		setCursorPitch( Note::lineToPitch( nRow ) );
 
 		// Use the row of the DrumPatternEditor/DB for further note
 		// interactions.
@@ -1006,8 +1006,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 					/* bIsNoteOff */ev->modifiers() & Qt::ShiftModifier );
 			}
 			else if ( m_editor == Editor::PianoRoll ) {
-				const Note::Octave octave = Note::pitchToOctave( m_nCursorRow );
-				const Note::Key noteKey = Note::pitchToKey( m_nCursorRow );
+				const Note::Octave octave = Note::pitchToOctave( m_nCursorPitch );
+				const Note::Key noteKey = Note::pitchToKey( m_nCursorPitch );
 				addOrRemoveNote(
 					nTargetColumn, nRealColumn, nRow, noteKey, octave,
 					/* bDoAdd */true, /* bDoDelete */false,
@@ -3228,7 +3228,7 @@ QPoint PatternEditor::getCursorPosition()
 		m_pPatternEditorPanel->getCursorColumn() * m_fGridWidth;
 	int nY;
 	if ( m_editor == Editor::PianoRoll ) {
-		nY = m_nGridHeight * Note::pitchToLine( m_nCursorRow ) + 1;
+		nY = m_nGridHeight * Note::pitchToLine( m_nCursorPitch ) + 1;
 	}
 	else {
 		nY = m_nGridHeight * m_pPatternEditorPanel->getSelectedRowDB();
@@ -3237,24 +3237,24 @@ QPoint PatternEditor::getCursorPosition()
 	return QPoint( nX, nY );
 }
 
-void PatternEditor::setCursorRow( int nCursorRow ) {
+void PatternEditor::setCursorPitch( int nCursorPitch ) {
 	const int nMinPitch = Note::octaveKeyToPitch(
 		(Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
 	const int nMaxPitch = Note::octaveKeyToPitch(
 		(Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
 
-	if ( nCursorRow < nMinPitch ) {
-		nCursorRow = nMinPitch;
+	if ( nCursorPitch < nMinPitch ) {
+		nCursorPitch = nMinPitch;
 	}
-	else if ( nCursorRow >= nMaxPitch ) {
-		nCursorRow = nMaxPitch;
+	else if ( nCursorPitch >= nMaxPitch ) {
+		nCursorPitch = nMaxPitch;
 	}
 
-	if ( nCursorRow == m_nCursorRow ) {
+	if ( nCursorPitch == m_nCursorPitch ) {
 		return;
 	}
 
-	m_nCursorRow = nCursorRow;
+	m_nCursorPitch = nCursorPitch;
 
 	// Highlight selected row.
 	if ( m_editor == Editor::PianoRoll ) {
