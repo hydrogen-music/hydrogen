@@ -163,9 +163,12 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 	}
 
+	// Check whether the wheel event was triggered while mouse was in octave or
+	// key section.
+	const bool bKey = point.y() >= NotePropertiesRuler::nOctaveHeight;
+
 	// Apply delta to the property
-	const bool bValueChanged = adjustNotePropertyDelta(
-		notes, fDelta, ! ( ev->modifiers() & Qt::ControlModifier ) );
+	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, bKey );
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
