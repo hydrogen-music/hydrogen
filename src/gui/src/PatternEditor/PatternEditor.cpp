@@ -1485,8 +1485,8 @@ QColor PatternEditor::highlightedNoteColor( NoteStyle noteStyle ) const {
 	QColor color = pPref->getTheme().m_color.m_selectionHighlightColor;
 
 	int nFactor = 100;
-	if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
 		nFactor = 120;
+	if ( noteStyle & NoteStyle::Selected && noteStyle & NoteStyle::Hovered ) {
 	}
 	else if ( noteStyle & NoteStyle::Hovered ) {
 		nFactor = 140;
