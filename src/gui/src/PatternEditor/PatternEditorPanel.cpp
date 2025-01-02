@@ -1872,8 +1872,8 @@ void PatternEditorPanel::setHoveredNotesMouse(
 	m_hoveredNotesMouse = hoveredNotes;
 
 	updateHoveredNotes();
-	getVisibleEditor()->updateEditor( true );
-	getVisiblePropertiesRuler()->updateEditor( true );
+	getVisibleEditor()->update();
+	getVisiblePropertiesRuler()->update();
 }
 
 void PatternEditorPanel::setHoveredNotesKeyboard(
