@@ -138,7 +138,12 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	}
 
 	float fDelta;
-	if ( ev->modifiers() == Qt::AltModifier ) {
+	if ( m_mode == Mode::KeyOctave ) {
+		// The available values in both key and octave sections are so few that
+		// we do not provide a fine grained option using Alt.
+		fDelta = ev->modifiers() == Qt::ControlModifier ? 3 : 1;
+	}
+	else if ( ev->modifiers() == Qt::AltModifier ) {
 		fDelta = 0.01; // fine control
 	}
 	else if ( ev->modifiers() == Qt::ControlModifier ) {
@@ -583,11 +588,11 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 			break;
 		}
 		case PatternEditor::Mode::KeyOctave: {
-			const int nDelta = fDelta > 0 ? 1 : -1;
 			const int nPitch = qBound(
 				KEYS_PER_OCTAVE * OCTAVE_MIN,
 				static_cast<int>(pOldNote->getPitchFromKeyOctave() +
-								 nDelta * ( bKey ? 1 : KEYS_PER_OCTAVE )),
+								 std::round( fDelta) *
+								 ( bKey ? 1 : KEYS_PER_OCTAVE )),
 				KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX );
 			Note::Octave octave;
 			if ( nPitch >= 0 ) {
