@@ -242,11 +242,15 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 	uint w = 8, h =  8;
 
+	QPen highlightPen, highlightOutlinePen;
 	if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-		QPen highlightedPen( highlightedNoteColor( noteStyle ) );
-		highlightedPen.setWidth( 2 );
-		p.setPen( highlightedPen );
-		p.setBrush( Qt::NoBrush );
+		highlightPen.setColor( highlightedNoteColor( noteStyle ) );
+		highlightPen.setWidth( 3 );
+
+		QColor highlightOutlineColor( Qt::black );
+		highlightOutlineColor.setAlpha( 80 );
+		highlightOutlinePen.setColor( highlightOutlineColor );
+		highlightOutlinePen.setWidth( 1 );
 	}
 
 	bool bMoving = noteStyle & NoteStyle::Selected && m_selection.isMoving();
@@ -277,7 +281,13 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+			p.setPen( highlightPen );
+			p.setBrush( Qt::NoBrush );
 			p.drawEllipse( nX - 4 - 2, nY - 2, w + 4, h + 4 );
+
+			// Ellipse border
+			p.setPen( highlightOutlinePen );
+			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
 		}
 
 		// Draw tail
@@ -316,7 +326,16 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-				p.drawRoundedRect( nX-2, nY, width+4, 3+4, 4, 4 );
+				p.setPen( highlightPen );
+				p.drawRect( nX - 2, nY, width + 4, 3 + 4 );
+
+				// outline
+				p.setPen( highlightOutlinePen );
+				p.drawLine( nX + w - 3, nY - 1, nX + width + 2, nY - 1 );
+				p.drawLine( nX + width + 3, nY - 1,
+							nX + width + 3, nY - 1 + 3 + 6 );
+				p.drawLine( nX + w - 3, nY - 1 + 3 + 6,
+							nX + width + 3, nY - 1 + 3 + 6 );
 			}
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
@@ -365,7 +384,13 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-			p.drawEllipse( nX -4 -2, nY-2, w+4, h+4 );
+			p.setPen( highlightPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawEllipse( nX - 4 - 2, nY - 2, w + 4, h + 4 );
+
+			// Ellipse border
+			p.setPen( highlightOutlinePen );
+			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
 		}
 
 		p.setPen( Qt::NoPen );
