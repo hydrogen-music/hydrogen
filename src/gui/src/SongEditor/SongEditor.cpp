@@ -841,6 +841,11 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
 		update();
 	}
+
+	if ( m_selection.isMoving() || m_selection.isLasso() ) {
+		m_bSequenceChanged = true;
+		update();
+	}
 }
 
 void SongEditor::mouseDragStartEvent( QMouseEvent *ev )

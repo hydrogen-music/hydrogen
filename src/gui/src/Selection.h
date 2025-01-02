@@ -658,12 +658,13 @@ public:
 			}
 			updateWidgetGroup();
 
-		} else if ( m_selectionState == MouseMoving ) {
+		}
+		else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
 			m_pWidget->selectionMoveUpdateEvent( ev );
-			updateWidgetGroup();
 
-		} else {
+		}
+		else {
 			// Pass drag update to widget
 			m_pWidget->mouseDragUpdateEvent( ev );
 		}

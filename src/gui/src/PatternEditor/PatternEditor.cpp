@@ -1079,7 +1079,11 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 	if ( ev->buttons() != Qt::NoButton ) {
 		updateModifiers( ev );
 		m_selection.mouseMoveEvent( ev );
-		if ( syncLasso() || m_selection.isMoving() ) {
+		if ( m_selection.isMoving() ) {
+			m_pPatternEditorPanel->getVisibleEditor()->update();
+			m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
+			}
+		else if ( syncLasso() ) {
 			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
 			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
 		}
