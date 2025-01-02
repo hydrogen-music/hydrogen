@@ -248,10 +248,15 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	}
 
 	float fDelta;
+	bool bKey = true;
 
 	QPoint movingOffset = m_selection.movingOffset();
 	if ( m_mode == PatternEditor::Mode::KeyOctave ) {
-		fDelta = (float)-movingOffset.y() /
+		// Check whether the drag started within the key or octave section.
+		bKey = ( ev->y() - movingOffset.y() ) >=
+			NotePropertiesRuler::nOctaveHeight;
+
+		fDelta = static_cast<float>(-movingOffset.y()) /
 			static_cast<float>(NotePropertiesRuler::nKeyLineHeight);
 	} else {
 		fDelta = (float)-movingOffset.y() / height();
@@ -272,7 +277,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 		}
 	}
 
-	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, true );
+	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, bKey );
 
 	// We only show status messages for notes at point.
 	std::vector< std::shared_ptr<Note> > notesStatusMessage;
