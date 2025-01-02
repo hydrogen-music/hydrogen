@@ -102,6 +102,16 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 			}
 		}
 	}
+
+	// Draw moved notes
+	if ( ! m_selection.isEmpty() && m_selection.isMoving() ) {
+		for ( const auto& ppNote : m_selection ) {
+			if ( ppNote != nullptr && ppNote->getType() == row.sType &&
+				 ppNote->getInstrumentId() == row.nInstrumentID ) {
+				drawNote( painter, ppNote, NoteStyle::Moved );
+			}
+		}
+	}
 }
 
 void PianoRollEditor::createBackground()

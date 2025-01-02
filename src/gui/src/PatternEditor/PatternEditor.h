@@ -287,6 +287,9 @@ protected:
 			Hovered = 0x002,
 			/** Note is part of the current selection.*/
 			Selected = 0x004,
+			/** Note is in a transient state while being moved to another
+			 * location. A silhouette will be rendered at the new position. */
+			Moved = 0x008,
 		};
 
 		/** Scaling factor by which the background colors will be made darker in

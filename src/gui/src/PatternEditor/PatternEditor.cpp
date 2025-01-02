@@ -246,12 +246,11 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	QBrush highlightBrush;
 	applyHighlightColor( &highlightPen, &highlightBrush, noteStyle );
 
-	bool bMoving = noteStyle & NoteStyle::Selected && m_selection.isMoving();
 	QPen movingPen( noteColor );
 	QPoint movingOffset;
-
-	if ( bMoving ) {
+	if ( noteStyle & NoteStyle::Moved ) {
 		movingPen.setStyle( Qt::DotLine );
+		movingPen.setColor( highlightPen.color() );
 		movingPen.setWidth( 2 );
 		QPoint delta = movingGridOffset();
 		movingOffset = QPoint( delta.x() * m_fGridWidth,
@@ -323,34 +322,38 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 				p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
 				p.fillRect( nX - 4, nY, width, 3 + 4, highlightBrush );
 			}
-			p.setPen( notePen );
-			p.setBrush( noteBrush );
+			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				p.setPen( notePen );
+				p.setBrush( noteBrush );
 
-			// Since the note body is transparent for an inactive note, we try
-			// to start the tail at its boundary. For regular notes we do not
-			// care about an overlap, as it ensures that there are no white
-			// artifacts between tail and note body regardless of the scale
-			// factor.
-			int nRectOnsetX = nX;
-			int nRectWidth = width;
-			if ( noteStyle & NoteStyle::Background ) {
-				nRectOnsetX = nRectOnsetX + w/2;
-				nRectWidth = nRectWidth - w/2;
+				// Since the note body is transparent for an inactive note, we
+				// try to start the tail at its boundary. For regular notes we
+				// do not care about an overlap, as it ensures that there are no
+				// white artifacts between tail and note body regardless of the
+				// scale factor.
+				int nRectOnsetX = nX;
+				int nRectWidth = width;
+				if ( noteStyle & NoteStyle::Background ) {
+					nRectOnsetX = nRectOnsetX + w/2;
+					nRectWidth = nRectWidth - w/2;
+				}
+
+				p.drawRect( nRectOnsetX, nY +2, nRectWidth, 3 );
+				p.drawLine( nX+width, nY, nX+width, nY + h );
 			}
-
-			p.drawRect( nRectOnsetX, nY +2, nRectWidth, 3 );
-			p.drawLine( nX+width, nY, nX+width, nY + h );
 		}
 
 		// Draw note
-		p.setPen( notePen );
-		p.setBrush( noteBrush );
-		p.drawEllipse( nX -4 , nY, w, h );
-
-		if ( bMoving ) {
+		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+			p.setPen( notePen );
+			p.setBrush( noteBrush );
+			p.drawEllipse( nX -4 , nY, w, h );
+		}
+		else {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
 			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2 , w + 4, h + 4 );
+
 			// Moving tail
 			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
 				p.setPen( movingPen );
@@ -377,14 +380,16 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			p.setBrush( Qt::NoBrush );
 		}
 
-		p.setPen( Qt::NoPen );
-		p.setBrush( noteOffBrush );
-		p.drawEllipse( nX -4 , nY, w, h );
-
-		if ( bMoving ) {
+		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+			p.setPen( Qt::NoPen );
+			p.setBrush( noteOffBrush );
+			p.drawEllipse( nX -4 , nY, w, h );
+		}
+		else {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2, w + 4, h + 4 );
+			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2,
+						   w + 4, h + 4 );
 		}
 	}
 }

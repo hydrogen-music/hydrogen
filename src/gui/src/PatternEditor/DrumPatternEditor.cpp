@@ -381,7 +381,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 
 	QPainter painter( this );
 
-	// Draw hovered note
+	// Draw hovered notes
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	for ( const auto& [ ppPattern, nnotes ] :
 			  m_pPatternEditorPanel->getHoveredNotes() ) {
@@ -393,6 +393,13 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 				m_selection.isSelected( ppNote ) ?
 				NoteStyle::Selected | baseStyle : baseStyle );
 			drawNote( painter, ppNote, style );
+		}
+	}
+
+	// Draw moved notes
+	if ( ! m_selection.isEmpty() && m_selection.isMoving() ) {
+		for ( const auto& ppNote : m_selection ) {
+			drawNote( painter, ppNote, NoteStyle::Moved );
 		}
 	}
 }

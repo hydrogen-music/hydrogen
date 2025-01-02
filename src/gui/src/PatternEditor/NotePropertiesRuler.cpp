@@ -883,6 +883,23 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 			}
 		}
 	}
+
+	// Draw moved notes
+	auto pEditor = m_pPatternEditorPanel->getVisibleEditor();
+	if ( ! m_selection.isEmpty() && (
+			 pEditor->getSelectionState() == SelectionState::MouseMoving ||
+			 pEditor->getSelectionState() == SelectionState::KeyboardMoving ) ) {
+		for ( const auto& ppNote : m_selection ) {
+			if ( m_offsetMap.find( ppNote ) != m_offsetMap.end() ) {
+				nOffsetX = m_offsetMap[ ppNote ];
+			}
+			else {
+				nOffsetX = 0;
+			}
+
+			drawNote( painter, ppNote, NoteStyle::Moved, nOffsetX );
+		}
+	}
 }
 
 void NotePropertiesRuler::scrolled( int nValue ) {
@@ -1008,12 +1025,9 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	// Silhouette to show when a note is selected and moved to a different
 	// position (in another editor!).
 	auto pEditor = m_pPatternEditorPanel->getVisibleEditor();
-	const bool bMoving = noteStyle & NoteStyle::Selected &&
-		( pEditor->getSelectionState() == SelectionState::MouseMoving ||
-		  pEditor->getSelectionState() == SelectionState::KeyboardMoving );
 	QPen movingPen( noteColor );
 	QPoint movingOffset, delta;
-	if ( bMoving ) {
+	if ( noteStyle & NoteStyle::Moved ) {
 		movingPen.setStyle( Qt::DotLine );
 		movingPen.setWidth( 2 );
 		delta = pEditor->movingGridOffset();
@@ -1048,12 +1062,13 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				p.drawEllipse( nX - 7, nY - 7, 14, 14 );
 			}
 
-			p.setPen( notePen );
-			p.setBrush( noteBrush );
-			p.drawEllipse( nX - 4, nY - 4, 8, 8);
-			p.setBrush( Qt::NoBrush );
-
-			if ( bMoving ) {
+			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				p.setPen( notePen );
+				p.setBrush( noteBrush );
+				p.drawEllipse( nX - 4, nY - 4, 8, 8);
+				p.setBrush( Qt::NoBrush );
+			}
+			else {
 				p.setPen( movingPen );
 				p.setBrush( Qt::NoBrush );
 				p.drawEllipse( movingOffset.x() + nX - 6, nY - 6, 12, 12 );
@@ -1080,13 +1095,14 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 								   nHeight + 8, 5, 5 );
 			}
 
-			p.setPen( notePen );
-			p.setBrush( noteBrush );
-			p.drawRoundedRect( nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2,
-							   2, 2 );
-			p.setBrush( Qt::NoBrush );
-
-			if ( bMoving ) {
+			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				p.setPen( notePen );
+				p.setBrush( noteBrush );
+				p.drawRoundedRect( nX - 1 - 1, nY - 1,
+								   nLineWidth + 2, nHeight + 2, 2, 2 );
+				p.setBrush( Qt::NoBrush );
+			}
+			else {
 				p.setPen( movingPen );
 				p.setBrush( Qt::NoBrush );
 				p.drawRoundedRect( movingOffset.x() + nX - 1 - 2, nY - 2,
@@ -1115,15 +1131,16 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 						   nRadiusKey + 3 );
 		}
 
-		// paint the octave
-		p.setBrush( noteBrush );
-		p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave );
+		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+			// paint the octave
+			p.setBrush( noteBrush );
+			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave );
 
-		// paint note
-		p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
-		p.setBrush( Qt::NoBrush );
-
-		if ( bMoving ) {
+			// paint note
+			p.drawEllipse( QPoint( nX, nKeyY ), nRadiusKey, nRadiusKey);
+			p.setBrush( Qt::NoBrush );
+		}
+		else {
 			// In case the note was moved to a different row in PianoRollEditor,
 			// we have to adjust the pitch in here as well.
 			int nMovedKeyY = nKeyY;
