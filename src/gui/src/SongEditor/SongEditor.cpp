@@ -1118,12 +1118,20 @@ void SongEditor::scrolled( int nValue ) {
 void SongEditor::enterEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
+
+	if ( ! m_selection.isEmpty() ) {
+		m_bSequenceChanged = true;
+	}
 	update();
 }
 
 void SongEditor::leaveEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = false;
+
+	if ( ! m_selection.isEmpty() ) {
+		m_bSequenceChanged = true;
+	}
 	update();
 }
 
@@ -1340,7 +1348,7 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	// will have a pronounced border.
 	QColor borderColor;
 	if ( bIsSelected ){
-		if ( hasFocus() ) {
+		if ( hasFocus() || m_bEntered ) {
 			borderColor = pPref->getTheme().m_color.m_selectionHighlightColor;
 		} else {
 			borderColor = pPref->getTheme().m_color.m_selectionInactiveColor;

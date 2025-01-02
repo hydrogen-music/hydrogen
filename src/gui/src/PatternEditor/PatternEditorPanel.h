@@ -275,6 +275,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 			std::map< std::shared_ptr<H2Core::Pattern>,
 			std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes );
 
+		bool getEntered() const;
+
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
@@ -406,6 +408,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// Cursor positioning
 		int					m_nCursorColumn;
 		int					m_nCursorIncrement;
+		/** Indicates whether the mouse pointer entered the widget.*/
+		bool m_bEntered;
 		// ~ Cursor
 
 		int m_nResolution;
@@ -425,6 +429,8 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
 };
 
 inline std::shared_ptr<H2Core::Pattern> PatternEditorPanel::getPattern() const {
@@ -449,6 +455,10 @@ inline const std::map< std::shared_ptr<H2Core::Pattern>,
 	std::vector< std::shared_ptr<H2Core::Note> > >&
 	PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
+}
+
+inline bool PatternEditorPanel::getEntered() const {
+	return m_bEntered;
 }
 
 #endif

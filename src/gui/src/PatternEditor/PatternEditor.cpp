@@ -1492,7 +1492,13 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 	
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	QColor color = pPref->getTheme().m_color.m_selectionHighlightColor;
+	QColor color;
+	if ( m_pPatternEditorPanel->getEntered() ||
+		 m_pPatternEditorPanel->hasFocus() ) {
+		color = pPref->getTheme().m_color.m_selectionHighlightColor;
+	} else {
+		color = pPref->getTheme().m_color.m_selectionInactiveColor;
+	}
 
 	int nFactor = 100;
 	if ( noteStyle & NoteStyle::Selected && noteStyle & NoteStyle::Hovered ) {
