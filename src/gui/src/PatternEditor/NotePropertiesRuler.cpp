@@ -643,8 +643,16 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		fDelta = -0.1;
 	}
 	else if ( ev->key() == Qt::Key_Down && ev->modifiers() & Qt::AltModifier ) {
-		// Key: Alt+Up: decrease parameter slightly
+		// Key: Alt+Down decrease parameter slightly
 		fDelta = -0.01;
+	}
+	else if ( ev->key() == Qt::Key_Up && ev->modifiers() & Qt::ControlModifier ) {
+		// Key: Ctrl+Up: increase parameter in a big jump
+		fDelta = 0.5;
+	}
+	else if ( ev->key() == Qt::Key_Down && ev->modifiers() & Qt::ControlModifier ) {
+		// Key: Ctrl+Up: decrease parameter in a big jump
+		fDelta = -0.5;
 	}
 	else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		// Key: MoveToStartOfDocument: increase parameter to maximum value
