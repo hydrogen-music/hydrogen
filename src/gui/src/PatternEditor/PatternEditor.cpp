@@ -1495,11 +1495,11 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 	QColor color = pPref->getTheme().m_color.m_selectionHighlightColor;
 
 	int nFactor = 100;
-		nFactor = 120;
 	if ( noteStyle & NoteStyle::Selected && noteStyle & NoteStyle::Hovered ) {
+		nFactor = 107;
 	}
 	else if ( noteStyle & NoteStyle::Hovered ) {
-		nFactor = 140;
+		nFactor = 125;
 	}
 
 	if ( noteStyle & NoteStyle::Hovered ) {
