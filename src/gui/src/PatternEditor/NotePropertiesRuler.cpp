@@ -138,12 +138,16 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	}
 
 	float fDelta;
-	if ( ev->modifiers() == Qt::ControlModifier ||
-		 ev->modifiers() == Qt::AltModifier ) {
+	if ( ev->modifiers() == Qt::AltModifier ) {
 		fDelta = 0.01; // fine control
-	} else {
-		fDelta = 0.05; // coarse control
 	}
+	else if ( ev->modifiers() == Qt::ControlModifier ) {
+		fDelta = 0.15; // coarse control
+	}
+	else {
+		fDelta = 0.05; // regular
+	}
+
 	if ( ev->angleDelta().y() < 0 ) {
 		fDelta = fDelta * -1.0;
 	}
