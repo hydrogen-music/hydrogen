@@ -783,8 +783,32 @@ InterfaceTheme::InterfaceTheme()
 	, m_coloringMethod( InterfaceTheme::ColoringMethod::Custom )
 	, m_nVisiblePatternColors( 18 ) {
 	m_patternColors.resize( nMaxPatternColors );
+
+	std::vector<QColor> defaultColors {
+		QColor( 67,96,131 ),
+		QColor( 67,114,175 ),
+		QColor( 105,165,189 ),
+		QColor( 148,189,202 ),
+		QColor( 193,211,215 ),
+		QColor( 229,201,130 ),
+		QColor( 234,160,90 ),
+		QColor( 218,97,60 ),
+		QColor( 186,55,50 ),
+		QColor( 152,22,26 ),
+		QColor( 186,55,50 ),
+		QColor( 218,97,60 ),
+		QColor( 234,160,90 ),
+		QColor( 229,201,130 ),
+		QColor( 193,211,215 ),
+		QColor( 148,189,202 ),
+		QColor( 105,165,189 ),
+		QColor( 67,114,175 ),
+		QColor( 67,96,131 )
+	};
+
 	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
-		m_patternColors[ ii ] = QColor( 67, 96, 131 );
+		m_patternColors[ ii ] = defaultColors[
+			std::min( ii, static_cast<int>(defaultColors.size() - 1 ) ) ];
 	}
 }
 
