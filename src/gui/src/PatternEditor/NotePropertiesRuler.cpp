@@ -1090,9 +1090,11 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			}
 
 			p.setPen( notePen );
-			p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteBrush );
+			p.setBrush( noteBrush );
+			// p.fillRect( nX - 1, nY, nLineWidth, nHeight, noteBrush );
 			p.drawRoundedRect( nX - 1 - 1, nY - 1, nLineWidth + 2, nHeight + 2,
 							   2, 2 );
+			p.setBrush( Qt::NoBrush );
 
 			if ( bMoving ) {
 				p.setPen( movingPen );
