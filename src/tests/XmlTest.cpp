@@ -951,6 +951,47 @@ void XmlTest::testShippedPreferences() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testShippedThemes() {
+	___INFOLOG( "" );
+	QDir themesDir( H2Core::Filesystem::sys_theme_dir() );
+	H2Core::XMLDoc doc;
+	const auto shippedThemes = themesDir.entryList(
+		QStringList( QString( "*%1" ).arg( H2Core::Filesystem::themes_ext ) ),
+		QDir::Files | QDir::NoDotAndDotDot );
+
+	CPPUNIT_ASSERT( shippedThemes.size() > 0 );
+
+	for ( const auto& ssTheme : shippedThemes ) {
+		const QString sTmpFile =
+			H2Core::Filesystem::tmp_file_path( "check-shipped-themes-XXXX.conf" );
+		const auto pTheme =
+			H2Core::Theme::importFrom( themesDir.filePath( ssTheme ) );
+		pTheme->exportTo( sTmpFile );
+
+		H2TEST_ASSERT_PREFERENCES_FILES_EQUAL( themesDir.filePath( ssTheme ),
+											   sTmpFile );
+
+		// Cleanup
+		CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpFile ) );
+	}
+
+	// Check whether the default theme still carries all defaults.
+	const QString sDefaultTheme = themesDir.filePath( "default.h2theme" );
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( sDefaultTheme ) );
+
+	const QString sTmpFile =
+		H2Core::Filesystem::tmp_file_path( "check-default-theme-XXXX.conf" );
+	const auto pDefaultTheme = std::make_shared<H2Core::Theme>();
+	pDefaultTheme->exportTo( sTmpFile );
+
+	H2TEST_ASSERT_THEME_FILES_EQUAL( sDefaultTheme, sTmpFile );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpFile ) );
+
+	___INFOLOG( "passed" );
+}
+
 
 bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoaded )
 {
