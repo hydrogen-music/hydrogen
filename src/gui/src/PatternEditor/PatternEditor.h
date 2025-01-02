@@ -295,7 +295,7 @@ protected:
 		/** Scaling factor by which the background colors will be made darker in
 		 * case the widget is not in focus. This should help users to determine
 		 * which of the editors currently holds focus. */
-		static constexpr int nOutOfFocusDim = 120;
+		static constexpr int nOutOfFocusDim = 110;
 
 		/** Distance in pixel the cursor is allowed to be away from a note to
 		 * still be associated with it.
