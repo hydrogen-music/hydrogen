@@ -359,16 +359,7 @@ void DrumPatternEditor::createBackground() {
 	}
 
 	// borders
-	p.setPen( lineColor );
-	p.drawLine( 0, m_nEditorHeight -1 , m_nActiveWidth - 1, m_nEditorHeight - 1 );
-	
-	if ( m_nEditorWidth > m_nActiveWidth + 1 ) {
-		p.setPen( lineInactiveColor );
-		p.drawLine( m_nActiveWidth - 1, m_nEditorHeight - 1, m_nEditorWidth - 1, m_nEditorHeight - 1 );
-	}
-	
-	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
-	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
+	drawBorders( p );
 }
 
 void DrumPatternEditor::paintEvent( QPaintEvent* ev )

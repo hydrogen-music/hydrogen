@@ -376,6 +376,7 @@ protected:
 		 * latest content of all active pattern. */
 		virtual void drawPattern();
 		void drawFocus( QPainter& p );
+		void drawBorders( QPainter& p );
 	/** Updates #m_pBackgroundPixmap. */
 	virtual void createBackground();
 	QPixmap* m_pBackgroundPixmap;

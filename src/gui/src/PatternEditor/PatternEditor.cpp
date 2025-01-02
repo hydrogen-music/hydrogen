@@ -2288,6 +2288,33 @@ void PatternEditor::drawFocus( QPainter& p ) {
 					  QPoint( nEndX + nMargin, nEndY ) );
 }
 
+void PatternEditor::drawBorders( QPainter& p ) {
+	const auto pPref = H2Core::Preferences::get_instance();
+
+	const QColor borderColor(
+		pPref->getTheme().m_color.m_patternEditor_lineColor );
+	const QColor borderInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	p.setPen( borderColor );
+	p.drawLine( 0, 0, m_nActiveWidth, 0 );
+	p.drawLine( 0, m_nEditorHeight - 1,
+					  m_nActiveWidth, m_nEditorHeight - 1 );
+
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( QPen( borderInactiveColor, 1, Qt::SolidLine ) );
+		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight - 1,
+						  m_nEditorWidth, m_nEditorHeight - 1 );
+		p.drawLine( m_nEditorWidth - 1, 0,
+						  m_nEditorWidth - 1, m_nEditorHeight );
+	}
+	else {
+		p.drawLine( m_nActiveWidth, 0,
+						  m_nActiveWidth, m_nEditorHeight );
+	}
+}
+
 void PatternEditor::createBackground() {
 }
 

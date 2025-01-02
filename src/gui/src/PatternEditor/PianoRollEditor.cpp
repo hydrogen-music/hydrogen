@@ -248,8 +248,7 @@ void PianoRollEditor::createBackground()
 		drawGridLines( p, Qt::DashLine );
 	}
 
-	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
-	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
+	drawBorders( p );
 }
 
 void PianoRollEditor::selectAll()

@@ -912,8 +912,6 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	const QColor borderColor(
-		pPref->getTheme().m_color.m_patternEditor_lineColor );
 	QColor lineColor(
 		pPref->getTheme().m_color.m_patternEditor_line5Color );
 	const QColor lineInactiveColor(
@@ -949,21 +947,15 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	for (unsigned y = 0; y < nHeight; y += nIncrement ) {
 		painter.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
 	}
-	
-	painter.setPen( borderColor );
-	painter.drawLine( 0, 0, m_nActiveWidth, 0 );
-	painter.drawLine( 0, m_nEditorHeight - 1, m_nActiveWidth, m_nEditorHeight - 1 );
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 		painter.setPen( QPen( lineInactiveColor, 1, Qt::DotLine ) );
 		for (unsigned y = 0; y < nHeight; y += nIncrement ) {
 			painter.drawLine( m_nActiveWidth, y, m_nEditorWidth, y );
 		}
-	
-		painter.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
-		painter.drawLine( m_nActiveWidth, m_nEditorHeight - 1,
-						  m_nEditorWidth, m_nEditorHeight - 1 );
 	}
+
+	drawBorders( painter );
 }
 
 void NotePropertiesRuler::drawNote( QPainter& p,
