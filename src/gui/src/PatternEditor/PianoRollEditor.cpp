@@ -189,14 +189,14 @@ void PianoRollEditor::createBackground()
 
 
 	// horiz lines
-	p.setPen( lineColor );
+	p.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 	for ( uint row = 0; row < ( KEYS_PER_OCTAVE * OCTAVE_NUMBER ); ++row ) {
 		unsigned y = row * m_nGridHeight;
 		p.drawLine( start_x, y, end_x, y );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
+		p.setPen( QPen( lineInactiveColor, 1, Qt::DotLine ) );
 		for ( uint row = 0; row < ( KEYS_PER_OCTAVE * OCTAVE_NUMBER ); ++row ) {
 			unsigned y = row * m_nGridHeight;
 			p.drawLine( m_nActiveWidth, y, m_nEditorWidth, y );

@@ -945,7 +945,7 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 
 	drawGridLines( painter, Qt::DotLine );
 	
-	painter.setPen( lineColor );
+	painter.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 	for (unsigned y = 0; y < nHeight; y += nIncrement ) {
 		painter.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
 	}
@@ -955,7 +955,7 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	painter.drawLine( 0, m_nEditorHeight - 1, m_nActiveWidth, m_nEditorHeight - 1 );
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		painter.setPen( lineInactiveColor );
+		painter.setPen( QPen( lineInactiveColor, 1, Qt::DotLine ) );
 		for (unsigned y = 0; y < nHeight; y += nIncrement ) {
 			painter.drawLine( m_nActiveWidth, y, m_nEditorWidth, y );
 		}
@@ -1287,9 +1287,28 @@ void NotePropertiesRuler::createBackground()
 							noteNames[n] );
 			}
 
+			// Border between key and octave part
+			p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
+			p.drawLine( PatternEditor::nMargin,
+						NotePropertiesRuler::nOctaveHeight -
+						NotePropertiesRuler::nKeyLineHeight / 2,
+						m_nActiveWidth,
+						NotePropertiesRuler::nOctaveHeight -
+						NotePropertiesRuler::nKeyLineHeight / 2 );
+			if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+				p.setPen( QPen( lineInactiveColor, 1, Qt::SolidLine ) );
+				p.drawLine( m_nActiveWidth,
+							NotePropertiesRuler::nOctaveHeight -
+							NotePropertiesRuler::nKeyLineHeight / 2,
+							m_nEditorWidth,
+							NotePropertiesRuler::nOctaveHeight -
+						NotePropertiesRuler::nKeyLineHeight / 2 );
+			}
+
 			// Horizontal grid lines in the key region
-			p.setPen( QPen( lineColor, 1, Qt::SolidLine));
-			for ( int yy = NotePropertiesRuler::nOctaveHeight;
+			p.setPen( QPen( lineColor, 1, Qt::DotLine));
+			for ( int yy = NotePropertiesRuler::nOctaveHeight +
+					  NotePropertiesRuler::nKeyLineHeight;
 				  yy <= NotePropertiesRuler::nKeyOctaveHeight;
 				  yy += NotePropertiesRuler::nKeyLineHeight ) {
 				p.drawLine( PatternEditor::nMargin,
@@ -1299,8 +1318,9 @@ void NotePropertiesRuler::createBackground()
 			}
 
 			if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-				p.setPen( lineInactiveColor );
-				for ( int yy = NotePropertiesRuler::nOctaveHeight;
+				p.setPen( QPen( lineInactiveColor, 1, Qt::DotLine ) );
+				for ( int yy = NotePropertiesRuler::nOctaveHeight +
+						  NotePropertiesRuler::nKeyLineHeight;
 					  yy <= NotePropertiesRuler::nKeyOctaveHeight;
 					  yy = yy + NotePropertiesRuler::nKeyLineHeight ) {
 					p.drawLine( m_nActiveWidth,

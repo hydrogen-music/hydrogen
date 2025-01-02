@@ -344,14 +344,14 @@ void DrumPatternEditor::createBackground() {
 	}
 
 	// horizontal lines
-	p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
+	p.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 	for ( uint i = 0; i < (uint)nRows; i++ ) {
 		uint y = m_nGridHeight * i + m_nGridHeight;
 		p.drawLine( 0, y, m_nActiveWidth, y);
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( QPen( lineInactiveColor, 1, Qt::SolidLine ) );
+		p.setPen( QPen( lineInactiveColor, 1, Qt::DotLine ) );
 		for ( uint i = 0; i < (uint)nRows; i++ ) {
 			uint y = m_nGridHeight * i + m_nGridHeight;
 			p.drawLine( m_nActiveWidth, y, m_nEditorWidth, y);
