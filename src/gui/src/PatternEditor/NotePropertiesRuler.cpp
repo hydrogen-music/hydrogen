@@ -572,8 +572,12 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 			break;
 		}
 		case PatternEditor::Mode::LeadLag: {
+			// while most values in the ruler are defined between 0 and 1, lead
+			// and lag is defined between -1 and 1. To still provide the same
+			// feeling as for the other properties, we scale the delta by a
+			// factor of 2.
 			const float fLeadLag = qBound(
-				LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta, LEAD_LAG_MAX );
+				LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta * 2, LEAD_LAG_MAX );
 			if ( fLeadLag != ppNote->getLeadLag() ) {
 				ppNote->setLeadLag( fLeadLag );
 				bValueChanged = true;
