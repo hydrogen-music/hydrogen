@@ -3256,11 +3256,16 @@ void PatternEditor::setCursorRow( int nCursorRow ) {
 
 	m_nCursorRow = nCursorRow;
 
+	// Highlight selected row.
+	if ( m_editor == Editor::PianoRoll ) {
+		m_update = Update::Background;
+		update();
+	}
+
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
 		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getVisibleEditor()->update();
 		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
 	}
 }

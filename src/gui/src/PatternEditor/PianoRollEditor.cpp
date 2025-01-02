@@ -120,18 +120,27 @@ void PianoRollEditor::createBackground()
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
-	QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
-	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
-	QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+	QColor backgroundColor(
+		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
+	const QColor backgroundInactiveColor(
+		pPref->getTheme().m_color.m_windowColor );
+	QColor alternateRowColor(
+		pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
 	QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
 	QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
-	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+	// Row clicked by the user.
+	QColor selectedRowColor(
+		pPref->getTheme().m_color.m_patternEditor_selectedRowColor );
+	const QColor lineInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
 	if ( ! hasFocus() ) {
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
 		backgroundColor = backgroundColor.darker( PatternEditor::nOutOfFocusDim );
-		alternateRowColor = alternateRowColor.darker( PatternEditor::nOutOfFocusDim );
+		alternateRowColor =
+			alternateRowColor.darker( PatternEditor::nOutOfFocusDim );
 		octaveColor = octaveColor.darker( PatternEditor::nOutOfFocusDim );
+		selectedRowColor = selectedRowColor.darker( PatternEditor::nOutOfFocusDim );
 	}
 
 	// Resize pixmap if pixel ratio has changed
@@ -184,6 +193,9 @@ void PianoRollEditor::createBackground()
 								backgroundInactiveColor );
 				}
 			}
+
+			p.fillRect( 0, Note::pitchToLine( m_nCursorRow ) * m_nGridHeight,
+						m_nActiveWidth - 0, nLineHeight, selectedRowColor );
 		}
 	};
 
