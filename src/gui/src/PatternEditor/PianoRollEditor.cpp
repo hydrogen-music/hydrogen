@@ -124,9 +124,6 @@ void PianoRollEditor::createBackground()
 	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
 	QColor alternateRowColor = pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
 	QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
-	// The line corresponding to the default pitch set to new notes
-	// will be highlighted.
-	const QColor baseNoteColor = octaveColor.lighter( 119 );
 	QColor lineColor( pPref->getTheme().m_color.m_patternEditor_lineColor );
 	const QColor lineInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 
@@ -185,17 +182,6 @@ void PianoRollEditor::createBackground()
 								nStartY + nnKey * m_nGridHeight,
 								m_nEditorWidth - m_nActiveWidth, nLineHeight,
 								backgroundInactiveColor );
-				}
-			}
-
-			// Highlight base note pitch
-			if ( nnOctave == 3 ) {
-				p.fillRect( 0, nStartY + 11 * m_nGridHeight,
-							m_nActiveWidth - 0, nLineHeight, baseNoteColor );
-				if ( bRenderInactive && m_nActiveWidth + 1 < m_nEditorWidth ) {
-					p.fillRect( m_nActiveWidth, nStartY + 11 * m_nGridHeight,
-								m_nEditorWidth - m_nActiveWidth,
-								nLineHeight, backgroundInactiveColor );
 				}
 			}
 		}
