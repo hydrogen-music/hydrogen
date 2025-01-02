@@ -117,6 +117,8 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 void PianoRollEditor::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
+
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
 	QColor backgroundColor = pPref->getTheme().m_color.m_patternEditor_backgroundColor;
 	const QColor backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
@@ -134,9 +136,6 @@ void PianoRollEditor::createBackground()
 		alternateRowColor = alternateRowColor.darker( PatternEditor::nOutOfFocusDim );
 		octaveColor = octaveColor.darker( PatternEditor::nOutOfFocusDim );
 	}
-
-	unsigned start_x = 0;
-	unsigned end_x = m_nActiveWidth;
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -157,42 +156,67 @@ void PianoRollEditor::createBackground()
 
 	QPainter p( m_pBackgroundPixmap );
 
-	for ( uint ooctave = 0; ooctave < OCTAVE_NUMBER; ++ooctave ) {
-		unsigned start_y = ooctave * KEYS_PER_OCTAVE * m_nGridHeight;
+	auto fillGridLines = [&]( int nLineHeight, bool bRenderInactive ) {
 
-		for ( int ii = 0; ii < KEYS_PER_OCTAVE; ++ii ) {
-			if ( ii == 0 || ii == 2 || ii == 4 || ii == 6 || ii == 7 ||
-				 ii == 9 || ii == 11 ) {
-				if ( ooctave % 2 != 0 ) {
-					p.fillRect( start_x, start_y + ii * m_nGridHeight,
-								end_x - start_x, start_y + ( ii + 1 ) * m_nGridHeight,
-								octaveColor );
-				} else {
-					p.fillRect( start_x, start_y + ii * m_nGridHeight,
-								end_x - start_x, start_y + ( ii + 1 ) * m_nGridHeight,
-								backgroundColor );
+		for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
+			const int nStartY = nnOctave * KEYS_PER_OCTAVE * m_nGridHeight;
+
+			for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
+				if ( nnKey == 0 || nnKey == 2 || nnKey == 4 || nnKey == 6 ||
+					 nnKey == 7 || nnKey == 9 || nnKey == 11 ) {
+					if ( nnOctave % 2 != 0 ) {
+						p.fillRect( 0, nStartY + nnKey * m_nGridHeight,
+									m_nActiveWidth - 0, nLineHeight,
+									octaveColor );
+					}
+					else {
+						p.fillRect( 0, nStartY + nnKey * m_nGridHeight,
+									m_nActiveWidth - 0, nLineHeight,
+									backgroundColor );
+					}
 				}
-			} else {
-				p.fillRect( start_x, start_y + ii * m_nGridHeight,
-							end_x - start_x, start_y + ( ii + 1 ) * m_nGridHeight,
-							alternateRowColor );
+				else {
+					p.fillRect( 0, nStartY + nnKey * m_nGridHeight,
+								m_nActiveWidth - 0, nLineHeight,
+								alternateRowColor );
+				}
+				if ( bRenderInactive && m_nActiveWidth + 1 < m_nEditorWidth ) {
+					p.fillRect( m_nActiveWidth,
+								nStartY + nnKey * m_nGridHeight,
+								m_nEditorWidth - m_nActiveWidth, nLineHeight,
+								backgroundInactiveColor );
+				}
+			}
+
+			// Highlight base note pitch
+			if ( nnOctave == 3 ) {
+				p.fillRect( 0, nStartY + 11 * m_nGridHeight,
+							m_nActiveWidth - 0, nLineHeight, baseNoteColor );
+				if ( bRenderInactive && m_nActiveWidth + 1 < m_nEditorWidth ) {
+					p.fillRect( m_nActiveWidth, nStartY + 11 * m_nGridHeight,
+								m_nEditorWidth - m_nActiveWidth,
+								nLineHeight, backgroundInactiveColor );
+				}
 			}
 		}
+	};
 
-		// Highlight base note pitch
-		if ( ooctave == 3 ) {
-			p.fillRect( start_x, start_y + 11 * m_nGridHeight,
-						end_x - start_x, start_y + KEYS_PER_OCTAVE * m_nGridHeight,
-						baseNoteColor );
-		}
+	// basic background
+	fillGridLines( m_nGridHeight, false );
+
+	// grid markers
+	if ( pPattern != nullptr ) {
+		drawGridLines( p, Qt::SolidLine );
+
+		// Erase part of the grid lines to create grid markers
+		fillGridLines( m_nGridHeight * 0.6, true );
 	}
-
 
 	// horiz lines
 	p.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 	for ( uint row = 0; row < ( KEYS_PER_OCTAVE * OCTAVE_NUMBER ); ++row ) {
 		unsigned y = row * m_nGridHeight;
-		p.drawLine( start_x, y, end_x, y );
+		p.drawLine( 0, y, m_nActiveWidth, y );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
@@ -203,8 +227,8 @@ void PianoRollEditor::createBackground()
 		}
 	}
 
+	// draw text
 	if ( m_pPatternEditorPanel->getPattern() != nullptr ) {
-		//draw text
 		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		p.setFont( font );
@@ -245,7 +269,6 @@ void PianoRollEditor::createBackground()
 			}
 		}
 
-		drawGridLines( p, Qt::DashLine );
 	}
 
 	drawBorders( p );
