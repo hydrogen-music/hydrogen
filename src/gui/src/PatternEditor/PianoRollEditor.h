@@ -31,10 +31,65 @@
 #include <QtWidgets>
 
 #include <memory>
+#include <vector>
 
 namespace H2Core {
 	class Note;
 }
+
+class PitchLabel : public QLabel, public H2Core::Object<PitchLabel>
+{
+	H2_OBJECT(PitchLabel)
+	Q_OBJECT
+
+	public:
+		PitchLabel( QWidget* pParent, const QString& sText, int nHeight );
+		~PitchLabel();
+
+		void setBackgroundColor( const QColor& backgroundColor );
+		void updateStyleSheet();
+		void updateFont( const QString& sFontFamily,
+						 const H2Core::FontTheme::FontSize& fontSize );
+		void setSelected( bool bSelected );
+
+	private:
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
+		virtual void paintEvent( QPaintEvent* ev) override;
+
+		QWidget* m_pParent;
+		QString m_sText;
+		QColor m_backgroundColor;
+		QColor m_textColor;
+		QColor m_cursorColor;
+		/** Whether the mouse pointer entered the boundary of the widget.*/
+		bool m_bEntered;
+		bool m_bSelected;
+};
+
+/** \ingroup docGUI*/
+class PitchSidebar : public QWidget,
+					 public H2Core::Object<PitchSidebar> {
+	H2_OBJECT(PitchSidebar)
+	Q_OBJECT
+
+	public:
+		PitchSidebar( QWidget *parent, int nHeight, int nGridHeight );
+		~PitchSidebar();
+
+		void updateRows();
+
+		void setRowColor( int nRowIndex, const QColor& backgroundColor );
+		void updateStyleSheet();
+		void updateFont( const QString& sFontFamily,
+						 const H2Core::FontTheme::FontSize& fontSize );
+		void selectedRow( int nRowIndex );
+
+	private:
+		std::vector<PitchLabel*> m_rows;
+		int m_nHeight;
+		int m_nGridHeight;
+};
 
 /** \ingroup docGUI*/
 class PianoRollEditor: public PatternEditor,
@@ -63,6 +118,8 @@ class PianoRollEditor: public PatternEditor,
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
 		
 		QScrollArea *m_pScrollView;
+
+		PitchSidebar* m_pPitchSidebar;
 };
 
 #endif

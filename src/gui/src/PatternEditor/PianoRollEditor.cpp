@@ -24,6 +24,8 @@
 
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
+#include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Note.h>
@@ -37,11 +39,267 @@
 
 using namespace H2Core;
 
+PitchLabel::PitchLabel( QWidget* pParent, const QString& sText, int nHeight )
+	: QLabel( pParent )
+	, m_pParent( pParent )
+	, m_bEntered( false )
+	, m_sText( sText )
+	, m_bSelected( false )
+{
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
+	setFixedWidth( PatternEditor::nMargin );
+	setFixedHeight( nHeight );
+	setText( sText );
+	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
+	setIndent( 3 );
+
+	updateFont( theme.m_font.m_sLevel3FontFamily,
+				theme.m_font.m_fontSize );
+	setBackgroundColor( theme.m_color.m_patternEditor_backgroundColor );
+	updateStyleSheet();
+}
+
+PitchLabel::~PitchLabel() {
+}
+
+void PitchLabel::setBackgroundColor( const QColor& backgroundColor ) {
+	if ( m_backgroundColor == backgroundColor ) {
+		return;
+	}
+
+	m_backgroundColor = backgroundColor.darker( 120 );
+	update();
+}
+
+
+void PitchLabel::updateStyleSheet() {
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
+
+	QColor textColor;
+	if ( m_bSelected ) {
+		textColor = colorTheme.m_patternEditor_selectedRowTextColor;
+	} else {
+		textColor = colorTheme.m_patternEditor_textColor;
+	}
+	const auto cursorColor = colorTheme.m_cursorColor;
+
+	if ( m_textColor == textColor && m_cursorColor == cursorColor ) {
+		return;
+	}
+
+	if ( m_textColor != textColor ) {
+		m_textColor = textColor;
+	}
+	if ( m_cursorColor != cursorColor ) {
+		m_cursorColor = cursorColor;
+	}
+
+	setStyleSheet( QString( "\
+QLabel {\
+   color: %1;\
+   font-weight: bold;\
+ }" ).arg( textColor.name() ) );
+}
+
+void PitchLabel::enterEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void PitchLabel::leaveEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
+}
+
+void PitchLabel::paintEvent( QPaintEvent* ev )
+{
+	auto p = QPainter( this );
+
+	Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
+							  m_backgroundColor, m_bEntered );
+
+	if ( m_bSelected && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		QPen pen;
+
+		pen.setColor( m_cursorColor );
+
+		pen.setWidth( 2 );
+		p.setPen( pen );
+		p.setRenderHint( QPainter::Antialiasing );
+		p.drawRoundedRect( QRect( 1, 1, width() - 2, height() - 2 ), 2, 2 );
+	}
+
+	QLabel::paintEvent( ev );
+}
+
+void PitchLabel::updateFont( const QString& sFontFamily,
+							   const H2Core::FontTheme::FontSize& fontSize ) {
+	int nShrinkage = 7;
+	switch ( fontSize ) {
+	case H2Core::FontTheme::FontSize::Small:
+		nShrinkage = 10;
+		break;
+	case H2Core::FontTheme::FontSize::Medium:
+		nShrinkage = 7;
+		break;
+	case H2Core::FontTheme::FontSize::Large:
+		nShrinkage = 2;
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size [%1]" )
+				  .arg( static_cast<int>(fontSize) ) );
+		return;
+	}
+
+	const int nPixelSize = height() - 1;
+
+	QFont font( sFontFamily );
+
+	font.setPixelSize( nPixelSize );
+	font.setBold( true );
+
+	setFont( font );
+}
+
+void PitchLabel::setSelected( bool bSelected )
+{
+	if ( bSelected == m_bSelected ) {
+		return;
+	}
+
+	m_bSelected = bSelected;
+
+	updateStyleSheet();
+	update();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
+	: QWidget( parent )
+	, m_nHeight( nHeight )
+	, m_nGridHeight( nGridHeight )
+ {
+	resize( PatternEditor::nMargin, nHeight );
+
+	m_rows.resize( OCTAVE_NUMBER * KEYS_PER_OCTAVE );
+
+	auto pSidebarVBox = new QVBoxLayout( this );
+	pSidebarVBox->setSpacing( 0 );
+	pSidebarVBox->setMargin( 0 );
+	pSidebarVBox->setMargin( Qt::AlignLeft );
+	setLayout( pSidebarVBox );
+
+	auto createLabel = [&]( int nY, const QString& sText, int* pIndex ) {
+		if ( pIndex == nullptr ||
+			 *pIndex < 0 || *pIndex >= m_rows.size() ) {
+			ERRORLOG( "invalid index" );
+			return;
+		}
+
+		auto pLabel = new PitchLabel( this, sText, nGridHeight );
+		pSidebarVBox->addWidget( pLabel );
+		m_rows[ *pIndex ] = pLabel;
+		*pIndex = *pIndex + 1;
+	};
+
+	int nOffset = 0;
+	int nnIndex = 0;
+	for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
+		if ( nnOctave > 3 ){
+			createLabel( m_nGridHeight  + nOffset, "B" , &nnIndex );
+			createLabel( 10 + m_nGridHeight  + nOffset, "A#" , &nnIndex );
+			createLabel( 20 + m_nGridHeight  + nOffset, "A" , &nnIndex );
+			createLabel( 30 + m_nGridHeight  + nOffset, "G#" , &nnIndex );
+			createLabel( 40 + m_nGridHeight  + nOffset, "G" , &nnIndex );
+			createLabel( 50 + m_nGridHeight  + nOffset, "F#" , &nnIndex );
+			createLabel( 60 + m_nGridHeight  + nOffset, "F" , &nnIndex );
+			createLabel( 70 + m_nGridHeight  + nOffset, "E" , &nnIndex );
+			createLabel( 80 + m_nGridHeight  + nOffset, "D#" , &nnIndex );
+			createLabel( 90 + m_nGridHeight  + nOffset, "D" , &nnIndex );
+			createLabel( 100 + m_nGridHeight  + nOffset, "C#" , &nnIndex );
+			createLabel( 110 + m_nGridHeight  + nOffset, "C" , &nnIndex );
+		}
+		else {
+			createLabel( m_nGridHeight  + nOffset, "b" , &nnIndex );
+			createLabel( 10 + m_nGridHeight  + nOffset, "a#" , &nnIndex );
+			createLabel( 20 + m_nGridHeight  + nOffset, "a" , &nnIndex );
+			createLabel( 30 + m_nGridHeight  + nOffset, "g#" , &nnIndex );
+			createLabel( 40 + m_nGridHeight  + nOffset, "g" , &nnIndex );
+			createLabel( 50 + m_nGridHeight  + nOffset, "f#" , &nnIndex );
+			createLabel( 60 + m_nGridHeight  + nOffset, "f" , &nnIndex );
+			createLabel( 70 + m_nGridHeight  + nOffset, "e" , &nnIndex );
+			createLabel( 80 + m_nGridHeight  + nOffset, "d#" , &nnIndex );
+			createLabel( 90 + m_nGridHeight  + nOffset, "d" , &nnIndex );
+			createLabel( 100 + m_nGridHeight  + nOffset, "c#" , &nnIndex );
+			createLabel( 110 + m_nGridHeight  + nOffset, "c" , &nnIndex );
+		}
+		nOffset += KEYS_PER_OCTAVE * m_nGridHeight;
+	}
+
+	updateRows();
+}
+
+PitchSidebar::~PitchSidebar() {
+}
+
+void PitchSidebar::updateRows(){
+	for ( auto& rrow : m_rows ) {
+		rrow->update();
+	}
+}
+
+void PitchSidebar::setRowColor( int nRowIndex, const QColor& backgroundColor ) {
+	if ( nRowIndex < 0 || nRowIndex >= m_rows.size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2]" )
+				  .arg( nRowIndex ).arg( m_rows.size() - 1 ) );
+		return;
+	}
+
+	m_rows[ nRowIndex ]->setBackgroundColor( backgroundColor );
+}
+
+void PitchSidebar::updateStyleSheet() {
+	for ( auto& rrow : m_rows ) {
+		rrow->updateStyleSheet();
+	}
+}
+
+void PitchSidebar::updateFont( const QString& sFontFamily,
+							   const H2Core::FontTheme::FontSize& fontSize ) {
+	for ( auto& rrow : m_rows ) {
+		rrow->updateFont( sFontFamily, fontSize );
+	}
+}
+
+void PitchSidebar::selectedRow( int nRowIndex ) {
+	if ( nRowIndex < 0 || nRowIndex >= m_rows.size() ) {
+		ERRORLOG( QString( "Provided index [%1] out of bound [0,%2]" )
+				  .arg( nRowIndex ).arg( m_rows.size() - 1 ) );
+		return;
+	}
+
+	for ( int nnIndex = 0; nnIndex < m_rows.size(); ++nnIndex ) {
+		m_rows[ nnIndex ]->setSelected( nnIndex == nRowIndex );
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 	: PatternEditor( pParent )
 	, m_pScrollView( pScrollView )
 {
 	m_editor = PatternEditor::Editor::PianoRoll;
+
+	const auto pPref = H2Core::Preferences::get_instance();
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	setFont( font );
 	
 	m_nGridHeight = 10;
 
@@ -52,13 +310,12 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	m_bSelectNewNotes = false;
+
+	// Create the sidebar of labels
+	m_pPitchSidebar = new PitchSidebar( this, m_nEditorHeight, m_nGridHeight );
 }
 
-
-
-PianoRollEditor::~PianoRollEditor()
-{
-	INFOLOG( "DESTROY" );
+PianoRollEditor::~PianoRollEditor() {
 }
 
 QPoint PianoRollEditor::noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const {
@@ -162,52 +419,62 @@ void PianoRollEditor::createBackground()
 
 	QPainter p( m_pBackgroundPixmap );
 
-	auto fillGridLines = [&]( int nLineHeight, bool bRenderInactive ) {
+	auto fillGridLines = [&]( int nLineHeight, bool bRenderInactive,
+							  bool bUpdateSidebar ) {
 
+		const int nSelectedRow = Note::pitchToLine( m_nCursorPitch );
+		if ( bUpdateSidebar ) {
+			m_pPitchSidebar->selectedRow( nSelectedRow );
+		}
+
+		int nnRow = 0;
+		QColor color;
 		for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
 			const int nStartY = nnOctave * KEYS_PER_OCTAVE * m_nGridHeight;
 
 			for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
-				if ( nnKey == 0 || nnKey == 2 || nnKey == 4 || nnKey == 6 ||
-					 nnKey == 7 || nnKey == 9 || nnKey == 11 ) {
+				if ( nnRow == nSelectedRow ) {
+					color = selectedRowColor;
+				}
+				else if ( nnKey == 0 || nnKey == 2 || nnKey == 4 || nnKey == 6 ||
+						  nnKey == 7 || nnKey == 9 || nnKey == 11 ) {
 					if ( nnOctave % 2 != 0 ) {
-						p.fillRect( 0, nStartY + nnKey * m_nGridHeight,
-									m_nActiveWidth - 0, nLineHeight,
-									octaveColor );
-					}
-					else {
-						p.fillRect( 0, nStartY + nnKey * m_nGridHeight,
-									m_nActiveWidth - 0, nLineHeight,
-									backgroundColor );
+						color = octaveColor;
+					} else {
+						color = backgroundColor;
 					}
 				}
 				else {
-					p.fillRect( 0, nStartY + nnKey * m_nGridHeight,
-								m_nActiveWidth - 0, nLineHeight,
-								alternateRowColor );
+					color = alternateRowColor;
 				}
+
+				p.fillRect( 0, nStartY + nnKey * m_nGridHeight,
+							m_nActiveWidth - 0, nLineHeight, color );
+
+				if ( bUpdateSidebar ) {
+					m_pPitchSidebar->setRowColor( nnRow, color );
+				}
+
 				if ( bRenderInactive && m_nActiveWidth + 1 < m_nEditorWidth ) {
 					p.fillRect( m_nActiveWidth,
 								nStartY + nnKey * m_nGridHeight,
 								m_nEditorWidth - m_nActiveWidth, nLineHeight,
 								backgroundInactiveColor );
 				}
+				++nnRow;
 			}
-
-			p.fillRect( 0, Note::pitchToLine( m_nCursorPitch ) * m_nGridHeight,
-						m_nActiveWidth - 0, nLineHeight, selectedRowColor );
 		}
 	};
 
 	// basic background
-	fillGridLines( m_nGridHeight, false );
+	fillGridLines( m_nGridHeight, false, true );
 
 	// grid markers
 	if ( pPattern != nullptr ) {
 		drawGridLines( p, Qt::SolidLine );
 
 		// Erase part of the grid lines to create grid markers
-		fillGridLines( m_nGridHeight * 0.6, true );
+		fillGridLines( m_nGridHeight * 0.6, true, false );
 	}
 
 	// horiz lines
@@ -225,51 +492,12 @@ void PianoRollEditor::createBackground()
 		}
 	}
 
-	// draw text
-	if ( m_pPatternEditorPanel->getPattern() != nullptr ) {
-		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-		p.setFont( font );
-		p.setPen( pPref->getTheme().m_color.m_patternEditor_textColor );
-
-		int offset = 0;
-		int insertx = 3;
-		for ( int oct = 0; oct < (int)OCTAVE_NUMBER; oct++ ){
-			if( oct > 3 ){
-				p.drawText( insertx, m_nGridHeight  + offset, "B" );
-				p.drawText( insertx, 10 + m_nGridHeight  + offset, "A#" );
-				p.drawText( insertx, 20 + m_nGridHeight  + offset, "A" );
-				p.drawText( insertx, 30 + m_nGridHeight  + offset, "G#" );
-				p.drawText( insertx, 40 + m_nGridHeight  + offset, "G" );
-				p.drawText( insertx, 50 + m_nGridHeight  + offset, "F#" );
-				p.drawText( insertx, 60 + m_nGridHeight  + offset, "F" );
-				p.drawText( insertx, 70 + m_nGridHeight  + offset, "E" );
-				p.drawText( insertx, 80 + m_nGridHeight  + offset, "D#" );
-				p.drawText( insertx, 90 + m_nGridHeight  + offset, "D" );
-				p.drawText( insertx, 100 + m_nGridHeight  + offset, "C#" );
-				p.drawText( insertx, 110 + m_nGridHeight  + offset, "C" );
-				offset += KEYS_PER_OCTAVE * m_nGridHeight;
-			}
-			else {
-				p.drawText( insertx, m_nGridHeight  + offset, "b" );
-				p.drawText( insertx, 10 + m_nGridHeight  + offset, "a#" );
-				p.drawText( insertx, 20 + m_nGridHeight  + offset, "a" );
-				p.drawText( insertx, 30 + m_nGridHeight  + offset, "g#" );
-				p.drawText( insertx, 40 + m_nGridHeight  + offset, "g" );
-				p.drawText( insertx, 50 + m_nGridHeight  + offset, "f#" );
-				p.drawText( insertx, 60 + m_nGridHeight  + offset, "f" );
-				p.drawText( insertx, 70 + m_nGridHeight  + offset, "e" );
-				p.drawText( insertx, 80 + m_nGridHeight  + offset, "d#" );
-				p.drawText( insertx, 90 + m_nGridHeight  + offset, "d" );
-				p.drawText( insertx, 100 + m_nGridHeight  + offset, "c#" );
-				p.drawText( insertx, 110 + m_nGridHeight  + offset, "c" );
-				offset += KEYS_PER_OCTAVE * m_nGridHeight;
-			}
-		}
-
-	}
-
+	// borders
 	drawBorders( p );
+
+	p.setPen( lineColor );
+	p.drawLine( PatternEditor::nMargin, 0,
+				PatternEditor::nMargin, m_nEditorHeight );
 }
 
 void PianoRollEditor::selectAll()
