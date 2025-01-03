@@ -163,11 +163,6 @@ public:
 		unsetCursor();
 	}
 
-	//! Do two notes match exactly, from the pattern editor's point of view?
-	//! They match if all user-editable properties are the same.
-	bool notesMatchExactly( std::shared_ptr<H2Core::Note> pNoteA,
-							std::shared_ptr<H2Core::Note> pNoteB ) const;
-
 	//! Deselect some notes, and "overwrite" some others.
 	void deselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
 									const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );

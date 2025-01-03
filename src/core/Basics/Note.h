@@ -684,8 +684,20 @@ inline bool Note::match( int nInstrumentId, const QString& sType, Key key,
 
 inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
-	return match( pNote->m_nInstrumentId, pNote->m_sType, pNote->m_key,
-				  pNote->m_octave );
+	if ( pNote == nullptr ) {
+		return false;
+	}
+	return m_nInstrumentId == pNote->m_nInstrumentId &&
+		m_sType == pNote->m_sType &&
+		m_key == pNote->m_key &&
+		m_nPosition == pNote->m_nPosition &&
+		m_fVelocity == pNote->m_fVelocity &&
+		m_fPan == pNote->m_fPan &&
+		m_nLength == pNote->m_nLength &&
+		m_fLeadLag == pNote->m_fLeadLag &&
+		m_fProbability == pNote->m_fProbability &&
+		m_key == pNote->m_key &&
+		m_octave == pNote->m_octave;
 }
 
 inline bool Note::compareStart( const std::shared_ptr<Note> pNote1,

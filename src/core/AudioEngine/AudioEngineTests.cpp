@@ -1195,14 +1195,22 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 
 	// Ensure the ordering of the notes is identical
 	for ( int ii = 0; ii < notesInSong.size(); ++ii ) {
-		if ( ! notesInSong[ ii ]->match( notesInSongQueue[ ii ] ) ) {
+		if ( ! notesInSong[ ii ]->match(
+				 notesInSongQueue[ ii ]->getInstrumentId(),
+				 notesInSongQueue[ ii ]->getType(),
+				 notesInSongQueue[ ii ]->getKey(),
+				 notesInSongQueue[ ii ]->getOctave() ) ) {
 		AudioEngineTests::throwException(
 			QString( "Mismatch at note [%1] between song [%2] and song queue [%3]" )
 			.arg( ii )
 			.arg( notesInSong[ ii ]->toQString() )
 			.arg( notesInSongQueue[ ii ]->toQString() ) );
 		}
-		if ( ! notesInSong[ ii ]->match( notesInSamplerQueue[ ii ] ) ) {
+		if ( ! notesInSong[ ii ]->match(
+				 notesInSamplerQueue[ ii ]->getInstrumentId(),
+				 notesInSamplerQueue[ ii ]->getType(),
+				 notesInSamplerQueue[ ii ]->getKey(),
+				 notesInSamplerQueue[ ii ]->getOctave() ) ) {
 		AudioEngineTests::throwException(
 			QString( "Mismatch at note [%1] between song [%2] and sampler queue [%3]" )
 			.arg( ii )
@@ -1541,9 +1549,7 @@ void AudioEngineTests::mergeQueues( std::vector<std::shared_ptr<Note>>* noteList
 		// Check whether the notes is already present.
 		for ( const auto& presentNote : *noteList ) {
 			if ( newNote != nullptr && presentNote != nullptr ) {
-				if ( newNote->match( presentNote ) &&
-					 newNote->getPosition() == presentNote->getPosition() &&
-					 newNote->getVelocity() == presentNote->getVelocity() ) {
+				if ( newNote->match( presentNote ) ) {
 					bNoteFound = true;
 				}
 			}
@@ -1637,7 +1643,11 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 	for ( const auto& ppNewNote : newNotes ) {
 		for ( const auto& ppOldNote : oldNotes ) {
 			if ( ppOldNote != nullptr && ppNewNote != nullptr &&
-				 ppNewNote->match( ppOldNote ) &&
+				 ppOldNote->getInstrumentId() ==
+				 ppNewNote->getInstrumentId() &&
+				 ppOldNote->getType() == ppNewNote->getType() &&
+				 ppOldNote->getKey() == ppNewNote->getKey() &&
+				 ppOldNote->getOctave() == ppNewNote->getOctave() &&
 				 ppNewNote->getHumanizeDelay() ==
 				 ppOldNote->getHumanizeDelay() &&
 				 ppOldNote->getInstrument() != nullptr &&

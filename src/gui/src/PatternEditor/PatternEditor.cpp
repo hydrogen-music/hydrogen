@@ -1131,20 +1131,6 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	}
 }
 
-bool PatternEditor::notesMatchExactly( std::shared_ptr<Note> pNoteA,
-									   std::shared_ptr<Note> pNoteB ) const {
-	if ( pNoteA == nullptr || pNoteB == nullptr ) {
-		return false;
-	}
-
-	return ( pNoteA->match( pNoteB )
-			 && pNoteA->getPosition() == pNoteB->getPosition()
-			 && pNoteA->getVelocity() == pNoteB->getVelocity()
-			 && pNoteA->getPan() == pNoteB->getPan()
-			 && pNoteA->getLeadLag() == pNoteB->getLeadLag()
-			 && pNoteA->getProbability() == pNoteB->getProbability() );
-}
-
 int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
 	const int nResolution = m_pPatternEditorPanel->getResolution();
 
@@ -1242,12 +1228,16 @@ void PatternEditor::deselectAndOverwriteNotes( const std::vector< std::shared_pt
 		int nPosition = pSelectedNote->getPosition();
 		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
 			auto pNote = it->second;
-			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
+			if ( !bFoundExact && pSelectedNote->match( pNote ) ) {
 				// Found an exact match. We keep this.
 				bFoundExact = true;
 				++it;
 			}
-			else if ( pSelectedNote->match( pNote ) && pNote->getPosition() == pSelectedNote->getPosition() ) {
+			else if ( pNote->getInstrumentId() == pSelectedNote->getInstrumentId() &&
+					  pNote->getType() == pSelectedNote->getType() &&
+					  pNote->getKey() == pSelectedNote->getKey() &&
+					  pNote->getOctave() == pSelectedNote->getOctave() &&
+					  pNote->getPosition() == pSelectedNote->getPosition() ) {
 				// Something else occupying the same position (which may or may not be an exact duplicate)
 				it = pNotes->erase( it );
 			}
@@ -1281,7 +1271,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< std::share
 	// Select the previously-selected notes
 	for ( auto pNote : selected ) {
 		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, pNote->getPosition() ) {
-			if ( notesMatchExactly( it->second, pNote ) ) {
+			if ( pNote->match( it->second ) ) {
 				m_selection.addToSelection( it->second );
 				break;
 			}
@@ -2789,9 +2779,10 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 			  it != pNotes->end() && it->first <= nPosition; ++it ) {
 			auto ppNote = it->second;
 			if ( ppNote != nullptr &&
-				 ppNote->match( nInstrumentId, sType,
-									static_cast<Note::Key>(nOldKey),
-									static_cast<Note::Octave>(nOldOctave) ) ) {
+				 ppNote->getInstrumentId() == nInstrumentId &&
+				 ppNote->getType() == sType &&
+				 ppNote->getKey() == static_cast<Note::Key>(nOldKey) &&
+				 ppNote->getOctave() == static_cast<Note::Octave>(nOldOctave) ) {
 				notesFound.push_back( ppNote );
 			}
 		}

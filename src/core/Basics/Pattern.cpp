@@ -285,7 +285,9 @@ std::shared_ptr<Note> Pattern::findNote( int nPosition, int nInstrumentId,
 		auto ppNote = it->second;
 		assert( ppNote );
 		if ( ppNote != nullptr &&
-			 ppNote->match( nInstrumentId, sInstrumentType, key, octave ) ) {
+			 ppNote->getInstrumentId() == nInstrumentId &&
+			 ppNote->getType() == sInstrumentType &&
+			 ppNote->getKey() == key && ppNote->getOctave() == octave ) {
 			return ppNote;
 		}
 	}
