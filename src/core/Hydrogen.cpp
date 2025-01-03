@@ -500,9 +500,9 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 									 Note::pitchToFrequency( nNote ));
 			}
 
-			for ( unsigned nNote = 0; nNote < nPatternSize; nNote++ ) {
+			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
 				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nNote, pCurrentPattern ) {
+				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nnNote, pCurrentPattern ) {
 					auto pNote = it->second;
 					if ( pNote != nullptr &&
 						 pNote->getPosition() == m_nLastRecordedMIDINoteTick &&
