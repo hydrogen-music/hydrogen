@@ -87,9 +87,13 @@ class PitchSidebar : public QWidget,
 		void rowPressed( QMouseEvent *ev, PitchLabel* pLabel );
 
 	private:
+		QMenu *m_pFunctionPopup;
+		QMenu *m_pFunctionPopupSub;
+
 		std::vector<PitchLabel*> m_rows;
 		int m_nHeight;
 		int m_nGridHeight;
+		int m_nRowClicked;
 };
 
 /** \ingroup docGUI*/
