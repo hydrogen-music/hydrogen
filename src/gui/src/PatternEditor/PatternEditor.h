@@ -187,7 +187,7 @@ public:
 		virtual QRect getKeyboardCursorRect() override;
 
 		/** Area taken available for an addition sidebar or button */
-		static constexpr int nMarginSidebar = 20;
+		static constexpr int nMarginSidebar = 32;
 		/** #nMarginSidebar + some additional space to contain a margin and half
 		 * of the notes on first grid point. */
 		static constexpr int nMargin = nMarginSidebar + 10;

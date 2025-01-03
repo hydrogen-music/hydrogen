@@ -52,7 +52,7 @@ PitchLabel::PitchLabel( QWidget* pParent, const QString& sText, int nHeight )
 	setFixedHeight( nHeight );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-	setIndent( 3 );
+	setIndent( 2 );
 
 	updateFont();
 	setBackgroundColor( theme.m_color.m_patternEditor_backgroundColor );
@@ -332,7 +332,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView)
 				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( font );
 	
-	m_nGridHeight = 10;
+	m_nGridHeight = 13;
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
