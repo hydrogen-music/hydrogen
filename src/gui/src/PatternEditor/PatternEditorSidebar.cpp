@@ -71,8 +71,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	setIndent( nIndent );
 	setMargin( 1 );
 
-	updateFont( theme.m_font.m_sLevel3FontFamily,
-				theme.m_font.m_fontSize );
+	updateFont();
 	setColor( theme.m_color.m_patternEditor_backgroundColor,
 			  theme.m_color.m_patternEditor_textColor,
 			  theme.m_color.m_cursorColor );
@@ -90,8 +89,7 @@ void SidebarLabel::setText( const QString& sNewText ) {
 
 	m_bShowPlusSign = false;
 
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
-	updateFont( theme.m_font.m_sLevel3FontFamily, theme.m_font.m_fontSize );
+	updateFont();
 	update();
 }
 
@@ -215,8 +213,12 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 	QLabel::paintEvent( ev );
 }
 
-void SidebarLabel::updateFont( const QString& sFontFamily,
-							   const H2Core::FontTheme::FontSize& fontSize ) {
+void SidebarLabel::updateFont() {
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
+	const QString sFontFamily = theme.m_font.m_sLevel2FontFamily;
+	const auto fontSize = theme.m_font.m_fontSize;
+
 	int nShrinkage = 7;
 	switch ( fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
@@ -768,12 +770,8 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 void SidebarRow::updateFont() {
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	m_pInstrumentNameLbl->updateFont(
-		pPref->getTheme().m_font.m_sLevel2FontFamily,
-		pPref->getTheme().m_font.m_fontSize );
-	m_pTypeLbl->updateFont(
-		pPref->getTheme().m_font.m_sLevel2FontFamily,
-		pPref->getTheme().m_font.m_fontSize );
+	m_pInstrumentNameLbl->updateFont();
+	m_pTypeLbl->updateFont();
 }
 
 void SidebarRow::update() {

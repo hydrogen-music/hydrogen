@@ -63,8 +63,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		bool isShowingPlusSign() const;
 		void setColor( const QColor& backgroundColor, const QColor& textColor,
 					   const QColor& cursorColor );
-		void updateFont( const QString& sFontFamily,
-						 const H2Core::FontTheme::FontSize& fontSize );
+		void updateFont();
 		void setShowCursor( bool bShowCursor );
 
 	signals:

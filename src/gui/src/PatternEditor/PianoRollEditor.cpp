@@ -163,7 +163,8 @@ void PitchLabel::updateFont() {
 	const int nMargin = 1;
 	int nPixelSize = std::round( ( height() - nMargin ) * fScalingFactor );
 
-	QFont font( theme.m_font.m_sLevel3FontFamily );
+	QFont font( theme.m_font.m_sLevel2FontFamily );
+	font.setBold( true );
 	font.setPixelSize( nPixelSize );
 
 	// Check whether the width of the text fits the available frame width of the
