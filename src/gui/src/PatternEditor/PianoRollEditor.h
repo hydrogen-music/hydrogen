@@ -55,6 +55,7 @@ class PitchLabel : public QLabel, public H2Core::Object<PitchLabel>
 	private:
 		virtual void enterEvent( QEvent *ev ) override;
 		virtual void leaveEvent( QEvent *ev ) override;
+		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void paintEvent( QPaintEvent* ev) override;
 
 		QWidget* m_pParent;
@@ -84,6 +85,8 @@ class PitchSidebar : public QWidget,
 		void updateFont( const QString& sFontFamily,
 						 const H2Core::FontTheme::FontSize& fontSize );
 		void selectedRow( int nRowIndex );
+
+		void rowPressed( QMouseEvent *ev, PitchLabel* pLabel );
 
 	private:
 		std::vector<PitchLabel*> m_rows;

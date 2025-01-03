@@ -261,6 +261,8 @@ public:
 
 		QPoint movingGridOffset() const;
 
+		void setCursorPitch( int nCursorPitch );
+
 protected:
 
 	//! The Selection object.
@@ -410,7 +412,6 @@ protected:
 
 	int m_nTick;
 
-		void setCursorPitch( int nCursorPitch );
 		// Row the keyboard cursor is residing in.
 		//
 		// Only in #PianoRollEditor this variable is relevant and updated. In

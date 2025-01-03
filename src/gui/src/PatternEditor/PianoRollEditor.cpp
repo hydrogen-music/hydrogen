@@ -116,6 +116,13 @@ void PitchLabel::leaveEvent( QEvent* ev ) {
 	update();
 }
 
+void PitchLabel::mousePressEvent( QMouseEvent* pEvent ) {
+	auto pSidebarRow = dynamic_cast<PitchSidebar*>( m_pParent );
+	if ( pSidebarRow != nullptr ) {
+		pSidebarRow->rowPressed( pEvent, this );
+	}
+}
+
 void PitchLabel::paintEvent( QPaintEvent* ev )
 {
 	auto p = QPainter( this );
@@ -287,6 +294,37 @@ void PitchSidebar::selectedRow( int nRowIndex ) {
 	for ( int nnIndex = 0; nnIndex < m_rows.size(); ++nnIndex ) {
 		m_rows[ nnIndex ]->setSelected( nnIndex == nRowIndex );
 	}
+}
+
+void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
+	if ( pLabel == nullptr ) {
+		return;
+	}
+	int nRowClicked = -1;
+	for ( int nnRow = 0; nnRow < m_rows.size(); ++nnRow ) {
+		if ( m_rows[ nnRow ] == pLabel ) {
+			nRowClicked = nnRow;
+			break;
+		}
+	}
+
+	if ( nRowClicked == -1 ) {
+		ERRORLOG( "row not found" );
+		return;
+	}
+
+	auto pPatternEditorPanel =
+		HydrogenApp::get_instance()->getPatternEditorPanel();
+	pPatternEditorPanel->getVisibleEditor()->setCursorPitch(
+		Note::lineToPitch( nRowClicked ) );
+
+	// if (ev->button() == Qt::RightButton ) {
+	// 	m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
+	// }
+
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	pPatternEditorPanel->getVisibleEditor()->handleKeyboardCursor( false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
