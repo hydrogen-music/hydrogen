@@ -170,7 +170,7 @@ void PitchLabel::updateFont() {
 	// Check whether the width of the text fits the available frame width of the
 	// button.
 	while ( QFontMetrics( font ).size( Qt::TextSingleLine, text() ).width() >
-			width() && nPixelSize > 1 ) {
+			( width() - indent() ) && nPixelSize > 1 ) {
 		nPixelSize--;
 		font.setPixelSize( nPixelSize );
 	}
