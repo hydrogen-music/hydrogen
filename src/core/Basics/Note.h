@@ -34,11 +34,13 @@
 
 #define KEY_MIN                 0
 #define KEY_MAX                 11
+#define KEY_INVALID             666
 #define OCTAVE_MIN              -3 /* C-1 */
 #define OCTAVE_MAX              3 /* C5 */
 #define OCTAVE_OFFSET           3
 #define OCTAVE_DEFAULT          0
 #define OCTAVE_NUMBER           7
+#define OCTAVE_INVALID          666
 #define KEYS_PER_OCTAVE         12
 
 #define VELOCITY_MIN            0.0f
@@ -52,6 +54,7 @@
 #define LEAD_LAG_MAX            1.0f
 #define LENGTH_ENTIRE_SAMPLE    -1
 #define PITCH_DEFAULT           0.0f /* C2 */
+#define PITCH_INVALID           666
 #define PROBABILITY_MIN         0.0f
 #define PROBABILITY_DEFAULT     1.0f
 #define PROBABILITY_MAX         1.0f

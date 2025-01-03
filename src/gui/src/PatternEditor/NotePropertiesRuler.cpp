@@ -464,8 +464,8 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 		}
 		else if ( m_mode == PatternEditor::Mode::KeyOctave &&
 				  ! ppNote->getNoteOff() ) {
-			int nKey = 666;
-			int nOctave = 666;
+			int nKey = KEY_INVALID;
+			int nOctave = OCTAVE_INVALID;
 			if ( ev->y() > 0 &&
 				 ev->y() <= NotePropertiesRuler::nOctaveHeight ) {
 				nOctave = std::round(
@@ -484,9 +484,9 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 				nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
 			}
 
-			if ( ( nKey != 666 &&
+			if ( ( nKey != KEY_INVALID &&
 				   nKey != static_cast<int>(ppNote->getKey()) ) ||
-				 ( nOctave != 666 &&
+				 ( nOctave != KEY_INVALID &&
 				   nOctave != static_cast<int>(ppNote->getOctave()) ) ) {
 				ppNote->setKeyOctave(
 					static_cast<Note::Key>(nKey),
