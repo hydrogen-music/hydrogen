@@ -211,7 +211,8 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 
 		nY = m_nGridHeight *
-			Note::pitchToLine( pNote->getPitchFromKeyOctave() ) + 1;
+			Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
+			(m_nGridHeight / 2) - 3;
 	}
 	const int nX = PatternEditor::nMargin + pNote->getPosition() * m_fGridWidth;
 
