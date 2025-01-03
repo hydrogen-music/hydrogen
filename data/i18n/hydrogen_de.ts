@@ -1265,6 +1265,26 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Delete one or many notes. Shown in the undo history.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Fill notes ...</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Mit Noten füllen ...</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Noten selektieren</translation>
+    </message>
+    <message>
+        <source>Edit all patterns</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Alle Pattern editieren</translation>
+    </message>
+    <message>
+        <source>Copy notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Noten kopieren</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -5611,22 +5631,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Some samples for this instrument failed to load.</source>
         <translation>Einige Sample für dieses Instrument konnten nicht geladen werden.</translation>
-    </message>
-    <message>
-        <source>Fill notes ...</source>
-        <translation>Mit Noten füllen ...</translation>
-    </message>
-    <message>
-        <source>Select notes</source>
-        <translation>Noten selektieren</translation>
-    </message>
-    <message>
-        <source>Edit all patterns</source>
-        <translation>Alle Pattern editieren</translation>
-    </message>
-    <message>
-        <source>Copy notes</source>
-        <translation>Noten kopieren</translation>
     </message>
     <message>
         <source>Instrument</source>

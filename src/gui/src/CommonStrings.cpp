@@ -601,6 +601,9 @@ CommonStrings::CommonStrings(){
 	 * the undo history as well as in the right-click context menu within the
 	 * sidebar of the pattern editor.*/
 	m_sActionPasteAllNotes = tr( "Paste notes" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionFillNotes = tr( "Fill notes ..." );
 	/*: Representing filling all notes of a row in the pattern editor in the
 	 * undo history as well as in the right-click context menu within the
 	 * sidebar of the pattern editor. */
@@ -635,6 +638,15 @@ CommonStrings::CommonStrings(){
 	m_sActionFillEverySixteenthNote = tr( "Fill 1/16 notes" );
 	/*: Delete one or many notes. Shown in the undo history. */
 	m_sActionDeleteNotes = tr( "Delete notes" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionSelectNotes = tr( "Select notes" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionEditAllPatterns = tr( "Edit all patterns" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionCopyNotes = tr( "Copy notes" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the

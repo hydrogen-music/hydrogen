@@ -1262,6 +1262,26 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Delete one or many notes. Shown in the undo history.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Fill notes ...</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Riempi note ...</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Seleziona note</translation>
+    </message>
+    <message>
+        <source>Edit all patterns</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Modifica tutti i pattern</translation>
+    </message>
+    <message>
+        <source>Copy notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Copia note</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -5558,22 +5578,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Some samples for this instrument failed to load.</source>
         <translation>Non è possibile caricare alcuni campioni per questo strumento.</translation>
-    </message>
-    <message>
-        <source>Fill notes ...</source>
-        <translation>Riempi note ...</translation>
-    </message>
-    <message>
-        <source>Select notes</source>
-        <translation>Seleziona note</translation>
-    </message>
-    <message>
-        <source>Edit all patterns</source>
-        <translation>Modifica tutti i pattern</translation>
-    </message>
-    <message>
-        <source>Copy notes</source>
-        <translation>Copia note</translation>
     </message>
     <message>
         <source>Instrument</source>

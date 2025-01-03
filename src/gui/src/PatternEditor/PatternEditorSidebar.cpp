@@ -416,7 +416,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			m_pPatternEditorPanel->getRowIndexDB( m_row ),
 			m_pPatternEditorPanel->getPatternNumber() ); } );
 
-	m_pFunctionPopupSub = new QMenu( tr( "Fill notes ..." ), m_pFunctionPopup );
+	m_pFunctionPopupSub = new QMenu(
+		pCommonStrings->getActionFillNotes(), m_pFunctionPopup );
 	auto fillAllAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillAllNotes() );
 	connect( fillAllAction, &QAction::triggered, this, [=](){
@@ -467,18 +468,20 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			PatternEditorPanel::FillNotes::EverySixteenth ); } );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
-	auto selectNotesAction = m_pFunctionPopup->addAction( tr( "Select notes" ) );
+	auto selectNotesAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionSelectNotes() );
 	connect( selectNotesAction, &QAction::triggered, this, [=](){
 		m_pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
 
-	m_pFunctionPopup->addSection( tr( "Edit all patterns" ) );
+	m_pFunctionPopup->addSection( pCommonStrings->getActionEditAllPatterns() );
 	auto cutNotesAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionCutAllNotes() );
 	connect( cutNotesAction, &QAction::triggered, this, [=](){
 		m_pPatternEditorPanel->cutNotesFromRowOfAllPatterns(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );
-	auto copyNotesAction = m_pFunctionPopup->addAction( tr( "Copy notes") );
+	auto copyNotesAction = m_pFunctionPopup->addAction(
+		pCommonStrings->getActionCopyNotes() );
 	connect( copyNotesAction, &QAction::triggered, this, [=](){
 		m_pPatternEditorPanel->copyNotesFromRowOfAllPatterns(
 			m_pPatternEditorPanel->getRowIndexDB( m_row ) ); } );

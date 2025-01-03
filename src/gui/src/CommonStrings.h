@@ -257,6 +257,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 			return m_sActionCutAllNotes; }
 		const QString& getActionPasteAllNotes() const {
 			return m_sActionPasteAllNotes; }
+		const QString& getActionFillNotes() const {
+			return m_sActionFillNotes; }
 		const QString& getActionFillAllNotes() const {
 			return m_sActionFillAllNotes; }
 		const QString& getActionFillEverySecondNote() const {
@@ -275,6 +277,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 			return m_sActionFillEverySixteenthNote; }
 		const QString& getActionDeleteNotes() const {
 			return m_sActionDeleteNotes; }
+		const QString& getActionSelectNotes() const {
+			return m_sActionSelectNotes; }
+		const QString& getActionEditAllPatterns() const {
+			return m_sActionEditAllPatterns; }
+		const QString& getActionCopyNotes() const {
+			return m_sActionCopyNotes; }
 
 		const QString& getNotePropertyVelocity() const {
 			return m_sNotePropertyVelocity; }
@@ -497,6 +505,7 @@ private:
 		QString m_sActionClearAllNotes;
 		QString m_sActionCutAllNotes;
 		QString m_sActionPasteAllNotes;
+		QString m_sActionFillNotes;
 		QString m_sActionFillAllNotes;
 		QString m_sActionFillEverySecondNote;
 		QString m_sActionFillEveryThirdNote;
@@ -506,6 +515,9 @@ private:
 		QString m_sActionFillEveryTwelfthNote;
 		QString m_sActionFillEverySixteenthNote;
 		QString m_sActionDeleteNotes;
+		QString m_sActionSelectNotes;
+		QString m_sActionEditAllPatterns;
+		QString m_sActionCopyNotes;
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;

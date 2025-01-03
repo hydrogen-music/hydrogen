@@ -1262,6 +1262,26 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Delete one or many notes. Shown in the undo history.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Fill notes ...</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Заповнити ноти...</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit all patterns</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -5606,22 +5626,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Some samples for this instrument failed to load.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fill notes ...</source>
-        <translation>Заповнити ноти...</translation>
-    </message>
-    <message>
-        <source>Select notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit all patterns</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
