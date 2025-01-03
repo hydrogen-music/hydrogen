@@ -719,10 +719,10 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		m_selection.clearSelection();
 		int pressedline = Note::pitchToLine( m_nCursorPitch );
 		int nPitch = Note::lineToPitch( pressedline );
-		addOrRemoveNotes( m_pPatternEditorPanel->getCursorColumn(),
-						 m_pPatternEditorPanel->getSelectedRowDB(),
-						 Note::pitchToKey( nPitch ),
-						 Note::pitchToOctave( nPitch ) );
+		m_pPatternEditorPanel->addOrRemoveNotes(
+			m_pPatternEditorPanel->getCursorColumn(),
+			m_pPatternEditorPanel->getSelectedRowDB(),
+			Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ) );
 	}
 	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete: delete selection or note at keyboard cursor
@@ -732,11 +732,11 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 			// Delete a note under the keyboard cursor
 			int pressedline = Note::pitchToLine( m_nCursorPitch );
 			int nPitch = Note::lineToPitch( pressedline );
-			addOrRemoveNotes( m_pPatternEditorPanel->getCursorColumn(),
-							 m_pPatternEditorPanel->getSelectedRowDB(),
-							 Note::pitchToKey( nPitch ),
-							 Note::pitchToOctave( nPitch ),
-							 /*bDoAdd=*/false, /*bDoDelete=*/true );
+			m_pPatternEditorPanel->addOrRemoveNotes(
+				m_pPatternEditorPanel->getCursorColumn(),
+				m_pPatternEditorPanel->getSelectedRowDB(),
+				Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ),
+				/*bDoAdd=*/false, /*bDoDelete=*/true );
 		}
 	}
 	else {

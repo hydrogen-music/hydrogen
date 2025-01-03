@@ -27,6 +27,7 @@
 #include <vector>
 #include <memory>
 
+#include <core/Basics/Note.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -218,6 +219,21 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		////////////////////////////////////////////////////////////////////////
 		////////// Top-level actions for the overall pattern editor. ///////////
+
+		/** If @a nKey or @a nOctave are set to invalid values, all notes on the
+		 * position specified using @a nPosition and @a nRow will be
+		 * deleted or a move with default key and octave will be added. */
+		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
+							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
+							   bool bDoDelete = true, bool bIsNoteOff = false );
+
+		/**
+		 * Determines whether to pattern editor should show further
+		 * patterns (determined by getPattersToShow()) or just the
+		 * currently selected one.
+		 */
+		static bool isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern );
+
 
 		/** Remove all notes from the provided @a nRow of the
 		  * #DrumPatternEditor.

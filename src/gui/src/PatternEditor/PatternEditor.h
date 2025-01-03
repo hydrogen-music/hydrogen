@@ -199,12 +199,6 @@ public:
 		/** Whether new notes added to the editor should be automatically
 		 * selected. */
 		bool getSelectNewNotes() const;
-		/** If @a nKey or @a nOctave are set to invalid values, all notes on the
-		 * position specified using @a nPosition and @a nRow will be
-		 * deleted or a move with default key and octave will be added. */
-		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
-							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
-							   bool bDoDelete = true, bool bIsNoteOff = false );
 
 	static void addOrRemoveNoteAction( int nPosition,
 									   int nInstrumentId,
@@ -240,16 +234,9 @@ public:
 										  int nOldKey,
 										  int nNewOctave,
 										  int nOldOctave );
-	static void triggerStatusMessage(
-		const std::vector< std::shared_ptr<H2Core::Note> > notes,
-		const Mode& mode );
-
-	/**
-	 * Determines whether to pattern editor should show further
-	 * patterns (determined by getPattersToShow()) or just the
-	 * currently selected one.
-	 */
-	static bool isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern );
+		void triggerStatusMessage(
+			const std::vector< std::shared_ptr<H2Core::Note> > notes,
+			const Mode& mode );
 
 		QPoint getCursorPosition();
 		void handleKeyboardCursor( bool bVisible );

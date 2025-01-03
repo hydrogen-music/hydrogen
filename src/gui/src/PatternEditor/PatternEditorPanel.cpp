@@ -1247,7 +1247,7 @@ void PatternEditorPanel::patternModifiedEvent() {
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
-	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
+	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
@@ -1261,7 +1261,7 @@ void PatternEditorPanel::stackedModeActivationEvent( int ) {
 }
 
 void PatternEditorPanel::songSizeChangedEvent() {
-	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
+	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
@@ -1930,7 +1930,128 @@ void PatternEditorPanel::printDB() const {
 	DEBUGLOG( sMsg );
 }
 
-void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern ) {
+void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
+										   int nOctave, bool bDoAdd,
+										   bool bDoDelete, bool bIsNoteOff ) {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	if ( m_pPattern == nullptr ) {
+		// No pattern selected.
+		return;
+	}
+
+	if ( nPosition >= m_pPattern->getLength() ) {
+		// Note would be beyond the active region of the current pattern.
+		return;
+	}
+
+	auto row = getRowDB( nRow );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
+		return;
+	}
+
+	std::vector< std::shared_ptr<Note> > oldNotes;
+	int nNewKey = nKey;
+	int nNewOctave = nOctave;
+	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
+		oldNotes =
+			m_pPattern->findNotes( nPosition, row.nInstrumentID, row.sType );
+		nNewKey = KEY_MIN;
+		nNewOctave = OCTAVE_DEFAULT;
+	}
+	else {
+		auto pOldNote = m_pPattern->findNote(
+			nPosition, row.nInstrumentID, row.sType,
+			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
+		if ( pOldNote != nullptr ) {
+			oldNotes.push_back( pOldNote );
+		}
+	}
+
+	if ( oldNotes.size() > 0 && ! bDoDelete ) {
+		// Found an old note, but we don't want to delete, so just return.
+		return;
+	} else if ( oldNotes.size() == 0 && ! bDoAdd ) {
+		// No note there, but we don't want to add a new one, so return.
+		return;
+	}
+
+	if ( oldNotes.size() == 0 ) {
+		// Play back added notes.
+		if ( Preferences::get_instance()->getHearNewNotes() &&
+			  row.nInstrumentID != EMPTY_INSTR_ID ) {
+			auto pSelectedInstrument = getSelectedInstrument();
+			if ( pSelectedInstrument != nullptr &&
+				 pSelectedInstrument->hasSamples() ) {
+				auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
+				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
+									  static_cast<Note::Octave>(nOctave) );
+				pNote2->setNoteOff( bIsNoteOff );
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+					noteOn( pNote2 );
+			}
+		}
+
+		pHydrogenApp->pushUndoCommand(
+			new SE_addOrRemoveNoteAction(
+				nPosition,
+				row.nInstrumentID,
+				row.sType,
+				m_nPatternNumber,
+				LENGTH_ENTIRE_SAMPLE,
+				VELOCITY_DEFAULT,
+				PAN_DEFAULT,
+				LEAD_LAG_DEFAULT,
+				nNewKey,
+				nNewOctave,
+				PROBABILITY_DEFAULT,
+				/* bIsDelete */ false,
+				/* bIsMidi */ false,
+				bIsNoteOff ) );
+	}
+	else {
+		// delete notes
+		pHydrogenApp->beginUndoMacro(
+			pCommonStrings->getActionDeleteNotes() );
+		for ( const auto& ppNote : oldNotes ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemoveNoteAction(
+					nPosition,
+					row.nInstrumentID,
+					row.sType,
+					m_nPatternNumber,
+					ppNote->getLength(),
+					ppNote->getVelocity(),
+					ppNote->getPan(),
+					ppNote->getLeadLag(),
+					ppNote->getKey(),
+					ppNote->getOctave(),
+					ppNote->getProbability(),
+					/* bIsDelete */ true,
+					/* bIsMidi */ false,
+					ppNote->getNoteOff() ) );
+		}
+		pHydrogenApp->endUndoMacro();
+	}
+}
+
+
+bool PatternEditorPanel::isUsingAdditionalPatterns(
+	const std::shared_ptr<H2Core::Pattern> pPattern ) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+
+	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
+		 ( pPattern != nullptr && pPattern->isVirtual() ) ||
+		 ( pHydrogen->getMode() == Song::Mode::Song &&
+		   pHydrogen->isPatternEditorLocked() ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch ) {
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
@@ -2074,10 +2195,9 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
-			m_pDrumPatternEditor->addOrRemoveNotes(
-				nnPosition, nRow, nKey, nOctave,
-				true /* bDoAdd */, false /* bDoDelete */,
-				false /* bIsNoteOff */ );
+			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
+							  true /* bDoAdd */, false /* bDoDelete */,
+							  false /* bIsNoteOff */ );
 		}
 		pHydrogenApp->endUndoMacro();
 	}

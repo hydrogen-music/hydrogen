@@ -182,7 +182,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	if ( bUpdate || bValueChanged ) {
 
 		if ( bValueChanged ) {
-			PatternEditor::triggerStatusMessage( notesStatusMessage, m_mode );
+			triggerStatusMessage( notesStatusMessage, m_mode );
 			addUndoAction( sUndoContext );
 		}
 
@@ -288,7 +288,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	}
 
 	if ( bValueChanged ) {
-		PatternEditor::triggerStatusMessage( notesStatusMessage, m_mode );
+		triggerStatusMessage( notesStatusMessage, m_mode );
 		m_update = Update::Pattern;
 		update();
 	}
@@ -329,7 +329,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	}
 
 	if ( m_notesHoveredOnDragStart.size() != 0 ) {
-		PatternEditor::triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
+		triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
 	}
 
 	m_oldNotes.clear();
@@ -502,7 +502,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 		}
 		
 		if ( bValueChanged ) {
-			PatternEditor::triggerStatusMessage( notesSinceLastAction, m_mode );
+			triggerStatusMessage( notesSinceLastAction, m_mode );
 		}
 	}
 
@@ -757,7 +757,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			notes, fDelta, ! ( ev->modifiers() & Qt::ControlModifier ) );
 
 		if ( bValueChanged ) {
-			PatternEditor::triggerStatusMessage( notesStatusMessage, m_mode );
+			triggerStatusMessage( notesStatusMessage, m_mode );
 
 			addUndoAction( sUndoContext );
 

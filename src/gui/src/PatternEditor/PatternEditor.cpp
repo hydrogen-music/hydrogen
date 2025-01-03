@@ -878,7 +878,7 @@ void PatternEditor::randomizeVelocity() {
 		}
 	}
 
-	PatternEditor::triggerStatusMessage( notes, Mode::Velocity );
+	triggerStatusMessage( notes, Mode::Velocity );
 }
 
 void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
@@ -992,7 +992,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 				nKey = Note::pitchToKey( m_nCursorPitch );
 			}
 
-			addOrRemoveNotes(
+			m_pPatternEditorPanel->addOrRemoveNotes(
 				nTargetColumn, nRow, nKey, nOctave,
 				/* bDoAdd */true, /* bDoDelete */false,
 				/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
@@ -2301,19 +2301,6 @@ void PatternEditor::drawBorders( QPainter& p ) {
 void PatternEditor::createBackground() {
 }
 
-bool PatternEditor::isUsingAdditionalPatterns( const std::shared_ptr<H2Core::Pattern> pPattern ) {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	
-	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
-		 ( pPattern != nullptr && pPattern->isVirtual() ) ||
-		 ( pHydrogen->getMode() == Song::Mode::Song &&
-		   pHydrogen->isPatternEditorLocked() ) ) {
-		return true;
-	}
-	
-	return false;
-}
-
 bool PatternEditor::updateWidth() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -2335,7 +2322,7 @@ bool PatternEditor::updateWidth() {
 						  pPattern->longestVirtualPatternLength() + 1,
 						  static_cast<float>(nActiveWidth) );
 		}
-		else if ( isUsingAdditionalPatterns( pPattern ) ) {
+		else if ( PatternEditorPanel::isUsingAdditionalPatterns( pPattern ) ) {
 			nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
 						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
@@ -2519,7 +2506,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	m_nDragY = ev->y();
 
 	if ( m_mode != Mode::KeyOctave ) {
-		PatternEditor::triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
+		triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
 	}
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
@@ -2632,10 +2619,10 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	}
 
 	if ( notesStatusLength.size() > 0 ) {
-		PatternEditor::triggerStatusMessage( notesStatusLength, Mode::Length );
+		triggerStatusMessage( notesStatusLength, Mode::Length );
 	}
 	if ( notesStatusProp.size() > 0 ) {
-		PatternEditor::triggerStatusMessage( notesStatusProp, m_mode );
+		triggerStatusMessage( notesStatusProp, m_mode );
 	}
 
 	if ( bMacroStarted ) {
@@ -2741,112 +2728,6 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 		pHydrogen->setIsModified( true );
 		std::vector< std::shared_ptr<Note > > notes{ pNote };
 		pPatternEditorPanel->updateEditors( true );
-	}
-}
-
-void PatternEditor::addOrRemoveNotes( int nPosition, int nRow, int nKey,
-									 int nOctave, bool bDoAdd, bool bDoDelete,
-									 bool bIsNoteOff ) {
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		// No pattern selected.
-		return;
-	}
-
-	if ( nPosition >= pPattern->getLength() ) {
-		// Note would be beyond the active region of the current pattern.
-		return;
-	}
-
-	auto row = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
-		return;
-	}
-
-	std::vector< std::shared_ptr<Note> > oldNotes;
-	int nNewKey = nKey;
-	int nNewOctave = nOctave;
-	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
-		oldNotes = pPattern->findNotes( nPosition, row.nInstrumentID, row.sType );
-		nNewKey = KEY_MIN;
-		nNewOctave = OCTAVE_DEFAULT;
-	}
-	else {
-		auto pOldNote = pPattern->findNote(
-			nPosition, row.nInstrumentID, row.sType,
-			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
-		if ( pOldNote != nullptr ) {
-			oldNotes.push_back( pOldNote );
-		}
-	}
-
-	if ( oldNotes.size() > 0 && ! bDoDelete ) {
-		// Found an old note, but we don't want to delete, so just return.
-		return;
-	} else if ( oldNotes.size() == 0 && ! bDoAdd ) {
-		// No note there, but we don't want to add a new one, so return.
-		return;
-	}
-
-	if ( oldNotes.size() == 0 ) {
-		// Play back added notes.
-		if ( Preferences::get_instance()->getHearNewNotes() &&
-			  row.nInstrumentID != EMPTY_INSTR_ID ) {
-			auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-			if ( pSelectedInstrument != nullptr &&
-				 pSelectedInstrument->hasSamples() ) {
-				auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
-				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
-									  static_cast<Note::Octave>(nOctave) );
-				pNote2->setNoteOff( bIsNoteOff );
-				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-					noteOn( pNote2 );
-			}
-		}
-
-		pHydrogenApp->pushUndoCommand(
-			new SE_addOrRemoveNoteAction(
-				nPosition,
-				row.nInstrumentID,
-				row.sType,
-				m_pPatternEditorPanel->getPatternNumber(),
-				LENGTH_ENTIRE_SAMPLE,
-				VELOCITY_DEFAULT,
-				PAN_DEFAULT,
-				LEAD_LAG_DEFAULT,
-				nNewKey,
-				nNewOctave,
-				PROBABILITY_DEFAULT,
-				/* bIsDelete */ false,
-				/* bIsMidi */ false,
-				bIsNoteOff ) );
-	}
-	else {
-		// delete notes
-		pHydrogenApp->beginUndoMacro(
-			pCommonStrings->getActionDeleteNotes() );
-		for ( const auto& ppNote : oldNotes ) {
-			pHydrogenApp->pushUndoCommand(
-				new SE_addOrRemoveNoteAction(
-					nPosition,
-					row.nInstrumentID,
-					row.sType,
-					m_pPatternEditorPanel->getPatternNumber(),
-					ppNote->getLength(),
-					ppNote->getVelocity(),
-					ppNote->getPan(),
-					ppNote->getLeadLag(),
-					ppNote->getKey(),
-					ppNote->getOctave(),
-					ppNote->getProbability(),
-					/* bIsDelete */ true,
-					/* bIsMidi */ false,
-					ppNote->getNoteOff() ) );
-		}
-		pHydrogenApp->endUndoMacro();
 	}
 }
 
