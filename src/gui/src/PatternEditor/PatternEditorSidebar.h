@@ -107,12 +107,14 @@ class SidebarRow : public PixmapWidget
 		void set( const DrumPatternRow& row );
 		void setSelected(bool isSelected);
 
+		void updateFont();
+		void updateStyleSheet();
+
 		static constexpr int m_nButtonWidth = 18;
 		static constexpr int m_nTypeLblWidth = 100;
 		virtual void mousePressEvent(QMouseEvent *ev) override;
 
 public slots:
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void update();
 
 	private slots:
@@ -139,8 +141,6 @@ public slots:
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void paintEvent( QPaintEvent* ev ) override;
-
-	void updateStyleSheet();
 
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );
@@ -170,6 +170,8 @@ class PatternEditorSidebar : public QWidget,
 		virtual void instrumentMuteSoloChangedEvent( int ) override;
 
 		void updateEditor();
+		void updateFont();
+		void updateStyleSheet();
 
 		static constexpr int m_nWidth = 301;
 		static constexpr int m_nMargin = 10;

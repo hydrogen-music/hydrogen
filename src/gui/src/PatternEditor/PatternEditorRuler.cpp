@@ -492,11 +492,3 @@ void PatternEditorRuler::stateChangedEvent( const H2Core::AudioEngine::State& )
 {
 	updatePosition();
 }
-
-void PatternEditorRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
-{
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-		update( 0, 0, width(), height() );
-	}
-}

@@ -437,8 +437,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &PatternEditorPanel::onPreferencesChanged );
-
-	updateStyleSheet();
 }
 
 PatternEditorPanel::~PatternEditorPanel()
@@ -462,8 +460,6 @@ void PatternEditorPanel::createEditors() {
 	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
 	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
 
 	// Drum Pattern
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
@@ -490,8 +486,6 @@ void PatternEditorPanel::createEditors() {
 			 this, SLOT( on_patternEditorVScroll(int) ) );
 	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pDrumPatternEditor, &DrumPatternEditor::onPreferencesChanged );
 
 	// PianoRollEditor
 	m_pPianoRollScrollView = new WidgetScrollArea( nullptr );
@@ -509,8 +503,6 @@ void PatternEditorPanel::createEditors() {
 			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pPianoRollEditor, &PianoRollEditor::onPreferencesChanged );
 
 	m_pPianoRollScrollView->hide();
 	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
@@ -612,8 +604,6 @@ void PatternEditorPanel::createEditors() {
 			 this, SLOT( on_patternEditorHScroll( int ) ) );
 	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 m_pNoteKeyOctaveEditor, SLOT( scrolled( int ) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pNoteKeyOctaveEditor, &NotePropertiesRuler::onPreferencesChanged );
 
 	m_pNoteKeyOctaveEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -698,6 +688,8 @@ void PatternEditorPanel::createEditors() {
 	this->setLayout( pVBox );
 
 	pVBox->addWidget( pMainPanel );
+
+	updateStyleSheet();
 }
 
 void PatternEditorPanel::updateDrumkitLabel( )
@@ -1581,11 +1573,14 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		m_pDrumkitLabel->setFont( boldFont );
 		m_pTabBar->setFont( boldFont );
 
-		updateStyleSheet();
+		m_pPianoRollEditor->updateFont();
+		m_pSidebar->updateFont();
+		updateEditors();
 	}
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		updateStyleSheet();
+		updateEditors();
 	}
 }
 
@@ -1639,6 +1634,8 @@ QWidget#pRec {\
 
 	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
 	m_pRec->setStyleSheet( sWidgetTopStyleSheet );
+	m_pPianoRollEditor->updateStyleSheet();
+	m_pSidebar->updateStyleSheet();
 }
 
 void PatternEditorPanel::switchPatternSizeFocus() {

@@ -24,8 +24,8 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
-#include "../Selection.h"
 #include "PatternEditor.h"
+#include "../Selection.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -48,8 +48,7 @@ class PitchLabel : public QLabel, public H2Core::Object<PitchLabel>
 
 		void setBackgroundColor( const QColor& backgroundColor );
 		void updateStyleSheet();
-		void updateFont( const QString& sFontFamily,
-						 const H2Core::FontTheme::FontSize& fontSize );
+		void updateFont();
 		void setSelected( bool bSelected );
 
 	private:
@@ -82,8 +81,7 @@ class PitchSidebar : public QWidget,
 
 		void setRowColor( int nRowIndex, const QColor& backgroundColor );
 		void updateStyleSheet();
-		void updateFont( const QString& sFontFamily,
-						 const H2Core::FontTheme::FontSize& fontSize );
+		void updateFont();
 		void selectedRow( int nRowIndex );
 
 		void rowPressed( QMouseEvent *ev, PitchLabel* pLabel );
@@ -110,6 +108,9 @@ class PianoRollEditor: public PatternEditor,
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
 		QPoint noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const;
+
+		void updateFont();
+		void updateStyleSheet();
 
 	public slots:
 		virtual void selectAll() override;

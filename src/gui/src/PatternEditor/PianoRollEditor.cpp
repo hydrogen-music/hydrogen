@@ -54,8 +54,7 @@ PitchLabel::PitchLabel( QWidget* pParent, const QString& sText, int nHeight )
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	setIndent( 3 );
 
-	updateFont( theme.m_font.m_sLevel3FontFamily,
-				theme.m_font.m_fontSize );
+	updateFont();
 	setBackgroundColor( theme.m_color.m_patternEditor_backgroundColor );
 	updateStyleSheet();
 }
@@ -144,32 +143,40 @@ void PitchLabel::paintEvent( QPaintEvent* ev )
 	QLabel::paintEvent( ev );
 }
 
-void PitchLabel::updateFont( const QString& sFontFamily,
-							   const H2Core::FontTheme::FontSize& fontSize ) {
-	int nShrinkage = 7;
-	switch ( fontSize ) {
-	case H2Core::FontTheme::FontSize::Small:
-		nShrinkage = 10;
+void PitchLabel::updateFont() {
+
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
+	float fScalingFactor = 1.0;
+    switch ( theme.m_font.m_fontSize ) {
+    case H2Core::FontTheme::FontSize::Small:
+		fScalingFactor = 0.8;
 		break;
-	case H2Core::FontTheme::FontSize::Medium:
-		nShrinkage = 7;
+    case H2Core::FontTheme::FontSize::Medium:
+		fScalingFactor = 1.0;
 		break;
-	case H2Core::FontTheme::FontSize::Large:
-		nShrinkage = 2;
+    case H2Core::FontTheme::FontSize::Large:
+		fScalingFactor = 1.0;
 		break;
-	default:
-		ERRORLOG( QString( "Unknown font size [%1]" )
-				  .arg( static_cast<int>(fontSize) ) );
-		return;
 	}
 
-	const int nPixelSize = height() - 1;
+	const int nMargin = 1;
+	int nPixelSize = std::round( ( height() - nMargin ) * fScalingFactor );
 
-	QFont font( sFontFamily );
-
+	QFont font( theme.m_font.m_sLevel3FontFamily );
 	font.setPixelSize( nPixelSize );
-	font.setBold( true );
 
+	// Check whether the width of the text fits the available frame width of the
+	// button.
+	while ( QFontMetrics( font ).size( Qt::TextSingleLine, text() ).width() >
+			width() && nPixelSize > 1 ) {
+		nPixelSize--;
+		font.setPixelSize( nPixelSize );
+	}
+
+	// This method must not be called more than once in this routine. Otherwise,
+	// a repaint of the widget is triggered, which calls `updateFont()` again
+	// and we are trapped in an infinite loop.
 	setFont( font );
 }
 
@@ -262,10 +269,9 @@ void PitchSidebar::updateStyleSheet() {
 	}
 }
 
-void PitchSidebar::updateFont( const QString& sFontFamily,
-							   const H2Core::FontTheme::FontSize& fontSize ) {
+void PitchSidebar::updateFont() {
 	for ( auto& rrow : m_rows ) {
-		rrow->updateFont( sFontFamily, fontSize );
+		rrow->updateFont();
 	}
 }
 
@@ -522,6 +528,14 @@ void PianoRollEditor::createBackground()
 	p.setPen( lineColor );
 	p.drawLine( PatternEditor::nMarginSidebar, 0,
 				PatternEditor::nMarginSidebar, m_nEditorHeight );
+}
+
+void PianoRollEditor::updateFont() {
+	m_pPitchSidebar->updateFont();
+}
+
+void PianoRollEditor::updateStyleSheet() {
+	m_pPitchSidebar->updateStyleSheet();
 }
 
 void PianoRollEditor::selectAll()

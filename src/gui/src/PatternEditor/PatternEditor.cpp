@@ -27,7 +27,6 @@
 #include "PianoRollEditor.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../EventListener.h"
 #include "../UndoActions.h"
 #include "../Skin.h"
 
@@ -80,10 +79,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking( true );
 
-	HydrogenApp::get_instance()->addEventListener( this );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 this, &PatternEditor::onPreferencesChanged );
-	
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) ) );
@@ -115,15 +110,6 @@ PatternEditor::~PatternEditor()
 	}
 	if ( m_pBackgroundPixmap != nullptr ) {
 		delete m_pBackgroundPixmap;
-	}
-}
-
-
-void PatternEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
-{
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-		m_pPatternEditorPanel->updateEditors();
 	}
 }
 

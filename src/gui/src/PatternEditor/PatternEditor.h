@@ -23,10 +23,10 @@
 #ifndef PATERN_EDITOR_H
 #define PATERN_EDITOR_H
 
-#include "../EventListener.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+#include <core/Basics/Note.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -56,7 +56,6 @@ class PatternEditorPanel;
 //!
 /** \ingroup docGUI*/
 class PatternEditor : public QWidget,
-					  public EventListener,
 					  public H2Core::Object<PatternEditor>,
 					  protected WidgetWithScalableFont<7, 9, 11>,
 					  public SelectionWidget<std::shared_ptr<H2Core::Note>>
@@ -279,7 +278,6 @@ public slots:
 	virtual void alignToGrid();
 	virtual void randomizeVelocity();
 	virtual void selectAllNotesInRow( int nRow );
-	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void scrolled( int nValue );
 
 protected:

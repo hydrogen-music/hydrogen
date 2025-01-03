@@ -79,7 +79,6 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 }
 
 SidebarLabel::~SidebarLabel() {
-	disconnect( HydrogenApp::get_instance(), nullptr, nullptr, nullptr );
 }
 
 void SidebarLabel::setText( const QString& sNewText ) {
@@ -515,9 +514,6 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	setLayout( pHBox );
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 this, &SidebarRow::onPreferencesChanged );
-
 	set( row );
 }
 
@@ -769,22 +765,15 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 	PixmapWidget::mousePressEvent(ev);
 }
 
-void SidebarRow::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
+void SidebarRow::updateFont() {
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	if ( changes & H2Core::Preferences::Changes::Font ) {
-		m_pInstrumentNameLbl->updateFont(
-			pPref->getTheme().m_font.m_sLevel2FontFamily,
-			pPref->getTheme().m_font.m_fontSize );
-		m_pTypeLbl->updateFont(
-			pPref->getTheme().m_font.m_sLevel2FontFamily,
-			pPref->getTheme().m_font.m_fontSize );
-	}
-
-	if ( changes & H2Core::Preferences::Changes::Colors ) {
-		updateStyleSheet();
-		update();
-	}
+	m_pInstrumentNameLbl->updateFont(
+		pPref->getTheme().m_font.m_sLevel2FontFamily,
+		pPref->getTheme().m_font.m_fontSize );
+	m_pTypeLbl->updateFont(
+		pPref->getTheme().m_font.m_sLevel2FontFamily,
+		pPref->getTheme().m_font.m_fontSize );
 }
 
 void SidebarRow::update() {
@@ -838,6 +827,18 @@ void PatternEditorSidebar::updateEditor() {
 	}
 
 	update();
+}
+
+void PatternEditorSidebar::updateFont() {
+	for ( auto& rrow : m_rows ) {
+		rrow->updateFont();
+	}
+}
+
+void PatternEditorSidebar::updateStyleSheet() {
+	for ( auto& rrow : m_rows ) {
+		rrow->updateStyleSheet();
+	}
 }
 
 ///

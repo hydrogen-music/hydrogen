@@ -84,7 +84,6 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		PatternEditorPanel* m_pPatternEditorPanel;
