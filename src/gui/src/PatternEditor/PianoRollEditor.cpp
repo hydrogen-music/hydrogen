@@ -68,7 +68,8 @@ void PitchLabel::setBackgroundColor( const QColor& backgroundColor ) {
 		return;
 	}
 
-	m_backgroundColor = backgroundColor.darker( 120 );
+	m_backgroundColor =
+		backgroundColor.darker( Skin::nListBackgroundColorScaling );
 	update();
 }
 

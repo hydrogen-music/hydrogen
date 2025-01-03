@@ -612,7 +612,8 @@ void SidebarRow::updateStyleSheet() {
 	QColor textColor, textPatternColor, backgroundPatternColor;
 	if ( m_bIsSelected ) {
 		backgroundPatternColor =
-			colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
+			colorTheme.m_patternEditor_selectedRowColor.darker(
+				Skin::nListBackgroundColorScaling );
 		m_backgroundColor =
 			colorTheme.m_patternEditor_instrumentSelectedRowColor;
 		textPatternColor = colorTheme.m_patternEditor_selectedRowTextColor;
@@ -620,7 +621,8 @@ void SidebarRow::updateStyleSheet() {
 	}
 	else if ( m_row.bAlternate ) {
 		backgroundPatternColor =
-			colorTheme.m_patternEditor_alternateRowColor.darker( 132 );
+			colorTheme.m_patternEditor_alternateRowColor.darker(
+				Skin::nListBackgroundColorScaling );
 		m_backgroundColor =
 			colorTheme.m_patternEditor_instrumentAlternateRowColor;
 		textPatternColor = colorTheme.m_patternEditor_textColor;
@@ -628,7 +630,8 @@ void SidebarRow::updateStyleSheet() {
 	}
 	else {
 		backgroundPatternColor =
-			colorTheme.m_patternEditor_backgroundColor.darker( 120 );
+			colorTheme.m_patternEditor_backgroundColor.darker(
+				Skin::nListBackgroundColorScaling );
 		m_backgroundColor =
 			colorTheme.m_patternEditor_instrumentRowColor;
 		textPatternColor = colorTheme.m_patternEditor_textColor;

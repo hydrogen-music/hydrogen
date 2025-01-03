@@ -68,6 +68,10 @@ public:
 	static void drawListBackground( QPainter* p, const QRect& rect,
 									QColor background,
 									bool bHovered );
+		/** Factor by which the background of a list element (sidebar) will be
+		 * darker than the corresponding line. */
+		static constexpr int nListBackgroundColorScaling = 120;
+
 	/** If a widget is marked inactive the value of its background
 		color are reduced by this factor.*/
 	static QColor makeWidgetColorInactive( const QColor& color );
