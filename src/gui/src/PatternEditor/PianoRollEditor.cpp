@@ -202,7 +202,7 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	pSidebarVBox->setMargin( Qt::AlignLeft );
 	setLayout( pSidebarVBox );
 
-	auto createLabel = [&]( int nY, const QString& sText, int* pIndex ) {
+	auto createLabel = [&]( const QString& sText, int* pIndex ) {
 		if ( pIndex == nullptr ||
 			 *pIndex < 0 || *pIndex >= m_rows.size() ) {
 			ERRORLOG( "invalid index" );
@@ -215,38 +215,23 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 		*pIndex = *pIndex + 1;
 	};
 
-	int nOffset = 0;
+	// C5. Highest pitch on top.
+	int nnActualOctave = 5;
 	int nnIndex = 0;
 	for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
-		if ( nnOctave > 3 ){
-			createLabel( m_nGridHeight  + nOffset, "B" , &nnIndex );
-			createLabel( 10 + m_nGridHeight  + nOffset, "A#" , &nnIndex );
-			createLabel( 20 + m_nGridHeight  + nOffset, "A" , &nnIndex );
-			createLabel( 30 + m_nGridHeight  + nOffset, "G#" , &nnIndex );
-			createLabel( 40 + m_nGridHeight  + nOffset, "G" , &nnIndex );
-			createLabel( 50 + m_nGridHeight  + nOffset, "F#" , &nnIndex );
-			createLabel( 60 + m_nGridHeight  + nOffset, "F" , &nnIndex );
-			createLabel( 70 + m_nGridHeight  + nOffset, "E" , &nnIndex );
-			createLabel( 80 + m_nGridHeight  + nOffset, "D#" , &nnIndex );
-			createLabel( 90 + m_nGridHeight  + nOffset, "D" , &nnIndex );
-			createLabel( 100 + m_nGridHeight  + nOffset, "C#" , &nnIndex );
-			createLabel( 110 + m_nGridHeight  + nOffset, "C" , &nnIndex );
-		}
-		else {
-			createLabel( m_nGridHeight  + nOffset, "b" , &nnIndex );
-			createLabel( 10 + m_nGridHeight  + nOffset, "a#" , &nnIndex );
-			createLabel( 20 + m_nGridHeight  + nOffset, "a" , &nnIndex );
-			createLabel( 30 + m_nGridHeight  + nOffset, "g#" , &nnIndex );
-			createLabel( 40 + m_nGridHeight  + nOffset, "g" , &nnIndex );
-			createLabel( 50 + m_nGridHeight  + nOffset, "f#" , &nnIndex );
-			createLabel( 60 + m_nGridHeight  + nOffset, "f" , &nnIndex );
-			createLabel( 70 + m_nGridHeight  + nOffset, "e" , &nnIndex );
-			createLabel( 80 + m_nGridHeight  + nOffset, "d#" , &nnIndex );
-			createLabel( 90 + m_nGridHeight  + nOffset, "d" , &nnIndex );
-			createLabel( 100 + m_nGridHeight  + nOffset, "c#" , &nnIndex );
-			createLabel( 110 + m_nGridHeight  + nOffset, "c" , &nnIndex );
-		}
-		nOffset += KEYS_PER_OCTAVE * m_nGridHeight;
+		createLabel( QString( "B%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "A#%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "A%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "G#%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "G%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "F#%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "F%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "E%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "D#%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "D%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "C#%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "C%1" ).arg( nnActualOctave ) , &nnIndex );
+		--nnActualOctave;
 	}
 
 	updateRows();
