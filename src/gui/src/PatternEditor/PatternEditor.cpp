@@ -3424,7 +3424,8 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
 	// We do not highlight hovered notes during a property drag. Else, the
 	// hovered ones would appear in front of the dragged one in the ruler,
 	// hiding the newly adjusted value.
-	if ( ! m_bPropertyDragActive ) {
+	if ( ! m_bPropertyDragActive &&
+		 pEvent->x() > PatternEditor::nMarginSidebar ) {
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes = getElementsAtPoint(
 				pEvent->pos(), nCursorMargin, ppPattern );
