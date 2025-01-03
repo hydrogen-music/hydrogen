@@ -187,7 +187,11 @@ public:
 	virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 		virtual QRect getKeyboardCursorRect() override;
 
-	static constexpr int nMargin = 20;
+		/** Area taken available for an addition sidebar or button */
+		static constexpr int nMarginSidebar = 20;
+		/** #nMarginSidebar + some additional space to contain a margin and half
+		 * of the notes on first grid point. */
+		static constexpr int nMargin = nMarginSidebar + 10;
 
 	/** Caches the AudioEngine::m_nPatternTickPosition in the member
 		variable #m_nTick and triggers an update(). */

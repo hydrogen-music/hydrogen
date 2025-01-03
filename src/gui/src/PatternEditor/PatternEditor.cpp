@@ -899,7 +899,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	if ( pPattern == nullptr ) {
 		return;
 	}
-	if ( ev->x() > m_nActiveWidth ) {
+	if ( ev->x() > m_nActiveWidth || ev->x() <= PatternEditor::nMarginSidebar ) {
 		if ( ! m_selection.isEmpty() ) {
 			m_selection.clearSelection();
 			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );

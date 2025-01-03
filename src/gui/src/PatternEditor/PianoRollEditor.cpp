@@ -48,7 +48,7 @@ PitchLabel::PitchLabel( QWidget* pParent, const QString& sText, int nHeight )
 {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
-	setFixedWidth( PatternEditor::nMargin );
+	setFixedWidth( PatternEditor::nMarginSidebar );
 	setFixedHeight( nHeight );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
@@ -185,7 +185,7 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	, m_nHeight( nHeight )
 	, m_nGridHeight( nGridHeight )
  {
-	resize( PatternEditor::nMargin, nHeight );
+	resize( PatternEditor::nMarginSidebar, nHeight );
 
 	m_rows.resize( OCTAVE_NUMBER * KEYS_PER_OCTAVE );
 
@@ -325,7 +325,7 @@ QPoint PianoRollEditor::noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const
 	}
 
 	return QPoint(
-		PatternEditor::nMargin + pNote->getPosition() * m_fGridWidth,
+		PatternEditor::nMarginSidebar + pNote->getPosition() * m_fGridWidth,
 		m_nGridHeight *
 		Note::pitchToLine( pNote->getPitchFromKeyOctave() ) + 1 );
 }
@@ -497,8 +497,8 @@ void PianoRollEditor::createBackground()
 	drawBorders( p );
 
 	p.setPen( lineColor );
-	p.drawLine( PatternEditor::nMargin, 0,
-				PatternEditor::nMargin, m_nEditorHeight );
+	p.drawLine( PatternEditor::nMarginSidebar, 0,
+				PatternEditor::nMarginSidebar, m_nEditorHeight );
 }
 
 void PianoRollEditor::selectAll()
