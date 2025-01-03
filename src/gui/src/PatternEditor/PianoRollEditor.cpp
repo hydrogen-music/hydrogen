@@ -719,7 +719,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		m_selection.clearSelection();
 		int pressedline = Note::pitchToLine( m_nCursorPitch );
 		int nPitch = Note::lineToPitch( pressedline );
-		addOrRemoveNote( m_pPatternEditorPanel->getCursorColumn(), -1,
+		addOrRemoveNotes( m_pPatternEditorPanel->getCursorColumn(),
 						 m_pPatternEditorPanel->getSelectedRowDB(),
 						 Note::pitchToKey( nPitch ),
 						 Note::pitchToOctave( nPitch ) );
@@ -732,7 +732,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 			// Delete a note under the keyboard cursor
 			int pressedline = Note::pitchToLine( m_nCursorPitch );
 			int nPitch = Note::lineToPitch( pressedline );
-			addOrRemoveNote( m_pPatternEditorPanel->getCursorColumn(), -1,
+			addOrRemoveNotes( m_pPatternEditorPanel->getCursorColumn(),
 							 m_pPatternEditorPanel->getSelectedRowDB(),
 							 Note::pitchToKey( nPitch ),
 							 Note::pitchToOctave( nPitch ),

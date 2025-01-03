@@ -1132,7 +1132,6 @@ void HydrogenApp::onEventQueueTimer()
 		const auto pOldNote = pSong->getPatternList()->
 			get( pQueue->m_addMidiNoteVector[0].m_pattern )->
 			findNote( pQueue->m_addMidiNoteVector[0].m_column,
-					  pQueue->m_addMidiNoteVector[0].m_column,
 					  row.nInstrumentID, row.sType,
 					  pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 					  pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );

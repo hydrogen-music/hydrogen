@@ -985,21 +985,17 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			const int nTargetColumn = ev->modifiers() & Qt::AltModifier ?
 				nRealColumn : nColumn;
 
-			// Pressing Shift causes the added note to be of NoteOff type.
-			if ( m_editor == Editor::DrumPattern ) {
-				addOrRemoveNote(
-					nTargetColumn, nRealColumn, nRow, KEY_MIN, OCTAVE_DEFAULT,
-					/* bDoAdd */true, /* bDoDelete */false,
-					/* bIsNoteOff */ev->modifiers() & Qt::ShiftModifier );
+			int nKey = KEY_MIN;
+			int nOctave = OCTAVE_DEFAULT;
+			if ( m_editor == Editor::PianoRoll ) {
+				nOctave = Note::pitchToOctave( m_nCursorPitch );
+				nKey = Note::pitchToKey( m_nCursorPitch );
 			}
-			else if ( m_editor == Editor::PianoRoll ) {
-				const Note::Octave octave = Note::pitchToOctave( m_nCursorPitch );
-				const Note::Key noteKey = Note::pitchToKey( m_nCursorPitch );
-				addOrRemoveNote(
-					nTargetColumn, nRealColumn, nRow, noteKey, octave,
-					/* bDoAdd */true, /* bDoDelete */false,
-					/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
-			}
+
+			addOrRemoveNotes(
+				nTargetColumn, nRow, nKey, nOctave,
+				/* bDoAdd */true, /* bDoDelete */false,
+				/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
 		}
 		else {
 			// Note(s) clicked. Delete them.
@@ -2651,7 +2647,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 
 void PatternEditor::editNotePropertiesAction( const Mode& mode,
 											  int nPatternNumber,
-											  int nColumn,
+											  int nPosition,
 											  int nInstrumentId,
 											  const QString& sType,
 											  float fVelocity,
@@ -2686,8 +2682,8 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 
 	// Find the note to edit
 	auto pNote = pPattern->findNote(
-		nColumn, nColumn, nInstrumentId, sType, static_cast<Note::Key>(nOldKey),
-		static_cast<Note::Octave>(nOldOctave), false );
+		nPosition, nInstrumentId, sType, static_cast<Note::Key>(nOldKey),
+		static_cast<Note::Octave>(nOldOctave) );
 
 	bool bValueChanged = false;
 
@@ -2748,18 +2744,18 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 	}
 }
 
-void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
-									 int nKey, int nOctave,
-									 bool bDoAdd, bool bDoDelete,
+void PatternEditor::addOrRemoveNotes( int nPosition, int nRow, int nKey,
+									 int nOctave, bool bDoAdd, bool bDoDelete,
 									 bool bIsNoteOff ) {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
 		return;
 	}
 
-	if ( nColumn >= pPattern->getLength() ) {
+	if ( nPosition >= pPattern->getLength() ) {
 		// Note would be beyond the active region of the current pattern.
 		return;
 	}
@@ -2770,89 +2766,91 @@ void PatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
 		return;
 	}
 
-	std::shared_ptr<Note> pOldNote = nullptr;
-	if ( m_editor == Editor::PianoRoll ) {
-		pOldNote = pPattern->findNote(
-			nColumn, nRealColumn, row.nInstrumentID, row.sType,
-			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
+	std::vector< std::shared_ptr<Note> > oldNotes;
+	int nNewKey = nKey;
+	int nNewOctave = nOctave;
+	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
+		oldNotes = pPattern->findNotes( nPosition, row.nInstrumentID, row.sType );
+		nNewKey = KEY_MIN;
+		nNewOctave = OCTAVE_DEFAULT;
 	}
 	else {
-		// When deleting a note under cursor NotePropertiesRuler works the same
-		// as DrumPatternEditor.
-		pOldNote = pPattern->findNote(
-			nColumn, nRealColumn, row.nInstrumentID, row.sType );
+		auto pOldNote = pPattern->findNote(
+			nPosition, row.nInstrumentID, row.sType,
+			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
+		if ( pOldNote != nullptr ) {
+			oldNotes.push_back( pOldNote );
+		}
 	}
-	if ( pOldNote != nullptr && !bDoDelete ) {
+
+	if ( oldNotes.size() > 0 && ! bDoDelete ) {
 		// Found an old note, but we don't want to delete, so just return.
 		return;
-	} else if ( pOldNote == nullptr && !bDoAdd ) {
+	} else if ( oldNotes.size() == 0 && ! bDoAdd ) {
 		// No note there, but we don't want to add a new one, so return.
 		return;
 	}
 
-	int nOldLength, nOldKey, nOldOctave;
-	float fOldVelocity, fOldPan, fOldLeadLag, fProbability;
-	bool bNoteOff;
+	if ( oldNotes.size() == 0 ) {
+		// Play back added notes.
+		if ( Preferences::get_instance()->getHearNewNotes() &&
+			  row.nInstrumentID != EMPTY_INSTR_ID ) {
+			auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
+			if ( pSelectedInstrument != nullptr &&
+				 pSelectedInstrument->hasSamples() ) {
+				auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
+				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
+									  static_cast<Note::Octave>(nOctave) );
+				pNote2->setNoteOff( bIsNoteOff );
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+					noteOn( pNote2 );
+			}
+		}
 
-	if ( pOldNote != nullptr ) {
-		nOldLength = pOldNote->getLength();
-		fOldVelocity = pOldNote->getVelocity();
-		fOldPan = pOldNote->getPan();
-		fOldLeadLag = pOldNote->getLeadLag();
-		nOldKey = pOldNote->getKey();
-		nOldOctave = pOldNote->getOctave();
-		fProbability = pOldNote->getProbability();
-		bNoteOff = pOldNote->getNoteOff();
+		pHydrogenApp->pushUndoCommand(
+			new SE_addOrRemoveNoteAction(
+				nPosition,
+				row.nInstrumentID,
+				row.sType,
+				m_pPatternEditorPanel->getPatternNumber(),
+				LENGTH_ENTIRE_SAMPLE,
+				VELOCITY_DEFAULT,
+				PAN_DEFAULT,
+				LEAD_LAG_DEFAULT,
+				nNewKey,
+				nNewOctave,
+				PROBABILITY_DEFAULT,
+				/* bIsDelete */ false,
+				/* bIsMidi */ false,
+				bIsNoteOff ) );
 	}
 	else {
-		nOldLength = LENGTH_ENTIRE_SAMPLE;
-		fOldVelocity = VELOCITY_DEFAULT;
-		fOldPan = PAN_DEFAULT;
-		fOldLeadLag = LEAD_LAG_DEFAULT;
-		nOldKey = KEY_MIN;
-		nOldOctave = OCTAVE_DEFAULT;
-		fProbability = PROBABILITY_DEFAULT;
-		bNoteOff = bIsNoteOff;
-	}
-
-	if ( m_editor == Editor::PianoRoll ) {
-		nOldKey = nKey;
-		nOldOctave = nOctave;
-	}
-
-	// Playback notes added notes.
-	if ( pOldNote == nullptr && Preferences::get_instance()->getHearNewNotes() &&
-		 row.nInstrumentID != EMPTY_INSTR_ID ) {
-		auto pSelectedInstrument = m_pPatternEditorPanel->getSelectedInstrument();
-		if ( pSelectedInstrument != nullptr &&
-			 pSelectedInstrument->hasSamples() ) {
-			auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
-			pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
-									static_cast<Note::Octave>(nOctave) );
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-				noteOn( pNote2 );
+		// delete notes
+		pHydrogenApp->beginUndoMacro(
+			pCommonStrings->getActionDeleteNotes() );
+		for ( const auto& ppNote : oldNotes ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemoveNoteAction(
+					nPosition,
+					row.nInstrumentID,
+					row.sType,
+					m_pPatternEditorPanel->getPatternNumber(),
+					ppNote->getLength(),
+					ppNote->getVelocity(),
+					ppNote->getPan(),
+					ppNote->getLeadLag(),
+					ppNote->getKey(),
+					ppNote->getOctave(),
+					ppNote->getProbability(),
+					/* bIsDelete */ true,
+					/* bIsMidi */ false,
+					ppNote->getNoteOff() ) );
 		}
+		pHydrogenApp->endUndoMacro();
 	}
-
-	HydrogenApp::get_instance()->pushUndoCommand(
-		new SE_addOrRemoveNoteAction(
-			nColumn,
-			row.nInstrumentID,
-			row.sType,
-			m_pPatternEditorPanel->getPatternNumber(),
-			nOldLength,
-			fOldVelocity,
-			fOldPan,
-			fOldLeadLag,
-			nOldKey,
-			nOldOctave,
-			fProbability,
-			/* bIsDelete */ pOldNote != nullptr,
-			/* bIsMidi */ false,
-			bNoteOff ) );
 }
 
-void PatternEditor::addOrRemoveNoteAction( int nColumn,
+void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   int nInstrumentId,
 										   const QString& sType,
 										   int nPatternNumber,
@@ -2906,8 +2904,8 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 		// properties to find right one.
 		std::vector< std::shared_ptr<Note> > notesFound;
 		const auto pNotes = pPattern->getNotes();
-		for ( auto it = pNotes->lower_bound( nColumn );
-			  it != pNotes->end() && it->first <= nColumn; ++it ) {
+		for ( auto it = pNotes->lower_bound( nPosition );
+			  it != pNotes->end() && it->first <= nPosition; ++it ) {
 			auto ppNote = it->second;
 			if ( ppNote != nullptr &&
 				 ppNote->match( nInstrumentId, sType,
@@ -2962,7 +2960,6 @@ void PatternEditor::addOrRemoveNoteAction( int nColumn,
 	}
 	else {
 		// create the new note
-		unsigned nPosition = nColumn;
 		float fVelocity = fOldVelocity;
 		float fPan = fOldPan ;
 		int nLength = nOldLength;

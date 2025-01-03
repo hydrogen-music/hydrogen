@@ -159,38 +159,37 @@ class Pattern : public H2Core::Object<Pattern>
 		 */
 		void insertNote( std::shared_ptr<Note> pNote );
 		/**
-		 * search for a note at a given index within m_notes which correspond to
-		 * the given arguments
+		 * Search for all notes at a given index within #m_notes which correspond
+		 * to the given arguments.
 		 *
-		 * \param nIdx_a the first m_notes index to search in
-		 * \param nIdx_b the second m_notes index to search in, will be omitted if is -1
+		 * \param nPosition the key of #m_notes to search in
 		 * \param nInstrumentId the instrument ID the note should be associated
 		 *   with
 		 * \param sInstrumentType the instrument type the note should be
 		 *   associated with
-		 * \param bStrict if set to false, will search for a note around the given idx
-		 * \return the note if found, 0 otherwise
+		 * \return notes found or an empty vector.
 		 */
-		std::shared_ptr<Note> findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
-										const QString& sInstrumentType,
-										bool bStrict = true ) const;
+		std::vector< std::shared_ptr<Note> > findNotes(
+			int nPosition, int nInstrumentId,
+			const QString& sInstrumentType ) const;
 		/**
-		 * search for a note at a given index within m_notes which correspond to the given arguments
-		 * \param nIdx_a the first m_notes index to search in
-		 * \param nIdx_b the second m_notes index to search in, will be omitted if is -1
+		 * Search for a note at a given index within #m_notes which correspond
+		 * to the given arguments. With key and octave provided, the note must
+		 * be unique within the pattern. Hence, just a single note is returned.
+		 *
+		 * \param nPosition the key of #m_notes to search in
 		 * \param nInstrumentId the instrument ID the note should be associated
 		 *   with
 		 * \param sInstrumentType the instrument type the note should be
 		 *   associated with
 		 * \param key the key that should be set to the note
 		 * \param octave the octave that should be set to the note
-		 * \param bStrict if set to false, will search for a note around the given idx
+		 *
 		 * \return the note if found, 0 otherwise
 		 */
-		std::shared_ptr<Note> findNote( int nIdx_a, int nIdx_b, int nInstrumentId,
+		std::shared_ptr<Note> findNote( int nPosition, int nInstrumentId,
 										const QString& sInstrumentType,
-										Note::Key key, Note::Octave octave,
-										bool bStrict = true ) const;
+										Note::Key key, Note::Octave octave ) const;
 		/**
 		 * removes a given note from m_notes, it's not deleted
 		 * \param pNote the note to be removed

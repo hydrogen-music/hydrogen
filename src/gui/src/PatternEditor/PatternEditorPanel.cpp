@@ -2074,8 +2074,8 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
-			m_pDrumPatternEditor->addOrRemoveNote(
-				nnPosition, nnPosition, nRow, KEY_MIN, OCTAVE_DEFAULT,
+			m_pDrumPatternEditor->addOrRemoveNotes(
+				nnPosition, nRow, nKey, nOctave,
 				true /* bDoAdd */, false /* bDoDelete */,
 				false /* bIsNoteOff */ );
 		}

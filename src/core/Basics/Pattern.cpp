@@ -276,110 +276,43 @@ void Pattern::saveTo( XMLNode& node, int nInstrumentId, const QString& sType,
 	}
 }
 
-std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
-										 int nInstrumentId,
+std::shared_ptr<Note> Pattern::findNote( int nPosition, int nInstrumentId,
 										 const QString& sInstrumentType,
-										 Note::Key key, Note::Octave octave,
-										 bool bStrict ) const
+										 Note::Key key, Note::Octave octave ) const
 {
-	for ( notes_cst_it_t it = m_notes.lower_bound( nIdx_a );
-		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
-		auto pNote = it->second;
-		assert( pNote );
-		if ( pNote->match( nInstrumentId, sInstrumentType, key, octave ) ) {
-			return pNote;
+	for ( notes_cst_it_t it = m_notes.lower_bound( nPosition );
+		  it != m_notes.upper_bound( nPosition ); it++ ) {
+		auto ppNote = it->second;
+		assert( ppNote );
+		if ( ppNote != nullptr &&
+			 ppNote->match( nInstrumentId, sInstrumentType, key, octave ) ) {
+			return ppNote;
 		}
-	}
-	if ( nIdx_b == -1 ) {
-		return nullptr;
-	}
-	for ( notes_cst_it_t it = m_notes.lower_bound( nIdx_b );
-		  it != m_notes.upper_bound( nIdx_b ); it++ ) {
-		auto pNote = it->second;
-		assert( pNote );
-		if ( pNote->match( nInstrumentId, sInstrumentType, key, octave ) ) {
-			return pNote;
-		}
-	}
-	if ( bStrict ) {
-		return nullptr;
 	}
 
-	// TODO maybe not start from 0 but nIdx_b-X
-	for ( int n = 0; n < nIdx_b; n++ ) {
-		for ( notes_cst_it_t it = m_notes.lower_bound( n );
-			  it != m_notes.upper_bound( n ); it++ ) {
-			auto pNote = it->second;
-			assert( pNote );
-			if ( pNote->match( nInstrumentId, sInstrumentType, key, octave ) &&
-				 ( nIdx_b <= pNote->getPosition() + pNote->getLength() &&
-				   nIdx_b >= pNote->getPosition() ) ) {
-				return pNote;
-			}
-		}
-	}
 	return nullptr;
 }
 
-std::shared_ptr<Note> Pattern::findNote( int nIdx_a, int nIdx_b,
-										 int nInstrumentId,
-										 const QString& sInstrumentType,
-										 bool bStrict ) const
+std::vector< std::shared_ptr<Note>> Pattern::findNotes(
+	int nPosition, int nInstrumentId, const QString& sInstrumentType ) const
 {
+	std::vector< std::shared_ptr<Note> > notes;
 	notes_cst_it_t it;
-	for ( it = m_notes.lower_bound( nIdx_a );
-		  it != m_notes.upper_bound( nIdx_a ); it++ ) {
-		auto pNote = it->second;
-		if ( pNote == nullptr ) {
-			assert( pNote );
-			ERRORLOG( "Invalid note 0" );
+	for ( it = m_notes.lower_bound( nPosition );
+		  it != m_notes.upper_bound( nPosition ); it++ ) {
+		auto ppNote = it->second;
+		if ( ppNote == nullptr ) {
+			assert( ppNote );
+			ERRORLOG( "Invalid note" );
 			continue;
 		}
-		if ( pNote->getInstrumentId() == nInstrumentId &&
-			 pNote->getType() == sInstrumentType ) {
-			return pNote;
-		}
-	}
-	if ( nIdx_b == -1 ) {
-		return nullptr;
-	}
-	for ( it = m_notes.lower_bound( nIdx_b );
-		  it != m_notes.upper_bound( nIdx_b ); it++ ) {
-		auto pNote = it->second;
-		if ( pNote == nullptr ) {
-			assert( pNote );
-			ERRORLOG( "Invalid note 1" );
-			continue;
-		}
-		if ( pNote->getInstrumentId() == nInstrumentId &&
-			 pNote->getType() == sInstrumentType ) {
-			return pNote;
-		}
-	}
-	if ( bStrict ) {
-		return nullptr;
-	}
-
-	// TODO maybe not start from 0 but nIdx_b-X
-	for ( int n=0; n<nIdx_b; n++ ) {
-		for ( it = m_notes.lower_bound( n );
-			  it != m_notes.upper_bound( n ); it++ ) {
-			auto pNote = it->second;
-			if ( pNote == nullptr ) {
-				assert( pNote );
-				ERRORLOG( "Invalid note 2" );
-				continue;
-			}
-			if ( pNote->getInstrumentId() == nInstrumentId &&
-				 pNote->getType() == sInstrumentType &&
-				 ( ( nIdx_b <= pNote->getPosition() + pNote->getLength() )
-				   && nIdx_b >= pNote->getPosition() ) ) {
-				return pNote;
-			}
+		if ( ppNote->getInstrumentId() == nInstrumentId &&
+			 ppNote->getType() == sInstrumentType ) {
+			notes.push_back( ppNote );
 		}
 	}
 
-	return nullptr;
+	return notes;
 }
 
 void Pattern::removeNote( std::shared_ptr<Note> pNote )

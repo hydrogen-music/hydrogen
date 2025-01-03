@@ -199,13 +199,14 @@ public:
 		/** Whether new notes added to the editor should be automatically
 		 * selected. */
 		bool getSelectNewNotes() const;
-		void addOrRemoveNote( int nColumn, int nRealColumn, int nRow,
-							  int nKey = KEY_MIN,
-							  int nOctave = OCTAVE_DEFAULT,
-							  bool bDoAdd = true, bool bDoDelete = true,
-							  bool bIsNoteOff = false );
+		/** If @a nKey or @a nOctave are set to invalid values, all notes on the
+		 * position specified using @a nPosition and @a nRow will be
+		 * deleted or a move with default key and octave will be added. */
+		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
+							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
+							   bool bDoDelete = true, bool bIsNoteOff = false );
 
-	static void addOrRemoveNoteAction( int nColumn,
+	static void addOrRemoveNoteAction( int nPosition,
 									   int nInstrumentId,
 									   const QString& sType,
 									   int nPatternNumber,
@@ -227,7 +228,7 @@ public:
 		 * nNewKey and @a nNewOctave. */
 	static void editNotePropertiesAction( const Mode& mode,
 										  int nPatternNumber,
-										  int nColumn,
+										  int nPosition,
 										  int nInstrumentId,
 										  const QString& sType,
 										  float fVelocity,
