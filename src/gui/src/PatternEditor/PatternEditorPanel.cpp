@@ -2300,8 +2300,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 					pHydrogenApp->pushUndoCommand(
 						new SE_addOrRemoveNoteAction(
 							ppNote->getPosition(),
-							ppNote->getInstrumentId(),
-							ppNote->getType(),
+							row.nInstrumentID,
+							row.sType,
 							pPatternList->index( ppPattern ),
 							ppNote->getLength(),
 							ppNote->getVelocity(),
