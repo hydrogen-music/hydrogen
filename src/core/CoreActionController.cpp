@@ -1071,6 +1071,10 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 	}
+
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		pHydrogen->setSelectedPatternNumber( 0, false );
+	}
 	
 	pAudioEngine->handleSongModeChanged();
 
