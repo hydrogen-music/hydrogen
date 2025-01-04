@@ -886,9 +886,9 @@ void HydrogenApp::showSampleEditor( const QString& name, int mSelectedComponemt,
 	QApplication::restoreOverrideCursor();
 }
 
-void HydrogenApp::drumkitLoadedEvent(){
+void HydrogenApp::drumkitLoadedEvent( int nValue ) {
 	const auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSong() != nullptr &&
+	if ( nValue == 0 && pHydrogen->getSong() != nullptr &&
 		 pHydrogen->getSong()->getDrumkit() != nullptr ) {
 		const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
 		showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
@@ -1049,7 +1049,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_DRUMKIT_LOADED:
-				pListener->drumkitLoadedEvent();
+				pListener->drumkitLoadedEvent( event.value );
 				break;
 
 			case EVENT_PATTERN_EDITOR_LOCKED:

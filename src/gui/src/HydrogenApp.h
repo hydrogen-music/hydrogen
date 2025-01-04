@@ -278,7 +278,7 @@ private slots:
 		 *     opened in read-only mode.
 		 */
 		virtual void updateSongEvent( int nValue ) override;
-	virtual void drumkitLoadedEvent() override;
+	virtual void drumkitLoadedEvent( int nValue ) override;
 		void playlistChangedEvent( int nValue ) override;
 		void playlistLoadSongEvent() override;
 

@@ -67,7 +67,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent() override;
-	virtual void drumkitLoadedEvent() override;
+	virtual void drumkitLoadedEvent( int nValue ) override;
 	virtual void updateSongEvent( int ) override;
 	virtual void instrumentParametersChangedEvent( int ) override;
 		// ~ implements EventListener interface

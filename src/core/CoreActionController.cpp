@@ -1820,7 +1820,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( H2Core::EVENT_DRUMKIT_LOADED, 0 );
+	EventQueue::get_instance()->push_event( H2Core::EVENT_DRUMKIT_LOADED, 1 );
 
 	return true;
 }

@@ -205,7 +205,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	p.drawRect( 0, y, width() - 1, m_nLayerHeight );
 }
 
-void LayerPreview::drumkitLoadedEvent() {
+void LayerPreview::drumkitLoadedEvent( int nValue ) {
 	selectedInstrumentChangedEvent();
 }
 
