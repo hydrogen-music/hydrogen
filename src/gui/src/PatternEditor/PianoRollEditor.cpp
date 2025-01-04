@@ -330,22 +330,26 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 		pCommonStrings->getActionCutAllNotes() );
 	connect( cutNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->cutNotesFromRowOfAllPatterns(
-			pPatternEditorPanel->getSelectedRowDB() ); } );
+			pPatternEditorPanel->getSelectedRowDB(),
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto copyNotesAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionCopyNotes() );
 	connect( copyNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->copyNotesFromRowOfAllPatterns(
-			pPatternEditorPanel->getSelectedRowDB() ); } );
+			pPatternEditorPanel->getSelectedRowDB(),
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto pasteNotesAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionPasteAllNotes() );
 	connect( pasteNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->pasteNotesToRowOfAllPatterns(
-			pPatternEditorPanel->getSelectedRowDB() ); } );
+			pPatternEditorPanel->getSelectedRowDB(),
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto clearAllAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionClearAllNotes() );
 	connect( clearAllAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->clearNotesInRow(
-			pPatternEditorPanel->getSelectedRowDB(), -1 ); } );
+			pPatternEditorPanel->getSelectedRowDB(), -1,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 
 	m_pFunctionPopup->setObjectName( "PianoRollFunctionPopup" );
 }

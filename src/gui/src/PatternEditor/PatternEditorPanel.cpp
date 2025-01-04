@@ -2216,7 +2216,7 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 	}
 }
 
-void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow ) {
+void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready" );
@@ -2228,7 +2228,8 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow ) {
 	// Serialize & put to clipboard
 	H2Core::XMLDoc doc;
 	auto rootNode = doc.set_root( "serializedPatternList" );
-	pSong->getPatternList()->save_to( rootNode, row.nInstrumentID, row.sType );
+	pSong->getPatternList()->save_to(
+		rootNode, row.nInstrumentID, row.sType, nPitch );
 
 	const QString sSerialized = doc.toString();
 	if ( sSerialized.isEmpty() ) {
@@ -2241,18 +2242,18 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow ) {
 	clipboard->setText( sSerialized );
 }
 
-void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow ) {
+void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-	copyNotesFromRowOfAllPatterns( nRow );
+	copyNotesFromRowOfAllPatterns( nRow, nPitch );
 
 	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionCutAllNotes() );
-	clearNotesInRow( nRow, -1 );
+	clearNotesInRow( nRow, -1, nPitch );
 	pHydrogenApp->endUndoMacro();
 }
 
-void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
+void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -2301,13 +2302,15 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow ) {
 							ppNote->getPosition(),
 							ppNote->getInstrumentId(),
 							ppNote->getType(),
-									 pPatternList->index( ppPattern ),
+							pPatternList->index( ppPattern ),
 							ppNote->getLength(),
 							ppNote->getVelocity(),
 							ppNote->getPan(),
 							ppNote->getLeadLag(),
-							ppNote->getKey(),
-							ppNote->getOctave(),
+							nPitch == PITCH_INVALID ? ppNote->getKey() :
+							  Note::pitchToKey( nPitch ),
+							nPitch == PITCH_INVALID ? ppNote->getOctave() :
+							  Note::pitchToOctave( nPitch ),
 							ppNote->getProbability(),
 							/* bIsDelete */ false,
 							/* bIsMidi */ false,

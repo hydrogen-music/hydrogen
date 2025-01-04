@@ -272,14 +272,14 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 							 int nPitch = PITCH_INVALID );
 		/** Serialized all notes in @a nRow for all patterns in the current song
 		 * and stores the resulting string to the clipboard. */
-		void copyNotesFromRowOfAllPatterns( int nRow );
+		void copyNotesFromRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );
 		/** Same as copyNotesFromRowOfAllPatterns() but also removes all notes
 		 * in row @a nRow. */
-		void cutNotesFromRowOfAllPatterns( int nRow );
+		void cutNotesFromRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );
 		/** Reads the serialized note list created by
 		 * copyNotesFromRowOfAllPatterns() from clipboard and adds them to row
 		 * @a nRow. */
-		void pasteNotesToRowOfAllPatterns( int nRow );
+		void pasteNotesToRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );
 
 		int getResolution() const;
 		bool isUsingTriplets() const;
