@@ -705,25 +705,36 @@ void PatternEditor::paste()
 	m_bSelectNewNotes = false;
 }
 
-void PatternEditor::selectAllNotesInRow( int nRow )
+void PatternEditor::selectAllNotesInRow( int nRow, int nPitch )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
 
-	auto row = m_pPatternEditorPanel->getRowDB( nRow );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-		DEBUGLOG( QString( "Invalid row [%1]" ).arg( nRow ) );
-		return;
-	}
-	
+	const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+
 	m_selection.clearSelection();
-	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-		if ( ppNote != nullptr &&
-			 ppNote->getInstrumentId() == row.nInstrumentID &&
-			 ppNote->getType() == row.sType ) {
-			m_selection.addToSelection( ppNote );
+
+	if ( nPitch != PITCH_INVALID ) {
+		const auto key = Note::pitchToKey( nPitch );
+		const auto octave = Note::pitchToOctave( nPitch );
+		for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+			if ( ppNote != nullptr &&
+				 ppNote->getInstrumentId() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType &&
+				 ppNote->getKey() == key && ppNote->getOctave() == octave ) {
+				m_selection.addToSelection( ppNote );
+			}
+		}
+	}
+	else {
+		for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+			if ( ppNote != nullptr &&
+				 ppNote->getInstrumentId() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType ) {
+				m_selection.addToSelection( ppNote );
+			}
 		}
 	}
 	m_selection.updateWidgetGroup();

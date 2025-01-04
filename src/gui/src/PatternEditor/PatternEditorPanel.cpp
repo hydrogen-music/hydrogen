@@ -2098,7 +2098,9 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch ) {
 			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr &&
 					 ppNote->getInstrumentId() == row.nInstrumentID &&
-					 ppNote->getType() == row.sType ) {
+					 ppNote->getType() == row.sType &&
+					 ( nPitch == PITCH_INVALID ||
+					   ppNote->getTotalPitch() == nPitch ) ) {
 					notes.push_back( ppNote );
 				}
 			}
@@ -2155,7 +2157,7 @@ QString PatternEditorPanel::FillNotesToQString( const FillNotes& fillNotes ) {
 	}
 }
 
-void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
+void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch ) {
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
@@ -2180,7 +2182,9 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 			auto ppNote = it->second;
 			if ( ppNote != nullptr &&
 				 ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType ) {
+				 ppNote->getType() == row.sType &&
+				 ( nPitch == PITCH_INVALID ||
+				   ppNote->getTotalPitch() == nPitch ) ) {
 				bNoteAlreadyPresent = true;
 				break;
 			}
@@ -2194,6 +2198,13 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every ) {
 	if ( notePositions.size() > 0 ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+		int nKey = KEY_MIN;
+		int nOctave = OCTAVE_DEFAULT;
+		if ( nPitch != PITCH_INVALID ) {
+			nKey = Note::pitchToKey( nPitch );
+			nOctave = Note::pitchToOctave( nPitch );
+		}
 
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {

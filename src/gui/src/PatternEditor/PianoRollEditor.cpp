@@ -255,7 +255,8 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	connect( clearAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->clearNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			pPatternEditorPanel->getPatternNumber() ); } );
+			pPatternEditorPanel->getPatternNumber(),
+			Note::lineToPitch( m_nRowClicked ) ); } );
 
 	m_pFunctionPopupSub = new QMenu(
 		pCommonStrings->getActionFillNotes(), m_pFunctionPopup );
@@ -264,56 +265,65 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	connect( fillAllAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::All ); } );
+			PatternEditorPanel::FillNotes::All,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto fillEverySecondAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEverySecondNote() );
 	connect( fillEverySecondAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::EverySecond ); } );
+			PatternEditorPanel::FillNotes::EverySecond,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto fillEveryThirdAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryThirdNote() );
 	connect( fillEveryThirdAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::EveryThird ); } );
+			PatternEditorPanel::FillNotes::EveryThird,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto fillEveryFourthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryFourthNote() );
 	connect( fillEveryFourthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::EveryFourth ); } );
+			PatternEditorPanel::FillNotes::EveryFourth,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto fillEverySixthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEverySixthNote() );
 	connect( fillEverySixthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::EverySixth ); } );
+			PatternEditorPanel::FillNotes::EverySixth,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto fillEveryEighthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryEighthNote() );
 	connect( fillEveryEighthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::EveryEighth ); } );
+			PatternEditorPanel::FillNotes::EveryEighth,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto fillEveryTwelfthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEveryTwelfthNote() );
 	connect( fillEveryTwelfthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::EveryTwelfth ); } );
+			PatternEditorPanel::FillNotes::EveryTwelfth,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	auto fillEverySixteenthAction = m_pFunctionPopupSub->addAction(
 		pCommonStrings->getActionFillEverySixteenthNote() );
 	connect( fillEverySixteenthAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->fillNotesInRow(
 			pPatternEditorPanel->getSelectedRowDB(),
-			PatternEditorPanel::FillNotes::EverySixteenth ); } );
+			PatternEditorPanel::FillNotes::EverySixteenth,
+			Note::lineToPitch( m_nRowClicked ) ); } );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	auto selectNotesAction = m_pFunctionPopup->addAction(
 		pCommonStrings->getActionSelectNotes() );
 	connect( selectNotesAction, &QAction::triggered, this, [=](){
 		pPatternEditorPanel->getVisibleEditor()->selectAllNotesInRow(
-			pPatternEditorPanel->getSelectedRowDB() ); } );
+			pPatternEditorPanel->getSelectedRowDB(),
+			Note::lineToPitch( m_nRowClicked ) ); } );
 
 	m_pFunctionPopup->addSection( pCommonStrings->getActionEditAllPatterns() );
 	auto cutNotesAction = m_pFunctionPopup->addAction(

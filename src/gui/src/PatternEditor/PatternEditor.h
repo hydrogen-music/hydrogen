@@ -260,7 +260,7 @@ public slots:
 	virtual void cut();
 	virtual void alignToGrid();
 	virtual void randomizeVelocity();
-	virtual void selectAllNotesInRow( int nRow );
+	void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
 	void scrolled( int nValue );
 
 protected:

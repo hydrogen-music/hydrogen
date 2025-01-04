@@ -242,9 +242,12 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		  * supported.
 		  *
 		  * @param nRow for which to remove all notes
-		  * @param nPattern If set to `-1`, all notes of row @a nRow in the
-		  *   all patterns of the current song will be removed. */
-		void clearNotesInRow( int nRow, int nPattern = -1 );
+		  * @param nPattern If set to `-1`, all notes of row @a nRow in the all
+		  *   patterns of the current song will be removed.
+		  * @param nPitch If a valid value is supplied, only notes matching it
+		  *   will be removed. */
+		void clearNotesInRow( int nRow, int nPattern = -1,
+							  int nPitch = PITCH_INVALID );
 
 		enum class FillNotes {
 			All = 1,
@@ -261,8 +264,12 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		/** Add every @a every note to row @a nRow.
 		  *
 		  * Note that filling notes is only supported for rows of the
-		  * #DrumPatternEditor, not the #PianoRollEditor. */
-		void fillNotesInRow( int nRow, FillNotes every );
+		  * #DrumPatternEditor, not the #PianoRollEditor.
+		  *
+		  * @param nPitch If a valid value is supplied, only notes matching it
+		  *   will be removed. */
+		void fillNotesInRow( int nRow, FillNotes every,
+							 int nPitch = PITCH_INVALID );
 		/** Serialized all notes in @a nRow for all patterns in the current song
 		 * and stores the resulting string to the clipboard. */
 		void copyNotesFromRowOfAllPatterns( int nRow );
