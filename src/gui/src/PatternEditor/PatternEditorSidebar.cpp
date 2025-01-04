@@ -61,6 +61,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	, m_bEntered( false )
 	, m_sText( sText )
 	, m_bShowCursor( false )
+	, m_bDimed( false )
 {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
@@ -160,8 +161,13 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 {
 	auto p = QPainter( this );
 
+	QColor backgroundColor( m_backgroundColor );
+	if ( m_bDimed ) {
+		backgroundColor = backgroundColor.darker( SidebarLabel::nDimScaling );
+	}
+
 	Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
-							  m_backgroundColor, m_bEntered );
+							  backgroundColor, m_bEntered );
 
 	if ( m_bShowPlusSign ) {
 		const auto pPref = Preferences::get_instance();
@@ -187,6 +193,10 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 
 		QColor color = m_bEntered ? pPref->getTheme().m_color.m_highlightColor :
 			m_textColor;
+
+		if ( m_bDimed ) {
+			color = color.darker( SidebarLabel::nDimScaling );
+		}
 
 		// horizontal
 		p.fillRect( QRect( width() / 2 - nHeight / 2,
@@ -275,11 +285,33 @@ void SidebarLabel::setShowCursor( bool bShowCursor ) {
 	update();
 }
 
+void SidebarLabel::setDimed( bool bDimed ) {
+	if ( bDimed == m_bDimed ) {
+		return;
+	}
+
+	m_bDimed = bDimed;
+
+	QColor textColor( m_textColor );
+	if ( bDimed ) {
+		textColor = textColor.darker( SidebarLabel::nDimScaling );
+	}
+
+	setStyleSheet( QString( "\
+QLabel {\
+   color: %1;\
+   font-weight: bold;\
+ }" ).arg( textColor.name() ) );
+
+	update();
+}
+
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	: PixmapWidget(pParent)
 	, m_row( row )
 	, m_bIsSelected( false )
 	, m_bEntered( false )
+	, m_bDimed( false )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -605,6 +637,18 @@ void SidebarRow::setSelected( bool bSelected )
 	m_pTypeLbl->setShowCursor( bSelected );
 
 	updateStyleSheet();
+
+	m_pTypeLbl->setDimed( m_bDimed && ! bSelected );
+}
+
+void SidebarRow::setDimed( bool bDimed ) {
+	if ( bDimed == m_bDimed ) {
+		return;
+	}
+
+	m_bDimed = bDimed;
+
+	m_pTypeLbl->setDimed( bDimed && ! m_bIsSelected );
 }
 
 void SidebarRow::updateStyleSheet() {
@@ -839,6 +883,12 @@ void PatternEditorSidebar::updateFont() {
 void PatternEditorSidebar::updateStyleSheet() {
 	for ( auto& rrow : m_rows ) {
 		rrow->updateStyleSheet();
+	}
+}
+
+void PatternEditorSidebar::dimRows( bool bDim ) {
+	for ( auto& rrow : m_rows ) {
+		rrow->setDimed( bDim );
 	}
 }
 

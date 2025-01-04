@@ -65,12 +65,16 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 					   const QColor& cursorColor );
 		void updateFont();
 		void setShowCursor( bool bShowCursor );
+		void setDimed( bool bDimed );
 
 	signals:
 		void labelClicked( QMouseEvent* pEvent );
 		void labelDoubleClicked();
 
 	private:
+
+		static constexpr int nDimScaling = 125;
+
 		virtual void enterEvent( QEvent *ev ) override;
 		virtual void leaveEvent( QEvent *ev ) override;
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
@@ -87,6 +91,9 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		/** Whether the mouse pointer entered the boundary of the widget.*/
 		bool m_bEntered;
 		bool m_bShowCursor;
+		/** When using the #PianoRollEditor all rows not selected will be dimed
+		 * to emphasize that one notes of one particular row are displayed. */
+		bool m_bDimed;
 };
 
 inline bool SidebarLabel::isShowingPlusSign() const {
@@ -104,7 +111,8 @@ class SidebarRow : public PixmapWidget
 		explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
 
 		void set( const DrumPatternRow& row );
-		void setSelected(bool isSelected);
+		void setSelected( bool isSelected );
+		void setDimed( bool bDimed );
 
 		void updateFont();
 		void updateStyleSheet();
@@ -134,6 +142,9 @@ public slots:
 		Button *m_pMuteBtn;
 		Button *m_pSoloBtn;
 		Button *m_pSampleWarning;
+		/** When using the #PianoRollEditor all rows not selected will be dimed
+		 * to emphasize that one notes of one particular row are displayed. */
+		bool m_bDimed;
 
 		QColor m_backgroundColor;
 
@@ -171,6 +182,8 @@ class PatternEditorSidebar : public QWidget,
 		void updateEditor();
 		void updateFont();
 		void updateStyleSheet();
+
+		void dimRows( bool bDim );
 
 		static constexpr int m_nWidth = 301;
 		static constexpr int m_nMargin = 10;

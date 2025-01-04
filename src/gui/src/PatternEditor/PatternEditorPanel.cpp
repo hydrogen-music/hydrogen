@@ -931,6 +931,7 @@ void PatternEditorPanel::showDrumEditor()
 	m_pEditorScrollView->setFocus();
 	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
 	m_pSidebar->setFocusProxy( m_pEditorScrollView );
+	m_pSidebar->dimRows( false );
 
 	m_pDrumPatternEditor->updateEditor(); // force an update
 
@@ -953,6 +954,7 @@ void PatternEditorPanel::showPianoRollEditor()
 	m_pPianoRollScrollView->setFocus();
 	m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
 	m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
+	m_pSidebar->dimRows( true );
 
 	m_pPianoRollEditor->updateEditor(); // force an update
 
