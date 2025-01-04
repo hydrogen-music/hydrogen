@@ -1351,14 +1351,22 @@ void MainForm::action_drumkit_new()
 
 void MainForm::action_drumkit_addInstrument()
 {
-	auto pAction = new SE_addInstrumentAction(
-		std::make_shared<Instrument>(), -1,
-		SE_addInstrumentAction::Type::AddEmptyInstrument );
-	HydrogenApp::get_instance()->pushUndoCommand( pAction );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	pHydrogenApp->pushUndoCommand(
+		new SE_addInstrumentAction(
+			std::make_shared<Instrument>(), -1,
+			SE_addInstrumentAction::Type::AddEmptyInstrument ) );
+	pHydrogenApp->showStatusBarMessage(
+		pCommonStrings->getActionAddInstrument() );
+
 }
 
 void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -1380,17 +1388,22 @@ void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 			std::make_shared<Instrument>(), pSelectedInstrument,
 			SE_replaceInstrumentAction::Type::DeleteLastInstrument,
 			pSelectedInstrument->get_name() );
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		pHydrogenApp->pushUndoCommand( pAction );
 	}
 	else {
 		auto pAction = new SE_deleteInstrumentAction(
 			pSelectedInstrument, nInstrumentIndex );
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		pHydrogenApp->pushUndoCommand( pAction );
 	}
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteInstrument() )
+		.arg( pSelectedInstrument->get_name() ) );
 }
 
 void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -1403,7 +1416,6 @@ void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
 		return;
 	}
 
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const QString sOldName = pInstrument->get_name();
 	bool bIsOkPressed;
 	const QString sNewName = QInputDialog::getText(
@@ -1413,11 +1425,16 @@ void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
 		auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
 		pNewInstrument->set_name( sNewName );
 
-		HydrogenApp::get_instance()->pushUndoCommand(
+		pHydrogenApp->pushUndoCommand(
 			new SE_replaceInstrumentAction(
 				pNewInstrument, pInstrument,
 				SE_replaceInstrumentAction::Type::RenameInstrument,
 				sNewName, sOldName ) );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+			.arg( pCommonStrings->getActionRenameInstrument() )
+			.arg( sOldName ).arg( sNewName ) );
 	}
 }
 

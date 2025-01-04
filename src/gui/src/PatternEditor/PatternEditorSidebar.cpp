@@ -372,10 +372,14 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					auto pNewInstrument = std::make_shared<Instrument>();
 					pNewInstrument->setType( m_row.sType );
 					pNewInstrument->set_name( sNewName );
-					auto pAction = new SE_addInstrumentAction(
-						pNewInstrument, -1,
-						SE_addInstrumentAction::Type::AddEmptyInstrument );
-					HydrogenApp::get_instance()->pushUndoCommand( pAction );
+
+					auto pHydrogenApp = HydrogenApp::get_instance();
+					pHydrogenApp->pushUndoCommand(
+						new SE_addInstrumentAction(
+							pNewInstrument, -1,
+							SE_addInstrumentAction::Type::AddEmptyInstrument ) );
+					pHydrogenApp->showStatusBarMessage(
+						pHydrogenApp->getCommonStrings()->getActionAddInstrument() );
 				}
 			}
 	} );
@@ -954,6 +958,9 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	QString sText = event->mimeData()->text();
 
 	if ( sText.startsWith("Songs:") ||
@@ -994,8 +1001,12 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 			return;
 		}
 
-		HydrogenApp::get_instance()->pushUndoCommand(
+		pHydrogenApp->pushUndoCommand(
 			new SE_moveInstrumentAction( nSourceRow, nTargetRow ) );
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+			.arg( pCommonStrings->getActionMoveInstrument() )
+			.arg( nSourceRow ).arg( nTargetRow ) );
 
 		event->acceptProposedAction();
 	}
@@ -1009,15 +1020,13 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		const QString sInstrumentName = tokens.at( 1 );
 
 		// Load Instrument
-		const auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
-
 		const auto pNewDrumkit =
 			pHydrogen->getSoundLibraryDatabase()->getDrumkit( sDrumkitPath );
 		if ( pNewDrumkit == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve kit [%1] for instrument [%2]" )
 					  .arg( sDrumkitPath ).arg( sInstrumentName ) );
 			QMessageBox::critical( this, "Hydrogen",
-								   pCommonString->getInstrumentLoadError() );
+								   pCommonStrings->getInstrumentLoadError() );
 			return;
 		}
 		const auto pTargetInstrument =
@@ -1026,7 +1035,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 			ERRORLOG( QString( "Unable to retrieve instrument [%1] from kit [%2]" )
 					  .arg( sInstrumentName ).arg( sDrumkitPath ) );
 			QMessageBox::critical( this, "Hydrogen",
-								   pCommonString->getInstrumentLoadError() );
+								   pCommonStrings->getInstrumentLoadError() );
 			return;
 		}
 
@@ -1039,10 +1048,13 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		}
 		// We provide a copy of the instrument in order to not leak any changes
 		// into the original kit.
-		auto pAction = new SE_addInstrumentAction(
-			std::make_shared<Instrument>(pTargetInstrument), nTargetRowSE,
-			SE_addInstrumentAction::Type::DropInstrument );
-		HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		pHydrogenApp->pushUndoCommand(
+			new SE_addInstrumentAction(
+				std::make_shared<Instrument>(pTargetInstrument), nTargetRowSE,
+				SE_addInstrumentAction::Type::DropInstrument ) );
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2]" ) .arg( pCommonStrings->getActionDropInstrument() )
+			.arg( pTargetInstrument->get_name() ) );
 
 		event->acceptProposedAction();
 	}

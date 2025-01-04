@@ -776,9 +776,10 @@ class SE_moveInstrumentAction : public QUndoCommand
 {
 public:
 	SE_moveInstrumentAction(  int nSourceIndex, int nTargetIndex  ){
-		setText( QObject::tr( "Move instrument" )
-				 .append( QString( " [%1] -> [%2]" ).arg( nSourceIndex )
-						  .arg( nTargetIndex ) ) );
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		setText( QString( "%1 [%2] -> [%3]" )
+				 .arg( pCommonStrings->getActionMoveInstrument() )
+				 .arg( nSourceIndex ) .arg( nTargetIndex ) );
 		m_nSourceIndex = nSourceIndex;
 		m_nTargetIndex = nTargetIndex;
 	}

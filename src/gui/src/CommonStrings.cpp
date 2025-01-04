@@ -571,6 +571,9 @@ CommonStrings::CommonStrings(){
 	/*: Representing a renaming of an instrument in the undo history and context
 	 * menu. */
 	m_sActionRenameInstrument = tr( "Rename instrument" );
+	/*: Representing a renaming of an instrument in the undo history and context
+	 * menu. */
+	m_sActionMoveInstrument = tr( "Move instrument" );
 	/*: Representing a drumkit loading in the undo history */
 	m_sActionSwitchDrumkit = tr( "Switch drumkit" );
 	/*: Representing the creation of a new drumkit in the undo history */

@@ -1282,6 +1282,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
         <translation>Copia note</translation>
     </message>
+    <message>
+        <source>Move instrument</source>
+        <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4553,10 +4558,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     </message>
     <message>
         <source>Overwrite %1 notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move instrument</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -243,6 +243,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionDeleteInstrument() const { return m_sActionDeleteInstrument; }
 		const QString& getActionDropInstrument() const { return m_sActionDropInstrument; }
 		const QString& getActionRenameInstrument() const { return m_sActionRenameInstrument; }
+		const QString& getActionMoveInstrument() const { return m_sActionMoveInstrument; }
 		const QString& getActionSwitchDrumkit() const { return m_sActionSwitchDrumkit; }
 		const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
 		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
@@ -495,6 +496,7 @@ private:
 		QString m_sActionDeleteInstrument;
 		QString m_sActionDropInstrument;
 		QString m_sActionRenameInstrument;
+		QString m_sActionMoveInstrument;
 		QString m_sActionSwitchDrumkit;
 		QString m_sActionNewDrumkit;
 		QString m_sActionAddComponent;

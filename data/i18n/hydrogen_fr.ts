@@ -1285,6 +1285,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
         <translation>Copier les notes</translation>
     </message>
+    <message>
+        <source>Move instrument</source>
+        <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
+        <translation>Déplacer l&apos;instrument</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -4597,10 +4602,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Overwrite %1 notes</source>
         <translation>Écraser les notes %1</translation>
-    </message>
-    <message>
-        <source>Move instrument</source>
-        <translation>Déplacer l&apos;instrument</translation>
     </message>
     <message>
         <source>Add point</source>

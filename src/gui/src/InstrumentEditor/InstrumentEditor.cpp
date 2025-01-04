@@ -1224,6 +1224,9 @@ void InstrumentEditor::renameComponentAction()
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	const QString sOldName = pComponent->getName();
 	bool bIsOkPressed;
 	const QString sNewName = QInputDialog::getText(
@@ -1231,9 +1234,13 @@ void InstrumentEditor::renameComponentAction()
 		sOldName, &bIsOkPressed );
 
 	if ( bIsOkPressed && sOldName != sNewName ) {
-		 auto pAction = new SE_renameComponentAction(
-			 sNewName, sOldName, m_nSelectedComponent );
-		 HydrogenApp::get_instance()->pushUndoCommand( pAction );
+		 pHydrogenApp->pushUndoCommand(
+			 new SE_renameComponentAction(
+				 sNewName, sOldName, m_nSelectedComponent ) );
+		 pHydrogenApp->showStatusBarMessage(
+			 QString( "%1: [%2] -> [%3]" )
+					 .arg( pCommonStrings->getActionRenameComponent() )
+					 .arg( sOldName ).arg( sNewName ) );
 	}
 }
 
@@ -1478,15 +1485,21 @@ void InstrumentEditor::addComponentAction() {
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	auto pNewInstrument = std::make_shared<Instrument>( m_pInstrument );
 
 	const auto pNewComponent = std::make_shared<InstrumentComponent>( sNewName );
 	pNewInstrument->addComponent( pNewComponent );
 
-	auto pAction = new SE_replaceInstrumentAction(
-		pNewInstrument, m_pInstrument,
-		SE_replaceInstrumentAction::Type::AddComponent, sNewName );
-	HydrogenApp::get_instance()->pushUndoCommand( pAction );
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, m_pInstrument,
+			SE_replaceInstrumentAction::Type::AddComponent, sNewName ) );
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionAddComponent() )
+		.arg( sNewName ) );
 
 	// New components will be appended.
 	selectComponent( m_pInstrument->get_components()->size() );
@@ -1508,6 +1521,8 @@ void InstrumentEditor::deleteComponentAction() {
 				  .arg( m_nSelectedComponent ) );
 		return;
 	}
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	const auto sName = pComponent->getName();
 
@@ -1516,10 +1531,13 @@ void InstrumentEditor::deleteComponentAction() {
 	const auto pNewComponent = std::make_shared<InstrumentComponent>( sName );
 	pNewInstrument->removeComponent( m_nSelectedComponent );
 
-	auto pAction = new SE_replaceInstrumentAction(
-		pNewInstrument, m_pInstrument,
-		SE_replaceInstrumentAction::Type::DeleteComponent, sName );
-	HydrogenApp::get_instance()->pushUndoCommand( pAction );
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, m_pInstrument,
+			SE_replaceInstrumentAction::Type::DeleteComponent, sName ) );
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteComponent() )
+		.arg( sName ) );
 
 	selectComponent(
 		std::clamp( m_nSelectedComponent, 0,
