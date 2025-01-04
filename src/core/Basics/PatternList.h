@@ -77,9 +77,12 @@ class Note;
 		 * @param nInstrumentId If set to a value other than #EMPTY_INSTR_ID, it
 		 *   is used to filter serialized notes by requiring a matching id.
 		 * @param sType If set to a non-empty value, it is used to filter
-		 *   serialized notess by requiring a matching type. */
+		 *   serialized notess by requiring a matching type.
+		 * @param nPitch If a valid one is provided, one those notes matching
+		 *   this particular pitch will be stored. */
 		void save_to( XMLNode& pNode, int nInstrumentId = EMPTY_INSTR_ID,
-					  const QString& sType = "" ) const;
+					  const QString& sType = "",
+					  int nPitch = PITCH_INVALID ) const;
 
 		/** returns the numbers of patterns */
 		int size() const;
