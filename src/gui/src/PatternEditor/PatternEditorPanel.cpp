@@ -1250,6 +1250,7 @@ void PatternEditorPanel::patternModifiedEvent() {
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
 	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
+		updatePatternInfo();
 		updateEditors( true );
 	}
 }
@@ -1269,6 +1270,7 @@ void PatternEditorPanel::songSizeChangedEvent() {
 }
 
 void PatternEditorPanel::patternEditorLockedEvent() {
+	updatePatternInfo();
 	updateEditors( true );
 }
 
