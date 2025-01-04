@@ -2166,6 +2166,7 @@ void PatternEditor::drawPattern()
 						static_cast<int>(nnotes.size()) } );
 			}
 		}
+		notesAtRow.clear();
 
 		// Go through used rows list and draw markers for superimposed notes
 		for ( const auto [ nnRow, nnColumn, nnNotes ] : posCounts ) {
