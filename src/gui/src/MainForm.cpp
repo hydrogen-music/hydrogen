@@ -1323,12 +1323,10 @@ void MainForm::action_drumkit_open()
 
 void MainForm::action_drumkit_new()
 {
-	switch(
-			 QMessageBox::information(
-				 this, "Hydrogen",
-				 tr( "Replace the drumkit of the current song with an empty one?" ),
-							QMessageBox::Cancel | QMessageBox::Ok,
-							QMessageBox::Cancel)) {
+	switch( QMessageBox::information(
+				this, "Hydrogen",
+				tr( "Replace the drumkit of the current song with an empty one?" ),
+				QMessageBox::Cancel | QMessageBox::Ok, QMessageBox::Cancel ) ) {
 	case QMessageBox::Ok:
 		// ok btn pressed
 		break;
@@ -1340,13 +1338,17 @@ void MainForm::action_drumkit_new()
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	// Remove all instruments
 	auto pNewDrumkit = Drumkit::getEmptyDrumkit();
 
-	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(),
-		SE_switchDrumkitAction::Type::NewDrumkit );
-	HydrogenApp::get_instance()->pushUndoCommand( pAction );
+	pHydrogenApp->pushUndoCommand(
+		new SE_switchDrumkitAction(
+			pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(),
+			SE_switchDrumkitAction::Type::NewDrumkit ) );
+	pHydrogenApp->showStatusBarMessage( pCommonStrings->getActionNewDrumkit() );
 }
 
 void MainForm::action_drumkit_addInstrument()

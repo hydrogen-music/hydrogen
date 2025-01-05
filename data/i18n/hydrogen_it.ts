@@ -992,10 +992,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <translation>Importa online</translation>
     </message>
     <message>
-        <source>Edit Drumkit Properties of Current Song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>This action can not be undone!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1128,11 +1124,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Switch drumkit</source>
         <extracomment>Representing a drumkit loading in the undo history</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
-        <extracomment>Representing the creation of a new drumkit in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1285,6 +1276,36 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Move instrument</source>
         <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit properties of current drumkit</source>
+        <extracomment>Show as status message when changing the properties of the drumkit * embedded in the current song.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit properties of drumkit</source>
+        <extracomment>Show as status message when changing the properties of a drumkit in the * Sound Library. Separated by a whitespace the name of the drumkit will be * appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace current drumkit with new and empty one</source>
+        <extracomment>Representing the creation of a new drumkit in the undo history</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save drumkit</source>
+        <extracomment>Status message displayed when saving an drumkit into the Sound Library. * Separated by a whitespace the name of the drumkit as well as the path it * was stored in will be appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit</source>
+        <extracomment>Status message displayed when the current drumkit is saved into the * Sound Library. Separated by a whitespace the path it was stored in will * be appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load drumkit</source>
+        <extracomment>Status message displayed when loading an drumkit into the current song. * Separated by a whitespace the name of the drumkit will be appended to * the translated message.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1786,10 +1807,6 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>Do you want to recover them?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] loaded from [%2]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

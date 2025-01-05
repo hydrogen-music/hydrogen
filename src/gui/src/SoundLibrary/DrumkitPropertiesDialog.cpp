@@ -747,10 +747,10 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		// TODO this affects mostly metadata and can be done more efficiently.
 		// But due to the license propagation into the instruments, we switch
 		// the entire kit for now.
-		auto pAction = new SE_switchDrumkitAction(
-			m_pDrumkit, pSong->getDrumkit(),
-			SE_switchDrumkitAction::Type::EditProperties );
-		pHydrogenApp->pushUndoCommand( pAction );
+		pHydrogenApp->pushUndoCommand(
+			new SE_switchDrumkitAction(
+				m_pDrumkit, pSong->getDrumkit(),
+				SE_switchDrumkitAction::Type::EditProperties ) );
 
 		// Since we hit save on the song's drumkit, we should also save the song
 		// for the sake of consistency.
@@ -760,6 +760,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			// We are not saving the kit to the Sound Library and are done for
 			// now.
 			accept();
+			pHydrogenApp->showStatusBarMessage(
+				pCommonStrings->getActionEditCurrentDrumkitProperties() );
 			return;
 		}
 
@@ -808,6 +810,27 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 		ERRORLOG( "Saving of this drumkit failed." );
 		return;
+	}
+
+	if ( sOldPath != m_pDrumkit->getPath() ) {
+		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+			pHydrogenApp->showStatusBarMessage(
+				QString( "%1 -> [%2]" )
+				.arg( pCommonStrings->getActionSaveCurrentDrumkit() )
+				.arg( m_pDrumkit->getPath() ) );
+		}
+		else {
+			pHydrogenApp->showStatusBarMessage(
+				QString( "%1 [%2] -> [%3]" )
+				.arg( pCommonStrings->getActionSaveDrumkit() )
+				.arg( m_pDrumkit->getName() ).arg( m_pDrumkit->getPath() ) );
+		}
+	}
+	else {
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionEditDrumkitProperties() )
+			.arg( m_pDrumkit->getName() ) );
 	}
 
 	// Copy the selected image into the drumkit folder (in case a file outside

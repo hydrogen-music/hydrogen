@@ -236,6 +236,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getUndoMenuHistory() const { return m_sUndoMenuHistory; }
 	const QString& getUndoHistoryTitle() const { return m_sUndoHistoryTitle; }
 
+		const QString& getActionEditCurrentDrumkitProperties() const {
+			return m_sActionEditCurrentDrumkitProperties; }
 		const QString& getActionEditDrumkitProperties() const { return m_sActionEditDrumkitProperties; }
 		const QString& getActionIrreversible() const { return m_sActionIrreversible; }
 
@@ -246,6 +248,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionMoveInstrument() const { return m_sActionMoveInstrument; }
 		const QString& getActionSwitchDrumkit() const { return m_sActionSwitchDrumkit; }
 		const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
+		const QString& getActionLoadDrumkit() const {
+			return m_sActionLoadDrumkit; }
+		const QString& getActionSaveDrumkit() const {
+			return m_sActionSaveDrumkit; }
+		const QString& getActionSaveCurrentDrumkit() const {
+			return m_sActionSaveCurrentDrumkit; }
 		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
 		const QString& getActionDeleteComponent() const { return m_sActionDeleteComponent; }
 		const QString& getActionRenameComponent() const { return m_sActionRenameComponent; }
@@ -489,6 +497,7 @@ private:
 		QString m_sUndoMenuHistory;
 		QString m_sUndoHistoryTitle;
 
+		QString m_sActionEditCurrentDrumkitProperties;
 		QString m_sActionEditDrumkitProperties;
 		QString m_sActionIrreversible;
 
@@ -499,6 +508,9 @@ private:
 		QString m_sActionMoveInstrument;
 		QString m_sActionSwitchDrumkit;
 		QString m_sActionNewDrumkit;
+		QString m_sActionLoadDrumkit;
+		QString m_sActionSaveDrumkit;
+		QString m_sActionSaveCurrentDrumkit;
 		QString m_sActionAddComponent;
 		QString m_sActionDeleteComponent;
 		QString m_sActionRenameComponent;

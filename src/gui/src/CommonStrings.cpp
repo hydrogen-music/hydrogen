@@ -557,7 +557,14 @@ CommonStrings::CommonStrings(){
 	/*: Window title of the dialog showing the undo history. */
 	m_sUndoHistoryTitle = tr( "Undo history" );
 
-	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
+	/*: Show as status message when changing the properties of the drumkit
+	 *  embedded in the current song. */
+	m_sActionEditCurrentDrumkitProperties =
+		tr( "Edit properties of current drumkit" );
+	/*: Show as status message when changing the properties of a drumkit in the
+	 *  Sound Library. Separated by a whitespace the name of the drumkit will be
+	 *  appended to the translated message. */
+	m_sActionEditDrumkitProperties = tr( "Edit properties of drumkit" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
 	/*: Representing adding a new instrument in the undo history as well as
@@ -577,7 +584,19 @@ CommonStrings::CommonStrings(){
 	/*: Representing a drumkit loading in the undo history */
 	m_sActionSwitchDrumkit = tr( "Switch drumkit" );
 	/*: Representing the creation of a new drumkit in the undo history */
-	m_sActionNewDrumkit = tr( "Replace song drumkit with new and empty one" );
+	m_sActionNewDrumkit = tr( "Replace current drumkit with new and empty one" );
+	/*: Status message displayed when loading an drumkit into the current song.
+	 *  Separated by a whitespace the name of the drumkit will be appended to
+	 *  the translated message. */
+	m_sActionLoadDrumkit = tr( "Load drumkit" );
+	/*: Status message displayed when saving an drumkit into the Sound Library.
+	 *  Separated by a whitespace the name of the drumkit as well as the path it
+	 *  was stored in will be appended to the translated message. */
+	m_sActionSaveDrumkit = tr( "Save drumkit" );
+	/*: Status message displayed when the current drumkit is saved into the
+	 *  Sound Library. Separated by a whitespace the path it was stored in will
+	 *  be appended to the translated message. */
+	m_sActionSaveCurrentDrumkit = tr( "Save current drumkit" );
 	/*: Representing adding a new component to the currently selected instrument
 	 * in the undo history */
 	m_sActionAddComponent = tr( "Adding component" );

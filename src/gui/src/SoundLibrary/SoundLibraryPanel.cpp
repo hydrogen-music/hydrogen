@@ -601,12 +601,18 @@ void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrum
 		ERRORLOG( "Invalid drumkit provided" );
 		return;
 	}
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
 	H2Core::CoreActionController::setDrumkit( pNewDrumkit );
 
 	QApplication::restoreOverrideCursor();
+
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionLoadDrumkit() )
+		.arg( pNewDrumkit->getName() ) );
 }
 
 QString SoundLibraryPanel::getDrumkitLabel( const QString& sDrumkitPath ) const {
