@@ -168,10 +168,7 @@ enum EventType {
 	/** Triggered when transport is moved into a different column
 		(either during playback or when relocated by the user)*/
 	EVENT_COLUMN_CHANGED,
-	/** A the current drumkit was replaced by a new one.
-	 *
-	 * If a value of `0` is provided, Hydrogen will trigger a status message
-	 * indicating a drumkit load. */
+	/** A the current drumkit was replaced by a new one. */
 	EVENT_DRUMKIT_LOADED,
 	/** Locks the PatternEditor on the pattern currently played back.*/
 	EVENT_PATTERN_EDITOR_LOCKED,

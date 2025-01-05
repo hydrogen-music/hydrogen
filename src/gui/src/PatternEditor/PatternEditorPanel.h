@@ -155,7 +155,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		virtual void selectedInstrumentChangedEvent() override;
 	virtual void patternModifiedEvent() override;
 	virtual void playingPatternsChangedEvent() override;
-	virtual void drumkitLoadedEvent( int nValue ) override;
+	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
 	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int ) override;

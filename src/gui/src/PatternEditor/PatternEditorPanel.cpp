@@ -707,7 +707,7 @@ void PatternEditorPanel::updateDrumkitLabel( )
 	}
 }
 
-void PatternEditorPanel::drumkitLoadedEvent( int nValue ) {
+void PatternEditorPanel::drumkitLoadedEvent() {
 	updateDrumkitLabel();
 
 	const int nPreviousRows = m_db.size();

@@ -1691,7 +1691,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 1 );
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 
 	return true;
 }
@@ -1755,7 +1755,7 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 1 );
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 
 	return true;
 }
@@ -1820,7 +1820,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( H2Core::EVENT_DRUMKIT_LOADED, 1 );
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 
 	return true;
 }
@@ -1862,7 +1862,7 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) 
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 1 );
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 
 	return true;
 }

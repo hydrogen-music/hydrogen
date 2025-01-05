@@ -611,7 +611,7 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 	}
 }
 
-void InstrumentEditor::drumkitLoadedEvent( int nValue ) {
+void InstrumentEditor::drumkitLoadedEvent() {
 	selectedInstrumentChangedEvent();
 }
 
