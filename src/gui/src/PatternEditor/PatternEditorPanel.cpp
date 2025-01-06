@@ -921,6 +921,17 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 	resizeEvent( nullptr );	// force a scrollbar update
 }
 
+bool PatternEditorPanel::hasPatternEditorFocus() const {
+	return m_pPatternEditorRuler->hasFocus() ||
+		m_pDrumPatternEditor->hasFocus() ||
+		m_pPianoRollEditor->hasFocus() ||
+		m_pNoteVelocityEditor->hasFocus() ||
+		m_pNotePanEditor->hasFocus() ||
+		m_pNoteLeadLagEditor->hasFocus() ||
+		m_pNoteKeyOctaveEditor->hasFocus() ||
+		m_pNoteProbabilityEditor->hasFocus();
+}
+
 void PatternEditorPanel::showDrumEditor()
 {
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );

@@ -301,6 +301,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 			std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes );
 
 		bool getEntered() const;
+		/** @returns `true` in case any of the child editors or sidebar has
+		 * focus.*/
+		bool hasPatternEditorFocus() const;
 
 	public slots:
 		void showDrumEditor();

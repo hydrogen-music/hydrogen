@@ -1487,7 +1487,7 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 
 	QColor color;
 	if ( m_pPatternEditorPanel->getEntered() ||
-		 m_pPatternEditorPanel->hasFocus() ) {
+		 m_pPatternEditorPanel->hasPatternEditorFocus() ) {
 		color = pPref->getTheme().m_color.m_selectionHighlightColor;
 	} else {
 		color = pPref->getTheme().m_color.m_selectionInactiveColor;
