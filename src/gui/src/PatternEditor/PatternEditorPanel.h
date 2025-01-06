@@ -247,9 +247,11 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		  * @param nPattern If set to `-1`, all notes of row @a nRow in the all
 		  *   patterns of the current song will be removed.
 		  * @param nPitch If a valid value is supplied, only notes matching it
-		  *   will be removed. */
+		  *   will be removed.
+		  * @param bCut Whether the triggered status message should indicate note
+		  *   clearing of cutting. */
 		void clearNotesInRow( int nRow, int nPattern = -1,
-							  int nPitch = PITCH_INVALID );
+							  int nPitch = PITCH_INVALID, bool bCut = false );
 
 		enum class FillNotes {
 			All = 1,

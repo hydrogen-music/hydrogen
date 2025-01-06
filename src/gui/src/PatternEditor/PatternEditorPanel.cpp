@@ -2065,7 +2065,8 @@ bool PatternEditorPanel::isUsingAdditionalPatterns(
 	return false;
 }
 
-void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch ) {
+void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
+										  bool bCut ) {
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
@@ -2094,7 +2095,10 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-	if ( nRow != -1 ) {
+	if ( bCut ) {
+		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionCutAllNotes() );
+	}
+	else if ( nRow != -1 ) {
 		pHydrogenApp->beginUndoMacro(
 			QString( "%1 [%2]" )
 			.arg( pCommonStrings->getActionClearAllNotesInRow() )
@@ -2260,9 +2264,7 @@ void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 
 	copyNotesFromRowOfAllPatterns( nRow, nPitch );
 
-	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionCutAllNotes() );
-	clearNotesInRow( nRow, -1, nPitch );
-	pHydrogenApp->endUndoMacro();
+	clearNotesInRow( nRow, -1, nPitch, true );
 }
 
 void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
