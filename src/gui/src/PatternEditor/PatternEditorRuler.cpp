@@ -368,13 +368,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 															pixelRatio * ev->rect().height() ) );
 
 	// draw cursor
-	if ( ( m_pPatternEditorPanel->getDrumPatternEditor()->hasFocus() ||
-		   m_pPatternEditorPanel->getVelocityEditor()->hasFocus() ||
-		   m_pPatternEditorPanel->getPanEditor()->hasFocus() ||
-		   m_pPatternEditorPanel->getLeadLagEditor()->hasFocus() ||
-		   m_pPatternEditorPanel->getKeyOctaveEditor()->hasFocus() ||
-		   m_pPatternEditorPanel->getProbabilityEditor()->hasFocus() ||
-		   m_pPatternEditorPanel->getPianoRollEditor()->hasFocus() ) &&
+	if ( m_pPatternEditorPanel->hasPatternEditorFocus() &&
 		! pHydrogenApp->hideKeyboardCursor() ) {
 
 		int nCursorX = m_fGridWidth * m_pPatternEditorPanel->getCursorColumn() +

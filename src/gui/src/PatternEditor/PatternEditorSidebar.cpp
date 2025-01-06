@@ -160,6 +160,7 @@ void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
 
 void SidebarLabel::paintEvent( QPaintEvent* ev )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto p = QPainter( this );
 
 	QColor backgroundColor( m_backgroundColor );
@@ -210,7 +211,8 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 					color );
 	}
 
-	if ( m_bShowCursor && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( pHydrogenApp->getPatternEditorPanel()->hasPatternEditorFocus() &&
+		 m_bShowCursor && ! pHydrogenApp->hideKeyboardCursor() ) {
 		QPen pen;
 
 		pen.setColor( m_cursorColor );

@@ -1966,6 +1966,13 @@ void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 		m_pPatternEditorPanel->getSidebar()->update();
+
+		if ( m_editor == Editor::NotePropertiesRuler ) {
+			m_pPatternEditorPanel->getVisibleEditor()->update();
+		}
+		else {
+			m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
+		}
 	}
 	
 	// Update to remove the focus border highlight
@@ -2014,7 +2021,8 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 	m_selection.paintSelection( &painter );
 
 	// Draw cursor
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
+		 m_pPatternEditorPanel->hasPatternEditorFocus() ) {
 		QPen p( pPref->getTheme().m_color.m_cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );
