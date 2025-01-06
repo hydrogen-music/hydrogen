@@ -856,8 +856,6 @@ bool MainForm::action_file_save_as()
 #else
 		h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFilename );
 #endif
-		
-		h2app->updateWindowTitle();
 
 		if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Song ) ) {
 			// In case we stored the song for the first time, we remove the

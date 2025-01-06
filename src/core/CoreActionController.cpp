@@ -760,6 +760,8 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
+
+	EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 	
 	return true;
 }
