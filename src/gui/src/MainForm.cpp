@@ -879,7 +879,8 @@ bool MainForm::action_file_save()
 {
 	return action_file_save( "" );
 }
-bool MainForm::action_file_save( const QString& sNewFilename )
+bool MainForm::action_file_save( const QString& sNewFilename,
+								 bool bTriggerMessage )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -928,8 +929,11 @@ bool MainForm::action_file_save( const QString& sNewFilename )
 		return false;
 	}
 
-	h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
+	if ( bTriggerMessage ) {
+		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
 									 sFilename );
+	}
+
 	return true;
 }
 

@@ -1808,10 +1808,6 @@ Overwrite the existing file?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Song saved as: </source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Error loading playlist.</source>
         <translation></translation>
     </message>

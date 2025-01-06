@@ -1810,10 +1810,6 @@ Sovrascrivere il file esistente?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Song saved as: </source>
-        <translation>Canzone salvata con nome: </translation>
-    </message>
-    <message>
         <source>Error loading playlist.</source>
         <translation type="unfinished"></translation>
     </message>

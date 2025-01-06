@@ -1815,10 +1815,6 @@ Overwrite the existing file?</source>
         <translation>Voulez-vous les récupérer ?</translation>
     </message>
     <message>
-        <source>Song saved as: </source>
-        <translation>Morceau sauvegardé sous : </translation>
-    </message>
-    <message>
         <source>Error loading playlist.</source>
         <translation type="unfinished"></translation>
     </message>

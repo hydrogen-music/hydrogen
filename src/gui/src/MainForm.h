@@ -134,14 +134,19 @@ public slots:
 		 */
 		void action_file_open();
 		void action_file_openDemo();
-	/**
-	 * Saves the current song to disk.
-	 *
-	 * As Song::m_sFilename is not set by the GUI but by the core,
-	 * this function serves both the "save as" functionality (with
-	 * sNewFilename being non-empty) and the "save" one.
-	 */
-		bool action_file_save( const QString& sNewFilename );
+		/**
+		 * Saves the current song to disk.
+		 *
+		 * As Song::m_sFilename is not set by the GUI but by the core, this
+		 * function serves both the "save as" functionality (with sNewFilename
+		 * being non-empty) and the "save" one.
+		 *
+		 * Using @a bTriggerMessage the status message triggered by this method
+		 * can be suppressed (e.g. when the calling routine wants to trigger a
+		 * dedicated message instead).
+		 */
+		bool action_file_save( const QString& sNewFilename,
+							   bool bTriggerMessage = true );
 	bool action_file_save();
 
 		/**

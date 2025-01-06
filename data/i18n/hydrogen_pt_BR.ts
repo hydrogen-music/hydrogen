@@ -1813,10 +1813,6 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Você deseja recuperá-las?</translation>
     </message>
     <message>
-        <source>Song saved as: </source>
-        <translation>Canção salva como:</translation>
-    </message>
-    <message>
         <source>Error loading playlist.</source>
         <translation>Erro carregando playlist</translation>
     </message>
