@@ -1677,7 +1677,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		bool bNoteInRange = nNewPosition >= 0 &&
 			nNewPosition <= pPattern->getLength();
 		if ( m_editor == Editor::DrumPattern ) {
-			bNoteInRange = bNoteInRange && nNewRow > 0 &&
+			bNoteInRange = bNoteInRange && nNewRow >= 0 &&
 				nNewRow <= m_pPatternEditorPanel->getRowNumberDB();
 		}
 		else if ( m_editor == Editor::PianoRoll ){
