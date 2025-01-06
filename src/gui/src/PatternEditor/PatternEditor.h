@@ -239,7 +239,7 @@ public:
 		/** Ensure the selection lassos of the other editors match the one of
 		 * this instance. */
 		bool syncLasso();
-		SelectionState getSelectionState() const;
+		bool isSelectionMoving() const;
 
 		QPoint movingGridOffset() const;
 

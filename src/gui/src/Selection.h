@@ -60,6 +60,8 @@ public:
 	//! Can elements be dragged as well as being selected? This may change to suit widget's current state.
 	virtual bool canDragElements() { return true; }
 
+		virtual bool canMoveElements() const { return true; }
+
 	//! Calculate screen space occupied by keyboard cursor
 	virtual QRect getKeyboardCursorRect() = 0;
 
@@ -776,7 +778,8 @@ public:
 				updateWidgetGroup();
 				return true;
 
-			} else if ( m_selectionState == KeyboardMoving ) {
+			} else if ( m_selectionState == KeyboardMoving &&
+						m_pWidget->canMoveElements() ) {
 				// End keyboard move
 				m_selectionState = Idle;
 				m_pWidget->selectionMoveEndEvent( ev );
@@ -824,13 +827,8 @@ public:
 	}
 
 		//! A means to synchronize the lassos of different widgets.
-		bool syncLasso( const SelectionState& selectionState,
-						const QRect& cursorStart, const QRect& lasso ) {
+		bool syncLasso( const QRect& cursorStart, const QRect& lasso ) {
 			bool bUpdate = false;
-			if ( m_selectionState != selectionState ) {
-				m_selectionState = selectionState;
-				bUpdate = true;
-			}
 
 			if ( m_keyboardCursorStart != cursorStart ) {
 				m_keyboardCursorStart = cursorStart;

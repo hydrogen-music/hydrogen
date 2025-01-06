@@ -70,6 +70,7 @@ class NotePropertiesRuler : public PatternEditor,
 
 		//! @name PatternEditor interfaces
 		//! @{
+		virtual bool canMoveElements() const override { return false; };
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;

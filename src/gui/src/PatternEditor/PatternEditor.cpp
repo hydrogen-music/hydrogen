@@ -3365,8 +3365,7 @@ bool PatternEditor::syncLasso() {
 		lasso.setY( cursor.y() );
 		lasso.setHeight( cursor.height() );
 		cursorStart.setY( cursor.y() );
-		m_selection.syncLasso( m_selection.getSelectionState(),
-							   cursorStart, lasso );
+		m_selection.syncLasso( cursorStart, lasso );
 
 		if ( dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 			// The ruler does not feature a proper y and height coordinate. We
@@ -3426,17 +3425,8 @@ bool PatternEditor::syncLasso() {
 		cursorStart.setHeight( cursor.height() );
 		lasso.setY( prevLasso.y() );
 		lasso.setHeight( prevLasso.height() );
-		auto selectionState = m_selection.getSelectionState();
 
-		// Suppress move highlighting in drum pattern or piano roll editor. A
-		// dragging in NotePropertiesRuler does not move a note up changes its
-		// properties.
-		if ( selectionState == SelectionState::MouseMoving ) {
-			selectionState = SelectionState::Idle;
-		}
-
-		bUpdate = pVisibleEditor->m_selection.syncLasso(
-			selectionState, cursorStart, lasso );
+		bUpdate = pVisibleEditor->m_selection.syncLasso( cursorStart, lasso );
 
 	}
 	else {
@@ -3455,8 +3445,7 @@ bool PatternEditor::syncLasso() {
 		lasso.setY( cursor.y() );
 		lasso.setHeight( cursor.height() );
 
-		pVisibleRuler->m_selection.syncLasso(
-			m_selection.getSelectionState(), cursorStart, lasso );
+		pVisibleRuler->m_selection.syncLasso( cursorStart, lasso );
 
 		// We force a full update lasso could have been changed in vertical
 		// direction (note selection).
@@ -3466,6 +3455,6 @@ bool PatternEditor::syncLasso() {
 	return bUpdate;
 }
 
-SelectionState PatternEditor::getSelectionState() const {
-	return m_selection.getSelectionState();
+bool PatternEditor::isSelectionMoving() const {
+	return m_selection.isMoving();
 }

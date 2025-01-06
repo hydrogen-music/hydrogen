@@ -886,9 +886,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 
 	// Draw moved notes
 	auto pEditor = m_pPatternEditorPanel->getVisibleEditor();
-	if ( ! m_selection.isEmpty() && (
-			 pEditor->getSelectionState() == SelectionState::MouseMoving ||
-			 pEditor->getSelectionState() == SelectionState::KeyboardMoving ) ) {
+	if ( pEditor->isSelectionMoving() ) {
 		for ( const auto& ppNote : m_selection ) {
 			if ( m_offsetMap.find( ppNote ) != m_offsetMap.end() ) {
 				nOffsetX = m_offsetMap[ ppNote ];
