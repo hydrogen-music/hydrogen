@@ -1897,7 +1897,7 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 		updateHoveredNotesKeyboard();
 		if ( bVisible ) {
 			m_selection.updateKeyboardCursorPosition();
-			m_pPatternEditorPanel->ensureCursorVisible();
+			m_pPatternEditorPanel->ensureVisible();
 
 			if ( m_selection.isLasso() ) {
 				// Since the event was used to alter the note selection, we need
@@ -3131,7 +3131,7 @@ void PatternEditor::setCursorPitch( int nCursorPitch ) {
 	}
 
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		m_pPatternEditorPanel->ensureCursorVisible();
+		m_pPatternEditorPanel->ensureVisible();
 		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();

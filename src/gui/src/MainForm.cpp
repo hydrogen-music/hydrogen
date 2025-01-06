@@ -1356,6 +1356,11 @@ void MainForm::action_drumkit_new()
 void MainForm::action_drumkit_addInstrument(
 	std::shared_ptr<H2Core::Instrument> pInstrument )
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
@@ -1369,6 +1374,12 @@ void MainForm::action_drumkit_addInstrument(
 	pHydrogenApp->showStatusBarMessage(
 		pCommonStrings->getActionAddInstrument() );
 
+	// Select the new instrument. It will be appended to the instrument list of
+	// the current drumkit.
+	auto pPatternEditorPanel = pHydrogenApp->getPatternEditorPanel();
+	pPatternEditorPanel->setSelectedRowDB(
+		pSong->getDrumkit()->getInstruments()->size() - 1 );
+	pPatternEditorPanel->updateEditors();
 }
 
 void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )

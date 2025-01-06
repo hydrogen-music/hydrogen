@@ -837,7 +837,8 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 	m_nCursorIncrement =
 		( m_bIsUsingTriplets ? 4 : 3 ) * MAX_NOTES / ( m_nResolution * 3 );
-	m_nCursorColumn = m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement );
+	setCursorColumn(
+		m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement ), false );
 
 	updateEditors();
 }
@@ -1239,7 +1240,7 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pDrumPatternEditor->updateEditor( bPatternOnly );
 	m_pSidebar->updateEditor();
 
-	ensureCursorVisible();
+	ensureVisible();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
@@ -1482,17 +1483,15 @@ int PatternEditorPanel::getCursorColumn()
 	return m_nCursorColumn;
 }
 
-void PatternEditorPanel::ensureCursorVisible()
+void PatternEditorPanel::ensureVisible()
 {
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		if ( m_pEditorScrollView->isVisible() ) {
-			const auto pos = m_pDrumPatternEditor->getCursorPosition();
-			m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
-		}
-		else {
-			const auto pos = m_pPianoRollEditor->getCursorPosition();
-			m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
-		}
+	if ( m_pEditorScrollView->isVisible() ) {
+		const auto pos = m_pDrumPatternEditor->getCursorPosition();
+		m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
+	}
+	else {
+		const auto pos = m_pPianoRollEditor->getCursorPosition();
+		m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
 	}
 }
 
@@ -1511,7 +1510,7 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 	m_nCursorColumn = nCursorColumn;
 
 	if ( bUpdateEditors && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		ensureCursorVisible();
+		ensureVisible();
 		m_pSidebar->updateEditor();
 		m_pPatternEditorRuler->update();
 		getVisibleEditor()->update();

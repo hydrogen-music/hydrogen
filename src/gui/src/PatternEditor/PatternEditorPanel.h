@@ -195,7 +195,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * nullptr is returned. */
 		std::shared_ptr<H2Core::Instrument> getSelectedInstrument() const;
 
-		void ensureCursorVisible();
+		/** Scrolls the viewport of the current editor until the selected row
+		 * (containingt the cursor, if shown) is visible. */
+		void ensureVisible();
 		/** The row of the particular editor is maintained by the editor itself
 		 * and can be accessed via #PatternEditor::getCursorPosition. */
 		int getCursorColumn();
