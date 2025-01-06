@@ -818,8 +818,8 @@ public:
 				if ( m_selectionState != Idle ) {
 					m_selectionState = Idle;
 					updateWidgetGroup();
-					// Event got consumed for canceling the lasso.
-					return true;
+					// Cancelling lasso should not eat event.
+					return false;
 				}
 			}
 		}
