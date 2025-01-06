@@ -144,12 +144,13 @@ void SidebarLabel::leaveEvent( QEvent* ev ) {
 }
 
 void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
-	emit labelClicked( pEvent );
 
 	auto pSidebarRow = dynamic_cast<SidebarRow*>( m_pParent );
 	if ( pSidebarRow != nullptr ) {
 		pSidebarRow->mousePressEvent( pEvent );
 	}
+
+	emit labelClicked( pEvent );
 }
 
 void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
@@ -363,6 +364,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			}
 			else if ( pEvent->button() == Qt::LeftButton &&
 					  m_pInstrumentNameLbl->isShowingPlusSign() ) {
+				SidebarRow::mousePressEvent( pEvent );
 				// Add a new instrument to the current row
 				bool bIsOkPressed;
 				const QString sNewName = QInputDialog::getText(
