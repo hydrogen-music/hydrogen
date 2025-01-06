@@ -161,6 +161,7 @@ void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
 void SidebarLabel::paintEvent( QPaintEvent* ev )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pPatternEditorPanel = pHydrogenApp->getPatternEditorPanel();
 	auto p = QPainter( this );
 
 	QColor backgroundColor( m_backgroundColor );
@@ -211,11 +212,18 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 					color );
 	}
 
-	if ( pHydrogenApp->getPatternEditorPanel()->hasPatternEditorFocus() &&
+	if ( pPatternEditorPanel->hasPatternEditorFocus() &&
 		 m_bShowCursor && ! pHydrogenApp->hideKeyboardCursor() ) {
 		QPen pen;
 
-		pen.setColor( m_cursorColor );
+		// Only within the drum pattern editor we are able to change the sidebar
+		// column using keyboard events.
+		QColor cursorColor( m_cursorColor );
+		if ( ! pPatternEditorPanel->getDrumPatternEditor()->hasFocus() ) {
+			cursorColor.setAlpha( Skin::nInactiveCursorAlpha );
+		}
+
+		pen.setColor( cursorColor );
 
 		pen.setWidth( 2 );
 		p.setPen( pen );

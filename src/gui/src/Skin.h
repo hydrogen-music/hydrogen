@@ -49,6 +49,12 @@ public:
 		
 		\return String version of the stylesheet.*/
 	static QString getGlobalStyleSheet();
+
+		/** Different parts of the pattern editor share a common cursor. We will
+		 * add a slight transparency to those cursors _not_ current focussed by
+		 * the user. */
+		static constexpr int nInactiveCursorAlpha = 170;
+
 	/** Function used to update the global palette of the
 	QApplication.
 	

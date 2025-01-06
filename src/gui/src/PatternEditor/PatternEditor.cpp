@@ -2023,7 +2023,12 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 	// Draw cursor
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
 		 m_pPatternEditorPanel->hasPatternEditorFocus() ) {
-		QPen p( pPref->getTheme().m_color.m_cursorColor );
+		QColor cursorColor( pPref->getTheme().m_color.m_cursorColor );
+		if ( ! hasFocus() ) {
+			cursorColor.setAlpha( Skin::nInactiveCursorAlpha );
+		}
+
+		QPen p( cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );
 		painter.setBrush( Qt::NoBrush );
