@@ -1353,15 +1353,19 @@ void MainForm::action_drumkit_new()
 	pHydrogenApp->showStatusBarMessage( pCommonStrings->getActionNewDrumkit() );
 }
 
-void MainForm::action_drumkit_addInstrument()
+void MainForm::action_drumkit_addInstrument(
+	std::shared_ptr<H2Core::Instrument> pInstrument )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
+	if ( pInstrument == nullptr ) {
+		pInstrument = std::make_shared<Instrument>();
+	}
+
 	pHydrogenApp->pushUndoCommand(
 		new SE_addInstrumentAction(
-			std::make_shared<Instrument>(), -1,
-			SE_addInstrumentAction::Type::AddEmptyInstrument ) );
+			pInstrument, -1, SE_addInstrumentAction::Type::AddEmptyInstrument ) );
 	pHydrogenApp->showStatusBarMessage(
 		pCommonStrings->getActionAddInstrument() );
 

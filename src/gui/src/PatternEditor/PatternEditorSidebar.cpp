@@ -373,13 +373,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					pNewInstrument->setType( m_row.sType );
 					pNewInstrument->set_name( sNewName );
 
-					auto pHydrogenApp = HydrogenApp::get_instance();
-					pHydrogenApp->pushUndoCommand(
-						new SE_addInstrumentAction(
-							pNewInstrument, -1,
-							SE_addInstrumentAction::Type::AddEmptyInstrument ) );
-					pHydrogenApp->showStatusBarMessage(
-						pHydrogenApp->getCommonStrings()->getActionAddInstrument() );
+					MainForm::action_drumkit_addInstrument( pNewInstrument );
 				}
 			}
 	} );

@@ -43,6 +43,7 @@ class QUndoView;///debug only
 
 namespace H2Core {
 	class Drumkit;
+	class Instrument;
 }
 
 ///
@@ -185,7 +186,8 @@ public slots:
 		void action_drumkit_import( bool bLoad = true );
 		void action_drumkit_onlineImport();
 
-		void action_drumkit_addInstrument();
+		static void action_drumkit_addInstrument(
+			std::shared_ptr<H2Core::Instrument> pInstrument = nullptr );
 		static void action_drumkit_deleteInstrument( int nInstrumentIndex );
 		static void action_drumkit_renameInstrument( int nInstrumentIndex );
 
