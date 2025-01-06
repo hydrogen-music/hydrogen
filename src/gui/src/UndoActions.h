@@ -837,14 +837,10 @@ class SE_switchDrumkitAction : public QUndoCommand {
 			}
 		}
 		virtual void undo() {
-			HydrogenApp::get_instance()->getInstrumentRack()->
-				getSoundLibraryPanel()->switchDrumkit(
-					m_pOldDrumkit, m_pNewDrumkit );
+			SoundLibraryPanel::switchDrumkit( m_pOldDrumkit, m_pNewDrumkit );
 		}
 		virtual void redo() {
-			HydrogenApp::get_instance()->getInstrumentRack()->
-				getSoundLibraryPanel()->switchDrumkit(
-					m_pNewDrumkit, m_pOldDrumkit );
+			SoundLibraryPanel::switchDrumkit( m_pNewDrumkit, m_pOldDrumkit );
 		}
 
 	private:
