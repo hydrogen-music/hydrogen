@@ -1288,16 +1288,12 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		// Cleanup
 		closeFXProperties();
 		m_pUndoStack->clear();
-		
+
 		// Update GUI components
 		updateWindowTitle();
 		
 	} else if ( nValue == 1 ) {
-		
-		QString sFilename = pSong->getFilename();
-		
 		// Song was saved.
-		showStatusBarMessage( tr("Song saved as: ") + sFilename );
 		updateWindowTitle();
 		
 	}
