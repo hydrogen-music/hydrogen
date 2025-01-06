@@ -2439,8 +2439,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
+	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
@@ -2450,10 +2449,17 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 		return false;
 	}
 
-	auto pAction = new SE_switchDrumkitAction(
-		pTargetKit, Hydrogen::get_instance()->getSong()->getDrumkit(),
-		SE_switchDrumkitAction::Type::SwitchDrumkit );
-	HydrogenApp::get_instance()->pushUndoCommand( pAction );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	pHydrogenApp->pushUndoCommand(
+		new SE_switchDrumkitAction(
+			pTargetKit, pSong->getDrumkit(),
+			SE_switchDrumkitAction::Type::SwitchDrumkit ) );
+
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionLoadDrumkit() )
+		.arg( pTargetKit->getName() ) );
 
 	return true;
 }
