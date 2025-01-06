@@ -786,7 +786,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	// Check whether there is already a kit present we would overwrite.
-	if ( Filesystem::dir_exists( m_pDrumkit->getPath(), false ) ) {
+	if ( Filesystem::dir_exists( m_pDrumkit->getPath(), true ) ) {
 		int nRes = QMessageBox::information(
 			this, "Hydrogen",
 			QString( "%1\n%2\n\n%3" )
