@@ -386,17 +386,19 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pRecLayout->addWidget( m_pPatchBayBtn );
 
 	// zoom-in btn
-	Button *zoom_in_btn = new Button(
+	m_pZoomInBtn = new Button(
 		nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false,
 		QSize( 9, 9 ), tr( "Zoom in" ) );
-	connect( zoom_in_btn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
+	m_pZoomInBtn->setFocusPolicy( Qt::ClickFocus );
+	connect( m_pZoomInBtn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
-	Button *zoom_out_btn = new Button(
+	m_pZoomOutBtn = new Button(
 		nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false,
 		QSize( 9, 9 ), tr( "Zoom out" ) );
-	connect( zoom_out_btn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
+	m_pZoomOutBtn->setFocusPolicy( Qt::ClickFocus );
+	connect( m_pZoomOutBtn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 
 
@@ -416,8 +418,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPatternEditorHScrollBarLayout->setSpacing( 0 );
 	pPatternEditorHScrollBarLayout->setMargin( 0 );
 	pPatternEditorHScrollBarLayout->addWidget( m_pPatternEditorHScrollBar );
-	pPatternEditorHScrollBarLayout->addWidget( zoom_in_btn );
-	pPatternEditorHScrollBarLayout->addWidget( zoom_out_btn );
+	pPatternEditorHScrollBarLayout->addWidget( m_pZoomInBtn );
+	pPatternEditorHScrollBarLayout->addWidget( m_pZoomOutBtn );
 
 	m_pPatternEditorHScrollBarContainer = new QWidget();
 	m_pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
@@ -929,7 +931,9 @@ bool PatternEditorPanel::hasPatternEditorFocus() const {
 		m_pNotePanEditor->hasFocus() ||
 		m_pNoteLeadLagEditor->hasFocus() ||
 		m_pNoteKeyOctaveEditor->hasFocus() ||
-		m_pNoteProbabilityEditor->hasFocus();
+		m_pNoteProbabilityEditor->hasFocus() ||
+		m_pZoomInBtn->hasFocus() ||
+		m_pZoomOutBtn->hasFocus();
 }
 
 void PatternEditorPanel::showDrumEditor()
