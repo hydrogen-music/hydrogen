@@ -3378,7 +3378,8 @@ bool PatternEditor::syncLasso() {
 		lasso.setY( cursor.y() );
 		lasso.setHeight( cursor.height() );
 		cursorStart.setY( cursor.y() );
-		m_selection.syncLasso( cursorStart, lasso );
+		m_selection.syncLasso(
+			m_selection.getSelectionState(), cursorStart, lasso );
 
 		if ( dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 			// The ruler does not feature a proper y and height coordinate. We
@@ -3439,8 +3440,8 @@ bool PatternEditor::syncLasso() {
 		lasso.setY( prevLasso.y() );
 		lasso.setHeight( prevLasso.height() );
 
-		bUpdate = pVisibleEditor->m_selection.syncLasso( cursorStart, lasso );
-
+		bUpdate = pVisibleEditor->m_selection.syncLasso(
+			m_selection.getSelectionState(), cursorStart, lasso );
 	}
 	else {
 		// DrumPattern or Piano roll
@@ -3458,7 +3459,8 @@ bool PatternEditor::syncLasso() {
 		lasso.setY( cursor.y() );
 		lasso.setHeight( cursor.height() );
 
-		pVisibleRuler->m_selection.syncLasso( cursorStart, lasso );
+		pVisibleRuler->m_selection.syncLasso(
+			m_selection.getSelectionState(), cursorStart, lasso );
 
 		// We force a full update lasso could have been changed in vertical
 		// direction (note selection).

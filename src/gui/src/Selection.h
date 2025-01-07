@@ -827,8 +827,14 @@ public:
 	}
 
 		//! A means to synchronize the lassos of different widgets.
-		bool syncLasso( const QRect& cursorStart, const QRect& lasso ) {
+		bool syncLasso( SelectionState state, const QRect& cursorStart,
+						const QRect& lasso ) {
 			bool bUpdate = false;
+
+			if ( m_selectionState != state ) {
+				m_selectionState = state;
+				bUpdate = true;
+			}
 
 			if ( m_keyboardCursorStart != cursorStart ) {
 				m_keyboardCursorStart = cursorStart;
