@@ -120,7 +120,6 @@ void PatternEditor::zoomIn()
 	} else {
 		m_fGridWidth *= 1.5;
 	}
-	updateEditor();
 }
 
 void PatternEditor::zoomOut()
@@ -131,7 +130,6 @@ void PatternEditor::zoomOut()
 		} else {
 			m_fGridWidth /= 1.5;
 		}
-		updateEditor();
 	}
 }
 

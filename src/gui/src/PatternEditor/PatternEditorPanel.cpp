@@ -1125,6 +1125,9 @@ void PatternEditorPanel::zoomInBtnClicked()
 	getVisibleEditor()->zoomLasso( fOldGridWidth );
 
 	resizeEvent( nullptr );
+	ensureVisible();
+
+	updateEditors();
 }
 
 void PatternEditorPanel::zoomOutBtnClicked()
@@ -1148,6 +1151,9 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	getVisibleEditor()->zoomLasso( fOldGridWidth );
 
 	resizeEvent( nullptr );
+	ensureVisible();
+
+	updateEditors();
 }
 
 void PatternEditorPanel::updatePatternInfo() {

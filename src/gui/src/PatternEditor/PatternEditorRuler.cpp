@@ -458,9 +458,6 @@ void PatternEditorRuler::zoomIn()
 	resize( QSize( m_nRulerWidth, m_nRulerHeight ) );
 
 	updateActiveRange();
-	
-	invalidateBackground();
-	update();
 }
 
 
@@ -476,9 +473,6 @@ void PatternEditorRuler::zoomOut()
 		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
 		
 		updateActiveRange();
-		
-		invalidateBackground();
-		update();
 	}
 }
 
