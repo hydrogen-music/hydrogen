@@ -135,6 +135,13 @@ void PatternEditor::zoomOut()
 	}
 }
 
+void PatternEditor::zoomLasso( float fOldGridWidth ) {
+	if ( m_selection.isLasso() ) {
+		const float fScale = m_fGridWidth / fOldGridWidth;
+		m_selection.scaleLasso( fScale, PatternEditor::nMargin );
+	}
+}
+
 QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	float fRed, fGreen, fBlue;
 

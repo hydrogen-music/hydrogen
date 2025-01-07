@@ -108,6 +108,7 @@ public:
 	//! Zoom in / out on the time axis
 	void zoomIn();
 	void zoomOut();
+		void zoomLasso( float fOldGridWidth );
 
 	//! Clear the pattern editor selection
 	void clearSelection() {

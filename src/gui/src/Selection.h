@@ -863,6 +863,20 @@ public:
 			return m_selectionState;
 		}
 
+		/** Scale lasso when zooming in or out. @a nOffset can compensate for a
+		 * margin not affected by @a fScale. */
+		void scaleLasso( float fScale, int nOffset ) {
+			m_lasso.setRect( fScale * ( m_lasso.x() - nOffset ) + nOffset,
+							 m_lasso.y(),
+							 m_lasso.width() * fScale, m_lasso.height() );
+
+			m_keyboardCursorStart.setRect(
+				fScale * ( m_keyboardCursorStart.x() - nOffset ) + nOffset,
+				m_keyboardCursorStart.y(),
+				m_keyboardCursorStart.width() * fScale,
+				m_keyboardCursorStart.height() );
+		}
+
 	//! Update the keyboard cursor.
 	//! Called by the client widget to tell the Selection the current
 	//! location of the keyboard input cursor.

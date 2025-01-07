@@ -1075,7 +1075,9 @@ std::vector<std::shared_ptr<Pattern>> PatternEditorPanel::getPatternsToShow() co
 
 void PatternEditorPanel::zoomInBtnClicked()
 {
-	if( m_pPatternEditorRuler->getGridWidth() >= 24 ){
+	const float fOldGridWidth = m_pPatternEditorRuler->getGridWidth();
+
+	if ( fOldGridWidth >= 24 ){
 		return;
 	}
 
@@ -1092,11 +1094,16 @@ void PatternEditorPanel::zoomInBtnClicked()
 	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
 	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
+	getVisiblePropertiesRuler()->zoomLasso( fOldGridWidth );
+	getVisibleEditor()->zoomLasso( fOldGridWidth );
+
 	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::zoomOutBtnClicked()
 {
+	const float fOldGridWidth = m_pPatternEditorRuler->getGridWidth();
+
 	m_pPatternEditorRuler->zoomOut();
 	m_pDrumPatternEditor->zoomOut();
 	m_pNoteVelocityEditor->zoomOut();
@@ -1106,11 +1113,14 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	m_pNotePanEditor->zoomOut();
 	m_pPianoRollEditor->zoomOut();
 
-	resizeEvent( nullptr );
-
 	auto pPref = Preferences::get_instance();
 	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
 	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
+
+	getVisiblePropertiesRuler()->zoomLasso( fOldGridWidth );
+	getVisibleEditor()->zoomLasso( fOldGridWidth );
+
+	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::updatePatternInfo() {
