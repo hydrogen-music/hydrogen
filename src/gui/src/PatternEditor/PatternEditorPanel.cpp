@@ -116,8 +116,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	const int nLabelSpacing = 6;
 // Editor TOP
 
-	m_pTabBar = new QTabBar( nullptr );
-	m_pTabBar->setFocusPolicy( Qt::NoFocus );
+	m_pTabBar = new QTabBar( this );
+	m_pTabBar->setFocusPolicy( Qt::ClickFocus );
 	m_pTabBar->setObjectName( "patternEditorTabBar" );
 	// Select a different pattern
 	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
@@ -147,6 +147,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	});
 
 	m_pToolBar = new QWidget( nullptr );
+	m_pToolBar->setFocusPolicy( Qt::ClickFocus );
 	m_pToolBar->setFont( boldFont );
 	m_pToolBar->setFixedHeight( 24 );
 	m_pToolBar->setObjectName( "patternEditorToolBar" );
@@ -160,6 +161,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	//soundlibrary name
 	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
 										  ClickableLabel::Color::Bright, false );
+	m_pDrumkitLabel->setFocusPolicy( Qt::ClickFocus );
 	m_pDrumkitLabel->setFont( boldFont );
 	m_pDrumkitLabel->setIndent( PatternEditorSidebar::m_nMargin );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
@@ -172,6 +174,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
+	m_pSizeResol->setFocusPolicy( Qt::ClickFocus );
 	m_pSizeResol->setObjectName( "sizeResol" );
 	m_pSizeResol->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	m_pSizeResol->move( 0, 3 );
@@ -197,6 +200,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			 this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
 	m_pLCDSpinBoxNumerator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pLCDSpinBoxNumerator->setFocusPolicy( Qt::ClickFocus );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxNumerator );
 			
 	auto pLabel1 = new ClickableLabel(
@@ -218,6 +222,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxDenominator->setKeyboardTracking( false );
 	m_pLCDSpinBoxDenominator->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pLCDSpinBoxDenominator->setFocusPolicy( Qt::ClickFocus );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxDenominator );
 	pSizeResolLayout->addSpacing( nLabelSpacing );
 
@@ -230,6 +235,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pSizeResolLayout->addWidget( m_pResolutionLbl );
 	
 	m_pResolutionCombo = new LCDCombo( m_pSizeResol, QSize( 0, 0 ), true );
+	m_pResolutionCombo->setFocusPolicy( Qt::ClickFocus );
 	// Large enough for "1/32T" to be fully visible at large font size.
 	// m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
 	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
@@ -290,6 +296,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pRec = new QWidget( nullptr );
 	m_pRec->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+	m_pRec->setFocusPolicy( Qt::ClickFocus );
 	m_pRec->setObjectName( "pRec" );
 	m_pRec->move( 0, 3 );
 	pToolBarHBox->addWidget( m_pRec );
@@ -405,12 +412,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// external horizontal scrollbar
 	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , nullptr  );
 	m_pPatternEditorHScrollBar->setObjectName( "PatternEditorHScrollBar" );
+	m_pPatternEditorHScrollBar->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
 			 this, SLOT( syncToExternalHorizontalScrollbar( int ) ) );
 
 	// external vertical scrollbar
 	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
 	m_pPatternEditorVScrollBar->setObjectName( "PatternEditorVScrollBar" );
+	m_pPatternEditorVScrollBar->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged( int)),
 			 this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
 
@@ -497,7 +506,7 @@ void PatternEditorPanel::createEditors() {
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollEditor = new PianoRollEditor(
-		m_pPianoRollScrollView->viewport(), m_pPianoRollScrollView );
+		m_pPianoRollScrollView->viewport() );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
@@ -641,6 +650,7 @@ void PatternEditorPanel::createEditors() {
 
 	m_pPropertiesCombo = new LCDCombo(
 		nullptr, QSize( PatternEditorSidebar::m_nWidth, 18 ), false );
+	m_pPropertiesCombo->setFocusPolicy( Qt::ClickFocus );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
 	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
 	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyPan() );
@@ -924,7 +934,8 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 }
 
 bool PatternEditorPanel::hasPatternEditorFocus() const {
-	return m_pPatternEditorRuler->hasFocus() ||
+	return hasFocus() ||
+		m_pPatternEditorRuler->hasFocus() ||
 		m_pDrumPatternEditor->hasFocus() ||
 		m_pPianoRollEditor->hasFocus() ||
 		m_pNoteVelocityEditor->hasFocus() ||
@@ -933,7 +944,19 @@ bool PatternEditorPanel::hasPatternEditorFocus() const {
 		m_pNoteKeyOctaveEditor->hasFocus() ||
 		m_pNoteProbabilityEditor->hasFocus() ||
 		m_pZoomInBtn->hasFocus() ||
-		m_pZoomOutBtn->hasFocus();
+		m_pZoomOutBtn->hasFocus() ||
+		m_pPatternEditorHScrollBar->hasFocus() ||
+		m_pPatternEditorVScrollBar->hasFocus() ||
+		m_pPianoRollScrollView->hasFocus() ||
+		m_pRec->hasFocus() ||
+		m_pResolutionCombo->hasFocus() ||
+		m_pSizeResol->hasFocus() ||
+		m_pLCDSpinBoxNumerator->hasFocus() ||
+		m_pLCDSpinBoxDenominator->hasFocus() ||
+		m_pPropertiesCombo->hasFocus() ||
+		m_pDrumkitLabel->hasFocus() ||
+		m_pTabBar->hasFocus() ||
+		m_pToolBar->hasFocus();
 }
 
 void PatternEditorPanel::showDrumEditor()

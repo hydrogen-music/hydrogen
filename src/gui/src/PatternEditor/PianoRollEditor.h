@@ -103,7 +103,7 @@ class PianoRollEditor: public PatternEditor,
     H2_OBJECT(PianoRollEditor)
     Q_OBJECT
 	public:
-		PianoRollEditor( QWidget *pParent, QScrollArea *pScrollView );
+		PianoRollEditor( QWidget *pParent );
 		~PianoRollEditor();
 
 		// Selection manager interface
@@ -124,8 +124,6 @@ class PianoRollEditor: public PatternEditor,
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
-		
-		QScrollArea *m_pScrollView;
 
 		PitchSidebar* m_pPitchSidebar;
 };
