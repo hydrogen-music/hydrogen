@@ -622,9 +622,11 @@ void SidebarRow::set( const DrumPatternRow& row )
 	setSelected( m_pPatternEditorPanel->getSelectedRowDB() ==
 				 m_pPatternEditorPanel->getRowIndexDB( row ) );
 
-	if ( ! row.sType.isEmpty() ) {
+	if ( ! row.sType.isEmpty() && m_pTypeLbl->text() != row.sType ) {
 		m_pTypeLbl->setText( row.sType );
-	} else {
+		m_pTypeLbl->setToolTip( row.sType );
+	}
+	else if ( row.sType.isEmpty() ) {
 		m_pTypeLbl->showPlusSign();
 	}
 
