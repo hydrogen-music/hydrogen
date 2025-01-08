@@ -63,7 +63,7 @@ struct DrumPatternRow {
 
 	explicit DrumPatternRow() noexcept;
 	explicit DrumPatternRow( int nId, const QString& sType,
-							 bool bAlternate ) noexcept;
+							 bool bAlternate, bool bMappedToDrumkit ) noexcept;
 
 	/** Associated #H2Core::Instrument::__id in the current #H2Core::Drumkit.
 	 *
@@ -99,6 +99,10 @@ struct DrumPatternRow {
 	/** Odd number rows will be painted in an alternate color to make the
 	 * visually distinct. */
 	bool bAlternate;
+
+	/** Whether the row is associated with an instrument of the current
+	 * drumkit. If note won't be played back. */
+	bool bMappedToDrumkit;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };

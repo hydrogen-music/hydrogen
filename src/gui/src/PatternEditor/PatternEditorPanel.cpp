@@ -60,10 +60,11 @@ DrumPatternRow::DrumPatternRow() noexcept
 	, bAlternate( false ) {
 }
 DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
-								bool bAlt ) noexcept
+								bool bAlt, bool bMapped ) noexcept
 	: nInstrumentID( nId)
 	, sType( sTypeString )
-	, bAlternate( bAlt ) {
+	, bAlternate( bAlt )
+	, bMappedToDrumkit( bMapped ) {
 }
 
 QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
@@ -76,13 +77,16 @@ QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2sType: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( sType ) )
 			.append( QString( "%1%2bAlternate: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bAlternate ) );
+					 .arg( s ).arg( bAlternate ) )
+			.append( QString( "%1%2bMappedToDrumkit: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bMappedToDrumkit ) );
 	}
 	else {
 		sOutput = QString( "[DrumPatternRow] " )
 			.append( QString( "nInstrumentID: %1" ).arg( nInstrumentID ) )
 			.append( QString( ", sType: %1" ).arg( sType ) )
-			.append( QString( ", bAlternate: %1" ).arg( bAlternate ) );
+			.append( QString( ", bAlternate: %1" ).arg( bAlternate ) )
+			.append( QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit ) );
 	}
 
 	return sOutput;
@@ -1864,7 +1868,7 @@ void PatternEditorPanel::updateDB() {
 		if ( ppInstrument != nullptr ) {
 			m_db.push_back(
 				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
-								nnRow % 2 != 0 ) );
+								nnRow % 2 != 0, true ) );
 			++nnRow;
 		}
 	}
@@ -1897,7 +1901,7 @@ void PatternEditorPanel::updateDB() {
 	additionalTypes.sort();
 	for ( const auto& ssType : additionalTypes ) {
 		m_db.push_back( DrumPatternRow(
-							EMPTY_INSTR_ID, ssType, nnRow % 2 != 0 ) );
+							EMPTY_INSTR_ID, ssType, nnRow % 2 != 0, false ) );
 		++nnRow;
 	}
 
