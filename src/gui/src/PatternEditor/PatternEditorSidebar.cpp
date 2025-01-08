@@ -76,32 +76,31 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	setColor( theme.m_color.m_patternEditor_backgroundColor,
 			  theme.m_color.m_patternEditor_textColor,
 			  theme.m_color.m_cursorColor );
+	updateFontColor();
 }
 
 SidebarLabel::~SidebarLabel() {
 }
 
 void SidebarLabel::setText( const QString& sNewText ) {
-	if ( ! m_bShowPlusSign && m_sText == sNewText ) {
+	if ( m_sText == sNewText ) {
 		return;
 	}
 
 	m_sText = sNewText;
 
-	m_bShowPlusSign = false;
-
 	updateFont();
 	update();
 }
 
-void SidebarLabel::showPlusSign() {
-	if ( m_bShowPlusSign ){
+void SidebarLabel::setShowPlusSign( bool bShowPlusSign ) {
+	if ( bShowPlusSign == m_bShowPlusSign ){
 		return;
 	}
 
-	m_bShowPlusSign = true;
-	QLabel::setText( "" );
+	m_bShowPlusSign = bShowPlusSign;
 
+	updateFontColor();
 	update();
 }
 
@@ -124,11 +123,7 @@ void SidebarLabel::setColor( const QColor& backgroundColor,
 		m_cursorColor = cursorColor;
 	}
 
-	setStyleSheet( QString( "\
-QLabel {\
-   color: %1;\
-   font-weight: bold;\
- }" ).arg( textColor.name() ) );
+	updateFontColor();
 }
 
 void SidebarLabel::enterEvent( QEvent* ev ) {
@@ -201,13 +196,21 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 			color = color.darker( SidebarLabel::nDimScaling );
 		}
 
+		
+		int nMidX = std::round( width() / 2 );
+		if ( ! text().isEmpty() ) {
+			const int nTextWidth =
+				QFontMetrics( font() ).size( Qt::TextSingleLine, text() ).width();
+			nMidX = std::round(( width() - nTextWidth ) / 2 ) + nTextWidth;
+		}
+
 		// horizontal
-		p.fillRect( QRect( width() / 2 - nHeight / 2,
+		p.fillRect( QRect( nMidX - nHeight / 2,
 						   height() / 2 - nLineWidth / 2, nHeight, nLineWidth ),
 					color );
 
 		// vertical
-		p.fillRect( QRect( width() / 2 - nLineWidth / 2,
+		p.fillRect( QRect( nMidX - nLineWidth / 2,
 						   height() / 2 - nHeight / 2, nLineWidth, nHeight ),
 					color );
 	}
@@ -303,18 +306,25 @@ void SidebarLabel::setDimed( bool bDimed ) {
 
 	m_bDimed = bDimed;
 
+	updateFontColor();
+	update();
+}
+
+void SidebarLabel::updateFontColor() {
+
 	QColor textColor( m_textColor );
-	if ( bDimed ) {
+	if ( m_bDimed ) {
 		textColor = textColor.darker( SidebarLabel::nDimScaling );
+	}
+	if ( m_bShowPlusSign ) {
+		textColor.setAlpha( 200 );
 	}
 
 	setStyleSheet( QString( "\
 QLabel {\
    color: %1;\
    font-weight: bold;\
- }" ).arg( textColor.name() ) );
-
-	update();
+ }" ).arg( textColor.name( QColor::HexArgb ) ) );
 }
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
@@ -571,16 +581,15 @@ void SidebarRow::set( const DrumPatternRow& row )
 	bool bIsSoloed = false, bIsMuted = false;
 	m_row = row;
 
-	if ( row.nInstrumentID != EMPTY_INSTR_ID ) {
+	if ( row.nInstrumentID != EMPTY_INSTR_ID && row.bMappedToDrumkit ) {
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 			const auto pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
 			if ( pInstrument != nullptr ) {
 				const QString sInstrumentName = pInstrument->get_name();
-				if ( m_pInstrumentNameLbl->text() != sInstrumentName ){
-					m_pInstrumentNameLbl->setText( sInstrumentName );
-				}
+				m_pInstrumentNameLbl->setText( sInstrumentName );
+				m_pInstrumentNameLbl->setShowPlusSign( false );
 
 				setMuted( pInstrument->is_muted() );
 				setSoloed( pInstrument->is_soloed() );
@@ -609,9 +618,10 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pSoloBtn->show();
 		m_pRenameInstrumentAction->setEnabled( true );
 		m_pDeleteInstrumentAction->setEnabled( true );
+		m_pTypeLbl->setShowPlusSign( false );
 	}
 	else {
-		m_pInstrumentNameLbl->showPlusSign();
+		m_pInstrumentNameLbl->setShowPlusSign( true );
 		m_pMuteBtn->hide();
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
@@ -625,9 +635,11 @@ void SidebarRow::set( const DrumPatternRow& row )
 	if ( ! row.sType.isEmpty() && m_pTypeLbl->text() != row.sType ) {
 		m_pTypeLbl->setText( row.sType );
 		m_pTypeLbl->setToolTip( row.sType );
+		m_pTypeLbl->setShowPlusSign( false );
 	}
-	else if ( row.sType.isEmpty() ) {
-		m_pTypeLbl->showPlusSign();
+	else if ( row.sType.isEmpty() && row.nInstrumentID != EMPTY_INSTR_ID ) {
+		m_pTypeLbl->setShowPlusSign( true );
+		m_pTypeLbl->setText( QString( "[%1]" ).arg( row.nInstrumentID ) );
 	}
 
 	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ){

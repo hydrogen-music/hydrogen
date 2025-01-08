@@ -59,7 +59,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		/** Text will be cleared on showPlusSign() */
 		void setText( const QString& sNewText );
 		/** Indicator to show add something new. Icon is cleared on setText() */
-		void showPlusSign();
+		void setShowPlusSign( bool bShowPlusSign );
 		bool isShowingPlusSign() const;
 		void setColor( const QColor& backgroundColor, const QColor& textColor,
 					   const QColor& cursorColor );
@@ -80,6 +80,8 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
 		virtual void paintEvent( QPaintEvent* ev) override;
+
+		void updateFontColor();
 
 		QWidget* m_pParent;
 		QString m_sText;
