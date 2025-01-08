@@ -1862,6 +1862,7 @@ void PatternEditorPanel::updateDB() {
 
 	int nnRow = 0;
 
+	std::set<int> kitIds;
 	// First we add all instruments of the current drumkit in the order author
 	// of the kit intended.
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
@@ -1869,6 +1870,7 @@ void PatternEditorPanel::updateDB() {
 			m_db.push_back(
 				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
 								nnRow % 2 != 0, true ) );
+			kitIds.insert( ppInstrument->get_id() );
 			++nnRow;
 		}
 	}
@@ -1876,32 +1878,48 @@ void PatternEditorPanel::updateDB() {
 	// Next we add rows for all notes in the selected pattern not covered by any
 	// of the instruments above.
 	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
-	QStringList additionalTypes;
+	QStringList additionalTypes, additionalIds;
 
 	for ( const auto& ppPattern : getPatternsToShow() ) {
 		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 			if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
-				 kitTypes.find( ppNote->getType() ) == kitTypes.end() ) {
-
-				// Check whether we deal with a kit or note with missing
-				// instrument types and whether the association with the kit was
-				// done based on the instrument ID.
-				if ( ppNote->getInstrumentId() != EMPTY_INSTR_ID ) {
-					continue;
-				}
-
-				// Note is not associated with current kit.
+				 kitTypes.find( ppNote->getType() ) == kitTypes.end() &&
+				 ppNote->getInstrumentId() == EMPTY_INSTR_ID ) {
+				// We just have an instrument type. The note was created
+				// with a recent kit for an instrument type not contained in
+				// the current drumkit.
 				if ( ! additionalTypes.contains( ppNote->getType() ) ) {
 					additionalTypes << ppNote->getType();
+				}
+			}
+			else if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
+					  kitIds.find( ppNote->getInstrumentId() ) == kitIds.end() &&
+					  ppNote->getInstrumentId() != EMPTY_INSTR_ID ) {
+				// We just have an instrument id. The note was created with a
+				// legacy kit or a newly created custom one not featuring (all)
+				// instrument types and the id of the instrument the note was
+				// created for is not used in the current drumkit.
+				if ( ! additionalIds.contains(
+						 QString::number( ppNote->getInstrumentId() ) ) ) {
+					additionalIds << QString::number( ppNote->getInstrumentId() );
 				}
 			}
 		}
 	}
 
+	// First we will insert all type-only rows. They are more likely to occur
+	// than unmapped id-only ones.
 	additionalTypes.sort();
 	for ( const auto& ssType : additionalTypes ) {
 		m_db.push_back( DrumPatternRow(
 							EMPTY_INSTR_ID, ssType, nnRow % 2 != 0, false ) );
+		++nnRow;
+	}
+
+	additionalIds.sort();
+	for ( const auto& ssId : additionalIds ) {
+		m_db.push_back( DrumPatternRow(
+							ssId.toInt(), "", nnRow % 2 != 0, false ) );
 		++nnRow;
 	}
 
