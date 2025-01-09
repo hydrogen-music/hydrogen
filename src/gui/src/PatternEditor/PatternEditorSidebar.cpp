@@ -417,7 +417,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	/*: Text displayed on the button for muting an instrument. Its size is
 	  designed for a single character.*/
 	m_pMuteBtn = new Button(
-		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
+		this, QSize( SidebarRow::m_nButtonWidth, height() ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), true,
 		QSize(), tr("Mute instrument"), false, true );
 	m_pMuteBtn->setChecked( false );
@@ -429,7 +429,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	/*: Text displayed on the button for soloing an instrument. Its size is
 	  designed for a single character.*/
 	m_pSoloBtn = new Button(
-		this, QSize( SidebarRow::m_nButtonWidth, height() - 1 ),
+		this, QSize( SidebarRow::m_nButtonWidth, height() ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), false,
 		QSize(), tr("Solo"), false, true );
 	m_pSoloBtn->setChecked( false );
