@@ -150,8 +150,7 @@ void SidebarLabel::mousePressEvent( QMouseEvent* pEvent ) {
 }
 
 void SidebarLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
-	UNUSED( pEvent );
-	emit labelDoubleClicked();
+	emit labelDoubleClicked( pEvent );
 }
 
 void SidebarLabel::paintEvent( QPaintEvent* ev )
@@ -402,12 +401,14 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				}
 			}
 	} );
-	connect( m_pInstrumentNameLbl, &SidebarLabel::labelDoubleClicked, [=](){
-		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-			MainForm::action_drumkit_renameInstrument(
-				m_pPatternEditorPanel->getRowIndexDB( m_row ) );
-		}
-	} );
+	connect( m_pInstrumentNameLbl, &SidebarLabel::labelDoubleClicked,
+			 [=]( QMouseEvent* pEvent ) {
+				 if ( pEvent->button() == Qt::LeftButton &&
+					  m_row.nInstrumentID != EMPTY_INSTR_ID ) {
+					 MainForm::action_drumkit_renameInstrument(
+						 m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+				 }
+			 } );
 
 	m_pSampleWarning = new Button(
 		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", false,
@@ -453,16 +454,22 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
 	pHBox->addWidget( m_pTypeLbl );
 	connect( m_pTypeLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
-		if ( m_row.nInstrumentID != EMPTY_INSTR_ID &&
+		if ( pEvent->button() == Qt::LeftButton &&
 			 m_pTypeLbl->isShowingPlusSign() ) {
-			MainForm::editDrumkitProperties( false, false, m_row.nInstrumentID );
+			if ( m_row.bMappedToDrumkit ) {
+				MainForm::editDrumkitProperties(
+					false, false, m_row.nInstrumentID );
+			}
 		}
 	} );
-	connect( m_pTypeLbl, &SidebarLabel::labelDoubleClicked, [=](){
-		if ( m_row.nInstrumentID != EMPTY_INSTR_ID ) {
-			MainForm::editDrumkitProperties( false, false, m_row.nInstrumentID );
-		}
-	} );
+	connect( m_pTypeLbl, &SidebarLabel::labelDoubleClicked,
+			 [=]( QMouseEvent* pEvent ){
+				 if ( pEvent->button() == Qt::LeftButton &&
+					  m_row.bMappedToDrumkit ) {
+					 MainForm::editDrumkitProperties(
+						 false, false, m_row.nInstrumentID );
+				 }
+			 } );
 	m_pTypeLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
 	// Popup menu

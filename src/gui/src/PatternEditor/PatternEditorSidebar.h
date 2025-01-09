@@ -75,7 +75,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 
 	signals:
 		void labelClicked( QMouseEvent* pEvent );
-		void labelDoubleClicked();
+		void labelDoubleClicked( QMouseEvent* pEvent );
 
 	private:
 
