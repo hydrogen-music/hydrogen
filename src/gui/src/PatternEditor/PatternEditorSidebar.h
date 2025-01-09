@@ -148,11 +148,8 @@ public slots:
 		 * to emphasize that one notes of one particular row are displayed. */
 		bool m_bDimed;
 
-		QColor m_backgroundColor;
-
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
-	virtual void paintEvent( QPaintEvent* ev ) override;
 
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );

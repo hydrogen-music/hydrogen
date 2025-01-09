@@ -678,12 +678,12 @@ void SidebarRow::setDimed( bool bDimed ) {
 void SidebarRow::updateStyleSheet() {
 	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 
-	QColor textColor, textPatternColor, backgroundPatternColor;
+	QColor textColor, textPatternColor, backgroundPatternColor, backgroundColor;
 	if ( m_bIsSelected ) {
 		backgroundPatternColor =
 			colorTheme.m_patternEditor_selectedRowColor.darker(
 				Skin::nListBackgroundColorScaling );
-		m_backgroundColor =
+		backgroundColor =
 			colorTheme.m_patternEditor_instrumentSelectedRowColor;
 		textPatternColor = colorTheme.m_patternEditor_selectedRowTextColor;
 		textColor = colorTheme.m_patternEditor_instrumentSelectedRowTextColor;
@@ -692,7 +692,7 @@ void SidebarRow::updateStyleSheet() {
 		backgroundPatternColor =
 			colorTheme.m_patternEditor_alternateRowColor.darker(
 				Skin::nListBackgroundColorScaling );
-		m_backgroundColor =
+		backgroundColor =
 			colorTheme.m_patternEditor_instrumentAlternateRowColor;
 		textPatternColor = colorTheme.m_patternEditor_textColor;
 		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
@@ -701,16 +701,16 @@ void SidebarRow::updateStyleSheet() {
 		backgroundPatternColor =
 			colorTheme.m_patternEditor_backgroundColor.darker(
 				Skin::nListBackgroundColorScaling );
-		m_backgroundColor =
+		backgroundColor =
 			colorTheme.m_patternEditor_instrumentRowColor;
 		textPatternColor = colorTheme.m_patternEditor_textColor;
 		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
 	}
 
-	setColor( m_backgroundColor );
+	setColor( colorTheme.m_windowColor );
 
 	m_pInstrumentNameLbl->setColor(
-		m_backgroundColor, textColor, colorTheme.m_cursorColor );
+		backgroundColor, textColor, colorTheme.m_cursorColor );
 	m_pTypeLbl->setColor(
 		backgroundPatternColor, textPatternColor, colorTheme.m_cursorColor );
 }
@@ -725,16 +725,6 @@ void SidebarRow::leaveEvent( QEvent* ev ) {
 	UNUSED( ev );
 	m_bEntered = false;
 	update();
-}
-
-void SidebarRow::paintEvent( QPaintEvent* ev ) {
-	auto pHydrogenApp = HydrogenApp::get_instance();
-
-	QPainter painter(this);
-
-	// Required for empty spaces around and in between buttons.
-	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
-							  m_backgroundColor, m_bEntered );
 }
 
 void SidebarRow::setMuted(bool isMuted)
