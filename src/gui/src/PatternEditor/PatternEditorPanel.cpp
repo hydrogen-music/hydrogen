@@ -977,6 +977,7 @@ void PatternEditorPanel::showDrumEditor()
 	m_pSidebar->dimRows( false );
 
 	m_pDrumPatternEditor->updateEditor(); // force an update
+	ensureVisible();
 
 	getVisiblePropertiesRuler()->syncLasso();
 
@@ -1000,6 +1001,7 @@ void PatternEditorPanel::showPianoRollEditor()
 	m_pSidebar->dimRows( true );
 
 	m_pPianoRollEditor->updateEditor(); // force an update
+	ensureVisible();
 
 	getVisiblePropertiesRuler()->syncLasso();
 
@@ -1297,8 +1299,6 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pPianoRollEditor->updateEditor( bPatternOnly );
 	m_pDrumPatternEditor->updateEditor( bPatternOnly );
 	m_pSidebar->updateEditor();
-
-	ensureVisible();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
