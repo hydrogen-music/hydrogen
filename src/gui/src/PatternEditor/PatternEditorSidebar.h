@@ -52,8 +52,14 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 	Q_OBJECT
 
 	public:
-		SidebarLabel( QWidget* pParent, const QSize& size, const QString& sText,
-					  int nIndent );
+
+		enum class Type {
+			Instrument,
+			Type
+		};
+
+		SidebarLabel( QWidget* pParent, Type type, const QSize& size,
+					  const QString& sText, int nIndent );
 		~SidebarLabel();
 
 		/** Text will be cleared on showPlusSign() */
@@ -81,14 +87,16 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
 		virtual void paintEvent( QPaintEvent* ev) override;
 
-		void updateFontColor();
+		void updateStyle();
 
 		QWidget* m_pParent;
+		Type m_type;
 		QString m_sText;
 		int m_nIndent;
 		bool m_bShowPlusSign;
 		QColor m_backgroundColor;
 		QColor m_textColor;
+		QColor m_textBaseColor;
 		QColor m_cursorColor;
 		/** Whether the mouse pointer entered the boundary of the widget.*/
 		bool m_bEntered;

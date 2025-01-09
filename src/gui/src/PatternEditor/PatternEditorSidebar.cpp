@@ -52,10 +52,11 @@
 
 using namespace H2Core;
 
-SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
+SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 							const QString& sText, int nIndent )
 	: QLabel( pParent )
 	, m_pParent( pParent )
+	, m_type( type )
 	, m_nIndent( nIndent )
 	, m_bShowPlusSign( false )
 	, m_bEntered( false )
@@ -76,7 +77,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 	setColor( theme.m_color.m_patternEditor_backgroundColor,
 			  theme.m_color.m_patternEditor_textColor,
 			  theme.m_color.m_cursorColor );
-	updateFontColor();
+	updateStyle();
 }
 
 SidebarLabel::~SidebarLabel() {
@@ -100,7 +101,7 @@ void SidebarLabel::setShowPlusSign( bool bShowPlusSign ) {
 
 	m_bShowPlusSign = bShowPlusSign;
 
-	updateFontColor();
+	updateStyle();
 	update();
 }
 
@@ -108,7 +109,7 @@ void SidebarLabel::setColor( const QColor& backgroundColor,
 							 const QColor& textColor,
 							 const QColor& cursorColor ) {
 	if ( m_backgroundColor == backgroundColor &&
-		 m_textColor == textColor &&
+		 m_textBaseColor == textColor &&
 		 m_cursorColor == cursorColor ) {
 		return;
 	}
@@ -116,14 +117,14 @@ void SidebarLabel::setColor( const QColor& backgroundColor,
 	if ( m_backgroundColor != backgroundColor ) {
 		m_backgroundColor = backgroundColor;
 	}
-	if ( m_textColor != textColor ) {
-		m_textColor = textColor;
+	if ( m_textBaseColor != textColor ) {
+		m_textBaseColor = textColor;
 	}
 	if ( m_cursorColor != cursorColor ) {
 		m_cursorColor = cursorColor;
 	}
 
-	updateFontColor();
+	updateStyle();
 }
 
 void SidebarLabel::enterEvent( QEvent* ev ) {
@@ -306,25 +307,26 @@ void SidebarLabel::setDimed( bool bDimed ) {
 
 	m_bDimed = bDimed;
 
-	updateFontColor();
+	updateStyle();
 	update();
 }
 
-void SidebarLabel::updateFontColor() {
+void SidebarLabel::updateStyle() {
+	const auto colorTheme = Preferences::get_instance()->getTheme().m_color;
 
-	QColor textColor( m_textColor );
-	if ( m_bDimed ) {
-		textColor = textColor.darker( SidebarLabel::nDimScaling );
+	m_textColor = m_textBaseColor;
+	if ( m_bDimed && m_type == Type::Type ) {
+		m_textColor = m_textColor.darker( SidebarLabel::nDimScaling );
 	}
-	if ( m_bShowPlusSign ) {
-		textColor.setAlpha( 200 );
+	if ( m_bShowPlusSign && m_type == Type::Type ) {
+		m_textColor.setAlpha( 200 );
 	}
 
 	setStyleSheet( QString( "\
 QLabel {\
    color: %1;\
    font-weight: bold;\
- }" ).arg( textColor.name( QColor::HexArgb ) ) );
+ }" ).arg( m_textColor.name( QColor::HexArgb ) ) );
 }
 
 SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
@@ -350,8 +352,9 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 
 	m_pInstrumentNameLbl = new SidebarLabel(
-		this, QSize( PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
-					 SidebarRow::m_nTypeLblWidth, nHeight ),
+		this, SidebarLabel::Type::Instrument,
+		QSize( PatternEditorSidebar::m_nWidth - 2 * SidebarRow::m_nButtonWidth -
+			   SidebarRow::m_nTypeLblWidth, nHeight ),
 		"", PatternEditorSidebar::m_nMargin );
 	m_pInstrumentNameLbl->setFont( nameFont );
 	m_pInstrumentNameLbl->setSizePolicy(
@@ -446,7 +449,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	pHBox->addStretch();
 
 	m_pTypeLbl = new SidebarLabel(
-		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
+		this, SidebarLabel::Type::Type,
+		QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
 	pHBox->addWidget( m_pTypeLbl );
 	connect( m_pTypeLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
 		if ( m_row.nInstrumentID != EMPTY_INSTR_ID &&
@@ -592,6 +596,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 				const QString sInstrumentName = pInstrument->get_name();
 				m_pInstrumentNameLbl->setText( sInstrumentName );
 				m_pInstrumentNameLbl->setShowPlusSign( false );
+				m_pInstrumentNameLbl->setDimed( false );
 
 				setMuted( pInstrument->is_muted() );
 				setSoloed( pInstrument->is_soloed() );
@@ -623,7 +628,9 @@ void SidebarRow::set( const DrumPatternRow& row )
 		m_pTypeLbl->setShowPlusSign( false );
 	}
 	else {
+		m_pInstrumentNameLbl->setText( "" );
 		m_pInstrumentNameLbl->setShowPlusSign( true );
+		m_pInstrumentNameLbl->setDimed( true );
 		m_pMuteBtn->hide();
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
