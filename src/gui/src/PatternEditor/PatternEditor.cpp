@@ -2874,14 +2874,9 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
 		if ( nInstrumentId != EMPTY_INSTR_ID ) {
+			// Can still be nullptr for notes in unmapped id-only rows.
 			pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( nInstrumentId );
-			if ( pInstrument == nullptr ) {
-				ERRORLOG( QString( "Instrument [%1] could not be found" )
-						  .arg( nInstrumentId ) );
-				pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
-				return;
-			}
 		}
 
 		auto pNote = std::make_shared<Note>( pInstrument, nPosition, fVelocity,

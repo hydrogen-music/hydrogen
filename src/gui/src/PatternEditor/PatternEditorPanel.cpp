@@ -2059,7 +2059,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 	if ( oldNotes.size() == 0 ) {
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
-			  row.nInstrumentID != EMPTY_INSTR_ID ) {
+			  row.bMappedToDrumkit ) {
 			auto pSelectedInstrument = getSelectedInstrument();
 			if ( pSelectedInstrument != nullptr &&
 				 pSelectedInstrument->hasSamples() ) {
