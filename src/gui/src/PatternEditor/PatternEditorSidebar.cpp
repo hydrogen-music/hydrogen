@@ -65,7 +65,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, const QSize& size,
 {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
-	setMinimumWidth( size.width() );
+	setFixedWidth( size.width() );
 	setFixedHeight( size.height() );
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
@@ -355,7 +355,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		"", PatternEditorSidebar::m_nMargin );
 	m_pInstrumentNameLbl->setFont( nameFont );
 	m_pInstrumentNameLbl->setSizePolicy(
-		QSizePolicy::Expanding, QSizePolicy::Fixed );
+		QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pHBox->addWidget( m_pInstrumentNameLbl );
 
 	// Play back a sample of specific velocity based on the horizontal position
@@ -442,6 +442,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		m_pSoloBtn->hide();
 		m_pSampleWarning->hide();
 	}
+
+	pHBox->addStretch();
 
 	m_pTypeLbl = new SidebarLabel(
 		this, QSize( SidebarRow::m_nTypeLblWidth, nHeight ), m_row.sType, 3 );
