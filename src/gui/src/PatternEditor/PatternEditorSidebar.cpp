@@ -587,10 +587,11 @@ void SidebarRow::set( const DrumPatternRow& row )
 	bool bIsSoloed = false, bIsMuted = false;
 	m_row = row;
 
+	std::shared_ptr<Instrument> pInstrument = nullptr;
 	if ( row.nInstrumentID != EMPTY_INSTR_ID && row.bMappedToDrumkit ) {
 		auto pSong = pHydrogen->getSong();
 		if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
-			const auto pInstrument =
+			pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
 			if ( pInstrument != nullptr ) {
 				const QString sInstrumentName = pInstrument->get_name();
@@ -601,6 +602,11 @@ void SidebarRow::set( const DrumPatternRow& row )
 				setMuted( pInstrument->is_muted() );
 				setSoloed( pInstrument->is_soloed() );
 				setSamplesMissing( pInstrument->has_missing_samples() );
+
+				m_pMuteBtn->show();
+				m_pSoloBtn->show();
+				m_pRenameInstrumentAction->setEnabled( true );
+				m_pDeleteInstrumentAction->setEnabled( true );
 
 				if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
 					// Instrument belongs to a kit in the SoundLibrary (and was
@@ -620,14 +626,9 @@ void SidebarRow::set( const DrumPatternRow& row )
 				}
 			}
 		}
-
-		m_pMuteBtn->show();
-		m_pSoloBtn->show();
-		m_pRenameInstrumentAction->setEnabled( true );
-		m_pDeleteInstrumentAction->setEnabled( true );
-		m_pTypeLbl->setShowPlusSign( false );
 	}
-	else {
+
+	if ( pInstrument == nullptr ) {
 		m_pInstrumentNameLbl->setText( "" );
 		m_pInstrumentNameLbl->setShowPlusSign( true );
 		m_pInstrumentNameLbl->setDimed( true );
