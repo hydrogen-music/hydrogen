@@ -1377,6 +1377,7 @@ void MainForm::action_drumkit_addInstrument(
 	// Select the new instrument. It will be appended to the instrument list of
 	// the current drumkit.
 	auto pPatternEditorPanel = pHydrogenApp->getPatternEditorPanel();
+	pPatternEditorPanel->updateDB();
 	pPatternEditorPanel->setSelectedRowDB(
 		pSong->getDrumkit()->getInstruments()->size() - 1 );
 	pPatternEditorPanel->updateEditors();
