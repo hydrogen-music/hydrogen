@@ -81,7 +81,10 @@ public:
 		/** For this property there is no dedicated NotePropertiesEditor
 		 * instance but we solely use it within undo/redo actions.*/
 		Length = 5,
-		None = 6
+		/** For this property there is no dedicated NotePropertiesEditor
+		 * instance but we solely use it within undo/redo actions.*/
+		Type = 6,
+		None = 7
 	};
 	static QString propertyToQString( const Property& property );
 
@@ -219,8 +222,10 @@ public:
 	static void editNotePropertiesAction( const Property& property,
 										  int nPatternNumber,
 										  int nPosition,
-										  int nInstrumentId,
-										  const QString& sType,
+										  int nOldInstrumentId,
+										  int nNewInstrumentId,
+										  const QString& sOldType,
+										  const QString& sNewType,
 										  float fVelocity,
 										  float fPan,
 										  float fLeadLag,

@@ -610,7 +610,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			if ( ! bSuccess ) {
 				highlightDuplicates();
 				QMessageBox::warning( this, "Hydrogen",
-									  tr( "Instrument types must be unique!" ) );
+									  pCommonStrings->getErrorUniqueTypes() );
 				return;
 			}
 		}

@@ -818,6 +818,8 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 					m_pPatternEditorPanel->getPatternNumber(),
 					pNewNote->getPosition(),
 					pOldNote->getInstrumentId(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getType(),
 					pOldNote->getType(),
 					pNewNote->getVelocity(),
 					pOldNote->getVelocity(),

@@ -676,7 +676,9 @@ public:
 								 int nPatternNumber,
 								 int nColumn,
 								 int nInstrumentId,
+								 int nOldInstrumentId,
 								 const QString& sType,
+								 const QString& sOldType,
 								 float fVelocity,
 								 float fOldVelocity,
 								 float fPan,
@@ -695,7 +697,9 @@ public:
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
 		m_nInstrumentId( nInstrumentId ),
+		m_nOldInstrumentId( nOldInstrumentId ),
 		m_sType( sType ),
+		m_sOldType( sOldType ),
 		m_fVelocity( fVelocity ),
 		m_fOldVelocity( fOldVelocity ),
 		m_fPan( fPan ),
@@ -719,7 +723,9 @@ public:
 												 m_nPatternNumber,
 												 m_nColumn,
 												 m_nInstrumentId,
+												 m_nOldInstrumentId,
 												 m_sType,
+												 m_sOldType,
 												 m_fOldVelocity,
 												 m_fOldPan,
 												 m_fOldLeadLag,
@@ -734,7 +740,9 @@ public:
 		PatternEditor::editNotePropertiesAction( m_property,
 												 m_nPatternNumber,
 												 m_nColumn,
+												 m_nOldInstrumentId,
 												 m_nInstrumentId,
+												 m_sOldType,
 												 m_sType,
 												 m_fVelocity,
 												 m_fPan,
@@ -754,7 +762,9 @@ private:
 		/** Row selected in #DrumPatternEditor the moment the action was
 		 * created. */
 		int m_nInstrumentId;
+		int m_nOldInstrumentId;
 		QString m_sType;
+		QString m_sOldType;
 		float m_fVelocity;
 		float m_fOldVelocity;
 		float m_fPan;

@@ -2297,6 +2297,99 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 	}
 }
 
+void PatternEditorPanel::setTypeInRow( int nRow ) {
+	const auto row = getRowDB( nRow );
+	if ( row.bMappedToDrumkit ) {
+		ERRORLOG( QString( "Row [%1] is mapped to the current drumkit. Please edit the drumkit to change types instead!" )
+				  .arg( nRow ) );
+		return;
+	}
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	// Get all notes in line nRow.
+	std::vector< std::shared_ptr<Note> > notes;
+	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
+		if ( ppNote != nullptr && ppNote->getType() == row.sType &&
+			 ppNote->getInstrumentId() == row.nInstrumentID ) {
+			notes.push_back( ppNote );
+		}
+	}
+
+	if ( notes.size() == 0 ) {
+		// Nothing to do. All notes seem to have been deleted before triggering
+		// this action.
+		updateDB();
+		updateEditors();
+		return;
+	}
+
+	bool bIsOkPressed;
+	const QString sNewType = QInputDialog::getText(
+		nullptr, "Hydrogen", QString( "%1 [%2]" )
+		.arg( pCommonStrings->getActionEditTypes() ).arg( nRow ),
+		QLineEdit::Normal, row.sType, &bIsOkPressed );
+	if ( ! bIsOkPressed ) {
+		// Cancelled by the user.
+		return;
+	}
+
+	if ( sNewType.isEmpty() ) {
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getErrorEmptyType() );
+		return;
+	}
+
+	for ( const auto& rrow : m_db ) {
+		if ( rrow.nInstrumentID != row.nInstrumentID &&
+			 rrow.sType != row.sType && sNewType == rrow.sType ) {
+			QMessageBox::critical( this, "Hydrogen",
+								   pCommonStrings->getErrorUniqueTypes() );
+			return;
+		}
+	}
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	pHydrogenApp->beginUndoMacro(
+		QString( "%1 [%2]" )
+		.arg( pHydrogenApp->getCommonStrings()->getActionEditTypes() )
+		.arg( nRow ) );
+
+	for ( const auto& ppNote : notes ) {
+		pHydrogenApp->pushUndoCommand(
+			new SE_editNotePropertiesAction(
+				PatternEditor::Property::Type,
+				getPatternNumber(),
+				ppNote->getPosition(),
+				EMPTY_INSTR_ID,
+				ppNote->getInstrumentId(),
+				sNewType,
+				ppNote->getType(),
+				ppNote->getVelocity(),
+				ppNote->getVelocity(),
+				ppNote->getPan(),
+				ppNote->getPan(),
+				ppNote->getLeadLag(),
+				ppNote->getLeadLag(),
+				ppNote->getProbability(),
+				ppNote->getProbability(),
+				ppNote->getLength(),
+				ppNote->getLength(),
+				ppNote->getKey(),
+				ppNote->getKey(),
+				ppNote->getOctave(),
+				ppNote->getOctave() ) );
+	}
+
+	pHydrogenApp->endUndoMacro();
+
+	updateDB();
+	updateEditors();
+
+	getVisibleEditor()->triggerStatusMessage(
+		notes, PatternEditor::Property::Type );
+}
+
 void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {

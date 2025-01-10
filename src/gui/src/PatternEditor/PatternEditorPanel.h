@@ -278,6 +278,11 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		  *   will be removed. */
 		void fillNotesInRow( int nRow, FillNotes every,
 							 int nPitch = PITCH_INVALID );
+
+		/** In case a row is not mapped to a drumkit, this function will adjust
+		 * all instrument types of the contained notes. */
+		void setTypeInRow( int nRow );
+
 		/** Serialized all notes in @a nRow for all patterns in the current song
 		 * and stores the resulting string to the clipboard. */
 		void copyNotesFromRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );

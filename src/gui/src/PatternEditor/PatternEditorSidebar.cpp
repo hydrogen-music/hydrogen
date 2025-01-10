@@ -485,14 +485,23 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				MainForm::editDrumkitProperties(
 					false, false, m_row.nInstrumentID );
 			}
+			else {
+				m_pPatternEditorPanel->setTypeInRow(
+					m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+			}
 		}
 	} );
 	connect( m_pTypeLbl, &SidebarLabel::labelDoubleClicked,
 			 [=]( QMouseEvent* pEvent ){
-				 if ( pEvent->button() == Qt::LeftButton &&
-					  m_row.bMappedToDrumkit ) {
-					 MainForm::editDrumkitProperties(
-						 false, false, m_row.nInstrumentID );
+				 if ( pEvent->button() == Qt::LeftButton ) {
+					if ( m_row.bMappedToDrumkit ) {
+						MainForm::editDrumkitProperties(
+							false, false, m_row.nInstrumentID );
+					}
+					else {
+						m_pPatternEditorPanel->setTypeInRow(
+							m_pPatternEditorPanel->getRowIndexDB( m_row ) );
+					}
 				 }
 			 } );
 	m_pTypeLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );

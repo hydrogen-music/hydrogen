@@ -507,7 +507,8 @@ CommonStrings::CommonStrings(){
 	/*: Shown in table headers when referring to an instrument's id.*/
 	m_sInstrumentId = tr( "Id" );
 	/*: Shown in table headers when referring to an instrument's type (as part
-	 *  of a Drumkit Map .h2map).*/
+	 *  of a Drumkit Map .h2map) as well as part of status messages referring to
+	 *  this property.*/
 	m_sInstrumentType = tr( "Type" );
 		/*: Shown in table headers when referring to a component's name.*/
 	m_sComponent = tr( "Component" );
@@ -669,11 +670,18 @@ CommonStrings::CommonStrings(){
 	/*: Shown as an action item in the right-click popup menu of the pattern
 	 *  editor. */
 	m_sActionCopyNotes = tr( "Copy notes" );
+	/*: Shown in the status bar when editting the type information of a row not
+	 *  mapped to the current drumkit and as the title of the associated dialog.
+	 *  Separated by a whitespace the corresponding column number will be
+	 *  appended. */
+	m_sActionEditTypes = tr( "Edit type for notes in row" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
 	 *  song path in the Playlist editor.*/
 	m_sErrorNotFoundShort = tr( "File not found" );
+	m_sErrorEmptyType = tr( "An instrument type must not be empty!" );
+	m_sErrorUniqueTypes = tr( "Instrument types must be unique!" );
 
 	/*: Suffix appended to a drumkit, song, or pattern name in case it
 	 * is found on system-level and is read-only. */

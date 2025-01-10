@@ -292,6 +292,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 			return m_sActionEditAllPatterns; }
 		const QString& getActionCopyNotes() const {
 			return m_sActionCopyNotes; }
+		const QString& getActionEditTypes() const {
+			return m_sActionEditTypes; }
 
 		const QString& getNotePropertyVelocity() const {
 			return m_sNotePropertyVelocity; }
@@ -306,7 +308,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 			return m_sNotePropertyLength; }
 
 		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
-		const QString& getErrorNotFoundShort() const { return m_sErrorNotFoundShort; }
+		const QString& getErrorNotFoundShort() const {
+			return m_sErrorNotFoundShort; }
+		const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
+		const QString& getErrorUniqueTypes() const {return m_sErrorUniqueTypes; }
 
 private:
 	QString m_sSmallSoloButton;
@@ -532,9 +537,12 @@ private:
 		QString m_sActionSelectNotes;
 		QString m_sActionEditAllPatterns;
 		QString m_sActionCopyNotes;
+		QString m_sActionEditTypes;
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;
+		QString m_sErrorEmptyType;
+		QString m_sErrorUniqueTypes;
 
 	QString m_sSoundLibraryFailedPreDrumkitLoad;
 	QString m_sSoundLibrarySystemSuffix;

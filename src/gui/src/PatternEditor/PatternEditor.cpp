@@ -868,6 +868,8 @@ void PatternEditor::randomizeVelocity() {
 				m_pPatternEditorPanel->getPatternNumber(),
 				ppNote->getPosition(),
 				ppNote->getInstrumentId(),
+				ppNote->getInstrumentId(),
+				ppNote->getType(),
 				ppNote->getType(),
 				fVal,
 				ppNote->getVelocity(),
@@ -2587,6 +2589,8 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 				m_pPatternEditorPanel->getPatternNumber(),
 				pNewNote->getPosition(),
 				pNewNote->getInstrumentId(),
+				pNewNote->getInstrumentId(),
+				pNewNote->getType(),
 				pNewNote->getType(),
 				pNewNote->getVelocity(),
 				pOldNote->getVelocity(),
@@ -2655,8 +2659,10 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 void PatternEditor::editNotePropertiesAction( const Property& property,
 											  int nPatternNumber,
 											  int nPosition,
-											  int nInstrumentId,
-											  const QString& sType,
+											  int nOldInstrumentId,
+											  int nNewInstrumentId,
+											  const QString& sOldType,
+											  const QString& sNewType,
 											  float fVelocity,
 											  float fPan,
 											  float fLeadLag,
@@ -2671,7 +2677,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 		HydrogenApp::get_instance()->getPatternEditorPanel();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 	auto pPatternList = pSong->getPatternList();
@@ -2689,7 +2695,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 
 	// Find the note to edit
 	auto pNote = pPattern->findNote(
-		nPosition, nInstrumentId, sType, static_cast<Note::Key>(nOldKey),
+		nPosition, nOldInstrumentId, sOldType, static_cast<Note::Key>(nOldKey),
 		static_cast<Note::Octave>(nOldOctave) );
 
 	bool bValueChanged = false;
@@ -2734,6 +2740,17 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 				bValueChanged = true;
 			}
 			break;
+		case Property::Type:
+			if ( pNote->getType() != sNewType ||
+				 pNote->getInstrumentId() != nNewInstrumentId ) {
+				pNote->setInstrumentId( nNewInstrumentId );
+				pNote->setType( sNewType );
+
+				pNote->mapTo( pSong->getDrumkit() );
+
+				bValueChanged = true;
+			}
+			break;
 		case Property::None:
 		default:
 			ERRORLOG("No property set. No note property adjusted.");
@@ -2747,6 +2764,10 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 	if ( bValueChanged ) {
 		pHydrogen->setIsModified( true );
 		std::vector< std::shared_ptr<Note > > notes{ pNote };
+
+		if ( property == Property::Type ) {
+			pPatternEditorPanel->updateDB();
+		}
 		pPatternEditorPanel->updateEditors( true );
 	}
 }
@@ -2937,6 +2958,9 @@ QString PatternEditor::propertyToQString( const Property& property ) {
 	case PatternEditor::Property::Length:
 		s = pCommonStrings->getNotePropertyLength();
 		break;
+	case PatternEditor::Property::Type:
+		s = pCommonStrings->getInstrumentType();
+		break;
 	default:
 		s = QString( "Unknown property [%1]" ).arg( static_cast<int>(property) ) ;
 		break;
@@ -3045,14 +3069,14 @@ void PatternEditor::triggerStatusMessage(
 					.arg( ppNote->getProbability(), 2, 'f', 2 );
 			}
 			break;
-
+		case PatternEditor::Property::Type:
+		case PatternEditor::Property::None:
 		default:
-			ERRORLOG( PatternEditor::propertyToQString( property ) );
-			return;
+			break;
 		}
 	}
 
-	if ( values.size() == 0 ) {
+	if ( values.size() == 0 && property != PatternEditor::Property::Type ) {
 		return;
 	}
 
@@ -3092,6 +3116,13 @@ void PatternEditor::triggerStatusMessage(
 		s = tr( "Set note length" )
 			.append( QString( ": [%1]" ).arg( values.join( ", " ) ) );
 		sCaller.append( ":Length" );
+		break;
+
+	case PatternEditor::Property::Type:
+		// All notes should have the same type. No need to aggregate in here.
+		s = tr( "Set note type" )
+			.append( QString( ": [%1]" ).arg( notes[ 0 ]->getType() ) );
+		sCaller.append( ":Type" );
 		break;
 
 	default:

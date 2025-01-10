@@ -922,7 +922,7 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     </message>
     <message>
         <source>Type</source>
-        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map).</extracomment>
+        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map) as well as part of status messages referring to * this property.</extracomment>
         <translation>Tipo</translation>
     </message>
     <message>
@@ -1309,6 +1309,19 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Load drumkit</source>
         <extracomment>Status message displayed when loading an drumkit into the current song. * Separated by a whitespace the name of the drumkit will be appended to * the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit type for notes in row</source>
+        <extracomment>Shown in the status bar when editting the type information of a row not * mapped to the current drumkit and as the title of the associated dialog. * Separated by a whitespace the corresponding column number will be * appended.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An instrument type must not be empty!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1722,10 +1735,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation>Salva uma cópia do drumkit atual para a pasta de sessão NSM</translation>
-    </message>
-    <message>
-        <source>Instrument types must be unique!</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3096,6 +3105,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>Set note lead/lag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note type</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
