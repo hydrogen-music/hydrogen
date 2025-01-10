@@ -307,6 +307,10 @@ class Note : public H2Core::Object<Note>
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const std::shared_ptr<Note> pNote ) const;
 
+		/** Does not compare the whole note but just its position in rendered in
+		 * the (PianoRoll) editor. */
+		bool matchPosition( const std::shared_ptr<Note> pNote ) const;
+
 		/** Compares two notes based on position (primary) and pitch
 		 * (secundary).
 		 *
@@ -682,6 +686,18 @@ inline bool Note::match( int nInstrumentId, const QString& sType, Key key,
 		m_key == key && m_octave==octave;
 }
 
+inline bool Note::matchPosition( const std::shared_ptr<Note> pNote ) const
+{
+	if ( pNote == nullptr ) {
+		return false;
+	}
+	return m_nInstrumentId == pNote->m_nInstrumentId &&
+		m_sType == pNote->m_sType &&
+		m_nPosition == pNote->m_nPosition &&
+		m_key == pNote->m_key &&
+		m_octave == pNote->m_octave;
+}
+
 inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 {
 	if ( pNote == nullptr ) {
@@ -689,7 +705,6 @@ inline bool Note::match( const std::shared_ptr<Note> pNote ) const
 	}
 	return m_nInstrumentId == pNote->m_nInstrumentId &&
 		m_sType == pNote->m_sType &&
-		m_key == pNote->m_key &&
 		m_nPosition == pNote->m_nPosition &&
 		m_fVelocity == pNote->m_fVelocity &&
 		m_fPan == pNote->m_fPan &&

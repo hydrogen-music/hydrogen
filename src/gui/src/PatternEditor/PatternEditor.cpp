@@ -1186,10 +1186,11 @@ bool PatternEditor::checkDeselectElements( const std::vector<SelectionIndex>& el
 			continue;
 		}
 		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, ppNote->getPosition() ) {
-			// Duplicate note of a selected note is anything occupying the same position. Multiple notes
-			// sharing the same location might be selected; we count these as duplicates too. They will appear
-			// in both the duplicates and selection lists.
-			if ( it->second != ppNote && ppNote->match( it->second ) ) {
+			// Duplicate note of a selected note is anything occupying the same
+			// position. Multiple notes sharing the same location might be
+			// selected; we count these as duplicates too. They will appear in
+			// both the duplicates and selection lists.
+			if ( it->second != ppNote && ppNote->matchPosition( it->second ) ) {
 				duplicates.insert( it->second );
 			}
 		}
