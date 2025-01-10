@@ -2340,15 +2340,6 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 		return;
 	}
 
-	for ( const auto& rrow : m_db ) {
-		if ( rrow.nInstrumentID != row.nInstrumentID &&
-			 rrow.sType != row.sType && sNewType == rrow.sType ) {
-			QMessageBox::critical( this, "Hydrogen",
-								   pCommonStrings->getErrorUniqueTypes() );
-			return;
-		}
-	}
-
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	pHydrogenApp->beginUndoMacro(
 		QString( "%1 [%2]" )

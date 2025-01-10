@@ -2697,6 +2697,20 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 	auto pNote = pPattern->findNote(
 		nPosition, nOldInstrumentId, sOldType, static_cast<Note::Key>(nOldKey),
 		static_cast<Note::Octave>(nOldOctave) );
+	if ( pNote == nullptr && property == Property::Type ) {
+		// Maybe the type of an unmapped note was set to one already present in
+		// the drumkit. In this case the instrument id of the note is remapped
+		// and might not correspond to the value used to create the undo/redo
+		// action.
+		bool bOk;
+		const int nKitId =
+			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
+		if ( bOk ) {
+			pNote = pPattern->findNote(
+				nPosition, nKitId, sOldType, static_cast<Note::Key>(nOldKey),
+				static_cast<Note::Octave>(nOldOctave) );
+		}
+	}
 
 	bool bValueChanged = false;
 
@@ -2767,8 +2781,12 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 
 		if ( property == Property::Type ) {
 			pPatternEditorPanel->updateDB();
+			pPatternEditorPanel->updateEditors();
+			pPatternEditorPanel->resizeEvent( nullptr );
 		}
-		pPatternEditorPanel->updateEditors( true );
+		else {
+			pPatternEditorPanel->updateEditors( true );
+		}
 	}
 }
 
