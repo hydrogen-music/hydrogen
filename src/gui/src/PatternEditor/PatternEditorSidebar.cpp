@@ -21,6 +21,7 @@
  */
 
 #include "PatternEditorSidebar.h"
+#include "PianoRollEditor.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/CoreActionController.h>
@@ -968,11 +969,18 @@ void PatternEditorSidebar::updateRows()
 		resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
 	}
 
+	bool bPianoRollShown = false;
+	if ( dynamic_cast<PianoRollEditor*>(
+			 m_pPatternEditorPanel->getVisibleEditor()) != nullptr ) {
+		bPianoRollShown = true;
+	}
+
 	int nnIndex = 0;
 	for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
 		if ( nnIndex < m_rows.size() ) {
 			// row already exists do a lazy update instead of recreating it.
 			m_rows[ nnIndex ]->set( rrow );
+			m_rows[ nnIndex ]->setDimed( bPianoRollShown );
 		}
 		else {
 			// row in DB does not has its counterpart in the sidebar yet. Create
@@ -980,6 +988,7 @@ void PatternEditorSidebar::updateRows()
 			auto pRow = std::make_shared<SidebarRow>( this, rrow );
 			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
 			pRow->show();
+			pRow->setDimed( bPianoRollShown );
 			m_rows.push_back( pRow );
 		}
 		++nnIndex;
