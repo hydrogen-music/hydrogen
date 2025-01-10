@@ -1802,6 +1802,38 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 
 	const int nWordSize = 5;
 
+	// Checks whether the notes at point are part of the current selection. If
+	// not, the latter is cleared and notes at point/cursor will be selected
+	// instead.
+	auto selectNotesAtPoint = [&]() {
+		const auto notesUnderPoint = getElementsAtPoint(
+			getCursorPosition(), 0, pPattern );
+		if ( notesUnderPoint.size() == 0 ) {
+			return false;
+		}
+
+		bool bNotesSelected = false;
+		if ( ! m_selection.isEmpty() ) {
+			for ( const auto& ppNote : notesUnderPoint ) {
+				if ( m_selection.isSelected( ppNote ) ) {
+					bNotesSelected = true;
+					break;
+				}
+			}
+		}
+
+		if ( ! bNotesSelected ) {
+			m_selection.clearSelection();
+			for ( const auto& ppNote : notesUnderPoint ) {
+				m_selection.addToSelection( ppNote );
+			}
+
+			return true;
+		}
+
+		return false;
+	};
+
 	bool bUnhideCursor = ev->key() != Qt::Key_Delete;
 
 	auto pCleanedEvent = new QKeyEvent(
@@ -1859,7 +1891,13 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 		}
 		else if ( ev->matches( QKeySequence::Copy ) ) {
 			bUnhideCursor = false;
+			const bool bTransientSelection = selectNotesAtPoint();
+
 			copy();
+
+			if ( bTransientSelection ) {
+				m_selection.clearSelection();
+			}
 		}
 		else if ( ev->matches( QKeySequence::Paste ) ) {
 			bUnhideCursor = false;
@@ -1867,7 +1905,13 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 		}
 		else if ( ev->matches( QKeySequence::Cut ) ) {
 			bUnhideCursor = false;
+			const bool bTransientSelection = selectNotesAtPoint();
+
 			cut();
+
+			if ( bTransientSelection ) {
+				m_selection.clearSelection();
+			}
 		}
 		else {
 			ev->ignore();
