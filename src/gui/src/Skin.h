@@ -77,6 +77,9 @@ public:
 		/** Factor by which the background of a list element (sidebar) will be
 		 * darker than the corresponding line. */
 		static constexpr int nListBackgroundColorScaling = 120;
+		/** Factor by which the background color of a list element will be
+		 * darkened in order to produce the border color. */
+		static constexpr int nListBackgroundDarkBorderScaling = 220;
 
 	/** If a widget is marked inactive the value of its background
 		color are reduced by this factor.*/

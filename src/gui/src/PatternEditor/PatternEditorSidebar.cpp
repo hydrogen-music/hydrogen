@@ -190,18 +190,43 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 		}
 
 		QColor color = m_bEntered ? pPref->getTheme().m_color.m_highlightColor :
-			m_textColor;
+			m_textBaseColor;
 
 		if ( m_bDimed ) {
 			color = color.darker( SidebarLabel::nDimScaling );
 		}
 
-		
 		int nMidX = std::round( width() / 2 );
-		if ( ! text().isEmpty() ) {
-			const int nTextWidth =
-				QFontMetrics( font() ).size( Qt::TextSingleLine, text() ).width();
+
+		if ( ! text().isEmpty() && m_type == Type::Type ) {
+			// If no instrument type was provided, we display the instrument id
+			// as fallback to nevertheless allow interacting with the
+			// corresponding notes.
+
+			// We use a fixed space with the width of roughly the amount digits
+			// of the largest instrument id rendered in the current font.
+			int nIdMax = EMPTY_INSTR_ID;
+			for ( const auto rrow : pPatternEditorPanel->getDB() ) {
+				if ( rrow.nInstrumentID > nIdMax ) {
+					nIdMax = rrow.nInstrumentID;
+				}
+			}
+			const QString sReferenceText = QString( "0" ).repeated(
+				QString::number( nIdMax ).length() );
+
+			const int nTextWidth = margin() * 2 + indent() +
+				QFontMetrics( font() ).size( Qt::TextSingleLine,
+											 sReferenceText ).width();
 			nMidX = std::round(( width() - nTextWidth ) / 2 ) + nTextWidth;
+
+			// Border between fallback id and plus sign.
+			QColor borderColor = backgroundColor.darker(
+				Skin::nListBackgroundDarkBorderScaling );
+			borderColor.setAlpha( 200 );
+
+			p.setPen( borderColor );
+			p.drawLine( nTextWidth, 1, nTextWidth, height() );
+			p.setPen( Qt::NoPen );
 		}
 
 		// horizontal
