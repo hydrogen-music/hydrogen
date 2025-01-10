@@ -2340,6 +2340,12 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 		return;
 	}
 
+	// Changing a type is effectively moving the note to another row of the
+	// DrumPatternEditor. This could result in overlapping notes at the same
+	// position. To guard against this, select all adjusted notes to harness the
+	// checkDeselectElements capabilities.
+	getVisibleEditor()->clearSelection();
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	pHydrogenApp->beginUndoMacro(
 		QString( "%1 [%2]" )

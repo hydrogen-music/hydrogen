@@ -2828,6 +2828,14 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 
 				pNote->mapTo( pSong->getDrumkit() );
 
+				// Changing a type is effectively moving the note to another row
+				// of the DrumPatternEditor. This could result in overlapping
+				// notes at the same position. To guard against this, select all
+				// adjusted notes to harness the checkDeselectElements
+				// capabilities.
+				pPatternEditorPanel->getVisibleEditor()->
+					m_selection.addToSelection( pNote );
+
 				bValueChanged = true;
 			}
 			break;
