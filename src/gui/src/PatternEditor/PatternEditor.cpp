@@ -1749,6 +1749,27 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		}
 	}
 
+	// Selecting the clicked row
+	auto pMouseEvent = dynamic_cast<QMouseEvent*>(ev);
+	if ( pMouseEvent != nullptr ) {
+		int nRow;
+		eventPointToColumnRow( pMouseEvent->pos(), nullptr, &nRow, nullptr );
+
+		if ( m_editor == Editor::DrumPattern ) {
+			m_pPatternEditorPanel->setSelectedRowDB( nRow );
+		}
+		else if ( m_editor == Editor::PianoRoll ) {
+			setCursorPitch( Note::lineToPitch( nRow ) );
+		}
+
+		// Handling the cursor column is a lot more difficult. We would need to
+		// take into account whether the dragged note was positioned off grid
+		// and whether Alt is pressed. Just looking at the notes under point
+		// does not cut it either since - without Alt - we just quantize the
+		// resulting position to the next grid point. Thus, we don't update
+		// cursor column on mouse event.
+	}
+
 	m_bSelectNewNotes = false;
 	pHydrogenApp->endUndoMacro();
 }
