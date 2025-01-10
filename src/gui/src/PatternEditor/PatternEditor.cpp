@@ -3296,7 +3296,13 @@ QRect PatternEditor::getKeyboardCursorRect()
 					  fHalfWidth * 2, m_nGridHeight+3 );
 	}
 	else {
-		return QRect( pos.x() - fHalfWidth, 3, fHalfWidth * 2, height() - 6 );
+		if ( hasFocus() ) {
+			return QRect( pos.x() - fHalfWidth, 3, fHalfWidth * 2, height() - 6 );
+		}
+		else {
+			// We do not have to compensate for the focus highlight.
+			return QRect( pos.x() - fHalfWidth, 1, fHalfWidth * 2, height() - 2 );
+		}
 	}
 }
 
