@@ -656,7 +656,7 @@ void SidebarRow::set( const DrumPatternRow& row )
 	}
 	else if ( row.sType.isEmpty() && row.nInstrumentID != EMPTY_INSTR_ID ) {
 		m_pTypeLbl->setShowPlusSign( true );
-		m_pTypeLbl->setText( QString( "[%1]" ).arg( row.nInstrumentID ) );
+		m_pTypeLbl->setText( QString::number( row.nInstrumentID ) );
 	}
 
 	if ( m_pInstrumentNameLbl->toolTip() != sToolTip ){
