@@ -1316,10 +1316,12 @@ void PatternEditorPanel::playingPatternsChangedEvent() {
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
+	updateDB();
 	updateEditors( true );
 }
 
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
+	updateDB();
 	updateEditors( true );
 }
 
@@ -1331,6 +1333,7 @@ void PatternEditorPanel::songSizeChangedEvent() {
 
 void PatternEditorPanel::patternEditorLockedEvent() {
 	updatePatternInfo();
+	updateDB();
 	updateEditors( true );
 }
 
