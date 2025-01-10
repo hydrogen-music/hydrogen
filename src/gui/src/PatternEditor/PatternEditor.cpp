@@ -61,7 +61,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_bCopyNotMove( false )
 	, m_nTick( -1 )
 	, m_editor( Editor::None )
-	, m_mode( Mode::None )
+	, m_property( Property::None )
 	, m_nCursorPitch( 0 )
 	, m_nDragStartColumn( 0 )
 	, m_nDragY( 0 )
@@ -864,7 +864,7 @@ void PatternEditor::randomizeVelocity() {
 						   0.0, 1.0 );
 		pHydrogenApp->pushUndoCommand(
 			new SE_editNotePropertiesAction(
-				PatternEditor::Mode::Velocity,
+				PatternEditor::Property::Velocity,
 				m_pPatternEditorPanel->getPatternNumber(),
 				ppNote->getPosition(),
 				ppNote->getInstrumentId(),
@@ -894,7 +894,7 @@ void PatternEditor::randomizeVelocity() {
 		}
 	}
 
-	triggerStatusMessage( notes, Mode::Velocity );
+	triggerStatusMessage( notes, Property::Velocity );
 }
 
 void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
@@ -2231,23 +2231,23 @@ void PatternEditor::drawFocus( QPainter& p ) {
 		pScrollArea = m_pPatternEditorPanel->getPianoRollEditorScrollArea();
 	}
 	else if ( m_editor == Editor::NotePropertiesRuler ) {
-		switch ( m_mode ) {
-		case PatternEditor::Mode::Velocity:
+		switch ( m_property ) {
+		case PatternEditor::Property::Velocity:
 			pScrollArea = m_pPatternEditorPanel->getNoteVelocityScrollArea();
 			break;
-		case PatternEditor::Mode::Pan:
+		case PatternEditor::Property::Pan:
 			pScrollArea = m_pPatternEditorPanel->getNotePanScrollArea();
 			break;
-		case PatternEditor::Mode::LeadLag:
+		case PatternEditor::Property::LeadLag:
 			pScrollArea = m_pPatternEditorPanel->getNoteLeadLagScrollArea();
 			break;
-		case PatternEditor::Mode::KeyOctave:
+		case PatternEditor::Property::KeyOctave:
 			pScrollArea = m_pPatternEditorPanel->getNoteKeyOctaveScrollArea();
 			break;
-		case PatternEditor::Mode::Probability:
+		case PatternEditor::Property::Probability:
 			pScrollArea = m_pPatternEditorPanel->getNoteProbabilityScrollArea();
 			break;
-		case PatternEditor::Mode::None:
+		case PatternEditor::Property::None:
 		default:
 			return;
 		}
@@ -2401,7 +2401,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
+	m_property = m_pPatternEditorPanel->getSelectedNoteProperty();
 
 	if ( ev->button() == Qt::RightButton ) {
 		// Adjusting note properties.
@@ -2422,8 +2422,8 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 			for ( const auto& ppNote : m_selection ) {
 				if ( ppNote != nullptr &&
 					 ! ( ppNote->getNoteOff() &&
-						 ( m_mode != Mode::LeadLag &&
-						   m_mode != Mode::Probability ) ) ) {
+						 ( m_property != Property::LeadLag &&
+						   m_property != Property::Probability ) ) ) {
 					m_draggedNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 				}
 			}
@@ -2433,8 +2433,8 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 				// NoteOff notes can have both a custom lead/lag and
 				// probability. But all other properties won't take effect.
 				if ( ! ( ppNote->getNoteOff() &&
-						( m_mode != Mode::LeadLag &&
-						  m_mode != Mode::Probability ) ) ) {
+						( m_property != Property::LeadLag &&
+						  m_property != Property::Probability ) ) ) {
 					m_draggedNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 				}
 			}
@@ -2484,18 +2484,18 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 
 
 		// edit note property. We do not support the note key property.
-		if ( m_mode != Mode::KeyOctave ) {
+		if ( m_property != Property::KeyOctave ) {
 			float fValue = 0.0;
-			if ( m_mode == Mode::Velocity ) {
+			if ( m_property == Property::Velocity ) {
 				fValue = ppNote->getVelocity();
 			}
-			else if ( m_mode == Mode::Pan ) {
+			else if ( m_property == Property::Pan ) {
 				fValue = ppNote->getPanWithRangeFrom0To1();
 			}
-			else if ( m_mode == Mode::LeadLag ) {
+			else if ( m_property == Property::LeadLag ) {
 				fValue = ( ppNote->getLeadLag() - 1.0 ) / -2.0 ;
 			}
-			else if ( m_mode == Mode::Probability ) {
+			else if ( m_property == Property::Probability ) {
 				fValue = ppNote->getProbability();
 			}
 		
@@ -2508,16 +2508,16 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 				fValue = 0.0;
 			}
 
-			if ( m_mode == Mode::Velocity ) {
+			if ( m_property == Property::Velocity ) {
 				ppNote->setVelocity( fValue );
 			}
-			else if ( m_mode == Mode::Pan ) {
+			else if ( m_property == Property::Pan ) {
 				ppNote->setPanWithRangeFrom0To1( fValue );
 			}
-			else if ( m_mode == Mode::LeadLag ) {
+			else if ( m_property == Property::LeadLag ) {
 				ppNote->setLeadLag( ( fValue * -2.0 ) + 1.0 );
 			}
-			else if ( m_mode == Mode::Probability ) {
+			else if ( m_property == Property::Probability ) {
 				ppNote->setProbability( fValue );
 			}
 
@@ -2525,8 +2525,8 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	}
 	m_nDragY = ev->y();
 
-	if ( m_mode != Mode::KeyOctave ) {
-		triggerStatusMessage( m_notesHoveredOnDragStart, m_mode );
+	if ( m_property != Property::KeyOctave ) {
+		triggerStatusMessage( m_notesHoveredOnDragStart, m_property );
 	}
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
@@ -2578,12 +2578,12 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		}
 	}
 
-	auto editNoteProperty = [=]( PatternEditor::Mode mode,
+	auto editNoteProperty = [=]( PatternEditor::Property property,
 								 std::shared_ptr<Note> pNewNote,
 								 std::shared_ptr<Note> pOldNote ) {
 		pHydrogenApp->pushUndoCommand(
 			new SE_editNotePropertiesAction(
-				mode,
+				property,
 				m_pPatternEditorPanel->getPatternNumber(),
 				pNewNote->getPosition(),
 				pNewNote->getInstrumentId(),
@@ -2612,7 +2612,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 		}
 
 		if ( ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
-			editNoteProperty( Mode::Length, ppUpdatedNote, ppOriginalNote );
+			editNoteProperty( Property::Length, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
 			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
@@ -2627,7 +2627,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 			 ppUpdatedNote->getLeadLag() != ppOriginalNote->getLeadLag() ||
 			 ppUpdatedNote->getProbability() !=
 			 ppOriginalNote->getProbability() ) {
-			editNoteProperty( m_mode, ppUpdatedNote, ppOriginalNote );
+			editNoteProperty( m_property, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
 			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
@@ -2639,10 +2639,10 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	}
 
 	if ( notesStatusLength.size() > 0 ) {
-		triggerStatusMessage( notesStatusLength, Mode::Length );
+		triggerStatusMessage( notesStatusLength, Property::Length );
 	}
 	if ( notesStatusProp.size() > 0 ) {
-		triggerStatusMessage( notesStatusProp, m_mode );
+		triggerStatusMessage( notesStatusProp, m_property );
 	}
 
 	if ( bMacroStarted ) {
@@ -2652,7 +2652,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	m_draggedNotes.clear();
 }
 
-void PatternEditor::editNotePropertiesAction( const Mode& mode,
+void PatternEditor::editNotePropertiesAction( const Property& property,
 											  int nPatternNumber,
 											  int nPosition,
 											  int nInstrumentId,
@@ -2695,26 +2695,26 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 	bool bValueChanged = false;
 
 	if ( pNote != nullptr ){
-		switch ( mode ) {
-		case Mode::Velocity:
+		switch ( property ) {
+		case Property::Velocity:
 			if ( pNote->getVelocity() != fVelocity ) {
 				pNote->setVelocity( fVelocity );
 				bValueChanged = true;
 			}
 			break;
-		case Mode::Pan:
+		case Property::Pan:
 			if ( pNote->getPan() != fPan ) {
 				pNote->setPan( fPan );
 				bValueChanged = true;
 			}
 			break;
-		case Mode::LeadLag:
+		case Property::LeadLag:
 			if ( pNote->getLeadLag() != fLeadLag ) {
 				pNote->setLeadLag( fLeadLag );
 				bValueChanged = true;
 			}
 			break;
-		case Mode::KeyOctave:
+		case Property::KeyOctave:
 			if ( pNote->getKey() != nNewKey ||
 				 pNote->getOctave() != nNewOctave ) {
 				pNote->setKeyOctave( static_cast<Note::Key>(nNewKey),
@@ -2722,21 +2722,21 @@ void PatternEditor::editNotePropertiesAction( const Mode& mode,
 				bValueChanged = true;
 			}
 			break;
-		case Mode::Probability:
+		case Property::Probability:
 			if ( pNote->getProbability() != fProbability ) {
 				pNote->setProbability( fProbability );
 				bValueChanged = true;
 			}
 			break;
-		case Mode::Length:
+		case Property::Length:
 			if ( pNote->getLength() != nLength ) {
 				pNote->setLength( nLength );
 				bValueChanged = true;
 			}
 			break;
-		case Mode::None:
+		case Property::None:
 		default:
-			ERRORLOG("No mode set. No note property adjusted.");
+			ERRORLOG("No property set. No note property adjusted.");
 		}			
 	} else {
 		ERRORLOG("note could not be found");
@@ -2914,31 +2914,31 @@ QString PatternEditor::editorToQString( const Editor& editor ) {
 	}
 }
 
-QString PatternEditor::modeToQString( const Mode& mode ) {
+QString PatternEditor::propertyToQString( const Property& property ) {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString s;
 	
-	switch ( mode ) {
-	case PatternEditor::Mode::Velocity:
+	switch ( property ) {
+	case PatternEditor::Property::Velocity:
 		s = pCommonStrings->getNotePropertyVelocity();
 		break;
-	case PatternEditor::Mode::Pan:
+	case PatternEditor::Property::Pan:
 		s = pCommonStrings->getNotePropertyPan();
 		break;
-	case PatternEditor::Mode::LeadLag:
+	case PatternEditor::Property::LeadLag:
 		s = pCommonStrings->getNotePropertyLeadLag();
 		break;
-	case PatternEditor::Mode::KeyOctave:
+	case PatternEditor::Property::KeyOctave:
 		s = pCommonStrings->getNotePropertyKeyOctave();
 		break;
-	case PatternEditor::Mode::Probability:
+	case PatternEditor::Property::Probability:
 		s = pCommonStrings->getNotePropertyProbability();
 		break;
-	case PatternEditor::Mode::Length:
+	case PatternEditor::Property::Length:
 		s = pCommonStrings->getNotePropertyLength();
 		break;
 	default:
-		s = QString( "Unknown mode [%1]" ).arg( static_cast<int>(mode) ) ;
+		s = QString( "Unknown property [%1]" ).arg( static_cast<int>(property) ) ;
 		break;
 	}
 
@@ -2959,7 +2959,7 @@ QString PatternEditor::updateToQString( const Update& update ) {
 }
 
 void PatternEditor::triggerStatusMessage(
-	const std::vector< std::shared_ptr<Note> > notes, const Mode& mode ) {
+	const std::vector< std::shared_ptr<Note> > notes, const Property& property ) {
 	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );
 
@@ -2971,14 +2971,14 @@ void PatternEditor::triggerStatusMessage(
 			continue;
 		}
 
-		switch ( mode ) {
-		case PatternEditor::Mode::Velocity:
+		switch ( property ) {
+		case PatternEditor::Property::Velocity:
 			if ( ! ppNote->getNoteOff() ) {
 				values << QString( "%1").arg( ppNote->getVelocity(), 2, 'f', 2 );
 			}
 			break;
 
-		case PatternEditor::Mode::Pan:
+		case PatternEditor::Property::Pan:
 			if ( ! ppNote->getNoteOff() ) {
 
 				// Round the pan to not miss the center due to fluctuations
@@ -3003,7 +3003,7 @@ void PatternEditor::triggerStatusMessage(
 			}
 			break;
 
-		case PatternEditor::Mode::LeadLag:
+		case PatternEditor::Property::LeadLag:
 			// Round the pan to not miss the center due to fluctuations
 			fValue = ppNote->getLeadLag() * 100;
 			fValue = std::round( fValue );
@@ -3027,7 +3027,7 @@ void PatternEditor::triggerStatusMessage(
 			}
 			break;
 
-		case PatternEditor::Mode::KeyOctave:
+		case PatternEditor::Property::KeyOctave:
 			if ( ! ppNote->getNoteOff() ) {
 				values << QString( "%1 : %2" )
 					.arg( Note::KeyToQString( ppNote->getKey() ) )
@@ -3035,11 +3035,11 @@ void PatternEditor::triggerStatusMessage(
 			}
 			break;
 
-		case PatternEditor::Mode::Probability:
+		case PatternEditor::Property::Probability:
 			values << QString( "%1" ).arg( ppNote->getProbability(), 2, 'f', 2 );
 			break;
 
-		case PatternEditor::Mode::Length:
+		case PatternEditor::Property::Length:
 			if ( ! ppNote->getNoteOff() ) {
 				values << QString( "%1" )
 					.arg( ppNote->getProbability(), 2, 'f', 2 );
@@ -3047,7 +3047,7 @@ void PatternEditor::triggerStatusMessage(
 			break;
 
 		default:
-			ERRORLOG( PatternEditor::modeToQString( mode ) );
+			ERRORLOG( PatternEditor::propertyToQString( property ) );
 			return;
 		}
 	}
@@ -3058,44 +3058,44 @@ void PatternEditor::triggerStatusMessage(
 
 	// Compose the actual status message
 	QString s;
-	switch ( mode ) {
-	case PatternEditor::Mode::Velocity:
+	switch ( property ) {
+	case PatternEditor::Property::Velocity:
 		s = QString( tr( "Set note velocity" ) )
 				.append( QString( ": [%1]").arg( values.join( ", " ) ) );
 		sCaller.append( ":Velocity" );
 		break;
 		
-	case PatternEditor::Mode::Pan:
+	case PatternEditor::Property::Pan:
 		s = QString( tr( "Set note pan" ) )
 				.append( QString( ": [%1]").arg( values.join( ", " ) ) );
 		sCaller.append( ":Pan" );
 		break;
 		
-	case PatternEditor::Mode::LeadLag:
+	case PatternEditor::Property::LeadLag:
 		s = QString( tr( "Set note lead/lag" ) )
 			.append( QString( ": [%1]").arg( values.join( ", " ) ) );
 		sCaller.append( ":LeadLag" );
 		break;
 
-	case PatternEditor::Mode::KeyOctave:
+	case PatternEditor::Property::KeyOctave:
 		s = QString( tr( "Set note pitch" ) )
 			.append( QString( ": [%1]").arg( values.join( ", " ) ) );
 		break;
 
-	case PatternEditor::Mode::Probability:
+	case PatternEditor::Property::Probability:
 		s = tr( "Set note probability" )
 			.append( QString( ": [%1]" ).arg( values.join( ", " ) ) );
 		sCaller.append( ":Probability" );
 		break;
 
-	case PatternEditor::Mode::Length:
+	case PatternEditor::Property::Length:
 		s = tr( "Set note length" )
 			.append( QString( ": [%1]" ).arg( values.join( ", " ) ) );
 		sCaller.append( ":Length" );
 		break;
 
 	default:
-		ERRORLOG( PatternEditor::modeToQString( mode ) );
+		ERRORLOG( PatternEditor::propertyToQString( property ) );
 	}
 
 	if ( ! s.isEmpty() ) {

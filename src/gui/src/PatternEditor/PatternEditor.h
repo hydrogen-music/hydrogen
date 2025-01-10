@@ -72,18 +72,18 @@ public:
 	};
 		static QString editorToQString( const Editor& editor );
 	
-	enum class Mode {
+	enum class Property {
 		Velocity = 0,
 		Pan = 1,
 		LeadLag = 2,
 		KeyOctave = 3,
 		Probability = 4,
-		/** For this mode we a dedicated NotePropertiesEditor but solely use it
-		 * within undo/redo actions.*/
+		/** For this property there is no dedicated NotePropertiesEditor
+		 * instance but we solely use it within undo/redo actions.*/
 		Length = 5,
 		None = 6
 	};
-	static QString modeToQString( const Mode& mode );
+	static QString propertyToQString( const Property& property );
 
 		/** Specifies which parts of the editor need updating on a paintEvent().
 		 * Bigger numerical values imply updating elements with lower ones as
@@ -216,7 +216,7 @@ public:
 		 * used to find the actual #H2Core::Note to alter. In the latter
 		 * adjusting note/octave can be done too. This is covered using @a
 		 * nNewKey and @a nNewOctave. */
-	static void editNotePropertiesAction( const Mode& mode,
+	static void editNotePropertiesAction( const Property& property,
 										  int nPatternNumber,
 										  int nPosition,
 										  int nInstrumentId,
@@ -232,7 +232,7 @@ public:
 										  int nOldOctave );
 		void triggerStatusMessage(
 			const std::vector< std::shared_ptr<H2Core::Note> > notes,
-			const Mode& mode );
+			const Property& property );
 
 		QPoint getCursorPosition();
 		void handleKeyboardCursor( bool bVisible );
@@ -402,7 +402,7 @@ protected:
 		int m_nCursorPitch;
 
 	Editor m_editor;
-	Mode m_mode;
+	Property m_property;
 
 		/** When left-click dragging a single note/multiple notes at the same
 		 * position which are not currently selected, the selection will be

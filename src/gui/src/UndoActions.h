@@ -672,7 +672,7 @@ private:
 class SE_editNotePropertiesAction : public QUndoCommand
 {
 public:
-	SE_editNotePropertiesAction( const PatternEditor::Mode& mode,
+	SE_editNotePropertiesAction( const PatternEditor::Property& property,
 								 int nPatternNumber,
 								 int nColumn,
 								 int nInstrumentId,
@@ -691,7 +691,7 @@ public:
 								 int nOldKey,
 								 int nOctave,
 								 int nOldOctave ) :
-		m_mode( mode ),
+		m_property( property ),
 		m_nPatternNumber( nPatternNumber ),
 		m_nColumn( nColumn ),
 		m_nInstrumentId( nInstrumentId ),
@@ -712,10 +712,10 @@ public:
 		m_nOldOctaveKey( nOldOctave ) {
 
 		setText( QObject::tr( "Edit note property %1" )
-				 .arg( PatternEditor::modeToQString( mode ) ) );
+				 .arg( PatternEditor::propertyToQString( property ) ) );
 	}
 	virtual void undo() {
-		PatternEditor::editNotePropertiesAction( m_mode,
+		PatternEditor::editNotePropertiesAction( m_property,
 												 m_nPatternNumber,
 												 m_nColumn,
 												 m_nInstrumentId,
@@ -731,7 +731,7 @@ public:
 												 m_nOctaveKey );
 	}
 	virtual void redo() {
-		PatternEditor::editNotePropertiesAction( m_mode,
+		PatternEditor::editNotePropertiesAction( m_property,
 												 m_nPatternNumber,
 												 m_nColumn,
 												 m_nInstrumentId,
@@ -748,7 +748,7 @@ public:
 	}
 
 private:
-		PatternEditor::Mode m_mode;
+		PatternEditor::Property m_property;
 		int m_nPatternNumber;
 		int m_nColumn;
 		/** Row selected in #DrumPatternEditor the moment the action was

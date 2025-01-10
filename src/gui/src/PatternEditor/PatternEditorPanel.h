@@ -144,7 +144,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		const QScrollArea* getNoteProbabilityScrollArea() const { return m_pNoteProbabilityScrollView; }
 		const QScrollBar* getVerticalScrollBar() const { return m_pPatternEditorVScrollBar; }
 		const QScrollBar* getHorizontalScrollBar() const { return m_pPatternEditorHScrollBar; }
-		PatternEditor::Mode getNotePropertiesMode() const;
+		PatternEditor::Property getSelectedNoteProperty() const;
 
 		/** Allow to create other parts of pattern editor _after_ this class is
 		 * fully initialized in order used it as the single source of truth. */

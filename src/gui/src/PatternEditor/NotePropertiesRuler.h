@@ -50,7 +50,7 @@ class NotePropertiesRuler : public PatternEditor,
 			KeyOctave,
 		};
 
-		NotePropertiesRuler( QWidget *parent, Mode mode, Layout layout );
+		NotePropertiesRuler( QWidget *parent, Property property, Layout layout );
 		~NotePropertiesRuler();
 		
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
@@ -125,7 +125,7 @@ class NotePropertiesRuler : public PatternEditor,
 		std::map< std::shared_ptr<H2Core::Note>, int > m_offsetMap;
 
 		/** @param bKey If set to `true`, @a fDelta will be applied to the key
-		 * section in Mode::KeyOctave. */
+		 * section in Property::KeyOctave. */
 		bool adjustNotePropertyDelta(
 			std::vector< std::shared_ptr<H2Core::Note> > notes, float fDelta,
 			bool bKey );

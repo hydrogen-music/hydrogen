@@ -551,7 +551,7 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityEditor = new NotePropertiesRuler(
 		m_pNoteVelocityScrollView->viewport(),
-		NotePropertiesRuler::Mode::Velocity,
+		NotePropertiesRuler::Property::Velocity,
 		NotePropertiesRuler::Layout::Normalized );
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
@@ -569,7 +569,7 @@ void PatternEditorPanel::createEditors() {
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanEditor = new NotePropertiesRuler(
-		m_pNotePanScrollView->viewport(), NotePropertiesRuler::Mode::Pan,
+		m_pNotePanScrollView->viewport(), NotePropertiesRuler::Property::Pan,
 		NotePropertiesRuler::Layout::Centered );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
@@ -590,7 +590,7 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagEditor = new NotePropertiesRuler(
 		m_pNoteLeadLagScrollView->viewport(),
-		NotePropertiesRuler::Mode::LeadLag,
+		NotePropertiesRuler::Property::LeadLag,
 		NotePropertiesRuler::Layout::Centered );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
@@ -611,7 +611,7 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteKeyOctaveScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteKeyOctaveEditor = new NotePropertiesRuler(
 		m_pNoteKeyOctaveScrollView->viewport(),
-		NotePropertiesRuler::Mode::KeyOctave,
+		NotePropertiesRuler::Property::KeyOctave,
 		NotePropertiesRuler::Layout::KeyOctave );
 	m_pNoteKeyOctaveScrollView->setWidget( m_pNoteKeyOctaveEditor );
 	m_pNoteKeyOctaveScrollView->setFixedHeight( 210 );
@@ -631,7 +631,7 @@ void PatternEditorPanel::createEditors() {
 	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityEditor = new NotePropertiesRuler(
 		m_pNoteProbabilityScrollView->viewport(),
-		NotePropertiesRuler::Mode::Probability,
+		NotePropertiesRuler::Property::Probability,
 		NotePropertiesRuler::Layout::Normalized );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
@@ -1707,32 +1707,32 @@ void PatternEditorPanel::switchPatternSizeFocus() {
 	}
 }
 
-NotePropertiesRuler::Mode PatternEditorPanel::getNotePropertiesMode() const
+NotePropertiesRuler::Property PatternEditorPanel::getSelectedNoteProperty() const
 {
-	NotePropertiesRuler::Mode mode;
+	NotePropertiesRuler::Property property;
 
 	switch ( m_pPropertiesCombo->currentIndex() ) {
 	case 0:
-		mode = NotePropertiesRuler::Mode::Velocity;
+		property = NotePropertiesRuler::Property::Velocity;
 		break;
 	case 1:
-		mode = NotePropertiesRuler::Mode::Pan;
+		property = NotePropertiesRuler::Property::Pan;
 		break;
 	case 2:
-		mode = NotePropertiesRuler::Mode::LeadLag;
+		property = NotePropertiesRuler::Property::LeadLag;
 		break;
 	case 3:
-		mode = NotePropertiesRuler::Mode::KeyOctave;
+		property = NotePropertiesRuler::Property::KeyOctave;
 		break;
 	case 4:
-		mode = NotePropertiesRuler::Mode::Probability;
+		property = NotePropertiesRuler::Property::Probability;
 		break;
 	default:
 		ERRORLOG( QString( "Unsupported m_pPropertiesCombo index [%1]" )
 				  .arg( m_pPropertiesCombo->currentIndex() ) );
 	}
 
-	return mode;
+	return property;
 }
 
 void PatternEditorPanel::patchBayBtnClicked() {
