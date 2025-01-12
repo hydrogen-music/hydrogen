@@ -762,12 +762,19 @@ void PatternEditor::alignToGrid() {
 		return;
 	}
 
+	// Every deleted note will be removed from the selection. Therefore, we can
+	// not iterate the selection directly.
+	std::vector< std::shared_ptr<Note> > notes;
+	for ( const auto& ppNote : m_selection ) {
+		notes.push_back( ppNote );
+	}
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	// Move the notes
 	pHydrogenApp->beginUndoMacro( tr( "Align notes to grid" ) );
 
-	for ( const auto& ppNote : m_selection ) {
+	for ( const auto& ppNote : notes ) {
 		if ( ppNote == nullptr ) {
 			continue;
 		}
