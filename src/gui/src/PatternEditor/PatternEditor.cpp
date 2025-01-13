@@ -2100,6 +2100,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 	if (!isVisible()) {
 		return;
 	}
+	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	const auto pPref = Preferences::get_instance();
 
@@ -2138,7 +2139,8 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 
 	// Draw cursor
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
-		 m_pPatternEditorPanel->hasPatternEditorFocus() ) {
+		 m_pPatternEditorPanel->hasPatternEditorFocus() &&
+		 pPattern != nullptr ) {
 		QColor cursorColor( pPref->getTheme().m_color.m_cursorColor );
 		if ( ! hasFocus() ) {
 			cursorColor.setAlpha( Skin::nInactiveCursorAlpha );
