@@ -211,7 +211,6 @@ public:
 									   int nOldOctave,
 									   float fOldProbability,
 									   bool bIsDelete,
-									   bool bIsMidi,
 									   bool bIsNoteOff );
 
 		/** For notes in #PianoRollEditor and the note key version of

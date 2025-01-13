@@ -703,7 +703,6 @@ void PatternEditor::paste()
 					nOctave,
 					pNote->getProbability(),
 					/* bIsDelete */ false,
-					/* bIsMidi */ false,
 					/* bIsNoteOff */ pNote->getNoteOff() ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -833,7 +832,6 @@ void PatternEditor::alignToGrid() {
 						 nOctave,
 						 fProbability,
 						 /* bIsDelete */ true,
-						 /* bIsMidi */ false,
 						 bNoteOff ) );
 
 		// Add at target position
@@ -850,7 +848,6 @@ void PatternEditor::alignToGrid() {
 						 nOctave,
 						 fProbability,
 						 /* bIsDelete */ false,
-						 /* bIsMidi */ false,
 						 bNoteOff ) );
 	}
 
@@ -1063,7 +1060,6 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 						ppNote->getOctave(),
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
-						/* bIsMidi */ false,
 						/* bIsNoteOff */ ppNote->getNoteOff() ) );
 }
 			pHydrogenApp->endUndoMacro();
@@ -1636,7 +1632,6 @@ void PatternEditor::deleteSelection()
 									   pNote->getOctave(),
 									   pNote->getProbability(),
 									   true, // bIsDelete
-									   false, // bIsMidi
 									   pNote->getNoteOff() ) );
 			}
 		}
@@ -1760,7 +1755,6 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					nOctave,
 					fProbability,
 					/* bIsDelete */ true,
-					/* bIsMidi */ false,
 					bNoteOff ) );
 		}
 
@@ -1780,7 +1774,6 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					nNewOctave,
 					fProbability,
 					/* bIsDelete */ false,
-					/* bIsMidi */ false,
 					bNoteOff ) );
 		}
 	}
@@ -2921,7 +2914,6 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   int nOldOctave,
 										   float fOldProbability,
 										   bool bIsDelete,
-										   bool bIsMidi,
 										   bool bIsNoteOff )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();

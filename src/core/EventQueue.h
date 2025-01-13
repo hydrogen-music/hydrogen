@@ -308,7 +308,6 @@ public:/**
 		float f_pan;
 		Note::Key nk_noteKeyVal;
 		Note::Octave no_octaveKeyVal;
-		bool b_isMidi;
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 

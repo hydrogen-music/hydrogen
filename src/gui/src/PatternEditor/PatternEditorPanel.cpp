@@ -2090,7 +2090,6 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 				nNewOctave,
 				PROBABILITY_DEFAULT,
 				/* bIsDelete */ false,
-				/* bIsMidi */ false,
 				bIsNoteOff ) );
 	}
 	else {
@@ -2112,7 +2111,6 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 					ppNote->getOctave(),
 					ppNote->getProbability(),
 					/* bIsDelete */ true,
-					/* bIsMidi */ false,
 					ppNote->getNoteOff() ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -2205,7 +2203,6 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						ppNote->getOctave(),
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
-						/* bIsMidi */ false,
 						ppNote->getNoteOff() ) );
 			}
 		}
@@ -2486,7 +2483,6 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							  Note::pitchToOctave( nPitch ),
 							ppNote->getProbability(),
 							/* bIsDelete */ false,
-							/* bIsMidi */ false,
 							ppNote->getNoteOff() ) );
 				}
 			}

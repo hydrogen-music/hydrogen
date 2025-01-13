@@ -515,7 +515,6 @@ public:
 							  int nOldOctave,
 							  float fOldProbability,
 							  bool bIsDelete,
-							  bool bIsMidi,
 							  bool bIsNoteOff ){
 
 		if ( bIsDelete ){
@@ -539,11 +538,9 @@ public:
 		m_nOldOctave = nOldOctave;
 		m_fOldProbability = fOldProbability;
 		m_bIsDelete = bIsDelete;
-		m_bIsMidi = bIsMidi;
 		m_bIsNoteOff = bIsNoteOff;
 	}
 	virtual void undo() {
-		m_bIsMidi = false; // undo is never a midi event.
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
 											  m_nInstrumentId,
 											  m_sType,
@@ -556,7 +553,6 @@ public:
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  ! m_bIsDelete,
-											  m_bIsMidi,
 											  m_bIsNoteOff );
 	}
 	virtual void redo() {
@@ -572,7 +568,6 @@ public:
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  m_bIsDelete,
-											  m_bIsMidi,
 											  m_bIsNoteOff );
 	}
 private:
@@ -588,7 +583,6 @@ private:
 	int m_nOldOctave;
 	float m_fOldProbability;
 	bool m_bIsDelete;
-	bool m_bIsMidi;
 	bool m_bIsNoteOff;
 };
 

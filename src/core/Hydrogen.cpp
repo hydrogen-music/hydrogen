@@ -526,7 +526,6 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 			noteAction.f_velocity = fVelocity;
 			noteAction.f_pan = fPan;
 			noteAction.m_length = -1;
-			noteAction.b_isMidi = true;
 
 			if ( bPlaySelectedInstrument ) {
 				int divider = nNote / 12;

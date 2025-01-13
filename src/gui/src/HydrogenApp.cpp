@@ -1142,7 +1142,6 @@ void HydrogenApp::onEventQueueTimer()
 								 pOldNote->getOctave(),
 								 pOldNote->getProbability(),
 								 /*isDelete*/ true,
-								 /*isMidi*/ false,
 								 /*isNoteOff*/ false ) );
 		}
 		
@@ -1160,7 +1159,6 @@ void HydrogenApp::onEventQueueTimer()
 							 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 							 PROBABILITY_DEFAULT,
 							 /*isDelete*/ false,
-							 pQueue->m_addMidiNoteVector[0].b_isMidi,
 							 /*isNoteOff*/ false ) );
 		endUndoMacro();
 
