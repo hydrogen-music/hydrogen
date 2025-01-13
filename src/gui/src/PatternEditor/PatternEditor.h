@@ -268,6 +268,12 @@ public slots:
 	virtual void randomizeVelocity();
 	void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
 	void scrolled( int nValue );
+		/** Unfortunately, QMenu::aboutToShow() is triggered prior to the
+		 * actions and thus is not suited to discard the transient selection.
+		 * But if the popup menu is cancelled without triggering an action, this
+		 * one won't be called either. The transient selection is discarded on
+		 * next mouse or key press instead. */
+		void popupMenuActionTriggered();
 
 protected:
 		enum NoteStyle {
@@ -409,17 +415,21 @@ protected:
 	Editor m_editor;
 	Property m_property;
 
-		/** When left-click dragging a single note/multiple notes at the same
-		 * position which are not currently selected, the selection will be
-		 * cleared and filled with those notes. Else we would require the user
-		 * to lasso-select each single note before being able to move it.
+		/** When left-click dragging or applying actions using right-click popup
+		 * menu on a single note/multiple notes at the same position which are
+		 * not currently selected, the selection will be cleared and filled with
+		 * those notes. Else we would require the user to lasso-select each
+		 * single note before being able to move it.
 		 *
 		 * But we also have to take care of not establishing a selection
 		 * prematurely since a click event on the single note would result in
 		 * discarding the selection instead of removing the note. We thus use
 		 * this member to cache the notes and only select them in case the mouse
-		 * will be moved with left button down. */
-		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelectOnMove;
+		 * will be moved with left button down or right button is released
+		 * without move (click). */
+		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelect;
+
+		bool m_bPopupMenuActive;
 
 		void updateHoveredNotesMouse( QMouseEvent* pEvent );
 		void updateHoveredNotesKeyboard();
