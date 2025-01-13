@@ -43,7 +43,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include <core/EventQueue.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/H2Exception.h>
@@ -281,7 +280,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	m_pAudioEngine->lock( RIGHT_HERE );
 
 	// Move to the beginning.
-	setSelectedPatternNumber( 0, false );
+	setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
 
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
@@ -836,11 +835,13 @@ void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
 	}
 }
 
-void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock, bool bForce )
+void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
+										 Event::Trigger trigger )
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
-		if ( bForce ) {
-			EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+		if ( trigger == Event::Trigger::Force ) {
+			EventQueue::get_instance()->push_event(
+				EVENT_SELECTED_PATTERN_CHANGED, -1 );
 		}
 		return;
 	}
@@ -862,7 +863,9 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock, bool bForce 
 		m_nSelectedPatternNumber = nPat;
 	}
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	}
 }
 
 void Hydrogen::setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent )

@@ -1075,7 +1075,7 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	}
 
 	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-		pHydrogen->setSelectedPatternNumber( 0, false );
+		pHydrogen->setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
 	}
 	
 	pAudioEngine->handleSongModeChanged();
@@ -1979,7 +1979,8 @@ bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
 	if ( pHydrogen->isPatternEditorLocked() ) {
 		pHydrogen->updateSelectedPattern( true );
 	} else  {
-		pHydrogen->setSelectedPatternNumber( nPatternPosition );
+		pHydrogen->setSelectedPatternNumber(
+			nPatternPosition, true, Event::Trigger::Default );
 	}
 	pHydrogen->setIsModified( true );
 	
@@ -2011,7 +2012,8 @@ bool CoreActionController::selectPattern( int nPatternNumber ) {
 			 pHydrogen->getAudioEngine()->getState() ==
 			 AudioEngine::State::Playing ) ) {
 		// Event handling will be done in Hydrogen::setSelectedPatternNumber.
-		pHydrogen->setSelectedPatternNumber( nPatternNumber );
+		pHydrogen->setSelectedPatternNumber(
+			nPatternNumber, true, Event::Trigger::Default );
 	}
 
 	return true;
@@ -2082,8 +2084,8 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	if ( pHydrogen->isPatternEditorLocked() ) {
 		pHydrogen->updateSelectedPattern( false );
 	} else if ( nPatternNumber == nSelectedPatternNumber ) {
-		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ),
-											 false );
+		pHydrogen->setSelectedPatternNumber(
+			std::max( 0, nPatternNumber - 1 ), false, Event::Trigger::Default );
 	}
 
 	// Remove the pattern from the list of of patterns that are played

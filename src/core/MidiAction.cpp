@@ -424,7 +424,8 @@ bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
 	}
 	
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-		pHydrogen->setSelectedPatternNumber( nPatternNumber );
+		pHydrogen->setSelectedPatternNumber(
+			nPatternNumber, true, Event::Trigger::Default );
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 		pHydrogen->toggleNextPattern( nPatternNumber );

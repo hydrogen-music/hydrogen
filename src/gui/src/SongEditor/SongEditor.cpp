@@ -2401,7 +2401,8 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 		if ( pHydrogen->isPatternEditorLocked() ) {
 			pHydrogen->updateSelectedPattern();
 		} else  {
-			pHydrogen->setSelectedPatternNumber( nTargetPattern );
+			pHydrogen->setSelectedPatternNumber(
+				nTargetPattern, true, Event::Trigger::Default );
 		}
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 		pHydrogen->setIsModified( true );

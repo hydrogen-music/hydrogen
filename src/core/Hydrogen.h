@@ -24,6 +24,7 @@
 
 #include <core/config.h>
 #include <core/Basics/Song.h>
+#include <core/EventQueue.h>
 #include <core/Object.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
@@ -276,13 +277,13 @@ public:
 	 * \param nPat Sets #m_nSelectedPatternNumber
 	 * \param bNeedsLock Whether the function was called with the audio engine
 	 *   locked already or it should do so itself.
-	 * \param bForce When present, the `EVENT_SELECTED_PATTERN_CHANGED` will be
-	 *   triggered regardless of @a nPat. This is important when rearranging
-	 *   patterns in the song editor while the pattern editor is locked.
+	 * \param trigger How to handle events. Forcing is important when
+	 *   rearranging patterns in the song editor while the pattern editor is
+	 *   locked.
 	 */
-	void			setSelectedPatternNumber( int nPat,
-											  bool bNeedsLock = true,
-											  bool bForce = false );
+	void setSelectedPatternNumber( int nPat,
+								   bool bNeedsLock = true,
+								   Event::Trigger trigger = Event::Trigger::Default );
 
 	/**
 	 * Updates the selected pattern to the one recorded note will be
