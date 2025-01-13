@@ -210,6 +210,19 @@ enum EventType {
 class Event
 {
 public:
+
+		/** Tells the associated routine in the core part of Hydrogen how and
+		 * whether to communicate with the (G)UI */
+		enum class Trigger {
+			/** No #Event will be queued */
+			Suppress,
+			/** #Event queued on change */
+			Default,
+			/** #Event will be queued regardless whether there are changes or
+			 * not.*/
+			Force
+		};
+
 	/** Specifies the context the event is create in and which
 	    function should be triggered to handle it.*/
 	EventType type;
