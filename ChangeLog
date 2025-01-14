@@ -85,16 +85,19 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Alt key modifier can be used to add/move/change off the current grid.
 				- Instruments of the current kit and instrument types of all notes in a
 				  pattern are now handled separately in the sidebar.
-				- Single notes can now be dragged without prior selection.
+				- Single notes can now be dragged or altered using right-click popup
+				  menu without prior selection.
 				- Notes not associated with an instrument of the current kit are now
 				  visible and can be handled like regular notes.
-				- Pattern name is now shown on top and several active patterns are
-				  presented in independent tabs.
-				- Property drawing can now only bound to right mouse button.
+				- Pattern name is now shown together with other active patterns tab bar.
+				- Property drawing (NotePropertiesRuler) is now only bound to right
+				  mouse button.
 				- Cursor, selection lasso, and selected and hovered notes are now synced
 				  between among all editors.
 				- Property changes based on wheel and key event on the same set of notes
 				  as well as property drawing can now be undone/redone in a single action.
+				- PianoRoll does now have a proper sidebar including per-line action in
+				  right click popup menu.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
