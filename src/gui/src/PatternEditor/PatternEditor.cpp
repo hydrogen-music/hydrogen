@@ -444,19 +444,20 @@ void PatternEditor::selectNone()
 	m_selection.updateWidgetGroup();
 }
 
-void PatternEditor::showPopupMenu( const QPoint &pos )
+void PatternEditor::showPopupMenu( QMouseEvent* pEvent )
 {
 	if ( m_editor == Editor::DrumPattern || m_editor == Editor::PianoRoll ) {
-		// Enable or disable menu actions that only operate on selections.
-		const bool bEmpty = m_selection.isEmpty();
+		// Enable or disable menu actions that only operate on selected notes.
+		const auto notes = getElementsAtPoint(
+			pEvent->pos(), getCursorMargin( nullptr ) );
 		for ( auto & action : m_selectionActions ) {
-			action->setEnabled( !bEmpty );
+			action->setEnabled( notes.size() > 0 );
 		}
 	}
 
 	m_bPopupMenuActive = true;
 
-	m_pPopupMenu->popup( pos );
+	m_pPopupMenu->popup( pEvent->globalPos() );
 }
 
 void PatternEditor::popupMenuActionTriggered() {
@@ -1074,13 +1075,12 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			for ( const auto& ppNote : m_notesToSelect ) {
 				m_selection.addToSelection( ppNote );
 			}
-		}
-		showPopupMenu( ev->globalPos() );
-	}
 
 	// Update cursor position
 	if ( bClickedOnGrid && m_editor != Editor::NotePropertiesRuler ) {
 		m_pPatternEditorPanel->setCursorColumn( nColumn );
+		}
+		showPopupMenu( ev );
 	}
 
 	update();
@@ -1185,7 +1185,7 @@ int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
 
 	// The Alt modifier is used for more fine grained control throughout
 	// Hydrogen and will diminish the cursor margin.
-	if ( pEvent->modifiers() & Qt::AltModifier ) {
+	if ( pEvent != nullptr && pEvent->modifiers() & Qt::AltModifier ) {
 		return 0;
 	}
 

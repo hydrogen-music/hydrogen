@@ -343,7 +343,7 @@ protected:
 
 	QList< QAction * > m_selectionActions;
 
-	void showPopupMenu( const QPoint & pos );
+	void showPopupMenu( QMouseEvent* pEvent );
 
 		/** Function in the same vein as getColumn() but calculates both column
 		 * and row information from the provided event position. */
