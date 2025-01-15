@@ -56,7 +56,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, QWidget( pParent )
 	, m_selection( this )
 	, m_bEntered( false )
-	, m_bSelectNewNotes( false )
 	, m_bFineGrained( false )
 	, m_bCopyNotMove( false )
 	, m_nTick( -1 )
@@ -623,7 +622,6 @@ void PatternEditor::paste()
 	}
 
 	m_selection.clearSelection();
-	m_bSelectNewNotes = true;
 	bool bAppendedToDB = false;
 
 	if ( noteList.hasChildNodes() ) {
@@ -704,7 +702,8 @@ void PatternEditor::paste()
 					nOctave,
 					pNote->getProbability(),
 					/* bIsDelete */ false,
-					/* bIsNoteOff */ pNote->getNoteOff() ) );
+					/* bIsNoteOff */ pNote->getNoteOff(),
+					AddNoteAction::AddToSelection ) );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -720,8 +719,6 @@ void PatternEditor::paste()
 		// Select the append line
 		m_pPatternEditorPanel->setSelectedRowDB( nOldSize );
 	}
-
-	m_bSelectNewNotes = false;
 }
 
 void PatternEditor::selectAllNotesInRow( int nRow, int nPitch )
@@ -1684,8 +1681,6 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		selectedNotes.push_back( pNote );
 	}
 
-	m_bSelectNewNotes = true;
-
 	for ( auto pNote : selectedNotes ) {
 		if ( pNote == nullptr ) {
 			continue;
@@ -1776,7 +1771,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					nNewOctave,
 					fProbability,
 					/* bIsDelete */ false,
-					bNoteOff ) );
+					bNoteOff,
+					AddNoteAction::AddToSelection ) );
 		}
 	}
 
@@ -1801,7 +1797,6 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		}
 	}
 
-	m_bSelectNewNotes = false;
 	pHydrogenApp->endUndoMacro();
 }
 
@@ -2922,7 +2917,8 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   int nOldOctave,
 										   float fOldProbability,
 										   bool bIsDelete,
-										   bool bIsNoteOff )
+										   bool bIsNoteOff,
+										   AddNoteAction addNoteAction )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -3048,7 +3044,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 							   static_cast<Note::Octave>(nOldOctave) );
 		pPattern->insertNote( pNote );
 
-		if ( pVisibleEditor->getSelectNewNotes() ) {
+		if ( addNoteAction & AddNoteAction::AddToSelection ) {
 			pVisibleEditor->m_selection.addToSelection( pNote );
 		}
 	}

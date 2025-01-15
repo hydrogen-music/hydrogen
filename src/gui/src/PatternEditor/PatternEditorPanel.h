@@ -231,7 +231,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		 * deleted or a move with default key and octave will be added. */
 		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
 							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
-							   bool bDoDelete = true, bool bIsNoteOff = false );
+							   bool bDoDelete = true, bool bIsNoteOff = false,
+							   PatternEditor::AddNoteAction action =
+							   PatternEditor::AddNoteAction::None );
 
 		/**
 		 * Determines whether to pattern editor should show further

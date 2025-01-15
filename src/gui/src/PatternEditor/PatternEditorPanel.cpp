@@ -2015,7 +2015,8 @@ void PatternEditorPanel::printDB() const {
 
 void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 										   int nOctave, bool bDoAdd,
-										   bool bDoDelete, bool bIsNoteOff ) {
+										   bool bDoDelete, bool bIsNoteOff,
+										   PatternEditor::AddNoteAction action ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	if ( m_pPattern == nullptr ) {
@@ -2090,7 +2091,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 				nNewOctave,
 				PROBABILITY_DEFAULT,
 				/* bIsDelete */ false,
-				bIsNoteOff ) );
+				bIsNoteOff,
+				action ) );
 	}
 	else {
 		// delete notes
@@ -2111,7 +2113,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 					ppNote->getOctave(),
 					ppNote->getProbability(),
 					/* bIsDelete */ true,
-					ppNote->getNoteOff() ) );
+					ppNote->getNoteOff(),
+					action ) );
 		}
 		pHydrogenApp->endUndoMacro();
 	}

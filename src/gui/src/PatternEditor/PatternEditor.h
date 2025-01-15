@@ -195,23 +195,30 @@ public:
 		variable #m_nTick and triggers an update(). */
 	void updatePosition( float fTick );
 
-		/** Whether new notes added to the editor should be automatically
-		 * selected. */
-		bool getSelectNewNotes() const;
+		/** Additional action to perform on the first redo() call of
+		 * #SE_addOrRemoveNotes. */
+		enum AddNoteAction {
+			None = 0x000,
+			/** Add the new note to the current selection. */
+			AddToSelection = 0x001,
+			/** Move cursor to focus newly added note. */
+			MoveCursorTo = 0x002
+		};
 
-	static void addOrRemoveNoteAction( int nPosition,
-									   int nInstrumentId,
-									   const QString& sType,
-									   int nPatternNumber,
-									   int nOldLength,
-									   float fOldVelocity,
-									   float fOldPan,
-									   float fOldLeadLag,
-									   int nOldKey,
-									   int nOldOctave,
-									   float fOldProbability,
-									   bool bIsDelete,
-									   bool bIsNoteOff );
+		static void addOrRemoveNoteAction( int nPosition,
+										   int nInstrumentId,
+										   const QString& sType,
+										   int nPatternNumber,
+										   int nOldLength,
+										   float fOldVelocity,
+										   float fOldPan,
+										   float fOldLeadLag,
+										   int nOldKey,
+										   int nOldOctave,
+										   float fOldProbability,
+										   bool bIsDelete,
+										   bool bIsNoteOff,
+										   AddNoteAction action );
 
 		/** For notes in #PianoRollEditor and the note key version of
 		 * #NotePropertiesEditor @a nOldKey and @a nOldOctave will be
@@ -316,8 +323,6 @@ protected:
 
 	bool m_bFineGrained;
 	bool m_bCopyNotMove;
-
-	bool m_bSelectNewNotes;
 
 		/** Keeps track of all notes being drag-edited using the right mouse
 		 * button. It maps the new, updated version of a note to an copy of
@@ -433,9 +438,5 @@ protected:
 		void updateHoveredNotesMouse( QMouseEvent* pEvent );
 		void updateHoveredNotesKeyboard();
 };
-
-inline bool PatternEditor::getSelectNewNotes() const {
-	return m_bSelectNewNotes;
-}
 
 #endif // PATERN_EDITOR_H

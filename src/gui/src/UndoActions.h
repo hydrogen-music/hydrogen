@@ -515,7 +515,10 @@ public:
 							  int nOldOctave,
 							  float fOldProbability,
 							  bool bIsDelete,
-							  bool bIsNoteOff ){
+							  bool bIsNoteOff,
+							  PatternEditor::AddNoteAction addNoteAction =
+							  PatternEditor::AddNoteAction::None
+ ){
 
 		if ( bIsDelete ){
 			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
@@ -539,6 +542,7 @@ public:
 		m_fOldProbability = fOldProbability;
 		m_bIsDelete = bIsDelete;
 		m_bIsNoteOff = bIsNoteOff;
+		m_addNoteAction = addNoteAction;
 	}
 	virtual void undo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
@@ -553,7 +557,8 @@ public:
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  ! m_bIsDelete,
-											  m_bIsNoteOff );
+											  m_bIsNoteOff,
+											  m_addNoteAction );
 	}
 	virtual void redo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
@@ -568,7 +573,10 @@ public:
 											  m_nOldOctave,
 											  m_fOldProbability,
 											  m_bIsDelete,
-											  m_bIsNoteOff );
+											  m_bIsNoteOff,
+											  m_addNoteAction );
+		// Only on the first redo the corresponding action is triggered.
+		m_addNoteAction = PatternEditor::AddNoteAction::None;
 	}
 private:
 	int m_nColumn;
@@ -584,6 +592,7 @@ private:
 	float m_fOldProbability;
 	bool m_bIsDelete;
 	bool m_bIsNoteOff;
+	PatternEditor::AddNoteAction m_addNoteAction;
 };
 
 // Deselect some notes and overwrite them

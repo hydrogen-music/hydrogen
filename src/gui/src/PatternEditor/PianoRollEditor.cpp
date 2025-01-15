@@ -450,8 +450,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent )
 
 	resize( m_nEditorWidth, m_nEditorHeight );
 
-	m_bSelectNewNotes = false;
-
 	// Create the sidebar of labels
 	m_pPitchSidebar = new PitchSidebar( this, m_nEditorHeight, m_nGridHeight );
 }
