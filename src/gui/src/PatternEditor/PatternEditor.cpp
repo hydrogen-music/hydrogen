@@ -1012,8 +1012,6 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		nRow = m_pPatternEditorPanel->getSelectedRowDB();
 	}
 
-	bool bClickedOnGrid = false;
-
 	// main button action
 	if ( ev->button() == Qt::LeftButton &&
 		 m_editor != Editor::NotePropertiesRuler ) {
@@ -1023,7 +1021,6 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			ev->pos(), getCursorMargin( ev ), pPattern );
 		if ( notesAtPoint.size() == 0 ) {
 			// Empty grid cell
-			bClickedOnGrid = true;
 
 			// By pressing the Alt button the user can bypass quantization of
 			// new note to the grid.
@@ -1041,8 +1038,14 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 				nTargetColumn, nRow, nKey, nOctave,
 				/* bDoAdd */true, /* bDoDelete */false,
 				/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
+
+			m_pPatternEditorPanel->setCursorColumn( nTargetColumn );
 		}
 		else {
+			// Move cursor to center notes
+			m_pPatternEditorPanel->setCursorColumn(
+				notesAtPoint[ 0 ]->getPosition() );
+
 			// Note(s) clicked. Delete them.
 			pHydrogenApp->beginUndoMacro(
 				pCommonStrings->getActionDeleteNotes() );
@@ -1062,7 +1065,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
 						/* bIsNoteOff */ ppNote->getNoteOff() ) );
-}
+			}
 			pHydrogenApp->endUndoMacro();
 		}
 		m_selection.clearSelection();
@@ -1076,9 +1079,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 				m_selection.addToSelection( ppNote );
 			}
 
-	// Update cursor position
-	if ( bClickedOnGrid && m_editor != Editor::NotePropertiesRuler ) {
-		m_pPatternEditorPanel->setCursorColumn( nColumn );
+			m_pPatternEditorPanel->setCursorColumn(
+				m_notesToSelect[ 0 ]->getPosition() );
 		}
 		showPopupMenu( ev );
 	}
@@ -1791,12 +1793,12 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			setCursorPitch( Note::lineToPitch( nRow ) );
 		}
 
-		// Handling the cursor column is a lot more difficult. We would need to
-		// take into account whether the dragged note was positioned off grid
-		// and whether Alt is pressed. Just looking at the notes under point
-		// does not cut it either since - without Alt - we just quantize the
-		// resulting position to the next grid point. Thus, we don't update
-		// cursor column on mouse event.
+		auto hoveredNotes = getElementsAtPoint(
+			pMouseEvent->pos(), getCursorMargin( ev ) );
+		if ( hoveredNotes.size() > 0 ) {
+			m_pPatternEditorPanel->setCursorColumn(
+				hoveredNotes[ 0 ]->getPosition(), true );
+		}
 	}
 
 	m_bSelectNewNotes = false;
@@ -2518,6 +2520,12 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		if ( notesAtPoint.size() == 0 ) {
 			return;
 		}
+
+		// Focus cursor on dragged note(s).
+		m_pPatternEditorPanel->setCursorColumn(
+			notesAtPoint[ 0 ]->getPosition() );
+		m_pPatternEditorPanel->setSelectedRowDB(
+			m_pPatternEditorPanel->findRowDB( notesAtPoint[ 0 ] ) );
 
 		m_draggedNotes.clear();
 		// Either all or none of the notes at point should be selected. It is

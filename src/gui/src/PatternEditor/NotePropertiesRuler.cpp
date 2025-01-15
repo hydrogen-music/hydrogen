@@ -106,6 +106,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		return;
 	}
 
+	// Focus cursor on hovered note(s).
+	m_pPatternEditorPanel->setCursorColumn( notesUnderPoint[ 0 ]->getPosition() );
+
 	bool bSelectionHovered = false;
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( m_selection.isSelected( ppNote ) ) {
@@ -206,6 +209,12 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 		propertyDrawStart( ev );
 		propertyDrawUpdate( ev );
 		propertyDrawEnd();
+
+		// Focus cursor on clicked note
+		const auto notes = getElementsAtPoint( ev->pos(), getCursorMargin( ev ) );
+		if ( notes.size() > 0 ) {
+			m_pPatternEditorPanel->setCursorColumn( notes[ 0 ]->getPosition() );
+		}
 	}
 
 	PatternEditor::mouseClickEvent( ev );
@@ -285,6 +294,12 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 		if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
 			notesStatusMessage.push_back( ppNote );
 		}
+	}
+
+	// Move cursor to dragged note(s).
+	if ( m_notesHoveredOnDragStart.size() > 0 ) {
+		m_pPatternEditorPanel->setCursorColumn(
+			m_notesHoveredOnDragStart[ 0 ]->getPosition() );
 	}
 
 	if ( bValueChanged ) {
