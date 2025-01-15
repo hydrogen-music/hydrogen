@@ -1755,6 +1755,18 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					bNoteOff ) );
 		}
 
+		auto addNoteAction = AddNoteAction::AddToSelection;
+		// Check whether the note was hovered when the drag move action was
+		// started. If so, we will move the keyboard cursor to the resulting
+		// position.
+		for ( const auto ppHoveredNote : m_notesHoveredOnDragStart ) {
+			if ( ppHoveredNote == pNote ) {
+				addNoteAction = static_cast<AddNoteAction>(
+					AddNoteAction::AddToSelection | AddNoteAction::MoveCursorTo );
+				break;
+			}
+		}
+
 		if ( bNoteInRange ) {
 			// Create a new note at the target position
 			pHydrogenApp->pushUndoCommand(
@@ -1772,7 +1784,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					fProbability,
 					/* bIsDelete */ false,
 					bNoteOff,
-					AddNoteAction::AddToSelection ) );
+					addNoteAction ) );
 		}
 	}
 
@@ -3046,6 +3058,12 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 
 		if ( addNoteAction & AddNoteAction::AddToSelection ) {
 			pVisibleEditor->m_selection.addToSelection( pNote );
+		}
+
+		if ( addNoteAction & AddNoteAction::MoveCursorTo ) {
+			pPatternEditorPanel->setCursorColumn( pNote->getPosition() );
+			pPatternEditorPanel->setSelectedRowDB(
+				pPatternEditorPanel->findRowDB( pNote ) );
 		}
 	}
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
