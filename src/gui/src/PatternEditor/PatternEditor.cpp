@@ -66,7 +66,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_nDragY( 0 )
 	, m_update( Update::Background )
 	, m_bPropertyDragActive( false )
-	, m_bPopupMenuActive( false )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -89,8 +88,11 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
-	connect( m_pPopupMenu, SIGNAL( triggered( QAction* ) ),
-			 this, SLOT( popupMenuActionTriggered() ) );
+	connect( m_pPopupMenu, SIGNAL( aboutToShow() ),
+			 this, SLOT( popupMenuAboutToShow() ) );
+	connect( m_pPopupMenu, SIGNAL( aboutToHide() ),
+			 this, SLOT( popupMenuAboutToHide() ) );
+
 
 	updateWidth();
 
@@ -421,6 +423,28 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 	}
 }
 
+void PatternEditor::popupMenuAboutToShow() {
+	if ( m_notesToSelectForPopup.size() > 0 ) {
+		m_selection.clearSelection();
+
+		for ( const auto& ppNote : m_notesToSelectForPopup ) {
+			m_selection.addToSelection( ppNote );
+		}
+
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
+	}
+}
+
+void PatternEditor::popupMenuAboutToHide() {
+	if ( m_notesToSelectForPopup.size() > 0 ) {
+		m_selection.clearSelection();
+
+		m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
+	}
+}
+
 void PatternEditor::updateEditor( bool bPatternOnly )
 {
 	if ( updateWidth() ) {
@@ -449,32 +473,23 @@ void PatternEditor::showPopupMenu( QMouseEvent* pEvent )
 {
 	if ( m_editor == Editor::DrumPattern || m_editor == Editor::PianoRoll ) {
 		// Enable or disable menu actions that only operate on selected notes.
-		const auto notes = getElementsAtPoint(
-			pEvent->pos(), getCursorMargin( nullptr ) );
 		for ( auto & action : m_selectionActions ) {
-			action->setEnabled( notes.size() > 0 );
+			action->setEnabled( m_notesHoveredForPopup.size() > 0 );
 		}
 	}
 
-	m_bPopupMenuActive = true;
-
 	m_pPopupMenu->popup( pEvent->globalPos() );
-}
-
-void PatternEditor::popupMenuActionTriggered() {
-	m_bPopupMenuActive = false;
-
-	if ( m_notesToSelect.size() > 0 ) {
-		m_notesToSelect.clear();
-		m_selection.clearSelection();
-	}
 }
 
 ///
 /// Copy selection to clipboard in XML
 ///
-void PatternEditor::copy()
+void PatternEditor::copy( bool bHandleSetupTeardown )
 {
+	if ( bHandleSetupTeardown ) {
+		popupSetup();
+	}
+
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
@@ -518,13 +533,21 @@ void PatternEditor::copy()
 	// This selection will probably be pasted at some point. So show the
 	// keyboard cursor as this is the place where the selection will be pasted.
 	handleKeyboardCursor( true );
+
+	if ( bHandleSetupTeardown ) {
+		popupTeardown();
+	}
 }
 
 
 void PatternEditor::cut()
 {
-	copy();
-	deleteSelection();
+	popupSetup();
+
+	copy( false );
+	deleteSelection( false );
+
+	popupTeardown();
 }
 
 ///
@@ -770,6 +793,8 @@ void PatternEditor::alignToGrid() {
 		return;
 	}
 
+	popupSetup();
+
 	validateSelection();
 	if ( m_selection.isEmpty() ) {
 		return;
@@ -834,6 +859,16 @@ void PatternEditor::alignToGrid() {
 						 /* bIsDelete */ true,
 						 bNoteOff ) );
 
+		auto addNoteAction = AddNoteAction::None;
+		if ( m_notesHoveredForPopup.size() > 0 ) {
+			for ( const auto& ppHoveredNote : m_notesHoveredForPopup ) {
+				if ( ppNote == ppHoveredNote ) {
+					addNoteAction = AddNoteAction::MoveCursorTo;
+					break;
+				}
+			}
+		}
+
 		// Add at target position
 		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
 						 nNewPosition,
@@ -848,10 +883,13 @@ void PatternEditor::alignToGrid() {
 						 nOctave,
 						 fProbability,
 						 /* bIsDelete */ false,
-						 bNoteOff ) );
+						 bNoteOff,
+						 addNoteAction ) );
 	}
 
 	pHydrogenApp->endUndoMacro();
+
+	popupTeardown();
 }
 
 
@@ -862,6 +900,8 @@ void PatternEditor::randomizeVelocity() {
 		// No pattern selected. Nothing to be randomized.
 		return;
 	}
+
+	popupSetup();
 
 	validateSelection();
 	if ( m_selection.isEmpty() ) {
@@ -915,6 +955,8 @@ void PatternEditor::randomizeVelocity() {
 	}
 
 	triggerStatusMessage( notes, Property::Velocity );
+
+	popupTeardown();
 }
 
 void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
@@ -931,19 +973,15 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		return;
 	}
 
-	if ( m_bPopupMenuActive && m_notesToSelect.size() > 0 ) {
-		// right-click pop up menu was closed without triggering an action.
-		// Discard it's transient selection.
-		m_notesToSelect.clear();
-		m_selection.clearSelection();
-	}
-	m_bPopupMenuActive = false;
-
 	updateModifiers( ev );
+
+	m_notesToSelectForPopup.clear();
+	m_notesHoveredForPopup.clear();
+	m_notesHoveredOnDragStart.clear();
+	m_notesToSelect.clear();
 
 	if ( ( ev->buttons() == Qt::LeftButton || ev->buttons() == Qt::RightButton ) &&
 		 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
-		m_notesToSelect.clear();
 
 		// When interacting with note(s) not already in a selection, we will
 		// discard the current selection and add these notes under point to a
@@ -970,6 +1008,11 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		else {
 			m_notesToSelect = notesUnderPoint;
 			m_notesHoveredOnDragStart = notesUnderPoint;
+		}
+
+		if ( ev->button() == Qt::RightButton ) {
+			m_notesToSelectForPopup = m_notesToSelect;
+			m_notesHoveredForPopup = m_notesHoveredOnDragStart;
 		}
 	}
 
@@ -1072,14 +1115,9 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 	}
 	else if ( ev->button() == Qt::RightButton ) {
-		if ( m_notesToSelect.size() > 0 ) {
-			m_selection.clearSelection();
-			for ( const auto& ppNote : m_notesToSelect ) {
-				m_selection.addToSelection( ppNote );
-			}
-
+		if ( m_notesHoveredForPopup.size() > 0 ) {
 			m_pPatternEditorPanel->setCursorColumn(
-				m_notesToSelect[ 0 ]->getPosition() );
+				m_notesHoveredForPopup[ 0 ]->getPosition() );
 		}
 		showPopupMenu( ev );
 	}
@@ -1139,7 +1177,7 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 
 	m_notesHoveredOnDragStart.clear();
 
-	if ( m_notesToSelect.size() > 0 && ! m_bPopupMenuActive ) {
+	if ( ev->button() == Qt::LeftButton && m_notesToSelect.size() > 0 ) {
 		// We used a transient selection of note(s) at a single position.
 		m_selection.clearSelection();
 		m_notesToSelect.clear();
@@ -1600,8 +1638,12 @@ void PatternEditor::validateSelection()
 	}
 }
 
-void PatternEditor::deleteSelection()
+void PatternEditor::deleteSelection( bool bHandleSetupTeardown )
 {
+	if ( bHandleSetupTeardown ) {
+		popupSetup();
+	}
+
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
@@ -1647,6 +1689,10 @@ void PatternEditor::deleteSelection()
 			}
 			pHydrogenApp->endUndoMacro();
 		}
+	}
+
+	if ( bHandleSetupTeardown ) {
+		popupTeardown();
 	}
 }
 
@@ -1841,14 +1887,6 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 
 	const int nWordSize = 5;
-
-	if ( m_bPopupMenuActive && m_notesToSelect.size() > 0 ) {
-		// right-click pop up menu was closed without triggering an action.
-		// Discard it's transient selection.
-		m_notesToSelect.clear();
-		m_selection.clearSelection();
-	}
-	m_bPopupMenuActive = false;
 
 	// Checks whether the notes at point are part of the current selection. If
 	// not, the latter is cleared and notes at point/cursor will be selected
@@ -3662,4 +3700,21 @@ bool PatternEditor::syncLasso() {
 
 bool PatternEditor::isSelectionMoving() const {
 	return m_selection.isMoving();
+}
+
+void PatternEditor::popupSetup() {
+	if ( m_notesToSelectForPopup.size() > 0 ) {
+		m_selection.clearSelection();
+
+		for ( const auto& ppNote : m_notesToSelectForPopup ) {
+			m_selection.addToSelection( ppNote );
+		}
+	}
+}
+
+void PatternEditor::popupTeardown() {
+	if ( m_notesToSelectForPopup.size() > 0 ) {
+		m_notesToSelectForPopup.clear();
+		m_selection.clearSelection();
+	}
 }

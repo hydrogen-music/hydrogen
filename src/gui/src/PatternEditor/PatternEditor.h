@@ -263,23 +263,23 @@ protected:
 	Selection< SelectionIndex > m_selection;
 
 public slots:
+		/** When right-click opening a popup menu, ensure the clicked note is
+		 * selected. Note however that this is just temporary while the popup is
+		 * shown. Selection for the popup actions themselves is done by
+		 * popupSetup(). */
+		void popupMenuAboutToShow();
+		void popupMenuAboutToHide();
 	virtual void updateEditor( bool bPatternOnly = false );
 	virtual void selectAll() = 0;
 	virtual void selectNone();
-	void deleteSelection();
-	virtual void copy();
+	void deleteSelection( bool bHandleSetupTeardown = true );
+	virtual void copy( bool bHandleSetupTeardown = true );
 	void paste();
 	virtual void cut();
 	virtual void alignToGrid();
 	virtual void randomizeVelocity();
 	void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
 	void scrolled( int nValue );
-		/** Unfortunately, QMenu::aboutToShow() is triggered prior to the
-		 * actions and thus is not suited to discard the transient selection.
-		 * But if the popup menu is cancelled without triggering an action, this
-		 * one won't be called either. The transient selection is discarded on
-		 * next mouse or key press instead. */
-		void popupMenuActionTriggered();
 
 protected:
 		enum NoteStyle {
@@ -433,7 +433,25 @@ protected:
 		 * without move (click). */
 		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelect;
 
-		bool m_bPopupMenuActive;
+		void popupSetup();
+		void popupTeardown();
+
+		/** Right-clicking a (hovered) note should make the popup menu act on
+		 * this note as well using a transient selection. However, as it is only
+		 * transient, we have to take care of clearing it later on. This "later"
+		 * is a little difficult. QMenu::aboutToHide() is called _before_ the
+		 * action trigger in the menu and thus too early for us to be used.
+		 * Clearing the selection on QMenu::triggered clears the selection
+		 * _after_ an action was triggered via the menu. But it does not in case
+		 * the menu was cancelled - e.g. just right-clicking a second time. The
+		 * later was implemented during development and felt quite weird.
+		 *
+		 * Instead, we use this member to cache notes which would be part of the
+		 * transient selection and both do select them and clear the selection
+		 * in all associated action slots/methods. */
+		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelectForPopup;
+
+		std::vector< std::shared_ptr<H2Core::Note> > m_notesHoveredForPopup;
 
 		void updateHoveredNotesMouse( QMouseEvent* pEvent );
 		void updateHoveredNotesKeyboard( bool bUpdateEditor = true );
