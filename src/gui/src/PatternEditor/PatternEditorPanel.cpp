@@ -1943,7 +1943,7 @@ void PatternEditorPanel::updateDB() {
 
 void PatternEditorPanel::setHoveredNotesMouse(
 	std::map< std::shared_ptr<H2Core::Pattern>,
-	std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes ) {
+	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes ) {
 
 	if ( hoveredNotes == m_hoveredNotesMouse ) {
 		return;
@@ -1958,7 +1958,9 @@ void PatternEditorPanel::setHoveredNotesMouse(
 
 void PatternEditorPanel::setHoveredNotesKeyboard(
 	std::map< std::shared_ptr<H2Core::Pattern>,
-	std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes ) {
+	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+	bool bUpdateEditor )
+{
 	if ( hoveredNotes == m_hoveredNotesKeyboard ) {
 		return;
 	}
@@ -1966,8 +1968,11 @@ void PatternEditorPanel::setHoveredNotesKeyboard(
 	m_hoveredNotesKeyboard = hoveredNotes;
 
 	updateHoveredNotes();
-	getVisibleEditor()->updateEditor( true );
-	getVisiblePropertiesRuler()->updateEditor( true );
+
+	if ( bUpdateEditor ) {
+		getVisibleEditor()->updateEditor( true );
+		getVisiblePropertiesRuler()->updateEditor( true );
+	}
 }
 
 void PatternEditorPanel::updateHoveredNotes() {

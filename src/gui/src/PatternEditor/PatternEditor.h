@@ -436,7 +436,7 @@ protected:
 		bool m_bPopupMenuActive;
 
 		void updateHoveredNotesMouse( QMouseEvent* pEvent );
-		void updateHoveredNotesKeyboard();
+		void updateHoveredNotesKeyboard( bool bUpdateEditor = true );
 };
 
 #endif // PATERN_EDITOR_H

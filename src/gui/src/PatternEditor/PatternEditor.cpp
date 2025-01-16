@@ -434,6 +434,8 @@ void PatternEditor::updateEditor( bool bPatternOnly )
 		m_update = Update::Background;
 	}
 
+	updateHoveredNotesKeyboard( false );
+
 	update();
 }
 
@@ -3531,7 +3533,7 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
 	m_pPatternEditorPanel->setHoveredNotesMouse( hovered );
 }
 
-void PatternEditor::updateHoveredNotesKeyboard() {
+void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditor ) {
 	const auto point = getCursorPosition();
 
 	std::map< std::shared_ptr<Pattern>,
@@ -3545,7 +3547,7 @@ void PatternEditor::updateHoveredNotesKeyboard() {
 			}
 		}
 	}
-	m_pPatternEditorPanel->setHoveredNotesKeyboard( hovered );
+	m_pPatternEditorPanel->setHoveredNotesKeyboard( hovered, bUpdateEditor );
 }
 
 bool PatternEditor::syncLasso() {
