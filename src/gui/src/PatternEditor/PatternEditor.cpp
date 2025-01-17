@@ -463,10 +463,13 @@ void PatternEditor::updateEditor( bool bPatternOnly )
 		updateHoveredNotesKeyboard( false );
 		const QPoint globalPos = QCursor::pos();
 		const QPoint widgetPos = mapFromGlobal( globalPos );
-		auto pEvent = new QMouseEvent( QEvent::MouseButtonRelease, widgetPos,
-									   globalPos, Qt::LeftButton, Qt::LeftButton,
-									   Qt::NoModifier );
-		updateHoveredNotesMouse( pEvent, false );
+		if ( widgetPos.x() >= 0 && widgetPos.x() < width() &&
+			 widgetPos.y() >= 0 && widgetPos.y() < height() ) {
+			auto pEvent = new QMouseEvent(
+				QEvent::MouseButtonRelease, widgetPos, globalPos, Qt::LeftButton,
+				Qt::LeftButton, Qt::NoModifier );
+			updateHoveredNotesMouse( pEvent, false );
+		}
 	}
 
 	// redraw
