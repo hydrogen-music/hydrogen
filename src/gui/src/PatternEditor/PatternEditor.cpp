@@ -977,7 +977,14 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	if ( pPattern == nullptr ) {
 		return;
 	}
-	if ( ev->x() > m_nActiveWidth || ev->x() <= PatternEditor::nMarginSidebar ) {
+
+	// Property drawing in the ruler is allowed to start within the margin.
+	// There is currently no plan to introduce a widget within this margin and
+	// in contrast to lasso selection this action is unique to the ruler.
+	if ( ev->x() > m_nActiveWidth ||
+		 ( ev->x() <= PatternEditor::nMarginSidebar &&
+		   ! ( m_editor == Editor::NotePropertiesRuler &&
+			   ev->button() == Qt::RightButton ) ) ) {
 		if ( ! m_selection.isEmpty() ) {
 			m_selection.clearSelection();
 			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
