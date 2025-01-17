@@ -48,7 +48,7 @@ DrumPatternEditor::DrumPatternEditor( QWidget* parent )
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	m_nGridHeight = pPref->getPatternEditorGridHeight();
-	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
+	m_nEditorHeight = m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
 	m_nActiveWidth = m_nEditorWidth;
 	resize( m_nEditorWidth, m_nEditorHeight );
 }
