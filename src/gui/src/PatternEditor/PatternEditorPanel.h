@@ -315,7 +315,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 			  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
 			bool bUpdateEditors = true );
 
-		bool getEntered() const;
 		/** @returns `true` in case any of the child editors or sidebar has
 		 * focus.*/
 		bool hasPatternEditorFocus() const;
@@ -474,8 +473,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
-		virtual void enterEvent( QEvent *ev ) override;
-		virtual void leaveEvent( QEvent *ev ) override;
 };
 
 inline std::shared_ptr<H2Core::Pattern> PatternEditorPanel::getPattern() const {
@@ -500,10 +497,6 @@ inline const std::map< std::shared_ptr<H2Core::Pattern>,
 	std::vector< std::shared_ptr<H2Core::Note> > >&
 	PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
-}
-
-inline bool PatternEditorPanel::getEntered() const {
-	return m_bEntered;
 }
 
 #endif

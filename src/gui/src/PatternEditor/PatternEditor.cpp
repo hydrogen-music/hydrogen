@@ -1577,8 +1577,7 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	QColor color;
-	if ( m_pPatternEditorPanel->getEntered() ||
-		 m_pPatternEditorPanel->hasPatternEditorFocus() ) {
+	if ( m_pPatternEditorPanel->hasPatternEditorFocus() ) {
 		color = pPref->getTheme().m_color.m_selectionHighlightColor;
 	} else {
 		color = pPref->getTheme().m_color.m_selectionInactiveColor;
@@ -2092,7 +2091,9 @@ void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
 void PatternEditor::enterEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
-	update();
+
+	// Update focus, hovered notes and selection color.
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 void PatternEditor::leaveEvent( QEvent *ev ) {
@@ -2112,8 +2113,8 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 	// the widget.
 	HydrogenApp::get_instance()->endUndoContext();
 
-	// update focus and hovered notes
-	update();
+	// Update focus, hovered notes and selection color.
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 void PatternEditor::focusInEvent( QFocusEvent *ev ) {
@@ -2122,32 +2123,15 @@ void PatternEditor::focusInEvent( QFocusEvent *ev ) {
 		 ev->reason() == Qt::BacktabFocusReason ) {
 		handleKeyboardCursor( true );
 	}
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getSidebar()->update();
-	}
 
-	// Update to show the focus border highlight
-	updateEditor();
+	// Update hovered notes, cursor, background color, selection color...
+	m_pPatternEditorPanel->updateEditors();
 }
 
 void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
 	UNUSED( ev );
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getSidebar()->update();
-
-		if ( m_editor == Editor::NotePropertiesRuler ) {
-			m_pPatternEditorPanel->getVisibleEditor()->update();
-		}
-		else {
-			m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
-		}
-	}
-	
-	// Update to remove the focus border highlight
-	updateEditor();
+	// Update hovered notes, cursor, background color, selection color...
+	m_pPatternEditorPanel->updateEditors();
 }
 
 void PatternEditor::paintEvent( QPaintEvent* ev )

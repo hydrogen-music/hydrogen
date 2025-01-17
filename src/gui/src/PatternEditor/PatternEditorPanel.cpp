@@ -1452,22 +1452,6 @@ void PatternEditorPanel::dropEvent( QDropEvent *event )
 	m_pSidebar->dropEvent( event );
 }
 
-void PatternEditorPanel::enterEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = true;
-
-	// Selection color
-	updateEditors( true );
-}
-
-void PatternEditorPanel::leaveEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = false;
-
-	// Selection color
-	updateEditors( true );
-}
-
 void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
