@@ -933,6 +933,8 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 	if ( nInstrument != -1 ) {
 		m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	}
+
+	ensureVisible();
 	updateEditors();
 	resizeEvent( nullptr );	// force a scrollbar update
 }
