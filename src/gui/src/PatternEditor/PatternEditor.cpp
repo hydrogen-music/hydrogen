@@ -3502,21 +3502,46 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		}
 	}
 
-	// Within the ruler all selected notes are along notes of the selected row.
-	// These notes can be interacted with (property change, deselect etc.).
+	// Within the ruler all selected and hovered notes along with notes of the
+	// selected row are rendered. These notes can be interacted with (property
+	// change, deselect etc.).
 	if ( m_editor == Editor::NotePropertiesRuler ) {
 		// Ensure we do not add the same note twice.
-		std::vector< std::shared_ptr<Note> > furtherNotes;
+		std::set< std::shared_ptr<Note> > furtherNotes;
+
+		// Check and add selected notes.
 		bool bFound = false;
-		for ( const auto& ppNote : m_selection ) {
+		for ( const auto& ppSelectedNote : m_selection ) {
 			bFound = false;
-			for ( const auto& ppCurrentNote : notesUnderPoint )
-				if ( ppCurrentNote == ppNote ) {
+			for ( const auto& ppPatternNote : notesUnderPoint ) {
+				if ( ppPatternNote == ppSelectedNote ) {
 					bFound = true;
 					break;
 				}
-			if ( ! bFound && ppNote != nullptr ) {
-				furtherNotes.push_back( ppNote );
+			}
+			if ( ! bFound && ppSelectedNote != nullptr ) {
+				furtherNotes.insert( ppSelectedNote );
+			}
+		}
+
+		// Check and add hovered notes.
+		for ( const auto& [ ppPattern, nnotes ] :
+				  m_pPatternEditorPanel->getHoveredNotes() ) {
+			if ( ppPattern != pPattern ) {
+				continue;
+			}
+
+			for ( const auto& ppHoveredNote : nnotes ) {
+				bFound = false;
+				for ( const auto& ppPatternNote : notesUnderPoint ) {
+					if ( ppPatternNote == ppHoveredNote ) {
+						bFound = true;
+						break;
+					}
+				}
+				if ( ! bFound && ppHoveredNote != nullptr ) {
+					furtherNotes.insert( ppHoveredNote );
+				}
 			}
 		}
 
