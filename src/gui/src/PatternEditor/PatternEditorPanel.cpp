@@ -1029,10 +1029,10 @@ void PatternEditorPanel::showDrumEditorBtnClick()
 }
 
 PatternEditor* PatternEditorPanel::getVisibleEditor() const {
-	if ( m_pEditorScrollView->isVisible() ) {
-		return m_pDrumPatternEditor;
+	if ( m_pPianoRollScrollView->isVisible() ) {
+		return m_pPianoRollEditor;
 	}
-	return m_pPianoRollEditor;
+	return m_pDrumPatternEditor;
 }
 
 NotePropertiesRuler* PatternEditorPanel::getVisiblePropertiesRuler() const {
