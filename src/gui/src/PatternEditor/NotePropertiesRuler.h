@@ -31,6 +31,7 @@
 #include <core/Preferences/Preferences.h>
 #include <map>
 #include <memory>
+#include <set>
 
 #include "PatternEditor.h"
 
@@ -132,6 +133,15 @@ class NotePropertiesRuler : public PatternEditor,
 
 		int m_nDrawPreviousColumn;
 		Layout m_layout;
+
+		/** Retrieve all (foreground) notes currently rendered in the ruler.
+		 *
+		 * This includes:
+		 *  1. notes in the selected row of the current pattern
+		 *  2. already selected notes (of the current pattern but possibly from
+		 *     another row)
+		 *  3. hovered notes */
+		std::set< std::shared_ptr<H2Core::Note> > getAllNotes() const;
 };
 
 

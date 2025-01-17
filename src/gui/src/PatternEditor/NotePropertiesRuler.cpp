@@ -1533,24 +1533,37 @@ void NotePropertiesRuler::selectAll()
 		return;
 	}
 
-	// All (foreground) notes in the ruler are composed of
-	//  1. notes in the selected row of the current pattern
-	//  2. already selected notes (of the current pattern but possibly from
-	//     another row)
-	//  3. hovered notes
+	const auto notes = getAllNotes();
 
-	// Add missing notes from the current row to the current selection.
+	m_selection.clearSelection();
+	for ( const auto& ppNote : notes ) {
+		m_selection.addToSelection( ppNote );
+	}
+
+	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
+}
+
+std::set< std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes() const {
+	std::set< std::shared_ptr<Note> > notes;
+
+	const auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return std::move( notes );
+	}
+
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
 	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-		if ( ppNote != nullptr && ! m_selection.isSelected( ppNote ) &&
-			 ppNote->getInstrumentId() == row.nInstrumentID &&
-			 ppNote->getType() == row.sType ) {
-			m_selection.addToSelection( ppNote );
+		if ( ppNote != nullptr &&
+			 ( m_selection.isSelected( ppNote ) ||
+			   ( ppNote->getInstrumentId() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType ) ) ) {
+			notes.insert( ppNote );
 		}
 	}
 
-	// Add hovered notes as well.
+	// Add hovered notes as well. We rely on std::set to ensure uniqueness.
 	for ( const auto& [ ppPattern, nnotes ] :
 			  m_pPatternEditorPanel->getHoveredNotes() ) {
 		if ( ppPattern != pPattern ) {
@@ -1558,13 +1571,11 @@ void NotePropertiesRuler::selectAll()
 		}
 
 		for ( const auto& ppHoveredNote : nnotes ) {
-			if ( ppHoveredNote != nullptr &&
-				 ! m_selection.isSelected( ppHoveredNote ) ) {
-				m_selection.addToSelection( ppHoveredNote );
+			if ( ppHoveredNote != nullptr ) {
+				notes.insert( ppHoveredNote );
 			}
 		}
 	}
 
-	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
+	return std::move( notes );
 }
