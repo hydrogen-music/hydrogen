@@ -1761,10 +1761,15 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
 		 nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
-		pHydrogen->setSelectedInstrumentNumber( nNewRow );
+		// Within the kit, rows/ids are unique.
+		pHydrogen->setSelectedInstrumentNumber(
+			nNewRow, Event::Trigger::Default );
 	}
 	else {
-		pHydrogen->setSelectedInstrumentNumber( -1 );
+		// For all other lines the cached instrument number does not change. But
+		// we still want to handle the update using the same event.
+		pHydrogen->setSelectedInstrumentNumber(
+			-1, Event::Trigger::Force );
 	}
 }
 

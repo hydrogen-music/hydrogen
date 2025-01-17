@@ -1227,7 +1227,8 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
-			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false );
+			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ),
+			Event::Trigger::Suppress );
 	}
 
 	pAudioEngine->unlock();
@@ -1747,7 +1748,8 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 		 nSelectedInstrument >= pDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
 			std::clamp( nSelectedInstrument, 0,
-						static_cast<int>(pDrumkit->getInstruments()->size() - 1 ) ) );
+						static_cast<int>(pDrumkit->getInstruments()->size() - 1 ) ),
+			Event::Trigger::Suppress );
 	}
 
 	pHydrogen->renameJackPorts( pSong );

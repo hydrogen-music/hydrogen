@@ -868,12 +868,16 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 	}
 }
 
-void Hydrogen::setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent )
+void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
+											Event::Trigger trigger )
 {
 	// In case no instrument is selected (-1), we still perform an update since
 	// another type-only row might be selected in the GUI.
-	if ( nInstrument != -1 &&
-		 m_nSelectedInstrumentNumber == nInstrument ) {
+	if ( m_nSelectedInstrumentNumber == nInstrument ) {
+		if ( trigger == Event::Trigger::Force ) {
+			EventQueue::get_instance()->push_event(
+				EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+		}
 		return;
 	}
 
@@ -886,7 +890,7 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent 
 		m_nSelectedInstrumentNumber = -1;
 	}
 
-	if ( bTriggerEvent ) {
+	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->push_event(
 			EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	}

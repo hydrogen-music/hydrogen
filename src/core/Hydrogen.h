@@ -294,14 +294,10 @@ public:
 	int				getSelectedInstrumentNumber() const;
 	/**
 	 * \param nInstrument #Instrument about to be selected
-	 * \param bTriggerEvent Whether #EVENT_SELECTED_INSTRUMENT_CHANGED
-	 * should be queued. When e.g. changing the selected instrument as
-	 * part of loading a different drumkit, it's important to only
-	 * trigger a single event after the loading is done and to not
-	 * fire some premature ones making the GUI act on a core that
-	 * might be in an unclean state.
+	 * \param trigger How to handle events.
 	 */
-	void			setSelectedInstrumentNumber( int nInstrument, bool bTriggerEvent = true );
+	void			setSelectedInstrumentNumber(
+		int nInstrument, Event::Trigger trigger = Event::Trigger::Default );
 	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
 	/**
