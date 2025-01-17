@@ -1145,6 +1145,15 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			m_pPatternEditorPanel->setCursorColumn(
 				m_notesHoveredForPopup[ 0 ]->getPosition() );
 		}
+		else {
+			// For pasting we can not rely on the position of preexising notes.
+			if ( ev->modifiers() & Qt::AltModifier ) {
+				m_pPatternEditorPanel->setCursorColumn( nRealColumn );
+			}
+			else {
+				m_pPatternEditorPanel->setCursorColumn( nColumn );
+			}
+		}
 		showPopupMenu( ev );
 	}
 
