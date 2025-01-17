@@ -1438,6 +1438,17 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 	pAudioEngine->unlock();
 	
 	pHydrogen->setIsModified( true );
+
+	// Ensure the cursor stays within the accessible region of the current
+	// pattern.
+	if ( pPattern == m_pPattern && m_nCursorColumn >= nLength ) {
+		int nNewColumn = std::floor( m_pPattern->getLength() /
+									 m_nCursorIncrement ) * m_nCursorIncrement;
+		if ( m_pPattern->getLength() % m_nCursorIncrement == 0 ) {
+			nNewColumn -= m_nCursorIncrement;
+		}
+		setCursorColumn( nNewColumn );
+	}
 	
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
@@ -1614,6 +1625,9 @@ void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
 		if ( n > 1 && nNewColumn >= m_pPattern->getLength() ) {
 			nNewColumn = std::floor( m_pPattern->getLength() /
 									 m_nCursorIncrement ) * m_nCursorIncrement;
+			if ( m_pPattern->getLength() % m_nCursorIncrement == 0 ) {
+				nNewColumn -= m_nCursorIncrement;
+			}
 		}
 	}
 
