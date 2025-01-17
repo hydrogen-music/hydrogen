@@ -453,8 +453,9 @@ protected:
 
 		std::vector< std::shared_ptr<H2Core::Note> > m_notesHoveredForPopup;
 
-		void updateHoveredNotesMouse( QMouseEvent* pEvent );
-		void updateHoveredNotesKeyboard( bool bUpdateEditor = true );
+		void updateHoveredNotesMouse( QMouseEvent* pEvent,
+									  bool bUpdateEditors = true );
+		void updateHoveredNotesKeyboard( bool bUpdateEditors = true );
 };
 
 #endif // PATERN_EDITOR_H

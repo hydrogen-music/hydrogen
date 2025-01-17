@@ -308,11 +308,12 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 			getHoveredNotes() const;
 		void setHoveredNotesMouse(
 			std::map< std::shared_ptr<H2Core::Pattern>,
-			  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes );
+			  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+			bool bUpdateEditors = true );
 		void setHoveredNotesKeyboard(
 			std::map< std::shared_ptr<H2Core::Pattern>,
 			  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
-			bool bUpdateEditor = true );
+			bool bUpdateEditors = true );
 
 		bool getEntered() const;
 		/** @returns `true` in case any of the child editors or sidebar has

@@ -458,8 +458,25 @@ void PatternEditor::updateEditor( bool bPatternOnly )
 		m_update = Update::Background;
 	}
 
+	// update hovered notes
+	//
+	// It is slightly inefficient for these code to be both triggered from the
+	// visible editor and the visible property ruler. But since we cache the
+	// hovered notes, this shouldn't be a problem.
 	updateHoveredNotesKeyboard( false );
 
+	// For notes hovered by mouse we only check the focussed editor because this
+	// is most likely the widget current hovered by mouse.
+	if ( hasFocus() ) {
+		const QPoint globalPos = QCursor::pos();
+		const QPoint widgetPos = mapFromGlobal( globalPos );
+		auto pEvent = new QMouseEvent( QEvent::MouseButtonRelease, widgetPos,
+									   globalPos, Qt::LeftButton, Qt::LeftButton,
+									   Qt::NoModifier );
+		updateHoveredNotesMouse( pEvent, false );
+	}
+
+	// redraw
 	update();
 }
 
@@ -3523,7 +3540,8 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	return std::move( notesUnderPoint );
 }
 
-void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
+void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
+											 bool bUpdateEditors ) {
 	const int nCursorMargin = getCursorMargin( pEvent );
 
 	int nRealColumn;
@@ -3568,10 +3586,10 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent ) {
 			}
 		}
 	}
-	m_pPatternEditorPanel->setHoveredNotesMouse( hovered );
+	m_pPatternEditorPanel->setHoveredNotesMouse( hovered, bUpdateEditors );
 }
 
-void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditor ) {
+void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditors ) {
 	const auto point = getCursorPosition();
 
 	std::map< std::shared_ptr<Pattern>,
@@ -3585,7 +3603,7 @@ void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditor ) {
 			}
 		}
 	}
-	m_pPatternEditorPanel->setHoveredNotesKeyboard( hovered, bUpdateEditor );
+	m_pPatternEditorPanel->setHoveredNotesKeyboard( hovered, bUpdateEditors );
 }
 
 bool PatternEditor::syncLasso() {
