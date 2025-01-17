@@ -1027,6 +1027,12 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 			m_notesToSelectForPopup = m_notesToSelect;
 			m_notesHoveredForPopup = m_notesHoveredOnDragStart;
 		}
+
+		// Property drawing in the ruler must not select notes.
+		if ( m_editor == Editor::NotePropertiesRuler &&
+			 ev->button() == Qt::RightButton ) {
+			m_notesToSelect.clear();
+		}
 	}
 
 	// propagate event to selection. This could very well cancel a lasso created
