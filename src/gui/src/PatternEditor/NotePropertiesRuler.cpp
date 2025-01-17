@@ -101,7 +101,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
 	const auto notesUnderPoint = getElementsAtPoint(
-		point, getCursorMargin( ev ), pPattern );
+		point, getCursorMargin( nullptr ), pPattern );
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}
