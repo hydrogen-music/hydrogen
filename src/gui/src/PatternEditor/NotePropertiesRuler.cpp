@@ -1528,5 +1528,43 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 
 void NotePropertiesRuler::selectAll()
 {
-	selectAllNotesInRow( m_pPatternEditorPanel->getSelectedRowDB() );
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	// All (foreground) notes in the ruler are composed of
+	//  1. notes in the selected row of the current pattern
+	//  2. already selected notes (of the current pattern but possibly from
+	//     another row)
+	//  3. hovered notes
+
+	// Add missing notes from the current row to the current selection.
+	const auto row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->getSelectedRowDB() );
+	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		if ( ppNote != nullptr && ! m_selection.isSelected( ppNote ) &&
+			 ppNote->getInstrumentId() == row.nInstrumentID &&
+			 ppNote->getType() == row.sType ) {
+			m_selection.addToSelection( ppNote );
+		}
+	}
+
+	// Add hovered notes as well.
+	for ( const auto& [ ppPattern, nnotes ] :
+			  m_pPatternEditorPanel->getHoveredNotes() ) {
+		if ( ppPattern != pPattern ) {
+			continue;
+		}
+
+		for ( const auto& ppHoveredNote : nnotes ) {
+			if ( ppHoveredNote != nullptr &&
+				 ! m_selection.isSelected( ppHoveredNote ) ) {
+				m_selection.addToSelection( ppHoveredNote );
+			}
+		}
+	}
+
+	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
 }
