@@ -750,7 +750,8 @@ public:
 				m_lasso = m_keyboardCursorStart;
 			}
 
-		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		} else if ( ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) &&
+					m_pWidget->canMoveElements() ) {
 
 			// Key: Enter/Return: start or end a move or copy
 			if ( m_selectionState == Idle ) {
@@ -778,8 +779,7 @@ public:
 				updateWidgetGroup();
 				return true;
 
-			} else if ( m_selectionState == KeyboardMoving &&
-						m_pWidget->canMoveElements() ) {
+			} else if ( m_selectionState == KeyboardMoving ) {
 				// End keyboard move
 				m_selectionState = Idle;
 				m_pWidget->selectionMoveEndEvent( ev );
