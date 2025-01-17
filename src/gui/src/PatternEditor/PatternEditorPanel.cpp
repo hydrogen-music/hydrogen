@@ -1547,8 +1547,10 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 										  bool bUpdateEditors ) {
 	if ( nCursorColumn < 0 ) {
 		nCursorColumn = 0;
-	} else if ( m_pPattern != nullptr && nCursorColumn >= m_pPattern->getLength() ) {
-		nCursorColumn = m_pPattern->getLength() - m_nCursorIncrement;
+	}
+	else if ( m_pPattern != nullptr &&
+			  nCursorColumn >= m_pPattern->getLength() ) {
+		return;
 	}
 
 	if ( nCursorColumn == m_nCursorColumn ) {
@@ -1588,6 +1590,10 @@ void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, int n ) {
 }
 
 void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
 	// By pressing the Alt button the user can bypass quantization.
 	const int nStep = MAX_NOTES / getResolution();
 
@@ -1606,10 +1612,16 @@ void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
 			nNewColumn = m_nCursorColumn + nStep - m_nCursorColumn % nStep +
 				m_nCursorIncrement * ( n - 1 );
 		}
+
+		// If a jump would be positioned beyond the end of the pattern, we move
+		// to the last possible position instead.
+		if ( n > 1 && nNewColumn >= m_pPattern->getLength() ) {
+			nNewColumn = std::floor( m_pPattern->getLength() / nStep ) * nStep;
+		}
 	}
 
-	setCursorColumn( std::min( nNewColumn,
-							   m_pPattern->getLength() - nIncrement ) );
+
+	setCursorColumn( nNewColumn );
 }
 
 void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
