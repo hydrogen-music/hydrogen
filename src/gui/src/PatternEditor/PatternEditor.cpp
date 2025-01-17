@@ -459,15 +459,8 @@ void PatternEditor::updateEditor( bool bPatternOnly )
 	}
 
 	// update hovered notes
-	//
-	// It is slightly inefficient for these code to be both triggered from the
-	// visible editor and the visible property ruler. But since we cache the
-	// hovered notes, this shouldn't be a problem.
-	updateHoveredNotesKeyboard( false );
-
-	// For notes hovered by mouse we only check the focussed editor because this
-	// is most likely the widget current hovered by mouse.
 	if ( hasFocus() ) {
+		updateHoveredNotesKeyboard( false );
 		const QPoint globalPos = QCursor::pos();
 		const QPoint widgetPos = mapFromGlobal( globalPos );
 		auto pEvent = new QMouseEvent( QEvent::MouseButtonRelease, widgetPos,
@@ -3615,14 +3608,27 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 }
 
 void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditors ) {
-	const auto point = getCursorPosition();
-
 	std::map< std::shared_ptr<Pattern>,
 			  std::vector< std::shared_ptr<Note> > > hovered;
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// cursor visible
+
+		// In case we are within the property ruler and a note from a different
+		// row is hovered by mouse in the drum pattern editor, we must ensure we
+		// are not adding this one to the keyboard hovered notes too.
+		PatternEditor* pEditor = this;
+		if ( m_editor == Editor::NotePropertiesRuler ) {
+			auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
+			if ( dynamic_cast<DrumPatternEditor*>( pVisibleEditor ) != nullptr ) {
+				pEditor = pVisibleEditor;
+			}
+		}
+
+		const auto point = pEditor->getCursorPosition();
+
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-			const auto hoveredNotes = getElementsAtPoint( point, 0, ppPattern );
+			const auto hoveredNotes =
+				pEditor->getElementsAtPoint( point, 0, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
 				hovered[ ppPattern ] = hoveredNotes;
 			}
