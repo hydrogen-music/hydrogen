@@ -517,7 +517,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 		}
 		
 		if ( bValueChanged ) {
-			triggerStatusMessage( notesSinceLastAction, m_property );
+			triggerStatusMessage( notesSinceLastAction, m_property, true );
 		}
 	}
 

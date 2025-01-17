@@ -3171,7 +3171,8 @@ QString PatternEditor::updateToQString( const Update& update ) {
 }
 
 void PatternEditor::triggerStatusMessage(
-	const std::vector< std::shared_ptr<Note> > notes, const Property& property ) {
+	const std::vector< std::shared_ptr<Note> > notes, const Property& property,
+	bool bSquash ) {
 	QString sCaller( _class_name() );
 	QString sUnit( tr( "ticks" ) );
 
@@ -3181,6 +3182,14 @@ void PatternEditor::triggerStatusMessage(
 	for ( const auto& ppNote : notes ) {
 		if ( ppNote == nullptr ) {
 			continue;
+		}
+
+		if ( ! bSquash ) {
+			// Allow the status message widget to squash all changes
+			// corresponding to the same property of the same set to notes.
+			sCaller.append( QString( "::%1:%2" )
+							.arg( ppNote->getPosition() )
+							.arg( m_pPatternEditorPanel->findRowDB( ppNote ) ) );
 		}
 
 		switch ( property ) {

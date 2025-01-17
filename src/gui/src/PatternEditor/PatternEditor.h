@@ -243,7 +243,7 @@ public:
 										  int nOldOctave );
 		void triggerStatusMessage(
 			const std::vector< std::shared_ptr<H2Core::Note> > notes,
-			const Property& property );
+			const Property& property, bool bSquash = false );
 
 		QPoint getCursorPosition();
 		void handleKeyboardCursor( bool bVisible );
