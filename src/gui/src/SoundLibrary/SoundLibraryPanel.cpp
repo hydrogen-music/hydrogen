@@ -192,6 +192,12 @@ void SoundLibraryPanel::updateTree()
 		}
 
 		const QString sItemLabel = pSoundLibraryDatabase->getUniqueLabel( ssPath );
+		if ( sItemLabel.isEmpty() ) {
+			ERRORLOG( QString( "Unable to retrieve unique label for kit in path [%1]" )
+					  .arg( ssPath ) );
+			continue;
+		}
+
 		const auto drumkitContext = ppDrumkit->getContext();
 
 		QTreeWidgetItem* pDrumkitItem;

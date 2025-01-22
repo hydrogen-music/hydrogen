@@ -301,6 +301,11 @@ void SoundLibraryDatabase::registerUniqueLabel( const QString& sDrumkitPath,
 }
 
 QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath ) const {
+	if ( m_drumkitUniqueLabels.find( sDrumkitPath ) ==
+		 m_drumkitUniqueLabels.end() ) {
+		return "";
+	}
+
 	return m_drumkitUniqueLabels.at( sDrumkitPath );
 }
 

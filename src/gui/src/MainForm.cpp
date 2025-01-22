@@ -2517,10 +2517,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	}
 	
 	const auto actions = pShortcuts->getActions( keySequence );
+	const auto actionInfoMap = pShortcuts->getActionInfoMap();
 	for ( const auto& action : actions ) {
 
-		const QString sTitle =
-			pShortcuts->getActionInfoMap().at( action ).sDescription;
+		if ( actionInfoMap.find( action ) == actionInfoMap.end() ) {
+			continue;
+		}
+
+		const QString sTitle = actionInfoMap.at( action ).sDescription;
 		
 		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
 			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
