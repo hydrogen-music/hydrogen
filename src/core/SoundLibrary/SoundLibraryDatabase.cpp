@@ -306,7 +306,7 @@ QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath ) cons
 		return "";
 	}
 
-	return m_drumkitUniqueLabels.at( sDrumkitPath );
+	return m_drumkitUniqueLabels.at( Filesystem::absolute_path( sDrumkitPath ) );
 }
 
 void SoundLibraryDatabase::registerDrumkitFolder( const QString& sDrumkitFolder ) {
