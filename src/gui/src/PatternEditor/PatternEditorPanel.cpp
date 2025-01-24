@@ -57,14 +57,18 @@ using namespace H2Core;
 DrumPatternRow::DrumPatternRow() noexcept
 	: nInstrumentID( EMPTY_INSTR_ID)
 	, sType( "" )
-	, bAlternate( false ) {
+	, bAlternate( false )
+	, bMappedToDrumkit( false )
+	, bPlaysBackAudio( false ){
 }
 DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
-								bool bAlt, bool bMapped ) noexcept
+								bool bAlt, bool bMapped,
+								bool bPlaysAudio ) noexcept
 	: nInstrumentID( nId)
 	, sType( sTypeString )
 	, bAlternate( bAlt )
-	, bMappedToDrumkit( bMapped ) {
+	, bMappedToDrumkit( bMapped )
+	, bPlaysBackAudio( bPlaysAudio ) {
 }
 
 QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
@@ -79,14 +83,17 @@ QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2bAlternate: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( bAlternate ) )
 			.append( QString( "%1%2bMappedToDrumkit: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bMappedToDrumkit ) );
+					 .arg( s ).arg( bMappedToDrumkit ) )
+			.append( QString( "%1%2bPlaysBackAudio: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bPlaysBackAudio ) );
 	}
 	else {
 		sOutput = QString( "[DrumPatternRow] " )
 			.append( QString( "nInstrumentID: %1" ).arg( nInstrumentID ) )
 			.append( QString( ", sType: %1" ).arg( sType ) )
 			.append( QString( ", bAlternate: %1" ).arg( bAlternate ) )
-			.append( QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit ) );
+			.append( QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit ) )
+			.append( QString( ", bPlaysBackAudio: %1" ).arg( bPlaysBackAudio ) );
 	}
 
 	return sOutput;
@@ -1361,6 +1368,11 @@ void PatternEditorPanel::relocationEvent() {
 	}
 }
 
+void PatternEditorPanel::instrumentMuteSoloChangedEvent( int ) {
+	updateDB();
+	updateEditors( true );
+}
+
 void PatternEditorPanel::patternSizeChanged( double fValue ){
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -1890,7 +1902,8 @@ void PatternEditorPanel::updateDB() {
 		if ( ppInstrument != nullptr ) {
 			m_db.push_back(
 				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
-								nnRow % 2 != 0, true ) );
+								nnRow % 2 != 0, true,
+								! ppInstrument->is_muted() ) );
 			kitIds.insert( ppInstrument->get_id() );
 			++nnRow;
 		}
@@ -1932,15 +1945,15 @@ void PatternEditorPanel::updateDB() {
 	// than unmapped id-only ones.
 	additionalTypes.sort();
 	for ( const auto& ssType : additionalTypes ) {
-		m_db.push_back( DrumPatternRow(
-							EMPTY_INSTR_ID, ssType, nnRow % 2 != 0, false ) );
+		m_db.push_back( DrumPatternRow( EMPTY_INSTR_ID, ssType, nnRow % 2 != 0,
+										false, false ) );
 		++nnRow;
 	}
 
 	additionalIds.sort();
 	for ( const auto& ssId : additionalIds ) {
-		m_db.push_back( DrumPatternRow(
-							ssId.toInt(), "", nnRow % 2 != 0, false ) );
+		m_db.push_back( DrumPatternRow( ssId.toInt(), "", nnRow % 2 != 0,
+										false, false ) );
 		++nnRow;
 	}
 

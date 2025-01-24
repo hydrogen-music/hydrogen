@@ -63,7 +63,8 @@ struct DrumPatternRow {
 
 	explicit DrumPatternRow() noexcept;
 	explicit DrumPatternRow( int nId, const QString& sType,
-							 bool bAlternate, bool bMappedToDrumkit ) noexcept;
+							 bool bAlternate, bool bMappedToDrumkit,
+							 bool bPlaysBackAudio ) noexcept;
 
 	/** Associated #H2Core::Instrument::__id in the current #H2Core::Drumkit.
 	 *
@@ -103,6 +104,12 @@ struct DrumPatternRow {
 	/** Whether the row is associated with an instrument of the current
 	 * drumkit. If note won't be played back. */
 	bool bMappedToDrumkit;
+
+	/** Whether the row is associated with an instrument currently rendering
+	 * sounds (not muted, not shadowed by soloing another instrment). The notes
+	 * contained, however, could be muted regardless of this variable due to
+	 * e.g. mute group settings of the corresponding instrument. */
+	bool bPlaysBackAudio;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
@@ -167,6 +174,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void patternEditorLockedEvent() override;
 	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
 	virtual void relocationEvent() override;
+		virtual void instrumentMuteSoloChangedEvent( int ) override;
 		// ~ Implements EventListener interface
 
 		std::shared_ptr<H2Core::Pattern> getPattern() const;
