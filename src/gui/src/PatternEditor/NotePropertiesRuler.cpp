@@ -1156,6 +1156,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				&movingPen, &movingBrush, noteStyle );
 
 	p.setPen( notePen );
+	p.setBrush( noteBrush );
 	p.setRenderHint( QPainter::Antialiasing );
 
 	// Silhouette to show when a note is selected and moved to a different
