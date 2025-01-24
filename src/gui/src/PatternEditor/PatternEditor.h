@@ -361,9 +361,11 @@ protected:
 	//! Draw lines for note grid.
 	void drawGridLines( QPainter &p, const Qt::PenStyle& style = Qt::SolidLine ) const;
 
-	//! Colour to use for outlining notes
-	void applyHighlightColor( QPen* pPen, QBrush* pBrush,
-							  NoteStyle noteStyle ) const;
+	//! Colour to use for rendering and outlining notes
+	void applyColor( std::shared_ptr<H2Core::Note> pNote, QPen* pNotePen,
+					 QBrush* pNoteBrush, QPen* pHighlightPen,
+					 QBrush* pHighlightBrush, QPen* pMovingPen,
+					 QBrush* pMovingBrush, NoteStyle noteStyle ) const;
 
 	/**
 	 * Draw a note

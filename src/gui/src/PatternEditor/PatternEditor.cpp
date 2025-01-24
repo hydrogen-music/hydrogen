@@ -225,16 +225,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	}
 	const int nX = PatternEditor::nMargin + pNote->getPosition() * m_fGridWidth;
 
-	const auto pPref = H2Core::Preferences::get_instance();
-	
-	const QColor noteColor( pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
-	const QColor noteInactiveColor( pPref->getTheme().m_color.m_windowTextColor.darker( 150 ) );
-	const QColor noteoffColor( pPref->getTheme().m_color.m_patternEditor_noteOffColor );
-	const QColor noteoffInactiveColor( pPref->getTheme().m_color.m_windowTextColor );
-
 	p.setRenderHint( QPainter::Antialiasing );
-
-	QColor color = computeNoteColor( pNote->getVelocity() );
 
 	uint w = 8, h =  8;
 
@@ -245,16 +236,13 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			static_cast<NoteStyle>(noteStyle | NoteStyle::NoPlayback);
 	}
 
-	QPen highlightPen;
-	QBrush highlightBrush;
-	applyHighlightColor( &highlightPen, &highlightBrush, noteStyle );
+	QPen notePen, highlightPen, movingPen;
+	QBrush noteBrush, highlightBrush, movingBrush;
+	applyColor( pNote, &notePen, &noteBrush, &highlightPen, &highlightBrush,
+				&movingPen, &movingBrush, noteStyle );
 
-	QPen movingPen( noteColor );
 	QPoint movingOffset;
 	if ( noteStyle & NoteStyle::Moved ) {
-		movingPen.setStyle( Qt::DotLine );
-		movingPen.setColor( highlightPen.color() );
-		movingPen.setWidth( 2 );
 		QPoint delta = movingGridOffset();
 		movingOffset = QPoint( delta.x() * m_fGridWidth,
 							   delta.y() * m_nGridHeight );
@@ -262,18 +250,6 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 	if ( pNote->getNoteOff() == false ) {
 		int width = w;
-
-		QBrush noteBrush( color );
-		QPen notePen( noteColor );
-		if ( noteStyle & NoteStyle::Background ) {
-
-			if ( nX >= m_nActiveWidth ) {
-				notePen.setColor( noteInactiveColor );
-			}
-			
-			noteBrush.setStyle( Qt::Dense4Pattern );
-			notePen.setStyle( Qt::DotLine );
-		}
 
 		if ( noteStyle & ( NoteStyle::Selected |
 						   NoteStyle::Hovered |
@@ -358,27 +334,16 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 		else {
 			p.setPen( movingPen );
-			p.setBrush( Qt::NoBrush );
+			p.setBrush( movingBrush );
 			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2 , w + 4, h + 4 );
 
 			// Moving tail
 			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
-				p.setPen( movingPen );
-				p.setBrush( Qt::NoBrush );
 				p.drawRoundedRect( movingOffset.x() + nX-2, movingOffset.y() + nY, width+4, 3+4, 4, 4 );
 			}
 		}
 	}
 	else if ( pNote->getNoteOff() ) {
-
-		QBrush noteOffBrush( noteoffColor );
-		if ( noteStyle & NoteStyle::Background ) {
-			noteOffBrush.setStyle( Qt::Dense4Pattern );
-
-			if ( nX >= m_nActiveWidth ) {
-				noteOffBrush.setColor( noteoffInactiveColor );
-			}
-		}
 
 		if ( noteStyle & ( NoteStyle::Selected |
 						   NoteStyle::Hovered |
@@ -390,13 +355,13 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 
 		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
-			p.setPen( Qt::NoPen );
-			p.setBrush( noteOffBrush );
+			p.setPen( notePen );
+			p.setBrush( noteBrush );
 			p.drawEllipse( nX -4 , nY, w, h );
 		}
 		else {
 			p.setPen( movingPen );
-			p.setBrush( Qt::NoBrush );
+			p.setBrush( movingBrush );
 			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2,
 						   w + 4, h + 4 );
 		}
@@ -1606,47 +1571,96 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 }
 
 
-void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
-											 NoteStyle noteStyle ) const {
+void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
+								QPen* pNotePen, QBrush* pNoteBrush,
+								QPen* pHighlightPen, QBrush* pHighlightBrush,
+								QPen* pMovingPen, QBrush* pMovingBrush,
+								NoteStyle noteStyle ) const {
 	
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
 
+	const auto backgroundPenStyle = Qt::DotLine;
+	const auto backgroundBrushStyle = Qt::Dense4Pattern;
+	const auto foregroundPenStyle = Qt::SolidLine;
+	const auto foregroundBrushStyle = Qt::SolidPattern;
+	const auto movingPenStyle = Qt::DotLine;
+	const auto movingBrushStyle = Qt::NoBrush;
+
+	const int nOutlineThreshold = 130;
+	int nHue, nSaturation, nValue;
+
+	// Note color
+	QColor noteFillColor;
+	if ( ! pNote->getNoteOff() ) {
+		noteFillColor = PatternEditor::computeNoteColor( pNote->getVelocity() );
+	} else {
+		noteFillColor = colorTheme.m_patternEditor_noteOffColor;
+	}
+
+	// color base note will be filled with
+	if ( pNoteBrush != nullptr ) {
+		pNoteBrush->setColor( noteFillColor );
+
+		if ( noteStyle & NoteStyle::Background ) {
+			pNoteBrush->setStyle( backgroundBrushStyle );
+		}
+		else {
+			pNoteBrush->setStyle( foregroundBrushStyle );
+		}
+	}
+
+	// outline color
+	if ( pNotePen != nullptr ) {
+		pNotePen->setColor( Qt::black );
+
+		if ( pNote != nullptr && pNote->getNoteOff() ) {
+			pNotePen->setStyle( Qt::NoPen );
+		}
+		else if ( noteStyle & NoteStyle::Background ) {
+			pNotePen->setStyle( backgroundPenStyle );
+		}
+		else {
+			pNotePen->setStyle( foregroundPenStyle );
+		}
+	}
+
+	// Highlight color
 	QColor selectionColor;
 	if ( m_pPatternEditorPanel->hasPatternEditorFocus() ) {
-		selectionColor = pPref->getTheme().m_color.m_selectionHighlightColor;
+		selectionColor = colorTheme.m_selectionHighlightColor;
 	}
 	else {
-		selectionColor = pPref->getTheme().m_color.m_selectionInactiveColor;
+		selectionColor = colorTheme.m_selectionInactiveColor;
 	}
 
-	QColor color;
+	QColor highlightColor;
 	if ( noteStyle & NoteStyle::Selected ) {
 		// Selected notes have the highest priority
-		color = selectionColor;
+		highlightColor = selectionColor;
 	}
 	else if ( noteStyle & NoteStyle::NoPlayback ) {
-		// Hovered notes that won't be played back maintain their special color.
-		color = pPref->getTheme().m_color.m_buttonRedColor;
+		// Notes that won't be played back maintain their special color.
+		highlightColor = colorTheme.m_buttonRedColor;
 
 		// The color of the mute button itself would be too flash and draw too
 		// much attention to the note which are probably the ones the user does
 		// not care about. We make the color more subtil.
-		int nHue, nSaturation, nValue;
-		color.getHsv( &nHue, &nSaturation, &nValue );
+		highlightColor.getHsv( &nHue, &nSaturation, &nValue );
 
 		const int nSubtleValueFactor = 112;
 		const int nSubtleSaturation = std::max(
 			static_cast<int>(std::round( nSaturation * 0.85 )), 0 );
-		color.setHsv( nHue, nSubtleSaturation, nValue );
+		highlightColor.setHsv( nHue, nSubtleSaturation, nValue );
 
-		if ( nValue >= 130 ) {
-			color = color.lighter( nSubtleValueFactor );
+		if ( nValue >= nOutlineThreshold ) {
+			highlightColor = highlightColor.lighter( nSubtleValueFactor );
 		} else {
-			color = color.darker( nSubtleValueFactor );
+			highlightColor = highlightColor.darker( nSubtleValueFactor );
 		}
 }
 	else {
-		color = selectionColor;
+		highlightColor = selectionColor;
 	}
 
 	int nFactor = 100;
@@ -1658,40 +1672,52 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 	}
 
 	if ( noteStyle & NoteStyle::Hovered ) {
-		// Depending on the selection color, we make it either darker or
+		// Depending on the highlight color, we make it either darker or
 		// lighter.
-		int nHue, nSaturation, nValue;
-		color.getHsv( &nHue, &nSaturation, &nValue );
-		if ( nValue >= 130 ) {
-			color = color.darker( nFactor );
+		highlightColor.getHsv( &nHue, &nSaturation, &nValue );
+		if ( nValue >= nOutlineThreshold ) {
+			highlightColor = highlightColor.darker( nFactor );
 		} else {
-			color = color.lighter( nFactor );
+			highlightColor = highlightColor.lighter( nFactor );
 		}
 	}
 
-	if ( pBrush != nullptr ) {
-		pBrush->setColor( color );
+	if ( pHighlightBrush != nullptr ) {
+		pHighlightBrush->setColor( highlightColor );
 
 		if ( noteStyle & NoteStyle::Background ) {
-			pBrush->setStyle( Qt::Dense4Pattern );
+			pHighlightBrush->setStyle( backgroundBrushStyle );
 		}
 		else {
-			pBrush->setStyle( Qt::SolidPattern );
+			pHighlightBrush->setStyle( foregroundBrushStyle );
 		}
 	}
 
-	if ( pPen != nullptr ) {
-		int nHue, nSaturation, nValue;
-		color.getHsv( &nHue, &nSaturation, &nValue );
-		if ( nValue >= 130 ) {
-			pPen->setColor( Qt::black );
+	if ( pHighlightPen != nullptr ) {
+		highlightColor.getHsv( &nHue, &nSaturation, &nValue );
+		if ( nValue >= nOutlineThreshold ) {
+			pHighlightPen->setColor( Qt::black );
 		} else {
-			pPen->setColor( Qt::white );
+			pHighlightPen->setColor( Qt::white );
 		}
 
 		if ( noteStyle & NoteStyle::Background ) {
-			pPen->setStyle( Qt::DotLine );
+			pHighlightPen->setStyle( backgroundPenStyle );
 		}
+		else {
+			pHighlightPen->setStyle( foregroundPenStyle );
+		}
+	}
+
+	// Moving note color
+	if ( pMovingBrush != nullptr ) {
+		pMovingBrush->setStyle( movingBrushStyle );
+	}
+
+	if ( pMovingPen != nullptr ) {
+		pMovingPen->setColor( Qt::black );
+		pMovingPen->setStyle( movingPenStyle );
+		pMovingPen->setWidth( 2 );
 	}
 }
 
