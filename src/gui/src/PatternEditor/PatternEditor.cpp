@@ -21,6 +21,7 @@
  */
 
 #include "PatternEditor.h"
+
 #include "PatternEditorRuler.h"
 #include "PatternEditorSidebar.h"
 #include "PatternEditorPanel.h"
@@ -46,6 +47,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
 
+#include <QtMath>
 
 using namespace std;
 using namespace H2Core;
@@ -337,11 +339,36 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		else {
 			p.setPen( movingPen );
 			p.setBrush( movingBrush );
-			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2 , w + 4, h + 4 );
 
-			// Moving tail
-			if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
-				p.drawRoundedRect( movingOffset.x() + nX-2, movingOffset.y() + nY, width+4, 3+4, 4, 4 );
+			if ( pNote->getLength() == LENGTH_ENTIRE_SAMPLE ) {
+				p.drawEllipse( movingOffset.x() + nX -4 -2,
+							   movingOffset.y() + nY -2 , w + 4, h + 4 );
+			}
+			else {
+				// Moving note with tail
+
+				const int nDiameterNote = w + 4;
+				const int nHeightTail = 7;
+				// Angle of triangle at note center with note radius as hypotenuse
+				// and half the tail height as opposite.
+				const int nAngleIntersection = static_cast<int>(
+					std::round( qRadiansToDegrees(
+									qAsin( static_cast<qreal>(nHeightTail) /
+										   static_cast<qreal>(nDiameterNote) ) ) ) );
+
+				const int nMoveX = movingOffset.x() + nX;
+				const int nMoveY = movingOffset.y() + nY;
+
+				p.drawArc( nMoveX - 4 - 2, nMoveY - 2, nDiameterNote, nDiameterNote,
+						   nAngleIntersection * 16,
+						   ( 360 - 2 * nAngleIntersection ) * 16 );
+
+				p.drawLine( nMoveX + w - 2, nMoveY,
+							nMoveX + width + 2, nMoveY );
+				p.drawLine( nMoveX + width + 2, nMoveY,
+							nMoveX + width + 2, nMoveY + nHeightTail );
+				p.drawLine( nMoveX + w - 2, nMoveY + nHeightTail,
+							nMoveX + width + 2, nMoveY + nHeightTail );
 			}
 		}
 	}
