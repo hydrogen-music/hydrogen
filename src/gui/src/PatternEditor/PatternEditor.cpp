@@ -1627,7 +1627,13 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 
 	if ( pBrush != nullptr ) {
 		pBrush->setColor( color );
-		pBrush->setStyle( Qt::SolidPattern );
+
+		if ( noteStyle & NoteStyle::Background ) {
+			pBrush->setStyle( Qt::Dense4Pattern );
+		}
+		else {
+			pBrush->setStyle( Qt::SolidPattern );
+		}
 	}
 
 	if ( pPen != nullptr ) {
@@ -1637,6 +1643,10 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 			pPen->setColor( Qt::black );
 		} else {
 			pPen->setColor( Qt::white );
+		}
+
+		if ( noteStyle & NoteStyle::Background ) {
+			pPen->setStyle( Qt::DotLine );
 		}
 	}
 }
