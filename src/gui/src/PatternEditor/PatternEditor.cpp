@@ -238,6 +238,13 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 	uint w = 8, h =  8;
 
+	// NoPlayback is handled in here in order to not bloat calling routines
+	// (since it has to be calculated for every note drawn).
+	if ( ! checkNotePlayback( pNote ) ) {
+		noteStyle =
+			static_cast<NoteStyle>(noteStyle | NoteStyle::NoPlayback);
+	}
+
 	QPen highlightPen;
 	QBrush highlightBrush;
 	applyHighlightColor( &highlightPen, &highlightBrush, noteStyle );
@@ -253,7 +260,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 							   delta.y() * m_nGridHeight );
 	}
 
-	if ( pNote->getNoteOff() == false ) {	// trigger note
+	if ( pNote->getNoteOff() == false ) {
 		int width = w;
 
 		QBrush noteBrush( color );
@@ -268,7 +275,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			notePen.setStyle( Qt::DotLine );
 		}
 
-		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+		if ( noteStyle & ( NoteStyle::Selected |
+						   NoteStyle::Hovered |
+						   NoteStyle::NoPlayback ) ) {
 			p.setPen( highlightPen );
 			p.setBrush( highlightBrush );
 			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
@@ -310,7 +319,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			width = m_fGridWidth * nLength / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
-			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+			if ( noteStyle & ( NoteStyle::Selected |
+							   NoteStyle::Hovered |
+							   NoteStyle::NoPlayback ) ) {
 				p.setPen( highlightPen );
 				p.setBrush( highlightBrush );
 				// Tail highlight
@@ -369,7 +380,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			}
 		}
 
-		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+		if ( noteStyle & ( NoteStyle::Selected |
+						   NoteStyle::Hovered |
+						   NoteStyle::NoPlayback ) ) {
 			p.setPen( highlightPen );
 			p.setBrush( highlightBrush );
 			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
@@ -1598,11 +1611,42 @@ void PatternEditor::applyHighlightColor( QPen* pPen, QBrush* pBrush,
 	
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	QColor color;
+	QColor selectionColor;
 	if ( m_pPatternEditorPanel->hasPatternEditorFocus() ) {
-		color = pPref->getTheme().m_color.m_selectionHighlightColor;
-	} else {
-		color = pPref->getTheme().m_color.m_selectionInactiveColor;
+		selectionColor = pPref->getTheme().m_color.m_selectionHighlightColor;
+	}
+	else {
+		selectionColor = pPref->getTheme().m_color.m_selectionInactiveColor;
+	}
+
+	QColor color;
+	if ( noteStyle & NoteStyle::Selected ) {
+		// Selected notes have the highest priority
+		color = selectionColor;
+	}
+	else if ( noteStyle & NoteStyle::NoPlayback ) {
+		// Hovered notes that won't be played back maintain their special color.
+		color = pPref->getTheme().m_color.m_buttonRedColor;
+
+		// The color of the mute button itself would be too flash and draw too
+		// much attention to the note which are probably the ones the user does
+		// not care about. We make the color more subtil.
+		int nHue, nSaturation, nValue;
+		color.getHsv( &nHue, &nSaturation, &nValue );
+
+		const int nSubtleValueFactor = 112;
+		const int nSubtleSaturation = std::max(
+			static_cast<int>(std::round( nSaturation * 0.85 )), 0 );
+		color.setHsv( nHue, nSubtleSaturation, nValue );
+
+		if ( nValue >= 130 ) {
+			color = color.lighter( nSubtleValueFactor );
+		} else {
+			color = color.darker( nSubtleValueFactor );
+		}
+}
+	else {
+		color = selectionColor;
 	}
 
 	int nFactor = 100;
@@ -3794,4 +3838,10 @@ void PatternEditor::popupTeardown() {
 		m_notesToSelectForPopup.clear();
 		m_selection.clearSelection();
 	}
+}
+
+bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const {
+	const auto row = m_pPatternEditorPanel->getRowDB(
+		m_pPatternEditorPanel->findRowDB( pNote ) );
+	return row.bPlaysBackAudio;
 }
