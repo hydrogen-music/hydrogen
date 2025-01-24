@@ -1189,15 +1189,15 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			// value is centered - draw circle
 			const int nY = static_cast<int>(std::round( height() * 0.5 ) );
 
-			if ( noteStyle & ( NoteStyle::Selected |
-							   NoteStyle::Hovered |
-							   NoteStyle::NoPlayback ) ) {
-				p.setPen( highlightPen );
-				p.setBrush( highlightBrush );
-				p.drawEllipse( nX - 7, nY - 7, 14, 14 );
-			}
-
 			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				if ( noteStyle & ( NoteStyle::Selected |
+								   NoteStyle::Hovered |
+								   NoteStyle::NoPlayback ) ) {
+					p.setPen( highlightPen );
+					p.setBrush( highlightBrush );
+					p.drawEllipse( nX - 7, nY - 7, 14, 14 );
+				}
+
 				p.setPen( notePen );
 				p.setBrush( noteBrush );
 				p.drawEllipse( nX - 4, nY - 4, 8, 8);
@@ -1223,16 +1223,16 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				nHeight = fValue;
 			}
 
-			if ( noteStyle & ( NoteStyle::Selected |
-							   NoteStyle::Hovered |
-							   NoteStyle::NoPlayback ) ) {
-				p.setPen( highlightPen );
-				p.setBrush( highlightBrush );
-				p.drawRoundedRect( nX - 1 - 4, nY - 4, nLineWidth + 8,
-								   nHeight + 8, 5, 5 );
-			}
-
 			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				if ( noteStyle & ( NoteStyle::Selected |
+								   NoteStyle::Hovered |
+								   NoteStyle::NoPlayback ) ) {
+					p.setPen( highlightPen );
+					p.setBrush( highlightBrush );
+					p.drawRoundedRect( nX - 1 - 4, nY - 4, nLineWidth + 8,
+									   nHeight + 8, 5, 5 );
+				}
+
 				p.setPen( notePen );
 				p.setBrush( noteBrush );
 				p.drawRoundedRect( nX - 1 - 1, nY - 1,

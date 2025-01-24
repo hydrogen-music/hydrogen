@@ -251,7 +251,8 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	if ( pNote->getNoteOff() == false ) {
 		int width = w;
 
-		if ( noteStyle & ( NoteStyle::Selected |
+		if ( ! ( noteStyle & NoteStyle::Moved) &&
+			 noteStyle & ( NoteStyle::Selected |
 						   NoteStyle::Hovered |
 						   NoteStyle::NoPlayback ) ) {
 			p.setPen( highlightPen );
@@ -295,25 +296,26 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			width = m_fGridWidth * nLength / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
-			if ( noteStyle & ( NoteStyle::Selected |
-							   NoteStyle::Hovered |
-							   NoteStyle::NoPlayback ) ) {
-				p.setPen( highlightPen );
-				p.setBrush( highlightBrush );
-				// Tail highlight
-				p.drawRect( nX - 3, nY - 1, width + 6, 3 + 6 );
-				p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
-				p.fillRect( nX - 4, nY, width, 3 + 4, highlightBrush );
-			}
+			// Since the note body is transparent for an inactive note, we
+			// try to start the tail at its boundary. For regular notes we
+			// do not care about an overlap, as it ensures that there are no
+			// white artifacts between tail and note body regardless of the
+			// scale factor.
 			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				if ( noteStyle & ( NoteStyle::Selected |
+								   NoteStyle::Hovered |
+								   NoteStyle::NoPlayback ) ) {
+					p.setPen( highlightPen );
+					p.setBrush( highlightBrush );
+					// Tail highlight
+					p.drawRect( nX - 3, nY - 1, width + 6, 3 + 6 );
+					p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+					p.fillRect( nX - 4, nY, width, 3 + 4, highlightBrush );
+				}
+
 				p.setPen( notePen );
 				p.setBrush( noteBrush );
 
-				// Since the note body is transparent for an inactive note, we
-				// try to start the tail at its boundary. For regular notes we
-				// do not care about an overlap, as it ensures that there are no
-				// white artifacts between tail and note body regardless of the
-				// scale factor.
 				int nRectOnsetX = nX;
 				int nRectWidth = width;
 				if ( noteStyle & NoteStyle::Background ) {
@@ -345,16 +347,17 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	}
 	else if ( pNote->getNoteOff() ) {
 
-		if ( noteStyle & ( NoteStyle::Selected |
-						   NoteStyle::Hovered |
-						   NoteStyle::NoPlayback ) ) {
-			p.setPen( highlightPen );
-			p.setBrush( highlightBrush );
-			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
-			p.setBrush( Qt::NoBrush );
-		}
-
 		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+
+			if ( noteStyle & ( NoteStyle::Selected |
+							   NoteStyle::Hovered |
+							   NoteStyle::NoPlayback ) ) {
+				p.setPen( highlightPen );
+				p.setBrush( highlightBrush );
+				p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+				p.setBrush( Qt::NoBrush );
+			}
+
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
 			p.drawEllipse( nX -4 , nY, w, h );
