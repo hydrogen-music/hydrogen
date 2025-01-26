@@ -1194,7 +1194,9 @@ void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 		return;
 	}
 
-	QPoint pos ( PatternEditor::nMargin + note->get_position() * m_fGridWidth,
+	QPoint pos ( PatternEditor::nMargin +
+				 ( note->get_lead_lag() * AudioEngine::getLeadLagInTicks() +
+				   note->get_position() ) * m_fGridWidth,
 				 ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3 );
 
 	drawNoteSymbol( p, pos, note, bIsForeground );
