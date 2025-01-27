@@ -1569,6 +1569,10 @@ void NotePropertiesRuler::drawPattern() {
 				continue;
 			}
 
+			if ( nnPos >= ppPattern->getLength() ) {
+				break;
+			}
+
 			if ( nLastPos != nnPos ) {
 				nLastPos = nnPos;
 				sortAndDrawNotes( p, notes, baseStyle );
