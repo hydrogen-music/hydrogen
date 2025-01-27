@@ -2233,8 +2233,8 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 	m_bEntered = false;
 
 	if ( m_pPatternEditorPanel->getHoveredNotes().size() > 0 ) {
-		std::map< std::shared_ptr<Pattern>,
-				  std::vector< std::shared_ptr<Note> > > empty;
+		std::vector< std::pair< std::shared_ptr<Pattern>,
+								std::vector< std::shared_ptr<Note> > > > empty;
 		// Takes care of the update.
 		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
@@ -3706,8 +3706,8 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 	// notes, the left one wins.
 	int nLastPosition = -1;
 
-	std::map< std::shared_ptr<Pattern>,
-			  std::vector< std::shared_ptr<Note> > > hovered;
+	std::vector< std::pair< std::shared_ptr<Pattern>,
+							std::vector< std::shared_ptr<Note> > > > hovered;
 	// We do not highlight hovered notes during a property drag. Else, the
 	// hovered ones would appear in front of the dragged one in the ruler,
 	// hiding the newly adjusted value.
@@ -3727,7 +3727,7 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 				}
 
 				if ( hoveredNotes[ 0 ]->getPosition() == nLastPosition ) {
-					hovered[ ppPattern ] = hoveredNotes;
+					hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
 				}
 			}
 		}
@@ -3736,8 +3736,8 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 }
 
 void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditors ) {
-	std::map< std::shared_ptr<Pattern>,
-			  std::vector< std::shared_ptr<Note> > > hovered;
+	std::vector< std::pair< std::shared_ptr<Pattern>,
+							std::vector< std::shared_ptr<Note> > > > hovered;
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// cursor visible
 
@@ -3758,7 +3758,7 @@ void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditors ) {
 			const auto hoveredNotes =
 				pEditor->getElementsAtPoint( point, 0, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
-				hovered[ ppPattern ] = hoveredNotes;
+				hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
 			}
 		}
 	}

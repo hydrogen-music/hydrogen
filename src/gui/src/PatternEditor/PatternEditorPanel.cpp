@@ -1972,8 +1972,9 @@ void PatternEditorPanel::updateDB() {
 }
 
 void PatternEditorPanel::setHoveredNotesMouse(
-	std::map< std::shared_ptr<H2Core::Pattern>,
-	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+	std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
+							std::vector< std::shared_ptr<H2Core::Note> > >
+			   > hoveredNotes,
 	bool bUpdateEditors )
 {
 	if ( hoveredNotes == m_hoveredNotesMouse ) {
@@ -1991,8 +1992,9 @@ void PatternEditorPanel::setHoveredNotesMouse(
 }
 
 void PatternEditorPanel::setHoveredNotesKeyboard(
-	std::map< std::shared_ptr<H2Core::Pattern>,
-	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+	std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
+							std::vector< std::shared_ptr<H2Core::Note> > >
+			   > hoveredNotes,
 	bool bUpdateEditors )
 {
 	if ( hoveredNotes == m_hoveredNotesKeyboard ) {
@@ -2010,30 +2012,57 @@ void PatternEditorPanel::setHoveredNotesKeyboard(
 }
 
 void PatternEditorPanel::updateHoveredNotes() {
-	m_hoveredNotes = m_hoveredNotesKeyboard;
+	m_hoveredNotes.clear();
 
-	bool bFound;
+	std::map< std::shared_ptr<Pattern>, std::vector< std::shared_ptr<Note> > >
+		hoveredMap;
+
+	// We collect notes of the current pattern separately in order to ensure
+	// they are added last (and painted on top of the background ones).
+	std::vector< std::shared_ptr<H2Core::Note> > notesForeground;
+	for ( const auto& [ ppPattern, nnotes ] : m_hoveredNotesKeyboard ) {
+		if ( ppPattern == m_pPattern ) {
+			notesForeground = nnotes;
+		}
+		else {
+			hoveredMap[ ppPattern ] = nnotes;
+		}
+	}
+
 	for ( const auto& [ ppPattern, nnotes ] : m_hoveredNotesMouse ) {
-		if ( m_hoveredNotes.find( ppPattern ) != m_hoveredNotes.end() ) {
+		if ( ppPattern == m_pPattern ) {
+			for ( const auto& ppNoteMouse : nnotes ) {
+				notesForeground.push_back( ppNoteMouse );
+			}
+		}
+		else if ( hoveredMap.find( ppPattern ) != hoveredMap.end() ) {
 			// Pattern is already present. Merge it.
 			for ( const auto& ppNoteMouse : nnotes ) {
-				bFound = false;
-				for ( const auto& ppNoteKeyboard : m_hoveredNotes[ ppPattern ] ) {
-					if ( ppNoteMouse == ppNoteKeyboard ) {
-						bFound = true;
+				bool bPresent = false;
+				for ( const auto& ppNoteHovered : hoveredMap[ ppPattern ] ) {
+					if ( ppNoteHovered == ppNoteMouse ) {
+						bPresent = true;
 						break;
 					}
 				}
 
-				if ( ! bFound ) {
-					m_hoveredNotes[ ppPattern ].push_back( ppNoteMouse );
+				if ( ! bPresent ) {
+					hoveredMap[ ppPattern ].push_back( ppNoteMouse );
 				}
 			}
 		}
 		else {
 			// Pattern is not present yet.
-			m_hoveredNotes[ ppPattern ] = nnotes;
+			hoveredMap[ ppPattern ] = nnotes;
 		}
+	}
+
+	for ( const auto& [ ppPattern, nnotes ] : hoveredMap ) {
+		m_hoveredNotes.push_back( std::make_pair( ppPattern, nnotes ) );
+	}
+
+	if ( notesForeground.size() > 0 ) {
+		m_hoveredNotes.push_back( std::make_pair( m_pPattern, notesForeground ) );
 	}
 
 	for ( auto& [ _, nnotes ] : m_hoveredNotes ) {
