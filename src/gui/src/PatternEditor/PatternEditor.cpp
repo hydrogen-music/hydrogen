@@ -3594,6 +3594,7 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		  it != notes->end() && it->first <= nRealColumnUpper; ++it ) {
 		const auto ppNote = it->second;
 		if ( ppNote != nullptr &&
+			 ppNote->getPosition() < pPattern->getLength() &&
 			 ppNote->getInstrumentId() == row.nInstrumentID &&
 			 ppNote->getType() == row.sType ) {
 
