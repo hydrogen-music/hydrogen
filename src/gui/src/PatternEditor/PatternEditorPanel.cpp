@@ -1893,17 +1893,22 @@ void PatternEditorPanel::updateDB() {
 		return;
 	}
 
+	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+
 	int nnRow = 0;
 
 	std::set<int> kitIds;
 	// First we add all instruments of the current drumkit in the order author
 	// of the kit intended.
-	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+	for ( const auto& ppInstrument : *pInstrumentList ) {
 		if ( ppInstrument != nullptr ) {
+			const bool bNoPlayback = ppInstrument->is_muted() ||
+				( pInstrumentList->isAnyInstrumentSoloed() &&
+				  ! ppInstrument->is_soloed() );
+
 			m_db.push_back(
 				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
-								nnRow % 2 != 0, true,
-								! ppInstrument->is_muted() ) );
+								nnRow % 2 != 0, true, ! bNoPlayback ) );
 			kitIds.insert( ppInstrument->get_id() );
 			++nnRow;
 		}
