@@ -1670,6 +1670,9 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		updateStyleSheet();
 		updateEditors();
 	}
+	else if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateEditors( true );
+	}
 }
 
 void PatternEditorPanel::updateStyleSheet() {

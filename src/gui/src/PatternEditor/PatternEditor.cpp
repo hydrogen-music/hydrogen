@@ -3898,6 +3898,11 @@ void PatternEditor::popupTeardown() {
 }
 
 bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const {
+	if ( ! Preferences::get_instance()->
+		 getTheme().m_interface.m_bIndicateNotePlayback ) {
+		return true;
+	}
+
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->findRowDB( pNote ) );
 	return row.bPlaysBackAudio;

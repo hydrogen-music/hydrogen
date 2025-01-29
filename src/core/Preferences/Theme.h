@@ -195,6 +195,10 @@ public:
 	int	m_nVisiblePatternColors;
 	/** Not read from/written to disk */
 	static constexpr int nMaxPatternColors = 50;
+
+		/** Whether notes which will not be rendered by the audio engine be
+		 * highlighted in a distinct color. */
+		bool m_bIndicateNotePlayback;
 };
 	
 /** \ingroup docCore docConfiguration*/
