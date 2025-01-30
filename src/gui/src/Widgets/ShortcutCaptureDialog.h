@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2023-2024 The hydrogen development team
+ * Copyright(c) 2023-2025 The hydrogen development team
  * [hydrogen-devel@lists.sourceforge.net]
  *
  * Copyright (C) 1999-2011 by Werner Schweer and others
