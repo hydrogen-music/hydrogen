@@ -1324,6 +1324,66 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>C</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C. It is designed to hold a single character.</extracomment>
+        <translation>Do</translation>
+    </message>
+    <message>
+        <source>C#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C#. It is designed to hold two characters.</extracomment>
+        <translation>Do#</translation>
+    </message>
+    <message>
+        <source>D</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D. It is designed to hold a single character.</extracomment>
+        <translation>Ré</translation>
+    </message>
+    <message>
+        <source>D#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D#. It is designed to hold two characters.</extracomment>
+        <translation>Ré#</translation>
+    </message>
+    <message>
+        <source>E</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note E. It is designed to hold a single character.</extracomment>
+        <translation>Mi</translation>
+    </message>
+    <message>
+        <source>F</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F. It is designed to hold a single character.</extracomment>
+        <translation>Fa</translation>
+    </message>
+    <message>
+        <source>F#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F#. It is designed to hold two characters.</extracomment>
+        <translation>Fa#</translation>
+    </message>
+    <message>
+        <source>G</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G. It is designed to hold a single character.</extracomment>
+        <translation>Sol</translation>
+    </message>
+    <message>
+        <source>G#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G#. It is designed to hold two characters.</extracomment>
+        <translation>Sol#</translation>
+    </message>
+    <message>
+        <source>A</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A. It is designed to hold a single character.</extracomment>
+        <translation>La</translation>
+    </message>
+    <message>
+        <source>A#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A#. It is designed to hold two characters.</extracomment>
+        <translation>La#</translation>
+    </message>
+    <message>
+        <source>B</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note B. It is designed to hold a single character.</extracomment>
+        <translation>Si</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -2925,54 +2985,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
 </context>
 <context>
     <name>NotePropertiesRuler</name>
-    <message>
-        <source>B</source>
-        <translation>Si</translation>
-    </message>
-    <message>
-        <source>A#</source>
-        <translation>La#</translation>
-    </message>
-    <message>
-        <source>A</source>
-        <translation>La</translation>
-    </message>
-    <message>
-        <source>G#</source>
-        <translation>Sol#</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation>Sol</translation>
-    </message>
-    <message>
-        <source>F#</source>
-        <translation>Fa#</translation>
-    </message>
-    <message>
-        <source>F</source>
-        <translation>Fa</translation>
-    </message>
-    <message>
-        <source>E</source>
-        <translation>Mi</translation>
-    </message>
-    <message>
-        <source>D#</source>
-        <translation>Ré#</translation>
-    </message>
-    <message>
-        <source>D</source>
-        <translation>Ré</translation>
-    </message>
-    <message>
-        <source>C#</source>
-        <translation>Do#</translation>
-    </message>
-    <message>
-        <source>C</source>
-        <translation>Do</translation>
-    </message>
     <message>
         <source>Select &amp;all</source>
         <translation>&amp;Tout sélectionner</translation>

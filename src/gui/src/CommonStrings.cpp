@@ -706,6 +706,43 @@ CommonStrings::CommonStrings(){
 	 *  DrumPatternEditor and PianoRollEditor. */
 	m_sNotePropertyLength = tr( "Length" );
 
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note C. It is designed to hold a single character. */
+	m_sNotePitchC = tr( "C" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note C#. It is designed to hold two characters. */
+	m_sNotePitchCSharp = tr( "C#" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note D. It is designed to hold a single character. */
+	m_sNotePitchD = tr( "D" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note D#. It is designed to hold two characters. */
+	m_sNotePitchDSharp = tr( "D#" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note E. It is designed to hold a single character. */
+	m_sNotePitchE = tr( "E" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note F. It is designed to hold a single character. */
+	m_sNotePitchF = tr( "F" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note F#. It is designed to hold two characters. */
+	m_sNotePitchFSharp = tr( "F#" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note G. It is designed to hold a single character. */
+	m_sNotePitchG = tr( "G" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note G#. It is designed to hold two characters. */
+	m_sNotePitchGSharp = tr( "G#" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note A. It is designed to hold a single character. */
+	m_sNotePitchA = tr( "A" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note A#. It is designed to hold two characters. */
+	m_sNotePitchASharp = tr( "A#" );
+	/*: Label used in the sidebar of the pattern editor for a pitch
+	 *  corresponding to note B. It is designed to hold a single character. */
+	m_sNotePitchB = tr( "B" );
+
 	/*: Displayed in a warning message in case the user tries to read
 	 * or write data to a file/path Hydrogen can not handle in the
 	 * current encoding.*/

@@ -1184,6 +1184,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 void NotePropertiesRuler::createBackground()
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
@@ -1270,18 +1271,18 @@ void NotePropertiesRuler::createBackground()
 
 			// Annotate with note class names
 			static QStringList noteNames = QStringList()
-				<< tr( "B" )
-				<< tr( "A#" )
-				<< tr( "A" )
-				<< tr( "G#" )
-				<< tr( "G" )
-				<< tr( "F#" )
-				<< tr( "F" )
-				<< tr( "E" )
-				<< tr( "D#" )
-				<< tr( "D" )
-				<< tr( "C#" )
-				<< tr( "C" );
+				<< pCommonStrings->getNotePitchB()
+				<< pCommonStrings->getNotePitchASharp()
+				<< pCommonStrings->getNotePitchA()
+				<< pCommonStrings->getNotePitchGSharp()
+				<< pCommonStrings->getNotePitchG()
+				<< pCommonStrings->getNotePitchFSharp()
+				<< pCommonStrings->getNotePitchF()
+				<< pCommonStrings->getNotePitchE()
+				<< pCommonStrings->getNotePitchDSharp()
+				<< pCommonStrings->getNotePitchD()
+				<< pCommonStrings->getNotePitchCSharp()
+				<< pCommonStrings->getNotePitchC();
 
 			QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
 						getPointSize( pPref->getTheme().m_font.m_fontSize ) );
