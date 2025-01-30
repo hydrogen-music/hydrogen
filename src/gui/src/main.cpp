@@ -561,9 +561,11 @@ int main(int argc, char *argv[])
 	}
 	catch ( const H2Core::H2Exception& ex ) {
 		std::cerr << "[main] Exception: " << ex.what() << std::endl;
+		return 1;
 	}
 	catch (...) {
 		std::cerr << "[main] Unknown exception X-(" << std::endl;
+		return 1;
 	}
 
 	return 0;
