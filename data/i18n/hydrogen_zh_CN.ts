@@ -640,7 +640,9 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Velocity</source>
-        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.
+----------
+Name of note property adjustable in NotePropertiesRuler, using * humanization in Mixer, or using automation path.</extracomment>
         <translation>力度</translation>
     </message>
     <message>
@@ -900,7 +902,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pan</source>
-        <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler and via input * capture actions.</extracomment>
         <translation>声相</translation>
     </message>
     <message>
@@ -925,7 +927,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Type</source>
-        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map).</extracomment>
+        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map) as well as part of status messages referring to * this property.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -989,10 +991,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Online Import</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>在线导入</translation>
-    </message>
-    <message>
-        <source>Edit Drumkit Properties of Current Song</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This action can not be undone!</source>
@@ -1116,34 +1114,37 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Delete instrument</source>
+        <extracomment>Representing an instrument deletion in the undo history</extracomment>
         <translation>删除乐器</translation>
     </message>
     <message>
         <source>Drop instrument</source>
+        <extracomment>Representing a drag&amp;drop event for an instrument in the undo history</extracomment>
         <translation>丢弃乐器</translation>
     </message>
     <message>
         <source>Switch drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
+        <extracomment>Representing a drumkit loading in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Adding component</source>
+        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete component</source>
+        <extracomment>Representing deletion of a component from the currently selected * instrument in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rename component</source>
+        <extracomment>Representing renaming a component of the currently selected instrument * in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add instrument</source>
+        <extracomment>Representing adding a new instrument in the undo history as well as * names the action presenting when right-clicking the instrument list in * the pattern editor.</extracomment>
         <translation>添加乐器</translation>
     </message>
     <message>
@@ -1161,6 +1162,164 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
+        <translation>重命名乐器</translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation>提前与滞后</translation>
+    </message>
+    <message>
+        <source>Key and Octave</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Probability</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation>概率</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes in row</source>
+        <extracomment>Representing deleting all notes of a specific row in the pattern editor * in the undo history (the number of the row will be append) as well as in * the right-click context menu within the sidebar of the pattern editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes</source>
+        <extracomment>Representing deleting all notes in the pattern editor in the undo * history as well as in the right-click context menu within the sidebar of * the pattern editor.</extracomment>
+        <translation>清除音符</translation>
+    </message>
+    <message>
+        <source>Fill all notes</source>
+        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充所有音符</translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充 1/2 音符</translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充 1/3 音符</translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充 1/4 音符</translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充 1/6 音符</translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充 1/8 音符</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充 1/12 音符</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>填充 1/16 音符</translation>
+    </message>
+    <message>
+        <source>Cut notes</source>
+        <extracomment>Representing cutting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>剪切音符</translation>
+    </message>
+    <message>
+        <source>Paste notes</source>
+        <extracomment>Representing pasting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>粘贴音符</translation>
+    </message>
+    <message>
+        <source>Delete notes</source>
+        <extracomment>Delete one or many notes. Shown in the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill notes ...</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>填充音符</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>选择音符</translation>
+    </message>
+    <message>
+        <source>Edit all patterns</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>编辑所有样式</translation>
+    </message>
+    <message>
+        <source>Copy notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>拷贝音符</translation>
+    </message>
+    <message>
+        <source>Move instrument</source>
+        <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
+        <translation>移动乐器</translation>
+    </message>
+    <message>
+        <source>Edit properties of current drumkit</source>
+        <extracomment>Show as status message when changing the properties of the drumkit * embedded in the current song.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit properties of drumkit</source>
+        <extracomment>Show as status message when changing the properties of a drumkit in the * Sound Library. Separated by a whitespace the name of the drumkit will be * appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace current drumkit with new and empty one</source>
+        <extracomment>Representing the creation of a new drumkit in the undo history</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save drumkit</source>
+        <extracomment>Status message displayed when saving an drumkit into the Sound Library. * Separated by a whitespace the name of the drumkit as well as the path it * was stored in will be appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit</source>
+        <extracomment>Status message displayed when the current drumkit is saved into the * Sound Library. Separated by a whitespace the path it was stored in will * be appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load drumkit</source>
+        <extracomment>Status message displayed when loading an drumkit into the current song. * Separated by a whitespace the name of the drumkit will be appended to * the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit type for notes in row</source>
+        <extracomment>Shown in the status bar when editting the type information of a row not * mapped to the current drumkit and as the title of the associated dialog. * Separated by a whitespace the corresponding column number will be * appended.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An instrument type must not be empty!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1190,13 +1349,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
         <translation>(%1/%2 KiB) - ETA %3</translation>
-    </message>
-</context>
-<context>
-    <name>DrumPatternEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>无法粘贴多样式选择</translation>
     </message>
 </context>
 <context>
@@ -1582,10 +1734,6 @@ Overwrite the existing file?</source>
         <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Instrument types must be unique!</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>
@@ -1668,16 +1816,8 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Drumkit [%1] loaded from [%2]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Input Midi Note</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Song saved as: </source>
-        <translation>乐曲另存为： </translation>
     </message>
     <message>
         <source>Error loading playlist.</source>
@@ -1798,10 +1938,6 @@ Overwrite the existing file?</source>
         <translation>层音调（精细）</translation>
     </message>
     <message>
-        <source>New instrument name</source>
-        <translation>新乐器名称</translation>
-    </message>
-    <message>
         <source>Component name</source>
         <translation>组件名称</translation>
     </message>
@@ -1863,108 +1999,6 @@ Value</source>
     <message>
         <source>New component name</source>
         <translation>新组件名称</translation>
-    </message>
-</context>
-<context>
-    <name>InstrumentLine</name>
-    <message>
-        <source>Mute instrument</source>
-        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
-        <translation>静音乐器</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
-        <translation>独奏</translation>
-    </message>
-    <message>
-        <source>Some samples for this instrument failed to load.</source>
-        <translation>该乐器的一些采样无法加载。</translation>
-    </message>
-    <message>
-        <source>Fill notes ...</source>
-        <translation>填充音符</translation>
-    </message>
-    <message>
-        <source>Fill all notes</source>
-        <translation>填充所有音符</translation>
-    </message>
-    <message>
-        <source>Fill 1/2 notes</source>
-        <translation>填充 1/2 音符</translation>
-    </message>
-    <message>
-        <source>Fill 1/3 notes</source>
-        <translation>填充 1/3 音符</translation>
-    </message>
-    <message>
-        <source>Fill 1/4 notes</source>
-        <translation>填充 1/4 音符</translation>
-    </message>
-    <message>
-        <source>Fill 1/6 notes</source>
-        <translation>填充 1/6 音符</translation>
-    </message>
-    <message>
-        <source>Fill 1/8 notes</source>
-        <translation>填充 1/8 音符</translation>
-    </message>
-    <message>
-        <source>Fill 1/12 notes</source>
-        <translation>填充 1/12 音符</translation>
-    </message>
-    <message>
-        <source>Fill 1/16 notes</source>
-        <translation>填充 1/16 音符</translation>
-    </message>
-    <message>
-        <source>Rename instrument</source>
-        <translation>重命名乐器</translation>
-    </message>
-    <message>
-        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation>该乐器的一个或多个采样无法加载。这可能是因为乐曲文件使用了旧的默认鼓组。打开新的鼓组可能解决该问题。</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>新乐器名称</translation>
-    </message>
-    <message>
-        <source>Delete notes</source>
-        <translation>删除音符</translation>
-    </message>
-    <message>
-        <source>Select notes</source>
-        <translation>选择音符</translation>
-    </message>
-    <message>
-        <source>Edit all patterns</source>
-        <translation>编辑所有样式</translation>
-    </message>
-    <message>
-        <source>Cut notes</source>
-        <translation>剪切音符</translation>
-    </message>
-    <message>
-        <source>Copy notes</source>
-        <translation>拷贝音符</translation>
-    </message>
-    <message>
-        <source>Paste notes</source>
-        <translation>粘贴音符</translation>
-    </message>
-    <message>
-        <source>Instrument</source>
-        <translation>乐器</translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation>删除 %1 的所有音符</translation>
-    </message>
-    <message>
-        <source>imported from</source>
-        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2778,10 +2812,6 @@ LilyPond 导出是一项实验性功能。
         <translation>独奏</translation>
     </message>
     <message>
-        <source>Pan</source>
-        <translation>声相</translation>
-    </message>
-    <message>
         <source>FX %1 send</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2978,46 +3008,6 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3033,12 +3023,79 @@ LilyPond 导出是一项实验性功能。
         <source>Random velocity</source>
         <translation>随机化力度</translation>
     </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
     <message>
-        <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation>无法插入其他乐器。最大可能数量</translation>
+        <source>Cannot paste multi-pattern selection</source>
+        <translation>无法粘贴多样式选择</translation>
+    </message>
+    <message>
+        <source>edit note properties by dragging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>paste notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3066,30 +3123,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Select note properties</source>
         <translation>选择音符属性</translation>
-    </message>
-    <message>
-        <source>Velocity</source>
-        <translation>力度</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>声相</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation>提前与滞后</translation>
-    </message>
-    <message>
-        <source>NoteKey</source>
-        <translation>音符键</translation>
-    </message>
-    <message>
-        <source>Probability</source>
-        <translation>概率</translation>
-    </message>
-    <message>
-        <source>Pattern editor - %1</source>
-        <translation>样式编辑器 - %1</translation>
     </message>
     <message>
         <source>No pattern selected</source>
@@ -3171,6 +3204,17 @@ LilyPond 导出是一项实验性功能。
         <source>Show PatchBay</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Change pattern size to %1/%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorSidebar</name>
+    <message>
+        <source>Unable to insert further instruments. Maximum possible number</source>
+        <translation>无法插入其他乐器。最大可能数量</translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
@@ -3238,13 +3282,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>无法粘贴多样式选择</translation>
     </message>
 </context>
 <context>
@@ -3971,6 +4008,26 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Theme couldn&apos;t be imported</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -4552,52 +4609,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>编辑时间轴标签</translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation>删除音符 ( %1, %2)</translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation>添加音符 ( %1, %2)</translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation>覆盖 %1 音符</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>修改音符长度</translation>
-    </message>
-    <message>
-        <source>Clear notes</source>
-        <translation>清除音符</translation>
-    </message>
-    <message>
-        <source>Paste instrument notes</source>
-        <translation>粘贴乐器音符</translation>
-    </message>
-    <message>
-        <source>Fill notes</source>
-        <translation>填充音符</translation>
-    </message>
-    <message>
-        <source>Move instrument</source>
-        <translation>移动乐器</translation>
-    </message>
-    <message>
-        <source>Add piano roll note ( %1, %2 )</source>
-        <translation>添加钢琴辊音符 ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Add  piano roll NOTE_OFF note ( %1, %2 )</source>
-        <translation>添加钢琴辊 NOTE_OFF 音符 ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Change note properties piano roll</source>
-        <translation>更改钢琴辊音符属性</translation>
-    </message>
-    <message>
-        <source>Edit note property %1</source>
-        <translation>编辑音符属性 %1</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -4638,6 +4651,18 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Replace playlist</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit note property %1</source>
+        <translation>编辑音符属性 %1</translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation>删除音符</translation>
+    </message>
+    <message>
+        <source>Add note</source>
+        <translation>添加音符</translation>
     </message>
 </context>
 <context>
@@ -5615,6 +5640,36 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SidebarRow</name>
+    <message>
+        <source>Mute instrument</source>
+        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
+        <translation>静音乐器</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
+        <translation>独奏</translation>
+    </message>
+    <message>
+        <source>Some samples for this instrument failed to load.</source>
+        <translation>该乐器的一些采样无法加载。</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>乐器</translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this string) an instrument (to the left of this string) is loaded from.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation>该乐器的一个或多个采样无法加载。这可能是因为乐曲文件使用了旧的默认鼓组。打开新的鼓组可能解决该问题。</translation>
+    </message>
+</context>
+<context>
     <name>SongEditor</name>
     <message>
         <source>&amp;Cut</source>
@@ -5706,10 +5761,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Adjust parameter values in time</source>
         <translation>调整时间参数值</translation>
-    </message>
-    <message>
-        <source>Velocity</source>
-        <translation>力度</translation>
     </message>
     <message>
         <source>Pattern %1</source>
@@ -5813,12 +5864,6 @@ Are you sure?</source>
     <message>
         <source>Could not export sequence.</source>
         <translation>无法导出音序。</translation>
-    </message>
-    <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>样式文件存在。
-覆盖现有样式？</translation>
     </message>
     <message>
         <source>Pattern saved.</source>

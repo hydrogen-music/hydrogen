@@ -24,11 +24,8 @@
 #ifndef DRUM_PATTERN_EDITOR_H
 #define DRUM_PATTERN_EDITOR_H
 
-#include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
-#include "NotePropertiesRuler.h"
-#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -37,85 +34,19 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class PatternEditorInstrumentList;
-
 ///
 /// Drum pattern editor
 ///
 /** \ingroup docGUI*/
-class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
+class DrumPatternEditor : public PatternEditor,
+						  public H2Core::Object<DrumPatternEditor>
 {
     H2_OBJECT(DrumPatternEditor)
 	Q_OBJECT
 
 	public:
-		DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel);
+		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
-
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void drumkitLoadedEvent() override;
-	virtual void songModeActivationEvent() override;
-		// ~ Implements EventListener interface
-		void addOrDeleteNoteAction(		int nColumn,
-										int row,
-										int selectedPatternNumber,
-										int oldLength,
-										float oldVelocity,
-										float fOldPan,
-										float oldLeadLag,
-										int oldNoteKeyVal,
-										int oldOctaveKeyVal,
-										float probability,
-										bool listen,
-										bool isMidi,
-										bool isInstrumentMode,
-										bool isNoteOff,
-										bool isDelete );
-		void moveNoteAction( int nColumn,
-							 int nRow,
-							 int nPattern,
-							 int nNewColumn,
-							 int nNewRow,
-							 H2Core::Note *note);
-
-		void addOrRemoveNote( int nColumn, int nRealColumn, int row,
-							  bool bDoAdd = true, bool bDoDelete = true,
-							  bool bIsNoteOff = false );
-		void undoRedoAction(    int column,
-								const NotePropertiesRuler::Mode& mode,
-								int nSelectedPatternNumber,
-								int nSelectedInstrument,
-								float velocity,
-								float pan,
-								float leadLag,
-								float probability,
-								int noteKeyVal,
-								int octaveKeyVal );
-		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
-		void functionClearNotesUndoAction( const std::list< H2Core::Note* >& noteList,
-										   int nSelectedInstrument,
-										   int patternNumber );
-		void functionFillNotesUndoAction( const QStringList& noteList,
-										  int nSelectedInstrument,
-										  int patternNumber );
-		void functionFillNotesRedoAction( const QStringList& noteList,
-										  int nSelectedInstrument,
-										  int patternNumber );
-		void functionRandomVelocityAction( const QStringList& noteVeloValue,
-										   int nSelectedInstrument,
-										   int selectedPatternNumber );
-		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
-		void functionPasteNotesRedoAction( H2Core::PatternList* pCopiedNotesPattnerList,
-										   H2Core::PatternList* pAppliedPatternList);
-		void functionPasteNotesUndoAction( H2Core::PatternList* pAppliedPatternList);
-
-		// Synthetic UI events from selection manager
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk
@@ -123,37 +54,15 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		// the selection.
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
-		virtual QRect getKeyboardCursorRect() override;
-
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
-		virtual void deleteSelection() override;
-		virtual void paste() override;
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 	void createBackground() override;
-	/**
-	 * Draw a note
-	 *
-	 * @param pNote Particular note to draw
-	 * @param painter Painting device
-	 * @param bIsForeground Whether the @a pNote is contained in the
-	 *   pattern currently shown in the pattern editor (the one
-	 *   selected in the song editor)
-	 */
-	void drawNote( H2Core::Note* pNote, QPainter& painter, bool bIsForeground = true );
-		void drawPattern( QPainter& painter );
-		void drawBackground( QPainter& pointer );
-		void drawFocus( QPainter& painter );
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;
-		virtual void keyReleaseEvent (QKeyEvent *ev) override;
-		virtual void showEvent ( QShowEvent *ev ) override;
-		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
-	virtual void mousePressEvent( QMouseEvent *ev ) override;
 
 		QString renameCompo( const QString& OriginalName );
 };

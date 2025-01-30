@@ -123,18 +123,18 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 	}
 
 	// If there are any changes, ensure they can be undone in a single action.
-	auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	if ( changes.size() == 1 ) {
-		pUndoStack->push( new SE_editTagAction(
+		pHydrogenApp->pushUndoCommand( new SE_editTagAction(
 			changes[0].sNewText, changes[0].sOldText, changes[0].nColumn ) );
 	}
 	else if ( changes.size() > 1 ){
-		pUndoStack->beginMacro( tr( "Edit tags" ) );
+		pHydrogenApp->beginUndoMacro( tr( "Edit tags" ) );
 		for ( const auto& change : changes ) {
-			pUndoStack->push( new SE_editTagAction(
+			pHydrogenApp->pushUndoCommand( new SE_editTagAction(
 								  change.sNewText, change.sOldText, change.nColumn ) );
 		}
-		pUndoStack->endMacro();
+		pHydrogenApp->endUndoMacro();
 	}
 	accept();
 }

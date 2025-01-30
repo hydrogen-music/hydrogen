@@ -349,8 +349,8 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[InstrumentList] " );
 		for ( const auto& ii : __instruments ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "(%1: %2) " ).arg( ii->get_id() )
-								.arg( ii->get_name() ) );
+				sOutput.append( QString( "(%1: %2 [%3]) " ).arg( ii->get_id() )
+								.arg( ii->get_name() ).arg( ii->getType() ) );
 			}
 		}
 	}

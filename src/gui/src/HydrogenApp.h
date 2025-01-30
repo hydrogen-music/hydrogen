@@ -29,6 +29,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include "EventListener.h"
+#include "MainForm.h"
 
 #include <iostream>
 #include <cstdint>
@@ -52,7 +53,6 @@ namespace H2Core
 }
 
 class SongEditorPanel;
-class MainForm;
 class PlayerControl;
 class PatternEditorPanel;
 class InstrumentEditorPanel;
@@ -77,7 +77,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		H2_OBJECT(HydrogenApp)
 	Q_OBJECT
 	public:
-		HydrogenApp( MainForm* pMainForm );
+		HydrogenApp( MainForm* pMainForm, QUndoStack* pUndoStack );
 
 		/// Returns the instance of HydrogenApp class
 		static HydrogenApp* get_instance();
@@ -132,7 +132,18 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 	std::shared_ptr<CommonStrings>			getCommonStrings();
 		InfoBar *			addInfoBar();
 
-		QUndoStack*			m_pUndoStack;
+		/** If a non-empty @a sContext is provided, all successive undo commands
+		 * and macros using the same context will be enclosed by a single
+		 * macro. */
+		void pushUndoCommand( QUndoCommand* pCommand, const QString& sContext = "" );
+		/** If a non-empty @a sContext is provided, all successive undo commands
+		 * and macros using the same context will be enclosed by a single
+		 * macro. */
+		void beginUndoMacro( const QString& sText, const QString& sContext = "" );
+		void endUndoMacro( const QString& sContext = "" );
+		/** Ensure #m_sLastUndoContext is set to an empty string and all
+		 * additional undo macros are ended. */
+		void endUndoContext();
 
 	void showStatusBarMessage( const QString& sMessage, const QString& sCaller = "" );
 		void updateWindowTitle();
@@ -196,6 +207,7 @@ signals:
 private slots:
 	void propagatePreferences();
 
+		friend class MainForm;
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
@@ -266,10 +278,38 @@ private slots:
 		 *     opened in read-only mode.
 		 */
 		virtual void updateSongEvent( int nValue ) override;
-	virtual void drumkitLoadedEvent() override;
 		void playlistChangedEvent( int nValue ) override;
 		void playlistLoadSongEvent() override;
-	
+
+		/** Begins and ends nested macros based on @a sContext.
+		 *
+		 * The intended way to group and compress undo commands in Qt is by
+		 * either enclose individual undo commands in macros or by providing the
+		 * derived undo command classes with id() and mergeWidth() methods.
+		 *
+		 * But both of them does not work with the action design of the
+		 * #NotePropertiesRuler. Multiple wheel or keypress events on the same
+		 * set of notes should be grouped together. But since we do not know in
+		 * advance whether the user will trigger another wheel/keypress event,
+		 * we can not enclose them in trivial macros. Merges, on the other hand,
+		 * are not feasible either. If an event acts on multiple notes, each
+		 * event will result in multiple undo commands. But macros can not be
+		 * merged and the design of our undo action to act on single notes is
+		 * very clear and easy to maintain. We do not want to break it.
+		 *
+		 * What we do instead is introducing our own cooked up solution, the
+		 * undo context. If an undo command or macro is associated with an
+		 * non-empty context string, it will be group with all successive
+		 * commands/macros associated with the same context. The undo text is
+		 * determined the by the first command/macro introducing a new context
+		 * and whenever a command/macro is pushed with a different context, the
+		 * former one will be ended cleanly. */
+		void handleUndoContext( const QString& sContext, const QString& sText );
+		QUndoStack*			m_pUndoStack;
+		/** If non-empty, indicates that there is currently an additional undo
+		 * macro layer enclosing all new undo macros and commands. See
+		 * handleUndoContext(). */
+		QString m_sLastUndoContext;
 };
 
 
@@ -348,6 +388,5 @@ inline void HydrogenApp::setHideKeyboardCursor( bool bHidden )
 		m_bHideKeyboardCursor = bHidden;
 	}
 }
-
 
 #endif

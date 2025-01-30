@@ -27,12 +27,13 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 
 #include "DrumPatternEditor.h"
 #include "NotePropertiesRuler.h"
-#include "PatternEditorInstrumentList.h"
+#include "PatternEditorSidebar.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PianoRollEditor.h"
@@ -40,6 +41,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../PatternPropertiesDialog.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
@@ -52,92 +54,135 @@
 
 using namespace H2Core;
 
+DrumPatternRow::DrumPatternRow() noexcept
+	: nInstrumentID( EMPTY_INSTR_ID)
+	, sType( "" )
+	, bAlternate( false ) {
+}
+DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
+								bool bAlt, bool bMapped ) noexcept
+	: nInstrumentID( nId)
+	, sType( sTypeString )
+	, bAlternate( bAlt )
+	, bMappedToDrumkit( bMapped ) {
+}
 
-
-void PatternEditorPanel::updateDrumkitLabel( )
-{
-	const auto pTheme = H2Core::Preferences::get_instance()->getTheme();
-	
-	QFont font( pTheme.m_font.m_sApplicationFontFamily,
-				getPointSize( pTheme.m_font.m_fontSize ) );
-	font.setBold( true );
-	m_pDrumkitLabel->setFont( font );
-
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		auto pDrumkit = pSong->getDrumkit();
-		if ( pDrumkit != nullptr ) {
-			m_pDrumkitLabel->setText( pDrumkit->getName() );
-		}
+QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[DrumPatternRow]\n" ).arg( sPrefix )
+			.append( QString( "%1%2nInstrumentID: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( nInstrumentID ) )
+			.append( QString( "%1%2sType: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( sType ) )
+			.append( QString( "%1%2bAlternate: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bAlternate ) )
+			.append( QString( "%1%2bMappedToDrumkit: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bMappedToDrumkit ) );
 	}
+	else {
+		sOutput = QString( "[DrumPatternRow] " )
+			.append( QString( "nInstrumentID: %1" ).arg( nInstrumentID ) )
+			.append( QString( ", sType: %1" ).arg( sType ) )
+			.append( QString( ", bAlternate: %1" ).arg( bAlternate ) )
+			.append( QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit ) );
+	}
+
+	return sOutput;
 }
 
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
- : QWidget( pParent )
- , m_pPattern( nullptr )
- , m_nSelectedPatternNumber( -1 )
- , m_bArmPatternSizeSpinBoxes( true )
+	: QWidget( pParent )
+	, m_pPattern( nullptr )
+	, m_bArmPatternSizeSpinBoxes( true )
+	, m_bPatternSelectedViaTab( false )
 {
 	setAcceptDrops(true);
 
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	m_nSelectedRowDB = pHydrogen->getSelectedInstrumentNumber();
+
+	m_nResolution = pPref->getPatternEditorGridResolution();
+	m_bIsUsingTriplets = pPref->isPatternEditorUsingTriplets();
+
+	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily,
+					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	boldFont.setBold( true );
 
-	m_nCursorPosition = 0;
-	m_nCursorIncrement = 0;
+	m_nCursorColumn = 0;
 
 	// Spacing between a label and the widget to its label.
 	const int nLabelSpacing = 6;
 // Editor TOP
-	
-	m_pEditorTop1 = new QWidget( nullptr );
-	m_pEditorTop1->setFixedHeight(24);
-	m_pEditorTop1->setObjectName( "editor1" );
 
-	m_pEditorTop2 = new QWidget( nullptr );
-	m_pEditorTop2->setFixedHeight( 24 );
-	m_pEditorTop2->setObjectName( "editor2" );
+	m_pTabBar = new QTabBar( this );
+	m_pTabBar->setFocusPolicy( Qt::ClickFocus );
+	m_pTabBar->setObjectName( "patternEditorTabBar" );
+	// Select a different pattern
+	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
+		if ( Hydrogen::get_instance()->isPatternEditorLocked() &&
+			 Hydrogen::get_instance()->getAudioEngine()->getState() ==
+			 AudioEngine::State::Playing ) {
+			HydrogenApp::get_instance()->getSongEditorPanel()->
+				highlightPatternEditorLocked();
+		}
+		else {
+			// Select the corresponding pattern
+			m_bPatternSelectedViaTab = true;
+			CoreActionController::selectPattern( m_tabPatternMap[ nIndex ] );
+		}
+	});
+	// Open the properties dialog for a particular pattern.
+	connect( m_pTabBar, &QTabBar::tabBarDoubleClicked, [&]( int nIndex ) {
+		const int nPattern = m_tabPatternMap[ nIndex ];
+		if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+			const auto pPattern =
+				Hydrogen::get_instance()->getSong()->getPatternList()->get( nPattern );
+			if ( pPattern != nullptr ) {
+				PatternPropertiesDialog dialog( this, pPattern, nPattern, false );
+				dialog.exec();
+			}
+		}
+	});
 
-	QHBoxLayout *m_pEditorTop1_hbox = new QHBoxLayout( m_pEditorTop1 );
-	m_pEditorTop1_hbox->setSpacing( 0 );
-	m_pEditorTop1_hbox->setMargin( 0 );
-	m_pEditorTop1_hbox->setAlignment( Qt::AlignLeft );
+	m_pToolBar = new QWidget( nullptr );
+	m_pToolBar->setFocusPolicy( Qt::ClickFocus );
+	m_pToolBar->setFont( boldFont );
+	m_pToolBar->setFixedHeight( 24 );
+	m_pToolBar->setObjectName( "patternEditorToolBar" );
 
-	QHBoxLayout *m_pEditorTop1_hbox_2 = new QHBoxLayout( m_pEditorTop2 );
-	m_pEditorTop1_hbox_2->setSpacing( 2 );
-	m_pEditorTop1_hbox_2->setMargin( 0 );
-	m_pEditorTop1_hbox_2->setAlignment( Qt::AlignLeft );
+	QHBoxLayout* pToolBarHBox = new QHBoxLayout( m_pToolBar );
+	pToolBarHBox->setSpacing( 2 );
+	pToolBarHBox->setMargin( 0 );
+	pToolBarHBox->setAlignment( Qt::AlignLeft );
 
 
 	//soundlibrary name
 	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
-										  ClickableLabel::Color::Bright, true );
+										  ClickableLabel::Color::Bright, false );
+	m_pDrumkitLabel->setFocusPolicy( Qt::ClickFocus );
 	m_pDrumkitLabel->setFont( boldFont );
-	m_pDrumkitLabel->setFixedSize( 170, 20 );
-	m_pDrumkitLabel->move( 10, 3 );
+	m_pDrumkitLabel->setIndent( PatternEditorSidebar::m_nMargin );
 	m_pDrumkitLabel->setToolTip( tr( "Drumkit used in the current song" ) );
-	m_pEditorTop1_hbox->addWidget( m_pDrumkitLabel );
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		auto pDrumkit = pSong->getDrumkit();
-		if ( pDrumkit != nullptr ) {
-			m_pDrumkitLabel->setText( pDrumkit->getName() );
-		}
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
 	}
-	connect( m_pDrumkitLabel, &ClickableLabel::labelClicked,
+	connect( m_pDrumkitLabel, &ClickableLabel::labelDoubleClicked,
 			 [=]() { HydrogenApp::get_instance()->getMainForm()->
 					 action_drumkit_properties(); } );
 
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
+	m_pSizeResol->setFocusPolicy( Qt::ClickFocus );
 	m_pSizeResol->setObjectName( "sizeResol" );
 	m_pSizeResol->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	m_pSizeResol->move( 0, 3 );
-	m_pEditorTop1_hbox_2->addWidget( m_pSizeResol );
+	pToolBarHBox->addWidget( m_pSizeResol );
 
 	QHBoxLayout* pSizeResolLayout = new QHBoxLayout( m_pSizeResol );
 	pSizeResolLayout->setContentsMargins( 2, 0, 2, 0 );
@@ -159,6 +204,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			 this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
 	m_pLCDSpinBoxNumerator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pLCDSpinBoxNumerator->setFocusPolicy( Qt::ClickFocus );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxNumerator );
 			
 	auto pLabel1 = new ClickableLabel(
@@ -180,9 +226,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxDenominator->setKeyboardTracking( false );
 	m_pLCDSpinBoxDenominator->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pLCDSpinBoxDenominator->setFocusPolicy( Qt::ClickFocus );
 	pSizeResolLayout->addWidget( m_pLCDSpinBoxDenominator );
 	pSizeResolLayout->addSpacing( nLabelSpacing );
-	
+
 	// GRID resolution
 	m_pResolutionLbl = new ClickableLabel(
 		m_pSizeResol, QSize( 0, 0 ), pCommonStrings->getResolutionLabel(),
@@ -192,6 +239,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pSizeResolLayout->addWidget( m_pResolutionLbl );
 	
 	m_pResolutionCombo = new LCDCombo( m_pSizeResol, QSize( 0, 0 ), true );
+	m_pResolutionCombo->setFocusPolicy( Qt::ClickFocus );
 	// Large enough for "1/32T" to be fully visible at large font size.
 	// m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
 	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
@@ -218,16 +266,44 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionCombo->setMinimumSize( QSize( 24, 18 ) );
 	m_pResolutionCombo->setMaximumSize( QSize( 500, 18 ) );
 	m_pResolutionCombo->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
-	// is triggered from inside PatternEditorPanel()
+
+	int nIndex;
+
+	if ( m_nResolution == MAX_NOTES ) {
+		nIndex = 11;
+	} else if ( ! m_bIsUsingTriplets ) {
+		switch ( m_nResolution ) {
+			case  4: nIndex = 0; break;
+			case  8: nIndex = 1; break;
+			case 16: nIndex = 2; break;
+			case 32: nIndex = 3; break;
+			case 64: nIndex = 4; break;
+			default:
+				nIndex = 0;
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+		}
+	} else {
+		switch ( m_nResolution ) {
+			case  8: nIndex = 6; break;
+			case 16: nIndex = 7; break;
+			case 32: nIndex = 8; break;
+			case 64: nIndex = 9; break;
+			default:
+				nIndex = 6;
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+		}
+	}
+	m_pResolutionCombo->setCurrentIndex( nIndex );
 	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( gridResolutionChanged( int ) ) );
 	pSizeResolLayout->addWidget( m_pResolutionCombo );
 
 	m_pRec = new QWidget( nullptr );
 	m_pRec->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+	m_pRec->setFocusPolicy( Qt::ClickFocus );
 	m_pRec->setObjectName( "pRec" );
 	m_pRec->move( 0, 3 );
-	m_pEditorTop1_hbox_2->addWidget( m_pRec );
+	pToolBarHBox->addWidget( m_pRec );
 	
 	QHBoxLayout* pRecLayout = new QHBoxLayout( m_pRec );
 	pRecLayout->setContentsMargins( 2, 0, 2, 0 );
@@ -243,7 +319,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pHearNotesBtn = new Button(
 		m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false,
-		QSize( 15, 13 ), tr( "Hear new notes" ), false, true );
+		QSize( 15, 13 ), tr( "Hear new notes" ), false, false );
 	connect( m_pHearNotesBtn, SIGNAL( clicked() ),
 			 this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
@@ -264,7 +340,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pQuantizeEventsBtn = new Button(
 		m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "",
 		false, QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ),
-		false, true );
+		false, false );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
 	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ),
@@ -290,7 +366,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pRecLayout->addWidget( __show_drum_btn );
 
-	m_pEditorTop1_hbox_2->addStretch();
+	pToolBarHBox->addStretch();
 	
 	// Since the button to activate the piano roll is shown
 	// initially, both buttons get the same tooltip. Actually only the
@@ -321,21 +397,69 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pRecLayout->addWidget( m_pPatchBayBtn );
 
 	// zoom-in btn
-	Button *zoom_in_btn = new Button(
+	m_pZoomInBtn = new Button(
 		nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false,
 		QSize( 9, 9 ), tr( "Zoom in" ) );
-	connect( zoom_in_btn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
+	m_pZoomInBtn->setFocusPolicy( Qt::ClickFocus );
+	connect( m_pZoomInBtn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
-	Button *zoom_out_btn = new Button(
+	m_pZoomOutBtn = new Button(
 		nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false,
 		QSize( 9, 9 ), tr( "Zoom out" ) );
-	connect( zoom_out_btn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
+	m_pZoomOutBtn->setFocusPolicy( Qt::ClickFocus );
+	connect( m_pZoomOutBtn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 
 
-// RULER____________________________________
+	// external horizontal scrollbar
+	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , nullptr  );
+	m_pPatternEditorHScrollBar->setObjectName( "PatternEditorHScrollBar" );
+	m_pPatternEditorHScrollBar->setFocusPolicy( Qt::ClickFocus );
+	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
+			 this, SLOT( syncToExternalHorizontalScrollbar( int ) ) );
+
+	// external vertical scrollbar
+	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
+	m_pPatternEditorVScrollBar->setObjectName( "PatternEditorVScrollBar" );
+	m_pPatternEditorVScrollBar->setFocusPolicy( Qt::ClickFocus );
+	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged( int)),
+			 this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
+
+	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
+	pPatternEditorHScrollBarLayout->setSpacing( 0 );
+	pPatternEditorHScrollBarLayout->setMargin( 0 );
+	pPatternEditorHScrollBarLayout->addWidget( m_pPatternEditorHScrollBar );
+	pPatternEditorHScrollBarLayout->addWidget( m_pZoomInBtn );
+	pPatternEditorHScrollBarLayout->addWidget( m_pZoomOutBtn );
+
+	m_pPatternEditorHScrollBarContainer = new QWidget();
+	m_pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
+
+
+	QPalette label_palette;
+	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
+
+	updatePatternInfo();
+	updateDB();
+
+	// restore grid resolution
+	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) *
+		MAX_NOTES / ( m_nResolution * 3 );
+
+	HydrogenApp::get_instance()->addEventListener( this );
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &PatternEditorPanel::onPreferencesChanged );
+}
+
+PatternEditorPanel::~PatternEditorPanel()
+{
+}
+
+void PatternEditorPanel::createEditors() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	// Ruler ScrollView
 	m_pRulerScrollView = new WidgetScrollArea( nullptr );
@@ -351,15 +475,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
 	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
 
-
-// ~ RULER
-
-
-// EDITOR _____________________________________
-	// Editor scrollview
+	// Drum Pattern
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
 	m_pEditorScrollView->setObjectName( "EditorScrollView" );
 	m_pEditorScrollView->setFocusPolicy( Qt::NoFocus );
@@ -367,10 +484,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
-
-	// Editor
 	m_pDrumPatternEditor = new DrumPatternEditor(
-		m_pEditorScrollView->viewport(), this );
+		m_pEditorScrollView->viewport() );
 
 	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
 	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
@@ -378,21 +493,24 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
 
+	connect( m_pPatternEditorVScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
+	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
 	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorVScroll(int) ) );
 	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pDrumPatternEditor, &DrumPatternEditor::onPreferencesChanged );
 
-//PianoRollEditor
+	// PianoRollEditor
 	m_pPianoRollScrollView = new WidgetScrollArea( nullptr );
 	m_pPianoRollScrollView->setObjectName( "PianoRollScrollView" );
 	m_pPianoRollScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
+	m_pPianoRollEditor = new PianoRollEditor(
+		m_pPianoRollScrollView->viewport() );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
@@ -400,54 +518,41 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pPianoRollEditor, &PianoRollEditor::onPreferencesChanged );
 
 	m_pPianoRollScrollView->hide();
 	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
 
 	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-// ~ EDITOR
-
-
-
-
-
-
-// INSTRUMENT LIST
-	// Instrument list scrollview
-	m_pInstrListScrollView = new WidgetScrollArea( nullptr );
-	m_pInstrListScrollView->setObjectName( "InstrListScrollView" );
-	m_pInstrListScrollView->setFocusPolicy( Qt::ClickFocus );
-	m_pInstrListScrollView->setFrameShape( QFrame::NoFrame );
-	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-
 	// Instrument list
-	m_pInstrumentList = new PatternEditorInstrumentList( m_pInstrListScrollView->viewport(), this );
-	m_pInstrListScrollView->setWidget( m_pInstrumentList );
-	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
-	m_pInstrumentList->setFocusPolicy( Qt::ClickFocus );
-	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
+	m_pSidebarScrollView = new WidgetScrollArea( nullptr );
+	m_pSidebarScrollView->setObjectName( "SidebarScrollView" );
+	m_pSidebarScrollView->setFocusPolicy( Qt::ClickFocus );
+	m_pSidebarScrollView->setFrameShape( QFrame::NoFrame );
+	m_pSidebarScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pSidebarScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 
-	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
-	m_pInstrListScrollView->setFocusProxy( m_pInstrumentList );
+	m_pSidebar = new PatternEditorSidebar(
+		m_pSidebarScrollView->viewport() );
+	m_pSidebarScrollView->setWidget( m_pSidebar );
+	m_pSidebarScrollView->setFixedWidth( m_pSidebar->width() );
+	m_pSidebar->setFocusPolicy( Qt::ClickFocus );
+	m_pSidebar->setFocusProxy( m_pEditorScrollView );
 
-// ~ INSTRUMENT LIST
+	connect( m_pSidebarScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
+	m_pSidebarScrollView->setFocusProxy( m_pSidebar );
 
-
-
-
-// NOTE_VELOCITY EDITOR
+	// NOTE_VELOCITY EDITOR
 	m_pNoteVelocityScrollView = new WidgetScrollArea( nullptr );
 	m_pNoteVelocityScrollView->setObjectName( "NoteVelocityScrollView" );
 	m_pNoteVelocityScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNoteVelocityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this,
-													 NotePropertiesRuler::Mode::Velocity );
+	m_pNoteVelocityEditor = new NotePropertiesRuler(
+		m_pNoteVelocityScrollView->viewport(),
+		NotePropertiesRuler::Property::Velocity,
+		NotePropertiesRuler::Layout::Normalized );
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
@@ -456,18 +561,16 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-// ~ NOTE_VELOCITY EDITOR
-
-
-// NOTE_PAN EDITOR
+	// NOTE_PAN EDITOR
 	m_pNotePanScrollView = new WidgetScrollArea( nullptr );
 	m_pNotePanScrollView->setObjectName( "NotePanScrollView" );
 	m_pNotePanScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this,
-												NotePropertiesRuler::Mode::Pan );
+	m_pNotePanEditor = new NotePropertiesRuler(
+		m_pNotePanScrollView->viewport(), NotePropertiesRuler::Property::Pan,
+		NotePropertiesRuler::Layout::Centered );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
 
@@ -478,18 +581,17 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-// ~ NOTE_PAN EDITOR
-
-
-// NOTE_LEADLAG EDITOR
+	// NOTE_LEADLAG EDITOR
 	m_pNoteLeadLagScrollView = new WidgetScrollArea( nullptr );
 	m_pNoteLeadLagScrollView->setObjectName( "NoteLeadLagScrollView" );
 	m_pNoteLeadLagScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this,
-													NotePropertiesRuler::Mode::LeadLag );
+	m_pNoteLeadLagEditor = new NotePropertiesRuler(
+		m_pNoteLeadLagScrollView->viewport(),
+		NotePropertiesRuler::Property::LeadLag,
+		NotePropertiesRuler::Layout::Centered );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
 
@@ -500,185 +602,102 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-// ~ NOTE_LEADLAG EDITOR
-
-
-// NOTE_NOTEKEY EDITOR
-
-
-	m_pNoteNoteKeyScrollView = new WidgetScrollArea( nullptr );
-	m_pNoteNoteKeyScrollView->setObjectName( "NoteNoteKeyScrollView" );
-	m_pNoteNoteKeyScrollView->setFocusPolicy( Qt::NoFocus );
-	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
-	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this,
-													NotePropertiesRuler::Mode::NoteKey );
-	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
-	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+	// NOTE_NOTEKEY EDITOR
+	m_pNoteKeyOctaveScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteKeyOctaveScrollView->setObjectName( "NoteNoteKeyScrollView" );
+	m_pNoteKeyOctaveScrollView->setFocusPolicy( Qt::NoFocus );
+	m_pNoteKeyOctaveScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteKeyOctaveScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteKeyOctaveScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteKeyOctaveEditor = new NotePropertiesRuler(
+		m_pNoteKeyOctaveScrollView->viewport(),
+		NotePropertiesRuler::Property::KeyOctave,
+		NotePropertiesRuler::Layout::KeyOctave );
+	m_pNoteKeyOctaveScrollView->setWidget( m_pNoteKeyOctaveEditor );
+	m_pNoteKeyOctaveScrollView->setFixedHeight( 210 );
+	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 this, SLOT( on_patternEditorHScroll( int ) ) );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
-			 m_pNoteNoteKeyEditor, SLOT( scrolled( int ) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 m_pNoteNoteKeyEditor, &NotePropertiesRuler::onPreferencesChanged );
-	
-	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pNoteKeyOctaveEditor, SLOT( scrolled( int ) ) );
 
-// ~ NOTE_NOTEKEY EDITOR
+	m_pNoteKeyOctaveEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-// NOTE_PROBABILITY EDITOR
+	// NOTE_PROBABILITY EDITOR
 	m_pNoteProbabilityScrollView = new WidgetScrollArea( nullptr );
 	m_pNoteProbabilityScrollView->setObjectName( "NoteProbabilityScrollView" );
 	m_pNoteProbabilityScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this,
-														NotePropertiesRuler::Mode::Probability );
+	m_pNoteProbabilityEditor = new NotePropertiesRuler(
+		m_pNoteProbabilityScrollView->viewport(),
+		NotePropertiesRuler::Property::Probability,
+		NotePropertiesRuler::Layout::Normalized );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
 	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 m_pNoteProbabilityEditor, SLOT( scrolled( int ) ) );
-	
+
 	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-// ~ NOTE_PROBABILITY EDITOR
+	m_pPropertiesPanel = new PixmapWidget( nullptr );
+	m_pPropertiesPanel->setObjectName( "PropertiesPanel" );
+	m_pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
 
+	m_pPropertiesPanel->setFixedSize( PatternEditorSidebar::m_nWidth, 100 );
 
-
-	// external horizontal scrollbar
-	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , nullptr  );
-	m_pPatternEditorHScrollBar->setObjectName( "PatternEditorHScrollBar" );
-	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ), this,
-																	SLOT( syncToExternalHorizontalScrollbar( int ) ) );
-
-	// external vertical scrollbar
-	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
-	m_pPatternEditorVScrollBar->setObjectName( "PatternEditorVScrollBar" );
-	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged( int)), this,
-																	SLOT( syncToExternalHorizontalScrollbar(int) ) );
-	connect( m_pPatternEditorVScrollBar, SIGNAL( valueChanged( int ) ),
-			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
-	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
-			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
-	
-	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
-	pPatternEditorHScrollBarLayout->setSpacing( 0 );
-	pPatternEditorHScrollBarLayout->setMargin( 0 );
-	pPatternEditorHScrollBarLayout->addWidget( m_pPatternEditorHScrollBar );
-	pPatternEditorHScrollBarLayout->addWidget( zoom_in_btn );
-	pPatternEditorHScrollBarLayout->addWidget( zoom_out_btn );
-
-	QWidget *pPatternEditorHScrollBarContainer = new QWidget();
-	pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
-
-
-	QPalette label_palette;
-	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
-
-	m_pPatternNameLbl = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
-											ClickableLabel::Color::Bright, true );
-	m_pPatternNameLbl->setFont( boldFont );
-	m_pPatternNameLbl->setPalette( label_palette );
-	connect( m_pPatternNameLbl, &ClickableLabel::labelClicked,
-			 [=]() { HydrogenApp::get_instance()->getSongEditorPanel()->
-					 getSongEditorPatternList()->patternPopup_properties(); } );
-
-
-// NOTE_PROPERTIES BUTTONS
-	PixmapWidget *pPropertiesPanel = new PixmapWidget( nullptr );
-	pPropertiesPanel->setObjectName( "PropertiesPanel" );
-	pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
-
-	pPropertiesPanel->setFixedSize( 181, 100 );
-
-	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( pPropertiesPanel );
+	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( m_pPropertiesPanel );
 	pPropertiesVBox->setSpacing( 0 );
 	pPropertiesVBox->setMargin( 0 );
 
-
-	m_pPropertiesCombo =
-		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
+	m_pPropertiesCombo = new LCDCombo(
+		nullptr, QSize( PatternEditorSidebar::m_nWidth, 18 ), false );
+	m_pPropertiesCombo->setFocusPolicy( Qt::ClickFocus );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
-	m_pPropertiesCombo->addItem( tr("Velocity") );
-	m_pPropertiesCombo->addItem( tr("Pan") );
-	m_pPropertiesCombo->addItem( tr("Lead and Lag") );
-	m_pPropertiesCombo->addItem( tr("NoteKey") );
-	m_pPropertiesCombo->addItem( tr("Probability") );
-	/* m_pPropertiesCombo->addItem( tr("Cutoff") ); */
-	/* m_pPropertiesCombo->addItem( tr("Resonance") ); */
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyPan() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyLeadLag() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyKeyOctave() );
+	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyProbability() );
 	// is triggered here below
 	m_pPropertiesCombo->setObjectName( "PropertiesCombo" );
-	connect( m_pPropertiesCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
+	connect( m_pPropertiesCombo, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( propertiesComboChanged( int ) ) );
+	m_pPropertiesCombo->setCurrentIndex( 0 );
+	propertiesComboChanged( 0 );
 
 	pPropertiesVBox->addWidget( m_pPropertiesCombo );
 
-// ~ NOTE_PROPERTIES BUTTONS
-
-
-// LAYOUT
+	// Layout
 	QWidget *pMainPanel = new QWidget();
-
 	QGridLayout *pGrid = new QGridLayout();
 	pGrid->setSpacing( 0 );
 	pGrid->setMargin( 0 );
 
-	pGrid->addWidget( m_pEditorTop1, 0, 0 );
-	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 2 );
-	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
-	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
+	pGrid->addWidget( m_pTabBar, 0, 1, 1, 2 );
+	pGrid->addWidget( m_pToolBar, 1, 1, 1, 2 );
+	pGrid->addWidget( m_pDrumkitLabel, 2, 0 );
+	pGrid->addWidget( m_pRulerScrollView, 2, 1 );
 
-	pGrid->addWidget( m_pInstrListScrollView, 2, 0 );
+	pGrid->addWidget( m_pSidebarScrollView, 3, 0 );
 
-	pGrid->addWidget( m_pEditorScrollView, 2, 1 );
-	pGrid->addWidget( m_pPianoRollScrollView, 2, 1 );
+	pGrid->addWidget( m_pEditorScrollView, 3, 1 );
+	pGrid->addWidget( m_pPianoRollScrollView, 3, 1 );
 
-	pGrid->addWidget( m_pPatternEditorVScrollBar, 2, 2 );
-	pGrid->addWidget( pPatternEditorHScrollBarContainer, 10, 1 );
-	pGrid->addWidget( m_pNoteVelocityScrollView, 4, 1 );
-	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteNoteKeyScrollView, 4, 1 );
-	pGrid->addWidget( m_pNoteProbabilityScrollView, 4, 1 );
+	pGrid->addWidget( m_pPatternEditorVScrollBar, 3, 2 );
+	pGrid->addWidget( m_pPatternEditorHScrollBarContainer, 10, 1 );
+	pGrid->addWidget( m_pNoteVelocityScrollView, 5, 1 );
+	pGrid->addWidget( m_pNotePanScrollView, 5, 1 );
+	pGrid->addWidget( m_pNoteLeadLagScrollView, 5, 1 );
+	pGrid->addWidget( m_pNoteKeyOctaveScrollView, 5, 1 );
+	pGrid->addWidget( m_pNoteProbabilityScrollView, 5, 1 );
 
-	pGrid->addWidget( pPropertiesPanel, 4, 0 );
-	pGrid->setRowStretch( 2, 100 );
+	pGrid->addWidget( m_pPropertiesPanel, 5, 0 );
+	pGrid->setRowStretch( 3, 100 );
 	pMainPanel->setLayout( pGrid );
 
-
-	// restore grid resolution
-	int nIndex;
-	int nRes = pPref->getPatternEditorGridResolution();
-	if ( nRes == MAX_NOTES ) {
-		nIndex = 11;
-	} else if ( pPref->isPatternEditorUsingTriplets() == false ) {
-		switch ( nRes ) {
-			case  4: nIndex = 0; break;
-			case  8: nIndex = 1; break;
-			case 16: nIndex = 2; break;
-			case 32: nIndex = 3; break;
-			case 64: nIndex = 4; break;
-			default:
-				nIndex = 0;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
-		}
-	} else {
-		switch ( nRes ) {
-			case  8: nIndex = 6; break;
-			case 16: nIndex = 7; break;
-			case 32: nIndex = 8; break;
-			case 64: nIndex = 9; break;
-			default:
-				nIndex = 6;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
-		}
-	}
-	m_pResolutionCombo->setCurrentIndex( nIndex );
-
-	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
 	pVBox->setMargin( 0 );
@@ -686,26 +705,36 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	pVBox->addWidget( pMainPanel );
 
-	HydrogenApp::get_instance()->addEventListener( this );
-
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditorPanel::onPreferencesChanged );
-
-	// update
-	m_pPropertiesCombo->setCurrentIndex( 0 );
-	propertiesComboChanged( 0 );
-	selectedPatternChangedEvent();
 	updateStyleSheet();
 }
 
-
-
-
-PatternEditorPanel::~PatternEditorPanel()
+void PatternEditorPanel::updateDrumkitLabel( )
 {
+	const auto pTheme = H2Core::Preferences::get_instance()->getTheme();
+
+	QFont font( pTheme.m_font.m_sApplicationFontFamily,
+				getPointSize( pTheme.m_font.m_fontSize ) );
+	font.setBold( true );
+	m_pDrumkitLabel->setFont( font );
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		m_pDrumkitLabel->setText( pSong->getDrumkit()->getName() );
+	}
 }
 
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateDrumkitLabel();
+
+	const int nPreviousRows = m_db.size();
+
+	updateDB();
+	updateEditors();
+	m_pSidebar->updateRows();
+
+	if ( nPreviousRows != m_db.size() ) {
+		resizeEvent( nullptr );
+	}
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -723,7 +752,7 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 	m_pRulerScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 
 	// Instrument list
-	m_pInstrListScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
+	m_pSidebarScrollView->verticalScrollBar()->setValue( m_pPatternEditorVScrollBar->value() );
 
 	// Velocity ruler
 	m_pNoteVelocityScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
@@ -735,7 +764,7 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 	m_pNoteLeadLagScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 
 	// notekey ruler
-	m_pNoteNoteKeyScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+	m_pNoteKeyOctaveScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 
 	// Probability ruler
 	m_pNoteProbabilityScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
@@ -761,59 +790,56 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 
 void PatternEditorPanel::gridResolutionChanged( int nSelected )
 {
-	int nResolution;
-	bool bUseTriplets = false;
-
 	switch( nSelected ) {
 	case 0:
 		// 1/4
-		nResolution = 4;
-		bUseTriplets = false;
+		m_nResolution = 4;
+		m_bIsUsingTriplets = false;
 		break;
 	case 1:
 		// 1/8
-		nResolution = 8;
-		bUseTriplets = false;
+		m_nResolution = 8;
+		m_bIsUsingTriplets = false;
 		break;
 	case 2:
 		// 1/16
-		nResolution = 16;
-		bUseTriplets = false;
+		m_nResolution = 16;
+		m_bIsUsingTriplets = false;
 		break;
 	case 3:
 		// 1/32
-		nResolution = 32;
-		bUseTriplets = false;
+		m_nResolution = 32;
+		m_bIsUsingTriplets = false;
 		break;
 	case 4:
 		// 1/64
-		nResolution = 64;
-		bUseTriplets = false;
+		m_nResolution = 64;
+		m_bIsUsingTriplets = false;
 		break;
 	case 6:
 		// 1/4T
-		nResolution = 8;
-		bUseTriplets = true;
+		m_nResolution = 8;
+		m_bIsUsingTriplets = true;
 		break;
 	case 7:
 		// 1/8T
-		nResolution = 16;
-		bUseTriplets = true;
+		m_nResolution = 16;
+		m_bIsUsingTriplets = true;
 		break;
 	case 8:
 		// 1/16T
-		nResolution = 32;
-		bUseTriplets = true;
+		m_nResolution = 32;
+		m_bIsUsingTriplets = true;
 		break;
 	case 9:
 		// 1/32T
-		nResolution = 64;
-		bUseTriplets = true;
+		m_nResolution = 64;
+		m_bIsUsingTriplets = true;
 		break;
 	case 11:
 		// off
-		nResolution = MAX_NOTES;
-		bUseTriplets = false;
+		m_nResolution = MAX_NOTES;
+		m_bIsUsingTriplets = false;
 		break;
 	default:
 		ERRORLOG( QString( "Invalid resolution selection [%1]" )
@@ -821,49 +847,25 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 		return;
 	}
 
-	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
-	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteVelocityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteLeadLagEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteNoteKeyEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
-
-	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
-	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
-
 	auto pPref = Preferences::get_instance();
-	pPref->setPatternEditorGridResolution( nResolution );
-	pPref->setPatternEditorUsingTriplets( bUseTriplets );
+	pPref->setPatternEditorGridResolution( m_nResolution );
+	pPref->setPatternEditorUsingTriplets( m_bIsUsingTriplets );
+
+	m_nCursorIncrement =
+		( m_bIsUsingTriplets ? 4 : 3 ) * MAX_NOTES / ( m_nResolution * 3 );
+	setCursorColumn(
+		m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement ), false );
+
+	updateEditors();
 }
 
 
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
-
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	m_nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
-
-	if ( ( m_nSelectedPatternNumber != -1 ) &&
-		 ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
-		// update pattern name text
-		m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
-		QString sCurrentPatternName = m_pPattern->get_name();
-		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
-		m_pPatternNameLbl->setText( sCurrentPatternName );
-
-		// update pattern size LCD
-		updatePatternSizeLCD();
-		updateEditors();
-		
-	}
-	else {
-		m_pPattern = nullptr;
-
-		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
-		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
-	}
+	updatePatternInfo();
+	updateDB();
+	updateEditors();
 
 	resizeEvent( nullptr ); // force an update of the scrollbars
 }
@@ -911,15 +913,9 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	syncScrollBarSize( m_pNoteVelocityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 	syncScrollBarSize( m_pNotePanScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 	syncScrollBarSize( m_pNoteLeadLagScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() ) ;
-	syncScrollBarSize( m_pNoteNoteKeyScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 	syncScrollBarSize( m_pNoteProbabilityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 }
-
-void PatternEditorPanel::showEvent ( QShowEvent *ev )
-{
-	UNUSED( ev );
-}
-
 
 /// richiamato dall'uso dello scroll del mouse
 void PatternEditorPanel::contentsMoving( int dummy )
@@ -933,16 +929,40 @@ void PatternEditorPanel::contentsMoving( int dummy )
 
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
+	const int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	if ( nInstrument != -1 ) {
+		m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	}
+
+	ensureVisible();
+	updateEditors();
 	resizeEvent( nullptr );	// force a scrollbar update
 }
 
-void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
-{
-	if ( __show_drum_btn->isChecked() ) {
-		m_pPianoRollEditor->selectInstrumentNotes( nInstrument );
-	} else {
-		m_pDrumPatternEditor->selectInstrumentNotes( nInstrument );
-	}
+bool PatternEditorPanel::hasPatternEditorFocus() const {
+	return hasFocus() ||
+		m_pPatternEditorRuler->hasFocus() ||
+		m_pDrumPatternEditor->hasFocus() ||
+		m_pPianoRollEditor->hasFocus() ||
+		m_pNoteVelocityEditor->hasFocus() ||
+		m_pNotePanEditor->hasFocus() ||
+		m_pNoteLeadLagEditor->hasFocus() ||
+		m_pNoteKeyOctaveEditor->hasFocus() ||
+		m_pNoteProbabilityEditor->hasFocus() ||
+		m_pZoomInBtn->hasFocus() ||
+		m_pZoomOutBtn->hasFocus() ||
+		m_pPatternEditorHScrollBar->hasFocus() ||
+		m_pPatternEditorVScrollBar->hasFocus() ||
+		m_pPianoRollScrollView->hasFocus() ||
+		m_pRec->hasFocus() ||
+		m_pResolutionCombo->hasFocus() ||
+		m_pSizeResol->hasFocus() ||
+		m_pLCDSpinBoxNumerator->hasFocus() ||
+		m_pLCDSpinBoxDenominator->hasFocus() ||
+		m_pPropertiesCombo->hasFocus() ||
+		m_pDrumkitLabel->hasFocus() ||
+		m_pTabBar->hasFocus() ||
+		m_pToolBar->hasFocus();
 }
 
 void PatternEditorPanel::showDrumEditor()
@@ -951,16 +971,17 @@ void PatternEditorPanel::showDrumEditor()
 	__show_drum_btn->setChecked( false );
 	m_pPianoRollScrollView->hide();
 	m_pEditorScrollView->show();
-	m_pInstrListScrollView->show();
+	m_pSidebarScrollView->show();
 
 	m_pEditorScrollView->setFocus();
 	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
-	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
+	m_pSidebar->setFocusProxy( m_pEditorScrollView );
+	m_pSidebar->dimRows( false );
 
-	m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
+	m_pDrumPatternEditor->updateEditor(); // force an update
+	ensureVisible();
 
-	m_pDrumPatternEditor->selectNone();
-	m_pPianoRollEditor->selectNone();
+	getVisiblePropertiesRuler()->syncLasso();
 
 	// force a re-sync of extern scrollbars
 	resizeEvent( nullptr );
@@ -974,17 +995,18 @@ void PatternEditorPanel::showPianoRollEditor()
 	m_pPianoRollScrollView->show();
 	m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
 	m_pEditorScrollView->hide();
-	m_pInstrListScrollView->show();
+	m_pSidebarScrollView->show();
 
 	m_pPianoRollScrollView->setFocus();
 	m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
-	m_pInstrumentList->setFocusProxy( m_pPianoRollScrollView );
+	m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
+	m_pSidebar->dimRows( true );
 
-	m_pDrumPatternEditor->selectNone();
-	m_pPianoRollEditor->selectNone();
-
-	m_pPianoRollEditor->selectedPatternChangedEvent();
 	m_pPianoRollEditor->updateEditor(); // force an update
+	ensureVisible();
+
+	getVisiblePropertiesRuler()->syncLasso();
+
 	// force a re-sync of extern scrollbars
 	resizeEvent( nullptr );
 }
@@ -1006,10 +1028,91 @@ void PatternEditorPanel::showDrumEditorBtnClick()
 	}
 }
 
+PatternEditor* PatternEditorPanel::getVisibleEditor() const {
+	if ( m_pPianoRollScrollView->isVisible() ) {
+		return m_pPianoRollEditor;
+	}
+	return m_pDrumPatternEditor;
+}
+
+NotePropertiesRuler* PatternEditorPanel::getVisiblePropertiesRuler() const {
+	if ( m_pNoteVelocityEditor->isVisible() ) {
+		return m_pNoteVelocityEditor;
+	}
+	else if ( m_pNotePanEditor->isVisible() ) {
+		return m_pNotePanEditor;
+	}
+	else if ( m_pNoteLeadLagEditor->isVisible() ) {
+		return m_pNoteLeadLagEditor;
+	}
+	else if ( m_pNoteKeyOctaveEditor->isVisible() ) {
+		return m_pNoteKeyOctaveEditor;
+	}
+	else {
+		return m_pNoteProbabilityEditor;
+	}
+}
+
+std::vector<std::shared_ptr<Pattern>> PatternEditorPanel::getPatternsToShow() const
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	std::vector<std::shared_ptr<Pattern>> patterns;
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	// When using song mode without the pattern editor being locked
+	// only the current pattern will be shown. In every other base
+	// remaining playing patterns not selected by the user are added
+	// as well.
+	if ( ! ( pHydrogen->getMode() == Song::Mode::Song &&
+			 ! pHydrogen->isPatternEditorLocked() ) ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
+			std::set<std::shared_ptr<Pattern>> patternSet;
+
+			std::vector<const PatternList*> patternLists;
+			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
+			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+				patternLists.push_back( pAudioEngine->getNextPatterns() );
+			}
+
+			for ( const auto& pPatternList : patternLists ) {
+				for ( int i = 0; i <  pPatternList->size(); i++) {
+					auto ppPattern = pPatternList->get( i );
+					if ( ppPattern != m_pPattern ) {
+						patternSet.insert( ppPattern );
+					}
+				}
+			}
+			for ( const auto& ppPattern : patternSet ) {
+				patterns.push_back( ppPattern );
+			}
+		}
+		pAudioEngine->unlock();
+	}
+	else if ( m_pPattern != nullptr &&
+			  pHydrogen->getMode() == Song::Mode::Song &&
+			  m_pPattern->getVirtualPatterns()->size() > 0 ) {
+		// A virtual pattern was selected in song mode without the
+		// pattern editor being locked. Virtual patterns in selected
+		// pattern mode are handled using the playing pattern above.
+		for ( const auto ppVirtualPattern : *m_pPattern ) {
+			patterns.push_back( ppVirtualPattern );
+		}
+	}
+
+
+	if ( m_pPattern != nullptr ) {
+		patterns.push_back( m_pPattern );
+	}
+
+	return patterns;
+}
 
 void PatternEditorPanel::zoomInBtnClicked()
 {
-	if( m_pPatternEditorRuler->getGridWidth() >= 24 ){
+	const float fOldGridWidth = m_pPatternEditorRuler->getGridWidth();
+
+	if ( fOldGridWidth >= 24 ){
 		return;
 	}
 
@@ -1017,7 +1120,7 @@ void PatternEditorPanel::zoomInBtnClicked()
 	m_pDrumPatternEditor->zoomIn();
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
-	m_pNoteNoteKeyEditor->zoomIn();
+	m_pNoteKeyOctaveEditor->zoomIn();
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoomIn();
@@ -1026,116 +1129,235 @@ void PatternEditorPanel::zoomInBtnClicked()
 	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
 	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
+	getVisiblePropertiesRuler()->zoomLasso( fOldGridWidth );
+	getVisibleEditor()->zoomLasso( fOldGridWidth );
+
+	ensureVisible();
+
+	updateEditors();
 	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::zoomOutBtnClicked()
 {
+	const float fOldGridWidth = m_pPatternEditorRuler->getGridWidth();
+
 	m_pPatternEditorRuler->zoomOut();
 	m_pDrumPatternEditor->zoomOut();
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
-	m_pNoteNoteKeyEditor->zoomOut();
+	m_pNoteKeyOctaveEditor->zoomOut();
 	m_pNoteProbabilityEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
 	m_pPianoRollEditor->zoomOut();
 
-	resizeEvent( nullptr );
-
 	auto pPref = Preferences::get_instance();
 	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
 	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
+
+	getVisiblePropertiesRuler()->zoomLasso( fOldGridWidth );
+	getVisibleEditor()->zoomLasso( fOldGridWidth );
+
+	ensureVisible();
+
+	updateEditors();
+	resizeEvent( nullptr );
+	DEBUGLOG( "DONE" );
 }
 
 void PatternEditorPanel::updatePatternInfo() {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	const auto pSong = pHydrogen->getSong();
+	m_hoveredNotes.clear();
 
 	m_pPattern = nullptr;
-	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-
 	if ( pSong != nullptr ) {
-		PatternList *pPatternList = pSong->getPatternList();
-		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
-			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		m_nPatternNumber = pHydrogen->getSelectedPatternNumber();
+		const auto pPatternList = pSong->getPatternList();
+		if ( m_nPatternNumber != -1 &&
+			 m_nPatternNumber < pPatternList->size() ) {
+			m_pPattern = pPatternList->get( m_nPatternNumber );
 		}
+	}
+
+	if ( m_pPattern == nullptr ) {
+		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
+
+		for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
+			m_pTabBar->removeTab( ii );
+		}
+		m_tabPatternMap.clear();
+
+		m_pTabBar->addTab( tr( "No pattern selected" ) );
+		m_pTabBar->setTabEnabled( 0, false );
+
+		m_pLCDSpinBoxDenominator->setIsActive( false );
+		m_pLCDSpinBoxNumerator->setIsActive( false );
+
+		return;
+	}
+	else {
+		m_pLCDSpinBoxDenominator->setIsActive( true );
+		m_pLCDSpinBoxNumerator->setIsActive( true );
+	}
+
+	if ( ! m_bPatternSelectedViaTab ) {
+		// Reset the tab bar
+		for ( int ii = m_pTabBar->count(); ii >= 0; --ii ) {
+			m_pTabBar->removeTab( ii );
+		}
+		m_tabPatternMap.clear();
+	}
+	else {
+		// But not if triggered via the tab bar. Then, we just switch the
+		// selected tab.
+		int nTabIndex = -1;
+		const auto pPatternList = pSong->getPatternList();
+		const int nPatternIndex = pPatternList->index( m_pPattern );
+		for ( const auto& [ nnTab, nnPattern ] : m_tabPatternMap ) {
+			// We also need to assure the pattern name is still valid, since it
+			// might have changed in a previous action.
+			const auto ppPattern = pPatternList->get( nnPattern );
+			if ( ppPattern != nullptr &&
+				 ppPattern->getName() != m_pTabBar->tabText( nnTab ) ) {
+				m_pTabBar->setTabText( nnTab, ppPattern->getName() );
+			}
+
+			if ( nnPattern == nPatternIndex ) {
+				nTabIndex = nnTab;
+			}
+		}
+
+		if ( nTabIndex != -1 ) {
+			m_pTabBar->setCurrentIndex( nTabIndex );
+		}
+		else {
+			ERRORLOG( "Unable to find pattern" );
+		}
+	}
+
+	// update pattern size LCD
+	m_bArmPatternSizeSpinBoxes = false;
+
+	const double fNewDenominator =
+		static_cast<double>( m_pPattern->getDenominator() );
+	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
+		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
+
+		// Update numerator to allow only for a maximum pattern length of four
+		// measures.
+		m_pLCDSpinBoxNumerator->setMaximum(
+			4 * m_pLCDSpinBoxDenominator->value() );
+	}
+
+	const double fNewNumerator = static_cast<double>(
+		m_pPattern->getLength() * m_pPattern->getDenominator() ) /
+		static_cast<double>( MAX_NOTES );
+	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
+		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
+	}
+
+	m_bArmPatternSizeSpinBoxes = true;
+
+	if ( ! m_bPatternSelectedViaTab ) {
+		// Update pattern tabs
+		m_pTabBar->addTab( m_pPattern->getName() );
+		m_tabPatternMap[ 0 ] = pSong->getPatternList()->index( m_pPattern );
+
+		auto patterns = getPatternsToShow();
+		int nnCount = 1;
+		const bool bTabsEnabled = ! ( pHydrogen->isPatternEditorLocked() &&
+									  pHydrogen->getAudioEngine()->getState() ==
+									  AudioEngine::State::Playing &&
+									  pHydrogen->getMode() == Song::Mode::Song );
+		for ( const auto& ppPattern : patterns ) {
+			if ( ppPattern != nullptr && ppPattern != m_pPattern ) {
+				m_tabPatternMap[ nnCount ] =
+					pSong->getPatternList()->index( ppPattern );
+				m_pTabBar->addTab( ppPattern->getName() );
+				m_pTabBar->setTabEnabled( nnCount, bTabsEnabled );
+				++nnCount;
+			}
+		}
+	}
+
+	if ( m_bPatternSelectedViaTab ) {
+		m_bPatternSelectedViaTab = false;
 	}
 }
 
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 
-	updatePatternInfo();
-
 	// Changes of pattern may leave the cursor out of bounds.
-	setCursorPosition( getCursorPosition() );
+	setCursorColumn( getCursorColumn(), false );
 
 	m_pPatternEditorRuler->updateEditor( true );
-	m_pNoteVelocityEditor->updateEditor();
-	m_pNotePanEditor->updateEditor();
-	m_pNoteLeadLagEditor->updateEditor();
-	m_pNoteNoteKeyEditor->updateEditor();
-	m_pNoteProbabilityEditor->updateEditor();
+	m_pNoteVelocityEditor->updateEditor( bPatternOnly );
+	m_pNotePanEditor->updateEditor( bPatternOnly );
+	m_pNoteLeadLagEditor->updateEditor( bPatternOnly );
+	m_pNoteKeyOctaveEditor->updateEditor( bPatternOnly );
+	m_pNoteProbabilityEditor->updateEditor( bPatternOnly );
 	m_pPianoRollEditor->updateEditor( bPatternOnly );
-	m_pDrumPatternEditor->updateEditor();
+	m_pDrumPatternEditor->updateEditor( bPatternOnly );
+	m_pSidebar->updateEditor();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
-	selectedPatternChangedEvent();
+	updatePatternInfo();
+	updateEditors();
+	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
-	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
+	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
+		updatePatternInfo();
 		updateEditors( true );
 	}
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
+	updateDB();
 	updateEditors( true );
 }
 
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
+	updateDB();
 	updateEditors( true );
 }
 
 void PatternEditorPanel::songSizeChangedEvent() {
-	if ( PatternEditor::isUsingAdditionalPatterns( m_pPattern ) ) {
+	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updateEditors( true );
 	}
 }
 
 void PatternEditorPanel::patternEditorLockedEvent() {
+	updatePatternInfo();
+	updateDB();
 	updateEditors( true );
+}
+
+void PatternEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& state ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	const bool bLocked = pHydrogen->isPatternEditorLocked();
+	if ( bLocked ) {
+		const bool bEnable =
+			! ( bLocked &&
+				pHydrogen->getAudioEngine()->getState() ==
+				AudioEngine::State::Playing &&
+				pHydrogen->getMode() == Song::Mode::Song );
+		for ( int ii = 0; ii < m_pTabBar->count(); ++ii ) {
+			m_pTabBar->setTabEnabled( ii, bEnable );
+		}
+	}
 }
 
 void PatternEditorPanel::relocationEvent() {
 	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
 		updateEditors( true );
 	}
-}
-
-void PatternEditorPanel::updatePatternSizeLCD() {
-	if ( m_pPattern == nullptr ) {
-		return;
-	}
-
-	m_bArmPatternSizeSpinBoxes = false;
-
-	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
-	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
-		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
-		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-
-		// Update numerator to allow only for a maximum pattern length of
-		// four measures.
-		m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
-	}
-
-	double fNewNumerator = static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES );
-	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
-		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
-	}
-	
-	m_bArmPatternSizeSpinBoxes = true;
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
@@ -1148,10 +1370,6 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		// have been set by Hydrogen instead of by the user.
 		return;
 	}
-
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pInstrumentList = pHydrogen->getSong()->getDrumkit()->getInstruments();
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
@@ -1171,28 +1389,35 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	int nNewLength =
 		std::round( static_cast<double>( MAX_NOTES ) / fNewDenominator * fNewNumerator );
 
-	if ( nNewLength == m_pPattern->get_length() ) {
+	if ( nNewLength == m_pPattern->getLength() ) {
 		return;
 	}
 
-	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndoStack->beginMacro( QString( "Change pattern size to %1/%2" )
-							.arg( fNewNumerator ).arg( fNewDenominator ) );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	pHydrogenApp->beginUndoMacro( tr( "Change pattern size to %1/%2" )
+								  .arg( fNewNumerator ).arg( fNewDenominator ) );
 
-	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
-													   m_pPattern->get_length(),
-													   fNewDenominator,
-													   m_pPattern->get_denominator(),
-													   m_nSelectedPatternNumber ) );
-	pUndoStack->endMacro();
+	pHydrogenApp->pushUndoCommand(
+		new SE_patternSizeChangedAction(
+			nNewLength,
+			m_pPattern->getLength(),
+			fNewDenominator,
+			m_pPattern->getDenominator(),
+			m_nPatternNumber ) );
+
+	pHydrogenApp->endUndoMacro();
 }
 
 void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenominator,
 												   int nSelectedPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pPatternList = pHydrogen->getSong()->getPatternList();
-	H2Core::Pattern* pPattern = nullptr;
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pPatternList = pSong->getPatternList();
+	std::shared_ptr<H2Core::Pattern> pPattern = nullptr;
 
 	if ( ( nSelectedPatternNumber != -1 ) &&
 		 ( nSelectedPatternNumber < pPatternList->size() ) ) {
@@ -1207,37 +1432,50 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 
 	pAudioEngine->lock( RIGHT_HERE );
 	// set length and denominator				
-	pPattern->set_length( nLength );
-	pPattern->set_denominator( static_cast<int>( fDenominator ) );
+	pPattern->setLength( nLength );
+	pPattern->setDenominator( static_cast<int>( fDenominator ) );
 	pHydrogen->updateSongSize();
 	pAudioEngine->unlock();
 	
 	pHydrogen->setIsModified( true );
+
+	// Ensure the cursor stays within the accessible region of the current
+	// pattern.
+	if ( pPattern == m_pPattern && m_nCursorColumn >= nLength ) {
+		int nNewColumn = std::floor( m_pPattern->getLength() /
+									 m_nCursorIncrement ) * m_nCursorIncrement;
+		if ( m_pPattern->getLength() % m_nCursorIncrement == 0 ) {
+			nNewColumn -= m_nCursorIncrement;
+		}
+		setCursorColumn( nNewColumn );
+	}
 	
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )
 {
-	m_pInstrumentList->dragEnterEvent( event );
+	m_pSidebar->dragEnterEvent( event );
 }
 
 
 
 void PatternEditorPanel::dropEvent( QDropEvent *event )
 {
-	m_pInstrumentList->dropEvent( event );
+	m_pSidebar->dropEvent( event );
 }
 
 void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
 		// Performs an editor update with updateEditor() (and no argument).
-		selectedPatternChangedEvent();
-		selectedInstrumentChangedEvent();
 		updateDrumkitLabel();
-		updateEditors( true );
+		updatePatternInfo();
+		updateDB();
+		updateEditors();
 		m_pPatternEditorRuler->updatePosition();
+		m_pSidebar->updateRows();
+		resizeEvent( nullptr );
 	}
 }
 
@@ -1246,7 +1484,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	if ( nSelected == 0 ) {				// Velocity
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNoteVelocityScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
@@ -1255,7 +1493,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	else if ( nSelected == 1 ) {		// Pan
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNotePanScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
@@ -1264,25 +1502,25 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	else if ( nSelected == 2 ) {		// Lead and Lag
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNoteLeadLagScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
 		m_pNoteLeadLagEditor->updateEditor();
 	}
-	else if ( nSelected == 3 ) {		// NoteKey
+	else if ( nSelected == 3 ) {		// KeyOctave
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->show();
+		m_pNoteKeyOctaveScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteNoteKeyEditor->updateEditor();
+		m_pNoteKeyOctaveEditor->updateEditor();
 	}
 	else if ( nSelected == 4 ) {		// Probability
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
-		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteKeyOctaveScrollView->hide();
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteProbabilityScrollView->show();
 
@@ -1299,51 +1537,102 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	}
 }
 
-int PatternEditorPanel::getCursorPosition()
+int PatternEditorPanel::getCursorColumn()
 {
-	return m_nCursorPosition;
+	return m_nCursorColumn;
 }
 
-void PatternEditorPanel::ensureCursorVisible()
+void PatternEditorPanel::ensureVisible()
 {
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	uint y = nSelectedInstrument * Preferences::get_instance()->getPatternEditorGridHeight();
-	m_pEditorScrollView->ensureVisible( m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
-}
-
-void PatternEditorPanel::setCursorPosition(int nCursorPosition)
-{
-	if ( nCursorPosition < 0 ) {
-		m_nCursorPosition = 0;
-	} else if ( m_pPattern != nullptr && nCursorPosition >= m_pPattern->get_length() ) {
-		m_nCursorPosition = m_pPattern->get_length() - m_nCursorIncrement;
-	} else {
-		m_nCursorPosition = nCursorPosition;
+	if ( m_pEditorScrollView->isVisible() ) {
+		const auto pos = m_pDrumPatternEditor->getCursorPosition();
+		m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
+	}
+	else {
+		const auto pos = m_pPianoRollEditor->getCursorPosition();
+		m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
 	}
 }
 
-int PatternEditorPanel::moveCursorLeft( int n )
-{
-	m_nCursorPosition = std::max( m_nCursorPosition - m_nCursorIncrement * n,
-								  0 );
+void PatternEditorPanel::setCursorColumn( int nCursorColumn,
+										  bool bUpdateEditors ) {
+	if ( nCursorColumn < 0 ) {
+		nCursorColumn = 0;
+	}
+	else if ( m_pPattern != nullptr &&
+			  nCursorColumn >= m_pPattern->getLength() ) {
+		return;
+	}
 
-	ensureCursorVisible();
+	if ( nCursorColumn == m_nCursorColumn ) {
+		return;
+	}
 
-	return m_nCursorPosition;
+	m_nCursorColumn = nCursorColumn;
+
+	if ( bUpdateEditors && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		ensureVisible();
+		m_pSidebar->updateEditor();
+		m_pPatternEditorRuler->update();
+		getVisibleEditor()->update();
+		getVisiblePropertiesRuler()->update();
+	}
 }
 
-int PatternEditorPanel::moveCursorRight( int n )
-{
+void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, int n ) {
+	int nNewColumn;
+	// By pressing the Alt button the user can bypass quantization.
+	if ( pEvent->modifiers() & Qt::AltModifier ) {
+		nNewColumn = m_nCursorColumn - 1;
+	}
+	else {
+		if ( m_nCursorColumn % m_nCursorIncrement == 0 ) {
+			nNewColumn = m_nCursorColumn - m_nCursorIncrement * n;
+		}
+		else {
+			nNewColumn = m_nCursorColumn - m_nCursorColumn % m_nCursorIncrement -
+				m_nCursorIncrement * ( n - 1 );
+		}
+	}
+
+	setCursorColumn( std::max( nNewColumn, 0 ) );
+}
+
+void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
 	if ( m_pPattern == nullptr ) {
-		return 0;
+		return;
 	}
-	
-	m_nCursorPosition = std::min( m_nCursorPosition + m_nCursorIncrement * n,
-								  m_pPattern->get_length() - m_nCursorIncrement );
 
-	ensureCursorVisible();
+	int nNewColumn, nIncrement;
+	// By pressing the Alt button the user can bypass quantization.
+	if ( pEvent->modifiers() & Qt::AltModifier ) {
+		nNewColumn = m_nCursorColumn + 1;
+		nIncrement = 1;
+	}
+	else {
+		nIncrement = m_nCursorIncrement;
+		if ( m_nCursorColumn % m_nCursorIncrement == 0 ) {
+			nNewColumn = m_nCursorColumn + m_nCursorIncrement * n;
+		}
+		else {
+			nNewColumn = m_nCursorColumn + m_nCursorIncrement -
+				m_nCursorColumn % m_nCursorIncrement +
+				m_nCursorIncrement * ( n - 1 );
+		}
 
-	return m_nCursorPosition;
+		// If a jump would be positioned beyond the end of the pattern, we move
+		// to the last possible position instead.
+		if ( n > 1 && nNewColumn >= m_pPattern->getLength() ) {
+			nNewColumn = std::floor( m_pPattern->getLength() /
+									 m_nCursorIncrement ) * m_nCursorIncrement;
+			if ( m_pPattern->getLength() % m_nCursorIncrement == 0 ) {
+				nNewColumn -= m_nCursorIncrement;
+			}
+		}
+	}
+
+
+	setCursorColumn( nNewColumn );
 }
 
 void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
@@ -1356,49 +1645,71 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		boldFont.setBold( true );
 		m_pDrumkitLabel->setFont( boldFont );
-		m_pPatternNameLbl->setFont( boldFont );
+		m_pTabBar->setFont( boldFont );
 
-		updateStyleSheet();
+		m_pPianoRollEditor->updateFont();
+		m_pSidebar->updateFont();
+		updateEditors();
 	}
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		updateStyleSheet();
+		updateEditors();
 	}
 }
 
 void PatternEditorPanel::updateStyleSheet() {
 
-	const auto pPref = H2Core::Preferences::get_instance();
-	int nFactorTop = 112;
-	
-	QColor topColorLight = pPref->getTheme().m_color.m_midColor.lighter( nFactorTop );
-	QColor topColorDark = pPref->getTheme().m_color.m_midColor.darker( nFactorTop );
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
 
-	QString sEditorTopStyleSheet = QString( "\
-QWidget#editor1 {\
-     background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
-                                      stop: 0 %1, stop: 1 %2); \
-} \
-QWidget#editor2 {\
-     background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
-                                      stop: 0 %1, stop: 1 %2); \
+	const QColor colorDrumkit =
+		colorTheme.m_patternEditor_instrumentAlternateRowColor.darker( 120 );
+	const QColor colorDrumkitText =
+		colorTheme.m_patternEditor_instrumentRowTextColor;
+	const QColor colorPattern =
+		colorTheme.m_patternEditor_alternateRowColor.darker( 120 );
+	const QColor colorPatternLighter =
+		colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
+	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
+
+	m_pToolBar->setStyleSheet( QString( "\
+QWidget#patternEditorToolBar {\
+     background-color: %1; \
+     color: %2; \
+     border: 1px solid #000;\
 }")
-		.arg( topColorLight.name() ).arg( topColorDark.name() );
-	QString sWidgetTopStyleSheet = QString( "\
+		.arg( colorPatternLighter.name() ).arg( colorPatternText.name() ) );
+	m_pTabBar->setStyleSheet( QString( "\
+QWidget#patternEditorTabBar {\
+     background-color: %1; \
+     color: %2; \
+     font-weight: bold; \
+}")
+		.arg( colorPattern.name() ).arg( colorPatternText.name() ) );
+
+	m_pDrumkitLabel->setStyleSheet( QString( "\
+QLabel {\
+     background-color: %1; \
+     color: %2; \
+     border: 1px solid #000;\
+}" ).arg( colorDrumkit.name() ).arg( colorDrumkitText.name() ) );
+
+	const QString sWidgetTopStyleSheet = QString( "\
 QWidget#sizeResol {\
     background-color: %1;\
+    color: %2;\
 } \
 QWidget#pRec {\
     background-color: %1;\
+    color: %2;\
 }" )
-		.arg( pPref->getTheme().m_color.m_midLightColor.name() );
+		.arg( colorPatternLighter.name() ).arg( colorPatternText.name() );
 
-	m_pEditorTop1->setStyleSheet( sEditorTopStyleSheet );
-	m_pEditorTop2->setStyleSheet( sEditorTopStyleSheet );
-		
 	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
 	m_pRec->setStyleSheet( sWidgetTopStyleSheet );
-									
+	m_pPianoRollEditor->updateStyleSheet();
+	m_pSidebar->updateStyleSheet();
 }
 
 void PatternEditorPanel::switchPatternSizeFocus() {
@@ -1409,38 +1720,37 @@ void PatternEditorPanel::switchPatternSizeFocus() {
 	}
 }
 
-NotePropertiesRuler::Mode PatternEditorPanel::getNotePropertiesMode() const
+NotePropertiesRuler::Property PatternEditorPanel::getSelectedNoteProperty() const
 {
-	NotePropertiesRuler::Mode mode;
+	NotePropertiesRuler::Property property;
 
 	switch ( m_pPropertiesCombo->currentIndex() ) {
 	case 0:
-		mode = NotePropertiesRuler::Mode::Velocity;
+		property = NotePropertiesRuler::Property::Velocity;
 		break;
 	case 1:
-		mode = NotePropertiesRuler::Mode::Pan;
+		property = NotePropertiesRuler::Property::Pan;
 		break;
 	case 2:
-		mode = NotePropertiesRuler::Mode::LeadLag;
+		property = NotePropertiesRuler::Property::LeadLag;
 		break;
 	case 3:
-		mode = NotePropertiesRuler::Mode::NoteKey;
+		property = NotePropertiesRuler::Property::KeyOctave;
 		break;
 	case 4:
-		mode = NotePropertiesRuler::Mode::Probability;
+		property = NotePropertiesRuler::Property::Probability;
 		break;
 	default:
 		ERRORLOG( QString( "Unsupported m_pPropertiesCombo index [%1]" )
 				  .arg( m_pPropertiesCombo->currentIndex() ) );
 	}
 
-	return mode;
+	return property;
 }
 
 void PatternEditorPanel::patchBayBtnClicked() {
 	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "No Song set" );
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
@@ -1448,4 +1758,762 @@ void PatternEditorPanel::patchBayBtnClicked() {
 		nullptr, pSong->getPatternList(), pSong->getDrumkit() );
 	pPatchBay->exec();
 	delete pPatchBay;
+}
+
+const DrumPatternRow PatternEditorPanel::getRowDB( int nRow ) const {
+	if ( nRow < 0 || nRow >= m_db.size() ) {
+		return DrumPatternRow();
+	}
+	else {
+		return m_db.at( nRow );
+	}
+}
+
+void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
+	if ( nNewRow == m_nSelectedRowDB ) {
+		return;
+	}
+
+	if ( nNewRow < 0 || nNewRow >= m_db.size() ) {
+		ERRORLOG( QString( "Provided row [%1] is out of DB bound [0,%2]" )
+				  .arg( nNewRow ).arg( m_db.size() ) );
+		return;
+	}
+
+	m_nSelectedRowDB = nNewRow;
+
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
+		// Within the kit, rows/ids are unique.
+		pHydrogen->setSelectedInstrumentNumber(
+			nNewRow, Event::Trigger::Default );
+	}
+	else {
+		// For all other lines the cached instrument number does not change. But
+		// we still want to handle the update using the same event.
+		pHydrogen->setSelectedInstrumentNumber(
+			-1, Event::Trigger::Force );
+	}
+}
+
+int PatternEditorPanel::getRowIndexDB( const DrumPatternRow& row ) {
+	for ( int ii = 0; ii <= m_db.size(); ++ii ) {
+		if ( m_db[ ii ].nInstrumentID == row.nInstrumentID &&
+			 m_db[ ii ].sType == row.sType ) {
+			return ii;
+		}
+	}
+
+	ERRORLOG( QString( "Row [instrument id: %1, instrument type: %2] could not be found in DB" )
+			  .arg( row.nInstrumentID ).arg( row.sType ) );
+	printDB();
+
+	return 0;
+}
+
+int PatternEditorPanel::getRowNumberDB() const {
+	return m_db.size();
+}
+
+int PatternEditorPanel::findRowDB( std::shared_ptr<Note> pNote,
+								   bool bSilent ) const {
+	if ( pNote != nullptr ) {
+		for ( int ii = 0; ii < m_db.size(); ++ii ) {
+			// Both instrument ID and type are unique within a drumkit. But
+			// since notes live in patterns and are independent of our kit,
+			// their id/type combination does not have to match the one in the
+			// kit.
+			//
+			// Instrument ID always takes precedence over type since the former
+			// is used to associate a note to an instrument and the latter is
+			// more a means of portability between different kits.
+			if ( pNote->getInstrumentId() != EMPTY_INSTR_ID &&
+				 pNote->getInstrumentId() == m_db[ ii ].nInstrumentID ) {
+				return ii;
+			}
+			else if ( ! pNote->getType().isEmpty() &&
+					  pNote->getType() == m_db[ ii ].sType ) {
+				return ii;
+			}
+		}
+
+		if ( ! bSilent ) {
+			ERRORLOG( QString( "Note [%1] is not contained in DB" )
+					  .arg( pNote->toQString() ) );
+			printDB();
+		}
+	}
+
+	return -1;
+}
+
+std::shared_ptr<H2Core::Instrument> PatternEditorPanel::getSelectedInstrument() const {
+	if ( m_nSelectedRowDB < 0 || m_nSelectedRowDB >= m_db.size() ) {
+		return nullptr;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return nullptr;
+	}
+
+	auto row = m_db.at( m_nSelectedRowDB );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
+		// Row is associated with a type but not an instrument of the current
+		// kit.
+		return nullptr;
+	}
+
+	return pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
+}
+
+void PatternEditorPanel::updateDB() {
+	m_db.clear();
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "song not ready yet" );
+		return;
+	}
+
+	int nnRow = 0;
+
+	std::set<int> kitIds;
+	// First we add all instruments of the current drumkit in the order author
+	// of the kit intended.
+	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		if ( ppInstrument != nullptr ) {
+			m_db.push_back(
+				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
+								nnRow % 2 != 0, true ) );
+			kitIds.insert( ppInstrument->get_id() );
+			++nnRow;
+		}
+	}
+
+	// Next we add rows for all notes in the selected pattern not covered by any
+	// of the instruments above.
+	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
+	QStringList additionalTypes, additionalIds;
+
+	for ( const auto& ppPattern : getPatternsToShow() ) {
+		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+			if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
+				 kitTypes.find( ppNote->getType() ) == kitTypes.end() &&
+				 ppNote->getInstrumentId() == EMPTY_INSTR_ID ) {
+				// We just have an instrument type. The note was created
+				// with a recent kit for an instrument type not contained in
+				// the current drumkit.
+				if ( ! additionalTypes.contains( ppNote->getType() ) ) {
+					additionalTypes << ppNote->getType();
+				}
+			}
+			else if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
+					  kitIds.find( ppNote->getInstrumentId() ) == kitIds.end() &&
+					  ppNote->getInstrumentId() != EMPTY_INSTR_ID ) {
+				// We just have an instrument id. The note was created with a
+				// legacy kit or a newly created custom one not featuring (all)
+				// instrument types and the id of the instrument the note was
+				// created for is not used in the current drumkit.
+				if ( ! additionalIds.contains(
+						 QString::number( ppNote->getInstrumentId() ) ) ) {
+					additionalIds << QString::number( ppNote->getInstrumentId() );
+				}
+			}
+		}
+	}
+
+	// First we will insert all type-only rows. They are more likely to occur
+	// than unmapped id-only ones.
+	additionalTypes.sort();
+	for ( const auto& ssType : additionalTypes ) {
+		m_db.push_back( DrumPatternRow(
+							EMPTY_INSTR_ID, ssType, nnRow % 2 != 0, false ) );
+		++nnRow;
+	}
+
+	additionalIds.sort();
+	for ( const auto& ssId : additionalIds ) {
+		m_db.push_back( DrumPatternRow(
+							ssId.toInt(), "", nnRow % 2 != 0, false ) );
+		++nnRow;
+	}
+
+	const int nSelectedInstrument =
+		Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	if ( nSelectedInstrument != -1 ) {
+		m_nSelectedRowDB = nSelectedInstrument;
+	}
+	else if ( m_nSelectedRowDB >= m_db.size() ) {
+		// Previously, a type-only row was selected. But we seem to have jumped
+		// to a pattern in which there are no notes not associated to a
+		// instrument -> no type-only rows. We selected the bottom-most
+		// instrument instead.
+		setSelectedRowDB( m_db.size() - 1 );
+	}
+}
+
+void PatternEditorPanel::setHoveredNotesMouse(
+	std::map< std::shared_ptr<H2Core::Pattern>,
+	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+	bool bUpdateEditors )
+{
+	if ( hoveredNotes == m_hoveredNotesMouse ) {
+		return;
+	}
+
+	m_hoveredNotesMouse = hoveredNotes;
+
+	updateHoveredNotes();
+
+	if ( bUpdateEditors ) {
+		getVisibleEditor()->update();
+		getVisiblePropertiesRuler()->update();
+	}
+}
+
+void PatternEditorPanel::setHoveredNotesKeyboard(
+	std::map< std::shared_ptr<H2Core::Pattern>,
+	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+	bool bUpdateEditors )
+{
+	if ( hoveredNotes == m_hoveredNotesKeyboard ) {
+		return;
+	}
+
+	m_hoveredNotesKeyboard = hoveredNotes;
+
+	updateHoveredNotes();
+
+	if ( bUpdateEditors ) {
+		getVisibleEditor()->updateEditor( true );
+		getVisiblePropertiesRuler()->updateEditor( true );
+	}
+}
+
+void PatternEditorPanel::updateHoveredNotes() {
+	m_hoveredNotes = m_hoveredNotesKeyboard;
+
+	bool bFound;
+	for ( const auto& [ ppPattern, nnotes ] : m_hoveredNotesMouse ) {
+		if ( m_hoveredNotes.find( ppPattern ) != m_hoveredNotes.end() ) {
+			// Pattern is already present. Merge it.
+			for ( const auto& ppNoteMouse : nnotes ) {
+				bFound = false;
+				for ( const auto& ppNoteKeyboard : m_hoveredNotes[ ppPattern ] ) {
+					if ( ppNoteMouse == ppNoteKeyboard ) {
+						bFound = true;
+						break;
+					}
+				}
+
+				if ( ! bFound ) {
+					m_hoveredNotes[ ppPattern ].push_back( ppNoteMouse );
+				}
+			}
+		}
+		else {
+			// Pattern is not present yet.
+			m_hoveredNotes[ ppPattern ] = nnotes;
+		}
+	}
+
+	for ( auto& [ _, nnotes ] : m_hoveredNotes ) {
+		std::sort( nnotes.begin(), nnotes.end(), Note::compare );
+	}
+}
+
+void PatternEditorPanel::printDB() const {
+	QString sMsg = "PatternEditorPanel database:";
+	for ( int ii = 0; ii < m_db.size(); ++ii ) {
+		sMsg.append( QString( "\n\t[%1] ID: %2, Type: %3" )
+					 .arg( ii ).arg( m_db[ ii ].nInstrumentID )
+					 .arg( m_db[ ii ].sType ) );
+	}
+
+	DEBUGLOG( sMsg );
+}
+
+void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
+										   int nOctave, bool bDoAdd,
+										   bool bDoDelete, bool bIsNoteOff,
+										   PatternEditor::AddNoteAction action ) {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	if ( m_pPattern == nullptr ) {
+		// No pattern selected.
+		return;
+	}
+
+	if ( nPosition >= m_pPattern->getLength() ) {
+		// Note would be beyond the active region of the current pattern.
+		return;
+	}
+
+	auto row = getRowDB( nRow );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
+		return;
+	}
+
+	std::vector< std::shared_ptr<Note> > oldNotes;
+	int nNewKey = nKey;
+	int nNewOctave = nOctave;
+	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
+		oldNotes =
+			m_pPattern->findNotes( nPosition, row.nInstrumentID, row.sType );
+		nNewKey = KEY_MIN;
+		nNewOctave = OCTAVE_DEFAULT;
+	}
+	else {
+		auto pOldNote = m_pPattern->findNote(
+			nPosition, row.nInstrumentID, row.sType,
+			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
+		if ( pOldNote != nullptr ) {
+			oldNotes.push_back( pOldNote );
+		}
+	}
+
+	if ( oldNotes.size() > 0 && ! bDoDelete ) {
+		// Found an old note, but we don't want to delete, so just return.
+		return;
+	} else if ( oldNotes.size() == 0 && ! bDoAdd ) {
+		// No note there, but we don't want to add a new one, so return.
+		return;
+	}
+
+	if ( oldNotes.size() == 0 ) {
+		// Play back added notes.
+		if ( Preferences::get_instance()->getHearNewNotes() &&
+			  row.bMappedToDrumkit ) {
+			auto pSelectedInstrument = getSelectedInstrument();
+			if ( pSelectedInstrument != nullptr &&
+				 pSelectedInstrument->hasSamples() ) {
+				auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
+				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
+									  static_cast<Note::Octave>(nOctave) );
+				pNote2->setNoteOff( bIsNoteOff );
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+					noteOn( pNote2 );
+			}
+		}
+
+		pHydrogenApp->pushUndoCommand(
+			new SE_addOrRemoveNoteAction(
+				nPosition,
+				row.nInstrumentID,
+				row.sType,
+				m_nPatternNumber,
+				LENGTH_ENTIRE_SAMPLE,
+				VELOCITY_DEFAULT,
+				PAN_DEFAULT,
+				LEAD_LAG_DEFAULT,
+				nNewKey,
+				nNewOctave,
+				PROBABILITY_DEFAULT,
+				/* bIsDelete */ false,
+				bIsNoteOff,
+				action ) );
+	}
+	else {
+		// delete notes
+		pHydrogenApp->beginUndoMacro(
+			pCommonStrings->getActionDeleteNotes() );
+		for ( const auto& ppNote : oldNotes ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemoveNoteAction(
+					nPosition,
+					row.nInstrumentID,
+					row.sType,
+					m_nPatternNumber,
+					ppNote->getLength(),
+					ppNote->getVelocity(),
+					ppNote->getPan(),
+					ppNote->getLeadLag(),
+					ppNote->getKey(),
+					ppNote->getOctave(),
+					ppNote->getProbability(),
+					/* bIsDelete */ true,
+					ppNote->getNoteOff(),
+					action ) );
+		}
+		pHydrogenApp->endUndoMacro();
+	}
+}
+
+
+bool PatternEditorPanel::isUsingAdditionalPatterns(
+	const std::shared_ptr<H2Core::Pattern> pPattern ) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+
+	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
+		 ( pPattern != nullptr && pPattern->isVirtual() ) ||
+		 ( pHydrogen->getMode() == Song::Mode::Song &&
+		   pHydrogen->isPatternEditorLocked() ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
+										  bool bCut ) {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	PatternList* pPatternList = nullptr;
+	if ( nPattern != -1 ) {
+		auto pPattern = pSong->getPatternList()->get( nPattern );
+		if ( pPattern == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve pattern [%1]" )
+					  .arg( nPattern ) );
+			return;
+		}
+		pPatternList = new PatternList();
+		pPatternList->add( pPattern );
+	}
+	else {
+		pPatternList = pSong->getPatternList();
+	}
+
+	const auto row = getRowDB( nRow );
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	if ( bCut ) {
+		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionCutAllNotes() );
+	}
+	else if ( nRow != -1 ) {
+		pHydrogenApp->beginUndoMacro(
+			QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionClearAllNotesInRow() )
+			.arg( nRow ) );
+	}
+	else {
+		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionClearAllNotes() );
+	}
+
+	for ( const auto& ppPattern : *pPatternList ) {
+		if ( ppPattern != nullptr ) {
+			std::vector< std::shared_ptr<Note> > notes;
+			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr &&
+					 ppNote->getInstrumentId() == row.nInstrumentID &&
+					 ppNote->getType() == row.sType &&
+					 ( nPitch == PITCH_INVALID ||
+					   ppNote->getTotalPitch() == nPitch ) ) {
+					notes.push_back( ppNote );
+				}
+			}
+
+			for ( const auto& ppNote : notes ) {
+				pHydrogenApp->pushUndoCommand(
+					new SE_addOrRemoveNoteAction(
+						ppNote->getPosition(),
+						ppNote->getInstrumentId(),
+						ppNote->getType(),
+						pSong->getPatternList()->index( ppPattern ),
+						ppNote->getLength(),
+						ppNote->getVelocity(),
+						ppNote->getPan(),
+						ppNote->getLeadLag(),
+						ppNote->getKey(),
+						ppNote->getOctave(),
+						ppNote->getProbability(),
+						/* bIsDelete */ true,
+						ppNote->getNoteOff() ) );
+			}
+		}
+	}
+	pHydrogenApp->endUndoMacro();
+
+	if ( nPattern != -1 ) {
+		delete pPatternList;
+	}
+}
+
+QString PatternEditorPanel::FillNotesToQString( const FillNotes& fillNotes ) {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	switch ( fillNotes ) {
+		case FillNotes::All:
+			return pCommonStrings->getActionFillAllNotes();
+		case FillNotes::EverySecond:
+			return pCommonStrings->getActionFillEverySecondNote();
+		case FillNotes::EveryThird:
+			return pCommonStrings->getActionFillEveryThirdNote();
+		case FillNotes::EveryFourth:
+			return pCommonStrings->getActionFillEveryFourthNote();
+		case FillNotes::EverySixth:
+			return pCommonStrings->getActionFillEverySixthNote();
+		case FillNotes::EveryEighth:
+			return pCommonStrings->getActionFillEveryEighthNote();
+		case FillNotes::EveryTwelfth:
+			return pCommonStrings->getActionFillEveryTwelfthNote();
+		case FillNotes::EverySixteenth:
+			return pCommonStrings->getActionFillEverySixteenthNote();
+		default:
+			return QString( "Unknown fill option [%1]" )
+				.arg( static_cast<int>(fillNotes) );
+	}
+}
+
+void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch ) {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
+	int nBase;
+	if ( m_bIsUsingTriplets ) {
+		nBase = 3;
+	}
+	else {
+		nBase = 4;
+	}
+	const int nResolution = 4 * MAX_NOTES * static_cast<int>(every) /
+		( nBase * m_nResolution );
+
+	const auto row = getRowDB( nRow );
+
+	std::vector<int> notePositions;
+	const auto notes = m_pPattern->getNotes();
+	for ( int ii = 0; ii < m_pPattern->getLength(); ii += nResolution ) {
+		bool bNoteAlreadyPresent = false;
+		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
+			auto ppNote = it->second;
+			if ( ppNote != nullptr &&
+				 ppNote->getInstrumentId() == row.nInstrumentID &&
+				 ppNote->getType() == row.sType &&
+				 ( nPitch == PITCH_INVALID ||
+				   ppNote->getTotalPitch() == nPitch ) ) {
+				bNoteAlreadyPresent = true;
+				break;
+			}
+		}
+
+		if ( ! bNoteAlreadyPresent ) {
+			notePositions.push_back( ii );
+		}
+	}
+
+	if ( notePositions.size() > 0 ) {
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+		int nKey = KEY_MIN;
+		int nOctave = OCTAVE_DEFAULT;
+		if ( nPitch != PITCH_INVALID ) {
+			nKey = Note::pitchToKey( nPitch );
+			nOctave = Note::pitchToOctave( nPitch );
+		}
+
+		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
+		for ( int nnPosition : notePositions ) {
+			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
+							  true /* bDoAdd */, false /* bDoDelete */,
+							  false /* bIsNoteOff */ );
+		}
+		pHydrogenApp->endUndoMacro();
+	}
+}
+
+void PatternEditorPanel::setTypeInRow( int nRow ) {
+	const auto row = getRowDB( nRow );
+	if ( row.bMappedToDrumkit ) {
+		ERRORLOG( QString( "Row [%1] is mapped to the current drumkit. Please edit the drumkit to change types instead!" )
+				  .arg( nRow ) );
+		return;
+	}
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	// Get all notes in line nRow.
+	std::vector< std::shared_ptr<Note> > notes;
+	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
+		if ( ppNote != nullptr && ppNote->getType() == row.sType &&
+			 ppNote->getInstrumentId() == row.nInstrumentID ) {
+			notes.push_back( ppNote );
+		}
+	}
+
+	if ( notes.size() == 0 ) {
+		// Nothing to do. All notes seem to have been deleted before triggering
+		// this action.
+		updateDB();
+		updateEditors();
+		return;
+	}
+
+	bool bIsOkPressed;
+	const QString sNewType = QInputDialog::getText(
+		nullptr, "Hydrogen", QString( "%1 [%2]" )
+		.arg( pCommonStrings->getActionEditTypes() ).arg( nRow ),
+		QLineEdit::Normal, row.sType, &bIsOkPressed );
+	if ( ! bIsOkPressed ) {
+		// Cancelled by the user.
+		return;
+	}
+
+	if ( sNewType.isEmpty() ) {
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getErrorEmptyType() );
+		return;
+	}
+
+	// Changing a type is effectively moving the note to another row of the
+	// DrumPatternEditor. This could result in overlapping notes at the same
+	// position. To guard against this, select all adjusted notes to harness the
+	// checkDeselectElements capabilities.
+	getVisibleEditor()->clearSelection();
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	pHydrogenApp->beginUndoMacro(
+		QString( "%1 [%2]" )
+		.arg( pHydrogenApp->getCommonStrings()->getActionEditTypes() )
+		.arg( nRow ) );
+
+	for ( const auto& ppNote : notes ) {
+		pHydrogenApp->pushUndoCommand(
+			new SE_editNotePropertiesAction(
+				PatternEditor::Property::Type,
+				getPatternNumber(),
+				ppNote->getPosition(),
+				EMPTY_INSTR_ID,
+				ppNote->getInstrumentId(),
+				sNewType,
+				ppNote->getType(),
+				ppNote->getVelocity(),
+				ppNote->getVelocity(),
+				ppNote->getPan(),
+				ppNote->getPan(),
+				ppNote->getLeadLag(),
+				ppNote->getLeadLag(),
+				ppNote->getProbability(),
+				ppNote->getProbability(),
+				ppNote->getLength(),
+				ppNote->getLength(),
+				ppNote->getKey(),
+				ppNote->getKey(),
+				ppNote->getOctave(),
+				ppNote->getOctave() ) );
+	}
+
+	pHydrogenApp->endUndoMacro();
+
+	updateDB();
+	updateEditors();
+
+	getVisibleEditor()->triggerStatusMessage(
+		notes, PatternEditor::Property::Type );
+}
+
+void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Song not ready" );
+		return;
+	}
+
+	const auto row = getRowDB( nRow );
+
+	// Serialize & put to clipboard
+	H2Core::XMLDoc doc;
+	auto rootNode = doc.set_root( "serializedPatternList" );
+	pSong->getPatternList()->save_to(
+		rootNode, row.nInstrumentID, row.sType, nPitch );
+
+	const QString sSerialized = doc.toString();
+	if ( sSerialized.isEmpty() ) {
+		ERRORLOG( QString( "Unable to serialize pattern editor line [%1]" )
+				  .arg( nRow ) );
+		return;
+	}
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText( sSerialized );
+}
+
+void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	copyNotesFromRowOfAllPatterns( nRow, nPitch );
+
+	clearNotesInRow( nRow, -1, nPitch, true );
+}
+
+void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	const auto row = getRowDB( nRow );
+	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
+		return;
+	}
+
+	// Get from clipboard & deserialize
+	QClipboard *clipboard = QApplication::clipboard();
+	const QString sSerialized = clipboard->text();
+	if ( sSerialized.isEmpty() ) {
+		INFOLOG( "Serialized pattern list is empty" );
+		return;
+	}
+
+	const auto doc = H2Core::XMLDoc( sSerialized );
+	const auto rootNode = doc.firstChildElement( "serializedPatternList" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( QString( "Unable to parse serialized pattern list [%1]" )
+				  .arg( sSerialized ) );
+		return;
+	}
+
+	const auto pPatternList = PatternList::load_from(
+		rootNode, pSong->getDrumkit()->getExportName() );
+	if ( pPatternList == nullptr ) {
+		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
+				  .arg( sSerialized ) );
+		return;
+	}
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	// Those patterns contain only notes of a single row.
+	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionPasteAllNotes() );
+	for ( auto& ppPattern : *pPatternList ) {
+		if ( ppPattern != nullptr ) {
+			for ( auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr ) {
+					pHydrogenApp->pushUndoCommand(
+						new SE_addOrRemoveNoteAction(
+							ppNote->getPosition(),
+							row.nInstrumentID,
+							row.sType,
+							pPatternList->index( ppPattern ),
+							ppNote->getLength(),
+							ppNote->getVelocity(),
+							ppNote->getPan(),
+							ppNote->getLeadLag(),
+							nPitch == PITCH_INVALID ? ppNote->getKey() :
+							  Note::pitchToKey( nPitch ),
+							nPitch == PITCH_INVALID ? ppNote->getOctave() :
+							  Note::pitchToOctave( nPitch ),
+							ppNote->getProbability(),
+							/* bIsDelete */ false,
+							ppNote->getNoteOff() ) );
+				}
+			}
+		}
+	}
+	pHydrogenApp->endUndoMacro();
+	delete pPatternList;
 }

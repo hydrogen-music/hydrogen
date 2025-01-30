@@ -31,15 +31,29 @@ void PatternTest::testPurgeInstrument()
 {
 	___INFOLOG( "" );
 	auto pInstrument = std::make_shared<Instrument>();
-	Note *pNote = new Note( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
+	auto pNote = std::make_shared<Note>( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
 
-	Pattern *pPattern = new Pattern();
-	pPattern->insert_note( pNote );
-	CPPUNIT_ASSERT( pPattern->find_note( 1, -1, pInstrument) != nullptr );
+	auto pPattern = std::make_shared<Pattern>();
+	pPattern->insertNote( pNote );
+	CPPUNIT_ASSERT( pPattern->findNote(
+						1, pInstrument->get_id(),
+						pInstrument->getType(),
+						static_cast<Note::Key>(KEY_MIN),
+						static_cast<Note::Octave>(OCTAVE_DEFAULT) ) != nullptr );
+	auto notes = pPattern->findNotes( 1, pInstrument->get_id(),
+									  pInstrument->getType() );
+	CPPUNIT_ASSERT( notes.size() == 1 );
+	notes.clear();
 
-	pPattern->purge_instrument( pInstrument );
-	CPPUNIT_ASSERT( pPattern->find_note( 1, -1, pInstrument) == nullptr );
+	pPattern->purgeInstrument( pInstrument );
+	CPPUNIT_ASSERT( pPattern->findNote(
+						1, pInstrument->get_id(),
+						pInstrument->getType(),
+						static_cast<Note::Key>(KEY_MIN),
+						static_cast<Note::Octave>(OCTAVE_DEFAULT) ) == nullptr );
+	notes = pPattern->findNotes( 1, pInstrument->get_id(),
+								 pInstrument->getType() );
+	CPPUNIT_ASSERT( notes.size() == 0 );
 
-	delete pPattern;
 	___INFOLOG( "passed" );
 }

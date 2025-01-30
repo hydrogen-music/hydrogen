@@ -34,7 +34,6 @@
 #include <core/Basics/Playlist.h>
 #include <core/EventQueue.h>
 #include <core/H2Exception.h>
-#include <core/Helpers/Files.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Lilipond/Lilypond.h>
@@ -149,14 +148,17 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	setFont( font );
 	m_pQApp->setFont( font );
 
-	h2app = new HydrogenApp( this );
+	// Setup undo stack
+	auto pUndoStack = new QUndoStack( this );
+
+	h2app = new HydrogenApp( this, pUndoStack );
 	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();
 	// The menu bar will be created anew each time the shortcuts are altered in
 	// the Preferences. But we need to wire the corresponding actions only once
 	// or they are triggered each 1 + N times the number of shortcut changes.
-	connect( h2app->m_pUndoStack, &QUndoStack::canUndoChanged,
+	connect( pUndoStack, &QUndoStack::canUndoChanged,
 			 []( bool bCanUndo ) {
 				 auto pUndoAction =
 					 HydrogenApp::get_instance()->getMainForm()->m_pUndoAction;
@@ -164,7 +166,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 					 pUndoAction->setEnabled( bCanUndo );
 				 }
 			 } );
-	connect( h2app->m_pUndoStack, &QUndoStack::canRedoChanged,
+	connect( pUndoStack, &QUndoStack::canRedoChanged,
 			 []( bool bCanRedo ) {
 				 auto pRedoAction =
 					 HydrogenApp::get_instance()->getMainForm()->m_pRedoAction;
@@ -224,7 +226,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 
 	auto pCommonStrings = h2app->getCommonStrings();
 
-	m_pUndoView = new QUndoView( h2app->m_pUndoStack );
+	m_pUndoView = new QUndoView( pUndoStack );
 	m_pUndoView->setWindowTitle( QString( "Hydrogen - %1" )
 								 .arg( pCommonStrings->getUndoHistoryTitle() ) );
 
@@ -854,8 +856,6 @@ bool MainForm::action_file_save_as()
 #else
 		h2app->showStatusBarMessage( tr("Song saved as: ") + sDefaultFilename );
 #endif
-		
-		h2app->updateWindowTitle();
 
 		if ( sLastFilename == Filesystem::empty_path( Filesystem::Type::Song ) ) {
 			// In case we stored the song for the first time, we remove the
@@ -879,7 +879,8 @@ bool MainForm::action_file_save()
 {
 	return action_file_save( "" );
 }
-bool MainForm::action_file_save( const QString& sNewFilename )
+bool MainForm::action_file_save( const QString& sNewFilename,
+								 bool bTriggerMessage )
 {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -928,8 +929,11 @@ bool MainForm::action_file_save( const QString& sNewFilename )
 		return false;
 	}
 
-	h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
+	if ( bTriggerMessage ) {
+		h2app->showStatusBarMessage( tr("Song saved into") + QString(": ") +
 									 sFilename );
+	}
+
 	return true;
 }
 
@@ -1002,10 +1006,11 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_export_pattern_as( int nPatternRow )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pPref = Preferences::get_instance();
 
-	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencerStop();
 	}
 
@@ -1018,16 +1023,12 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		return;
 	}
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ){
 		return;
 	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		return;
-	}
-	
-	Pattern *pPattern = pSong->getPatternList()->get( nPatternRow );
+
+	auto pPattern = pSong->getPatternList()->get( nPatternRow );
 	if ( pPattern == nullptr ){
 		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
 				  .arg( nPatternRow ) );
@@ -1039,15 +1040,16 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		sPath = Filesystem::patterns_dir();
 	}
 
-	QString title = tr( "Save Pattern as ..." );
+	const QString sTitle = tr( "Save Pattern as ..." );
 	FileDialog fd(this);
-	fd.setWindowTitle( title );
+	fd.setWindowTitle( sTitle );
 	fd.setDirectory( sPath );
-	fd.selectFile( pPattern->get_name() );
+	fd.selectFile( pPattern->getName() );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
+	fd.setSidebarUrls( fd.sidebarUrls() <<
+					   QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
 	fd.setDefaultSuffix( Filesystem::patterns_ext );
 
 	if ( fd.exec() != QDialog::Accepted ) {
@@ -1056,25 +1058,22 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
 	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
-	QString filePath = fileInfo.absoluteFilePath();
+	QString sFilePath = fileInfo.absoluteFilePath();
 
-	QString originalName = pPattern->get_name();
-	pPattern->set_name( fileInfo.baseName() );
-	QString path = Files::savePatternPath( filePath, pPattern, pSong,
-										   pDrumkit->getName() );
-	pPattern->set_name( originalName );
-
-	if ( path.isEmpty() ) {
+	QString sOriginalName = pPattern->getName();
+	pPattern->setName( fileInfo.baseName() );
+	if ( ! pPattern->save( sFilePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
-		return;
+	}
+	else {
+		h2app->showStatusBarMessage( tr( "Pattern saved." ) );
+
+		if ( sFilePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
+			pHydrogen->getSoundLibraryDatabase()->updatePatterns();
+		}
 	}
 
-	h2app->showStatusBarMessage( tr( "Pattern saved." ) );
-
-	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
-		pHydrogen->getSoundLibraryDatabase()->updatePatterns();
-
-	}
+	pPattern->setName( sOriginalName );
 }
 
 void MainForm::action_file_open() {
@@ -1118,7 +1117,7 @@ void MainForm::action_file_openPattern()
 
 		for ( const auto& ssFilename : fd.selectedFiles() ) {
 
-			auto pNewPattern = Pattern::load_file( ssFilename );
+			auto pNewPattern = Pattern::load( ssFilename );
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {
@@ -1131,7 +1130,7 @@ void MainForm::action_file_openPattern()
 				
 				SE_insertPatternAction* pAction =
 					new SE_insertPatternAction( nRow, pNewPattern );
-				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+				HydrogenApp::get_instance()->pushUndoCommand( pAction );
 			}
 		}
 	}
@@ -1317,16 +1316,6 @@ void MainForm::action_window_showAutomationArea()
 	h2app->getSongEditorPanel()->toggleAutomationAreaVisibility();
 }
 
-
-
-void MainForm::action_drumkit_addInstrument()
-{
-	auto pAction = new SE_addInstrumentAction(
-		std::make_shared<Instrument>(), -1,
-		SE_addInstrumentAction::Type::AddEmptyInstrument );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
-}
-
 void MainForm::action_drumkit_open()
 {
 	DrumkitOpenDialog dialog( this );
@@ -1336,12 +1325,10 @@ void MainForm::action_drumkit_open()
 
 void MainForm::action_drumkit_new()
 {
-	switch(
-			 QMessageBox::information(
-				 this, "Hydrogen",
-				 tr( "Replace the drumkit of the current song with an empty one?" ),
-							QMessageBox::Cancel | QMessageBox::Ok,
-							QMessageBox::Cancel)) {
+	switch( QMessageBox::information(
+				this, "Hydrogen",
+				tr( "Replace the drumkit of the current song with an empty one?" ),
+				QMessageBox::Cancel | QMessageBox::Ok, QMessageBox::Cancel ) ) {
 	case QMessageBox::Ok:
 		// ok btn pressed
 		break;
@@ -1353,26 +1340,65 @@ void MainForm::action_drumkit_new()
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	// Remove all instruments
 	auto pNewDrumkit = Drumkit::getEmptyDrumkit();
 
-	auto pAction = new SE_switchDrumkitAction(
-		pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(),
-		SE_switchDrumkitAction::Type::NewDrumkit );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	pHydrogenApp->pushUndoCommand(
+		new SE_switchDrumkitAction(
+			pNewDrumkit, Hydrogen::get_instance()->getSong()->getDrumkit(),
+			SE_switchDrumkitAction::Type::NewDrumkit ) );
+	pHydrogenApp->showStatusBarMessage( pCommonStrings->getActionNewDrumkit() );
 }
 
-void MainForm::functionDeleteInstrument( int nInstrument )
+void MainForm::action_drumkit_addInstrument(
+	std::shared_ptr<H2Core::Instrument> pInstrument )
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	if ( pInstrument == nullptr ) {
+		pInstrument = std::make_shared<Instrument>();
+	}
+
+	pHydrogenApp->pushUndoCommand(
+		new SE_addInstrumentAction(
+			pInstrument, -1, SE_addInstrumentAction::Type::AddEmptyInstrument ) );
+	pHydrogenApp->showStatusBarMessage(
+		pCommonStrings->getActionAddInstrument() );
+
+	// Select the new instrument. It will be appended to the instrument list of
+	// the current drumkit.
+	auto pPatternEditorPanel = pHydrogenApp->getPatternEditorPanel();
+	pPatternEditorPanel->updateDB();
+	pPatternEditorPanel->setSelectedRowDB(
+		pSong->getDrumkit()->getInstruments()->size() - 1 );
+	pPatternEditorPanel->updateEditors();
+	pPatternEditorPanel->ensureVisible();
+}
+
+void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
+{
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
-	auto pSelectedInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
+	auto pSelectedInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentIndex );
 	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
+		ERRORLOG( QString( "Could not find instrument corresponding to index [%1]" )
+				  .arg( nInstrumentIndex ) );
 		return;
 	}
 
@@ -1383,15 +1409,55 @@ void MainForm::functionDeleteInstrument( int nInstrument )
 			std::make_shared<Instrument>(), pSelectedInstrument,
 			SE_replaceInstrumentAction::Type::DeleteLastInstrument,
 			pSelectedInstrument->get_name() );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+		pHydrogenApp->pushUndoCommand( pAction );
 	}
 	else {
 		auto pAction = new SE_deleteInstrumentAction(
-			pSelectedInstrument, nInstrument );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+			pSelectedInstrument, nInstrumentIndex );
+		pHydrogenApp->pushUndoCommand( pAction );
 	}
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteInstrument() )
+		.arg( pSelectedInstrument->get_name() ) );
 }
 
+void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
+{
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+	auto pInstrument =
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentIndex );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument in row [%1]" )
+				  .arg( nInstrumentIndex ) );
+		return;
+	}
+
+	const QString sOldName = pInstrument->get_name();
+	bool bIsOkPressed;
+	const QString sNewName = QInputDialog::getText(
+		nullptr, "Hydrogen", pCommonStrings->getActionRenameInstrument(),
+		QLineEdit::Normal, sOldName, &bIsOkPressed );
+	if ( bIsOkPressed ) {
+		auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
+		pNewInstrument->set_name( sNewName );
+
+		pHydrogenApp->pushUndoCommand(
+			new SE_replaceInstrumentAction(
+				pNewInstrument, pInstrument,
+				SE_replaceInstrumentAction::Type::RenameInstrument,
+				sNewName, sOldName ) );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+			.arg( pCommonStrings->getActionRenameInstrument() )
+			.arg( sOldName ).arg( sNewName ) );
+	}
+}
 
 void MainForm::action_drumkit_export() {
 
@@ -2241,10 +2307,14 @@ void MainForm::openUndoStack()
 }
 
 void MainForm::action_undo(){
+	// Be sure to close an existing context (cusotm macro).
+	h2app->endUndoContext();
 	h2app->m_pUndoStack->undo();
 }
 
 void MainForm::action_redo(){
+	// Be sure to close an existing context (cusotm macro).
+	h2app->endUndoContext();
 	h2app->m_pUndoStack->redo();
 }
 
@@ -2285,7 +2355,8 @@ void MainForm::action_drumkit_properties() {
 	editDrumkitProperties( false, false );
 }
 
-void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession )
+void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession,
+									  int nInstrumentID )
 {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -2303,8 +2374,8 @@ void MainForm::editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession 
 	// leaked into the current song.
 	auto pNewDrumkit = std::make_shared<Drumkit>(pDrumkit);
 
-	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bWriteToDisk,
-									bSaveToNsmSession );
+	DrumkitPropertiesDialog dialog( nullptr, pNewDrumkit, ! bWriteToDisk,
+									bSaveToNsmSession, nInstrumentID );
 	dialog.exec();
 }
 
@@ -2368,7 +2439,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorPosition();
+		const int nCursorColumn = pHydrogenApp->getPatternEditorPanel()->getCursorColumn();
 		
 		if ( ! H2Core::CoreActionController::locateToTick( nCursorColumn ) ) {
 			// Cursor is at a position it is not allowed to locate to.
@@ -2385,8 +2456,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
+	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
@@ -2396,10 +2466,17 @@ bool MainForm::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit ) {
 		return false;
 	}
 
-	auto pAction = new SE_switchDrumkitAction(
-		pTargetKit, Hydrogen::get_instance()->getSong()->getDrumkit(),
-		SE_switchDrumkitAction::Type::SwitchDrumkit );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	pHydrogenApp->pushUndoCommand(
+		new SE_switchDrumkitAction(
+			pTargetKit, pSong->getDrumkit(),
+			SE_switchDrumkitAction::Type::SwitchDrumkit ) );
+
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionLoadDrumkit() )
+		.arg( pTargetKit->getName() ) );
 
 	return true;
 }
@@ -2440,10 +2517,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	}
 	
 	const auto actions = pShortcuts->getActions( keySequence );
+	const auto actionInfoMap = pShortcuts->getActionInfoMap();
 	for ( const auto& action : actions ) {
 
-		const QString sTitle =
-			pShortcuts->getActionInfoMap().at( action ).sDescription;
+		if ( actionInfoMap.find( action ) == actionInfoMap.end() ) {
+			continue;
+		}
+
+		const QString sTitle = actionInfoMap.at( action ).sDescription;
 		
 		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
 			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
@@ -2451,7 +2532,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 
 			CoreActionController::handleNote(
 				static_cast<int>(action) - 400 + MidiMessage::instrumentOffset,
-				0.8, false );
+				VELOCITY_DEFAULT, false );
 		}
 		else if ( static_cast<int>(action) >
 				  static_cast<int>(Shortcuts::Action::FirstWith1Args) &&
@@ -2612,7 +2693,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				}
 				else if ( action == Shortcuts::Action::StripPan ) {
 					sAction = "PAN_ABSOLUTE";
-					sLabel1 = pCommonStrings->getInputCapturePan();
+					sLabel1 = pCommonStrings->getNotePropertyPan();
 				}
 				else if ( action == Shortcuts::Action::StripFilterCutoff ) {
 					sAction = "FILTER_CUTOFF_LEVEL_ABSOLUTE";

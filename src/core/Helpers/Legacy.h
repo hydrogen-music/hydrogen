@@ -96,7 +96,7 @@ class Legacy : public H2Core::Object<Legacy> {
 		 * \param pattern_path is a path to an xml file
 		 * \return a Pattern on success, 0 otherwise
 		 */
-		static Pattern* load_drumkit_pattern( const QString& pattern_path );
+		static std::shared_ptr<Pattern> loadPattern( const QString& pattern_path );
 		/**
 		 * load playlist from a file
 		 * \param pl_path is a path to an xml file

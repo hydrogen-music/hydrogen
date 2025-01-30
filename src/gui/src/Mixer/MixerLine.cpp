@@ -49,6 +49,7 @@ using namespace H2Core;
 MixerLine::MixerLine(QWidget* parent, int nInstr)
  : PixmapWidget( parent )
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	m_fMaxPeak = 0.0;
 	m_nActivity = 0;
@@ -83,7 +84,9 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	// Mute button
 
-	m_pMuteBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
+	m_pMuteBtn = new Button(
+		this, QSize( 22, 15 ), Button::Type::Toggle, "",
+		pCommonStrings->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
 	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteBtnClicked() ));
@@ -92,7 +95,9 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pMuteBtn->setAction(pAction);
 
 	// Solo button
-	m_pSoloBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
+	m_pSoloBtn = new Button(
+		this, QSize( 22, 15 ), Button::Type::Toggle, "",
+		pCommonStrings->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
 	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloBtnClicked() ));
@@ -101,10 +106,13 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pSoloBtn->setAction(pAction);
 
 	// pan rotary
-	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
+	m_pPanRotary = new Rotary(
+		this, Rotary::Type::Center, pCommonStrings->getNotePropertyPan(), false,
+		PAN_MIN, PAN_MAX );
 	m_pPanRotary->setObjectName( "PanRotary" );
 	m_pPanRotary->move( 6, 32 );
-	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
+	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
+			 this, SLOT( panChanged( WidgetWithInput* ) ) );
 	pAction = std::make_shared<Action>("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setValue( QString::number( 0 ));
@@ -399,6 +407,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	setPixmap( "/mixerPanel/masterMixerline_background.png" );
 
 	const auto pPref = Preferences::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	float fFalloffTemp = pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 	fFalloffTemp = (fFalloffTemp * 20) - 2;
@@ -432,22 +441,33 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	connect( m_pSwingRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	// Mute btn
-	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
+	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "",
+							 pCommonStrings->getBigMuteButton(), true );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
 	connect( m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ) );
 	pAction = std::make_shared<Action>("MUTE_TOGGLE");
 	m_pMuteBtn->setAction( pAction );
 
-	m_pMasterLbl = new ClickableLabel( this, QSize( 55, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getMasterLabel(), ClickableLabel::Color::Dark );
+	m_pMasterLbl = new ClickableLabel(
+		this, QSize( 55, 15 ), pCommonStrings->getMasterLabel(),
+		ClickableLabel::Color::Dark );
 	m_pMasterLbl->move( 14, 8 );
-	m_pHumanizeLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHumanizeLabel(), ClickableLabel::Color::Dark );
+	m_pHumanizeLbl = new ClickableLabel(
+		this, QSize( 51, 9 ), pCommonStrings->getHumanizeLabel(),
+		ClickableLabel::Color::Dark );
 	m_pHumanizeLbl->move( 62, 79 );
-	m_pSwingLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getVelocityLabel(), ClickableLabel::Color::Dark );
+	m_pSwingLbl = new ClickableLabel(
+		this, QSize( 51, 9 ), pCommonStrings->getNotePropertyVelocity(),
+		ClickableLabel::Color::Dark );
 	m_pSwingLbl->move( 62, 116 );
-	m_pTimingLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimingLabel(), ClickableLabel::Color::Dark );
+	m_pTimingLbl = new ClickableLabel(
+		this, QSize( 51, 9 ), pCommonStrings->getTimingLabel(),
+		ClickableLabel::Color::Dark );
 	m_pTimingLbl->move( 62, 153 );
-	m_pVelocityLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getSwingLabel(), ClickableLabel::Color::Dark );
+	m_pVelocityLbl = new ClickableLabel(
+		this, QSize( 51, 9 ), pCommonStrings->getSwingLabel(),
+		ClickableLabel::Color::Dark );
 	m_pVelocityLbl->move( 62, 190 );
 }
 

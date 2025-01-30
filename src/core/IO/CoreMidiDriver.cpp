@@ -238,24 +238,24 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 	return cmPortList;
 }
 
-void CoreMidiDriver::handleQueueNote(Note* pNote)
+void CoreMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
 		return;
 	}
-	if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
 		ERRORLOG( "Invalid note" );
 		return;
 	}
 
-	int channel = pNote->get_instrument()->get_midi_out_channel();
+	int channel = pNote->getInstrument()->get_midi_out_channel();
 	if (channel < 0) {
 		return;
 	}
 
-	int key = pNote->get_midi_key();
-	int velocity = pNote->get_midi_velocity();
+	int key = pNote->getMidiKey();
+	int velocity = pNote->getMidiVelocity();
 
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;
@@ -282,13 +282,13 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 		return;
 	}
 
-//	int channel = pNote->get_instrument()->get_midi_out_channel();
+//	int channel = pNote->getInstrument()->get_midi_out_channel();
 	if (channel < 0) {
 		return;
 	}
 
-//	int key = pNote->get_instrument()->get_midi_out_note();
-//	int velocity = pNote->get_velocity() * 127;
+//	int key = pNote->getInstrument()->get_midi_out_note();
+//	int velocity = pNote->getVelocity() * 127;
 
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;

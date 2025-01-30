@@ -318,10 +318,9 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 	}
 }
 
-Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
+std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 	WARNINGLOG( QString( "loading pattern with legacy code" ) );
 
-	Pattern* pPattern = nullptr;
 	XMLDoc doc;
 	if( !doc.read( pattern_path ) ) {
 		return nullptr;
@@ -346,7 +345,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 	int nSize = pattern_node.read_int( "size", -1, false, false );
 		
 	//default nDenominator = 4 since old patterns have not <denominator> setting
-	pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
+	auto pPattern = std::make_shared<Pattern>( sName, sInfo, sCategory, nSize, 4 );
 
 	// Try to load author and license present in .h2pattern created in Hydrogen
 	// version 1.0.0-beta till 1.2.X (within the <drumkit_pattern> element).
@@ -365,17 +364,21 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 
 		while ( !note_node.isNull() ) {
-			Note* pNote = nullptr;
+			std::shared_ptr<Note> pNote = nullptr;
 			unsigned nPosition = note_node.read_int( "position", 0 );
-			float fLeadLag = note_node.read_float( "leadlag", 0.0 , false , false);
-			float fVelocity = note_node.read_float( "velocity", 0.8f );
+			float fLeadLag = note_node.read_float(
+				"leadlag", LEAD_LAG_DEFAULT, false , false);
+			float fVelocity = note_node.read_float( "velocity", VELOCITY_DEFAULT );
 			float fPanL = note_node.read_float( "pan_L", 0.5 );
 			float fPanR = note_node.read_float( "pan_R", 0.5 );
 			float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
 
-			int nLength = note_node.read_int( "length", -1, true );
-			float nPitch = note_node.read_float( "pitch", 0.0, false, false );
-			float fProbability = note_node.read_float( "probability", 1.0 , false , false );
+			int nLength = note_node.read_int(
+				"length", LENGTH_ENTIRE_SAMPLE, true );
+			float nPitch = note_node.read_float(
+				"pitch", PITCH_DEFAULT, false, false );
+			float fProbability = note_node.read_float(
+				"probability", PROBABILITY_DEFAULT , false , false );
 			QString sKey = note_node.read_string( "key", "C0", false, false );
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
@@ -385,12 +388,13 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 				noteoff = true;
 			}
 
-			pNote = new Note( nullptr, nPosition, fVelocity, fPan, nLength, nPitch);
-			pNote->set_key_octave( sKey );
-			pNote->set_lead_lag(fLeadLag);
-			pNote->set_note_off( noteoff );
-			pNote->set_probability( fProbability );
-			pPattern->insert_note( pNote );
+			pNote = std::make_shared<Note>( nullptr, nPosition, fVelocity, fPan,
+											nLength, nPitch );
+			pNote->setKeyOctave( sKey );
+			pNote->setLeadLag( fLeadLag );
+			pNote->setNoteOff( noteoff );
+			pNote->setProbability( fProbability );
+			pPattern->insertNote( pNote );
 
 			note_node = note_node.nextSiblingElement( "note" );
 		}
@@ -408,22 +412,24 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 			XMLNode noteNode = noteListNode.firstChildElement( "note" );
 			while ( !noteNode.isNull() ) {
 
-				int nInstrId = noteNode.read_int( "instrument", -1 );
+				int nInstrId = noteNode.read_int( "instrument", EMPTY_INSTR_ID );
 
 				// convert to single pan parameter
 				float fPanL = noteNode.read_float( "pan_L", 0.5 );
 				float fPanR = noteNode.read_float( "pan_R", 0.5 );
 				float fPan = Sampler::getRatioPan( fPanL, fPanR );
 
-				Note* pNote = new Note( nullptr,
-										noteNode.read_int( "position", 0 ),
-										noteNode.read_float( "velocity", 0.8f ),
-										fPan,
-										noteNode.read_int( "length", -1, true ),
-										noteNode.read_float( "pitch", 0.0, false, false ) );
-				pNote->set_lead_lag( noteNode.read_float( "leadlag", 0.0, false, false ) );
+				auto pNote = std::make_shared<Note>(
+					nullptr,
+					noteNode.read_int( "position", 0 ),
+					noteNode.read_float( "velocity", VELOCITY_DEFAULT ),
+					fPan,
+					noteNode.read_int( "length", LENGTH_ENTIRE_SAMPLE, true ),
+					noteNode.read_float( "pitch", PITCH_DEFAULT, false, false ) );
+				pNote->setLeadLag( noteNode.read_float(
+										 "leadlag", LEAD_LAG_DEFAULT, false, false ) );
 
-				pPattern->insert_note( pNote );
+				pPattern->insertNote( pNote );
 
 				noteNode = noteNode.nextSiblingElement( "note" );
 			}
@@ -495,10 +501,10 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
 		PatternList* pPatternSequence = new PatternList();
 		QString sPatId = pPatternIDNode.firstChildElement().text();
 
-		Pattern* pPattern = nullptr;
+		std::shared_ptr<Pattern> pPattern = nullptr;
 		for ( const auto& ppPat : *pPatternList ) {
 			if ( ppPat != nullptr ) {
-				if ( ppPat->get_name() == sPatId ) {
+				if ( ppPat->getName() == sPatId ) {
 					pPattern = ppPat;
 					break;
 				}

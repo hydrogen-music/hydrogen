@@ -55,6 +55,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testSongLegacy);
 	CPPUNIT_TEST(testPreferencesFormatIntegrity);
 	CPPUNIT_TEST(testShippedPreferences);
+	CPPUNIT_TEST(testShippedThemes);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -109,6 +110,9 @@ class XmlTest : public CppUnit::TestCase {
 		void testPreferencesFormatIntegrity();
 		// Check whether the shipped default/fallback config file is up-to-date.
 		void testShippedPreferences();
+		// Check whether the shipped default/fallback .h2theme files are
+		// up-to-date.
+		void testShippedThemes();
 
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,

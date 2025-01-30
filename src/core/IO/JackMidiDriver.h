@@ -40,6 +40,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #define	JACK_MIDI_BUFFER_MAX 64	/* events */
 
@@ -63,7 +64,7 @@ public:
 	void JackMidiWrite(jack_nframes_t nframes);
 	void JackMidiRead(jack_nframes_t nframes);
 	
-	virtual void handleQueueNote(Note* pNote) override;
+	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) override;
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;

@@ -177,8 +177,6 @@ private:
 	 */
 	static void mergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
 							 std::vector<std::shared_ptr<Note>> newNotes );
-	static void mergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
-							 std::vector<Note*> newNotes );
 	static void resetSampler( const QString& sContext );
 	static void throwException( const QString& sMsg );
 

@@ -46,7 +46,8 @@ namespace H2Core
 DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 												  std::shared_ptr<Drumkit> pDrumkit,
 												  bool bEditingNotSaving,
-												  bool bSaveToNsmSession )
+												  bool bSaveToNsmSession,
+												  int nInstrumentID )
  : QDialog( pParent )
  , m_pDrumkit( pDrumkit )
  , m_bEditingNotSaving( bEditingNotSaving )
@@ -252,6 +253,17 @@ QTextEdit { \
 
 	updateLicensesTable();
 	updateTypesTable( bDrumkitWritable );
+
+	if ( nInstrumentID != EMPTY_INSTR_ID &&
+		 m_idToTypeMap.find( nInstrumentID ) != m_idToTypeMap.end() ) {
+		// Widget opened by double clicking a type of an instrument. Select the
+		// corresponding type.
+		auto pTypeWidget = m_idToTypeMap[ nInstrumentID ];
+		if ( pTypeWidget != nullptr ) {
+			tabWidget->setCurrentIndex( 1 );
+			pTypeWidget->setFocus( Qt::PopupFocusReason );
+		}
+	}
 }
 
 
@@ -343,6 +355,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	const auto pPref = Preferences::get_instance();
 	const auto pDatabase =
 		Hydrogen::get_instance()->getSoundLibraryDatabase();
+	m_idToTypeMap.clear();
 
 	if ( m_pDrumkit == nullptr ||
 		 m_pDrumkit->getInstruments() == nullptr ) {
@@ -420,6 +433,8 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 		typesTable->setCellWidget( nCell, 0, pInstrumentId );
 		typesTable->setCellWidget( nCell, 1, pInstrumentName );
 		typesTable->setCellWidget( nCell, 2, pInstrumentType );
+
+		m_idToTypeMap[ nInstrumentId ] = pInstrumentType;
 	};
 
 	int nnCell = 0;
@@ -595,7 +610,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			if ( ! bSuccess ) {
 				highlightDuplicates();
 				QMessageBox::warning( this, "Hydrogen",
-									  tr( "Instrument types must be unique!" ) );
+									  pCommonStrings->getErrorUniqueTypes() );
 				return;
 			}
 		}
@@ -732,19 +747,21 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		// TODO this affects mostly metadata and can be done more efficiently.
 		// But due to the license propagation into the instruments, we switch
 		// the entire kit for now.
-		auto pAction = new SE_switchDrumkitAction(
-			m_pDrumkit, pSong->getDrumkit(),
-			SE_switchDrumkitAction::Type::EditProperties );
-		pHydrogenApp->m_pUndoStack->push( pAction );
+		pHydrogenApp->pushUndoCommand(
+			new SE_switchDrumkitAction(
+				m_pDrumkit, pSong->getDrumkit(),
+				SE_switchDrumkitAction::Type::EditProperties ) );
 
 		// Since we hit save on the song's drumkit, we should also save the song
 		// for the sake of consistency.
-		pHydrogenApp->getMainForm()->action_file_save();
+		pHydrogenApp->getMainForm()->action_file_save( "", false );
 
 		if ( m_bEditingNotSaving ) {
 			// We are not saving the kit to the Sound Library and are done for
 			// now.
 			accept();
+			pHydrogenApp->showStatusBarMessage(
+				pCommonStrings->getActionEditCurrentDrumkitProperties() );
 			return;
 		}
 
@@ -769,7 +786,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	// Check whether there is already a kit present we would overwrite.
-	if ( Filesystem::dir_exists( m_pDrumkit->getPath(), false ) ) {
+	if ( Filesystem::dir_exists( m_pDrumkit->getPath(), true ) ) {
 		int nRes = QMessageBox::information(
 			this, "Hydrogen",
 			QString( "%1\n%2\n\n%3" )
@@ -793,6 +810,27 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 		ERRORLOG( "Saving of this drumkit failed." );
 		return;
+	}
+
+	if ( sOldPath != m_pDrumkit->getPath() ) {
+		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+			pHydrogenApp->showStatusBarMessage(
+				QString( "%1 -> [%2]" )
+				.arg( pCommonStrings->getActionSaveCurrentDrumkit() )
+				.arg( m_pDrumkit->getPath() ) );
+		}
+		else {
+			pHydrogenApp->showStatusBarMessage(
+				QString( "%1 [%2] -> [%3]" )
+				.arg( pCommonStrings->getActionSaveDrumkit() )
+				.arg( m_pDrumkit->getName() ).arg( m_pDrumkit->getPath() ) );
+		}
+	}
+	else {
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2]" )
+			.arg( pCommonStrings->getActionEditDrumkitProperties() )
+			.arg( m_pDrumkit->getName() ) );
 	}
 
 	// Copy the selected image into the drumkit folder (in case a file outside

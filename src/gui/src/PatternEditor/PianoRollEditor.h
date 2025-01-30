@@ -24,112 +24,108 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Note.h>
-#include "../EventListener.h"
-#include "../Selection.h"
 #include "PatternEditor.h"
-#include "NotePropertiesRuler.h"
-#include "../Widgets/WidgetWithScalableFont.h"
+#include "../Selection.h"
 
 #include <QtGui>
 #include <QtWidgets>
 
+#include <memory>
+#include <vector>
+
+namespace H2Core {
+	class Note;
+}
+
+class PitchLabel : public QLabel, public H2Core::Object<PitchLabel>
+{
+	H2_OBJECT(PitchLabel)
+	Q_OBJECT
+
+	public:
+		PitchLabel( QWidget* pParent, const QString& sText, int nHeight );
+		~PitchLabel();
+
+		void setBackgroundColor( const QColor& backgroundColor );
+		void updateStyleSheet();
+		void updateFont();
+		void setSelected( bool bSelected );
+
+	private:
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
+		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
+		virtual void paintEvent( QPaintEvent* ev) override;
+
+		QWidget* m_pParent;
+		QString m_sText;
+		QColor m_backgroundColor;
+		QColor m_textColor;
+		QColor m_cursorColor;
+		/** Whether the mouse pointer entered the boundary of the widget.*/
+		bool m_bEntered;
+		bool m_bSelected;
+};
+
 /** \ingroup docGUI*/
-class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object<PianoRollEditor>
+class PitchSidebar : public QWidget,
+					 public H2Core::Object<PitchSidebar> {
+	H2_OBJECT(PitchSidebar)
+	Q_OBJECT
+
+	public:
+		PitchSidebar( QWidget *parent, int nHeight, int nGridHeight );
+		~PitchSidebar();
+
+		void updateRows();
+
+		void setRowColor( int nRowIndex, const QColor& backgroundColor );
+		void updateStyleSheet();
+		void updateFont();
+		void selectedRow( int nRowIndex );
+
+		void rowPressed( QMouseEvent *ev, PitchLabel* pLabel );
+
+	private:
+		QMenu *m_pFunctionPopup;
+		QMenu *m_pFunctionPopupSub;
+
+		std::vector<PitchLabel*> m_rows;
+		int m_nHeight;
+		int m_nGridHeight;
+		int m_nRowClicked;
+};
+
+/** \ingroup docGUI*/
+class PianoRollEditor: public PatternEditor,
+					   public H2Core::Object<PianoRollEditor>
 {
     H2_OBJECT(PianoRollEditor)
     Q_OBJECT
 	public:
-		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
-						 QScrollArea *pScrollView );
+		PianoRollEditor( QWidget *pParent );
 		~PianoRollEditor();
-
-
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void songModeActivationEvent() override;
-		// ~ Implements EventListener interface
-
-		void addOrDeleteNoteAction( int nColumn,
-									int pressedLine,
-									int selectedPatternNumber,
-									int selectedinstrument,
-									int oldLength,
-									float oldVelocity,
-									float fOldPan,
-									float oldLeadLag,
-									int oldNoteKeyVal,
-									int oldOctaveKeyVal,
-									float fProbability,
-									bool noteOff,
-									bool isDelete );
-
-		void moveNoteAction( int nColumn,
-							 H2Core::Note::Octave octave,
-							 H2Core::Note::Key key,
-							 int nPattern,
-							 int nNewColumn,
-							 H2Core::Note::Octave newOctave,
-							 H2Core::Note::Key newKey,
-							 H2Core::Note *pNote);
-
 
 		// Selection manager interface
 		//! Selections are indexed by Note pointers.
 
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-	virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-		virtual QRect getKeyboardCursorRect() override;
 
+		QPoint noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const;
+
+		void updateFont();
+		void updateStyleSheet();
 
 	public slots:
-		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
-		virtual void deleteSelection() override;
-		virtual void paste() override;
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		void createBackground() override;
-		void drawPattern();
-		void drawFocus( QPainter& painter );
-		/**
-		 * Draw a note
-		 *
-		 * @param pNote Particular note to draw
-		 * @param pPainter Painting device
-		 * @param bIsForeground Whether the @a pNote is contained in the
-		 *   pattern currently shown in the pattern editor (the one
-		 *   selected in the song editor)
-		 */
-	void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
-
-		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
-							  int nNotekey, int nOctave,
-							  bool bDoAdd = true, bool bDoDelete = true );
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
-		
-		void finishUpdateEditor();
-		
-		bool m_bNeedsUpdate;
-		bool m_bNeedsBackgroundUpdate;
 
-		QPixmap *m_pBackground;
-		QPixmap *m_pTemp;
-
-		// Note pitch position of cursor
-		int m_nCursorPitch;
-		QPoint cursorPosition();
-
-		QScrollArea *m_pScrollView;
+		PitchSidebar* m_pPitchSidebar;
 };
 
 #endif

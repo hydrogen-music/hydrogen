@@ -20,45 +20,39 @@
  *
  */
 
-#include <core/config.h>
-#include <core/Version.h>
-#include <core/Hydrogen.h>
-#include <core/EventQueue.h>
-#include <core/FX/LadspaFX.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Helpers/Filesystem.h>
-
 #include "HydrogenApp.h"
-#include "CommonStrings.h"
-#include "PreferencesDialog/PreferencesDialog.h"
-#include "MainForm.h"
-#include "PlayerControl.h"
-#include "AudioEngineInfoForm.h"
-#include "FilesystemInfoForm.h"
-#include "LadspaFXProperties.h"
-#include "InstrumentRack.h"
-#include "Director.h"
-
-#include "PatternEditor/PatternEditorPanel.h"
-#include "PatternEditor/PatternEditorRuler.h"
-#include "PatternEditor/NotePropertiesRuler.h"
-#include "PatternEditor/PianoRollEditor.h"
-#include "PatternEditor/DrumPatternEditor.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
-#include "SongEditor/SongEditor.h"
-#include "SongEditor/SongEditorPanel.h"
-#include "PlaylistEditor/PlaylistEditor.h"
-#include "SampleEditor/SampleEditor.h"
-#include "Mixer/Mixer.h"
-#include "Mixer/MixerLine.h"
-#include "UndoActions.h"
 
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/PatternList.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/PatternList.h>
+#include <core/config.h>
+#include <core/EventQueue.h>
+#include <core/FX/LadspaFX.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Version.h>
 
+#include "AudioEngineInfoForm.h"
+#include "CommonStrings.h"
+#include "Director.h"
+#include "FilesystemInfoForm.h"
+#include "InstrumentRack.h"
+#include "LadspaFXProperties.h"
+#include "MainForm.h"
+#include "Mixer/Mixer.h"
+#include "PatternEditor/PatternEditorPanel.h"
+#include "PatternEditor/PatternEditorRuler.h"
+#include "PlayerControl.h"
+#include "PlaylistEditor/PlaylistEditor.h"
+#include "PreferencesDialog/PreferencesDialog.h"
+#include "SongEditor/SongEditor.h"
+#include "SongEditor/SongEditorPanel.h"
+#include "SampleEditor/SampleEditor.h"
+#include "UndoActions.h"
 #include "Widgets/AutomationPathView.h"
 #include "Widgets/InfoBar.h"
+
 
 #include <QtGui>
 #include <QtWidgets>
@@ -69,7 +63,7 @@ using namespace H2Core;
 
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 
-HydrogenApp::HydrogenApp( MainForm *pMainForm )
+HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  : m_pMainForm( pMainForm )
  , m_pMixer( nullptr )
  , m_pPatternEditorPanel( nullptr )
@@ -82,6 +76,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_nPreferencesUpdateTimeout( 100 )
  , m_bufferedChanges( H2Core::Preferences::Changes::None )
  , m_pMainScrollArea( new QScrollArea )
+ , m_pUndoStack( pUndoStack )
 {
 	m_pInstance = this;
 
@@ -97,9 +92,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()), this, SLOT(propagatePreferences()) );
 
 	m_pCommonStrings = std::make_shared<CommonStrings>();
-
-	//setup the undo stack
-	m_pUndoStack = new QUndoStack( this );
 
 	updateWindowTitle();
 
@@ -293,10 +285,11 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// PATTERN EDITOR
 	m_pPatternEditorPanel = new PatternEditorPanel( nullptr );
+	m_pPatternEditorPanel->createEditors();
 	// Sync the playhead position in all editors all objects are available.
 	m_pPatternEditorPanel->getPatternEditorRuler()->updatePosition( true );
 	WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
-	setWindowProperties( m_pPatternEditorPanel, patternEditorProp, SetWidth + SetHeight );
+	setWindowProperties( pSouthPanel, patternEditorProp, SetHeight );
 
 	pEditorHBox->addWidget( m_pPatternEditorPanel );
 	pEditorHBox->addWidget( m_pInstrumentRack );
@@ -379,7 +372,72 @@ InfoBar *HydrogenApp::addInfoBar() {
 	return pInfoBar;
 }
 
+void HydrogenApp::pushUndoCommand( QUndoCommand* pCommand,
+								   const QString& sContext ) {
+	if ( pCommand == nullptr ) {
+		return;
+	}
 
+	handleUndoContext( sContext, pCommand->text() );
+
+	m_pUndoStack->push( pCommand );
+}
+
+void HydrogenApp::beginUndoMacro( const QString& sText, const QString& sContext ) {
+	handleUndoContext( sContext, sText );
+
+	if ( sContext.isEmpty() && m_pUndoStack->count() > 0 &&
+		 ! m_pUndoStack->canUndo() && ! m_pUndoStack->canRedo() ) {
+		// There is most probably already a macro which has not been ended yet.
+		// We do not support nested marcos yet, because we a) do not need them
+		// yet and b) want to ensure all beginMacro() and endMacro() are
+		// properly balanced.
+		WARNINGLOG( "There was already an unbalanced macro. Ending it first." );
+		m_pUndoStack->endMacro();
+	}
+
+	m_pUndoStack->beginMacro( sText );
+}
+
+void HydrogenApp::endUndoMacro( const QString& sContext ) {
+	handleUndoContext( sContext, "endUndoMacro" );
+
+	m_pUndoStack->endMacro();
+}
+
+void HydrogenApp::endUndoContext() {
+	handleUndoContext( "", "" );
+}
+
+void HydrogenApp::handleUndoContext( const QString& sContext,
+									 const QString& sText ) {
+	if ( sContext == m_sLastUndoContext ) {
+		return;
+	}
+
+	// Close the previous batch of nested macros corresponding to an action.
+	if ( sContext != m_sLastUndoContext && ! m_sLastUndoContext.isEmpty() &&
+		 m_pUndoStack->count() > 0 ) {
+		if ( m_pUndoStack->canUndo() || m_pUndoStack->canRedo() ) {
+			WARNINGLOG( QString( "Undo stack does not seem to be in last context [%1]. Trying to end regardlessly." )
+						.arg( m_sLastUndoContext ) );
+		}
+		m_pUndoStack->endMacro();
+
+		if ( ! m_pUndoStack->canUndo() && ! m_pUndoStack->canRedo() ) {
+			ERRORLOG( QString( "Undo stack was in nested macro while ending last context [%1]" )
+					  .arg( m_sLastUndoContext ) );
+			m_pUndoStack->endMacro();
+		}
+	}
+
+	// Start a new macro for this context
+	if ( ! sContext.isEmpty() ) {
+		m_pUndoStack->beginMacro( sText );
+	}
+
+	m_sLastUndoContext = sContext;
+}
 
 void HydrogenApp::currentTabChanged(int index)
 {
@@ -724,7 +782,9 @@ void HydrogenApp::XRunEvent() {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;
 	}
-	showStatusBarMessage( QString( "XRUNS [%1]!!!" ) .arg( pAudioDriver->getXRuns() ) );
+	showStatusBarMessage(
+		QString( "XRUNS [%1]!!!" ).arg( pAudioDriver->getXRuns() ),
+		"HydrogenApp::XRunEvent" );
 }
 
 void HydrogenApp::updateWindowTitle()
@@ -828,17 +888,6 @@ void HydrogenApp::showSampleEditor( const QString& name, int mSelectedComponemt,
 	QApplication::restoreOverrideCursor();
 }
 
-void HydrogenApp::drumkitLoadedEvent(){
-	const auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSong() != nullptr &&
-		 pHydrogen->getSong()->getDrumkit() != nullptr ) {
-		const auto pDrumkit = pHydrogen->getSong()->getDrumkit();
-		showStatusBarMessage( QString( tr( "Drumkit [%1] loaded from [%2]" )
-								  .arg( pDrumkit->getName() )
-								  .arg( pDrumkit->getPath() ) ) );
-	}
-}
-
 void HydrogenApp::songModifiedEvent()
 {
 	updateWindowTitle();
@@ -896,6 +945,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
 				pListener->instrumentParametersChangedEvent( event.value );
+				break;
+
+			case EVENT_INSTRUMENT_MUTE_SOLO_CHANGED:
+				pListener->instrumentMuteSoloChangedEvent( event.value );
 				break;
 
 			case EVENT_MIDI_ACTIVITY:
@@ -1039,57 +1092,76 @@ void HydrogenApp::onEventQueueTimer()
 
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstrument = pSong->getDrumkit()->getInstruments()->
-			get( pQueue->m_addMidiNoteVector[0].m_row );
+		auto pSong = Hydrogen::get_instance()->getSong();
+		if ( pSong == nullptr ) {
+			return;
+		}
+
+		// The core registers the ID of the instrument the note is associated
+		// with. We have to correlate it to a specific row in the DB of the
+		// pattern editor.
+		bool bFound = false;
+		int nRow = 0;
+		DrumPatternRow row;
+		for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
+			if ( rrow.nInstrumentID ==
+				 pQueue->m_addMidiNoteVector[0].m_instrumentId ) {
+				row = rrow;
+				bFound = true;
+				break;
+			}
+			++nRow;
+		}
+
+		if ( ! bFound ) {
+			ERRORLOG( QString( "Could not find row in Pattern Editor corresponding to instrument ID [%1]" )
+					  .arg( pQueue->m_addMidiNoteVector[0].m_instrumentId ) );
+			return;
+		}
 		
 		// find if a (pitch matching) note is already present
-		Note* pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )->
-			find_note( pQueue->m_addMidiNoteVector[0].m_column,
-					   pQueue->m_addMidiNoteVector[0].m_column,
-					   pInstrument,
-					   pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-					   pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+		const auto pOldNote = pSong->getPatternList()->
+			get( pQueue->m_addMidiNoteVector[0].m_pattern )->
+			findNote( pQueue->m_addMidiNoteVector[0].m_column,
+					  row.nInstrumentID, row.sType,
+					  pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+					  pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
 		
-		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-		pUndoStack->beginMacro( tr( "Input Midi Note" ) );
-		if( pOldNote ) { // note found => remove it
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pOldNote->get_position(),
-																	 pOldNote->get_instrument_id(),
-																	 pQueue->m_addMidiNoteVector[0].m_pattern,
-																	 pOldNote->get_length(),
-																	 pOldNote->get_velocity(),
-																	 pOldNote->getPan(),
-																	 pOldNote->get_lead_lag(),
-																	 pOldNote->get_key(),
-																	 pOldNote->get_octave(),
-																	 pOldNote->get_probability(),
-																	 /*isDelete*/ true,
-																	 /*hearNote*/ false,
-																	 /*isMidi*/ false,
-																	 /*isInstrumentMode*/ false,
-																	 /*isNoteOff*/ false );
-			pUndoStack->push( action );
+		beginUndoMacro( tr( "Input Midi Note" ) );
+		if ( pOldNote != nullptr ) { // note found => remove it
+			pushUndoCommand( new SE_addOrRemoveNoteAction(
+								 pOldNote->getPosition(),
+								 pOldNote->getInstrumentId(),
+								 pOldNote->getType(),
+								 pQueue->m_addMidiNoteVector[0].m_pattern,
+								 pOldNote->getLength(),
+								 pOldNote->getVelocity(),
+								 pOldNote->getPan(),
+								 pOldNote->getLeadLag(),
+								 pOldNote->getKey(),
+								 pOldNote->getOctave(),
+								 pOldNote->getProbability(),
+								 /*isDelete*/ true,
+								 /*isNoteOff*/ false ) );
 		}
 		
 		// add the new note
-		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
-																	 pQueue->m_addMidiNoteVector[0].m_row,
-																	 pQueue->m_addMidiNoteVector[0].m_pattern,
-																	 pQueue->m_addMidiNoteVector[0].m_length,
-																	 pQueue->m_addMidiNoteVector[0].f_velocity,
-																	 pQueue->m_addMidiNoteVector[0].f_pan,
-																	 0.0,
-																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-																	 1.0f,
-																	 /*isDelete*/ false,
-																	 /*hearNote*/ false,
-																	 pQueue->m_addMidiNoteVector[0].b_isMidi,
-																	 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
-																	 /*isNoteOff*/ false );
-		pUndoStack->push( action );
-		pUndoStack->endMacro();
+		pushUndoCommand( new SE_addOrRemoveNoteAction(
+							 pQueue->m_addMidiNoteVector[0].m_column,
+							 row.nInstrumentID,
+							 row.sType,
+							 pQueue->m_addMidiNoteVector[0].m_pattern,
+							 pQueue->m_addMidiNoteVector[0].m_length,
+							 pQueue->m_addMidiNoteVector[0].f_velocity,
+							 pQueue->m_addMidiNoteVector[0].f_pan,
+							 LEAD_LAG_DEFAULT,
+							 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+							 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+							 PROBABILITY_DEFAULT,
+							 /*isDelete*/ false,
+							 /*isNoteOff*/ false ) );
+		endUndoMacro();
+
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
 	}
 }
@@ -1214,16 +1286,12 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		// Cleanup
 		closeFXProperties();
 		m_pUndoStack->clear();
-		
+
 		// Update GUI components
 		updateWindowTitle();
 		
 	} else if ( nValue == 1 ) {
-		
-		QString sFilename = pSong->getFilename();
-		
 		// Song was saved.
-		showStatusBarMessage( tr("Song saved as: ") + sFilename );
 		updateWindowTitle();
 		
 	}

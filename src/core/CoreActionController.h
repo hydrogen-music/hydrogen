@@ -346,6 +346,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * number, etc. */
 		static bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
 									   std::shared_ptr<Instrument> pOldInstrument );
+		/** Moves instrument @a nSourceIndex of the instrument list of the
+		 * current drumkit to index @a nTargetIndex.
+		 *
+		 * Note that both @a nSourceIndex and @a nTargetIndex are the position
+		 * within the instrument list and _not_ the ID of the instrument (which
+		 * stays the same during the move action). */
+		static bool moveInstrument( int nSourceIndex, int nTargetIndex );
 
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
@@ -390,7 +397,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * @return bool true on success
 		 */
-		static bool setPattern( Pattern* pPattern, int nPatternNumber );
+		static bool setPattern( std::shared_ptr<Pattern> pPattern,
+								int nPatternNumber );
+		/** Selects a pattern from the current pattern list while taking into
+		 * account whether the pattern editor is currently locked.
+		 *
+		 * @param nPatternNumber Row the pattern will be added to.
+		 *
+		 * @return bool true on success
+		 */
+		static bool selectPattern( int nPatternNumber );
 		/** Removes a pattern from the pattern list.
 		 *
 		 * @param nPatternNumber Specifies the position/row of the pattern.

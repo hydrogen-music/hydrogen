@@ -36,6 +36,10 @@
 
 #include <core/Preferences/Preferences.h>
 
+namespace H2Core {
+	class Pattern;
+}
+
 //! SelectionWidget defines the interface used by the Selection manager to communicate with a widget
 //! implementing selection, and provides for event translation, testing for intersection with selectable
 //! objects, keyboard input cursor geometry, and screen refresh. It must be subclassed and
@@ -56,6 +60,8 @@ public:
 	//! Can elements be dragged as well as being selected? This may change to suit widget's current state.
 	virtual bool canDragElements() { return true; }
 
+		virtual bool canMoveElements() const { return true; }
+
 	//! Calculate screen space occupied by keyboard cursor
 	virtual QRect getKeyboardCursorRect() = 0;
 
@@ -65,6 +71,18 @@ public:
 	//! Selection or selection-related visual elements have changed, widget needs to be updated.
 	//! At a minimum, the widget's own update() method should be called.
 	virtual void updateWidget() = 0;
+
+		/** Retrieves a resolution-dependent margin determining how many pixel a
+		 * note is allowed to be away from mouse cursor to still be selected. */
+		virtual int getCursorMargin( QInputEvent* pEvent ) const = 0;
+
+		/** Retrieve all elements currently hovered by the mouse pointer. To
+		 * ease selection in the pattern editors, a resolution-dependent margin
+		 * @a nCursorMargin can be provided. The closest elements within this
+		 * margin will be selected. */
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) = 0;
 
 	//! Inform the client that we're deselecting elements.
 	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) {
@@ -163,6 +181,34 @@ public slots:
 	}
 };
 
+//! @name Selection gestures
+//!
+//! The Selection class implements a few multi-step gestures:
+//!    - Dragging a rectangular selection lasso
+//!    - Dragging a selection to reposition it
+//! Both of these are supported by mouse or by keyboard.
+//!
+//! @dot
+//! digraph "states" {
+//!   Idle -> MouseLasso [ label = "startDrag" ];
+//!   MouseLasso -> Idle [ label = "endDrag" ];
+//!   Idle -> MouseMoving [ label = "startDrag over selected" ];
+//!   MouseMoving -> Idle [ label = "endDrag" ];
+//!   Idle -> KeyboardLasso [ label = "Select with keyboard (shift)" ];
+//!   KeyboardLasso -> Idle [ label = "any other input" ];
+//!   KeyboardLasso -> KeyboardMoving [ label = "Return" ];
+//!   Idle -> KeyboardMoving [ label = "Return over selected" ];
+//!   KeyboardMoving -> Idle [ label = "Return or escape" ];
+//! }
+//! @enddot
+enum SelectionState {
+	Idle,
+	MouseLasso,
+	MouseMoving,
+	KeyboardLasso,
+	KeyboardMoving
+};
+
 //! Selection management for editor widgets
 //!
 //! This template class bundles up the functionality necessary for
@@ -201,7 +247,6 @@ class Selection {
 	std::shared_ptr< SelectionGroup > m_pSelectionGroup;
 	//! @}
 
-
 private:
 	SelectionWidget< Elem > *m_pWidget;
 
@@ -228,32 +273,15 @@ private:
 	QMouseEvent *m_pClickEvent;	   //!< Mouse event to deliver as 'click' or 'drag' events
 	//! @}
 
-
-	//! @name Selection gestures
-	//!
-	//! The Selection class implements a few multi-step gestures:
-	//!    - Dragging a rectangular selection lasso
-	//!    - Dragging a selection to reposition it
-	//! Both of these are supported by mouse or by keyboard.
-	//!
-	//! @dot
-	//! digraph "states" {
-	//!   Idle -> MouseLasso [ label = "startDrag" ];
-	//!   MouseLasso -> Idle [ label = "endDrag" ];
-	//!   Idle -> MouseMoving [ label = "startDrag over selected" ];
-	//!   MouseMoving -> Idle [ label = "endDrag" ];
-	//!   Idle -> KeyboardLasso [ label = "Select with keyboard (shift)" ];
-	//!   KeyboardLasso -> Idle [ label = "any other input" ];
-	//!   KeyboardLasso -> KeyboardMoving [ label = "Return" ];
-	//!   Idle -> KeyboardMoving [ label = "Return over selected" ];
-	//!   KeyboardMoving -> Idle [ label = "Return or escape" ];
-	//! }
-	//! @enddot
 	//! @{
-	enum SelectionState { Idle, MouseLasso, MouseMoving, KeyboardLasso, KeyboardMoving } m_selectionState;
+		SelectionState m_selectionState;
 
 	QRect m_lasso;				//!< Dimensions of a current selection lasso
 	QPoint m_movingOffset;		//!< Offset that a selection has been moved by
+		/** Keyboard modifiers used throughout the selection event/handling.
+		 * Note that they can be changed by the user at any time of the
+		 * interaction.*/
+		Qt::KeyboardModifiers m_modifiers;
 	QRect m_keyboardCursorStart; //!< Keyboard cursor position at the start of a keyboard gesture
 	//! @}
 
@@ -274,6 +302,7 @@ public:
 		m_mouseState = Up;
 		m_pClickEvent = nullptr;
 		m_selectionState = Idle;
+		m_modifiers = Qt::NoModifier;
 		m_pSelectionGroup = std::make_shared< SelectionGroup >();
 		m_pSelectionGroup->m_selectionWidgets.insert( w );
 		m_pDragScroller = nullptr;
@@ -359,6 +388,12 @@ public:
 		}
 	}
 
+		/** @returns the keyboard modifiers associated with the selection
+		 * event. */
+		Qt::KeyboardModifiers getModifiers() const {
+			return m_modifiers;
+		}
+
 	//! @name Selection iteration
 	//!
 	//! Shorthand iteration is provided so that ranged for loops can be used for convenience:
@@ -413,6 +448,8 @@ public:
 
 	void mousePressEvent( QMouseEvent *ev ) {
 
+		m_modifiers = ev->modifiers();
+
 		// macOS ctrl+left-click is reported as a
 		// right-click. However, only the 'press' event is reported,
 		// there are no move or release events. This is enough for
@@ -454,6 +491,8 @@ public:
 
 	void mouseMoveEvent( QMouseEvent *ev ) {
 
+		m_modifiers = ev->modifiers();
+
 		if ( m_mouseState == Down ) {
 			if ( (ev->pos() - m_pClickEvent->pos() ).manhattanLength() > QApplication::startDragDistance()
 				 || (ev->timestamp() - m_pClickEvent->timestamp()) > QApplication::startDragTime() ) {
@@ -467,6 +506,15 @@ public:
 	}
 
 	void mouseReleaseEvent( QMouseEvent *ev ) {
+
+		m_modifiers = ev->modifiers();
+
+		if ( m_selectionState == SelectionState::KeyboardLasso ||
+			 m_selectionState == SelectionState::KeyboardMoving ) {
+			// There is still a former keyboard lasso active. Cancel it.
+			m_selectionState = SelectionState::Idle;
+		}
+
 		if ( m_mouseState != Up && !( ev->buttons() & m_mouseButton) ) {
 			if ( m_mouseState == Down ) {
 				mouseClick( ev );
@@ -512,8 +560,8 @@ public:
 	void mouseClick( QMouseEvent *ev ) {
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
-			QRect r = QRect( ev->pos(), ev->pos() );
-			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
+			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
+				m_pClickEvent->pos(), m_pWidget->getCursorMargin( ev ) );
 			for ( Elem e : elems) {
 				if ( m_pSelectionGroup->m_selectedElements.find( e )
 					 == m_pSelectionGroup->m_selectedElements.end() ) {
@@ -552,8 +600,8 @@ public:
 		m_pDragScroller->startDrag();
 
 		if ( ev->button() == Qt::LeftButton) {
-			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
-			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
+			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
+				m_pClickEvent->pos(), m_pWidget->getCursorMargin( ev ) );
 
 			/* Did the user start dragging a selected element, or an unselected element?
 			 */
@@ -612,12 +660,13 @@ public:
 			}
 			updateWidgetGroup();
 
-		} else if ( m_selectionState == MouseMoving ) {
+		}
+		else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
 			m_pWidget->selectionMoveUpdateEvent( ev );
-			updateWidgetGroup();
 
-		} else {
+		}
+		else {
 			// Pass drag update to widget
 			m_pWidget->mouseDragUpdateEvent( ev );
 		}
@@ -662,6 +711,23 @@ public:
 
 	bool keyPressEvent( QKeyEvent *ev ) {
 
+		// Pressing the Alt modifier won't result in the usual move operations
+		// but is consistent with a more fine-grained editing already used in
+		// NotePropertiesRuler.
+		auto pCleanedEvent = new QKeyEvent(
+			QEvent::KeyPress, ev->key(), Qt::NoModifier, ev->text() );
+		if ( ev->modifiers() & Qt::AltModifier && (
+				 pCleanedEvent->matches( QKeySequence::MoveToNextChar ) ||
+				 pCleanedEvent->matches( QKeySequence::SelectNextChar ) ||
+				 pCleanedEvent->matches( QKeySequence::MoveToPreviousChar ) ||
+				 pCleanedEvent->matches( QKeySequence::SelectPreviousChar ) ) ) {
+			// We only propagate Alt modifiers on left-right movement. This way
+			// the resulting position should always correspond the final
+			// position of the keyboard cursor. Regardless, whether the user did
+			// not press Alt on the final Enter hit or switched rows.
+			m_modifiers = ev->modifiers();
+		}
+
 		if ( ev->matches( QKeySequence::SelectNextChar )
 			 || ev->matches( QKeySequence::SelectPreviousChar )
 			 || ev->matches( QKeySequence::SelectNextLine )
@@ -684,7 +750,8 @@ public:
 				m_lasso = m_keyboardCursorStart;
 			}
 
-		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		} else if ( ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) &&
+					m_pWidget->canMoveElements() ) {
 
 			// Key: Enter/Return: start or end a move or copy
 			if ( m_selectionState == Idle ) {
@@ -745,19 +812,75 @@ public:
 
 		} else {
 			// Other keys should probably also cancel lasso, but not move?
-			if ( m_selectionState == KeyboardLasso ) {
-				m_selectionState = Idle;
-				updateWidgetGroup();
+			if ( m_selectionState == KeyboardLasso &&
+				 ev->modifiers() != Qt::ShiftModifier ) {
+
+				if ( m_selectionState != Idle ) {
+					m_selectionState = Idle;
+					updateWidgetGroup();
+					// Cancelling lasso should not eat event.
+					return false;
+				}
 			}
 		}
 		return false;
 	}
 
+		//! A means to synchronize the lassos of different widgets.
+		bool syncLasso( SelectionState state, const QRect& cursorStart,
+						const QRect& lasso ) {
+			bool bUpdate = false;
+
+			if ( m_selectionState != state ) {
+				m_selectionState = state;
+				bUpdate = true;
+			}
+
+			if ( m_keyboardCursorStart != cursorStart ) {
+				m_keyboardCursorStart = cursorStart;
+				if ( m_selectionState == KeyboardMoving ) {
+					m_movingOffset = m_pWidget->getKeyboardCursorRect().topLeft() -
+						cursorStart.topLeft();
+				}
+				bUpdate = true;
+			}
+
+			if ( m_lasso != lasso ) {
+				m_lasso = lasso;
+				bUpdate = true;
+			}
+
+			return bUpdate;
+		}
+
+		const QRect& getKeyboardCursorStart() const {
+			return m_keyboardCursorStart;
+		}
+		const QRect& getLasso() const {
+			return m_lasso;
+		}
+		const SelectionState& getSelectionState() const {
+			return m_selectionState;
+		}
+
+		/** Scale lasso when zooming in or out. @a nOffset can compensate for a
+		 * margin not affected by @a fScale. */
+		void scaleLasso( float fScale, int nOffset ) {
+			m_lasso.setRect( fScale * ( m_lasso.x() - nOffset ) + nOffset,
+							 m_lasso.y(),
+							 m_lasso.width() * fScale, m_lasso.height() );
+
+			m_keyboardCursorStart.setRect(
+				fScale * ( m_keyboardCursorStart.x() - nOffset ) + nOffset,
+				m_keyboardCursorStart.y(),
+				m_keyboardCursorStart.width() * fScale,
+				m_keyboardCursorStart.height() );
+		}
 
 	//! Update the keyboard cursor.
 	//! Called by the client widget to tell the Selection the current
 	//! location of the keyboard input cursor.
-	void updateKeyboardCursorPosition( const QRect& cursor ) {
+	void updateKeyboardCursorPosition() {
 		if ( m_selectionState == KeyboardLasso ) {
 			m_lasso = m_keyboardCursorStart.united( m_pWidget->getKeyboardCursorRect() );
 

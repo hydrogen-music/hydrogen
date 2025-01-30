@@ -47,16 +47,17 @@ public:
 
 	QString getDrumkitLabel( const QString& sDrumkitPath ) const;
 	QString getDrumkitPath( const QString& sDrumkitLabel ) const;
+
+		/** Somewhat low-level function for drumkit switching. In case drumkit
+		 * switching is triggered by the user, #MainForm::switchDrumkit() should
+		 * be used as entry point. */
+		static void switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
+								   std::shared_ptr<H2Core::Drumkit> pOldDrumkit );
 	
 	virtual void soundLibraryChangedEvent() override;
 
 public slots:
 	void on_drumkitLoadAction();
-		/** Somewhat low-level function for drumkit switching. In case drumkit
-		 * switching is triggered by the user, #MainForm::switchDrumkit() should
-		 * be used as entry point. */
-		void switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
-							std::shared_ptr<H2Core::Drumkit> pOldDrumkit );
 
 private slots:
 	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );

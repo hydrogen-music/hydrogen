@@ -75,9 +75,8 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void zoomIn();
 		void zoomOut();
-		float getGridWidth() const {
-			return m_fGridWidth;
-		};
+		float getGridWidth() const;
+		int getWidthActive() const;
 
 		void createBackground();
 		void invalidateBackground();
@@ -85,9 +84,9 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
+		PatternEditorPanel* m_pPatternEditorPanel;
 		uint m_nRulerWidth;
 		uint m_nRulerHeight;
 		float m_fGridWidth;
@@ -96,7 +95,6 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		QTimer *m_pTimer;
 		int m_nTick;
-		H2Core::Pattern *m_pPattern;
 
 	int m_nHoveredColumn;
 	/**
@@ -109,13 +107,16 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 	bool updateActiveRange();
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
 	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
-	virtual void songModeActivationEvent() override;
 	virtual void relocationEvent() override;
-	virtual void playingPatternsChangedEvent() override;
 		// ~ Implements EventListener interface
 };
 
+inline float PatternEditorRuler::getGridWidth() const {
+	return m_fGridWidth;
+}
+inline int PatternEditorRuler::getWidthActive() const {
+	return m_nWidthActive;
+}
 
 #endif

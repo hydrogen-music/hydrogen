@@ -81,6 +81,14 @@ enum EventType {
 	 * changed. `-1` indicates that multiple instruments were altered.
 	 */
 	EVENT_INSTRUMENT_PARAMETERS_CHANGED,
+	/** Mute or solo state of the instrument specified in the event parameter
+	 * changed.
+	 *
+	 * This event must always be accompanied with
+	 * #EVENT_INSTRUMENT_PARAMETERS_CHANGED and is meant to for the instrument
+	 * rows in the sidebar of the pattern editor to be updated without forcing
+	 * an update on every instrument parameter change. */
+	EVENT_INSTRUMENT_MUTE_SOLO_CHANGED,
 	EVENT_MIDI_ACTIVITY,
 	EVENT_XRUN,
 	EVENT_NOTEON,
@@ -160,7 +168,7 @@ enum EventType {
 	/** Triggered when transport is moved into a different column
 		(either during playback or when relocated by the user)*/
 	EVENT_COLUMN_CHANGED,
-	/** A the current drumkit was replaced by a new one*/
+	/** A the current drumkit was replaced by a new one. */
 	EVENT_DRUMKIT_LOADED,
 	/** Locks the PatternEditor on the pattern currently played back.*/
 	EVENT_PATTERN_EDITOR_LOCKED,
@@ -202,6 +210,19 @@ enum EventType {
 class Event
 {
 public:
+
+		/** Tells the associated routine in the core part of Hydrogen how and
+		 * whether to communicate with the (G)UI */
+		enum class Trigger {
+			/** No #Event will be queued */
+			Suppress,
+			/** #Event queued on change */
+			Default,
+			/** #Event will be queued regardless whether there are changes or
+			 * not.*/
+			Force
+		};
+
 	/** Specifies the context the event is create in and which
 	    function should be triggered to handle it.*/
 	EventType type;
@@ -292,16 +313,14 @@ public:/**
 	Event pop_event();
 
 	struct AddMidiNoteVector {
-		int m_column;       //position
-		int m_row;          //instrument row
+		int m_column;       // position
+		int m_instrumentId; // specifies the instrument triggered
 		int m_pattern;      // pattern number
 		int m_length;
 		float f_velocity;
 		float f_pan;
 		Note::Key nk_noteKeyVal;
 		Note::Octave no_octaveKeyVal;
-		bool b_isMidi;
-		bool b_isInstrumentMode;
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 

@@ -178,10 +178,10 @@ public:
 	bool isRenderingNotes() const;
 	
 	/// Start playing a note
-	void noteOn( Note * pNote );
+	void noteOn( std::shared_ptr<Note> pNote );
 
 	/// Stop playing a note.
-	void noteOff( Note *pNote );
+	void noteOff( std::shared_ptr<Note> pNote );
 	void midiKeyboardNoteOff( int key );
 
 	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
@@ -240,7 +240,7 @@ public:
 	 */
 	void handleSongSizeChange();
 
-	const std::vector<Note*>& getPlayingNotesQueue() const;
+	const std::vector<std::shared_ptr<Note>>& getPlayingNotesQueue() const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	
@@ -252,11 +252,11 @@ private:
 	bool processPlaybackTrack(int nBufferSize);
 
     /** @return false - the note is not ended, true - the note is ended */
-	bool renderNote( Note* pNote, unsigned nBufferSize );
+	bool renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize );
 
 	bool renderNoteResample(
 		std::shared_ptr<Sample> pSample,
-		Note *pNote,
+		std::shared_ptr<Note> pNote,
 		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
 		int nComponentIdx,
@@ -269,8 +269,8 @@ private:
 		float fLayerPitch
 	);
 
-	std::vector<Note*> m_playingNotesQueue;
-	std::vector<Note*> m_queuedNoteOffs;
+	std::vector<std::shared_ptr<Note>> m_playingNotesQueue;
+	std::vector<std::shared_ptr<Note>> m_queuedNoteOffs;
 
 	/// Instrument used for the playback track feature.
 	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
@@ -290,7 +290,7 @@ private:
 	Interpolation::InterpolateMode m_interpolateMode;
 };
 
-inline const std::vector<Note*>& Sampler::getPlayingNotesQueue() const {
+inline const std::vector<std::shared_ptr<Note>>& Sampler::getPlayingNotesQueue() const {
 	return m_playingNotesQueue;
 }
 

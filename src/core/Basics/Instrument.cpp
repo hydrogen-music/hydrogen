@@ -51,7 +51,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __drumkit_name( "" )
 	, __gain( 1.0 )
 	, __volume( 1.0 )
-	, m_fPan( 0.f )
+	, m_fPan( PAN_DEFAULT )
 	, __peak_l( 0.0 )
 	, __peak_r( 0.0 )
 	, __adsr( adsr )
@@ -307,7 +307,7 @@ std::shared_ptr<Instrument> Instrument::load_from( const XMLNode& node,
 	pInstrument->set_soloed( node.read_bool( "isSoloed", false,
 											  true, false, true ) );
 	bool bFound, bFound2;
-	float fPan = node.read_float( "pan", 0.f, &bFound,
+	float fPan = node.read_float( "pan", PAN_DEFAULT, &bFound,
 								   true, true, true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <=
@@ -574,13 +574,13 @@ void Instrument::save_to( XMLNode& node, bool bSongKit ) const
 	}
 }
 
-void Instrument::enqueue( Note* pNote ) {
+void Instrument::enqueue( std::shared_ptr<Note> pNote ) {
 	__queued++;
 
 	m_enqueuedBy.push_back( pNote->prettyName() );
 }
 
-void Instrument::dequeue( Note* pNote ) {
+void Instrument::dequeue( std::shared_ptr<Note> pNote ) {
 	if ( __queued <= 0 ) {
 		ERRORLOG( QString( "[%1] is not queued!" ).arg( __name ) );
 		return;
@@ -607,6 +607,11 @@ void Instrument::set_pitch_offset( float fValue )
 					.arg( fPitchMin ).arg( fPitchMax ) );
 	}
 	__pitch_offset = std::clamp( fValue, fPitchMin, fPitchMax );
+}
+
+void Instrument::setPanWithRangeFrom0To1( float fVal ) {
+	// scale and translate into [-1;1]
+	setPan( PAN_MIN + ( PAN_MAX - PAN_MIN ) * fVal );
 }
 
 std::shared_ptr<InstrumentComponent> Instrument::get_component( int nIdx ) const

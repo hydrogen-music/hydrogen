@@ -424,7 +424,8 @@ bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
 	}
 	
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
-		pHydrogen->setSelectedPatternNumber( nPatternNumber );
+		pHydrogen->setSelectedPatternNumber(
+			nPatternNumber, true, Event::Trigger::Default );
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 		pHydrogen->toggleNextPattern( nPatternNumber );
@@ -797,10 +798,10 @@ bool MidiActionManager::pan_relative( std::shared_ptr<Action> pAction, Hydrogen*
 	
 	float fPan = pInstr->getPan();
 
-	if ( pan_param == 1 && fPan < 1.f ) {
+	if ( pan_param == 1 && fPan < PAN_MAX ) {
 		pInstr->setPan( fPan + 0.1 );
 	}
-	else if ( pan_param != 1 && fPan > -1.f ) {
+	else if ( pan_param != 1 && fPan > PAN_MIN ) {
 		pInstr->setPan( fPan - 0.1 );
 	}
 

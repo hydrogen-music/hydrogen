@@ -44,6 +44,7 @@ namespace H2Core {
 	class AudioEngine;
 	class Hydrogen;
 	class License;
+	class Pattern;
 }
 
 class SongEditor;
@@ -167,8 +168,8 @@ class SongEditor : public QWidget
 
 		//! @name Conversion between sequence grid coordinates and screen (widget) coordinates.
 		//! @{
-		QPoint xyToColumnRow( const QPoint& p );
-		QPoint columnRowToXy( const QPoint& p );
+		QPoint xyToColumnRow( const QPoint& p ) const;
+		QPoint columnRowToXy( const QPoint& p ) const;
 		//! @}
 
 		//! Quantise the selection move offset to the sequence grid
@@ -230,6 +231,10 @@ public:
 		virtual QRect getKeyboardCursorRect() override;
 		virtual void validateSelection() override {};
 		virtual void updateWidget() override;
+		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
@@ -339,7 +344,7 @@ class SongEditorPatternList :  public QWidget
 							
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
-		H2Core::Pattern *	m_pPatternBeingEdited;
+		std::shared_ptr<H2Core::Pattern>	m_pPatternBeingEdited;
 
 		DragScroller *		m_pDragScroller;
 		
@@ -359,8 +364,6 @@ class SongEditorPatternList :  public QWidget
 	 * over. -1 for no cursor.
 	 */
 	int m_nRowHovered;
-
-	QTimer* m_pHighlightLockedTimer;
 };
 
 

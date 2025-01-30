@@ -63,13 +63,17 @@ public slots:
 
 signals:
 	void labelClicked( ClickableLabel* pLabel );
+	void labelDoubleClicked( QMouseEvent* pEvent );
+
+protected:
+	virtual void mousePressEvent( QMouseEvent * e ) override;
+	virtual void mouseDoubleClickEvent( QMouseEvent * e ) override;
 
 private:
 	void updateStyleSheet();
 	void updateFont( const QString& sFontFamily,
 					 const H2Core::FontTheme::FontSize& fontSize );
 
-	virtual void mousePressEvent( QMouseEvent * e ) override;
 	virtual void enterEvent( QEvent * e ) override;
 	virtual void leaveEvent( QEvent * e ) override;
 	virtual void paintEvent( QPaintEvent * e ) override;

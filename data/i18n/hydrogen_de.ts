@@ -643,7 +643,9 @@ Label shown in the input capture dialog for querying a new tempo value.</extraco
     </message>
     <message>
         <source>Velocity</source>
-        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.</extracomment>
+        <extracomment>Text displayed in the Master Mixer Strip as a heading for the velocity humanization rotary. Designed to hold eight characters flexible.
+----------
+Name of note property adjustable in NotePropertiesRuler, using * humanization in Mixer, or using automation path.</extracomment>
         <translation>Anschlag (velocity)</translation>
     </message>
     <message>
@@ -902,7 +904,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pan</source>
-        <extracomment>Label shown in the input capture dialog for querying a new pan value for a specified instrument.</extracomment>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler and via input * capture actions.</extracomment>
         <translation>Pan</translation>
     </message>
     <message>
@@ -927,7 +929,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Type</source>
-        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map).</extracomment>
+        <extracomment>Shown in table headers when referring to an instrument&apos;s type (as part * of a Drumkit Map .h2map) as well as part of status messages referring to * this property.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -991,10 +993,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Online Import</source>
         <extracomment>Names an action in a drop down or pop up menu. (with no further text)</extracomment>
         <translation>Aus dem Internet herunterladen</translation>
-    </message>
-    <message>
-        <source>Edit Drumkit Properties of Current Song</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This action can not be undone!</source>
@@ -1118,34 +1116,37 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Delete instrument</source>
+        <extracomment>Representing an instrument deletion in the undo history</extracomment>
         <translation>Instrument löschen</translation>
     </message>
     <message>
         <source>Drop instrument</source>
+        <extracomment>Representing a drag&amp;drop event for an instrument in the undo history</extracomment>
         <translation>Füge Instrument ein (Drop)</translation>
     </message>
     <message>
         <source>Switch drumkit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace song drumkit with new and empty one</source>
+        <extracomment>Representing a drumkit loading in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Adding component</source>
+        <extracomment>Representing adding a new component to the currently selected instrument * in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete component</source>
+        <extracomment>Representing deletion of a component from the currently selected * instrument in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Rename component</source>
+        <extracomment>Representing renaming a component of the currently selected instrument * in the undo history</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add instrument</source>
+        <extracomment>Representing adding a new instrument in the undo history as well as * names the action presenting when right-clicking the instrument list in * the pattern editor.</extracomment>
         <translation>Instrument hinzufügen</translation>
     </message>
     <message>
@@ -1163,6 +1164,164 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
+        <translation>Instrument umbenennen</translation>
+    </message>
+    <message>
+        <source>Lead and Lag</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation>Vorlauf (lead) und Verzögerung (lag)</translation>
+    </message>
+    <message>
+        <source>Key and Octave</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Probability</source>
+        <extracomment>Name of note property adjustable in NotePropertiesRuler.</extracomment>
+        <translation>Wahrscheinlichkeit</translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes in row</source>
+        <extracomment>Representing deleting all notes of a specific row in the pattern editor * in the undo history (the number of the row will be append) as well as in * the right-click context menu within the sidebar of the pattern editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear notes</source>
+        <extracomment>Representing deleting all notes in the pattern editor in the undo * history as well as in the right-click context menu within the sidebar of * the pattern editor.</extracomment>
+        <translation>Noten löschen</translation>
+    </message>
+    <message>
+        <source>Fill all notes</source>
+        <extracomment>Representing filling all notes of a row in the pattern editor in the * undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/1) Füge alle Noten ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/2 notes</source>
+        <extracomment>Representing filling every second note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/2) Füge jede zweite Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/3 notes</source>
+        <extracomment>Representing filling every third note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/3) Füge jede dritte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/4 notes</source>
+        <extracomment>Representing filling every fourth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/4) Füge jede vierte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/6 notes</source>
+        <extracomment>Representing filling every sixth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/6) Füge jede sechste Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/8 notes</source>
+        <extracomment>Representing filling every eighth note of a row in the pattern editor in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/8) Füge jede achte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <extracomment>Representing filling every twelfth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/12) Füge jede zwölfte Note ein</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <extracomment>Representing filling every sixteenth note of a row in the pattern editor * in the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>(1/16) Füge jede sechzehnte Note ein</translation>
+    </message>
+    <message>
+        <source>Cut notes</source>
+        <extracomment>Representing cutting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>Noten ausschneiden</translation>
+    </message>
+    <message>
+        <source>Paste notes</source>
+        <extracomment>Representing pasting all notes of a particular row in all patterns in * the undo history as well as in the right-click context menu within the * sidebar of the pattern editor.</extracomment>
+        <translation>Noten einfügen</translation>
+    </message>
+    <message>
+        <source>Delete notes</source>
+        <extracomment>Delete one or many notes. Shown in the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill notes ...</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Mit Noten füllen ...</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Noten selektieren</translation>
+    </message>
+    <message>
+        <source>Edit all patterns</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Alle Pattern editieren</translation>
+    </message>
+    <message>
+        <source>Copy notes</source>
+        <extracomment>Shown as an action item in the right-click popup menu of the pattern * editor.</extracomment>
+        <translation>Noten kopieren</translation>
+    </message>
+    <message>
+        <source>Move instrument</source>
+        <extracomment>Representing a renaming of an instrument in the undo history and context * menu.</extracomment>
+        <translation>Verschiebe Instrument</translation>
+    </message>
+    <message>
+        <source>Edit properties of current drumkit</source>
+        <extracomment>Show as status message when changing the properties of the drumkit * embedded in the current song.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit properties of drumkit</source>
+        <extracomment>Show as status message when changing the properties of a drumkit in the * Sound Library. Separated by a whitespace the name of the drumkit will be * appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace current drumkit with new and empty one</source>
+        <extracomment>Representing the creation of a new drumkit in the undo history</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save drumkit</source>
+        <extracomment>Status message displayed when saving an drumkit into the Sound Library. * Separated by a whitespace the name of the drumkit as well as the path it * was stored in will be appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save current drumkit</source>
+        <extracomment>Status message displayed when the current drumkit is saved into the * Sound Library. Separated by a whitespace the path it was stored in will * be appended to the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load drumkit</source>
+        <extracomment>Status message displayed when loading an drumkit into the current song. * Separated by a whitespace the name of the drumkit will be appended to * the translated message.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit type for notes in row</source>
+        <extracomment>Shown in the status bar when editting the type information of a row not * mapped to the current drumkit and as the title of the associated dialog. * Separated by a whitespace the corresponding column number will be * appended.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An instrument type must not be empty!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1192,13 +1351,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
         <translation>(%1/%2 KiB) - ETA %3</translation>
-    </message>
-</context>
-<context>
-    <name>DrumPatternEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>Kann Multi-Pattern Auswahl nicht einfügen</translation>
     </message>
 </context>
 <context>
@@ -1582,10 +1734,6 @@ Overwrite the existing file?</source>
         <source>Save a copy of the current drumkit to NSM session folder</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Instrument types must be unique!</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>
@@ -1670,14 +1818,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Do you want to recover them?</source>
         <translation>Sollen diese wiederhergestellt werden?</translation>
-    </message>
-    <message>
-        <source>Drumkit [%1] loaded from [%2]</source>
-        <translation>Schlagzeug [%1] geladen aus [%2]</translation>
-    </message>
-    <message>
-        <source>Song saved as: </source>
-        <translation>Song gespeichert unter: </translation>
     </message>
     <message>
         <source>Error loading playlist.</source>
@@ -1768,10 +1908,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Layer gain</source>
         <translation>Verstärkung (gain) der Ebene</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>Neuer Name für das Instrument</translation>
     </message>
     <message>
         <source>Instrument gain</source>
@@ -1871,108 +2007,6 @@ Wert</translation>
     <message>
         <source>New component name</source>
         <translation>Neuer Komponentenname</translation>
-    </message>
-</context>
-<context>
-    <name>InstrumentLine</name>
-    <message>
-        <source>Fill notes ...</source>
-        <translation>Mit Noten füllen ...</translation>
-    </message>
-    <message>
-        <source>Fill all notes</source>
-        <translation>(1/1) Füge alle Noten ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/2 notes</source>
-        <translation>(1/2) Füge jede zweite Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/3 notes</source>
-        <translation>(1/3) Füge jede dritte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/4 notes</source>
-        <translation>(1/4) Füge jede vierte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/6 notes</source>
-        <translation>(1/6) Füge jede sechste Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/8 notes</source>
-        <translation>(1/8) Füge jede achte Note ein</translation>
-    </message>
-    <message>
-        <source>Mute instrument</source>
-        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
-        <translation>Schalte Instrument stumm</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
-        <translation>Solo</translation>
-    </message>
-    <message>
-        <source>Rename instrument</source>
-        <translation>Instrument umbenennen</translation>
-    </message>
-    <message>
-        <source>New instrument name</source>
-        <translation>Neuer Name für das Instrument</translation>
-    </message>
-    <message>
-        <source>Fill 1/12 notes</source>
-        <translation>(1/12) Füge jede zwölfte Note ein</translation>
-    </message>
-    <message>
-        <source>Fill 1/16 notes</source>
-        <translation>(1/16) Füge jede sechzehnte Note ein</translation>
-    </message>
-    <message>
-        <source>Some samples for this instrument failed to load.</source>
-        <translation>Einige Sample für dieses Instrument konnten nicht geladen werden.</translation>
-    </message>
-    <message>
-        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation>Ein oder mehrere Samples für dieses Instrument konnten nicht geladen werden. Dies kann an einem veralteten Schlagzeug liegen, was durch das Laden eines neueren behoben werden kann.</translation>
-    </message>
-    <message>
-        <source>Delete notes</source>
-        <translation>Noten löschen</translation>
-    </message>
-    <message>
-        <source>Select notes</source>
-        <translation>Noten selektieren</translation>
-    </message>
-    <message>
-        <source>Edit all patterns</source>
-        <translation>Alle Pattern editieren</translation>
-    </message>
-    <message>
-        <source>Cut notes</source>
-        <translation>Noten ausschneiden</translation>
-    </message>
-    <message>
-        <source>Copy notes</source>
-        <translation>Noten kopieren</translation>
-    </message>
-    <message>
-        <source>Paste notes</source>
-        <translation>Noten einfügen</translation>
-    </message>
-    <message>
-        <source>Instrument</source>
-        <translation>Instrument</translation>
-    </message>
-    <message>
-        <source>Delete all notes on %1</source>
-        <translation>Lösche alle Noten auf %1</translation>
-    </message>
-    <message>
-        <source>imported from</source>
-        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this * string) an instrument (to the left of this string) is loaded * from.</extracomment>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2788,10 +2822,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Solo</translation>
     </message>
     <message>
-        <source>Pan</source>
-        <translation>Pan</translation>
-    </message>
-    <message>
         <source>FX %1 send</source>
         <translation>Effect %1 Pegel</translation>
     </message>
@@ -2988,46 +3018,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Anschlagshärte der Note setzen</translation>
     </message>
     <message>
-        <source>Note panned to the right by</source>
-        <translation>Note nach recht geschwenkt (pan) um</translation>
-    </message>
-    <message>
-        <source>Note panned to the left by</source>
-        <translation>Note nach links geschwenkt (pan) um</translation>
-    </message>
-    <message>
-        <source>Note centered</source>
-        <translation>Note mittig</translation>
-    </message>
-    <message>
-        <source>Leading beat by</source>
-        <translation>Dem Beat vorauseilend um</translation>
-    </message>
-    <message>
-        <source>Lagging beat by</source>
-        <translation>Dem Beat hinterher hängen um</translation>
-    </message>
-    <message>
-        <source>Note on beat</source>
-        <translation>Note auf Beat</translation>
-    </message>
-    <message>
-        <source>Set pitch</source>
-        <translation>Tonhöhe setzen</translation>
-    </message>
-    <message>
-        <source>key</source>
-        <translation>Tonart</translation>
-    </message>
-    <message>
-        <source>octave</source>
-        <translation>Oktave</translation>
-    </message>
-    <message>
-        <source>Set note probability to</source>
-        <translation>Noten Wahrscheinlichkeit gesetzt auf</translation>
-    </message>
-    <message>
         <source>A&amp;lign to grid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3043,12 +3033,79 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Random velocity</source>
         <translation>Zufällige Anschlagsstärke</translation>
     </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
     <message>
-        <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation>Kann kein weiteres Instrument einfügen. Maximal mögliche Anzahl</translation>
+        <source>Cannot paste multi-pattern selection</source>
+        <translation>Multi-Pattern Auswahl konnte nicht eingefügt werden</translation>
+    </message>
+    <message>
+        <source>edit note properties by dragging</source>
+        <translation>Noteneigenschaft durch Ziehen der Maus angepasst</translation>
+    </message>
+    <message>
+        <source>paste notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>move notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>right</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>left</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>centered</source>
+        <extracomment>Direction used when panning a note.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>on beat</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note pitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note probability</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lead</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>lag</source>
+        <extracomment>Relative temporal position when setting note lead &amp; lag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note lead/lag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set note type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3064,10 +3121,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Hear new notes = Off</source>
         <translation>Neue Noten hören = deaktiviert</translation>
-    </message>
-    <message>
-        <source>Pattern editor - %1</source>
-        <translation>Pattern-Editor - %1</translation>
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
@@ -3098,32 +3151,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Eigenschaften der Note wählen</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>Anschlag (velocity)</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>Pan</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation>Vorlauf (lead) und Verzögerung (lag)</translation>
-    </message>
-    <message>
-        <source>NoteKey</source>
-        <translation>NoteKey</translation>
-    </message>
-    <message>
         <source>Show piano roll editor</source>
         <translation>Piano-Roll anzeigen</translation>
     </message>
     <message>
         <source>Show drum editor</source>
         <translation>Schlagzeug-Editor anzeigen</translation>
-    </message>
-    <message>
-        <source>Probability</source>
-        <translation>Wahrscheinlichkeit</translation>
     </message>
     <message>
         <source>quarter</source>
@@ -3180,6 +3213,17 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Show PatchBay</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change pattern size to %1/%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorSidebar</name>
+    <message>
+        <source>Unable to insert further instruments. Maximum possible number</source>
+        <translation>Kann kein weiteres Instrument einfügen. Maximal mögliche Anzahl</translation>
     </message>
 </context>
 <context>
@@ -3248,13 +3292,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Pattern category</source>
         <translation>Pattern-Kategorie</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Cannot paste multi-pattern selection</source>
-        <translation>Kann Multi-Pattern Selektion nicht einfügen</translation>
     </message>
 </context>
 <context>
@@ -3975,6 +4012,26 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Theme couldn&apos;t be imported</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -4556,52 +4613,8 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Editiere Timeline Tag</translation>
     </message>
     <message>
-        <source>Delete note ( %1, %2)</source>
-        <translation>Lösche Note( %1, %2)</translation>
-    </message>
-    <message>
-        <source>Add note ( %1, %2)</source>
-        <translation>Füge Note hinzu ( %1, %2)</translation>
-    </message>
-    <message>
         <source>Overwrite %1 notes</source>
         <translation>Überschreibe %1 Noten</translation>
-    </message>
-    <message>
-        <source>Change note length</source>
-        <translation>Ändere Länge der Note</translation>
-    </message>
-    <message>
-        <source>Clear notes</source>
-        <translation>Noten löschen</translation>
-    </message>
-    <message>
-        <source>Paste instrument notes</source>
-        <translation>Instrumenten-Noten einfügen</translation>
-    </message>
-    <message>
-        <source>Fill notes</source>
-        <translation>Fülle Pattern mit Noten</translation>
-    </message>
-    <message>
-        <source>Move instrument</source>
-        <translation>Verschiebe Instrument</translation>
-    </message>
-    <message>
-        <source>Add piano roll note ( %1, %2 )</source>
-        <translation>Füge Piano-Roll Note hinzu ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Add  piano roll NOTE_OFF note ( %1, %2 )</source>
-        <translation>Füge Piano-Roll NOTE_OFF Note hinzu ( %1, %2 )</translation>
-    </message>
-    <message>
-        <source>Change note properties piano roll</source>
-        <translation>Ändere Eigenschaft einer Piano-Roll Note</translation>
-    </message>
-    <message>
-        <source>Edit note property %1</source>
-        <translation>Editiere Noten-Eigenschaft %1</translation>
     </message>
     <message>
         <source>Add point</source>
@@ -4642,6 +4655,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Replace playlist</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit note property %1</source>
+        <translation>Noten Eigenschaft %1 geändert</translation>
+    </message>
+    <message>
+        <source>Delete note</source>
+        <translation>Lösche Note</translation>
+    </message>
+    <message>
+        <source>Add note</source>
+        <translation>Füge Note hinzu</translation>
     </message>
 </context>
 <context>
@@ -5619,6 +5644,36 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SidebarRow</name>
+    <message>
+        <source>Mute instrument</source>
+        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
+        <translation>Schalte Instrument stumm</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
+        <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Some samples for this instrument failed to load.</source>
+        <translation>Einige Sample für dieses Instrument konnten nicht geladen werden.</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Instrument</translation>
+    </message>
+    <message>
+        <source>imported from</source>
+        <extracomment>Shown in a tooltop and indicating the drumkit (to the right of this string) an instrument (to the left of this string) is loaded from.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation>Ein oder mehrere Samples für dieses Instrument konnten nicht geladen werden. Dies kann an einem veralteten Schlagzeug liegen, was durch das Laden eines neueren behoben werden kann.</translation>
+    </message>
+</context>
+<context>
     <name>SongEditor</name>
     <message>
         <source>&amp;Cut</source>
@@ -5726,10 +5781,6 @@ Fortsetzen?</translation>
         <translation>Zeitliche Parameterwerte anpassen</translation>
     </message>
     <message>
-        <source>Velocity</source>
-        <translation>Anschlag (velocity)</translation>
-    </message>
-    <message>
         <source>selected pattern mode</source>
         <translation>Ausgewähltes Pattern-Modus</translation>
     </message>
@@ -5805,12 +5856,6 @@ Fortsetzen?</translation>
     <message>
         <source>Virtual Pattern</source>
         <translation>Virtuelles Pattern</translation>
-    </message>
-    <message>
-        <source>The pattern-file exists. 
-Overwrite the existing pattern?</source>
-        <translation>Die Pattern-Datei existiert bereits.
-Soll sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Export Pattern</source>

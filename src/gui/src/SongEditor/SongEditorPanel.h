@@ -72,10 +72,10 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void setTimelineEnabled( bool bEnabled );
 
 		/**
-		 * Turns the background color of #m_pPatternEditorLockedBtn red to
-		 * signal the user her last action was not permitted.
+		 * Turns the background color of #m_pPatternEditorLockedBtn red
+		 * temporarily to signal the user her last action was not permitted.
 		 */
-		void highlightPatternEditorLocked( bool bUseRedBackground );	
+		void highlightPatternEditorLocked();
 		void restoreGroupVector( const QString& filename );
 		// ~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
@@ -187,6 +187,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		Button *			m_pPatternEditorLockedBtn;
 		Button *			m_pPatternEditorUnlockedBtn;
 
+
+		QTimer*						m_pHighlightLockedTimer;
 		QTimer*						m_pTimer;
 		
 		AutomationPathView *		m_pAutomationPathView;

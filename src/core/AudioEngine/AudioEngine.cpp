@@ -1268,7 +1268,8 @@ void AudioEngine::handleSelectedPattern() {
 			}
 		}
 
-		pHydrogen->setSelectedPatternNumber( nPatternNumber, true, true );
+		pHydrogen->setSelectedPatternNumber(
+			nPatternNumber, true, Event::Trigger::Force );
 	}
 }
 
@@ -1307,12 +1308,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	}
 
 	while ( !m_songNoteQueue.empty() ) {
-		Note *pNote = m_songNoteQueue.top();
-		if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+		auto pNote = m_songNoteQueue.top();
+		if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
 			m_songNoteQueue.pop();
-			if ( pNote != nullptr ) {
-				delete pNote;
-			}
 			continue;
 		}
 
@@ -1328,12 +1326,12 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 		if ( nNoteStartInFrames < nFrame + static_cast<long long>(nframes) ) {
 
-			float fNoteProbability = pNote->get_probability();
+			float fNoteProbability = pNote->getProbability();
 			if ( fNoteProbability != 1. ) {
 				// Current note is skipped with a certain probability.
 				if ( fNoteProbability < (float) rand() / (float) RAND_MAX ) {
 					m_songNoteQueue.pop();
-					pNote->get_instrument()->dequeue( pNote );
+					pNote->getInstrument()->dequeue( pNote );
 					continue;
 				}
 			}
@@ -1342,34 +1340,29 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			 * Check if the current instrument has the property "Stop-Note" set.
 			 * If yes, a NoteOff note is generated automatically after each note.
 			 */
-			auto pNoteInstrument = pNote->get_instrument();
+			auto pNoteInstrument = pNote->getInstrument();
 			if ( pNoteInstrument->is_stop_notes() ){
-				Note *pOffNote = new Note( pNoteInstrument );
-				pOffNote->set_note_off( true );
+				auto pOffNote = std::make_shared<Note>( pNoteInstrument );
+				pOffNote->setNoteOff( true );
 				m_pSampler->noteOn( pOffNote );
-				delete pOffNote;
 			}
 
-			if ( ! pNote->get_instrument()->hasSamples() ) {
+			if ( ! pNote->getInstrument()->hasSamples() ) {
 				m_songNoteQueue.pop();
-				pNote->get_instrument()->dequeue( pNote );
-				delete pNote;
+				pNote->getInstrument()->dequeue( pNote );
 				continue;
 			}
 
 			if ( pNoteInstrument == m_pMetronomeInstrument ) {
 				m_pEventQueue->push_event( EVENT_METRONOME,
-										   pNote->get_pitch() == 0 ? 1 : 0 );
+										   pNote->getPitch() == 0 ? 1 : 0 );
 			}
 
 			m_pSampler->noteOn( pNote );
 			m_songNoteQueue.pop();
-			pNote->get_instrument()->dequeue( pNote );
+			pNote->getInstrument()->dequeue( pNote );
 			
-			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->get_instrument() );
-			if( pNote->get_note_off() ){
-				delete pNote;
-			}
+			const int nInstrument = pSong->getDrumkit()->getInstruments()->index( pNote->getInstrument() );
 
 			// Check whether the instrument could be found.
 			if ( nInstrument != -1 ) {
@@ -1392,10 +1385,9 @@ void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 		while ( !m_songNoteQueue.empty() ) {
 			auto pNote = m_songNoteQueue.top();
 			if ( pNote != nullptr ) {
-				if ( pNote->get_instrument() != nullptr ) {
-					pNote->get_instrument()->dequeue( pNote );
+				if ( pNote->getInstrument() != nullptr ) {
+					pNote->getInstrument()->dequeue( pNote );
 				}
-				delete pNote;
 			}
 			m_songNoteQueue.pop();
 		}
@@ -1405,16 +1397,13 @@ void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 		//
 		// AFAICS we can not erase from m_songNoteQueue since it is a priority
 		// queue. Instead, we construct it anew.
-		std::vector<Note*> notes;
+		std::vector<std::shared_ptr<Note>> notes;
 		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
 			auto ppNote = m_songNoteQueue.top();
-			if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
-				 ppNote->get_instrument() == pInstrument ) {
-				if ( ppNote->get_instrument() != nullptr ) {
-					ppNote->get_instrument()->dequeue( ppNote );
-				}
-				if ( ppNote != nullptr ) {
-					delete ppNote;
+			if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
+				 ppNote->getInstrument() == pInstrument ) {
+				if ( ppNote->getInstrument() != nullptr ) {
+					ppNote->getInstrument()->dequeue( ppNote );
 				}
 			}
 			else {
@@ -1431,12 +1420,12 @@ void AudioEngine::clearNoteQueues( std::shared_ptr<Instrument> pInstrument )
 	// Notes of MIDI note queue (no instrument enqueued in here).
 	for ( auto it = m_midiNoteQueue.begin(); it != m_midiNoteQueue.end(); ) {
 		auto ppNote = *it;
-		if ( ppNote == nullptr || ppNote->get_instrument() == nullptr ||
+		if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
 			 ( pInstrument == nullptr ||
-			   ppNote->get_instrument() == pInstrument ) ) {
-			delete ppNote;
+			   ppNote->getInstrument() == pInstrument ) ) {
 			it = m_midiNoteQueue.erase( it );
-		} else {
+		}
+		else {
 			++it;
 		}
 	}
@@ -2017,7 +2006,7 @@ void AudioEngine::updateSongSize() {
 	EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
 }
 
-void AudioEngine::removePlayingPattern( Pattern* pPattern ) {
+void AudioEngine::removePlayingPattern( std::shared_ptr<Pattern> pPattern ) {
 	auto removePattern = [&]( std::shared_ptr<TransportPosition> pPos ) {
 		auto pPlayingPatterns = pPos->getPlayingPatterns();
 		
@@ -2283,7 +2272,7 @@ void AudioEngine::handleTimelineChange() {
 void AudioEngine::handleTempoChange() {
 	if ( m_songNoteQueue.size() != 0 ) {
 
-		std::vector<Note*> notes;
+		std::vector<std::shared_ptr<Note>> notes;
 		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
 			notes.push_back( m_songNoteQueue.top() );
 		}
@@ -2315,7 +2304,7 @@ void AudioEngine::handleTempoChange() {
 void AudioEngine::handleSongSizeChange() {
 	if ( m_songNoteQueue.size() != 0 ) {
 
-		std::vector<Note*> notes;
+		std::vector<std::shared_ptr<Note>> notes;
 		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
 			notes.push_back( m_songNoteQueue.top() );
 		}
@@ -2328,17 +2317,17 @@ void AudioEngine::handleSongSizeChange() {
 
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[song queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
-							 .arg( pNote->get_instrument() != nullptr ?
-								   pNote->get_instrument()->get_name() :
+							 .arg( pNote->getInstrument() != nullptr ?
+								   pNote->getInstrument()->get_name() :
 								   "nullptr" )
-						  .arg( nnote->get_position() )
-						  .arg( std::max( nnote->get_position() + nTickOffset,
+						  .arg( nnote->getPosition() )
+						  .arg( std::max( nnote->getPosition() + nTickOffset,
 										  static_cast<long>(0) ) )
 						  .arg( m_pTransportPosition->getTickOffsetSongSize(), 0, 'f' )
 						  .arg( nTickOffset ) );
 #endif
 	
-				nnote->set_position( std::max( nnote->get_position() + nTickOffset,
+				nnote->setPosition( std::max( nnote->getPosition() + nTickOffset,
 											   static_cast<long>(0) ) );
 				nnote->computeNoteStart();
 				m_songNoteQueue.push( nnote );
@@ -2352,24 +2341,24 @@ void AudioEngine::handleSongSizeChange() {
 		}
 
 		if ( notes.size() > 0 ) {
-			for ( auto nnote : notes ) {
+			for ( auto ppNote : notes ) {
 
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[midi queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
-							 .arg( pNote->get_instrument() != nullptr ?
-								   pNote->get_instrument()->get_name() :
+							 .arg( pNote->getInstrument() != nullptr ?
+								   pNote->getInstrument()->get_name() :
 								   "nullptr" )
-						  .arg( nnote->get_position() )
-						  .arg( std::max( nnote->get_position() + nTickOffset,
+						  .arg( ppNote->getPosition() )
+						  .arg( std::max( ppNote->getPosition() + nTickOffset,
 										  static_cast<long>(0) ) )
 						  .arg( m_pTransportPosition->getTickOffsetSongSize(), 0, 'f' )
 						  .arg( nTickOffset ) );
 #endif
 		
-				nnote->set_position( std::max( nnote->get_position() + nTickOffset,
+				ppNote->setPosition( std::max( ppNote->getPosition() + nTickOffset,
 											   static_cast<long>(0) ) );
-				nnote->computeNoteStart();
-				m_midiNoteQueue.push_back( nnote );
+				ppNote->computeNoteStart();
+				m_midiNoteQueue.push_back( ppNote );
 			}
 		}
 	}
@@ -2498,22 +2487,19 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 
 	// MIDI events get put into the `m_songNoteQueue` as well.
 	while ( m_midiNoteQueue.size() > 0 ) {
-		Note *pNote = m_midiNoteQueue[0];
-		if ( pNote == nullptr || pNote->get_instrument() == nullptr ) {
+		auto pNote = m_midiNoteQueue[0];
+		if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
 			m_midiNoteQueue.pop_front();
-			if ( pNote != nullptr ) {
-				delete pNote;
-			}
 		}
 		else {
 
-			if ( pNote->get_position() >
+			if ( pNote->getPosition() >
 				 static_cast<int>(coarseGrainTick( fTickEndComp )) ) {
 				break;
 			}
 
 			m_midiNoteQueue.pop_front();
-			pNote->get_instrument()->enqueue( pNote );
+			pNote->getInstrument()->enqueue( pNote );
 			pNote->computeNoteStart();
 			pNote->humanize();
 			m_songNoteQueue.push( pNote );
@@ -2602,21 +2588,22 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			// two different sounds and events will be used.
 			if ( nMetronomeTickPosition == 0 ) {
 				fPitch = 3;
-				fVelocity = 1.0;
+				fVelocity = VELOCITY_MAX;
 			} else {
-				fPitch = 0;
-				fVelocity = 0.8;
+				fPitch = PITCH_DEFAULT;
+				fVelocity = VELOCITY_DEFAULT;
 			}
 			
 			// Only trigger the sounds if the user enabled the
 			// metronome. 
 			if ( Preferences::get_instance()->m_bUseMetronome ) {
-				Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
-												 nnTick,
-												 fVelocity,
-												 0.f, // pan
-												 -1,
-												 fPitch );
+				auto pMetronomeNote = std::make_shared<Note>(
+					m_pMetronomeInstrument,
+					nnTick,
+					fVelocity,
+					PAN_DEFAULT, // pan
+					LENGTH_ENTIRE_SAMPLE,
+					fPitch );
 				m_pMetronomeInstrument->enqueue( pMetronomeNote );
 				pMetronomeNote->computeNoteStart();
 				m_songNoteQueue.push( pMetronomeNote );
@@ -2639,15 +2626,15 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 		// Supporting ticks with float precision:
 		// - make FOREACH_NOTE_CST_IT_BOUND loop over all notes
 		// `(_it)->first >= (_bound) && (_it)->first < (_bound + 1)`
-		// - add remainder of pNote->get_position() % 1 when setting
+		// - add remainder of pNote->getPosition() % 1 when setting
 		// nnTick as new position.
 		//
 		const auto pPlayingPatterns = m_pQueuingPosition->getPlayingPatterns();
 		if ( pPlayingPatterns->size() != 0 ) {
 			for ( auto nPat = 0; nPat < pPlayingPatterns->size(); ++nPat ) {
-				Pattern *pPattern = pPlayingPatterns->get( nPat );
+				auto pPattern = pPlayingPatterns->get( nPat );
 				assert( pPattern != nullptr );
-				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
+				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->getNotes();
 
 				// Loop over all notes at tick nPatternTickPosition
 				// (associated tick is determined by Note::__position
@@ -2655,25 +2642,23 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 				FOREACH_NOTE_CST_IT_BOUND_LENGTH(notes, it,
 												 m_pQueuingPosition->getPatternTickPosition(),
 												 pPattern ) {
-					Note *pNote = it->second;
+					auto pNote = it->second;
 					if ( pNote != nullptr &&
-						 pNote->get_instrument() != nullptr ) {
-						pNote->set_just_recorded( false );
-						
-						Note *pCopiedNote = new Note( pNote );
+						 pNote->getInstrument() != nullptr ) {
+						auto pCopiedNote = std::make_shared<Note>( pNote );
 
 						// Lead or Lag.
 						// This property is set within the
 						// NotePropertiesRuler and only applies to
 						// notes picked up from patterns within
 						// Hydrogen during transport.
-						pCopiedNote->set_humanize_delay(
-							pCopiedNote->get_humanize_delay() + 
+						pCopiedNote->setHumanizeDelay(
+							pCopiedNote->getHumanizeDelay() +
 							static_cast<int>(
-								static_cast<float>(pNote->get_lead_lag()) *
+								static_cast<float>(pNote->getLeadLag()) *
 								static_cast<float>(nLeadLagFactor) ));
 						
-						pCopiedNote->set_position( nnTick );
+						pCopiedNote->setPosition( nnTick );
 						pCopiedNote->humanize();
 
 					   /** Swing 16ths
@@ -2696,18 +2681,18 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 						
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
 							const float fPos = static_cast<float>( m_pQueuingPosition->getColumn() ) +
-								pCopiedNote->get_position() % 192 / 192.f;
-							pCopiedNote->set_velocity( pCopiedNote->get_velocity() *
+								pCopiedNote->getPosition() % 192 / 192.f;
+							pCopiedNote->setVelocity( pCopiedNote->getVelocity() *
 													   pAutomationPath->get_value( fPos ) );
 						}
 
 						// Ensure the custom length of the note does not exceed
 						// the length of the current pattern.
-						if ( pCopiedNote->get_length() != -1 ) {
-							pCopiedNote->set_length(
+						if ( pCopiedNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
+							pCopiedNote->setLength(
 								std::min(
-									static_cast<long>(pCopiedNote->get_length()),
-									static_cast<long>(pPattern->get_length()) -
+									static_cast<long>(pCopiedNote->getLength()),
+									static_cast<long>(pPattern->getLength()) -
 									m_pQueuingPosition->getPatternTickPosition() ) );
 						}
 
@@ -2717,7 +2702,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 								  .arg( pCopiedNote->toQString() ) );
 #endif
 
-						pCopiedNote->get_instrument()->enqueue( pCopiedNote );
+						pCopiedNote->getInstrument()->enqueue( pCopiedNote );
 						m_songNoteQueue.push( pCopiedNote );
 					}
 				}
@@ -2728,22 +2713,22 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 	return;
 }
 
-void AudioEngine::noteOn( Note *note )
+void AudioEngine::noteOn( std::shared_ptr<Note> pNote )
 {
 	if ( ! ( getState() == State::Playing ||
 			 getState() == State::Ready ||
 			 getState() == State::Testing ) ) {
 		AE_ERRORLOG( QString( "Error the audio engine is not in State::Ready, State::Playing, or State::Testing but [%1]" )
 					 .arg( static_cast<int>( getState() ) ) );
-		delete note;
 		return;
 	}
 
-	m_midiNoteQueue.push_back( note );
+	m_midiNoteQueue.push_back( pNote );
 }
 
-bool AudioEngine::compare_pNotes::operator()(Note* pNote1, Note* pNote2) {
-	return pNote1->getNoteStart() > pNote2->getNoteStart();
+bool AudioEngine::compare_pNotes::operator()( std::shared_ptr<Note> pNote1,
+											  std::shared_ptr<Note> pNote2 ) {
+	return Note::compareStart( pNote1, pNote2 );
 }
 
 void AudioEngine::play() {

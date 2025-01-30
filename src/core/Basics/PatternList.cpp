@@ -38,20 +38,15 @@ PatternList::PatternList()
 {
 }
 
-PatternList::PatternList( PatternList* other ) : Object( *other )
+PatternList::PatternList( PatternList* pOther ) : Object( *pOther )
 {
 	assert( __patterns.size() == 0 );
-	for ( int i=0; i<other->size(); i++ ) {
-		( *this ) << ( new Pattern( ( *other )[i] ) );
+	for ( int i=0; i<pOther->size(); i++ ) {
+		( *this ) << ( std::make_shared<Pattern>( ( *pOther )[i] ) );
 	}
 }
 
-PatternList::~PatternList()
-{
-	for ( int i = 0; i < __patterns.size(); ++i ) {
-		assert ( __patterns[i] );
-		delete __patterns[i];
-	}
+PatternList::~PatternList() {
 }
 
 PatternList* PatternList::load_from( const XMLNode& node,
@@ -69,8 +64,7 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		Pattern* pPattern =
-			Pattern::load_from( patternNode, sDrumkitName, bSilent );
+		auto pPattern = Pattern::loadFrom( patternNode, sDrumkitName, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -88,17 +82,18 @@ PatternList* PatternList::load_from( const XMLNode& node,
 	return pPatternList;
 }
 
-void PatternList::save_to( XMLNode& node, const std::shared_ptr<Instrument> pInstrumentOnly ) const {
+void PatternList::save_to( XMLNode& node, int nInstrumentId,
+						   const QString& sType, int nPitch ) const {
 	XMLNode patternListNode = node.createNode( "patternList" );
 	
 	for ( const auto& pPattern : __patterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->save_to( patternListNode, pInstrumentOnly );
+			pPattern->saveTo( patternListNode, nInstrumentId, sType, nPitch );
 		}
 	}
 }
 	
-void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
+void PatternList::add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	if ( pPattern == nullptr ) {
@@ -115,7 +110,7 @@ void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 		// Check whether the pattern is contained as a virtual
 		// pattern.
 		for ( const auto& ppPattern : __patterns ) {
-			auto pVirtualPatterns = ppPattern->get_virtual_patterns();
+			auto pVirtualPatterns = ppPattern->getVirtualPatterns();
 			if ( pVirtualPatterns->find( pPattern ) != pVirtualPatterns->end() ) {
 				// Provided pattern is already contained as virtual pattern
 				return;
@@ -127,7 +122,7 @@ void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 	// individual patterns it encompasses in case one of them was
 	// already activated. (They will be only activated as virtual
 	// patterns from here on).
-	auto pVirtualPatterns = pPattern->get_virtual_patterns();
+	auto pVirtualPatterns = pPattern->getVirtualPatterns();
 	for ( int ii = __patterns.size() - 1; ii >= 0 && ii < __patterns.size(); --ii ) {
 		auto ppPattern = __patterns[ ii ];
 		if ( pVirtualPatterns->find( ppPattern ) != pVirtualPatterns->end() ) {
@@ -142,7 +137,7 @@ void PatternList::add( Pattern* pPattern, bool bAddVirtuals )
 	}
 }
 
-void PatternList::insert( int nIdx, Pattern* pPattern )
+void PatternList::insert( int nIdx, std::shared_ptr<Pattern> pPattern )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	// do nothing if already in __patterns
@@ -155,7 +150,7 @@ void PatternList::insert( int nIdx, Pattern* pPattern )
 	__patterns.insert( __patterns.begin() + nIdx, pPattern );
 }
 
-Pattern* PatternList::get( int idx ) const
+std::shared_ptr<Pattern> PatternList::get( int idx ) const
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	if ( idx < 0 || idx >= __patterns.size() ) {
@@ -166,7 +161,7 @@ Pattern* PatternList::get( int idx ) const
 	return __patterns[idx];
 }
 
-int PatternList::index( const Pattern* pattern ) const
+int PatternList::index( const std::shared_ptr<Pattern> pattern ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if ( __patterns[i]==pattern ) {
@@ -176,29 +171,30 @@ int PatternList::index( const Pattern* pattern ) const
 	return -1;
 }
 
-Pattern* PatternList::del( int idx )
+std::shared_ptr<Pattern> PatternList::del( int idx )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	if ( idx >= 0 && idx < __patterns.size() ) {
-		Pattern* pattern = __patterns[idx];
+		std::shared_ptr<Pattern> pattern = __patterns[idx];
 		__patterns.erase( __patterns.begin() + idx );
 		return pattern;
 	}
 	return nullptr;
 }
 
-Pattern* PatternList::del( Pattern* pattern )
+std::shared_ptr<Pattern> PatternList::del( std::shared_ptr<Pattern> pPattern )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
-	for( int i=0; i<__patterns.size(); i++ ) {
-		if( __patterns[i]==pattern ) {
+	for ( int i = 0; i < __patterns.size(); i++ ) {
+		if ( __patterns[ i ] == pPattern ) {
 			return del( i );
 		}
 	}
 	return nullptr;
 }
 
-Pattern* PatternList::replace( int idx, Pattern* pattern )
+std::shared_ptr<Pattern> PatternList::replace( int idx,
+											   std::shared_ptr<Pattern> pPattern )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	/*
@@ -208,29 +204,23 @@ Pattern* PatternList::replace( int idx, Pattern* pattern )
 
 	assert( idx >= 0 && idx <= __patterns.size() +1 );
 	if( idx < 0 || idx >= __patterns.size() ) {
-		ERRORLOG( QString( "index out of bounds %1 (size:%2)" ).arg( idx ).arg( __patterns.size() ) );
+		ERRORLOG( QString( "index out of bounds %1 (size:%2)" )
+				  .arg( idx ).arg( __patterns.size() ) );
 		return nullptr;
 	}
 
-	__patterns.insert( __patterns.begin() + idx, pattern );
+	__patterns.insert( __patterns.begin() + idx, pPattern );
 	__patterns.erase( __patterns.begin() + idx + 1 );
 
 	//create return pattern after patternlist tätatä to return the right one
-	Pattern* ret = __patterns[idx];
+	std::shared_ptr<Pattern> ret = __patterns[idx];
 	return ret;
 }
 
-void PatternList::set_to_old()
+std::shared_ptr<Pattern>  PatternList::find( const QString& name ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
-		__patterns[i]->set_to_old();
-	}
-}
-
-Pattern*  PatternList::find( const QString& name ) const
-{
-	for( int i=0; i<__patterns.size(); i++ ) {
-		if ( __patterns[i]->get_name()==name ) {
+		if ( __patterns[i]->getName()==name ) {
 			return __patterns[i];
 		}
 	}
@@ -244,7 +234,7 @@ void PatternList::move( int idx_a, int idx_b )
 	assert( idx_b >= 0 && idx_b < __patterns.size() );
 	if( idx_a == idx_b ) return;
 	//DEBUGLOG(QString("===>> MOVE  %1 %2").arg(idx_a).arg(idx_b) );
-	Pattern* tmp = __patterns[idx_a];
+	std::shared_ptr<Pattern> tmp = __patterns[idx_a];
 	__patterns.erase( __patterns.begin() + idx_a );
 	__patterns.insert( __patterns.begin() + idx_b, tmp );
 }
@@ -252,26 +242,30 @@ void PatternList::move( int idx_a, int idx_b )
 void PatternList::flattened_virtual_patterns_compute()
 {
 	for ( int i=0 ; i<__patterns.size() ; i++ ) {
-		__patterns[i]->flattened_virtual_patterns_clear();
+		__patterns[i]->flattenedVirtualPatternsClear();
 	}
 	for ( int i=0 ; i<__patterns.size() ; i++ ) {
-		__patterns[i]->flattened_virtual_patterns_compute();
+		__patterns[i]->flattenedVirtualPatternsCompute();
 	}
 }
 
-void PatternList::virtual_pattern_del( Pattern* pattern )
+void PatternList::virtual_pattern_del( std::shared_ptr<Pattern> pPattern )
 {
-	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
+	for ( int i = 0; i < __patterns.size(); i++ ) {
+		__patterns[ i ]->virtualPatternsDel( pPattern );
+	}
 }
 
-bool PatternList::check_name( const QString& patternName, Pattern* ignore ) const
+bool PatternList::check_name( const QString& sPatternName,
+							  std::shared_ptr<Pattern> pIgnore ) const
 {
-	if (patternName == "") {
+	if ( sPatternName.isEmpty() ) {
 		return false;
 	}
 
-	for (uint i = 0; i < __patterns.size(); i++) {
-		if ( __patterns[i] != ignore && __patterns[i]->get_name() == patternName ) {
+	for ( int i = 0; i < __patterns.size(); i++ ) {
+		if ( __patterns[ i ] != pIgnore &&
+			 __patterns[ i ]->getName() == sPatternName ) {
 			return false;
 		}
 	}
@@ -279,7 +273,7 @@ bool PatternList::check_name( const QString& patternName, Pattern* ignore ) cons
 }
 
 QString PatternList::find_unused_pattern_name( const QString& sSourceName,
-											   Pattern* ignore ) const
+											   std::shared_ptr<Pattern> pIgnore ) const
 {
 	QString unusedPatternNameCandidate;
 	QString sSource { sSourceName };
@@ -304,7 +298,7 @@ QString PatternList::find_unused_pattern_name( const QString& sSourceName,
 		unusedPatternNameCandidate = match.captured(1);
 	}
 
-	while( !check_name( unusedPatternNameCandidate + suffix, ignore ) ) {
+	while( !check_name( unusedPatternNameCandidate + suffix, pIgnore ) ) {
 		suffix = " #" + QString::number(i);
 		i++;
 	}
@@ -317,14 +311,14 @@ QString PatternList::find_unused_pattern_name( const QString& sSourceName,
 int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	int nMax = -1;
 	for ( const auto& ppPattern : __patterns ) {
-		if ( ppPattern->get_length() > nMax ) {
-			nMax = ppPattern->get_length();
+		if ( ppPattern->getLength() > nMax ) {
+			nMax = ppPattern->getLength();
 		}
 
 		if ( bIncludeVirtuals ) {
-			for ( const auto& ppVirtualPattern : *ppPattern->get_flattened_virtual_patterns() ) {
-				if ( ppVirtualPattern->get_length() > nMax ) {
-					nMax = ppVirtualPattern->get_length();
+			for ( const auto& ppVirtualPattern : *ppPattern->getFlattenedVirtualPatterns() ) {
+				if ( ppVirtualPattern->getLength() > nMax ) {
+					nMax = ppVirtualPattern->getLength();
 				}
 			}
 		}
@@ -332,9 +326,10 @@ int PatternList::longest_pattern_length( bool bIncludeVirtuals ) const {
 	return nMax;
 }
 
-void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit ) {
+void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit,
+						 std::shared_ptr<Drumkit> pOldDrumkit ) {
 	for ( auto& ppPattern : __patterns ) {
-		ppPattern->mapTo( pDrumkit );
+		ppPattern->mapTo( pDrumkit, pOldDrumkit );
 	}
 }
 
@@ -380,7 +375,7 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[PatternList] " );
 		for ( const auto& pp : __patterns ) {
 			if ( pp != nullptr ) {
-				sOutput.append( QString( "[%1] " ).arg( pp->get_name() ) );
+				sOutput.append( QString( "[%1] " ).arg( pp->getName() ) );
 			}
 		}
 	}
@@ -400,10 +395,10 @@ std::set<DrumkitMap::Type> PatternList::getAllTypes() const {
 	return types;
 }
 
-std::vector<H2Core::Note*> PatternList::getAllNotesOfType(
+std::vector<std::shared_ptr<Note>> PatternList::getAllNotesOfType(
 	const DrumkitMap::Type& sType ) const
 {
-	std::vector<H2Core::Note*> notes;
+	std::vector<std::shared_ptr<Note>> notes;
 
 	for ( const auto& ppPattern : __patterns ) {
 		if ( ppPattern != nullptr ) {
@@ -417,21 +412,21 @@ std::vector<H2Core::Note*> PatternList::getAllNotesOfType(
 }
 
 
-std::vector<Pattern*>::iterator PatternList::begin() {
+std::vector<std::shared_ptr<Pattern>>::iterator PatternList::begin() {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	return __patterns.begin();
 }
 
-std::vector<Pattern*>::iterator PatternList::end() {
+std::vector<std::shared_ptr<Pattern>>::iterator PatternList::end() {
 	return __patterns.end();
 }
 
-std::vector<Pattern*>::const_iterator PatternList::cbegin() const {
+std::vector<std::shared_ptr<Pattern>>::const_iterator PatternList::cbegin() const {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	return __patterns.begin();
 }
 
-std::vector<Pattern*>::const_iterator PatternList::cend() const {
+std::vector<std::shared_ptr<Pattern>>::const_iterator PatternList::cend() const {
 	return __patterns.end();
 }
  

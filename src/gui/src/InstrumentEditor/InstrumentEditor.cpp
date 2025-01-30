@@ -28,16 +28,16 @@
 #include <assert.h>
 #include <vector>
 
-#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/Basics/Adsr.h>
-#include <core/Basics/Sample.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
@@ -131,9 +131,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	/////////////
 
-	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
-			 this, SLOT( labelClicked(ClickableLabel*) ) );
-	
+	connect( m_pNameLbl, &ClickableLabel::labelClicked, this, [=](){
+		auto pSong = Hydrogen::get_instance()->getSong();
+		if ( m_pInstrument != nullptr && pSong != nullptr &&
+			 pSong->getDrumkit() != nullptr ) {
+			MainForm::action_drumkit_renameInstrument(
+				pSong->getDrumkit()->getInstruments()->index( m_pInstrument ) );}
+	} );
+
 	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ), false, false );
 	m_pPitchLCD->move( 24, 213 );
 	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 10 ),
@@ -836,6 +841,11 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 		return;
 	}
 
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	assert( ref );
 	Rotary* pRotary = static_cast<Rotary*>( ref );
 
@@ -848,12 +858,14 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 		//round fVal, since Coarse is the integer number of half steps
 		float fNewPitch = round( fVal ) + m_pPitchFineRotary->getValue();
 		CoreActionController::setInstrumentPitch(
-			m_pInstrument->get_id(), fNewPitch );
+			pSong->getDrumkit()->getInstruments()->index( m_pInstrument ),
+			fNewPitch );
 	}
 	else if ( pRotary == m_pPitchFineRotary ) {
 		float fNewPitch = round( m_pPitchCoarseRotary->getValue() ) + fVal;
 		CoreActionController::setInstrumentPitch(
-			m_pInstrument->get_id(), fNewPitch );
+			pSong->getDrumkit()->getInstruments()->index( m_pInstrument ),
+			fNewPitch );
 	}
 	else if ( pRotary == m_pCutoffRotary ) {
 		m_pInstrument->set_filter_cutoff( fVal );
@@ -1212,6 +1224,9 @@ void InstrumentEditor::renameComponentAction()
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	const QString sOldName = pComponent->getName();
 	bool bIsOkPressed;
 	const QString sNewName = QInputDialog::getText(
@@ -1219,9 +1234,13 @@ void InstrumentEditor::renameComponentAction()
 		sOldName, &bIsOkPressed );
 
 	if ( bIsOkPressed && sOldName != sNewName ) {
-		 auto pAction = new SE_renameComponentAction(
-			 sNewName, sOldName, m_nSelectedComponent );
-		 HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+		 pHydrogenApp->pushUndoCommand(
+			 new SE_renameComponentAction(
+				 sNewName, sOldName, m_nSelectedComponent ) );
+		 pHydrogenApp->showStatusBarMessage(
+			 QString( "%1: [%2] -> [%3]" )
+					 .arg( pCommonStrings->getActionRenameComponent() )
+					 .arg( sOldName ).arg( sNewName ) );
 	}
 }
 
@@ -1255,41 +1274,6 @@ void InstrumentEditor::selectComponent( int nComponent )
 	m_nSelectedComponent = nComponent;
 	m_pLayerPreview->set_selected_component( m_nSelectedComponent );
 }
-
-void InstrumentEditor::labelClicked( ClickableLabel* pRef )
-{
-	UNUSED( pRef );
-
-	if ( m_pInstrument == nullptr ) {
-		return;
-	}
-
-	QString sOldName = m_pInstrument->get_name();
-	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
-
-	if ( bIsOkPressed && sNewName != sOldName ) {
-		auto pHydrogen = Hydrogen::get_instance();
-
-		m_pInstrument->set_name( sNewName );
-		selectedInstrumentChangedEvent();
-
-		pHydrogen->setIsModified( true );
-
-#ifdef H2CORE_HAVE_JACK
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		pHydrogen->renameJackPorts( pHydrogen->getSong() );
-		pHydrogen->getAudioEngine()->unlock();
-#endif
-
-		// this will force an update...
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	}
-	else {
-		// user entered nothing or pressed Cancel
-	}
-}
-
 
 void InstrumentEditor::selectLayer( int nLayer )
 {
@@ -1501,15 +1485,21 @@ void InstrumentEditor::addComponentAction() {
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
 	auto pNewInstrument = std::make_shared<Instrument>( m_pInstrument );
 
 	const auto pNewComponent = std::make_shared<InstrumentComponent>( sNewName );
 	pNewInstrument->addComponent( pNewComponent );
 
-	auto pAction = new SE_replaceInstrumentAction(
-		pNewInstrument, m_pInstrument,
-		SE_replaceInstrumentAction::Type::AddComponent, sNewName );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, m_pInstrument,
+			SE_replaceInstrumentAction::Type::AddComponent, sNewName ) );
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionAddComponent() )
+		.arg( sNewName ) );
 
 	// New components will be appended.
 	selectComponent( m_pInstrument->get_components()->size() );
@@ -1531,6 +1521,8 @@ void InstrumentEditor::deleteComponentAction() {
 				  .arg( m_nSelectedComponent ) );
 		return;
 	}
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	const auto sName = pComponent->getName();
 
@@ -1539,10 +1531,13 @@ void InstrumentEditor::deleteComponentAction() {
 	const auto pNewComponent = std::make_shared<InstrumentComponent>( sName );
 	pNewInstrument->removeComponent( m_nSelectedComponent );
 
-	auto pAction = new SE_replaceInstrumentAction(
-		pNewInstrument, m_pInstrument,
-		SE_replaceInstrumentAction::Type::DeleteComponent, sName );
-	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, m_pInstrument,
+			SE_replaceInstrumentAction::Type::DeleteComponent, sName ) );
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteComponent() )
+		.arg( sName ) );
 
 	selectComponent(
 		std::clamp( m_nSelectedComponent, 0,

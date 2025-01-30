@@ -32,15 +32,6 @@
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../CommonStrings.h"
-#include "../Widgets/Button.h"
-#include "../Widgets/PixmapWidget.h"
-#include "../SongEditor/SongEditorPanel.h"
-#include "../PatternEditor/PatternEditorPanel.h"
-#include "../PatternEditor/DrumPatternEditor.h"
-#include "../PatternEditor/PatternEditorInstrumentList.h"
-#include "../InstrumentRack.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h"
-#include "../UndoActions.h"
 
 #include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -201,6 +192,12 @@ void SoundLibraryPanel::updateTree()
 		}
 
 		const QString sItemLabel = pSoundLibraryDatabase->getUniqueLabel( ssPath );
+		if ( sItemLabel.isEmpty() ) {
+			ERRORLOG( QString( "Unable to retrieve unique label for kit in path [%1]" )
+					  .arg( ssPath ) );
+			continue;
+		}
+
 		const auto drumkitContext = ppDrumkit->getContext();
 
 		QTreeWidgetItem* pDrumkitItem;

@@ -24,9 +24,10 @@
 #include <QTextCodec>
 
 #include <core/Lilipond/Lilypond.h>
-#include <core/Basics/Song.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/Song.h>
 
 /*
  * Header of LilyPond file
@@ -125,27 +126,27 @@ void H2Core::LilyPond::write( const QString &sFilename ) const {
 void H2Core::LilyPond::addPatternList( const PatternList &list, notes_t &to ) {
 	to.clear();
 	for ( unsigned nPattern = 0; nPattern < list.size(); nPattern++ ) {
-		if ( const Pattern *pPattern = list.get( nPattern ) ) {
+		if ( const auto& pPattern = list.get( nPattern ) ) {
 			addPattern( *pPattern, to );
 		}
 	}
 }
 
 void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
-	notes.reserve( pattern.get_length() );
-	for ( unsigned nNote = 0; nNote < pattern.get_length(); nNote++ ) {
+	notes.reserve( pattern.getLength() );
+	for ( unsigned nNote = 0; nNote < pattern.getLength(); nNote++ ) {
 		if ( nNote >= notes.size() ) {
 			notes.push_back( std::vector<std::pair<int, float> >() );
 		}
 
-		const Pattern::notes_t *pPatternNotes = pattern.get_notes();
+		const Pattern::notes_t *pPatternNotes = pattern.getNotes();
 		if ( !pPatternNotes ) {
 			continue;
 		}
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( pPatternNotes, it, nNote, &pattern ) {
-			if ( Note *pNote = it->second ) {
-				int nId = pNote->get_instrument_id();
-				float fVelocity = pNote->get_velocity();
+			if ( auto pNote = it->second ) {
+				int nId = pNote->getInstrumentId();
+				float fVelocity = pNote->getVelocity();
 				notes[ nNote ].push_back( std::make_pair( nId, fVelocity ) );
 			}
 		}

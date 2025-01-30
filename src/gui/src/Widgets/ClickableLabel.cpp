@@ -74,6 +74,13 @@ void ClickableLabel::mousePressEvent( QMouseEvent * e )
 	emit labelClicked( this );
 }
 
+void ClickableLabel::mouseDoubleClickEvent( QMouseEvent* pEvent ) {
+	emit labelDoubleClicked( pEvent );
+
+	QLabel::mouseDoubleClickEvent( pEvent );
+}
+
+
 void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 
 	QLabel::paintEvent( ev );

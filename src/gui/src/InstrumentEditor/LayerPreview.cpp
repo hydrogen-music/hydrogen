@@ -293,7 +293,8 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		const float fVelocity = (float)ev->x() / (float)width();
 
 		if ( m_pInstrument->hasSamples() ) {
-			Note * pNote = new Note( m_pInstrument, nPosition, fVelocity );
+			auto pNote = std::make_shared<Note>( m_pInstrument, nPosition,
+												 fVelocity );
 			pNote->setSpecificCompoIdx( m_nSelectedComponent );
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		}
@@ -326,9 +327,11 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				const float fVelocity = pLayer->get_end_velocity() - 0.01;
-				Note *note = new Note( m_pInstrument, nPosition, fVelocity );
-				note->setSpecificCompoIdx( m_nSelectedComponent );
-				Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(note);
+				auto pNote = std::make_shared<Note>(
+					m_pInstrument, nPosition, fVelocity );
+				pNote->setSpecificCompoIdx( m_nSelectedComponent );
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+					noteOn( pNote );
 				
 				int x1 = (int)( pLayer->get_start_velocity() * width() );
 				int x2 = (int)( pLayer->get_end_velocity() * width() );

@@ -622,12 +622,12 @@ void XmlTest::testShippedDrumkitMaps()
 void XmlTest::testPatternFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFile = H2TEST_FILE( "/pattern/pattern.h2pattern" );
-	const auto pPattern = H2Core::Pattern::load_file( sTestFile );
+	const auto pPattern = H2Core::Pattern::load( sTestFile );
 	CPPUNIT_ASSERT( pPattern != nullptr );
 
 	const QString sTmpPattern =
 		H2Core::Filesystem::tmp_file_path( "pattern-format-integrity.h2pattern" );
-	CPPUNIT_ASSERT( pPattern->save_file( "GMRockKit", sTmpPattern, true ) );
+	CPPUNIT_ASSERT( pPattern->save( sTmpPattern, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( sTestFile, sTmpPattern );
 
@@ -643,35 +643,30 @@ void XmlTest::testPattern()
 	QString sPatternPath =
 		H2Core::Filesystem::tmp_dir() + "pattern.h2pattern";
 
-	H2Core::Pattern* pPatternLoaded = nullptr;
-	H2Core::Pattern* pPatternCopied = nullptr;
-	H2Core::Pattern* pPatternNew = nullptr;
-	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
-	std::shared_ptr<H2Core::InstrumentList> pInstrumentList = nullptr;
 	H2Core::XMLDoc doc;
 
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
+	auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
 									  false, true );
 	CPPUNIT_ASSERT( pDrumkit!=nullptr );
-	pInstrumentList = pDrumkit->getInstruments();
+	auto pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
-	pPatternLoaded = H2Core::Pattern::load_file(
+	auto pPatternLoaded = H2Core::Pattern::load(
 		H2TEST_FILE( "/pattern/pattern.h2pattern" ) );
 	CPPUNIT_ASSERT( pPatternLoaded != nullptr );
-	CPPUNIT_ASSERT( pPatternLoaded->save_file( "GMRockKit", sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternLoaded->save( sPatternPath, true ) );
 
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/pattern.h2pattern" ),
 								   sPatternPath );
 
 	// Check for double freeing when destructing both copy and original.
-	pPatternCopied = new H2Core::Pattern( pPatternLoaded );
+	auto pPatternCopied = std::make_shared<H2Core::Pattern>( pPatternLoaded );
 
 	// Check whether the constructor produces valid patterns.
 	QString sEmptyPatternPath =
 		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
-	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
-	CPPUNIT_ASSERT( pPatternNew->save_file( "GMRockKit", sPatternPath, true ) );
+	auto pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
+	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath,
 							  H2Core::Filesystem::pattern_xsd_path() ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
@@ -680,9 +675,6 @@ void XmlTest::testPattern()
 	// Cleanup
 	H2Core::Filesystem::rm( sPatternPath );
 	H2Core::Filesystem::rm( sEmptyPatternPath );
-	delete pPatternLoaded;
-	delete pPatternCopied;
-	delete pPatternNew;
 	___INFOLOG( "passed" );
 }
 
@@ -693,12 +685,10 @@ void XmlTest::testPatternLegacy() {
 	legacyPatterns << H2TEST_FILE( "pattern/legacy/pattern-1.X.X.h2pattern" )
 				   << H2TEST_FILE( "pattern/legacy/legacy_pattern.h2pattern" );
 
-	H2Core::Pattern* pPattern;
 	for ( const auto& ssPattern : legacyPatterns ) {
-		pPattern = H2Core::Pattern::load_file( ssPattern );
+		auto pPattern = H2Core::Pattern::load( ssPattern );
 		CPPUNIT_ASSERT( pPattern );
 	}
-	delete pPattern;
 
 	___INFOLOG( "passed" );
 }
@@ -720,34 +710,29 @@ void XmlTest::testPatternInstrumentTypes()
 	}
 
 	// Check whether the reference pattern is valid.
-	const auto pPatternRef = H2Core::Pattern::load_file(
+	const auto pPatternRef = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern.h2pattern") );
 	CPPUNIT_ASSERT( pPatternRef != nullptr );
 
 	// The version of the reference without any type information should be
 	// filled with those obtained from the shipped .h2map file.
-	const auto pPatternWithoutTypes = H2Core::Pattern::load_file(
+	const auto pPatternWithoutTypes = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern-without-types.h2pattern") );
 	CPPUNIT_ASSERT( pPatternWithoutTypes != nullptr );
-	CPPUNIT_ASSERT( pPatternWithoutTypes->save_file(
-						"GMRockKit", sTmpWithoutTypes ) );
+	CPPUNIT_ASSERT( pPatternWithoutTypes->save( sTmpWithoutTypes ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpWithoutTypes );
 
 	// In this file an instrument id is off. But this should heal itself when
 	// switching to another kit and back (as only instrument types are used
 	// during switching and the ids are reassigned).
-	const auto pPatternMismatch = H2Core::Pattern::load_file(
+	const auto pPatternMismatch = H2Core::Pattern::load(
 		H2TEST_FILE( "pattern/pattern-with-mismatch.h2pattern") );
 	CPPUNIT_ASSERT( pPatternMismatch != nullptr );
 	// TODO switch back and forth
-	// CPPUNIT_ASSERT( pPatternMismatch->save_file( "GMRockKit", sTmpMismatch ) );
+	// CPPUNIT_ASSERT( pPatternMismatch->save( sTmpMismatch ) );
 	// H2TEST_ASSERT_XML_FILES_EQUAL(
 	// 	H2TEST_FILE( "pattern/pattern.h2pattern" ), sTmpMismatch );
-
-	delete pPatternRef;
-	delete pPatternWithoutTypes;
-	delete pPatternMismatch;
 
 	H2Core::Filesystem::rm( sTmpWithoutTypes );
 	H2Core::Filesystem::rm( sTmpMismatch );
@@ -963,6 +948,47 @@ void XmlTest::testShippedPreferences() {
 
 	// Cleanup
 	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpPreferences ) );
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testShippedThemes() {
+	___INFOLOG( "" );
+	QDir themesDir( H2Core::Filesystem::sys_theme_dir() );
+	H2Core::XMLDoc doc;
+	const auto shippedThemes = themesDir.entryList(
+		QStringList( QString( "*%1" ).arg( H2Core::Filesystem::themes_ext ) ),
+		QDir::Files | QDir::NoDotAndDotDot );
+
+	CPPUNIT_ASSERT( shippedThemes.size() > 0 );
+
+	for ( const auto& ssTheme : shippedThemes ) {
+		const QString sTmpFile =
+			H2Core::Filesystem::tmp_file_path( "check-shipped-themes-XXXX.conf" );
+		const auto pTheme =
+			H2Core::Theme::importFrom( themesDir.filePath( ssTheme ) );
+		pTheme->exportTo( sTmpFile );
+
+		H2TEST_ASSERT_PREFERENCES_FILES_EQUAL( themesDir.filePath( ssTheme ),
+											   sTmpFile );
+
+		// Cleanup
+		CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpFile ) );
+	}
+
+	// Check whether the default theme still carries all defaults.
+	const QString sDefaultTheme = themesDir.filePath( "default.h2theme" );
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( sDefaultTheme ) );
+
+	const QString sTmpFile =
+		H2Core::Filesystem::tmp_file_path( "check-default-theme-XXXX.conf" );
+	const auto pDefaultTheme = std::make_shared<H2Core::Theme>();
+	pDefaultTheme->exportTo( sTmpFile );
+
+	H2TEST_ASSERT_THEME_FILES_EQUAL( sDefaultTheme, sTmpFile );
+
+	// Cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sTmpFile ) );
+
 	___INFOLOG( "passed" );
 }
 

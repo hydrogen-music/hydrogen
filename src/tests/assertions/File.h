@@ -34,7 +34,8 @@ namespace H2Test {
 		Xml = 0,
 		Song = 1,
 		Preferences = 2,
-		Drumkit = 3
+		Drumkit = 3,
+		Theme = 4
 	};
 
 	void checkFilesEqual( const QString& sExpected, const QString& sActual,
@@ -72,6 +73,8 @@ namespace H2Test {
 	H2Test::checkXmlFilesEqual( sExpected, sActual, false, H2Test::FileType::Drumkit, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_PREFERENCES_FILES_EQUAL( sExpected, sActual ) \
 	H2Test::checkXmlFilesEqual( sExpected, sActual, true, H2Test::FileType::Preferences, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_THEME_FILES_EQUAL( sExpected, sActual ) \
+	H2Test::checkXmlFilesEqual( sExpected, sActual, true, H2Test::FileType::Theme, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_EQUAL( sExpected, sActual ) \
 	H2Test::checkDirsEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_UNEQUAL( sExpected, sActual ) \

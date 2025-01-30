@@ -155,6 +155,34 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 					CPPUNIT_ASSERT( actualLines.removeAll( ssRemoveLine ) == 1 );
 				}
 			}
+			else if ( fileType == FileType::Theme ) {
+				// In case the fonts specified in the theme are not installed on
+				// the system, Qt falls back to sane defaults.
+				QStringList linesToRemove;
+				for ( const auto& ssLine : actualLines ) {
+					if ( ssLine.contains( "<application_font_family>" ) ||
+						 ssLine.contains( "<level2_font_family>" ) ||
+						 ssLine.contains( "<level3_font_family>" ) ) {
+						linesToRemove << ssLine;
+					}
+				}
+				for ( const auto& ssRemoveLine : linesToRemove ) {
+					CPPUNIT_ASSERT( actualLines.removeAll( ssRemoveLine ) == 1 );
+				}
+
+				linesToRemove.clear();
+				for ( const auto& ssLine : expectedLines ) {
+					if ( ssLine.contains( "<application_font_family>" ) ||
+						 ssLine.contains( "<level2_font_family>" ) ||
+						 ssLine.contains( "<level3_font_family>" ) ) {
+						linesToRemove << ssLine;
+					}
+				}
+				for ( const auto& ssRemoveLine : linesToRemove ) {
+					CPPUNIT_ASSERT( expectedLines.removeAll( ssRemoveLine ) == 1 );
+				}
+
+			}
 			else if ( fileType == FileType::Drumkit ) {
 				QStringList actualLinesToRemove;
 				QStringList expectedLinesToRemove;
@@ -235,7 +263,8 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 				// Preferences do only change the version when saving them
 				// straight away.
 				if ( ( fileType == FileType::Song ||
-					   fileType == FileType::Preferences ) && (
+					   fileType == FileType::Preferences ||
+					   fileType == FileType::Theme ) && (
 						( expectedLines.at( ii ).contains( "<version>" ) &&
 						  actualLines.at( ii ).contains( "<version>" ) )
 						) ) {

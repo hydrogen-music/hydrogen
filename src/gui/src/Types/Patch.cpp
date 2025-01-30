@@ -51,9 +51,9 @@ QString Patch::Mapping::toQString( const QString& sPrefix, bool bShort ) const {
 			if ( ppNote != nullptr ) {
 				sOutput.append( QString( "[type: %1, pos: %2, instrument: %3] " )
 								.arg( ppNote->getType() )
-								.arg( ppNote->get_position() )
-								.arg( ppNote->get_instrument() != nullptr ?
-									  ppNote->get_instrument()->get_name() :
+								.arg( ppNote->getPosition() )
+								.arg( ppNote->getInstrument() != nullptr ?
+									  ppNote->getInstrument()->get_name() :
 									  "nullptr" ) );
 			}
 		}
@@ -68,7 +68,7 @@ Patch::~Patch() {
 }
 
 void Patch::addMapping( const QString& sOldPatternType, int nNewInstrumentId,
-						std::vector<H2Core::Note*> afftectedNotes ) {
+						std::vector< std::shared_ptr<H2Core::Note> > afftectedNotes ) {
 	Mapping mapping;
 	mapping.sOldPatternType = sOldPatternType;
 	mapping.nNewInstrumentId = nNewInstrumentId;

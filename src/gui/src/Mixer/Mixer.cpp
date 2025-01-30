@@ -252,9 +252,6 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }
 
-
-
-/// used in PatternEditorInstrumentList
 void Mixer::soloClicked(uint nLine)
 {
 	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {
@@ -305,8 +302,8 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 	
-	Note *pNote = new Note( pSelectedInstrument, 0, 1.0 );
-	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
+	auto pNote = std::make_shared<Note>( pSelectedInstrument, 0, 1.0 );
+	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 }
 
 
@@ -325,9 +322,9 @@ void Mixer::noteOnClicked( MixerLine* ref )
 		return;
 	}
 
-	Note *pNote = new Note( pSelectedInstrument, 0, 0.0 );
-	pNote->set_note_off( true );
-	pHydrogen->getAudioEngine()->getSampler()->noteOff(pNote);
+	auto pNote = std::make_shared<Note>( pSelectedInstrument, 0, 0.0 );
+	pNote->setNoteOff( true );
+	pHydrogen->getAudioEngine()->getSampler()->noteOff( pNote );
 }
 
 

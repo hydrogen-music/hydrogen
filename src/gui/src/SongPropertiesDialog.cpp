@@ -145,9 +145,9 @@ void SongPropertiesDialog::updatePatternLicenseTable() {
 		if ( ppPattern != nullptr ) {
 
 			LCDDisplay* pNameItem = new LCDDisplay( nullptr );
-			pNameItem->setText( ppPattern->get_name());
+			pNameItem->setText( ppPattern->getName());
 			pNameItem->setIsActive( false );
-			pNameItem->setToolTip( ppPattern->get_name() );
+			pNameItem->setToolTip( ppPattern->getName() );
 			LCDDisplay* pVersionItem = new LCDDisplay( nullptr );
 			pVersionItem->setText( QString::number( ppPattern->getVersion() ) );
 			pVersionItem->setIsActive( false );

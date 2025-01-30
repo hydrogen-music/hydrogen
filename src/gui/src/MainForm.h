@@ -43,6 +43,7 @@ class QUndoView;///debug only
 
 namespace H2Core {
 	class Drumkit;
+	class Instrument;
 }
 
 ///
@@ -94,6 +95,12 @@ class MainForm :  public QMainWindow,
 		static bool switchDrumkit( std::shared_ptr<H2Core::Drumkit> pTargetKit );
 
 		bool eventFilter( QObject *o, QEvent *e ) override;
+		/** @param nInstrumentID If set to a value different than
+		 *   #EMPTY_INSTR_ID, the corresponding line in the type tab will be
+		 *   selected on startup. */
+		static void editDrumkitProperties( bool bWriteToDisk,
+										   bool bSaveToNsmSession,
+										   int nInstrumentID = EMPTY_INSTR_ID );
 
 public slots:
 		void showPreferencesDialog();
@@ -128,14 +135,19 @@ public slots:
 		 */
 		void action_file_open();
 		void action_file_openDemo();
-	/**
-	 * Saves the current song to disk.
-	 *
-	 * As Song::m_sFilename is not set by the GUI but by the core,
-	 * this function serves both the "save as" functionality (with
-	 * sNewFilename being non-empty) and the "save" one.
-	 */
-		bool action_file_save( const QString& sNewFilename );
+		/**
+		 * Saves the current song to disk.
+		 *
+		 * As Song::m_sFilename is not set by the GUI but by the core, this
+		 * function serves both the "save as" functionality (with sNewFilename
+		 * being non-empty) and the "save" one.
+		 *
+		 * Using @a bTriggerMessage the status message triggered by this method
+		 * can be suppressed (e.g. when the calling routine wants to trigger a
+		 * dedicated message instead).
+		 */
+		bool action_file_save( const QString& sNewFilename,
+							   bool bTriggerMessage = true );
 	bool action_file_save();
 
 		/**
@@ -166,7 +178,6 @@ public slots:
 		void action_drumkit_new();
 		void action_drumkit_properties();
 		void action_drumkit_open();
-		void action_drumkit_addInstrument();
 		void action_drumkit_save();
 		void action_drumkit_save_to_session();
 		void action_drumkit_export();
@@ -175,8 +186,10 @@ public slots:
 		void action_drumkit_import( bool bLoad = true );
 		void action_drumkit_onlineImport();
 
-		void functionDeleteInstrument( int nInstrument );
-
+		static void action_drumkit_addInstrument(
+			std::shared_ptr<H2Core::Instrument> pInstrument = nullptr );
+		static void action_drumkit_deleteInstrument( int nInstrumentIndex );
+		static void action_drumkit_renameInstrument( int nInstrumentIndex );
 
 		void action_window_showMixer();
 		void action_window_showPlaylistEditor();
@@ -243,7 +256,6 @@ public slots:
 		void onFixMissingSamples();
 
 	private:
-	void editDrumkitProperties( bool bWriteToDisk, bool bSaveToNsmSession );
 		void updateRecentUsedSongList();
 
 		void loadDrumkit( const QString& sFileName, bool bLoad );

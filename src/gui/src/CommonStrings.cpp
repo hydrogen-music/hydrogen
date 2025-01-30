@@ -483,9 +483,6 @@ CommonStrings::CommonStrings(){
 	  FX number of the specified instrument. */
 	m_sInputCaptureFXNumber = tr( "FX Number" );
 	/*: Label shown in the input capture dialog for querying a
-	  new pan value for a specified instrument. */
-	m_sInputCapturePan = tr( "Pan" );
-	/*: Label shown in the input capture dialog for querying a
 	  new filter cutoff value for a specified instrument. */
 	m_sInputCaptureFilterCutoff = tr( "Filter Cutoff" );
 	/*: Label shown in the input capture dialog for querying
@@ -510,7 +507,8 @@ CommonStrings::CommonStrings(){
 	/*: Shown in table headers when referring to an instrument's id.*/
 	m_sInstrumentId = tr( "Id" );
 	/*: Shown in table headers when referring to an instrument's type (as part
-	 *  of a Drumkit Map .h2map).*/
+	 *  of a Drumkit Map .h2map) as well as part of status messages referring to
+	 *  this property.*/
 	m_sInstrumentType = tr( "Type" );
 		/*: Shown in table headers when referring to a component's name.*/
 	m_sComponent = tr( "Component" );
@@ -560,35 +558,130 @@ CommonStrings::CommonStrings(){
 	/*: Window title of the dialog showing the undo history. */
 	m_sUndoHistoryTitle = tr( "Undo history" );
 
-	m_sActionEditDrumkitProperties = tr( "Edit Drumkit Properties of Current Song" );
+	/*: Show as status message when changing the properties of the drumkit
+	 *  embedded in the current song. */
+	m_sActionEditCurrentDrumkitProperties =
+		tr( "Edit properties of current drumkit" );
+	/*: Show as status message when changing the properties of a drumkit in the
+	 *  Sound Library. Separated by a whitespace the name of the drumkit will be
+	 *  appended to the translated message. */
+	m_sActionEditDrumkitProperties = tr( "Edit properties of drumkit" );
 	m_sActionIrreversible = tr( "This action can not be undone!" );
 
-	/** Representing adding a new instrument in the undo history as well as
+	/*: Representing adding a new instrument in the undo history as well as
 	 * names the action presenting when right-clicking the instrument list in
 	 * the pattern editor. */
 	m_sActionAddInstrument = tr( "Add instrument" );
-	/** Representing an instrument deletion in the undo history */
+	/*: Representing an instrument deletion in the undo history */
 	m_sActionDeleteInstrument = tr( "Delete instrument" );
-	/** Representing a drag&drop event for an instrument in the undo history */
+	/*: Representing a drag&drop event for an instrument in the undo history */
 	m_sActionDropInstrument = tr( "Drop instrument" );
-	/** Representing a drumkit loading in the undo history */
+	/*: Representing a renaming of an instrument in the undo history and context
+	 * menu. */
+	m_sActionRenameInstrument = tr( "Rename instrument" );
+	/*: Representing a renaming of an instrument in the undo history and context
+	 * menu. */
+	m_sActionMoveInstrument = tr( "Move instrument" );
+	/*: Representing a drumkit loading in the undo history */
 	m_sActionSwitchDrumkit = tr( "Switch drumkit" );
-	/** Representing the creation of a new drumkit in the undo history */
-	m_sActionNewDrumkit = tr( "Replace song drumkit with new and empty one" );
-	/** Representing adding a new component to the currently selected instrument
+	/*: Representing the creation of a new drumkit in the undo history */
+	m_sActionNewDrumkit = tr( "Replace current drumkit with new and empty one" );
+	/*: Status message displayed when loading an drumkit into the current song.
+	 *  Separated by a whitespace the name of the drumkit will be appended to
+	 *  the translated message. */
+	m_sActionLoadDrumkit = tr( "Load drumkit" );
+	/*: Status message displayed when saving an drumkit into the Sound Library.
+	 *  Separated by a whitespace the name of the drumkit as well as the path it
+	 *  was stored in will be appended to the translated message. */
+	m_sActionSaveDrumkit = tr( "Save drumkit" );
+	/*: Status message displayed when the current drumkit is saved into the
+	 *  Sound Library. Separated by a whitespace the path it was stored in will
+	 *  be appended to the translated message. */
+	m_sActionSaveCurrentDrumkit = tr( "Save current drumkit" );
+	/*: Representing adding a new component to the currently selected instrument
 	 * in the undo history */
 	m_sActionAddComponent = tr( "Adding component" );
-	/** Representing deletion of a component from the currently selected
+	/*: Representing deletion of a component from the currently selected
 	 * instrument in the undo history */
 	m_sActionDeleteComponent = tr( "Delete component" );
-	/** Representing renaming a component of the currently selected instrument
+	/*: Representing renaming a component of the currently selected instrument
 	 * in the undo history */
 	m_sActionRenameComponent = tr( "Rename component" );
+
+	/*: Representing deleting all notes of a specific row in the pattern editor
+	 * in the undo history (the number of the row will be append) as well as in
+	 * the right-click context menu within the sidebar of the pattern editor. */
+	m_sActionClearAllNotesInRow = tr( "Clear notes in row" );
+	/*: Representing deleting all notes in the pattern editor in the undo
+	 * history as well as in the right-click context menu within the sidebar of
+	 * the pattern editor. */
+	m_sActionClearAllNotes = tr( "Clear notes" );
+	/*: Representing cutting all notes of a particular row in all patterns in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionCutAllNotes = tr( "Cut notes" );
+	/*: Representing pasting all notes of a particular row in all patterns in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor.*/
+	m_sActionPasteAllNotes = tr( "Paste notes" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionFillNotes = tr( "Fill notes ..." );
+	/*: Representing filling all notes of a row in the pattern editor in the
+	 * undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillAllNotes = tr( "Fill all notes" );
+	/*: Representing filling every second note of a row in the pattern editor in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillEverySecondNote = tr( "Fill 1/2 notes" );
+	/*: Representing filling every third note of a row in the pattern editor in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillEveryThirdNote = tr( "Fill 1/3 notes" );
+	/*: Representing filling every fourth note of a row in the pattern editor in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillEveryFourthNote = tr( "Fill 1/4 notes" );
+	/*: Representing filling every sixth note of a row in the pattern editor in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillEverySixthNote = tr( "Fill 1/6 notes" );
+	/*: Representing filling every eighth note of a row in the pattern editor in
+	 * the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillEveryEighthNote = tr( "Fill 1/8 notes" );
+	/*: Representing filling every twelfth note of a row in the pattern editor
+	 * in the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillEveryTwelfthNote = tr( "Fill 1/12 notes" );
+	/*: Representing filling every sixteenth note of a row in the pattern editor
+	 * in the undo history as well as in the right-click context menu within the
+	 * sidebar of the pattern editor. */
+	m_sActionFillEverySixteenthNote = tr( "Fill 1/16 notes" );
+	/*: Delete one or many notes. Shown in the undo history. */
+	m_sActionDeleteNotes = tr( "Delete notes" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionSelectNotes = tr( "Select notes" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionEditAllPatterns = tr( "Edit all patterns" );
+	/*: Shown as an action item in the right-click popup menu of the pattern
+	 *  editor. */
+	m_sActionCopyNotes = tr( "Copy notes" );
+	/*: Shown in the status bar when editting the type information of a row not
+	 *  mapped to the current drumkit and as the title of the associated dialog.
+	 *  Separated by a whitespace the corresponding column number will be
+	 *  appended. */
+	m_sActionEditTypes = tr( "Edit type for notes in row" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
 	 *  song path in the Playlist editor.*/
 	m_sErrorNotFoundShort = tr( "File not found" );
+	m_sErrorEmptyType = tr( "An instrument type must not be empty!" );
+	m_sErrorUniqueTypes = tr( "Instrument types must be unique!" );
 
 	/*: Suffix appended to a drumkit, song, or pattern name in case it
 	 * is found on system-level and is read-only. */
@@ -596,6 +689,22 @@ CommonStrings::CommonStrings(){
 	/*: Suffix appended to a drumkit that are loaded non-persistently
 	 *  into the current Hydrogen session. */
 	m_sSoundLibrarySessionSuffix = tr( "session" );
+
+	/*: Name of note property adjustable in NotePropertiesRuler, using
+	 *  humanization in Mixer, or using automation path. */
+	m_sNotePropertyVelocity = tr( "Velocity" );
+	/*: Name of note property adjustable in NotePropertiesRuler and via input
+	 *  capture actions. */
+	m_sNotePropertyPan = tr( "Pan" );
+	/*: Name of note property adjustable in NotePropertiesRuler. */
+	m_sNotePropertyLeadLag = tr( "Lead and Lag" );
+	/*: Name of note property adjustable in NotePropertiesRuler. */
+	m_sNotePropertyKeyOctave = tr( "Key and Octave" );
+	/*: Name of note property adjustable in NotePropertiesRuler. */
+	m_sNotePropertyProbability = tr( "Probability" );
+	/*: Name of note property adjustable by right click-dragging in
+	 *  DrumPatternEditor and PianoRollEditor. */
+	m_sNotePropertyLength = tr( "Length" );
 
 	/*: Displayed in a warning message in case the user tries to read
 	 * or write data to a file/path Hydrogen can not handle in the

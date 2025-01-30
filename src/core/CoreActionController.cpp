@@ -80,20 +80,23 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	ASSERT_HYDROGEN
 
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
-	
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+
+	if ( pInstr->get_volume() != fVolumeValue ) {
 		pInstr->set_volume( fVolumeValue );
-	
-		if ( bSelectStrip ) {
-			pHydrogen->setSelectedInstrumentNumber( nStrip );
-		}
-	
+
 		pHydrogen->setIsModified( true );
 
 		return sendStripVolumeFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
@@ -115,19 +118,26 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 		return false;
 	}
 
-	pInstrument->set_pitch_offset( fValue );
+	if ( pInstrument->get_pitch_offset() != fValue ) {
+		pInstrument->set_pitch_offset( fValue );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nInstrument );
+	}
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED,
-											nInstrument );
 
 	return true;
 }
 
 bool CoreActionController::setMetronomeIsActive( bool isActive )
 {
-	Preferences::get_instance()->m_bUseMetronome = isActive;
+	auto pPref = Preferences::get_instance();
+	if ( pPref->m_bUseMetronome != isActive ) {
+		pPref->m_bUseMetronome = isActive;
 
-	return sendMetronomeIsActiveFeedback();
+		return sendMetronomeIsActiveFeedback();
+	}
+
+	return true;
 }
 
 bool CoreActionController::setMasterIsMuted( bool bIsMuted )
@@ -140,12 +150,16 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	pSong->setIsMuted( bIsMuted );
-	
-	pHydrogen->setIsModified( true );
 
-	return sendMasterIsMutedFeedback();
+	if ( pSong->getIsMuted() != bIsMuted ) {
+		pSong->setIsMuted( bIsMuted );
+	
+		pHydrogen->setIsModified( true );
+
+		return sendMasterIsMutedFeedback();
+	}
+
+	return true;
 }
 
 bool CoreActionController::toggleStripIsMuted( int nStrip )
@@ -165,17 +179,24 @@ bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( pInstr->is_muted() != bIsMuted ) {
 		pInstr->set_muted( bIsMuted );
 
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_MUTE_SOLO_CHANGED, nStrip );
 	
 		pHydrogen->setIsModified( true );
 
 		return sendStripIsMutedFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::toggleStripIsSoloed( int nStrip )
@@ -195,18 +216,25 @@ bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( pInstr->is_soloed() != isSoloed ) {
 	
 		pInstr->set_soloed( isSoloed );
 
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_MUTE_SOLO_CHANGED, nStrip );
 	
 		pHydrogen->setIsModified( true );
 
 		return sendStripIsSoloedFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectStrip )
@@ -214,22 +242,26 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
-	
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+
+	if ( pInstr->getPanWithRangeFrom0To1() != fValue ) {
 		pInstr->setPanWithRangeFrom0To1( fValue );
 		
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 		
 		pHydrogen->setIsModified( true );
-		
-		if ( bSelectStrip ) {
-			pHydrogen->setSelectedInstrumentNumber( nStrip );
-		}
 
 		return sendStripPanFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 
@@ -238,22 +270,26 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
-	if ( pInstr != nullptr ) {
-	
+	if ( pInstr == nullptr ) {
+		return false;
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+
+	if ( pInstr->getPan() != fValue ) {
 		pInstr->setPan( fValue );
 		
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
 		
 		pHydrogen->setIsModified( true );
-		
-		if ( bSelectStrip ) {
-			pHydrogen->setSelectedInstrumentNumber( nStrip );
-		}
 
 		return sendStripPanFeedback( nStrip );
 	}
 
-	return false;
+	return true;
 }
 
 bool CoreActionController::sendMasterVolumeFeedback() {
@@ -634,8 +670,12 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 		}
 	}
-		
-	EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+
+	// Be sure to not make GUI render its content twice by triggering this
+	// during startup.
+	if ( pHydrogen->getGUIState() == Hydrogen::GUIState::ready ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+	}
 
 	// In case the song is read-only, autosave won't work.
 	if ( ! Filesystem::file_writable( pSong->getFilename() ) ) {
@@ -720,6 +760,8 @@ bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	if ( ! pHydrogen->isUnderSessionManagement() ) {
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
+
+	EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 	
 	return true;
 }
@@ -1031,6 +1073,10 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 	}
+
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		pHydrogen->setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
+	}
 	
 	pAudioEngine->handleSongModeChanged();
 
@@ -1174,14 +1220,15 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	pAudioEngine->getSampler()->releasePlayingNotes();
 
 	pSong->setDrumkit( pNewDrumkit );
-	pSong->getPatternList()->mapTo( pNewDrumkit );
+	pSong->getPatternList()->mapTo( pNewDrumkit, pPreviousDrumkit );
 
 	pHydrogen->renameJackPorts( pSong );
 
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
-			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ), false );
+			std::max( 0, pNewDrumkit->getInstruments()->size() - 1 ),
+			Event::Trigger::Suppress );
 	}
 
 	pAudioEngine->unlock();
@@ -1641,7 +1688,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 
 	pDrumkit->addInstrument( pInstrument, nIndex );
 	pHydrogen->renameJackPorts( pSong );
-	pSong->getPatternList()->mapTo( pDrumkit );
+	pSong->getPatternList()->mapTo( pDrumkit, nullptr );
 
 	pAudioEngine->unlock();
 
@@ -1701,11 +1748,12 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 		 nSelectedInstrument >= pDrumkit->getInstruments()->size() ) {
 		pHydrogen->setSelectedInstrumentNumber(
 			std::clamp( nSelectedInstrument, 0,
-						static_cast<int>(pDrumkit->getInstruments()->size() - 1 ) ) );
+						static_cast<int>(pDrumkit->getInstruments()->size() - 1 ) ),
+			Event::Trigger::Suppress );
 	}
 
 	pHydrogen->renameJackPorts( pSong );
-	pSong->getPatternList()->mapTo( pDrumkit );
+	pSong->getPatternList()->mapTo( pDrumkit, nullptr );
 
 	pAudioEngine->unlock();
 
@@ -1766,7 +1814,8 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pDrumkit->addInstrument( pNewInstrument,
 							 nOldInstrumentNumber );
-	pSong->getPatternList()->mapTo( pDrumkit );
+	pHydrogen->renameJackPorts( pSong );
+	pSong->getPatternList()->mapTo( pDrumkit, nullptr );
 
 	// Unloading the samples of the old instrument will be done in the death
 	// row.
@@ -1775,7 +1824,49 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( H2Core::EVENT_DRUMKIT_LOADED, 0 );
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+
+	return true;
+}
+
+bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) {
+	if ( nSourceIndex == nTargetIndex ) {
+		return true;
+	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return false;
+	}
+
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+
+	if ( nSourceIndex >= pInstrumentList->size() ||
+		 nSourceIndex < 0 ) {
+		ERRORLOG( QString( "Source index [%1] out of bound [0,%2)" )
+				  .arg( nSourceIndex ).arg( pInstrumentList->size() ) );
+		pHydrogen->getAudioEngine()->unlock();
+		return false;
+	}
+
+	if ( nTargetIndex >= pInstrumentList->size() ||
+		 nTargetIndex < 0 ) {
+		ERRORLOG( QString( "Target index [%1] out of bound [0,%2)" )
+				  .arg( nTargetIndex ).arg( pInstrumentList->size() ) );
+		pHydrogen->getAudioEngine()->unlock();
+		return false;
+	}
+
+	pInstrumentList->move( nSourceIndex, nTargetIndex );
+	pHydrogen->renameJackPorts( pSong );
+
+	pHydrogen->getAudioEngine()->unlock();
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 
 	return true;
 }
@@ -1836,7 +1927,7 @@ bool CoreActionController::newPattern( const QString& sPatternName ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
-	Pattern* pPattern = new Pattern( sPatternName );
+	auto pPattern = std::make_shared<Pattern>( sPatternName );
 	
 	return setPattern( pPattern, pPatternList->size() );
 }
@@ -1851,7 +1942,7 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	}
 	
 	auto pPatternList = pSong->getPatternList();
-	Pattern* pNewPattern = Pattern::load_file( sPath );
+	auto pNewPattern = Pattern::load( sPath );
 
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );
@@ -1865,7 +1956,8 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 	return setPattern( pNewPattern, nPatternPosition );
 }
 
-bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition ) {
+bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
+									   int nPatternPosition ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
@@ -1876,20 +1968,21 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 		return false;
 	}
 
-	pPattern->mapTo( pSong->getDrumkit() );
+	pPattern->mapTo( pSong->getDrumkit(), nullptr );
 
 	auto pPatternList = pSong->getPatternList();
 
 	// Check whether the name of the new pattern is unique.
-	if ( !pPatternList->check_name( pPattern->get_name() ) ){
-		pPattern->set_name( pPatternList->find_unused_pattern_name( pPattern->get_name() ) );
+	if ( !pPatternList->check_name( pPattern->getName() ) ){
+		pPattern->setName( pPatternList->find_unused_pattern_name( pPattern->getName() ) );
 	}
 
 	pPatternList->insert( nPatternPosition, pPattern );
 	if ( pHydrogen->isPatternEditorLocked() ) {
 		pHydrogen->updateSelectedPattern( true );
 	} else  {
-		pHydrogen->setSelectedPatternNumber( nPatternPosition );
+		pHydrogen->setSelectedPatternNumber(
+			nPatternPosition, true, Event::Trigger::Default );
 	}
 	pHydrogen->setIsModified( true );
 	
@@ -1897,6 +1990,34 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 	}
+	return true;
+}
+
+bool CoreActionController::selectPattern( int nPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	const auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	const auto pPatternList = pSong->getPatternList();
+	if ( nPatternNumber < 0 || nPatternNumber >= pPatternList->size() ) {
+		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
+				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
+		return false;
+	}
+
+	if ( ! ( pHydrogen->isPatternEditorLocked() &&
+			 pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Playing ) ) {
+		// Event handling will be done in Hydrogen::setSelectedPatternNumber.
+		pHydrogen->setSelectedPatternNumber(
+			nPatternNumber, true, Event::Trigger::Default );
+	}
+
 	return true;
 }
 
@@ -1932,7 +2053,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	// Ensure there is always at least one pattern present in the
 	// list.
 	if ( pPatternList->size() == 0 ) {
-		Pattern* pEmptyPattern = new Pattern( "Pattern 1" );
+		auto pEmptyPattern = std::make_shared<Pattern>( "Pattern 1" );
 		pPatternList->add( pEmptyPattern );
 	}
 
@@ -1965,8 +2086,8 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	if ( pHydrogen->isPatternEditorLocked() ) {
 		pHydrogen->updateSelectedPattern( false );
 	} else if ( nPatternNumber == nSelectedPatternNumber ) {
-		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ),
-											 false );
+		pHydrogen->setSelectedPatternNumber(
+			std::max( 0, nPatternNumber - 1 ), false, Event::Trigger::Default );
 	}
 
 	// Remove the pattern from the list of of patterns that are played
@@ -1995,16 +2116,14 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	for ( const auto& ppattern : *pPatternList ) {
 
 		Pattern::virtual_patterns_cst_it_t it =
-			ppattern->get_virtual_patterns()->find( pPattern );
-		if ( it != ppattern->get_virtual_patterns()->end() ) {
-			ppattern->virtual_patterns_del( *it );
+			ppattern->getVirtualPatterns()->find( pPattern );
+		if ( it != ppattern->getVirtualPatterns()->end() ) {
+			ppattern->virtualPatternsDel( *it );
 		}
 	}
 
 	pHydrogen->updateVirtualPatterns();
 	pHydrogen->setIsModified( true );
-	
-	delete pPattern;
 	
 	return true;
 }
@@ -2039,7 +2158,7 @@ bool CoreActionController::clearInstrumentInPattern( int nInstrument,
 		return false;
 	}
 
-	pPattern->purge_instrument( pInstrument, true );
+	pPattern->purgeInstrument( pInstrument, true );
 
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 
