@@ -38,7 +38,8 @@ using namespace H2Core;
 
 int NotePropertiesRuler::nKeyOctaveHeight =
 	NotePropertiesRuler::nOctaveHeight +
-	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE;
+	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE + 1 -
+	std::floor( NotePropertiesRuler::nKeyLineHeight / 2 );
 
 KeyOctaveLabel::KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
 								bool bAlternateBackground )

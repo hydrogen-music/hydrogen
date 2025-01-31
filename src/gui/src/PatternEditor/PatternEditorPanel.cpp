@@ -614,7 +614,8 @@ void PatternEditorPanel::createEditors() {
 		NotePropertiesRuler::Property::KeyOctave,
 		NotePropertiesRuler::Layout::KeyOctave );
 	m_pNoteKeyOctaveScrollView->setWidget( m_pNoteKeyOctaveEditor );
-	m_pNoteKeyOctaveScrollView->setFixedHeight( 210 );
+	m_pNoteKeyOctaveScrollView->setFixedHeight(
+		NotePropertiesRuler::nKeyOctaveHeight );
 	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 this, SLOT( on_patternEditorHScroll( int ) ) );
 	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
