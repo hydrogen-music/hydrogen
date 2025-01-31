@@ -41,8 +41,14 @@ class KeyOctaveLabel : public QLabel, public H2Core::Object<KeyOctaveLabel>
 	Q_OBJECT
 
 	public:
+
+		enum class Type {
+			Key,
+			Octave
+		};
+
 		KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
-						bool bAlternateBackground );
+						bool bAlternateBackground, Type type );
 		~KeyOctaveLabel();
 
 		void updateColors();
@@ -52,6 +58,7 @@ class KeyOctaveLabel : public QLabel, public H2Core::Object<KeyOctaveLabel>
 		virtual void paintEvent( QPaintEvent* pEvent ) override;
 
 		bool m_bAlternateBackground;
+		Type m_type;
 		QColor m_backgroundColor;
 };
 

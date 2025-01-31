@@ -44,17 +44,27 @@ int NotePropertiesRuler::nKeyOctaveHeight =
 	std::floor( NotePropertiesRuler::nKeyLineHeight / 2 );
 
 KeyOctaveLabel::KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
-								bool bAlternateBackground )
+								bool bAlternateBackground, Type type )
 	: QLabel( pParent )
 	, m_bAlternateBackground( bAlternateBackground )
+	, m_type( type )
 {
 	setText( sText );
 
 	move( 1, nY );
-	setAlignment( Qt::AlignLeft );
-	setIndent( 4 );
-	setFixedSize( PatternEditor::nMarginSidebar - 1,
-				  NotePropertiesRuler::nKeyLineHeight );
+
+	if ( type == Type::Key ) {
+		setAlignment( Qt::AlignLeft );
+		setIndent( 4 );
+		setFixedSize( PatternEditor::nMarginSidebar,
+					  NotePropertiesRuler::nKeyLineHeight );
+	}
+	else {
+		setAlignment( Qt::AlignRight );
+		setIndent( 3 );
+		setFixedSize( PatternEditor::nMarginSidebar / 2,
+					  NotePropertiesRuler::nKeyLineHeight );
+	}
 
 	updateColors();
 	updateFont();
@@ -65,18 +75,19 @@ KeyOctaveLabel::~KeyOctaveLabel() {}
 void KeyOctaveLabel::updateColors() {
 	auto pPref = Preferences::get_instance();
 
-	QColor backgroundColor;
-	if ( m_bAlternateBackground ) {
-		backgroundColor =
-			pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
-
+	if ( m_type == Type::Key ) {
+		QColor backgroundColor;
+		if ( m_bAlternateBackground ) {
+			backgroundColor =
+				pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+		}
+		else {
+			backgroundColor =
+				pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+		}
+		m_backgroundColor =
+			backgroundColor.darker( Skin::nListBackgroundColorScaling );
 	}
-	else {
-		backgroundColor =
-			pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
-	}
-	m_backgroundColor =
-		backgroundColor.darker( Skin::nListBackgroundColorScaling );
 
 	setStyleSheet( QString( "QLabel{ color: %1; }" )
 				   .arg( pPref->getTheme().m_color.m_patternEditor_textColor.name() ) );
@@ -108,8 +119,10 @@ void KeyOctaveLabel::updateFont() {
 void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent ) {
 	auto p = QPainter( this );
 
-	Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
-							  m_backgroundColor, false );
+	if ( m_type == Type::Key ) {
+		Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
+								  m_backgroundColor, false );
+	}
 
 	QLabel::paintEvent( pEvent );
 }
@@ -151,6 +164,15 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	// Create a small sidebar containing labels
 	if ( layout == Layout::KeyOctave ) {
 
+		for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
+			m_labels.push_back(
+				new KeyOctaveLabel(
+					this, QString::number( 5 - nnOctave ),
+					nnOctave * NotePropertiesRuler::nKeyLineHeight + 1 +
+					std::floor( NotePropertiesRuler::nKeyLineHeight / 2 ),
+					false, KeyOctaveLabel::Type::Octave ) );
+		}
+
 		// Annotate with note class names
 		static QStringList noteNames = QStringList()
 			<< pCommonStrings->getNotePitchB()
@@ -179,7 +201,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 			}
 
 			m_labels.push_back(
-				new KeyOctaveLabel( this, noteNames.at( nnKey ), nY, bAlternate ) );
+				new KeyOctaveLabel( this, noteNames.at( nnKey ), nY, bAlternate,
+									KeyOctaveLabel::Type::Key ) );
 		}
 	}
 }
@@ -1388,6 +1411,11 @@ void NotePropertiesRuler::createBackground()
 
 			p.drawLine( PatternEditor::nMarginSidebar, yy, m_nActiveWidth, yy );
 		}
+
+		// Vertical border between sidebar and editor
+		p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
+		p.drawLine( PatternEditor::nMarginSidebar, 0,
+					PatternEditor::nMarginSidebar, height() );
 
 		if ( pPattern != nullptr ) {
 			drawGridLines( p, Qt::DotLine );
