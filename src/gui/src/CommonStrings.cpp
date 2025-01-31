@@ -749,6 +749,10 @@ CommonStrings::CommonStrings(){
 	 * or write data to a file/path Hydrogen can not handle in the
 	 * current encoding.*/
 	m_sEncodingError = tr( "The provided filename can not be handled by your current encoding" );
+
+	/*: Indicates a menu section in which behavioural customizations can be
+	 *  done. */
+	m_sSettings = tr( "Settings" );
 }
 
 CommonStrings::~CommonStrings(){}

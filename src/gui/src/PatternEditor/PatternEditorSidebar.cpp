@@ -507,6 +507,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			 } );
 	m_pTypeLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
+	if ( ! pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+		m_pTypeLbl->hide();
+	}
+
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
 	auto clearAction = m_pFunctionPopup->addAction(
@@ -614,6 +618,17 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		m_pRenameInstrumentAction->setEnabled( false );
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
+
+	m_pFunctionPopup->addSection( pCommonStrings->getSettings() );
+	m_pTypeLabelVisibilityAction = m_pFunctionPopup->addAction(
+		"Always show type labels" );
+	m_pTypeLabelVisibilityAction->setCheckable( true );
+	m_pTypeLabelVisibilityAction->setChecked( true );
+	connect( m_pTypeLabelVisibilityAction, &QAction::triggered, this, [=](){
+		Preferences::get_instance()->setPatternEditorAlwaysShowTypeLabels(
+			m_pTypeLabelVisibilityAction->isChecked() );
+		m_pPatternEditorPanel->updateTypeLabelVisibility();
+	} );
 
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
@@ -767,6 +782,14 @@ void SidebarRow::updateStyleSheet() {
 		backgroundPatternColor, textPatternColor, colorTheme.m_cursorColor );
 }
 
+void SidebarRow::updateTypeLabelVisibility( bool bVisible ) {
+	if ( bVisible ) {
+		m_pTypeLbl->show();
+	} else {
+		m_pTypeLbl->hide();
+	}
+}
+
 void SidebarRow::enterEvent( QEvent* ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
@@ -865,10 +888,18 @@ void SidebarRow::sampleWarningClicked()
 
 void SidebarRow::mousePressEvent(QMouseEvent *ev)
 {
+	const auto pPref = Preferences::get_instance();
+
 	m_pPatternEditorPanel->setSelectedRowDB(
 		m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 
-	if (ev->button() == Qt::RightButton ) {
+	if ( ev->button() == Qt::RightButton ) {
+		if ( m_pTypeLabelVisibilityAction->isChecked() !=
+			 pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+			m_pTypeLabelVisibilityAction->setChecked(
+				pPref->getPatternEditorAlwaysShowTypeLabels() );
+		}
+
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 	}
 
@@ -949,6 +980,12 @@ void PatternEditorSidebar::updateFont() {
 void PatternEditorSidebar::updateStyleSheet() {
 	for ( auto& rrow : m_rows ) {
 		rrow->updateStyleSheet();
+	}
+}
+
+void PatternEditorSidebar::updateTypeLabelVisibility( bool bVisible ) {
+	for ( auto& rrow : m_rows ) {
+		rrow->updateTypeLabelVisibility( bVisible );
 	}
 }
 

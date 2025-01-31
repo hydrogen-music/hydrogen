@@ -105,6 +105,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	, m_pPattern( nullptr )
 	, m_bArmPatternSizeSpinBoxes( true )
 	, m_bPatternSelectedViaTab( false )
+	, m_bTypeLabelsMustBeVisible( false )
 {
 	setAcceptDrops(true);
 
@@ -714,6 +715,7 @@ void PatternEditorPanel::createEditors() {
 	pVBox->addWidget( pMainPanel );
 
 	updateStyleSheet();
+	updateTypeLabelVisibility();
 }
 
 void PatternEditorPanel::updateDrumkitLabel( )
@@ -1170,7 +1172,6 @@ void PatternEditorPanel::zoomOutBtnClicked()
 
 	updateEditors();
 	resizeEvent( nullptr );
-	DEBUGLOG( "DONE" );
 }
 
 void PatternEditorPanel::updatePatternInfo() {
@@ -1310,6 +1311,7 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pPianoRollEditor->updateEditor( bPatternOnly );
 	m_pDrumPatternEditor->updateEditor( bPatternOnly );
 	m_pSidebar->updateEditor();
+	updateTypeLabelVisibility();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
@@ -1976,6 +1978,25 @@ void PatternEditorPanel::updateDB() {
 		// instrument -> no type-only rows. We selected the bottom-most
 		// instrument instead.
 		setSelectedRowDB( m_db.size() - 1 );
+	}
+
+	if ( additionalIds.size() > 0 || additionalTypes.size() > 0 ) {
+		m_bTypeLabelsMustBeVisible = true;
+	} else {
+		m_bTypeLabelsMustBeVisible = false;
+	}
+}
+
+void PatternEditorPanel::updateTypeLabelVisibility() {
+	if ( m_pSidebar == nullptr ) {
+		return;
+	}
+
+	if ( Preferences::get_instance()->getPatternEditorAlwaysShowTypeLabels() ) {
+		m_pSidebar->updateTypeLabelVisibility( true );
+	}
+	else {
+		m_pSidebar->updateTypeLabelVisibility( m_bTypeLabelsMustBeVisible );
 	}
 }
 

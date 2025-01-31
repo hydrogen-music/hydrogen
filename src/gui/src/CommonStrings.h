@@ -326,6 +326,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
 		const QString& getErrorUniqueTypes() const {return m_sErrorUniqueTypes; }
 
+		const QString& getSettings() const { return m_sSettings; }
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -582,5 +583,7 @@ private:
 		QString m_sNotePitchB;
 
 	QString m_sEncodingError;
+
+		QString m_sSettings;
 };
 #endif

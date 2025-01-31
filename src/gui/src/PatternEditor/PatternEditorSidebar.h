@@ -120,12 +120,14 @@ class SidebarRow : public PixmapWidget
 	public:
 		explicit SidebarRow( QWidget* pParent, const DrumPatternRow& row );
 
+
 		void set( const DrumPatternRow& row );
 		void setSelected( bool isSelected );
 		void setDimed( bool bDimed );
 
 		void updateFont();
 		void updateStyleSheet();
+		void updateTypeLabelVisibility( bool bVisible );
 
 		static constexpr int m_nButtonWidth = 18;
 		static constexpr int m_nTypeLblWidth = 100;
@@ -145,6 +147,7 @@ public slots:
 		QMenu *m_pFunctionPopupSub;
 		QAction* m_pRenameInstrumentAction;
 		QAction* m_pDeleteInstrumentAction;
+		QAction* m_pTypeLabelVisibilityAction;
 		SidebarLabel* m_pInstrumentNameLbl;
 		SidebarLabel* m_pTypeLbl;
 		bool m_bIsSelected;
@@ -189,6 +192,7 @@ class PatternEditorSidebar : public QWidget,
 		void updateEditor();
 		void updateFont();
 		void updateStyleSheet();
+		void updateTypeLabelVisibility( bool bVisible );
 
 		void dimRows( bool bDim );
 

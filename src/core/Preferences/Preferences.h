@@ -478,6 +478,9 @@ public:
 	bool			isPatternEditorUsingTriplets() const;
 	void			setPatternEditorUsingTriplets( bool value );
 
+		bool		getPatternEditorAlwaysShowTypeLabels() const;
+		void		setPatternEditorAlwaysShowTypeLabels( bool bNew );
+
 	bool			isFXTabVisible() const;
 	void			setFXTabVisible( bool value );
 
@@ -671,6 +674,8 @@ private:
 	bool					m_bShowInstrumentPeaks;
 	int						m_nPatternEditorGridResolution;
 	bool					m_bPatternEditorUsingTriplets;
+		bool				m_bPatternEditorAlwaysShowTypeLabels;
+
 	bool					m_bIsFXTabVisible;
 	bool					m_bHideKeyboardCursor;
 	bool					m_bShowPlaybackTrack;
@@ -1045,6 +1050,12 @@ inline bool Preferences::isPatternEditorUsingTriplets() const {
 }
 inline void Preferences::setPatternEditorUsingTriplets( bool value ) {
 	m_bPatternEditorUsingTriplets = value;
+}
+inline bool Preferences::getPatternEditorAlwaysShowTypeLabels() const {
+	return m_bPatternEditorAlwaysShowTypeLabels;
+}
+inline void Preferences::setPatternEditorAlwaysShowTypeLabels( bool bNew ) {
+	m_bPatternEditorAlwaysShowTypeLabels = bNew;
 }
 
 inline bool Preferences::isFXTabVisible() const {

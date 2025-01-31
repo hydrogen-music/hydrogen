@@ -157,6 +157,7 @@ Preferences::Preferences()
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
 	, m_bPatternEditorUsingTriplets( false )
+	, m_bPatternEditorAlwaysShowTypeLabels( false )
 	, m_bIsFXTabVisible( true )
 	, m_bHideKeyboardCursor( false )
 	, m_bShowPlaybackTrack( false )
@@ -341,6 +342,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
 	, m_nPatternEditorGridResolution( pOther->m_nPatternEditorGridResolution )
 	, m_bPatternEditorUsingTriplets( pOther->m_bPatternEditorUsingTriplets )
+	, m_bPatternEditorAlwaysShowTypeLabels( pOther->m_bPatternEditorAlwaysShowTypeLabels )
 	, m_bIsFXTabVisible( pOther->m_bIsFXTabVisible )
 	, m_bHideKeyboardCursor( pOther->m_bHideKeyboardCursor )
 	, m_bShowPlaybackTrack( pOther->m_bShowPlaybackTrack )
@@ -787,6 +789,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		pPref->m_bPatternEditorUsingTriplets = guiNode.read_bool(
 			"patternEditorUsingTriplets",
 			pPref->m_bPatternEditorUsingTriplets, false, false, bSilent );
+		pPref->m_bPatternEditorAlwaysShowTypeLabels = guiNode.read_bool(
+			"patternEditorAlwaysShowTypeLabels",
+			pPref->m_bPatternEditorAlwaysShowTypeLabels,
+			/* inexistent_ok */true, /* empty_ok */false, bSilent );
 				
 		pPref->m_bShowInstrumentPeaks = guiNode.read_bool(
 			"showInstrumentPeaks",
@@ -1266,6 +1272,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		guiNode.write_int( "patternEditorGridHeight", m_nPatternEditorGridHeight );
 		guiNode.write_int( "patternEditorGridWidth", m_nPatternEditorGridWidth );
 		guiNode.write_bool( "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
+		guiNode.write_bool( "patternEditorAlwaysShowTypeLabels",
+							m_bPatternEditorAlwaysShowTypeLabels );
 		guiNode.write_int( "songEditorGridHeight", m_nSongEditorGridHeight );
 		guiNode.write_int( "songEditorGridWidth", m_nSongEditorGridWidth );
 		guiNode.write_bool( "showInstrumentPeaks", m_bShowInstrumentPeaks );
@@ -1797,6 +1805,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nPatternEditorGridResolution ) )
 			.append( QString( "%1%2m_bPatternEditorUsingTriplets: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bPatternEditorUsingTriplets ) )
+			.append( QString( "%1%2m_bPatternEditorAlwaysShowTypeLabels: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bPatternEditorAlwaysShowTypeLabels ) )
 			.append( QString( "%1%2m_bIsFXTabVisible: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bIsFXTabVisible ) )
 			.append( QString( "%1%2m_bHideKeyboardCursor: %3\n" ).arg( sPrefix )
@@ -2045,6 +2055,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nPatternEditorGridResolution ) )
 			.append( QString( ", m_bPatternEditorUsingTriplets: %1" )
 					 .arg( m_bPatternEditorUsingTriplets ) )
+			.append( QString( ", m_bPatternEditorAlwaysShowTypeLabels: %1" )
+					 .arg( m_bPatternEditorAlwaysShowTypeLabels ) )
 			.append( QString( ", m_bIsFXTabVisible: %1" )
 					 .arg( m_bIsFXTabVisible ) )
 			.append( QString( ", m_bHideKeyboardCursor: %1" )
