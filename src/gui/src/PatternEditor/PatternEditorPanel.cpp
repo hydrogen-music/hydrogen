@@ -1648,6 +1648,7 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		m_pTabBar->setFont( boldFont );
 
 		m_pPianoRollEditor->updateFont();
+		m_pNoteKeyOctaveEditor->updateFont();
 		m_pSidebar->updateFont();
 		updateEditors();
 	}
@@ -1709,6 +1710,7 @@ QWidget#pRec {\
 	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
 	m_pRec->setStyleSheet( sWidgetTopStyleSheet );
 	m_pPianoRollEditor->updateStyleSheet();
+	m_pNoteKeyOctaveEditor->updateColors();
 	m_pSidebar->updateStyleSheet();
 }
 

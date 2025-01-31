@@ -35,6 +35,26 @@
 
 #include "PatternEditor.h"
 
+class KeyOctaveLabel : public QLabel, public H2Core::Object<KeyOctaveLabel>
+{
+	H2_OBJECT(KeyOctaveLabel)
+	Q_OBJECT
+
+	public:
+		KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
+						bool bAlternateBackground );
+		~KeyOctaveLabel();
+
+		void updateColors();
+		void updateFont();
+
+	private:
+		virtual void paintEvent( QPaintEvent* pEvent ) override;
+
+		bool m_bAlternateBackground;
+		QColor m_backgroundColor;
+};
+
 /** \ingroup docGUI*/
 //! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
 //! which property it edits. There are individual instances for each property which are hidden and
@@ -51,11 +71,27 @@ class NotePropertiesRuler : public PatternEditor,
 			KeyOctave,
 		};
 
+		/** Height of a single line in the key section. */
+		static constexpr int nKeyLineHeight = 10;
+		/** Height of the whole octave section. */
+		static constexpr int nOctaveHeight = 90;
+		/** Height of the non-interactive space in KeyOctave editor between
+		 * octave and key section. It is contained within the octave part. */
+		static constexpr int nKeyOctaveSpaceHeight = 10;
+		/** The height of the overall KeyOctave Editor. It will be calculated
+		 * during runtime using the other constexprs. */
+		static int nKeyOctaveHeight;
+		/** Height of all editors except the KeyOctave one. */
+		static constexpr int nDefaultHeight = 100;
+
 		NotePropertiesRuler( QWidget *parent, Property property, Layout layout );
 		~NotePropertiesRuler();
 		
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
 		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
+
+		void updateColors();
+		void updateFont();
 
 		//! @name Property draw (right-click drag) gestures
 		//! 
@@ -89,19 +125,6 @@ class NotePropertiesRuler : public PatternEditor,
 
 	private:
 
-		/** Height of a single line in the key section. */
-		static constexpr int nKeyLineHeight = 10;
-		/** Height of the whole octave section. */
-		static constexpr int nOctaveHeight = 90;
-		/** Height of the non-interactive space in KeyOctave editor between
-		 * octave and key section. It is contained within the octave part. */
-		static constexpr int nKeyOctaveSpaceHeight = 10;
-		/** The height of the overall KeyOctave Editor. It will be calculated
-		 * during runtime using the other constexprs. */
-		static int nKeyOctaveHeight;
-		/** Height of all editors except the KeyOctave one. */
-		static constexpr int nDefaultHeight = 100;
-
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawPattern() override;
@@ -113,6 +136,8 @@ class NotePropertiesRuler : public PatternEditor,
 		void keyPressEvent( QKeyEvent *ev ) override;
 		void addUndoAction( const QString& sUndoContext );
 		void prepareUndoAction( QMouseEvent* pEvent );
+
+		std::vector<KeyOctaveLabel*> m_labels;
 
 		//! Map of notes currently in the pattern -> old notes with their
 		//! properties. Populated at the beginning of a properties editing
