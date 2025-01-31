@@ -36,9 +36,11 @@
 
 using namespace H2Core;
 
+// +1 to fit all the labels and another +1 to have enough room to show the focus
+// at the bottom of the editor.
 int NotePropertiesRuler::nKeyOctaveHeight =
 	NotePropertiesRuler::nOctaveHeight +
-	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE + 1 -
+	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE + 2 -
 	std::floor( NotePropertiesRuler::nKeyLineHeight / 2 );
 
 KeyOctaveLabel::KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
@@ -48,10 +50,10 @@ KeyOctaveLabel::KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
 {
 	setText( sText );
 
-	move( 0, nY );
+	move( 1, nY );
 	setAlignment( Qt::AlignLeft );
 	setIndent( 4 );
-	setFixedSize( PatternEditor::nMarginSidebar,
+	setFixedSize( PatternEditor::nMarginSidebar - 1,
 				  NotePropertiesRuler::nKeyLineHeight );
 
 	updateColors();
@@ -1244,8 +1246,9 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		const int nOctaveY = ( 4 - pNote->getOctave() ) *
 			NotePropertiesRuler::nKeyLineHeight;
 		const int nRadiusKey = 5;
-		const int nKeyY = NotePropertiesRuler::nKeyOctaveHeight -
-			( ( pNote->getKey() + 1 ) * NotePropertiesRuler::nKeyLineHeight );
+		const int nKeyY = NotePropertiesRuler::nOctaveHeight +
+			( ( KEYS_PER_OCTAVE - pNote->getKey() - 1 ) *
+			  NotePropertiesRuler::nKeyLineHeight );
 
 		// Paint selection outlines
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
