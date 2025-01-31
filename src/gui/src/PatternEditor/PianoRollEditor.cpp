@@ -632,7 +632,7 @@ void PianoRollEditor::createBackground()
 	p.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 	for ( uint row = 0; row < ( KEYS_PER_OCTAVE * OCTAVE_NUMBER ); ++row ) {
 		unsigned y = row * m_nGridHeight;
-		p.drawLine( 0, y, m_nActiveWidth, y );
+		p.drawLine( PatternEditor::nMarginSidebar, y, m_nActiveWidth, y );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
