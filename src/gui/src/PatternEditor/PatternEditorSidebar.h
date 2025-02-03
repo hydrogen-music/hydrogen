@@ -204,7 +204,6 @@ class PatternEditorSidebar : public QWidget,
 
 	protected:
 		PatternEditorPanel* m_pPatternEditorPanel;
-		uint m_nGridHeight;
 		uint m_nEditorHeight;
 		std::vector<std::shared_ptr<SidebarRow>> m_rows;
 		DragScroller *m_pDragScroller;

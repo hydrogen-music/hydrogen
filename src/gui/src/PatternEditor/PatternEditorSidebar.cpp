@@ -934,13 +934,14 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
  {
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	const auto pPref = H2Core::Preferences::get_instance();
 
 	//INFOLOG("INIT");
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
-	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
-	m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
+	m_nEditorHeight = pPref->getPatternEditorGridHeight() *
+		m_pPatternEditorPanel->getRowNumberDB();
 
 	resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
 
@@ -1000,10 +1001,12 @@ void PatternEditorSidebar::dimRows( bool bDim ) {
 ///
 void PatternEditorSidebar::updateRows()
 {
-	if ( m_nEditorHeight !=
-		 m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB() ) {
-		m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
-		resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( m_nEditorHeight != pPref->getPatternEditorGridHeight() *
+		 m_pPatternEditorPanel->getRowNumberDB() ) {
+		m_nEditorHeight = pPref->getPatternEditorGridHeight() *
+			m_pPatternEditorPanel->getRowNumberDB();
+		resize( width(), m_nEditorHeight );
 	}
 
 	bool bPianoRollShown = false;
@@ -1023,7 +1026,7 @@ void PatternEditorSidebar::updateRows()
 			// row in DB does not has its counterpart in the sidebar yet. Create
 			// it.
 			auto pRow = std::make_shared<SidebarRow>( this, rrow );
-			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
+			pRow->move( 0, pPref->getPatternEditorGridHeight() * nnIndex + 1 );
 			pRow->show();
 			pRow->setDimed( bPianoRollShown );
 			m_rows.push_back( pRow );
@@ -1065,6 +1068,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		return;
 	}
 
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
@@ -1086,7 +1090,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		nPosY = event->pos().y();
 	}
 
-	int nTargetRow = nPosY / m_nGridHeight;
+	int nTargetRow = nPosY / pPref->getPatternEditorGridHeight();
 
 	// There might be rows in the pattern editor not corresponding to the
 	// current kit. Since we only support rearranging rows corresponding to
@@ -1203,7 +1207,9 @@ void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 		return;
 	}
 
-	if ( abs( event->pos().y() - m_nDragStartY ) < m_nGridHeight ) {
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( abs( event->pos().y() - m_nDragStartY ) <
+		 pPref->getPatternEditorGridHeight() ) {
 		// Still within the same row.
 		return;
 	}
