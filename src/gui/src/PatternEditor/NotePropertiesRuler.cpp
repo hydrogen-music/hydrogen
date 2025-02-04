@@ -1138,51 +1138,32 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		return;
 	}
 
-	const auto pPref = H2Core::Preferences::get_instance();
 	const int nLineWidth = 3;
-
-	QColor color;
-	if ( ! pNote->getNoteOff() ) {
-		color = PatternEditor::computeNoteColor( pNote->getVelocity() );
-	} else {
-		color = pPref->getTheme().m_color.m_patternEditor_noteOffColor;
-	}
-	const QColor noteColor(
-		pPref->getTheme().m_color.m_patternEditor_noteVelocityDefaultColor );
-	const QColor noteInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 150 ) );
-	const QColor noteoffInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor );
 
 	const int nX = nOffsetX + PatternEditor::nMargin +
 		pNote->getPosition() * m_fGridWidth;
 
-	QPen highlightPen;
-	QBrush highlightBrush;
-	applyHighlightColor( &highlightPen, &highlightBrush, noteStyle );
-
-	QBrush noteBrush( color );
-	QPen notePen( noteColor );
-	if ( noteStyle & NoteStyle::Background ) {
-
-		if ( nX >= m_nActiveWidth ) {
-			notePen.setColor( noteInactiveColor );
-		}
-
-		noteBrush.setStyle( Qt::Dense4Pattern );
-		notePen.setStyle( Qt::DotLine );
+	// NoPlayback is handled in here in order to not bloat calling routines
+	// (since it has to be calculated for every note drawn).
+	if ( ! checkNotePlayback( pNote ) ) {
+		noteStyle =
+			static_cast<NoteStyle>(noteStyle | NoteStyle::NoPlayback);
 	}
+
+	QPen notePen, highlightPen, movingPen;
+	QBrush noteBrush, highlightBrush, movingBrush;
+	applyColor( pNote, &notePen, &noteBrush, &highlightPen, &highlightBrush,
+				&movingPen, &movingBrush, noteStyle );
+
 	p.setPen( notePen );
+	p.setBrush( noteBrush );
 	p.setRenderHint( QPainter::Antialiasing );
 
 	// Silhouette to show when a note is selected and moved to a different
 	// position (in another editor!).
 	auto pEditor = m_pPatternEditorPanel->getVisibleEditor();
-	QPen movingPen( noteColor );
 	QPoint movingOffset, delta;
 	if ( noteStyle & NoteStyle::Moved ) {
-		movingPen.setStyle( Qt::DotLine );
-		movingPen.setWidth( 2 );
 		delta = pEditor->movingGridOffset();
 		movingOffset = QPoint( delta.x() * m_fGridWidth, 0 );
 	}
@@ -1209,13 +1190,15 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			// value is centered - draw circle
 			const int nY = static_cast<int>(std::round( height() * 0.5 ) );
 
-			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-				p.setPen( highlightPen );
-				p.setBrush( highlightBrush );
-				p.drawEllipse( nX - 7, nY - 7, 14, 14 );
-			}
-
 			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				if ( noteStyle & ( NoteStyle::Selected |
+								   NoteStyle::Hovered |
+								   NoteStyle::NoPlayback ) ) {
+					p.setPen( highlightPen );
+					p.setBrush( highlightBrush );
+					p.drawEllipse( nX - 7, nY - 7, 14, 14 );
+				}
+
 				p.setPen( notePen );
 				p.setBrush( noteBrush );
 				p.drawEllipse( nX - 4, nY - 4, 8, 8);
@@ -1241,14 +1224,16 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 				nHeight = fValue;
 			}
 
-			if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
-				p.setPen( highlightPen );
-				p.setBrush( highlightBrush );
-				p.drawRoundedRect( nX - 1 - 4, nY - 4, nLineWidth + 8,
-								   nHeight + 8, 5, 5 );
-			}
-
 			if ( ! ( noteStyle & NoteStyle::Moved ) ) {
+				if ( noteStyle & ( NoteStyle::Selected |
+								   NoteStyle::Hovered |
+								   NoteStyle::NoPlayback ) ) {
+					p.setPen( highlightPen );
+					p.setBrush( highlightBrush );
+					p.drawRoundedRect( nX - 1 - 4, nY - 4, nLineWidth + 8,
+									   nHeight + 8, 5, 5 );
+				}
+
 				p.setPen( notePen );
 				p.setBrush( noteBrush );
 				p.drawRoundedRect( nX - 1 - 1, nY - 1,
@@ -1257,7 +1242,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			}
 			else {
 				p.setPen( movingPen );
-				p.setBrush( Qt::NoBrush );
+				p.setBrush( movingBrush );
 				p.drawRoundedRect( movingOffset.x() + nX - 1 - 2, nY - 2,
 								   nLineWidth + 4, nHeight + 4, 5, 5 );
 			}
@@ -1274,7 +1259,9 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			  NotePropertiesRuler::nKeyLineHeight );
 
 		// Paint selection outlines
-		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
+		if ( noteStyle & ( NoteStyle::Selected |
+						   NoteStyle::Hovered |
+						   NoteStyle::NoPlayback ) ) {
 			p.setPen( highlightPen );
 			p.setBrush( highlightBrush );
 			// Octave
@@ -1287,6 +1274,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
 			// paint the octave
+			p.setPen( notePen );
 			p.setBrush( noteBrush );
 			p.drawEllipse( QPoint( nX, nOctaveY ), nRadiusOctave, nRadiusOctave );
 
@@ -1317,7 +1305,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 
 			if ( bDrawMoveSilhouettes ) {
 				p.setPen( movingPen );
-				p.setBrush( Qt::NoBrush );
+				p.setBrush( movingBrush );
 				p.drawEllipse( QPoint( movingOffset.x() + nX, nMovedOctaveY ),
 							   nRadiusOctave + 1, nRadiusOctave + 1 );
 
@@ -1579,6 +1567,10 @@ void NotePropertiesRuler::drawPattern() {
 		for ( const auto& [ nnPos, ppNote ] : *ppPattern->getNotes() ) {
 			if ( ppNote == nullptr ) {
 				continue;
+			}
+
+			if ( nnPos >= ppPattern->getLength() ) {
+				break;
 			}
 
 			if ( nLastPos != nnPos ) {

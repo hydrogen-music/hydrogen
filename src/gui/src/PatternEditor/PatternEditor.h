@@ -295,6 +295,8 @@ protected:
 			/** Note is in a transient state while being moved to another
 			 * location. A silhouette will be rendered at the new position. */
 			Moved = 0x008,
+			/** Note won't be played back by the audio engine. */
+			NoPlayback = 0x010,
 		};
 
 		/** Scaling factor by which the background colors will be made darker in
@@ -359,9 +361,11 @@ protected:
 	//! Draw lines for note grid.
 	void drawGridLines( QPainter &p, const Qt::PenStyle& style = Qt::SolidLine ) const;
 
-	//! Colour to use for outlining notes
-	void applyHighlightColor( QPen* pPen, QBrush* pBrush,
-							  NoteStyle noteStyle ) const;
+	//! Colour to use for rendering and outlining notes
+	void applyColor( std::shared_ptr<H2Core::Note> pNote, QPen* pNotePen,
+					 QBrush* pNoteBrush, QPen* pHighlightPen,
+					 QBrush* pHighlightBrush, QPen* pMovingPen,
+					 QBrush* pMovingBrush, NoteStyle noteStyle ) const;
 
 	/**
 	 * Draw a note
@@ -456,6 +460,11 @@ protected:
 		void updateHoveredNotesMouse( QMouseEvent* pEvent,
 									  bool bUpdateEditors = true );
 		void updateHoveredNotesKeyboard( bool bUpdateEditors = true );
+
+		/** Checks whether the note would be played back when picked up by the
+		 * audio engine. */
+		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
+
 };
 
 #endif // PATERN_EDITOR_H

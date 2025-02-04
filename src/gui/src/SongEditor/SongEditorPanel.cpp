@@ -1132,7 +1132,8 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 
 	QString sMessage = QString( "%1 = %2" )
 		.arg( pCommonStrings->getTimelineBigButton() )
-		.arg( bActive ? pCommonStrings->getStatusOn() : pCommonStrings->getStatusOff() );
+		.arg( bActive ? pCommonStrings->getStatusOn() :
+			  pCommonStrings->getStatusOff() );
 	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 }
 

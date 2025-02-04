@@ -799,9 +799,11 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 		rNormalized += QMargins( 2, 2, 2, 2 );
 	}
 
-	// Calculate the first and last position values that this rect will intersect with
+	// Calculate the first and last position values that this rect will
+	// intersect with
 	int x_min = (rNormalized.left() - w - PatternEditor::nMargin) / m_fGridWidth;
-	int x_max = (rNormalized.right() + w - PatternEditor::nMargin) / m_fGridWidth;
+	int x_max = (std::min( rNormalized.right(), m_nActiveWidth ) + w -
+				 PatternEditor::nMargin) / m_fGridWidth;
 
 	const Pattern::notes_t* pNotes = pPattern->getNotes();
 

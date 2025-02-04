@@ -338,10 +338,12 @@ CommonStrings::CommonStrings(){
 	  drumkit, MIDI etc. into a read-only folder.*/
 	m_sFileDialogMissingWritePermissions = tr( "You do not have permissions to write to the selected folder. Please select another one." );
 
-	/*: Displayed within a status message when activating a widget.*/
-	m_sStatusOn = tr( "on" );
-	/*: Displayed within a status message when deactivating a widget.*/
-	m_sStatusOff = tr( "off" );
+	/*: Displayed within a status message when activating a widget as well as in
+	 *  the preferences dialog as option to enable a setting.*/
+	m_sStatusOn = tr( "On" );
+	/*: Displayed within a status message when deactivating a widget as well as in
+	 *  the preferences dialog as option to disable a setting.*/
+	m_sStatusOff = tr( "Off" );
 	/*: Displayed within a status message when enabling a widget.*/
 	m_sStatusEnabled = tr( "enabled" );
 	/*: Displayed within a status message when disabling a widget.*/

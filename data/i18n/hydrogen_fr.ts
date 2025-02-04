@@ -732,16 +732,6 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
         <translation>Impossible de charger l&apos;instrument</translation>
     </message>
     <message>
-        <source>on</source>
-        <extracomment>Displayed within a status message when activating a widget.</extracomment>
-        <translation>on</translation>
-    </message>
-    <message>
-        <source>off</source>
-        <extracomment>Displayed within a status message when deactivating a widget.</extracomment>
-        <translation>off</translation>
-    </message>
-    <message>
         <source>enabled</source>
         <extracomment>Displayed within a status message when enabling a widget.</extracomment>
         <translation>activé</translation>
@@ -1383,6 +1373,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>B</source>
         <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note B. It is designed to hold a single character.</extracomment>
         <translation>Si</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <extracomment>Displayed within a status message when activating a widget as well as in * the preferences dialog as option to enable a setting.</extracomment>
+        <translation>On</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <extracomment>Displayed within a status message when deactivating a widget as well as in * the preferences dialog as option to disable a setting.</extracomment>
+        <translation>Off</translation>
     </message>
 </context>
 <context>
@@ -4596,6 +4596,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Enable JACK &amp;Timebase support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indicate note playback</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

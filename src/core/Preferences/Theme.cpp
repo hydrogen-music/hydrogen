@@ -781,7 +781,8 @@ InterfaceTheme::InterfaceTheme()
 	, m_uiScalingPolicy( InterfaceTheme::ScalingPolicy::Smaller )
 	, m_iconColor( InterfaceTheme::IconColor::Black )
 	, m_coloringMethod( InterfaceTheme::ColoringMethod::Custom )
-	, m_nVisiblePatternColors( 18 ) {
+	, m_nVisiblePatternColors( 18 )
+	, m_bIndicateNotePlayback( true ) {
 	m_patternColors.resize( nMaxPatternColors );
 
 	std::vector<QColor> defaultColors {
@@ -884,7 +885,9 @@ QString InterfaceTheme::toQString( const QString& sPrefix, bool bShort ) const {
 							.arg( ccolor.name() ) );
 		}
 		sOutput.append( QString( "%1%2]\n%1%2m_nVisiblePatternColors: %3\n" )
-						.arg( sPrefix ) .arg( s ).arg( m_nVisiblePatternColors ) );
+						.arg( sPrefix ) .arg( s ).arg( m_nVisiblePatternColors ) )
+			.append( QString( "%1%2m_bIndicateNotePlayback: %3\n" )
+					 .arg( sPrefix ) .arg( s ).arg( m_bIndicateNotePlayback ) );
 	}
 	else {
 		sOutput = QString( "[InterfaceTheme] " )
@@ -904,7 +907,9 @@ QString InterfaceTheme::toQString( const QString& sPrefix, bool bShort ) const {
 			sOutput.append( QString( "%1, " ).arg( ccolor.name() ) );
 		}
 		sOutput.append( QString( "], m_nVisiblePatternColors: %1" )
-						 .arg( m_nVisiblePatternColors ) );
+						 .arg( m_nVisiblePatternColors ) )
+			.append( QString( ", m_bIndicateNotePlayback: %1" )
+					 .arg( m_bIndicateNotePlayback ) );
 	}
 
 	return sOutput;
@@ -1082,7 +1087,11 @@ std::unique_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 		interfaceTheme.m_nVisiblePatternColors = 50;
 	} else if ( interfaceTheme.m_nVisiblePatternColors < 0 ) {
 		interfaceTheme.m_nVisiblePatternColors = 0;
-	}									  
+	}
+
+	interfaceTheme.m_bIndicateNotePlayback = interfaceNode.read_bool(
+		"indicate_note_playback", true, /* inexistent_ok */ true,
+		/* empty_ok */ false );
 			
 	XMLNode fontNode = rootNode.firstChildElement( "fontTheme" );
 	if ( fontNode.isNull() ) {
@@ -1140,6 +1149,8 @@ bool Theme::exportTo( const QString& sPath ) const {
 	}
 	interfaceNode.write_int( "SongEditor_visible_pattern_colors",
 							 m_interface.m_nVisiblePatternColors );
+	interfaceNode.write_bool( "indicate_note_playback",
+							  m_interface.m_bIndicateNotePlayback );
 
 	XMLNode fontNode = rootNode.createNode( "fontTheme" );
 	fontNode.write_string( "application_font_family",

@@ -57,14 +57,18 @@ using namespace H2Core;
 DrumPatternRow::DrumPatternRow() noexcept
 	: nInstrumentID( EMPTY_INSTR_ID)
 	, sType( "" )
-	, bAlternate( false ) {
+	, bAlternate( false )
+	, bMappedToDrumkit( false )
+	, bPlaysBackAudio( false ){
 }
 DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
-								bool bAlt, bool bMapped ) noexcept
+								bool bAlt, bool bMapped,
+								bool bPlaysAudio ) noexcept
 	: nInstrumentID( nId)
 	, sType( sTypeString )
 	, bAlternate( bAlt )
-	, bMappedToDrumkit( bMapped ) {
+	, bMappedToDrumkit( bMapped )
+	, bPlaysBackAudio( bPlaysAudio ) {
 }
 
 QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
@@ -79,14 +83,17 @@ QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2bAlternate: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( bAlternate ) )
 			.append( QString( "%1%2bMappedToDrumkit: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( bMappedToDrumkit ) );
+					 .arg( s ).arg( bMappedToDrumkit ) )
+			.append( QString( "%1%2bPlaysBackAudio: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( bPlaysBackAudio ) );
 	}
 	else {
 		sOutput = QString( "[DrumPatternRow] " )
 			.append( QString( "nInstrumentID: %1" ).arg( nInstrumentID ) )
 			.append( QString( ", sType: %1" ).arg( sType ) )
 			.append( QString( ", bAlternate: %1" ).arg( bAlternate ) )
-			.append( QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit ) );
+			.append( QString( ", bMappedToDrumkit: %1" ).arg( bMappedToDrumkit ) )
+			.append( QString( ", bPlaysBackAudio: %1" ).arg( bPlaysBackAudio ) );
 	}
 
 	return sOutput;
@@ -1361,6 +1368,11 @@ void PatternEditorPanel::relocationEvent() {
 	}
 }
 
+void PatternEditorPanel::instrumentMuteSoloChangedEvent( int ) {
+	updateDB();
+	updateEditors( true );
+}
+
 void PatternEditorPanel::patternSizeChanged( double fValue ){
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -1658,6 +1670,9 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		updateStyleSheet();
 		updateEditors();
 	}
+	else if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateEditors( true );
+	}
 }
 
 void PatternEditorPanel::updateStyleSheet() {
@@ -1881,16 +1896,22 @@ void PatternEditorPanel::updateDB() {
 		return;
 	}
 
+	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+
 	int nnRow = 0;
 
 	std::set<int> kitIds;
 	// First we add all instruments of the current drumkit in the order author
 	// of the kit intended.
-	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+	for ( const auto& ppInstrument : *pInstrumentList ) {
 		if ( ppInstrument != nullptr ) {
+			const bool bNoPlayback = ppInstrument->is_muted() ||
+				( pInstrumentList->isAnyInstrumentSoloed() &&
+				  ! ppInstrument->is_soloed() );
+
 			m_db.push_back(
 				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
-								nnRow % 2 != 0, true ) );
+								nnRow % 2 != 0, true, ! bNoPlayback ) );
 			kitIds.insert( ppInstrument->get_id() );
 			++nnRow;
 		}
@@ -1932,15 +1953,15 @@ void PatternEditorPanel::updateDB() {
 	// than unmapped id-only ones.
 	additionalTypes.sort();
 	for ( const auto& ssType : additionalTypes ) {
-		m_db.push_back( DrumPatternRow(
-							EMPTY_INSTR_ID, ssType, nnRow % 2 != 0, false ) );
+		m_db.push_back( DrumPatternRow( EMPTY_INSTR_ID, ssType, nnRow % 2 != 0,
+										false, false ) );
 		++nnRow;
 	}
 
 	additionalIds.sort();
 	for ( const auto& ssId : additionalIds ) {
-		m_db.push_back( DrumPatternRow(
-							ssId.toInt(), "", nnRow % 2 != 0, false ) );
+		m_db.push_back( DrumPatternRow( ssId.toInt(), "", nnRow % 2 != 0,
+										false, false ) );
 		++nnRow;
 	}
 
@@ -1959,8 +1980,9 @@ void PatternEditorPanel::updateDB() {
 }
 
 void PatternEditorPanel::setHoveredNotesMouse(
-	std::map< std::shared_ptr<H2Core::Pattern>,
-	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+	std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
+							std::vector< std::shared_ptr<H2Core::Note> > >
+			   > hoveredNotes,
 	bool bUpdateEditors )
 {
 	if ( hoveredNotes == m_hoveredNotesMouse ) {
@@ -1978,8 +2000,9 @@ void PatternEditorPanel::setHoveredNotesMouse(
 }
 
 void PatternEditorPanel::setHoveredNotesKeyboard(
-	std::map< std::shared_ptr<H2Core::Pattern>,
-	  std::vector< std::shared_ptr<H2Core::Note> > > hoveredNotes,
+	std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
+							std::vector< std::shared_ptr<H2Core::Note> > >
+			   > hoveredNotes,
 	bool bUpdateEditors )
 {
 	if ( hoveredNotes == m_hoveredNotesKeyboard ) {
@@ -1997,30 +2020,57 @@ void PatternEditorPanel::setHoveredNotesKeyboard(
 }
 
 void PatternEditorPanel::updateHoveredNotes() {
-	m_hoveredNotes = m_hoveredNotesKeyboard;
+	m_hoveredNotes.clear();
 
-	bool bFound;
+	std::map< std::shared_ptr<Pattern>, std::vector< std::shared_ptr<Note> > >
+		hoveredMap;
+
+	// We collect notes of the current pattern separately in order to ensure
+	// they are added last (and painted on top of the background ones).
+	std::vector< std::shared_ptr<H2Core::Note> > notesForeground;
+	for ( const auto& [ ppPattern, nnotes ] : m_hoveredNotesKeyboard ) {
+		if ( ppPattern == m_pPattern ) {
+			notesForeground = nnotes;
+		}
+		else {
+			hoveredMap[ ppPattern ] = nnotes;
+		}
+	}
+
 	for ( const auto& [ ppPattern, nnotes ] : m_hoveredNotesMouse ) {
-		if ( m_hoveredNotes.find( ppPattern ) != m_hoveredNotes.end() ) {
+		if ( ppPattern == m_pPattern ) {
+			for ( const auto& ppNoteMouse : nnotes ) {
+				notesForeground.push_back( ppNoteMouse );
+			}
+		}
+		else if ( hoveredMap.find( ppPattern ) != hoveredMap.end() ) {
 			// Pattern is already present. Merge it.
 			for ( const auto& ppNoteMouse : nnotes ) {
-				bFound = false;
-				for ( const auto& ppNoteKeyboard : m_hoveredNotes[ ppPattern ] ) {
-					if ( ppNoteMouse == ppNoteKeyboard ) {
-						bFound = true;
+				bool bPresent = false;
+				for ( const auto& ppNoteHovered : hoveredMap[ ppPattern ] ) {
+					if ( ppNoteHovered == ppNoteMouse ) {
+						bPresent = true;
 						break;
 					}
 				}
 
-				if ( ! bFound ) {
-					m_hoveredNotes[ ppPattern ].push_back( ppNoteMouse );
+				if ( ! bPresent ) {
+					hoveredMap[ ppPattern ].push_back( ppNoteMouse );
 				}
 			}
 		}
 		else {
 			// Pattern is not present yet.
-			m_hoveredNotes[ ppPattern ] = nnotes;
+			hoveredMap[ ppPattern ] = nnotes;
 		}
+	}
+
+	for ( const auto& [ ppPattern, nnotes ] : hoveredMap ) {
+		m_hoveredNotes.push_back( std::make_pair( ppPattern, nnotes ) );
+	}
+
+	if ( notesForeground.size() > 0 ) {
+		m_hoveredNotes.push_back( std::make_pair( m_pPattern, notesForeground ) );
 	}
 
 	for ( auto& [ _, nnotes ] : m_hoveredNotes ) {
