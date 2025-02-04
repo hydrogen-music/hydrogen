@@ -654,15 +654,17 @@ void PatternEditorPanel::createEditors() {
 	m_pPropertiesPanel = new PixmapWidget( nullptr );
 	m_pPropertiesPanel->setObjectName( "PropertiesPanel" );
 	m_pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
+	m_pPropertiesPanel->setFixedHeight( 100 );
+	m_pPropertiesPanel->setMaximumWidth( PatternEditorSidebar::m_nWidth );
 
-	m_pPropertiesPanel->setFixedSize( PatternEditorSidebar::m_nWidth, 100 );
 
 	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( m_pPropertiesPanel );
 	pPropertiesVBox->setSpacing( 0 );
 	pPropertiesVBox->setMargin( 0 );
 
-	m_pPropertiesCombo = new LCDCombo(
-		nullptr, QSize( PatternEditorSidebar::m_nWidth, 18 ), false );
+	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( 0, 0 ), false );
+	m_pPropertiesCombo->setFixedHeight( 18 );
+	m_pPropertiesCombo->setMaximumWidth( PatternEditorSidebar::m_nWidth );
 	m_pPropertiesCombo->setFocusPolicy( Qt::ClickFocus );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
 	m_pPropertiesCombo->addItem( pCommonStrings->getNotePropertyVelocity() );
@@ -1992,12 +1994,31 @@ void PatternEditorPanel::updateTypeLabelVisibility() {
 		return;
 	}
 
+	// Update visibility
+	bool bVisible;
 	if ( Preferences::get_instance()->getPatternEditorAlwaysShowTypeLabels() ) {
-		m_pSidebar->updateTypeLabelVisibility( true );
+		bVisible = true;
 	}
 	else {
-		m_pSidebar->updateTypeLabelVisibility( m_bTypeLabelsMustBeVisible );
+		bVisible = m_bTypeLabelsMustBeVisible;
 	}
+
+	// Update the width of the sidebar.
+	int nWidth;
+	if ( ! bVisible ) {
+		nWidth = PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth;
+	}
+	else {
+		nWidth = PatternEditorSidebar::m_nWidth;
+	}
+
+	m_pDrumkitLabel->setFixedWidth( nWidth );
+	m_pSidebar->setFixedWidth( nWidth );
+	m_pSidebarScrollView->setFixedWidth( nWidth );
+	m_pPropertiesPanel->setFixedWidth( nWidth );
+	m_pPropertiesCombo->setFixedWidth( nWidth );
+
+	m_pSidebar->updateTypeLabelVisibility( bVisible );
 }
 
 void PatternEditorPanel::setHoveredNotesMouse(

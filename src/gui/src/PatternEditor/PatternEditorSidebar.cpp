@@ -382,8 +382,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			   SidebarRow::m_nTypeLblWidth, nHeight ),
 		"", PatternEditorSidebar::m_nMargin );
 	m_pInstrumentNameLbl->setFont( nameFont );
-	m_pInstrumentNameLbl->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pInstrumentNameLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pHBox->addWidget( m_pInstrumentNameLbl );
 
 	// Play back a sample of specific velocity based on the horizontal position
@@ -936,14 +935,24 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 	HydrogenApp::get_instance()->addEventListener( this );
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	//INFOLOG("INIT");
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
+	auto pVBoxLayout = new QVBoxLayout( this );
+	pVBoxLayout->setSpacing( 0 );
+	pVBoxLayout->setMargin( 0 );
+
+	setLayout( pVBoxLayout );
 
 	m_nEditorHeight = pPref->getPatternEditorGridHeight() *
 		m_pPatternEditorPanel->getRowNumberDB();
 
-	resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
+	if ( pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+		resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
+	}
+	else {
+		resize( PatternEditorSidebar::m_nWidth -
+				SidebarRow::m_nTypeLblWidth, m_nEditorHeight );
+	}
 
 	setAcceptDrops(true);
 
@@ -1025,9 +1034,8 @@ void PatternEditorSidebar::updateRows()
 		else {
 			// row in DB does not has its counterpart in the sidebar yet. Create
 			// it.
-			auto pRow = std::make_shared<SidebarRow>( this, rrow );
-			pRow->move( 0, pPref->getPatternEditorGridHeight() * nnIndex + 1 );
-			pRow->show();
+			auto pRow = new SidebarRow( this, rrow );
+			layout()->addWidget( pRow );
 			pRow->setDimed( bPianoRollShown );
 			m_rows.push_back( pRow );
 		}
@@ -1037,7 +1045,10 @@ void PatternEditorSidebar::updateRows()
 	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
 		// There are rows not required anymore
+		auto pRow = *( m_rows.end() - 1 );
+		layout()->removeWidget( pRow );
 		m_rows.pop_back();
+		delete pRow;
 	}
 }
 
