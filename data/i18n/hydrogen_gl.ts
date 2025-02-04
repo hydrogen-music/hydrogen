@@ -1321,6 +1321,66 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Instrument types must be unique!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>C</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C. It is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>C#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C#. It is designed to hold two characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D. It is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D#. It is designed to hold two characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note E. It is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F. It is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F#. It is designed to hold two characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G. It is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G#. It is designed to hold two characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A. It is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A#</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A#. It is designed to hold two characters.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B</source>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note B. It is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -2915,54 +2975,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A#</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>G#</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>F#</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>F</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>E</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>D#</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>D</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>C#</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

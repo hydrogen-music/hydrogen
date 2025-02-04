@@ -307,6 +307,19 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getNotePropertyLength() const {
 			return m_sNotePropertyLength; }
 
+		const QString& getNotePitchC() const { return m_sNotePitchC; }
+		const QString& getNotePitchCSharp() const { return m_sNotePitchCSharp; }
+		const QString& getNotePitchD() const { return m_sNotePitchD; }
+		const QString& getNotePitchDSharp() const { return m_sNotePitchDSharp; }
+		const QString& getNotePitchE() const { return m_sNotePitchE; }
+		const QString& getNotePitchF() const { return m_sNotePitchF; }
+		const QString& getNotePitchFSharp() const { return m_sNotePitchFSharp; }
+		const QString& getNotePitchG() const { return m_sNotePitchG; }
+		const QString& getNotePitchGSharp() const { return m_sNotePitchGSharp; }
+		const QString& getNotePitchA() const { return m_sNotePitchA; }
+		const QString& getNotePitchASharp() const { return m_sNotePitchASharp; }
+		const QString& getNotePitchB() const { return m_sNotePitchB; }
+
 		const QString& getErrorNotFound() const { return m_sErrorNotFound; }
 		const QString& getErrorNotFoundShort() const {
 			return m_sErrorNotFoundShort; }
@@ -554,6 +567,19 @@ private:
 		QString m_sNotePropertyKeyOctave;
 		QString m_sNotePropertyProbability;
 		QString m_sNotePropertyLength;
+
+		QString m_sNotePitchC;
+		QString m_sNotePitchCSharp;
+		QString m_sNotePitchD;
+		QString m_sNotePitchDSharp;
+		QString m_sNotePitchE;
+		QString m_sNotePitchF;
+		QString m_sNotePitchFSharp;
+		QString m_sNotePitchG;
+		QString m_sNotePitchGSharp;
+		QString m_sNotePitchA;
+		QString m_sNotePitchASharp;
+		QString m_sNotePitchB;
 
 	QString m_sEncodingError;
 };

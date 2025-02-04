@@ -233,18 +233,30 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 	int nnActualOctave = 5;
 	int nnIndex = 0;
 	for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
-		createLabel( QString( "B%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "A#%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "A%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "G#%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "G%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "F#%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "F%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "E%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "D#%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "D%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "C#%1" ).arg( nnActualOctave ) , &nnIndex );
-		createLabel( QString( "C%1" ).arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchB() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchASharp() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchA() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchGSharp() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchG() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchFSharp() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchF() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchE() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchDSharp() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchD() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchCSharp() )
+					 .arg( nnActualOctave ) , &nnIndex );
+		createLabel( QString( "%1%2" ).arg( pCommonStrings->getNotePitchC() )
+					 .arg( nnActualOctave ) , &nnIndex );
 		--nnActualOctave;
 	}
 
@@ -620,7 +632,7 @@ void PianoRollEditor::createBackground()
 	p.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 	for ( uint row = 0; row < ( KEYS_PER_OCTAVE * OCTAVE_NUMBER ); ++row ) {
 		unsigned y = row * m_nGridHeight;
-		p.drawLine( 0, y, m_nActiveWidth, y );
+		p.drawLine( PatternEditor::nMarginSidebar, y, m_nActiveWidth, y );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {

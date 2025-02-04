@@ -614,7 +614,8 @@ void PatternEditorPanel::createEditors() {
 		NotePropertiesRuler::Property::KeyOctave,
 		NotePropertiesRuler::Layout::KeyOctave );
 	m_pNoteKeyOctaveScrollView->setWidget( m_pNoteKeyOctaveEditor );
-	m_pNoteKeyOctaveScrollView->setFixedHeight( 210 );
+	m_pNoteKeyOctaveScrollView->setFixedHeight(
+		NotePropertiesRuler::nKeyOctaveHeight );
 	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 this, SLOT( on_patternEditorHScroll( int ) ) );
 	connect( m_pNoteKeyOctaveScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
@@ -1648,6 +1649,7 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		m_pTabBar->setFont( boldFont );
 
 		m_pPianoRollEditor->updateFont();
+		m_pNoteKeyOctaveEditor->updateFont();
 		m_pSidebar->updateFont();
 		updateEditors();
 	}
@@ -1709,6 +1711,7 @@ QWidget#pRec {\
 	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
 	m_pRec->setStyleSheet( sWidgetTopStyleSheet );
 	m_pPianoRollEditor->updateStyleSheet();
+	m_pNoteKeyOctaveEditor->updateColors();
 	m_pSidebar->updateStyleSheet();
 }
 

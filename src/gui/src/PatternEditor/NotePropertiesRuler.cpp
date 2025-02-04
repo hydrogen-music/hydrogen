@@ -22,6 +22,7 @@
 #include "NotePropertiesRuler.h"
 
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
@@ -35,9 +36,96 @@
 
 using namespace H2Core;
 
+// +1 to fit all the labels and another +1 to have enough room to show the focus
+// at the bottom of the editor.
 int NotePropertiesRuler::nKeyOctaveHeight =
 	NotePropertiesRuler::nOctaveHeight +
-	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE;
+	NotePropertiesRuler::nKeyLineHeight * KEYS_PER_OCTAVE + 2 -
+	std::floor( NotePropertiesRuler::nKeyLineHeight / 2 );
+
+KeyOctaveLabel::KeyOctaveLabel( QWidget* pParent, const QString& sText, int nY,
+								bool bAlternateBackground, Type type )
+	: QLabel( pParent )
+	, m_bAlternateBackground( bAlternateBackground )
+	, m_type( type )
+{
+	setText( sText );
+
+	move( 1, nY );
+
+	if ( type == Type::Key ) {
+		setAlignment( Qt::AlignLeft );
+		setIndent( 4 );
+		setFixedSize( PatternEditor::nMarginSidebar,
+					  NotePropertiesRuler::nKeyLineHeight );
+	}
+	else {
+		setAlignment( Qt::AlignRight );
+		setIndent( 3 );
+		setFixedSize( PatternEditor::nMarginSidebar / 2,
+					  NotePropertiesRuler::nKeyLineHeight );
+	}
+
+	updateColors();
+	updateFont();
+}
+
+KeyOctaveLabel::~KeyOctaveLabel() {}
+
+void KeyOctaveLabel::updateColors() {
+	auto pPref = Preferences::get_instance();
+
+	if ( m_type == Type::Key ) {
+		QColor backgroundColor;
+		if ( m_bAlternateBackground ) {
+			backgroundColor =
+				pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
+		}
+		else {
+			backgroundColor =
+				pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+		}
+		m_backgroundColor =
+			backgroundColor.darker( Skin::nListBackgroundColorScaling );
+	}
+
+	setStyleSheet( QString( "QLabel{ color: %1; }" )
+				   .arg( pPref->getTheme().m_color.m_patternEditor_textColor.name() ) );
+}
+
+void KeyOctaveLabel::updateFont() {
+	auto pPref = Preferences::get_instance();
+
+	int nMargin;
+    switch( pPref->getTheme().m_font.m_fontSize ) {
+    case H2Core::FontTheme::FontSize::Small:
+		nMargin = 2;
+		break;
+    case H2Core::FontTheme::FontSize::Medium:
+		nMargin = 2;
+		break;
+    case H2Core::FontTheme::FontSize::Large:
+		nMargin = 0;
+		break;
+	}
+
+	QFont font( pPref->getTheme().m_font.m_sLevel2FontFamily );
+	font.setPixelSize( NotePropertiesRuler::nKeyLineHeight - nMargin );
+	font.setBold( true );
+
+	setFont( font );
+}
+
+void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent ) {
+	auto p = QPainter( this );
+
+	if ( m_type == Type::Key ) {
+		Skin::drawListBackground( &p, QRect( 0, 0, width(), height() ),
+								  m_backgroundColor, false );
+	}
+
+	QLabel::paintEvent( pEvent );
+}
 
 
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
@@ -47,6 +135,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	, m_nDrawPreviousColumn( -1 )
 	, m_layout( layout )
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_property = property;
 	m_editor = PatternEditor::Editor::NotePropertiesRuler;
 
@@ -71,9 +160,66 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	m_pPopupMenu = new QMenu( this );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
+
+	// Create a small sidebar containing labels
+	if ( layout == Layout::KeyOctave ) {
+
+		for ( int nnOctave = 0; nnOctave < OCTAVE_NUMBER; ++nnOctave ) {
+			m_labels.push_back(
+				new KeyOctaveLabel(
+					this, QString::number( 5 - nnOctave ),
+					nnOctave * NotePropertiesRuler::nKeyLineHeight + 1 +
+					std::floor( NotePropertiesRuler::nKeyLineHeight / 2 ),
+					false, KeyOctaveLabel::Type::Octave ) );
+		}
+
+		// Annotate with note class names
+		static QStringList noteNames = QStringList()
+			<< pCommonStrings->getNotePitchB()
+			<< pCommonStrings->getNotePitchASharp()
+			<< pCommonStrings->getNotePitchA()
+			<< pCommonStrings->getNotePitchGSharp()
+			<< pCommonStrings->getNotePitchG()
+			<< pCommonStrings->getNotePitchFSharp()
+			<< pCommonStrings->getNotePitchF()
+			<< pCommonStrings->getNotePitchE()
+			<< pCommonStrings->getNotePitchDSharp()
+			<< pCommonStrings->getNotePitchD()
+			<< pCommonStrings->getNotePitchCSharp()
+			<< pCommonStrings->getNotePitchC();
+
+		for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
+
+			const int nY = NotePropertiesRuler::nOctaveHeight -
+				NotePropertiesRuler::nKeyLineHeight / 2 + 1 +
+				nnKey * NotePropertiesRuler::nKeyLineHeight;
+
+			bool bAlternate = false;
+			if ( nnKey == 1 ||  nnKey == 3 || nnKey == 5 || nnKey == 8 ||
+				 nnKey == 10 ) {
+				bAlternate = true;
+			}
+
+			m_labels.push_back(
+				new KeyOctaveLabel( this, noteNames.at( nnKey ), nY, bAlternate,
+									KeyOctaveLabel::Type::Key ) );
+		}
+	}
 }
 
 NotePropertiesRuler::~NotePropertiesRuler() {
+}
+
+void NotePropertiesRuler::updateColors() {
+	for ( auto& ppLabel : m_labels ) {
+		ppLabel->updateColors();
+	}
+}
+
+void NotePropertiesRuler::updateFont() {
+	for ( auto& ppLabel : m_labels ) {
+		ppLabel->updateFont();
+	}
 }
 
 //! Scroll wheel gestures will adjust the property of notes under the mouse
@@ -960,7 +1106,7 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	
 	painter.setPen( QPen( lineColor, 1, Qt::DotLine ) );
 	for (unsigned y = 0; y < nHeight; y += nIncrement ) {
-		painter.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
+		painter.drawLine( 0, y, m_nActiveWidth, y );
 	}
 
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
@@ -1123,8 +1269,9 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 		const int nOctaveY = ( 4 - pNote->getOctave() ) *
 			NotePropertiesRuler::nKeyLineHeight;
 		const int nRadiusKey = 5;
-		const int nKeyY = NotePropertiesRuler::nKeyOctaveHeight -
-			( ( pNote->getKey() + 1 ) * NotePropertiesRuler::nKeyLineHeight );
+		const int nKeyY = NotePropertiesRuler::nOctaveHeight +
+			( ( KEYS_PER_OCTAVE - pNote->getKey() - 1 ) *
+			  NotePropertiesRuler::nKeyLineHeight );
 
 		// Paint selection outlines
 		if ( noteStyle & ( NoteStyle::Selected | NoteStyle::Hovered ) ) {
@@ -1262,41 +1409,20 @@ void NotePropertiesRuler::createBackground()
 								Qt::SolidLine, Qt::FlatCap ) );
 			}
 
-			p.drawLine( PatternEditor::nMargin, yy, m_nActiveWidth, yy );
+			p.drawLine( PatternEditor::nMarginSidebar, yy, m_nActiveWidth, yy );
 		}
+
+		// Vertical border between sidebar and editor
+		p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
+		p.drawLine( PatternEditor::nMarginSidebar, 0,
+					PatternEditor::nMarginSidebar, height() );
 
 		if ( pPattern != nullptr ) {
 			drawGridLines( p, Qt::DotLine );
 
-			// Annotate with note class names
-			static QStringList noteNames = QStringList()
-				<< tr( "B" )
-				<< tr( "A#" )
-				<< tr( "A" )
-				<< tr( "G#" )
-				<< tr( "G" )
-				<< tr( "F#" )
-				<< tr( "F" )
-				<< tr( "E" )
-				<< tr( "D#" )
-				<< tr( "D" )
-				<< tr( "C#" )
-				<< tr( "C" );
-
-			QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
-						getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-
-			p.setFont( font );
-			p.setPen( textColor );
-			for ( int n = 0; n < KEYS_PER_OCTAVE; n++ ) {
-				p.drawText( 3, NotePropertiesRuler::nOctaveHeight +
-							NotePropertiesRuler::nKeyLineHeight * n +3,
-							noteNames[n] );
-			}
-
 			// Border between key and octave part
 			p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
-			p.drawLine( PatternEditor::nMargin,
+			p.drawLine( 0,
 						NotePropertiesRuler::nOctaveHeight -
 						NotePropertiesRuler::nKeyLineHeight / 2,
 						m_nActiveWidth,
@@ -1318,7 +1444,7 @@ void NotePropertiesRuler::createBackground()
 					  NotePropertiesRuler::nKeyLineHeight;
 				  yy <= NotePropertiesRuler::nKeyOctaveHeight;
 				  yy += NotePropertiesRuler::nKeyLineHeight ) {
-				p.drawLine( PatternEditor::nMargin,
+				p.drawLine( PatternEditor::nMarginSidebar,
 							yy - NotePropertiesRuler::nKeyLineHeight / 2,
 							m_nActiveWidth,
 							yy - NotePropertiesRuler::nKeyLineHeight / 2 );
