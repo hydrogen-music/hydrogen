@@ -724,7 +724,14 @@ void SidebarRow::setSelected( bool bSelected )
 
 	m_bIsSelected = bSelected;
 
-	m_pTypeLbl->setShowCursor( bSelected );
+	if ( m_pTypeLbl->isVisible() ) {
+		m_pTypeLbl->setShowCursor( bSelected );
+		m_pInstrumentNameLbl->setShowCursor( false );
+	}
+	else {
+		m_pInstrumentNameLbl->setShowCursor( bSelected );
+		m_pTypeLbl->setShowCursor( false );
+	}
 
 	updateStyleSheet();
 
@@ -786,6 +793,18 @@ void SidebarRow::updateTypeLabelVisibility( bool bVisible ) {
 		m_pTypeLbl->show();
 	} else {
 		m_pTypeLbl->hide();
+	}
+
+	// Update label on which the cursor is shown
+	if ( m_bIsSelected ) {
+		if ( bVisible ) {
+			m_pInstrumentNameLbl->setShowCursor( false );
+			m_pTypeLbl->setShowCursor( true );
+		}
+		else {
+			m_pInstrumentNameLbl->setShowCursor( true );
+			m_pTypeLbl->setShowCursor( false );
+		}
 	}
 }
 
