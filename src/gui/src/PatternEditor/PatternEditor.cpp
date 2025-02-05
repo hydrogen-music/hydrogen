@@ -3903,6 +3903,30 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 		return true;
 	}
 
+	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
+		return false;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	// If the note is part of a mute group, only the bottom most note at the
+	// same position within the group will be rendered.
+	if ( pNote->getInstrument()->get_mute_group() != -1 &&
+		 pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+		const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
+					 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+					 ppNote->getPosition() == pNote->getPosition() &&
+					 pInstrumentList->index( pNote->getInstrument() ) <
+					 pInstrumentList->index( ppNote->getInstrument() ) ) {
+					return false;
+				}
+			}
+		}
+	}
+
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->findRowDB( pNote ) );
 	return row.bPlaysBackAudio;
