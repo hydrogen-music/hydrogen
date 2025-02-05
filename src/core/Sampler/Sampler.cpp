@@ -208,9 +208,22 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 	pNote->getAdsr()->attack();
 	auto pInstr = pNote->getInstrument();
 
-	// mute group
-	int nMuteGrp = pInstr->get_mute_group();
+	// Mute group handling
+	//
+	// For each new note all other notes associated with instruments bearing the
+	// same mute group currently rendered by the Sampler will immediately
+	// transit into release phase (rendering will be stopped gently).
+	//
+	// If there are two notes of the same mute group at the same
+	// position/column, only one can be played. To allow for the user have
+	// (limited) control over which one is chosen, we will render the note of
+	// the bottom-most instrument according to the current instrument order in
+	// the drumkit.
+	const int nMuteGrp = pInstr->get_mute_group();
 	if ( nMuteGrp != -1 ) {
+
+		const auto pSong = Hydrogen::get_instance()->getSong();
+
 		// remove all notes using the same mute group
 		for ( const auto& pOtherNote: m_playingNotesQueue ) {	// delete older note
 			if ( pOtherNote != nullptr &&
@@ -218,7 +231,18 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 				 pOtherNote->getAdsr() != nullptr &&
 				 pOtherNote->getInstrument() != pInstr  &&
 				 pOtherNote->getInstrument()->get_mute_group() == nMuteGrp ) {
-				pOtherNote->getAdsr()->release();
+				if ( pOtherNote->getPosition() == pNote->getPosition() &&
+					 pSong != nullptr && pSong->getDrumkit() != nullptr &&
+					 pSong->getDrumkit()->getInstruments()->index(
+						 pOtherNote->getInstrument() ) >
+					 pSong->getDrumkit()->getInstruments()->index( pInstr ) ) {
+					// There is another note of the same mute group at a lower
+					// position. We keep it and discard the provided note.
+					return;
+				}
+				else {
+					pOtherNote->getAdsr()->release();
+				}
 			}
 		}
 	}
