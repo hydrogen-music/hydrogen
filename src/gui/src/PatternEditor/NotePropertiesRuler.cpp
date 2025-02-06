@@ -1150,10 +1150,11 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			static_cast<NoteStyle>(noteStyle | NoteStyle::NoPlayback);
 	}
 
-	QPen notePen, highlightPen, movingPen;
-	QBrush noteBrush, highlightBrush, movingBrush;
-	applyColor( pNote, &notePen, &noteBrush, &highlightPen, &highlightBrush,
-				&movingPen, &movingBrush, noteStyle );
+	QPen notePen, noteTailPen, highlightPen, movingPen;
+	QBrush noteBrush, noteTailBrush, highlightBrush, movingBrush;
+	applyColor( pNote, &notePen, &noteBrush, &noteTailPen, &noteTailBrush,
+				&highlightPen, &highlightBrush, &movingPen, &movingBrush,
+				noteStyle );
 
 	p.setPen( notePen );
 	p.setBrush( noteBrush );
