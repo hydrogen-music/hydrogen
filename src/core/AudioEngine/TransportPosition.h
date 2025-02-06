@@ -123,6 +123,27 @@ public:
 	 */
 	static long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 );
 
+	/**
+	 * Converts ticks into frames under the assumption of a constant
+	 * @a fTickSize (sample rate, tempo, and resolution did not
+	 * change).
+	 *
+	 * As the assumption above does not hold once a tempo marker is
+	 * introduced, computeFrameFromTick() should be used instead while
+	 * this function is only meant for internal use.
+	 */
+	static long long computeFrame( double fTick, float fTickSize );
+	/**
+	 * Converts frames into ticks under the assumption of a constant
+	 * @a fTickSize (sample rate, tempo, and resolution did not
+	 * change).
+	 *
+	 * As the assumption above does not hold once a tempo marker is
+	 * introduced, computeFrameFromTick() should be used instead while
+	 * this function is only meant for internal use.
+	 */
+	static double computeTick( long long nFrame, float fTickSize );
+
 	friend bool operator==( std::shared_ptr<TransportPosition> lhs,
 							 std::shared_ptr<TransportPosition> rhs );
 	friend bool operator!=( std::shared_ptr<TransportPosition> lhs,
@@ -168,27 +189,6 @@ private:
 	
 	PatternList* getPlayingPatterns();
 	PatternList* getNextPatterns();
-
-	/**
-	 * Converts ticks into frames under the assumption of a constant
-	 * @a fTickSize (sample rate, tempo, and resolution did not
-	 * change).
-	 *
-	 * As the assumption above does not hold once a tempo marker is
-	 * introduced, computeFrameFromTick() should be used instead while
-	 * this function is only meant for internal use.
-	 */
-	static long long computeFrame( double fTick, float fTickSize );
-	/**
-	 * Converts frames into ticks under the assumption of a constant
-	 * @a fTickSize (sample rate, tempo, and resolution did not
-	 * change).
-	 *
-	 * As the assumption above does not hold once a tempo marker is
-	 * introduced, computeFrameFromTick() should be used instead while
-	 * this function is only meant for internal use.
-	 */
-	static double computeTick( long long nFrame, float fTickSize );
 
 	double getDoubleTick() const;
 
