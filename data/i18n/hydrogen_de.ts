@@ -1384,6 +1384,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Displayed within a status message when deactivating a widget as well as in * the preferences dialog as option to disable a setting.</extracomment>
         <translation>Aus</translation>
     </message>
+    <message>
+        <source>Settings</source>
+        <extracomment>Indicates a menu section in which behavioural customizations can be * done.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Director</name>

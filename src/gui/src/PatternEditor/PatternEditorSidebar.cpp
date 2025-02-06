@@ -382,8 +382,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			   SidebarRow::m_nTypeLblWidth, nHeight ),
 		"", PatternEditorSidebar::m_nMargin );
 	m_pInstrumentNameLbl->setFont( nameFont );
-	m_pInstrumentNameLbl->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Fixed );
+	m_pInstrumentNameLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pHBox->addWidget( m_pInstrumentNameLbl );
 
 	// Play back a sample of specific velocity based on the horizontal position
@@ -507,6 +506,10 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			 } );
 	m_pTypeLbl->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
+	if ( ! pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+		m_pTypeLbl->hide();
+	}
+
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
 	auto clearAction = m_pFunctionPopup->addAction(
@@ -615,6 +618,17 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 		m_pDeleteInstrumentAction->setEnabled( false );
 	}
 
+	m_pFunctionPopup->addSection( pCommonStrings->getSettings() );
+	m_pTypeLabelVisibilityAction = m_pFunctionPopup->addAction(
+		"Always show type labels" );
+	m_pTypeLabelVisibilityAction->setCheckable( true );
+	m_pTypeLabelVisibilityAction->setChecked( true );
+	connect( m_pTypeLabelVisibilityAction, &QAction::triggered, this, [=](){
+		Preferences::get_instance()->setPatternEditorAlwaysShowTypeLabels(
+			m_pTypeLabelVisibilityAction->isChecked() );
+		m_pPatternEditorPanel->updateTypeLabelVisibility();
+	} );
+
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
 	setLayout( pHBox );
@@ -710,7 +724,14 @@ void SidebarRow::setSelected( bool bSelected )
 
 	m_bIsSelected = bSelected;
 
-	m_pTypeLbl->setShowCursor( bSelected );
+	if ( m_pTypeLbl->isVisible() ) {
+		m_pTypeLbl->setShowCursor( bSelected );
+		m_pInstrumentNameLbl->setShowCursor( false );
+	}
+	else {
+		m_pInstrumentNameLbl->setShowCursor( bSelected );
+		m_pTypeLbl->setShowCursor( false );
+	}
 
 	updateStyleSheet();
 
@@ -765,6 +786,26 @@ void SidebarRow::updateStyleSheet() {
 		backgroundColor, textColor, colorTheme.m_cursorColor );
 	m_pTypeLbl->setColor(
 		backgroundPatternColor, textPatternColor, colorTheme.m_cursorColor );
+}
+
+void SidebarRow::updateTypeLabelVisibility( bool bVisible ) {
+	if ( bVisible ) {
+		m_pTypeLbl->show();
+	} else {
+		m_pTypeLbl->hide();
+	}
+
+	// Update label on which the cursor is shown
+	if ( m_bIsSelected ) {
+		if ( bVisible ) {
+			m_pInstrumentNameLbl->setShowCursor( false );
+			m_pTypeLbl->setShowCursor( true );
+		}
+		else {
+			m_pInstrumentNameLbl->setShowCursor( true );
+			m_pTypeLbl->setShowCursor( false );
+		}
+	}
 }
 
 void SidebarRow::enterEvent( QEvent* ev ) {
@@ -865,10 +906,18 @@ void SidebarRow::sampleWarningClicked()
 
 void SidebarRow::mousePressEvent(QMouseEvent *ev)
 {
+	const auto pPref = Preferences::get_instance();
+
 	m_pPatternEditorPanel->setSelectedRowDB(
 		m_pPatternEditorPanel->getRowIndexDB( m_row ) );
 
-	if (ev->button() == Qt::RightButton ) {
+	if ( ev->button() == Qt::RightButton ) {
+		if ( m_pTypeLabelVisibilityAction->isChecked() !=
+			 pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+			m_pTypeLabelVisibilityAction->setChecked(
+				pPref->getPatternEditorAlwaysShowTypeLabels() );
+		}
+
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 	}
 
@@ -903,15 +952,26 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
  {
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	const auto pPref = H2Core::Preferences::get_instance();
 
-	//INFOLOG("INIT");
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
-	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
+	auto pVBoxLayout = new QVBoxLayout( this );
+	pVBoxLayout->setSpacing( 0 );
+	pVBoxLayout->setMargin( 0 );
 
-	m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
+	setLayout( pVBoxLayout );
 
-	resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
+	m_nEditorHeight = pPref->getPatternEditorGridHeight() *
+		m_pPatternEditorPanel->getRowNumberDB();
+
+	if ( pPref->getPatternEditorAlwaysShowTypeLabels() ) {
+		resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
+	}
+	else {
+		resize( PatternEditorSidebar::m_nWidth -
+				SidebarRow::m_nTypeLblWidth, m_nEditorHeight );
+	}
 
 	setAcceptDrops(true);
 
@@ -952,6 +1012,12 @@ void PatternEditorSidebar::updateStyleSheet() {
 	}
 }
 
+void PatternEditorSidebar::updateTypeLabelVisibility( bool bVisible ) {
+	for ( auto& rrow : m_rows ) {
+		rrow->updateTypeLabelVisibility( bVisible );
+	}
+}
+
 void PatternEditorSidebar::dimRows( bool bDim ) {
 	for ( auto& rrow : m_rows ) {
 		rrow->setDimed( bDim );
@@ -963,10 +1029,12 @@ void PatternEditorSidebar::dimRows( bool bDim ) {
 ///
 void PatternEditorSidebar::updateRows()
 {
-	if ( m_nEditorHeight !=
-		 m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB() ) {
-		m_nEditorHeight = m_nGridHeight * m_pPatternEditorPanel->getRowNumberDB();
-		resize( PatternEditorSidebar::m_nWidth, m_nEditorHeight );
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( m_nEditorHeight != pPref->getPatternEditorGridHeight() *
+		 m_pPatternEditorPanel->getRowNumberDB() ) {
+		m_nEditorHeight = pPref->getPatternEditorGridHeight() *
+			m_pPatternEditorPanel->getRowNumberDB();
+		resize( width(), m_nEditorHeight );
 	}
 
 	bool bPianoRollShown = false;
@@ -985,9 +1053,8 @@ void PatternEditorSidebar::updateRows()
 		else {
 			// row in DB does not has its counterpart in the sidebar yet. Create
 			// it.
-			auto pRow = std::make_shared<SidebarRow>( this, rrow );
-			pRow->move( 0, m_nGridHeight * nnIndex + 1 );
-			pRow->show();
+			auto pRow = new SidebarRow( this, rrow );
+			layout()->addWidget( pRow );
 			pRow->setDimed( bPianoRollShown );
 			m_rows.push_back( pRow );
 		}
@@ -997,7 +1064,10 @@ void PatternEditorSidebar::updateRows()
 	const int nRows = m_pPatternEditorPanel->getRowNumberDB();
 	while ( nRows < m_rows.size() && m_rows.size() > 0 ) {
 		// There are rows not required anymore
+		auto pRow = *( m_rows.end() - 1 );
+		layout()->removeWidget( pRow );
 		m_rows.pop_back();
+		delete pRow;
 	}
 }
 
@@ -1028,6 +1098,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		return;
 	}
 
+	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
@@ -1049,7 +1120,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		nPosY = event->pos().y();
 	}
 
-	int nTargetRow = nPosY / m_nGridHeight;
+	int nTargetRow = nPosY / pPref->getPatternEditorGridHeight();
 
 	// There might be rows in the pattern editor not corresponding to the
 	// current kit. Since we only support rearranging rows corresponding to
@@ -1166,7 +1237,9 @@ void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 		return;
 	}
 
-	if ( abs( event->pos().y() - m_nDragStartY ) < m_nGridHeight ) {
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( abs( event->pos().y() - m_nDragStartY ) <
+		 pPref->getPatternEditorGridHeight() ) {
 		// Still within the same row.
 		return;
 	}
