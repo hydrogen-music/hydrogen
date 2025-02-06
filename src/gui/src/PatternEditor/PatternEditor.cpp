@@ -3920,6 +3920,21 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 		}
 	}
 
+	// Check for a note off at the same position.
+	if ( ! pNote->getNoteOff() ) {
+		const auto pInstrument = pNote->getInstrument();
+
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr && ppNote->getNoteOff() &&
+					 ppNote->getPosition() == pNote->getPosition() &&
+					 ppNote->getInstrument() == pInstrument ) {
+					return false;
+				}
+			}
+		}
+	}
+
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->findRowDB( pNote ) );
 	return row.bPlaysBackAudio;
@@ -3930,23 +3945,43 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 		return -1;
 	}
 
-	// Check for the closest note of the mute group right of the note.
+	// Check for the closest note off or note of the same mute group.
 	if ( Preferences::get_instance()->
-		 getTheme().m_interface.m_bIndicateEffectiveNoteLength &&
-		 pNote->getInstrument() != nullptr &&
-		 pNote->getInstrument()->get_mute_group() != -1 ) {
-		const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+		 getTheme().m_interface.m_bIndicateEffectiveNoteLength ) {
+
+		// mute group
 		const int nLargeNumber = 100000;
 		int nEffectiveLength = nLargeNumber;
-		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-			for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
-				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
-					 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
-					 ppNote->getPosition() > pNote->getPosition() &&
-					 ( ppNote->getPosition() - pNote->getPosition() ) <
-					 nEffectiveLength ) {
-					nEffectiveLength = ppNote->getPosition() -
-						pNote->getPosition();
+		if ( pNote->getInstrument() != nullptr &&
+			 pNote->getInstrument()->get_mute_group() != -1 ) {
+			const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+			for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+					if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
+						 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+						 ppNote->getPosition() > pNote->getPosition() &&
+						 ( ppNote->getPosition() - pNote->getPosition() ) <
+						 nEffectiveLength ) {
+						nEffectiveLength = ppNote->getPosition() -
+							pNote->getPosition();
+					}
+				}
+			}
+		}
+
+		// Note Off
+		if ( ! pNote->getNoteOff() && pNote->getInstrument() != nullptr ) {
+			const auto pInstrument = pNote->getInstrument();
+			for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+					if ( ppNote != nullptr && ppNote->getNoteOff() &&
+						 ppNote->getInstrument() == pInstrument &&
+						 ppNote->getPosition() > pNote->getPosition() &&
+						 ( ppNote->getPosition() - pNote->getPosition() ) <
+						 nEffectiveLength ) {
+						nEffectiveLength = ppNote->getPosition() -
+							pNote->getPosition();
+					}
 				}
 			}
 		}
