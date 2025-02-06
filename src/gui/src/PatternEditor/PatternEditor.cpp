@@ -3949,6 +3949,8 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 	if ( Preferences::get_instance()->
 		 getTheme().m_interface.m_bIndicateEffectiveNoteLength ) {
 
+		const auto pInstrument = pNote->getInstrument();
+
 		// mute group
 		const int nLargeNumber = 100000;
 		int nEffectiveLength = nLargeNumber;
@@ -3959,6 +3961,7 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
 					if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
 						 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+						 ppNote->getInstrument() != pInstrument &&
 						 ppNote->getPosition() > pNote->getPosition() &&
 						 ( ppNote->getPosition() - pNote->getPosition() ) <
 						 nEffectiveLength ) {
@@ -3971,7 +3974,6 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 
 		// Note Off
 		if ( ! pNote->getNoteOff() && pNote->getInstrument() != nullptr ) {
-			const auto pInstrument = pNote->getInstrument();
 			for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
 					if ( ppNote != nullptr && ppNote->getNoteOff() &&
