@@ -448,12 +448,12 @@ class Note : public H2Core::Object<Note>
 		float			m_fPan;		///< pan of the note, [-1;1] from
 									///left to right, as requested by
 									///Sampler PanLaws
-	/** Length of the note in frames.
+	/** Length of the note in ticks.
 	 *
 	 * If set to -1, the Note will be rendered till the end of all
 	 * contained Samples is reached.
 	 */
-		int				m_nLength;               ///< the length of the note
+		int				m_nLength;
 		float			m_fPitch;              ///< the frequency of the note
 		Key				m_key;                  ///< the key, [0;11]==[C;B]
 		Octave			 m_octave;            ///< the octave [-3;3]
