@@ -302,6 +302,8 @@ class Instrument : public H2Core::Object<Instrument>
 	 * sample */
 	bool hasSamples() const;
 
+		int getLongestSampleFrames() const;
+
 		DrumkitMap::Type getType() const;
 		void setType( DrumkitMap::Type type );
 
