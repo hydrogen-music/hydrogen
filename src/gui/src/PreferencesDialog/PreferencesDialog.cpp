@@ -545,7 +545,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	indicateNotePlaybackComboBox->clear();
 	indicateNotePlaybackComboBox->addItem( pCommonStrings->getStatusOn() );
 	indicateNotePlaybackComboBox->addItem( pCommonStrings->getStatusOff() );
-	indicateNotePlaybackComboBox->setCurrentIndex( 0 );
+	if ( pPref->getTheme().m_interface.m_bIndicateNotePlayback ) {
+		indicateNotePlaybackComboBox->setCurrentIndex( 0 );
+	}
+	else {
+		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
+	}
 	connect( indicateNotePlaybackComboBox, SIGNAL( currentIndexChanged(int) ),
 			 this, SLOT( onIndicateNotePlaybackChanged(int) ) );
 
