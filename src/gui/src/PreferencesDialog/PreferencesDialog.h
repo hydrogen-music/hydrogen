@@ -133,6 +133,7 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void onColorSelectionClicked();
 	void onColoringMethodChanged( int nIndex );
 		void onIndicateNotePlaybackChanged( int );
+		void onIndicateEffectiveNoteLengthChanged( int );
 	// void onCustomizePaletteClicked();
 	void colorTreeSelectionChanged();
 	void colorButtonChanged();

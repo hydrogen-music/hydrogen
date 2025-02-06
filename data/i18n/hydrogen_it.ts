@@ -4564,6 +4564,10 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>Indicate note playback</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Indicate effective note length</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

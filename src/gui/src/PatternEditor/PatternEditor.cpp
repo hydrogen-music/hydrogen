@@ -3931,7 +3931,9 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 	}
 
 	// Check for the closest note of the mute group right of the note.
-	if ( pNote->getInstrument() != nullptr &&
+	if ( Preferences::get_instance()->
+		 getTheme().m_interface.m_bIndicateEffectiveNoteLength &&
+		 pNote->getInstrument() != nullptr &&
 		 pNote->getInstrument()->get_mute_group() != -1 ) {
 		const int nMuteGroup = pNote->getInstrument()->get_mute_group();
 		const int nLargeNumber = 100000;

@@ -199,6 +199,9 @@ public:
 		/** Whether notes which will not be rendered by the audio engine be
 		 * highlighted in a distinct color. */
 		bool m_bIndicateNotePlayback;
+		/** Whether notes stopped prematurely by an adjecent note off or another
+		 * note from the same mute group will be rendered with a tail. */
+		bool m_bIndicateEffectiveNoteLength;
 };
 	
 /** \ingroup docCore docConfiguration*/

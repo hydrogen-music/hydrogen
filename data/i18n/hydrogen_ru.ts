@@ -4584,6 +4584,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Indicate note playback</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Indicate effective note length</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

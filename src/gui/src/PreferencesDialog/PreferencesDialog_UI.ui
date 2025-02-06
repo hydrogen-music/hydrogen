@@ -1016,6 +1016,67 @@
                  <property name="leftMargin">
                   <number>6</number>
                  </property>
+                 <item row="14" column="2">
+                  <layout class="QGridLayout" name="colorSelectionGrid"/>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="LCDCombo" name="styleComboBox"/>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="indicateNotePlaybackLabel">
+                   <property name="text">
+                    <string>Indicate note playback</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="2">
+                  <widget class="LCDCombo" name="uiLayoutComboBox">
+                   <item>
+                    <property name="text">
+                     <string>Single pane</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Tabbed</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="12" column="0">
+                  <widget class="QLabel" name="coloringMethodAuxLabel">
+                   <property name="toolTip">
+                    <string/>
+                   </property>
+                   <property name="text">
+                    <string>Number of colors in Song Editor</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="2">
+                  <widget class="LCDCombo" name="indicateNotePlaybackComboBox"/>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QLabel" name="iconColorLabel">
+                   <property name="text">
+                    <string>Icon color</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="2">
+                  <widget class="LCDCombo" name="iconColorComboBox">
+                   <item>
+                    <property name="text">
+                     <string>Black</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>White</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
                  <item row="3" column="0">
                   <widget class="QLabel" name="textLabel1_4">
                    <property name="minimumSize">
@@ -1029,26 +1090,84 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="11" column="0">
-                  <widget class="QLabel" name="coloringMethodAuxLabel">
-                   <property name="toolTip">
-                    <string/>
-                   </property>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="textLabel1_6">
                    <property name="text">
-                    <string>Number of colors in Song Editor</string>
+                    <string>Style</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="2">
-                  <widget class="LCDCombo" name="styleComboBox"/>
+                 <item row="3" column="2">
+                  <widget class="LCDCombo" name="mixerFalloffComboBox">
+                   <item>
+                    <property name="text">
+                     <string>Slow</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Normal</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Fast</string>
+                    </property>
+                   </item>
+                  </widget>
                  </item>
-                 <item row="13" column="0">
+                 <item row="5" column="2">
+                  <widget class="LCDCombo" name="uiScalingPolicyComboBox">
+                   <item>
+                    <property name="text">
+                     <string>Prefer smaller</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Scale to system setting</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Prefer larger</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="10" column="2">
+                  <widget class="LCDCombo" name="coloringMethodCombo"/>
+                 </item>
+                 <item row="14" column="0">
                   <widget class="QLabel" name="colorSelectionLabel">
                    <property name="text">
                     <string>Selected colors</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="0">
+                  <widget class="QLabel" name="label_7">
+                   <property name="minimumSize">
+                    <size>
+                     <width>308</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Coloring method for Song Editor elements</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="12" column="2">
+                  <widget class="LCDSpinBox" name="coloringMethodAuxSpinBox">
+                   <property name="minimum">
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>50.000000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -1080,76 +1199,6 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="2">
-                  <widget class="LCDCombo" name="mixerFalloffComboBox">
-                   <item>
-                    <property name="text">
-                     <string>Slow</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Normal</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Fast</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="textLabel1_6">
-                   <property name="text">
-                    <string>Style</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="9" column="0">
-                  <widget class="QLabel" name="label_7">
-                   <property name="minimumSize">
-                    <size>
-                     <width>308</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Coloring method for Song Editor elements</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="2">
-                  <widget class="LCDCombo" name="iconColorComboBox">
-                   <item>
-                    <property name="text">
-                     <string>Black</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>White</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="4" column="2">
-                  <widget class="LCDCombo" name="uiLayoutComboBox">
-                   <item>
-                    <property name="text">
-                     <string>Single pane</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Tabbed</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="9" column="2">
-                  <widget class="LCDCombo" name="coloringMethodCombo"/>
-                 </item>
                  <item row="5" column="0">
                   <widget class="QLabel" name="uiScalingPolicyLabel">
                    <property name="text">
@@ -1157,54 +1206,14 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="2">
-                  <widget class="LCDCombo" name="uiScalingPolicyComboBox">
-                   <item>
-                    <property name="text">
-                     <string>Prefer smaller</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Scale to system setting</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Prefer larger</string>
-                    </property>
-                   </item>
-                  </widget>
+                 <item row="7" column="2">
+                  <widget class="LCDCombo" name="indicateEffectiveNoteLengthComboBox"/>
                  </item>
                  <item row="7" column="0">
-                  <widget class="QLabel" name="iconColorLabel">
+                  <widget class="QLabel" name="indicateEffectiveNoteLength">
                    <property name="text">
-                    <string>Icon color</string>
+                    <string>Indicate effective note length</string>
                    </property>
-                  </widget>
-                 </item>
-                 <item row="11" column="2">
-                  <widget class="LCDSpinBox" name="coloringMethodAuxSpinBox">
-                   <property name="minimum">
-                    <double>1.000000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>50.000000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="13" column="2">
-                  <layout class="QGridLayout" name="colorSelectionGrid"/>
-                 </item>
-                 <item row="6" column="0">
-                  <widget class="QLabel" name="indicateNotePlaybackLabel">
-                   <property name="text">
-                    <string>Indicate note playback</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="2">
-                  <widget class="LCDCombo" name="indicateNotePlaybackComboBox">
                   </widget>
                  </item>
                 </layout>

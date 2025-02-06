@@ -4562,6 +4562,10 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <source>Indicate note playback</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Indicate effective note length</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

@@ -497,6 +497,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	iconColorComboBox->setSize( appearanceTabWidgetSize );
 	coloringMethodAuxSpinBox->setSize( appearanceTabWidgetSize );
 	indicateNotePlaybackComboBox->setSize( appearanceTabWidgetSize );
+	indicateEffectiveNoteLengthComboBox->setSize( appearanceTabWidgetSize );
 
 	connect( styleComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( styleComboBoxActivated(int) ) );
@@ -553,6 +554,19 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	connect( indicateNotePlaybackComboBox, SIGNAL( currentIndexChanged(int) ),
 			 this, SLOT( onIndicateNotePlaybackChanged(int) ) );
+
+	indicateEffectiveNoteLengthComboBox->clear();
+	indicateEffectiveNoteLengthComboBox->addItem( pCommonStrings->getStatusOn() );
+	indicateEffectiveNoteLengthComboBox->addItem( pCommonStrings->getStatusOff() );
+	indicateEffectiveNoteLengthComboBox->setCurrentIndex( 0 );
+	if ( pPref->getTheme().m_interface.m_bIndicateEffectiveNoteLength ) {
+		indicateNotePlaybackComboBox->setCurrentIndex( 0 );
+	}
+	else {
+		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
+	}
+	connect( indicateEffectiveNoteLengthComboBox, SIGNAL( currentIndexChanged(int) ),
+			 this, SLOT( onIndicateEffectiveNoteLengthChanged(int) ) );
 
 	// Appearance tab - Colors
 	colorButton->setAutoFillBackground(true);
@@ -1705,6 +1719,20 @@ void PreferencesDialog::onIndicateNotePlaybackChanged( int ) {
 	m_currentTheme.m_interface.m_bIndicateNotePlayback = bNew;
 	Preferences::get_instance()->
 		getThemeWritable().m_interface.m_bIndicateNotePlayback = bNew;
+
+	m_changes = static_cast<H2Core::Preferences::Changes>(
+		m_changes | H2Core::Preferences::Changes::AppearanceTab );
+
+	HydrogenApp::get_instance()->changePreferences(
+		H2Core::Preferences::Changes::AppearanceTab );
+}
+
+void PreferencesDialog::onIndicateEffectiveNoteLengthChanged( int ) {
+	const bool bNew = indicateEffectiveNoteLengthComboBox->currentIndex() == 0 ?
+		true : false;
+	m_currentTheme.m_interface.m_bIndicateEffectiveNoteLength = bNew;
+	Preferences::get_instance()->
+		getThemeWritable().m_interface.m_bIndicateEffectiveNoteLength = bNew;
 
 	m_changes = static_cast<H2Core::Preferences::Changes>(
 		m_changes | H2Core::Preferences::Changes::AppearanceTab );
