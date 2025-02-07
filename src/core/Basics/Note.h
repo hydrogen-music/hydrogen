@@ -721,6 +721,11 @@ inline bool Note::compareStart( const std::shared_ptr<Note> pNote1,
 		return false;
 	}
 
+	if ( pNote1->getNoteStart() == pNote2->getNoteStart() &&
+		 pNote1->getNoteOff() ) {
+		return true;
+	}
+
 	return pNote1->getNoteStart() > pNote2->getNoteStart();
 }
 
