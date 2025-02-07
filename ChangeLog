@@ -40,6 +40,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Notes not rendered by the audio engine are now highlighted in the pattern
 			editor (can be disabled in Preferences > Appearance > Interface >
 			Indicate note playback).
+		- Notes stopped by stop notes or the mute group feature are now rendered
+			with a tail showing their effective length in the pattern editor (can be
+			disabled in Preferences > Appearance > Interface > Indicate effective note
+			length).
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound
@@ -106,6 +110,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			properly.
 		- Paths to songs and scripts are now properly saved relative to a
 			`.h2playlist` file (in case the corresponding option was set).
+		- Stop notes do now stop all notes of the same instrument at the same
+			position (e.g. in chords or using multiple patterns).
 	* Removed
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
 			dropped. Instead, both will always be restored automatically. In order to
