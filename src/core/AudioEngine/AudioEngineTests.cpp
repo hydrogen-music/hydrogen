@@ -1608,7 +1608,83 @@ void AudioEngineTests::testMuteGroups() {
 		++nn;
 		if ( nn > nMaxCycles ) {
 			AudioEngineTests::throwException(
-				QString( "[testHumanization::getNotes] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+				QString( "[testMuteGroups] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
+				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
+				.arg( pTransportPos->getTickSize(), 0, 'f' )
+				.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
+				.arg( nMaxCycles ) );
+		}
+	}
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+}
+
+void AudioEngineTests::testNoteOff() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pSampler = pAE->getSampler();
+	auto pTransportPos = pAE->getTransportPosition();
+	const auto pPref = Preferences::get_instance();
+
+	CoreActionController::activateLoopMode( false );
+	CoreActionController::activateSongMode( true );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
+
+	pAE->reset( false );
+
+	// Rolls playback from beginning to the end of the song and checks all notes
+	// rendered by the Sampler. Due to the song's design not a single note
+	// should be rendered (noteoff resides either in a chord or in another
+	// pattern at the same position).
+
+	AudioEngineTests::resetSampler( "testNoteOff" );
+
+	// Factor by which the number of frames processed when retrieving notes will
+	// be smaller than the buffer size. This vital because when using a large
+	// number of frames below the notes might already be processed and flushed
+	// from the Sampler before we had the chance to retrieve them.
+	const double fStep = 10.0;
+	const int nMaxCycles = std::max(
+		std::ceil( static_cast<double>(pAE->m_fSongSizeInTicks) /
+				   static_cast<double>(pPref->m_nBufferSize) * fStep *
+				   static_cast<double>(pTransportPos->getTickSize()) * 4.0 ),
+		static_cast<double>(pAE->m_fSongSizeInTicks) );
+	const uint32_t nFrames = static_cast<uint32_t>(
+		std::round( static_cast<double>(pPref->m_nBufferSize) / fStep ) );
+
+	pAE->locate( 0 );
+
+	int nn = 0;
+	while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ||
+			pAE->getEnqueuedNotesNumber() > 0 ) {
+
+		pAE->updateNoteQueue( nFrames );
+
+		pAE->processAudio( nFrames );
+
+		const auto playingNotes = pSampler->getPlayingNotesQueue();
+
+		std::shared_ptr<Instrument> pPlayingInstrument = nullptr;
+		for ( const auto& ppNote : playingNotes ) {
+			if ( ppNote != nullptr && ppNote->getAdsr() != nullptr &&
+				 ppNote->getAdsr()->getState() != ADSR::State::Release ) {
+				AudioEngineTests::throwException(
+					QString( "[testNoteOff] no note should be rendered [%1]" )
+					.arg( ppNote->toQString() ) );
+			}
+		}
+
+		pAE->incrementTransportPosition( nFrames );
+
+		++nn;
+		if ( nn > nMaxCycles ) {
+			AudioEngineTests::throwException(
+				QString( "[testNoteOff] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
 				.arg( pTransportPos->getFrame() )
 				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
 				.arg( pTransportPos->getTickSize(), 0, 'f' )

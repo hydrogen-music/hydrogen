@@ -101,6 +101,10 @@ public:
 	 * properly in the Sampler. */
 	static void testMuteGroups();
 
+	/** Unit test checking whether the noteoff feature is still handled
+	 * properly in the Sampler. */
+	static void testNoteOff();
+
 		/**
 		 * Checks is reproducible and works even without any song set.
 		 */
