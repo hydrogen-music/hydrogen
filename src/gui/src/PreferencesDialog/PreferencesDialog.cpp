@@ -634,7 +634,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x407, pTopLevelItem, tr( "Note (Default Velocity)" ) );
 	new IndexedTreeItem( 0x408, pTopLevelItem, tr( "Note (Half Velocity)" ) );
 	new IndexedTreeItem( 0x409, pTopLevelItem, tr( "Note (Zero Velocity)" ) );
-	new IndexedTreeItem( 0x40a, pTopLevelItem, tr( "Note Off" ) );
+	/*: This color will be used for both noteOffs / stop notes as well as for
+	 *  the tail of the effective note length introduced by stop notes and the
+	 *  mute group feature. */
+	new IndexedTreeItem( 0x40a, pTopLevelItem, tr( "Note Off and Mute Group" ) );
 	new IndexedTreeItem( 0x40b, pTopLevelItem, tr( "Grid Line 1" ) );
 	new IndexedTreeItem( 0x40c, pTopLevelItem, tr( "Grid Line 2" ) );
 	new IndexedTreeItem( 0x40d, pTopLevelItem, tr( "Grid Line 3" ) );
