@@ -579,37 +579,31 @@ void ExportSongDialog::on_okBtn_clicked()
 
 }
 
-bool ExportSongDialog::currentInstrumentHasNotes()
+bool ExportSongDialog::instrumentHasNotes( int nInstrumentId )
 {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr && pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
-	unsigned nPatterns = pSong->getPatternList()->size();
 	const auto pInstrument =
-		pSong->getDrumkit()->getInstruments()->get( m_nInstrument );
+		pSong->getDrumkit()->getInstruments()->get( nInstrumentId );
 	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Could not retrieve instrument of id [%1]" )
+				  .arg( nInstrumentId ) );
 		return false;
 	}
 
-	bool bInstrumentHasNotes = false;
-	
-	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		auto pPattern = pSong->getPatternList()->get( i );
-		const Pattern::notes_t* notes = pPattern->getNotes();
-		FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it,pPattern) {
-			auto pNote = it->second;
-			assert( pNote );
-
-			if ( pNote != nullptr &&
-				 pNote->getInstrumentId() == pInstrument->get_id() ) {
-				bInstrumentHasNotes = true;
-				break;
-			}
+	// Check all notes for the provided instrument id. It's a little inefficient
+	// because patterns are likely to be present multiple times. But this way we
+	// do not have to check whether a pattern is actually played back over the
+	// course of a song.
+	for ( const auto& ppNote : pSong->getAllNotes() ) {
+		if ( ppNote != nullptr && ppNote->getInstrumentId() == nInstrumentId ) {
+			return true;
 		}
 	}
-	
-	return bInstrumentHasNotes;
+
+	return false;
 }
 
 QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr<Instrument> pInstrument )
@@ -650,14 +644,15 @@ void ExportSongDialog::exportTracks()
 	if( m_nInstrument < pInstrumentList->size() ){
 		
 		//if a instrument contains no notes we jump to the next instrument
-		bool bInstrumentHasNotes = currentInstrumentHasNotes();
+		bool bInstrumentHasNotes = instrumentHasNotes( m_nInstrument );
 
-		if( !bInstrumentHasNotes ){
-			if( m_nInstrument == pInstrumentList->size() -1 ){
+		if ( !bInstrumentHasNotes ) {
+			if ( m_nInstrument >= pInstrumentList->size() - 1 ) {
 				m_bExportTrackouts = false;
 				m_nInstrument = 0;
 				return;
-			} else {
+			}
+			else {
 				m_nInstrument++;
 				exportTracks();
 				return;
