@@ -236,6 +236,15 @@ void SampleEditor::getAllFrameInfos()
 	m_bSampleIsModified = pSample->get_is_modified();
 	m_nSamplerate = pSample->get_sample_rate();
 	__loops = pSample->get_loops();
+
+	// Per default all loop frames will be set to zero by Hydrogen. But this is
+	// dangerous since just altering start or loop might move them beyond the
+	// end.
+	if ( __loops.start_frame == 0 &&
+		 __loops.loop_frame == 0 &&
+		 __loops.end_frame == 0 ) {
+		__loops.end_frame = pSample->get_frames();
+	}
 	__rubberband = pSample->get_rubberband();
 
 	if ( pSample->get_velocity_envelope().size()==0 ) {
