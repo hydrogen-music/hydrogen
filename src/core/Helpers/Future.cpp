@@ -162,11 +162,6 @@ std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit( XMLNode& node,
 		return nullptr;
 	}
 
-	// Instead of making the *::load_from() functions more complex by
-	// passing the license down to each sample, we will make the
-	// drumkit assign its license to each sample in here.
-	pDrumkit->propagateLicense();
-
 	return pDrumkit;
 
 }
