@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.1.1-'be336a1d'</version>
+ <version>2.0.0-pre-alpha-'d69b209bf'</version>
+ <formatVersion>2</formatVersion>
  <bpm>100</bpm>
  <volume>0.73</volume>
+ <isMuted>false</isMuted>
  <metronomeVolume>0.5</metronomeVolume>
+ <userVersion>0</userVersion>
  <name>Untitled Song</name>
  <author>Unknown</author>
  <notes>Empty song.</notes>
- <license>Unknown license</license>
+ <license>undefined license</license>
  <loopEnabled>false</loopEnabled>
  <patternModeMode>true</patternModeMode>
  <playbackTrackFilename></playbackTrackFilename>
@@ -22,2167 +25,2403 @@
  <humanize_time>0.07</humanize_time>
  <humanize_velocity>0.1</humanize_velocity>
  <swing_factor>0</swing_factor>
- <last_loaded_drumkit>/usr/local/share/hydrogen/data/drumkits/GMRockKit</last_loaded_drumkit>
- <last_loaded_drumkit_name>GMRockKit</last_loaded_drumkit_name>
- <componentList>
-  <drumkitComponent>
-   <id>0</id>
-   <name>Main</name>
-   <volume>1</volume>
-  </drumkitComponent>
- </componentList>
- <instrumentList>
-  <instrument>
-   <id>0</id>
-   <name>Kick</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>999</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>36</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+ <drumkit_info>
+  <formatVersion>2</formatVersion>
+  <name>GMRockKit</name>
+  <userVersion>0</userVersion>
+  <author>Glen MacArthur / Sebastian Moors</author>
+  <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Lucida Grande'; font-size:10pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">A Sampled 5pc Pearl DX Series Drumkit.&lt;/p>&lt;/body>&lt;/html></info>
+  <license>GPL</license>
+  <image></image>
+  <imageLicense>undefined license</imageLicense>
+  <instrumentList>
+   <instrument>
+    <id>0</id>
+    <name>Kick</name>
+    <type>Kick</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Kick-Softest.wav</filename>
-     <min>0</min>
-     <max>0.202899</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>999</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>36</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Kick-Soft.wav</filename>
-     <min>0.202899</min>
-     <max>0.369565</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Kick-Med.wav</filename>
-     <min>0.369565</min>
-     <max>0.731884</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Kick-Hard.wav</filename>
-     <min>0.731884</min>
-     <max>0.865942</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Kick-Hardest.wav</filename>
-     <min>0.865942</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>1</id>
-   <name>Stick</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.99569</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>37</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Kick-Softest.wav</filename>
+      <min>0</min>
+      <max>0.202899</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Kick-Soft.wav</filename>
+      <min>0.202899</min>
+      <max>0.369565</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Kick-Med.wav</filename>
+      <min>0.369565</min>
+      <max>0.731884</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Kick-Hard.wav</filename>
+      <min>0.731884</min>
+      <max>0.865942</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Kick-Hardest.wav</filename>
+      <min>0.865942</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>1</id>
+    <name>Stick</name>
+    <type>Stick</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.99569</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.7</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>SideStick-Softest.wav</filename>
-     <min>0</min>
-     <max>0.188406</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>37</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SideStick-Soft.wav</filename>
-     <min>0.188406</min>
-     <max>0.402174</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SideStick-Med.wav</filename>
-     <min>0.402174</min>
-     <max>0.597826</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SideStick-Hard.wav</filename>
-     <min>0.597826</min>
-     <max>0.782609</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SideStick-Hardest.wav</filename>
-     <min>0.782609</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>2</id>
-   <name>Snare</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1.02155</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>38</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Softest.wav</filename>
+      <min>0</min>
+      <max>0.188406</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Soft.wav</filename>
+      <min>0.188406</min>
+      <max>0.402174</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Med.wav</filename>
+      <min>0.402174</min>
+      <max>0.597826</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Hard.wav</filename>
+      <min>0.597826</min>
+      <max>0.782609</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SideStick-Hardest.wav</filename>
+      <min>0.782609</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>2</id>
+    <name>Snare</name>
+    <type>Snare</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1.02155</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.7</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Snare-Softest.wav</filename>
-     <min>0</min>
-     <max>0.202899</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>38</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Snare-Soft.wav</filename>
-     <min>0.202899</min>
-     <max>0.376812</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Snare-Med.wav</filename>
-     <min>0.376812</min>
-     <max>0.568841</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Snare-Hard.wav</filename>
-     <min>0.568841</min>
-     <max>0.782609</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Snare-Hardest.wav</filename>
-     <min>0.782609</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>3</id>
-   <name>Hand Clap</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1.02155</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>0.7</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>39</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Softest.wav</filename>
+      <min>0</min>
+      <max>0.202899</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Soft.wav</filename>
+      <min>0.202899</min>
+      <max>0.376812</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Med.wav</filename>
+      <min>0.376812</min>
+      <max>0.568841</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Hard.wav</filename>
+      <min>0.568841</min>
+      <max>0.782609</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Snare-Hardest.wav</filename>
+      <min>0.782609</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>3</id>
+    <name>Hand Clap</name>
+    <type>Hand Clap</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1.02155</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>0.7</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>HandClap.wav</filename>
-     <min>0</min>
-     <max>1</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>39</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>4</id>
-   <name>Snare Rimshot</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>40</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HandClap.wav</filename>
+      <min>0</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>4</id>
+    <name>Snare Rimshot</name>
+    <type>Snare Rimshot</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.7</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>SnareRimshot-Softest.wav</filename>
-     <min>0</min>
-     <max>0.188406</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>40</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SnareRimshot-Soft.wav</filename>
-     <min>0.188406</min>
-     <max>0.380435</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SnareRimshot-Med.wav</filename>
-     <min>0.380435</min>
-     <max>0.594203</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SnareRimshot-Hard.wav</filename>
-     <min>0.594203</min>
-     <max>0.728261</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>SnareRimshot-Hardest.wav</filename>
-     <min>0.728261</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>5</id>
-   <name>Floor Tom</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1.04741</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>0.44</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>41</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Softest.wav</filename>
+      <min>0</min>
+      <max>0.188406</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Soft.wav</filename>
+      <min>0.188406</min>
+      <max>0.380435</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Med.wav</filename>
+      <min>0.380435</min>
+      <max>0.594203</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Hard.wav</filename>
+      <min>0.594203</min>
+      <max>0.728261</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/SnareRimshot-Hardest.wav</filename>
+      <min>0.728261</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>5</id>
+    <name>Floor Tom</name>
+    <type>Tom Floor</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1.04741</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>0.44</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>TomFloor-Softest.wav</filename>
-     <min>0</min>
-     <max>0.199275</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>41</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>TomFloor-Soft.wav</filename>
-     <min>0.199275</min>
-     <max>0.394928</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>TomFloor-Med.wav</filename>
-     <min>0.394928</min>
-     <max>0.608696</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>TomFloor-Hard.wav</filename>
-     <min>0.608696</min>
-     <max>0.786232</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>TomFloor-Hardest.wav</filename>
-     <min>0.786232</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>6</id>
-   <name>Hat Closed</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.685345</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>42</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Softest.wav</filename>
+      <min>0</min>
+      <max>0.199275</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Soft.wav</filename>
+      <min>0.199275</min>
+      <max>0.394928</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Med.wav</filename>
+      <min>0.394928</min>
+      <max>0.608696</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Hard.wav</filename>
+      <min>0.608696</min>
+      <max>0.786232</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/TomFloor-Hardest.wav</filename>
+      <min>0.786232</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>6</id>
+    <name>Hat Closed</name>
+    <type>Hi-hat Closed</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.685345</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.48</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>HatClosed-Softest.wav</filename>
-     <min>0</min>
-     <max>0.173913</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>42</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatClosed-Soft.wav</filename>
-     <min>0.173913</min>
-     <max>0.373188</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatClosed-Med.wav</filename>
-     <min>0.373188</min>
-     <max>0.576087</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatClosed-Hard.wav</filename>
-     <min>0.576087</min>
-     <max>0.786232</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatClosed-Hardest.wav</filename>
-     <min>0.786232</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>7</id>
-   <name>Tom 2</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>0.76</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>43</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Softest.wav</filename>
+      <min>0</min>
+      <max>0.173913</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Soft.wav</filename>
+      <min>0.173913</min>
+      <max>0.373188</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Med.wav</filename>
+      <min>0.373188</min>
+      <max>0.576087</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Hard.wav</filename>
+      <min>0.576087</min>
+      <max>0.786232</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatClosed-Hardest.wav</filename>
+      <min>0.786232</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>7</id>
+    <name>Tom 2</name>
+    <type>Tom Low</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>0.76</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Tom2-Softest.wav</filename>
-     <min>0</min>
-     <max>0.177536</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>43</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom2-Soft.wav</filename>
-     <min>0.177536</min>
-     <max>0.373188</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom2-Med.wav</filename>
-     <min>0.373188</min>
-     <max>0.576087</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom2-Hard.wav</filename>
-     <min>0.576087</min>
-     <max>0.782609</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom2-Hardest.wav</filename>
-     <min>0.782609</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>8</id>
-   <name>Hat Pedal</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.685345</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>44</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Softest.wav</filename>
+      <min>0</min>
+      <max>0.177536</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Soft.wav</filename>
+      <min>0.177536</min>
+      <max>0.373188</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Med.wav</filename>
+      <min>0.373188</min>
+      <max>0.576087</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Hard.wav</filename>
+      <min>0.576087</min>
+      <max>0.782609</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom2-Hardest.wav</filename>
+      <min>0.782609</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>8</id>
+    <name>Hat Pedal</name>
+    <type>Hi-hat Pedal</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.685345</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.48</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>HatPedal-Softest.wav</filename>
-     <min>0</min>
-     <max>0.210145</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>44</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatPedal-Soft.wav</filename>
-     <min>0.210145</min>
-     <max>0.384058</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatPedal-Med.wav</filename>
-     <min>0.384058</min>
-     <max>0.594203</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatPedal-Hard.wav</filename>
-     <min>0.594203</min>
-     <max>0.797101</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatPedal-Hardest.wav</filename>
-     <min>0.797101</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>9</id>
-   <name>Tom 1</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.8</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>45</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Softest.wav</filename>
+      <min>0</min>
+      <max>0.210145</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Soft.wav</filename>
+      <min>0.210145</min>
+      <max>0.384058</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Med.wav</filename>
+      <min>0.384058</min>
+      <max>0.594203</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Hard.wav</filename>
+      <min>0.594203</min>
+      <max>0.797101</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatPedal-Hardest.wav</filename>
+      <min>0.797101</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>9</id>
+    <name>Tom 1</name>
+    <type>Tom Mid</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.8</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Tom1-Softest.wav</filename>
-     <min>0</min>
-     <max>0.202899</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>45</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom1-Soft.wav</filename>
-     <min>0.202899</min>
-     <max>0.394928</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom1-Med.wav</filename>
-     <min>0.394928</min>
-     <max>0.605072</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom1-Hard.wav</filename>
-     <min>0.605072</min>
-     <max>0.786232</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Tom1-Hardest.wav</filename>
-     <min>0.786232</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>10</id>
-   <name>Hat Open</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.698276</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>46</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Softest.wav</filename>
+      <min>0</min>
+      <max>0.202899</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Soft.wav</filename>
+      <min>0.202899</min>
+      <max>0.394928</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Med.wav</filename>
+      <min>0.394928</min>
+      <max>0.605072</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Hard.wav</filename>
+      <min>0.605072</min>
+      <max>0.786232</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Tom1-Hardest.wav</filename>
+      <min>0.786232</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>10</id>
+    <name>Hat Open</name>
+    <type>Hi-hat Open</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.698276</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.48</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>HatOpen-Softest.wav</filename>
-     <min>0</min>
-     <max>0.202899</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>46</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatOpen-Soft.wav</filename>
-     <min>0.202899</min>
-     <max>0.398551</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatOpen-Med.wav</filename>
-     <min>0.398551</min>
-     <max>0.605072</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatOpen-Hard.wav</filename>
-     <min>0.605072</min>
-     <max>0.797101</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatOpen-Hardest.wav</filename>
-     <min>0.797101</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>11</id>
-   <name>Cowbell</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.568965</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.32</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>56</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Softest.wav</filename>
+      <min>0</min>
+      <max>0.202899</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Soft.wav</filename>
+      <min>0.202899</min>
+      <max>0.398551</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Med.wav</filename>
+      <min>0.398551</min>
+      <max>0.605072</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Hard.wav</filename>
+      <min>0.605072</min>
+      <max>0.797101</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatOpen-Hardest.wav</filename>
+      <min>0.797101</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>11</id>
+    <name>Cowbell</name>
+    <type>Cowbell</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.568965</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.32</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Cowbell-Softest.wav</filename>
-     <min>0</min>
-     <max>0.184783</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>56</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Cowbell-Soft.wav</filename>
-     <min>0.184783</min>
-     <max>0.384058</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Cowbell-Med.wav</filename>
-     <min>0.384058</min>
-     <max>0.576087</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Cowbell-Hard.wav</filename>
-     <min>0.576087</min>
-     <max>0.782609</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Cowbell-Hardest.wav</filename>
-     <min>0.782609</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>12</id>
-   <name>Ride</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.633621</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>51</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Softest.wav</filename>
+      <min>0</min>
+      <max>0.184783</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Soft.wav</filename>
+      <min>0.184783</min>
+      <max>0.384058</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Med.wav</filename>
+      <min>0.384058</min>
+      <max>0.576087</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Hard.wav</filename>
+      <min>0.576087</min>
+      <max>0.782609</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Cowbell-Hardest.wav</filename>
+      <min>0.782609</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>12</id>
+    <name>Ride</name>
+    <type>Ride Bow</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.633621</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>0.56</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Ride-Softest.wav</filename>
-     <min>0</min>
-     <max>0.195652</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>51</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Ride-Soft.wav</filename>
-     <min>0.195652</min>
-     <max>0.376812</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Ride-Med.wav</filename>
-     <min>0.376812</min>
-     <max>0.572464</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Ride-Hard.wav</filename>
-     <min>0.572464</min>
-     <max>0.782609</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Ride-Hardest.wav</filename>
-     <min>0.782609</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>13</id>
-   <name>Crash</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.517241</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.74</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>49</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Softest.wav</filename>
+      <min>0</min>
+      <max>0.195652</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Soft.wav</filename>
+      <min>0.195652</min>
+      <max>0.376812</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Med.wav</filename>
+      <min>0.376812</min>
+      <max>0.572464</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Hard.wav</filename>
+      <min>0.572464</min>
+      <max>0.782609</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Ride-Hardest.wav</filename>
+      <min>0.782609</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>13</id>
+    <name>Crash</name>
+    <type>Crash</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.517241</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.74</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Crash-Softest.wav</filename>
-     <min>0</min>
-     <max>0.199275</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>49</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Crash-Soft.wav</filename>
-     <min>0.199275</min>
-     <max>0.384058</max>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Softest.wav</filename>
+      <min>0</min>
+      <max>0.199275</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Soft.wav</filename>
+      <min>0.199275</min>
+      <max>0.384058</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Med.wav</filename>
+      <min>0.384058</min>
+      <max>0.59058</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Hard.wav</filename>
+      <min>0.59058</min>
+      <max>0.789855</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Crash-Hardest.wav</filename>
+      <min>0.789855</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>14</id>
+    <name>Ride 2</name>
+    <type>Ride Bow 2</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>1</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>0.5</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
+    <gain>0.6</gain>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>59</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Crash-Med.wav</filename>
-     <min>0.384058</min>
-     <max>0.59058</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Crash-Hard.wav</filename>
-     <min>0.59058</min>
-     <max>0.789855</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Crash-Hardest.wav</filename>
-     <min>0.789855</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>14</id>
-   <name>Ride 2</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>0.5</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>0.6</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>59</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-5.wav</filename>
+      <min>0.8</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-4.wav</filename>
+      <min>0.6</min>
+      <max>0.8</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-3.wav</filename>
+      <min>0.4</min>
+      <max>0.6</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-2.wav</filename>
+      <min>0.2</min>
+      <max>0.4</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/24Ride-1.wav</filename>
+      <min>0</min>
+      <max>0.2</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>15</id>
+    <name>Splash</name>
+    <type>Splash</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.543103</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>0.98</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>24Ride-5.wav</filename>
-     <min>0.8</min>
-     <max>1</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>57</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>24Ride-4.wav</filename>
-     <min>0.6</min>
-     <max>0.8</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>24Ride-3.wav</filename>
-     <min>0.4</min>
-     <max>0.6</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>24Ride-2.wav</filename>
-     <min>0.2</min>
-     <max>0.4</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>24Ride-1.wav</filename>
-     <min>0</min>
-     <max>0.2</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>15</id>
-   <name>Splash</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.543103</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>0.98</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>57</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Softest.wav</filename>
+      <min>0</min>
+      <max>0.195652</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Soft.wav</filename>
+      <min>0.195652</min>
+      <max>0.362319</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Med.wav</filename>
+      <min>0.362319</min>
+      <max>0.568841</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Hard.wav</filename>
+      <min>0.568841</min>
+      <max>0.75</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Splash-Hardest.wav</filename>
+      <min>0.75</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>16</id>
+    <name>Hat Semi-Open</name>
+    <type>Hi-hat Semi-Open</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.69</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>1</pan_L>
+    <pan_R>0.48</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>Splash-Softest.wav</filename>
-     <min>0</min>
-     <max>0.195652</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>82</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Splash-Soft.wav</filename>
-     <min>0.195652</min>
-     <max>0.362319</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Splash-Med.wav</filename>
-     <min>0.362319</min>
-     <max>0.568841</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Splash-Hard.wav</filename>
-     <min>0.568841</min>
-     <max>0.75</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Splash-Hardest.wav</filename>
-     <min>0.75</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>16</id>
-   <name>Hat Semi-Open</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.69</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>82</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Softest.wav</filename>
+      <min>0</min>
+      <max>0.188406</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Soft.wav</filename>
+      <min>0.188406</min>
+      <max>0.380435</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Med.wav</filename>
+      <min>0.380435</min>
+      <max>0.57971</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Hard.wav</filename>
+      <min>0.57971</min>
+      <max>0.782609</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/HatSemiOpen-Hardest.wav</filename>
+      <min>0.782609</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+   <instrument>
+    <id>17</id>
+    <name>Bell</name>
+    <type>Ride Bell</type>
+    <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+    <drumkit>GMRockKit</drumkit>
+    <volume>0.534828</volume>
+    <isMuted>false</isMuted>
+    <isSoloed>false</isSoloed>
+    <pan_L>0.56</pan_L>
+    <pan_R>1</pan_R>
+    <pitchOffset>0</pitchOffset>
+    <randomPitchFactor>0</randomPitchFactor>
     <gain>1</gain>
-    <layer>
-     <filename>HatSemiOpen-Softest.wav</filename>
-     <min>0</min>
-     <max>0.188406</max>
+    <applyVelocity>true</applyVelocity>
+    <filterActive>false</filterActive>
+    <filterCutoff>1</filterCutoff>
+    <filterResonance>0</filterResonance>
+    <Attack>0</Attack>
+    <Decay>0</Decay>
+    <Sustain>1</Sustain>
+    <Release>1000</Release>
+    <muteGroup>-1</muteGroup>
+    <midiOutChannel>-1</midiOutChannel>
+    <midiOutNote>81</midiOutNote>
+    <isStopNote>false</isStopNote>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+    <isHihat>-1</isHihat>
+    <lower_cc>0</lower_cc>
+    <higher_cc>127</higher_cc>
+    <FX1Level>0</FX1Level>
+    <FX2Level>0</FX2Level>
+    <FX3Level>0</FX3Level>
+    <FX4Level>0</FX4Level>
+    <instrumentComponent>
+     <name>Main</name>
      <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatSemiOpen-Soft.wav</filename>
-     <min>0.188406</min>
-     <max>0.380435</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatSemiOpen-Med.wav</filename>
-     <min>0.380435</min>
-     <max>0.57971</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatSemiOpen-Hard.wav</filename>
-     <min>0.57971</min>
-     <max>0.782609</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>HatSemiOpen-Hardest.wav</filename>
-     <min>0.782609</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
-   <id>17</id>
-   <name>Bell</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
-   <drumkit>GMRockKit</drumkit>
-   <volume>0.534828</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>81</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <instrumentComponent>
-    <component_id>0</component_id>
-    <gain>1</gain>
-    <layer>
-     <filename>Bell-Softest.wav</filename>
-     <min>0</min>
-     <max>0.210145</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Bell-Soft.wav</filename>
-     <min>0.210145</min>
-     <max>0.405797</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Bell-Med.wav</filename>
-     <min>0.405797</min>
-     <max>0.605072</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Bell-Hard.wav</filename>
-     <min>0.605072</min>
-     <max>0.786232</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-    <layer>
-     <filename>Bell-Hardest.wav</filename>
-     <min>0.786232</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
- </instrumentList>
+     <isMuted>false</isMuted>
+     <isSoloed>false</isSoloed>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Softest.wav</filename>
+      <min>0</min>
+      <max>0.210145</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Soft.wav</filename>
+      <min>0.210145</min>
+      <max>0.405797</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Med.wav</filename>
+      <min>0.405797</min>
+      <max>0.605072</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Hard.wav</filename>
+      <min>0.605072</min>
+      <max>0.786232</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+     <layer>
+      <filename>/usr/local/share/hydrogen/data/drumkits/GMRockKit/Bell-Hardest.wav</filename>
+      <min>0.786232</min>
+      <max>1</max>
+      <gain>1</gain>
+      <pitch>0</pitch>
+      <isMuted>false</isMuted>
+      <isSoloed>false</isSoloed>
+      <ismodified>false</ismodified>
+      <smode>forward</smode>
+      <startframe>0</startframe>
+      <loopframe>0</loopframe>
+      <loops>0</loops>
+      <endframe>0</endframe>
+      <userubber>0</userubber>
+      <rubberdivider>1</rubberdivider>
+      <rubberCsettings>4</rubberCsettings>
+      <rubberPitch>1</rubberPitch>
+     </layer>
+    </instrumentComponent>
+   </instrument>
+  </instrumentList>
+ </drumkit_info>
+ <lastLoadedDrumkitPath></lastLoadedDrumkitPath>
  <patternList>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Crash</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>48</size>
    <denominator>4</denominator>
@@ -2196,14 +2435,19 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>13</instrument>
+     <type>Crash</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
    </noteList>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Ride</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>432</size>
    <denominator>4</denominator>
@@ -2217,6 +2461,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>14</instrument>
+     <type>Ride Bow 2</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2229,14 +2474,19 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>12</instrument>
+     <type>Ride Bow</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
    </noteList>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Toms 1</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2250,6 +2500,7 @@
      <key>C2</key>
      <length>-1</length>
      <instrument>9</instrument>
+     <type>Tom Mid</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2262,6 +2513,7 @@
      <key>C1</key>
      <length>-1</length>
      <instrument>9</instrument>
+     <type>Tom Mid</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2274,6 +2526,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>9</instrument>
+     <type>Tom Mid</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2286,14 +2539,19 @@
      <key>C-1</key>
      <length>-1</length>
      <instrument>9</instrument>
+     <type>Tom Mid</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
    </noteList>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Toms 2</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2307,6 +2565,7 @@
      <key>C2</key>
      <length>-1</length>
      <instrument>7</instrument>
+     <type>Tom Low</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2319,6 +2578,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2331,6 +2591,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2343,6 +2604,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2355,6 +2617,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2367,6 +2630,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2379,6 +2643,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2391,6 +2656,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2403,6 +2669,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2415,6 +2682,7 @@
      <key>C1</key>
      <length>-1</length>
      <instrument>7</instrument>
+     <type>Tom Low</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2427,6 +2695,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2439,6 +2708,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2451,6 +2721,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2463,6 +2734,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2475,6 +2747,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2487,6 +2760,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2499,6 +2773,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2511,6 +2786,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2523,6 +2799,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>7</instrument>
+     <type>Tom Low</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2535,6 +2812,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2547,6 +2825,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2559,6 +2838,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2571,6 +2851,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2583,6 +2864,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2595,6 +2877,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2607,6 +2890,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2619,6 +2903,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2631,6 +2916,7 @@
      <key>C-1</key>
      <length>-1</length>
      <instrument>7</instrument>
+     <type>Tom Low</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2643,6 +2929,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2655,6 +2942,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2667,6 +2955,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2679,6 +2968,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2691,6 +2981,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2703,6 +2994,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2715,6 +3007,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2727,14 +3020,19 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
    </noteList>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Kick &amp; Snare</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>96</size>
    <denominator>4</denominator>
@@ -2748,6 +3046,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <type>Kick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2760,6 +3059,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>3</instrument>
+     <type>Hand Clap</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2772,6 +3072,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>4</instrument>
+     <type>Snare Rimshot</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2784,6 +3085,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>17</instrument>
+     <type>Ride Bell</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2796,6 +3098,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>15</instrument>
+     <type>Splash</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2808,6 +3111,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>11</instrument>
+     <type>Cowbell</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2820,6 +3124,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>8</instrument>
+     <type>Hi-hat Pedal</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2832,6 +3137,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>2</instrument>
+     <type>Snare</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2844,14 +3150,19 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>1</instrument>
+     <type>Stick</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
    </noteList>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Hat</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
@@ -2865,6 +3176,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>10</instrument>
+     <type>Hi-hat Open</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2877,6 +3189,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>8</instrument>
+     <type>Hi-hat Pedal</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2889,6 +3202,7 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>6</instrument>
+     <type>Hi-hat Closed</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
@@ -2901,45 +3215,106 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>16</instrument>
+     <type>Hi-hat Semi-Open</type>
      <note_off>false</note_off>
      <probability>1</probability>
     </note>
    </noteList>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
+   <name>Ride Copy</name>
+   <author></author>
+   <info></info>
+   <license>undefined license</license>
+   <category>not_categorized</category>
+   <size>432</size>
+   <denominator>4</denominator>
+   <noteList>
+    <note>
+     <position>0</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>14</instrument>
+     <type>Ride Bow 2</type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+    <note>
+     <position>96</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>12</instrument>
+     <type>Ride Bow</type>
+     <note_off>false</note_off>
+     <probability>1</probability>
+    </note>
+   </noteList>
+  </pattern>
+  <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Pattern 7</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Pattern 8</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Pattern 9</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
    <noteList/>
   </pattern>
   <pattern>
+   <formatVersion>2</formatVersion>
+   <userVersion>0</userVersion>
    <name>Pattern 10</name>
+   <author></author>
    <info></info>
+   <license>undefined license</license>
    <category>not_categorized</category>
    <size>192</size>
    <denominator>4</denominator>
    <noteList/>
   </pattern>
  </patternList>
- <virtualPatternList/>
+ <virtualPatternList>
+  <pattern>
+   <name>Ride</name>
+   <virtual>Ride Copy</virtual>
+  </pattern>
+ </virtualPatternList>
  <patternSequence>
   <group>
    <patternID>Crash</patternID>
