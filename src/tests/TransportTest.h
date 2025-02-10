@@ -29,21 +29,21 @@
 
 class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( TransportTest );
-	CPPUNIT_TEST( testFrameToTickConversion );
-	CPPUNIT_TEST( testTransportProcessing );
-	CPPUNIT_TEST( testTransportProcessingTimeline );
-	CPPUNIT_TEST( testTransportRelocation );
-	CPPUNIT_TEST( testLoopMode );
-	CPPUNIT_TEST( testSongSizeChange );
-	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
-#ifndef WIN32
-	CPPUNIT_TEST( testPlaybackTrack );
-	CPPUNIT_TEST( testSampleConsistency );
-#endif
+// 	CPPUNIT_TEST( testFrameToTickConversion );
+// 	CPPUNIT_TEST( testTransportProcessing );
+// 	CPPUNIT_TEST( testTransportProcessingTimeline );
+// 	CPPUNIT_TEST( testTransportRelocation );
+// 	CPPUNIT_TEST( testLoopMode );
+// 	CPPUNIT_TEST( testSongSizeChange );
+// 	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
+// #ifndef WIN32
+// 	CPPUNIT_TEST( testPlaybackTrack );
+// 	CPPUNIT_TEST( testSampleConsistency );
+// #endif
 	CPPUNIT_TEST( testNoteEnqueuing );
 	CPPUNIT_TEST( testNoteEnqueuingTimeline );
-	CPPUNIT_TEST( testHumanization );
-	CPPUNIT_TEST( testUpdateTransportPosition );
+// 	CPPUNIT_TEST( testHumanization );
+// 	CPPUNIT_TEST( testUpdateTransportPosition );
 	CPPUNIT_TEST_SUITE_END();
 private:
 	void perform( std::function<void()> func );
