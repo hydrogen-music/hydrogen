@@ -52,7 +52,8 @@ class NoteTest : public CppUnit::TestCase {
 			___INFOLOG( "" );
 
 			// Setup example vectors.
-			std::vector< std::shared_ptr<H2Core::Note> > notes1, notes2, notes3;
+			std::vector< std::shared_ptr<H2Core::Note> > notes1, notes2, notes3,
+				notesAsc2, notesAsc3, notesAsc3Tmp;
 			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 283 ) );
 			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 0 ) );
 			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 22 ) );
@@ -64,6 +65,8 @@ class NoteTest : public CppUnit::TestCase {
 
 			for ( const auto& ppNote : notes1 ) {
 				notes2.push_back( std::make_shared<H2Core::Note>( ppNote ) );
+				notesAsc2.push_back( std::make_shared<H2Core::Note>( ppNote ) );
+				notesAsc3Tmp.push_back( std::make_shared<H2Core::Note>( ppNote ) );
 
 				auto pNoteStart = std::make_shared<H2Core::Note>( ppNote );
 				pNoteStart->computeNoteStart();
@@ -83,7 +86,47 @@ class NoteTest : public CppUnit::TestCase {
 				return ! Note::compare( pNote1, pNote2 );
 			};
 
+			auto ascending2 = []( const std::shared_ptr<Note> pNote1,
+								 const std::shared_ptr<Note> pNote2 ) {
+				if ( pNote1 == nullptr || pNote2 == nullptr ) {
+					return false;
+				}
+
+				if ( pNote1->getPosition() != pNote2->getPosition() ) {
+					return pNote1->getPosition() < pNote2->getPosition();
+				}
+				else {
+					return pNote1->getTotalPitch() < pNote2->getTotalPitch();
+				}
+			};
+
 			std::sort( notes2.begin(), notes2.end(), ascending );
+			std::sort( notesAsc2.begin(), notesAsc2.end(), ascending2 );
+			std::sort( notesAsc3Tmp.begin(), notesAsc3Tmp.end(), Note::compare );
+			for ( int ii = notesAsc3Tmp.size() - 1; ii >= 0; --ii ) {
+				notesAsc3.push_back( notesAsc3Tmp[ ii ] );
+			}
+
+			qDebug().noquote() << "\n\n[ascending]";
+			for ( int ii = 0; ii < notes2.size(); ++ii ) {
+				qDebug().noquote() << "\t[" << ii << "] " <<
+					notes2[ ii ]->getPosition();
+			}
+
+			qDebug().noquote() << "\n\n[ascending2]";
+			for ( int ii = 0; ii < notesAsc2.size(); ++ii ) {
+				qDebug().noquote() << "\t[" << ii << "] " <<
+					notesAsc2[ ii ]->getPosition();
+			}
+
+
+			qDebug().noquote() << "\n\n[reverse compare]";
+			for ( int ii = 0; ii < notesAsc3.size(); ++ii ) {
+				qDebug().noquote() << "\t[" << ii << "] " <<
+					notesAsc3[ ii ]->getPosition();
+			}
+
+
 			for ( int ii = 1; ii < notes2.size(); ++ii ) {
 				CPPUNIT_ASSERT( notes2[ ii - 1 ]->getPosition() <=
 								notes2[ ii ]->getPosition() );
