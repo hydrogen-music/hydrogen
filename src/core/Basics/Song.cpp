@@ -1125,12 +1125,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 		qDebug().noquote() << "\t[song::pre] [" << ii << "]" <<
 			notes[ii]->toQString();
 	}
-
-	auto ascending = []( const std::shared_ptr<Note> pNote1,
-						 const std::shared_ptr<Note> pNote2 ) {
-		return ! Note::compare( pNote1, pNote2 );
-	};
-	std::sort( notes.begin(), notes.end(), ascending );
+	std::sort( notes.begin(), notes.end(), Note::compareAscending );
 	qDebug().noquote() << "\n\n[Song::getAllNotes::post sort]";
 	for ( int ii = 0; ii < notes.size(); ++ii ) {
 		qDebug().noquote() << "\t[song::post] [" << ii << "]" <<

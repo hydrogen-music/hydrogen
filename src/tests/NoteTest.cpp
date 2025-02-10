@@ -81,52 +81,7 @@ class NoteTest : public CppUnit::TestCase {
 			}
 
 			// Ascending order based on position
-			auto ascending = []( const std::shared_ptr<Note> pNote1,
-								 const std::shared_ptr<Note> pNote2 ) {
-				return ! Note::compare( pNote1, pNote2 );
-			};
-
-			auto ascending2 = []( const std::shared_ptr<Note> pNote1,
-								 const std::shared_ptr<Note> pNote2 ) {
-				if ( pNote1 == nullptr || pNote2 == nullptr ) {
-					return false;
-				}
-
-				if ( pNote1->getPosition() != pNote2->getPosition() ) {
-					return pNote1->getPosition() < pNote2->getPosition();
-				}
-				else {
-					return pNote1->getTotalPitch() < pNote2->getTotalPitch();
-				}
-			};
-
-			std::sort( notes2.begin(), notes2.end(), ascending );
-			std::sort( notesAsc2.begin(), notesAsc2.end(), ascending2 );
-			std::sort( notesAsc3Tmp.begin(), notesAsc3Tmp.end(), Note::compare );
-			for ( int ii = notesAsc3Tmp.size() - 1; ii >= 0; --ii ) {
-				notesAsc3.push_back( notesAsc3Tmp[ ii ] );
-			}
-
-			qDebug().noquote() << "\n\n[ascending]";
-			for ( int ii = 0; ii < notes2.size(); ++ii ) {
-				qDebug().noquote() << "\t[" << ii << "] " <<
-					notes2[ ii ]->getPosition();
-			}
-
-			qDebug().noquote() << "\n\n[ascending2]";
-			for ( int ii = 0; ii < notesAsc2.size(); ++ii ) {
-				qDebug().noquote() << "\t[" << ii << "] " <<
-					notesAsc2[ ii ]->getPosition();
-			}
-
-
-			qDebug().noquote() << "\n\n[reverse compare]";
-			for ( int ii = 0; ii < notesAsc3.size(); ++ii ) {
-				qDebug().noquote() << "\t[" << ii << "] " <<
-					notesAsc3[ ii ]->getPosition();
-			}
-
-
+			std::sort( notes2.begin(), notes2.end(), Note::compareAscending );
 			for ( int ii = 1; ii < notes2.size(); ++ii ) {
 				CPPUNIT_ASSERT( notes2[ ii - 1 ]->getPosition() <=
 								notes2[ ii ]->getPosition() );
