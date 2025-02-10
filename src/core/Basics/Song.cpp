@@ -1120,11 +1120,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 		nColumnStartTick += ppColumn->longest_pattern_length();
 	}
 
-	auto ascending = []( const std::shared_ptr<Note> pNote1,
-						 const std::shared_ptr<Note> pNote2 ) {
-		return ! Note::compare( pNote1, pNote2 );
-	};
-	std::sort( notes.begin(), notes.end(), ascending );
+	std::sort( notes.begin(), notes.end(), Note::compareAscending );
 
 	return notes;
 }

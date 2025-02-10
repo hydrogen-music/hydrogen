@@ -78,12 +78,7 @@ class NoteTest : public CppUnit::TestCase {
 			}
 
 			// Ascending order based on position
-			auto ascending = []( const std::shared_ptr<Note> pNote1,
-								 const std::shared_ptr<Note> pNote2 ) {
-				return ! Note::compare( pNote1, pNote2 );
-			};
-
-			std::sort( notes2.begin(), notes2.end(), ascending );
+			std::sort( notes2.begin(), notes2.end(), Note::compareAscending );
 			for ( int ii = 1; ii < notes2.size(); ++ii ) {
 				CPPUNIT_ASSERT( notes2[ ii - 1 ]->getPosition() <=
 								notes2[ ii ]->getPosition() );
