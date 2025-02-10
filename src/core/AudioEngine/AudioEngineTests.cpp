@@ -903,6 +903,17 @@ void AudioEngineTests::testNoteEnqueuing() {
 	}
 
 	auto checkQueueConsistency = [&]( const QString& sContext ) {
+		qDebug().noquote() << "\n\n[testNoteEnqueuing::checkQueueConsisteny::"
+			<< sContext << "]\n\tnotesInSong:";
+		for ( int ii = 0; ii < notesInSong.size(); ++ii ) {
+			qDebug().noquote() << "\t\t[tNE::nISQ]::[" << ii << "] " <<
+				notesInSong[ii]->toQString();
+		}
+		qDebug().noquote() << "\n\tnotesInSongQueue:";
+		for ( int ii = 0; ii < notesInSongQueue.size(); ++ii ) {
+			qDebug().noquote() << "\t\t[tNE::nISQ]::[" << ii << "] " <<
+				notesInSongQueue[ii]->toQString();
+		}
 		if ( notesInSongQueue.size() !=
 			 notesInSong.size() ) {
 			QString sMsg = QString( "[testNoteEnqueuing::checkQueueConsistency] [%1] Mismatch between notes count in Song [%2] and NoteQueue [%3]. Song:\n" )
@@ -1177,6 +1188,18 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 				.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
 				.arg( nMaxCycles ) );
 		}
+	}
+
+	qDebug().noquote() << "\n\n[testNoteEnqueuingTimeline::checkQueueConsisteny]"
+					 << "\n\tnotesInSong:";
+	for ( int ii = 0; ii < notesInSong.size(); ++ii ) {
+		qDebug().noquote() << "\t\t[tNET::nIS]::[" << ii << "] " <<
+			notesInSong[ii]->toQString();
+	}
+	qDebug().noquote() << "\n\tnotesInSongQueue:";
+	for ( int ii = 0; ii < notesInSongQueue.size(); ++ii ) {
+		qDebug().noquote() << "\t\t[tNET::nISQ]::[" << ii << "] " <<
+			notesInSongQueue[ii]->toQString();
 	}
 
 	if ( notesInSongQueue.size() != notesInSong.size() ) {
