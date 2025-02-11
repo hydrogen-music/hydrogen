@@ -69,7 +69,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>/home/phil/git/hydrogen/src/tests/data/song/res/playbackTrack.flac</filename>
+     <filename>./res/playbackTrack.flac</filename>
      <min>0</min>
      <max>1</max>
      <gain>1</gain>
