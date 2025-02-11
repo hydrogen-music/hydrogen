@@ -234,6 +234,15 @@ void SampleEditor::getAllFrameInfos()
 	m_bSampleIsModified = pSample->get_is_modified();
 	m_nSamplerate = pSample->get_sample_rate();
 	__loops = pSample->get_loops();
+
+	// Per default all loop frames will be set to zero by Hydrogen. But this is
+	// dangerous since just altering start or loop might move them beyond the
+	// end.
+	if ( __loops.start_frame == 0 &&
+		 __loops.loop_frame == 0 &&
+		 __loops.end_frame == 0 ) {
+		__loops.end_frame = pSample->get_frames();
+	}
 	__rubberband = pSample->get_rubberband();
 
 	if ( pSample->get_velocity_envelope()->size()==0 ) {
@@ -658,34 +667,63 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		testpTimer();
 		return;
 	}
+	auto pHydrogen = Hydrogen::get_instance();
+	auto tearDown = [&]() {
+		m_pMainSampleWaveDisplay->paintLocatorEvent(
+			StartFrameSpinBox->value() / m_divider + 24 , true);
+		m_pSampleAdjustView->setDetailSamplePosition(
+			__loops.start_frame, m_fZoomfactor , nullptr);
+		m_pTimer->start(40);	// update ruler at 25 fps
+		m_nRealtimeFrameEnd =
+			pHydrogen->getAudioEngine()->getRealtimeFrame() + m_nSlframes;
+		PlayOrigPushButton->setText( QString( "Stop") );
+	};
 
-	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		tearDown();
+		return;
+	}
+
+	const int nSelectedlayer =
+		InstrumentEditorPanel::get_instance()->getSelectedLayer();
+	auto pInstr = pSong->getInstrumentList()->get(
+		pHydrogen->getSelectedInstrumentNumber() );
 	if ( pInstr == nullptr ) {
 		DEBUGLOG( "No instrument selected" );
+		tearDown();
 		return;
 	}
 
 	/*
-	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
-	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
+	 *preview_instrument deletes the last used preview instrument, therefore we
+	 *have to construct a temporary instrument. Otherwise pInstr would be
+	 *deleted if consumed by preview_instrument.
 	*/
-	auto pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_path(), pInstr->get_name() );
-	auto pNewSample = Sample::load( pInstr->get_component( m_nSelectedComponent )->get_layer( selectedlayer )->get_sample()->get_filepath() );
-
-	if ( pNewSample != nullptr ){
-		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_instrument( pTmpInstrument );
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, length );
-		m_nSlframes = pNewSample->get_frames();
+	auto pTmpInstrument = Instrument::load_instrument(
+		pInstr->get_drumkit_path(), pInstr->get_name() );
+	if ( pTmpInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to load instrument [%1] from [%2]" )
+				  .arg( pInstr->get_name() ).arg( pInstr->get_drumkit_path() ) );
+		tearDown();
+		return;
+	}
+	const QString sSamplePath = pInstr->get_component( m_nSelectedComponent )
+		->get_layer( nSelectedlayer )->get_sample()->get_filepath();
+	auto pNewSample = Sample::load( sSamplePath );
+	if ( pNewSample == nullptr ) {
+		ERRORLOG( QString( "Unable to load sample from [%1]" )
+				  .arg( sSamplePath ) );
+		tearDown();
 	}
 
-	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
-	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_fZoomfactor , nullptr);
-	m_pTimer->start(40);	// update ruler at 25 fps
-	m_nRealtimeFrameEnd = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrame() + m_nSlframes;
-	PlayOrigPushButton->setText( QString( "Stop") );
+	const int nLength = ( pNewSample->get_frames() /
+						  pNewSample->get_sample_rate() + 1 ) * 100;
+	pHydrogen->getAudioEngine()->getSampler()->preview_instrument( pTmpInstrument );
+	pHydrogen->getAudioEngine()->getSampler()->preview_sample( pNewSample, nLength );
+	m_nSlframes = pNewSample->get_frames();
+
+	tearDown();
 }
 
 void SampleEditor::updateMainsamplePositionRuler()
