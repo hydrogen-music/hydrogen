@@ -219,11 +219,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	/* Load song and prepare */
 	std::shared_ptr<Song> pSong = Song::load( songFile );
-	CPPUNIT_ASSERT( pSong != nullptr );
-
-	if ( !pSong ) {
-		return;
-	}
+	ASSERT_SONG( pSong );
 
 	pHydrogen->setSong( pSong );
 
@@ -243,11 +239,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	out << "Now with ADSR" << Qt::endl;
 	pSong = Song::load( songADSRFile );
-	CPPUNIT_ASSERT( pSong != nullptr );
-
-	if( !pSong ) {
-		return;
-	}
+	ASSERT_SONG( pSong );
 
 	pHydrogen->setSong( pSong );
 	pInstrumentList = pSong->getDrumkit()->getInstruments();

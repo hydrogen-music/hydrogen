@@ -112,5 +112,10 @@ inline QString TestHelper::getTestFile(const QString& file) const
 }
 
 #define H2TEST_FILE(name) TestHelper::get_instance()->getTestFile(name)
+#define ASSERT_SONG(pSong) {                                                    \
+	CPPUNIT_ASSERT( pSong != nullptr );				                            \
+	CPPUNIT_ASSERT( pSong->getDrumkit() != nullptr );                           \
+	CPPUNIT_ASSERT( ! pSong->getDrumkit()->hasMissingSamples() );               \
+}
 
 #endif

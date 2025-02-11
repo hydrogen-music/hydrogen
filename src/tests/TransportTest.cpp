@@ -59,7 +59,7 @@ void TransportTest::testFrameToTickConversion() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
-	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 12 };
@@ -74,7 +74,7 @@ void TransportTest::testTransportProcessing() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
-	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 
 	const std::vector<int> indices{ 1, 9, 14 };
@@ -89,7 +89,7 @@ void TransportTest::testTransportProcessingTimeline() {
 	___INFOLOG( "" );
 	auto pSongTransportProcessingTimeline =
 		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
-	CPPUNIT_ASSERT( pSongTransportProcessingTimeline != nullptr );
+	ASSERT_SONG( pSongTransportProcessingTimeline );
 	H2Core::CoreActionController::
 		setSong( pSongTransportProcessingTimeline );
 
@@ -105,7 +105,7 @@ void TransportTest::testTransportRelocation() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
-	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 	
 	H2Core::CoreActionController::activateTimeline( true );
@@ -135,7 +135,7 @@ void TransportTest::testLoopMode() {
 	const QString sSongFile = H2TEST_FILE( "song/AE_loopMode.h2song" );
 
 	auto pSong = H2Core::Song::load( sSongFile );
-	CPPUNIT_ASSERT( pSong != nullptr );
+	ASSERT_SONG( pSong );
 
 	H2Core::CoreActionController::setSong( pSong );
 	
@@ -151,7 +151,7 @@ void TransportTest::testSongSizeChange() {
 	___INFOLOG( "" );
 	auto pSongSizeChanged =
 		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
-	CPPUNIT_ASSERT( pSongSizeChanged != nullptr );
+	ASSERT_SONG( pSongSizeChanged );
 	H2Core::CoreActionController::setSong( pSongSizeChanged );
 
 	// Depending on buffer size and sample rate transport might be
@@ -182,7 +182,7 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
 								   .arg( Filesystem::demos_dir() ) );
-	CPPUNIT_ASSERT( pSongDemo != nullptr );
+	ASSERT_SONG( pSongDemo );
 	H2Core::CoreActionController::setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 13 };
@@ -217,8 +217,7 @@ void TransportTest::testSampleConsistency() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
 	auto pSong = H2Core::Song::load( sSongFile );
-
-	CPPUNIT_ASSERT( pSong != nullptr );
+	ASSERT_SONG( pSong );
 		
 	pHydrogen->setSong( pSong );
 
@@ -240,7 +239,8 @@ void TransportTest::testNoteEnqueuing() {
 
 	auto pSongNoteEnqueuing =
 		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
-	CPPUNIT_ASSERT( pSongNoteEnqueuing != nullptr );
+	ASSERT_SONG( pSongNoteEnqueuing );
+
 	H2Core::CoreActionController::setSong( pSongNoteEnqueuing );
 
 	// This test is quite time consuming.
@@ -256,8 +256,7 @@ void TransportTest::testNoteEnqueuingTimeline() {
 	___INFOLOG( "" );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ) );
-
-	CPPUNIT_ASSERT( pSong != nullptr );
+	ASSERT_SONG( pSong );
 
 	H2Core::CoreActionController::setSong( pSong );
 
@@ -277,7 +276,7 @@ void TransportTest::testHumanization() {
 
 	auto pSongHumanization =
 		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ) );
-	CPPUNIT_ASSERT( pSongHumanization != nullptr );
+	ASSERT_SONG( pSongHumanization );
 	H2Core::CoreActionController::setSong( pSongHumanization );
 
 	// This test is quite time consuming.
