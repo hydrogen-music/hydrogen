@@ -314,6 +314,16 @@ const bool Drumkit::areSamplesLoaded() const {
 	return m_pInstruments->isAnyInstrumentSampleLoaded();
 }
 
+bool Drumkit::hasMissingSamples() const {
+	for ( const auto& ppInstrument : *m_pInstruments ) {
+		if ( ppInstrument != nullptr && ppInstrument->has_missing_samples() ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 QString Drumkit::getExportName() const {
 	return Filesystem::validateFilePath( m_sName );
 }
