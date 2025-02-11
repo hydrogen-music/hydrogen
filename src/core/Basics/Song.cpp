@@ -1059,44 +1059,68 @@ void Song::setPanLawKNorm( float fKNorm ) {
 
 std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 
-	std::vector<std::shared_ptr<Note>> notes;
+	std::vector< std::shared_ptr<Note> > notes;
+	std::set< std::shared_ptr<Pattern> > encounteredPattern;
+
+	auto addNotes = [&notes]( std::shared_ptr<Note> pNote,
+							  int nColumnStartTick ) {
+		if ( pNote != nullptr ) {
+			// Use the copy constructor to not mess
+			// with the song itself.
+			auto pNoteCopied = std::make_shared<Note>( pNote );
+
+			// The position property of the note specifies its position within
+			// the pattern. All we need to do is to add the pattern start tick.
+			pNoteCopied->setPosition( pNoteCopied->getPosition() +
+									  nColumnStartTick );
+			notes.push_back( pNoteCopied );
+		}
+	};
 
 	long nColumnStartTick = 0;
-	for ( int ii = 0; ii < m_pPatternGroupSequence->size(); ++ii ) {
-
-		auto pColumn = (*m_pPatternGroupSequence)[ ii ];
-
-		if ( pColumn->size() == 0 ) {
+	for ( const auto& ppColumn : *m_pPatternGroupSequence ) {
+		if ( ppColumn == nullptr || ppColumn->size() == 0 ) {
 			// An empty column with no patterns selected (but not the
 			// end of the song).
 			nColumnStartTick += MAX_NOTES;
 			continue;
 		}
-		else {
-			for ( const auto& ppattern : *pColumn ) {
-				if ( ppattern != nullptr ) {
-					FOREACH_NOTE_CST_IT_BEGIN_LENGTH( ppattern->getNotes(), it, ppattern ) {
-						if ( it->second != nullptr ) {
-							// Use the copy constructor to not mess
-							// with the song itself.
-							std::shared_ptr<Note> pNote =
-								std::make_shared<Note>( it->second );
 
-							// The position property of the note
-							// specifies its position within the
-							// pattern. All we need to do is to add
-							// the pattern start tick.
-							pNote->setPosition( pNote->getPosition() +
-												 nColumnStartTick );
-							notes.push_back( pNote );
-						}
+		for ( const auto& ppPattern : *ppColumn ) {
+			if ( ppPattern == nullptr ) {
+				continue;
+			}
+
+			// Add all notes of this pattern.
+			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+				addNotes( ppNote, nColumnStartTick );
+			}
+			encounteredPattern.insert( ppPattern );
+
+			// Add notes of contained virtual patterns as well.
+			if ( ppPattern->isVirtual() ) {
+				for ( const auto& ppVirtualPattern :
+						  *ppPattern->getFlattenedVirtualPatterns() ) {
+					// A pattern could be part of several patterns as well as
+					// activated directly. We only need to take it into account
+					// once.
+					if ( encounteredPattern.find( ppVirtualPattern ) !=
+						 encounteredPattern.end() ) {
+						continue;
+					}
+					encounteredPattern.insert( ppVirtualPattern );
+
+					for ( const auto& [ _, ppNote ] : *ppVirtualPattern->getNotes() ) {
+						addNotes( ppNote, nColumnStartTick );
 					}
 				}
 			}
-
-			nColumnStartTick += pColumn->longest_pattern_length();
 		}
+
+		nColumnStartTick += ppColumn->longest_pattern_length();
 	}
+
+	std::sort( notes.begin(), notes.end(), Note::compareAscending );
 
 	return notes;
 }

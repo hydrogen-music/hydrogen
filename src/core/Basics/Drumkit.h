@@ -176,6 +176,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void unloadSamples();
 		/** return true if the samples are loaded */
 		const bool areSamplesLoaded() const;
+		bool hasMissingSamples() const;
 
 	/**
 	 * Returns the base name used when exporting the drumkit.

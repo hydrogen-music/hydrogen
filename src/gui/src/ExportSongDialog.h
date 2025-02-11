@@ -71,7 +71,7 @@ private:
 	void		setResamplerMode(int index);
 	bool		checkUseOfRubberband();
 
-	bool		currentInstrumentHasNotes();
+	bool		instrumentHasNotes( int nInstrumentId );
 	QString		findUniqueExportFilenameForInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
 
 	void		exportTracks();

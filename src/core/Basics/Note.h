@@ -322,6 +322,13 @@ class Note : public H2Core::Object<Note>
 		static bool compare( const std::shared_ptr<Note> pNote1,
 							 const std::shared_ptr<Note> pNote2 );
 
+		/** Like compare() but in reverse order.
+		 *
+		 * Just negating the output of compare() doesn't not work in the macOS
+		 * pipeline for some reason. */
+		static bool compareAscending( const std::shared_ptr<Note> pNote1,
+									  const std::shared_ptr<Note> pNote2 );
+
 		/** Performs a comparison based on starting position of the note.
 		 *
 		 * Note that this start has to be calculated first and involves random
@@ -735,6 +742,20 @@ inline bool Note::compare( const std::shared_ptr<Note> pNote1,
 	}
 	else {
 		return pNote1->getTotalPitch() > pNote2->getTotalPitch();
+	}
+}
+
+inline bool Note::compareAscending( const std::shared_ptr<Note> pNote1,
+									const std::shared_ptr<Note> pNote2 ) {
+	if ( pNote1 == nullptr || pNote2 == nullptr ) {
+		return false;
+	}
+
+	if ( pNote1->getPosition() != pNote2->getPosition() ) {
+		return pNote1->getPosition() < pNote2->getPosition();
+	}
+	else {
+		return pNote1->getTotalPitch() < pNote2->getTotalPitch();
 	}
 }
 

@@ -20,26 +20,92 @@
  *
  */
 
+#include "TestHelper.h"
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
 #include <QDomDocument>
 
+#include <algorithm>
+
 using namespace H2Core;
 
 class NoteTest : public CppUnit::TestCase {
 		CPPUNIT_TEST_SUITE( NoteTest );
+		CPPUNIT_TEST( testComparison );
 		CPPUNIT_TEST( testMidiDefaultOffset );
 		CPPUNIT_TEST( testPitchConversions );
 		CPPUNIT_TEST( testVirtualKeyboard );
 		CPPUNIT_TEST( testProbability );
 		CPPUNIT_TEST( testSerializeProbability );
 		CPPUNIT_TEST_SUITE_END();
+
+		void testComparison() {
+			___INFOLOG( "" );
+
+			// Setup example vectors.
+			std::vector< std::shared_ptr<H2Core::Note> > notes1, notes2, notes3;
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 283 ) );
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 0 ) );
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 22 ) );
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 284 ) );
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 283 ) );
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 282 ) );
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 130 ) );
+			notes1.push_back( std::make_shared<H2Core::Note>( nullptr, 803 ) );
+
+			for ( const auto& ppNote : notes1 ) {
+				notes2.push_back( std::make_shared<H2Core::Note>( ppNote ) );
+
+				auto pNoteStart = std::make_shared<H2Core::Note>( ppNote );
+				pNoteStart->computeNoteStart();
+				notes3.push_back( pNoteStart );
+			}
+
+			// Descending order based on position
+			std::sort( notes1.begin(), notes1.end(), Note::compare );
+			for ( int ii = 1; ii < notes1.size(); ++ii ) {
+				CPPUNIT_ASSERT( notes1[ ii - 1 ]->getPosition() >=
+								notes1[ ii ]->getPosition() );
+			}
+
+			// Ascending order based on position
+			std::sort( notes2.begin(), notes2.end(), Note::compareAscending );
+			for ( int ii = 1; ii < notes2.size(); ++ii ) {
+				CPPUNIT_ASSERT( notes2[ ii - 1 ]->getPosition() <=
+								notes2[ ii ]->getPosition() );
+			}
+
+			// Descending based on note start
+			std::sort( notes3.begin(), notes3.end(), Note::compareStart );
+			for ( int ii = 1; ii < notes3.size(); ++ii ) {
+				CPPUNIT_ASSERT( notes3[ ii - 1 ]->getPosition() >=
+								notes3[ ii ]->getPosition() );
+				CPPUNIT_ASSERT( notes3[ ii - 1 ]->getNoteStart() >=
+								notes3[ ii ]->getNoteStart() );
+			}
+
+			// Full size example
+			auto pSong = Song::load(
+				H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) );
+			CPPUNIT_ASSERT( pSong != nullptr );
+
+			const auto songNotes = pSong->getAllNotes();
+			for ( int ii = 1; ii < songNotes.size(); ++ii ) {
+				CPPUNIT_ASSERT( songNotes[ ii - 1 ]->getPosition() <=
+								songNotes[ ii ]->getPosition() );
+			}
+
+			___INFOLOG( "passed" );
+		}
 
 	void testMidiDefaultOffset() {
 		___INFOLOG( "" );

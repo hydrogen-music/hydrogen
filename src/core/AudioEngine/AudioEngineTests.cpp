@@ -1201,7 +1201,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 				 notesInSongQueue[ ii ]->getKey(),
 				 notesInSongQueue[ ii ]->getOctave() ) ) {
 		AudioEngineTests::throwException(
-			QString( "Mismatch at note [%1] between song [%2] and song queue [%3]" )
+			QString( "Mismatch at note [%1] between song [%2]\n and song queue [%3]" )
 			.arg( ii )
 			.arg( notesInSong[ ii ]->toQString() )
 			.arg( notesInSongQueue[ ii ]->toQString() ) );
@@ -1212,7 +1212,7 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
 				 notesInSamplerQueue[ ii ]->getKey(),
 				 notesInSamplerQueue[ ii ]->getOctave() ) ) {
 		AudioEngineTests::throwException(
-			QString( "Mismatch at note [%1] between song [%2] and sampler queue [%3]" )
+			QString( "Mismatch at note [%1] between song [%2]\n and sampler queue [%3]" )
 			.arg( ii )
 			.arg( notesInSong[ ii ]->toQString() )
 			.arg( notesInSamplerQueue[ ii ]->toQString() ) );
