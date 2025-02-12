@@ -106,10 +106,12 @@ namespace H2Core
 			};
 			/** Converts @a format to the default lower case suffix of the
 			 * format. */
-			static QString AudioFormatToSuffix( const AudioFormat& format );
+			static QString AudioFormatToSuffix( const AudioFormat& format,
+												bool bSilent = false  );
 			/** Determines the audio format of the provided filename or path
 			 * based on its suffix. */
-			static AudioFormat AudioFormatFromSuffix( const QString& sFile );
+			static AudioFormat AudioFormatFromSuffix( const QString& sFile,
+													  bool bSilent = false );
 
 
 		static const QString songs_ext;

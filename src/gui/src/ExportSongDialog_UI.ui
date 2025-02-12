@@ -64,7 +64,7 @@
        <item row="0" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLineEdit" name="exportNameTxt">
+          <widget class="LCDDisplay" name="exportNameTxt">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -80,7 +80,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="browseBtn">
+          <widget class="Button" name="browseBtn">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -117,7 +117,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QComboBox" name="formatCombo">
+        <widget class="LCDCombo" name="formatCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -140,7 +140,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QComboBox" name="sampleRateCombo">
+        <widget class="LCDCombo" name="sampleRateCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -199,7 +199,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QComboBox" name="sampleDepthCombo">
+        <widget class="LCDCombo" name="sampleDepthCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -248,7 +248,7 @@
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QDoubleSpinBox" name="compressionLevelSpinBox">
+        <widget class="LCDSpinBox" name="compressionLevelSpinBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -289,7 +289,7 @@
         </widget>
        </item>
        <item row="8" column="1">
-        <widget class="QComboBox" name="resampleComboBox">
+        <widget class="LCDCombo" name="resampleComboBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -346,7 +346,7 @@
         </widget>
        </item>
        <item row="10" column="1">
-        <widget class="QComboBox" name="exportTypeCombo">
+        <widget class="LCDCombo" name="exportTypeCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -412,7 +412,7 @@
        <item row="22" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QPushButton" name="okBtn">
+          <widget class="Button" name="okBtn">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -450,7 +450,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="closeBtn">
+          <widget class="Button" name="closeBtn">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -501,6 +501,32 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LCDDisplay</class>
+   <extends>QLineEdit</extends>
+   <header location="global">../src/Widgets/LCDDisplay.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDCombo</class>
+   <extends>QComboBox</extends>
+   <header location="global">../src/Widgets/LCDCombo.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">../src/Widgets/LCDSpinBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">../src/Widgets/Button.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
