@@ -786,11 +786,11 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	const auto splittedFilename = exportNameTxt->text().split(".");
 
 	const auto format = Filesystem::AudioFormatFromSuffix(
-		splittedFilename.last() );
+		splittedFilename.last(), true );
 
 	if ( format == Filesystem::AudioFormat::Unknown ) {
-		ERRORLOG( QString( "Unknown file format in filename [%1]" )
-				  .arg( exportNameTxt->text() ) );
+		WARNINGLOG( QString( "Unknown file format in filename [%1]" )
+					.arg( exportNameTxt->text() ) );
 		okBtn->setIsActive( false );
 		return;
 	}
