@@ -144,7 +144,7 @@ std::vector<Filesystem::AudioFormat> Filesystem::m_supportedAudioFormats = {
 	AudioFormat::W64
 };
 
-QString Filesystem::AudioFormatToSuffix( const AudioFormat& format ) {
+QString Filesystem::AudioFormatToSuffix( const AudioFormat& format, bool bSilent ) {
 	switch( format ) {
 		case AudioFormat::Aif:
 		case AudioFormat::Aifc:
@@ -170,12 +170,15 @@ QString Filesystem::AudioFormatToSuffix( const AudioFormat& format ) {
 			return "wav";
 		case AudioFormat::Unknown:
 		default:
-			ERRORLOG( "Unknown audio format" );
+			if ( ! bSilent ) {
+				ERRORLOG( "Unknown audio format" );
+			}
 			return "";
 	}
 }
 
-Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath ) {
+Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath,
+														   bool bSilent ) {
 	const QString sPathLower = sPath.toLower();
 	if ( sPathLower.endsWith( "aiff" ) ) {
 		return AudioFormat::Aif;
@@ -207,7 +210,9 @@ Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath 
 	else if ( sPathLower.endsWith( "wav" ) ) {
 		return AudioFormat::Wav;
 	} else {
-		ERRORLOG( QString( "Unknown suffix in [%1]" ).arg( sPath ) );
+		if ( ! bSilent ) {
+			ERRORLOG( QString( "Unknown suffix in [%1]" ).arg( sPath ) );
+		}
 		return AudioFormat::Unknown;
 	}
 }
