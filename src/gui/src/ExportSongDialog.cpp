@@ -102,6 +102,19 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
+	browseBtn->setFixedFontSize( 13 );
+	browseBtn->setSize( QSize( 80, 26 ) );
+	browseBtn->setBorderRadius( 3 );
+	browseBtn->setType( Button::Type::Push );
+	okBtn->setFixedFontSize( 13 );
+	okBtn->setSize( QSize( 80, 26 ) );
+	okBtn->setBorderRadius( 3 );
+	okBtn->setType( Button::Type::Push );
+	closeBtn->setFixedFontSize( 13 );
+	closeBtn->setBorderRadius( 3 );
+	closeBtn->setSize( QSize( 80, 26 ) );
+	closeBtn->setType( Button::Type::Push );
+
 	m_pProgressBar->setValue( 0 );
 	
 	m_bQfileDialog = false;
@@ -705,8 +718,11 @@ void ExportSongDialog::formatComboIndexChanged( int nIndex )
 	const auto format = m_formatMap[ nIndex ];
 	if ( format == Filesystem::AudioFormat::Unknown ) {
 		ERRORLOG( QString( "Invalid index [%1]" ).arg( nIndex ) );
+		okBtn->setIsActive( false );
 		return;
 	}
+
+	okBtn->setIsActive( true );
 
 	switch( format ) {
 	case Filesystem::AudioFormat::Wav:
@@ -775,9 +791,10 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	if ( format == Filesystem::AudioFormat::Unknown ) {
 		ERRORLOG( QString( "Unknown file format in filename [%1]" )
 				  .arg( exportNameTxt->text() ) );
-		okBtn->setEnabled( false );
+		okBtn->setIsActive( false );
 		return;
 	}
+	okBtn->setIsActive( true );
 	const auto previousFormat = m_formatMap[ formatCombo->currentIndex() ];
 
 	if ( previousFormat != format ) {
