@@ -1129,10 +1129,6 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 	}
 }
 
-bool SongEditorPanel::getTimelineActive() const {
-	return m_pTimelineBtn->isChecked();
-}
-
 void SongEditorPanel::setTimelineActive( bool bActive ){
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -1147,10 +1143,6 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 		.arg( bActive ? pCommonStrings->getStatusOn() :
 			  pCommonStrings->getStatusOff() );
 	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-}
-
-bool SongEditorPanel::getTimelineEnabled() const {
-	return m_pTimelineBtn->getIsActive();
 }
 
 void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {

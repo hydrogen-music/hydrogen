@@ -68,9 +68,7 @@ class SongEditorPanel : public QWidget,
 		void showPlaybackTrack();
 		void updatePlaybackTrackIfNecessary();
 
-		bool getTimelineActive() const;
 		void setTimelineActive( bool bActive );
-		bool getTimelineEnabled() const;
 		void setTimelineEnabled( bool bEnabled );
 
 		/**
@@ -79,11 +77,6 @@ class SongEditorPanel : public QWidget,
 		 */
 		void highlightPatternEditorLocked();
 		void restoreGroupVector( const QString& filename );
-		/** Disables and deactivates the Timeline when an external
-		 * JACK Timebase controller is detected and enables it when it's
-		 * gone or Hydrogen itself takes over Timebase control.
-		 */
-		void updateTimelineUsage();
 
 		static constexpr int m_nMinimumHeight = 50;
 		
@@ -112,11 +105,6 @@ class SongEditorPanel : public QWidget,
 		for the manual. */
 	void activateStackedMode( bool bActivate );
 	void activateSelectMode( bool bActivate );
-		
-		void showHideTimeline( bool bClicked ) {
-			m_pTimelineBtn->setChecked( bClicked );
-			timelineBtnClicked();
-		}
 		void toggleAutomationAreaVisibility();
 
 

@@ -48,8 +48,8 @@ class SongEditorPositionRuler :  public QWidget,
 		explicit SongEditorPositionRuler( QWidget *parent );
 		~SongEditorPositionRuler();	
 
-		int getGridWidth();
 		void setGridWidth( int width );
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
 	virtual void tempoChangedEvent( int ) override;
 	virtual void playingPatternsChangedEvent() override;
 	virtual void songModeActivationEvent() override;
@@ -63,15 +63,14 @@ class SongEditorPositionRuler :  public QWidget,
 
 	static int tickToColumn( float fTick, int nGridWidth );
 		static constexpr int m_nMinimumHeight = 50;
-
-	public slots:
-		void updatePosition();
-		void showTagWidget( int nColumn );
-		void showBpmWidget( int nColumn );
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void createBackground();
 		void invalidateBackground();
-		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		void showTagWidget( int nColumn );
+		void showBpmWidget( int nColumn );
+		void updatePosition();
+
+	public slots:
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		QTimer *			m_pTimer;

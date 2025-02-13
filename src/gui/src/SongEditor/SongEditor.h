@@ -75,9 +75,9 @@ class SongEditor : public QWidget
 		void invalidateBackground();
 		void updatePosition( float fTick );
 
-		int getGridWidth ();
+		int getGridWidth();
 		void setGridWidth( int width );
-		int getGridHeight () { return m_nGridHeight; }
+		int getGridHeight() { return m_nGridHeight; }
 
 		int getCursorRow() const;
 		int getCursorColumn() const;
@@ -141,7 +141,6 @@ class SongEditor : public QWidget
 
 		int 				m_nGridHeight;
 		int 				m_nGridWidth;
-		bool					m_bIsMoving;
 		bool					m_bCopyNotMove;
 
 		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is

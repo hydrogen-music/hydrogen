@@ -63,7 +63,6 @@ class SongEditorPatternList :  public QWidget
 		SongEditorPatternList(const SongEditorPatternList&) = delete;
 		SongEditorPatternList& operator=( const SongEditorPatternList& rhs ) = delete;
 
-		void updateEditor();
 		void createBackground();
 		void invalidateBackground();
 		void movePatternLine( int, int );
@@ -119,9 +118,6 @@ class SongEditorPatternList :  public QWidget
 		QPixmap *			m_pBackgroundPixmap;
 		bool m_bBackgroundInvalid;
 							
-		QPixmap				m_labelBackgroundLight;
-		QPixmap				m_labelBackgroundDark;
-		QPixmap				m_labelBackgroundSelected;
 		QPixmap				m_playingPattern_on_Pixmap;
 		QPixmap				m_playingPattern_off_Pixmap;
 		QPixmap				m_playingPattern_empty_Pixmap;
@@ -142,7 +138,6 @@ class SongEditorPatternList :  public QWidget
 
 	QPoint __drag_start_position;
 
-		void togglePattern( int );
 	/**
 	 * Specifies the row the mouse cursor is currently hovered
 	 * over. -1 for no cursor.

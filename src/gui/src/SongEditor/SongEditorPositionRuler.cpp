@@ -119,11 +119,6 @@ void SongEditorPositionRuler::songSizeChangedEvent() {
 	update();
 }
 
-int SongEditorPositionRuler::getGridWidth()
-{
-	return m_nGridWidth;
-}
-
 void SongEditorPositionRuler::setGridWidth( int width )
 {
 	if ( SongEditor::nMinGridWidth <= width &&

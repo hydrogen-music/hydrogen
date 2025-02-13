@@ -216,18 +216,6 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 	update();
 }
 
-
-///
-/// Start/stop playing a pattern in "pattern mode"
-///
-void SongEditorPatternList::togglePattern( int row ) {
-
-	Hydrogen::get_instance()->toggleNextPattern( row );
-	invalidateBackground();
-	update();
-}
-
-
 void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
 {
 	int row = (ev->y() / m_nGridHeight);
@@ -312,16 +300,6 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 			pixelRatio * ev->rect().height()
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
-}
-
-
-void SongEditorPatternList::updateEditor()
-{
-	if(!isVisible()) {
-		return;
-	}
-
-	update();
 }
 
 void SongEditorPatternList::songModeActivationEvent() {
