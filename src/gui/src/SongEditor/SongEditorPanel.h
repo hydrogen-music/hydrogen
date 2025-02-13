@@ -44,7 +44,9 @@ class LCDCombo;
 class PlaybackTrackWaveDisplay;
 
 /** \ingroup docGUI*/
-class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::Object<SongEditorPanel>
+class SongEditorPanel : public QWidget,
+						public EventListener,
+						public H2Core::Object<SongEditorPanel>
 {
 	H2_OBJECT(SongEditorPanel)
 	Q_OBJECT
@@ -77,7 +79,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 */
 		void highlightPatternEditorLocked();
 		void restoreGroupVector( const QString& filename );
-		// ~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
 		 * JACK Timebase controller is detected and enables it when it's
 		 * gone or Hydrogen itself takes over Timebase control.
@@ -87,8 +88,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		static constexpr int m_nMinimumHeight = 50;
 		
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void timelineActivationEvent() override;
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.
 		 *
@@ -96,16 +95,17 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 */
 		virtual void actionModeChangeEvent( int nValue ) override;
 		virtual void gridCellToggledEvent() override;
-	virtual void patternModifiedEvent() override;
-
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		virtual void patternEditorLockedEvent() override;
+		virtual void patternModifiedEvent() override;
+		virtual void playbackTrackChangedEvent() override;
 		virtual void playingPatternsChangedEvent() override;
-
-	virtual void patternEditorLockedEvent() override;
-	virtual void stackedModeActivationEvent( int ) override;
-	virtual void updateSongEvent( int ) override;
-	virtual void songModeActivationEvent() override;
-	virtual void playbackTrackChangedEvent() override;
-	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void selectedPatternChangedEvent() override;
+		virtual void songModeActivationEvent() override;
+		virtual void stackedModeActivationEvent( int ) override;
+		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void timelineActivationEvent() override;
+		virtual void updateSongEvent( int ) override;
 
 	public slots:
 	/** Used by the shotlist during automated generation of images
@@ -118,7 +118,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 			timelineBtnClicked();
 		}
 		void toggleAutomationAreaVisibility();
-		virtual void jackTimebaseStateChangedEvent( int nState ) override;
 
 
 	private slots:
