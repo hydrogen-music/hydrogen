@@ -52,6 +52,8 @@
 #include "SongEditor/PatternFillDialog.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
+#include "SongEditor/SongEditorPatternList.h"
+#include "SongEditor/SongEditorPositionRuler.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
 
