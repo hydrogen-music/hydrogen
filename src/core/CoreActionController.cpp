@@ -1068,17 +1068,17 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	pAudioEngine->lock( RIGHT_HERE );
 
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
-		pHydrogen->setMode( Song::Mode::Song );
+		pHydrogen->setMode( Song::Mode::Song, Event::Trigger::Default );
 	}
 	else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
-		pHydrogen->setMode( Song::Mode::Pattern );
+		pHydrogen->setMode( Song::Mode::Pattern, Event::Trigger::Default );
 	}
 
 	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
 		pHydrogen->setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
 	}
 	
-	pAudioEngine->handleSongModeChanged();
+	pAudioEngine->handleSongModeChanged( Event::Trigger::Suppress );
 
 	pAudioEngine->unlock();
 	

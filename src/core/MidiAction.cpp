@@ -1092,7 +1092,7 @@ bool MidiActionManager::next_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen 
 		CoreActionController::locateToColumn( 0 );
 		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 			pAudioEngine->lock( RIGHT_HERE );
-			pAudioEngine->updatePlayingPatterns();
+			pAudioEngine->updatePlayingPatterns( Event::Trigger::Default );
 			pAudioEngine->unlock();
 		}
 	}

@@ -854,7 +854,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 		m_nSelectedPatternNumber = nPat;
 		// The specific values provided are not important since we a
 		// in selected pattern mode.
-		m_pAudioEngine->updatePlayingPatterns();
+		m_pAudioEngine->updatePlayingPatterns( Event::Trigger::Default );
 
 		if ( bNeedsLock ) {
 			m_pAudioEngine->unlock();
@@ -1255,11 +1255,18 @@ Song::Mode Hydrogen::getMode() const {
 	return Song::Mode::None;
 }
 
-void Hydrogen::setMode( const Song::Mode& mode ) {
+void Hydrogen::setMode( const Song::Mode& mode, Event::Trigger trigger ) {
 	if ( m_pSong != nullptr && mode != m_pSong->getMode() ) {
 		m_pSong->setMode( mode );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
-												( mode == Song::Mode::Song) ? 1 : 0 );
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->push_event(
+				EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+		}
+	}
+	else if ( trigger == Event::Trigger::Force ) {
+		EventQueue::get_instance()->push_event(
+			EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+
 	}
 }
 
@@ -1302,7 +1309,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 			// AudioEngine::updatePatternTransportPosition() will call
 			// the functions and activate the next patterns once the
 			// current ones are looped.
-			m_pAudioEngine->updatePlayingPatterns();
+			m_pAudioEngine->updatePlayingPatterns( Event::Trigger::Suppress );
 			m_pAudioEngine->clearNextPatterns();
 		}
 

@@ -223,7 +223,7 @@ public:
 	/** Wrapper around Song::setMode() which also triggers
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setMode( const Song::Mode& mode );
+	void setMode( const Song::Mode& mode, Event::Trigger trigger );
 	
 	Song::ActionMode getActionMode() const;
 	/** Wrapper around Song::setActionMode() which also triggers

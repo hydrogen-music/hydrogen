@@ -26,6 +26,7 @@
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/config.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -405,7 +406,7 @@ public:
 	 * will be added in the latter and the ones already present will
 	 * be removed.
 	 */
-	void updatePlayingPatterns();
+	void updatePlayingPatterns( Event::Trigger trigger );
 	void clearNextPatterns();
 	/** 
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
@@ -484,7 +485,8 @@ private:
 	
 	inline void			processPlayNotes( unsigned long nframes );
 
-	void reset(  bool bWithJackBroadcast = true );
+	void reset( bool bWithJackBroadcast = true,
+				Event::Trigger trigger = Event::Trigger::Default );
 
 	void resetOffsets();
 
@@ -518,11 +520,13 @@ private:
 	void			updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
-	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
+	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition,
+										  Event::Trigger trigger = Event::Trigger::Default );
 	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition );
     
 	void			setRealtimeFrame( long long nFrame );
-	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos );
+	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos,
+								   Event::Trigger trigger );
 	
 	void			setSong( std::shared_ptr<Song>pNewSong );
 	void 			setState( const State& state );
@@ -592,7 +596,7 @@ private:
 	 * Called whenever Hydrogen switches from #Song::Mode::Song into
 	 * #Song::Mode::Pattern or the other way around.
 	 */
-	void handleSongModeChanged();
+	void handleSongModeChanged( Event::Trigger trigger );
 
 	QString getDriverNames() const;
 
