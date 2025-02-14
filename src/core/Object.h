@@ -142,6 +142,8 @@ class Base {
 		 */
 		void Print( bool bShort = true ) const;
 
+		/** Print the current stack at point into the debug log.*/
+		void logBacktrace() const;
 	protected:
 		~Base() {
 #ifdef H2CORE_HAVE_DEBUG
