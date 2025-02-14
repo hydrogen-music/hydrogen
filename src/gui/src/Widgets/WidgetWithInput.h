@@ -30,6 +30,7 @@
 
 #include "MidiLearnable.h"
 
+#include <core/EventQueue.h>
 #include <core/Timehelper.h>
 
 /** Base class for active user input widget, which are not based on
@@ -71,7 +72,9 @@ public:
 	void setMax( float fMax );
 	float getMax() const;
 
-	virtual void setValue( float fValue, bool bTriggeredByUserInteraction = false );
+	virtual void setValue( float fValue, bool bTriggeredByUserInteraction = false,
+						   H2Core::Event::Trigger trigger =
+						      H2Core::Event::Trigger::Default );
 	float getValue() const;
 
 	void setDefaultValue( float fDefaultValue );

@@ -25,6 +25,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/EventQueue.h>
 #include <core/Object.h>
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
@@ -98,7 +99,9 @@ public:
 	void	setSoloClicked(bool isClicked);
 
 	float	getVolume();
-	void	setVolume(float value);
+	void	setVolume( float value,
+					   H2Core::Event::Trigger trigger =
+					      H2Core::Event::Trigger::Default );
 
 	void	setPeak_L( float peak );
 	float	getPeak_L();
@@ -110,14 +113,18 @@ public:
 	const QString& getName() {      return m_pNameWidget->text();        }
 
 	float	getPan();
-	void	setPan(float value);
+	void	setPan( float value,
+					H2Core::Event::Trigger trigger =
+				       H2Core::Event::Trigger::Default );
 
 	int		getActivity() {	return m_nActivity;	}
 	void	setActivity( uint value ) {	m_nActivity = value;	}
 
 	void	setPlayClicked( bool clicked );
 
-	void	setFXLevel( uint nFX, float fValue );
+	void	setFXLevel( uint nFX, float fValue,
+						H2Core::Event::Trigger trigger =
+						   H2Core::Event::Trigger::Default );
 	float	getFXLevel( uint nFX );
 
 	void	setSelected( bool bIsSelected );
@@ -178,10 +185,13 @@ public:
 	explicit MasterMixerLine(QWidget* parent);
 	~MasterMixerLine();
 
-	void	updateMixerLine();
+	void	updateMixerLine( H2Core::Event::Trigger trigger =
+							   H2Core::Event::Trigger::Default );
 
 	float	getVolume();
-	void	setVolume(float value);
+	void	setVolume( float value,
+					   H2Core::Event::Trigger trigger =
+					      H2Core::Event::Trigger::Default );
 
 	void	setPeak_L(float peak);
 	float	getPeak_L();
@@ -244,7 +254,9 @@ public:
 	void	setName( const QString& name );
 		
 	float	getVolume();
-	void	setVolume( float value );
+	void	setVolume( float value,
+					   H2Core::Event::Trigger trigger =
+					      H2Core::Event::Trigger::Default );
 
 public slots:
 	void bypassBtnClicked();

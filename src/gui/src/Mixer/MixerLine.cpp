@@ -257,8 +257,8 @@ float MixerLine::getVolume()
 	return m_pFader->getValue();
 }
 
-void MixerLine::setVolume( float value ) {
-	m_pFader->setValue( value );
+void MixerLine::setVolume( float value, H2Core::Event::Trigger trigger ) {
+	m_pFader->setValue( value, false, trigger );
 }
 
 void MixerLine::setPeak_L( float peak ) {
@@ -332,15 +332,13 @@ float MixerLine::getPan()
 	return m_pPanRotary->getValue();
 }
 
-void MixerLine::setPan(float fValue)
+void MixerLine::setPan( float fValue, H2Core::Event::Trigger trigger )
 {
-	if ( fValue != m_pPanRotary->getValue() ) {
-		m_pPanRotary->setValue( fValue );
-		/** Do not update tooltip in the old fashion panL and panL style
-		 * since inconsistent with new pan implementation. The resultant pan depends also on note pan.
-		 * The rotary widget valuetip is enough to read the value.
-		 */
-	}
+	m_pPanRotary->setValue( fValue, false, trigger );
+	/** Do not update tooltip in the old fashion panL and panL style
+	 * since inconsistent with new pan implementation. The resultant pan depends also on note pan.
+	 * The rotary widget valuetip is enough to read the value.
+	 */
 }
 
 void MixerLine::setPlayClicked( bool clicked ) {
@@ -360,13 +358,14 @@ void MixerLine::knobChanged( WidgetWithInput* pRef)
 	}
 }
 
-void MixerLine::setFXLevel( uint nFX, float fValue )
+void MixerLine::setFXLevel( uint nFX, float fValue,
+							H2Core::Event::Trigger trigger )
 {
 	if (nFX >= MAX_FX) {
 		ERRORLOG( QString("[setFXLevel] nFX >= MAX_FX (nFX=%1)").arg(nFX) );
 		return;
 	}
-	m_pFxRotary[nFX]->setValue( fValue );
+	m_pFxRotary[nFX]->setValue( fValue, false, trigger );
 }
 
 float MixerLine::getFXLevel(uint nFX)
@@ -503,8 +502,8 @@ float MasterMixerLine::getVolume()
 	return m_pMasterFader->getValue();
 }
 
-void MasterMixerLine::setVolume( float value ) {
-	m_pMasterFader->setValue( value );
+void MasterMixerLine::setVolume( float value, H2Core::Event::Trigger trigger ) {
+	m_pMasterFader->setValue( value, false, trigger );
 }
 
 void MasterMixerLine::setPeak_L(float peak)
@@ -556,7 +555,7 @@ float MasterMixerLine::getPeak_R() {
 	return m_pMasterFader->getPeak_R();
 }
 
-void MasterMixerLine::updateMixerLine()
+void MasterMixerLine::updateMixerLine( H2Core::Event::Trigger trigger )
 {
 
 	if ( m_nPeakTimer > m_nFalloff ) {
@@ -578,10 +577,13 @@ void MasterMixerLine::updateMixerLine()
 	m_nPeakTimer++;
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong ) {
-		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue() );
-		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue() );
-		m_pSwingRotary->setValue( pSong->getSwingFactor() );
+	if ( pSong != nullptr ) {
+		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue(),
+										 false, trigger );
+		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue(),
+											 false, trigger );
+		m_pSwingRotary->setValue( pSong->getSwingFactor(),
+								  false, trigger );
 		if ( ! m_pMuteBtn->isDown() ) {
 			m_pMuteBtn->setChecked( pSong->getIsMuted() );
 		}
@@ -802,7 +804,7 @@ float LadspaFXMixerLine::getVolume()
 }
 
 
-void LadspaFXMixerLine::setVolume(float value)
+void LadspaFXMixerLine::setVolume( float value, H2Core::Event::Trigger trigger )
 {
-	m_pRotary->setValue( value );
+	m_pRotary->setValue( value, false, trigger );
 }

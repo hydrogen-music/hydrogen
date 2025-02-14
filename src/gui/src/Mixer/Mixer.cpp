@@ -40,6 +40,7 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/FX/Effects.h>
 using namespace H2Core;
 
@@ -434,7 +435,7 @@ void Mixer::updateMixer()
 			float fNewVolume = pInstr->get_volume();
 			float fOldVolume = pLine->getVolume();
 			if ( fOldVolume != fNewVolume ) {
-				pLine->setVolume( fNewVolume );
+				pLine->setVolume( fNewVolume, Event::Trigger::Suppress );
 			}
 
 			// mute / solo
@@ -447,7 +448,7 @@ void Mixer::updateMixer()
 			// pan
 			float fPan = pInstr->getPan();
 			if ( fPan != pLine->getPan() ) {
-				pLine->setPan( fPan );
+				pLine->setPan( fPan, Event::Trigger::Suppress );
 			}
 
 			// activity
@@ -460,7 +461,8 @@ void Mixer::updateMixer()
 			}
 
 			for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-				pLine->setFXLevel( nFX, pInstr->get_fx_level( nFX ) );
+				pLine->setFXLevel( nFX, pInstr->get_fx_level( nFX ),
+								   Event::Trigger::Suppress );
 			}
 
 			pLine->setSelected( nInstr == nSelectedInstr );
@@ -500,9 +502,9 @@ void Mixer::updateMixer()
 	float fNewVolume = pSong->getVolume();
 	float fOldVolume = m_pMasterLine->getVolume();
 	if (fOldVolume != fNewVolume) {
-		m_pMasterLine->setVolume(fNewVolume);
+		m_pMasterLine->setVolume( fNewVolume, Event::Trigger::Suppress );
 	}
-	m_pMasterLine->updateMixerLine();
+	m_pMasterLine->updateMixerLine( Event::Trigger::Suppress );
 
 
 #ifdef H2CORE_HAVE_LADSPA
@@ -522,12 +524,13 @@ void Mixer::updateMixer()
 			if (fNewPeak_R < fOldPeak_R)	fNewPeak_R = fOldPeak_R / fallOff;
 			m_pLadspaFXLine[nFX]->setPeaks( fNewPeak_L, fNewPeak_R );
 			m_pLadspaFXLine[nFX]->setFxBypassed( ! pFX->isEnabled() );
-			m_pLadspaFXLine[nFX]->setVolume( pFX->getVolume() );
+			m_pLadspaFXLine[nFX]->setVolume( pFX->getVolume(),
+											 Event::Trigger::Suppress );
 		}
 		else {
 			m_pLadspaFXLine[nFX]->setName( "No plugin" );
 			m_pLadspaFXLine[nFX]->setFxBypassed( true );
-			m_pLadspaFXLine[nFX]->setVolume( 0.0 );
+			m_pLadspaFXLine[nFX]->setVolume( 0.0, Event::Trigger::Suppress );
 		}
 	}
 	// ~LADSPA
