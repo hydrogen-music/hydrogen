@@ -32,8 +32,6 @@
 #include <QList>
 
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
-#include "../EventListener.h"
 #include "PatternFillDialog.h"
 #include "Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
@@ -50,7 +48,6 @@ namespace H2Core {
 class SongEditorPatternList :  public QWidget
 							, protected WidgetWithScalableFont<8, 10, 12>
 							, public H2Core::Object<SongEditorPatternList>
-							, public EventListener
 {
     H2_OBJECT(SongEditorPatternList)
 	Q_OBJECT
@@ -63,8 +60,6 @@ class SongEditorPatternList :  public QWidget
 		SongEditorPatternList(const SongEditorPatternList&) = delete;
 		SongEditorPatternList& operator=( const SongEditorPatternList& rhs ) = delete;
 
-		void createBackground();
-		void invalidateBackground();
 		void movePatternLine( int, int );
 		void acceptPatternPropertiesDialogSettings( const int nNewVersion,
 													const QString& newPatternName,
@@ -82,15 +77,8 @@ class SongEditorPatternList :  public QWidget
 													int patternNr);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
 		int getGridHeight() { return m_nGridHeight; }
-	
-	virtual void patternModifiedEvent() override;
-	virtual void playingPatternsChangedEvent() override;
-	virtual void songModeActivationEvent() override;
-	virtual void stackedModeActivationEvent( int nValue ) override;
-	virtual void selectedPatternChangedEvent() override;
-	virtual void nextPatternsChangedEvent() override;
-	virtual void relocationEvent() override;
-	virtual void patternEditorLockedEvent() override;
+
+		void updateEditor();
 
 	public slots:
 		void patternPopup_edit();
@@ -106,10 +94,10 @@ class SongEditorPatternList :  public QWidget
 		void inlineEditingEntered();
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
-		virtual void timelineUpdateEvent( int nValue ) override;
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
+		void createBackground();
+
 		int 				m_nGridHeight;
 		int 				m_nWidth;
 		static constexpr int 	m_nInitialHeight = 10;

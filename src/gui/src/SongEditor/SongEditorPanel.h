@@ -61,15 +61,12 @@ class SongEditorPanel : public QWidget,
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
 	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
 
-		void updateAll();
-		void updatePositionRuler();
-		
+		void ensureVisible();
+		void updateEditors( bool bSequenceOnly = false );
+
 		void showTimeline();
 		void showPlaybackTrack();
-		void updatePlaybackTrackIfNecessary();
-
-		void setTimelineActive( bool bActive );
-		void setTimelineEnabled( bool bEnabled );
+		void updatePlaybackTrack();
 
 		/**
 		 * Turns the background color of #m_pPatternEditorLockedBtn red
@@ -89,15 +86,20 @@ class SongEditorPanel : public QWidget,
 		virtual void actionModeChangeEvent( int nValue ) override;
 		virtual void gridCellToggledEvent() override;
 		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		virtual void nextPatternsChangedEvent() override;
 		virtual void patternEditorLockedEvent() override;
 		virtual void patternModifiedEvent() override;
 		virtual void playbackTrackChangedEvent() override;
 		virtual void playingPatternsChangedEvent() override;
+		virtual void relocationEvent() override;
 		virtual void selectedPatternChangedEvent() override;
 		virtual void songModeActivationEvent() override;
+		virtual void songSizeChangedEvent() override;
 		virtual void stackedModeActivationEvent( int ) override;
 		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void tempoChangedEvent( int ) override;
 		virtual void timelineActivationEvent() override;
+		virtual void timelineUpdateEvent( int ) override;
 		virtual void updateSongEvent( int ) override;
 
 	public slots:
@@ -105,6 +107,7 @@ class SongEditorPanel : public QWidget,
 		for the manual. */
 	void activateStackedMode( bool bActivate );
 	void activateSelectMode( bool bActivate );
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void toggleAutomationAreaVisibility();
 
 
@@ -135,6 +138,19 @@ class SongEditorPanel : public QWidget,
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
+		virtual void resizeEvent( QResizeEvent *ev ) override;
+
+		void resyncExternalScrollBar();
+
+		void setTimelineActive( bool bActive );
+		void setTimelineEnabled( bool bEnabled );
+
+		void updateActionMode();
+		void updateJacktimebaseState();
+		void updatePatternEditorLocked();
+		void updatePatternMode();
+		void updateTimeline();
+
 		static const int			m_nPatternListWidth = 200;
 									
 		QScrollArea*				m_pEditorScrollView;
@@ -180,9 +196,6 @@ class SongEditorPanel : public QWidget,
 		
 		AutomationPathView *		m_pAutomationPathView;
 		LCDCombo*					m_pAutomationCombo;
-
-		virtual void				resizeEvent( QResizeEvent *ev ) override;
-		void						resyncExternalScrollBar();
 
 		bool m_bLastIsTimelineActivated;
 };

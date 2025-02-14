@@ -30,15 +30,12 @@
 #include <QList>
 
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
 #include <core/Timeline.h>
-#include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 /** \ingroup docGUI*/
 class SongEditorPositionRuler :  public QWidget,
 								 protected WidgetWithScalableFont<8, 10, 12>,
-								 public EventListener,
 								 public H2Core::Object<SongEditorPositionRuler>
 {
     H2_OBJECT(SongEditorPositionRuler)
@@ -49,30 +46,18 @@ class SongEditorPositionRuler :  public QWidget,
 		~SongEditorPositionRuler();	
 
 		void setGridWidth( int width );
-		virtual void jackTimebaseStateChangedEvent( int nState ) override;
-	virtual void tempoChangedEvent( int ) override;
-	virtual void playingPatternsChangedEvent() override;
-	virtual void songModeActivationEvent() override;
-	virtual void relocationEvent() override;
-	virtual void songSizeChangedEvent() override;
-	virtual void patternModifiedEvent() override;
-	virtual void updateSongEvent( int ) override;
-	
-	virtual void timelineActivationEvent() override;
-	virtual void timelineUpdateEvent( int nValue ) override;
 
 	static int tickToColumn( float fTick, int nGridWidth );
 		static constexpr int m_nMinimumHeight = 50;
-		void createBackground();
-		void invalidateBackground();
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
+		void updateEditor();
 		void updatePosition();
-
-	public slots:
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
+		void updateSongSize();
 
 	private:
+		void createBackground();
+
 		QTimer *			m_pTimer;
 		int				m_nGridWidth;
 

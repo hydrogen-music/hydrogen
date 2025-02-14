@@ -71,7 +71,7 @@ void PlaybackTrackWaveDisplay::dropEvent(QDropEvent* event)
 			Hydrogen::get_instance()->loadPlaybackTrack( urlList.at(0).toLocalFile() );	
 			HydrogenApp* pH2App = HydrogenApp::get_instance();
 			
-			pH2App->getSongEditorPanel()->updatePlaybackTrackIfNecessary();
+			pH2App->getSongEditorPanel()->updatePlaybackTrack();
 		}
 	}
 }

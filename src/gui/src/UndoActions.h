@@ -421,7 +421,7 @@ public:
 			H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
 		}
 		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->createBackground();
+			getSongEditorPositionRuler()->updateEditor();
 	}
 
 	virtual void redo() {
@@ -430,7 +430,7 @@ public:
 		}
 		H2Core::CoreActionController::addTempoMarker( m_nNewColumn, m_fNewBpm );
 		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->createBackground();
+			getSongEditorPositionRuler()->updateEditor();
 	}
 private:
 	int m_nOldColumn;
@@ -452,13 +452,13 @@ public:
 	virtual void undo() {
 		H2Core::CoreActionController::addTempoMarker( m_nColumn, m_fBpm );
 		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->createBackground();
+			getSongEditorPositionRuler()->updateEditor();
 	}
 
 	virtual void redo() {
 		H2Core::CoreActionController::deleteTempoMarker( m_nColumn );
 		HydrogenApp::get_instance()->getSongEditorPanel()->
-			getSongEditorPositionRuler()->createBackground();
+			getSongEditorPositionRuler()->updateEditor();
 	}
 private:
 	int m_nColumn;

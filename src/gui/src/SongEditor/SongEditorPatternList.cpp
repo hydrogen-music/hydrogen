@@ -33,6 +33,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
+#include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
@@ -57,8 +58,8 @@ struct PatternDisplayInfo {
 
 SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
- , EventListener()
  , m_pBackgroundPixmap( nullptr )
+ , m_bBackgroundInvalid( true )
  , m_nRowHovered( -1 )
  , m_nRowClicked( 0 )
 {
@@ -102,8 +103,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 	m_pPatternPopup->setObjectName( "PatternListPopup" );
 
-	HydrogenApp::get_instance()->addEventListener( this );
-
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
 	assert( pScrollArea );
 	m_pDragScroller = new DragScroller( pScrollArea );
@@ -112,9 +111,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pBackgroundPixmap = new QPixmap( m_nWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-	
-	createBackground();
-	update();
 }
 
 
@@ -125,41 +121,6 @@ SongEditorPatternList::~SongEditorPatternList()
 		delete m_pBackgroundPixmap;
 	}
 	delete m_pDragScroller;
-}
-
-
-void SongEditorPatternList::playingPatternsChangedEvent() {
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPatternList::patternModifiedEvent() {
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPatternList::selectedPatternChangedEvent() {
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPatternList::nextPatternsChangedEvent() {
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPatternList::relocationEvent() {
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
-		invalidateBackground();
-		update();
-	}
-}
-
-void SongEditorPatternList::patternEditorLockedEvent() {
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
-		invalidateBackground();
-		update();
-	}
 }
 
 /// Single click, select the next pattern
@@ -212,8 +173,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		}
 	}
 
-	invalidateBackground();
-	update();
+	updateEditor();
 }
 
 void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
@@ -300,21 +260,6 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 			pixelRatio * ev->rect().height()
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
-}
-
-void SongEditorPatternList::songModeActivationEvent() {
-
-	// Refresh pattern list display if in stacked mode
-	if ( Hydrogen::get_instance()->getPatternMode() ==
-		 Song::PatternMode::Stacked ) {
-		invalidateBackground();
-		update();
-	}
-}
-
-void SongEditorPatternList::invalidateBackground()
-{
-	m_bBackgroundInvalid = true;
 }
 
 void SongEditorPatternList::createBackground()
@@ -460,11 +405,6 @@ void SongEditorPatternList::createBackground()
 		}
 
 	}
-}
-
-void SongEditorPatternList::stackedModeActivationEvent( int ) {
-	invalidateBackground();
-	update();
 }
 
 void SongEditorPatternList::patternPopup_virtualPattern()
@@ -675,9 +615,8 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(
 	pattern->setLicense( newLicense );
 	pattern->setCategory( newPatternCategory );
 	pHydrogen->setIsModified( true );
+
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
-	invalidateBackground();
-	update();
 }
 
 
@@ -706,8 +645,6 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(
 	pattern->setCategory( oldPatternCategory );
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
-	invalidateBackground();
-	update();
 }
 
 
@@ -881,9 +818,13 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 
 	// Update
 	pHydrogen->setIsModified( true );
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors();
 }
 
+void SongEditorPatternList::updateEditor() {
+	m_bBackgroundInvalid = true;
+	update();
+}
 
 ///drag & drop
 void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
@@ -1027,15 +968,14 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 		pHydrogen->setSelectedPatternNumber(
 			nTargetPattern, true, Event::Trigger::Default );
 	}
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors();
 	pHydrogen->setIsModified( true );
 }
 
 void SongEditorPatternList::leaveEvent( QEvent* ev ) {
 	UNUSED( ev );
 	m_nRowHovered = -1;
-	invalidateBackground();
-	update();
+	updateEditor();
 }
 
 void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
@@ -1043,8 +983,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	// Update the highlighting of the hovered row.
 	if ( event->pos().y() / m_nGridHeight != m_nRowHovered ) {
 		m_nRowHovered = event->pos().y() / m_nGridHeight;
-		invalidateBackground();
-		update();
+		updateEditor();
 	}
 	
 	if (!(event->buttons() & Qt::LeftButton)) {
@@ -1083,20 +1022,4 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	m_pDragScroller->endDrag();
 
 	QWidget::mouseMoveEvent(event);
-}
-
-
-void SongEditorPatternList::timelineUpdateEvent( int nEvent )
-{
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-}
-
-void SongEditorPatternList::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
-{
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-		
-		invalidateBackground();
-		update();
-	}
 }

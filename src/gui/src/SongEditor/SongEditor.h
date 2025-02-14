@@ -32,8 +32,6 @@
 #include <QList>
 
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
-#include "../EventListener.h"
 #include "../Selection.h"
 
 namespace H2Core {
@@ -55,7 +53,6 @@ class SongEditorPanel;
 class SongEditor : public QWidget
 				 , public H2Core::Object<SongEditor>
 				 , public SelectionWidget<QPoint>
-				 , public EventListener
 {
     H2_OBJECT(SongEditor)
 	Q_OBJECT
@@ -71,8 +68,7 @@ class SongEditor : public QWidget
 					SongEditorPanel *pSongEditorPanel );
 		~SongEditor();
 
-		void createBackground();
-		void invalidateBackground();
+		void updateEditor( bool bSequenceOnly = false );
 		void updatePosition( float fTick );
 
 		int getGridWidth();
@@ -88,7 +84,6 @@ class SongEditor : public QWidget
 									   const std::vector<QPoint>& selectCells );
 
 		void clearThePatternSequenceVector( const QString& filename );
-		void updateEditorandSetTrue();
 
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
 
@@ -129,10 +124,10 @@ class SongEditor : public QWidget
 		void copy();
 		void paste();
 		void cut();
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void scrolled( int );
 
 	private:
+		void createBackground();
 
 		Selection<QPoint> m_selection;
 
@@ -223,10 +218,6 @@ class SongEditor : public QWidget
 		void updateGridCells();
 		bool m_bEntered;
 
-	virtual void patternModifiedEvent() override;
-	virtual void relocationEvent() override;
-	virtual void patternEditorLockedEvent() override;
-	
 	/** Cached position of the playhead.*/
 	float m_fTick;
 };

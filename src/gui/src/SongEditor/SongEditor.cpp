@@ -30,6 +30,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #include "UndoActions.h"
 #include "SongEditorPanel.h"
@@ -40,9 +41,11 @@
 
 using namespace H2Core;
 
-SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPanel *pSongEditorPanel )
+SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
+						SongEditorPanel *pSongEditorPanel )
  : QWidget( parent )
  , m_bSequenceChanged( true )
+ , m_bBackgroundInvalid( true )
  , m_pScrollView( pScrollView )
  , m_pSongEditorPanel( pSongEditorPanel )
  , m_selection( this )
@@ -52,8 +55,6 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 {
 	const auto pPref = Preferences::get_instance();
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
-			 this, &SongEditor::onPreferencesChanged );
 	connect( m_pScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 this, SLOT( scrolled( int ) ) );
 	connect( m_pScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
@@ -72,8 +73,6 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 	this->resize( QSize( nInitialWidth, m_nMinimumHeight ) );
 
-	createBackground();	// create m_backgroundPixmap pixmap
-
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
 	m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) );
@@ -83,8 +82,6 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
 	m_pPopupMenu->setObjectName( "SongEditorPopup" );
-
-	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 
@@ -279,8 +276,7 @@ void SongEditor::setGridWidth( int width )
 		m_nGridWidth = width;
 		resize( SongEditor::nMargin +
 				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
-		invalidateBackground();
-		update();
+		updateEditor();
 	}
 }
 
@@ -668,9 +664,8 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 
 	// If there are some patterns selected, we have to switch their
 	// border color inactive <-> active.
-	invalidateBackground();
-	update();
-	
+	updateEditor();
+
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
@@ -684,9 +679,8 @@ void SongEditor::focusOutEvent( QFocusEvent *ev )
 
 	// If there are some patterns selected, we have to switch their
 	// border color inactive <-> active.
-	invalidateBackground();
-	update();
-	
+	updateEditor();
+
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
@@ -708,6 +702,11 @@ int operator<( QPoint a, QPoint b ) {
 void SongEditor::mousePressEvent( QMouseEvent *ev )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 	m_bSequenceChanged = true;
@@ -721,7 +720,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	
 	pHydrogenApp->setHideKeyboardCursor( true );
 
-	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+	if ( pHydrogen->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mousePressEvent( ev );
 		if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 			pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
@@ -729,13 +728,13 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 			update();
 		}
 
-	} else {
+	}
+	else {
 		if ( ev->button() == Qt::LeftButton ) {
 			// Start of a drawing gesture. Pick up whether we are painting Active or Inactive cells.
 			QPoint p = xyToColumnRow( ev->pos() );
-			m_bDrawingActiveCell = Hydrogen::get_instance()->getSong()->isPatternActive( p.x(), p.y() );
+			m_bDrawingActiveCell = pSong->isPatternActive( p.x(), p.y() );
 			setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
-			m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
 
 		} else if ( ev->button() == Qt::RightButton ) {
 			m_pPopupMenu->popup( ev->globalPos() );
@@ -973,6 +972,16 @@ std::vector<SongEditor::SelectionIndex> SongEditor::getElementsAtPoint(
 	return elems;
 }
 
+void SongEditor::updateEditor( bool bSequenceOnly ) {
+	if ( ! bSequenceOnly ) {
+		m_bBackgroundInvalid = true;
+	}
+
+	m_bSequenceChanged = true;
+
+	update();
+}
+
 void SongEditor::updatePosition( float fTick ) {
 	if ( fTick != m_fTick ) {
 		float fDiff = static_cast<float>(m_nGridWidth) * (fTick - m_fTick);
@@ -987,27 +996,6 @@ void SongEditor::updatePosition( float fTick ) {
 			updateRect.translate( -fDiff, 0 );
 			update( updateRect );
 		}
-	}
-}
-
-void SongEditor::patternModifiedEvent() {
-	// This can change the length of one pattern in a column
-	// containing multiple ones.
-	invalidateBackground();
-	update();
-}
-
-void SongEditor::relocationEvent() {
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
-		invalidateBackground();
-		update();
-	}
-}
-
-void SongEditor::patternEditorLockedEvent() {
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
-		invalidateBackground();
-		update();
 	}
 }
 
@@ -1205,10 +1193,6 @@ void SongEditor::createBackground()
 
 }
 
-void SongEditor::invalidateBackground() {
-	m_bBackgroundInvalid = true;
-}
-
 // Update the GridCell representation.
 void SongEditor::updateGridCells() {
 
@@ -1403,26 +1387,4 @@ void SongEditor::clearThePatternSequenceVector( const QString& filename )
 	pHydrogen->setIsModified( true );
 	m_bSequenceChanged = true;
 	update();
-}
-
-void SongEditor::updateEditorandSetTrue()
-{
-	m_bSequenceChanged = true;
-	update();
-}
-
-void SongEditor::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) 
-{
-	if ( changes & ( H2Core::Preferences::Changes::GeneralTab |
-					 H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::AppearanceTab ) ) {
-		resize( SongEditor::nMargin +
-				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
-
-		m_bSequenceChanged = true;
-
-		// Required to be called at least once in order to make the
-		// scroll bars match the (potential) new width.
-		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-	}
 }

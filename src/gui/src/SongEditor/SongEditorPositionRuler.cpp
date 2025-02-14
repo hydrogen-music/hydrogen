@@ -31,6 +31,7 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
@@ -47,6 +48,7 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
  , m_bRightBtnPressed( false )
  , m_nActiveBpmWidgetColumn( -1 )
+ , m_bBackgroundInvalid( true )
  , m_nHoveredColumn( -1 )
  , m_hoveredRow( HoveredRow::None )
  , m_nTagHeight( 6 )
@@ -56,7 +58,6 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	HydrogenApp::get_instance()->addEventListener( this );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
@@ -81,9 +82,6 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, m_nMinimumHeight * pixelRatio );	// initialize the pixmap
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
-	createBackground();	// create m_backgroundPixmap pixmap
-	update();
-
 	m_pTimer = new QTimer(this);
 	connect( m_pTimer, &QTimer::timeout, [=]() {
 		if ( pHydrogen->getAudioEngine()->getState() ==
@@ -94,29 +92,11 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_pTimer->start(200);
 }
 
-
-
 SongEditorPositionRuler::~SongEditorPositionRuler() {
 	m_pTimer->stop();
 	if ( m_pBackgroundPixmap ) {
 		delete m_pBackgroundPixmap;
 	}
-}
-
-void SongEditorPositionRuler::relocationEvent() {
-	updatePosition();
-}
-
-void SongEditorPositionRuler::songSizeChangedEvent() {
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		m_nActiveColumns = 0;
-	}
-	else {
-		m_nActiveColumns = pSong->getPatternGroupVector()->size();
-	}
-	invalidateBackground();
-	update();
 }
 
 void SongEditorPositionRuler::setGridWidth( int width )
@@ -125,13 +105,8 @@ void SongEditorPositionRuler::setGridWidth( int width )
 		 SongEditor::nMaxGridWidth >= width ) {
 		m_nGridWidth = width;
 		resize( columnToX( Preferences::get_instance()->getMaxBars() ), height() );
-		invalidateBackground();
-		update();
+		updateEditor();
 	}
-}
-
-void SongEditorPositionRuler::invalidateBackground() {
-	m_bBackgroundInvalid = true;
 }
 
 void SongEditorPositionRuler::createBackground()
@@ -257,35 +232,6 @@ void SongEditorPositionRuler::createBackground()
 	m_bBackgroundInvalid = false;
 }
 
-void SongEditorPositionRuler::tempoChangedEvent( int ) {
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
-	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
-		return;
-	}
-
-	// There is just the special tempo marker -> no tempo markers set
-	// by the user. In this case the special marker isn't drawn and
-	// doesn't need to be update.
-	if ( pTimeline->getAllTempoMarkers().size() == 1 ) {
-		return;
-	}
-
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPositionRuler::patternModifiedEvent() {
-	// This can change the size of the song and affect the position of
-	// the playhead.
-	update();
-}
-
-void SongEditorPositionRuler::playingPatternsChangedEvent() {
-	// Triggered every time the column of the SongEditor grid
-	// changed. Either by rolling transport or by relocation.
-	update();
-}
-
 void SongEditorPositionRuler::leaveEvent( QEvent* ev ){
 	m_nHoveredColumn = -1;
 	m_hoveredRow = HoveredRow::None;
@@ -351,30 +297,6 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 	}
 
 	return QWidget::event( ev );
-}
-
-void SongEditorPositionRuler::songModeActivationEvent() {
-	updatePosition();
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPositionRuler::timelineActivationEvent() {
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int nState ) {
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPositionRuler::updateSongEvent( int nValue ) {
-
-	if ( nValue == 0 ) { // different song opened
-		updatePosition();
-		songSizeChangedEvent();
-	}
 }
 
 void SongEditorPositionRuler::showToolTip( const QPoint& pos, const QPoint& globalPos ) {
@@ -506,7 +428,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	const auto theme = pPref->getTheme();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	if ( m_bBackgroundInvalid ) {
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_bBackgroundInvalid ) {
 		createBackground();
 	}
 	
@@ -528,10 +452,6 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	QPainter painter(this);
 	QFont font( theme.m_font.m_sApplicationFontFamily, getPointSize( theme.m_font.m_fontSize ) );
-	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
-		createBackground();
-	}
 	QRectF srcRect(
 			pixelRatio * ev->rect().x(),
 			pixelRatio * ev->rect().y(),
@@ -857,6 +777,11 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 	painter.setFont( font );
 }
 
+void SongEditorPositionRuler::updateEditor() {
+	m_bBackgroundInvalid = true;
+	update();
+}
+
 void SongEditorPositionRuler::updatePosition()
 {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -940,6 +865,16 @@ void SongEditorPositionRuler::updatePosition()
 	}
 }
 
+void SongEditorPositionRuler::updateSongSize() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		m_nActiveColumns = 0;
+	}
+	else {
+		m_nActiveColumns = pSong->getPatternGroupVector()->size();
+	}
+}
+
 int SongEditorPositionRuler::columnToX( int nColumn ) const {
 	return SongEditor::nMargin + nColumn * static_cast<int>(m_nGridWidth);
 }
@@ -953,23 +888,3 @@ int SongEditorPositionRuler::tickToColumn( float fTick, int nGridWidth ) {
 								   fTick * static_cast<float>(nGridWidth) -
 							 static_cast<float>(Skin::nPlayheadWidth) / 2 );
 }
-
-
-void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
-{
-	invalidateBackground();
-	update();
-}
-
-void SongEditorPositionRuler::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
-{
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
-					 H2Core::Preferences::Changes::Font ) ) {
-			 
-		resize( SongEditor::nMargin +
-				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
-		invalidateBackground();
-		update();
-	}
-}
-
