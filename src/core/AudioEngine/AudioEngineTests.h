@@ -90,11 +90,20 @@ public:
 	 * Sampler is consistent on tempo change.
 	 */
 	static void testNoteEnqueuingTimeline();
-	/** 
+
+	/**
 	 * Unit test checking that custom note properties take effect and
 	 * that humanization works as expected.
 	 */
 	static void testHumanization();
+
+	/** Unit test checking whether the mute group feature is still handled
+	 * properly in the Sampler. */
+	static void testMuteGroups();
+
+	/** Unit test checking whether the noteoff feature is still handled
+	 * properly in the Sampler. */
+	static void testNoteOff();
 
 		/**
 		 * Checks is reproducible and works even without any song set.

@@ -669,6 +669,25 @@ bool Instrument::hasSamples() const {
 	return false;
 }
 
+int Instrument::getLongestSampleFrames() const {
+	int nLongestFrames = 0;
+
+	for ( const auto& pComponent : *__components ) {
+		if ( pComponent != nullptr ) {
+			for ( const auto& pLayer : *pComponent ) {
+				if ( pLayer != nullptr ) {
+					if ( pLayer->get_sample() != nullptr &&
+						 pLayer->get_sample()->get_frames() > nLongestFrames ) {
+						nLongestFrames = pLayer->get_sample()->get_frames();
+					}
+				}
+			}
+		}
+	}
+
+	return nLongestFrames;
+}
+
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

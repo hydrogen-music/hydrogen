@@ -238,10 +238,17 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			static_cast<NoteStyle>(noteStyle | NoteStyle::NoPlayback);
 	}
 
-	QPen notePen, highlightPen, movingPen;
-	QBrush noteBrush, highlightBrush, movingBrush;
-	applyColor( pNote, &notePen, &noteBrush, &highlightPen, &highlightBrush,
-				&movingPen, &movingBrush, noteStyle );
+	const int nNoteLength = calculateEffectiveNoteLength( pNote );
+	if ( nNoteLength != pNote->getLength() ) {
+		noteStyle =
+			static_cast<NoteStyle>(noteStyle | NoteStyle::EffectiveLength);
+	}
+
+	QPen notePen, noteTailPen, highlightPen, movingPen;
+	QBrush noteBrush, noteTailBrush, highlightBrush, movingBrush;
+	applyColor( pNote, &notePen, &noteBrush, &noteTailPen, &noteTailBrush,
+				&highlightPen, &highlightBrush, &movingPen, &movingBrush,
+				noteStyle );
 
 	QPoint movingOffset;
 	if ( noteStyle & NoteStyle::Moved ) {
@@ -264,38 +271,19 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		}
 
 		// Draw tail
-		if ( pNote->getLength() != LENGTH_ENTIRE_SAMPLE ) {
-			float fNotePitch = pNote->getPitchFromKeyOctave();
-			float fStep = Note::pitchToFrequency( ( double )fNotePitch );
+		if ( nNoteLength != LENGTH_ENTIRE_SAMPLE ) {
+			if ( nNoteLength == pNote->getLength() ) {
+				// When we deal with a genuine length of a note instead of an
+				// indication when playback for this note will be stopped, we
+				// have to take its pitch into account.
+				float fNotePitch = pNote->getPitchFromKeyOctave();
+				float fStep = Note::pitchToFrequency( ( double )fNotePitch );
 
-			// if there is a stop-note to the right of this note, only draw-
-			// its length till there.
-			int nLength = pNote->getLength();
-			const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
-			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-				if ( ppNote != nullptr &&
-					 // noteOff note
-					 ppNote->getNoteOff() &&
-					 // located in the same row
-					 m_pPatternEditorPanel->findRowDB( ppNote ) == nRow ) {
-					const int nNotePos = ppNote->getPosition() +
-						ppNote->getLeadLag() *
-						AudioEngine::getLeadLagInTicks();
-
-					if ( // left of the NoteOff
-						pNote->getPosition() < nNotePos &&
-						// custom length reaches beyond NoteOff
-						pNote->getPosition() + pNote->getLength() >
-						nNotePos ) {
-
-						// In case there are multiple stop-notes present, take the
-						// shortest distance.
-						nLength = std::min( nNotePos - pNote->getPosition(), nLength );
-					}
-				}
+				width = m_fGridWidth * nNoteLength / fStep;
 			}
-
-			width = m_fGridWidth * nLength / fStep;
+			else {
+				width = m_fGridWidth * nNoteLength;
+			}
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 			// Since the note body is transparent for an inactive note, we
@@ -315,18 +303,18 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 					p.fillRect( nX - 4, nY, width, 3 + 4, highlightBrush );
 				}
 
-				p.setPen( notePen );
-				p.setBrush( noteBrush );
+				p.setPen( noteTailPen );
+				p.setBrush( noteTailBrush );
 
 				int nRectOnsetX = nX;
 				int nRectWidth = width;
 				if ( noteStyle & NoteStyle::Background ) {
-					nRectOnsetX = nRectOnsetX + w/2;
-					nRectWidth = nRectWidth - w/2;
+					nRectOnsetX = nRectOnsetX + w / 2;
+					nRectWidth = nRectWidth - w / 2;
 				}
 
-				p.drawRect( nRectOnsetX, nY +2, nRectWidth, 3 );
-				p.drawLine( nX+width, nY, nX+width, nY + h );
+				p.drawRect( nRectOnsetX, nY + 2, nRectWidth, 3 );
+				p.drawLine( nX + width, nY, nX + width, nY + h );
 			}
 		}
 
@@ -340,7 +328,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			p.setPen( movingPen );
 			p.setBrush( movingBrush );
 
-			if ( pNote->getLength() == LENGTH_ENTIRE_SAMPLE ) {
+			if ( nNoteLength == LENGTH_ENTIRE_SAMPLE ) {
 				p.drawEllipse( movingOffset.x() + nX -4 -2,
 							   movingOffset.y() + nY -2 , w + 4, h + 4 );
 			}
@@ -1603,6 +1591,7 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 
 void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 								QPen* pNotePen, QBrush* pNoteBrush,
+								QPen* pNoteTailPen, QBrush* pNoteTailBrush,
 								QPen* pHighlightPen, QBrush* pHighlightBrush,
 								QPen* pMovingPen, QBrush* pMovingBrush,
 								NoteStyle noteStyle ) const {
@@ -1629,31 +1618,44 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	}
 
 	// color base note will be filled with
-	if ( pNoteBrush != nullptr ) {
-		pNoteBrush->setColor( noteFillColor );
+	pNoteBrush->setColor( noteFillColor );
 
-		if ( noteStyle & NoteStyle::Background ) {
-			pNoteBrush->setStyle( backgroundBrushStyle );
-		}
-		else {
-			pNoteBrush->setStyle( foregroundBrushStyle );
-		}
+	if ( noteStyle & NoteStyle::Background ) {
+		pNoteBrush->setStyle( backgroundBrushStyle );
+	}
+	else {
+		pNoteBrush->setStyle( foregroundBrushStyle );
 	}
 
 	// outline color
-	if ( pNotePen != nullptr ) {
-		pNotePen->setColor( Qt::black );
+	pNotePen->setColor( Qt::black );
 
-		if ( pNote != nullptr && pNote->getNoteOff() ) {
-			pNotePen->setStyle( Qt::NoPen );
-		}
-		else if ( noteStyle & NoteStyle::Background ) {
-			pNotePen->setStyle( backgroundPenStyle );
-		}
-		else {
-			pNotePen->setStyle( foregroundPenStyle );
-		}
+	if ( pNote != nullptr && pNote->getNoteOff() ) {
+		pNotePen->setStyle( Qt::NoPen );
 	}
+	else if ( noteStyle & NoteStyle::Background ) {
+		pNotePen->setStyle( backgroundPenStyle );
+	}
+	else {
+		pNotePen->setStyle( foregroundPenStyle );
+	}
+
+	// Tail color
+	pNoteTailPen->setColor( pNotePen->color() );
+	pNoteTailPen->setStyle( pNotePen->style() );
+
+	if ( noteStyle & NoteStyle::EffectiveLength ) {
+		// Use a more subtle version of the note off color. As this color is
+		// surrounded by the note outline - which is always black - we do not
+		// have to check the value but can always go for a more lighter color.
+		QColor effectiveLengthColor( colorTheme.m_patternEditor_noteOffColor );
+		effectiveLengthColor = effectiveLengthColor.lighter( 125 );
+		pNoteTailBrush->setColor( effectiveLengthColor );
+	}
+	else {
+		pNoteTailBrush->setColor( pNoteBrush->color() );
+	}
+	pNoteTailBrush->setStyle( pNoteBrush->style() );
 
 	// Highlight color
 	QColor selectionColor;
@@ -1712,45 +1714,36 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 		}
 	}
 
-	if ( pHighlightBrush != nullptr ) {
-		pHighlightBrush->setColor( highlightColor );
+	pHighlightBrush->setColor( highlightColor );
 
-		if ( noteStyle & NoteStyle::Background ) {
-			pHighlightBrush->setStyle( backgroundBrushStyle );
-		}
-		else {
-			pHighlightBrush->setStyle( foregroundBrushStyle );
-		}
+	if ( noteStyle & NoteStyle::Background ) {
+		pHighlightBrush->setStyle( backgroundBrushStyle );
+	}
+	else {
+		pHighlightBrush->setStyle( foregroundBrushStyle );
 	}
 
-	if ( pHighlightPen != nullptr ) {
-		highlightColor.getHsv( &nHue, &nSaturation, &nValue );
-		if ( nValue >= nOutlineThreshold ) {
-			pHighlightPen->setColor( Qt::black );
-		} else {
-			pHighlightPen->setColor( Qt::white );
-		}
+	highlightColor.getHsv( &nHue, &nSaturation, &nValue );
+	if ( nValue >= nOutlineThreshold ) {
+		pHighlightPen->setColor( Qt::black );
+	} else {
+		pHighlightPen->setColor( Qt::white );
+	}
 
-		if ( noteStyle & NoteStyle::Background ) {
-			pHighlightPen->setStyle( backgroundPenStyle );
-		}
-		else {
-			pHighlightPen->setStyle( foregroundPenStyle );
-		}
+	if ( noteStyle & NoteStyle::Background ) {
+		pHighlightPen->setStyle( backgroundPenStyle );
+	}
+	else {
+		pHighlightPen->setStyle( foregroundPenStyle );
 	}
 
 	// Moving note color
-	if ( pMovingBrush != nullptr ) {
-		pMovingBrush->setStyle( movingBrushStyle );
-	}
+	pMovingBrush->setStyle( movingBrushStyle );
 
-	if ( pMovingPen != nullptr ) {
-		pMovingPen->setColor( Qt::black );
-		pMovingPen->setStyle( movingPenStyle );
-		pMovingPen->setWidth( 2 );
-	}
+	pMovingPen->setColor( Qt::black );
+	pMovingPen->setStyle( movingPenStyle );
+	pMovingPen->setWidth( 2 );
 }
-
 
 ///
 /// Ensure selection only refers to valid notes, and does not contain any stale references to deleted notes.
@@ -3903,7 +3896,124 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 		return true;
 	}
 
+	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
+		return false;
+	}
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	// If the note is part of a mute group, only the bottom most note at the
+	// same position within the group will be rendered.
+	if ( pNote->getInstrument()->get_mute_group() != -1 &&
+		 pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+		const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
+					 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+					 ppNote->getPosition() == pNote->getPosition() &&
+					 pInstrumentList->index( pNote->getInstrument() ) <
+					 pInstrumentList->index( ppNote->getInstrument() ) ) {
+					return false;
+				}
+			}
+		}
+	}
+
+	// Check for a note off at the same position.
+	if ( ! pNote->getNoteOff() ) {
+		const auto pInstrument = pNote->getInstrument();
+
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr && ppNote->getNoteOff() &&
+					 ppNote->getPosition() == pNote->getPosition() &&
+					 ppNote->getInstrument() == pInstrument ) {
+					return false;
+				}
+			}
+		}
+	}
+
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->findRowDB( pNote ) );
 	return row.bPlaysBackAudio;
+}
+
+int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> pNote ) const {
+	if ( pNote == nullptr ) {
+		return -1;
+	}
+
+	// Check for the closest note off or note of the same mute group.
+	if ( Preferences::get_instance()->
+		 getTheme().m_interface.m_bIndicateEffectiveNoteLength ) {
+
+		const auto pInstrument = pNote->getInstrument();
+
+		// mute group
+		const int nLargeNumber = 100000;
+		int nEffectiveLength = nLargeNumber;
+		if ( pNote->getInstrument() != nullptr &&
+			 pNote->getInstrument()->get_mute_group() != -1 ) {
+			const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+			for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+					if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
+						 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+						 ppNote->getInstrument() != pInstrument &&
+						 ppNote->getPosition() > pNote->getPosition() &&
+						 ( ppNote->getPosition() - pNote->getPosition() ) <
+						 nEffectiveLength ) {
+						nEffectiveLength = ppNote->getPosition() -
+							pNote->getPosition();
+					}
+				}
+			}
+		}
+
+		// Note Off
+		if ( ! pNote->getNoteOff() && pNote->getInstrument() != nullptr ) {
+			for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
+					if ( ppNote != nullptr && ppNote->getNoteOff() &&
+						 ppNote->getInstrument() == pInstrument &&
+						 ppNote->getPosition() > pNote->getPosition() &&
+						 ( ppNote->getPosition() - pNote->getPosition() ) <
+						 nEffectiveLength ) {
+						nEffectiveLength = ppNote->getPosition() -
+							pNote->getPosition();
+					}
+				}
+			}
+		}
+
+		if ( nEffectiveLength == nLargeNumber ) {
+			return pNote->getLength();
+		}
+
+		// We only apply this effective length (in ticks) in case it is indeed
+		// smaller than the length (in frames) of the longest sample which can
+		// be triggered by the note. We consider the current tempo to be
+		// constant over the whole note length. This is done as we do not know
+		// at which point of the song - thus using which tempo - the note will
+		// be played back.
+		const int nMaxFrames = pNote->getInstrument()->getLongestSampleFrames();
+
+		// We also need to take the note's pitch into account as this
+		// effectively scales the length of the note too.
+		const float fCurrentTickSize = Hydrogen::get_instance()->getAudioEngine()
+			->getTransportPosition()->getTickSize();
+		const int nEffectiveFrames = static_cast<int>(
+			TransportPosition::computeFrame(
+				nEffectiveLength * Note::pitchToFrequency(
+					static_cast<double>(pNote->getPitchFromKeyOctave() ) ),
+				fCurrentTickSize ) );
+
+		if ( nEffectiveFrames < nMaxFrames ) {
+			return nEffectiveLength;
+		}
+	}
+
+	return pNote->getLength();
 }

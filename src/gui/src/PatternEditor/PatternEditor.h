@@ -297,6 +297,10 @@ protected:
 			Moved = 0x008,
 			/** Note won't be played back by the audio engine. */
 			NoPlayback = 0x010,
+			/** Note does not have a user defined length but one introduced just
+			 * for visualization purposes by a neighbouring note off note or one
+			 * of the same mute group. */
+			EffectiveLength = 0x020,
 		};
 
 		/** Scaling factor by which the background colors will be made darker in
@@ -363,7 +367,8 @@ protected:
 
 	//! Colour to use for rendering and outlining notes
 	void applyColor( std::shared_ptr<H2Core::Note> pNote, QPen* pNotePen,
-					 QBrush* pNoteBrush, QPen* pHighlightPen,
+					 QBrush* pNoteBrush, QPen* pNoteTailPen,
+					 QBrush* pNoteTailBrush, QPen* pHighlightPen,
 					 QBrush* pHighlightBrush, QPen* pMovingPen,
 					 QBrush* pMovingBrush, NoteStyle noteStyle ) const;
 
@@ -465,6 +470,11 @@ protected:
 		 * audio engine. */
 		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
 
+		/** If the note is left of a NoteOff of the same instrument or of a note
+		 * within the same mute group, its sample will only be rendered till
+		 * that next note is encountered. We will indicate this behavior by
+		 * drawing an effective (more dim) tail of the note. */
+		int calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> pNote ) const;
 };
 
 #endif // PATERN_EDITOR_H

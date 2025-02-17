@@ -288,6 +288,40 @@ void TransportTest::testHumanization() {
 	___INFOLOG( "passed" );
 }
 
+void TransportTest::testMuteGroups() {
+	___INFOLOG( "" );
+	auto pHydrogen = Hydrogen::get_instance();
+
+	auto pSongMuteGroups =
+		Song::load( QString( H2TEST_FILE( "song/AE_muteGroups.h2song" ) ) );
+	CPPUNIT_ASSERT( pSongMuteGroups != nullptr );
+	H2Core::CoreActionController::setSong( pSongMuteGroups );
+
+	std::vector<int> indices{ 1, 3, 10 };
+	for ( auto ii : indices ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		perform( &AudioEngineTests::testMuteGroups );
+	}
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testNoteOff() {
+	___INFOLOG( "" );
+	auto pHydrogen = Hydrogen::get_instance();
+
+	auto pSongNoteOff =
+		Song::load( QString( H2TEST_FILE( "song/AE_noteOff.h2song" ) ) );
+	CPPUNIT_ASSERT( pSongNoteOff != nullptr );
+	H2Core::CoreActionController::setSong( pSongNoteOff );
+
+	std::vector<int> indices{ 1, 3, 10 };
+	for ( auto ii : indices ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		perform( &AudioEngineTests::testNoteOff );
+	}
+	___INFOLOG( "passed" );
+}
+
 void TransportTest::testUpdateTransportPosition() {
 	___INFOLOG( "" );
 

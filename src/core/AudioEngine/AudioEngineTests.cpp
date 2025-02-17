@@ -119,8 +119,6 @@ void AudioEngineTests::testTransportProcessing() {
     std::uniform_int_distribution<int> frameDist( 1, pPref->m_nBufferSize );
 	std::uniform_real_distribution<float> tempoDist( MIN_BPM, MAX_BPM );
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 
 	// Check consistency of updated frames, ticks, and queuing
@@ -325,8 +323,6 @@ void AudioEngineTests::testTransportProcessingTimeline() {
     std::uniform_int_distribution<int> frameDist( 1, pPref->m_nBufferSize );
 	std::uniform_real_distribution<float> tempoDist( MIN_BPM, MAX_BPM );
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 
 	// Check consistency of updated frames, ticks, and queuing
@@ -439,8 +435,6 @@ void AudioEngineTests::testLoopMode() {
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 
 	// Check consistency of updated frames, ticks, and queuing
@@ -649,8 +643,6 @@ void AudioEngineTests::testTransportRelocation() {
     std::uniform_real_distribution<double> tickDist( 0, pAE->m_fSongSizeInTicks );
 	std::uniform_int_distribution<long long> frameDist( 0, pPref->m_nBufferSize );
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 
 	// Check consistency of updated frames and ticks while relocating
@@ -760,8 +752,6 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
     std::uniform_real_distribution<double> tickDist( 1, pPref->m_nBufferSize );
 	std::uniform_int_distribution<int> columnDist( nColumns, nColumns + 100 );
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 
 	const uint32_t nFrames = 500;
@@ -847,8 +837,6 @@ void AudioEngineTests::testNoteEnqueuing() {
     std::uniform_int_distribution<int> frameDist( pPref->m_nBufferSize / 2,
 												  pPref->m_nBufferSize );
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 
 	// Check consistency of updated frames and ticks while using a
@@ -1131,8 +1119,6 @@ void AudioEngineTests::testNoteEnqueuingTimeline() {
     std::uniform_int_distribution<int> frameDist( pPref->m_nBufferSize / 2,
 												  pPref->m_nBufferSize );
 
-	// For reset() the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 	AudioEngineTests::resetSampler( __PRETTY_FUNCTION__ );
 
@@ -1237,8 +1223,6 @@ void AudioEngineTests::testHumanization() {
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
-	// For reset() the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( false );
 
 	// Rolls playback from beginning to the end of the song and
@@ -1263,11 +1247,6 @@ void AudioEngineTests::testHumanization() {
 
 		pAE->locate( 0 );
 
-		QString sPlayingPatterns;
-		for ( const auto& pattern : *pTransportPos->getPlayingPatterns() ) {
-			sPlayingPatterns += " " + pattern->getName();
-		}
-		
 		int nn = 0;
 		while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ||
 				pAE->getEnqueuedNotesNumber() > 0 ) {
@@ -1275,10 +1254,10 @@ void AudioEngineTests::testHumanization() {
 			pAE->updateNoteQueue( nFrames );
 
 			pAE->processAudio( nFrames );
-			
+
 			AudioEngineTests::mergeQueues( notes,
 										   pSampler->getPlayingNotesQueue() );
-			
+
 			pAE->incrementTransportPosition( nFrames );
 
 			++nn;
@@ -1323,7 +1302,7 @@ void AudioEngineTests::testHumanization() {
 
 	std::vector<std::shared_ptr<Note>> notesReference;
 	getNotes( &notesReference );
-	
+
 	if ( notesReference.size() != notesInSong.size() ) {
 		AudioEngineTests::throwException(
 			QString( "[testHumanization] [references] Bad test setup. Mismatching number of notes [%1 : %2]" )
@@ -1352,7 +1331,7 @@ void AudioEngineTests::testHumanization() {
 			.arg( notesReference.size() )
 			.arg( notesCustomized.size() ) );
 	}
-	
+
 	for ( int ii = 0; ii < notesReference.size(); ++ii ) {
 		auto pNoteReference = notesReference[ ii ];
 		auto pNoteCustomized = notesCustomized[ ii ];
@@ -1392,7 +1371,7 @@ void AudioEngineTests::testHumanization() {
 				QString( "[testHumanization] [customization] Unable to access note [%1]" )
 				.arg( ii ) );
 		}
-			
+
 	}
 
 	//////////////////////////////////////////////////////////////////
@@ -1448,9 +1427,9 @@ void AudioEngineTests::testHumanization() {
 					.arg( fTargetSD, 0, 'E', -1 )
 					.arg( fSD - fTargetSD, 0, 'E', -1 ) );
 			}
-			
+
 		};
-		
+
 		std::vector<float> deviationsPitch( notesReference.size() );
 		std::vector<float> deviationsVelocity( notesReference.size() );
 		std::vector<float> deviationsTiming( notesReference.size() );
@@ -1495,7 +1474,7 @@ void AudioEngineTests::testHumanization() {
 	std::vector<std::shared_ptr<Note>> notesHumanizedStrong;
 	getNotes( &notesHumanizedStrong );
 	checkHumanization( 0.8, &notesHumanizedStrong );
-	
+
 	//////////////////////////////////////////////////////////////////
 	// Check whether swing works.
 	//
@@ -1537,6 +1516,182 @@ void AudioEngineTests::testHumanization() {
 	}
 
 	//////////////////////////////////////////////////////////////////
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+}
+
+void AudioEngineTests::testMuteGroups() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pSampler = pAE->getSampler();
+	auto pTransportPos = pAE->getTransportPosition();
+	const auto pPref = Preferences::get_instance();
+
+	CoreActionController::activateLoopMode( false );
+	CoreActionController::activateSongMode( true );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
+
+	pAE->reset( false );
+
+	// Rolls playback from beginning to the end of the song and checks all notes
+	// rendered by the Sampler. Due to the song's design only notes of a single
+	// instrument are allowed to be rendered. There might be others, but their
+	// ADR has to be in release phase.
+
+	AudioEngineTests::resetSampler( "testMuteGroups" );
+
+	// Factor by which the number of frames processed when retrieving notes will
+	// be smaller than the buffer size. This vital because when using a large
+	// number of frames below the notes might already be processed and flushed
+	// from the Sampler before we had the chance to retrieve them.
+	const double fStep = 10.0;
+	const int nMaxCycles = std::max(
+		std::ceil( static_cast<double>(pAE->m_fSongSizeInTicks) /
+				   static_cast<double>(pPref->m_nBufferSize) * fStep *
+				   static_cast<double>(pTransportPos->getTickSize()) * 4.0 ),
+		static_cast<double>(pAE->m_fSongSizeInTicks) );
+	const uint32_t nFrames = static_cast<uint32_t>(
+		std::round( static_cast<double>(pPref->m_nBufferSize) / fStep ) );
+
+	pAE->locate( 0 );
+
+	int nn = 0;
+	while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ||
+			pAE->getEnqueuedNotesNumber() > 0 ) {
+
+		pAE->updateNoteQueue( nFrames );
+
+		pAE->processAudio( nFrames );
+
+		const auto playingNotes = pSampler->getPlayingNotesQueue();
+
+		std::shared_ptr<Instrument> pPlayingInstrument = nullptr;
+		for ( const auto& ppNote : playingNotes ) {
+			if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
+				 ppNote->getAdsr() == nullptr ) {
+				AudioEngineTests::throwException(
+					QString( "[testMuteGroups] invalid note [%1]" )
+					.arg( ppNote->toQString() ) );
+			}
+
+			if ( pPlayingInstrument == nullptr &&
+				 ppNote->getAdsr()->getState() != ADSR::State::Release ) {
+				pPlayingInstrument = ppNote->getInstrument();
+			}
+
+			if ( pPlayingInstrument != nullptr &&
+				 ppNote->getInstrument() != pPlayingInstrument &&
+				 ppNote->getAdsr()->getState() != ADSR::State::Release ) {
+				AudioEngineTests::throwException(
+					QString( "[testMuteGroups] wrong instrument ([%1] is playing): [%2]" )
+					.arg( pPlayingInstrument->get_name() )
+					.arg( ppNote->toQString() ) );
+			}
+
+			// In the current design only Crash 1 and Crash 2 should be played
+			// back.
+			if ( ppNote->getAdsr()->getState() != ADSR::State::Release &&
+				 ppNote->getInstrument()->get_name() != "Crash 1" &&
+				 ppNote->getInstrument()->get_name() != "Crash 2" ) {
+				AudioEngineTests::throwException(
+					QString( "[testMuteGroups] unexpected instrument: [%1]" )
+					.arg( ppNote->toQString() ) );
+			}
+		}
+
+		pAE->incrementTransportPosition( nFrames );
+
+		++nn;
+		if ( nn > nMaxCycles ) {
+			AudioEngineTests::throwException(
+				QString( "[testMuteGroups] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
+				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
+				.arg( pTransportPos->getTickSize(), 0, 'f' )
+				.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
+				.arg( nMaxCycles ) );
+		}
+	}
+
+	pAE->setState( AudioEngine::State::Ready );
+	pAE->unlock();
+}
+
+void AudioEngineTests::testNoteOff() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAE = pHydrogen->getAudioEngine();
+	auto pSampler = pAE->getSampler();
+	auto pTransportPos = pAE->getTransportPosition();
+	const auto pPref = Preferences::get_instance();
+
+	CoreActionController::activateLoopMode( false );
+	CoreActionController::activateSongMode( true );
+
+	pAE->lock( RIGHT_HERE );
+	pAE->setState( AudioEngine::State::Testing );
+
+	pAE->reset( false );
+
+	// Rolls playback from beginning to the end of the song and checks all notes
+	// rendered by the Sampler. Due to the song's design not a single note
+	// should be rendered (noteoff resides either in a chord or in another
+	// pattern at the same position).
+
+	AudioEngineTests::resetSampler( "testNoteOff" );
+
+	// Factor by which the number of frames processed when retrieving notes will
+	// be smaller than the buffer size. This vital because when using a large
+	// number of frames below the notes might already be processed and flushed
+	// from the Sampler before we had the chance to retrieve them.
+	const double fStep = 10.0;
+	const int nMaxCycles = std::max(
+		std::ceil( static_cast<double>(pAE->m_fSongSizeInTicks) /
+				   static_cast<double>(pPref->m_nBufferSize) * fStep *
+				   static_cast<double>(pTransportPos->getTickSize()) * 4.0 ),
+		static_cast<double>(pAE->m_fSongSizeInTicks) );
+	const uint32_t nFrames = static_cast<uint32_t>(
+		std::round( static_cast<double>(pPref->m_nBufferSize) / fStep ) );
+
+	pAE->locate( 0 );
+
+	int nn = 0;
+	while ( pTransportPos->getDoubleTick() < pAE->m_fSongSizeInTicks ||
+			pAE->getEnqueuedNotesNumber() > 0 ) {
+
+		pAE->updateNoteQueue( nFrames );
+
+		pAE->processAudio( nFrames );
+
+		const auto playingNotes = pSampler->getPlayingNotesQueue();
+
+		std::shared_ptr<Instrument> pPlayingInstrument = nullptr;
+		for ( const auto& ppNote : playingNotes ) {
+			if ( ppNote != nullptr && ppNote->getAdsr() != nullptr &&
+				 ppNote->getAdsr()->getState() != ADSR::State::Release ) {
+				AudioEngineTests::throwException(
+					QString( "[testNoteOff] no note should be rendered [%1]" )
+					.arg( ppNote->toQString() ) );
+			}
+		}
+
+		pAE->incrementTransportPosition( nFrames );
+
+		++nn;
+		if ( nn > nMaxCycles ) {
+			AudioEngineTests::throwException(
+				QString( "[testNoteOff] end of the song wasn't reached in time. pTransportPos->getFrame(): %1, pTransportPos->getDoubleTick(): %2, getTickSize(): %3, pAE->m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+				.arg( pTransportPos->getFrame() )
+				.arg( pTransportPos->getDoubleTick(), 0, 'f' )
+				.arg( pTransportPos->getTickSize(), 0, 'f' )
+				.arg( pAE->m_fSongSizeInTicks, 0, 'f' )
+				.arg( nMaxCycles ) );
+		}
+	}
 
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
@@ -2243,8 +2398,6 @@ void AudioEngineTests::testTransportRelocationJack() {
 		pAE->stopPlayback();
 	}
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( true );
 	pAE->unlock();
 
@@ -2430,8 +2583,6 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		pAE->stopPlayback();
 	}
 
-	// For this call the AudioEngine still needs to be in state
-	// Playing or Ready.
 	pAE->reset( true );
 	pAE->unlock();
 

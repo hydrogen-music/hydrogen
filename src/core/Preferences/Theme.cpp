@@ -782,7 +782,8 @@ InterfaceTheme::InterfaceTheme()
 	, m_iconColor( InterfaceTheme::IconColor::Black )
 	, m_coloringMethod( InterfaceTheme::ColoringMethod::Custom )
 	, m_nVisiblePatternColors( 18 )
-	, m_bIndicateNotePlayback( true ) {
+	, m_bIndicateNotePlayback( true )
+	, m_bIndicateEffectiveNoteLength( true ) {
 	m_patternColors.resize( nMaxPatternColors );
 
 	std::vector<QColor> defaultColors {
@@ -885,9 +886,11 @@ QString InterfaceTheme::toQString( const QString& sPrefix, bool bShort ) const {
 							.arg( ccolor.name() ) );
 		}
 		sOutput.append( QString( "%1%2]\n%1%2m_nVisiblePatternColors: %3\n" )
-						.arg( sPrefix ) .arg( s ).arg( m_nVisiblePatternColors ) )
+						.arg( sPrefix ).arg( s ).arg( m_nVisiblePatternColors ) )
 			.append( QString( "%1%2m_bIndicateNotePlayback: %3\n" )
-					 .arg( sPrefix ) .arg( s ).arg( m_bIndicateNotePlayback ) );
+					 .arg( sPrefix ).arg( s ).arg( m_bIndicateNotePlayback ) )
+			.append( QString( "%1%2m_bIndicateEffectiveNoteLength: %3\n" )
+					 .arg( sPrefix ).arg( s ).arg( m_bIndicateEffectiveNoteLength ) );
 	}
 	else {
 		sOutput = QString( "[InterfaceTheme] " )
@@ -909,7 +912,9 @@ QString InterfaceTheme::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "], m_nVisiblePatternColors: %1" )
 						 .arg( m_nVisiblePatternColors ) )
 			.append( QString( ", m_bIndicateNotePlayback: %1" )
-					 .arg( m_bIndicateNotePlayback ) );
+					 .arg( m_bIndicateNotePlayback ) )
+			.append( QString( ", m_bIndicateEffectiveNoteLength: %1" )
+					 .arg( m_bIndicateEffectiveNoteLength ) );
 	}
 
 	return sOutput;
@@ -1092,6 +1097,9 @@ std::unique_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 	interfaceTheme.m_bIndicateNotePlayback = interfaceNode.read_bool(
 		"indicate_note_playback", true, /* inexistent_ok */ true,
 		/* empty_ok */ false );
+	interfaceTheme.m_bIndicateEffectiveNoteLength = interfaceNode.read_bool(
+		"indicate_effective_note_length", true, /* inexistent_ok */ true,
+		/* empty_ok */ false );
 			
 	XMLNode fontNode = rootNode.firstChildElement( "fontTheme" );
 	if ( fontNode.isNull() ) {
@@ -1151,6 +1159,8 @@ bool Theme::exportTo( const QString& sPath ) const {
 							 m_interface.m_nVisiblePatternColors );
 	interfaceNode.write_bool( "indicate_note_playback",
 							  m_interface.m_bIndicateNotePlayback );
+	interfaceNode.write_bool( "indicate_effective_note_length",
+							  m_interface.m_bIndicateEffectiveNoteLength );
 
 	XMLNode fontNode = rootNode.createNode( "fontTheme" );
 	fontNode.write_string( "application_font_family",

@@ -3918,10 +3918,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Note Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Grid Line 1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4015,6 +4011,11 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>Selected Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Off and Mute Group</source>
+        <extracomment>This color will be used for both noteOffs / stop notes as well as for * the tail of the effective note length introduced by stop notes and the * mute group feature.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4560,6 +4561,10 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>Indicate note playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indicate effective note length</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

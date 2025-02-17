@@ -3946,10 +3946,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Note Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Grid Line 1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4043,6 +4039,11 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Selected Instrument Line Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note Off and Mute Group</source>
+        <extracomment>This color will be used for both noteOffs / stop notes as well as for * the tail of the effective note length introduced by stop notes and the * mute group feature.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4588,6 +4589,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Indicate note playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indicate effective note length</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

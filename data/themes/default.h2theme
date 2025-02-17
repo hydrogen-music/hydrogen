@@ -135,7 +135,8 @@
   <SongEditor_pattern_color_49>67,96,131</SongEditor_pattern_color_49>
   <SongEditor_visible_pattern_colors>18</SongEditor_visible_pattern_colors>
   <indicate_note_playback>true</indicate_note_playback>
- </interfaceTheme>
+  <indicate_effective_note_length>true</indicate_effective_note_length>
+</interfaceTheme>
  <fontTheme>
   <application_font_family>DejaVu Sans</application_font_family>
   <level2_font_family>DejaVu Sans</level2_font_family>

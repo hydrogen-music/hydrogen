@@ -497,6 +497,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	iconColorComboBox->setSize( appearanceTabWidgetSize );
 	coloringMethodAuxSpinBox->setSize( appearanceTabWidgetSize );
 	indicateNotePlaybackComboBox->setSize( appearanceTabWidgetSize );
+	indicateEffectiveNoteLengthComboBox->setSize( appearanceTabWidgetSize );
 
 	connect( styleComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( styleComboBoxActivated(int) ) );
@@ -545,9 +546,27 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	indicateNotePlaybackComboBox->clear();
 	indicateNotePlaybackComboBox->addItem( pCommonStrings->getStatusOn() );
 	indicateNotePlaybackComboBox->addItem( pCommonStrings->getStatusOff() );
-	indicateNotePlaybackComboBox->setCurrentIndex( 0 );
+	if ( pPref->getTheme().m_interface.m_bIndicateNotePlayback ) {
+		indicateNotePlaybackComboBox->setCurrentIndex( 0 );
+	}
+	else {
+		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
+	}
 	connect( indicateNotePlaybackComboBox, SIGNAL( currentIndexChanged(int) ),
 			 this, SLOT( onIndicateNotePlaybackChanged(int) ) );
+
+	indicateEffectiveNoteLengthComboBox->clear();
+	indicateEffectiveNoteLengthComboBox->addItem( pCommonStrings->getStatusOn() );
+	indicateEffectiveNoteLengthComboBox->addItem( pCommonStrings->getStatusOff() );
+	indicateEffectiveNoteLengthComboBox->setCurrentIndex( 0 );
+	if ( pPref->getTheme().m_interface.m_bIndicateEffectiveNoteLength ) {
+		indicateNotePlaybackComboBox->setCurrentIndex( 0 );
+	}
+	else {
+		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
+	}
+	connect( indicateEffectiveNoteLengthComboBox, SIGNAL( currentIndexChanged(int) ),
+			 this, SLOT( onIndicateEffectiveNoteLengthChanged(int) ) );
 
 	// Appearance tab - Colors
 	colorButton->setAutoFillBackground(true);
@@ -615,7 +634,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x407, pTopLevelItem, tr( "Note (Default Velocity)" ) );
 	new IndexedTreeItem( 0x408, pTopLevelItem, tr( "Note (Half Velocity)" ) );
 	new IndexedTreeItem( 0x409, pTopLevelItem, tr( "Note (Zero Velocity)" ) );
-	new IndexedTreeItem( 0x40a, pTopLevelItem, tr( "Note Off" ) );
+	/*: This color will be used for both noteOffs / stop notes as well as for
+	 *  the tail of the effective note length introduced by stop notes and the
+	 *  mute group feature. */
+	new IndexedTreeItem( 0x40a, pTopLevelItem, tr( "Note Off and Mute Group" ) );
 	new IndexedTreeItem( 0x40b, pTopLevelItem, tr( "Grid Line 1" ) );
 	new IndexedTreeItem( 0x40c, pTopLevelItem, tr( "Grid Line 2" ) );
 	new IndexedTreeItem( 0x40d, pTopLevelItem, tr( "Grid Line 3" ) );
@@ -1700,6 +1722,20 @@ void PreferencesDialog::onIndicateNotePlaybackChanged( int ) {
 	m_currentTheme.m_interface.m_bIndicateNotePlayback = bNew;
 	Preferences::get_instance()->
 		getThemeWritable().m_interface.m_bIndicateNotePlayback = bNew;
+
+	m_changes = static_cast<H2Core::Preferences::Changes>(
+		m_changes | H2Core::Preferences::Changes::AppearanceTab );
+
+	HydrogenApp::get_instance()->changePreferences(
+		H2Core::Preferences::Changes::AppearanceTab );
+}
+
+void PreferencesDialog::onIndicateEffectiveNoteLengthChanged( int ) {
+	const bool bNew = indicateEffectiveNoteLengthComboBox->currentIndex() == 0 ?
+		true : false;
+	m_currentTheme.m_interface.m_bIndicateEffectiveNoteLength = bNew;
+	Preferences::get_instance()->
+		getThemeWritable().m_interface.m_bIndicateEffectiveNoteLength = bNew;
 
 	m_changes = static_cast<H2Core::Preferences::Changes>(
 		m_changes | H2Core::Preferences::Changes::AppearanceTab );
