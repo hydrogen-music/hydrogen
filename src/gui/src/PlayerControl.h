@@ -177,7 +177,12 @@ private:
 	std::chrono::milliseconds m_midiActivityTimeout;
 
 	bool m_bLastBCOnOffBtnState;
-	
+
+		void updateJackTransport();
+		void updateJackTimebase();
+		void updateLoopMode();
+		void updateSongMode();
+
 	/** Store the tool tip of the beat counter since it gets
 		overwritten during deactivation.*/
 	void updateBPMSpinbox();
