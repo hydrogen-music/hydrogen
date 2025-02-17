@@ -160,7 +160,7 @@ Hydrogen::~Hydrogen()
 #endif
 
 	m_pAudioEngine->lock( RIGHT_HERE );
-	m_pAudioEngine->prepare();
+	m_pAudioEngine->prepare( Event::Trigger::Suppress );
 	m_pAudioEngine->unlock();
 
 	killInstruments();
@@ -296,7 +296,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 			}
 #endif
 		}
-		m_pAudioEngine->prepare();
+		m_pAudioEngine->prepare( Event::Trigger::Suppress );
 
 		if ( pCurrentSong->getDrumkit() != nullptr ) {
 			pCurrentSong->getDrumkit()->unloadSamples();

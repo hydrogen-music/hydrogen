@@ -386,7 +386,7 @@ public:
 	 * It will adjust both the current transport information as well
 	 * as the note queues in order to prevent any glitches.
 	 */
-	void updateSongSize();
+	void updateSongSize( Event::Trigger trigger = Event::Trigger::Default );
 
 	void removePlayingPattern( std::shared_ptr<Pattern> pPattern );
 	/**
@@ -433,7 +433,7 @@ public:
 	/** Stops all playback, transport, and note rendering and set the engine
 		 * in #State::Prepared. (It is needs some interaction/configuration in
 		 * order to start again.) */
-	void			prepare();
+	void			prepare( Event::Trigger trigger );
 	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 
 	/** Formatted string version for debugging purposes.
@@ -481,7 +481,7 @@ private:
 	 * If multiple patterns are present in the current column, the pattern
 	 * recorded notes will be inserted in (bottom-most one) will be used.
 	 */
-	void handleSelectedPattern();
+	void handleSelectedPattern( Event::Trigger trigger = Event::Trigger::Force );
 	
 	inline void			processPlayNotes( unsigned long nframes );
 
@@ -529,14 +529,16 @@ private:
 								   Event::Trigger trigger );
 	
 	void			setSong( std::shared_ptr<Song>pNewSong );
-	void 			setState( const State& state );
+	void 			setState( const State& state,
+							  Event::Trigger trigger = Event::Trigger::Default );
 	void 			setNextState( const State& state );
 
 	void				startPlayback();
 	
-	void			stopPlayback();
+	void			stopPlayback( Event::Trigger trigger = Event::Trigger::Default );
 	
-	void			locate( const double fTick, bool bWithJackBroadcast = true );
+	void			locate( const double fTick, bool bWithJackBroadcast = true,
+							Event::Trigger trigger = Event::Trigger::Default );
 	/**
 	 * Version of the locate() function intended to be directly used
 	 * by frame-based audio drivers / servers.
@@ -548,11 +550,14 @@ private:
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
 	void			updateTransportPosition( double fTick, long long nFrame,
-											 std::shared_ptr<TransportPosition> pPos );
+											 std::shared_ptr<TransportPosition> pPos,
+											 Event::Trigger trigger = Event::Trigger::Default );
 	void			updateSongTransportPosition( double fTick, long long nFrame,
-												 std::shared_ptr<TransportPosition> pPos );
+												 std::shared_ptr<TransportPosition> pPos,
+												 Event::Trigger trigger = Event::Trigger::Force );
 	void			updatePatternTransportPosition( double fTick, long long nFrame,
-													std::shared_ptr<TransportPosition> pPos );
+													std::shared_ptr<TransportPosition> pPos,
+													Event::Trigger trigger = Event::Trigger::Default );
 
 	/**
 	 * Updates all notes in #m_songNoteQueue and #m_midiNoteQueue to
