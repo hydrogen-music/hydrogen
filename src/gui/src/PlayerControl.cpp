@@ -721,8 +721,7 @@ void PlayerControl::updateSongEvent( int nValue ) {
 void PlayerControl::songModeActivationEvent()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		// Song mode
 		m_pPatternModeLED->setActivated( false );
@@ -732,7 +731,6 @@ void PlayerControl::songModeActivationEvent()
 
 		m_pSongLoopBtn->setIsActive( true );
 		
-		pHydrogenApp->showStatusBarMessage( tr("Song mode selected.") );
 	} else {
 		// Pattern mode
 		m_pPatternModeLED->setActivated( true );
@@ -742,7 +740,6 @@ void PlayerControl::songModeActivationEvent()
 
 		m_pSongLoopBtn->setIsActive( false );
 		
-		pHydrogenApp->showStatusBarMessage( tr("Pattern mode selected.") );
 	}
 
 	updateBPMSpinbox();
@@ -750,15 +747,21 @@ void PlayerControl::songModeActivationEvent()
 }
 
 void PlayerControl::activateSongMode( bool bActivate ) {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
 	if ( bActivate ) {
 		CoreActionController::activateSongMode( true );
 		m_pSongModeBtn->setChecked( true );
 		m_pPatternModeBtn->setChecked( false );
+
+		pHydrogenApp->showStatusBarMessage( tr("Song mode selected.") );
 	}
 	else {
 		CoreActionController::activateSongMode( false );
 		m_pSongModeBtn->setChecked( false );
 		m_pPatternModeBtn->setChecked( true );
+
+		pHydrogenApp->showStatusBarMessage( tr("Pattern mode selected.") );
 	}
 }
 
