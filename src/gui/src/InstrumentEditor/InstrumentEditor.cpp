@@ -472,7 +472,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	HydrogenApp::get_instance()->addEventListener(this);
 
-	selectedInstrumentChangedEvent(); 	// force an update
+	updateEditor();
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &InstrumentEditor::onPreferencesChanged );
@@ -482,6 +482,145 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 InstrumentEditor::~InstrumentEditor()
 {
+}
+
+void InstrumentEditor::updateEditor()
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	m_pInstrument = pHydrogen->getSelectedInstrument();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( pSong != nullptr && m_pInstrument != nullptr ) {
+
+		// As each instrument can have an arbitrary compoments, we have to
+		// ensure to select a valid one.
+		if ( m_nSelectedComponent >= m_pInstrument->get_components()->size() ) {
+			m_nSelectedComponent = std::clamp(
+				m_nSelectedComponent, 0,
+				static_cast<int>(m_pInstrument->get_components()->size()) - 1 );
+		}
+
+		activate( true );
+
+		m_pNameLbl->setText( m_pInstrument->get_name() );
+
+		// ADSR
+		m_pAttackRotary->setValue(
+			sqrtf(m_pInstrument->get_adsr()->getAttack() / 100000.0), false,
+			Event::Trigger::Suppress );
+		m_pDecayRotary->setValue(
+			sqrtf(m_pInstrument->get_adsr()->getDecay() / 100000.0), false,
+			Event::Trigger::Suppress );
+		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->getSustain(),
+									false, Event::Trigger::Suppress );
+		const float fRelease =
+			std::max( m_pInstrument->get_adsr()->getRelease() - 256.0, 0.0 );
+		m_pReleaseRotary->setValue( sqrtf( fRelease / 100000.0 ), false,
+									Event::Trigger::Suppress );
+		// ~ ADSR
+
+		// filter
+		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
+		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff(), false,
+								   Event::Trigger::Suppress );
+		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance(),
+									  false, Event::Trigger::Suppress );
+		// ~ filter
+
+		updateInstrumentPitch();
+
+		// pitch random
+		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor(),
+										false, Event::Trigger::Suppress );
+
+
+		//Stop Note
+		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
+
+		//Ignore Velocity
+		m_pApplyVelocity->setChecked( m_pInstrument->get_apply_velocity() );
+
+		// instr gain
+		m_pInstrumentGainLCD->setText(
+			QString( "%1" ).arg( m_pInstrument->get_gain(), -2, 'f', 2, '0' ) );
+		m_pInstrumentGain->setValue( m_pInstrument->get_gain(), false,
+									 Event::Trigger::Suppress );
+
+		// instr mute group
+		m_pMuteGroupLCD->setValue( m_pInstrument->get_mute_group() );
+
+		// midi out channel
+		if ( m_pInstrument->get_midi_out_channel() == -1 ) {
+			m_pMidiOutChannelLCD->setValue( -1 ); // turn off
+		} else {
+			// The MIDI channels start at 1 instead of zero.
+			m_pMidiOutChannelLCD->setValue(
+				m_pInstrument->get_midi_out_channel() + 1 );
+		}
+
+		//midi out note
+		m_pMidiOutNoteLCD->setValue( m_pInstrument->get_midi_out_note() );
+
+		// hihat
+		m_pHihatGroupLCD->setValue( m_pInstrument->get_hihat_grp() );
+		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc() );
+		m_pHihatMaxRangeLCD->setValue( m_pInstrument->get_higher_cc() );
+
+		// see instrument.h
+		m_pSampleSelectionCombo->setCurrentIndex(
+			m_pInstrument->sample_selection_alg() );
+
+		populateComponentMenu();
+
+		const auto pComponent =
+			m_pInstrument->get_component( m_nSelectedComponent );
+		if ( pComponent != nullptr ) {
+			m_pCompoNameLbl->setText( pComponent->getName() );
+			m_pCompoGainLCD->setText(
+				QString( "%1" ).arg( pComponent->getGain(),
+									 -2, 'f', 2, '0' ) );
+			m_pCompoGainRotary->setValue( pComponent->getGain(), false,
+										  Event::Trigger::Suppress );
+			if ( ! m_pCompoGainRotary->getIsActive() ) {
+				m_pCompoGainRotary->setIsActive( true );
+			}
+
+			if ( m_nSelectedLayer >= 0 ) {
+				const auto pLayer = pComponent->getLayer( m_nSelectedLayer );
+				if ( pLayer != nullptr ) {
+					m_pWaveDisplay->updateDisplay( pLayer );
+				} else {
+					m_pWaveDisplay->updateDisplay( nullptr );
+				}
+			}
+			else {
+				m_pWaveDisplay->updateDisplay( nullptr );
+			}
+		}
+		else {
+			m_pCompoNameLbl->setText( "" );
+			m_pCompoGainLCD->setText( "" );
+			m_pCompoGainRotary->setValue( 0, false, Event::Trigger::Suppress );
+			m_pCompoGainRotary->setIsActive( false );
+			m_pWaveDisplay->updateDisplay( nullptr );
+		}
+	}
+	else {
+		activate( false );
+		m_pNameLbl->setText( "" );
+		m_pCompoNameLbl->setText( "" );
+		m_pCompoGainLCD->setText( "" );
+		m_pCompoGainRotary->setValue( 0, false, Event::Trigger::Suppress );
+		m_pCompoGainRotary->setIsActive( false );
+		m_pWaveDisplay->updateDisplay( nullptr );
+		m_nSelectedLayer = 0;
+		m_nSelectedComponent = 0;
+	}
+
+	selectLayer( m_nSelectedLayer );
+	selectComponent( m_nSelectedComponent );
 }
 
 void InstrumentEditor::activate( bool bActivate ) {
@@ -602,196 +741,36 @@ void InstrumentEditor::activate( bool bActivate ) {
 void InstrumentEditor::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
-		selectedInstrumentChangedEvent();
-
-		// The function call above sets some spurious isModified when
-		// updating the states of the widgets. This has to be reset
-		// for a freshly loaded song.
-		H2Core::Hydrogen::get_instance()->setIsModified( false );
+		updateEditor();
 	}
 }
 
 void InstrumentEditor::drumkitLoadedEvent() {
-	selectedInstrumentChangedEvent();
+	updateEditor();
 }
 
-void InstrumentEditor::selectedInstrumentChangedEvent()
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	m_pInstrument = pHydrogen->getSelectedInstrument();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-
-	// update layer list
-	if ( pSong != nullptr && m_pInstrument != nullptr ) {
-
-		// As each instrument can have an arbitrary compoments, we have to
-		// ensure to select a valid one.
-		if ( m_nSelectedComponent >= m_pInstrument->get_components()->size() ) {
-			m_nSelectedComponent = std::clamp(
-				m_nSelectedComponent, 0,
-				static_cast<int>(m_pInstrument->get_components()->size()) - 1 );
-		}
-
-		activate( true );
-
-		m_pNameLbl->setText( m_pInstrument->get_name() );
-
-		// ADSR
-		m_pAttackRotary->setValue( sqrtf(m_pInstrument->get_adsr()->getAttack() / 100000.0) );
-		m_pDecayRotary->setValue( sqrtf(m_pInstrument->get_adsr()->getDecay() / 100000.0) );
-		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->getSustain() );
-		float fTmp = m_pInstrument->get_adsr()->getRelease() - 256.0;
-		if( fTmp < 0.0 ) {
-			fTmp = 0.0;
-		}
-		m_pReleaseRotary->setValue( sqrtf(fTmp / 100000.0) );
-		// ~ ADSR
-
-		// filter
-		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
-		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
-		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
-		// ~ filter
-
-		setInstrumentPitch();
-
-		// pitch random
-		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor() );
-
-
-		//Stop Note
-		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
-
-		//Ignore Velocity
-		m_pApplyVelocity->setChecked( m_pInstrument->get_apply_velocity() );
-
-		// instr gain
-		char tmp[7];
-		sprintf( tmp, "%#.2f", m_pInstrument->get_gain() );
-		m_pInstrumentGainLCD->setText( tmp );
-		m_pInstrumentGain->setValue( m_pInstrument->get_gain() );
-
-		// instr mute group
-		m_pMuteGroupLCD->setValue( m_pInstrument->get_mute_group());
-
-		// midi out channel
-		if ( m_pInstrument->get_midi_out_channel() == -1 ) {
-			m_pMidiOutChannelLCD->setValue( -1 ); // turn off
-		} else {
-			// The MIDI channels start at 1 instead of zero.
-			m_pMidiOutChannelLCD->setValue( m_pInstrument->get_midi_out_channel() + 1 );
-		}
-
-		//midi out note
-		m_pMidiOutNoteLCD->setValue( m_pInstrument->get_midi_out_note() );
-
-		// hihat
-		m_pHihatGroupLCD->setValue( m_pInstrument->get_hihat_grp() );
-		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc() );
-		m_pHihatMaxRangeLCD->setValue( m_pInstrument->get_higher_cc() );
-
-		// see instrument.h
-		m_pSampleSelectionCombo->setCurrentIndex( m_pInstrument->sample_selection_alg() );
-
-		populateComponentMenu();
-
-		const auto pComponent =
-			m_pInstrument->get_component( m_nSelectedComponent );
-		if ( pComponent != nullptr ) {
-			m_pCompoNameLbl->setText( pComponent->getName() );
-			m_pCompoGainLCD->setText(
-				QString( "%1" ).arg( pComponent->getGain(),
-									 -2, 'f', 2, '0' ) );
-			m_pCompoGainRotary->setValue( pComponent->getGain() );
-			if ( ! m_pCompoGainRotary->getIsActive() ) {
-				m_pCompoGainRotary->setIsActive( true );
-			}
-
-			if ( m_nSelectedLayer >= 0 ) {
-				const auto pLayer = pComponent->getLayer( m_nSelectedLayer );
-				if ( pLayer != nullptr ) {
-					m_pWaveDisplay->updateDisplay( pLayer );
-				} else {
-					m_pWaveDisplay->updateDisplay( nullptr );
-				}
-			}
-			else {
-				m_pWaveDisplay->updateDisplay( nullptr );
-			}
-		}
-		else {
-			m_pCompoNameLbl->setText( "" );
-			m_pCompoGainLCD->setText( "" );
-			m_pCompoGainRotary->setValue( 0 );
-			m_pCompoGainRotary->setIsActive( false );
-			m_pWaveDisplay->updateDisplay( nullptr );
-		}
-	}
-	else {
-		activate( false );
-		m_pNameLbl->setText( "" );
-		m_pCompoNameLbl->setText( "" );
-		m_pCompoGainLCD->setText( "" );
-		m_pCompoGainRotary->setValue( 0 );
-		m_pCompoGainRotary->setIsActive( false );
-		m_pWaveDisplay->updateDisplay( nullptr );
-		m_nSelectedLayer = 0;
-		m_nSelectedComponent = 0;
-	}
-
-	selectLayer( m_nSelectedLayer );
-	selectComponent( m_nSelectedComponent );
+void InstrumentEditor::selectedInstrumentChangedEvent() {
+	updateEditor();
 }
 
-// In here we just check those parameters that can be altered by MIDI
-// or OSC messages or other parts of Hydrogen.
 void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 {
-	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-	
+	auto pSong = Hydrogen::get_instance()->getSong();
+
 	// Check if either this particular line or all lines should be updated.
-	if ( m_pInstrument != nullptr ) {
-		activate( true );
-
-		if ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
-			 nInstrumentNumber == -1 ) {
-
-			if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
-				m_pNameLbl->setText( m_pInstrument->get_name() );
-			}
-
-			if ( m_pFilterBypassBtn->isChecked() !=
-				 !m_pInstrument->is_filter_active() ) {
-				m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
-			}
-			if ( m_pCutoffRotary->getValue() != m_pInstrument->get_filter_cutoff() ) {
-				m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
-			}
-			if ( m_pResonanceRotary->getValue() !=
-				 m_pInstrument->get_filter_resonance() ) {
-				m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
-			}
-			setInstrumentPitch();
-		}
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 m_pInstrument != nullptr && nInstrumentNumber != -1 &&
+		 m_pInstrument !=
+		 pSong->getDrumkit()->getInstruments()->get( nInstrumentNumber ) ) {
 		// In case nInstrumentNumber does not belong to the currently
 		// selected instrument we don't have to do anything.
 	}
 	else {
-		activate( false );
-
-		m_pNameLbl->setText( "" );
-		m_pCompoNameLbl->setText( "" );
-		m_pWaveDisplay->updateDisplay( nullptr );
-		m_nSelectedLayer = 0;
+		updateEditor();
 	}
-
-	selectLayer( m_nSelectedLayer );
 }
 
-void InstrumentEditor::setInstrumentPitch() {
+void InstrumentEditor::updateInstrumentPitch() {
 	const QString sNewPitch = QString( "%1" )
 		.arg( m_pInstrument->get_pitch_offset(), -2, 'f', 2, '0' );
 
@@ -828,10 +807,12 @@ void InstrumentEditor::setInstrumentPitch() {
 	const float fFinePitch = m_pInstrument->get_pitch_offset() - fCoarsePitch;
 
 	if ( m_pPitchCoarseRotary->getValue() != fCoarsePitch ) {
-		m_pPitchCoarseRotary->setValue( fCoarsePitch );
+		m_pPitchCoarseRotary->setValue( fCoarsePitch, false,
+										Event::Trigger::Suppress );
 	}
 	if ( m_pPitchFineRotary->getValue() != fFinePitch ) {
-		m_pPitchFineRotary->setValue( fFinePitch );
+		m_pPitchFineRotary->setValue( fFinePitch, false,
+									  Event::Trigger::Suppress );
 	}
 }
 
@@ -1042,7 +1023,7 @@ void InstrumentEditor::removeLayerButtonClicked()
 	}
 
 	pHydrogen->getAudioEngine()->unlock();
-	selectedInstrumentChangedEvent();    // update all
+	updateEditor();
 	m_pLayerPreview->updateAll();
 }
 
@@ -1168,7 +1149,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 		pHydrogen->setIsModified( true );
 	}
 
-	selectedInstrumentChangedEvent();    // update all
+	updateEditor();
 	selectLayer( firstSelection );
 	m_pLayerPreview->updateAll();
 }
@@ -1288,32 +1269,34 @@ void InstrumentEditor::selectLayer( int nLayer )
 		auto pLayer = pComponent->getLayer( nLayer );
 		m_pWaveDisplay->updateDisplay( pLayer );
 		if ( pLayer != nullptr ) {
-			char tmp[20];
-
 			// Layer GAIN
 			m_pLayerGainRotary->setIsActive( true );
-			m_pLayerGainRotary->setValue( pLayer->get_gain() );
-			sprintf( tmp, "%#.2f", pLayer->get_gain() );
-			m_pLayerGainLCD->setText( tmp );
+			m_pLayerGainRotary->setValue( pLayer->get_gain(), false,
+										  Event::Trigger::Suppress );
+			m_pLayerGainLCD->setText(
+				QString( "%1" ).arg( pLayer->get_gain(), -2, 'f', 2, '0' ) );
 
 			//Component GAIN
-			char tmp2[20];
-			sprintf( tmp2, "%#.2f", pComponent->getGain());
 			m_pCompoGainRotary->setIsActive( true );
-			m_pCompoGainRotary->setValue( pComponent->getGain());
-			m_pCompoGainLCD->setText( tmp2 );
+			m_pCompoGainRotary->setValue( pComponent->getGain(), false,
+										  Event::Trigger::Suppress );
+			m_pCompoGainLCD->setText(
+				QString( "%1" ).arg( pComponent->getGain(), -2, 'f', 2, '0' ) );
 
 			// Layer PITCH
-			float fCoarsePitch = round( pLayer->get_pitch() );
-			float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
+			const float fCoarsePitch = round( pLayer->get_pitch() );
+			const float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
 			m_pLayerPitchCoarseRotary->setIsActive( true );
-			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch );
+			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch, false,
+												 Event::Trigger::Suppress );
 			m_pLayerPitchFineRotary->setIsActive( true );
-			m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
+			m_pLayerPitchFineRotary->setValue( fFinePitch * 100, false,
+											   Event::Trigger::Suppress );
 
-			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) fCoarsePitch ) );
-			m_pLayerPitchFineLCD->setText( QString( "%1" )
-										   .arg( fFinePitch * 100, 0, 'f', 0 ) );
+			m_pLayerPitchCoarseLCD->setText(
+				QString( "%1" ).arg( (int) fCoarsePitch ) );
+			m_pLayerPitchFineLCD->setText(
+				QString( "%1" ).arg( fFinePitch * 100, 0, 'f', 0 ) );
 
 			m_pRemoveLayerBtn->setIsActive( true );
 			m_pSampleEditorBtn->setIsActive( true );
@@ -1321,19 +1304,23 @@ void InstrumentEditor::selectLayer( int nLayer )
 		else {
 			// Layer GAIN
 			m_pLayerGainRotary->setIsActive( false );
-			m_pLayerGainRotary->setValue( 1.0 );
+			m_pLayerGainRotary->setValue( 1.0, false,
+										  Event::Trigger::Suppress );
 			m_pLayerGainLCD->setText( "" );
 
 			//Component GAIN
 			m_pCompoGainRotary->setIsActive( false );
-			m_pCompoGainRotary->setValue( 1.0 );
+			m_pCompoGainRotary->setValue( 1.0, false,
+										  Event::Trigger::Suppress );
 			m_pCompoGainLCD->setText( "" );
 
 			// Layer PITCH
 			m_pLayerPitchCoarseRotary->setIsActive( false );
-			m_pLayerPitchCoarseRotary->setValue( 0.0 );
+			m_pLayerPitchCoarseRotary->setValue( 0.0, false,
+												 Event::Trigger::Suppress );
 			m_pLayerPitchFineRotary->setIsActive( false );
-			m_pLayerPitchFineRotary->setValue( 0.0 );
+			m_pLayerPitchFineRotary->setValue( 0.0, false,
+											   Event::Trigger::Suppress );
 
 			m_pLayerPitchCoarseLCD->setText( "" );
 			m_pLayerPitchFineLCD->setText( "" );
@@ -1347,18 +1334,19 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 		// Layer GAIN
 		m_pLayerGainRotary->setIsActive( false );
-		m_pLayerGainRotary->setValue( 1.0 );
+		m_pLayerGainRotary->setValue( 1.0, false, Event::Trigger::Suppress );
 		m_pLayerGainLCD->setText( "" );
 
 		m_pCompoGainRotary->setIsActive( false );
-		m_pCompoGainRotary->setValue( 1.0 );
+		m_pCompoGainRotary->setValue( 1.0, false, Event::Trigger::Suppress );
 		m_pCompoGainLCD->setText( "" );
 
 		// Layer PITCH
 		m_pLayerPitchCoarseRotary->setIsActive( false );
-		m_pLayerPitchCoarseRotary->setValue( 0.0 );
+		m_pLayerPitchCoarseRotary->setValue( 0.0, false,
+											 Event::Trigger::Suppress );
 		m_pLayerPitchFineRotary->setIsActive( false );
-		m_pLayerPitchFineRotary->setValue( 0.0 );
+		m_pLayerPitchFineRotary->setValue( 0.0, false, Event::Trigger::Suppress );
 
 		m_pLayerPitchCoarseLCD->setText( "" );
 		m_pLayerPitchFineLCD->setText( "" );
@@ -1377,7 +1365,7 @@ void InstrumentEditor::muteGroupChanged( double fValue )
 	 }
 
 	m_pInstrument->set_mute_group( static_cast<int>(fValue) );
-	selectedInstrumentChangedEvent();	// force an update
+	updateEditor();
 }
 
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
@@ -1388,7 +1376,7 @@ void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 
 	m_pInstrument->set_stop_notes( on );
 	Hydrogen::get_instance()->setIsModified( true );
-	selectedInstrumentChangedEvent();	// force an update
+	updateEditor();
 }
 
 void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
@@ -1399,7 +1387,7 @@ void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 
 	m_pInstrument->set_apply_velocity( on );
 	Hydrogen::get_instance()->setIsModified( true );
-	selectedInstrumentChangedEvent();	// force an update
+	updateEditor();
 }
 
 void InstrumentEditor::midiOutChannelChanged( double fValue ) {
@@ -1559,11 +1547,8 @@ void InstrumentEditor::switchComponentAction( int nId ) {
 	m_pCompoNameLbl->setText( pComponent->getName() );
 
 	selectComponent( nId );
-
-	selectedInstrumentChangedEvent();
-
-	// this will force an update...
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	updateEditor();
+	m_pLayerPreview->updateAll();
 }
 
 void InstrumentEditor::sampleSelectionChanged( int selected )
@@ -1588,7 +1573,7 @@ void InstrumentEditor::sampleSelectionChanged( int selected )
 		m_pInstrument->set_sample_selection_alg( Instrument::RANDOM );
 	}
 
-	selectedInstrumentChangedEvent();	// force an update
+	updateEditor();
 }
 
 void InstrumentEditor::hihatGroupChanged( double fValue )

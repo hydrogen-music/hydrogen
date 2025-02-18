@@ -59,6 +59,8 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		explicit InstrumentEditor( QWidget* parent );
 		~InstrumentEditor();
 
+		void updateEditor();
+
 		void selectLayer( int nLayer );
 
 		void selectComponent( int nComponent );
@@ -141,7 +143,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		ClickableLabel* m_pPitchCoarseLbl;
 		ClickableLabel* m_pPitchFineLbl;
 		ClickableLabel* m_pPitchRandomLbl;
-		void setInstrumentPitch();
+		void updateInstrumentPitch();
 
 		// Low pass filter
 		Button *m_pFilterBypassBtn;
