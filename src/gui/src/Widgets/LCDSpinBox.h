@@ -27,6 +27,7 @@
 #include <QtGui>
 #include <QDoubleSpinBox>
 
+#include <core/EventQueue.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -87,7 +88,9 @@ public:
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-	void setValue( double fValue );
+	void setValue( double fValue,
+				   H2Core::Event::Trigger trigger =
+				      H2Core::Event::Trigger::Default );
 
 private slots:
 	void valueChanged( double fNewValue );
