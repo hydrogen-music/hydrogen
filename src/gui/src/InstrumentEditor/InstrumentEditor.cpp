@@ -549,24 +549,32 @@ void InstrumentEditor::updateEditor()
 									 Event::Trigger::Suppress );
 
 		// instr mute group
-		m_pMuteGroupLCD->setValue( m_pInstrument->get_mute_group() );
+		m_pMuteGroupLCD->setValue(
+			m_pInstrument->get_mute_group(), Event::Trigger::Suppress );
 
 		// midi out channel
 		if ( m_pInstrument->get_midi_out_channel() == -1 ) {
-			m_pMidiOutChannelLCD->setValue( -1 ); // turn off
-		} else {
+			// turn off
+			m_pMidiOutChannelLCD->setValue( -1, Event::Trigger::Suppress );
+		}
+		else {
 			// The MIDI channels start at 1 instead of zero.
 			m_pMidiOutChannelLCD->setValue(
-				m_pInstrument->get_midi_out_channel() + 1 );
+				m_pInstrument->get_midi_out_channel() + 1,
+				Event::Trigger::Suppress );
 		}
 
 		//midi out note
-		m_pMidiOutNoteLCD->setValue( m_pInstrument->get_midi_out_note() );
+		m_pMidiOutNoteLCD->setValue( m_pInstrument->get_midi_out_note(),
+									 Event::Trigger::Suppress );
 
 		// hihat
-		m_pHihatGroupLCD->setValue( m_pInstrument->get_hihat_grp() );
-		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc() );
-		m_pHihatMaxRangeLCD->setValue( m_pInstrument->get_higher_cc() );
+		m_pHihatGroupLCD->setValue( m_pInstrument->get_hihat_grp(),
+									Event::Trigger::Suppress );
+		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc(),
+									   Event::Trigger::Suppress );
+		m_pHihatMaxRangeLCD->setValue( m_pInstrument->get_higher_cc(),
+									   Event::Trigger::Suppress );
 
 		// see instrument.h
 		m_pSampleSelectionCombo->setCurrentIndex(
