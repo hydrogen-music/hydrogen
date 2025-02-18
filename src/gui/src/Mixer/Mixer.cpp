@@ -197,7 +197,7 @@ MixerLine* Mixer::createMixerLine( int nInstr )
 {
 	MixerLine *pMixerLine = new MixerLine( nullptr , nInstr);
 	pMixerLine->setObjectName( "MixerLine" );
-	pMixerLine->setVolume( 0.2 );
+	pMixerLine->setVolume( 0.2, Event::Trigger::Suppress );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );
 
