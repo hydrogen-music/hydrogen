@@ -455,7 +455,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );
 	setupSampleSelectionCombo();
-	connect( m_pSampleSelectionCombo, SIGNAL( currentIndexChanged( int ) ),
+	connect( m_pSampleSelectionCombo, SIGNAL( activated( int ) ),
 			 this, SLOT( sampleSelectionChanged( int ) ) );
 	m_pSampleSelectionLbl = new ClickableLabel( m_pLayerProp, QSize( 70, 10 ),
 												pCommonStrings->getSampleSelectionLabel() );
