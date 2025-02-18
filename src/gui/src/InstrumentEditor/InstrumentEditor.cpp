@@ -271,25 +271,25 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										  pCommonStrings->getMuteGroupLabel() );
 	m_pMuteGroupLbl->move( 159, 125 );
 
-	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
+	m_pIsStopNoteCheckBox = new QCheckBox( "", m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 42, 139 );
 	m_pIsStopNoteCheckBox->adjustSize();
 	m_pIsStopNoteCheckBox->setFixedSize( 14, 14 );
 	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample" ) );
 	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
-	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ),
+	connect( m_pIsStopNoteCheckBox, SIGNAL( clicked( bool ) ),
 			 this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 	m_pIsStopNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ),
 										   pCommonStrings->getIsStopNoteLabel() );
 	m_pIsStopNoteLbl->move( 59, 144 );
 
-	m_pApplyVelocity = new QCheckBox ( "", m_pInstrumentProp );
+	m_pApplyVelocity = new QCheckBox( "", m_pInstrumentProp );
 	m_pApplyVelocity->move( 153, 139 );
 	m_pApplyVelocity->adjustSize();
 	m_pApplyVelocity->setFixedSize( 14, 14 );
 	m_pApplyVelocity->setToolTip( tr( "Don't change the layers' gain based on velocity" ) );
 	m_pApplyVelocity->setFocusPolicy( Qt::NoFocus );
-	connect( m_pApplyVelocity, SIGNAL( toggled( bool ) ),
+	connect( m_pApplyVelocity, SIGNAL( clicked( bool ) ),
 			 this, SLOT( onIsApplyVelocityCheckBoxClicked( bool ) ) );
 	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ),
 											  pCommonStrings->getApplyVelocityLabel() );
@@ -1376,7 +1376,6 @@ void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 
 	m_pInstrument->set_stop_notes( on );
 	Hydrogen::get_instance()->setIsModified( true );
-	updateEditor();
 }
 
 void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
@@ -1387,7 +1386,6 @@ void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 
 	m_pInstrument->set_apply_velocity( on );
 	Hydrogen::get_instance()->setIsModified( true );
-	updateEditor();
 }
 
 void InstrumentEditor::midiOutChannelChanged( double fValue ) {
