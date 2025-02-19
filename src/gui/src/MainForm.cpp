@@ -266,6 +266,8 @@ void MainForm::updateMenuBar() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	m_pViewMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
+	m_pViewInstrumentRackAction->setChecked(
+		pHydrogenApp->getInstrumentRack()->isVisible() );
 }
 
 ///
@@ -460,11 +462,12 @@ void MainForm::createMenuBar()
 	m_pViewMixerAction->setCheckable( true );
 	m_pViewMixerAction->setChecked( pPref->getMixerProperties().visible );
 
-	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction(
+	m_pViewInstrumentRackAction = m_pViewMenu->addAction(
 		tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ),
 		pShortcuts->getKeySequence( Shortcuts::Action::ShowInstrumentRack ) );
-	m_pViewMixerInstrumentRackAction->setCheckable( true );
-	update_instrument_checkbox( pPref->getInstrumentRackProperties().visible );
+	m_pViewInstrumentRackAction->setCheckable( true );
+	m_pViewInstrumentRackAction->setChecked(
+		pPref->getInstrumentRackProperties().visible );
 
 	m_pViewAutomationPathAction = m_pViewMenu->addAction(
 		tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ),
@@ -1765,16 +1768,9 @@ void MainForm::action_file_export()
 
 
 
-void MainForm::action_window_showInstrumentRack()
-{
-	InstrumentRack *pPanel = HydrogenApp::get_instance()->getInstrumentRack();
-	pPanel->setHidden( pPanel->isVisible() );
-	update_instrument_checkbox( pPanel->isVisible() );
-}
-
-void MainForm::update_instrument_checkbox( bool show )
-{
-	m_pViewMixerInstrumentRackAction->setChecked( show );
+void MainForm::action_window_showInstrumentRack() {
+	h2app->showInstrumentRack(
+		! HydrogenApp::get_instance()->getInstrumentRack()->isVisible() );
 }
 
 void MainForm::saveWindowProperties() {

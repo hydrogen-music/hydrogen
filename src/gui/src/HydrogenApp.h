@@ -108,7 +108,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
 		void showMixer(bool bShow);
-		void showInstrumentPanel(bool);
+		void showInstrumentRack(bool bShow);
 		void showAudioEngineInfoForm();
 		void showFilesystemInfoForm();
 		void showPlaylistEditor();

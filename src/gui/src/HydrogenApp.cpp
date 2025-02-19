@@ -275,7 +275,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( nullptr );
 	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
-	m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
+	m_pInstrumentRack->setVisible( instrumentRackProp.visible );
 
 	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->setMovable( false );
@@ -742,7 +742,7 @@ void HydrogenApp::showMixer(bool show)
 	m_pMainForm->updateMenuBar();
 }
 
-void HydrogenApp::showInstrumentPanel(bool show)
+void HydrogenApp::showInstrumentRack(bool show)
 {
 	/*
 		 *   Switch to pattern editor/instrument tab in tabbed mode,
@@ -753,11 +753,14 @@ void HydrogenApp::showInstrumentPanel(bool show)
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
-		getInstrumentRack()->setHidden( show );
-	} else {
-		getInstrumentRack()->setHidden( show );
+		m_pInstrumentRack->setVisible( show );
 	}
-	m_pMainForm->update_instrument_checkbox( !show );
+	else {
+		m_pInstrumentRack->setVisible( show );
+	}
+
+	m_pPlayerControl->updatePlayerControl();
+	m_pMainForm->updateMenuBar();
 }
 
 

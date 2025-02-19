@@ -91,7 +91,6 @@ private slots:
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
 	void metronomeButtonClicked();
-	void showInstrumentRackButtonClicked();
 
 	//beatcounter
 	void activateBeatCounter( bool bActivate );

@@ -430,16 +430,21 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pShowMixerBtn = new Button( pLcdBackGround, QSize( 88, 23 ), Button::Type::Toggle,
 								  "", pCommonStrings->getMixerButton(), false, QSize(),
 								  tr( "Show mixer" ) );
+	m_pShowMixerBtn->setChecked( pPref->getMixerProperties().visible );
 	m_pShowMixerBtn->move( 0, 0 );
 	connect( m_pShowMixerBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerBtn->isChecked() ); });
 
-	m_pShowInstrumentRackBtn = new Button( pLcdBackGround, QSize( 168, 23 ), Button::Type::Toggle,
-										   "", pCommonStrings->getInstrumentRackButton(), false, QSize(),
-										   tr( "Show Instrument Rack" ) );
+	m_pShowInstrumentRackBtn = new Button(
+		pLcdBackGround, QSize( 168, 23 ), Button::Type::Toggle, "",
+		pCommonStrings->getInstrumentRackButton(), false, QSize(),
+		tr( "Show Instrument Rack" ) );
+	m_pShowInstrumentRackBtn->setChecked(
+		pPref->getInstrumentRackProperties().visible );
 	m_pShowInstrumentRackBtn->move( 88, 0 );
-	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked() ),
-			 this, SLOT( showInstrumentRackButtonClicked() ) );
+	connect( m_pShowInstrumentRackBtn, &Button::clicked, [&]() {
+		HydrogenApp::get_instance()->showInstrumentRack(
+			m_pShowInstrumentRackBtn->isChecked() ); });
 
 	m_pStatusLabel = new StatusMessageDisplay( pLcdBackGround, QSize( 255, 18 ) );
 	m_pStatusLabel->move( 0, 24 );
@@ -471,11 +476,8 @@ void PlayerControl::updatePlayerControl()
 	const auto pHydrogen = Hydrogen::get_instance();
 
 	m_pShowMixerBtn->setChecked( pH2App->getMixer()->isVisible() );
-
-	if ( ! m_pShowInstrumentRackBtn->isDown() ) {
-		m_pShowInstrumentRackBtn->setChecked(
-			pH2App->getInstrumentRack()->isVisible() );
-	}
+	m_pShowInstrumentRackBtn->setChecked(
+		pH2App->getInstrumentRack()->isVisible() );
 
 	if ( ! m_pPlayBtn->isDown() && ! m_pStopBtn->isDown() &&
 		 ! m_pFfwdBtn->isDown() && ! m_pRwdBtn->isDown() ) {
@@ -877,14 +879,6 @@ void PlayerControl::loopModeActivationEvent() {
 void PlayerControl::metronomeButtonClicked() {
 	CoreActionController::setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
 }
-
-void PlayerControl::showInstrumentRackButtonClicked()
-{
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
-	bool isVisible = pH2App->getInstrumentRack()->isVisible();
-	pH2App->showInstrumentPanel( isVisible );
-}
-
 
 void PlayerControl::timelineActivationEvent() {
 	updateBPMSpinbox();
