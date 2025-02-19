@@ -140,7 +140,7 @@ private:
 	ClickableLabel* m_pMidiInLbl;
 	ClickableLabel* m_pCpuLbl;
 
-	LCDSpinBox *m_pLCDBPMSpinbox;
+	LCDSpinBox *m_pBpmSpinBox;
 	ClickableLabel* m_pBPMLbl;
 	LCDDisplay *m_pTimeDisplay;
 	ClickableLabel* m_pTimeHoursLbl;
@@ -171,6 +171,7 @@ private:
 
 	bool m_bLastBCOnOffBtnState;
 
+		void updateBpmSpinBox();
 		void updateJackTransport();
 		void updateJackTimebase();
 		void updateLoopMode();
@@ -179,9 +180,7 @@ private:
 
 	/** Store the tool tip of the beat counter since it gets
 		overwritten during deactivation.*/
-	void updateBPMSpinbox();
 	void updateBeatCounter();
-	void updateBPMSpinboxToolTip();
 	void updateBeatCounterToolTip();
 	QString m_sBCOnOffBtnToolTip;
 	QString m_sBCOnOffBtnTimelineToolTip;
@@ -189,14 +188,6 @@ private:
 	QString m_sLCDBPMSpinboxToolTip;
 	QString m_sLCDBPMSpinboxTimelineToolTip;
 	QString m_sLCDBPMSpinboxJackTimebaseToolTip;
-
-	/** When updating the tempo of the BPM spin box it is crucial to
-	 * indicated that this was done due to a batch event and not due
-	 * to user input. Else a batch update would trigger its
-	 * bpmChanged() slot, which in turn sets the core BPM again. When
-	 * changing a lot of tempo very quick (switch between songs of
-	 * different tempi) this spurious BPM setting will mess things up.*/
-	bool m_bLCDBPMSpinboxIsArmed;
 };
 
 

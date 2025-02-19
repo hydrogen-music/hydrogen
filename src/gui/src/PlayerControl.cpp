@@ -57,7 +57,6 @@ int bcDisplaystatus = 0;
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , m_midiActivityTimeout( 125 )
- , m_bLCDBPMSpinboxIsArmed( true )
 {
 
 	m_pHydrogen = Hydrogen::get_instance();
@@ -317,19 +316,15 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBPMLbl->move( 36, 31 );
 
 	// LCD BPM SpinBox
-	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 30), LCDSpinBox::Type::Double,
-									   static_cast<double>( MIN_BPM ),
-									   static_cast<double>( MAX_BPM ), true );
-	m_pLCDBPMSpinbox->move( 36, 1 );
-	m_pLCDBPMSpinbox->setStyleSheet( m_pLCDBPMSpinbox->styleSheet().
-									 append( " QAbstractSpinBox {font-size: 16px;}" ) );
-	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ),
+	m_pBpmSpinBox = new LCDSpinBox(
+		pBPMPanel, QSize( 95, 30), LCDSpinBox::Type::Double,
+		static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ), true );
+	m_pBpmSpinBox->move( 36, 1 );
+	m_pBpmSpinBox->setStyleSheet( m_pBpmSpinBox->styleSheet().
+								  append( " QAbstractSpinBox {font-size: 16px;}" ) );
+	updateBpmSpinBox();
+	connect( m_pBpmSpinBox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
-	// initialize BPM widget
-	m_pLCDBPMSpinbox->setIsActive( m_pHydrogen->getTempoSource() ==
-								   H2Core::Hydrogen::Tempo::Song );
-	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
-	updateBPMSpinboxToolTip();
 
 	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 13, 42 ),
 									 Button::Type::Toggle, "",
@@ -476,13 +471,6 @@ void PlayerControl::updatePlayerControl()
 	m_pShowInstrumentRackBtn->setChecked(
 		pH2App->getInstrumentRack()->isVisible() );
 
-	if ( ! m_pLCDBPMSpinbox->hasFocus() &&
-		 ! m_pLCDBPMSpinbox->getIsHovered() ) {
-		m_bLCDBPMSpinboxIsArmed = false;
-		m_pLCDBPMSpinbox->setValue( pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
-		m_bLCDBPMSpinboxIsArmed = true;
-	}
-
 	//beatcounter
 	if ( pPref->m_bBc == Preferences::BC_OFF ) {
 		m_pControlsBCPanel->hide();
@@ -602,7 +590,7 @@ void PlayerControl::jackTimebaseStateChangedEvent( int nState )
 	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 
 	updateBeatCounter();
-	updateBPMSpinbox();
+	updateBpmSpinBox();
 }
 
 void PlayerControl::loopModeActivationEvent() {
@@ -611,7 +599,7 @@ void PlayerControl::loopModeActivationEvent() {
 
 void PlayerControl::songModeActivationEvent() {
 	updateSongMode();
-	updateBPMSpinbox();
+	updateBpmSpinBox();
 	updateBeatCounter();
 	updateTransportControl();
 }
@@ -622,48 +610,25 @@ void PlayerControl::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 
 void PlayerControl::tempoChangedEvent( int nValue )
 {
-	// When updating the tempo of the BPM spin box it is crucial to
-	// indicated that this was done due to a batch event and not due
-	// to user input.
-	m_bLCDBPMSpinboxIsArmed = false;
-
-	// Also update value if the BPM widget is disabled
-	bool bIsReadOnly = m_pLCDBPMSpinbox->isReadOnly();
-
-	if ( ! bIsReadOnly ) {
-		m_pLCDBPMSpinbox->setReadOnly( true );
-	}
-	/*
-	 * This is an external tempo change, triggered
-	 * via a midi or osc message.
-	 *
-	 * Just update the GUI using the current tempo
-	 * of the song.
-	 */
-	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
-
-	if ( ! bIsReadOnly ) {
-		m_pLCDBPMSpinbox->setReadOnly( false );
-	}
-
-	// Re-enabling core Bpm alteration using BPM spinbox
-	m_bLCDBPMSpinboxIsArmed = true;
-
+	updateBpmSpinBox();
 	if ( nValue == -1 ) {
 		// Value was changed via API commands and not by the
 		// AudioEngine.
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Timeline ) {
-			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.") );
-		} else if ( pHydrogen->getTempoSource() ==
+			QMessageBox::warning( this, "Hydrogen",
+								  tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.") );
+		}
+		else if ( pHydrogen->getTempoSource() ==
 					H2Core::Hydrogen::Tempo::Jack ) {
-			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.") );
+			QMessageBox::warning( this, "Hydrogen",
+								  tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.") );
 		}
 	}
 }
 
 void PlayerControl::timelineActivationEvent() {
-	updateBPMSpinbox();
+	updateBpmSpinBox();
 	updateBeatCounter();
 }
 
@@ -671,7 +636,7 @@ void PlayerControl::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
 		updateSongMode();
-		updateBPMSpinbox();
+		updateBpmSpinBox();
 		updateBeatCounter();
 		updateLoopMode();
 		updateJackTransport();
@@ -769,8 +734,7 @@ void PlayerControl::activateSongMode( bool bActivate ) {
 }
 
 void PlayerControl::bpmChanged( double fNewBpmValue ) {
-	if ( m_pLCDBPMSpinbox->getIsActive() &&
-		 m_bLCDBPMSpinboxIsArmed ) {
+	if ( m_pBpmSpinBox->getIsActive() ) {
 		CoreActionController::setBpm( static_cast<float>( fNewBpmValue ) );
 	}
 }
@@ -955,6 +919,27 @@ void PlayerControl::metronomeButtonClicked() {
 	CoreActionController::setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
 }
 
+void PlayerControl::updateBpmSpinBox() {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	m_pBpmSpinBox->setIsActive(
+		pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song );
+	m_pBpmSpinBox->setValue(
+		pHydrogen->getAudioEngine()->getTransportPosition()->getBpm(),
+		H2Core::Event::Trigger::Suppress );
+
+	switch ( pHydrogen->getTempoSource() ) {
+	case H2Core::Hydrogen::Tempo::Jack:
+		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Timeline:
+		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
+		break;
+	default:
+		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxToolTip );
+	}
+}
+
 void PlayerControl::updateJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( ! pHydrogen->hasJackAudioDriver() ) {
@@ -1045,33 +1030,11 @@ void PlayerControl::updateTransportControl() {
 	m_pRecBtn->setChecked( pPref->getRecordEvents() );
 }
 
-void PlayerControl::updateBPMSpinbox() {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	m_pLCDBPMSpinbox->setIsActive( pHydrogen->getTempoSource() ==
-								   H2Core::Hydrogen::Tempo::Song );
-	updateBPMSpinboxToolTip();
-}
-
 void PlayerControl::showStatusBarMessage( const QString& sMessage,
 										  const QString& sCaller ) {
 	if ( H2Core::Hydrogen::get_instance()->getGUIState() ==
 		 H2Core::Hydrogen::GUIState::ready ) {
 		m_pStatusLabel->showMessage( sMessage, sCaller );
-	}
-}
-
-void PlayerControl::updateBPMSpinboxToolTip() {
-	auto pHydrogen = Hydrogen::get_instance();
-	switch ( pHydrogen->getTempoSource() ) {
-	case H2Core::Hydrogen::Tempo::Jack:
-		m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
-		break;
-	case H2Core::Hydrogen::Tempo::Timeline:
-		m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
-		break;
-	default:
-		m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxToolTip );
 	}
 }
 
