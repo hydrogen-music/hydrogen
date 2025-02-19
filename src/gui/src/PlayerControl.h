@@ -55,6 +55,8 @@ public:
 	explicit PlayerControl(QWidget *parent);
 	~PlayerControl();
 
+	void updatePlayerControl();
+
 	void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
 	virtual void timelineActivationEvent() override;
@@ -83,14 +85,12 @@ private slots:
 	void recBtnClicked();
 	void playBtnClicked();
 	void stopBtnClicked();
-	void updatePlayerControl();
 	void jackTransportBtnClicked();
 	void jackTimebaseBtnClicked();
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
 	void metronomeButtonClicked();
-	void showMixerButtonClicked();
 	void showInstrumentRackButtonClicked();
 
 	//beatcounter

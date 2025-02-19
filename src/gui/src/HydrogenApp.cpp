@@ -442,6 +442,7 @@ void HydrogenApp::handleUndoContext( const QString& sContext,
 void HydrogenApp::currentTabChanged(int index)
 {
 	Preferences::get_instance()->setLastOpenTab( index );
+	m_pPlayerControl->updatePlayerControl();
 }
 
 void HydrogenApp::closeFXProperties()
@@ -737,7 +738,8 @@ void HydrogenApp::showMixer(bool show)
 		m_pMixer->setVisible( show );
 	}
 
-	m_pMainForm->update_mixer_checkbox();
+	m_pPlayerControl->updatePlayerControl();
+	m_pMainForm->updateMenuBar();
 }
 
 void HydrogenApp::showInstrumentPanel(bool show)
@@ -1261,6 +1263,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetX + SetY );
 		}
 #endif
+
+		m_pPlayerControl->updatePlayerControl();
 
 		// Inform the user about which file was loaded.
 		showStatusBarMessage( tr("Preferences loaded.") + 
