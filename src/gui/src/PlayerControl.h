@@ -59,27 +59,21 @@ public:
 
 	void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
-	virtual void timelineActivationEvent() override;
-	virtual void tempoChangedEvent( int nValue ) override;
-	virtual void jackTransportActivationEvent() override;
-	/**
-	 * Shared GUI update when activating Song or Pattern mode via
-	 * button click or via OSC command.
-	 *
-	 * @param nValue If 0, Pattern mode will be activate. Else,
-	 * Song mode will be activated instead.
-	 */
-	virtual void songModeActivationEvent() override;
-	virtual void updateSongEvent( int nValue ) override;
-	virtual void loopModeActivationEvent() override;
-	virtual void driverChangedEvent() override;
+		virtual void driverChangedEvent() override;
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		virtual void jackTransportActivationEvent() override;
+		virtual void loopModeActivationEvent() override;
+		virtual void songModeActivationEvent() override;
+		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void tempoChangedEvent( int nValue ) override;
+		virtual void timelineActivationEvent() override;
+		virtual void updateSongEvent( int nValue ) override;
 
 		static constexpr int m_nMinimumHeight = 43;
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void activateSongMode( bool bActivate );
-	virtual void jackTimebaseStateChangedEvent( int nState ) override;
 
 private slots:
 	void recBtnClicked();
@@ -181,6 +175,7 @@ private:
 		void updateJackTimebase();
 		void updateLoopMode();
 		void updateSongMode();
+		void updateTransportControl();
 
 	/** Store the tool tip of the beat counter since it gets
 		overwritten during deactivation.*/
