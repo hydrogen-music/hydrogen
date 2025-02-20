@@ -134,6 +134,8 @@ bool CoreActionController::setMetronomeIsActive( bool isActive )
 	if ( pPref->m_bUseMetronome != isActive ) {
 		pPref->m_bUseMetronome = isActive;
 
+		EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
+
 		return sendMetronomeIsActiveFeedback();
 	}
 

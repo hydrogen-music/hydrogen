@@ -340,11 +340,12 @@ PlayerControl::PlayerControl(QWidget *parent)
 								  tr("Switch metronome on/off"),
 								  false, true );
 	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
+	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 	m_pMetronomeBtn->move( 6, 2 );
-	connect( m_pMetronomeBtn, SIGNAL( clicked() ), this, SLOT( metronomeButtonClicked() ) );
+	connect( m_pMetronomeBtn, SIGNAL( clicked() ),
+			 this, SLOT( metronomeButtonClicked() ) );
 	pAction = std::make_shared<Action>("TOGGLE_METRONOME");
 	m_pMetronomeBtn->setAction( pAction );
-	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 
 // ~ BPM
 
@@ -478,11 +479,7 @@ void PlayerControl::updatePlayerControl()
 	if ( m_pTimeDisplay->text() != sTime ) {
 		m_pTimeDisplay->setText( sTime );
 	}
-
-	if ( ! m_pMetronomeBtn->isDown() ) {
-		m_pMetronomeBtn->setChecked(pPref->m_bUseMetronome);
-	}
-
+	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 
 	// Rubberband
 	if ( m_pRubberBPMChange->isChecked() != pPref->getRubberBandBatchMode() ) {
@@ -538,6 +535,10 @@ void PlayerControl::jackTimebaseStateChangedEvent( int nState )
 
 void PlayerControl::loopModeActivationEvent() {
 	updateLoopMode();
+}
+
+void PlayerControl::metronomeEvent( int nValue ) {
+	updatePlayerControl();
 }
 
 void PlayerControl::songModeActivationEvent() {

@@ -64,6 +64,7 @@ public:
 		virtual void jackTimebaseStateChangedEvent( int nState ) override;
 		virtual void jackTransportActivationEvent() override;
 		virtual void loopModeActivationEvent() override;
+		virtual void metronomeEvent( int ) override;
 		virtual void songModeActivationEvent() override;
 		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
 		virtual void tempoChangedEvent( int nValue ) override;

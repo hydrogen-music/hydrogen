@@ -99,6 +99,7 @@ enum EventType {
 	 *
 	 * - 0 - First bar requiring a distinct sound
 	 * - 1 - All the other bars
+	 * - 2 - Metronome was turned on or off.
 	 *
 	 * Handled by EventListener::metronomeEvent().
 	 */
