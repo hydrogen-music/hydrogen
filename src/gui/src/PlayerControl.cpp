@@ -324,12 +324,13 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRubberBPMChange->setObjectName( "PlayerControlRubberbandButton" );
 	m_pRubberBPMChange->move( 131, 0 );
 	m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
-	connect( m_pRubberBPMChange, SIGNAL( clicked() ), this, SLOT( rubberbandButtonToggle() ) );
 	QString program = pPref->m_sRubberBandCLIexecutable;
 	//test the path. if test fails, no button
 	if ( QFile( program ).exists() == false) {
 		m_pRubberBPMChange->hide();
 	}
+	connect( m_pRubberBPMChange, SIGNAL( clicked() ),
+			 this, SLOT( rubberbandButtonToggle() ) );
 
 	m_pMetronomeLED = new MetronomeLED( pBPMPanel, QSize( 22, 7 ) );
 	m_pMetronomeLED->move( 7, 32 );
@@ -434,8 +435,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
 
 	QTimer *timer = new QTimer( this );
-	connect(timer, SIGNAL(timeout()), this, SLOT(updatePlayerControl()));
-	timer->start(100);	// update player control at 10 fps
+	connect( timer, SIGNAL( timeout() ), this, SLOT( updateTime() ) );
+	timer->start( 100 );	// update at 10 fps
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &PlayerControl::onPreferencesChanged );
@@ -461,24 +462,6 @@ void PlayerControl::updatePlayerControl()
 	m_pShowInstrumentRackBtn->setChecked(
 		pH2App->getInstrumentRack()->isVisible() );
 
-
-	// time
-	float fSeconds = pHydrogen->getAudioEngine()->getElapsedTime();
-	
-	int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
-	int nSeconds = ( (int)fSeconds ) % 60;
-	int nMins = (int)( fSeconds / 60.0 ) % 60;
-	int nHours = (int)( fSeconds / 3600.0 );
-
-	QString sTime = QString( "%1:%2:%3.%4" )
-		.arg( nHours, 2, 10, QLatin1Char( '0' ) )
-		.arg( nMins, 2, 10, QLatin1Char( '0' ) )
-		.arg( nSeconds, 2, 10, QLatin1Char( '0' ) )
-		.arg( nMSec, 3, 10, QLatin1Char( '0' ) );
-
-	if ( m_pTimeDisplay->text() != sTime ) {
-		m_pTimeDisplay->setText( sTime );
-	}
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 
 	// Rubberband
@@ -486,7 +469,6 @@ void PlayerControl::updatePlayerControl()
 		m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
 	}
 }
-
 
 void PlayerControl::driverChangedEvent() {
 	updateJackTransport();
@@ -665,6 +647,26 @@ void PlayerControl::deactivateMidiActivityLED() {
 	m_pMidiActivityLED->setActivated( false );
 }
 
+void PlayerControl::updateTime() {
+	const float fSeconds =
+		Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
+
+	const int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
+	const int nSeconds = ( (int)fSeconds ) % 60;
+	const int nMins = (int)( fSeconds / 60.0 ) % 60;
+	const int nHours = (int)( fSeconds / 3600.0 );
+
+	QString const sTime = QString( "%1:%2:%3.%4" )
+		.arg( nHours, 2, 10, QLatin1Char( '0' ) )
+		.arg( nMins, 2, 10, QLatin1Char( '0' ) )
+		.arg( nSeconds, 2, 10, QLatin1Char( '0' ) )
+		.arg( nMSec, 3, 10, QLatin1Char( '0' ) );
+
+	if ( m_pTimeDisplay->text() != sTime ) {
+		m_pTimeDisplay->setText( sTime );
+	}
+}
+
 void PlayerControl::activateSongMode( bool bActivate ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
@@ -744,6 +746,8 @@ void PlayerControl::rubberbandButtonToggle()
 		pPref->setRubberBandBatchMode(false);
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Recalculate all samples using Rubberband OFF") );
 	}
+
+	updatePlayerControl();
 }
 
 

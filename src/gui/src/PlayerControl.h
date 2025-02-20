@@ -101,6 +101,7 @@ private slots:
 	void rubberbandButtonToggle();
 
 	void deactivateMidiActivityLED();
+		void updateTime();
 private:
 	/** Ensure that the full width of the status label is used without
 	 * cutting of the beginning of the message.*/
