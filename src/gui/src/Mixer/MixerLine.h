@@ -185,13 +185,30 @@ public:
 	explicit MasterMixerLine(QWidget* parent);
 	~MasterMixerLine();
 
-	void	updateMixerLine( H2Core::Event::Trigger trigger =
-							   H2Core::Event::Trigger::Default );
+	void	updateMixerLine();
+
+	bool	isMuteChecked();
+	void	setMuteChecked( bool bIsChecked );
 
 	float	getVolume();
-	void	setVolume( float value,
+	void	setVolume( float fValue,
 					   H2Core::Event::Trigger trigger =
 					      H2Core::Event::Trigger::Default );
+
+	float	getHumanizeTime();
+	void	setHumanizeTime( float fValue,
+							 H2Core::Event::Trigger trigger =
+							    H2Core::Event::Trigger::Default );
+
+	float	getHumanizeVelocity();
+	void	setHumanizeVelocity( float fValue,
+								 H2Core::Event::Trigger trigger =
+								    H2Core::Event::Trigger::Default );
+
+	float	getSwing();
+	void	setSwing( float fValue,
+					  H2Core::Event::Trigger trigger =
+					     H2Core::Event::Trigger::Default );
 
 	void	setPeak_L(float peak);
 	float	getPeak_L();

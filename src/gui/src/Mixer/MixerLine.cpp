@@ -497,13 +497,38 @@ void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
 							  .arg( class_name() ) );
 }
 
-float MasterMixerLine::getVolume()
-{
+float MasterMixerLine::getVolume() {
 	return m_pMasterFader->getValue();
 }
 
-void MasterMixerLine::setVolume( float value, H2Core::Event::Trigger trigger ) {
-	m_pMasterFader->setValue( value, false, trigger );
+void MasterMixerLine::setVolume( float fValue, H2Core::Event::Trigger trigger ) {
+	m_pMasterFader->setValue( fValue, false, trigger );
+}
+
+float MasterMixerLine::getHumanizeTime() {
+	return m_pHumanizeTimeRotary->getValue();
+}
+
+void MasterMixerLine::setHumanizeTime( float fValue,
+									   H2Core::Event::Trigger trigger ) {
+	m_pHumanizeTimeRotary->setValue( fValue, false, trigger );
+}
+
+float MasterMixerLine::getHumanizeVelocity() {
+	return m_pHumanizeVelocityRotary->getValue();
+}
+
+void MasterMixerLine::setHumanizeVelocity( float fValue,
+										   H2Core::Event::Trigger trigger ) {
+	m_pHumanizeVelocityRotary->setValue( fValue, false, trigger );
+}
+
+float MasterMixerLine::getSwing() {
+	return m_pSwingRotary->getValue();
+}
+
+void MasterMixerLine::setSwing( float fValue, H2Core::Event::Trigger trigger ) {
+	m_pSwingRotary->setValue( fValue, false, trigger );
 }
 
 void MasterMixerLine::setPeak_L(float peak)
@@ -555,7 +580,7 @@ float MasterMixerLine::getPeak_R() {
 	return m_pMasterFader->getPeak_R();
 }
 
-void MasterMixerLine::updateMixerLine( H2Core::Event::Trigger trigger )
+void MasterMixerLine::updateMixerLine()
 {
 
 	if ( m_nPeakTimer > m_nFalloff ) {
@@ -575,22 +600,14 @@ void MasterMixerLine::updateMixerLine( H2Core::Event::Trigger trigger )
 		}
 	}
 	m_nPeakTimer++;
+}
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue(),
-										 false, trigger );
-		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue(),
-											 false, trigger );
-		m_pSwingRotary->setValue( pSong->getSwingFactor(),
-								  false, trigger );
-		if ( ! m_pMuteBtn->isDown() ) {
-			m_pMuteBtn->setChecked( pSong->getIsMuted() );
-		}
-	}
-	else {
-		WARNINGLOG( "pSong == NULL ");
-	}
+bool MasterMixerLine::isMuteChecked() {
+	return m_pMuteBtn->isChecked();
+}
+
+void MasterMixerLine::setMuteChecked( bool bIsChecked ) {
+	m_pMuteBtn->setChecked( bIsChecked );
 }
 
 void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )

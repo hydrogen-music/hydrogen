@@ -48,6 +48,8 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 		explicit Mixer(QWidget* parent);
 		~Mixer();
 
+		void updateMixer();
+
 		void showEvent ( QShowEvent *ev ) override;
 		void hideEvent ( QHideEvent *ev ) override;
 		void resizeEvent ( QResizeEvent *ev ) override;
@@ -67,7 +69,7 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 		void masterVolumeChanged(MasterMixerLine*);
 		void nameClicked(MixerLine* ref);
 		void nameSelected(MixerLine* ref);
-		void updateMixer();
+		void updatePeaks();
 		void showFXPanelClicked();
 		void showPeaksBtnClicked();
 		void openMixerSettingsDialog();
@@ -79,7 +81,7 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;
-		LadspaFXMixerLine *		m_pLadspaFXLine[MAX_FX];
+		std::vector<LadspaFXMixerLine*>	m_ladspaFXLines;
 
 		QScrollArea*			m_pFaderScrollArea;
 		Button *				m_pShowFXPanelBtn;
@@ -88,7 +90,7 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 		MasterMixerLine *		m_pMasterLine;
 
 		QWidget *				m_pFaderPanel;
-		MixerLine *				m_pMixerLine[MAX_INSTRUMENTS];
+		std::vector<MixerLine*>	m_mixerLines;
 
 		PixmapWidget *			m_pFXFrame;
 
