@@ -102,6 +102,19 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
+	browseBtn->setFixedFontSize( 13 );
+	browseBtn->setSize( QSize( 80, 26 ) );
+	browseBtn->setBorderRadius( 3 );
+	browseBtn->setType( Button::Type::Push );
+	okBtn->setFixedFontSize( 13 );
+	okBtn->setSize( QSize( 80, 26 ) );
+	okBtn->setBorderRadius( 3 );
+	okBtn->setType( Button::Type::Push );
+	closeBtn->setFixedFontSize( 13 );
+	closeBtn->setBorderRadius( 3 );
+	closeBtn->setSize( QSize( 80, 26 ) );
+	closeBtn->setType( Button::Type::Push );
+
 	m_pProgressBar->setValue( 0 );
 	
 	m_bQfileDialog = false;
@@ -612,22 +625,37 @@ void ExportSongDialog::exportTracks()
 			}
 		}
 
-		QStringList filenameList =  exportNameTxt->text().split( m_sExtension );
-
-		QString firstItem;
-		if( !filenameList.isEmpty() ){
-			firstItem = filenameList.first();
+		// Ensure we use the right extension.
+		const QString sSuffix = QString( ".%1" ).arg( m_sExtension );
+		const QString sTemplateName = exportNameTxt->text();
+		QString sBaseName = sTemplateName;
+		if ( sTemplateName.endsWith( sSuffix, Qt::CaseInsensitive ) ) {
+			sBaseName.chop( sSuffix.size() );
 		}
-		const QString sFilename = QString( "%1-%2.%3" ).arg( firstItem )
-			.arg( findUniqueExportFilenameForInstrument(
-					  pInstrumentList->get( m_nInstrument ) ) )
-			.arg( m_sExtension );
 
-		if ( QFile( sFilename ).exists() == true && m_bQfileDialog == false &&
+		const QString sInstrumentName = findUniqueExportFilenameForInstrument(
+			pInstrumentList->get( m_nInstrument ) );
+		QString sExportName;
+		if ( sBaseName.isEmpty() || sBaseName.endsWith( "/" ) ||
+			 sBaseName.endsWith( "\\" ) ) {
+			// Allow to use just the instrument names when leaving the song name
+			// blank.
+			sExportName = QString( "%1%2" ).arg( sBaseName )
+				.arg( sInstrumentName );
+		}
+		else {
+			sExportName = QString( "%1-%2" ).arg( sBaseName )
+				.arg( sInstrumentName );
+		}
+
+		const QString sFileName = QString( "%1%2" ).arg( sExportName )
+			.arg( sSuffix );
+
+		if ( QFile( sFileName ).exists() == true && m_bQfileDialog == false &&
 			 ! m_bOverwriteFiles ) {
 			const int nRes = QMessageBox::information(
 				this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?")
-				.arg( sFilename ),
+				.arg( sFileName ),
 				QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
 			if ( nRes == QMessageBox::No ) {
 				return;
@@ -648,7 +676,7 @@ void ExportSongDialog::exportTracks()
 		
 		pSong->getInstrumentList()->get(m_nInstrument)->set_currently_exported( true );
 		
-		m_pHydrogen->startExportSong( sFilename );
+		m_pHydrogen->startExportSong( sFileName );
 
 		if(! (m_nInstrument == pInstrumentList->size()) ){
 			m_nInstrument++;
@@ -690,8 +718,11 @@ void ExportSongDialog::formatComboIndexChanged( int nIndex )
 	const auto format = m_formatMap[ nIndex ];
 	if ( format == Filesystem::AudioFormat::Unknown ) {
 		ERRORLOG( QString( "Invalid index [%1]" ).arg( nIndex ) );
+		okBtn->setIsActive( false );
 		return;
 	}
+
+	okBtn->setIsActive( true );
 
 	switch( format ) {
 	case Filesystem::AudioFormat::Wav:
@@ -755,14 +786,15 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 	const auto splittedFilename = exportNameTxt->text().split(".");
 
 	const auto format = Filesystem::AudioFormatFromSuffix(
-		splittedFilename.last() );
+		splittedFilename.last(), true );
 
 	if ( format == Filesystem::AudioFormat::Unknown ) {
-		ERRORLOG( QString( "Unknown file format in filename [%1]" )
-				  .arg( exportNameTxt->text() ) );
-		okBtn->setEnabled( false );
+		WARNINGLOG( QString( "Unknown file format in filename [%1]" )
+					.arg( exportNameTxt->text() ) );
+		okBtn->setIsActive( false );
 		return;
 	}
+	okBtn->setIsActive( true );
 	const auto previousFormat = m_formatMap[ formatCombo->currentIndex() ];
 
 	if ( previousFormat != format ) {
