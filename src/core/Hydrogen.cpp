@@ -913,14 +913,14 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 #endif
 }
 
-void Hydrogen::updateBeatCounterSettings()
-{
-	//individual fine tuning for the m_nBeatCounter
-	//to adjust  ms_offset from different people and controller
-	const auto pPreferences = Preferences::get_instance();
+void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
+	m_nBeatCounterTotalBeats = nBeatsToCount;
+	EventQueue::get_instance()->push_event( EVENT_BEAT_COUNTER, 0 );
+}
 
-	m_nBeatCounterDriftCompensation = pPreferences->m_nBeatCounterDriftCompensation;
-	m_nBeatCounterStartOffset = pPreferences->m_nBeatCounterStartOffset;
+void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
+	m_fBeatCounterBeatLength = fBeatLength;
+	EventQueue::get_instance()->push_event( EVENT_BEAT_COUNTER, 0 );
 }
 
 bool Hydrogen::handleBeatCounter()
@@ -930,6 +930,8 @@ bool Hydrogen::handleBeatCounter()
 		gettimeofday( &m_beatCounterActivationTime, nullptr );
 	}
 	timeval lastTime = m_beatCounterActivationTime;
+
+	auto pEventQueue = EventQueue::get_instance();
 
 	m_nBeatCounterEventCount++;
 
@@ -951,11 +953,14 @@ bool Hydrogen::handleBeatCounter()
 	if ( fTimeDelta > 3.001 * 1/m_fBeatCounterBeatLength ) {
 		m_nBeatCounterEventCount = 1;
 		m_nBeatCounterBeatCount = 1;
+
+		pEventQueue->push_event( EVENT_BEAT_COUNTER, 0 );
 		return false;
 	}
 
 	// Only accept differences big enough
 	if ( m_nBeatCounterBeatCount != 1 && fTimeDelta <= .001 ) {
+		pEventQueue->push_event( EVENT_BEAT_COUNTER, 0 );
 		return false;
 	}
 
@@ -983,8 +988,8 @@ bool Hydrogen::handleBeatCounter()
 		m_nBeatCounterBeatCount = 1;
 		m_nBeatCounterEventCount = 1;
 
-		if ( Preferences::get_instance()->m_bMmcSetPlay !=
-			 Preferences::SET_PLAY_OFF &&
+		if ( Preferences::get_instance()->m_bBeatCounterSetPlay !=
+			 Preferences::BEAT_COUNTER_SET_PLAY_OFF &&
 			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
 			const int nSampleRate =
 					m_pAudioEngine->getAudioDriver()->getSampleRate();
@@ -1011,7 +1016,19 @@ bool Hydrogen::handleBeatCounter()
 		m_nBeatCounterBeatCount++;
 	}
 
+	pEventQueue->push_event( EVENT_BEAT_COUNTER, 0 );
+
 	return true;
+}
+
+void Hydrogen::updateBeatCounterSettings() {
+	const auto pPreferences = Preferences::get_instance();
+
+	m_nBeatCounterDriftCompensation =
+		pPreferences->m_nBeatCounterDriftCompensation;
+	m_nBeatCounterStartOffset = pPreferences->m_nBeatCounterStartOffset;
+
+	EventQueue::get_instance()->push_event( EVENT_BEAT_COUNTER, 0 );
 }
 
 void Hydrogen::releaseJackTimebaseControl()

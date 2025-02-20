@@ -640,14 +640,8 @@ inline int Hydrogen::getHihatOpenness() const {
 inline void Hydrogen::setHihatOpenness( int nValue ) {
 	m_nHihatOpenness = std::clamp( nValue, 0, 127 );
 }
-inline void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
-	m_nBeatCounterTotalBeats = nBeatsToCount;
-}
 inline int Hydrogen::getBeatCounterTotalBeats() const {
 	return m_nBeatCounterTotalBeats;
-}
-inline void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
-	m_fBeatCounterBeatLength = fBeatLength;
 }
 inline float Hydrogen::getBeatCounterBeatLength() const {
 	return m_fBeatCounterBeatLength;

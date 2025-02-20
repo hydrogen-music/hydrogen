@@ -115,6 +115,8 @@ QString Event::typeToQString( EventType type ) {
 		return "EVENT_MIDI_MAP_CHANGED";
 	case EVENT_PLAYLIST_CHANGED:
 		return "EVENT_PLAYLIST_CHANGED";
+	case EVENT_BEAT_COUNTER:
+		return "EVENT_BEAT_COUNTER";
 	default:
 		break;
 	}

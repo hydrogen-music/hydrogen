@@ -1088,6 +1088,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->playlistChangedEvent( event.value );
 				break;
 
+			case EVENT_BEAT_COUNTER:
+				pListener->beatCounterEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}

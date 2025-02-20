@@ -28,6 +28,7 @@
 class EventListener
 {
 	public:
+		virtual void beatCounterEvent() {}
 		virtual void stateChangedEvent( const H2Core::AudioEngine::State& state) {}
 	virtual void playingPatternsChangedEvent() {}
 	virtual void nextPatternsChangedEvent(){}

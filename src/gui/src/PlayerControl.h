@@ -59,6 +59,7 @@ public:
 
 	void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
+		virtual void beatCounterEvent() override;
 		virtual void driverChangedEvent() override;
 		virtual void jackTimebaseStateChangedEvent( int nState ) override;
 		virtual void jackTransportActivationEvent() override;
@@ -87,8 +88,8 @@ private slots:
 	void metronomeButtonClicked();
 
 	//beatcounter
-	void activateBeatCounter( bool bActivate );
-	void bcSetPlayBtnClicked();
+	void activateBeatCounter();
+	void beatCounterSetPlayBtnClicked();
 	void beatCounterTotalBeatsUpBtnClicked();
 	void beatCounterTotalBeatsDownBtnClicked();
 	void beatCounterBeatLengthUpBtnClicked();
@@ -121,8 +122,14 @@ private:
 	LED			 *m_pPatternModeLED;
 
 	//beatcounter
+	PixmapWidget *m_pControlsBCPanel;
+
+	QLabel *m_pBCDisplayZ;
+	QLabel *m_pBeatCounterTotalBeatsDisplay;
+	QLabel *m_pBeatCounterBeatLengthDisplay;
+
 	Button *m_pBCOnOffBtn;
-	Button *m_pBCSetPlayBtn;
+	Button *m_pBeatCounterSetPlayBtn;
 	Button *m_pBeatCounterBeatLengthUpBtn;
 	Button *m_pBeatCounterBeatLengthDownBtn;
 	Button *m_pBeatCounterTotalBeatsUpBtn;
@@ -147,14 +154,6 @@ private:
 	ClickableLabel* m_pTimeMinutesLbl;
 	ClickableLabel* m_pTimeSecondsLbl;
 	ClickableLabel* m_pTimeMilliSecondsLbl;
-
-	//beatcounter
-	PixmapWidget *m_pControlsBCPanel;
-
-	QLabel *m_pBCDisplayZ;
-	QLabel *m_pBCDisplayB;
-	QLabel *m_pBCDisplayT;
-	// ~ beatcounter
 
 	MetronomeLED *m_pMetronomeLED;
 	Button *m_pMetronomeBtn;

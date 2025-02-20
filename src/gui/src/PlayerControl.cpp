@@ -215,8 +215,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 								QSize(), m_sBCOnOffBtnToolTip,
 								false, true );
 	m_pBCOnOffBtn->move(0, 0);
-	connect( m_pBCOnOffBtn, SIGNAL( clicked( bool ) ),
-			 this, SLOT( activateBeatCounter( bool ) ) );
+	connect( m_pBCOnOffBtn, SIGNAL( clicked() ),
+			 this, SLOT( activateBeatCounter() ) );
 	pAction = std::make_shared<Action>("BEATCOUNTER");
 	m_pBCOnOffBtn->setAction( pAction );
 
@@ -241,15 +241,15 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pLabelBC2->move( 25, 20 );
 	pLabelBC2->setText( "—" );
 	
-	m_pBCDisplayT = new QLabel( m_pControlsBCPanel );
-	m_pBCDisplayT->resize( QSize( 9, 11 ) );
-	m_pBCDisplayT->move( 25, 25 );
-	m_pBCDisplayT->setText( "4" );
+	m_pBeatCounterBeatLengthDisplay = new QLabel( m_pControlsBCPanel );
+	m_pBeatCounterBeatLengthDisplay->resize( QSize( 9, 11 ) );
+	m_pBeatCounterBeatLengthDisplay->move( 25, 25 );
+	m_pBeatCounterBeatLengthDisplay->setText( "4" );
 
-	m_pBCDisplayB = new QLabel( m_pControlsBCPanel );
-	m_pBCDisplayB->resize( QSize( 23, 11 ) );
-	m_pBCDisplayB->move( 45, 25 );
-	m_pBCDisplayB->setText( "04" );
+	m_pBeatCounterTotalBeatsDisplay = new QLabel( m_pControlsBCPanel );
+	m_pBeatCounterTotalBeatsDisplay->resize( QSize( 23, 11 ) );
+	m_pBeatCounterTotalBeatsDisplay->move( 45, 25 );
+	m_pBeatCounterTotalBeatsDisplay->setText( "04" );
 
 	m_pBeatCounterBeatLengthUpBtn = new Button(
 		m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "plus.svg", "",
@@ -279,15 +279,14 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pBeatCounterTotalBeatsDownBtn, SIGNAL( clicked() ),
 			 this, SLOT( beatCounterTotalBeatsDownBtnClicked() ) );
 
-	m_pBCSetPlayBtn = new Button( m_pControlsBCPanel, QSize( 19, 15 ),
-								  Button::Type::Push, "",
-								  pCommonStrings->getBeatCounterSetPlayButtonOff(),
-								  false, QSize(),
-								  tr("Set BPM / Set BPM and play"),
-								  false, true );
-	m_pBCSetPlayBtn->setObjectName( "BeatCounterSetPlayButton" );
-	m_pBCSetPlayBtn->move( 64, 25 );
-	connect(m_pBCSetPlayBtn, SIGNAL( clicked() ), this, SLOT( bcSetPlayBtnClicked() ));
+	m_pBeatCounterSetPlayBtn = new Button(
+		m_pControlsBCPanel, QSize( 19, 15 ), Button::Type::Push, "",
+		pCommonStrings->getBeatCounterSetPlayButtonOff(), false, QSize(),
+		tr("Set BPM / Set BPM and play"), false, true );
+	m_pBeatCounterSetPlayBtn->setObjectName( "BeatCounterSetPlayButton" );
+	m_pBeatCounterSetPlayBtn->move( 64, 25 );
+	connect(m_pBeatCounterSetPlayBtn, SIGNAL( clicked() ),
+			this, SLOT( beatCounterSetPlayBtnClicked() ));
 	updateBeatCounter();
 
 
@@ -484,31 +483,6 @@ void PlayerControl::updatePlayerControl()
 		m_pMetronomeBtn->setChecked(pPref->m_bUseMetronome);
 	}
 
-
-	//beatcounter get BC message
-	QString sBcStatus;
-	int nEventCount = pHydrogen->getBeatCounterEventCount();
-
-	switch (nEventCount){
-		case 1 :
-			if ( bcDisplaystatus == 1 ){
-				pPref->m_bBc = Preferences::BC_OFF;
-				bcDisplaystatus = 0;
-			}
-			sBcStatus = "R";
-
-			break;
-		default:
-			if ( pPref->m_bBc == Preferences::BC_OFF ){
-				pPref->m_bBc = Preferences::BC_ON;
-				bcDisplaystatus = 1;
-			}
-			sBcStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10,
-											 QChar(static_cast<char>(0)) );
-	}
-	if ( m_pBCDisplayZ->text() != sBcStatus ) {
-		m_pBCDisplayZ->setText( sBcStatus );
-	}
 
 	// Rubberband
 	if ( m_pRubberBPMChange->isChecked() != pPref->getRubberBandBatchMode() ) {
@@ -711,36 +685,36 @@ void PlayerControl::bpmChanged( double fNewBpmValue ) {
 
 
 //beatcounter
-void PlayerControl::activateBeatCounter( bool bActivate )
+void PlayerControl::activateBeatCounter()
 {
 	auto pPref = Preferences::get_instance();
-	if ( ! m_pBCOnOffBtn->getIsActive() ) {
-		return;
-	}
-
-	if ( bActivate ) {
-		pPref->m_bBc = Preferences::BC_ON;
-		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel on") );
+	if ( m_pBCOnOffBtn->isChecked() ) {
+		pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_ON;
+		HydrogenApp::get_instance()->showStatusBarMessage( tr(" BC Panel on") );
 	}
 	else {
-		pPref->m_bBc = Preferences::BC_OFF;
-		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" BC Panel off") );
+		pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_OFF;
+		HydrogenApp::get_instance()->showStatusBarMessage( tr(" BC Panel off") );
 	}
+	Hydrogen::get_instance()->updateBeatCounterSettings();
 }
 
-void PlayerControl::bcSetPlayBtnClicked()
+void PlayerControl::beatCounterSetPlayBtnClicked()
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pPref = Preferences::get_instance();
-	if ( m_pBCSetPlayBtn->text() == HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff() ) {
-		pPref->m_bMmcSetPlay = Preferences::SET_PLAY_ON;
-		m_pBCSetPlayBtn->setText( HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOn() );
-		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" Count BPM and start PLAY") );
+	if ( m_pBeatCounterSetPlayBtn->text() ==
+		 pCommonStrings->getBeatCounterSetPlayButtonOff() ) {
+		pPref->m_bBeatCounterSetPlay = Preferences::BEAT_COUNTER_SET_PLAY_ON;
+		pHydrogenApp->showStatusBarMessage( tr(" Count BPM and start PLAY") );
 	}
 	else {
-		pPref->m_bMmcSetPlay = Preferences::SET_PLAY_OFF;
-		m_pBCSetPlayBtn->setText( HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff() );
-		(HydrogenApp::get_instance())->showStatusBarMessage( tr(" Count and set BPM") );
+		pPref->m_bBeatCounterSetPlay = Preferences::BEAT_COUNTER_SET_PLAY_OFF;
+		pHydrogenApp->showStatusBarMessage( tr(" Count and set BPM") );
 	}
+
+	Hydrogen::get_instance()->updateBeatCounterSettings();
 }
 
 void PlayerControl::rubberbandButtonToggle()
@@ -781,10 +755,6 @@ void PlayerControl::beatCounterTotalBeatsUpBtnClicked()
 	}
 
 	m_pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-
-	m_pBCDisplayB->setText(
-		QString( "%1" ).arg( m_pHydrogen->getBeatCounterTotalBeats(), 2, 10,
-							 QChar(static_cast<char>(0)) ) );
 }
 
 void PlayerControl::beatCounterTotalBeatsDownBtnClicked()
@@ -795,11 +765,6 @@ void PlayerControl::beatCounterTotalBeatsDownBtnClicked()
 		nBeatsToCount = 16;
 	}
 	m_pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-
-	m_pBCDisplayB->setText(
-		QString( "%1" ).arg( m_pHydrogen->getBeatCounterTotalBeats(), 2, 10,
-							 QChar(static_cast<char>(0)) ) );
-
 }
 
 void PlayerControl::beatCounterBeatLengthUpBtnClicked()
@@ -807,11 +772,10 @@ void PlayerControl::beatCounterBeatLengthUpBtnClicked()
 	float tmp = m_pHydrogen->getBeatCounterBeatLength() * 4;
 
 	tmp = tmp / 2 ;
-	if (tmp < 1) {
+	if ( tmp < 1 ) {
 		tmp = 8;
 	}
 
-	m_pBCDisplayT->setText( QString::number( tmp ) );
 	m_pHydrogen->setBeatCounterBeatLength( (tmp) / 4 );
 }
 
@@ -820,15 +784,15 @@ void PlayerControl::beatCounterBeatLengthDownBtnClicked()
 	float tmp = m_pHydrogen->getBeatCounterBeatLength() * 4;
 
 	tmp = tmp * 2;
-	if (tmp > 8 ) {
+	if ( tmp > 8 ) {
 		tmp = 1;
 	}
-	m_pBCDisplayT->setText( QString::number(tmp) );
 	m_pHydrogen->setBeatCounterBeatLength( (tmp) / 4 );
 }
-// ~ beatcounter
 
-
+void PlayerControl::beatCounterEvent() {
+	updateBeatCounter();
+}
 
 void PlayerControl::jackTransportBtnClicked()
 {
@@ -891,21 +855,28 @@ void PlayerControl::metronomeButtonClicked() {
 void PlayerControl::updateBeatCounter() {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	if ( pPref->m_bBc == Preferences::BC_OFF &&
-		 pHydrogen->getTempoSource() != H2Core::Hydrogen::Tempo::Song ) {
-		m_pControlsBCPanel->hide();
-		m_pBCOnOffBtn->setChecked( false );
+	if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON &&
+		 pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song ) {
+		m_pControlsBCPanel->show();
+		m_pBCOnOffBtn->setChecked( true );
 	}
 	else {
-		m_pControlsBCPanel->show();
-		m_pBCOnOffBtn->setChecked(true);
+		m_pControlsBCPanel->hide();
+		m_pBCOnOffBtn->setChecked( false );
 	}
 	m_pBCOnOffBtn->setIsActive(
 		pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song );
 
-	m_pBCSetPlayBtn->setChecked(
-		pPref->m_bMmcSetPlay ==  Preferences::SET_PLAY_OFF );
+	if ( pPref->m_bBeatCounterSetPlay == Preferences::BEAT_COUNTER_SET_PLAY_ON ) {
+		m_pBeatCounterSetPlayBtn->setText(
+			pCommonStrings->getBeatCounterSetPlayButtonOn() );
+	}
+	else {
+		m_pBeatCounterSetPlayBtn->setText(
+			pCommonStrings->getBeatCounterSetPlayButtonOff() );
+	}
 
 	switch ( pHydrogen->getTempoSource() ) {
 	case H2Core::Hydrogen::Tempo::Jack:
@@ -917,6 +888,22 @@ void PlayerControl::updateBeatCounter() {
 	default:
 		m_pBCOnOffBtn->setToolTip( m_sBCOnOffBtnToolTip );
 	}
+
+	m_pBeatCounterTotalBeatsDisplay->setText(
+		QString( "%1" ).arg( pHydrogen->getBeatCounterTotalBeats(), 2, 10,
+							 QChar( 0x0030 ) ) );
+	m_pBeatCounterBeatLengthDisplay->setText(
+		QString::number( pHydrogen->getBeatCounterBeatLength() * 4 ) );
+
+	QString sBcStatus;
+	const int nEventCount = pHydrogen->getBeatCounterEventCount();
+	if ( nEventCount == 1 ) {
+		sBcStatus = "R";
+	}
+	else {
+		sBcStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10, QChar( 0x0030 ) );
+	}
+	m_pBCDisplayZ->setText( sBcStatus );
 }
 
 void PlayerControl::updateBpmSpinBox() {

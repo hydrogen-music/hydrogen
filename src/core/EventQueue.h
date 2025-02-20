@@ -200,7 +200,8 @@ enum EventType {
 	 *       (updated the title and status bar).
 	 * - 2 - Playlist is not writable (inform the user via a QMessageBox)
 	 */
-	EVENT_PLAYLIST_CHANGED
+	EVENT_PLAYLIST_CHANGED,
+	EVENT_BEAT_COUNTER
 };
 
 /** Basic building block for the communication between the core of
