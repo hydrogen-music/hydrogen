@@ -246,8 +246,8 @@ public:
 	// BeatCounter
 	bool				m_bBc;
 	bool				m_bMmcSetPlay;
-	int					m_nCountOffset;
-	int					m_nStartOffset;
+	int					m_nBeatCounterDriftCompensation;
+	int					m_nBeatCounterStartOffset;
 
 	QStringList 		m_serverList;
 	QStringList 		m_patternCategories;

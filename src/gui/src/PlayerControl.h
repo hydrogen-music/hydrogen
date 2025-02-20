@@ -89,10 +89,10 @@ private slots:
 	//beatcounter
 	void activateBeatCounter( bool bActivate );
 	void bcSetPlayBtnClicked();
-	void bcbUpButtonClicked();
-	void bcbDownButtonClicked();
-	void bctUpButtonClicked();
-	void bctDownButtonClicked();
+	void beatCounterTotalBeatsUpBtnClicked();
+	void beatCounterTotalBeatsDownBtnClicked();
+	void beatCounterBeatLengthUpBtnClicked();
+	void beatCounterBeatLengthDownBtnClicked();
 	// ~ beatcounter
 		
 	//rubberband
@@ -123,10 +123,10 @@ private:
 	//beatcounter
 	Button *m_pBCOnOffBtn;
 	Button *m_pBCSetPlayBtn;
-	Button *m_pBCTUpBtn;
-	Button *m_pBCTDownBtn;
-	Button *m_pBCBUpBtn;
-	Button *m_pBCBDownBtn;
+	Button *m_pBeatCounterBeatLengthUpBtn;
+	Button *m_pBeatCounterBeatLengthDownBtn;
+	Button *m_pBeatCounterTotalBeatsUpBtn;
+	Button *m_pBeatCounterTotalBeatsDownBtn;
 	// ~ beatcounter
 
 	//rubberbandBPMChange
@@ -169,8 +169,7 @@ private:
 	QTimer *m_pMidiActivityTimer;
 	std::chrono::milliseconds m_midiActivityTimeout;
 
-	bool m_bLastBCOnOffBtnState;
-
+		void updateBeatCounter();
 		void updateBpmSpinBox();
 		void updateJackTransport();
 		void updateJackTimebase();
@@ -178,10 +177,6 @@ private:
 		void updateSongMode();
 		void updateTransportControl();
 
-	/** Store the tool tip of the beat counter since it gets
-		overwritten during deactivation.*/
-	void updateBeatCounter();
-	void updateBeatCounterToolTip();
 	QString m_sBCOnOffBtnToolTip;
 	QString m_sBCOnOffBtnTimelineToolTip;
 	QString m_sBCOnOffBtnJackTimebaseToolTip;

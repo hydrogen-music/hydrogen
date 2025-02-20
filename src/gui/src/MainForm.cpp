@@ -221,9 +221,6 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	playlistDisplayTimer->start(30000);	// update player control at
 	// ~ playlist display timer
 
-	//beatcouter
-	pHydrogen->setBcOffsetAdjust();
-
 	auto pCommonStrings = h2app->getCommonStrings();
 
 	m_pUndoView = new QUndoView( pUndoStack );
