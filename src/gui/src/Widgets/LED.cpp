@@ -61,6 +61,9 @@ LED::~LED() {
 }
 
 void LED::setActivated( bool bActivated ) {
+	if ( m_bActivated == bActivated ) {
+		return;
+	}
 	m_bActivated = bActivated;
 	update();
 }
