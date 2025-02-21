@@ -1384,7 +1384,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Settings</source>
         <extracomment>Indicates a menu section in which behavioural customizations can be * done.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2075,7 +2075,7 @@ Value</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation></translation>
@@ -2716,23 +2716,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Humanize velocity</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation></translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation></translation>
@@ -2742,7 +2726,19 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
         <translation></translation>
     </message>
     <message>
@@ -2751,6 +2747,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Set humanize vel. param [%1]</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
         <translation></translation>
     </message>
 </context>

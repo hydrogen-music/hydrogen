@@ -32,10 +32,8 @@
 #include "LadspaFXSelector.h"
 #include "Skin.h"
 #include "Widgets/Fader.h"
+#include "Widgets/InstrumentNameWidget.h"
 #include "Widgets/LCDDisplay.h"
-
-#include "Mixer/Mixer.h"
-#include "Mixer/MixerLine.h"
 
 using namespace H2Core;
 

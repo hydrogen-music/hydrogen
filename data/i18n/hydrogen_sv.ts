@@ -2075,7 +2075,7 @@ Value</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>FX förbikoppling</translation>
@@ -2721,23 +2721,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Förmänskliga hastighet</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Förmänskliga tid</translation>
-    </message>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation type="unfinished"></translation>
@@ -2747,7 +2731,19 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>Förmänskliga hastighet</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Förmänskliga tid</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2756,6 +2752,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Set humanize vel. param [%1]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

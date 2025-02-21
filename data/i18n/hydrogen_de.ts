@@ -2086,14 +2086,14 @@ Wert</translation>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Effektparameter bearbeiten</translation>
-    </message>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>Effekt umgehen (bypass)</translation>
+    </message>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation>Effektparameter bearbeiten</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -2763,24 +2763,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translatorcomment>LCD Panel, do not use any umlaut!</translatorcomment>
-        <translation>Master-Lautstaerke [%1]</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Zeitpunkt vermenschlichen</translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Anschlag (velocity) vermenschlichen</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Swingfaktor [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation>Master Lautstärke</translation>
@@ -2790,8 +2773,20 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Höchstwert</translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>Anschlag (velocity) vermenschlichen</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Zeitpunkt vermenschlichen</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation>16tel Noten Swing</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Master-Lautstaerke [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2800,6 +2795,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation>Anschlag-Humanisierung [%1] gesetzt</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Swingfaktor [%1]</translation>
     </message>
 </context>
 <context>

@@ -2090,14 +2090,14 @@ Valeur</translation>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Modifier les paramètres d&apos;effet</translation>
-    </message>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>Court-circuiter l&apos;effet</translation>
+    </message>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation>Modifier les paramètres d&apos;effet</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -2771,14 +2771,14 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
+    <name>MasterLine</name>
     <message>
-        <source>Set master volume [%1]</source>
-        <translation>Régler le volume principal [%1]</translation>
+        <source>Master volume</source>
+        <translation>Volume général</translation>
     </message>
     <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Régler le facteur de swing [%1]</translation>
+        <source>Peak</source>
+        <translation>Pic</translation>
     </message>
     <message>
         <source>Humanize velocity</source>
@@ -2789,16 +2789,12 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Temps humanisé</translation>
     </message>
     <message>
-        <source>Master volume</source>
-        <translation>Volume général</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>Pic</translation>
-    </message>
-    <message>
         <source>16th-note Swing</source>
         <translation>Swing en double croche</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Régler le volume principal [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2807,6 +2803,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation>Régler la vélocité d&apos;humanisation [%1]</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Régler le facteur de swing [%1]</translation>
     </message>
 </context>
 <context>

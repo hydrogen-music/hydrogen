@@ -2077,14 +2077,14 @@ Value</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Editar os parámetros do efecto</translation>
-    </message>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>Derivación do efecto</translation>
+    </message>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation>Editar os parámetros do efecto</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -2755,14 +2755,14 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
+    <name>MasterLine</name>
     <message>
-        <source>Set master volume [%1]</source>
-        <translation>Estabelecer o volume principal [%1]</translation>
+        <source>Master volume</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Factor de swing [%1]</translation>
+        <source>Peak</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Humanize velocity</source>
@@ -2773,16 +2773,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Humanizar o tempo</translation>
     </message>
     <message>
-        <source>Master volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>16th-note Swing</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Estabelecer o volume principal [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2791,6 +2787,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Factor de swing [%1]</translation>
     </message>
 </context>
 <context>

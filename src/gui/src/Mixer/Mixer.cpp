@@ -21,7 +21,10 @@
  */
 
 #include "Mixer.h"
+
+#include "LadspaFXLine.h"
 #include "MixerLine.h"
+#include "MasterLine.h"
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
@@ -42,6 +45,8 @@
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
+#include <core/Globals.h>
+
 using namespace H2Core;
 
 #include <cassert>
@@ -56,12 +61,14 @@ Mixer::Mixer( QWidget* pParent )
 
 	const int nMinimumFaderPanelWidth = MixerLine::nWidth * 4;
 	const int nFXFrameWidth = 213;
-	const int nFixedHeight = MasterMixerLine::nHeight;
+	const int nFixedHeight = MasterLine::nHeight;
 
-	setMinimumSize( nMinimumFaderPanelWidth +
-					nFXFrameWidth + MasterMixerLine::nWidth +
-					8, // Small margin for scrollbar
-					nFixedHeight + 6 );
+	const int nScrollBarMarginX = 8;
+	const int nScrollBarMarginY = 6;
+	setMinimumSize(
+		nMinimumFaderPanelWidth + nFXFrameWidth + MasterLine::nWidth +
+		nScrollBarMarginX,
+		nFixedHeight + nScrollBarMarginY );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
@@ -80,9 +87,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pFaderScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 	m_pFaderScrollArea->setWidget( m_pFaderPanel );
-
 // ~ fader panel
-
 
 // fX frame
 #ifdef H2CORE_HAVE_LADSPA
@@ -93,7 +98,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFXFrame->setFixedSize( nFXFrameWidth, nFixedHeight );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-		auto ppLine = new LadspaFXMixerLine( m_pFXFrame );
+		auto ppLine = new LadspaFXLine( m_pFXFrame );
 		ppLine->setObjectName( "LadspaFXMixerLine" );
 		ppLine->move( 13, 43 * nnFX + 84 );
 #ifdef H2CORE_HAVE_LADSPA
@@ -105,12 +110,12 @@ Mixer::Mixer( QWidget* pParent )
 			}
 		}
 #endif
-		connect( ppLine, SIGNAL( bypassBtnClicked(LadspaFXMixerLine*) ),
-				 this, SLOT( ladspaBypassBtnClicked( LadspaFXMixerLine*) ) );
-		connect( ppLine, SIGNAL( editBtnClicked(LadspaFXMixerLine*) ),
-				 this, SLOT( ladspaEditBtnClicked( LadspaFXMixerLine*) ) );
-		connect( ppLine, SIGNAL( volumeChanged(LadspaFXMixerLine*) ),
-				 this, SLOT( ladspaVolumeChanged( LadspaFXMixerLine*) ) );
+		connect( ppLine, SIGNAL( bypassBtnClicked(LadspaFXLine*) ),
+				 this, SLOT( ladspaBypassBtnClicked( LadspaFXLine*) ) );
+		connect( ppLine, SIGNAL( editBtnClicked(LadspaFXLine*) ),
+				 this, SLOT( ladspaEditBtnClicked( LadspaFXLine*) ) );
+		connect( ppLine, SIGNAL( volumeChanged(LadspaFXLine*) ),
+				 this, SLOT( ladspaVolumeChanged( LadspaFXLine*) ) );
 		m_ladspaFXLines.push_back( ppLine );
 	}
 
@@ -122,12 +127,11 @@ Mixer::Mixer( QWidget* pParent )
 	}
 // ~ fX frame
 
-
 // Master frame
-	m_pMasterLine = new MasterMixerLine( nullptr );
+	m_pMasterLine = new MasterLine( nullptr );
 	m_pMasterLine->setObjectName( "MasterMixerLine" );
-	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ),
-			 this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
+	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterLine*) ),
+			 this, SLOT( masterVolumeChanged(MasterLine*) ) );
 	
 	m_pOpenMixerSettingsBtn = new Button(
 		m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "",
@@ -136,7 +140,6 @@ Mixer::Mixer( QWidget* pParent )
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked() ), this,
 			 SLOT( openMixerSettingsDialog() ) );
-
 
 	m_pShowFXPanelBtn = new Button(
 		m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "",
@@ -162,7 +165,6 @@ Mixer::Mixer( QWidget* pParent )
 			 this, SLOT( showPeaksBtnClicked() ));
 // ~ Master frame
 
-
 	// LAYOUT!
 	QHBoxLayout *pLayout = new QHBoxLayout();
 	pLayout->setSpacing( 0 );
@@ -176,7 +178,7 @@ Mixer::Mixer( QWidget* pParent )
 	pMainWidget->setLayout( pLayout );
 	pMainWidget->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	pMainWidget->setMinimumSize( nMinimumFaderPanelWidth +
-								 nFXFrameWidth + MasterMixerLine::nWidth, nFixedHeight );
+								 nFXFrameWidth + MasterLine::nWidth, nFixedHeight );
 	pMainWidget->setMaximumSize( 16777215, nFixedHeight );
 
 	auto pMainScrollArea = new QScrollArea();
@@ -203,8 +205,7 @@ Mixer::Mixer( QWidget* pParent )
 	updateMixer();
 }
 
-Mixer::~Mixer()
-{
+Mixer::~Mixer() {
 	m_pUpdateTimer->stop();
 }
 
@@ -344,24 +345,21 @@ MixerLine* Mixer::createMixerLine( int nInstr )
 	return pMixerLine;
 }
 
-void Mixer::closeEvent( QCloseEvent* ev )
-{
-	HydrogenApp::get_instance()->showMixer(false);
+void Mixer::closeEvent( QCloseEvent* ev ) {
+	HydrogenApp::get_instance()->showMixer( false );
 }
 
-void Mixer::muteClicked(MixerLine* ref)
-{
-	int nLine = findMixerLineByRef(ref);
-	bool isMuteClicked = ref->isMuteClicked();
+void Mixer::muteClicked( MixerLine* ref ) {
+	const int nLine = findMixerLineByRef(ref);
+	const bool bIsMuteClicked = ref->isMuteClicked();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 
-	CoreActionController::setStripIsMuted( nLine, isMuteClicked );
+	CoreActionController::setStripIsMuted( nLine, bIsMuteClicked );
 }
 
-void Mixer::soloClicked(MixerLine* ref)
-{
+void Mixer::soloClicked( MixerLine* ref ) {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pInstrList = pSong->getDrumkit()->getInstruments();
@@ -383,8 +381,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 }
 
-void Mixer::soloClicked(uint nLine)
-{
+void Mixer::soloClicked( int nLine ) {
 	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {
 		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
 				  .arg( nLine ).arg( MAX_INSTRUMENTS ) );
@@ -397,12 +394,9 @@ void Mixer::soloClicked(uint nLine)
 		pMixerLine->setSoloClicked( !pMixerLine->isSoloClicked() );
 		soloClicked( pMixerLine );
 	}
-	
-
 }
 
-bool Mixer::isSoloClicked( uint nLine )
-{
+bool Mixer::isSoloClicked( int nLine ) {
 	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {
 		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
 				  .arg( nLine ).arg( MAX_INSTRUMENTS ) );
@@ -414,8 +408,7 @@ bool Mixer::isSoloClicked( uint nLine )
 	return m_mixerLines[ nLine ]->isSoloClicked();
 }
 
-void Mixer::noteOnClicked( MixerLine* ref )
-{
+void Mixer::noteOnClicked( MixerLine* ref ) {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
@@ -437,11 +430,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 }
 
-
-
-/// Play sample button, right-clicked (note off)
- void Mixer::noteOffClicked( MixerLine* ref )
-{
+ void Mixer::noteOffClicked( MixerLine* ref ) {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
@@ -458,11 +447,8 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	pHydrogen->getAudioEngine()->getSampler()->noteOff( pNote );
 }
 
-
-
-uint Mixer::findMixerLineByRef(MixerLine* ref)
-{
-	for (uint i = 0; i < MAX_INSTRUMENTS; i++) {
+int Mixer::findMixerLineByRef(MixerLine* ref) {
+	for (int i = 0; i < MAX_INSTRUMENTS; i++) {
 		if (m_mixerLines[i] == ref) {
 			return i;
 		}
@@ -475,7 +461,7 @@ void Mixer::volumeChanged(MixerLine* ref) {
 	CoreActionController::setStripVolume( nLine, ref->getVolume(), true );
 }
 
-void Mixer::masterVolumeChanged(MasterMixerLine* ref) {
+void Mixer::masterVolumeChanged(MasterLine* ref) {
 	float Volume = ref->getVolume();
 	CoreActionController::setMasterVolume( Volume );
 }
@@ -575,51 +561,12 @@ void Mixer::updatePeaks()
 		m_pMasterLine->setPeak_R( fOldPeak_R / fFallOffSpeed );
 	}
 	m_pMasterLine->updateMixerLine();
-
-#ifdef H2CORE_HAVE_LADSPA
-	// LADSPA
-	for ( uint nFX = 0; nFX < m_ladspaFXLines.size(); nFX++ ) {
-
-		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
-		auto pFXLine = m_ladspaFXLines[ nFX ];
-		if ( pFX != nullptr && pFXLine != nullptr ) {
-
-			float fNewPeak_L = 0.0;
-			float fNewPeak_R = 0.0;
-
-			float fOldPeak_L = 0.0;
-			float fOldPeak_R = 0.0;
-			pFXLine->getPeaks( &fOldPeak_L, &fOldPeak_R );
-
-			if ( fNewPeak_L < fOldPeak_L ) {
-				fNewPeak_L = fOldPeak_L / fFallOffSpeed;
-			}
-			if ( fNewPeak_R < fOldPeak_R ) {
-				fNewPeak_R = fOldPeak_R / fFallOffSpeed;
-			}
-			pFXLine->setPeaks( fNewPeak_L, fNewPeak_R );
-		}
-	}
-	// ~LADSPA
-#endif
 }
 
-/// show event
-void Mixer::showEvent ( QShowEvent *ev )
-{
+void Mixer::showEvent ( QShowEvent *ev ) {
 	UNUSED( ev );
 	updateMixer();
 }
-
-
-
-/// hide event
-void Mixer::hideEvent ( QHideEvent *ev )
-{
-	UNUSED( ev );
-}
-
-
 
 void Mixer::nameClicked(MixerLine* ref)
 {
@@ -627,23 +574,16 @@ void Mixer::nameClicked(MixerLine* ref)
 	InstrumentEditorPanel::get_instance()->show();
 }
 
-
-
-void Mixer::nameSelected(MixerLine* ref)
-{
+void Mixer::nameSelected(MixerLine* ref) {
 	int nLine = findMixerLineByRef(ref);
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 }
-
-
 
 void Mixer::panChanged(MixerLine* ref) {
 	float	fPan = ref->getPan();
 	int		nLine = findMixerLineByRef(ref);
 	CoreActionController::setStripPanSym( nLine, fPan, true );
 }
-
-
 
 void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	int nLine = findMixerLineByRef(ref);
@@ -671,10 +611,7 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	pHydrogen->setIsModified( true );
 }
 
-
-
-void Mixer::noteOnEvent( int nInstrument )
-{
+void Mixer::noteOnEvent( int nInstrument ) {
 	if ( nInstrument >= 0 && nInstrument < MAX_INSTRUMENTS ) {
 		if ( m_mixerLines[ nInstrument ] != nullptr ) {
 			m_mixerLines[ nInstrument ]->setActivity( 100 );
@@ -686,14 +623,14 @@ void Mixer::noteOnEvent( int nInstrument )
 }
 
 
-
-void Mixer::resizeEvent ( QResizeEvent *ev )
-{
+void Mixer::hideEvent( QHideEvent *ev ) {
+	UNUSED( ev );
+}
+void Mixer::resizeEvent( QResizeEvent *ev ) {
 	UNUSED( ev );
 }
 
-void Mixer::showFXPanelClicked()
-{
+void Mixer::showFXPanelClicked() {
 	if ( m_pShowFXPanelBtn->isChecked() ) {
 		m_pFXFrame->show();
 		Preferences::get_instance()->setFXTabVisible( true );
@@ -718,14 +655,11 @@ void Mixer::showPeaksBtnClicked()
 	}
 }
 
-
-
-void Mixer::ladspaBypassBtnClicked( LadspaFXMixerLine* ref )
-{
+void Mixer::ladspaBypassBtnClicked( LadspaFXLine* ref ) {
 #ifdef H2CORE_HAVE_LADSPA
 	bool bActive = ! ref->isFxBypassed();
 
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
+	for (int nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_ladspaFXLines[ nFX ] ) {
 			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);
 			if (pFX) {
@@ -739,13 +673,10 @@ void Mixer::ladspaBypassBtnClicked( LadspaFXMixerLine* ref )
 #endif
 }
 
-
-
-void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
-{
+void Mixer::ladspaEditBtnClicked( LadspaFXLine *ref ) {
 #ifdef H2CORE_HAVE_LADSPA
 
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
+	for (int nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_ladspaFXLines[ nFX ] ) {
 			HydrogenApp::get_instance()->getLadspaFXProperties(nFX)->hide();
 			HydrogenApp::get_instance()->getLadspaFXProperties(nFX)->show();
@@ -757,10 +688,9 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 #endif
 }
 
-void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
-{
+void Mixer::ladspaVolumeChanged( LadspaFXLine* ref) {
 #ifdef H2CORE_HAVE_LADSPA
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
+	for (int nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_ladspaFXLines[ nFX ] ) {
 			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);
 			if ( pFX != nullptr ) {
@@ -782,7 +712,7 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 #endif
 }
 
-void Mixer::getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R )
+void Mixer::getPeaksInMixerLine( int nMixerLine, float& fPeak_L, float& fPeak_R )
 {
 	if ( nMixerLine < 0 || nMixerLine >= MAX_INSTRUMENTS ) {
 		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
@@ -803,7 +733,6 @@ void Mixer::openMixerSettingsDialog() {
 	MixerSettingsDialog mixerSettingsDialog( this ); // use this as *parent because button makes smaller fonts
 	mixerSettingsDialog.exec();
 }
-
 
 void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();

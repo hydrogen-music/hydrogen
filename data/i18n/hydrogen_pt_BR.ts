@@ -2088,22 +2088,22 @@ Valor</translation>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Editar parâmetros de efeitos</translation>
-    </message>
-    <message>
-        <source>Effect return</source>
-        <translation>Retorno de feito</translation>
-    </message>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>Bypass de efeito</translation>
     </message>
     <message>
+        <source>Edit FX parameters</source>
+        <translation>Editar parâmetros de efeitos</translation>
+    </message>
+    <message>
         <source>Ladspa FX name</source>
         <translation>Nome do efeito LADSPA</translation>
+    </message>
+    <message>
+        <source>Effect return</source>
+        <translation>Retorno de feito</translation>
     </message>
 </context>
 <context>
@@ -2768,23 +2768,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation>Ajustar volume principal [%1]</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Humanizar tempo</translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Humanizar velocidade</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Ajustar o fator de swing [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation>Volume principal</translation>
@@ -2794,8 +2778,20 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Pico</translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>Humanizar velocidade</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Humanizar tempo</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation>Swing semicolcheia</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Ajustar volume principal [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2804,6 +2800,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation>Definir param velocidade da humanização [%1]</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Ajustar o fator de swing [%1]</translation>
     </message>
 </context>
 <context>

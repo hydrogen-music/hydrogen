@@ -2078,7 +2078,7 @@ Value</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>音效旁路</translation>
@@ -2754,23 +2754,7 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>人性化力度</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>人性化时间</translation>
-    </message>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation>设置主音量 [%1]</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>设置摇摆系数 [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation type="unfinished"></translation>
@@ -2780,8 +2764,20 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>人性化力度</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>人性化时间</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>设置主音量 [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2790,6 +2786,10 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>设置摇摆系数 [%1]</translation>
     </message>
 </context>
 <context>

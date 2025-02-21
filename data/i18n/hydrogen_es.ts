@@ -2089,14 +2089,14 @@ Valor</translation>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Editar parámetros efectos</translation>
-    </message>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>Bypass Efectos</translation>
+    </message>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation>Editar parámetros efectos</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -2770,23 +2770,7 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation>Volumen principal [%1]</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Humanizar tiempo</translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Humanizar velocidad</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Factor de swing [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation>Volumen principal</translation>
@@ -2796,8 +2780,20 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Pico</translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>Humanizar velocidad</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Humanizar tiempo</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation>Swing semicorchea</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Volumen principal [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2806,6 +2802,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation>Establecer parám. int. humanización [%1]</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Factor de swing [%1]</translation>
     </message>
 </context>
 <context>
