@@ -196,7 +196,7 @@ Mixer::Mixer( QWidget* pParent )
 
 	m_pUpdateTimer = new QTimer( this );
 	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updatePeaks() ) );
-	m_pUpdateTimer->start(50);
+	m_pUpdateTimer->start( std::chrono::milliseconds( Mixer::nPeakTimeoutMs ) );
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &Mixer::onPreferencesChanged );
@@ -227,45 +227,27 @@ void Mixer::updateMixer()
 
 	bool bResize = false;
 	for ( int nnIndex = 0; nnIndex < pInstrumentList->size(); ++nnIndex ) {
+		auto ppInstrument = pInstrumentList->get( nnIndex );
+
 		if ( nnIndex >= m_mixerLines.size() ) {
 			// the mixerline doesn't exists. Create a new one.
-			m_mixerLines.push_back( createMixerLine( nnIndex ) );
+			m_mixerLines.push_back( new MixerLine( this, ppInstrument ) );
 			m_pFaderHBox->insertWidget( nnIndex, m_mixerLines[ nnIndex ] );
 			bResize = true;
 		}
+		else {
+			// Update existing line.
+			auto pMixerLine = m_mixerLines[ nnIndex ];
+			if ( pMixerLine == nullptr ) {
+				ERRORLOG( QString( "Invalid line [%1]" ).arg( nnIndex ) );
+				continue;
+			}
 
-		auto pMixerLine = m_mixerLines[ nnIndex ];
-		auto pInstrument = pInstrumentList->get( nnIndex );
-		if ( pMixerLine == nullptr || pInstrument == nullptr ) {
-			ERRORLOG( QString( "Invalid line [%1]" ).arg( nnIndex ) );
-			continue;
+			if ( pMixerLine->getInstrument() != ppInstrument ) {
+				pMixerLine->setInstrument( ppInstrument );
+			}
+			pMixerLine->updateLine();
 		}
-
-		// fader position
-		const float fNewVolume = pInstrument->get_volume();
-		if ( pMixerLine->getVolume() != fNewVolume ) {
-			pMixerLine->setVolume( fNewVolume, Event::Trigger::Suppress );
-		}
-
-		// mute / solo
-		pMixerLine->setMuteClicked( pInstrument->is_muted() );
-		pMixerLine->setSoloClicked( pInstrument->is_soloed() );
-
-		// instr name
-		pMixerLine->setName( pInstrument->get_name() );
-
-		// pan
-		const float fPan = pInstrument->getPan();
-		if ( fPan != pMixerLine->getPan() ) {
-			pMixerLine->setPan( fPan, Event::Trigger::Suppress );
-		}
-
-		for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-			pMixerLine->setFXLevel( nnFX, pInstrument->get_fx_level( nnFX ),
-									Event::Trigger::Suppress );
-		}
-
-		pMixerLine->setSelected( nnIndex == nSelectedInstrument );
 	}
 
 	// Remove superfluous instrument lines
@@ -312,37 +294,6 @@ void Mixer::updateMixer()
 	}
 	// ~LADSPA
 #endif
-}
-
-
-MixerLine* Mixer::createMixerLine( int nInstr )
-{
-	MixerLine *pMixerLine = new MixerLine( nullptr , nInstr);
-	pMixerLine->setObjectName( "MixerLine" );
-	pMixerLine->setVolume( 0.2, Event::Trigger::Suppress );
-	pMixerLine->setMuteClicked( false );
-	pMixerLine->setSoloClicked( false );
-
-	connect( pMixerLine, SIGNAL( noteOnClicked(MixerLine*) ),
-			 this, SLOT( noteOnClicked(MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( noteOffClicked(MixerLine*) ),
-			 this, SLOT( noteOffClicked(MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( muteBtnClicked(MixerLine*) ),
-			 this, SLOT( muteClicked(MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( soloBtnClicked(MixerLine*) ),
-			 this, SLOT( soloClicked(MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( volumeChanged(MixerLine*) ),
-			 this, SLOT( volumeChanged(MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( instrumentNameClicked(MixerLine*) ),
-			 this, SLOT( nameClicked(MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( instrumentNameSelected(MixerLine*) ),
-			 this, SLOT( nameSelected(MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( panChanged(MixerLine*) ),
-			 this, SLOT( panChanged( MixerLine*) ) );
-	connect( pMixerLine, SIGNAL( knobChanged(MixerLine*, int) ),
-			 this, SLOT( knobChanged( MixerLine*, int) ) );
-
-	return pMixerLine;
 }
 
 void Mixer::closeEvent( QCloseEvent* ev ) {
@@ -479,58 +430,8 @@ void Mixer::updatePeaks()
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-
 	for ( auto& ppMixerLine : m_mixerLines ) {
-		auto pInstrument = pInstrumentList->get( findMixerLineByRef( ppMixerLine ) );
-		if ( pInstrument == nullptr ) {
-			ERRORLOG( "Invalid instrument" );
-			continue;
-		}
-
-		float fNewPeak_L = pInstrument->get_peak_l();
-		pInstrument->set_peak_l( 0.0f );	// reset instrument peak
-
-		float fNewPeak_R = pInstrument->get_peak_r();
-		pInstrument->set_peak_r( 0.0f );	// reset instrument peak
-
-		// fader
-		float fOldPeak_L = ppMixerLine->getPeak_L();
-		float fOldPeak_R = ppMixerLine->getPeak_R();
-
-		if ( ! bShowPeaks ) {
-			fNewPeak_L = 0.0f;
-			fNewPeak_R = 0.0f;
-		}
-
-		if ( fNewPeak_L >= fOldPeak_L) {	// LEFT peak
-			ppMixerLine->setPeak_L( fNewPeak_L );
-		}
-		else {
-			ppMixerLine->setPeak_L( fOldPeak_L / fFallOffSpeed );
-		}
-
-		if ( fNewPeak_R >= fOldPeak_R) {	// Right peak
-			ppMixerLine->setPeak_R( fNewPeak_R );
-		}
-		else {
-			ppMixerLine->setPeak_R( fOldPeak_R / fFallOffSpeed );
-		}
-
-		// activity
-		if ( ppMixerLine->getActivity() > 0 ) {
-			ppMixerLine->setActivity( ppMixerLine->getActivity() - 30 );
-			ppMixerLine->setPlayClicked( true );
-		}
-		else {
-			ppMixerLine->setPlayClicked( false );
-		}
-
-		ppMixerLine->updateMixerLine();
+		ppMixerLine->updatePeaks();
 	}
 
 	// update MasterPeak
@@ -614,7 +515,7 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 void Mixer::noteOnEvent( int nInstrument ) {
 	if ( nInstrument >= 0 && nInstrument < MAX_INSTRUMENTS ) {
 		if ( m_mixerLines[ nInstrument ] != nullptr ) {
-			m_mixerLines[ nInstrument ]->setActivity( 100 );
+			m_mixerLines[ nInstrument ]->triggerSampleLED();
 		}
 	} else {
 		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
@@ -710,23 +611,6 @@ void Mixer::ladspaVolumeChanged( LadspaFXLine* ref) {
 		}
 	}
 #endif
-}
-
-void Mixer::getPeaksInMixerLine( int nMixerLine, float& fPeak_L, float& fPeak_R )
-{
-	if ( nMixerLine < 0 || nMixerLine >= MAX_INSTRUMENTS ) {
-		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
-				  .arg( nMixerLine ).arg( MAX_INSTRUMENTS ) );
-		return;
-	}
-	if ( m_mixerLines[ nMixerLine ] != nullptr ) {
-		fPeak_L = m_mixerLines[ nMixerLine ]->getPeak_L();
-		fPeak_R = m_mixerLines[ nMixerLine ]->getPeak_R();
-	}
-	else {
-		fPeak_L = 0;
-		fPeak_R = 0;
-	}
 }
 
 void Mixer::openMixerSettingsDialog() {

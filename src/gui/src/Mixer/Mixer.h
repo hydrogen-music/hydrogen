@@ -44,6 +44,10 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 	H2_OBJECT(Mixer)
 	Q_OBJECT
 	public:
+
+		/** Defines the rate using which the peaks in the Mixer are update. */
+		static constexpr int nPeakTimeoutMs = 50;
+
 		explicit Mixer(QWidget* parent);
 		~Mixer();
 
@@ -54,8 +58,6 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		void resizeEvent( QResizeEvent *ev ) override;
 		void soloClicked( int nLine );
 		bool isSoloClicked( int nLine );
-
-		void getPeaksInMixerLine( int nMixerLine, float& fPeak_L, float& fPeak_R );
 
 	public slots:
 		void noteOnClicked(MixerLine* ref);
@@ -96,7 +98,6 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		QTimer *				m_pUpdateTimer;
 
 		int					findMixerLineByRef(MixerLine* ref);
-		MixerLine*				createMixerLine( int );
 
 		// Implements EventListener interface
 		virtual void noteOnEvent( int nInstrument ) override;

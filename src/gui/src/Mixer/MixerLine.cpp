@@ -22,9 +22,11 @@
 
 #include "MixerLine.h"
 
-#include <stdio.h>
-
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/MidiAction.h>
@@ -43,21 +45,20 @@
 
 using namespace H2Core;
 
-MixerLine::MixerLine(QWidget* parent, int nInstr)
-	: PixmapWidget( parent )
-	, m_fMaxPeak( 0.0 )
-	, m_nActivity( 0 )
+MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
+	: PixmapWidget( pParent )
+	, m_pInstrument( pInstrument )
+	, m_fOldMaxPeak( 0.0 )
+	, m_nCycleSampleActivation( 0 )
 	, m_bIsSelected( false )
-	, m_nPeakTimer( 0 )
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	std::shared_ptr<Action> pAction;
 
 	resize( MixerLine::nWidth, MixerLine::nHeight );
 	setFixedSize( MixerLine::nWidth, MixerLine::nHeight );
 
 	setPixmap( "/mixerPanel/mixerline_background.png" );
+	setObjectName( "MixerLine" );
 
 	// Play sample button
 	m_pPlaySampleBtn = new Button(
@@ -87,9 +88,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteBtnClicked() ));
-	pAction = std::make_shared<Action>("STRIP_MUTE_TOGGLE");
-	pAction->setParameter1( QString::number(nInstr ));
-	m_pMuteBtn->setAction(pAction);
 
 	// Solo button
 	m_pSoloBtn = new Button(
@@ -98,9 +96,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloBtnClicked() ));
-	pAction = std::make_shared<Action>("STRIP_SOLO_TOGGLE");
-	pAction->setParameter1( QString::number(nInstr ));
-	m_pSoloBtn->setAction(pAction);
 
 	// pan rotary
 	m_pPanRotary = new Rotary(
@@ -108,10 +103,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 		PAN_MIN, PAN_MAX );
 	m_pPanRotary->setObjectName( "PanRotary" );
 	m_pPanRotary->move( 6, 32 );
-	pAction = std::make_shared<Action>("PAN_ABSOLUTE");
-	pAction->setParameter1( QString::number(nInstr ));
-	pAction->setValue( QString::number( 0 ));
-	m_pPanRotary->setAction(pAction);
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
 			 this, SLOT( panChanged( WidgetWithInput* ) ) );
 
@@ -121,10 +112,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 		auto pRotary = new Rotary(
 			this, Rotary::Type::Small, tr( "FX %1 send" ).arg( ii + 1 ), false );
 		pRotary->setObjectName( "FXRotary" );
-		pAction = std::make_shared<Action>( "EFFECT_LEVEL_ABSOLUTE" );
-		pAction->setParameter1( QString::number( nInstr ) );
-		pAction->setParameter2( QString::number( ii ) );
-		pRotary->setAction( pAction );
 		if ( (ii % 2) == 0 ) {
 			pRotary->move( 9, 63 + (20 * nnRow) );
 		}
@@ -136,10 +123,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 				 this, SLOT( knobChanged( WidgetWithInput* ) ) );
 		m_fxRotaries.push_back( pRotary );
 	}
-
-	const float fFalloff =
-		Preferences::get_instance()->getTheme().m_interface.m_fMixerFalloffSpeed;
-	m_nFalloffSpeed = static_cast<int>( std::floor( fFalloff * 20 - 2 ) );
 
 	// instrument name widget
 	m_pNameWidget = new InstrumentNameWidget( this );
@@ -153,10 +136,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->move( 23, 128 );
 	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
 			 this, SLOT( faderChanged( WidgetWithInput* ) ) );
-	pAction = std::make_shared<Action>("STRIP_VOLUME_ABSOLUTE");
-	pAction->setParameter1( QString::number(nInstr) );
-	m_pFader->setAction( pAction );
-
 
 	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
 	m_pPeakLCD->move( 8, 105 );
@@ -165,30 +144,141 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	QPalette lcdPalette;
 	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
+
+	updateActions();
+	updateLine();
 }
 
 MixerLine::~MixerLine() {
 }
 
-void MixerLine::updateMixerLine()
-{
-	if ( m_nPeakTimer > m_nFalloffSpeed ) {
-		if ( m_fMaxPeak > 0.05f ) {
-			m_fMaxPeak = m_fMaxPeak - 0.05f;
+void MixerLine::updateLine() {
+	if ( m_pInstrument == nullptr ) {
+		m_pFader->setIsActive( false );
+		m_pPanRotary->setIsActive( false );
+		m_pNameWidget->setText( "null" );
+		m_pMuteBtn->setIsActive( false );
+		m_pSoloBtn->setIsActive( false );
+		m_pPlaySampleBtn->setIsActive( false );
+		for ( auto& ppFxRotary : m_fxRotaries ) {
+			ppFxRotary->setIsActive( false );
 		}
-		else {
-			m_fMaxPeak = 0.0f;
-			m_nPeakTimer = 0;
-		}
-		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
-		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setUseRedFont( true );
-		}
-		else {
-			m_pPeakLCD->setUseRedFont( false );
+
+		return;
+	}
+	else {
+		m_pFader->setIsActive( true );
+		m_pPanRotary->setIsActive( true );
+		m_pMuteBtn->setIsActive( true );
+		m_pSoloBtn->setIsActive( true );
+		m_pPlaySampleBtn->setIsActive( true );
+		for ( auto& ppFxRotary : m_fxRotaries ) {
+			ppFxRotary->setIsActive( true );
 		}
 	}
-	m_nPeakTimer++;
+
+	m_pNameWidget->setText( m_pInstrument->get_name() );
+	m_pFader->setValue( m_pInstrument->get_volume(), false,
+						Event::Trigger::Suppress );
+	m_pPanRotary->setValue(m_pInstrument->getPan(), false,
+						Event::Trigger::Suppress );
+	m_pMuteBtn->setChecked( m_pInstrument->is_muted() );
+	m_pSoloBtn->setChecked( m_pInstrument->is_soloed() );
+	for ( int ii = 0; ii < m_fxRotaries.size(); ++ii ) {
+		auto ppFxRotary = m_fxRotaries[ ii ];
+		ppFxRotary->setValue( m_pInstrument->get_fx_level( ii ), false,
+							  Event::Trigger::Suppress );
+	}
+	m_pSelectionLED->setActivated(
+		Hydrogen::get_instance()->getSelectedInstrument() == m_pInstrument );
+}
+
+void MixerLine::updatePeaks()
+{
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
+	auto pPref = Preferences::get_instance();
+	const float fFallOffSpeed =
+		pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
+
+	float fNewPeak_L = m_pInstrument->get_peak_l();
+	float fNewPeak_R = m_pInstrument->get_peak_r();
+	if ( ! pPref->showInstrumentPeaks() ) {
+		fNewPeak_L = 0.0f;
+		fNewPeak_R = 0.0f;
+	}
+
+	const float fOldPeak_L = m_pFader->getPeak_L();
+	const float fOldPeak_R = m_pFader->getPeak_R();
+
+	// reset instrument peak
+	m_pInstrument->set_peak_l( 0.0f );
+	m_pInstrument->set_peak_r( 0.0f );
+
+	if ( fNewPeak_L < fOldPeak_L ) {
+		fNewPeak_L = fOldPeak_L / fFallOffSpeed;
+	}
+	if ( fNewPeak_R < fOldPeak_R ) {
+		fNewPeak_R = fOldPeak_R / fFallOffSpeed;
+	}
+
+	if ( fNewPeak_L != fOldPeak_L ) {
+		m_pFader->setPeak_L( fNewPeak_L );
+	}
+	if ( fNewPeak_R != fOldPeak_R ) {
+		m_pFader->setPeak_R( fNewPeak_R );
+	}
+
+	// Update textual representation of peak level
+	float fNewMaxPeak = std::max( fNewPeak_L, fNewPeak_R );
+	QString sNewMaxPeak;
+	if ( fNewMaxPeak >= m_fOldMaxPeak ) {
+		// We got a new maximum. We display it right away. In case all
+		// subsequent peaks a smaller, we keep the value a couple of cycles for
+		// better readability.
+		sNewMaxPeak = QString( "%1" ).arg( fNewMaxPeak, 0, 'f', 2 );
+		m_nCycleKeepPeakText = static_cast<int>(fFallOffSpeed * 20 - 2);
+		m_fOldMaxPeak = fNewMaxPeak;
+	}
+	else if ( m_nCycleKeepPeakText < 0 ) {
+		// We kept the value of the peak long enough. Time to fade it out.
+		if ( m_fOldMaxPeak > 0.05f ) {
+			m_fOldMaxPeak = m_fOldMaxPeak - 0.05f;
+		}
+		else {
+			m_fOldMaxPeak = 0.0f;
+		}
+		sNewMaxPeak = QString( "%1" ).arg( fNewMaxPeak, 0, 'f', 2 );
+	}
+
+	if ( ! sNewMaxPeak.isEmpty() && sNewMaxPeak != m_pPeakLCD->text() ) {
+		m_pPeakLCD->setText( sNewMaxPeak );
+
+		// Indicate levels near clipping.
+		m_pPeakLCD->setUseRedFont( m_fOldMaxPeak > 1.0 );
+	}
+
+	// We highlight a note on event for a particular instrument by flashing a
+	// LED widget.
+	if ( m_nCycleSampleActivation > 0 ) {
+		--m_nCycleSampleActivation;
+		m_pTriggerSampleLED->setActivated( true );
+	}
+	else {
+		m_pTriggerSampleLED->setActivated( false );
+	}
+}
+
+void MixerLine::setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument ) {
+	if ( pInstrument != m_pInstrument ) {
+		m_pInstrument = pInstrument;
+		updateActions();
+	}
+}
+
+void MixerLine::triggerSampleLED() {
+	m_nCycleSampleActivation = MixerLine::nCyclesSampleActivationLED;
 }
 
 void MixerLine::muteBtnClicked() {
@@ -250,54 +340,6 @@ float MixerLine::getVolume() const {
 
 void MixerLine::setVolume( float value, H2Core::Event::Trigger trigger ) {
 	m_pFader->setValue( value, false, trigger );
-}
-
-void MixerLine::setPeak_L( float peak ) {
-	if (peak != getPeak_L() ) {
-		m_pFader->setPeak_L( peak );
-		if (peak > m_fMaxPeak) {
-			if ( peak < 0.1f ) {
-				peak = 0.0f;
-			}
-			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
-			if ( peak > 1.0 ) {
-				m_pPeakLCD->setUseRedFont( true );
-			}
-			else {
-				m_pPeakLCD->setUseRedFont( false );
-			}
-			m_fMaxPeak = peak;
-			m_nPeakTimer = 0;
-		}
-	}
-}
-
-float MixerLine::getPeak_L() const {
-	return m_pFader->getPeak_L();
-}
-
-void MixerLine::setPeak_R( float peak ) {
-	if (peak != getPeak_R() ) {
-		m_pFader->setPeak_R( peak );
-		if (peak > m_fMaxPeak) {
-			if ( peak < 0.1f ) {
-				peak = 0.0f;
-			}
-			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
-			if ( peak > 1.0 ) {
-				m_pPeakLCD->setUseRedFont( true );
-			}
-			else {
-				m_pPeakLCD->setUseRedFont( false );
-			}
-			m_fMaxPeak = peak;
-			m_nPeakTimer = 0;
-		}
-	}
-}
-
-float MixerLine::getPeak_R() const {
-	return m_pFader->getPeak_R();
 }
 
 void MixerLine::setName( const QString& sName) {
@@ -380,4 +422,51 @@ void MixerLine::setSelected( bool bIsSelected ) {
 
 	m_bIsSelected = bIsSelected;
 	m_pSelectionLED->setActivated( bIsSelected );
+}
+
+void MixerLine::updateActions() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( m_pInstrument == nullptr || pSong == nullptr ||
+		 pSong->getDrumkit() == nullptr ) {
+		m_pMuteBtn->setAction( nullptr );
+		m_pSoloBtn->setAction( nullptr );
+		m_pPanRotary->setAction( nullptr );
+		m_pFader->setAction( nullptr );
+		for ( auto& ppFxRotary : m_fxRotaries ) {
+			ppFxRotary->setAction( nullptr );
+		}
+
+		return;
+	}
+
+	std::shared_ptr<Action> pAction = nullptr;
+	const int nInstrument =
+		pSong->getDrumkit()->getInstruments()->index( m_pInstrument );
+
+	pAction = std::make_shared<Action>( "STRIP_MUTE_TOGGLE" );
+	pAction->setParameter1( QString::number( nInstrument ));
+	m_pMuteBtn->setAction( pAction );
+
+	pAction = std::make_shared<Action>( "STRIP_SOLO_TOGGLE" );
+	pAction->setParameter1( QString::number( nInstrument ));
+	m_pSoloBtn->setAction( pAction );
+
+	pAction = std::make_shared<Action>( "PAN_ABSOLUTE" );
+	pAction->setParameter1( QString::number( nInstrument ) );
+	pAction->setValue( QString::number( 0 ));
+	m_pPanRotary->setAction( pAction );
+
+	// FX send
+	for ( int ii = 0; ii < m_fxRotaries.size(); ii++ ) {
+		auto ppFxRotary = m_fxRotaries[ ii ];
+		ppFxRotary->setObjectName( "FXRotary" );
+		pAction = std::make_shared<Action>( "EFFECT_LEVEL_ABSOLUTE" );
+		pAction->setParameter1( QString::number( nInstrument ) );
+		pAction->setParameter2( QString::number( ii ) );
+		ppFxRotary->setAction( pAction );
+	}
+
+	pAction = std::make_shared<Action>( "STRIP_VOLUME_ABSOLUTE" );
+	pAction->setParameter1( QString::number( nInstrument ) );
+	m_pFader->setAction( pAction );
 }

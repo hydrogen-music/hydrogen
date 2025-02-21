@@ -24,6 +24,8 @@
 
 #include <QtGui>
 #include <QtWidgets>
+
+#include <memory.h>
 #include <vector>
 
 #include "../Widgets/PixmapWidget.h"
@@ -41,6 +43,10 @@ class LED;
 class Rotary;
 class WidgetWithInput;
 
+namespace H2Core {
+	class Instrument;
+}
+
 ///
 /// A mixer strip
 ///
@@ -53,11 +59,21 @@ class MixerLine: public PixmapWidget, public H2Core::Object<MixerLine>
 public:
 		static constexpr int nWidth = 56;
 		static constexpr int nHeight = 254;
+		/** How many peak update cycles the sample activation LED will be
+		 * activated / flash on incoming NoteOn events. */
+		static constexpr int nCyclesSampleActivationLED = 2;
 
-	MixerLine( QWidget* pParent, int nInstrument );
+	MixerLine( QWidget* pParent, std::shared_ptr<H2Core::Instrument> pInstrument );
 	~MixerLine();
 
-	void	updateMixerLine();
+	void	updateLine();
+	void	updatePeaks();
+
+		std::shared_ptr<H2Core::Instrument> getInstrument() const;
+		void setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
+
+		/** Activates the corresponding LED widget for a short amount of time. */
+		void triggerSampleLED();
 
 	bool	isMuteClicked() const;
 	void	setMuteClicked( bool bIsClicked );
@@ -83,9 +99,6 @@ public:
 	void	setPan( float fValue,
 					H2Core::Event::Trigger trigger =
 				       H2Core::Event::Trigger::Default );
-
-	int		getActivity() const {	return m_nActivity;	}
-	void	setActivity( int nValue ) {	m_nActivity = nValue; }
 
 	void	setPlayClicked( bool bCicked );
 
@@ -117,13 +130,19 @@ public slots:
 	void	nameSelected();
 
 private:
+		void updateActions();
+
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
 	bool	m_bIsSelected;
 
-	int	m_nActivity;
-	int	m_nPeakTimer;
-	float	m_fMaxPeak;
-	float	m_nFalloffSpeed;
-		
+		/** For how many more peak update cycles to flash the sample activate
+		 * LED. */
+		int m_nCycleSampleActivation;
+		/** For how many more peak update cycles to keep the same text in the
+		 * peak level display. */
+		int m_nCycleKeepPeakText;
+		float	m_fOldMaxPeak;
+
 	Fader *					m_pFader;
 	Rotary*					m_pPanRotary;
 	InstrumentNameWidget *	m_pNameWidget;
@@ -136,5 +155,9 @@ private:
 
 	LCDDisplay *			m_pPeakLCD;
 };
+
+inline std::shared_ptr<H2Core::Instrument> MixerLine::getInstrument() const {
+	return m_pInstrument;
+}
 
 #endif
