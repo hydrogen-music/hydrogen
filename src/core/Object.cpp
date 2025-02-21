@@ -192,7 +192,7 @@ void Base::logBacktrace() const {
 		DEBUGLOG( QString("%1").arg( symbols[i] ) );
 	}
 #else
-	DEBUGLOG( H2Core::Logger::Debug, "compile without backtrace support" );
+	DEBUGLOG( "Compiled without backtrace support" );
 #endif
 }
 
