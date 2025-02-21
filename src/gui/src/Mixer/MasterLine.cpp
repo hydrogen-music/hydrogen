@@ -241,6 +241,9 @@ void MasterLine::updatePeaks() {
 		}
 		sNewMaxPeak = QString( "%1" ).arg( fNewMaxPeak, 0, 'f', 2 );
 	}
+	else {
+		--m_nCycleKeepPeakText;
+	}
 
 	if ( ! sNewMaxPeak.isEmpty() && sNewMaxPeak != m_pPeakLCD->text() ) {
 		m_pPeakLCD->setText( sNewMaxPeak );
