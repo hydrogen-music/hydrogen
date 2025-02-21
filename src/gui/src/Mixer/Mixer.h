@@ -88,6 +88,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		int					findMixerLineByRef(MixerLine* ref);
 
 		// Implements EventListener interface
+		virtual void mixerSettingsChangedEvent() override;
 		virtual void noteOnEvent( int nInstrument ) override;
 		// ~ Implements EventListener interface
 

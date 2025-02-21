@@ -202,7 +202,10 @@ enum EventType {
 	 * - 2 - Playlist is not writable (inform the user via a QMessageBox)
 	 */
 	EVENT_PLAYLIST_CHANGED,
-	EVENT_BEAT_COUNTER
+	EVENT_BEAT_COUNTER,
+	/** Miscellaneous things shown in the Mixer apart from the per-instrument
+	 * MixerLines did change. */
+	EVENT_MIXER_SETTINGS_CHANGED
 };
 
 /** Basic building block for the communication between the core of

@@ -48,6 +48,7 @@ class EventListener
 		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void midiActivityEvent() {}
 		virtual void midiMapChangedEvent(){}
+		virtual void mixerSettingsChangedEvent(){}
 		virtual void nextPatternsChangedEvent(){}
 		virtual void nextShotEvent(){}
 		virtual void noteOnEvent( int nInstrument ) { UNUSED( nInstrument ); }

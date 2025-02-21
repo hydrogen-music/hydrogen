@@ -984,6 +984,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->midiMapChangedEvent();
 				break;
 
+			case EVENT_MIXER_SETTINGS_CHANGED:
+				pListener->mixerSettingsChangedEvent();
+				break;
+
 			case EVENT_NEXT_PATTERNS_CHANGED:
 				pListener->nextPatternsChangedEvent();
 				break;

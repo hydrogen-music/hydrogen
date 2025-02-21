@@ -314,6 +314,10 @@ void Mixer::showEvent ( QShowEvent *ev ) {
 	updateMixer();
 }
 
+void Mixer::mixerSettingsChangedEvent() {
+	m_pMasterLine->updateLine();
+}
+
 void Mixer::noteOnEvent( int nInstrument ) {
 	if ( nInstrument >= 0 && nInstrument < MAX_INSTRUMENTS ) {
 		if ( m_mixerLines[ nInstrument ] != nullptr ) {

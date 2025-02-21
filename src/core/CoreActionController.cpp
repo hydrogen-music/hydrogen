@@ -158,6 +158,8 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 	
 		pHydrogen->setIsModified( true );
 
+		EventQueue::get_instance()->push_event( EVENT_MIXER_SETTINGS_CHANGED, 0 );
+
 		return sendMasterIsMutedFeedback();
 	}
 
@@ -176,6 +178,8 @@ bool CoreActionController::setHumanizeTime( float fValue ) {
 
 	if ( pSong->getHumanizeTimeValue() != fValue ) {
 		pSong->setHumanizeTimeValue( fValue );
+
+		EventQueue::get_instance()->push_event( EVENT_MIXER_SETTINGS_CHANGED, 0 );
 
 		pHydrogen->setIsModified( true );
 	}
@@ -196,6 +200,8 @@ bool CoreActionController::setHumanizeVelocity( float fValue ) {
 	if ( pSong->getHumanizeVelocityValue() != fValue ) {
 		pSong->setHumanizeVelocityValue( fValue );
 
+		EventQueue::get_instance()->push_event( EVENT_MIXER_SETTINGS_CHANGED, 0 );
+
 		pHydrogen->setIsModified( true );
 	}
 
@@ -214,6 +220,8 @@ bool CoreActionController::setSwing( float fValue ) {
 
 	if ( pSong->getSwingFactor() != fValue ) {
 		pSong->setSwingFactor( fValue );
+
+		EventQueue::get_instance()->push_event( EVENT_MIXER_SETTINGS_CHANGED, 0 );
 
 		pHydrogen->setIsModified( true );
 	}
