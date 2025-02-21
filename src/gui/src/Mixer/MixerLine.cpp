@@ -281,6 +281,10 @@ void MixerLine::updatePeaks()
 	float fNewMaxPeak = std::max( fNewPeak_L, fNewPeak_R );
 	QString sNewMaxPeak;
 	if ( fNewMaxPeak >= m_fOldMaxPeak ) {
+		if ( fNewMaxPeak < 0.1 ) {
+			fNewMaxPeak = 0;
+		}
+
 		// We got a new maximum. We display it right away. In case all
 		// subsequent peaks a smaller, we keep the value a couple of cycles for
 		// better readability.

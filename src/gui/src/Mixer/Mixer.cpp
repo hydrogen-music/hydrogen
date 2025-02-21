@@ -130,9 +130,7 @@ Mixer::Mixer( QWidget* pParent )
 // Master frame
 	m_pMasterLine = new MasterLine( nullptr );
 	m_pMasterLine->setObjectName( "MasterMixerLine" );
-	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterLine*) ),
-			 this, SLOT( masterVolumeChanged(MasterLine*) ) );
-	
+
 	m_pOpenMixerSettingsBtn = new Button(
 		m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "",
 		false, QSize( 13, 13 ), tr( "Mixer Settings" ) );
@@ -263,18 +261,7 @@ void Mixer::updateMixer()
 		m_pFaderPanel->resize( nNewWidth, height() );
 	}
 
-	// set master fader position
-	const float fNewVolume = pSong->getVolume();
-	if ( m_pMasterLine->getVolume() != fNewVolume ) {
-		m_pMasterLine->setVolume( fNewVolume, Event::Trigger::Suppress );
-	}
-
-	m_pMasterLine->setHumanizeTime( pSong->getHumanizeTimeValue(),
-									Event::Trigger::Suppress );
-	m_pMasterLine->setHumanizeVelocity( pSong->getHumanizeVelocityValue(),
-										Event::Trigger::Suppress );
-	m_pMasterLine->setSwing( pSong->getSwingFactor(), Event::Trigger::Suppress );
-	m_pMasterLine->setMuteChecked( pSong->getIsMuted() );
+	m_pMasterLine->updateLine();
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
@@ -309,56 +296,17 @@ int Mixer::findMixerLineByRef(MixerLine* ref) {
 	return 0;
 }
 
-void Mixer::masterVolumeChanged(MasterLine* ref) {
-	float Volume = ref->getVolume();
-	CoreActionController::setMasterVolume( Volume );
-}
-
 void Mixer::updatePeaks()
 {
 	if ( ! isVisible() ) {
 		// Skip redundant updates if mixer is not visible.
 		return;
 	}
-	const auto pPref = Preferences::get_instance();
-	const bool bShowPeaks = pPref->showInstrumentPeaks();
-	const float fFallOffSpeed =
-		pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
 	for ( auto& ppMixerLine : m_mixerLines ) {
 		ppMixerLine->updatePeaks();
 	}
-
-	// update MasterPeak
-	float fOldPeak_L = m_pMasterLine->getPeak_L();
-	float fNewPeak_L = pAudioEngine->getMasterPeak_L();
-	pAudioEngine->setMasterPeak_L(0.0);
-
-	float fOldPeak_R = m_pMasterLine->getPeak_R();
-	float fNewPeak_R = pAudioEngine->getMasterPeak_R();
-	pAudioEngine->setMasterPeak_R(0.0);
-
-	if ( ! bShowPeaks ) {
-		fNewPeak_L = 0.0;
-		fNewPeak_R = 0.0;
-	}
-
-	if ( fNewPeak_L >= fOldPeak_L ) {
-		m_pMasterLine->setPeak_L( fNewPeak_L );
-	}
-	else {
-		m_pMasterLine->setPeak_L( fOldPeak_L / fFallOffSpeed );
-	}
-
-	if ( fNewPeak_R >= fOldPeak_R ) {
-		m_pMasterLine->setPeak_R( fNewPeak_R );
-	}
-	else {
-		m_pMasterLine->setPeak_R( fOldPeak_R / fFallOffSpeed );
-	}
-	m_pMasterLine->updateMixerLine();
+	m_pMasterLine->updatePeaks();
 }
 
 void Mixer::showEvent ( QShowEvent *ev ) {

@@ -58,7 +58,6 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		void resizeEvent( QResizeEvent *ev ) override;
 
 	public slots:
-		void masterVolumeChanged( MasterLine* );
 		void updatePeaks();
 		void showFXPanelClicked();
 		void showPeaksBtnClicked();

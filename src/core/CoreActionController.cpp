@@ -164,6 +164,63 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 	return true;
 }
 
+bool CoreActionController::setHumanizeTime( float fValue ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	if ( pSong->getHumanizeTimeValue() != fValue ) {
+		pSong->setHumanizeTimeValue( fValue );
+
+		pHydrogen->setIsModified( true );
+	}
+
+	return true;
+}
+
+bool CoreActionController::setHumanizeVelocity( float fValue ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	if ( pSong->getHumanizeVelocityValue() != fValue ) {
+		pSong->setHumanizeVelocityValue( fValue );
+
+		pHydrogen->setIsModified( true );
+	}
+
+	return true;
+}
+
+bool CoreActionController::setSwing( float fValue ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	if ( pSong->getSwingFactor() != fValue ) {
+		pSong->setSwingFactor( fValue );
+
+		pHydrogen->setIsModified( true );
+	}
+
+	return true;
+}
+
 bool CoreActionController::toggleStripIsMuted( int nStrip )
 {
 	auto pHydrogen = Hydrogen::get_instance();

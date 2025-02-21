@@ -50,52 +50,16 @@ public:
 	explicit MasterLine(QWidget* parent);
 	~MasterLine();
 
-	void	updateMixerLine();
-
-	bool	isMuteChecked() const;
-	void	setMuteChecked( bool bIsChecked );
-
-	float	getVolume() const;
-	void	setVolume( float fValue,
-					   H2Core::Event::Trigger trigger =
-					      H2Core::Event::Trigger::Default );
-
-	float	getHumanizeTime() const;
-	void	setHumanizeTime( float fValue,
-							 H2Core::Event::Trigger trigger =
-							    H2Core::Event::Trigger::Default );
-
-	float	getHumanizeVelocity() const;
-	void	setHumanizeVelocity( float fValue,
-								 H2Core::Event::Trigger trigger =
-								    H2Core::Event::Trigger::Default );
-
-	float	getSwing() const;
-	void	setSwing( float fValue,
-					  H2Core::Event::Trigger trigger =
-					     H2Core::Event::Trigger::Default );
-
-	void	setPeak_L( float fPeak );
-	float	getPeak_L() const;
-
-	void	setPeak_R( float fPeak );
-	float	getPeak_R() const;
-
-
-signals:
-	void	volumeChanged(MasterLine *ref);
-
-public slots:
-	void	faderChanged( WidgetWithInput* pRef);
-	void	rotaryChanged( WidgetWithInput *pRef );
-	void	muteClicked();
+	void	updateLine();
+	void	updatePeaks();
 
 private:
-	int			m_nPeakTimer;
-	float			m_fMaxPeak;
-	float			m_nFalloffSpeed;
-		
-	Fader*			m_pMasterFader;
+		/** For how many more peak update cycles to keep the same text in the
+		 * peak level display. */
+		int m_nCycleKeepPeakText;
+	float			m_fOldMaxPeak;
+
+	Fader*			m_pFader;
 
 	ClickableLabel* m_pMasterLbl;
 	ClickableLabel* m_pHumanizeLbl;

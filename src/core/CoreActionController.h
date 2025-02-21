@@ -70,6 +70,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		static bool setInstrumentPitch( int nInstrument, float fValue );
 		static bool setMetronomeIsActive( bool isActive );
 		static bool setMasterIsMuted( bool isMuted );
+		static bool setHumanizeTime( float fValue );
+		static bool setHumanizeVelocity( float fValue );
+		static bool setSwing( float fValue );
 
 		static bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip );
 		static bool toggleStripIsMuted( int nStrip );

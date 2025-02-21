@@ -22,16 +22,13 @@
 
 #include "MasterLine.h"
 
-#include "../InstrumentEditor/InstrumentEditor.h"
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 #include "../CommonStrings.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
-#include "../Widgets/LED.h"
 #include "../Widgets/WidgetWithInput.h"
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -44,9 +41,9 @@
 using namespace H2Core;
 
 MasterLine::MasterLine( QWidget* pParent )
- : PixmapWidget( pParent )
- , m_fMaxPeak( 0 )
- , m_nPeakTimer( 0 )
+	: PixmapWidget( pParent )
+	, m_nCycleKeepPeakText( 0 )
+	, m_fOldMaxPeak( 0 )
 {
 	setMinimumSize( MasterLine::nWidth, MasterLine::nHeight );
 	setMaximumSize( MasterLine::nWidth, MasterLine::nHeight );
@@ -62,18 +59,18 @@ MasterLine::MasterLine( QWidget* pParent )
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	const float fFalloff =
-		Preferences::get_instance()->getTheme().m_interface.m_fMixerFalloffSpeed;
-	m_nFalloffSpeed = static_cast<int>( std::floor( fFalloff * 20 - 2 ) );
-
-	m_pMasterFader = new Fader(
+	m_pFader = new Fader(
 		this, Fader::Type::Master, tr( "Master volume" ), false, false, 0.0, 1.5 );
-	m_pMasterFader->move( 24, 75 );
-	connect( m_pMasterFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( faderChanged( WidgetWithInput* ) ) );
+	m_pFader->move( 24, 75 );
+	connect( m_pFader, &Fader::valueChanged, [&]() {
+		CoreActionController::setMasterVolume( m_pFader->getValue() );
+		HydrogenApp::get_instance()->showStatusBarMessage(
+			tr( "Set master volume [%1]" ).arg( m_pFader->getValue(), 0, 'f', 2 ),
+			QString( "%1:faderChanged" ).arg( class_name() ) );
+	});
 
 	auto pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
-	m_pMasterFader->setAction( pAction );
+	m_pFader->setAction( pAction );
 
 	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ), false, false );
 	m_pPeakLCD->move( 22, 51 );
@@ -87,29 +84,48 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pHumanizeVelocityRotary = new Rotary(
 		this, Rotary::Type::Normal, tr( "Humanize velocity" ), false );
 	m_pHumanizeVelocityRotary->move( 66, 88 );
-	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
+	connect( m_pHumanizeVelocityRotary, &Rotary::valueChanged, [&]() {
+		CoreActionController::setHumanizeVelocity(
+			m_pHumanizeVelocityRotary->getValue() );
+		HydrogenApp::get_instance()->showStatusBarMessage(
+			tr( "Set humanize vel. param [%1]" )
+			.arg( m_pHumanizeVelocityRotary->getValue(), 0, 'f', 2 ),
+			QString( "%1:humanizeVelocity" ).arg( class_name() ) );
+	});
 
 	m_pHumanizeTimeRotary = new Rotary(
 		this, Rotary::Type::Normal, tr( "Humanize time" ), false );
 	m_pHumanizeTimeRotary->move( 66, 125 );
-	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
+	connect( m_pHumanizeTimeRotary, &Rotary::valueChanged, [&]() {
+		CoreActionController::setHumanizeTime(
+			m_pHumanizeTimeRotary->getValue() );
+		HydrogenApp::get_instance()->showStatusBarMessage(
+			tr( "Set humanize time param [%1]" )
+			.arg( m_pHumanizeTimeRotary->getValue(), 0, 'f', 2 ),
+			QString( "%1:humanizeTime" ).arg( class_name() ) );
+	});
 
 	m_pSwingRotary = new Rotary(
 		this,  Rotary::Type::Normal, tr( "16th-note Swing" ), false );
 	m_pSwingRotary->move( 66, 162 );
-	connect( m_pSwingRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
+	connect( m_pSwingRotary, &Rotary::valueChanged, [&]() {
+		CoreActionController::setSwing( m_pSwingRotary->getValue() );
+		HydrogenApp::get_instance()->showStatusBarMessage(
+			tr( "Set swing factor [%1]")
+			.arg( m_pSwingRotary->getValue(), 0, 'f', 2 ),
+			QString( "%1:humanizeSwing" ).arg( class_name() ) );
+	});
 
 	// Mute btn
 	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "",
 							 pCommonStrings->getBigMuteButton(), true );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
-	connect( m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ) );
 	pAction = std::make_shared<Action>("MUTE_TOGGLE");
 	m_pMuteBtn->setAction( pAction );
+	connect( m_pMuteBtn, &Button::clicked, [&]() {
+		CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
+	});
 
 	m_pMasterLbl = new ClickableLabel(
 		this, QSize( 55, 15 ), pCommonStrings->getMasterLabel(),
@@ -136,173 +152,100 @@ MasterLine::MasterLine( QWidget* pParent )
 MasterLine::~MasterLine() {
 }
 
-void MasterLine::muteClicked() {
-	CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
-}
+void MasterLine::updateLine() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		m_pFader->setIsActive( false );
+		m_pHumanizeTimeRotary->setIsActive( false );
+		m_pHumanizeVelocityRotary->setIsActive( false );
+		m_pMuteBtn->setIsActive( false );
+		m_pSwingRotary->setIsActive( false );
 
-void MasterLine::faderChanged( WidgetWithInput *pRef )
-{
-	assert( pRef );
-	
-	Fader* pFader = static_cast<Fader*>( pRef );
-	m_pMasterFader->setValue( pFader->getValue() );
-
-	emit volumeChanged(this);
-
-	Hydrogen::get_instance()->setIsModified( true );
-
-	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->
-		showStatusBarMessage( tr( "Set master volume [%1]" )
-							  .arg( value, 0, 'f', 2 ),
-							  QString( "%1:faderChanged" )
-							  .arg( class_name() ) );
-}
-
-float MasterLine::getVolume() const {
-	return m_pMasterFader->getValue();
-}
-
-void MasterLine::setVolume( float fValue, H2Core::Event::Trigger trigger ) {
-	m_pMasterFader->setValue( fValue, false, trigger );
-}
-
-float MasterLine::getHumanizeTime() const {
-	return m_pHumanizeTimeRotary->getValue();
-}
-
-void MasterLine::setHumanizeTime( float fValue,
-									   H2Core::Event::Trigger trigger ) {
-	m_pHumanizeTimeRotary->setValue( fValue, false, trigger );
-}
-
-float MasterLine::getHumanizeVelocity() const {
-	return m_pHumanizeVelocityRotary->getValue();
-}
-
-void MasterLine::setHumanizeVelocity( float fValue,
-										   H2Core::Event::Trigger trigger ) {
-	m_pHumanizeVelocityRotary->setValue( fValue, false, trigger );
-}
-
-float MasterLine::getSwing() const {
-	return m_pSwingRotary->getValue();
-}
-
-void MasterLine::setSwing( float fValue, H2Core::Event::Trigger trigger ) {
-	m_pSwingRotary->setValue( fValue, false, trigger );
-}
-
-void MasterLine::setPeak_L( float fPeak )
-{
-	if ( fPeak != getPeak_L() ) {
-		m_pMasterFader->setPeak_L(fPeak);
-		if (fPeak > m_fMaxPeak) {
-			if ( fPeak < 0.1f ) {
-				fPeak = 0.0f;
-			}
-			m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
-			if ( fPeak > 1.0 ) {
-				m_pPeakLCD->setUseRedFont( true );
-			}
-			else {
-				m_pPeakLCD->setUseRedFont( false );
-			}
-			m_fMaxPeak = fPeak;
-			m_nPeakTimer = 0;
-		}
-	}
-}
-
-float MasterLine::getPeak_L() const {
-	return m_pMasterFader->getPeak_L();
-}
-
-void MasterLine::setPeak_R( float fPeak ) {
-	if ( fPeak != getPeak_R() ) {
-		m_pMasterFader->setPeak_R(fPeak);
-		if (fPeak > m_fMaxPeak) {
-			if ( fPeak < 0.1f ) {
-				fPeak = 0.0f;
-			}
-			m_pPeakLCD->setText( QString( "%1" ).arg( fPeak, 0, 'f', 2 ) );
-			if ( fPeak > 1.0 ) {
-				m_pPeakLCD->setUseRedFont( true );
-			}
-			else {
-				m_pPeakLCD->setUseRedFont( false );
-			}
-			m_fMaxPeak = fPeak;
-			m_nPeakTimer = 0;
-		}
-	}
-}
-
-float MasterLine::getPeak_R() const {
-	return m_pMasterFader->getPeak_R();
-}
-
-void MasterLine::updateMixerLine() {
-	if ( m_nPeakTimer > m_nFalloffSpeed ) {
-		if ( m_fMaxPeak  > 0.05f ) {
-			m_fMaxPeak = m_fMaxPeak - 0.05f;
-		}
-		else {
-			m_fMaxPeak = 0.0f;
-			m_nPeakTimer = 0;
-		}
-		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
-		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setUseRedFont( true );
-		}
-		else {
-			m_pPeakLCD->setUseRedFont( false );
-		}
-	}
-	m_nPeakTimer++;
-}
-
-bool MasterLine::isMuteChecked() const {
-	return m_pMuteBtn->isChecked();
-}
-
-void MasterLine::setMuteChecked( bool bIsChecked ) {
-	m_pMuteBtn->setChecked( bIsChecked );
-}
-
-void MasterLine::rotaryChanged( WidgetWithInput *pRef )
-{
-	assert( pRef );
-	
-	Rotary* pRotary = static_cast<Rotary*>( pRef );
-	
-	QString sMsg;
-	QString sCaller = QString( "%1:rotaryChanged" ).arg( class_name() );
-	double fVal = (double) pRotary->getValue();
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	if ( pRotary == m_pHumanizeTimeRotary ) {
-		pHydrogen->getSong()->setHumanizeTimeValue( fVal );
-		sMsg = tr( "Set humanize time param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
-		sCaller.append( ":humanizeTime" );
-	}
-	else if ( pRotary == m_pHumanizeVelocityRotary ) {
-		pHydrogen->getSong()->setHumanizeVelocityValue( fVal );
-		sMsg = tr( "Set humanize vel. param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
-		sCaller.append( ":humanizeVelocity" );
-	}
-	else if ( pRotary == m_pSwingRotary ) {
-		pHydrogen->getSong()->setSwingFactor( fVal );
-		sMsg = tr( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
-		sCaller.append( ":humanizeSwing" );
+		return;
 	}
 	else {
-		ERRORLOG( "[knobChanged] Unhandled knob" );
+		m_pFader->setIsActive( true );
+		m_pHumanizeTimeRotary->setIsActive( true );
+		m_pHumanizeVelocityRotary->setIsActive( true );
+		m_pMuteBtn->setIsActive( true );
+		m_pSwingRotary->setIsActive( true );
 	}
 
-	pHydrogen->getAudioEngine()->unlock();
+	m_pFader->setValue( pSong->getVolume(), false, Event::Trigger::Suppress );
+	m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue(), false,
+									 Event::Trigger::Suppress );
+	m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue(),
+										 false, Event::Trigger::Suppress );
+	m_pMuteBtn->setChecked( pSong->getIsMuted() );
+	m_pSwingRotary->setValue( pSong->getSwingFactor(), false,
+							  Event::Trigger::Suppress );
+}
 
-	( HydrogenApp::get_instance() )->showStatusBarMessage( sMsg, sCaller );
+void MasterLine::updatePeaks() {
+	const auto pPref = Preferences::get_instance();
+	const float fFallOffSpeed =
+		pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	float fNewPeak_L = pAudioEngine->getMasterPeak_L();
+	float fNewPeak_R = pAudioEngine->getMasterPeak_R();
+	if ( ! pPref->showInstrumentPeaks() ) {
+		fNewPeak_L = 0.0;
+		fNewPeak_R = 0.0;
+	}
+
+	const float fOldPeak_L = m_pFader->getPeak_L();
+	const float fOldPeak_R = m_pFader->getPeak_R();
+
+	// reset master peak
+	pAudioEngine->setMasterPeak_L( 0.0 );
+	pAudioEngine->setMasterPeak_R( 0.0 );
+
+	if ( fNewPeak_L < fOldPeak_L ) {
+		fNewPeak_L = fOldPeak_L / fFallOffSpeed;
+	}
+	if ( fNewPeak_R < fOldPeak_R ) {
+		fNewPeak_R = fOldPeak_R / fFallOffSpeed;
+	}
+
+	if ( fNewPeak_L != fOldPeak_L ) {
+		m_pFader->setPeak_L( fNewPeak_L );
+	}
+	if ( fNewPeak_R != fOldPeak_R ) {
+		m_pFader->setPeak_R( fNewPeak_R );
+	}
+
+	// Update textual representation of peak level
+	float fNewMaxPeak = std::max( fNewPeak_L, fNewPeak_R );
+	QString sNewMaxPeak;
+	if ( fNewMaxPeak >= m_fOldMaxPeak ) {
+		if ( fNewMaxPeak < 0.1 ) {
+			fNewMaxPeak = 0;
+		}
+
+		// We got a new maximum. We display it right away. In case all
+		// subsequent peaks a smaller, we keep the value a couple of cycles for
+		// better readability.
+		sNewMaxPeak = QString( "%1" ).arg( fNewMaxPeak, 0, 'f', 2 );
+		m_nCycleKeepPeakText = static_cast<int>(fFallOffSpeed * 20 - 2);
+		m_fOldMaxPeak = fNewMaxPeak;
+	}
+	else if ( m_nCycleKeepPeakText < 0 ) {
+		// We kept the value of the peak long enough. Time to fade it out.
+		if ( m_fOldMaxPeak > 0.05f ) {
+			m_fOldMaxPeak = m_fOldMaxPeak - 0.05f;
+		}
+		else {
+			m_fOldMaxPeak = 0.0f;
+		}
+		sNewMaxPeak = QString( "%1" ).arg( fNewMaxPeak, 0, 'f', 2 );
+	}
+
+	if ( ! sNewMaxPeak.isEmpty() && sNewMaxPeak != m_pPeakLCD->text() ) {
+		m_pPeakLCD->setText( sNewMaxPeak );
+
+		// Indicate levels near clipping.
+		m_pPeakLCD->setUseRedFont( m_fOldMaxPeak > 1.0 );
+	}
 }
