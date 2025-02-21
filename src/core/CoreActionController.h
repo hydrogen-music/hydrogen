@@ -51,7 +51,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * \param bSelectStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
-		static bool setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
+		static bool setStripVolume( int nStrip, float fVolumeValue,
+									bool bSelectStrip );
 		/**
 		 * \param nStrip Instrument which to set the pan for.
 		 * \param fValue New pan.
@@ -70,11 +71,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		static bool setMetronomeIsActive( bool isActive );
 		static bool setMasterIsMuted( bool isMuted );
 
-		static bool setStripIsMuted( int nStrip, bool isMuted );
+		static bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip );
 		static bool toggleStripIsMuted( int nStrip );
 		
-		static bool setStripIsSoloed( int nStrip, bool isSoloed );
+		static bool setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip );
 		static bool toggleStripIsSoloed( int nStrip );
+
+		static bool setStripEffectLevel( int nLine, int nEffect, float fValue,
+										 bool bSelectStrip );
 		
 		static bool initExternalControlInterfaces();
 	

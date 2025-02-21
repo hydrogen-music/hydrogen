@@ -2854,20 +2854,12 @@ LilyPond 导出是一项实验性功能。
         <translation>混音器设置</translation>
     </message>
     <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Set volume [%1] of FX</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>播放采样</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>静音</translation>
@@ -2889,7 +2881,8 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

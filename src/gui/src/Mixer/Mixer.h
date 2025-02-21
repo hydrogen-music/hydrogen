@@ -56,20 +56,9 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 		void showEvent( QShowEvent *ev ) override;
 		void hideEvent( QHideEvent *ev ) override;
 		void resizeEvent( QResizeEvent *ev ) override;
-		void soloClicked( int nLine );
-		bool isSoloClicked( int nLine );
 
 	public slots:
-		void noteOnClicked(MixerLine* ref);
-		void noteOffClicked(MixerLine* ref);
-		void muteClicked(MixerLine* ref);
-		void soloClicked(MixerLine* ref);
-		void volumeChanged(MixerLine* ref);
-		void panChanged(MixerLine* ref);
-		void knobChanged(MixerLine* ref, int nKnob);
 		void masterVolumeChanged( MasterLine* );
-		void nameClicked(MixerLine* ref);
-		void nameSelected(MixerLine* ref);
 		void updatePeaks();
 		void showFXPanelClicked();
 		void showPeaksBtnClicked();

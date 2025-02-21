@@ -2863,20 +2863,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Mixer Einstellungen</translation>
     </message>
     <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation>Effekt %1 Pegel [%2] gesetzt für Instrument</translation>
-    </message>
-    <message>
         <source>Set volume [%1] of FX</source>
         <translation>Effekt-Lautstärke [%1] gesetzt</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Sample abspielen</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Stumm</translation>
@@ -2898,8 +2890,9 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Höchstwert</translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
-        <translation>Lautstärke [%1] gesetzt für Instrument</translation>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

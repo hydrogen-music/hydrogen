@@ -112,11 +112,10 @@ void WidgetWithInput::setIsActive( bool bIsActive ) {
 void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction,
 								H2Core::Event::Trigger trigger )
 {
-	if ( trigger == H2Core::Event::Trigger::Force ) {
-		emit valueChanged( this );
-	}
-
 	if ( ! m_bIsActive ) {
+		if ( trigger == H2Core::Event::Trigger::Force ) {
+			emit valueChanged( this );
+		}
 		return;
 	}
 	
@@ -135,7 +134,11 @@ void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction,
 			
 	
 	if ( fValue == m_fValue ) {
+		if ( trigger == H2Core::Event::Trigger::Force ) {
+			emit valueChanged( this );
+		}
 		return;
+;
 	}
 
 	if ( fValue < m_fMin ) {

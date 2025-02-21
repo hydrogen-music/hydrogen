@@ -2870,20 +2870,12 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Configuración Mezclador</translation>
     </message>
     <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation>Establecer nivel %1 FX [%2] del instrumento</translation>
-    </message>
-    <message>
         <source>Set volume [%1] of FX</source>
         <translation>Establecer volumen [%1] del FX</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Reproducir sample</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Silencio</translation>
@@ -2905,8 +2897,9 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Pico</translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
-        <translation>Establecer volumen [%1] del instrumento</translation>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

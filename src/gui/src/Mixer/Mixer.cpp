@@ -300,104 +300,6 @@ void Mixer::closeEvent( QCloseEvent* ev ) {
 	HydrogenApp::get_instance()->showMixer( false );
 }
 
-void Mixer::muteClicked( MixerLine* ref ) {
-	const int nLine = findMixerLineByRef(ref);
-	const bool bIsMuteClicked = ref->isMuteClicked();
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->setSelectedInstrumentNumber( nLine );
-
-	CoreActionController::setStripIsMuted( nLine, bIsMuteClicked );
-}
-
-void Mixer::soloClicked( MixerLine* ref ) {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	auto pInstrList = pSong->getDrumkit()->getInstruments();
-	int nInstruments = std::min( pInstrList->size(), MAX_INSTRUMENTS );
-
-	int nLine = findMixerLineByRef(ref);
-
-	CoreActionController::setStripIsSoloed( nLine, ref->isSoloClicked() );
-
-	for ( int i = 0; i < nInstruments; ++i ) {
-			if ( m_mixerLines[i] != nullptr ){
-				auto pInstrument = pInstrList->get(i);
-				if ( pInstrument != nullptr ) {
-					m_mixerLines[i]->setSoloClicked( pInstrument->is_soloed() );
-				}
-			}
-	}
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-}
-
-void Mixer::soloClicked( int nLine ) {
-	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {
-		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
-				  .arg( nLine ).arg( MAX_INSTRUMENTS ) );
-		return;
-	}
-
-	MixerLine * pMixerLine = m_mixerLines[ nLine ];
-
-	if( pMixerLine != nullptr ){
-		pMixerLine->setSoloClicked( !pMixerLine->isSoloClicked() );
-		soloClicked( pMixerLine );
-	}
-}
-
-bool Mixer::isSoloClicked( int nLine ) {
-	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {
-		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
-				  .arg( nLine ).arg( MAX_INSTRUMENTS ) );
-		return false;
-	}
-	if ( m_mixerLines[ nLine ] == nullptr ) {
-		return false;
-	}
-	return m_mixerLines[ nLine ]->isSoloClicked();
-}
-
-void Mixer::noteOnClicked( MixerLine* ref ) {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	int nLine = findMixerLineByRef( ref );
-	pHydrogen->setSelectedInstrumentNumber( nLine );
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-	
-	if ( ! pSelectedInstrument->hasSamples() ) {
-		INFOLOG( QString( "Instrument [%1] does not contain any samples. No preview available" )
-				 .arg( pSelectedInstrument->get_name() ) );
-		return;
-	}
-	
-	auto pNote = std::make_shared<Note>( pSelectedInstrument, 0, 1.0 );
-	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
-}
-
- void Mixer::noteOffClicked( MixerLine* ref ) {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	
-	int nLine = findMixerLineByRef( ref );
-	pHydrogen->setSelectedInstrumentNumber( nLine );
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-
-	auto pNote = std::make_shared<Note>( pSelectedInstrument, 0, 0.0 );
-	pNote->setNoteOff( true );
-	pHydrogen->getAudioEngine()->getSampler()->noteOff( pNote );
-}
-
 int Mixer::findMixerLineByRef(MixerLine* ref) {
 	for (int i = 0; i < MAX_INSTRUMENTS; i++) {
 		if (m_mixerLines[i] == ref) {
@@ -405,11 +307,6 @@ int Mixer::findMixerLineByRef(MixerLine* ref) {
 		}
 	}
 	return 0;
-}
-
-void Mixer::volumeChanged(MixerLine* ref) {
-	int nLine = findMixerLineByRef(ref);
-	CoreActionController::setStripVolume( nLine, ref->getVolume(), true );
 }
 
 void Mixer::masterVolumeChanged(MasterLine* ref) {
@@ -467,49 +364,6 @@ void Mixer::updatePeaks()
 void Mixer::showEvent ( QShowEvent *ev ) {
 	UNUSED( ev );
 	updateMixer();
-}
-
-void Mixer::nameClicked(MixerLine* ref)
-{
-	UNUSED( ref );
-	InstrumentEditorPanel::get_instance()->show();
-}
-
-void Mixer::nameSelected(MixerLine* ref) {
-	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-}
-
-void Mixer::panChanged(MixerLine* ref) {
-	float	fPan = ref->getPan();
-	int		nLine = findMixerLineByRef(ref);
-	CoreActionController::setStripPanSym( nLine, fPan, true );
-}
-
-void Mixer::knobChanged(MixerLine* ref, int nKnob) {
-	int nLine = findMixerLineByRef(ref);
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->setSelectedInstrumentNumber( nLine );
-	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
-	if ( pSelectedInstrument == nullptr ) {
-		ERRORLOG( "No instrument selected" );
-		return;
-	}
-
-	pSelectedInstrument->set_fx_level( ref->getFXLevel(nKnob), nKnob );
-	
-	QString sMessage = tr( "Set FX %1 level [%2] of instrument" )
-		.arg( nKnob )
-		.arg( ref->getFXLevel(nKnob), 0, 'f', 2 );
-	sMessage.append( QString( " [%1]" )
-					 .arg( ref->getName() ) );
-	QString sCaller = QString( "%1:knobChanged:%2" )
-		.arg( class_name() ).arg( ref->getName() );
-	
-	( HydrogenApp::get_instance() )->
-		showStatusBarMessage( sMessage, sCaller );
-
-	pHydrogen->setIsModified( true );
 }
 
 void Mixer::noteOnEvent( int nInstrument ) {

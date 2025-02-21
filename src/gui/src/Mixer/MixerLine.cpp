@@ -50,7 +50,6 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	, m_pInstrument( pInstrument )
 	, m_fOldMaxPeak( 0.0 )
 	, m_nCycleSampleActivation( 0 )
-	, m_bIsSelected( false )
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -63,13 +62,30 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	// Play sample button
 	m_pPlaySampleBtn = new Button(
 		this, QSize( 20, 15 ), Button::Type::Push, "play.svg", "", false,
-		QSize( 7, 7 ), tr( "Play sample" ) );
+		QSize( 7, 7 ), tr( "[Left click]: Play sample\n[Right click]: Stop all samples" ) );
 	m_pPlaySampleBtn->move( 6, 1 );
 	m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
-	connect(m_pPlaySampleBtn, &Button::clicked,
-			[&]() { emit noteOnClicked(this); });
-	connect(m_pPlaySampleBtn, &Button::rightClicked,
-			[&]() { emit noteOffClicked(this); });
+	connect( m_pPlaySampleBtn, &Button::clicked, [&]() {
+		const int nLine = retrieveLineNumber();
+		if ( nLine != -1 ) {
+			auto pHydrogen = Hydrogen::get_instance();
+			pHydrogen->setSelectedInstrumentNumber( nLine );
+
+			auto pNote = std::make_shared<Note>( m_pInstrument, 0, 1.0 );
+			pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
+		}
+	});
+	connect( m_pPlaySampleBtn, &Button::rightClicked, [&]() {
+		const int nLine = retrieveLineNumber();
+		if ( nLine != -1 ) {
+			auto pHydrogen = Hydrogen::get_instance();
+			pHydrogen->setSelectedInstrumentNumber( nLine );
+
+			auto pNote = std::make_shared<Note>( m_pInstrument, 0, 0.0 );
+			pNote->setNoteOff( true );
+			pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
+		}
+	});
 
 	// Trigger sample LED
 	m_pTriggerSampleLED = new LED( this, QSize( 5, 13 ) );
@@ -87,7 +103,13 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 		pCommonStrings->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
 	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
-	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteBtnClicked() ));
+	connect( m_pMuteBtn, &Button::clicked, [&]() {
+		const int nLine = retrieveLineNumber();
+		if ( nLine != -1 ) {
+			CoreActionController::setStripIsMuted(
+				nLine, m_pMuteBtn->isChecked(), true );
+		}
+	});
 
 	// Solo button
 	m_pSoloBtn = new Button(
@@ -95,7 +117,13 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 		pCommonStrings->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
 	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
-	connect(m_pSoloBtn, SIGNAL( clicked() ), this, SLOT( soloBtnClicked() ));
+	connect( m_pSoloBtn, &Button::clicked, [&]() {
+		const int nLine = retrieveLineNumber();
+		if ( nLine != -1 ) {
+			CoreActionController::setStripIsSoloed(
+				nLine, m_pSoloBtn->isChecked(), true );
+		}
+	});
 
 	// pan rotary
 	m_pPanRotary = new Rotary(
@@ -103,8 +131,13 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 		PAN_MIN, PAN_MAX );
 	m_pPanRotary->setObjectName( "PanRotary" );
 	m_pPanRotary->move( 6, 32 );
-	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( panChanged( WidgetWithInput* ) ) );
+	connect( m_pPanRotary, &Rotary::valueChanged, [&]() {
+		const int nLine = retrieveLineNumber();
+		if ( nLine != -1 ) {
+			CoreActionController::setStripPanSym(
+				nLine, m_pPanRotary->getValue(), true );
+		}
+	});
 
 	// FX send
 	int nnRow = 0;
@@ -119,23 +152,37 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 			pRotary->move( 30, 63 + (20 * nnRow) );
 			nnRow++;
 		}
-		connect( pRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
-				 this, SLOT( knobChanged( WidgetWithInput* ) ) );
+		connect( pRotary, &Rotary::valueChanged, [=]() {
+			const int nLine = retrieveLineNumber();
+			if ( nLine != -1 ) {
+				CoreActionController::setStripEffectLevel(
+					nLine, ii, pRotary->getValue(), true );
+			}
+		});
 		m_fxRotaries.push_back( pRotary );
 	}
 
 	// instrument name widget
 	m_pNameWidget = new InstrumentNameWidget( this );
 	m_pNameWidget->move( 6, 128 );
-	connect( m_pNameWidget, SIGNAL( doubleClicked() ), this, SLOT( nameClicked() ) );
-	connect( m_pNameWidget, SIGNAL( clicked() ), this, SLOT( nameSelected() ) );
+	connect( m_pNameWidget, &InstrumentNameWidget::clicked, [&]() {
+		const int nLine = retrieveLineNumber();
+		if ( nLine != -1 ) {
+			Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+		}
+	});
 
 	// m_pFader
 	m_pFader = new Fader( this, Fader::Type::Normal, tr( "Volume" ), false,
 						  false, 0.0, 1.5 );
 	m_pFader->move( 23, 128 );
-	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( faderChanged( WidgetWithInput* ) ) );
+	connect( m_pFader, &Fader::valueChanged, [&]() {
+		const int nLine = retrieveLineNumber();
+		if ( nLine != -1 ) {
+			CoreActionController::setStripVolume(
+				nLine, m_pFader->getValue(), true );
+		}
+	});
 
 	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ), false, false );
 	m_pPeakLCD->move( 8, 105 );
@@ -189,8 +236,8 @@ void MixerLine::updateLine() {
 		ppFxRotary->setValue( m_pInstrument->get_fx_level( ii ), false,
 							  Event::Trigger::Suppress );
 	}
-	m_pSelectionLED->setActivated(
-		Hydrogen::get_instance()->getSelectedInstrument() == m_pInstrument );
+
+	updateSelected();
 }
 
 void MixerLine::updatePeaks()
@@ -270,6 +317,11 @@ void MixerLine::updatePeaks()
 	}
 }
 
+void MixerLine::updateSelected() {
+	m_pSelectionLED->setActivated(
+		Hydrogen::get_instance()->getSelectedInstrument() == m_pInstrument );
+}
+
 void MixerLine::setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument ) {
 	if ( pInstrument != m_pInstrument ) {
 		m_pInstrument = pInstrument;
@@ -281,147 +333,15 @@ void MixerLine::triggerSampleLED() {
 	m_nCycleSampleActivation = MixerLine::nCyclesSampleActivationLED;
 }
 
-void MixerLine::muteBtnClicked() {
-	Hydrogen::get_instance()->setIsModified( true );
-	emit muteBtnClicked(this);
-}
-
-void MixerLine::soloBtnClicked() {
-	Hydrogen::get_instance()->setIsModified( true );
-	emit soloBtnClicked(this);
-}
-
-void MixerLine::faderChanged( WidgetWithInput *pRef ) {
-
-	assert( pRef );
-	
-	Hydrogen::get_instance()->setIsModified( true );
-	emit volumeChanged(this);
-
-	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
-	
-	double value = (double) pFader->getValue();
-
-	QString sMessage = tr( "Set volume [%1] of instrument" )
-		.arg( value, 0, 'f', 2 );
-	sMessage.append( QString( " [%1]" )
-					 .arg( m_pNameWidget->text() ) );
-	QString sCaller = QString( "%1:faderChanged:%2" )
-		.arg( class_name() ).arg( m_pNameWidget->text() );
-	
-	( HydrogenApp::get_instance() )->
-		showStatusBarMessage( sMessage, sCaller );
-}
-
-bool MixerLine::isMuteClicked() const {
-	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) ||
-			 ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
-}
-
-void MixerLine::setMuteClicked(bool isClicked) {
-	if ( ! m_pMuteBtn->isDown() ) {
-		m_pMuteBtn->setChecked(isClicked);
-	}
-}
-
-bool MixerLine::isSoloClicked() const {
-	return ( ( m_pSoloBtn->isChecked() && ! m_pSoloBtn->isDown() ) || ( ! m_pSoloBtn->isChecked() && m_pSoloBtn->isDown() ) );
-}
-
-void MixerLine::setSoloClicked(bool isClicked) {
-	if ( ! m_pSoloBtn->isDown() ) {
-		m_pSoloBtn->setChecked(isClicked);
-	}
-}
-
-float MixerLine::getVolume() const {
-	return m_pFader->getValue();
-}
-
-void MixerLine::setVolume( float value, H2Core::Event::Trigger trigger ) {
-	m_pFader->setValue( value, false, trigger );
-}
-
-void MixerLine::setName( const QString& sName) {
-	m_pNameWidget->setText( sName );
-}
-
-const QString& MixerLine::getName() const {
-	return m_pNameWidget->text();
-}
-
-void MixerLine::nameClicked() {
-	emit instrumentNameClicked(this);
-}
-
-void MixerLine::nameSelected() {
-	emit instrumentNameSelected(this);
-}
-
-void MixerLine::panChanged(WidgetWithInput *ref)
-{
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	emit panChanged( this );
-	/** Do not update tooltip nor print status message in the old fashion panL and panL style
-	 *	since inconsistent with new pan implementation. The resultant pan depends also on note pan.
-	 *	The rotary widget valuetip is enough to read the value.
-	 */
-}
-
-float MixerLine::getPan() const {
-	return m_pPanRotary->getValue();
-}
-
-void MixerLine::setPan( float fValue, H2Core::Event::Trigger trigger )
-{
-	m_pPanRotary->setValue( fValue, false, trigger );
-	/** Do not update tooltip in the old fashion panL and panL style
-	 * since inconsistent with new pan implementation. The resultant pan depends also on note pan.
-	 * The rotary widget valuetip is enough to read the value.
-	 */
-}
-
-void MixerLine::setPlayClicked( bool clicked ) {
-	m_pTriggerSampleLED->setActivated( clicked );
-}
-
-void MixerLine::knobChanged( WidgetWithInput* pRef)
-{
-	assert( pRef );
-	Rotary* pRotary = static_cast<Rotary*>( pRef );
-	
-	for ( uint i = 0; i < MAX_FX; i++ ) {
-		if ( m_fxRotaries[i] == pRotary ) {
-			emit knobChanged( this, i );
-			break;
-		}
-	}
-}
-
-void MixerLine::setFXLevel( int nFX, float fValue,
-							H2Core::Event::Trigger trigger ) {
-	if ( nFX >= MAX_FX ) {
-		ERRORLOG( QString("[setFXLevel] nFX >= MAX_FX (nFX=%1)").arg(nFX) );
-		return;
-	}
-	m_fxRotaries[ nFX ]->setValue( fValue, false, trigger );
-}
-
-float MixerLine::getFXLevel( int nFX ) const {
-	if ( nFX >= MAX_FX ) {
-		ERRORLOG( QString("[setFXLevel] nFX >= MAX_FX (nFX=%1)").arg(nFX) );
-		return 0.0f;
-	}
-	return m_fxRotaries[ nFX ]->getValue();
-}
-
-void MixerLine::setSelected( bool bIsSelected ) {
-	if ( m_bIsSelected == bIsSelected ) {
-		return;
+int MixerLine::retrieveLineNumber() const {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 m_pInstrument == nullptr ) {
+		return -1;
 	}
 
-	m_bIsSelected = bIsSelected;
-	m_pSelectionLED->setActivated( bIsSelected );
+	return pSong->getDrumkit()->getInstruments()->index( m_pInstrument );
 }
 
 void MixerLine::updateActions() {

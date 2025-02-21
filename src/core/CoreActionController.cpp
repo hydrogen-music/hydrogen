@@ -173,16 +173,21 @@ bool CoreActionController::toggleStripIsMuted( int nStrip )
 		return false;
 	}
 	
-	return setStripIsMuted( nStrip, !pInstr->is_muted() );
+	return setStripIsMuted( nStrip, !pInstr->is_muted(), false );
 }
 
-bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted )
+bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted,
+											bool bSelectStrip )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	if ( pInstr->is_muted() != bIsMuted ) {
@@ -210,16 +215,21 @@ bool CoreActionController::toggleStripIsSoloed( int nStrip )
 		return false;
 	}
 	
-	return setStripIsSoloed( nStrip, !pInstr->is_soloed() );
+	return setStripIsSoloed( nStrip, !pInstr->is_soloed(), false );
 }
 
-bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
+bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed,
+											 bool bSelectStrip )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
 	if ( pInstr->is_soloed() != isSoloed ) {
@@ -293,6 +303,33 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 
 	return true;
 }
+
+bool CoreActionController::setStripEffectLevel( int nStrip, int nEffect,
+												float fValue, bool bSelectStrip )
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+	auto pInstr = getStrip( nStrip );
+	if ( pInstr == nullptr || nEffect < 0 || nEffect >= MAX_FX ) {
+		return false;
+	}
+
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+
+	if ( pInstr->get_fx_level( nEffect ) != fValue ) {
+		pInstr->set_fx_level( fValue, nEffect );
+
+		EventQueue::get_instance()->push_event(
+			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
+
+		pHydrogen->setIsModified( true );
+	}
+
+	return true;
+}
+
 
 bool CoreActionController::sendMasterVolumeFeedback() {
 	auto pHydrogen = Hydrogen::get_instance();

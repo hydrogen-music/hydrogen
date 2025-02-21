@@ -2871,20 +2871,12 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Paramètres du mixeur</translation>
     </message>
     <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation>Régler le niveau %1 de l&apos;effet [%2] de l&apos;instrument</translation>
-    </message>
-    <message>
         <source>Set volume [%1] of FX</source>
         <translation>Régler le volume [%1] de l&apos;effet</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Jouer l&apos;échantillon</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Muet</translation>
@@ -2906,8 +2898,9 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Pic</translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
-        <translation>Régler le volume [%1] de l&apos;instrument</translation>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

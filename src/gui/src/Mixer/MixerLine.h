@@ -66,8 +66,9 @@ public:
 	MixerLine( QWidget* pParent, std::shared_ptr<H2Core::Instrument> pInstrument );
 	~MixerLine();
 
-	void	updateLine();
-	void	updatePeaks();
+		void updateLine();
+		void updatePeaks();
+		void updateSelected();
 
 		std::shared_ptr<H2Core::Instrument> getInstrument() const;
 		void setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
@@ -75,65 +76,11 @@ public:
 		/** Activates the corresponding LED widget for a short amount of time. */
 		void triggerSampleLED();
 
-	bool	isMuteClicked() const;
-	void	setMuteClicked( bool bIsClicked );
-
-	bool	isSoloClicked() const;
-	void	setSoloClicked( bool bIsClicked );
-
-	float	getVolume() const;
-	void	setVolume( float fValue,
-					   H2Core::Event::Trigger trigger =
-					      H2Core::Event::Trigger::Default );
-
-	void	setPeak_L( float fPeak );
-	float	getPeak_L() const;
-
-	void	setPeak_R( float fPeak );
-	float	getPeak_R() const;
-
-	void	setName( const QString& sName );
-	const QString& getName() const;
-
-	float	getPan() const;
-	void	setPan( float fValue,
-					H2Core::Event::Trigger trigger =
-				       H2Core::Event::Trigger::Default );
-
-	void	setPlayClicked( bool bCicked );
-
-	void	setFXLevel( int nFX, float fValue,
-						H2Core::Event::Trigger trigger =
-						   H2Core::Event::Trigger::Default );
-	float	getFXLevel( int nFX ) const;
-
-	void	setSelected( bool bIsSelected );
-
-signals:
-	void	muteBtnClicked(MixerLine *ref);
-	void	soloBtnClicked(MixerLine *ref);
-	void	volumeChanged(MixerLine *ref);
-	void	instrumentNameClicked(MixerLine *ref);
-	void	instrumentNameSelected(MixerLine *ref);
-	void	noteOnClicked(MixerLine *ref);
-	void	noteOffClicked(MixerLine *ref);
-	void	panChanged(MixerLine *ref);
-	void	knobChanged(MixerLine *ref, int nKnob);
-
-public slots:
-	void	muteBtnClicked();
-	void	soloBtnClicked();
-	void	faderChanged(WidgetWithInput *ref);
-	void	panChanged(WidgetWithInput *ref);
-	void	knobChanged(WidgetWithInput *ref);
-	void	nameClicked();
-	void	nameSelected();
-
 private:
+		int retrieveLineNumber() const;
 		void updateActions();
 
 		std::shared_ptr<H2Core::Instrument> m_pInstrument;
-	bool	m_bIsSelected;
 
 		/** For how many more peak update cycles to flash the sample activate
 		 * LED. */

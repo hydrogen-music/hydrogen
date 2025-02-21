@@ -342,7 +342,8 @@ bool MidiActionManager::strip_mute_toggle( std::shared_ptr<Action> pAction, Hydr
 		return false;
 	}
 
-	return CoreActionController::setStripIsMuted( nLine, !pInstr->is_muted() );
+	return CoreActionController::setStripIsMuted(
+		nLine, !pInstr->is_muted(), false );
 }
 
 bool MidiActionManager::strip_solo_toggle( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
@@ -365,7 +366,8 @@ bool MidiActionManager::strip_solo_toggle( std::shared_ptr<Action> pAction, Hydr
 		return false;
 	}
 
-	return CoreActionController::setStripIsSoloed( nLine, !pInstr->is_soloed() );
+	return CoreActionController::setStripIsSoloed(
+		nLine, !pInstr->is_soloed(), false );
 }
 
 bool MidiActionManager::beatcounter( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
@@ -537,18 +539,13 @@ bool MidiActionManager::effect_level_absolute( std::shared_ptr<Action> pAction, 
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
-		
-	if( fx_param != 0 ) {
-		pInstr->set_fx_level( (float) (fx_param / 127.0 ), fx_id );
-	} else {
-		pInstr->set_fx_level( 0 , fx_id );
+
+	float fValue = 0;
+	if ( fx_param != 0 ) {
+		fValue = static_cast<float>(fx_param) / 127.0;
 	}
-			
-	pHydrogen->setSelectedInstrumentNumber( nLine );
 
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
-
-	return true;
+	return CoreActionController::setStripEffectLevel( nLine, fx_id, fValue, true );
 }
 
 bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
@@ -572,20 +569,18 @@ bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> pAction, 
 		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
+
+	float fValue = 0;
 	if ( fx_param != 0 ) {
 		if ( fx_param == 1 && pInstr->get_fx_level( fx_id ) <= 0.95 ) {
-			pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) + 0.05, fx_id );
+			fValue = pInstr->get_fx_level( fx_id ) + 0.05;
 		}
 		else if ( pInstr->get_fx_level( fx_id ) >= 0.05 ) {
-			pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) - 0.05, fx_id );
+			fValue = pInstr->get_fx_level( fx_id ) - 0.05;
 		}
 	}
-			
-	pHydrogen->setSelectedInstrumentNumber( nLine );
 
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
-
-	return true;
+	return CoreActionController::setStripEffectLevel( nLine, fx_id, fValue, true );
 }
 
 //sets the volume of a master output to a given level (percentage)

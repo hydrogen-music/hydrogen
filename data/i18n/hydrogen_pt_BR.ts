@@ -2868,20 +2868,12 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Configurações de Mixer</translation>
     </message>
     <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation>Definir nível %1 FX [%2] de instrumento</translation>
-    </message>
-    <message>
         <source>Set volume [%1] of FX</source>
         <translation>Definir volume [%1] do FX</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Executar amostra</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Mudo</translation>
@@ -2903,8 +2895,9 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Pico</translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
-        <translation>Definir volume [%1] de instrumento</translation>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
