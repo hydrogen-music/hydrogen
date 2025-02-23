@@ -149,7 +149,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void updateWindowTitle();
 
 #ifdef H2CORE_HAVE_LADSPA
-		LadspaFXProperties* getLadspaFXProperties(uint nFX) {	return m_pLadspaFXProperties[nFX];	}
+		LadspaFXProperties* getLadspaFXProperties( int nFX) {	return m_pLadspaFXProperties[nFX];	}
 #endif
 		void addEventListener( EventListener* pListener );
 		void removeEventListener( EventListener* pListener );

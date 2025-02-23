@@ -2106,6 +2106,18 @@ Valor</translation>
         <source>Effect return</source>
         <translation>Retorno de efectos</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Los efectos LADSPA no están disponibles en esta versión de Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation>Establecer volumen [%1] del FX</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Sin plugin</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2858,20 +2870,12 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Mostrar picos de instrumento = No</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Los efectos LADSPA no están disponibles en esta versión de Hydrogen.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mezclador</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
         <translation>Configuración Mezclador</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Establecer volumen [%1] del FX</translation>
     </message>
 </context>
 <context>

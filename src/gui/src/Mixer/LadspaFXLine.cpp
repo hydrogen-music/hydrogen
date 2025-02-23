@@ -22,27 +22,23 @@
 
 #include "LadspaFXLine.h"
 
-#include "../InstrumentEditor/InstrumentEditor.h"
-#include "../HydrogenApp.h"
-#include "../Skin.h"
 #include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../LadspaFXProperties.h"
 #include "../Widgets/ClickableLabel.h"
-#include "../Widgets/Fader.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
-#include "../Widgets/LED.h"
 #include "../Widgets/WidgetWithInput.h"
 
-#include <core/CoreActionController.h>
-#include <core/Hydrogen.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/MidiAction.h>
+#include <core/EventQueue.h>
+#include <core/FX/Effects.h>
 
 using namespace H2Core;
 
-LadspaFXLine::LadspaFXLine( QWidget* pParent )
+LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX )
 	: PixmapWidget( pParent )
+	, m_pFX( pFX )
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -58,7 +54,15 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent )
 		pCommonStrings->getBypassButton(), true, QSize(), tr( "FX bypass") );
 	m_pBypassBtn->setObjectName( "MixerFXBypassButton" );
 	m_pBypassBtn->move( 52, 25 );
-	connect( m_pBypassBtn, SIGNAL( clicked() ), this, SLOT( bypassBtnClicked() ) );
+#ifdef H2CORE_HAVE_LADSPA
+	connect( m_pBypassBtn, &Button::clicked, [&]() {
+		if ( m_pFX != nullptr ) {
+			m_pFX->setEnabled( ! m_pBypassBtn->isChecked() );
+
+			Hydrogen::get_instance()->setIsModified( true );
+		}
+	});
+#endif
 
 	// edit button
 	m_pEditBtn = new Button(
@@ -66,7 +70,20 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent )
 		pCommonStrings->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
 	m_pEditBtn->setObjectName( "MixerFXEditButton" );
 	m_pEditBtn->move( 86, 25 );
-	connect( m_pEditBtn, SIGNAL( clicked() ), this, SLOT( editBtnClicked() ) );
+	connect( m_pEditBtn, &Button::clicked, [&](){
+#ifdef H2CORE_HAVE_LADSPA
+		for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
+			auto pFX = Effects::get_instance()->getLadspaFX( nnFX );
+			if ( pFX == m_pFX) {
+				HydrogenApp::get_instance()->getLadspaFXProperties( nnFX )->hide();
+				HydrogenApp::get_instance()->getLadspaFXProperties( nnFX )->show();
+			}
+		}
+#else
+		QMessageBox::critical(
+			this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
+#endif
+	});
 
 	// instrument name widget
 	m_pNameLCD = new LCDDisplay( this, QSize( 108, 15 ), false, false );
@@ -75,55 +92,70 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent )
 	m_pNameLCD->setToolTip( tr( "Ladspa FX name" ) );
 
 	// m_pRotary
-	m_pRotary = new Rotary(
+	m_pVolumeRotary = new Rotary(
 		this, Rotary::Type::Normal, tr( "Effect return" ), false );
-	m_pRotary->setDefaultValue( m_pRotary->getMax() );
-	m_pRotary->move( 124, 4 );
-	m_pRotary->setIsActive( false );
-	connect( m_pRotary, SIGNAL( valueChanged( WidgetWithInput* ) ),
-			 this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
+	m_pVolumeRotary->setDefaultValue( m_pVolumeRotary->getMax() );
+	m_pVolumeRotary->move( 124, 4 );
+	m_pVolumeRotary->setIsActive( false );
+#ifdef H2CORE_HAVE_LADSPA
+	connect( m_pVolumeRotary, &Rotary::valueChanged, [&]() {
+		if ( m_pFX != nullptr ) {
+			m_pFX->setVolume( m_pVolumeRotary->getValue() );
+			HydrogenApp::get_instance()->showStatusBarMessage(
+			tr( "Set volume [%1] of FX" )
+					.arg( m_pVolumeRotary->getValue(), 0, 'f', 2 ),
+			QString( "%1:rotaryChanged:%2" )
+			.arg( class_name() ).arg( pFX->getPluginName() ) );
+
+			Hydrogen::get_instance()->setIsModified( true );
+		}
+	});
+#endif
 
 	m_pReturnLbl = new ClickableLabel(
 		this, QSize( 46, 9 ), pCommonStrings->getReturnLabel(),
 		ClickableLabel::Color::Dark );
 	m_pReturnLbl->move( 123, 30 );
+
+	updateLine();
 }
 
 LadspaFXLine::~LadspaFXLine() {
 }
 
-void LadspaFXLine::setName( const QString& sName ) {
-	m_pNameLCD->setText( sName );
-}
+void LadspaFXLine::updateLine() {
+#ifdef H2CORE_HAVE_LADSPA
+	if ( m_pFX == nullptr ) {
+		m_pBypassBtn->setIsActive( false );
+		m_pNameLCD->setText( tr( "No plugin" ) );
+		m_pVolumeRotary->setIsActive( false );
 
-void LadspaFXLine::bypassBtnClicked() {
-	emit bypassBtnClicked( this );
-}
-void LadspaFXLine::editBtnClicked() {
-	emit editBtnClicked( this );
-}
-
-bool LadspaFXLine::isFxBypassed() const {
-	return ( ( m_pBypassBtn->isChecked() && ! m_pBypassBtn->isDown() ) ||
-			 ( ! m_pBypassBtn->isChecked() && m_pBypassBtn->isDown() ) );
-}
-
-void LadspaFXLine::setFxBypassed( bool bBypassed ) {
-	if ( ! m_pBypassBtn->isDown() ) {
-		m_pBypassBtn->setChecked( bBypassed );
+		return;
 	}
-	m_pRotary->setIsActive( ! bBypassed );
+	else {
+		m_pBypassBtn->setIsActive( true );
+		m_pVolumeRotary->setIsActive( true );
+	}
+
+	m_pBypassBtn->setChecked( ! m_pFX->isEnabled() );
+	m_pNameLCD->setText( m_pFX->getPluginName() );
+
+	if ( m_pFX->isEnabled() ) {
+		m_pVolumeRotary->setValue( m_pFX->getVolume(), false,
+								   Event::Trigger::Suppress );
+	}
+	else {
+		m_pVolumeRotary->setIsActive( false );
+	}
+
+#else
+	m_pBypassBtn->setIsActive( false );
+	m_pEditBtn->setIsActive( false );
+	m_pNameLCD->setIsActive( false );
+	m_pVolumeRotary->setIsActive( false );
+#endif
 }
 
-void LadspaFXLine::rotaryChanged( WidgetWithInput *ref ) {
-	emit volumeChanged( this );
-	UNUSED( ref );
-}
-
-float LadspaFXLine::getVolume() const {
-	return m_pRotary->getValue();
-}
-
-void LadspaFXLine::setVolume( float value, H2Core::Event::Trigger trigger ) {
-	m_pRotary->setValue( value, false, trigger );
+void LadspaFXLine::setFX( std::shared_ptr<H2Core::LadspaFX> pFX ) {
+	m_pFX = pFX;
 }

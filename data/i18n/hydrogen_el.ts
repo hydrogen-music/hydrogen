@@ -2092,6 +2092,18 @@ Value</source>
         <source>Effect return</source>
         <translation>Επιστροφή του εφέ</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Τα εφέ LADSPA δεν είναι διαθέσιμα στην παρούσα έκδοση του Υδρογόνου.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Κανένα ένθεμα</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2844,19 +2856,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Προβολή των κορυφών του οργάνου = Ανενεργό</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Τα εφέ LADSPA δεν είναι διαθέσιμα στην παρούσα έκδοση του Υδρογόνου.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Μείκτης</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

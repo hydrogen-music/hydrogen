@@ -2094,6 +2094,18 @@ Value</source>
         <source>Effect return</source>
         <translation>Возврат эффекта</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Эффекты LADSPA недоступны в этой версии Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Эффект не назначен</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2841,19 +2853,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Отображение пиков инструментов = Выкл</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Эффекты LADSPA недоступны в этой версии Hydrogen.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Микшер</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

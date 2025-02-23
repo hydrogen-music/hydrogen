@@ -2105,6 +2105,18 @@ Valor</translation>
         <source>Effect return</source>
         <translation>Retorno de feito</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Efeitos LADSPA não estão disponíveis nesta versão do Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation>Definir volume [%1] do FX</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Sem plugin</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2856,20 +2868,12 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Mostrar picos dos instrumentos = Des.</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Efeitos LADSPA não estão disponíveis nesta versão do Hydrogen.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mixer</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
         <translation>Configurações de Mixer</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Definir volume [%1] do FX</translation>
     </message>
 </context>
 <context>

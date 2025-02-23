@@ -2103,6 +2103,18 @@ Wert</translation>
         <source>Effect return</source>
         <translation>Effekt-Return</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>LADSPA-Effekte stehen in dieser Hydrogenversion nicht zur Verfügung.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation>Effekt-Lautstärke [%1] gesetzt</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Kein Plugin</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2851,20 +2863,12 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Peaks anzeigen = deaktiviert</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>LADSPA-Effekte stehen in dieser Hydrogenversion nicht zur Verfügung.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mixer</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
         <translation>Mixer Einstellungen</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Effekt-Lautstärke [%1] gesetzt</translation>
     </message>
 </context>
 <context>

@@ -2093,6 +2093,18 @@ Value</source>
         <source>Effect return</source>
         <translation>Retorn d&apos;efectes</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Sense complement</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2817,19 +2829,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Mostrar pics d&apos;instrument = No</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mesclador</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

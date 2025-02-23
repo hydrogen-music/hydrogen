@@ -25,14 +25,19 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <memory>
+
 #include <core/EventQueue.h>
 #include <core/Object.h>
 
 class Button;
 class LCDDisplay;
 class Rotary;
-class WidgetWithInput;
 class ClickableLabel;
+
+namespace H2Core {
+	class LadspaFX;
+}
 
 #include "../Widgets/PixmapWidget.h"
 
@@ -47,37 +52,26 @@ public:
 		static constexpr int nWidth = 194;
 		static constexpr int nHeight = 43;
 
-	explicit LadspaFXLine(QWidget* parent);
-	~LadspaFXLine();
+		explicit LadspaFXLine( QWidget* pParent,
+							   std::shared_ptr<H2Core::LadspaFX> pFX );
+		~LadspaFXLine();
 
-	bool	isFxBypassed() const;
-	void	setFxBypassed( bool bActive );
-		
-	void	setPeaks( float fPeak_L, float fPeak_R );
-	void	getPeaks( float *fPeak_L, float *fPeak_R ) const;
-	void	setName( const QString& sName );
-		
-	float	getVolume() const;
-	void	setVolume( float fValue,
-					   H2Core::Event::Trigger trigger =
-					      H2Core::Event::Trigger::Default );
+		void updateLine();
 
-public slots:
-	void bypassBtnClicked();
-	void editBtnClicked();
-	void rotaryChanged( WidgetWithInput* ref);
-
-signals:
-	void bypassBtnClicked( LadspaFXLine *ref );
-	void editBtnClicked( LadspaFXLine *ref );
-	void volumeChanged( LadspaFXLine *ref );
+		std::shared_ptr<H2Core::LadspaFX> getFX() const;
+		void setFX( std::shared_ptr<H2Core::LadspaFX> pFX );
 
 private:
+		std::shared_ptr<H2Core::LadspaFX> m_pFX;
+
 	Button *		m_pBypassBtn;
 	Button *		m_pEditBtn;
-	Rotary *		m_pRotary;
+	Rotary *		m_pVolumeRotary;
 	LCDDisplay *	m_pNameLCD;
 	ClickableLabel* m_pReturnLbl;
 };
 
+inline std::shared_ptr<H2Core::LadspaFX> LadspaFXLine::getFX() const {
+	return m_pFX;
+}
 #endif

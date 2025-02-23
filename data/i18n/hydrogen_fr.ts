@@ -2107,6 +2107,18 @@ Valeur</translation>
         <source>Effect return</source>
         <translation>Retour de l&apos;effet</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation>Régler le volume [%1] de l&apos;effet</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Pas de greffon</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2859,20 +2871,12 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Afficher les niveaux = Inactif</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mixeur</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
         <translation>Paramètres du mixeur</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Régler le volume [%1] de l&apos;effet</translation>
     </message>
 </context>
 <context>

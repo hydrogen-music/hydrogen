@@ -2092,6 +2092,18 @@ Value</source>
         <source>Effect return</source>
         <translation>Powrót efektu</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Brak wtyczki</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2812,19 +2824,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Pomiar głośności instrumentów = Wyłączony</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mikser</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

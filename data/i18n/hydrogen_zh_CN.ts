@@ -2095,6 +2095,18 @@ Value</source>
         <source>Effect return</source>
         <translation>效果返回</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>LADSPA 效果在此版本的 Hydrogen 中不可用。</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>无插件</translation>
+    </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
@@ -2846,16 +2858,8 @@ LilyPond 导出是一项实验性功能。
         <translation>显示乐器峰值：关</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>LADSPA 效果在此版本的 Hydrogen 中不可用。</translation>
-    </message>
-    <message>
         <source>Mixer Settings</source>
         <translation>混音器设置</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

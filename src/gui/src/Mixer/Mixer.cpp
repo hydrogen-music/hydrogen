@@ -28,8 +28,6 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../LadspaFXProperties.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/PixmapWidget.h"
 #include "MixerSettingsDialog.h"
@@ -98,24 +96,14 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFXFrame->setFixedSize( nFXFrameWidth, nFixedHeight );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-		auto ppLine = new LadspaFXLine( m_pFXFrame );
+#ifdef H2CORE_HAVE_LADSPA
+		auto pFX = pEffects->getLadspaFX( nnFX );
+		auto ppLine = new LadspaFXLine( m_pFXFrame, pFX );
+#else
+		auto ppLine = new LadspaFXLine( m_pFXFrame, nullptr );
+#endif
 		ppLine->setObjectName( "LadspaFXMixerLine" );
 		ppLine->move( 13, 43 * nnFX + 84 );
-#ifdef H2CORE_HAVE_LADSPA
-		if ( pEffects != nullptr ) {
-			auto pFx = pEffects->getLadspaFX( nnFX );
-			if ( pFx != nullptr ) {
-				ppLine->setFxBypassed(
-					pEffects->getLadspaFX( nnFX )->isEnabled() );
-			}
-		}
-#endif
-		connect( ppLine, SIGNAL( bypassBtnClicked(LadspaFXLine*) ),
-				 this, SLOT( ladspaBypassBtnClicked( LadspaFXLine*) ) );
-		connect( ppLine, SIGNAL( editBtnClicked(LadspaFXLine*) ),
-				 this, SLOT( ladspaEditBtnClicked( LadspaFXLine*) ) );
-		connect( ppLine, SIGNAL( volumeChanged(LadspaFXLine*) ),
-				 this, SLOT( ladspaVolumeChanged( LadspaFXLine*) ) );
 		m_ladspaFXLines.push_back( ppLine );
 	}
 
@@ -266,18 +254,13 @@ void Mixer::updateMixer()
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nnFX );
-		if ( pFX != nullptr ) {
-			m_ladspaFXLines[nnFX]->setName( pFX->getPluginName() );
-			m_ladspaFXLines[nnFX]->setFxBypassed( ! pFX->isEnabled() );
-			m_ladspaFXLines[nnFX]->setVolume( pFX->getVolume(),
-											 Event::Trigger::Suppress );
+		auto pFX = Effects::get_instance()->getLadspaFX( nnFX );
+		auto pFxLine = m_ladspaFXLines[ nnFX ];
+		if ( pFxLine->getFX() != pFX ) {
+			pFxLine->setFX( pFX );
 		}
-		else {
-			m_ladspaFXLines[nnFX]->setName( "No plugin" );
-			m_ladspaFXLines[nnFX]->setFxBypassed( true );
-			m_ladspaFXLines[nnFX]->setVolume( 0.0, Event::Trigger::Suppress );
-		}
+
+		pFxLine->updateLine();
 	}
 	// ~LADSPA
 #endif
@@ -360,63 +343,6 @@ void Mixer::showPeaksBtnClicked()
 		pPref->setInstrumentPeaks( false );
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Show instrument peaks = Off") );
 	}
-}
-
-void Mixer::ladspaBypassBtnClicked( LadspaFXLine* ref ) {
-#ifdef H2CORE_HAVE_LADSPA
-	bool bActive = ! ref->isFxBypassed();
-
-	for (int nFX = 0; nFX < MAX_FX; nFX++) {
-		if (ref == m_ladspaFXLines[ nFX ] ) {
-			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);
-			if (pFX) {
-				pFX->setEnabled( bActive );
-			}
-			break;
-		}
-	}
-#else
-	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
-#endif
-}
-
-void Mixer::ladspaEditBtnClicked( LadspaFXLine *ref ) {
-#ifdef H2CORE_HAVE_LADSPA
-
-	for (int nFX = 0; nFX < MAX_FX; nFX++) {
-		if (ref == m_ladspaFXLines[ nFX ] ) {
-			HydrogenApp::get_instance()->getLadspaFXProperties(nFX)->hide();
-			HydrogenApp::get_instance()->getLadspaFXProperties(nFX)->show();
-		}
-	}
-	Hydrogen::get_instance()->setIsModified( true );
-#else
-	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
-#endif
-}
-
-void Mixer::ladspaVolumeChanged( LadspaFXLine* ref) {
-#ifdef H2CORE_HAVE_LADSPA
-	for (int nFX = 0; nFX < MAX_FX; nFX++) {
-		if (ref == m_ladspaFXLines[ nFX ] ) {
-			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);
-			if ( pFX != nullptr ) {
-				pFX->setVolume( ref->getVolume() );
-
-				QString sMessage = tr( "Set volume [%1] of FX" )
-					.arg( ref->getVolume(), 0, 'f', 2 );
-				sMessage.append( QString( " [%1]" ).arg( pFX->getPluginName() ) );
-				QString sCaller = QString( "%1:rotaryChanged:%2" )
-					.arg( class_name() ).arg( pFX->getPluginName() );
-	
-				HydrogenApp::get_instance()->
-					showStatusBarMessage( sMessage, sCaller );
-
-				Hydrogen::get_instance()->setIsModified( true );
-			}
-		}
-	}
-#endif
 }
 
 void Mixer::openMixerSettingsDialog() {
