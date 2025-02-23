@@ -36,23 +36,11 @@
 namespace H2Core
 {
 
-LadspaFXGroup::LadspaFXGroup( const QString& sName )
-{
-//	infoLog( "INIT - " + sName );
-	m_sName = sName;
+LadspaFXGroup::LadspaFXGroup( const QString& sName ) : m_sName( sName ) {
 }
 
-
-LadspaFXGroup::~LadspaFXGroup()
-{
-//	infoLog( "DESTROY - " + m_sName );
-
-	for ( int i = 0; i < ( int )m_childGroups.size(); ++i ) {
-		delete m_childGroups[ i ];
-	}
+LadspaFXGroup::~LadspaFXGroup() {
 }
-
-
 
 void LadspaFXGroup::clear() {
 	m_childGroups.clear();
@@ -60,39 +48,33 @@ void LadspaFXGroup::clear() {
 	Hydrogen::get_instance()->setIsModified( true );
 }
 
-void LadspaFXGroup::addLadspaInfo( LadspaFXInfo *pInfo )
-{
+void LadspaFXGroup::addLadspaInfo( std::shared_ptr<LadspaFXInfo> pInfo ) {
 	m_ladspaList.push_back( pInfo );
 	Hydrogen::get_instance()->setIsModified( true );
 }
 
 
-void LadspaFXGroup::addChild( LadspaFXGroup *pChild )
-{
+void LadspaFXGroup::addChild( std::shared_ptr<LadspaFXGroup> pChild ) {
 	m_childGroups.push_back( pChild );
 	Hydrogen::get_instance()->setIsModified( true );
 }
 
-bool LadspaFXGroup::alphabeticOrder( LadspaFXGroup* a, LadspaFXGroup* b )
-{
+bool LadspaFXGroup::alphabeticOrder( std::shared_ptr<LadspaFXGroup> a,
+									 std::shared_ptr<LadspaFXGroup> b ) {
 	return ( a->getName() < b->getName() );
 }
 
-void LadspaFXGroup::sort()
-{
-	std::sort( m_ladspaList.begin(), m_ladspaList.end(), LadspaFXInfo::alphabeticOrder );
-	std::sort( m_childGroups.begin(), m_childGroups.end(), LadspaFXGroup::alphabeticOrder );
+void LadspaFXGroup::sort() {
+	std::sort( m_ladspaList.begin(), m_ladspaList.end(),
+			   LadspaFXInfo::alphabeticOrder );
+	std::sort( m_childGroups.begin(), m_childGroups.end(),
+			   LadspaFXGroup::alphabeticOrder );
 	Hydrogen::get_instance()->setIsModified( true );
 }
 
-
-
 ////////////////
 
-
-LadspaFXInfo::LadspaFXInfo( const QString& sName )
-{
-//	infoLog( "INIT - " + sName );
+LadspaFXInfo::LadspaFXInfo( const QString& sName ) {
 	m_sFilename = "";
 	m_sLabel = "";
 	m_sName = sName;
@@ -102,24 +84,18 @@ LadspaFXInfo::LadspaFXInfo( const QString& sName )
 	m_nOAPorts = 0;
 }
 
-
-LadspaFXInfo::~LadspaFXInfo()
-{
-//	infoLog( "DESTROY " + m_sName );
+LadspaFXInfo::~LadspaFXInfo() {
 }
 
-bool LadspaFXInfo::alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b )
-{
+bool LadspaFXInfo::alphabeticOrder( std::shared_ptr<LadspaFXInfo> a,
+									std::shared_ptr<LadspaFXInfo> b ) {
 	return ( a->m_sName < b->m_sName );
 }
-
 
 ///////////////////
 
 
-// ctor
 LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
-//, m_nBufferSize( 0 )
 		: m_pBuffer_L( nullptr )
 		, m_pBuffer_R( nullptr )
 		, m_pluginType( UNDEFINED )
@@ -138,34 +114,20 @@ LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
 {
 	INFOLOG( QString( "INIT - %1 - %2" ).arg( sLibraryPath ).arg( sPluginLabel ) );
 
-
 	m_pBuffer_L = new float[MAX_BUFFER_SIZE];
 	m_pBuffer_R = new float[MAX_BUFFER_SIZE];
-
 
 	// Touch all the memory (is this really necessary?)
 	for ( unsigned i = 0; i < MAX_BUFFER_SIZE; ++i ) {
 		m_pBuffer_L[ i ] = 0;
 		m_pBuffer_R[ i ] = 0;
 	}
-
 }
 
-
-// dtor
-LadspaFX::~LadspaFX()
-{
-	// dealloca il plugin
+LadspaFX::~LadspaFX() {
 	INFOLOG( QString( "DESTROY - %1 - %2" ).arg( m_sLibraryPath ).arg( m_sLabel ) );
 
 	if ( m_d ) {
-		/*
-		if ( m_d->deactivate ) {
-			if ( m_handle ) {
-				INFOLOG( "deactivate" );
-				m_d->deactivate( m_handle );
-			}
-		}*/
 		deactivate();
 
 		if ( m_d->cleanup ) {
@@ -177,13 +139,6 @@ LadspaFX::~LadspaFX()
 		}
 	}
 	delete m_pLibrary;
-
-	for ( unsigned i = 0; i < inputControlPorts.size(); i++ ) {
-		delete inputControlPorts[i];
-	}
-	for ( unsigned i = 0; i < outputControlPorts.size(); i++ ) {
-		delete outputControlPorts[i];
-	}
 
 	delete[] m_pBuffer_L;
 	delete[] m_pBuffer_R;
@@ -205,21 +160,20 @@ void LadspaFX::setEnabled( bool value ) {
 	}
 }
 
-
-// Static
-LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLabel, long nSampleRate )
-{
-	LadspaFX* pFX = new LadspaFX( sLibraryPath, sPluginLabel );
+std::shared_ptr<LadspaFX> LadspaFX::load( const QString& sLibraryPath,
+										  const QString& sPluginLabel,
+										  long nSampleRate ) {
+	auto pFX = std::make_shared<LadspaFX>( sLibraryPath, sPluginLabel );
 
 	_INFOLOG( "INIT - " + sLibraryPath + " - " + sPluginLabel );
 
-	Logger::CrashContext ctx( QString( "Initialising LADSPA plugin " ) + sLibraryPath + " - " + sPluginLabel);
+	Logger::CrashContext ctx( QString( "Initialising LADSPA plugin " ) +
+							  sLibraryPath + " - " + sPluginLabel);
 
 	pFX->m_pLibrary = new QLibrary( sLibraryPath );
 	LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )pFX->m_pLibrary->resolve( "ladspa_descriptor" );
 	if ( desc_func == nullptr ) {
 		_ERRORLOG( "Error loading the library. (" + sLibraryPath + ")" );
-		delete pFX;
 		return nullptr;
 	}
 	if ( desc_func ) {
@@ -236,35 +190,43 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 				LADSPA_PortDescriptor pd = pFX->m_d->PortDescriptors[j];
 				if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
 					pFX->m_nICPorts++;
-				} else if ( LADSPA_IS_PORT_INPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
+				}
+				else if ( LADSPA_IS_PORT_INPUT( pd ) &&
+							LADSPA_IS_PORT_AUDIO( pd ) ) {
 					pFX->m_nIAPorts++;
-				} else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_CONTROL( pd ) ) {
+				}
+				else if ( LADSPA_IS_PORT_OUTPUT( pd ) &&
+							LADSPA_IS_PORT_CONTROL( pd ) ) {
 					pFX->m_nOCPorts++;
-				} else if ( LADSPA_IS_PORT_OUTPUT( pd ) && LADSPA_IS_PORT_AUDIO( pd ) ) {
+				}
+				else if ( LADSPA_IS_PORT_OUTPUT( pd ) &&
+							LADSPA_IS_PORT_AUDIO( pd ) ) {
 					pFX->m_nOAPorts++;
-				} else {
+				}
+				else {
 					_ERRORLOG( "Unknown port type" );
 				}
 			}
 			break;
 		}
-	} else {
+	}
+	else {
 		_ERRORLOG( "Error in dlsym" );
-		delete pFX;
 		return nullptr;
 	}
 
 	if ( ( pFX->m_nIAPorts == 2 ) && ( pFX->m_nOAPorts == 2 ) ) {		// Stereo plugin
 		pFX->m_pluginType = STEREO_FX;
-	} else if ( ( pFX->m_nIAPorts == 1 ) && ( pFX->m_nOAPorts == 1 ) ) {	// Mono plugin
+	}
+	else if ( ( pFX->m_nIAPorts == 1 ) && ( pFX->m_nOAPorts == 1 ) ) {	// Mono plugin
 		pFX->m_pluginType = MONO_FX;
-	} else {
+	}
+	else {
 		_ERRORLOG( "Wrong number of ports" );
 		_ERRORLOG( QString( "in audio = %1" ).arg( pFX->m_nIAPorts ) );
 		_ERRORLOG( QString( "out audio = %1" ).arg( pFX->m_nOAPorts ) );
 	}
 
-	//pFX->infoLog( "[LadspaFX::load] instantiate " + pFX->getPluginName() );
 	pFX->m_handle = pFX->m_d->instantiate( pFX->m_d, nSampleRate );
 
 	for ( unsigned nPort = 0; nPort < pFX->m_d->PortCount; nPort++ ) {
@@ -334,7 +296,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 				}
 			}
 
-			LadspaControlPort* pControl = new LadspaControlPort();
+			auto pControl = std::make_shared<LadspaControlPort>();
 			pControl->sName = sName;
 			pControl->fLowerBound = fMin;
 			pControl->fUpperBound = fMax;
@@ -346,8 +308,10 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 			_INFOLOG( QString( "Input control port\t[%1]\tmin=%2,\tmax=%3,\tcontrolValue=%4" ).arg( sName ).arg( fMin ).arg( fMax ).arg( pControl->fControlValue ) );
 
 			pFX->inputControlPorts.push_back( pControl );
-			pFX->m_d->connect_port( pFX->m_handle, nPort, &( pControl->fControlValue ) );
-		} else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
+			pFX->m_d->connect_port( pFX->m_handle, nPort,
+									&( pControl->fControlValue ) );
+		}
+		else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
 			QString sName = QString::fromLocal8Bit(pFX->m_d->PortNames[ nPort ]);
 			float fMin = 0.0;
 			float fMax = 0.0;
@@ -361,28 +325,24 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 				fMax = ( pFX->m_d->PortRangeHints[ nPort ] ).UpperBound;
 			}
 
-			/*			LadspaControlPort* pControl = new LadspaControlPort();
-						pControl->sName = pFX->m_d->PortNames[ nPort ];
-						pControl->fLowerBound = ( pFX->m_d->PortRangeHints[ nPort ] ).LowerBound;
-						pControl->fUpperBound = ( pFX->m_d->PortRangeHints[ nPort ] ).UpperBound;
-						pControl->fControlValue = pControl->fUpperBound / 2.0;
-			*/
 			// always middle
 			fDefault = ( fMax - fMin ) / 2.0;
 
-			LadspaControlPort* pControl = new LadspaControlPort();
+			auto pControl = std::make_shared<LadspaControlPort>();
 			pControl->sName = sName;
 			pControl->fLowerBound = fMin;
 			pControl->fUpperBound = fMax;
 			pControl->fControlValue = fDefault;
 			pControl->fDefaultValue = fDefault;
-			//pFX->infoLog( "[LadspaFX::load] Output control port\t[" + sName + "]\tmin=" + to_string(fMin) + ",\tmax=" + to_string(fMax) + ",\tcontrolValue=" + to_string(pControl->fControlValue) );
 
 			pFX->outputControlPorts.push_back( pControl );
 			pFX->m_d->connect_port( pFX->m_handle, nPort, &( pControl->fControlValue ) );
-		} else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
-		} else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
-		} else {
+		}
+		else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
+		}
+		else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
+		}
+		else {
 			_ERRORLOG( "unknown port" );
 		}
 	}
@@ -393,59 +353,59 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 	return pFX;
 }
 
-
-
-void LadspaFX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R )
+void LadspaFX::connectAudioPorts( float* pIn_L, float* pIn_R,
+								  float* pOut_L, float* pOut_R )
 {
 	INFOLOG( "[connectAudioPorts]" );
-	Logger::CrashContext ctx( QString( "Connecting ports on LADSPA plugin " ) + m_sLibraryPath + " - " + m_sLabel);
+	Logger::CrashContext ctx( QString( "Connecting ports on LADSPA plugin " ) +
+							  m_sLibraryPath + " - " + m_sLabel);
 	unsigned nAIConn = 0;
 	unsigned nAOConn = 0;
 	for ( unsigned nPort = 0; nPort < m_d->PortCount; nPort++ ) {
 		LADSPA_PortDescriptor pd = m_d->PortDescriptors[ nPort ];
 		if ( LADSPA_IS_CONTROL_INPUT( pd ) ) {
-		} else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
-		} else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
+		}
+		else if ( LADSPA_IS_CONTROL_OUTPUT( pd ) ) {
+		}
+		else if ( LADSPA_IS_AUDIO_INPUT( pd ) ) {
 			if ( nAIConn == 0 ) {
 				m_d->connect_port( m_handle, nPort, pIn_L );
-				//infoLog( "connect input port (L): " + string( m_d->PortNames[ nPort ] ) );
-			} else if ( nAIConn == 1 ) {
+			}
+			else if ( nAIConn == 1 ) {
 				m_d->connect_port( m_handle, nPort, pIn_R );
-				//infoLog( "connect input port (R): " + string( m_d->PortNames[ nPort ] ) );
-			} else {
+			}
+			else {
 				ERRORLOG( "too many input ports.." );
 			}
 			nAIConn++;
-		} else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
+		}
+		else if ( LADSPA_IS_AUDIO_OUTPUT( pd ) ) {
 			if ( nAOConn == 0 ) {
 				m_d->connect_port( m_handle, nPort, pOut_L );
-				//infoLog( "connect output port (L): " + string( m_d->PortNames[ nPort ] ) );
-			} else if ( nAOConn == 1 ) {
+			}
+			else if ( nAOConn == 1 ) {
 				m_d->connect_port( m_handle, nPort, pOut_R );
-				//infoLog( "connect output port (R): " + string( m_d->PortNames[ nPort ] ) );
-			} else {
+			}
+			else {
 				ERRORLOG( "too many output ports.." );
 			}
 			nAOConn++;
-		} else {
+		}
+		else {
 			ERRORLOG( "unknown port" );
 		}
 	}
 }
 
-
-
 void LadspaFX::processFX( unsigned nFrames )
 {
-//	infoLog( "[LadspaFX::applyFX()]" );
-	if( m_bActivated ) {
+	if ( m_bActivated ) {
 		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->run( m_handle, nFrames );
 	}
 }
 
-void LadspaFX::activate()
-{
+void LadspaFX::activate() {
 	if ( m_d->activate ) {
 		INFOLOG( "activate " + getPluginName() );
 		m_bActivated = true;
@@ -455,9 +415,7 @@ void LadspaFX::activate()
 	}
 }
 
-
-void LadspaFX::deactivate()
-{
+void LadspaFX::deactivate() {
 	if ( m_d->deactivate && m_bActivated ) {
 		INFOLOG( "deactivate " + getPluginName() );
 		m_bActivated = false;
@@ -467,12 +425,11 @@ void LadspaFX::deactivate()
 	}
 }
 
-
-void LadspaFX::setVolume( float fValue )
-{
+void LadspaFX::setVolume( float fValue ) {
 	if ( fValue > 2.0 ) {
 		fValue = 2.0;
-	} else if ( fValue < 0.0 ) {
+	}
+	else if ( fValue < 0.0 ) {
 		fValue = 0.0;
 	}
 	m_fVolume = fValue;
@@ -481,8 +438,6 @@ void LadspaFX::setVolume( float fValue )
 		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
-
-
 };
 
 

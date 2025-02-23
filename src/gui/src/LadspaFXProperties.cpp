@@ -105,26 +105,16 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 	connect(m_pTimer, SIGNAL( timeout() ), this, SLOT( updateOutputControls() ) );
 }
 
-
-LadspaFXProperties::~LadspaFXProperties()
-{
-//	INFOLOG( "DESTROY" );
+LadspaFXProperties::~LadspaFXProperties() {
 }
 
-
-
-void LadspaFXProperties::showEvent ( QShowEvent* )
-{
+void LadspaFXProperties::showEvent ( QShowEvent* ) {
 	updateControls();
 }
 
-
-
-void LadspaFXProperties::closeEvent( QCloseEvent *ev )
-{
+void LadspaFXProperties::closeEvent( QCloseEvent *ev ) {
 	ev->accept();
 }
-
 
 void LadspaFXProperties::faderChanged( WidgetWithInput * pRef )
 {
@@ -133,11 +123,11 @@ void LadspaFXProperties::faderChanged( WidgetWithInput * pRef )
 	pFader->setPeak_R( pFader->getValue() );
 
 #ifdef H2CORE_HAVE_LADSPA
-	LadspaFX *pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
+	auto pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
 
 	for ( uint i = 0; i < m_pInputControlFaders.size(); i++ ) {
 		if (pFader == m_pInputControlFaders[ i ] ) {
-			LadspaControlPort *pControl = pFX->inputControlPorts[ i ];
+			auto pControl = pFX->inputControlPorts[ i ];
 
 			pControl->fControlValue = pFader->getValue();
 			//float fInterval = pControl->fUpperBound - pControl->fLowerBound;
@@ -160,15 +150,13 @@ void LadspaFXProperties::faderChanged( WidgetWithInput * pRef )
 #endif
 }
 
-
-
 void LadspaFXProperties::updateControls()
 {
 #ifdef H2CORE_HAVE_LADSPA
 	INFOLOG( "*** [updateControls] ***" );
 	m_pTimer->stop();
 
-	LadspaFX *pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
+	auto pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
 
 	// svuoto i vettori..
 	if ( m_pInputControlNames.size() != 0 ) {
@@ -203,7 +191,7 @@ void LadspaFXProperties::updateControls()
 		m_pOutputControlNames.clear();
 	}
 
-	if (pFX) {
+	if ( pFX != nullptr ) {
 		QString sPluginName = pFX->getPluginLabel();
 		setWindowTitle( tr( "[%1] LADSPA FX Properties" ).arg( sPluginName ) );
 
@@ -230,7 +218,7 @@ void LadspaFXProperties::updateControls()
 		// input controls
 		uint nInputControl_X = 0;
 		for (uint i = 0; i < pFX->inputControlPorts.size(); i++) {
-			LadspaControlPort *pControlPort = pFX->inputControlPorts[ i ];
+			auto pControlPort = pFX->inputControlPorts[ i ];
 
 			nInputControl_X = 10 + 45 * i;
 
@@ -288,7 +276,7 @@ void LadspaFXProperties::updateControls()
 
 		nInputControl_X += 45;
 		for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {
-			LadspaControlPort *pControl = pFX->outputControlPorts[ i ];
+			auto pControl = pFX->outputControlPorts[ i ];
 
 			uint xPos = nInputControl_X + 10 + 45 * i;
 
@@ -302,8 +290,6 @@ void LadspaFXProperties::updateControls()
 			// fader
 			Fader *pFader = new Fader( m_pFrame, Fader::Type::Normal, tr( "Output control param. value" ), true, true, pControl->fLowerBound, pControl->fUpperBound );
 			pFader->move( xPos + 20, 60 );
-			//float fInterval = pControl->fUpperBound - pControl->fLowerBound;
-			//float fValue = pControl->fControlValue / fInterval;
 			pFader->show();
 			pFader->setMaxPeak( pControl->fUpperBound );
 			pFader->setMinPeak( pControl->fLowerBound );
@@ -326,8 +312,6 @@ void LadspaFXProperties::updateControls()
 #endif
 }
 
-
-
 void LadspaFXProperties::selectFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
@@ -341,15 +325,15 @@ void LadspaFXProperties::selectFXBtnClicked()
 	LadspaFXSelector fxSelector(m_nLadspaFX);
 	if (fxSelector.exec() == QDialog::Accepted) {
 		QString sSelectedFX = fxSelector.getSelectedFX();
-		if ( !sSelectedFX.isEmpty() ) {
-			LadspaFX *pFX = nullptr;
+		if ( ! sSelectedFX.isEmpty() ) {
+			std::shared_ptr<LadspaFX> pFX = nullptr;
 
-			std::vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
-			for (uint i = 0; i < pluginList.size(); i++) {
-				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
-				if (pFXInfo->m_sName == sSelectedFX ) {
+			auto pluginList = Effects::get_instance()->getPluginList();
+			for ( const auto& ppFXInfo : pluginList ) {
+				if ( ppFXInfo->m_sName == sSelectedFX ) {
 					int nSampleRate = pAudioDriver->getSampleRate();
-					pFX = LadspaFX::load( pFXInfo->m_sFilename, pFXInfo->m_sLabel, nSampleRate );
+					pFX = LadspaFX::load(
+						ppFXInfo->m_sFilename, ppFXInfo->m_sLabel, nSampleRate );
 					pFX->setEnabled( true );
 					break;
 				}
@@ -366,9 +350,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 #endif
 }
 
-
-void LadspaFXProperties::removeFXBtnClicked()
-{
+void LadspaFXProperties::removeFXBtnClicked() {
 #ifdef H2CORE_HAVE_LADSPA
 	Hydrogen::get_instance()->setIsModified( true );
 	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
@@ -377,14 +359,10 @@ void LadspaFXProperties::removeFXBtnClicked()
 #endif
 }
 
-
-void LadspaFXProperties::updateOutputControls()
-{
+void LadspaFXProperties::updateOutputControls() {
 #ifdef H2CORE_HAVE_LADSPA
-
-	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
-
-	if (pFX) {
+	auto pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
+	if ( pFX == nullptr ) {
 		m_pActivateBtn->setEnabled(true);
 		if (pFX->isEnabled()) {
 			m_pActivateBtn->setText( tr("Deactivate") );
@@ -394,7 +372,7 @@ void LadspaFXProperties::updateOutputControls()
 		}
 
 		for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {
-			LadspaControlPort *pControl = pFX->outputControlPorts[i];
+			auto pControl = pFX->outputControlPorts[i];
 
 			std::vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
 			if (it != m_pOutputControlFaders.end() ) {
@@ -420,14 +398,10 @@ void LadspaFXProperties::updateOutputControls()
 #endif
 }
 
-
-
-
-void LadspaFXProperties::activateBtnClicked()
-{
+void LadspaFXProperties::activateBtnClicked() {
 #ifdef H2CORE_HAVE_LADSPA
-	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
-	if (pFX) {
+	auto pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
+	if ( pFX != nullptr) {
 		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 		pFX->setEnabled( !pFX->isEnabled() );
 		Hydrogen::get_instance()->getAudioEngine()->unlock();

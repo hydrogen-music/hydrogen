@@ -1334,7 +1334,7 @@ bool Sampler::renderNoteResample(
 	}
 	float masterVol = pSong->getVolume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
 		float fLevel = pInstrument->get_fx_level( nFX );
 		if ( pFX != nullptr && fLevel != 0.0 ) {
 			fLevel = fLevel * pFX->getVolume();

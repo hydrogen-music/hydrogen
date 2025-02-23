@@ -882,7 +882,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 		 getState() == State::Testing ) {
 		Effects* pEffects = Effects::get_instance();
 		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
-			LadspaFX* pFX = pEffects->getLadspaFX( i );
+			auto pFX = pEffects->getLadspaFX( i );
 			if ( pFX != nullptr ) {
 				assert( pFX->m_pBuffer_L );
 				assert( pFX->m_pBuffer_R );
@@ -1233,7 +1233,7 @@ void AudioEngine::setupLadspaFX()
 
 #ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
 		if ( pFX == nullptr ) {
 			return;
 		}
@@ -1638,8 +1638,8 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 	timeval ladspaTime_start = currentTime2();
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
-		if ( ( pFX ) && ( pFX->isEnabled() ) ) {
+		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
+		if ( pFX != nullptr && pFX->isEnabled() ) {
 			pFX->processFX( nFrames );
 
 			float *buf_L, *buf_R;

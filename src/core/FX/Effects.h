@@ -30,6 +30,7 @@
 #include <core/Object.h>
 #include <core/FX/LadspaFX.h>
 
+#include <memory>
 #include <vector>
 #include <cassert>
 
@@ -54,11 +55,11 @@ public:
 	static Effects* get_instance() { assert(__instance); return __instance; }
 	~Effects();
 
-	LadspaFX* getLadspaFX( int nFX ) const;
-	void  setLadspaFX( LadspaFX* pFX, int nFX );
+	std::shared_ptr<LadspaFX> getLadspaFX( int nFX ) const;
+	void  setLadspaFX( std::shared_ptr<LadspaFX> pFX, int nFX );
 
-	std::vector<LadspaFXInfo*> getPluginList();
-	LadspaFXGroup* getLadspaFXGroup();
+	std::vector< std::shared_ptr<LadspaFXInfo> > getPluginList();
+	std::shared_ptr<LadspaFXGroup> getLadspaFXGroup();
 
 
 private:
@@ -68,18 +69,20 @@ private:
 	 * accessed with get_instance().
 	 */
 	static Effects* __instance;
-	std::vector<LadspaFXInfo*> m_pluginList;
-	LadspaFXGroup* m_pRootGroup;
-	LadspaFXGroup* m_pRecentGroup;
+	std::vector< std::shared_ptr<LadspaFXInfo> > m_pluginList;
+	std::shared_ptr<LadspaFXGroup> m_pRootGroup;
+	std::shared_ptr<LadspaFXGroup> m_pRecentGroup;
 
 	void updateRecentGroup();
 
-	LadspaFX* m_FXList[ MAX_FX ];
+	std::vector< std::shared_ptr<LadspaFX> > m_FXs;
 
 	Effects();
 
-	void RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
-	void getRDF( LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
+	void RDFDescend( const QString& sBase, std::shared_ptr<LadspaFXGroup> pGroup,
+					 std::vector< std::shared_ptr<LadspaFXInfo> > pluginList );
+	void getRDF( std::shared_ptr<LadspaFXGroup> pGroup,
+				 std::vector< std::shared_ptr<LadspaFXInfo> > pluginList );
 
 };
 
