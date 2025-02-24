@@ -297,21 +297,6 @@ void Mixer::showEvent ( QShowEvent *ev ) {
 	updateMixer();
 }
 
-void Mixer::mixerSettingsChangedEvent() {
-	m_pMasterLine->updateLine();
-}
-
-void Mixer::noteOnEvent( int nInstrument ) {
-	if ( nInstrument >= 0 && nInstrument < MAX_INSTRUMENTS ) {
-		if ( m_mixerLines[ nInstrument ] != nullptr ) {
-			m_mixerLines[ nInstrument ]->triggerSampleLED();
-		}
-	} else {
-		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
-				  .arg( nInstrument ).arg( MAX_INSTRUMENTS ) );
-	}
-}
-
 
 void Mixer::hideEvent( QHideEvent *ev ) {
 	UNUSED( ev );
@@ -356,4 +341,84 @@ void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		setFont( QFont( pPref->getTheme().m_font.m_sApplicationFontFamily, 10 ) );
 	}
+}
+
+void Mixer::drumkitLoadedEvent() {
+	updateMixer();
+}
+
+void Mixer::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+
+	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	if ( nInstrumentIndex != -1 ) {
+		for ( auto& ppLine : m_mixerLines ) {
+			if ( ppLine != nullptr && ppLine->getInstrument() != nullptr &&
+				 pInstrumentList->index( ppLine->getInstrument() ) ==
+				 nInstrumentIndex ) {
+				ppLine->updateLine();
+				break;
+			}
+		}
+	}
+	else {
+		updateMixer();
+	}
+}
+
+void Mixer::instrumentParametersChangedEvent( int nInstrumentIndex ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	if ( nInstrumentIndex != -1 ) {
+		for ( auto& ppLine : m_mixerLines ) {
+			if ( ppLine != nullptr && ppLine->getInstrument() != nullptr &&
+				 pInstrumentList->index( ppLine->getInstrument() ) ==
+				 nInstrumentIndex ) {
+				ppLine->updateLine();
+				break;
+			}
+		}
+	}
+	else {
+		updateMixer();
+	}
+}
+
+void Mixer::mixerSettingsChangedEvent() {
+	m_pMasterLine->updateLine();
+}
+
+void Mixer::noteOnEvent( int nInstrumentIndex ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	if ( nInstrumentIndex != -1 ) {
+		for ( auto& ppLine : m_mixerLines ) {
+			if ( ppLine != nullptr && ppLine->getInstrument() != nullptr &&
+				 pInstrumentList->index( ppLine->getInstrument() ) ==
+				 nInstrumentIndex ) {
+				ppLine->updateLine();
+				break;
+			}
+		}
+	}
+}
+
+void Mixer::selectedInstrumentChangedEvent() {
+	updateMixer();
+}
+
+void Mixer::updateSongEvent( int ) {
+	updateMixer();
 }
