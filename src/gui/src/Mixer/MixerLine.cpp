@@ -204,7 +204,9 @@ void MixerLine::updateLine() {
 		m_pFader->setIsActive( false );
 		m_pPanRotary->setIsActive( false );
 		m_pNameWidget->setText( "null" );
+		m_pMuteBtn->setChecked( false );
 		m_pMuteBtn->setIsActive( false );
+		m_pSoloBtn->setChecked( false );
 		m_pSoloBtn->setIsActive( false );
 		m_pPlaySampleBtn->setIsActive( false );
 		for ( auto& ppFxRotary : m_fxRotaries ) {

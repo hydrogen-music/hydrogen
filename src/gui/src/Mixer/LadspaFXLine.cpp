@@ -126,6 +126,7 @@ LadspaFXLine::~LadspaFXLine() {
 void LadspaFXLine::updateLine() {
 #ifdef H2CORE_HAVE_LADSPA
 	if ( m_pFX == nullptr ) {
+		m_pBypassBtn->setChecked( false );
 		m_pBypassBtn->setIsActive( false );
 		m_pNameLCD->setText( tr( "No plugin" ) );
 		m_pVolumeRotary->setIsActive( false );

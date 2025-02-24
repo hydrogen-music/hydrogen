@@ -158,6 +158,7 @@ void MasterLine::updateLine() {
 		m_pFader->setIsActive( false );
 		m_pHumanizeTimeRotary->setIsActive( false );
 		m_pHumanizeVelocityRotary->setIsActive( false );
+		m_pMuteBtn->setChecked( false );
 		m_pMuteBtn->setIsActive( false );
 		m_pSwingRotary->setIsActive( false );
 
