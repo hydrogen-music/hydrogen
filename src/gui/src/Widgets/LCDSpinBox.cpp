@@ -136,9 +136,11 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 	double fOldValue = value();
 
-	// Pass Undo/Redo commands up to the parent
+	// Pass Undo/Redo commands up to the parent. In addition, pause and play
+	// button will be passed to the parent too.
 	if ( ev->matches( QKeySequence::StandardKey::Undo )
-		 || ev->matches( QKeySequence::StandardKey::Redo ) ) {
+		 || ev->matches( QKeySequence::StandardKey::Redo )
+		 || ev->key() == Qt::Key_Space ) {
 		ev->ignore();
 		return;
 	}
@@ -150,11 +152,14 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 
 		 if ( ev->key() == Qt::Key_Up ) {
 			 fNextValue = nextValueInPatternSizeDenominator( true, false );
-		 } else if ( ev->key() == Qt::Key_Down ) {
+		 }
+		 else if ( ev->key() == Qt::Key_Down ) {
 			 fNextValue = nextValueInPatternSizeDenominator( false, false );
-		 } else if ( ev->key() == Qt::Key_PageUp ) {
+		 }
+		 else if ( ev->key() == Qt::Key_PageUp ) {
 			 fNextValue = nextValueInPatternSizeDenominator( true, true );
-		 } else if ( ev->key() == Qt::Key_PageDown ) {
+		 }
+		 else if ( ev->key() == Qt::Key_PageDown ) {
 			 fNextValue = nextValueInPatternSizeDenominator( false, true );
 		 }
 
@@ -166,16 +171,16 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 		 setValue( fNextValue );
 	 
 		 QDoubleSpinBox::keyPressEvent( ev );
-		 
-	 } else if ( m_kind == Kind::PatternSizeNumerator ) {
+	}
+	else if ( m_kind == Kind::PatternSizeNumerator ) {
 		
 		QDoubleSpinBox::keyPressEvent( ev );
 		
 		if ( value() < 1 ) {
 			setValue( 1 );
 		}
-		
-	} else {
+	}
+	else {
 		 QDoubleSpinBox::keyPressEvent( ev );
 	}
 	
