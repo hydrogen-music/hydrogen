@@ -2788,6 +2788,25 @@ const PatternList* AudioEngine::getNextPatterns() const {
 	return nullptr;
 }
 
+QString AudioEngine::StateToQString( const State& state ) {
+	switch( state ) {
+		case State::Uninitialized:
+			return "Uninitialized";
+		case State::Initialized:
+			return "Initialized";
+		case State::Prepared:
+			return "Prepared";
+		case State::Ready:
+			return "Ready";
+		case State::Playing:
+			return "Playing";
+		case State::Testing:
+			return "Testing";
+		default:
+			return "Unknown state";
+	}
+}
+
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 
