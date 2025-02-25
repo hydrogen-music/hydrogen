@@ -3,6 +3,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Changed
 		- The shortcut for starting/pausing transport can now be used spin boxed
 			(like the BPM one) too (#2098)
+		- Combo boxes do not accept focus (and preventing shortcuts) anymore.
 	* Fixed
 		- Fix compilation with LASH support enabled (#2076).
 		- Fix Hue slider in Preferences > Appearance > Color (#2081).
