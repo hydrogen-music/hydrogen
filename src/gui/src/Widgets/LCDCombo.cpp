@@ -36,7 +36,7 @@ LCDCombo::LCDCombo( QWidget *pParent, const QSize& size, bool bModifyOnChange )
 	, m_nMaxWidth( 0 )
 	, m_bIsActive( true )
 {
-	setFocusPolicy( Qt::ClickFocus );
+	setFocusPolicy( Qt::NoFocus );
 
 	if ( ! size.isNull() ) {
 		adjustSize();
