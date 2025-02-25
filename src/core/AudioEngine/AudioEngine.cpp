@@ -2619,9 +2619,12 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 												 m_pQueuingPosition->getPatternTickPosition(),
 												 pPattern ) {
 					Note *pNote = it->second;
-					if ( pNote != nullptr ) {
+					if ( pNote != nullptr && pNote->get_instrument_id() != -1 &&
+						 pNote->get_instrument() != nullptr &&
+						 pNote->get_instrument()->get_id() != -1 ) {
+
 						pNote->set_just_recorded( false );
-						
+
 						Note *pCopiedNote = new Note( pNote );
 
 						// Lead or Lag.
