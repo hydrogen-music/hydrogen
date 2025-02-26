@@ -2078,7 +2078,7 @@ Value</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>音效旁路</translation>
@@ -2094,6 +2094,18 @@ Value</source>
     <message>
         <source>Effect return</source>
         <translation>效果返回</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>LADSPA 效果在此版本的 Hydrogen 中不可用。</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>无插件</translation>
     </message>
 </context>
 <context>
@@ -2754,23 +2766,7 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>人性化力度</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>人性化时间</translation>
-    </message>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation>设置主音量 [%1]</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>设置摇摆系数 [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation type="unfinished"></translation>
@@ -2780,8 +2776,20 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>人性化力度</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>人性化时间</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>设置主音量 [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2790,6 +2798,10 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>设置摇摆系数 [%1]</translation>
     </message>
 </context>
 <context>
@@ -2846,28 +2858,12 @@ LilyPond 导出是一项实验性功能。
         <translation>显示乐器峰值：关</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>LADSPA 效果在此版本的 Hydrogen 中不可用。</translation>
-    </message>
-    <message>
         <source>Mixer Settings</source>
         <translation>混音器设置</translation>
-    </message>
-    <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>播放采样</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>静音</translation>
@@ -2889,7 +2885,8 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

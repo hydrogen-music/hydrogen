@@ -35,6 +35,10 @@
 #    include <sys/time.h>
 #endif
 
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
+
 /**
 * @class Object
 *
@@ -176,6 +180,20 @@ QString Base::toQString( const QString& sPrefix, bool bShort ) const {
 
 void Base::Print( bool bShort ) const {
 	DEBUGLOG( toQString( "", bShort ) );
+}
+
+void Base::logBacktrace() const {
+#ifdef HAVE_EXECINFO_H
+	const int nMaxFrames = 128;
+	void *frames[ nMaxFrames ];
+	int nFrames = backtrace( frames, nMaxFrames );
+	char **symbols = backtrace_symbols( frames, nFrames );
+	for ( int i = 0; i < nFrames; i++ ) {
+		DEBUGLOG( QString("%1").arg( symbols[i] ) );
+	}
+#else
+	DEBUGLOG( "Compiled without backtrace support" );
+#endif
 }
 
 QString Base::base_clock_in( const QString& sMsg )

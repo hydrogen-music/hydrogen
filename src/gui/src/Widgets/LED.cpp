@@ -61,6 +61,9 @@ LED::~LED() {
 }
 
 void LED::setActivated( bool bActivated ) {
+	if ( m_bActivated == bActivated ) {
+		return;
+	}
 	m_bActivated = bActivated;
 	update();
 }
@@ -112,7 +115,11 @@ void MetronomeLED::metronomeEvent( int nValue ) {
 
 	// Only trigger LED if the metronome button was pressed or it was
 	// activated via MIDI or OSC.
-	if ( ! H2Core::Preferences::get_instance()->m_bUseMetronome ) {
+	//
+	// Value 2 corresponds to the metronome being turned on or off an is not
+	// handled in here neither.
+	if ( ! H2Core::Preferences::get_instance()->m_bUseMetronome ||
+		 nValue == 2 ) {
 		return;
 	}
 	

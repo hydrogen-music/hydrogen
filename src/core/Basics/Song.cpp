@@ -413,8 +413,6 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 #ifdef H2CORE_HAVE_LADSPA
 	// reset FX
 	for ( int fx = 0; fx < MAX_FX; ++fx ) {
-		//LadspaFX* pFX = Effects::get_instance()->getLadspaFX( fx );
-		//delete pFX;
 		Effects::get_instance()->setLadspaFX( nullptr, fx );
 	}
 #endif
@@ -430,8 +428,9 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 			if ( sName != "no plugin" ) {
 				// FIXME: il caricamento va fatto fare all'engine, solo lui sa il samplerate esatto
 #ifdef H2CORE_HAVE_LADSPA
-				LadspaFX* pFX = LadspaFX::load( fxNode.read_string( "filename", "", false, false, bSilent ),
-												sName, 44100 );
+				auto pFX = LadspaFX::load(
+					fxNode.read_string( "filename", "", false, false, bSilent ),
+					sName, 44100 );
 				Effects::get_instance()->setLadspaFX( pFX, nFX );
 				if ( pFX != nullptr ) {
 					pFX->setEnabled( fxNode.read_bool( "enabled", false, false, false, bSilent ) );
@@ -442,9 +441,9 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 						float fValue = inputControlNode.read_float( "value", 0.0, false, false, bSilent );
 
 						for ( unsigned nPort = 0; nPort < pFX->inputControlPorts.size(); nPort++ ) {
-							LadspaControlPort* port = pFX->inputControlPorts[ nPort ];
-							if ( QString( port->sName ) == sName ) {
-								port->fControlValue = fValue;
+							auto pPort = pFX->inputControlPorts[ nPort ];
+							if ( QString( pPort->sName ) == sName ) {
+								pPort->fControlValue = fValue;
 							}
 						}
 						inputControlNode = inputControlNode.nextSiblingElement( "inputControlPort" );
@@ -819,7 +818,7 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 		XMLNode fxNode = ladspaFxNode.createNode( "fx" );
 
 #ifdef H2CORE_HAVE_LADSPA
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
 		if ( pFX != nullptr ) {
 			fxNode.write_string( "name", pFX->getPluginLabel() );
 			fxNode.write_string( "filename", pFX->getLibraryPath() );
@@ -827,13 +826,13 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 			fxNode.write_float( "volume", pFX->getVolume() );
 
 			for ( unsigned nControl = 0; nControl < pFX->inputControlPorts.size(); nControl++ ) {
-				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
+				auto pControlPort = pFX->inputControlPorts[ nControl ];
 				XMLNode controlPortNode = fxNode.createNode( "inputControlPort" );
 				controlPortNode.write_string( "name", pControlPort->sName );
 				controlPortNode.write_string( "value", QString("%1").arg( pControlPort->fControlValue ) );
 			}
 			for ( unsigned nControl = 0; nControl < pFX->outputControlPorts.size(); nControl++ ) {
-				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
+				auto pControlPort = pFX->inputControlPorts[ nControl ];
 				XMLNode controlPortNode = fxNode.createNode( "outputControlPort" );
 				controlPortNode.write_string( "name", pControlPort->sName );
 				controlPortNode.write_string( "value", QString("%1").arg( pControlPort->fControlValue ) );

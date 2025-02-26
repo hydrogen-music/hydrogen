@@ -223,7 +223,7 @@ public:
 	/** Wrapper around Song::setMode() which also triggers
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
-	void setMode( const Song::Mode& mode );
+	void setMode( const Song::Mode& mode, Event::Trigger trigger );
 	
 	Song::ActionMode getActionMode() const;
 	/** Wrapper around Song::setActionMode() which also triggers
@@ -316,13 +316,13 @@ public:
 	void			startNsmClient();
 
 	// beatconter
-	void			setBeatsToCount( int beatstocount);
-	int			getBeatsToCount() const;
-	void			setNoteLength( float notelength);
-	float			getNoteLength() const;
-	int			getBcStatus() const;
+	void			setBeatCounterTotalBeats( int nTotalBeats );
+	int			getBeatCounterTotalBeats() const;
+	void			setBeatCounterBeatLength( float fBeatLength );
+	float			getBeatCounterBeatLength() const;
+	int			getBeatCounterEventCount() const;
 	bool			handleBeatCounter();
-	void			setBcOffsetAdjust();
+	void			updateBeatCounterSettings();
 
 	/** Calling JackAudioDriver::releaseTimebaseControl() directly from
 	    the GUI*/
@@ -475,19 +475,6 @@ private:
 	void			midiNoteOn( std::shared_ptr<Note> pNote );
 
 	/**
-	 * Auxiliary function setting a bunch of global variables.
-	 *
-	 * - #m_fTaktoMeterCompute = 1;
-	 * - #m_nBeatsToCount = 4;
-	 * - #m_nEventCount = 1;
-	 * - #m_nTempoChangeCounter = 0;
-	 * - #m_nBeatCount = 1;
-	 * - #m_nCountOffset = 0;
-	 * - #m_nStartOffset = 0;
-	 */
-	void initBeatcounter();
-
-	/**
 	 * Static reference to the Hydrogen singleton. 
 	 *
 	 * It is created using the Hydrogen::Hydrogen() constructor,
@@ -504,14 +491,14 @@ private:
 	std::shared_ptr<Song>			m_pSong;
 
 	// beatcounter
-	float			m_fTaktoMeterCompute;	///< beatcounter note length
-	int			m_nBeatsToCount;	///< beatcounter beats to count
-	int			m_nEventCount;		///< beatcounter event
-	int			m_nBeatCount;		///< beatcounter beat to count
-	double			m_fBeatDiffs[16];	///< beat diff
-	timeval 		m_CurrentTime;		///< timeval
-	int			m_nCountOffset;		///ms default 0
-	int			m_nStartOffset;		///ms default 0
+	float			m_fBeatCounterBeatLength;	///< beatcounter note length
+	int			m_nBeatCounterTotalBeats;	///< beatcounter beats to count
+	int			m_nBeatCounterEventCount;		///< beatcounter event
+	int			m_nBeatCounterBeatCount;		///< beatcounter beat to count
+	std::vector<double>			m_beatCounterDiffs;	///< beat diff
+	timeval 		m_beatCounterActivationTime;		///< timeval
+	int			m_nBeatCounterDriftCompensation;		///ms default 0
+	int			m_nBeatCounterStartOffset;		///ms default 0
 	// ~ beatcounter
 
 
@@ -653,6 +640,16 @@ inline int Hydrogen::getHihatOpenness() const {
 inline void Hydrogen::setHihatOpenness( int nValue ) {
 	m_nHihatOpenness = std::clamp( nValue, 0, 127 );
 }
+inline int Hydrogen::getBeatCounterTotalBeats() const {
+	return m_nBeatCounterTotalBeats;
+}
+inline float Hydrogen::getBeatCounterBeatLength() const {
+	return m_fBeatCounterBeatLength;
+}
+inline int Hydrogen::getBeatCounterEventCount() const {
+	return m_nBeatCounterEventCount;
+}
+
 };
 
 #endif

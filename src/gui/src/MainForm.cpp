@@ -221,9 +221,6 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	playlistDisplayTimer->start(30000);	// update player control at
 	// ~ playlist display timer
 
-	//beatcouter
-	pHydrogen->setBcOffsetAdjust();
-
 	auto pCommonStrings = h2app->getCommonStrings();
 
 	m_pUndoView = new QUndoView( pUndoStack );
@@ -260,6 +257,14 @@ MainForm::~MainForm()
 		h2app = nullptr;
 	}
 
+}
+
+void MainForm::updateMenuBar() {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
+	m_pViewMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
+	m_pViewInstrumentRackAction->setChecked(
+		pHydrogenApp->getInstrumentRack()->isVisible() );
 }
 
 ///
@@ -452,13 +457,14 @@ void MainForm::createMenuBar()
 		tr("&Mixer"), this, SLOT( action_window_showMixer() ),
 		pShortcuts->getKeySequence( Shortcuts::Action::ShowMixer ) );
 	m_pViewMixerAction->setCheckable( true );
-	update_mixer_checkbox();						// if checkbox need to be checked.
+	m_pViewMixerAction->setChecked( pPref->getMixerProperties().visible );
 
-	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction(
+	m_pViewInstrumentRackAction = m_pViewMenu->addAction(
 		tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ),
 		pShortcuts->getKeySequence( Shortcuts::Action::ShowInstrumentRack ) );
-	m_pViewMixerInstrumentRackAction->setCheckable( true );
-	update_instrument_checkbox( pPref->getInstrumentRackProperties().visible );
+	m_pViewInstrumentRackAction->setCheckable( true );
+	m_pViewInstrumentRackAction->setChecked(
+		pPref->getInstrumentRackProperties().visible );
 
 	m_pViewAutomationPathAction = m_pViewMenu->addAction(
 		tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ),
@@ -1232,17 +1238,8 @@ void MainForm::action_window_toggleFullscreen()
 	}
 }
 
-void MainForm::action_window_showMixer()
-{
-	bool isVisible = HydrogenApp::get_instance()->getMixer()->isVisible();
-	h2app->showMixer( !isVisible );
-}
-
-// function to update mixer status in menu bar
-void MainForm::update_mixer_checkbox()
-{
-	bool isVisible = HydrogenApp::get_instance()->getMixer()->isVisible();
-	m_pViewMixerAction->setChecked( isVisible );
+void MainForm::action_window_showMixer() {
+	h2app->showMixer( ! HydrogenApp::get_instance()->getMixer()->isVisible() );
 }
 
 void MainForm::action_debug_showAudioEngineInfo()
@@ -1768,16 +1765,9 @@ void MainForm::action_file_export()
 
 
 
-void MainForm::action_window_showInstrumentRack()
-{
-	InstrumentRack *pPanel = HydrogenApp::get_instance()->getInstrumentRack();
-	pPanel->setHidden( pPanel->isVisible() );
-	update_instrument_checkbox( pPanel->isVisible() );
-}
-
-void MainForm::update_instrument_checkbox( bool show )
-{
-	m_pViewMixerInstrumentRackAction->setChecked( show );
+void MainForm::action_window_showInstrumentRack() {
+	h2app->showInstrumentRack(
+		! HydrogenApp::get_instance()->getInstrumentRack()->isVisible() );
 }
 
 void MainForm::saveWindowProperties() {

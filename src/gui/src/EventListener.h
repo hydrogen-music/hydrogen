@@ -28,52 +28,54 @@
 class EventListener
 {
 	public:
-		virtual void stateChangedEvent( const H2Core::AudioEngine::State& state) {}
-	virtual void playingPatternsChangedEvent() {}
-	virtual void nextPatternsChangedEvent(){}
-		virtual void patternModifiedEvent() {}
-		virtual void songModifiedEvent() {}
-		virtual void selectedPatternChangedEvent() {}
-		virtual void selectedInstrumentChangedEvent() {}
-		virtual void instrumentParametersChangedEvent( int nInstrumentIndex ) {
-			UNUSED( nInstrumentIndex );
-		}
+		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void bbtChangedEvent(){}
+		virtual void beatCounterEvent() {}
+		virtual void driverChangedEvent(){}
+		virtual void drumkitLoadedEvent(){}
+		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
+    	virtual void gridCellToggledEvent(){}
 		virtual void instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
 			UNUSED( nInstrumentIndex );
 		}
-		virtual void midiActivityEvent() {}
-		virtual void noteOnEvent( int nInstrument ) { UNUSED( nInstrument ); }
-		virtual void XRunEvent() {}
-		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
-		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
-		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
+		virtual void instrumentParametersChangedEvent( int nInstrumentIndex ) {
+			UNUSED( nInstrumentIndex );
+		}
 		virtual void jacksessionEvent( int nValue) { UNUSED( nValue ); }
-		virtual void playlistLoadSongEvent(){}
-		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void updateSongEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void timelineActivationEvent(){}
-		virtual void timelineUpdateEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void jackTransportActivationEvent(){}
 		virtual void jackTimebaseStateChangedEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void songModeActivationEvent(){}
-		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void loopModeActivationEvent(){}
+		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
+		virtual void midiActivityEvent() {}
+		virtual void midiMapChangedEvent(){}
+		virtual void mixerSettingsChangedEvent(){}
+		virtual void nextPatternsChangedEvent(){}
+		virtual void nextShotEvent(){}
+		virtual void noteOnEvent( int nInstrument ) { UNUSED( nInstrument ); }
+		virtual void patternEditorLockedEvent(){}
+		virtual void patternModifiedEvent() {}
+		virtual void playbackTrackChangedEvent(){}
+		virtual void playingPatternsChangedEvent() {}
+		virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void playlistLoadSongEvent(){}
+		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
+		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void relocationEvent(){}
+		virtual void selectedPatternChangedEvent() {}
+		virtual void selectedInstrumentChangedEvent() {}
+		virtual void songModeActivationEvent(){}
+		virtual void songModifiedEvent() {}
+		virtual void songSizeChangedEvent(){}
+		virtual void soundLibraryChangedEvent(){}
+		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void stateChangedEvent( const H2Core::AudioEngine::State& state) {}
+		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void timelineActivationEvent(){}
+		virtual void timelineUpdateEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void updatePreferencesEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
-    	virtual void gridCellToggledEvent(){}
-	virtual void drumkitLoadedEvent(){}
-	virtual void patternEditorLockedEvent(){}
-	virtual void relocationEvent(){}
-	virtual void bbtChangedEvent(){}
-	virtual void songSizeChangedEvent(){}
-	virtual void driverChangedEvent(){}
-	virtual void playbackTrackChangedEvent(){}
-	virtual void soundLibraryChangedEvent(){}
-	virtual void nextShotEvent(){}
-	virtual void midiMapChangedEvent(){}
-	virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void updateSongEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void XRunEvent() {}
 
 		virtual ~EventListener() {}
 };

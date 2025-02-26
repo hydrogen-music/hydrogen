@@ -869,7 +869,8 @@ void SidebarRow::muteClicked()
 			return;
 		}
 
-		H2Core::CoreActionController::setStripIsMuted( nRow, ! pInstr->is_muted() );
+		H2Core::CoreActionController::setStripIsMuted(
+			nRow, ! pInstr->is_muted(), false );
 	}
 }
 
@@ -892,7 +893,8 @@ void SidebarRow::soloClicked()
 			return;
 		}
 
-		H2Core::CoreActionController::setStripIsSoloed( nRow, ! pInstr->is_soloed() );
+		H2Core::CoreActionController::setStripIsSoloed(
+			nRow, ! pInstr->is_soloed(), false );
 	}
 }
 

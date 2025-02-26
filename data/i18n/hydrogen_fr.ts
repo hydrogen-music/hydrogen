@@ -2090,14 +2090,14 @@ Valeur</translation>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Modifier les paramètres d&apos;effet</translation>
-    </message>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>Court-circuiter l&apos;effet</translation>
+    </message>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation>Modifier les paramètres d&apos;effet</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -2106,6 +2106,18 @@ Valeur</translation>
     <message>
         <source>Effect return</source>
         <translation>Retour de l&apos;effet</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation>Régler le volume [%1] de l&apos;effet</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Pas de greffon</translation>
     </message>
 </context>
 <context>
@@ -2771,14 +2783,14 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
+    <name>MasterLine</name>
     <message>
-        <source>Set master volume [%1]</source>
-        <translation>Régler le volume principal [%1]</translation>
+        <source>Master volume</source>
+        <translation>Volume général</translation>
     </message>
     <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Régler le facteur de swing [%1]</translation>
+        <source>Peak</source>
+        <translation>Pic</translation>
     </message>
     <message>
         <source>Humanize velocity</source>
@@ -2789,16 +2801,12 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Temps humanisé</translation>
     </message>
     <message>
-        <source>Master volume</source>
-        <translation>Volume général</translation>
-    </message>
-    <message>
-        <source>Peak</source>
-        <translation>Pic</translation>
-    </message>
-    <message>
         <source>16th-note Swing</source>
         <translation>Swing en double croche</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Régler le volume principal [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2807,6 +2815,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation>Régler la vélocité d&apos;humanisation [%1]</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Régler le facteur de swing [%1]</translation>
     </message>
 </context>
 <context>
@@ -2859,10 +2871,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Afficher les niveaux = Inactif</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mixeur</translation>
     </message>
@@ -2870,21 +2878,9 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Mixer Settings</source>
         <translation>Paramètres du mixeur</translation>
     </message>
-    <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation>Régler le niveau %1 de l&apos;effet [%2] de l&apos;instrument</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Régler le volume [%1] de l&apos;effet</translation>
-    </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Jouer l&apos;échantillon</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Muet</translation>
@@ -2906,8 +2902,9 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Pic</translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
-        <translation>Régler le volume [%1] de l&apos;instrument</translation>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

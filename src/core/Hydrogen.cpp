@@ -100,13 +100,17 @@ namespace H2Core
 
 Hydrogen* Hydrogen::__instance = nullptr;
 
-Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
+Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
+					 , m_nBeatCounterTotalBeats( 4 )
+					 , m_nBeatCounterEventCount( 1 )
+					 , m_nBeatCounterBeatCount( 1 )
+					 , m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::startup )
 					 , m_lastMidiEvent( MidiMessage::Event::Null )
 					 , m_nLastMidiEventParameter( 0 )
-					 , m_CurrentTime( {0,0} )
+					 , m_beatCounterActivationTime( {0,0} )
 					 , m_oldEngineMode( Song::Mode::Song ) 
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
@@ -118,29 +122,27 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 		throw H2Exception( "Hydrogen audio engine is already running" );
 	}
 
-	INFOLOG( "[Hydrogen]" );
+	auto pPref = Preferences::get_instance();
+	m_nBeatCounterDriftCompensation = pPref->m_nBeatCounterDriftCompensation;
+	m_nBeatCounterStartOffset = pPref->m_nBeatCounterStartOffset;
+	m_beatCounterDiffs.resize( 16 );
 
 	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>();
 	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
 
 	m_pTimeline = std::make_shared<Timeline>();
 
-	initBeatcounter();
-
 	m_pAudioEngine = new AudioEngine();
 	m_pPlaylist = std::make_shared<Playlist>();
-
-	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(AudioEngine::State::Initialized) );
 
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
 	m_pAudioEngine->startAudioDrivers();
 
-	if ( Preferences::get_instance()->getOscServerEnabled() ) {
+	if ( pPref->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
-
 }
 
 Hydrogen::~Hydrogen()
@@ -160,7 +162,7 @@ Hydrogen::~Hydrogen()
 #endif
 
 	m_pAudioEngine->lock( RIGHT_HERE );
-	m_pAudioEngine->prepare();
+	m_pAudioEngine->prepare( Event::Trigger::Suppress );
 	m_pAudioEngine->unlock();
 
 	killInstruments();
@@ -187,16 +189,6 @@ void Hydrogen::create_instance()
 	if ( __instance == nullptr ) {
 		__instance = new Hydrogen;
 	}
-}
-
-void Hydrogen::initBeatcounter()
-{
-	m_fTaktoMeterCompute = 1;
-	m_nBeatsToCount = 4;
-	m_nEventCount = 1;
-	m_nBeatCount = 1;
-	m_nCountOffset = 0;
-	m_nStartOffset = 0;
 }
 
 /// Start the internal sequencer
@@ -296,7 +288,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 			}
 #endif
 		}
-		m_pAudioEngine->prepare();
+		m_pAudioEngine->prepare( Event::Trigger::Suppress );
 
 		if ( pCurrentSong->getDrumkit() != nullptr ) {
 			pCurrentSong->getDrumkit()->unloadSamples();
@@ -854,7 +846,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 		m_nSelectedPatternNumber = nPat;
 		// The specific values provided are not important since we a
 		// in selected pattern mode.
-		m_pAudioEngine->updatePlayingPatterns();
+		m_pAudioEngine->updatePlayingPatterns( Event::Trigger::Default );
 
 		if ( bNeedsLock ) {
 			m_pAudioEngine->unlock();
@@ -921,149 +913,123 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 #endif
 }
 
-/** Updates #m_nBeatsToCount
- * \param beatstocount New value*/
-void Hydrogen::setBeatsToCount( int beatstocount)
-{
-	m_nBeatsToCount = beatstocount;
-}
-/** \return #m_nBeatsToCount*/
-int Hydrogen::getBeatsToCount() const
-{
-	return m_nBeatsToCount;
+void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
+	m_nBeatCounterTotalBeats = nBeatsToCount;
+	EventQueue::get_instance()->push_event( EVENT_BEAT_COUNTER, 0 );
 }
 
-void Hydrogen::setNoteLength( float notelength)
-{
-	m_fTaktoMeterCompute = notelength;
-}
-
-float Hydrogen::getNoteLength() const
-{
-	return m_fTaktoMeterCompute;
-}
-
-int Hydrogen::getBcStatus() const
-{
-	return m_nEventCount;
-}
-
-void Hydrogen::setBcOffsetAdjust()
-{
-	//individual fine tuning for the m_nBeatCounter
-	//to adjust  ms_offset from different people and controller
-	const auto pPreferences = Preferences::get_instance();
-
-	m_nCountOffset = pPreferences->m_nCountOffset;
-	m_nStartOffset = pPreferences->m_nStartOffset;
+void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
+	m_fBeatCounterBeatLength = fBeatLength;
+	EventQueue::get_instance()->push_event( EVENT_BEAT_COUNTER, 0 );
 }
 
 bool Hydrogen::handleBeatCounter()
 {
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	// Get first time value:
-	if (m_nBeatCount == 1) {
-		gettimeofday(&m_CurrentTime,nullptr);
+	if ( m_nBeatCounterBeatCount == 1 ) {
+		// Reset or initialize
+		gettimeofday( &m_beatCounterActivationTime, nullptr );
 	}
+	timeval lastTime = m_beatCounterActivationTime;
 
-	m_nEventCount++;
+	auto pEventQueue = EventQueue::get_instance();
 
-	// Set lastTime to m_CurrentTime to remind the time:
-	timeval lastTime = m_CurrentTime;
+	m_nBeatCounterEventCount++;
 
-	// Get new time:
-	gettimeofday(&m_CurrentTime,nullptr);
+	// Get new time
+	gettimeofday( &m_beatCounterActivationTime, nullptr );
 
+	// time difference
+	const double fLastBeatTime = static_cast<double>(
+		lastTime.tv_sec + static_cast<double>(lastTime.tv_usec * US_DIVIDER) +
+		static_cast<double>(m_nBeatCounterDriftCompensation) * .0001 );
+	const double fCurrentBeatTime = static_cast<double>(
+		m_beatCounterActivationTime.tv_sec +
+		static_cast<double>(m_beatCounterActivationTime.tv_usec * US_DIVIDER) );
+	const double fTimeDelta = m_nBeatCounterBeatCount == 1 ? 0 :
+		fCurrentBeatTime - fLastBeatTime;
 
-	// Build doubled time difference:
-	double lastBeatTime = (double)(
-				lastTime.tv_sec
-				+ (double)(lastTime.tv_usec * US_DIVIDER)
-				+ (int)m_nCountOffset * .0001
-				);
-	double currentBeatTime = (double)(
-				m_CurrentTime.tv_sec
-				+ (double)(m_CurrentTime.tv_usec * US_DIVIDER)
-				);
-	double beatDiff = m_nBeatCount == 1 ? 0 : currentBeatTime - lastBeatTime;
+	// In case of too big differences, we reset the beatconter. If the user
+	// waits long enough, she can start anew.
+	if ( fTimeDelta > 3.001 * 1/m_fBeatCounterBeatLength ) {
+		m_nBeatCounterEventCount = 1;
+		m_nBeatCounterBeatCount = 1;
 
-	//if differences are to big reset the beatconter
-	if( beatDiff > 3.001 * 1/m_fTaktoMeterCompute ) {
-		m_nEventCount = 1;
-		m_nBeatCount = 1;
+		pEventQueue->push_event( EVENT_BEAT_COUNTER, 0 );
 		return false;
 	}
+
 	// Only accept differences big enough
-	if (m_nBeatCount == 1 || beatDiff > .001) {
-		if (m_nBeatCount > 1) {
-			m_fBeatDiffs[m_nBeatCount - 2] = beatDiff ;
+	if ( m_nBeatCounterBeatCount != 1 && fTimeDelta <= .001 ) {
+		pEventQueue->push_event( EVENT_BEAT_COUNTER, 0 );
+		return false;
+	}
+
+	// Store the difference for later usage.
+	if ( m_nBeatCounterBeatCount > 1 &&
+		 m_nBeatCounterBeatCount <= m_beatCounterDiffs.size() ) {
+		m_beatCounterDiffs[ m_nBeatCounterBeatCount - 2 ] = fTimeDelta;
+	}
+
+	// Compute and reset
+	if ( m_nBeatCounterBeatCount == m_nBeatCounterTotalBeats ){
+		double fTotalDiffs = 0;
+		for ( const auto& ffDiff : m_beatCounterDiffs ) {
+			fTotalDiffs += ffDiff;
 		}
-		// Compute and reset:
-		if (m_nBeatCount == m_nBeatsToCount){
-			double beatTotalDiffs = 0;
-			for(int i = 0; i < (m_nBeatsToCount - 1); i++) {
-				beatTotalDiffs += m_fBeatDiffs[i];
-			}
-			double nBeatDiffAverage =
-					beatTotalDiffs
-					/ (m_nBeatCount - 1)
-					* m_fTaktoMeterCompute ;
-			float fBeatCountBpm	 =
-					(float) ((int) (60 / nBeatDiffAverage * 100))
-					/ 100;
+
+		// Time between the beats / beat counter activations.
+		const double fAverageTime = fTotalDiffs /
+			( m_nBeatCounterBeatCount - 1 ) * m_fBeatCounterBeatLength;
+		const float fBeatCountBpm =
+			static_cast<float>(std::floor( 60 / fAverageTime * 100 ) / 100);
 			
-			CoreActionController::setBpm( fBeatCountBpm );
+		CoreActionController::setBpm( fBeatCountBpm );
 
-			if (Preferences::get_instance()->m_bMmcSetPlay
-					== Preferences::SET_PLAY_OFF) {
-				m_nBeatCount = 1;
-				m_nEventCount = 1;
-			} else {
-				if ( pAudioEngine->getState() != AudioEngine::State::Playing ){
-					unsigned bcsamplerate =
-							pAudioEngine->getAudioDriver()->getSampleRate();
-					unsigned long rtstartframe = 0;
-					if ( m_fTaktoMeterCompute <= 1){
-						rtstartframe =
-								bcsamplerate
-								* nBeatDiffAverage
-								* ( 1/ m_fTaktoMeterCompute );
-					}else
-					{
-						rtstartframe =
-								bcsamplerate
-								* nBeatDiffAverage
-								/ m_fTaktoMeterCompute ;
-					}
+		m_nBeatCounterBeatCount = 1;
+		m_nBeatCounterEventCount = 1;
 
-					int sleeptime =
-							( (float) rtstartframe
-							  / (float) bcsamplerate
-							  * (int) 1000 )
-							+ (int)m_nCountOffset
-							+ (int) m_nStartOffset;
-					
-					std::this_thread::sleep_for( std::chrono::milliseconds( sleeptime ) );
-
-					sequencerPlay();
-				}
-
-				m_nBeatCount = 1;
-				m_nEventCount = 1;
-				return true;
+		if ( Preferences::get_instance()->m_bBeatCounterSetPlay !=
+			 Preferences::BEAT_COUNTER_SET_PLAY_OFF &&
+			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			const int nSampleRate =
+					m_pAudioEngine->getAudioDriver()->getSampleRate();
+			long nRtStartFrame = 0;
+			if ( m_fBeatCounterBeatLength <= 1 ){
+				nRtStartFrame =
+					nSampleRate * fAverageTime * ( 1/ m_fBeatCounterBeatLength );
 			}
-		}
-		else {
-			m_nBeatCount ++;
+			else {
+				nRtStartFrame =
+					nSampleRate * fAverageTime / m_fBeatCounterBeatLength ;
+			}
+
+			const int nSleepTime =
+				static_cast<int>( static_cast<float>(nRtStartFrame) * 1000 /
+								  static_cast<float>(nSampleRate) ) +
+				m_nBeatCounterDriftCompensation + m_nBeatCounterStartOffset;
+			std::this_thread::sleep_for( std::chrono::milliseconds( nSleepTime ) );
+
+			sequencerPlay();
 		}
 	}
 	else {
-		return false;
+		m_nBeatCounterBeatCount++;
 	}
+
+	pEventQueue->push_event( EVENT_BEAT_COUNTER, 0 );
+
 	return true;
 }
-// ~ m_nBeatCounter
+
+void Hydrogen::updateBeatCounterSettings() {
+	const auto pPreferences = Preferences::get_instance();
+
+	m_nBeatCounterDriftCompensation =
+		pPreferences->m_nBeatCounterDriftCompensation;
+	m_nBeatCounterStartOffset = pPreferences->m_nBeatCounterStartOffset;
+
+	EventQueue::get_instance()->push_event( EVENT_BEAT_COUNTER, 0 );
+}
 
 void Hydrogen::releaseJackTimebaseControl()
 {
@@ -1255,11 +1221,18 @@ Song::Mode Hydrogen::getMode() const {
 	return Song::Mode::None;
 }
 
-void Hydrogen::setMode( const Song::Mode& mode ) {
+void Hydrogen::setMode( const Song::Mode& mode, Event::Trigger trigger ) {
 	if ( m_pSong != nullptr && mode != m_pSong->getMode() ) {
 		m_pSong->setMode( mode );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
-												( mode == Song::Mode::Song) ? 1 : 0 );
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->push_event(
+				EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+		}
+	}
+	else if ( trigger == Event::Trigger::Force ) {
+		EventQueue::get_instance()->push_event(
+			EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+
 	}
 }
 
@@ -1302,7 +1275,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 			// AudioEngine::updatePatternTransportPosition() will call
 			// the functions and activate the next patterns once the
 			// current ones are looped.
-			m_pAudioEngine->updatePlayingPatterns();
+			m_pAudioEngine->updatePlayingPatterns( Event::Trigger::Suppress );
 			m_pAudioEngine->clearNextPatterns();
 		}
 
@@ -1585,24 +1558,24 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_fTaktoMeterCompute: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_fTaktoMeterCompute ) )
-			.append( QString( "%1%2m_nBeatsToCount: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nBeatsToCount ) )
-			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nEventCount ) )
-			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nBeatCount ) )
-			.append( QString( "%1%2m_fBeatDiffs: [" ).arg( sPrefix ).arg( s ) );
-		for ( const auto& dd : m_fBeatDiffs ) {
+		sOutput.append( QString( "%1%2m_fBeatCounterBeatLength: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fBeatCounterBeatLength ) )
+			.append( QString( "%1%2m_nBeatCounterTotalBeats: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatCounterTotalBeats ) )
+			.append( QString( "%1%2m_nBeatCounterEventCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatCounterEventCount ) )
+			.append( QString( "%1%2m_nBeatCounterBeatCount: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatCounterBeatCount ) )
+			.append( QString( "%1%2m_beatCounterDiffs: [" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& dd : m_beatCounterDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
-			.append( QString( "%1%2m_nCountOffset: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nCountOffset ) )
-			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nStartOffset ) )
+		sOutput.append( QString( "]\n%1%2m_beatCounterActivationTime: %3" ).arg( sPrefix ).arg( s )
+					 .arg( static_cast<long>(m_beatCounterActivationTime.tv_sec ) ) )
+			.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatCounterDriftCompensation ) )
+			.append( QString( "%1%2m_nBeatCounterStartOffset: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nBeatCounterStartOffset ) )
 			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s )
@@ -1664,17 +1637,19 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}
-		sOutput.append( QString( ", m_fTaktoMeterCompute: %1" ).arg( m_fTaktoMeterCompute ) )
-			.append( QString( ", m_nBeatsToCount: %1" ).arg( m_nBeatsToCount ) )
-			.append( QString( ", m_nEventCount: %1" ).arg( m_nEventCount ) )
-			.append( QString( ", m_nBeatCount: %1" ).arg( m_nBeatCount ) )
-			.append( QString( ", m_fBeatDiffs: [" ) );
-		for ( const auto& dd : m_fBeatDiffs ) {
+		sOutput.append( QString( ", m_fBeatCounterBeatLength: %1" ).arg( m_fBeatCounterBeatLength ) )
+			.append( QString( ", m_nBeatCounterTotalBeats: %1" ).arg( m_nBeatCounterTotalBeats ) )
+			.append( QString( ", m_nBeatCounterEventCount: %1" ).arg( m_nBeatCounterEventCount ) )
+			.append( QString( ", m_nBeatCounterBeatCount: %1" ).arg( m_nBeatCounterBeatCount ) )
+			.append( QString( ", m_beatCounterDiffs: [" ) );
+		for ( const auto& dd : m_beatCounterDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( static_cast<long>( m_CurrentTime.tv_sec ) ) )
-			.append( QString( ", m_nCountOffset: %1" ).arg( m_nCountOffset ) )
-			.append( QString( ", m_nStartOffset: %1" ).arg( m_nStartOffset ) )
+		sOutput.append( QString( "], m_beatCounterActivationTime: %1" ).arg( static_cast<long>( m_beatCounterActivationTime.tv_sec ) ) )
+			.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
+					 .arg( m_nBeatCounterDriftCompensation ) )
+			.append( QString( ", m_nBeatCounterStartOffset: %1" )
+					 .arg( m_nBeatCounterStartOffset ) )
 			.append( QString( ", m_oldEngineMode: %1" )
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )

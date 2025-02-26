@@ -1330,13 +1330,19 @@ void PatternEditorPanel::playingPatternsChangedEvent() {
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
+	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
+
+	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
+	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
+
+	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::songSizeChangedEvent() {

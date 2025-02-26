@@ -23,38 +23,22 @@
 #ifndef SONG_EDITOR_H
 #define SONG_EDITOR_H
 
-#include <vector>
+#include <map>
 #include <memory>
-
-#include <unistd.h>
+#include <vector>
 
 #include <QtGui>
 #include <QtWidgets>
 #include <QList>
 
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Timeline.h>
-#include "../EventListener.h"
-#include "PatternFillDialog.h"
 #include "../Selection.h"
-#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core {
-	class AudioEngine;
-	class Hydrogen;
-	class License;
 	class Pattern;
 }
 
-class SongEditor;
-class SongEditorPatternList;
-class SongEditorPositionRuler;
 class SongEditorPanel;
-
-static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
-static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
-
 
 //!
 //! Song editor
@@ -69,7 +53,6 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 class SongEditor : public QWidget
 				 , public H2Core::Object<SongEditor>
 				 , public SelectionWidget<QPoint>
-				 , public EventListener
 {
     H2_OBJECT(SongEditor)
 	Q_OBJECT
@@ -81,16 +64,16 @@ class SongEditor : public QWidget
 		};
 	
 	public:
-		SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPanel *pSongEditorPanel );
+		SongEditor( QWidget *parent, QScrollArea *pScrollView,
+					SongEditorPanel *pSongEditorPanel );
 		~SongEditor();
 
-		void createBackground();
-		void invalidateBackground();
+		void updateEditor( bool bSequenceOnly = false );
 		void updatePosition( float fTick );
 
-		int getGridWidth ();
-		void setGridWidth( uint width);
-		int getGridHeight () { return m_nGridHeight; }
+		int getGridWidth();
+		void setGridWidth( int width );
+		int getGridHeight() { return m_nGridHeight; }
 
 		int getCursorRow() const;
 		int getCursorColumn() const;
@@ -101,7 +84,6 @@ class SongEditor : public QWidget
 									   const std::vector<QPoint>& selectCells );
 
 		void clearThePatternSequenceVector( const QString& filename );
-		void updateEditorandSetTrue();
 
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
 
@@ -109,6 +91,30 @@ class SongEditor : public QWidget
 		/** Default value of Preferences::m_nSongEditorGridHeight * 5
 		 * (patterns)*/
 		static constexpr int m_nMinimumHeight = 90;
+		static constexpr int nMinGridWidth = 8;
+		static constexpr int nMaxGridWidth = 16;
+
+		//! @name Selection interfaces
+		//! see Selection.h for details.
+		//! @{
+		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
+		virtual QRect getKeyboardCursorRect() override;
+		virtual void validateSelection() override {};
+		virtual void updateWidget() override;
+		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
+		virtual void updateModifiers( QInputEvent *ev );
+		virtual bool canDragElements() override {
+			return false;
+		}
+		//! @}
 
 	public slots:
 
@@ -118,22 +124,18 @@ class SongEditor : public QWidget
 		void copy();
 		void paste();
 		void cut();
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void scrolled( int );
 
 	private:
+		void createBackground();
 
 		Selection<QPoint> m_selection;
 
 		QScrollArea *			m_pScrollView;
 		SongEditorPanel *		m_pSongEditorPanel;
 
-		H2Core::Hydrogen* 		m_pHydrogen;
-		H2Core::AudioEngine* 	m_pAudioEngine;
-
-		unsigned 				m_nGridHeight;
-		unsigned 				m_nGridWidth;
-		bool					m_bIsMoving;
+		int 				m_nGridHeight;
+		int 				m_nGridWidth;
 		bool					m_bCopyNotMove;
 
 		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
@@ -216,36 +218,8 @@ class SongEditor : public QWidget
 		void updateGridCells();
 		bool m_bEntered;
 
-	virtual void patternModifiedEvent() override;
-	virtual void relocationEvent() override;
-	virtual void patternEditorLockedEvent() override;
-	
 	/** Cached position of the playhead.*/
 	float m_fTick;
-public:
-
-		//! @name Selection interfaces
-		//! see Selection.h for details.
-		//! @{
-		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
-		virtual QRect getKeyboardCursorRect() override;
-		virtual void validateSelection() override {};
-		virtual void updateWidget() override;
-		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
-		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-		virtual void updateModifiers( QInputEvent *ev );
-		virtual bool canDragElements() override {
-			return false;
-		}
-		//! @}
-
 };
 
 inline int SongEditor::getCursorRow() const {
@@ -255,226 +229,5 @@ inline int SongEditor::getCursorRow() const {
 inline int SongEditor::getCursorColumn() const {
 	return m_nCursorColumn;
 }
-
-
-///
-/// Song editor pattern list
-///
-/** \ingroup docGUI*/
-class SongEditorPatternList :  public QWidget
-							, protected WidgetWithScalableFont<8, 10, 12>
-							, public H2Core::Object<SongEditorPatternList>
-							, public EventListener
-{
-    H2_OBJECT(SongEditorPatternList)
-	Q_OBJECT
-
-	public:
-	
-		explicit SongEditorPatternList( QWidget *parent );
-		~SongEditorPatternList();
-	
-		SongEditorPatternList(const SongEditorPatternList&) = delete;
-		SongEditorPatternList& operator=( const SongEditorPatternList& rhs ) = delete;
-
-		void updateEditor();
-		void createBackground();
-		void invalidateBackground();
-		void movePatternLine( int, int );
-		void acceptPatternPropertiesDialogSettings( const int nNewVersion,
-													const QString& newPatternName,
-													const QString& sNewAuthor,
-													const QString& newPatternInfo,
-													const H2Core::License& newLicense,
-													const QString& newPatternCategory,
-													int patternNr );
-		void revertPatternPropertiesDialogSettings( const int nOldVersion,
-													const QString& oldPatternName,
-													const QString& sOldAuthor,
-													const QString& oldPatternInfo,
-													const H2Core::License& oldLicense,
-													const QString& oldPatternCategory,
-													int patternNr);
-		void fillRangeWithPattern(FillRange* r, int nPattern);
-		int getGridHeight() { return m_nGridHeight; }
-	
-	virtual void patternModifiedEvent() override;
-	virtual void playingPatternsChangedEvent() override;
-	virtual void songModeActivationEvent() override;
-	virtual void stackedModeActivationEvent( int nValue ) override;
-	virtual void selectedPatternChangedEvent() override;
-	virtual void nextPatternsChangedEvent() override;
-	virtual void relocationEvent() override;
-	virtual void patternEditorLockedEvent() override;
-
-	public slots:
-		void patternPopup_edit();
-		void patternPopup_save();
-		void patternPopup_export();
-		void patternPopup_load();
-		void patternPopup_properties();
-		void patternPopup_delete();
-		void patternPopup_duplicate();
-		void patternPopup_fill();
-		void patternPopup_virtualPattern();
-		void inlineEditingFinished();
-		void inlineEditingEntered();
-		virtual void dragEnterEvent(QDragEnterEvent *event) override;
-		virtual void dropEvent(QDropEvent *event) override;
-		virtual void timelineUpdateEvent( int nValue ) override;
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-
-	private:
-		H2Core::Hydrogen* 		m_pHydrogen;
-		H2Core::AudioEngine* 	m_pAudioEngine;
-		uint 				m_nGridHeight;
-		uint 				m_nWidth;
-		static constexpr uint 	m_nInitialHeight = 10;
-		int m_nRowClicked;
-
-		QPixmap *			m_pBackgroundPixmap;
-		bool m_bBackgroundInvalid;
-							
-		QPixmap				m_labelBackgroundLight;
-		QPixmap				m_labelBackgroundDark;
-		QPixmap				m_labelBackgroundSelected;
-		QPixmap				m_playingPattern_on_Pixmap;
-		QPixmap				m_playingPattern_off_Pixmap;
-		QPixmap				m_playingPattern_empty_Pixmap;
-							
-		QMenu *				m_pPatternPopup;
-		QLineEdit *			m_pLineEdit;
-		std::shared_ptr<H2Core::Pattern>	m_pPatternBeingEdited;
-
-		DragScroller *		m_pDragScroller;
-		
-		void inlineEditPatternName( int row );
-
-		virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseDoubleClickEvent( QMouseEvent *ev ) override;
-		virtual void paintEvent( QPaintEvent *ev ) override;
-		virtual void mouseMoveEvent(QMouseEvent *event) override;
-	virtual void leaveEvent( QEvent *ev ) override;
-
-	QPoint __drag_start_position;
-
-		void togglePattern( int );
-	/**
-	 * Specifies the row the mouse cursor is currently hovered
-	 * over. -1 for no cursor.
-	 */
-	int m_nRowHovered;
-};
-
-
-// class SongEditorPatternListener : public EventListener {
-//
-// }
-//
-
-/** \ingroup docGUI*/
-class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object<SongEditorPositionRuler>
-{
-    H2_OBJECT(SongEditorPositionRuler)
-	Q_OBJECT
-
-	public:
-		explicit SongEditorPositionRuler( QWidget *parent );
-		~SongEditorPositionRuler();	
-
-		uint getGridWidth();
-		void setGridWidth (uint width);
-	virtual void tempoChangedEvent( int ) override;
-	virtual void playingPatternsChangedEvent() override;
-	virtual void songModeActivationEvent() override;
-	virtual void relocationEvent() override;
-	virtual void songSizeChangedEvent() override;
-	virtual void patternModifiedEvent() override;
-	virtual void updateSongEvent( int ) override;
-	
-	virtual void timelineActivationEvent() override;
-	virtual void timelineUpdateEvent( int nValue ) override;
-
-	static int tickToColumn( float fTick, uint nGridWidth );
-		static constexpr int m_nMinimumHeight = 50;
-
-	public slots:
-		void updatePosition();
-		void showTagWidget( int nColumn );
-		void showBpmWidget( int nColumn );
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-		void createBackground();
-		void invalidateBackground();
-		virtual void jackTimebaseStateChangedEvent( int nState ) override;
-
-	private:
-		H2Core::Hydrogen* 		m_pHydrogen;
-		H2Core::AudioEngine* 	m_pAudioEngine;
-		QTimer *			m_pTimer;
-		uint				m_nGridWidth;
-
-	int m_nActiveBpmWidgetColumn;
-	int m_nHoveredColumn;
-
-	/** Indicated the part of the widget the cursor is hovering over.*/
-	enum class HoveredRow {
-		/** Cursor is not hovering the widget.*/
-		None,
-		/** Upper half until the lower end of the tempo marker
-			text. */ 
-		TempoMarker,
-		/** Still part of the upper half, but only the last
-			#m_nTagHeight pixels.*/
-		Tag,
-		/** Lower half*/
-		Ruler
-	};
-	HoveredRow m_hoveredRow;
-
-	/** Cached position of the playhead.*/
-	float m_fTick;
-	/** Cached and coarsed-grained position of the playhead.*/
-	int m_nColumn;
-
-	int m_nTagHeight;
-
-	/** Area covering the length of the song columns.*/
-	int m_nActiveColumns;
-
-		QPixmap *			m_pBackgroundPixmap;
-		bool 				m_bBackgroundInvalid;
-		bool				m_bRightBtnPressed;
-		
-		virtual void mouseMoveEvent(QMouseEvent *ev) override;
-		virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-		virtual void paintEvent( QPaintEvent *ev ) override;
-
-	// virtual void enterEvent( QEvent* ev ) override;
-	virtual void leaveEvent( QEvent* ev ) override;
-	virtual bool event( QEvent* ev ) override;
-
-	/** Calculates the position in pixel required to the painter for a
-	 * particular @a nColumn of the grid.
-	 *
-	 * TODO: There needs to be some refactoring / common basis for
-	 * song (and pattern) editor classes.
- 	 */
-	int columnToX( int nColumn ) const;
-	int xToColumn( int nX ) const;
-
-	void showToolTip( const QPoint& pos, const QPoint& globalPos );
-
-	void drawTempoMarker( std::shared_ptr<const H2Core::Timeline::TempoMarker> pTempoMarker,
-						  bool bEmphasize, QPainter& painter );
-	/**
-	 * @param pTempoMarker Associated #TempoMarker
-	 * @param bEmphasize Whether the text of @a pTempoMarker will be
-	 *   printed with bold font.
-	 */
-	QRect calcTempoMarkerRect( std::shared_ptr<const H2Core::Timeline::TempoMarker> pTempoMarker,
-		bool bEmphasize = false ) const;
-
-};
 
 #endif

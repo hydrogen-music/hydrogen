@@ -2088,22 +2088,34 @@ Valor</translation>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
+    <name>LadspaFXLine</name>
+    <message>
+        <source>FX bypass</source>
+        <translation>Bypass de efeito</translation>
+    </message>
     <message>
         <source>Edit FX parameters</source>
         <translation>Editar parâmetros de efeitos</translation>
+    </message>
+    <message>
+        <source>Ladspa FX name</source>
+        <translation>Nome do efeito LADSPA</translation>
     </message>
     <message>
         <source>Effect return</source>
         <translation>Retorno de feito</translation>
     </message>
     <message>
-        <source>FX bypass</source>
-        <translation>Bypass de efeito</translation>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Efeitos LADSPA não estão disponíveis nesta versão do Hydrogen.</translation>
     </message>
     <message>
-        <source>Ladspa FX name</source>
-        <translation>Nome do efeito LADSPA</translation>
+        <source>Set volume [%1] of FX</source>
+        <translation>Definir volume [%1] do FX</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Sem plugin</translation>
     </message>
 </context>
 <context>
@@ -2768,23 +2780,7 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation>Ajustar volume principal [%1]</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Humanizar tempo</translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Humanizar velocidade</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Ajustar o fator de swing [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation>Volume principal</translation>
@@ -2794,8 +2790,20 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Pico</translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>Humanizar velocidade</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Humanizar tempo</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation>Swing semicolcheia</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Ajustar volume principal [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2804,6 +2812,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation>Definir param velocidade da humanização [%1]</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Ajustar o fator de swing [%1]</translation>
     </message>
 </context>
 <context>
@@ -2856,10 +2868,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Mostrar picos dos instrumentos = Des.</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Efeitos LADSPA não estão disponíveis nesta versão do Hydrogen.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mixer</translation>
     </message>
@@ -2867,21 +2875,9 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Mixer Settings</source>
         <translation>Configurações de Mixer</translation>
     </message>
-    <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation>Definir nível %1 FX [%2] de instrumento</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Definir volume [%1] do FX</translation>
-    </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Executar amostra</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Mudo</translation>
@@ -2903,8 +2899,9 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Pico</translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
-        <translation>Definir volume [%1] de instrumento</translation>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

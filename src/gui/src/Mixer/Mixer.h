@@ -33,72 +33,65 @@
 #include "../EventListener.h"
 
 class Button;
+class LadspaFXLine;
+class MasterLine;
 class MixerLine;
-class ComponentMixerLine;
-class MasterMixerLine;
-class LadspaFXMixerLine;
 class PixmapWidget;
 
 /** \ingroup docGUI*/
-class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixer>
+class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 {
 	H2_OBJECT(Mixer)
 	Q_OBJECT
 	public:
+
+		/** Defines the rate using which the peaks in the Mixer are update. */
+		static constexpr int nPeakTimeoutMs = 50;
+
 		explicit Mixer(QWidget* parent);
 		~Mixer();
 
-		void showEvent ( QShowEvent *ev ) override;
-		void hideEvent ( QHideEvent *ev ) override;
-		void resizeEvent ( QResizeEvent *ev ) override;
-		void soloClicked(uint nLine);
-		bool isSoloClicked(uint nLine);
+		void updateMixer();
 
-		void getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R );
+		void showEvent( QShowEvent *ev ) override;
+		void hideEvent( QHideEvent *ev ) override;
+		void resizeEvent( QResizeEvent *ev ) override;
 
 	public slots:
-		void noteOnClicked(MixerLine* ref);
-		void noteOffClicked(MixerLine* ref);
-		void muteClicked(MixerLine* ref);
-		void soloClicked(MixerLine* ref);
-		void volumeChanged(MixerLine* ref);
-		void panChanged(MixerLine* ref);
-		void knobChanged(MixerLine* ref, int nKnob);
-		void masterVolumeChanged(MasterMixerLine*);
-		void nameClicked(MixerLine* ref);
-		void nameSelected(MixerLine* ref);
-		void updateMixer();
+		void updatePeaks();
 		void showFXPanelClicked();
 		void showPeaksBtnClicked();
 		void openMixerSettingsDialog();
-		void ladspaBypassBtnClicked( LadspaFXMixerLine* ref );
-		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
-		void ladspaVolumeChanged( LadspaFXMixerLine *ref );
 		void closeEvent(QCloseEvent *event) override;
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;
-		LadspaFXMixerLine *		m_pLadspaFXLine[MAX_FX];
+		std::vector<LadspaFXLine*>	m_ladspaFXLines;
 
 		QScrollArea*			m_pFaderScrollArea;
 		Button *				m_pShowFXPanelBtn;
 		Button *				m_pShowPeaksBtn;
 		Button *				m_pOpenMixerSettingsBtn;
-		MasterMixerLine *		m_pMasterLine;
+		MasterLine *		m_pMasterLine;
 
 		QWidget *				m_pFaderPanel;
-		MixerLine *				m_pMixerLine[MAX_INSTRUMENTS];
+		std::vector<MixerLine*>	m_mixerLines;
 
 		PixmapWidget *			m_pFXFrame;
 
 		QTimer *				m_pUpdateTimer;
 
-		uint					findMixerLineByRef(MixerLine* ref);
-		MixerLine*				createMixerLine( int );
+		int					findMixerLineByRef(MixerLine* ref);
 
 		// Implements EventListener interface
+		virtual void drumkitLoadedEvent() override;
+		virtual void instrumentMuteSoloChangedEvent( int ) override;
+		virtual void instrumentParametersChangedEvent( int ) override;
+		virtual void mixerSettingsChangedEvent() override;
 		virtual void noteOnEvent( int nInstrument ) override;
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void updateSongEvent( int nValue ) override;
 		// ~ Implements EventListener interface
 
 };

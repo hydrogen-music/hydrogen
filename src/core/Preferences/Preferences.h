@@ -105,8 +105,8 @@ public:
 	       * Its counterpart is #NO_JACK_TIMEBASE_CONTROL.
 	       */
 	      USE_JACK_TIMEBASE_CONTROL = 0,
-	      SET_PLAY_ON = 0,
-	      BC_ON = 0,/** 
+	      BEAT_COUNTER_SET_PLAY_ON = 0,
+	      BEAT_COUNTER_ON = 0,/**
 	       * Specifies whether or not to use JACK transport
 	       * capabilities. If set, Hydrogen can be used
 	       * independent of the JACK system while still using the
@@ -126,8 +126,8 @@ public:
 	       * Its counterpart is #USE_JACK_TIMEBASE_CONTROL.
 	       */
 	      NO_JACK_TIMEBASE_CONTROL = 1,
-	      SET_PLAY_OFF = 1,
-	      BC_OFF = 1
+	      BEAT_COUNTER_SET_PLAY_OFF = 1,
+	      BEAT_COUNTER_OFF = 1
 	};
 
 	/** Bitwise or-able options showing which part of the Preferences
@@ -244,10 +244,10 @@ public:
 	bool				m_bExpandPatternItem;
 
 	// BeatCounter
-	bool				m_bBc;
-	bool				m_bMmcSetPlay;
-	int					m_nCountOffset;
-	int					m_nStartOffset;
+	bool				m_bBeatCounterOn;
+	bool				m_bBeatCounterSetPlay;
+	int					m_nBeatCounterDriftCompensation;
+	int					m_nBeatCounterStartOffset;
 
 	QStringList 		m_serverList;
 	QStringList 		m_patternCategories;

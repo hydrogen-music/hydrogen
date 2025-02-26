@@ -99,6 +99,7 @@ enum EventType {
 	 *
 	 * - 0 - First bar requiring a distinct sound
 	 * - 1 - All the other bars
+	 * - 2 - Metronome was turned on or off.
 	 *
 	 * Handled by EventListener::metronomeEvent().
 	 */
@@ -200,7 +201,11 @@ enum EventType {
 	 *       (updated the title and status bar).
 	 * - 2 - Playlist is not writable (inform the user via a QMessageBox)
 	 */
-	EVENT_PLAYLIST_CHANGED
+	EVENT_PLAYLIST_CHANGED,
+	EVENT_BEAT_COUNTER,
+	/** Miscellaneous things shown in the Mixer apart from the per-instrument
+	 * MixerLines did change. */
+	EVENT_MIXER_SETTINGS_CHANGED
 };
 
 /** Basic building block for the communication between the core of

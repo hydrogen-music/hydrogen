@@ -44,7 +44,9 @@ class LCDCombo;
 class PlaybackTrackWaveDisplay;
 
 /** \ingroup docGUI*/
-class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::Object<SongEditorPanel>
+class SongEditorPanel : public QWidget,
+						public EventListener,
+						public H2Core::Object<SongEditorPanel>
 {
 	H2_OBJECT(SongEditorPanel)
 	Q_OBJECT
@@ -59,17 +61,12 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
 	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
 
-		void updateAll();
-		void updatePositionRuler();
-		
+		void ensureVisible();
+		void updateEditors( bool bSequenceOnly = false );
+
 		void showTimeline();
 		void showPlaybackTrack();
-		void updatePlaybackTrackIfNecessary();
-
-		bool getTimelineActive() const;
-		void setTimelineActive( bool bActive );
-		bool getTimelineEnabled() const;
-		void setTimelineEnabled( bool bEnabled );
+		void updatePlaybackTrack();
 
 		/**
 		 * Turns the background color of #m_pPatternEditorLockedBtn red
@@ -77,18 +74,10 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 */
 		void highlightPatternEditorLocked();
 		void restoreGroupVector( const QString& filename );
-		// ~ Implements EventListener interface
-		/** Disables and deactivates the Timeline when an external
-		 * JACK Timebase controller is detected and enables it when it's
-		 * gone or Hydrogen itself takes over Timebase control.
-		 */
-		void updateTimelineUsage();
 
 		static constexpr int m_nMinimumHeight = 50;
 		
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void timelineActivationEvent() override;
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.
 		 *
@@ -96,29 +85,30 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 */
 		virtual void actionModeChangeEvent( int nValue ) override;
 		virtual void gridCellToggledEvent() override;
-	virtual void patternModifiedEvent() override;
-
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		virtual void nextPatternsChangedEvent() override;
+		virtual void patternEditorLockedEvent() override;
+		virtual void patternModifiedEvent() override;
+		virtual void playbackTrackChangedEvent() override;
 		virtual void playingPatternsChangedEvent() override;
-
-	virtual void patternEditorLockedEvent() override;
-	virtual void stackedModeActivationEvent( int ) override;
-	virtual void updateSongEvent( int ) override;
-	virtual void songModeActivationEvent() override;
-	virtual void playbackTrackChangedEvent() override;
-	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void relocationEvent() override;
+		virtual void selectedPatternChangedEvent() override;
+		virtual void songModeActivationEvent() override;
+		virtual void songSizeChangedEvent() override;
+		virtual void stackedModeActivationEvent( int ) override;
+		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void tempoChangedEvent( int ) override;
+		virtual void timelineActivationEvent() override;
+		virtual void timelineUpdateEvent( int ) override;
+		virtual void updateSongEvent( int ) override;
 
 	public slots:
 	/** Used by the shotlist during automated generation of images
 		for the manual. */
 	void activateStackedMode( bool bActivate );
 	void activateSelectMode( bool bActivate );
-		
-		void showHideTimeline( bool bClicked ) {
-			m_pTimelineBtn->setChecked( bClicked );
-			timelineBtnClicked();
-		}
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void toggleAutomationAreaVisibility();
-		virtual void jackTimebaseStateChangedEvent( int nState ) override;
 
 
 	private slots:
@@ -148,6 +138,19 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
+		virtual void resizeEvent( QResizeEvent *ev ) override;
+
+		void resyncExternalScrollBar();
+
+		void setTimelineActive( bool bActive );
+		void setTimelineEnabled( bool bEnabled );
+
+		void updateActionMode();
+		void updateJacktimebaseState();
+		void updatePatternEditorLocked();
+		void updatePatternMode();
+		void updateTimeline();
+
 		static const int			m_nPatternListWidth = 200;
 									
 		QScrollArea*				m_pEditorScrollView;
@@ -193,9 +196,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		
 		AutomationPathView *		m_pAutomationPathView;
 		LCDCombo*					m_pAutomationCombo;
-
-		virtual void				resizeEvent( QResizeEvent *ev ) override;
-		void						resyncExternalScrollBar();
 
 		bool m_bLastIsTimelineActivated;
 };

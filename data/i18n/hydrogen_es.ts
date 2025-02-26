@@ -2089,14 +2089,14 @@ Valor</translation>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Editar parámetros efectos</translation>
-    </message>
+    <name>LadspaFXLine</name>
     <message>
         <source>FX bypass</source>
         <translation>Bypass Efectos</translation>
+    </message>
+    <message>
+        <source>Edit FX parameters</source>
+        <translation>Editar parámetros efectos</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -2105,6 +2105,18 @@ Valor</translation>
     <message>
         <source>Effect return</source>
         <translation>Retorno de efectos</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Los efectos LADSPA no están disponibles en esta versión de Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation>Establecer volumen [%1] del FX</translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Sin plugin</translation>
     </message>
 </context>
 <context>
@@ -2770,23 +2782,7 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation>Volumen principal [%1]</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Humanizar tiempo</translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Humanizar velocidad</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Factor de swing [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation>Volumen principal</translation>
@@ -2796,8 +2792,20 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Pico</translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>Humanizar velocidad</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Humanizar tiempo</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation>Swing semicorchea</translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Volumen principal [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2806,6 +2814,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation>Establecer parám. int. humanización [%1]</translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Factor de swing [%1]</translation>
     </message>
 </context>
 <context>
@@ -2858,10 +2870,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Mostrar picos de instrumento = No</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Los efectos LADSPA no están disponibles en esta versión de Hydrogen.</translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mezclador</translation>
     </message>
@@ -2869,21 +2877,9 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Mixer Settings</source>
         <translation>Configuración Mezclador</translation>
     </message>
-    <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation>Establecer nivel %1 FX [%2] del instrumento</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Establecer volumen [%1] del FX</translation>
-    </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Reproducir sample</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Silencio</translation>
@@ -2905,8 +2901,9 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Pico</translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
-        <translation>Establecer volumen [%1] del instrumento</translation>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

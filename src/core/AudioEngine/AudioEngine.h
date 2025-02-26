@@ -26,6 +26,7 @@
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/config.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -385,7 +386,7 @@ public:
 	 * It will adjust both the current transport information as well
 	 * as the note queues in order to prevent any glitches.
 	 */
-	void updateSongSize();
+	void updateSongSize( Event::Trigger trigger = Event::Trigger::Default );
 
 	void removePlayingPattern( std::shared_ptr<Pattern> pPattern );
 	/**
@@ -405,7 +406,7 @@ public:
 	 * will be added in the latter and the ones already present will
 	 * be removed.
 	 */
-	void updatePlayingPatterns();
+	void updatePlayingPatterns( Event::Trigger trigger );
 	void clearNextPatterns();
 	/** 
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
@@ -432,7 +433,7 @@ public:
 	/** Stops all playback, transport, and note rendering and set the engine
 		 * in #State::Prepared. (It is needs some interaction/configuration in
 		 * order to start again.) */
-	void			prepare();
+	void			prepare( Event::Trigger trigger );
 	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 
 	/** Formatted string version for debugging purposes.
@@ -480,11 +481,12 @@ private:
 	 * If multiple patterns are present in the current column, the pattern
 	 * recorded notes will be inserted in (bottom-most one) will be used.
 	 */
-	void handleSelectedPattern();
+	void handleSelectedPattern( Event::Trigger trigger = Event::Trigger::Force );
 	
 	inline void			processPlayNotes( unsigned long nframes );
 
-	void reset(  bool bWithJackBroadcast = true );
+	void reset( bool bWithJackBroadcast = true,
+				Event::Trigger trigger = Event::Trigger::Default );
 
 	void resetOffsets();
 
@@ -518,21 +520,25 @@ private:
 	void			updateNoteQueue( unsigned nIntervalLengthInFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nIntervalLengthInFrames );
-	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition );
+	void			updateBpmAndTickSize( std::shared_ptr<TransportPosition> pTransportPosition,
+										  Event::Trigger trigger = Event::Trigger::Default );
 	void			calculateTransportOffsetOnBpmChange( std::shared_ptr<TransportPosition> pTransportPosition );
     
 	void			setRealtimeFrame( long long nFrame );
-	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos );
+	void updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos,
+								   Event::Trigger trigger );
 	
 	void			setSong( std::shared_ptr<Song>pNewSong );
-	void 			setState( const State& state );
+	void 			setState( const State& state,
+							  Event::Trigger trigger = Event::Trigger::Default );
 	void 			setNextState( const State& state );
 
 	void				startPlayback();
 	
-	void			stopPlayback();
+	void			stopPlayback( Event::Trigger trigger = Event::Trigger::Default );
 	
-	void			locate( const double fTick, bool bWithJackBroadcast = true );
+	void			locate( const double fTick, bool bWithJackBroadcast = true,
+							Event::Trigger trigger = Event::Trigger::Default );
 	/**
 	 * Version of the locate() function intended to be directly used
 	 * by frame-based audio drivers / servers.
@@ -544,11 +550,14 @@ private:
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
 	void			updateTransportPosition( double fTick, long long nFrame,
-											 std::shared_ptr<TransportPosition> pPos );
+											 std::shared_ptr<TransportPosition> pPos,
+											 Event::Trigger trigger = Event::Trigger::Default );
 	void			updateSongTransportPosition( double fTick, long long nFrame,
-												 std::shared_ptr<TransportPosition> pPos );
+												 std::shared_ptr<TransportPosition> pPos,
+												 Event::Trigger trigger = Event::Trigger::Force );
 	void			updatePatternTransportPosition( double fTick, long long nFrame,
-													std::shared_ptr<TransportPosition> pPos );
+													std::shared_ptr<TransportPosition> pPos,
+													Event::Trigger trigger = Event::Trigger::Default );
 
 	/**
 	 * Updates all notes in #m_songNoteQueue and #m_midiNoteQueue to
@@ -592,7 +601,7 @@ private:
 	 * Called whenever Hydrogen switches from #Song::Mode::Song into
 	 * #Song::Mode::Pattern or the other way around.
 	 */
-	void handleSongModeChanged();
+	void handleSongModeChanged( Event::Trigger trigger );
 
 	QString getDriverNames() const;
 

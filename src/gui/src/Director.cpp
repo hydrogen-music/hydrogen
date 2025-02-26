@@ -110,7 +110,9 @@ void Director::closeEvent( QCloseEvent* ev )
 }
 
 void Director::tempoChangedEvent( int ) {
-	bbtChangedEvent();
+	updateBBT();
+	updateTags();
+	update();
 }
 
 void Director::updateSongEvent( int nValue ) {
@@ -136,6 +138,7 @@ void Director::updateSongEvent( int nValue ) {
 			}
 		}
 
+		updateBBT();
 		updateTags();
 		updateFontSize( FontUpdate::SongName );
 		update();
@@ -145,6 +148,29 @@ void Director::updateSongEvent( int nValue ) {
 void Director::timelineUpdateEvent( int nValue ) {
 	if ( updateTags() ) {
 		update();
+	}
+}
+
+void Director::updateBBT()
+{
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
+
+	// 1000 ms / bpm / 60s
+	m_pTimer->start( static_cast<int>( 1000 / ( pPos->getBpm() / 60 )) / 2 );
+	m_nFlashingArea = width() * 5/100;
+
+	m_nBar = pPos->getBar();
+	m_nBeat = pPos->getBeat();
+
+	if ( m_nBeat == 1 ) {	//foregroundcolor "rect" for first blink
+		m_Color = theme.m_color.m_buttonRedColor;
+	}
+	else {	//foregroundcolor "rect" for all other blinks
+		if ( m_nBeat %2 == 0 ) {
+			m_nFlashingArea = width() * 52.5/100;
+		}
+		m_Color = theme.m_color.m_accentColor;
 	}
 }
 
@@ -186,28 +212,8 @@ bool Director::updateTags() {
 	return bRequiresUpdate;
 }
 
-void Director::bbtChangedEvent()
-{
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
-	auto pPos = Hydrogen::get_instance()->getAudioEngine()->getTransportPosition();
-
-	// 1000 ms / bpm / 60s
-	m_pTimer->start( static_cast<int>( 1000 / ( pPos->getBpm() / 60 )) / 2 );
-	m_nFlashingArea = width() * 5/100;
-
-	m_nBar = pPos->getBar();
-	m_nBeat = pPos->getBeat();
-
-	if ( m_nBeat == 1 ) {	//foregroundcolor "rect" for first blink
-		m_Color = theme.m_color.m_buttonRedColor;
-	}
-	else {	//foregroundcolor "rect" for all other blinks
-		if ( m_nBeat %2 == 0 ) {
-			m_nFlashingArea = width() * 52.5/100;
-		}
-		m_Color = theme.m_color.m_accentColor;
-	}
-	
+void Director::bbtChangedEvent() {
+	updateBBT();
 	updateTags();
 	update();
 }
@@ -322,7 +328,7 @@ void Director::paintEvent( QPaintEvent* ev )
 void Director::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
-			 
+		updateBBT();
 		update();
 	}
 }

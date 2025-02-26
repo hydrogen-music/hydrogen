@@ -284,12 +284,21 @@ double LCDSpinBox::valueFromText( const QString& sText ) const {
 	return fResult;
 }
 
-void LCDSpinBox::setValue( double fValue ) {
+void LCDSpinBox::setValue( double fValue, H2Core::Event::Trigger trigger ) {
+
 	if ( value() == fValue && ! cleanText().isEmpty() ) {
 		return;
 	}
 
+	if ( trigger == H2Core::Event::Trigger::Suppress ) {
+		blockSignals( true );
+	}
+
 	QDoubleSpinBox::setValue( fValue );
+
+	if ( trigger == H2Core::Event::Trigger::Suppress ) {
+		blockSignals( false );
+	}
 }
 
 bool LCDSpinBox::event( QEvent* ev ) {

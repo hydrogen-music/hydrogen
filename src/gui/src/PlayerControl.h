@@ -55,57 +55,53 @@ public:
 	explicit PlayerControl(QWidget *parent);
 	~PlayerControl();
 
+	void updatePlayerControl();
+
 	void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
-	virtual void timelineActivationEvent() override;
-	virtual void tempoChangedEvent( int nValue ) override;
-	virtual void jackTransportActivationEvent() override;
-	/**
-	 * Shared GUI update when activating Song or Pattern mode via
-	 * button click or via OSC command.
-	 *
-	 * @param nValue If 0, Pattern mode will be activate. Else,
-	 * Song mode will be activated instead.
-	 */
-	virtual void songModeActivationEvent() override;
-	virtual void updateSongEvent( int nValue ) override;
-	virtual void loopModeActivationEvent() override;
-	virtual void driverChangedEvent() override;
+		virtual void beatCounterEvent() override;
+		virtual void driverChangedEvent() override;
+		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		virtual void jackTransportActivationEvent() override;
+		virtual void loopModeActivationEvent() override;
+		virtual void metronomeEvent( int ) override;
+		virtual void songModeActivationEvent() override;
+		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void tempoChangedEvent( int nValue ) override;
+		virtual void timelineActivationEvent() override;
+		virtual void updateSongEvent( int nValue ) override;
 
 		static constexpr int m_nMinimumHeight = 43;
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 	void activateSongMode( bool bActivate );
-	virtual void jackTimebaseStateChangedEvent( int nState ) override;
 
 private slots:
 	void recBtnClicked();
 	void playBtnClicked();
 	void stopBtnClicked();
-	void updatePlayerControl();
 	void jackTransportBtnClicked();
 	void jackTimebaseBtnClicked();
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
 	void metronomeButtonClicked();
-	void showMixerButtonClicked();
-	void showInstrumentRackButtonClicked();
 
 	//beatcounter
-	void activateBeatCounter( bool bActivate );
-	void bcSetPlayBtnClicked();
-	void bcbUpButtonClicked();
-	void bcbDownButtonClicked();
-	void bctUpButtonClicked();
-	void bctDownButtonClicked();
+	void activateBeatCounter();
+	void beatCounterSetPlayBtnClicked();
+	void beatCounterTotalBeatsUpBtnClicked();
+	void beatCounterTotalBeatsDownBtnClicked();
+	void beatCounterBeatLengthUpBtnClicked();
+	void beatCounterBeatLengthDownBtnClicked();
 	// ~ beatcounter
 		
 	//rubberband
 	void rubberbandButtonToggle();
 
 	void deactivateMidiActivityLED();
+		void updateTime();
 private:
 	/** Ensure that the full width of the status label is used without
 	 * cutting of the beginning of the message.*/
@@ -128,12 +124,18 @@ private:
 	LED			 *m_pPatternModeLED;
 
 	//beatcounter
+	PixmapWidget *m_pControlsBCPanel;
+
+	QLabel *m_pBCDisplayZ;
+	QLabel *m_pBeatCounterTotalBeatsDisplay;
+	QLabel *m_pBeatCounterBeatLengthDisplay;
+
 	Button *m_pBCOnOffBtn;
-	Button *m_pBCSetPlayBtn;
-	Button *m_pBCTUpBtn;
-	Button *m_pBCTDownBtn;
-	Button *m_pBCBUpBtn;
-	Button *m_pBCBDownBtn;
+	Button *m_pBeatCounterSetPlayBtn;
+	Button *m_pBeatCounterBeatLengthUpBtn;
+	Button *m_pBeatCounterBeatLengthDownBtn;
+	Button *m_pBeatCounterTotalBeatsUpBtn;
+	Button *m_pBeatCounterTotalBeatsDownBtn;
 	// ~ beatcounter
 
 	//rubberbandBPMChange
@@ -147,21 +149,13 @@ private:
 	ClickableLabel* m_pMidiInLbl;
 	ClickableLabel* m_pCpuLbl;
 
-	LCDSpinBox *m_pLCDBPMSpinbox;
+	LCDSpinBox *m_pBpmSpinBox;
 	ClickableLabel* m_pBPMLbl;
 	LCDDisplay *m_pTimeDisplay;
 	ClickableLabel* m_pTimeHoursLbl;
 	ClickableLabel* m_pTimeMinutesLbl;
 	ClickableLabel* m_pTimeSecondsLbl;
 	ClickableLabel* m_pTimeMilliSecondsLbl;
-
-	//beatcounter
-	PixmapWidget *m_pControlsBCPanel;
-
-	QLabel *m_pBCDisplayZ;
-	QLabel *m_pBCDisplayB;
-	QLabel *m_pBCDisplayT;
-	// ~ beatcounter
 
 	MetronomeLED *m_pMetronomeLED;
 	Button *m_pMetronomeBtn;
@@ -176,28 +170,20 @@ private:
 	QTimer *m_pMidiActivityTimer;
 	std::chrono::milliseconds m_midiActivityTimeout;
 
-	bool m_bLastBCOnOffBtnState;
-	
-	/** Store the tool tip of the beat counter since it gets
-		overwritten during deactivation.*/
-	void updateBPMSpinbox();
-	void updateBeatCounter();
-	void updateBPMSpinboxToolTip();
-	void updateBeatCounterToolTip();
+		void updateBeatCounter();
+		void updateBpmSpinBox();
+		void updateJackTransport();
+		void updateJackTimebase();
+		void updateLoopMode();
+		void updateSongMode();
+		void updateTransportControl();
+
 	QString m_sBCOnOffBtnToolTip;
 	QString m_sBCOnOffBtnTimelineToolTip;
 	QString m_sBCOnOffBtnJackTimebaseToolTip;
 	QString m_sLCDBPMSpinboxToolTip;
 	QString m_sLCDBPMSpinboxTimelineToolTip;
 	QString m_sLCDBPMSpinboxJackTimebaseToolTip;
-
-	/** When updating the tempo of the BPM spin box it is crucial to
-	 * indicated that this was done due to a batch event and not due
-	 * to user input. Else a batch update would trigger its
-	 * bpmChanged() slot, which in turn sets the core BPM again. When
-	 * changing a lot of tempo very quick (switch between songs of
-	 * different tempi) this spurious BPM setting will mess things up.*/
-	bool m_bLCDBPMSpinboxIsArmed;
 };
 
 

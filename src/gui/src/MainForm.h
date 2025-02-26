@@ -65,6 +65,8 @@ class MainForm :  public QMainWindow,
 			  const QString& sPlaylistFilename = "" );
 		~MainForm();
 
+		void updateMenuBar();
+
 		virtual void errorEvent( int nErrorCode ) override;
 		virtual void jacksessionEvent( int nValue) override;
 		virtual void updateSongEvent( int nValue ) override;
@@ -202,8 +204,6 @@ public slots:
 		void action_window_showPlaybackTrack();
 		void action_window_toggleFullscreen();
 
-		void update_mixer_checkbox();
-		void update_instrument_checkbox( bool show );
 		void update_director_checkbox();
 		void update_playlist_checkbox();
 
@@ -270,7 +270,7 @@ public slots:
 		QAction *	m_pViewPlaylistEditorAction;
 		QAction *	m_pViewDirectorAction;
 		QAction *	m_pViewMixerAction;
-		QAction *	m_pViewMixerInstrumentRackAction;
+		QAction *	m_pViewInstrumentRackAction;
 		QAction *	m_pViewAutomationPathAction;
 		QAction *	m_pViewTimelineAction;
 		QAction *	m_pViewPlaybackTrackAction;

@@ -282,7 +282,9 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	QWidget *pHScrollbarPanel = new QWidget();
 	pHScrollbarPanel->setLayout( pHZoomLayout );
 
-	songModeActivationEvent();
+	updatePatternEditorLocked();
+	updatePatternMode();
+	updateTimeline();
 
 	// ~ ZOOM
 
@@ -298,7 +300,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPatternList->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setWidget( m_pPatternList );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, m_pPatternList, &SongEditorPatternList::onPreferencesChanged );
 
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
@@ -329,7 +330,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( m_nMinimumHeight );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, m_pPositionRuler, &SongEditorPositionRuler::onPreferencesChanged );
 
 	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
 	m_pPositionRuler->setFocusProxy( m_pSongEditor );
@@ -377,7 +377,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	if( pPref->getShowPlaybackTrack() ) {
 		showPlaybackTrack();
-	} else {
+	}
+	else {
 		showTimeline();
 	}
 	
@@ -407,7 +408,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	show();
 
-	updateAll();
+	updateEditors();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -420,6 +421,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlayHeadPosition() ) );
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlaybackFaderPeaks() ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &SongEditorPanel::onPreferencesChanged );
 	
 	m_pTimer->start(100);
 }
@@ -547,75 +550,63 @@ void SongEditorPanel::hScrollTo( int value )
 	}
 }
 
-///
-/// Update and redraw all...
-///
-void SongEditorPanel::updateAll()
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
+void SongEditorPanel::ensureVisible() {
+	const int nSelectedPattern =
+		Hydrogen::get_instance()->getSelectedPatternNumber();
 
-	m_pPatternList->invalidateBackground();
-	m_pPatternList->update();
-
-	m_pSongEditor->invalidateBackground();
-	m_pSongEditor->update();
-
-	updatePositionRuler();
-
-	patternModifiedEvent();
+	// Make sure currently selected pattern is visible.
+	if ( nSelectedPattern != -1 ) {
+		const int nGridHeight = m_pPatternList->getGridHeight();
+		m_pPatternListScrollView->ensureVisible(
+			0, nSelectedPattern * nGridHeight + nGridHeight / 2, 0, nGridHeight );
+	}
 }
 
-void SongEditorPanel::patternModifiedEvent() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	
-	updatePlaybackTrackIfNecessary();
-
- 	m_pAutomationPathView->setAutomationPath( pSong->getVelocityAutomationPath() );
+void SongEditorPanel::updateEditors( bool bSequenceOnly )
+{
+	m_pPatternList->updateEditor();
+	m_pSongEditor->updateEditor( bSequenceOnly );
+	m_pPositionRuler->updateEditor();
+	m_pAutomationPathView->updateAutomationPath();
+	updatePlaybackTrack();
 
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::updatePlaybackTrackIfNecessary()
+void SongEditorPanel::updatePlaybackTrack()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	
-	if ( Preferences::get_instance()->getShowPlaybackTrack() &&
-		 pSong != nullptr ) {
-
-		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ) {
-			// No playback track chosen
-			m_pPlaybackTrackFader->setIsActive( false );
-			m_pMutePlaybackBtn->setChecked( true );
-			m_pMutePlaybackBtn->setIsActive( false );
-			
-			m_pPlaybackTrackWaveDisplay->updateDisplay( nullptr );
-		}
-		else {
-			// Playback track was selected by the user and is ready to
-			// use.
-			m_pPlaybackTrackFader->setIsActive( true );
-			m_pMutePlaybackBtn->setIsActive( true );
-			if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
-				m_pMutePlaybackBtn->setChecked( true );
-			} else {
-				m_pMutePlaybackBtn->setChecked( false );
-			}
-
-			auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
-				getPlaybackTrackInstrument()->get_components()->front();
-			
-			m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->getLayer(0) );
-		}
+	if ( ! Preferences::get_instance()->getShowPlaybackTrack() ) {
+		return;
 	}
-}
 
+	if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ||
+		 pSong == nullptr ) {
+		// No playback track chosen (stored in the current song).
+		m_pPlaybackTrackFader->setIsActive( false );
+		m_pMutePlaybackBtn->setChecked( true );
+		m_pMutePlaybackBtn->setIsActive( false );
 
-void SongEditorPanel::updatePositionRuler()
-{
-	m_pPositionRuler->invalidateBackground();
+		m_pPlaybackTrackWaveDisplay->updateDisplay( nullptr );
+	}
+	else {
+		// Playback track was selected by the user and is ready to
+		// use.
+		m_pPlaybackTrackFader->setIsActive( true );
+		m_pMutePlaybackBtn->setIsActive( true );
+		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
+			m_pMutePlaybackBtn->setChecked( true );
+		} else {
+			m_pMutePlaybackBtn->setChecked( false );
+		}
+
+		auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
+			getPlaybackTrackInstrument()->get_components()->front();
+			
+		m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->getLayer(0) );
+	}
 }
 
 ///
@@ -714,9 +705,13 @@ void SongEditorPanel::clearSequence()
 void SongEditorPanel::restoreGroupVector( const QString& filename )
 {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	//clear the old sequese
-	std::vector<PatternList*> *pPatternGroupsVect = pHydrogen->getSong()->getPatternGroupVector();
+	auto pPatternGroupsVect = pSong->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -725,107 +720,151 @@ void SongEditorPanel::restoreGroupVector( const QString& filename )
 	pPatternGroupsVect->clear();
 
 	pAudioEngine->lock( RIGHT_HERE );
-	pHydrogen->getSong()->loadTempPatternList( filename );
+	pSong->loadTempPatternList( filename );
 	pHydrogen->updateSongSize();
 	pHydrogen->updateSelectedPattern( false );
 	pAudioEngine->unlock();
-	
-	m_pSongEditor->updateEditorandSetTrue();
-	updateAll();
+
+	m_pPositionRuler->updateSongSize();
+	updateEditors();
 }
 
-
-void SongEditorPanel::resyncExternalScrollBar()
-{
-	m_pHScrollBar->setMinimum( m_pEditorScrollView->horizontalScrollBar()->minimum() );
-	m_pHScrollBar->setMaximum( m_pEditorScrollView->horizontalScrollBar()->maximum() );
-	m_pHScrollBar->setSingleStep( m_pEditorScrollView->horizontalScrollBar()->singleStep() );
-	m_pHScrollBar->setPageStep( m_pEditorScrollView->horizontalScrollBar()->pageStep() );
-	m_pHScrollBar->setValue( m_pEditorScrollView->horizontalScrollBar()->value() );
-
-	m_pVScrollBar->setMinimum( m_pEditorScrollView->verticalScrollBar()->minimum() );
-	m_pVScrollBar->setMaximum( m_pEditorScrollView->verticalScrollBar()->maximum() );
-	m_pVScrollBar->setSingleStep( m_pEditorScrollView->verticalScrollBar()->singleStep() );
-	m_pVScrollBar->setPageStep( m_pEditorScrollView->verticalScrollBar()->pageStep() );
-	m_pVScrollBar->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
+void SongEditorPanel::actionModeChangeEvent( int ) {
+	updateActionMode();
 }
 
-
-void SongEditorPanel::resizeEvent( QResizeEvent *ev )
-{
-	UNUSED( ev );
-	resyncExternalScrollBar();
+void SongEditorPanel::gridCellToggledEvent() {
+	updateEditors();
 }
 
-void SongEditorPanel::updateSongEvent( int nValue ) {
-
-	if ( nValue == 0 ) { // different song opened
-		actionModeChangeEvent( 0 );
-		stackedModeActivationEvent( 0 );
-		jackTimebaseStateChangedEvent(
-			static_cast<int>(Hydrogen::get_instance()->getJackTimebaseState()) );
-		// Calls patternEditorLockedEvent() internally.
-		songModeActivationEvent();
-		timelineActivationEvent();
-		selectedPatternChangedEvent();
-		updatePlaybackTrackIfNecessary();
-
-		updatePositionRuler();
-	}
+void SongEditorPanel::jackTimebaseStateChangedEvent( int ) {
+	updateJacktimebaseState();
+	m_pPositionRuler->updateEditor();
 }
 
-void SongEditorPanel::playbackTrackChangedEvent() {
-	updatePlaybackTrackIfNecessary();
+void SongEditorPanel::nextPatternsChangedEvent() {
+	m_pPatternList->updateEditor();
 }
 
 void SongEditorPanel::patternEditorLockedEvent() {
+	updatePatternEditorLocked();
 
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		m_pPatternEditorLockedBtn->setIsActive( true );
-		m_pPatternEditorUnlockedBtn->setIsActive( true );
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		m_pPatternList->updateEditor();
+	}
+}
+
+void SongEditorPanel::patternModifiedEvent() {
+	updateEditors();
+}
+
+void SongEditorPanel::playbackTrackChangedEvent() {
+	updatePlaybackTrack();
+}
+
+void SongEditorPanel::playingPatternsChangedEvent() {
+	// Triggered every time the column of the SongEditor grid
+	// changed. Either by rolling transport or by relocation.
+	// In Song mode, we may scroll to change position in the Song Editor.
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+
+		// Scroll vertically to keep currently playing patterns in view
+		int nPatternInView = -1;
+		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
+		vScrollTo( scroll );
 	}
 
-	if ( pHydrogen->isPatternEditorLocked() ) {
-		m_pPatternEditorLockedBtn->show();
-		m_pPatternEditorUnlockedBtn->hide();
+	m_pPatternList->updateEditor();
+	m_pPositionRuler->update();
+}
 
-		if ( pHydrogen->getAudioEngine()->getState() ==
-			 AudioEngine::State::Playing ) {
-			m_pPatternEditorLockedBtn->setChecked( true );
-		} else {
-			m_pPatternEditorLockedBtn->setChecked( false );
-		}
-	} else {
-		m_pPatternEditorLockedBtn->hide();
-		m_pPatternEditorUnlockedBtn->show();
-		m_pPatternEditorUnlockedBtn->setChecked( false );
+void SongEditorPanel::relocationEvent() {
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		m_pSongEditor->updateEditor();
+		m_pPatternList->updateEditor();
 	}
-	
-	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pPatternEditorLockedBtn->setIsActive( false );
-		m_pPatternEditorUnlockedBtn->setIsActive( false );
-	}
+
+	m_pPositionRuler->updatePosition();
+}
+
+void SongEditorPanel::selectedPatternChangedEvent() {
+	ensureVisible();
+	updateEditors();
+}
+
+void SongEditorPanel::songModeActivationEvent() {
+	updateTimeline();
+	updatePatternEditorLocked();
+	updatePatternMode();
+
+	m_pPatternList->updateEditor();
+	m_pPositionRuler->updatePosition();
+	m_pPositionRuler->updateEditor();
+}
+
+void SongEditorPanel::songSizeChangedEvent() {
+	m_pSongEditor->updateEditor();
+	m_pPositionRuler->updateSongSize();
+	m_pPositionRuler->updateEditor();
+}
+
+void SongEditorPanel::stackedModeActivationEvent( int ) {
+	updatePatternMode();
+	m_pPatternList->updateEditor();
 }
 
 void SongEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& ) {
 	// The lock button is highlighted when transport is rolling.
-	patternEditorLockedEvent();
+	updatePatternEditorLocked();
+
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		m_pPatternList->updateEditor();
+	}
 }
 
-void SongEditorPanel::actionModeChangeEvent( int ) {
-
-	m_pSelectionModeBtn->setChecked( false );
-	m_pDrawModeBtn->setChecked( false );
-
-	if ( Hydrogen::get_instance()->getActionMode() ==
-		 H2Core::Song::ActionMode::drawMode ) {
-		m_pDrawModeBtn->show();
-		m_pSelectionModeBtn->hide();
-	} else {
-		m_pDrawModeBtn->hide();
-		m_pSelectionModeBtn->show();
+void SongEditorPanel::tempoChangedEvent( int nValue ) {
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
+		return;
 	}
+
+	// There is just the special tempo marker -> no tempo markers set
+	// by the user. In this case the special marker isn't drawn and
+	// doesn't need to be update.
+	if ( pTimeline->getAllTempoMarkers().size() == 1 ) {
+		return;
+	}
+
+	m_pPositionRuler->updateEditor();
+}
+
+void SongEditorPanel::timelineActivationEvent(){
+	updateTimeline();
+	m_pPositionRuler->updateEditor();
+}
+
+void SongEditorPanel::timelineUpdateEvent( int nValue ) {
+	updateEditors();
+}
+
+void SongEditorPanel::updateSongEvent( int nValue ) {
+
+	if ( nValue != 0 ) {
+		return;
+	}
+
+	// Song loaded
+
+	ensureVisible();
+	updateActionMode();
+	updatePatternMode();
+	updateJacktimebaseState();
+	updatePatternEditorLocked();
+	updateTimeline();
+
+	m_pPositionRuler->updatePosition();
+	m_pPositionRuler->updateSongSize();
+	updateEditors();
 }
 
 void SongEditorPanel::timelineBtnClicked() {
@@ -865,7 +904,7 @@ void SongEditorPanel::showPlaybackTrack()
 	}
 	Preferences::get_instance()->setShowPlaybackTrack( true );
 
-	updatePlaybackTrackIfNecessary();
+	updatePlaybackTrack();
 }
 
 void SongEditorPanel::viewTimelineBtnClicked()
@@ -941,23 +980,6 @@ void SongEditorPanel::editPlaybackTrackBtnClicked()
 	pHydrogen->loadPlaybackTrack( filenameList[2] );
 }
 
-void SongEditorPanel::stackedModeActivationEvent( int )
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	
-	// We access the raw variable in the song class since we do not
-	// care whether Hydrogen is in song or pattern mode in here.
-	if ( pHydrogen->getSong() == nullptr ||
-		 pHydrogen->getSong()->getPatternMode() == Song::PatternMode::Selected ) {
-		m_pPlaySelectedSingleBtn->setVisible( true );
-		m_pPlaySelectedMultipleBtn->setVisible( false );
-	}
-	else {
-		m_pPlaySelectedSingleBtn->setVisible( false );
-		m_pPlaySelectedMultipleBtn->setVisible( true );
-	}
-}
-
 void SongEditorPanel::zoomInBtnClicked()
 {
 	auto pPref = Preferences::get_instance();
@@ -971,9 +993,8 @@ void SongEditorPanel::zoomInBtnClicked()
 	pPref->setSongEditorGridWidth( width );
 	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
 	
-	updateAll();
+	updateEditors();
 }
-
 
 void SongEditorPanel::zoomOutBtnClicked()
 {
@@ -988,7 +1009,7 @@ void SongEditorPanel::zoomOutBtnClicked()
 	pPref->setSongEditorGridWidth( width );
 	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
 	
-	updateAll();
+	updateEditors();
 }
 
 void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
@@ -1010,23 +1031,6 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 			.append( QString( " [%1]" ).arg( fNewValue ) ),
 			"SongEditorPanel:PlaybackTrackVolume" );
 	}
-}
-
-
-void SongEditorPanel::selectedPatternChangedEvent()
-{
-	updateAll();
-
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
-		return;
-	}
-
-	// Make sure currently selected pattern is visible.
-	int nGridHeight = m_pPatternList->getGridHeight();
-	m_pPatternListScrollView->ensureVisible( 0, (pHydrogen->getSelectedPatternNumber()
-												 * nGridHeight + nGridHeight/2 ),
-											 0, nGridHeight );
 }
 
 void SongEditorPanel::automationPathPointAdded(float x, float y)
@@ -1068,117 +1072,6 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 	}
 }
 
-
-void SongEditorPanel::jackTimebaseStateChangedEvent( int nState ) {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
-	const auto state = JackAudioDriver::TimebaseFromInt( nState );
-	if ( state == JackAudioDriver::Timebase::Listener ) {
-		setTimelineEnabled( false );
-		m_pTimelineBtn->setToolTip(
-			pCommonStrings->getTimelineDisabledTimebaseListener() );
-	} else if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-		setTimelineEnabled( true );
-		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
-	}
-}
-
-void SongEditorPanel::songModeActivationEvent() {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		setTimelineEnabled( false );
-		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
-
-	} else if ( pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Listener ) {
-		setTimelineEnabled( true );
-		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
-		
-	}
-
-	patternEditorLockedEvent();
-	
-	// Set disabled or enabled
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
-		m_pPlaySelectedMultipleBtn->setDisabled( true );
-		m_pPlaySelectedSingleBtn->setDisabled( true );
-	} else {
-		m_pPlaySelectedMultipleBtn->setDisabled( false );
-		m_pPlaySelectedSingleBtn->setDisabled( false );
-	}
-}
-
-void SongEditorPanel::timelineActivationEvent(){
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( ! pHydrogen->isTimelineEnabled() && m_pTimelineBtn->isChecked() ) {
-		setTimelineActive( false );
-	} else if ( pHydrogen->isTimelineEnabled() && ! m_pTimelineBtn->isChecked() ) {
-		setTimelineActive( true );
-	}
-}
-
-bool SongEditorPanel::getTimelineActive() const {
-	return m_pTimelineBtn->isChecked();
-}
-
-void SongEditorPanel::setTimelineActive( bool bActive ){
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	if ( ! m_pTimelineBtn->isDown() ) {
-		m_pTimelineBtn->setChecked( bActive );
-	}
-	
-	Hydrogen::get_instance()->setIsTimelineActivated( bActive );
-
-	QString sMessage = QString( "%1 = %2" )
-		.arg( pCommonStrings->getTimelineBigButton() )
-		.arg( bActive ? pCommonStrings->getStatusOn() :
-			  pCommonStrings->getStatusOff() );
-	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-}
-
-bool SongEditorPanel::getTimelineEnabled() const {
-	return m_pTimelineBtn->getIsActive();
-}
-
-void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	if ( bEnabled ) {
-		m_pTimelineBtn->setIsActive( true );
-		// setTimelineActive( m_bLastIsTimelineActivated );
-	} else {
-		m_bLastIsTimelineActivated = Hydrogen::get_instance()->getSong()->getIsTimelineActivated();
-		if ( m_pTimelineBtn->isChecked() ) {
-			// setTimelineActive( false );
-		}
-		m_pTimelineBtn->setIsActive( false );
-	}
-
-	QString sMessage = QString( "%1 = %2" )
-		.arg( pCommonStrings->getTimelineBigButton() )
-		.arg( bEnabled ? pCommonStrings->getStatusEnabled() :
-			  pCommonStrings->getStatusDisabled() );
-	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-}
-
-void SongEditorPanel::gridCellToggledEvent() {
-	updateAll();
-}
-
-void SongEditorPanel::playingPatternsChangedEvent() {
-	// Triggered every time the column of the SongEditor grid
-	// changed. Either by rolling transport or by relocation.
-	// In Song mode, we may scroll to change position in the Song Editor.
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
-
-		// Scroll vertically to keep currently playing patterns in view
-		int nPatternInView = -1;
-		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
-		vScrollTo( scroll );
-	}
-}
-
 void SongEditorPanel::activateStackedMode( bool bActive ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( bActive ) {
@@ -1201,5 +1094,189 @@ void SongEditorPanel::activateSelectMode( bool bActivate ) {
 	}
 	else {
 		pHydrogen->setActionMode( H2Core::Song::ActionMode::selectMode );
+	}
+}
+
+void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
+{
+	const auto pPref = H2Core::Preferences::get_instance();
+	if ( changes & ( H2Core::Preferences::Changes::GeneralTab |
+					 H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font |
+					 H2Core::Preferences::Changes::AppearanceTab ) ) {
+		const int nNewWidth = SongEditor::nMargin + pPref->getMaxBars() *
+			m_pSongEditor->getGridWidth() ;
+		m_pSongEditor->resize( nNewWidth, m_pSongEditor->height() );
+		m_pPositionRuler->resize( nNewWidth, m_pPositionRuler->height() );
+
+		updateEditors();
+	}
+}
+
+void SongEditorPanel::resyncExternalScrollBar()
+{
+	m_pHScrollBar->setMinimum( m_pEditorScrollView->horizontalScrollBar()->minimum() );
+	m_pHScrollBar->setMaximum( m_pEditorScrollView->horizontalScrollBar()->maximum() );
+	m_pHScrollBar->setSingleStep( m_pEditorScrollView->horizontalScrollBar()->singleStep() );
+	m_pHScrollBar->setPageStep( m_pEditorScrollView->horizontalScrollBar()->pageStep() );
+	m_pHScrollBar->setValue( m_pEditorScrollView->horizontalScrollBar()->value() );
+
+	m_pVScrollBar->setMinimum( m_pEditorScrollView->verticalScrollBar()->minimum() );
+	m_pVScrollBar->setMaximum( m_pEditorScrollView->verticalScrollBar()->maximum() );
+	m_pVScrollBar->setSingleStep( m_pEditorScrollView->verticalScrollBar()->singleStep() );
+	m_pVScrollBar->setPageStep( m_pEditorScrollView->verticalScrollBar()->pageStep() );
+	m_pVScrollBar->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
+}
+
+void SongEditorPanel::resizeEvent( QResizeEvent *ev )
+{
+	UNUSED( ev );
+	resyncExternalScrollBar();
+}
+
+void SongEditorPanel::setTimelineActive( bool bActive ){
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( ! m_pTimelineBtn->isDown() ) {
+		m_pTimelineBtn->setChecked( bActive );
+	}
+
+	Hydrogen::get_instance()->setIsTimelineActivated( bActive );
+
+	QString sMessage = QString( "%1 = %2" )
+		.arg( pCommonStrings->getTimelineBigButton() )
+		.arg( bActive ? pCommonStrings->getStatusOn() :
+			  pCommonStrings->getStatusOff() );
+	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
+}
+
+void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( bEnabled ) {
+		m_pTimelineBtn->setIsActive( true );
+		// setTimelineActive( m_bLastIsTimelineActivated );
+	} else {
+		m_bLastIsTimelineActivated = Hydrogen::get_instance()->getSong()->getIsTimelineActivated();
+		if ( m_pTimelineBtn->isChecked() ) {
+			// setTimelineActive( false );
+		}
+		m_pTimelineBtn->setIsActive( false );
+	}
+
+	QString sMessage = QString( "%1 = %2" )
+		.arg( pCommonStrings->getTimelineBigButton() )
+		.arg( bEnabled ? pCommonStrings->getStatusEnabled() :
+			  pCommonStrings->getStatusDisabled() );
+	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
+}
+
+void SongEditorPanel::updateActionMode() {
+	m_pSelectionModeBtn->setChecked( false );
+	m_pDrawModeBtn->setChecked( false );
+
+	if ( Hydrogen::get_instance()->getActionMode() ==
+		 H2Core::Song::ActionMode::drawMode ) {
+		m_pDrawModeBtn->show();
+		m_pSelectionModeBtn->hide();
+	}
+	else {
+		m_pDrawModeBtn->hide();
+		m_pSelectionModeBtn->show();
+	}
+}
+
+void SongEditorPanel::updateJacktimebaseState() {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
+	const auto state = pHydrogen->getJackTimebaseState();
+	if ( state == JackAudioDriver::Timebase::Listener ) {
+		setTimelineEnabled( false );
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledTimebaseListener() );
+	}
+	else if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
+		setTimelineEnabled( true );
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
+	}
+}
+
+void SongEditorPanel::updatePatternEditorLocked() {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		m_pPatternEditorLockedBtn->setIsActive( true );
+		m_pPatternEditorUnlockedBtn->setIsActive( true );
+	}
+
+	if ( pHydrogen->isPatternEditorLocked() ) {
+		m_pPatternEditorLockedBtn->show();
+		m_pPatternEditorUnlockedBtn->hide();
+
+		if ( pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Playing ) {
+			m_pPatternEditorLockedBtn->setChecked( true );
+		} else {
+			m_pPatternEditorLockedBtn->setChecked( false );
+		}
+	} else {
+		m_pPatternEditorLockedBtn->hide();
+		m_pPatternEditorUnlockedBtn->show();
+		m_pPatternEditorUnlockedBtn->setChecked( false );
+	}
+
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		m_pPatternEditorLockedBtn->setIsActive( false );
+		m_pPatternEditorUnlockedBtn->setIsActive( false );
+	}
+}
+
+void SongEditorPanel::updatePatternMode() {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	// We access the raw variable in the song class since we do not
+	// care whether Hydrogen is in song or pattern mode in here.
+	if ( pHydrogen->getSong() == nullptr ||
+		 pHydrogen->getSong()->getPatternMode() == Song::PatternMode::Selected ) {
+		m_pPlaySelectedSingleBtn->setVisible( true );
+		m_pPlaySelectedMultipleBtn->setVisible( false );
+	}
+	else {
+		m_pPlaySelectedSingleBtn->setVisible( false );
+		m_pPlaySelectedMultipleBtn->setVisible( true );
+	}
+
+	// Those buttons are only accessible in pattern mode.
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		m_pPlaySelectedMultipleBtn->setDisabled( true );
+		m_pPlaySelectedSingleBtn->setDisabled( true );
+	}
+	else {
+		m_pPlaySelectedMultipleBtn->setDisabled( false );
+		m_pPlaySelectedSingleBtn->setDisabled( false );
+	}
+}
+
+void SongEditorPanel::updateTimeline() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		setTimelineEnabled( false );
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledPatternMode() );
+	}
+	else if ( pHydrogen->getJackTimebaseState() !=
+				JackAudioDriver::Timebase::Listener ) {
+		setTimelineEnabled( true );
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
+
+	}
+
+	if ( ! pHydrogen->isTimelineEnabled() && m_pTimelineBtn->isChecked() ) {
+		setTimelineActive( false );
+	}
+	else if ( pHydrogen->isTimelineEnabled() && ! m_pTimelineBtn->isChecked() ) {
+		setTimelineActive( true );
 	}
 }

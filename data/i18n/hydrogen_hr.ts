@@ -2075,7 +2075,11 @@ Value</source>
     </message>
 </context>
 <context>
-    <name>LadspaFXMixerLine</name>
+    <name>LadspaFXLine</name>
+    <message>
+        <source>FX bypass</source>
+        <translation>Zaobiđi efekt(e)</translation>
+    </message>
     <message>
         <source>Edit FX parameters</source>
         <translation>Uredi FX parametre</translation>
@@ -2085,12 +2089,20 @@ Value</source>
         <translation>Ime LADSPA FX-a</translation>
     </message>
     <message>
-        <source>FX bypass</source>
-        <translation>Zaobiđi efekt(e)</translation>
-    </message>
-    <message>
         <source>Effect return</source>
         <translation>FX Return</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set volume [%1] of FX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No plugin</source>
+        <translation>Nema dodatka</translation>
     </message>
 </context>
 <context>
@@ -2727,23 +2739,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>MasterMixerLine</name>
-    <message>
-        <source>Set master volume [%1]</source>
-        <translation>Podesi glavnu glasnoću [%1]</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Humaniziraj tempo</translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Humaniziraj intenzitet</translation>
-    </message>
-    <message>
-        <source>Set swing factor [%1]</source>
-        <translation>Swing faktor [%1]</translation>
-    </message>
+    <name>MasterLine</name>
     <message>
         <source>Master volume</source>
         <translation type="unfinished"></translation>
@@ -2753,8 +2749,20 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Humanize velocity</source>
+        <translation>Humaniziraj intenzitet</translation>
+    </message>
+    <message>
+        <source>Humanize time</source>
+        <translation>Humaniziraj tempo</translation>
+    </message>
+    <message>
         <source>16th-note Swing</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set master volume [%1]</source>
+        <translation>Podesi glavnu glasnoću [%1]</translation>
     </message>
     <message>
         <source>Set humanize time param [%1]</source>
@@ -2763,6 +2771,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Set humanize vel. param [%1]</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set swing factor [%1]</source>
+        <translation>Swing faktor [%1]</translation>
     </message>
 </context>
 <context>
@@ -2815,10 +2827,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Prikaži visinu točke instrumenta = Neaktivno</translation>
     </message>
     <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <translation>Mixer</translation>
     </message>
@@ -2826,21 +2834,9 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Mixer Settings</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Set FX %1 level [%2] of instrument</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Play sample</source>
-        <translation>Suona sample</translation>
-    </message>
     <message>
         <source>Mute</source>
         <translation>Escludi</translation>
@@ -2862,7 +2858,8 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set volume [%1] of instrument</source>
+        <source>[Left click]: Play sample
+[Right click]: Stop all samples</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -27,9 +27,12 @@
 
 #include <QLibrary>
 
-#include <vector>
-#include <list>
 #include "ladspa.h"
+
+#include <memory>
+#include <list>
+#include <vector>
+
 #include <core/Object.h>
 
 namespace H2Core
@@ -53,7 +56,8 @@ public:
 	unsigned m_nOCPorts;	///< output control port
 	unsigned m_nIAPorts;	///< input audio port
 	unsigned m_nOAPorts;	///< output audio port
-	static bool alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b );
+	static bool alphabeticOrder( std::shared_ptr<LadspaFXInfo> a,
+								 std::shared_ptr<LadspaFXInfo> b );
 };
 
 
@@ -70,26 +74,27 @@ public:
 		return m_sName;
 	}
 
-	void addLadspaInfo( LadspaFXInfo *pInfo );
-	std::vector<LadspaFXInfo*> getLadspaInfo() const {
+	void addLadspaInfo( std::shared_ptr<LadspaFXInfo> pInfo );
+	std::vector< std::shared_ptr<LadspaFXInfo> > getLadspaInfo() const {
 		return m_ladspaList;
 	}
 
-	void addChild( LadspaFXGroup *pChild );
-	std::vector<LadspaFXGroup*> getChildList() const {
+	void addChild( std::shared_ptr<LadspaFXGroup> pChild );
+	std::vector< std::shared_ptr<LadspaFXGroup> > getChildList() const {
 		return m_childGroups;
 	}
 
 	void clear();
 
-	static bool alphabeticOrder( LadspaFXGroup*, LadspaFXGroup* );
+	static bool alphabeticOrder( std::shared_ptr<LadspaFXGroup>,
+								 std::shared_ptr<LadspaFXGroup> );
 	void sort();
 
 
 private:
 	QString m_sName;
-	std::vector<LadspaFXInfo*> m_ladspaList;
-	std::vector<LadspaFXGroup*> m_childGroups;
+	std::vector< std::shared_ptr<LadspaFXInfo> > m_ladspaList;
+	std::vector< std::shared_ptr<LadspaFXGroup> > m_childGroups;
 };
 
 
@@ -123,17 +128,17 @@ public:
 		UNDEFINED
 	};
 
-	//unsigned m_nBufferSize;
+	LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel );
+	~LadspaFX();
 
 	float* m_pBuffer_L;
 	float* m_pBuffer_R;
 
-	std::vector<LadspaControlPort*> inputControlPorts;
-	std::vector<LadspaControlPort*> outputControlPorts;
+	std::vector< std::shared_ptr<LadspaControlPort> > inputControlPorts;
+	std::vector< std::shared_ptr<LadspaControlPort> > outputControlPorts;
 
-	~LadspaFX();
-
-	void connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R );
+	void connectAudioPorts( float* pIn_L, float* pIn_R,
+							float* pOut_L, float* pOut_R );
 	void activate();
 	void deactivate();
 	void processFX( unsigned nFrames );
@@ -157,7 +162,9 @@ public:
 	}
 	void setEnabled( bool bEnabled );
 
-	static LadspaFX* load( const QString& sLibraryPath, const QString& sPluginLabel, long nSampleRate );
+	static std::shared_ptr<LadspaFX> load( const QString& sLibraryPath,
+										   const QString& sPluginLabel,
+										   long nSampleRate );
 
 	int getPluginType() const {
 		return m_pluginType;
@@ -187,9 +194,6 @@ private:
 	unsigned m_nOCPorts;	///< output control port
 	unsigned m_nIAPorts;	///< input audio port
 	unsigned m_nOAPorts;	///< output audio port
-
-
-	LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel );
 };
 
 };

@@ -99,10 +99,10 @@ Preferences::Preferences()
 	, m_bSetLash( false )
 	, m_bExpandSongItem( true )
 	, m_bExpandPatternItem( true )
-	, m_bBc( BC_OFF )
-	, m_bMmcSetPlay( SET_PLAY_OFF )
-	, m_nCountOffset( 0 )
-	, m_nStartOffset( 0 )
+	, m_bBeatCounterOn( BEAT_COUNTER_OFF )
+	, m_bBeatCounterSetPlay( BEAT_COUNTER_SET_PLAY_OFF )
+	, m_nBeatCounterDriftCompensation( 0 )
+	, m_nBeatCounterStartOffset( 0 )
 	, m_audioDriver( AudioDriver::Auto )
 	, m_bUseMetronome( false )
 	, m_fMetronomeVolume( 0.5 )
@@ -280,10 +280,10 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bSetLash( pOther->m_bSetLash )
 	, m_bExpandSongItem( pOther->m_bExpandSongItem )
 	, m_bExpandPatternItem( pOther->m_bExpandPatternItem )
-	, m_bBc( pOther->m_bBc )
-	, m_bMmcSetPlay( pOther->m_bMmcSetPlay )
-	, m_nCountOffset( pOther->m_nCountOffset )
-	, m_nStartOffset( pOther->m_nStartOffset )
+	, m_bBeatCounterOn( pOther->m_bBeatCounterOn )
+	, m_bBeatCounterSetPlay( pOther->m_bBeatCounterSetPlay )
+	, m_nBeatCounterDriftCompensation( pOther->m_nBeatCounterDriftCompensation )
+	, m_nBeatCounterStartOffset( pOther->m_nBeatCounterStartOffset )
 	, m_audioDriver( pOther->m_audioDriver )
 	, m_bUseMetronome( pOther->m_bUseMetronome )
 	, m_fMetronomeVolume( pOther->m_fMetronomeVolume )
@@ -943,10 +943,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sUseBeatCounter =
 			guiNode.read_string( "bc", "", false, false, bSilent );
 		if ( sUseBeatCounter == "BC_OFF" ) {
-			pPref->m_bBc = BC_OFF;
+			pPref->m_bBeatCounterOn = BEAT_COUNTER_OFF;
 		}
 		else if ( sUseBeatCounter == "BC_ON" ) {
-			pPref->m_bBc = BC_ON;
+			pPref->m_bBeatCounterOn = BEAT_COUNTER_ON;
 		}
 		else if ( ! sUseBeatCounter.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <bc>: [%1]" )
@@ -956,20 +956,20 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sBeatCounterSetPlay =
 			guiNode.read_string( "setplay", "", false, false, bSilent );
 		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
-			pPref->m_bMmcSetPlay = SET_PLAY_OFF;
+			pPref->m_bBeatCounterSetPlay = BEAT_COUNTER_SET_PLAY_OFF;
 		}
 		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
-			pPref->m_bMmcSetPlay = SET_PLAY_ON;
+			pPref->m_bBeatCounterSetPlay = BEAT_COUNTER_SET_PLAY_ON;
 		}
 		else if ( ! sBeatCounterSetPlay.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <setplay>: [%1]" )
 						.arg( sBeatCounterSetPlay ) );
 		}
 
-		pPref->m_nCountOffset = guiNode.read_int(
-			"countoffset", pPref->m_nCountOffset, false, false, bSilent );
-		pPref->m_nStartOffset = guiNode.read_int(
-			"playoffset", pPref->m_nStartOffset, false, false, bSilent );
+		pPref->m_nBeatCounterDriftCompensation = guiNode.read_int(
+			"countoffset", pPref->m_nBeatCounterDriftCompensation, false, false, bSilent );
+		pPref->m_nBeatCounterStartOffset = guiNode.read_int(
+			"playoffset", pPref->m_nBeatCounterStartOffset, false, false, bSilent );
 
 		// ~ beatcounter
 		pPref->m_bPlaySamplesOnClicking = guiNode.read_bool(
@@ -1332,25 +1332,25 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		guiNode.write_int( "midiExportDialogMode", m_nMidiExportMode );
 
 		//beatcounter
-		QString bcMode;
+		QString sBeatCounterOn;
 
-		if ( m_bBc == BC_OFF ) {
-			bcMode = "BC_OFF";
-		} else if ( m_bBc  == BC_ON ) {
-			bcMode = "BC_ON";
+		if ( m_bBeatCounterOn == BEAT_COUNTER_OFF ) {
+			sBeatCounterOn = "BC_OFF";
+		} else if ( m_bBeatCounterOn  == BEAT_COUNTER_ON ) {
+			sBeatCounterOn = "BC_ON";
 		}
-		guiNode.write_string( "bc", bcMode );
+		guiNode.write_string( "bc", sBeatCounterOn );
 
 		QString setPlay;
-		if ( m_bMmcSetPlay == SET_PLAY_OFF ) {
+		if ( m_bBeatCounterSetPlay == BEAT_COUNTER_SET_PLAY_OFF ) {
 			setPlay = "SET_PLAY_OFF";
-		} else if ( m_bMmcSetPlay == SET_PLAY_ON ) {
+		} else if ( m_bBeatCounterSetPlay == BEAT_COUNTER_SET_PLAY_ON ) {
 			setPlay = "SET_PLAY_ON";
 		}
 		guiNode.write_string( "setplay", setPlay );
 
-		guiNode.write_int( "countoffset", m_nCountOffset );
-		guiNode.write_int( "playoffset", m_nStartOffset );
+		guiNode.write_int( "countoffset", m_nBeatCounterDriftCompensation );
+		guiNode.write_int( "playoffset", m_nBeatCounterStartOffset );
 		// ~ beatcounter
 
 		guiNode.write_bool( "playSamplesOnClicking", m_bPlaySamplesOnClicking );
@@ -1675,14 +1675,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bExpandSongItem ) )
 			.append( QString( "%1%2m_bExpandPatternItem: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bExpandPatternItem ) )
-			.append( QString( "%1%2m_bBc: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bBc ) )
-			.append( QString( "%1%2m_bMmcSetPlay: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bMmcSetPlay ) )
-			.append( QString( "%1%2m_nCountOffset: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nCountOffset ) )
-			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nStartOffset ) )
+			.append( QString( "%1%2m_bBeatCounterOn: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bBeatCounterOn ) )
+			.append( QString( "%1%2m_bBeatCounterSetPlay: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bBeatCounterSetPlay ) )
+			.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nBeatCounterDriftCompensation ) )
+			.append( QString( "%1%2m_nBeatCounterStartOffset: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nBeatCounterStartOffset ) )
 			.append( QString( "%1%2m_serverList: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_serverList.join( ',' ) ) )
 			.append( QString( "%1%2m_patternCategories: %3\n" ).arg( sPrefix )
@@ -1925,14 +1925,14 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bExpandSongItem ) )
 			.append( QString( ", m_bExpandPatternItem: %1" )
 					 .arg( m_bExpandPatternItem ) )
-			.append( QString( ", m_bBc: %1" )
-					 .arg( m_bBc ) )
-			.append( QString( ", m_bMmcSetPlay: %1" )
-					 .arg( m_bMmcSetPlay ) )
-			.append( QString( ", m_nCountOffset: %1" )
-					 .arg( m_nCountOffset ) )
-			.append( QString( ", m_nStartOffset: %1" )
-					 .arg( m_nStartOffset ) )
+			.append( QString( ", m_bBeatCounterOn: %1" )
+					 .arg( m_bBeatCounterOn ) )
+			.append( QString( ", m_bBeatCounterSetPlay: %1" )
+					 .arg( m_bBeatCounterSetPlay ) )
+			.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
+					 .arg( m_nBeatCounterDriftCompensation ) )
+			.append( QString( ", m_nBeatCounterStartOffset: %1" )
+					 .arg( m_nBeatCounterStartOffset ) )
 			.append( QString( ", m_serverList: %1" )
 					 .arg( m_serverList.join( ',' ) ) )
 			.append( QString( ", m_patternCategories: %1" )

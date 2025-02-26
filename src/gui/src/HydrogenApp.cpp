@@ -275,7 +275,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( nullptr );
 	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
-	m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
+	m_pInstrumentRack->setVisible( instrumentRackProp.visible );
 
 	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->setMovable( false );
@@ -442,6 +442,7 @@ void HydrogenApp::handleUndoContext( const QString& sContext,
 void HydrogenApp::currentTabChanged(int index)
 {
 	Preferences::get_instance()->setLastOpenTab( index );
+	m_pPlayerControl->updatePlayerControl();
 }
 
 void HydrogenApp::closeFXProperties()
@@ -737,10 +738,11 @@ void HydrogenApp::showMixer(bool show)
 		m_pMixer->setVisible( show );
 	}
 
-	m_pMainForm->update_mixer_checkbox();
+	m_pPlayerControl->updatePlayerControl();
+	m_pMainForm->updateMenuBar();
 }
 
-void HydrogenApp::showInstrumentPanel(bool show)
+void HydrogenApp::showInstrumentRack(bool show)
 {
 	/*
 		 *   Switch to pattern editor/instrument tab in tabbed mode,
@@ -751,11 +753,14 @@ void HydrogenApp::showInstrumentPanel(bool show)
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
-		getInstrumentRack()->setHidden( show );
-	} else {
-		getInstrumentRack()->setHidden( show );
+		m_pInstrumentRack->setVisible( show );
 	}
-	m_pMainForm->update_instrument_checkbox( !show );
+	else {
+		m_pInstrumentRack->setVisible( show );
+	}
+
+	m_pPlayerControl->updatePlayerControl();
+	m_pMainForm->updateMenuBar();
 }
 
 
@@ -915,24 +920,120 @@ void HydrogenApp::onEventQueueTimer()
 			EventListener *pListener = m_EventListeners[ i ];
 
 			switch ( event.type ) {
-			case EVENT_STATE:
-				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(event.value) );
+			case EVENT_ACTION_MODE_CHANGE:
+				pListener->actionModeChangeEvent( event.value );
 				break;
 
-			case EVENT_PLAYING_PATTERNS_CHANGED:
-				pListener->playingPatternsChangedEvent();
+			case EVENT_BBT_CHANGED:
+				pListener->bbtChangedEvent();
 				break;
-				
+
+			case EVENT_BEAT_COUNTER:
+				pListener->beatCounterEvent();
+				break;
+
+			case EVENT_DRIVER_CHANGED:
+				pListener->driverChangedEvent();
+				break;
+
+			case EVENT_DRUMKIT_LOADED:
+				pListener->drumkitLoadedEvent();
+				break;
+
+			case EVENT_ERROR:
+				pListener->errorEvent( event.value );
+				break;
+
+			case EVENT_GRID_CELL_TOGGLED:
+				pListener->gridCellToggledEvent();
+				break;
+
+			case EVENT_INSTRUMENT_MUTE_SOLO_CHANGED:
+				pListener->instrumentMuteSoloChangedEvent( event.value );
+				break;
+
+			case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
+				pListener->instrumentParametersChangedEvent( event.value );
+				break;
+
+			case EVENT_JACK_SESSION:
+				pListener->jacksessionEvent( event.value );
+				break;
+
+			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
+				pListener->jackTimebaseStateChangedEvent( event.value );
+				break;
+
+			case EVENT_JACK_TRANSPORT_ACTIVATION:
+				pListener->jackTransportActivationEvent();
+				break;
+
+			case EVENT_LOOP_MODE_ACTIVATION:
+				pListener->loopModeActivationEvent();
+				break;
+
+			case EVENT_METRONOME:
+				pListener->metronomeEvent( event.value );
+				break;
+
+			case EVENT_MIDI_ACTIVITY:
+				pListener->midiActivityEvent();
+				break;
+
+			case EVENT_MIDI_MAP_CHANGED:
+				pListener->midiMapChangedEvent();
+				break;
+
+			case EVENT_MIXER_SETTINGS_CHANGED:
+				pListener->mixerSettingsChangedEvent();
+				break;
+
 			case EVENT_NEXT_PATTERNS_CHANGED:
 				pListener->nextPatternsChangedEvent();
+				break;
+
+			case EVENT_NEXT_SHOT:
+				pListener->nextShotEvent();
+				break;
+
+			case EVENT_NOTEON:
+				pListener->noteOnEvent( event.value );
+				break;
+
+			case EVENT_QUIT:
+				pListener->quitEvent( event.value );
+				break;
+
+			case EVENT_PATTERN_EDITOR_LOCKED:
+				pListener->patternEditorLockedEvent();
 				break;
 
 			case EVENT_PATTERN_MODIFIED:
 				pListener->patternModifiedEvent();
 				break;
 
-			case EVENT_SONG_MODIFIED:
-				pListener->songModifiedEvent();
+			case EVENT_PLAYBACK_TRACK_CHANGED:
+				pListener->playbackTrackChangedEvent();
+				break;
+
+			case EVENT_PLAYING_PATTERNS_CHANGED:
+				pListener->playingPatternsChangedEvent();
+				break;
+
+			case EVENT_PLAYLIST_CHANGED:
+				pListener->playlistChangedEvent( event.value );
+				break;
+
+			case EVENT_PLAYLIST_LOADSONG:
+				pListener->playlistLoadSongEvent();
+				break;
+
+			case EVENT_PROGRESS:
+				pListener->progressEvent( event.value );
+				break;
+
+			case EVENT_RELOCATION:
+				pListener->relocationEvent();
 				break;
 
 			case EVENT_SELECTED_PATTERN_CHANGED:
@@ -943,64 +1044,32 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->selectedInstrumentChangedEvent();
 				break;
 
-			case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
-				pListener->instrumentParametersChangedEvent( event.value );
+			case EVENT_SONG_MODE_ACTIVATION:
+				pListener->songModeActivationEvent();
 				break;
 
-			case EVENT_INSTRUMENT_MUTE_SOLO_CHANGED:
-				pListener->instrumentMuteSoloChangedEvent( event.value );
+			case EVENT_SONG_MODIFIED:
+				pListener->songModifiedEvent();
 				break;
 
-			case EVENT_MIDI_ACTIVITY:
-				pListener->midiActivityEvent();
+			case EVENT_SONG_SIZE_CHANGED:
+				pListener->songSizeChangedEvent();
 				break;
 
-			case EVENT_NOTEON:
-				pListener->noteOnEvent( event.value );
+			case EVENT_STATE:
+				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(event.value) );
 				break;
 
-			case EVENT_ERROR:
-				pListener->errorEvent( event.value );
+			case EVENT_STACKED_MODE_ACTIVATION:
+				pListener->stackedModeActivationEvent( event.value );
 				break;
 
-			case EVENT_XRUN:
-				pListener->XRunEvent();
-				break;
-
-			case EVENT_METRONOME:
-				pListener->metronomeEvent( event.value );
-				break;
-
-			case EVENT_PROGRESS:
-				pListener->progressEvent( event.value );
-				break;
-
-			case EVENT_JACK_SESSION:
-				pListener->jacksessionEvent( event.value );
-				break;
-
-			case EVENT_PLAYLIST_LOADSONG:
-				pListener->playlistLoadSongEvent();
-				break;
-
-			case EVENT_UNDO_REDO:
-				pListener->undoRedoActionEvent( event.value );
+			case EVENT_SOUND_LIBRARY_CHANGED:
+				pListener->soundLibraryChangedEvent();
 				break;
 
 			case EVENT_TEMPO_CHANGED:
 				pListener->tempoChangedEvent( event.value );
-				break;
-				
-			case EVENT_UPDATE_PREFERENCES:
-				pListener->updatePreferencesEvent( event.value );
-				break;
-			
-			case EVENT_UPDATE_SONG:
-				pListener->updateSongEvent( event.value );
-				break;
-				
-			case EVENT_QUIT:
-				pListener->quitEvent( event.value );
 				break;
 
 			case EVENT_TIMELINE_ACTIVATION:
@@ -1011,76 +1080,20 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->timelineUpdateEvent( event.value );
 				break;
 
-			case EVENT_JACK_TRANSPORT_ACTIVATION:
-				pListener->jackTransportActivationEvent();
+			case EVENT_UNDO_REDO:
+				pListener->undoRedoActionEvent( event.value );
 				break;
 
-			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
-				pListener->jackTimebaseStateChangedEvent( event.value );
-				break;
-				
-			case EVENT_SONG_MODE_ACTIVATION:
-				pListener->songModeActivationEvent();
+			case EVENT_UPDATE_PREFERENCES:
+				pListener->updatePreferencesEvent( event.value );
 				break;
 
-			case EVENT_STACKED_MODE_ACTIVATION:
-				pListener->stackedModeActivationEvent( event.value );
-				break;
-				
-			case EVENT_LOOP_MODE_ACTIVATION:
-				pListener->loopModeActivationEvent();
+			case EVENT_UPDATE_SONG:
+				pListener->updateSongEvent( event.value );
 				break;
 
-			case EVENT_ACTION_MODE_CHANGE:
-				pListener->actionModeChangeEvent( event.value );
-				break;
-
-			case EVENT_GRID_CELL_TOGGLED:
-				pListener->gridCellToggledEvent();
-				break;
-
-			case EVENT_DRUMKIT_LOADED:
-				pListener->drumkitLoadedEvent();
-				break;
-
-			case EVENT_PATTERN_EDITOR_LOCKED:
-				pListener->patternEditorLockedEvent();
-				break;
-				
-			case EVENT_RELOCATION:
-				pListener->relocationEvent();
-				break;
-				
-			case EVENT_BBT_CHANGED:
-				pListener->bbtChangedEvent();
-				break;
-
-			case EVENT_SONG_SIZE_CHANGED:
-				pListener->songSizeChangedEvent();
-				break;
-
-			case EVENT_DRIVER_CHANGED:
-				pListener->driverChangedEvent();
-				break;
-
-			case EVENT_PLAYBACK_TRACK_CHANGED:
-				pListener->playbackTrackChangedEvent();
-				break;
-
-			case EVENT_SOUND_LIBRARY_CHANGED:
-				pListener->soundLibraryChangedEvent();
-				break;
-
-			case EVENT_NEXT_SHOT:
-				pListener->nextShotEvent();
-				break;
-
-			case EVENT_MIDI_MAP_CHANGED:
-				pListener->midiMapChangedEvent();
-				break;
-
-			case EVENT_PLAYLIST_CHANGED:
-				pListener->playlistChangedEvent( event.value );
+			case EVENT_XRUN:
+				pListener->XRunEvent();
 				break;
 
 			default:
@@ -1261,6 +1274,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetX + SetY );
 		}
 #endif
+
+		m_pPlayerControl->updatePlayerControl();
 
 		// Inform the user about which file was loaded.
 		showStatusBarMessage( tr("Preferences loaded.") + 

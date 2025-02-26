@@ -109,9 +109,13 @@ void WidgetWithInput::setIsActive( bool bIsActive ) {
 	update();
 }
 
-void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction )
+void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction,
+								H2Core::Event::Trigger trigger )
 {
 	if ( ! m_bIsActive ) {
+		if ( trigger == H2Core::Event::Trigger::Force ) {
+			emit valueChanged( this );
+		}
 		return;
 	}
 	
@@ -130,7 +134,11 @@ void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction )
 			
 	
 	if ( fValue == m_fValue ) {
+		if ( trigger == H2Core::Event::Trigger::Force ) {
+			emit valueChanged( this );
+		}
 		return;
+;
 	}
 
 	if ( fValue < m_fMin ) {
@@ -142,7 +150,11 @@ void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction )
 
 	if ( fValue != m_fValue ) {
 		m_fValue = fValue;
-		emit valueChanged( this );
+
+		if ( trigger != H2Core::Event::Trigger::Suppress ) {
+			emit valueChanged( this );
+		}
+
 		updateTooltip();
 		update();
 

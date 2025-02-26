@@ -32,7 +32,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include <string>
+#include <memory>
 #include <vector>
 
 namespace H2Core {
@@ -41,7 +41,9 @@ namespace H2Core {
 }
 
 /** \ingroup docGUI*/
-class LadspaFXSelector :  public QDialog, public Ui_LadspaFXSelector_UI,  public H2Core::Object<LadspaFXSelector>
+class LadspaFXSelector :  public QDialog,
+						  public Ui_LadspaFXSelector_UI,
+						  public H2Core::Object<LadspaFXSelector>
 {
     H2_OBJECT(LadspaFXSelector)
 	Q_OBJECT
@@ -53,7 +55,8 @@ class LadspaFXSelector :  public QDialog, public Ui_LadspaFXSelector_UI,  public
 		QString getSelectedFX();
 
 	private slots:
-		void on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous );
+		void on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem* current,
+													  QTreeWidgetItem* previous );
 		void pluginSelected();
 
 	private:
@@ -62,11 +65,16 @@ class LadspaFXSelector :  public QDialog, public Ui_LadspaFXSelector_UI,  public
 		void buildLadspaGroups();
 
 #ifdef H2CORE_HAVE_LADSPA
-		void addGroup(QTreeWidgetItem *parent, H2Core::LadspaFXGroup *pGroup);
-		void addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGroup );
-		void buildGroup(QTreeWidgetItem *pNewItem, H2Core::LadspaFXGroup *pGroup);
+		void addGroup( QTreeWidgetItem* pParent,
+					   std::shared_ptr<H2Core::LadspaFXGroup> pGroup );
+		void addGroup( QTreeWidget* pParent,
+					   std::shared_ptr<H2Core::LadspaFXGroup> pGroup );
+		void buildGroup( QTreeWidgetItem* pNewItem,
+						 std::shared_ptr<H2Core::LadspaFXGroup> pGroup );
 
-		std::vector<H2Core::LadspaFXInfo*> findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup );
+		std::vector< std::shared_ptr<H2Core::LadspaFXInfo> >
+		  findPluginsInGroup( const QString& sSelectedGroup,
+							  std::shared_ptr<H2Core::LadspaFXGroup> pGroup );
 #endif
 
 };

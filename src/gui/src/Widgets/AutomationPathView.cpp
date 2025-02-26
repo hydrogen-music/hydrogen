@@ -99,7 +99,8 @@ void AutomationPathView::updateAutomationPath()
 
 void AutomationPathView::setGridWidth( int width )
 {
-	if ( ( SONG_EDITOR_MIN_GRID_WIDTH <= width ) && ( SONG_EDITOR_MAX_GRID_WIDTH >= width ) ) {
+	if ( SongEditor::nMinGridWidth <= width &&
+		 SongEditor::nMaxGridWidth >= width ) {
 		m_nGridWidth = width;
 		autoResize();
 		createBackground();

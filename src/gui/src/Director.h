@@ -69,6 +69,7 @@ private:
 		TagCurrent = 0x002,
 		TagNext = 0x004
 	};
+		void updateBBT();
 	/** @return true in case either #m_sTagCurrent or #m_sTagNext did
 	 * change.*/
 	bool updateTags();

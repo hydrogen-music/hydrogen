@@ -189,10 +189,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	useLashCheckbox->setChecked( pPref->m_bSetLash );
 
-	sBcountOffset->setSize( generalTabWidgetSize );
-	sBcountOffset->setValue( pPref->m_nCountOffset );
-	sBstartOffset->setSize( generalTabWidgetSize );
-	sBstartOffset->setValue( pPref->m_nStartOffset );
+	m_pBeatCounterDriftCompensationSpinBox->setSize( generalTabWidgetSize );
+	m_pBeatCounterDriftCompensationSpinBox->setValue(
+		pPref->m_nBeatCounterDriftCompensation );
+	m_pBeatCounterStartOffsetSpinBox->setSize( generalTabWidgetSize );
+	m_pBeatCounterStartOffsetSpinBox->setValue(
+		pPref->m_nBeatCounterStartOffset );
 
 	sBmaxBars->setSize( generalTabWidgetSize );
 	sBmaxBars->setValue( pPref->getMaxBars() );
@@ -1076,15 +1078,19 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_bSetLash = true ;
 	}
 
-	if ( pPref->m_nCountOffset != sBcountOffset->value() ) {
-		pPref->m_nCountOffset = sBcountOffset->value();
-		pHydrogen->setBcOffsetAdjust();
+	if ( pPref->m_nBeatCounterDriftCompensation !=
+		 m_pBeatCounterDriftCompensationSpinBox->value() ) {
+		pPref->m_nBeatCounterDriftCompensation =
+			m_pBeatCounterDriftCompensationSpinBox->value();
+		pHydrogen->updateBeatCounterSettings();
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->m_nStartOffset != sBstartOffset->value() ) {
-		pPref->m_nStartOffset = sBstartOffset->value();
-		pHydrogen->setBcOffsetAdjust();
+	if ( pPref->m_nBeatCounterStartOffset !=
+		 m_pBeatCounterStartOffsetSpinBox->value() ) {
+		pPref->m_nBeatCounterStartOffset =
+			m_pBeatCounterStartOffsetSpinBox->value();
+		pHydrogen->updateBeatCounterSettings();
 		bGeneralOptionAltered = true;
 	}
 

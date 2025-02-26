@@ -42,7 +42,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
-#include <core/EventQueue.h>
 #include <core/FX/Effects.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Random.h>
@@ -320,7 +319,7 @@ void AudioEngine::startPlayback()
 	handleSelectedPattern();
 }
 
-void AudioEngine::stopPlayback()
+void AudioEngine::stopPlayback( Event::Trigger trigger )
 {
 	AE_INFOLOG( "" );
 
@@ -330,10 +329,10 @@ void AudioEngine::stopPlayback()
 		return;
 	}
 
-	setState( State::Ready );
+	setState( State::Ready, trigger );
 }
 
-void AudioEngine::reset( bool bWithJackBroadcast ) {
+void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	
 	clearNoteQueues();
@@ -357,10 +356,10 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	m_pTransportPosition->reset();
 	m_pQueuingPosition->reset();
 
-	updateBpmAndTickSize( m_pTransportPosition );
-	updateBpmAndTickSize( m_pQueuingPosition );
+	updateBpmAndTickSize( m_pTransportPosition, trigger );
+	updateBpmAndTickSize( m_pQueuingPosition, trigger );
 
-	updatePlayingPatterns();
+	updatePlayingPatterns( trigger );
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
@@ -401,7 +400,8 @@ float AudioEngine::getElapsedTime() const {
 		static_cast<float>(pDriver->getSampleRate());
 }
 
-void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
+void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
+						  Event::Trigger trigger ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 
 #ifdef H2CORE_HAVE_JACK
@@ -447,7 +447,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 				 .arg( fTick ).arg( nNewFrame ) );
 #endif
 
-	updateTransportPosition( fTick, nNewFrame, m_pTransportPosition );
+	updateTransportPosition( fTick, nNewFrame, m_pTransportPosition, trigger );
 	m_pQueuingPosition->set( m_pTransportPosition );
 	
 	handleTempoChange();
@@ -532,7 +532,9 @@ bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) 
 	return false;
 }
 
-void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updateTransportPosition( double fTick, long long nFrame,
+										   std::shared_ptr<TransportPosition> pPos,
+										   Event::Trigger trigger ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 
@@ -544,13 +546,13 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 #endif
 
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		updateSongTransportPosition( fTick, nFrame, pPos );
+		updateSongTransportPosition( fTick, nFrame, pPos, trigger );
 	}
 	else {  // Song::Mode::Pattern
-		updatePatternTransportPosition( fTick, nFrame, pPos );
+		updatePatternTransportPosition( fTick, nFrame, pPos, trigger );
 	}
 
-	updateBpmAndTickSize( pPos );
+	updateBpmAndTickSize( pPos, trigger );
 
 
 	// Beat - Bar (- Tick) information is a coarse grained position
@@ -569,7 +571,8 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 		bBBTChanged = true;
 	}
 
-	if ( pPos == m_pTransportPosition && bBBTChanged ) {
+	if ( pPos == m_pTransportPosition && bBBTChanged &&
+		 trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->push_event( EVENT_BBT_CHANGED, 0 );
 	}
 
@@ -583,7 +586,9 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::
 
 }
 
-void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame,
+												  std::shared_ptr<TransportPosition> pPos,
+												  Event::Trigger trigger ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -610,7 +615,7 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 		// In selected pattern mode pattern change does occur
 		// asynchonically by user interaction.
 		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-			updatePlayingPatternsPos( pPos );
+			updatePlayingPatternsPos( pPos, trigger );
 		}
 	}
 
@@ -624,7 +629,9 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 	pPos->setPatternTickPosition( nPatternTickPosition );
 }
 
-void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame,
+											   std::shared_ptr<TransportPosition> pPos,
+											   Event::Trigger trigger ) {
 
 #if AUDIO_ENGINE_DEBUG
 	AE_DEBUGLOG( QString( "[Before] fTick: %1, nFrame: %2, m_fSongSizeInTicks: %3, pos: %4" )
@@ -682,10 +689,15 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 	if ( pPos->getColumn() != nNewColumn ) {
 		pPos->setColumn( nNewColumn );
 
-		updatePlayingPatternsPos( pPos );
+		updatePlayingPatternsPos( pPos, trigger );
 
 		if ( pPos == m_pTransportPosition ) {
-			handleSelectedPattern();
+			if ( trigger == Event::Trigger::Suppress ) {
+				handleSelectedPattern( trigger  );
+			}
+			else {
+				handleSelectedPattern( Event::Trigger::Force );
+			}
 		}
 	}
 
@@ -700,7 +712,8 @@ void AudioEngine::updateSongTransportPosition( double fTick, long long nFrame, s
 
 }
 
-void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
+										Event::Trigger trigger ) {
 	if ( ! ( m_state == State::Playing ||
 			 m_state == State::Ready ||
 			 m_state == State::Testing ) ) {
@@ -727,7 +740,8 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos 
 
 	if ( fNewBpm != fOldBpm ) {
 		pPos->setBpm( fNewBpm );
-		if ( pPos == m_pTransportPosition ) {
+		if ( pPos == m_pTransportPosition &&
+			 trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, 0 );
 		}
 	}
@@ -868,7 +882,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 		 getState() == State::Testing ) {
 		Effects* pEffects = Effects::get_instance();
 		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
-			LadspaFX* pFX = pEffects->getLadspaFX( i );
+			auto pFX = pEffects->getLadspaFX( i );
 			if ( pFX != nullptr ) {
 				assert( pFX->m_pBuffer_L );
 				assert( pFX->m_pBuffer_R );
@@ -1219,7 +1233,7 @@ void AudioEngine::setupLadspaFX()
 
 #ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
 		if ( pFX == nullptr ) {
 			return;
 		}
@@ -1238,7 +1252,7 @@ void AudioEngine::raiseError( unsigned nErrorCode )
 	m_pEventQueue->push_event( EVENT_ERROR, nErrorCode );
 }
 
-void AudioEngine::handleSelectedPattern() {
+void AudioEngine::handleSelectedPattern( Event::Trigger trigger ) {
 	
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -1268,12 +1282,11 @@ void AudioEngine::handleSelectedPattern() {
 			}
 		}
 
-		pHydrogen->setSelectedPatternNumber(
-			nPatternNumber, true, Event::Trigger::Force );
+		pHydrogen->setSelectedPatternNumber( nPatternNumber, true, trigger );
 	}
 }
 
-void AudioEngine::handleSongModeChanged() {
+void AudioEngine::handleSongModeChanged( Event::Trigger trigger ) {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		AE_ERRORLOG( "no song set" );
@@ -1281,7 +1294,7 @@ void AudioEngine::handleSongModeChanged() {
 	}
 
 	m_fSongSizeInTicks = pSong->lengthInTicks();
-	reset( true );
+	reset( true, trigger );
 	setNextBpm( pSong->getBpm() );
 }
 
@@ -1625,8 +1638,8 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 	timeval ladspaTime_start = currentTime2();
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
-		if ( ( pFX ) && ( pFX->isEnabled() ) ) {
+		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
+		if ( pFX != nullptr && pFX->isEnabled() ) {
 			pFX->processFX( nFrames );
 
 			float *buf_L, *buf_R;
@@ -1670,9 +1683,21 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 	m_fMasterPeak_R = fPeak_R;
 }
 
-void AudioEngine::setState( const AudioEngine::State& state ) {
+void AudioEngine::setState( const AudioEngine::State& state,
+							Event::Trigger trigger ) {
+	if ( m_state == state ) {
+		if ( trigger == Event::Trigger::Force ) {
+			EventQueue::get_instance()->push_event( EVENT_STATE,
+													static_cast<int>(state) );
+		}
+		return;
+	}
+
 	m_state = state;
-	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(state) );
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->push_event( EVENT_STATE,
+												static_cast<int>(state) );
+	}
 }
 
 void AudioEngine::setNextBpm( float fNextBpm ) {
@@ -1717,12 +1742,12 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	}
 	// Reset (among other things) the transport position. This causes
 	// the locate() call below to update the playing patterns.
-	reset( false );
+	reset( false, Event::Trigger::Suppress );
 	setNextBpm( fNextBpm );
 
 	pHydrogen->renameJackPorts( pNewSong );
 
-	setState( State::Ready );
+	setState( State::Ready, Event::Trigger::Suppress );
 	// Will also adapt the audio engine to the new song's BPM.
 	locate( 0 );
 
@@ -1734,13 +1759,13 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		pHydrogen->setTimeline( nullptr );
 	}
 
-	updateSongSize();
+	updateSongSize( Event::Trigger::Suppress );
 }
 
-void AudioEngine::prepare() {
+void AudioEngine::prepare( Event::Trigger trigger ) {
 	if ( getState() == State::Playing ) {
 		stop();
-		this->stopPlayback();
+		this->stopPlayback( trigger );
 	}
 
 	if ( getState() != State::Ready ) {
@@ -1750,13 +1775,13 @@ void AudioEngine::prepare() {
 	}
 
 	m_pSampler->stopPlayingNotes();
-	reset();
+	reset( true, trigger );
 	m_fSongSizeInTicks = MAX_NOTES;
 
-	setState( State::Prepared );
+	setState( State::Prepared, trigger );
 }
 
-void AudioEngine::updateSongSize() {
+void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1782,8 +1807,10 @@ void AudioEngine::updateSongSize() {
 					.arg( m_fSongSizeInTicks )
 					.arg( static_cast<double>( pSong->lengthInTicks() ) ) );
 		m_fSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
-		
-		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
+
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
+		}
 		return;
 	}
 
@@ -1794,7 +1821,8 @@ void AudioEngine::updateSongSize() {
 	//   current pattern tick position
 	// - there shouldn't be a difference in behavior whether the song
 	//   was already looped or not
-	const double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
+	const double fNewSongSizeInTicks =
+		static_cast<double>( pSong->lengthInTicks() );
 
 	// Indicates that the song contains no patterns (before or after
 	// song size did change). 
@@ -1838,9 +1866,9 @@ void AudioEngine::updateSongSize() {
 	auto endOfSongReached = [&](){
 		if ( getState() == State::Playing ) {
 			stop();
-			stopPlayback();
+			stopPlayback( trigger );
 		}
-		locate( 0 );
+		locate( 0, true, trigger );
 
 #if AUDIO_ENGINE_DEBUG
 		AE_DEBUGLOG( QString( "[End of song reached] fNewStrippedTick: %1, fRepetitions: %2, m_fSongSizeInTicks: %3, fNewSongSizeInTicks: %4, transport: %5, queuing: %6" )
@@ -1852,8 +1880,10 @@ void AudioEngine::updateSongSize() {
 					.arg( m_pQueuingPosition->toQString( "", true ) )
 					);
 #endif
-		
-		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
+
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
+		}
 	};
 
 	if ( nOldColumn >= pSong->getPatternGroupVector()->size() &&
@@ -1946,7 +1976,7 @@ void AudioEngine::updateSongSize() {
 #endif
 
 	const auto fOldTickSize = m_pTransportPosition->getTickSize();
-	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition );
+	updateTransportPosition( fNewTick, nNewFrame, m_pTransportPosition, trigger );
 	
     // Ensure the tick offset is calculated as well (we do not expect
     // the tempo to change hence the following call is most likely not
@@ -1973,9 +2003,9 @@ void AudioEngine::updateSongSize() {
 	// Use offsets calculated above.
 	m_pQueuingPosition->set( m_pTransportPosition );
 	updateTransportPosition( fNewTickQueuing, nNewFrameQueuing,
-							 m_pQueuingPosition );
+							 m_pQueuingPosition, trigger );
 
-	updatePlayingPatterns();
+	updatePlayingPatterns( trigger );
 	
 #ifdef H2CORE_HAVE_DEBUG
 	if ( nOldColumn != m_pTransportPosition->getColumn() && ! bEmptySong &&
@@ -2002,8 +2032,10 @@ void AudioEngine::updateSongSize() {
 				.arg( m_pQueuingPosition->toQString( "", true ) )
 				);
 #endif
-	
-	EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
+	}
 }
 
 void AudioEngine::removePlayingPattern( std::shared_ptr<Pattern> pPattern ) {
@@ -2022,12 +2054,13 @@ void AudioEngine::removePlayingPattern( std::shared_ptr<Pattern> pPattern ) {
 	removePattern( m_pQueuingPosition );
 }
 
-void AudioEngine::updatePlayingPatterns() {
-	updatePlayingPatternsPos( m_pTransportPosition );
-	updatePlayingPatternsPos( m_pQueuingPosition );
+void AudioEngine::updatePlayingPatterns( Event::Trigger trigger ) {
+	updatePlayingPatternsPos( m_pTransportPosition, trigger );
+	updatePlayingPatternsPos( m_pQueuingPosition, trigger );
 }
 	
-void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos ) {
+void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> pPos,
+											Event::Trigger trigger ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPlayingPatterns = pPos->getPlayingPatterns();
@@ -2053,7 +2086,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 			pPos->setPatternSize( MAX_NOTES );
 
-			if ( pPos == m_pTransportPosition && nPrevPatternNumber > 0 ) {
+			if ( pPos == m_pTransportPosition && nPrevPatternNumber > 0 &&
+				 trigger != Event::Trigger::Suppress ) {
 				EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 			}
 			return;
@@ -2062,7 +2096,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		auto nColumn = std::max( pPos->getColumn(), 0 );
 		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
 			AE_ERRORLOG( QString( "Provided column [%1] exceeds allowed range [0,%2]. Using 0 as fallback." )
-					  .arg( nColumn )
+						 .arg( nColumn )
 						 .arg( pSong->getPatternGroupVector()->size() - 1 ) );
 			nColumn = 0;
 		}
@@ -2078,6 +2112,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		// We omit the event when passing from one empty column to the
 		// next.
 		if ( pPos == m_pTransportPosition &&
+			 trigger != Event::Trigger::Suppress &&
 			 ( nPrevPatternNumber != 0 || pPlayingPatterns->size() != 0 ) ) {
 			EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 		}
@@ -2095,7 +2130,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 			// GUI does not care about the internals of the audio
 			// engine and just moves along the transport position.
-			if ( pPos == m_pTransportPosition ) {
+			if ( pPos == m_pTransportPosition &&
+				 trigger != Event::Trigger::Suppress ) {
 				EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 			}
 		}
@@ -2122,7 +2158,8 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 				// GUI does not care about the internals of the audio
 				// engine and just moves along the transport position.
-				if ( pPos == m_pTransportPosition ) {
+				if ( pPos == m_pTransportPosition &&
+					 trigger != Event::Trigger::Suppress ) {
 					EventQueue::get_instance()->push_event( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
 				}
 			}
@@ -2228,7 +2265,7 @@ void AudioEngine::updateVirtualPatterns() {
 	m_pTransportPosition->getPlayingPatterns()->clear();
 	m_pQueuingPosition->getPlayingPatterns()->clear();
 
-	updatePlayingPatterns();
+	updatePlayingPatterns( Event::Trigger::Default );
 	updateSongSize();
 }
 
