@@ -1329,6 +1329,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				if ( fNoteProbability < (float) rand() / (float) RAND_MAX ) {
 					m_songNoteQueue.pop();
 					pNote->get_instrument()->dequeue();
+					delete pNote;
 					continue;
 				}
 			}
