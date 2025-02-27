@@ -12,6 +12,9 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix crashes in SampleEditor (#2092).
 		- Fix track names in multi track export. When using just the file extension,
 			the raw instrument names will be used (#2096).
+		- Fix import bug for drumkits created in version >= 2.0.
+		- Fix memory leakage for songs created in version >= 2.0.
+		- Fix memory leakage for notes with probability < 1.0.
 
 2024-12-07 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.4
