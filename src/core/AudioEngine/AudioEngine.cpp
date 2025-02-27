@@ -1794,7 +1794,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 	auto updatePatternSize = []( std::shared_ptr<TransportPosition> pPos ) {
 		if ( pPos->getPlayingPatterns()->size() > 0 ) {
 			// No virtual pattern resolution in here
-			pPos->setPatternSize( pPos->getPlayingPatterns()->longest_pattern_length( false ) );
+			pPos->setPatternSize( pPos->getPlayingPatterns()->longestPatternLength( false ) );
 		} else {
 			pPos->setPatternSize( MAX_NOTES );
 		}
@@ -2169,7 +2169,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 	if ( pPlayingPatterns->size() > 0 ) {
 		// No virtual pattern resolution in here
-		pPos->setPatternSize( pPlayingPatterns->longest_pattern_length( false ) );
+		pPos->setPatternSize( pPlayingPatterns->longestPatternLength( false ) );
 	} else {
 		pPos->setPatternSize( MAX_NOTES );
 	}

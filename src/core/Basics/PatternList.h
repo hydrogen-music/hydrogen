@@ -62,9 +62,9 @@ class XMLNode;
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static std::shared_ptr<PatternList> load_from( const XMLNode& pNode,
-												   const QString& sDrumkitName,
-												   bool bSilent = false );
+	static std::shared_ptr<PatternList> loadFrom( const XMLNode& pNode,
+												  const QString& sDrumkitName,
+												  bool bSilent = false );
 
 		/** Stores a serialized version of the instance to the XML note @a
 		 * pNote.
@@ -76,18 +76,13 @@ class XMLNode;
 		 *   serialized notess by requiring a matching type.
 		 * @param nPitch If a valid one is provided, one those notes matching
 		 *   this particular pitch will be stored. */
-		void save_to( XMLNode& pNode, int nInstrumentId = EMPTY_INSTR_ID,
+		void saveTo( XMLNode& pNode, int nInstrumentId = EMPTY_INSTR_ID,
 					  const QString& sType = "",
 					  int nPitch = PITCH_INVALID ) const;
 
 		/** returns the numbers of patterns */
 		int size() const;
 
-		/**
-		 * add a pattern to the list
-		 * \param pNewPattern a pointer to the pattern to add
-		 */
-		void operator<<( std::shared_ptr<Pattern> pNewPattern );
 		/**
 		 * get a pattern from  the list
 		 * \param idx the index to get the pattern from
@@ -142,40 +137,28 @@ class XMLNode;
 		 */
 		void clear();
 		/**
-		 * find a pattern within the patterns
-		 * \param name the name of the pattern to find
-		 * \return 0 if not found
-		 */
-		std::shared_ptr<Pattern> find( const QString& name ) const;
-		/**
-		 * move a pattern from a position to another
-		 * \param idx_a the start index
-		 * \param idx_b the finish index
-		 */
-		void move( int idx_a, int idx_b );
-		/**
 		 * call compute_flattened_virtual_patterns on each pattern
 		 */
-		void flattened_virtual_patterns_compute();
+		void flattenedVirtualPatternsCompute();
 		/**
 		 * call del_virtual_pattern on each pattern
 		 * \param pPattern the pattern to remove where it's found
 		 */
-		void virtual_pattern_del( std::shared_ptr<Pattern> pPattern );
+		void virtualPatternDel( std::shared_ptr<Pattern> pPattern );
 		/**
 		 * check if a pattern with name patternName already exists in this list
 		 * \param patternName name of a pattern to check
 		 * \param pIgnore optional pattern in the list to ignore
 		 */
-		bool check_name( const QString& patternName,
-						 std::shared_ptr<Pattern> pIgnore = nullptr ) const;
+		bool checkName( const QString& patternName,
+						std::shared_ptr<Pattern> pIgnore = nullptr ) const;
 		/**
 		 * find unused patternName
 		 * \param sourceName base name to start with
 		 * \param pIgnore optional pattern in the list to ignore
 		 */
-		QString find_unused_pattern_name( const QString& sourceName,
-										  std::shared_ptr<Pattern> pIgnore = nullptr ) const;
+		QString findUnusedPatternName( const QString& sourceName,
+									   std::shared_ptr<Pattern> pIgnore = nullptr ) const;
 
 		/**
 		 * Get the length of the longest pattern in the list
@@ -186,7 +169,7 @@ class XMLNode;
 		 *
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
-		int longest_pattern_length( bool bIncludeVirtuals = true ) const;
+		int longestPatternLength( bool bIncludeVirtuals = true ) const;
 
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
 					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
@@ -215,7 +198,7 @@ class XMLNode;
 		std::vector<std::shared_ptr<Pattern>>::const_iterator cend() const;
 
 	private:
-		std::vector<std::shared_ptr<Pattern>> __patterns;            ///< the list of patterns
+		std::vector<std::shared_ptr<Pattern>> m_pPatterns;            ///< the list of patterns
 
 };
 
@@ -223,17 +206,12 @@ class XMLNode;
 
 inline int PatternList::size() const
 {
-	return __patterns.size();
+	return m_pPatterns.size();
 }
 
 inline void PatternList::clear()
 {
-	__patterns.clear();
-}
-
-inline void PatternList::operator<<( std::shared_ptr<Pattern> pattern )
-{
-	add( pattern );
+	m_pPatterns.clear();
 }
 
 inline std::shared_ptr<Pattern> PatternList::operator[]( int idx ) const {

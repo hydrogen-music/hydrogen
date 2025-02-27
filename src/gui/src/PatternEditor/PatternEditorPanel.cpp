@@ -2523,7 +2523,7 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 	// Serialize & put to clipboard
 	H2Core::XMLDoc doc;
 	auto rootNode = doc.set_root( "serializedPatternList" );
-	pSong->getPatternList()->save_to(
+	pSong->getPatternList()->saveTo(
 		rootNode, row.nInstrumentID, row.sType, nPitch );
 
 	const QString sSerialized = doc.toString();
@@ -2573,7 +2573,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 		return;
 	}
 
-	const auto pPatternList = PatternList::load_from(
+	const auto pPatternList = PatternList::loadFrom(
 		rootNode, pSong->getDrumkit()->getExportName() );
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )

@@ -1406,7 +1406,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 	for ( int i = 0; i < nColumns; ++i ) {
 		auto pColumn = ( *pPatternColumns )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->longest_pattern_length();
+			nPatternSize = pColumn->longestPatternLength();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -1432,7 +1432,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		for ( int i = 0; i < nColumns; ++i ) {
 			auto pColumn = ( *pPatternColumns )[ i ];
 			if ( pColumn->size() != 0 ) {
-				nPatternSize = pColumn->longest_pattern_length();
+				nPatternSize = pColumn->longestPatternLength();
 			} else {
 				nPatternSize = MAX_NOTES;
 			}
@@ -1486,7 +1486,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 		auto pColumn = ( *pColumns )[ i ];
 		
 		if ( pColumn->size() > 0 ) {
-			nPatternSize = pColumn->longest_pattern_length();
+			nPatternSize = pColumn->longestPatternLength();
 		}
 		else {
 			nPatternSize = MAX_NOTES;
@@ -1537,7 +1537,7 @@ void Hydrogen::updateVirtualPatterns() {
 		return;
 	}
 	
-	pPatternList->flattened_virtual_patterns_compute();
+	pPatternList->flattenedVirtualPatternsCompute();
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	m_pAudioEngine->updateVirtualPatterns();

@@ -263,7 +263,7 @@ void* diskWriterDriver_thread( void* param )
 		
 		auto pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->longest_pattern_length();
+			nPatternSize = pColumn->longestPatternLength();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}

@@ -151,7 +151,7 @@ long Song::lengthInTicks() const {
 	for ( int i = 0; i < nColumns; i++ ) {
 		auto pColumn = ( *m_pPatternGroupSequence )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nSongLength += pColumn->longest_pattern_length();
+			nSongLength += pColumn->longestPatternLength();
 		} else {
 			nSongLength += MAX_NOTES;
 		}
@@ -388,7 +388,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 								bSilent ) );
 
 	// Pattern list
-	auto pPatternList = PatternList::load_from(
+	auto pPatternList = PatternList::loadFrom(
 		rootNode, pDrumkit->getExportName(), bSilent );
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapTo( pDrumkit, nullptr );
@@ -613,7 +613,7 @@ void Song::loadVirtualPatternsFrom( const XMLNode& node, bool bSilent ) {
 		virtualPatternNode = virtualPatternNode.nextSiblingElement( "pattern" );
 	}
 
-	m_pPatternList->flattened_virtual_patterns_compute();
+	m_pPatternList->flattenedVirtualPatternsCompute();
 }
 
 void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
@@ -800,7 +800,7 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
 	if ( m_pPatternList != nullptr ) {
-		m_pPatternList->save_to( rootNode );
+		m_pPatternList->saveTo( rootNode );
 	}
 	saveVirtualPatternsTo( rootNode, bSilent );
 	savePatternGroupVectorTo( rootNode, bSilent );
@@ -1109,7 +1109,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 			}
 		}
 
-		nColumnStartTick += ppColumn->longest_pattern_length();
+		nColumnStartTick += ppColumn->longestPatternLength();
 	}
 
 	std::sort( notes.begin(), notes.end(), Note::compareAscending );

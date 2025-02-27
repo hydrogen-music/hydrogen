@@ -1203,7 +1203,7 @@ void SongEditor::updateGridCells() {
 
 	for ( int nColumn = 0; nColumn < pColumns->size(); nColumn++ ) {
 		auto pColumn = (*pColumns)[nColumn];
-		int nMaxLength = pColumn->longest_pattern_length();
+		int nMaxLength = pColumn->longestPatternLength();
 
 		for ( int nPat = 0; nPat < pColumn->size(); nPat++ ) {
 			auto pPattern = (*pColumn)[ nPat ];

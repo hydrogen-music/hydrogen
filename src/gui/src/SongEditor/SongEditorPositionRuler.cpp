@@ -821,7 +821,7 @@ void SongEditorPositionRuler::updatePosition()
 		}
 		else if ( pPatternGroupVector->size() > m_nColumn &&
 				  pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
-			int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
+			int nLength = pPatternGroupVector->at( m_nColumn )->longestPatternLength();
 			fTick += (float)pTransportPos->getPatternTickPosition() /
 				(float)nLength;
 		}

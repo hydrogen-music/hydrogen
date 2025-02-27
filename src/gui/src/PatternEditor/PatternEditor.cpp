@@ -2622,7 +2622,7 @@ bool PatternEditor::updateWidth() {
 		else if ( PatternEditorPanel::isUsingAdditionalPatterns( pPattern ) ) {
 			nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
+						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longestPatternLength( false ) + 1,
 						  static_cast<float>(nActiveWidth) );
 		}
 		else {

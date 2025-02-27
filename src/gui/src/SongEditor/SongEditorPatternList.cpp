@@ -216,7 +216,7 @@ void SongEditorPatternList::inlineEditingEntered()
 	 * If it is not, use an unused pattern name.
 	 */
 	
-	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text(), m_pPatternBeingEdited );
+	QString patternName = pPatternList->findUnusedPatternName( m_pLineEdit->text(), m_pPatternBeingEdited );
 
 	SE_modifyPatternPropertiesAction *action =
 		new SE_modifyPatternPropertiesAction( m_pPatternBeingEdited->getVersion(),
@@ -893,8 +893,8 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 				{
 					auto pNewPattern = pPattern;
 			
-					if(!pPatternList->check_name( pNewPattern->getName() ) ){
-						pNewPattern->setName( pPatternList->find_unused_pattern_name( pNewPattern->getName() ) );
+					if(!pPatternList->checkName( pNewPattern->getName() ) ){
+						pNewPattern->setName( pPatternList->findUnusedPatternName( pNewPattern->getName() ) );
 					}
 					
 					auto pAction = new SE_insertPatternAction(

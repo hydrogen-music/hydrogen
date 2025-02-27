@@ -2077,8 +2077,8 @@ bool CoreActionController::setPattern( std::shared_ptr<Pattern> pPattern,
 	auto pPatternList = pSong->getPatternList();
 
 	// Check whether the name of the new pattern is unique.
-	if ( !pPatternList->check_name( pPattern->getName() ) ){
-		pPattern->setName( pPatternList->find_unused_pattern_name( pPattern->getName() ) );
+	if ( !pPatternList->checkName( pPattern->getName() ) ){
+		pPattern->setName( pPatternList->findUnusedPatternName( pPattern->getName() ) );
 	}
 
 	pPatternList->insert( nPatternPosition, pPattern );
