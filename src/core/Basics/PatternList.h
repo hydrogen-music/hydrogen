@@ -25,37 +25,33 @@
 
 #include <memory>
 #include <vector>
-#include <core/Object.h>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/DrumkitMap.h>
+#include <core/Object.h>
 
 namespace H2Core
 {
 
 class Drumkit;
-class Pattern;
-class AudioEngineLocking;
 class InstrumentList;
-class XMLNode;
 class Note;
+class Pattern;
+class XMLNode;
 
 /**
  * PatternList is a collection of patterns
 */
 /** \ingroup docCore docDataStructure */
-  class PatternList : public H2Core::Object<PatternList>, public H2Core::AudioEngineLocking
-{
+  class PatternList : public H2Core::Object<PatternList>,
+					  public H2Core::AudioEngineLocking,
+					  public std::enable_shared_from_this<PatternList> {
 		H2_OBJECT(PatternList)
 	public:
-		/** constructor */
 		PatternList();
-		/** destructor */
 		~PatternList();
-		/**
-		 * copy constructor
-		 * \param other
-		 */
-		PatternList( PatternList* other );
+
+		PatternList( std::shared_ptr<PatternList> pOther );
 	
 		/**
 		 * load a #PatternList from an XMLNode
@@ -66,9 +62,9 @@ class Note;
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static PatternList* load_from( const XMLNode& pNode,
-								   const QString& sDrumkitName,
-								   bool bSilent = false );
+	static std::shared_ptr<PatternList> load_from( const XMLNode& pNode,
+												   const QString& sDrumkitName,
+												   bool bSilent = false );
 
 		/** Stores a serialized version of the instance to the XML note @a
 		 * pNote.

@@ -241,14 +241,14 @@ class Pattern : public H2Core::Object<Pattern>
 	 *
 	 * Companion function of removeFlattenedVirtualPatterns();
 	 */
-	void addFlattenedVirtualPatterns( PatternList* pPatternList );
+	void addFlattenedVirtualPatterns( std::shared_ptr<PatternList> pPatternList );
 	/**
 	 * Add content of m_flattenedVirtualPatterns into @a
 	 * pPatternList.
 	 *
 	 * Companion function of addFlattenedVirtualPatterns();
 	 */
-	void removeFlattenedVirtualPatterns( PatternList* pPatternList );
+	void removeFlattenedVirtualPatterns( std::shared_ptr<PatternList> pPatternList );
 
 	int longestVirtualPatternLength() const;
 	/**

@@ -2834,14 +2834,14 @@ long long AudioEngine::getLeadLagInFrames( double fTick ) const {
 	return nFrameEnd - nFrameStart;
 }
 
-const PatternList* AudioEngine::getPlayingPatterns() const {
+const std::shared_ptr<PatternList> AudioEngine::getPlayingPatterns() const {
 	if ( m_pTransportPosition != nullptr ) {
 		return m_pTransportPosition->getPlayingPatterns();
 	}
 	return nullptr;
 }
 
-const PatternList* AudioEngine::getNextPatterns() const {
+const std::shared_ptr<PatternList> AudioEngine::getNextPatterns() const {
 	if ( m_pTransportPosition != nullptr ) {
 		return m_pTransportPosition->getNextPatterns();
 	}

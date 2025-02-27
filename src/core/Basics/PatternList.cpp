@@ -20,45 +20,41 @@
  *
  */
 
-#include <algorithm>
 #include <core/Basics/PatternList.h>
 
-#include <core/Helpers/Xml.h>
+#include <algorithm>
+
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
-
-#include <core/AudioEngine/AudioEngine.h>
+#include <core/Helpers/Xml.h>
 
 namespace H2Core
 {
 
 
-PatternList::PatternList()
-{
+PatternList::PatternList() {
 }
 
-PatternList::PatternList( PatternList* pOther ) : Object( *pOther )
-{
-	assert( __patterns.size() == 0 );
-	for ( int i=0; i<pOther->size(); i++ ) {
-		( *this ) << ( std::make_shared<Pattern>( ( *pOther )[i] ) );
+PatternList::PatternList( std::shared_ptr<PatternList> pOther ) {
+	for ( const auto& ppPattern : *pOther ) {
+		add( std::make_shared<Pattern>( ppPattern ) );
 	}
 }
 
 PatternList::~PatternList() {
 }
 
-PatternList* PatternList::load_from( const XMLNode& node,
-									 const QString& sDrumkitName,
-									 bool bSilent ) {
+std::shared_ptr<PatternList> PatternList::load_from( const XMLNode& node,
+													 const QString& sDrumkitName,
+													 bool bSilent ) {
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
 		ERRORLOG( "'patternList' node not found. Unable to load pattern list." );
 		return nullptr;
 	}
 
-	PatternList* pPatternList = new PatternList();
+	auto pPatternList = std::make_shared<PatternList>();
 	int nPatternCount = 0;
 
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
@@ -70,7 +66,6 @@ PatternList* PatternList::load_from( const XMLNode& node,
 		}
 		else {
 			ERRORLOG( "Error loading pattern" );
-			delete pPatternList;
 			return nullptr;
 		}
 		patternNode = patternNode.nextSiblingElement( "pattern" );
@@ -133,7 +128,7 @@ void PatternList::add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals )
 	__patterns.push_back( pPattern );
 
 	if ( bAddVirtuals ) {
-		pPattern->addFlattenedVirtualPatterns( this );
+		pPattern->addFlattenedVirtualPatterns( shared_from_this() );
 	}
 }
 

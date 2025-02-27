@@ -3101,7 +3101,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		return;
 	}
 
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	if ( nPatternNumber < 0 ||
 		 nPatternNumber >= pPatternList->size() ) {
 		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )

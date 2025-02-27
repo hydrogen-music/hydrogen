@@ -178,7 +178,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 
 
 	// Ensure the pattern name is unique
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	sPattName = pPatternList->find_unused_pattern_name(sPattName, pattern);
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -225,7 +225,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 
 void PatternPropertiesDialog::defaultNameCheck( const QString& pattName, bool savepattern)
 {
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	if ( savepattern && !pPatternList->check_name(pattName, pattern) ) {
 		patternNameTxt->setText(
 			pPatternList->find_unused_pattern_name(pattName, pattern));

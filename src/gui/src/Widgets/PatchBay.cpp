@@ -28,7 +28,7 @@
 #include "../Types/Patch.h"
 
 PatchBay::PatchBay( QWidget* pParent,
-					H2Core::PatternList* pPatternList,
+					std::shared_ptr<H2Core::PatternList> pPatternList,
 					std::shared_ptr<H2Core::Drumkit> pDrumkit )
 	: QDialog( pParent )
 	, m_pPatternList( pPatternList )

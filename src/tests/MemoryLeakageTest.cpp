@@ -131,10 +131,10 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto PatternList = new H2Core::PatternList();
-		auto PatternList2 = new H2Core::PatternList( PatternList );
-		delete PatternList;
-		delete PatternList2;
+		auto pPatternList = std::make_shared<H2Core::PatternList>();
+		auto pPatternList2 = std::make_shared<H2Core::PatternList>( pPatternList );
+		pPatternList = nullptr;
+		pPatternList2 = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 
@@ -188,9 +188,10 @@ void MemoryLeakageTest::testConstructors() {
 	}
 
 	{
-		auto pPatternList = new H2Core::PatternList( pSongProper->getPatternList() );
+		auto pPatternList = std::make_shared<H2Core::PatternList>(
+			pSongProper->getPatternList() );
 		CPPUNIT_ASSERT( pPatternList != nullptr );
-		delete pPatternList;
+		pPatternList = nullptr;
 		CPPUNIT_ASSERT( nNewCount == H2Core::Base::getAliveObjectCount() );
 	}
 	

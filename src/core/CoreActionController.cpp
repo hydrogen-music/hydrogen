@@ -2174,13 +2174,12 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 		}
 	}
 
-	PatternList* pColumn;
+	std::shared_ptr<PatternList> pColumn;
 	// Ensure there are no empty columns in the pattern group vector.
 	for ( int ii = pPatternGroupVector->size() - 1; ii >= 0; --ii ) {
 		pColumn = pPatternGroupVector->at( ii );
 		if ( pColumn->size() == 0 ) {
 			pPatternGroupVector->erase( pPatternGroupVector->begin() + ii );
-			delete pColumn;
 		}
 		else {
 			break;
@@ -2281,7 +2280,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	auto pSong = pHydrogen->getSong();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPatternList = pSong->getPatternList();
-	std::vector<PatternList*>* pColumns = pSong->getPatternGroupVector();
+	auto pColumns = pSong->getPatternGroupVector();
 
 	if ( nRow < 0 || nRow > pPatternList->size() ) {
 		ERRORLOG( QString( "Provided row [%1] is out of bound [0,%2]" )
@@ -2299,21 +2298,22 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 
 	pAudioEngine->lock( RIGHT_HERE );
 	if ( nColumn >= 0 && nColumn < pColumns->size() ) {
-		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		auto pColumn = ( *pColumns )[ nColumn ];
 		auto pPattern = pColumn->del( pNewPattern );
 		if ( pPattern == nullptr ) {
 			// No pattern in this row. Let's add it.
 			pColumn->add( pNewPattern );
-		} else {
+		}
+		else {
 			// There was already a pattern present and we removed it.
 			// Ensure that there are no empty columns at the end of
 			// the song.
 			for ( int ii = pColumns->size() - 1; ii >= 0; ii-- ) {
-				PatternList *pColumn = ( *pColumns )[ ii ];
+				auto pColumn = ( *pColumns )[ ii ];
 				if ( pColumn->size() == 0 ) {
 					pColumns->erase( pColumns->begin() + ii );
-					delete pColumn;
-				} else {
+				}
+				else {
 					break;
 				}
 			}
@@ -2321,10 +2321,10 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	}
 	else if ( nColumn >= pColumns->size() ) {
 		// We need to add some new columns..
-		PatternList *pColumn;
+		std::shared_ptr<PatternList> pColumn;
 
 		for ( int ii = 0; nColumn - pColumns->size() + 1; ii++ ) {
-			pColumn = new PatternList();
+			pColumn = std::make_shared<PatternList>();
 			pColumns->push_back( pColumn );
 		}
 		pColumn->add( pNewPattern );

@@ -241,7 +241,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 		  nPatternList < pSong->getPatternGroupVector()->size() ;
 		  nPatternList++ ) {
 		// infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
-		PatternList *pPatternList =
+		auto pPatternList =
 			( *(pSong->getPatternGroupVector()) )[ nPatternList ];
 
 		int nStartTicks = nTick;

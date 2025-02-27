@@ -73,15 +73,15 @@ void H2Core::LilyPond::extractData( const Song &song ) {
 	m_fBPM = song.getBpm();
 
 	// Get the main information about the music
-	const std::vector<PatternList *> *group = song.getPatternGroupVector();
-	if ( !group || group->size() == 0 ) {
+	const auto pGroup = song.getPatternGroupVector();
+	if ( !pGroup || pGroup->size() == 0 ) {
 		m_Measures.clear();
 		return;
 	}
-	unsigned nSize = group->size();
+	unsigned nSize = pGroup->size();
 	m_Measures = std::vector<notes_t>( nSize );
 	for ( unsigned nPatternList = 0; nPatternList < nSize; nPatternList++ ) {
-		if ( PatternList *pPatternList = ( *group )[ nPatternList ] ) {
+		if ( auto pPatternList = ( *pGroup )[ nPatternList ] ) {
 			addPatternList( *pPatternList, m_Measures[ nPatternList ] );
 		}
 	}

@@ -376,7 +376,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		 pAudioEngine->getState() == AudioEngine::State::Playing ) {
 
 		// Recording + song playback mode + actually playing
-		PatternList* pPatternList = pSong->getPatternList();
+		auto pPatternList = pSong->getPatternList();
 		auto pColumns = pSong->getPatternGroupVector();
 		int nColumn = pAudioEngine->getTransportPosition()->getColumn(); // current column
 		// or pattern group
@@ -391,7 +391,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		nTickInPattern = pAudioEngine->getTransportPosition()->getPatternTickPosition();
 
 		// Capture new notes in the bottom-most pattern (if not already done above)
-		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		auto pColumn = ( *pColumns )[ nColumn ];
 		currentPatternNumber = -1;
 		for ( int n = 0; n < pColumn->size(); n++ ) {
 			auto pPattern = pColumn->get( n );
@@ -407,7 +407,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 
 	}
 	else { // Not song-record mode
-		PatternList *pPatternList = pSong->getPatternList();
+		auto pPatternList = pSong->getPatternList();
 
 		if ( ( m_nSelectedPatternNumber != -1 )
 			 && ( m_nSelectedPatternNumber < ( int )pPatternList->size() ) )
@@ -1388,7 +1388,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 
 	long nTotalTick = 0;
 
-	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+	auto pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 
 	if ( nColumns == 0 ) {
@@ -1404,7 +1404,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 	// searching for.
 	int nPatternSize;
 	for ( int i = 0; i < nColumns; ++i ) {
-		PatternList *pColumn = ( *pPatternColumns )[ i ];
+		auto pColumn = ( *pPatternColumns )[ i ];
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longest_pattern_length();
 		} else {
@@ -1430,7 +1430,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		}
 		nTotalTick = 0;
 		for ( int i = 0; i < nColumns; ++i ) {
-			PatternList *pColumn = ( *pPatternColumns )[ i ];
+			auto pColumn = ( *pPatternColumns )[ i ];
 			if ( pColumn->size() != 0 ) {
 				nPatternSize = pColumn->longest_pattern_length();
 			} else {
@@ -1478,17 +1478,17 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 		}
 	}
 
-	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
+	auto pColumns = pSong->getPatternGroupVector();
 	long totalTick = 0;
 	int nPatternSize;
 
 	for ( int i = 0; i < nColumn; ++i ) {
-		PatternList *pColumn = ( *pColumns )[ i ];
+		auto pColumn = ( *pColumns )[ i ];
 		
-		if( pColumn->size() > 0)
-		{
+		if ( pColumn->size() > 0 ) {
 			nPatternSize = pColumn->longest_pattern_length();
-		} else {
+		}
+		else {
 			nPatternSize = MAX_NOTES;
 		}
 		totalTick += nPatternSize;
@@ -1531,7 +1531,7 @@ void Hydrogen::updateVirtualPatterns() {
 		ERRORLOG( "no song" );
 		return;
 	}
-	PatternList *pPatternList = m_pSong->getPatternList();
+	auto pPatternList = m_pSong->getPatternList();
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( "no pattern list");
 		return;

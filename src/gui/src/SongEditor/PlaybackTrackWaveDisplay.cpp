@@ -126,7 +126,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 	memset( m_pPeakData, 0, currentWidth * sizeof(m_pPeakData[0]) );	
 	
 	if ( pLayer && pLayer->get_sample() ) {
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+		auto pSong = Hydrogen::get_instance()->getSong();
 		
 		m_pLayer = pLayer;
 		m_sSampleName = m_pLayer->get_sample()->get_filename();
@@ -139,7 +139,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 		int		nSamplePos = 0;
 		int		nMaxBars = pPref->getMaxBars();
 		
-		std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+		auto pPatternColumns = pSong->getPatternGroupVector();
 		int nColumns = pPatternColumns->size();
 
 		int nSongEditorGridWith;
@@ -156,7 +156,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 			int maxPatternSize = 0;
 			
 			if( patternPosition < nColumns ) {
-				PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
+				auto pColumn = ( *pPatternColumns )[ patternPosition ];
 				
 				for ( unsigned j = 0; j < pColumn->size(); j++ ) {
 					const auto pPattern = pColumn->get( j );

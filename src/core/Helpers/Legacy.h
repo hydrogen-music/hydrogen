@@ -104,9 +104,10 @@ class Legacy : public H2Core::Object<Legacy> {
 		 */
 		static std::shared_ptr<Playlist> load_playlist( const QString& pl_path );
 
-	static std::vector<PatternList*>* loadPatternGroupVector( const XMLNode& pNode,
-															  PatternList* pPatternList,
-															  bool bSilent = false );
+	static std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > loadPatternGroupVector(
+		const XMLNode& pNode,
+		std::shared_ptr<PatternList> pPatternList,
+		bool bSilent = false );
 
 	/**
 	 *	Check if filename was created with TinyXml or QtXml

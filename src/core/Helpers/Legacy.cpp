@@ -485,11 +485,14 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 	return pPlaylist;
 }
 
-std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
-														   PatternList* pPatternList,
-														   bool bSilent ) {;
+std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Legacy::loadPatternGroupVector(
+	const XMLNode& node,
+	std::shared_ptr<PatternList> pPatternList,
+	bool bSilent )
+{
 
-	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+	auto pPatternGroupVector =
+		std::make_shared< std::vector< std::shared_ptr<PatternList> > >();
 
 	if ( ! bSilent ) {
 		WARNINGLOG( "Using old pattern group vector code for back compatibility" );
@@ -498,7 +501,7 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
 	XMLNode pPatternIDNode = node.firstChildElement( "patternID" );
 	while ( ! pPatternIDNode.isNull() ) {
 	
-		PatternList* pPatternSequence = new PatternList();
+		auto pPatternSequence = std::make_shared<PatternList>();
 		QString sPatId = pPatternIDNode.firstChildElement().text();
 
 		std::shared_ptr<Pattern> pPattern = nullptr;
@@ -516,7 +519,6 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
 				WARNINGLOG( QString( "Pattern [%1] not found in patternList." )
 							.arg( sPatId ) );
 			}
-			delete pPatternSequence;
 		}
 		else {
 			pPatternSequence->add( pPattern );

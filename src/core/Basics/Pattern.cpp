@@ -415,14 +415,14 @@ void Pattern::flattenedVirtualPatternsCompute()
 	}
 }
 
-void Pattern::addFlattenedVirtualPatterns( PatternList* pPatternList ) {
+void Pattern::addFlattenedVirtualPatterns( std::shared_ptr<PatternList> pPatternList ) {
 	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
 		 it != m_flattenedVirtualPatterns.end(); ++it ) {
 		pPatternList->add( *it, true );
 	}
 }
 
-void Pattern::removeFlattenedVirtualPatterns( PatternList* pPatternList ) {
+void Pattern::removeFlattenedVirtualPatterns( std::shared_ptr<PatternList> pPatternList ) {
 	for ( virtual_patterns_cst_it_t it = m_flattenedVirtualPatterns.begin();
 		 it != m_flattenedVirtualPatterns.end(); ++it ) {
 		pPatternList->del( *it );

@@ -328,8 +328,8 @@ public:
 
 	const std::shared_ptr<TransportPosition> getTransportPosition() const;
 
-	const PatternList*	getNextPatterns() const;
-	const PatternList*	getPlayingPatterns() const;
+	const std::shared_ptr<PatternList>	getNextPatterns() const;
+	const std::shared_ptr<PatternList>	getPlayingPatterns() const;
 	
 	long long		getRealtimeFrame() const;
 

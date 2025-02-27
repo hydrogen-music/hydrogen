@@ -239,7 +239,7 @@ void* diskWriterDriver_thread( void* param )
 	// always rolling, no user interaction
 	pAudioEngine->play();
 
-	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+	auto pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 
 	// Used to cleanly terminate this thread and close all handlers.
@@ -261,7 +261,7 @@ void* diskWriterDriver_thread( void* param )
 	int nMaxNumberOfSilentFrames = 200;
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
 		
-		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
+		auto pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longest_pattern_length();
 		} else {

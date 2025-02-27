@@ -614,12 +614,12 @@ void SongEditorPanel::updatePlaybackTrack()
 ///
 void SongEditorPanel::newPatBtnClicked()
 {
-	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	auto pNewPattern = std::make_shared<Pattern>(
 		tr( "Pattern %1" ).arg( pPatternList->size() + 1 ) );
 	pNewPattern->setAuthor( pSong->getAuthor() );
@@ -665,9 +665,9 @@ void SongEditorPanel::upBtnClicked()
 ///
 void SongEditorPanel::downBtnClicked()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPatternList = pSong->getPatternList();
 
 	if( pHydrogen->getSelectedPatternNumber() < 0 ||
 		pHydrogen->getSelectedPatternNumber() + 1 >= pPatternList->size() ) { 
@@ -713,9 +713,8 @@ void SongEditorPanel::restoreGroupVector( const QString& filename )
 	//clear the old sequese
 	auto pPatternGroupsVect = pSong->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
-		PatternList *pPatternList = (*pPatternGroupsVect)[i];
+		auto pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
-		delete pPatternList;
 	}
 	pPatternGroupsVect->clear();
 

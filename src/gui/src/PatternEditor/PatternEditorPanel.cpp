@@ -1079,9 +1079,9 @@ std::vector<std::shared_ptr<Pattern>> PatternEditorPanel::getPatternsToShow() co
 			 ! pHydrogen->isPatternEditorLocked() ) ) {
 		pAudioEngine->lock( RIGHT_HERE );
 		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
-			std::set<std::shared_ptr<Pattern>> patternSet;
+			std::set< std::shared_ptr<Pattern> > patternSet;
 
-			std::vector<const PatternList*> patternLists;
+			std::vector< std::shared_ptr<PatternList> > patternLists;
 			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
 			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 				patternLists.push_back( pAudioEngine->getNextPatterns() );
@@ -2269,7 +2269,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList* pPatternList = nullptr;
+	std::shared_ptr<PatternList> pPatternList = nullptr;
 	if ( nPattern != -1 ) {
 		auto pPattern = pSong->getPatternList()->get( nPattern );
 		if ( pPattern == nullptr ) {
@@ -2277,7 +2277,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 					  .arg( nPattern ) );
 			return;
 		}
-		pPatternList = new PatternList();
+		pPatternList = std::make_shared<PatternList>();
 		pPatternList->add( pPattern );
 	}
 	else {
@@ -2335,10 +2335,6 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 		}
 	}
 	pHydrogenApp->endUndoMacro();
-
-	if ( nPattern != -1 ) {
-		delete pPatternList;
-	}
 }
 
 QString PatternEditorPanel::FillNotesToQString( const FillNotes& fillNotes ) {
@@ -2616,5 +2612,4 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 		}
 	}
 	pHydrogenApp->endUndoMacro();
-	delete pPatternList;
 }
