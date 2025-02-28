@@ -28,13 +28,10 @@
 #include <core/Object.h>
 
 #include <cassert>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <vector>
-
-/** Maximum number of events to be stored in the
-    H2Core::EventQueue::m_eventsBuffer.*/
-#define MAX_EVENTS 1024
 
 namespace H2Core
 {
@@ -55,7 +52,13 @@ namespace H2Core
 class EventQueue : public H2Core::Object<EventQueue>
 {
 	H2_OBJECT(EventQueue)
-public:/**
+public:
+
+	/** Maximum number of events to be stored in the
+		H2Core::EventQueue::m_eventQueue.*/
+	static constexpr int nMaxEvents = 1024;
+
+	/**
 	* If #__instance equals 0, a new EventQueue singleton will be
 	 * created and stored in it.
 	 *
@@ -77,10 +80,10 @@ public:/**
 	 * written to the queue most recently is indexed with #m_nWriteIndex, this
 	 * variable is incremented once and its modulo with respect to #MAX_EVENTS
 	 * is calculated to determine the position of insertion into
-	 * #m_eventsBuffer.
+	 * #m_eventQueue.
 	 *
 	 * The modulo operation is necessary because #m_nWriteIndex will be only
-	 * incremented and does not respect the actual length of #m_eventsBuffer
+	 * incremented and does not respect the actual length of #m_eventQueue
 	 * itself.
 	 *
 	 * \param type Type of the event, which will be queued.
@@ -93,10 +96,10 @@ public:/**
 	 * Since the event read out most recently is indexed with #m_nReadIndex,
 	 * this variable is incremented once and its modulo with respect to
 	 * #MAX_EVENTS is calculated to determine the event returned from
-	 * #m_eventsBuffer.
+	 * #m_eventQueue.
 	 *
 	 * The modulo operation is necessary because #m_nReadIndex will be only
-	 * incremented and does not respect the actual length of #m_eventsBuffer
+	 * incremented and does not respect the actual length of #m_eventQueue
 	 * itself.
 	 *
 	 * \return Next event in line.
@@ -129,45 +132,11 @@ public:/**
 	QString toQString( const QString& sPrefix = "", bool bShort = true );
 
 private:
-	/**
-	 * Constructor of the EventQueue class.
-	 *
-	 * It fills all #MAX_EVENTS slots of the #m_eventsBuffer with
-	 * #H2Core::Event::Type::None and assigns itself to #__instance. Called by
-	 * create_instance().
-	 */
 	EventQueue();
-	/**
-	 * Object holding the current EventQueue singleton. It is initialized with
-	 * nullptr, set in EventQueue(), and accessed via get_instance().
-	 */
 	static EventQueue *__instance;
 
-	/**
-	 * Continuously growing number indexing the event, which has been read from
-	 * the EventQueue most recently.
-	 *
-	 * It is incremented with each call to popEvent().
-	 */
-	volatile unsigned int m_nReadIndex;
-	/**
-	 * Continuously growing number indexing the event, which has been written to
-	 * the EventQueue most recently.
-	 *
-	 * It is incremented with each call to pushEvent().
-	 */
-	volatile unsigned int m_nWriteIndex;
-	/**
-	 * Array of all events contained in the EventQueue.
-	 *
-	 * Its length is set to #MAX_EVENTS and it gets initialized with
-	 * #H2Core::Event::Type::None in EventQueue().
-	 */
-	std::vector< std::unique_ptr<Event> >m_eventsBuffer;;
+	std::deque< std::unique_ptr<Event> >m_eventQueue;
 
-	/**
-	 * Mutex to lock access to queue.
-	 */
 	std::mutex m_mutex;
 
 	/** Whether or not to push log messages.*/

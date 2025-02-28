@@ -27,9 +27,6 @@ namespace H2Core
 
 QString Event::TypeToQString( Event::Type type ) {
 	switch( type ) {
-	case Event::Type::None:
-		return "None";
-
 	case Event::Type::ActionModeChanged:
 		return "ActionModeChanged";
 	case Event::Type::BbtChanged:

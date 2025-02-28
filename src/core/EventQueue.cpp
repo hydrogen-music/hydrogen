@@ -35,17 +35,8 @@ void EventQueue::create_instance()
 }
 
 
-EventQueue::EventQueue()
-		: m_nReadIndex( 0 )
-		, m_nWriteIndex( 0 )
-		, m_bSilent( false )
-{
+EventQueue::EventQueue() : m_bSilent( false ) {
 	__instance = this;
-
-	m_eventsBuffer.resize( MAX_EVENTS );
-	for ( int i = 0; i < MAX_EVENTS; ++i ) {
-		m_eventsBuffer[ i ] = std::make_unique<Event>();
-	}
 }
 
 
@@ -53,45 +44,36 @@ EventQueue::~EventQueue() {
 }
 
 
-void EventQueue::pushEvent( const Event::Type type, const int nValue )
-{
+void EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 	std::lock_guard< std::mutex > lock( m_mutex );
-	unsigned int nIndex = ++m_nWriteIndex;
-	nIndex = nIndex % MAX_EVENTS;
 
-	/* If the event queue is full, log an error. We could drop the old event, or
-	   the new event we're trying to place. It's preferable to drop the oldest
-	   event in the queue, on the basis that many change-of-state-events are
-	   probably no longer relevant or redundant based on newer events in the
-	   queue, so we keep the new event. However, since the new event has
-	   overwritten the oldest event in the queue, we also adjust the read
-	   pointer, otherwise popEvent would return this newest event on the next
-	   call, then subsequent calls would get newer entries. */
-
-	if ( ! m_bSilent &&
-		 m_nWriteIndex > m_nReadIndex + MAX_EVENTS ) {
-		ERRORLOG( QString( "Event queue full, lost: [%1]" )
-				  .arg( m_eventsBuffer[ nIndex ] != nullptr ?
-						m_eventsBuffer[ nIndex ]->toQString() : "nullptr" ) );
-		m_nReadIndex++;
+	/* The event queue is full. We could drop the old event, or the new event
+	   we're trying to place. It's preferable to drop the oldest event in the
+	   queue, on the basis that many change-of-state-events are probably no
+	   longer relevant or redundant based on newer events in the queue, so we
+	   keep the new event. */
+	while ( m_eventQueue.size() >= EventQueue::nMaxEvents ) {
+		auto pOldestEvent = std::move( m_eventQueue.front() );
+		m_eventQueue.pop_front();
+		if ( ! m_bSilent ) {
+			ERRORLOG( QString( "Event queue full. Dropping oldest event: [%1]" )
+					  .arg( pOldestEvent != nullptr ?
+							pOldestEvent->toQString() : "nullptr" ) );
+		}
 	}
 
-	m_eventsBuffer[ nIndex ] = std::make_unique<Event>( type, nValue );
-
+	m_eventQueue.push_back( std::make_unique<Event>( type, nValue ) );
 }
 
-
-std::unique_ptr<Event> EventQueue::popEvent()
-{
+std::unique_ptr<Event> EventQueue::popEvent() {
 	std::lock_guard< std::mutex > lock( m_mutex );
-	if ( m_nReadIndex == m_nWriteIndex ) {
-		return std::make_unique<Event>();
-	}
-	unsigned int nIndex = ++m_nReadIndex;
-	nIndex = nIndex % MAX_EVENTS;
 
-	auto pEvent = std::move( m_eventsBuffer[ nIndex ] );
-	m_eventsBuffer[ nIndex ] = std::make_unique<Event>();
+	if ( m_eventQueue.empty() ) {
+		return nullptr;
+	}
+
+	auto pEvent = std::move( m_eventQueue.front() );
+	m_eventQueue.pop_front();
 
 	return std::move( pEvent );
 }
@@ -99,56 +81,26 @@ std::unique_ptr<Event> EventQueue::popEvent()
 QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
 	std::lock_guard< std::mutex > lock( m_mutex );
 
-	const int nReadIndex =  m_nReadIndex % MAX_EVENTS;
-	const int nWriteIndex =  m_nWriteIndex % MAX_EVENTS;
-
 	QString s = Base::sPrintIndention;
 	QString sOutput, sIndexPrefix;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[EventQueue]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_nReadIndex: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nReadIndex ) )
-			.append( QString( "%1%2m_nWriteIndex: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nWriteIndex ) )
-			.append( QString( "%1%2m_eventsBuffer: \n" ).arg( sPrefix ).arg( s ) );
-		for ( int ii = 0; ii < MAX_EVENTS; ii++ ) {
-			sIndexPrefix = "";
-			if ( ii == nReadIndex ) {
-				sIndexPrefix.append( "[READ] " );
-			}
-			if ( ii == nWriteIndex ) {
-				sIndexPrefix.append( "[WRITE] " );
-			}
-
-			sOutput.append( QString( "%1%1%2%3: %4%5\n" ).arg( sPrefix ).arg( s )
-							.arg( ii ).arg( sIndexPrefix )
-							.arg( m_eventsBuffer[ ii ] != nullptr ?
-								  m_eventsBuffer[ ii ]->toQString( "", true ) :
-								  "nullptr" ) );
+			.append( QString( "%1%2m_bSilent: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bSilent ) )
+			.append( QString( "%1%2m_eventQueue: \n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppEvent : m_eventQueue ) {
+			sOutput.append( QString( "%1" )
+							.arg( ppEvent->toQString( sPrefix + s, bShort ) ) );
 		}
-		sOutput.append( QString( "\n%1%2m_bSilent: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bSilent ) );
 	}
 	else {
 		sOutput = QString( "[EventQueue] " )
-			.append( QString( "m_nReadIndex: %1" ).arg( m_nReadIndex ) )
-			.append( QString( ", m_nWriteIndex: %1" ).arg( m_nWriteIndex ) )
-			.append( QString( ", m_eventsBuffer: [" ) );
-		for ( int ii = 0; ii < MAX_EVENTS; ii++ ) {
-			sIndexPrefix = "";
-			if ( ii == nReadIndex ) {
-				sIndexPrefix.append( "[READ] " );
-			}
-			if ( ii == nWriteIndex ) {
-				sIndexPrefix.append( "[WRITE] " );
-			}
-
-			sOutput.append( QString( "%1: %2%3, " ).arg( ii ).arg( sIndexPrefix )
-							.arg( m_eventsBuffer[ ii ] != nullptr ?
-								  m_eventsBuffer[ ii ]->toQString( "", true ) :
-								  "nullptr" ) );
+			.append( QString( "m_bSilent: %1" ).arg( m_bSilent ) )
+			.append( QString( ", m_eventQueue: [" ) );
+		for ( const auto& ppEvent : m_eventQueue ) {
+			sOutput.append( QString( "%1" )
+							.arg( ppEvent->toQString( "", bShort ) ) );
 		}
-		sOutput.append( QString( "], m_bSilent: %1" ).arg( m_bSilent ) );
 	}
 
 	return sOutput;

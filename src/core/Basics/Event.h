@@ -52,9 +52,6 @@ public:
 		/** Basic types of communication between the core part of Hydrogen and
 			its GUI.*/
 		enum class Type {
-			/** Null element*/
-			None,
-
 			/** Switches between select mode (0) and draw mode (1) in the
 			 * SongEditor.*/
 			ActionModeChanged,
@@ -218,7 +215,7 @@ public:
 		};
 		static QString TypeToQString( Event::Type type );
 
-		Event( Event::Type type = Event::Type::None, int nValue = 0 );
+		Event( Event::Type type, int nValue );
 		~Event();
 
 		Event::Type getType() const;

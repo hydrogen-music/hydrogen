@@ -606,6 +606,11 @@ int main(int argc, char *argv[])
 			while ( ! quit ) {
 				/* FIXME: Someday here will be The Real CLI ;-) */
 				auto pEvent = pQueue->popEvent();
+				if ( pEvent == nullptr ) {
+					/* Sleep if there is no more events */
+					Sleeper::msleep ( 100 );
+					continue;
+				}
 
 				/* Event handler */
 				switch ( pEvent->getType() ) {
@@ -633,10 +638,6 @@ int main(int argc, char *argv[])
 					}
 					break;
 
-				case Event::Type::None: /* Sleep if there is no more events */
-					Sleeper::msleep ( 100 );
-					break;
-				
 				case Event::Type::Quit: // Shutdown if indicated by a
 					// corresponding OSC message.
 					quit = true;

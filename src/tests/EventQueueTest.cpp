@@ -26,7 +26,7 @@
 using namespace H2Core;
 
 const int nThreads = 16;
-const int nCountsPerThread = MAX_EVENTS / nThreads;
+const int nCountsPerThread = EventQueue::nMaxEvents / nThreads;
 
 static void *pushThread(void *p) {
 	int *pInt = (int *)p;
@@ -53,11 +53,11 @@ public:
 		m_pQ = EventQueue::get_instance();
 		m_pQ->setSilent( false );
 
-		std::unique_ptr<Event> pEvent;
+		auto pEvent = m_pQ->popEvent();
 		// Clear queue of any events from previous tests.
 		do {
 			pEvent = m_pQ->popEvent();
-		} while ( pEvent->getType() != Event::Type::None );
+		} while ( pEvent != nullptr );
 	}
 
 	void tearDown() override {
@@ -68,20 +68,22 @@ public:
 	___INFOLOG( "" );
 		std::unique_ptr<Event> pEvent;
 
-		// Fill the event queue to the maximum permissible size, drain the queue and then do it again.
+		// Fill the event queue to the maximum permissible size, drain the queue
+		// and then do it again.
 		for ( int pass = 0; pass < 2; pass++) {
-			for ( int i = 0; i < MAX_EVENTS; i++ ) {
+			for ( int i = 0; i < EventQueue::nMaxEvents; i++ ) {
 				m_pQ->pushEvent( Event::Type::Progress, i );
 			}
-			for ( int i = 0; i < MAX_EVENTS; i++ ) {
+			for ( int i = 0; i < EventQueue::nMaxEvents; i++ ) {
 				pEvent = m_pQ->popEvent();
+				CPPUNIT_ASSERT( pEvent != nullptr );
 				CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress &&
 								pEvent->getValue() == i );
 			}
 
 			// Queue should now be empty
 			pEvent = m_pQ->popEvent();
-			CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
+			CPPUNIT_ASSERT( pEvent == nullptr );
 		}
 	___INFOLOG( "passed" );
 	}
@@ -91,16 +93,19 @@ public:
 		std::unique_ptr<Event> pEvent;
 
 		// Overfill queue
-		for ( int i = 0; i < MAX_EVENTS + 100; i++) {
+		for ( int i = 0; i < EventQueue::nMaxEvents + 100; i++) {
 			m_pQ->pushEvent( Event::Type::Progress, i );
 		}
-		// Check that the queue contains the most recent MAX_EVENTS events
-		for ( int i = 0; i < MAX_EVENTS; i++) {
+		// Check that the queue contains the most recent EventQueue::nMaxEvents
+		// events
+		for ( int i = 0; i < EventQueue::nMaxEvents; i++) {
 			pEvent = m_pQ->popEvent();
-			CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress && pEvent->getValue() == i + 100);
+			CPPUNIT_ASSERT( pEvent != nullptr );
+			CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress &&
+							pEvent->getValue() == i + 100);
 		}
 		pEvent = m_pQ->popEvent();
-		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
+		CPPUNIT_ASSERT( pEvent == nullptr );
 	___INFOLOG( "passed" );
 	}
 
@@ -117,19 +122,23 @@ public:
 
 		// Start writer threads
 		for ( int i = 0; i < nThreads; i++ ) {
-			int nRetVal = pthread_create( &threads[ i ], nullptr, pushThread, &threadIds[ i ]);
+			int nRetVal = pthread_create(
+				&threads[ i ], nullptr, pushThread, &threadIds[ i ]);
 		}
 
 		// Reader counts up the number of events from each thread
 		for ( int nTotalEvents = 0; nTotalEvents < nCountsPerThread * nThreads; ) {
 			auto pEvent = m_pQ->popEvent();
-			if ( pEvent->getType() == Event::Type::Metronome ) {
-				CPPUNIT_ASSERT( pEvent->getValue() < nThreads && pEvent->getValue() >= 0 );
+			if ( pEvent != nullptr &&
+				 pEvent->getType() == Event::Type::Metronome ) {
+				CPPUNIT_ASSERT( pEvent->getValue() < nThreads &&
+								pEvent->getValue() >= 0 );
 				counters[ pEvent->getValue() ]++;
 				CPPUNIT_ASSERT( pEvent->getValue() <= nCountsPerThread );
 				nTotalEvents++;
-			} else {
-				CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
+			}
+			else {
+				CPPUNIT_ASSERT( pEvent == nullptr );
 			}
 		}
 
@@ -137,7 +146,7 @@ public:
 			CPPUNIT_ASSERT( counters[i] == nCountsPerThread );
 		}
 		auto pEvent = m_pQ->popEvent();
-		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
+		CPPUNIT_ASSERT( pEvent == nullptr );
 	___INFOLOG( "passed" );
 	}
 

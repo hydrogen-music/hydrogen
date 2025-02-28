@@ -912,7 +912,7 @@ void HydrogenApp::onEventQueueTimer()
 
 	while ( true ) {
 		auto pEvent = pQueue->popEvent();
-		if ( pEvent == nullptr || pEvent->getType() == Event::Type::None ) {
+		if ( pEvent == nullptr ) {
 			break;
 		}
 		
