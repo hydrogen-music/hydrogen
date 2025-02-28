@@ -275,28 +275,6 @@ void Sampler::midiKeyboardNoteOff( int key )
 	}
 }
 
-
-/// This old note_off function is only used by right click on mixer channel strip play button
-/// all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
-void Sampler::noteOff( std::shared_ptr<Note> pNote )
-{
-	if ( pNote == nullptr ) {
-		return;
-	}
-
-	auto pInstr = pNote->getInstrument();
-	if ( pInstr != nullptr ) {
-		// find the notes using the same instrument, and release them
-		for ( const auto& pNote: m_playingNotesQueue ) {
-			if ( pNote->getInstrument() == pInstr &&
-				 pNote->getAdsr() != nullptr ) {
-				pNote->getAdsr()->release();
-			}
-		}
-	}
-}
-
-
 // functions for pan parameters and laws-----------------
 
 float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
@@ -1422,7 +1400,7 @@ void Sampler::releasePlayingNotes( std::shared_ptr<Instrument> pInstr )
 }
 
 /// Preview, uses only the first layer
-void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
+void Sampler::previewSample(std::shared_ptr<Sample> pSample, int nLength )
 {
 	if ( m_pPreviewInstrument == nullptr ) {
 		ERRORLOG( "Invalid preview instrument" );
@@ -1456,7 +1434,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 
 
 
-void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
+void Sampler::previewInstrument( std::shared_ptr<Instrument> pInstr )
 {
 	if ( pInstr == nullptr ) {
 		ERRORLOG( "Invalid instrument" );

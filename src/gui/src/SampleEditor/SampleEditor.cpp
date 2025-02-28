@@ -699,11 +699,9 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		return;
 	}
 
-	/*
-	 *preview_instrument deletes the last used preview instrument, therefore we
-	 *have to construct a temporary instrument. Otherwise pInstr would be
-	 *deleted if consumed by preview_instrument.
-	*/
+	/* previewInstrument() deletes the last used preview instrument, therefore
+	 * we have to construct a temporary instrument. Otherwise pInstr would be
+	 * deleted if consumed by previewInstrument(). */
 	auto pTmpInstrument = std::make_shared<Instrument>(pInstr);
 	if ( pTmpInstrument == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument [%1] from [%2]" )
@@ -722,8 +720,8 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	const int nLength = ( pNewSample->getFrames() /
 						  pNewSample->getSampleRate() + 1 ) * 100;
-	pHydrogen->getAudioEngine()->getSampler()->preview_instrument( pTmpInstrument );
-	pHydrogen->getAudioEngine()->getSampler()->preview_sample( pNewSample, nLength );
+	pHydrogen->getAudioEngine()->getSampler()->previewInstrument( pTmpInstrument );
+	pHydrogen->getAudioEngine()->getSampler()->previewSample( pNewSample, nLength );
 	m_nSlframes = pNewSample->getFrames();
 
 	tearDown();

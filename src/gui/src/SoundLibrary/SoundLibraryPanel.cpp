@@ -429,7 +429,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		
 		pInstrument->setMuted( false );
 
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_instrument( pInstrument );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewInstrument( pInstrument );
 	}
 }
 

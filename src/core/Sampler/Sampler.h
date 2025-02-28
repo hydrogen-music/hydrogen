@@ -180,8 +180,6 @@ public:
 	/// Start playing a note
 	void noteOn( std::shared_ptr<Note> pNote );
 
-	/// Stop playing a note.
-	void noteOff( std::shared_ptr<Note> pNote );
 	void midiKeyboardNoteOff( int key );
 
 	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
@@ -196,17 +194,13 @@ public:
 		return m_playingNotesQueue.size();
 	}
 
-	void preview_sample( std::shared_ptr<Sample> pSample, int length );
-	void preview_instrument( std::shared_ptr<Instrument> pInstr );
+	void previewSample( std::shared_ptr<Sample> pSample, int length );
+	void previewInstrument( std::shared_ptr<Instrument> pInstr );
 
 	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr ) const;
 
 	void setInterpolateMode( Interpolation::InterpolateMode mode ){
 			 m_interpolateMode = mode;
-	}
-	
-	std::shared_ptr<Instrument> getPreviewInstrument() const {
-		return m_pPreviewInstrument;
 	}
 	
 	std::shared_ptr<Instrument> getPlaybackTrackInstrument() const {

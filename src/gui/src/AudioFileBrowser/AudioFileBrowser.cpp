@@ -146,7 +146,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 AudioFileBrowser::~AudioFileBrowser()
 {
 	auto pNewSample = Sample::load( m_sEmptySampleFilename );
-	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, 100 );
+	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
 }
 
@@ -342,7 +342,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 		assert(pNewSample->getSampleRate() != 0);
 		
 		int length = ( ( pNewSample->getFrames() / pNewSample->getSampleRate() + 1) * 100 );
-		H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, length );
+		H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, length );
 	}
 }
 
@@ -351,7 +351,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 void AudioFileBrowser::on_m_pStopBtn_clicked()
 {
 	auto pNewSample = Sample::load( m_sEmptySampleFilename );
-	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, 100 );
+	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
 	m_pStopBtn->setEnabled( false );
 }
 
