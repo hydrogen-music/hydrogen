@@ -565,7 +565,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		
 		/* arm all tracks for export */
 		for (auto i = 0; i < pInstrumentList->size(); i++) {
-			pInstrumentList->get(i)->set_currently_exported( true );
+			pInstrumentList->get(i)->setCurrentlyExported( true );
 		}
 
 		if ( ! pHydrogen->startExportSession(
@@ -631,15 +631,15 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 	
 	int instrumentOccurence = 0;
 	for(int i=0; i  < pInstrumentList->size(); i++ ){
-		if( pInstrumentList->get(m_nInstrument)->get_name() == pInstrument->get_name()){
+		if( pInstrumentList->get(m_nInstrument)->getName() == pInstrument->getName()){
 			instrumentOccurence++;
 		}
 	}
 	
 	if(instrumentOccurence >= 2){
-		uniqueInstrumentName = pInstrument->get_name() + QString("_") + QString::number( pInstrument->get_id() );
+		uniqueInstrumentName = pInstrument->getName() + QString("_") + QString::number( pInstrument->getId() );
 	} else {
-		uniqueInstrumentName = pInstrument->get_name();
+		uniqueInstrumentName = pInstrument->getName();
 	}
 	
 	return uniqueInstrumentName;
@@ -718,10 +718,10 @@ void ExportSongDialog::exportTracks()
 		}
 		
 		for (auto i = 0; i < pInstrumentList->size(); i++) {
-			pInstrumentList->get(i)->set_currently_exported( false );
+			pInstrumentList->get(i)->setCurrentlyExported( false );
 		}
 		
-		pInstrumentList->get(m_nInstrument)->set_currently_exported( true );
+		pInstrumentList->get(m_nInstrument)->setCurrentlyExported( true );
 		
 		pHydrogen->startExportSong( sFileName );
 
@@ -961,7 +961,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 	for ( unsigned nInstr = 0; nInstr < pInstrumentList->size(); ++nInstr ) {
 		auto pInstr = pInstrumentList->get( nInstr );
 		if ( pInstr != nullptr ){
-			for ( const auto& pCompo : *pInstr->get_components() ) {
+			for ( const auto& pCompo : *pInstr->getComponents() ) {
 				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 					if ( pCompo != nullptr ) {
 						auto pLayer = pCompo->getLayer( nLayer );

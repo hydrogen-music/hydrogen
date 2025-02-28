@@ -464,7 +464,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		pAudioEngine->unlock();
 		return false;
 	}
-	const int nInstrumentId = pInstrument->get_id();
+	const int nInstrumentId = pInstrument->getId();
 
 	// Record note
 	if ( pCurrentPattern != nullptr &&
@@ -1075,12 +1075,12 @@ void Hydrogen::killInstruments() {
 	while ( m_instrumentDeathRow.size() > 0 &&
 			( m_instrumentDeathRow.front() == nullptr ||
 			  ( m_instrumentDeathRow.front() != nullptr &&
-				m_instrumentDeathRow.front()->is_queued() == 0 ) ) ) {
+				m_instrumentDeathRow.front()->isQueued() == 0 ) ) ) {
 		pInstr = m_instrumentDeathRow.front();
 		m_instrumentDeathRow.pop_front();
 
 		if ( pInstr != nullptr  ) {
-			pInstr->unload_samples();
+			pInstr->unloadSamples();
 		}
 	}
 
@@ -1088,7 +1088,7 @@ void Hydrogen::killInstruments() {
 		pInstr = m_instrumentDeathRow.front();
 		if ( pInstr != nullptr ) {
 			INFOLOG( QString( "Instrument [%1] still has active notes:\n\t%2 " )
-					 .arg( pInstr->get_name() )
+					 .arg( pInstr->getName() )
 					 .arg( pInstr->getEnqueuedBy().join( "\n\t" ) ) );
 		}
 	}

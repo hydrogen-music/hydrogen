@@ -3903,14 +3903,14 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 	auto pSong = Hydrogen::get_instance()->getSong();
 	// If the note is part of a mute group, only the bottom most note at the
 	// same position within the group will be rendered.
-	if ( pNote->getInstrument()->get_mute_group() != -1 &&
+	if ( pNote->getInstrument()->getMuteGroup() != -1 &&
 		 pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-		const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+		const int nMuteGroup = pNote->getInstrument()->getMuteGroup();
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
-					 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+					 ppNote->getInstrument()->getMuteGroup() == nMuteGroup &&
 					 ppNote->getPosition() == pNote->getPosition() &&
 					 pInstrumentList->index( pNote->getInstrument() ) <
 					 pInstrumentList->index( ppNote->getInstrument() ) ) {
@@ -3955,12 +3955,12 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 		const int nLargeNumber = 100000;
 		int nEffectiveLength = nLargeNumber;
 		if ( pNote->getInstrument() != nullptr &&
-			 pNote->getInstrument()->get_mute_group() != -1 ) {
-			const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+			 pNote->getInstrument()->getMuteGroup() != -1 ) {
+			const int nMuteGroup = pNote->getInstrument()->getMuteGroup();
 			for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
 					if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
-						 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+						 ppNote->getInstrument()->getMuteGroup() == nMuteGroup &&
 						 ppNote->getInstrument() != pInstrument &&
 						 ppNote->getPosition() > pNote->getPosition() &&
 						 ( ppNote->getPosition() - pNote->getPosition() ) <

@@ -112,7 +112,7 @@ void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList
 					 search != componentMap.end() ){
 					// There is a name available for this instrument component.
 					auto pInstrumentComponent =
-						pInstrument->get_component( nnComponent );
+						pInstrument->getComponent( nnComponent );
 					if ( pInstrumentComponent != nullptr ) {
 						pInstrumentComponent->setName(
 							componentMap[ nComponentId ] );
@@ -180,12 +180,12 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		// among the loaded instruments.
 		std::map<QString,int> loadedDrumkits;
 		for ( const auto& ppInstrument : *pInstrumentList ) {
-			if ( loadedDrumkits.find( ppInstrument->get_drumkit_path() ) !=
+			if ( loadedDrumkits.find( ppInstrument->getDrumkitPath() ) !=
 				 loadedDrumkits.end() ) {
-				loadedDrumkits[ ppInstrument->get_drumkit_path() ] += 1;
+				loadedDrumkits[ ppInstrument->getDrumkitPath() ] += 1;
 			}
 			else {
-				loadedDrumkits[ ppInstrument->get_drumkit_path() ] = 1;
+				loadedDrumkits[ ppInstrument->getDrumkitPath() ] = 1;
 			}
 		}
 

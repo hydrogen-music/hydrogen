@@ -185,7 +185,7 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 		return nullptr;
 	}
 
-	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = pInstrument->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
 		assert( pCompo );
@@ -210,7 +210,7 @@ void SampleEditor::getAllFrameInfos()
 		return;
 	}
 
-	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = pInstrument->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
 		assert( pCompo );
@@ -469,7 +469,7 @@ void SampleEditor::createNewLayer()
 		
 		std::shared_ptr<H2Core::InstrumentLayer> pLayer = nullptr;
 		if( pInstrument != nullptr ) {
-			pLayer = pInstrument->get_component( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
+			pLayer = pInstrument->getComponent( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
 
 			// insert new sample from newInstrument
 			pLayer->set_sample( pEditSample );
@@ -627,7 +627,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pInstr == nullptr ) {
 		return;
 	}
-	auto pCompo = pInstr->get_component( m_nSelectedComponent );
+	auto pCompo = pInstr->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		return;
 	}
@@ -707,11 +707,11 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	auto pTmpInstrument = std::make_shared<Instrument>(pInstr);
 	if ( pTmpInstrument == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument [%1] from [%2]" )
-				  .arg( pInstr->get_name() ).arg( pInstr->get_drumkit_path() ) );
+				  .arg( pInstr->getName() ).arg( pInstr->getDrumkitPath() ) );
 		tearDown();
 		return;
 	}
-	const QString sSamplePath = pInstr->get_component( m_nSelectedComponent )
+	const QString sSamplePath = pInstr->getComponent( m_nSelectedComponent )
 		->getLayer( nSelectedlayer )->get_sample()->getFilepath();
 	auto pNewSample = Sample::load( sSamplePath );
 	if ( pNewSample == nullptr ) {

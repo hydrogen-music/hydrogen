@@ -1405,7 +1405,7 @@ void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 		auto pAction = new SE_replaceInstrumentAction(
 			std::make_shared<Instrument>(), pSelectedInstrument,
 			SE_replaceInstrumentAction::Type::DeleteLastInstrument,
-			pSelectedInstrument->get_name() );
+			pSelectedInstrument->getName() );
 		pHydrogenApp->pushUndoCommand( pAction );
 	}
 	else {
@@ -1415,7 +1415,7 @@ void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
 	}
 	pHydrogenApp->showStatusBarMessage(
 		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteInstrument() )
-		.arg( pSelectedInstrument->get_name() ) );
+		.arg( pSelectedInstrument->getName() ) );
 }
 
 void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
@@ -1434,14 +1434,14 @@ void MainForm::action_drumkit_renameInstrument( int nInstrumentIndex )
 		return;
 	}
 
-	const QString sOldName = pInstrument->get_name();
+	const QString sOldName = pInstrument->getName();
 	bool bIsOkPressed;
 	const QString sNewName = QInputDialog::getText(
 		nullptr, "Hydrogen", pCommonStrings->getActionRenameInstrument(),
 		QLineEdit::Normal, sOldName, &bIsOkPressed );
 	if ( bIsOkPressed ) {
 		auto pNewInstrument = std::make_shared<Instrument>(pInstrument);
-		pNewInstrument->set_name( sNewName );
+		pNewInstrument->setName( sNewName );
 
 		pHydrogenApp->pushUndoCommand(
 			new SE_replaceInstrumentAction(
@@ -2861,13 +2861,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog =
 				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureComponent(),
 										InputCaptureDialog::Type::Int, 0,
-										pInstrument->get_components()->size() - 1);
+										pInstrument->getComponents()->size() - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
 			const int nComponent = pInputCaptureDialog->text().toInt();
 			delete pInputCaptureDialog;
-			auto pComponent = pInstrument->get_components()->at( nComponent );
+			auto pComponent = pInstrument->getComponents()->at( nComponent );
 			if ( pComponent == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve component [%1] of instrument [%2]" )
 						  .arg( nComponent ).arg( nInstrument ) );

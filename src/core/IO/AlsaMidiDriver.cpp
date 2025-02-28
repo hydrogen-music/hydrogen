@@ -557,7 +557,7 @@ void AlsaMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 		return;
 	}
 
-	int channel = pNote->getInstrument()->get_midi_out_channel();
+	int channel = pNote->getInstrument()->getMidiOutChannel();
 	if (channel < 0) {
 		return;
 	}
@@ -616,21 +616,17 @@ void AlsaMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 		return;
 	}
 
-//	channel = pNote->getInstrument()->get_midi_out_channel();
 	if (channel < 0) {
 		return;
 	}
-
-//	key = (pNote->m_noteKey.m_nOctave +3 ) * 12 + pNote->m_noteKey.m_key;
-//	int velocity = pNote->getMidiVelocity();
 
 	snd_seq_event_t ev;
 
 	//Note off
 	snd_seq_ev_clear(&ev);
-		snd_seq_ev_set_source(&ev, outPortId);
-		snd_seq_ev_set_subs(&ev);
-		snd_seq_ev_set_direct(&ev);
+	snd_seq_ev_set_source(&ev, outPortId);
+	snd_seq_ev_set_subs(&ev);
+	snd_seq_ev_set_direct(&ev);
 	snd_seq_ev_set_noteoff(&ev, channel, key, velocity);
 	snd_seq_event_output(seq_handle, &ev);
 	snd_seq_drain_output(seq_handle);
@@ -649,11 +645,11 @@ void AlsaMidiDriver::handleQueueAllNoteOff()
 	for (int index = 0; index < numInstruments; ++index) {
 		auto curInst = instList->get(index);
 
-		int channel = curInst->get_midi_out_channel();
+		int channel = curInst->getMidiOutChannel();
 		if (channel < 0) {
 			continue;
 		}
-		int key = curInst->get_midi_out_note();
+		int key = curInst->getMidiOutNote();
 
 		snd_seq_event_t ev;
 

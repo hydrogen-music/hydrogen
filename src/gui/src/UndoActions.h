@@ -884,7 +884,7 @@ class SE_addInstrumentAction : public QUndoCommand {
 			case Type::DropInstrument:
 				setText( QString( "%1 [%2]" )
 						 .arg( pCommonStrings->getActionDropInstrument() )
-						 .arg( pInstrument != nullptr ? pInstrument->get_name() :
+						 .arg( pInstrument != nullptr ? pInstrument->getName() :
 							   "nullptr" ) );
 				break;
 			default:
@@ -916,7 +916,7 @@ public:
 		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		setText( QString( "%1 [%2]" )
 				 .arg( pCommonStrings->getActionDeleteInstrument() )
-				 .arg( pInstrument->get_name() ) );
+				 .arg( pInstrument->getName() ) );
 	}
 	~SE_deleteInstrumentAction(){}
 

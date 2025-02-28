@@ -225,7 +225,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 	out << "\n=== Audio engine benchmark ===" << Qt::endl;
@@ -244,7 +244,7 @@ void AudioBenchmark::audioBenchmark(void)
 	pHydrogen->setSong( pSong );
 	pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 

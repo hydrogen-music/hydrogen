@@ -226,16 +226,16 @@ void MixerLine::updateLine() {
 		}
 	}
 
-	m_pNameWidget->setText( m_pInstrument->get_name() );
-	m_pFader->setValue( m_pInstrument->get_volume(), false,
+	m_pNameWidget->setText( m_pInstrument->getName() );
+	m_pFader->setValue( m_pInstrument->getVolume(), false,
 						Event::Trigger::Suppress );
 	m_pPanRotary->setValue(m_pInstrument->getPan(), false,
 						Event::Trigger::Suppress );
-	m_pMuteBtn->setChecked( m_pInstrument->is_muted() );
-	m_pSoloBtn->setChecked( m_pInstrument->is_soloed() );
+	m_pMuteBtn->setChecked( m_pInstrument->isMuted() );
+	m_pSoloBtn->setChecked( m_pInstrument->isSoloed() );
 	for ( int ii = 0; ii < m_fxRotaries.size(); ++ii ) {
 		auto ppFxRotary = m_fxRotaries[ ii ];
-		ppFxRotary->setValue( m_pInstrument->get_fx_level( ii ), false,
+		ppFxRotary->setValue( m_pInstrument->getFxLevel( ii ), false,
 							  Event::Trigger::Suppress );
 	}
 
@@ -251,8 +251,8 @@ void MixerLine::updatePeaks()
 	const float fFallOffSpeed =
 		pPref->getTheme().m_interface.m_fMixerFalloffSpeed;
 
-	float fNewPeak_L = m_pInstrument->get_peak_l();
-	float fNewPeak_R = m_pInstrument->get_peak_r();
+	float fNewPeak_L = m_pInstrument->getPeak_L();
+	float fNewPeak_R = m_pInstrument->getPeak_R();
 	if ( ! pPref->showInstrumentPeaks() ) {
 		fNewPeak_L = 0.0f;
 		fNewPeak_R = 0.0f;
@@ -262,8 +262,8 @@ void MixerLine::updatePeaks()
 	const float fOldPeak_R = m_pFader->getPeak_R();
 
 	// reset instrument peak
-	m_pInstrument->set_peak_l( 0.0f );
-	m_pInstrument->set_peak_r( 0.0f );
+	m_pInstrument->setPeak_L( 0.0f );
+	m_pInstrument->setPeak_R( 0.0f );
 
 	if ( fNewPeak_L < fOldPeak_L ) {
 		fNewPeak_L = fOldPeak_L / fFallOffSpeed;

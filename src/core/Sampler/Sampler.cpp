@@ -58,9 +58,9 @@ namespace H2Core
 static std::shared_ptr<Instrument> createInstrument(int id, const QString& filepath, float volume )
 {
 	auto pInstrument = std::make_shared<Instrument>( id, filepath );
-	pInstrument->set_volume( volume );
+	pInstrument->setVolume( volume );
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
-	auto pComponent = pInstrument->get_component( 0 );
+	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
 		pComponent->setLayer( pLayer, 0 );
 	} else {
@@ -87,7 +87,7 @@ Sampler::Sampler()
 
 	// instrument used in file preview
 	m_pPreviewInstrument = createInstrument( EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );
-	m_pPreviewInstrument->set_is_preview_instrument( true );
+	m_pPreviewInstrument->setIsPreviewInstrument( true );
 
 	// dummy instrument used for playback track
 	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
@@ -164,9 +164,9 @@ void Sampler::process( uint32_t nFrames )
 				pNote =  m_queuedNoteOffs[0];
 
 				if ( pNote->getInstrument() != nullptr ) {
-					if ( ! pNote->getInstrument()->is_muted() ){
+					if ( ! pNote->getInstrument()->isMuted() ){
 						pMidiOut->handleQueueNoteOff(
-							pNote->getInstrument()->get_midi_out_channel(),
+							pNote->getInstrument()->getMidiOutChannel(),
 							pNote->getMidiKey(),
 							pNote->getMidiVelocity() );
 					}
@@ -219,7 +219,7 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 	// (limited) control over which one is chosen, we will render the note of
 	// the bottom-most instrument according to the current instrument order in
 	// the drumkit.
-	const int nMuteGrp = pInstr->get_mute_group();
+	const int nMuteGrp = pInstr->getMuteGroup();
 	if ( nMuteGrp != -1 ) {
 
 		const auto pSong = Hydrogen::get_instance()->getSong();
@@ -230,7 +230,7 @@ void Sampler::noteOn( std::shared_ptr<Note> pNote )
 				 pOtherNote->getInstrument() != nullptr &&
 				 pOtherNote->getAdsr() != nullptr &&
 				 pOtherNote->getInstrument() != pInstr  &&
-				 pOtherNote->getInstrument()->get_mute_group() == nMuteGrp ) {
+				 pOtherNote->getInstrument()->getMuteGroup() == nMuteGrp ) {
 				if ( pOtherNote->getPosition() == pNote->getPosition() &&
 					 pSong != nullptr && pSong->getDrumkit() != nullptr &&
 					 pSong->getDrumkit()->getInstruments()->index(
@@ -500,7 +500,7 @@ void Sampler::handleTimelineOrTempoChange() {
 
 			// Do so for all layers of all components current processed.
 			for ( int ii = 0; ii <=
-					  ppNote->getInstrument()->get_components()->size(); ++ii ) {
+					  ppNote->getInstrument()->getComponents()->size(); ++ii ) {
 				const auto ppSelectedLayerInfo = ppNote->getLayerSelected( ii );
 				if ( ppSelectedLayerInfo == nullptr ) {
 					continue;
@@ -678,7 +678,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	}
 	//---------------------------------------------------------
 
-	auto pComponents = pInstr->get_components();
+	auto pComponents = pInstr->getComponents();
 	auto returnValues = std::vector<bool>( pComponents->size() );
 
 	for ( int ii = 0; ii < pComponents->size(); ++ii ){
@@ -717,7 +717,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// For round robin and random selection we will use the same
 		// layer again for all other samples.
 		if ( nAlreadySelectedLayer != -1 &&
-			 pInstr->sample_selection_alg() != Instrument::VELOCITY ) {
+			 pInstr->sampleSelectionAlg() != Instrument::VELOCITY ) {
 			nAlreadySelectedLayer = pSelectedLayer->nSelectedLayer;
 		}
 
@@ -767,11 +767,11 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		 *     instrument is soloed.
 		 */
 		bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
-								 ! pInstr->is_currently_exported() );
+								 ! pInstr->isCurrentlyExported() );
 		bool bAnyInstrumentIsSoloed =
 			pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
 		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
-									   ! pInstr->is_soloed() );
+									   ! pInstr->isSoloed() );
 
 		// check wether another component of this instrument is muted
 		if ( ! bIsMutedBecauseOfSolo ) {
@@ -795,7 +795,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			}
 		}
 
-		if ( bIsMutedForExport || pInstr->is_muted() || pSong->getIsMuted() ||
+		if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||
 			 pCompo->getIsMuted() || pLayer->getIsMuted() || bIsMutedBecauseOfSolo ) {
 			fCost_L = 0.0;
 			fCost_R = 0.0;
@@ -807,14 +807,14 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		} else {
 			float fMonoGain = 1.0;
-			if ( pInstr->get_apply_velocity() ) {
+			if ( pInstr->getApplyVelocity() ) {
 				fMonoGain *= pNote->getVelocity();	// note velocity
 			}
 
 			fMonoGain *= fLayerGain;				// layer gain
-			fMonoGain *= pInstr->get_gain();		// instrument gain
+			fMonoGain *= pInstr->getGain();		// instrument gain
 			fMonoGain *= pCompo->getGain();	    	// Component gain
-			fMonoGain *= pInstr->get_volume();		// instrument volume
+			fMonoGain *= pInstr->getVolume();		// instrument volume
 			fMonoGain *= pSong->getVolume();		// song volume
 
 			fCost_L = fMonoGain * fPan_L;			// pan
@@ -829,7 +829,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// direct track outputs only use velocity
 		if ( Preferences::get_instance()->m_JackTrackOutputMode ==
 			 Preferences::JackTrackOutputMode::preFader ) {
-			if ( pInstr->get_apply_velocity() ) {
+			if ( pInstr->getApplyVelocity() ) {
 				fCostTrack_L *= pNote->getVelocity();
 			}
 			fCostTrack_L *= fLayerGain;
@@ -850,7 +850,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		// Once the Sampler does start rendering a note we also push
 		// it to all connected MIDI devices.
-		if ( (int) pSelectedLayer->fSamplePosition == 0  && ! pInstr->is_muted() ) {
+		if ( (int) pSelectedLayer->fSamplePosition == 0  && ! pInstr->isMuted() ) {
 			if ( pHydrogen->getMidiOutput() != nullptr ){
 				pHydrogen->getMidiOutput()->handleQueueNote( pNote );
 			}
@@ -1059,7 +1059,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
-	const auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
+	const auto pCompo = m_pPlaybackTrackInstrument->getComponents()->front();
 	if ( pCompo == nullptr ) {
 		ERRORLOG( "Invalid component of playback instrument" );
 		return true;
@@ -1109,8 +1109,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	}
 
 	// Track peaks and mix in to main output
-	float fInstrPeak_L = m_pPlaybackTrackInstrument->get_peak_l();
-	float fInstrPeak_R = m_pPlaybackTrackInstrument->get_peak_r();
+	float fInstrPeak_L = m_pPlaybackTrackInstrument->getPeak_L();
+	float fInstrPeak_R = m_pPlaybackTrackInstrument->getPeak_R();
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
 		float fVal_L = buffer_L[ nBufferPos ] * pSong->getPlaybackTrackVolume(),
@@ -1121,8 +1121,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		m_pMainOut_R[nBufferPos] += fVal_R;
 	}
 
-	m_pPlaybackTrackInstrument->set_peak_l( fInstrPeak_L );
-	m_pPlaybackTrackInstrument->set_peak_r( fInstrPeak_R );
+	m_pPlaybackTrackInstrument->setPeak_L( fInstrPeak_L );
+	m_pPlaybackTrackInstrument->setPeak_R( fInstrPeak_R );
 
 	return true;
 }
@@ -1201,7 +1201,7 @@ bool Sampler::renderNoteResample(
 		// the note is not ended yet
 		bRetValue = false;
 	}
-	else if ( pInstrument->is_filter_active() && pNote->filterSustain() ) {
+	else if ( pInstrument->isFilterActive() && pNote->filterSustain() ) {
 		// If filter is causing note to ring, process more samples.
 		nAvail_bytes = nBufferSize - nInitialBufferPos;
 	}
@@ -1238,7 +1238,7 @@ bool Sampler::renderNoteResample(
 				pSelectedLayerInfo->fSamplePosition) / fStep ));
 
 		if ( nNoteEnd < 0 ) {
-			if ( ! pInstrument->is_filter_active() ) {
+			if ( ! pInstrument->isFilterActive() ) {
 				// In case resonance filtering is active the sampler stops
 				// rendering of the sample at the custom note length but lets
 				// the filter itself ring on.
@@ -1294,7 +1294,7 @@ bool Sampler::renderNoteResample(
 	}
 
 	// Low pass resonant filter
-	if ( pInstrument->is_filter_active() ) {
+	if ( pInstrument->isFilterActive() ) {
 		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos;
 			  ++nBufferPos ) {
 
@@ -1339,10 +1339,10 @@ bool Sampler::renderNoteResample(
 	}
 
 	// update instr peak
-	pInstrument->set_peak_l( std::max( pInstrument->get_peak_l(), fSamplePeak_L ) );
-	pInstrument->set_peak_r( std::max( pInstrument->get_peak_r(), fSamplePeak_R ) );
+	pInstrument->setPeak_L( std::max( pInstrument->getPeak_L(), fSamplePeak_L ) );
+	pInstrument->setPeak_R( std::max( pInstrument->getPeak_R(), fSamplePeak_R ) );
 
-	if ( pInstrument->is_filter_active() && pNote->filterSustain() ) {
+	if ( pInstrument->isFilterActive() && pNote->filterSustain() ) {
 		// Note is still ringing, do not end.
 		bRetValue = false;
 	}
@@ -1353,13 +1353,13 @@ bool Sampler::renderNoteResample(
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	// change the below return logic if you add code after that ifdef
-	if ( pInstrument->is_muted() || pSong->getIsMuted() ) {
+	if ( pInstrument->isMuted() || pSong->getIsMuted() ) {
 		return bRetValue;
 	}
 	float masterVol = pSong->getVolume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
-		float fLevel = pInstrument->get_fx_level( nFX );
+		float fLevel = pInstrument->getFxLevel( nFX );
 		if ( pFX != nullptr && fLevel != 0.0 ) {
 			fLevel = fLevel * pFX->getVolume();
 
@@ -1435,7 +1435,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 	
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
-	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
+	for (const auto& pComponent: *m_pPreviewInstrument->getComponents()) {
 		if ( pComponent == nullptr ) {
 			ERRORLOG( "Invalid component" );
 			continue;
@@ -1474,7 +1474,7 @@ void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 
 	pOldPreview = m_pPreviewInstrument;
 	m_pPreviewInstrument = pInstr;
-	pInstr->set_is_preview_instrument(true);
+	pInstr->setIsPreviewInstrument(true);
 
 	auto pPreviewNote = std::make_shared<Note>(
 		m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
@@ -1488,8 +1488,8 @@ bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument ) con
 	if ( pInstrument != nullptr ) { // stop all notes using this instrument
 		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {
 			if ( m_playingNotesQueue[ j ]->getInstrument() != nullptr &&
-				 pInstrument->get_name() ==
-				 m_playingNotesQueue[ j ]->getInstrument()->get_name() ) {
+				 pInstrument->getName() ==
+				 m_playingNotesQueue[ j ]->getInstrument()->getName() ) {
 				return true;
 			}
 		}
@@ -1514,7 +1514,7 @@ void Sampler::reinitializePlaybackTrack()
 	
 	auto  pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
 
-	m_pPlaybackTrackInstrument->get_components()->front()->setLayer( pPlaybackTrackLayer, 0 );
+	m_pPlaybackTrackInstrument->getComponents()->front()->setLayer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;
 }
 

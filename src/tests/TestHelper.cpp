@@ -175,7 +175,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth, fCompressionLevel );
@@ -217,7 +217,7 @@ void TestHelper::exportSong( const QString& sFileName )
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 	pHydrogen->startExportSession( 44100, 16, 5 );

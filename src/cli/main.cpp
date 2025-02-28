@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
 		if ( ! sOutFilename.isEmpty() && sKitToDrumkitMap.isEmpty() ) {
 			auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
-				pInstrumentList->get(i)->set_currently_exported( true );
+				pInstrumentList->get(i)->setCurrentlyExported( true );
 			}
 			pHydrogen->startExportSession(nRate, bits, fCompressionLevel);
 			pHydrogen->startExportSong( sOutFilename );

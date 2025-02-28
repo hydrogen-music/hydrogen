@@ -119,7 +119,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	XMLDoc doc;
 	if ( !doc.read( sDrumkitFile, Filesystem::drumkit_xsd_path(), true ) ) {
 		// Drumkit does not comply with the XSD schema
-		// definition. It's probably an old one. load_from() will try
+		// definition. It's probably an old one. loadFrom() will try
 		// to handle it regardlessly but we should upgrade it in order
 		// to avoid this in future loads.
 		doc.read( sDrumkitFile, nullptr, bSilent );
@@ -207,7 +207,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	pDrumkit->setInstruments( pInstrumentList );
 
 	if ( ! bSongKit ) {
-		// Instead of making the *::load_from() functions more complex by
+		// Instead of making the *::loadFrom() functions more complex by
 		// passing the license down to each sample, we will make the
 		// drumkit assign its license to each sample in here.
 		pDrumkit->propagateLicense();
@@ -266,9 +266,9 @@ void Drumkit::fixupTypes( bool bSilent ) {
 				for ( const auto& ppInstrument : *m_pInstruments ) {
 					if ( ppInstrument != nullptr &&
 						 ppInstrument->getType().isEmpty() &&
-						 ! pDrumkitMap->getType( ppInstrument->get_id() ).isEmpty() ) {
+						 ! pDrumkitMap->getType( ppInstrument->getId() ).isEmpty() ) {
 						ppInstrument->setType(
-							pDrumkitMap->getType( ppInstrument->get_id() ) );
+							pDrumkitMap->getType( ppInstrument->getId() ) );
 					}
 				}
 			}
@@ -316,7 +316,7 @@ const bool Drumkit::areSamplesLoaded() const {
 
 bool Drumkit::hasMissingSamples() const {
 	for ( const auto& ppInstrument : *m_pInstruments ) {
-		if ( ppInstrument != nullptr && ppInstrument->has_missing_samples() ) {
+		if ( ppInstrument != nullptr && ppInstrument->hasMissingSamples() ) {
 			return true;
 		}
 	}
@@ -447,7 +447,7 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 	auto pInstrList = getInstruments();
 	for ( int i = 0; i < pInstrList->size(); i++ ) {
 		auto pInstrument = ( *pInstrList )[i];
-		for ( const auto& pComponent : *pInstrument->get_components() ) {
+		for ( const auto& pComponent : *pInstrument->getComponents() ) {
 			if ( pComponent != nullptr ) {
 				for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 					auto pLayer = pComponent->getLayer( n );
@@ -549,10 +549,10 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 
 	// Check whether the instrument's id is valid and not present yet.
 	bool bIdValid = true;
-	if ( pInstrument->get_id() >= 0 ) {
+	if ( pInstrument->getId() >= 0 ) {
 		for ( const auto& ppInstrument : *m_pInstruments ) {
 			if ( ppInstrument != nullptr &&
-				 ppInstrument->get_id() == pInstrument->get_id() ) {
+				 ppInstrument->getId() == pInstrument->getId() ) {
 				bIdValid = false;
 				break;
 			}
@@ -569,7 +569,7 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 			bool bIsPresent = false;
 			for ( const auto& ppInstrument : *m_pInstruments ) {
 				if ( ppInstrument != nullptr &&
-					 ppInstrument->get_id() == ii ) {
+					 ppInstrument->getId() == ii ) {
 					bIsPresent = true;
 					break;
 				}
@@ -581,7 +581,7 @@ void Drumkit::addInstrument( std::shared_ptr<Instrument> pInstrument,
 			}
 		}
 
-		pInstrument->set_id( nNewId );
+		pInstrument->setId( nNewId );
 	}
 
 	// Instrument types must be unique in a kit.
@@ -638,9 +638,9 @@ void Drumkit::propagateLicense(){
 	for ( const auto& ppInstrument : *m_pInstruments ) {
 		if ( ppInstrument != nullptr ) {
 
-			ppInstrument->set_drumkit_path( m_sPath );
-			ppInstrument->set_drumkit_name( m_sName );
-			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
+			ppInstrument->setDrumkitPath( m_sPath );
+			ppInstrument->setDrumkitName( m_sName );
+			for ( const auto& ppInstrumentComponent : *ppInstrument->getComponents() ) {
 				if ( ppInstrumentComponent != nullptr ) {
 					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
 						if ( ppInstrumentLayer != nullptr ) {
@@ -965,7 +965,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 		bSampleFound = false;
 		for ( const auto& pInstr : *( getInstruments() ) ) {
 			if ( pInstr != nullptr ) {
-				for ( const auto& pComponent : *( pInstr->get_components() ) ) {
+				for ( const auto& pComponent : *( pInstr->getComponents() ) ) {
 					if ( pComponent != nullptr ) {
 						for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 							const auto pLayer = pComponent->getLayer( n );
@@ -1223,9 +1223,9 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 				continue;
 			}
 			if ( pInstr != nullptr ){
-				for ( int nnComponent = 0; nnComponent < pInstr->get_components()->size();
+				for ( int nnComponent = 0; nnComponent < pInstr->getComponents()->size();
 					  ++nnComponent ) {
-					auto pInstrumentComponent = pInstr->get_component( nnComponent );
+					auto pInstrumentComponent = pInstr->getComponent( nnComponent );
 					if ( pInstrumentComponent == nullptr ) {
 						continue;
 					}
@@ -1303,8 +1303,8 @@ std::set<DrumkitMap::Type> Drumkit::getAllTypes() const {
 			if ( ! bSuccess ) {
 				WARNINGLOG( QString( "Instrument types must be unique! Type [%1] of instrument (id: %2, name: %3) will be omitted." )
 							.arg( ppInstrument->getType() )
-							.arg( ppInstrument->get_id() )
-							.arg( ppInstrument->get_name() ) );
+							.arg( ppInstrument->getId() )
+							.arg( ppInstrument->getName() ) );
 			}
 		}
 	}
@@ -1317,12 +1317,12 @@ std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const {
 
 	for ( const auto& ppInstrument : *m_pInstruments ) {
 		if ( ppInstrument != nullptr && ! ppInstrument->getType().isEmpty() ) {
-			if ( ! pMap->addMapping( ppInstrument->get_id(),
+			if ( ! pMap->addMapping( ppInstrument->getId(),
 									 ppInstrument->getType() ) ) {
 				ERRORLOG( QString( "Unable to add type [%1] for instrument (id: %2, name: %3)" )
 						  .arg( ppInstrument->getType() )
-						  .arg( ppInstrument->get_id() )
-						  .arg( ppInstrument->get_name() ) );
+						  .arg( ppInstrument->getId() )
+						  .arg( ppInstrument->getName() ) );
 			}
 		}
 	}

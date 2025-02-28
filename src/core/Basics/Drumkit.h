@@ -166,11 +166,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 				   bool bSilent = false );
 
 
-		/** Calls the InstrumentList::load_samples() member
+		/** Calls the InstrumentList::loadSamples() member
 		 * function of #m_pInstruments.
 		 */
 		void loadSamples( float fBpm = 120 );
-		/** Calls the InstrumentList::unload_samples() member
+		/** Calls the InstrumentList::unloadSamples() member
 		 * function of #m_pInstruments.
 		 */
 		void unloadSamples();

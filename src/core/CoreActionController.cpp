@@ -88,8 +88,8 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
-	if ( pInstr->get_volume() != fVolumeValue ) {
-		pInstr->set_volume( fVolumeValue );
+	if ( pInstr->getVolume() != fVolumeValue ) {
+		pInstr->setVolume( fVolumeValue );
 
 		pHydrogen->setIsModified( true );
 
@@ -118,8 +118,8 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue ){
 		return false;
 	}
 
-	if ( pInstrument->get_pitch_offset() != fValue ) {
-		pInstrument->set_pitch_offset( fValue );
+	if ( pInstrument->getPitchOffset() != fValue ) {
+		pInstrument->setPitchOffset( fValue );
 		EventQueue::get_instance()->push_event(
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nInstrument );
 	}
@@ -238,7 +238,7 @@ bool CoreActionController::toggleStripIsMuted( int nStrip )
 		return false;
 	}
 	
-	return setStripIsMuted( nStrip, !pInstr->is_muted(), false );
+	return setStripIsMuted( nStrip, !pInstr->isMuted(), false );
 }
 
 bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted,
@@ -255,8 +255,8 @@ bool CoreActionController::setStripIsMuted( int nStrip, bool bIsMuted,
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
-	if ( pInstr->is_muted() != bIsMuted ) {
-		pInstr->set_muted( bIsMuted );
+	if ( pInstr->isMuted() != bIsMuted ) {
+		pInstr->setMuted( bIsMuted );
 
 		EventQueue::get_instance()->push_event(
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
@@ -280,7 +280,7 @@ bool CoreActionController::toggleStripIsSoloed( int nStrip )
 		return false;
 	}
 	
-	return setStripIsSoloed( nStrip, !pInstr->is_soloed(), false );
+	return setStripIsSoloed( nStrip, !pInstr->isSoloed(), false );
 }
 
 bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed,
@@ -297,9 +297,9 @@ bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed,
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
-	if ( pInstr->is_soloed() != isSoloed ) {
+	if ( pInstr->isSoloed() != isSoloed ) {
 	
-		pInstr->set_soloed( isSoloed );
+		pInstr->setSoloed( isSoloed );
 
 		EventQueue::get_instance()->push_event(
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
@@ -383,8 +383,8 @@ bool CoreActionController::setStripEffectLevel( int nStrip, int nEffect,
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 
-	if ( pInstr->get_fx_level( nEffect ) != fValue ) {
-		pInstr->set_fx_level( fValue, nEffect );
+	if ( pInstr->getFxLevel( nEffect ) != fValue ) {
+		pInstr->setFxLevel( fValue, nEffect );
 
 		EventQueue::get_instance()->push_event(
 			EVENT_INSTRUMENT_PARAMETERS_CHANGED, nStrip );
@@ -432,7 +432,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 	auto pInstr = getStrip( nStrip );
 	if ( pInstr != nullptr ) {
 
-		float fStripVolume = pInstr->get_volume();
+		float fStripVolume = pInstr->getVolume();
 		
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
@@ -522,7 +522,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
 			pFeedbackAction->setValue( QString("%1")
-											.arg( static_cast<int>(pInstr->is_muted()) ) );
+											.arg( static_cast<int>(pInstr->isMuted()) ) );
 			OscServer::get_instance()->handleAction( pFeedbackAction );
 		}
 #endif
@@ -533,7 +533,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 																   QString("%1").arg( nStrip ) );
 	
 		return handleOutgoingControlChanges( ccParamValues,
-											 static_cast<int>(pInstr->is_muted()) * 127 );
+											 static_cast<int>(pInstr->isMuted()) * 127 );
 	}
 	
 	return false;
@@ -552,7 +552,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
 			pFeedbackAction->setValue( QString("%1")
-									   .arg( static_cast<int>(pInstr->is_soloed()) ) );
+									   .arg( static_cast<int>(pInstr->isSoloed()) ) );
 			OscServer::get_instance()->handleAction( pFeedbackAction );
 		}
 #endif
@@ -562,7 +562,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 																   QString("%1").arg( nStrip ) );
 	
 		return handleOutgoingControlChanges( ccParamValues,
-											 static_cast<int>(pInstr->is_soloed()) * 127 );
+											 static_cast<int>(pInstr->isSoloed()) * 127 );
 	}
 
 	return false;
@@ -886,7 +886,7 @@ bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPrefere
 
 	Preferences::get_instance()->replaceInstance( pPreferences );
 
-	pAudioEngine->getMetronomeInstrument()->set_volume(
+	pAudioEngine->getMetronomeInstrument()->setVolume(
 		pPreferences->m_fMetronomeVolume );
 
 	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
@@ -1788,7 +1788,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 
 	// Ensure instrument isn't already in the death row.
 	pHydrogen->removeInstrumentFromDeathRow( pInstrument );
-	pInstrument->load_samples( pAudioEngine->getTransportPosition()->getBpm() );
+	pInstrument->loadSamples( pAudioEngine->getTransportPosition()->getBpm() );
 
 	pDrumkit->addInstrument( pInstrument, nIndex );
 	pHydrogen->renameJackPorts( pSong );
@@ -1895,7 +1895,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	if ( pNewInstrument != nullptr ) {
 		// Ensure instrument isn't already in the death row.
 		pHydrogen->removeInstrumentFromDeathRow( pNewInstrument );
-		pNewInstrument->load_samples( fBpm );
+		pNewInstrument->loadSamples( fBpm );
 	}
 
 	pDrumkit->removeInstrument( pOldInstrument );
@@ -2409,16 +2409,16 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	// and hihat openness is outside the instrument selected
 	const int nHihatOpenness = pHydrogen->getHihatOpenness();
 	if ( pInstrument != nullptr &&
-		 pInstrument->get_hihat_grp() >= 0 &&
-		 ( nHihatOpenness < pInstrument->get_lower_cc() ||
-		   nHihatOpenness > pInstrument->get_higher_cc() ) ) {
+		 pInstrument->getHihatGrp() >= 0 &&
+		 ( nHihatOpenness < pInstrument->getLowerCc() ||
+		   nHihatOpenness > pInstrument->getHigherCc() ) ) {
 
 		for ( int i = 0; i <= pInstrumentList->size(); i++ ) {
 			auto ppInstr = pInstrumentList->get( i );
 			if ( ppInstr != nullptr &&
-				pInstrument->get_hihat_grp() == ppInstr->get_hihat_grp() &&
-				nHihatOpenness >= ppInstr->get_lower_cc() &&
-				nHihatOpenness <= ppInstr->get_higher_cc() ) {
+				pInstrument->getHihatGrp() == ppInstr->getHihatGrp() &&
+				nHihatOpenness >= ppInstr->getLowerCc() &&
+				nHihatOpenness <= ppInstr->getHigherCc() ) {
 
 				nInstrument = i;
 				sMode = "Hihat Pressure Group";

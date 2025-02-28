@@ -826,13 +826,13 @@ float* JackAudioDriver::getTrackOut_R( unsigned nTrack )
 float* JackAudioDriver::getTrackOut_L( std::shared_ptr<Instrument> instr,
 									   int nComponentIdx )
 {
-	return getTrackOut_L(m_trackMap[instr->get_id()][ nComponentIdx ]);
+	return getTrackOut_L(m_trackMap[instr->getId()][ nComponentIdx ]);
 }
 
 float* JackAudioDriver::getTrackOut_R( std::shared_ptr<Instrument> instr,
 									   int nComponentIdx )
 {
-	return getTrackOut_R(m_trackMap[instr->get_id()][ nComponentIdx ]);
+	return getTrackOut_R(m_trackMap[instr->getId()][ nComponentIdx ]);
 }
 
 
@@ -1091,14 +1091,14 @@ void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 	std::shared_ptr<InstrumentComponent> ppComponent;
 	for ( int n = 0; n <= nInstruments - 1; n++ ) {
 		pInstrument = pInstrumentList->get( n );
-		for ( int ii = 0; ii < pInstrument->get_components()->size(); ++ii ) {
-			ppComponent = pInstrument->get_component( ii );
+		for ( int ii = 0; ii < pInstrument->getComponents()->size(); ++ii ) {
+			ppComponent = pInstrument->getComponent( ii );
 			if ( ppComponent == nullptr ) {
 				continue;
 			}
 
 			setTrackOutput( nTrackCount, pInstrument, ppComponent, pSong);
-			m_trackMap[ pInstrument->get_id() ][ ii ] = nTrackCount;
+			m_trackMap[ pInstrument->getId() ][ ii ] = nTrackCount;
 			nTrackCount++;
 		}
 	}
@@ -1162,7 +1162,7 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 
 	// Now that we're sure there is an n'th port, rename it.
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
-		.arg( pInstrument->get_name() ).arg( pInstrumentComponent->getName() );
+		.arg( pInstrument->getName() ).arg( pInstrumentComponent->getName() );
 
 	if ( jack_port_rename( m_pClient, m_pTrackOutputPortsL[n],
 						   ( sComponentName + "L" ).toLocal8Bit() ) != 0 ) {

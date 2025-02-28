@@ -482,7 +482,7 @@ void PortMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 		return;
 	}
 
-	int channel = pNote->getInstrument()->get_midi_out_channel();
+	int channel = pNote->getInstrument()->getMidiOutChannel();
 	if ( channel < 0 ) {
 		return;
 	}
@@ -544,11 +544,11 @@ void PortMidiDriver::handleQueueAllNoteOff()
 	for (int index = 0; index < numInstruments; ++index) {
 		auto pCurInst = instList->get(index);
 
-		int channel = pCurInst->get_midi_out_channel();
+		int channel = pCurInst->getMidiOutChannel();
 		if (channel < 0) {
 			continue;
 		}
-		int key = pCurInst->get_midi_out_note();
+		int key = pCurInst->getMidiOutNote();
 
 		PmEvent event;
 		event.timestamp = 0;
@@ -558,7 +558,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 		PmError err = Pm_Write(m_pMidiOut, &event, 1);
 		if ( err != pmNoError ) {
 			ERRORLOG( QString( "Error for instrument [%1] in Pm_Write: [%2]" )
-					  .arg( pCurInst->get_name() )
+					  .arg( pCurInst->getName() )
 					  .arg( PortMidiDriver::translatePmError( err ) ) );
 		}
 	}

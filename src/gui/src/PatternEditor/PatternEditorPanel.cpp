@@ -1915,14 +1915,14 @@ void PatternEditorPanel::updateDB() {
 	// of the kit intended.
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		if ( ppInstrument != nullptr ) {
-			const bool bNoPlayback = ppInstrument->is_muted() ||
+			const bool bNoPlayback = ppInstrument->isMuted() ||
 				( pInstrumentList->isAnyInstrumentSoloed() &&
-				  ! ppInstrument->is_soloed() );
+				  ! ppInstrument->isSoloed() );
 
 			m_db.push_back(
-				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
+				DrumPatternRow( ppInstrument->getId(), ppInstrument->getType(),
 								nnRow % 2 != 0, true, ! bNoPlayback ) );
-			kitIds.insert( ppInstrument->get_id() );
+			kitIds.insert( ppInstrument->getId() );
 			++nnRow;
 		}
 	}

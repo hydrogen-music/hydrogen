@@ -125,14 +125,13 @@ AudioEngine::AudioEngine()
 	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
-	auto pComponent = m_pMetronomeInstrument->get_component( 0 );
+	auto pComponent = m_pMetronomeInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
 		pComponent->setLayer( pLayer, 0 );
 	} else {
 		___ERRORLOG( "Invalid default component" );
 	}
-	m_pMetronomeInstrument->set_is_metronome_instrument(true);
-	m_pMetronomeInstrument->set_volume(
+	m_pMetronomeInstrument->setVolume(
 		Preferences::get_instance()->m_fMetronomeVolume );
 	
 	m_AudioProcessCallback = &audioEngine_process;
@@ -1354,7 +1353,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			 * If yes, a NoteOff note is generated automatically after each note.
 			 */
 			auto pNoteInstrument = pNote->getInstrument();
-			if ( pNoteInstrument->is_stop_notes() ){
+			if ( pNoteInstrument->isStopNotes() ){
 				auto pOffNote = std::make_shared<Note>( pNoteInstrument );
 				pOffNote->setNoteOff( true );
 				m_pSampler->noteOn( pOffNote );
@@ -2355,7 +2354,7 @@ void AudioEngine::handleSongSizeChange() {
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[song queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
 							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->get_name() :
+								   pNote->getInstrument()->getName() :
 								   "nullptr" )
 						  .arg( nnote->getPosition() )
 						  .arg( std::max( nnote->getPosition() + nTickOffset,
@@ -2383,7 +2382,7 @@ void AudioEngine::handleSongSizeChange() {
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[midi queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
 							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->get_name() :
+								   pNote->getInstrument()->getName() :
 								   "nullptr" )
 						  .arg( ppNote->getPosition() )
 						  .arg( std::max( ppNote->getPosition() + nTickOffset,

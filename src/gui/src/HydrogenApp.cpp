@@ -1470,7 +1470,7 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 void HydrogenApp::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		H2Core::Hydrogen::get_instance()->getAudioEngine()->
-			getMetronomeInstrument()->set_volume(
+			getMetronomeInstrument()->setVolume(
 				Preferences::get_instance()->m_fMetronomeVolume );
 	}
 }

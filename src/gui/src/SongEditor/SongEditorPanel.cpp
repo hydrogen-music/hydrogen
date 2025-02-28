@@ -339,7 +339,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	
-	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->get_components()->front();
+	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->getComponents()->front();
 	assert(pCompo);
 
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
@@ -499,11 +499,11 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 	float fOldPeak_L = m_pPlaybackTrackFader->getPeak_L();
 	float fOldPeak_R = m_pPlaybackTrackFader->getPeak_R();
 	
-	float fNewPeak_L = pInstrument->get_peak_l();
-	pInstrument->set_peak_l( 0.0f );	// reset instrument peak
+	float fNewPeak_L = pInstrument->getPeak_L();
+	pInstrument->setPeak_L( 0.0f );	// reset instrument peak
 
-	float fNewPeak_R = pInstrument->get_peak_r();
-	pInstrument->set_peak_r( 0.0f );	// reset instrument peak
+	float fNewPeak_R = pInstrument->getPeak_R();
+	pInstrument->setPeak_R( 0.0f );	// reset instrument peak
 
 	if (!bShowPeaks) {
 		fNewPeak_L = 0.0f;
@@ -603,7 +603,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		}
 
 		auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
-			getPlaybackTrackInstrument()->get_components()->front();
+			getPlaybackTrackInstrument()->getComponents()->front();
 			
 		m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->getLayer(0) );
 	}

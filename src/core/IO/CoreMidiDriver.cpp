@@ -249,7 +249,7 @@ void CoreMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote )
 		return;
 	}
 
-	int channel = pNote->getInstrument()->get_midi_out_channel();
+	int channel = pNote->getInstrument()->getMidiOutChannel();
 	if (channel < 0) {
 		return;
 	}
@@ -266,13 +266,13 @@ void CoreMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote )
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
 
-	sendMidiPacket ( &packetList );
+	sendMidiPacket( &packetList );
 
 	packetList.packet->data[0] = 0x90 | channel;
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
 
-	sendMidiPacket ( &packetList );
+	sendMidiPacket( &packetList );
 }
 
 void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
@@ -282,13 +282,9 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 		return;
 	}
 
-//	int channel = pNote->getInstrument()->get_midi_out_channel();
 	if (channel < 0) {
 		return;
 	}
-
-//	int key = pNote->getInstrument()->get_midi_out_note();
-//	int velocity = pNote->getVelocity() * 127;
 
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;
@@ -299,7 +295,7 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
 
-	sendMidiPacket ( &packetList );
+	sendMidiPacket( &packetList );
 }
 
 void CoreMidiDriver::handleQueueAllNoteOff()
@@ -326,11 +322,11 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 	for (int index = 0; index < numInstruments; ++index) {
 		auto curInst = pInstrumentList->get(index);
 
-		int channel = curInst->get_midi_out_channel();
+		int channel = curInst->getMidiOutChannel();
 		if (channel < 0) {
 			continue;
 		}
-		int key = curInst->get_midi_out_note();
+		int key = curInst->getMidiOutNote();
 
 		MIDIPacketList packetList;
 		packetList.numPackets = 1;
@@ -341,7 +337,7 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 		packetList.packet->data[1] = key;
 		packetList.packet->data[2] = 0;
 
-		sendMidiPacket ( &packetList );
+		sendMidiPacket( &packetList );
 	}
 }
 
@@ -365,7 +361,7 @@ void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int chan
 	packetList.packet->data[1] = param;
 	packetList.packet->data[2] = value;
 
-	sendMidiPacket ( &packetList );
+	sendMidiPacket( &packetList );
 }
 
 

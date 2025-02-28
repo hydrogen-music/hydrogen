@@ -56,14 +56,14 @@ InstrumentList::~InstrumentList()
 void InstrumentList::load_samples( float fBpm )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->load_samples( fBpm );
+		__instruments[i]->loadSamples( fBpm );
 	}
 }
 
 void InstrumentList::unload_samples()
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->unload_samples();
+		__instruments[i]->unloadSamples();
 	}
 }
 
@@ -94,7 +94,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 			break;
 		}
 
-		auto pInstrument = Instrument::load_from(
+		auto pInstrument = Instrument::loadFrom(
 			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
 			license, bSongKit, bSilent );
 		if ( pInstrument != nullptr ) {
@@ -120,8 +120,8 @@ void InstrumentList::save_to( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : __instruments ) {
-		if ( pInstrument != nullptr && pInstrument->get_adsr() != nullptr ) {
-			pInstrument->save_to( instruments_node, bSongKit );
+		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
+			pInstrument->saveTo( instruments_node, bSongKit );
 		}
 		else {
 			ERRORLOG( "Invalid instrument!" );
@@ -228,7 +228,7 @@ int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 std::shared_ptr<Instrument>  InstrumentList::find( const int id ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_id()==id ) {
+		if ( __instruments[i]->getId()==id ) {
 			return __instruments[i];
 		}
 	}
@@ -238,7 +238,7 @@ std::shared_ptr<Instrument>  InstrumentList::find( const int id ) const
 std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_name()==name ) {
+		if ( __instruments[i]->getName()==name ) {
 			return __instruments[i];
 		}
 	}
@@ -248,7 +248,7 @@ std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note ) const
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->get_midi_out_note()==note ) {
+		if ( __instruments[i]->getMidiOutNote()==note ) {
 			return __instruments[i];
 		}
 	}
@@ -290,14 +290,14 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 
 	for ( const auto& ppInstrument : __instruments ) {
 		if ( ppInstrument != nullptr ) {
-			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
+			for ( const auto& ppInstrumentComponent : *ppInstrument->getComponents() ) {
 				if ( ppInstrumentComponent != nullptr ) {
 					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
 						if ( ppInstrumentLayer != nullptr ) {
 							auto pSample = ppInstrumentLayer->get_sample();
 							if ( pSample != nullptr ) {
 								results.push_back( std::make_shared<Content>(
-									ppInstrument->get_name(), // m_sInstrumentName
+									ppInstrument->getName(), // m_sInstrumentName
 									ppInstrumentComponent->getName(),
 									pSample->getFilename(), // m_sSampleName
 									pSample->getFilepath(), // m_sFullSamplePath
@@ -323,7 +323,7 @@ bool InstrumentList::has_all_midi_notes_same() const
 	std::set<int> notes;
 	for( int i=0; i<__instruments.size(); i++ ) {
 		auto instr = __instruments[i];
-		notes.insert( instr->get_midi_out_note() );
+		notes.insert( instr->getMidiOutNote() );
 	}
 	return notes.size() == 1;
 }
@@ -331,7 +331,7 @@ bool InstrumentList::has_all_midi_notes_same() const
 void InstrumentList::set_default_midi_out_notes()
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->set_midi_out_note( i + MidiMessage::instrumentOffset );
+		__instruments[i]->setMidiOutNote( i + MidiMessage::instrumentOffset );
 	}
 }
 
@@ -349,8 +349,8 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[InstrumentList] " );
 		for ( const auto& ii : __instruments ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "(%1: %2 [%3]) " ).arg( ii->get_id() )
-								.arg( ii->get_name() ).arg( ii->getType() ) );
+				sOutput.append( QString( "(%1: %2 [%3]) " ).arg( ii->getId() )
+								.arg( ii->getName() ).arg( ii->getType() ) );
 			}
 		}
 	}
@@ -393,7 +393,7 @@ QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort 
 bool InstrumentList::isAnyInstrumentSoloed() const
 {
 	for ( const auto& pInstrument : __instruments ) {
-		if ( pInstrument != nullptr && pInstrument->is_soloed() ) {
+		if ( pInstrument != nullptr && pInstrument->isSoloed() ) {
 			return true;
 		}
 	}
@@ -403,7 +403,7 @@ bool InstrumentList::isAnyInstrumentSoloed() const
 bool InstrumentList::isAnyInstrumentSampleLoaded() const {
 	for ( const auto& pInstrument : __instruments ) {
 		if ( pInstrument != nullptr ) {
-			for ( const auto& pCompo : *pInstrument->get_components() ) {
+			for ( const auto& pCompo : *pInstrument->getComponents() ) {
 				if ( pCompo != nullptr ) {
 					for ( const auto& pLayer : pCompo->getLayers() ) {
 						if ( pLayer != nullptr &&

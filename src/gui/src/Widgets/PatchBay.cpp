@@ -89,12 +89,12 @@ void PatchBay::setup() {
 			continue;
 		}
 
-		QString sLabel = ppInstrument->get_name();
+		QString sLabel = ppInstrument->getName();
 		if ( ! ppInstrument->getType().isEmpty() ) {
 			sLabel.append( QString( " (%1)" ).arg( ppInstrument->getType() ) );
 		}
 		m_instrumentLabels.push_back(
-			std::make_pair( ppInstrument->get_id(), sLabel ) );
+			std::make_pair( ppInstrument->getId(), sLabel ) );
 	}
 	const auto drumkitTypes = m_pDrumkit->getAllTypes();
 
@@ -137,7 +137,7 @@ void PatchBay::setup() {
 					// Offset of one because we add an empty element at the top.
 					int nnIndex = 1;
 					for ( const auto [ nnId, _ ] : m_instrumentLabels ) {
-						if ( nnId == ppInstrument->get_id() ) {
+						if ( nnId == ppInstrument->getId() ) {
 							pCombo->setCurrentIndex( nnIndex );
 							break;
 						}

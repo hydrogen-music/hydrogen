@@ -420,7 +420,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				if ( bIsOkPressed ) {
 					auto pNewInstrument = std::make_shared<Instrument>();
 					pNewInstrument->setType( m_row.sType );
-					pNewInstrument->set_name( sNewName );
+					pNewInstrument->setName( sNewName );
 
 					MainForm::action_drumkit_addInstrument( pNewInstrument );
 				}
@@ -650,29 +650,29 @@ void SidebarRow::set( const DrumPatternRow& row )
 			pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
 			if ( pInstrument != nullptr ) {
-				const QString sInstrumentName = pInstrument->get_name();
+				const QString sInstrumentName = pInstrument->getName();
 				m_pInstrumentNameLbl->setText( sInstrumentName );
 				m_pInstrumentNameLbl->setShowPlusSign( false );
 				m_pInstrumentNameLbl->setDimed( false );
 
-				setMuted( pInstrument->is_muted() );
-				setSoloed( pInstrument->is_soloed() );
-				setSamplesMissing( pInstrument->has_missing_samples() );
+				setMuted( pInstrument->isMuted() );
+				setSoloed( pInstrument->isSoloed() );
+				setSamplesMissing( pInstrument->hasMissingSamples() );
 
 				m_pMuteBtn->show();
 				m_pSoloBtn->show();
 				m_pRenameInstrumentAction->setEnabled( true );
 				m_pDeleteInstrumentAction->setEnabled( true );
 
-				if ( ! pInstrument->get_drumkit_path().isEmpty() ) {
+				if ( ! pInstrument->getDrumkitPath().isEmpty() ) {
 					// Instrument belongs to a kit in the SoundLibrary (and was
 					// not created anew).
 					QString sKit = pHydrogen->getSoundLibraryDatabase()->
-						getUniqueLabel( pInstrument->get_drumkit_path() );
+						getUniqueLabel( pInstrument->getDrumkitPath() );
 					if ( sKit.isEmpty() ) {
 						// This should not happen. But drumkit.xml files can be
 						// created by hand and we should account for it.
-						sKit = pInstrument->get_drumkit_path();
+						sKit = pInstrument->getDrumkitPath();
 					}
 
 					/*: Shown in a tooltop and indicating the drumkit (to the right of this string) an instrument (to the left of this string) is loaded from. */
@@ -870,7 +870,7 @@ void SidebarRow::muteClicked()
 		}
 
 		H2Core::CoreActionController::setStripIsMuted(
-			nRow, ! pInstr->is_muted(), false );
+			nRow, ! pInstr->isMuted(), false );
 	}
 }
 
@@ -894,7 +894,7 @@ void SidebarRow::soloClicked()
 		}
 
 		H2Core::CoreActionController::setStripIsSoloed(
-			nRow, ! pInstr->is_soloed(), false );
+			nRow, ! pInstr->isSoloed(), false );
 	}
 }
 
@@ -1197,7 +1197,7 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 				SE_addInstrumentAction::Type::DropInstrument ) );
 		pHydrogenApp->showStatusBarMessage(
 			QString( "%1 [%2]" ) .arg( pCommonStrings->getActionDropInstrument() )
-			.arg( pTargetInstrument->get_name() ) );
+			.arg( pTargetInstrument->getName() ) );
 
 		event->acceptProposedAction();
 	}

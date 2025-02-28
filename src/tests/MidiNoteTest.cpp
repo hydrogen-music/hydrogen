@@ -112,9 +112,9 @@ class MidiNoteTest : public CppUnit::TestCase {
 
 private:
 	void checkInstrumentMidiNote(std::string name, int note, std::shared_ptr<Instrument> instr, CppUnit::SourceLine sl) {
-		auto instrName = instr->get_name().toStdString();
-		auto instrIdx = instr->get_id();
-		auto instrNote = instr->get_midi_out_note();
+		auto instrName = instr->getName().toStdString();
+		auto instrIdx = instr->getId();
+		auto instrNote = instr->getMidiOutNote();
 
 		if (instrName != name) {
 			std::string msg = "Bad instrument at index " + std::to_string(instrIdx);

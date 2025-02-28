@@ -999,7 +999,7 @@ bool Song::hasMissingSamples() const
 {
 	auto pInstrumentList = getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		if ( pInstrumentList->get( i )->has_missing_samples() ) {
+		if ( pInstrumentList->get( i )->hasMissingSamples() ) {
 			return true;
 		}
 	}
@@ -1009,7 +1009,7 @@ bool Song::hasMissingSamples() const
 void Song::clearMissingSamples() {
 	auto pInstrumentList = getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get( i )->set_missing_samples( false );
+		pInstrumentList->get( i )->setMissingSamples( false );
 	}
 }
 
