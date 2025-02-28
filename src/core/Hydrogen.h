@@ -23,8 +23,8 @@
 #define HYDROGEN_H
 
 #include <core/config.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
-#include <core/EventQueue.h>
 #include <core/Object.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
@@ -221,26 +221,26 @@ public:
 
 	Song::Mode getMode() const;
 	/** Wrapper around Song::setMode() which also triggers
-	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
+	Event::Type::SongModeActivation and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setMode( const Song::Mode& mode, Event::Trigger trigger );
 	
 	Song::ActionMode getActionMode() const;
 	/** Wrapper around Song::setActionMode() which also triggers
-	EVENT_ACTION_MODE_CHANGE and should be used by all parts of the
+	Event::Type::ActionModeChanged and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setActionMode( const Song::ActionMode& mode );
 
 	Song::PatternMode getPatternMode() const;
 	/** Wrapper around Song::setPatternMode() which also triggers
-	EVENT_STACKED_MODE_ACTIVATION and should be used by all parts of the
+	Event::Type::StackedModeActivation and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setPatternMode( const Song::PatternMode& mode );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
 	variable but kept to maintain backward compatibility) which also
-	triggers EVENT_TIMELINE_ACTIVATION.*/
+	triggers Event::Type::TimelineActivation.*/
 	void setIsTimelineActivated( bool bEnabled );
 
 	void updateSongSize();

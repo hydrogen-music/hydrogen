@@ -78,11 +78,6 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		/** returns the numbers of instruments */
 		int size() const;
 		/**
-		 * add an instrument to the list
-		 * \param instrument a pointer to the instrument to add
-		 */
-		void operator<<( std::shared_ptr<Instrument> instrument );
-		/**
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from
 		 */
@@ -111,18 +106,12 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * without throwing an error messaage
 		 * \param idx the index of the instrument
 		 */
-		bool is_valid_index( int idx ) const;
+		bool isValidIndex( int idx ) const;
 		/**
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from
 		 */
 		std::shared_ptr<Instrument> get( int idx ) const;
-		/**
-		 * remove the instrument at a given index, does not delete it
-		 * \param idx the index
-		 * \return a pointer to the removed instrument
-		 */
-		std::shared_ptr<Instrument> del( int idx );
 		/**
 		 * remove an instrument from the list, does not delete it
 		 * \param instrument the instrument to be removed
@@ -160,14 +149,14 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		void move( int idx_a, int idx_b );
 
-		/** Calls the Instrument::load_samples() member
-		 * function of all Instruments in #__instruments.
+		/** Calls the Instrument::loadSamples() member
+		 * function of all Instruments in #m_pInstruments.
 		 */
-		void load_samples( float fBpm = 120 );
-		/** Calls the Instrument::unload_samples() member
-		 * function of all Instruments in #__instruments.
+		void loadSamples( float fBpm = 120 );
+		/** Calls the Instrument::unloadSamples() member
+		 * function of all Instruments in #m_pInstruments.
 		 */
-		void unload_samples();
+		void unloadSamples();
 		/**
 		 * save the instrument list within the given XMLNode
 		 *
@@ -179,7 +168,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void save_to( XMLNode& node, bool bSongKit = false ) const;
+		void saveTo( XMLNode& node, bool bSongKit = false ) const;
 
 		/**
 		 * load an instrument list from an XMLNode
@@ -203,13 +192,13 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 *
 		 * \return a new InstrumentList instance
 		 */
-	static std::shared_ptr<InstrumentList> load_from( const XMLNode& node,
-													  const QString& sDrumkitPath,
-													  const QString& sDrumkitName,
-													  const QString& sSongPath = "",
-													  const License& license = License(),
-													  bool bSongKit = false,
-													  bool bSilent = false );
+	static std::shared_ptr<InstrumentList> loadFrom( const XMLNode& node,
+													 const QString& sDrumkitPath,
+													 const QString& sDrumkitName,
+													 const QString& sSongPath = "",
+													 const License& license = License(),
+													 bool bSongKit = false,
+													 bool bSilent = false );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
@@ -220,13 +209,13 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * Check if all instruments have assigned the same
 		 * MIDI out note
 		 */
-		bool has_all_midi_notes_same() const;
+		bool hasAllMidiNotesSame() const;
 
 		/**
 		 * Set each instrument consecuteve MIDI
 		 * out notes, starting from #MIDI_DEFAULT_OFFSET
 		 */
-		void set_default_midi_out_notes();
+		void setDefaultMidiOutNotes();
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -247,14 +236,14 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		bool isAnyInstrumentSampleLoaded() const;
 
 	private:
-		std::vector<std::shared_ptr<Instrument>> __instruments;            ///< the list of instruments
+		std::vector<std::shared_ptr<Instrument>> m_pInstruments;            ///< the list of instruments
 };
 
 // DEFINITIONS
 
 inline int InstrumentList::size() const
 {
-	return __instruments.size();
+	return m_pInstruments.size();
 }
 
 };

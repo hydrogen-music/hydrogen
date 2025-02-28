@@ -112,7 +112,7 @@ void Legacy::loadComponentNames( std::shared_ptr<InstrumentList> pInstrumentList
 					 search != componentMap.end() ){
 					// There is a name available for this instrument component.
 					auto pInstrumentComponent =
-						pInstrument->get_component( nnComponent );
+						pInstrument->getComponent( nnComponent );
 					if ( pInstrumentComponent != nullptr ) {
 						pInstrumentComponent->setName(
 							componentMap[ nComponentId ] );
@@ -152,7 +152,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	//
 	// By supplying no drumkit path the individual drumkit meta infos
 	// stored in the 'instrument' nodes will be used.
-	auto pInstrumentList = InstrumentList::load_from( node,
+	auto pInstrumentList = InstrumentList::loadFrom( node,
 													  "", // sDrumkitPath
 													  "", // sDrumkitName
 													  sSongPath,
@@ -180,12 +180,12 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		// among the loaded instruments.
 		std::map<QString,int> loadedDrumkits;
 		for ( const auto& ppInstrument : *pInstrumentList ) {
-			if ( loadedDrumkits.find( ppInstrument->get_drumkit_path() ) !=
+			if ( loadedDrumkits.find( ppInstrument->getDrumkitPath() ) !=
 				 loadedDrumkits.end() ) {
-				loadedDrumkits[ ppInstrument->get_drumkit_path() ] += 1;
+				loadedDrumkits[ ppInstrument->getDrumkitPath() ] += 1;
 			}
 			else {
-				loadedDrumkits[ ppInstrument->get_drumkit_path() ] = 1;
+				loadedDrumkits[ ppInstrument->getDrumkitPath() ] = 1;
 			}
 		}
 
@@ -270,7 +270,7 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 				break;
 			}
 
-			auto pLayer = InstrumentLayer::load_from(
+			auto pLayer = InstrumentLayer::loadFrom(
 				layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 			if ( pLayer != nullptr ) {
 				pCompo->setLayer( pLayer, nLayer );
@@ -485,11 +485,14 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 	return pPlaylist;
 }
 
-std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
-														   PatternList* pPatternList,
-														   bool bSilent ) {;
+std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Legacy::loadPatternGroupVector(
+	const XMLNode& node,
+	std::shared_ptr<PatternList> pPatternList,
+	bool bSilent )
+{
 
-	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+	auto pPatternGroupVector =
+		std::make_shared< std::vector< std::shared_ptr<PatternList> > >();
 
 	if ( ! bSilent ) {
 		WARNINGLOG( "Using old pattern group vector code for back compatibility" );
@@ -498,7 +501,7 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
 	XMLNode pPatternIDNode = node.firstChildElement( "patternID" );
 	while ( ! pPatternIDNode.isNull() ) {
 	
-		PatternList* pPatternSequence = new PatternList();
+		auto pPatternSequence = std::make_shared<PatternList>();
 		QString sPatId = pPatternIDNode.firstChildElement().text();
 
 		std::shared_ptr<Pattern> pPattern = nullptr;
@@ -516,7 +519,6 @@ std::vector<PatternList*>* Legacy::loadPatternGroupVector( const XMLNode& node,
 				WARNINGLOG( QString( "Pattern [%1] not found in patternList." )
 							.arg( sPatId ) );
 			}
-			delete pPatternSequence;
 		}
 		else {
 			pPatternSequence->add( pPattern );

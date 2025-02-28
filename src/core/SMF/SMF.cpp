@@ -241,7 +241,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 		  nPatternList < pSong->getPatternGroupVector()->size() ;
 		  nPatternList++ ) {
 		// infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
-		PatternList *pPatternList =
+		auto pPatternList =
 			( *(pSong->getPatternGroupVector()) )[ nPatternList ];
 
 		int nStartTicks = nTick;
@@ -274,7 +274,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 						auto pInstr = pNote->getInstrument();
 						int nPitch = pNote->getMidiKey();
 						
-						int nChannel =  pInstr->get_midi_out_channel();
+						int nChannel =  pInstr->getMidiOutChannel();
 						if ( nChannel == -1 ) {
 							nChannel = DRUM_CHANNEL;
 						}
@@ -481,7 +481,7 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 		pSmf->addTrack( pTrack );
 		
 		//Set instrument name as track name
-		pTrack->addEvent( new SMFTrackNameMetaEvent( instrument->get_name() , 0 ) );
+		pTrack->addEvent( new SMFTrackNameMetaEvent( instrument->getName() , 0 ) );
 		
 		unsigned nLastTick = 1;
 		for ( std::vector<SMFEvent*>::iterator it = pEventList->begin();

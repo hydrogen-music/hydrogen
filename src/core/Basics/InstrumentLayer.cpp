@@ -35,38 +35,38 @@ namespace H2Core
 {
 
 InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) :
-	__start_velocity( 0.0 ),
-	__end_velocity( 1.0 ),
-	__pitch( 0.0 ),
-	__gain( 1.0 ),
+	m_fStartVelocity( 0.0 ),
+	m_fEndVelocity( 1.0 ),
+	m_fPitch( 0.0 ),
+	m_fGain( 1.0 ),
 	m_bIsMuted( false ),
 	m_bIsSoloed( false ),
-	__sample( sample )
+	m_pSample( sample )
 {
 }
 
 InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther ) : Object( *pOther ),
-	__start_velocity( pOther->get_start_velocity() ),
-	__end_velocity( pOther->get_end_velocity() ),
-	__pitch( pOther->get_pitch() ),
-	__gain( pOther->get_gain() ),
+	m_fStartVelocity( pOther->getStartVelocity() ),
+	m_fEndVelocity( pOther->getEndVelocity() ),
+	m_fPitch( pOther->getPitch() ),
+	m_fGain( pOther->getGain() ),
 	m_bIsMuted( pOther->m_bIsMuted ),
 	m_bIsSoloed( pOther->m_bIsSoloed ),
-	__sample( nullptr )
+	m_pSample( nullptr )
 {
-	if ( pOther->__sample != nullptr ) {
-		__sample = std::make_shared<Sample>( pOther->__sample );
+	if ( pOther->m_pSample != nullptr ) {
+		m_pSample = std::make_shared<Sample>( pOther->m_pSample );
 	}
 }
 
 InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> pOther, std::shared_ptr<Sample> sample ) : Object( *pOther ),
-	__start_velocity( pOther->get_start_velocity() ),
-	__end_velocity( pOther->get_end_velocity() ),
-	__pitch( pOther->get_pitch() ),
-	__gain( pOther->get_gain() ),
+	m_fStartVelocity( pOther->getStartVelocity() ),
+	m_fEndVelocity( pOther->getEndVelocity() ),
+	m_fPitch( pOther->getPitch() ),
+	m_fGain( pOther->getGain() ),
 	m_bIsMuted( pOther->m_bIsMuted ),
 	m_bIsSoloed( pOther->m_bIsSoloed ),
-	__sample( sample )
+	m_pSample( sample )
 {
 }
 
@@ -74,35 +74,35 @@ InstrumentLayer::~InstrumentLayer()
 {
 }
 
-void InstrumentLayer::set_sample( std::shared_ptr<Sample> sample )
+void InstrumentLayer::setSample( std::shared_ptr<Sample> sample )
 {
-	__sample = sample;
+	m_pSample = sample;
 }
 
-void InstrumentLayer::set_pitch( float fValue )
+void InstrumentLayer::setPitch( float fValue )
 {
 	if ( fValue < Instrument::fPitchMin || fValue > Instrument::fPitchMax ) {
 		WARNINGLOG( QString( "Provided pitch out of bound [%1;%2]. Rounding to nearest allowed value." )
 					.arg( Instrument::fPitchMin ).arg( Instrument::fPitchMax ) );
 	}
-	__pitch = std::clamp( fValue, Instrument::fPitchMin, Instrument::fPitchMax );
+	m_fPitch = std::clamp( fValue, Instrument::fPitchMin, Instrument::fPitchMax );
 }
 
-void InstrumentLayer::load_sample( float fBpm )
+void InstrumentLayer::loadSample( float fBpm )
 {
-	if ( __sample != nullptr ) {
-		__sample->load( fBpm );
+	if ( m_pSample != nullptr ) {
+		m_pSample->load( fBpm );
 	}
 }
 
-void InstrumentLayer::unload_sample()
+void InstrumentLayer::unloadSample()
 {
-	if ( __sample != nullptr ) {
-		__sample->unload();
+	if ( m_pSample != nullptr ) {
+		m_pSample->unload();
 	}
 }
 
-std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
+std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
@@ -155,17 +155,17 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 
 		const bool bIsModified =
 			node.read_bool( "ismodified", false, true, false, true );
-		pSample->set_is_modified( bIsModified );
+		pSample->setIsModified( bIsModified );
 	
 		if ( bIsModified ) {
 		
 			Sample::Loops loops;
-			loops.mode = Sample::parse_loop_mode( node.read_string( "smode", "forward", false, false, bSilent ) );
+			loops.mode = Sample::parseLoopMode( node.read_string( "smode", "forward", false, false, bSilent ) );
 			loops.start_frame = node.read_int( "startframe", 0, false, false, bSilent );
 			loops.loop_frame = node.read_int( "loopframe", 0, false, false, bSilent );
 			loops.count = node.read_int( "loops", 0, false, false, bSilent );
 			loops.end_frame = node.read_int( "endframe", 0, false, false, bSilent );
-			pSample->set_loops( loops );
+			pSample->setLoops( loops );
 	
 			Sample::Rubberband rubberband;
 			rubberband.use = node.read_int( "userubber", 0, false, false, bSilent );
@@ -178,7 +178,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 											m_sRubberBandCLIexecutable ) ) {
 				rubberband.use = false;
 			}
-			pSample->set_rubberband( rubberband );
+			pSample->setRubberband( rubberband );
 	
 			// FIXME, kill EnvelopePoint, create Envelope class
 			EnvelopePoint pt;
@@ -191,7 +191,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 				velocityEnvelope.push_back( pt );
 				volumeNode = volumeNode.nextSiblingElement( "volume" );
 			}
-			pSample->set_velocity_envelope( velocityEnvelope );
+			pSample->setVelocityEnvelope( velocityEnvelope );
 
 			Sample::VelocityEnvelope panEnvelope;
 			XMLNode panNode = node.firstChildElement( "pan" );
@@ -201,7 +201,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 				panEnvelope.push_back( pt );
 				panNode = panNode.nextSiblingElement( "pan" );
 			}
-			pSample->set_pan_envelope( panEnvelope );
+			pSample->setPanEnvelope( panEnvelope );
 		}
 	}
 	else {
@@ -216,13 +216,13 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 	}
 
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-	pLayer->set_start_velocity( node.read_float( "min", 0.0,
+	pLayer->setStartVelocity( node.read_float( "min", 0.0,
 												   true, true, bSilent  ) );
-	pLayer->set_end_velocity( node.read_float( "max", 1.0,
+	pLayer->setEndVelocity( node.read_float( "max", 1.0,
 												 true, true, bSilent ) );
-	pLayer->set_gain( node.read_float( "gain", 1.0,
+	pLayer->setGain( node.read_float( "gain", 1.0,
 										 true, false, bSilent ) );
-	pLayer->set_pitch( node.read_float( "pitch", 0.0,
+	pLayer->setPitch( node.read_float( "pitch", 0.0,
 										  true, false, bSilent ) );
 	pLayer->m_bIsMuted = node.read_bool(
 		"isMuted", pLayer->m_bIsMuted, true, false, true );
@@ -231,10 +231,10 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 	return pLayer;
 }
 
-void InstrumentLayer::save_to( XMLNode& node, bool bSongKit ) const
+void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pSample = get_sample();
+	auto pSample = getSample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "No sample associated with layer. Skipping it" );
 		return;
@@ -244,42 +244,42 @@ void InstrumentLayer::save_to( XMLNode& node, bool bSongKit ) const
 
 	QString sFilename;
 	if ( bSongKit ) {
-		sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
+		sFilename = Filesystem::prepare_sample_path( pSample->getFilepath() );
 	}
 	else {
-		sFilename = pSample->get_filename();
+		sFilename = pSample->getFilename();
 	}
 	
 	layer_node.write_string( "filename", sFilename );
-	layer_node.write_float( "min", __start_velocity );
-	layer_node.write_float( "max", __end_velocity );
-	layer_node.write_float( "gain", __gain );
-	layer_node.write_float( "pitch", __pitch );
+	layer_node.write_float( "min", m_fStartVelocity );
+	layer_node.write_float( "max", m_fEndVelocity );
+	layer_node.write_float( "gain", m_fGain );
+	layer_node.write_float( "pitch", m_fPitch );
 	layer_node.write_bool( "isMuted", m_bIsMuted );
 	layer_node.write_bool( "isSoloed", m_bIsSoloed );
 
-	layer_node.write_bool( "ismodified", pSample->get_is_modified() );
-	layer_node.write_string( "smode", pSample->get_loop_mode_string() );
+	layer_node.write_bool( "ismodified", pSample->getIsModified() );
+	layer_node.write_string( "smode", pSample->getLoopModeString() );
 
-	Sample::Loops loops = pSample->get_loops();
+	Sample::Loops loops = pSample->getLoops();
 	layer_node.write_int( "startframe", loops.start_frame );
 	layer_node.write_int( "loopframe", loops.loop_frame );
 	layer_node.write_int( "loops", loops.count );
 	layer_node.write_int( "endframe", loops.end_frame );
 
-	Sample::Rubberband rubberband = pSample->get_rubberband();
+	Sample::Rubberband rubberband = pSample->getRubberband();
 	layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
 	layer_node.write_float( "rubberdivider", rubberband.divider );
 	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
 	layer_node.write_float( "rubberPitch", rubberband.pitch );
 
-	for ( const auto& velocity : pSample->get_velocity_envelope() ) {
+	for ( const auto& velocity : pSample->getVelocityEnvelope() ) {
 		XMLNode volumeNode = layer_node.createNode( "volume" );
 		volumeNode.write_int( "volume-position", velocity.frame );
 		volumeNode.write_int( "volume-value", velocity.value );
 	}
 
-	for ( const auto& pan : pSample->get_pan_envelope() ) {
+	for ( const auto& pan : pSample->getPanEnvelope() ) {
 		XMLNode panNode = layer_node.createNode( "pan" );
 		panNode.write_int( "pan-position", pan.frame );
 		panNode.write_int( "pan-value", pan.value );
@@ -291,33 +291,33 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )
-			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
-			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
-			.append( QString( "%1%2start_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __start_velocity ) )
-			.append( QString( "%1%2end_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __end_velocity ) )
+			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fGain ) )
+			.append( QString( "%1%2m_fPitch: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPitch ) )
+			.append( QString( "%1%2m_fStartVelocity: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fStartVelocity ) )
+			.append( QString( "%1%2m_fEndVelocity: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fEndVelocity ) )
 			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bIsMuted ) )
 			.append( QString( "%1%2m_bIsSoloed: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bIsSoloed ) );
-		if ( __sample != nullptr ) {
+		if ( m_pSample != nullptr ) {
 			sOutput.append( QString( "%1" )
-							.arg( __sample->toQString( sPrefix + s, bShort ) ) );
+							.arg( m_pSample->toQString( sPrefix + s, bShort ) ) );
 		} else {
-			sOutput.append( QString( "%1%2sample: nullptr\n" ).arg( sPrefix ).arg( s ) );
+			sOutput.append( QString( "%1%2m_pSample: nullptr\n" ).arg( sPrefix ).arg( s ) );
 		}
 	}
 	else {
 		sOutput = QString( "[InstrumentLayer]" )
-			.append( QString( " gain: %1" ).arg( __gain ) )
-			.append( QString( ", pitch: %1" ).arg( __pitch ) )
-			.append( QString( ", start_velocity: %1" ).arg( __start_velocity ) )
-			.append( QString( ", end_velocity: %1" ).arg( __end_velocity ) )
+			.append( QString( " m_fGain: %1" ).arg( m_fGain ) )
+			.append( QString( ", m_fPitch: %1" ).arg( m_fPitch ) )
+			.append( QString( ", m_fStartVelocity: %1" ).arg( m_fStartVelocity ) )
+			.append( QString( ", m_fEndVelocity: %1" ).arg( m_fEndVelocity ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) );
-		if ( __sample != nullptr ) { 
-			sOutput.append( QString( ", sample: %1\n" ).arg( __sample->get_filepath() ) );
+		if ( m_pSample != nullptr ) {
+			sOutput.append( QString( ", m_pSample: %1\n" ).arg( m_pSample->getFilepath() ) );
 		} else {
-			sOutput.append( QString( ", sample: nullptr\n" ) );
+			sOutput.append( QString( ", m_pSample: nullptr\n" ) );
 		}
 	}
 	

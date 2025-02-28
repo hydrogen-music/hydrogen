@@ -307,15 +307,16 @@ int main(int argc, char *argv[])
 			nullptr, nullptr, OscServer::generic_handler, nullptr );
 
 		while ( ! bQuit ) {
-			Event event = pQueue->pop_event();
+			auto pEvent = pQueue->popEvent();
+			if ( pEvent == nullptr ) {
+				/* Sleep if there is no more events */
+				Sleeper::msleep( 100 );
+				continue;
+			}
 
 			/* Event handler */
-			switch ( event.type ) {
-			case EVENT_NONE: /* Sleep if there is no more events */
-				Sleeper::msleep ( 100 );
-				break;
-				
-			case EVENT_QUIT: // Shutdown if indicated by a
+			switch ( pEvent->getType() ) {
+			case Event::Type::Quit: // Shutdown if indicated by a
 				// corresponding OSC message.
 				bQuit = true;
 				break;

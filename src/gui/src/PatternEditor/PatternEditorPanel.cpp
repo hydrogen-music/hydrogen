@@ -1079,9 +1079,9 @@ std::vector<std::shared_ptr<Pattern>> PatternEditorPanel::getPatternsToShow() co
 			 ! pHydrogen->isPatternEditorLocked() ) ) {
 		pAudioEngine->lock( RIGHT_HERE );
 		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
-			std::set<std::shared_ptr<Pattern>> patternSet;
+			std::set< std::shared_ptr<Pattern> > patternSet;
 
-			std::vector<const PatternList*> patternLists;
+			std::vector< std::shared_ptr<PatternList> > patternLists;
 			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
 			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 				patternLists.push_back( pAudioEngine->getNextPatterns() );
@@ -1473,7 +1473,7 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 		setCursorColumn( nNewColumn );
 	}
 	
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 }
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )
@@ -1915,14 +1915,14 @@ void PatternEditorPanel::updateDB() {
 	// of the kit intended.
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		if ( ppInstrument != nullptr ) {
-			const bool bNoPlayback = ppInstrument->is_muted() ||
+			const bool bNoPlayback = ppInstrument->isMuted() ||
 				( pInstrumentList->isAnyInstrumentSoloed() &&
-				  ! ppInstrument->is_soloed() );
+				  ! ppInstrument->isSoloed() );
 
 			m_db.push_back(
-				DrumPatternRow( ppInstrument->get_id(), ppInstrument->getType(),
+				DrumPatternRow( ppInstrument->getId(), ppInstrument->getType(),
 								nnRow % 2 != 0, true, ! bNoPlayback ) );
-			kitIds.insert( ppInstrument->get_id() );
+			kitIds.insert( ppInstrument->getId() );
 			++nnRow;
 		}
 	}
@@ -2269,7 +2269,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList* pPatternList = nullptr;
+	std::shared_ptr<PatternList> pPatternList = nullptr;
 	if ( nPattern != -1 ) {
 		auto pPattern = pSong->getPatternList()->get( nPattern );
 		if ( pPattern == nullptr ) {
@@ -2277,7 +2277,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 					  .arg( nPattern ) );
 			return;
 		}
-		pPatternList = new PatternList();
+		pPatternList = std::make_shared<PatternList>();
 		pPatternList->add( pPattern );
 	}
 	else {
@@ -2335,10 +2335,6 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 		}
 	}
 	pHydrogenApp->endUndoMacro();
-
-	if ( nPattern != -1 ) {
-		delete pPatternList;
-	}
 }
 
 QString PatternEditorPanel::FillNotesToQString( const FillNotes& fillNotes ) {
@@ -2527,7 +2523,7 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 	// Serialize & put to clipboard
 	H2Core::XMLDoc doc;
 	auto rootNode = doc.set_root( "serializedPatternList" );
-	pSong->getPatternList()->save_to(
+	pSong->getPatternList()->saveTo(
 		rootNode, row.nInstrumentID, row.sType, nPitch );
 
 	const QString sSerialized = doc.toString();
@@ -2577,7 +2573,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 		return;
 	}
 
-	const auto pPatternList = PatternList::load_from(
+	const auto pPatternList = PatternList::loadFrom(
 		rootNode, pSong->getDrumkit()->getExportName() );
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
@@ -2616,5 +2612,4 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 		}
 	}
 	pHydrogenApp->endUndoMacro();
-	delete pPatternList;
 }

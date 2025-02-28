@@ -125,21 +125,21 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 	//initialise everything with 0..	
 	memset( m_pPeakData, 0, currentWidth * sizeof(m_pPeakData[0]) );	
 	
-	if ( pLayer && pLayer->get_sample() ) {
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	if ( pLayer && pLayer->getSample() ) {
+		auto pSong = Hydrogen::get_instance()->getSong();
 		
 		m_pLayer = pLayer;
-		m_sSampleName = m_pLayer->get_sample()->get_filename();
+		m_sSampleName = m_pLayer->getSample()->getFilename();
 		
-		auto	pSampleData = pLayer->get_sample()->get_data_l();
-		int		nSampleLength = m_pLayer->get_sample()->get_frames();
-		float	fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float) m_pLayer->get_sample()->get_sample_rate() );
+		auto	pSampleData = pLayer->getSample()->getData_L();
+		int		nSampleLength = m_pLayer->getSample()->getFrames();
+		float	fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float) m_pLayer->getSample()->getSampleRate() );
 		float	fRemainingLengthOfPlaybackTrack = fLengthOfPlaybackTrackInSecs;		
-		float	fGain = height() / 2.0 * pLayer->get_gain();
+		float	fGain = height() / 2.0 * pLayer->getGain();
 		int		nSamplePos = 0;
 		int		nMaxBars = pPref->getMaxBars();
 		
-		std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+		auto pPatternColumns = pSong->getPatternGroupVector();
 		int nColumns = pPatternColumns->size();
 
 		int nSongEditorGridWith;
@@ -156,7 +156,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 			int maxPatternSize = 0;
 			
 			if( patternPosition < nColumns ) {
-				PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
+				auto pColumn = ( *pPatternColumns )[ patternPosition ];
 				
 				for ( unsigned j = 0; j < pColumn->size(); j++ ) {
 					const auto pPattern = pColumn->get( j );

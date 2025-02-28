@@ -27,7 +27,7 @@
 #include <QtGui>
 #include <QDoubleSpinBox>
 
-#include <core/EventQueue.h>
+#include <core/Basics/Event.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 

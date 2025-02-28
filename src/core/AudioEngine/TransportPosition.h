@@ -74,8 +74,8 @@ public:
 	long long getFrameOffsetTempo() const;
 	double getTickOffsetQueuing() const;
 	double getTickOffsetSongSize() const;
-	const PatternList* getPlayingPatterns() const;
-	const PatternList* getNextPatterns() const;
+	const std::shared_ptr<PatternList> getPlayingPatterns() const;
+	const std::shared_ptr<PatternList> getNextPatterns() const;
 	int getPatternSize() const;
 	long long getLastLeadLagFactor() const;
 	int getBar() const;
@@ -187,8 +187,8 @@ private:
 	void setBar( int nBar );
 	void setBeat( int nBeat );
 	
-	PatternList* getPlayingPatterns();
-	PatternList* getNextPatterns();
+	std::shared_ptr<PatternList> getPlayingPatterns();
+	std::shared_ptr<PatternList> getNextPatterns();
 
 	double getDoubleTick() const;
 
@@ -363,7 +363,7 @@ private:
 	 *
 	 * See AudioEngine::updatePlayingPatterns() for details.
 	 */
-	PatternList*		m_pNextPatterns;
+	std::shared_ptr<PatternList>		m_pNextPatterns;
 	
 	/**
 	 * Contains all Patterns currently played back.
@@ -377,7 +377,7 @@ private:
 	 *
 	 * See AudioEngine::updatePlayingPatterns() for details.
 	 */
-	PatternList*		m_pPlayingPatterns;
+	std::shared_ptr<PatternList>		m_pPlayingPatterns;
 	
 	/**
 	 * Maximum size of all patterns in #m_pPlayingPatterns.
@@ -460,16 +460,16 @@ inline double TransportPosition::getTickOffsetSongSize() const {
 inline void TransportPosition::setTickOffsetSongSize( double fTickOffset ) {
 	m_fTickOffsetSongSize = fTickOffset;
 }
-inline const PatternList* TransportPosition::getPlayingPatterns() const {
+inline const std::shared_ptr<PatternList> TransportPosition::getPlayingPatterns() const {
 	return m_pPlayingPatterns;
 }
-inline PatternList* TransportPosition::getPlayingPatterns() {
+inline std::shared_ptr<PatternList> TransportPosition::getPlayingPatterns() {
 	return m_pPlayingPatterns;
 }
-inline const PatternList* TransportPosition::getNextPatterns() const {
+inline const std::shared_ptr<PatternList> TransportPosition::getNextPatterns() const {
 	return m_pNextPatterns;
 }
-inline PatternList* TransportPosition::getNextPatterns() {
+inline std::shared_ptr<PatternList> TransportPosition::getNextPatterns() {
 	return m_pNextPatterns;
 }
 inline int TransportPosition::getPatternSize() const {

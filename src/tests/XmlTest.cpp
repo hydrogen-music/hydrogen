@@ -237,10 +237,10 @@ void XmlTest::testDrumkitLegacy()
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getInstruments()->get( 0 ) != nullptr );
 	const auto pInstrument = pDrumkit->getInstruments()->get( 0 );
-	CPPUNIT_ASSERT( pInstrument->get_component( 0 ) != nullptr );
-	CPPUNIT_ASSERT( pInstrument->get_component( 1 ) != nullptr );
-	CPPUNIT_ASSERT( pInstrument->get_component( 0 )->getName() == "Second" );
-	CPPUNIT_ASSERT( pInstrument->get_component( 1 )->getName() == "First" );
+	CPPUNIT_ASSERT( pInstrument->getComponent( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrument->getComponent( 1 ) != nullptr );
+	CPPUNIT_ASSERT( pInstrument->getComponent( 0 )->getName() == "Second" );
+	CPPUNIT_ASSERT( pInstrument->getComponent( 1 )->getName() == "First" );
 
 
 	___INFOLOG( "passed" );
@@ -268,13 +268,13 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	auto pFirstInstrument = pInstruments->get(0);
 	CPPUNIT_ASSERT( pFirstInstrument != nullptr );
 	
-	auto pLayer = pFirstInstrument->get_components()->front()->getLayer(0);
+	auto pLayer = pFirstInstrument->getComponents()->front()->getLayer(0);
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	
-	auto pSample = pLayer->get_sample();
+	auto pSample = pLayer->getSample();
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
-	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));
+	CPPUNIT_ASSERT( pSample->getFilename() == QString("snare.wav"));
 	
 	// 3. Make sure that the original (invalid) file has been saved as
 	// a backup.
@@ -379,7 +379,7 @@ void XmlTest::testDrumkitUpgrade() {
 			auto pInstrument = pInstrumentList->get( 0 );
 			CPPUNIT_ASSERT( pInstrument != nullptr );
 
-			auto pComponents = pInstrument->get_components();
+			auto pComponents = pInstrument->getComponents();
 			CPPUNIT_ASSERT( pComponents != nullptr );
 			CPPUNIT_ASSERT( pComponents->size() == 1 );
 
@@ -1001,20 +1001,20 @@ bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoad
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
 		auto pInstr = ( *instruments )[i];
-		for ( const auto& pComponent : *pInstr->get_components() ) {
+		for ( const auto& pComponent : *pInstr->getComponents() ) {
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				auto pLayer = pComponent->getLayer( nLayer );
 				if( pLayer ) {
-					auto pSample = pLayer->get_sample();
+					auto pSample = pLayer->getSample();
 					if ( pSample == nullptr ) {
 						return false;
 					}
 					if( bLoaded ) {
-						if( pSample->get_data_l()==nullptr || pSample->get_data_r()==nullptr ) {
+						if( pSample->getData_L()==nullptr || pSample->getData_R()==nullptr ) {
 							return false;
 						}
 					} else {
-						if( pSample->get_data_l() != nullptr || pSample->get_data_r() != nullptr ) {
+						if( pSample->getData_L() != nullptr || pSample->getData_R() != nullptr ) {
 							return false;
 						}
 					}

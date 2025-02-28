@@ -112,7 +112,7 @@ void* alsaAudioDriver_processCaller( void* param )
 							 .arg( snd_strerror( err ) ) );
 			}
 			pDriver->m_nXRuns++;
-			EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
+			EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
 		} else {
 
 			// Playback stream is ready, let's write out the audio
@@ -129,7 +129,7 @@ void* alsaAudioDriver_processCaller( void* param )
 						___ERRORLOG( QString( "Unable to write playback stream again: %1" )
 									 .arg( snd_strerror( err ) ) );
 						pDriver->m_nXRuns++;
-						EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
+						EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
 						if ( ( err = snd_pcm_recover( pDriver->m_pPlayback_handle, err, 0 ) ) < 0 ) {
 							__ERRORLOG( QString( "Can't recover from XRUN: %1" )
 										.arg( snd_strerror( err ) ) );
@@ -139,7 +139,7 @@ void* alsaAudioDriver_processCaller( void* param )
 					__ERRORLOG( QString( "Can't recover from XRUN: %1" )
 								.arg( snd_strerror( err ) ) );
 					pDriver->m_nXRuns++;
-					EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
+					EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
 				}
 			}
 		}

@@ -208,15 +208,15 @@ void TargetWaveDisplay::paintLocatorEventTargetDisplay( int pos, bool updateposi
 
 void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
-	if ( pLayer && pLayer->get_sample() ) {
+	if ( pLayer && pLayer->getSample() ) {
 
-		int nSampleLength = pLayer->get_sample()->get_frames();
+		int nSampleLength = pLayer->getSample()->getFrames();
 		float nScaleFactor = nSampleLength / width();
 
-		float fGain = (height() - 8) / 2.0 * pLayer->get_gain();
+		float fGain = (height() - 8) / 2.0 * pLayer->getGain();
 
-		auto pSampleDatal = pLayer->get_sample()->get_data_l();
-		auto pSampleDatar = pLayer->get_sample()->get_data_r();
+		auto pSampleDatal = pLayer->getSample()->getData_L();
+		auto pSampleDatar = pLayer->getSample()->getData_R();
 		int nSamplePos = 0;
 		int nVall;
 		int nValr;

@@ -73,8 +73,9 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fVolume( fVolume )
 	, m_fMetronomeVolume( 0.5 )
 	, m_sNotes( "" )
-	, m_pPatternList( nullptr )
-	, m_pPatternGroupSequence( nullptr )
+	, m_pPatternList( std::make_shared<PatternList>() )
+	, m_pPatternGroupSequence( std::make_shared< std::vector<
+							   std::shared_ptr<PatternList> > >() )
 	, m_sFilename( "" )
 	, m_loopMode( LoopMode::Disabled )
 	, m_patternMode( PatternMode::Selected )
@@ -107,20 +108,10 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 Song::~Song()
 {
 	/*
-	 * Warning: it is not safe to delete a song without having a lock on the audio engine.
-	 * Following the current design, the caller has to care for the lock.
+	 * Warning: it might be not safe to delete a song without having a lock on
+	 * the audio engine. Following the current design, the caller has to care
+	 * for the lock.
 	 */
-
-	delete m_pPatternList;
-
-	if ( m_pPatternGroupSequence ) {
-		for ( unsigned i = 0; i < m_pPatternGroupSequence->size(); ++i ) {
-			PatternList* pPatternList = ( *m_pPatternGroupSequence )[i];
-			pPatternList->clear();	// pulisco tutto, i pattern non vanno distrutti qua
-			delete pPatternList;
-		}
-		delete m_pPatternGroupSequence;
-	}
 
 	delete m_pVelocityAutomationPath;
 
@@ -158,9 +149,9 @@ long Song::lengthInTicks() const {
 	// Sum the lengths of all pattern columns and use the macro
 	// MAX_NOTES in case some of them are of size zero.
 	for ( int i = 0; i < nColumns; i++ ) {
-		PatternList *pColumn = ( *m_pPatternGroupSequence )[ i ];
+		auto pColumn = ( *m_pPatternGroupSequence )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nSongLength += pColumn->longest_pattern_length();
+			nSongLength += pColumn->longestPatternLength();
 		} else {
 			nSongLength += MAX_NOTES;
 		}
@@ -397,7 +388,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 								bSilent ) );
 
 	// Pattern list
-	auto pPatternList = PatternList::load_from(
+	auto pPatternList = PatternList::loadFrom(
 		rootNode, pDrumkit->getExportName(), bSilent );
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapTo( pDrumkit, nullptr );
@@ -622,7 +613,7 @@ void Song::loadVirtualPatternsFrom( const XMLNode& node, bool bSilent ) {
 		virtualPatternNode = virtualPatternNode.nextSiblingElement( "pattern" );
 	}
 
-	m_pPatternList->flattened_virtual_patterns_compute();
+	m_pPatternList->flattenedVirtualPatternsCompute();
 }
 
 void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
@@ -643,14 +634,15 @@ void Song::loadPatternGroupVectorFrom( const XMLNode& node, bool bSilent ) {
 	else {
 		// current format
 		if ( m_pPatternGroupSequence == nullptr ) {
-			m_pPatternGroupSequence = new std::vector<PatternList*>;
+			m_pPatternGroupSequence =
+				std::make_shared< std::vector< std::shared_ptr<PatternList> > >();
 		} else {
 			m_pPatternGroupSequence->clear();
 		}
 
 		XMLNode groupNode = patternSequenceNode.firstChildElement( "group" );
 		while ( ! groupNode.isNull() ) {
-			PatternList* patternSequence = new PatternList();
+			auto patternSequence = std::make_shared<PatternList>();
 			XMLNode patternIdNode = groupNode.firstChildElement( "patternID" );
 			while ( ! patternIdNode.isNull() ) {
 				QString sPatternName = patternIdNode.firstChild().nodeValue();
@@ -808,7 +800,7 @@ void Song::saveTo( XMLNode& rootNode, bool bSilent ) const {
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
 	if ( m_pPatternList != nullptr ) {
-		m_pPatternList->save_to( rootNode );
+		m_pPatternList->saveTo( rootNode );
 	}
 	saveVirtualPatternsTo( rootNode, bSilent );
 	savePatternGroupVectorTo( rootNode, bSilent );
@@ -904,8 +896,8 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	pSong->setHumanizeVelocityValue( 0.0 );
 	pSong->setSwingFactor( 0.0 );
 
-	PatternList*	pPatternList = new PatternList();
-	PatternList*    patternSequence = new PatternList();
+	auto pPatternList = std::make_shared<PatternList>();
+	auto patternSequence = std::make_shared<PatternList>();
 
 	for ( int nn = 0; nn < 10; ++nn ) {
 		auto pEmptyPattern = std::make_shared<Pattern>();
@@ -921,7 +913,8 @@ std::shared_ptr<Song> Song::getEmptySong( std::shared_ptr<SoundLibraryDatabase> 
 	}
 	pSong->setPatternList( pPatternList );
 
-	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
+	auto pPatternGroupVector =
+		std::make_shared< std::vector< std::shared_ptr<PatternList> > >();
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
@@ -989,7 +982,7 @@ void Song::setIsModified( bool bIsModified )
 	m_bIsModified = bIsModified;
 
 	if( Notify ) {
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+		EventQueue::get_instance()->pushEvent( Event::Type::SongModified, -1 );
 
 #ifdef H2CORE_HAVE_OSC
 		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
@@ -1006,7 +999,7 @@ bool Song::hasMissingSamples() const
 {
 	auto pInstrumentList = getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		if ( pInstrumentList->get( i )->has_missing_samples() ) {
+		if ( pInstrumentList->get( i )->hasMissingSamples() ) {
 			return true;
 		}
 	}
@@ -1016,7 +1009,7 @@ bool Song::hasMissingSamples() const
 void Song::clearMissingSamples() {
 	auto pInstrumentList = getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get( i )->set_missing_samples( false );
+		pInstrumentList->get( i )->setMissingSamples( false );
 	}
 }
 
@@ -1116,7 +1109,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 			}
 		}
 
-		nColumnStartTick += ppColumn->longest_pattern_length();
+		nColumnStartTick += ppColumn->longestPatternLength();
 	}
 
 	std::sort( notes.begin(), notes.end(), Note::compareAscending );

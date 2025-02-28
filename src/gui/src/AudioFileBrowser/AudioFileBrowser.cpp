@@ -146,7 +146,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
 AudioFileBrowser::~AudioFileBrowser()
 {
 	auto pNewSample = Sample::load( m_sEmptySampleFilename );
-	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, 100 );
+	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
 }
 
@@ -283,9 +283,9 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		auto pNewSample = Sample::load( path2 );
 
 		if ( pNewSample != nullptr ) {
-			m_pNBytesLable->setText( tr( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
-			m_pSamplerateLable->setText( tr( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
-			float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
+			m_pNBytesLable->setText( tr( "Size: %1 bytes" ).arg( pNewSample->getSize() / 2 ) );
+			m_pSamplerateLable->setText( tr( "Samplerate: %1" ).arg( pNewSample->getSampleRate() ) );
+			float sec = ( float )( pNewSample->getFrames() / (float)pNewSample->getSampleRate() );
 			QString qsec;
 			qsec = QString::asprintf( "%2.2f", sec );
 			m_pLengthLable->setText( tr( "Sample length: " ) + qsec + tr( " s" ) );
@@ -339,10 +339,10 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 	
 	auto pNewSample = Sample::load( m_pSampleFilename );
 	if ( pNewSample ) {
-		assert(pNewSample->get_sample_rate() != 0);
+		assert(pNewSample->getSampleRate() != 0);
 		
-		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
-		H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, length );
+		int length = ( ( pNewSample->getFrames() / pNewSample->getSampleRate() + 1) * 100 );
+		H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, length );
 	}
 }
 
@@ -351,7 +351,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 void AudioFileBrowser::on_m_pStopBtn_clicked()
 {
 	auto pNewSample = Sample::load( m_sEmptySampleFilename );
-	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, 100 );
+	H2Core::Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewSample( pNewSample, 100 );
 	m_pStopBtn->setEnabled( false );
 }
 

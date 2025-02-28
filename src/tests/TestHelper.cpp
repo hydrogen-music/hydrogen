@@ -27,8 +27,8 @@
 #include "core/Hydrogen.h"
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
-#include <core/EventQueue.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Song.h>
 #include <core/IO/DiskWriterDriver.h>
 
@@ -166,8 +166,6 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pQueue = H2Core::EventQueue::get_instance();
-
 	auto pSong = H2Core::Song::load( sSongFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
 		
@@ -175,7 +173,7 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth, fCompressionLevel );
@@ -212,12 +210,11 @@ void TestHelper::exportSong( const QString& sFileName )
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pQueue = H2Core::EventQueue::get_instance();
 	auto pSong = pHydrogen->getSong();
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 	pHydrogen->startExportSession( 44100, 16, 5 );

@@ -51,7 +51,7 @@ MidiInput::~MidiInput()
 
 void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
-		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiActivity, -1 );
 
 		INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 

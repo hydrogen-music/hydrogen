@@ -26,7 +26,6 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
-#include <core/EventQueue.h>
 
 namespace H2Core
 {

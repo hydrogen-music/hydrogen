@@ -939,7 +939,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	bool bMidiOptionAltered = false;
 	if ( m_bMidiTableChanged ) {
 		midiTable->saveMidiTable();
-		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
+		H2Core::EventQueue::get_instance()->pushEvent( H2Core::Event::Type::MidiMapChanged, 0 );
 	}
 
 	if ( m_pMidiDriverComboBox->currentText() == "ALSA" &&

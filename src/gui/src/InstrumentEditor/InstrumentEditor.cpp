@@ -496,94 +496,94 @@ void InstrumentEditor::updateEditor()
 
 		// As each instrument can have an arbitrary compoments, we have to
 		// ensure to select a valid one.
-		if ( m_nSelectedComponent >= m_pInstrument->get_components()->size() ) {
+		if ( m_nSelectedComponent >= m_pInstrument->getComponents()->size() ) {
 			m_nSelectedComponent = std::clamp(
 				m_nSelectedComponent, 0,
-				static_cast<int>(m_pInstrument->get_components()->size()) - 1 );
+				static_cast<int>(m_pInstrument->getComponents()->size()) - 1 );
 		}
 
 		activate( true );
 
-		m_pNameLbl->setText( m_pInstrument->get_name() );
+		m_pNameLbl->setText( m_pInstrument->getName() );
 
 		// ADSR
 		m_pAttackRotary->setValue(
-			sqrtf(m_pInstrument->get_adsr()->getAttack() / 100000.0), false,
+			sqrtf(m_pInstrument->getAdsr()->getAttack() / 100000.0), false,
 			Event::Trigger::Suppress );
 		m_pDecayRotary->setValue(
-			sqrtf(m_pInstrument->get_adsr()->getDecay() / 100000.0), false,
+			sqrtf(m_pInstrument->getAdsr()->getDecay() / 100000.0), false,
 			Event::Trigger::Suppress );
-		m_pSustainRotary->setValue( m_pInstrument->get_adsr()->getSustain(),
+		m_pSustainRotary->setValue( m_pInstrument->getAdsr()->getSustain(),
 									false, Event::Trigger::Suppress );
 		const float fRelease =
-			std::max( m_pInstrument->get_adsr()->getRelease() - 256.0, 0.0 );
+			std::max( m_pInstrument->getAdsr()->getRelease() - 256.0, 0.0 );
 		m_pReleaseRotary->setValue( sqrtf( fRelease / 100000.0 ), false,
 									Event::Trigger::Suppress );
 		// ~ ADSR
 
 		// filter
-		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
-		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff(), false,
+		m_pFilterBypassBtn->setChecked( !m_pInstrument->isFilterActive() );
+		m_pCutoffRotary->setValue( m_pInstrument->getFilterCutoff(), false,
 								   Event::Trigger::Suppress );
-		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance(),
+		m_pResonanceRotary->setValue( m_pInstrument->getFilterResonance(),
 									  false, Event::Trigger::Suppress );
 		// ~ filter
 
 		updateInstrumentPitch();
 
 		// pitch random
-		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor(),
+		m_pRandomPitchRotary->setValue( m_pInstrument->getRandomPitchFactor(),
 										false, Event::Trigger::Suppress );
 
 
 		//Stop Note
-		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
+		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->isStopNotes() );
 
 		//Ignore Velocity
-		m_pApplyVelocity->setChecked( m_pInstrument->get_apply_velocity() );
+		m_pApplyVelocity->setChecked( m_pInstrument->getApplyVelocity() );
 
 		// instr gain
 		m_pInstrumentGainLCD->setText(
-			QString( "%1" ).arg( m_pInstrument->get_gain(), -2, 'f', 2, '0' ) );
-		m_pInstrumentGain->setValue( m_pInstrument->get_gain(), false,
+			QString( "%1" ).arg( m_pInstrument->getGain(), -2, 'f', 2, '0' ) );
+		m_pInstrumentGain->setValue( m_pInstrument->getGain(), false,
 									 Event::Trigger::Suppress );
 
 		// instr mute group
 		m_pMuteGroupLCD->setValue(
-			m_pInstrument->get_mute_group(), Event::Trigger::Suppress );
+			m_pInstrument->getMuteGroup(), Event::Trigger::Suppress );
 
 		// midi out channel
-		if ( m_pInstrument->get_midi_out_channel() == -1 ) {
+		if ( m_pInstrument->getMidiOutChannel() == -1 ) {
 			// turn off
 			m_pMidiOutChannelLCD->setValue( -1, Event::Trigger::Suppress );
 		}
 		else {
 			// The MIDI channels start at 1 instead of zero.
 			m_pMidiOutChannelLCD->setValue(
-				m_pInstrument->get_midi_out_channel() + 1,
+				m_pInstrument->getMidiOutChannel() + 1,
 				Event::Trigger::Suppress );
 		}
 
 		//midi out note
-		m_pMidiOutNoteLCD->setValue( m_pInstrument->get_midi_out_note(),
+		m_pMidiOutNoteLCD->setValue( m_pInstrument->getMidiOutNote(),
 									 Event::Trigger::Suppress );
 
 		// hihat
-		m_pHihatGroupLCD->setValue( m_pInstrument->get_hihat_grp(),
+		m_pHihatGroupLCD->setValue( m_pInstrument->getHihatGrp(),
 									Event::Trigger::Suppress );
-		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc(),
+		m_pHihatMinRangeLCD->setValue( m_pInstrument->getLowerCc(),
 									   Event::Trigger::Suppress );
-		m_pHihatMaxRangeLCD->setValue( m_pInstrument->get_higher_cc(),
+		m_pHihatMaxRangeLCD->setValue( m_pInstrument->getHigherCc(),
 									   Event::Trigger::Suppress );
 
 		// see instrument.h
 		m_pSampleSelectionCombo->setCurrentIndex(
-			m_pInstrument->sample_selection_alg() );
+			m_pInstrument->sampleSelectionAlg() );
 
 		populateComponentMenu();
 
 		const auto pComponent =
-			m_pInstrument->get_component( m_nSelectedComponent );
+			m_pInstrument->getComponent( m_nSelectedComponent );
 		if ( pComponent != nullptr ) {
 			m_pCompoNameLbl->setText( pComponent->getName() );
 			m_pCompoGainLCD->setText(
@@ -780,7 +780,7 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 
 void InstrumentEditor::updateInstrumentPitch() {
 	const QString sNewPitch = QString( "%1" )
-		.arg( m_pInstrument->get_pitch_offset(), -2, 'f', 2, '0' );
+		.arg( m_pInstrument->getPitchOffset(), -2, 'f', 2, '0' );
 
 	if ( m_pPitchLCD->text() != sNewPitch ) {
 		m_pPitchLCD->setText( sNewPitch );
@@ -797,22 +797,22 @@ void InstrumentEditor::updateInstrumentPitch() {
 	// represented by both coarse: 2, fine: -0.5 and coarse: 1, fine: 0.5. We
 	// need some extra logic to avoid unexpected jumping of the rotaries.
 	if ( m_pPitchFineRotary->getValue() == 0.5 &&
-		 m_pInstrument->get_pitch_offset() -
-		 trunc( m_pInstrument->get_pitch_offset() ) == 0.5 ) {
-		fCoarsePitch = trunc( m_pInstrument->get_pitch_offset() );
+		 m_pInstrument->getPitchOffset() -
+		 trunc( m_pInstrument->getPitchOffset() ) == 0.5 ) {
+		fCoarsePitch = trunc( m_pInstrument->getPitchOffset() );
 	}
 	else if ( m_pPitchFineRotary->getValue() == -0.5 &&
-			    trunc( m_pInstrument->get_pitch_offset() ) -
-					 m_pInstrument->get_pitch_offset() == 0.5 ) {
-		fCoarsePitch = ceil( m_pInstrument->get_pitch_offset() );
+			    trunc( m_pInstrument->getPitchOffset() ) -
+					 m_pInstrument->getPitchOffset() == 0.5 ) {
+		fCoarsePitch = ceil( m_pInstrument->getPitchOffset() );
 	}
 	else {
-		fCoarsePitch = round( m_pInstrument->get_pitch_offset() );
+		fCoarsePitch = round( m_pInstrument->getPitchOffset() );
 	}
 
 	// fFinePitch represents the fine adjustment (between -0.5 and +0.5) if
 	// pitch_offset has decimal part
-	const float fFinePitch = m_pInstrument->get_pitch_offset() - fCoarsePitch;
+	const float fFinePitch = m_pInstrument->getPitchOffset() - fCoarsePitch;
 
 	if ( m_pPitchCoarseRotary->getValue() != fCoarsePitch ) {
 		m_pPitchCoarseRotary->setValue( fCoarsePitch, false,
@@ -841,7 +841,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 	float fVal = pRotary->getValue();
 
 	if ( pRotary == m_pRandomPitchRotary ){
-		m_pInstrument->set_random_pitch_factor( fVal );
+		m_pInstrument->setRandomPitchFactor( fVal );
 	}
 	else if ( pRotary == m_pPitchCoarseRotary ) {
 		//round fVal, since Coarse is the integer number of half steps
@@ -857,36 +857,36 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			fNewPitch );
 	}
 	else if ( pRotary == m_pCutoffRotary ) {
-		m_pInstrument->set_filter_cutoff( fVal );
+		m_pInstrument->setFilterCutoff( fVal );
 	}
 	else if ( pRotary == m_pResonanceRotary ) {
 		if ( fVal > 0.95f ) {
 			fVal = 0.95f;
 		}
-		m_pInstrument->set_filter_resonance( fVal );
+		m_pInstrument->setFilterResonance( fVal );
 	}
 	else if ( pRotary == m_pAttackRotary ) {
-		m_pInstrument->get_adsr()->setAttack( fVal * fVal * 100000 );
+		m_pInstrument->getAdsr()->setAttack( fVal * fVal * 100000 );
 	}
 	else if ( pRotary == m_pDecayRotary ) {
-		m_pInstrument->get_adsr()->setDecay( fVal * fVal * 100000 );
+		m_pInstrument->getAdsr()->setDecay( fVal * fVal * 100000 );
 	}
 	else if ( pRotary == m_pSustainRotary ) {
-		m_pInstrument->get_adsr()->setSustain( fVal );
+		m_pInstrument->getAdsr()->setSustain( fVal );
 	}
 	else if ( pRotary == m_pReleaseRotary ) {
-		m_pInstrument->get_adsr()->setRelease( 256.0 + fVal * fVal * 100000 );
+		m_pInstrument->getAdsr()->setRelease( 256.0 + fVal * fVal * 100000 );
 	}
 	else if ( pRotary == m_pLayerGainRotary ) {
 		char tmp[20];
 		sprintf( tmp, "%#.2f", fVal );
 		m_pLayerGainLCD->setText( tmp );
 
-		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+		auto pCompo = m_pInstrument->getComponent(m_nSelectedComponent);
 		if ( pCompo != nullptr ) {
 			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
-				pLayer->set_gain( fVal );
+				pLayer->setGain( fVal );
 				m_pWaveDisplay->updateDisplay( pLayer );
 			}
 		}
@@ -896,7 +896,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			sprintf( tmp, "%#.2f", fVal );
 			m_pCompoGainLCD->setText( tmp );
 
-			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->getComponent(m_nSelectedComponent);
 			if ( pCompo != nullptr ) {
 				pCompo->setGain( fVal );
 			}
@@ -904,25 +904,25 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 	else if ( pRotary == m_pLayerPitchCoarseRotary ) {
 		m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) round( fVal ) ) );
 
-		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+		auto pCompo = m_pInstrument->getComponent(m_nSelectedComponent);
 		if ( pCompo != nullptr ) {
 			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->set_pitch( fCoarse + fFine );
+				pLayer->setPitch( fCoarse + fFine );
 			}
 		}
 	}
 	else if ( pRotary == m_pLayerPitchFineRotary ) {
 		m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal, 0, 'f', 0 ) );
-		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+		auto pCompo = m_pInstrument->getComponent(m_nSelectedComponent);
 		if ( pCompo != nullptr ) {
 			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->set_pitch( fCoarse + fFine );
+				pLayer->setPitch( fCoarse + fFine );
 			}
 		}
 	}
@@ -931,7 +931,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 		char tmp[20];
 		sprintf( tmp, "%#.2f", fVal );
 		m_pInstrumentGainLCD->setText( tmp );
-		m_pInstrument->set_gain( fVal );
+		m_pInstrument->setGain( fVal );
 	}
 	else {
 		ERRORLOG( "[rotaryChanged] unhandled rotary" );
@@ -942,7 +942,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 void InstrumentEditor::filterActiveBtnClicked()
 {
 	if ( m_pInstrument != nullptr ) {
-		m_pInstrument->set_filter_active( ! m_pFilterBypassBtn->isChecked() );
+		m_pInstrument->setFilterActive( ! m_pFilterBypassBtn->isChecked() );
 	}
 }
 
@@ -953,17 +953,17 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 		return;
 	}
 	
-	auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+	auto pCompo = m_pInstrument->getComponent(m_nSelectedComponent);
 	if ( pCompo != nullptr ) {
 		return;
 	}
 			
 	auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 	if ( pLayer != nullptr ) {
-		auto pSample = pLayer->get_sample();
+		auto pSample = pLayer->getSample();
 		
 		if( pSample != nullptr ) {
-			QString name = pSample->get_filepath();
+			QString name = pSample->getFilepath();
 			HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 		}
 	}
@@ -978,13 +978,13 @@ void InstrumentEditor::showSampleEditor()
 		return;
 	}
 
-	auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+	auto pCompo = m_pInstrument->getComponent(m_nSelectedComponent);
 	if ( pCompo != nullptr ) {
 		auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 		if ( pLayer != nullptr ) {
-			auto pSample = pLayer->get_sample();
+			auto pSample = pLayer->getSample();
 			if ( pSample != nullptr ) {
-				QString name = pSample->get_filepath();
+				QString name = pSample->getFilepath();
 				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 			}
 		}
@@ -1000,7 +1000,7 @@ void InstrumentEditor::removeLayerButtonClicked()
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = m_pInstrument->getComponent( m_nSelectedComponent );
 	if ( pCompo != nullptr ) {
 		pCompo->setLayer( nullptr, m_nSelectedLayer );
 
@@ -1054,17 +1054,17 @@ void InstrumentEditor::loadLayerBtnClicked()
 	// In case the button was pressed while a layer was selected, we
 	// try to use path of the associated sample as default one.
 	if ( m_nSelectedLayer > 0 ) {
-		auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+		auto pComponent = m_pInstrument->getComponent( m_nSelectedComponent );
 
 		if ( pComponent != nullptr ) {
 			auto pLayer = pComponent->getLayer( m_nSelectedLayer );
 
 			if ( pLayer != nullptr ) {
-				auto pSample = pLayer->get_sample();
+				auto pSample = pLayer->getSample();
 
 				if ( pSample != nullptr ) {
-					if ( ! pSample->get_filepath().isEmpty() ) {
-						QFileInfo fileInfo( pSample->get_filepath() );
+					if ( ! pSample->getFilepath().isEmpty() ) {
+						QFileInfo fileInfo( pSample->getFilepath() );
 						sPath = fileInfo.absoluteDir().absolutePath();
 						sFilename = fileInfo.absoluteFilePath();
 					}
@@ -1123,27 +1123,28 @@ void InstrumentEditor::loadLayerBtnClicked()
 				at m_nSelectedLayer and the next layer at m_nSelectedLayer+1
 			*/
 
-			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->getComponent(m_nSelectedComponent);
 			if( !pCompo ) {
 				pCompo = std::make_shared<InstrumentComponent>();
-				m_pInstrument->get_components()->push_back( pCompo );
+				m_pInstrument->getComponents()->push_back( pCompo );
 			}
 
 			auto pLayer = pCompo->getLayer( selectedLayer );
 
 			if ( pLayer != nullptr ) {
-				// insert new sample from newInstrument, old sample gets deleted by set_sample
-				pLayer->set_sample( pNewSample );
+				// insert new sample from newInstrument, old sample gets deleted
+				// by setSample
+				pLayer->setSample( pNewSample );
 			}
 			else {
 				pLayer = std::make_shared<H2Core::InstrumentLayer>( pNewSample );
-				m_pInstrument->get_component(m_nSelectedComponent)->setLayer( pLayer, selectedLayer );
+				m_pInstrument->getComponent(m_nSelectedComponent)->setLayer( pLayer, selectedLayer );
 			}
 
 			if ( fnc ){
 				QString newFilename = filename[i].section( '/', -1 );
 				newFilename.replace( "." + newFilename.section( '.', -1 ), "");
-				m_pInstrument->set_name( newFilename );
+				m_pInstrument->setName( newFilename );
 			}
 
 			//set automatic velocity
@@ -1168,7 +1169,7 @@ void InstrumentEditor::setAutoVelocity()
 	if ( m_pInstrument == nullptr ) {
 		return;
 	}
-	auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = m_pInstrument->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		return;
 	}
@@ -1192,8 +1193,8 @@ void InstrumentEditor::setAutoVelocity()
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		auto pLayer = pCompo->getLayer( i );
 		if ( pLayer != nullptr ) {
-			pLayer->set_start_velocity( nLayer * velocityrange);
-			pLayer->set_end_velocity( nLayer * velocityrange + velocityrange );
+			pLayer->setStartVelocity( nLayer * velocityrange);
+			pLayer->setEndVelocity( nLayer * velocityrange + velocityrange );
 			
 			++nLayer;
 		}
@@ -1206,7 +1207,7 @@ void InstrumentEditor::renameComponentAction()
 		return;
 	}
 
-	const auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+	const auto pComponent = m_pInstrument->getComponent( m_nSelectedComponent );
 	if ( pComponent == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve selected component [%1]" )
 				  .arg( m_nSelectedComponent ) );
@@ -1238,7 +1239,7 @@ void InstrumentEditor::renameComponent( int nComponentId, const QString& sNewNam
 		return;
 	}
 
-	auto pComponent = m_pInstrument->get_component( nComponentId );
+	auto pComponent = m_pInstrument->getComponent( nComponentId );
 	if ( pComponent == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve component [%1]" )
 				  .arg( nComponentId ) );
@@ -1251,7 +1252,7 @@ void InstrumentEditor::renameComponent( int nComponentId, const QString& sNewNam
 
 	Hydrogen::get_instance()->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::SelectedInstrumentChanged, -1 );
 }
 
 void InstrumentEditor::selectComponent( int nComponent )
@@ -1272,17 +1273,17 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 	m_nSelectedLayer = nLayer;
 
-	auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pComponent = m_pInstrument->getComponent( m_nSelectedComponent );
 	if(pComponent && nLayer >= 0 ){
 		auto pLayer = pComponent->getLayer( nLayer );
 		m_pWaveDisplay->updateDisplay( pLayer );
 		if ( pLayer != nullptr ) {
 			// Layer GAIN
 			m_pLayerGainRotary->setIsActive( true );
-			m_pLayerGainRotary->setValue( pLayer->get_gain(), false,
+			m_pLayerGainRotary->setValue( pLayer->getGain(), false,
 										  Event::Trigger::Suppress );
 			m_pLayerGainLCD->setText(
-				QString( "%1" ).arg( pLayer->get_gain(), -2, 'f', 2, '0' ) );
+				QString( "%1" ).arg( pLayer->getGain(), -2, 'f', 2, '0' ) );
 
 			//Component GAIN
 			m_pCompoGainRotary->setIsActive( true );
@@ -1292,8 +1293,8 @@ void InstrumentEditor::selectLayer( int nLayer )
 				QString( "%1" ).arg( pComponent->getGain(), -2, 'f', 2, '0' ) );
 
 			// Layer PITCH
-			const float fCoarsePitch = round( pLayer->get_pitch() );
-			const float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
+			const float fCoarsePitch = round( pLayer->getPitch() );
+			const float fFinePitch = pLayer->getPitch() - fCoarsePitch;
 			m_pLayerPitchCoarseRotary->setIsActive( true );
 			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch, false,
 												 Event::Trigger::Suppress );
@@ -1372,7 +1373,7 @@ void InstrumentEditor::muteGroupChanged( double fValue )
 		 return;
 	 }
 
-	m_pInstrument->set_mute_group( static_cast<int>(fValue) );
+	m_pInstrument->setMuteGroup( static_cast<int>(fValue) );
 	updateEditor();
 }
 
@@ -1382,7 +1383,7 @@ void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 		 return;
 	 }
 
-	m_pInstrument->set_stop_notes( on );
+	m_pInstrument->setStopNotes( on );
 	Hydrogen::get_instance()->setIsModified( true );
 }
 
@@ -1392,7 +1393,7 @@ void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 		 return;
 	 }
 
-	m_pInstrument->set_apply_velocity( on );
+	m_pInstrument->setApplyVelocity( on );
 	Hydrogen::get_instance()->setIsModified( true );
 }
 
@@ -1402,7 +1403,7 @@ void InstrumentEditor::midiOutChannelChanged( double fValue ) {
 	 }
 
 	if ( fValue != 0.0 ) {
-		m_pInstrument->set_midi_out_channel( std::max( static_cast<int>(fValue) - 1,
+		m_pInstrument->setMidiOutChannel( std::max( static_cast<int>(fValue) - 1,
 													   -1 ) );
 	} else {
 		if ( m_fPreviousMidiOutChannel == -1.0 ) {
@@ -1422,7 +1423,7 @@ void InstrumentEditor::midiOutNoteChanged( double fValue ) {
 		 return;
 	 }
 
-	m_pInstrument->set_midi_out_note( static_cast<int>(fValue) );
+	m_pInstrument->setMidiOutNote( static_cast<int>(fValue) );
 }
 
 void InstrumentEditor::onDropDownCompoClicked()
@@ -1440,8 +1441,8 @@ void InstrumentEditor::populateComponentMenu() {
 	m_pComponentMenu->clear();
 
 	// Actions to switch between the drumkits
-	for ( int ii = 0; ii < m_pInstrument->get_components()->size(); ++ii ) {
-		const auto ppComponent = m_pInstrument->get_component( ii );
+	for ( int ii = 0; ii < m_pInstrument->getComponents()->size(); ++ii ) {
+		const auto ppComponent = m_pInstrument->getComponent( ii );
 		if ( ppComponent != nullptr ) {
 			auto pAction = m_pComponentMenu->addAction(
 				ppComponent->getName(), this,
@@ -1456,7 +1457,7 @@ void InstrumentEditor::populateComponentMenu() {
 								 SLOT( addComponentAction() ) );
 	auto pDeleteAction = m_pComponentMenu->addAction(
 		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponentAction() ) );
-	if ( m_pInstrument->get_components()->size() < 2 ) {
+	if ( m_pInstrument->getComponents()->size() < 2 ) {
 		// If there is just a single component present, it must not be removed.
 		pDeleteAction->setEnabled( false );
 	}
@@ -1496,7 +1497,7 @@ void InstrumentEditor::addComponentAction() {
 		.arg( sNewName ) );
 
 	// New components will be appended.
-	selectComponent( m_pInstrument->get_components()->size() );
+	selectComponent( m_pInstrument->getComponents()->size() );
 }
 
 void InstrumentEditor::deleteComponentAction() {
@@ -1504,12 +1505,12 @@ void InstrumentEditor::deleteComponentAction() {
 		return;
 	}
 
-	if ( m_pInstrument->get_components()->size() <= 1 ) {
+	if ( m_pInstrument->getComponents()->size() <= 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 		return;
 	}
 
-	auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pComponent = m_pInstrument->getComponent( m_nSelectedComponent );
 	if ( pComponent == nullptr ) {
 		ERRORLOG( QString( "Unable to find selected component [%1]" )
 				  .arg( m_nSelectedComponent ) );
@@ -1535,7 +1536,7 @@ void InstrumentEditor::deleteComponentAction() {
 
 	selectComponent(
 		std::clamp( m_nSelectedComponent, 0,
-					static_cast<int>(m_pInstrument->get_components()->size()) - 2 ) );
+					static_cast<int>(m_pInstrument->getComponents()->size()) - 2 ) );
 }
 
 void InstrumentEditor::switchComponentAction( int nId ) {
@@ -1543,7 +1544,7 @@ void InstrumentEditor::switchComponentAction( int nId ) {
 		return;
 	}
 
-	const auto pComponent = m_pInstrument->get_component( nId );
+	const auto pComponent = m_pInstrument->getComponent( nId );
 	if ( pComponent == nullptr ) {
 		ERRORLOG( QString( "Unable to retrieve component [%1]" )
 				  .arg( nId ) );
@@ -1570,13 +1571,13 @@ void InstrumentEditor::sampleSelectionChanged( int selected )
 	 }
 
 	if ( selected == 0 ){
-		m_pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
+		m_pInstrument->setSampleSelectionAlg( Instrument::VELOCITY );
 	}
 	else if ( selected == 1 ){
-		m_pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
+		m_pInstrument->setSampleSelectionAlg( Instrument::ROUND_ROBIN );
 	}
 	else if ( selected == 2){
-		m_pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+		m_pInstrument->setSampleSelectionAlg( Instrument::RANDOM );
 	}
 
 	updateEditor();
@@ -1588,7 +1589,7 @@ void InstrumentEditor::hihatGroupChanged( double fValue )
 		 return;
 	 }
 
-	 m_pInstrument->set_hihat_grp( static_cast<int>(fValue) );
+	 m_pInstrument->setHihatGrp( static_cast<int>(fValue) );
 }
 
 void InstrumentEditor::hihatMinRangeChanged( double fValue )
@@ -1597,7 +1598,7 @@ void InstrumentEditor::hihatMinRangeChanged( double fValue )
 		 return;
 	 }
 
-	 m_pInstrument->set_lower_cc( static_cast<int>(fValue) );
+	 m_pInstrument->setLowerCc( static_cast<int>(fValue) );
 	 m_pHihatMaxRangeLCD->setMinimum( static_cast<int>(fValue) );
 }
 
@@ -1607,7 +1608,7 @@ void InstrumentEditor::hihatMaxRangeChanged( double fValue )
 		 return;
 	 }
 
-	 m_pInstrument->set_higher_cc( static_cast<int>(fValue) );
+	 m_pInstrument->setHigherCc( static_cast<int>(fValue) );
 	 m_pHihatMinRangeLCD->setMaximum( static_cast<int>(fValue) );
 }
 

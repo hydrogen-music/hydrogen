@@ -64,16 +64,19 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 
 	bool done = false;
 	while ( ! done ) {
-		Event event = pQueue->pop_event();
+		auto pEvent = pQueue->popEvent();
+		if ( pEvent == nullptr ) {
+			usleep(10 * 1000);
+			continue;
+		}
 
 		// Ensure audio export does always work.
-		CPPUNIT_ASSERT( !(event.type == EVENT_PROGRESS && event.value == -1) );
+		CPPUNIT_ASSERT( ! ( pEvent->getType() == Event::Type::Progress &&
+							pEvent->getValue() == -1 ) );
 		
-		if (event.type == EVENT_PROGRESS && event.value == 100) {
+		if ( pEvent->getType() == Event::Type::Progress &&
+			 pEvent->getValue() == 100 ) {
 			done = true;
-		}
-		else if ( event.type == EVENT_NONE ) {
-			usleep(10 * 1000);
 		}
 	}
 
@@ -225,7 +228,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 	out << "\n=== Audio engine benchmark ===" << Qt::endl;
@@ -244,7 +247,7 @@ void AudioBenchmark::audioBenchmark(void)
 	pHydrogen->setSong( pSong );
 	pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get(i)->set_currently_exported( true );
+		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
 

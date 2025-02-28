@@ -133,7 +133,7 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	PatternList *pSongPatterns = pSong->getPatternList();
+	auto pSongPatterns = pSong->getPatternList();
 
 	// Duplicate the playing patterns vector before finding the pattern numbers of the playing patterns. This
 	// avoids doing a linear search in the critical section.
@@ -317,13 +317,13 @@ void SongEditor::selectAll() {
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList *pPatternList = pSong->getPatternList();
-	std::vector<PatternList*>* pColumns = pSong->getPatternGroupVector();
+	auto pPatternList = pSong->getPatternList();
+	auto pColumns = pSong->getPatternGroupVector();
 	m_selection.clearSelection();
 	for ( int nRow = 0; nRow < pPatternList->size(); nRow++ ) {
 		auto pPattern = pPatternList->get( nRow );
 		for ( int nCol = 0; nCol < pColumns->size(); nCol++ ) {
-			PatternList *pColumn = ( *pColumns )[ nCol ];
+			auto pColumn = ( *pColumns )[ nCol ];
 			for ( int i = 0; i < pColumn->size(); i++) {
 				if ( pColumn->get(i) == pPattern ) { // esiste un pattern in questa posizione
 					m_selection.addToSelection( QPoint( nCol, nRow ) );
@@ -398,7 +398,7 @@ void SongEditor::copy() {
 
 void SongEditor::paste() {
 	int nDeltaColumn = 0, nDeltaRow = 0;
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = Hydrogen::get_instance()->getSong();
 	int nPatterns = pSong->getPatternList()->size();
 
 	XMLDoc doc;
@@ -483,7 +483,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		bIsSelectionKey = m_selection.keyPressEvent( ev );
 	}
 
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	bool bSelectionKey = false;
 
@@ -844,7 +844,7 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	int nMaxPattern = pPatternList->size();
 
 	updateModifiers( ev );
@@ -1197,13 +1197,13 @@ void SongEditor::createBackground()
 void SongEditor::updateGridCells() {
 
 	m_gridCells.clear();
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
-	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pPatternList = pSong->getPatternList();
+	auto pColumns = pSong->getPatternGroupVector();
 
 	for ( int nColumn = 0; nColumn < pColumns->size(); nColumn++ ) {
-		PatternList *pColumn = (*pColumns)[nColumn];
-		int nMaxLength = pColumn->longest_pattern_length();
+		auto pColumn = (*pColumns)[nColumn];
+		int nMaxLength = pColumn->longestPatternLength();
 
 		for ( int nPat = 0; nPat < pColumn->size(); nPat++ ) {
 			auto pPattern = (*pColumn)[ nPat ];
@@ -1276,8 +1276,8 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	 * The default color of the cubes in rgb is 97,167,251.
 	 */
 	const auto pPref = H2Core::Preferences::get_instance();
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pPatternList = pSong->getPatternList();
 
 	QColor patternColor;
 	/*
@@ -1373,11 +1373,10 @@ void SongEditor::clearThePatternSequenceVector( const QString& filename )
 	//before deleting the sequence, write a temp sequence file to disk
 	pSong->saveTempPatternList( filename );
 
-	std::vector<PatternList*> *pPatternGroupsVect = pSong->getPatternGroupVector();
+	auto pPatternGroupsVect = pSong->getPatternGroupVector();
 	for (int i = 0; i < pPatternGroupsVect->size(); i++) {
-		PatternList *pPatternList = (*pPatternGroupsVect)[i];
+		auto pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
-		delete pPatternList;
 	}
 	pPatternGroupsVect->clear();
 	pHydrogen->updateSongSize();

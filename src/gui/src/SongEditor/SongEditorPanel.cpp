@@ -45,7 +45,6 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/EventQueue.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -339,7 +338,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	
-	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->get_components()->front();
+	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->getComponents()->front();
 	assert(pCompo);
 
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
@@ -499,11 +498,11 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 	float fOldPeak_L = m_pPlaybackTrackFader->getPeak_L();
 	float fOldPeak_R = m_pPlaybackTrackFader->getPeak_R();
 	
-	float fNewPeak_L = pInstrument->get_peak_l();
-	pInstrument->set_peak_l( 0.0f );	// reset instrument peak
+	float fNewPeak_L = pInstrument->getPeak_L();
+	pInstrument->setPeak_L( 0.0f );	// reset instrument peak
 
-	float fNewPeak_R = pInstrument->get_peak_r();
-	pInstrument->set_peak_r( 0.0f );	// reset instrument peak
+	float fNewPeak_R = pInstrument->getPeak_R();
+	pInstrument->setPeak_R( 0.0f );	// reset instrument peak
 
 	if (!bShowPeaks) {
 		fNewPeak_L = 0.0f;
@@ -603,7 +602,7 @@ void SongEditorPanel::updatePlaybackTrack()
 		}
 
 		auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
-			getPlaybackTrackInstrument()->get_components()->front();
+			getPlaybackTrackInstrument()->getComponents()->front();
 			
 		m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->getLayer(0) );
 	}
@@ -614,12 +613,12 @@ void SongEditorPanel::updatePlaybackTrack()
 ///
 void SongEditorPanel::newPatBtnClicked()
 {
-	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	auto pNewPattern = std::make_shared<Pattern>(
 		tr( "Pattern %1" ).arg( pPatternList->size() + 1 ) );
 	pNewPattern->setAuthor( pSong->getAuthor() );
@@ -665,9 +664,9 @@ void SongEditorPanel::upBtnClicked()
 ///
 void SongEditorPanel::downBtnClicked()
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPatternList = pSong->getPatternList();
 
 	if( pHydrogen->getSelectedPatternNumber() < 0 ||
 		pHydrogen->getSelectedPatternNumber() + 1 >= pPatternList->size() ) { 
@@ -713,9 +712,8 @@ void SongEditorPanel::restoreGroupVector( const QString& filename )
 	//clear the old sequese
 	auto pPatternGroupsVect = pSong->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
-		PatternList *pPatternList = (*pPatternGroupsVect)[i];
+		auto pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
-		delete pPatternList;
 	}
 	pPatternGroupsVect->clear();
 

@@ -41,7 +41,6 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/Note.h>
 #include <core/CoreActionController.h>
-#include <core/EventQueue.h>
 #include <core/FX/Effects.h>
 #include <core/Globals.h>
 

@@ -435,7 +435,7 @@ bool PatternEditorRuler::updateActiveRange() {
 		// Virtual patterns are already expanded in the playing
 		// patterns and must not be considered when determining the
 		// longest one.
-		nTicksInPattern = pPlayingPatterns->longest_pattern_length( false );
+		nTicksInPattern = pPlayingPatterns->longestPatternLength( false );
 	}
 
 	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;

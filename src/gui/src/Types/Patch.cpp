@@ -53,7 +53,7 @@ QString Patch::Mapping::toQString( const QString& sPrefix, bool bShort ) const {
 								.arg( ppNote->getType() )
 								.arg( ppNote->getPosition() )
 								.arg( ppNote->getInstrument() != nullptr ?
-									  ppNote->getInstrument()->get_name() :
+									  ppNote->getInstrument()->getName() :
 									  "nullptr" ) );
 			}
 		}

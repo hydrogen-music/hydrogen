@@ -439,7 +439,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 
 	int nnCell = 0;
 	for ( const auto& ppInstrument : *pInstrumentList ) {
-		insertRow( ppInstrument->get_id(), ppInstrument->get_name(),
+		insertRow( ppInstrument->getId(), ppInstrument->getName(),
 				   ppInstrument->getType(), nnCell );
 		nnCell++;
 	}

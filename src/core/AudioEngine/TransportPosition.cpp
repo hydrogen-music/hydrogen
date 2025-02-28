@@ -42,30 +42,24 @@ namespace H2Core {
 TransportPosition::TransportPosition( const QString& sLabel )
 	: m_sLabel( sLabel )
 {
-	m_pPlayingPatterns = new PatternList();
+	m_pPlayingPatterns = std::make_shared<PatternList>();
 	m_pPlayingPatterns->setNeedsLock( true );
-	m_pNextPatterns = new PatternList();
+	m_pNextPatterns = std::make_shared<PatternList>();
 	m_pNextPatterns->setNeedsLock( true );
 	
 	reset();
 }
 
 TransportPosition::TransportPosition( std::shared_ptr<TransportPosition> pOther ) {
-	m_pPlayingPatterns = new PatternList();
+	m_pPlayingPatterns = std::make_shared<PatternList>();
 	m_pPlayingPatterns->setNeedsLock( true );
-	m_pNextPatterns = new PatternList();
+	m_pNextPatterns = std::make_shared<PatternList>();
 	m_pNextPatterns->setNeedsLock( true );
 
 	set( pOther );
 }
 
 TransportPosition::~TransportPosition() {
-	// We just hold copies of current patterns. We do not want to discard them.
-	m_pPlayingPatterns->clear();
-	delete m_pPlayingPatterns;
-
-	m_pNextPatterns->clear();
-	delete m_pNextPatterns;
 }
 
 void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {

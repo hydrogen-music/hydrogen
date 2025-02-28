@@ -32,6 +32,7 @@
 #include "../Widgets/WidgetWithInput.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Event.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/MidiAction.h>

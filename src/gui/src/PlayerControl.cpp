@@ -41,12 +41,12 @@ https://www.gnu.org/licenses
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/EventQueue.h>
 using namespace H2Core;
 
 

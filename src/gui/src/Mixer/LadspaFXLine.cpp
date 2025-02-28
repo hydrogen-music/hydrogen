@@ -31,7 +31,7 @@
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/WidgetWithInput.h"
 
-#include <core/EventQueue.h>
+#include <core/Basics/Event.h>
 #include <core/FX/Effects.h>
 
 using namespace H2Core;

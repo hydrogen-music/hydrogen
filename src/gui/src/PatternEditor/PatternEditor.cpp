@@ -35,7 +35,6 @@
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
-#include <core/EventQueue.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -2622,7 +2621,7 @@ bool PatternEditor::updateWidth() {
 		else if ( PatternEditorPanel::isUsingAdditionalPatterns( pPattern ) ) {
 			nEditorWidth =
 				std::max( PatternEditor::nMargin + m_fGridWidth *
-						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length( false ) + 1,
+						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longestPatternLength( false ) + 1,
 						  static_cast<float>(nActiveWidth) );
 		}
 		else {
@@ -3101,7 +3100,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		return;
 	}
 
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	if ( nPatternNumber < 0 ||
 		 nPatternNumber >= pPatternList->size() ) {
 		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
@@ -3903,14 +3902,14 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 	auto pSong = Hydrogen::get_instance()->getSong();
 	// If the note is part of a mute group, only the bottom most note at the
 	// same position within the group will be rendered.
-	if ( pNote->getInstrument()->get_mute_group() != -1 &&
+	if ( pNote->getInstrument()->getMuteGroup() != -1 &&
 		 pSong != nullptr && pSong->getDrumkit() != nullptr ) {
 		const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-		const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+		const int nMuteGroup = pNote->getInstrument()->getMuteGroup();
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
 				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
-					 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+					 ppNote->getInstrument()->getMuteGroup() == nMuteGroup &&
 					 ppNote->getPosition() == pNote->getPosition() &&
 					 pInstrumentList->index( pNote->getInstrument() ) <
 					 pInstrumentList->index( ppNote->getInstrument() ) ) {
@@ -3955,12 +3954,12 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 		const int nLargeNumber = 100000;
 		int nEffectiveLength = nLargeNumber;
 		if ( pNote->getInstrument() != nullptr &&
-			 pNote->getInstrument()->get_mute_group() != -1 ) {
-			const int nMuteGroup = pNote->getInstrument()->get_mute_group();
+			 pNote->getInstrument()->getMuteGroup() != -1 ) {
+			const int nMuteGroup = pNote->getInstrument()->getMuteGroup();
 			for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 				for ( const auto& [ nnPosition, ppNote ] : *ppPattern->getNotes() ) {
 					if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
-						 ppNote->getInstrument()->get_mute_group() == nMuteGroup &&
+						 ppNote->getInstrument()->getMuteGroup() == nMuteGroup &&
 						 ppNote->getInstrument() != pInstrument &&
 						 ppNote->getPosition() > pNote->getPosition() &&
 						 ( ppNote->getPosition() - pNote->getPosition() ) <

@@ -23,6 +23,7 @@
 #include "HydrogenApp.h"
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/PatternList.h>
 #include <core/config.h>
@@ -909,8 +910,11 @@ void HydrogenApp::onEventQueueTimer()
 	// use the timer to do schedule instrument slaughter;
 	EventQueue *pQueue = EventQueue::get_instance();
 
-	Event event;
-	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
+	while ( true ) {
+		auto pEvent = pQueue->popEvent();
+		if ( pEvent == nullptr ) {
+			break;
+		}
 		
 		// Provide the event to all EventListeners registered to
 		// HydrogenApp. By registering itself as EventListener and
@@ -919,185 +923,182 @@ void HydrogenApp::onEventQueueTimer()
 		for (int i = 0; i < (int)m_EventListeners.size(); i++ ) {
 			EventListener *pListener = m_EventListeners[ i ];
 
-			switch ( event.type ) {
-			case EVENT_ACTION_MODE_CHANGE:
-				pListener->actionModeChangeEvent( event.value );
+			switch ( pEvent->getType() ) {
+			case Event::Type::ActionModeChanged:
+				pListener->actionModeChangeEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_BBT_CHANGED:
+			case Event::Type::BbtChanged:
 				pListener->bbtChangedEvent();
 				break;
 
-			case EVENT_BEAT_COUNTER:
+			case Event::Type::BeatCounter:
 				pListener->beatCounterEvent();
 				break;
 
-			case EVENT_DRIVER_CHANGED:
+			case Event::Type::DriverChanged:
 				pListener->driverChangedEvent();
 				break;
 
-			case EVENT_DRUMKIT_LOADED:
+			case Event::Type::DrumkitLoaded:
 				pListener->drumkitLoadedEvent();
 				break;
 
-			case EVENT_ERROR:
-				pListener->errorEvent( event.value );
+			case Event::Type::Error:
+				pListener->errorEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_GRID_CELL_TOGGLED:
+			case Event::Type::GridCellToggled:
 				pListener->gridCellToggledEvent();
 				break;
 
-			case EVENT_INSTRUMENT_MUTE_SOLO_CHANGED:
-				pListener->instrumentMuteSoloChangedEvent( event.value );
+			case Event::Type::InstrumentMuteSoloChanged:
+				pListener->instrumentMuteSoloChangedEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
-				pListener->instrumentParametersChangedEvent( event.value );
+			case Event::Type::InstrumentParametersChanged:
+				pListener->instrumentParametersChangedEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_JACK_SESSION:
-				pListener->jacksessionEvent( event.value );
+			case Event::Type::JackTimebaseStateChanged:
+				pListener->jackTimebaseStateChangedEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
-				pListener->jackTimebaseStateChangedEvent( event.value );
-				break;
-
-			case EVENT_JACK_TRANSPORT_ACTIVATION:
+			case Event::Type::JackTransportActivation:
 				pListener->jackTransportActivationEvent();
 				break;
 
-			case EVENT_LOOP_MODE_ACTIVATION:
+			case Event::Type::LoopModeActivation:
 				pListener->loopModeActivationEvent();
 				break;
 
-			case EVENT_METRONOME:
-				pListener->metronomeEvent( event.value );
+			case Event::Type::Metronome:
+				pListener->metronomeEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_MIDI_ACTIVITY:
+			case Event::Type::MidiActivity:
 				pListener->midiActivityEvent();
 				break;
 
-			case EVENT_MIDI_MAP_CHANGED:
+			case Event::Type::MidiMapChanged:
 				pListener->midiMapChangedEvent();
 				break;
 
-			case EVENT_MIXER_SETTINGS_CHANGED:
+			case Event::Type::MixerSettingsChanged:
 				pListener->mixerSettingsChangedEvent();
 				break;
 
-			case EVENT_NEXT_PATTERNS_CHANGED:
+			case Event::Type::NextPatternsChanged:
 				pListener->nextPatternsChangedEvent();
 				break;
 
-			case EVENT_NEXT_SHOT:
+			case Event::Type::NextShot:
 				pListener->nextShotEvent();
 				break;
 
-			case EVENT_NOTEON:
-				pListener->noteOnEvent( event.value );
+			case Event::Type::NoteOn:
+				pListener->noteOnEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_QUIT:
-				pListener->quitEvent( event.value );
+			case Event::Type::Quit:
+				pListener->quitEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_PATTERN_EDITOR_LOCKED:
+			case Event::Type::PatternEditorLocked:
 				pListener->patternEditorLockedEvent();
 				break;
 
-			case EVENT_PATTERN_MODIFIED:
+			case Event::Type::PatternModified:
 				pListener->patternModifiedEvent();
 				break;
 
-			case EVENT_PLAYBACK_TRACK_CHANGED:
+			case Event::Type::PlaybackTrackChanged:
 				pListener->playbackTrackChangedEvent();
 				break;
 
-			case EVENT_PLAYING_PATTERNS_CHANGED:
+			case Event::Type::PlayingPatternsChanged:
 				pListener->playingPatternsChangedEvent();
 				break;
 
-			case EVENT_PLAYLIST_CHANGED:
-				pListener->playlistChangedEvent( event.value );
+			case Event::Type::PlaylistChanged:
+				pListener->playlistChangedEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_PLAYLIST_LOADSONG:
+			case Event::Type::PlaylistLoadSong:
 				pListener->playlistLoadSongEvent();
 				break;
 
-			case EVENT_PROGRESS:
-				pListener->progressEvent( event.value );
+			case Event::Type::Progress:
+				pListener->progressEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_RELOCATION:
+			case Event::Type::Relocation:
 				pListener->relocationEvent();
 				break;
 
-			case EVENT_SELECTED_PATTERN_CHANGED:
+			case Event::Type::SelectedPatternChanged:
 				pListener->selectedPatternChangedEvent();
 				break;
 
-			case EVENT_SELECTED_INSTRUMENT_CHANGED:
+			case Event::Type::SelectedInstrumentChanged:
 				pListener->selectedInstrumentChangedEvent();
 				break;
 
-			case EVENT_SONG_MODE_ACTIVATION:
+			case Event::Type::SongModeActivation:
 				pListener->songModeActivationEvent();
 				break;
 
-			case EVENT_SONG_MODIFIED:
+			case Event::Type::SongModified:
 				pListener->songModifiedEvent();
 				break;
 
-			case EVENT_SONG_SIZE_CHANGED:
+			case Event::Type::SongSizeChanged:
 				pListener->songSizeChangedEvent();
 				break;
 
-			case EVENT_STATE:
-				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(event.value) );
+			case Event::Type::State:
+				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(pEvent->getValue()) );
 				break;
 
-			case EVENT_STACKED_MODE_ACTIVATION:
-				pListener->stackedModeActivationEvent( event.value );
+			case Event::Type::StackedModeActivation:
+				pListener->stackedModeActivationEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_SOUND_LIBRARY_CHANGED:
+			case Event::Type::SoundLibraryChanged:
 				pListener->soundLibraryChangedEvent();
 				break;
 
-			case EVENT_TEMPO_CHANGED:
-				pListener->tempoChangedEvent( event.value );
+			case Event::Type::TempoChanged:
+				pListener->tempoChangedEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_TIMELINE_ACTIVATION:
+			case Event::Type::TimelineActivation:
 				pListener->timelineActivationEvent();
 				break;
 
-			case EVENT_TIMELINE_UPDATE:
-				pListener->timelineUpdateEvent( event.value );
+			case Event::Type::UpdateTimeline:
+				pListener->timelineUpdateEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_UNDO_REDO:
-				pListener->undoRedoActionEvent( event.value );
+			case Event::Type::UndoRedo:
+				pListener->undoRedoActionEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_UPDATE_PREFERENCES:
-				pListener->updatePreferencesEvent( event.value );
+			case Event::Type::UpdatePreferences:
+				pListener->updatePreferencesEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_UPDATE_SONG:
-				pListener->updateSongEvent( event.value );
+			case Event::Type::UpdateSong:
+				pListener->updateSongEvent( pEvent->getValue() );
 				break;
 
-			case EVENT_XRUN:
+			case Event::Type::Xrun:
 				pListener->XRunEvent();
 				break;
 
 			default:
-				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
+				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: [%1]")
+						  .arg( pEvent->toQString() ) );
 			}
 		}
 
@@ -1470,7 +1471,7 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 void HydrogenApp::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
 		H2Core::Hydrogen::get_instance()->getAudioEngine()->
-			getMetronomeInstrument()->set_volume(
+			getMetronomeInstrument()->setVolume(
 				Preferences::get_instance()->m_fMetronomeVolume );
 	}
 }

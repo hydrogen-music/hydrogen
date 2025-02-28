@@ -32,7 +32,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
-#include <core/EventQueue.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
@@ -395,7 +394,7 @@ void JackMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 	int key;
 	int vel;
 
-	channel = pNote->getInstrument()->get_midi_out_channel();
+	channel = pNote->getInstrument()->getMidiOutChannel();
 	if (channel < 0 || channel > 15) {
 		return;
 	}
@@ -462,12 +461,12 @@ void JackMidiDriver::handleQueueAllNoteOff()
 	for (i = 0; i < numInstruments; i++) {
 			pCurInstr = pInstrList->get(i);
 
-		channel = 	pCurInstr->get_midi_out_channel();
+		channel = 	pCurInstr->getMidiOutChannel();
 		if (channel < 0 || channel > 15) {
 			continue;
 		}
 		
-		key = 	pCurInstr->get_midi_out_note();
+		key = 	pCurInstr->getMidiOutNote();
 		if (key < 0 || key > 127) {
 			continue;
 		}

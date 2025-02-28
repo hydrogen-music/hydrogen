@@ -30,7 +30,6 @@
 
 #include "../Widgets/PixmapWidget.h"
 
-#include <core/EventQueue.h>
 #include <core/Globals.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>

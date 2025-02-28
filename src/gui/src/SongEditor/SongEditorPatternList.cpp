@@ -188,7 +188,7 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 
 	if ( row >= (int)pPatternList->size() ) {
 		return;
@@ -209,14 +209,14 @@ void SongEditorPatternList::inlineEditingEntered()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	
 	/*
 	 * Make sure that the entered pattern name is unique.
 	 * If it is not, use an unused pattern name.
 	 */
 	
-	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text(), m_pPatternBeingEdited );
+	QString patternName = pPatternList->findUnusedPatternName( m_pLineEdit->text(), m_pPatternBeingEdited );
 
 	SE_modifyPatternPropertiesAction *action =
 		new SE_modifyPatternPropertiesAction( m_pPatternBeingEdited->getVersion(),
@@ -415,7 +415,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 		ERRORLOG( "no song" );
 		return;
 	}
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( "no pattern list");
 		return;
@@ -606,7 +606,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(
 		return;
 	}
 
-	PatternList *patternList = pSong->getPatternList();
+	auto patternList = pSong->getPatternList();
 	auto pattern = patternList->get( patternNr );
 	pattern->setVersion( nNewVersion );
 	pattern->setName( newPatternName );
@@ -616,7 +616,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(
 	pattern->setCategory( newPatternCategory );
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 }
 
 
@@ -635,7 +635,7 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(
 		return;
 	}
 
-	PatternList *patternList = pSong->getPatternList();
+	auto patternList = pSong->getPatternList();
 	auto pattern = patternList->get( patternNr );
 	pattern->setVersion( nOldVersion );
 	pattern->setName( oldPatternName );
@@ -644,7 +644,7 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(
 	pattern->setLicense( oldLicense );
 	pattern->setCategory( oldPatternCategory );
 	pHydrogen->setIsModified( true );
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 }
 
 
@@ -688,7 +688,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 		return;
 	}
 
-	const PatternList *pPatternList = pSong->getPatternList();
+	const auto pPatternList = pSong->getPatternList();
 	const auto pPattern = pPatternList->get( m_nRowClicked );
 	if ( pPattern == nullptr ) {
 		return;
@@ -756,10 +756,10 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	auto pPattern = pPatternList->get( nPattern );
-	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();	// E' la lista di "colonne" di pattern
-	PatternList *pColumn = nullptr;
+	auto pColumns = pSong->getPatternGroupVector();	// E' la lista di "colonne" di pattern
+	std::shared_ptr<PatternList> pColumn = nullptr;
 
 	int nColumn, nColumnIndex;
 	bool bHasPattern = false;
@@ -770,7 +770,7 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 	int nDelta = toVal - pColumns->size() + 1;
 
 	for ( int i = 0; i < nDelta; i++ ) {
-		pColumn = new PatternList();
+		pColumn = std::make_shared<PatternList>();
 		pColumns->push_back( pColumn );
 	}
 
@@ -803,11 +803,10 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 
 		// remove all the empty patternlists at the end of the song
 		for ( int i = pColumns->size() - 1; i != 0 ; i-- ) {
-			PatternList *pList = (*pColumns)[ i ];
+			auto pList = (*pColumns)[ i ];
 			int nSize = pList->size();
 			if ( nSize == 0 ) {
 				pColumns->erase( pColumns->begin() + i );
-				delete pList;
 			}
 			else {
 				break;
@@ -879,7 +878,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 	else if( sText.startsWith("file://") && mimeData->hasUrls() )
 	{
 		//Dragging a file from an external file manager
-		PatternList *pPatternList = pSong->getPatternList();
+		auto pPatternList = pSong->getPatternList();
 		QList<QUrl> urlList = mimeData->urls();
 
 		int successfullyAddedPattern = 0;
@@ -894,8 +893,8 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 				{
 					auto pNewPattern = pPattern;
 			
-					if(!pPatternList->check_name( pNewPattern->getName() ) ){
-						pNewPattern->setName( pPatternList->find_unused_pattern_name( pNewPattern->getName() ) );
+					if(!pPatternList->checkName( pNewPattern->getName() ) ){
+						pNewPattern->setName( pPatternList->findUnusedPatternName( pNewPattern->getName() ) );
 					}
 					
 					auto pAction = new SE_insertPatternAction(
@@ -943,7 +942,7 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 		return;
 	}
 
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 
 	// move patterns...
 	auto pSourcePattern = pPatternList->get( nSourcePattern );
@@ -998,7 +997,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 		return;
 	}
 
-	PatternList *pPatternList = pSong->getPatternList();
+	auto pPatternList = pSong->getPatternList();
 	int row = (__drag_start_position.y() / m_nGridHeight);
 	if ( row >= (int)pPatternList->size() ) {
 		return;

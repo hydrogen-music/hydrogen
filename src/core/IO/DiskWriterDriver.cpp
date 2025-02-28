@@ -56,7 +56,7 @@ void* diskWriterDriver_thread( void* param )
 
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
-	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::Progress, 0 );
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
@@ -121,7 +121,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( pDriver->m_sFilename ).arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+		EventQueue::get_instance()->pushEvent( Event::Type::Progress, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 
@@ -163,7 +163,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+		EventQueue::get_instance()->pushEvent( Event::Type::Progress, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -194,7 +194,7 @@ void* diskWriterDriver_thread( void* param )
 					.arg( sf_strerror( pSndfile ) ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+		EventQueue::get_instance()->pushEvent( Event::Type::Progress, 100 );
 		pthread_exit( nullptr );
 		return nullptr;
 	}
@@ -239,7 +239,7 @@ void* diskWriterDriver_thread( void* param )
 	// always rolling, no user interaction
 	pAudioEngine->play();
 
-	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+	auto pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 
 	// Used to cleanly terminate this thread and close all handlers.
@@ -261,9 +261,9 @@ void* diskWriterDriver_thread( void* param )
 	int nMaxNumberOfSilentFrames = 200;
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
 		
-		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
+		auto pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->longest_pattern_length();
+			nPatternSize = pColumn->longestPatternLength();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -306,7 +306,7 @@ void* diskWriterDriver_thread( void* param )
 			// acquire the lock).
 			if ( ! pDriver->m_bIsRunning ) {
 				___ERRORLOG( "Driver was stop before export was completed." );
-				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				EventQueue::get_instance()->pushEvent( Event::Type::Progress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
@@ -328,7 +328,7 @@ void* diskWriterDriver_thread( void* param )
 				if ( nMutexLockAttempts > 30 ) {
 					___ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
 					
-					EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+					EventQueue::get_instance()->pushEvent( Event::Type::Progress, -1 );
 					pDriver->m_bWritingFailed = true;
 					tearDown();
 					return nullptr;
@@ -397,7 +397,7 @@ void* diskWriterDriver_thread( void* param )
 							.arg( nBufferWriteLength )
 							.arg( sf_strerror( nullptr ) ) );
 
-				EventQueue::get_instance()->push_event( EVENT_PROGRESS, -1 );
+				EventQueue::get_instance()->pushEvent( Event::Type::Progress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
 				return nullptr;
@@ -415,12 +415,12 @@ void* diskWriterDriver_thread( void* param )
 		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
 										 ( float )nColumns * 100.0 );
 		if ( nPercent < 100 ) {
-			EventQueue::get_instance()->push_event( EVENT_PROGRESS, nPercent );
+			EventQueue::get_instance()->pushEvent( Event::Type::Progress, nPercent );
 		}
 	}
 
 	// Explicitly mark export as finished.
-	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 100 );
+	EventQueue::get_instance()->pushEvent( Event::Type::Progress, 100 );
 	
 	tearDown();
 

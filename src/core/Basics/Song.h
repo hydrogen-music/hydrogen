@@ -184,8 +184,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void setMetronomeVolume( float fVolume );
 		float getMetronomeVolume() const;
 
-		PatternList* getPatternList() const;
-		void setPatternList( PatternList* pList );
+		std::shared_ptr<PatternList> getPatternList() const;
+		void setPatternList( std::shared_ptr<PatternList> pList );
 
 		std::shared_ptr<Drumkit> getDrumkit() const;
 		void setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
@@ -193,17 +193,17 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** Return a pointer to a vector storing all Pattern
 		 * present in the Song.
 		 * \return #m_pPatternGroupSequence */
-		std::vector<PatternList*>* getPatternGroupVector();
+		std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > getPatternGroupVector();
 		/** Return a pointer to a vector storing all Pattern
 		 * present in the Song.
 		 * \return #m_pPatternGroupSequence */
-		const std::vector<PatternList*>* getPatternGroupVector() const;
+		const std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > getPatternGroupVector() const;
 
 		/** Sets the vector storing all Pattern present in the
 		 * Song #m_pPatternGroupSequence.
 		 * \param pGroupVect Pointer to a vector containing all
 		 *   Pattern of the Song.*/
-		void setPatternGroupVector( std::vector<PatternList*>* pGroupVect );
+		void setPatternGroupVector( std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > pGroupVect );
 
 		/** get the length of the song, in tick units */
 		long lengthInTicks() const;
@@ -341,9 +341,9 @@ private:
 		float	m_fMetronomeVolume;
 		QString			m_sNotes;
 		///< Pattern list
-		PatternList*	m_pPatternList;
+		std::shared_ptr<PatternList>	m_pPatternList;
 		///< Sequence of pattern groups
-		std::vector<PatternList*>* m_pPatternGroupSequence;
+		std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > m_pPatternGroupSequence;
 
 		/** Current drumkit
 		 *
@@ -540,26 +540,26 @@ inline std::shared_ptr<Drumkit> Song::getDrumkit() const
 	return m_pDrumkit;
 }
 
-inline PatternList* Song::getPatternList() const
+inline std::shared_ptr<PatternList> Song::getPatternList() const
 {
 	return m_pPatternList;
 }
 
-inline void Song::setPatternList( PatternList* pList )
+inline void Song::setPatternList( std::shared_ptr<PatternList> pList )
 {
 	m_pPatternList = pList;
 }
 
-inline std::vector<PatternList*>* Song::getPatternGroupVector() {
+inline std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Song::getPatternGroupVector() {
 	return m_pPatternGroupSequence;
 }
 
-inline const std::vector<PatternList*>* Song::getPatternGroupVector() const
+inline const std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > Song::getPatternGroupVector() const
 {
 	return m_pPatternGroupSequence;
 }
 
-inline void Song::setPatternGroupVector( std::vector<PatternList*>* pGroupVector )
+inline void Song::setPatternGroupVector( std::shared_ptr< std::vector< std::shared_ptr<PatternList> > > pGroupVector )
 {
 	m_pPatternGroupSequence = pGroupVector;
 }

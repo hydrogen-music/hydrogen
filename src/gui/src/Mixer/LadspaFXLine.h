@@ -27,7 +27,6 @@
 
 #include <memory>
 
-#include <core/EventQueue.h>
 #include <core/Object.h>
 
 class Button;

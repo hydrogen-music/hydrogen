@@ -103,7 +103,7 @@ void DrumkitExportTest::testDrumkitExportAndImport() {
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitName );
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
-		CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+		CPPUNIT_ASSERT( ! ppInstrument->hasMissingSamples() );
 	}
 
 	// Load the kit and export it.
@@ -156,7 +156,7 @@ void DrumkitExportTest::testDrumkitExportAndImportSampleFormats() {
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getName() == m_sTestKitNameSampleFormats );
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
-		CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+		CPPUNIT_ASSERT( ! ppInstrument->hasMissingSamples() );
 	}
 
 	// Load the kit and export it.
@@ -214,7 +214,7 @@ void DrumkitExportTest::testDrumkitExportAndImportUtf8() {
 		// ball to get altered. But as we do not touch the drumkit definition
 		// itself, they will be considered a missing sample.
 		for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
-			CPPUNIT_ASSERT( ! ppInstrument->has_missing_samples() );
+			CPPUNIT_ASSERT( ! ppInstrument->hasMissingSamples() );
 		}
 	}
 

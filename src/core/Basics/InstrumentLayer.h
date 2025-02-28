@@ -70,22 +70,22 @@ namespace H2Core
 		~InstrumentLayer();
 
 		/** set the gain of the layer */
-		void set_gain( float gain );
+		void setGain( float gain );
 		/** get the gain of the layer */
-		float get_gain() const;
+		float getGain() const;
 		/** set the pitch of the layer */
-		void set_pitch( float pitch );
+		void setPitch( float pitch );
 		/** get the pitch of the layer */
-		float get_pitch() const;
+		float getPitch() const;
 
 		/** set the start ivelocity of the layer */
-		void set_start_velocity( float start );
+		void setStartVelocity( float start );
 		/** get the start velocity of the layer */
-		float get_start_velocity() const;
+		float getStartVelocity() const;
 		/** set the end velocity of the layer */
-		void set_end_velocity( float end );
+		void setEndVelocity( float end );
 		/** get the end velocity of the layer */
-		float get_end_velocity() const;
+		float getEndVelocity() const;
 
 		void				setIsMuted( bool bIsMuted );
 		bool				getIsMuted() const;
@@ -93,19 +93,19 @@ namespace H2Core
 		bool				getIsSoloed() const;
 
 		/** set the sample of the layer */
-		void set_sample( std::shared_ptr<Sample> sample );
+		void setSample( std::shared_ptr<Sample> sample );
 		/** get the sample of the layer */
-		std::shared_ptr<Sample> get_sample() const;
+		std::shared_ptr<Sample> getSample() const;
 
 		/**
 		 * Calls the #H2Core::Sample::load()
-		 * member function of #__sample.
+		 * member function of #m_pSample.
 		 */
-		void load_sample( float fBpm = 120 );
+		void loadSample( float fBpm = 120 );
 		/*
 		 * unload sample and replace it with an empty one
 		 */
-		void unload_sample();
+		void unloadSample();
 
 		/**
 		 * save the instrument layer within the given XMLNode
@@ -121,7 +121,7 @@ namespace H2Core
 		 *   whether just the basename or - if not - the absolute path will be
 		 *   stored.
 		 */
-		void save_to( XMLNode& node, bool bSongKit = false ) const;
+		void saveTo( XMLNode& node, bool bSongKit = false ) const;
 		/**
 		 * load an instrument layer from an XMLNode
 		 *
@@ -137,11 +137,11 @@ namespace H2Core
 		 *
 		 * \return a new InstrumentLayer instance
 		 */
-		static std::shared_ptr<InstrumentLayer> load_from( const XMLNode& pNode,
-														   const QString& sDrumkitPath,
-														   const QString& sSongPath = "",
-														   const License& drumkitLicense = License(),
-														   bool bSilent = false );
+		static std::shared_ptr<InstrumentLayer> loadFrom( const XMLNode& pNode,
+														  const QString& sDrumkitPath,
+														  const QString& sSongPath = "",
+														  const License& drumkitLicense = License(),
+														  bool bSilent = false );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -153,50 +153,50 @@ namespace H2Core
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
-		float __gain;               ///< ratio between the input sample and the output signal, 1.0 by default
-		float __pitch;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
-		float __start_velocity;     ///< the start velocity of the sample, 0.0 by default
-		float __end_velocity;       ///< the end velocity of the sample, 1.0 by default
+		float m_fGain;               ///< ratio between the input sample and the output signal, 1.0 by default
+		float m_fPitch;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
+		float m_fStartVelocity;     ///< the start velocity of the sample, 0.0 by default
+		float m_fEndVelocity;       ///< the end velocity of the sample, 1.0 by default
 		bool				m_bIsMuted;
 		bool				m_bIsSoloed;
-		std::shared_ptr<Sample> __sample;           ///< the underlaying sample
+		std::shared_ptr<Sample> m_pSample;           ///< the underlaying sample
 	};
 
 	// DEFINITIONS
 
-	inline void InstrumentLayer::set_gain( float gain )
+	inline void InstrumentLayer::setGain( float gain )
 	{
-		__gain = gain;
+		m_fGain = gain;
 	}
 
-	inline float InstrumentLayer::get_gain() const
+	inline float InstrumentLayer::getGain() const
 	{
-		return __gain;
+		return m_fGain;
 	}
 
-	inline float InstrumentLayer::get_pitch() const
+	inline float InstrumentLayer::getPitch() const
 	{
-		return __pitch;
+		return m_fPitch;
 	}
 
-	inline void InstrumentLayer::set_start_velocity( float start )
+	inline void InstrumentLayer::setStartVelocity( float start )
 	{
-		__start_velocity = start;
+		m_fStartVelocity = start;
 	}
 
-	inline float InstrumentLayer::get_start_velocity() const
+	inline float InstrumentLayer::getStartVelocity() const
 	{
-		return __start_velocity;
+		return m_fStartVelocity;
 	}
 
-	inline void InstrumentLayer::set_end_velocity( float end )
+	inline void InstrumentLayer::setEndVelocity( float end )
 	{
-		__end_velocity = end;
+		m_fEndVelocity = end;
 	}
 
-	inline float InstrumentLayer::get_end_velocity() const
+	inline float InstrumentLayer::getEndVelocity() const
 	{
-		return __end_velocity;
+		return m_fEndVelocity;
 	}
 
 inline void InstrumentLayer::setIsMuted( bool bIsMuted ) {
@@ -212,9 +212,9 @@ inline bool InstrumentLayer::getIsSoloed() const {
 	return m_bIsSoloed;
 }
 
-	inline std::shared_ptr<Sample> InstrumentLayer::get_sample() const
+	inline std::shared_ptr<Sample> InstrumentLayer::getSample() const
 	{
-		return __sample;
+		return m_pSample;
 	}
 
 };

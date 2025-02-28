@@ -154,7 +154,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * The shutdown will be triggered in both the CLI and the GUI
-		 * via the #H2Core::EVENT_QUIT event.
+		 * via the #H2Core::Event::Type::Quit event.
 		 *
 		 * \return true on success
 		 */

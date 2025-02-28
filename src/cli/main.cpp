@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
 		if ( ! sOutFilename.isEmpty() && sKitToDrumkitMap.isEmpty() ) {
 			auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
-				pInstrumentList->get(i)->set_currently_exported( true );
+				pInstrumentList->get(i)->setCurrentlyExported( true );
 			}
 			pHydrogen->startExportSession(nRate, bits, fCompressionLevel);
 			pHydrogen->startExportSong( sOutFilename );
@@ -605,18 +605,23 @@ int main(int argc, char *argv[])
 			// Interactive mode - h2cli is not done yet.
 			while ( ! quit ) {
 				/* FIXME: Someday here will be The Real CLI ;-) */
-				Event event = pQueue->pop_event();
-				// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
+				auto pEvent = pQueue->popEvent();
+				if ( pEvent == nullptr ) {
+					/* Sleep if there is no more events */
+					Sleeper::msleep ( 100 );
+					continue;
+				}
 
 				/* Event handler */
-				switch ( event.type ) {
-				case EVENT_PROGRESS: /* event used only in export mode */
+				switch ( pEvent->getType() ) {
+				case Event::Type::Progress: /* event used only in export mode */
 					if ( ! bExportMode ) {
 						break;
 					}
 	
-					if ( event.value < 100 ) {
-						std::cout << "\rExport Progress ... " << event.value << "%";
+					if ( pEvent->getValue() < 100 ) {
+						std::cout << "\rExport Progress ... " <<
+							pEvent->getValue() << "%";
 					}
 					else {
 						const auto pDriver = static_cast<DiskWriterDriver*>(
@@ -624,7 +629,8 @@ int main(int argc, char *argv[])
 						if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
 							std::cerr << "\rExport FAILED" << std::endl;
 							nReturnCode = 1;
-						} else {
+						}
+						else {
 							std::cout << "\rExport Progress ... DONE" << std::endl;
 						}
 						pHydrogen->stopExportSession();
@@ -632,16 +638,11 @@ int main(int argc, char *argv[])
 					}
 					break;
 
-				case EVENT_NONE: /* Sleep if there is no more events */
-					Sleeper::msleep ( 100 );
-					break;
-				
-				case EVENT_QUIT: // Shutdown if indicated by a
+				case Event::Type::Quit: // Shutdown if indicated by a
 					// corresponding OSC message.
 					quit = true;
 					break;
 				default:
-					// EVENT_STATE, EVENT_PATTERN_CHANGED, etc are ignored
 					break;
 				}
 			}

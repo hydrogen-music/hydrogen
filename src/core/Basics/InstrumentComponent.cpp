@@ -123,7 +123,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 			break;
 		}
 
-		auto pLayer = InstrumentLayer::load_from(
+		auto pLayer = InstrumentLayer::loadFrom(
 			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->setLayer( pLayer, nLayer );
@@ -147,7 +147,7 @@ void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit ) const
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
 		auto pLayer = getLayer( n );
 		if ( pLayer != nullptr ) {
-			pLayer->save_to( component_node, bSongKit );
+			pLayer->saveTo( component_node, bSongKit );
 		}
 	}
 }

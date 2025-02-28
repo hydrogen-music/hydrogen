@@ -79,6 +79,9 @@
   </instrumentList>
  </drumkit_info>
  <lastLoadedDrumkitPath></lastLoadedDrumkitPath>
+ <patternList/>
+ <virtualPatternList/>
+ <patternSequence/>
  <ladspa>
   <fx>
    <name>no plugin</name>

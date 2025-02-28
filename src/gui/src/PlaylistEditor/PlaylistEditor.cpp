@@ -39,7 +39,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Timeline.h>
-#include <core/EventQueue.h>
 #include <core/Basics/Playlist.h>
 
 #include "../Widgets/Button.h"

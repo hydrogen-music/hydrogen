@@ -47,7 +47,7 @@ class PatchBay : public QDialog, public H2Core::Object<PatchBay>
 public:
 
 	PatchBay( QWidget* pParent,
-			  H2Core::PatternList* pPatternList,
+			  std::shared_ptr<H2Core::PatternList> pPatternList,
 			  std::shared_ptr<H2Core::Drumkit> pDrumkit );
 	~PatchBay();
 
@@ -62,7 +62,7 @@ private:
 		std::vector<LCDDisplay*> m_patternTypesBoxes;
 		std::vector<LCDCombo*> m_drumkitInstrumentBoxes;
 
-		H2Core::PatternList* m_pPatternList;
+		std::shared_ptr<H2Core::PatternList> m_pPatternList;
 		std::shared_ptr<H2Core::Drumkit> m_pDrumkit;
 
 		/** Used to correlate the choices in #m_drumkitInstrumentBoxes with the

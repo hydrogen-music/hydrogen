@@ -102,7 +102,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent,
 		reject();
 	}
 
-	unsigned slframes = m_pSampleFromFile->get_frames();
+	unsigned slframes = m_pSampleFromFile->getFrames();
 
 	LoopCountSpinBox->setRange(0, 20000 );
 	StartFrameSpinBox->setRange(0, slframes );
@@ -185,7 +185,7 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 		return nullptr;
 	}
 
-	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = pInstrument->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
 		assert( pCompo );
@@ -199,7 +199,7 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 		return nullptr;
 	}
 
-	return pLayer->get_sample();
+	return pLayer->getSample();
 }
 	
 void SampleEditor::getAllFrameInfos()
@@ -210,7 +210,7 @@ void SampleEditor::getAllFrameInfos()
 		return;
 	}
 
-	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = pInstrument->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		ERRORLOG( QString( "Invalid component [%1]" ).arg( m_nSelectedComponent ) );
 		assert( pCompo );
@@ -224,7 +224,7 @@ void SampleEditor::getAllFrameInfos()
 		return;
 	}
 
-	auto pSample = pLayer->get_sample();
+	auto pSample = pLayer->getSample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to retrieve sample" );
 		assert( pSample );
@@ -233,9 +233,9 @@ void SampleEditor::getAllFrameInfos()
 
 	// this values are needed if we restore a sample from disk if a
 	// new song with sample changes will load
-	m_bSampleIsModified = pSample->get_is_modified();
-	m_nSamplerate = pSample->get_sample_rate();
-	__loops = pSample->get_loops();
+	m_bSampleIsModified = pSample->getIsModified();
+	m_nSamplerate = pSample->getSampleRate();
+	__loops = pSample->getLoops();
 
 	// Per default all loop frames will be set to zero by Hydrogen. But this is
 	// dangerous since just altering start or loop might move them beyond the
@@ -243,36 +243,36 @@ void SampleEditor::getAllFrameInfos()
 	if ( __loops.start_frame == 0 &&
 		 __loops.loop_frame == 0 &&
 		 __loops.end_frame == 0 ) {
-		__loops.end_frame = pSample->get_frames();
+		__loops.end_frame = pSample->getFrames();
 	}
-	__rubberband = pSample->get_rubberband();
+	__rubberband = pSample->getRubberband();
 
-	if ( pSample->get_velocity_envelope().size()==0 ) {
+	if ( pSample->getVelocityEnvelope().size()==0 ) {
 		m_pTargetSampleView->get_velocity()->clear();
 		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( 0, 0 ) );
 		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
 		m_pTargetSampleView->get_velocity()->clear();
 
-		for( const auto& pt : pSample->get_velocity_envelope() ){
+		for( const auto& pt : pSample->getVelocityEnvelope() ){
 			m_pTargetSampleView->get_velocity()->emplace_back( pt );
 		}
 	}
 
-	if ( pSample->get_pan_envelope().size()==0 ) {
+	if ( pSample->getPanEnvelope().size()==0 ) {
 		m_pTargetSampleView->get_pan()->clear();
 		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( 0, m_pTargetSampleView->height()/2 ) );
 		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	}
 	else {
 		m_pTargetSampleView->get_pan()->clear();
-		for ( const auto& pt : pSample->get_pan_envelope() ){
+		for ( const auto& pt : pSample->getPanEnvelope() ){
 			m_pTargetSampleView->get_pan()->emplace_back( pt );
 		}
 	}
 
 	if (m_bSampleIsModified) {
-		__loops.end_frame = pSample->get_loops().end_frame;
+		__loops.end_frame = pSample->getLoops().end_frame;
 		if ( __loops.mode == Sample::Loops::FORWARD ) {
 			ProcessingTypeComboBox->setCurrentIndex ( 0 );
 		}
@@ -355,7 +355,7 @@ void SampleEditor::getAllLocalFrameInfos()
 void SampleEditor::openDisplays()
 {
 	// wavedisplays
-	m_divider = m_pSampleFromFile->get_frames() / 574.0F;
+	m_divider = m_pSampleFromFile->getFrames() / 574.0F;
 	m_pMainSampleWaveDisplay->updateDisplay( m_sSampleName );
 	m_pMainSampleWaveDisplay->move( 1, 1 );
 
@@ -438,10 +438,10 @@ void SampleEditor::createNewLayer()
 		
 		auto pEditSample = std::make_shared<Sample>( m_sSampleName,
 													 pOldSample->getLicense() );
-		pEditSample->set_loops( __loops );
-		pEditSample->set_rubberband( __rubberband );
-		pEditSample->set_velocity_envelope( *m_pTargetSampleView->get_velocity() );
-		pEditSample->set_pan_envelope( *m_pTargetSampleView->get_pan() );
+		pEditSample->setLoops( __loops );
+		pEditSample->setRubberband( __rubberband );
+		pEditSample->setVelocityEnvelope( *m_pTargetSampleView->get_velocity() );
+		pEditSample->setPanEnvelope( *m_pTargetSampleView->get_pan() );
 
 		if( ! pEditSample->load( pAudioEngine->getTransportPosition()->getBpm() ) ){
 			ERRORLOG( "Unable to load modified sample" );
@@ -469,10 +469,10 @@ void SampleEditor::createNewLayer()
 		
 		std::shared_ptr<H2Core::InstrumentLayer> pLayer = nullptr;
 		if( pInstrument != nullptr ) {
-			pLayer = pInstrument->get_component( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
+			pLayer = pInstrument->getComponent( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
 
 			// insert new sample from newInstrument
-			pLayer->set_sample( pEditSample );
+			pLayer->setSample( pEditSample );
 		}
 
 		pAudioEngine->unlock();
@@ -497,7 +497,6 @@ bool SampleEditor::returnAllMainWaveDisplayValues()
 	m_bAdjusting = true;
 
 	testpTimer();
-//	QMessageBox::information ( this, "Hydrogen", tr ( "jep %1" ).arg(m_pSample->get_frames()));
 	m_bSampleIsModified = true;
 	if( m_pMainSampleWaveDisplay->m_bStartSliderIsMoved ) __loops.start_frame = m_pMainSampleWaveDisplay->m_nStartFramePosition * m_divider - 25 * m_divider;
 	if( m_pMainSampleWaveDisplay->m_bLoopSliderIsMoved ) __loops.loop_frame = m_pMainSampleWaveDisplay->m_nLoopFramePosition  * m_divider - 25 * m_divider;
@@ -628,7 +627,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pInstr == nullptr ) {
 		return;
 	}
-	auto pCompo = pInstr->get_component( m_nSelectedComponent );
+	auto pCompo = pInstr->getComponent( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		return;
 	}
@@ -637,7 +636,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 	auto pNote = std::make_shared<Note>(
-		pInstr, 0, pLayer->get_end_velocity() - 0.01 );
+		pInstr, 0, pLayer->getEndVelocity() - 0.01 );
 	pNote->setSpecificCompoIdx( m_nSelectedComponent );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 
@@ -700,20 +699,18 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		return;
 	}
 
-	/*
-	 *preview_instrument deletes the last used preview instrument, therefore we
-	 *have to construct a temporary instrument. Otherwise pInstr would be
-	 *deleted if consumed by preview_instrument.
-	*/
+	/* previewInstrument() deletes the last used preview instrument, therefore
+	 * we have to construct a temporary instrument. Otherwise pInstr would be
+	 * deleted if consumed by previewInstrument(). */
 	auto pTmpInstrument = std::make_shared<Instrument>(pInstr);
 	if ( pTmpInstrument == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument [%1] from [%2]" )
-				  .arg( pInstr->get_name() ).arg( pInstr->get_drumkit_path() ) );
+				  .arg( pInstr->getName() ).arg( pInstr->getDrumkitPath() ) );
 		tearDown();
 		return;
 	}
-	const QString sSamplePath = pInstr->get_component( m_nSelectedComponent )
-		->getLayer( nSelectedlayer )->get_sample()->get_filepath();
+	const QString sSamplePath = pInstr->getComponent( m_nSelectedComponent )
+		->getLayer( nSelectedlayer )->getSample()->getFilepath();
 	auto pNewSample = Sample::load( sSamplePath );
 	if ( pNewSample == nullptr ) {
 		ERRORLOG( QString( "Unable to load sample from [%1]" )
@@ -721,11 +718,11 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		tearDown();
 	}
 
-	const int nLength = ( pNewSample->get_frames() /
-						  pNewSample->get_sample_rate() + 1 ) * 100;
-	pHydrogen->getAudioEngine()->getSampler()->preview_instrument( pTmpInstrument );
-	pHydrogen->getAudioEngine()->getSampler()->preview_sample( pNewSample, nLength );
-	m_nSlframes = pNewSample->get_frames();
+	const int nLength = ( pNewSample->getFrames() /
+						  pNewSample->getSampleRate() + 1 ) * 100;
+	pHydrogen->getAudioEngine()->getSampler()->previewInstrument( pTmpInstrument );
+	pHydrogen->getAudioEngine()->getSampler()->previewSample( pNewSample, nLength );
+	m_nSlframes = pNewSample->getFrames();
 
 	tearDown();
 }
@@ -794,7 +791,7 @@ void SampleEditor::createPositionsRulerPath()
 		newLength =oneSampleLength + repeatsLength;
 	}
 
-	unsigned  normalLength = m_pSampleFromFile->get_frames();
+	unsigned  normalLength = m_pSampleFromFile->getFrames();
 
 	unsigned *	normalFrames = new unsigned[ normalLength ];
 	unsigned *	tempFrames = new unsigned[ newLength ];

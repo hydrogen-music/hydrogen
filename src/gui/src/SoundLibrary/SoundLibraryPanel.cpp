@@ -245,9 +245,9 @@ void SoundLibraryPanel::updateTree()
 				if ( pInstrument != nullptr ) {
 					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 					pInstrumentItem->setText( 0, QString( "[%1] %2" )
-											  .arg( pInstrument->get_id() )
-											  .arg( pInstrument->get_name() ) );
-					pInstrumentItem->setToolTip( 0, pInstrument->get_name() );
+											  .arg( pInstrument->getId() )
+											  .arg( pInstrument->getName() ) );
+					pInstrumentItem->setToolTip( 0, pInstrument->getName() );
 				}
 			}
 		}
@@ -416,7 +416,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		}
 
 		auto pInstrument = std::make_shared<Instrument>( pTargetInstrument );
-		pInstrument->load_samples(
+		pInstrument->loadSamples(
 			pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
 		INFOLOG( QString( "Loading instrument [%1] from drumkit [%2] located in [%3]" )
@@ -427,9 +427,9 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 			return;
 		}
 		
-		pInstrument->set_muted( false );
+		pInstrument->setMuted( false );
 
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_instrument( pInstrument );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewInstrument( pInstrument );
 	}
 }
 
@@ -663,14 +663,14 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	bool bSampleContained = false;
 	for ( const auto& ppInstrument : *pDrumkit->getInstruments() ) {
 		if ( ppInstrument != nullptr &&
-			 ppInstrument->get_drumkit_path() == sDrumkitPath ) {
-			for ( const auto& ppComponent : *ppInstrument->get_components() ) {
+			 ppInstrument->getDrumkitPath() == sDrumkitPath ) {
+			for ( const auto& ppComponent : *ppInstrument->getComponents() ) {
 				if ( ppComponent != nullptr ) {
 					for ( const auto& ppLayer : ppComponent->getLayers() ) {
 						if ( ppLayer != nullptr &&
-							 ppLayer->get_sample() != nullptr &&
-							 ! ppLayer->get_sample()->get_filepath().isEmpty() &&
-							 ppLayer->get_sample()->get_filepath().contains(
+							 ppLayer->getSample() != nullptr &&
+							 ! ppLayer->getSample()->getFilepath().isEmpty() &&
+							 ppLayer->getSample()->getFilepath().contains(
 								 sDrumkitPath ) ) {
 							bSampleContained = true;
 							break;

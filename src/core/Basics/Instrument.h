@@ -56,6 +56,11 @@ class Instrument : public H2Core::Object<Instrument>
 {
 		H2_OBJECT(Instrument)
 	public:
+		/** Maximum support pitch value */
+		static constexpr float fPitchMax = 24.5;
+		/** Minimum support pitch value */
+		static constexpr float fPitchMin = -24.5;
+
 		enum SampleSelectionAlgo {
 			VELOCITY,
 			ROUND_ROBIN,
@@ -76,17 +81,17 @@ class Instrument : public H2Core::Object<Instrument>
 		~Instrument();
 
 		/**
-		 * Calls the InstrumentLayer::load_sample() member
+		 * Calls the InstrumentLayer::loadSample() member
 		 * function of all layers of each component of the
 		 * Instrument.
 		 */
-		void load_samples( float fBpm = 120 );
+		void loadSamples( float fBpm = 120 );
 		/**
-		 * Calls the InstrumentLayer::unload_sample() member
+		 * Calls the InstrumentLayer::unloadSample() member
 		 * function of all layers of each component of the
 		 * Instrument.
 		 */
-		void unload_samples();
+		void unloadSamples();
 
 		/**
 		 * save the instrument within the given XMLNode
@@ -99,7 +104,7 @@ class Instrument : public H2Core::Object<Instrument>
 		 *   associated with a different kit and the lookup folder for the
 		 *   samples are stored on a per-instrument basis.
 		 */
-		void save_to( XMLNode& node, bool bSongKit = false ) const;
+		void saveTo( XMLNode& node, bool bSongKit = false ) const;
 
 		/**
 		 * load an instrument from an XMLNode
@@ -125,50 +130,48 @@ class Instrument : public H2Core::Object<Instrument>
 		 *
 		 * \return a new Instrument instance
 		 */
-		static std::shared_ptr<Instrument> load_from( const XMLNode& pNode,
-													  const QString& sDrumkitPath = "",
-													  const QString& sDrumkitName = "",
-													  const QString& sSongPath = "",
-													  const License& license = License(),
-													  bool bSongKit = false,
-													  bool bSilent = false );
+		static std::shared_ptr<Instrument> loadFrom( const XMLNode& pNode,
+													 const QString& sDrumkitPath = "",
+													 const QString& sDrumkitName = "",
+													 const QString& sSongPath = "",
+													 const License& license = License(),
+													 bool bSongKit = false,
+													 bool bSilent = false );
 
 		///< set the name of the instrument
-		void set_name( const QString& name );
+		void setName( const QString& name );
 		///< get the name of the instrument
-		const QString& get_name() const;
+		const QString& getName() const;
 
 		///< set the id of the instrument
-		void set_id( const int id );
+		void setId( const int id );
 		///< get the id of the instrument
-		int get_id() const;
+		int getId() const;
 
-		/** set the ADSR of the instrument */
-		void set_adsr( std::shared_ptr<ADSR> adsr );
 		/** get the ADSR of the instrument */
-		std::shared_ptr<ADSR> get_adsr() const;
+		std::shared_ptr<ADSR> getAdsr() const;
 		/** get a copy of the ADSR of the instrument */
-		std::shared_ptr<ADSR> copy_adsr() const;
+		std::shared_ptr<ADSR> copyAdsr() const;
 
 		/** set the mute group of the instrument */
-		void set_mute_group( int group );
+		void setMuteGroup( int group );
 		/** get the mute group of the instrument */
-		int get_mute_group() const;
+		int getMuteGroup() const;
 
 		/** set the midi out channel of the instrument */
-		void set_midi_out_channel( int channel );
+		void setMidiOutChannel( int channel );
 		/** get the midi out channel of the instrument */
-		int get_midi_out_channel() const;
+		int getMidiOutChannel() const;
 
 		/** set the midi out note of the instrument */
-		void set_midi_out_note( int note );
+		void setMidiOutNote( int note );
 		/** get the midi out note of the instrument */
-		int get_midi_out_note() const;
+		int getMidiOutNote() const;
 
 		/** set muted status of the instrument */
-		void set_muted( bool muted );
+		void setMuted( bool muted );
 		/** get muted status of the instrument */
-		bool is_muted() const;
+		bool isMuted() const;
 
 		/** set pan of the instrument */
 		void setPan( float val );
@@ -183,120 +186,108 @@ class Instrument : public H2Core::Object<Instrument>
 
 
 		/** set gain of the instrument */
-		void set_gain( float gain );
+		void setGain( float gain );
 		/** get gain of the instrument */
-		float get_gain() const;
+		float getGain() const;
 		/** set the volume of the instrument */
-		void set_volume( float volume );
+		void setVolume( float volume );
 		/** get the volume of the instrument */
-		float get_volume() const;
+		float getVolume() const;
 
 		/** activate the filter of the instrument */
-		void set_filter_active( bool active );
+		void setFilterActive( bool active );
 		/** get the status of the filter of the instrument */
-		bool is_filter_active() const;
+		bool isFilterActive() const;
 
 		/** set the filter resonance of the instrument */
-		void set_filter_resonance( float val );
+		void setFilterResonance( float val );
 		/** get the filter resonance of the instrument */
-		float get_filter_resonance() const;
+		float getFilterResonance() const;
 
 		/** set the filter cutoff of the instrument */
-		void set_filter_cutoff( float val );
+		void setFilterCutoff( float val );
 		/** get the filter cutoff of the instrument */
-		float get_filter_cutoff() const;
+		float getFilterCutoff() const;
 
 		/** set the left peak of the instrument */
-		void set_peak_l( float val );
+		void setPeak_L( float val );
 		/** get the left peak of the instrument */
-		float get_peak_l() const;
+		float getPeak_L() const;
 		/** set the right peak of the instrument */
-		void set_peak_r( float val );
+		void setPeak_R( float val );
 		/** get the right peak of the instrument */
-		float get_peak_r() const;
+		float getPeak_R() const;
 
 		/** set the fx level of the instrument */
-		void set_fx_level( float level, int index );
+		void setFxLevel( float level, int index );
 		/** get the fx level of the instrument */
-		float get_fx_level( int index ) const;
+		float getFxLevel( int index ) const;
 
 		/** set the random pitch factor of the instrument */
-		void set_random_pitch_factor( float val );
+		void setRandomPitchFactor( float val );
 		/** get the random pitch factor of the instrument */
-		float get_random_pitch_factor() const;
+		float getRandomPitchFactor() const;
 		
 		/** set the pitch offset of the instrument */
-		void set_pitch_offset( float val );
+		void setPitchOffset( float val );
 		/** get the pitch offset of the instrument */
-		float get_pitch_offset() const;
-
-		/** set the active status of the instrument */
-		void set_active( bool active );
-		/** get the active status of the instrument */
-		bool is_active() const;
+		float getPitchOffset() const;
 
 		/** set the soloed status of the instrument */
-		void set_soloed( bool soloed );
+		void setSoloed( bool soloed );
 		/** get the soloed status of the instrument */
-		bool is_soloed() const;
+		bool isSoloed() const;
 
 		/** enqueue the instrument for @a pNote */
 		void enqueue( std::shared_ptr<Note> pNote );
 		/** dequeue the instrument for @a pNote */
 		void dequeue( std::shared_ptr<Note> pNote );
 		/** get the queued status of the instrument */
-		bool is_queued() const;
+		bool isQueued() const;
 		const QStringList& getEnqueuedBy() const;
 
 		/** set the stop notes status of the instrument */
-		void set_stop_notes( bool stopnotes );
+		void setStopNotes( bool stopnotes );
 		/** get the stop notes of the instrument */
-		bool is_stop_notes() const;
+		bool isStopNotes() const;
 
-		void set_sample_selection_alg( SampleSelectionAlgo selected_algo);
-		SampleSelectionAlgo sample_selection_alg() const;
+		void setSampleSelectionAlg( SampleSelectionAlgo selected_algo);
+		SampleSelectionAlgo sampleSelectionAlg() const;
 
-		void set_hihat_grp( int hihat_grp );
-		int get_hihat_grp() const;
+		void setHihatGrp( int hihat_grp );
+		int getHihatGrp() const;
 
-		void set_lower_cc( int message );
-		int get_lower_cc() const;
+		void setLowerCc( int message );
+		int getLowerCc() const;
 
-		void set_higher_cc( int message );
-		int get_higher_cc() const;
+		void setHigherCc( int message );
+		int getHigherCc() const;
 
 		///< set the path of the related drumkit
-		void set_drumkit_path( const QString& sPath );
+		void setDrumkitPath( const QString& sPath );
 		///< get the path of the related drumkits
-		const QString& get_drumkit_path() const;
+		const QString& getDrumkitPath() const;
 		///< set the name of the related drumkit
-		void set_drumkit_name( const QString& sName );
-		///< get the name of the related drumkits
-		const QString& get_drumkit_name() const;
+		void setDrumkitName( const QString& sName );
 
 		/** Mark the instrument as hydrogen's preview instrument */
-		void set_is_preview_instrument(bool isPreview);
-		bool is_preview_instrument() const;
+		void setIsPreviewInstrument(bool isPreview);
+		bool isPreviewInstrument() const;
 
-		/** Mark the instrument as metronome instrument */
-		void set_is_metronome_instrument(bool isMetronome);
-		bool is_metronome_instrument() const;
-
-		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> get_components() const;
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> getComponents() const;
 		/** Select a component via its index in the corresponding vector. */
-		std::shared_ptr<InstrumentComponent> get_component( int nIdx ) const;
+		std::shared_ptr<InstrumentComponent> getComponent( int nIdx ) const;
 		void addComponent( std::shared_ptr<InstrumentComponent> pComponent );
-		void removeComponent( std::shared_ptr<InstrumentComponent> pComponent );
 		void removeComponent( int nIdx );
 
-		void set_apply_velocity( bool apply_velocity );
-		bool get_apply_velocity() const;
+		void setApplyVelocity( bool apply_velocity );
+		bool getApplyVelocity() const;
 
-		bool is_currently_exported() const;
-		void set_currently_exported( bool isCurrentlyExported );
+		bool isCurrentlyExported() const;
+		void setCurrentlyExported( bool isCurrentlyExported );
 
-		bool has_missing_samples() const { return m_bHasMissingSamples; }
-		void set_missing_samples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
+		bool hasMissingSamples() const { return m_bHasMissingSamples; }
+		void setMissingSamples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
 
 	/** Whether the instrument contains at least one non-missing
 	 * sample */
@@ -306,11 +297,6 @@ class Instrument : public H2Core::Object<Instrument>
 
 		DrumkitMap::Type getType() const;
 		void setType( DrumkitMap::Type type );
-
-		/** Maximum support pitch value */
-		static constexpr float fPitchMax = 24.5;
-		/** Minimum support pitch value */
-		static constexpr float fPitchMin = -24.5;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -324,12 +310,12 @@ class Instrument : public H2Core::Object<Instrument>
 
 	private:
 	        /** Identifier of an instrument, which should be
-		    unique. It is set by set_id() and accessed via
-	        get_id().*/
-		int					__id;
-	        /** Name of the Instrument. It is set by set_name()
-		    and accessed via get_name().*/
-		QString					__name;
+		    unique. It is set by setId() and accessed via
+	        getId().*/
+		int					m_nId;
+	        /** Name of the Instrument. It is set by setName()
+		    and accessed via getName().*/
+		QString					m_sName;
 		DrumkitMap::Type m_type;
 	/** Path of the #Drumkit this #Instrument belongs to.
 	 *
@@ -338,112 +324,101 @@ class Instrument : public H2Core::Object<Instrument>
 	 * absolute paths ourselves in case instruments of several
 	 * drumkits are mixed in one #Song.
 	 */
-	QString					__drumkit_path;
-	/** Name of the #Drumkit found at @a __drumkit_path.
+	QString					m_sDrumkitPath;
+	/** Name of the #Drumkit found at @a m_sDrumkitPath.
 	 *
 	 * This helper variable should only be used during #Instrument
 	 * loading. It ensures portability of songs as absolute paths only
 	 * serve for unique identifiers locally and also ensures backward
 	 * compatibility.
 	 */
-	QString					__drumkit_name;
-	float					__gain;					///< gain of the instrument
-		float					__volume;				///< volume of the instrument
+	QString					m_sDrumkitName;
+	float					m_fGain;					///< gain of the instrument
+		float					m_fVolume;				///< volume of the instrument
 		float					m_fPan;	///< pan of the instrument, [-1;1] from left to right, as requested by Sampler PanLaws
-		float					__peak_l;				///< left current peak value
-		float					__peak_r;				///< right current peak value
-		std::shared_ptr<ADSR>					__adsr;					///< attack delay sustain release instance
-		bool					__filter_active;		///< is filter active?
-		float					__filter_cutoff;		///< filter cutoff (0..1)
-		float					__filter_resonance;		///< filter resonant frequency (0..1)
+		float					m_fPeak_L;				///< left current peak value
+		float					m_fPeak_R;				///< right current peak value
+		std::shared_ptr<ADSR>					m_pAdsr;					///< attack delay sustain release instance
+		bool					m_bFilterActive;		///< is filter active?
+		float					m_fFilterCutoff;		///< filter cutoff (0..1)
+		float					m_fFilterResonance;		///< filter resonant frequency (0..1)
 	/**
 	 * Factor to scale the random contribution when humanizing pitch
 	 * between 0 and #AudioEngine::fHumanizePitchSD.
 	 *
 	 * Supported range [0,1].
 	 */
-		float					__random_pitch_factor;
-		float					__pitch_offset;	///< instrument main pitch offset
-		int						__midi_out_note;		///< midi out note
-		int						__midi_out_channel;		///< midi out channel
-		bool					__stop_notes;			///< will the note automatically generate a note off after being on
-		SampleSelectionAlgo		__sample_selection_alg;	///< how Hydrogen will chose the sample to use
-		bool					__active;				///< is the instrument active?
-		bool					__soloed;				///< is the instrument in solo mode?
-		bool					__muted;				///< is the instrument muted?
-		int						__mute_group;			///< mute group of the instrument
-		int						__queued;				///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
+		float					m_fRandomPitchFactor;
+		float					m_fPitchOffset;	///< instrument main pitch offset
+		int						m_nMidiOutNote;		///< midi out note
+		int						m_nMidiOutChannel;		///< midi out channel
+		bool					m_bStopNotes;			///< will the note automatically generate a note off after being on
+		SampleSelectionAlgo		m_sampleSelectionAlg;	///< how Hydrogen will chose the sample to use
+		bool					m_bSoloed;				///< is the instrument in solo mode?
+		bool					m_bMuted;				///< is the instrument muted?
+		int						m_nMuteGroup;			///< mute group of the instrument
+		int						m_nQueued;				///< count the number of notes queued within Sampler::m_playingNotesQueue or std::priority_queue m_songNoteQueue
 		/** List of short string representations of notes for which this
 		 * instrument was enqueued. */
 		QStringList				m_enqueuedBy;
-		float					__fx_level[MAX_FX];		///< Ladspa FX level array
-		int						__hihat_grp;			///< the instrument is part of a hihat
-		int						__lower_cc;				///< lower cc level
-		int						__higher_cc;			///< higher cc level
-		bool					__is_preview_instrument;		///< is the instrument an hydrogen preview instrument?
-		bool					__is_metronome_instrument;		///< is the instrument an metronome instrument?
-		bool					__apply_velocity;				///< change the sample gain based on velocity
-		bool					__current_instr_for_export;		///< is the instrument currently being exported?
+		float					m_fxLevel[MAX_FX];		///< Ladspa FX level array
+		int						m_nHihatGrp;			///< the instrument is part of a hihat
+		int						m_nLowerCc;				///< lower cc level
+		int						m_nHigherCc;			///< higher cc level
+		bool					m_bIsPreviewInstrument;		///< is the instrument an hydrogen preview instrument?
+		bool					m_bApplyVelocity;				///< change the sample gain based on velocity
+		bool					m_bCurrentInstrForExport;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
-		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> __components;
+		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> m_pComponents;
 };
 
-// DEFINITIONS
-/** Sets the name of the Instrument #__name.
- * \param name New name. */
-inline void Instrument::set_name( const QString& name )
+inline void Instrument::setName( const QString& name )
 {
-	__name = name;
+	m_sName = name;
 }
-/** Access the name of the Instrument.
- * \return #__name */
-inline const QString& Instrument::get_name() const
+inline const QString& Instrument::getName() const
 {
-	return __name;
+	return m_sName;
 }
-/** Sets #__id to @a id.
- * \param id Unique identifier of the instrument. */
-inline void Instrument::set_id( const int id )
+inline void Instrument::setId( const int id )
 {
-	__id = id;
+	m_nId = id;
 }
-/** Returns #__id. 
-* \return #__id. */
-inline int Instrument::get_id() const
+inline int Instrument::getId() const
 {
-	return __id;
+	return m_nId;
 }
 
-inline std::shared_ptr<ADSR> Instrument::get_adsr() const
+inline std::shared_ptr<ADSR> Instrument::getAdsr() const
 {
-	return __adsr;
+	return m_pAdsr;
 }
 
-inline std::shared_ptr<ADSR> Instrument::copy_adsr() const
+inline std::shared_ptr<ADSR> Instrument::copyAdsr() const
 {
-	return std::make_shared<ADSR>( __adsr );
+	return std::make_shared<ADSR>( m_pAdsr );
 }
 
-inline void Instrument::set_mute_group( int group )
+inline void Instrument::setMuteGroup( int group )
 {
-	__mute_group = ( group<-1 ? -1 : group );
+	m_nMuteGroup = ( group<-1 ? -1 : group );
 }
 
-inline int Instrument::get_mute_group() const
+inline int Instrument::getMuteGroup() const
 {
-	return __mute_group;
+	return m_nMuteGroup;
 }
 
-inline int Instrument::get_midi_out_channel() const
+inline int Instrument::getMidiOutChannel() const
 {
-	return __midi_out_channel;
+	return m_nMidiOutChannel;
 }
 
-inline void Instrument::set_midi_out_channel( int nChannel )
+inline void Instrument::setMidiOutChannel( int nChannel )
 {
 	if ( ( nChannel >= MIDI_OUT_CHANNEL_MIN ) &&
 		 ( nChannel <= MIDI_OUT_CHANNEL_MAX ) ) {
-		__midi_out_channel = nChannel;
+		m_nMidiOutChannel = nChannel;
 	} else {
 		ERRORLOG( QString( "midi out channel [%1] out of bounds [%2,%3]" )
 				  .arg( nChannel )
@@ -452,28 +427,28 @@ inline void Instrument::set_midi_out_channel( int nChannel )
 	}
 }
 
-inline int Instrument::get_midi_out_note() const
+inline int Instrument::getMidiOutNote() const
 {
-	return __midi_out_note;
+	return m_nMidiOutNote;
 }
 
-inline void Instrument::set_midi_out_note( int note )
+inline void Instrument::setMidiOutNote( int note )
 {
 	if ( ( note >= MIDI_OUT_NOTE_MIN ) && ( note <= MIDI_OUT_NOTE_MAX ) ) {
-		__midi_out_note = note;
+		m_nMidiOutNote = note;
 	} else {
 		ERRORLOG( QString( "midi out note %1 out of bounds" ).arg( note ) );
 	}
 }
 
-inline void Instrument::set_muted( bool muted )
+inline void Instrument::setMuted( bool muted )
 {
-	__muted = muted;
+	m_bMuted = muted;
 }
 
-inline bool Instrument::is_muted() const
+inline bool Instrument::isMuted() const
 {
-	return __muted;
+	return m_bMuted;
 }
 
 inline void Instrument::setPan( float val ) //TODO check boundary factorize function?
@@ -492,238 +467,213 @@ inline float Instrument::getPan() const
 	return m_fPan;
 }
 
-inline void Instrument::set_gain( float gain )
+inline void Instrument::setGain( float gain )
 {
-	__gain = gain;
+	m_fGain = gain;
 }
 
-inline float Instrument::get_gain() const
+inline float Instrument::getGain() const
 {
-	return __gain;
+	return m_fGain;
 }
 
-inline void Instrument::set_volume( float volume )
+inline void Instrument::setVolume( float volume )
 {
-	__volume = volume;
+	m_fVolume = volume;
 }
 
-inline float Instrument::get_volume() const
+inline float Instrument::getVolume() const
 {
-	return __volume;
+	return m_fVolume;
 }
 
-inline void Instrument::set_filter_active( bool active )
+inline void Instrument::setFilterActive( bool active )
 {
-	__filter_active = active;
+	m_bFilterActive = active;
 }
 
-inline bool Instrument::is_filter_active() const
+inline bool Instrument::isFilterActive() const
 {
-	return __filter_active;
+	return m_bFilterActive;
 }
 
-inline void Instrument::set_filter_resonance( float val )
+inline void Instrument::setFilterResonance( float val )
 {
-	__filter_resonance = val;
+	m_fFilterResonance = val;
 }
 
-inline float Instrument::get_filter_resonance() const
+inline float Instrument::getFilterResonance() const
 {
-	return __filter_resonance;
+	return m_fFilterResonance;
 }
 
-inline void Instrument::set_filter_cutoff( float val )
+inline void Instrument::setFilterCutoff( float val )
 {
-	__filter_cutoff = val;
+	m_fFilterCutoff = val;
 }
 
-inline float Instrument::get_filter_cutoff() const
+inline float Instrument::getFilterCutoff() const
 {
-	return __filter_cutoff;
+	return m_fFilterCutoff;
 }
 
-inline void Instrument::set_peak_l( float val )
+inline void Instrument::setPeak_L( float val )
 {
-	__peak_l = val;
+	m_fPeak_L = val;
 }
 
-inline float Instrument::get_peak_l() const
+inline float Instrument::getPeak_L() const
 {
-	return __peak_l;
+	return m_fPeak_L;
 }
 
-inline void Instrument::set_peak_r( float val )
+inline void Instrument::setPeak_R( float val )
 {
-	__peak_r = val;
+	m_fPeak_R = val;
 }
 
-inline float Instrument::get_peak_r() const
+inline float Instrument::getPeak_R() const
 {
-	return __peak_r;
+	return m_fPeak_R;
 }
 
-inline void Instrument::set_fx_level( float level, int index )
+inline void Instrument::setFxLevel( float level, int index )
 {
-	__fx_level[index] = level;
+	m_fxLevel[index] = level;
 }
 
-inline float Instrument::get_fx_level( int index ) const
+inline float Instrument::getFxLevel( int index ) const
 {
-	return __fx_level[index];
+	return m_fxLevel[index];
 }
 
-inline void Instrument::set_random_pitch_factor( float val )
+inline void Instrument::setRandomPitchFactor( float val )
 {
-	__random_pitch_factor = val;
+	m_fRandomPitchFactor = val;
 }
 
-inline float Instrument::get_random_pitch_factor() const
+inline float Instrument::getRandomPitchFactor() const
 {
-	return __random_pitch_factor;
+	return m_fRandomPitchFactor;
 }
 
-inline float Instrument::get_pitch_offset() const
+inline float Instrument::getPitchOffset() const
 {
-	return __pitch_offset;
+	return m_fPitchOffset;
 }
 
-inline void Instrument::set_active( bool active )
+inline void Instrument::setSoloed( bool soloed )
 {
-	__active = active;
+	m_bSoloed = soloed;
 }
 
-inline bool Instrument::is_active() const
+inline bool Instrument::isSoloed() const
 {
-	return __active;
+	return m_bSoloed;
 }
 
-inline void Instrument::set_soloed( bool soloed )
+inline bool Instrument::isQueued() const
 {
-	__soloed = soloed;
-}
-
-inline bool Instrument::is_soloed() const
-{
-	return __soloed;
-}
-
-inline bool Instrument::is_queued() const
-{
-	return ( __queued > 0 );
+	return ( m_nQueued > 0 );
 }
 
 inline const QStringList& Instrument::getEnqueuedBy() const {
 	return m_enqueuedBy;
 }
 
-inline void Instrument::set_stop_notes( bool stopnotes )
+inline void Instrument::setStopNotes( bool stopnotes )
 {
-	__stop_notes = stopnotes;
+	m_bStopNotes = stopnotes;
 }
 
-inline bool Instrument::is_stop_notes() const
+inline bool Instrument::isStopNotes() const
 {
-	return __stop_notes;
+	return m_bStopNotes;
 }
 
-inline void Instrument::set_sample_selection_alg( SampleSelectionAlgo selected_algo)
+inline void Instrument::setSampleSelectionAlg( SampleSelectionAlgo selected_algo)
 {
-	__sample_selection_alg = selected_algo;
+	m_sampleSelectionAlg = selected_algo;
 }
 
-inline Instrument::SampleSelectionAlgo Instrument::sample_selection_alg() const
+inline Instrument::SampleSelectionAlgo Instrument::sampleSelectionAlg() const
 {
-	return __sample_selection_alg;
+	return m_sampleSelectionAlg;
 }
 
-inline void Instrument::set_hihat_grp( int hihat_grp )
+inline void Instrument::setHihatGrp( int hihat_grp )
 {
-	__hihat_grp = hihat_grp;
+	m_nHihatGrp = hihat_grp;
 }
 
-inline int Instrument::get_hihat_grp() const
+inline int Instrument::getHihatGrp() const
 {
-	return __hihat_grp;
+	return m_nHihatGrp;
 }
 
-inline void Instrument::set_lower_cc( int message )
+inline void Instrument::setLowerCc( int message )
 {
-	__lower_cc = message;
+	m_nLowerCc = message;
 }
 
-inline int Instrument::get_lower_cc() const
+inline int Instrument::getLowerCc() const
 {
-	return __lower_cc;
+	return m_nLowerCc;
 }
 
-inline void Instrument::set_higher_cc( int message )
+inline void Instrument::setHigherCc( int message )
 {
-	__higher_cc = message;
+	m_nHigherCc = message;
 }
 
-inline int Instrument::get_higher_cc() const
+inline int Instrument::getHigherCc() const
 {
-	return __higher_cc;
+	return m_nHigherCc;
 }
 
-inline void Instrument::set_drumkit_path( const QString& sPath )
+inline void Instrument::setDrumkitPath( const QString& sPath )
 {
-	__drumkit_path = sPath;
+	m_sDrumkitPath = sPath;
 }
 
-inline void Instrument::set_drumkit_name( const QString& sName )
+inline void Instrument::setDrumkitName( const QString& sName )
 {
-	__drumkit_name = sName;
+	m_sDrumkitName = sName;
 }
 
-inline const QString& Instrument::get_drumkit_name() const
+inline bool Instrument::isPreviewInstrument() const
 {
-	return __drumkit_name;
+	return m_bIsPreviewInstrument;
 }
 
-inline bool Instrument::is_preview_instrument() const
+inline void Instrument::setIsPreviewInstrument(bool isPreview)
 {
-	return __is_preview_instrument;
+	m_bIsPreviewInstrument = isPreview;
 }
 
-inline void Instrument::set_is_preview_instrument(bool isPreview)
+inline std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> Instrument::getComponents() const
 {
-	__is_preview_instrument = isPreview;
+	return m_pComponents;
 }
 
-inline bool Instrument::is_metronome_instrument() const
+inline void Instrument::setApplyVelocity( bool apply_velocity )
 {
-	return __is_metronome_instrument;
+	m_bApplyVelocity = apply_velocity;
 }
 
-inline void Instrument::set_is_metronome_instrument(bool isMetronome)
+inline bool Instrument::getApplyVelocity() const
 {
-	__is_metronome_instrument = isMetronome;
+	return m_bApplyVelocity;
 }
 
-inline std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> Instrument::get_components() const
+inline bool Instrument::isCurrentlyExported() const
 {
-	return __components;
+	return m_bCurrentInstrForExport;
 }
 
-inline void Instrument::set_apply_velocity( bool apply_velocity )
+inline void Instrument::setCurrentlyExported( bool isCurrentlyExported )
 {
-	__apply_velocity = apply_velocity;
-}
-
-inline bool Instrument::get_apply_velocity() const
-{
-	return __apply_velocity;
-}
-
-inline bool Instrument::is_currently_exported() const
-{
-	return __current_instr_for_export;
-}
-
-inline void Instrument::set_currently_exported( bool isCurrentlyExported )
-{
-	__current_instr_for_export = isCurrentlyExported;
+	m_bCurrentInstrForExport = isCurrentlyExported;
 }
 
 inline DrumkitMap::Type Instrument::getType() const {

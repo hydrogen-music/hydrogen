@@ -41,7 +41,6 @@ class EventListener
 		virtual void instrumentParametersChangedEvent( int nInstrumentIndex ) {
 			UNUSED( nInstrumentIndex );
 		}
-		virtual void jacksessionEvent( int nValue) { UNUSED( nValue ); }
 		virtual void jackTransportActivationEvent(){}
 		virtual void jackTimebaseStateChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void loopModeActivationEvent(){}

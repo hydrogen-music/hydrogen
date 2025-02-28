@@ -901,7 +901,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
 							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->get_name() :
+								   pNote->getInstrument()->getName() :
 								   "nullptr" )
 							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
@@ -913,7 +913,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
 							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->get_name() :
+								   pNote->getInstrument()->getName() :
 								   "nullptr" )
 							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
@@ -937,7 +937,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
 							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->get_name() :
+								   pNote->getInstrument()->getName() :
 								   "nullptr" )
 							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
@@ -949,7 +949,7 @@ void AudioEngineTests::testNoteEnqueuing() {
 				sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
 							 .arg( ii )
 							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->get_name() :
+								   pNote->getInstrument()->getName() :
 								   "nullptr" )
 							 .arg( pNote->getPosition() )
 							 .arg( pNote->getNoteStart() )
@@ -1283,7 +1283,7 @@ void AudioEngineTests::testHumanization() {
 		pSong->setHumanizeTimeValue( fValue );
 		pSong->setHumanizeVelocityValue( fValue );
 
-		pSong->getDrumkit()->getInstruments()->get( 0 )->set_random_pitch_factor( fValue );
+		pSong->getDrumkit()->getInstruments()->get( 0 )->setRandomPitchFactor( fValue );
 	};
 
 	auto setSwing = [&]( double fValue ) {
@@ -1588,15 +1588,15 @@ void AudioEngineTests::testMuteGroups() {
 				 ppNote->getAdsr()->getState() != ADSR::State::Release ) {
 				AudioEngineTests::throwException(
 					QString( "[testMuteGroups] wrong instrument ([%1] is playing): [%2]" )
-					.arg( pPlayingInstrument->get_name() )
+					.arg( pPlayingInstrument->getName() )
 					.arg( ppNote->toQString() ) );
 			}
 
 			// In the current design only Crash 1 and Crash 2 should be played
 			// back.
 			if ( ppNote->getAdsr()->getState() != ADSR::State::Release &&
-				 ppNote->getInstrument()->get_name() != "Crash 1" &&
-				 ppNote->getInstrument()->get_name() != "Crash 2" ) {
+				 ppNote->getInstrument()->getName() != "Crash 1" &&
+				 ppNote->getInstrument()->getName() != "Crash 2" ) {
 				AudioEngineTests::throwException(
 					QString( "[testMuteGroups] unexpected instrument: [%1]" )
 					.arg( ppNote->toQString() ) );
@@ -1813,7 +1813,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 				if ( bTestAudio ) {
 					// Check for consistency in the Sample position
 					// advanced by the Sampler upon rendering.
-					for ( int nn = 0; nn < ppNewNote->getInstrument()->get_components()->size(); nn++ ) {
+					for ( int nn = 0; nn < ppNewNote->getInstrument()->getComponents()->size(); nn++ ) {
 						auto pSelectedLayer = ppOldNote->getLayerSelected( nn );
 						if ( pSelectedLayer == nullptr ) {
 							AudioEngineTests::throwException(
@@ -1826,20 +1826,20 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						// adjusted in here. This is equivalent to the
 						// question whether Sampler::renderNote() or
 						// Sampler::renderNoteResample() was used.
-						if ( ppOldNote->getSample( nn )->get_sample_rate() !=
+						if ( ppOldNote->getSample( nn )->getSampleRate() !=
 							 nSampleRate ||
 							 ppOldNote->getTotalPitch() != 0.0 ) {
 							// In here we assume the layer pitch is zero.
 							fPassedFrames = static_cast<double>(nPassedFrames) *
 								Note::pitchToFrequency( ppOldNote->getTotalPitch() ) *
-								static_cast<float>(ppOldNote->getSample( nn )->get_sample_rate()) /
+								static_cast<float>(ppOldNote->getSample( nn )->getSampleRate()) /
 								static_cast<float>(nSampleRate);
 						}
 						
 						const int nSampleFrames =
-							ppNewNote->getInstrument()->get_component( nn )
+							ppNewNote->getInstrument()->getComponent( nn )
 							->getLayer( pSelectedLayer->nSelectedLayer )
-							->get_sample()->get_frames();
+							->getSample()->getFrames();
 						const double fExpectedFrames =
 							std::min( static_cast<double>(pSelectedLayer->fSamplePosition) +
 									  fPassedFrames,
@@ -1852,7 +1852,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 								.arg( ppNewNote->toQString( "", true ) )
 								.arg( fPassedFrames, 0, 'f' ).arg( sContext )
 								.arg( nSampleFrames ).arg( fExpectedFrames, 0, 'f' )
-								.arg( ppOldNote->getSample( nn )->get_sample_rate() )
+								.arg( ppOldNote->getSample( nn )->getSampleRate() )
 								.arg( nSampleRate )
 								.arg( ppNewNote->getLayerSelected( nn )->fSamplePosition -
 									  fExpectedFrames, 0, 'g', 30 ) );
