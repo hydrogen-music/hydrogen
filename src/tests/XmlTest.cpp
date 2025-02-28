@@ -274,7 +274,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	auto pSample = pLayer->get_sample();
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
-	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));
+	CPPUNIT_ASSERT( pSample->getFilename() == QString("snare.wav"));
 	
 	// 3. Make sure that the original (invalid) file has been saved as
 	// a backup.
@@ -1010,11 +1010,11 @@ bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoad
 						return false;
 					}
 					if( bLoaded ) {
-						if( pSample->get_data_l()==nullptr || pSample->get_data_r()==nullptr ) {
+						if( pSample->getData_L()==nullptr || pSample->getData_R()==nullptr ) {
 							return false;
 						}
 					} else {
-						if( pSample->get_data_l() != nullptr || pSample->get_data_r() != nullptr ) {
+						if( pSample->getData_L() != nullptr || pSample->getData_R() != nullptr ) {
 							return false;
 						}
 					}

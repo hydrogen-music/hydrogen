@@ -42,17 +42,17 @@ void rubberband_test( const QString& sample_path ) {
 		return;
 	}
 	___DEBUGLOG( QString( "input sample\n\tfilename\t: %1\n\tframes\t\t: %2\n\tsample rate\t: %3" )
-	             .arg( sample->get_filename().toLocal8Bit().data() )
-	             .arg( sample->get_frames() )
-	             .arg( sample->get_sample_rate() )
+	             .arg( sample->getFilename().toLocal8Bit().data() )
+	             .arg( sample->getFrames() )
+	             .arg( sample->getSampleRate() )
 	             );
 	
 	sample->write( "/tmp/before.wav" );
 	
 	// setup rubberband
-	RubberBand::RubberBandStretcher* rubber = new RubberBand::RubberBandStretcher( sample->get_sample_rate(), 2, options, time_ratio, pitch );
+	RubberBand::RubberBandStretcher* rubber = new RubberBand::RubberBandStretcher( sample->getSampleRate(), 2, options, time_ratio, pitch );
 	rubber->setDebugLevel( debug );
-	rubber->setExpectedInputDuration( sample->get_frames() );
+	rubber->setExpectedInputDuration( sample->getFrames() );
 	___DEBUGLOG( QString( "rubberband options\n\tdebug\t\t: %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( debug ).arg( options ).arg( time_ratio ).arg( pitch ) );
 	___DEBUGLOG( QString( "minimum sample required: %1" ).arg( rubber->getSamplesRequired() ) );
 	
@@ -61,26 +61,26 @@ void rubberband_test( const QString& sample_path ) {
 	int studied = 0;
 	___DEBUGLOG( "Study ..." );
 	/*
-	while( studied < sample->get_frames() ) {
-		ibuf[0] = &sample->get_data_l()[studied];
-		ibuf[1] = &sample->get_data_r()[studied];
-		bool final = (studied + block_size >= sample->get_frames());
-		int ibs = (final ? (sample->get_frames()-studied) : block_size );
+	while( studied < sample->getFrames() ) {
+		ibuf[0] = &sample->getData_L()[studied];
+		ibuf[1] = &sample->getData_R()[studied];
+		bool final = (studied + block_size >= sample->getFrames());
+		int ibs = (final ? (sample->getFrames()-studied) : block_size );
 		//___DEBUGLOG( QString(" ibs : %1").arg( ibs ) );
 		rubber->study( ibuf, ibs, final );
 		studied += ibs;
 		if( final ) break;
 	}
 	*/
-	studied = sample->get_frames();
-	ibuf[0] = sample->get_data_l();
-	ibuf[1] = sample->get_data_r();
+	studied = sample->getFrames();
+	ibuf[0] = sample->getData_L();
+	ibuf[1] = sample->getData_R();
 	rubber->study( ibuf, studied, true );
 	___DEBUGLOG( QString("done.\n  %1 frames studied.").arg( studied ) );
 	
 	// buffers
 	float* obuf[2];
-	int out_buffer_size = (int)(sample->get_frames()*time_ratio)+1000;
+	int out_buffer_size = (int)(sample->getFrames()*time_ratio)+1000;
 	float* out_data_l = new float[ out_buffer_size ];
 	float* out_data_r = new float[ out_buffer_size ];
 	int processed = 0;
@@ -89,11 +89,11 @@ void rubberband_test( const QString& sample_path ) {
 	int buffer_free = out_buffer_size;
 	___DEBUGLOG( "Process ..." );
 	/*
-	while( processed < sample->get_frames() ) {
-		ibuf[0] = &sample->get_data_l()[processed];
-		ibuf[1] = &sample->get_data_r()[processed];
-		bool final = (processed + block_size >= sample->get_frames());
-		int ibs = (final ? (sample->get_frames()-processed) : block_size );
+	while( processed < sample->getFrames() ) {
+		ibuf[0] = &sample->getData_L()[processed];
+		ibuf[1] = &sample->getData_R()[processed];
+		bool final = (processed + block_size >= sample->getFrames());
+		int ibs = (final ? (sample->getFrames()-processed) : block_size );
 		//___DEBUGLOG( QString(" ibs : %1").arg( ibs ) );
 		rubber->process( ibuf, ibs, final );
 		processed += ibs;
@@ -110,9 +110,9 @@ void rubberband_test( const QString& sample_path ) {
 		}
 	}
 	*/
-	processed = sample->get_frames();
-	ibuf[0] = sample->get_data_l();
-	ibuf[1] = sample->get_data_r();
+	processed = sample->getFrames();
+	ibuf[0] = sample->getData_L();
+	ibuf[1] = sample->getData_R();
 	rubber->process( ibuf, processed, true );
 	
 	// retrieve last frames
@@ -125,7 +125,7 @@ void rubberband_test( const QString& sample_path ) {
 		buffer_free -= n;
 		//___DEBUGLOG( QString( "  received frames %1" ).arg( n ) );
 	}
-	___DEBUGLOG( QString( "done.\n  %1 frames processed\n  %2 frames retrieved [ %3 expected ]" ).arg( processed ).arg( retrieved ).arg( sample->get_frames()*time_ratio ) );
+	___DEBUGLOG( QString( "done.\n  %1 frames processed\n  %2 frames retrieved [ %3 expected ]" ).arg( processed ).arg( retrieved ).arg( sample->getFrames()*time_ratio ) );
 	
 	// final data buffers
 	float* data_l = new float[ retrieved ];
@@ -142,7 +142,7 @@ void rubberband_test( const QString& sample_path ) {
 	auto sample2 = std::make_shared<H2Core::Sample>( "/tmp/after.wav",
 													 H2Core::License(),
 													 retrieved,
-													 sample->get_sample_rate(),
+													 sample->getSampleRate(),
 													 data_l,
 													 data_r );
 	sample2->write( "/tmp/after.wav" );

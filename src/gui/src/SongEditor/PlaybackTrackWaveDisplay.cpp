@@ -129,11 +129,11 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 		auto pSong = Hydrogen::get_instance()->getSong();
 		
 		m_pLayer = pLayer;
-		m_sSampleName = m_pLayer->get_sample()->get_filename();
+		m_sSampleName = m_pLayer->get_sample()->getFilename();
 		
-		auto	pSampleData = pLayer->get_sample()->get_data_l();
-		int		nSampleLength = m_pLayer->get_sample()->get_frames();
-		float	fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float) m_pLayer->get_sample()->get_sample_rate() );
+		auto	pSampleData = pLayer->get_sample()->getData_L();
+		int		nSampleLength = m_pLayer->get_sample()->getFrames();
+		float	fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float) m_pLayer->get_sample()->getSampleRate() );
 		float	fRemainingLengthOfPlaybackTrack = fLengthOfPlaybackTrackInSecs;		
 		float	fGain = height() / 2.0 * pLayer->get_gain();
 		int		nSamplePos = 0;

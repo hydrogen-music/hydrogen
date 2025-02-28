@@ -513,10 +513,10 @@ void Sampler::handleTimelineOrTempoChange() {
 				const int nNewNoteLength =
 					TransportPosition::computeFrameFromTick(
 						ppNote->getPosition() + ppNote->getLength(),
-						&fTickMismatch, pSample->get_sample_rate() ) -
+						&fTickMismatch, pSample->getSampleRate() ) -
 					TransportPosition::computeFrameFromTick(
 						ppNote->getPosition(), &fTickMismatch,
-						pSample->get_sample_rate() );
+						pSample->getSampleRate() );
 
 				// The ratio between the old and new note length determines the
 				// scaling of the length. This is only applied to the part of
@@ -736,16 +736,16 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		float fLayerGain = pLayer->get_gain();
 		float fLayerPitch = pLayer->get_pitch();
 
-		if ( pSelectedLayer->fSamplePosition >= pSample->get_frames() ) {
+		if ( pSelectedLayer->fSamplePosition >= pSample->getFrames() ) {
 			// Due to rounding errors in renderNoteResample() the
 			// sample position can occassionaly exceed the maximum
 			// frames of a sample. AFAICS this is not itself
 			// harmful. So, we just log a warning if the difference is
 			// larger, which might be caused by a different problem.
-			if ( pSelectedLayer->fSamplePosition >= pSample->get_frames() + 3 ) {
+			if ( pSelectedLayer->fSamplePosition >= pSample->getFrames() + 3 ) {
 				WARNINGLOG( QString( "sample position [%1] out of bounds [0,%2]. The layer has been resized during note play?" )
 							.arg( pSelectedLayer->fSamplePosition )
-							.arg( pSample->get_frames() ) );
+							.arg( pSample->getFrames() ) );
 			}
 			returnValues[ ii ] = true;
 			continue;
@@ -1076,8 +1076,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
-	auto pSample_data_L = pSample->get_data_l();
-	auto pSample_data_R = pSample->get_data_r();
+	auto pSample_data_L = pSample->getData_L();
+	auto pSample_data_R = pSample->getData_R();
 
 	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
@@ -1086,11 +1086,11 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	const long long nFrameOffset =
 		pAudioEngine->getTransportPosition()->getFrameOffsetTempo();
 
-	int nSampleFrames = pSample->get_frames();
-	float fStep = ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
+	int nSampleFrames = pSample->getFrames();
+	float fStep = ( float )pSample->getSampleRate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
 	double fSamplePos = ( nFrame - nFrameOffset ) * fStep;
 
-	nAvail_bytes = std::min( ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep ),
+	nAvail_bytes = std::min( ( int )( ( float )( pSample->getFrames() - fSamplePos ) / fStep ),
 							 nBufferSize );
 
 	int nFinalBufferPos = nInitialBufferPos + nAvail_bytes;
@@ -1099,7 +1099,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	float buffer_L[ nBufferSize ];
 	float buffer_R[ nBufferSize ];
 
-	if ( pSample->get_sample_rate() == pAudioDriver->getSampleRate() ) {
+	if ( pSample->getSampleRate() == pAudioDriver->getSampleRate() ) {
 		copySample( &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
 					nBufferSize, fSamplePos, fStep, nSampleFrames );
 	} else {
@@ -1169,23 +1169,23 @@ bool Sampler::renderNoteResample(
 
 	const float fNotePitch = pNote->getTotalPitch() + fLayerPitch;
 	const bool bResample = fNotePitch != 0 ||
-		pSample->get_sample_rate() != pAudioDriver->getSampleRate();
+		pSample->getSampleRate() != pAudioDriver->getSampleRate();
 
 	float fStep;
 	if ( bResample ){
 		fStep = Note::pitchToFrequency( fNotePitch );
 
 		// Adjust for audio driver sample rate
-		fStep *= static_cast<float>(pSample->get_sample_rate()) /
+		fStep *= static_cast<float>(pSample->getSampleRate()) /
 			static_cast<float>(pAudioDriver->getSampleRate());
 	}
 	else {
 		fStep = 1;
 	}
 
-	auto pSample_data_L = pSample->get_data_l();
-	auto pSample_data_R = pSample->get_data_r();
-	const int nSampleFrames = pSample->get_frames();
+	auto pSample_data_L = pSample->getData_L();
+	auto pSample_data_R = pSample->getData_R();
+	const int nSampleFrames = pSample->getFrames();
 	// The number of frames of the sample left to process.
 	const int nRemainingFrames = static_cast<int>(
 		(static_cast<float>(nSampleFrames) - pSelectedLayerInfo->fSamplePosition) /
@@ -1227,10 +1227,10 @@ bool Sampler::renderNoteResample(
 			pSelectedLayerInfo->nNoteLength =
 				TransportPosition::computeFrameFromTick(
 					pNote->getPosition() + pNote->getLength(),
-					&fTickMismatch, pSample->get_sample_rate() ) -
+					&fTickMismatch, pSample->getSampleRate() ) -
 				TransportPosition::computeFrameFromTick(
 					pNote->getPosition(), &fTickMismatch,
-					pSample->get_sample_rate() );
+					pSample->getSampleRate() );
 		}
 
 		nNoteEnd = std::min(nFinalBufferPos + 1, static_cast<int>(

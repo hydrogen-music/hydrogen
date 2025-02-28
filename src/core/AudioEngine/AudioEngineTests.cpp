@@ -1826,20 +1826,20 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						// adjusted in here. This is equivalent to the
 						// question whether Sampler::renderNote() or
 						// Sampler::renderNoteResample() was used.
-						if ( ppOldNote->getSample( nn )->get_sample_rate() !=
+						if ( ppOldNote->getSample( nn )->getSampleRate() !=
 							 nSampleRate ||
 							 ppOldNote->getTotalPitch() != 0.0 ) {
 							// In here we assume the layer pitch is zero.
 							fPassedFrames = static_cast<double>(nPassedFrames) *
 								Note::pitchToFrequency( ppOldNote->getTotalPitch() ) *
-								static_cast<float>(ppOldNote->getSample( nn )->get_sample_rate()) /
+								static_cast<float>(ppOldNote->getSample( nn )->getSampleRate()) /
 								static_cast<float>(nSampleRate);
 						}
 						
 						const int nSampleFrames =
 							ppNewNote->getInstrument()->get_component( nn )
 							->getLayer( pSelectedLayer->nSelectedLayer )
-							->get_sample()->get_frames();
+							->get_sample()->getFrames();
 						const double fExpectedFrames =
 							std::min( static_cast<double>(pSelectedLayer->fSamplePosition) +
 									  fPassedFrames,
@@ -1852,7 +1852,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 								.arg( ppNewNote->toQString( "", true ) )
 								.arg( fPassedFrames, 0, 'f' ).arg( sContext )
 								.arg( nSampleFrames ).arg( fExpectedFrames, 0, 'f' )
-								.arg( ppOldNote->getSample( nn )->get_sample_rate() )
+								.arg( ppOldNote->getSample( nn )->getSampleRate() )
 								.arg( nSampleRate )
 								.arg( ppNewNote->getLayerSelected( nn )->fSamplePosition -
 									  fExpectedFrames, 0, 'g', 30 ) );

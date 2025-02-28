@@ -299,8 +299,8 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 								results.push_back( std::make_shared<Content>(
 									ppInstrument->get_name(), // m_sInstrumentName
 									ppInstrumentComponent->getName(),
-									pSample->get_filename(), // m_sSampleName
-									pSample->get_filepath(), // m_sFullSamplePath
+									pSample->getFilename(), // m_sSampleName
+									pSample->getFilepath(), // m_sFullSamplePath
 									pSample->getLicense() // m_license
 								    ) );
 							}

@@ -128,7 +128,7 @@ void DetailWaveDisplay::updateDisplay( const QString& filename )
 
 	if ( pNewSample != nullptr ) {
 
-		int mSampleLength = pNewSample->get_frames();
+		int mSampleLength = pNewSample->getFrames();
 
 		m_pPeakDatal = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
 		m_pPeakDatar = new int[ mSampleLength + m_pNormalImageDetailFrames /2 ];
@@ -140,8 +140,8 @@ void DetailWaveDisplay::updateDisplay( const QString& filename )
 
 		float fGain = height() / 4.0 * 1.0;
 
-		auto pSampleDatal = pNewSample->get_data_l();
-		auto pSampleDatar = pNewSample->get_data_r();
+		auto pSampleDatal = pNewSample->getData_L();
+		auto pSampleDatar = pNewSample->getData_R();
 
 		for ( int i = 0; i < mSampleLength; i++ ){
 			m_pPeakDatal[ i ] = static_cast<int>( pSampleDatal[ i ] * fGain );

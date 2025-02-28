@@ -175,7 +175,7 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 	
 	if ( pNewSample ) {
 
-		int nSampleLength = pNewSample->get_frames();
+		int nSampleLength = pNewSample->getFrames();
 		m_nSampleLength = nSampleLength;
 		float nScaleFactor = nSampleLength / (width() -50);
 		if ( nScaleFactor < 1 ){
@@ -184,8 +184,8 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 		float fGain = height() / 4.0 * 1.0;
 
-		auto pSampleDatal = pNewSample->get_data_l();
-		auto pSampleDatar = pNewSample->get_data_r();
+		auto pSampleDatal = pNewSample->getData_L();
+		auto pSampleDatar = pNewSample->getData_R();
 
 		unsigned nSamplePos = 0;
 		int nVall = 0;

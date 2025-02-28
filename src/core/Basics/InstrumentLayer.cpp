@@ -155,17 +155,17 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 
 		const bool bIsModified =
 			node.read_bool( "ismodified", false, true, false, true );
-		pSample->set_is_modified( bIsModified );
+		pSample->setIsModified( bIsModified );
 	
 		if ( bIsModified ) {
 		
 			Sample::Loops loops;
-			loops.mode = Sample::parse_loop_mode( node.read_string( "smode", "forward", false, false, bSilent ) );
+			loops.mode = Sample::parseLoopMode( node.read_string( "smode", "forward", false, false, bSilent ) );
 			loops.start_frame = node.read_int( "startframe", 0, false, false, bSilent );
 			loops.loop_frame = node.read_int( "loopframe", 0, false, false, bSilent );
 			loops.count = node.read_int( "loops", 0, false, false, bSilent );
 			loops.end_frame = node.read_int( "endframe", 0, false, false, bSilent );
-			pSample->set_loops( loops );
+			pSample->setLoops( loops );
 	
 			Sample::Rubberband rubberband;
 			rubberband.use = node.read_int( "userubber", 0, false, false, bSilent );
@@ -178,7 +178,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 											m_sRubberBandCLIexecutable ) ) {
 				rubberband.use = false;
 			}
-			pSample->set_rubberband( rubberband );
+			pSample->setRubberband( rubberband );
 	
 			// FIXME, kill EnvelopePoint, create Envelope class
 			EnvelopePoint pt;
@@ -191,7 +191,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 				velocityEnvelope.push_back( pt );
 				volumeNode = volumeNode.nextSiblingElement( "volume" );
 			}
-			pSample->set_velocity_envelope( velocityEnvelope );
+			pSample->setVelocityEnvelope( velocityEnvelope );
 
 			Sample::VelocityEnvelope panEnvelope;
 			XMLNode panNode = node.firstChildElement( "pan" );
@@ -201,7 +201,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from(
 				panEnvelope.push_back( pt );
 				panNode = panNode.nextSiblingElement( "pan" );
 			}
-			pSample->set_pan_envelope( panEnvelope );
+			pSample->setPanEnvelope( panEnvelope );
 		}
 	}
 	else {
@@ -244,10 +244,10 @@ void InstrumentLayer::save_to( XMLNode& node, bool bSongKit ) const
 
 	QString sFilename;
 	if ( bSongKit ) {
-		sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
+		sFilename = Filesystem::prepare_sample_path( pSample->getFilepath() );
 	}
 	else {
-		sFilename = pSample->get_filename();
+		sFilename = pSample->getFilename();
 	}
 	
 	layer_node.write_string( "filename", sFilename );
@@ -258,28 +258,28 @@ void InstrumentLayer::save_to( XMLNode& node, bool bSongKit ) const
 	layer_node.write_bool( "isMuted", m_bIsMuted );
 	layer_node.write_bool( "isSoloed", m_bIsSoloed );
 
-	layer_node.write_bool( "ismodified", pSample->get_is_modified() );
-	layer_node.write_string( "smode", pSample->get_loop_mode_string() );
+	layer_node.write_bool( "ismodified", pSample->getIsModified() );
+	layer_node.write_string( "smode", pSample->getLoopModeString() );
 
-	Sample::Loops loops = pSample->get_loops();
+	Sample::Loops loops = pSample->getLoops();
 	layer_node.write_int( "startframe", loops.start_frame );
 	layer_node.write_int( "loopframe", loops.loop_frame );
 	layer_node.write_int( "loops", loops.count );
 	layer_node.write_int( "endframe", loops.end_frame );
 
-	Sample::Rubberband rubberband = pSample->get_rubberband();
+	Sample::Rubberband rubberband = pSample->getRubberband();
 	layer_node.write_int( "userubber", static_cast<int>(rubberband.use) );
 	layer_node.write_float( "rubberdivider", rubberband.divider );
 	layer_node.write_int( "rubberCsettings", rubberband.c_settings );
 	layer_node.write_float( "rubberPitch", rubberband.pitch );
 
-	for ( const auto& velocity : pSample->get_velocity_envelope() ) {
+	for ( const auto& velocity : pSample->getVelocityEnvelope() ) {
 		XMLNode volumeNode = layer_node.createNode( "volume" );
 		volumeNode.write_int( "volume-position", velocity.frame );
 		volumeNode.write_int( "volume-value", velocity.value );
 	}
 
-	for ( const auto& pan : pSample->get_pan_envelope() ) {
+	for ( const auto& pan : pSample->getPanEnvelope() ) {
 		XMLNode panNode = layer_node.createNode( "pan" );
 		panNode.write_int( "pan-position", pan.frame );
 		panNode.write_int( "pan-value", pan.value );
@@ -315,7 +315,7 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) );
 		if ( __sample != nullptr ) { 
-			sOutput.append( QString( ", sample: %1\n" ).arg( __sample->get_filepath() ) );
+			sOutput.append( QString( ", sample: %1\n" ).arg( __sample->getFilepath() ) );
 		} else {
 			sOutput.append( QString( ", sample: nullptr\n" ) );
 		}

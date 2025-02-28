@@ -132,7 +132,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				if ( pLayer != nullptr && nLayers > 0 ) {
 					auto pSample = pLayer->get_sample();
 					if ( pSample != nullptr ) {
-						label = pSample->get_filename();
+						label = pSample->getFilename();
 						layerSegmentColor =
 							pPref->getTheme().m_color.m_accentColor.lighter( 130 );
 					} else {

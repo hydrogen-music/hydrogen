@@ -101,12 +101,12 @@ void SampleWaveDisplay::updateDisplay( const QString& filename )
 
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
-		int nSampleLength = pNewSample->get_frames();
+		int nSampleLength = pNewSample->getFrames();
 		float nScaleFactor = nSampleLength / width();
 
 		float fGain = height() / 2.0 * 1.0;
 
-		auto pSampleData = pNewSample->get_data_l();
+		auto pSampleData = pNewSample->getData_L();
 
 		int nSamplePos =0;
 		int nVal;

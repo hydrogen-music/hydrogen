@@ -963,7 +963,7 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 		auto pSample = pLayer->get_sample();
 		
 		if( pSample != nullptr ) {
-			QString name = pSample->get_filepath();
+			QString name = pSample->getFilepath();
 			HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 		}
 	}
@@ -984,7 +984,7 @@ void InstrumentEditor::showSampleEditor()
 		if ( pLayer != nullptr ) {
 			auto pSample = pLayer->get_sample();
 			if ( pSample != nullptr ) {
-				QString name = pSample->get_filepath();
+				QString name = pSample->getFilepath();
 				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 			}
 		}
@@ -1063,8 +1063,8 @@ void InstrumentEditor::loadLayerBtnClicked()
 				auto pSample = pLayer->get_sample();
 
 				if ( pSample != nullptr ) {
-					if ( ! pSample->get_filepath().isEmpty() ) {
-						QFileInfo fileInfo( pSample->get_filepath() );
+					if ( ! pSample->getFilepath().isEmpty() ) {
+						QFileInfo fileInfo( pSample->getFilepath() );
 						sPath = fileInfo.absoluteDir().absolutePath();
 						sFilename = fileInfo.absoluteFilePath();
 					}

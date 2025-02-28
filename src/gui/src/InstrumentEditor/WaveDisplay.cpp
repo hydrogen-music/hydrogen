@@ -131,16 +131,16 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 	
 	if ( pLayer && pLayer->get_sample() ) {
 		m_pLayer = pLayer;
-		m_sSampleName = pLayer->get_sample()->get_filename();
+		m_sSampleName = pLayer->get_sample()->getFilename();
 
 		//INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
-		int nSampleLength = pLayer->get_sample()->get_frames();
+		int nSampleLength = pLayer->get_sample()->getFrames();
 		int nScaleFactor = nSampleLength / m_nCurrentWidth;
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
-		auto pSampleData = pLayer->get_sample()->get_data_l();
+		auto pSampleData = pLayer->get_sample()->getData_L();
 
 		int nSamplePos =0;
 		int nVal;
