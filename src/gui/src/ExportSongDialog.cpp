@@ -966,7 +966,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 					if ( pCompo != nullptr ) {
 						auto pLayer = pCompo->getLayer( nLayer );
 						if ( pLayer != nullptr ) {
-							auto pSample = pLayer->get_sample();
+							auto pSample = pLayer->getSample();
 							if ( pSample != nullptr ) {
 								if ( pSample->getRubberband().use ) {
 									return true;

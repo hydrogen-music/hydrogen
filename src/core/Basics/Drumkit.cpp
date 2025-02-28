@@ -451,9 +451,9 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 			if ( pComponent != nullptr ) {
 				for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 					auto pLayer = pComponent->getLayer( n );
-					if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
-						QString src = pLayer->get_sample()->getFilepath();
-						QString dst = sDrumkitFolder + "/" + pLayer->get_sample()->getFilename();
+					if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
+						QString src = pLayer->getSample()->getFilepath();
+						QString dst = sDrumkitFolder + "/" + pLayer->getSample()->getFilename();
 
 						if ( src != dst ) {
 							QString original_dst = dst;
@@ -464,7 +464,7 @@ bool Drumkit::saveSamples( const QString& sDrumkitFolder, bool bSilent ) const
 								insertPosition = original_dst.lastIndexOf(".");
 							}
 
-							pLayer->get_sample()->setFilename( dst );
+							pLayer->getSample()->setFilename( dst );
 
 							if( ! Filesystem::file_copy( src, dst, bSilent ) ) {
 								return false;
@@ -644,7 +644,7 @@ void Drumkit::propagateLicense(){
 				if ( ppInstrumentComponent != nullptr ) {
 					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
 						if ( ppInstrumentLayer != nullptr ) {
-							auto pSample = ppInstrumentLayer->get_sample();
+							auto pSample = ppInstrumentLayer->getSample();
 							if ( pSample != nullptr ) {
 								pSample->setLicense( getLicense() );
 							}
@@ -969,8 +969,8 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 					if ( pComponent != nullptr ) {
 						for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 							const auto pLayer = pComponent->getLayer( n );
-							if ( pLayer != nullptr && pLayer->get_sample() != nullptr ) {
-								if ( pLayer->get_sample()->getFilename().compare( ssFile ) == 0 ) {
+							if ( pLayer != nullptr && pLayer->getSample() != nullptr ) {
+								if ( pLayer->getSample()->getFilename().compare( ssFile ) == 0 ) {
 									filesUsed << sourceDir.filePath( ssFile );
 									bSampleFound = true;
 									break;
@@ -1233,7 +1233,7 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 					for ( int nnLayer = 0; nnLayer < InstrumentComponent::getMaxLayers(); nnLayer++ ) {
 						auto pLayer = pInstrumentComponent->getLayer( nnLayer );
 						if ( pLayer != nullptr ) {
-							auto pSample = pLayer->get_sample();
+							auto pSample = pLayer->getSample();
 							if ( pSample != nullptr ) {
 								if( pSample->getRubberband().use ) {
 									auto pNewSample = std::make_shared<Sample>( pSample );
@@ -1243,7 +1243,7 @@ void Drumkit::recalculateRubberband( float fBpm ) {
 									}
 
 									// insert new sample from newInstrument
-									pLayer->set_sample( pNewSample );
+									pLayer->setSample( pNewSample );
 								}
 							}
 						}

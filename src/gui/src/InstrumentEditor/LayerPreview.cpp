@@ -130,7 +130,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				auto pLayer = pComponent->getLayer( i );
 				
 				if ( pLayer != nullptr && nLayers > 0 ) {
-					auto pSample = pLayer->get_sample();
+					auto pSample = pLayer->getSample();
 					if ( pSample != nullptr ) {
 						label = pSample->getFilename();
 						layerSegmentColor =
@@ -141,8 +141,8 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					}
 						
 					
-					int x1 = (int)( pLayer->get_start_velocity() * width() );
-					int x2 = (int)( pLayer->get_end_velocity() * width() );
+					int x1 = (int)( pLayer->getStartVelocity() * width() );
+					int x2 = (int)( pLayer->getEndVelocity() * width() );
 
 					// Labels for layers to the left will have a
 					// lighter color as those to the right.
@@ -267,8 +267,8 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 		auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 
 		if ( pLayer ) {
-			int x1 = (int)( pLayer->get_start_velocity() * width() );
-			int x2 = (int)( pLayer->get_end_velocity() * width() );
+			int x1 = (int)( pLayer->getStartVelocity() * width() );
+			int x2 = (int)( pLayer->getEndVelocity() * width() );
 			
 			if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
 				setCursor( QCursor( Qt::SizeHorCursor ) );
@@ -304,7 +304,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 			if(pCompo){
 				auto pLayer = pCompo->getLayer( i );
 				if ( pLayer ) {
-					if ( ( fVelocity > pLayer->get_start_velocity()) && ( fVelocity < pLayer->get_end_velocity() ) ) {
+					if ( ( fVelocity > pLayer->getStartVelocity()) && ( fVelocity < pLayer->getEndVelocity() ) ) {
 						if ( i != m_nSelectedLayer ) {
 							m_nSelectedLayer = i;
 							update();
@@ -326,15 +326,15 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		if( pCompo != nullptr ) {
 			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
-				const float fVelocity = pLayer->get_end_velocity() - 0.01;
+				const float fVelocity = pLayer->getEndVelocity() - 0.01;
 				auto pNote = std::make_shared<Note>(
 					m_pInstrument, nPosition, fVelocity );
 				pNote->setSpecificCompoIdx( m_nSelectedComponent );
 				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 					noteOn( pNote );
 				
-				int x1 = (int)( pLayer->get_start_velocity() * width() );
-				int x2 = (int)( pLayer->get_end_velocity() * width() );
+				int x1 = (int)( pLayer->getStartVelocity() * width() );
+				int x2 = (int)( pLayer->getEndVelocity() * width() );
 				
 				if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
@@ -383,15 +383,15 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 			if ( m_bMouseGrab ) {
 				bool bChanged = false;
 				if ( m_bGrabLeft ) {
-					if ( fVel < pLayer->get_end_velocity()) {
-						pLayer->set_start_velocity( fVel );
+					if ( fVel < pLayer->getEndVelocity()) {
+						pLayer->setStartVelocity( fVel );
 						bChanged = true;
 						showLayerStartVelocity( pLayer, ev );
 					}
 				}
 				else {
-					if ( fVel > pLayer->get_start_velocity()) {
-						pLayer->set_end_velocity( fVel );
+					if ( fVel > pLayer->getStartVelocity()) {
+						pLayer->setEndVelocity( fVel );
 						bChanged = true;
 						showLayerEndVelocity( pLayer, ev );
 					}
@@ -411,8 +411,8 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 			if( pComponent ){
 				auto pLayer = pComponent->getLayer( m_nSelectedLayer );
 				if ( pLayer ) {
-					int x1 = (int)( pLayer->get_start_velocity() * width() );
-					int x2 = (int)( pLayer->get_end_velocity() * width() );
+					int x1 = (int)( pLayer->getStartVelocity() * width() );
+					int x2 = (int)( pLayer->getEndVelocity() * width() );
 					
 					if ( ( x < x1  + 5 ) && ( x > x1 - 5 ) ){
 						setCursor( QCursor( Qt::SizeHorCursor ) );
@@ -452,7 +452,7 @@ int LayerPreview::getMidiVelocityFromRaw( const float raw )
 
 void LayerPreview::showLayerStartVelocity( const std::shared_ptr<InstrumentLayer> pLayer, const QMouseEvent* pEvent )
 {
-	const float fVelo = pLayer->get_start_velocity();
+	const float fVelo = pLayer->getStartVelocity();
 
 	QToolTip::showText( pEvent->globalPos(),
 			tr( "Dec. = %1\nMIDI = %2" )
@@ -463,7 +463,7 @@ void LayerPreview::showLayerStartVelocity( const std::shared_ptr<InstrumentLayer
 
 void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> pLayer, const QMouseEvent* pEvent )
 {
-	const float fVelo = pLayer->get_end_velocity();
+	const float fVelo = pLayer->getEndVelocity();
 
 	QToolTip::showText( pEvent->globalPos(),
 			tr( "Dec. = %1\nMIDI = %2" )

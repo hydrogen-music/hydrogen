@@ -271,7 +271,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	auto pLayer = pFirstInstrument->getComponents()->front()->getLayer(0);
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	
-	auto pSample = pLayer->get_sample();
+	auto pSample = pLayer->getSample();
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
 	CPPUNIT_ASSERT( pSample->getFilename() == QString("snare.wav"));
@@ -1005,7 +1005,7 @@ bool XmlTest::checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit, bool bLoad
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				auto pLayer = pComponent->getLayer( nLayer );
 				if( pLayer ) {
-					auto pSample = pLayer->get_sample();
+					auto pSample = pLayer->getSample();
 					if ( pSample == nullptr ) {
 						return false;
 					}

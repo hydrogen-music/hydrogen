@@ -842,9 +842,9 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hy
 	}
 	
 	if ( gain_param != 0 ) {
-		pLayer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
+		pLayer->setGain( 5.0* ( (float) (gain_param / 127.0 ) ) );
 	} else {
-		pLayer->set_gain( 0 );
+		pLayer->setGain( 0 );
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
@@ -889,11 +889,11 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 	}
 	
 	if ( pitch_param != 0 ) {
-		pLayer->set_pitch(
+		pLayer->setPitch(
 			( Instrument::fPitchMax - Instrument::fPitchMin ) *
 			( (float) (pitch_param / 127.0 ) ) + Instrument::fPitchMin );
 	} else {
-		pLayer->set_pitch( Instrument::fPitchMin );
+		pLayer->setPitch( Instrument::fPitchMin );
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );

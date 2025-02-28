@@ -886,7 +886,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 		if ( pCompo != nullptr ) {
 			auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
-				pLayer->set_gain( fVal );
+				pLayer->setGain( fVal );
 				m_pWaveDisplay->updateDisplay( pLayer );
 			}
 		}
@@ -910,7 +910,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			if ( pLayer != nullptr ) {
 				float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->set_pitch( fCoarse + fFine );
+				pLayer->setPitch( fCoarse + fFine );
 			}
 		}
 	}
@@ -922,7 +922,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			if ( pLayer != nullptr ) {
 				float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 				float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-				pLayer->set_pitch( fCoarse + fFine );
+				pLayer->setPitch( fCoarse + fFine );
 			}
 		}
 	}
@@ -960,7 +960,7 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 			
 	auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 	if ( pLayer != nullptr ) {
-		auto pSample = pLayer->get_sample();
+		auto pSample = pLayer->getSample();
 		
 		if( pSample != nullptr ) {
 			QString name = pSample->getFilepath();
@@ -982,7 +982,7 @@ void InstrumentEditor::showSampleEditor()
 	if ( pCompo != nullptr ) {
 		auto pLayer = pCompo->getLayer( m_nSelectedLayer );
 		if ( pLayer != nullptr ) {
-			auto pSample = pLayer->get_sample();
+			auto pSample = pLayer->getSample();
 			if ( pSample != nullptr ) {
 				QString name = pSample->getFilepath();
 				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
@@ -1060,7 +1060,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 			auto pLayer = pComponent->getLayer( m_nSelectedLayer );
 
 			if ( pLayer != nullptr ) {
-				auto pSample = pLayer->get_sample();
+				auto pSample = pLayer->getSample();
 
 				if ( pSample != nullptr ) {
 					if ( ! pSample->getFilepath().isEmpty() ) {
@@ -1132,8 +1132,9 @@ void InstrumentEditor::loadLayerBtnClicked()
 			auto pLayer = pCompo->getLayer( selectedLayer );
 
 			if ( pLayer != nullptr ) {
-				// insert new sample from newInstrument, old sample gets deleted by set_sample
-				pLayer->set_sample( pNewSample );
+				// insert new sample from newInstrument, old sample gets deleted
+				// by setSample
+				pLayer->setSample( pNewSample );
 			}
 			else {
 				pLayer = std::make_shared<H2Core::InstrumentLayer>( pNewSample );
@@ -1192,8 +1193,8 @@ void InstrumentEditor::setAutoVelocity()
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		auto pLayer = pCompo->getLayer( i );
 		if ( pLayer != nullptr ) {
-			pLayer->set_start_velocity( nLayer * velocityrange);
-			pLayer->set_end_velocity( nLayer * velocityrange + velocityrange );
+			pLayer->setStartVelocity( nLayer * velocityrange);
+			pLayer->setEndVelocity( nLayer * velocityrange + velocityrange );
 			
 			++nLayer;
 		}
@@ -1279,10 +1280,10 @@ void InstrumentEditor::selectLayer( int nLayer )
 		if ( pLayer != nullptr ) {
 			// Layer GAIN
 			m_pLayerGainRotary->setIsActive( true );
-			m_pLayerGainRotary->setValue( pLayer->get_gain(), false,
+			m_pLayerGainRotary->setValue( pLayer->getGain(), false,
 										  Event::Trigger::Suppress );
 			m_pLayerGainLCD->setText(
-				QString( "%1" ).arg( pLayer->get_gain(), -2, 'f', 2, '0' ) );
+				QString( "%1" ).arg( pLayer->getGain(), -2, 'f', 2, '0' ) );
 
 			//Component GAIN
 			m_pCompoGainRotary->setIsActive( true );
@@ -1292,8 +1293,8 @@ void InstrumentEditor::selectLayer( int nLayer )
 				QString( "%1" ).arg( pComponent->getGain(), -2, 'f', 2, '0' ) );
 
 			// Layer PITCH
-			const float fCoarsePitch = round( pLayer->get_pitch() );
-			const float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
+			const float fCoarsePitch = round( pLayer->getPitch() );
+			const float fFinePitch = pLayer->getPitch() - fCoarsePitch;
 			m_pLayerPitchCoarseRotary->setIsActive( true );
 			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch, false,
 												 Event::Trigger::Suppress );

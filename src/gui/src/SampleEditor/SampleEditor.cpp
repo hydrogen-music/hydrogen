@@ -199,7 +199,7 @@ std::shared_ptr<Sample> SampleEditor::retrieveSample() const {
 		return nullptr;
 	}
 
-	return pLayer->get_sample();
+	return pLayer->getSample();
 }
 	
 void SampleEditor::getAllFrameInfos()
@@ -224,7 +224,7 @@ void SampleEditor::getAllFrameInfos()
 		return;
 	}
 
-	auto pSample = pLayer->get_sample();
+	auto pSample = pLayer->getSample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to retrieve sample" );
 		assert( pSample );
@@ -472,7 +472,7 @@ void SampleEditor::createNewLayer()
 			pLayer = pInstrument->getComponent( m_nSelectedComponent )->getLayer( m_nSelectedLayer );
 
 			// insert new sample from newInstrument
-			pLayer->set_sample( pEditSample );
+			pLayer->setSample( pEditSample );
 		}
 
 		pAudioEngine->unlock();
@@ -636,7 +636,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 	auto pNote = std::make_shared<Note>(
-		pInstr, 0, pLayer->get_end_velocity() - 0.01 );
+		pInstr, 0, pLayer->getEndVelocity() - 0.01 );
 	pNote->setSpecificCompoIdx( m_nSelectedComponent );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 
@@ -712,7 +712,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		return;
 	}
 	const QString sSamplePath = pInstr->getComponent( m_nSelectedComponent )
-		->getLayer( nSelectedlayer )->get_sample()->getFilepath();
+		->getLayer( nSelectedlayer )->getSample()->getFilepath();
 	auto pNewSample = Sample::load( sSamplePath );
 	if ( pNewSample == nullptr ) {
 		ERRORLOG( QString( "Unable to load sample from [%1]" )

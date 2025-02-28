@@ -381,7 +381,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 			return nullptr;
 		}
 		
-		pSample = pLayer->get_sample();
+		pSample = pLayer->getSample();
 			
 	}
 	else {
@@ -398,14 +398,14 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 			}
 			++nLayersEncountered;
 
-			if ( ( m_fVelocity >= pLayer->get_start_velocity() ) &&
-				 ( m_fVelocity <= pLayer->get_end_velocity() ) ) {
+			if ( ( m_fVelocity >= pLayer->getStartVelocity() ) &&
+				 ( m_fVelocity <= pLayer->getEndVelocity() ) ) {
 
 				possibleLayersVector.push_back( nLayer );
 				if ( m_pInstrument->sampleSelectionAlg() == Instrument::VELOCITY ) {
 					break;
 				} else if ( m_pInstrument->sampleSelectionAlg() == Instrument::ROUND_ROBIN ) {
-					fRoundRobinID = pLayer->get_start_velocity();
+					fRoundRobinID = pLayer->getStartVelocity();
 				}
 			}
 		}
@@ -432,12 +432,12 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 					continue;
 				}
 							
-				if ( std::min( abs( pLayer->get_start_velocity() - m_fVelocity ),
-							   abs( pLayer->get_start_velocity() - m_fVelocity ) ) <
+				if ( std::min( abs( pLayer->getStartVelocity() - m_fVelocity ),
+							   abs( pLayer->getStartVelocity() - m_fVelocity ) ) <
 					 shortestDistance ){
 					shortestDistance =
-						std::min( abs( pLayer->get_start_velocity() - m_fVelocity ),
-								  abs( pLayer->get_start_velocity() - m_fVelocity ) );
+						std::min( abs( pLayer->getStartVelocity() - m_fVelocity ),
+								  abs( pLayer->getStartVelocity() - m_fVelocity ) );
 					nearestLayer = nLayer;
 				}
 			}
@@ -447,7 +447,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 				possibleLayersVector.push_back( nearestLayer );
 				if ( m_pInstrument->sampleSelectionAlg() == Instrument::ROUND_ROBIN ) {
 					fRoundRobinID =
-						pInstrCompo->getLayer( nearestLayer )->get_start_velocity();
+						pInstrCompo->getLayer( nearestLayer )->getStartVelocity();
 				}
 			} else {
 				ERRORLOG( QString( "No sample found for component [%1] of instrument [%2]" )
@@ -491,7 +491,7 @@ std::shared_ptr<Sample> Note::getSample( int nComponentIdx, int nSelectedLayer )
 
 			pSelectedLayer->nSelectedLayer = nLayerPicked;
 			auto pLayer = pInstrCompo->getLayer( nLayerPicked );
-			pSample = pLayer->get_sample();
+			pSample = pLayer->getSample();
 
 		} else {
 			ERRORLOG( "No samples found during random layer selection. This is a bug and shoul dn't happen!" );

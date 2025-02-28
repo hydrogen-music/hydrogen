@@ -294,7 +294,7 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 				if ( ppInstrumentComponent != nullptr ) {
 					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
 						if ( ppInstrumentLayer != nullptr ) {
-							auto pSample = ppInstrumentLayer->get_sample();
+							auto pSample = ppInstrumentLayer->getSample();
 							if ( pSample != nullptr ) {
 								results.push_back( std::make_shared<Content>(
 									ppInstrument->getName(), // m_sInstrumentName
@@ -407,8 +407,8 @@ bool InstrumentList::isAnyInstrumentSampleLoaded() const {
 				if ( pCompo != nullptr ) {
 					for ( const auto& pLayer : pCompo->getLayers() ) {
 						if ( pLayer != nullptr &&
-							 pLayer->get_sample() != nullptr &&
-							 pLayer->get_sample()->isLoaded() ) {
+							 pLayer->getSample() != nullptr &&
+							 pLayer->getSample()->isLoaded() ) {
 							return true;
 						}
 					}

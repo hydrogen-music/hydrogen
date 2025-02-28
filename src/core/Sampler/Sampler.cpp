@@ -733,8 +733,8 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			returnValues[ ii ] = true;
 			continue;
 		}
-		float fLayerGain = pLayer->get_gain();
-		float fLayerPitch = pLayer->get_pitch();
+		float fLayerGain = pLayer->getGain();
+		float fLayerPitch = pLayer->getPitch();
 
 		if ( pSelectedLayer->fSamplePosition >= pSample->getFrames() ) {
 			// Due to rounding errors in renderNoteResample() the
@@ -1065,7 +1065,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return true;
 	}
 
-	auto pSample = pCompo->getLayer(0)->get_sample();
+	auto pSample = pCompo->getLayer(0)->getSample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to process playback track" );
 		EventQueue::get_instance()->push_event( EVENT_ERROR,
@@ -1442,7 +1442,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int nLength )
 		}
 		auto pLayer = pComponent->getLayer( 0 );
 
-		pLayer->set_sample( pSample );
+		pLayer->setSample( pSample );
 
 		auto pPreviewNote = std::make_shared<Note>(
 			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );

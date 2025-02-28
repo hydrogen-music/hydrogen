@@ -452,7 +452,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 				continue;
 			}
 
-			if ( pLayer->get_sample() != nullptr ) {
+			if ( pLayer->getSample() != nullptr ) {
 				if ( ! bSampleFound ) {
 					bSampleFound = true;
 				}
@@ -475,7 +475,7 @@ void Instrument::loadSamples( float fBpm )
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pLayer = pComponent->getLayer( i );
 			if ( pLayer != nullptr ) {
-				pLayer->load_sample( fBpm );
+				pLayer->loadSample( fBpm );
 			}
 		}
 	}
@@ -487,7 +487,7 @@ void Instrument::unloadSamples()
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pLayer = pComponent->getLayer( i );
 			if( pLayer ){
-				pLayer->unload_sample();
+				pLayer->unloadSample();
 			}
 		}
 	}
@@ -640,7 +640,7 @@ bool Instrument::hasSamples() const {
 		if ( pComponent != nullptr ) {
 			for ( const auto& pLayer : *pComponent ) {
 				if ( pLayer != nullptr ) {
-					if ( pLayer->get_sample() != nullptr ) {
+					if ( pLayer->getSample() != nullptr ) {
 						return true;
 					}
 				}
@@ -658,9 +658,9 @@ int Instrument::getLongestSampleFrames() const {
 		if ( pComponent != nullptr ) {
 			for ( const auto& pLayer : *pComponent ) {
 				if ( pLayer != nullptr ) {
-					if ( pLayer->get_sample() != nullptr &&
-						 pLayer->get_sample()->getFrames() > nLongestFrames ) {
-						nLongestFrames = pLayer->get_sample()->getFrames();
+					if ( pLayer->getSample() != nullptr &&
+						 pLayer->getSample()->getFrames() > nLongestFrames ) {
+						nLongestFrames = pLayer->getSample()->getFrames();
 					}
 				}
 			}
