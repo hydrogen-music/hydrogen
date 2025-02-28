@@ -95,8 +95,6 @@ Preferences::Preferences()
 	: m_bPlaySamplesOnClicking( false )
 	, m_bPlaySelectedInstrument( false )
 	, m_bFollowPlayhead( true )
-	, m_bRestartLash( false )
-	, m_bSetLash( false )
 	, m_bExpandSongItem( true )
 	, m_bExpandPatternItem( true )
 	, m_bBeatCounterOn( BEAT_COUNTER_OFF )
@@ -146,7 +144,6 @@ Preferences::Preferences()
 	, m_bQuantizeEvents( true )
 	, m_recentFiles( QStringList() )
 	, m_recentFX( QStringList() )
-	, m_bUseLash( false )
 	, m_nMaxBars( 400 )
 	, m_nMaxLayers( 16 )
 #ifdef H2CORE_HAVE_OSC
@@ -276,8 +273,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	: m_bPlaySamplesOnClicking( pOther->m_bPlaySamplesOnClicking )
 	, m_bPlaySelectedInstrument( pOther->m_bPlaySelectedInstrument )
 	, m_bFollowPlayhead( pOther->m_bFollowPlayhead )
-	, m_bRestartLash( pOther->m_bRestartLash )
-	, m_bSetLash( pOther->m_bSetLash )
 	, m_bExpandSongItem( pOther->m_bExpandSongItem )
 	, m_bExpandPatternItem( pOther->m_bExpandPatternItem )
 	, m_bBeatCounterOn( pOther->m_bBeatCounterOn )
@@ -330,7 +325,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nPunchInPos( pOther->m_nPunchInPos )
 	, m_nPunchOutPos( pOther->m_nPunchOutPos )
 	, m_bQuantizeEvents( pOther->m_bQuantizeEvents )
-	, m_bUseLash( pOther->m_bUseLash )
 	, m_nMaxBars( pOther->m_nMaxBars )
 	, m_nMaxLayers( pOther->m_nMaxLayers )
 #ifdef H2CORE_HAVE_OSC
@@ -448,9 +442,6 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	pPref->m_bShowNoteOverwriteWarning = rootNode.read_bool(
 		"showNoteOverwriteWarning",
 		pPref->m_bShowNoteOverwriteWarning, false, false, bSilent );
-	pPref->m_bUseLash = rootNode.read_bool(
-		"useLash", pPref->m_bUseLash, false, false, bSilent );
-	pPref->m_bSetLash = pPref->m_bUseLash;
 	pPref->m_nMaxBars = rootNode.read_int(
 		"maxBars", pPref->m_nMaxBars, false, false, bSilent );
 	pPref->m_nMaxLayers = rootNode.read_int(
@@ -1079,8 +1070,6 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 	////// GENERAL ///////
 	rootNode.write_string( "preferredLanguage", m_sPreferredLanguage );
 
-	rootNode.write_bool( "useLash", m_bSetLash );
-
 	rootNode.write_int( "maxBars", m_nMaxBars );
 	rootNode.write_int( "maxLayers", m_nMaxLayers );
 
@@ -1667,10 +1656,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bPlaySelectedInstrument ) )
 			.append( QString( "%1%2m_bFollowPlayhead: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bFollowPlayhead ) )
-			.append( QString( "%1%2m_bRestartLash: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bRestartLash ) )
-			.append( QString( "%1%2m_bSetLash: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bSetLash ) )
 			.append( QString( "%1%2m_bExpandSongItem: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bExpandSongItem ) )
 			.append( QString( "%1%2m_bExpandPatternItem: %3\n" ).arg( sPrefix )
@@ -1783,8 +1768,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_recentFiles.join( ',' ) ) )
 			.append( QString( "%1%2m_recentFX: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_recentFX.join( ',' ) ) )
-			.append( QString( "%1%2m_bUseLash: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bUseLash ) )
 			.append( QString( "%1%2m_nMaxBars: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nMaxBars ) )
 			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix )
@@ -1917,10 +1900,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bPlaySelectedInstrument ) )
 			.append( QString( ", m_bFollowPlayhead: %1" )
 					 .arg( m_bFollowPlayhead ) )
-			.append( QString( ", m_bRestartLash: %1" )
-					 .arg( m_bRestartLash ) )
-			.append( QString( ", m_bSetLash: %1" )
-					 .arg( m_bSetLash ) )
 			.append( QString( ", m_bExpandSongItem: %1" )
 					 .arg( m_bExpandSongItem ) )
 			.append( QString( ", m_bExpandPatternItem: %1" )
@@ -2033,8 +2012,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_recentFiles.join( ',' ) ) )
 			.append( QString( ", m_recentFX: %1" )
 					 .arg( m_recentFX.join( ',' ) ) )
-			.append( QString( ", m_bUseLash: %1" )
-					 .arg( m_bUseLash ) )
 			.append( QString( ", m_nMaxBars: %1" )
 					 .arg( m_nMaxBars ) )
 			.append( QString( ", m_nMaxLayers: %1" )

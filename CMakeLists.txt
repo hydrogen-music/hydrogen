@@ -110,7 +110,6 @@ else()
 endif()
 option(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 option(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
-option(WANT_LASH         "Include LASH (Linux Audio Session Handler) support" OFF)
 option(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
 option(WANT_RUBBERBAND   "Include RubberBand (Audio Time Stretcher Library) support" OFF)
 if(APPLE)
@@ -313,7 +312,6 @@ if ("${PC_PORTMIDI_VERSION}" STREQUAL "" AND WANT_PORTMIDI AND PORTMIDI_FOUND)
 endif()
 
 find_helper(PULSEAUDIO libpulse pulse/pulseaudio.h pulse)
-find_helper(LASH lash-1.0 lash/lash.h lash)
 find_helper(LRDF lrdf lrdf.h lrdf)
 
 find_helper(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)
@@ -344,7 +342,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-set(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+set(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LRDF RUBBERBAND CPPUNIT )
 foreach( _pkg ${STATUS_LIST})
     compute_pkgs_flags(${_pkg})
 endforeach()
@@ -455,7 +453,6 @@ color_message("${cyan}Supported audio interfaces${reset}
 
 color_message("${cyan}Useful extensions${reset}
 -----------------------------------------
-* ${purple}LASH${reset}                         : ${LASH_STATUS}
 * ${purple}LRDF${reset}                         : ${LRDF_STATUS}
 * ${purple}RUBBERBAND${reset}                   : ${RUBBERBAND_STATUS}
 *                                ${LIBRUBBERBAND_MSG}\n"

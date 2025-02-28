@@ -36,13 +36,8 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "Parser.h"
-#include "PlaylistEditor/PlaylistEditor.h"
 #include "Skin.h"
 #include "Reporter.h"
-
-#ifdef H2CORE_HAVE_LASH
-#include <core/Lash/LashClient.h>
-#endif
 
 #ifdef WIN32
 #include <windows.h>
@@ -286,12 +281,6 @@ int main(int argc, char *argv[])
 			pPref->m_nOscTemporaryPort = parser.getOscPort();
 		}
 
-#ifdef H2CORE_HAVE_LASH
-
-		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
-		LashClient* pLashClient = LashClient::get_instance();
-
-#endif
 		if( ! parser.getInstallDrumkitPath().isEmpty() ){
 			if ( ! H2Core::Drumkit::install( parser.getInstallDrumkitPath() ) ) {
 				___ERRORLOG( QString( "Unable to install drumkit [%1]" )
@@ -424,33 +413,6 @@ int main(int argc, char *argv[])
 #endif
 #ifndef H2CORE_HAVE_OSC
 		pSplash->show();
-#endif
-
-#ifdef H2CORE_HAVE_LASH
-		if ( pPref->useLash() ){
-			if (pLashClient->isConnected())
-			{
-				lash_event_t* lash_event = pLashClient->getNextEvent();
-				if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
-				{
-					// notify client that this project was not a new one
-					pLashClient->setNewProject(false);
-
-					sSongFilename = "";
-					sSongFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
-					sSongFilename.append("/hydrogen.h2song");
-
-					//H2Core::Logger::get_instance()->log("[LASH] Restore file: " + sSongFilename);
-
-					lash_event_destroy(lash_event);
-				}
-				else if (lash_event)
-				{
-					//H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
-					lash_event_destroy(lash_event);
-				}
-			}
-		}
 #endif
 
 		// Hydrogen here to honor all preferences.

@@ -47,10 +47,6 @@
 #include <core/Globals.h>
 #include <core/EventQueue.h>
 
-#ifdef H2CORE_HAVE_LASH
-#include <core/Lash/LashClient.h>
-#endif
-
 #define JACK_DEBUG 0
 
 #define J_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
@@ -172,23 +168,7 @@ int JackAudioDriver::connect()
 		return 1;
 	}
 
-	bool bConnectDefaults = m_bConnectDefaults;
-
-#ifdef H2CORE_HAVE_LASH
-	if ( Preferences::get_instance()->useLash() ){
-		LashClient* lashClient = LashClient::get_instance();
-		if (lashClient && lashClient->isConnected()){
-			// INFOLOG( "[LASH] Sending JACK client name to LASH server" );
-			lashClient->sendJackClientName();
-
-			if (!lashClient->isNewProject()){
-				bConnectDefaults = false;
-			}
-		}
-	}
-#endif
-
-	if ( bConnectDefaults ) {
+	if ( m_bConnectDefaults ) {
 		// Connect the left and right default ports of Hydrogen.
 		//
 		// The `jack_connect' function is defined in the
@@ -1036,16 +1016,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 			Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 		return 4;
 	}
-
-#ifdef H2CORE_HAVE_LASH
-	if ( pPreferences->useLash() ){
-		LashClient* lashClient = LashClient::get_instance();
-		if ( lashClient->isConnected() ) {
-			const auto sClientNameLocal8Bit = sClientName.toLocal8Bit();
-			lashClient->setJackClientName(sClientNameLocal8Bit.constData());
-		}
-	}
-#endif
 
 	if ( pPreferences->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
 		 pPreferences->m_bJackTimebaseMode == Preferences::USE_JACK_TIMEBASE_CONTROL &&

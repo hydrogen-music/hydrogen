@@ -79,11 +79,6 @@
 #include <sys/socket.h>
 #endif
 
-#ifdef H2CORE_HAVE_LASH
-#include <lash/lash.h>
-#include <core/Lash/LashClient.h>
-#endif
-
 #include <memory>
 #include <cassert>
 
@@ -193,26 +188,6 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	startAutosaveTimer();
-
-#ifdef H2CORE_HAVE_LASH
-
-	if ( pPref->useLash() ){
-		LashClient* lashClient = LashClient::get_instance();
-		if (lashClient->isConnected())
-		{
-			// send alsa client id now since it can only be sent
-			// after the audio engine has been started.
-			if ( pPref->m_sMidiDriver == "ALSA" ) {
-				//			infoLog("[LASH] Sending alsa seq id to LASH server");
-				lashClient->sendAlsaClientId();
-			}
-			// start timer for polling lash events
-			lashPollTimer = new QTimer(this);
-			connect( lashPollTimer, SIGNAL( timeout() ), this, SLOT( onLashPollTimer() ) );
-			lashPollTimer->start(500);
-		}
-	}
-#endif
 
 	//playlist display timer
 	QTimer *playlistDisplayTimer = new QTimer(this);
@@ -604,87 +579,6 @@ void MainForm::startAutosaveTimer() {
 		m_AutosaveTimer.start( std::round( 60 * 60 * 1000 /
 										   static_cast<float>(nAutosavesPerHour) ) );
 	}
-}
-
-void MainForm::onLashPollTimer()
-{
-#ifdef H2CORE_HAVE_LASH
-	if ( Preferences::get_instance()->useLash() ){
-		LashClient* client = LashClient::get_instance();
-
-		if (!client->isConnected())
-		{
-			WARNINGLOG("[LASH] Not connected to server!");
-			return;
-		}
-
-		bool keep_running = true;
-
-		lash_event_t* event;
-
-		std::string songFilename;
-		QString filenameSong;
-		std::shared_ptr<Song> song = Hydrogen::get_instance()->getSong();
-		// Extra parentheses for -Wparentheses
-		while ( (event = client->getNextEvent()) ) {
-
-			switch (lash_event_get_type(event)) {
-
-			case LASH_Save_File:
-
-				INFOLOG("[LASH] Save file");
-
-				songFilename.append(lash_event_get_string(event));
-				songFilename.append("/hydrogen.h2song");
-
-				filenameSong = QString::fromLocal8Bit( songFilename.c_str() );
-				song->setFilename( filenameSong );
-				action_file_save();
-
-				client->sendEvent(LASH_Save_File);
-
-				break;
-
-			case LASH_Restore_File:
-
-				songFilename.append(lash_event_get_string(event));
-				songFilename.append("/hydrogen.h2song");
-
-				INFOLOG( QString("[LASH] Restore file: %1")
-						 .arg( songFilename.c_str() ) );
-
-				filenameSong = QString::fromLocal8Bit( songFilename.c_str() );
-
-				HydrogenApp::openFile( Filesystem::Type::Song, filenameSong );
-
-				client->sendEvent(LASH_Restore_File);
-
-				break;
-
-			case LASH_Quit:
-
-				//				infoLog("[LASH] Quit!");
-				keep_running = false;
-
-				break;
-
-			default:
-				;
-				//				infoLog("[LASH] Got unknown event!");
-
-			}
-
-			lash_event_destroy(event);
-
-		}
-
-		if (!keep_running)
-		{
-			lashPollTimer->stop();
-			action_file_exit();
-		}
-	}
-#endif
 }
 
 void MainForm::action_donate()

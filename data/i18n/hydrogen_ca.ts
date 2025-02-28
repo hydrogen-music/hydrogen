@@ -3650,10 +3650,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation>Preferències</translation>
     </message>
     <message>
-        <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation>Si us plau, reinicia hydrogen per activar/desactivar soport per LASH</translation>
-    </message>
-    <message>
         <source>Automatic</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4313,11 +4309,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
     </message>
     <message>
         <source>&amp;Hide keyboard input cursor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use &amp;LASH</source>
-        <extracomment>LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
