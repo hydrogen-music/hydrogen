@@ -46,7 +46,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 		pKick->setMidiOutNote(42);
 		list.add(pKick);
 
-		CPPUNIT_ASSERT( !list.has_all_midi_notes_same() );
+		CPPUNIT_ASSERT( !list.hasAllMidiNotesSame() );
 	___INFOLOG( "passed" );
 	}
 
@@ -69,7 +69,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 		list.add(pHihat);
 
 		CPPUNIT_ASSERT_EQUAL( 3, list.size() );
-		CPPUNIT_ASSERT( list.has_all_midi_notes_same() );
+		CPPUNIT_ASSERT( list.hasAllMidiNotesSame() );
 	___INFOLOG( "passed" );
 	}
 
@@ -96,7 +96,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 		list.add(pDummy);
 
 		CPPUNIT_ASSERT_EQUAL( 4, list.size() );
-		CPPUNIT_ASSERT( !list.has_all_midi_notes_same() );
+		CPPUNIT_ASSERT( !list.hasAllMidiNotesSame() );
 	___INFOLOG( "passed" );
 	}
 
@@ -110,7 +110,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 		list.add( std::make_shared<Instrument>() );
 		list.add( std::make_shared<Instrument>() );
 
-		list.set_default_midi_out_notes();
+		list.setDefaultMidiOutNotes();
 
 		CPPUNIT_ASSERT_EQUAL( 36, list.get(0)->getMidiOutNote() );
 		CPPUNIT_ASSERT_EQUAL( 37, list.get(1)->getMidiOutNote() );
@@ -126,9 +126,9 @@ class InstrumentListTest : public CppUnit::TestCase {
 
 		list.add( std::make_shared<Instrument>() );
 		
-		CPPUNIT_ASSERT( list.is_valid_index(0) );
-		CPPUNIT_ASSERT( !list.is_valid_index(1) );
-		CPPUNIT_ASSERT( !list.is_valid_index(-42) );
+		CPPUNIT_ASSERT( list.isValidIndex(0) );
+		CPPUNIT_ASSERT( !list.isValidIndex(1) );
+		CPPUNIT_ASSERT( !list.isValidIndex(-42) );
 	___INFOLOG( "passed" );
 	}
 };

@@ -1909,7 +1909,7 @@ void MainForm::checkMissingSamples()
 void MainForm::checkMidiSetup()
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong->getDrumkit()->getInstruments()->has_all_midi_notes_same() ) {
+	if ( pSong->getDrumkit()->getInstruments()->hasAllMidiNotesSame() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
 		m_pMidiSetupInfoBar = h2app->addInfoBar();
@@ -1941,7 +1941,7 @@ void MainForm::onFixMidiSetup()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
-		pSong->getDrumkit()->getInstruments()->set_default_midi_out_notes();
+		pSong->getDrumkit()->getInstruments()->setDefaultMidiOutNotes();
 		pHydrogen->setIsModified( true );
 
 		m_pMidiSetupInfoBar->hide();

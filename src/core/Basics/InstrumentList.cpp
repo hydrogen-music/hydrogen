@@ -43,9 +43,9 @@ InstrumentList::InstrumentList()
 InstrumentList::InstrumentList( std::shared_ptr<InstrumentList> other ) : Object( *other )
 {
 	assert( other );
-	assert( __instruments.size() == 0 );
+	assert( m_pInstruments.size() == 0 );
 	for ( int i=0; i<other->size(); i++ ) {
-		( *this ) << ( std::make_shared<Instrument>( ( *other )[i] ) );
+		add( std::make_shared<Instrument>( ( *other )[i] ) );
 	}
 }
 
@@ -53,21 +53,21 @@ InstrumentList::~InstrumentList()
 {
 }
 
-void InstrumentList::load_samples( float fBpm )
+void InstrumentList::loadSamples( float fBpm )
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->loadSamples( fBpm );
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		m_pInstruments[i]->loadSamples( fBpm );
 	}
 }
 
-void InstrumentList::unload_samples()
+void InstrumentList::unloadSamples()
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->unloadSamples();
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		m_pInstruments[i]->unloadSamples();
 	}
 }
 
-std::shared_ptr<InstrumentList> InstrumentList::load_from(
+std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
@@ -98,7 +98,7 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
 			license, bSongKit, bSilent );
 		if ( pInstrument != nullptr ) {
-			( *pInstrumentList ) << pInstrument;
+			pInstrumentList->add( pInstrument );
 		}
 		else {
 			ERRORLOG( QString( "Unable to load instrument [%1]. The drumkit is corrupted. Skipping instrument" )
@@ -116,10 +116,10 @@ std::shared_ptr<InstrumentList> InstrumentList::load_from(
 	return pInstrumentList;
 }
 
-void InstrumentList::save_to( XMLNode& node, bool bSongKit ) const
+void InstrumentList::saveTo( XMLNode& node, bool bSongKit ) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
-	for ( const auto& pInstrument : __instruments ) {
+	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
 			pInstrument->saveTo( instruments_node, bSongKit );
 		}
@@ -129,15 +129,6 @@ void InstrumentList::save_to( XMLNode& node, bool bSongKit ) const
 	}
 }
 
-void InstrumentList::operator<<( std::shared_ptr<Instrument> instrument )
-{
-	// do nothing if already in __instruments
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if( __instruments[i]==instrument ) return;
-	}
-	__instruments.push_back( instrument );
-}
-	
 bool InstrumentList::operator==( std::shared_ptr<InstrumentList> pOther ) const {
 	if ( pOther != nullptr && size() == pOther->size() ) {
 		for ( int ii = 0; ii < size(); ++ii ) {
@@ -168,37 +159,37 @@ bool InstrumentList::operator!=( std::shared_ptr<InstrumentList> pOther ) const 
 
 void InstrumentList::add( std::shared_ptr<Instrument> instrument )
 {
-	// do nothing if already in __instruments
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if( __instruments[i]==instrument ) return;
+	// do nothing if already in m_pInstruments
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		if( m_pInstruments[i]==instrument ) return;
 	}
-	__instruments.push_back( instrument );
+	m_pInstruments.push_back( instrument );
 }
 
 void InstrumentList::insert( int idx, std::shared_ptr<Instrument> instrument )
 {
-	// do nothing if already in __instruments
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if( __instruments[i]==instrument ) return;
+	// do nothing if already in m_pInstruments
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		if( m_pInstruments[i]==instrument ) return;
 	}
-	__instruments.insert( __instruments.begin() + idx, instrument );
+	m_pInstruments.insert( m_pInstruments.begin() + idx, instrument );
 }
 
 std::shared_ptr<Instrument> InstrumentList::operator[]( int idx ) const
 {
-	if ( idx < 0 || idx >= __instruments.size() ) {
+	if ( idx < 0 || idx >= m_pInstruments.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
 	}
-	assert( idx >= 0 && idx < __instruments.size() );
-	return __instruments[idx];
+	assert( idx >= 0 && idx < m_pInstruments.size() );
+	return m_pInstruments[idx];
 }
 
-bool InstrumentList::is_valid_index( int idx ) const
+bool InstrumentList::isValidIndex( int idx ) const
 {
 	bool is_valid_index = true;
 	
-	if ( idx < 0 || idx >= __instruments.size() ) {
+	if ( idx < 0 || idx >= m_pInstruments.size() ) {
 		is_valid_index = false;
 	}
 	
@@ -207,18 +198,18 @@ bool InstrumentList::is_valid_index( int idx ) const
 
 std::shared_ptr<Instrument> InstrumentList::get( int idx ) const
 {
-	if ( ! is_valid_index( idx ) ) {
+	if ( ! isValidIndex( idx ) ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
 	}
-	assert( idx >= 0 && idx < __instruments.size() );
-	return __instruments.at( idx );
+	assert( idx >= 0 && idx < m_pInstruments.size() );
+	return m_pInstruments.at( idx );
 }
 
 int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]==instr ) {
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		if ( m_pInstruments[i]==instr ) {
 			return i;
 		}
 	}
@@ -227,9 +218,9 @@ int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 
 std::shared_ptr<Instrument>  InstrumentList::find( const int id ) const
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->getId()==id ) {
-			return __instruments[i];
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		if ( m_pInstruments[i]->getId()==id ) {
+			return m_pInstruments[i];
 		}
 	}
 	return nullptr;
@@ -237,9 +228,9 @@ std::shared_ptr<Instrument>  InstrumentList::find( const int id ) const
 
 std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->getName()==name ) {
-			return __instruments[i];
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		if ( m_pInstruments[i]->getName()==name ) {
+			return m_pInstruments[i];
 		}
 	}
 	return nullptr;
@@ -247,27 +238,19 @@ std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 
 std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note ) const
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if ( __instruments[i]->getMidiOutNote()==note ) {
-			return __instruments[i];
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		if ( m_pInstruments[i]->getMidiOutNote()==note ) {
+			return m_pInstruments[i];
 		}
 	}
 	return nullptr;
 }
 
-std::shared_ptr<Instrument> InstrumentList::del( int idx )
-{
-	assert( idx >= 0 && idx < __instruments.size() );
-	auto instrument = __instruments[idx];
-	__instruments.erase( __instruments.begin() + idx );
-	return instrument;
-}
-
 std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> instrument )
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		if( __instruments[i]==instrument ) {
-			__instruments.erase( __instruments.begin() + i );
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		if( m_pInstruments[i]==instrument ) {
+			m_pInstruments.erase( m_pInstruments.begin() + i );
 			return instrument;
 		}
 	}
@@ -276,19 +259,19 @@ std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> ins
 
 void InstrumentList::move( int idx_a, int idx_b )
 {
-	assert( idx_a >= 0 && idx_a < __instruments.size() );
-	assert( idx_b >= 0 && idx_b < __instruments.size() );
+	assert( idx_a >= 0 && idx_a < m_pInstruments.size() );
+	assert( idx_b >= 0 && idx_b < m_pInstruments.size() );
 	if( idx_a == idx_b ) return;
 	//DEBUGLOG(QString("===>> MOVE  %1 %2").arg(idx_a).arg(idx_b) );
-	auto tmp = __instruments[idx_a];
-	__instruments.erase( __instruments.begin() + idx_a );
-	__instruments.insert( __instruments.begin() + idx_b, tmp );
+	auto tmp = m_pInstruments[idx_a];
+	m_pInstruments.erase( m_pInstruments.begin() + idx_a );
+	m_pInstruments.insert( m_pInstruments.begin() + idx_b, tmp );
 }
 
 std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent() const {
 	std::vector<std::shared_ptr<InstrumentList::Content>> results;
 
-	for ( const auto& ppInstrument : __instruments ) {
+	for ( const auto& ppInstrument : m_pInstruments ) {
 		if ( ppInstrument != nullptr ) {
 			for ( const auto& ppInstrumentComponent : *ppInstrument->getComponents() ) {
 				if ( ppInstrumentComponent != nullptr ) {
@@ -314,24 +297,24 @@ std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeC
 	return results;
 }
 
-bool InstrumentList::has_all_midi_notes_same() const
+bool InstrumentList::hasAllMidiNotesSame() const
 {
-	if (__instruments.size() < 2) {
+	if (m_pInstruments.size() < 2) {
 		return false;
 	}
 
 	std::set<int> notes;
-	for( int i=0; i<__instruments.size(); i++ ) {
-		auto instr = __instruments[i];
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		auto instr = m_pInstruments[i];
 		notes.insert( instr->getMidiOutNote() );
 	}
 	return notes.size() == 1;
 }
 
-void InstrumentList::set_default_midi_out_notes()
+void InstrumentList::setDefaultMidiOutNotes()
 {
-	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->setMidiOutNote( i + MidiMessage::instrumentOffset );
+	for( int i=0; i<m_pInstruments.size(); i++ ) {
+		m_pInstruments[i]->setMidiOutNote( i + MidiMessage::instrumentOffset );
 	}
 }
 
@@ -340,14 +323,14 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );
-		for ( const auto& ii : __instruments ) {
+		for ( const auto& ii : m_pInstruments ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s, bShort ) ) );
 			}
 		}
 	} else {
 		sOutput = QString( "[InstrumentList] " );
-		for ( const auto& ii : __instruments ) {
+		for ( const auto& ii : m_pInstruments ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "(%1: %2 [%3]) " ).arg( ii->getId() )
 								.arg( ii->getName() ).arg( ii->getType() ) );
@@ -360,11 +343,11 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 
 
 std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::begin() {
-	return __instruments.begin();
+	return m_pInstruments.begin();
 }
 
 std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::end() {
-	return __instruments.end();
+	return m_pInstruments.end();
 }
 
 QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort ) const {
@@ -392,7 +375,7 @@ QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort 
 
 bool InstrumentList::isAnyInstrumentSoloed() const
 {
-	for ( const auto& pInstrument : __instruments ) {
+	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->isSoloed() ) {
 			return true;
 		}
@@ -401,7 +384,7 @@ bool InstrumentList::isAnyInstrumentSoloed() const
 }
 
 bool InstrumentList::isAnyInstrumentSampleLoaded() const {
-	for ( const auto& pInstrument : __instruments ) {
+	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr ) {
 			for ( const auto& pCompo : *pInstrument->getComponents() ) {
 				if ( pCompo != nullptr ) {

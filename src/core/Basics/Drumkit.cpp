@@ -189,7 +189,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 						  pDrumkit->m_sAuthor );
 	pDrumkit->setImageLicense( imageLicense );
 
-	auto pInstrumentList = InstrumentList::load_from(
+	auto pInstrumentList = InstrumentList::loadFrom(
 		node, sDrumkitPath, sDrumkitName, sSongPath, license, bSongKit, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
@@ -302,12 +302,12 @@ void Drumkit::upgrade( bool bSilent ) {
 
 void Drumkit::loadSamples( float fBpm ) {
 	INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( m_sName ) );
-	m_pInstruments->load_samples( fBpm );
+	m_pInstruments->loadSamples( fBpm );
 }
 
 void Drumkit::unloadSamples() {
 	INFOLOG( QString( "Unloading drumkit %1 instrument samples" ).arg( m_sName ) );
-	m_pInstruments->unload_samples();
+	m_pInstruments->unloadSamples();
 }
 
 const bool Drumkit::areSamplesLoaded() const {
@@ -426,14 +426,14 @@ void Drumkit::saveTo( XMLNode& node,
 	node.write_string( "imageLicense", m_imageLicense.getLicenseString() );
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
-		m_pInstruments->save_to( node, bSongKit );
+		m_pInstruments->saveTo( node, bSongKit );
 	}
 	else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->save_to( node, bSongKit );
+		pInstrumentList->saveTo( node, bSongKit );
 	}
 }
 

@@ -152,7 +152,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	//
 	// By supplying no drumkit path the individual drumkit meta infos
 	// stored in the 'instrument' nodes will be used.
-	auto pInstrumentList = InstrumentList::load_from( node,
+	auto pInstrumentList = InstrumentList::loadFrom( node,
 													  "", // sDrumkitPath
 													  "", // sDrumkitName
 													  sSongPath,
