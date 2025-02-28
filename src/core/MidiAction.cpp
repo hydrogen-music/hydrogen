@@ -660,7 +660,7 @@ bool MidiActionManager::strip_volume_absolute( std::shared_ptr<Action> pAction, 
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber(nLine);
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
@@ -701,7 +701,7 @@ bool MidiActionManager::strip_volume_relative( std::shared_ptr<Action> pAction, 
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
@@ -732,7 +732,7 @@ bool MidiActionManager::pan_absolute( std::shared_ptr<Action> pAction, Hydrogen*
 	
 	pHydrogen->setSelectedInstrumentNumber(nLine);
 
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
@@ -762,7 +762,7 @@ bool MidiActionManager::pan_absolute_sym( std::shared_ptr<Action> pAction, Hydro
 	pInstr->setPan( (float) pan_param / 127.f );
 	
 	pHydrogen->setSelectedInstrumentNumber(nLine);
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
@@ -801,7 +801,7 @@ bool MidiActionManager::pan_relative( std::shared_ptr<Action> pAction, Hydrogen*
 	}
 
 	pHydrogen->setSelectedInstrumentNumber(nLine);
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
@@ -848,7 +848,7 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hy
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 	
 	return true;
 }
@@ -897,7 +897,7 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
@@ -947,7 +947,7 @@ bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pA
 	}
 	
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	EventQueue::get_instance()->pushEvent( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 	
 	return true;
 }
@@ -990,7 +990,7 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 
 	m_nLastBpmChangeCCParameter = cc_param;
 	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	EventQueue::get_instance()->pushEvent( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }
@@ -1030,7 +1030,7 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, H
 
 	m_nLastBpmChangeCCParameter = cc_param;
 	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	EventQueue::get_instance()->pushEvent( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }
@@ -1049,7 +1049,7 @@ bool MidiActionManager::bpm_increase( std::shared_ptr<Action> pAction, Hydrogen*
 
 	CoreActionController::setBpm( fBpm + 1 * fMult );
 	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	EventQueue::get_instance()->pushEvent( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }
@@ -1068,7 +1068,7 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen*
 
 	CoreActionController::setBpm( fBpm - 1 * fMult );
 	
-	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
+	EventQueue::get_instance()->pushEvent( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }
@@ -1276,12 +1276,12 @@ bool MidiActionManager::toggle_metronome( std::shared_ptr<Action> , Hydrogen* pH
 }
 
 bool MidiActionManager::undo_action( std::shared_ptr<Action> , Hydrogen* ) {
-	EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 0);// 0 = undo
+	EventQueue::get_instance()->pushEvent( EVENT_UNDO_REDO, 0);// 0 = undo
 	return true;
 }
 
 bool MidiActionManager::redo_action( std::shared_ptr<Action> , Hydrogen* ) {
-	EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
+	EventQueue::get_instance()->pushEvent( EVENT_UNDO_REDO, 1);// 1 = redo
 	return true;
 }
 
@@ -1343,7 +1343,7 @@ bool MidiActionManager::clear_pattern( std::shared_ptr<Action> pAction,
 
 	pPattern->clear( true );
 
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
+	EventQueue::get_instance()->pushEvent( EVENT_PATTERN_MODIFIED, 0 );
 
 	return true;
 }

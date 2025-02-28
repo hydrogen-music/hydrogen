@@ -24,6 +24,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>

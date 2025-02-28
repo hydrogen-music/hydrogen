@@ -64,7 +64,7 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 
 	bool done = false;
 	while ( ! done ) {
-		Event event = pQueue->pop_event();
+		Event event = pQueue->popEvent();
 
 		// Ensure audio export does always work.
 		CPPUNIT_ASSERT( !(event.type == EVENT_PROGRESS && event.value == -1) );

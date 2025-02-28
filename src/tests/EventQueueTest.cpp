@@ -32,7 +32,7 @@ static void *pushThread(void *p) {
 	int *pInt = (int *)p;
 	EventQueue *pQ = EventQueue::get_instance();
 	for ( int i = 0; i < nCountsPerThread; i++) {
-		pQ->push_event( EVENT_METRONOME, *pInt );
+		pQ->pushEvent( EVENT_METRONOME, *pInt );
 	}
 	return nullptr;
 }
@@ -56,7 +56,7 @@ public:
 
 		// Clear queue of any events from previous tests.
 		do {
-			ev = m_pQ->pop_event();
+			ev = m_pQ->popEvent();
 		} while ( ev.type != EVENT_NONE );
 	}
 
@@ -71,15 +71,15 @@ public:
 		// Fill the event queue to the maximum permissible size, drain the queue and then do it again.
 		for ( int pass = 0; pass < 2; pass++) {
 			for ( int i = 0; i < MAX_EVENTS; i++ ) {
-				m_pQ->push_event( EVENT_PROGRESS, i );
+				m_pQ->pushEvent( EVENT_PROGRESS, i );
 			}
 			for ( int i = 0; i < MAX_EVENTS; i++ ) {
-				ev = m_pQ->pop_event();
+				ev = m_pQ->popEvent();
 				CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i );
 			}
 
 			// Queue should now be empty
-			ev = m_pQ->pop_event();
+			ev = m_pQ->popEvent();
 			CPPUNIT_ASSERT( ev.type == EVENT_NONE );
 		}
 	___INFOLOG( "passed" );
@@ -91,14 +91,14 @@ public:
 
 		// Overfill queue
 		for ( int i = 0; i < MAX_EVENTS + 100; i++) {
-			m_pQ->push_event( EVENT_PROGRESS, i );
+			m_pQ->pushEvent( EVENT_PROGRESS, i );
 		}
 		// Check that the queue contains the most recent MAX_EVENTS events
 		for ( int i = 0; i < MAX_EVENTS; i++) {
-			ev = m_pQ->pop_event();
+			ev = m_pQ->popEvent();
 			CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i + 100);
 		}
-		ev = m_pQ->pop_event();
+		ev = m_pQ->popEvent();
 		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
 	___INFOLOG( "passed" );
 	}
@@ -121,7 +121,7 @@ public:
 
 		// Reader counts up the number of events from each thread
 		for ( int nTotalEvents = 0; nTotalEvents < nCountsPerThread * nThreads; ) {
-			Event ev = m_pQ->pop_event();
+			Event ev = m_pQ->popEvent();
 			if ( ev.type == EVENT_METRONOME ) {
 				CPPUNIT_ASSERT( ev.value < nThreads && ev.value >= 0 );
 				counters[ ev.value ]++;
@@ -135,7 +135,7 @@ public:
 		for ( int i = 0; i < nThreads; i++ ) {
 			CPPUNIT_ASSERT( counters[i] == nCountsPerThread );
 		}
-		Event ev = m_pQ->pop_event();
+		Event ev = m_pQ->popEvent();
 		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
 	___INFOLOG( "passed" );
 	}

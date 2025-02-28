@@ -32,7 +32,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
-#include <core/EventQueue.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiCommon.h>

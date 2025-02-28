@@ -41,7 +41,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
-#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/DiskWriterDriver.h>

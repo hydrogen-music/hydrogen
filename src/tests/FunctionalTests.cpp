@@ -23,7 +23,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <QString>
-#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Adsr.h>

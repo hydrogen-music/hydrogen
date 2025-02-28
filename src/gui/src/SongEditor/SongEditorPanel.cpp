@@ -45,7 +45,6 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/EventQueue.h>
 
 #ifdef WIN32
 #include <time.h>

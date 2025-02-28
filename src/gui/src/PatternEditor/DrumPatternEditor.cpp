@@ -25,7 +25,6 @@
 
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
-#include <core/EventQueue.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>

@@ -30,7 +30,7 @@
 
 #include "MidiLearnable.h"
 
-#include <core/EventQueue.h>
+#include <core/Basics/Event.h>
 #include <core/Timehelper.h>
 
 /** Base class for active user input widget, which are not based on

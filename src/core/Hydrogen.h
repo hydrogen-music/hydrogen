@@ -23,8 +23,8 @@
 #define HYDROGEN_H
 
 #include <core/config.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
-#include <core/EventQueue.h>
 #include <core/Object.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>

@@ -605,7 +605,7 @@ int main(int argc, char *argv[])
 			// Interactive mode - h2cli is not done yet.
 			while ( ! quit ) {
 				/* FIXME: Someday here will be The Real CLI ;-) */
-				Event event = pQueue->pop_event();
+				Event event = pQueue->popEvent();
 				// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
 
 				/* Event handler */

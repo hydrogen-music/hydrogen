@@ -32,7 +32,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
-#include <core/EventQueue.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>

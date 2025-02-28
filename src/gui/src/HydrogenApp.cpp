@@ -23,6 +23,7 @@
 #include "HydrogenApp.h"
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/PatternList.h>
 #include <core/config.h>
@@ -910,7 +911,7 @@ void HydrogenApp::onEventQueueTimer()
 	EventQueue *pQueue = EventQueue::get_instance();
 
 	Event event;
-	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
+	while ( ( event = pQueue->popEvent() ).type != EVENT_NONE ) {
 		
 		// Provide the event to all EventListeners registered to
 		// HydrogenApp. By registering itself as EventListener and

@@ -24,9 +24,9 @@
 #define AUDIO_ENGINE_H
 
 #include <core/AudioEngine/AudioEngineTests.h>
+#include <core/Basics/Event.h>
 #include <core/config.h>
 #include <core/CoreActionController.h>
-#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
@@ -64,7 +64,6 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 namespace H2Core
 {
 	class Drumkit;
-	class EventQueue;
 	class Instrument;
 	class MidiInput;
 	class MidiOutput;
@@ -609,7 +608,6 @@ private:
 	AudioOutput *		m_pAudioDriver;
 	MidiInput *			m_pMidiDriver;
 	MidiOutput *		m_pMidiDriverOut;
-	EventQueue* 		m_pEventQueue;
 
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];

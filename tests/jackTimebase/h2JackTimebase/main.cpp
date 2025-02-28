@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 			nullptr, nullptr, OscServer::generic_handler, nullptr );
 
 		while ( ! bQuit ) {
-			Event event = pQueue->pop_event();
+			Event event = pQueue->popEvent();
 
 			/* Event handler */
 			switch ( event.type ) {

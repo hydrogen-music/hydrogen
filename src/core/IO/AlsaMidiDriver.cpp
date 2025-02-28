@@ -29,7 +29,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 
 #include <core/Globals.h>
-#include <core/EventQueue.h>
 
 #include <pthread.h>
 #include <core/Basics/Drumkit.h>

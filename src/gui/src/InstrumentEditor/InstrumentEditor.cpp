@@ -1252,7 +1252,7 @@ void InstrumentEditor::renameComponent( int nComponentId, const QString& sNewNam
 
 	Hydrogen::get_instance()->setIsModified( true );
 
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	EventQueue::get_instance()->pushEvent( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 void InstrumentEditor::selectComponent( int nComponent )

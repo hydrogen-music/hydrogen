@@ -1046,7 +1046,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	auto pSample = pCompo->getLayer(0)->getSample();
 	if ( pSample == nullptr ) {
 		ERRORLOG( "Unable to process playback track" );
-		EventQueue::get_instance()->push_event( EVENT_ERROR,
+		EventQueue::get_instance()->pushEvent( EVENT_ERROR,
 												Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID );
 		// Disable the playback track
 		pHydrogen->loadPlaybackTrack( "" );

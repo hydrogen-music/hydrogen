@@ -241,7 +241,7 @@ void ShotList::nextShotEvent() {
 
 void ShotList::nextShot( void ) {
 	if ( ( m_nNextShot + 1) < m_shots.size() ) {
-		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_NEXT_SHOT, 0 );
+		H2Core::EventQueue::get_instance()->pushEvent( H2Core::EVENT_NEXT_SHOT, 0 );
 	}
 	shoot( m_shots[ m_nNextShot++ ] );
 }
