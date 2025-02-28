@@ -42,16 +42,14 @@ EventQueue::EventQueue()
 {
 	__instance = this;
 
+	m_eventsBuffer.resize( MAX_EVENTS );
 	for ( int i = 0; i < MAX_EVENTS; ++i ) {
-		m_eventsBuffer[ i ].type = EVENT_NONE;
-		m_eventsBuffer[ i ].value = 0;
+		m_eventsBuffer[ i ] = std::make_unique<Event>();
 	}
 }
 
 
-EventQueue::~EventQueue()
-{
-//	infoLog( "DESTROY" );
+EventQueue::~EventQueue() {
 }
 
 
@@ -60,44 +58,42 @@ void EventQueue::pushEvent( const EventType type, const int nValue )
 	std::lock_guard< std::mutex > lock( m_mutex );
 	unsigned int nIndex = ++m_nWriteIndex;
 	nIndex = nIndex % MAX_EVENTS;
-	Event ev;
-	ev.type = type;
-	ev.value = nValue;
-//	INFOLOG( QString( "[pushEvent] %1 : %2 %3" ).arg( nIndex ).arg( ev.type ).arg( ev.value ) );
 
-	/* If the event queue is full, log an error. We could drop the old event, or the new event we're trying to
-	   place. It's preferable to drop the oldest event in the queue, on the basis that many
-	   change-of-state-events are probably no longer relevant or redundant based on newer events in the queue,
-	   so we keep the new event. However, since the new event has overwritten the oldest event in the queue,
-	   we also adjust the read pointer, otherwise popEvent would return this newest event on the next call,
-	   then subsequent calls would get newer entries. */
+	/* If the event queue is full, log an error. We could drop the old event, or
+	   the new event we're trying to place. It's preferable to drop the oldest
+	   event in the queue, on the basis that many change-of-state-events are
+	   probably no longer relevant or redundant based on newer events in the
+	   queue, so we keep the new event. However, since the new event has
+	   overwritten the oldest event in the queue, we also adjust the read
+	   pointer, otherwise popEvent would return this newest event on the next
+	   call, then subsequent calls would get newer entries. */
 
 	if ( ! m_bSilent &&
 		 m_nWriteIndex > m_nReadIndex + MAX_EVENTS ) {
-		ERRORLOG( QString( "Event queue full, lost event type %1 value %2" )
-				  .arg( m_eventsBuffer[nIndex].type )
-				  .arg( m_eventsBuffer[nIndex].value ));
+		ERRORLOG( QString( "Event queue full, lost: [%1]" )
+				  .arg( m_eventsBuffer[ nIndex ] != nullptr ?
+						m_eventsBuffer[ nIndex ]->toQString() : "nullptr" ) );
 		m_nReadIndex++;
 	}
 
-	m_eventsBuffer[ nIndex ] = ev;
+	m_eventsBuffer[ nIndex ] = std::make_unique<Event>( type, nValue );
 
 }
 
 
-Event EventQueue::popEvent()
+std::unique_ptr<Event> EventQueue::popEvent()
 {
 	std::lock_guard< std::mutex > lock( m_mutex );
 	if ( m_nReadIndex == m_nWriteIndex ) {
-		Event ev;
-		ev.type = EVENT_NONE;
-		ev.value = 0;
-		return ev;
+		return std::make_unique<Event>();
 	}
 	unsigned int nIndex = ++m_nReadIndex;
 	nIndex = nIndex % MAX_EVENTS;
-//	INFOLOG( QString( "[popEvent] %1 : %2 %3" ).arg( nIndex ).arg( m_eventsBuffer[ nIndex ].type ).arg( m_eventsBuffer[ nIndex ].value ) );
-	return m_eventsBuffer[ nIndex ];
+
+	auto pEvent = std::move( m_eventsBuffer[ nIndex ] );
+	m_eventsBuffer[ nIndex ] = std::make_unique<Event>();
+
+	return std::move( pEvent );
 }
 
 QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
@@ -126,7 +122,9 @@ QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
 
 			sOutput.append( QString( "%1%1%2%3: %4%5\n" ).arg( sPrefix ).arg( s )
 							.arg( ii ).arg( sIndexPrefix )
-							.arg( m_eventsBuffer[ ii ].toQString( "", true ) ) );
+							.arg( m_eventsBuffer[ ii ] != nullptr ?
+								  m_eventsBuffer[ ii ]->toQString( "", true ) :
+								  "nullptr" ) );
 		}
 		sOutput.append( QString( "\n%1%2m_bSilent: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bSilent ) );
@@ -146,7 +144,9 @@ QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {
 			}
 
 			sOutput.append( QString( "%1: %2%3, " ).arg( ii ).arg( sIndexPrefix )
-							.arg( m_eventsBuffer[ ii ].toQString( "", true ) ) );
+							.arg( m_eventsBuffer[ ii ] != nullptr ?
+								  m_eventsBuffer[ ii ]->toQString( "", true ) :
+								  "nullptr" ) );
 		}
 		sOutput.append( QString( "], m_bSilent: %1" ).arg( m_bSilent ) );
 	}

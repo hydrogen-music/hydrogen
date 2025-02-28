@@ -28,7 +28,9 @@
 #include <core/Object.h>
 
 #include <cassert>
+#include <memory>
 #include <mutex>
+#include <vector>
 
 /** Maximum number of events to be stored in the
     H2Core::EventQueue::m_eventsBuffer.*/
@@ -101,7 +103,7 @@ public:/**
 	 *
 	 * \return Next event in line.
 	 */
-	Event popEvent();
+	std::unique_ptr<Event> popEvent();
 
 	struct AddMidiNoteVector {
 		int m_column;       // position
@@ -164,7 +166,7 @@ private:
 	 * Its length is set to #MAX_EVENTS and it gets initialized
 	 * with #H2Core::EVENT_NONE in EventQueue().
 	 */
-	Event m_eventsBuffer[ MAX_EVENTS ];
+	std::vector< std::unique_ptr<Event> >m_eventsBuffer;;
 
 	/**
 	 * Mutex to lock access to queue.

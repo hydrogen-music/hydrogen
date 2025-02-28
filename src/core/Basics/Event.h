@@ -27,14 +27,14 @@
 
 namespace H2Core
 {
-	
+
 /** Basic types of communication between the core part of Hydrogen and
     its GUI.*/
 enum EventType {
 	/** Fallback event*/
 	EVENT_NONE,
 	EVENT_STATE,
-	/** 
+	/**
 	 * The list of currently played patterns
 	 * (AudioEngine::getPlayingPatterns()) did change.
 	 *
@@ -114,7 +114,7 @@ enum EventType {
 	 * H2Core::Preferences whenever they were changed outside of the
 	 * GUI, e.g. by session management or an OSC command.
 	 *
-	 * If the value of the event is 
+	 * If the value of the event is
 	 * - 0 - tells the GUI to save the current geometry settings in
 	 * the H2Core::Preferences file.
 	 * - 1 - tells the GUI to load the Preferences file and to  update
@@ -127,7 +127,7 @@ enum EventType {
 	 * Song was changed outside of the GUI, e.g. by session management
 	 * or and OSC command.
 	 *
-	 * If the value of the event is 
+	 * If the value of the event is
 	 * - 0 - update the GUI to represent the song loaded by the core.
 	 * - 1 - triggered whenever the Song was saved via the core part
 	 *       (updated the title and status bar).
@@ -140,7 +140,7 @@ enum EventType {
 	 */
 	EVENT_QUIT,
 
-	/** Enables/disables the usage of the Timeline.*/ 
+	/** Enables/disables the usage of the Timeline.*/
 	EVENT_TIMELINE_ACTIVATION,
 	/** Tells the GUI some parts of the Timeline (tempo markers or
 		tags) were modified.*/
@@ -222,28 +222,43 @@ public:
 			Force
 		};
 
-	/** Specifies the context the event is create in and which
-	    function should be triggered to handle it.*/
-	EventType type;
-	/** Additional information to describe the actual context of
-	    the engine.*/
-	int value;
+		/** Get string representation of #EventType. */
+		static QString typeToQString( EventType type );
 
-	/**
-	 * Get string representation of #EventType.
-	 */
-	static QString typeToQString( EventType type );
-	
-	/** Formatted string version for debugging purposes.
-	 * \param sPrefix String prefix which will be added in front of
-	 * every new line
-	 * \param bShort Instead of the whole content of all classes
-	 * stored as members just a single unique identifier will be
-	 * displayed without line breaks.
-	 *
-	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+		Event( EventType type = EVENT_NONE, int nValue = 0 );
+		~Event();
+
+		EventType getType() const;
+
+		int getValue() const;
+
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
+private:
+
+		/** Specifies the context the event is create in and which function
+			should be triggered to handle it.*/
+		EventType m_type;
+		/** Additional information to describe the actual context of the
+			engine.*/
+		int m_nValue;
+
 };
+
+inline EventType Event::getType() const {
+	return m_type;
+}
+inline int Event::getValue() const {
+	return m_nValue;
+}
 
 };
 #endif

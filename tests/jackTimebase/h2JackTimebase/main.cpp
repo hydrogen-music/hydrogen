@@ -307,10 +307,10 @@ int main(int argc, char *argv[])
 			nullptr, nullptr, OscServer::generic_handler, nullptr );
 
 		while ( ! bQuit ) {
-			Event event = pQueue->popEvent();
+			auto pEvent = pQueue->popEvent();
 
 			/* Event handler */
-			switch ( event.type ) {
+			switch ( pEvent->getType() ) {
 			case EVENT_NONE: /* Sleep if there is no more events */
 				Sleeper::msleep ( 100 );
 				break;

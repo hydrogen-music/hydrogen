@@ -124,19 +124,27 @@ QString Event::typeToQString( EventType type ) {
 	return QString( "Unknown event: [%1]" ).arg( static_cast<int>(type));
 }
 
+Event::Event( EventType type, int nValue ) : m_type( type )
+										   , m_nValue( nValue ) {
+}
+
+Event::~Event() {
+}
+
 QString Event::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Event]\n" ).arg( sPrefix )
-			.append( QString( "%1%2type: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( Event::typeToQString( type ) ) )
-			.append( QString( "%1%2value: %3\n" ).arg( sPrefix ).arg( s ).arg( value ) );
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( Event::typeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nValue: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nValue ) );
 	}
 	else {
 		sOutput = QString( "[Event]" )
-			.append( QString( " type: %1" ).arg( Event::typeToQString( type ) ) )
-			.append( QString( ", value: %1\n" ).arg( value ) );
+			.append( QString( " m_type: %1" ).arg( Event::typeToQString( m_type ) ) )
+			.append( QString( ", m_nValue: %1\n" ).arg( m_nValue ) );
 	}
 
 	return sOutput;

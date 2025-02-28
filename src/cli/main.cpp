@@ -605,18 +605,18 @@ int main(int argc, char *argv[])
 			// Interactive mode - h2cli is not done yet.
 			while ( ! quit ) {
 				/* FIXME: Someday here will be The Real CLI ;-) */
-				Event event = pQueue->popEvent();
-				// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
+				auto pEvent = pQueue->popEvent();
 
 				/* Event handler */
-				switch ( event.type ) {
+				switch ( pEvent->getType() ) {
 				case EVENT_PROGRESS: /* event used only in export mode */
 					if ( ! bExportMode ) {
 						break;
 					}
 	
-					if ( event.value < 100 ) {
-						std::cout << "\rExport Progress ... " << event.value << "%";
+					if ( pEvent->getValue() < 100 ) {
+						std::cout << "\rExport Progress ... " <<
+							pEvent->getValue() << "%";
 					}
 					else {
 						const auto pDriver = static_cast<DiskWriterDriver*>(
@@ -624,7 +624,8 @@ int main(int argc, char *argv[])
 						if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
 							std::cerr << "\rExport FAILED" << std::endl;
 							nReturnCode = 1;
-						} else {
+						}
+						else {
 							std::cout << "\rExport Progress ... DONE" << std::endl;
 						}
 						pHydrogen->stopExportSession();
@@ -641,7 +642,6 @@ int main(int argc, char *argv[])
 					quit = true;
 					break;
 				default:
-					// EVENT_STATE, EVENT_PATTERN_CHANGED, etc are ignored
 					break;
 				}
 			}

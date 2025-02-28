@@ -52,12 +52,12 @@ public:
 		EventQueue::create_instance();
 		m_pQ = EventQueue::get_instance();
 		m_pQ->setSilent( false );
-		Event ev;
 
+		std::unique_ptr<Event> pEvent;
 		// Clear queue of any events from previous tests.
 		do {
-			ev = m_pQ->popEvent();
-		} while ( ev.type != EVENT_NONE );
+			pEvent = m_pQ->popEvent();
+		} while ( pEvent->getType() != EVENT_NONE );
 	}
 
 	void tearDown() override {
@@ -66,7 +66,7 @@ public:
 	
 	void testPushPop() {
 	___INFOLOG( "" );
-		Event ev;
+		std::unique_ptr<Event> pEvent;
 
 		// Fill the event queue to the maximum permissible size, drain the queue and then do it again.
 		for ( int pass = 0; pass < 2; pass++) {
@@ -74,20 +74,21 @@ public:
 				m_pQ->pushEvent( EVENT_PROGRESS, i );
 			}
 			for ( int i = 0; i < MAX_EVENTS; i++ ) {
-				ev = m_pQ->popEvent();
-				CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i );
+				pEvent = m_pQ->popEvent();
+				CPPUNIT_ASSERT( pEvent->getType() == EVENT_PROGRESS &&
+								pEvent->getValue() == i );
 			}
 
 			// Queue should now be empty
-			ev = m_pQ->popEvent();
-			CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+			pEvent = m_pQ->popEvent();
+			CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
 		}
 	___INFOLOG( "passed" );
 	}
 
 	void testOverflow() {
 	___INFOLOG( "" );
-		Event ev;
+		std::unique_ptr<Event> pEvent;
 
 		// Overfill queue
 		for ( int i = 0; i < MAX_EVENTS + 100; i++) {
@@ -95,11 +96,11 @@ public:
 		}
 		// Check that the queue contains the most recent MAX_EVENTS events
 		for ( int i = 0; i < MAX_EVENTS; i++) {
-			ev = m_pQ->popEvent();
-			CPPUNIT_ASSERT( ev.type == EVENT_PROGRESS && ev.value == i + 100);
+			pEvent = m_pQ->popEvent();
+			CPPUNIT_ASSERT( pEvent->getType() == EVENT_PROGRESS && pEvent->getValue() == i + 100);
 		}
-		ev = m_pQ->popEvent();
-		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+		pEvent = m_pQ->popEvent();
+		CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
 	___INFOLOG( "passed" );
 	}
 
@@ -121,22 +122,22 @@ public:
 
 		// Reader counts up the number of events from each thread
 		for ( int nTotalEvents = 0; nTotalEvents < nCountsPerThread * nThreads; ) {
-			Event ev = m_pQ->popEvent();
-			if ( ev.type == EVENT_METRONOME ) {
-				CPPUNIT_ASSERT( ev.value < nThreads && ev.value >= 0 );
-				counters[ ev.value ]++;
-				CPPUNIT_ASSERT( ev.value <= nCountsPerThread );
+			auto pEvent = m_pQ->popEvent();
+			if ( pEvent->getType() == EVENT_METRONOME ) {
+				CPPUNIT_ASSERT( pEvent->getValue() < nThreads && pEvent->getValue() >= 0 );
+				counters[ pEvent->getValue() ]++;
+				CPPUNIT_ASSERT( pEvent->getValue() <= nCountsPerThread );
 				nTotalEvents++;
 			} else {
-				CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+				CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
 			}
 		}
 
 		for ( int i = 0; i < nThreads; i++ ) {
 			CPPUNIT_ASSERT( counters[i] == nCountsPerThread );
 		}
-		Event ev = m_pQ->popEvent();
-		CPPUNIT_ASSERT( ev.type == EVENT_NONE );
+		auto pEvent = m_pQ->popEvent();
+		CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
 	___INFOLOG( "passed" );
 	}
 

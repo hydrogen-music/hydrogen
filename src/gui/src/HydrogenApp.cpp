@@ -910,8 +910,11 @@ void HydrogenApp::onEventQueueTimer()
 	// use the timer to do schedule instrument slaughter;
 	EventQueue *pQueue = EventQueue::get_instance();
 
-	Event event;
-	while ( ( event = pQueue->popEvent() ).type != EVENT_NONE ) {
+	while ( true ) {
+		auto pEvent = pQueue->popEvent();
+		if ( pEvent == nullptr || pEvent->getType() == EVENT_NONE ) {
+			break;
+		}
 		
 		// Provide the event to all EventListeners registered to
 		// HydrogenApp. By registering itself as EventListener and
@@ -920,9 +923,9 @@ void HydrogenApp::onEventQueueTimer()
 		for (int i = 0; i < (int)m_EventListeners.size(); i++ ) {
 			EventListener *pListener = m_EventListeners[ i ];
 
-			switch ( event.type ) {
+			switch ( pEvent->getType() ) {
 			case EVENT_ACTION_MODE_CHANGE:
-				pListener->actionModeChangeEvent( event.value );
+				pListener->actionModeChangeEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_BBT_CHANGED:
@@ -942,7 +945,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_ERROR:
-				pListener->errorEvent( event.value );
+				pListener->errorEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_GRID_CELL_TOGGLED:
@@ -950,19 +953,19 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_INSTRUMENT_MUTE_SOLO_CHANGED:
-				pListener->instrumentMuteSoloChangedEvent( event.value );
+				pListener->instrumentMuteSoloChangedEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
-				pListener->instrumentParametersChangedEvent( event.value );
+				pListener->instrumentParametersChangedEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_JACK_SESSION:
-				pListener->jacksessionEvent( event.value );
+				pListener->jacksessionEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
-				pListener->jackTimebaseStateChangedEvent( event.value );
+				pListener->jackTimebaseStateChangedEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_JACK_TRANSPORT_ACTIVATION:
@@ -974,7 +977,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_METRONOME:
-				pListener->metronomeEvent( event.value );
+				pListener->metronomeEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_MIDI_ACTIVITY:
@@ -998,11 +1001,11 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_NOTEON:
-				pListener->noteOnEvent( event.value );
+				pListener->noteOnEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_QUIT:
-				pListener->quitEvent( event.value );
+				pListener->quitEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_PATTERN_EDITOR_LOCKED:
@@ -1022,7 +1025,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_PLAYLIST_CHANGED:
-				pListener->playlistChangedEvent( event.value );
+				pListener->playlistChangedEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_PLAYLIST_LOADSONG:
@@ -1030,7 +1033,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_PROGRESS:
-				pListener->progressEvent( event.value );
+				pListener->progressEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_RELOCATION:
@@ -1058,11 +1061,11 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_STATE:
-				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(event.value) );
+				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(pEvent->getValue()) );
 				break;
 
 			case EVENT_STACKED_MODE_ACTIVATION:
-				pListener->stackedModeActivationEvent( event.value );
+				pListener->stackedModeActivationEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_SOUND_LIBRARY_CHANGED:
@@ -1070,7 +1073,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_TEMPO_CHANGED:
-				pListener->tempoChangedEvent( event.value );
+				pListener->tempoChangedEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_TIMELINE_ACTIVATION:
@@ -1078,19 +1081,19 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_TIMELINE_UPDATE:
-				pListener->timelineUpdateEvent( event.value );
+				pListener->timelineUpdateEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_UNDO_REDO:
-				pListener->undoRedoActionEvent( event.value );
+				pListener->undoRedoActionEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_UPDATE_PREFERENCES:
-				pListener->updatePreferencesEvent( event.value );
+				pListener->updatePreferencesEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_UPDATE_SONG:
-				pListener->updateSongEvent( event.value );
+				pListener->updateSongEvent( pEvent->getValue() );
 				break;
 
 			case EVENT_XRUN:
@@ -1098,7 +1101,8 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			default:
-				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
+				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1")
+						  .arg( pEvent->getType() ) );
 			}
 		}
 
