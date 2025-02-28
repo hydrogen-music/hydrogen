@@ -32,7 +32,7 @@ static void *pushThread(void *p) {
 	int *pInt = (int *)p;
 	EventQueue *pQ = EventQueue::get_instance();
 	for ( int i = 0; i < nCountsPerThread; i++) {
-		pQ->pushEvent( EVENT_METRONOME, *pInt );
+		pQ->pushEvent( Event::Type::Metronome, *pInt );
 	}
 	return nullptr;
 }
@@ -57,7 +57,7 @@ public:
 		// Clear queue of any events from previous tests.
 		do {
 			pEvent = m_pQ->popEvent();
-		} while ( pEvent->getType() != EVENT_NONE );
+		} while ( pEvent->getType() != Event::Type::None );
 	}
 
 	void tearDown() override {
@@ -71,17 +71,17 @@ public:
 		// Fill the event queue to the maximum permissible size, drain the queue and then do it again.
 		for ( int pass = 0; pass < 2; pass++) {
 			for ( int i = 0; i < MAX_EVENTS; i++ ) {
-				m_pQ->pushEvent( EVENT_PROGRESS, i );
+				m_pQ->pushEvent( Event::Type::Progress, i );
 			}
 			for ( int i = 0; i < MAX_EVENTS; i++ ) {
 				pEvent = m_pQ->popEvent();
-				CPPUNIT_ASSERT( pEvent->getType() == EVENT_PROGRESS &&
+				CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress &&
 								pEvent->getValue() == i );
 			}
 
 			// Queue should now be empty
 			pEvent = m_pQ->popEvent();
-			CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
+			CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
 		}
 	___INFOLOG( "passed" );
 	}
@@ -92,15 +92,15 @@ public:
 
 		// Overfill queue
 		for ( int i = 0; i < MAX_EVENTS + 100; i++) {
-			m_pQ->pushEvent( EVENT_PROGRESS, i );
+			m_pQ->pushEvent( Event::Type::Progress, i );
 		}
 		// Check that the queue contains the most recent MAX_EVENTS events
 		for ( int i = 0; i < MAX_EVENTS; i++) {
 			pEvent = m_pQ->popEvent();
-			CPPUNIT_ASSERT( pEvent->getType() == EVENT_PROGRESS && pEvent->getValue() == i + 100);
+			CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Progress && pEvent->getValue() == i + 100);
 		}
 		pEvent = m_pQ->popEvent();
-		CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
+		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
 	___INFOLOG( "passed" );
 	}
 
@@ -123,13 +123,13 @@ public:
 		// Reader counts up the number of events from each thread
 		for ( int nTotalEvents = 0; nTotalEvents < nCountsPerThread * nThreads; ) {
 			auto pEvent = m_pQ->popEvent();
-			if ( pEvent->getType() == EVENT_METRONOME ) {
+			if ( pEvent->getType() == Event::Type::Metronome ) {
 				CPPUNIT_ASSERT( pEvent->getValue() < nThreads && pEvent->getValue() >= 0 );
 				counters[ pEvent->getValue() ]++;
 				CPPUNIT_ASSERT( pEvent->getValue() <= nCountsPerThread );
 				nTotalEvents++;
 			} else {
-				CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
+				CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
 			}
 		}
 
@@ -137,7 +137,7 @@ public:
 			CPPUNIT_ASSERT( counters[i] == nCountsPerThread );
 		}
 		auto pEvent = m_pQ->popEvent();
-		CPPUNIT_ASSERT( pEvent->getType() == EVENT_NONE );
+		CPPUNIT_ASSERT( pEvent->getType() == Event::Type::None );
 	___INFOLOG( "passed" );
 	}
 

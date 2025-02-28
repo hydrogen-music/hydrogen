@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
 
 				/* Event handler */
 				switch ( pEvent->getType() ) {
-				case EVENT_PROGRESS: /* event used only in export mode */
+				case Event::Type::Progress: /* event used only in export mode */
 					if ( ! bExportMode ) {
 						break;
 					}
@@ -633,11 +633,11 @@ int main(int argc, char *argv[])
 					}
 					break;
 
-				case EVENT_NONE: /* Sleep if there is no more events */
+				case Event::Type::None: /* Sleep if there is no more events */
 					Sleeper::msleep ( 100 );
 					break;
 				
-				case EVENT_QUIT: // Shutdown if indicated by a
+				case Event::Type::Quit: // Shutdown if indicated by a
 					// corresponding OSC message.
 					quit = true;
 					break;

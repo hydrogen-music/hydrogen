@@ -475,7 +475,7 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	// CoreActionController - which takes care of queuing the
 	// relocation event - this function is only meant to be used in
 	// very specific circumstances and has to queue it itself.
-	EventQueue::get_instance()->pushEvent( EVENT_RELOCATION, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
 }
 
 void AudioEngine::resetOffsets() {
@@ -571,7 +571,7 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame,
 
 	if ( pPos == m_pTransportPosition && bBBTChanged &&
 		 trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent( EVENT_BBT_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::BbtChanged, 0 );
 	}
 
 #if AUDIO_ENGINE_DEBUG
@@ -740,7 +740,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 		pPos->setBpm( fNewBpm );
 		if ( pPos == m_pTransportPosition &&
 			 trigger != Event::Trigger::Suppress ) {
-			EventQueue::get_instance()->pushEvent( EVENT_TEMPO_CHANGED, 0 );
+			EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, 0 );
 		}
 	}
 
@@ -1007,7 +1007,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 	unlock();
 
-	EventQueue::get_instance()->pushEvent( EVENT_DRIVER_CHANGED, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::DriverChanged, 0 );
 
 	return pAudioDriver;
 }
@@ -1247,7 +1247,7 @@ void AudioEngine::setupLadspaFX()
 
 void AudioEngine::raiseError( unsigned nErrorCode )
 {
-	EventQueue::get_instance()->pushEvent( EVENT_ERROR, nErrorCode );
+	EventQueue::get_instance()->pushEvent( Event::Type::Error, nErrorCode );
 }
 
 void AudioEngine::handleSelectedPattern( Event::Trigger trigger ) {
@@ -1366,7 +1366,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 			if ( pNoteInstrument == m_pMetronomeInstrument ) {
 				EventQueue::get_instance()->pushEvent(
-					EVENT_METRONOME, pNote->getPitch() == 0 ? 1 : 0 );
+					Event::Type::Metronome, pNote->getPitch() == 0 ? 1 : 0 );
 			}
 
 			m_pSampler->noteOn( pNote );
@@ -1378,7 +1378,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			// Check whether the instrument could be found.
 			if ( nInstrument != -1 ) {
 				EventQueue::get_instance()->pushEvent(
-					EVENT_NOTEON, nInstrument );
+					Event::Type::NoteOn, nInstrument );
 			}
 			
 			continue;
@@ -1567,7 +1567,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			// Tell GUI to move the playhead position to the beginning of
 			// the song again since it only updates it in case transport
 			// is rolling.
-			EventQueue::get_instance()->pushEvent( EVENT_RELOCATION, 0 );
+			EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
 
 			if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) !=
 				 nullptr ) {
@@ -1603,7 +1603,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		___WARNINGLOG( "------------" );
 		___WARNINGLOG( "" );
 		
-		EventQueue::get_instance()->pushEvent( EVENT_XRUN, -1 );
+		EventQueue::get_instance()->pushEvent( Event::Type::Xrun, -1 );
 	}
 #endif
 
@@ -1686,7 +1686,7 @@ void AudioEngine::setState( const AudioEngine::State& state,
 							Event::Trigger trigger ) {
 	if ( m_state == state ) {
 		if ( trigger == Event::Trigger::Force ) {
-			EventQueue::get_instance()->pushEvent( EVENT_STATE,
+			EventQueue::get_instance()->pushEvent( Event::Type::State,
 													static_cast<int>(state) );
 		}
 		return;
@@ -1694,7 +1694,7 @@ void AudioEngine::setState( const AudioEngine::State& state,
 
 	m_state = state;
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent( EVENT_STATE,
+		EventQueue::get_instance()->pushEvent( Event::Type::State,
 												static_cast<int>(state) );
 	}
 }
@@ -1808,7 +1808,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 		m_fSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
 		if ( trigger != Event::Trigger::Suppress ) {
-			EventQueue::get_instance()->pushEvent( EVENT_SONG_SIZE_CHANGED, 0 );
+			EventQueue::get_instance()->pushEvent( Event::Type::SongSizeChanged, 0 );
 		}
 		return;
 	}
@@ -1881,7 +1881,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 #endif
 
 		if ( trigger != Event::Trigger::Suppress ) {
-			EventQueue::get_instance()->pushEvent( EVENT_SONG_SIZE_CHANGED, 0 );
+			EventQueue::get_instance()->pushEvent( Event::Type::SongSizeChanged, 0 );
 		}
 	};
 
@@ -2033,7 +2033,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 #endif
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent( EVENT_SONG_SIZE_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::SongSizeChanged, 0 );
 	}
 }
 
@@ -2087,7 +2087,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 			if ( pPos == m_pTransportPosition && nPrevPatternNumber > 0 &&
 				 trigger != Event::Trigger::Suppress ) {
-				EventQueue::get_instance()->pushEvent( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+				EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
 			}
 			return;
 		}
@@ -2113,7 +2113,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		if ( pPos == m_pTransportPosition &&
 			 trigger != Event::Trigger::Suppress &&
 			 ( nPrevPatternNumber != 0 || pPlayingPatterns->size() != 0 ) ) {
-			EventQueue::get_instance()->pushEvent( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+			EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
 		}
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
@@ -2131,7 +2131,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 			// engine and just moves along the transport position.
 			if ( pPos == m_pTransportPosition &&
 				 trigger != Event::Trigger::Suppress ) {
-				EventQueue::get_instance()->pushEvent( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+				EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
 			}
 		}
 	}
@@ -2159,7 +2159,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 				// engine and just moves along the transport position.
 				if ( pPos == m_pTransportPosition &&
 					 trigger != Event::Trigger::Suppress ) {
-					EventQueue::get_instance()->pushEvent( EVENT_PLAYING_PATTERNS_CHANGED, 0 );
+					EventQueue::get_instance()->pushEvent( Event::Type::PlayingPatternsChanged, 0 );
 				}
 			}
 			pNextPatterns->clear();

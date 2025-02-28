@@ -233,7 +233,7 @@ void Hydrogen::mutePlaybackTrack( const bool bMuted )
 
 	m_pSong->setPlaybackTrackEnabled( bMuted );
 
-	EventQueue::get_instance()->pushEvent( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PlaybackTrackChanged, 0 );
 }
 
 void Hydrogen::loadPlaybackTrack( const QString& sFilename )
@@ -257,7 +257,7 @@ void Hydrogen::loadPlaybackTrack( const QString& sFilename )
 
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
 	
-	EventQueue::get_instance()->pushEvent( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PlaybackTrackChanged, 0 );
 }
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
@@ -537,7 +537,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 		
 		if ( bIsModified ) {
-			EventQueue::get_instance()->pushEvent( EVENT_PATTERN_MODIFIED, -1 );
+			EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 			setIsModified( true );
 		}
 	}
@@ -591,7 +591,7 @@ void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->toggleNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( EVENT_NEXT_PATTERNS_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::NextPatternsChanged, 0 );
 
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
@@ -603,7 +603,7 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( EVENT_NEXT_PATTERNS_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::NextPatternsChanged, 0 );
 
 		return true;
 
@@ -835,7 +835,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 	if ( nPat == m_nSelectedPatternNumber ) {
 		if ( trigger == Event::Trigger::Force ) {
 			EventQueue::get_instance()->pushEvent(
-				EVENT_SELECTED_PATTERN_CHANGED, -1 );
+				Event::Type::SelectedPatternChanged, -1 );
 		}
 		return;
 	}
@@ -858,7 +858,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+		EventQueue::get_instance()->pushEvent( Event::Type::SelectedPatternChanged, -1 );
 	}
 }
 
@@ -870,7 +870,7 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	if ( m_nSelectedInstrumentNumber == nInstrument ) {
 		if ( trigger == Event::Trigger::Force ) {
 			EventQueue::get_instance()->pushEvent(
-				EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+				Event::Type::SelectedInstrumentChanged, -1 );
 		}
 		return;
 	}
@@ -886,7 +886,7 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 
 	if ( trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent(
-			EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+			Event::Type::SelectedInstrumentChanged, -1 );
 	}
 }
 
@@ -917,12 +917,12 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 
 void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
 	m_nBeatCounterTotalBeats = nBeatsToCount;
-	EventQueue::get_instance()->pushEvent( EVENT_BEAT_COUNTER, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
 }
 
 void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 	m_fBeatCounterBeatLength = fBeatLength;
-	EventQueue::get_instance()->pushEvent( EVENT_BEAT_COUNTER, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
 }
 
 bool Hydrogen::handleBeatCounter()
@@ -956,13 +956,13 @@ bool Hydrogen::handleBeatCounter()
 		m_nBeatCounterEventCount = 1;
 		m_nBeatCounterBeatCount = 1;
 
-		pEventQueue->pushEvent( EVENT_BEAT_COUNTER, 0 );
+		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 		return false;
 	}
 
 	// Only accept differences big enough
 	if ( m_nBeatCounterBeatCount != 1 && fTimeDelta <= .001 ) {
-		pEventQueue->pushEvent( EVENT_BEAT_COUNTER, 0 );
+		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 		return false;
 	}
 
@@ -1018,7 +1018,7 @@ bool Hydrogen::handleBeatCounter()
 		m_nBeatCounterBeatCount++;
 	}
 
-	pEventQueue->pushEvent( EVENT_BEAT_COUNTER, 0 );
+	pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 
 	return true;
 }
@@ -1030,7 +1030,7 @@ void Hydrogen::updateBeatCounterSettings() {
 		pPreferences->m_nBeatCounterDriftCompensation;
 	m_nBeatCounterStartOffset = pPreferences->m_nBeatCounterStartOffset;
 
-	EventQueue::get_instance()->pushEvent( EVENT_BEAT_COUNTER, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
 }
 
 void Hydrogen::releaseJackTimebaseControl()
@@ -1210,7 +1210,7 @@ void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
 
 		updateSelectedPattern();
 			
-		EventQueue::get_instance()->pushEvent( EVENT_PATTERN_EDITOR_LOCKED,
+		EventQueue::get_instance()->pushEvent( Event::Type::PatternEditorLocked,
 												bValue );
 	}
 }
@@ -1228,12 +1228,12 @@ void Hydrogen::setMode( const Song::Mode& mode, Event::Trigger trigger ) {
 		m_pSong->setMode( mode );
 		if ( trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent(
-				EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+				Event::Type::SongModeActivation, ( mode == Song::Mode::Song) ? 1 : 0 );
 		}
 	}
 	else if ( trigger == Event::Trigger::Force ) {
 		EventQueue::get_instance()->pushEvent(
-			EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+			Event::Type::SongModeActivation, ( mode == Song::Mode::Song) ? 1 : 0 );
 
 	}
 }
@@ -1248,7 +1248,7 @@ Song::ActionMode Hydrogen::getActionMode() const {
 void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 	if ( m_pSong != nullptr ) {
 		m_pSong->setActionMode( mode );
-		EventQueue::get_instance()->pushEvent( EVENT_ACTION_MODE_CHANGE,
+		EventQueue::get_instance()->pushEvent( Event::Type::ActionModeChanged,
 												( mode == Song::ActionMode::drawMode ) ? 1 : 0 );
 	}
 }
@@ -1282,7 +1282,7 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 		}
 
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( EVENT_STACKED_MODE_ACTIVATION,
+		EventQueue::get_instance()->pushEvent( Event::Type::StackedModeActivation,
 												( mode == Song::PatternMode::Selected ) ? 1 : 0 );
 	}
 }
@@ -1370,7 +1370,7 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 			pAudioEngine->handleTimelineChange();
 			pAudioEngine->unlock();
 
-			EventQueue::get_instance()->pushEvent( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
+			EventQueue::get_instance()->pushEvent( Event::Type::TimelineActivation, static_cast<int>( bEnabled ) );
 		}
 	}
 }
@@ -1545,7 +1545,7 @@ void Hydrogen::updateVirtualPatterns() {
 	m_pAudioEngine->updateVirtualPatterns();
 	m_pAudioEngine->unlock();
 	
-	EventQueue::get_instance()->pushEvent( EVENT_PATTERN_MODIFIED, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, 0 );
 }
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {

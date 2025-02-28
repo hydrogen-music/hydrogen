@@ -2120,19 +2120,6 @@ void MainForm::errorEvent( int nErrorCode )
 	QMessageBox::information( this, "Hydrogen", msg );
 }
 
-void MainForm::jacksessionEvent( int nEvent )
-{
-	switch (nEvent){
-	case 0:
-		action_file_save();
-		break;
-	case 1:
-		action_file_exit();
-		break;
-	}
-
-}
-
 void MainForm::action_file_songProperties()
 {
 	if ( H2Core::Hydrogen::get_instance()->getSong() == nullptr ) {

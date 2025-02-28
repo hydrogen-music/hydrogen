@@ -383,7 +383,7 @@ OscServer::OscServer() : m_bInitialized( false )
 			pPref->m_nOscTemporaryPort = nTmpPort;
 			
 			H2Core::EventQueue::get_instance()->pushEvent(
-				H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
+				H2Core::Event::Type::Error, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
 		}
 	}
 	else {

@@ -1473,7 +1473,7 @@ void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenomina
 		setCursorColumn( nNewColumn );
 	}
 	
-	EventQueue::get_instance()->pushEvent( EVENT_PATTERN_MODIFIED, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 }
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )

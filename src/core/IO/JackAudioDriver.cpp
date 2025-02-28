@@ -107,7 +107,7 @@ int JackAudioDriver::jackXRunCallback( void *arg ) {
 	// position.
 	JackAudioDriver::m_nIntegrationLastRelocationFrame = -1;
 #endif
-	EventQueue::get_instance()->pushEvent( EVENT_XRUN, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
 	return 0;
 }
 
@@ -550,7 +550,7 @@ void JackAudioDriver::relocateUsingBBT()
 		pAudioEngine->locate( fNewTick, false );
 	}
 
-	EventQueue::get_instance()->pushEvent( EVENT_RELOCATION, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
 
 	m_nTimebaseFrameOffset = pAudioEngine->getTransportPosition()->getFrame() -
 		m_JackTransportPos.frame;
@@ -656,7 +656,7 @@ void JackAudioDriver::updateTransportPosition()
 
 				m_nTimebaseFrameOffset = 0;
 				EventQueue::get_instance()->pushEvent(
-					EVENT_JACK_TIMEBASE_STATE_CHANGED,
+					Event::Type::JackTimebaseStateChanged,
 					static_cast<int>(m_timebaseState) );
 			}
 		}
@@ -675,7 +675,7 @@ void JackAudioDriver::updateTransportPosition()
 					m_timebaseState = Timebase::Listener;
 					m_nTimebaseFrameOffset = 0;
 					EventQueue::get_instance()->pushEvent(
-						EVENT_JACK_TIMEBASE_STATE_CHANGED,
+						Event::Type::JackTimebaseStateChanged,
 						static_cast<int>(m_timebaseState) );
 				}
 				if ( m_timebaseTracking != TimebaseTracking::Valid ) {
@@ -702,7 +702,7 @@ void JackAudioDriver::updateTransportPosition()
 					m_timebaseState = Timebase::None;
 					m_nTimebaseFrameOffset = 0;
 					EventQueue::get_instance()->pushEvent(
-						EVENT_JACK_TIMEBASE_STATE_CHANGED,
+						Event::Type::JackTimebaseStateChanged,
 						static_cast<int>(m_timebaseState) );
 				}
 			}
@@ -1284,7 +1284,7 @@ void JackAudioDriver::initTimebaseControl()
 
 			m_timebaseState = Timebase::Controller;
 			EventQueue::get_instance()->pushEvent(
-				EVENT_JACK_TIMEBASE_STATE_CHANGED,
+				Event::Type::JackTimebaseStateChanged,
 				static_cast<int>(m_timebaseState) );
 		}
 	}
@@ -1328,7 +1328,7 @@ void JackAudioDriver::releaseTimebaseControl()
 #endif
 
 	EventQueue::get_instance()->pushEvent(
-		EVENT_JACK_TIMEBASE_STATE_CHANGED, static_cast<int>(m_timebaseState) );
+		Event::Type::JackTimebaseStateChanged, static_cast<int>(m_timebaseState) );
 
 }
 
@@ -1404,7 +1404,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pDriver->m_timebaseState = Timebase::Controller;
 
 		EventQueue::get_instance()->pushEvent(
-			EVENT_JACK_TIMEBASE_STATE_CHANGED,
+			Event::Type::JackTimebaseStateChanged,
 			static_cast<int>(pDriver->m_timebaseState) );
 	}
 

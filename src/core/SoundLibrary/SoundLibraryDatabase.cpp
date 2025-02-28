@@ -73,7 +73,7 @@ void SoundLibraryDatabase::update()
 	//updateSongs();
 	updateDrumkits( false );
 	
-	EventQueue::get_instance()->pushEvent( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
 }
 
 void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
@@ -129,7 +129,7 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 	}
 
 	if ( bTriggerEvent ) {
-		EventQueue::get_instance()->pushEvent( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
 	}
 }
 
@@ -145,7 +145,7 @@ void SoundLibraryDatabase::updateDrumkit( const QString& sDrumkitPath, bool bTri
 	}
 
 	if ( bTriggerEvent ) {
-		EventQueue::get_instance()->pushEvent( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
 	}
 }
 
@@ -196,7 +196,7 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 				  .arg( pDrumkit->getName() )
 				  .arg( sDrumkitPath ) );
 
-		EventQueue::get_instance()->pushEvent( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
 		
 		return pDrumkit;
 	}
@@ -348,7 +348,7 @@ void SoundLibraryDatabase::updatePatterns( bool bTriggerEvent )
 	loadPatternFromDirectory( Filesystem::patterns_dir() );
 
 	if ( bTriggerEvent ) {
-		EventQueue::get_instance()->pushEvent( EVENT_SOUND_LIBRARY_CHANGED, 0 );
+		EventQueue::get_instance()->pushEvent( Event::Type::SoundLibraryChanged, 0 );
 	}
 }
 

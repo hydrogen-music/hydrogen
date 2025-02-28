@@ -68,7 +68,6 @@ class MainForm :  public QMainWindow,
 		void updateMenuBar();
 
 		virtual void errorEvent( int nErrorCode ) override;
-		virtual void jacksessionEvent( int nValue) override;
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void quitEvent( int ) override;
 

@@ -616,7 +616,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(
 	pattern->setCategory( newPatternCategory );
 	pHydrogen->setIsModified( true );
 
-	EventQueue::get_instance()->pushEvent( EVENT_PATTERN_MODIFIED, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 }
 
 
@@ -644,7 +644,7 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(
 	pattern->setLicense( oldLicense );
 	pattern->setCategory( oldPatternCategory );
 	pHydrogen->setIsModified( true );
-	EventQueue::get_instance()->pushEvent( EVENT_PATTERN_MODIFIED, -1 );
+	EventQueue::get_instance()->pushEvent( Event::Type::PatternModified, -1 );
 }
 
 

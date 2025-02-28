@@ -53,7 +53,7 @@ EventQueue::~EventQueue() {
 }
 
 
-void EventQueue::pushEvent( const EventType type, const int nValue )
+void EventQueue::pushEvent( const Event::Type type, const int nValue )
 {
 	std::lock_guard< std::mutex > lock( m_mutex );
 	unsigned int nIndex = ++m_nWriteIndex;

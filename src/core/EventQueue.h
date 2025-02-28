@@ -42,16 +42,15 @@ namespace H2Core
 /** Object handling the communication between the core of Hydrogen and
  * its GUI.
  *
- * Whenever a specific condition is met or occasion happens within the
- * core part of Hydrogen (its engine), an Event will be added to the
- * EventQueue singleton. The GUI checks the content of this queue on a
- * regular basis using HydrogenApp::onEventQueueTimer(). The actual
- * frequency is set in the constructor HydrogenApp::HydrogenApp() to
- * 20 times per second. Now, whenever an Event of a certain EventType
- * is encountered, the corresponding function in the EventListener
- * will be invoked to respond to the condition of the engine. For
- * details about the mapping of EventTypes to functions please see the
- * documentation of HydrogenApp::onEventQueueTimer().*/
+ * Whenever a specific condition is met or occasion happens within the core part
+ * of Hydrogen (its engine), an Event will be added to the EventQueue singleton.
+ * The GUI checks the content of this queue on a regular basis using
+ * HydrogenApp::onEventQueueTimer(). The actual frequency is set in the
+ * constructor HydrogenApp::HydrogenApp() to 20 times per second. Now, whenever
+ * an Event of a certain Event::Type is encountered, the corresponding function
+ * in the EventListener will be invoked to respond to the condition of the
+ * engine. For details about the mapping of Event::Type to functions please see
+ * the documentation of HydrogenApp::onEventQueueTimer().*/
 /** \ingroup docCore docEvent */
 class EventQueue : public H2Core::Object<EventQueue>
 {
@@ -73,33 +72,32 @@ public:/**
 	/**
 	 * Queues the next event into the EventQueue.
 	 *
-	 * The event itself will be constructed inside the function
-	 * and will be two properties: an EventType @a type and a
-	 * value @a nValue. Since the event written to the queue most
-	 * recently is indexed with #m_nWriteIndex, this variable is
-	 * incremented once and its modulo with respect to #MAX_EVENTS
+	 * The event itself will be constructed inside the function and will be two
+	 * properties: an Event::Type @a type and a value @a nValue. Since the event
+	 * written to the queue most recently is indexed with #m_nWriteIndex, this
+	 * variable is incremented once and its modulo with respect to #MAX_EVENTS
 	 * is calculated to determine the position of insertion into
 	 * #m_eventsBuffer.
 	 *
-	 * The modulo operation is necessary because #m_nWriteIndex
-	 * will be only incremented and does not respect the actual
-	 * length of #m_eventsBuffer itself.
+	 * The modulo operation is necessary because #m_nWriteIndex will be only
+	 * incremented and does not respect the actual length of #m_eventsBuffer
+	 * itself.
 	 *
 	 * \param type Type of the event, which will be queued.
 	 * \param nValue Value specifying the content of the new event.
 	 */
-	void pushEvent( const EventType type, const int nValue );
+	void pushEvent( const Event::Type type, const int nValue );
 	/**
 	 * Reads out the next event of the EventQueue.
 	 *
-	 * Since the event read out most recently is indexed with
-	 * #m_nReadIndex, this variable is incremented once and its
-	 * modulo with respect to #MAX_EVENTS is calculated to
-	 * determine the event returned from #m_eventsBuffer.
+	 * Since the event read out most recently is indexed with #m_nReadIndex,
+	 * this variable is incremented once and its modulo with respect to
+	 * #MAX_EVENTS is calculated to determine the event returned from
+	 * #m_eventsBuffer.
 	 *
-	 * The modulo operation is necessary because #m_nReadIndex
-	 * will be only incremented and does not respect the actual
-	 * length of #m_eventsBuffer itself.
+	 * The modulo operation is necessary because #m_nReadIndex will be only
+	 * incremented and does not respect the actual length of #m_eventsBuffer
+	 * itself.
 	 *
 	 * \return Next event in line.
 	 */
@@ -135,27 +133,26 @@ private:
 	 * Constructor of the EventQueue class.
 	 *
 	 * It fills all #MAX_EVENTS slots of the #m_eventsBuffer with
-	 * #H2Core::EVENT_NONE and assigns itself to #__instance. Called by
+	 * #H2Core::Event::Type::None and assigns itself to #__instance. Called by
 	 * create_instance().
 	 */
 	EventQueue();
 	/**
-	 * Object holding the current EventQueue singleton. It is
-	 * initialized with nullptr, set in EventQueue(), and
-	 * accessed via get_instance().
+	 * Object holding the current EventQueue singleton. It is initialized with
+	 * nullptr, set in EventQueue(), and accessed via get_instance().
 	 */
 	static EventQueue *__instance;
 
 	/**
-	 * Continuously growing number indexing the event, which has
-	 * been read from the EventQueue most recently.
+	 * Continuously growing number indexing the event, which has been read from
+	 * the EventQueue most recently.
 	 *
 	 * It is incremented with each call to popEvent().
 	 */
 	volatile unsigned int m_nReadIndex;
 	/**
-	 * Continuously growing number indexing the event, which has
-	 * been written to the EventQueue most recently.
+	 * Continuously growing number indexing the event, which has been written to
+	 * the EventQueue most recently.
 	 *
 	 * It is incremented with each call to pushEvent().
 	 */
@@ -163,8 +160,8 @@ private:
 	/**
 	 * Array of all events contained in the EventQueue.
 	 *
-	 * Its length is set to #MAX_EVENTS and it gets initialized
-	 * with #H2Core::EVENT_NONE in EventQueue().
+	 * Its length is set to #MAX_EVENTS and it gets initialized with
+	 * #H2Core::Event::Type::None in EventQueue().
 	 */
 	std::vector< std::unique_ptr<Event> >m_eventsBuffer;;
 

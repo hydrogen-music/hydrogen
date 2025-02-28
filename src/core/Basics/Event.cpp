@@ -25,98 +25,97 @@
 namespace H2Core
 {
 
-QString Event::typeToQString( EventType type ) {
+QString Event::TypeToQString( Event::Type type ) {
 	switch( type ) {
-	case EVENT_NONE:
-		return "EVENT_NONE";
-	case EVENT_STATE:
-		return "EVENT_STATE";
-	case EVENT_PLAYING_PATTERNS_CHANGED:
-		return "EVENT_PLAYING_PATTERNS_CHANGED";
-	case EVENT_NEXT_PATTERNS_CHANGED:
-		return "EVENT_NEXT_PATTERNS_CHANGED";
-	case EVENT_PATTERN_MODIFIED:
-		return "EVENT_PATTERN_MODIFIED";
-	case EVENT_SELECTED_PATTERN_CHANGED:
-		return "EVENT_SELECTED_PATTERN_CHANGED";
-	case EVENT_SELECTED_INSTRUMENT_CHANGED:
-		return "EVENT_SELECTED_INSTRUMENT_CHANGED";
-	case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
-		return "EVENT_INSTRUMENT_PARAMETERS_CHANGED";
-	case EVENT_INSTRUMENT_MUTE_SOLO_CHANGED:
-		return "EVENT_INSTRUMENT_MUTE_SOLO_CHANGED";
-	case EVENT_MIDI_ACTIVITY:
-		return "EVENT_MIDI_ACTIVITY";
-	case EVENT_XRUN:
-		return "EVENT_XRUN";
-	case EVENT_NOTEON:
-		return "EVENT_NOTEON";
-	case EVENT_ERROR:
-		return "EVENT_ERROR";
-	case EVENT_METRONOME:
-		return "EVENT_METRONOME";
-	case EVENT_PROGRESS:
-		return "EVENT_PROGRESS";
-	case EVENT_JACK_SESSION:
-		return "EVENT_JACK_SESSION";
-	case EVENT_PLAYLIST_LOADSONG:
-		return "EVENT_PLAYLIST_LOADSONG";
-	case EVENT_UNDO_REDO:
-		return "EVENT_UNDO_REDO";
-	case EVENT_SONG_MODIFIED:
-		return "EVENT_SONG_MODIFIED";
-	case EVENT_TEMPO_CHANGED:
-		return "EVENT_TEMPO_CHANGED";
-	case EVENT_UPDATE_PREFERENCES:
-		return "EVENT_UPDATE_PREFERENCES";
-	case EVENT_UPDATE_SONG:
-		return "EVENT_UPDATE_SONG";
-	case EVENT_QUIT:
-		return "EVENT_QUIT";
-	case EVENT_TIMELINE_ACTIVATION:
-		return "EVENT_TIMELINE_ACTIVATION";
-	case EVENT_TIMELINE_UPDATE:
-		return "EVENT_TIMELINE_UPDATE";
-	case EVENT_JACK_TRANSPORT_ACTIVATION:
-		return "EVENT_JACK_TRANSPORT_ACTIVATION";
-	case EVENT_JACK_TIMEBASE_STATE_CHANGED:
-		return "EVENT_JACK_TIMEBASE_STATE_CHANGED";
-	case EVENT_SONG_MODE_ACTIVATION:
-		return "EVENT_SONG_MODE_ACTIVATION";
-	case EVENT_STACKED_MODE_ACTIVATION:
-		return "EVENT_STACKED_MODE_ACTIVATION";
-	case EVENT_LOOP_MODE_ACTIVATION:
-		return "EVENT_LOOP_MODE_ACTIVATION";
-	case EVENT_ACTION_MODE_CHANGE:
-		return "EVENT_ACTION_MODE_CHANGE";
-	case EVENT_GRID_CELL_TOGGLED:
-		return "EVENT_GRID_CELL_TOGGLED";
-	case EVENT_COLUMN_CHANGED:
-		return "EVENT_COLUMN_CHANGED";
-	case EVENT_DRUMKIT_LOADED:
-		return "EVENT_DRUMKIT_LOADED";
-	case EVENT_PATTERN_EDITOR_LOCKED:
-		return "EVENT_PATTERN_EDITOR_LOCKED";
-	case EVENT_RELOCATION:
-		return "EVENT_RELOCATION";
-	case EVENT_BBT_CHANGED:
-		return "EVENT_BBT_CHANGED";
-	case EVENT_SONG_SIZE_CHANGED:
-		return "EVENT_SONG_SIZE_CHANGED";
-	case EVENT_DRIVER_CHANGED:
-		return "EVENT_DRIVER_CHANGED";
-	case EVENT_PLAYBACK_TRACK_CHANGED:
-		return "EVENT_PLAYBACK_TRACK_CHANGED";
-	case EVENT_SOUND_LIBRARY_CHANGED:
-		return "EVENT_SOUND_LIBRARY_CHANGED";
-	case EVENT_NEXT_SHOT:
-		return "EVENT_NEXT_SHOT";
-	case EVENT_MIDI_MAP_CHANGED:
-		return "EVENT_MIDI_MAP_CHANGED";
-	case EVENT_PLAYLIST_CHANGED:
-		return "EVENT_PLAYLIST_CHANGED";
-	case EVENT_BEAT_COUNTER:
-		return "EVENT_BEAT_COUNTER";
+	case Event::Type::None:
+		return "None";
+
+	case Event::Type::ActionModeChanged:
+		return "ActionModeChanged";
+	case Event::Type::BbtChanged:
+		return "BbtChanged";
+	case Event::Type::BeatCounter:
+		return "BeatCounter";
+	case Event::Type::DriverChanged:
+		return "DriverChanged";
+	case Event::Type::DrumkitLoaded:
+		return "DrumkitLoaded";
+	case Event::Type::Error:
+		return "Error";
+	case Event::Type::GridCellToggled:
+		return "GridCellToggled";
+	case Event::Type::InstrumentMuteSoloChanged:
+		return "InstrumentMuteSoloChanged";
+	case Event::Type::InstrumentParametersChanged:
+		return "InstrumentParametersChanged";
+	case Event::Type::JackTimebaseStateChanged:
+		return "JackTimebaseStateChanged";
+	case Event::Type::JackTransportActivation:
+		return "JackTransportActivation";
+	case Event::Type::LoopModeActivation:
+		return "LoopModeActivation";
+	case Event::Type::Metronome:
+		return "Metronome";
+	case Event::Type::MidiActivity:
+		return "MidiActivity";
+	case Event::Type::MidiMapChanged:
+		return "MidiMapChanged";
+	case Event::Type::MixerSettingsChanged:
+		return "MixerSettingsChanged";
+	case Event::Type::NextPatternsChanged:
+		return "NextPatternsChanged";
+	case Event::Type::NextShot:
+		return "NextShot";
+	case Event::Type::NoteOn:
+		return "NoteOn";
+	case Event::Type::PatternEditorLocked:
+		return "PatternEditorLocked";
+	case Event::Type::PatternModified:
+		return "PatternModified";
+	case Event::Type::PlaybackTrackChanged:
+		return "PlaybackTrackChanged";
+	case Event::Type::PlayingPatternsChanged:
+		return "PlayingPatternsChanged";
+	case Event::Type::PlaylistChanged:
+		return "PlaylistChanged";
+	case Event::Type::PlaylistLoadSong:
+		return "PlaylistLoadSong";
+	case Event::Type::Progress:
+		return "Progress";
+	case Event::Type::Quit:
+		return "Quit";
+	case Event::Type::Relocation:
+		return "Relocation";
+	case Event::Type::SelectedInstrumentChanged:
+		return "SelectedInstrumentChanged";
+	case Event::Type::SelectedPatternChanged:
+		return "SelectedPatternChanged";
+	case Event::Type::SongModeActivation:
+		return "SongModeActivation";
+	case Event::Type::SongModified:
+		return "SongModified";
+	case Event::Type::SongSizeChanged:
+		return "SongSizeChanged";
+	case Event::Type::SoundLibraryChanged:
+		return "SoundLibraryChanged";
+	case Event::Type::StackedModeActivation:
+		return "StackedModeActivation";
+	case Event::Type::State:
+		return "State";
+	case Event::Type::TempoChanged:
+		return "TempoChanged";
+	case Event::Type::TimelineActivation:
+		return "TimelineActivation";
+	case Event::Type::UndoRedo:
+		return "UndoRedo";
+	case Event::Type::UpdatePreferences:
+		return "UpdatePreferences";
+	case Event::Type::UpdateSong:
+		return "UpdateSong";
+	case Event::Type::UpdateTimeline:
+		return "UpdateTimeline";
+	case Event::Type::Xrun:
+		return "Xrun";
 	default:
 		break;
 	}
@@ -124,8 +123,8 @@ QString Event::typeToQString( EventType type ) {
 	return QString( "Unknown event: [%1]" ).arg( static_cast<int>(type));
 }
 
-Event::Event( EventType type, int nValue ) : m_type( type )
-										   , m_nValue( nValue ) {
+Event::Event( Event::Type type, int nValue ) : m_type( type )
+											 , m_nValue( nValue ) {
 }
 
 Event::~Event() {
@@ -137,13 +136,13 @@ QString Event::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Event]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( Event::typeToQString( m_type ) ) )
+					 .arg( Event::TypeToQString( m_type ) ) )
 			.append( QString( "%1%2m_nValue: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nValue ) );
 	}
 	else {
 		sOutput = QString( "[Event]" )
-			.append( QString( " m_type: %1" ).arg( Event::typeToQString( m_type ) ) )
+			.append( QString( " m_type: %1" ).arg( Event::TypeToQString( m_type ) ) )
 			.append( QString( ", m_nValue: %1\n" ).arg( m_nValue ) );
 	}
 

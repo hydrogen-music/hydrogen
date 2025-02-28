@@ -131,7 +131,7 @@ void MidiSenseWidget::updateMidi(){
 					pAction );
 			}
 
-			H2Core::EventQueue::get_instance()->pushEvent( H2Core::EVENT_MIDI_MAP_CHANGED, 0 );
+			H2Core::EventQueue::get_instance()->pushEvent( H2Core::Event::Type::MidiMapChanged, 0 );
 		}
 
 		close();
