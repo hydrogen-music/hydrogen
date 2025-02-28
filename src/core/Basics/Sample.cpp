@@ -253,7 +253,7 @@ bool Sample::load( float fBpm )
 #ifdef H2CORE_HAVE_RUBBERBAND
 	applyRubberband( fBpm );
 #else
-	if ( ! exec_rubberband_cli( fBpm ) ) {
+	if ( ! execRubberbandCli( fBpm ) ) {
 		WARNINGLOG( "Unable to apply rubberband" );
 	}
 #endif
