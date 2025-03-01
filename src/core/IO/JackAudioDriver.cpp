@@ -1344,8 +1344,8 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	pAudioEngine->lock( RIGHT_HERE );
 
 	// Ensure the callback is not triggered during startup or teardown.
-	if ( pAudioEngine->getState() != AudioEngine::State::Ready ||
-		 pAudioEngine->getState() != AudioEngine::State::Playing ||
+	if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+		 pAudioEngine->getState() != AudioEngine::State::Playing &&
 		 pAudioEngine->getState() != AudioEngine::State::Testing ) {
 		pAudioEngine->unlock();
 		return;

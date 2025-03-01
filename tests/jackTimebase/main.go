@@ -19,15 +19,15 @@ const oscTestBinaryListenerPort = 8100
 
 // hydrogenStartupTime gives an upper limit for the time Hydrogen requires to
 // start up in milliseconds.
-const hydrogenStartupTime = 5000
+const hydrogenStartupTime = 7000
 // hydrogenTearDownTime gives an upper limit for the time required for
 // killHydrogen() to send a quit OSC signal, for Hydrogen to receive it and
 // finish its tear down.
-const hydrogenTearDownTime = 3000
+const hydrogenTearDownTime = 7000
 
 // oscCommandTime defines the time in milliseconds the tests do wait after
 // sending an OSC command before going on.
-const oscCommandTime = 500
+const oscCommandTime = 800
 
 var hydrogenLogFile = "./hydrogen.log"
 var hydrogenConfFile = "./hydrogen.conf"
@@ -70,12 +70,12 @@ func main() {
 
     _, err = exec.LookPath(hydrogenPath)
     if err != nil {
-        log.Fatalf("[%v] executable could not be found: %v", hydrogenPath,
+        log.Fatalf("[main] [%v] executable could not be found: %v", hydrogenPath,
             err.Error())
     }
     _, err = exec.LookPath(testBinaryPath)
     if err != nil {
-        log.Fatalf("[%v] executable could not be found: %v", testBinaryPath,
+        log.Fatalf("[main] [%v] executable could not be found: %v", testBinaryPath,
             err.Error())
     }
 
@@ -103,7 +103,7 @@ func main() {
 
     mainLoop(testContext)
 
-    log.Println("Initiating teardown...")
+    log.Println("[main] Initiating teardown...")
 
     // Teardown
     sendMsg(hydrogenClient, osc.NewMessage("/Hydrogen/QUIT"))
@@ -125,12 +125,12 @@ func mainLoop(ctx context.Context) {
         select {
         case <-hydrogenFailedChan:
             // Hydrogen exited
-            log.Println("hydrogenFailedChan")
+            log.Println("[mainLoop] hydrogenFailedChan")
             returnCode = 1
             return
         case <-testBinaryFailedChan:
             // Test binary exits
-            log.Println("testBinaryFailedChan")
+            log.Println("[mainLoop] testBinaryFailedChan")
             returnCode = 1
             return
         case <-nextTestChan:
@@ -169,7 +169,7 @@ func startHydrogen(ctx context.Context) {
     } else {
         log.Printf("[startHydrogen] ERROR: [%v] exited with error: %v",
             cmd.String(), err)
-        log.Printf("[startTestBinary] stdout/stderr: %v", string(output))
+        log.Printf("[startHydrogen] stdout/stderr: %v", string(output))
         hydrogenFailedChan <- true
     }
 }
@@ -177,7 +177,7 @@ func startHydrogen(ctx context.Context) {
 func startTestBinary(ctx context.Context, logFileSuffix string,
     timebaseState int64, oscPort int64, testFile string) {
 
-    log.Println("[nextTest] Starting test binary...")
+    log.Println("[startTestBinary] Starting test binary...")
 
     cmd := exec.CommandContext(ctx, testBinaryPath,
         "-L", testBinaryLogFileBase + "-" + logFileSuffix + ".log",
