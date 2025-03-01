@@ -76,17 +76,15 @@ void TransportPosition::set( std::shared_ptr<TransportPosition> pOther ) {
 	m_fTickOffsetSongSize = pOther->m_fTickOffsetSongSize;
 
 	m_pPlayingPatterns->clear();
-	for ( const auto& ppattern : *pOther->m_pPlayingPatterns ) {
-		if ( ppattern != nullptr ) {
-			m_pPlayingPatterns->add( ppattern );
-			ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+	for ( const auto& ppPattern : *pOther->m_pPlayingPatterns ) {
+		if ( ppPattern != nullptr ) {
+			m_pPlayingPatterns->add( ppPattern );
 		}
 	}
 	m_pNextPatterns->clear();
-	for ( const auto& ppattern : *pOther->m_pNextPatterns ) {
-		if ( ppattern != nullptr ) {
-			m_pNextPatterns->add( ppattern );
-			ppattern->addFlattenedVirtualPatterns( m_pNextPatterns );
+	for ( const auto& ppPattern : *pOther->m_pNextPatterns ) {
+		if ( ppPattern != nullptr ) {
+			m_pNextPatterns->add( ppPattern );
 		}
 	}
 	m_nPatternSize = pOther->m_nPatternSize;
