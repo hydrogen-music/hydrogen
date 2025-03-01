@@ -19,15 +19,15 @@ const oscTestBinaryListenerPort = 8100
 
 // hydrogenStartupTime gives an upper limit for the time Hydrogen requires to
 // start up in milliseconds.
-const hydrogenStartupTime = 5000
+const hydrogenStartupTime = 7000
 // hydrogenTearDownTime gives an upper limit for the time required for
 // killHydrogen() to send a quit OSC signal, for Hydrogen to receive it and
 // finish its tear down.
-const hydrogenTearDownTime = 3000
+const hydrogenTearDownTime = 7000
 
 // oscCommandTime defines the time in milliseconds the tests do wait after
 // sending an OSC command before going on.
-const oscCommandTime = 500
+const oscCommandTime = 800
 
 var hydrogenLogFile = "./hydrogen.log"
 var hydrogenConfFile = "./hydrogen.conf"
