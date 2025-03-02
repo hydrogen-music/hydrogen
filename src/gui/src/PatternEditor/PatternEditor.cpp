@@ -1745,6 +1745,32 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	pMovingPen->setWidth( 2 );
 }
 
+void PatternEditor::sortAndDrawNotes( QPainter& p,
+									  std::vector< std::shared_ptr<Note> > notes,
+									  NoteStyle baseStyle ) {
+	std::sort( notes.begin(), notes.end(), Note::compare );
+
+	// Prioritze selected notes over not selected ones.
+	std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
+	for ( const auto& ppNote : notes ) {
+		if ( m_selection.isSelected( ppNote ) ) {
+			selectedNotes.push_back( ppNote );
+		}
+		else {
+			notSelectedNotes.push_back( ppNote );
+		}
+	}
+
+	for ( const auto& ppNote : notSelectedNotes ) {
+		drawNote( p, ppNote, baseStyle );
+	}
+	auto selectedStyle =
+		static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
+	for ( const auto& ppNote : selectedNotes ) {
+		drawNote( p, ppNote, selectedStyle );
+	}
+}
+
 ///
 /// Ensure selection only refers to valid notes, and does not contain any stale references to deleted notes.
 ///
@@ -2347,36 +2373,6 @@ void PatternEditor::drawPattern()
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-
-	// If there are multiple notes at the same position and column, the one with
-	// lowest pitch (bottom-most one in PianoRollEditor) will be rendered up
-	// front. If a subset of notes at this point is selected, the note with
-	// lowest pitch within the selection is used.
-	auto sortAndDrawNotes = [&]( QPainter& p,
-						  std::vector< std::shared_ptr<Note> > notes,
-						  NoteStyle baseStyle ) {
-		std::sort( notes.begin(), notes.end(), Note::compare );
-
-		// Prioritze selected notes over not selected ones.
-		std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
-		for ( const auto& ppNote : notes ) {
-			if ( m_selection.isSelected( ppNote ) ) {
-				selectedNotes.push_back( ppNote );
-			}
-			else {
-				notSelectedNotes.push_back( ppNote );
-			}
-		}
-
-		for ( const auto& ppNote : notSelectedNotes ) {
-			drawNote( p, ppNote, baseStyle );
-		}
-		auto selectedStyle =
-			static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
-		for ( const auto& ppNote : selectedNotes ) {
-			drawNote( p, ppNote, selectedStyle );
-		}
-	};
 
 	// We count notes in each position so we can display markers for rows which
 	// have more than one note in the same position (a chord or genuine

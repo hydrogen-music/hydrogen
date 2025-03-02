@@ -137,6 +137,24 @@ class NotePropertiesRuler : public PatternEditor,
 		void drawPattern() override;
 		void drawNote( QPainter& painter, std::shared_ptr<H2Core::Note> pNote,
 					   NoteStyle noteStyle, int nOffsetX = 0 );
+		/** Since properties of notes within the same row would end up being
+		 * painted on top of eachother, we go through the notes column by column
+		 * and add small horizontal offsets to each additional note to hint
+		 * their existence.
+		 *
+		 * In addition, we first aggregate all notes residing at the same
+		 * position (column) in the same row and sort them according to their
+		 * pitch. This way they order is not seemingly random (else notes would
+		 * be order according to the insertion time into the pattern. An
+		 * unintuitive measure from user perspective with all our redo/undo
+		 * facilities.)
+		 *
+		 * Also, we ensure selected notes will be rendered more prominently than
+		 * not selected ones. */
+		void sortAndDrawNotes( QPainter& p,
+							   std::vector< std::shared_ptr<H2Core::Note> > notes,
+							   NoteStyle baseStyle,
+							   bool bUpdateOffsets );
 
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;

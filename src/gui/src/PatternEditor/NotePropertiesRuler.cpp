@@ -1019,35 +1019,17 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		m_pPatternEditorPanel->getSelectedRowDB() );
 
 	// Draw hovered notes
-	int nOffsetX = 0;
 	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	for ( const auto& [ ppPattern, nnotes ] :
 			  m_pPatternEditorPanel->getHoveredNotes() ) {
 		const auto baseStyle = static_cast<NoteStyle>(
 			( ppPattern == pPattern ? NoteStyle::Foreground :
-			  NoteStyle::Background ) | NoteStyle::Hovered);
-		for ( const auto& ppNote : nnotes ) {
-			const auto style = static_cast<NoteStyle>(
-				m_selection.isSelected( ppNote ) ?
-				NoteStyle::Selected | baseStyle : baseStyle );
-
-			if ( m_offsetMap.find( ppNote ) != m_offsetMap.end() ) {
-				nOffsetX = m_offsetMap[ ppNote ];
-			}
-			else {
-				nOffsetX = 0;
-			}
-
-			drawNote( painter, ppNote, style, nOffsetX );
-
-			if ( m_layout != Layout::KeyOctave ) {
-				// Within the key/octave view notes should be unique.
-				++nOffsetX;
-			}
-		}
+			  NoteStyle::Background ) | NoteStyle::Hovered );
+		sortAndDrawNotes( painter, nnotes, baseStyle, false );
 	}
 
 	// Draw moved notes
+	int nOffsetX = 0;
 	auto pEditor = m_pPatternEditorPanel->getVisibleEditor();
 	if ( pEditor->isSelectionMoving() ) {
 		for ( const auto& ppNote : m_selection ) {
@@ -1318,6 +1300,61 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	}
 }
 
+void NotePropertiesRuler::sortAndDrawNotes( QPainter& p,
+											std::vector< std::shared_ptr<Note> > notes,
+											NoteStyle baseStyle,
+											bool bUpdateOffsets ) {
+	std::sort( notes.begin(), notes.end(), Note::compare );
+
+	if ( bUpdateOffsets ) {
+		// Calculate a horizontal offset based on the order established above.
+		if ( m_layout != Layout::KeyOctave ) {
+			int nOffsetX = 0;
+			for ( const auto& ppNote : notes ) {
+				m_offsetMap[ ppNote ] = nOffsetX;
+				++nOffsetX;
+			}
+		}
+		else {
+			// Duplicate are possible in here too since we show key and octave
+			// separately. The pitch itself of the notes in here must be unqiue.
+			std::multiset<Note::Key> keys;
+			std::multiset<Note::Octave> octaves;
+			for ( const auto& ppNote : notes ) {
+				if ( ppNote == nullptr ) {
+					continue;
+				}
+				m_offsetMap[ ppNote ] = std::max(
+					keys.count( ppNote->getKey() ),
+					octaves.count( ppNote->getOctave() ) );
+
+				keys.insert( ppNote->getKey() );
+				octaves.insert( ppNote->getOctave() );
+			}
+		}
+	}
+
+	// Prioritze selected notes over not selected ones.
+	std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
+	for ( const auto& ppNote : notes ) {
+		if ( m_selection.isSelected( ppNote ) ) {
+			selectedNotes.push_back( ppNote );
+		}
+		else {
+			notSelectedNotes.push_back( ppNote );
+		}
+	}
+
+	for ( const auto& ppNote : notSelectedNotes ) {
+		drawNote( p, ppNote, baseStyle, m_offsetMap[ ppNote] );
+	}
+	auto selectedStyle =
+		static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
+	for ( const auto& ppNote : selectedNotes ) {
+		drawNote( p, ppNote, selectedStyle, m_offsetMap[ ppNote] );
+	}
+}
+
 void NotePropertiesRuler::createBackground()
 {
 	const auto pPref = H2Core::Preferences::get_instance();
@@ -1495,70 +1532,7 @@ void NotePropertiesRuler::drawPattern() {
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
 
-	// Since properties of notes within the same row would end up being painted
-	// on top of eachother, we go through the notes column by column and add
-	// small horizontal offsets to each additional note to hint their existence.
-	//
-	// In addition, we first aggregate all notes residing at the same position
-	// (column) in the same row and sort them according to their pitch. This way
-	// they order is not seemingly random (else notes would be order according
-	// to the insertion time into the pattern. An unintuitive measure from user
-	// perspective with all our redo/undo facilities.)
-	//
-	// Also, we ensure selected notes will be rendered more prominently than not
-	// selected ones.
 	std::vector< std::shared_ptr<Note> > notes;
-	auto sortAndDrawNotes = [&]( QPainter& p,
-							std::vector< std::shared_ptr<Note> > notes,
-							NoteStyle baseStyle ) {
-		std::sort( notes.begin(), notes.end(), Note::compare );
-
-		// Calculate a horizontal offset based on the order established above.
-		if ( m_layout != Layout::KeyOctave ) {
-			int nOffsetX = 0;
-			for ( const auto& ppNote : notes ) {
-				m_offsetMap[ ppNote ] = nOffsetX;
-				++nOffsetX;
-			}
-		}
-		else {
-			// Duplicate are possible in here too since we show key and octave
-			// separately. The pitch itself of the notes in here must be unqiue.
-			std::multiset<Note::Key> keys;
-			std::multiset<Note::Octave> octaves;
-			for ( const auto& ppNote : notes ) {
-				if ( ppNote == nullptr ) {
-					continue;
-				}
-				m_offsetMap[ ppNote ] = std::max(
-					keys.count( ppNote->getKey() ),
-					octaves.count( ppNote->getOctave() ) );
-
-				keys.insert( ppNote->getKey() );
-				octaves.insert( ppNote->getOctave() );
-			}
-		}
-
-		// Prioritze selected notes over not selected ones.
-		std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
-		for ( const auto& ppNote : notes ) {
-			if ( m_selection.isSelected( ppNote ) ) {
-				selectedNotes.push_back( ppNote );
-			}
-			else {
-				notSelectedNotes.push_back( ppNote );
-			}
-		}
-
-		for ( const auto& ppNote : notSelectedNotes ) {
-			drawNote( p, ppNote, baseStyle, m_offsetMap[ ppNote] );
-		}
-		auto selectedStyle =
-			static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
-		for ( const auto& ppNote : selectedNotes ) {
-			drawNote( p, ppNote, selectedStyle, m_offsetMap[ ppNote] );
-		}
-	};
 
 	for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 		const auto baseStyle = ppPattern == pPattern ?
@@ -1576,7 +1550,7 @@ void NotePropertiesRuler::drawPattern() {
 
 			if ( nLastPos != nnPos ) {
 				nLastPos = nnPos;
-				sortAndDrawNotes( p, notes, baseStyle );
+				sortAndDrawNotes( p, notes, baseStyle, true );
 				notes.clear();
 			}
 
@@ -1596,7 +1570,7 @@ void NotePropertiesRuler::drawPattern() {
 
 		// Handle last column too
 		if ( notes.size() > 0 ) {
-			sortAndDrawNotes( p, notes, baseStyle );
+			sortAndDrawNotes( p, notes, baseStyle, true );
 			notes.clear();
 		}
 	}

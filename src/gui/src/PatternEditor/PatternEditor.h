@@ -383,6 +383,13 @@ protected:
 					 QBrush* pHighlightBrush, QPen* pMovingPen,
 					 QBrush* pMovingBrush, NoteStyle noteStyle ) const;
 
+		/** If there are multiple notes at the same position and column, the one
+		 * with lowest pitch (bottom-most one in PianoRollEditor) will be
+		 * rendered up front. If a subset of notes at this point is selected,
+		 * the note with lowest pitch within the selection is used. */
+		void sortAndDrawNotes( QPainter& p,
+							   std::vector< std::shared_ptr<H2Core::Note> > notes,
+							   NoteStyle baseStyle );
 	/**
 	 * Draw a note
 	 *
