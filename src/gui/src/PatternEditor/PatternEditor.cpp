@@ -63,10 +63,11 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_editor( Editor::None )
 	, m_property( Property::None )
 	, m_nCursorPitch( 0 )
+	, m_dragType( DragType::None )
 	, m_nDragStartColumn( 0 )
 	, m_nDragY( 0 )
+	, m_dragStart( QPoint() )
 	, m_update( Update::Background )
-	, m_bPropertyDragActive( false )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -2681,8 +2682,6 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 	if ( ev->button() == Qt::RightButton ) {
 		// Adjusting note properties.
-		m_bPropertyDragActive = true;
-
 		const auto notesAtPoint = getElementsAtPoint(
 			ev->pos(), getCursorMargin( ev ), pPattern );
 		if ( notesAtPoint.size() == 0 ) {
@@ -2724,6 +2723,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		// All notes at located at the same point.
 		m_nDragStartColumn = notesAtPoint[ 0 ]->getPosition();
 		m_nDragY = ev->y();
+		m_dragStart = ev->pos();
 	}
 }
 
@@ -2736,6 +2736,24 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	auto pHydrogen = Hydrogen::get_instance();
 	int nColumn, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, nullptr, &nRealColumn );
+
+	// In case this is the first drag update, decided whether we deal with a
+	// length or property drag.
+	if ( m_dragType == DragType::None ) {
+		const int nDiffY = std::abs( ev->y() - m_dragStart.y() );
+		const int nDiffX = std::abs( ev->x() - m_dragStart.x() );
+
+		if ( nDiffX == nDiffY ) {
+			// User is dragging diagonally and hasn't decided yet.
+			return;
+		}
+		else if ( nDiffX > nDiffY ) {
+			m_dragType = DragType::Length;
+		}
+		else {
+			m_dragType = DragType::Property;
+		}
+	}
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
@@ -2755,18 +2773,18 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	}
 
 	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
-		float fNotePitch = ppNote->getPitchFromKeyOctave();
-		float fStep = 0;
-		if ( nLen > -1 ){
-			fStep = Note::pitchToFrequency( ( double )fNotePitch );
-		} else {
-			fStep=  1.0;
+		if ( m_dragType == DragType::Length ) {
+			float fStep = 1.0;
+			if ( nLen > -1 ){
+				fStep = Note::pitchToFrequency( ppNote->getPitchFromKeyOctave() );
+			}
+			ppNote->setLength( nLen * fStep );
+
+			triggerStatusMessage( m_notesHoveredOnDragStart, Property::Length );
 		}
-		ppNote->setLength( nLen * fStep );
-
-
-		// edit note property. We do not support the note key property.
-		if ( m_property != Property::KeyOctave ) {
+		else if ( m_dragType == DragType::Property &&
+				  m_property != Property::KeyOctave ) {
+			// edit note property. We do not support the note key property.
 			float fValue = 0.0;
 			if ( m_property == Property::Velocity ) {
 				fValue = ppNote->getVelocity();
@@ -2781,8 +2799,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 				fValue = ppNote->getProbability();
 			}
 		
-			float fMoveY = m_nDragY - ev->y();
-			fValue = fValue  + (fMoveY / 100);
+			fValue = fValue + static_cast<float>(m_nDragY - ev->y()) / 100;
 			if ( fValue > 1 ) {
 				fValue = 1;
 			}
@@ -2803,13 +2820,11 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 				ppNote->setProbability( fValue );
 			}
 
+			triggerStatusMessage( m_notesHoveredOnDragStart, m_property );
 		}
 	}
-	m_nDragY = ev->y();
 
-	if ( m_property != Property::KeyOctave ) {
-		triggerStatusMessage( m_notesHoveredOnDragStart, m_property );
-	}
+	m_nDragY = ev->y();
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
@@ -2824,109 +2839,156 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
+		m_dragType = DragType::None;
 		return;
 	}
 
-	m_bPropertyDragActive = false;
-
-	if ( m_draggedNotes.size() == 0 ) {
+	if ( m_draggedNotes.size() == 0 ||
+		 ( m_dragType == DragType::Property &&
+		   m_property == Property::KeyOctave ) ) {
+		m_dragType = DragType::None;
 		return;
 	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	bool bMacroStarted = false;
 	if ( m_draggedNotes.size() > 1 ) {
-		pHydrogenApp->beginUndoMacro( tr( "edit note properties by dragging" ) );
-		bMacroStarted = true;
-	}
-	else {
-		// Just a single note was edited.
-		for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
-			if ( ( ppUpdatedNote->getVelocity() !=
-				   ppOriginalNote->getVelocity() ||
-				   ppUpdatedNote->getPan() !=
-				   ppOriginalNote->getPan() ||
-				   ppUpdatedNote->getLeadLag() !=
-				   ppOriginalNote->getLeadLag() ||
-				   ppUpdatedNote->getProbability() !=
-				   ppOriginalNote->getProbability() ) &&
-				 ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
-				// Both length and another property have been edited.
-				pHydrogenApp->beginUndoMacro(
-					tr( "edit note properties by dragging" ) );
-				bMacroStarted = true;
+
+		auto sMacro = tr( "Drag edit note property:" );
+		if ( m_dragType == DragType::Length ) {
+			sMacro.append(
+				QString( " %1" ).arg( pCommonStrings->getNotePropertyLength() ) );
+		}
+		else if ( m_dragType == DragType::Property ) {
+			switch ( m_property ) {
+			case Property::Velocity:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyVelocity() ) );
+				break;
+			case Property::Pan:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyPan() ) );
+				break;
+			case Property::LeadLag:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyLeadLag() ) );
+				break;
+			case Property::Probability:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyProbability() ) );
+				break;
+			default:
+				ERRORLOG( "property not supported" );
 			}
 		}
+
+		pHydrogenApp->beginUndoMacro( sMacro );
+		bMacroStarted = true;
 	}
 
 	auto editNoteProperty = [=]( PatternEditor::Property property,
 								 std::shared_ptr<Note> pNewNote,
 								 std::shared_ptr<Note> pOldNote ) {
-		pHydrogenApp->pushUndoCommand(
-			new SE_editNotePropertiesAction(
-				property,
-				m_pPatternEditorPanel->getPatternNumber(),
-				pNewNote->getPosition(),
-				pNewNote->getInstrumentId(),
-				pNewNote->getInstrumentId(),
-				pNewNote->getType(),
-				pNewNote->getType(),
-				pNewNote->getVelocity(),
-				pOldNote->getVelocity(),
-				pNewNote->getPan(),
-				pOldNote->getPan(),
-				pNewNote->getLeadLag(),
-				pOldNote->getLeadLag(),
-				pNewNote->getProbability(),
-				pOldNote->getProbability(),
-				pNewNote->getLength(),
-				pOldNote->getLength(),
-				pNewNote->getKey(),
-				pOldNote->getKey(),
-				pNewNote->getOctave(),
-				pOldNote->getOctave() ) );
+		if ( m_dragType == DragType::Length ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_editNotePropertiesAction(
+					property,
+					m_pPatternEditorPanel->getPatternNumber(),
+					pOldNote->getPosition(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getType(),
+					pOldNote->getType(),
+					pOldNote->getVelocity(),
+					pOldNote->getVelocity(),
+					pOldNote->getPan(),
+					pOldNote->getPan(),
+					pOldNote->getLeadLag(),
+					pOldNote->getLeadLag(),
+					pOldNote->getProbability(),
+					pOldNote->getProbability(),
+					pNewNote->getLength(),
+					pOldNote->getLength(),
+					pOldNote->getKey(),
+					pOldNote->getKey(),
+					pOldNote->getOctave(),
+					pOldNote->getOctave() ) );
+		}
+		else if ( m_dragType == DragType::Property ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_editNotePropertiesAction(
+					property,
+					m_pPatternEditorPanel->getPatternNumber(),
+					pOldNote->getPosition(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getType(),
+					pOldNote->getType(),
+					pNewNote->getVelocity(),
+					pOldNote->getVelocity(),
+					pNewNote->getPan(),
+					pOldNote->getPan(),
+					pNewNote->getLeadLag(),
+					pOldNote->getLeadLag(),
+					pNewNote->getProbability(),
+					pOldNote->getProbability(),
+					pOldNote->getLength(),
+					pOldNote->getLength(),
+					pOldNote->getKey(),
+					pOldNote->getKey(),
+					pOldNote->getOctave(),
+					pOldNote->getOctave() ) );
+		}
 	};
 
-	std::vector< std::shared_ptr<Note> > notesStatusLength, notesStatusProp;
+	std::vector< std::shared_ptr<Note> > notesStatus;
 
 	for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
 		if ( ppUpdatedNote == nullptr || ppOriginalNote == nullptr ) {
 			continue;
 		}
 
-		if ( ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
+		if ( m_dragType == DragType::Length &&
+			 ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
 			editNoteProperty( Property::Length, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
 			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
 				if ( ppNote == ppOriginalNote ) {
-					notesStatusLength.push_back( ppUpdatedNote );
+					notesStatus.push_back( ppUpdatedNote );
 				}
 			}
 		}
-
-		if ( ppUpdatedNote->getVelocity() != ppOriginalNote->getVelocity() ||
-			 ppUpdatedNote->getPan() != ppOriginalNote->getPan() ||
-			 ppUpdatedNote->getLeadLag() != ppOriginalNote->getLeadLag() ||
-			 ppUpdatedNote->getProbability() !=
-			 ppOriginalNote->getProbability() ) {
+		else if ( m_dragType == DragType::Property &&
+				  ( ppUpdatedNote->getVelocity() !=
+					ppOriginalNote->getVelocity() ||
+					ppUpdatedNote->getPan() != ppOriginalNote->getPan() ||
+					ppUpdatedNote->getLeadLag() != ppOriginalNote->getLeadLag() ||
+					ppUpdatedNote->getProbability() !=
+					ppOriginalNote->getProbability() ) ) {
 			editNoteProperty( m_property, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
 			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
 				if ( ppNote == ppOriginalNote ) {
-					notesStatusProp.push_back( ppUpdatedNote );
+					notesStatus.push_back( ppUpdatedNote );
 				}
 			}
 		}
 	}
 
-	if ( notesStatusLength.size() > 0 ) {
-		triggerStatusMessage( notesStatusLength, Property::Length );
-	}
-	if ( notesStatusProp.size() > 0 ) {
-		triggerStatusMessage( notesStatusProp, m_property );
+	if ( m_draggedNotes.size() > 0 ) {
+		if ( m_dragType == DragType::Length ) {
+			triggerStatusMessage( notesStatus, Property::Length );
+		}
+		else if ( m_dragType == DragType::Property ) {
+			triggerStatusMessage( notesStatus, m_property );
+		}
+		else {
+			ERRORLOG( "Invalid drag type" );
+		}
 	}
 
 	if ( bMacroStarted ) {
@@ -2934,6 +2996,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	}
 
 	m_draggedNotes.clear();
+	m_dragType = DragType::None;
 }
 
 void PatternEditor::editNotePropertiesAction( const Property& property,
@@ -3704,7 +3767,7 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 	// We do not highlight hovered notes during a property drag. Else, the
 	// hovered ones would appear in front of the dragged one in the ruler,
 	// hiding the newly adjusted value.
-	if ( ! m_bPropertyDragActive &&
+	if ( m_dragType == DragType::None &&
 		 pEvent->x() > PatternEditor::nMarginSidebar ) {
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes = getElementsAtPoint(
@@ -4015,4 +4078,15 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 	}
 
 	return pNote->getLength();
+}
+
+QString PatternEditor::DragTypeToQString( DragType dragType ) {
+	switch( dragType ) {
+	case DragType::Length:
+		return "Length";
+	case DragType::Property:
+		return "Property";
+	default:
+		return QString( "Unknown type [%1]" ).arg( static_cast<int>(dragType) );
+	}
 }

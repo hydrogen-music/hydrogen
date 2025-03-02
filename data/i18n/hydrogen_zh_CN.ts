@@ -3042,10 +3042,6 @@ LilyPond 导出是一项实验性功能。
         <translation>无法粘贴多样式选择</translation>
     </message>
     <message>
-        <source>edit note properties by dragging</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>paste notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3109,6 +3105,10 @@ LilyPond 导出是一项实验性功能。
     </message>
     <message>
         <source>Set note type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag edit note property:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

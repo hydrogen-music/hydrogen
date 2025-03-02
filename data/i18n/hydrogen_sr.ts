@@ -3037,10 +3037,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>edit note properties by dragging</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>paste notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3104,6 +3100,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Set note type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag edit note property:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

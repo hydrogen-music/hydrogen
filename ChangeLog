@@ -105,6 +105,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				  as well as property drawing can now be undone/redone in a single action.
 				- PianoRoll does now have a proper sidebar including per-line action in
 				  right click popup menu.
+				- Right-click drag does now alter either note length or property.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
