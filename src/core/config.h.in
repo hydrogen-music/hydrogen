@@ -72,9 +72,6 @@
 #ifndef H2CORE_HAVE_JACK
 #cmakedefine H2CORE_HAVE_JACK
 #endif
-#ifndef H2CORE_HAVE_LASH
-#cmakedefine H2CORE_HAVE_LASH
-#endif
 #ifndef H2CORE_HAVE_OSC
 #cmakedefine H2CORE_HAVE_OSC
 #endif

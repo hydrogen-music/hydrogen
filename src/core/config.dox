@@ -115,9 +115,6 @@
 /** Specifies whether the jack/jack.h header could be found in
     the jack library. */
 #define H2CORE_HAVE_JACK
-/** Specifies whether the lash/lash.h header could be found in the
-    lash library. */
-#define H2CORE_HAVE_LASH
 /** Specifies whether the lo/lo.h header could be found in the lo
     library. */
 #define H2CORE_HAVE_OSC

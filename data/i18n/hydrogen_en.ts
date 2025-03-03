@@ -3646,10 +3646,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Hydrogen must be restarted for language change to take effect</source>
         <translation></translation>
     </message>
@@ -4296,11 +4292,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Hide keyboard input cursor</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Use &amp;LASH</source>
-        <extracomment>LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation></translation>
     </message>
     <message>

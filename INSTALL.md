@@ -50,7 +50,6 @@ libraries and development header files installed on your system:
 #### Optional Support
 
 - liblo for OSC (Open Sound Control)
-- LASH (Linux Audio Session Handler)
 - NSM (Non Session Manager)
 - liblrdf for LADSPA plugins
 - librubberband2 (Rubberband support is experimental)

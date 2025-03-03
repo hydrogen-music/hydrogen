@@ -39,10 +39,6 @@
 #include <core/Version.h>
 #include <getopt.h>
 
-#ifdef H2CORE_HAVE_LASH
-#include <core/Lash/LashClient.h>
-#endif
-
 #include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/AudioEngineTests.h>

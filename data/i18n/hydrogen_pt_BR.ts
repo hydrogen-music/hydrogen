@@ -3691,10 +3691,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Preferências</translation>
     </message>
     <message>
-        <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation>Por favor, reinicie o Hydrogen para ativar/desativar o suporte ao LASH</translation>
-    </message>
-    <message>
         <source>Driver restart required.
  Restart driver?</source>
         <translation>Reinicialização do driver necessária.
@@ -4340,11 +4336,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>&amp;Hide keyboard input cursor</source>
         <translation>&amp;Esconder cursor de entrada do teclado</translation>
-    </message>
-    <message>
-        <source>Use &amp;LASH</source>
-        <extracomment>LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
-        <translation>Uar &amp;LASH</translation>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>

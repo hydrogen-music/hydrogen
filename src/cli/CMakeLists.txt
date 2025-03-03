@@ -5,7 +5,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src                     # top level headers
     ${CMAKE_BINARY_DIR}/src                     # generated config.h
     ${QT_INCLUDES}
-    ${LASH_INCLUDE_DIRS}
     ${OSC_INCLUDE_DIRS}
     ${LIBSNDFILE_INCLUDE_DIRS}
     ${JACK_INCLUDE_DIRS}
@@ -17,7 +16,6 @@ set_property(TARGET h2cli PROPERTY CXX_STANDARD 17)
 target_link_libraries(h2cli
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
-	${LASH_LIBRARIES}
 	${OSC_LIBRARIES}
 	)
 

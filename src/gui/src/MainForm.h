@@ -223,7 +223,6 @@ public slots:
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
-		void onLashPollTimer();
 
 		void openUndoStack();
 		void action_undo();
@@ -297,9 +296,6 @@ public slots:
 		void checkNecessaryDirectories();
 
 		QString getAutoSaveFilename();
-	#ifdef H2CORE_HAVE_LASH
-		QTimer *lashPollTimer;
-	#endif
 
 		InfoBar *m_pMidiSetupInfoBar;
 		InfoBar *m_pMissingSamplesInfoBar;

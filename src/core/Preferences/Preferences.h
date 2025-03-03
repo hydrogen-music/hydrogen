@@ -235,10 +235,6 @@ public:
 	bool				m_bPlaySelectedInstrument; // midi keys and keys play instrument or drumset
 	bool				m_bFollowPlayhead;
 
-	// switch to enable / disable lash, only on h2 startup
-	bool				m_bRestartLash;
-	bool				m_bSetLash;
-
 	// SoundLibraryPanel expand song and pattern item
 	bool				m_bExpandSongItem;
 	bool				m_bExpandPatternItem;
@@ -446,9 +442,6 @@ public:
 	const QStringList&	getRecentFX() const;
 	void			setMostRecentFX( const QString& );
 
-	bool			useLash() const;
-	void			setUseLash( bool b );
-
 	/** @return #m_nMaxBars.*/
 	int				getMaxBars() const;
 	/** @param bars Sets #m_nMaxBars.*/
@@ -647,8 +640,6 @@ private:
 
 	QStringList			m_recentFX;
 	QStringList 		m_recentFiles;
-
-	bool				m_bUseLash;
 
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. */
@@ -1161,13 +1152,6 @@ inline const WindowProperties& Preferences::getDirectorProperties() const {
 }
 inline void Preferences::setDirectorProperties( const WindowProperties& prop ) {
 	m_directorProperties = prop;
-}
-
-inline bool Preferences::useLash() const {
-	return m_bUseLash;
-}
-inline void Preferences::setUseLash( bool b ){
-	m_bUseLash = b;
 }
 
 inline void Preferences::setMaxBars( const int bars ){

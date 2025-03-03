@@ -38,7 +38,6 @@
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/MidiInput.h>
 #include <core/IO/PortAudioDriver.h>
-#include <core/Lash/LashClient.h>
 #include <core/Sampler/Sampler.h>
 
 #include "../SongEditor/SongEditor.h"
@@ -178,16 +177,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
 	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
-
-	// General tab - restore the right m_bsetlash value
-	if ( pPref->m_bRestartLash == true ){
-		if (pPref->m_bSetLash == false ){
-			pPref->m_bSetLash = true ;
-			pPref->m_bRestartLash = false;
-		}
-
-	}
-	useLashCheckbox->setChecked( pPref->m_bSetLash );
 
 	m_pBeatCounterDriftCompensationSpinBox->setSize( generalTabWidgetSize );
 	m_pBeatCounterDriftCompensationSpinBox->setValue(
@@ -1057,11 +1046,6 @@ void PreferencesDialog::on_okBtn_clicked()
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->m_bSetLash != useLashCheckbox->isChecked() ) {
-		pPref->m_bSetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref
-		bGeneralOptionAltered = true;
-	}
-	
 	if ( pPref->hideKeyboardCursor() != hideKeyboardCursor->isChecked() ) {
 		pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
 		bGeneralOptionAltered = true;
@@ -1071,11 +1055,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	if ( pPref->m_sRubberBandCLIexecutable != rubberbandLineEdit->text() ) {
 		pPref->m_sRubberBandCLIexecutable = rubberbandLineEdit->text();
 		bGeneralOptionAltered = true;
-	}
-
-	//check preferences
-	if ( pPref->m_bRestartLash == true ){
-		pPref->m_bSetLash = true ;
 	}
 
 	if ( pPref->m_nBeatCounterDriftCompensation !=
@@ -1853,20 +1832,6 @@ void PreferencesDialog::styleComboBoxActivated( int index )
 	
 		HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 	}
-}
-
-
-
-void PreferencesDialog::on_useLashCheckbox_clicked()
-{
-	if ( useLashCheckbox->isChecked() ){
-		Preferences::get_instance()->m_bRestartLash = true;
-	}
-	else
-	{
-		Preferences::get_instance()->m_bSetLash = false ;
-	}
-	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
 void PreferencesDialog::onMidiDriverComboBoxIndexChanged ( int )

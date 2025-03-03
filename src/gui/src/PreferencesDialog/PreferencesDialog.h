@@ -118,7 +118,6 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 		void midiPortComboBoxActivated( int index );
 		void midiOutportComboBoxActivated( int index );		
 		void styleComboBoxActivated( int index );
-		void on_useLashCheckbox_clicked();
 		void onMidiDriverComboBoxIndexChanged( int index );
 		void audioDeviceTxtChanged( const QString& );
 		void toggleTrackOutsCheckBox(bool toggled);
