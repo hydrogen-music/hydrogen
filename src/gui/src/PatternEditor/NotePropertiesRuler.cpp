@@ -339,7 +339,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
 		}
 
-		m_update = Update::Pattern;
+		if ( m_update != Update::Background ) {
+			m_update = Update::Pattern;
+		}
 		update();
 	}
 }
@@ -450,7 +452,9 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	if ( bValueChanged ) {
 		triggerStatusMessage( notesStatusMessage, m_property );
-		m_update = Update::Pattern;
+		if ( m_update != Update::Background ) {
+			m_update = Update::Pattern;
+		}
 		update();
 	}
 }
@@ -459,7 +463,9 @@ void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	//! The "move" has already been reflected in the notes. Now just complete Undo event.
 	addUndoAction( "" );
 
-	m_update = Update::Pattern;
+	if ( m_update != Update::Background ) {
+		m_update = Update::Pattern;
+	}
 	update();
 }
 
@@ -501,7 +507,9 @@ void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev );
 
-	m_update = Update::Pattern;
+	if ( m_update != Update::Background ) {
+		m_update = Update::Pattern;
+	}
 	update();
 }
 
@@ -669,7 +677,9 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		m_update = Update::Pattern;
+		if ( m_update != Update::Background ) {
+			m_update = Update::Pattern;
+		}
 		update();
 		if ( m_property == PatternEditor::Property::Velocity ) {
 			// A note's velocity determines its color in the other pattern
@@ -685,7 +695,9 @@ void NotePropertiesRuler::propertyDrawEnd()
 	addUndoAction( "NotePropertiesRuler::propertyDraw" );
 	unsetCursor();
 
-	m_update = Update::Pattern;
+	if ( m_update != Update::Background ) {
+		m_update = Update::Pattern;
+	}
 	update();
 }
 
