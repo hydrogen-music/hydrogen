@@ -76,6 +76,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nActiveWidth = m_nEditorWidth;
+	m_bQuantized = pPref->getQuantizeEvents();
 
 	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking( true );
@@ -1060,6 +1061,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
 
+	updateQuantization( ev );
+
 	// Select the corresponding row
 	if ( m_editor == Editor::DrumPattern ) {
 		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
@@ -1224,6 +1227,8 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	// Key: Alt + drag: move notes with fine-grained positioning
 	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
+	updateQuantization( ev );
+
 	// Key: Ctrl + drag: copy notes rather than moving
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
@@ -1460,7 +1465,28 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 250 ) ),
 	};
 
-	if ( ! m_pPatternEditorPanel->isUsingTriplets() ) {
+	// In case quantization as turned off, notes can be moved at all possible
+	// ticks. To indicate this state, we show less pronounced grid lines at all
+	// additional positions.
+	const auto lineStyleGridOff = Qt::DotLine;
+
+	const bool bTriplets = m_pPatternEditorPanel->isUsingTriplets();
+
+	auto lineStyle = style;
+
+	// The following part is intended for the non-triplet grid lines. But
+	// whenever quantization was turned off, we also use it to draw the less
+	// pronounced grid lines.
+	if ( ! bTriplets || ! m_bQuantized ) {
+		// For each successive set of finer-spaced lines, the even
+		// lines will have already been drawn at the previous coarser
+		// pitch, so only the odd numbered lines need to be drawn.
+		int nColour = 0;
+
+		if ( bTriplets ) {
+			nColour = colorsActive.size() - 1;
+			lineStyle = lineStyleGridOff;
+		}
 
 		// Draw vertical lines. To minimise pen colour changes (and
 		// avoid unnecessary division operations), we draw them in
@@ -1478,35 +1504,39 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		const int nRes = 4;
 		float fStep = MAX_NOTES / nRes * m_fGridWidth;
 		float x = PatternEditor::nMargin;
-		p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
+		p.setPen( QPen( colorsActive[ nColour ], 1, lineStyle ) );
 		while ( x < m_nActiveWidth ) {
 			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			x += fStep;
 		}
 			
-		p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
+		p.setPen( QPen( colorsInactive[ nColour ], 1, lineStyle ) );
 		while ( x < m_nEditorWidth ) {
 			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			x += fStep;
 		}
 
+		++nColour;
+
 		// Resolution 4 was already taken into account above;
 		std::vector<int> availableResolutions = { 8, 16, 32, 64, MAX_NOTES };
 		const int nResolution = m_pPatternEditorPanel->getResolution();
 
-		// For each successive set of finer-spaced lines, the even
-		// lines will have already been drawn at the previous coarser
-		// pitch, so only the odd numbered lines need to be drawn.
-		int nColour = 1;
 		for ( int nnRes : availableResolutions ) {
 			if ( nnRes > nResolution ) {
-				break;
+				if ( m_bQuantized ) {
+					break;
+				}
+				else {
+					lineStyle = lineStyleGridOff;
+					nColour = colorsActive.size();
+				}
 			}
 
 			fStep = MAX_NOTES / nnRes * m_fGridWidth;
 			float x = PatternEditor::nMargin + fStep;
 			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
-							1, style ) );
+							1, lineStyle ) );
 
 			if ( nnRes != MAX_NOTES ) {
 				// With each increase of resolution 1/4 -> 1/8 -> 1/16 -> 1/32
@@ -1532,8 +1562,8 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 			}
 
 			p.setPen( QPen( colorsInactive[ std::min( nColour, static_cast<int>(colorsInactive.size()) - 1 ) ],
-							1, style ) );
-			if ( nnRes != MAX_NOTES ) {
+							1, lineStyle ) );
+			if ( nnRes != MAX_NOTES || pPref->getQuantizeEvents() ) {
 				while ( x < m_nEditorWidth ) {
 					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 					x += fStep * 2;
@@ -1551,19 +1581,22 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 			nColour++;
 		}
 
-	} else {
+	}
 
-		// Triplet style markers, we only differentiate colours on the
+	if ( bTriplets ) {
+		lineStyle = style;
+
+		// Triplet line markers, we only differentiate colours on the
 		// first of every triplet.
 		float fStep = granularity() * m_fGridWidth;
 		float x = PatternEditor::nMargin;
-		p.setPen(  QPen( colorsActive[ 0 ], 1, style ) );
+		p.setPen(  QPen( colorsActive[ 0 ], 1, lineStyle ) );
 		while ( x < m_nActiveWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			x += fStep * 3;
 		}
 		
-		p.setPen(  QPen( colorsInactive[ 0 ], 1, style ) );
+		p.setPen(  QPen( colorsInactive[ 0 ], 1, lineStyle ) );
 		while ( x < m_nEditorWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			x += fStep * 3;
@@ -1571,21 +1604,20 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		
 		// Second and third marks
 		x = PatternEditor::nMargin + fStep;
-		p.setPen(  QPen( colorsActive[ 2 ], 1, style ) );
+		p.setPen(  QPen( colorsActive[ 2 ], 1, lineStyle ) );
 		while ( x < m_nActiveWidth + fStep ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
 			x += fStep * 3;
 		}
 		
-		p.setPen( QPen( colorsInactive[ 2 ], 1, style ) );
+		p.setPen( QPen( colorsInactive[ 2 ], 1, lineStyle ) );
 		while ( x < m_nEditorWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
 			x += fStep * 3;
 		}
 	}
-
 }
 
 
@@ -2663,6 +2695,19 @@ void PatternEditor::updatePosition( float fTick ) {
 		// update at the old location as well.
 		updateRect.translate( -fDiff, 0 );
 		update( updateRect );
+	}
+}
+
+void PatternEditor::updateQuantization( QInputEvent* pEvent ) {
+	bool bQuantized = true;
+
+	if ( pEvent != nullptr && pEvent->modifiers() & Qt::AltModifier ) {
+		bQuantized = false;
+	}
+
+	if ( bQuantized != m_bQuantized ) {
+		m_bQuantized = bQuantized;
+		updateEditor();
 	}
 }
 

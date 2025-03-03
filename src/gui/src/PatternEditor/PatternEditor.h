@@ -194,6 +194,7 @@ public:
 	/** Caches the AudioEngine::m_nPatternTickPosition in the member
 		variable #m_nTick and triggers an update(). */
 	void updatePosition( float fTick );
+		void updateQuantization( QInputEvent* pEvent );
 
 		/** Additional action to perform on the first redo() call of
 		 * #SE_addOrRemoveNotes. */
@@ -420,6 +421,8 @@ protected:
 	 * state of the editor.
 	 */
 	bool updateWidth();
+
+		bool m_bQuantized;
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;
