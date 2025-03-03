@@ -499,6 +499,13 @@ that does not work out of the box. If so, see INSTALL.md : Running Hydrogen
     )
 endif()
 
+if(WANT_LASH)
+    color_message("-----------------------------------------------------------------
+${red}IMPORTANT${reset}:
+${red}LASH support is marked deprecated and will be removed in version 2.0 of Hydrogen.${reset}
+-----------------------------------------------------------------\n")
+endif()
+
 #
 # SET BUILD INFORMATION
 #
