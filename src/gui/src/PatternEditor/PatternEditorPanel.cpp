@@ -117,6 +117,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_nResolution = pPref->getPatternEditorGridResolution();
 	m_bIsUsingTriplets = pPref->isPatternEditorUsingTriplets();
+	m_bQuantized = pPref->getQuantizeEvents();
 
 	QFont boldFont( pPref->getTheme().m_font.m_sApplicationFontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -898,6 +899,8 @@ void PatternEditorPanel::quantizeEventsBtnClick()
 	Preferences::get_instance()->setQuantizeEvents(
 		m_pQuantizeEventsBtn->isChecked() );
 
+	updateQuantization( nullptr );
+
 	if ( m_pQuantizeEventsBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ) );
 	} else {
@@ -1602,10 +1605,10 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 	}
 }
 
+// Ensure updateModifiers() was called on the provided event first.
 void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, int n ) {
 	int nNewColumn;
-	// By pressing the Alt button the user can bypass quantization.
-	if ( pEvent->modifiers() & Qt::AltModifier ) {
+	if ( ! m_bQuantized ) {
 		nNewColumn = m_nCursorColumn - 1;
 	}
 	else {
@@ -1621,6 +1624,7 @@ void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, int n ) {
 	setCursorColumn( std::max( nNewColumn, 0 ) );
 }
 
+// Ensure updateModifiers() was called on the provided event first.
 void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -1628,7 +1632,7 @@ void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
 
 	int nNewColumn, nIncrement;
 	// By pressing the Alt button the user can bypass quantization.
-	if ( pEvent->modifiers() & Qt::AltModifier ) {
+	if ( ! m_bQuantized ) {
 		nNewColumn = m_nCursorColumn + 1;
 		nIncrement = 1;
 	}
@@ -1653,7 +1657,6 @@ void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
 			}
 		}
 	}
-
 
 	setCursorColumn( nNewColumn );
 }
@@ -1992,6 +1995,21 @@ void PatternEditorPanel::updateDB() {
 		m_bTypeLabelsMustBeVisible = true;
 	} else {
 		m_bTypeLabelsMustBeVisible = false;
+	}
+}
+
+void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
+	bool bQuantized = Preferences::get_instance()->getQuantizeEvents();
+
+	if ( pEvent != nullptr && pEvent->modifiers() & Qt::AltModifier ) {
+		bQuantized = false;
+	}
+
+	if ( bQuantized != m_bQuantized ) {
+		m_bQuantized = bQuantized;
+
+		getVisibleEditor()->updateEditor();
+		getVisiblePropertiesRuler()->updateEditor();
 	}
 }
 

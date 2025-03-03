@@ -358,6 +358,8 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 		propertyDrawUpdate( ev );
 		propertyDrawEnd();
 
+		updateModifiers( ev );
+
 		// Focus cursor on clicked note
 		const auto notes = getElementsAtPoint( ev->pos(), getCursorMargin( ev ) );
 		if ( notes.size() > 0 ) {
@@ -525,6 +527,8 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 
 	m_oldNotes.clear();
 
+	updateModifiers( pEvent );
+
 	const auto notesUnderPoint = getElementsAtPoint(
 		pEvent->pos(), getCursorMargin( pEvent ), pPattern );
 	for ( const auto& ppNote : notesUnderPoint ) {
@@ -549,6 +553,8 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 	if ( pPattern == nullptr ) {
 		return;
 	}
+
+	updateModifiers( ev );
 
 	// Issuing redo/undo actions bases on draw changes are issued in batches. In
 	// case the cursor is moved slowly, we might have updates without any new

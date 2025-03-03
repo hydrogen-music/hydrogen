@@ -89,7 +89,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- PatternEditor:
 				- Handling is now centered on interaction with existing notes. Only
 				  adding of new notes is dependent on the current grid.
-				- Alt key modifier can be used to add/move/change off the current grid.
+				- The quantization button does now affect keyboard and mouse inputs too.
+				- Alt key modifier can be used to temporarily turn off quantization.
 				- Instruments of the current kit and instrument types of all notes in a
 				  pattern are now handled separately in the sidebar.
 				- Single notes can now be dragged or altered using right-click popup

@@ -76,7 +76,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nActiveWidth = m_nEditorWidth;
-	m_bQuantized = pPref->getQuantizeEvents();
 
 	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking( true );
@@ -1057,11 +1056,12 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 
+	updateModifiers( ev );
+
 	int nRow, nColumn, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
 
-	updateQuantization( ev );
 
 	// Select the corresponding row
 	if ( m_editor == Editor::DrumPattern ) {
@@ -1091,8 +1091,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 			// By pressing the Alt button the user can bypass quantization of
 			// new note to the grid.
-			const int nTargetColumn = ev->modifiers() & Qt::AltModifier ?
-				nRealColumn : nColumn;
+			const int nTargetColumn =
+				m_pPatternEditorPanel->isQuantized() ? nColumn : nRealColumn;
 
 			int nKey = KEY_MIN;
 			int nOctave = OCTAVE_DEFAULT;
@@ -1146,11 +1146,11 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		}
 		else {
 			// For pasting we can not rely on the position of preexising notes.
-			if ( ev->modifiers() & Qt::AltModifier ) {
-				m_pPatternEditorPanel->setCursorColumn( nRealColumn );
+			if ( m_pPatternEditorPanel->isQuantized() ) {
+				m_pPatternEditorPanel->setCursorColumn( nColumn );
 			}
 			else {
-				m_pPatternEditorPanel->setCursorColumn( nColumn );
+				m_pPatternEditorPanel->setCursorColumn( nRealColumn );
 			}
 		}
 		showPopupMenu( ev );
@@ -1178,11 +1178,12 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 		}
 	}
 
+	updateModifiers( ev );
+
 	// Check which note is hovered.
 	updateHoveredNotesMouse( ev );
 
 	if ( ev->buttons() != Qt::NoButton ) {
-		updateModifiers( ev );
 		m_selection.mouseMoveEvent( ev );
 		if ( m_selection.isMoving() ) {
 			m_pPatternEditorPanel->getVisibleEditor()->update();
@@ -1227,18 +1228,20 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	// Key: Alt + drag: move notes with fine-grained positioning
 	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
-	updateQuantization( ev );
+
+	m_pPatternEditorPanel->updateQuantization( ev );
 
 	// Key: Ctrl + drag: copy notes rather than moving
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
 	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
-		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
-		// so explicitly update these.
+		// Keyboard events for press and release of modifier keys don't have
+		// those keys in the modifiers set, so explicitly update these.
 		bool bPressed = ev->type() == QEvent::KeyPress;
 		if ( pEv->key() == Qt::Key_Control ) {
 			m_bCopyNotMove = bPressed;
-		} else if ( pEv->key() == Qt::Key_Alt ) {
+		}
+		else if ( pEv->key() == Qt::Key_Alt ) {
 			m_bFineGrained = bPressed;
 		}
 	}
@@ -1249,21 +1252,24 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 		// is complete (or abandoned)
 		if ( m_bCopyNotMove &&  cursor().shape() != Qt::DragCopyCursor ) {
 			setCursor( QCursor( Qt::DragCopyCursor ) );
-		} else if ( !m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
+		}
+		else if ( ! m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
 			setCursor( QCursor( Qt::DragMoveCursor ) );
 		}
 	}
 }
 
+// Ensure updateModifiers() was called on the input event before calling this
+// action!
 int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
-	const int nResolution = m_pPatternEditorPanel->getResolution();
 
-	// The Alt modifier is used for more fine grained control throughout
+	// Disabled quantization is used for more fine grained control throughout
 	// Hydrogen and will diminish the cursor margin.
-	if ( pEvent != nullptr && pEvent->modifiers() & Qt::AltModifier ) {
+	if ( pEvent != nullptr && ! m_pPatternEditorPanel->isQuantized() ) {
 		return 0;
 	}
 
+	const int nResolution = m_pPatternEditorPanel->getResolution();
 	if ( nResolution < 32 ) {
 		return PatternEditor::nDefaultCursorMargin;
 	}
@@ -1422,7 +1428,7 @@ QPoint PatternEditor::movingGridOffset( ) const {
 	const int nOffsetY = (rawOffset.y() + nBiasY) / nQuantY;
 
 	int nOffsetX;
-	if ( modifiers & Qt::AltModifier ) {
+	if ( ! m_pPatternEditorPanel->isQuantized() ) {
 		// No quantization
 		nOffsetX = static_cast<int>(
 			std::floor( static_cast<float>(rawOffset.x()) / m_fGridWidth ) );
@@ -1477,7 +1483,7 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 	// The following part is intended for the non-triplet grid lines. But
 	// whenever quantization was turned off, we also use it to draw the less
 	// pronounced grid lines.
-	if ( ! bTriplets || ! m_bQuantized ) {
+	if ( ! bTriplets || ! m_pPatternEditorPanel->isQuantized() ) {
 		// For each successive set of finer-spaced lines, the even
 		// lines will have already been drawn at the previous coarser
 		// pitch, so only the odd numbered lines need to be drawn.
@@ -1524,7 +1530,7 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 
 		for ( int nnRes : availableResolutions ) {
 			if ( nnRes > nResolution ) {
-				if ( m_bQuantized ) {
+				if ( m_pPatternEditorPanel->isQuantized() ) {
 					break;
 				}
 				else {
@@ -2252,7 +2258,7 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 			m_selection.updateKeyboardCursorPosition();
 			m_pPatternEditorPanel->ensureVisible();
 
-			if ( m_selection.isLasso() ) {
+			if ( m_selection.isLasso() && m_update != Update::Background ) {
 				// Since the event was used to alter the note selection, we need
 				// to repainting all note symbols (including whether or not they
 				// are selected).
@@ -2322,6 +2328,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 	if (!isVisible()) {
 		return;
 	}
+
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	const auto pPref = Preferences::get_instance();
@@ -2698,19 +2705,6 @@ void PatternEditor::updatePosition( float fTick ) {
 	}
 }
 
-void PatternEditor::updateQuantization( QInputEvent* pEvent ) {
-	bool bQuantized = true;
-
-	if ( pEvent != nullptr && pEvent->modifiers() & Qt::AltModifier ) {
-		bQuantized = false;
-	}
-
-	if ( bQuantized != m_bQuantized ) {
-		m_bQuantized = bQuantized;
-		updateEditor();
-	}
-}
-
 void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -2722,6 +2716,8 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	m_property = m_pPatternEditorPanel->getSelectedNoteProperty();
 
 	if ( ev->button() == Qt::RightButton ) {
+		updateModifiers( ev );
+
 		// Adjusting note properties.
 		const auto notesAtPoint = getElementsAtPoint(
 			ev->pos(), getCursorMargin( ev ), pPattern );
@@ -2774,6 +2770,8 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 		return;
 	}
 
+	updateModifiers( ev );
+
 	auto pHydrogen = Hydrogen::get_instance();
 	int nColumn, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, nullptr, &nRealColumn );
@@ -2798,14 +2796,8 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	int nTargetColumn;
-	if ( ev->modifiers() == Qt::ControlModifier ||
-		 ev->modifiers() == Qt::AltModifier ) {
-		// fine control
-		nTargetColumn = nRealColumn;
-	} else {
-		nTargetColumn = nColumn;
-	}
+	const int nTargetColumn =
+		m_pPatternEditorPanel->isQuantized() ? nColumn : nRealColumn;
 
 	int nLen = nTargetColumn - m_nDragStartColumn;
 
