@@ -278,10 +278,6 @@ private:
 
 	QRect m_lasso;				//!< Dimensions of a current selection lasso
 	QPoint m_movingOffset;		//!< Offset that a selection has been moved by
-		/** Keyboard modifiers used throughout the selection event/handling.
-		 * Note that they can be changed by the user at any time of the
-		 * interaction.*/
-		Qt::KeyboardModifiers m_modifiers;
 	QRect m_keyboardCursorStart; //!< Keyboard cursor position at the start of a keyboard gesture
 	//! @}
 
@@ -302,7 +298,6 @@ public:
 		m_mouseState = Up;
 		m_pClickEvent = nullptr;
 		m_selectionState = Idle;
-		m_modifiers = Qt::NoModifier;
 		m_pSelectionGroup = std::make_shared< SelectionGroup >();
 		m_pSelectionGroup->m_selectionWidgets.insert( w );
 		m_pDragScroller = nullptr;
@@ -388,12 +383,6 @@ public:
 		}
 	}
 
-		/** @returns the keyboard modifiers associated with the selection
-		 * event. */
-		Qt::KeyboardModifiers getModifiers() const {
-			return m_modifiers;
-		}
-
 	//! @name Selection iteration
 	//!
 	//! Shorthand iteration is provided so that ranged for loops can be used for convenience:
@@ -448,8 +437,6 @@ public:
 
 	void mousePressEvent( QMouseEvent *ev ) {
 
-		m_modifiers = ev->modifiers();
-
 		// macOS ctrl+left-click is reported as a
 		// right-click. However, only the 'press' event is reported,
 		// there are no move or release events. This is enough for
@@ -491,8 +478,6 @@ public:
 
 	void mouseMoveEvent( QMouseEvent *ev ) {
 
-		m_modifiers = ev->modifiers();
-
 		if ( m_mouseState == Down ) {
 			if ( (ev->pos() - m_pClickEvent->pos() ).manhattanLength() > QApplication::startDragDistance()
 				 || (ev->timestamp() - m_pClickEvent->timestamp()) > QApplication::startDragTime() ) {
@@ -506,8 +491,6 @@ public:
 	}
 
 	void mouseReleaseEvent( QMouseEvent *ev ) {
-
-		m_modifiers = ev->modifiers();
 
 		if ( m_selectionState == SelectionState::KeyboardLasso ||
 			 m_selectionState == SelectionState::KeyboardMoving ) {
@@ -664,7 +647,6 @@ public:
 		else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
 			m_pWidget->selectionMoveUpdateEvent( ev );
-
 		}
 		else {
 			// Pass drag update to widget
@@ -721,11 +703,6 @@ public:
 				 pCleanedEvent->matches( QKeySequence::SelectNextChar ) ||
 				 pCleanedEvent->matches( QKeySequence::MoveToPreviousChar ) ||
 				 pCleanedEvent->matches( QKeySequence::SelectPreviousChar ) ) ) {
-			// We only propagate Alt modifiers on left-right movement. This way
-			// the resulting position should always correspond the final
-			// position of the keyboard cursor. Regardless, whether the user did
-			// not press Alt on the final Enter hit or switched rows.
-			m_modifiers = ev->modifiers();
 		}
 
 		if ( ev->matches( QKeySequence::SelectNextChar )

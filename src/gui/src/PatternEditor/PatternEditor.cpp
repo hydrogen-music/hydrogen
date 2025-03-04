@@ -1198,7 +1198,11 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 
 void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
-	updateModifiers( ev );
+	// Don't call updateModifiers( ev ) in here because we want to apply the
+	// state of the modifiers used during the last update/rendering. Else the
+	// user might position a note carefully and it jumps to different place
+	// because she released the Alt modifier slightly earlier than the mouse
+	// button.
 
 	bool bUpdate = false;
 
@@ -1415,8 +1419,6 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< std::share
 
 QPoint PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
-
-	const auto modifiers = m_selection.getModifiers();
 
 	// Quantization in y direction is mandatory. A note can not be placed
 	// between lines.
@@ -1906,7 +1908,11 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		return;
 	}
 
-	updateModifiers( ev );
+	// Don't call updateModifiers( ev ) in here because we want to apply the
+	// state of the modifiers used during the last update/rendering. Else the
+	// user might position a note carefully and it jumps to different place
+	// because she released the Alt modifier slightly earlier than the mouse
+	// button.
 
 	QPoint offset = movingGridOffset();
 	if ( offset.x() == 0 && offset.y() == 0 ) {
@@ -2274,7 +2280,11 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 }
 
 void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
-	updateModifiers( ev );
+	// Don't call updateModifiers( ev ) in here because we want to apply the
+	// state of the modifiers used during the last update/rendering. Else the
+	// user might position a note carefully and it jumps to different place
+	// because she released the Alt modifier slightly earlier than the mouse
+	// button.
 }
 
 void PatternEditor::enterEvent( QEvent *ev ) {
