@@ -2001,8 +2001,19 @@ void PatternEditorPanel::updateDB() {
 void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
 	bool bQuantized = Preferences::get_instance()->getQuantizeEvents();
 
-	if ( pEvent != nullptr && pEvent->modifiers() & Qt::AltModifier ) {
-		bQuantized = false;
+	if ( pEvent != nullptr ) {
+		if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( pEvent ) ) {
+			// Keyboard events for press and release of modifier keys don't have
+			// those keys in the modifiers set, so explicitly update these.
+			if ( ( pEvent->type() == QEvent::KeyPress &&
+				   pKeyEvent->key() == Qt::Key_Alt ) ||
+				 pEvent->modifiers() & Qt::AltModifier ) {
+				bQuantized = false;
+			}
+		}
+		else if ( pEvent->modifiers() & Qt::AltModifier ) {
+			bQuantized = false;
+		}
 	}
 
 	if ( bQuantized != m_bQuantized ) {

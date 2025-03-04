@@ -57,7 +57,6 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, QWidget( pParent )
 	, m_selection( this )
 	, m_bEntered( false )
-	, m_bFineGrained( false )
 	, m_bCopyNotMove( false )
 	, m_nTick( -1 )
 	, m_editor( Editor::None )
@@ -397,7 +396,8 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 
 	if ( pColumn != nullptr ) {
 		int nGranularity = 1;
-		if ( !( bUseFineGrained && m_bFineGrained ) ) {
+		if ( ! ( bUseFineGrained &&
+				 ! m_pPatternEditorPanel->isQuantized() ) ) {
 			nGranularity = granularity();
 		}
 		const int nWidth = m_fGridWidth * nGranularity;
@@ -1230,23 +1230,17 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 }
 
 void PatternEditor::updateModifiers( QInputEvent *ev ) {
-	// Key: Alt + drag: move notes with fine-grained positioning
-	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
-
 	m_pPatternEditorPanel->updateQuantization( ev );
 
 	// Key: Ctrl + drag: copy notes rather than moving
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
-	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
+	if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( ev ) ) {
 		// Keyboard events for press and release of modifier keys don't have
 		// those keys in the modifiers set, so explicitly update these.
 		bool bPressed = ev->type() == QEvent::KeyPress;
-		if ( pEv->key() == Qt::Key_Control ) {
+		if ( pKeyEvent->key() == Qt::Key_Control ) {
 			m_bCopyNotMove = bPressed;
-		}
-		else if ( pEv->key() == Qt::Key_Alt ) {
-			m_bFineGrained = bPressed;
 		}
 	}
 
@@ -1437,17 +1431,13 @@ QPoint PatternEditor::movingGridOffset( ) const {
 	}
 	else {
 		// Quantize offset to multiples of m_nGrid{Width,Height}
-		int nQuantX = m_fGridWidth;
-		float nFactor = 1;
-		if ( ! m_bFineGrained ) {
-			nFactor = granularity();
-			nQuantX = m_fGridWidth * nFactor;
-		}
+		const float fFactor = granularity();
+		const int nQuantX = m_fGridWidth * fFactor;
 		int nBiasX = nQuantX / 2;
 		if ( rawOffset.x() < 0 ) {
 			nBiasX = -nBiasX;
 		}
-		nOffsetX = nFactor * static_cast<int>((rawOffset.x() + nBiasX) / nQuantX);
+		nOffsetX = fFactor * static_cast<int>((rawOffset.x() + nBiasX) / nQuantX);
 	}
 
 

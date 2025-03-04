@@ -327,7 +327,6 @@ protected:
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
 
-	bool m_bFineGrained;
 	bool m_bCopyNotMove;
 
 		enum class DragType {
