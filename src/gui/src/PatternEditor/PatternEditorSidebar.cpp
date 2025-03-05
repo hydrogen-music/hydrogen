@@ -398,7 +398,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 				auto pInstr = pSong->getDrumkit()->getInstruments()->
 					find( m_row.nInstrumentID );
 				if ( m_pMuteBtn != nullptr &&
-					 pInstr != nullptr && pInstr->hasSamples() ) {
+					 pInstr != nullptr && pInstr->hasSamples() &&
+					 pPref->getHearNewNotes() ) {
 
 					const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
 					const float fVelocity = std::min(
