@@ -1914,6 +1914,7 @@ void PatternEditorPanel::updateDB() {
 	int nnRow = 0;
 
 	std::set<int> kitIds;
+	bool bInstrumentWithoutType = false;
 	// First we add all instruments of the current drumkit in the order author
 	// of the kit intended.
 	for ( const auto& ppInstrument : *pInstrumentList ) {
@@ -1921,6 +1922,10 @@ void PatternEditorPanel::updateDB() {
 			const bool bNoPlayback = ppInstrument->isMuted() ||
 				( pInstrumentList->isAnyInstrumentSoloed() &&
 				  ! ppInstrument->isSoloed() );
+
+			if ( ppInstrument->getType().isEmpty() ) {
+				bInstrumentWithoutType = true;
+			}
 
 			m_db.push_back(
 				DrumPatternRow( ppInstrument->getId(), ppInstrument->getType(),
@@ -1991,9 +1996,11 @@ void PatternEditorPanel::updateDB() {
 		setSelectedRowDB( m_db.size() - 1 );
 	}
 
-	if ( additionalIds.size() > 0 || additionalTypes.size() > 0 ) {
+	if ( additionalIds.size() > 0 || additionalTypes.size() > 0 ||
+		 bInstrumentWithoutType ) {
 		m_bTypeLabelsMustBeVisible = true;
-	} else {
+	}
+	else {
 		m_bTypeLabelsMustBeVisible = false;
 	}
 }
