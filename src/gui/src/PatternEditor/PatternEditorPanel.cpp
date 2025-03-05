@@ -1649,7 +1649,7 @@ void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
 
 		// If a jump would be positioned beyond the end of the pattern, we move
 		// to the last possible position instead.
-		if ( n > 1 && nNewColumn >= m_pPattern->getLength() ) {
+		if ( nNewColumn >= m_pPattern->getLength() ) {
 			nNewColumn = std::floor( m_pPattern->getLength() /
 									 m_nCursorIncrement ) * m_nCursorIncrement;
 			if ( m_pPattern->getLength() % m_nCursorIncrement == 0 ) {
