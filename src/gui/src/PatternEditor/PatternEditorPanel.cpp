@@ -2019,6 +2019,15 @@ void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
 	if ( bQuantized != m_bQuantized ) {
 		m_bQuantized = bQuantized;
 
+		if ( pEvent != nullptr ) {
+			QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( pEvent );
+			if ( pKeyEvent != nullptr ) {
+				// Re-quantize keyboard cursor (moved notes will be re-quantized
+				// automatically via movingGridOffset).
+				moveCursorLeft( pKeyEvent, 0 );
+			}
+		}
+
 		getVisibleEditor()->updateEditor();
 		getVisiblePropertiesRuler()->updateEditor();
 	}
