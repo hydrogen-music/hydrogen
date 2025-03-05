@@ -458,6 +458,11 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 			m_update = Update::Pattern;
 		}
 		update();
+
+		if ( m_property == Property::Velocity ) {
+			// Update note color.
+			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+		}
 	}
 }
 
