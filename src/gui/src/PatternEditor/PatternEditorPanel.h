@@ -306,10 +306,12 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		void pasteNotesToRowOfAllPatterns( int nRow, int nPitch = PITCH_INVALID );
 
 		int getResolution() const;
+		bool isQuantized() const;
 		bool isUsingTriplets() const;
 
 		/** Update #m_db based on #H2Core::Song::m_pDrumkit and #m_pPattern. */
 		void updateDB();
+		void updateQuantization( QInputEvent* pEvent );
 
 		/** If set by the user, type labels in the sidebar will only be shown in
 		 * case there is a note not associated with the current drumkit in
@@ -474,6 +476,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		int m_nResolution;
 		bool m_bIsUsingTriplets;
+		bool m_bQuantized;
 
 		bool m_bPatternSelectedViaTab;
 
@@ -510,6 +513,9 @@ inline int PatternEditorPanel::getSelectedRowDB() const {
 }
 inline int PatternEditorPanel::getResolution() const {
 	return m_nResolution;
+}
+inline bool PatternEditorPanel::isQuantized() const {
+	return m_bQuantized;
 }
 inline bool PatternEditorPanel::isUsingTriplets() const {
 	return m_bIsUsingTriplets;

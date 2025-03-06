@@ -3059,10 +3059,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Impossible de coller une sélection multi-motifs</translation>
     </message>
     <message>
-        <source>edit note properties by dragging</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>paste notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3126,6 +3122,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Set note type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag edit note property:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

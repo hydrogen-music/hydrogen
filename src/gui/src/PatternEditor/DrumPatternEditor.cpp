@@ -382,12 +382,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		const auto baseStyle = static_cast<NoteStyle>(
 			( ppPattern == pPattern ? NoteStyle::Foreground :
 			  NoteStyle::Background ) | NoteStyle::Hovered);
-		for ( const auto& ppNote : nnotes ) {
-			const auto style = static_cast<NoteStyle>(
-				m_selection.isSelected( ppNote ) ?
-				NoteStyle::Selected | baseStyle : baseStyle );
-			drawNote( painter, ppNote, style );
-		}
+		sortAndDrawNotes( painter, nnotes, baseStyle );
 	}
 
 	// Draw moved notes

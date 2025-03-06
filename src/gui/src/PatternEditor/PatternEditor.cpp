@@ -57,16 +57,16 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, QWidget( pParent )
 	, m_selection( this )
 	, m_bEntered( false )
-	, m_bFineGrained( false )
 	, m_bCopyNotMove( false )
 	, m_nTick( -1 )
 	, m_editor( Editor::None )
 	, m_property( Property::None )
 	, m_nCursorPitch( 0 )
+	, m_dragType( DragType::None )
 	, m_nDragStartColumn( 0 )
 	, m_nDragY( 0 )
+	, m_dragStart( QPoint() )
 	, m_update( Update::Background )
-	, m_bPropertyDragActive( false )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -396,7 +396,8 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 
 	if ( pColumn != nullptr ) {
 		int nGranularity = 1;
-		if ( !( bUseFineGrained && m_bFineGrained ) ) {
+		if ( ! ( bUseFineGrained &&
+				 ! m_pPatternEditorPanel->isQuantized() ) ) {
 			nGranularity = granularity();
 		}
 		const int nWidth = m_fGridWidth * nGranularity;
@@ -1055,9 +1056,12 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 
+	updateModifiers( ev );
+
 	int nRow, nColumn, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
 						   /* fineGrained */true );
+
 
 	// Select the corresponding row
 	if ( m_editor == Editor::DrumPattern ) {
@@ -1087,8 +1091,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 			// By pressing the Alt button the user can bypass quantization of
 			// new note to the grid.
-			const int nTargetColumn = ev->modifiers() & Qt::AltModifier ?
-				nRealColumn : nColumn;
+			const int nTargetColumn =
+				m_pPatternEditorPanel->isQuantized() ? nColumn : nRealColumn;
 
 			int nKey = KEY_MIN;
 			int nOctave = OCTAVE_DEFAULT;
@@ -1142,11 +1146,11 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		}
 		else {
 			// For pasting we can not rely on the position of preexising notes.
-			if ( ev->modifiers() & Qt::AltModifier ) {
-				m_pPatternEditorPanel->setCursorColumn( nRealColumn );
+			if ( m_pPatternEditorPanel->isQuantized() ) {
+				m_pPatternEditorPanel->setCursorColumn( nColumn );
 			}
 			else {
-				m_pPatternEditorPanel->setCursorColumn( nColumn );
+				m_pPatternEditorPanel->setCursorColumn( nRealColumn );
 			}
 		}
 		showPopupMenu( ev );
@@ -1174,11 +1178,12 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 		}
 	}
 
+	updateModifiers( ev );
+
 	// Check which note is hovered.
 	updateHoveredNotesMouse( ev );
 
 	if ( ev->buttons() != Qt::NoButton ) {
-		updateModifiers( ev );
 		m_selection.mouseMoveEvent( ev );
 		if ( m_selection.isMoving() ) {
 			m_pPatternEditorPanel->getVisibleEditor()->update();
@@ -1193,7 +1198,11 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 
 void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
-	updateModifiers( ev );
+	// Don't call updateModifiers( ev ) in here because we want to apply the
+	// state of the modifiers used during the last update/rendering. Else the
+	// user might position a note carefully and it jumps to different place
+	// because she released the Alt modifier slightly earlier than the mouse
+	// button.
 
 	bool bUpdate = false;
 
@@ -1221,19 +1230,17 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 }
 
 void PatternEditor::updateModifiers( QInputEvent *ev ) {
-	// Key: Alt + drag: move notes with fine-grained positioning
-	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
+	m_pPatternEditorPanel->updateQuantization( ev );
+
 	// Key: Ctrl + drag: copy notes rather than moving
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
-	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
-		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
-		// so explicitly update these.
+	if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( ev ) ) {
+		// Keyboard events for press and release of modifier keys don't have
+		// those keys in the modifiers set, so explicitly update these.
 		bool bPressed = ev->type() == QEvent::KeyPress;
-		if ( pEv->key() == Qt::Key_Control ) {
+		if ( pKeyEvent->key() == Qt::Key_Control ) {
 			m_bCopyNotMove = bPressed;
-		} else if ( pEv->key() == Qt::Key_Alt ) {
-			m_bFineGrained = bPressed;
 		}
 	}
 
@@ -1243,21 +1250,24 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 		// is complete (or abandoned)
 		if ( m_bCopyNotMove &&  cursor().shape() != Qt::DragCopyCursor ) {
 			setCursor( QCursor( Qt::DragCopyCursor ) );
-		} else if ( !m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
+		}
+		else if ( ! m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
 			setCursor( QCursor( Qt::DragMoveCursor ) );
 		}
 	}
 }
 
+// Ensure updateModifiers() was called on the input event before calling this
+// action!
 int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
-	const int nResolution = m_pPatternEditorPanel->getResolution();
 
-	// The Alt modifier is used for more fine grained control throughout
+	// Disabled quantization is used for more fine grained control throughout
 	// Hydrogen and will diminish the cursor margin.
-	if ( pEvent != nullptr && pEvent->modifiers() & Qt::AltModifier ) {
+	if ( pEvent != nullptr && ! m_pPatternEditorPanel->isQuantized() ) {
 		return 0;
 	}
 
+	const int nResolution = m_pPatternEditorPanel->getResolution();
 	if ( nResolution < 32 ) {
 		return PatternEditor::nDefaultCursorMargin;
 	}
@@ -1404,8 +1414,6 @@ void PatternEditor::undoDeselectAndOverwriteNotes( const std::vector< std::share
 QPoint PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
 
-	const auto modifiers = m_selection.getModifiers();
-
 	// Quantization in y direction is mandatory. A note can not be placed
 	// between lines.
 	int nQuantY = m_nGridHeight;
@@ -1416,24 +1424,20 @@ QPoint PatternEditor::movingGridOffset( ) const {
 	const int nOffsetY = (rawOffset.y() + nBiasY) / nQuantY;
 
 	int nOffsetX;
-	if ( modifiers & Qt::AltModifier ) {
+	if ( ! m_pPatternEditorPanel->isQuantized() ) {
 		// No quantization
 		nOffsetX = static_cast<int>(
 			std::floor( static_cast<float>(rawOffset.x()) / m_fGridWidth ) );
 	}
 	else {
 		// Quantize offset to multiples of m_nGrid{Width,Height}
-		int nQuantX = m_fGridWidth;
-		float nFactor = 1;
-		if ( ! m_bFineGrained ) {
-			nFactor = granularity();
-			nQuantX = m_fGridWidth * nFactor;
-		}
+		const float fFactor = granularity();
+		const int nQuantX = m_fGridWidth * fFactor;
 		int nBiasX = nQuantX / 2;
 		if ( rawOffset.x() < 0 ) {
 			nBiasX = -nBiasX;
 		}
-		nOffsetX = nFactor * static_cast<int>((rawOffset.x() + nBiasX) / nQuantX);
+		nOffsetX = fFactor * static_cast<int>((rawOffset.x() + nBiasX) / nQuantX);
 	}
 
 
@@ -1459,7 +1463,28 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		QColor( pPref->getTheme().m_color.m_windowTextColor.darker( 250 ) ),
 	};
 
-	if ( ! m_pPatternEditorPanel->isUsingTriplets() ) {
+	// In case quantization as turned off, notes can be moved at all possible
+	// ticks. To indicate this state, we show less pronounced grid lines at all
+	// additional positions.
+	const auto lineStyleGridOff = Qt::DotLine;
+
+	const bool bTriplets = m_pPatternEditorPanel->isUsingTriplets();
+
+	auto lineStyle = style;
+
+	// The following part is intended for the non-triplet grid lines. But
+	// whenever quantization was turned off, we also use it to draw the less
+	// pronounced grid lines.
+	if ( ! bTriplets || ! m_pPatternEditorPanel->isQuantized() ) {
+		// For each successive set of finer-spaced lines, the even
+		// lines will have already been drawn at the previous coarser
+		// pitch, so only the odd numbered lines need to be drawn.
+		int nColour = 0;
+
+		if ( bTriplets ) {
+			nColour = colorsActive.size() - 1;
+			lineStyle = lineStyleGridOff;
+		}
 
 		// Draw vertical lines. To minimise pen colour changes (and
 		// avoid unnecessary division operations), we draw them in
@@ -1477,35 +1502,39 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		const int nRes = 4;
 		float fStep = MAX_NOTES / nRes * m_fGridWidth;
 		float x = PatternEditor::nMargin;
-		p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
+		p.setPen( QPen( colorsActive[ nColour ], 1, lineStyle ) );
 		while ( x < m_nActiveWidth ) {
 			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			x += fStep;
 		}
 			
-		p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
+		p.setPen( QPen( colorsInactive[ nColour ], 1, lineStyle ) );
 		while ( x < m_nEditorWidth ) {
 			p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			x += fStep;
 		}
 
+		++nColour;
+
 		// Resolution 4 was already taken into account above;
 		std::vector<int> availableResolutions = { 8, 16, 32, 64, MAX_NOTES };
 		const int nResolution = m_pPatternEditorPanel->getResolution();
 
-		// For each successive set of finer-spaced lines, the even
-		// lines will have already been drawn at the previous coarser
-		// pitch, so only the odd numbered lines need to be drawn.
-		int nColour = 1;
 		for ( int nnRes : availableResolutions ) {
 			if ( nnRes > nResolution ) {
-				break;
+				if ( m_pPatternEditorPanel->isQuantized() ) {
+					break;
+				}
+				else {
+					lineStyle = lineStyleGridOff;
+					nColour = colorsActive.size();
+				}
 			}
 
 			fStep = MAX_NOTES / nnRes * m_fGridWidth;
 			float x = PatternEditor::nMargin + fStep;
 			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
-							1, style ) );
+							1, lineStyle ) );
 
 			if ( nnRes != MAX_NOTES ) {
 				// With each increase of resolution 1/4 -> 1/8 -> 1/16 -> 1/32
@@ -1531,8 +1560,8 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 			}
 
 			p.setPen( QPen( colorsInactive[ std::min( nColour, static_cast<int>(colorsInactive.size()) - 1 ) ],
-							1, style ) );
-			if ( nnRes != MAX_NOTES ) {
+							1, lineStyle ) );
+			if ( nnRes != MAX_NOTES || pPref->getQuantizeEvents() ) {
 				while ( x < m_nEditorWidth ) {
 					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 					x += fStep * 2;
@@ -1550,19 +1579,22 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 			nColour++;
 		}
 
-	} else {
+	}
 
-		// Triplet style markers, we only differentiate colours on the
+	if ( bTriplets ) {
+		lineStyle = style;
+
+		// Triplet line markers, we only differentiate colours on the
 		// first of every triplet.
 		float fStep = granularity() * m_fGridWidth;
 		float x = PatternEditor::nMargin;
-		p.setPen(  QPen( colorsActive[ 0 ], 1, style ) );
+		p.setPen(  QPen( colorsActive[ 0 ], 1, lineStyle ) );
 		while ( x < m_nActiveWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			x += fStep * 3;
 		}
 		
-		p.setPen(  QPen( colorsInactive[ 0 ], 1, style ) );
+		p.setPen(  QPen( colorsInactive[ 0 ], 1, lineStyle ) );
 		while ( x < m_nEditorWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			x += fStep * 3;
@@ -1570,21 +1602,20 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		
 		// Second and third marks
 		x = PatternEditor::nMargin + fStep;
-		p.setPen(  QPen( colorsActive[ 2 ], 1, style ) );
+		p.setPen(  QPen( colorsActive[ 2 ], 1, lineStyle ) );
 		while ( x < m_nActiveWidth + fStep ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
 			x += fStep * 3;
 		}
 		
-		p.setPen( QPen( colorsInactive[ 2 ], 1, style ) );
+		p.setPen( QPen( colorsInactive[ 2 ], 1, lineStyle ) );
 		while ( x < m_nEditorWidth ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
 			x += fStep * 3;
 		}
 	}
-
 }
 
 
@@ -1744,6 +1775,32 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	pMovingPen->setWidth( 2 );
 }
 
+void PatternEditor::sortAndDrawNotes( QPainter& p,
+									  std::vector< std::shared_ptr<Note> > notes,
+									  NoteStyle baseStyle ) {
+	std::sort( notes.begin(), notes.end(), Note::compare );
+
+	// Prioritze selected notes over not selected ones.
+	std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
+	for ( const auto& ppNote : notes ) {
+		if ( m_selection.isSelected( ppNote ) ) {
+			selectedNotes.push_back( ppNote );
+		}
+		else {
+			notSelectedNotes.push_back( ppNote );
+		}
+	}
+
+	for ( const auto& ppNote : notSelectedNotes ) {
+		drawNote( p, ppNote, baseStyle );
+	}
+	auto selectedStyle =
+		static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
+	for ( const auto& ppNote : selectedNotes ) {
+		drawNote( p, ppNote, selectedStyle );
+	}
+}
+
 ///
 /// Ensure selection only refers to valid notes, and does not contain any stale references to deleted notes.
 ///
@@ -1841,7 +1898,11 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		return;
 	}
 
-	updateModifiers( ev );
+	// Don't call updateModifiers( ev ) in here because we want to apply the
+	// state of the modifiers used during the last update/rendering. Else the
+	// user might position a note carefully and it jumps to different place
+	// because she released the Alt modifier slightly earlier than the mouse
+	// button.
 
 	QPoint offset = movingGridOffset();
 	if ( offset.x() == 0 && offset.y() == 0 ) {
@@ -2193,7 +2254,7 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 			m_selection.updateKeyboardCursorPosition();
 			m_pPatternEditorPanel->ensureVisible();
 
-			if ( m_selection.isLasso() ) {
+			if ( m_selection.isLasso() && m_update != Update::Background ) {
 				// Since the event was used to alter the note selection, we need
 				// to repainting all note symbols (including whether or not they
 				// are selected).
@@ -2209,7 +2270,11 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 }
 
 void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
-	updateModifiers( ev );
+	// Don't call updateModifiers( ev ) in here because we want to apply the
+	// state of the modifiers used during the last update/rendering. Else the
+	// user might position a note carefully and it jumps to different place
+	// because she released the Alt modifier slightly earlier than the mouse
+	// button.
 }
 
 void PatternEditor::enterEvent( QEvent *ev ) {
@@ -2263,6 +2328,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 	if (!isVisible()) {
 		return;
 	}
+
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	const auto pPref = Preferences::get_instance();
@@ -2346,36 +2412,6 @@ void PatternEditor::drawPattern()
 
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
-
-	// If there are multiple notes at the same position and column, the one with
-	// lowest pitch (bottom-most one in PianoRollEditor) will be rendered up
-	// front. If a subset of notes at this point is selected, the note with
-	// lowest pitch within the selection is used.
-	auto sortAndDrawNotes = [&]( QPainter& p,
-						  std::vector< std::shared_ptr<Note> > notes,
-						  NoteStyle baseStyle ) {
-		std::sort( notes.begin(), notes.end(), Note::compare );
-
-		// Prioritze selected notes over not selected ones.
-		std::vector< std::shared_ptr<Note> > selectedNotes, notSelectedNotes;
-		for ( const auto& ppNote : notes ) {
-			if ( m_selection.isSelected( ppNote ) ) {
-				selectedNotes.push_back( ppNote );
-			}
-			else {
-				notSelectedNotes.push_back( ppNote );
-			}
-		}
-
-		for ( const auto& ppNote : notSelectedNotes ) {
-			drawNote( p, ppNote, baseStyle );
-		}
-		auto selectedStyle =
-			static_cast<NoteStyle>(NoteStyle::Selected | baseStyle);
-		for ( const auto& ppNote : selectedNotes ) {
-			drawNote( p, ppNote, selectedStyle );
-		}
-	};
 
 	// We count notes in each position so we can display markers for rows which
 	// have more than one note in the same position (a chord or genuine
@@ -2680,9 +2716,9 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	m_property = m_pPatternEditorPanel->getSelectedNoteProperty();
 
 	if ( ev->button() == Qt::RightButton ) {
-		// Adjusting note properties.
-		m_bPropertyDragActive = true;
+		updateModifiers( ev );
 
+		// Adjusting note properties.
 		const auto notesAtPoint = getElementsAtPoint(
 			ev->pos(), getCursorMargin( ev ), pPattern );
 		if ( notesAtPoint.size() == 0 ) {
@@ -2724,6 +2760,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		// All notes at located at the same point.
 		m_nDragStartColumn = notesAtPoint[ 0 ]->getPosition();
 		m_nDragY = ev->y();
+		m_dragStart = ev->pos();
 	}
 }
 
@@ -2733,20 +2770,34 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 		return;
 	}
 
+	updateModifiers( ev );
+
 	auto pHydrogen = Hydrogen::get_instance();
 	int nColumn, nRealColumn;
 	eventPointToColumnRow( ev->pos(), &nColumn, nullptr, &nRealColumn );
 
+	// In case this is the first drag update, decided whether we deal with a
+	// length or property drag.
+	if ( m_dragType == DragType::None ) {
+		const int nDiffY = std::abs( ev->y() - m_dragStart.y() );
+		const int nDiffX = std::abs( ev->x() - m_dragStart.x() );
+
+		if ( nDiffX == nDiffY ) {
+			// User is dragging diagonally and hasn't decided yet.
+			return;
+		}
+		else if ( nDiffX > nDiffY ) {
+			m_dragType = DragType::Length;
+		}
+		else {
+			m_dragType = DragType::Property;
+		}
+	}
+
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	int nTargetColumn;
-	if ( ev->modifiers() == Qt::ControlModifier ||
-		 ev->modifiers() == Qt::AltModifier ) {
-		// fine control
-		nTargetColumn = nRealColumn;
-	} else {
-		nTargetColumn = nColumn;
-	}
+	const int nTargetColumn =
+		m_pPatternEditorPanel->isQuantized() ? nColumn : nRealColumn;
 
 	int nLen = nTargetColumn - m_nDragStartColumn;
 
@@ -2755,18 +2806,18 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 	}
 
 	for ( auto& [ ppNote, _ ] : m_draggedNotes ) {
-		float fNotePitch = ppNote->getPitchFromKeyOctave();
-		float fStep = 0;
-		if ( nLen > -1 ){
-			fStep = Note::pitchToFrequency( ( double )fNotePitch );
-		} else {
-			fStep=  1.0;
+		if ( m_dragType == DragType::Length ) {
+			float fStep = 1.0;
+			if ( nLen > -1 ){
+				fStep = Note::pitchToFrequency( ppNote->getPitchFromKeyOctave() );
+			}
+			ppNote->setLength( nLen * fStep );
+
+			triggerStatusMessage( m_notesHoveredOnDragStart, Property::Length );
 		}
-		ppNote->setLength( nLen * fStep );
-
-
-		// edit note property. We do not support the note key property.
-		if ( m_property != Property::KeyOctave ) {
+		else if ( m_dragType == DragType::Property &&
+				  m_property != Property::KeyOctave ) {
+			// edit note property. We do not support the note key property.
 			float fValue = 0.0;
 			if ( m_property == Property::Velocity ) {
 				fValue = ppNote->getVelocity();
@@ -2781,8 +2832,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 				fValue = ppNote->getProbability();
 			}
 		
-			float fMoveY = m_nDragY - ev->y();
-			fValue = fValue  + (fMoveY / 100);
+			fValue = fValue + static_cast<float>(m_nDragY - ev->y()) / 100;
 			if ( fValue > 1 ) {
 				fValue = 1;
 			}
@@ -2803,13 +2853,11 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 				ppNote->setProbability( fValue );
 			}
 
+			triggerStatusMessage( m_notesHoveredOnDragStart, m_property );
 		}
 	}
-	m_nDragY = ev->y();
 
-	if ( m_property != Property::KeyOctave ) {
-		triggerStatusMessage( m_notesHoveredOnDragStart, m_property );
-	}
+	m_nDragY = ev->y();
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
@@ -2824,109 +2872,156 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
+		m_dragType = DragType::None;
 		return;
 	}
 
-	m_bPropertyDragActive = false;
-
-	if ( m_draggedNotes.size() == 0 ) {
+	if ( m_draggedNotes.size() == 0 ||
+		 ( m_dragType == DragType::Property &&
+		   m_property == Property::KeyOctave ) ) {
+		m_dragType = DragType::None;
 		return;
 	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 	bool bMacroStarted = false;
 	if ( m_draggedNotes.size() > 1 ) {
-		pHydrogenApp->beginUndoMacro( tr( "edit note properties by dragging" ) );
-		bMacroStarted = true;
-	}
-	else {
-		// Just a single note was edited.
-		for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
-			if ( ( ppUpdatedNote->getVelocity() !=
-				   ppOriginalNote->getVelocity() ||
-				   ppUpdatedNote->getPan() !=
-				   ppOriginalNote->getPan() ||
-				   ppUpdatedNote->getLeadLag() !=
-				   ppOriginalNote->getLeadLag() ||
-				   ppUpdatedNote->getProbability() !=
-				   ppOriginalNote->getProbability() ) &&
-				 ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
-				// Both length and another property have been edited.
-				pHydrogenApp->beginUndoMacro(
-					tr( "edit note properties by dragging" ) );
-				bMacroStarted = true;
+
+		auto sMacro = tr( "Drag edit note property:" );
+		if ( m_dragType == DragType::Length ) {
+			sMacro.append(
+				QString( " %1" ).arg( pCommonStrings->getNotePropertyLength() ) );
+		}
+		else if ( m_dragType == DragType::Property ) {
+			switch ( m_property ) {
+			case Property::Velocity:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyVelocity() ) );
+				break;
+			case Property::Pan:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyPan() ) );
+				break;
+			case Property::LeadLag:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyLeadLag() ) );
+				break;
+			case Property::Probability:
+				sMacro.append( QString( " %1" ).arg(
+								   pCommonStrings->getNotePropertyProbability() ) );
+				break;
+			default:
+				ERRORLOG( "property not supported" );
 			}
 		}
+
+		pHydrogenApp->beginUndoMacro( sMacro );
+		bMacroStarted = true;
 	}
 
 	auto editNoteProperty = [=]( PatternEditor::Property property,
 								 std::shared_ptr<Note> pNewNote,
 								 std::shared_ptr<Note> pOldNote ) {
-		pHydrogenApp->pushUndoCommand(
-			new SE_editNotePropertiesAction(
-				property,
-				m_pPatternEditorPanel->getPatternNumber(),
-				pNewNote->getPosition(),
-				pNewNote->getInstrumentId(),
-				pNewNote->getInstrumentId(),
-				pNewNote->getType(),
-				pNewNote->getType(),
-				pNewNote->getVelocity(),
-				pOldNote->getVelocity(),
-				pNewNote->getPan(),
-				pOldNote->getPan(),
-				pNewNote->getLeadLag(),
-				pOldNote->getLeadLag(),
-				pNewNote->getProbability(),
-				pOldNote->getProbability(),
-				pNewNote->getLength(),
-				pOldNote->getLength(),
-				pNewNote->getKey(),
-				pOldNote->getKey(),
-				pNewNote->getOctave(),
-				pOldNote->getOctave() ) );
+		if ( m_dragType == DragType::Length ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_editNotePropertiesAction(
+					property,
+					m_pPatternEditorPanel->getPatternNumber(),
+					pOldNote->getPosition(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getType(),
+					pOldNote->getType(),
+					pOldNote->getVelocity(),
+					pOldNote->getVelocity(),
+					pOldNote->getPan(),
+					pOldNote->getPan(),
+					pOldNote->getLeadLag(),
+					pOldNote->getLeadLag(),
+					pOldNote->getProbability(),
+					pOldNote->getProbability(),
+					pNewNote->getLength(),
+					pOldNote->getLength(),
+					pOldNote->getKey(),
+					pOldNote->getKey(),
+					pOldNote->getOctave(),
+					pOldNote->getOctave() ) );
+		}
+		else if ( m_dragType == DragType::Property ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_editNotePropertiesAction(
+					property,
+					m_pPatternEditorPanel->getPatternNumber(),
+					pOldNote->getPosition(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getInstrumentId(),
+					pOldNote->getType(),
+					pOldNote->getType(),
+					pNewNote->getVelocity(),
+					pOldNote->getVelocity(),
+					pNewNote->getPan(),
+					pOldNote->getPan(),
+					pNewNote->getLeadLag(),
+					pOldNote->getLeadLag(),
+					pNewNote->getProbability(),
+					pOldNote->getProbability(),
+					pOldNote->getLength(),
+					pOldNote->getLength(),
+					pOldNote->getKey(),
+					pOldNote->getKey(),
+					pOldNote->getOctave(),
+					pOldNote->getOctave() ) );
+		}
 	};
 
-	std::vector< std::shared_ptr<Note> > notesStatusLength, notesStatusProp;
+	std::vector< std::shared_ptr<Note> > notesStatus;
 
 	for ( const auto& [ ppUpdatedNote, ppOriginalNote ] : m_draggedNotes ) {
 		if ( ppUpdatedNote == nullptr || ppOriginalNote == nullptr ) {
 			continue;
 		}
 
-		if ( ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
+		if ( m_dragType == DragType::Length &&
+			 ppUpdatedNote->getLength() != ppOriginalNote->getLength() ) {
 			editNoteProperty( Property::Length, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
 			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
 				if ( ppNote == ppOriginalNote ) {
-					notesStatusLength.push_back( ppUpdatedNote );
+					notesStatus.push_back( ppUpdatedNote );
 				}
 			}
 		}
-
-		if ( ppUpdatedNote->getVelocity() != ppOriginalNote->getVelocity() ||
-			 ppUpdatedNote->getPan() != ppOriginalNote->getPan() ||
-			 ppUpdatedNote->getLeadLag() != ppOriginalNote->getLeadLag() ||
-			 ppUpdatedNote->getProbability() !=
-			 ppOriginalNote->getProbability() ) {
+		else if ( m_dragType == DragType::Property &&
+				  ( ppUpdatedNote->getVelocity() !=
+					ppOriginalNote->getVelocity() ||
+					ppUpdatedNote->getPan() != ppOriginalNote->getPan() ||
+					ppUpdatedNote->getLeadLag() != ppOriginalNote->getLeadLag() ||
+					ppUpdatedNote->getProbability() !=
+					ppOriginalNote->getProbability() ) ) {
 			editNoteProperty( m_property, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
 			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
 				if ( ppNote == ppOriginalNote ) {
-					notesStatusProp.push_back( ppUpdatedNote );
+					notesStatus.push_back( ppUpdatedNote );
 				}
 			}
 		}
 	}
 
-	if ( notesStatusLength.size() > 0 ) {
-		triggerStatusMessage( notesStatusLength, Property::Length );
-	}
-	if ( notesStatusProp.size() > 0 ) {
-		triggerStatusMessage( notesStatusProp, m_property );
+	if ( m_draggedNotes.size() > 0 ) {
+		if ( m_dragType == DragType::Length ) {
+			triggerStatusMessage( notesStatus, Property::Length );
+		}
+		else if ( m_dragType == DragType::Property ) {
+			triggerStatusMessage( notesStatus, m_property );
+		}
+		else {
+			ERRORLOG( "Invalid drag type" );
+		}
 	}
 
 	if ( bMacroStarted ) {
@@ -2934,6 +3029,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 	}
 
 	m_draggedNotes.clear();
+	m_dragType = DragType::None;
 }
 
 void PatternEditor::editNotePropertiesAction( const Property& property,
@@ -3704,7 +3800,7 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 	// We do not highlight hovered notes during a property drag. Else, the
 	// hovered ones would appear in front of the dragged one in the ruler,
 	// hiding the newly adjusted value.
-	if ( ! m_bPropertyDragActive &&
+	if ( m_dragType == DragType::None &&
 		 pEvent->x() > PatternEditor::nMarginSidebar ) {
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes = getElementsAtPoint(
@@ -4015,4 +4111,15 @@ int PatternEditor::calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> p
 	}
 
 	return pNote->getLength();
+}
+
+QString PatternEditor::DragTypeToQString( DragType dragType ) {
+	switch( dragType ) {
+	case DragType::Length:
+		return "Length";
+	case DragType::Property:
+		return "Property";
+	default:
+		return QString( "Unknown type [%1]" ).arg( static_cast<int>(dragType) );
+	}
 }

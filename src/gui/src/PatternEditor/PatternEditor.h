@@ -327,8 +327,18 @@ protected:
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
 
-	bool m_bFineGrained;
 	bool m_bCopyNotMove;
+
+		enum class DragType {
+			None,
+			Length,
+			Property
+		};
+		static QString DragTypeToQString( DragType dragType );
+		/** Specifies whether the user interaction is altering the length
+		 * (horizontal) or the currently selected property (vertical) of a
+		 * note. */
+		DragType m_dragType;
 
 		/** Keeps track of all notes being drag-edited using the right mouse
 		 * button. It maps the new, updated version of a note to an copy of
@@ -340,6 +350,7 @@ protected:
 		/** Latest vertical position of a drag event. Adjusted in every drag
 		 * update. */
 		int m_nDragY;
+		QPoint m_dragStart;
 		/** When drag editing note properties using right-click drag in
 		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
 		 * indicating the value change. But when dragging a selection of notes
@@ -347,7 +358,6 @@ protected:
 		 * display. We show all values changes of notes at the initial mouse
 		 * cursor position. */
 		std::vector< std::shared_ptr<H2Core::Note> > m_notesHoveredOnDragStart;
-		bool m_bPropertyDragActive;
 
 	PatternEditorPanel* m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
@@ -372,6 +382,13 @@ protected:
 					 QBrush* pHighlightBrush, QPen* pMovingPen,
 					 QBrush* pMovingBrush, NoteStyle noteStyle ) const;
 
+		/** If there are multiple notes at the same position and column, the one
+		 * with lowest pitch (bottom-most one in PianoRollEditor) will be
+		 * rendered up front. If a subset of notes at this point is selected,
+		 * the note with lowest pitch within the selection is used. */
+		void sortAndDrawNotes( QPainter& p,
+							   std::vector< std::shared_ptr<H2Core::Note> > notes,
+							   NoteStyle baseStyle );
 	/**
 	 * Draw a note
 	 *
