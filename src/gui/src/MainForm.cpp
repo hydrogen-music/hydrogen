@@ -1689,7 +1689,7 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 
 				// Pass copy to allow kit in the SoundLibraryDatabase to stay in
 				// a pristine shape.
-				if ( ! switchDrumkit( std::shared_ptr<Drumkit>( pDrumkit ) ) ) {
+				if ( ! switchDrumkit( std::make_shared<Drumkit>( pDrumkit ) ) ) {
 					ERRORLOG( QString( "Unable to switch to freshly imported kit [%1]" )
 							  .arg( sFileName ) );
 				}

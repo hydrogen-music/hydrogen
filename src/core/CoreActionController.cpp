@@ -1262,7 +1262,7 @@ bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
 		return false;
 	}
 
-	return setDrumkit( pDrumkit );
+	return setDrumkit( std::make_shared<Drumkit>(pDrumkit) );
 }
 
 bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {

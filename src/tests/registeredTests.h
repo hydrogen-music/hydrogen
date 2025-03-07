@@ -45,6 +45,7 @@
 #include "PatternTest.h"
 #include "SampleTest.cpp"
 #include "SongExportTest.h"
+#include "SoundLibraryTest.h"
 #include "TimeTest.h"
 #include "Translations.cpp"
 #include "TransportTest.h"
@@ -78,6 +79,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SongExportTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TransportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( UITranslationTest );

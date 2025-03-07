@@ -598,7 +598,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	// Pass a copy of the kit since we do not want to alter the settings of the
 	// original one.
-	MainForm::switchDrumkit( std::shared_ptr<Drumkit>( pDrumkit ) );
+	MainForm::switchDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
 }
 
 void SoundLibraryPanel::switchDrumkit( std::shared_ptr<H2Core::Drumkit> pNewDrumkit,
