@@ -750,6 +750,14 @@ void SoundLibraryPanel::editDrumkitProperties( bool bDuplicate ) {
 	// is not getting dirty upon saving (in case new properties are
 	// stored in the kit but writing it to disk fails).
 	auto pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+	if ( bDuplicate ) {
+		// Suggest an unique drumkit name.
+		pNewDrumkit->setName(
+			Filesystem::appendNumberOrIncrement( sDrumkitName ) );
+		pNewDrumkit->setPath(
+			H2Core::Filesystem::usr_drumkits_dir() + pNewDrumkit->getName() );
+	}
+
 	DrumkitPropertiesDialog dialog( this, pNewDrumkit, ! bDuplicate, false );
 	dialog.exec();
 }

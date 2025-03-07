@@ -1361,6 +1361,22 @@ QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
 const std::vector<Filesystem::AudioFormat>& Filesystem::supportedAudioFormats() {
 	return m_supportedAudioFormats;
 }
+
+QString Filesystem::appendNumberOrIncrement( const QString& sString ) {
+	auto parts = sString.split( " " );
+
+	bool bOk;
+	int nNumber = parts.last().toInt( &bOk, 10 );
+	if ( bOk ) {
+		parts.removeLast();
+		parts.append( QString::number( ++nNumber ) );
+	}
+	else {
+		parts.append( QString::number( 2 ) );
+	}
+
+	return parts.join( " " );
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

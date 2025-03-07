@@ -543,6 +543,11 @@ namespace H2Core
 			 * https://libsndfile.github.io/libsndfile/api.html#open). */
 			 static const std::vector<AudioFormat>& supportedAudioFormats();
 
+			/** Adds a '2' separated by a whitespace at the end of the string.
+			 * If there is already a number appended, it will be incremented
+			 * instead. This can be used when duplicating things. */
+			static QString appendNumberOrIncrement( const QString& sString );
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
