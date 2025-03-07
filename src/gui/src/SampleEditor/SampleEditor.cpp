@@ -25,6 +25,7 @@
 #include "../CommonStrings.h"
 #include "../InstrumentEditor/InstrumentEditor.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
+#include "../InstrumentRack.h"
 
 #include "MainSampleWaveDisplay.h"
 #include "DetailWaveDisplay.h"
@@ -399,7 +400,8 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	setClean();
 	Hydrogen::get_instance()->setIsModified( true );
 	QApplication::restoreOverrideCursor();
-	InstrumentEditorPanel::get_instance()->updateWaveDisplay();
+	HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel()->
+		updateEditors();
 }
 
 
@@ -617,7 +619,8 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 
-	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
+	const int selectedLayer = HydrogenApp::get_instance()->getInstrumentRack()->
+		getInstrumentEditorPanel()->getSelectedLayer();
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
@@ -689,8 +692,8 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		return;
 	}
 
-	const int nSelectedlayer =
-		InstrumentEditorPanel::get_instance()->getSelectedLayer();
+	const int nSelectedlayer = HydrogenApp::get_instance()->getInstrumentRack()->
+		getInstrumentEditorPanel()->getSelectedLayer();
 	auto pInstr = pSong->getDrumkit()->getInstruments()->get(
 		pHydrogen->getSelectedInstrumentNumber() );
 	if ( pInstr == nullptr ) {

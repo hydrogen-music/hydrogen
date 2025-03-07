@@ -27,79 +27,61 @@
 #include <QtWidgets>
 #include <memory>
 
-#include <core/Basics/Instrument.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
-#include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class Fader;
-class LCDDisplay;
-class LCDSpinBox;
 class Button;
 class ClickableLabel;
-class Rotary;
-class LCDCombo;
-class WaveDisplay;
+class Fader;
+class InstrumentEditorPanel;
 class LayerPreview;
+class LCDCombo;
+class LCDDisplay;
+class LCDSpinBox;
+class Rotary;
+class WaveDisplay;
 class WidgetWithInput;
 
 ///
 /// Instrument Editor
 ///
 /** \ingroup docGUI*/
-class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 12, 14>,  public H2Core::Object<InstrumentEditor>, public EventListener
+class InstrumentEditor :  public QWidget,
+						  protected WidgetWithScalableFont<10, 12, 14>,
+						  public H2Core::Object<InstrumentEditor>
 {
 	H2_OBJECT(InstrumentEditor)
 	Q_OBJECT
 
 	public:
-		explicit InstrumentEditor( QWidget* parent );
+		explicit InstrumentEditor( QWidget* parent,
+								   InstrumentEditorPanel* pPanel );
 		~InstrumentEditor();
 
 		void updateEditor();
 
-		void selectLayer( int nLayer );
+		LayerPreview* getLayerPreview();
 
-		void selectComponent( int nComponent );
 		void renameComponent( int nComponentId, const QString& sNewName );
-		bool getIsActive() const;
-
-		// implements EventListener interface
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void drumkitLoadedEvent() override;
-	virtual void updateSongEvent( int ) override;
-	virtual void instrumentParametersChangedEvent( int ) override;
-		// ~ implements EventListener interface
 
 	public slots:
 	/** Used by #Shotlist */
 	void showLayers( bool bShow );
 		void showSampleEditor();
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void addComponentAction();
 		void deleteComponentAction();
 		void renameComponentAction();
 		void switchComponentAction( int nId );
 
 	private slots:
-		void rotaryChanged(WidgetWithInput *ref);
 		void loadLayerBtnClicked();
-		void filterActiveBtnClicked();
 		void removeLayerButtonClicked();
 		void onDropDownCompoClicked();
 
-		void muteGroupChanged( double fValue );
-		void onIsStopNoteCheckBoxClicked( bool on );
-		void onIsApplyVelocityCheckBoxClicked( bool on);
 		void midiOutChannelChanged( double fValue );
-		void midiOutNoteChanged( double fValue );
-
-		void hihatGroupChanged( double fValue );
-		void hihatMinRangeChanged( double fValue );
-		void hihatMaxRangeChanged( double fValue );
 
 		void sampleSelectionChanged( int );
 
@@ -107,14 +89,9 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 
 	private:
-		std::shared_ptr<H2Core::Instrument> m_pInstrument;
-		int m_nSelectedLayer;
-		int m_nSelectedComponent;
+		InstrumentEditorPanel* m_pInstrumentEditorPanel;
 
-		/** Whether a valid instrument was provided an all contained widgets
-		 * should be enabled. */
-		bool m_bIsActive;
-		void activate( bool bActivate );
+		void updateActivation();
 
 		Button *m_pShowInstrumentBtn;
 		Button *m_pShowLayersBtn;
@@ -143,7 +120,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		ClickableLabel* m_pPitchCoarseLbl;
 		ClickableLabel* m_pPitchFineLbl;
 		ClickableLabel* m_pPitchRandomLbl;
-		void updateInstrumentPitch();
 
 		// Low pass filter
 		Button *m_pFilterBypassBtn;
@@ -236,8 +212,8 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void setAutoVelocity();
 };
 
-inline bool InstrumentEditor::getIsActive() const {
-	return m_bIsActive;
+inline LayerPreview* InstrumentEditor::getLayerPreview() {
+	return m_pLayerPreview;
 }
 
 #endif

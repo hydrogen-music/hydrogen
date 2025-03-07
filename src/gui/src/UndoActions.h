@@ -43,6 +43,7 @@
 
 #include "CommonStrings.h"
 #include "HydrogenApp.h"
+#include "InstrumentEditor/InstrumentEditor.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "InstrumentRack.h"
 #include "MainForm.h"
@@ -1018,12 +1019,14 @@ class SE_renameComponentAction : public QUndoCommand {
 					 .arg( sOldName ).arg( sNewName ) );
 		}
 		virtual void undo() {
-			InstrumentEditorPanel::get_instance()->getInstrumentEditor()
-				->renameComponent( m_nComponentId, m_sOldName );
+			HydrogenApp::get_instance()->getInstrumentRack()->
+				getInstrumentEditorPanel()->getInstrumentEditor()->
+				renameComponent( m_nComponentId, m_sOldName );
 		}
 		virtual void redo() {
-			InstrumentEditorPanel::get_instance()->getInstrumentEditor()
-				->renameComponent( m_nComponentId, m_sNewName );
+			HydrogenApp::get_instance()->getInstrumentRack()->
+				getInstrumentEditorPanel()->getInstrumentEditor()->
+				renameComponent( m_nComponentId, m_sNewName );
 		}
 	private:
 		QString m_sNewName;

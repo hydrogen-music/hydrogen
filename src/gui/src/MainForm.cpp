@@ -186,7 +186,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	h2app->getPatternEditorPanel()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
 	h2app->getPlayerControl()->installEventFilter(this);
-	InstrumentEditorPanel::get_instance()->installEventFilter(this);
+	h2app->getInstrumentRack()->getInstrumentEditorPanel()
+		->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
 	h2app->getDirector()->installEventFilter(this);
 	installEventFilter( this );
@@ -3099,7 +3100,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				action_drumkit_new();
 				break;
 			case Shortcuts::Action::AddComponent:
-				InstrumentEditorPanel::get_instance()->
+				pHydrogenApp->getInstrumentRack()->getInstrumentEditorPanel()->
 					getInstrumentEditor()->addComponentAction();
 				break;
 

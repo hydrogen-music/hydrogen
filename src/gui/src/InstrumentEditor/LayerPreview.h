@@ -29,43 +29,36 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/Instrument.h>
-#include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
-class InstrumentLayer;
+	class InstrumentLayer;
 }
 
+class InstrumentEditorPanel;
+
 /** \ingroup docGUI*/
-class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,  public H2Core::Object<LayerPreview>, public EventListener
+class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
+					  public H2Core::Object<LayerPreview>
 {
     H2_OBJECT(LayerPreview)
 	Q_OBJECT
 
 	public:
-		explicit LayerPreview(QWidget* pParent);
-		~LayerPreview();
+		static constexpr int m_nLayerHeight = 10;
 
-		void updateAll();
+		explicit LayerPreview( QWidget* pParent, InstrumentEditorPanel* pPanel );
+		~LayerPreview();
 
 		void paintEvent(QPaintEvent *ev) override;
 		virtual void mousePressEvent(QMouseEvent *ev) override;
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void mouseMoveEvent ( QMouseEvent *ev ) override;
 
-		void set_selected_component( int SelectedComponent );
-	void setSelectedLayer( int nSelectedLayer );
-
-public slots:
-		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
-	
 	private:
-		static const int		m_nLayerHeight = 10;
+		InstrumentEditorPanel*  m_pInstrumentEditorPanel;
 		QPixmap					m_speakerPixmap;
-		std::shared_ptr<H2Core::Instrument>	m_pInstrument;
-		int						m_nSelectedLayer;
-		int						m_nSelectedComponent;
 		bool					m_bMouseGrab;
 		bool					m_bGrabLeft;
 
@@ -94,17 +87,8 @@ public slots:
 		 */
 		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void drumkitLoadedEvent() override;
-	virtual void updateSongEvent(int) override;
 		/** Used to detect changed in the font*/
 		int getPointSizeButton() const;
 };
-
-inline void LayerPreview::setSelectedLayer( int nLayer ) {
-	if ( nLayer != m_nSelectedLayer ) {
-		m_nSelectedLayer = nLayer;
-	}
-}
 
 #endif
