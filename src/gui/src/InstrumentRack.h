@@ -32,22 +32,27 @@
 #include "Widgets/WidgetWithScalableFont.h"
 
 class Button;
+class InstrumentEditorPanel;
 class SoundLibraryPanel;
 
 /** \ingroup docGUI*/
-class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, private H2Core::Object<InstrumentRack>
+class InstrumentRack : public QWidget,
+					   protected WidgetWithScalableFont<5, 6, 7>,
+					   private H2Core::Object<InstrumentRack>
 {
     H2_OBJECT(InstrumentRack)
 	Q_OBJECT
-	public:
-		explicit InstrumentRack( QWidget *pParent );
-		~InstrumentRack();
 
-		SoundLibraryPanel* getSoundLibraryPanel() {	return m_pSoundLibraryPanel;	}
-
+public:
 		/** 450 - InstrumentEditor layer view +
 		 * 24 - tab button */
 		static constexpr int m_nMinimumHeight = 450;
+
+		explicit InstrumentRack( QWidget *pParent );
+		~InstrumentRack();
+
+		InstrumentEditorPanel* getInstrumentEditorPanel() const;
+		SoundLibraryPanel* getSoundLibraryPanel() const;
 
 public slots:
 	/** Used by the #Shotlist*/
@@ -61,8 +66,17 @@ public slots:
 		/// button for showing the Instrument Editor
 		Button *m_pShowInstrumentEditorBtn;
 
-		SoundLibraryPanel* m_pSoundLibraryPanel;
+		InstrumentEditorPanel* m_pInstrumentEditorPanel;
 
+		SoundLibraryPanel* m_pSoundLibraryPanel;
 };
+
+inline InstrumentEditorPanel* InstrumentRack::getInstrumentEditorPanel() const {
+	return m_pInstrumentEditorPanel;
+
+}
+inline SoundLibraryPanel* InstrumentRack::getSoundLibraryPanel() const {
+	return m_pSoundLibraryPanel;
+}
 
 #endif

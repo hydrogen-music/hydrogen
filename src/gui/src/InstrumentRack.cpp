@@ -76,7 +76,9 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 // ~ TAB buttons
 
 
-	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+	m_pInstrumentEditorPanel = new InstrumentEditorPanel( nullptr );
+	m_pInstrumentEditorPanel->setSizePolicy(
+		QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, false );
 
@@ -86,12 +88,13 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pGrid->setMargin( 0 );
 
 	pGrid->addWidget( pTabButtonsPanel, 0, 0, 1, 3 );
-	pGrid->addWidget( InstrumentEditorPanel::get_instance(), 2, 1 );
+	pGrid->addWidget( m_pInstrumentEditorPanel, 2, 1 );
 	pGrid->addWidget( m_pSoundLibraryPanel, 2, 1 );
 
 	this->setLayout( pGrid );
 	
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentRack::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &InstrumentRack::onPreferencesChanged );
 
 	showSoundLibrary( false );
 }
@@ -118,13 +121,13 @@ void InstrumentRack::showSoundLibrary( bool bShow ) {
 	if ( bShow ) {
 		m_pSoundLibraryPanel->show();
 		m_pShowSoundLibraryBtn->setChecked( true );
-		InstrumentEditorPanel::get_instance()->hide();
+		m_pInstrumentEditorPanel->hide();
 		m_pShowInstrumentEditorBtn->setChecked( false );
 	}
 	else {
 		m_pSoundLibraryPanel->hide();
 		m_pShowSoundLibraryBtn->setChecked( false );
-		InstrumentEditorPanel::get_instance()->show();
+		m_pInstrumentEditorPanel->show();
 		m_pShowInstrumentEditorBtn->setChecked( true );
 	}
 }

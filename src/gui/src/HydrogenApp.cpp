@@ -877,19 +877,21 @@ void HydrogenApp::showDirector()
 }
 
 
-void HydrogenApp::showSampleEditor( const QString& name, int mSelectedComponemt,
-									int mSelectedLayer )
+void HydrogenApp::showSampleEditor( const QString& name, int nSelectedComponent,
+									int nSelectedLayer )
 {
 
-	if ( m_pSampleEditor ){
+	if ( m_pSampleEditor != nullptr ){
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		m_pSampleEditor->close();
 		delete m_pSampleEditor;
 		m_pSampleEditor = nullptr;
 		QApplication::restoreOverrideCursor();
 	}
+
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	m_pSampleEditor = new SampleEditor( nullptr, mSelectedComponemt, mSelectedLayer, name );
+	m_pSampleEditor = new SampleEditor(
+		nullptr, nSelectedComponent, nSelectedLayer, name );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
 }

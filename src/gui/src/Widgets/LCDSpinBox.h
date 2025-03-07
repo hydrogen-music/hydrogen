@@ -93,11 +93,15 @@ public slots:
 				      H2Core::Event::Trigger::Default );
 
 private slots:
-	void valueChanged( double fNewValue );
+		void valueChanged( double fNewValue );
 
 signals:
 	void slashKeyPressed();
 	void valueChanged( int );
+		/** A non-overloaded version of valueChanged() in order to use this
+		 * signal with the version of connect() (Qt signal handling) which
+		 * allows inline lambda functions. */
+		void valueAdjusted();
 	
 private:
 	double nextValueInPatternSizeDenominator( bool bUp, bool bAccelerated );

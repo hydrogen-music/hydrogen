@@ -55,7 +55,6 @@ namespace H2Core
 class SongEditorPanel;
 class PlayerControl;
 class PatternEditorPanel;
-class InstrumentEditorPanel;
 class SongEditor;
 class Mixer;
 class AudioEngineInfoForm;
@@ -119,12 +118,12 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		bool hideKeyboardCursor();
 		void setHideKeyboardCursor( bool bHidden );
 
+		AudioEngineInfoForm*		getAudioEngineInfoForm();
+		Director*			getDirector();
 		Mixer*				getMixer();
 		MainForm*			getMainForm();
 		SongEditorPanel*		getSongEditorPanel();
-		AudioEngineInfoForm*		getAudioEngineInfoForm();
 		PlaylistEditor*			getPlaylistEditor();
-		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();

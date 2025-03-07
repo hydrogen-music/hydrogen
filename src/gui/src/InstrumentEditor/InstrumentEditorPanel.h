@@ -27,45 +27,72 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include "InstrumentEditor.h"
 #include "../EventListener.h"
+
+namespace H2Core {
+	class Instrument;
+}
+class InstrumentEditor;
 
 ///
 /// Container for the Instrument Editor (Singleton).
 ///
 /** \ingroup docGUI*/
-class InstrumentEditorPanel : public QWidget, private H2Core::Object<InstrumentEditorPanel>, public EventListener
+class InstrumentEditorPanel : public QWidget,
+							  private H2Core::Object<InstrumentEditorPanel>,
+							  public EventListener
 {
     H2_OBJECT(InstrumentEditorPanel)
 	Q_OBJECT
 	public:
-		static InstrumentEditorPanel* get_instance();
-		~InstrumentEditorPanel();
-	
+		explicit InstrumentEditorPanel( QWidget *pParent );
 		explicit InstrumentEditorPanel(const InstrumentEditorPanel&) = delete;
+		~InstrumentEditorPanel();
 		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
 		InstrumentEditor* getInstrumentEditor() const;
 
-		void selectLayer( int nLayer );
-		
-		int getSelectedLayer() {
-			return m_nLayer;
-		}
+		void updateEditors();
 
-		void updateWaveDisplay();
+		// implements EventListener interface
+		virtual void drumkitLoadedEvent() override;
+		virtual void instrumentParametersChangedEvent( int ) override;
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void updateSongEvent( int ) override;
+		// ~ implements EventListener interface
+
+		std::shared_ptr<H2Core::Instrument> getInstrument() const;
+		int getSelectedComponent() const;
+		int getSelectedLayer() const;
+
+		void setSelectedComponent( int nComponent );
+		void setSelectedLayer( int nLayer );
+
+	public slots:
+		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
-		static InstrumentEditorPanel*	m_pInstance;
 		InstrumentEditor*				m_pInstrumentEditor;
-		int								m_nLayer;
 
-		explicit InstrumentEditorPanel( QWidget *pParent );
-
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
+		int m_nSelectedLayer;
+		int m_nSelectedComponent;
 };
 
-inline 	InstrumentEditor* InstrumentEditorPanel::getInstrumentEditor() const {
+inline InstrumentEditor* InstrumentEditorPanel::getInstrumentEditor() const {
 	return m_pInstrumentEditor;
 }
+
+inline std::shared_ptr<H2Core::Instrument> InstrumentEditorPanel::getInstrument() const {
+	return m_pInstrument;
+
+}
+inline int InstrumentEditorPanel::getSelectedComponent() const {
+	return m_nSelectedComponent;
+}
+inline int InstrumentEditorPanel::getSelectedLayer() const {
+	return m_nSelectedLayer;
+}
+
 #endif
 
