@@ -61,6 +61,9 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	okBtn->setFocusPolicy( Qt::WheelFocus );
 	cancelBtn->setFocusPolicy( Qt::WheelFocus );
 
+	// Allow to save the dialog by pressing Return.
+	okBtn->setFocus();
+
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
