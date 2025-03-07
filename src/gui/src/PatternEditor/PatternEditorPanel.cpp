@@ -876,6 +876,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
+	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors();
@@ -1068,61 +1069,6 @@ NotePropertiesRuler* PatternEditorPanel::getVisiblePropertiesRuler() const {
 	}
 }
 
-std::vector<std::shared_ptr<Pattern>> PatternEditorPanel::getPatternsToShow() const
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::vector<std::shared_ptr<Pattern>> patterns;
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	// When using song mode without the pattern editor being locked
-	// only the current pattern will be shown. In every other base
-	// remaining playing patterns not selected by the user are added
-	// as well.
-	if ( ! ( pHydrogen->getMode() == Song::Mode::Song &&
-			 ! pHydrogen->isPatternEditorLocked() ) ) {
-		pAudioEngine->lock( RIGHT_HERE );
-		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
-			std::set< std::shared_ptr<Pattern> > patternSet;
-
-			std::vector< std::shared_ptr<PatternList> > patternLists;
-			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
-			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-				patternLists.push_back( pAudioEngine->getNextPatterns() );
-			}
-
-			for ( const auto& pPatternList : patternLists ) {
-				for ( int i = 0; i <  pPatternList->size(); i++) {
-					auto ppPattern = pPatternList->get( i );
-					if ( ppPattern != m_pPattern ) {
-						patternSet.insert( ppPattern );
-					}
-				}
-			}
-			for ( const auto& ppPattern : patternSet ) {
-				patterns.push_back( ppPattern );
-			}
-		}
-		pAudioEngine->unlock();
-	}
-	else if ( m_pPattern != nullptr &&
-			  pHydrogen->getMode() == Song::Mode::Song &&
-			  m_pPattern->getVirtualPatterns()->size() > 0 ) {
-		// A virtual pattern was selected in song mode without the
-		// pattern editor being locked. Virtual patterns in selected
-		// pattern mode are handled using the playing pattern above.
-		for ( const auto ppVirtualPattern : *m_pPattern ) {
-			patterns.push_back( ppVirtualPattern );
-		}
-	}
-
-
-	if ( m_pPattern != nullptr ) {
-		patterns.push_back( m_pPattern );
-	}
-
-	return patterns;
-}
-
 void PatternEditorPanel::zoomInBtnClicked()
 {
 	const float fOldGridWidth = m_pPatternEditorRuler->getGridWidth();
@@ -1302,6 +1248,59 @@ void PatternEditorPanel::updatePatternInfo() {
 	}
 }
 
+void PatternEditorPanel::updatePatternsToShow()
+{
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	m_patternsToShow.clear();
+
+	// When using song mode without the pattern editor being locked
+	// only the current pattern will be shown. In every other case the
+	// remaining playing patterns not selected by the user are added
+	// as well.
+	if ( ! ( pHydrogen->getMode() == Song::Mode::Song &&
+			 ! pHydrogen->isPatternEditorLocked() ) ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		if ( pAudioEngine->getPlayingPatterns()->size() > 0 ) {
+			std::set< std::shared_ptr<Pattern> > patternSet;
+
+			std::vector< std::shared_ptr<PatternList> > patternLists;
+			patternLists.push_back( pAudioEngine->getPlayingPatterns() );
+			if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+				patternLists.push_back( pAudioEngine->getNextPatterns() );
+			}
+
+			for ( const auto& pPatternList : patternLists ) {
+				for ( int i = 0; i <  pPatternList->size(); i++) {
+					auto ppPattern = pPatternList->get( i );
+					if ( ppPattern != m_pPattern ) {
+						patternSet.insert( ppPattern );
+					}
+				}
+			}
+			for ( const auto& ppPattern : patternSet ) {
+				m_patternsToShow.push_back( ppPattern );
+			}
+		}
+		pAudioEngine->unlock();
+	}
+	else if ( m_pPattern != nullptr &&
+			  pHydrogen->getMode() == Song::Mode::Song &&
+			  m_pPattern->getVirtualPatterns()->size() > 0 ) {
+		// A virtual pattern was selected in song mode without the pattern
+		// editor being locked. Virtual patterns in selected pattern mode are
+		// handled using the playing pattern above.
+		for ( const auto ppVirtualPattern : *m_pPattern ) {
+			m_patternsToShow.push_back( ppVirtualPattern );
+		}
+	}
+
+	if ( m_pPattern != nullptr ) {
+		m_patternsToShow.push_back( m_pPattern );
+	}
+}
+
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 
 	// Changes of pattern may leave the cursor out of bounds.
@@ -1327,12 +1326,14 @@ void PatternEditorPanel::patternModifiedEvent() {
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
 	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
+		updatePatternsToShow();
 		updatePatternInfo();
 		updateEditors( true );
 	}
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
+	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
@@ -1341,6 +1342,7 @@ void PatternEditorPanel::songModeActivationEvent() {
 }
 
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
+	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
@@ -1355,6 +1357,7 @@ void PatternEditorPanel::songSizeChangedEvent() {
 }
 
 void PatternEditorPanel::patternEditorLockedEvent() {
+	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
@@ -1377,6 +1380,9 @@ void PatternEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& st
 
 void PatternEditorPanel::relocationEvent() {
 	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		updatePatternsToShow();
+		updatePatternInfo();
+		updateDB();
 		updateEditors( true );
 	}
 }
@@ -1496,6 +1502,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 	if ( nValue == 0 ) {
 		// Performs an editor update with updateEditor() (and no argument).
 		updateDrumkitLabel();
+		updatePatternsToShow();
 		updatePatternInfo();
 		updateDB();
 		updateEditors();

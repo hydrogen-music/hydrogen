@@ -368,10 +368,15 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	private:
 
 		void updatePatternInfo();
+		void updatePatternsToShow();
 		void updateStyleSheet();
 
 		/** Currently selected pattern cached in frontend for convenience.*/
 		std::shared_ptr<H2Core::Pattern>	m_pPattern;
+
+		/** All patterns currently playing. They are cached in here or  */
+		std::vector< std::shared_ptr<H2Core::Pattern> > m_patternsToShow;
+
 		/** Number corresponding to #m_pPattern. */
 		int m_nPatternNumber;
 
@@ -504,6 +509,9 @@ inline std::shared_ptr<H2Core::Pattern> PatternEditorPanel::getPattern() const {
 }
 inline int PatternEditorPanel::getPatternNumber() const {
 	return m_nPatternNumber;
+}
+inline std::vector<std::shared_ptr<H2Core::Pattern>> PatternEditorPanel::getPatternsToShow() const {
+	return m_patternsToShow;
 }
 inline const std::vector<DrumPatternRow>& PatternEditorPanel::getDB() const {
 	return m_db;
