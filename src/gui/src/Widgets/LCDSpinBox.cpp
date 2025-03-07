@@ -433,5 +433,6 @@ void LCDSpinBox::onPreferencesChanged( const H2Core::Preferences::Changes& chang
 void LCDSpinBox::valueChanged( double fNewValue ) {
 	if ( m_type == Type::Int ) {
 		emit valueChanged( static_cast<int>(fNewValue) );
+		emit valueAdjusted();
 	}
 }
