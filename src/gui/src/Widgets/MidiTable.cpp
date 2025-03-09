@@ -302,7 +302,7 @@ void MidiTable::setupMidiTable()
 void MidiTable::saveMidiTable()
 {
 	auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
-	pMidiMap.reset();
+	pMidiMap->reset();
 	
 	for ( int row = 0; row < m_nRowCount; row++ ) {
 
