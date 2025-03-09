@@ -3693,10 +3693,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Preferencias</translation>
     </message>
     <message>
-        <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation>Por favor reinicie hydrogen para activar/desactivar LASH</translation>
-    </message>
-    <message>
         <source>Driver restart required.
  Restart driver?</source>
         <translation>Debe reiniciarse el controlador
@@ -4358,11 +4354,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>&amp;Hide keyboard input cursor</source>
         <translation>&amp;Ocultar cursor de entrada del teclado</translation>
-    </message>
-    <message>
-        <source>Use &amp;LASH</source>
-        <extracomment>LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
-        <translation>Utilizar &amp;LASH</translation>
     </message>
     <message>
         <source>Audio System</source>

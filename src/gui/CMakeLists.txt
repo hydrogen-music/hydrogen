@@ -16,7 +16,6 @@ include_directories(
     ${CMAKE_BINARY_DIR}/src                     # generated config.h
     ${CMAKE_SOURCE_DIR}/src                     # top level headers
     ${QT_INCLUDES}
-    ${LASH_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIRS}
     ${LIBSNDFILE_INCLUDE_DIRS}
     ${JACK_INCLUDE_DIRS}

@@ -36,10 +36,6 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 
-#ifdef H2CORE_HAVE_LASH
-#include <core/Lash/LashClient.h>
-#endif
-
 namespace H2Core
 {
 
@@ -97,17 +93,6 @@ void* alsaMidiDriver_thread( void* param )
 	}
 
 	clientId = snd_seq_client_id( seq_handle );
-
-#ifdef H2CORE_HAVE_LASH
-	if ( Preferences::get_instance()->useLash() ){
-		LashClient* lashClient = LashClient::get_instance();
-		if (lashClient && lashClient->isConnected())
-		{
-			lashClient->setAlsaClientId((unsigned char) clientId);
-		}
-	}
-#endif
-
 
 	int m_local_addr_inport = portId;
 	int m_local_addr_outport = outPortId;	
