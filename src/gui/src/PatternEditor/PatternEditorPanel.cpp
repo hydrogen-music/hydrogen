@@ -450,6 +450,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	QPalette label_palette;
 	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
 
+	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 
