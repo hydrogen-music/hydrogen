@@ -65,6 +65,9 @@ PatternPropertiesDialog::PatternPropertiesDialog( QWidget* parent,
 	okBtn->setFocusPolicy( Qt::WheelFocus );
 	cancelBtn->setFocusPolicy( Qt::WheelFocus );
 
+	// Allow to save the dialog by pressing Return.
+	okBtn->setFocus();
+
 	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 	licenseLabel->setText( pCommonStrings->getLicenseDialog() );

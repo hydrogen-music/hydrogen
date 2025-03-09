@@ -2349,24 +2349,24 @@ void AudioEngine::handleSongSizeChange() {
 			static_cast<long>(std::floor(m_pTransportPosition->getTickOffsetSongSize()));
 
 		if ( notes.size() > 0 ) {
-			for ( auto nnote : notes ) {
+			for ( auto ppNote : notes ) {
 
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[song queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
-							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->getName() :
+							 .arg( ppNote->getInstrument() != nullptr ?
+								   ppNote->getInstrument()->getName() :
 								   "nullptr" )
-						  .arg( nnote->getPosition() )
-						  .arg( std::max( nnote->getPosition() + nTickOffset,
+						  .arg( ppNote->getPosition() )
+						  .arg( std::max( ppNote->getPosition() + nTickOffset,
 										  static_cast<long>(0) ) )
 						  .arg( m_pTransportPosition->getTickOffsetSongSize(), 0, 'f' )
 						  .arg( nTickOffset ) );
 #endif
 	
-				nnote->setPosition( std::max( nnote->getPosition() + nTickOffset,
+				ppNote->setPosition( std::max( ppNote->getPosition() + nTickOffset,
 											   static_cast<long>(0) ) );
-				nnote->computeNoteStart();
-				m_songNoteQueue.push( nnote );
+				ppNote->computeNoteStart();
+				m_songNoteQueue.push( ppNote );
 			}
 		}
 
@@ -2381,8 +2381,8 @@ void AudioEngine::handleSongSizeChange() {
 
 #if AUDIO_ENGINE_DEBUG
 				AE_DEBUGLOG( QString( "[midi queue] name: %1, pos: %2 -> %3, tick offset: %4, tick offset floored: %5" )
-							 .arg( pNote->getInstrument() != nullptr ?
-								   pNote->getInstrument()->getName() :
+							 .arg( ppNote->getInstrument() != nullptr ?
+								   ppNote->getInstrument()->getName() :
 								   "nullptr" )
 						  .arg( ppNote->getPosition() )
 						  .arg( std::max( ppNote->getPosition() + nTickOffset,

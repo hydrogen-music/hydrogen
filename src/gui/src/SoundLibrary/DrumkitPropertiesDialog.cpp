@@ -82,6 +82,9 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 	saveBtn->setFocusPolicy( Qt::WheelFocus );
 	imageBrowsePushButton->setFocusPolicy( Qt::WheelFocus );
 
+	// Allow to save the dialog by pressing Return.
+	saveBtn->setFocus();
+
 	nameLabel->setText( pCommonStrings->getNameDialog() );
 	versionLabel->setText( pCommonStrings->getVersionDialog() );
 	notesLabel->setText( pCommonStrings->getNotesDialog() );
