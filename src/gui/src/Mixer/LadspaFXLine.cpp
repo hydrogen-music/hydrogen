@@ -36,9 +36,11 @@
 
 using namespace H2Core;
 
-LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX )
+LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
+							int nFx )
 	: PixmapWidget( pParent )
 	, m_pFX( pFX )
+	, m_nFx( nFx )
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -72,13 +74,8 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX )
 	m_pEditBtn->move( 86, 25 );
 	connect( m_pEditBtn, &Button::clicked, [&](){
 #ifdef H2CORE_HAVE_LADSPA
-		for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
-			auto pFX = Effects::get_instance()->getLadspaFX( nnFX );
-			if ( pFX == m_pFX) {
-				HydrogenApp::get_instance()->getLadspaFXProperties( nnFX )->hide();
-				HydrogenApp::get_instance()->getLadspaFXProperties( nnFX )->show();
-			}
-		}
+		HydrogenApp::get_instance()->getLadspaFXProperties( m_nFx )->hide();
+		HydrogenApp::get_instance()->getLadspaFXProperties( m_nFx )->show();
 #else
 		QMessageBox::critical(
 			this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );

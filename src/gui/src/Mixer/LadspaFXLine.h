@@ -52,7 +52,7 @@ public:
 		static constexpr int nHeight = 43;
 
 		explicit LadspaFXLine( QWidget* pParent,
-							   std::shared_ptr<H2Core::LadspaFX> pFX );
+							   std::shared_ptr<H2Core::LadspaFX> pFX, int nFx );
 		~LadspaFXLine();
 
 		void updateLine();
@@ -62,6 +62,7 @@ public:
 
 private:
 		std::shared_ptr<H2Core::LadspaFX> m_pFX;
+		int m_nFx;
 
 	Button *		m_pBypassBtn;
 	Button *		m_pEditBtn;

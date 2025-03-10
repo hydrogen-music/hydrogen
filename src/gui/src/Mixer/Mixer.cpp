@@ -97,9 +97,9 @@ Mixer::Mixer( QWidget* pParent )
 	for ( int nnFX = 0; nnFX < MAX_FX; nnFX++ ) {
 #ifdef H2CORE_HAVE_LADSPA
 		auto pFX = pEffects->getLadspaFX( nnFX );
-		auto ppLine = new LadspaFXLine( m_pFXFrame, pFX );
+		auto ppLine = new LadspaFXLine( m_pFXFrame, pFX, nnFX );
 #else
-		auto ppLine = new LadspaFXLine( m_pFXFrame, nullptr );
+		auto ppLine = new LadspaFXLine( m_pFXFrame, nullptr, nnFX );
 #endif
 		ppLine->setObjectName( "LadspaFXMixerLine" );
 		ppLine->move( 13, 43 * nnFX + 84 );
