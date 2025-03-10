@@ -180,6 +180,8 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 		// any of its properties.
 		authorTxt->setIsActive( false );
 		authorTxt->setToolTip( sToolTip );
+		versionSpinBox->setIsActive( false );
+		versionSpinBox->setToolTip( sToolTip );
 		infoTxt->setEnabled( false );
 		infoTxt->setReadOnly( true );
 		infoTxt->setToolTip( sToolTip );
