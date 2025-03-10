@@ -143,6 +143,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 		// drumkit folder or an absolute path in case of one located outside of
 		// it (in our cache folder in case of a song kit).
 		imageText->setText( pDrumkit->getImage() );
+		imageText->setAlignment( Qt::AlignLeft );
 
 		License imageLicense = pDrumkit->getImageLicense();
 		imageLicenseComboBox->setCurrentIndex( static_cast<int>( imageLicense.getType() ) );
