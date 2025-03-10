@@ -362,7 +362,7 @@ void LadspaFXProperties::removeFXBtnClicked() {
 void LadspaFXProperties::updateOutputControls() {
 #ifdef H2CORE_HAVE_LADSPA
 	auto pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
-	if ( pFX == nullptr ) {
+	if ( pFX != nullptr ) {
 		m_pActivateBtn->setEnabled(true);
 		if (pFX->isEnabled()) {
 			m_pActivateBtn->setText( tr("Deactivate") );
