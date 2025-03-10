@@ -191,6 +191,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	// joining filepath with dirname
 	const QString sFullPath = lastExportDir.absoluteFilePath( sLastFilename );
 	exportNameTxt->setText( sFullPath );
+	exportNameTxt->setAlignment( Qt::AlignLeft );
 
 	// loading rest of the options
 	const auto previousFormat = pPref->getExportFormat();
