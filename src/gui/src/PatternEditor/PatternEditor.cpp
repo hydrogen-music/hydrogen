@@ -866,7 +866,8 @@ void PatternEditor::alignToGrid() {
 						 nOctave,
 						 fProbability,
 						 /* bIsDelete */ true,
-						 bNoteOff ) );
+						 bNoteOff,
+						 PatternEditor::AddNoteAction::None ) );
 
 		auto addNoteAction = AddNoteAction::None;
 		if ( m_notesHoveredForPopup.size() > 0 ) {
@@ -1104,7 +1105,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 			m_pPatternEditorPanel->addOrRemoveNotes(
 				nTargetColumn, nRow, nKey, nOctave,
 				/* bDoAdd */true, /* bDoDelete */false,
-				/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier );
+				/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier,
+				PatternEditor::AddNoteAction::Playback );
 
 			m_pPatternEditorPanel->setCursorColumn( nTargetColumn );
 		}
@@ -1131,7 +1133,8 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 						ppNote->getOctave(),
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
-						/* bIsNoteOff */ ppNote->getNoteOff() ) );
+						/* bIsNoteOff */ ppNote->getNoteOff(),
+						PatternEditor::AddNoteAction::None ) );
 			}
 			pHydrogenApp->endUndoMacro();
 		}
@@ -1868,7 +1871,8 @@ void PatternEditor::deleteSelection( bool bHandleSetupTeardown )
 									   pNote->getOctave(),
 									   pNote->getProbability(),
 									   true, // bIsDelete
-									   pNote->getNoteOff() ) );
+									   pNote->getNoteOff(),
+									   PatternEditor::AddNoteAction::None ) );
 			}
 		}
 		m_selection.clearSelection();
@@ -1997,7 +2001,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					nOctave,
 					fProbability,
 					/* bIsDelete */ true,
-					bNoteOff ) );
+					bNoteOff,
+					PatternEditor::AddNoteAction::None ) );
 		}
 
 		auto addNoteAction = AddNoteAction::AddToSelection;

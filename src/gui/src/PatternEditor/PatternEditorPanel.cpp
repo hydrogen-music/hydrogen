@@ -2222,7 +2222,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 	if ( oldNotes.size() == 0 ) {
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
-			  row.bMappedToDrumkit ) {
+			 row.bMappedToDrumkit &&
+			 action & PatternEditor::AddNoteAction::Playback ) {
 			auto pSelectedInstrument = getSelectedInstrument();
 			if ( pSelectedInstrument != nullptr &&
 				 pSelectedInstrument->hasSamples() ) {
@@ -2364,7 +2365,8 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						ppNote->getOctave(),
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
-						ppNote->getNoteOff() ) );
+						ppNote->getNoteOff(),
+						PatternEditor::AddNoteAction::None ) );
 			}
 		}
 	}
@@ -2449,7 +2451,8 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 		for ( int nnPosition : notePositions ) {
 			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
 							  true /* bDoAdd */, false /* bDoDelete */,
-							  false /* bIsNoteOff */ );
+							  false /* bIsNoteOff */,
+							  PatternEditor::AddNoteAction::None );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -2640,7 +2643,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							  Note::pitchToOctave( nPitch ),
 							ppNote->getProbability(),
 							/* bIsDelete */ false,
-							ppNote->getNoteOff() ) );
+							ppNote->getNoteOff(),
+							PatternEditor::AddNoteAction::None ) );
 				}
 			}
 		}

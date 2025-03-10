@@ -154,7 +154,9 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		m_pPatternEditorPanel->addOrRemoveNotes(
 			m_pPatternEditorPanel->getCursorColumn(),
 			nSelectedRow, KEY_INVALID, OCTAVE_INVALID,
-			/*bDoAdd*/ true, /*bDoDelete*/true );
+			/*bDoAdd*/ true, /*bDoDelete*/true,
+			/* bIsNoteOff */ false,
+			PatternEditor::AddNoteAction::Playback );
 	}
 	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under
@@ -167,7 +169,9 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 			m_pPatternEditorPanel->addOrRemoveNotes(
 				m_pPatternEditorPanel->getCursorColumn(),
 				nSelectedRow, KEY_INVALID, OCTAVE_INVALID,
-				/*bDoAdd=*/false, /*bDoDelete=*/true );
+				/*bDoAdd=*/false, /*bDoDelete=*/true,
+				/* bIsNoteOff */ false,
+				PatternEditor::AddNoteAction::None );
 		}
 	}
 	else {
