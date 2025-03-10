@@ -103,7 +103,6 @@ QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
-	, m_bArmPatternSizeSpinBoxes( true )
 	, m_bPatternSelectedViaTab( false )
 	, m_bTypeLabelsMustBeVisible( false )
 {
@@ -1198,13 +1197,12 @@ void PatternEditorPanel::updatePatternInfo() {
 	}
 
 	// update pattern size LCD
-	m_bArmPatternSizeSpinBoxes = false;
-
 	const double fNewDenominator =
 		static_cast<double>( m_pPattern->getDenominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
-		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
-		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
+		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setValue(
+			fNewDenominator, Event::Trigger::Suppress );
 
 		// Update numerator to allow only for a maximum pattern length of four
 		// measures.
@@ -1217,10 +1215,9 @@ void PatternEditorPanel::updatePatternInfo() {
 		static_cast<double>( MAX_NOTES );
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
 		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
-		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
+		m_pLCDSpinBoxNumerator->setValue(
+			fNewNumerator, Event::Trigger::Suppress );
 	}
-
-	m_bArmPatternSizeSpinBoxes = true;
 
 	if ( ! m_bPatternSelectedViaTab ) {
 		// Update pattern tabs
@@ -1395,12 +1392,6 @@ void PatternEditorPanel::instrumentMuteSoloChangedEvent( int ) {
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
 	if ( m_pPattern == nullptr ) {
-		return;
-	}
-	
-	if ( ! m_bArmPatternSizeSpinBoxes ) {
-		// Don't execute this function if the values of the spin boxes
-		// have been set by Hydrogen instead of by the user.
 		return;
 	}
 

@@ -402,9 +402,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 	LCDSpinBox* m_pLCDSpinBoxNumerator;
 	LCDSpinBox* m_pLCDSpinBoxDenominator;
-	/** Indicates whether the LCD spin boxes for the pattern size have
-		been altered by Hydrogen or by the user.*/
-	bool m_bArmPatternSizeSpinBoxes;
 
 		// Editor top
 		LCDCombo *			m_pResolutionCombo;
