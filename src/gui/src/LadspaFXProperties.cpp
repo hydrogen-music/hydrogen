@@ -238,7 +238,7 @@ void LadspaFXProperties::updateControls()
 				sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 0);
 			}
 
-			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, QSize( 38, 18 ), false, false );
+			auto pLCD = new LCDDisplay( m_pFrame, QSize( 38, 18 ), false, false );
 			pLCD->move( nInputControl_X, 40 );
 			pLCD->setText( sValue );
 			pLCD->show();
@@ -248,7 +248,7 @@ void LadspaFXProperties::updateControls()
 
 			m_pInputControlLabel.push_back( pLCD );
 
-			InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
+			auto pName = new InstrumentNameWidget( m_pFrame );
 			pName->move( nInputControl_X, 60 );
 			pName->show();
 			pName->setText( pControlPort->sName );
@@ -257,14 +257,19 @@ void LadspaFXProperties::updateControls()
 
 
 			// fader
-			Fader *pFader = new Fader( m_pFrame, Fader::Type::Normal, tr( "Input control param. value" ), pControlPort->m_bIsInteger, false, pControlPort->fLowerBound, pControlPort->fUpperBound );
-			connect( pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
+			auto pFader = new Fader(
+				m_pFrame, Fader::Type::Normal, tr( "Input control param. value" ),
+				pControlPort->m_bIsInteger, false, pControlPort->fLowerBound,
+				pControlPort->fUpperBound );
+			connect( pFader, SIGNAL( valueChanged( WidgetWithInput* ) ),
+					 this, SLOT( faderChanged( WidgetWithInput* ) ) );
 			m_pInputControlFaders.push_back( pFader );
 			pFader->move( nInputControl_X + 20, 60 );
 			pFader->show();
 			pFader->setMaxPeak( pControlPort->fUpperBound );
 			pFader->setMinPeak( pControlPort->fLowerBound );
-			pFader->setValue( pControlPort->fControlValue );
+			pFader->setValue( pControlPort->fControlValue, false,
+							  Event::Trigger::Suppress );
 			pFader->setPeak_L( pControlPort->fControlValue );
 			pFader->setPeak_R( pControlPort->fControlValue );
 			pFader->setDefaultValue( pControlPort->fDefaultValue );
@@ -280,7 +285,7 @@ void LadspaFXProperties::updateControls()
 
 			uint xPos = nInputControl_X + 10 + 45 * i;
 
-			InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
+			auto pName = new InstrumentNameWidget( m_pFrame );
 			pName->move( xPos, 60 );
 			pName->show();
 			pName->setText( pControl->sName );
@@ -288,12 +293,16 @@ void LadspaFXProperties::updateControls()
 			pName->setToolTip( pName->text() );
 
 			// fader
-			Fader *pFader = new Fader( m_pFrame, Fader::Type::Normal, tr( "Output control param. value" ), true, true, pControl->fLowerBound, pControl->fUpperBound );
+			auto pFader = new Fader(
+				m_pFrame, Fader::Type::Normal, tr( "Output control param. value" ),
+				pControl->m_bIsInteger, true, pControl->fLowerBound,
+				pControl->fUpperBound );
 			pFader->move( xPos + 20, 60 );
 			pFader->show();
 			pFader->setMaxPeak( pControl->fUpperBound );
 			pFader->setMinPeak( pControl->fLowerBound );
-			pFader->setValue( pControl->fControlValue );
+			pFader->setValue( pControl->fControlValue, false,
+							  Event::Trigger::Suppress );
 			pFader->setPeak_L( pControl->fControlValue );
 			pFader->setPeak_R( pControl->fControlValue );
 			pFader->setDefaultValue( pControl->fDefaultValue );
@@ -382,10 +391,13 @@ void LadspaFXProperties::updateOutputControls() {
 					continue;
 				}
 
-				float fInterval = pControl->fUpperBound - pControl->fLowerBound;
+				const float fInterval =
+					pControl->fUpperBound - pControl->fLowerBound;
 				float fValue = pControl->fControlValue / fInterval;
 
-				if (fValue < 0) fValue = -fValue;
+				if ( fValue < 0 ) {
+					fValue = -fValue;
+				}
 
 				pFader->setPeak_L( fValue );
 				pFader->setPeak_R( fValue );
