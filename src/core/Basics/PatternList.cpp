@@ -101,17 +101,6 @@ void PatternList::add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals )
 		INFOLOG( "Provided pattern is already contained" );
 		return;
 	}
-	else if ( ! bAddVirtuals ) {
-		// Check whether the pattern is contained as a virtual
-		// pattern.
-		for ( const auto& ppPattern : m_pPatterns ) {
-			auto pVirtualPatterns = ppPattern->getVirtualPatterns();
-			if ( pVirtualPatterns->find( pPattern ) != pVirtualPatterns->end() ) {
-				// Provided pattern is already contained as virtual pattern
-				return;
-			}
-		}
-	}
 
 	// In case the added pattern is a virtual one, deactivate the
 	// individual patterns it encompasses in case one of them was
