@@ -346,6 +346,10 @@ void Mixer::drumkitLoadedEvent() {
 	updateMixer();
 }
 
+void Mixer::effectChangedEvent() {
+	updateMixer();
+}
+
 void Mixer::instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {

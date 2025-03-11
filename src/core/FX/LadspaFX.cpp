@@ -23,8 +23,10 @@
 #include <core/FX/LadspaFX.h>
 
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
-#include <core/Hydrogen.h>
+
 #include <core/Basics/Song.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
 
 #include <QDir>
 
@@ -152,11 +154,15 @@ void LadspaFX::setPluginName( const QString& sName ) {
 		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
-void LadspaFX::setEnabled( bool value ) {
+void LadspaFX::setEnabled( bool value, Event::Trigger trigger ) {
 	m_bEnabled = value;
 	
 	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
 		Hydrogen::get_instance()->setIsModified( true );
+	}
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::EffectChanged, 0 );
 	}
 }
 
@@ -405,23 +411,31 @@ void LadspaFX::processFX( unsigned nFrames )
 	}
 }
 
-void LadspaFX::activate() {
+void LadspaFX::activate( Event::Trigger trigger ) {
 	if ( m_d->activate ) {
 		INFOLOG( "activate " + getPluginName() );
 		m_bActivated = true;
 		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->activate( m_handle );
 		Hydrogen::get_instance()->setIsModified( true );
+
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->pushEvent( Event::Type::EffectChanged, 0 );
+		}
 	}
 }
 
-void LadspaFX::deactivate() {
+void LadspaFX::deactivate( Event::Trigger trigger ) {
 	if ( m_d->deactivate && m_bActivated ) {
 		INFOLOG( "deactivate " + getPluginName() );
 		m_bActivated = false;
 		Logger::CrashContext cc( &m_sLibraryPath );
 		m_d->deactivate( m_handle );
 		Hydrogen::get_instance()->setIsModified( true );
+
+		if ( trigger != Event::Trigger::Suppress ) {
+			EventQueue::get_instance()->pushEvent( Event::Type::EffectChanged, 0 );
+		}
 	}
 }
 
