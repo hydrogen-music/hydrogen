@@ -946,6 +946,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->drumkitLoadedEvent();
 				break;
 
+			case Event::Type::EffectChanged:
+				pListener->effectChangedEvent();
+				break;
+
 			case Event::Type::Error:
 				pListener->errorEvent( pEvent->getValue() );
 				break;

@@ -33,6 +33,7 @@ class EventListener
 		virtual void beatCounterEvent() {}
 		virtual void driverChangedEvent(){}
 		virtual void drumkitLoadedEvent(){}
+		virtual void effectChangedEvent(){}
 		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
     	virtual void gridCellToggledEvent(){}
 		virtual void instrumentMuteSoloChangedEvent( int nInstrumentIndex ) {
