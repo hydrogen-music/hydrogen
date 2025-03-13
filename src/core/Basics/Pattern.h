@@ -74,7 +74,8 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param denominator the denominator for meter representation (eg 4/4)
 		 */
 		Pattern( const QString& name="Pattern", const QString& info="",
-				 const QString& sCategory = "", int length=MAX_NOTES,
+				 const QString& sCategory = "",
+				 int length = 4 * H2Core::nTicksPerQuarter,
 				 int denominator=4 );
 		/** copy constructor */
 		Pattern( std::shared_ptr<Pattern> pOther );

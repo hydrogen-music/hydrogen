@@ -123,6 +123,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			start with a blank song/playlist, load a new one before quitting.
 		- Component mixer strips have been dropped.
 		- LASH support has been dropped (#1649).
+		- CMake option `MAX_NOTES` has been dropped.
 
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.5

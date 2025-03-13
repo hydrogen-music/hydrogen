@@ -146,14 +146,14 @@ void Song::setActionMode( const Song::ActionMode& actionMode ) {
 long Song::lengthInTicks() const {
 	long nSongLength = 0;
 	int nColumns = m_pPatternGroupSequence->size();
-	// Sum the lengths of all pattern columns and use the macro
-	// MAX_NOTES in case some of them are of size zero.
+	// Sum the lengths of all pattern columns and use the macro four quarters in
+	// case some of them are of size zero.
 	for ( int i = 0; i < nColumns; i++ ) {
 		auto pColumn = ( *m_pPatternGroupSequence )[ i ];
 		if ( pColumn->size() != 0 ) {
 			nSongLength += pColumn->longestPatternLength();
 		} else {
-			nSongLength += MAX_NOTES;
+			nSongLength += 4 * H2Core::nTicksPerQuarter;
 		}
 	}
     return nSongLength;
@@ -1074,7 +1074,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 		if ( ppColumn == nullptr || ppColumn->size() == 0 ) {
 			// An empty column with no patterns selected (but not the
 			// end of the song).
-			nColumnStartTick += MAX_NOTES;
+			nColumnStartTick += 4 * H2Core::nTicksPerQuarter;
 			continue;
 		}
 

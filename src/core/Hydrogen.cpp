@@ -346,7 +346,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
 	bool bPlaySelectedInstrument = pPref->m_bPlaySelectedInstrument;
-	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
+	int scalar = ( 4 * 4 * H2Core::nTicksPerQuarter ) / ( res * nBase );
 	int currentPatternNumber;
 
 	std::shared_ptr<Song> pSong = getSong();
@@ -1380,7 +1380,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 	std::shared_ptr<Song> pSong = getSong();
 	if ( pSong == nullptr ) {
 		// Fallback
-		const int nPatternSize = MAX_NOTES;
+		const int nPatternSize = 4 * H2Core::nTicksPerQuarter;
 		const int nColumn = static_cast<int>(
 			std::floor( static_cast<float>( nTick ) /
 						static_cast<float>( nPatternSize ) ) );
@@ -1399,18 +1399,17 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		return 0;
 	}
 
-	// Sum the lengths of all pattern columns and use the macro
-	// MAX_NOTES in case some of them are of size zero. If the
-	// supplied value nTick is bigger than this and doesn't belong to
-	// the next pattern column, we just found the pattern list we were
-	// searching for.
+	// Sum the lengths of all pattern columns and use four quarters in case some
+	// of them are of size zero. If the supplied value nTick is bigger than this
+	// and doesn't belong to the next pattern column, we just found the pattern
+	// list we were searching for.
 	int nPatternSize;
 	for ( int i = 0; i < nColumns; ++i ) {
 		auto pColumn = ( *pPatternColumns )[ i ];
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longestPatternLength();
 		} else {
-			nPatternSize = MAX_NOTES;
+			nPatternSize = 4 * H2Core::nTicksPerQuarter;
 		}
 
 		if ( ( nTick >= nTotalTick ) && ( nTick < nTotalTick + nPatternSize ) ) {
@@ -1436,7 +1435,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 			if ( pColumn->size() != 0 ) {
 				nPatternSize = pColumn->longestPatternLength();
 			} else {
-				nPatternSize = MAX_NOTES;
+				nPatternSize = 4 * H2Core::nTicksPerQuarter;
 			}
 
 			if ( ( nLoopTick >= nTotalTick )
@@ -1457,7 +1456,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 	auto pSong = getSong();
 	if ( pSong == nullptr ) {
 		// Fallback
-		return static_cast<long>(nColumn * MAX_NOTES);
+		return static_cast<long>(nColumn * 4 * H2Core::nTicksPerQuarter);
 	}
 
 	const int nPatternGroups = pSong->getPatternGroupVector()->size();
@@ -1491,7 +1490,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 			nPatternSize = pColumn->longestPatternLength();
 		}
 		else {
-			nPatternSize = MAX_NOTES;
+			nPatternSize = 4 * H2Core::nTicksPerQuarter;
 		}
 		totalTick += nPatternSize;
 	}

@@ -97,7 +97,7 @@ AudioEngine::AudioEngine()
 		, m_pMidiDriverOut( nullptr )
 		, m_state( State::Initialized )
 		, m_pMetronomeInstrument( nullptr )
-		, m_fSongSizeInTicks( MAX_NOTES )
+		, m_fSongSizeInTicks( 4 * H2Core::nTicksPerQuarter )
 		, m_nRealtimeFrame( 0 )
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
@@ -563,7 +563,8 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame,
 	}
 
 	const int nBeat = static_cast<int>(
-		std::floor(static_cast<float>(pPos->getPatternTickPosition()) /  48 )) + 1;
+		std::floor(static_cast<float>(pPos->getPatternTickPosition()) /
+				   H2Core::nTicksPerQuarter )) + 1;
 	if ( pPos->getBeat() != nBeat ) {
 		pPos->setBeat( nBeat );
 		bBBTChanged = true;
@@ -1737,7 +1738,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	}
 	else {
 		fNextBpm = MIN_BPM;
-		m_fSongSizeInTicks = MAX_NOTES;
+		m_fSongSizeInTicks = 4 * H2Core::nTicksPerQuarter;
 	}
 	// Reset (among other things) the transport position. This causes
 	// the locate() call below to update the playing patterns.
@@ -1775,7 +1776,7 @@ void AudioEngine::prepare( Event::Trigger trigger ) {
 
 	m_pSampler->stopPlayingNotes();
 	reset( true, trigger );
-	m_fSongSizeInTicks = MAX_NOTES;
+	m_fSongSizeInTicks = 4 * H2Core::nTicksPerQuarter;
 
 	setState( State::Prepared, trigger );
 }
@@ -1795,7 +1796,7 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 			// No virtual pattern resolution in here
 			pPos->setPatternSize( pPos->getPlayingPatterns()->longestPatternLength( false ) );
 		} else {
-			pPos->setPatternSize( MAX_NOTES );
+			pPos->setPatternSize( 4 * H2Core::nTicksPerQuarter );
 		}
 	};
 	updatePatternSize( m_pTransportPosition );
@@ -2075,7 +2076,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 
 	if ( pSong == nullptr ) {
 		pPlayingPatterns->clear();
-		pPos->setPatternSize( MAX_NOTES );
+		pPos->setPatternSize( 4 * H2Core::nTicksPerQuarter );
 		return;
 	}
 
@@ -2088,7 +2089,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		if ( pSong->getPatternGroupVector()->size() == 0 ) {
 			// No patterns in current song.
 
-			pPos->setPatternSize( MAX_NOTES );
+			pPos->setPatternSize( 4 * H2Core::nTicksPerQuarter );
 
 			if ( pPos == m_pTransportPosition && nPrevPatternNumber > 0 &&
 				 trigger != Event::Trigger::Suppress ) {
@@ -2175,7 +2176,7 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 		// No virtual pattern resolution in here
 		pPos->setPatternSize( pPlayingPatterns->longestPatternLength( false ) );
 	} else {
-		pPos->setPatternSize( MAX_NOTES );
+		pPos->setPatternSize( 4 * H2Core::nTicksPerQuarter );
 	}
 
 #if AUDIO_ENGINE_DEBUG
@@ -2625,7 +2626,7 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 			nMetronomeTickPosition = m_pQueuingPosition->getPatternTickPosition();
 		}
 
-		if ( nMetronomeTickPosition % 48 == 0 ) {
+		if ( nMetronomeTickPosition % H2Core::nTicksPerQuarter == 0 ) {
 			float fPitch;
 			float fVelocity;
 			
@@ -2715,9 +2716,9 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 						* of the note.
 						*/
 						if ( ( ( m_pQueuingPosition->getPatternTickPosition() %
-								 ( MAX_NOTES / 16 ) ) == 0 ) &&
+								 ( H2Core::nTicksPerQuarter / 4 ) ) == 0 ) &&
 							 ( ( m_pQueuingPosition->getPatternTickPosition() %
-								 ( MAX_NOTES / 8 ) ) != 0 ) ) {
+								 ( H2Core::nTicksPerQuarter / 2 ) ) != 0 ) ) {
 							pCopiedNote->swing();
 						}
 						

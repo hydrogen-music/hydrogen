@@ -422,7 +422,8 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 
 	float fNumerator, fDenumerator;
 	if ( pPattern != nullptr ) {
-		fNumerator = nPatternLength * pPattern->getDenominator() / MAX_NOTES;
+		fNumerator = nPatternLength * pPattern->getDenominator() /
+			( 4 * H2Core::nTicksPerQuarter );
 		fDenumerator = pPattern->getDenominator();
 	}
 	else {

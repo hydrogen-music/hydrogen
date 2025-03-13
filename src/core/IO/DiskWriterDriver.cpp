@@ -265,7 +265,7 @@ void* diskWriterDriver_thread( void* param )
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longestPatternLength();
 		} else {
-			nPatternSize = MAX_NOTES;
+			nPatternSize = 4 * H2Core::nTicksPerQuarter;
 		}
 
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );

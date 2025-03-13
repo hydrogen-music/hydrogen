@@ -73,7 +73,8 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
-	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
+		H2Core::nTicksPerQuarter;
 	m_nActiveWidth = m_nEditorWidth;
 
 	setFocusPolicy(Qt::StrongFocus);
@@ -1274,7 +1275,7 @@ int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
 	if ( nResolution < 32 ) {
 		return PatternEditor::nDefaultCursorMargin;
 	}
-	else if ( nResolution < MAX_NOTES ) {
+	else if ( nResolution < 4 * H2Core::nTicksPerQuarter ) {
 		return PatternEditor::nDefaultCursorMargin / 2;
 	}
 	else {
@@ -1502,8 +1503,7 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 
 		// First, quarter note markers. All the quarter note markers must be
 		// drawn. These will be drawn on all resolutions.
-		const int nRes = 4;
-		float fStep = MAX_NOTES / nRes * m_fGridWidth;
+		float fStep = H2Core::nTicksPerQuarter * m_fGridWidth;
 		float x = PatternEditor::nMargin;
 		p.setPen( QPen( colorsActive[ nColour ], 1, lineStyle ) );
 		while ( x < m_nActiveWidth ) {
@@ -1520,7 +1520,8 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 		++nColour;
 
 		// Resolution 4 was already taken into account above;
-		std::vector<int> availableResolutions = { 8, 16, 32, 64, MAX_NOTES };
+		std::vector<int> availableResolutions = { 8, 16, 32, 64,
+		    4 * H2Core::nTicksPerQuarter };
 		const int nResolution = m_pPatternEditorPanel->getResolution();
 
 		for ( int nnRes : availableResolutions ) {
@@ -1534,12 +1535,12 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 				}
 			}
 
-			fStep = MAX_NOTES / nnRes * m_fGridWidth;
+			fStep = 4 * H2Core::nTicksPerQuarter / nnRes * m_fGridWidth;
 			float x = PatternEditor::nMargin + fStep;
 			p.setPen( QPen( colorsActive[ std::min( nColour, static_cast<int>(colorsActive.size()) - 1 ) ],
 							1, lineStyle ) );
 
-			if ( nnRes != MAX_NOTES ) {
+			if ( nnRes != 4 * H2Core::nTicksPerQuarter ) {
 				// With each increase of resolution 1/4 -> 1/8 -> 1/16 -> 1/32
 				// -> 1/64 the number of available notes doubles and all we need
 				// to do is to draw another grid line right between two existing
@@ -1551,9 +1552,9 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 			}
 			else {
 				// When turning resolution off, things get a bit more tricky.
-				// Between 1/64 -> 1/192 (1/MAX_NOTES) the space between
-				// existing grid line will be filled by two instead of one new
-				// line.
+				// Between 1/64 -> 1/192 (1/(4 * H2Core::nTicksPerQuarter)) the
+				// space between existing grid line will be filled by two
+				// instead of one new line.
 				while ( x < m_nActiveWidth + fStep ) {
 					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 					x += fStep;
@@ -1564,7 +1565,8 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 
 			p.setPen( QPen( colorsInactive[ std::min( nColour, static_cast<int>(colorsInactive.size()) - 1 ) ],
 							1, lineStyle ) );
-			if ( nnRes != MAX_NOTES || pPref->getQuantizeEvents() ) {
+			if ( nnRes != 4 * H2Core::nTicksPerQuarter ||
+				 pPref->getQuantizeEvents() ) {
 				while ( x < m_nEditorWidth ) {
 					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 					x += fStep * 2;
@@ -2075,7 +2077,8 @@ int PatternEditor::granularity() const {
 	else {
 		nBase = 4;
 	}
-	return 4 * MAX_NOTES / ( nBase * m_pPatternEditorPanel->getResolution() );
+	return 4 * 4 * H2Core::nTicksPerQuarter /
+		( nBase * m_pPatternEditorPanel->getResolution() );
 }
 
 void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
@@ -2670,7 +2673,8 @@ bool PatternEditor::updateWidth() {
 		}
 	}
 	else {
-		nEditorWidth = PatternEditor::nMargin + MAX_NOTES * m_fGridWidth;
+		nEditorWidth = PatternEditor::nMargin + 4 * H2Core::nTicksPerQuarter *
+			m_fGridWidth;
 		nActiveWidth = nEditorWidth;
 	}
 
@@ -3609,7 +3613,7 @@ QRect PatternEditor::getKeyboardCursorRect()
 	QPoint pos = getCursorPosition();
 
 	float fHalfWidth;
-	if ( m_pPatternEditorPanel->getResolution() != MAX_NOTES ) {
+	if ( m_pPatternEditorPanel->getResolution() != 4 * H2Core::nTicksPerQuarter ) {
 		// Corresponds to the distance between grid lines on 1/64 resolution.
 		fHalfWidth = m_fGridWidth * 3;
 	} else {

@@ -108,7 +108,7 @@ void TransportPosition::reset() {
 
 	m_pPlayingPatterns->clear();
 	m_pNextPatterns->clear();
-	m_nPatternSize = MAX_NOTES;
+	m_nPatternSize = 4 * H2Core::nTicksPerQuarter;
 	m_nLastLeadLagFactor = 0;
 	m_nBar = 1;
 	m_nBeat = 1;
