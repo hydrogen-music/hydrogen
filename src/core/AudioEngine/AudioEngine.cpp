@@ -368,18 +368,18 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 #endif
 }
 
-float AudioEngine::computeTickSize( const int nSampleRate, const float fBpm, const int nResolution)
+float AudioEngine::computeTickSize( const int nSampleRate, const float fBpm )
 {
-	float fTickSize = nSampleRate * 60.0 / fBpm / nResolution;
+	float fTickSize = nSampleRate * 60.0 / fBpm / H2Core::nTicksPerQuarter;
 	
 	return fTickSize;
 }
 
-double AudioEngine::computeDoubleTickSize( const int nSampleRate, const float fBpm, const int nResolution)
+double AudioEngine::computeDoubleTickSize( const int nSampleRate, const float fBpm )
 {
 	double fTickSize = static_cast<double>(nSampleRate) * 60.0 /
 		static_cast<double>(fBpm) /
-		static_cast<double>(nResolution);
+		static_cast<double>(H2Core::nTicksPerQuarter);
 	
 	return fTickSize;
 }
@@ -745,17 +745,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 		}
 	}
 
-	int nResolution;
-	if ( pSong != nullptr ) {
-		nResolution = pSong->getResolution();
-	} else {
-		nResolution = Song::nDefaultResolution;
-	}
-
 	const float fOldTickSize = pPos->getTickSize();
 	const float fNewTickSize = AudioEngine::computeTickSize(
-		static_cast<float>(m_pAudioDriver->getSampleRate()), fNewBpm,
-		nResolution );
+		static_cast<float>(m_pAudioDriver->getSampleRate()), fNewBpm );
 
 	// Nothing changed - avoid recomputing
 #if defined(WIN32) and !defined(WIN64)

@@ -269,8 +269,7 @@ void* diskWriterDriver_thread( void* param )
 		}
 
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
-		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
-												  pSong->getResolution() );
+		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		int nPatternLengthInFrames = fTicksize * nPatternSize;
