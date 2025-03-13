@@ -65,6 +65,7 @@ public:
 			DriverChanged,
 			/** A the current drumkit was replaced by a new one. */
 			DrumkitLoaded,
+			EffectChanged,
 			Error,
 			GridCellToggled,
 			/** Mute or solo state of the instrument specified in the event

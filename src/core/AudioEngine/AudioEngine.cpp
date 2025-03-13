@@ -2065,7 +2065,12 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 	auto pPlayingPatterns = pPos->getPlayingPatterns();
 
 #if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "pre: %1" ).arg( pPos->toQString() ) );
+	AE_DEBUGLOG( QString( "[pre] mode: %1%2, %3" )
+				 .arg( Song::ModeToQString( pHydrogen->getMode() ) )
+				 .arg( pHydrogen->getMode() == Song::Mode::Pattern ?
+					   ":" + Song::PatternModeToQString( pHydrogen->getPatternMode() ) :
+					   "" )
+				 .arg( pPos->toQString() ) );
 #endif
 
 	if ( pSong == nullptr ) {
@@ -2174,7 +2179,12 @@ void AudioEngine::updatePlayingPatternsPos( std::shared_ptr<TransportPosition> p
 	}
 
 #if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "post: %1" ).arg( pPos->toQString() ) );
+	AE_DEBUGLOG( QString( "[post] mode: %1%2, %3" )
+				 .arg( Song::ModeToQString( pHydrogen->getMode() ) )
+				 .arg( pHydrogen->getMode() == Song::Mode::Pattern ?
+					   ":" + Song::PatternModeToQString( pHydrogen->getPatternMode() ) :
+					   "" )
+				 .arg( pPos->toQString() ) );
 #endif
 	
 }

@@ -103,7 +103,6 @@ QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
-	, m_bArmPatternSizeSpinBoxes( true )
 	, m_bPatternSelectedViaTab( false )
 	, m_bTypeLabelsMustBeVisible( false )
 {
@@ -450,7 +449,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	QPalette label_palette;
 	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
 
-	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 
@@ -877,7 +875,6 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
-	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors();
@@ -1168,6 +1165,28 @@ void PatternEditorPanel::updatePatternInfo() {
 			m_pTabBar->removeTab( ii );
 		}
 		m_tabPatternMap.clear();
+
+		updatePatternsToShow();
+
+		// Update pattern tabs
+		m_pTabBar->addTab( m_pPattern->getName() );
+		m_tabPatternMap[ 0 ] = pSong->getPatternList()->index( m_pPattern );
+
+		auto patterns = getPatternsToShow();
+		int nnCount = 1;
+		const bool bTabsEnabled = ! ( pHydrogen->isPatternEditorLocked() &&
+									  pHydrogen->getAudioEngine()->getState() ==
+									  AudioEngine::State::Playing &&
+									  pHydrogen->getMode() == Song::Mode::Song );
+		for ( const auto& ppPattern : patterns ) {
+			if ( ppPattern != nullptr && ppPattern != m_pPattern ) {
+				m_tabPatternMap[ nnCount ] =
+					pSong->getPatternList()->index( ppPattern );
+				m_pTabBar->addTab( ppPattern->getName() );
+				m_pTabBar->setTabEnabled( nnCount, bTabsEnabled );
+				++nnCount;
+			}
+		}
 	}
 	else {
 		// But not if triggered via the tab bar. Then, we just switch the
@@ -1195,16 +1214,17 @@ void PatternEditorPanel::updatePatternInfo() {
 		else {
 			ERRORLOG( "Unable to find pattern" );
 		}
+
+		m_bPatternSelectedViaTab = false;
 	}
 
 	// update pattern size LCD
-	m_bArmPatternSizeSpinBoxes = false;
-
 	const double fNewDenominator =
 		static_cast<double>( m_pPattern->getDenominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
-		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
-		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
+		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setValue(
+			fNewDenominator, Event::Trigger::Suppress );
 
 		// Update numerator to allow only for a maximum pattern length of four
 		// measures.
@@ -1217,35 +1237,8 @@ void PatternEditorPanel::updatePatternInfo() {
 		static_cast<double>( MAX_NOTES );
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
 		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
-		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
-	}
-
-	m_bArmPatternSizeSpinBoxes = true;
-
-	if ( ! m_bPatternSelectedViaTab ) {
-		// Update pattern tabs
-		m_pTabBar->addTab( m_pPattern->getName() );
-		m_tabPatternMap[ 0 ] = pSong->getPatternList()->index( m_pPattern );
-
-		auto patterns = getPatternsToShow();
-		int nnCount = 1;
-		const bool bTabsEnabled = ! ( pHydrogen->isPatternEditorLocked() &&
-									  pHydrogen->getAudioEngine()->getState() ==
-									  AudioEngine::State::Playing &&
-									  pHydrogen->getMode() == Song::Mode::Song );
-		for ( const auto& ppPattern : patterns ) {
-			if ( ppPattern != nullptr && ppPattern != m_pPattern ) {
-				m_tabPatternMap[ nnCount ] =
-					pSong->getPatternList()->index( ppPattern );
-				m_pTabBar->addTab( ppPattern->getName() );
-				m_pTabBar->setTabEnabled( nnCount, bTabsEnabled );
-				++nnCount;
-			}
-		}
-	}
-
-	if ( m_bPatternSelectedViaTab ) {
-		m_bPatternSelectedViaTab = false;
+		m_pLCDSpinBoxNumerator->setValue(
+			fNewNumerator, Event::Trigger::Suppress );
 	}
 }
 
@@ -1327,14 +1320,12 @@ void PatternEditorPanel::patternModifiedEvent() {
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
 	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
-		updatePatternsToShow();
 		updatePatternInfo();
 		updateEditors( true );
 	}
 }
 
 void PatternEditorPanel::songModeActivationEvent() {
-	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
@@ -1343,7 +1334,6 @@ void PatternEditorPanel::songModeActivationEvent() {
 }
 
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
-	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
@@ -1358,7 +1348,6 @@ void PatternEditorPanel::songSizeChangedEvent() {
 }
 
 void PatternEditorPanel::patternEditorLockedEvent() {
-	updatePatternsToShow();
 	updatePatternInfo();
 	updateDB();
 	updateEditors( true );
@@ -1381,7 +1370,6 @@ void PatternEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& st
 
 void PatternEditorPanel::relocationEvent() {
 	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
-		updatePatternsToShow();
 		updatePatternInfo();
 		updateDB();
 		updateEditors( true );
@@ -1395,12 +1383,6 @@ void PatternEditorPanel::instrumentMuteSoloChangedEvent( int ) {
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
 	if ( m_pPattern == nullptr ) {
-		return;
-	}
-	
-	if ( ! m_bArmPatternSizeSpinBoxes ) {
-		// Don't execute this function if the values of the spin boxes
-		// have been set by Hydrogen instead of by the user.
 		return;
 	}
 
@@ -1503,7 +1485,6 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 	if ( nValue == 0 ) {
 		// Performs an editor update with updateEditor() (and no argument).
 		updateDrumkitLabel();
-		updatePatternsToShow();
 		updatePatternInfo();
 		updateDB();
 		updateEditors();
@@ -2241,7 +2222,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 	if ( oldNotes.size() == 0 ) {
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
-			  row.bMappedToDrumkit ) {
+			 row.bMappedToDrumkit &&
+			 action & PatternEditor::AddNoteAction::Playback ) {
 			auto pSelectedInstrument = getSelectedInstrument();
 			if ( pSelectedInstrument != nullptr &&
 				 pSelectedInstrument->hasSamples() ) {
@@ -2383,7 +2365,8 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						ppNote->getOctave(),
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
-						ppNote->getNoteOff() ) );
+						ppNote->getNoteOff(),
+						PatternEditor::AddNoteAction::None ) );
 			}
 		}
 	}
@@ -2468,7 +2451,8 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 		for ( int nnPosition : notePositions ) {
 			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
 							  true /* bDoAdd */, false /* bDoDelete */,
-							  false /* bIsNoteOff */ );
+							  false /* bIsNoteOff */,
+							  PatternEditor::AddNoteAction::None );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -2659,7 +2643,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							  Note::pitchToOctave( nPitch ),
 							ppNote->getProbability(),
 							/* bIsDelete */ false,
-							ppNote->getNoteOff() ) );
+							ppNote->getNoteOff(),
+							PatternEditor::AddNoteAction::None ) );
 				}
 			}
 		}

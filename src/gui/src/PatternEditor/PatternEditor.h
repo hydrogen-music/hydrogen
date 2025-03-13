@@ -202,7 +202,9 @@ public:
 			/** Add the new note to the current selection. */
 			AddToSelection = 0x001,
 			/** Move cursor to focus newly added note. */
-			MoveCursorTo = 0x002
+			MoveCursorTo = 0x002,
+			/** Play back the new note in case hear notes is enabled. */
+			Playback = 0x004
 		};
 
 		static void addOrRemoveNoteAction( int nPosition,

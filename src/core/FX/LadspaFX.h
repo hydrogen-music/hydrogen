@@ -33,6 +33,7 @@
 #include <list>
 #include <vector>
 
+#include <core/Basics/Event.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -139,8 +140,8 @@ public:
 
 	void connectAudioPorts( float* pIn_L, float* pIn_R,
 							float* pOut_L, float* pOut_R );
-	void activate();
-	void deactivate();
+	void activate( Event::Trigger trigger = Event::Trigger::Default );
+	void deactivate( Event::Trigger trigger = Event::Trigger::Default );
 	void processFX( unsigned nFrames );
 
 
@@ -160,7 +161,8 @@ public:
 	bool isEnabled() const {
 		return m_bEnabled;
 	}
-	void setEnabled( bool bEnabled );
+	void setEnabled( bool bEnabled,
+					 Event::Trigger trigger = Event::Trigger::Default  );
 
 	static std::shared_ptr<LadspaFX> load( const QString& sLibraryPath,
 										   const QString& sPluginLabel,

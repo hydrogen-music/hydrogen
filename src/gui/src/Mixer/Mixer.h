@@ -86,6 +86,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object<Mixer>
 
 		// Implements EventListener interface
 		virtual void drumkitLoadedEvent() override;
+		virtual void effectChangedEvent() override;
 		virtual void instrumentMuteSoloChangedEvent( int ) override;
 		virtual void instrumentParametersChangedEvent( int ) override;
 		virtual void mixerSettingsChangedEvent() override;

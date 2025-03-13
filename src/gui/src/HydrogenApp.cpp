@@ -946,6 +946,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->drumkitLoadedEvent();
 				break;
 
+			case Event::Type::EffectChanged:
+				pListener->effectChangedEvent();
+				break;
+
 			case Event::Type::Error:
 				pListener->errorEvent( pEvent->getValue() );
 				break;
@@ -1158,7 +1162,8 @@ void HydrogenApp::onEventQueueTimer()
 								 pOldNote->getOctave(),
 								 pOldNote->getProbability(),
 								 /*isDelete*/ true,
-								 /*isNoteOff*/ false ) );
+								 /*isNoteOff*/ false,
+								 PatternEditor::AddNoteAction::None ) );
 		}
 		
 		// add the new note
@@ -1175,7 +1180,8 @@ void HydrogenApp::onEventQueueTimer()
 							 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 							 PROBABILITY_DEFAULT,
 							 /*isDelete*/ false,
-							 /*isNoteOff*/ false ) );
+							 /*isNoteOff*/ false,
+							 PatternEditor::AddNoteAction::Playback ) );
 		endUndoMacro();
 
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
