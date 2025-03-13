@@ -116,6 +116,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			`.h2playlist` file (in case the corresponding option was set).
 		- Stop notes do now stop all notes of the same instrument at the same
 			position (e.g. in chords or using multiple patterns).
+		- MIDI export does now respect virtual patterns (#513).
 	* Removed
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
 			dropped. Instead, both will always be restored automatically. In order to

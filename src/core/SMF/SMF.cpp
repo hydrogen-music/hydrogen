@@ -225,6 +225,10 @@ SMFTrack* SMFWriter::createTrack0( std::shared_ptr<Song> pSong ) {
 
 void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 {
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFilename ) );
 
 	SMF* pSmf = createSMF( pSong );
@@ -235,14 +239,18 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	prepareEvents( pSong, pSmf );
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	// ogni pattern sara' una diversa traccia
 	int nTick = 1;
-	for ( unsigned nPatternList = 0 ;
-		  nPatternList < pSong->getPatternGroupVector()->size() ;
-		  nPatternList++ ) {
-		// infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
-		auto pPatternList =
-			( *(pSong->getPatternGroupVector()) )[ nPatternList ];
+	for ( int nnColumn = 0;
+		  nnColumn < pSong->getPatternGroupVector()->size() ;
+		  nnColumn++ ) {
+		auto pColumn = ( *(pSong->getPatternGroupVector()) )[ nnColumn ];
+
+		// Instead of working on the raw patternList of the column, we need to
+		// expand all virtual patterns.
+		auto pPatternList = std::make_shared<PatternList>();
+		for ( const auto& ppPattern : *pColumn ) {
+			pPatternList->add( ppPattern, true );
+		}
 
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;
@@ -266,7 +274,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 							continue;
 						}
 
-						float fPos = nPatternList + (float)nNote/(float)nMaxPatternLength;
+						float fPos = nnColumn + (float)nNote/(float)nMaxPatternLength;
 						float fVelocityAdjustment =  pAutomationPath->get_value(fPos);
 						int nVelocity =
 							(int)( 127.0 * pNote->getVelocity() * fVelocityAdjustment );
