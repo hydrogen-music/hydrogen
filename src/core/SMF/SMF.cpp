@@ -37,8 +37,8 @@
 namespace H2Core
 {
 
-SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
-		: m_nFormat( nFormat )
+SMFHeader::SMFHeader( Format format, int nTracks, int nTPQN )
+		: m_format( format )
 		, m_nTracks( nTracks )
 		, m_nTPQN( nTPQN )
 {
@@ -61,7 +61,7 @@ QByteArray SMFHeader::getBuffer() const
 
 	buffer.writeDWord( 1297377380 );		// MThd
 	buffer.writeDWord( 6 );				// Header length = 6
-	buffer.writeWord( m_nFormat );
+	buffer.writeWord( static_cast<int>(m_format) );
 	buffer.writeWord( m_nTracks );
 	buffer.writeWord( m_nTPQN );
 
@@ -145,18 +145,13 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 // ::::::::::::::::::::::
 
-SMF::SMF(int nFormat, int nTPQN )
-{
-	
-
-	m_pHeader = new SMFHeader( nFormat, 0, nTPQN );
+SMF::SMF( SMFHeader::Format format, int nTPQN ) {
+	m_pHeader = new SMFHeader( format, 0, nTPQN );
 }
-
-
 
 SMF::~SMF()
 {
-	INFOLOG( "DESTROY" );
+	DEBUGLOG( "DESTROY" );
 
 	delete m_pHeader;
 
@@ -377,7 +372,7 @@ SMF1Writer::~SMF1Writer()
 
 
 SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
-	SMF* pSmf =  new SMF( 1, TPQN );	
+	SMF* pSmf =  new SMF( SMFHeader::Format::SimultaneousTracks, TPQN );
 	// Standard MIDI format 1 files should have the first track being the tempo map
 	// which is a track that contains global meta events only.
 
@@ -526,7 +521,7 @@ SMF0Writer::~SMF0Writer()
 
 SMF* SMF0Writer::createSMF( std::shared_ptr<Song> pSong ){
 	// MIDI files format 0 have all their events in one track
-	SMF* pSmf =  new SMF( 0, TPQN );	
+	SMF* pSmf =  new SMF( SMFHeader::Format::SingleMultiChannelTrack, TPQN );
 	m_pTrack = createTrack0( pSong );
 	pSmf->addTrack( m_pTrack );
 	return pSmf;

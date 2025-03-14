@@ -42,7 +42,22 @@ class SMFHeader : public Object<SMFHeader>, public SMFBase
 {
 	H2_OBJECT(SMFHeader)
 public:
-	SMFHeader( int nFormat, int nTracks, int nTPQN );
+	/** For the MIDI file specs:
+	 *
+	 * The first word, <format>, specifies the overall organization of the file.
+	 * Only three values of <format> are specified:
+	 * - 0 the file contains a single multi-channel track
+	 * - 1 the file contains one or more simultaneous tracks (or MIDI outputs)
+	 *   of a sequence
+	 * - 2 the file contains one or more sequentially independent single-track
+	 * patterns */
+	enum class Format {
+		SingleMultiChannelTrack = 0,
+		SimultaneousTracks = 1,
+		SequentialIndependentTracks = 2
+	};
+
+	SMFHeader( Format format, int nTracks, int nTPQN );
 	~SMFHeader();
 	
 	void addTrack();
@@ -50,7 +65,7 @@ public:
 	virtual QString toQString() const override;
 	
 private:
-	int m_nFormat;		///< SMF format
+	Format m_format;		///< SMF format
 	int m_nTracks;		///< number of tracks
 	int m_nTPQN;		///< ticks per quarter note
 };
@@ -82,7 +97,7 @@ class SMF : public Object<SMF>, public SMFBase
 {
 	H2_OBJECT(SMF)
 public:
-	SMF( int nFormat, int nTPQN );
+	SMF( SMFHeader::Format format, int nTPQN );
 	~SMF();
 
 	void addTrack( SMFTrack *pTrack );
