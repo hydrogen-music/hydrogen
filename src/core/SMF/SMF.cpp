@@ -44,7 +44,6 @@ SMFHeader::SMFHeader( Format format, int nTracks )
 
 
 SMFHeader::~SMFHeader() {
-	DEBUGLOG( "DESTROY" );
 }
 
 void SMFHeader::addTrack() {
@@ -75,25 +74,22 @@ SMFTrack::SMFTrack()
 }
 
 SMFTrack::~SMFTrack() {
-	DEBUGLOG( "DESTROY" );
-
-	for ( unsigned i = 0; i < m_eventList.size(); i++ ) {
-		delete m_eventList[ i ];
-	}
 }
 
 QByteArray SMFTrack::getBuffer() const {
 	QByteArray trackData;
 
-	for ( unsigned i = 0; i < m_eventList.size(); i++ ) {
-		SMFEvent *pEv = m_eventList[ i ];
-		auto buf = pEv->getBuffer();
+	for ( const auto& ppEvent : m_eventList ) {
+		if ( ppEvent == nullptr ) {
+			continue;
+		}
+
+		auto buf = ppEvent->getBuffer();
 
 		for ( unsigned j = 0; j < buf.size(); j++ ) {
 			trackData.push_back( buf[ j ] );
 		}
 	}
-
 
 	SMFBuffer buf;
 
@@ -106,14 +102,11 @@ QByteArray SMFTrack::getBuffer() const {
 		trackBuf.push_back( trackData[i] );
 	}
 
-
 	//  track end
 	trackBuf.push_back( static_cast<char>(0x00) );		// delta
 	trackBuf.push_back( static_cast<char>(0xFF) );
 	trackBuf.push_back( static_cast<char>(0x2F) );
 	trackBuf.push_back( static_cast<char>(0x00) );
-
-
 
 	return trackBuf;
 }
@@ -122,28 +115,29 @@ QString SMFTrack::toQString() const {
 	return QString( getBuffer().toHex( ' ' ) );
 }
 
-void SMFTrack::addEvent( SMFEvent *pEvent )
-{
+void SMFTrack::addEvent( std::shared_ptr<SMFEvent> pEvent ) {
 	m_eventList.push_back( pEvent );
 }
 
 // ::::::::::::::::::::::
 
 SMF::SMF( SMFHeader::Format format ) {
-	m_pHeader = new SMFHeader( format, 0 );
+	m_pHeader = std::make_shared<SMFHeader>( format, 0 );
 }
 
 SMF::~SMF() {
-	DEBUGLOG( "DESTROY" );
-
-	delete m_pHeader;
-
-	for ( unsigned i = 0; i < m_trackList.size(); i++ ) {
-		delete m_trackList[i];
-	}
 }
 
-void SMF::addTrack( SMFTrack *pTrack ) {
+void SMF::addTrack( std::shared_ptr<SMFTrack> pTrack ) {
+	if ( pTrack == nullptr ) {
+		return;
+	}
+
+	if ( m_pHeader == nullptr ) {
+		ERRORLOG( "Header not properly set up yet." );
+		return;
+	}
+
 	m_pHeader->addTrack();
 	m_trackList.push_back( pTrack );
 }
@@ -153,9 +147,10 @@ QByteArray SMF::getBuffer() const {
 	auto smfBuffer = m_pHeader->getBuffer();
 
 	// tracks
-	for ( unsigned nTrack = 0; nTrack < m_trackList.size(); nTrack++ ) {
-		SMFTrack *pTrack = m_trackList[ nTrack ];
-		smfBuffer.append( pTrack->getBuffer() );
+	for ( const auto& ppTrack : m_trackList ) {
+		if ( ppTrack != nullptr ) {
+			smfBuffer.append( ppTrack->getBuffer() );
+		}
 	}
 
 	return smfBuffer;
@@ -175,28 +170,38 @@ SMFWriter::SMFWriter() {
 
 
 SMFWriter::~SMFWriter() {
-	DEBUGLOG( "DESTROY" );
 }
 
 
-SMFTrack* SMFWriter::createTrack0( std::shared_ptr<Song> pSong ) {
-	SMFTrack *pTrack0 = new SMFTrack();
-	pTrack0->addEvent( new SMFCopyRightNoticeMetaEvent( pSong->getAuthor() , 0 ) );
-	pTrack0->addEvent( new SMFTrackNameMetaEvent( pSong->getName() , 0 ) );
-	pTrack0->addEvent( new SMFSetTempoMetaEvent( pSong->getBpm() , 0 ) );
-	pTrack0->addEvent( new SMFTimeSignatureMetaEvent( 4 , 4 , 24 , 8 , 0 ) );
+std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong ) {
+	if ( pSong == nullptr ) {
+		ERRORLOG( "Invalid song" );
+		return nullptr;
+	}
+
+	auto pTrack0 = std::make_shared<SMFTrack>();
+	pTrack0->addEvent(
+		std::make_shared<SMFCopyRightNoticeMetaEvent>( pSong->getAuthor() , 0 ) );
+	pTrack0->addEvent(
+		std::make_shared<SMFTrackNameMetaEvent>( pSong->getName() , 0 ) );
+	pTrack0->addEvent(
+		std::make_shared<SMFSetTempoMetaEvent>( pSong->getBpm() , 0 ) );
+	pTrack0->addEvent(
+		std::make_shared<SMFTimeSignatureMetaEvent>( 4 , 4 , 24 , 8 , 0 ) );
+
 	return pTrack0;
 }
 
 void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 {
-	if ( pSong == nullptr ) {
+	if ( pSong == nullptr || pSong->getTimeline() == nullptr ||
+		 pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
 	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFilename ) );
 
-	SMF* pSmf = createSMF( pSong );
+	auto pSmf = createSMF( pSong );
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
@@ -258,24 +263,29 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 						}
 						
 						// get events for specific instrument
-						EventList* eventList = getEvents(pSong, pInstr);
-						eventList->push_back(
-							new SMFNoteOnEvent(
-								nStartTicks + nNote,
-								nChannel,
-								nPitch,
-								nVelocity
+						auto pEventList = getEvents(pSong, pInstr);
+						if ( pEventList != nullptr ) {
+							pEventList->push_back(
+								std::make_shared<SMFNoteOnEvent>(
+									nStartTicks + nNote,
+									nChannel,
+									nPitch,
+									nVelocity
 								)
 							);
 							
-						eventList->push_back(
-							new SMFNoteOffEvent(
-								nStartTicks + nNote + nLength,
-								nChannel,
-								nPitch,
-								nVelocity
+							pEventList->push_back(
+								std::make_shared<SMFNoteOffEvent>(
+									nStartTicks + nNote + nLength,
+									nChannel,
+									nPitch,
+									nVelocity
 								)
 							);
+						}
+						else {
+							ERRORLOG( "Invalid event list" );
+						}
 					}
 				}
 			}
@@ -287,17 +297,24 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	packEvents(pSong, pSmf);
 
 	saveSMF(sFilename, pSmf);
-	delete pSmf;
 }
 
-void SMFWriter::sortEvents( EventList *pEvents ) {
+void SMFWriter::sortEvents( std::shared_ptr<EventList> pEvents ) {
+	if ( pEvents == nullptr ) {
+		return;
+	}
 	// awful bubble sort..
 	for ( unsigned i = 0; i < pEvents->size(); i++ ) {
-		for ( std::vector<SMFEvent*>::iterator it = pEvents->begin() ;
+		for ( auto it = pEvents->begin() ;
 			  it != ( pEvents->end() - 1 ) ;
 			  it++ ) {
-			SMFEvent *pEvent = *it;
-			SMFEvent *pNextEvent = *( it + 1 );
+			auto pEvent = *it;
+			auto pNextEvent = *( it + 1 );
+			if ( pEvent == nullptr || pNextEvent == nullptr ) {
+				ERRORLOG( "Abort. Invalid event" );
+				return;
+			}
+
 			if ( pNextEvent->m_nTicks < pEvent->m_nTicks ) {
 				// swap
 				*it = pNextEvent;
@@ -307,7 +324,12 @@ void SMFWriter::sortEvents( EventList *pEvents ) {
 	}
 }
 
-void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf ) {
+void SMFWriter::saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf ) {
+	if ( pSmf == nullptr ) {
+		ERRORLOG( "Invalid SMF" );
+		return;
+	}
+
 	// save the midi file
 	QFile file( sFilename );
 	if ( ! file.open( QIODevice::WriteOnly ) ) {
@@ -332,12 +354,12 @@ SMF1Writer::SMF1Writer() : SMFWriter() {
 SMF1Writer::~SMF1Writer() {
 }
 
-SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
-	SMF* pSmf =  new SMF( SMFHeader::Format::SimultaneousTracks );
+std::shared_ptr<SMF> SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
+	auto pSmf = std::make_shared<SMF>( SMFHeader::Format::SimultaneousTracks );
 	// Standard MIDI format 1 files should have the first track being the tempo map
 	// which is a track that contains global meta events only.
 
-	SMFTrack* pTrack0 = createTrack0( pSong );
+	auto pTrack0 = createTrack0( pSong );
 	pSmf->addTrack( pTrack0 );
 	
 	// Standard MIDI Format 1 files should have note events in tracks =>2
@@ -346,30 +368,44 @@ SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
 
 SMF1WriterSingle::SMF1WriterSingle()
 		: SMF1Writer(),
-		 m_eventList() {
+		 m_pEventList( std::make_shared<EventList>() ) {
 }
 
 SMF1WriterSingle::~SMF1WriterSingle() {
 }
 
-EventList* SMF1WriterSingle::getEvents( std::shared_ptr<Song> pSong,
-										std::shared_ptr<Instrument> pInstr )
+std::shared_ptr<EventList> SMF1WriterSingle::getEvents( std::shared_ptr<Song> pSong,
+														std::shared_ptr<Instrument> pInstr )
 {
-	return &m_eventList;
+	return m_pEventList;
 }
 
-void SMF1WriterSingle::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
-   m_eventList.clear();
+void SMF1WriterSingle::prepareEvents( std::shared_ptr<Song> pSong,
+									  std::shared_ptr<SMF> pSmf ) {
+	if ( m_pEventList != nullptr ) {
+		m_pEventList->clear();
+	}
 }
 
-void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
-	sortEvents( &m_eventList );
+void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong,
+								   std::shared_ptr<SMF> pSmf ) {
+	if ( pSmf == nullptr ) {
+		ERRORLOG( "Invalid SMF" );
+		return;
+	}
 
-	SMFTrack *pTrack1 = new SMFTrack();
+	if ( m_pEventList == nullptr ) {
+		ERRORLOG( "Event List not properly set up" );
+		return;
+	}
+
+	sortEvents( m_pEventList );
+
+	auto pTrack1 = std::make_shared<SMFTrack>();
 	pSmf->addTrack( pTrack1 );
 
 	unsigned nLastTick = 1;
-	for( auto& pEvent : m_eventList ) {
+	for( auto& pEvent : *m_pEventList ) {
 		pEvent->m_nDeltaTime =
 			( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
 		nLastTick = pEvent->m_nTicks;
@@ -377,7 +413,7 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
 		pTrack1->addEvent( pEvent );
 	}
 
-	m_eventList.clear();
+	m_pEventList->clear();
 }
 
 // SMF1 MIDI MULTI EXPORT
@@ -390,99 +426,128 @@ SMF1WriterMulti::SMF1WriterMulti()
 SMF1WriterMulti::~SMF1WriterMulti() {
 }
 
-void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
+void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong,
+									 std::shared_ptr<SMF> pSmf )
 {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		m_eventLists.clear();
+		m_eventLists.push_back( std::make_shared<EventList>() );
+		return;
+	}
+
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	m_eventLists.clear();
-	for( unsigned nInstr=0; nInstr <  pInstrumentList->size(); nInstr++ ){
-		m_eventLists.push_back( new EventList() );
+	for ( unsigned nInstr=0; nInstr < pInstrumentList->size(); nInstr++ ){
+		m_eventLists.push_back( std::make_shared<EventList>() );
 	}
 }
 
-EventList* SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,
-									   std::shared_ptr<Instrument> pInstr ) {
+std::shared_ptr<EventList> SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,
+													   std::shared_ptr<Instrument> pInstr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		if ( m_eventLists.size() > 0 ) {
+			return m_eventLists[ 0 ];
+		}
+		else {
+			return nullptr;
+		}
+	}
+
 	int nInstr = pSong->getDrumkit()->getInstruments()->index(pInstr);
-	EventList* pEventList = m_eventLists.at( nInstr );
+	auto pEventList = m_eventLists.at( nInstr );
 	
 	return pEventList;
 }
 
-void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
+void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong,
+								  std::shared_ptr<SMF> pSmf )
 {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	for ( unsigned nTrack = 0; nTrack < m_eventLists.size(); nTrack++ ) {
-		EventList* pEventList = m_eventLists.at( nTrack );
-		auto instrument =  pInstrumentList->get( nTrack );
+		auto pEventList = m_eventLists.at( nTrack );
+		auto pInstrument = pInstrumentList->get( nTrack );
+		if ( pEventList == nullptr || pInstrument == nullptr ) {
+			continue;
+		}
 
 		sortEvents( pEventList );
 
-		SMFTrack *pTrack = new SMFTrack();
+		auto pTrack = std::make_shared<SMFTrack>();
 		pSmf->addTrack( pTrack );
 		
 		//Set instrument name as track name
-		pTrack->addEvent( new SMFTrackNameMetaEvent( instrument->getName() , 0 ) );
+		pTrack->addEvent(
+			std::make_shared<SMFTrackNameMetaEvent>( pInstrument->getName() , 0 ) );
 		
 		unsigned nLastTick = 1;
-		for ( std::vector<SMFEvent*>::iterator it = pEventList->begin();
-			it != pEventList->end();
-			 it++ ) {
-			SMFEvent *pEvent = *it;
-			pEvent->m_nDeltaTime =
-				( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
-			nLastTick = pEvent->m_nTicks;
+		for ( auto& ppEvent : *pEventList ) {
+			ppEvent->m_nDeltaTime =
+				( ppEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
+			nLastTick = ppEvent->m_nTicks;
 
-			pTrack->addEvent( *it );
+			pTrack->addEvent( ppEvent );
 		}
-
-		// we can safely delete vector with events now
-		delete pEventList;
 	}
 	m_eventLists.clear();
 }
 
 // SMF0 MIDI  EXPORT
 
-SMF0Writer::SMF0Writer()
-		: SMFWriter(),
-		  m_pTrack( nullptr ),
-		 m_eventList() {
+SMF0Writer::SMF0Writer() : SMFWriter()
+						 , m_pTrack( nullptr )
+						 , m_pEventList( std::make_shared<EventList>() ) {
 }
 
 SMF0Writer::~SMF0Writer() {
 }
 
-SMF* SMF0Writer::createSMF( std::shared_ptr<Song> pSong ){
+std::shared_ptr<SMF> SMF0Writer::createSMF( std::shared_ptr<Song> pSong ){
 	// MIDI files format 0 have all their events in one track
-	SMF* pSmf =  new SMF( SMFHeader::Format::SingleMultiChannelTrack );
+	auto pSmf = std::make_shared<SMF>( SMFHeader::Format::SingleMultiChannelTrack );
 	m_pTrack = createTrack0( pSong );
 	pSmf->addTrack( m_pTrack );
 	return pSmf;
 }
 
-EventList* SMF0Writer::getEvents( std::shared_ptr<Song> pSong,
-								  std::shared_ptr<Instrument> pInstr ) {
-	return &m_eventList;
+std::shared_ptr<EventList> SMF0Writer::getEvents( std::shared_ptr<Song> pSong,
+												  std::shared_ptr<Instrument> pInstr ) {
+	return m_pEventList;
 }
 
-void SMF0Writer::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
-   m_eventList.clear();
+void SMF0Writer::prepareEvents( std::shared_ptr<Song> pSong,
+								std::shared_ptr<SMF> pSmf ) {
+	if ( m_pEventList != nullptr ) {
+		m_pEventList->clear();
+	}
 }
 
-void SMF0Writer::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
-	sortEvents( &m_eventList );
-
-	unsigned nLastTick = 1;
-	for ( std::vector<SMFEvent*>::iterator it = m_eventList.begin();
-		it != m_eventList.end();
-		 it++ ) {
-		SMFEvent *pEvent = *it;
-		pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
-		nLastTick = pEvent->m_nTicks;
-		
-		m_pTrack->addEvent( *it );
+void SMF0Writer::packEvents( std::shared_ptr<Song> pSong,
+							 std::shared_ptr<SMF> pSmf ) {
+	if ( m_pEventList == nullptr ) {
+		ERRORLOG( "Event List not properly set up" );
+		return;
 	}
 
-	m_eventList.clear();
+	if ( m_pTrack == nullptr ) {
+		ERRORLOG( "Track not properly set up" );
+		return;
+	}
+
+	sortEvents( m_pEventList );
+
+	unsigned nLastTick = 1;
+	for ( auto& ppEvent : *m_pEventList ) {
+		ppEvent->m_nDeltaTime = ( ppEvent->m_nTicks - nLastTick ) * 4;
+		nLastTick = ppEvent->m_nTicks;
+		
+		m_pTrack->addEvent( ppEvent );
+	}
+
+	m_pEventList->clear();
 }
 
 };

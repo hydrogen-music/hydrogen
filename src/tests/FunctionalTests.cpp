@@ -106,8 +106,8 @@ public:
 		auto outFile = Filesystem::tmp_file_path("smf1single.test.mid");
 		auto refFile = H2TEST_FILE("functional/smf1single.test.ref.mid");
 
-		SMF1WriterSingle writer;
-		TestHelper::exportMIDI( songFile, outFile, writer );
+		auto pWriter = std::make_shared<SMF1WriterSingle>();
+		TestHelper::exportMIDI( songFile, outFile, pWriter );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	___INFOLOG( "passed" );
@@ -120,8 +120,8 @@ public:
 		auto outFile = Filesystem::tmp_file_path("smf1multi.test.mid");
 		auto refFile = H2TEST_FILE("functional/smf1multi.test.ref.mid");
 
-		SMF1WriterMulti writer;
-		TestHelper::exportMIDI( songFile, outFile, writer );
+		auto pWriter = std::make_shared<SMF1WriterMulti>();
+		TestHelper::exportMIDI( songFile, outFile, pWriter );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	___INFOLOG( "passed" );
@@ -134,8 +134,8 @@ public:
 		auto outFile = Filesystem::tmp_file_path("smf0.test.mid");
 		auto refFile = H2TEST_FILE("functional/smf0.test.ref.mid");
 
-		SMF0Writer writer;
-		TestHelper::exportMIDI( songFile, outFile, writer );
+		auto pWriter = std::make_shared<SMF0Writer>();
+		TestHelper::exportMIDI( songFile, outFile, pWriter );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	___INFOLOG( "passed" );
@@ -175,8 +175,8 @@ public:
 		auto outFile = Filesystem::tmp_file_path("smf1.velocityautomation.mid");
 		auto refFile = H2TEST_FILE("functional/smf1.velocityautomation.ref.mid");
 
-		SMF1WriterSingle writer;
-		TestHelper::exportMIDI( songFile, outFile, writer );
+		auto pWriter = std::make_shared<SMF1WriterSingle>();
+		TestHelper::exportMIDI( songFile, outFile, pWriter );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		
 		Filesystem::rm( outFile );
@@ -190,8 +190,8 @@ public:
 		auto outFile = Filesystem::tmp_file_path("smf0.velocityautomation.mid");
 		auto refFile = H2TEST_FILE("functional/smf0.velocityautomation.ref.mid");
 
-		SMF0Writer writer;
-		TestHelper::exportMIDI( songFile, outFile, writer );
+		auto pWriter = std::make_shared<SMF0Writer>();
+		TestHelper::exportMIDI( songFile, outFile, pWriter );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		
 		Filesystem::rm( outFile );
