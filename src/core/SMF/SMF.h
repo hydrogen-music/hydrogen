@@ -57,7 +57,7 @@ public:
 		SequentialIndependentTracks = 2
 	};
 
-	SMFHeader( Format format, int nTracks, int nTPQN );
+	SMFHeader( Format format, int nTracks );
 	~SMFHeader();
 	
 	void addTrack();
@@ -67,7 +67,6 @@ public:
 private:
 	Format m_format;		///< SMF format
 	int m_nTracks;		///< number of tracks
-	int m_nTPQN;		///< ticks per quarter note
 };
 
 
@@ -97,7 +96,14 @@ class SMF : public Object<SMF>, public SMFBase
 {
 	H2_OBJECT(SMF)
 public:
-	SMF( SMFHeader::Format format, int nTPQN );
+
+	/** Scaling of how much larger in the resolution used for MIDI files
+	 * compared to the tick size in the #H2Core::AudioEngine. */
+	static constexpr int nTickFactor = 4;
+	static constexpr int nTicksPerQuarter =
+		H2Core::nTicksPerQuarter * SMF::nTickFactor;
+
+	SMF( SMFHeader::Format format );
 	~SMF();
 
 	void addTrack( SMFTrack *pTrack );

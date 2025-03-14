@@ -37,18 +37,14 @@
 namespace H2Core
 {
 
-SMFHeader::SMFHeader( Format format, int nTracks, int nTPQN )
+SMFHeader::SMFHeader( Format format, int nTracks )
 		: m_format( format )
-		, m_nTracks( nTracks )
-		, m_nTPQN( nTPQN )
-{
-	
+		, m_nTracks( nTracks ) {
 }
 
 
-SMFHeader::~SMFHeader()
-{
-	INFOLOG( "DESTROY" );
+SMFHeader::~SMFHeader() {
+	DEBUGLOG( "DESTROY" );
 }
 
 void SMFHeader::addTrack() {
@@ -63,7 +59,7 @@ QByteArray SMFHeader::getBuffer() const
 	buffer.writeDWord( 6 );				// Header length = 6
 	buffer.writeWord( static_cast<int>(m_format) );
 	buffer.writeWord( m_nTracks );
-	buffer.writeWord( m_nTPQN );
+	buffer.writeWord( SMF::nTicksPerQuarter );
 
 	return buffer.m_buffer;
 }
@@ -72,31 +68,21 @@ QString SMFHeader::toQString() const {
 	return QString( getBuffer().toHex( ' ' ) );
 }
 
-
-
 // :::::::::::::::
 
 SMFTrack::SMFTrack()
-		: Object()
-{
-	
+		: Object() {
 }
 
-
-
-SMFTrack::~SMFTrack()
-{
-	INFOLOG( "DESTROY" );
+SMFTrack::~SMFTrack() {
+	DEBUGLOG( "DESTROY" );
 
 	for ( unsigned i = 0; i < m_eventList.size(); i++ ) {
 		delete m_eventList[ i ];
 	}
 }
 
-
-
-QByteArray SMFTrack::getBuffer() const
-{
+QByteArray SMFTrack::getBuffer() const {
 	QByteArray trackData;
 
 	for ( unsigned i = 0; i < m_eventList.size(); i++ ) {
@@ -141,16 +127,13 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 	m_eventList.push_back( pEvent );
 }
 
-
-
 // ::::::::::::::::::::::
 
-SMF::SMF( SMFHeader::Format format, int nTPQN ) {
-	m_pHeader = new SMFHeader( format, 0, nTPQN );
+SMF::SMF( SMFHeader::Format format ) {
+	m_pHeader = new SMFHeader( format, 0 );
 }
 
-SMF::~SMF()
-{
+SMF::~SMF() {
 	DEBUGLOG( "DESTROY" );
 
 	delete m_pHeader;
@@ -160,18 +143,12 @@ SMF::~SMF()
 	}
 }
 
-
-
-void SMF::addTrack( SMFTrack *pTrack )
-{
+void SMF::addTrack( SMFTrack *pTrack ) {
 	m_pHeader->addTrack();
 	m_trackList.push_back( pTrack );
 }
 
-
-
-QByteArray SMF::getBuffer() const
-{
+QByteArray SMF::getBuffer() const {
 	// header
 	auto smfBuffer = m_pHeader->getBuffer();
 
@@ -188,23 +165,17 @@ QString SMF::toQString() const {
 	return QString( getBuffer().toHex( ' ' ) );
 }
 
-
-
 // :::::::::::::::::::...
 
-constexpr unsigned int TPQN = 192;
 constexpr unsigned int DRUM_CHANNEL = 9;
 constexpr unsigned int NOTE_LENGTH = 12;
 
-SMFWriter::SMFWriter()
-{
-	
+SMFWriter::SMFWriter() {
 }
 
 
-SMFWriter::~SMFWriter()
-{
-	INFOLOG( "DESTROY" );
+SMFWriter::~SMFWriter() {
+	DEBUGLOG( "DESTROY" );
 }
 
 
@@ -216,7 +187,6 @@ SMFTrack* SMFWriter::createTrack0( std::shared_ptr<Song> pSong ) {
 	pTrack0->addEvent( new SMFTimeSignatureMetaEvent( 4 , 4 , 24 , 8 , 0 ) );
 	return pTrack0;
 }
-
 
 void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 {
@@ -320,9 +290,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	delete pSmf;
 }
 
-
-void SMFWriter::sortEvents( EventList *pEvents )
-{
+void SMFWriter::sortEvents( EventList *pEvents ) {
 	// awful bubble sort..
 	for ( unsigned i = 0; i < pEvents->size(); i++ ) {
 		for ( std::vector<SMFEvent*>::iterator it = pEvents->begin() ;
@@ -339,9 +307,7 @@ void SMFWriter::sortEvents( EventList *pEvents )
 	}
 }
 
-
-void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
-{
+void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf ) {
 	// save the midi file
 	QFile file( sFilename );
 	if ( ! file.open( QIODevice::WriteOnly ) ) {
@@ -360,19 +326,14 @@ void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
 
 // SMF1Writer - base class for two smf1 writers
 
-SMF1Writer::SMF1Writer()
-		: SMFWriter()
-{
+SMF1Writer::SMF1Writer() : SMFWriter() {
 }
 
-
-SMF1Writer::~SMF1Writer()
-{
+SMF1Writer::~SMF1Writer() {
 }
-
 
 SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
-	SMF* pSmf =  new SMF( SMFHeader::Format::SimultaneousTracks, TPQN );
+	SMF* pSmf =  new SMF( SMFHeader::Format::SimultaneousTracks );
 	// Standard MIDI format 1 files should have the first track being the tempo map
 	// which is a track that contains global meta events only.
 
@@ -383,40 +344,25 @@ SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
 	return pSmf;
 }
 
-
-// SMF1 MIDI SINGLE EXPROT
-
-
 SMF1WriterSingle::SMF1WriterSingle()
 		: SMF1Writer(),
-		 m_eventList()
-{
+		 m_eventList() {
 }
 
-
-
-SMF1WriterSingle::~SMF1WriterSingle()
-{
+SMF1WriterSingle::~SMF1WriterSingle() {
 }
 
-
-
-EventList* SMF1WriterSingle::getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr )
+EventList* SMF1WriterSingle::getEvents( std::shared_ptr<Song> pSong,
+										std::shared_ptr<Instrument> pInstr )
 {
 	return &m_eventList;
 }
 
-
-
-void SMF1WriterSingle::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
-{
+void SMF1WriterSingle::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
    m_eventList.clear();
 }
 
-
-
-void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
-{
+void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
 	sortEvents( &m_eventList );
 
 	SMFTrack *pTrack1 = new SMFTrack();
@@ -424,11 +370,9 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 
 	unsigned nLastTick = 1;
 	for( auto& pEvent : m_eventList ) {
-		pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
+		pEvent->m_nDeltaTime =
+			( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
 		nLastTick = pEvent->m_nTicks;
-
-		// infoLog( " pos: " + toString( (*it)->m_nTicks ) + ", delta: "
-		//          + toString( (*it)->m_nDeltaTime ) );
 
 		pTrack1->addEvent( pEvent );
 	}
@@ -436,21 +380,15 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 	m_eventList.clear();
 }
 
-
-
 // SMF1 MIDI MULTI EXPORT
 
 SMF1WriterMulti::SMF1WriterMulti()
 		: SMF1Writer(),
-		 m_eventLists()
-{
+		 m_eventLists() {
 }
 
-
-SMF1WriterMulti::~SMF1WriterMulti()
-{
+SMF1WriterMulti::~SMF1WriterMulti() {
 }
-
 
 void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
@@ -461,15 +399,13 @@ void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 	}
 }
 
-
-EventList* SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,  std::shared_ptr<Instrument> pInstr )
-{
+EventList* SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,
+									   std::shared_ptr<Instrument> pInstr ) {
 	int nInstr = pSong->getDrumkit()->getInstruments()->index(pInstr);
 	EventList* pEventList = m_eventLists.at( nInstr );
 	
 	return pEventList;
 }
-
 
 void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
@@ -491,7 +427,8 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 			it != pEventList->end();
 			 it++ ) {
 			SMFEvent *pEvent = *it;
-			pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
+			pEvent->m_nDeltaTime =
+				( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
 			nLastTick = pEvent->m_nTicks;
 
 			pTrack->addEvent( *it );
@@ -503,45 +440,35 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 	m_eventLists.clear();
 }
 
-
 // SMF0 MIDI  EXPORT
 
 SMF0Writer::SMF0Writer()
 		: SMFWriter(),
 		  m_pTrack( nullptr ),
-		 m_eventList()
-{
+		 m_eventList() {
 }
 
-
-SMF0Writer::~SMF0Writer()
-{
+SMF0Writer::~SMF0Writer() {
 }
-
 
 SMF* SMF0Writer::createSMF( std::shared_ptr<Song> pSong ){
 	// MIDI files format 0 have all their events in one track
-	SMF* pSmf =  new SMF( SMFHeader::Format::SingleMultiChannelTrack, TPQN );
+	SMF* pSmf =  new SMF( SMFHeader::Format::SingleMultiChannelTrack );
 	m_pTrack = createTrack0( pSong );
 	pSmf->addTrack( m_pTrack );
 	return pSmf;
 }
 
-
-EventList* SMF0Writer::getEvents( std::shared_ptr<Song> pSong,  std::shared_ptr<Instrument> pInstr )
-{
+EventList* SMF0Writer::getEvents( std::shared_ptr<Song> pSong,
+								  std::shared_ptr<Instrument> pInstr ) {
 	return &m_eventList;
 }
 
-
-void SMF0Writer::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
-{
+void SMF0Writer::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
    m_eventList.clear();
 }
 
-
-void SMF0Writer::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
-{
+void SMF0Writer::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) {
 	sortEvents( &m_eventList );
 
 	unsigned nLastTick = 1;
@@ -557,6 +484,5 @@ void SMF0Writer::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 
 	m_eventList.clear();
 }
-
 
 };
