@@ -209,7 +209,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	prepareEvents( pSong, pSmf );
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	int nTick = 1;
+	int nTick = 0;
 	for ( int nnColumn = 0;
 		  nnColumn < pSong->getPatternGroupVector()->size() ;
 		  nnColumn++ ) {
@@ -408,7 +408,7 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong,
 	auto pTrack1 = std::make_shared<SMFTrack>();
 	pSmf->addTrack( pTrack1 );
 
-	int nLastTick = 1;
+	int nLastTick = 0;
 	for( auto& pEvent : *m_pEventList ) {
 		pEvent->m_nDeltaTime =
 			( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
@@ -485,7 +485,7 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong,
 		pTrack->addEvent(
 			std::make_shared<SMFTrackNameMetaEvent>( pInstrument->getName() , 0 ) );
 		
-		int nLastTick = 1;
+		int nLastTick = 0;
 		for ( auto& ppEvent : *pEventList ) {
 			ppEvent->m_nDeltaTime =
 				( ppEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
@@ -541,7 +541,7 @@ void SMF0Writer::packEvents( std::shared_ptr<Song> pSong,
 
 	sortEvents( m_pEventList );
 
-	int nLastTick = 1;
+	int nLastTick = 0;
 	for ( auto& ppEvent : *m_pEventList ) {
 		ppEvent->m_nDeltaTime = ( ppEvent->m_nTicks - nLastTick ) *
 			SMF::nTickFactor;
