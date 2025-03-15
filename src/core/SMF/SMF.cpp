@@ -37,9 +37,9 @@
 namespace H2Core
 {
 
-SMFHeader::SMFHeader( Format format, int nTracks )
+SMFHeader::SMFHeader( Format format )
 		: m_format( format )
-		, m_nTracks( nTracks ) {
+		, m_nTracks( 0 ) {
 }
 
 
@@ -122,7 +122,7 @@ void SMFTrack::addEvent( std::shared_ptr<SMFEvent> pEvent ) {
 // ::::::::::::::::::::::
 
 SMF::SMF( SMFHeader::Format format ) {
-	m_pHeader = std::make_shared<SMFHeader>( format, 0 );
+	m_pHeader = std::make_shared<SMFHeader>( format );
 }
 
 SMF::~SMF() {

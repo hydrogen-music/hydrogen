@@ -58,7 +58,7 @@ public:
 		SequentialIndependentTracks = 2
 	};
 
-	SMFHeader( Format format, int nTracks );
+	SMFHeader( Format format );
 	~SMFHeader();
 	
 	void addTrack();
