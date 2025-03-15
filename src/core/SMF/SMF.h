@@ -140,7 +140,7 @@ protected:
 								std::shared_ptr<SMF> pSmf )=0;
 	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
 												  std::shared_ptr<Instrument> pInstr ) = 0;
-	virtual void  packEvents( std::shared_ptr<Song> pSong,
+	virtual void packEvents( std::shared_ptr<Song> pSong,
 							  std::shared_ptr<SMF> pSmf ) = 0;
 	
 private:
@@ -191,7 +191,7 @@ public:
 protected:
 	virtual void prepareEvents( std::shared_ptr<Song> pSong,
 								std::shared_ptr<SMF> pSmf ) override;
-	virtual void  packEvents( std::shared_ptr<Song> pSong,
+	virtual void packEvents( std::shared_ptr<Song> pSong,
 							  std::shared_ptr<SMF> pSmf ) override;
 	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
 												  std::shared_ptr<Instrument> pInstr ) override;
@@ -214,7 +214,7 @@ protected:
 	virtual std::shared_ptr<SMF> createSMF( std::shared_ptr<Song> pSong ) override;
 	virtual void prepareEvents( std::shared_ptr<Song> pSong,
 								std::shared_ptr<SMF> pSmf ) override;
-	virtual void  packEvents( std::shared_ptr<Song> pSong,
+	virtual void packEvents( std::shared_ptr<Song> pSong,
 							  std::shared_ptr<SMF> pSmf ) override;
 	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
 												  std::shared_ptr<Instrument> pInstr ) override;

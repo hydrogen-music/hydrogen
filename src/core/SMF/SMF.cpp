@@ -222,75 +222,79 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 			pPatternList->add( ppPattern, true );
 		}
 
-		int nStartTicks = nTick;
-		int nMaxPatternLength = 0;
-		for ( unsigned nPattern = 0 ;
-			  nPattern < pPatternList->size() ;
-			  nPattern++ ) {
-			auto pPattern = pPatternList->get( nPattern );
-			// infoLog( "      |-> pattern: " + pPattern->getName() );
-			if ( ( int )pPattern->getLength() > nMaxPatternLength ) {
-				nMaxPatternLength = pPattern->getLength();
+		int nColumnLength;
+		if ( pPatternList->size() > 0 ) {
+			nColumnLength = pPatternList->longestPatternLength( false );
+		}
+		else {
+			nColumnLength = 4 * H2Core::nTicksPerQuarter;
+		}
+
+		for ( const auto& ppPattern : *pPatternList ) {
+			if ( ppPattern == nullptr ) {
+				continue;
 			}
 
-			for ( unsigned nNote = 0; nNote < pPattern->getLength(); nNote++ ) {
-				const Pattern::notes_t* notes = pPattern->getNotes();
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, nNote, pPattern ) {
-					auto pNote = it->second;
-					if ( pNote != nullptr &&
-						 pNote->getInstrument() != nullptr ) {
-						float rnd = (float)rand()/(float)RAND_MAX;
-						if ( pNote->getProbability() < rnd ) {
-							continue;
-						}
+			for ( const auto& [ nnNote, ppNote ] : *ppPattern->getNotes() ) {
+				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr ) {
+					if ( ppNote->getProbability() <
+						 static_cast<float>(rand()) / static_cast<float>(RAND_MAX) ) {
+						// Skip note
+						continue;
+					}
 
-						float fPos = nnColumn + (float)nNote/(float)nMaxPatternLength;
-						float fVelocityAdjustment =  pAutomationPath->get_value(fPos);
-						int nVelocity =
-							(int)( 127.0 * pNote->getVelocity() * fVelocityAdjustment );
+					const float fColumnPos = static_cast<float>(nnColumn) +
+						static_cast<float>(nnNote) /
+						static_cast<float>(nColumnLength);
+					const float fVelocityAdjustment =
+						pAutomationPath->get_value( fColumnPos );
+					const int nVelocity = static_cast<int>(
+						127.0 * ppNote->getVelocity() * fVelocityAdjustment );
 
-						auto pInstr = pNote->getInstrument();
-						int nPitch = pNote->getMidiKey();
+					const auto pInstr = ppNote->getInstrument();
+					const int nPitch = ppNote->getMidiKey();
 						
-						int nChannel =  pInstr->getMidiOutChannel();
-						if ( nChannel == -1 ) {
-							nChannel = DRUM_CHANNEL;
-						}
+					int nChannel =  pInstr->getMidiOutChannel();
+					if ( nChannel == -1 ) {
+						// A channel of -1 is Hydrogen's old way of disabling
+						// MIDI output during playback.
+						nChannel = DRUM_CHANNEL;
+					}
 						
-						int nLength = pNote->getLength();
-						if ( nLength == LENGTH_ENTIRE_SAMPLE ) {
-							nLength = NOTE_LENGTH;
-						}
+					int nLength = ppNote->getLength();
+					if ( nLength == LENGTH_ENTIRE_SAMPLE ) {
+						nLength = NOTE_LENGTH;
+					}
 						
-						// get events for specific instrument
-						auto pEventList = getEvents(pSong, pInstr);
-						if ( pEventList != nullptr ) {
-							pEventList->push_back(
-								std::make_shared<SMFNoteOnEvent>(
-									nStartTicks + nNote,
-									nChannel,
-									nPitch,
-									nVelocity
+					// get events for specific instrument
+					auto pEventList = getEvents( pSong, pInstr );
+					if ( pEventList != nullptr ) {
+						pEventList->push_back(
+							std::make_shared<SMFNoteOnEvent>(
+								nTick + nnNote,
+								nChannel,
+								nPitch,
+								nVelocity
 								)
 							);
-							
-							pEventList->push_back(
-								std::make_shared<SMFNoteOffEvent>(
-									nStartTicks + nNote + nLength,
-									nChannel,
-									nPitch,
-									nVelocity
+
+						pEventList->push_back(
+							std::make_shared<SMFNoteOffEvent>(
+								nTick + nnNote + nLength,
+								nChannel,
+								nPitch,
+								nVelocity
 								)
 							);
-						}
-						else {
-							ERRORLOG( "Invalid event list" );
-						}
+					}
+					else {
+						ERRORLOG( "Invalid event list" );
 					}
 				}
 			}
 		}
-		nTick += nMaxPatternLength;
+
+		nTick += nColumnLength;
 	}
 
 	//tracks creation
@@ -404,7 +408,7 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong,
 	auto pTrack1 = std::make_shared<SMFTrack>();
 	pSmf->addTrack( pTrack1 );
 
-	unsigned nLastTick = 1;
+	int nLastTick = 1;
 	for( auto& pEvent : *m_pEventList ) {
 		pEvent->m_nDeltaTime =
 			( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
@@ -453,10 +457,8 @@ std::shared_ptr<EventList> SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSo
 		}
 	}
 
-	int nInstr = pSong->getDrumkit()->getInstruments()->index(pInstr);
-	auto pEventList = m_eventLists.at( nInstr );
-	
-	return pEventList;
+	return m_eventLists.at( 
+		pSong->getDrumkit()->getInstruments()->index( pInstr ) );
 }
 
 void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong,
@@ -479,11 +481,11 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong,
 		auto pTrack = std::make_shared<SMFTrack>();
 		pSmf->addTrack( pTrack );
 		
-		//Set instrument name as track name
+		// Set instrument name as track name
 		pTrack->addEvent(
 			std::make_shared<SMFTrackNameMetaEvent>( pInstrument->getName() , 0 ) );
 		
-		unsigned nLastTick = 1;
+		int nLastTick = 1;
 		for ( auto& ppEvent : *pEventList ) {
 			ppEvent->m_nDeltaTime =
 				( ppEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
@@ -539,9 +541,10 @@ void SMF0Writer::packEvents( std::shared_ptr<Song> pSong,
 
 	sortEvents( m_pEventList );
 
-	unsigned nLastTick = 1;
+	int nLastTick = 1;
 	for ( auto& ppEvent : *m_pEventList ) {
-		ppEvent->m_nDeltaTime = ( ppEvent->m_nTicks - nLastTick ) * 4;
+		ppEvent->m_nDeltaTime = ( ppEvent->m_nTicks - nLastTick ) *
+			SMF::nTickFactor;
 		nLastTick = ppEvent->m_nTicks;
 		
 		m_pTrack->addEvent( ppEvent );
