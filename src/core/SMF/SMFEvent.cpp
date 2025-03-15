@@ -82,7 +82,8 @@ void SMFBuffer::writeVarLen( long value ) {
 
 // ::::::::::::::::::
 
-SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nTicks )
+SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName,
+											  int nTicks )
 		: SMFEvent( nTicks )
 		, m_sTrackName( sTrackName )
 {
@@ -104,7 +105,7 @@ QByteArray SMFTrackNameMetaEvent::getBuffer() const
 
 // ::::::::::::::::::
 
-SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( float fBPM, unsigned nTicks )
+SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( float fBPM, int nTicks )
 		: SMFEvent( nTicks )
 		, m_fBPM( fBPM )
 {
@@ -134,7 +135,8 @@ QByteArray SMFSetTempoMetaEvent::getBuffer() const
 
 // ::::::::::::::::::
 
-SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nTicks )
+SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor,
+														  int nTicks )
 		: SMFEvent( nTicks )
 		, m_sAuthor( sAuthor )
 {
@@ -167,14 +169,16 @@ QByteArray SMFCopyRightNoticeMetaEvent::getBuffer() const
 
 // ::::::::::::::::::
 		
-SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks )
+SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats,
+													  unsigned nNote,
+													  unsigned nMTPMC,
+													  unsigned nTSNP24,
+													  int nTicks )
 		: SMFEvent( nTicks )
 		, m_nBeats( nBeats )
 		, m_nNote( nNote )
 		, m_nMTPMC( nMTPMC )
 		, m_nTSNP24( nTSNP24 )
-		, m_nTicks( nTicks )
-
 {
 	// it's always at the start of the song
 	m_nDeltaTime = 0;
@@ -204,19 +208,11 @@ QByteArray SMFTimeSignatureMetaEvent::getBuffer() const
 // :::::::::::::
 
 
-SMFEvent::SMFEvent( unsigned nTicks )
-		: Object( )
-		, m_nTicks( nTicks )
-		, m_nDeltaTime( -1 )
-{
-	//infoLog( "INIT" );
+SMFEvent::SMFEvent( int nTicks ) : m_nTicks( nTicks )
+								 , m_nDeltaTime( -1 ) {
 }
 
-
-
-SMFEvent::~SMFEvent()
-{
-	//infoLog( "DESTROY" );
+SMFEvent::~SMFEvent() {
 }
 
 QString SMFEvent::toQString() const {
@@ -226,7 +222,7 @@ QString SMFEvent::toQString() const {
 
 // ::::::::::::::
 
-SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch,
+SMFNoteOnEvent::SMFNoteOnEvent( int nTicks, int nChannel, int nPitch,
 								int nVelocity )
 		: SMFEvent( nTicks )
 		, m_nChannel( nChannel )
@@ -256,7 +252,7 @@ QByteArray SMFNoteOnEvent::getBuffer() const
 // :::::::::::
 
 
-SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch,
+SMFNoteOffEvent::SMFNoteOffEvent( int nTicks, int nChannel, int nPitch,
 								  int nVelocity )
 		: SMFEvent( nTicks )
 		, m_nChannel( nChannel )

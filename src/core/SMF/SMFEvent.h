@@ -94,7 +94,7 @@ class SMFEvent : public SMFBase, public H2Core::Object<SMFEvent>
 {
 	H2_OBJECT(SMFEvent)
 public:
-	SMFEvent(unsigned nTicks );
+	SMFEvent( int nTicks );
 	virtual ~SMFEvent();
 
 	virtual QString toQString() const override;
@@ -121,7 +121,7 @@ class SMFTrackNameMetaEvent : public SMFEvent, public H2Core::Object<SMFTrackNam
 {
 	H2_OBJECT(SMFTrackNameMetaEvent)
 public:
-	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
+	SMFTrackNameMetaEvent( const QString& sTrackName, int nTicks );
 	virtual QByteArray getBuffer() const override;
 
 private:
@@ -136,7 +136,7 @@ class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoM
 {
 	H2_OBJECT(SMFSetTempoMetaEvent)
 public:
-	SMFSetTempoMetaEvent( float fBPM, unsigned nDeltaTime );
+	SMFSetTempoMetaEvent( float fBPM, int nTicks );
 	virtual QByteArray getBuffer() const override;
 
 private:
@@ -151,7 +151,7 @@ class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCo
 {
 	H2_OBJECT(SMFCopyRightNoticeMetaEvent)
 public:
-	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nDeltaTime );
+	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, int nTicks );
 	virtual QByteArray getBuffer() const override;
 
 private:
@@ -166,12 +166,13 @@ class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTime
 {
 	H2_OBJECT(SMFTimeSignatureMetaEvent)
 public:
-	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks );
+	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote, unsigned nMTPMC,
+							   unsigned nTSNP24, int nTicks );
 	virtual QByteArray getBuffer() const override;
 	// MTPMC = MIDI ticks per metronome click
 	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
 private:
-	unsigned m_nBeats, m_nNote, m_nMTPMC , m_nTSNP24 , m_nTicks;
+	unsigned m_nBeats, m_nNote, m_nMTPMC, m_nTSNP24;
 };
 
 
@@ -181,7 +182,7 @@ class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 {
 	H2_OBJECT(SMFNoteOnEvent)
 public:
-	SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
+	SMFNoteOnEvent( int nTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual QByteArray getBuffer() const override;
 
@@ -198,7 +199,7 @@ class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 {
 	H2_OBJECT(SMFNoteOffEvent)
 public:
-	SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
+	SMFNoteOffEvent( int nTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual QByteArray getBuffer() const override;
 
