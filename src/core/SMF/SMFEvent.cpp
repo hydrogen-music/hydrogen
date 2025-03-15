@@ -226,14 +226,16 @@ QString SMFEvent::toQString() const {
 
 // ::::::::::::::
 
-SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
+SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch,
+								int nVelocity )
 		: SMFEvent( nTicks )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
 {
-	if ( nChannel >= 16 ) {
-		ERRORLOG( QString( "nChannel >= 16! nChannel=%1" ).arg( nChannel ) );
+	if ( nChannel >= 16 || nChannel < 0 ) {
+		ERRORLOG( QString( "Invalid channel [%1]" ).arg( nChannel ) );
+		m_nChannel = std::clamp( nChannel, 0, 15 );
 	}
 }
 
@@ -254,14 +256,16 @@ QByteArray SMFNoteOnEvent::getBuffer() const
 // :::::::::::
 
 
-SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
+SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch,
+								  int nVelocity )
 		: SMFEvent( nTicks )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
 {
-	if ( nChannel >= 16 ) {
-		ERRORLOG( QString( "nChannel >= 16! nChannel=%1" ).arg( nChannel ) );
+	if ( nChannel >= 16 || nChannel < 0 ) {
+		ERRORLOG( QString( "Invalid channel [%1]" ).arg( nChannel ) );
+		m_nChannel = std::clamp( nChannel, 0, 15 );
 	}
 }
 
