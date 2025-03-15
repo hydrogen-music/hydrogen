@@ -21,6 +21,7 @@
  */
 
 #include <core/SMF/SMF.h>
+
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -29,6 +30,8 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/AutomationPath.h>
+
+#include <algorithm>
 
 #include <QFile>
 #include <QTextCodec>
@@ -303,31 +306,6 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	saveSMF(sFilename, pSmf);
 }
 
-void SMFWriter::sortEvents( std::shared_ptr<EventList> pEvents ) {
-	if ( pEvents == nullptr ) {
-		return;
-	}
-	// awful bubble sort..
-	for ( unsigned i = 0; i < pEvents->size(); i++ ) {
-		for ( auto it = pEvents->begin() ;
-			  it != ( pEvents->end() - 1 ) ;
-			  it++ ) {
-			auto pEvent = *it;
-			auto pNextEvent = *( it + 1 );
-			if ( pEvent == nullptr || pNextEvent == nullptr ) {
-				ERRORLOG( "Abort. Invalid event" );
-				return;
-			}
-
-			if ( pNextEvent->m_nTicks < pEvent->m_nTicks ) {
-				// swap
-				*it = pNextEvent;
-				*( it +1 ) = pEvent;
-			}
-		}
-	}
-}
-
 void SMFWriter::saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf ) {
 	if ( pSmf == nullptr ) {
 		ERRORLOG( "Invalid SMF" );
@@ -403,7 +381,7 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong,
 		return;
 	}
 
-	sortEvents( m_pEventList );
+	std::sort( m_pEventList->begin(), m_pEventList->end(), SMFEvent::compare );
 
 	auto pTrack1 = std::make_shared<SMFTrack>();
 	pSmf->addTrack( pTrack1 );
@@ -476,7 +454,7 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong,
 			continue;
 		}
 
-		sortEvents( pEventList );
+		std::sort( pEventList->begin(), pEventList->end(), SMFEvent::compare );
 
 		auto pTrack = std::make_shared<SMFTrack>();
 		pSmf->addTrack( pTrack );
@@ -539,7 +517,7 @@ void SMF0Writer::packEvents( std::shared_ptr<Song> pSong,
 		return;
 	}
 
-	sortEvents( m_pEventList );
+	std::sort( m_pEventList->begin(), m_pEventList->end(), SMFEvent::compare );
 
 	int nLastTick = 0;
 	for ( auto& ppEvent : *m_pEventList ) {

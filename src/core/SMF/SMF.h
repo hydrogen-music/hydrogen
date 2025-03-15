@@ -132,7 +132,6 @@ public:
 	void save( const QString& sFilename, std::shared_ptr<Song> pSong );
 
 protected:
-	void sortEvents( std::shared_ptr<EventList> pEventList );
 	std::shared_ptr<SMFTrack> createTrack0( std::shared_ptr<Song> pSong );
 	
 	virtual std::shared_ptr<SMF> createSMF( std::shared_ptr<Song> pSong ) = 0;

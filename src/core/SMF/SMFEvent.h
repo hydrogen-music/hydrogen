@@ -23,8 +23,11 @@
 #ifndef SMF_EVENT_H
 #define SMF_EVENT_H
 
+#include <memory>
+
 #include <QByteArray>
 #include <QString>
+
 #include <core/Object.h>
 
 namespace H2Core
@@ -97,7 +100,19 @@ public:
 	virtual QString toQString() const override;
 	int m_nTicks;
 	int m_nDeltaTime;
+
+	static bool compare( std::shared_ptr<SMFEvent> pEvent1,
+						 std::shared_ptr<SMFEvent> pEvent2 );
 };
+
+inline bool SMFEvent::compare( std::shared_ptr<SMFEvent> pEvent1,
+							   std::shared_ptr<SMFEvent> pEvent2 ) {
+	if ( pEvent1 == nullptr || pEvent2 == nullptr ) {
+		return false;
+	}
+
+	return pEvent1->m_nTicks < pEvent2->m_nTicks;
+}
 
 
 
