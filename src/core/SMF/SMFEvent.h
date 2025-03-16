@@ -136,11 +136,11 @@ class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoM
 {
 	H2_OBJECT(SMFSetTempoMetaEvent)
 public:
-	SMFSetTempoMetaEvent( float fBPM, int nTicks );
+	SMFSetTempoMetaEvent( int nBPM, int nTicks );
 	virtual QByteArray getBuffer() const override;
 
 private:
-	unsigned m_fBPM;
+	int m_nBPM;
 
 };
 
@@ -187,9 +187,9 @@ public:
 	virtual QByteArray getBuffer() const override;
 
 protected:
-	unsigned m_nChannel;
-	unsigned m_nPitch;
-	unsigned m_nVelocity;
+	int m_nChannel;
+	int m_nPitch;
+	int m_nVelocity;
 };
 
 
@@ -204,9 +204,9 @@ public:
 	virtual QByteArray getBuffer() const override;
 
 protected:
-	unsigned m_nChannel;
-	unsigned m_nPitch;
-	unsigned m_nVelocity;
+	int m_nChannel;
+	int m_nPitch;
+	int m_nVelocity;
 
 };
 

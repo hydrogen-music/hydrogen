@@ -188,7 +188,8 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 	pTrack0->addEvent(
 		std::make_shared<SMFTrackNameMetaEvent>( pSong->getName() , 0 ) );
 	pTrack0->addEvent(
-		std::make_shared<SMFSetTempoMetaEvent>( pSong->getBpm() , 0 ) );
+		std::make_shared<SMFSetTempoMetaEvent>(
+			static_cast<int>(std::round( pSong->getBpm() )), 0 ) );
 	pTrack0->addEvent(
 		std::make_shared<SMFTimeSignatureMetaEvent>( 4 , 4 , 24 , 8 , 0 ) );
 

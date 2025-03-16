@@ -105,9 +105,9 @@ QByteArray SMFTrackNameMetaEvent::getBuffer() const
 
 // ::::::::::::::::::
 
-SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( float fBPM, int nTicks )
+SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( int nBPM, int nTicks )
 		: SMFEvent( nTicks )
-		, m_fBPM( fBPM )
+		, m_nBPM( nBPM )
 {
 	// it's always at the start of the song
 	m_nDeltaTime = 0;
@@ -119,7 +119,7 @@ QByteArray SMFSetTempoMetaEvent::getBuffer() const
 	SMFBuffer buf;
 	long msPerBeat;
 	
-	msPerBeat = long( 60000000 / m_fBPM ); // 60 seconds * mills \ BPM
+	msPerBeat = long( 60000000 / m_nBPM ); // 60 seconds * mills \ BPM
 	
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
