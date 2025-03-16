@@ -84,7 +84,6 @@ class SMFBase
 public:
 	virtual ~SMFBase() {}
 	virtual QByteArray getBuffer() const = 0;
-	virtual QString toQString() const = 0;
 };
 
 
@@ -97,7 +96,6 @@ public:
 	SMFEvent( int nTicks );
 	virtual ~SMFEvent();
 
-	virtual QString toQString() const override;
 	int m_nTicks;
 	int m_nDeltaTime;
 
@@ -124,6 +122,8 @@ public:
 	SMFTrackNameMetaEvent( const QString& sTrackName, int nTicks );
 	virtual QByteArray getBuffer() const override;
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
 	QString m_sTrackName;
 
@@ -139,6 +139,8 @@ public:
 	SMFSetTempoMetaEvent( int nBPM, int nTicks );
 	virtual QByteArray getBuffer() const override;
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
 	int m_nBPM;
 
@@ -153,6 +155,8 @@ class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCo
 public:
 	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, int nTicks );
 	virtual QByteArray getBuffer() const override;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 	QString m_sAuthor;
@@ -171,6 +175,9 @@ public:
 	virtual QByteArray getBuffer() const override;
 	// MTPMC = MIDI ticks per metronome click
 	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
 	unsigned m_nBeats, m_nNote, m_nMTPMC, m_nTSNP24;
 };
@@ -185,6 +192,8 @@ public:
 	SMFNoteOnEvent( int nTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual QByteArray getBuffer() const override;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 protected:
 	int m_nChannel;
@@ -202,6 +211,8 @@ public:
 	SMFNoteOffEvent( int nTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual QByteArray getBuffer() const override;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 protected:
 	int m_nChannel;

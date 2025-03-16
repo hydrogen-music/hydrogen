@@ -40,6 +40,20 @@
 namespace H2Core
 {
 
+QString SMFHeader::FormatToQString( Format format ) {
+	switch( format ) {
+	case Format::SingleMultiChannelTrack:
+		return "SingleMultiChannelTrack";
+	case Format::SimultaneousTracks:
+		return "SimultaneousTracks";
+	case Format::SequentialIndependentTracks:
+		return "SequentialIndependentTracks";
+	default:
+		return QString( "Unknown format value [%1]" )
+			.arg( static_cast<int>(format) );
+	}
+}
+
 SMFHeader::SMFHeader( Format format )
 		: m_format( format )
 		, m_nTracks( 0 ) {
@@ -66,8 +80,24 @@ QByteArray SMFHeader::getBuffer() const
 	return buffer.m_buffer;
 }
 
-QString SMFHeader::toQString() const {
-	return QString( getBuffer().toHex( ' ' ) );
+QString SMFHeader::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFHeader]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_format: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( FormatToQString( m_format ) ) )
+			.append( QString( "%1%2m_nTracks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTracks ) );
+	}
+	else {
+		sOutput = QString( "[SMFHeader] " )
+			.append( QString( "m_format: %1" )
+					 .arg( FormatToQString( m_format ) ) )
+			.append( QString( ", m_nTracks: %1" ).arg( m_nTracks ) );
+	}
+
+	return sOutput;
 }
 
 // :::::::::::::::
@@ -114,12 +144,30 @@ QByteArray SMFTrack::getBuffer() const {
 	return trackBuf;
 }
 
-QString SMFTrack::toQString() const {
-	return QString( getBuffer().toHex( ' ' ) );
-}
-
 void SMFTrack::addEvent( std::shared_ptr<SMFEvent> pEvent ) {
 	m_eventList.push_back( pEvent );
+}
+
+QString SMFTrack::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFTrack] m_eventList: \n" ).arg( sPrefix );
+		for ( const auto& ppEvent : m_eventList ) {
+			sOutput.append( QString( "%1%2\n" ).arg( sPrefix + s )
+							.arg( ppEvent->toQString( "", true ) ) );
+		}
+	}
+	else {
+		sOutput = QString( "[SMFTrack] m_eventList: [" );
+		for ( const auto& ppEvent : m_eventList ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppEvent->toQString( "", true ) ) );
+		}
+		sOutput.append( "]" );
+	}
+
+	return sOutput;
 }
 
 // ::::::::::::::::::::::
@@ -159,8 +207,34 @@ QByteArray SMF::getBuffer() const {
 	return smfBuffer;
 }
 
-QString SMF::toQString() const {
+QString SMF::bufferToQString() const {
 	return QString( getBuffer().toHex( ' ' ) );
+}
+
+QString SMF::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput.append( QString( "%1[SMF]\n%1%2m_pHeader: %3\n" ).arg( sPrefix )
+						.arg( s ).arg( m_pHeader->toQString( s, true ) ) )
+			.append( QString( "%1%2m_trackList:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& ppTrack : m_trackList ) {
+			sOutput.append( QString( "%1" )
+							.arg( ppTrack->toQString( s, false ) ) );
+		}
+	}
+	else {
+		sOutput.append( QString( "[SMF] m_pHeader: %1" )
+						.arg( m_pHeader->toQString( "", true ) ) )
+			.append( ", m_trackList: [" );
+		for ( const auto& ppTrack : m_trackList ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppTrack->toQString( "", true ) ) );
+		}
+		sOutput.append( "]" );
+	}
+
+	return sOutput;
 }
 
 // :::::::::::::::::::...
@@ -399,6 +473,28 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong,
 	m_pEventList->clear();
 }
 
+QString SMF1WriterSingle::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMF1WriterSingle] m_pEventList: \n" ).arg( sPrefix );
+		for ( const auto& ppEvent : *m_pEventList ) {
+			sOutput.append( QString( "%1%2\n" ).arg( sPrefix + s )
+							.arg( ppEvent->toQString( s, true ) ) );
+		}
+	}
+	else {
+		sOutput = QString( "[SMF1WriterSingle] m_pEventList: [" );
+		for ( const auto& ppEvent : *m_pEventList ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppEvent->toQString( "", true ) ) );
+		}
+		sOutput.append( "]" );
+	}
+
+	return sOutput;
+}
+
 // SMF1 MIDI MULTI EXPORT
 
 SMF1WriterMulti::SMF1WriterMulti()
@@ -476,6 +572,36 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong,
 	m_eventLists.clear();
 }
 
+QString SMF1WriterMulti::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMF1WriterMulti] m_eventLists: \n" ).arg( sPrefix );
+		for ( int ii = 0; ii < m_eventLists.size(); ii++ ) {
+			sOutput.append( QString( "%1%2[%3]:\n" ).arg( sPrefix )
+							.arg( s ).arg( ii ) );
+			for ( const auto& ppEvent : *m_eventLists[ ii ] ) {
+				sOutput.append( QString( "%1%2\n" ).arg( sPrefix + s + s )
+								.arg( ppEvent->toQString( "", true ) ) );
+			}
+		}
+	}
+	else {
+		sOutput = QString( "[SMF1WriterMulti] m_eventLists: [" );
+		for ( int ii = 0; ii < m_eventLists.size(); ii++ ) {
+			sOutput.append( QString( "[[%1]: " ).arg( ii ) );
+			for ( const auto& ppEvent : *m_eventLists[ ii ] ) {
+				sOutput.append( QString( "[%1] " )
+								.arg( ppEvent->toQString( s + s, true ) ) );
+			}
+			sOutput.append( "] " );
+		}
+		sOutput.append( "]" );
+	}
+
+	return sOutput;
+}
+
 // SMF0 MIDI  EXPORT
 
 SMF0Writer::SMF0Writer() : SMFWriter()
@@ -530,6 +656,31 @@ void SMF0Writer::packEvents( std::shared_ptr<Song> pSong,
 	}
 
 	m_pEventList->clear();
+}
+
+QString SMF0Writer::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMF0Writer] m_pEventList: \n" ).arg( sPrefix );
+		for ( const auto& ppEvent : *m_pEventList ) {
+			sOutput.append( QString( "%1%2\n" ).arg( sPrefix + s )
+							.arg( ppEvent->toQString( "", true ) ) );
+		}
+		sOutput.append( QString( "%1%2m_pTrack: %3\n" ).arg( sPrefix )
+						.arg( s ).arg( m_pTrack->toQString( s, false ) ) );
+	}
+	else {
+		sOutput = QString( "[SMF0Writer] m_pEventList: [" );
+		for ( const auto& ppEvent : *m_pEventList ) {
+			sOutput.append( QString( "[%1] " )
+							.arg( ppEvent->toQString( "", true ) ) );
+		}
+		sOutput.append( QString( "], m_pTrack: %1" )
+						.arg( m_pTrack->toQString( "", true ) ) );
+	}
+
+	return sOutput;
 }
 
 };

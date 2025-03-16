@@ -103,6 +103,28 @@ QByteArray SMFTrackNameMetaEvent::getBuffer() const
 	return buf.getBuffer();
 }
 
+QString SMFTrackNameMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFTrackNameMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_sTrackName: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sTrackName ) );
+	}
+	else {
+		sOutput = QString( "[SMFTrackNameMetaEvent] " )
+			.append( QString( "m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_sTrackName: %1" ).arg( m_sTrackName ) );
+	}
+
+	return sOutput;
+}
+
 // ::::::::::::::::::
 
 SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( int nBPM, int nTicks )
@@ -131,6 +153,28 @@ QByteArray SMFSetTempoMetaEvent::getBuffer() const
 	buf.writeByte( msPerBeat );
 	
 	return buf.getBuffer();
+}
+
+QString SMFSetTempoMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFSetTempoMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nBPM: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nBPM ) );
+	}
+	else {
+		sOutput = QString( "[SMFSetTempoMetaEvent] " )
+			.append( QString( "m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nBPM: %1" ).arg( m_nBPM ) );
+	}
+
+	return sOutput;
 }
 
 // ::::::::::::::::::
@@ -165,6 +209,28 @@ QByteArray SMFCopyRightNoticeMetaEvent::getBuffer() const
 	buf.writeString( sCopyRightString );
 
 	return buf.getBuffer();
+}
+
+QString SMFCopyRightNoticeMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFCopyRightNoticeMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sAuthor ) );
+	}
+	else {
+		sOutput = QString( "[SMFCopyRightNoticeMetaEvent] " )
+			.append( QString( "m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) );
+	}
+
+	return sOutput;
 }
 
 // ::::::::::::::::::
@@ -205,6 +271,38 @@ QByteArray SMFTimeSignatureMetaEvent::getBuffer() const
 	return buf.getBuffer();
 }
 
+QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFTimeSignatureMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nBeats: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nBeats ) )
+			.append( QString( "%1%2m_nNote: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nNote ) )
+			.append( QString( "%1%2m_nMTPMC: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nMTPMC ) )
+			.append( QString( "%1%2m_nTSNP24: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTSNP24 ) );
+	}
+	else {
+		sOutput = QString( "[SMFTimeSignatureMetaEvent] " )
+			.append( QString( "m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nBeats: %1" ).arg( m_nBeats ) )
+			.append( QString( ", m_nNote: %1" ).arg( m_nNote ) )
+			.append( QString( ", m_nMTPMC: %1" ).arg( m_nMTPMC ) )
+			.append( QString( ", m_nTSNP24: %1" ).arg( m_nTSNP24 ) );
+	}
+
+	return sOutput;
+}
+
 // :::::::::::::
 
 
@@ -213,10 +311,6 @@ SMFEvent::SMFEvent( int nTicks ) : m_nTicks( nTicks )
 }
 
 SMFEvent::~SMFEvent() {
-}
-
-QString SMFEvent::toQString() const {
-	return QString( getBuffer().toHex( ' ' ) );
 }
 
 
@@ -248,6 +342,34 @@ QByteArray SMFNoteOnEvent::getBuffer() const
 	return buf.getBuffer();
 }
 
+QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFNoteOnEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nChannel ) )
+			.append( QString( "%1%2m_nPitch: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nPitch ) )
+			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nVelocity ) );
+	}
+	else {
+		sOutput = QString( "[SMFNoteOnEvent] " )
+			.append( QString( "m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
+			.append( QString( ", m_nPitch: %1" ).arg( m_nPitch ) )
+			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
+	}
+
+	return sOutput;
+}
 
 // :::::::::::
 
@@ -276,6 +398,35 @@ QByteArray SMFNoteOffEvent::getBuffer() const
 	buf.writeByte( m_nVelocity );
 
 	return buf.getBuffer();
+}
+
+QString SMFNoteOffEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFNoteOffEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nChannel ) )
+			.append( QString( "%1%2m_nPitch: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nPitch ) )
+			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nVelocity ) );
+	}
+	else {
+		sOutput = QString( "[SMFNoteOffEvent] " )
+			.append( QString( "m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
+			.append( QString( ", m_nPitch: %1" ).arg( m_nPitch ) )
+			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
+	}
+
+	return sOutput;
 }
 
 };

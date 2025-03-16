@@ -57,14 +57,16 @@ public:
 		SimultaneousTracks = 1,
 		SequentialIndependentTracks = 2
 	};
+		static QString FormatToQString( Format format );
 
 	SMFHeader( Format format );
 	~SMFHeader();
 	
 	void addTrack();
 	virtual QByteArray getBuffer() const override;
-	virtual QString toQString() const override;
-	
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
 	Format m_format;		///< SMF format
 	int m_nTracks;		///< number of tracks
@@ -84,7 +86,8 @@ public:
 	void addEvent( std::shared_ptr<SMFEvent> pEvent );
 
 	virtual QByteArray getBuffer() const override;
-	virtual QString toQString() const override;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 	std::vector< std::shared_ptr<SMFEvent> > m_eventList;
@@ -109,7 +112,10 @@ public:
 
 	void addTrack( std::shared_ptr<SMFTrack> pTrack );
 	virtual QByteArray getBuffer() const override;
-	virtual QString toQString() const override;
+
+		QString bufferToQString() const;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 	std::vector< std::shared_ptr<SMFTrack> > m_trackList;
@@ -175,6 +181,9 @@ protected:
 							 std::shared_ptr<SMF> pSmf ) override;
 	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
 												  std::shared_ptr<Instrument> pInstr ) override;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
 	std::shared_ptr<EventList> m_pEventList;
 };
@@ -194,6 +203,9 @@ protected:
 							  std::shared_ptr<SMF> pSmf ) override;
 	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
 												  std::shared_ptr<Instrument> pInstr ) override;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
 	// contains events for each instrument in separate vector
 	std::vector< std::shared_ptr<EventList> > m_eventLists;
@@ -217,6 +229,9 @@ protected:
 							  std::shared_ptr<SMF> pSmf ) override;
 	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
 												  std::shared_ptr<Instrument> pInstr ) override;
+
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
 	std::shared_ptr<SMFTrack> m_pTrack;
 	std::shared_ptr<EventList> m_pEventList;
