@@ -284,6 +284,10 @@ void Pattern::saveTo( XMLNode& node, int nInstrumentId, const QString& sType,
 	}
 }
 
+float Pattern::numerator() const {
+	return m_nLength  * m_nDenominator / ( 4 * H2Core::nTicksPerQuarter );
+}
+
 std::shared_ptr<Note> Pattern::findNote( int nPosition, int nInstrumentId,
 										 const QString& sInstrumentType,
 										 Note::Key key, Note::Octave octave ) const

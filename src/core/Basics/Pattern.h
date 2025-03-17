@@ -157,6 +157,11 @@ class Pattern : public H2Core::Object<Pattern>
 		///< get the flattened virtual pattern set
 		const virtual_patterns_t* getFlattenedVirtualPatterns() const;
 
+		/** Get the numerator of the time signature entered in
+		 * #PatternEditorPanel. Note that this quantity is a derived one based
+		 * and the denominator and the pattern length. */
+		float numerator() const;
+
 		/**
 		 * insert a new note within m_notes
 		 * \param pNote the note to be inserted

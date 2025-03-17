@@ -1232,9 +1232,7 @@ void PatternEditorPanel::updatePatternInfo() {
 			4 * m_pLCDSpinBoxDenominator->value() );
 	}
 
-	const double fNewNumerator = static_cast<double>(
-		m_pPattern->getLength() * m_pPattern->getDenominator() ) /
-		static_cast<double>( 4 * H2Core::nTicksPerQuarter );
+	const double fNewNumerator = static_cast<double>(m_pPattern->numerator());
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
 		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue(
