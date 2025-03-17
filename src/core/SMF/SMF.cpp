@@ -369,6 +369,12 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 							   fBpmColumn, nTick ), nullptr );
 				fBpm = fBpmColumn;
 			}
+
+			if ( pTimeline->hasColumnTag( nnColumn ) ) {
+				addEvent( std::make_shared<SMFMarkerMetaEvent>(
+							  pTimeline->getTagAtColumn( nnColumn ), nTick ),
+						  nullptr );
+			}
 		}
 
 		// Instead of working on the raw patternList of the column, we need to
