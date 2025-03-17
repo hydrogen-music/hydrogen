@@ -62,14 +62,12 @@ void SMFBuffer::writeVarLen( long value ) {
 	long buffer;
 	buffer = value & 0x7f;
 	while ( ( value >>= 7 ) > 0 ) {
-		INFOLOG( "." );
 		buffer <<= 8;
 		buffer |= 0x80;
 		buffer += ( value & 0x7f );
 	}
 
 	while ( true ) {
-//		putc( buffer, outfile );
 		writeByte( ( char )buffer );
 		if ( buffer & 0x80 ) {
 			buffer >>= 8;
@@ -188,23 +186,22 @@ SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( int nBPM, int nTicks )
 	m_nDeltaTime = 0;
 }
 
-
 QByteArray SMFSetTempoMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	long msPerBeat;
-	
+
 	msPerBeat = long( 60000000 / m_nBPM ); // 60 seconds * mills \ BPM
-	
+
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
 	buf.writeByte( static_cast<int>(m_type) );
 	buf.writeByte( 0x03 );	// Length
-	
+
 	buf.writeByte( msPerBeat >> 16 );
 	buf.writeByte( msPerBeat >> 8 );
 	buf.writeByte( msPerBeat );
-	
+
 	return buf.getBuffer();
 }
 
@@ -229,6 +226,53 @@ QString SMFSetTempoMetaEvent::toQString( const QString& sPrefix, bool bShort ) c
 			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nBPM: %1" ).arg( m_nBPM ) );
+	}
+
+	return sOutput;
+}
+
+// ::::::::::::::::::
+
+SMFMarkerMetaEvent::SMFMarkerMetaEvent( const QString& sText, int nTicks )
+		: SMFEvent( nTicks, SMFEvent::Type::Marker )
+		, m_sText( sText )
+{
+	// it's always at the start of the song
+	m_nDeltaTime = 0;
+}
+
+QByteArray SMFMarkerMetaEvent::getBuffer() const
+{
+	SMFBuffer buf;
+	buf.writeVarLen( m_nDeltaTime );
+	buf.writeByte( 0xFF );
+	buf.writeByte( static_cast<int>(m_type) );
+	buf.writeString( m_sText );
+
+	return buf.getBuffer();
+}
+
+QString SMFMarkerMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFMarkerMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_sText: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sText ) );
+	}
+	else {
+		sOutput = QString( "[SMFMarkerMetaEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_sText: %1" ).arg( m_sText ) );
 	}
 
 	return sOutput;

@@ -113,8 +113,6 @@ private:
 
 };
 
-
-
 /** \ingroup docCore docMIDI */
 class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoMetaEvent>
 {
@@ -130,7 +128,20 @@ private:
 
 };
 
+/** \ingroup docCore docMIDI */
+class SMFMarkerMetaEvent : public SMFEvent, public H2Core::Object<SMFMarkerMetaEvent>
+{
+	H2_OBJECT(SMFMarkerMetaEvent)
+public:
+	SMFMarkerMetaEvent( const QString& sText, int nTicks );
+	virtual QByteArray getBuffer() const override;
 
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
+private:
+	QString m_sText;
+
+};
 
 /** \ingroup docCore docMIDI */
 class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCopyRightNoticeMetaEvent>
