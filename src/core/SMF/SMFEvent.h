@@ -52,29 +52,6 @@ public:
 
 
 
-enum SMFEventType {
-	NOTE_OFF = 128,
-	NOTE_ON = 144
-};
-
-
-
-enum SMFMetaEventType {
-	SEQUENCE_NUMBER = 0,
-	TEXT_EVENT,
-	COPYRIGHT_NOTICE,
-	TRACK_NAME,
-	INSTRUMENT_NAME,
-	LYRIC,
-	MARKER,
-	CUE_POINT,
-	END_OF_TRACK = 0x2f,
-	SET_TEMPO = 0x51,
-	TIME_SIGNATURE = 0x58,
-	KEY_SIGNATURE
-};
-
-
 /** \ingroup docCore docMIDI */
 class SMFBase
 {
@@ -90,11 +67,33 @@ class SMFEvent : public SMFBase, public H2Core::Object<SMFEvent>
 {
 	H2_OBJECT(SMFEvent)
 public:
-	SMFEvent( int nTicks );
+
+	enum class Type {
+		CopyrightNotice = 2,
+		CuePoint = 7,
+		EndOfTrack = 0x2f,
+		InstrumentName = 4,
+		KeySignature = 0x59,
+		Lyric = 5,
+		Marker = 6,
+		NoteOff = 128,
+		NoteOn = 144,
+		SequenceNumber = 0,
+		SetTempo = 0x51,
+		TextEvent = 1,
+		TimeSignature = 0x58,
+		TrackName = 3,
+	};
+		static QString TypeToQString( Type type );
+		static bool IsMetaEvent( Type type );
+
+	SMFEvent( int nTicks, SMFEvent::Type type );
 	virtual ~SMFEvent();
 
 	int m_nTicks;
 	int m_nDeltaTime;
+
+		SMFEvent::Type m_type;
 };
 
 

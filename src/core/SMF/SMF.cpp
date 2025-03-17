@@ -135,7 +135,7 @@ QByteArray SMFTrack::getBuffer() const {
 	//  track end
 	trackBuf.push_back( static_cast<char>(0x00) );		// delta
 	trackBuf.push_back( static_cast<char>(0xFF) );
-	trackBuf.push_back( static_cast<char>(0x2F) );
+	trackBuf.push_back( static_cast<char>(SMFEvent::Type::EndOfTrack) );
 	trackBuf.push_back( static_cast<char>(0x00) );
 
 	return trackBuf;
