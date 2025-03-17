@@ -484,8 +484,22 @@ SMF1WriterSingle::~SMF1WriterSingle() {
 
 void SMF1WriterSingle::addEvent( std::shared_ptr<SMFEvent> pEvent,
 								 std::shared_ptr<Instrument> pInstr ) {
-	if ( m_pEventList != nullptr && pEvent != nullptr ) {
+	if ( pEvent == nullptr ) {
+		return;
+	}
+
+	if ( m_pEventList == nullptr || m_pTrack0 == nullptr ) {
+		ERRORLOG( "Not properly set up" );
+		return;
+	}
+
+	if ( pEvent->m_type == SMFEvent::Type::NoteOn ||
+		 pEvent->m_type == SMFEvent::Type::NoteOff ) {
 		m_pEventList->push_back( pEvent );
+	}
+	else {
+		// Meta event inserted into track0
+		m_pTrack0->addEvent( pEvent );
 	}
 }
 
@@ -578,20 +592,27 @@ void SMF1WriterMulti::addEvent( std::shared_ptr<SMFEvent> pEvent,
 		return;
 	}
 
-	if ( pInstr == nullptr ) {
+	if ( m_pTrack0 == nullptr ) {
+		ERRORLOG( "Not properly set up" );
+		return;
+	}
+
+	if ( pEvent->m_type == SMFEvent::Type::NoteOn ||
+		 pEvent->m_type == SMFEvent::Type::NoteOff ) {
+		const int nIndex = pInstr->getId();
+		if ( m_eventLists.find( nIndex ) == m_eventLists.end() ) {
+			ERRORLOG( QString( "EventList of index [%1] not found" ) );
+			return;
+		}
+
+		auto pEventList = m_eventLists[ nIndex ];
+		if ( pEventList != nullptr ) {
+			pEventList->push_back( pEvent );
+		}
+	}
+	else {
+		// Meta event inserted into track0
 		m_pTrack0->addEvent( pEvent );
-		return;
-	}
-
-	const int nIndex = pInstr->getId();
-	if ( m_eventLists.find( nIndex ) == m_eventLists.end() ) {
-		ERRORLOG( QString( "EventList of index [%1] not found" ) );
-		return;
-	}
-
-	auto pEventList = m_eventLists[ nIndex ];
-	if ( pEventList != nullptr ) {
-		pEventList->push_back( pEvent );
 	}
 }
 
