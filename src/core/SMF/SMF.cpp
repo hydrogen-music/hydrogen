@@ -305,6 +305,14 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 		return nullptr;
 	}
 
+	float fBpm;
+	if ( pSong->getIsTimelineActivated() ) {
+		fBpm = pSong->getTimeline()->getTempoAtColumn( 0 );
+	}
+	else {
+		fBpm = pSong->getBpm();
+	}
+
 	auto pTrack0 = std::make_shared<SMFTrack>();
 	pTrack0->addEvent(
 		std::make_shared<SMFCopyRightNoticeMetaEvent>( pSong->getAuthor() , 0 ) );
@@ -312,7 +320,7 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 		std::make_shared<SMFTrackNameMetaEvent>( pSong->getName() , 0 ) );
 	pTrack0->addEvent(
 		std::make_shared<SMFSetTempoMetaEvent>(
-			static_cast<int>(std::round( pSong->getBpm() )), 0 ) );
+			static_cast<int>(std::round( fBpm )), 0 ) );
 	pTrack0->addEvent(
 		std::make_shared<SMFTimeSignatureMetaEvent>( 4 , 4 , 24 , 8 , 0 ) );
 
@@ -328,6 +336,16 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 
 	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFilename ) );
 
+	// Add the tempo information of the track
+	const auto pTimeline = pSong->getTimeline();
+	const bool bUseTimeline = pSong->getIsTimelineActivated();
+	float fBpm;
+	if ( bUseTimeline ) {
+		fBpm = pTimeline->getTempoAtColumn( 0 );
+	}
+	else {
+		fBpm = pSong->getBpm();
+	}
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
@@ -340,6 +358,18 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 		  nnColumn < pSong->getPatternGroupVector()->size() ;
 		  nnColumn++ ) {
 		auto pColumn = ( *(pSong->getPatternGroupVector()) )[ nnColumn ];
+
+		if ( bUseTimeline ) {
+			// In case the timeline is used, we adopt the new tempo (even if
+			// there is no pattern in the current column).
+			const float fBpmColumn = pTimeline->getTempoAtColumn( nnColumn );
+			if ( fBpmColumn != fBpm ) {
+				// Tempo change
+				addEvent( std::make_shared<SMFSetTempoMetaEvent>(
+							   fBpmColumn, nTick ), nullptr );
+				fBpm = fBpmColumn;
+			}
+		}
 
 		// Instead of working on the raw patternList of the column, we need to
 		// expand all virtual patterns.
