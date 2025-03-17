@@ -305,24 +305,11 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 		return nullptr;
 	}
 
-	float fBpm;
-	if ( pSong->getIsTimelineActivated() ) {
-		fBpm = pSong->getTimeline()->getTempoAtColumn( 0 );
-	}
-	else {
-		fBpm = pSong->getBpm();
-	}
-
 	auto pTrack0 = std::make_shared<SMFTrack>();
 	pTrack0->addEvent(
 		std::make_shared<SMFCopyRightNoticeMetaEvent>( pSong->getAuthor() , 0 ) );
 	pTrack0->addEvent(
 		std::make_shared<SMFTrackNameMetaEvent>( pSong->getName() , 0 ) );
-	pTrack0->addEvent(
-		std::make_shared<SMFSetTempoMetaEvent>(
-			static_cast<int>(std::round( fBpm )), 0 ) );
-	pTrack0->addEvent(
-		std::make_shared<SMFTimeSignatureMetaEvent>( 4 , 4 , 24 , 8 , 0 ) );
 
 	return pTrack0;
 }
@@ -336,7 +323,10 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 
 	INFOLOG( QString( "Export MIDI to [%1]" ).arg( sFilename ) );
 
-	// Add the tempo information of the track
+	// here writers must prepare to receive pattern events
+	prepareEvents( pSong );
+
+	// Initial the tempo information.
 	const auto pTimeline = pSong->getTimeline();
 	const bool bUseTimeline = pSong->getIsTimelineActivated();
 	float fBpm;
@@ -346,11 +336,17 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	else {
 		fBpm = pSong->getBpm();
 	}
+	addEvent( std::make_shared<SMFSetTempoMetaEvent>(
+			static_cast<int>(std::round( fBpm )), 0 ), nullptr );
+
+	// Initial the time signature (already added in createTrack0).
+	int nNumerator, nDenominator;
+	int nLastNumerator = 4;
+	int nLastDenominator = 4;
+	addEvent( std::make_shared<SMFTimeSignatureMetaEvent>(
+				  nLastNumerator, nLastDenominator, 24 , 8 , 0 ), nullptr );
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
-
-	// here writers must prepare to receive pattern events
-	prepareEvents( pSong );
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	int nTick = 0;
