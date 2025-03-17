@@ -38,6 +38,8 @@ namespace H2Core
 class Song;
 class Instrument;
 
+typedef std::vector< std::shared_ptr<SMFEvent> > EventList;
+
 /** \ingroup docCore docMIDI */
 class SMFHeader : public Object<SMFHeader>, public SMFBase
 {
@@ -80,20 +82,23 @@ class SMFTrack : public Object<SMFTrack>, public SMFBase
 	H2_OBJECT(SMFTrack)
 public:
 
-	SMFTrack();
+	/** @param pOtherEventList can contain events which will be shallow copied
+	 *    into the track. */
+	SMFTrack( std::shared_ptr<EventList> pOtherEventList = nullptr );
 	~SMFTrack();
 
 	void addEvent( std::shared_ptr<SMFEvent> pEvent );
 
 	virtual QByteArray getBuffer() const override;
 
+		static void sortEvents( std::shared_ptr<EventList> pEventList );
+		void sortAndTimeEvents();
+
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
-	std::vector< std::shared_ptr<SMFEvent> > m_eventList;
+	std::shared_ptr<EventList> m_pEventList;
 };
-
-
 
 /** \ingroup docCore docMIDI */
 class SMF : public Object<SMF>, public SMFBase
@@ -124,30 +129,25 @@ private:
 };
 
 
-
-typedef std::vector< std::shared_ptr<SMFEvent> > EventList;
-
-
 /** \ingroup docCore docMIDI */
 class SMFWriter : public H2Core::Object<SMFWriter>
 {
 	H2_OBJECT(SMFWriter)
 public:
-	SMFWriter();
+	SMFWriter( SMFHeader::Format format );
 	virtual ~SMFWriter();
 	void save( const QString& sFilename, std::shared_ptr<Song> pSong );
 
 protected:
-	void sortEvents( std::shared_ptr<EventList> pEventList );
 	std::shared_ptr<SMFTrack> createTrack0( std::shared_ptr<Song> pSong );
 	
-	virtual std::shared_ptr<SMF> createSMF( std::shared_ptr<Song> pSong ) = 0;
-	virtual void prepareEvents( std::shared_ptr<Song> pSong,
-								std::shared_ptr<SMF> pSmf )=0;
-	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
-												  std::shared_ptr<Instrument> pInstr ) = 0;
+	virtual void prepareEvents( std::shared_ptr<Song> pSong )=0;
+	virtual void addEvent( std::shared_ptr<SMFEvent> pEvent,
+						   std::shared_ptr<Instrument> pInstr ) = 0;
 	virtual void packEvents( std::shared_ptr<Song> pSong,
 							  std::shared_ptr<SMF> pSmf ) = 0;
+
+		SMFHeader::Format m_format;
 	
 private:
 	void saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf );
@@ -164,7 +164,9 @@ public:
     SMF1Writer();
 	virtual ~SMF1Writer();
 protected:
-	virtual std::shared_ptr<SMF> createSMF( std::shared_ptr<Song> pSong ) override;
+	/** Track containing tempo, time signature, and text (Timeline tags)
+	 * events. */
+	std::shared_ptr<SMFTrack> m_pTrack0;
 };
 
 
@@ -176,12 +178,11 @@ public:
     SMF1WriterSingle();
 	virtual ~SMF1WriterSingle();
 protected:
-	virtual void prepareEvents( std::shared_ptr<Song> pSong,
-								std::shared_ptr<SMF> pSmf ) override;
+	virtual void prepareEvents( std::shared_ptr<Song> pSong ) override;
 	virtual void packEvents( std::shared_ptr<Song> pSong,
 							 std::shared_ptr<SMF> pSmf ) override;
-	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
-												  std::shared_ptr<Instrument> pInstr ) override;
+	virtual void addEvent( std::shared_ptr<SMFEvent> pEvent,
+						   std::shared_ptr<Instrument> pInstr ) override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
@@ -198,18 +199,18 @@ public:
     SMF1WriterMulti();
 	virtual ~SMF1WriterMulti();
 protected:
-	virtual void prepareEvents( std::shared_ptr<Song> pSong,
-								std::shared_ptr<SMF> pSmf ) override;
+	virtual void prepareEvents( std::shared_ptr<Song> pSong ) override;
 	virtual void packEvents( std::shared_ptr<Song> pSong,
 							  std::shared_ptr<SMF> pSmf ) override;
-	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
-												  std::shared_ptr<Instrument> pInstr ) override;
+	virtual void addEvent( std::shared_ptr<SMFEvent> pEvent,
+						   std::shared_ptr<Instrument> pInstr ) override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
-	// contains events for each instrument in separate vector
-	std::vector< std::shared_ptr<EventList> > m_eventLists;
+	/** Contains events for each instrument in separate list using the
+	 * corresponding instrument ID as index. */
+	std::map<int, std::shared_ptr<EventList> > m_eventLists;
 };
 
 
@@ -223,17 +224,16 @@ public:
     SMF0Writer();
 	virtual ~SMF0Writer();
 protected:
-	virtual std::shared_ptr<SMF> createSMF( std::shared_ptr<Song> pSong ) override;
-	virtual void prepareEvents( std::shared_ptr<Song> pSong,
-								std::shared_ptr<SMF> pSmf ) override;
+	virtual void prepareEvents( std::shared_ptr<Song> pSong ) override;
 	virtual void packEvents( std::shared_ptr<Song> pSong,
 							  std::shared_ptr<SMF> pSmf ) override;
-	virtual std::shared_ptr<EventList> getEvents( std::shared_ptr<Song> pSong,
-												  std::shared_ptr<Instrument> pInstr ) override;
+	virtual void addEvent( std::shared_ptr<SMFEvent> pEvent,
+						   std::shared_ptr<Instrument> pInstr ) override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
+		/** Track containing all events. */
 	std::shared_ptr<SMFTrack> m_pTrack;
 	std::shared_ptr<EventList> m_pEventList;
 };
