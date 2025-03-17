@@ -170,6 +170,7 @@ class XMLNode;
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
 		int longestPatternLength( bool bIncludeVirtuals = true ) const;
+		std::shared_ptr<Pattern> getLongestPattern( bool bIncludeVirtuals = true ) const;
 
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
 					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );

@@ -390,28 +390,11 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 									  jack_position_t* pJackPosition ) {
 	// We use the longest playing pattern as reference.
-	std::shared_ptr<Pattern> pPattern = nullptr;
-	int nPatternLength = 0;
-	auto pPatternList = transportPos.getPlayingPatterns();
-	for ( std::vector<std::shared_ptr<Pattern>>::const_iterator ppPattern = pPatternList->cbegin();
-		  ppPattern < pPatternList ->cend(); ppPattern++ ) {
-		if ( (*ppPattern)->getLength() > nPatternLength ) {
-			nPatternLength = (*ppPattern)->getLength();
-			pPattern = *ppPattern;
-		}
-
-		for ( const auto& ppVirtualPattern : *(*ppPattern)->getFlattenedVirtualPatterns() ) {
-			if ( ppVirtualPattern->getLength() > nPatternLength ) {
-				nPatternLength = ppVirtualPattern->getLength();
-				pPattern = ppVirtualPattern;
-			}
-		}
-	}
+	auto pPattern = transportPos.getPlayingPatterns()->getLongestPattern( true );
 
 	float fNumerator, fDenumerator;
 	if ( pPattern != nullptr ) {
-		fNumerator = nPatternLength * pPattern->getDenominator() /
-			( 4 * H2Core::nTicksPerQuarter );
+		fNumerator = pPattern->numerator();
 		fDenumerator = pPattern->getDenominator();
 	}
 	else {
