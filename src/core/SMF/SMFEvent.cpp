@@ -23,6 +23,8 @@
 #include <core/SMF/SMFEvent.h>
 #include <core/Timehelper.h>
 
+#include "math.h"
+
 namespace H2Core
 {
 
@@ -340,16 +342,14 @@ QString SMFCopyRightNoticeMetaEvent::toQString( const QString& sPrefix, bool bSh
 
 // ::::::::::::::::::
 		
-SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats,
-													  unsigned nNote,
-													  unsigned nMTPMC,
-													  unsigned nTSNP24,
+SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( int nNumerator,
+													  int nDenominator,
 													  int nTicks )
 		: SMFEvent( nTicks, SMFEvent::Type::TimeSignature )
-		, m_nBeats( nBeats )
-		, m_nNote( nNote )
-		, m_nMTPMC( nMTPMC )
-		, m_nTSNP24( nTSNP24 )
+		, m_nNumerator( nNumerator )
+		, m_nDenominator( nDenominator )
+		, m_nMTPMC( 24 )
+		, m_nTSNP24( 8 )
 {
 	// it's always at the start of the song
 	m_nDeltaTime = 0;
@@ -359,17 +359,16 @@ SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats,
 QByteArray SMFTimeSignatureMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
-	
-	unsigned nBeatsCopy = m_nNote , Note2Log =  0;	// Copy Nbeats as the process to generate Note2Log alters the value.
-	
-	while (nBeatsCopy >>= 1) ++Note2Log;			// Generate a log to base 2 of the note value, so 8 (as in 6/8) becomes 3
-	
+
+	const int nDenominatorLog2 = static_cast<int>(
+		std::round( std::log2( static_cast<double>(m_nDenominator) ) ));
+
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
 	buf.writeByte( static_cast<int>(m_type) );
 	buf.writeByte( 0x04 );		// Event length in bytes.
-	buf.writeByte( m_nBeats );	// Top line of time signature, eg 6 for 6/8 time
-	buf.writeByte( Note2Log );	// Bottom line of time signature expressed as Log2 of the Note value.
+	buf.writeByte( m_nNumerator );	// Top line of time signature, eg 6 for 6/8 time
+	buf.writeByte( nDenominatorLog2 );	// Bottom line of time signature expressed as Log2
 	buf.writeByte( m_nMTPMC );	// MIDI Ticks per Metronome click, normally 24 ( i.e. each quarter note ).
 	buf.writeByte( m_nTSNP24 );	// Thirty Second Notes ( as in 1/32 ) per 24 MIDI clocks, normally 8.
 
@@ -387,10 +386,10 @@ QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShor
 					 .arg( s ).arg( m_nTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
-			.append( QString( "%1%2m_nBeats: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nBeats ) )
-			.append( QString( "%1%2m_nNote: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nNote ) )
+			.append( QString( "%1%2m_nNumerator: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nNumerator ) )
+			.append( QString( "%1%2m_nDenominator: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDenominator ) )
 			.append( QString( "%1%2m_nMTPMC: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nMTPMC ) )
 			.append( QString( "%1%2m_nTSNP24: %3\n" ).arg( sPrefix )
@@ -402,9 +401,8 @@ QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShor
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
 			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
-			.append( QString( ", m_nBeats: %1" ).arg( m_nBeats ) )
-			.append( QString( ", m_nNote: %1" ).arg( m_nNote ) )
+			.append( QString( ", m_nNumerator: %1" ).arg( m_nNumerator ) )
+			.append( QString( ", m_nDenominator: %1" ).arg( m_nDenominator ) )
 			.append( QString( ", m_nMTPMC: %1" ).arg( m_nMTPMC ) )
 			.append( QString( ", m_nTSNP24: %1" ).arg( m_nTSNP24 ) );
 	}

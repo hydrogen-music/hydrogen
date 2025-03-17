@@ -165,8 +165,7 @@ class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTime
 {
 	H2_OBJECT(SMFTimeSignatureMetaEvent)
 public:
-	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote, unsigned nMTPMC,
-							   unsigned nTSNP24, int nTicks );
+	SMFTimeSignatureMetaEvent( int nNumerator, int nDenominator, int nTicks );
 	virtual QByteArray getBuffer() const override;
 	// MTPMC = MIDI ticks per metronome click
 	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
@@ -174,7 +173,7 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
-	unsigned m_nBeats, m_nNote, m_nMTPMC, m_nTSNP24;
+	int m_nNumerator, m_nDenominator, m_nMTPMC, m_nTSNP24;
 };
 
 

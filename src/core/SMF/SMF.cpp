@@ -344,7 +344,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 	int nLastNumerator = 4;
 	int nLastDenominator = 4;
 	addEvent( std::make_shared<SMFTimeSignatureMetaEvent>(
-				  nLastNumerator, nLastDenominator, 24 , 8 , 0 ), nullptr );
+				  nLastNumerator, nLastDenominator , 0 ), nullptr );
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
