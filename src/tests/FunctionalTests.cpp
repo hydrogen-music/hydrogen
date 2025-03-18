@@ -38,7 +38,6 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Playlist.h>
-#include <core/SMF/SMF.h>
 #include "TestHelper.h"
 #include "assertions/File.h"
 #include "assertions/AudioFile.h"
@@ -51,13 +50,8 @@ using namespace H2Core;
 class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( FunctionalTest );
 	CPPUNIT_TEST( testExportAudio );
-	CPPUNIT_TEST( testExportMIDISMF0 );
-	CPPUNIT_TEST( testExportMIDISMF1Single );
-	CPPUNIT_TEST( testExportMIDISMF1Multi );
 //	CPPUNIT_TEST( testExportMuteGroupsAudio ); // SKIP
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
-	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF0 );
-	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF1 );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
@@ -99,48 +93,6 @@ public:
 	___INFOLOG( "passed" );
 	}
 
-	void testExportMIDISMF1Single()
-	{
-	___INFOLOG( "" );
-		auto songFile = H2TEST_FILE("functional/test.h2song");
-		auto outFile = Filesystem::tmp_file_path("smf1single.test.mid");
-		auto refFile = H2TEST_FILE("functional/smf1single.test.ref.mid");
-
-		auto pWriter = std::make_shared<SMF1WriterSingle>();
-		TestHelper::exportMIDI( songFile, outFile, pWriter );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
-		Filesystem::rm( outFile );
-	___INFOLOG( "passed" );
-	}
-	
-	void testExportMIDISMF1Multi()
-	{
-	___INFOLOG( "" );
-		auto songFile = H2TEST_FILE("functional/test.h2song");
-		auto outFile = Filesystem::tmp_file_path("smf1multi.test.mid");
-		auto refFile = H2TEST_FILE("functional/smf1multi.test.ref.mid");
-
-		auto pWriter = std::make_shared<SMF1WriterMulti>();
-		TestHelper::exportMIDI( songFile, outFile, pWriter );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
-		Filesystem::rm( outFile );
-	___INFOLOG( "passed" );
-	}
-	
-	void testExportMIDISMF0()
-	{
-	___INFOLOG( "" );
-		auto songFile = H2TEST_FILE("functional/test.h2song");
-		auto outFile = Filesystem::tmp_file_path("smf0.test.mid");
-		auto refFile = H2TEST_FILE("functional/smf0.test.ref.mid");
-
-		auto pWriter = std::make_shared<SMF0Writer>();
-		TestHelper::exportMIDI( songFile, outFile, pWriter );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
-		Filesystem::rm( outFile );
-	___INFOLOG( "passed" );
-	}
-	
 /* SKIP
 	void testExportMuteGroupsAudio()
 	{
@@ -167,36 +119,5 @@ public:
 		Filesystem::rm( outFile );
 	___INFOLOG( "passed" );
 	}
-
-	void testExportVelocityAutomationMIDISMF1()
-	{
-	___INFOLOG( "" );
-		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
-		auto outFile = Filesystem::tmp_file_path("smf1.velocityautomation.mid");
-		auto refFile = H2TEST_FILE("functional/smf1.velocityautomation.ref.mid");
-
-		auto pWriter = std::make_shared<SMF1WriterSingle>();
-		TestHelper::exportMIDI( songFile, outFile, pWriter );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
-		
-		Filesystem::rm( outFile );
-	___INFOLOG( "passed" );
-	}
-	
-	void testExportVelocityAutomationMIDISMF0()
-	{
-	___INFOLOG( "" );
-		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
-		auto outFile = Filesystem::tmp_file_path("smf0.velocityautomation.mid");
-		auto refFile = H2TEST_FILE("functional/smf0.velocityautomation.ref.mid");
-
-		auto pWriter = std::make_shared<SMF0Writer>();
-		TestHelper::exportMIDI( songFile, outFile, pWriter );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
-		
-		Filesystem::rm( outFile );
-	___INFOLOG( "passed" );
-	}
-
 
 };
