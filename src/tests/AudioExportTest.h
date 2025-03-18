@@ -29,11 +29,17 @@ class AudioExportTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( AudioExportTest );
 	CPPUNIT_TEST( testExportAudio );
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
+#ifdef H2CORE_HAVE_LIBARCHIVE
+	CPPUNIT_TEST( testFormats );
+#endif
 	CPPUNIT_TEST_SUITE_END();
 	
 	public:
 		void testExportAudio();
 		void testExportVelocityAutomationAudio();
+		/** Exports a song in all supported format, sample rate and sample depth
+		 * configurations. */
+		void testFormats();
 };
 
 #endif
