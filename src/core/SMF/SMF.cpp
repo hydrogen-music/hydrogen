@@ -30,6 +30,8 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/AutomationPath.h>
 
+#include <math.h>
+
 #include <QFile>
 #include <QTextCodec>
 #include <QTextStream>
@@ -223,6 +225,140 @@ QString SMFTrack::toQString( const QString& sPrefix, bool bShort ) const {
 
 // ::::::::::::::::::::::
 
+void SMF::PatternToTimeSignature( std::shared_ptr<Pattern> pPattern,
+								  int* pNumerator, int* pDenominator,
+								  bool* pRounded, bool* pScaled ) {
+	if ( pPattern == nullptr) {
+		ERRORLOG( "Invalid pattern" );
+		return;
+	}
+
+	if ( pRounded != nullptr ) {
+		*pRounded = false;
+	}
+	if ( pScaled != nullptr ) {
+		*pScaled = false;
+	}
+
+	// For a SMF time signature to be valid, the numerator needs to be an
+	// integer and the denominator a power of two.
+	auto valid = []( double fNumerator, double fDenominator ) {
+		double fLog = std::log2( fDenominator );
+		return std::abs( std::round( fNumerator ) - fNumerator ) == 0 &&
+			std::abs( std::round( fLog ) - fLog ) == 0;
+	};
+
+	double fNumerator = static_cast<double>(pPattern->numerator());
+	double fDenominator = static_cast<double>(pPattern->getDenominator());
+
+	if ( ! valid( fNumerator, fDenominator ) ) {
+		WARNINGLOG( QString( "Time signature [%1/%2] does not comply with the General MIDI standard." )
+					.arg( fNumerator ).arg( static_cast<int>(fDenominator) ) );
+
+		// Factor by which the denominator has to be scaled to be a exactly a
+		// power of two. The scaled results will be plain wrong, e.g. 4/3 ->
+		// 5.3/4. But this is what it takes to make it compatible with the SMF
+		// file standard and just assigning 4/4 would be wrong too. Instead, we
+		// prompt to user to address this inconsistency. will be wrong. But it
+		// will be most probably "less"
+		const double fScale = std::exp2(
+			std::abs( std::log2( fDenominator ) -
+					  std::round( std::log2( fDenominator ) ) ) );
+		if ( fScale != 1.0 ) {
+			WARNINGLOG( QString( "The denominator [%1] has to be a power of two! The whole time signature will be scaled by a factor of [%2] to allow MIDI export." )
+						.arg( static_cast<int>( fDenominator ) ).arg( fScale ) );
+			if ( pScaled != nullptr ) {
+				*pScaled = true;
+			}
+		}
+
+		// Since we allow floating point numerators in Hydrogen, we might have
+		// to do some rounding to comply with the SMF time signature. But this
+		// rounding will only happen in the numerator. Another option is to
+		// scale both numerator and denominator by the same factor of two in
+		// order to make the former an integer.
+		//
+		// The routine below tests various powers of two in order to find the
+		// one yielding a numerator closest to an integer. But since large
+		// rescalings may be not the thing the user expects/wants, we introduce
+		// a penalty (similar to an information criterion, like AIC or BIC) to
+		// favor or discourage large scalings of the time signature against
+		// rounding errors.
+		const int nPowerStart =
+			static_cast<int>(std::log2( fScale * fDenominator ));
+		int nPowerOffset = 0;
+
+		// Initialized with an arbitrary large value.
+		double fDiff = 1000;
+		for ( int nnPower = 0; nnPower + nPowerStart <= 255; ++nnPower ) {
+			const double fNewNumerator = fNumerator *
+				fScale * std::exp2( nnPower - nPowerStart );
+			if ( fNewNumerator > 255 ) {
+				// We have to represent the numerator with a single byte. The
+				// current scaling and all following ones is too much.
+				break;
+			}
+
+			// Ensure the denominator would still be a power of two
+			if ( nnPower < nPowerStart ) {
+				const double fNewDenominatorLog = std::log2(
+					fDenominator * fScale * std::exp2( nnPower - nPowerStart ) );
+				if ( fNewDenominatorLog != std::round( fNewDenominatorLog ) ) {
+					continue;
+				}
+			}
+
+			const double fNewDiff =
+				std::abs( std::round( fNewNumerator ) - fNewNumerator );
+			const double fPenalty =
+				std::abs( SMF::fPenaltyTimeSignature * ( nnPower - nPowerStart ) );
+			if ( fNewDiff == 0 ) {
+				// With this scaling we can represent both numerator and
+				// denominator as integers.
+				nPowerOffset = nnPower;
+				break;
+			}
+			else if ( fNewDiff + fPenalty < fDiff ) {
+				fDiff = fNewDiff + fPenalty;
+				nPowerOffset = nnPower;
+			}
+		}
+
+		// Apply all scaling values
+		fDenominator *= fScale * std::exp2( nPowerOffset - nPowerStart );
+		fNumerator *= fScale * std::exp2( nPowerOffset - nPowerStart );
+
+		if ( std::round( fNumerator ) != fNumerator ) {
+			WARNINGLOG( QString( "(Scaled) Numerator [%1] must be an integer and will be rounded" )
+						.arg( fNumerator ) );
+			fNumerator = std::round( fNumerator );
+			if ( pRounded != nullptr ) {
+				*pRounded = true;
+			}
+		}
+
+		INFOLOG( QString( "New time signature [%1/%2]" )
+				 .arg( fNumerator ).arg( fDenominator ) );
+	}
+
+	// Sanity checks.
+	fNumerator = std::clamp(
+		fNumerator, static_cast<double>(1), static_cast<double>(255) );
+	fDenominator = std::clamp(
+		fDenominator, static_cast<double>(0), std::exp2(255) );
+
+	// Done. Pass the found values to the arguments.
+	if ( pNumerator != nullptr ) {
+		*pNumerator = static_cast<int>(std::round( fNumerator ));
+	}
+
+	if ( pDenominator != nullptr ) {
+		// Another sanity check to ensure we only provide an exact power of two.
+		*pDenominator = static_cast<int>(
+			std::exp2( std::round( std::log2(fDenominator) )) );
+	}
+};
+
 SMF::SMF( SMFHeader::Format format ) {
 	m_pHeader = std::make_shared<SMFHeader>( format );
 }
@@ -341,8 +477,16 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 
 	// Initial the time signature (already added in createTrack0).
 	int nNumerator, nDenominator;
+	bool bRounded, bScaled;
 	int nLastNumerator = 4;
 	int nLastDenominator = 4;
+	if ( pSong->getPatternGroupVector()->size() > 0 &&
+		 pSong->getPatternGroupVector()->at( 0 )->size() > 0 ) {
+		// There is at least one pattern in the first column.
+		SMF::PatternToTimeSignature(
+			pSong->getPatternGroupVector()->at( 0 )->getLongestPattern( true ),
+			&nLastNumerator, &nLastDenominator, &bRounded, &bScaled );
+	}
 	addEvent( std::make_shared<SMFTimeSignatureMetaEvent>(
 				  nLastNumerator, nLastDenominator , 0 ), nullptr );
 
@@ -386,6 +530,23 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 		}
 		else {
 			nColumnLength = 4 * H2Core::nTicksPerQuarter;
+		}
+
+		// Add the time signature event for this column in case it did change.
+		auto pLongestPattern = pPatternList->getLongestPattern( true );
+		if ( pLongestPattern != nullptr ) {
+			SMF::PatternToTimeSignature( pLongestPattern, &nNumerator,
+										 &nDenominator, &bRounded, &bScaled );
+		}
+		else {
+			nNumerator = 4;
+			nDenominator = 4;
+		}
+		if ( nNumerator != nLastNumerator || nDenominator != nLastDenominator ) {
+			addEvent( std::make_shared<SMFTimeSignatureMetaEvent>(
+						  nNumerator, nDenominator, nTick ), nullptr );
+			nLastNumerator = nNumerator;
+			nLastDenominator = nLastDenominator;
 		}
 
 		for ( const auto& ppPattern : *pPatternList ) {

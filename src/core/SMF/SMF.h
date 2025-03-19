@@ -35,8 +35,9 @@
 namespace H2Core
 {
 
-class Song;
 class Instrument;
+class Pattern;
+class Song;
 
 typedef std::vector< std::shared_ptr<SMFEvent> > EventList;
 
@@ -111,6 +112,24 @@ public:
 	static constexpr int nTickFactor = 4;
 	static constexpr int nTicksPerQuarter =
 		H2Core::nTicksPerQuarter * SMF::nTickFactor;
+
+		/** When deriving a new time signature is required, large positiv values
+		 * will favor little change in the denominator and rounding in the
+		 * numerator and negative ones the other way around. */
+		static constexpr double fPenaltyTimeSignature = 1.1;
+
+		/** The nominator and denominator used within Hydrogen and those used
+		 * within the TimeSignature of a Standard MIDI File have different
+		 * constraints. While in the former we use arbitrary float values for
+		 * the numerator and arbitrary integers for the denominator in order to
+		 * support all sorts of pattern sizes, the latter only supports integers
+		 * for both and only powers of two for the denominator.
+		 *
+		 * This function takes a pattern and uses a heuristic to obtain the
+		 * closest possible SMF-compatible numerator/denominator pair. */
+		static void PatternToTimeSignature( std::shared_ptr<Pattern> pPattern,
+											int* pNumerator, int* pDenominator,
+											bool* pRounded, bool* pScaled );
 
 	SMF( SMFHeader::Format format );
 	~SMF();
