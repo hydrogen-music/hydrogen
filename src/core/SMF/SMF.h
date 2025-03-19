@@ -41,6 +41,18 @@ class Song;
 
 typedef std::vector< std::shared_ptr<SMFEvent> > EventList;
 
+struct SMFTimeSignatureFailure {
+	int nColumn;
+	/** The numerator within Hydrogen is a floating point number */
+	float fOldNumerator;
+	/** The numerator within the SMF is an integer. */
+	int nNewNumerator;
+	int nOldDenominator;
+	int nNewDenominator;
+	bool bRounded;
+	bool bScaled;
+};
+
 /** \ingroup docCore docMIDI */
 class SMFHeader : public Object<SMFHeader>, public SMFBase
 {
@@ -156,6 +168,7 @@ public:
 	SMFWriter( SMFHeader::Format format );
 	virtual ~SMFWriter();
 	void save( const QString& sFilename, std::shared_ptr<Song> pSong );
+		const std::vector<SMFTimeSignatureFailure>& getTimeSignatureFailures() const;
 
 protected:
 	std::shared_ptr<SMFTrack> createTrack0( std::shared_ptr<Song> pSong );
@@ -167,10 +180,15 @@ protected:
 							  std::shared_ptr<SMF> pSmf ) = 0;
 
 		SMFHeader::Format m_format;
+		std::vector<SMFTimeSignatureFailure> m_timeSignatureFailures;
 	
 private:
 	void saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf );
 };
+
+inline const std::vector<SMFTimeSignatureFailure>& SMFWriter::getTimeSignatureFailures() const {
+	return m_timeSignatureFailures;
+}
 
 
 //-------

@@ -1493,6 +1493,11 @@ Overwrite the existing file?</source>
         <translation>El archivo %1 existe. 
 ¿Sobreescribir el archivo existente?</translation>
     </message>
+    <message>
+        <source>Time signature of some columns needed to be change.
+Please make the numerator an integers and the denominator a power of two (like 1, 2, 4, 8, 16...)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExportMidiDialog_UI</name>

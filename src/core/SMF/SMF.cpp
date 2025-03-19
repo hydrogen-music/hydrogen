@@ -537,6 +537,12 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 		if ( pLongestPattern != nullptr ) {
 			SMF::PatternToTimeSignature( pLongestPattern, &nNumerator,
 										 &nDenominator, &bRounded, &bScaled );
+			if ( bRounded || bScaled ) {
+				m_timeSignatureFailures.push_back(
+					{ nnColumn, pLongestPattern->numerator(), nNumerator,
+					  pLongestPattern->getDenominator(), nDenominator,
+					  bRounded, bScaled } );
+		}
 		}
 		else {
 			nNumerator = 4;
@@ -670,6 +676,7 @@ void SMF1WriterSingle::prepareEvents( std::shared_ptr<Song> pSong ) {
 	if ( m_pEventList != nullptr ) {
 		m_pEventList->clear();
 	}
+	m_timeSignatureFailures.clear();
 
 	// Standard MIDI format 1 files should have the first track being the tempo
 	// map which is a track that contains global meta events only. Note events
@@ -736,6 +743,7 @@ SMF1WriterMulti::~SMF1WriterMulti() {
 void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong )
 {
 	m_eventLists.clear();
+	m_timeSignatureFailures.clear();
 
 	// Standard MIDI format 1 files should have the first track being the tempo
 	// map which is a track that contains global meta events only. Note events
@@ -863,6 +871,8 @@ void SMF0Writer::prepareEvents( std::shared_ptr<Song> pSong ) {
 	if ( m_pEventList != nullptr ) {
 		m_pEventList->clear();
 	}
+
+	m_timeSignatureFailures.clear();
 
 	// MIDI files format 0 have all their events in one track
 	m_pTrack = createTrack0( pSong );

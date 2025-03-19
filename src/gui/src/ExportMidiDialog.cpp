@@ -215,6 +215,26 @@ void ExportMidiDialog::on_okBtn_clicked()
 	
 	pSmfWriter->save( sFilename, pSong );
 
+	// Check whether same time signature were off.
+	const auto timeSignatureFailures = pSmfWriter->getTimeSignatureFailures();
+	if ( timeSignatureFailures.size() > 0 ) {
+		QStringList informative;
+		for ( const auto& ffailure : timeSignatureFailures ) {
+			informative << QString( "[%1]: %2/%3 -> %4/%5" )
+				.arg( ffailure.nColumn )
+				.arg( ffailure.fOldNumerator ).arg( ffailure.nOldDenominator )
+				.arg( ffailure.nNewNumerator ).arg( ffailure.nNewDenominator );
+		}
+
+		QMessageBox msgBox;
+		msgBox.setText( tr( "Time signature of some columns needed to be change.\nPlease make the numerator an integers and the denominator a power of two (like 1, 2, 4, 8, 16...)." ) );
+		msgBox.setInformativeText( informative.join( "\n" ) );
+		msgBox.setStandardButtons( QMessageBox::Ok );
+		msgBox.setWindowTitle( "Hydrogen" );
+		msgBox.setIcon( QMessageBox::Warning );
+		msgBox.exec();
+	}
+
 	accept();
 }
 
