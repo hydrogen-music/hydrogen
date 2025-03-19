@@ -32,6 +32,7 @@ class MidiExportTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testExportMIDISMF1Multi );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF0 );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF1 );
+	CPPUNIT_TEST( testTimeSignatureCalculation );
 	CPPUNIT_TEST_SUITE_END();
 	
 	public:
@@ -40,6 +41,7 @@ class MidiExportTest : public CppUnit::TestCase {
 		void testExportMIDISMF0();
 		void testExportVelocityAutomationMIDISMF1();
 		void testExportVelocityAutomationMIDISMF0();
+		void testTimeSignatureCalculation();
 };
 
 #endif
