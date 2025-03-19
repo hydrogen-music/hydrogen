@@ -594,8 +594,8 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-liblo
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
-          c:\msys64\usr\bin\pacman --noconfirm --assume-installed mingw-w64-x86_64-gettext -U https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-qt5-5.15.5-1-any.pkg.tar.zst
-          c:\msys64\usr\bin\pacman --noconfirm --assume-installed mingw-w64-x86_64-gettext -U https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-qt5-tools-5.15.9-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5-tools
 
           ccache -M 256M
           ccache -s
