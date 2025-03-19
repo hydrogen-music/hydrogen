@@ -429,7 +429,9 @@ QString SMF::toQString( const QString& sPrefix, bool bShort ) const {
 constexpr unsigned int DRUM_CHANNEL = 9;
 constexpr unsigned int NOTE_LENGTH = 12;
 
-SMFWriter::SMFWriter( SMFHeader::Format format ) : m_format( format ) {
+SMFWriter::SMFWriter( SMFHeader::Format format, bool bOmitCopyright )
+	: m_format( format )
+	, m_bOmitCopyright( bOmitCopyright ) {
 }
 
 SMFWriter::~SMFWriter() {
@@ -442,8 +444,10 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 	}
 
 	auto pTrack0 = std::make_shared<SMFTrack>();
-	pTrack0->addEvent(
-		std::make_shared<SMFCopyRightNoticeMetaEvent>( pSong->getAuthor() , 0 ) );
+	if ( ! m_bOmitCopyright ) {
+		pTrack0->addEvent(
+			std::make_shared<SMFCopyRightNoticeMetaEvent>( pSong->getAuthor() , 0 ) );
+	}
 	pTrack0->addEvent(
 		std::make_shared<SMFTrackNameMetaEvent>( pSong->getName() , 0 ) );
 
@@ -637,14 +641,15 @@ void SMFWriter::saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf ) {
 
 // SMF1Writer - base class for two smf1 writers
 
-SMF1Writer::SMF1Writer() : SMFWriter( SMFHeader::Format::SimultaneousTracks ) {
+SMF1Writer::SMF1Writer( bool bOmitCopyright ) :
+	SMFWriter( SMFHeader::Format::SimultaneousTracks, bOmitCopyright ) {
 }
 
 SMF1Writer::~SMF1Writer() {
 }
 
-SMF1WriterSingle::SMF1WriterSingle()
-		: SMF1Writer(),
+SMF1WriterSingle::SMF1WriterSingle( bool bOmitCopyright )
+		: SMF1Writer( bOmitCopyright ),
 		 m_pEventList( std::make_shared<EventList>() ) {
 }
 
@@ -717,6 +722,8 @@ QString SMF1WriterSingle::toQString( const QString& sPrefix, bool bShort ) const
 			sOutput.append( QString( "%1%2\n" ).arg( sPrefix + s )
 							.arg( ppEvent->toQString( s, true ) ) );
 		}
+		sOutput.append( QString( "%1%2m_bOmitCopyright: %3\n" ).arg( sPrefix )
+						.arg( s ).arg( m_bOmitCopyright ) );
 	}
 	else {
 		sOutput = QString( "[SMF1WriterSingle] m_pEventList: [" );
@@ -724,7 +731,8 @@ QString SMF1WriterSingle::toQString( const QString& sPrefix, bool bShort ) const
 			sOutput.append( QString( "[%1] " )
 							.arg( ppEvent->toQString( "", true ) ) );
 		}
-		sOutput.append( "]" );
+		sOutput.append( QString( "], m_bOmitCopyright: %1" )
+						.arg( m_bOmitCopyright ) );
 	}
 
 	return sOutput;
@@ -732,8 +740,8 @@ QString SMF1WriterSingle::toQString( const QString& sPrefix, bool bShort ) const
 
 // SMF1 MIDI MULTI EXPORT
 
-SMF1WriterMulti::SMF1WriterMulti()
-		: SMF1Writer(),
+SMF1WriterMulti::SMF1WriterMulti( bool bOmitCopyright )
+		: SMF1Writer( bOmitCopyright ),
 		 m_eventLists() {
 }
 
@@ -833,7 +841,9 @@ QString SMF1WriterMulti::toQString( const QString& sPrefix, bool bShort ) const 
 								.arg( ppEvent->toQString( "", true ) ) );
 			}
 		}
-	}
+		sOutput.append( QString( "%1%2m_bOmitCopyright: %3\n" ).arg( sPrefix )
+						.arg( s ).arg( m_bOmitCopyright ) );
+}
 	else {
 		sOutput = QString( "[SMF1WriterMulti] m_eventLists: [" );
 		for ( const auto& [ nnId, ppEventList ] : m_eventLists ) {
@@ -844,17 +854,19 @@ QString SMF1WriterMulti::toQString( const QString& sPrefix, bool bShort ) const 
 			}
 			sOutput.append( "] " );
 		}
-		sOutput.append( "]" );
-	}
+		sOutput.append( QString( "], m_bOmitCopyright: %1" )
+						.arg( m_bOmitCopyright ) );
+}
 
 	return sOutput;
 }
 
 // SMF0 MIDI  EXPORT
 
-SMF0Writer::SMF0Writer() : SMFWriter( SMFHeader::Format::SingleMultiChannelTrack )
-						 , m_pTrack( nullptr )
-						 , m_pEventList( std::make_shared<EventList>() ) {
+SMF0Writer::SMF0Writer( bool bOmitCopyright )
+	: SMFWriter( SMFHeader::Format::SingleMultiChannelTrack, bOmitCopyright )
+	, m_pTrack( nullptr )
+	, m_pEventList( std::make_shared<EventList>() ) {
 }
 
 SMF0Writer::~SMF0Writer() {
@@ -911,7 +923,9 @@ QString SMF0Writer::toQString( const QString& sPrefix, bool bShort ) const {
 							.arg( ppEvent->toQString( "", true ) ) );
 		}
 		sOutput.append( QString( "%1%2m_pTrack: %3\n" ).arg( sPrefix )
-						.arg( s ).arg( m_pTrack->toQString( s, false ) ) );
+						.arg( s ).arg( m_pTrack->toQString( s, false ) ) )
+			.append( QString( "%1%2m_bOmitCopyright: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bOmitCopyright ) );
 	}
 	else {
 		sOutput = QString( "[SMF0Writer] m_pEventList: [" );
@@ -920,7 +934,9 @@ QString SMF0Writer::toQString( const QString& sPrefix, bool bShort ) const {
 							.arg( ppEvent->toQString( "", true ) ) );
 		}
 		sOutput.append( QString( "], m_pTrack: %1" )
-						.arg( m_pTrack->toQString( "", true ) ) );
+						.arg( m_pTrack->toQString( "", true ) ) )
+			.append( QString( ", m_bOmitCopyright: %1" )
+					 .arg( m_bOmitCopyright ) );
 	}
 
 	return sOutput;

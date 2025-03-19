@@ -165,7 +165,7 @@ class SMFWriter : public H2Core::Object<SMFWriter>
 {
 	H2_OBJECT(SMFWriter)
 public:
-	SMFWriter( SMFHeader::Format format );
+	SMFWriter( SMFHeader::Format format, bool bOmitCopyright = false );
 	virtual ~SMFWriter();
 	void save( const QString& sFilename, std::shared_ptr<Song> pSong );
 		const std::vector<SMFTimeSignatureFailure>& getTimeSignatureFailures() const;
@@ -181,6 +181,10 @@ protected:
 
 		SMFHeader::Format m_format;
 		std::vector<SMFTimeSignatureFailure> m_timeSignatureFailures;
+
+		/** In order to not bake timestamps into our MIDI unit test files
+		 * breaking the pipeline each January 1st. */
+		bool m_bOmitCopyright;
 	
 private:
 	void saveSMF( const QString& sFilename, std::shared_ptr<SMF> pSmf );
@@ -198,7 +202,7 @@ class SMF1Writer : public Object<SMF1Writer>, public SMFWriter
 {
     H2_OBJECT(SMF1Writer)
 public:
-    SMF1Writer();
+    SMF1Writer( bool bOmitCopyright = false );
 	virtual ~SMF1Writer();
 protected:
 	/** Track containing tempo, time signature, and text (Timeline tags)
@@ -212,7 +216,7 @@ class SMF1WriterSingle : public Object<SMF1WriterSingle>, public SMF1Writer
 {
     H2_OBJECT(SMF1WriterSingle)
 public:
-    SMF1WriterSingle();
+    SMF1WriterSingle( bool bOmitCopyright = false );
 	virtual ~SMF1WriterSingle();
 protected:
 	virtual void prepareEvents( std::shared_ptr<Song> pSong ) override;
@@ -233,7 +237,7 @@ class SMF1WriterMulti : public Object<SMF1WriterMulti>, public SMF1Writer
 {
     H2_OBJECT(SMF1WriterMulti)
 public:
-    SMF1WriterMulti();
+    SMF1WriterMulti( bool bOmitCopyright = false );
 	virtual ~SMF1WriterMulti();
 protected:
 	virtual void prepareEvents( std::shared_ptr<Song> pSong ) override;
@@ -258,7 +262,7 @@ class SMF0Writer : public Object<SMF0Writer>, public SMFWriter
 {
     H2_OBJECT(SMF0Writer)
 public:
-    SMF0Writer();
+    SMF0Writer( bool bOmitCopyright = false );
 	virtual ~SMF0Writer();
 protected:
 	virtual void prepareEvents( std::shared_ptr<Song> pSong ) override;
