@@ -59,7 +59,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 
-	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
+		H2Core::nTicksPerQuarter;
 	m_nRulerHeight = 25;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
@@ -207,7 +208,7 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
 		long nNewTick = std::floor(
 			static_cast<float>(m_nHoveredColumn) * 4 *
-			static_cast<float>(MAX_NOTES) /
+			static_cast<float>(4 * H2Core::nTicksPerQuarter) /
 			( fTripletFactor *
 			  static_cast<float>(m_pPatternEditorPanel->getResolution()) ) );
 
@@ -235,7 +236,7 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
 		float fColumnWidth = fTripletFactor *
 			static_cast<float>(m_pPatternEditorPanel->getResolution()) /
-			( 4 * static_cast<float>(MAX_NOTES) * m_fGridWidth );
+			( 4 * static_cast<float>(4 * H2Core::nTicksPerQuarter) * m_fGridWidth );
 
 		int nHoveredColumn =
 			static_cast<int>(std::floor( static_cast<float>(
@@ -313,14 +314,13 @@ void PatternEditorRuler::createBackground()
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	painter.setFont(font);
 
-	uint nQuarter = 48;
-
 	const int nResolution = m_pPatternEditorPanel->getResolution();
 
 	// Draw numbers and quarter ticks
 	painter.setPen( textColor );
 	for ( int ii = 0; ii < 64 ; ii += 4 ) {
-		int nText_x = PatternEditor::nMargin + nQuarter / 4 * ii * m_fGridWidth;
+		const int nText_x = PatternEditor::nMargin +
+			H2Core::nTicksPerQuarter / 4 * ii * m_fGridWidth;
 		painter.drawLine( nText_x, height() - 13, nText_x, height() - 1 );
 		painter.drawText( nText_x + 3, 0, 60, m_nRulerHeight,
 						  Qt::AlignVCenter | Qt::AlignLeft,
@@ -330,9 +330,9 @@ void PatternEditorRuler::createBackground()
 	// Draw remaining ticks
 	float fStep;
 	if ( m_pPatternEditorPanel->isUsingTriplets() ) {
-		fStep = 4 * MAX_NOTES / ( 3 * nResolution ) * m_fGridWidth;
+		fStep = 4 * 4 * H2Core::nTicksPerQuarter / ( 3 * nResolution ) * m_fGridWidth;
 	} else {
-		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
+		fStep = 4 * 4 * H2Core::nTicksPerQuarter / ( 4 * nResolution ) * m_fGridWidth;
 	}
 	for ( float xx = PatternEditor::nMargin; xx < m_nWidthActive; xx += fStep ) {
 		painter.drawLine( xx, height() - 6, xx, height() - 1 );
@@ -411,11 +411,11 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	// Display playhead on hovering
 	if ( m_nHoveredColumn > -1 ) {
-		int x = PatternEditor::nMargin +
-			static_cast<int>(m_nHoveredColumn * 4 * static_cast<float>(MAX_NOTES) /
-							 ( fTripletFactor *
-							   static_cast<float>(m_pPatternEditorPanel->getResolution())) *
-							 m_fGridWidth);
+		int x = PatternEditor::nMargin + static_cast<int>(
+			m_nHoveredColumn * 4 * static_cast<float>(4 * H2Core::nTicksPerQuarter) /
+			( fTripletFactor *
+			  static_cast<float>(m_pPatternEditorPanel->getResolution()) ) *
+			m_fGridWidth );
 
 		if ( x < m_nWidthActive ) {
 			int nOffset = Skin::getPlayheadShaftOffset();
@@ -428,7 +428,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 bool PatternEditorRuler::updateActiveRange() {
 	
 	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
-	int nTicksInPattern = MAX_NOTES;
+	int nTicksInPattern = 4 * H2Core::nTicksPerQuarter;
 
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
 	if ( pPlayingPatterns->size() != 0 ) {
@@ -454,7 +454,8 @@ void PatternEditorRuler::zoomIn()
 	} else {
 		m_fGridWidth *= 1.5;
 	}
-	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
+		H2Core::nTicksPerQuarter;
 	resize( QSize( m_nRulerWidth, m_nRulerHeight ) );
 
 	updateActiveRange();
@@ -469,7 +470,8 @@ void PatternEditorRuler::zoomOut()
 		} else {
 			m_fGridWidth /= 1.5;
 		}
-		m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
+		m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
+			H2Core::nTicksPerQuarter;
 		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
 		
 		updateActiveRange();

@@ -116,13 +116,19 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			`.h2playlist` file (in case the corresponding option was set).
 		- Stop notes do now stop all notes of the same instrument at the same
 			position (e.g. in chords or using multiple patterns).
-		- MIDI export does now respect virtual patterns (#513).
+		- MIDI export
+				- does now respect virtual patterns (#513).
+				- does now add tempo changes and tags in case the Timeline is used (#933).
+				- does now add time signature events based on the length of the longest
+				  pattern within a column (#1680).
+
 	* Removed
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
 			dropped. Instead, both will always be restored automatically. In order to
 			start with a blank song/playlist, load a new one before quitting.
 		- Component mixer strips have been dropped.
 		- LASH support has been dropped (#1649).
+		- CMake option `MAX_NOTES` has been dropped.
 
 XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.5

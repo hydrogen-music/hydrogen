@@ -828,7 +828,7 @@ void SongEditorPositionRuler::updatePosition()
 		else {
 			// Empty column. Use the default length.
 			fTick += (float)pTransportPos->getPatternTickPosition() /
-				(float)MAX_NOTES;
+				static_cast<float>(4 * H2Core::nTicksPerQuarter);
 		}
 
 		if ( fTick < 0 ) {

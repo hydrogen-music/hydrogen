@@ -27,6 +27,13 @@
  * @{
  */
 
+namespace H2Core {
+
+	/** How many ticks make up a quarter note. This defines the smallest
+	 * possible resolution to 1 / nTicksPerQuarter. */
+	constexpr int nTicksPerQuarter = 48;
+}
+
 #define MIDI_OUT_NOTE_MIN       0
 #define MIDI_OUT_NOTE_MAX       127
 #define MIDI_OUT_CHANNEL_MIN    -1

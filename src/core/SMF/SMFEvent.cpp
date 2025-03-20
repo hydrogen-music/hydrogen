@@ -23,6 +23,8 @@
 #include <core/SMF/SMFEvent.h>
 #include <core/Timehelper.h>
 
+#include "math.h"
+
 namespace H2Core
 {
 
@@ -62,14 +64,12 @@ void SMFBuffer::writeVarLen( long value ) {
 	long buffer;
 	buffer = value & 0x7f;
 	while ( ( value >>= 7 ) > 0 ) {
-		INFOLOG( "." );
 		buffer <<= 8;
 		buffer |= 0x80;
 		buffer += ( value & 0x7f );
 	}
 
 	while ( true ) {
-//		putc( buffer, outfile );
 		writeByte( ( char )buffer );
 		if ( buffer & 0x80 ) {
 			buffer >>= 8;
@@ -79,11 +79,61 @@ void SMFBuffer::writeVarLen( long value ) {
 	}
 }
 
+// :::::::::::::
+
+
+SMFEvent::SMFEvent( int nTicks, Type type ) : m_nTicks( nTicks )
+											, m_nDeltaTime( -1 )
+											, m_type( type ) {
+}
+
+SMFEvent::~SMFEvent() {
+}
+
+QString SMFEvent::TypeToQString( Type type ) {
+	switch( type ) {
+	case Type::CopyrightNotice:
+		return "CopyrightNotice";
+	case Type::CuePoint:
+		return "CuePoint";
+	case Type::EndOfTrack:
+		return "EndOfTrack";
+	case Type::InstrumentName:
+		return "InstrumentName";
+	case Type::KeySignature:
+		return "KeySignature";
+	case Type::Lyric:
+		return "Lyric";
+	case Type::Marker:
+		return "Marker";
+	case Type::NoteOff:
+		return "NoteOff";
+	case Type::NoteOn:
+		return "NoteOn";
+	case Type::SequenceNumber:
+		return "SequenceNumber";
+	case Type::SetTempo:
+		return "SetTempo";
+	case Type::TextEvent:
+		return "TextEvent";
+	case Type::TimeSignature:
+		return "TimeSignature";
+	case Type::TrackName:
+		return "TrackName";
+	default:
+		return QString( "Unknown type [%1]" ).arg( static_cast<int>(type) );
+	}
+}
+
+bool SMFEvent::IsMetaEvent( Type type ) {
+	return ! ( type == Type::NoteOn || type == Type::NoteOff );
+}
 
 // ::::::::::::::::::
 
-SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nTicks )
-		: SMFEvent( nTicks )
+SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName,
+											  int nTicks )
+		: SMFEvent( nTicks, SMFEvent::Type::TrackName )
 		, m_sTrackName( sTrackName )
 {
 	// it's always at the start of the song
@@ -96,46 +146,145 @@ QByteArray SMFTrackNameMetaEvent::getBuffer() const
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
-	buf.writeByte( TRACK_NAME );
+	buf.writeByte( static_cast<int>(m_type) );
 	buf.writeString( m_sTrackName );
 
 	return buf.getBuffer();
 }
 
+QString SMFTrackNameMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFTrackNameMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_sTrackName: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sTrackName ) );
+	}
+	else {
+		sOutput = QString( "[SMFTrackNameMetaEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_sTrackName: %1" ).arg( m_sTrackName ) );
+	}
+
+	return sOutput;
+}
+
 // ::::::::::::::::::
 
-SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( float fBPM, unsigned nTicks )
-		: SMFEvent( nTicks )
-		, m_fBPM( fBPM )
+SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( int nBPM, int nTicks )
+		: SMFEvent( nTicks, SMFEvent::Type::SetTempo )
+		, m_nBPM( nBPM )
 {
 	// it's always at the start of the song
 	m_nDeltaTime = 0;
 }
 
-
 QByteArray SMFSetTempoMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	long msPerBeat;
-	
-	msPerBeat = long( 60000000 / m_fBPM ); // 60 seconds * mills \ BPM
-	
+
+	msPerBeat = long( 60000000 / m_nBPM ); // 60 seconds * mills \ BPM
+
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
-	buf.writeByte( SET_TEMPO );
+	buf.writeByte( static_cast<int>(m_type) );
 	buf.writeByte( 0x03 );	// Length
-	
+
 	buf.writeByte( msPerBeat >> 16 );
 	buf.writeByte( msPerBeat >> 8 );
 	buf.writeByte( msPerBeat );
-	
+
 	return buf.getBuffer();
+}
+
+QString SMFSetTempoMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFSetTempoMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nBPM: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nBPM ) );
+	}
+	else {
+		sOutput = QString( "[SMFSetTempoMetaEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nBPM: %1" ).arg( m_nBPM ) );
+	}
+
+	return sOutput;
 }
 
 // ::::::::::::::::::
 
-SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nTicks )
-		: SMFEvent( nTicks )
+SMFMarkerMetaEvent::SMFMarkerMetaEvent( const QString& sText, int nTicks )
+		: SMFEvent( nTicks, SMFEvent::Type::Marker )
+		, m_sText( sText )
+{
+	// it's always at the start of the song
+	m_nDeltaTime = 0;
+}
+
+QByteArray SMFMarkerMetaEvent::getBuffer() const
+{
+	SMFBuffer buf;
+	buf.writeVarLen( m_nDeltaTime );
+	buf.writeByte( 0xFF );
+	buf.writeByte( static_cast<int>(m_type) );
+	buf.writeString( m_sText );
+
+	return buf.getBuffer();
+}
+
+QString SMFMarkerMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFMarkerMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_sText: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sText ) );
+	}
+	else {
+		sOutput = QString( "[SMFMarkerMetaEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_sText: %1" ).arg( m_sText ) );
+	}
+
+	return sOutput;
+}
+
+// ::::::::::::::::::
+
+SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor,
+														  int nTicks )
+		: SMFEvent( nTicks, SMFEvent::Type::CopyrightNotice )
 		, m_sAuthor( sAuthor )
 {
 	// it's always at the start of the song
@@ -159,22 +308,48 @@ QByteArray SMFCopyRightNoticeMetaEvent::getBuffer() const
 	
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
-	buf.writeByte( COPYRIGHT_NOTICE );
+	buf.writeByte( static_cast<int>(m_type) );
 	buf.writeString( sCopyRightString );
 
 	return buf.getBuffer();
 }
 
+QString SMFCopyRightNoticeMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFCopyRightNoticeMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_sAuthor ) );
+	}
+	else {
+		sOutput = QString( "[SMFCopyRightNoticeMetaEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) );
+	}
+
+	return sOutput;
+}
+
 // ::::::::::::::::::
 		
-SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks )
-		: SMFEvent( nTicks )
-		, m_nBeats( nBeats )
-		, m_nNote( nNote )
-		, m_nMTPMC( nMTPMC )
-		, m_nTSNP24( nTSNP24 )
-		, m_nTicks( nTicks )
-
+SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( int nNumerator,
+													  int nDenominator,
+													  int nTicks )
+		: SMFEvent( nTicks, SMFEvent::Type::TimeSignature )
+		, m_nNumerator( nNumerator )
+		, m_nDenominator( nDenominator )
+		, m_nMTPMC( 24 )
+		, m_nTSNP24( 8 )
 {
 	// it's always at the start of the song
 	m_nDeltaTime = 0;
@@ -184,56 +359,71 @@ SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned 
 QByteArray SMFTimeSignatureMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
-	
-	unsigned nBeatsCopy = m_nNote , Note2Log =  0;	// Copy Nbeats as the process to generate Note2Log alters the value.
-	
-	while (nBeatsCopy >>= 1) ++Note2Log;			// Generate a log to base 2 of the note value, so 8 (as in 6/8) becomes 3
-	
+
+	const int nDenominatorLog2 = static_cast<int>(
+		std::round( std::log2( static_cast<double>(m_nDenominator) ) ));
+
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
-	buf.writeByte( TIME_SIGNATURE );
+	buf.writeByte( static_cast<int>(m_type) );
 	buf.writeByte( 0x04 );		// Event length in bytes.
-	buf.writeByte( m_nBeats );	// Top line of time signature, eg 6 for 6/8 time
-	buf.writeByte( Note2Log );	// Bottom line of time signature expressed as Log2 of the Note value.
+	buf.writeByte( m_nNumerator );	// Top line of time signature, eg 6 for 6/8 time
+	buf.writeByte( nDenominatorLog2 );	// Bottom line of time signature expressed as Log2
 	buf.writeByte( m_nMTPMC );	// MIDI Ticks per Metronome click, normally 24 ( i.e. each quarter note ).
 	buf.writeByte( m_nTSNP24 );	// Thirty Second Notes ( as in 1/32 ) per 24 MIDI clocks, normally 8.
 
 	return buf.getBuffer();
 }
 
-// :::::::::::::
+QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFTimeSignatureMetaEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nNumerator: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nNumerator ) )
+			.append( QString( "%1%2m_nDenominator: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDenominator ) )
+			.append( QString( "%1%2m_nMTPMC: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nMTPMC ) )
+			.append( QString( "%1%2m_nTSNP24: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTSNP24 ) );
+	}
+	else {
+		sOutput = QString( "[SMFTimeSignatureMetaEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nNumerator: %1" ).arg( m_nNumerator ) )
+			.append( QString( ", m_nDenominator: %1" ).arg( m_nDenominator ) )
+			.append( QString( ", m_nMTPMC: %1" ).arg( m_nMTPMC ) )
+			.append( QString( ", m_nTSNP24: %1" ).arg( m_nTSNP24 ) );
+	}
 
-
-SMFEvent::SMFEvent( unsigned nTicks )
-		: Object( )
-		, m_nTicks( nTicks )
-		, m_nDeltaTime( -1 )
-{
-	//infoLog( "INIT" );
+	return sOutput;
 }
 
-
-
-SMFEvent::~SMFEvent()
-{
-	//infoLog( "DESTROY" );
-}
-
-QString SMFEvent::toQString() const {
-	return QString( getBuffer().toHex( ' ' ) );
-}
 
 
 // ::::::::::::::
 
-SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
-		: SMFEvent( nTicks )
+SMFNoteOnEvent::SMFNoteOnEvent( int nTicks, int nChannel, int nPitch,
+								int nVelocity )
+		: SMFEvent( nTicks, SMFEvent::Type::NoteOn )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
 {
-	if ( nChannel >= 16 ) {
-		ERRORLOG( QString( "nChannel >= 16! nChannel=%1" ).arg( nChannel ) );
+	if ( nChannel >= 16 || nChannel < 0 ) {
+		ERRORLOG( QString( "Invalid channel [%1]" ).arg( nChannel ) );
+		m_nChannel = std::clamp( nChannel, 0, 15 );
 	}
 }
 
@@ -243,25 +433,59 @@ QByteArray SMFNoteOnEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
-	buf.writeByte( NOTE_ON + m_nChannel );
+	buf.writeByte( static_cast<int>(m_type) + m_nChannel );
 	buf.writeByte( m_nPitch );
 	buf.writeByte( m_nVelocity );
 
 	return buf.getBuffer();
 }
 
+QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFNoteOnEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nChannel ) )
+			.append( QString( "%1%2m_nPitch: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nPitch ) )
+			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nVelocity ) );
+	}
+	else {
+		sOutput = QString( "[SMFNoteOnEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
+			.append( QString( ", m_nPitch: %1" ).arg( m_nPitch ) )
+			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
+	}
+
+	return sOutput;
+}
 
 // :::::::::::
 
 
-SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
-		: SMFEvent( nTicks )
+SMFNoteOffEvent::SMFNoteOffEvent( int nTicks, int nChannel, int nPitch,
+								  int nVelocity )
+		: SMFEvent( nTicks, SMFEvent::Type::NoteOff )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
 {
-	if ( nChannel >= 16 ) {
-		ERRORLOG( QString( "nChannel >= 16! nChannel=%1" ).arg( nChannel ) );
+	if ( nChannel >= 16 || nChannel < 0 ) {
+		ERRORLOG( QString( "Invalid channel [%1]" ).arg( nChannel ) );
+		m_nChannel = std::clamp( nChannel, 0, 15 );
 	}
 }
 
@@ -271,11 +495,44 @@ QByteArray SMFNoteOffEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	buf.writeVarLen( m_nDeltaTime );
-	buf.writeByte( NOTE_OFF + m_nChannel );
+	buf.writeByte( static_cast<int>(m_type) + m_nChannel );
 	buf.writeByte( m_nPitch );
 	buf.writeByte( m_nVelocity );
 
 	return buf.getBuffer();
+}
+
+QString SMFNoteOffEvent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[SMFNoteOffEvent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nDeltaTime ) )
+			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nChannel ) )
+			.append( QString( "%1%2m_nPitch: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nPitch ) )
+			.append( QString( "%1%2m_nVelocity: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_nVelocity ) );
+	}
+	else {
+		sOutput = QString( "[SMFNoteOffEvent] " )
+			.append( QString( "m_type: %1" )
+					 .arg( SMFEvent::TypeToQString( m_type ) ) )
+			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
+			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
+			.append( QString( ", m_nPitch: %1" ).arg( m_nPitch ) )
+			.append( QString( ", m_nVelocity: %1" ).arg( m_nVelocity ) );
+	}
+
+	return sOutput;
 }
 
 };

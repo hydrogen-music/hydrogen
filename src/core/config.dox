@@ -74,10 +74,6 @@
  */
 #define MAX_COMPONENTS  	@MAX_COMPONENTS@
 /**
- * Maximum number of notes. Set by __cmake__ to 192 (currently).
- */
-#define MAX_NOTES       	@MAX_NOTES@
-/**
  * Maximum number of effects. Set by __cmake__ to 4 (currently).
  */
 #define MAX_FX          	@MAX_FX@

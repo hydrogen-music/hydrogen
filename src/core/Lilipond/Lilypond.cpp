@@ -158,7 +158,8 @@ void H2Core::LilyPond::writeMeasures( QTextStream &stream ) const {
 	for ( unsigned nMeasure = 0; nMeasure < m_Measures.size(); nMeasure++ ) {
 		// Start a new measure
 		stream << "\n            % Measure " << nMeasure + 1 << "\n";
-		unsigned nNewSignature = m_Measures[ nMeasure ].size() / 48;
+		unsigned nNewSignature = m_Measures[ nMeasure ].size() /
+			H2Core::nTicksPerQuarter;
 		if ( nSignature != nNewSignature ) { // Display time signature change
 			nSignature = nNewSignature;
 			stream << "            \\time " << nSignature << "/4\n";
@@ -224,19 +225,20 @@ static void writeNote( QTextStream &stream, const std::vector<int> &notes ) {
 
 ///< Write duration in LilyPond format, from number of 1/48th of a beat
 static void writeDuration( QTextStream &stream, unsigned duration ) {
-	if ( 48 % duration == 0 ) {
+	if ( H2Core::nTicksPerQuarter % duration == 0 ) {
 		// This is a basic note
 		if ( duration % 2 ) {
 			return; // TODO Triplet, unsupported yet
 		}
-		stream << 4 * 48 / duration;
+		stream << 4 * H2Core::nTicksPerQuarter / duration;
 
-	} else if ( duration % 3 == 0 && 48 % ( duration * 2 / 3 ) == 0 ) {
+	} else if ( duration % 3 == 0 &&
+				H2Core::nTicksPerQuarter % ( duration * 2 / 3 ) == 0 ) {
 		// This is a dotted note
 		if ( duration % 2 ) {
 			return; // TODO Triplet, unsupported yet
 		}
-		stream << 4 * 48 / ( duration * 2 / 3 ) << ".";
+		stream << 4 * H2Core::nTicksPerQuarter / ( duration * 2 / 3 ) << ".";
 
 	} else {
 		// Neither basic nor dotted, we have to split it and add a rest
@@ -255,9 +257,11 @@ void H2Core::LilyPond::writeVoice( QTextStream &stream,
                                    const std::vector<int> &whiteList ) const {
 	stream << "                ";
 	const notes_t &measure = m_Measures[ nMeasure ];
-	for ( unsigned nStart = 0; nStart < measure.size(); nStart += 48 ) {
+	for ( unsigned nStart = 0; nStart < measure.size();
+		  nStart += H2Core::nTicksPerQuarter ) {
 		unsigned lastNote = nStart;
-		for ( unsigned nTime = nStart; nTime < nStart + 48; nTime++ ) {
+		for ( unsigned nTime = nStart; nTime < nStart + H2Core::nTicksPerQuarter;
+			  nTime++ ) {
 			// Get notes played at this current time
 			std::vector<int> notes;
 			const std::vector<std::pair<int, float> > &input = measure[ nTime ];
@@ -282,7 +286,7 @@ void H2Core::LilyPond::writeVoice( QTextStream &stream,
 				writeNote( stream, notes );
 			}
 		}
-		writeDuration( stream, nStart + 48 - lastNote );
+		writeDuration( stream, nStart + H2Core::nTicksPerQuarter - lastNote );
 	}
 	stream << "\n";
 }

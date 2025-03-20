@@ -265,12 +265,11 @@ void* diskWriterDriver_thread( void* param )
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longestPatternLength();
 		} else {
-			nPatternSize = MAX_NOTES;
+			nPatternSize = 4 * H2Core::nTicksPerQuarter;
 		}
 
 		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
-		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
-												  pSong->getResolution() );
+		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		int nPatternLengthInFrames = fTicksize * nPatternSize;

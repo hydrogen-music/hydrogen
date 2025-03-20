@@ -543,26 +543,17 @@ void Note::humanize() {
 void Note::swing() {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
-		/* TODO: incorporate the factor MAX_NOTES / 32. either in
-		 * Song::m_fSwingFactor or make it a member variable.
-		 *
-		 * comment by oddtime: 32 depends on the fact that the swing
-		 * is applied to the upbeat 16th-notes.  (not to upbeat
-		 * 8th-notes as in jazz swing!).  however 32 could be changed
-		 * but must be >16, otherwise the max delay is too long and
-		 * the swing note could be played after the next downbeat!
-		 */
 		// If the Timeline is activated, the tick size may change at
 		// any point. Therefore, the length in frames of a 16-th note
 		// offset has to be calculated for a particular transport
 		// position and is not generally applicable.
 		double fTickMismatch;
-		setHumanizeDelay( m_nHumanizeDelay +
-							( TransportPosition::computeFrameFromTick(
-								m_nPosition + MAX_NOTES / 32., &fTickMismatch ) -
-							  TransportPosition::computeFrameFromTick(
-								  m_nPosition, &fTickMismatch ) ) *
-							pSong->getSwingFactor() );
+		setHumanizeDelay(
+			m_nHumanizeDelay +
+			( TransportPosition::computeFrameFromTick(
+				m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch ) -
+			  TransportPosition::computeFrameFromTick(
+				  m_nPosition, &fTickMismatch ) ) * pSong->getSwingFactor() );
 	}
 }
 

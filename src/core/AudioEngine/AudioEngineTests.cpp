@@ -1001,13 +1001,13 @@ void AudioEngineTests::testNoteEnqueuing() {
 	notesInSongQueue.clear();
 	notesInSamplerQueue.clear();
 
-	nMaxCycles =
-		static_cast<int>(std::max( static_cast<float>(pPattern->getLength()) *
-								   static_cast<float>(nLoops) *
-								   pTransportPos->getTickSize() * 4 /
-								   static_cast<float>(pPref->m_nBufferSize),
-								   static_cast<float>(MAX_NOTES) *
-								   static_cast<float>(nLoops) ));
+	nMaxCycles = static_cast<int>(
+		std::max( static_cast<float>(pPattern->getLength()) *
+				  static_cast<float>(nLoops) *
+				  pTransportPos->getTickSize() * 4 /
+				  static_cast<float>(pPref->m_nBufferSize),
+				  static_cast<float>(4 * H2Core::nTicksPerQuarter) *
+				  static_cast<float>(nLoops) ));
 	nn = 0;
 	while ( pQueuingPos->getDoubleTick() < pPattern->getLength() * nLoops ) {
 

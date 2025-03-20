@@ -65,7 +65,6 @@ namespace H2Core
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
 	: m_bIsTimelineActivated( false )
 	, m_bIsMuted( false )
-	, m_resolution( nDefaultResolution )
 	, m_fBpm( fBpm )
 	, m_nVersion( 0 )
 	, m_sName( sName )
@@ -146,14 +145,14 @@ void Song::setActionMode( const Song::ActionMode& actionMode ) {
 long Song::lengthInTicks() const {
 	long nSongLength = 0;
 	int nColumns = m_pPatternGroupSequence->size();
-	// Sum the lengths of all pattern columns and use the macro
-	// MAX_NOTES in case some of them are of size zero.
+	// Sum the lengths of all pattern columns and use the macro four quarters in
+	// case some of them are of size zero.
 	for ( int i = 0; i < nColumns; i++ ) {
 		auto pColumn = ( *m_pPatternGroupSequence )[ i ];
 		if ( pColumn->size() != 0 ) {
 			nSongLength += pColumn->longestPatternLength();
 		} else {
-			nSongLength += MAX_NOTES;
+			nSongLength += 4 * H2Core::nTicksPerQuarter;
 		}
 	}
     return nSongLength;
@@ -1074,7 +1073,7 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 		if ( ppColumn == nullptr || ppColumn->size() == 0 ) {
 			// An empty column with no patterns selected (but not the
 			// end of the song).
-			nColumnStartTick += MAX_NOTES;
+			nColumnStartTick += 4 * H2Core::nTicksPerQuarter;
 			continue;
 		}
 
@@ -1198,8 +1197,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bIsTimelineActivated ) )
 			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bIsMuted ) )
-			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_resolution ) )
 			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_fBpm ) )
 			.append( QString( "%1%2m_nVersion: %3\n" ).arg( sPrefix ).arg( s )
@@ -1279,7 +1276,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[Song]" )
 			.append( QString( ", m_bIsTimelineActivated: %1" ).arg( m_bIsTimelineActivated ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
-			.append( QString( ", m_resolution: %1" ).arg( m_resolution ) )
 			.append( QString( ", m_fBpm: %1" ).arg( m_fBpm ) )
 			.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 			.append( QString( ", m_sName: %1" ).arg( m_sName ) )

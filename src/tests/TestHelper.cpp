@@ -241,14 +241,15 @@ void TestHelper::exportSong( const QString& sFileName )
 	___INFOLOG( QString("Audio export took %1 seconds").arg(t) );
 }
 
-void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName, H2Core::SMFWriter& writer )
+void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
+							 std::shared_ptr<H2Core::SMFWriter> pWriter )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	auto pSong = H2Core::Song::load( sSongFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	writer.save( sFileName, pSong );
+	pWriter->save( sFileName, pSong );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();

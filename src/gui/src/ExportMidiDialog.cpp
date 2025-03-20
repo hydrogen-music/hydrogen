@@ -197,20 +197,44 @@ void ExportMidiDialog::on_okBtn_clicked()
 	}
 
 	// choosing writer
-	SMFWriter *pSmfWriter = nullptr;
-	if( exportTypeCombo->currentIndex() == EXPORT_SMF1_SINGLE ){
-		pSmfWriter = new SMF1WriterSingle();
-	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_MULTI ){
-		pSmfWriter = new SMF1WriterMulti();
-	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF0 ){
-		pSmfWriter = new SMF0Writer();
+	std::shared_ptr<SMFWriter> pSmfWriter = nullptr;
+	if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_SINGLE ){
+		pSmfWriter = std::make_shared<SMF1WriterSingle>();
+	}
+	else if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_MULTI ){
+		pSmfWriter = std::make_shared<SMF1WriterMulti>();
+	}
+	else if ( exportTypeCombo->currentIndex() == EXPORT_SMF0 ){
+		pSmfWriter = std::make_shared<SMF0Writer>();
+	}
+	else {
+		ERRORLOG( QString( "Unknown index [%1]" )
+				  .arg( exportTypeCombo->currentIndex() ) );
+		return;
 	}
 	
-	assert( pSmfWriter );
-
 	pSmfWriter->save( sFilename, pSong );
 
-	delete pSmfWriter;
+	// Check whether same time signature were off.
+	const auto timeSignatureFailures = pSmfWriter->getTimeSignatureFailures();
+	if ( timeSignatureFailures.size() > 0 ) {
+		QStringList informative;
+		for ( const auto& ffailure : timeSignatureFailures ) {
+			informative << QString( "[%1]: %2/%3 -> %4/%5" )
+				.arg( ffailure.nColumn )
+				.arg( ffailure.fOldNumerator ).arg( ffailure.nOldDenominator )
+				.arg( ffailure.nNewNumerator ).arg( ffailure.nNewDenominator );
+		}
+
+		QMessageBox msgBox;
+		msgBox.setText( tr( "Time signature of some columns needed to be change.\nPlease make the numerator an integers and the denominator a power of two (like 1, 2, 4, 8, 16...)." ) );
+		msgBox.setInformativeText( informative.join( "\n" ) );
+		msgBox.setStandardButtons( QMessageBox::Ok );
+		msgBox.setWindowTitle( "Hydrogen" );
+		msgBox.setIcon( QMessageBox::Warning );
+		msgBox.exec();
+	}
+
 	accept();
 }
 

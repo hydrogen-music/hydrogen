@@ -382,8 +382,7 @@ private:
 	/**
 	 * Maximum size of all patterns in #m_pPlayingPatterns.
 	 *
-	 * If #m_pPlayingPatterns is empty, #H2Core::MAX_NOTES will be
-	 * used as fallback.
+	 * If #m_pPlayingPatterns is empty, four quarters will be used as fallback.
 	 */
 	int 				m_nPatternSize;
 
@@ -399,13 +398,14 @@ private:
 	long long m_nLastLeadLagFactor;
 
 	/**
-	 * Last beat (column + 1) passed.
+	 * Last bar (column + 1) passed.
 	 *
 	 * Note that this variable starts at 1 not at 0.
 	 */
 	int m_nBar;
 	/**
-	 * Last bar passed since #m_nBar. A bar is composed of 48 ticks.
+	 * Last beat passed since #m_nBar. A beat is composed of
+	 * H2Core::nTickPerQuarter ticks.
 	 *
 	 * Note that this variable starts at 1 not at 0.
 	 */

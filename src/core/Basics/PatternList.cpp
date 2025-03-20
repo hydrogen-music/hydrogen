@@ -270,21 +270,34 @@ QString PatternList::findUnusedPatternName( const QString& sSourceName,
 }
 
 int PatternList::longestPatternLength( bool bIncludeVirtuals ) const {
+	auto pPattern = getLongestPattern( bIncludeVirtuals );
+	if ( pPattern == nullptr ) {
+		return -1;
+	}
+
+	return pPattern->getLength();
+}
+
+std::shared_ptr<Pattern> PatternList::getLongestPattern( bool bIncludeVirtuals ) const {
 	int nMax = -1;
+	std::shared_ptr<Pattern> pPattern = nullptr;
 	for ( const auto& ppPattern : m_pPatterns ) {
 		if ( ppPattern->getLength() > nMax ) {
 			nMax = ppPattern->getLength();
+			pPattern = ppPattern;
 		}
 
 		if ( bIncludeVirtuals ) {
 			for ( const auto& ppVirtualPattern : *ppPattern->getFlattenedVirtualPatterns() ) {
 				if ( ppVirtualPattern->getLength() > nMax ) {
 					nMax = ppVirtualPattern->getLength();
+					pPattern = ppVirtualPattern;
 				}
 			}
 		}
 	}
-	return nMax;
+
+	return pPattern;
 }
 
 void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit,

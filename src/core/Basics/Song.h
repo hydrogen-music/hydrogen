@@ -156,7 +156,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	 */
 	bool 			save( const QString& sFilename, bool bSilent = false );
 
-		static constexpr int nDefaultResolution = 48;
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
 	
@@ -165,9 +164,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		bool getIsMuted() const;
 		void setIsMuted( bool bIsMuted );
-
-		unsigned getResolution() const;
-		void setResolution( unsigned resolution );
 
 		float getBpm() const;
 		void setBpm( float fBpm );
@@ -318,8 +314,6 @@ private:
 	bool m_bIsTimelineActivated;
 							
 		bool m_bIsMuted;
-		///< Resolution of the song (number of ticks per quarter)
-		unsigned m_resolution;
 		/**
 		 * Current speed in beats per minutes.
 		 *
@@ -475,16 +469,6 @@ inline bool Song::getIsMuted() const
 inline void Song::setIsMuted( bool bIsMuted )
 {
 	m_bIsMuted = bIsMuted;
-}
-
-inline unsigned Song::getResolution() const
-{
-	return m_resolution;
-}
-
-inline void Song::setResolution( unsigned resolution )
-{
-	m_resolution = resolution;
 }
 
 inline float Song::getBpm() const
