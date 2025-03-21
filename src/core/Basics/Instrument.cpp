@@ -637,14 +637,8 @@ const QString& Instrument::getDrumkitPath() const
 
 bool Instrument::hasSamples() const {
 	for ( const auto& pComponent : *m_pComponents ) {
-		if ( pComponent != nullptr ) {
-			for ( const auto& pLayer : *pComponent ) {
-				if ( pLayer != nullptr ) {
-					if ( pLayer->getSample() != nullptr ) {
-						return true;
-					}
-				}
-			}
+		if ( pComponent != nullptr && pComponent->hasSamples() ) {
+			return true;
 		}
 	}
 

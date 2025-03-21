@@ -78,6 +78,10 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		void				setIsSoloed( bool bIsSoloed );
 		bool				getIsSoloed() const;
 
+		/** Whether the component contains at least one non-missing
+		 * sample */
+		bool hasSamples() const;
+
 		/**  @return #m_nMaxLayers.*/
 		static int			getMaxLayers();
 		/** @param layers Sets #m_nMaxLayers.*/
