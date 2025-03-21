@@ -1388,6 +1388,55 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
+    <name>ComponentView</name>
+    <message>
+        <source>Layer gain</source>
+        <translation>Guadagno di livello</translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation>Componente volume</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Coarse)</source>
+        <translation>Layer pitch (grezzo)</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Fine)</source>
+        <translation>Layer pitch (Fine)</translation>
+    </message>
+    <message>
+        <source>Select selection algorithm</source>
+        <translation>Seleziona algoritmo di selezione</translation>
+    </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation>Nuovo nome al componente</translation>
+    </message>
+</context>
+<context>
+    <name>ComponentsEditor</name>
+    <message>
+        <source>Component name</source>
+        <translation>Nome componente</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -1950,18 +1999,6 @@ Sovrascrivere il file esistente?</translation>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>Show instrument properties</source>
-        <translation>Visualizza le proprietà dello strumento</translation>
-    </message>
-    <message>
-        <source>Show layers properties</source>
-        <translation>Visualizza le proprietà dei livelli</translation>
-    </message>
-    <message>
-        <source>Layer gain</source>
-        <translation>Guadagno di livello</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Guadagno dello strumento</translation>
     </message>
@@ -1978,28 +2015,12 @@ Sovrascrivere il file esistente?</translation>
         <translation>Filtro di risonanza</translation>
     </message>
     <message>
-        <source>Layer pitch (Coarse)</source>
-        <translation>Layer pitch (grezzo)</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Fine)</source>
-        <translation>Layer pitch (Fine)</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Nome componente</translation>
-    </message>
-    <message>
         <source>Midi out channel</source>
         <translation>Canale di uscita MIDI</translation>
     </message>
     <message>
         <source>Midi out note</source>
         <translation>Nota di uscita MIDI</translation>
-    </message>
-    <message>
-        <source>Component volume</source>
-        <translation>Componente volume</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
@@ -2016,10 +2037,6 @@ Sovrascrivere il file esistente?</translation>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select selection algorithm</source>
-        <translation>Seleziona algoritmo di selezione</translation>
     </message>
     <message>
         <source>Length of Attack phase.
@@ -2045,24 +2062,16 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>InstrumentEditorPanel</name>
     <message>
-        <source>First in Velocity</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
+        <source>Show instrument properties</source>
+        <translation>Visualizza le proprietà dello strumento</translation>
     </message>
     <message>
-        <source>Round Robin</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <source>Show components</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New component name</source>
-        <translation>Nuovo nome al componente</translation>
     </message>
 </context>
 <context>

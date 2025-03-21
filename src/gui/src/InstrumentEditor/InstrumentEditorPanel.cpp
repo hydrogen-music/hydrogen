@@ -29,28 +29,72 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Hydrogen.h>
 
+#include "ComponentsEditor.h"
 #include "InstrumentEditor.h"
-#include "LayerPreview.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../Widgets/Button.h"
 
-InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
-	: m_nSelectedComponent( 0 )
-	, m_nSelectedLayer( 0 )
+InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
+	PixmapWidget( pParent )
 {
-	UNUSED( pParent );
+	setPixmap( "/instrumentEditor/instrumentTab_top.png" );
+
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	m_pInstrument = H2Core::Hydrogen::get_instance()->getSelectedInstrument();
 
-	m_pInstrumentEditor = new InstrumentEditor( nullptr, this );
+	auto pVBoxMainLayout = new QVBoxLayout();
+	pVBoxMainLayout->setSpacing( 0 );
+	pVBoxMainLayout->setMargin( 0 );
 
-	// LAYOUT
-	QGridLayout *vbox = new QGridLayout();
-	vbox->setSpacing( 0 );
-	vbox->setMargin( 0 );
+	// Editors
 
-	vbox->addWidget( m_pInstrumentEditor, 0, 0 );
+	auto pEditorWidget = new QWidget( this );
+	auto pStackedEditorLayout = new QStackedLayout();
+	pStackedEditorLayout->setMargin( 0 );
+	pEditorWidget->setLayout( pStackedEditorLayout );
+	m_pInstrumentEditor = new InstrumentEditor( this );
+	pStackedEditorLayout->addWidget( m_pInstrumentEditor );
+	m_pComponentsEditor = new ComponentsEditor( this );
+	pStackedEditorLayout->addWidget( m_pComponentsEditor );
 
-	this->setLayout( vbox );
+	// Buttons
+
+	auto pHBoxButtonLayout = new QHBoxLayout();
+	pHBoxButtonLayout->setSpacing( 0 );
+	pHBoxButtonLayout->setMargin( 4 );
+	auto pButtonWidget = new QWidget( this );
+	pButtonWidget->setLayout( pHBoxButtonLayout );
+	pButtonWidget->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+
+	m_pShowInstrumentBtn = new Button(
+		pButtonWidget, QSize( 141, 22 ), Button::Type::Toggle, "",
+		pCommonStrings->getGeneralButton(), false, QSize(),
+		tr( "Show instrument properties" ) );
+	m_pShowInstrumentBtn->setChecked( true );
+	connect( m_pShowInstrumentBtn, &Button::clicked, [=]() {
+		pStackedEditorLayout->setCurrentIndex( 0 );
+		m_pShowInstrumentBtn->setChecked( true );
+		m_pShowComponentsBtn->setChecked( false );
+	});
+	pHBoxButtonLayout->addWidget( m_pShowInstrumentBtn );
+
+	m_pShowComponentsBtn = new Button(
+		pButtonWidget, QSize( 140, 22 ), Button::Type::Toggle, "",
+		pCommonStrings->getLayersButton(), false, QSize(),
+		tr( "Show components" ) );
+	m_pShowComponentsBtn->setChecked( false );
+	connect( m_pShowComponentsBtn, &Button::clicked, [=]() {
+		pStackedEditorLayout->setCurrentIndex( 1 );
+		m_pShowInstrumentBtn->setChecked( false );
+		m_pShowComponentsBtn->setChecked( true );
+	});
+	pHBoxButtonLayout->addWidget( m_pShowComponentsBtn );
+
+	pVBoxMainLayout->addWidget( pButtonWidget );
+	pVBoxMainLayout->addWidget( pEditorWidget );
+	setLayout( pVBoxMainLayout );
 
 	HydrogenApp::get_instance()->addEventListener(this);
 
@@ -62,28 +106,10 @@ InstrumentEditorPanel::~InstrumentEditorPanel() {
 }
 
 void InstrumentEditorPanel::updateEditors() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	const auto pSong = pHydrogen->getSong();
-
-	m_pInstrument = pHydrogen->getSelectedInstrument();
-
-	// Check whether the current selection is still valid.
-	if ( pSong != nullptr && m_pInstrument != nullptr ) {
-		// As each instrument can have an arbitrary compoments, we have to
-		// ensure to select a valid one.
-		m_nSelectedComponent = std::clamp(
-			m_nSelectedComponent, 0,
-			static_cast<int>(m_pInstrument->getComponents()->size()) - 1 );
-
-		m_nSelectedLayer = std::clamp(
-			m_nSelectedLayer, 0, H2Core::InstrumentComponent::getMaxLayers() );
-	}
-	else {
-		m_nSelectedLayer = -1;
-		m_nSelectedComponent = 0;
-	}
+	m_pInstrument = H2Core::Hydrogen::get_instance()->getSelectedInstrument();
 
 	m_pInstrumentEditor->updateEditor();
+	m_pComponentsEditor->updateEditor();
 }
 
 void InstrumentEditorPanel::drumkitLoadedEvent() {
@@ -118,13 +144,6 @@ void InstrumentEditorPanel::updateSongEvent( int nValue ) {
 	}
 }
 
-void InstrumentEditorPanel::setSelectedComponent( int nComponent ) {
-	m_nSelectedComponent = nComponent;
-}
-void InstrumentEditorPanel::setSelectedLayer( int nLayer ) {
-	m_nSelectedLayer = nLayer;
-}
-
 void InstrumentEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
@@ -135,6 +154,6 @@ void InstrumentEditorPanel::onPreferencesChanged( const H2Core::Preferences::Cha
 	}
 	if ( changes & ( H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::Colors ) ) {
-		m_pInstrumentEditor->getLayerPreview()->update();
+		m_pComponentsEditor->updateEditor();
 	}
 }

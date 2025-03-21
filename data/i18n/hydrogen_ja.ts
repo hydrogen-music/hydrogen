@@ -1389,6 +1389,55 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
+    <name>ComponentView</name>
+    <message>
+        <source>Layer gain</source>
+        <translation>レイヤーのゲイン</translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer pitch (Coarse)</source>
+        <translation>レイヤーのピッチ (粗め)</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Fine)</source>
+        <translation>レイヤーのピッチ (細やか)</translation>
+    </message>
+    <message>
+        <source>Select selection algorithm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ComponentsEditor</name>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -1951,14 +2000,6 @@ Overwrite the existing file?</source>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>Show instrument properties</source>
-        <translation>インストルメントのプロパティー表示</translation>
-    </message>
-    <message>
-        <source>Show layers properties</source>
-        <translation>レイヤーのプロパティー表示</translation>
-    </message>
-    <message>
         <source>Random pitch factor</source>
         <translation>ランダムピッチ要素</translation>
     </message>
@@ -1971,24 +2012,8 @@ Overwrite the existing file?</source>
         <translation>レゾナンスフィルター</translation>
     </message>
     <message>
-        <source>Layer gain</source>
-        <translation>レイヤーのゲイン</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>インストルメントのゲイン</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Coarse)</source>
-        <translation>レイヤーのピッチ (粗め)</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Fine)</source>
-        <translation>レイヤーのピッチ (細やか)</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Midi out channel</source>
@@ -1996,10 +2021,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Midi out note</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Component volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2016,10 +2037,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select selection algorithm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2046,23 +2063,15 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>InstrumentEditorPanel</name>
     <message>
-        <source>First in Velocity</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
+        <source>Show instrument properties</source>
+        <translation>インストルメントのプロパティー表示</translation>
     </message>
     <message>
-        <source>Round Robin</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New component name</source>
+        <source>Show components</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

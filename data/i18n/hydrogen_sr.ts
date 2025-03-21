@@ -1388,6 +1388,55 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
+    <name>ComponentView</name>
+    <message>
+        <source>Layer gain</source>
+        <translation>Појачање слоја</translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation>Гласноћа компоненте</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Coarse)</source>
+        <translation>Промена висине тона у корацима (грубо)</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Fine)</source>
+        <translation>Промена висине тона у корацима (прецизно)</translation>
+    </message>
+    <message>
+        <source>Select selection algorithm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation>Назив нове компоненте</translation>
+    </message>
+</context>
+<context>
+    <name>ComponentsEditor</name>
+    <message>
+        <source>Component name</source>
+        <translation>Назив компоненте</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -1966,40 +2015,12 @@ Overwrite the existing file?</source>
         <translation>Јачина инструмента</translation>
     </message>
     <message>
-        <source>Layer gain</source>
-        <translation>Појачање слоја</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Coarse)</source>
-        <translation>Промена висине тона у корацима (грубо)</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Fine)</source>
-        <translation>Промена висине тона у корацима (прецизно)</translation>
-    </message>
-    <message>
-        <source>Show instrument properties</source>
-        <translation>Прикажи особине инструмента</translation>
-    </message>
-    <message>
-        <source>Show layers properties</source>
-        <translation>Прикажи особине слојева</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Назив компоненте</translation>
-    </message>
-    <message>
         <source>Midi out channel</source>
         <translation>Изл. миди-канал</translation>
     </message>
     <message>
         <source>Midi out note</source>
         <translation>Изл. миди-нота</translation>
-    </message>
-    <message>
-        <source>Component volume</source>
-        <translation>Гласноћа компоненте</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
@@ -2015,10 +2036,6 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select selection algorithm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2045,24 +2062,16 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>InstrumentEditorPanel</name>
     <message>
-        <source>First in Velocity</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
+        <source>Show instrument properties</source>
+        <translation>Прикажи особине инструмента</translation>
     </message>
     <message>
-        <source>Round Robin</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <source>Show components</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New component name</source>
-        <translation>Назив нове компоненте</translation>
     </message>
 </context>
 <context>

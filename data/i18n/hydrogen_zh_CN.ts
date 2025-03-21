@@ -1389,6 +1389,55 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
 </context>
 <context>
+    <name>ComponentView</name>
+    <message>
+        <source>Layer gain</source>
+        <translation>层增益</translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation>组件音量</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Coarse)</source>
+        <translation>层音调（粗糙）</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Fine)</source>
+        <translation>层音调（精细）</translation>
+    </message>
+    <message>
+        <source>Select selection algorithm</source>
+        <translation>选择选择算法</translation>
+    </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation>新组件名称</translation>
+    </message>
+</context>
+<context>
+    <name>ComponentsEditor</name>
+    <message>
+        <source>Component name</source>
+        <translation>组件名称</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -1951,14 +2000,6 @@ Overwrite the existing file?</source>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>Show instrument properties</source>
-        <translation>显示乐器属性</translation>
-    </message>
-    <message>
-        <source>Show layers properties</source>
-        <translation>显示层属性</translation>
-    </message>
-    <message>
         <source>Midi out channel</source>
         <translation>MIDI 输出通道</translation>
     </message>
@@ -1987,26 +2028,6 @@ Overwrite the existing file?</source>
         <translation>不要根据力度改变层的增益</translation>
     </message>
     <message>
-        <source>Layer gain</source>
-        <translation>层增益</translation>
-    </message>
-    <message>
-        <source>Component volume</source>
-        <translation>组件音量</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Coarse)</source>
-        <translation>层音调（粗糙）</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Fine)</source>
-        <translation>层音调（精细）</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>组件名称</translation>
-    </message>
-    <message>
         <source>Pitch offset (Coarse)</source>
         <translation>音调偏移（粗糙）</translation>
     </message>
@@ -2017,10 +2038,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
         <translation>在触发下一个音符样本之前，请停止当前的乐器音符</translation>
-    </message>
-    <message>
-        <source>Select selection algorithm</source>
-        <translation>选择选择算法</translation>
     </message>
     <message>
         <source>Length of Attack phase.
@@ -2046,24 +2063,16 @@ Value</source>
 Value</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>InstrumentEditorPanel</name>
     <message>
-        <source>First in Velocity</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
+        <source>Show instrument properties</source>
+        <translation>显示乐器属性</translation>
     </message>
     <message>
-        <source>Round Robin</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <source>Show components</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New component name</source>
-        <translation>新组件名称</translation>
     </message>
 </context>
 <context>

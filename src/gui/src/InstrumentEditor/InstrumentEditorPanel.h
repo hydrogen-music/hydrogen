@@ -28,28 +28,37 @@
 
 #include <core/Object.h>
 #include "../EventListener.h"
+#include "../Widgets/PixmapWidget.h"
 
 namespace H2Core {
 	class Instrument;
 }
+
+class Button;
+class ComponentsEditor;
 class InstrumentEditor;
 
 ///
 /// Container for the Instrument Editor (Singleton).
 ///
 /** \ingroup docGUI*/
-class InstrumentEditorPanel : public QWidget,
+class InstrumentEditorPanel : public PixmapWidget,
 							  private H2Core::Object<InstrumentEditorPanel>,
 							  public EventListener
 {
     H2_OBJECT(InstrumentEditorPanel)
 	Q_OBJECT
 	public:
+		/** Range of the fine pitch rotary for both the overall instrument pitch
+		 * as well as for the layer pitch. */
+		static constexpr float nPitchFineControl = 0.5;
+
 		explicit InstrumentEditorPanel( QWidget *pParent );
 		explicit InstrumentEditorPanel(const InstrumentEditorPanel&) = delete;
 		~InstrumentEditorPanel();
 		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
+		ComponentsEditor* getComponentsEditor() const;
 		InstrumentEditor* getInstrumentEditor() const;
 
 		void updateEditors();
@@ -62,23 +71,24 @@ class InstrumentEditorPanel : public QWidget,
 		// ~ implements EventListener interface
 
 		std::shared_ptr<H2Core::Instrument> getInstrument() const;
-		int getSelectedComponent() const;
-		int getSelectedLayer() const;
-
-		void setSelectedComponent( int nComponent );
-		void setSelectedLayer( int nLayer );
 
 	public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
+		ComponentsEditor*				m_pComponentsEditor;
 		InstrumentEditor*				m_pInstrumentEditor;
 
+		PixmapWidget* m_pBackground;
+		Button* m_pShowInstrumentBtn;
+		Button* m_pShowComponentsBtn;
+
 		std::shared_ptr<H2Core::Instrument> m_pInstrument;
-		int m_nSelectedLayer;
-		int m_nSelectedComponent;
 };
 
+inline ComponentsEditor* InstrumentEditorPanel::getComponentsEditor() const {
+	return m_pComponentsEditor;
+}
 inline InstrumentEditor* InstrumentEditorPanel::getInstrumentEditor() const {
 	return m_pInstrumentEditor;
 }
@@ -86,12 +96,6 @@ inline InstrumentEditor* InstrumentEditorPanel::getInstrumentEditor() const {
 inline std::shared_ptr<H2Core::Instrument> InstrumentEditorPanel::getInstrument() const {
 	return m_pInstrument;
 
-}
-inline int InstrumentEditorPanel::getSelectedComponent() const {
-	return m_nSelectedComponent;
-}
-inline int InstrumentEditorPanel::getSelectedLayer() const {
-	return m_nSelectedLayer;
 }
 
 #endif

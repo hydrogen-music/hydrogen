@@ -36,11 +36,11 @@ namespace H2Core
 	class InstrumentLayer;
 }
 
-class InstrumentEditorPanel;
+class ComponentView;
 
 /** \ingroup docGUI*/
-class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
-					  public H2Core::Object<LayerPreview>
+class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
+					 public H2Core::Object<LayerPreview>
 {
     H2_OBJECT(LayerPreview)
 	Q_OBJECT
@@ -48,16 +48,17 @@ class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
 	public:
 		static constexpr int m_nLayerHeight = 10;
 
-		explicit LayerPreview( QWidget* pParent, InstrumentEditorPanel* pPanel );
+		explicit LayerPreview( ComponentView* pComponentView );
 		~LayerPreview();
 
+	private:
 		void paintEvent(QPaintEvent *ev) override;
 		virtual void mousePressEvent(QMouseEvent *ev) override;
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void mouseMoveEvent ( QMouseEvent *ev ) override;
 
-	private:
-		InstrumentEditorPanel*  m_pInstrumentEditorPanel;
+		ComponentView*  m_pComponentView;
+
 		QPixmap					m_speakerPixmap;
 		bool					m_bMouseGrab;
 		bool					m_bGrabLeft;

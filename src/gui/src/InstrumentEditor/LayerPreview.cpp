@@ -36,15 +36,18 @@
 #include <core/Preferences/Theme.h>
 #include <core/Sampler/Sampler.h>
 
+#include "ComponentsEditor.h"
+#include "ComponentView.h"
 #include "InstrumentEditorPanel.h"
 #include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
 #include "../Skin.h"
 
 using namespace H2Core;
 
-LayerPreview::LayerPreview( QWidget* pParent, InstrumentEditorPanel* pPanel )
- : QWidget( pParent )
- , m_pInstrumentEditorPanel( pPanel )
+LayerPreview::LayerPreview( ComponentView* pComponentView )
+ : QWidget( pComponentView )
+ , m_pComponentView( pComponentView )
  , m_bMouseGrab( false )
  , m_bGrabLeft( false )
 {
@@ -84,14 +87,8 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	
 	p.fillRect( ev->rect(), pPref->getTheme().m_color.m_windowColor );
 
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-	const int nSelectedComponent =
-		m_pInstrumentEditorPanel->getSelectedComponent();
-	std::shared_ptr<InstrumentComponent> pComponent;
-	if ( pInstrument != nullptr ) {
-		pComponent = pInstrument->getComponent( nSelectedComponent );
-	}
-	const int nSelectedLayer = m_pInstrumentEditorPanel->getSelectedLayer();
+	auto pComponent = m_pComponentView->getComponent();
+	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
 
 	int nLayers = 0;
 	if ( pComponent != nullptr ) {
@@ -104,7 +101,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nColorScaling = 100;
 
 	QColor layerLabelColor, layerSegmentColor, highlightColor;
-	if ( m_pInstrumentEditorPanel->getInstrument() != nullptr ) {
+	if ( pComponent != nullptr ) {
 		highlightColor = pPref->getTheme().m_color.m_highlightColor;
 	} else {
 		highlightColor = pPref->getTheme().m_color.m_lightColor;
@@ -115,7 +112,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		const int y = 20 + LayerPreview::m_nLayerHeight * i;
 		QString label = "< - >";
 		
-		if ( pInstrument != nullptr && pComponent != nullptr ) {
+		if ( pComponent != nullptr ) {
 			auto pLayer = pComponent->getLayer( i );
 				
 			if ( pLayer != nullptr && nLayers > 0 ) {
@@ -197,7 +194,7 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	m_bMouseGrab = false;
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
-	if ( m_pInstrumentEditorPanel->getInstrument() == nullptr ) {
+	if ( m_pComponentView->getComponent() == nullptr ) {
 		return;
 	}
 
@@ -205,11 +202,10 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
 	 */
-	auto pCompo = m_pInstrumentEditorPanel->getInstrument()->getComponent(
-		m_pInstrumentEditorPanel->getSelectedComponent() );
-	if ( pCompo ) {
+	auto pCompo = m_pComponentView->getComponent();
+	if ( pCompo != nullptr ) {
 		auto pLayer = pCompo->getLayer(
-			m_pInstrumentEditorPanel->getSelectedLayer() );
+			m_pComponentView->getSelectedLayer() );
 
 		if ( pLayer ) {
 			int x1 = (int)( pLayer->getStartVelocity() * width() );
@@ -230,81 +226,82 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 void LayerPreview::mousePressEvent(QMouseEvent *ev)
 {
 	const int nPosition = 0;
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-	const int nSelectedComponent =
-		m_pInstrumentEditorPanel->getSelectedComponent();
-	const int nSelectedLayer = m_pInstrumentEditorPanel->getSelectedLayer();
-	if ( pInstrument == nullptr ) {
+	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
+	const auto pComponent = m_pComponentView->getComponent();
+	if ( pComponent == nullptr ) {
 		return;
 	}
+
 	if ( ev->y() < 20 ) {
 		const float fVelocity = (float)ev->x() / (float)width();
 
-		if ( pInstrument->hasSamples() ) {
+		if ( pComponent->hasSamples() ) {
+			auto pInstrumentEditorPanel =
+				HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
 			auto pNote = std::make_shared<Note>(
-				pInstrument, nPosition, fVelocity );
-			pNote->setSpecificCompoIdx( nSelectedComponent );
+				pInstrumentEditorPanel->getInstrument(), nPosition, fVelocity );
+			pNote->setSpecificCompoIdx(
+				pInstrumentEditorPanel->getComponentsEditor()->
+				getSelectedComponent() );
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		}
 
 		int nNewLayer = -1;
 		for ( int ii = 0; ii < InstrumentComponent::getMaxLayers(); ii++ ) {
-			auto pCompo = pInstrument->getComponent( nSelectedComponent );
-			if ( pCompo != nullptr ){
-				auto pLayer = pCompo->getLayer( ii );
-				if ( pLayer != nullptr ) {
-					if ( fVelocity > pLayer->getStartVelocity() &&
-						 fVelocity < pLayer->getEndVelocity() ) {
-						if ( ii != nSelectedLayer ) {
-							nNewLayer = ii;
-						}
-						break;
+			auto pLayer = pComponent->getLayer( ii );
+			if ( pLayer != nullptr ) {
+				if ( fVelocity > pLayer->getStartVelocity() &&
+					 fVelocity < pLayer->getEndVelocity() ) {
+					if ( ii != nSelectedLayer ) {
+						nNewLayer = ii;
 					}
+					break;
 				}
 			}
 		}
 
 		if ( nNewLayer != -1 ) {
-			m_pInstrumentEditorPanel->setSelectedLayer( nNewLayer );
-			m_pInstrumentEditorPanel->updateEditors();
+			m_pComponentView->setSelectedLayer( nNewLayer );
+			m_pComponentView->updateView();
 		}
 	}
 	else {
 		const int nClickedLayer = ( ev->y() - 20 ) / LayerPreview::m_nLayerHeight;
 		if ( nClickedLayer < InstrumentComponent::getMaxLayers() &&
 			 nClickedLayer >= 0 ) {
-			m_pInstrumentEditorPanel->setSelectedLayer( nClickedLayer );
-			m_pInstrumentEditorPanel->updateEditors();
+			m_pComponentView->setSelectedLayer( nClickedLayer );
+			m_pComponentView->updateView();
 
-			auto pCompo = pInstrument->getComponent( nSelectedComponent );
-			if( pCompo != nullptr ) {
-				auto pLayer = pCompo->getLayer( nClickedLayer );
-				if ( pLayer != nullptr ) {
-					const float fVelocity = pLayer->getEndVelocity() - 0.01;
-					auto pNote = std::make_shared<Note>(
-						pInstrument, nPosition, fVelocity );
-					pNote->setSpecificCompoIdx( nSelectedComponent );
-					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-						noteOn( pNote );
-				
-					int x1 = (int)( pLayer->getStartVelocity() * width() );
-					int x2 = (int)( pLayer->getEndVelocity() * width() );
-				
-					if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
-						setCursor( QCursor( Qt::SizeHorCursor ) );
-						m_bGrabLeft = true;
-						m_bMouseGrab = true;
-						showLayerStartVelocity(pLayer, ev);
-					}
-					else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
-						setCursor( QCursor( Qt::SizeHorCursor ) );
-						m_bGrabLeft = false;
-						m_bMouseGrab = true;
-						showLayerEndVelocity(pLayer, ev);
-					}
-					else {
-						setCursor( QCursor( Qt::ArrowCursor ) );
-					}
+			auto pLayer = pComponent->getLayer( nClickedLayer );
+			if ( pLayer != nullptr ) {
+				const float fVelocity = pLayer->getEndVelocity() - 0.01;
+				auto pInstrumentEditorPanel =
+					HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
+				auto pNote = std::make_shared<Note>(
+					pInstrumentEditorPanel->getInstrument(), nPosition, fVelocity );
+				pNote->setSpecificCompoIdx(
+					pInstrumentEditorPanel->getComponentsEditor()->
+					getSelectedComponent() );
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+					noteOn( pNote );
+
+				int x1 = (int)( pLayer->getStartVelocity() * width() );
+				int x2 = (int)( pLayer->getEndVelocity() * width() );
+
+				if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
+					setCursor( QCursor( Qt::SizeHorCursor ) );
+					m_bGrabLeft = true;
+					m_bMouseGrab = true;
+					showLayerStartVelocity(pLayer, ev);
+				}
+				else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
+					setCursor( QCursor( Qt::SizeHorCursor ) );
+					m_bGrabLeft = false;
+					m_bMouseGrab = true;
+					showLayerEndVelocity(pLayer, ev);
+				}
+				else {
+					setCursor( QCursor( Qt::ArrowCursor ) );
 				}
 			}
 		}
@@ -313,17 +310,11 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 {
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-	const int nSelectedComponent =
-		m_pInstrumentEditorPanel->getSelectedComponent();
-	const int nSelectedLayer = m_pInstrumentEditorPanel->getSelectedLayer();
-	if ( pInstrument == nullptr ) {
-		return;
-	}
-	auto pComponent = pInstrument->getComponent( nSelectedComponent );
+	auto pComponent = m_pComponentView->getComponent();
 	if ( pComponent == nullptr ) {
 		return;
 	}
+	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
 
 	const int x = ev->pos().x();
 	const int y = ev->pos().y();
