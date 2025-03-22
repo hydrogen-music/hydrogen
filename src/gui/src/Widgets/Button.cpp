@@ -454,6 +454,13 @@ void Button::updateFont() {
 	// and we are trapped in an infinite loop.
 	setFont( font );
 }
+
+void Button::setIconFileName( const QString& sIcon ) {
+	if ( m_sIcon != sIcon ) {
+		m_sIcon = sIcon;
+		updateIcon();
+	}
+}
 	
 void Button::paintEvent( QPaintEvent* ev )
 {
