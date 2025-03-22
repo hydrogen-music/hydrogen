@@ -26,6 +26,8 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <vector>
+
 #include <core/Object.h>
 
 #include "../Widgets/WidgetWithScalableFont.h"
@@ -48,6 +50,7 @@ class ComponentsEditor :  public QWidget,
 		explicit ComponentsEditor( InstrumentEditorPanel* pPanel );
 		~ComponentsEditor();
 
+		void updateComponents();
 		void updateEditor();
 
 		ComponentView* getCurrentView() const;
@@ -64,16 +67,15 @@ class ComponentsEditor :  public QWidget,
 	private:
 		void updateActivation();
 
-		ComponentView* m_pComponentView;
+		QVBoxLayout* m_pMainLayout;
+
+		std::vector<ComponentView*> m_componentViews;
 
 		InstrumentEditorPanel* m_pInstrumentEditorPanel;
 		int m_nSelectedComponent;
 
 };
 
-inline ComponentView* ComponentsEditor::getCurrentView() const {
-	return m_pComponentView;
-}
 inline int ComponentsEditor::getSelectedComponent() const {
 	return m_nSelectedComponent;
 }

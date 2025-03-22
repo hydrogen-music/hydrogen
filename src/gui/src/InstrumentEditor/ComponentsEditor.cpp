@@ -41,18 +41,73 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 {
 	setFixedWidth( 290 );
 
-	const auto pComponent =
-		pPanel->getInstrument()->getComponent( m_nSelectedComponent );
-	m_pComponentView = new ComponentView( this, pComponent );
+	m_pMainLayout = new QVBoxLayout();
+	m_pMainLayout->setSpacing( 0 );
+	m_pMainLayout->setMargin( 0 );
+	setLayout( m_pMainLayout );
 
-	auto pVBoxMainLayout = new QVBoxLayout();
-	pVBoxMainLayout->setSpacing( 0 );
-	pVBoxMainLayout->setMargin( 0 );
-	pVBoxMainLayout->addWidget( m_pComponentView );
-	setLayout( pVBoxMainLayout );
+	updateComponents();
 }
 
 ComponentsEditor::~ComponentsEditor() {
+}
+
+void ComponentsEditor::updateComponents() {
+
+	// We add a stretchable spacer item of zero height at the bottom. When
+	// appending another widget we have to take remove it first and add another
+	// one later on.
+	bool bRequiresNewStretch = m_componentViews.size() == 0;
+	auto handleStretch = [=]() {
+		// In here we assume that there is just one stretch present.
+		for ( int ii = 0; ii < m_pMainLayout->count(); ++ii ){
+			if ( dynamic_cast<QSpacerItem*>(m_pMainLayout->itemAt( ii )) !=
+				 nullptr ) {
+				// Found the stretch
+				m_pMainLayout->removeItem( m_pMainLayout->itemAt( ii ) );
+				return true;
+			}
+		}
+		return false;
+	};
+
+	auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+	if ( pInstrument == nullptr || pInstrument->getComponents()->size() == 0 ) {
+		// No components at all
+		for ( auto& ppComponentView : m_componentViews ) {
+			delete ppComponentView;
+		}
+		m_componentViews.clear();
+		return;
+	}
+
+	int nnCount = 0;
+	for ( const auto& ppComponent : *pInstrument->getComponents() ) {
+		if ( nnCount < m_componentViews.size() ) {
+			// Ensure the correct component is assigned to the view.
+			m_componentViews[ nnCount ]->setComponent( ppComponent );
+		}
+		else {
+			// Create a new view
+			auto pNewView = new ComponentView( this, ppComponent );
+			m_pMainLayout->addWidget( pNewView );
+			m_componentViews.push_back( pNewView );
+			if ( ! bRequiresNewStretch ) {
+				bRequiresNewStretch = handleStretch();
+			}
+		}
+		++nnCount;
+	}
+
+	// Remove superfluous views
+	while ( nnCount < m_componentViews.size() ) {
+		delete m_componentViews[ m_componentViews.size() - 1 ];
+		m_componentViews.pop_back();
+	}
+
+	if ( bRequiresNewStretch ) {
+		m_pMainLayout->addStretch();
+	}
 }
 
 void ComponentsEditor::updateEditor()
@@ -72,11 +127,19 @@ void ComponentsEditor::updateEditor()
 
 	updateActivation();
 
-	if ( pInstrument != nullptr ) {
-		pComponent = pInstrument->getComponent( m_nSelectedComponent );
+	for ( const auto& ppComponentView : m_componentViews ) {
+		ppComponentView->updateView();
 	}
-	m_pComponentView->setComponent( pComponent );
-	m_pComponentView->updateView();
+}
+
+ComponentView* ComponentsEditor::getCurrentView() const {
+	for ( const auto& ppComponentView : m_componentViews ) {
+		if ( ppComponentView != nullptr || ppComponentView->getIsExpanded() ) {
+			return ppComponentView;
+		}
+	}
+
+	return nullptr;
 }
 
 void ComponentsEditor::updateActivation() {

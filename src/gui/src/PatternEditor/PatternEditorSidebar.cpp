@@ -443,8 +443,6 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	connect(m_pSampleWarning, SIGNAL( clicked() ),
 			this, SLOT( sampleWarningClicked() ));
 
-	/*: Text displayed on the button for muting an instrument. Its size is
-	  designed for a single character.*/
 	m_pMuteBtn = new Button(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), true,
@@ -454,9 +452,6 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	pHBox->addWidget( m_pMuteBtn );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
-
-	/*: Text displayed on the button for soloing an instrument. Its size is
-	  designed for a single character.*/
 	m_pSoloBtn = new Button(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ),
 		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), false,

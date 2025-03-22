@@ -52,26 +52,88 @@ ComponentView::ComponentView( QWidget* pParent,
 	: QWidget( pParent )
 	, m_pComponent( pComponent )
 	, m_nSelectedLayer( 0 )
+	, m_bIsExpanded( true )
 {
 	setFixedWidth( 290 );
+	setFixedHeight( ComponentView::nExpandedHeight );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	m_pLayerProp = new PixmapWidget( this );
-	m_pLayerProp->setObjectName( "LayerProperties" );
-	m_pLayerProp->move( 0, 0 );
-	m_pLayerProp->setPixmap( "/instrumentEditor/layerTabsupernew.png" );
+	setObjectName( "ComponentProperties" );
 
-	m_pCompoNameLbl = new ClickableLabel(
-		m_pLayerProp, QSize( 279, 27 ), "", ClickableLabel::Color::Bright, true );
-	m_pCompoNameLbl->move( 5, 4 );
-	connect( m_pCompoNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
+	auto pHeaderWidget = new QWidget( this );
+	pHeaderWidget->move( 5, 0 );
+	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
+	auto pHBoxHeaderLayout = new QHBoxLayout();
+	//pHBoxHeaderLayout->setAlignment( Qt::AlignVCenter );
+	pHBoxHeaderLayout->setMargin( 0 );
+	pHBoxHeaderLayout->setSpacing( 0 );
+	pHeaderWidget->setLayout( pHBoxHeaderLayout );
+
+	m_pShowLayersBtn = new Button(
+		pHeaderWidget, QSize( 16, 16 ), Button::Type::Push, "minus.svg" );
+	connect( m_pShowLayersBtn, &Button::clicked, [&](){
+		if ( m_bIsExpanded ) {
+			narrow();
+		} else {
+			expand();
+		}
+	});
+	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
+
+	m_pComponentNameLbl = new ClickableLabel(
+		pHeaderWidget, QSize( 279 - 27 -27 - 16 - 44, ComponentView::nHeaderHeight - 2 ),
+		"", ClickableLabel::Color::Bright, true );
+	connect( m_pComponentNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
 			 this, SLOT( renameComponentAction() ) );
+	pHBoxHeaderLayout->addWidget( m_pComponentNameLbl );
+
+	m_pComponentMuteBtn = new Button(
+		pHeaderWidget,
+		QSize( ComponentView::nHeaderHeight - 2, ComponentView::nHeaderHeight - 2 ),
+		Button::Type::Toggle, "",
+		pCommonStrings->getSmallMuteButton(), true, QSize(), tr("Mute component"),
+		false, true );
+	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
+	m_pComponentMuteBtn->setObjectName( "SidebarRowMuteButton" );
+	connect( m_pComponentMuteBtn, &Button::clicked, [&](){
+		if ( m_pComponent != nullptr ) {
+			m_pComponent->setIsMuted( m_pComponentMuteBtn->isChecked() );
+		}
+	});
+	pHBoxHeaderLayout->addWidget( m_pComponentMuteBtn );
+
+	m_pComponentSoloBtn = new Button(
+		pHeaderWidget,
+		QSize( ComponentView::nHeaderHeight - 2, ComponentView::nHeaderHeight - 2 ),
+		Button::Type::Toggle, "",
+		pCommonStrings->getSmallSoloButton(), false, QSize(), tr("Solo component"),
+		false, true );
+	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
+	m_pComponentSoloBtn->setObjectName( "SidebarRowSoloButton" );
+	connect( m_pComponentSoloBtn, &Button::clicked, [&](){
+		if ( m_pComponent != nullptr ) {
+			m_pComponent->setIsSoloed( m_pComponentSoloBtn->isChecked() );
+		}
+	});
+	pHBoxHeaderLayout->addWidget( m_pComponentSoloBtn );
+
+	m_pComponentGainRotary = new Rotary(
+		pHeaderWidget, Rotary::Type::Normal, tr( "Component volume" ), false,
+		0.0, 5.0 );
+	m_pComponentGainRotary->setDefaultValue( 1.0 );
+	connect( m_pComponentGainRotary, &Rotary::valueChanged, [&]() {
+		if ( m_pComponent != nullptr ) {
+			m_pComponent->setGain( m_pComponentGainRotary->getValue() );
+			updateView(); // WaveDisplay update
+		}
+	});
+	pHBoxHeaderLayout->addWidget( m_pComponentGainRotary );
 
 	// Layer preview
 	m_pLayerPreview = new LayerPreview( this );
 
-	m_pLayerScrollArea = new QScrollArea( m_pLayerProp);
+	m_pLayerScrollArea = new QScrollArea( this );
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->move( 6, 44 );
 	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -84,7 +146,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 
 	// Waveform display
-	m_pWaveDisplay = new WaveDisplay( m_pLayerProp );
+	m_pWaveDisplay = new WaveDisplay( this );
 	m_pWaveDisplay->resize( 277, 58 );
 	m_pWaveDisplay->updateDisplay( nullptr );
 	m_pWaveDisplay->move( 5, 241 );
@@ -92,19 +154,19 @@ ComponentView::ComponentView( QWidget* pParent,
 			 this, SLOT( waveDisplayDoubleClicked(QWidget*) ) );
 
 	m_pLoadLayerBtn = new Button(
-		m_pLayerProp, QSize( 92, 18 ), Button::Type::Push, "",
+		this, QSize( 92, 18 ), Button::Type::Push, "",
 		pCommonStrings->getLoadLayerButton() );
 	m_pLoadLayerBtn->setObjectName( "LoadLayerButton" );
 	m_pLoadLayerBtn->move( 5, 304 );
 
 	m_pRemoveLayerBtn = new Button(
-		m_pLayerProp, QSize( 94, 18 ), Button::Type::Push, "",
+		this, QSize( 94, 18 ), Button::Type::Push, "",
 		pCommonStrings->getDeleteLayerButton() );
 	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
 	m_pRemoveLayerBtn->move( 97, 304 );
 
 	m_pSampleEditorBtn = new Button(
-		m_pLayerProp, QSize( 92, 18 ), Button::Type::Push, "",
+		this, QSize( 92, 18 ), Button::Type::Push, "",
 		pCommonStrings->getEditLayerButton() );
 	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
 	m_pSampleEditorBtn->move( 191, 304 );
@@ -116,9 +178,9 @@ ComponentView::ComponentView( QWidget* pParent,
 	connect( m_pSampleEditorBtn, SIGNAL( clicked() ),
 			 this, SLOT( showSampleEditor() ) );
 	// Layer gain
-	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ), false, false );
+	m_pLayerGainLCD = new LCDDisplay( this, QSize( 36, 16 ), false, false );
 	m_pLayerGainRotary = new Rotary(
-		m_pLayerProp, Rotary::Type::Normal, tr( "Layer gain" ), false , 0.0, 5.0);
+		this, Rotary::Type::Normal, tr( "Layer gain" ), false , 0.0, 5.0);
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
 		if ( m_pComponent != nullptr ) {
@@ -130,35 +192,19 @@ ComponentView::ComponentView( QWidget* pParent,
 		}
 	});
 	m_pLayerGainLbl = new ClickableLabel(
-		m_pLayerProp, QSize( 44, 10 ), pCommonStrings->getLayerGainLabel() );
+		this, QSize( 44, 10 ), pCommonStrings->getLayerGainLabel() );
 	m_pLayerGainLbl->move( 50, 360 );
 
-	m_pCompoGainLCD = new LCDDisplay(
-		m_pLayerProp, QSize( 36, 16 ), false, false );
-	m_pCompoGainRotary = new Rotary(
-		m_pLayerProp, Rotary::Type::Normal, tr( "Component volume" ), false,
-		0.0, 5.0 );
-	m_pCompoGainRotary->setDefaultValue ( 1.0 );
-	connect( m_pCompoGainRotary, &Rotary::valueChanged, [&]() {
-		if ( m_pComponent != nullptr ) {
-			pComponent->setGain( m_pCompoGainRotary->getValue() );
-			updateView(); // LCD update
-		}
-	});
-	m_pCompoGainLbl = new ClickableLabel(
-		m_pLayerProp, QSize( 44, 10 ), pCommonStrings->getComponentGainLabel() );
-	m_pCompoGainLbl->move( 147, 360 );
-
 	m_pLayerPitchCoarseLCD = new LCDDisplay(
-		m_pLayerProp, QSize( 28, 16 ), false, false );
+		this, QSize( 28, 16 ), false, false );
 	m_pLayerPitchFineLCD = new LCDDisplay(
-		m_pLayerProp, QSize( 28, 16 ), false, false );
+		this, QSize( 28, 16 ), false, false );
 	m_pLayerPitchLbl = new ClickableLabel(
-		m_pLayerProp, QSize( 45, 10 ), pCommonStrings->getPitchLabel() );
+		this, QSize( 45, 10 ), pCommonStrings->getPitchLabel() );
 	m_pLayerPitchLbl->move( 17, 412 );
 
 	m_pLayerPitchCoarseRotary = new Rotary(
-		m_pLayerProp, Rotary::Type::Center, tr( "Layer pitch (Coarse)" ), true,
+		this, Rotary::Type::Center, tr( "Layer pitch (Coarse)" ), true,
 		Instrument::fPitchMin + InstrumentEditorPanel::nPitchFineControl,
 		Instrument::fPitchMax - InstrumentEditorPanel::nPitchFineControl );
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
@@ -173,11 +219,11 @@ ComponentView::ComponentView( QWidget* pParent,
 		}
 	});
 	m_pLayerPitchCoarseLbl = new ClickableLabel(
-		m_pLayerProp, QSize( 44, 10 ), pCommonStrings->getPitchCoarseLabel() );
+		this, QSize( 44, 10 ), pCommonStrings->getPitchCoarseLabel() );
 	m_pLayerPitchCoarseLbl->move( 61, 412 );
 
 	m_pLayerPitchFineRotary = new Rotary(
-		m_pLayerProp, Rotary::Type::Center, tr( "Layer pitch (Fine)" ), true,
+		this, Rotary::Type::Center, tr( "Layer pitch (Fine)" ), true,
 		-50.0, 50.0 );
 	connect( m_pLayerPitchFineRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
@@ -191,14 +237,11 @@ ComponentView::ComponentView( QWidget* pParent,
 		}
 	});
 	m_pLayerPitchFineLbl = new ClickableLabel(
-		m_pLayerProp, QSize( 44, 10 ), pCommonStrings->getPitchFineLabel() );
+		this, QSize( 44, 10 ), pCommonStrings->getPitchFineLabel() );
 	m_pLayerPitchFineLbl->move( 147, 412 );
 
 	m_pLayerGainLCD->move( 53, 343 );
 	m_pLayerGainRotary->move( 94, 341 );
-
-	m_pCompoGainLCD->move( 151, 343 );
-	m_pCompoGainRotary->move( 191, 341 );
 
 	m_pLayerPitchCoarseLCD->move( 70, 393 );
 	m_pLayerPitchCoarseRotary->move( 105, 391 );
@@ -207,7 +250,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPitchFineRotary->move( 191, 391 );
 
 	m_pSampleSelectionCombo = new LCDCombo(
-		m_pLayerProp, QSize( width() - 76 - 7, 18 ), true );
+		this, QSize( width() - 76 - 7, 18 ), true );
 	m_pSampleSelectionCombo->move( 76, 432 );
 
 	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );
@@ -215,7 +258,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	connect( m_pSampleSelectionCombo, SIGNAL( activated( int ) ),
 			 this, SLOT( sampleSelectionChanged( int ) ) );
 	m_pSampleSelectionLbl = new ClickableLabel(
-		m_pLayerProp, QSize( 70, 10 ), pCommonStrings->getSampleSelectionLabel() );
+		this, QSize( 70, 10 ), pCommonStrings->getSampleSelectionLabel() );
 	m_pSampleSelectionLbl->move( 7, 436 );
 
 	updateView();
@@ -228,10 +271,8 @@ void ComponentView::updateView() {
 	updateActivation();
 
 	if ( m_pComponent != nullptr ) {
-		m_pCompoNameLbl->setText( m_pComponent->getName() );
-		m_pCompoGainLCD->setText(
-			QString( "%1" ).arg( m_pComponent->getGain(), -2, 'f', 2, '0' ) );
-		m_pCompoGainRotary->setValue(
+		m_pComponentNameLbl->setText( m_pComponent->getName() );
+		m_pComponentGainRotary->setValue(
 			m_pComponent->getGain(), false, Event::Trigger::Suppress );
 
 		if ( m_nSelectedLayer >= 0 ) {
@@ -244,11 +285,6 @@ void ComponentView::updateView() {
 				m_pLayerGainLCD->setText(
 					QString( "%1" ).arg( pLayer->getGain(), -2, 'f', 2, '0' ) );
 
-				// Component GAIN
-				m_pCompoGainRotary->setValue( m_pComponent->getGain(), false,
-											  Event::Trigger::Suppress );
-				m_pCompoGainLCD->setText(
-					QString( "%1" ).arg( m_pComponent->getGain(), -2, 'f', 2, '0' ) );
 
 				// Layer PITCH
 				//
@@ -292,6 +328,32 @@ void ComponentView::updateView() {
 	m_pLayerPreview->update();
 }
 
+void ComponentView::expand() {
+	if ( m_bIsExpanded ) {
+		return;
+	}
+
+	m_pShowLayersBtn->setIconFileName( "minus.svg" );
+
+	setFixedHeight( ComponentView::nExpandedHeight );
+
+	m_bIsExpanded = true;
+	updateVisibility();
+}
+
+void ComponentView::narrow() {
+	if ( ! m_bIsExpanded ) {
+		return;
+	}
+
+	m_pShowLayersBtn->setIconFileName( "plus.svg" );
+
+	setFixedHeight( ComponentView::nHeaderHeight );
+
+	m_bIsExpanded = false;
+	updateVisibility();
+}
+
 void ComponentView::setComponent(std::shared_ptr<H2Core::InstrumentComponent> pComponent) {
 	if ( m_pComponent != pComponent ) {
 		m_pComponent = pComponent;
@@ -330,12 +392,11 @@ void ComponentView::renameComponentAction() {
 
 void ComponentView::updateActivation() {
 	if ( m_pComponent != nullptr ) {
-		m_pCompoGainRotary->setIsActive( true );
+		m_pComponentGainRotary->setIsActive( true );
 	}
 	else {
-		m_pCompoNameLbl->setText( "" );
-		m_pCompoGainLCD->setText( "" );
-		m_pCompoGainRotary->setIsActive( false );
+		m_pComponentNameLbl->setText( "" );
+		m_pComponentGainRotary->setIsActive( false );
 	}
 
 	std::shared_ptr<InstrumentLayer> pLayer = nullptr;
@@ -368,6 +429,28 @@ void ComponentView::updateActivation() {
 
 		m_pWaveDisplay->updateDisplay( nullptr );
 	}
+}
+
+void ComponentView::updateVisibility() {
+	m_pLayerPreview->setVisible( m_bIsExpanded );
+	m_pLayerGainRotary->setVisible( m_bIsExpanded );
+	m_pLayerGainLbl->setVisible( m_bIsExpanded );
+	m_pLayerGainLCD->setVisible( m_bIsExpanded );
+	m_pLayerPitchCoarseRotary->setVisible( m_bIsExpanded );
+	m_pLayerPitchCoarseLbl->setVisible( m_bIsExpanded );
+	m_pLayerPitchCoarseLCD->setVisible( m_bIsExpanded );
+	m_pLayerPitchFineRotary->setVisible( m_bIsExpanded );
+	m_pLayerPitchFineLbl->setVisible( m_bIsExpanded );
+	m_pLayerPitchFineLCD->setVisible( m_bIsExpanded );
+	m_pLayerPitchLbl->setVisible( m_bIsExpanded );
+
+	m_pLoadLayerBtn->setVisible( m_bIsExpanded );
+	m_pRemoveLayerBtn->setVisible( m_bIsExpanded );
+	m_pSampleEditorBtn->setVisible( m_bIsExpanded );
+	m_pSampleSelectionCombo->setVisible( m_bIsExpanded );
+	m_pSampleSelectionLbl->setVisible( m_bIsExpanded );
+
+	m_pWaveDisplay->setVisible( m_bIsExpanded );
 }
 
 void ComponentView::waveDisplayDoubleClicked( QWidget* pRef ) {

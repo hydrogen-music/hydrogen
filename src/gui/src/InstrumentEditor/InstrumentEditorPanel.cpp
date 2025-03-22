@@ -55,9 +55,9 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 	pStackedEditorLayout->setMargin( 0 );
 	pEditorWidget->setLayout( pStackedEditorLayout );
 	m_pInstrumentEditor = new InstrumentEditor( this );
-	pStackedEditorLayout->addWidget( m_pInstrumentEditor );
 	m_pComponentsEditor = new ComponentsEditor( this );
 	pStackedEditorLayout->addWidget( m_pComponentsEditor );
+	pStackedEditorLayout->addWidget( m_pInstrumentEditor );
 
 	// Buttons
 
@@ -113,6 +113,7 @@ void InstrumentEditorPanel::updateEditors() {
 }
 
 void InstrumentEditorPanel::drumkitLoadedEvent() {
+	m_pComponentsEditor->updateComponents();
 	updateEditors();
 }
 
@@ -134,12 +135,14 @@ void InstrumentEditorPanel::instrumentParametersChangedEvent( int nInstrumentNum
 }
 
 void InstrumentEditorPanel::selectedInstrumentChangedEvent() {
+	m_pComponentsEditor->updateComponents();
 	updateEditors();
 }
 
 void InstrumentEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
+		m_pComponentsEditor->updateComponents();
 		updateEditors();
 	}
 }

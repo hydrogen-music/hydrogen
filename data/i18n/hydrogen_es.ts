@@ -1432,6 +1432,14 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>New component name</source>
         <translation>Nombre nuevo componente</translation>
     </message>
+    <message>
+        <source>Mute component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo component</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentsEditor</name>
@@ -5682,12 +5690,10 @@ p, li { white-space: pre-wrap; }
     <name>SidebarRow</name>
     <message>
         <source>Mute instrument</source>
-        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
         <translation>Silenciar instrumento</translation>
     </message>
     <message>
         <source>Solo</source>
-        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
         <translation>Solo</translation>
     </message>
     <message>

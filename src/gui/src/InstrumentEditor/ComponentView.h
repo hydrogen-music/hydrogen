@@ -42,7 +42,6 @@ class ClickableLabel;
 class LayerPreview;
 class LCDCombo;
 class LCDDisplay;
-class PixmapWidget;
 class Rotary;
 class WaveDisplay;
 
@@ -58,11 +57,18 @@ class ComponentView : public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nHeaderHeight = 27;
+		static constexpr int nExpandedHeight = 500;
+
 		explicit ComponentView( QWidget* pParent,
 								std::shared_ptr<H2Core::InstrumentComponent> );
 		~ComponentView();
 
 		void updateView();
+
+		bool getIsExpanded() const;
+		void expand();
+		void narrow();
 
 		std::shared_ptr<H2Core::InstrumentComponent> getComponent() const;
 		LayerPreview* getLayerPreview() const;
@@ -86,14 +92,20 @@ class ComponentView : public QWidget,
 		std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
 		int m_nSelectedLayer;
 
-		void updateActivation();
+		bool m_bIsExpanded;
 
-		ClickableLabel* m_pCompoNameLbl;
+		void updateActivation();
+		void updateVisibility();
+
+		Button* m_pShowLayersBtn;
+		ClickableLabel* m_pComponentNameLbl;
+		Button* m_pComponentSoloBtn;
+		Button* m_pComponentMuteBtn;
+		Rotary* m_pComponentGainRotary;
 
 		LayerPreview *m_pLayerPreview;
 		QScrollArea *m_pLayerScrollArea;
 
-		PixmapWidget *m_pLayerProp;
 		Rotary *m_pLayerGainRotary;
 		LCDDisplay *m_pLayerGainLCD;
 		ClickableLabel* m_pLayerGainLbl;
@@ -118,14 +130,13 @@ class ComponentView : public QWidget,
 		Button *m_pLoadLayerBtn;
 		Button *m_pRemoveLayerBtn;
 		Button *m_pSampleEditorBtn;
-		QCheckBox *m_pIsStopNoteCheckBox;
-
-		Rotary *m_pCompoGainRotary;
-		LCDDisplay *m_pCompoGainLCD;
 
 		void setAutoVelocity();
 };
 
+inline bool ComponentView::getIsExpanded() const {
+	return m_bIsExpanded;
+}
 inline std::shared_ptr<H2Core::InstrumentComponent> ComponentView::getComponent() const {
 	return m_pComponent;
 }
