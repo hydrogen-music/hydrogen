@@ -86,7 +86,7 @@ Rotary::Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
 		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sBackgroundPath ) );
 	}
 	
-	resize( m_nWidgetWidth, m_nWidgetHeight );
+	setFixedSize( m_nWidgetWidth, m_nWidgetHeight );
 }
 
 Rotary::~ Rotary() {
