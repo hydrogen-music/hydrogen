@@ -39,12 +39,40 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	, m_pInstrumentEditorPanel( pPanel )
 	, m_nSelectedComponent( 0 )
 {
-
-	m_pMainLayout = new QVBoxLayout();
-	m_pMainLayout->setSpacing( 0 );
-	m_pMainLayout->setMargin( 0 );
-	setLayout( m_pMainLayout );
 	setFixedWidth( InstrumentEditorPanel::nWidth );
+	setMinimumSize( InstrumentEditorPanel::nWidth,
+					ComponentView::nExpandedHeight );
+	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
+
+	m_pComponentsWidget = new QWidget( this );
+	m_pComponentsWidget->setSizePolicy(
+		QSizePolicy::Fixed, QSizePolicy::Expanding );
+	m_pComponentsWidget->setMinimumSize(
+		InstrumentEditorPanel::nWidth, ComponentView::nExpandedHeight );
+	m_pComponentsWidget->setMaximumSize(
+		InstrumentEditorPanel::nWidth, 16777215 );
+	m_pComponentsLayout = new QVBoxLayout();
+	m_pComponentsLayout->setSpacing( 0 );
+	m_pComponentsLayout->setMargin( 0 );
+	m_pComponentsWidget->setLayout( m_pComponentsLayout );
+
+	m_pScrollArea = new WidgetScrollArea( this );
+	m_pScrollArea->setFrameShape( QFrame::NoFrame );
+	m_pScrollArea->setFixedWidth( InstrumentEditorPanel::nWidth );
+	m_pScrollArea->setMinimumHeight( ComponentView::nExpandedHeight );
+	m_pScrollArea->setVerticalScrollBarPolicy(
+		Qt::ScrollBarAsNeeded );
+	m_pScrollArea->setHorizontalScrollBarPolicy(
+		Qt::ScrollBarAlwaysOff);
+	m_pScrollArea->setFocusPolicy( Qt::ClickFocus );
+	m_pScrollArea->setWidget( m_pComponentsWidget );
+	m_pComponentsWidget->show();
+
+	auto pMainLayout = new QVBoxLayout();
+	pMainLayout->setSpacing( 0 );
+	pMainLayout->setMargin( 0 );
+	pMainLayout->addWidget( m_pScrollArea );
+	setLayout( pMainLayout );
 
 	updateComponents();
 }
@@ -60,11 +88,11 @@ void ComponentsEditor::updateComponents() {
 	bool bRequiresNewStretch = m_componentViews.size() == 0;
 	auto handleStretch = [=]() {
 		// In here we assume that there is just one stretch present.
-		for ( int ii = 0; ii < m_pMainLayout->count(); ++ii ){
-			if ( dynamic_cast<QSpacerItem*>(m_pMainLayout->itemAt( ii )) !=
+		for ( int ii = 0; ii < m_pComponentsLayout->count(); ++ii ){
+			if ( dynamic_cast<QSpacerItem*>(m_pComponentsLayout->itemAt( ii )) !=
 				 nullptr ) {
 				// Found the stretch
-				m_pMainLayout->removeItem( m_pMainLayout->itemAt( ii ) );
+				m_pComponentsLayout->removeItem( m_pComponentsLayout->itemAt( ii ) );
 				return true;
 			}
 		}
@@ -90,7 +118,7 @@ void ComponentsEditor::updateComponents() {
 		else {
 			// Create a new view
 			auto pNewView = new ComponentView( this, ppComponent );
-			m_pMainLayout->addWidget( pNewView );
+			m_pComponentsLayout->addWidget( pNewView );
 			m_componentViews.push_back( pNewView );
 			if ( ! bRequiresNewStretch ) {
 				bRequiresNewStretch = handleStretch();
@@ -106,8 +134,22 @@ void ComponentsEditor::updateComponents() {
 	}
 
 	if ( bRequiresNewStretch ) {
-		m_pMainLayout->addStretch();
+		m_pComponentsLayout->addStretch();
 	}
+
+	int nNewHeight = 0;
+	for ( const auto& ppView : m_componentViews ) {
+		if ( ppView->getIsExpanded() ) {
+			nNewHeight += ComponentView::nExpandedHeight;
+		}
+		else {
+			nNewHeight += ComponentView::nHeaderHeight;
+		}
+
+	}
+
+	 m_pComponentsWidget->setMinimumHeight(
+	 	std::max( ComponentView::nExpandedHeight, nNewHeight ) );
 }
 
 void ComponentsEditor::updateEditor()

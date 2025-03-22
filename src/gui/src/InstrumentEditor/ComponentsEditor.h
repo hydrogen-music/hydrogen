@@ -31,6 +31,7 @@
 #include <core/Object.h>
 
 #include "../Widgets/WidgetWithScalableFont.h"
+#include "../WidgetScrollArea.h"
 
 class ComponentView;
 class InstrumentEditorPanel;
@@ -67,7 +68,10 @@ class ComponentsEditor :  public QWidget,
 	private:
 		void updateActivation();
 
-		QVBoxLayout* m_pMainLayout;
+		QWidget* m_pComponentsWidget;
+		QVBoxLayout* m_pComponentsLayout;
+
+		WidgetScrollArea* m_pScrollArea;
 
 		std::vector<ComponentView*> m_componentViews;
 

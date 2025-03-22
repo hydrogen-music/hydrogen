@@ -55,6 +55,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	, m_bIsExpanded( true )
 {
 	setFixedSize( InstrumentEditorPanel::nWidth, ComponentView::nExpandedHeight );
+	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -64,7 +65,6 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHeaderWidget->move( 5, 0 );
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
 	auto pHBoxHeaderLayout = new QHBoxLayout();
-	//pHBoxHeaderLayout->setAlignment( Qt::AlignVCenter );
 	pHBoxHeaderLayout->setMargin( 0 );
 	pHBoxHeaderLayout->setSpacing( 0 );
 	pHeaderWidget->setLayout( pHBoxHeaderLayout );
