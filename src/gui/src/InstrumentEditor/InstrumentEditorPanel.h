@@ -49,6 +49,7 @@ class InstrumentEditorPanel : public PixmapWidget,
     H2_OBJECT(InstrumentEditorPanel)
 	Q_OBJECT
 	public:
+		static constexpr int nWidth = 290;
 		/** Range of the fine pitch rotary for both the overall instrument pitch
 		 * as well as for the layer pitch. */
 		static constexpr float nPitchFineControl = 0.5;

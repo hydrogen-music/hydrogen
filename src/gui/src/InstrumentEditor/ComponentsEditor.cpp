@@ -39,12 +39,12 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	, m_pInstrumentEditorPanel( pPanel )
 	, m_nSelectedComponent( 0 )
 {
-	setFixedWidth( 290 );
 
 	m_pMainLayout = new QVBoxLayout();
 	m_pMainLayout->setSpacing( 0 );
 	m_pMainLayout->setMargin( 0 );
 	setLayout( m_pMainLayout );
+	setFixedWidth( InstrumentEditorPanel::nWidth );
 
 	updateComponents();
 }

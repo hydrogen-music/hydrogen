@@ -58,7 +58,7 @@ class ComponentView : public QWidget,
 
 	public:
 		static constexpr int nHeaderHeight = 27;
-		static constexpr int nExpandedHeight = 500;
+		static constexpr int nExpandedHeight = 420;
 
 		explicit ComponentView( QWidget* pParent,
 								std::shared_ptr<H2Core::InstrumentComponent> );

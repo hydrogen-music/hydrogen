@@ -46,7 +46,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	, m_pInstrumentEditorPanel( pPanel )
 	, m_fPreviousMidiOutChannel( -1.0 )
 {
-	setFixedWidth( 290 );
+	setFixedWidth( InstrumentEditorPanel::nWidth );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	

@@ -54,8 +54,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	, m_nSelectedLayer( 0 )
 	, m_bIsExpanded( true )
 {
-	setFixedWidth( 290 );
-	setFixedHeight( ComponentView::nExpandedHeight );
+	setFixedSize( InstrumentEditorPanel::nWidth, ComponentView::nExpandedHeight );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
