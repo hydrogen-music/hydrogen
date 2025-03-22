@@ -83,7 +83,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentNameLbl = new ClickableLabel(
 		pHeaderWidget, QSize( 279 - 27 -27 - 16 - 44, ComponentView::nHeaderHeight - 2 ),
 		"", ClickableLabel::Color::Bright, true );
-	connect( m_pComponentNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
+	connect( m_pComponentNameLbl, SIGNAL( labelDoubleClicked(QMouseEvent*) ),
 			 this, SLOT( renameComponentAction() ) );
 	pHBoxHeaderLayout->addWidget( m_pComponentNameLbl );
 
