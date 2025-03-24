@@ -82,6 +82,7 @@ class ComponentView : public QWidget,
 		void showSampleEditor();
 
 	private slots:
+		void deleteComponent();
 		void loadLayerBtnClicked();
 		void removeLayerButtonClicked();
 		void sampleSelectionChanged( int );
@@ -89,6 +90,8 @@ class ComponentView : public QWidget,
 
 
 	private:
+		virtual void mousePressEvent( QMouseEvent *event ) override;
+
 		std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
 		int m_nSelectedLayer;
 
@@ -132,6 +135,9 @@ class ComponentView : public QWidget,
 		Button *m_pSampleEditorBtn;
 
 		void setAutoVelocity();
+
+		QMenu* m_pPopup;
+		QAction* m_pDeleteAction;
 };
 
 inline bool ComponentView::getIsExpanded() const {

@@ -30,7 +30,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
-#include "ComponentsEditor.h"
 #include "InstrumentEditorPanel.h"
 #include "LayerPreview.h"
 #include "WaveDisplay.h"
@@ -260,7 +259,11 @@ ComponentView::ComponentView( QWidget* pParent,
 		this, QSize( 70, 10 ), pCommonStrings->getSampleSelectionLabel() );
 	m_pSampleSelectionLbl->move( 7, 436 );
 
-	updateView();
+	m_pPopup = new QMenu( this );
+	m_pPopup->addAction( pCommonStrings->getMenuActionAdd(), pParent,
+						 SLOT( addComponent() ) );
+	m_pDeleteAction = m_pPopup->addAction(
+		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponent() ));
 }
 
 ComponentView::~ComponentView() {
@@ -353,6 +356,35 @@ void ComponentView::narrow() {
 	updateVisibility();
 }
 
+void ComponentView::deleteComponent() {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pInstrument = pHydrogenApp->getInstrumentRack()->
+		getInstrumentEditorPanel()->getInstrument();
+
+	if ( pInstrument->getComponents()->size() <= 1 ) {
+		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
+		return;
+	}
+
+	if ( m_pComponent == nullptr ) {
+		return;
+	}
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	const auto sName = m_pComponent->getName();
+
+	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+	pNewInstrument->removeComponent( pInstrument->index( m_pComponent ) );
+
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::DeleteComponent, sName ) );
+	pHydrogenApp->showStatusBarMessage(
+		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteComponent() )
+		.arg( sName ) );
+}
+
 void ComponentView::setComponent(std::shared_ptr<H2Core::InstrumentComponent> pComponent) {
 	if ( m_pComponent != pComponent ) {
 		m_pComponent = pComponent;
@@ -389,6 +421,12 @@ void ComponentView::renameComponentAction() {
 			 QString( "%1: [%2] -> [%3]" )
 					 .arg( pCommonStrings->getActionRenameComponent() )
 					 .arg( sOldName ).arg( sNewName ) );
+	}
+}
+
+void ComponentView::mousePressEvent( QMouseEvent* pEvent ) {
+	if ( pEvent->button() == Qt::RightButton ) {
+		m_pPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
 	}
 }
 
@@ -430,6 +468,16 @@ void ComponentView::updateActivation() {
 		m_pSampleEditorBtn->setIsActive( false );
 
 		m_pWaveDisplay->updateDisplay( nullptr );
+	}
+
+	// If there is only a single component left, we do not allow to remove it.
+	const auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
+		getInstrumentEditorPanel()->getInstrument();
+	if ( pInstrument->getComponents()->size() <= 1 ) {
+		m_pDeleteAction->setDisabled( true );
+	}
+	else {
+		m_pDeleteAction->setDisabled( false );
 	}
 }
 

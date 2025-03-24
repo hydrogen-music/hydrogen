@@ -56,16 +56,17 @@ class ComponentsEditor :  public QWidget,
 
 		ComponentView* getCurrentView() const;
 
-		void deleteComponent( int nComponentIdx);
 		void renameComponent( int nComponentIdx, const QString& sNewName );
 
 	public slots:
 		void addComponent();
 
 	private:
+		virtual void mousePressEvent( QMouseEvent *event ) override;
 
 		QWidget* m_pComponentsWidget;
 		QVBoxLayout* m_pComponentsLayout;
+		QMenu* m_pPopup;
 
 		WidgetScrollArea* m_pScrollArea;
 

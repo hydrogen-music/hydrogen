@@ -43,6 +43,8 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 					ComponentView::nExpandedHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
 
+ 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	m_pComponentsWidget = new QWidget( this );
 	m_pComponentsWidget->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Expanding );
@@ -72,6 +74,17 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	pMainLayout->setMargin( 0 );
 	pMainLayout->addWidget( m_pScrollArea );
 	setLayout( pMainLayout );
+
+	// Component popup menu
+	m_pPopup = new QMenu( this );
+	m_pPopup->addAction( pCommonStrings->getMenuActionAdd(), this,
+								 SLOT( addComponent() ) );
+	auto pDeleteAction = m_pPopup->addAction(
+		pCommonStrings->getMenuActionDelete() );
+	if ( pPanel->getInstrument()->getComponents()->size() < 2 ) {
+		// If there is just a single component present, it must not be removed.
+		pDeleteAction->setEnabled( false );
+	}
 
 	updateComponents();
 }
@@ -221,38 +234,8 @@ void ComponentsEditor::addComponent() {
 	updateEditor();
 }
 
-void ComponentsEditor::deleteComponent( int nComponentIdx ) {
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-
-	if ( pInstrument->getComponents()->size() <= 1 ) {
-		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
-		return;
-	}
-
-	auto pComponent = pInstrument->getComponent( nComponentIdx );
-	if ( pComponent == nullptr ) {
-		ERRORLOG( QString( "Unable to find selected component [%1]" )
-				  .arg( nComponentIdx ) );
-		return;
-	}
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-
-	const auto sName = pComponent->getName();
-
-	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
-	pNewInstrument->removeComponent( nComponentIdx );
-
-	pHydrogenApp->pushUndoCommand(
-		new SE_replaceInstrumentAction(
-			pNewInstrument, pInstrument,
-			SE_replaceInstrumentAction::Type::DeleteComponent, sName ) );
-	pHydrogenApp->showStatusBarMessage(
-		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteComponent() )
-		.arg( sName ) );
-
-	updateEditor();
-}
-
+void ComponentsEditor::mousePressEvent( QMouseEvent* pEvent ) {
+	if ( pEvent->button() == Qt::RightButton ) {
+		m_pPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
 	}
 }
