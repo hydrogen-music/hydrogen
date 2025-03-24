@@ -68,9 +68,11 @@ void ClickableLabel::updateStyleSheet() {
 	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( text.name() ) );
 }
 
-void ClickableLabel::mousePressEvent( QMouseEvent * e )
+void ClickableLabel::mousePressEvent( QMouseEvent* pEvent )
 {
-	UNUSED( e );
+	// Allow to use the event in the parent widget.
+	pEvent->ignore();
+
 	emit labelClicked( this );
 }
 
