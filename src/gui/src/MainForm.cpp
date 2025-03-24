@@ -2995,7 +2995,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::AddComponent:
 				pHydrogenApp->getInstrumentRack()->getInstrumentEditorPanel()->
-					getComponentsEditor()->addComponentAction();
+					getComponentsEditor()->addComponent();
 				break;
 
 			case Shortcuts::Action::ShowPlaylist:

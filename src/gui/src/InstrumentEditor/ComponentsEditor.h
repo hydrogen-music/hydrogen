@@ -56,13 +56,11 @@ class ComponentsEditor :  public QWidget,
 
 		ComponentView* getCurrentView() const;
 
-		int getSelectedComponent() const;
-		void renameComponent( int nComponentId, const QString& sNewName );
-		void setSelectedComponent( int nComponent );
+		void deleteComponent( int nComponentIdx);
+		void renameComponent( int nComponentIdx, const QString& sNewName );
 
 	public slots:
-		void addComponentAction();
-		void deleteComponentAction();
+		void addComponent();
 
 	private:
 
@@ -74,17 +72,7 @@ class ComponentsEditor :  public QWidget,
 		std::vector<ComponentView*> m_componentViews;
 
 		InstrumentEditorPanel* m_pInstrumentEditorPanel;
-		int m_nSelectedComponent;
 
 };
-
-inline int ComponentsEditor::getSelectedComponent() const {
-	return m_nSelectedComponent;
-}
-inline void ComponentsEditor::setSelectedComponent( int nComponent ) {
-	if ( m_nSelectedComponent != nComponent ) {
-		m_nSelectedComponent = nComponent;
-	}
-}
 
 #endif

@@ -369,6 +369,12 @@ void ComponentView::renameComponentAction() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
+	auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
+		getInstrumentEditorPanel()->getInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
+
 	const QString sOldName = m_pComponent->getName();
 	bool bIsOkPressed;
 	const QString sNewName = QInputDialog::getText(
@@ -378,10 +384,7 @@ void ComponentView::renameComponentAction() {
 	if ( bIsOkPressed && sOldName != sNewName ) {
 		 pHydrogenApp->pushUndoCommand(
 			 new SE_renameComponentAction(
-				 sNewName, sOldName,
-				 HydrogenApp::get_instance()->getInstrumentRack()->
-				 getInstrumentEditorPanel()->getComponentsEditor()->
-				 getSelectedComponent() ) );
+				 sNewName, sOldName, pInstrument->index( m_pComponent ) ) );
 		 pHydrogenApp->showStatusBarMessage(
 			 QString( "%1: [%2] -> [%3]" )
 					 .arg( pCommonStrings->getActionRenameComponent() )
@@ -470,6 +473,11 @@ void ComponentView::showSampleEditor() {
 	if ( m_pComponent == nullptr ) {
 		return;
 	}
+	auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
+		getInstrumentEditorPanel()->getInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
 
 	auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 	if ( pLayer == nullptr ) {
@@ -480,9 +488,8 @@ void ComponentView::showSampleEditor() {
 	if ( pSample != nullptr ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pHydrogenApp->showSampleEditor(
-			pSample->getFilepath(),
-			pHydrogenApp->getInstrumentRack()->getInstrumentEditorPanel()->
-			getComponentsEditor()->getSelectedComponent(), m_nSelectedLayer );
+			pSample->getFilepath(), pInstrument->index( m_pComponent ),
+			m_nSelectedLayer );
 	}
 }
 

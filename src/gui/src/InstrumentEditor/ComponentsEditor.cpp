@@ -37,7 +37,6 @@ using namespace H2Core;
 ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	: QWidget( pPanel )
 	, m_pInstrumentEditorPanel( pPanel )
-	, m_nSelectedComponent( 0 )
 {
 	setFixedWidth( InstrumentEditorPanel::nWidth );
 	setMinimumSize( InstrumentEditorPanel::nWidth,
@@ -152,21 +151,7 @@ void ComponentsEditor::updateComponents() {
 	 	std::max( ComponentView::nExpandedHeight, nNewHeight ) );
 }
 
-void ComponentsEditor::updateEditor()
-{
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-	std::shared_ptr<InstrumentComponent> pComponent = nullptr;
-	if ( pInstrument != nullptr ) {
-		// As each instrument can have an arbitrary compoments, we have to
-		// ensure to select a valid one.
-		m_nSelectedComponent = std::clamp(
-			m_nSelectedComponent, 0,
-			static_cast<int>(pInstrument->getComponents()->size()) - 1 );
-	}
-	else {
-		m_nSelectedComponent = 0;
-	}
-
+void ComponentsEditor::updateEditor() {
 	for ( const auto& ppComponentView : m_componentViews ) {
 		ppComponentView->updateView();
 	}
@@ -202,7 +187,7 @@ void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewNam
 	updateEditor();
 }
 
-void ComponentsEditor::addComponentAction() {
+void ComponentsEditor::addComponent() {
 	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
@@ -233,26 +218,21 @@ void ComponentsEditor::addComponentAction() {
 		QString( "%1 [%2]" ).arg( pCommonStrings->getActionAddComponent() )
 		.arg( sNewName ) );
 
-	// New components will be appended and should be selected.
-	setSelectedComponent( pInstrument->getComponents()->size() );
 	updateEditor();
 }
 
-void ComponentsEditor::deleteComponentAction() {
+void ComponentsEditor::deleteComponent( int nComponentIdx ) {
 	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-	if ( pInstrument == nullptr ) {
-		return;
-	}
 
 	if ( pInstrument->getComponents()->size() <= 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 		return;
 	}
 
-	auto pComponent = pInstrument->getComponent( m_nSelectedComponent );
+	auto pComponent = pInstrument->getComponent( nComponentIdx );
 	if ( pComponent == nullptr ) {
 		ERRORLOG( QString( "Unable to find selected component [%1]" )
-				  .arg( m_nSelectedComponent ) );
+				  .arg( nComponentIdx ) );
 		return;
 	}
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -261,7 +241,7 @@ void ComponentsEditor::deleteComponentAction() {
 	const auto sName = pComponent->getName();
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
-	pNewInstrument->removeComponent( m_nSelectedComponent );
+	pNewInstrument->removeComponent( nComponentIdx );
 
 	pHydrogenApp->pushUndoCommand(
 		new SE_replaceInstrumentAction(
@@ -271,9 +251,6 @@ void ComponentsEditor::deleteComponentAction() {
 		QString( "%1 [%2]" ).arg( pCommonStrings->getActionDeleteComponent() )
 		.arg( sName ) );
 
-	setSelectedComponent(
-		std::clamp( m_nSelectedComponent, 0,
-					static_cast<int>(pInstrument->getComponents()->size()) - 2 ) );
 	updateEditor();
 }
 

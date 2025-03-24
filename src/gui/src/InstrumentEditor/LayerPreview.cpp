@@ -232,17 +232,17 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		return;
 	}
 
+	auto pInstrumentEditorPanel =
+		HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
+	const auto pInstrument = pInstrumentEditorPanel->getInstrument();
+
 	if ( ev->y() < 20 ) {
 		const float fVelocity = (float)ev->x() / (float)width();
 
-		if ( pComponent->hasSamples() ) {
-			auto pInstrumentEditorPanel =
-				HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
+		if ( pComponent->hasSamples() && pInstrument != nullptr ) {
 			auto pNote = std::make_shared<Note>(
-				pInstrumentEditorPanel->getInstrument(), nPosition, fVelocity );
-			pNote->setSpecificCompoIdx(
-				pInstrumentEditorPanel->getComponentsEditor()->
-				getSelectedComponent() );
+				pInstrument, nPosition, fVelocity );
+			pNote->setSpecificCompoIdx( pInstrument->index( pComponent ) );
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		}
 
@@ -274,16 +274,15 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 			auto pLayer = pComponent->getLayer( nClickedLayer );
 			if ( pLayer != nullptr ) {
-				const float fVelocity = pLayer->getEndVelocity() - 0.01;
-				auto pInstrumentEditorPanel =
-					HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
-				auto pNote = std::make_shared<Note>(
-					pInstrumentEditorPanel->getInstrument(), nPosition, fVelocity );
-				pNote->setSpecificCompoIdx(
-					pInstrumentEditorPanel->getComponentsEditor()->
-					getSelectedComponent() );
-				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-					noteOn( pNote );
+				if ( pInstrument != nullptr ) {
+					const float fVelocity = pLayer->getEndVelocity() - 0.01;
+
+					const auto pNote = std::make_shared<Note>(
+						pInstrument, nPosition, fVelocity );
+					pNote->setSpecificCompoIdx( pInstrument->index( pComponent ) );
+					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+						noteOn( pNote );
+				}
 
 				int x1 = (int)( pLayer->getStartVelocity() * width() );
 				int x2 = (int)( pLayer->getEndVelocity() * width() );
