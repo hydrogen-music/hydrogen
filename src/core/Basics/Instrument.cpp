@@ -616,6 +616,15 @@ std::shared_ptr<InstrumentComponent> Instrument::getComponent( int nIdx ) const
 	return m_pComponents->at( nIdx );
 }
 
+int Instrument::index( std::shared_ptr<InstrumentComponent> pComponent ) const {
+	for( int ii = 0; ii < m_pComponents->size(); ii++ ) {
+		if ( m_pComponents->at( ii ) == pComponent ) {
+			return ii;
+		}
+	}
+	return -1;
+}
+
 void Instrument::addComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
 	m_pComponents->push_back( pComponent );
 }
