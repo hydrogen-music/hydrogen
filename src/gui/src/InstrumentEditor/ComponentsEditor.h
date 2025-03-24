@@ -63,10 +63,8 @@ class ComponentsEditor :  public QWidget,
 	public slots:
 		void addComponentAction();
 		void deleteComponentAction();
-		void switchComponentAction( int nId );
 
 	private:
-		void updateActivation();
 
 		QWidget* m_pComponentsWidget;
 		QVBoxLayout* m_pComponentsLayout;

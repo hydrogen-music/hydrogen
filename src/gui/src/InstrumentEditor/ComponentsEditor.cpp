@@ -167,8 +167,6 @@ void ComponentsEditor::updateEditor()
 		m_nSelectedComponent = 0;
 	}
 
-	updateActivation();
-
 	for ( const auto& ppComponentView : m_componentViews ) {
 		ppComponentView->updateView();
 	}
@@ -182,9 +180,6 @@ ComponentView* ComponentsEditor::getCurrentView() const {
 	}
 
 	return nullptr;
-}
-
-void ComponentsEditor::updateActivation() {
 }
 
 void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewName ) {
@@ -206,44 +201,6 @@ void ComponentsEditor::renameComponent( int nComponentId, const QString& sNewNam
 
 	updateEditor();
 }
-
-// void ComponentsEditor::populateComponentMenu() {
-// 	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-// 	const int nSelectedComponent =
-// 		m_pInstrumentEditorPanel->getSelectedComponent();
-// 	if ( pInstrument == nullptr ) {
-// 		return;
-// 	}
-
-// 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-// 	m_pComponentMenu->clear();
-
-// 	// Actions to switch between the drumkits
-// 	for ( int ii = 0; ii < pInstrument->getComponents()->size(); ++ii ) {
-// 		const auto ppComponent = pInstrument->getComponent( ii );
-// 		if ( ppComponent != nullptr ) {
-// 			auto pAction = m_pComponentMenu->addAction(
-// 				ppComponent->getName(), this,
-// 				[=](){ switchComponentAction( ii ); } );;
-// 			if ( ii == nSelectedComponent ) {
-// 				m_pComponentMenu->setDefaultAction( pAction );
-// 			}
-// 		}
-// 	}
-// 	m_pComponentMenu->addSeparator();
-// 	m_pComponentMenu->addAction( pCommonStrings->getMenuActionAdd(), this,
-// 								 SLOT( addComponentAction() ) );
-// 	auto pDeleteAction = m_pComponentMenu->addAction(
-// 		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponentAction() ) );
-// 	if ( pInstrument->getComponents()->size() < 2 ) {
-// 		// If there is just a single component present, it must not be removed.
-// 		pDeleteAction->setEnabled( false );
-// 	}
-
-// 	m_pComponentMenu->addAction( pCommonStrings->getMenuActionRename(), this,
-// 								 SLOT( renameComponentAction() ) );
-// }
 
 void ComponentsEditor::addComponentAction() {
 	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
@@ -320,19 +277,5 @@ void ComponentsEditor::deleteComponentAction() {
 	updateEditor();
 }
 
-void ComponentsEditor::switchComponentAction( int nId ) {
-	const auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-	if ( pInstrument == nullptr ) {
-		return;
 	}
-
-	const auto pComponent = pInstrument->getComponent( nId );
-	if ( pComponent == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve component [%1]" )
-				  .arg( nId ) );
-		return;
-	}
-
-	setSelectedComponent( nId );
-	updateEditor();
 }
