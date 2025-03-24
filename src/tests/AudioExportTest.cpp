@@ -20,9 +20,10 @@
  *
  */
 
-#include "SongExportTest.h"
+#include "AudioExportTest.h"
 
-#include "TestHelper.h"
+#include <QString>
+#include <QTemporaryDir>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Filesystem.h>
@@ -30,14 +31,63 @@
 #include <core/Sampler/Interpolation.h>
 #include <core/Sampler/Sampler.h>
 
+#include "TestHelper.h"
+#include "assertions/AudioFile.h"
+
 #include <memory>
 #include <vector>
-#include <QTemporaryDir>
-#include <QString>
 
 using namespace H2Core;
 
-void SongExportTest::testSongExport() {
+void AudioExportTest::testExportAudio() {
+	___INFOLOG( "" );
+	const auto sSongFile = H2TEST_FILE("functional/test_adsr.h2song");
+
+	// Test exporting using a couple of different sample rate (to test both
+	// resampling and no resampling) and sample depths.
+	struct Setup {
+		QString sTempFile;
+		QString sReferenceFile;
+		int nSampleRate;
+		int nSampleDepth;
+	};
+
+	std::vector<Setup> setups;
+	setups.push_back( { "test-44100-16.wav",
+			"functional/test-44100-16.ref.flac", 44100, 16} );
+	setups.push_back( { "test-48000-16.wav",
+			"functional/test-48000-16.ref.flac", 48000, 16} );
+	setups.push_back( { "test-48000-32.wav",
+			"functional/test-48000-32.ref.flac", 48000, 32} );
+
+	for ( int ii = 0; ii < setups.size(); ++ii ) {
+		___INFOLOG( QString( "Testing sample rate: [%1] and depth: [%2]" )
+					.arg( setups[ii].nSampleRate )
+					.arg( setups[ii].nSampleDepth ) );
+		const auto sOutFile = Filesystem::tmp_file_path( setups[ii].sTempFile );
+		const auto sRefFile = H2TEST_FILE( setups[ii].sReferenceFile );
+
+		TestHelper::exportSong( sSongFile, sOutFile, setups[ii].nSampleRate,
+								setups[ii].nSampleDepth );
+		H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
+		Filesystem::rm( sOutFile );
+	}
+	___INFOLOG( "passed" );
+}
+
+void AudioExportTest::testExportVelocityAutomationAudio() {
+	___INFOLOG( "" );
+	const auto sSongFile = H2TEST_FILE("functional/velocityautomation.h2song");
+	const auto sOutFile = Filesystem::tmp_file_path("velocityautomation.wav");
+	const auto sRefFile = H2TEST_FILE("functional/velocityautomation.ref.flac");
+
+	TestHelper::exportSong( sSongFile, sOutFile );
+	H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
+	Filesystem::rm( sOutFile );
+	___INFOLOG( "passed" );
+}
+
+void AudioExportTest::testFormats() {
 	___INFOLOG( "" );
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
@@ -45,7 +95,7 @@ void SongExportTest::testSongExport() {
 	const QString sSong = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );
 
 	// Will contain all exported audio files and is only cleaned up on success.
-	QTemporaryDir exportDir( H2Core::Filesystem::tmp_dir() + "songExport-XXXXXX" );
+	QTemporaryDir exportDir( H2Core::Filesystem::tmp_dir() + "testFormats-XXXXXX" );
 	exportDir.setAutoRemove( false );
 
 	// Full test

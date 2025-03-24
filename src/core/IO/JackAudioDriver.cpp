@@ -325,12 +325,10 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
-	int nResolution = Song::nDefaultResolution;
 	Song::LoopMode loopMode = Song::LoopMode::Enabled;
 	long nSongSizeInTicks = 0;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
-		nResolution = pSong->getResolution();
 		loopMode = pSong->getLoopMode();
 		nSongSizeInTicks = pSong->lengthInTicks();
 #if JACK_DEBUG
@@ -342,7 +340,7 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	const double fTicksPerBeat =
-		static_cast<double>( nResolution / pos.beat_type * 4 );
+		static_cast<double>( H2Core::nTicksPerQuarter / pos.beat_type * 4 );
 
 	bool bEndOfSongReached = false;
 	long nBarTicks = 0;
@@ -391,38 +389,12 @@ double JackAudioDriver::bbtToTick( const jack_position_t& pos ) {
 
 void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 									  jack_position_t* pJackPosition ) {
-	int nResolution = Song::nDefaultResolution;
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr ) {
-		nResolution = pSong->getResolution();
-#if JACK_DEBUG
-	} else {
-		WARNINGLOG( "No song set" );
-#endif
-	}
-
 	// We use the longest playing pattern as reference.
-	std::shared_ptr<Pattern> pPattern = nullptr;
-	int nPatternLength = 0;
-	auto pPatternList = transportPos.getPlayingPatterns();
-	for ( std::vector<std::shared_ptr<Pattern>>::const_iterator ppPattern = pPatternList->cbegin();
-		  ppPattern < pPatternList ->cend(); ppPattern++ ) {
-		if ( (*ppPattern)->getLength() > nPatternLength ) {
-			nPatternLength = (*ppPattern)->getLength();
-			pPattern = *ppPattern;
-		}
-
-		for ( const auto& ppVirtualPattern : *(*ppPattern)->getFlattenedVirtualPatterns() ) {
-			if ( ppVirtualPattern->getLength() > nPatternLength ) {
-				nPatternLength = ppVirtualPattern->getLength();
-				pPattern = ppVirtualPattern;
-			}
-		}
-	}
+	auto pPattern = transportPos.getPlayingPatterns()->getLongestPattern( true );
 
 	float fNumerator, fDenumerator;
 	if ( pPattern != nullptr ) {
-		fNumerator = nPatternLength * pPattern->getDenominator() / MAX_NOTES;
+		fNumerator = pPattern->numerator();
 		fDenumerator = pPattern->getDenominator();
 	}
 	else {
@@ -430,7 +402,7 @@ void JackAudioDriver::transportToBBT( const TransportPosition& transportPos,
 		fDenumerator = 4;
 	}
 	const float fTicksPerBeat =
-		static_cast<float>(nResolution) * 4 / fDenumerator;
+		static_cast<float>(H2Core::nTicksPerQuarter) * 4 / fDenumerator;
 
 	pJackPosition->frame_rate =
 		Hydrogen::get_instance()->getAudioOutput()->getSampleRate();

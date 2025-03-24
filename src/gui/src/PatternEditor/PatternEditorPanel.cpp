@@ -277,7 +277,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	int nIndex;
 
-	if ( m_nResolution == MAX_NOTES ) {
+	if ( m_nResolution == 4 * H2Core::nTicksPerQuarter ) {
 		nIndex = 11;
 	} else if ( ! m_bIsUsingTriplets ) {
 		switch ( m_nResolution ) {
@@ -454,7 +454,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// restore grid resolution
 	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) *
-		MAX_NOTES / ( m_nResolution * 3 );
+		4 * H2Core::nTicksPerQuarter / ( m_nResolution * 3 );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -850,7 +850,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 		break;
 	case 11:
 		// off
-		m_nResolution = MAX_NOTES;
+		m_nResolution = 4 * H2Core::nTicksPerQuarter;
 		m_bIsUsingTriplets = false;
 		break;
 	default:
@@ -863,8 +863,8 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	pPref->setPatternEditorGridResolution( m_nResolution );
 	pPref->setPatternEditorUsingTriplets( m_bIsUsingTriplets );
 
-	m_nCursorIncrement =
-		( m_bIsUsingTriplets ? 4 : 3 ) * MAX_NOTES / ( m_nResolution * 3 );
+	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) *
+		4 * H2Core::nTicksPerQuarter / ( m_nResolution * 3 );
 	setCursorColumn(
 		m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement ), false );
 
@@ -1232,9 +1232,7 @@ void PatternEditorPanel::updatePatternInfo() {
 			4 * m_pLCDSpinBoxDenominator->value() );
 	}
 
-	const double fNewNumerator = static_cast<double>(
-		m_pPattern->getLength() * m_pPattern->getDenominator() ) /
-		static_cast<double>( MAX_NOTES );
+	const double fNewNumerator = static_cast<double>(m_pPattern->numerator());
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() &&
 		 ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue(
@@ -1401,8 +1399,9 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	   and BOTH are UNSUPPORTED, but the first notation looks more
 	   meaningful */
 
-	int nNewLength =
-		std::round( static_cast<double>( MAX_NOTES ) / fNewDenominator * fNewNumerator );
+	int nNewLength = std::round(
+		static_cast<double>( 4 * H2Core::nTicksPerQuarter ) / fNewDenominator *
+		fNewNumerator );
 
 	if ( nNewLength == m_pPattern->getLength() ) {
 		return;
@@ -2410,8 +2409,8 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 	else {
 		nBase = 4;
 	}
-	const int nResolution = 4 * MAX_NOTES * static_cast<int>(every) /
-		( nBase * m_nResolution );
+	const int nResolution = 4 * 4 * H2Core::nTicksPerQuarter *
+		static_cast<int>(every) / ( nBase * m_nResolution );
 
 	const auto row = getRowDB( nRow );
 

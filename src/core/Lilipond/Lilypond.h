@@ -58,11 +58,11 @@ public:
 
 private:
 	/*
-	 * This structure represents the notes in a measure.
-	 * A measure is a vector containing the notes in it.
-	 * The index in the main vector is 1/48th of a beat.
-	 * An element in the main vector is the list of notes at this moment.
-	 * A note is represented by its instrument and its velocity.
+	 * This structure represents the notes in a measure. A measure is a vector
+	 * containing the notes in it. The index in the main vector is
+	 * 1/H2Core::nTicksPerQuarter-th of a beat. An element in the main vector is
+	 * the list of notes at this moment. A note is represented by its instrument
+	 * and its velocity.
 	 */
 	typedef std::vector<std::vector<std::pair<int, float> > > notes_t;
 

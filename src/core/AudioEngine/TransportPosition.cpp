@@ -108,7 +108,7 @@ void TransportPosition::reset() {
 
 	m_pPlayingPatterns->clear();
 	m_pNextPatterns->clear();
-	m_nPatternSize = MAX_NOTES;
+	m_nPatternSize = 4 * H2Core::nTicksPerQuarter;
 	m_nLastLeadLagFactor = 0;
 	m_nBar = 1;
 	m_nBeat = 1;
@@ -246,19 +246,12 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		return 0;
 	}
 
-	int nResolution;
-	if ( pSong != nullptr ) {
-		nResolution = pSong->getResolution();
-	} else {
-		nResolution = Song::nDefaultResolution;
-	}
-
 	if ( nSampleRate == 0 ) {
 		nSampleRate = pAudioDriver->getSampleRate();
 	}
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
 	
-	if ( nSampleRate == 0 || nResolution == 0 ) {
+	if ( nSampleRate == 0 ) {
 		ERRORLOG( "Not properly initialized yet" );
 		*fTickMismatch = 0;
 		return 0;
@@ -333,11 +326,11 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 				double fFinalTickSize;
 				if ( ii < tempoMarkers.size() ) {
 					fFinalTickSize = AudioEngine::computeDoubleTickSize(
-						nSampleRate, tempoMarkers[ ii ]->fBpm, nResolution );
+						nSampleRate, tempoMarkers[ ii ]->fBpm );
 				}
 				else {
 					fFinalTickSize = AudioEngine::computeDoubleTickSize(
-						nSampleRate, tempoMarkers[ 0 ]->fBpm, nResolution );
+						nSampleRate, tempoMarkers[ 0 ]->fBpm );
 				}
 
 #if TRANSPORT_POSITION_DEBUG
@@ -388,10 +381,8 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 						static_cast<double>(pHydrogen->getTickForColumn( tempoMarkers[ ii ]->nColumn ) );
 				}
 
-				fNextTickSize =
-					AudioEngine::computeDoubleTickSize( nSampleRate,
-														tempoMarkers[ ii - 1 ]->fBpm,
-														nResolution );
+				fNextTickSize = AudioEngine::computeDoubleTickSize(
+					nSampleRate, tempoMarkers[ ii - 1 ]->fBpm );
 				
 				if ( fRemainingTicks > ( fNextTick - fPassedTicks ) ) {
 					// The whole segment of the timeline covered by tempo
@@ -464,7 +455,7 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 					fNextTick = static_cast<double>(pHydrogen->getTickForColumn(
 														tempoMarkers[ 0 ]->nColumn ) );
 					fNextTickSize = AudioEngine::computeDoubleTickSize(
-						nSampleRate, tempoMarkers[ ii - 1 ]->fBpm, nResolution );
+						nSampleRate, tempoMarkers[ ii - 1 ]->fBpm );
 
 					handleEnd();
 				}
@@ -481,8 +472,7 @@ long long TransportPosition::computeFrameFromTick( const double fTick, double* f
 		const float fBpm = AudioEngine::getBpmAtColumn( 0 );
 
 		const double fTickSize =
-			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm,
-												nResolution );
+			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm );
 		
 		// Single tempo for the whole song.
 		const double fNewFrame = static_cast<double>(fTick) *
@@ -525,18 +515,11 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		nSampleRate = pAudioDriver->getSampleRate();
 	}
 
-	int nResolution;
-	if ( pSong != nullptr ) {
-		nResolution = pSong->getResolution();
-	} else {
-		nResolution = Song::nDefaultResolution;
-	}
-
 	double fTick = 0;
 
 	const double fSongSizeInTicks = pAudioEngine->getSongSizeInTicks();
-	
-	if ( nSampleRate == 0 || nResolution == 0 ) {
+
+	if ( nSampleRate == 0 ) {
 		ERRORLOG( "Not properly initialized yet" );
 		return fTick;
 	}
@@ -578,10 +561,8 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		
 			for ( int ii = 1; ii <= tempoMarkers.size(); ++ii ) {
 
-				fNextTickSize =
-					AudioEngine::computeDoubleTickSize( nSampleRate,
-														tempoMarkers[ ii - 1 ]->fBpm,
-														nResolution );
+				fNextTickSize = AudioEngine::computeDoubleTickSize(
+					nSampleRate, tempoMarkers[ ii - 1 ]->fBpm );
 
 				if ( ii == tempoMarkers.size() ||
 					 tempoMarkers[ ii ]->nColumn >= nColumns ) {
@@ -689,8 +670,7 @@ double TransportPosition::computeTickFromFrame( const long long nFrame, int nSam
 		// from various sources.
 		const float fBpm = AudioEngine::getBpmAtColumn( 0 );
 		const double fTickSize =
-			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm,
-												nResolution );
+			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm );
 
 		// Single tempo for the whole song.
 		fTick = static_cast<double>(nFrame) / fTickSize;

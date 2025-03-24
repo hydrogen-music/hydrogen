@@ -140,7 +140,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	m_editor = PatternEditor::Editor::NotePropertiesRuler;
 
 	m_fGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
-	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
+		H2Core::nTicksPerQuarter;
 
 	if ( m_property == PatternEditor::Property::KeyOctave ) {
 		m_nEditorHeight = NotePropertiesRuler::nKeyOctaveHeight;

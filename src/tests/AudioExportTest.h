@@ -20,24 +20,26 @@
  *
  */
 
-#ifndef SONG_EXPORT_TEST_H
-#define SONG_EXPORT_TEST_H
+#ifndef AUDIO_EXPORT_TEST_H
+#define AUDIO_EXPORT_TEST_H
 
-#include <QString>
 #include <cppunit/extensions/HelperMacros.h>
 
-class SongExportTest : public CppUnit::TestCase {
-
-	CPPUNIT_TEST_SUITE( SongExportTest );
+class AudioExportTest : public CppUnit::TestCase {
+	CPPUNIT_TEST_SUITE( AudioExportTest );
+	CPPUNIT_TEST( testExportAudio );
+	CPPUNIT_TEST( testExportVelocityAutomationAudio );
 #ifdef H2CORE_HAVE_LIBARCHIVE
-		CPPUNIT_TEST( testSongExport );
+	CPPUNIT_TEST( testFormats );
 #endif
 	CPPUNIT_TEST_SUITE_END();
-
+	
 	public:
+		void testExportAudio();
+		void testExportVelocityAutomationAudio();
 		/** Exports a song in all supported format, sample rate and sample depth
 		 * configurations. */
-		void testSongExport();
+		void testFormats();
 };
 
 #endif

@@ -269,8 +269,8 @@ public:
 	/**
 	 * Calculates the number of frames that make up a tick.
 	 */
-	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
-	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
+	static float	computeTickSize( const int nSampleRate, const float fBpm );
+	static double computeDoubleTickSize(const int nSampleRate, const float fBpm );
 
 	Sampler*		getSampler() const;
 
