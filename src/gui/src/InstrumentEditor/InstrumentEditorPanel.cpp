@@ -106,13 +106,12 @@ InstrumentEditorPanel::~InstrumentEditorPanel() {
 }
 
 void InstrumentEditorPanel::updateEditors() {
-	m_pInstrument = H2Core::Hydrogen::get_instance()->getSelectedInstrument();
-
 	m_pInstrumentEditor->updateEditor();
 	m_pComponentsEditor->updateEditor();
 }
 
 void InstrumentEditorPanel::drumkitLoadedEvent() {
+	updateInstrument();
 	m_pComponentsEditor->updateComponents();
 	updateEditors();
 }
@@ -135,6 +134,7 @@ void InstrumentEditorPanel::instrumentParametersChangedEvent( int nInstrumentNum
 }
 
 void InstrumentEditorPanel::selectedInstrumentChangedEvent() {
+	updateInstrument();
 	m_pComponentsEditor->updateComponents();
 	updateEditors();
 }
@@ -142,6 +142,7 @@ void InstrumentEditorPanel::selectedInstrumentChangedEvent() {
 void InstrumentEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
+		updateInstrument();
 		m_pComponentsEditor->updateComponents();
 		updateEditors();
 	}
@@ -159,4 +160,8 @@ void InstrumentEditorPanel::onPreferencesChanged( const H2Core::Preferences::Cha
 					 H2Core::Preferences::Changes::Colors ) ) {
 		m_pComponentsEditor->updateEditor();
 	}
+}
+
+void InstrumentEditorPanel::updateInstrument() {
+	m_pInstrument = H2Core::Hydrogen::get_instance()->getSelectedInstrument();
 }

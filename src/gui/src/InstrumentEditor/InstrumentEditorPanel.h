@@ -77,6 +77,7 @@ class InstrumentEditorPanel : public PixmapWidget,
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private:
+		void updateInstrument();
 		ComponentsEditor*				m_pComponentsEditor;
 		InstrumentEditor*				m_pInstrumentEditor;
 
