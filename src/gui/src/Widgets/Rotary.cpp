@@ -49,11 +49,11 @@ Rotary::Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
 	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 
 	if ( type == Type::Small ) {
-		m_nWidgetWidth = 18;
-		m_nWidgetHeight = 18;
+		m_nWidgetWidth = Rotary::nWidthSmall;
+		m_nWidgetHeight = Rotary::nHeightSmall;
 	} else {
-		m_nWidgetWidth = 44;
-		m_nWidgetHeight = 26;
+		m_nWidgetWidth = Rotary::nWidth;
+		m_nWidgetHeight = Rotary::nHeight;
 	}
 
 	if ( bUseIntSteps ) {
