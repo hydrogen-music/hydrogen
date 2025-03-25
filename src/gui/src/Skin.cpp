@@ -161,7 +161,8 @@ void Skin::drawListBackground( QPainter* p, const QRect& rect,
 		background = background.lighter( 110 );
 	}
 
-	QColor borderLight = background.lighter( 150 );
+	QColor borderLight = background.lighter(
+		Skin::nListBackgroundLightBorderScaling );
 	QColor borderDark = background.darker(
 		Skin::nListBackgroundDarkBorderScaling );
 
