@@ -150,16 +150,20 @@ inline bool InstrumentComponent::getIsSoloed() const {
 	return m_bIsSoloed;
 }
 
-inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int idx ) const
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int nIdx ) const
 {
-	assert( idx >= 0 && idx < m_nMaxLayers );
-	return m_layers[ idx ];
+	if ( nIdx < 0 || nIdx >= m_layers.size() ) {
+		return nullptr;
+	}
+	return m_layers[ nIdx ];
 }
 
-inline std::shared_ptr<InstrumentLayer> InstrumentComponent::getLayer( int idx ) const
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::getLayer( int nIdx ) const
 {
-	assert( idx >= 0 && idx < m_nMaxLayers );
-	return m_layers[ idx ];
+	if ( nIdx < 0 || nIdx >= m_layers.size() ) {
+		return nullptr;
+	}
+	return m_layers[ nIdx ];
 }
 };
 
