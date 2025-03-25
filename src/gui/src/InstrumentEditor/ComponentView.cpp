@@ -37,6 +37,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
+#include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
@@ -60,16 +61,20 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	setObjectName( "ComponentProperties" );
 
+	const int nHeaderMargin = 5;
 	auto pHeaderWidget = new QWidget( this );
-	pHeaderWidget->move( 5, 0 );
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
 	auto pHBoxHeaderLayout = new QHBoxLayout();
-	pHBoxHeaderLayout->setMargin( 0 );
+	pHBoxHeaderLayout->setContentsMargins( nHeaderMargin, 0, nHeaderMargin, 0 );
 	pHBoxHeaderLayout->setSpacing( 0 );
 	pHeaderWidget->setLayout( pHBoxHeaderLayout );
 
 	m_pShowLayersBtn = new Button(
-		pHeaderWidget, QSize( 16, 16 ), Button::Type::Push, "minus.svg" );
+		pHeaderWidget, QSize( ComponentView::nExpansionButtonWidth,
+							  ComponentView::nExpansionButtonWidth ),
+		Button::Type::Push, "minus.svg", "", false,
+		QSize( ComponentView::nExpansionButtonWidth - 4,
+			   ComponentView::nExpansionButtonWidth - 4 ) );
 	connect( m_pShowLayersBtn, &Button::clicked, [&](){
 		if ( m_bIsExpanded ) {
 			narrow();
@@ -80,7 +85,11 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
 
 	m_pComponentNameLbl = new ClickableLabel(
-		pHeaderWidget, QSize( 279 - 27 -27 - 16 - 44, ComponentView::nHeaderHeight - 2 ),
+		pHeaderWidget, QSize( InstrumentEditorPanel::nWidth -
+							  ComponentView::nButtonWidth * 2 -
+							  ComponentView::nExpansionButtonWidth -
+							  Rotary::nWidth - nHeaderMargin * 2,
+							  ComponentView::nHeaderHeight - 2 ),
 		"", ClickableLabel::Color::Bright, true );
 	connect( m_pComponentNameLbl, SIGNAL( labelDoubleClicked(QMouseEvent*) ),
 			 this, SLOT( renameComponentAction() ) );
@@ -88,7 +97,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pComponentMuteBtn = new Button(
 		pHeaderWidget,
-		QSize( ComponentView::nHeaderHeight - 2, ComponentView::nHeaderHeight - 2 ),
+		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "",
 		pCommonStrings->getSmallMuteButton(), true, QSize(), tr("Mute component"),
 		false, true );
@@ -103,7 +112,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pComponentSoloBtn = new Button(
 		pHeaderWidget,
-		QSize( ComponentView::nHeaderHeight - 2, ComponentView::nHeaderHeight - 2 ),
+		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "",
 		pCommonStrings->getSmallSoloButton(), false, QSize(), tr("Solo component"),
 		false, true );
@@ -428,6 +437,46 @@ void ComponentView::mousePressEvent( QMouseEvent* pEvent ) {
 	if ( pEvent->button() == Qt::RightButton ) {
 		m_pPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
 	}
+}
+
+void ComponentView::paintEvent( QPaintEvent* pEvent ) {
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
+	QPainter painter( this );
+
+	const QColor colorHeader = theme.m_color.m_baseColor;
+	const QColor colorHeaderLight = colorHeader.lighter(
+		Skin::nListBackgroundLightBorderScaling );
+	const QColor colorHeaderDark = colorHeader.darker(
+		Skin::nListBackgroundDarkBorderScaling );
+	const QColor colorLayer = theme.m_color.m_songEditor_backgroundColor;
+	const QColor colorLayerLight = colorLayer.lighter(
+		Skin::nListBackgroundLightBorderScaling );
+	const QColor colorLayerDark = colorLayer.darker(
+		Skin::nListBackgroundDarkBorderScaling );
+
+	const QPen penHeaderLight( colorHeaderLight );
+	const QPen penHeaderDark( colorHeaderDark );
+
+	painter.fillRect( 0, 0, width(), height(), colorHeader );
+
+	// Some shadows for the header element
+	painter.setPen( penHeaderLight );
+	painter.drawLine( 0, 0, 0, height() - 1 );
+	painter.drawLine( 0, 0, width() - 1, 0 );
+
+	painter.setPen( penHeaderDark );
+	painter.drawLine( width() - 1, 0, width() - 1, height() - 1 );
+	const int nBottom = m_bIsExpanded ? height() : ComponentView::nHeaderHeight;
+	painter.drawLine( 0, nBottom - 1, width() - 1, nBottom - 1 );
+
+	// We leave a small margin (in pixel) to indicate where one element ends and
+	// the next one is starting.
+	const int nMargin = 3;
+	painter.fillRect(
+		nMargin, ComponentView::nHeaderHeight, width() - nMargin * 2,
+		ComponentView::nExpandedHeight - ComponentView::nHeaderHeight -
+		nMargin, colorLayer );
 }
 
 void ComponentView::updateActivation() {

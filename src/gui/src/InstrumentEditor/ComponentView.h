@@ -57,8 +57,11 @@ class ComponentView : public QWidget,
 	Q_OBJECT
 
 	public:
-		static constexpr int nHeaderHeight = 27;
+		static constexpr int nHeaderHeight = 28;
 		static constexpr int nExpandedHeight = 420;
+		static constexpr int nButtonWidth = 21;
+		static constexpr int nButtonHeight = 24;
+		static constexpr int nExpansionButtonWidth = 14;
 
 		explicit ComponentView( QWidget* pParent,
 								std::shared_ptr<H2Core::InstrumentComponent> );
@@ -91,6 +94,7 @@ class ComponentView : public QWidget,
 
 	private:
 		virtual void mousePressEvent( QMouseEvent *event ) override;
+		virtual void paintEvent( QPaintEvent * e ) override;
 
 		std::shared_ptr<H2Core::InstrumentComponent> m_pComponent;
 		int m_nSelectedLayer;
