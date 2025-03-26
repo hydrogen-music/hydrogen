@@ -1440,6 +1440,14 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Solo component</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Mute layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo layer</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentsEditor</name>

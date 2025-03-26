@@ -46,7 +46,8 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
 	Q_OBJECT
 
 	public:
-		static constexpr int m_nLayerHeight = 10;
+		static constexpr int nMargin = 20;
+		static constexpr int nLayerHeight = 10;
 
 		explicit LayerPreview( ComponentView* pComponentView );
 		~LayerPreview();

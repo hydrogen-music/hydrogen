@@ -55,12 +55,13 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 
 	setMouseTracking( true );
 
-	int nWidth = 276;
+	int nWidth = InstrumentEditorPanel::nWidth - ComponentView::nMargin * 2;
 	if( InstrumentComponent::getMaxLayers() > 16) {
-		nWidth = 261;
+		// Account for the scroll bar.
+		nWidth -= 15;
 	}
 	
-	const int nHeight = 20 + LayerPreview::m_nLayerHeight
+	const int nHeight = LayerPreview::nMargin + LayerPreview::nLayerHeight
 		* InstrumentComponent::getMaxLayers();
 	resize( nWidth, nHeight );
 
@@ -109,7 +110,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 	int nLayer = 0;
 	for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
-		const int y = 20 + LayerPreview::m_nLayerHeight * i;
+		const int y = LayerPreview::nMargin + LayerPreview::nLayerHeight * i;
 		QString label = "< - >";
 		
 		if ( pComponent != nullptr ) {
@@ -155,22 +156,22 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				p.drawRect( x1, 1, x2 - x1 - 1, 18 );	// bordino in alto
 					
 				// layer view
-				p.fillRect( 0, y, width(), LayerPreview::m_nLayerHeight,
+				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
 							pPref->getTheme().m_color.m_windowColor );
-				p.fillRect( x1, y, x2 - x1, LayerPreview::m_nLayerHeight,
+				p.fillRect( x1, y, x2 - x1, LayerPreview::nLayerHeight,
 							layerSegmentColor );
 
 				nLayer++;
 			}
 			else {
 				// layer view
-				p.fillRect( 0, y, width(), LayerPreview::m_nLayerHeight,
+				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
 							pPref->getTheme().m_color.m_windowColor );
 			}
 		}
 		else {
 			// layer view
-			p.fillRect( 0, y, width(), LayerPreview::m_nLayerHeight,
+			p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
 						pPref->getTheme().m_color.m_windowColor );
 		}
 
@@ -180,13 +181,14 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		p.setFont( fontText );
 		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( label ) );
 		p.setPen( layerTextColor.darker( 145 ) );
-		p.drawRect( 0, y, width() - 1, LayerPreview::m_nLayerHeight );
+		p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
 	}
 
 	// selected layer
 	p.setPen( highlightColor );
-	const int y = 20 + LayerPreview::m_nLayerHeight * nSelectedLayer;
-	p.drawRect( 0, y, width() - 1, LayerPreview::m_nLayerHeight );
+	const int y = LayerPreview::nMargin +
+		LayerPreview::nLayerHeight * nSelectedLayer;
+	p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
 }
 
 void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
@@ -266,7 +268,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		}
 	}
 	else {
-		const int nClickedLayer = ( ev->y() - 20 ) / LayerPreview::m_nLayerHeight;
+		const int nClickedLayer = ( ev->y() - 20 ) / LayerPreview::nLayerHeight;
 		if ( nClickedLayer < InstrumentComponent::getMaxLayers() &&
 			 nClickedLayer >= 0 ) {
 			m_pComponentView->setSelectedLayer( nClickedLayer );
@@ -356,7 +358,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		}
 	}
 	else {
-		int nHoveredLayer = ( ev->y() - 20 ) / LayerPreview::m_nLayerHeight;
+		int nHoveredLayer = ( ev->y() - 20 ) / LayerPreview::nLayerHeight;
 		if ( nHoveredLayer < InstrumentComponent::getMaxLayers() &&
 			 nHoveredLayer >= 0 ) {
 

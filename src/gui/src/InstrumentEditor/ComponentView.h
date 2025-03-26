@@ -31,6 +31,8 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
+#include "LayerPreview.h"
+#include "../Widgets/Rotary.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core {
@@ -39,10 +41,8 @@ namespace H2Core {
 
 class Button;
 class ClickableLabel;
-class LayerPreview;
 class LCDCombo;
 class LCDDisplay;
-class Rotary;
 class WaveDisplay;
 
 /** Editor for all layers and settings contained in one
@@ -57,11 +57,28 @@ class ComponentView : public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nVerticalSpacing = 3;
 		static constexpr int nHeaderHeight = 28;
-		static constexpr int nExpandedHeight = 420;
 		static constexpr int nButtonWidth = 21;
 		static constexpr int nButtonHeight = 24;
 		static constexpr int nExpansionButtonWidth = 14;
+		static constexpr int nSampleSelectionHeight = 18;
+		static constexpr int nLayerPreviewHeight =
+			LayerPreview::nMargin +
+			LayerPreview::nLayerHeight * 17; // max layers
+		static constexpr int nWaveDisplayHeight = 58;
+		static constexpr int nLayerButtonsHeight = 18;
+		static constexpr int nLabelHeight = 10;
+		static constexpr int nMargin = 7;
+		static constexpr int nExpandedHeight =
+			ComponentView::nVerticalSpacing * 7 +
+			ComponentView::nHeaderHeight +
+			ComponentView::nLayerPreviewHeight +
+			ComponentView::nLayerButtonsHeight +
+			ComponentView::nWaveDisplayHeight +
+			Rotary::nHeight +
+			ComponentView::nLabelHeight +
+			ComponentView::nMargin;
 
 		explicit ComponentView( QWidget* pParent,
 								std::shared_ptr<H2Core::InstrumentComponent> );
@@ -113,19 +130,16 @@ class ComponentView : public QWidget,
 		LayerPreview *m_pLayerPreview;
 		QScrollArea *m_pLayerScrollArea;
 
-		Rotary *m_pLayerGainRotary;
-		LCDDisplay *m_pLayerGainLCD;
-		ClickableLabel* m_pLayerGainLbl;
-		ClickableLabel* m_pCompoGainLbl;
+		LCDDisplay *m_pLayerPitchLCD;
 		ClickableLabel* m_pLayerPitchLbl;
-		ClickableLabel* m_pLayerPitchCoarseLbl;
-		ClickableLabel* m_pLayerPitchFineLbl;
-
 		Rotary *m_pLayerPitchCoarseRotary;
+		ClickableLabel* m_pLayerPitchCoarseLbl;
 		Rotary *m_pLayerPitchFineRotary;
-
-		LCDDisplay *m_pLayerPitchCoarseLCD;
-		LCDDisplay *m_pLayerPitchFineLCD;
+		ClickableLabel* m_pLayerPitchFineLbl;
+		Button* m_pLayerSoloBtn;
+		Button* m_pLayerMuteBtn;
+		Rotary *m_pLayerGainRotary;
+		ClickableLabel* m_pLayerGainLbl;
 
 		//LCDCombo *__pattern_size_combo;
 		LCDCombo *m_pSampleSelectionCombo;
