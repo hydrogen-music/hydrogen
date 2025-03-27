@@ -643,6 +643,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	colorButton->setEnabled( false );
 
+	const int nColorLCDWidth = 60;
+	rval->setFixedWidth( nColorLCDWidth );
+	gval->setFixedWidth( nColorLCDWidth );
+	bval->setFixedWidth( nColorLCDWidth );
+	hval->setFixedWidth( nColorLCDWidth );
+	sval->setFixedWidth( nColorLCDWidth );
+	vval->setFixedWidth( nColorLCDWidth );
+
 	connect( colorTree, SIGNAL(itemSelectionChanged()),
 			 this, SLOT(colorTreeSelectionChanged()) );
 	connect( colorButton, SIGNAL(colorChanged()),
