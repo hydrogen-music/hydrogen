@@ -2141,6 +2141,40 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 
 // -----------------------
 
+QString Preferences::ChangesToQString( Preferences::Changes changes ) {
+	QStringList changesList;
+
+	if ( changes & Changes::None ) {
+		changesList << "None";
+	}
+	if ( changes & Changes::Font ) {
+		changesList << "Font";
+	}
+	if ( changes & Changes::Colors ) {
+		changesList << "Colors";
+	}
+	if ( changes & Changes::AppearanceTab ) {
+		changesList << "AppearanceTab";
+	}
+	if ( changes & Changes::GeneralTab ) {
+		changesList << "GeneralTab";
+	}
+	if ( changes & Changes::AudioTab ) {
+		changesList << "AudioTab";
+	}
+	if ( changes & Changes::MidiTab ) {
+		changesList << "MidiTab";
+	}
+	if ( changes & Changes::OscTab ) {
+		changesList << "OscTab";
+	}
+	if ( changes & Changes::ShortcutTab ) {
+		changesList << "ShortcutTab";
+	}
+
+	return std::move( QString( "[%1]" ).arg( changesList.join( ", " ) ) );
+}
+
 WindowProperties::WindowProperties()
 	: x( 0 )
 	, y( 0 )

@@ -140,7 +140,7 @@ public:
 		Colors = 0x002,
 		/** Any option in the Appearance tab excluding colors, font
 			size, or font family. Those have to be indicated by
-			or-ing the didicated option.*/
+			or-ing the dedicated option.*/
 		AppearanceTab = 0x004,
 		/** Any option in the General tab appeared.*/
 		GeneralTab = 0x008,
@@ -153,6 +153,7 @@ public:
 		/** At least one shortcut was changed.*/
 		ShortcutTab = 0x080,
 	};
+		static QString ChangesToQString( Changes changes );
 
 	enum class AudioDriver {
 		None,
