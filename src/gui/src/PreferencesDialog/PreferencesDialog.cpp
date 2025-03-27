@@ -563,8 +563,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	colorButton->setAutoFillBackground(true);
 	m_pColorSliderTimer = new QTimer( this );
 	m_pColorSliderTimer->setSingleShot( true );
-	connect( m_pColorSliderTimer, SIGNAL(timeout()), this, SLOT(updateColors()) );
-	  	
+	connect( m_pColorSliderTimer, &QTimer::timeout, [=]() {
+		applyCurrentColor();
+		updateColors();
+	});
+
 	IndexedTreeItem* pTopLevelItem;
 	colorTree->clear();
 	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "General" ) );
@@ -2134,93 +2137,103 @@ void PreferencesDialog::colorTreeSelectionChanged() {
 		m_pCurrentColor = nullptr;
 	} else {
 		m_pCurrentColor = getColorById( nId, m_currentTheme.m_color );
+		applyCurrentColor();
 	}
 	updateColors();
 }
 
 void PreferencesDialog::colorButtonChanged() {
-	setColorById( m_nCurrentId, colorButton->getColor(), m_currentTheme.m_color );
-	m_pCurrentColor = getColorById( m_nCurrentId, m_currentTheme.m_color );
+	m_pCurrentColor = std::make_unique<QColor>( colorButton->getColor() );
+	applyCurrentColor();
 	updateColors();
 }
 
+void PreferencesDialog::applyCurrentColor() {
+	if ( m_pCurrentColor == nullptr ) {
+		return;
+	}
+
+	setColorById( m_nCurrentId, *m_pCurrentColor, m_currentTheme.m_color );
+
+	H2Core::Preferences::get_instance()->getThemeWritable().m_color =
+		m_currentTheme.m_color;
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::Colors );
+
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
+}
+
 void PreferencesDialog::updateColors() {
-      int r, g, b, h, s, v;
+	int r, g, b, h, s, v;
 
-	  // If m_pCurrentColor is nullptr, it will be converted to false.
-      rslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      gslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      bslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      hslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      sslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      vslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      rval->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      gval->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      bval->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      hval->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      sval->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      vval->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      colorButton->setEnabled( static_cast<bool>(m_pCurrentColor) );
-      if ( m_pCurrentColor ==  nullptr ) {
-		  WARNINGLOG( "No current color yet" );
-		  return;
-	  }
+	// If m_pCurrentColor is nullptr, it will be converted to false.
+	rslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	gslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	bslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	hslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	sslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	vslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	rval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	gval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	bval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	hval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	sval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	vval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	colorButton->setEnabled( static_cast<bool>(m_pCurrentColor) );
+	if ( m_pCurrentColor ==  nullptr ) {
+		WARNINGLOG( "No current color yet" );
+		return;
+	}
 
-      QColor currentColor(*m_pCurrentColor);
-      
-      colorButton->setColor( currentColor );
+	QColor currentColor(*m_pCurrentColor);
 
-      m_pCurrentColor->getRgb(&r, &g, &b);
-      m_pCurrentColor->getHsv(&h, &s, &v);
+	colorButton->setColor( currentColor );
 
-      rslider->blockSignals(true);
-      gslider->blockSignals(true);
-      bslider->blockSignals(true);
-      hslider->blockSignals(true);
-      sslider->blockSignals(true);
-      vslider->blockSignals(true);
-      rval->blockSignals(true);
-      gval->blockSignals(true);
-      bval->blockSignals(true);
-      hval->blockSignals(true);
-      sval->blockSignals(true);
-      vval->blockSignals(true);
+	m_pCurrentColor->getRgb(&r, &g, &b);
+	m_pCurrentColor->getHsv(&h, &s, &v);
 
-      rslider->setValue(r);
-      gslider->setValue(g);
-      bslider->setValue(b);
-      hslider->setValue(h);
-      sslider->setValue(s);
-      vslider->setValue(v);
-      rval->setValue(r);
-      gval->setValue(g);
-      bval->setValue(b);
-      hval->setValue(h);
-      sval->setValue(s);
-      vval->setValue(v);
+	rslider->blockSignals(true);
+	gslider->blockSignals(true);
+	bslider->blockSignals(true);
+	hslider->blockSignals(true);
+	sslider->blockSignals(true);
+	vslider->blockSignals(true);
+	rval->blockSignals(true);
+	gval->blockSignals(true);
+	bval->blockSignals(true);
+	hval->blockSignals(true);
+	sval->blockSignals(true);
+	vval->blockSignals(true);
 
-      rslider->blockSignals(false);
-      gslider->blockSignals(false);
-      bslider->blockSignals(false);
-      hslider->blockSignals(false);
-      sslider->blockSignals(false);
-      vslider->blockSignals(false);
-      rval->blockSignals(false);
-      gval->blockSignals(false);
-      bval->blockSignals(false);
-      hval->blockSignals(false);
-      sval->blockSignals(false);
-      vval->blockSignals(false);
+	rslider->setValue(r);
+	gslider->setValue(g);
+	bslider->setValue(b);
+	hslider->setValue(h);
+	sslider->setValue(s);
+	vslider->setValue(v);
+	rval->setValue(r);
+	gval->setValue(g);
+	bval->setValue(b);
+	hval->setValue(h);
+	sval->setValue(s);
+	vval->setValue(v);
 
-	  updateColorTree();
-	  H2Core::Preferences::get_instance()->getThemeWritable().m_color =
-		  m_currentTheme.m_color;
+	rslider->blockSignals(false);
+	gslider->blockSignals(false);
+	bslider->blockSignals(false);
+	hslider->blockSignals(false);
+	sslider->blockSignals(false);
+	vslider->blockSignals(false);
+	rval->blockSignals(false);
+	gval->blockSignals(false);
+	bval->blockSignals(false);
+	hval->blockSignals(false);
+	sval->blockSignals(false);
+	vval->blockSignals(false);
 
-	  m_changes =
-		  static_cast<H2Core::Preferences::Changes>(
-			  m_changes | H2Core::Preferences::Changes::Colors );
-	
-	  HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
+	updateColorTree();
 }
 
 void PreferencesDialog::triggerColorSliderTimer() {
@@ -2386,7 +2399,8 @@ void PreferencesDialog::resetTheme() {
 	H2Core::Preferences::get_instance()->setTheme( m_currentTheme );
 	updateAppearanceTab( m_currentTheme );
 	
-	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
+	HydrogenApp::get_instance()->changePreferences(
+		H2Core::Preferences::Changes::AppearanceTab );
 
 	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme reset" ) );
 }

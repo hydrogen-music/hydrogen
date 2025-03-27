@@ -142,7 +142,6 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void hsliderChanged(int);
 	void ssliderChanged(int);
 	void vsliderChanged(int);
-	void updateColors();
 	void exportTheme();
 	void importTheme();
 	void resetTheme();
@@ -162,6 +161,8 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 
 private:
 
+		void applyCurrentColor();
+	void updateColors();
 	void updateDriverInfo();
 	void updateDriverInfoLabel();
 	void setDriverInfoOss();
