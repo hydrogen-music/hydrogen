@@ -88,7 +88,7 @@ class ComponentView : public QWidget,
 
 		bool getIsExpanded() const;
 		void expand();
-		void narrow();
+		void collapse();
 
 		std::shared_ptr<H2Core::InstrumentComponent> getComponent() const;
 		LayerPreview* getLayerPreview() const;
@@ -126,6 +126,8 @@ class ComponentView : public QWidget,
 		Button* m_pComponentSoloBtn;
 		Button* m_pComponentMuteBtn;
 		Rotary* m_pComponentGainRotary;
+
+		QWidget* m_pLayerWidget;
 
 		LayerPreview *m_pLayerPreview;
 		QScrollArea *m_pLayerScrollArea;

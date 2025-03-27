@@ -54,8 +54,9 @@ ComponentView::ComponentView( QWidget* pParent,
 	, m_nSelectedLayer( 0 )
 	, m_bIsExpanded( true )
 {
-	setFixedSize( InstrumentEditorPanel::nWidth, ComponentView::nExpandedHeight );
-	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	setFixedWidth( InstrumentEditorPanel::nWidth );
+	setMinimumHeight( ComponentView::nHeaderHeight );
+	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -64,8 +65,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	auto pVBoxMainLayout = new QVBoxLayout();
 	pVBoxMainLayout->setSpacing( ComponentView::nVerticalSpacing );
 	pVBoxMainLayout->setContentsMargins(
-		ComponentView::nMargin, 0, ComponentView::nMargin,
-		ComponentView::nMargin );
+		ComponentView::nMargin, 0, ComponentView::nMargin, 0 );
 
 	auto pHeaderWidget = new QWidget( this );
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
@@ -82,7 +82,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			   ComponentView::nExpansionButtonWidth - 4 ) );
 	connect( m_pShowLayersBtn, &Button::clicked, [&](){
 		if ( m_bIsExpanded ) {
-			narrow();
+			collapse();
 		} else {
 			expand();
 		}
@@ -142,11 +142,20 @@ ComponentView::ComponentView( QWidget* pParent,
 	});
 	pHBoxHeaderLayout->addWidget( m_pComponentGainRotary );
 
+	// Expanded elements
+
+	m_pLayerWidget = new QWidget( this );
+	auto pVBoxLayerLayout = new QVBoxLayout( this );
+	pVBoxLayerLayout->setMargin( 0 );
+	pVBoxLayerLayout->setSpacing( ComponentView::nVerticalSpacing );
+	pVBoxLayerLayout->setContentsMargins( 0, 0, 0, ComponentView::nMargin );
+	m_pLayerWidget->setLayout( pVBoxLayerLayout );
+
 	// Layer preview
 
 	m_pLayerPreview = new LayerPreview( this );
 
-	m_pLayerScrollArea = new QScrollArea( this );
+	m_pLayerScrollArea = new QScrollArea( m_pLayerWidget );
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	if ( InstrumentComponent::getMaxLayers() > 16 ) {
@@ -157,7 +166,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Buttons to manipulate the current layer.
 
-	auto pLayerButtonWidget = new QWidget( this );
+	auto pLayerButtonWidget = new QWidget( m_pLayerWidget );
 	pLayerButtonWidget->setFixedHeight( ComponentView::nLayerButtonsHeight );
 
 	auto pHBoxLayerButtonLayout = new QHBoxLayout();
@@ -201,7 +210,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Waveform display
 
-	m_pWaveDisplay = new WaveDisplay( this );
+	m_pWaveDisplay = new WaveDisplay( m_pLayerWidget );
 	m_pWaveDisplay->setMinimumSize(
 		InstrumentEditorPanel::nWidth - ComponentView::nMargin * 2,
 		ComponentView::nWaveDisplayHeight );
@@ -211,7 +220,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Layer properties
 
-	auto pLayerPropWidget = new QWidget( this );
+	auto pLayerPropWidget = new QWidget( m_pLayerWidget );
 	pLayerPropWidget->setFixedHeight(
 		Rotary::nHeight + ComponentView::nLabelHeight );
 	auto pGridLayerPropLayout = new QGridLayout();
@@ -334,7 +343,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Sample selection
 
-	auto pSampleSelectionWidget = new QWidget( this );
+	auto pSampleSelectionWidget = new QWidget( m_pLayerWidget );
 	pSampleSelectionWidget->setFixedHeight(
 		ComponentView::nSampleSelectionHeight );
 	auto pHBoxSampleSelectionLayout = new QHBoxLayout();
@@ -358,12 +367,14 @@ ComponentView::ComponentView( QWidget* pParent,
 			 this, SLOT( sampleSelectionChanged( int ) ) );
 	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionCombo );
 
+	pVBoxLayerLayout->addWidget( pSampleSelectionWidget );
+	pVBoxLayerLayout->addWidget( m_pLayerScrollArea );
+	pVBoxLayerLayout->addWidget( pLayerButtonWidget );
+	pVBoxLayerLayout->addWidget( m_pWaveDisplay );
+	pVBoxLayerLayout->addWidget( pLayerPropWidget );
+
 	pVBoxMainLayout->addWidget( pHeaderWidget );
-	pVBoxMainLayout->addWidget( pSampleSelectionWidget );
-	pVBoxMainLayout->addWidget( m_pLayerScrollArea );
-	pVBoxMainLayout->addWidget( pLayerButtonWidget );
-	pVBoxMainLayout->addWidget( m_pWaveDisplay );
-	pVBoxMainLayout->addWidget( pLayerPropWidget );
+	pVBoxMainLayout->addWidget( m_pLayerWidget );
 	setLayout( pVBoxMainLayout );
 
 	m_pPopup = new QMenu( this );
@@ -381,6 +392,8 @@ void ComponentView::updateView() {
 
 	if ( m_pComponent != nullptr ) {
 		m_pComponentNameLbl->setText( m_pComponent->getName() );
+		m_pComponentMuteBtn->setChecked( m_pComponent->getIsMuted() );
+		m_pComponentSoloBtn->setChecked( m_pComponent->getIsSoloed() );
 		m_pComponentGainRotary->setValue(
 			m_pComponent->getGain(), false, Event::Trigger::Suppress );
 
@@ -444,21 +457,16 @@ void ComponentView::expand() {
 	}
 
 	m_pShowLayersBtn->setIconFileName( "minus.svg" );
-
-	setFixedHeight( ComponentView::nExpandedHeight );
-
 	m_bIsExpanded = true;
 	updateVisibility();
 }
 
-void ComponentView::narrow() {
+void ComponentView::collapse() {
 	if ( ! m_bIsExpanded ) {
 		return;
 	}
 
 	m_pShowLayersBtn->setIconFileName( "plus.svg" );
-
-	setFixedHeight( ComponentView::nHeaderHeight );
 
 	m_bIsExpanded = false;
 	updateVisibility();
@@ -557,9 +565,6 @@ void ComponentView::paintEvent( QPaintEvent* pEvent ) {
 	const QPen penHeaderLight( colorHeaderLight );
 	const QPen penHeaderDark( colorHeaderDark );
 
-	// We use a slightly smaller margin for the background.
-	const int nMargin = ComponentView::nMargin - 2;
-
 	painter.fillRect( 0, 0, width(), height(), colorHeader );
 
 	// Some shadows for the header element
@@ -572,20 +577,29 @@ void ComponentView::paintEvent( QPaintEvent* pEvent ) {
 	const int nBottom = m_bIsExpanded ? height() : ComponentView::nHeaderHeight;
 	painter.drawLine( 0, nBottom - 1, width() - 1, nBottom - 1 );
 
-	// We leave a small margin (in pixel) to indicate where one element ends and
-	// the next one is starting.
-	painter.fillRect(
-		nMargin, ComponentView::nHeaderHeight, width() - nMargin * 2,
-		ComponentView::nExpandedHeight - ComponentView::nHeaderHeight - nMargin,
-		colorLayer );
+	if ( m_bIsExpanded ) {
+		// We use a slightly smaller margin for the background.
+		const int nMargin = ComponentView::nMargin - 2;
+
+		// We leave a small margin (in pixel) to indicate where one element ends
+		// and the next one is starting.
+		painter.fillRect(
+			nMargin, ComponentView::nHeaderHeight, width() - nMargin * 2,
+			ComponentView::nExpandedHeight - ComponentView::nHeaderHeight - nMargin,
+			colorLayer );
+	}
 }
 
 void ComponentView::updateActivation() {
 	if ( m_pComponent != nullptr ) {
+		m_pComponentMuteBtn->setIsActive( true );
+		m_pComponentSoloBtn->setIsActive( true );
 		m_pComponentGainRotary->setIsActive( true );
 	}
 	else {
 		m_pComponentNameLbl->setText( "" );
+		m_pComponentMuteBtn->setIsActive( false );
+		m_pComponentSoloBtn->setIsActive( false );
 		m_pComponentGainRotary->setIsActive( false );
 	}
 
@@ -636,25 +650,27 @@ void ComponentView::updateActivation() {
 }
 
 void ComponentView::updateVisibility() {
-	m_pLayerPreview->setVisible( m_bIsExpanded );
-	m_pLayerMuteBtn->setVisible( m_bIsExpanded );
-	m_pLayerSoloBtn->setVisible( m_bIsExpanded );
-	m_pLayerGainRotary->setVisible( m_bIsExpanded );
-	m_pLayerGainLbl->setVisible( m_bIsExpanded );
-	m_pLayerPitchCoarseRotary->setVisible( m_bIsExpanded );
-	m_pLayerPitchCoarseLbl->setVisible( m_bIsExpanded );
-	m_pLayerPitchLCD->setVisible( m_bIsExpanded );
-	m_pLayerPitchFineRotary->setVisible( m_bIsExpanded );
-	m_pLayerPitchFineLbl->setVisible( m_bIsExpanded );
-	m_pLayerPitchLbl->setVisible( m_bIsExpanded );
+	m_pLayerWidget->setVisible( m_bIsExpanded );
+	// m_pLayerPreview->setVisible( m_bIsExpanded );
+	// m_pLayerScrollArea->setVisible( m_bIsExpanded );
+	// m_pLayerMuteBtn->setVisible( m_bIsExpanded );
+	// m_pLayerSoloBtn->setVisible( m_bIsExpanded );
+	// m_pLayerGainRotary->setVisible( m_bIsExpanded );
+	// m_pLayerGainLbl->setVisible( m_bIsExpanded );
+	// m_pLayerPitchCoarseRotary->setVisible( m_bIsExpanded );
+	// m_pLayerPitchCoarseLbl->setVisible( m_bIsExpanded );
+	// m_pLayerPitchLCD->setVisible( m_bIsExpanded );
+	// m_pLayerPitchFineRotary->setVisible( m_bIsExpanded );
+	// m_pLayerPitchFineLbl->setVisible( m_bIsExpanded );
+	// m_pLayerPitchLbl->setVisible( m_bIsExpanded );
 
-	m_pLoadLayerBtn->setVisible( m_bIsExpanded );
-	m_pRemoveLayerBtn->setVisible( m_bIsExpanded );
-	m_pSampleEditorBtn->setVisible( m_bIsExpanded );
-	m_pSampleSelectionCombo->setVisible( m_bIsExpanded );
-	m_pSampleSelectionLbl->setVisible( m_bIsExpanded );
+	// m_pLoadLayerBtn->setVisible( m_bIsExpanded );
+	// m_pRemoveLayerBtn->setVisible( m_bIsExpanded );
+	// m_pSampleEditorBtn->setVisible( m_bIsExpanded );
+	// m_pSampleSelectionCombo->setVisible( m_bIsExpanded );
+	// m_pSampleSelectionLbl->setVisible( m_bIsExpanded );
 
-	m_pWaveDisplay->setVisible( m_bIsExpanded );
+	// m_pWaveDisplay->setVisible( m_bIsExpanded );
 }
 
 void ComponentView::waveDisplayDoubleClicked( QWidget* pRef ) {
