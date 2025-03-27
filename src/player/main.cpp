@@ -84,7 +84,12 @@ int main(int argc, char** argv){
 
 	// Tell the core that we are done initializing the most basic parts.
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
+
 	auto pPref = H2Core::Preferences::get_instance();
+	// The Preferences is provided as a shared pointer. We discard our local
+	// reference in order to not prevent cleanup to the old instance in case
+	// it is replaced while Hydrogen is running.
+	pPref = nullptr;
 
 	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
 	if (pSong == nullptr) {
@@ -109,6 +114,7 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				pHydrogen->sequencerStop();
 
+				pPref = H2Core::Preferences::get_instance();
 				pPref->save();
 				pSong = nullptr;
 				delete pHydrogen;

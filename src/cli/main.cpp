@@ -572,6 +572,11 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		// The Preferences is provided as a shared pointer. We discard our local
+		// reference in order to not prevent cleanup to the old instance in case
+		// it is replaced while Hydrogen is running.
+		pPref = nullptr;
+
 		if ( nReturnCode == -1 || bExportMode ) {
 			// Interactive mode - h2cli is not done yet.
 			while ( ! quit ) {
@@ -624,6 +629,8 @@ int main(int argc, char *argv[])
 		}
 
 		pSong = nullptr;
+
+		pPref = H2Core::Preferences::get_instance();
 
 		pPref->save();
 		delete pHydrogen;

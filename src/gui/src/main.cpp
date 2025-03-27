@@ -487,10 +487,20 @@ int main(int argc, char *argv[])
 
 		H2Core::Logger::setCrashContext( nullptr );
 
+		// The Preferences is provided as a shared pointer. We discard our local
+		// reference in order to not prevent cleanup to the old instance in case
+		// it is replaced while Hydrogen is running.
+		pPref = nullptr;
+
 		pQApp->exec();
 
 		QString sShutdownCrashContext( "Shutting down Hydrogen" );
 		H2Core::Logger::setCrashContext( &sShutdownCrashContext );
+
+		// When cancelling the PreferencesDialog, Hydrogen will revert to the
+		// previous state of Preferences by reading the user-level hydrogen.conf
+		// file again and creating a new instance.
+		pPref = H2Core::Preferences::get_instance();
 
 		pPref->save();
 		delete pSplash;
