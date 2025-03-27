@@ -2335,23 +2335,18 @@ void PreferencesDialog::importTheme() {
 	if ( m_nCurrentId == 0 ) {
 		m_pCurrentColor = nullptr;
 		updateColorTree();
-
-		m_changes =
-			static_cast<H2Core::Preferences::Changes>(
-				m_changes | H2Core::Preferences::Changes::Colors );
-	  
-		HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 	}
 	updateAppearanceTab( m_currentTheme );
 
 	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme imported from " ) + sSelectedPath );
 
-	m_changes =
-		static_cast<H2Core::Preferences::Changes>(
-			m_changes | H2Core::Preferences::Changes::AppearanceTab );
-		
-	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
-	
+	auto changes = static_cast<Preferences::Changes>(
+		Preferences::Changes::AppearanceTab |
+		Preferences::Changes::Font |
+		Preferences::Changes::Colors );
+
+	m_changes = static_cast<H2Core::Preferences::Changes>( m_changes | changes );
+	HydrogenApp::get_instance()->changePreferences( changes );
 }
 
 void PreferencesDialog::exportTheme() {
@@ -2396,8 +2391,12 @@ void PreferencesDialog::resetTheme() {
 	H2Core::Preferences::get_instance()->setTheme( m_currentTheme );
 	updateAppearanceTab( m_currentTheme );
 	
-	HydrogenApp::get_instance()->changePreferences(
-		H2Core::Preferences::Changes::AppearanceTab );
+	auto changes = static_cast<Preferences::Changes>(
+		Preferences::Changes::AppearanceTab |
+		Preferences::Changes::Font |
+		Preferences::Changes::Colors );
+
+	HydrogenApp::get_instance()->changePreferences( changes );
 
 	HydrogenApp::get_instance()->showStatusBarMessage( tr( "Theme reset" ) );
 }
