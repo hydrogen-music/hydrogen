@@ -695,20 +695,6 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::on_cancelBtn_clicked()
 {
-	auto pPref = CoreActionController::loadPreferences(
-		Filesystem::usr_config_path() );
-
-	if ( pPref != nullptr ) {
-		pPref->setTheme( m_previousTheme );
-		CoreActionController::setPreferences( pPref );
-	}
-	else {
-		// This happens when opening the preferences dialog during the first
-		// startup. There is no user-level Preferences file yet.
-		Preferences::get_instance()->setTheme( m_previousTheme );
-	}
-
-	HydrogenApp::get_instance()->changePreferences( m_changes );
 
 	reject();
 }
@@ -1558,7 +1544,18 @@ void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 
 void PreferencesDialog::onRejected() {
 
-	updateAppearanceTab( m_previousTheme );
+	auto pPref = CoreActionController::loadPreferences(
+		Filesystem::usr_config_path() );
+
+	if ( pPref != nullptr ) {
+		pPref->setTheme( m_previousTheme );
+		CoreActionController::setPreferences( pPref );
+	}
+	else {
+		// This happens when opening the preferences dialog during the first
+		// startup. There is no user-level Preferences file yet.
+		Preferences::get_instance()->setTheme( m_previousTheme );
+	}
 
 	HydrogenApp::get_instance()->changePreferences( m_changes );
 }
