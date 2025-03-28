@@ -370,6 +370,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setGain( m_pLayerGainRotary->getValue() );
+				updateView(); // WaveDisplay update
 			}
 		}
 	});
