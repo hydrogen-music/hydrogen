@@ -55,9 +55,9 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 	pStackedEditorLayout->setMargin( 0 );
 	pEditorWidget->setLayout( pStackedEditorLayout );
 	m_pInstrumentEditor = new InstrumentEditor( this );
+	pStackedEditorLayout->addWidget( m_pInstrumentEditor );
 	m_pComponentsEditor = new ComponentsEditor( this );
 	pStackedEditorLayout->addWidget( m_pComponentsEditor );
-	pStackedEditorLayout->addWidget( m_pInstrumentEditor );
 
 	// Buttons
 
