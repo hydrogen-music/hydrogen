@@ -290,7 +290,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 			m_pLayerPitchFineRotary->getValue() / 100.0;
 		if ( m_pComponent != nullptr ) {
-			auto pLayer = pComponent->getLayer( m_nSelectedLayer );
+			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
 				updateView(); // LCD update
@@ -311,7 +311,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 			m_pLayerPitchFineRotary->getValue() / 100.0;
 		if ( m_pComponent != nullptr ) {
-			auto pLayer = pComponent->getLayer( m_nSelectedLayer );
+			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
 				updateView(); // LCD update
