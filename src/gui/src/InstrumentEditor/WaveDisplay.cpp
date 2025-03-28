@@ -33,7 +33,7 @@ using namespace H2Core;
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , m_nCurrentWidth( 0 )
- , m_sSampleName( "-" )
+ , m_sSampleName( "" )
  , m_pLayer( nullptr )
  , m_SampleNameAlignment( Qt::AlignCenter )
 {
@@ -116,7 +116,7 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 	
 	if(!pLayer || currentWidth <= 0){
 		m_pLayer = nullptr;
-		m_sSampleName = "-";
+		m_sSampleName = "";
 
 		update();
 		return;
@@ -160,7 +160,7 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 	}
 	else {
 		m_pLayer = nullptr;
-		m_sSampleName = "-";
+		m_sSampleName = "";
 		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;
 		}
