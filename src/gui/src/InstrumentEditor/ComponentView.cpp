@@ -63,15 +63,16 @@ ComponentView::ComponentView( QWidget* pParent,
 	setObjectName( "ComponentProperties" );
 
 	auto pVBoxMainLayout = new QVBoxLayout();
-	pVBoxMainLayout->setSpacing( ComponentView::nVerticalSpacing );
-	pVBoxMainLayout->setContentsMargins(
-		ComponentView::nMargin, 0, ComponentView::nMargin, 0 );
+	pVBoxMainLayout->setMargin( 0 );
+	pVBoxMainLayout->setSpacing( 0 );
 
 	auto pHeaderWidget = new QWidget( this );
 	pHeaderWidget->setFixedHeight( ComponentView::nHeaderHeight );
+	pHeaderWidget->setObjectName( "HeaderWidget" );
 	auto pHBoxHeaderLayout = new QHBoxLayout();
 	pHBoxHeaderLayout->setSpacing( 0 );
-	pHBoxHeaderLayout->setMargin( 0 );
+	pHBoxHeaderLayout->setContentsMargins(
+		ComponentView::nMargin, 0, ComponentView::nMargin, 0 );
 	pHeaderWidget->setLayout( pHBoxHeaderLayout );
 
 	m_pShowLayersBtn = new Button(
@@ -96,6 +97,7 @@ ComponentView::ComponentView( QWidget* pParent,
 							  Rotary::nWidth - ComponentView::nMargin * 2,
 							  ComponentView::nHeaderHeight - 2 ),
 		"", ClickableLabel::Color::Bright, true );
+	m_pComponentNameLbl->setObjectName( "ComponentName" );
 	connect( m_pComponentNameLbl, SIGNAL( labelDoubleClicked(QMouseEvent*) ),
 			 this, SLOT( renameComponentAction() ) );
 	pHBoxHeaderLayout->addWidget( m_pComponentNameLbl );
@@ -145,10 +147,12 @@ ComponentView::ComponentView( QWidget* pParent,
 	// Expanded elements
 
 	m_pLayerWidget = new QWidget( this );
+	m_pLayerWidget->setObjectName( "LayerWidget" );
 	auto pVBoxLayerLayout = new QVBoxLayout( this );
-	pVBoxLayerLayout->setMargin( 0 );
 	pVBoxLayerLayout->setSpacing( ComponentView::nVerticalSpacing );
-	pVBoxLayerLayout->setContentsMargins( 0, 0, 0, ComponentView::nMargin );
+	pVBoxLayerLayout->setContentsMargins(
+		ComponentView::nMargin, ComponentView::nMargin,
+		ComponentView::nMargin, ComponentView::nMargin );
 	m_pLayerWidget->setLayout( pVBoxLayerLayout );
 
 	// Layer preview
@@ -167,6 +171,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	// Buttons to manipulate the current layer.
 
 	auto pLayerButtonWidget = new QWidget( m_pLayerWidget );
+	pLayerButtonWidget->setObjectName( "LayerButtonWidget" );
 	pLayerButtonWidget->setFixedHeight( ComponentView::nLayerButtonsHeight );
 
 	auto pHBoxLayerButtonLayout = new QHBoxLayout();
@@ -223,6 +228,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	auto pLayerPropWidget = new QWidget( m_pLayerWidget );
 	pLayerPropWidget->setFixedHeight(
 		Rotary::nHeight + ComponentView::nLabelHeight );
+	pLayerPropWidget->setObjectName( "LayerPropWidget" );
 	auto pGridLayerPropLayout = new QGridLayout();
 	pGridLayerPropLayout->setSpacing( 0 );
 	pGridLayerPropLayout->setMargin( 0 );
@@ -232,7 +238,9 @@ ComponentView::ComponentView( QWidget* pParent,
 		pLayerPropWidget, QSize( 56, 20 ), false, false );
 	pGridLayerPropLayout->addWidget( m_pLayerPitchLCD, 0, 0 );
 	m_pLayerPitchLbl = new ClickableLabel(
-		pLayerPropWidget, QSize( 45, ComponentView::nLabelHeight ), pCommonStrings->getPitchLabel() );
+		pLayerPropWidget, QSize( 45, ComponentView::nLabelHeight ),
+		pCommonStrings->getPitchLabel() );
+	m_pLayerPitchLbl->setObjectName( "LayerPitchLabel" );
 	pGridLayerPropLayout->addWidget( m_pLayerPitchLbl, 1, 0 );
 
 	m_pLayerPitchCoarseRotary = new Rotary(
@@ -254,6 +262,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPitchCoarseLbl = new ClickableLabel(
 		pLayerPropWidget, QSize( 44, ComponentView::nLabelHeight ),
 		pCommonStrings->getPitchCoarseLabel() );
+	m_pLayerPitchCoarseLbl->setObjectName( "LayerPitchCoarseLabel" );
 	pGridLayerPropLayout->addWidget( m_pLayerPitchCoarseLbl, 1, 1 );
 
 	m_pLayerPitchFineRotary = new Rotary(
@@ -274,6 +283,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPitchFineLbl = new ClickableLabel(
 		pLayerPropWidget, QSize( 44, ComponentView::nLabelHeight ),
 		pCommonStrings->getPitchFineLabel() );
+	m_pLayerPitchFineLbl->setObjectName( "LayerPitchFineLabel" );
 	pGridLayerPropLayout->addWidget( m_pLayerPitchFineLbl, 1, 2 );
 
 	m_pLayerMuteBtn = new Button(
@@ -328,6 +338,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerGainLbl = new ClickableLabel(
 		pLayerPropWidget, QSize( 44, ComponentView::nLabelHeight ),
 		pCommonStrings->getLayerGainLabel() );
+	m_pLayerGainLbl->setObjectName( "LayerGainLabel" );
 	pGridLayerPropLayout->addWidget( m_pLayerGainLbl, 1, 6 );
 
 	// Ensure the mute, solo, gain buttons are close to each other like the in
@@ -346,6 +357,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	auto pSampleSelectionWidget = new QWidget( m_pLayerWidget );
 	pSampleSelectionWidget->setFixedHeight(
 		ComponentView::nSampleSelectionHeight );
+	pSampleSelectionWidget->setObjectName( "SampleSelectionWidget" );
 	auto pHBoxSampleSelectionLayout = new QHBoxLayout();
 	pHBoxSampleSelectionLayout->setSpacing( 0 );
 	pHBoxSampleSelectionLayout->setMargin( 0 );
@@ -355,6 +367,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pSampleSelectionLbl = new ClickableLabel(
 		pSampleSelectionWidget, QSize( 70, 10 ),
 		pCommonStrings->getSampleSelectionLabel() );
+	m_pSampleSelectionLbl->setObjectName( "SampleSelectionLabel" );
 	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionLbl );
 
 	m_pSampleSelectionCombo = new LCDCombo(
@@ -367,9 +380,9 @@ ComponentView::ComponentView( QWidget* pParent,
 			 this, SLOT( sampleSelectionChanged( int ) ) );
 	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionCombo );
 
-	pVBoxLayerLayout->addWidget( pSampleSelectionWidget );
 	pVBoxLayerLayout->addWidget( m_pLayerScrollArea );
 	pVBoxLayerLayout->addWidget( pLayerButtonWidget );
+	pVBoxLayerLayout->addWidget( pSampleSelectionWidget );
 	pVBoxLayerLayout->addWidget( m_pWaveDisplay );
 	pVBoxLayerLayout->addWidget( pLayerPropWidget );
 
@@ -382,9 +395,91 @@ ComponentView::ComponentView( QWidget* pParent,
 						 SLOT( addComponent() ) );
 	m_pDeleteAction = m_pPopup->addAction(
 		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponent() ));
+	updateStyleSheet();
 }
 
 ComponentView::~ComponentView() {
+}
+
+void ComponentView::updateStyleSheet() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	const QColor headerColor = theme.m_color.m_windowColor;
+	const QColor headerTextColor = theme.m_color.m_windowTextColor;
+	const QColor borderHeaderLightColor = headerColor.lighter(
+		Skin::nListBackgroundLightBorderScaling );
+	const QColor borderHeaderDarkColor = headerColor.darker(
+		Skin::nListBackgroundDarkBorderScaling );
+
+	const QColor layerColor = theme.m_color.m_baseColor;
+	const QColor borderLayerLightColor = layerColor.lighter(
+		Skin::nListBackgroundLightBorderScaling );
+	const QColor borderLayerDarkColor = layerColor.darker(
+		Skin::nListBackgroundDarkBorderScaling );
+
+	QString sStyleSheet;
+	if ( m_bIsExpanded ) {
+		sStyleSheet.append( QString( "\
+QWidget#HeaderWidget { \
+    background-color: %1; \
+    border-top: 1px solid %2; \
+    border-left: 1px solid %2; \
+    border-right: 1px solid %3; \
+} \
+QWidget#LayerWidget { \
+    background-color: %4; \
+    border-left: 2px solid %5; \
+    border-right: 2px solid %6; \
+    border-bottom: 2px solid %6; \
+}" )
+							.arg( headerColor.name() )
+							.arg( borderHeaderLightColor.name() )
+							.arg( borderHeaderDarkColor.name() )
+							.arg( layerColor.name() )
+							.arg( borderLayerLightColor.name() )
+							.arg( borderLayerDarkColor.name() ) );
+}
+	else {
+		// LayerWidget won't be visible.
+		sStyleSheet.append( QString( "\
+QWidget#HeaderWidget { \
+    background-color: %1; \
+    border-top: 1px solid %2; \
+    border-left: 1px solid %2; \
+    border-right: 1px solid %3; \
+    border-bottom: 1px solid %3; \
+} \
+QWidget#LayerWidget { \
+    background-color: %4; \
+    border: 2px solid %2; \
+}" )
+							.arg( headerColor.name() )
+							.arg( borderHeaderLightColor.name() )
+							.arg( borderHeaderDarkColor.name() )
+							.arg( layerColor.name() ) );
+	}
+
+	sStyleSheet.append( QString( "\
+ClickableLabel#ComponentName {	\
+    background-color: %1; \
+} \
+QWidget#LayerButtonWidget, \
+QWidget#LayerPropWidget, \
+QWidget#SampleSelectionWidget { \
+    background-color: %2; \
+} \
+ClickableLabel#LayerPitchLabel, \
+ClickableLabel#LayerPitchCoarseLabel, \
+ClickableLabel#LayerPitchFineLabel, \
+ClickableLabel#LayerGainLabel, \
+ClickableLabel#SampleSelectionLabel { \
+    background-color: %2; \
+} \
+")
+						.arg( headerColor.name() )
+						.arg( layerColor.name() ) );
+
+	setStyleSheet( sStyleSheet );
 }
 
 void ComponentView::updateView() {
@@ -546,50 +641,6 @@ void ComponentView::mousePressEvent( QMouseEvent* pEvent ) {
 	}
 }
 
-void ComponentView::paintEvent( QPaintEvent* pEvent ) {
-	const auto theme = H2Core::Preferences::get_instance()->getTheme();
-
-	QPainter painter( this );
-
-	const QColor colorHeader = theme.m_color.m_baseColor;
-	const QColor colorHeaderLight = colorHeader.lighter(
-		Skin::nListBackgroundLightBorderScaling );
-	const QColor colorHeaderDark = colorHeader.darker(
-		Skin::nListBackgroundDarkBorderScaling );
-	const QColor colorLayer = theme.m_color.m_songEditor_backgroundColor;
-	const QColor colorLayerLight = colorLayer.lighter(
-		Skin::nListBackgroundLightBorderScaling );
-	const QColor colorLayerDark = colorLayer.darker(
-		Skin::nListBackgroundDarkBorderScaling );
-
-	const QPen penHeaderLight( colorHeaderLight );
-	const QPen penHeaderDark( colorHeaderDark );
-
-	painter.fillRect( 0, 0, width(), height(), colorHeader );
-
-	// Some shadows for the header element
-	painter.setPen( penHeaderLight );
-	painter.drawLine( 0, 0, 0, height() - 1 );
-	painter.drawLine( 0, 0, width() - 1, 0 );
-
-	painter.setPen( penHeaderDark );
-	painter.drawLine( width() - 1, 0, width() - 1, height() - 1 );
-	const int nBottom = m_bIsExpanded ? height() : ComponentView::nHeaderHeight;
-	painter.drawLine( 0, nBottom - 1, width() - 1, nBottom - 1 );
-
-	if ( m_bIsExpanded ) {
-		// We use a slightly smaller margin for the background.
-		const int nMargin = ComponentView::nMargin - 2;
-
-		// We leave a small margin (in pixel) to indicate where one element ends
-		// and the next one is starting.
-		painter.fillRect(
-			nMargin, ComponentView::nHeaderHeight, width() - nMargin * 2,
-			ComponentView::nExpandedHeight - ComponentView::nHeaderHeight - nMargin,
-			colorLayer );
-	}
-}
-
 void ComponentView::updateActivation() {
 	if ( m_pComponent != nullptr ) {
 		m_pComponentMuteBtn->setIsActive( true );
@@ -651,26 +702,7 @@ void ComponentView::updateActivation() {
 
 void ComponentView::updateVisibility() {
 	m_pLayerWidget->setVisible( m_bIsExpanded );
-	// m_pLayerPreview->setVisible( m_bIsExpanded );
-	// m_pLayerScrollArea->setVisible( m_bIsExpanded );
-	// m_pLayerMuteBtn->setVisible( m_bIsExpanded );
-	// m_pLayerSoloBtn->setVisible( m_bIsExpanded );
-	// m_pLayerGainRotary->setVisible( m_bIsExpanded );
-	// m_pLayerGainLbl->setVisible( m_bIsExpanded );
-	// m_pLayerPitchCoarseRotary->setVisible( m_bIsExpanded );
-	// m_pLayerPitchCoarseLbl->setVisible( m_bIsExpanded );
-	// m_pLayerPitchLCD->setVisible( m_bIsExpanded );
-	// m_pLayerPitchFineRotary->setVisible( m_bIsExpanded );
-	// m_pLayerPitchFineLbl->setVisible( m_bIsExpanded );
-	// m_pLayerPitchLbl->setVisible( m_bIsExpanded );
-
-	// m_pLoadLayerBtn->setVisible( m_bIsExpanded );
-	// m_pRemoveLayerBtn->setVisible( m_bIsExpanded );
-	// m_pSampleEditorBtn->setVisible( m_bIsExpanded );
-	// m_pSampleSelectionCombo->setVisible( m_bIsExpanded );
-	// m_pSampleSelectionLbl->setVisible( m_bIsExpanded );
-
-	// m_pWaveDisplay->setVisible( m_bIsExpanded );
+	updateStyleSheet();
 }
 
 void ComponentView::waveDisplayDoubleClicked( QWidget* pRef ) {

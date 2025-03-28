@@ -42,6 +42,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	setMinimumSize( InstrumentEditorPanel::nWidth,
 					ComponentView::nExpandedHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
+	setObjectName( "ComponentsEditor" );
 
  	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -87,6 +88,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	}
 
 	updateComponents();
+	updateStyleSheet();
 }
 
 ComponentsEditor::~ComponentsEditor() {
@@ -167,6 +169,16 @@ void ComponentsEditor::updateComponents() {
 void ComponentsEditor::updateEditor() {
 	for ( const auto& ppComponentView : m_componentViews ) {
 		ppComponentView->updateView();
+	}
+}
+
+void ComponentsEditor::updateStyleSheet() {
+	setStyleSheet( QString( "background-color: %1;" )
+				   .arg( H2Core::Preferences::get_instance()->
+						 getTheme().m_color.m_windowColor.name() ) );
+
+	for ( auto& ppComponentView : m_componentViews ) {
+		ppComponentView->updateStyleSheet();
 	}
 }
 

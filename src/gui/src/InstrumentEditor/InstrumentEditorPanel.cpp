@@ -155,6 +155,7 @@ void InstrumentEditorPanel::onPreferencesChanged( const H2Core::Preferences::Cha
 		m_pInstrumentEditor->setStyleSheet(
 			QString( "QLabel { background: %1 }" )
 			.arg( pPref->getTheme().m_color.m_windowColor.name() ) );
+		m_pComponentsEditor->updateStyleSheet();
 	}
 	if ( changes & ( H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::Colors ) ) {

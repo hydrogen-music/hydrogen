@@ -53,6 +53,7 @@ class ComponentsEditor :  public QWidget,
 
 		void updateComponents();
 		void updateEditor();
+		void updateStyleSheet();
 
 		ComponentView* getCurrentView() const;
 
