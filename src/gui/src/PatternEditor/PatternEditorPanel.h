@@ -462,8 +462,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		QScrollBar *		m_pPatternEditorVScrollBar;
 		QWidget*			m_pPatternEditorHScrollBarContainer;
 
-		Button *			sizeDropdownBtn;
-		Button *			resDropdownBtn;
 		Button*				m_pZoomInBtn;
 		Button*				m_pZoomOutBtn;
 
