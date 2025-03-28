@@ -127,6 +127,7 @@ class ComponentView : public QWidget,
 		Button* m_pComponentMuteBtn;
 		Rotary* m_pComponentGainRotary;
 
+		QWidget* m_pComponentWidget;
 		QWidget* m_pLayerWidget;
 
 		LayerPreview *m_pLayerPreview;

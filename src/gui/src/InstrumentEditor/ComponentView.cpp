@@ -146,20 +146,20 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Expanded elements
 
-	m_pLayerWidget = new QWidget( this );
-	m_pLayerWidget->setObjectName( "LayerWidget" );
-	auto pVBoxLayerLayout = new QVBoxLayout( this );
-	pVBoxLayerLayout->setSpacing( ComponentView::nVerticalSpacing );
-	pVBoxLayerLayout->setContentsMargins(
+	m_pComponentWidget = new QWidget( this );
+	m_pComponentWidget->setObjectName( "ComponentWidget" );
+	auto pVBoxComponentLayout = new QVBoxLayout( this );
+	pVBoxComponentLayout->setSpacing( ComponentView::nVerticalSpacing );
+	pVBoxComponentLayout->setContentsMargins(
 		ComponentView::nMargin, ComponentView::nMargin,
 		ComponentView::nMargin, ComponentView::nMargin );
-	m_pLayerWidget->setLayout( pVBoxLayerLayout );
+	m_pComponentWidget->setLayout( pVBoxComponentLayout );
 
 	// Layer preview
 
 	m_pLayerPreview = new LayerPreview( this );
 
-	m_pLayerScrollArea = new QScrollArea( m_pLayerWidget );
+	m_pLayerScrollArea = new QScrollArea( m_pComponentWidget );
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	if ( InstrumentComponent::getMaxLayers() > 16 ) {
@@ -170,7 +170,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	// Buttons to manipulate the current layer.
 
-	auto pLayerButtonWidget = new QWidget( m_pLayerWidget );
+	auto pLayerButtonWidget = new QWidget( m_pComponentWidget );
 	pLayerButtonWidget->setObjectName( "LayerButtonWidget" );
 	pLayerButtonWidget->setFixedHeight( ComponentView::nLayerButtonsHeight );
 
@@ -212,6 +212,45 @@ ComponentView::ComponentView( QWidget* pParent,
 	connect( m_pSampleEditorBtn, SIGNAL( clicked() ),
 			 this, SLOT( showSampleEditor() ) );
 	pHBoxLayerButtonLayout->addWidget( m_pSampleEditorBtn );
+
+	// Sample selection
+
+	auto pSampleSelectionWidget = new QWidget( m_pComponentWidget );
+	pSampleSelectionWidget->setFixedHeight(
+		ComponentView::nSampleSelectionHeight );
+	pSampleSelectionWidget->setObjectName( "SampleSelectionWidget" );
+	auto pHBoxSampleSelectionLayout = new QHBoxLayout();
+	pHBoxSampleSelectionLayout->setSpacing( 0 );
+	pHBoxSampleSelectionLayout->setMargin( 0 );
+	pHBoxSampleSelectionLayout->setAlignment( Qt::AlignVCenter );
+	pSampleSelectionWidget->setLayout( pHBoxSampleSelectionLayout );
+
+	m_pSampleSelectionLbl = new ClickableLabel(
+		pSampleSelectionWidget, QSize( 70, 10 ),
+		pCommonStrings->getSampleSelectionLabel() );
+	m_pSampleSelectionLbl->setObjectName( "SampleSelectionLabel" );
+	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionLbl );
+
+	m_pSampleSelectionCombo = new LCDCombo(
+		pSampleSelectionWidget, QSize( 0, 0 ), true );
+	m_pSampleSelectionCombo->setFixedHeight(
+		ComponentView::nSampleSelectionHeight );
+	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );
+	setupSampleSelectionCombo();
+	connect( m_pSampleSelectionCombo, SIGNAL( activated( int ) ),
+			 this, SLOT( sampleSelectionChanged( int ) ) );
+	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionCombo );
+
+	// Layer-specific widgets
+
+	m_pLayerWidget = new QWidget( this );
+	m_pLayerWidget->setObjectName( "LayerWidget" );
+	auto pVBoxLayerLayout = new QVBoxLayout( this );
+	pVBoxLayerLayout->setSpacing( ComponentView::nVerticalSpacing );
+	pVBoxLayerLayout->setContentsMargins(
+		ComponentView::nMargin, ComponentView::nMargin,
+		ComponentView::nMargin, ComponentView::nMargin );
+	m_pLayerWidget->setLayout( pVBoxLayerLayout );
 
 	// Waveform display
 
@@ -352,41 +391,17 @@ ComponentView::ComponentView( QWidget* pParent,
 	pGridLayerPropLayout->setColumnStretch( 5, 0 );
 	pGridLayerPropLayout->setColumnStretch( 6, 0 );
 
-	// Sample selection
+	// Putting everything together.
 
-	auto pSampleSelectionWidget = new QWidget( m_pLayerWidget );
-	pSampleSelectionWidget->setFixedHeight(
-		ComponentView::nSampleSelectionHeight );
-	pSampleSelectionWidget->setObjectName( "SampleSelectionWidget" );
-	auto pHBoxSampleSelectionLayout = new QHBoxLayout();
-	pHBoxSampleSelectionLayout->setSpacing( 0 );
-	pHBoxSampleSelectionLayout->setMargin( 0 );
-	pHBoxSampleSelectionLayout->setAlignment( Qt::AlignVCenter );
-	pSampleSelectionWidget->setLayout( pHBoxSampleSelectionLayout );
+	pVBoxComponentLayout->addWidget( m_pLayerScrollArea );
+	pVBoxComponentLayout->addWidget( pLayerButtonWidget );
+	pVBoxComponentLayout->addWidget( pSampleSelectionWidget );
 
-	m_pSampleSelectionLbl = new ClickableLabel(
-		pSampleSelectionWidget, QSize( 70, 10 ),
-		pCommonStrings->getSampleSelectionLabel() );
-	m_pSampleSelectionLbl->setObjectName( "SampleSelectionLabel" );
-	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionLbl );
-
-	m_pSampleSelectionCombo = new LCDCombo(
-		pSampleSelectionWidget, QSize( 0, 0 ), true );
-	m_pSampleSelectionCombo->setFixedHeight(
-		ComponentView::nSampleSelectionHeight );
-	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );
-	setupSampleSelectionCombo();
-	connect( m_pSampleSelectionCombo, SIGNAL( activated( int ) ),
-			 this, SLOT( sampleSelectionChanged( int ) ) );
-	pHBoxSampleSelectionLayout->addWidget( m_pSampleSelectionCombo );
-
-	pVBoxLayerLayout->addWidget( m_pLayerScrollArea );
-	pVBoxLayerLayout->addWidget( pLayerButtonWidget );
-	pVBoxLayerLayout->addWidget( pSampleSelectionWidget );
 	pVBoxLayerLayout->addWidget( m_pWaveDisplay );
 	pVBoxLayerLayout->addWidget( pLayerPropWidget );
 
 	pVBoxMainLayout->addWidget( pHeaderWidget );
+	pVBoxMainLayout->addWidget( m_pComponentWidget );
 	pVBoxMainLayout->addWidget( m_pLayerWidget );
 	setLayout( pVBoxMainLayout );
 
@@ -426,10 +441,17 @@ QWidget#HeaderWidget { \
     border-left: 1px solid %2; \
     border-right: 1px solid %3; \
 } \
+QWidget#ComponentWidget, \
 QWidget#LayerWidget { \
     background-color: %4; \
     border-left: 2px solid %5; \
     border-right: 2px solid %6; \
+} \
+QWidget#ComponentWidget { \
+    border-bottom: 1px solid %6; \
+} \
+QWidget#LayerWidget { \
+    border-top: 1px solid %5; \
     border-bottom: 2px solid %6; \
 }" )
 							.arg( headerColor.name() )
@@ -448,15 +470,10 @@ QWidget#HeaderWidget { \
     border-left: 1px solid %2; \
     border-right: 1px solid %3; \
     border-bottom: 1px solid %3; \
-} \
-QWidget#LayerWidget { \
-    background-color: %4; \
-    border: 2px solid %2; \
 }" )
 							.arg( headerColor.name() )
 							.arg( borderHeaderLightColor.name() )
-							.arg( borderHeaderDarkColor.name() )
-							.arg( layerColor.name() ) );
+							.arg( borderHeaderDarkColor.name() ) );
 	}
 
 	sStyleSheet.append( QString( "\
@@ -701,6 +718,7 @@ void ComponentView::updateActivation() {
 }
 
 void ComponentView::updateVisibility() {
+	m_pComponentWidget->setVisible( m_bIsExpanded );
 	m_pLayerWidget->setVisible( m_bIsExpanded );
 	updateStyleSheet();
 }
