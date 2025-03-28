@@ -389,11 +389,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Layers</source>
-        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation>Livelli</translation>
-    </message>
-    <message>
         <source>Load Layer</source>
         <extracomment>Text displayed on the button to load a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation type="unfinished"></translation>
@@ -1384,6 +1379,11 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Settings</source>
         <extracomment>Indicates a menu section in which behavioural customizations can be * done.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Components</source>
+        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

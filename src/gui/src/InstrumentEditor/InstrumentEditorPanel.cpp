@@ -82,7 +82,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 
 	m_pShowComponentsBtn = new Button(
 		pButtonWidget, QSize( 140, 22 ), Button::Type::Toggle, "",
-		pCommonStrings->getLayersButton(), false, QSize(),
+		pCommonStrings->getComponentsButton(), false, QSize(),
 		tr( "Show components" ) );
 	m_pShowComponentsBtn->setChecked( false );
 	connect( m_pShowComponentsBtn, &Button::clicked, [=]() {

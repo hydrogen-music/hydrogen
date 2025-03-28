@@ -71,8 +71,8 @@ CommonStrings::CommonStrings(){
 	  is designed to hold ten characters but is quite flexible.*/
 	m_sSoundLibraryButton = tr( "Sound Library" );
 	/*: Text displayed on the button to show the Layer view of the Instrument Rack. Its size
-	  is designed to hold six characters but is quite flexible.*/
-	m_sLayersButton = tr( "Layers" );
+	  is designed to hold ten characters but is quite flexible.*/
+	m_sComponentsButton = tr( "Components" );
 	/*: Text displayed on the button to load a layer into an
 	  instrument. Its size is designed to hold ten characters but is quite
 	  flexible.*/
