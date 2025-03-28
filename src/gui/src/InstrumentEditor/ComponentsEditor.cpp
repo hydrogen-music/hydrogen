@@ -173,7 +173,7 @@ void ComponentsEditor::updateEditor() {
 }
 
 void ComponentsEditor::updateStyleSheet() {
-	setStyleSheet( QString( "background-color: %1;" )
+	setStyleSheet( QString( "QWidget#ComponentsEditor {background-color: %1;}" )
 				   .arg( H2Core::Preferences::get_instance()->
 						 getTheme().m_color.m_windowColor.name() ) );
 
