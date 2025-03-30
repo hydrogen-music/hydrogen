@@ -36,7 +36,9 @@ namespace H2Core
 }
 
 /** \ingroup docGUI*/
-class WaveDisplay :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<WaveDisplay>
+class WaveDisplay : public QWidget,
+					protected WidgetWithScalableFont<8, 10, 12>,
+					public H2Core::Object<WaveDisplay>
 {
     H2_OBJECT(WaveDisplay)
 	Q_OBJECT
@@ -65,7 +67,6 @@ public slots:
 	void createBackground( QPainter* painter );
 	
 		Qt::AlignmentFlag			m_SampleNameAlignment;
-		QPixmap						m_Background;
 		QString						m_sSampleName;
 		int *						m_pPeakData;
 		

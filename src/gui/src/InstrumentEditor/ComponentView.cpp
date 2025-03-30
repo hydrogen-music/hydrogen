@@ -338,6 +338,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setIsMuted( m_pLayerMuteBtn->isChecked() );
+				updateView(); // WaveDisplay update
 			}
 		}
 	});

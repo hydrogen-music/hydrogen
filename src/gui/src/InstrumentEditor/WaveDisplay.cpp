@@ -24,6 +24,8 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Preferences/Theme.h>
+
 using namespace H2Core;
 
 #include "WaveDisplay.h"
@@ -39,11 +41,6 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	bool ok = m_Background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
-	if( ok == false ){
-		ERRORLOG( "Error loading pixmap" );
-	}
-
 	m_pPeakData = new int[ width() ];
 	memset( m_pPeakData, 0, width() * sizeof( m_pPeakData[0] ) );
 	
@@ -53,10 +50,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 
 
 
-WaveDisplay::~WaveDisplay()
-{
-	//INFOLOG( "DESTROY" );
-
+WaveDisplay::~WaveDisplay() {
 	delete[] m_pPeakData;
 }
 
@@ -69,16 +63,32 @@ void WaveDisplay::paintEvent( QPaintEvent *ev ) {
 
 void WaveDisplay::createBackground( QPainter* painter ) {
 	auto pPref = H2Core::Preferences::get_instance();
+
+	const QColor borderColor = Qt::black;
+	QColor textColor, backgroundColor, waveFormColor;
+	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
+		textColor = pPref->getTheme().m_color.m_buttonRedTextColor;
+		backgroundColor = pPref->getTheme().m_color.m_buttonRedColor;
+	}
+	else {
+		textColor = pPref->getTheme().m_color.m_accentTextColor;
+		backgroundColor = pPref->getTheme().m_color.m_accentColor;
+	}
+	textColor.setAlpha( 200 );
+
+	if ( Skin::moreBlackThanWhite( backgroundColor ) ) {
+		waveFormColor = Qt::white;
+	}
+	else {
+		waveFormColor = Qt::black;
+	}
 	
 	painter->setRenderHint( QPainter::Antialiasing );
 
-	QBrush brush = QBrush(Qt::red, m_Background);
-	brush.setStyle(Qt::TexturePattern);
-	painter->setBrush(brush);
-	painter->drawRect(0, 0, width(), height());
-	
-	if( m_pLayer ){
-		painter->setPen( QColor( 102, 150, 205 ) );
+	painter->fillRect( 0, 0, width(), height(), backgroundColor );
+
+	if ( m_pLayer != nullptr ){
+		painter->setPen( waveFormColor );
 		int VCenter = height() / 2;
 		for ( int x = 0; x < width(); x++ ) {
 			painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
@@ -87,10 +97,11 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 		
 	}
 	
-	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily, getPointSize( pPref->getTheme().m_font.m_fontSize ) );
+	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
+				getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	font.setWeight( 63 );
 	painter->setFont( font );
-	painter->setPen( QColor( 255 , 255, 255, 200 ) );
+	painter->setPen( textColor );
 	
 	if( m_SampleNameAlignment == Qt::AlignCenter ){
 		painter->drawText( 0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
@@ -98,9 +109,16 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	else if( m_SampleNameAlignment == Qt::AlignLeft )
 	{
 		// Use a small offnset iso. starting directly at the left border
-		painter->drawText( 20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
+		painter->drawText(
+			20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
 	}
-	
+
+	// Border
+	painter->setPen( QPen( borderColor ) );
+	painter->drawLine( 0, 0, width(), 0 );
+	painter->drawLine( 0, 0, 0, height() );
+	painter->drawLine( 0, height() - 1, width(), height() - 1 );
+	painter->drawLine( width() - 1, 0, width() - 1, height() );
 }
 
 void WaveDisplay::resizeEvent( QResizeEvent * event )
@@ -112,21 +130,25 @@ void WaveDisplay::resizeEvent( QResizeEvent * event )
 
 void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
-	int currentWidth = width();
+	const int nCurrentWidth = width();
 	
-	if(!pLayer || currentWidth <= 0){
+	if ( pLayer == nullptr || nCurrentWidth <= 0 ) {
 		m_pLayer = nullptr;
 		m_sSampleName = "";
+
+		for ( int i =0; i < m_nCurrentWidth; ++i ){
+			m_pPeakData[ i ] = 0;
+		}
 
 		update();
 		return;
 	}
 	
-	if(currentWidth != m_nCurrentWidth){
+	if ( nCurrentWidth != m_nCurrentWidth ) {
 		delete[] m_pPeakData;
-		m_pPeakData = new int[ currentWidth ];
+		m_pPeakData = new int[ nCurrentWidth ];
 		
-		m_nCurrentWidth = currentWidth;
+		m_nCurrentWidth = nCurrentWidth;
 	}
 	
 	if ( pLayer && pLayer->getSample() ) {
@@ -142,7 +164,7 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 
 		auto pSampleData = pLayer->getSample()->getData_L();
 
-		int nSamplePos =0;
+		int nSamplePos = 0;
 		int nVal;
 		for ( int i = 0; i < width(); ++i ){
 			nVal = 0;
@@ -157,14 +179,6 @@ void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer
 			}
 			m_pPeakData[ i ] = nVal;
 		}
-	}
-	else {
-		m_pLayer = nullptr;
-		m_sSampleName = "";
-		for ( int i =0; i < m_nCurrentWidth; ++i ){
-			m_pPeakData[ i ] = 0;
-		}
-		
 	}
 
 	update();
