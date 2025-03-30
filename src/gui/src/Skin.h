@@ -108,6 +108,8 @@ public:
 
 	static void drawStackedIndicator( QPainter* p, int x, int y,
 									  const Skin::Stacked& stacked );
+
+		static bool moreBlackThanWhite( const QColor& color );
 };
 
 

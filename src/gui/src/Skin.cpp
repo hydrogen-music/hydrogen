@@ -273,3 +273,12 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 	p->drawPolygon( points, 3 );
 	p->setBrush( Qt::NoBrush );
 }
+
+bool Skin::moreBlackThanWhite( const QColor& color ) {
+	const int nThreshold = 128;
+	int nHue, nSaturation, nValue;
+
+	color.getHsv( &nHue, &nSaturation, &nValue );
+
+	return nValue < nThreshold;
+}
