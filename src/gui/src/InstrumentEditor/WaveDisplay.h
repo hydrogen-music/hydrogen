@@ -44,6 +44,9 @@ class WaveDisplay : public QWidget,
 	Q_OBJECT
 
 	public:
+
+		static constexpr int nGradientScaling = 130;
+
 		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 

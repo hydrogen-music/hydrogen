@@ -2358,6 +2358,10 @@ MIDI = %2</source>
         <translation>Dec. = %1
 MIDI = %2</translation>
     </message>
+    <message>
+        <source>missing sample</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainForm</name>

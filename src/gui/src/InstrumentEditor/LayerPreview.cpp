@@ -39,6 +39,7 @@
 #include "ComponentsEditor.h"
 #include "ComponentView.h"
 #include "InstrumentEditorPanel.h"
+#include "WaveDisplay.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "../Skin.h"
@@ -79,7 +80,25 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 {
 	QPainter p( this );
 
+	auto createGradient = [=]( const QColor& color ) {
+		QLinearGradient gradient(
+			QPointF( 0, 0 ), QPointF( 0, LayerPreview::nLayerHeight / 2 ) );
+		gradient.setColorAt(
+			0, color.darker( WaveDisplay::nGradientScaling ) );
+		gradient.setColorAt(
+			1, color.lighter( WaveDisplay::nGradientScaling ) );
+		gradient.setSpread( QGradient::ReflectSpread );
+
+		return gradient;
+	};
+
 	auto pPref = H2Core::Preferences::get_instance();
+	const auto gradientDefault = createGradient(
+		pPref->getTheme().m_color.m_accentColor );
+	const auto gradientMute = createGradient(
+		pPref->getTheme().m_color.m_buttonRedColor );
+	const auto gradientSolo = createGradient(
+		pPref->getTheme().m_color.m_widgetColor );
 
 	QFont fontText( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -101,7 +120,8 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nColorScalingWidth = 90;
 	int nColorScaling = 100;
 
-	QColor layerLabelColor, layerSegmentColor, highlightColor;
+	QColor layerLabelColor, highlightColor;
+	QLinearGradient segmentGradient;
 	if ( pComponent != nullptr ) {
 		highlightColor = pPref->getTheme().m_color.m_highlightColor;
 	} else {
@@ -120,15 +140,11 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				auto pSample = pLayer->getSample();
 				if ( pSample != nullptr ) {
 					label = pSample->getFilename();
-					layerSegmentColor =
-						pPref->getTheme().m_color.m_accentColor.lighter( 130 );
 				}
 				else {
-					layerSegmentColor =
-						pPref->getTheme().m_color.m_buttonRedColor;
+					label = tr( "missing sample" );
 				}
-						
-					
+
 				const int x1 = (int)( pLayer->getStartVelocity() * width() );
 				const int x2 = (int)( pLayer->getEndVelocity() * width() );
 
@@ -141,12 +157,14 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					nColorScalingWidth + 100;
 				layerLabelColor =
 					pPref->getTheme().m_color.m_windowColor.lighter( nColorScaling );
-					
+
+				// Header
 				p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
 				p.setPen( pPref->getTheme().m_color.m_windowTextColor );
 				p.setFont( fontButton );
 				p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
 
+				// Border
 				if ( nSelectedLayer == i ) {
 					p.setPen( highlightColor );
 				}
@@ -158,8 +176,23 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				// layer view
 				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
 							pPref->getTheme().m_color.m_windowColor );
-				p.fillRect( x1, y, x2 - x1, LayerPreview::nLayerHeight,
-							layerSegmentColor );
+				if ( pSample != nullptr ) {
+					if ( pLayer->getIsSoloed() ) {
+						segmentGradient = gradientSolo;
+					}
+					else if ( pLayer->getIsMuted() ) {
+						segmentGradient = gradientMute;
+					}
+					else {
+						segmentGradient = gradientDefault;
+					}
+					p.fillRect( x1, y, x2 - x1, LayerPreview::nLayerHeight,
+								segmentGradient );
+				}
+				else {
+					p.fillRect( x1, y, x2 - x1, LayerPreview::nLayerHeight,
+								pPref->getTheme().m_color.m_buttonRedColor );
+				}
 
 				nLayer++;
 			}

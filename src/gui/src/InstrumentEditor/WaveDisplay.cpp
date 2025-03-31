@@ -64,8 +64,6 @@ void WaveDisplay::paintEvent( QPaintEvent *ev ) {
 void WaveDisplay::createBackground( QPainter* painter ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	const int nGradientScaling = 130;
-
 	const QColor borderColor = Qt::black;
 	QColor textColor, backgroundColor, waveFormColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
@@ -93,8 +91,10 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	painter->setRenderHint( QPainter::Antialiasing );
 
 	QLinearGradient backgroundGradient( QPointF( 0, 0 ), QPointF( 0, height() / 2 ) );
-	backgroundGradient.setColorAt( 0, backgroundColor.darker( nGradientScaling ) );
-	backgroundGradient.setColorAt( 1, backgroundColor.lighter( nGradientScaling ) );
+	backgroundGradient.setColorAt(
+		0, backgroundColor.darker( WaveDisplay::nGradientScaling ) );
+	backgroundGradient.setColorAt(
+		1, backgroundColor.lighter( WaveDisplay::nGradientScaling ) );
 	backgroundGradient.setSpread( QGradient::ReflectSpread );
 
 	painter->fillRect( 0, 0, width(), height(), QBrush( backgroundGradient ) );
@@ -106,7 +106,6 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 			painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
 			painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
 		}
-		
 	}
 	
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,

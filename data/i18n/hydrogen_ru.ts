@@ -2348,6 +2348,10 @@ p, li { white-space: pre-wrap; }
 MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>missing sample</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainForm</name>
