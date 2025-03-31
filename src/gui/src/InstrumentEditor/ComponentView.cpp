@@ -139,7 +139,6 @@ ComponentView::ComponentView( QWidget* pParent,
 	connect( m_pComponentGainRotary, &Rotary::valueChanged, [&]() {
 		if ( m_pComponent != nullptr ) {
 			m_pComponent->setGain( m_pComponentGainRotary->getValue() );
-			updateView(); // WaveDisplay update
 		}
 	});
 	pHBoxHeaderLayout->addWidget( m_pComponentGainRotary );
@@ -293,7 +292,6 @@ ComponentView::ComponentView( QWidget* pParent,
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
-				updateView(); // LCD update
 			}
 		}
 	});
@@ -314,7 +312,6 @@ ComponentView::ComponentView( QWidget* pParent,
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setPitch( fNewPitch );
-				updateView(); // LCD update
 			}
 		}
 	});
@@ -357,6 +354,7 @@ ComponentView::ComponentView( QWidget* pParent,
 			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 			if ( pLayer != nullptr ) {
 				pLayer->setIsSoloed( m_pLayerSoloBtn->isChecked() );
+				updateView(); // WaveDisplay update
 			}
 		}
 	});

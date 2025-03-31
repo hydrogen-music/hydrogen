@@ -64,11 +64,18 @@ void WaveDisplay::paintEvent( QPaintEvent *ev ) {
 void WaveDisplay::createBackground( QPainter* painter ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
+	const int nGradientScaling = 130;
+
 	const QColor borderColor = Qt::black;
 	QColor textColor, backgroundColor, waveFormColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
 		textColor = pPref->getTheme().m_color.m_buttonRedTextColor;
 		backgroundColor = pPref->getTheme().m_color.m_buttonRedColor;
+	}
+	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ){
+		// Placeholder color till a proper solo color was introduced.
+		textColor = pPref->getTheme().m_color.m_widgetTextColor;
+		backgroundColor = pPref->getTheme().m_color.m_widgetColor;
 	}
 	else {
 		textColor = pPref->getTheme().m_color.m_accentTextColor;
@@ -85,7 +92,12 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	
 	painter->setRenderHint( QPainter::Antialiasing );
 
-	painter->fillRect( 0, 0, width(), height(), backgroundColor );
+	QLinearGradient backgroundGradient( QPointF( 0, 0 ), QPointF( 0, height() / 2 ) );
+	backgroundGradient.setColorAt( 0, backgroundColor.darker( nGradientScaling ) );
+	backgroundGradient.setColorAt( 1, backgroundColor.lighter( nGradientScaling ) );
+	backgroundGradient.setSpread( QGradient::ReflectSpread );
+
+	painter->fillRect( 0, 0, width(), height(), QBrush( backgroundGradient ) );
 
 	if ( m_pLayer != nullptr ){
 		painter->setPen( waveFormColor );
