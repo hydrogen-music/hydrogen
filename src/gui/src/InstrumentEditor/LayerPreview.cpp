@@ -217,6 +217,13 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		p.drawRect( 0, y, width() - 1, LayerPreview::nLayerHeight );
 	}
 
+	// border
+	p.setPen( Qt::black );
+	p.drawLine( 0, 0, width(), 0 );
+	p.drawLine( 0, 0, 0, height() );
+	p.drawLine( 0, height() - 1, width(), height() - 1 );
+	p.drawLine( width() - 1, 0, width() - 1, height() );
+
 	// selected layer
 	p.setPen( highlightColor );
 	const int y = LayerPreview::nMargin +
