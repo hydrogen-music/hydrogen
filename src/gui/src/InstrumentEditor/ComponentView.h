@@ -102,6 +102,9 @@ class ComponentView : public QWidget,
 		void renameComponentAction();
 		void showSampleEditor();
 
+	signals:
+		void expandedOrCollapsed();
+
 	private slots:
 		void deleteComponent();
 		void loadLayerBtnClicked();

@@ -87,6 +87,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		} else {
 			expand();
 		}
+		emit expandedOrCollapsed();
 	});
 	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
 

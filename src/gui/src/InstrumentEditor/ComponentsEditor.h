@@ -65,6 +65,8 @@ class ComponentsEditor :  public QWidget,
 	private:
 		virtual void mousePressEvent( QMouseEvent *event ) override;
 
+		void updateSize();
+
 		QWidget* m_pComponentsWidget;
 		QVBoxLayout* m_pComponentsLayout;
 		QMenu* m_pPopup;

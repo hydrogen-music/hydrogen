@@ -41,7 +41,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	setFixedWidth( InstrumentEditorPanel::nWidth );
 	setMinimumSize( InstrumentEditorPanel::nWidth,
 					ComponentView::nExpandedHeight );
-	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
+	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
 	setObjectName( "ComponentsEditor" );
 
  	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -132,6 +132,9 @@ void ComponentsEditor::updateComponents() {
 		else {
 			// Create a new view
 			auto pNewView = new ComponentView( this, ppComponent );
+			connect( pNewView, &ComponentView::expandedOrCollapsed, [=]() {
+				updateSize();
+			});
 			m_pComponentsLayout->addWidget( pNewView );
 			m_componentViews.push_back( pNewView );
 			if ( ! bRequiresNewStretch ) {
@@ -151,19 +154,7 @@ void ComponentsEditor::updateComponents() {
 		m_pComponentsLayout->addStretch();
 	}
 
-	int nNewHeight = 0;
-	for ( const auto& ppView : m_componentViews ) {
-		if ( ppView->getIsExpanded() ) {
-			nNewHeight += ComponentView::nExpandedHeight;
-		}
-		else {
-			nNewHeight += ComponentView::nHeaderHeight;
-		}
-
-	}
-
-	 m_pComponentsWidget->setMinimumHeight(
-	 	std::max( ComponentView::nExpandedHeight, nNewHeight ) );
+	updateSize();
 }
 
 void ComponentsEditor::updateEditor() {
@@ -250,4 +241,21 @@ void ComponentsEditor::mousePressEvent( QMouseEvent* pEvent ) {
 	if ( pEvent->button() == Qt::RightButton ) {
 		m_pPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
 	}
+}
+
+void ComponentsEditor::updateSize() {
+	int nNewHeight = 0;
+	for ( const auto& ppView : m_componentViews ) {
+		if ( ppView->getIsExpanded() ) {
+			nNewHeight += ComponentView::nExpandedHeight;
+		}
+		else {
+			nNewHeight += ComponentView::nHeaderHeight;
+		}
+
+	}
+
+	 m_pComponentsWidget->setMinimumHeight(
+	 	std::max( ComponentView::nExpandedHeight, nNewHeight ) );
+	 m_pComponentsWidget->resize( width(), nNewHeight );
 }
