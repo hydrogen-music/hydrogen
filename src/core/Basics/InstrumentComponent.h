@@ -82,6 +82,8 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		 * sample */
 		bool hasSamples() const;
 
+		bool isAnyLayerSoloed() const;
+
 		/**  @return #m_nMaxLayers.*/
 		static int			getMaxLayers();
 		/** @param layers Sets #m_nMaxLayers.*/

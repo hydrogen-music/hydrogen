@@ -164,6 +164,16 @@ bool InstrumentComponent::hasSamples() const {
 	return false;
 }
 
+bool InstrumentComponent::isAnyLayerSoloed() const {
+	for ( const auto& ppLayer : m_layers ) {
+		if ( ppLayer != nullptr && ppLayer->getIsSoloed() ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
