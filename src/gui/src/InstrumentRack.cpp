@@ -21,12 +21,13 @@
  */
 
 #include "InstrumentRack.h"
-#include "HydrogenApp.h"
+
 #include "CommonStrings.h"
-#include "Widgets/Button.h"
-#include "InstrumentEditor/InstrumentEditorPanel.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
 #include "HydrogenApp.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
+#include "Skin.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
+#include "Widgets/Button.h"
 
 #include <QGridLayout>
 
@@ -37,61 +38,63 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	resize( 290, m_nMinimumHeight );
-	setMinimumSize( width(), height() );
-	setFixedWidth( width() );
+	setFixedWidth( InstrumentRack::nWidth );
+	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
+
+	auto pVBoxMainLayout = new QVBoxLayout();
+	pVBoxMainLayout->setSpacing( 0 );
+	pVBoxMainLayout->setMargin( 0 );
 
 	QFont fontButtons( theme.m_font.m_sApplicationFontFamily,
 					   getPointSize( theme.m_font.m_fontSize ) );
 
-// TAB buttons
-	QWidget *pTabButtonsPanel = new QWidget( nullptr );
-	pTabButtonsPanel->setFixedHeight( 24 );
-	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+	// TAB buttons
 
-	// instrument editor button
-	m_pShowInstrumentEditorBtn =
-		new Button( pTabButtonsPanel, QSize( 145, 24 ), Button::Type::Toggle, "",
-					pCommonStrings->getInstrumentButton(), false, QSize(),
-					tr( "Show Instrument editor" ) );
-	connect( m_pShowInstrumentEditorBtn, &QPushButton::clicked,
-			 [=]() { showSoundLibrary( false ); });
-
-	// show sound library button
-	m_pShowSoundLibraryBtn =
-		new Button( pTabButtonsPanel,QSize( 145, 24 ), Button::Type::Toggle, "",
-					pCommonStrings->getSoundLibraryButton(), false, QSize(),
-					tr( "Show sound library" ) );
-	connect( m_pShowSoundLibraryBtn, &QPushButton::clicked,
-			 [=]() { showSoundLibrary( true ); });
-
+	QWidget* pTabButtonsWidget = new QWidget( this );
+	pTabButtonsWidget->setFixedSize( InstrumentRack::nWidth, 24 );
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
 	pTabHBox->setSpacing( 0 );
 	pTabHBox->setMargin( 0 );
+	pTabButtonsWidget->setLayout( pTabHBox );
+
+	const int nInstrumentBtnWidth = InstrumentRack::nWidth / 2;
+	m_pShowInstrumentEditorBtn =
+		new Button( pTabButtonsWidget, QSize( nInstrumentBtnWidth, 24 ),
+					Button::Type::Toggle, "", pCommonStrings->getInstrumentButton(),
+					false, QSize(), tr( "Show Instrument editor" ) );
+	connect( m_pShowInstrumentEditorBtn, &QPushButton::clicked,
+			 [=]() { showSoundLibrary( false ); });
 	pTabHBox->addWidget( m_pShowInstrumentEditorBtn );
+
+	m_pShowSoundLibraryBtn =
+		new Button( pTabButtonsWidget,
+					QSize( InstrumentRack::nWidth - nInstrumentBtnWidth, 24 ),
+					Button::Type::Toggle, "", pCommonStrings->getSoundLibraryButton(),
+					false, QSize(), tr( "Show sound library" ) );
+	connect( m_pShowSoundLibraryBtn, &QPushButton::clicked,
+			 [=]() { showSoundLibrary( true ); });
 	pTabHBox->addWidget( m_pShowSoundLibraryBtn );
 
-	pTabButtonsPanel->setLayout( pTabHBox );
+	pVBoxMainLayout->addWidget( pTabButtonsWidget );
 
-// ~ TAB buttons
+	// Panels
 
+	auto pPanelsWidget = new QWidget( this );
+	pPanelsWidget->setMinimumWidth( InstrumentRack::nWidth );
+	pPanelsWidget->setSizePolicy(
+		QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
+	m_pStackedPanelsLayout = new QStackedLayout();
+	m_pStackedPanelsLayout->setMargin( 0 );
+	pPanelsWidget->setLayout( m_pStackedPanelsLayout );
+	pVBoxMainLayout->addWidget( pPanelsWidget );
 
-	m_pInstrumentEditorPanel = new InstrumentEditorPanel( nullptr );
-	m_pInstrumentEditorPanel->setSizePolicy(
-		QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+	m_pInstrumentEditorPanel = new InstrumentEditorPanel( pPanelsWidget );
+	m_pStackedPanelsLayout->addWidget( m_pInstrumentEditorPanel );
 
-	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, false );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( pPanelsWidget, false );
+	m_pStackedPanelsLayout->addWidget( m_pSoundLibraryPanel );
 
-	// LAYOUT
-	QGridLayout *pGrid = new QGridLayout();
-	pGrid->setSpacing( 0 );
-	pGrid->setMargin( 0 );
-
-	pGrid->addWidget( pTabButtonsPanel, 0, 0, 1, 3 );
-	pGrid->addWidget( m_pInstrumentEditorPanel, 2, 1 );
-	pGrid->addWidget( m_pSoundLibraryPanel, 2, 1 );
-
-	this->setLayout( pGrid );
+	setLayout( pVBoxMainLayout );
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &InstrumentRack::onPreferencesChanged );
@@ -119,15 +122,13 @@ void InstrumentRack::onPreferencesChanged( const H2Core::Preferences::Changes& c
 
 void InstrumentRack::showSoundLibrary( bool bShow ) {
 	if ( bShow ) {
-		m_pSoundLibraryPanel->show();
 		m_pShowSoundLibraryBtn->setChecked( true );
-		m_pInstrumentEditorPanel->hide();
 		m_pShowInstrumentEditorBtn->setChecked( false );
+		m_pStackedPanelsLayout->setCurrentIndex( 1 );
 	}
 	else {
-		m_pSoundLibraryPanel->hide();
 		m_pShowSoundLibraryBtn->setChecked( false );
-		m_pInstrumentEditorPanel->show();
 		m_pShowInstrumentEditorBtn->setChecked( true );
+		m_pStackedPanelsLayout->setCurrentIndex( 0 );
 	}
 }

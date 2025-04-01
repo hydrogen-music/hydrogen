@@ -30,6 +30,7 @@
 #include "InstrumentEditorPanel.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
 #include "../UndoActions.h"
 
 using namespace H2Core;
@@ -38,8 +39,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	: QWidget( pPanel )
 	, m_pInstrumentEditorPanel( pPanel )
 {
-	setFixedWidth( InstrumentEditorPanel::nWidth );
-	setMinimumSize( InstrumentEditorPanel::nWidth,
+	setMinimumSize( InstrumentRack::nWidth,
 					ComponentView::nExpandedHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
 	setObjectName( "ComponentsEditor" );
@@ -50,9 +50,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	m_pComponentsWidget->setSizePolicy(
 		QSizePolicy::Fixed, QSizePolicy::Expanding );
 	m_pComponentsWidget->setMinimumSize(
-		InstrumentEditorPanel::nWidth, ComponentView::nExpandedHeight );
-	m_pComponentsWidget->setMaximumSize(
-		InstrumentEditorPanel::nWidth, 16777215 );
+		InstrumentRack::nWidth, ComponentView::nExpandedHeight );
 	m_pComponentsLayout = new QVBoxLayout();
 	m_pComponentsLayout->setSpacing( 0 );
 	m_pComponentsLayout->setMargin( 0 );
@@ -60,10 +58,10 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 
 	m_pScrollArea = new WidgetScrollArea( this );
 	m_pScrollArea->setFrameShape( QFrame::NoFrame );
-	m_pScrollArea->setFixedWidth( InstrumentEditorPanel::nWidth );
+	m_pScrollArea->setFixedWidth( InstrumentRack::nWidth );
 	m_pScrollArea->setMinimumHeight( ComponentView::nExpandedHeight );
 	m_pScrollArea->setVerticalScrollBarPolicy(
-		Qt::ScrollBarAsNeeded );
+		Qt::ScrollBarAlwaysOn );
 	m_pScrollArea->setHorizontalScrollBarPolicy(
 		Qt::ScrollBarAlwaysOff);
 	m_pScrollArea->setFocusPolicy( Qt::ClickFocus );

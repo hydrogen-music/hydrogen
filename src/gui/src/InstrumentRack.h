@@ -29,6 +29,9 @@
 
 #include <QtGui>
 #include <QtWidgets>
+
+#include "InstrumentEditor/ComponentView.h"
+#include "Skin.h"
 #include "Widgets/WidgetWithScalableFont.h"
 
 class Button;
@@ -47,6 +50,8 @@ public:
 		/** 450 - InstrumentEditor layer view +
 		 * 24 - tab button */
 		static constexpr int m_nMinimumHeight = 450;
+		static constexpr int nWidth = ComponentView::nWidth +
+			Skin::nScrollBarWidth;
 
 		explicit InstrumentRack( QWidget *pParent );
 		~InstrumentRack();
@@ -69,6 +74,7 @@ public slots:
 		InstrumentEditorPanel* m_pInstrumentEditorPanel;
 
 		SoundLibraryPanel* m_pSoundLibraryPanel;
+		QStackedLayout* m_pStackedPanelsLayout;
 };
 
 inline InstrumentEditorPanel* InstrumentRack::getInstrumentEditorPanel() const {

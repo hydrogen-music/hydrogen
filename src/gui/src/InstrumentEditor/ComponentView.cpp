@@ -54,7 +54,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	, m_nSelectedLayer( 0 )
 	, m_bIsExpanded( true )
 {
-	setFixedWidth( InstrumentEditorPanel::nWidth );
+	setFixedWidth( InstrumentRack::nWidth );
 	setMinimumHeight( ComponentView::nHeaderHeight );
 	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
 
@@ -63,7 +63,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	setObjectName( "ComponentProperties" );
 
 	auto pVBoxMainLayout = new QVBoxLayout();
-	pVBoxMainLayout->setMargin( 0 );
+	pVBoxMainLayout->setContentsMargins( 0, 0, Skin::nScrollBarWidth, 0 );
+;
 	pVBoxMainLayout->setSpacing( 0 );
 
 	auto pHeaderWidget = new QWidget( this );
@@ -92,7 +93,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	pHBoxHeaderLayout->addWidget( m_pShowLayersBtn );
 
 	m_pComponentNameLbl = new ClickableLabel(
-		pHeaderWidget, QSize( InstrumentEditorPanel::nWidth -
+		pHeaderWidget, QSize( ComponentView::nWidth -
 							  ComponentView::nButtonWidth * 2 -
 							  ComponentView::nExpansionButtonWidth -
 							  Rotary::nWidth - ComponentView::nMargin * 2,
@@ -180,7 +181,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	pLayerButtonWidget->setLayout( pHBoxLayerButtonLayout );
 
 	const int nButtonWidth = static_cast<int>(
-		std::floor( static_cast<float>(InstrumentEditorPanel::nWidth -
+		std::floor( static_cast<float>(ComponentView::nWidth -
 									   ComponentView::nMargin) / 3. ));
 
 	m_pLoadLayerBtn = new Button(
@@ -196,7 +197,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	// available space and since its English string is the longest).
 	m_pRemoveLayerBtn = new Button(
 		pLayerButtonWidget, QSize(
-			InstrumentEditorPanel::nWidth - 2 * ComponentView::nMargin -
+			ComponentView::nWidth - 2 * ComponentView::nMargin -
 			2 * nButtonWidth, ComponentView::nLayerButtonsHeight ),
 		Button::Type::Push, "", pCommonStrings->getDeleteLayerButton() );
 	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
@@ -256,7 +257,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pWaveDisplay = new WaveDisplay( m_pLayerWidget );
 	m_pWaveDisplay->setMinimumSize(
-		InstrumentEditorPanel::nWidth - ComponentView::nMargin * 2,
+		ComponentView::nWidth - ComponentView::nMargin * 2,
 		ComponentView::nWaveDisplayHeight );
 	m_pWaveDisplay->updateDisplay( nullptr );
 	connect( m_pWaveDisplay, SIGNAL( doubleClicked(QWidget*) ),

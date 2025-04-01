@@ -33,6 +33,7 @@
 #include "InstrumentEditorPanel.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDDisplay.h"
@@ -46,7 +47,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	, m_pInstrumentEditorPanel( pPanel )
 	, m_fPreviousMidiOutChannel( -1.0 )
 {
-	setFixedWidth( InstrumentEditorPanel::nWidth );
+	setFixedWidth( InstrumentRack::nWidth );
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	

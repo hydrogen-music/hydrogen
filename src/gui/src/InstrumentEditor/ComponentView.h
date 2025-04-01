@@ -57,6 +57,8 @@ class ComponentView : public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nWidth = 290;
+
 		static constexpr int nVerticalSpacing = 5;
 		static constexpr int nHeaderHeight = 28;
 		static constexpr int nButtonWidth = 21;

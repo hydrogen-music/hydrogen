@@ -29,15 +29,14 @@
 
 #include "DrumkitPropertiesDialog.h"
 
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../CommonStrings.h"
+#include "../InstrumentRack.h"
 
-#include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/H2Exception.h>
-#include <core/Hydrogen.h>
+#include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -49,6 +48,8 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/H2Exception.h>
+#include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
@@ -70,6 +71,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , __pattern_item_list( nullptr )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
+	setMinimumWidth( InstrumentRack::nWidth );
+	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
+
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = Preferences::get_instance();
 

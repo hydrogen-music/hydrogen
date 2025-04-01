@@ -39,6 +39,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 	PixmapWidget( pParent )
 {
 	setPixmap( "/instrumentEditor/instrumentTab_top.png" );
+	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Minimum ) );
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 

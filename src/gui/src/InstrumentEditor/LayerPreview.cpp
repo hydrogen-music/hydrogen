@@ -36,7 +36,6 @@
 #include <core/Preferences/Theme.h>
 #include <core/Sampler/Sampler.h>
 
-#include "ComponentsEditor.h"
 #include "ComponentView.h"
 #include "InstrumentEditorPanel.h"
 #include "WaveDisplay.h"
@@ -56,7 +55,7 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 
 	setMouseTracking( true );
 
-	int nWidth = InstrumentEditorPanel::nWidth - ComponentView::nMargin * 2;
+	int nWidth = ComponentView::nWidth - ComponentView::nMargin * 2;
 	if( InstrumentComponent::getMaxLayers() > 16) {
 		// Account for the scroll bar.
 		nWidth -= 15;

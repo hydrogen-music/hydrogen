@@ -33,6 +33,10 @@
 class Skin
 {
 public:
+
+		/** in pixel */
+		static constexpr int nScrollBarWidth = 12;
+
 	static QString getImagePath()
 	{
 		return H2Core::Filesystem::img_dir().append( "/gray" );
