@@ -52,6 +52,8 @@ class InstrumentEditor :  public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nMargin = 5;
+
 		explicit InstrumentEditor( InstrumentEditorPanel* pPanel );
 		~InstrumentEditor();
 

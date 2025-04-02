@@ -56,41 +56,44 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	m_pInstrumentProp->move( 0, 0 );
 	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab.png" );
 
-	m_pNameLbl = new ClickableLabel( m_pInstrumentProp, QSize( 279, 27 ), "",
-									 ClickableLabel::Color::Bright, true );
+	m_pNameLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( InstrumentRack::nWidth -
+								  InstrumentEditor::nMargin * 2, 27 ), "",
+		ClickableLabel::Color::Bright, true );
 	m_pNameLbl->move( 5, 4 );
 	m_pNameLbl->setScaledContents( true );
 
 	/////////////
 	//Midi Out
 
-	ClickableLabel* pMidiOutLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
-													  pCommonStrings->getMidiOutLabel() );
-	pMidiOutLbl->move( 22, 281 );
+	ClickableLabel* pMidiOutLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 61, 10 ), pCommonStrings->getMidiOutLabel() );
+	pMidiOutLbl->move( 28, 281 );
 
-	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										   LCDSpinBox::Type::Int, -1, 16,
-										   true, true );
-	m_pMidiOutChannelLCD->move( 98, 257 );
+	m_pMidiOutChannelLCD = new LCDSpinBox(
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 16,
+		true, true );
+	m_pMidiOutChannelLCD->move( 146, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 	connect( m_pMidiOutChannelLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( midiOutChannelChanged( double ) ) );
-	m_pMidiOutChannelLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
-											   pCommonStrings->getMidiOutChannelLabel() );
-	m_pMidiOutChannelLbl->move( 96, 281 );
+	m_pMidiOutChannelLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 61, 10 ),
+		pCommonStrings->getMidiOutChannelLabel() );
+	m_pMidiOutChannelLbl->move( 144, 281 );
 
 	///
-	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										LCDSpinBox::Type::Int, 0, 127, true );
-	m_pMidiOutNoteLCD->move( 161, 257 );
+	m_pMidiOutNoteLCD = new LCDSpinBox(
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127, true );
+	m_pMidiOutNoteLCD->move( 210, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 	connect( m_pMidiOutNoteLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setMidiOutNote(
 			static_cast<int>(m_pMidiOutNoteLCD->value()) );
 	});
-	m_pMidiOutNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
-											pCommonStrings->getMidiOutNoteLabel() );
-	m_pMidiOutNoteLbl->move( 159, 281 );
+	m_pMidiOutNoteLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 61, 10 ), pCommonStrings->getMidiOutNoteLabel() );
+	m_pMidiOutNoteLbl->move( 208, 281 );
 
 	/////////////
 
@@ -103,17 +106,18 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 				pSong->getDrumkit()->getInstruments()->index( pInstrument ) );}
 	} );
 
-	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ), false, false );
-	m_pPitchLCD->move( 24, 213 );
-	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 10 ),
-									  pCommonStrings->getPitchLabel() );
-	m_pPitchLbl->move( 25, 235 );
+	m_pPitchLCD = new LCDDisplay(
+		m_pInstrumentProp, QSize( 56, 22 ), false, false );
+	m_pPitchLCD->move( 33, 212 );
+	m_pPitchLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 54, 10 ), pCommonStrings->getPitchLabel() );
+	m_pPitchLbl->move( 34, 235 );
 	
 	m_pPitchCoarseRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ),
 		true, Instrument::fPitchMin + InstrumentEditorPanel::nPitchFineControl,
 		Instrument::fPitchMax - InstrumentEditorPanel::nPitchFineControl );
-	m_pPitchCoarseRotary->move( 84, 210 );
+	m_pPitchCoarseRotary->move( 94, 210 );
 	connect( m_pPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps
 		const float fNewPitch = round( m_pPitchCoarseRotary->getValue() ) +
@@ -121,16 +125,16 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 		m_pInstrumentEditorPanel->getInstrument()->setPitchOffset( fNewPitch );
 		updateEditor(); // LCD update
 	});
-	m_pPitchCoarseLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
-											pCommonStrings->getPitchCoarseLabel() );
-	m_pPitchCoarseLbl->move( 82, 235 );
+	m_pPitchCoarseLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 48, 10 ), pCommonStrings->getPitchCoarseLabel() );
+	m_pPitchCoarseLbl->move( 92, 235 );
 
 	m_pPitchFineRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Fine)" ),
 		false, -InstrumentEditorPanel::nPitchFineControl,
 		InstrumentEditorPanel::nPitchFineControl );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
-	m_pPitchFineRotary->move( 138, 210 );
+	m_pPitchFineRotary->move( 151, 210 );
 	connect( m_pPitchFineRotary, &Rotary::valueChanged, [&]() {
 		//round fVal, since Coarse is the integer number of half steps
 		const float fNewPitch = round( m_pPitchCoarseRotary->getValue() ) +
@@ -138,133 +142,141 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 		m_pInstrumentEditorPanel->getInstrument()->setPitchOffset( fNewPitch );
 		updateEditor(); // LCD update
 	});
-	m_pPitchFineLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
-										  pCommonStrings->getPitchFineLabel() );
-	m_pPitchFineLbl->move( 136, 235 );
+	m_pPitchFineLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 48, 10 ), pCommonStrings->getPitchFineLabel() );
+	m_pPitchFineLbl->move( 149, 235 );
 
-	
-
-	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-									   tr( "Random pitch factor" ), false );
-	m_pRandomPitchRotary->move( 194, 210 );
+	m_pRandomPitchRotary = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal, tr( "Random pitch factor" ),
+		false );
+	m_pRandomPitchRotary->move( 208, 210 );
 	connect( m_pRandomPitchRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setRandomPitchFactor(
 			m_pRandomPitchRotary->getValue() );
 	});
-	m_pPitchRandomLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
-											pCommonStrings->getPitchRandomLabel() );
-	m_pPitchRandomLbl->move( 192, 235 );
+	m_pPitchRandomLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 48, 10 ), pCommonStrings->getPitchRandomLabel() );
+	m_pPitchRandomLbl->move( 205, 235 );
 
 	// Filter
-	m_pFilterBypassBtn = new Button( m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle,
-									 "", pCommonStrings->getBypassButton(), true,
-									 QSize( 0, 0 ), "", false, true );
+	m_pFilterBypassBtn = new Button(
+		m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle, "",
+		pCommonStrings->getBypassButton(), true, QSize( 0, 0 ), "", false, true );
 	connect( m_pFilterBypassBtn, &Button::clicked, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setFilterActive(
 			! m_pFilterBypassBtn->isChecked() );
 	});
-	m_pFilterBypassBtn->move( 67, 169 );
+	m_pFilterBypassBtn->move( 75, 169 );
 
-	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								  tr( "Filter Cutoff" ), false );
+	m_pCutoffRotary = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
+	m_pCutoffRotary->move( 124, 164 );
 	connect( m_pCutoffRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setFilterCutoff(
 			m_pCutoffRotary->getValue() );
 	});
-	m_pCutoffLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
-									   pCommonStrings->getCutoffLabel() );
-	m_pCutoffLbl->move( 107, 189 );
+	m_pCutoffLbl = new ClickableLabel(
+		m_pInstrumentProp, QSize( 48, 10 ), pCommonStrings->getCutoffLabel() );
+	m_pCutoffLbl->move( 122, 189 );
 
-	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-									 tr( "Filter resonance" ), false );
+	m_pResonanceRotary = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter resonance" ), false );
 	connect( m_pResonanceRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setFilterResonance(
 			std::min( 0.95f, m_pResonanceRotary->getValue() ) );
 	});
 	m_pResonanceLbl = new ClickableLabel( m_pInstrumentProp, QSize( 56, 10 ),
 										  pCommonStrings->getResonanceLabel() );
-	m_pResonanceLbl->move( 157, 189 );
+	m_pResonanceLbl->move( 175, 189 );
 
-	m_pCutoffRotary->move( 109, 164 );
-	m_pResonanceRotary->move( 163, 164 );
+	m_pResonanceRotary->move( 181, 164 );
 	// ~ Filter
 
 	// ADSR
-	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								  tr( "Length of Attack phase.\n\nValue" ), false );
+	m_pAttackRotary = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal,
+		tr( "Length of Attack phase.\n\nValue" ), false );
+	m_pAttackRotary->move( 45, 52 );
 	connect( m_pAttackRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setAttack(
 			100000 * m_pAttackRotary->getValue() * m_pAttackRotary->getValue() );
 	});
-	m_pDecayRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								 tr( "Length of Decay phase.\n\nValue" ), false );
+	m_pAttackLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
+									   pCommonStrings->getAttackLabel() );
+	m_pAttackLbl->move( 43, 78 );
+
+	m_pDecayRotary = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal,
+		tr( "Length of Decay phase.\n\nValue" ), false );
+	m_pDecayRotary->move( 101, 52 );
 	connect( m_pDecayRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setDecay(
 			100000 * m_pDecayRotary->getValue() * m_pDecayRotary->getValue() );
 	});
-	m_pSustainRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								   tr( "Sample volume in Sustain phase.\n\nValue" ), false );
+	m_pDecayLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
+									  pCommonStrings->getDecayLabel() );
+	m_pDecayLbl->move( 99, 78 );
+
+	m_pSustainRotary = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal,
+		tr( "Sample volume in Sustain phase.\n\nValue" ), false );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
+	m_pSustainRotary->move( 157, 52 );
 	connect( m_pSustainRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setSustain(
 			m_pSustainRotary->getValue() );
 	});
-	m_pReleaseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-								   tr( "Length of Release phase.\n\nValue" ), false );
+	m_pSustainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
+										pCommonStrings->getSustainLabel() );
+	m_pSustainLbl->move( 155, 78 );
+
+	m_pReleaseRotary = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal,
+		tr( "Length of Release phase.\n\nValue" ), false );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
+	m_pReleaseRotary->move( 213, 52 );
 	connect( m_pReleaseRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setRelease(
 			256.0 +
 			100000 * m_pReleaseRotary->getValue() * m_pReleaseRotary->getValue() );
 	});
-	m_pAttackRotary->move( 45, 52 );
-	m_pDecayRotary->move( 97, 52 );
-	m_pSustainRotary->move( 149, 52 );
-	m_pReleaseRotary->move( 201, 52 );
-
-	m_pAttackLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
-									   pCommonStrings->getAttackLabel() );
-	m_pAttackLbl->move( 43, 78 );
-	m_pDecayLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
-									  pCommonStrings->getDecayLabel() );
-	m_pDecayLbl->move( 95, 78 );
-	m_pSustainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
-										pCommonStrings->getSustainLabel() );
-	m_pSustainLbl->move( 147, 78 );
 	m_pReleaseLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
 										pCommonStrings->getReleaseLabel() );
-	m_pReleaseLbl->move( 199, 78 );
+	m_pReleaseLbl->move( 211, 78 );
 	// ~ ADSR
 
 	// instrument gain
-	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 43, 20 ), false, false );
-	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::Type::Normal,
-									tr( "Instrument gain" ), false, 0.0, 5.0 );
+	m_pInstrumentGainLCD = new LCDDisplay(
+		m_pInstrumentProp, QSize( 43, 22 ), false, false );
+	m_pInstrumentGainLCD->move( 73, 102 );
+
+	m_pInstrumentGain = new Rotary(
+		m_pInstrumentProp, Rotary::Type::Normal, tr( "Instrument gain" ), false,
+		0.0, 5.0 );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
+	m_pInstrumentGain->move( 122, 100 );
 	connect( m_pInstrumentGain, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setGain(
 			m_pInstrumentGain->getValue() );
 		updateEditor(); // LCD update
 	});
-	m_pInstrumentGainLCD->move( 62, 103 );
-	m_pInstrumentGain->move( 109, 100 );
 	m_pGainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ),
 									 pCommonStrings->getGainLabel() );
-	m_pGainLbl->move( 107, 125 );
+	m_pGainLbl->move( 120, 125 );
 
 
 	m_pMuteGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
 									  LCDSpinBox::Type::Int, -1, 100,
 									  true, true );
-	m_pMuteGroupLCD->move( 160, 101 );
+	m_pMuteGroupLCD->move( 210, 101 );
 	connect( m_pMuteGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setMuteGroup(
 			static_cast<int>(m_pMuteGroupLCD->value()) );
 	});
 	m_pMuteGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
 										  pCommonStrings->getMuteGroupLabel() );
-	m_pMuteGroupLbl->move( 159, 125 );
+	m_pMuteGroupLbl->move( 209, 125 );
 
 	m_pIsStopNoteCheckBox = new QCheckBox( "", m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 42, 139 );
@@ -282,7 +294,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	m_pIsStopNoteLbl->move( 59, 144 );
 
 	m_pApplyVelocity = new QCheckBox( "", m_pInstrumentProp );
-	m_pApplyVelocity->move( 153, 139 );
+	m_pApplyVelocity->move( 166, 139 );
 	m_pApplyVelocity->adjustSize();
 	m_pApplyVelocity->setFixedSize( 14, 14 );
 	m_pApplyVelocity->setToolTip( tr( "Don't change the layers' gain based on velocity" ) );
@@ -294,7 +306,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	});
 	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ),
 											  pCommonStrings->getApplyVelocityLabel() );
-	m_pApplyVelocityLbl->move( 170, 144 );
+	m_pApplyVelocityLbl->move( 184, 144 );
 
 	//////////////////////////
 	// HiHat setup
@@ -302,18 +314,18 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	m_pHihatGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
 									   LCDSpinBox::Type::Int, -1, 32,
 									   true, true );
-	m_pHihatGroupLCD->move( 28, 303 );
+	m_pHihatGroupLCD->move( 33, 303 );
 	connect( m_pHihatGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setHihatGrp(
 			static_cast<int>(m_pHihatGroupLCD->value()) );
 	});
 	m_pHihatGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 69, 10 ),
 										   pCommonStrings->getHihatGroupLabel() );
-	m_pHihatGroupLbl->move( 22, 327 );
+	m_pHihatGroupLbl->move( 28, 327 );
 
 	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
 										  LCDSpinBox::Type::Int, 0, 127, true );
-	m_pHihatMinRangeLCD->move( 138, 303 );
+	m_pHihatMinRangeLCD->move( 146, 303 );
 	connect( m_pHihatMinRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setLowerCc(
 			static_cast<int>(m_pHihatMinRangeLCD->value()) );
@@ -322,11 +334,11 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	});
 	m_pHihatMinRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
 											  pCommonStrings->getHihatMinRangeLabel() );
-	m_pHihatMinRangeLbl->move( 136, 327 );
+	m_pHihatMinRangeLbl->move( 144, 327 );
 
 	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
 										  LCDSpinBox::Type::Int, 0, 127, true );
-	m_pHihatMaxRangeLCD->move( 203, 303 );
+	m_pHihatMaxRangeLCD->move( 210, 303 );
 	connect( m_pHihatMaxRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setHigherCc(
 			static_cast<int>(m_pHihatMaxRangeLCD->value()) );
@@ -335,7 +347,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	});
 	m_pHihatMaxRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ),
 											  pCommonStrings->getHihatMaxRangeLabel() );
-	m_pHihatMaxRangeLbl->move( 201, 327 );
+	m_pHihatMaxRangeLbl->move( 208, 327 );
 
 	updateEditor();
 }
