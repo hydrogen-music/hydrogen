@@ -128,8 +128,8 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	painter->setPen( QPen( borderColor ) );
 	painter->drawLine( 0, 0, width(), 0 );
 	painter->drawLine( 0, 0, 0, height() );
-	painter->drawLine( 0, height() - 1, width(), height() - 1 );
-	painter->drawLine( width() - 1, 0, width() - 1, height() );
+	painter->drawLine( 0, height(), width(), height() );
+	painter->drawLine( width(), 0, width(), height() );
 }
 
 void WaveDisplay::resizeEvent( QResizeEvent * event )

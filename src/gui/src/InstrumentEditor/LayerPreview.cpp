@@ -220,8 +220,8 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	p.setPen( Qt::black );
 	p.drawLine( 0, 0, width(), 0 );
 	p.drawLine( 0, 0, 0, height() );
-	p.drawLine( 0, height() - 1, width(), height() - 1 );
-	p.drawLine( width() - 1, 0, width() - 1, height() );
+	p.drawLine( 0, height(), width(), height() );
+	p.drawLine( width(), 0, width(), height() );
 
 	// selected layer
 	p.setPen( highlightColor );
