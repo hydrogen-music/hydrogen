@@ -33,6 +33,7 @@
 #include "InstrumentEditor.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
 #include "../Widgets/Button.h"
 
 InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
@@ -69,8 +70,10 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 	pButtonWidget->setLayout( pHBoxButtonLayout );
 	pButtonWidget->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
+	const int nInstrumentBtnWidth =
+		( InstrumentRack::nWidth - InstrumentEditor::nMargin * 2 ) / 2 + 1;
 	m_pShowInstrumentBtn = new Button(
-		pButtonWidget, QSize( 141, 22 ), Button::Type::Toggle, "",
+		pButtonWidget, QSize( nInstrumentBtnWidth, 22 ), Button::Type::Toggle, "",
 		pCommonStrings->getGeneralButton(), false, QSize(),
 		tr( "Show instrument properties" ) );
 	m_pShowInstrumentBtn->setChecked( true );
@@ -82,7 +85,9 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 	pHBoxButtonLayout->addWidget( m_pShowInstrumentBtn );
 
 	m_pShowComponentsBtn = new Button(
-		pButtonWidget, QSize( 140, 22 ), Button::Type::Toggle, "",
+		pButtonWidget, QSize(
+			InstrumentRack::nWidth - InstrumentEditor::nMargin * 2 -
+			nInstrumentBtnWidth + 1, 22 ), Button::Type::Toggle, "",
 		pCommonStrings->getComponentsButton(), false, QSize(),
 		tr( "Show components" ) );
 	m_pShowComponentsBtn->setChecked( false );
