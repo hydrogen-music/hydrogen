@@ -748,30 +748,12 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 								 ! pInstr->isCurrentlyExported() );
 		bool bAnyInstrumentIsSoloed =
 			pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
-		bool bIsMutedBecauseOfSolo = ( bAnyInstrumentIsSoloed &&
-									   ! pInstr->isSoloed() );
-
-		// check wether another component of this instrument is muted
-		if ( ! bIsMutedBecauseOfSolo ) {
-			for ( int jj = 0; jj < pComponents->size(); ++jj ) {
-				if ( jj != ii && pComponents->at( ii ) != nullptr &&
-					 pComponents->at( ii )->getIsSoloed() ) {
-					bIsMutedBecauseOfSolo = true;
-					break;
-				}
-			}
-		}
-
-		// check whether another sample of the same component is soloed
-		if ( ! bIsMutedBecauseOfSolo ) {
-			for ( const auto& ppLayer : pCompo->getLayers() ) {
-				if ( ppLayer != nullptr && ppLayer != pLayer &&
-					 ppLayer->getIsSoloed() ) {
-					bIsMutedBecauseOfSolo = true;
-					break;
-				}
-			}
-		}
+		bool bAnyComponentIsSoloed = pInstr->isAnyComponentSoloed();
+		bool bAnyLayerIsSoloed = pCompo->isAnyLayerSoloed();
+		bool bIsMutedBecauseOfSolo =
+			( bAnyInstrumentIsSoloed && ! pInstr->isSoloed() ||
+			  bAnyComponentIsSoloed && ! pCompo->getIsSoloed() ||
+			  bAnyLayerIsSoloed && ! pLayer->getIsSoloed() );
 
 		if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||
 			 pCompo->getIsMuted() || pLayer->getIsMuted() || bIsMutedBecauseOfSolo ) {
