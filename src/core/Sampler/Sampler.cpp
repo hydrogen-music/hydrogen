@@ -685,8 +685,8 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			continue;
 		}
 
-		auto pSelectedLayer = pNote->getLayerSelected( ii );
-		if ( pSelectedLayer == nullptr ) {
+		auto pSelectedLayerInfo = pNote->getLayerSelected( ii );
+		if ( pSelectedLayerInfo == nullptr ) {
 			ERRORLOG( "Invalid selection layer." );
 			returnValues[ ii ] = true;
 			continue;
@@ -696,33 +696,33 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// layer again for all other samples.
 		if ( nAlreadySelectedLayer != -1 &&
 			 pInstr->sampleSelectionAlg() != Instrument::VELOCITY ) {
-			nAlreadySelectedLayer = pSelectedLayer->nSelectedLayer;
+			nAlreadySelectedLayer = pSelectedLayerInfo->nSelectedLayer;
 		}
 
-		if ( pSelectedLayer->nSelectedLayer == -1 ) {
+		if ( pSelectedLayerInfo->nSelectedLayer == -1 ) {
 			ERRORLOG( "Sample selection did not work." );
 			returnValues[ ii ] = true;
 			continue;
 		}
-		auto pLayer = pCompo->getLayer( pSelectedLayer->nSelectedLayer );
+		auto pLayer = pCompo->getLayer( pSelectedLayerInfo->nSelectedLayer );
 		if ( pLayer == nullptr ) {
 			ERRORLOG( QString( "Unable to retrieve layer [%1]" )
-					  .arg( pSelectedLayer->nSelectedLayer ) );
+					  .arg( pSelectedLayerInfo->nSelectedLayer ) );
 			returnValues[ ii ] = true;
 			continue;
 		}
 		float fLayerGain = pLayer->getGain();
 		float fLayerPitch = pLayer->getPitch();
 
-		if ( pSelectedLayer->fSamplePosition >= pSample->getFrames() ) {
+		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
 			// Due to rounding errors in renderNoteResample() the
 			// sample position can occassionaly exceed the maximum
 			// frames of a sample. AFAICS this is not itself
 			// harmful. So, we just log a warning if the difference is
 			// larger, which might be caused by a different problem.
-			if ( pSelectedLayer->fSamplePosition >= pSample->getFrames() + 3 ) {
+			if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() + 3 ) {
 				WARNINGLOG( QString( "sample position [%1] out of bounds [0,%2]. The layer has been resized during note play?" )
-							.arg( pSelectedLayer->fSamplePosition )
+							.arg( pSelectedLayerInfo->fSamplePosition )
 							.arg( pSample->getFrames() ) );
 			}
 			returnValues[ ii ] = true;
@@ -810,7 +810,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		// Once the Sampler does start rendering a note we also push
 		// it to all connected MIDI devices.
-		if ( (int) pSelectedLayer->fSamplePosition == 0  && ! pInstr->isMuted() ) {
+		if ( (int) pSelectedLayerInfo->fSamplePosition == 0  && ! pInstr->isMuted() ) {
 			if ( pHydrogen->getMidiOutput() != nullptr ){
 				pHydrogen->getMidiOutput()->handleQueueNote( pNote );
 			}
@@ -818,7 +818,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 
 		// Actual rendering.
 		returnValues[ ii ] = renderNoteResample(
-			pSample, pNote, pSelectedLayer, pCompo, ii, nBufferSize,
+			pSample, pNote, pSelectedLayerInfo, pCompo, ii, nBufferSize,
 			nInitialBufferPos, fCost_L, fCost_R, fCostTrack_L, fCostTrack_R,
 			fLayerPitch );
 	}
