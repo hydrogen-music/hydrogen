@@ -570,6 +570,17 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit ) const
 	}
 }
 
+bool Instrument::isAnyComponentSoloed() const {
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent != nullptr && ppComponent->getIsSoloed() ) {
+			return true;
+		}
+	}
+
+	return false;
+
+}
+
 void Instrument::enqueue( std::shared_ptr<Note> pNote ) {
 	m_nQueued++;
 

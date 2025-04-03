@@ -238,6 +238,8 @@ class Instrument : public H2Core::Object<Instrument>
 		/** get the soloed status of the instrument */
 		bool isSoloed() const;
 
+		bool isAnyComponentSoloed() const;
+
 		/** enqueue the instrument for @a pNote */
 		void enqueue( std::shared_ptr<Note> pNote );
 		/** dequeue the instrument for @a pNote */
