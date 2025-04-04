@@ -275,6 +275,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( nullptr );
+	m_pInstrumentRack->getInstrumentEditorPanel()->updateEditors();
 	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
 	m_pInstrumentRack->setVisible( instrumentRackProp.visible );
 

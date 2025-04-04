@@ -389,11 +389,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <translation>Libr. Son.</translation>
     </message>
     <message>
-        <source>Layers</source>
-        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold six characters but is quite flexible.</extracomment>
-        <translation>Capas</translation>
-    </message>
-    <message>
         <source>Load Layer</source>
         <extracomment>Text displayed on the button to load a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation>Cargar Capa</translation>
@@ -1390,6 +1385,76 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Indicates a menu section in which behavioural customizations can be * done.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Components</source>
+        <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ComponentView</name>
+    <message>
+        <source>Layer gain</source>
+        <translation>Ganancia de capa</translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation>Volumen componente</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Coarse)</source>
+        <translation>Afinación de capa (gruesa)</translation>
+    </message>
+    <message>
+        <source>Layer pitch (Fine)</source>
+        <translation>Afinación de capa (fina)</translation>
+    </message>
+    <message>
+        <source>Select selection algorithm</source>
+        <translation>Seleccionar algoritmo de selección</translation>
+    </message>
+    <message>
+        <source>First in Velocity</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Robin</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <translation>Azar</translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation>Nombre nuevo componente</translation>
+    </message>
+    <message>
+        <source>Mute component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ComponentsEditor</name>
+    <message>
+        <source>Component name</source>
+        <translation>Nombre componente</translation>
+    </message>
 </context>
 <context>
     <name>Director</name>
@@ -1959,14 +2024,6 @@ Overwrite the existing file?</source>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>Show instrument properties</source>
-        <translation>Mostrar propiedades de instrumento</translation>
-    </message>
-    <message>
-        <source>Show layers properties</source>
-        <translation>Mostrar propiedades de capas</translation>
-    </message>
-    <message>
         <source>Random pitch factor</source>
         <translation>Factor aleatorio de tono</translation>
     </message>
@@ -1979,24 +2036,8 @@ Overwrite the existing file?</source>
         <translation>Filtro de resonancia</translation>
     </message>
     <message>
-        <source>Layer gain</source>
-        <translation>Ganancia de capa</translation>
-    </message>
-    <message>
         <source>Instrument gain</source>
         <translation>Ganancia del instrumento</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Coarse)</source>
-        <translation>Afinación de capa (gruesa)</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Fine)</source>
-        <translation>Afinación de capa (fina)</translation>
-    </message>
-    <message>
-        <source>Component name</source>
-        <translation>Nombre componente</translation>
     </message>
     <message>
         <source>Midi out channel</source>
@@ -2005,10 +2046,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Midi out note</source>
         <translation>Nota salida Midi</translation>
-    </message>
-    <message>
-        <source>Component volume</source>
-        <translation>Volumen componente</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
@@ -2025,10 +2062,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
         <translation>Detén la nota de instrumento actualmente reproduciéndose antes de disparar el sample de la siguiente nota</translation>
-    </message>
-    <message>
-        <source>Select selection algorithm</source>
-        <translation>Seleccionar algoritmo de selección</translation>
     </message>
     <message>
         <source>Length of Attack phase.
@@ -2062,24 +2095,16 @@ Value</source>
 
 Valor</translation>
     </message>
+</context>
+<context>
+    <name>InstrumentEditorPanel</name>
     <message>
-        <source>First in Velocity</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
+        <source>Show instrument properties</source>
+        <translation>Mostrar propiedades de instrumento</translation>
+    </message>
+    <message>
+        <source>Show components</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Round Robin</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Random</source>
-        <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
-        <translation>Azar</translation>
-    </message>
-    <message>
-        <source>New component name</source>
-        <translation>Nombre nuevo componente</translation>
     </message>
 </context>
 <context>
@@ -2340,6 +2365,10 @@ p, li { white-space: pre-wrap; }
 MIDI = %2</source>
         <translation>Dec. = %1
 MIDI = %2</translation>
+    </message>
+    <message>
+        <source>missing sample</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5678,12 +5707,10 @@ p, li { white-space: pre-wrap; }
     <name>SidebarRow</name>
     <message>
         <source>Mute instrument</source>
-        <extracomment>Text displayed on the button for muting an instrument. Its size is designed for a single character.</extracomment>
         <translation>Silenciar instrumento</translation>
     </message>
     <message>
         <source>Solo</source>
-        <extracomment>Text displayed on the button for soloing an instrument. Its size is designed for a single character.</extracomment>
         <translation>Solo</translation>
     </message>
     <message>

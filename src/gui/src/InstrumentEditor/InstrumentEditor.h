@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef INSTRUMENT_EDITOR_DIALOG_H
-#define INSTRUMENT_EDITOR_DIALOG_H
+#ifndef INSTRUMENT_EDITOR_H
+#define INSTRUMENT_EDITOR_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -35,20 +35,15 @@
 
 class Button;
 class ClickableLabel;
-class Fader;
 class InstrumentEditorPanel;
-class LayerPreview;
-class LCDCombo;
 class LCDDisplay;
 class LCDSpinBox;
 class Rotary;
-class WaveDisplay;
-class WidgetWithInput;
 
-///
-/// Instrument Editor
-///
-/** \ingroup docGUI*/
+/** Editor for all general #H2core::Instrument properties affecting all
+ * components and layers.
+ *
+ * \ingroup docGUI*/
 class InstrumentEditor :  public QWidget,
 						  protected WidgetWithScalableFont<10, 12, 14>,
 						  public H2Core::Object<InstrumentEditor>
@@ -57,48 +52,22 @@ class InstrumentEditor :  public QWidget,
 	Q_OBJECT
 
 	public:
-		explicit InstrumentEditor( QWidget* parent,
-								   InstrumentEditorPanel* pPanel );
+		static constexpr int nMargin = 5;
+
+		explicit InstrumentEditor( InstrumentEditorPanel* pPanel );
 		~InstrumentEditor();
 
 		void updateEditor();
 
-		LayerPreview* getLayerPreview();
-
-		void renameComponent( int nComponentId, const QString& sNewName );
-
-	public slots:
-	/** Used by #Shotlist */
-	void showLayers( bool bShow );
-		void showSampleEditor();
-		void addComponentAction();
-		void deleteComponentAction();
-		void renameComponentAction();
-		void switchComponentAction( int nId );
-
 	private slots:
-		void loadLayerBtnClicked();
-		void removeLayerButtonClicked();
-		void onDropDownCompoClicked();
-
 		void midiOutChannelChanged( double fValue );
-
-		void sampleSelectionChanged( int );
-
-		void waveDisplayDoubleClicked( QWidget *pRef );
-
 
 	private:
 		InstrumentEditorPanel* m_pInstrumentEditorPanel;
 
 		void updateActivation();
 
-		Button *m_pShowInstrumentBtn;
-		Button *m_pShowLayersBtn;
-
-		// Instrument properties
 		PixmapWidget *m_pInstrumentProp;
-		PixmapWidget *m_pInstrumentPropTop;
 		ClickableLabel *m_pNameLbl;
 
 		// ADSR
@@ -135,6 +104,7 @@ class InstrumentEditor :  public QWidget,
 
 		QCheckBox *m_pApplyVelocity;
 		ClickableLabel *m_pApplyVelocityLbl;
+		QCheckBox* m_pIsStopNoteCheckBox;
 		ClickableLabel *m_pIsStopNoteLbl;
 
 		// Instrument mute group
@@ -161,59 +131,6 @@ class InstrumentEditor :  public QWidget,
 
 		LCDSpinBox *m_pHihatMaxRangeLCD;
 		ClickableLabel* m_pHihatMaxRangeLbl;
-
-		// ~ Instrument properties
-
-		// Layer properties
-		LayerPreview *m_pLayerPreview;
-		QScrollArea *m_pLayerScrollArea;
-
-
-		PixmapWidget *m_pLayerProp;
-		Rotary *m_pLayerGainRotary;
-		LCDDisplay *m_pLayerGainLCD;
-		ClickableLabel* m_pLayerGainLbl;
-		ClickableLabel* m_pCompoGainLbl;
-		ClickableLabel* m_pLayerPitchLbl;
-		ClickableLabel* m_pLayerPitchCoarseLbl;
-		ClickableLabel* m_pLayerPitchFineLbl;
-
-		Rotary *m_pLayerPitchCoarseRotary;
-		Rotary *m_pLayerPitchFineRotary;
-
-		LCDDisplay *m_pLayerPitchCoarseLCD;
-		LCDDisplay *m_pLayerPitchFineLCD;
-
-		//LCDCombo *__pattern_size_combo;
-		LCDCombo *m_pSampleSelectionCombo;
-		ClickableLabel* m_pSampleSelectionLbl;
-		void setupSampleSelectionCombo();
-
-		WaveDisplay *m_pWaveDisplay;
-
-		Button *m_pLoadLayerBtn;
-		Button *m_pRemoveLayerBtn;
-		Button *m_pSampleEditorBtn;
-		QCheckBox *m_pIsStopNoteCheckBox;
-		// ~ Layer properties
-
-
-		// Component
-		ClickableLabel *m_pCompoNameLbl;
-		Button *m_DropDownCompoBtn;
-		QStringList m_itemsCompo;
-		QMenu *m_pComponentMenu;
-		void populateComponentMenu();
-
-		Rotary *m_pCompoGainRotary;
-		LCDDisplay *m_pCompoGainLCD;
-		// ~ Component
-
-		void setAutoVelocity();
 };
-
-inline LayerPreview* InstrumentEditor::getLayerPreview() {
-	return m_pLayerPreview;
-}
 
 #endif

@@ -570,6 +570,17 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit ) const
 	}
 }
 
+bool Instrument::isAnyComponentSoloed() const {
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent != nullptr && ppComponent->getIsSoloed() ) {
+			return true;
+		}
+	}
+
+	return false;
+
+}
+
 void Instrument::enqueue( std::shared_ptr<Note> pNote ) {
 	m_nQueued++;
 
@@ -616,6 +627,15 @@ std::shared_ptr<InstrumentComponent> Instrument::getComponent( int nIdx ) const
 	return m_pComponents->at( nIdx );
 }
 
+int Instrument::index( std::shared_ptr<InstrumentComponent> pComponent ) const {
+	for( int ii = 0; ii < m_pComponents->size(); ii++ ) {
+		if ( m_pComponents->at( ii ) == pComponent ) {
+			return ii;
+		}
+	}
+	return -1;
+}
+
 void Instrument::addComponent( std::shared_ptr<InstrumentComponent> pComponent ) {
 	m_pComponents->push_back( pComponent );
 }
@@ -637,14 +657,8 @@ const QString& Instrument::getDrumkitPath() const
 
 bool Instrument::hasSamples() const {
 	for ( const auto& pComponent : *m_pComponents ) {
-		if ( pComponent != nullptr ) {
-			for ( const auto& pLayer : *pComponent ) {
-				if ( pLayer != nullptr ) {
-					if ( pLayer->getSample() != nullptr ) {
-						return true;
-					}
-				}
-			}
+		if ( pComponent != nullptr && pComponent->hasSamples() ) {
+			return true;
 		}
 	}
 

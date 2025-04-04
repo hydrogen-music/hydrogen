@@ -152,6 +152,28 @@ void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit ) const
 	}
 }
 
+bool InstrumentComponent::hasSamples() const {
+	for ( const auto& pLayer : m_layers ) {
+		if ( pLayer != nullptr ) {
+			if ( pLayer->getSample() != nullptr ) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool InstrumentComponent::isAnyLayerSoloed() const {
+	for ( const auto& ppLayer : m_layers ) {
+		if ( ppLayer != nullptr && ppLayer->getIsSoloed() ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

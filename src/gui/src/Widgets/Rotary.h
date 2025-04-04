@@ -57,6 +57,11 @@ public:
 		Small
 	};
 
+		static constexpr int nWidthSmall = 18;
+		static constexpr int nHeightSmall = 18;
+		static constexpr int nWidth = 44;
+		static constexpr int nHeight = 26;
+
 	Rotary(const Rotary&) = delete;
 	Rotary& operator=( const Rotary& rhs ) = delete;
 	

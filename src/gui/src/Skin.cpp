@@ -161,7 +161,8 @@ void Skin::drawListBackground( QPainter* p, const QRect& rect,
 		background = background.lighter( 110 );
 	}
 
-	QColor borderLight = background.lighter( 150 );
+	QColor borderLight = background.lighter(
+		Skin::nListBackgroundLightBorderScaling );
 	QColor borderDark = background.darker(
 		Skin::nListBackgroundDarkBorderScaling );
 
@@ -271,4 +272,13 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 	p->setRenderHint( QPainter::Antialiasing );
 	p->drawPolygon( points, 3 );
 	p->setBrush( Qt::NoBrush );
+}
+
+bool Skin::moreBlackThanWhite( const QColor& color ) {
+	const int nThreshold = 128;
+	int nHue, nSaturation, nValue;
+
+	color.getHsv( &nHue, &nSaturation, &nValue );
+
+	return nValue < nThreshold;
 }

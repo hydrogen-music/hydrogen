@@ -109,6 +109,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Right-click drag does now alter either note length or property.
 				- The hear notes button does now also affect sounds triggered by clicking
 				  the sidebar of the pattern editor.
+		- InstrumentEditor:
+				- The "Layers" tab was replaced by a "Components" one containing
+				  collapsible versions of the previous view for all components.
+				- Both components and layers can now be muted and soloed.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.

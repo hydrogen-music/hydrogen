@@ -137,6 +137,8 @@ public:
 	void setBorderRadius( int nBorderRadius );
 	int getBorderRadius() const;
 
+		void setIconFileName( const QString& sIcon );
+
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 

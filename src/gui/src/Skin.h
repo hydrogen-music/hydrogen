@@ -33,6 +33,10 @@
 class Skin
 {
 public:
+
+		/** in pixel */
+		static constexpr int nScrollBarWidth = 12;
+
 	static QString getImagePath()
 	{
 		return H2Core::Filesystem::img_dir().append( "/gray" );
@@ -80,6 +84,9 @@ public:
 		/** Factor by which the background color of a list element will be
 		 * darkened in order to produce the border color. */
 		static constexpr int nListBackgroundDarkBorderScaling = 220;
+		/** Factor by which the background color of a list element will be
+		 * lightened in order to produce the border color. */
+		static constexpr int nListBackgroundLightBorderScaling = 150;
 
 	/** If a widget is marked inactive the value of its background
 		color are reduced by this factor.*/
@@ -105,6 +112,8 @@ public:
 
 	static void drawStackedIndicator( QPainter* p, int x, int y,
 									  const Skin::Stacked& stacked );
+
+		static bool moreBlackThanWhite( const QColor& color );
 };
 
 

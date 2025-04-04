@@ -1641,7 +1641,6 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	const auto movingPenStyle = Qt::DotLine;
 	const auto movingBrushStyle = Qt::NoBrush;
 
-	const int nOutlineThreshold = 130;
 	int nHue, nSaturation, nValue;
 
 	// Note color
@@ -1720,10 +1719,10 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 			static_cast<int>(std::round( nSaturation * 0.85 )), 0 );
 		highlightColor.setHsv( nHue, nSubtleSaturation, nValue );
 
-		if ( nValue >= nOutlineThreshold ) {
-			highlightColor = highlightColor.lighter( nSubtleValueFactor );
-		} else {
+		if ( Skin::moreBlackThanWhite( highlightColor ) ) {
 			highlightColor = highlightColor.darker( nSubtleValueFactor );
+		} else {
+			highlightColor = highlightColor.lighter( nSubtleValueFactor );
 		}
 }
 	else {
@@ -1741,11 +1740,10 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	if ( noteStyle & NoteStyle::Hovered ) {
 		// Depending on the highlight color, we make it either darker or
 		// lighter.
-		highlightColor.getHsv( &nHue, &nSaturation, &nValue );
-		if ( nValue >= nOutlineThreshold ) {
-			highlightColor = highlightColor.darker( nFactor );
-		} else {
+		if ( Skin::moreBlackThanWhite( highlightColor ) ) {
 			highlightColor = highlightColor.lighter( nFactor );
+		} else {
+			highlightColor = highlightColor.darker( nFactor );
 		}
 	}
 
@@ -1758,11 +1756,10 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 		pHighlightBrush->setStyle( foregroundBrushStyle );
 	}
 
-	highlightColor.getHsv( &nHue, &nSaturation, &nValue );
-	if ( nValue >= nOutlineThreshold ) {
-		pHighlightPen->setColor( Qt::black );
-	} else {
+	if ( Skin::moreBlackThanWhite( highlightColor ) ) {
 		pHighlightPen->setColor( Qt::white );
+	} else {
+		pHighlightPen->setColor( Qt::black );
 	}
 
 	if ( noteStyle & NoteStyle::Background ) {

@@ -50,7 +50,7 @@
 #include "ExportMidiDialog.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
-#include "InstrumentEditor/InstrumentEditor.h"
+#include "InstrumentEditor/ComponentsEditor.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "InstrumentRack.h"
 #include "LadspaFXProperties.h"
@@ -2995,7 +2995,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::AddComponent:
 				pHydrogenApp->getInstrumentRack()->getInstrumentEditorPanel()->
-					getInstrumentEditor()->addComponentAction();
+					getComponentsEditor()->addComponent();
 				break;
 
 			case Shortcuts::Action::ShowPlaylist:

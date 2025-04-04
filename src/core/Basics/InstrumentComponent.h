@@ -78,6 +78,12 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		void				setIsSoloed( bool bIsSoloed );
 		bool				getIsSoloed() const;
 
+		/** Whether the component contains at least one non-missing
+		 * sample */
+		bool hasSamples() const;
+
+		bool isAnyLayerSoloed() const;
+
 		/**  @return #m_nMaxLayers.*/
 		static int			getMaxLayers();
 		/** @param layers Sets #m_nMaxLayers.*/
@@ -146,16 +152,20 @@ inline bool InstrumentComponent::getIsSoloed() const {
 	return m_bIsSoloed;
 }
 
-inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int idx ) const
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int nIdx ) const
 {
-	assert( idx >= 0 && idx < m_nMaxLayers );
-	return m_layers[ idx ];
+	if ( nIdx < 0 || nIdx >= m_layers.size() ) {
+		return nullptr;
+	}
+	return m_layers[ nIdx ];
 }
 
-inline std::shared_ptr<InstrumentLayer> InstrumentComponent::getLayer( int idx ) const
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::getLayer( int nIdx ) const
 {
-	assert( idx >= 0 && idx < m_nMaxLayers );
-	return m_layers[ idx ];
+	if ( nIdx < 0 || nIdx >= m_layers.size() ) {
+		return nullptr;
+	}
+	return m_layers[ nIdx ];
 }
 };
 

@@ -238,6 +238,8 @@ class Instrument : public H2Core::Object<Instrument>
 		/** get the soloed status of the instrument */
 		bool isSoloed() const;
 
+		bool isAnyComponentSoloed() const;
+
 		/** enqueue the instrument for @a pNote */
 		void enqueue( std::shared_ptr<Note> pNote );
 		/** dequeue the instrument for @a pNote */
@@ -277,6 +279,7 @@ class Instrument : public H2Core::Object<Instrument>
 		std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>> getComponents() const;
 		/** Select a component via its index in the corresponding vector. */
 		std::shared_ptr<InstrumentComponent> getComponent( int nIdx ) const;
+		int index( std::shared_ptr<InstrumentComponent> pComponent ) const;
 		void addComponent( std::shared_ptr<InstrumentComponent> pComponent );
 		void removeComponent( int nIdx );
 
