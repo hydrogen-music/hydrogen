@@ -360,9 +360,9 @@ void InstrumentEditor::updateColors() {
 	const auto theme = Preferences::get_instance()->getTheme();
 
 	m_pFilterBypassBtn->setCheckedBackgroundColor(
-		theme.m_color.m_buttonRedColor );
+		theme.m_color.m_muteColor );
 	m_pFilterBypassBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_buttonRedTextColor );
+		theme.m_color.m_muteTextColor );
 }
 
 void InstrumentEditor::updateEditor() {
