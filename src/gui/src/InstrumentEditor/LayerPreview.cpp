@@ -95,9 +95,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	const auto gradientDefault = createGradient(
 		pPref->getTheme().m_color.m_accentColor );
 	const auto gradientMute = createGradient(
-		pPref->getTheme().m_color.m_buttonRedColor );
+		pPref->getTheme().m_color.m_muteColor );
 	const auto gradientSolo = createGradient(
-		pPref->getTheme().m_color.m_widgetColor );
+		pPref->getTheme().m_color.m_soloColor );
 
 	QFont fontText( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
