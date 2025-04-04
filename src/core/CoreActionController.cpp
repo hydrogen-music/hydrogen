@@ -2362,32 +2362,31 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 		return false;
 	}
 
-	int nInstrument = nNote - MidiMessage::instrumentOffset;
+	// Find the instrument(s) corresponding to the provided note.
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	std::shared_ptr<Instrument> pInstrument = nullptr;
+	std::vector< std::shared_ptr<Instrument> > instrumentsMatching;
 	QString sMode;
-
 	if ( pPref->m_bPlaySelectedInstrument ){
-		nInstrument = pHydrogen->getSelectedInstrumentNumber();
-		pInstrument = pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
+		auto pInstrument =
+			pInstrumentList->get( pHydrogen->getSelectedInstrumentNumber());
 		if ( pInstrument == nullptr ) {
 			WARNINGLOG( "No instrument selected!" );
 			return false;
 		}
+		instrumentsMatching.push_back( pInstrument );
 		sMode = "Play Selected Instrument";
 	}
 	else if ( pPref->m_bMidiFixedMapping ){
-		pInstrument = pInstrumentList->findMidiNote( nNote );
-		if ( pInstrument == nullptr ) {
+		instrumentsMatching = pInstrumentList->findByMidiNote( nNote );
+		if ( instrumentsMatching.size() == 0 ) {
 			WARNINGLOG( QString( "Unable to map note [%1] to instrument" )
 						.arg( nNote ) );
 			return false;
 		}
-		nInstrument = pInstrumentList->index( pInstrument );
 		sMode = "Map to Output MIDI note";
 	}
 	else {
-		nInstrument = nNote - MidiMessage::instrumentOffset;
+		const int nInstrument = nNote - MidiMessage::instrumentOffset;
 		if( nInstrument < 0 || nInstrument >= pInstrumentList->size()) {
 			WARNINGLOG( QString( "Instrument number [%1] - derived from note [%2] - out of bound note [%3,%4]" )
 						.arg( nInstrument ).arg( nNote )
@@ -2395,42 +2394,58 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 			return false;
 		}
 
-		pInstrument = pInstrumentList->get( nInstrument );
+		auto pInstrument = pInstrumentList->get( nInstrument );
 		if ( pInstrument == nullptr ) {
 			WARNINGLOG( QString( "Unable to retrieve instrument [%1]" )
 						.arg( nInstrument ) );
 			return false;
 		}
+		instrumentsMatching.push_back( pInstrument );
 		sMode = "Map to instrument list position";
 	}
 
+	// Some finishing touches and note playback.
+	bool bSuccess = true;
+	QStringList instrumentStrings;
+	for ( const auto& ppInstrument : instrumentsMatching ) {
 
-	// Only look to change instrument if the current note is actually of hihat
-	// and hihat openness is outside the instrument selected
-	const int nHihatOpenness = pHydrogen->getHihatOpenness();
-	if ( pInstrument != nullptr &&
-		 pInstrument->getHihatGrp() >= 0 &&
-		 ( nHihatOpenness < pInstrument->getLowerCc() ||
-		   nHihatOpenness > pInstrument->getHigherCc() ) ) {
+		// Only look to change instrument if the current note is actually of hihat
+		// and hihat openness is outside the instrument selected
+		const int nHihatOpenness = pHydrogen->getHihatOpenness();
+		int nCurrentInstrument = pInstrumentList->index( ppInstrument );
+		if ( ppInstrument != nullptr && ppInstrument->getHihatGrp() >= 0 &&
+			 ( nHihatOpenness < ppInstrument->getLowerCc() ||
+			   nHihatOpenness > ppInstrument->getHigherCc() ) ) {
 
-		for ( int i = 0; i <= pInstrumentList->size(); i++ ) {
-			auto ppInstr = pInstrumentList->get( i );
-			if ( ppInstr != nullptr &&
-				pInstrument->getHihatGrp() == ppInstr->getHihatGrp() &&
-				nHihatOpenness >= ppInstr->getLowerCc() &&
-				nHihatOpenness <= ppInstr->getHigherCc() ) {
+			for ( int ii = 0; ii <= pInstrumentList->size(); ii++ ) {
+				auto ppOtherInstrument = pInstrumentList->get( ii );
+				if ( ppOtherInstrument != nullptr &&
+					 ppInstrument->getHihatGrp() ==
+					   ppOtherInstrument->getHihatGrp() &&
+					 nHihatOpenness >= ppOtherInstrument->getLowerCc() &&
+					 nHihatOpenness <= ppOtherInstrument->getHigherCc() ) {
 
-				nInstrument = i;
-				sMode = "Hihat Pressure Group";
-				break;
+					nCurrentInstrument = ii;
+					sMode = "Hihat Pressure Group";
+					break;
+				}
 			}
+		}
+
+		if ( pHydrogen->addRealtimeNote(
+				 nCurrentInstrument, fVelocity, bNoteOff, nNote ) ) {
+			instrumentStrings << QString( "%1 (%2)" )
+				.arg( ppInstrument->getName() ).arg( nCurrentInstrument );
+		}
+		else {
+			bSuccess = false;
 		}
 	}
 
-	INFOLOG( QString( "[%1] mapped note [%2] to instrument [%3]" )
-			 .arg( sMode ).arg( nNote ).arg( nInstrument ) );
+	INFOLOG( QString( "[%1] mapped note [%2] to instrument(s) [%3]" )
+			 .arg( sMode ).arg( nNote ).arg( instrumentStrings.join( ", " ) ) );
 
-	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
+	return bSuccess;
 }
 
 void CoreActionController::insertRecentFile( const QString& sFilename ){

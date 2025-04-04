@@ -236,14 +236,18 @@ std::shared_ptr<Instrument>  InstrumentList::find( const QString& name ) const
 	return nullptr;
 }
 
-std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note ) const
+std::vector< std::shared_ptr<Instrument> > InstrumentList::findByMidiNote(
+	const int nNote ) const
 {
-	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if ( m_pInstruments[i]->getMidiOutNote()==note ) {
-			return m_pInstruments[i];
+	std::vector< std::shared_ptr<Instrument> > instrumentsFound;
+
+	for ( const auto& ppInstrument : m_pInstruments ) {
+		if ( ppInstrument != nullptr && ppInstrument->getMidiOutNote() == nNote ) {
+			instrumentsFound.push_back( ppInstrument );
 		}
 	}
-	return nullptr;
+
+	return std::move( instrumentsFound );
 }
 
 std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> instrument )

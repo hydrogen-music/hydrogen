@@ -125,6 +125,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- does now add tempo changes and tags in case the Timeline is used (#933).
 				- does now add time signature events based on the length of the longest
 				  pattern within a column (#1680).
+		- MIDI import is now able to trigger multiple instruments using a single
+			NOTE ON event (#1765).
 
 	* Removed
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
@@ -150,6 +152,10 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix crashes in SampleEditor (#2092).
 		- Fix track names in multi track export. When using just the file extension,
 			the raw instrument names will be used (#2096).
+		- Fix import bug for drumkits created in version >= 2.0.
+		- Fix memory leakage for songs created in version >= 2.0.
+		- Fix memory leakage for notes with probability < 1.0.
+		- Fix incoming MIDI NOTE OFF handling.
 
 2024-12-07 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.4

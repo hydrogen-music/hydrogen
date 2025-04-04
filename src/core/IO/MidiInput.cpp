@@ -141,22 +141,23 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		case MidiMessage::TIMING_CLOCK:
 		case MidiMessage::ACTIVE_SENSING:
 		case MidiMessage::RESET:
-			ERRORLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
+			INFOLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
 					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
-			break;
+			return;
 
 		case MidiMessage::UNKNOWN:
-			ERRORLOG( "Unknown midi message" );
-			break;
+			WARNINGLOG( "Unknown midi message" );
+			return;
 
 		default:
-			ERRORLOG( QString( "unhandled midi message type: %1 (%2)" )
+			INFOLOG( QString( "unhandled midi message type: %1 (%2)" )
 					  .arg( static_cast<int>( msg.m_type ) )
 					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
+			return;
 		}
 
 		// Two spaces after "msg." in a row to align message parameters
-		INFOLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
+		DEBUGLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
@@ -200,22 +201,20 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	pHydrogen->setLastMidiEventParameter( 0 );
 }
 
-void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
-{
-//	INFOLOG( "handleNoteOnMessage" );
+void MidiInput::handleNoteOnMessage( const MidiMessage& msg ) {
 
 	const int nNote = msg.m_nData1;
-	float fVelocity = msg.m_nData2 / 127.0;
+	const float fVelocity = msg.m_nData2 / 127.0;
 
 	if ( fVelocity == 0 ) {
 		handleNoteOffMessage( msg, false );
 		return;
 	}
 
-	MidiActionManager * pMidiActionManager = MidiActionManager::get_instance();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	const auto pPref = Preferences::get_instance();
+	auto pMidiActionManager = MidiActionManager::get_instance();
+	const auto pMidiMap = pPref->getMidiMap();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
 	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
