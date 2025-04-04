@@ -141,22 +141,23 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		case MidiMessage::TIMING_CLOCK:
 		case MidiMessage::ACTIVE_SENSING:
 		case MidiMessage::RESET:
-			ERRORLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
+			INFOLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
 					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
-			break;
+			return;
 
 		case MidiMessage::UNKNOWN:
-			ERRORLOG( "Unknown midi message" );
-			break;
+			WARNINGLOG( "Unknown midi message" );
+			return;
 
 		default:
-			ERRORLOG( QString( "unhandled midi message type: %1 (%2)" )
+			INFOLOG( QString( "unhandled midi message type: %1 (%2)" )
 					  .arg( static_cast<int>( msg.m_type ) )
 					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
+			return;
 		}
 
 		// Two spaces after "msg." in a row to align message parameters
-		INFOLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
+		DEBUGLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
 }
 
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
