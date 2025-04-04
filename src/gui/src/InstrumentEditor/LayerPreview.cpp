@@ -176,11 +176,11 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
 							pPref->getTheme().m_color.m_windowColor );
 				if ( pSample != nullptr ) {
-					if ( pLayer->getIsSoloed() ) {
-						segmentGradient = gradientSolo;
-					}
-					else if ( pLayer->getIsMuted() ) {
+					if ( pLayer->getIsMuted() ) {
 						segmentGradient = gradientMute;
+					}
+					else if ( pLayer->getIsSoloed() ) {
+						segmentGradient = gradientSolo;
 					}
 					else {
 						segmentGradient = gradientDefault;
