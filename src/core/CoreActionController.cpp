@@ -1824,7 +1824,7 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 	INFOLOG( QString( "[%1] mapped note [%2] to instrument [%3]" )
 			 .arg( sMode ).arg( nNote ).arg( nInstrument ) );
 
-	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, false, nNote );
+	return pHydrogen->addRealtimeNote( nInstrument, fVelocity, bNoteOff, nNote );
 }
 
 void CoreActionController::updatePreferences() {
