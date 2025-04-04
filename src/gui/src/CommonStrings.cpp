@@ -33,9 +33,11 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button for muting an instrument strip in
 	  the mixer. Its size is designed for a single character.*/
 	m_sSmallMuteButton = tr( "M" );
-	/*: Text displayed on the button for muting the master strip. Its
-	  size is designed for a four characters.*/
+	/*: Text displayed on the button for muting the master strip as well as
+	  other places. */
 	m_sBigMuteButton = tr( "Mute" );
+	/*: Text displayed at various places referring to the solo buttons.  */
+	m_sBigSoloButton = tr( "Solo" );
 	/*: Text displayed on the button for bypassing an element. Its
 	  size is designed for a three characters.*/
 	m_sBypassButton = tr( "BYP" );

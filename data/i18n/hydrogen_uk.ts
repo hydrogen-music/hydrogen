@@ -333,7 +333,7 @@ Text displayed on the button indicating that the Beat Counter will only set temp
     </message>
     <message>
         <source>Mute</source>
-        <extracomment>Text displayed on the button for muting the master strip. Its size is designed for a four characters.</extracomment>
+        <extracomment>Text displayed on the button for muting the master strip as well as other places.</extracomment>
         <translation>Приглушити</translation>
     </message>
     <message>
@@ -1385,6 +1385,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Components</source>
         <extracomment>Text displayed on the button to show the Layer view of the Instrument Rack. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <extracomment>Text displayed at various places referring to the solo buttons.</extracomment>
+        <translation>Соло</translation>
     </message>
 </context>
 <context>
@@ -2899,14 +2904,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>MixerLine</name>
     <message>
-        <source>Mute</source>
-        <translation>Приглушити</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation>Соло</translation>
-    </message>
-    <message>
         <source>FX %1 send</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4071,6 +4068,14 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Note Off and Mute Group</source>
         <extracomment>This color will be used for both noteOffs / stop notes as well as for * the tail of the effective note length introduced by stop notes and the * mute group feature.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solo Text</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5692,10 +5697,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Mute instrument</source>
         <translation>Приглушити інструмент</translation>
-    </message>
-    <message>
-        <source>Solo</source>
-        <translation>Соло</translation>
     </message>
     <message>
         <source>Some samples for this instrument failed to load.</source>
