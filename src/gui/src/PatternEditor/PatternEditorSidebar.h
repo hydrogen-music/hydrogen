@@ -125,6 +125,7 @@ class SidebarRow : public PixmapWidget
 		void setSelected( bool isSelected );
 		void setDimed( bool bDimed );
 
+		void updateColors();
 		void updateFont();
 		void updateStyleSheet();
 		void updateTypeLabelVisibility( bool bVisible );
@@ -189,6 +190,7 @@ class PatternEditorSidebar : public QWidget,
 
 		virtual void instrumentMuteSoloChangedEvent( int ) override;
 
+		void updateColors();
 		void updateEditor();
 		void updateFont();
 		void updateStyleSheet();

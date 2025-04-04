@@ -118,8 +118,9 @@ MasterLine::MasterLine( QWidget* pParent )
 	});
 
 	// Mute btn
-	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "",
-							 pCommonStrings->getBigMuteButton(), true );
+	m_pMuteBtn = new Button(
+		this, QSize( 42, 17 ), Button::Type::Toggle, "",
+		pCommonStrings->getBigMuteButton() );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
 	pAction = std::make_shared<Action>("MUTE_TOGGLE");
@@ -148,9 +149,19 @@ MasterLine::MasterLine( QWidget* pParent )
 		this, QSize( 51, 9 ), pCommonStrings->getSwingLabel(),
 		ClickableLabel::Color::Dark );
 	m_pVelocityLbl->move( 62, 190 );
+
+	updateColors();
 }
 
 MasterLine::~MasterLine() {
+}
+
+void MasterLine::updateColors() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	m_pMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_muteTextColor );
 }
 
 void MasterLine::updateLine() {

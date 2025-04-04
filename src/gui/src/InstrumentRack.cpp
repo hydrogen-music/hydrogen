@@ -58,19 +58,19 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsWidget->setLayout( pTabHBox );
 
 	const int nInstrumentBtnWidth = InstrumentRack::nWidth / 2;
-	m_pShowInstrumentEditorBtn =
-		new Button( pTabButtonsWidget, QSize( nInstrumentBtnWidth, 24 ),
-					Button::Type::Toggle, "", pCommonStrings->getInstrumentButton(),
-					false, QSize(), tr( "Show Instrument editor" ) );
+	m_pShowInstrumentEditorBtn = new Button(
+		pTabButtonsWidget, QSize( nInstrumentBtnWidth, 24 ), Button::Type::Toggle,
+		"", pCommonStrings->getInstrumentButton(), QSize(),
+		tr( "Show Instrument editor" ) );
 	connect( m_pShowInstrumentEditorBtn, &QPushButton::clicked,
 			 [=]() { showSoundLibrary( false ); });
 	pTabHBox->addWidget( m_pShowInstrumentEditorBtn );
 
-	m_pShowSoundLibraryBtn =
-		new Button( pTabButtonsWidget,
-					QSize( InstrumentRack::nWidth - nInstrumentBtnWidth, 24 ),
-					Button::Type::Toggle, "", pCommonStrings->getSoundLibraryButton(),
-					false, QSize(), tr( "Show sound library" ) );
+	m_pShowSoundLibraryBtn = new Button(
+		pTabButtonsWidget,
+		QSize( InstrumentRack::nWidth - nInstrumentBtnWidth, 24 ),
+		Button::Type::Toggle, "", pCommonStrings->getSoundLibraryButton(),
+		QSize(), tr( "Show sound library" ) );
 	connect( m_pShowSoundLibraryBtn, &QPushButton::clicked,
 			 [=]() { showSoundLibrary( true ); });
 	pTabHBox->addWidget( m_pShowSoundLibraryBtn );

@@ -436,26 +436,26 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			 } );
 
 	m_pSampleWarning = new Button(
-		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", false,
-		QSize(), tr( "Some samples for this instrument failed to load." ), true );
+		this, QSize( 15, 13 ), Button::Type::Icon, "warning.svg", "", QSize(),
+		tr( "Some samples for this instrument failed to load." ), true );
 	m_pSampleWarning->hide();
 	pHBox->addWidget( m_pSampleWarning );
 	connect(m_pSampleWarning, SIGNAL( clicked() ),
 			this, SLOT( sampleWarningClicked() ));
 
 	m_pMuteBtn = new Button(
-		this, QSize( SidebarRow::m_nButtonWidth, height() ),
-		Button::Type::Toggle, "", pCommonStrings->getSmallMuteButton(), true,
-		QSize(), tr("Mute instrument"), false, true );
+		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
+		"", pCommonStrings->getSmallMuteButton(), QSize(), tr("Mute instrument"),
+		false, true );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	pHBox->addWidget( m_pMuteBtn );
 	connect(m_pMuteBtn, SIGNAL( clicked() ), this, SLOT( muteClicked() ));
 
 	m_pSoloBtn = new Button(
-		this, QSize( SidebarRow::m_nButtonWidth, height() ),
-		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(), false,
-		QSize(), tr("Solo"), false, true );
+		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
+		"", pCommonStrings->getSmallSoloButton(), QSize(),
+		pCommonStrings->getBigSoloButton(), false, true );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	pHBox->addWidget( m_pSoloBtn );
@@ -625,6 +625,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	} );
 
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
+
+	updateColors();
 
 	setLayout( pHBox );
 
@@ -926,9 +928,16 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 	PixmapWidget::mousePressEvent(ev);
 }
 
-void SidebarRow::updateFont() {
-	const auto pPref = H2Core::Preferences::get_instance();
+void SidebarRow::updateColors() {
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
+	m_pMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundTextColor( theme.m_color.m_muteTextColor );
+	m_pSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
+	m_pSoloBtn->setCheckedBackgroundTextColor( theme.m_color.m_soloTextColor );
+}
+
+void SidebarRow::updateFont() {
 	m_pInstrumentNameLbl->updateFont();
 	m_pTypeLbl->updateFont();
 }
@@ -985,6 +994,12 @@ PatternEditorSidebar::~PatternEditorSidebar()
 {
 	//INFOLOG( "DESTROY" );
 	delete m_pDragScroller;
+}
+
+void PatternEditorSidebar::updateColors() {
+	for ( auto& rrow : m_rows ) {
+		rrow->updateColors();
+	}
 }
 
 void PatternEditorSidebar::updateEditor() {

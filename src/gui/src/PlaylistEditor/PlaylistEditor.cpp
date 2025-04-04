@@ -112,14 +112,18 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	pControlsPanel->setPixmap( "/playerControlPanel/playlist_background_Control.png" );
 
 	// Rewind button
-	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
+	m_pRwdBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "",
+		QSize( 13, 13 ), tr( "Rewind" ) );
 	m_pRwdBtn->move( 4, 4 );
 	connect(m_pRwdBtn, SIGNAL( clicked() ), this, SLOT( rewindBtnClicked() ));
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
 	m_pRwdBtn->setAction( pAction );
 
 	// Play button
-	m_pPlayBtn = new Button( pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play.svg", "", false, QSize( 13, 13 ), tr("Play/ Pause/ Load selected song") );
+	m_pPlayBtn = new Button(
+		pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play.svg", "",
+		QSize( 13, 13 ), tr( "Play/ Pause/ Load selected song" ) );
 	m_pPlayBtn->move( 31, 4 );
 	m_pPlayBtn->setChecked(false);
 	connect(m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( nodePlayBTN() ));
@@ -127,14 +131,18 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
-	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
+	m_pStopBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "",
+		QSize( 11, 11 ), tr( "Stop" ) );
 	m_pStopBtn->move( 63, 4 );
 	connect(m_pStopBtn, SIGNAL( clicked() ), this, SLOT( nodeStopBTN() ));
 	pAction = std::make_shared<Action>("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
-	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
+	m_pFfwdBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg",
+		"", QSize( 13, 13 ), tr( "Fast Forward" ) );
 	m_pFfwdBtn->move( 90, 4 );
 	connect(m_pFfwdBtn, SIGNAL( clicked() ), this, SLOT( ffWDBtnClicked() ));
 	pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
@@ -145,12 +153,16 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	pSideBarLayout->setMargin(0);
 
 	// zoom-in btn
-	Button *pUpBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
+	Button *pUpBtn = new Button(
+		nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", QSize( 9, 9 ),
+		tr( "sort" ) );
 	connect(pUpBtn, SIGNAL( clicked() ), this, SLOT(o_upBClicked()) );
 	pSideBarLayout->addWidget(pUpBtn);
 
 	// zoom-in btn
-	Button *pDownBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "down.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
+	Button *pDownBtn = new Button(
+		nullptr, QSize( 16, 16 ), Button::Type::Push, "down.svg", "",
+		QSize( 9, 9 ), tr( "sort" ) );
 	connect(pDownBtn, SIGNAL( clicked() ), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
 

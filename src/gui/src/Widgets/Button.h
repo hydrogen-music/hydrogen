@@ -86,7 +86,6 @@ public:
 	 * \param type
 	 * \param sIcon
 	 * \param sText
-	 * \param bUseRedBackground
 	 * \param iconSize
 	 * \param sBaseTooltip
 	 * \param bColorful If set to false, the icon @a sIcon is expected
@@ -105,7 +104,6 @@ public:
 		   const Type& type = Type::Toggle,
 		   const QString& sIcon = "",
 		   const QString& sText = "",
-		   bool bUseRedBackground = false,
 		   const QSize& iconSize = QSize( 0, 0 ),
 		   const QString& sBaseTooltip = "",
 		   bool bColorful = false,
@@ -131,8 +129,8 @@ public:
 	void setFixedFontSize( int nPixelSize );
 	int getFixedFontSize() const;
 
-	void setUseRedBackground( bool bUseRedBackground );
-	bool getUseRedBackground() const;
+	void setCheckedBackgroundColor( const QColor& color );
+	void setCheckedBackgroundTextColor( const QColor& color );
 
 	void setBorderRadius( int nBorderRadius );
 	int getBorderRadius() const;
@@ -154,7 +152,6 @@ private:
 	void updateTooltip() override;
 	void updateIcon();
 
-	bool m_bUseRedBackground;
 	Type m_type;
 	QSize m_size;
 	QSize m_iconSize;
@@ -173,6 +170,9 @@ private:
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
 
+		QColor m_checkedBackgroundColor;
+		QColor m_checkedBackgroundTextColor;
+
 	virtual void mousePressEvent(QMouseEvent *ev) override;
 	virtual void paintEvent( QPaintEvent* ev) override;
 
@@ -186,9 +186,6 @@ inline void Button::setFixedFontSize( int nPixelSize ) {
 }
 inline int Button::getFixedFontSize() const {
 	return m_nFixedFontSize;
-}
-inline bool Button::getUseRedBackground() const {
-	return m_bUseRedBackground;
 }
 inline const Button::Type& Button::getType() const {
 	return m_type;

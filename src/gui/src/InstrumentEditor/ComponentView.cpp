@@ -79,7 +79,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pShowLayersBtn = new Button(
 		pHeaderWidget, QSize( ComponentView::nExpansionButtonWidth,
 							  ComponentView::nExpansionButtonWidth ),
-		Button::Type::Push, "minus.svg", "", false,
+		Button::Type::Push, "minus.svg", "",
 		QSize( ComponentView::nExpansionButtonWidth - 4,
 			   ComponentView::nExpansionButtonWidth - 4 ) );
 	connect( m_pShowLayersBtn, &Button::clicked, [&](){
@@ -108,7 +108,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		pHeaderWidget,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "",
-		pCommonStrings->getSmallMuteButton(), true, QSize(), tr("Mute component"),
+		pCommonStrings->getSmallMuteButton(), QSize(), tr( "Mute component" ),
 		false, true );
 	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
 	m_pComponentMuteBtn->setObjectName( "ComponentMuteButton" );
@@ -123,7 +123,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		pHeaderWidget,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "",
-		pCommonStrings->getSmallSoloButton(), false, QSize(), tr("Solo component"),
+		pCommonStrings->getSmallSoloButton(), QSize(), tr( "Solo component" ),
 		false, true );
 	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
 	m_pComponentSoloBtn->setObjectName( "ComponentSoloButton" );
@@ -328,7 +328,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		pLayerPropWidget,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
 		Button::Type::Toggle, "",
-		pCommonStrings->getSmallMuteButton(), true, QSize(), tr("Mute layer"),
+		pCommonStrings->getSmallMuteButton(), QSize(), tr( "Mute layer" ),
 		false, true );
 	m_pLayerMuteBtn->setChecked( pComponent->getIsMuted() );
 	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
@@ -346,9 +346,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerSoloBtn = new Button(
 		pLayerPropWidget,
 		QSize( ComponentView::nButtonWidth, ComponentView::nButtonHeight ),
-		Button::Type::Toggle, "",
-		pCommonStrings->getSmallSoloButton(), false, QSize(), tr("Solo layer"),
-		false, true );
+		Button::Type::Toggle, "", pCommonStrings->getSmallSoloButton(),
+		QSize(), tr( "Solo layer" ), false, true );
 	m_pLayerSoloBtn->setChecked( pComponent->getIsSoloed() );
 	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
 	connect( m_pLayerSoloBtn, &Button::clicked, [&](){
@@ -412,10 +411,30 @@ ComponentView::ComponentView( QWidget* pParent,
 						 SLOT( addComponent() ) );
 	m_pDeleteAction = m_pPopup->addAction(
 		pCommonStrings->getMenuActionDelete(), this, SLOT( deleteComponent() ));
+
+	updateColors();
 	updateStyleSheet();
 }
 
 ComponentView::~ComponentView() {
+}
+
+void ComponentView::updateColors() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	m_pComponentMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pComponentMuteBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_muteTextColor );
+	m_pComponentSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
+	m_pComponentSoloBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_soloTextColor );
+
+	m_pLayerMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pLayerMuteBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_muteTextColor );
+	m_pLayerSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
+	m_pLayerSoloBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_soloTextColor );
 }
 
 void ComponentView::updateStyleSheet() {

@@ -53,7 +53,7 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
 	// active button
 	m_pBypassBtn = new Button(
 		this, QSize( 34, 14 ), Button::Type::Toggle, "",
-		pCommonStrings->getBypassButton(), true, QSize(), tr( "FX bypass") );
+		pCommonStrings->getBypassButton(), QSize(), tr( "FX bypass") );
 	m_pBypassBtn->setObjectName( "MixerFXBypassButton" );
 	m_pBypassBtn->move( 52, 25 );
 #ifdef H2CORE_HAVE_LADSPA
@@ -69,7 +69,7 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
 	// edit button
 	m_pEditBtn = new Button(
 		this, QSize( 34, 14 ), Button::Type::Push, "",
-		pCommonStrings->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
+		pCommonStrings->getEditButton(), QSize(), tr( "Edit FX parameters") );
 	m_pEditBtn->setObjectName( "MixerFXEditButton" );
 	m_pEditBtn->move( 86, 25 );
 	connect( m_pEditBtn, &Button::clicked, [&](){
@@ -114,10 +114,18 @@ LadspaFXLine::LadspaFXLine( QWidget* pParent, std::shared_ptr<LadspaFX> pFX,
 		ClickableLabel::Color::Dark );
 	m_pReturnLbl->move( 123, 30 );
 
+	updateColors();
 	updateLine();
 }
 
 LadspaFXLine::~LadspaFXLine() {
+}
+
+void LadspaFXLine::updateColors() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	m_pBypassBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pBypassBtn->setCheckedBackgroundTextColor( theme.m_color.m_muteTextColor );
 }
 
 void LadspaFXLine::updateLine() {

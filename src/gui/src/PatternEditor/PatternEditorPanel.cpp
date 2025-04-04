@@ -326,7 +326,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pRecLayout->addWidget( m_pHearNotesLbl );
 	
 	m_pHearNotesBtn = new Button(
-		m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false,
+		m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "",
 		QSize( 15, 13 ), tr( "Hear new notes" ), false, false );
 	connect( m_pHearNotesBtn, SIGNAL( clicked() ),
 			 this, SLOT( hearNotesBtnClick() ) );
@@ -347,8 +347,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pQuantizeEventsBtn = new Button(
 		m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "",
-		false, QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ),
-		false, false );
+		QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ), false,
+		false );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
 	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ),
@@ -366,7 +366,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pRecLayout->addWidget( m_pShowPianoLbl );
 
 	__show_drum_btn = new Button(
-		m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false,
+		m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "",
 		QSize( 17, 13 ), pCommonStrings->getShowPianoRollEditorTooltip() );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
 	connect( __show_drum_btn, SIGNAL( clicked() ),
@@ -383,7 +383,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// change in future versions of Qt the tooltip will be assigned to
 	// both of them.
 	__show_piano_btn = new Button(
-		m_pRec, QSize( 25, 18 ), Button::Type::Push, "piano.svg", "", false,
+		m_pRec, QSize( 25, 18 ), Button::Type::Push, "piano.svg", "",
 		QSize( 19, 15 ), pCommonStrings->getShowPianoRollEditorTooltip() );
 	__show_piano_btn->move( 178, 1 );
 	__show_piano_btn->setObjectName( "ShowPianoBtn" );
@@ -394,7 +394,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pRecLayout->addWidget( __show_piano_btn );
 
 	m_pPatchBayBtn = new Button(
-		m_pRec, QSize( 25, 18 ), Button::Type::Push, "patchBay.svg", "", false,
+		m_pRec, QSize( 25, 18 ), Button::Type::Push, "patchBay.svg", "",
 		QSize( 19, 15 ), tr( "Show PatchBay" ) );
 	m_pPatchBayBtn->move( 209, 1 );
 	m_pPatchBayBtn->hide();
@@ -406,7 +406,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// zoom-in btn
 	m_pZoomInBtn = new Button(
-		nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false,
+		nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "",
 		QSize( 9, 9 ), tr( "Zoom in" ) );
 	m_pZoomInBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pZoomInBtn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
@@ -414,7 +414,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// zoom-out btn
 	m_pZoomOutBtn = new Button(
-		nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false,
+		nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "",
 		QSize( 9, 9 ), tr( "Zoom out" ) );
 	m_pZoomOutBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pZoomOutBtn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
@@ -1668,6 +1668,7 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 	}
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
+		m_pSidebar->updateColors();
 		updateStyleSheet();
 		updateEditors();
 	}

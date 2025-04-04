@@ -74,7 +74,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 		( InstrumentRack::nWidth - InstrumentEditor::nMargin * 2 ) / 2 + 1;
 	m_pShowInstrumentBtn = new Button(
 		pButtonWidget, QSize( nInstrumentBtnWidth, 22 ), Button::Type::Toggle, "",
-		pCommonStrings->getGeneralButton(), false, QSize(),
+		pCommonStrings->getGeneralButton(), QSize(),
 		tr( "Show instrument properties" ) );
 	m_pShowInstrumentBtn->setChecked( true );
 	connect( m_pShowInstrumentBtn, &Button::clicked, [=]() {
@@ -88,8 +88,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 		pButtonWidget, QSize(
 			InstrumentRack::nWidth - InstrumentEditor::nMargin * 2 -
 			nInstrumentBtnWidth + 1, 22 ), Button::Type::Toggle, "",
-		pCommonStrings->getComponentsButton(), false, QSize(),
-		tr( "Show components" ) );
+		pCommonStrings->getComponentsButton(), QSize(), tr( "Show components" ) );
 	m_pShowComponentsBtn->setChecked( false );
 	connect( m_pShowComponentsBtn, &Button::clicked, [=]() {
 		pStackedEditorLayout->setCurrentIndex( 1 );
@@ -158,9 +157,11 @@ void InstrumentEditorPanel::onPreferencesChanged( const H2Core::Preferences::Cha
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		m_pInstrumentEditor->updateColors();
 		m_pInstrumentEditor->setStyleSheet(
 			QString( "QLabel { background: %1 }" )
 			.arg( pPref->getTheme().m_color.m_windowColor.name() ) );
+		m_pComponentsEditor->updateColors();
 		m_pComponentsEditor->updateStyleSheet();
 	}
 	if ( changes & ( H2Core::Preferences::Changes::Font |

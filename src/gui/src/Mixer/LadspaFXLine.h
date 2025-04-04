@@ -55,6 +55,7 @@ public:
 							   std::shared_ptr<H2Core::LadspaFX> pFX, int nFx );
 		~LadspaFXLine();
 
+		void updateColors();
 		void updateLine();
 
 		std::shared_ptr<H2Core::LadspaFX> getFX() const;
