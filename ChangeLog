@@ -121,6 +121,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- does now add tempo changes and tags in case the Timeline is used (#933).
 				- does now add time signature events based on the length of the longest
 				  pattern within a column (#1680).
+		- MIDI import is now able to trigger multiple instruments using a single
+			NOTE ON event (#1765).
 
 	* Removed
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were

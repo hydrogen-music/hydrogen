@@ -137,11 +137,11 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		std::shared_ptr<Instrument> find( const QString& name ) const;
 		/**
-		 * find an instrument which play the given midi note
-		 * \param note the Midi note of the instrument to find
+		 * find all instruments which play the given midi note
+		 * \param nNote the Midi note of the instruments to find
 		 * \return 0 if not found
 		 */
-		std::shared_ptr<Instrument> findMidiNote( const int note ) const;
+		std::vector< std::shared_ptr<Instrument> > findByMidiNote( const int nNote ) const;
 		/**
 		 * move an instrument from a position to another
 		 * \param idx_a the start index
