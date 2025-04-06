@@ -695,7 +695,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// For round robin and random selection we will use the same
 		// layer again for all other samples.
 		if ( nAlreadySelectedLayer != -1 &&
-			 pInstr->sampleSelectionAlg() != Instrument::VELOCITY ) {
+			 pCompo->getSelection() != InstrumentComponent::Selection::Velocity ) {
 			nAlreadySelectedLayer = pSelectedLayerInfo->nSelectedLayer;
 		}
 

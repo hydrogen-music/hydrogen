@@ -56,6 +56,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- Adjustments done in the Sample Editor are now stored in the kit as
 				  well (previously, this was only possible in songs).
 				- Drumkit components (`<componentList>`) were dropped.
+				- `sampleSelectionAlgo` was moved from `instrument` node into
+				  `instrumentComponent` nodes.
 		- (Instrument) Components are now independent of each other and can be added
 			separately for each instrument.
 		- Notes in .h2pattern files as well as instruments in .h2drumkits do now have

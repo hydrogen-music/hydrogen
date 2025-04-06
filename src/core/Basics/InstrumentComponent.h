@@ -43,6 +43,14 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 {
 		H2_OBJECT(InstrumentComponent)
 	public:
+
+		enum class Selection {
+			Velocity,
+			RoundRobin,
+			Random,
+		};
+		static QString SelectionToQString( const Selection& selection );
+
 		InstrumentComponent( const QString& sName = "", float fGain = 1.0 );
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
@@ -78,6 +86,9 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		void				setIsSoloed( bool bIsSoloed );
 		bool				getIsSoloed() const;
 
+		void setSelection( const Selection& selection );
+		Selection getSelection() const;
+
 		/** Whether the component contains at least one non-missing
 		 * sample */
 		bool hasSamples() const;
@@ -109,6 +120,8 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		bool				m_bIsMuted;
 		bool				m_bIsSoloed;
+		/** how Hydrogen will chose the sample to use */
+		Selection		m_selection;
 
 		/** Maximum number of layers to be used in the
 		 *  Instrument editor.
@@ -150,6 +163,14 @@ inline void InstrumentComponent::setIsSoloed( bool bIsSoloed ) {
 }
 inline bool InstrumentComponent::getIsSoloed() const {
 	return m_bIsSoloed;
+}
+
+inline void InstrumentComponent::setSelection( const Selection& selection ) {
+	m_selection = selection;
+}
+
+inline InstrumentComponent::Selection InstrumentComponent::getSelection() const {
+	return m_selection;
 }
 
 inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int nIdx ) const

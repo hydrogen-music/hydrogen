@@ -38,6 +38,7 @@ InstrumentComponent::InstrumentComponent( const QString& sName, float fGain )
 	, m_fGain( fGain )
 	, m_bIsMuted( false )
 	, m_bIsSoloed( false )
+	, m_selection( Selection::Velocity )
 {
 	/*: Name assigned to an InstrumentComponent of a fresh instrument. */
 	const QString sComponentName =
@@ -58,6 +59,7 @@ InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> o
 	, m_fGain( other->m_fGain )
 	, m_bIsMuted( other->m_bIsMuted )
 	, m_bIsSoloed( other->m_bIsSoloed )
+	, m_selection( other->m_selection )
 {
 	m_layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
@@ -114,6 +116,22 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 		"isMuted", pInstrumentComponent->m_bIsMuted, true, false, true );
 	pInstrumentComponent->m_bIsSoloed = node.read_bool(
 		"isSoloed", pInstrumentComponent->m_bIsSoloed, true, false, true );
+	const QString sSelection = node.read_string(
+		"sampleSelectionAlgo", "", true, true, bSilent  );
+	if ( sSelection.compare( "VELOCITY" ) == 0 ) {
+		pInstrumentComponent->m_selection = Selection::Velocity;
+	}
+	else if ( sSelection.compare( "ROUND_ROBIN" ) == 0 ) {
+		pInstrumentComponent->m_selection = Selection::RoundRobin;
+	}
+	else if ( sSelection.compare( "RANDOM" ) == 0 ) {
+		pInstrumentComponent->m_selection = Selection::Random;
+	}
+	else {
+		// Default option
+		pInstrumentComponent->m_selection = Selection::Velocity;
+	}
+
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	int nLayer = 0;
 	while ( ! layer_node.isNull() ) {
@@ -143,6 +161,18 @@ void InstrumentComponent::saveTo( XMLNode& node, bool bSongKit ) const
 	component_node.write_float( "gain", m_fGain );
 	component_node.write_bool( "isMuted", m_bIsMuted );
 	component_node.write_bool( "isSoloed", m_bIsSoloed );
+
+	switch ( m_selection ) {
+	case Selection::Velocity:
+		component_node.write_string( "sampleSelectionAlgo", "VELOCITY" );
+		break;
+	case Selection::Random:
+		component_node.write_string( "sampleSelectionAlgo", "RANDOM" );
+		break;
+	case Selection::RoundRobin:
+		component_node.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
+		break;
+	}
 
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
 		auto pLayer = getLayer( n );
@@ -187,6 +217,8 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 					 .arg( m_bIsMuted ) )
 			.append( QString( "%1%2m_bIsSoloed: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bIsSoloed ) )
+			.append( QString( "%1%2m_selection: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( SelectionToQString( m_selection ) ) )
 			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nMaxLayers ) )
 			.append( QString( "%1%2m_layers:\n" ).arg( sPrefix ).arg( s ) );
@@ -202,6 +234,8 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) )
+			.append( QString( ", m_selection: %1" )
+					 .arg( SelectionToQString( m_selection ) ) )
 			.append( QString( ", m_nMaxLayers: %1" ).arg( m_nMaxLayers ) )
 			.append( QString( ", m_layers: [" ) );
 	
@@ -217,6 +251,21 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	
 	return sOutput;
 }
+
+QString InstrumentComponent::SelectionToQString( const Selection& selection ) {
+	switch( selection ) {
+	case InstrumentComponent::Selection::Velocity:
+		return "Velocity";
+	case InstrumentComponent::Selection::RoundRobin:
+		return "Round Robin";
+	case InstrumentComponent::Selection::Random:
+		return "Random";
+	default:
+		return QString( "Unknown Selection [%1]" )
+			.arg( static_cast<int>(selection) );
+	}
+}
+
 
 const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::getLayers() const {
 	std::vector<std::shared_ptr<InstrumentLayer>> layersUsed;

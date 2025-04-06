@@ -36,6 +36,7 @@
 			<xsd:element name="gain"			type="xsd:float"/>
 			<xsd:element name="isMuted"			type="h2:bool"/>
 			<xsd:element name="isSoloed"		type="h2:bool"/>
+			<xsd:element name="sampleSelectionAlgo"	type="xsd:string" minOccurs="0"/>
 			<xsd:sequence>
 				<xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
@@ -128,7 +129,6 @@
 			<xsd:element name="midiOutChannel"		type="xsd:integer"	minOccurs="0"/>
 			<xsd:element name="midiOutNote"			type="xsd:integer"								minOccurs="0"/>
 			<xsd:element name="isStopNote"			type="h2:bool"	minOccurs="0"/>
-			<xsd:element name="sampleSelectionAlgo"	type="xsd:string"/>
 			<xsd:element name="isHihat"				type="xsd:integer"/>
 			<xsd:element name="lower_cc"			type="xsd:integer"/>
 			<xsd:element name="higher_cc"			type="xsd:integer"/>
