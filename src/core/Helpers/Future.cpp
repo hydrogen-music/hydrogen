@@ -101,6 +101,12 @@ std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit( XMLNode& node,
 
 			// The stock loading method of Instrument does not retrieve is
 			// component's name.
+			//
+			// In addition, the sample selection algorithm was moved on
+			// component level. In versions of Hydrogen < 2.0, however, it is
+			// still present on instrument level. We will use the last one
+			// encountered.
+			auto selection = Instrument::SampleSelectionAlgo::VELOCITY;
 			XMLNode componentNode =
 				instrumentNode.firstChildElement( "instrumentComponent" );
 			int nnComponentIdx = 0;
@@ -143,9 +149,24 @@ std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit( XMLNode& node,
 							  .arg( pInstrument->get_name() ) );
 				}
 
+				// Retrieve the sample selection algorithm.
+				const QString sSelection = componentNode.read_string(
+					"sampleSelectionAlgo", "", true, true, bSilent  );
+				if ( sSelection.compare( "VELOCITY" ) == 0 ) {
+					selection = Instrument::SampleSelectionAlgo::VELOCITY;
+				}
+				else if ( sSelection.compare( "ROUND_ROBIN" ) == 0 ) {
+					selection = Instrument::SampleSelectionAlgo::ROUND_ROBIN;
+				}
+				else if ( sSelection.compare( "RANDOM" ) == 0 ) {
+					selection = Instrument::SampleSelectionAlgo::RANDOM;
+				}
+
 				++nnComponentIdx;
 				componentNode = componentNode.nextSiblingElement( "instrumentComponent" );
 			}
+
+			pInstrument->set_sample_selection_alg( selection );
 
 			pDrumkit->addInstrument( pInstrument );
 		}
