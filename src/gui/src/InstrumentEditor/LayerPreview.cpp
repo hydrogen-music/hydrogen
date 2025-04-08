@@ -278,12 +278,19 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
 	const auto pInstrument = pInstrumentEditorPanel->getInstrument();
 
-	if ( ev->y() < 20 ) {
-		const float fVelocity = (float)ev->x() / (float)width();
+	const float fVelocity = (float)ev->x() / (float)width();
 
+	if ( ev->y() < 20 ) {
 		if ( pComponent->hasSamples() && pInstrument != nullptr ) {
 			auto pNote = std::make_shared<Note>(
 				pInstrument, nPosition, fVelocity );
+
+			// We register the current component to be rendered. This will cause
+			// all other components _not_ to be rendered. Because we do not
+			// provide a selected layer, the Sampler will select one for us
+			// based on the current sample selection algorithm.
+			pNote->setSelectedLayerInfo( nullptr, pComponent );
+
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		}
 
@@ -314,15 +321,19 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 			m_pComponentView->updateView();
 
 			auto pLayer = pComponent->getLayer( nClickedLayer );
-			if ( pLayer != nullptr ) {
-				if ( pInstrument != nullptr ) {
-					const float fVelocity = pLayer->getEndVelocity() - 0.01;
+			if ( pLayer != nullptr && pInstrument != nullptr ) {
+				// We register the current component to be rendered using a
+				// specific layer. This will cause all other components _not_ to
+				// be rendered.
+				auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
+				pSelectedLayerInfo->pLayer = pLayer;
 
-					const auto pNote = std::make_shared<Note>(
-						pInstrument, nPosition, fVelocity );
-					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
-						noteOn( pNote );
-				}
+				const auto pNote = std::make_shared<Note>(
+					pInstrument, nPosition, fVelocity );
+				pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
+
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
+					noteOn( pNote );
 
 				int x1 = (int)( pLayer->getStartVelocity() * width() );
 				int x2 = (int)( pLayer->getEndVelocity() * width() );
