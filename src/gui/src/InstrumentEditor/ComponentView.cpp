@@ -511,6 +511,19 @@ void ComponentView::updateView() {
 		m_pComponentGainRotary->setValue(
 			m_pComponent->getGain(), false, Event::Trigger::Suppress );
 
+		switch( m_pComponent->getSelection() ) {
+		case InstrumentComponent::Selection::RoundRobin:
+			m_pSampleSelectionCombo->setCurrentIndex( 1 );
+			break;
+		case InstrumentComponent::Selection::Random:
+			m_pSampleSelectionCombo->setCurrentIndex( 2 );
+			break;
+		case InstrumentComponent::Selection::Velocity:
+		default:
+			m_pSampleSelectionCombo->setCurrentIndex( 0 );
+			break;
+		}
+
 		if ( m_nSelectedLayer >= 0 ) {
 			const auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
 
