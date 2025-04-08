@@ -62,7 +62,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// Play sample button
 	m_pPlaySampleBtn = new Button(
-		this, QSize( 20, 15 ), Button::Type::Push, "play.svg", "", false,
+		this, QSize( 20, 15 ), Button::Type::Push, "play.svg", "",
 		QSize( 7, 7 ), tr( "[Left click]: Play sample\n[Right click]: Stop all samples" ) );
 	m_pPlaySampleBtn->move( 6, 1 );
 	m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
@@ -101,7 +101,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	// Mute button
 	m_pMuteBtn = new Button(
 		this, QSize( 22, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
+		pCommonStrings->getSmallMuteButton(), QSize(),
+		pCommonStrings->getBigMuteButton() );
 	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect( m_pMuteBtn, &Button::clicked, [&]() {
@@ -115,7 +116,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	// Solo button
 	m_pSoloBtn = new Button(
 		this, QSize( 22, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
+		pCommonStrings->getSmallSoloButton(), QSize(),
+		pCommonStrings->getBigSoloButton() );
 	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect( m_pSoloBtn, &Button::clicked, [&]() {
@@ -194,10 +196,22 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	updateActions();
+	updateColors();
 	updateLine();
 }
 
 MixerLine::~MixerLine() {
+}
+
+void MixerLine::updateColors() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	m_pMuteBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_muteTextColor );
+	m_pSoloBtn->setCheckedBackgroundColor( theme.m_color.m_soloColor );
+	m_pSoloBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_soloTextColor );
 }
 
 void MixerLine::updateLine() {

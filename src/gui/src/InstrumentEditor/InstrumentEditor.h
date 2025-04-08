@@ -57,6 +57,7 @@ class InstrumentEditor :  public QWidget,
 		explicit InstrumentEditor( InstrumentEditorPanel* pPanel );
 		~InstrumentEditor();
 
+		void updateColors();
 		void updateEditor();
 
 	private slots:

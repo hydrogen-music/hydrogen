@@ -35,8 +35,7 @@
 #include <core/Hydrogen.h>
 
 Button::Button( QWidget *pParent, const QSize& size, const Type& type,
-				const QString& sIcon, const QString& sText,
-				bool bUseRedBackground, const QSize& iconSize,
+				const QString& sIcon, const QString& sText, const QSize& iconSize,
 				const QString& sBaseTooltip, bool bColorful,
 				bool bModifyOnChange, int nBorderRadius )
 	: QPushButton( pParent )
@@ -48,11 +47,14 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
 	, m_bIsActive( true )
-	, m_bUseRedBackground( bUseRedBackground )
 	, m_nFixedFontSize( -1 )
 	, m_bModifyOnChange( bModifyOnChange )
 	, m_nBorderRadius( nBorderRadius )
 {
+	auto pPref = H2Core::Preferences::get_instance();
+	m_checkedBackgroundColor = pPref->getTheme().m_color.m_accentColor;
+	m_checkedBackgroundTextColor = pPref->getTheme().m_color.m_accentTextColor;
+
 	setFocusPolicy( Qt::NoFocus );
 	setSize( size );
 
@@ -75,7 +77,8 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	updateStyleSheet();
 	updateTooltip();
 	
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &Button::onPreferencesChanged );
 
 	connect( this, SIGNAL(clicked()), this, SLOT(onClick()));
 }
@@ -110,11 +113,22 @@ void Button::updateIcon() {
 	}
 }
 
-void Button::setUseRedBackground( bool bUseRedBackground ) {
-	m_bUseRedBackground	= bUseRedBackground;
+void Button::setCheckedBackgroundColor( const QColor& color ) {
+	if ( color != m_checkedBackgroundColor ) {
+		m_checkedBackgroundColor = color;
 
-	updateStyleSheet();
-	update();
+		updateStyleSheet();
+		update();
+	}
+}
+
+void Button::setCheckedBackgroundTextColor( const QColor& color ) {
+	if ( color != m_checkedBackgroundTextColor ) {
+		m_checkedBackgroundTextColor = color;
+
+		updateStyleSheet();
+		update();
+	}
 }
 
 void Button::updateStyleSheet() {
@@ -127,72 +141,71 @@ void Button::updateStyleSheet() {
 
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 	
-	int nFactorGradient = 126;
-	int nFactorGradientShadow = 225;
-	int nHover = 12;
-	float fStop1 = 0.2;
-	float fStop2 = 0.85;
-	float x1 = 0;
-	float x2 = 1;
-	float y1 = 0;
-	float y2 = 1;
+	const int nFactorGradient = 126;
+	const int nFactorGradientShadow = 225;
+	const int nHover = 12;
+	const float fStop1 = 0.2;
+	const float fStop2 = 0.85;
+	const float x1 = 0;
+	const float x2 = 1;
+	const float y1 = 0;
+	const float y2 = 1;
 
-	QColor baseColorBackground = theme.m_color.m_widgetColor;
-	QColor backgroundLight = baseColorBackground.lighter( nFactorGradient );
-	QColor backgroundDark = baseColorBackground.darker( nFactorGradient );
-	QColor backgroundLightHover = baseColorBackground.lighter( nFactorGradient + nHover );
-	QColor backgroundDarkHover = baseColorBackground.darker( nFactorGradient + nHover );
-	QColor backgroundShadowLight = baseColorBackground.lighter( nFactorGradientShadow );
-	QColor backgroundShadowDark = baseColorBackground.darker( nFactorGradientShadow );
-	QColor backgroundShadowLightHover = baseColorBackground.lighter( nFactorGradientShadow + nHover );
-	QColor backgroundShadowDarkHover = baseColorBackground.darker( nFactorGradientShadow + nHover );
-	QColor border = Qt::black;
+	const QColor baseColorBackground = theme.m_color.m_widgetColor;
+	const QColor backgroundLight = baseColorBackground.lighter( nFactorGradient );
+	const QColor backgroundDark = baseColorBackground.darker( nFactorGradient );
+	const QColor backgroundLightHover = baseColorBackground.lighter( nFactorGradient + nHover );
+	const QColor backgroundDarkHover = baseColorBackground.darker( nFactorGradient + nHover );
+	const QColor backgroundShadowLight = baseColorBackground.lighter( nFactorGradientShadow );
+	const QColor backgroundShadowDark = baseColorBackground.darker( nFactorGradientShadow );
+	const QColor backgroundShadowLightHover = baseColorBackground.lighter( nFactorGradientShadow + nHover );
+	const QColor backgroundShadowDarkHover = baseColorBackground.darker( nFactorGradientShadow + nHover );
+	const QColor border = Qt::black;
 
-	QColor baseColorBackgroundChecked, textChecked;
-	if ( ! m_bUseRedBackground ) {
-		baseColorBackgroundChecked = theme.m_color.m_accentColor;
-		textChecked = theme.m_color.m_accentTextColor;
-	} else {
-		baseColorBackgroundChecked = theme.m_color.m_buttonRedColor;
-		textChecked = theme.m_color.m_buttonRedTextColor;
-	}
+	const QColor backgroundCheckedLight =
+		m_checkedBackgroundColor.lighter( nFactorGradient );
+	const QColor backgroundCheckedDark =
+		m_checkedBackgroundColor.darker( nFactorGradient );
+	const QColor backgroundCheckedLightHover =
+		m_checkedBackgroundColor.lighter( nFactorGradient + nHover );
+	const QColor backgroundCheckedDarkHover =
+		m_checkedBackgroundColor.darker( nFactorGradient + nHover );
+	const QColor backgroundShadowCheckedLight =
+		m_checkedBackgroundColor.lighter( nFactorGradientShadow );
+	const QColor backgroundShadowCheckedDark =
+		m_checkedBackgroundColor.darker( nFactorGradientShadow );
+	const QColor backgroundShadowCheckedLightHover =
+		m_checkedBackgroundColor.lighter( nFactorGradientShadow + nHover );
+	const QColor backgroundShadowCheckedDarkHover =
+		m_checkedBackgroundColor.darker( nFactorGradientShadow + nHover );
+
+	const QColor textColor = theme.m_color.m_widgetTextColor;
 	
-	QColor backgroundCheckedLight = baseColorBackgroundChecked.lighter( nFactorGradient );
-	QColor backgroundCheckedDark = baseColorBackgroundChecked.darker( nFactorGradient );
-	QColor backgroundCheckedLightHover = baseColorBackgroundChecked.lighter( nFactorGradient + nHover );
-	QColor backgroundCheckedDarkHover = baseColorBackgroundChecked.darker( nFactorGradient + nHover );
-	QColor backgroundShadowCheckedLight = baseColorBackgroundChecked.lighter( nFactorGradientShadow );
-	QColor backgroundShadowCheckedDark = baseColorBackgroundChecked.darker( nFactorGradientShadow );
-	QColor backgroundShadowCheckedLightHover = baseColorBackgroundChecked.lighter( nFactorGradientShadow + nHover );
-	QColor backgroundShadowCheckedDarkHover = baseColorBackgroundChecked.darker( nFactorGradientShadow + nHover );
-
-	QColor textColor = theme.m_color.m_widgetTextColor;
-	
-	QColor backgroundInactiveLight =
+	const QColor backgroundInactiveLight =
 		Skin::makeWidgetColorInactive( backgroundLight );
-	QColor backgroundInactiveLightHover = backgroundInactiveLight;
-	QColor backgroundInactiveCheckedLight =
+	const QColor backgroundInactiveLightHover = backgroundInactiveLight;
+	const QColor backgroundInactiveCheckedLight =
 		Skin::makeWidgetColorInactive( backgroundCheckedLight );
-	QColor backgroundInactiveCheckedLightHover = backgroundInactiveCheckedLight;
-	QColor backgroundInactiveDark =
+	const QColor backgroundInactiveCheckedLightHover = backgroundInactiveCheckedLight;
+	const QColor backgroundInactiveDark =
 		Skin::makeWidgetColorInactive( backgroundDark );
-	QColor backgroundInactiveDarkHover = backgroundInactiveDark;
-	QColor backgroundInactiveCheckedDark =
+	const QColor backgroundInactiveDarkHover = backgroundInactiveDark;
+	const QColor backgroundInactiveCheckedDark =
 		Skin::makeWidgetColorInactive( backgroundCheckedDark );
-	QColor backgroundInactiveCheckedDarkHover = backgroundInactiveCheckedDark;
-	QColor backgroundShadowInactiveLight =
+	const QColor backgroundInactiveCheckedDarkHover = backgroundInactiveCheckedDark;
+	const QColor backgroundShadowInactiveLight =
 		Skin::makeWidgetColorInactive( backgroundShadowLight );
-	QColor backgroundShadowInactiveLightHover = backgroundShadowInactiveLight;
-	QColor backgroundShadowInactiveCheckedLight =
+	const QColor backgroundShadowInactiveLightHover = backgroundShadowInactiveLight;
+	const QColor backgroundShadowInactiveCheckedLight =
 		Skin::makeWidgetColorInactive( backgroundShadowCheckedLight );
-	QColor backgroundShadowInactiveCheckedLightHover = backgroundShadowInactiveCheckedLight;
-	QColor backgroundShadowInactiveDark =
+	const QColor backgroundShadowInactiveCheckedLightHover = backgroundShadowInactiveCheckedLight;
+	const QColor backgroundShadowInactiveDark =
 		Skin::makeWidgetColorInactive( backgroundShadowDark );
-	QColor backgroundShadowInactiveDarkHover = backgroundShadowInactiveDark;
-	QColor backgroundShadowInactiveCheckedDark =
+	const QColor backgroundShadowInactiveDarkHover = backgroundShadowInactiveDark;
+	const QColor backgroundShadowInactiveCheckedDark =
 		Skin::makeWidgetColorInactive( backgroundShadowCheckedDark );
-	QColor backgroundShadowInactiveCheckedDarkHover = backgroundShadowInactiveCheckedDark;
-	QColor textInactiveColor = Skin::makeTextColorInactive( textColor );
+	const QColor backgroundShadowInactiveCheckedDarkHover = backgroundShadowInactiveCheckedDark;
+	const QColor textInactiveColor = Skin::makeTextColorInactive( textColor );
 
 	setStyleSheet( QString( "\
 QPushButton:enabled { \
@@ -258,7 +271,7 @@ QPushButton:disabled:checked:hover { \
 				   .arg( backgroundDark.name() )
 				   .arg( backgroundLightHover.name() )
 				   .arg( backgroundDarkHover.name() )
-				   .arg( textChecked.name() )
+				   .arg( m_checkedBackgroundTextColor.name() )
 				   .arg( backgroundCheckedLight.name() )
 				   .arg( backgroundCheckedDark.name() )
 				   .arg( backgroundCheckedLightHover.name() )
@@ -269,7 +282,7 @@ QPushButton:disabled:checked:hover { \
 				   .arg( backgroundInactiveDark.name() )
 				   .arg( backgroundInactiveLightHover.name() )
 				   .arg( backgroundInactiveDarkHover.name() )
-				   .arg( textChecked.name() )
+				   .arg( m_checkedBackgroundTextColor.name() )
 				   .arg( backgroundInactiveCheckedLight.name() )
 				   .arg( backgroundInactiveCheckedDark.name() )
 				   .arg( backgroundInactiveCheckedLightHover.name() )

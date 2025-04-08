@@ -86,6 +86,7 @@ class ComponentView : public QWidget,
 								std::shared_ptr<H2Core::InstrumentComponent> );
 		~ComponentView();
 
+		void updateColors();
 		void updateStyleSheet();
 		void updateView();
 

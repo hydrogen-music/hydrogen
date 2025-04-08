@@ -65,6 +65,7 @@ public:
 	MixerLine( QWidget* pParent, std::shared_ptr<H2Core::Instrument> pInstrument );
 	~MixerLine();
 
+		void updateColors();
 		void updateLine();
 		void updatePeaks();
 		void updateSelected();

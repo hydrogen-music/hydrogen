@@ -44,6 +44,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			with a tail showing their effective length in the pattern editor (can be
 			disabled in Preferences > Appearance > Interface > Indicate effective note
 			length).
+		- Custom colors for 'mute' and 'solo'.
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound

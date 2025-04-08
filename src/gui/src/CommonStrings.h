@@ -47,6 +47,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getSmallSoloButton() const { return m_sSmallSoloButton; }
 	const QString& getSmallMuteButton() const { return m_sSmallMuteButton; }
 	const QString& getBigMuteButton() const { return m_sBigMuteButton; }
+	const QString& getBigSoloButton() const { return m_sBigSoloButton; }
 	const QString& getBypassButton() const { return m_sBypassButton; }
 	const QString& getEditButton() const { return m_sEditButton; }
 	const QString& getClearButton() const { return m_sClearButton; }
@@ -331,6 +332,7 @@ private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
 	QString m_sBigMuteButton;
+	QString m_sBigSoloButton;
 	QString m_sBypassButton;
 	QString m_sEditButton;
 	QString m_sClearButton;

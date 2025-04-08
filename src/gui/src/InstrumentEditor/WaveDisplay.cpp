@@ -67,13 +67,12 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	const QColor borderColor = Qt::black;
 	QColor textColor, backgroundColor, waveFormColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
-		textColor = pPref->getTheme().m_color.m_buttonRedTextColor;
-		backgroundColor = pPref->getTheme().m_color.m_buttonRedColor;
+		textColor = pPref->getTheme().m_color.m_muteTextColor;
+		backgroundColor = pPref->getTheme().m_color.m_muteColor;
 	}
 	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ){
-		// Placeholder color till a proper solo color was introduced.
-		textColor = pPref->getTheme().m_color.m_widgetTextColor;
-		backgroundColor = pPref->getTheme().m_color.m_widgetColor;
+		textColor = pPref->getTheme().m_color.m_soloTextColor;
+		backgroundColor = pPref->getTheme().m_color.m_soloColor;
 	}
 	else {
 		textColor = pPref->getTheme().m_color.m_accentTextColor;

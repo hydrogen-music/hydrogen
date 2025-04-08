@@ -49,6 +49,7 @@ public:
 	explicit MasterLine(QWidget* parent);
 	~MasterLine();
 
+		void updateColors();
 	void	updateLine();
 	void	updatePeaks();
 

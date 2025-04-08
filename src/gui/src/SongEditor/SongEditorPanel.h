@@ -146,6 +146,7 @@ class SongEditorPanel : public QWidget,
 		void setTimelineEnabled( bool bEnabled );
 
 		void updateActionMode();
+		void updateColors();
 		void updateJacktimebaseState();
 		void updatePatternEditorLocked();
 		void updatePatternMode();

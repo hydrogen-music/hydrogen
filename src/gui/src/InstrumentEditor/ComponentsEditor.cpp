@@ -92,6 +92,12 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 ComponentsEditor::~ComponentsEditor() {
 }
 
+void ComponentsEditor::updateColors() {
+	for ( auto& ppComponentView : m_componentViews ) {
+		ppComponentView->updateColors();
+	}
+}
+
 void ComponentsEditor::updateComponents() {
 
 	// We add a stretchable spacer item of zero height at the bottom. When

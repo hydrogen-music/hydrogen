@@ -1707,7 +1707,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	}
 	else if ( noteStyle & NoteStyle::NoPlayback ) {
 		// Notes that won't be played back maintain their special color.
-		highlightColor = colorTheme.m_buttonRedColor;
+		highlightColor = colorTheme.m_muteColor;
 
 		// The color of the mute button itself would be too flash and draw too
 		// much attention to the note which are probably the ones the user does

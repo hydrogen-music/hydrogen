@@ -95,9 +95,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	const auto gradientDefault = createGradient(
 		pPref->getTheme().m_color.m_accentColor );
 	const auto gradientMute = createGradient(
-		pPref->getTheme().m_color.m_buttonRedColor );
+		pPref->getTheme().m_color.m_muteColor );
 	const auto gradientSolo = createGradient(
-		pPref->getTheme().m_color.m_widgetColor );
+		pPref->getTheme().m_color.m_soloColor );
 
 	QFont fontText( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -176,11 +176,11 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				p.fillRect( 0, y, width(), LayerPreview::nLayerHeight,
 							pPref->getTheme().m_color.m_windowColor );
 				if ( pSample != nullptr ) {
-					if ( pLayer->getIsSoloed() ) {
-						segmentGradient = gradientSolo;
-					}
-					else if ( pLayer->getIsMuted() ) {
+					if ( pLayer->getIsMuted() ) {
 						segmentGradient = gradientMute;
+					}
+					else if ( pLayer->getIsSoloed() ) {
+						segmentGradient = gradientSolo;
 					}
 					else {
 						segmentGradient = gradientDefault;

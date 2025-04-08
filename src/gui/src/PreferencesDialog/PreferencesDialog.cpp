@@ -601,6 +601,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new IndexedTreeItem( 0x207, pWidgetItem, tr( "Spin Box Text" ) );
 	new IndexedTreeItem( 0x208, pWidgetItem, tr( "Playhead" ) );
 	new IndexedTreeItem( 0x209, pWidgetItem, tr( "Cursor" ) );
+	new IndexedTreeItem( 0x20a, pWidgetItem,
+						 pCommonStrings->getBigMuteButton() );
+	new IndexedTreeItem( 0x20b, pWidgetItem, tr( "Mute Text" ) );
+	new IndexedTreeItem( 0x20c, pWidgetItem,
+						 pCommonStrings->getBigSoloButton() );
+	new IndexedTreeItem( 0x20d, pWidgetItem, tr( "Solo Text" ) );
 	
 	pTopLevelItem = new IndexedTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
 	new IndexedTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
@@ -1901,6 +1907,10 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, const H2Core::
 	case 0x207: return std::make_unique<QColor>(colorTheme.m_spinBoxTextColor);
 	case 0x208: return std::make_unique<QColor>(colorTheme.m_playheadColor);
 	case 0x209: return std::make_unique<QColor>(colorTheme.m_cursorColor);
+	case 0x20a: return std::make_unique<QColor>(colorTheme.m_muteColor);
+	case 0x20b: return std::make_unique<QColor>(colorTheme.m_muteTextColor);
+	case 0x20c: return std::make_unique<QColor>(colorTheme.m_soloColor);
+	case 0x20d: return std::make_unique<QColor>(colorTheme.m_soloTextColor);
 	case 0x300: return std::make_unique<QColor>(colorTheme.m_songEditor_backgroundColor);
 	case 0x301: return std::make_unique<QColor>(colorTheme.m_songEditor_alternateRowColor);
 	case 0x302: return std::make_unique<QColor>(colorTheme.m_songEditor_virtualRowColor);
@@ -2000,6 +2010,14 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x208:  colorTheme.m_playheadColor = color;
 		break;
 	case 0x209:  colorTheme.m_cursorColor = color;
+		break;
+	case 0x20a:  colorTheme.m_muteColor = color;
+		break;
+	case 0x20b:  colorTheme.m_muteTextColor = color;
+		break;
+	case 0x20c:  colorTheme.m_soloColor = color;
+		break;
+	case 0x20d:  colorTheme.m_soloTextColor = color;
 		break;
 	case 0x300:  colorTheme.m_songEditor_backgroundColor = color;
 		break;

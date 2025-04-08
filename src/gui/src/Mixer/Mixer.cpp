@@ -120,7 +120,7 @@ Mixer::Mixer( QWidget* pParent )
 
 	m_pOpenMixerSettingsBtn = new Button(
 		m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "",
-		false, QSize( 13, 13 ), tr( "Mixer Settings" ) );
+		QSize( 13, 13 ), tr( "Mixer Settings" ) );
 	m_pOpenMixerSettingsBtn->setObjectName( "MixerSettingsButton" );
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked() ), this,
@@ -128,7 +128,7 @@ Mixer::Mixer( QWidget* pParent )
 
 	m_pShowFXPanelBtn = new Button(
 		m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getFXButton(), false, QSize(), tr( "Show FX panel" ) );
+		pCommonStrings->getFXButton(), QSize(), tr( "Show FX panel" ) );
 	m_pShowFXPanelBtn->setObjectName( "MixerShowFXButton" );
 	m_pShowFXPanelBtn->move( 63, 243 );
 	m_pShowFXPanelBtn->setChecked( pPref->isFXTabVisible() );
@@ -141,7 +141,7 @@ Mixer::Mixer( QWidget* pParent )
 
 	m_pShowPeaksBtn = new Button(
 		m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getPeakButton(), false, QSize(),
+		pCommonStrings->getPeakButton(), QSize(),
 		tr( "Show instrument peaks" ) );
 	m_pShowPeaksBtn->setObjectName( "MixerShowPeaksButton" );
 	m_pShowPeaksBtn->move( 63, 259 );
@@ -336,6 +336,16 @@ void Mixer::openMixerSettingsDialog() {
 
 void Mixer::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		for ( auto& ppMixerLine : m_mixerLines ) {
+			ppMixerLine->updateColors();
+		}
+		for ( auto& ppLadspaLine : m_ladspaFXLines ) {
+			ppLadspaLine->updateColors();
+		}
+		m_pMasterLine->updateColors();
+	}
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		setFont( QFont( pPref->getTheme().m_font.m_sApplicationFontFamily, 10 ) );

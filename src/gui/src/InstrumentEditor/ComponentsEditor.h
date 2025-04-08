@@ -51,6 +51,7 @@ class ComponentsEditor :  public QWidget,
 		explicit ComponentsEditor( InstrumentEditorPanel* pPanel );
 		~ComponentsEditor();
 
+		void updateColors();
 		void updateComponents();
 		void updateEditor();
 		void updateStyleSheet();

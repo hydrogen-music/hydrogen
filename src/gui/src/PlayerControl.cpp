@@ -105,38 +105,42 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pTimeMilliSecondsLbl->move( 119, 30 );
 
 	// Rewind button
-	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push,
-							"rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
+	m_pRwdBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "",
+		QSize( 13, 13 ), tr( "Rewind" ) );
 	m_pRwdBtn->setObjectName( "PlayerControlRewindButton" );
 	m_pRwdBtn->move( 166, 15 );
-	connect(m_pRwdBtn, SIGNAL( clicked() ), this, SLOT( rewindBtnClicked() ));
+	connect( m_pRwdBtn, SIGNAL( clicked() ), this, SLOT( rewindBtnClicked() ));
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("<<_PREVIOUS_BAR");
 	m_pRwdBtn->setAction( pAction );
 
 	// Record button
-	m_pRecBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle,
-							"record.svg", "", false, QSize( 11, 11 ), tr("Record"), true );
+	m_pRecBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle, "record.svg", "",
+		QSize( 11, 11 ), tr( "Record" ), true );
 	m_pRecBtn->setObjectName( "PlayerControlRecordButton" );
 	m_pRecBtn->move( 193, 15 );
 	m_pRecBtn->setChecked(false);
 	m_pRecBtn->setHidden(false);
-	connect(m_pRecBtn, SIGNAL( clicked() ), this, SLOT( recBtnClicked() ));
+	connect( m_pRecBtn, SIGNAL( clicked() ), this, SLOT( recBtnClicked() ));
 	pAction = std::make_shared<Action>("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
 
 	// Play button
-	m_pPlayBtn = new Button( pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle,
-							 "play_pause.svg", "", false, QSize( 30, 21 ), tr("Play/ Pause") );
+	m_pPlayBtn = new Button(
+		pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play_pause.svg",
+		"", QSize( 30, 21 ), tr( "Play/ Pause" ) );
 	m_pPlayBtn->setObjectName( "PlayerControlPlayButton" );
 	m_pPlayBtn->move( 220, 15 );
 	m_pPlayBtn->setChecked(false);
-	connect(m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( playBtnClicked() ));
+	connect( m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( playBtnClicked() ));
 	pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
-	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push,
-							 "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
+	m_pStopBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "",
+		QSize( 11, 11 ), tr( "Stop" ) );
 	m_pStopBtn->setObjectName( "PlayerControlStopButton" );
 	m_pStopBtn->move( 252, 15 );
 	connect(m_pStopBtn, SIGNAL( clicked() ), this, SLOT( stopBtnClicked() ));
@@ -144,8 +148,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
-	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push,
-							 "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
+	m_pFfwdBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg",
+		"", QSize( 13, 13 ), tr( "Fast Forward" ) );
 	m_pFfwdBtn->setObjectName( "PlayerControlForwardButton" );
 	m_pFfwdBtn->move( 279, 15 );
 	connect(m_pFfwdBtn, SIGNAL( clicked() ), this, SLOT( fastForwardBtnClicked() ));
@@ -153,10 +158,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pFfwdBtn->setAction( pAction );
 
 	// Loop song button button
-	m_pSongLoopBtn = new Button( pControlsPanel, QSize( 25, 19 ),
-								 Button::Type::Toggle, "loop.svg", "", false,
-								 QSize( 17, 13 ), tr("Loop song"),
-								 false, true );
+	m_pSongLoopBtn = new Button(
+		pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle, "loop.svg", "",
+		QSize( 17, 13 ), tr( "Loop song" ), false, true );
 	m_pSongLoopBtn->setObjectName( "PlayerControlLoopButton" );
 	m_pSongLoopBtn->move( 308, 15);
 	connect( m_pSongLoopBtn, &QPushButton::clicked,
@@ -175,11 +179,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPatternModeLED = new LED( pControlsPanel, QSize( 11, 9 ) );
 	m_pPatternModeLED->move( 179, 4 );
 	m_pPatternModeLED->setActivated( true );
-	m_pPatternModeBtn = new Button( pControlsPanel, QSize( 59, 11 ),
-									Button::Type::Toggle, "",
-									pCommonStrings->getPatternModeButton(),
-									false, QSize(), tr("Pattern Mode"),
-									false, true );
+	m_pPatternModeBtn = new Button(
+		pControlsPanel, QSize( 59, 11 ), Button::Type::Toggle, "",
+		pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
+		false, true );
 	m_pPatternModeBtn->setObjectName( "PlayerControlPatternModeButton" );
 	m_pPatternModeBtn->move( 190, 3 );
 	m_pPatternModeBtn->setChecked(true);
@@ -189,11 +192,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	// Song mode button
 	m_pSongModeLED = new LED( pControlsPanel, QSize( 11, 9 ) );
 	m_pSongModeLED->move( 252, 4 );
-	m_pSongModeBtn = new Button( pControlsPanel, QSize( 59, 11 ),
-								 Button::Type::Toggle, "",
-								 pCommonStrings->getSongModeButton(),
-								 false, QSize(), tr("Song Mode"),
-								 false, true );
+	m_pSongModeBtn = new Button(
+		pControlsPanel, QSize( 59, 11 ), Button::Type::Toggle, "",
+		pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
+		false, true );
 	m_pSongModeBtn->setObjectName( "PlayerControlSongModeButton" );
 	m_pSongModeBtn->move( 263, 3 );
 	connect( m_pSongModeBtn, &QPushButton::clicked,
@@ -209,11 +211,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_sBCOnOffBtnToolTip = tr("Toggle the BeatCounter Panel");
 	m_sBCOnOffBtnTimelineToolTip = tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
 	m_sBCOnOffBtnJackTimebaseToolTip = tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
-	m_pBCOnOffBtn = new Button( pControlsBBTBConoffPanel, QSize( 13, 42 ),
-								Button::Type::Toggle, "",
-								pCommonStrings->getBeatCounterButton(), false,
-								QSize(), m_sBCOnOffBtnToolTip,
-								false, true );
+	m_pBCOnOffBtn = new Button(
+		pControlsBBTBConoffPanel, QSize( 13, 42 ), Button::Type::Toggle, "",
+		pCommonStrings->getBeatCounterButton(), QSize(), m_sBCOnOffBtnToolTip,
+		false, true );
 	m_pBCOnOffBtn->move(0, 0);
 	connect( m_pBCOnOffBtn, SIGNAL( clicked() ),
 			 this, SLOT( activateBeatCounter() ) );
@@ -253,35 +254,35 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pBeatCounterBeatLengthUpBtn = new Button(
 		m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "plus.svg", "",
-		false, QSize( 8, 8 ), "", false, true );
+		QSize( 8, 8 ), "", false, true );
 	m_pBeatCounterBeatLengthUpBtn->move( 2, 3 );
 	connect( m_pBeatCounterBeatLengthUpBtn, SIGNAL( clicked() ),
 			 this, SLOT( beatCounterBeatLengthUpBtnClicked() ) );
 
 	m_pBeatCounterBeatLengthDownBtn = new Button(
 		m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "minus.svg", "",
-		false, QSize( 8, 8 ), "", false, true );
+		QSize( 8, 8 ), "", false, true );
 	m_pBeatCounterBeatLengthDownBtn->move( 2, 14 );
 	connect( m_pBeatCounterBeatLengthDownBtn, SIGNAL( clicked() ),
 			 this, SLOT( beatCounterBeatLengthDownBtnClicked() ) );
 
 	m_pBeatCounterTotalBeatsUpBtn = new Button(
 		m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "plus.svg", "",
-		false, QSize( 8, 8 ), "", false, true );
+		QSize( 8, 8 ), "", false, true );
 	m_pBeatCounterTotalBeatsUpBtn->move( 64, 3 );
 	connect( m_pBeatCounterTotalBeatsUpBtn, SIGNAL( clicked() ),
 			 this, SLOT( beatCounterTotalBeatsUpBtnClicked() ) );
 
 	m_pBeatCounterTotalBeatsDownBtn = new Button(
 		m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "minus.svg", "",
-		false, QSize( 8, 8 ), "", false, true );
+		QSize( 8, 8 ), "", false, true );
 	m_pBeatCounterTotalBeatsDownBtn->move( 64, 14 );
 	connect( m_pBeatCounterTotalBeatsDownBtn, SIGNAL( clicked() ),
 			 this, SLOT( beatCounterTotalBeatsDownBtnClicked() ) );
 
 	m_pBeatCounterSetPlayBtn = new Button(
 		m_pControlsBCPanel, QSize( 19, 15 ), Button::Type::Push, "",
-		pCommonStrings->getBeatCounterSetPlayButtonOff(), false, QSize(),
+		pCommonStrings->getBeatCounterSetPlayButtonOff(), QSize(),
 		tr("Set BPM / Set BPM and play"), false, true );
 	m_pBeatCounterSetPlayBtn->setObjectName( "BeatCounterSetPlayButton" );
 	m_pBeatCounterSetPlayBtn->move( 64, 25 );
@@ -315,12 +316,11 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pBpmSpinBox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
 
-	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 13, 42 ),
-									 Button::Type::Toggle, "",
-									 pCommonStrings->getRubberbandButton(),
-									 false, QSize(),
-									 tr("Recalculate Rubberband modified samples if bpm will change"),
-									 false, true );
+	m_pRubberBPMChange = new Button(
+		pBPMPanel, QSize( 13, 42 ), Button::Type::Toggle, "",
+		pCommonStrings->getRubberbandButton(), QSize(),
+		tr( "Recalculate Rubberband modified samples if bpm will change" ),
+		false, true );
 	m_pRubberBPMChange->setObjectName( "PlayerControlRubberbandButton" );
 	m_pRubberBPMChange->move( 131, 0 );
 	m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
@@ -335,11 +335,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMetronomeLED = new MetronomeLED( pBPMPanel, QSize( 22, 7 ) );
 	m_pMetronomeLED->move( 7, 32 );
 
-	m_pMetronomeBtn = new Button( pBPMPanel, QSize( 24, 28 ),
-								  Button::Type::Toggle, "metronome.svg", "",
-								  false, QSize( 20, 20 ),
-								  tr("Switch metronome on/off"),
-								  false, true );
+	m_pMetronomeBtn = new Button(
+		pBPMPanel, QSize( 24, 28 ), Button::Type::Toggle, "metronome.svg", "",
+		QSize( 20, 20 ), tr( "Switch metronome on/off" ), false, true );
 	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 	m_pMetronomeBtn->move( 6, 2 );
@@ -362,12 +360,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	/*: Using the JACK the audio/midi input and output ports of any
 	  number of application can be connected.*/
-	m_pJackTransportBtn = new Button( pJackPanel, QSize( 53, 16 ),
-									  Button::Type::Toggle, "",
-									  pCommonStrings->getJackTransportButton(),
-									  false, QSize(),
-									  tr("JACK transport on/off"),
-									  false, true );
+	m_pJackTransportBtn = new Button(
+		pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "",
+		pCommonStrings->getJackTransportButton(), QSize(),
+		tr( "JACK transport on/off" ), false, true );
 	m_pJackTransportBtn->setObjectName( "PlayerControlJackTransportButton" );
 	updateJackTransport();
 	connect(m_pJackTransportBtn, SIGNAL( clicked() ), this, SLOT( jackTransportBtnClicked() ));
@@ -375,7 +371,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pJackTimebaseBtn = new Button(
 		pJackPanel, QSize( 64, 16 ), Button::Type::Toggle, "",
-		pCommonStrings->getJackTimebaseButton(), false, QSize(),
+		pCommonStrings->getJackTimebaseButton(), QSize(),
 		pCommonStrings->getJackTimebaseTooltip(), false, true );
 	m_pJackTimebaseBtn->setObjectName( "PlayerControlJackTimebaseButton" );
 	updateJackTimebase();
@@ -410,9 +406,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pLcdBackGround->setObjectName( "LcdBackground" );
 	hbox->addWidget( pLcdBackGround );
 
-	m_pShowMixerBtn = new Button( pLcdBackGround, QSize( 88, 23 ), Button::Type::Toggle,
-								  "", pCommonStrings->getMixerButton(), false, QSize(),
-								  tr( "Show mixer" ) );
+	m_pShowMixerBtn = new Button(
+		pLcdBackGround, QSize( 88, 23 ), Button::Type::Toggle, "",
+		pCommonStrings->getMixerButton(), QSize(), tr( "Show mixer" ) );
 	m_pShowMixerBtn->setChecked( pPref->getMixerProperties().visible );
 	m_pShowMixerBtn->move( 0, 0 );
 	connect( m_pShowMixerBtn, &Button::clicked, [&]() {
@@ -420,7 +416,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pShowInstrumentRackBtn = new Button(
 		pLcdBackGround, QSize( 168, 23 ), Button::Type::Toggle, "",
-		pCommonStrings->getInstrumentRackButton(), false, QSize(),
+		pCommonStrings->getInstrumentRackButton(), QSize(),
 		tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setChecked(
 		pPref->getInstrumentRackProperties().visible );
@@ -949,6 +945,7 @@ void PlayerControl::updateJackTransport() {
 
 void PlayerControl::updateJackTimebase()
 {
+	const auto theme = Preferences::get_instance()->getTheme();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( ! pHydrogen->hasJackAudioDriver() ) {
@@ -959,7 +956,10 @@ void PlayerControl::updateJackTimebase()
 
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
 		m_pJackTimebaseBtn->setChecked( false );
-		m_pJackTimebaseBtn->setUseRedBackground( false );
+		m_pJackTimebaseBtn->setCheckedBackgroundColor(
+			theme.m_color.m_accentColor );
+		m_pJackTimebaseBtn->setCheckedBackgroundTextColor(
+			theme.m_color.m_accentTextColor );
 		m_pJackTimebaseBtn->setIsActive( false );
 		m_pJackTimebaseBtn->setBaseToolTip(
 			pCommonStrings->getJackTimebaseDisabledTooltip() );
@@ -968,7 +968,10 @@ void PlayerControl::updateJackTimebase()
 	else {
 		m_pJackTimebaseBtn->setIsActive( true );
 		m_pJackTimebaseBtn->setChecked( false );
-		m_pJackTimebaseBtn->setUseRedBackground( false );
+		m_pJackTimebaseBtn->setCheckedBackgroundColor(
+			theme.m_color.m_accentColor );
+		m_pJackTimebaseBtn->setCheckedBackgroundTextColor(
+			theme.m_color.m_accentTextColor );
 		m_pJackTimebaseBtn->setToolTip(
 			pCommonStrings->getJackTimebaseTooltip() );
 	}
@@ -981,7 +984,10 @@ void PlayerControl::updateJackTimebase()
 
 		case JackAudioDriver::Timebase::Listener:
 			m_pJackTimebaseBtn->setChecked( true );
-			m_pJackTimebaseBtn->setUseRedBackground( true );
+		m_pJackTimebaseBtn->setCheckedBackgroundColor(
+			theme.m_color.m_buttonRedColor );
+		m_pJackTimebaseBtn->setCheckedBackgroundTextColor(
+			theme.m_color.m_buttonRedTextColor );
 			m_pJackTimebaseBtn->setToolTip(
 				pCommonStrings->getJackTimebaseListenerTooltip() );
 			break;

@@ -161,7 +161,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	// Filter
 	m_pFilterBypassBtn = new Button(
 		m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getBypassButton(), true, QSize( 0, 0 ), "", false, true );
+		pCommonStrings->getBypassButton(), QSize( 0, 0 ), "", false, true );
 	connect( m_pFilterBypassBtn, &Button::clicked, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setFilterActive(
 			! m_pFilterBypassBtn->isChecked() );
@@ -349,10 +349,20 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 											  pCommonStrings->getHihatMaxRangeLabel() );
 	m_pHihatMaxRangeLbl->move( 208, 327 );
 
+	updateColors();
 	updateEditor();
 }
 
 InstrumentEditor::~InstrumentEditor() {
+}
+
+void InstrumentEditor::updateColors() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	m_pFilterBypassBtn->setCheckedBackgroundColor(
+		theme.m_color.m_muteColor );
+	m_pFilterBypassBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_muteTextColor );
 }
 
 void InstrumentEditor::updateEditor() {

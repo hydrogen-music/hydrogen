@@ -92,6 +92,10 @@ ColorTheme::ColorTheme()
 	, m_accentTextColor( QColor( 255, 255, 255 ) )
 	, m_playheadColor( QColor( 0, 0, 0 ) )
 	, m_cursorColor( QColor( 38, 39, 44 ) )
+	, m_muteColor( QColor( 191, 51, 51 ) )
+	, m_muteTextColor( QColor( 255, 255, 255 ) )
+	, m_soloColor( QColor( 168, 136, 38 ) )
+	, m_soloTextColor( QColor( 255, 255, 255 ) )
 {
 }
 
@@ -194,6 +198,10 @@ void ColorTheme::saveTo( XMLNode& parent ) const {
 	widgetNode.write_color( "spinBoxTextColor", m_spinBoxTextColor );
 	widgetNode.write_color( "playheadColor", m_playheadColor );
 	widgetNode.write_color( "cursorColor", m_cursorColor );
+	widgetNode.write_color( "muteColor", m_muteColor );
+	widgetNode.write_color( "muteTextColor", m_muteTextColor );
+	widgetNode.write_color( "soloColor", m_soloColor );
+	widgetNode.write_color( "soloTextColor", m_soloTextColor );
 }
 
 ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
@@ -490,7 +498,23 @@ ColorTheme ColorTheme::loadFrom( const XMLNode& parent, const bool bSilent ) {
 			widgetNode.read_color(
 				"cursorColor",
 				colorTheme.m_cursorColor, false, false, bSilent );
-	}
+		colorTheme.m_muteColor =
+			widgetNode.read_color(
+				"muteColor",
+				colorTheme.m_muteColor, false, false, bSilent );
+		colorTheme.m_muteTextColor =
+			widgetNode.read_color(
+				"muteTextColor",
+				colorTheme.m_muteTextColor, false, false, bSilent );
+		colorTheme.m_soloColor =
+			widgetNode.read_color(
+				"soloColor",
+				colorTheme.m_soloColor, false, false, bSilent );
+		colorTheme.m_soloTextColor =
+			widgetNode.read_color(
+				"soloTextColor",
+				colorTheme.m_soloTextColor, false, false, bSilent );
+}
 	else {
 		WARNINGLOG( "<widget> node not found" );
 	}
@@ -633,8 +657,16 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_playheadColor: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_playheadColor.name() ) )
 			.append( QString( "%1%2m_cursorColor: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_cursorColor.name() ) );
-	}
+					 .arg( s ).arg( m_cursorColor.name() ) )
+			.append( QString( "%1%2m_muteColor: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_muteColor.name() ) )
+			.append( QString( "%1%2m_muteTextColor: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_muteTextColor.name() ) )
+			.append( QString( "%1%2m_soloColor: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_soloColor.name() ) )
+			.append( QString( "%1%2m_soloTextColor: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_soloTextColor.name() ) );
+}
 	else {
 		sOutput = QString( "[ColorTheme] " )
 			.append( QString( "m_songEditor_backgroundColor: %1" )
@@ -762,7 +794,15 @@ QString ColorTheme::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_playheadColor: %1" )
 					 .arg( m_playheadColor.name() ) )
 			.append( QString( ", m_cursorColor: %1" )
-					 .arg( m_cursorColor.name() ) );
+					 .arg( m_cursorColor.name() ) )
+			.append( QString( ", m_muteColor: %1" )
+					 .arg( m_muteColor.name() ) )
+			.append( QString( ", m_muteTextColor: %1" )
+					 .arg( m_muteTextColor.name() ) )
+			.append( QString( ", m_soloColor: %1" )
+					 .arg( m_soloColor.name() ) )
+			.append( QString( ", m_soloTextColor: %1" )
+					 .arg( m_soloTextColor.name() ) );
 	}
 
 	return sOutput;
