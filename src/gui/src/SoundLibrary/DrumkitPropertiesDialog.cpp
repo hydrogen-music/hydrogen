@@ -111,7 +111,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 
 		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 			if ( bEditingNotSaving ) {
-				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
+				setWindowTitle( pCommonStrings->getActionEditCurrentDrumkitProperties() );
 			}
 			else if ( m_bSaveToNsmSession ){
 				setWindowTitle( tr( "Save a copy of the current drumkit to NSM session folder" ) );
@@ -122,7 +122,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 		}
 		else {
 			if ( bEditingNotSaving ) {
-				setWindowTitle( tr( "Edit Drumkit Properties" ) );
+				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
 				nameTxt->setIsActive( false );
 				nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, use 'Duplicate' instead." ) );
 			}
@@ -217,10 +217,17 @@ QTextEdit { \
 	tabWidget->setCurrentIndex( 0 );
 
 	saveBtn->setFixedFontSize( 12 );
-	saveBtn->setSize( QSize( 70, 23 ) );
+	saveBtn->setSize( QSize( 110, 23 ) );
 	saveBtn->setBorderRadius( 3 );
 	saveBtn->setType( Button::Type::Push );
-	saveBtn->setText( pCommonStrings->getButtonSave() );
+	if ( m_pDrumkit != nullptr &&
+		 m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+		saveBtn->setText( pCommonStrings->getActionSaveSong() );
+	}
+	else {
+		saveBtn->setText( pCommonStrings->getActionSaveDrumkit() );
+	}
+
 	m_cancelBtn->setFixedFontSize( 12 );
 	m_cancelBtn->setSize( QSize( 70, 23 ) );
 	m_cancelBtn->setBorderRadius( 3 );
