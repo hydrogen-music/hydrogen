@@ -61,13 +61,6 @@ class Instrument : public H2Core::Object<Instrument>
 		/** Minimum support pitch value */
 		static constexpr float fPitchMin = -24.5;
 
-		enum SampleSelectionAlgo {
-			VELOCITY,
-			ROUND_ROBIN,
-			RANDOM
-		};
-		static QString SampleSelectionAlgoToQString( const SampleSelectionAlgo& algo );
-
 		/**
 		 * constructor
 		 * \param id the id of this instrument
@@ -253,9 +246,6 @@ class Instrument : public H2Core::Object<Instrument>
 		/** get the stop notes of the instrument */
 		bool isStopNotes() const;
 
-		void setSampleSelectionAlg( SampleSelectionAlgo selected_algo);
-		SampleSelectionAlgo sampleSelectionAlg() const;
-
 		void setHihatGrp( int hihat_grp );
 		int getHihatGrp() const;
 
@@ -356,7 +346,6 @@ class Instrument : public H2Core::Object<Instrument>
 		int						m_nMidiOutNote;		///< midi out note
 		int						m_nMidiOutChannel;		///< midi out channel
 		bool					m_bStopNotes;			///< will the note automatically generate a note off after being on
-		SampleSelectionAlgo		m_sampleSelectionAlg;	///< how Hydrogen will chose the sample to use
 		bool					m_bSoloed;				///< is the instrument in solo mode?
 		bool					m_bMuted;				///< is the instrument muted?
 		int						m_nMuteGroup;			///< mute group of the instrument
@@ -592,16 +581,6 @@ inline void Instrument::setStopNotes( bool stopnotes )
 inline bool Instrument::isStopNotes() const
 {
 	return m_bStopNotes;
-}
-
-inline void Instrument::setSampleSelectionAlg( SampleSelectionAlgo selected_algo)
-{
-	m_sampleSelectionAlg = selected_algo;
-}
-
-inline Instrument::SampleSelectionAlgo Instrument::sampleSelectionAlg() const
-{
-	return m_sampleSelectionAlg;
 }
 
 inline void Instrument::setHihatGrp( int hihat_grp )

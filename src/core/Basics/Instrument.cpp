@@ -63,7 +63,6 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, m_nMidiOutNote( MidiMessage::instrumentOffset + id )
 	, m_nMidiOutChannel( -1 )
 	, m_bStopNotes( false )
-	, m_sampleSelectionAlg( VELOCITY )
 	, m_bSoloed( false )
 	, m_bMuted( false )
 	, m_nMuteGroup( -1 )
@@ -126,7 +125,6 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, m_nMidiOutNote( other->getMidiOutNote() )
 	, m_nMidiOutChannel( other->getMidiOutChannel() )
 	, m_bStopNotes( other->isStopNotes() )
-	, m_sampleSelectionAlg( other->sampleSelectionAlg() )
 	, m_bSoloed( other->isSoloed() )
 	, m_bMuted( other->isMuted() )
 	, m_nMuteGroup( other->getMuteGroup() )
@@ -340,19 +338,6 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 													true, false, bSilent ) );
 	pInstrument->setStopNotes( node.read_bool( "isStopNote", true,
 												  false, true, bSilent ) );
-
-	QString sRead_sample_select_algo = node.read_string( "sampleSelectionAlgo", "VELOCITY",
-														  true, true, bSilent  );
-	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
-		pInstrument->setSampleSelectionAlg( VELOCITY );
-	}
-	else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 ) {
-		pInstrument->setSampleSelectionAlg( ROUND_ROBIN );
-	}
-	else if ( sRead_sample_select_algo.compare("RANDOM") == 0 ) {
-		pInstrument->setSampleSelectionAlg( RANDOM );
-	}
-
 	pInstrument->setHihatGrp( node.read_int( "isHihat", -1,
 											 true, true, bSilent ) );
 	pInstrument->setLowerCc( node.read_int( "lower_cc", 0,
@@ -424,6 +409,31 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 		pInstrument->m_pComponents->clear();
 		for ( const auto& ppComponent : componentsLoaded ) {
 			pInstrument->getComponents()->push_back( ppComponent );
+		}
+	}
+
+	// Backward compatibility.
+	//
+	// In versions prior to 2.0 the sample selection algorithm was stored on
+	// instrument level. If found there, we need to propagate it the component
+	// level.
+	XMLNode selectionNode = node.firstChildElement( "sampleSelectionAlgo" );
+	if ( ! selectionNode.isNull() ) {
+		const QString sSelection = node.read_string(
+			"sampleSelectionAlgo", "VELOCITY", true, true, bSilent );
+		auto selection = InstrumentComponent::Selection::Velocity;
+		if ( sSelection.compare("VELOCITY") == 0 ) {
+			selection = InstrumentComponent::Selection::Velocity;
+		}
+		else if ( sSelection.compare("ROUND_ROBIN") == 0 ) {
+			selection = InstrumentComponent::Selection::RoundRobin;
+		}
+		else if ( sSelection.compare("RANDOM") == 0 ) {
+			selection = InstrumentComponent::Selection::Random;
+		}
+
+		for ( auto& ppComponent : *pInstrument->getComponents() ) {
+			ppComponent->setSelection( selection );
 		}
 	}
 
@@ -539,19 +549,6 @@ void Instrument::saveTo( XMLNode& node, bool bSongKit ) const
 	InstrumentNode.write_int( "midiOutChannel", m_nMidiOutChannel );
 	InstrumentNode.write_int( "midiOutNote", m_nMidiOutNote );
 	InstrumentNode.write_bool( "isStopNote", m_bStopNotes );
-
-	switch ( m_sampleSelectionAlg ) {
-	case VELOCITY:
-		InstrumentNode.write_string( "sampleSelectionAlgo", "VELOCITY" );
-		break;
-	case RANDOM:
-		InstrumentNode.write_string( "sampleSelectionAlgo", "RANDOM" );
-		break;
-	case ROUND_ROBIN:
-		InstrumentNode.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
-		break;
-	}
-
 	InstrumentNode.write_int( "isHihat", m_nHihatGrp );
 	InstrumentNode.write_int( "lower_cc", m_nLowerCc );
 	InstrumentNode.write_int( "higher_cc", m_nHigherCc );
@@ -726,8 +723,6 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nMidiOutChannel ) )
 			.append( QString( "%1%2m_bStopNotes: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bStopNotes ) )
-			.append( QString( "%1%2m_sampleSelectionAlg: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( SampleSelectionAlgoToQString( m_sampleSelectionAlg ) ) )
 			.append( QString( "%1%2m_bSoloed: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bSoloed ) )
 			.append( QString( "%1%2m_bMuted: %3\n" ).arg( sPrefix ).arg( s )
@@ -787,8 +782,6 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nMidiOutNote: %1" ).arg( m_nMidiOutNote ) )
 			.append( QString( ", m_nMidiOutChannel: %1" ).arg( m_nMidiOutChannel ) )
 			.append( QString( ", m_bStopNotes: %1" ).arg( m_bStopNotes ) )
-			.append( QString( ", m_sampleSelectionAlg: %1" )
-					 .arg( SampleSelectionAlgoToQString( m_sampleSelectionAlg ) ) )
 			.append( QString( ", m_bSoloed: %1" ).arg( m_bSoloed ) )
 			.append( QString( ", m_bMuted: %1" ).arg( m_bMuted ) )
 			.append( QString( ", m_nMuteGroup: %1" ).arg( m_nMuteGroup ) )
@@ -818,21 +811,6 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		
 	return sOutput;
 }
-
-QString Instrument::SampleSelectionAlgoToQString( const SampleSelectionAlgo& sampleSelectionAlgo ) {
-	switch( sampleSelectionAlgo ) {
-	case SampleSelectionAlgo::VELOCITY:
-		return "Velocity";
-	case SampleSelectionAlgo::ROUND_ROBIN:
-		return "Round Robin";
-	case SampleSelectionAlgo::RANDOM:
-		return "Random";
-	default:
-		return QString( "Unknown sampleSelectionAlgo [%1]" )
-			.arg( static_cast<int>(sampleSelectionAlgo) );
-	}
-}
-
 
 };
 

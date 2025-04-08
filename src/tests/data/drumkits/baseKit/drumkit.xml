@@ -37,7 +37,6 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <isStopNote>true</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
@@ -50,6 +49,7 @@ p, li { white-space: pre-wrap; }
     <gain>1</gain>
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
     <layer>
      <filename>crash.wav</filename>
      <min>0.5</min>
@@ -114,7 +114,6 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <isStopNote>true</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
@@ -127,6 +126,7 @@ p, li { white-space: pre-wrap; }
     <gain>1</gain>
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
     <layer>
      <filename>hh.wav</filename>
      <min>0</min>
@@ -172,7 +172,6 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <isStopNote>true</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
@@ -185,6 +184,7 @@ p, li { white-space: pre-wrap; }
     <gain>1</gain>
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
     <layer>
      <filename>snare.wav</filename>
      <min>0</min>
@@ -230,7 +230,6 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
    <isStopNote>true</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
@@ -243,6 +242,7 @@ p, li { white-space: pre-wrap; }
     <gain>1</gain>
     <isMuted>false</isMuted>
     <isSoloed>false</isSoloed>
+    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
     <layer>
      <filename>kick.wav</filename>
      <min>0</min>

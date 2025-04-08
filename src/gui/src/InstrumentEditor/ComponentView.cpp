@@ -952,9 +952,7 @@ void ComponentView::setAutoVelocity() {
 }
 
 void ComponentView::sampleSelectionChanged( int selected ) {
-	auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
-		getInstrumentEditorPanel()->getInstrument();
-	 if ( pInstrument == nullptr ) {
+	 if ( m_pComponent == nullptr ) {
 		 return;
 	 }
 
@@ -965,13 +963,13 @@ void ComponentView::sampleSelectionChanged( int selected ) {
 	 }
 
 	if ( selected == 0 ){
-		pInstrument->setSampleSelectionAlg( Instrument::VELOCITY );
+		m_pComponent->setSelection( InstrumentComponent::Selection::Velocity );
 	}
 	else if ( selected == 1 ){
-		pInstrument->setSampleSelectionAlg( Instrument::ROUND_ROBIN );
+		m_pComponent->setSelection( InstrumentComponent::Selection::RoundRobin );
 	}
 	else if ( selected == 2){
-		pInstrument->setSampleSelectionAlg( Instrument::RANDOM );
+		m_pComponent->setSelection( InstrumentComponent::Selection::Random );
 	}
 }
 
