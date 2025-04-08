@@ -670,6 +670,7 @@ void MainForm::action_file_new()
 
 bool MainForm::action_file_save_as()
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPref = Preferences::get_instance();
@@ -695,7 +696,7 @@ bool MainForm::action_file_save_as()
 	if ( bUnderSessionManagement ) {	
 		fd.setWindowTitle( tr( "Export song from Session" ) );
 	} else {
-		fd.setWindowTitle( tr( "Save song" ) );
+		fd.setWindowTitle( pCommonStrings->getActionSaveSong() );
 	}
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );

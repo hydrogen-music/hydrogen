@@ -598,6 +598,7 @@ CommonStrings::CommonStrings(){
 	 *  Separated by a whitespace the name of the drumkit as well as the path it
 	 *  was stored in will be appended to the translated message. */
 	m_sActionSaveDrumkit = tr( "Save drumkit" );
+	m_sActionSaveSong = tr( "Save song" );
 	/*: Status message displayed when the current drumkit is saved into the
 	 *  Sound Library. Separated by a whitespace the path it was stored in will
 	 *  be appended to the translated message. */
