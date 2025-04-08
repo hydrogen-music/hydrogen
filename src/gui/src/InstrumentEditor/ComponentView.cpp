@@ -835,6 +835,7 @@ void ComponentView::loadLayerBtnClicked() {
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
@@ -863,6 +864,8 @@ void ComponentView::loadLayerBtnClicked() {
 
 	AudioFileBrowser *pFileBrowser =
 		new AudioFileBrowser( nullptr, true, true, sPath, sFilename );
+	// The first two elements of this list will indicate whether the user has
+	// checked the additional options.
 	QStringList filename;
 	filename << "false" << "false" << "";
 
@@ -885,12 +888,13 @@ void ComponentView::loadLayerBtnClicked() {
 		return;
 	}
 
-	auto pInstrument = HydrogenApp::get_instance()->getInstrumentRack()->
+	auto pInstrument = pHydrogenApp->getInstrumentRack()->
 		getInstrumentEditorPanel()->getInstrument();
-	bool fnc = false;
-	if ( filename[0] ==  "true" ){
-		fnc = true;
+	bool bRenameInstrument = false;
+	if ( filename[0] == "true" ){
+		bRenameInstrument = true;
 	}
+	QString sNewInstrumentName;
 
 	int nLastInsertedLayer = m_nSelectedLayer;
 	if ( filename.size() > 2 ) {
@@ -919,10 +923,10 @@ void ComponentView::loadLayerBtnClicked() {
 			}
 			nLastInsertedLayer = nnLayer;
 
-			if ( fnc ){
-				QString newFilename = filename[ii].section( '/', -1 );
-				newFilename.replace( "." + newFilename.section( '.', -1 ), "");
-				pInstrument->setName( newFilename );
+			if ( bRenameInstrument ){
+				sNewInstrumentName = filename[ii].section( '/', -1 );
+				sNewInstrumentName.
+					replace( "." + sNewInstrumentName.section( '.', -1 ), "");
 			}
 
 			//set automatic velocity
@@ -938,6 +942,24 @@ void ComponentView::loadLayerBtnClicked() {
 
 	setSelectedLayer( nLastInsertedLayer );
 	updateView();
+
+	// The user choose to rename the instrument according to the (last) filename
+	// of the selected sample.
+	if ( bRenameInstrument && ! sNewInstrumentName.isEmpty() ) {
+		auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+		pNewInstrument->setName( sNewInstrumentName );
+
+		pHydrogenApp->pushUndoCommand(
+			new SE_replaceInstrumentAction(
+				pNewInstrument, pInstrument,
+				SE_replaceInstrumentAction::Type::RenameInstrument,
+				sNewInstrumentName, pInstrument->getName() ) );
+
+		pHydrogenApp->showStatusBarMessage(
+			QString( "%1 [%2] -> [%3]" )
+			.arg( pHydrogenApp->getCommonStrings()->getActionRenameInstrument() )
+			.arg( pInstrument->getName() ).arg( sNewInstrumentName ) );
+	}
 }
 
 void ComponentView::setAutoVelocity() {
