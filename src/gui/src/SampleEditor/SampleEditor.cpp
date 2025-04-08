@@ -640,8 +640,16 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pLayer == nullptr ) {
 		return;
 	}
+
+	// We register the current component to be rendered using a specific layer.
+	// This will cause all other components _not_ to be rendered.
+	auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
+	pSelectedLayerInfo->pLayer = pLayer;
+
 	auto pNote = std::make_shared<Note>(
 		pInstr, 0, pLayer->getEndVelocity() - 0.01 );
+	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pCompo );
+
 	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 
 	setSamplelengthFrames();
