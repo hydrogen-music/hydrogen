@@ -428,8 +428,11 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 	pInstrument->set_stop_notes( pNode->read_bool( "isStopNote", true,
 												  false, true, bSilent ) );
 
+	// For versions >= 2.0 the sample selection algorithm was moved on component
+	// level. That's why we suppress warning logs in here, as there can be quite
+	// a number downgrading Hydrogen.
 	QString sRead_sample_select_algo = pNode->read_string( "sampleSelectionAlgo", "VELOCITY",
-														  true, true, bSilent  );
+														  true, true, true  );
 	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
 		pInstrument->set_sample_selection_alg( VELOCITY );
 	}
