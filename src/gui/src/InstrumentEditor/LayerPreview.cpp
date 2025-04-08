@@ -31,6 +31,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Theme.h>
@@ -283,7 +284,6 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		if ( pComponent->hasSamples() && pInstrument != nullptr ) {
 			auto pNote = std::make_shared<Note>(
 				pInstrument, nPosition, fVelocity );
-			pNote->setSpecificCompoIdx( pInstrument->index( pComponent ) );
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		}
 
@@ -320,7 +320,6 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 					const auto pNote = std::make_shared<Note>(
 						pInstrument, nPosition, fVelocity );
-					pNote->setSpecificCompoIdx( pInstrument->index( pComponent ) );
 					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 						noteOn( pNote );
 				}

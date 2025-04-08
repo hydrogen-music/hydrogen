@@ -477,14 +477,13 @@ void Sampler::handleTimelineOrTempoChange() {
 			double fTickMismatch;
 
 			// Do so for all layers of all components current processed.
-			for ( int ii = 0; ii <=
-					  ppNote->getInstrument()->getComponents()->size(); ++ii ) {
-				const auto ppSelectedLayerInfo = ppNote->getLayerSelected( ii );
-				if ( ppSelectedLayerInfo == nullptr ) {
+			for ( const auto& [ _, ppSelectedLayerInfo ] :
+					  ppNote->getAllSelectedLayerInfos() ) {
+				if ( ppSelectedLayerInfo == nullptr ||
+					 ppSelectedLayerInfo->pLayer == nullptr ) {
 					continue;
 				}
-				const auto pSample = ppNote->getSample(
-					ii, ppSelectedLayerInfo->nSelectedLayer );
+				const auto pSample = ppSelectedLayerInfo->pLayer->getSample();
 				if ( pSample == nullptr ) {
 					continue;
 				}
@@ -656,6 +655,34 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 	}
 	//---------------------------------------------------------
 
+	// In case there were already some layers selected for specific components -
+	// e.g. when clicking a layer in the ComponentsEditor or when using the
+	// SampleEditor - we use those. If not, we will select them right here
+	// according to the sample selected algorithms.
+	if ( ! pNote->layersAlreadySelected() ) {
+		pNote->selectLayers( m_lastUsedLayersMap );
+
+		// Note that manually selected layers bypassing this if clause are not
+		// incorporated into the round robin layer selection on purpose.
+		for ( const auto& [ ppComponent, ppSelectedLayerInfo ] :
+				  pNote->getAllSelectedLayerInfos() ) {
+			if ( ppComponent != nullptr ) {
+				if ( ppSelectedLayerInfo != nullptr &&
+					 ppSelectedLayerInfo->pLayer != nullptr ) {
+					m_lastUsedLayersMap[ ppComponent ] =
+						ppSelectedLayerInfo->pLayer;
+				}
+				else if ( m_lastUsedLayersMap.find( ppComponent ) !=
+						  m_lastUsedLayersMap.end() ) {
+					// No layer selected and the component is already present in
+					// the map. We will delete its entry.
+					m_lastUsedLayersMap.erase(
+						m_lastUsedLayersMap.find( ppComponent ) );
+				}
+			}
+		}
+	}
+
 	auto pComponents = pInstr->getComponents();
 	auto returnValues = std::vector<bool>( pComponents->size() );
 
@@ -663,56 +690,32 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		returnValues[ ii ] = false;
 	}
 
-	int nAlreadySelectedLayer = -1;
-
 	for ( int ii = 0; ii < pComponents->size(); ++ii ) {
 		auto pCompo = pComponents->at( ii );
 		if ( pCompo == nullptr ) {
 			ERRORLOG( QString( "Component [%1] is invalid" ).arg( ii ) );
+			returnValues[ ii ] = true;
 			continue;
 		}
 
-		// Check whether only a specific instrument component should be played
-		// back (layer preview and sample editor).
-		if ( pNote->getSpecificCompoIdx() != -1 &&
-			 pNote->getSpecificCompoIdx() != ii ) {
+		auto pSelectedLayerInfo = pNote->getSelecterLayerInfo( pCompo );
+		if ( pSelectedLayerInfo == nullptr ||
+			 pSelectedLayerInfo->pLayer == nullptr ) {
+			// Component skipped
+			returnValues[ ii ] = true;
 			continue;
 		}
 
-		auto pSample = pNote->getSample( ii, nAlreadySelectedLayer );
+		auto pLayer = pSelectedLayerInfo->pLayer;
+		auto pSample = pLayer->getSample();
 		if ( pSample == nullptr ) {
+			DEBUGLOG( "Selected layer has no sample!" );
 			returnValues[ ii ] = true;
 			continue;
 		}
 
-		auto pSelectedLayerInfo = pNote->getLayerSelected( ii );
-		if ( pSelectedLayerInfo == nullptr ) {
-			ERRORLOG( "Invalid selection layer." );
-			returnValues[ ii ] = true;
-			continue;
-		}
-
-		// For round robin and random selection we will use the same
-		// layer again for all other samples.
-		if ( nAlreadySelectedLayer != -1 &&
-			 pCompo->getSelection() != InstrumentComponent::Selection::Velocity ) {
-			nAlreadySelectedLayer = pSelectedLayerInfo->nSelectedLayer;
-		}
-
-		if ( pSelectedLayerInfo->nSelectedLayer == -1 ) {
-			ERRORLOG( "Sample selection did not work." );
-			returnValues[ ii ] = true;
-			continue;
-		}
-		auto pLayer = pCompo->getLayer( pSelectedLayerInfo->nSelectedLayer );
-		if ( pLayer == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve layer [%1]" )
-					  .arg( pSelectedLayerInfo->nSelectedLayer ) );
-			returnValues[ ii ] = true;
-			continue;
-		}
-		float fLayerGain = pLayer->getGain();
-		float fLayerPitch = pLayer->getPitch();
+		const float fLayerGain = pLayer->getGain();
+		const float fLayerPitch = pLayer->getPitch();
 
 		if ( pSelectedLayerInfo->fSamplePosition >= pSample->getFrames() ) {
 			// Due to rounding errors in renderNoteResample() the
@@ -744,13 +747,13 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		 *   - if another instrument  or component/layer of the same
 		 *     instrument is soloed.
 		 */
-		bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
-								 ! pInstr->isCurrentlyExported() );
-		bool bAnyInstrumentIsSoloed =
+		const bool bIsMutedForExport = ( pHydrogen->getIsExportSessionActive() &&
+										 ! pInstr->isCurrentlyExported() );
+		const bool bAnyInstrumentIsSoloed =
 			pSong->getDrumkit()->getInstruments()->isAnyInstrumentSoloed();
-		bool bAnyComponentIsSoloed = pInstr->isAnyComponentSoloed();
-		bool bAnyLayerIsSoloed = pCompo->isAnyLayerSoloed();
-		bool bIsMutedBecauseOfSolo =
+		const bool bAnyComponentIsSoloed = pInstr->isAnyComponentSoloed();
+		const bool bAnyLayerIsSoloed = pCompo->isAnyLayerSoloed();
+		const bool bIsMutedBecauseOfSolo =
 			( bAnyInstrumentIsSoloed && ! pInstr->isSoloed() ||
 			  bAnyComponentIsSoloed && ! pCompo->getIsSoloed() ||
 			  bAnyLayerIsSoloed && ! pLayer->getIsSoloed() );
@@ -800,13 +803,6 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			fCostTrack_L *= fNotePan_L;
 			fCostTrack_R *= fNotePan_R;
 		}
-
-		// Se non devo fare resample (drumkit) posso evitare di utilizzare i float e gestire il tutto in
-		// maniera ottimizzata
-		//	constant^12 = 2, so constant = 2^(1/12) = 1.059463.
-		//	float nStep = 1.0;1.0594630943593
-
-		float fTotalPitch = pNote->getTotalPitch() + fLayerPitch;
 
 		// Once the Sampler does start rendering a note we also push
 		// it to all connected MIDI devices.

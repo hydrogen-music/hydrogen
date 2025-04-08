@@ -642,7 +642,6 @@ void SampleEditor::on_PlayPushButton_clicked()
 	}
 	auto pNote = std::make_shared<Note>(
 		pInstr, 0, pLayer->getEndVelocity() - 0.01 );
-	pNote->setSpecificCompoIdx( m_nSelectedComponent );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 
 	setSamplelengthFrames();

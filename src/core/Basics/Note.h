@@ -23,12 +23,12 @@
 #ifndef H2C_NOTE_H
 #define H2C_NOTE_H
 
+#include <map>
 #include <memory>
 
 #include <core/Object.h>
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
-#include <core/Basics/Sample.h>
 
 #include <core/IO/MidiCommon.h>
 
@@ -64,23 +64,21 @@ namespace H2Core
 
 class XMLNode;
 class ADSR;
-class Instrument;
+class InstrumentLayer;
 class InstrumentList;
 
 /** Auxiliary variables storing the rendering state of a #H2Core::Note within
  * the #H2Core::Sampler */
 struct SelectedLayerInfo {
-	/** Selected layer during rendering in the #H2Core::Sampler.
-	 *
-	 * If set to -1 (during creation), Sampler::renderNote() will determine
-	 * which layer to use and overrides this variable with the corresponding
-	 * value. */
-	int nSelectedLayer;
+	SelectedLayerInfo();
+	~SelectedLayerInfo();
 
-	/** Stores the frame till which the #H2Core::Sample of the selected
-	 * #H2Core::InstrumentLayer using #nSelectedLayer was already rendered. If
-	 * several cycles of #Sampler::renderNote() are required, this variable
-	 * corresponds to the starting point of each cycle.
+	/** Selected layer during rendering in the #H2Core::Sampler. */
+	std::shared_ptr<InstrumentLayer> pLayer;
+
+	/** Stores the frame till which the #H2Core::Sample of #pLayer was already
+	 * rendered. If several cycles of #Sampler::renderNote() are required, this
+	 * variable corresponds to the starting point of each cycle.
 	 *
 	 * It is given in float instead of int/long - what one might expect when
 	 * talking about frames - since it also serves as the fraction of the
@@ -91,15 +89,15 @@ struct SelectedLayerInfo {
 	 * considered done.
 	 *
 	 * For regular notes this is the number of frames of the #H2Core::Sample
-	 * corresponding to #nSelectedLayer.
+	 * contained in #pLayer.
 	 *
-	 * If, however, the user specifies the length of a note things are more
-	 * complex. The length is specified in the GUI in **ticks** and this
-	 * variable is the corresponding value in frames. Now, whenever manually
-	 * adjusting the tempo or adding/deleting a tempo marker the length of the
-	 * note in frames differs for the new speed. In case rendering did already
-	 * started, it is important to not rescale the whole length of the note but
-	 * just the fraction between #fSamplePosition and the former #nNoteLength.*/
+	 * If, however, the user specifies a custom length, things are more complex.
+	 * The length is specified in the GUI in **ticks** and this variable is the
+	 * corresponding value in frames. Now, whenever manually adjusting the tempo
+	 * or adding/deleting a tempo marker the length of the note in frames
+	 * differs for the new speed. In case rendering did already started, it is
+	 * important to not rescale the whole length of the note but just the
+	 * fraction between #fSamplePosition and the former #nNoteLength.*/
 	int nNoteLength;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
@@ -183,8 +181,6 @@ class Note : public H2Core::Object<Note>
 		void setType( DrumkitMap::Type sType );
 		DrumkitMap::Type getType() const;
 
-		void setSpecificCompoIdx( int value );
-		int getSpecificCompoIdx() const;
 		/**
 		 * #m_nPosition setter
 		 * \param value the new value
@@ -240,7 +236,31 @@ class Note : public H2Core::Object<Note>
 		/** #m_nMidiMsg accessor */
 		int getMidiMsg() const;
 
-	std::shared_ptr<SelectedLayerInfo> getLayerSelected( int nIdx ) const;
+		bool layersAlreadySelected() const;
+
+		/** Picks one #H2Core::InstrumentLayer for each
+		 * #H2Core::InstrumentComponent in #m_pInstrument according to
+		 * #H2Core::InstrumentComponent::m_selection.
+		 *
+		 * In order to allow for a consistent round robin selection, the layers
+		 * used last for all encountered components is provided. */
+		void selectLayers( const std::map< std::shared_ptr<InstrumentComponent>,
+						     std::shared_ptr<InstrumentLayer> >& lastUsedLayers );
+
+		std::map< std::shared_ptr<InstrumentComponent>,
+				  std::shared_ptr<SelectedLayerInfo> > getAllSelectedLayerInfos() const;
+		/** Returns the #H2Core::InstrumentLayer and some additional rendering
+		 * meta data for a given component. If no selection took place yet,
+		 * `nullptr` will be returned. */
+		std::shared_ptr<SelectedLayerInfo> getSelecterLayerInfo(
+			std::shared_ptr<InstrumentComponent> pComponent ) const;
+		/** Can be used for custom layer selection.
+		 *
+		 * Note that when using this function for one
+		 * #H2Core::InstrumentComponent, you have to use it for all others too
+		 * or no layer/sample will be picked for them. */
+		void setSelectedLayerInfo( std::shared_ptr<SelectedLayerInfo> pInfo,
+								   std::shared_ptr<InstrumentComponent> pComponent );
 
 		void setProbability( float value );
 		float getProbability() const;
@@ -427,23 +447,6 @@ class Note : public H2Core::Object<Note>
 			return KEYS_PER_OCTAVE * ( OCTAVE_MIN + OCTAVE_NUMBER ) - 1 - nPitch;
 		}
 
-	/**
-	 * Returns the sample associated with the note for a specific
-	 * InstrumentComponent @a nComponentIdx.
-	 *
-	 * A sample of the InstrumentComponent is a possible candidate if
-	 * the note velocity falls within the start and end velocity of an
-	 * InstrumentLayer. In case multiple samples are possible the
-	 * function will either pick the provided @a nSelectedLayer or -
-	 * for @a nSelectedLayer == -1 - the selection algorithm stored in
-	 * #m_pInstrument to determined a layer.
-	 *
-	 * The function stores the selected layer in #m_layersSelected
-	 * and will reuse this parameter in every following call while
-	 * disregarding the provided @a nSelectedLayer.
-	 */
-	std::shared_ptr<Sample> getSample( int nComponentIdx, int nSelectedLayer = -1 ) const;
-
 	private:
 		int				m_nInstrumentId;        ///< the id of the instrument played by this note
 		/** Drumkit-independent identifier used to relate a note/pattern to a
@@ -507,13 +510,8 @@ class Note : public H2Core::Object<Note>
 	 */
 	float m_fUsedTickSize;
 
-		/** Play a specific component, -1 if playing all */
-		int				m_nSpecificCompoIdx;
-
-		/** One #SelectedLayerInfo for each #InstrumentComponent in
-		 * #m_pInstrument. It assumes the same order as
-		 * #Instrument::__components. */
-	std::vector<std::shared_ptr<SelectedLayerInfo>> m_layersSelected;
+		std::map< std::shared_ptr<InstrumentComponent>,
+				  std::shared_ptr<SelectedLayerInfo> > m_selectedLayerInfoMap;
 
 		/** the instrument to be played by this note */
 		std::shared_ptr<Instrument>		m_pInstrument;
@@ -546,16 +544,6 @@ inline void Note::setType( DrumkitMap::Type sType ) {
 }
 inline DrumkitMap::Type Note::getType() const {
 	return m_sType;
-}
-
-inline void Note::setSpecificCompoIdx( int value )
-{
-	m_nSpecificCompoIdx = value;
-}
-
-inline int Note::getSpecificCompoIdx() const
-{
-	return m_nSpecificCompoIdx;
 }
 
 inline void Note::setPosition( int value )
@@ -613,6 +601,11 @@ inline int Note::getMidiMsg() const
 	return m_nMidiMsg;
 }
 
+inline std::map< std::shared_ptr<InstrumentComponent>,
+				 std::shared_ptr<SelectedLayerInfo> > Note::getAllSelectedLayerInfos() const {
+	return m_selectedLayerInfoMap;
+}
+
 inline float Note::getProbability() const
 {
 	return m_fProbability;
@@ -621,14 +614,6 @@ inline float Note::getProbability() const
 inline void Note::setProbability( float value )
 {
 	m_fProbability = value;
-}
-
-inline std::shared_ptr<SelectedLayerInfo> Note::getLayerSelected( int nCompoIdx ) const
-{
-	if ( nCompoIdx < 0 || nCompoIdx >= m_layersSelected.size() ) {
-		return nullptr;
-	}
-	return m_layersSelected.at( nCompoIdx );
 }
 
 inline int Note::getHumanizeDelay() const

@@ -41,6 +41,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>

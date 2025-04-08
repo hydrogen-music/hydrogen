@@ -1813,12 +1813,19 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 				if ( bTestAudio ) {
 					// Check for consistency in the Sample position
 					// advanced by the Sampler upon rendering.
-					for ( int nn = 0; nn < ppNewNote->getInstrument()->getComponents()->size(); nn++ ) {
-						auto pSelectedLayer = ppOldNote->getLayerSelected( nn );
-						if ( pSelectedLayer == nullptr ) {
+					for ( const auto& [ ppComponent, ppOldSelectedLayerInfo ] :
+							  ppOldNote->getAllSelectedLayerInfos() ) {
+						if ( ppOldSelectedLayerInfo == nullptr ||
+							 ppOldSelectedLayerInfo->pLayer == nullptr ||
+							 ppOldSelectedLayerInfo->pLayer->getSample() == nullptr ||
+							 ppComponent == nullptr ) {
 							AudioEngineTests::throwException(
-								QString( "[checkAudioConsistency] [%4] Invalid selected layer" ) );
+								QString( "[checkAudioConsistency] [%1] Invalid selected layer" )
+								.arg( sContext ) );
 						}
+
+						const auto pOldLayer = ppOldSelectedLayerInfo->pLayer;
+						const auto pOldSample = pOldLayer->getSample();
 						
 						// The frames passed during the audio
 						// processing depends on the sample rate of
@@ -1826,25 +1833,33 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						// adjusted in here. This is equivalent to the
 						// question whether Sampler::renderNote() or
 						// Sampler::renderNoteResample() was used.
-						if ( ppOldNote->getSample( nn )->getSampleRate() !=
-							 nSampleRate ||
+						if ( pOldSample->getSampleRate() != nSampleRate ||
 							 ppOldNote->getTotalPitch() != 0.0 ) {
 							// In here we assume the layer pitch is zero.
 							fPassedFrames = static_cast<double>(nPassedFrames) *
 								Note::pitchToFrequency( ppOldNote->getTotalPitch() ) *
-								static_cast<float>(ppOldNote->getSample( nn )->getSampleRate()) /
+								static_cast<float>(pOldSample->getSampleRate()) /
 								static_cast<float>(nSampleRate);
 						}
-						
-						const int nSampleFrames =
-							ppNewNote->getInstrument()->getComponent( nn )
-							->getLayer( pSelectedLayer->nSelectedLayer )
-							->getSample()->getFrames();
+
+						auto pNewSelectedLayerInfo =
+							ppNewNote->getSelecterLayerInfo( ppComponent );
+						if ( pNewSelectedLayerInfo == nullptr ||
+							 pNewSelectedLayerInfo->pLayer == nullptr ||
+							 pNewSelectedLayerInfo->pLayer->getSample() == nullptr ) {
+							AudioEngineTests::throwException(
+								QString( "[checkAudioConsistency] [%1] Mismatching selection between old and new note." )
+								.arg( sContext ) );
+						}
+						const auto pNewLayer = pNewSelectedLayerInfo->pLayer;
+						const auto pNewSample = pNewLayer->getSample();
+
+						const int nSampleFrames = pNewSample->getFrames();
 						const double fExpectedFrames =
-							std::min( static_cast<double>(pSelectedLayer->fSamplePosition) +
+							std::min( static_cast<double>(ppOldSelectedLayerInfo->fSamplePosition) +
 									  fPassedFrames,
 									  static_cast<double>(nSampleFrames) );
-						if ( std::abs( ppNewNote->getLayerSelected( nn )->fSamplePosition -
+						if ( std::abs( pNewSelectedLayerInfo->fSamplePosition -
 									   fExpectedFrames ) > 1 ) {
 							AudioEngineTests::throwException(
 								QString( "[checkAudioConsistency] [%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8\n" )
@@ -1852,9 +1867,9 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 								.arg( ppNewNote->toQString( "", true ) )
 								.arg( fPassedFrames, 0, 'f' ).arg( sContext )
 								.arg( nSampleFrames ).arg( fExpectedFrames, 0, 'f' )
-								.arg( ppOldNote->getSample( nn )->getSampleRate() )
+								.arg( pOldSample->getSampleRate() )
 								.arg( nSampleRate )
-								.arg( ppNewNote->getLayerSelected( nn )->fSamplePosition -
+								.arg( pNewSelectedLayerInfo->fSamplePosition -
 									  fExpectedFrames, 0, 'g', 30 ) );
 						}
 					}
