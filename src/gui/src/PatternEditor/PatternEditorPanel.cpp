@@ -1908,7 +1908,8 @@ void PatternEditorPanel::updateDB() {
 	// of the kit intended.
 	for ( const auto& ppInstrument : *pInstrumentList ) {
 		if ( ppInstrument != nullptr ) {
-			const bool bNoPlayback = ppInstrument->isMuted() ||
+			const bool bNoPlayback =
+				! ppInstrument->hasSamples() || ppInstrument->isMuted() ||
 				( pInstrumentList->isAnyInstrumentSoloed() &&
 				  ! ppInstrument->isSoloed() );
 
