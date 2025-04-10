@@ -424,10 +424,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	std::vector< std::shared_ptr<Note> > notes;
 	for ( const auto& ppNote : m_selection ) {
-		if ( ppNote != nullptr &&
-			( ( ppNote->getInstrumentId() == selectedRow.nInstrumentID &&
-			   ppNote->getType() == selectedRow.sType ) ||
-			  m_selection.isSelected( ppNote ) ) ) {
+		if ( ppNote != nullptr && ( selectedRow.contains( ppNote ) ||
+									m_selection.isSelected( ppNote ) ) ) {
 
 			// Record original note if not already recorded
 			if ( m_oldNotes.find( ppNote ) == m_oldNotes.end() ) {
@@ -583,10 +581,8 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 	for ( auto it = notes->lower_bound( nDrawStart );
 		  it != notes->end() && it->first <= nDrawEnd; ++it ) {
 		const auto ppNote = it->second;
-		if ( ppNote != nullptr &&
-			 ( ( ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType ) ||
-			   m_selection.isSelected( ppNote ) ) ) {
+		if ( ppNote != nullptr && ( row.contains( ppNote ) ||
+									m_selection.isSelected( ppNote ) ) ) {
 			notesSinceLastAction.push_back( ppNote );
 		}
 	}
@@ -1583,8 +1579,7 @@ void NotePropertiesRuler::drawPattern() {
 			if ( ( ppNote->getNoteOff() &&
 				   ! ( m_property == PatternEditor::Property::Probability ||
 					   m_property == PatternEditor::Property::LeadLag ) ) ||
-				 ! ( ppNote->getInstrumentId() == selectedRow.nInstrumentID &&
-					 ppNote->getType() == selectedRow.sType ) &&
+				 ! selectedRow.contains( ppNote ) &&
 				 ! m_selection.isSelected( ppNote ) ) {
 				continue;
 			}
@@ -1627,8 +1622,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	rNormalized += QMargins( 4, 4, 4, 4 );
 
 	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(notes,it, pPattern) {
-		if ( ! ( it->second->getInstrumentId() == selectedRow.nInstrumentID &&
-				 it->second->getType() == selectedRow.sType ) &&
+		if ( ! selectedRow.contains( it->second ) &&
 			 ! m_selection.isSelected( it->second ) ) {
 			continue;
 		}
@@ -1673,9 +1667,7 @@ std::set< std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes() con
 		m_pPatternEditorPanel->getSelectedRowDB() );
 	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
 		if ( ppNote != nullptr &&
-			 ( m_selection.isSelected( ppNote ) ||
-			   ( ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType ) ) ) {
+			 ( m_selection.isSelected( ppNote ) || row.contains( ppNote ) ) ) {
 			notes.insert( ppNote );
 		}
 	}

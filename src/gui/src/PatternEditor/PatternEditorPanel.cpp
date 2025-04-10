@@ -71,6 +71,36 @@ DrumPatternRow::DrumPatternRow( int nId, const QString& sTypeString,
 	, bPlaysBackAudio( bPlaysAudio ) {
 }
 
+bool DrumPatternRow::contains( std::shared_ptr<Note> pNote ) const {
+	if ( pNote == nullptr ) {
+		return false;
+	}
+
+	// If mapped to a drumkit, the note will have a valid instrument assigned.
+	if ( bMappedToDrumkit && pNote->getInstrument() != nullptr &&
+		 pNote->getInstrumentId() == nInstrumentID ) {
+		// For legacy kits we have no type to compare to. But there will
+		// always be an unique instrument id.
+		return true;
+	}
+	else if ( pNote->getInstrument() == nullptr &&
+			  pNote->getType().isEmpty() && sType.isEmpty() &&
+			  pNote->getInstrumentId() == nInstrumentID ) {
+		return true;
+	}
+	else if ( pNote->getInstrument() == nullptr &&
+			  pNote->getType() == sType ) {
+		// When dealing with multiple different typed and untyped (or legacy)
+		// drumkits, we can end up having notes with the same type but different
+		// instrument IDs. In order to keep the number of rows concise and the
+		// yield the best UX for typed kits, we will aggregate all those in a
+		// single row baed on the type.
+		return true;
+	}
+
+	return false;
+}
+
 QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -1841,20 +1871,7 @@ int PatternEditorPanel::findRowDB( std::shared_ptr<Note> pNote,
 								   bool bSilent ) const {
 	if ( pNote != nullptr ) {
 		for ( int ii = 0; ii < m_db.size(); ++ii ) {
-			// Both instrument ID and type are unique within a drumkit. But
-			// since notes live in patterns and are independent of our kit,
-			// their id/type combination does not have to match the one in the
-			// kit.
-			//
-			// Instrument ID always takes precedence over type since the former
-			// is used to associate a note to an instrument and the latter is
-			// more a means of portability between different kits.
-			if ( pNote->getInstrumentId() != EMPTY_INSTR_ID &&
-				 pNote->getInstrumentId() == m_db[ ii ].nInstrumentID ) {
-				return ii;
-			}
-			else if ( ! pNote->getType().isEmpty() &&
-					  pNote->getType() == m_db[ ii ].sType ) {
+			if ( m_db[ ii ].contains( pNote ) ) {
 				return ii;
 			}
 		}
@@ -1934,7 +1951,7 @@ void PatternEditorPanel::updateDB() {
 		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
 			if ( ppNote != nullptr && ! ppNote->getType().isEmpty() &&
 				 kitTypes.find( ppNote->getType() ) == kitTypes.end() &&
-				 ppNote->getInstrumentId() == EMPTY_INSTR_ID ) {
+				 ppNote->getInstrument() == nullptr ) {
 				// We just have an instrument type. The note was created
 				// with a recent kit for an instrument type not contained in
 				// the current drumkit.
@@ -1944,6 +1961,7 @@ void PatternEditorPanel::updateDB() {
 			}
 			else if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
 					  kitIds.find( ppNote->getInstrumentId() ) == kitIds.end() &&
+					  ppNote->getInstrument() == nullptr &&
 					  ppNote->getInstrumentId() != EMPTY_INSTR_ID ) {
 				// We just have an instrument id. The note was created with a
 				// legacy kit or a newly created custom one not featuring (all)
@@ -1957,8 +1975,10 @@ void PatternEditorPanel::updateDB() {
 		}
 	}
 
-	// First we will insert all type-only rows. They are more likely to occur
-	// than unmapped id-only ones.
+	// First we will insert all type-only rows. Note that the corresponding
+	// notes will probably have different instrument IDs. Mapped to a legacy kit
+	// they might end up in different rows. Mapped to a current drumkit they
+	// might end up in the same row. We will opt for the latter.
 	additionalTypes.sort();
 	for ( const auto& ssType : additionalTypes ) {
 		m_db.push_back( DrumPatternRow( EMPTY_INSTR_ID, ssType, nnRow % 2 != 0,
@@ -2198,8 +2218,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 	int nNewKey = nKey;
 	int nNewOctave = nOctave;
 	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
-		oldNotes =
-			m_pPattern->findNotes( nPosition, row.nInstrumentID, row.sType );
+		oldNotes = m_pPattern->findNotes(
+			nPosition, row.nInstrumentID, row.sType );
 		nNewKey = KEY_MIN;
 		nNewOctave = OCTAVE_DEFAULT;
 	}
@@ -2342,9 +2362,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 		if ( ppPattern != nullptr ) {
 			std::vector< std::shared_ptr<Note> > notes;
 			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
-				if ( ppNote != nullptr &&
-					 ppNote->getInstrumentId() == row.nInstrumentID &&
-					 ppNote->getType() == row.sType &&
+				if ( ppNote != nullptr && row.contains( ppNote ) &&
 					 ( nPitch == PITCH_INVALID ||
 					   ppNote->getTotalPitch() == nPitch ) ) {
 					notes.push_back( ppNote );
@@ -2422,9 +2440,7 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 		bool bNoteAlreadyPresent = false;
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( notes, it, ii, m_pPattern ) {
 			auto ppNote = it->second;
-			if ( ppNote != nullptr &&
-				 ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType &&
+			if ( ppNote != nullptr && row.contains( ppNote ) &&
 				 ( nPitch == PITCH_INVALID ||
 				   ppNote->getTotalPitch() == nPitch ) ) {
 				bNoteAlreadyPresent = true;
@@ -2472,8 +2488,7 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 	// Get all notes in line nRow.
 	std::vector< std::shared_ptr<Note> > notes;
 	for ( const auto& [ _, ppNote ] : *m_pPattern->getNotes() ) {
-		if ( ppNote != nullptr && ppNote->getType() == row.sType &&
-			 ppNote->getInstrumentId() == row.nInstrumentID ) {
+		if ( ppNote != nullptr && row.contains( ppNote ) ) {
 			notes.push_back( ppNote );
 		}
 	}

@@ -214,8 +214,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	else {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( pNote->getInstrumentId() != selectedRow.nInstrumentID ||
-			 pNote->getType() != selectedRow.sType ) {
+		if ( ! selectedRow.contains( pNote ) ) {
 			ERRORLOG( QString( "Provided note [%1] is not part of selected row [%2]" )
 					  .arg( pNote->toQString() ).arg( selectedRow.toQString() ) );
 			return;
@@ -771,9 +770,7 @@ void PatternEditor::selectAllNotesInRow( int nRow, int nPitch )
 		const auto key = Note::pitchToKey( nPitch );
 		const auto octave = Note::pitchToOctave( nPitch );
 		for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-			if ( ppNote != nullptr &&
-				 ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType &&
+			if ( ppNote != nullptr && row.contains( ppNote ) &&
 				 ppNote->getKey() == key && ppNote->getOctave() == octave ) {
 				m_selection.addToSelection( ppNote );
 			}
@@ -781,9 +778,7 @@ void PatternEditor::selectAllNotesInRow( int nRow, int nPitch )
 	}
 	else {
 		for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-			if ( ppNote != nullptr &&
-				 ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType ) {
+			if ( ppNote != nullptr && row.contains( ppNote ) ) {
 				m_selection.addToSelection( ppNote );
 			}
 		}
@@ -2444,10 +2439,8 @@ void PatternEditor::drawPattern()
 				// aren't visible even when drawn.
 				break;
 			}
-			if ( ppNote == nullptr ||
-				 ( m_editor == Editor::PianoRoll &&
-				   ( ppNote->getInstrumentId() != selectedRow.nInstrumentID ||
-					 ppNote->getType() != selectedRow.sType ) ) ) {
+			if ( ppNote == nullptr || ( m_editor == Editor::PianoRoll &&
+										! selectedRow.contains( ppNote ) ) ) {
 				continue;
 			}
 
@@ -3687,10 +3680,8 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	for ( auto it = notes->lower_bound( nRealColumnLower );
 		  it != notes->end() && it->first <= nRealColumnUpper; ++it ) {
 		const auto ppNote = it->second;
-		if ( ppNote != nullptr &&
-			 ppNote->getPosition() < pPattern->getLength() &&
-			 ppNote->getInstrumentId() == row.nInstrumentID &&
-			 ppNote->getType() == row.sType ) {
+		if ( ppNote != nullptr && row.contains( ppNote ) &&
+			 ppNote->getPosition() < pPattern->getLength() ) {
 
 			const int nDistance =
 				std::abs( ppNote->getPosition() - nRealColumn );
@@ -3923,8 +3914,7 @@ bool PatternEditor::syncLasso() {
 				m_pPatternEditorPanel->getSelectedRowDB() );
 
 			for ( const auto& ppNote : m_selection ) {
-				if ( ppNote != nullptr && ppNote->getType() == row.sType &&
-					 ppNote->getInstrumentId() == row.nInstrumentID ) {
+				if ( ppNote != nullptr && row.contains( ppNote ) ) {
 					const QPoint np = pPianoRoll->noteToPoint( ppNote );
 					const QRect noteRect = QRect(
 						np.x() - cursor.width() / 2, np.y() - cursor.height() / 2,
