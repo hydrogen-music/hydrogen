@@ -457,6 +457,8 @@ void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 		return;
 	}
 
+	m_sDrumkitName = pDrumkit->getName();
+
 	for ( auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr ) {
 			ppNote->mapTo( pDrumkit, pOldDrumkit );
