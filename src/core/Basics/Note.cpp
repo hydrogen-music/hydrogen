@@ -272,14 +272,6 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 				 .arg( m_sType ).arg( m_nInstrumentId ) );
 		m_pInstrument = nullptr;
 		m_pAdsr = nullptr;
-
-		// In case no matching instrument was found, we reset the instrument ID.
-		// But we only do so in case the note has an associated instrument type.
-		// Else, there would be no way to map it back to the previous
-		// instrument.
-		if ( ! m_sType.isEmpty() ) {
-			m_nInstrumentId = EMPTY_INSTR_ID;
-		}
 	}
 
 	m_selectedLayerInfoMap.clear();
