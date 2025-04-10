@@ -119,6 +119,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
+		- Fix sample selection in the presence of multiple components.
+		- Fix rendering of clicked layers in the Instrument Editor (#1350).
 		- Paths to songs and scripts are now properly saved relative to a
 			`.h2playlist` file (in case the corresponding option was set).
 		- Stop notes do now stop all notes of the same instrument at the same

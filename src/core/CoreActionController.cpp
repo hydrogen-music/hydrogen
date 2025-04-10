@@ -751,6 +751,11 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 
 	// Update the Song.
 	pHydrogen->setSong( pSong );
+
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->getSampler()->clearLastUsedLayers();
+	pAudioEngine->unlock();
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
@@ -1322,6 +1327,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	// the remaining ones enter ADSR release phase.
 	pAudioEngine->clearNoteQueues();
 	pAudioEngine->getSampler()->releasePlayingNotes();
+	pAudioEngine->getSampler()->clearLastUsedLayers();
 
 	pSong->setDrumkit( pNewDrumkit );
 	pSong->getPatternList()->mapTo( pNewDrumkit, pPreviousDrumkit );

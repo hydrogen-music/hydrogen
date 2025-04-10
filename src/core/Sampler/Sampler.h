@@ -39,8 +39,9 @@ class Note;
 class Song;
 class Sample;
 class Instrument;
-struct SelectedLayerInfo;
 class InstrumentComponent;
+class InstrumentLayer;
+struct SelectedLayerInfo;
 
 ///
 /// Waveform based sampler.
@@ -234,6 +235,8 @@ public:
 	 */
 	void handleSongSizeChange();
 
+		void clearLastUsedLayers();
+
 	const std::vector<std::shared_ptr<Note>>& getPlayingNotesQueue() const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
@@ -282,10 +285,21 @@ private:
 	int m_nPlayBackSamplePosition;
 
 	Interpolation::InterpolateMode m_interpolateMode;
+
+		/** In order to allow for all layers in an #H2Core::InstrumentComponent
+		 * to be selected in a round robin scheme consistently, we keep track of
+		 * which layer was last used by which component. It's important to flush
+		 * this map when switching drumkits in order to avoid memory leaks! */
+		std::map< std::shared_ptr<InstrumentComponent>,
+				  std::shared_ptr<InstrumentLayer> > m_lastUsedLayersMap;
 };
 
 inline const std::vector<std::shared_ptr<Note>>& Sampler::getPlayingNotesQueue() const {
 	return m_playingNotesQueue;
+}
+
+inline void Sampler::clearLastUsedLayers() {
+	m_lastUsedLayersMap.clear();
 }
 
 } // namespace
