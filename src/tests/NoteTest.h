@@ -28,16 +28,20 @@
 class NoteTest : public CppUnit::TestCase {
 		CPPUNIT_TEST_SUITE( NoteTest );
 		CPPUNIT_TEST( testComparison );
+		CPPUNIT_TEST( testMappingLegacyDrumkit );
+		CPPUNIT_TEST( testMappingValidDrumkits );
 		CPPUNIT_TEST( testMidiDefaultOffset );
 		CPPUNIT_TEST( testPitchConversions );
 		CPPUNIT_TEST( testProbability );
 		CPPUNIT_TEST( testSerializeProbability );
 		CPPUNIT_TEST( testVirtualKeyboard );
-		CPPUNIT_TEST( testMappingValidDrumkits );
 		CPPUNIT_TEST_SUITE_END();
 
 	public:
 		void testComparison();
+		/** Notes will be mapped back and forth between a valid/new drumkit and
+		 * one created prior to version 2.0. */
+		void testMappingLegacyDrumkit();
 		/** Notes will be mapped back and forth between two valid drumkits. */
 		void testMappingValidDrumkits();
 		void testMidiDefaultOffset();

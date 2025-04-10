@@ -163,8 +163,8 @@
     <pitch>0</pitch>
     <key>C0</key>
     <length>-1</length>
-    <instrument>15</instrument>
-    <type>Splash</type>
+    <instrument>17</instrument>
+    <type>Ride Bell</type>
     <note_off>false</note_off>
     <probability>1</probability>
    </note>
