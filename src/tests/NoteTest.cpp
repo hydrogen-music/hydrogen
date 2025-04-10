@@ -123,17 +123,27 @@ void NoteTest::testMappingValidDrumkits() {
 	auto pDrumkitMap = pDrumkit->toDrumkitMap();
 	for ( const auto& [ _, ppNote ] : *pPatternMatchingTypes->getNotes() ) {
 		CPPUNIT_ASSERT( ppNote != nullptr );
+		CPPUNIT_ASSERT( ppNote->getInstrument() == nullptr );
 		CPPUNIT_ASSERT( ! ppNote->getType().isEmpty() );
-		CPPUNIT_ASSERT( ppNote->getInstrumentId() != EMPTY_INSTR_ID );
 		CPPUNIT_ASSERT( ppNote->getType() ==
 						pDrumkitMap->getType( ppNote->getInstrumentId() ) );
 	}
 	for ( const auto& [ _, ppNote ] : *pPatternTypeMisses->getNotes() ) {
 		CPPUNIT_ASSERT( ppNote != nullptr );
+		CPPUNIT_ASSERT( ppNote->getInstrument() == nullptr );
 		CPPUNIT_ASSERT( ! ppNote->getType().isEmpty() );
-		CPPUNIT_ASSERT( ppNote->getInstrumentId() != EMPTY_INSTR_ID );
 		CPPUNIT_ASSERT( ppNote->getType() ==
 						pDrumkitMap->getType( ppNote->getInstrumentId() ) );
+	}
+
+	// Now we map them to the primary pattern.
+	pPatternMatchingTypes->mapTo( pDrumkit );
+	pPatternTypeMisses->mapTo( pDrumkit );
+	for ( const auto& [ _, ppNote ] : *pPatternMatchingTypes->getNotes() ) {
+		CPPUNIT_ASSERT( ppNote->getInstrument() != nullptr );
+	}
+	for ( const auto& [ _, ppNote ] : *pPatternTypeMisses->getNotes() ) {
+		CPPUNIT_ASSERT( ppNote->getInstrument() != nullptr );
 	}
 
 	// Using a pattern containing only notes holding instrument types present in
@@ -156,7 +166,9 @@ void NoteTest::testMappingValidDrumkits() {
 	for ( int ii = 0; ii < notesMapped.size(); ++ii ) {
 		CPPUNIT_ASSERT( notesOrig[ ii ]->getType() ==
 						notesMapped[ ii ]->getType() );
-		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrumentId() != EMPTY_INSTR_ID );
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrument() !=
+						notesMapped[ ii ]->getInstrument() );
+		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrument() != nullptr );
 		if ( notesOrig[ ii ]->getInstrumentId() !=
 			 notesMapped[ ii ]->getInstrumentId() ) {
 			bIdMismatch = true;
@@ -177,12 +189,15 @@ void NoteTest::testMappingValidDrumkits() {
 						notesMapped[ ii ]->getType() );
 		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrumentId() ==
 						notesMapped[ ii ]->getInstrumentId() );
+		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrument() != nullptr );
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrument() ==
+						notesMapped[ ii ]->getInstrument() );
 	}
 
 	// Next we will use a pattern with notes holding types only present in the
 	// primary drumkit.
 	//
-	// We expect some notes to be mapped to an  invalid ID (-1 / EMPTY).
+	// We expect some notes to be unmapped (nullptr as m_pInstrument).
 	pPatternDeepCopy = std::make_shared<Pattern>(pPatternTypeMisses);
 	pPatternDeepCopy->mapTo( pDrumkitOther, pDrumkit );
 
@@ -196,15 +211,17 @@ void NoteTest::testMappingValidDrumkits() {
 		notesMapped.push_back( ppNote );
 	}
 
-	bool bInvalidId = false;
+	bool bAllMapped = true;
 	for ( int ii = 0; ii < notesMapped.size(); ++ii ) {
 		CPPUNIT_ASSERT( notesOrig[ ii ]->getType() ==
 						notesMapped[ ii ]->getType() );
-		if ( notesMapped[ ii ]->getInstrumentId() == EMPTY_INSTR_ID ) {
-			bInvalidId = true;
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrument() !=
+						notesMapped[ ii ]->getInstrument() );
+		if ( notesMapped[ ii ]->getInstrument() == nullptr ) {
+			bAllMapped = false;
 		}
 	}
-	CPPUNIT_ASSERT( bInvalidId );
+	CPPUNIT_ASSERT( ! bAllMapped );
 
 	// Map them back must yield the same notes we started from.
 	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
@@ -219,7 +236,10 @@ void NoteTest::testMappingValidDrumkits() {
 						notesMapped[ ii ]->getType() );
 		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrumentId() ==
 						notesMapped[ ii ]->getInstrumentId() );
-	}
+		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrument() != nullptr );
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrument() ==
+						notesMapped[ ii ]->getInstrument() );
+}
 
 	___INFOLOG( "passed" );
 }
