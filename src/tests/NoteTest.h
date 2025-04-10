@@ -33,10 +33,13 @@ class NoteTest : public CppUnit::TestCase {
 		CPPUNIT_TEST( testProbability );
 		CPPUNIT_TEST( testSerializeProbability );
 		CPPUNIT_TEST( testVirtualKeyboard );
+		CPPUNIT_TEST( testMappingValidDrumkits );
 		CPPUNIT_TEST_SUITE_END();
 
 	public:
 		void testComparison();
+		/** Notes will be mapped back and forth between two valid drumkits. */
+		void testMappingValidDrumkits();
 		void testMidiDefaultOffset();
 		void testPitchConversions();
 		void testProbability();

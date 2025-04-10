@@ -28,11 +28,14 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/IO/MidiCommon.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <QDomDocument>
 
 #include <algorithm>
@@ -93,6 +96,129 @@ void NoteTest::testComparison() {
 	for ( int ii = 1; ii < songNotes.size(); ++ii ) {
 		CPPUNIT_ASSERT( songNotes[ ii - 1 ]->getPosition() <=
 						songNotes[ ii ]->getPosition() );
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void NoteTest::testMappingValidDrumkits() {
+	___INFOLOG( "" );
+
+	const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDrumkit = pDB->getDrumkit( "GMRockKit" );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( ! pDrumkit->hasMissingTypes() );
+	auto pDrumkitOther = pDB->getDrumkit( "TR808EmulationKit" );
+	CPPUNIT_ASSERT( pDrumkitOther != nullptr );
+	CPPUNIT_ASSERT( ! pDrumkitOther->hasMissingTypes() );
+
+	auto pPatternMatchingTypes = Pattern::load(
+		H2TEST_FILE( "pattern/noteTestMatchingTypes.h2pattern" ) );
+	CPPUNIT_ASSERT( pPatternMatchingTypes != nullptr );
+	auto pPatternTypeMisses = Pattern::load(
+		H2TEST_FILE( "pattern/noteTestTypeMisses.h2pattern" ) );
+	CPPUNIT_ASSERT( pPatternTypeMisses != nullptr );
+
+	// Verify the patterns were created for the primary drumkit.
+	auto pDrumkitMap = pDrumkit->toDrumkitMap();
+	for ( const auto& [ _, ppNote ] : *pPatternMatchingTypes->getNotes() ) {
+		CPPUNIT_ASSERT( ppNote != nullptr );
+		CPPUNIT_ASSERT( ! ppNote->getType().isEmpty() );
+		CPPUNIT_ASSERT( ppNote->getInstrumentId() != EMPTY_INSTR_ID );
+		CPPUNIT_ASSERT( ppNote->getType() ==
+						pDrumkitMap->getType( ppNote->getInstrumentId() ) );
+	}
+	for ( const auto& [ _, ppNote ] : *pPatternTypeMisses->getNotes() ) {
+		CPPUNIT_ASSERT( ppNote != nullptr );
+		CPPUNIT_ASSERT( ! ppNote->getType().isEmpty() );
+		CPPUNIT_ASSERT( ppNote->getInstrumentId() != EMPTY_INSTR_ID );
+		CPPUNIT_ASSERT( ppNote->getType() ==
+						pDrumkitMap->getType( ppNote->getInstrumentId() ) );
+	}
+
+	// Using a pattern containing only notes holding instrument types present in
+	// both kits.
+	//
+	// We expect all notes to be mapped to valid IDs.
+	auto pPatternDeepCopy = std::make_shared<Pattern>(pPatternMatchingTypes);
+	pPatternDeepCopy->mapTo( pDrumkitOther, pDrumkit );
+
+	// We store the notes in a vector for a better comparison.
+	std::vector< std::shared_ptr<Note> > notesOrig, notesMapped;
+	for ( const auto& [ _, ppNote ] : *pPatternMatchingTypes->getNotes() ) {
+		notesOrig.push_back( ppNote );
+	}
+	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
+		notesMapped.push_back( ppNote );
+	}
+
+	bool bIdMismatch = false;
+	for ( int ii = 0; ii < notesMapped.size(); ++ii ) {
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getType() ==
+						notesMapped[ ii ]->getType() );
+		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrumentId() != EMPTY_INSTR_ID );
+		if ( notesOrig[ ii ]->getInstrumentId() !=
+			 notesMapped[ ii ]->getInstrumentId() ) {
+			bIdMismatch = true;
+		}
+	}
+	CPPUNIT_ASSERT( bIdMismatch );
+
+	// Map them back must yield the same notes we started from.
+	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
+
+	notesMapped.clear();
+	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
+		notesMapped.push_back( ppNote );
+	}
+
+	for ( int ii = 0; ii < notesMapped.size(); ++ii ) {
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getType() ==
+						notesMapped[ ii ]->getType() );
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrumentId() ==
+						notesMapped[ ii ]->getInstrumentId() );
+	}
+
+	// Next we will use a pattern with notes holding types only present in the
+	// primary drumkit.
+	//
+	// We expect some notes to be mapped to an  invalid ID (-1 / EMPTY).
+	pPatternDeepCopy = std::make_shared<Pattern>(pPatternTypeMisses);
+	pPatternDeepCopy->mapTo( pDrumkitOther, pDrumkit );
+
+	// We store the notes in a vector for a better comparison.
+	notesOrig.clear();
+	notesMapped.clear();
+	for ( const auto& [ _, ppNote ] : *pPatternTypeMisses->getNotes() ) {
+		notesOrig.push_back( ppNote );
+	}
+	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
+		notesMapped.push_back( ppNote );
+	}
+
+	bool bInvalidId = false;
+	for ( int ii = 0; ii < notesMapped.size(); ++ii ) {
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getType() ==
+						notesMapped[ ii ]->getType() );
+		if ( notesMapped[ ii ]->getInstrumentId() == EMPTY_INSTR_ID ) {
+			bInvalidId = true;
+		}
+	}
+	CPPUNIT_ASSERT( bInvalidId );
+
+	// Map them back must yield the same notes we started from.
+	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
+
+	notesMapped.clear();
+	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
+		notesMapped.push_back( ppNote );
+	}
+
+	for ( int ii = 0; ii < notesMapped.size(); ++ii ) {
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getType() ==
+						notesMapped[ ii ]->getType() );
+		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrumentId() ==
+						notesMapped[ ii ]->getInstrumentId() );
 	}
 
 	___INFOLOG( "passed" );
