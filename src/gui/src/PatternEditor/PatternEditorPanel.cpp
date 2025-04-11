@@ -2274,6 +2274,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 				PROBABILITY_DEFAULT,
 				/* bIsDelete */ false,
 				bIsNoteOff,
+				row.bMappedToDrumkit,
 				action ) );
 	}
 	else {
@@ -2296,6 +2297,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 					ppNote->getProbability(),
 					/* bIsDelete */ true,
 					ppNote->getNoteOff(),
+					ppNote->getInstrument() != nullptr,
 					action ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -2387,6 +2389,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
 						ppNote->getNoteOff(),
+						ppNote->getInstrument() != nullptr,
 						PatternEditor::AddNoteAction::None ) );
 			}
 		}
@@ -2662,6 +2665,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							ppNote->getProbability(),
 							/* bIsDelete */ false,
 							ppNote->getNoteOff(),
+							ppNote->getInstrument() != nullptr,
 							PatternEditor::AddNoteAction::None ) );
 				}
 			}

@@ -220,6 +220,7 @@ public:
 										   float fOldProbability,
 										   bool bIsDelete,
 										   bool bIsNoteOff,
+										   bool bIsMappedToDrumkit,
 										   AddNoteAction action );
 
 		/** For notes in #PianoRollEditor and the note key version of

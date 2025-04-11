@@ -677,6 +677,7 @@ void PatternEditor::paste()
 
 			int nInstrumentId;
 			QString sType;
+			DrumPatternRow targetRow;
 			if ( m_editor == Editor::DrumPattern ) {
 				const auto nNoteRow =
 					m_pPatternEditorPanel->findRowDB( pNote, true );
@@ -687,9 +688,9 @@ void PatternEditor::paste()
 						 nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
 						continue;
 					}
-					const auto row = m_pPatternEditorPanel->getRowDB( nRow );
-					nInstrumentId = row.nInstrumentID;
-					sType = row.sType;
+					targetRow = m_pPatternEditorPanel->getRowDB( nRow );
+					nInstrumentId = targetRow.nInstrumentID;
+					sType = targetRow.sType;
 				}
 				else {
 					// Note can not be represented in the current DB. This means
@@ -701,9 +702,9 @@ void PatternEditor::paste()
 				}
 			}
 			else {
-				const auto row = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-				nInstrumentId = row.nInstrumentID;
-				sType = row.sType;
+				targetRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+				nInstrumentId = targetRow.nInstrumentID;
+				sType = targetRow.sType;
 			}
 
 			int nKey, nOctave;
@@ -737,6 +738,7 @@ void PatternEditor::paste()
 					pNote->getProbability(),
 					/* bIsDelete */ false,
 					/* bIsNoteOff */ pNote->getNoteOff(),
+					targetRow.bMappedToDrumkit,
 					AddNoteAction::AddToSelection ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -847,6 +849,7 @@ void PatternEditor::alignToGrid() {
 		const int nOctave = ppNote->getOctave();
 		const float fProbability = ppNote->getProbability();
 		const bool bNoteOff = ppNote->getNoteOff();
+		const bool bIsMappedToDrumkit = ppNote->getInstrument() != nullptr;
 
 		// Move note -> delete at source position
 		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
@@ -863,6 +866,7 @@ void PatternEditor::alignToGrid() {
 						 fProbability,
 						 /* bIsDelete */ true,
 						 bNoteOff,
+						 bIsMappedToDrumkit,
 						 PatternEditor::AddNoteAction::None ) );
 
 		auto addNoteAction = AddNoteAction::None;
@@ -890,6 +894,7 @@ void PatternEditor::alignToGrid() {
 						 fProbability,
 						 /* bIsDelete */ false,
 						 bNoteOff,
+						 bIsMappedToDrumkit,
 						 addNoteAction ) );
 	}
 
@@ -1130,6 +1135,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
 						/* bIsNoteOff */ ppNote->getNoteOff(),
+						 ppNote->getInstrument() != nullptr,
 						PatternEditor::AddNoteAction::None ) );
 			}
 			pHydrogenApp->endUndoMacro();
@@ -1866,6 +1872,7 @@ void PatternEditor::deleteSelection( bool bHandleSetupTeardown )
 									   pNote->getProbability(),
 									   true, // bIsDelete
 									   pNote->getNoteOff(),
+									   pNote->getInstrument() != nullptr,
 									   PatternEditor::AddNoteAction::None ) );
 			}
 		}
@@ -1973,6 +1980,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		const int nOctave = pNote->getOctave();
 		const float fProbability = pNote->getProbability();
 		const bool bNoteOff = pNote->getNoteOff();
+		const bool bIsMappedToDrumkit = pNote->getInstrument() != nullptr;
 
 		// We'll either select the new, duplicated note or the new, moved
 		// replacement of the note.
@@ -1996,6 +2004,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					fProbability,
 					/* bIsDelete */ true,
 					bNoteOff,
+					bIsMappedToDrumkit,
 					PatternEditor::AddNoteAction::None ) );
 		}
 
@@ -2028,6 +2037,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					fProbability,
 					/* bIsDelete */ false,
 					bNoteOff,
+					bIsMappedToDrumkit,
 					addNoteAction ) );
 		}
 	}
@@ -3186,6 +3196,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   float fOldProbability,
 										   bool bIsDelete,
 										   bool bIsNoteOff,
+										   bool bIsMappedToDrumkit,
 										   AddNoteAction addNoteAction )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -3295,8 +3306,8 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( nInstrumentId != EMPTY_INSTR_ID ) {
-			// Can still be nullptr for notes in unmapped id-only rows.
+		if ( nInstrumentId != EMPTY_INSTR_ID && bIsMappedToDrumkit ) {
+			// Can still be nullptr for notes in unmapped rows.
 			pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( nInstrumentId );
 		}

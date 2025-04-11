@@ -519,6 +519,7 @@ public:
 							  float fOldProbability,
 							  bool bIsDelete,
 							  bool bIsNoteOff,
+							  bool bIsMappedToDrumkit,
 							  PatternEditor::AddNoteAction addNoteAction =
 							  PatternEditor::AddNoteAction::None
  ){
@@ -545,6 +546,7 @@ public:
 		m_fOldProbability = fOldProbability;
 		m_bIsDelete = bIsDelete;
 		m_bIsNoteOff = bIsNoteOff;
+		m_bIsMappedToDrumkit = bIsMappedToDrumkit;
 		m_addNoteAction = addNoteAction;
 	}
 	virtual void undo() {
@@ -561,6 +563,7 @@ public:
 											  m_fOldProbability,
 											  ! m_bIsDelete,
 											  m_bIsNoteOff,
+											  m_bIsMappedToDrumkit,
 											  m_addNoteAction );
 	}
 	virtual void redo() {
@@ -577,6 +580,7 @@ public:
 											  m_fOldProbability,
 											  m_bIsDelete,
 											  m_bIsNoteOff,
+											  m_bIsMappedToDrumkit,
 											  m_addNoteAction );
 		// Only on the first redo the corresponding action is triggered.
 		m_addNoteAction = PatternEditor::AddNoteAction::None;
@@ -595,6 +599,7 @@ private:
 	float m_fOldProbability;
 	bool m_bIsDelete;
 	bool m_bIsNoteOff;
+	bool m_bIsMappedToDrumkit;
 	PatternEditor::AddNoteAction m_addNoteAction;
 };
 
