@@ -1851,13 +1851,16 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow ) {
 int PatternEditorPanel::getRowIndexDB( const DrumPatternRow& row ) {
 	for ( int ii = 0; ii <= m_db.size(); ++ii ) {
 		if ( m_db[ ii ].nInstrumentID == row.nInstrumentID &&
-			 m_db[ ii ].sType == row.sType ) {
+			 m_db[ ii ].sType == row.sType &&
+			 m_db[ ii ].bAlternate == row.bAlternate &&
+			 m_db[ ii ].bMappedToDrumkit == row.bMappedToDrumkit &&
+			 m_db[ ii ].bPlaysBackAudio == row.bPlaysBackAudio ) {
 			return ii;
 		}
 	}
 
-	ERRORLOG( QString( "Row [instrument id: %1, instrument type: %2] could not be found in DB" )
-			  .arg( row.nInstrumentID ).arg( row.sType ) );
+	ERRORLOG( QString( "Row [%1] could not be found in DB" )
+			  .arg( row.toQString() ) );
 	printDB();
 
 	return 0;
@@ -2184,9 +2187,8 @@ void PatternEditorPanel::updateHoveredNotes() {
 void PatternEditorPanel::printDB() const {
 	QString sMsg = "PatternEditorPanel database:";
 	for ( int ii = 0; ii < m_db.size(); ++ii ) {
-		sMsg.append( QString( "\n\t[%1] ID: %2, Type: %3" )
-					 .arg( ii ).arg( m_db[ ii ].nInstrumentID )
-					 .arg( m_db[ ii ].sType ) );
+		sMsg.append( QString( "\n\t[%1] %2" )
+					 .arg( ii ).arg( m_db[ ii ].toQString() ) );
 	}
 
 	DEBUGLOG( sMsg );
