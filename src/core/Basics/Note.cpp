@@ -110,7 +110,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 	setPan( fPan ); // this checks the boundaries
 }
 
-Note::Note( std::shared_ptr<Note> pOther, std::shared_ptr<Instrument> pInstrument )
+Note::Note( std::shared_ptr<Note> pOther )
 	: m_nInstrumentId( EMPTY_INSTR_ID ),
 	  m_sType( pOther->getType() ),
 	  m_nPosition( pOther->getPosition() ),
@@ -134,32 +134,18 @@ Note::Note( std::shared_ptr<Note> pOther, std::shared_ptr<Instrument> pInstrumen
 	  m_fUsedTickSize( pOther->getUsedTickSize() ),
 	  m_pInstrument( pOther->getInstrument() )
 {
-	if ( pInstrument != nullptr ) {
-		m_pInstrument = pInstrument;
-	}
 	if ( m_pInstrument != nullptr ) {
 		m_pAdsr = m_pInstrument->copyAdsr();
 		m_nInstrumentId = m_pInstrument->getId();
 
-		std::shared_ptr<InstrumentComponent> pComponent;
 		for ( const auto& [ ppOtherComponent, ppOtherSelectedLayerInfo ] :
 				  pOther->m_selectedLayerInfoMap ) {
 			if ( ppOtherComponent != nullptr &&
 				 ppOtherSelectedLayerInfo != nullptr ) {
 				// We took a deep copy of the instrument and have to ensure we
 				// point to the right component.
-				if ( pInstrument != nullptr ) {
-					pComponent = m_pInstrument->getComponent(
-						pInstrument->index( ppOtherComponent ) );
-				}
-				else if ( pOther->m_pInstrument != nullptr ) {
-					pComponent = m_pInstrument->getComponent(
-						pOther->m_pInstrument->index( ppOtherComponent ) );
-				}
-				else {
-					continue;
-				}
-
+				auto pComponent = m_pInstrument->getComponent(
+					pOther->m_pInstrument->index( ppOtherComponent ) );
 				if ( pComponent == nullptr ) {
 					continue;
 				}

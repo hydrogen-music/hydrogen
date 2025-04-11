@@ -446,7 +446,7 @@ void NoteTest::testProbability() {
 	pNote->setProbability(0.75f);
 	CPPUNIT_ASSERT_EQUAL(0.75f, pNote->getProbability());
 
-	auto pOther = std::make_shared<Note>( pNote, nullptr );
+	auto pOther = std::make_shared<Note>( pNote );
 	CPPUNIT_ASSERT_EQUAL(0.75f, pOther->getProbability());
 
 	___INFOLOG( "passed" );

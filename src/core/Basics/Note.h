@@ -135,14 +135,7 @@ class Note : public H2Core::Object<Note>
 		  float fVelocity = VELOCITY_DEFAULT, float fPan = PAN_DEFAULT,
 		  int nLength = LENGTH_ENTIRE_SAMPLE, float fPitch = PITCH_DEFAULT );
 
-		/**
-		 * copy constructor with an optional parameter
-		 * \param pOther 
-		 * \param pInstrument if set will be used as note instrument
-		 */
-		Note( std::shared_ptr<Note> pOther,
-			  std::shared_ptr<Instrument> pInstrument = nullptr );
-		/** destructor */
+		Note( std::shared_ptr<Note> pOther );
 		~Note();
 
 		/*
