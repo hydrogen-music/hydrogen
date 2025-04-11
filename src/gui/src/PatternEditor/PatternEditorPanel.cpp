@@ -2605,11 +2605,6 @@ void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 }
 
 void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-
 	const auto row = getRowDB( nRow );
 	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
 		return;
@@ -2631,8 +2626,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 		return;
 	}
 
-	const auto pPatternList = PatternList::loadFrom(
-		rootNode, pSong->getDrumkit()->getExportName() );
+	const auto pPatternList = PatternList::loadFrom( rootNode, "" );
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
 				  .arg( sSerialized ) );
@@ -2651,8 +2645,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 					pHydrogenApp->pushUndoCommand(
 						new SE_addOrRemoveNoteAction(
 							ppNote->getPosition(),
-							ppNote->getInstrumentId(),
-							ppNote->getType(),
+							row.nInstrumentID,
+							row.sType,
 							pPatternList->index( ppPattern ),
 							ppNote->getLength(),
 							ppNote->getVelocity(),
@@ -2665,7 +2659,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							ppNote->getProbability(),
 							/* bIsDelete */ false,
 							ppNote->getNoteOff(),
-							ppNote->getInstrument() != nullptr,
+							row.bMappedToDrumkit,
 							PatternEditor::AddNoteAction::None ) );
 				}
 			}
