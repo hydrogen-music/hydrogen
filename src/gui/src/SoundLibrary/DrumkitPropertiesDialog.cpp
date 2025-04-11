@@ -431,18 +431,20 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 			ERRORLOG( QString( "Provided type [%1] could not be found in database" )
 					  .arg( sTextType ) );
 		}
+		else if ( nIndex != -1 ) {
+			pInstrumentType->setCurrentIndex( nIndex );
+		}
+		else {
+			pInstrumentType->setCurrentText( sTextType );
+		}
 
 		if ( bDrumkitWritable ) {
 			pInstrumentType->setIsActive( true );
 			pInstrumentType->setEditable( true );
 			pInstrumentType->setFocusPolicy( Qt::StrongFocus );
-			pInstrumentType->setCurrentText( sTextType );
 		}
 		else {
 			pInstrumentType->setIsActive( false );
-			if ( nIndex != -1 ) {
-				pInstrumentType->setCurrentIndex( nIndex );
-			}
 		}
 
 		typesTable->setCellWidget( nCell, 0, pInstrumentId );
