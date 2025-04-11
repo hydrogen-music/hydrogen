@@ -435,8 +435,10 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 		if ( bDrumkitWritable ) {
 			pInstrumentType->setIsActive( true );
 			pInstrumentType->setEditable( true );
+			pInstrumentType->setFocusPolicy( Qt::StrongFocus );
 			pInstrumentType->setCurrentText( sTextType );
-		} else {
+		}
+		else {
 			pInstrumentType->setIsActive( false );
 			if ( nIndex != -1 ) {
 				pInstrumentType->setCurrentIndex( nIndex );
