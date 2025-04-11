@@ -3990,6 +3990,20 @@ void PatternEditor::popupTeardown() {
 		m_notesToSelectForPopup.clear();
 		m_selection.clearSelection();
 	}
+
+	// The popup might have caused the cursor to move out of this widget and the
+	// latter will loose focus once the popup is torn down. We have to ensure
+	// not to display some glitchy notes previously hovered by mouse which are
+	// not present anymore (e.g. since they were aligned to a different
+	// position).
+	const QPoint globalPos = QCursor::pos();
+	const QPoint widgetPos = mapFromGlobal( globalPos );
+	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
+		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
+		std::vector< std::pair< std::shared_ptr<Pattern>,
+								std::vector< std::shared_ptr<Note> > > > empty;
+		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
+	}
 }
 
 bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const {
