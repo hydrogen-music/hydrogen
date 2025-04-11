@@ -2282,8 +2282,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemoveNoteAction(
 					nPosition,
-					row.nInstrumentID,
-					row.sType,
+					ppNote->getInstrumentId(),
+					ppNote->getType(),
 					m_nPatternNumber,
 					ppNote->getLength(),
 					ppNote->getVelocity(),
@@ -2646,8 +2646,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 					pHydrogenApp->pushUndoCommand(
 						new SE_addOrRemoveNoteAction(
 							ppNote->getPosition(),
-							row.nInstrumentID,
-							row.sType,
+							ppNote->getInstrumentId(),
+							ppNote->getType(),
 							pPatternList->index( ppPattern ),
 							ppNote->getLength(),
 							ppNote->getVelocity(),

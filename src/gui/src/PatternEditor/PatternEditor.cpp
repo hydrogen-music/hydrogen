@@ -1984,8 +1984,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemoveNoteAction(
 					nPosition,
-					row.nInstrumentID,
-					row.sType,
+					pNote->getInstrumentId(),
+					pNote->getType(),
 					m_pPatternEditorPanel->getPatternNumber(),
 					nLength,
 					fVelocity,
