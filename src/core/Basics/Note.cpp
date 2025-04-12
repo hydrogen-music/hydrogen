@@ -234,7 +234,22 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 		}
 	}
 	else {
-		pInstrument = pDrumkit->getInstruments()->find( m_nInstrumentId );
+		// In case we map to a kit without or incomplete types, we try to match
+		// the behavior of Hydrogen prior to version 2.0. Back then, although
+		// itself being ID-based, notes were mapped according to the _order_ of
+		// instruments in the source kit. This was caused by the way drumkits
+		// were loaded. Instead of loading the corresponding drumkitl.xml file
+		// as is, the IDs of the instruments were overwritten in such a way it
+		// matched the order of the previous kit.
+		if ( pOldDrumkit != nullptr &&
+			 pOldDrumkit->getInstruments()->find( m_nInstrumentId ) != nullptr ) {
+			pInstrument = pDrumkit->getInstruments()->get(
+				pOldDrumkit->getInstruments()->index(
+					pOldDrumkit->getInstruments()->find( m_nInstrumentId ) ) );
+		}
+		else {
+			pInstrument = pDrumkit->getInstruments()->find( m_nInstrumentId );
+		}
 
 		if ( pOldDrumkit != nullptr && pInstrument != nullptr &&
 			 pDrumkit->getPath() == pOldDrumkit->getPath() &&

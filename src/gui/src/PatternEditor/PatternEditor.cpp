@@ -3145,7 +3145,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 				pNote->setInstrumentId( nNewInstrumentId );
 				pNote->setType( sNewType );
 
-				pNote->mapTo( pSong->getDrumkit() );
+				pNote->mapTo( pSong->getDrumkit(), pSong->getDrumkit() );
 
 				// Changing a type is effectively moving the note to another row
 				// of the DrumPatternEditor. This could result in overlapping
