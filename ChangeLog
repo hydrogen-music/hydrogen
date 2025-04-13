@@ -18,6 +18,7 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- Fix memory leakage for songs created in version >= 2.0.
 		- Fix memory leakage for notes with probability < 1.0.
 		- Fix incoming MIDI NOTE OFF handling.
+		- AppImage build dir is now removed on `build.sh r` (#2129).
 
 2024-12-07 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2.4
