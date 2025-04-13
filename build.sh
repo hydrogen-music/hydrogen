@@ -41,7 +41,7 @@ CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wform
 MAKE_OPTS="-j 3"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
-
+BUILD_DIR_APPIMAGE=./build-appimage
 
 PLATFORM_STR=`uname`
 
@@ -64,7 +64,9 @@ function cmake_clean() {
 }
 
 function cmake_rm() {
-    echo -e " * rm cmake files\n" && rm -fr $BUILD_DIR 2>/dev/null
+    echo -e " * rm cmake files\n"
+    rm -fr $BUILD_DIR 2>/dev/null
+    rm -fr $BUILD_DIR_APPIMAGE 2>/dev/null
 }
 
 ## Build a Hydrogen-x86_64.AppImage file.
@@ -88,7 +90,7 @@ function cmake_appimage() {
 	## Perform a regular cmake build.
 	cmake_make
 
-	cd $BUILD_DIR || exit 1
+	cd $BUILD_DIR_APPIMAGE || exit 1
 
 	if [ -d "AppDir" ]; then
 		rm -rf ./AppDir
@@ -281,7 +283,7 @@ fi
 for arg in $@; do
     case $arg in
 		appimage)
-			BUILD_DIR=./build-appimage
+			BUILD_DIR=$BUILD_DIR_APPIMAGE
 			CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_APPIMAGE=1 -DWANT_DYNAMIC_JACK_CHECK=1 -DCMAKE_INSTALL_PREFIX=/usr"
 			cmd="cmake_appimage";;
         c|clean)
