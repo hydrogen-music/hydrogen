@@ -235,6 +235,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 		pNewDrumkit = std::make_shared<Drumkit>();
 	} else {
 		pNewDrumkit = std::make_shared<Drumkit>( pDrumkit );
+		pNewDrumkit->setContext( Drumkit::Context::Song );
 	}
 
 	// Assign the loaded parts and load samples.

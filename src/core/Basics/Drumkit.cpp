@@ -56,7 +56,7 @@
 namespace H2Core
 {
 
-Drumkit::Drumkit() : m_context( Context::User ),
+Drumkit::Drumkit() : m_context( Context::Song ),
 					 m_sName( "empty" ),
 					 m_nVersion( 0 ),
 					 m_sAuthor( "undefined author" ),
