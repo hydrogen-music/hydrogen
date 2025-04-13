@@ -385,11 +385,15 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	types.merge( m_pDrumkit->getAllTypes() );
 
 	QStringList allTypeStrings;
+	// We need the invalid empty type to set a proper index for all instruments
+	// with missing types.
+	allTypeStrings << "";
  	for ( const auto& ssType : types ) {
 		allTypeStrings << ssType;
 	 }
 
 	// Sort them alphabetically in ascending order.
+	allTypeStrings.removeDuplicates();
 	allTypeStrings.sort();
 
 	QMenu* pTypesMenu = new QMenu( this );
@@ -417,7 +421,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 
 		int nIndex = -1;
 		int nnType = 0;
-		LCDCombo* pInstrumentType = new LCDCombo( nullptr);
+		LCDCombo* pInstrumentType = new LCDCombo( nullptr );
 		for ( const auto& ssType : allTypeStrings ) {
 			pInstrumentType->addItem( ssType );
 
