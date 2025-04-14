@@ -89,7 +89,7 @@ bool DrumPatternRow::contains( std::shared_ptr<Note> pNote ) const {
 		return true;
 	}
 	else if ( pNote->getInstrument() == nullptr &&
-			  pNote->getType() == sType ) {
+			  pNote->getType() == sType && ! sType.isEmpty() ) {
 		// When dealing with multiple different typed and untyped (or legacy)
 		// drumkits, we can end up having notes with the same type but different
 		// instrument IDs. In order to keep the number of rows concise and the
