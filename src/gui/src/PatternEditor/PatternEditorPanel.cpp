@@ -20,6 +20,7 @@
  *
  */
 
+#include <algorithm>
 #include <cmath>
 
 #include <core/Basics/Drumkit.h>
@@ -1948,7 +1949,10 @@ void PatternEditorPanel::updateDB() {
 	// Next we add rows for all notes in the selected pattern not covered by any
 	// of the instruments above.
 	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
-	QStringList additionalTypes, additionalIds;
+	QStringList additionalTypes;
+	// Use a map for automated sorting of the types by instrument id (key).
+	std::map<int, QString> additionalTypesMap;
+	std::vector<int> additionalIds;
 
 	for ( const auto& ppPattern : getPatternsToShow() ) {
 		for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
@@ -1960,19 +1964,21 @@ void PatternEditorPanel::updateDB() {
 				// the current drumkit.
 				if ( ! additionalTypes.contains( ppNote->getType() ) ) {
 					additionalTypes << ppNote->getType();
+					additionalTypesMap[ ppNote->getInstrumentId() ] =
+						ppNote->getType();
 				}
 			}
 			else if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
-					  kitIds.find( ppNote->getInstrumentId() ) == kitIds.end() &&
 					  ppNote->getInstrument() == nullptr &&
 					  ppNote->getInstrumentId() != EMPTY_INSTR_ID ) {
 				// We just have an instrument id. The note was created with a
 				// legacy kit or a newly created custom one not featuring (all)
 				// instrument types and the id of the instrument the note was
 				// created for is not used in the current drumkit.
-				if ( ! additionalIds.contains(
-						 QString::number( ppNote->getInstrumentId() ) ) ) {
-					additionalIds << QString::number( ppNote->getInstrumentId() );
+				if ( std::find( additionalIds.begin(), additionalIds.end(),
+								ppNote->getInstrumentId() ) ==
+					 additionalIds.end() ) {
+					additionalIds.push_back( ppNote->getInstrumentId() );
 				}
 			}
 		}
@@ -1982,17 +1988,15 @@ void PatternEditorPanel::updateDB() {
 	// notes will probably have different instrument IDs. Mapped to a legacy kit
 	// they might end up in different rows. Mapped to a current drumkit they
 	// might end up in the same row. We will opt for the latter.
-	additionalTypes.sort();
-	for ( const auto& ssType : additionalTypes ) {
+	for ( const auto& [ _, ssType ] : additionalTypesMap ) {
 		m_db.push_back( DrumPatternRow( EMPTY_INSTR_ID, ssType, nnRow % 2 != 0,
 										false, false ) );
 		++nnRow;
 	}
 
-	additionalIds.sort();
-	for ( const auto& ssId : additionalIds ) {
-		m_db.push_back( DrumPatternRow( ssId.toInt(), "", nnRow % 2 != 0,
-										false, false ) );
+	std::sort( additionalIds.begin(), additionalIds.end() );
+	for ( const auto& nnId : additionalIds ) {
+		m_db.push_back( DrumPatternRow( nnId, "", nnRow % 2 != 0, false, false ) );
 		++nnRow;
 	}
 
