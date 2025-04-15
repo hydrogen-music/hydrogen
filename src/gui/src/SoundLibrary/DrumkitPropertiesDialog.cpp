@@ -24,12 +24,13 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "DrumkitPropertiesDialog.h"
+
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../CommonStrings.h"
+#include "../PatternEditor/PatternEditor.h"
 #include "../UndoActions.h"
-
-#include "DrumkitPropertiesDialog.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
 
@@ -762,6 +763,84 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			bOldImageDeleted = true;
 		}
 
+		// This is the single point we can initially assign a type to a note not
+		// bearing one yet. In all other places, notes do either have a type or
+		// not. We ensure this action can be undone and is contained in the same
+		// macro as the overall drumkit change.
+		//
+		// Note that an empty type can not be assigned to an instrument.
+		const auto pOldKit = pSong->getDrumkit();
+
+		struct noteToBeMapped {
+			std::shared_ptr<Note> pNote;
+			DrumkitMap::Type type;
+			int nPatternNumber;
+		};
+		std::vector<noteToBeMapped> notesToBeMapped;
+		// This should always be true. Let's keep it safe.
+		if ( pOldKit != nullptr && pOldKit->getInstruments()->size() ==
+			 m_pDrumkit->getInstruments()->size() ) {
+			for ( int nnIdx = 0; nnIdx < pOldKit->getInstruments()->size(); ++nnIdx ) {
+				auto pOldInstrument = pOldKit->getInstruments()->get( nnIdx );
+				auto pNewInstrument = m_pDrumkit->getInstruments()->get( nnIdx );
+				if ( pOldInstrument->getType().isEmpty() &&
+					 ! pNewInstrument->getType().isEmpty() &&
+					 pOldInstrument->getId() == pNewInstrument->getId() ) {
+					// First type assignment. Apply this type to all affected
+					// notes.
+					for ( const auto& ppPattern : *pSong->getPatternList() ) {
+						if ( ppPattern == nullptr ) {
+							continue;
+						}
+
+						for ( const auto& ppNote :
+								  ppPattern->getAllNotesOfType( "" ) ) {
+							if ( ppNote != nullptr &&
+								 ppNote->getType().isEmpty() &&
+								 ppNote->getInstrumentId() ==
+								 pOldInstrument->getId() ) {
+								notesToBeMapped.push_back( {
+									ppNote,
+									pNewInstrument->getType(),
+									pSong->getPatternList()->index( ppPattern ) } );
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if ( notesToBeMapped.size() > 0 ) {
+			pHydrogenApp->beginUndoMacro(
+				pCommonStrings->getActionEditDrumkitProperties() );
+		}
+
+		for ( const auto& [ ppNote, ssType, nnPatternNumber ] : notesToBeMapped ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_editNotePropertiesAction(
+					PatternEditor::Property::Type,
+					nnPatternNumber,
+					ppNote->getPosition(),
+					ppNote->getInstrumentId(),
+					ppNote->getInstrumentId(),
+					ssType,
+					"",
+					ppNote->getVelocity(),
+					ppNote->getVelocity(),
+					ppNote->getPan(),
+					ppNote->getPan(),
+					ppNote->getLeadLag(),
+					ppNote->getLeadLag(),
+					ppNote->getProbability(),
+					ppNote->getProbability(),
+					ppNote->getLength(),
+					ppNote->getLength(),
+					ppNote->getKey(),
+					ppNote->getKey(),
+					ppNote->getOctave(),
+					ppNote->getOctave() ) );
+		}
+
 		// When editing the properties of the current kit, the new version will
 		// be loaded in a way that can be undone.
 		//
@@ -772,6 +851,10 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			new SE_switchDrumkitAction(
 				m_pDrumkit, pSong->getDrumkit(),
 				SE_switchDrumkitAction::Type::EditProperties ) );
+
+		if ( notesToBeMapped.size() > 0 ) {
+			pHydrogenApp->endUndoMacro( "" );
+		}
 
 		// Since we hit save on the song's drumkit, we should also save the song
 		// for the sake of consistency.
