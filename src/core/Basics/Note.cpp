@@ -222,13 +222,18 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 				// Check whether we deal with the same kit and the type of an
 				// instrument was changed. If so, we have to change the type of
 				// all associated notes too.
+				//
+				// Note that this is not supposed to work for an empty type.
+				// Initial type adding and type removal has to be done
+				// explicitly.
 				const auto pOldDrumkitMap = pOldDrumkit->toDrumkitMap();
 				const int nOldId = pOldDrumkitMap->getId( m_sType, &bFound );
 				if ( pDrumkit->getPath() == pOldDrumkit->getPath() &&
 					 pDrumkit->getName() == pOldDrumkit->getName() &&
 					 bFound && nId != nOldId ) {
 					pInstrument = pDrumkit->getInstruments()->find( nOldId );
-					if ( pInstrument != nullptr ) {
+					if ( pInstrument != nullptr &&
+						 ! pInstrument->getType().isEmpty() ) {
 						m_sType = pInstrument->getType();
 					}
 				}
@@ -258,20 +263,10 @@ void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 			pInstrument = pDrumkit->getInstruments()->find( m_nInstrumentId );
 		}
 
-		if ( pOldDrumkit != nullptr && pInstrument != nullptr &&
-			 pDrumkit->getPath() == pOldDrumkit->getPath() &&
-			 pDrumkit->getName() == pOldDrumkit->getName() &&
-			 ! pInstrument->getType().isEmpty() ) {
-			// The note was associated with an instrument, which did not hold a
-			// type in the old version of the kit but was just assigned a new
-			// one. Since this was an explicit user interaction we propagate
-			// those type changes to all contained notes as well.
-			m_sType = pInstrument->getType();
-		}
-		else if ( pInstrument != nullptr && ! pInstrument->getType().isEmpty() ) {
-			// For a clean and easy to grasp concept of the automated mapping,
-			// matching ID/order will only be mapped if the corresponding
-			// instrument does _not_ feature a type.
+		// For a clean and easy to grasp concept of the automated mapping,
+		// matching ID/order will only be mapped if the corresponding instrument
+		// does _not_ feature a type.
+		if ( pInstrument != nullptr && ! pInstrument->getType().isEmpty() ) {
 			pInstrument = nullptr;
 		}
 	}
