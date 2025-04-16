@@ -7,6 +7,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 		- LASH support has been deprecated and will be removed in version 2.0 of
 			Hydrogen (#1649).
 		- Allow to select and copy version in About dialog (#2127).
+		- Number of parallel build jobs in `build.sh` is now set dynamically to number
+			of virtual processors (#2128).
 	* Fixed
 		- Fix compilation with LASH support enabled (#2076).
 		- Fix Hue slider in Preferences > Appearance > Color (#2081).
