@@ -170,9 +170,7 @@ void NoteTest::testMappingLegacyDrumkit() {
 						notesMapped[ ii ]->getType() );
 		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrumentId() ==
 						notesMapped[ ii ]->getInstrumentId() );
-		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrument() !=
-						notesMapped[ ii ]->getInstrument() );
-		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrument() != nullptr );
+		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrument() == nullptr );
 	}
 
 	// Map them back must yield the same notes we started from.
@@ -210,19 +208,13 @@ void NoteTest::testMappingLegacyDrumkit() {
 		notesMapped.push_back( ppNote );
 	}
 
-	bool bAllMapped = true;
 	for ( int ii = 0; ii < notesMapped.size(); ++ii ) {
 		CPPUNIT_ASSERT( notesOrig[ ii ]->getType() ==
 						notesMapped[ ii ]->getType() );
 		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrumentId() ==
 						notesMapped[ ii ]->getInstrumentId() );
-		CPPUNIT_ASSERT( notesOrig[ ii ]->getInstrument() !=
-						notesMapped[ ii ]->getInstrument() );
-		if ( notesMapped[ ii ]->getInstrument() == nullptr ) {
-			bAllMapped = false;
-		}
+		CPPUNIT_ASSERT( notesMapped[ ii ]->getInstrument() == nullptr );
 	}
-	CPPUNIT_ASSERT( ! bAllMapped );
 
 	// Map them back must yield the same notes we started from.
 	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
