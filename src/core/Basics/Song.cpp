@@ -368,14 +368,16 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	}
 	pSong->setPanLawKNorm( fPanLawKNorm );
 
+	bool bCurrentDrumkitLoaded = false;
 	std::shared_ptr<Drumkit> pDrumkit;
 	XMLNode drumkitNode = rootNode.firstChildElement( "drumkit_info");
 	if ( ! drumkitNode.isNull() ) {
-		// Current format (>= 1.3.0) storing a proper Drumkit
+		// Current format (>= 2.0) storing a proper Drumkit
 		pDrumkit = Drumkit::loadFrom( drumkitNode, "", sSongPath, true, bSilent );
+		bCurrentDrumkitLoaded = true;
 	}
 	else {
-		// Older format (< 1.3.0) storing only selected elements
+		// Older format (< 2.0) storing only selected elements
 		pDrumkit = Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent );
 	}
 
@@ -383,6 +385,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		ERRORLOG( "Unable to load drumkit. Falling back to default kit." );
 		// Load default kit
 		pDrumkit = std::make_shared<Drumkit>();
+		bCurrentDrumkitLoaded = false;
 	}
 	pSong->setDrumkit( pDrumkit );
 	pSong->setLastLoadedDrumkitPath(
@@ -391,7 +394,8 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
-		rootNode, pDrumkit->getExportName(), bSilent );
+		rootNode, pDrumkit->getExportName(),
+		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bSilent );
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapTo( pDrumkit, nullptr );
 	}

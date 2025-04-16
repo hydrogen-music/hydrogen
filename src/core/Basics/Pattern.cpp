@@ -139,8 +139,9 @@ std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath )
 }
 
 std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
-											 const QString& sDrumkitName,
-											 bool bSilent )
+											const QString& sDrumkitName,
+											std::shared_ptr<Drumkit> pDrumkit,
+											bool bSilent )
 {
 	auto pPattern = std::make_shared<Pattern>(
 	    node.read_string( "name", nullptr, false, false ),
@@ -191,26 +192,36 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 	}
 
 	if ( bMissingType ) {
-		const QString sMapFile =
-			Filesystem::getDrumkitMap( pPattern->getDrumkitName(), bSilent );
+		std::shared_ptr<DrumkitMap> pDrumkitMap;
+		if ( pDrumkit != nullptr ) {
+			// The provided kit has highest priority.
+			pDrumkitMap = pDrumkit->toDrumkitMap();
+		}
+		else {
+			// Otherwise we fall back to the drumkit name contained in the
+			// pattern.
+			const QString sMapFile =
+				Filesystem::getDrumkitMap( pPattern->getDrumkitName(), bSilent );
 
-		if ( ! sMapFile.isEmpty() ) {
-			const auto pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
-			if ( pDrumkitMap != nullptr ) {
-				// We do not replace any type but only set those not defined
-				// yet.
-				for ( const auto& [ _, ppNote ] : pPattern->m_notes ) {
-					if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
-						 ! pDrumkitMap->getType(
-							 ppNote->getInstrumentId() ).isEmpty() ) {
-						ppNote->setType(
-							pDrumkitMap->getType( ppNote->getInstrumentId() ) );
-					}
+			if ( ! sMapFile.isEmpty() ) {
+				pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
+				if ( pDrumkitMap == nullptr ) {
+					ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types in notes for pattern [%2]" )
+							  .arg( sMapFile ).arg( pPattern->getName() ) );
 				}
 			}
-			else {
-				ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types in notes for pattern [%2]" )
-						  .arg( sMapFile ).arg( pPattern->getName() ) );
+		}
+
+		if ( pDrumkitMap != nullptr ) {
+			// We do not replace any type but only set those not defined
+			// yet.
+			for ( const auto& [ _, ppNote ] : pPattern->m_notes ) {
+				if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
+					 ! pDrumkitMap->getType(
+						 ppNote->getInstrumentId() ).isEmpty() ) {
+					ppNote->setType(
+						pDrumkitMap->getType( ppNote->getInstrumentId() ) );
+				}
 			}
 		}
 		else if ( ! bSilent ) {

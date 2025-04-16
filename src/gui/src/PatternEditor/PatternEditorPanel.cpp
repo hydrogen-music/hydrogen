@@ -2609,6 +2609,11 @@ void PatternEditorPanel::cutNotesFromRowOfAllPatterns( int nRow, int nPitch ) {
 }
 
 void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	const auto row = getRowDB( nRow );
 	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
 		return;
@@ -2630,7 +2635,8 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 		return;
 	}
 
-	const auto pPatternList = PatternList::loadFrom( rootNode, "" );
+	const auto pPatternList = PatternList::loadFrom(
+		rootNode, "", pSong->getDrumkit() );
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
 				  .arg( sSerialized ) );
