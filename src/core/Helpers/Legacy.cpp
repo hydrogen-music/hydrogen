@@ -383,6 +383,8 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 			QString sKey = note_node.read_string( "key", "C0", false, false );
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
+			const int nInstrId = note_node.read_int(
+				"instrument", EMPTY_INSTR_ID, true );
 
 			bool noteoff = false;
 			if ( nNoteOff == "true" ) {
@@ -395,6 +397,7 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 			pNote->setLeadLag( fLeadLag );
 			pNote->setNoteOff( noteoff );
 			pNote->setProbability( fProbability );
+			pNote->setInstrumentId( nInstrId );
 			pPattern->insertNote( pNote );
 
 			note_node = note_node.nextSiblingElement( "note" );
