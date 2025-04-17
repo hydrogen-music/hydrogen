@@ -366,36 +366,36 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 
 		while ( !note_node.isNull() ) {
 			std::shared_ptr<Note> pNote = nullptr;
-			unsigned nPosition = note_node.read_int( "position", 0 );
-			float fLeadLag = note_node.read_float(
+			const int nPosition = note_node.read_int( "position", 0 );
+			const float fLeadLag = note_node.read_float(
 				"leadlag", LEAD_LAG_DEFAULT, false , false);
-			float fVelocity = note_node.read_float( "velocity", VELOCITY_DEFAULT );
-			float fPanL = note_node.read_float( "pan_L", 0.5 );
-			float fPanR = note_node.read_float( "pan_R", 0.5 );
-			float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
+			const float fVelocity = note_node.read_float(
+				"velocity", VELOCITY_DEFAULT );
+			const float fPanL = note_node.read_float( "pan_L", 0.5 );
+			const float fPanR = note_node.read_float( "pan_R", 0.5 );
+			const float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
 
-			int nLength = note_node.read_int(
+			const int nLength = note_node.read_int(
 				"length", LENGTH_ENTIRE_SAMPLE, true );
-			float nPitch = note_node.read_float(
+			const float nPitch = note_node.read_float(
 				"pitch", PITCH_DEFAULT, false, false );
-			float fProbability = note_node.read_float(
+			const float fProbability = note_node.read_float(
 				"probability", PROBABILITY_DEFAULT , false , false );
 			QString sKey = note_node.read_string( "key", "C0", false, false );
-			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
-			int instrId = note_node.read_int( "instrument", 0, true );
+			const QString sNoteOff = note_node.read_string( "note_off", "false", false, false );
 			const int nInstrId = note_node.read_int(
 				"instrument", EMPTY_INSTR_ID, true );
 
-			bool noteoff = false;
-			if ( nNoteOff == "true" ) {
-				noteoff = true;
+			bool bNoteOff = false;
+			if ( sNoteOff == "true" ) {
+				bNoteOff = true;
 			}
 
 			pNote = std::make_shared<Note>( nullptr, nPosition, fVelocity, fPan,
 											nLength, nPitch );
 			pNote->setKeyOctave( sKey );
 			pNote->setLeadLag( fLeadLag );
-			pNote->setNoteOff( noteoff );
+			pNote->setNoteOff( bNoteOff );
 			pNote->setProbability( fProbability );
 			pNote->setInstrumentId( nInstrId );
 			pPattern->insertNote( pNote );
