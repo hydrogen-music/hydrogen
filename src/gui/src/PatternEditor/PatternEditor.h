@@ -84,7 +84,10 @@ public:
 		/** For this property there is no dedicated NotePropertiesEditor
 		 * instance but we solely use it within undo/redo actions.*/
 		Type = 6,
-		None = 7
+		/** For this property there is no dedicated NotePropertiesEditor
+		 * instance but we solely use it within undo/redo actions.*/
+		InstrumentId = 7,
+		None = 8
 	};
 	static QString propertyToQString( const Property& property );
 

@@ -3087,6 +3087,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 		// the drumkit. In this case the instrument id of the note is remapped
 		// and might not correspond to the value used to create the undo/redo
 		// action.
+		//
 		bool bOk;
 		const int nKitId =
 			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
@@ -3095,6 +3096,14 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 				nPosition, nKitId, sOldType, static_cast<Note::Key>(nOldKey),
 				static_cast<Note::Octave>(nOldOctave) );
 		}
+	}
+	else if ( pNote == nullptr && property == Property::InstrumentId ) {
+		// When adding an instrument to a row on typed but unmapped notes, the
+		// redo part of the instrument ID is done automatically as part of the
+		// mapping to the updated kit. Only the undo part needs to be covered in
+		// here.
+		pHydrogen->getAudioEngine()->unlock();
+		return;
 	}
 
 	bool bValueChanged = false;
@@ -3158,6 +3167,12 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 				bValueChanged = true;
 			}
 			break;
+		case Property::InstrumentId:
+			if ( pNote->getInstrumentId() != nNewInstrumentId ) {
+				pNote->setInstrumentId( nNewInstrumentId );
+				bValueChanged = true;
+			}
+			break;
 		case Property::None:
 		default:
 			ERRORLOG("No property set. No note property adjusted.");
@@ -3172,7 +3187,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 		pHydrogen->setIsModified( true );
 		std::vector< std::shared_ptr<Note > > notes{ pNote };
 
-		if ( property == Property::Type ) {
+		if ( property == Property::Type || property == Property::InstrumentId ) {
 			pPatternEditorPanel->updateDB();
 			pPatternEditorPanel->updateEditors();
 			pPatternEditorPanel->resizeEvent( nullptr );
@@ -3379,6 +3394,9 @@ QString PatternEditor::propertyToQString( const Property& property ) {
 	case PatternEditor::Property::Type:
 		s = pCommonStrings->getInstrumentType();
 		break;
+	case PatternEditor::Property::InstrumentId:
+		s = pCommonStrings->getInstrumentId();
+		break;
 	default:
 		s = QString( "Unknown property [%1]" ).arg( static_cast<int>(property) ) ;
 		break;
@@ -3496,6 +3514,8 @@ void PatternEditor::triggerStatusMessage(
 					.arg( ppNote->getProbability(), 2, 'f', 2 );
 			}
 			break;
+		case PatternEditor::Property::InstrumentId:
+			return;
 		case PatternEditor::Property::Type:
 		case PatternEditor::Property::None:
 		default:

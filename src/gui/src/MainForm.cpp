@@ -1260,9 +1260,76 @@ void MainForm::action_drumkit_addInstrument(
 		pInstrument = std::make_shared<Instrument>();
 	}
 
+	// In case we add an instrument to a row already containing types notes, the
+	// instrument ID of these notes will be mapped to the one registered to the
+	// new instrument. However, when removing the instrument again in an undo
+	// action, this ID change is not done automatically but has to be covered in
+	// a dedicated action.
+	std::vector< std::pair< int, std::vector< std::shared_ptr<Note> > > > affectedNotes;
+	if ( ! pInstrument->getType().isEmpty() ) {
+		for ( int nn = 0; nn < pSong->getPatternList()->size(); ++nn ) {
+			auto ppPattern = pSong->getPatternList()->get( nn );
+			if ( ppPattern != nullptr &&
+				 ppPattern->getAllNotesOfType( pInstrument->getType() ).size() > 0 ) {
+				auto notes = ppPattern->getAllNotesOfType(
+					pInstrument->getType() );
+				// Ensure we do not loose the ID when the note is mapped.
+				std::vector< std::shared_ptr<Note> > copiedNotes;
+				for ( const auto& ppNote : notes ) {
+					if ( ppNote != nullptr ) {
+						copiedNotes.push_back( std::make_shared<Note>( ppNote ) );
+					}
+				}
+				affectedNotes.push_back(std::make_pair( nn, copiedNotes ) );
+			}
+		}
+	}
+
+	if ( affectedNotes.size() > 0 ) {
+		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionAddInstrument() );
+	}
+
+	// Instrument still has Id -1.
 	pHydrogenApp->pushUndoCommand(
 		new SE_addInstrumentAction(
 			pInstrument, -1, SE_addInstrumentAction::Type::AddEmptyInstrument ) );
+
+	if ( affectedNotes.size() > 0 ) {
+		// After the action was pushed and the corresponding redo executed, the
+		// instrument has its proper ID within the Drumkit. We can use it set up
+		// the note undo actions.
+		for ( const auto& [ nnPatternNumber, nnotes ] : affectedNotes ) {
+			for ( const auto& ppNote : nnotes ) {
+				if ( ppNote != nullptr ) {
+					pHydrogenApp->pushUndoCommand(
+						new SE_editNotePropertiesAction(
+							PatternEditor::Property::InstrumentId,
+							nnPatternNumber,
+							ppNote->getPosition(),
+							pInstrument->getId(),
+							ppNote->getInstrumentId(),
+							ppNote->getType(),
+							ppNote->getType(),
+							ppNote->getVelocity(),
+							ppNote->getVelocity(),
+							ppNote->getPan(),
+							ppNote->getPan(),
+							ppNote->getLeadLag(),
+							ppNote->getLeadLag(),
+							ppNote->getProbability(),
+							ppNote->getProbability(),
+							ppNote->getLength(),
+							ppNote->getLength(),
+							ppNote->getKey(),
+							ppNote->getKey(),
+							ppNote->getOctave(),
+							ppNote->getOctave() ) );
+				}
+			}
+		}
+		pHydrogenApp->endUndoMacro();
+	}
+
 	pHydrogenApp->showStatusBarMessage(
 		pCommonStrings->getActionAddInstrument() );
 
