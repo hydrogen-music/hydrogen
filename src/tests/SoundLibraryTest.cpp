@@ -28,6 +28,18 @@
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
+void SoundLibraryTest::testContextValidity() {
+	___INFOLOG( "" );
+
+	auto pDB = H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
+	for ( const auto& [ _, ppDrumkit ]: pDB->getDrumkitDatabase() ) {
+		CPPUNIT_ASSERT( ppDrumkit != nullptr );
+		CPPUNIT_ASSERT( ppDrumkit->getContext() != H2Core::Drumkit::Context::Song );
+	}
+
+	___INFOLOG( "passed" );
+}
+
 void SoundLibraryTest::testKitRetrievalCopy() {
 	___INFOLOG( "" );
 

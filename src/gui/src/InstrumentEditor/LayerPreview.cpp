@@ -234,7 +234,6 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 {
 	m_bMouseGrab = false;
-	setCursor( QCursor( Qt::ArrowCursor ) );
 
 	if ( m_pComponentView->getComponent() == nullptr ) {
 		return;

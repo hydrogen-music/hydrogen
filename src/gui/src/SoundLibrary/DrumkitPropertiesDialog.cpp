@@ -24,12 +24,13 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "DrumkitPropertiesDialog.h"
+
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../CommonStrings.h"
+#include "../PatternEditor/PatternEditor.h"
 #include "../UndoActions.h"
-
-#include "DrumkitPropertiesDialog.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
 
@@ -111,7 +112,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 
 		if ( m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 			if ( bEditingNotSaving ) {
-				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
+				setWindowTitle( pCommonStrings->getActionEditCurrentDrumkitProperties() );
 			}
 			else if ( m_bSaveToNsmSession ){
 				setWindowTitle( tr( "Save a copy of the current drumkit to NSM session folder" ) );
@@ -122,7 +123,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog( QWidget* pParent,
 		}
 		else {
 			if ( bEditingNotSaving ) {
-				setWindowTitle( tr( "Edit Drumkit Properties" ) );
+				setWindowTitle( pCommonStrings->getActionEditDrumkitProperties() );
 				nameTxt->setIsActive( false );
 				nameTxt->setToolTip( tr( "Altering the name of a drumkit would result in the creation of a new one. To do so, use 'Duplicate' instead." ) );
 			}
@@ -217,10 +218,17 @@ QTextEdit { \
 	tabWidget->setCurrentIndex( 0 );
 
 	saveBtn->setFixedFontSize( 12 );
-	saveBtn->setSize( QSize( 70, 23 ) );
+	saveBtn->setSize( QSize( 110, 23 ) );
 	saveBtn->setBorderRadius( 3 );
 	saveBtn->setType( Button::Type::Push );
-	saveBtn->setText( pCommonStrings->getButtonSave() );
+	if ( m_pDrumkit != nullptr &&
+		 m_pDrumkit->getContext() == Drumkit::Context::Song ) {
+		saveBtn->setText( pCommonStrings->getActionSaveSong() );
+	}
+	else {
+		saveBtn->setText( pCommonStrings->getActionSaveDrumkit() );
+	}
+
 	m_cancelBtn->setFixedFontSize( 12 );
 	m_cancelBtn->setSize( QSize( 70, 23 ) );
 	m_cancelBtn->setBorderRadius( 3 );
@@ -378,11 +386,15 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 	types.merge( m_pDrumkit->getAllTypes() );
 
 	QStringList allTypeStrings;
+	// We need the invalid empty type to set a proper index for all instruments
+	// with missing types.
+	allTypeStrings << "";
  	for ( const auto& ssType : types ) {
 		allTypeStrings << ssType;
 	 }
 
 	// Sort them alphabetically in ascending order.
+	allTypeStrings.removeDuplicates();
 	allTypeStrings.sort();
 
 	QMenu* pTypesMenu = new QMenu( this );
@@ -410,7 +422,7 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 
 		int nIndex = -1;
 		int nnType = 0;
-		LCDCombo* pInstrumentType = new LCDCombo( nullptr);
+		LCDCombo* pInstrumentType = new LCDCombo( nullptr );
 		for ( const auto& ssType : allTypeStrings ) {
 			pInstrumentType->addItem( ssType );
 
@@ -424,16 +436,20 @@ void DrumkitPropertiesDialog::updateTypesTable( bool bDrumkitWritable ) {
 			ERRORLOG( QString( "Provided type [%1] could not be found in database" )
 					  .arg( sTextType ) );
 		}
+		else if ( nIndex != -1 ) {
+			pInstrumentType->setCurrentIndex( nIndex );
+		}
+		else {
+			pInstrumentType->setCurrentText( sTextType );
+		}
 
 		if ( bDrumkitWritable ) {
 			pInstrumentType->setIsActive( true );
 			pInstrumentType->setEditable( true );
-			pInstrumentType->setCurrentText( sTextType );
-		} else {
+			pInstrumentType->setFocusPolicy( Qt::StrongFocus );
+		}
+		else {
 			pInstrumentType->setIsActive( false );
-			if ( nIndex != -1 ) {
-				pInstrumentType->setCurrentIndex( nIndex );
-			}
 		}
 
 		typesTable->setCellWidget( nCell, 0, pInstrumentId );
@@ -747,6 +763,84 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			bOldImageDeleted = true;
 		}
 
+		// This is the single point we can initially assign a type to a note not
+		// bearing one yet. In all other places, notes do either have a type or
+		// not. We ensure this action can be undone and is contained in the same
+		// macro as the overall drumkit change.
+		//
+		// Note that an empty type can not be assigned to an instrument.
+		const auto pOldKit = pSong->getDrumkit();
+
+		struct noteToBeMapped {
+			std::shared_ptr<Note> pNote;
+			DrumkitMap::Type type;
+			int nPatternNumber;
+		};
+		std::vector<noteToBeMapped> notesToBeMapped;
+		// This should always be true. Let's keep it safe.
+		if ( pOldKit != nullptr && pOldKit->getInstruments()->size() ==
+			 m_pDrumkit->getInstruments()->size() ) {
+			for ( int nnIdx = 0; nnIdx < pOldKit->getInstruments()->size(); ++nnIdx ) {
+				auto pOldInstrument = pOldKit->getInstruments()->get( nnIdx );
+				auto pNewInstrument = m_pDrumkit->getInstruments()->get( nnIdx );
+				if ( pOldInstrument->getType().isEmpty() &&
+					 ! pNewInstrument->getType().isEmpty() &&
+					 pOldInstrument->getId() == pNewInstrument->getId() ) {
+					// First type assignment. Apply this type to all affected
+					// notes.
+					for ( const auto& ppPattern : *pSong->getPatternList() ) {
+						if ( ppPattern == nullptr ) {
+							continue;
+						}
+
+						for ( const auto& ppNote :
+								  ppPattern->getAllNotesOfType( "" ) ) {
+							if ( ppNote != nullptr &&
+								 ppNote->getType().isEmpty() &&
+								 ppNote->getInstrumentId() ==
+								 pOldInstrument->getId() ) {
+								notesToBeMapped.push_back( {
+									ppNote,
+									pNewInstrument->getType(),
+									pSong->getPatternList()->index( ppPattern ) } );
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if ( notesToBeMapped.size() > 0 ) {
+			pHydrogenApp->beginUndoMacro(
+				pCommonStrings->getActionEditDrumkitProperties() );
+		}
+
+		for ( const auto& [ ppNote, ssType, nnPatternNumber ] : notesToBeMapped ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_editNotePropertiesAction(
+					PatternEditor::Property::Type,
+					nnPatternNumber,
+					ppNote->getPosition(),
+					ppNote->getInstrumentId(),
+					ppNote->getInstrumentId(),
+					ssType,
+					"",
+					ppNote->getVelocity(),
+					ppNote->getVelocity(),
+					ppNote->getPan(),
+					ppNote->getPan(),
+					ppNote->getLeadLag(),
+					ppNote->getLeadLag(),
+					ppNote->getProbability(),
+					ppNote->getProbability(),
+					ppNote->getLength(),
+					ppNote->getLength(),
+					ppNote->getKey(),
+					ppNote->getKey(),
+					ppNote->getOctave(),
+					ppNote->getOctave() ) );
+		}
+
 		// When editing the properties of the current kit, the new version will
 		// be loaded in a way that can be undone.
 		//
@@ -757,6 +851,10 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			new SE_switchDrumkitAction(
 				m_pDrumkit, pSong->getDrumkit(),
 				SE_switchDrumkitAction::Type::EditProperties ) );
+
+		if ( notesToBeMapped.size() > 0 ) {
+			pHydrogenApp->endUndoMacro( "" );
+		}
 
 		// Since we hit save on the song's drumkit, we should also save the song
 		// for the sake of consistency.

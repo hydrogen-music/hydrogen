@@ -74,8 +74,11 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 	 *
 	 * @param sDrumkitPath Absolute path to the drumkit directory
 	 *   (containing a drumkit.xml) file as unique identifier.
+	 * @param bUpgrade In case the drumkit is not part of the DB and needs to be
+	 *   loaded, should it be upgrade while doing so?
 	 */
-	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath );
+	std::shared_ptr<Drumkit> getDrumkit( const QString& sDrumkitPath,
+										 bool bUpgrade = true );
 
 		/** Based on #Song::m_sLastLoadedDrumkitPath get the previous drumkit in
 		 * the data base (the one shown above the last loaded one in the Sound

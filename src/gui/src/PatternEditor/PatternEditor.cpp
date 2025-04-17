@@ -214,8 +214,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	else {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
-		if ( pNote->getInstrumentId() != selectedRow.nInstrumentID ||
-			 pNote->getType() != selectedRow.sType ) {
+		if ( ! selectedRow.contains( pNote ) ) {
 			ERRORLOG( QString( "Provided note [%1] is not part of selected row [%2]" )
 					  .arg( pNote->toQString() ).arg( selectedRow.toQString() ) );
 			return;
@@ -678,6 +677,7 @@ void PatternEditor::paste()
 
 			int nInstrumentId;
 			QString sType;
+			DrumPatternRow targetRow;
 			if ( m_editor == Editor::DrumPattern ) {
 				const auto nNoteRow =
 					m_pPatternEditorPanel->findRowDB( pNote, true );
@@ -688,9 +688,9 @@ void PatternEditor::paste()
 						 nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
 						continue;
 					}
-					const auto row = m_pPatternEditorPanel->getRowDB( nRow );
-					nInstrumentId = row.nInstrumentID;
-					sType = row.sType;
+					targetRow = m_pPatternEditorPanel->getRowDB( nRow );
+					nInstrumentId = targetRow.nInstrumentID;
+					sType = targetRow.sType;
 				}
 				else {
 					// Note can not be represented in the current DB. This means
@@ -702,9 +702,9 @@ void PatternEditor::paste()
 				}
 			}
 			else {
-				const auto row = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-				nInstrumentId = row.nInstrumentID;
-				sType = row.sType;
+				targetRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+				nInstrumentId = targetRow.nInstrumentID;
+				sType = targetRow.sType;
 			}
 
 			int nKey, nOctave;
@@ -738,6 +738,7 @@ void PatternEditor::paste()
 					pNote->getProbability(),
 					/* bIsDelete */ false,
 					/* bIsNoteOff */ pNote->getNoteOff(),
+					targetRow.bMappedToDrumkit,
 					AddNoteAction::AddToSelection ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -771,9 +772,7 @@ void PatternEditor::selectAllNotesInRow( int nRow, int nPitch )
 		const auto key = Note::pitchToKey( nPitch );
 		const auto octave = Note::pitchToOctave( nPitch );
 		for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-			if ( ppNote != nullptr &&
-				 ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType &&
+			if ( ppNote != nullptr && row.contains( ppNote ) &&
 				 ppNote->getKey() == key && ppNote->getOctave() == octave ) {
 				m_selection.addToSelection( ppNote );
 			}
@@ -781,9 +780,7 @@ void PatternEditor::selectAllNotesInRow( int nRow, int nPitch )
 	}
 	else {
 		for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
-			if ( ppNote != nullptr &&
-				 ppNote->getInstrumentId() == row.nInstrumentID &&
-				 ppNote->getType() == row.sType ) {
+			if ( ppNote != nullptr && row.contains( ppNote ) ) {
 				m_selection.addToSelection( ppNote );
 			}
 		}
@@ -852,6 +849,7 @@ void PatternEditor::alignToGrid() {
 		const int nOctave = ppNote->getOctave();
 		const float fProbability = ppNote->getProbability();
 		const bool bNoteOff = ppNote->getNoteOff();
+		const bool bIsMappedToDrumkit = ppNote->getInstrument() != nullptr;
 
 		// Move note -> delete at source position
 		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
@@ -868,6 +866,7 @@ void PatternEditor::alignToGrid() {
 						 fProbability,
 						 /* bIsDelete */ true,
 						 bNoteOff,
+						 bIsMappedToDrumkit,
 						 PatternEditor::AddNoteAction::None ) );
 
 		auto addNoteAction = AddNoteAction::None;
@@ -895,6 +894,7 @@ void PatternEditor::alignToGrid() {
 						 fProbability,
 						 /* bIsDelete */ false,
 						 bNoteOff,
+						 bIsMappedToDrumkit,
 						 addNoteAction ) );
 	}
 
@@ -1135,6 +1135,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 						ppNote->getProbability(),
 						/* bIsDelete */ true,
 						/* bIsNoteOff */ ppNote->getNoteOff(),
+						 ppNote->getInstrument() != nullptr,
 						PatternEditor::AddNoteAction::None ) );
 			}
 			pHydrogenApp->endUndoMacro();
@@ -1871,6 +1872,7 @@ void PatternEditor::deleteSelection( bool bHandleSetupTeardown )
 									   pNote->getProbability(),
 									   true, // bIsDelete
 									   pNote->getNoteOff(),
+									   pNote->getInstrument() != nullptr,
 									   PatternEditor::AddNoteAction::None ) );
 			}
 		}
@@ -1978,6 +1980,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		const int nOctave = pNote->getOctave();
 		const float fProbability = pNote->getProbability();
 		const bool bNoteOff = pNote->getNoteOff();
+		const bool bIsMappedToDrumkit = pNote->getInstrument() != nullptr;
 
 		// We'll either select the new, duplicated note or the new, moved
 		// replacement of the note.
@@ -1989,8 +1992,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemoveNoteAction(
 					nPosition,
-					row.nInstrumentID,
-					row.sType,
+					pNote->getInstrumentId(),
+					pNote->getType(),
 					m_pPatternEditorPanel->getPatternNumber(),
 					nLength,
 					fVelocity,
@@ -2001,6 +2004,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					fProbability,
 					/* bIsDelete */ true,
 					bNoteOff,
+					bIsMappedToDrumkit,
 					PatternEditor::AddNoteAction::None ) );
 		}
 
@@ -2033,6 +2037,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 					fProbability,
 					/* bIsDelete */ false,
 					bNoteOff,
+					bIsMappedToDrumkit,
 					addNoteAction ) );
 		}
 	}
@@ -2444,10 +2449,8 @@ void PatternEditor::drawPattern()
 				// aren't visible even when drawn.
 				break;
 			}
-			if ( ppNote == nullptr ||
-				 ( m_editor == Editor::PianoRoll &&
-				   ( ppNote->getInstrumentId() != selectedRow.nInstrumentID ||
-					 ppNote->getType() != selectedRow.sType ) ) ) {
+			if ( ppNote == nullptr || ( m_editor == Editor::PianoRoll &&
+										! selectedRow.contains( ppNote ) ) ) {
 				continue;
 			}
 
@@ -3084,6 +3087,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 		// the drumkit. In this case the instrument id of the note is remapped
 		// and might not correspond to the value used to create the undo/redo
 		// action.
+		//
 		bool bOk;
 		const int nKitId =
 			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
@@ -3092,6 +3096,14 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 				nPosition, nKitId, sOldType, static_cast<Note::Key>(nOldKey),
 				static_cast<Note::Octave>(nOldOctave) );
 		}
+	}
+	else if ( pNote == nullptr && property == Property::InstrumentId ) {
+		// When adding an instrument to a row on typed but unmapped notes, the
+		// redo part of the instrument ID is done automatically as part of the
+		// mapping to the updated kit. Only the undo part needs to be covered in
+		// here.
+		pHydrogen->getAudioEngine()->unlock();
+		return;
 	}
 
 	bool bValueChanged = false;
@@ -3142,7 +3154,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 				pNote->setInstrumentId( nNewInstrumentId );
 				pNote->setType( sNewType );
 
-				pNote->mapTo( pSong->getDrumkit() );
+				pNote->mapTo( pSong->getDrumkit(), pSong->getDrumkit() );
 
 				// Changing a type is effectively moving the note to another row
 				// of the DrumPatternEditor. This could result in overlapping
@@ -3152,6 +3164,12 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 				pPatternEditorPanel->getVisibleEditor()->
 					m_selection.addToSelection( pNote );
 
+				bValueChanged = true;
+			}
+			break;
+		case Property::InstrumentId:
+			if ( pNote->getInstrumentId() != nNewInstrumentId ) {
+				pNote->setInstrumentId( nNewInstrumentId );
 				bValueChanged = true;
 			}
 			break;
@@ -3169,7 +3187,7 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 		pHydrogen->setIsModified( true );
 		std::vector< std::shared_ptr<Note > > notes{ pNote };
 
-		if ( property == Property::Type ) {
+		if ( property == Property::Type || property == Property::InstrumentId ) {
 			pPatternEditorPanel->updateDB();
 			pPatternEditorPanel->updateEditors();
 			pPatternEditorPanel->resizeEvent( nullptr );
@@ -3193,6 +3211,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   float fOldProbability,
 										   bool bIsDelete,
 										   bool bIsNoteOff,
+										   bool bIsMappedToDrumkit,
 										   AddNoteAction addNoteAction )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -3302,8 +3321,8 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 		}
 
 		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( nInstrumentId != EMPTY_INSTR_ID ) {
-			// Can still be nullptr for notes in unmapped id-only rows.
+		if ( nInstrumentId != EMPTY_INSTR_ID && bIsMappedToDrumkit ) {
+			// Can still be nullptr for notes in unmapped rows.
 			pInstrument =
 				pSong->getDrumkit()->getInstruments()->find( nInstrumentId );
 		}
@@ -3374,6 +3393,9 @@ QString PatternEditor::propertyToQString( const Property& property ) {
 		break;
 	case PatternEditor::Property::Type:
 		s = pCommonStrings->getInstrumentType();
+		break;
+	case PatternEditor::Property::InstrumentId:
+		s = pCommonStrings->getInstrumentId();
 		break;
 	default:
 		s = QString( "Unknown property [%1]" ).arg( static_cast<int>(property) ) ;
@@ -3492,6 +3514,8 @@ void PatternEditor::triggerStatusMessage(
 					.arg( ppNote->getProbability(), 2, 'f', 2 );
 			}
 			break;
+		case PatternEditor::Property::InstrumentId:
+			return;
 		case PatternEditor::Property::Type:
 		case PatternEditor::Property::None:
 		default:
@@ -3687,10 +3711,8 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	for ( auto it = notes->lower_bound( nRealColumnLower );
 		  it != notes->end() && it->first <= nRealColumnUpper; ++it ) {
 		const auto ppNote = it->second;
-		if ( ppNote != nullptr &&
-			 ppNote->getPosition() < pPattern->getLength() &&
-			 ppNote->getInstrumentId() == row.nInstrumentID &&
-			 ppNote->getType() == row.sType ) {
+		if ( ppNote != nullptr && row.contains( ppNote ) &&
+			 ppNote->getPosition() < pPattern->getLength() ) {
 
 			const int nDistance =
 				std::abs( ppNote->getPosition() - nRealColumn );
@@ -3923,8 +3945,7 @@ bool PatternEditor::syncLasso() {
 				m_pPatternEditorPanel->getSelectedRowDB() );
 
 			for ( const auto& ppNote : m_selection ) {
-				if ( ppNote != nullptr && ppNote->getType() == row.sType &&
-					 ppNote->getInstrumentId() == row.nInstrumentID ) {
+				if ( ppNote != nullptr && row.contains( ppNote ) ) {
 					const QPoint np = pPianoRoll->noteToPoint( ppNote );
 					const QRect noteRect = QRect(
 						np.x() - cursor.width() / 2, np.y() - cursor.height() / 2,
@@ -3988,6 +4009,20 @@ void PatternEditor::popupTeardown() {
 	if ( m_notesToSelectForPopup.size() > 0 ) {
 		m_notesToSelectForPopup.clear();
 		m_selection.clearSelection();
+	}
+
+	// The popup might have caused the cursor to move out of this widget and the
+	// latter will loose focus once the popup is torn down. We have to ensure
+	// not to display some glitchy notes previously hovered by mouse which are
+	// not present anymore (e.g. since they were aligned to a different
+	// position).
+	const QPoint globalPos = QCursor::pos();
+	const QPoint widgetPos = mapFromGlobal( globalPos );
+	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
+		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
+		std::vector< std::pair< std::shared_ptr<Pattern>,
+								std::vector< std::shared_ptr<Note> > > > empty;
+		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
 }
 

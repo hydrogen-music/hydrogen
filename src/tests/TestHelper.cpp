@@ -217,7 +217,7 @@ void TestHelper::exportSong( const QString& sFileName )
 		pInstrumentList->get(i)->setCurrentlyExported( true );
 	}
 
-	pHydrogen->startExportSession( 44100, 16, 5 );
+	pHydrogen->startExportSession( 44100, 16, 1.0 );
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver =

@@ -67,6 +67,8 @@ struct DrumPatternRow {
 							 bool bAlternate, bool bMappedToDrumkit,
 							 bool bPlaysBackAudio ) noexcept;
 
+	bool contains( std::shared_ptr<H2Core::Note> pNote ) const;
+
 	/** Associated #H2Core::Instrument::__id in the current #H2Core::Drumkit.
 	 *
 	 * If set to #EMPTY_INSTR_ID, the row does not correspond to any. This

@@ -46,8 +46,9 @@ PatternList::~PatternList() {
 }
 
 std::shared_ptr<PatternList> PatternList::loadFrom( const XMLNode& node,
-													 const QString& sDrumkitName,
-													 bool bSilent ) {
+													const QString& sDrumkitName,
+													std::shared_ptr<Drumkit> pDrumkit,
+													bool bSilent ) {
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
 		ERRORLOG( "'patternList' node not found. Unable to load pattern list." );
@@ -60,7 +61,8 @@ std::shared_ptr<PatternList> PatternList::loadFrom( const XMLNode& node,
 	XMLNode patternNode =  patternsNode.firstChildElement( "pattern" );
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
-		auto pPattern = Pattern::loadFrom( patternNode, sDrumkitName, bSilent );
+		auto pPattern = Pattern::loadFrom(
+			patternNode, sDrumkitName, pDrumkit, bSilent );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}

@@ -716,7 +716,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	if ( dialog->exec() == QDialog::Accepted ) {
 		const QString sPath = Filesystem::tmp_file_path(
 			"patternDuplicate.h2pattern" );
-		if ( ! pPattern->save( sPath ) ) {
+		if ( ! pNewPattern->save( sPath ) ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		}
 		else {

@@ -104,7 +104,12 @@ struct SelectedLayerInfo {
 };
 
 /**
- * A note plays an associated instrument with a velocity left and right pan
+ * Represents an instrument activation with various parameters and options.
+ *
+ * A note itself can not render audio. First, it has to be mapped to a
+ * #H2Core::Drumkit in order to be associated with an #H2Core::Instrument. Notes
+ * holding a valid #m_pInstrument can than be handed over to the
+ * #H2Core::Sampler for rendering.
  */
 /** \ingroup docCore docDataStructure */
 class Note : public H2Core::Object<Note>
@@ -135,14 +140,7 @@ class Note : public H2Core::Object<Note>
 		  float fVelocity = VELOCITY_DEFAULT, float fPan = PAN_DEFAULT,
 		  int nLength = LENGTH_ENTIRE_SAMPLE, float fPitch = PITCH_DEFAULT );
 
-		/**
-		 * copy constructor with an optional parameter
-		 * \param pOther 
-		 * \param pInstrument if set will be used as note instrument
-		 */
-		Note( std::shared_ptr<Note> pOther,
-			  std::shared_ptr<Instrument> pInstrument = nullptr );
-		/** destructor */
+		Note( std::shared_ptr<Note> pOther );
 		~Note();
 
 		/*
@@ -448,9 +446,20 @@ class Note : public H2Core::Object<Note>
 		}
 
 	private:
-		int				m_nInstrumentId;        ///< the id of the instrument played by this note
+        /** The ID of the instrument the note will be mapped to in case a
+		 * drumkit with no or incomplete types is used (e.g. a new or legacy
+		 * kit).
+		 *
+		 * Note that this number being set does not mean that the note is
+		 * actually associated with an instrument of the (current) drumkit. The
+		 * pointer #m_pInstrument will tell instead. */
+        int				m_nInstrumentId;
 		/** Drumkit-independent identifier used to relate a note/pattern to a
-		 * different kit */
+		 * different kit.
+		 *
+		 * Note that this one being set does not mean that the note is actually
+		 * associated with an instrument of the (current) drumkit. The pointer
+		 * #m_pInstrument will tell instead. */
 		DrumkitMap::Type m_sType;
 		int				m_nPosition;             ///< note position in
 												///ticks inside the pattern
@@ -513,7 +522,9 @@ class Note : public H2Core::Object<Note>
 		std::map< std::shared_ptr<InstrumentComponent>,
 				  std::shared_ptr<SelectedLayerInfo> > m_selectedLayerInfoMap;
 
-		/** the instrument to be played by this note */
+		/** The instrument (of the current drumkit) the note is associated with.
+		 * It will be used to render the note and, if not `nullptr`, to indicate
+		 * that the note is mapped to a drumkit. */
 		std::shared_ptr<Instrument>		m_pInstrument;
 };
 

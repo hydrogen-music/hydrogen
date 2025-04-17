@@ -1164,6 +1164,7 @@ void HydrogenApp::onEventQueueTimer()
 								 pOldNote->getProbability(),
 								 /*isDelete*/ true,
 								 /*isNoteOff*/ false,
+								 pOldNote->getInstrument() != nullptr,
 								 PatternEditor::AddNoteAction::None ) );
 		}
 		
@@ -1182,6 +1183,7 @@ void HydrogenApp::onEventQueueTimer()
 							 PROBABILITY_DEFAULT,
 							 /*isDelete*/ false,
 							 /*isNoteOff*/ false,
+							 row.bMappedToDrumkit,
 							 PatternEditor::AddNoteAction::Playback ) );
 		endUndoMacro();
 

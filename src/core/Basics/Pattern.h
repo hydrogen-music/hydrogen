@@ -92,13 +92,17 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param node the XMLDode to read from
 		 * \param sDrumkitName kit the pattern was created for (only used as
 		 *   fallback).
+		 * \param pDrumkit In case the PatternList is loaded as part of a song,
+		 *   the current drumkit used to retrieve the types of all contained
+		 *   notes.
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
 	static std::shared_ptr<Pattern> loadFrom( const XMLNode& node,
-											   const QString& sDrumkitName,
-											   bool bSilent = false );
+											  const QString& sDrumkitName,
+											  std::shared_ptr<Drumkit> pDrumkit = nullptr,
+											  bool bSilent = false );
 		/**
 		 * save a pattern into an xml file
 		 * \param sPatternPath the path to save the pattern into
@@ -262,7 +266,8 @@ class Pattern : public H2Core::Object<Pattern>
 	 */
 	bool isVirtual() const;
 
-
+		void applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit = nullptr,
+								bool bSilent = false );
 		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
 					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 

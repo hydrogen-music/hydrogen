@@ -27,11 +27,14 @@
 
 class SoundLibraryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( SoundLibraryTest );
+	CPPUNIT_TEST( testContextValidity );
 	CPPUNIT_TEST( testKitRetrievalCopy );
 	CPPUNIT_TEST( testKitRetrievalDirect );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
-	void testKitRetrievalCopy();
-	void testKitRetrievalDirect();
+		/** No kit in the sound library must be of Context::Song. */
+		void testContextValidity();
+		void testKitRetrievalCopy();
+		void testKitRetrievalDirect();
 };

@@ -41,7 +41,7 @@
 #include "MidiNoteTest.cpp"
 #include "MimeTest.h"
 #include "NetworkTest.h"
-#include "NoteTest.cpp"
+#include "NoteTest.h"
 #include "OscServerTest.h"
 #include "PatternTest.h"
 #include "SampleTest.cpp"
