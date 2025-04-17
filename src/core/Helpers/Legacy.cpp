@@ -440,6 +440,10 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 			sequenceNode = sequenceNode.nextSiblingElement( "sequence" );
 		}
 	}
+
+	const QString sDrumkitName = root.read_string(
+		"drumkit_name", "", true, true, true );
+	pPattern->setDrumkitName( sDrumkitName );
 	
 	return pPattern;
 }
