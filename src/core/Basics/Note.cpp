@@ -111,7 +111,7 @@ Note::Note( std::shared_ptr<Instrument> pInstrument, int nPosition,
 }
 
 Note::Note( std::shared_ptr<Note> pOther )
-	: m_nInstrumentId( EMPTY_INSTR_ID ),
+	: m_nInstrumentId( pOther->getInstrumentId() ),
 	  m_sType( pOther->getType() ),
 	  m_nPosition( pOther->getPosition() ),
 	  m_fVelocity( pOther->getVelocity() ),
