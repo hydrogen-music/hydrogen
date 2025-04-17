@@ -1951,7 +1951,7 @@ void PatternEditorPanel::updateDB() {
 	const auto kitTypes = pSong->getDrumkit()->getAllTypes();
 	QStringList additionalTypes;
 	// Use a map for automated sorting of the types by instrument id (key).
-	std::map<int, QString> additionalTypesMap;
+	std::multimap<int, DrumkitMap::Type> additionalTypesMap;
 	std::vector<int> additionalIds;
 
 	for ( const auto& ppPattern : getPatternsToShow() ) {
@@ -1964,8 +1964,9 @@ void PatternEditorPanel::updateDB() {
 				// the current drumkit.
 				if ( ! additionalTypes.contains( ppNote->getType() ) ) {
 					additionalTypes << ppNote->getType();
-					additionalTypesMap[ ppNote->getInstrumentId() ] =
-						ppNote->getType();
+					additionalTypesMap.insert(
+						std::make_pair( ppNote->getInstrumentId(),
+										ppNote->getType() ) );
 				}
 			}
 			else if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
