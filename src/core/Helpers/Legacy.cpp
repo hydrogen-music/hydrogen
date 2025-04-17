@@ -444,6 +444,8 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 	const QString sDrumkitName = root.read_string(
 		"drumkit_name", "", true, true, true );
 	pPattern->setDrumkitName( sDrumkitName );
+
+	pPattern->applyMissingTypes( nullptr, false );
 	
 	return pPattern;
 }
