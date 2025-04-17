@@ -38,7 +38,15 @@ CMAKE_OPTIONS="
     -DWANT_COREMIDI=1 \
     -DWANT_INTEGRATION_TESTS=1
 "
-MAKE_OPTS="-j 3"
+NUMBER_OF_BUILD_JOBS=3
+if which nproc &> /dev/null; then
+    # Get the number of virtual processors on Linux.
+    NUMBER_OF_BUILD_JOBS=$(nproc)
+elif which sysctl &> /dev/null; then
+    # Get the number of virtual processors on macOS and *BSD.
+    NUMBER_OF_BUILD_JOBS=$(sysctl hw.ncpu | sed 's/.*: //')
+fi
+MAKE_OPTS="-j ${NUMBER_OF_BUILD_JOBS}"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
 BUILD_DIR_APPIMAGE=./build-appimage
