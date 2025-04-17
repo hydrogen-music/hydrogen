@@ -59,6 +59,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 	aboutTxt->setText( about );
 	aboutTxt->setOpenExternalLinks( true );
+	aboutTxt->setTextInteractionFlags( Qt::TextBrowserInteraction );
 
 	std::vector<Author> translatorList;
 	translatorList.push_back( Author( "Olivier Humbert", "trebmuh@tuxfamily.org", "French translation" ) );
@@ -103,6 +104,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 	authorsText->setText( sAuthors );
 	authorsText->setOpenExternalLinks( true );
+	authorsText->setTextInteractionFlags( Qt::TextBrowserInteraction );
 
 	logoLabel->setPixmap( QPixmap( Skin::getImagePath() +"/about/aboutLogo.png" ) );
 }
