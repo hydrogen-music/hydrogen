@@ -807,9 +807,8 @@ void AudioEngine::calculateTransportOffsetOnBpmChange( std::shared_ptr<Transport
 
 	if ( m_bLookaheadApplied ) {
 			// if ( m_fLastTickEnd != 0 ) {
-		const long long nNewLookahead =
-			getLeadLagInFrames( pPos->getDoubleTick() ) +
-			AudioEngine::nMaxTimeHumanize + 1;
+		const long long nNewLookahead = AudioEngine::getLeadLagInFrames(
+			pPos->getDoubleTick() ) + AudioEngine::nMaxTimeHumanize + 1;
 		const double fNewTickEnd = TransportPosition::computeTickFromFrame(
 			nNewFrame + nNewLookahead ) + pPos->getTickMismatch();
 		pPos->setTickOffsetQueuing( fNewTickEnd - m_fLastTickEnd );
@@ -2427,7 +2426,8 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		nFrameStart = pPos->getFrame();
 	}
 	
-	long long nLeadLagFactor = getLeadLagInFrames( pPos->getDoubleTick() );
+	long long nLeadLagFactor = AudioEngine::getLeadLagInFrames(
+		pPos->getDoubleTick() );
 
 	// Timeline disabled: 
 	// Due to rounding errors in tick<->frame conversions the leadlag
@@ -2819,14 +2819,12 @@ double AudioEngine::getLeadLagInTicks() {
 	return 5;
 }
 
-long long AudioEngine::getLeadLagInFrames( double fTick ) const {
+long long AudioEngine::getLeadLagInFrames( double fTick ) {
 	double fTmp;
-	const long long nFrameStart =
-		TransportPosition::computeFrameFromTick( fTick, &fTmp );
-	const long long nFrameEnd =
-		TransportPosition::computeFrameFromTick( fTick +
-												 AudioEngine::getLeadLagInTicks(),
-												 &fTmp );
+	const long long nFrameStart = TransportPosition::computeFrameFromTick(
+		fTick, &fTmp );
+	const long long nFrameEnd = TransportPosition::computeFrameFromTick(
+		fTick + AudioEngine::getLeadLagInTicks(), &fTmp );
 
 #if AUDIO_ENGINE_DEBUG
 	AE_DEBUGLOG( QString( "nFrameStart: %1, nFrameEnd: %2, diff: %3, fTick: %4" )
