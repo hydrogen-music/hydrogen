@@ -56,7 +56,7 @@
 namespace H2Core
 {
 
-Drumkit::Drumkit() : m_context( Context::User ),
+Drumkit::Drumkit() : m_context( Context::Song ),
 					 m_sName( "empty" ),
 					 m_nVersion( 0 ),
 					 m_sAuthor( "undefined author" ),
@@ -97,7 +97,7 @@ std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
 
 	auto pDrumkit = std::make_shared<Drumkit>();
 	auto pInstrList = std::make_shared<InstrumentList>();
-	auto pNewInstr = std::make_shared<Instrument>( 1 );
+	auto pNewInstr = std::make_shared<Instrument>( 0 );
 	pInstrList->add( pNewInstr );
 	pDrumkit->setInstruments( pInstrList );
 	pDrumkit->setName( sDrumkitName );

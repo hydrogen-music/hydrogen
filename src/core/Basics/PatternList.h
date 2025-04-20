@@ -58,12 +58,16 @@ class XMLNode;
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitName kit the pattern was created for (only used as
 		 *   fallback).
+		 * \param pDrumkit In case the PatternList is loaded as part of a song,
+		 *   the current drumkit used to retrieve the types of all contained
+		 *   notes.
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
 	static std::shared_ptr<PatternList> loadFrom( const XMLNode& pNode,
 												  const QString& sDrumkitName,
+												  std::shared_ptr<Drumkit> pDrumkit = nullptr,
 												  bool bSilent = false );
 
 		/** Stores a serialized version of the instance to the XML note @a

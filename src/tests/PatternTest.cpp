@@ -22,10 +22,40 @@
 
 #include "PatternTest.h"
 
+#include "TestHelper.h"
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Pattern.h>
+#include <core/Hydrogen.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
+
+void PatternTest::testCustomLegacyImport()
+{
+	___INFOLOG( "" );
+	auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+	// Try to import the legcay pattern without loading the kit into the DB
+	// first.
+	auto pPattern = Pattern::load(
+		H2TEST_FILE( "pattern/legacyImport.h2pattern" ) );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+	CPPUNIT_ASSERT( pPattern->getAllTypes().size() == 0 );
+
+	// Now we load our custom kit into the db and try again
+	auto pSampleKit = pDB->getDrumkit(
+		H2TEST_FILE( "drumkits/sampleKit" ), false );
+	CPPUNIT_ASSERT( pSampleKit != nullptr );
+	CPPUNIT_ASSERT( pSampleKit->toDrumkitMap()->getAllTypes().size() > 0 );
+
+	auto pPatternReload = Pattern::load(
+		H2TEST_FILE( "pattern/legacyImport.h2pattern" ) );
+	CPPUNIT_ASSERT( pPatternReload != nullptr );
+	CPPUNIT_ASSERT( pPatternReload->getAllTypes().size() > 0 );
+
+	___INFOLOG( "passed" );
+}
 
 void PatternTest::testPurgeInstrument()
 {

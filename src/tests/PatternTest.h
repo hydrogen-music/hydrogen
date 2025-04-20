@@ -27,10 +27,17 @@
 
 class PatternTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(PatternTest);
-	CPPUNIT_TEST(testPurgeInstrument);
+	CPPUNIT_TEST( testCustomLegacyImport );
+	CPPUNIT_TEST( testPurgeInstrument );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
+		/** We test the automatic type deduction on legacy pattern (without
+		 * types) written for a custom kit for which there is no .h2map file and
+		 * which is not even present in the user's drumkit folder but loaded
+		 * manually into the session. The kit itself already hold type
+		 * information. */
+		void testCustomLegacyImport();
 		void testPurgeInstrument();
 };
 

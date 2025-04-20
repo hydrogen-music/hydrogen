@@ -501,8 +501,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 			( ppPattern == pPattern ? NoteStyle::Foreground :
 			  NoteStyle::Background ) | NoteStyle::Hovered);
 		for ( const auto& ppNote : nnotes ) {
-			if ( ppNote != nullptr && ppNote->getType() == row.sType &&
-				 ppNote->getInstrumentId() == row.nInstrumentID ) {
+			if ( ppNote != nullptr && row.contains( ppNote ) ) {
 				const auto style = static_cast<NoteStyle>(
 					m_selection.isSelected( ppNote ) ?
 					NoteStyle::Selected | baseStyle : baseStyle );
@@ -514,8 +513,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	// Draw moved notes
 	if ( ! m_selection.isEmpty() && m_selection.isMoving() ) {
 		for ( const auto& ppNote : m_selection ) {
-			if ( ppNote != nullptr && ppNote->getType() == row.sType &&
-				 ppNote->getInstrumentId() == row.nInstrumentID ) {
+			if ( ppNote != nullptr && row.contains( ppNote ) ) {
 				drawNote( painter, ppNote, NoteStyle::Moved );
 			}
 		}
@@ -815,8 +813,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		auto pNote = it->second;
-		if ( pNote->getInstrumentId() == selectedRow.nInstrumentID ||
-			 pNote->getType() == selectedRow.sType ) {
+		if ( selectedRow.contains( pNote ) ) {
 			const auto notePoint = noteToPoint( pNote );
 
 			if ( rNormalized.intersects( QRect( notePoint.x() -4 , notePoint.y(),

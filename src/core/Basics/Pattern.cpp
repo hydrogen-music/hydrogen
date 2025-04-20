@@ -139,8 +139,9 @@ std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath )
 }
 
 std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
-											 const QString& sDrumkitName,
-											 bool bSilent )
+											const QString& sDrumkitName,
+											std::shared_ptr<Drumkit> pDrumkit,
+											bool bSilent )
 {
 	auto pPattern = std::make_shared<Pattern>(
 	    node.read_string( "name", nullptr, false, false ),
@@ -175,50 +176,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,
 		}
 	}
 
-	// Sanity checks
-	//
-	// In case no instrument type is assigned to any of the notes contained, we
-	// check whether there is a .h2map file shipped with the application
-	// corresponding to the name of the kit contained in the pattern. Via
-	// instrument id -> instrument type mapping in there we can use it as a
-	// fallback to obtain types.
-	bool bMissingType = false;
-	for ( const auto& [ _ , ppNote ] : pPattern->m_notes ) {
-		if ( ppNote != nullptr && ppNote->getType().isEmpty() ) {
-			bMissingType = true;
-			break;
-		}
-	}
-
-	if ( bMissingType ) {
-		const QString sMapFile =
-			Filesystem::getDrumkitMap( pPattern->getDrumkitName(), bSilent );
-
-		if ( ! sMapFile.isEmpty() ) {
-			const auto pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
-			if ( pDrumkitMap != nullptr ) {
-				// We do not replace any type but only set those not defined
-				// yet.
-				for ( const auto& [ _, ppNote ] : pPattern->m_notes ) {
-					if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
-						 ! pDrumkitMap->getType(
-							 ppNote->getInstrumentId() ).isEmpty() ) {
-						ppNote->setType(
-							pDrumkitMap->getType( ppNote->getInstrumentId() ) );
-					}
-				}
-			}
-			else {
-				ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types in notes for pattern [%2]" )
-						  .arg( sMapFile ).arg( pPattern->getName() ) );
-			}
-		}
-		else if ( ! bSilent ) {
-			INFOLOG( QString( "There are missing Types for notes in pattern [%1] and no corresponding .h2map file for registered drumkit [%2]." )
-					 .arg( pPattern->getName() )
-					 .arg( pPattern->getDrumkitName() ) );
-		}
-	}
+	pPattern->applyMissingTypes( pDrumkit, bSilent );
 
 	return pPattern;
 }
@@ -450,12 +408,122 @@ bool Pattern::isVirtual() const {
 	return m_flattenedVirtualPatterns.size() > 0;
 }
 
+void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
+								 bool bSilent ) {
+	// In case no instrument type is assigned to any of the notes contained, we
+	// check whether there is a drumkit present or a .h2map file shipped with
+	// the application corresponding to the name of the kit contained in the
+	// pattern. Via instrument id -> instrument type mapping in there we can use
+	// it as a fallback to obtain types.
+	bool bMissingType = false;
+	for ( const auto& [ _ , ppNote ] : m_notes ) {
+		if ( ppNote != nullptr && ppNote->getType().isEmpty() ) {
+			bMissingType = true;
+			break;
+		}
+	}
+
+	if ( bMissingType ) {
+		std::shared_ptr<DrumkitMap> pDrumkitMap;
+		if ( pDrumkit != nullptr ) {
+			// The provided kit has highest priority.
+			pDrumkitMap = pDrumkit->toDrumkitMap();
+		}
+		else {
+			// Otherwise we fall back to the drumkit name contained in the
+			// pattern.
+
+			// The name of a drumkit is not an unique identifier but all we can
+			// work with in here (it's about loading legacy patterns after all).
+			// First, we traverse the SoundLibraryDatabase and check whether
+			// there is a kit present holding this name. We do multiple swipes
+			// over the DB as we search in different drumkit contexts with
+			// different priority. In each context, we just take the first
+			// match.
+			const auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+			// Kits explicitly loaded by user via our API have highest priority.
+			for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
+				if ( ppDrumkit != nullptr &&
+					 ( ppDrumkit->getContext() == Drumkit::Context::SessionReadOnly ||
+					   ppDrumkit->getContext() == Drumkit::Context::SessionReadWrite ) &&
+					 ppDrumkit->getName() == m_sDrumkitName ) {
+					pDrumkitMap = ppDrumkit->toDrumkitMap();
+					break;
+				}
+			}
+			if ( pDrumkitMap == nullptr ) {
+				// Kits in the user's drumkit folder are next.
+				for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
+					if ( ppDrumkit != nullptr &&
+						 ppDrumkit->getContext() == Drumkit::Context::User &&
+						 ppDrumkit->getName() == m_sDrumkitName ) {
+						pDrumkitMap = ppDrumkit->toDrumkitMap();
+						break;
+					}
+				}
+			}
+			if ( pDrumkitMap == nullptr ) {
+				// Kits in the system's drumkit folder, which were shipped as
+				// part of Hydrogen, have the lower priority.
+				for ( const auto& [ _, ppDrumkit ] : pDB->getDrumkitDatabase() ) {
+					if ( ppDrumkit != nullptr &&
+						 ppDrumkit->getContext() == Drumkit::Context::System &&
+						 ppDrumkit->getName() == m_sDrumkitName ) {
+						pDrumkitMap = ppDrumkit->toDrumkitMap();
+						break;
+					}
+				}
+			}
+
+			if ( pDrumkitMap == nullptr ) {
+				// If this still does not suffice, we check whether Hydrogen was
+				// shipped with a drumkit map matching the provided name. This
+				// corresponds to a kit we host on SourceForge the user has not
+				// downloaded yet. We do use these .h2map files with least
+				// priority since they were already applied during while loading
+				// the kits above.
+				const QString sMapFile = Filesystem::getDrumkitMap(
+					m_sDrumkitName, bSilent );
+
+				if ( ! sMapFile.isEmpty() ) {
+					// We found a matching
+					pDrumkitMap = DrumkitMap::load( sMapFile, bSilent );
+					if ( pDrumkitMap == nullptr ) {
+						ERRORLOG( QString( "Unable to load .h2map file [%1] to replace missing Types in notes for pattern [%2]" )
+								  .arg( sMapFile ).arg( m_sName ) );
+					}
+				}
+			}
+		}
+
+		if ( pDrumkitMap != nullptr ) {
+			// We do not replace any type but only set those not defined
+			// yet.
+			for ( const auto& [ _, ppNote ] : m_notes ) {
+				if ( ppNote != nullptr && ppNote->getType().isEmpty() &&
+					 ! pDrumkitMap->getType(
+						 ppNote->getInstrumentId() ).isEmpty() ) {
+					ppNote->setType(
+						pDrumkitMap->getType( ppNote->getInstrumentId() ) );
+				}
+			}
+		}
+		else if ( ! bSilent ) {
+			INFOLOG( QString( "There are missing Types for notes in pattern [%1] and no corresponding .h2map file for registered drumkit [%2]." )
+					 .arg( m_sName ).arg( m_sDrumkitName ) );
+		}
+	}
+}
+
 void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 					 std::shared_ptr<Drumkit> pOldDrumkit ) {
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
 		return;
 	}
+
+	m_sDrumkitName = pDrumkit->getName();
 
 	for ( auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr ) {

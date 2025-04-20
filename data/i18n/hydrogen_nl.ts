@@ -1391,6 +1391,10 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed at various places referring to the solo buttons.</extracomment>
         <translation>Solo</translation>
     </message>
+    <message>
+        <source>Save song</source>
+        <translation>Opname opslaan</translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -1815,10 +1819,6 @@ Overwrite the existing file?</source>
 </context>
 <context>
     <name>H2Core::DrumkitPropertiesDialog</name>
-    <message>
-        <source>Edit Drumkit Properties</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Altering the name of a drumkit would result in the creation of a new one. To do so, use &apos;Duplicate&apos; instead.</source>
         <translation type="unfinished"></translation>
@@ -2374,10 +2374,6 @@ MIDI = %2</source>
     <message>
         <source>&amp;About</source>
         <translation>&amp;Over</translation>
-    </message>
-    <message>
-        <source>Save song</source>
-        <translation>Opname opslaan</translation>
     </message>
     <message>
         <source>Open song</source>

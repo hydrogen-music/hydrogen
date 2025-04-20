@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<drumkit_pattern xmlns="http://www.hydrogen-music.org/drumkit_pattern" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <drumkit_name>SampleKit</drumkit_name>
+ <pattern>
+  <name>Legacy Import</name>
+  <author>Hydrogen dev team</author>
+  <info></info>
+  <license>CC0</license>
+  <category>unknown</category>
+  <size>192</size>
+  <denominator>4</denominator>
+  <noteList>
+   <note>
+    <position>0</position>
+    <leadlag>0</leadlag>
+    <velocity>0.8</velocity>
+    <pan>0</pan>
+    <pitch>0</pitch>
+    <key>C0</key>
+    <length>-1</length>
+    <instrument>18</instrument>
+    <note_off>false</note_off>
+    <probability>1</probability>
+   </note>
+  </noteList>
+ </pattern>
+</drumkit_pattern>
