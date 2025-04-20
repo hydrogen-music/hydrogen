@@ -199,6 +199,13 @@
          </item>
         </layout>
        </item>
+       <item row="8" column="1">
+        <widget class="QCheckBox" name="humanizationCheckBox">
+         <property name="text">
+          <string>Apply humanization</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
