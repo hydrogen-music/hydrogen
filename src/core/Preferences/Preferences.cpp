@@ -194,6 +194,7 @@ Preferences::Preferences()
 	, m_exportFormat( Filesystem::AudioFormat::Flac )
 	, m_fExportCompressionLevel( 0.0 )
 	, m_nMidiExportMode( 0 )
+	, m_bMidiExportUseHumanization( false )
 	, m_bShowExportSongLicenseWarning( true )
 	, m_bShowExportDrumkitLicenseWarning( true )
 	, m_bShowExportDrumkitCopyleftWarning( true )
@@ -376,6 +377,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_exportFormat( pOther->m_exportFormat )
 	, m_fExportCompressionLevel( pOther->m_fExportCompressionLevel )
 	, m_nMidiExportMode( pOther->m_nMidiExportMode )
+	, m_bMidiExportUseHumanization( pOther->m_bMidiExportUseHumanization )
 	, m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning )
 	, m_bShowExportDrumkitLicenseWarning( pOther->m_bShowExportDrumkitLicenseWarning )
 	, m_bShowExportDrumkitCopyleftWarning( pOther->m_bShowExportDrumkitCopyleftWarning )
@@ -929,6 +931,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		// midi export dialog properties
 		pPref->m_nMidiExportMode = guiNode.read_int(
 			"midiExportDialogMode", pPref->m_nMidiExportMode, false, false, bSilent );
+		pPref->m_bMidiExportUseHumanization = guiNode.read_bool(
+			"midiExportDialogUseHumanization", pPref->m_bMidiExportUseHumanization,
+			true, false, bSilent );
 				
 		// beatcounter
 		const QString sUseBeatCounter =
@@ -1319,6 +1324,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 
 		//ExportMidiDialog
 		guiNode.write_int( "midiExportDialogMode", m_nMidiExportMode );
+		guiNode.write_bool( "midiExportDialogUseHumanization",
+							m_bMidiExportUseHumanization );
 
 		//beatcounter
 		QString sBeatCounterOn;
@@ -1874,6 +1881,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_fExportCompressionLevel ) )
 			.append( QString( "%1%2m_nMidiExportMode: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nMidiExportMode ) )
+			.append( QString( "%1%2m_bMidiExportUseHumanization: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bMidiExportUseHumanization ) )
 			.append( QString( "%1%2m_bShowExportSongLicenseWarning: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bShowExportSongLicenseWarning ) )
 			.append( QString( "%1%2m_bShowExportDrumkitLicenseWarning: %3\n" ).arg( sPrefix )
@@ -2118,6 +2127,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_fExportCompressionLevel ) )
 			.append( QString( ", m_nMidiExportMode: %1" )
 					 .arg( m_nMidiExportMode ) )
+			.append( QString( ", m_bMidiExportUseHumanization: %1" )
+					 .arg( m_bMidiExportUseHumanization ) )
 			.append( QString( ", m_bShowExportSongLicenseWarning: %1" )
 					 .arg( m_bShowExportSongLicenseWarning ) )
 			.append( QString( ", m_bShowExportDrumkitLicenseWarning: %1" )
