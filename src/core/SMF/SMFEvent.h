@@ -87,10 +87,15 @@ public:
 		static QString TypeToQString( Type type );
 		static bool IsMetaEvent( Type type );
 
-	SMFEvent( int nTicks, SMFEvent::Type type );
+	SMFEvent( float fTicks, SMFEvent::Type type );
 	virtual ~SMFEvent();
 
-	int m_nTicks;
+	/** The ticks used in MIDI files are SMF::nTickFactor smaller than the ones
+	 * using in Hydrogen itself. To both not require to multiply every tick by
+	 * this factor - quite error-prone - and to harness maximum resolution when
+	 * humanizing the onset of a note, we will provide its tick in a float. This
+	 * allows us to use e.g. `11.25` with a `SMF::nTickFactor` of `4`. */
+	float m_fTicks;
 	int m_nDeltaTime;
 
 		SMFEvent::Type m_type;
@@ -103,7 +108,7 @@ class SMFTrackNameMetaEvent : public SMFEvent, public H2Core::Object<SMFTrackNam
 {
 	H2_OBJECT(SMFTrackNameMetaEvent)
 public:
-	SMFTrackNameMetaEvent( const QString& sTrackName, int nTicks );
+	SMFTrackNameMetaEvent( const QString& sTrackName, float fTicks );
 	virtual QByteArray getBuffer() const override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
@@ -118,7 +123,7 @@ class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoM
 {
 	H2_OBJECT(SMFSetTempoMetaEvent)
 public:
-	SMFSetTempoMetaEvent( int nBPM, int nTicks );
+	SMFSetTempoMetaEvent( int nBPM, float fTicks );
 	virtual QByteArray getBuffer() const override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
@@ -133,7 +138,7 @@ class SMFMarkerMetaEvent : public SMFEvent, public H2Core::Object<SMFMarkerMetaE
 {
 	H2_OBJECT(SMFMarkerMetaEvent)
 public:
-	SMFMarkerMetaEvent( const QString& sText, int nTicks );
+	SMFMarkerMetaEvent( const QString& sText, float fTicks );
 	virtual QByteArray getBuffer() const override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
@@ -148,7 +153,7 @@ class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCo
 {
 	H2_OBJECT(SMFCopyRightNoticeMetaEvent)
 public:
-	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, int nTicks );
+	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, float fTicks );
 	virtual QByteArray getBuffer() const override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
@@ -165,7 +170,7 @@ class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTime
 {
 	H2_OBJECT(SMFTimeSignatureMetaEvent)
 public:
-	SMFTimeSignatureMetaEvent( int nNumerator, int nDenominator, int nTicks );
+	SMFTimeSignatureMetaEvent( int nNumerator, int nDenominator, float fTicks );
 	virtual QByteArray getBuffer() const override;
 	// MTPMC = MIDI ticks per metronome click
 	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
@@ -183,7 +188,7 @@ class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 {
 	H2_OBJECT(SMFNoteOnEvent)
 public:
-	SMFNoteOnEvent( int nTicks, int nChannel, int nPitch, int nVelocity );
+	SMFNoteOnEvent( float fTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual QByteArray getBuffer() const override;
 
@@ -202,7 +207,7 @@ class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 {
 	H2_OBJECT(SMFNoteOffEvent)
 public:
-	SMFNoteOffEvent( int nTicks, int nChannel, int nPitch, int nVelocity );
+	SMFNoteOffEvent( float fTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual QByteArray getBuffer() const override;
 

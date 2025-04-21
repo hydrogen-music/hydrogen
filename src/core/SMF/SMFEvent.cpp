@@ -82,9 +82,9 @@ void SMFBuffer::writeVarLen( long value ) {
 // :::::::::::::
 
 
-SMFEvent::SMFEvent( int nTicks, Type type ) : m_nTicks( nTicks )
-											, m_nDeltaTime( -1 )
-											, m_type( type ) {
+SMFEvent::SMFEvent( float fTicks, Type type ) : m_fTicks( fTicks )
+											  , m_nDeltaTime( -1 )
+											  , m_type( type ) {
 }
 
 SMFEvent::~SMFEvent() {
@@ -132,8 +132,8 @@ bool SMFEvent::IsMetaEvent( Type type ) {
 // ::::::::::::::::::
 
 SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName,
-											  int nTicks )
-		: SMFEvent( nTicks, SMFEvent::Type::TrackName )
+											  float fTicks )
+		: SMFEvent( fTicks, SMFEvent::Type::TrackName )
 		, m_sTrackName( sTrackName )
 {
 	// it's always at the start of the song
@@ -159,8 +159,8 @@ QString SMFTrackNameMetaEvent::toQString( const QString& sPrefix, bool bShort ) 
 		sOutput = QString( "%1[SMFTrackNameMetaEvent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_fTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
 			.append( QString( "%1%2m_sTrackName: %3\n" ).arg( sPrefix )
@@ -170,7 +170,7 @@ QString SMFTrackNameMetaEvent::toQString( const QString& sPrefix, bool bShort ) 
 		sOutput = QString( "[SMFTrackNameMetaEvent] " )
 			.append( QString( "m_type: %1" )
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_sTrackName: %1" ).arg( m_sTrackName ) );
 	}
@@ -180,8 +180,8 @@ QString SMFTrackNameMetaEvent::toQString( const QString& sPrefix, bool bShort ) 
 
 // ::::::::::::::::::
 
-SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( int nBPM, int nTicks )
-		: SMFEvent( nTicks, SMFEvent::Type::SetTempo )
+SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( int nBPM, float fTicks )
+		: SMFEvent( fTicks, SMFEvent::Type::SetTempo )
 		, m_nBPM( nBPM )
 {
 	// it's always at the start of the song
@@ -214,8 +214,8 @@ QString SMFSetTempoMetaEvent::toQString( const QString& sPrefix, bool bShort ) c
 		sOutput = QString( "%1[SMFSetTempoMetaEvent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_fTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
 			.append( QString( "%1%2m_nBPM: %3\n" ).arg( sPrefix )
@@ -225,7 +225,7 @@ QString SMFSetTempoMetaEvent::toQString( const QString& sPrefix, bool bShort ) c
 		sOutput = QString( "[SMFSetTempoMetaEvent] " )
 			.append( QString( "m_type: %1" )
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nBPM: %1" ).arg( m_nBPM ) );
 	}
@@ -235,8 +235,8 @@ QString SMFSetTempoMetaEvent::toQString( const QString& sPrefix, bool bShort ) c
 
 // ::::::::::::::::::
 
-SMFMarkerMetaEvent::SMFMarkerMetaEvent( const QString& sText, int nTicks )
-		: SMFEvent( nTicks, SMFEvent::Type::Marker )
+SMFMarkerMetaEvent::SMFMarkerMetaEvent( const QString& sText, float fTicks )
+		: SMFEvent( fTicks, SMFEvent::Type::Marker )
 		, m_sText( sText )
 {
 	// it's always at the start of the song
@@ -261,8 +261,8 @@ QString SMFMarkerMetaEvent::toQString( const QString& sPrefix, bool bShort ) con
 		sOutput = QString( "%1[SMFMarkerMetaEvent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_fTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
 			.append( QString( "%1%2m_sText: %3\n" ).arg( sPrefix )
@@ -272,7 +272,7 @@ QString SMFMarkerMetaEvent::toQString( const QString& sPrefix, bool bShort ) con
 		sOutput = QString( "[SMFMarkerMetaEvent] " )
 			.append( QString( "m_type: %1" )
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_sText: %1" ).arg( m_sText ) );
 	}
@@ -283,8 +283,8 @@ QString SMFMarkerMetaEvent::toQString( const QString& sPrefix, bool bShort ) con
 // ::::::::::::::::::
 
 SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor,
-														  int nTicks )
-		: SMFEvent( nTicks, SMFEvent::Type::CopyrightNotice )
+														  float fTicks )
+		: SMFEvent( fTicks, SMFEvent::Type::CopyrightNotice )
 		, m_sAuthor( sAuthor )
 {
 	// it's always at the start of the song
@@ -321,8 +321,8 @@ QString SMFCopyRightNoticeMetaEvent::toQString( const QString& sPrefix, bool bSh
 		sOutput = QString( "%1[SMFCopyRightNoticeMetaEvent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_fTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
 			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix )
@@ -332,7 +332,7 @@ QString SMFCopyRightNoticeMetaEvent::toQString( const QString& sPrefix, bool bSh
 		sOutput = QString( "[SMFCopyRightNoticeMetaEvent] " )
 			.append( QString( "m_type: %1" )
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) );
 	}
@@ -344,8 +344,8 @@ QString SMFCopyRightNoticeMetaEvent::toQString( const QString& sPrefix, bool bSh
 		
 SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( int nNumerator,
 													  int nDenominator,
-													  int nTicks )
-		: SMFEvent( nTicks, SMFEvent::Type::TimeSignature )
+													  float fTicks )
+		: SMFEvent( fTicks, SMFEvent::Type::TimeSignature )
 		, m_nNumerator( nNumerator )
 		, m_nDenominator( nDenominator )
 		, m_nMTPMC( 24 )
@@ -382,8 +382,8 @@ QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShor
 		sOutput = QString( "%1[SMFTimeSignatureMetaEvent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_fTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
 			.append( QString( "%1%2m_nNumerator: %3\n" ).arg( sPrefix )
@@ -399,7 +399,7 @@ QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShor
 		sOutput = QString( "[SMFTimeSignatureMetaEvent] " )
 			.append( QString( "m_type: %1" )
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nNumerator: %1" ).arg( m_nNumerator ) )
 			.append( QString( ", m_nDenominator: %1" ).arg( m_nDenominator ) )
@@ -414,9 +414,9 @@ QString SMFTimeSignatureMetaEvent::toQString( const QString& sPrefix, bool bShor
 
 // ::::::::::::::
 
-SMFNoteOnEvent::SMFNoteOnEvent( int nTicks, int nChannel, int nPitch,
+SMFNoteOnEvent::SMFNoteOnEvent( float fTicks, int nChannel, int nPitch,
 								int nVelocity )
-		: SMFEvent( nTicks, SMFEvent::Type::NoteOn )
+		: SMFEvent( fTicks, SMFEvent::Type::NoteOn )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
@@ -447,8 +447,8 @@ QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[SMFNoteOnEvent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_fTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
 			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
@@ -462,7 +462,7 @@ QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[SMFNoteOnEvent] " )
 			.append( QString( "m_type: %1" )
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
@@ -476,9 +476,9 @@ QString SMFNoteOnEvent::toQString( const QString& sPrefix, bool bShort ) const {
 // :::::::::::
 
 
-SMFNoteOffEvent::SMFNoteOffEvent( int nTicks, int nChannel, int nPitch,
+SMFNoteOffEvent::SMFNoteOffEvent( float fTicks, int nChannel, int nPitch,
 								  int nVelocity )
-		: SMFEvent( nTicks, SMFEvent::Type::NoteOff )
+		: SMFEvent( fTicks, SMFEvent::Type::NoteOff )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
@@ -509,8 +509,8 @@ QString SMFNoteOffEvent::toQString( const QString& sPrefix, bool bShort ) const 
 		sOutput = QString( "%1[SMFNoteOffEvent]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( "%1%2m_nTicks: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_nTicks ) )
+			.append( QString( "%1%2m_fTicks: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_fTicks ) )
 			.append( QString( "%1%2m_nDeltaTime: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nDeltaTime ) )
 			.append( QString( "%1%2m_nChannel: %3\n" ).arg( sPrefix )
@@ -524,7 +524,7 @@ QString SMFNoteOffEvent::toQString( const QString& sPrefix, bool bShort ) const 
 		sOutput = QString( "[SMFNoteOffEvent] " )
 			.append( QString( "m_type: %1" )
 					 .arg( SMFEvent::TypeToQString( m_type ) ) )
-			.append( QString( ", m_nTicks: %1" ).arg( m_nTicks ) )
+			.append( QString( ", m_fTicks: %1" ).arg( m_fTicks ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nDeltaTime: %1" ).arg( m_nDeltaTime ) )
 			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )

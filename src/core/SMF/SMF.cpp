@@ -175,8 +175,8 @@ void SMFTrack::sortEvents( std::shared_ptr<EventList> pEvents ) {
 			}
 
 			// If at the same tick, meta events will be put first.
-			if ( pNextEvent->m_nTicks < pEvent->m_nTicks ||
-				 pNextEvent->m_nTicks == pEvent->m_nTicks && (
+			if ( pNextEvent->m_fTicks < pEvent->m_fTicks ||
+				 pNextEvent->m_fTicks == pEvent->m_fTicks && (
 					! SMFEvent::IsMetaEvent( pEvent->m_type ) &&
 					SMFEvent::IsMetaEvent( pNextEvent->m_type ) &&
 					pNextEvent->m_type != SMFEvent::Type::EndOfTrack ) ) {
@@ -196,11 +196,11 @@ void SMFTrack::sortAndTimeEvents() {
 	SMFTrack::sortEvents( m_pEventList );
 
 	// Create delta-time stamps based on the events tick values.
-	int nLastTick = 0;
+	float fLastTick = 0;
 	for ( auto& pEvent : *m_pEventList ) {
-		pEvent->m_nDeltaTime =
-			( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
-		nLastTick = pEvent->m_nTicks;
+		pEvent->m_nDeltaTime = static_cast<int>(
+			std::round( ( pEvent->m_fTicks - fLastTick ) * SMF::nTickFactor) );
+		fLastTick = pEvent->m_fTicks;
 	}
 }
 
