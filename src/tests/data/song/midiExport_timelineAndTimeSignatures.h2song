@@ -2695,6 +2695,10 @@ p, li { white-space: pre-wrap; }
  </ladspa>
  <BPMTimeLine>
   <newBPM>
+   <BAR>0</BAR>
+   <BPM>120</BPM>
+  </newBPM>
+  <newBPM>
    <BAR>1</BAR>
    <BPM>135</BPM>
   </newBPM>
