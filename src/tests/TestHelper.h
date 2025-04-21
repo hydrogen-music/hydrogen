@@ -86,7 +86,8 @@ class TestHelper {
 	 * \param writer Writer.
 	 **/
 	static void exportMIDI( const QString& sSongFile, const QString& sFileName,
-							std::shared_ptr<H2Core::SMFWriter> pWriter );
+							std::shared_ptr<H2Core::SMFWriter> pWriter,
+							bool bUseHumanization );
 	
 	static void			createInstance();
 	static TestHelper*	get_instance();

@@ -217,7 +217,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 
 	pPref->setMidiExportUseHumanization( humanizationCheckBox->isChecked() );
 	
-	pSmfWriter->save( sFilename, pSong );
+	pSmfWriter->save( sFilename, pSong, humanizationCheckBox->isChecked() );
 
 	// Check whether same time signature were off.
 	const auto timeSignatureFailures = pSmfWriter->getTimeSignatureFailures();

@@ -40,7 +40,7 @@ void MidiExportTest::testExportMIDISMF1Single() {
 	const auto sRefFile = H2TEST_FILE("functional/smf1single.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -53,7 +53,7 @@ void MidiExportTest::testExportMIDISMF1Multi() {
 	const auto sRefFile = H2TEST_FILE("functional/smf1multi.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterMulti>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -66,7 +66,7 @@ void MidiExportTest::testExportMIDISMF0() {
 	const auto sRefFile = H2TEST_FILE("functional/smf0.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -79,7 +79,7 @@ void MidiExportTest::testExportVelocityAutomationMIDISMF1() {
 	const auto sRefFile = H2TEST_FILE("functional/smf1.velocityautomation.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 		
 	Filesystem::rm( sOutFile );
@@ -93,7 +93,7 @@ void MidiExportTest::testExportVelocityAutomationMIDISMF0() {
 	const auto sRefFile = H2TEST_FILE("functional/smf0.velocityautomation.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 
 	Filesystem::rm( sOutFile );
@@ -107,7 +107,7 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Single() {
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf1single.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -120,7 +120,7 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Multi() {
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf1multi.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterMulti>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -133,7 +133,7 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF0() {
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf0.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
