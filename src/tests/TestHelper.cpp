@@ -248,6 +248,7 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 
 	auto pSong = H2Core::Song::load( sSongFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
+	H2Core::CoreActionController::setSong( pSong );
 
 	pWriter->save( sFileName, pSong );
 
