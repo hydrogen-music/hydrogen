@@ -35,6 +35,7 @@ class MidiExportTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testExportTimelineAndTimeSignaturesMIDISMF0 );
 	CPPUNIT_TEST( testExportTimelineAndTimeSignaturesMIDISMF1Single );
 	CPPUNIT_TEST( testExportTimelineAndTimeSignaturesMIDISMF1Multi );
+	CPPUNIT_TEST( testHumanization );
 	CPPUNIT_TEST( testTimeSignatureCalculation );
 	CPPUNIT_TEST_SUITE_END();
 	
@@ -47,6 +48,7 @@ class MidiExportTest : public CppUnit::TestCase {
 		void testExportTimelineAndTimeSignaturesMIDISMF1Single();
 		void testExportTimelineAndTimeSignaturesMIDISMF1Multi();
 		void testExportTimelineAndTimeSignaturesMIDISMF0();
+		void testHumanization();
 		void testTimeSignatureCalculation();
 };
 

@@ -139,6 +139,36 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF0() {
 	___INFOLOG( "passed" );
 }
 
+void MidiExportTest::testHumanization() {
+	___INFOLOG( "" );
+	const auto sSongFile = H2TEST_FILE("song/midiExport_humanization.h2song");
+	const auto sOutFile = Filesystem::tmp_file_path("midiExport-hum-raw.mid");
+	const auto sOutFile2 = Filesystem::tmp_file_path("midiExport-hum-raw.mid");
+	const auto sOutFileHumanized = Filesystem::tmp_file_path(
+		"midiExport-hum-humanized.mid");
+	const auto sOutFileHumanized2 = Filesystem::tmp_file_path(
+		"midiExport-hum-humanized2.mid");
+
+	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
+
+	// Export without humanization must be reproducible
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
+	TestHelper::exportMIDI( sSongFile, sOutFile2, pWriter, false );
+	H2TEST_ASSERT_FILES_EQUAL( sOutFile, sOutFile2 );
+
+	// Export with humanization must not.
+	TestHelper::exportMIDI( sSongFile, sOutFileHumanized, pWriter, true );
+	TestHelper::exportMIDI( sSongFile, sOutFileHumanized2, pWriter, true );
+	H2TEST_ASSERT_FILES_UNEQUAL( sOutFile, sOutFileHumanized );
+	H2TEST_ASSERT_FILES_UNEQUAL( sOutFileHumanized, sOutFileHumanized2 );
+	Filesystem::rm( sOutFile );
+	Filesystem::rm( sOutFile2 );
+	Filesystem::rm( sOutFileHumanized );
+	Filesystem::rm( sOutFileHumanized2 );
+
+	___INFOLOG( "passed" );
+}
+
 void MidiExportTest::testTimeSignatureCalculation() {
 	___INFOLOG( "" );
 
