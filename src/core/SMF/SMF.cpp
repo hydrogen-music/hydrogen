@@ -575,7 +575,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong,
 
 				auto pCopiedNote = std::make_shared<Note>( ppNote );
 
-				auto nNoteTick = nTick + nnNote;
+				float fNoteTick = nTick + nnNote;
 
 				// Humanization
 				if ( bUseHumanization ) {
@@ -587,14 +587,16 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong,
 							static_cast<float>(pCopiedNote->getLeadLag()) *
 							static_cast<float>(nLeadLagFactor) ));
 
-					pCopiedNote->setPosition( nNoteTick );
+					pCopiedNote->setPosition( static_cast<int>(fNoteTick) );
 					pCopiedNote->humanize();
 
 					// delay the upbeat 16th-notes by a constant (manual)
 					// offset. This must done _after_ setting the position of
 					// the note.
-					if ( ( nNoteTick % ( H2Core::nTicksPerQuarter / 4 ) == 0 ) &&
-						 ( nNoteTick % ( H2Core::nTicksPerQuarter / 2 ) != 0 ) ) {
+					if ( ( static_cast<int>(fNoteTick) %
+						   ( H2Core::nTicksPerQuarter / 4 ) == 0 ) &&
+						 ( static_cast<int>(fNoteTick) %
+						   ( H2Core::nTicksPerQuarter / 2 ) != 0 ) ) {
 						pCopiedNote->swing();
 					}
 
@@ -611,15 +613,14 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong,
 					// markers).
 					double fMismatch;
 					const auto nNoteFrame = TransportPosition::computeFrameFromTick(
-						static_cast<double>(nNoteTick), &fMismatch );
-					nNoteTick = static_cast<int>(
-						std::round( TransportPosition::computeTickFromFrame(
-										std::max( static_cast<long long>(0),
-												  nNoteFrame + nHumanizeFrames ) ) ) );
+						static_cast<double>(fNoteTick), &fMismatch );
+					fNoteTick = TransportPosition::computeTickFromFrame(
+						std::max( static_cast<long long>(0),
+								  nNoteFrame + nHumanizeFrames ) );
 				}
 
 				const float fColumnPos = static_cast<float>(nnColumn) +
-					static_cast<float>(nNoteTick - nTick) /
+					(fNoteTick - static_cast<float>(nTick)) /
 					static_cast<float>(nColumnLength);
 				const float fVelocityAdjustment =
 					pAutomationPath->get_value( fColumnPos );
@@ -643,11 +644,11 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong,
 
 				// get events for specific instrument
 				addEvent( std::make_shared<SMFNoteOnEvent>(
-							  nNoteTick, nChannel, nPitch, nVelocity ),
+							  fNoteTick, nChannel, nPitch, nVelocity ),
 						  pInstr );
 
 				addEvent( std::make_shared<SMFNoteOffEvent>(
-							  nNoteTick + nLength, nChannel, nPitch,
+							  fNoteTick + nLength, nChannel, nPitch,
 							  nVelocity ), pInstr );
 			}
 		}
