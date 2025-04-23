@@ -345,7 +345,7 @@ public:
 	 * During the humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
-	long long		getLeadLagInFrames( double fTick ) const;
+	static long long getLeadLagInFrames( double fTick );
 
 	double getSongSizeInTicks() const;
 

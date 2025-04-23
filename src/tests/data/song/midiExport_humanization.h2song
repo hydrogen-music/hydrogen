@@ -22,9 +22,9 @@
  <mode>song</mode>
  <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
  <pan_law_k_norm>1.33333</pan_law_k_norm>
- <humanize_time>0</humanize_time>
- <humanize_velocity>0</humanize_velocity>
- <swing_factor>0</swing_factor>
+ <humanize_time>1</humanize_time>
+ <humanize_velocity>1</humanize_velocity>
+ <swing_factor>1</swing_factor>
  <drumkit_info>
   <formatVersion>2</formatVersion>
   <name>GMRockKit</name>
@@ -2694,10 +2694,6 @@ p, li { white-space: pre-wrap; }
   </fx>
  </ladspa>
  <BPMTimeLine>
-  <newBPM>
-   <BAR>0</BAR>
-   <BPM>120</BPM>
-  </newBPM>
   <newBPM>
    <BAR>1</BAR>
    <BPM>135</BPM>

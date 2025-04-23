@@ -576,7 +576,9 @@ public:
 
 		// Export MIDI dialog
     int				getMidiExportMode() const;
-    void			setMidiExportMode(int nExportMode);
+    void			setMidiExportMode( int nExportMode );
+    bool			getMidiExportUseHumanization() const;
+    void			setMidiExportUseHumanization( bool bHumanization );
 
 	bool			m_bShowExportSongLicenseWarning;
 	bool			m_bShowExportDrumkitLicenseWarning;
@@ -715,6 +717,7 @@ private:
 
     // Export midi dialog
     int						m_nMidiExportMode;
+    bool					m_bMidiExportUseHumanization;
 
 	Theme					m_theme;
 
@@ -837,14 +840,17 @@ inline void Preferences::setLastExportThemeDirectory( const QString& sPath )
 	m_sLastExportThemeDirectory = sPath;
 }
 
-inline int Preferences::getMidiExportMode() const
-{
+inline int Preferences::getMidiExportMode() const {
 	return m_nMidiExportMode;
 }
-
-inline void Preferences::setMidiExportMode(int ExportMode)
-{
+inline void Preferences::setMidiExportMode( int ExportMode ) {
 	m_nMidiExportMode = ExportMode;
+}
+inline bool Preferences::getMidiExportUseHumanization() const {
+	return m_bMidiExportUseHumanization;
+}
+inline void Preferences::setMidiExportUseHumanization( bool bUseHumanization ) {
+	m_bMidiExportUseHumanization = bUseHumanization;
 }
 
 inline int Preferences::getExportSampleDepthIdx() const

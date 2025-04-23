@@ -1606,6 +1606,10 @@ Please make the numerator an integers and the denominator a power of two (like 1
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
+    <message>
+        <source>Apply humanization</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExportSongDialog</name>

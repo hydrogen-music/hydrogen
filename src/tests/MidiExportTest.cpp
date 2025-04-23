@@ -40,7 +40,7 @@ void MidiExportTest::testExportMIDISMF1Single() {
 	const auto sRefFile = H2TEST_FILE("functional/smf1single.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -53,7 +53,7 @@ void MidiExportTest::testExportMIDISMF1Multi() {
 	const auto sRefFile = H2TEST_FILE("functional/smf1multi.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterMulti>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -66,7 +66,7 @@ void MidiExportTest::testExportMIDISMF0() {
 	const auto sRefFile = H2TEST_FILE("functional/smf0.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -79,7 +79,7 @@ void MidiExportTest::testExportVelocityAutomationMIDISMF1() {
 	const auto sRefFile = H2TEST_FILE("functional/smf1.velocityautomation.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 		
 	Filesystem::rm( sOutFile );
@@ -93,7 +93,7 @@ void MidiExportTest::testExportVelocityAutomationMIDISMF0() {
 	const auto sRefFile = H2TEST_FILE("functional/smf0.velocityautomation.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 
 	Filesystem::rm( sOutFile );
@@ -107,7 +107,7 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Single() {
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf1single.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -120,7 +120,7 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF1Multi() {
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf1multi.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF1WriterMulti>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
 	___INFOLOG( "passed" );
@@ -133,9 +133,39 @@ void MidiExportTest::testExportTimelineAndTimeSignaturesMIDISMF0() {
 	const auto sRefFile = H2TEST_FILE("midi/timeline-smf0.test.ref.mid");
 
 	auto pWriter = std::make_shared<SMF0Writer>( true );
-	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter );
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
 	H2TEST_ASSERT_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
+	___INFOLOG( "passed" );
+}
+
+void MidiExportTest::testHumanization() {
+	___INFOLOG( "" );
+	const auto sSongFile = H2TEST_FILE("song/midiExport_humanization.h2song");
+	const auto sOutFile = Filesystem::tmp_file_path("midiExport-hum-raw.mid");
+	const auto sOutFile2 = Filesystem::tmp_file_path("midiExport-hum-raw.mid");
+	const auto sOutFileHumanized = Filesystem::tmp_file_path(
+		"midiExport-hum-humanized.mid");
+	const auto sOutFileHumanized2 = Filesystem::tmp_file_path(
+		"midiExport-hum-humanized2.mid");
+
+	auto pWriter = std::make_shared<SMF1WriterSingle>( true );
+
+	// Export without humanization must be reproducible
+	TestHelper::exportMIDI( sSongFile, sOutFile, pWriter, false );
+	TestHelper::exportMIDI( sSongFile, sOutFile2, pWriter, false );
+	H2TEST_ASSERT_FILES_EQUAL( sOutFile, sOutFile2 );
+
+	// Export with humanization must not.
+	TestHelper::exportMIDI( sSongFile, sOutFileHumanized, pWriter, true );
+	TestHelper::exportMIDI( sSongFile, sOutFileHumanized2, pWriter, true );
+	H2TEST_ASSERT_FILES_UNEQUAL( sOutFile, sOutFileHumanized );
+	H2TEST_ASSERT_FILES_UNEQUAL( sOutFileHumanized, sOutFileHumanized2 );
+	Filesystem::rm( sOutFile );
+	Filesystem::rm( sOutFile2 );
+	Filesystem::rm( sOutFileHumanized );
+	Filesystem::rm( sOutFileHumanized2 );
+
 	___INFOLOG( "passed" );
 }
 

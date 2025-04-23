@@ -71,6 +71,8 @@ ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	// loading rest of the options
 	exportTypeCombo->setCurrentIndex( pPref->getMidiExportMode() );
 
+	humanizationCheckBox->setChecked( pPref->getMidiExportUseHumanization() );
+
 	adjustSize();
 }
 
@@ -212,8 +214,10 @@ void ExportMidiDialog::on_okBtn_clicked()
 				  .arg( exportTypeCombo->currentIndex() ) );
 		return;
 	}
+
+	pPref->setMidiExportUseHumanization( humanizationCheckBox->isChecked() );
 	
-	pSmfWriter->save( sFilename, pSong );
+	pSmfWriter->save( sFilename, pSong, humanizationCheckBox->isChecked() );
 
 	// Check whether same time signature were off.
 	const auto timeSignatureFailures = pSmfWriter->getTimeSignatureFailures();

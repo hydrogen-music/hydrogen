@@ -242,14 +242,16 @@ void TestHelper::exportSong( const QString& sFileName )
 }
 
 void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
-							 std::shared_ptr<H2Core::SMFWriter> pWriter )
+							 std::shared_ptr<H2Core::SMFWriter> pWriter,
+							 bool bUseHumanization )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	auto pSong = H2Core::Song::load( sSongFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
+	H2Core::CoreActionController::setSong( pSong );
 
-	pWriter->save( sFileName, pSong );
+	pWriter->save( sFileName, pSong, bUseHumanization );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();

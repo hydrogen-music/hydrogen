@@ -21,14 +21,17 @@
  */
 
 #include <core/SMF/SMF.h>
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/Song.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Basics/AutomationPath.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
 
 #include <math.h>
 
@@ -172,8 +175,8 @@ void SMFTrack::sortEvents( std::shared_ptr<EventList> pEvents ) {
 			}
 
 			// If at the same tick, meta events will be put first.
-			if ( pNextEvent->m_nTicks < pEvent->m_nTicks ||
-				 pNextEvent->m_nTicks == pEvent->m_nTicks && (
+			if ( pNextEvent->m_fTicks < pEvent->m_fTicks ||
+				 pNextEvent->m_fTicks == pEvent->m_fTicks && (
 					! SMFEvent::IsMetaEvent( pEvent->m_type ) &&
 					SMFEvent::IsMetaEvent( pNextEvent->m_type ) &&
 					pNextEvent->m_type != SMFEvent::Type::EndOfTrack ) ) {
@@ -193,11 +196,11 @@ void SMFTrack::sortAndTimeEvents() {
 	SMFTrack::sortEvents( m_pEventList );
 
 	// Create delta-time stamps based on the events tick values.
-	int nLastTick = 0;
+	float fLastTick = 0;
 	for ( auto& pEvent : *m_pEventList ) {
-		pEvent->m_nDeltaTime =
-			( pEvent->m_nTicks - nLastTick ) * SMF::nTickFactor;
-		nLastTick = pEvent->m_nTicks;
+		pEvent->m_nDeltaTime = static_cast<int>(
+			std::round( ( pEvent->m_fTicks - fLastTick ) * SMF::nTickFactor) );
+		fLastTick = pEvent->m_fTicks;
 	}
 }
 
@@ -454,8 +457,8 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 	return pTrack0;
 }
 
-void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
-{
+void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong,
+					  bool bUseHumanization ) {
 	if ( pSong == nullptr || pSong->getTimeline() == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
 		return;
@@ -565,45 +568,88 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 			}
 
 			for ( const auto& [ nnNote, ppNote ] : *ppPattern->getNotes() ) {
-				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr ) {
-					if ( ppNote->getProbability() <
-						 static_cast<float>(rand()) / static_cast<float>(RAND_MAX) ) {
-						// Skip note
-						continue;
-					}
-
-					const float fColumnPos = static_cast<float>(nnColumn) +
-						static_cast<float>(nnNote) /
-						static_cast<float>(nColumnLength);
-					const float fVelocityAdjustment =
-						pAutomationPath->get_value( fColumnPos );
-					const int nVelocity = static_cast<int>(
-						127.0 * ppNote->getVelocity() * fVelocityAdjustment );
-
-					const auto pInstr = ppNote->getInstrument();
-					const int nPitch = ppNote->getMidiKey();
-						
-					int nChannel =  pInstr->getMidiOutChannel();
-					if ( nChannel == -1 ) {
-						// A channel of -1 is Hydrogen's old way of disabling
-						// MIDI output during playback.
-						nChannel = DRUM_CHANNEL;
-					}
-						
-					int nLength = ppNote->getLength();
-					if ( nLength == LENGTH_ENTIRE_SAMPLE ) {
-						nLength = NOTE_LENGTH;
-					}
-						
-					// get events for specific instrument
-					addEvent( std::make_shared<SMFNoteOnEvent>(
-								  nTick + nnNote, nChannel, nPitch, nVelocity ),
-							  pInstr );
-
-					addEvent( std::make_shared<SMFNoteOffEvent>(
-								  nTick + nnNote + nLength, nChannel, nPitch,
-								  nVelocity ), pInstr );
+				if ( ppNote != nullptr && ppNote->getInstrument() != nullptr &&
+					 ppNote->getProbability() >=
+					 static_cast<float>(rand()) / static_cast<float>(RAND_MAX) ) {
 				}
+
+				auto pCopiedNote = std::make_shared<Note>( ppNote );
+
+				float fNoteTick = nTick + nnNote;
+
+				// Humanization
+				if ( bUseHumanization ) {
+					const auto nLeadLagFactor = AudioEngine::getLeadLagInFrames(
+						static_cast<double>( pCopiedNote->getPosition() ) );
+					pCopiedNote->setHumanizeDelay(
+						pCopiedNote->getHumanizeDelay() +
+						static_cast<int>(
+							static_cast<float>(pCopiedNote->getLeadLag()) *
+							static_cast<float>(nLeadLagFactor) ));
+
+					pCopiedNote->setPosition( static_cast<int>(fNoteTick) );
+					pCopiedNote->humanize();
+
+					// delay the upbeat 16th-notes by a constant (manual)
+					// offset. This must done _after_ setting the position of
+					// the note.
+					if ( ( static_cast<int>(fNoteTick) %
+						   ( H2Core::nTicksPerQuarter / 4 ) == 0 ) &&
+						 ( static_cast<int>(fNoteTick) %
+						   ( H2Core::nTicksPerQuarter / 2 ) != 0 ) ) {
+						pCopiedNote->swing();
+					}
+
+					// Frames introduced due to the humanization. Note that we
+					// have to convert it into ticks first, in order to use it
+					// in the MIDI file. This must be done _after_ setting the
+					// position, humanization, and swing.
+					const int nHumanizeFrames = std::clamp(
+						pCopiedNote->getHumanizeDelay(),
+						-1 * AudioEngine::nMaxTimeHumanize,
+						AudioEngine::nMaxTimeHumanize );
+
+					// Convert into ticks (while minding possible tempo
+					// markers).
+					double fMismatch;
+					const auto nNoteFrame = TransportPosition::computeFrameFromTick(
+						static_cast<double>(fNoteTick), &fMismatch );
+					fNoteTick = TransportPosition::computeTickFromFrame(
+						std::max( static_cast<long long>(0),
+								  nNoteFrame + nHumanizeFrames ) );
+				}
+
+				const float fColumnPos = static_cast<float>(nnColumn) +
+					(fNoteTick - static_cast<float>(nTick)) /
+					static_cast<float>(nColumnLength);
+				const float fVelocityAdjustment =
+					pAutomationPath->get_value( fColumnPos );
+				const int nVelocity = static_cast<int>(
+					127.0 * pCopiedNote->getVelocity() * fVelocityAdjustment );
+
+				const auto pInstr = pCopiedNote->getInstrument();
+				const int nPitch = pCopiedNote->getMidiKey();
+						
+				int nChannel =  pInstr->getMidiOutChannel();
+				if ( nChannel == -1 ) {
+					// A channel of -1 is Hydrogen's old way of disabling
+					// MIDI output during playback.
+					nChannel = DRUM_CHANNEL;
+				}
+
+				int nLength = pCopiedNote->getLength();
+				if ( nLength == LENGTH_ENTIRE_SAMPLE ) {
+					nLength = NOTE_LENGTH;
+				}
+
+				// get events for specific instrument
+				addEvent( std::make_shared<SMFNoteOnEvent>(
+							  fNoteTick, nChannel, nPitch, nVelocity ),
+						  pInstr );
+
+				addEvent( std::make_shared<SMFNoteOffEvent>(
+							  fNoteTick + nLength, nChannel, nPitch,
+							  nVelocity ), pInstr );
 			}
 		}
 
