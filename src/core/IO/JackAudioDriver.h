@@ -43,9 +43,8 @@
 namespace H2Core
 {
 	
-class Song;
 class Instrument;
-class InstrumentComponent;
+class Song;
 class TransportPosition;
 
 /**
@@ -116,7 +115,20 @@ public:
 	};
 	static QString TimebaseToQString( const Timebase& t );
 		static Timebase TimebaseFromInt( int nState );
-	
+
+		enum class Channel {
+			Left,
+			Right
+		};
+
+		struct InstrumentPorts {
+			QString sPortNameBase;
+			jack_port_t* Left;
+			jack_port_t* Right;
+		};
+
+		typedef std::map< std::shared_ptr<Instrument>, InstrumentPorts > PortMap;
+
 	/** 
 	 * Object holding the external client session with the JACK
 	 * server.
@@ -171,14 +183,19 @@ public:
 	 * #m_pTrackOutputPortsR.
 	 * 
 	 * @param nFrames Size of the buffers used in the audio process
-	 * callback function.
+	 *   callback function.
 	 */
 	void clearPerTrackAudioBuffers( uint32_t nFrames );
-	
 	/**
-	 * Creates per component output ports for each instrument.
+	 * Get buffer of a specific port associated with the instrument.
+	 *
+	 * \return Pointer to buffer content of type
+	 *   _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	void makeTrackOutputs( std::shared_ptr<Song> pSong );
+	float* getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
+						   Channel channel ) const;
+	/** Creates per-instrument output ports. */
+	void makeTrackPorts( std::shared_ptr<Song> pSong );
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {
@@ -203,50 +220,6 @@ public:
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
 	virtual float* getOut_R() override;
-	/**
-	 * Get content of left output port of a specific track.
-	 *
-	 * \param nTrack Track number. Must not be bigger than
-	 * #m_nTrackPortCount.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_L( unsigned nTrack );
-	/**
-	 * Get content of right output port of a specific track.
-	 *
-	 * \param nTrack Track number. Must not be bigger than
-	 * #m_nTrackPortCount.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_R( unsigned nTrack );
-	/** 
-	 * Convenience function looking up the track number of a component of an
-	 * instrument in #m_trackMap. Using the number it then calls
-	 * getTrackOut_L( unsigned ) and returns its result.
-	 *
-	 * \param instr Pointer to an Instrument
-	 * \param nComponentIdx Component position in component vector.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_L( std::shared_ptr<Instrument> instr, int nComponentIdx );
-	/** 
-	 * Convenience function looking up the track number of a component of an
-	 * instrument in #m_trackMap. Using the number it then calls
-	 * getTrackOut_R( unsigned ) and returns its result.
-	 *
-	 * \param instr Pointer to an Instrument
-	 * \param nComponentIdx Component position in component vector.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_R( std::shared_ptr<Instrument> instr, int nComponentIdx );
 
 	/**
 	 * Initializes the JACK audio driver.
@@ -456,18 +429,6 @@ private:
 	/** Show debugging information.*/
 	void printState() const;
 
-	/**
-	 * Renames the @a n 'th port of JACK client and creates it if
-	 * it's not already present. 
-  	 *
-	 * \param n Track number for which a port should be renamed
-	 *   (and created).
-	 * \param instr Pointer to the corresponding Instrument.
-	 * \param pCompo Pointer to the corresponding
-	 *   InstrumentComponent.
-	 * \param pSong Pointer to the corresponding Song.
-	 */
-	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, std::shared_ptr<Song> pSong );
 	/** Main process callback. */
 	JackProcessCallback		m_processCallback;
 	/**
@@ -488,30 +449,12 @@ private:
 	 * a connection will be established in connect().
 	 */
 	QString				m_sOutputPortName2;
-	/**
-	 * Matrix containing the track number of each component of all
-	 * instruments. Its rows represent the instruments and its columns
-	 * their components. _m_trackMap[2][1]=6_ thus therefore mean the
-	 * output of the second component of the third instrument is
-	 * assigned the seventh output port. Since its total size is
-	 * defined by #MAX_INSTRUMENTS and #MAX_COMPONENTS, most of its
-	 * entries will be zero.
-	 */
-	int				m_trackMap[MAX_INSTRUMENTS][MAX_COMPONENTS];
-	/**
-	 * Total number of output ports currently in use.
-	 */
-	int				m_nTrackPortCount;
-	/**
-	 * Vector of all left audio output ports currently used by the
-	 * local JACK client.
-	 */
-	jack_port_t*			m_pTrackOutputPortsL[MAX_INSTRUMENTS];
-	/**
-	 * Vector of all right audio output ports currently used by the
-	 * local JACK client.
-	 */
-	jack_port_t*		 	m_pTrackOutputPortsR[MAX_INSTRUMENTS];
+
+		void unregisterTrackPorts( PortMap portMap );
+
+		/** The left and right jack port (in that order) associated with a
+		 * channel of an instrument. */
+		PortMap m_portMap;
 
 	/**
 	 * Current transport state returned by

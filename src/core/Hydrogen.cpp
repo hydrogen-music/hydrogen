@@ -907,9 +907,11 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 				 getGUIState() != Hydrogen::GUIState::ready ) {
 				return;
 			}
-			auto pAudioEngine = m_pAudioEngine;
-
-			static_cast< JackAudioDriver* >( m_pAudioEngine->getAudioDriver() )->makeTrackOutputs( pSong );
+			auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(
+				m_pAudioEngine->getAudioDriver() );
+			if ( pJackAudioDriver != nullptr ) {
+				pJackAudioDriver->makeTrackPorts( pSong );
+			}
 		}
 	}
 #endif

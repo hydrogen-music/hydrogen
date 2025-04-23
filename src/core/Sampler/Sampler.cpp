@@ -1224,10 +1224,10 @@ bool Sampler::renderNoteResample(
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if ( pJackAudioDriver != nullptr ) {
-			pTrackOutL = pJackAudioDriver->getTrackOut_L(
-				pInstrument, nComponentIdx );
-			pTrackOutR = pJackAudioDriver->getTrackOut_R(
-				pInstrument, nComponentIdx );
+			pTrackOutL = pJackAudioDriver->getTrackBuffer(
+				pInstrument, JackAudioDriver::Channel::Left );
+			pTrackOutR = pJackAudioDriver->getTrackBuffer(
+				pInstrument, JackAudioDriver::Channel::Right );
 		}
 	}
 #endif
