@@ -4596,6 +4596,10 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>Indicate effective note length</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Enforce instrument name instead of type</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

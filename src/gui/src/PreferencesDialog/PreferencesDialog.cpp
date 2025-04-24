@@ -296,7 +296,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	// Audio tab - JACK
 	trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
-	connect(trackOutsCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTrackOutsCheckBox( bool )));
+	connect(trackOutsCheckBox, SIGNAL(toggled(bool)), this,
+			SLOT(toggleTrackOutsCheckBox( bool )));
+	enforceInstrumentNameCheckBox->setChecked(
+		pPref->getJackEnforceInstrumentName() );
+	enforceInstrumentNameCheckBox->setEnabled( pPref->m_bJackTrackOuts );
+	connect( enforceInstrumentNameCheckBox, &QCheckBox::clicked, [&]() {
+		m_bNeedDriverRestart = true;
+	});
 
 	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
 	enableTimebaseCheckBox->setChecked( pPref->m_bJackTimebaseEnabled );
@@ -783,6 +790,13 @@ void PreferencesDialog::updateDriverPreferences() {
 		bAudioOptionAltered = true;
 	}
 	
+	if ( pPref->getJackEnforceInstrumentName() !=
+		 enforceInstrumentNameCheckBox->isChecked() ) {
+		pPref->setJackEnforceInstrumentName(
+			enforceInstrumentNameCheckBox->isChecked() );
+		bAudioOptionAltered = true;
+	}
+
 	if ( pPref->m_bJackTimebaseEnabled != enableTimebaseCheckBox->isChecked() ) {
 		pPref->m_bJackTimebaseEnabled = enableTimebaseCheckBox->isChecked();
 		bAudioOptionAltered = true;
@@ -1212,6 +1226,8 @@ void PreferencesDialog::updateDriverInfo()
 			trackOutputLbl->hide();
 			trackOutsCheckBox->setEnabled( false );
 			trackOutsCheckBox->hide();
+			enforceInstrumentNameCheckBox->setEnabled( false );
+			enforceInstrumentNameCheckBox->hide();
 			connectDefaultsCheckBox->setEnabled( false );
 			connectDefaultsCheckBox->hide();
 			enableTimebaseCheckBox->setEnabled( false );
@@ -1370,6 +1386,7 @@ void PreferencesDialog::setDriverInfoOss() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
+	enforceInstrumentNameCheckBox->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1393,6 +1410,7 @@ void PreferencesDialog::setDriverInfoAlsa() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
+	enforceInstrumentNameCheckBox->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1415,11 +1433,15 @@ void PreferencesDialog::setDriverInfoJack() {
 	connectDefaultsCheckBox->setEnabled( true );
 	enableTimebaseCheckBox->setEnabled( true );
 	trackOutsCheckBox->setEnabled( true );
+	enforceInstrumentNameCheckBox->setEnabled(
+		Preferences::get_instance()->m_bJackTrackOuts );
+	enforceInstrumentNameCheckBox->hide();
 	trackOutputComboBox->show();
 	trackOutputLbl->show();
 	connectDefaultsCheckBox->show();
 	enableTimebaseCheckBox->show();
 	trackOutsCheckBox->show();
+	enforceInstrumentNameCheckBox->show();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1443,6 +1465,7 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
+	enforceInstrumentNameCheckBox->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1466,6 +1489,7 @@ void PreferencesDialog::setDriverInfoPortAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
+	enforceInstrumentNameCheckBox->hide();
 	portaudioHostAPIComboBox->show();
 	portaudioHostAPILabel->show();
 	latencyTargetLabel->show();
@@ -1499,6 +1523,7 @@ void PreferencesDialog::setDriverInfoPulseAudio() {
 	connectDefaultsCheckBox->hide();
 	enableTimebaseCheckBox->hide();
 	trackOutsCheckBox->hide();
+	enforceInstrumentNameCheckBox->hide();
 	portaudioHostAPIComboBox->hide();
 	portaudioHostAPILabel->hide();
 	latencyTargetLabel->hide();
@@ -1855,6 +1880,7 @@ void PreferencesDialog::onMidiDriverComboBoxIndexChanged ( int )
 
 void PreferencesDialog::toggleTrackOutsCheckBox( bool )
 {
+	enforceInstrumentNameCheckBox->setEnabled( trackOutsCheckBox->isChecked() );
 	m_bNeedDriverRestart = true;
 }
 
