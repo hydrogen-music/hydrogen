@@ -308,6 +308,20 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		std::shared_ptr<DrumkitMap> toDrumkitMap() const;
 
+		/** This method tell whether an instrument of another kit (specified via
+		 * @a sType and @a nInstrumentId) will be mapped to an instrument of
+		 * this kit.
+		 *
+		 * This is vital when switching drumkits or importing patterns. If
+		 * known, the former kit @a pOldDrumkit should be provided. This allows
+		 * to check whether the provided instrument is indeed a different one or
+		 * basically the same with just its type being edited. If so, the new
+		 * type will be stored in @a pNewType. */
+		std::shared_ptr<Instrument> mapInstrument( const QString& sType,
+												   int nInstrumentId,
+												   std::shared_ptr<Drumkit> pOldDrumkit = nullptr,
+												   DrumkitMap::Type* pNewType = nullptr );
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

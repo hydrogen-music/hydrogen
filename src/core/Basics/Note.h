@@ -158,14 +158,6 @@ class Note : public H2Core::Object<Note>
 	static std::shared_ptr<Note> loadFrom( const XMLNode& node,
 											bool bSilent = false );
 
-		/**
-		 * Make the current Note work with the provided drumkit @a pDrumkit.
-		 *
-		 * \param pDrumkit Most likely the currently used kit.
-		 * \param pOldDrumkit Optionally, the former kit the note was mapped to.
-		 */
-		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
-					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 		/** #m_pInstrument accessor */
 		std::shared_ptr<Instrument> getInstrument() const;
 		/**
@@ -259,6 +251,8 @@ class Note : public H2Core::Object<Note>
 		 * or no layer/sample will be picked for them. */
 		void setSelectedLayerInfo( std::shared_ptr<SelectedLayerInfo> pInfo,
 								   std::shared_ptr<InstrumentComponent> pComponent );
+
+		void mapToInstrument( std::shared_ptr<Instrument> pInstrument );
 
 		void setProbability( float value );
 		float getProbability() const;

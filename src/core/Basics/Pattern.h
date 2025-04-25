@@ -268,8 +268,8 @@ class Pattern : public H2Core::Object<Pattern>
 
 		void applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit = nullptr,
 								bool bSilent = false );
-		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
-					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
+		void mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
+						   std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 
 		/** Aggregates all types of the contained notes. */
 		std::set<DrumkitMap::Type> getAllTypes() const;
