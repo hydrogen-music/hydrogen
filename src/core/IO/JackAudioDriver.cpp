@@ -361,7 +361,8 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong )
 		}
 
 		QString sNameBase;
-		if ( ! pInstrument->getType().isEmpty() ) {
+		if ( ! pInstrument->getType().isEmpty() &&
+			 ! Preferences::get_instance()->getJackEnforceInstrumentName() ) {
 			// We want to use the type information as port name because it
 			// allows us to switch between kits while reusing existing ports.
 			sNameBase = pInstrument->getType();
