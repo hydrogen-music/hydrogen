@@ -42,3 +42,7 @@ tests/jackTimebase/test*.log
 
 # Ignore cache folder of clangd used in LSP editor support.
 .cache/
+
+# Ignore AppImage toolchain
+linuxdeploy-plugin-qt-x86_64.AppImage
+linuxdeploy-x86_64.AppImage
