@@ -44,3 +44,10 @@ tests/jackTimebase/jackTimebase
 tests/jackTimebase/hydrogen.log
 tests/jackTimebase/test*.log
 src/tests/data/playlist/tmp-duplicate-test.h2playlist
+
+# Ignore cache folder of clangd used in LSP editor support.
+.cache/
+
+# Ignore AppImage toolchain
+linuxdeploy-plugin-qt-x86_64.AppImage
+linuxdeploy-x86_64.AppImage
