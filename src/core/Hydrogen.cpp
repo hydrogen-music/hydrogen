@@ -897,22 +897,18 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 		return;
 	}
 	
-	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
-		if ( hasJackAudioDriver() ) {
+	if ( Preferences::get_instance()->m_bJackTrackOuts == true &&
+		hasJackAudioDriver() ) {
 
-			// When restarting the audio driver after loading a new song under
-			// Non session management all ports have to be registered _prior_
-			// to the activation of the client.
-			if ( isUnderSessionManagement() &&
-				 getGUIState() != Hydrogen::GUIState::ready ) {
-				return;
-			}
-			auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(
-				m_pAudioEngine->getAudioDriver() );
-			if ( pJackAudioDriver != nullptr ) {
-				pJackAudioDriver->makeTrackPorts( pSong );
-			}
+		// When restarting the audio driver after loading a new song under
+		// Non session management all ports have to be registered _prior_
+		// to the activation of the client.
+		if ( isUnderSessionManagement() &&
+			 getGUIState() != Hydrogen::GUIState::ready ) {
+			return;
 		}
+
+		m_pAudioEngine->makeTrackPorts( pSong );
 	}
 #endif
 }

@@ -435,6 +435,8 @@ public:
 	void			prepare( Event::Trigger trigger );
 	bool			isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) const;
 
+		void makeTrackPorts( std::shared_ptr<Song> pSong );
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
