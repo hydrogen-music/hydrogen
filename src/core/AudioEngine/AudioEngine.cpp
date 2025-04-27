@@ -535,6 +535,23 @@ bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) 
 	return false;
 }
 
+void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong ) {
+
+	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( m_pAudioDriver );
+	if ( pJackAudioDriver != nullptr ) {
+		// We have to guard this call using the special output buffer mutex to
+		// avoid `JackAudioDriver::makeTrackPorts` being called in parallel to
+		// `JackAudioDriver::clearPerTrackAudioBuffers` (called without an
+		// AudioEngine lock).
+		m_MutexOutputPointer.lock();
+
+		pJackAudioDriver->makeTrackOutputs( pSong );
+
+		m_MutexOutputPointer.unlock();
+	}
+
+}
+
 void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
