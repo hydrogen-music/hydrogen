@@ -297,6 +297,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		}
 	}
 
+	renameJackPorts( pSong, m_pSong != nullptr ? m_pSong->getDrumkit() : nullptr );
+
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, m_pSong has to be set prior to the call of
@@ -890,7 +892,8 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	}
 }
 
-void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
+void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong,
+								std::shared_ptr<Drumkit> pOldDrumkit )
 {
 #ifdef H2CORE_HAVE_JACK
 	if ( pSong == nullptr ) {
@@ -908,7 +911,7 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 			return;
 		}
 
-		m_pAudioEngine->makeTrackPorts( pSong );
+		m_pAudioEngine->makeTrackPorts( pSong, pOldDrumkit );
 	}
 #endif
 }

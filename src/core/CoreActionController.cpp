@@ -1332,7 +1332,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit ) {
 	pSong->setDrumkit( pNewDrumkit );
 	pSong->getPatternList()->mapToDrumkit( pNewDrumkit, pPreviousDrumkit );
 
-	pHydrogen->renameJackPorts( pSong );
+	pHydrogen->renameJackPorts( pSong, pPreviousDrumkit );
 
 	if ( pHydrogen->getSelectedInstrumentNumber() >=
 		 pNewDrumkit->getInstruments()->size() ) {
@@ -1797,7 +1797,7 @@ bool CoreActionController::addInstrument( std::shared_ptr<Instrument> pInstrumen
 	pInstrument->loadSamples( pAudioEngine->getTransportPosition()->getBpm() );
 
 	pDrumkit->addInstrument( pInstrument, nIndex );
-	pHydrogen->renameJackPorts( pSong );
+	pHydrogen->renameJackPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	pAudioEngine->unlock();
@@ -1862,7 +1862,7 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 			Event::Trigger::Suppress );
 	}
 
-	pHydrogen->renameJackPorts( pSong );
+	pHydrogen->renameJackPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	pAudioEngine->unlock();
@@ -1924,7 +1924,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 
 	pDrumkit->addInstrument( pNewInstrument,
 							 nOldInstrumentNumber );
-	pHydrogen->renameJackPorts( pSong );
+	pHydrogen->renameJackPorts( pSong, nullptr );
 	pSong->getPatternList()->mapToDrumkit( pDrumkit, pDrumkit );
 
 	// Unloading the samples of the old instrument will be done in the death
@@ -1970,7 +1970,7 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) 
 	}
 
 	pInstrumentList->move( nSourceIndex, nTargetIndex );
-	pHydrogen->renameJackPorts( pSong );
+	pHydrogen->renameJackPorts( pSong, nullptr );
 
 	pHydrogen->getAudioEngine()->unlock();
 

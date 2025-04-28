@@ -42,7 +42,8 @@
 
 namespace H2Core
 {
-	
+
+class Drumkit;
 class Instrument;
 class Song;
 class TransportPosition;
@@ -194,8 +195,12 @@ public:
 	 */
 	float* getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 						   Channel channel ) const;
-	/** Creates per-instrument output ports. */
-	void makeTrackPorts( std::shared_ptr<Song> pSong );
+	/** Creates per-instrument output ports.
+	 *
+	 * In case the previous drumkit is provided as well, a more sophisticated
+	 * mapping between the instrument corresponding to the ports can be done. */
+	void makeTrackPorts( std::shared_ptr<Song> pSong,
+						 std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {

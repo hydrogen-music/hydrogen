@@ -320,7 +320,8 @@ float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 		jack_port_get_buffer( pPort, JackAudioDriver::jackServerBufferSize));
 }
 
-void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong )
+void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
+									  std::shared_ptr<Drumkit> pOldDrumkit )
 {
 	if ( Preferences::get_instance()->m_bJackTrackOuts == false ) {
 		return;

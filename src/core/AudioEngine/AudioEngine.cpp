@@ -531,7 +531,8 @@ bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) 
 	return false;
 }
 
-void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong ) {
+void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong,
+								  std::shared_ptr<Drumkit> pOldDrumkit ) {
 
 	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( m_pAudioDriver );
 	if ( pJackAudioDriver != nullptr ) {
@@ -541,7 +542,7 @@ void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong ) {
 		// AudioEngine lock).
 		m_MutexOutputPointer.lock();
 
-		pJackAudioDriver->makeTrackPorts( pSong );
+		pJackAudioDriver->makeTrackPorts( pSong, pOldDrumkit );
 
 		m_MutexOutputPointer.unlock();
 	}
@@ -1006,7 +1007,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 
 	if ( pSong != nullptr && pHydrogen->hasJackAudioDriver() ) {
-		pHydrogen->renameJackPorts( pSong );
+		pHydrogen->renameJackPorts( pSong, nullptr );
 	}
 
 	lock( RIGHT_HERE );
@@ -1753,8 +1754,6 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// the locate() call below to update the playing patterns.
 	reset( false, Event::Trigger::Suppress );
 	setNextBpm( fNextBpm );
-
-	pHydrogen->renameJackPorts( pNewSong );
 
 	setState( State::Ready, Event::Trigger::Suppress );
 	// Will also adapt the audio engine to the new song's BPM.
