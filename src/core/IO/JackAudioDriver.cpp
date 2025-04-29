@@ -369,7 +369,13 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 			 ! Preferences::get_instance()->getJackEnforceInstrumentName() ) {
 			// We want to use the type information as port name because it
 			// allows us to switch between kits while reusing existing ports.
-			sNameBase = pInstrument->getType();
+			//
+			// We use the common "Track_" suffix to ensure ports can be
+			// distinguished from the main output ones and those created for the
+			// instrument and playback tracks. In addition, this also allows the
+			// user to choose arbitrary instrument types without risking name
+			// clashes with the ports just mentioned.
+			sNameBase = QString( "Track_%1" ).arg( pInstrument->getType() );
 		}
 		else {
 			// We use a pseudo-backward compatibility for kits without type
