@@ -434,6 +434,8 @@ private:
 	/** Show debugging information.*/
 	void printState() const;
 
+		QString m_sClientName;
+
 	/** Main process callback. */
 	JackProcessCallback		m_processCallback;
 	/**

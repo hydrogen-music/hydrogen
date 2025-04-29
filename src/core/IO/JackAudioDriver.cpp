@@ -118,6 +118,7 @@ JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	: AudioOutput()
 	, m_pClient( nullptr )
+	, m_sClientName( "Hydrogen" )
 	, m_pOutputPort1( nullptr )
 	, m_pOutputPort2( nullptr )
 	, m_timebaseTracking( TimebaseTracking::None )
@@ -973,13 +974,11 @@ int JackAudioDriver::init( unsigned bufferSize )
 {
 	auto pPreferences = Preferences::get_instance();
 
-	QString sClientName = "Hydrogen";
-
 #ifdef H2CORE_HAVE_OSC
 	QString sNsmClientId = pPreferences->getNsmClientId();
 
 	if( !sNsmClientId.isEmpty() ){
-		sClientName = sNsmClientId;
+		m_sClientName = sNsmClientId;
 	}
 #endif
 	// The address of the status object will be used by JACK to
@@ -1015,7 +1014,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 		// this is NULL, the open operation failed, *status
 		// includes JackFailure and the caller is not a JACK
 		// client.
-		m_pClient = jack_client_open( sClientName.toLocal8Bit(),
+		m_pClient = jack_client_open( m_sClientName.toLocal8Bit(),
 					      JackNullOption,
 					      &status);
 
@@ -1032,8 +1031,9 @@ int JackAudioDriver::init( unsigned bufferSize )
 			break;
 		case JackNameNotUnique:
 			if ( m_pClient != nullptr ) {
-				sClientName = jack_get_client_name(m_pClient);
-				CLIENT_SUCCESS(QString("Jack assigned the client name '%1'").arg(sClientName));
+				m_sClientName = jack_get_client_name(m_pClient);
+				CLIENT_SUCCESS( QString( "Jack assigned the client name '%1'" )
+							   .arg( m_sClientName ) );
 			} else {
 				CLIENT_FAILURE("name not unique");
 			}
