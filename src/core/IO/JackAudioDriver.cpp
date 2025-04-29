@@ -327,7 +327,8 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		return;
 	}
 
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 m_pClient == nullptr ) {
 		return;
 	}
 
@@ -414,10 +415,19 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				if ( pMapped != nullptr ) {
 					m_portMap[ pMapped ] = it->second;
 
-					sMappedName = portNameFrom( it->first, m_portMap );
+					sMappedName = portNameFrom( pMapped, m_portMap );
 					if ( m_portMap[ pMapped ].sPortNameBase != sMappedName ) {
-						// TODO rename ports
 						m_portMap[ pMapped ].sPortNameBase = sMappedName;
+						if ( m_portMap[ pMapped ].Left != nullptr ) {
+							jack_port_rename(
+								m_pClient, m_portMap[ pMapped ].Left,
+								QString( "%1_L" ).arg( sMappedName ).toLocal8Bit() );
+						}
+						if ( m_portMap[ pMapped ].Right != nullptr ) {
+							jack_port_rename(
+								m_pClient, m_portMap[ pMapped ].Right,
+								QString( "%1_R" ).arg( sMappedName ).toLocal8Bit() );
+						}
 					}
 					mapCopy.erase( it++ );
 				}
