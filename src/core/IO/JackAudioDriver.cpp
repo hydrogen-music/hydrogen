@@ -388,7 +388,20 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				.arg( pInstrument->getName() );
 		}
 
-		// TODO Truncate name to maximum allowed number of characters.
+		// Truncate name to maximum allowed number of characters. According to
+		// the JACK API documentation this includes the prefix "<CLIENT_NAME>:"
+		// as well.
+		//
+		// "_L" or "_R" indicating the particular stereo channel
+		const int nSuffix = 2;
+		// Separator ":" between client name and port name
+		const int nSeparator = 1;
+		const int nMaxCharacters = jack_port_name_size() - nSuffix - nSeparator -
+			m_sClientName.size();
+
+		if ( sNameBase.size() > nMaxCharacters ) {
+			sNameBase = sNameBase.left( nMaxCharacters );
+		}
 
 		// Ensure uniqueness. Since the type must be unique and the classic
 		// version includes the instrument's index, the string should already be
@@ -397,7 +410,14 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		int nnTry = 1;
 		QString sName( sNameBase );
 		while ( portNameContained( sName, portMap, pInstrument ) ) {
-			sName = QString( "%1 (%2)" ).arg( sName ).arg( nnTry );
+			if ( sName.size() < nMaxCharacters ) {
+				sName = QString( "%1 (%2)" ).arg( sName ).arg( nnTry );
+			}
+			else {
+				// Account for the additional suffix.
+				sName = QString( "%1 (%2)" )
+					.arg( sName.left( nMaxCharacters - 3 - nnTry ) ).arg( nnTry );
+			}
 
 			++nnTry;
 			if ( nnTry > nMaxTries ) {
