@@ -331,6 +331,8 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		return;
 	}
 
+	const auto pDrumkit = pSong->getDrumkit();
+
 	// We make a copy of the current map, clear the original one, and move all
 	// ports we want to keep from the copy to the original. This way everything
 	// remaining in the copy is marked for cleanup.
@@ -378,6 +380,8 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				.arg( pInstrument->getName() );
 		}
 
+		// TODO Truncate name to maximum allowed number of characters.
+
 		// Ensure uniqueness. Since the type must be unique and the classic
 		// version includes the instrument's index, the string should already be
 		// unique. But let's be check nevertheless.
@@ -398,52 +402,61 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		return sName;
 	};
 
+	if ( mapCopy.size() > 0 ) {
+		// We switched from one drumkit to another. Let's harness the same
+		// instrument mapping used for notes was well.
+		std::shared_ptr<Instrument> pMapped;
+		DrumkitMap::Type sMappedName;
+		for ( auto it = mapCopy.cbegin(); it != mapCopy.cend(); ) {
+			if ( it->first != nullptr ) {
+				pMapped = pDrumkit->mapInstrument(
+					it->first->getType(), it->first->getId(), pOldDrumkit );
+				if ( pMapped != nullptr ) {
+					m_portMap[ pMapped ] = it->second;
+
+					sMappedName = portNameFrom( it->first, m_portMap );
+					if ( m_portMap[ pMapped ].sPortNameBase != sMappedName ) {
+						// TODO rename ports
+						m_portMap[ pMapped ].sPortNameBase = sMappedName;
+					}
+					mapCopy.erase( it++ );
+				}
+				else {
+					++it;
+				}
+			}
+			else {
+				++it;
+			}
+		}
+	}
+
 	bool bErrorEncountered = false;
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
-		if ( ppInstrument == nullptr ) {
+		if ( ppInstrument == nullptr ||
+			 m_portMap.find( ppInstrument ) != m_portMap.end() ) {
+			// Already added during the previous mapping step.
 			continue;
 		}
 
-		if ( mapCopy.find( ppInstrument ) != mapCopy.end() ) {
-			// Are there already ports associated with the instrument (e.g. when
-			// changing properties of the current drumkit)?
-			m_portMap[ ppInstrument ] = mapCopy.at( ppInstrument );
-			mapCopy.erase( mapCopy.find( ppInstrument ) );
-		}
-		else if ( portNameContained( portNameFrom( ppInstrument, m_portMap ),
-									 mapCopy ) ) {
-			// Can we reuse a similar port? E.g. we switch from one kit to
-			// another map the instrument of type "Kick" to the new instrument
-			// of type "Kick".
-			const auto sPortName = portNameFrom( ppInstrument, m_portMap );
-			for ( auto it = mapCopy.begin(); it != mapCopy.end(); ++it ) {
-				if ( it->second.sPortNameBase == sPortName ) {
-					m_portMap[ ppInstrument ] = it->second;
-					mapCopy.erase( it );
-					break;
-				}
-			}
-		}
-		else {
-			// No matching port found. Register a new ones.
-			InstrumentPorts ports;
-			const auto sPortName = portNameFrom( ppInstrument, m_portMap );
-			ports.sPortNameBase = sPortName;
-			ports.Left = jack_port_register(
-				m_pClient, QString( "%1_L" ).arg( sPortName ).toLocal8Bit(),
-				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+		// No matching port found. Register a new ones.
+		InstrumentPorts ports;
+		const auto sPortName = portNameFrom( ppInstrument, m_portMap );
+		ports.sPortNameBase = sPortName;
+		ports.Left = jack_port_register(
+			m_pClient, QString( "%1_L" ).arg( sPortName ).toLocal8Bit(),
+			JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
-			ports.Right = jack_port_register(
-				m_pClient, QString( "%1_R" ).arg( sPortName ).toLocal8Bit(),
-				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+		ports.Right = jack_port_register(
+			m_pClient, QString( "%1_R" ).arg( sPortName ).toLocal8Bit(),
+			JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
-			if ( ports.Left == nullptr || ports.Right == nullptr ) {
-				ERRORLOG( QString( "Unable to register JACK port for instrument [%1] using port base name [%2]" )
-						  .arg( ppInstrument->getName() ).arg( sPortName ) );
-				bErrorEncountered = true;
-			}
-			m_portMap[ ppInstrument ] = ports;
+		if ( ports.Left == nullptr || ports.Right == nullptr ) {
+			ERRORLOG( QString( "Unable to register JACK port for instrument [%1] using port base name [%2]" )
+					  .arg( ppInstrument->getName() ).arg( sPortName ) );
+			bErrorEncountered = true;
 		}
+		m_portMap[ ppInstrument ] = ports;
 	}
 
 	if ( bErrorEncountered ) {
