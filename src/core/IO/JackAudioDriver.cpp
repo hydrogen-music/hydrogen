@@ -241,6 +241,7 @@ void JackAudioDriver::deactivate()
 {
 	if ( m_pClient != nullptr ) {
 		unregisterTrackPorts( m_portMap );
+		unregisterTrackPorts( m_portMapStatic );
 
 		if ( jack_deactivate( m_pClient ) != 0 ) {
 			ERRORLOG( "Error in jack_deactivate" );
@@ -262,6 +263,17 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 {
 	if ( m_pClient != nullptr &&
 		 Preferences::get_instance()->m_bJackTrackOuts ) {
+		for ( auto& [ ppInstrument, _ ] : m_portMapStatic ) {
+			auto pLeft = getTrackBuffer( ppInstrument, Channel::Left );
+			if ( pLeft != nullptr ) {
+				memset( pLeft, 0, nFrames * sizeof( float ) );
+			}
+			auto pRight = getTrackBuffer( ppInstrument, Channel::Right );
+			if ( pRight != nullptr ) {
+				memset( pRight, 0, nFrames * sizeof( float ) );
+			}
+		}
+
 		for ( auto& [ ppInstrument, _ ] : m_portMap ) {
 			auto pLeft = getTrackBuffer( ppInstrument, Channel::Left );
 			if ( pLeft != nullptr ) {
@@ -299,18 +311,31 @@ float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 		return nullptr;
 	}
 
-	if ( m_portMap.find( pInstrument ) == m_portMap.end() ) {
-		ERRORLOG( QString( "No ports for instrument [%1]" )
-				  .arg( pInstrument->getName() ) );
-		return nullptr;
+	InstrumentPorts ports;
+	if ( pInstrument->getId() == METRONOME_INSTR_ID ) {
+		if ( m_portMapStatic.find( pInstrument ) == m_portMapStatic.end() ) {
+			ERRORLOG( QString( "No ports for instrument [%1]" )
+					  .arg( pInstrument->getName() ) );
+			return nullptr;
+		}
+
+		ports = m_portMapStatic.at( pInstrument );
+	}
+	else {
+		if ( m_portMap.find( pInstrument ) == m_portMap.end() ) {
+			ERRORLOG( QString( "No ports for instrument [%1]" )
+					  .arg( pInstrument->getName() ) );
+			return nullptr;
+		}
+		ports = m_portMap.at( pInstrument );
 	}
 
 	jack_port_t* pPort;
 	if ( channel == Channel::Left ) {
-		pPort = m_portMap.at( pInstrument ).Left;
+		pPort = ports.Left;
 	}
 	else {
-		pPort = m_portMap.at( pInstrument ).Right;
+		pPort = ports.Right;
 	}
 
 	if ( pPort == nullptr ) {
@@ -326,6 +351,30 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 {
 	if ( Preferences::get_instance()->m_bJackTrackOuts == false ) {
 		return;
+	}
+
+	bool bErrorEncountered = false;
+	// These ports have to be created only once per Hydrogen session.
+	if ( m_portMapStatic.size() == 0 ) {
+		auto pMetronome = Hydrogen::get_instance()->getAudioEngine()->
+			getMetronomeInstrument();
+
+		if ( pMetronome != nullptr ) {
+			InstrumentPorts ports;
+			ports.Left = jack_port_register(
+				m_pClient, QString( "Metronome_L" ).toLocal8Bit(),
+				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+
+			ports.Right = jack_port_register(
+				m_pClient, QString( "Metronome_R" ).toLocal8Bit(),
+				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+			ports.sPortNameBase = "Metronome";
+			if ( ports.Left == nullptr || ports.Right == nullptr ) {
+				ERRORLOG( "Unable to register JACK port for the Metronome" );
+				bErrorEncountered = true;
+			}
+			m_portMapStatic[ pMetronome ] = ports;
+		}
 	}
 
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
@@ -468,7 +517,6 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		}
 	}
 
-	bool bErrorEncountered = false;
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
 		if ( ppInstrument == nullptr ||
 			 m_portMap.find( ppInstrument ) != m_portMap.end() ) {
@@ -1543,7 +1591,13 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const 
 					 .arg( m_sOutputPortName1 ) )
 			.append( QString( "%1%2m_sOutputPortName2: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sOutputPortName2 ) )
-			.append( QString( "%1%2m_trackPorts:\n" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "%1%2m_portMapStatic:\n" ).arg( sPrefix ).arg( s ) );
+		for ( const auto& [ ppInstrument, ports ] : m_portMapStatic ) {
+			sOutput.append( QString( "%1%2%2[%3]: %4\n" ).arg( sPrefix )
+							.arg( s ).arg( ppInstrument->getName() )
+							.arg( ports.sPortNameBase ) );
+		}
+		sOutput.append( QString( "%1%2m_portMap:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& [ ppInstrument, ports ] : m_portMap ) {
 			sOutput.append( QString( "%1%2%2[%3]: %4\n" ).arg( sPrefix )
 							.arg( s ).arg( ppInstrument->getName() )
@@ -1582,7 +1636,13 @@ QString JackAudioDriver::toQString( const QString& sPrefix, bool bShort ) const 
 					 .arg( m_sOutputPortName1 ) )
 			.append( QString( ", m_sOutputPortName2: %1" )
 					 .arg( m_sOutputPortName2 ) )
-			.append( ", m_portMap: [" );
+			.append( ", m_portMapStatic: [" );
+		for ( const auto& [ ppInstrument, ports ] : m_portMapStatic ) {
+			sOutput.append( QString( "[%1]: %2], " )
+							.arg( ppInstrument->getName() )
+							.arg( ports.sPortNameBase ) );
+		}
+		sOutput.append( ", m_portMap: [" );
 		for ( const auto& [ ppInstrument, ports ] : m_portMap ) {
 			sOutput.append( QString( "[%1]: %2], " )
 							.arg( ppInstrument->getName() )

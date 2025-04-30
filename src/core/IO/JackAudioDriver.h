@@ -463,6 +463,11 @@ private:
 		 * channel of an instrument. */
 		PortMap m_portMap;
 
+		/** Contains the ports for the metronome and the playback track, which
+		 * do not change when e.g. switching drumkits or loading a different
+		 * song. They will stay till teardown. */
+		PortMap m_portMapStatic;
+
 	/**
 	 * Current transport state returned by
 	 * _jack_transport_query()_ (jack/transport.h).  
