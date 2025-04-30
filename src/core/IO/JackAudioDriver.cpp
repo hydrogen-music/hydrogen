@@ -312,7 +312,8 @@ float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 	}
 
 	InstrumentPorts ports;
-	if ( pInstrument->getId() == METRONOME_INSTR_ID ) {
+	if ( pInstrument->getId() == METRONOME_INSTR_ID ||
+		 pInstrument->getId() == PLAYBACK_INSTR_ID ) {
 		if ( m_portMapStatic.find( pInstrument ) == m_portMapStatic.end() ) {
 			ERRORLOG( QString( "No ports for instrument [%1]" )
 					  .arg( pInstrument->getName() ) );
@@ -353,27 +354,63 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		return;
 	}
 
+	auto createPorts = [=]( std::shared_ptr<Instrument> pInstrument,
+						   const QString& sPortName, bool* pError ) {
+		InstrumentPorts ports;
+
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( "Invalid instrument" );
+			if ( pError != nullptr ) {
+				*pError = true;
+			}
+			return ports;
+		}
+
+		if ( pError != nullptr ) {
+			*pError = false;
+		}
+
+		ports.sPortNameBase = sPortName;
+		ports.Left = jack_port_register(
+			m_pClient, QString( "%1_L" ).arg( sPortName ).toLocal8Bit(),
+			JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+
+		ports.Right = jack_port_register(
+			m_pClient, QString( "%1_R" ).arg( sPortName ).toLocal8Bit(),
+			JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+
+		if ( ports.Left == nullptr || ports.Right == nullptr ) {
+			ERRORLOG( QString( "Unable to register JACK port for instrument [%1] using port base name [%2]" )
+					  .arg( pInstrument->getName() ).arg( sPortName ) );
+			if ( pError != nullptr ) {
+				*pError = true;
+			}
+		}
+
+		return ports;
+	};
+
 	bool bErrorEncountered = false;
+	bool bError = false;
 	// These ports have to be created only once per Hydrogen session.
 	if ( m_portMapStatic.size() == 0 ) {
-		auto pMetronome = Hydrogen::get_instance()->getAudioEngine()->
-			getMetronomeInstrument();
+		const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+		auto pMetronome = pAudioEngine->getMetronomeInstrument();
 
-		if ( pMetronome != nullptr ) {
-			InstrumentPorts ports;
-			ports.Left = jack_port_register(
-				m_pClient, QString( "Metronome_L" ).toLocal8Bit(),
-				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-
-			ports.Right = jack_port_register(
-				m_pClient, QString( "Metronome_R" ).toLocal8Bit(),
-				JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-			ports.sPortNameBase = "Metronome";
-			if ( ports.Left == nullptr || ports.Right == nullptr ) {
-				ERRORLOG( "Unable to register JACK port for the Metronome" );
-				bErrorEncountered = true;
-			}
+		auto ports = createPorts( pMetronome, "Metronome", &bError );
+		if ( ! bError ) {
 			m_portMapStatic[ pMetronome ] = ports;
+		} else {
+			bErrorEncountered = true;
+		}
+
+		auto pPlaybackTrack =
+			pAudioEngine->getSampler()->getPlaybackTrackInstrument();
+		ports = createPorts( pPlaybackTrack, "PlaybackTrack", &bError );
+		if ( ! bError ) {
+			m_portMapStatic[ pPlaybackTrack ] = ports;
+		} else {
+			bErrorEncountered = true;
 		}
 	}
 
@@ -525,23 +562,13 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		}
 
 		// No matching port found. Register a new ones.
-		InstrumentPorts ports;
-		const auto sPortName = portNameFrom( ppInstrument, m_portMap );
-		ports.sPortNameBase = sPortName;
-		ports.Left = jack_port_register(
-			m_pClient, QString( "%1_L" ).arg( sPortName ).toLocal8Bit(),
-			JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-
-		ports.Right = jack_port_register(
-			m_pClient, QString( "%1_R" ).arg( sPortName ).toLocal8Bit(),
-			JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-
-		if ( ports.Left == nullptr || ports.Right == nullptr ) {
-			ERRORLOG( QString( "Unable to register JACK port for instrument [%1] using port base name [%2]" )
-					  .arg( ppInstrument->getName() ).arg( sPortName ) );
+		auto ports = createPorts(
+			ppInstrument, portNameFrom( ppInstrument, m_portMap ), &bError );
+		if ( ! bError ) {
+			m_portMap[ ppInstrument ] = ports;
+		} else {
 			bErrorEncountered = true;
 		}
-		m_portMap[ ppInstrument ] = ports;
 	}
 
 	if ( bErrorEncountered ) {
