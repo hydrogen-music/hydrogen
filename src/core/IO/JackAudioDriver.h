@@ -123,9 +123,34 @@ public:
 		};
 
 		struct InstrumentPorts {
+			InstrumentPorts();
+			InstrumentPorts( const InstrumentPorts& other );
+
+			/** When switching kits/manipulating instruments we check whether
+			 * they are currently used to render a sample. If so, they are added
+			 * to the Hydrogen::m_instrumentDeathRow. This way they can live on
+			 * until all rendering using their samples is done and we avoid
+			 * audible glitches when switching kits.
+			 *
+			 * But when using per-track JACK output ports we have to ensure too,
+			 * that the ports associated with those instruments are kept open
+			 * till all rendering is done. Instruments which's ports are mapped
+			 * to the ones of another instrument will continue using those ports
+			 * (but we must not remove them since the new instruments are still
+			 * using them - Marked::ForRemoval). Instruments not having a
+			 * corresponding mapping target will keep their ports till all
+			 * rendering is done (Marked::ForDeath). See
+			 * cleanupPerTrackPorts(). */
+			enum class Marked {
+				ForDeath,
+				ForRemoval,
+				None
+			};
+
 			QString sPortNameBase;
 			jack_port_t* Left;
 			jack_port_t* Right;
+			Marked marked;
 		};
 
 		typedef std::map< std::shared_ptr<Instrument>, InstrumentPorts > PortMap;
@@ -201,6 +226,10 @@ public:
 	 * mapping between the instrument corresponding to the ports can be done. */
 	void makeTrackPorts( std::shared_ptr<Song> pSong,
 						 std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
+
+		/** Checks whether there are ports associated with instrument in
+		 * #Hydrogen::m_instrumentDeathRow and whether they can be torn down. */
+		void cleanupPerTrackPorts();
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {
@@ -457,7 +486,7 @@ private:
 	 */
 	QString				m_sOutputPortName2;
 
-		void unregisterTrackPorts( PortMap portMap );
+		void unregisterTrackPorts( InstrumentPorts ports );
 
 		/** The left and right jack port (in that order) associated with a
 		 * channel of an instrument. */

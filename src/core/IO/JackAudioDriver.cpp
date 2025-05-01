@@ -55,6 +55,19 @@
 
 namespace H2Core {
 
+JackAudioDriver::InstrumentPorts::InstrumentPorts() : sPortNameBase( "" )
+													, Left( nullptr )
+													, Right( nullptr )
+													, marked( Marked::None ) {
+}
+
+JackAudioDriver::InstrumentPorts::InstrumentPorts( const InstrumentPorts& other )
+	: sPortNameBase( other.sPortNameBase )
+	, Left( other.Left )
+	, Right( other.Right )
+	, marked( other.marked ) {
+}
+
 int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param ){
 	// Used for logging.
 	Base * __object = ( Base * )param;
@@ -240,8 +253,12 @@ void JackAudioDriver::disconnect()
 void JackAudioDriver::deactivate()
 {
 	if ( m_pClient != nullptr ) {
-		unregisterTrackPorts( m_portMap );
-		unregisterTrackPorts( m_portMapStatic );
+		for ( auto& [ _, ports ] : m_portMap ) {
+			unregisterTrackPorts( ports );
+		}
+		for ( auto& [ _, ports ] : m_portMapStatic ) {
+			unregisterTrackPorts( ports );
+		}
 
 		if ( jack_deactivate( m_pClient ) != 0 ) {
 			ERRORLOG( "Error in jack_deactivate" );
@@ -287,22 +304,23 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 	}
 }
 
-void JackAudioDriver::unregisterTrackPorts( PortMap portMap ) {
-		for ( auto& [ ppInstrument, ports ] : portMap ) {
-			if ( ports.Left != nullptr && ppInstrument != nullptr ) {
-				if ( jack_port_unregister( m_pClient, ports.Left ) != 0 ) {
-					ERRORLOG( QString( "Unable to unregister left port of instrument [%1]" )
-							  .arg( ppInstrument->getName() ) );
-				}
-			}
-			if ( ports.Right != nullptr && ppInstrument != nullptr ) {
-				if ( jack_port_unregister( m_pClient, ports.Right ) != 0 ) {
-					ERRORLOG( QString( "Unable to unregister right port of instrument [%1]" )
-							  .arg( ppInstrument->getName() ) );
-				}
-			}
-		}
+void JackAudioDriver::unregisterTrackPorts( InstrumentPorts ports ) {
+	if ( m_pClient == nullptr ) {
+		return;
+	}
 
+	if ( ports.Left != nullptr ) {
+		if ( jack_port_unregister( m_pClient, ports.Left ) != 0 ) {
+			ERRORLOG( QString( "Unable to unregister left port of [%1]" )
+					  .arg( ports.sPortNameBase ) );
+		}
+	}
+	if ( ports.Right != nullptr ) {
+		if ( jack_port_unregister( m_pClient, ports.Right ) != 0 ) {
+			ERRORLOG( QString( "Unable to unregister right port of [%1]" )
+					  .arg( ports.sPortNameBase ) );
+		}
+	}
 }
 
 float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
@@ -418,24 +436,16 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		 m_pClient == nullptr ) {
 		return;
 	}
-
 	const auto pDrumkit = pSong->getDrumkit();
-
-	// We make a copy of the current map, clear the original one, and move all
-	// ports we want to keep from the copy to the original. This way everything
-	// remaining in the copy is marked for cleanup.
-	PortMap mapCopy;
-	for ( const auto& [ ppInstrument, ports ] : m_portMap ) {
-		mapCopy[ ppInstrument ] = ports;
-	}
-
-	m_portMap.clear();
 
 	auto portNameContained = [=]( const QString& sName, PortMap portMap,
 								  std::shared_ptr<Instrument> pInstrumentToExclude =
 								  nullptr ) {
 		for ( const auto& [ ppInstrument, ports ] : portMap ) {
+			// We ignore ports marked for removal once the all notes
+			// corresponding to the instrument have be rendered.
 			if ( ports.sPortNameBase == sName &&
+				 ports.marked == InstrumentPorts::Marked::None &&
 				 ( pInstrumentToExclude == nullptr ||
 				   pInstrumentToExclude != ppInstrument ) ) {
 				return true;
@@ -516,17 +526,23 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		return sName;
 	};
 
-	if ( mapCopy.size() > 0 ) {
+	if ( m_portMap.size() > 0 ) {
 		// We switched from one drumkit to another. Let's harness the same
 		// instrument mapping used for notes was well.
 		std::shared_ptr<Instrument> pMapped;
 		DrumkitMap::Type sMappedName;
-		for ( auto it = mapCopy.cbegin(); it != mapCopy.cend(); ) {
-			if ( it->first != nullptr ) {
+		for ( auto& [ ppInstrument, pports ] : m_portMap ) {
+			if ( ppInstrument != nullptr ) {
 				pMapped = pDrumkit->mapInstrument(
-					it->first->getType(), it->first->getId(), pOldDrumkit );
+					ppInstrument->getType(), ppInstrument->getId(), pOldDrumkit );
 				if ( pMapped != nullptr ) {
-					m_portMap[ pMapped ] = it->second;
+					m_portMap[ pMapped ] = InstrumentPorts( pports );
+
+					if ( pMapped != ppInstrument ) {
+						// In case we deal with the same instrument, there is no
+						// need for the death row.
+						pports.marked = InstrumentPorts::Marked::ForRemoval;
+					}
 
 					sMappedName = portNameFrom( pMapped, m_portMap );
 					if ( m_portMap[ pMapped ].sPortNameBase != sMappedName ) {
@@ -542,14 +558,13 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 								QString( "%1_R" ).arg( sMappedName ).toLocal8Bit() );
 						}
 					}
-					mapCopy.erase( it++ );
 				}
 				else {
-					++it;
+					pports.marked = InstrumentPorts::Marked::ForDeath;
 				}
 			}
 			else {
-				++it;
+				pports.marked = InstrumentPorts::Marked::ForDeath;
 			}
 		}
 	}
@@ -580,7 +595,23 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 	}
 
 	// Clean up all ports not required anymore.
-	unregisterTrackPorts( mapCopy );
+	cleanupPerTrackPorts();
+}
+
+void JackAudioDriver::cleanupPerTrackPorts() {
+	for ( auto it = m_portMap.cbegin(); it != m_portMap.cend(); ) {
+		if ( it->first != nullptr &&
+			 it->second.marked != InstrumentPorts::Marked::None &&
+			 ! it->first->isQueued() ) {
+			if ( it->second.marked == InstrumentPorts::Marked::ForDeath ) {
+				unregisterTrackPorts( it->second );
+			}
+			m_portMap.erase( it++ );
+		}
+		else {
+			++it;
+		}
+	}
 }
 
 const jack_position_t& JackAudioDriver::getJackPosition() const {

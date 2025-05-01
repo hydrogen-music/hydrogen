@@ -1095,6 +1095,14 @@ void Hydrogen::killInstruments() {
 					 .arg( pInstr->getEnqueuedBy().join( "\n\t" ) ) );
 		}
 	}
+
+	if ( hasJackAudioDriver() ) {
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(
+			m_pAudioEngine->getAudioDriver());
+		if ( pJackAudioDriver != nullptr ) {
+			pJackAudioDriver->cleanupPerTrackPorts();
+		}
+	}
 }
 
 
