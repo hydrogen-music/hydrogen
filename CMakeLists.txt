@@ -60,10 +60,10 @@ else()
             set(DISPLAY_VERSION "${GIT_DESCRIPTION}")
             message(STATUS "MATCH")
         else()
-            # We are working on a release which is not a patch release of the last
-            # one (feature branch, develop branch, master after splitting of a
-            # dedicated release branch). We just add the commit hash to the display
-            # version.
+            # We are working on a release which is not a patch release of the
+            # last one (feature branch, develop branch, main after splitting of
+            # a dedicated release branch). We just add the commit hash to the
+            # display version.
             execute_process(COMMAND git log --pretty=format:'%h' -n 1
                 OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
             set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
