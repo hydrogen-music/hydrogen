@@ -497,6 +497,13 @@ private:
 		 * song. They will stay till teardown. */
 		PortMap m_portMapStatic;
 
+		/** Since #Sampler::m_pPreviewInstrument is changed with each new sample
+		 * to preview, this one serves as a dummy instrument mapping all
+		 * instruments not found in #m_portMap but with
+		 * #Instrument::m_bIsPreviewInstrument set to the per-track output ports
+		 * of the sample preview. */
+		std::shared_ptr<Instrument> m_pDummyPreviewInstrument;
+
 	/**
 	 * Current transport state returned by
 	 * _jack_transport_query()_ (jack/transport.h).  

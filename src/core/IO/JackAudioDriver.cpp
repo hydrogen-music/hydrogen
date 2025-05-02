@@ -151,6 +151,9 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
+	m_pDummyPreviewInstrument = std::make_shared<Instrument>( EMPTY_INSTR_ID );
+	m_pDummyPreviewInstrument->setName( "DummyPreviewInstrument" );
+	m_pDummyPreviewInstrument->setIsPreviewInstrument( true );
 
 	// Destination ports the output of Hydrogen will be connected
 	// to.
@@ -340,13 +343,16 @@ float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 
 		ports = m_portMapStatic.at( pInstrument );
 	}
-	else {
-		if ( m_portMap.find( pInstrument ) == m_portMap.end() ) {
-			ERRORLOG( QString( "No ports for instrument [%1]" )
-					  .arg( pInstrument->getName() ) );
-			return nullptr;
-		}
+	else if ( m_portMap.find( pInstrument ) != m_portMap.end() ) {
 		ports = m_portMap.at( pInstrument );
+	}
+	else if ( pInstrument->isPreviewInstrument() ){
+		ports = m_portMapStatic.at( m_pDummyPreviewInstrument );
+	}
+	else {
+		ERRORLOG( QString( "No ports for instrument [%1]" )
+				  .arg( pInstrument->getName() ) );
+		return nullptr;
 	}
 
 	jack_port_t* pPort;
@@ -427,6 +433,13 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		ports = createPorts( pPlaybackTrack, "PlaybackTrack", &bError );
 		if ( ! bError ) {
 			m_portMapStatic[ pPlaybackTrack ] = ports;
+		} else {
+			bErrorEncountered = true;
+		}
+
+		ports = createPorts( m_pDummyPreviewInstrument, "SamplePreview", &bError );
+		if ( ! bError ) {
+			m_portMapStatic[ m_pDummyPreviewInstrument ] = ports;
 		} else {
 			bErrorEncountered = true;
 		}

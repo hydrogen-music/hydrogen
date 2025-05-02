@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [2.0.0] - XXXX-XX-XX
 
 ### Added
+
 - PortMidi driver does open a input/output port which can be discovered and
   connected to by other applications when port was set to "None" in the
   Preferences (not supported on Windows).
@@ -49,7 +50,7 @@ All notable changes to this project will be documented in this file.
   Preferences > Appearance > Interface > Indicate effective note length).
 - Custom colors for 'mute' and 'solo'.
 - When activating per-track JACK outputs, Hydrogen does now provided additional
-  ports for both metronome and playback track (#1150).
+  ports for metronome, playback track, and sample preview (#1150).
 
 ### Changed
 
