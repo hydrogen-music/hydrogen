@@ -45,6 +45,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 			disabled in Preferences > Appearance > Interface > Indicate effective note
 			length).
 		- Custom colors for 'mute' and 'solo'.
+		- When activating per-track JACK outputs, Hydrogen does now provided
+			additional ports for both metronome and playback track (#1150).
 	* Changed
 		- Drumkit handling was reworked. Each song will now hold a proper drumkit.
 			Tweaking its name, instruments etc. does not affect the kits in the Sound
@@ -116,6 +118,13 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				- The "Layers" tab was replaced by a "Components" one containing
 				  collapsible versions of the previous view for all components.
 				- Both components and layers can now be muted and soloed.
+		- JACK per-track output ports are now mapped on drumkit switch or
+			manipulation on instrument with same type. Ports of instruments without
+			type aren't mapped at all (same as for notes) (#1071).
+		- Per default JACK per-track output ports are named according to the
+			instrument types. But via Preferences > Audio >
+			"Enforce instrument name instead of type" the previous naming scheme can
+			be used.
 	* Fixed
 		- Components can now carry arbitrary names and name duplication is handled
 			properly.
@@ -132,6 +141,8 @@ XXXX-XX-XX the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 				  pattern within a column (#1680).
 		- MIDI import is now able to trigger multiple instruments using a single
 			NOTE ON event (#1765).
+		- Fix mixup of JACK per-track output ports on instrument reordering (see
+			Changed section for new behaviour) (#71).
 
 	* Removed
 		- Preferences options `restoreLastSong` and `restoreLastPlaylist` were
