@@ -34,7 +34,7 @@ Binaries for older OS versions can be found in the [Download section of our home
 
 If your particular OS is not supported or you want to use the latest developing version, you can build Hydrogen yourself. We provide step-by-step guides for the following platforms:
 
-* **[Linux](https://github.com/hydrogen-music/hydrogen/blob/master/INSTALL.md)**
+* **[Linux](https://github.com/hydrogen-music/hydrogen/blob/main/INSTALL.md)**
 * **[macOS](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-Source-(macOS))**
 * **[Windows](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(Windows))**
 

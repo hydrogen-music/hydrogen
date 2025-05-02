@@ -14,7 +14,7 @@
  * \section structureCode Structure of the code
  * 
  * All C++ code of Hydrogen can be found in the
- * [src](https://github.com/hydrogen-music/hydrogen/tree/master/src)
+ * [src](https://github.com/hydrogen-music/hydrogen/tree/main/src)
  * folder. The particular structure of this directory is meant to
  * imitate the overall design of the application. 
  *

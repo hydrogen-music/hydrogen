@@ -150,7 +150,7 @@ see [issue#677](https://github.com/hydrogen-music/hydrogen/issues/677) for furth
 ### Build Script
 
 Alternatively you could use our custom build script
-[./build.sh](https://github.com/hydrogen-music/hydrogen/blob/master/build.sh). This
+[./build.sh](https://github.com/hydrogen-music/hydrogen/blob/main/build.sh). This
 is the recommended way if you are actively developing new
 features or bug fixes for Hydrogen (all characters in squared brackets
 are optional and do not have to be included in the command).
