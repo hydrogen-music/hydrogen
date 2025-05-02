@@ -462,6 +462,9 @@ public:
 	int				getRubberBandBatchMode() const;
 	void			setRubberBandBatchMode( int val );
 
+	bool			getJackEnforceInstrumentName() const;
+	void			setJackEnforceInstrumentName( bool bEnforce );
+
 	// GUI Properties
 	bool			showInstrumentPeaks() const;
 	void			setInstrumentPeaks( bool value );
@@ -663,6 +666,12 @@ private:
 	bool				m_bSearchForRubberbandOnLoad;
 	 ///rubberband bpm change queue
 	bool				m_bUseTheRubberbandBpmChangeEvent;
+
+	/** Whether the names of the per-instrument output ports should be set
+	 * according to the instrument type of the corresponding instrument or
+	 * according to our classical name scheme include track number and
+	 * instrument name. */
+	bool				m_bJackEnforceInstrumentName;
 
 	//___ GUI properties ___
 	bool					m_bShowInstrumentPeaks;
@@ -1027,6 +1036,12 @@ inline const QStringList& Preferences::getRecentFX() const {
 	return m_recentFX;
 }
 
+inline bool Preferences::getJackEnforceInstrumentName() const {
+	return m_bJackEnforceInstrumentName;
+}
+inline void Preferences::setJackEnforceInstrumentName( bool bEnforce ) {
+	m_bJackEnforceInstrumentName = bEnforce;
+}
 
 // GUI Properties
 inline bool Preferences::showInstrumentPeaks() const {

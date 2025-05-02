@@ -139,8 +139,8 @@ void NoteTest::testMappingLegacyDrumkit() {
 	}
 
 	// Now we map them to the primary pattern.
-	pPatternMatchingTypes->mapTo( pDrumkit );
-	pPatternTypeMisses->mapTo( pDrumkit );
+	pPatternMatchingTypes->mapToDrumkit( pDrumkit );
+	pPatternTypeMisses->mapToDrumkit( pDrumkit );
 	for ( const auto& [ _, ppNote ] : *pPatternMatchingTypes->getNotes() ) {
 		CPPUNIT_ASSERT( ppNote->getInstrument() != nullptr );
 	}
@@ -154,7 +154,7 @@ void NoteTest::testMappingLegacyDrumkit() {
 	// We expect all notes to be mapped to valid IDs and contain a new
 	// instrument.
 	auto pPatternDeepCopy = std::make_shared<Pattern>(pPatternMatchingTypes);
-	pPatternDeepCopy->mapTo( pDrumkitOther, pDrumkit );
+	pPatternDeepCopy->mapToDrumkit( pDrumkitOther, pDrumkit );
 
 	// We store the notes in a vector for a better comparison.
 	std::vector< std::shared_ptr<Note> > notesOrig, notesMapped;
@@ -174,7 +174,7 @@ void NoteTest::testMappingLegacyDrumkit() {
 	}
 
 	// Map them back must yield the same notes we started from.
-	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
+	pPatternDeepCopy->mapToDrumkit( pDrumkit, pDrumkitOther );
 
 	notesMapped.clear();
 	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
@@ -196,7 +196,7 @@ void NoteTest::testMappingLegacyDrumkit() {
 	//
 	// We expect some notes to be unmapped (nullptr as m_pInstrument).
 	pPatternDeepCopy = std::make_shared<Pattern>(pPatternTypeMisses);
-	pPatternDeepCopy->mapTo( pDrumkitOther, pDrumkit );
+	pPatternDeepCopy->mapToDrumkit( pDrumkitOther, pDrumkit );
 
 	// We store the notes in a vector for a better comparison.
 	notesOrig.clear();
@@ -217,7 +217,7 @@ void NoteTest::testMappingLegacyDrumkit() {
 	}
 
 	// Map them back must yield the same notes we started from.
-	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
+	pPatternDeepCopy->mapToDrumkit( pDrumkit, pDrumkitOther );
 
 	notesMapped.clear();
 	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
@@ -273,8 +273,8 @@ void NoteTest::testMappingValidDrumkits() {
 	}
 
 	// Now we map them to the primary pattern.
-	pPatternMatchingTypes->mapTo( pDrumkit );
-	pPatternTypeMisses->mapTo( pDrumkit );
+	pPatternMatchingTypes->mapToDrumkit( pDrumkit );
+	pPatternTypeMisses->mapToDrumkit( pDrumkit );
 	for ( const auto& [ _, ppNote ] : *pPatternMatchingTypes->getNotes() ) {
 		CPPUNIT_ASSERT( ppNote->getInstrument() != nullptr );
 	}
@@ -287,7 +287,7 @@ void NoteTest::testMappingValidDrumkits() {
 	//
 	// We expect all notes to be mapped to valid IDs.
 	auto pPatternDeepCopy = std::make_shared<Pattern>(pPatternMatchingTypes);
-	pPatternDeepCopy->mapTo( pDrumkitOther, pDrumkit );
+	pPatternDeepCopy->mapToDrumkit( pDrumkitOther, pDrumkit );
 
 	// We store the notes in a vector for a better comparison.
 	std::vector< std::shared_ptr<Note> > notesOrig, notesMapped;
@@ -313,7 +313,7 @@ void NoteTest::testMappingValidDrumkits() {
 	CPPUNIT_ASSERT( bIdMismatch );
 
 	// Map them back must yield the same notes we started from.
-	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
+	pPatternDeepCopy->mapToDrumkit( pDrumkit, pDrumkitOther );
 
 	notesMapped.clear();
 	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
@@ -335,7 +335,7 @@ void NoteTest::testMappingValidDrumkits() {
 	//
 	// We expect some notes to be unmapped (nullptr as m_pInstrument).
 	pPatternDeepCopy = std::make_shared<Pattern>(pPatternTypeMisses);
-	pPatternDeepCopy->mapTo( pDrumkitOther, pDrumkit );
+	pPatternDeepCopy->mapToDrumkit( pDrumkitOther, pDrumkit );
 
 	// We store the notes in a vector for a better comparison.
 	notesOrig.clear();
@@ -360,7 +360,7 @@ void NoteTest::testMappingValidDrumkits() {
 	CPPUNIT_ASSERT( ! bAllMapped );
 
 	// Map them back must yield the same notes we started from.
-	pPatternDeepCopy->mapTo( pDrumkit, pDrumkitOther );
+	pPatternDeepCopy->mapToDrumkit( pDrumkit, pDrumkitOther );
 
 	notesMapped.clear();
 	for ( const auto& [ _, ppNote ] : *pPatternDeepCopy->getNotes() ) {
@@ -456,20 +456,22 @@ void NoteTest::testSerializeProbability() {
 	pInstruments->add( pSnare );
 	pDrumkit->setInstruments( pInstruments );
 
-	auto pIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
-	pIn->setProbability( 0.67f );
-	pIn->saveTo( node );
+	auto pNoteIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1, 1.0f );
+	pNoteIn->setProbability( 0.67f );
+	pNoteIn->saveTo( node );
 
-	auto pOut = Note::loadFrom( node );
-	pOut->mapTo( pDrumkit );
+	auto pNoteOut = Note::loadFrom( node );
+	const auto pInstrumentMapped = pDrumkit->mapInstrument(
+		pNoteOut->getType(), pNoteOut->getInstrumentId() );
+	pNoteOut->mapToInstrument( pInstrumentMapped );
 
-	CPPUNIT_ASSERT( pIn->getInstrument() == pOut->getInstrument() );
-	CPPUNIT_ASSERT_EQUAL( pIn->getPosition(), pOut->getPosition() );
-	CPPUNIT_ASSERT_EQUAL( pIn->getVelocity(), pOut->getVelocity() );
-	CPPUNIT_ASSERT_EQUAL( pIn->getPan(), pOut->getPan() );
-	CPPUNIT_ASSERT_EQUAL( pIn->getLength(), pOut->getLength() );
-	CPPUNIT_ASSERT_EQUAL( pIn->getPitch(), pOut->getPitch() );
-	CPPUNIT_ASSERT_EQUAL( pIn->getProbability(), pOut->getProbability() );
+	CPPUNIT_ASSERT( pNoteIn->getInstrument() == pNoteOut->getInstrument() );
+	CPPUNIT_ASSERT_EQUAL( pNoteIn->getPosition(), pNoteOut->getPosition() );
+	CPPUNIT_ASSERT_EQUAL( pNoteIn->getVelocity(), pNoteOut->getVelocity() );
+	CPPUNIT_ASSERT_EQUAL( pNoteIn->getPan(), pNoteOut->getPan() );
+	CPPUNIT_ASSERT_EQUAL( pNoteIn->getLength(), pNoteOut->getLength() );
+	CPPUNIT_ASSERT_EQUAL( pNoteIn->getPitch(), pNoteOut->getPitch() );
+	CPPUNIT_ASSERT_EQUAL( pNoteIn->getProbability(), pNoteOut->getProbability() );
 
 	___INFOLOG( "passed" );
 }

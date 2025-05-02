@@ -297,6 +297,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		}
 	}
 
+	renameJackPorts( pSong, m_pSong != nullptr ? m_pSong->getDrumkit() : nullptr );
+
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, m_pSong has to be set prior to the call of
@@ -890,27 +892,26 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	}
 }
 
-void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
+void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong,
+								std::shared_ptr<Drumkit> pOldDrumkit )
 {
 #ifdef H2CORE_HAVE_JACK
 	if ( pSong == nullptr ) {
 		return;
 	}
 	
-	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
-		if ( hasJackAudioDriver() ) {
+	if ( Preferences::get_instance()->m_bJackTrackOuts == true &&
+		hasJackAudioDriver() ) {
 
-			// When restarting the audio driver after loading a new song under
-			// Non session management all ports have to be registered _prior_
-			// to the activation of the client.
-			if ( isUnderSessionManagement() &&
-				 getGUIState() != Hydrogen::GUIState::ready ) {
-				return;
-			}
-			auto pAudioEngine = m_pAudioEngine;
-
-			static_cast< JackAudioDriver* >( m_pAudioEngine->getAudioDriver() )->makeTrackOutputs( pSong );
+		// When restarting the audio driver after loading a new song under
+		// Non session management all ports have to be registered _prior_
+		// to the activation of the client.
+		if ( isUnderSessionManagement() &&
+			 getGUIState() != Hydrogen::GUIState::ready ) {
+			return;
 		}
+
+		m_pAudioEngine->makeTrackPorts( pSong, pOldDrumkit );
 	}
 #endif
 }
@@ -1092,6 +1093,14 @@ void Hydrogen::killInstruments() {
 			INFOLOG( QString( "Instrument [%1] still has active notes:\n\t%2 " )
 					 .arg( pInstr->getName() )
 					 .arg( pInstr->getEnqueuedBy().join( "\n\t" ) ) );
+		}
+	}
+
+	if ( hasJackAudioDriver() ) {
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(
+			m_pAudioEngine->getAudioDriver());
+		if ( pJackAudioDriver != nullptr ) {
+			pJackAudioDriver->cleanupPerTrackPorts();
 		}
 	}
 }

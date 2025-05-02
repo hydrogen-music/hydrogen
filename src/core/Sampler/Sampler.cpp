@@ -1055,6 +1055,21 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	float buffer_L[ nBufferSize ];
 	float buffer_R[ nBufferSize ];
 
+#ifdef H2CORE_HAVE_JACK
+	float* pTrackOutL = nullptr;
+	float* pTrackOutR = nullptr;
+
+	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
+		if ( pJackAudioDriver != nullptr ) {
+			pTrackOutL = pJackAudioDriver->getTrackBuffer(
+				m_pPlaybackTrackInstrument, JackAudioDriver::Channel::Left );
+			pTrackOutR = pJackAudioDriver->getTrackBuffer(
+				m_pPlaybackTrackInstrument, JackAudioDriver::Channel::Right );
+		}
+	}
+#endif
+
 	if ( pSample->getSampleRate() == pAudioDriver->getSampleRate() ) {
 		copySample( &buffer_L[ nInitialBufferPos ], &buffer_R[ nInitialBufferPos ], pSample_data_L, pSample_data_R,
 					nBufferSize, fSamplePos, fStep, nSampleFrames );
@@ -1071,6 +1086,16 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nFinalBufferPos; ++nBufferPos ) {
 		float fVal_L = buffer_L[ nBufferPos ] * pSong->getPlaybackTrackVolume(),
 			fVal_R = buffer_R[ nBufferPos ] * pSong->getPlaybackTrackVolume();
+
+#ifdef H2CORE_HAVE_JACK
+		if ( pTrackOutL ) {
+			pTrackOutL[nBufferPos] += fVal_L;
+		}
+		if ( pTrackOutR ) {
+			pTrackOutR[nBufferPos] += fVal_R;
+		}
+#endif
+
 		fInstrPeak_L = std::max( fInstrPeak_L, fVal_L );
 		fInstrPeak_R = std::max( fInstrPeak_R, fVal_R );
 		m_pMainOut_L[nBufferPos] += fVal_L;
@@ -1224,10 +1249,10 @@ bool Sampler::renderNoteResample(
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if ( pJackAudioDriver != nullptr ) {
-			pTrackOutL = pJackAudioDriver->getTrackOut_L(
-				pInstrument, nComponentIdx );
-			pTrackOutR = pJackAudioDriver->getTrackOut_R(
-				pInstrument, nComponentIdx );
+			pTrackOutL = pJackAudioDriver->getTrackBuffer(
+				pInstrument, JackAudioDriver::Channel::Left );
+			pTrackOutR = pJackAudioDriver->getTrackBuffer(
+				pInstrument, JackAudioDriver::Channel::Right );
 		}
 	}
 #endif

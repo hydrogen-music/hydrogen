@@ -4636,6 +4636,10 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <source>Indicate effective note length</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Enforce instrument name instead of type</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

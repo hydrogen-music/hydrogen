@@ -397,7 +397,7 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		rootNode, pDrumkit->getExportName(),
 		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bSilent );
 	if ( pPatternList != nullptr ) {
-		pPatternList->mapTo( pDrumkit, nullptr );
+		pPatternList->mapToDrumkit( pDrumkit, nullptr );
 	}
 	pSong->setPatternList( pPatternList );
 

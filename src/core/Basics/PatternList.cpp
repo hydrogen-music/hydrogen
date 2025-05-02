@@ -302,10 +302,10 @@ std::shared_ptr<Pattern> PatternList::getLongestPattern( bool bIncludeVirtuals )
 	return pPattern;
 }
 
-void PatternList::mapTo( std::shared_ptr<Drumkit> pDrumkit,
+void PatternList::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 						 std::shared_ptr<Drumkit> pOldDrumkit ) {
 	for ( auto& ppPattern : m_pPatterns ) {
-		ppPattern->mapTo( pDrumkit, pOldDrumkit );
+		ppPattern->mapToDrumkit( pDrumkit, pOldDrumkit );
 	}
 }
 

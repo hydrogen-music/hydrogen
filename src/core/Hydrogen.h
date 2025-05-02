@@ -41,6 +41,7 @@
 namespace H2Core
 {
 	class AudioEngine;
+	class Drumkit;
 	class SoundLibraryDatabase;
 	class Playlist;
 
@@ -300,12 +301,8 @@ public:
 		int nInstrument, Event::Trigger trigger = Event::Trigger::Default );
 	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
-	/**
-	 * Calls audioEngine_renameJackPorts() if
-	 * Preferences::m_bJackTrackOuts is set to true.
-	 * \param pSong Handed to audioEngine_renameJackPorts().
-	 */
-	void			renameJackPorts(std::shared_ptr<Song> pSong);
+	void	renameJackPorts( std::shared_ptr<Song> pSong,
+							 std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 
 	/** Starts/stops the OSC server
 	 * \param bEnable `true` = start, `false` = stop.*/

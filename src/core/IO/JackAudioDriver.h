@@ -42,10 +42,10 @@
 
 namespace H2Core
 {
-	
-class Song;
+
+class Drumkit;
 class Instrument;
-class InstrumentComponent;
+class Song;
 class TransportPosition;
 
 /**
@@ -116,7 +116,45 @@ public:
 	};
 	static QString TimebaseToQString( const Timebase& t );
 		static Timebase TimebaseFromInt( int nState );
-	
+
+		enum class Channel {
+			Left,
+			Right
+		};
+
+		struct InstrumentPorts {
+			InstrumentPorts();
+			InstrumentPorts( const InstrumentPorts& other );
+
+			/** When switching kits/manipulating instruments we check whether
+			 * they are currently used to render a sample. If so, they are added
+			 * to the Hydrogen::m_instrumentDeathRow. This way they can live on
+			 * until all rendering using their samples is done and we avoid
+			 * audible glitches when switching kits.
+			 *
+			 * But when using per-track JACK output ports we have to ensure too,
+			 * that the ports associated with those instruments are kept open
+			 * till all rendering is done. Instruments which's ports are mapped
+			 * to the ones of another instrument will continue using those ports
+			 * (but we must not remove them since the new instruments are still
+			 * using them - Marked::ForRemoval). Instruments not having a
+			 * corresponding mapping target will keep their ports till all
+			 * rendering is done (Marked::ForDeath). See
+			 * cleanupPerTrackPorts(). */
+			enum class Marked {
+				ForDeath,
+				ForRemoval,
+				None
+			};
+
+			QString sPortNameBase;
+			jack_port_t* Left;
+			jack_port_t* Right;
+			Marked marked;
+		};
+
+		typedef std::map< std::shared_ptr<Instrument>, InstrumentPorts > PortMap;
+
 	/** 
 	 * Object holding the external client session with the JACK
 	 * server.
@@ -171,14 +209,27 @@ public:
 	 * #m_pTrackOutputPortsR.
 	 * 
 	 * @param nFrames Size of the buffers used in the audio process
-	 * callback function.
+	 *   callback function.
 	 */
 	void clearPerTrackAudioBuffers( uint32_t nFrames );
-	
 	/**
-	 * Creates per component output ports for each instrument.
+	 * Get buffer of a specific port associated with the instrument.
+	 *
+	 * \return Pointer to buffer content of type
+	 *   _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	void makeTrackOutputs( std::shared_ptr<Song> pSong );
+	float* getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
+						   Channel channel ) const;
+	/** Creates per-instrument output ports.
+	 *
+	 * In case the previous drumkit is provided as well, a more sophisticated
+	 * mapping between the instrument corresponding to the ports can be done. */
+	void makeTrackPorts( std::shared_ptr<Song> pSong,
+						 std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
+
+		/** Checks whether there are ports associated with instrument in
+		 * #Hydrogen::m_instrumentDeathRow and whether they can be torn down. */
+		void cleanupPerTrackPorts();
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {
@@ -203,50 +254,6 @@ public:
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
 	virtual float* getOut_R() override;
-	/**
-	 * Get content of left output port of a specific track.
-	 *
-	 * \param nTrack Track number. Must not be bigger than
-	 * #m_nTrackPortCount.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_L( unsigned nTrack );
-	/**
-	 * Get content of right output port of a specific track.
-	 *
-	 * \param nTrack Track number. Must not be bigger than
-	 * #m_nTrackPortCount.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_R( unsigned nTrack );
-	/** 
-	 * Convenience function looking up the track number of a component of an
-	 * instrument in #m_trackMap. Using the number it then calls
-	 * getTrackOut_L( unsigned ) and returns its result.
-	 *
-	 * \param instr Pointer to an Instrument
-	 * \param nComponentIdx Component position in component vector.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_L( std::shared_ptr<Instrument> instr, int nComponentIdx );
-	/** 
-	 * Convenience function looking up the track number of a component of an
-	 * instrument in #m_trackMap. Using the number it then calls
-	 * getTrackOut_R( unsigned ) and returns its result.
-	 *
-	 * \param instr Pointer to an Instrument
-	 * \param nComponentIdx Component position in component vector.
-	 *
-	 * \return Pointer to buffer content of type
-	 * _jack_default_audio_sample_t*_ (jack/types.h)
-	 */
-	float* getTrackOut_R( std::shared_ptr<Instrument> instr, int nComponentIdx );
 
 	/**
 	 * Initializes the JACK audio driver.
@@ -456,18 +463,8 @@ private:
 	/** Show debugging information.*/
 	void printState() const;
 
-	/**
-	 * Renames the @a n 'th port of JACK client and creates it if
-	 * it's not already present. 
-  	 *
-	 * \param n Track number for which a port should be renamed
-	 *   (and created).
-	 * \param instr Pointer to the corresponding Instrument.
-	 * \param pCompo Pointer to the corresponding
-	 *   InstrumentComponent.
-	 * \param pSong Pointer to the corresponding Song.
-	 */
-	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, std::shared_ptr<Song> pSong );
+		QString m_sClientName;
+
 	/** Main process callback. */
 	JackProcessCallback		m_processCallback;
 	/**
@@ -488,30 +485,17 @@ private:
 	 * a connection will be established in connect().
 	 */
 	QString				m_sOutputPortName2;
-	/**
-	 * Matrix containing the track number of each component of all
-	 * instruments. Its rows represent the instruments and its columns
-	 * their components. _m_trackMap[2][1]=6_ thus therefore mean the
-	 * output of the second component of the third instrument is
-	 * assigned the seventh output port. Since its total size is
-	 * defined by #MAX_INSTRUMENTS and #MAX_COMPONENTS, most of its
-	 * entries will be zero.
-	 */
-	int				m_trackMap[MAX_INSTRUMENTS][MAX_COMPONENTS];
-	/**
-	 * Total number of output ports currently in use.
-	 */
-	int				m_nTrackPortCount;
-	/**
-	 * Vector of all left audio output ports currently used by the
-	 * local JACK client.
-	 */
-	jack_port_t*			m_pTrackOutputPortsL[MAX_INSTRUMENTS];
-	/**
-	 * Vector of all right audio output ports currently used by the
-	 * local JACK client.
-	 */
-	jack_port_t*		 	m_pTrackOutputPortsR[MAX_INSTRUMENTS];
+
+		void unregisterTrackPorts( InstrumentPorts ports );
+
+		/** The left and right jack port (in that order) associated with a
+		 * channel of an instrument. */
+		PortMap m_portMap;
+
+		/** Contains the ports for the metronome and the playback track, which
+		 * do not change when e.g. switching drumkits or loading a different
+		 * song. They will stay till teardown. */
+		PortMap m_portMapStatic;
 
 	/**
 	 * Current transport state returned by

@@ -1330,6 +1330,87 @@ std::shared_ptr<DrumkitMap> Drumkit::toDrumkitMap() const {
 	return pMap;
 }
 
+std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
+													int nInstrumentId,
+													std::shared_ptr<Drumkit> pOldDrumkit,
+													DrumkitMap::Type* pNewType )
+{
+	const auto pDrumkitMap = toDrumkitMap();
+
+	if ( pNewType != nullptr ) {
+		*pNewType = QString( "" );
+	}
+
+	std::shared_ptr<Instrument> pInstrument = nullptr;
+
+	if ( ! sType.isEmpty() ) {
+		// A non-empty type can only be mapped to an instrument bearing the
+		// exact same type string. (At least automatically/in here. The user has
+		// various options e.g. to assign a note to arbitrary instruments in the
+		// pattern editor.)
+		if ( pDrumkitMap->getAllTypes().size() > 0 ) {
+			bool bFound;
+			const int nId = pDrumkitMap->getId( sType, &bFound );
+			if ( bFound ) {
+				pInstrument = m_pInstruments->find( nId );
+			}
+
+			if ( pOldDrumkit != nullptr ) {
+				// Check whether we deal with the same kit and the type of an
+				// instrument was changed. If so, we indicate this by providing
+				// the new type string.
+				//
+				// Note that this is not supposed to work for an empty type.
+				// Initial type adding and type removal has to be done
+				// explicitly.
+				const auto pOldDrumkitMap = pOldDrumkit->toDrumkitMap();
+				const int nOldId = pOldDrumkitMap->getId( sType, &bFound );
+				if ( getPath() == pOldDrumkit->getPath() &&
+					 getName() == pOldDrumkit->getName() &&
+					 bFound && nId != nOldId ) {
+					pInstrument = m_pInstruments->find( nOldId );
+					if ( pInstrument != nullptr && pNewType != nullptr &&
+						 ! pInstrument->getType().isEmpty() ) {
+						*pNewType = pInstrument->getType();
+					}
+				}
+			}
+		}
+	}
+	else {
+		// We resort to the "historical" loading using instrument IDs. This is
+		// used both for patterns created prior to version 2.0 of Hydrogen and
+		// notes added to instruments without a type (either a legacy or freshly
+		// created instrument).
+		//
+		// In case we map to a kit without or incomplete types, we try to match
+		// the behavior of Hydrogen prior to version 2.0. Back then, although
+		// itself being ID-based, notes were mapped according to the _order_ of
+		// instruments in the source kit. This was caused by the way drumkits
+		// were loaded. Instead of loading the corresponding drumkit.xml file
+		// as is, the IDs of the instruments were overwritten in such a way it
+		// matched the order of the previous kit.
+		if ( pOldDrumkit != nullptr &&
+			 pOldDrumkit->getInstruments()->find( nInstrumentId ) != nullptr ) {
+			pInstrument = m_pInstruments->get(
+				pOldDrumkit->getInstruments()->index(
+					pOldDrumkit->getInstruments()->find( nInstrumentId ) ) );
+		}
+		else {
+			pInstrument = m_pInstruments->find( nInstrumentId );
+		}
+
+		// For a clean and easy to grasp concept of the automated mapping,
+		// matching ID/order will only be mapped if the corresponding instrument
+		// does _not_ feature a type.
+		if ( pInstrument != nullptr && ! pInstrument->getType().isEmpty() ) {
+			pInstrument = nullptr;
+		}
+	}
+
+	return pInstrument;
+}
+
 bool Drumkit::hasMissingTypes() const {
 	for ( const auto& ppInstrument : *m_pInstruments ) {
 		if ( ppInstrument != nullptr && ppInstrument->getType().isEmpty() ) {

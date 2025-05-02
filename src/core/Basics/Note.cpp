@@ -27,10 +27,8 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Adsr.h>
-#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -193,97 +191,6 @@ void Note::setHumanizeDelay( int nValue )
 	if ( nValue != m_nHumanizeDelay ) {
 		m_nHumanizeDelay = nValue;
 	}
-}
-
-void Note::mapTo( std::shared_ptr<Drumkit> pDrumkit,
-				  std::shared_ptr<Drumkit> pOldDrumkit )
-{
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "Invalid drumkit" );
-		return;
-	}
-	const auto pDrumkitMap = pDrumkit->toDrumkitMap();
-
-	std::shared_ptr<Instrument> pInstrument = nullptr;
-
-	if ( ! m_sType.isEmpty() ) {
-		// In case the note features a type string, it can only be mapped to an
-		// instrument bearing the exact same type string. (At least
-		// automatically/in here. The user has various options to assign this
-		// note to arbitrary instruments in the pattern editor.)
-		if ( pDrumkitMap->getAllTypes().size() > 0 ) {
-			bool bFound;
-			const int nId = pDrumkitMap->getId( m_sType, &bFound );
-			if ( bFound ) {
-				pInstrument = pDrumkit->getInstruments()->find( nId );
-			}
-
-			if ( pOldDrumkit != nullptr ) {
-				// Check whether we deal with the same kit and the type of an
-				// instrument was changed. If so, we have to change the type of
-				// all associated notes too.
-				//
-				// Note that this is not supposed to work for an empty type.
-				// Initial type adding and type removal has to be done
-				// explicitly.
-				const auto pOldDrumkitMap = pOldDrumkit->toDrumkitMap();
-				const int nOldId = pOldDrumkitMap->getId( m_sType, &bFound );
-				if ( pDrumkit->getPath() == pOldDrumkit->getPath() &&
-					 pDrumkit->getName() == pOldDrumkit->getName() &&
-					 bFound && nId != nOldId ) {
-					pInstrument = pDrumkit->getInstruments()->find( nOldId );
-					if ( pInstrument != nullptr &&
-						 ! pInstrument->getType().isEmpty() ) {
-						m_sType = pInstrument->getType();
-					}
-				}
-			}
-		}
-	}
-	else {
-		// We resort to the "historical" loading using instrument IDs. This is
-		// used both for patterns created prior to version 2.0 of Hydrogen and
-		// notes added to instruments without a type (either a legacy or freshly
-		// created instrument).
-		//
-		// In case we map to a kit without or incomplete types, we try to match
-		// the behavior of Hydrogen prior to version 2.0. Back then, although
-		// itself being ID-based, notes were mapped according to the _order_ of
-		// instruments in the source kit. This was caused by the way drumkits
-		// were loaded. Instead of loading the corresponding drumkit.xml file
-		// as is, the IDs of the instruments were overwritten in such a way it
-		// matched the order of the previous kit.
-		if ( pOldDrumkit != nullptr &&
-			 pOldDrumkit->getInstruments()->find( m_nInstrumentId ) != nullptr ) {
-			pInstrument = pDrumkit->getInstruments()->get(
-				pOldDrumkit->getInstruments()->index(
-					pOldDrumkit->getInstruments()->find( m_nInstrumentId ) ) );
-		}
-		else {
-			pInstrument = pDrumkit->getInstruments()->find( m_nInstrumentId );
-		}
-
-		// For a clean and easy to grasp concept of the automated mapping,
-		// matching ID/order will only be mapped if the corresponding instrument
-		// does _not_ feature a type.
-		if ( pInstrument != nullptr && ! pInstrument->getType().isEmpty() ) {
-			pInstrument = nullptr;
-		}
-	}
-
-	if ( pInstrument != nullptr ) {
-		m_pInstrument = pInstrument;
-		m_pAdsr = pInstrument->copyAdsr();
-		m_nInstrumentId = pInstrument->getId();
-	}
-	else {
-		INFOLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
-				 .arg( m_sType ).arg( m_nInstrumentId ) );
-		m_pInstrument = nullptr;
-		m_pAdsr = nullptr;
-	}
-
-	m_selectedLayerInfoMap.clear();
 }
 
 void Note::setKeyOctave( const QString& str )
@@ -550,6 +457,20 @@ void Note::setSelectedLayerInfo( std::shared_ptr<SelectedLayerInfo> pInfo,
 	m_selectedLayerInfoMap[ pComponent ] = pInfo;
 }
 
+void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument ) {
+	if ( pInstrument != nullptr ) {
+		m_pInstrument = pInstrument;
+		m_pAdsr = pInstrument->copyAdsr();
+		m_nInstrumentId = pInstrument->getId();
+	}
+	else {
+		m_pInstrument = nullptr;
+		m_pAdsr = nullptr;
+		// The instrument ID will be kept to avoid any loss of information.
+	}
+
+	m_selectedLayerInfoMap.clear();
+}
 
 float Note::getTotalPitch() const
 {

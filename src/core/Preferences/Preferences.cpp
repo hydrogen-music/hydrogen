@@ -128,6 +128,7 @@ Preferences::Preferences()
 	, m_nJackTransportMode( USE_JACK_TRANSPORT )
 	, m_bJackConnectDefaults( true )
 	, m_bJackTrackOuts( false )
+	, m_bJackEnforceInstrumentName( false )
 	, m_JackTrackOutputMode( JackTrackOutputMode::postFader )
 	, m_bJackTimebaseEnabled( false )
 	, m_bJackTimebaseMode( NO_JACK_TIMEBASE_CONTROL )
@@ -309,6 +310,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nJackTransportMode( pOther->m_nJackTransportMode )
 	, m_bJackConnectDefaults( pOther->m_bJackConnectDefaults )
 	, m_bJackTrackOuts( pOther->m_bJackTrackOuts )
+	, m_bJackEnforceInstrumentName( pOther->m_bJackEnforceInstrumentName )
 	, m_JackTrackOutputMode( pOther->m_JackTrackOutputMode )
 	, m_bJackTimebaseEnabled( pOther->m_bJackTimebaseEnabled )
 	, m_bJackTimebaseMode( pOther->m_bJackTimebaseMode )
@@ -658,6 +660,9 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 
 			pPref->m_bJackTrackOuts = jackDriverNode.read_bool(
 				"jack_track_outs", pPref->m_bJackTrackOuts, false, false, bSilent );
+			pPref->m_bJackEnforceInstrumentName = jackDriverNode.read_bool(
+				"jack_enforce_instrument_name", pPref->m_bJackEnforceInstrumentName,
+				true, false, bSilent );
 			pPref->m_bJackConnectDefaults = jackDriverNode.read_bool(
 				"jack_connect_defaults",
 				pPref->m_bJackConnectDefaults, false, false, bSilent );
@@ -1217,7 +1222,9 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 
 			// jack track outs
 			jackDriverNode.write_bool( "jack_track_outs", m_bJackTrackOuts );
-		}
+			jackDriverNode.write_bool(
+				"jack_enforce_instrument_name", m_bJackEnforceInstrumentName );
+}
 
 		//// ALSA AUDIO DRIVER ////
 		XMLNode alsaAudioDriverNode = audioEngineNode.createNode( "alsa_audio_driver" );
@@ -1737,6 +1744,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bJackConnectDefaults ) )
 			.append( QString( "%1%2m_bJackTrackOuts: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bJackTrackOuts ) )
+			.append( QString( "%1%2m_bJackEnforceInstrumentName: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bJackEnforceInstrumentName ) )
 			.append( QString( "%1%2m_JackTrackOutputMode: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( static_cast<int>(m_JackTrackOutputMode) ) )
 			.append( QString( "%1%2m_bJackTimebaseEnabled: %3\n" ).arg( sPrefix )
@@ -1983,6 +1992,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bJackConnectDefaults ) )
 			.append( QString( ", m_bJackTrackOuts: %1" )
 					 .arg( m_bJackTrackOuts ) )
+			.append( QString( ", m_bJackEnforceInstrumentName: %1" )
+					 .arg( m_bJackEnforceInstrumentName ) )
 			.append( QString( ", m_JackTrackOutputMode: %1" )
 					 .arg( static_cast<int>(m_JackTrackOutputMode) ) )
 			.append( QString( ", m_bJackTimebaseEnabled: %1" )

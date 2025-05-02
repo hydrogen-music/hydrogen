@@ -176,8 +176,8 @@ class XMLNode;
 		int longestPatternLength( bool bIncludeVirtuals = true ) const;
 		std::shared_ptr<Pattern> getLongestPattern( bool bIncludeVirtuals = true ) const;
 
-		void mapTo( std::shared_ptr<Drumkit> pDrumkit,
-					std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
+		void mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
+						   std::shared_ptr<Drumkit> pOldDrumkit = nullptr );
 		std::set<DrumkitMap::Type> getAllTypes() const;
 		std::vector<std::shared_ptr<Note>> getAllNotesOfType(
 			const DrumkitMap::Type& sType ) const;

@@ -516,8 +516,8 @@ void Pattern::applyMissingTypes( std::shared_ptr<Drumkit> pDrumkit,
 	}
 }
 
-void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit,
-					 std::shared_ptr<Drumkit> pOldDrumkit ) {
+void Pattern::mapToDrumkit( std::shared_ptr<Drumkit> pDrumkit,
+							std::shared_ptr<Drumkit> pOldDrumkit ) {
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid drumkit" );
 		return;
@@ -525,9 +525,25 @@ void Pattern::mapTo( std::shared_ptr<Drumkit> pDrumkit,
 
 	m_sDrumkitName = pDrumkit->getName();
 
+	std::shared_ptr<Instrument> ppInstrument;
+	DrumkitMap::Type sNewType;
 	for ( auto& [ _, ppNote ] : m_notes ) {
 		if ( ppNote != nullptr ) {
-			ppNote->mapTo( pDrumkit, pOldDrumkit );
+			ppInstrument = pDrumkit->mapInstrument(
+				ppNote->getType(), ppNote->getInstrumentId(), pOldDrumkit,
+				&sNewType );
+			if ( ppInstrument == nullptr ) {
+				INFOLOG( QString( "No instrument was found for type [%1] and ID [%2]." )
+						 .arg( ppNote->getType() )
+						 .arg( ppNote->getInstrumentId() ) );
+			}
+
+			if ( ! sNewType.isEmpty() ) {
+				// The instrument type of the note was altered
+				ppNote->setType( sNewType );
+			}
+
+			ppNote->mapToInstrument( ppInstrument );
 		}
 	}
 }
