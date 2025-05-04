@@ -543,13 +543,14 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		// We switched from one drumkit to another. Let's harness the same
 		// instrument mapping used for notes was well.
 		std::shared_ptr<Instrument> pMapped;
-		DrumkitMap::Type sMappedName;
+		std::list< std::pair< std::shared_ptr<Instrument>,
+							  InstrumentPorts > > newPorts;
 		for ( auto& [ ppInstrument, pports ] : m_portMap ) {
 			if ( ppInstrument != nullptr ) {
 				pMapped = pDrumkit->mapInstrument(
 					ppInstrument->getType(), ppInstrument->getId(), pOldDrumkit );
 				if ( pMapped != nullptr ) {
-					m_portMap[ pMapped ] = InstrumentPorts( pports );
+					newPorts.push_back( { pMapped, InstrumentPorts( pports ) } );
 
 					if ( pMapped != ppInstrument ) {
 						// In case we deal with the same instrument, there is no
@@ -557,20 +558,6 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 						pports.marked = InstrumentPorts::Marked::ForRemoval;
 					}
 
-					sMappedName = portNameFrom( pMapped, m_portMap );
-					if ( m_portMap[ pMapped ].sPortNameBase != sMappedName ) {
-						m_portMap[ pMapped ].sPortNameBase = sMappedName;
-						if ( m_portMap[ pMapped ].Left != nullptr ) {
-							jack_port_rename(
-								m_pClient, m_portMap[ pMapped ].Left,
-								QString( "%1_L" ).arg( sMappedName ).toLocal8Bit() );
-						}
-						if ( m_portMap[ pMapped ].Right != nullptr ) {
-							jack_port_rename(
-								m_pClient, m_portMap[ pMapped ].Right,
-								QString( "%1_R" ).arg( sMappedName ).toLocal8Bit() );
-						}
-					}
 				}
 				else {
 					pports.marked = InstrumentPorts::Marked::ForDeath;
@@ -580,6 +567,28 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				pports.marked = InstrumentPorts::Marked::ForDeath;
 			}
 		}
+
+		DrumkitMap::Type sMappedName;
+		for ( const auto& [ ppInstrument, pports ] : newPorts ) {
+			m_portMap[ ppInstrument ] = pports;
+
+			sMappedName = portNameFrom( ppInstrument, m_portMap );
+			if ( m_portMap[ ppInstrument ].sPortNameBase != sMappedName ) {
+				m_portMap[ ppInstrument ].sPortNameBase = sMappedName;
+				if ( m_portMap[ ppInstrument ].Left != nullptr ) {
+					jack_port_rename(
+						m_pClient, m_portMap[ ppInstrument ].Left,
+						QString( "%1_L" ).arg( sMappedName ).toLocal8Bit() );
+				}
+				if ( m_portMap[ ppInstrument ].Right != nullptr ) {
+					jack_port_rename(
+						m_pClient, m_portMap[ ppInstrument ].Right,
+						QString( "%1_R" ).arg( sMappedName ).toLocal8Bit() );
+				}
+			}
+		}
+	}
+
 	}
 
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
