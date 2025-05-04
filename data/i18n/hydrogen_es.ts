@@ -1399,6 +1399,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Save song</source>
         <translation>Guardar canción</translation>
     </message>
+    <message>
+        <source>Editing type of instrument</source>
+        <extracomment>Representing a altering of an instrument type in the undo history and * context menu.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
