@@ -1001,16 +1001,19 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 						 .arg( sOldName ).arg( sName ) );
 				break;
 			case Type::AddLayer:
-				setText( QString( "%1 [%2]" )
+				setText( QString( "%1 [%2]: [%3]" )
 						 .arg( pCommonStrings->getActionAddInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
 						 .arg( sName ) );
 			case Type::DeleteLayer:
-				setText( QString( "%1 [%2]" )
+				setText( QString( "%1 [%2]: [%3]" )
 						 .arg( pCommonStrings->getActionDeleteInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
 						 .arg( sName ) );
 			case Type::EditLayer:
-				setText( QString( "%1 [%2]" )
+				setText( QString( "%1 [%2]: [%3]" )
 						 .arg( pCommonStrings->getActionEditInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
 						 .arg( sName ) );
 				break;
 			default:
