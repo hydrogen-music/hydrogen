@@ -888,7 +888,7 @@ void ComponentView::loadLayerBtnClicked() {
 		return;
 	}
 
-	auto pInstrument = pHydrogenApp->getInstrumentRack()->
+	const auto pInstrument = pHydrogenApp->getInstrumentRack()->
 		getInstrumentEditorPanel()->getInstrument();
 	bool bRenameInstrument = false;
 	if ( filename[0] == "true" ){
@@ -896,6 +896,15 @@ void ComponentView::loadLayerBtnClicked() {
 	}
 	QString sNewInstrumentName;
 
+	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+	auto pNewComponent = pNewInstrument->getComponent(
+		pInstrument->index( m_pComponent ) );
+	if ( pNewComponent == nullptr ) {
+		ERRORLOG( "Hiccup while looking up component" );
+		return;
+	}
+
+	QStringList newLayersPaths;
 	int nLastInsertedLayer = m_nSelectedLayer;
 	if ( filename.size() > 2 ) {
 		for ( int ii = 2; ii < filename.size(); ++ii ) {
@@ -906,12 +915,13 @@ void ComponentView::loadLayerBtnClicked() {
 			}
 
 			auto pNewSample = Sample::load( filename[ii] );
+			newLayersPaths << filename[ ii ];
 
 			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 			// If we're using multiple layers, we start inserting the first
 			// layer at nSelectedLayer and the next layer at nSelectedLayer + 1.
-			auto pLayer = m_pComponent->getLayer( nnLayer );
+			auto pLayer = pNewComponent->getLayer( nnLayer );
 			if ( pLayer != nullptr ) {
 				// insert new sample from newInstrument, old sample gets deleted
 				// by setSample
@@ -919,7 +929,7 @@ void ComponentView::loadLayerBtnClicked() {
 			}
 			else {
 				pLayer = std::make_shared<H2Core::InstrumentLayer>( pNewSample );
-				m_pComponent->setLayer( pLayer, nnLayer );
+				pNewComponent->setLayer( pLayer, nnLayer );
 			}
 			nLastInsertedLayer = nnLayer;
 
@@ -946,20 +956,19 @@ void ComponentView::loadLayerBtnClicked() {
 	// The user choose to rename the instrument according to the (last) filename
 	// of the selected sample.
 	if ( bRenameInstrument && ! sNewInstrumentName.isEmpty() ) {
-		auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 		pNewInstrument->setName( sNewInstrumentName );
-
-		pHydrogenApp->pushUndoCommand(
-			new SE_replaceInstrumentAction(
-				pNewInstrument, pInstrument,
-				SE_replaceInstrumentAction::Type::RenameInstrument,
-				sNewInstrumentName, pInstrument->getName() ) );
 
 		pHydrogenApp->showStatusBarMessage(
 			QString( "%1 [%2] -> [%3]" )
 			.arg( pHydrogenApp->getCommonStrings()->getActionRenameInstrument() )
 			.arg( pInstrument->getName() ).arg( sNewInstrumentName ) );
 	}
+
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::AddLayer,
+			newLayersPaths.join( " " ) ) );
 }
 
 void ComponentView::setAutoVelocity() {
