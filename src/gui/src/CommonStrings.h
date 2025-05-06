@@ -261,6 +261,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
 		const QString& getActionDeleteComponent() const { return m_sActionDeleteComponent; }
 		const QString& getActionRenameComponent() const { return m_sActionRenameComponent; }
+		const QString& getActionAddInstrumentLayer() const {
+			return m_sActionAddInstrumentLayer; }
+		const QString& getActionDeleteInstrumentLayer() const {
+			return m_sActionDeleteInstrumentLayer; }
+		const QString& getActionEditInstrumentLayer() const {
+			return m_sActionEditInstrumentLayer; }
 
 		const QString& getActionClearAllNotesInRow() const {
 			return m_sActionClearAllNotesInRow; }
@@ -540,6 +546,9 @@ private:
 		QString m_sActionAddComponent;
 		QString m_sActionDeleteComponent;
 		QString m_sActionRenameComponent;
+		QString m_sActionAddInstrumentLayer;
+		QString m_sActionDeleteInstrumentLayer;
+		QString m_sActionEditInstrumentLayer;
 
 		QString m_sActionClearAllNotesInRow;
 		QString m_sActionClearAllNotes;

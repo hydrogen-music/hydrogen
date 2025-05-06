@@ -615,6 +615,15 @@ CommonStrings::CommonStrings(){
 	/*: Representing renaming a component of the currently selected instrument
 	 * in the undo history */
 	m_sActionRenameComponent = tr( "Rename component" );
+	/*: Representing adding an instrument layer in the undo history. Both the
+	 *  name of the layer and the corresponding instrument will be appended. */
+	m_sActionAddInstrumentLayer = tr( "Add layer" );
+	/*: Representing deleting an instrument layer in the undo history. Both the
+	 *  name of the layer and the corresponding instrument will be appended. */
+	m_sActionDeleteInstrumentLayer = tr( "Delete layer" );
+	/*: Representing editing an instrument layer in the undo history. Both the
+	 *  name of the layer and the corresponding instrument will be appended. */
+	m_sActionEditInstrumentLayer = tr( "Edit layer" );
 
 	/*: Representing deleting all notes of a specific row in the pattern editor
 	 * in the undo history (the number of the row will be append) as well as in
