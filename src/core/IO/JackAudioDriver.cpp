@@ -589,8 +589,6 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		}
 	}
 
-	}
-
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
 		if ( ppInstrument == nullptr ||
 			 m_portMap.find( ppInstrument ) != m_portMap.end() ) {
