@@ -466,6 +466,51 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		}
 		return false;
 	};
+
+	// Truncate name to maximum allowed number of characters. According to
+	// the JACK API documentation this includes the prefix "<CLIENT_NAME>:"
+	// as well.
+	auto makePortNameUnique = [=]( const QString& sNameBase, PortMap portMap,
+								   std::shared_ptr<Instrument> pInstrumentToExclude =
+								   nullptr ) {
+		// "_L" or "_R" indicating the particular stereo channel
+		const int nSuffix = 2;
+		// Separator ":" between client name and port name
+		const int nSeparator = 1;
+		const int nMaxCharacters = jack_port_name_size() - nSuffix - nSeparator -
+			m_sClientName.size();
+
+		QString sName( sNameBase );
+		if ( sNameBase.size() > nMaxCharacters ) {
+			sName = sName.left( nMaxCharacters );
+		}
+
+		// Ensure uniqueness. Since the type must be unique and the classic
+		// version includes the instrument's index, the string should already be
+		// unique. But let's be check nevertheless.
+		const int nMaxTries = 100;
+		int nnTry = 1;
+		while ( portNameContained( sName, portMap, pInstrumentToExclude ) ) {
+			if ( sName.size() < nMaxCharacters ) {
+				sName = QString( "%1 (%2)" ).arg( sName ).arg( nnTry );
+			}
+			else {
+				// Account for the additional suffix.
+				sName = QString( "%1 (%2)" )
+					.arg( sName.left( nMaxCharacters - 3 - nnTry ) ).arg( nnTry );
+			}
+
+			++nnTry;
+			if ( nnTry > nMaxTries ) {
+				ERRORLOG( QString( "Could not find an unique port name. Using [%2] instead." )
+						  .arg( sName ) );
+				break;
+			}
+		}
+
+		return sName;
+	};
+
 	// When deriving the port name for an instrument the map it will be added to
 	// has to provided as well because we must ensure all port names are unique.
 	auto portNameFrom = [=]( std::shared_ptr<Instrument> pInstrument,
@@ -497,49 +542,13 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				.arg( pInstrument->getName() );
 		}
 
-		// Truncate name to maximum allowed number of characters. According to
-		// the JACK API documentation this includes the prefix "<CLIENT_NAME>:"
-		// as well.
-		//
-		// "_L" or "_R" indicating the particular stereo channel
-		const int nSuffix = 2;
-		// Separator ":" between client name and port name
-		const int nSeparator = 1;
-		const int nMaxCharacters = jack_port_name_size() - nSuffix - nSeparator -
-			m_sClientName.size();
-
-		if ( sNameBase.size() > nMaxCharacters ) {
-			sNameBase = sNameBase.left( nMaxCharacters );
-		}
-
-		// Ensure uniqueness. Since the type must be unique and the classic
-		// version includes the instrument's index, the string should already be
-		// unique. But let's be check nevertheless.
-		const int nMaxTries = 100;
-		int nnTry = 1;
-		QString sName( sNameBase );
-		while ( portNameContained( sName, portMap, pInstrument ) ) {
-			if ( sName.size() < nMaxCharacters ) {
-				sName = QString( "%1 (%2)" ).arg( sName ).arg( nnTry );
-			}
-			else {
-				// Account for the additional suffix.
-				sName = QString( "%1 (%2)" )
-					.arg( sName.left( nMaxCharacters - 3 - nnTry ) ).arg( nnTry );
-			}
-
-			++nnTry;
-			if ( nnTry > nMaxTries ) {
-				ERRORLOG( QString( "Could not find an unique port name for instrument [%1]. Using [%2] instead." )
-						  .arg( pInstrument->getName() ).arg( sName ) );
-				break;
-			}
-		}
-
+		const auto sName = makePortNameUnique( sNameBase, portMap, pInstrument );
 		return sName;
 	};
 
 	if ( m_portMap.size() > 0 ) {
+		const QString sDeathRowSuffix = "_removed";
+
 		// We switched from one drumkit to another. Let's harness the same
 		// instrument mapping used for notes was well.
 		std::shared_ptr<Instrument> pMapped;
@@ -565,6 +574,27 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 			}
 			else {
 				pports.marked = InstrumentPorts::Marked::ForDeath;
+			}
+
+			if ( pports.marked == InstrumentPorts::Marked::ForDeath ) {
+				// We rename ports marked for removal to both indicate what is
+				// happening to them and to ensure their names do not conflict
+				// with the kit loaded next.
+				pports.sPortNameBase = makePortNameUnique(
+					QString( "%1%2" ).arg( pports.sPortNameBase )
+					.arg( sDeathRowSuffix ), m_portMap, ppInstrument );
+				if ( pports.Left != nullptr ) {
+					jack_port_rename(
+						m_pClient, pports.Left,
+						QString( "%1_L" ).arg( pports.sPortNameBase )
+						.toLocal8Bit() );
+				}
+				if ( pports.Right != nullptr ) {
+					jack_port_rename(
+						m_pClient, pports.Right,
+						QString( "%1_R" ).arg( pports.sPortNameBase )
+						.toLocal8Bit() );
+				}
 			}
 		}
 
