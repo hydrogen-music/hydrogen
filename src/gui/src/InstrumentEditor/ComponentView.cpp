@@ -800,10 +800,30 @@ void ComponentView::removeLayerButtonClicked() {
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
+	const auto pInstrument = pHydrogenApp->getInstrumentRack()->
+		getInstrumentEditorPanel()->getInstrument();
+	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
+	auto pNewComponent = pNewInstrument->getComponent(
+		pInstrument->index( m_pComponent ) );
+	if ( pNewComponent == nullptr ) {
+		ERRORLOG( "Hiccup while looking up component" );
+		return;
+	}
+
+	auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+	if ( pLayer == nullptr ) {
+		// Nothing to remove
+		return;
+	}
+	const QString sLayerName = pLayer->getSample() != nullptr ?
+		pLayer->getSample()->getFilename() : "nullptr";
+
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	m_pComponent->setLayer( nullptr, m_nSelectedLayer );
+	pNewComponent->setLayer( nullptr, m_nSelectedLayer );
 
 	pHydrogen->getAudioEngine()->unlock();
 
@@ -828,6 +848,11 @@ void ComponentView::removeLayerButtonClicked() {
 
 	setSelectedLayer( nCount );
 	updateView();
+
+	pHydrogenApp->pushUndoCommand(
+		new SE_replaceInstrumentAction(
+			pNewInstrument, pInstrument,
+			SE_replaceInstrumentAction::Type::DeleteLayer, sLayerName ) );
 }
 
 void ComponentView::loadLayerBtnClicked() {
