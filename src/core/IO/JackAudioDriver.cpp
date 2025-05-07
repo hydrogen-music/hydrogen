@@ -378,6 +378,9 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		return;
 	}
 
+	// Clean up all ports not required anymore.
+	cleanupPerTrackPorts();
+
 	auto createPorts = [=]( std::shared_ptr<Instrument> pInstrument,
 						   const QString& sPortName, bool* pError ) {
 		InstrumentPorts ports;
