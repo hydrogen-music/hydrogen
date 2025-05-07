@@ -124,6 +124,7 @@ All notable changes to this project will be documented in this file.
   - The "Layers" tab was replaced by a "Components" one containing collapsible
     versions of the previous view for all components.
   - Both components and layers can now be muted and soloed.
+  - Adding, deleting, and replacing of layers can be undone.
 - JACK per-track output ports are now mapped on drumkit switch or manipulation
   on instrument with same type. Ports of instruments without type aren't mapped
   at all (same as for notes) (#1071).
