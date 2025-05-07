@@ -514,6 +514,19 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		return sName;
 	};
 
+	auto renamePorts = [=]( InstrumentPorts ports ) {
+		if ( ports.Left != nullptr ) {
+			jack_port_rename(
+				m_pClient, ports.Left,
+				QString( "%1_L" ).arg( ports.sPortNameBase ).toLocal8Bit() );
+		}
+		if ( ports.Right != nullptr ) {
+			jack_port_rename(
+				m_pClient, ports.Right,
+				QString( "%1_R" ).arg( ports.sPortNameBase ).toLocal8Bit() );
+		}
+	};
+
 	// When deriving the port name for an instrument the map it will be added to
 	// has to provided as well because we must ensure all port names are unique.
 	auto portNameFrom = [=]( std::shared_ptr<Instrument> pInstrument,
@@ -558,6 +571,11 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		std::list< std::pair< std::shared_ptr<Instrument>,
 							  InstrumentPorts > > newPorts;
 		for ( auto& [ ppInstrument, pports ] : m_portMap ) {
+			if ( pports.marked != InstrumentPorts::Marked::None ) {
+				// These ports had only been kept for fading out audio. They
+				// should not be carried over to the next configuration.
+				continue;
+			}
 			if ( ppInstrument != nullptr ) {
 				pMapped = pDrumkit->mapInstrument(
 					ppInstrument->getType(), ppInstrument->getId(), pOldDrumkit );
@@ -586,18 +604,7 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				pports.sPortNameBase = makePortNameUnique(
 					QString( "%1%2" ).arg( pports.sPortNameBase )
 					.arg( sDeathRowSuffix ), m_portMap, ppInstrument );
-				if ( pports.Left != nullptr ) {
-					jack_port_rename(
-						m_pClient, pports.Left,
-						QString( "%1_L" ).arg( pports.sPortNameBase )
-						.toLocal8Bit() );
-				}
-				if ( pports.Right != nullptr ) {
-					jack_port_rename(
-						m_pClient, pports.Right,
-						QString( "%1_R" ).arg( pports.sPortNameBase )
-						.toLocal8Bit() );
-				}
+				renamePorts( pports );
 			}
 		}
 
@@ -608,34 +615,41 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 			sMappedName = portNameFrom( ppInstrument, m_portMap );
 			if ( m_portMap[ ppInstrument ].sPortNameBase != sMappedName ) {
 				m_portMap[ ppInstrument ].sPortNameBase = sMappedName;
-				if ( m_portMap[ ppInstrument ].Left != nullptr ) {
-					jack_port_rename(
-						m_pClient, m_portMap[ ppInstrument ].Left,
-						QString( "%1_L" ).arg( sMappedName ).toLocal8Bit() );
-				}
-				if ( m_portMap[ ppInstrument ].Right != nullptr ) {
-					jack_port_rename(
-						m_pClient, m_portMap[ ppInstrument ].Right,
-						QString( "%1_R" ).arg( sMappedName ).toLocal8Bit() );
-				}
+				renamePorts( m_portMap[ ppInstrument ] );
 			}
 		}
 	}
 
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
-		if ( ppInstrument == nullptr ||
-			 m_portMap.find( ppInstrument ) != m_portMap.end() ) {
-			// Already added during the previous mapping step.
+		if ( ppInstrument == nullptr ) {
 			continue;
 		}
 
-		// No matching port found. Register a new ones.
-		auto ports = createPorts(
-			ppInstrument, portNameFrom( ppInstrument, m_portMap ), &bError );
-		if ( ! bError ) {
-			m_portMap[ ppInstrument ] = ports;
-		} else {
-			bErrorEncountered = true;
+		if ( m_portMap.find( ppInstrument ) != m_portMap.end() ) {
+			// Already added during the previous mapping step or already present
+			// in the death row.
+			auto ports = m_portMap[ ppInstrument ];
+			if ( ports.marked != InstrumentPorts::Marked::None ) {
+				// The instrument is already associated with ports in the death
+				// row. This can happen for particular long samples when e.g.
+				// deleting an instrument or switching a kit and undoing the
+				// action shortly after. We will remove the ports from the death
+				// row and reuse it.
+				ports.marked = InstrumentPorts::Marked::None;
+				ports.sPortNameBase = portNameFrom( ppInstrument, m_portMap );
+				renamePorts( ports );
+				m_portMap[ ppInstrument ] = ports;
+			}
+		}
+		else {
+			// No matching port found. Register a new ones.
+			auto ports = createPorts(
+				ppInstrument, portNameFrom( ppInstrument, m_portMap ), &bError );
+			if ( ! bError ) {
+				m_portMap[ ppInstrument ] = ports;
+			} else {
+				bErrorEncountered = true;
+			}
 		}
 	}
 
