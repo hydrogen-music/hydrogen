@@ -120,7 +120,8 @@ void* loggerThread_func( void* param ) {
 }
 
 Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
-						   bool bUseStdout, bool bLogTimestamps ) {
+						   bool bUseStdout, bool bLogTimestamps,
+						   bool bLogColors ) {
 	Logger::set_bit_mask( msk );
 
 	// When starting Hydrogen after a fresh install with no user-level .hydrogen
@@ -139,30 +140,37 @@ Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
 		Filesystem::mkdir( dir.absolutePath() );
 	}
 
-	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps );
+	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps,
+									bLogColors );
 }
 
 Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
-								 bool bLogTimestamps ) {
-	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout,
-														  bLogTimestamps );
+								 bool bLogTimestamps, bool bLogColors ) {
+	if ( __instance == nullptr ) {
+		__instance = new Logger(
+		sLogFilePath, bUseStdout, bLogTimestamps, bLogColors );
+	}
 	return __instance;
 }
 
-Logger::Logger( const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamps ) :
-	__running( true ),
-	m_sLogFilePath( sLogFilePath ),
-	m_bUseStdout( bUseStdout ),
-	m_bLogTimestamps( bLogTimestamps ) {
+Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
+				bool bLogTimestamps, bool bLogColors )
+	: __running( true )
+	, m_sLogFilePath( sLogFilePath )
+	, m_bUseStdout( bUseStdout )
+	, m_bLogTimestamps( bLogTimestamps )
+	, m_bLogColors( bLogColors ) {
 	__instance = this;
 
 	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
-#ifdef WIN32
-	m_colorList << "" << "" << "" << "" << "" << "" << "";
-#else
-	m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
-				<< "\033[35;1m" << "\033[35;1m";
-#endif
+
+	if ( ! m_bLogColors ) {
+		m_colorList << "" << "" << "" << "" << "" << "" << "";
+	}
+	else {
+		m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
+					<< "\033[35;1m" << "\033[35;1m";
+	}
 
 	// Sanity checks.
 	QFileInfo fiLogFile( m_sLogFilePath );

@@ -69,6 +69,7 @@ class Parser {
 			return m_sLogFile; }
 		bool getLogTimestamps() const {
 			return m_bLogTimestamps; }
+		bool getLogColors() const {return m_bLogColors; }
 
 		const QString& getSysDataPath() const {
 			return m_sSysDataPath; }
@@ -98,6 +99,7 @@ class Parser {
 		unsigned m_logLevel;
 		QString  m_sLogFile;
 		bool     m_bLogTimestamps;
+		bool     m_bLogColors;
 
 		QString  m_sSysDataPath;
 		QString  m_sConfigFilePath;
