@@ -960,7 +960,14 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 			/** This could definitely be done more efficiently. But compared to
 			 * altering other instrument parameters, its name will most probably
 			 * only change very rarely. */
-			RenameInstrument = 3
+			RenameInstrument = 3,
+			/** At least one layer of one component was added. */
+			AddLayer,
+			/** At least one layer of one component was deleted. */
+			DeleteLayer,
+			/** At least one layer of one component was editing via the
+			 * SampleEditor. */
+			EditLayer
 		};
 
 		SE_replaceInstrumentAction( std::shared_ptr<H2Core::Instrument> pNew,
@@ -992,6 +999,22 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 				setText( QString( "%1 [%2] -> [%3]" )
 						 .arg( pCommonStrings->getActionRenameInstrument() )
 						 .arg( sOldName ).arg( sName ) );
+				break;
+			case Type::AddLayer:
+				setText( QString( "%1 [%2]: [%3]" )
+						 .arg( pCommonStrings->getActionAddInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						 .arg( sName ) );
+			case Type::DeleteLayer:
+				setText( QString( "%1 [%2]: [%3]" )
+						 .arg( pCommonStrings->getActionDeleteInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						 .arg( sName ) );
+			case Type::EditLayer:
+				setText( QString( "%1 [%2]: [%3]" )
+						 .arg( pCommonStrings->getActionEditInstrumentLayer() )
+						 .arg( pNew != nullptr ? pNew->getName() : "nullptr" )
+						 .arg( sName ) );
 				break;
 			default:
 				___ERRORLOG( QString( "Unknown type [%1]" )
@@ -1037,6 +1060,38 @@ class SE_renameComponentAction : public QUndoCommand {
 		QString m_sNewName;
 		QString m_sOldName;
 		int m_nComponentId;
+};
+
+/** \ingroup docGUI*/
+class SE_setInstrumentTypeAction : public QUndoCommand
+{
+public:
+	SE_setInstrumentTypeAction( int nInstrumentId,
+								const H2Core::DrumkitMap::Type& sNewType,
+								const H2Core::DrumkitMap::Type& sOldType,
+								const QString& sInstrumentName )
+		: m_nInstrumentId( nInstrumentId )
+		, m_sNewType( sNewType )
+		, m_sOldType( sOldType ) {
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		setText( QString( "%1 [%2]: [%3] -> [%4]" )
+				 .arg( pCommonStrings->getActionSetInstrumentType() )
+				 .arg( sInstrumentName ).arg( sOldType ).arg( sNewType ) );
+	}
+	~SE_setInstrumentTypeAction(){}
+
+	virtual void undo() {
+		H2Core::CoreActionController::setInstrumentType(
+			m_nInstrumentId, m_sOldType );
+	}
+	virtual void redo() {
+		H2Core::CoreActionController::setInstrumentType(
+			m_nInstrumentId, m_sNewType );
+	}
+	private:
+		int m_nInstrumentId;
+		H2Core::DrumkitMap::Type m_sNewType;
+		H2Core::DrumkitMap::Type m_sOldType;
 };
 
 /** \ingroup docGUI*/

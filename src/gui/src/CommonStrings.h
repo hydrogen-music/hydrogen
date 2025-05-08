@@ -247,6 +247,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionDropInstrument() const { return m_sActionDropInstrument; }
 		const QString& getActionRenameInstrument() const { return m_sActionRenameInstrument; }
 		const QString& getActionMoveInstrument() const { return m_sActionMoveInstrument; }
+		const QString& getActionSetInstrumentType() const {
+			return m_sActionSetInstrumentType; }
 		const QString& getActionSwitchDrumkit() const { return m_sActionSwitchDrumkit; }
 		const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
 		const QString& getActionLoadDrumkit() const {
@@ -259,6 +261,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionAddComponent() const { return m_sActionAddComponent; }
 		const QString& getActionDeleteComponent() const { return m_sActionDeleteComponent; }
 		const QString& getActionRenameComponent() const { return m_sActionRenameComponent; }
+		const QString& getActionAddInstrumentLayer() const {
+			return m_sActionAddInstrumentLayer; }
+		const QString& getActionDeleteInstrumentLayer() const {
+			return m_sActionDeleteInstrumentLayer; }
+		const QString& getActionEditInstrumentLayer() const {
+			return m_sActionEditInstrumentLayer; }
 
 		const QString& getActionClearAllNotesInRow() const {
 			return m_sActionClearAllNotesInRow; }
@@ -528,6 +536,7 @@ private:
 		QString m_sActionDropInstrument;
 		QString m_sActionRenameInstrument;
 		QString m_sActionMoveInstrument;
+		QString m_sActionSetInstrumentType;
 		QString m_sActionSwitchDrumkit;
 		QString m_sActionNewDrumkit;
 		QString m_sActionLoadDrumkit;
@@ -537,6 +546,9 @@ private:
 		QString m_sActionAddComponent;
 		QString m_sActionDeleteComponent;
 		QString m_sActionRenameComponent;
+		QString m_sActionAddInstrumentLayer;
+		QString m_sActionDeleteInstrumentLayer;
+		QString m_sActionEditInstrumentLayer;
 
 		QString m_sActionClearAllNotesInRow;
 		QString m_sActionClearAllNotes;

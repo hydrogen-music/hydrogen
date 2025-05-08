@@ -151,6 +151,9 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
+	m_pDummyPreviewInstrument = std::make_shared<Instrument>( EMPTY_INSTR_ID );
+	m_pDummyPreviewInstrument->setName( "DummyPreviewInstrument" );
+	m_pDummyPreviewInstrument->setIsPreviewInstrument( true );
 
 	// Destination ports the output of Hydrogen will be connected
 	// to.
@@ -340,13 +343,16 @@ float* JackAudioDriver::getTrackBuffer( std::shared_ptr<Instrument> pInstrument,
 
 		ports = m_portMapStatic.at( pInstrument );
 	}
-	else {
-		if ( m_portMap.find( pInstrument ) == m_portMap.end() ) {
-			ERRORLOG( QString( "No ports for instrument [%1]" )
-					  .arg( pInstrument->getName() ) );
-			return nullptr;
-		}
+	else if ( m_portMap.find( pInstrument ) != m_portMap.end() ) {
 		ports = m_portMap.at( pInstrument );
+	}
+	else if ( pInstrument->isPreviewInstrument() ){
+		ports = m_portMapStatic.at( m_pDummyPreviewInstrument );
+	}
+	else {
+		ERRORLOG( QString( "No ports for instrument [%1]" )
+				  .arg( pInstrument->getName() ) );
+		return nullptr;
 	}
 
 	jack_port_t* pPort;
@@ -371,6 +377,9 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 	if ( Preferences::get_instance()->m_bJackTrackOuts == false ) {
 		return;
 	}
+
+	// Clean up all ports not required anymore.
+	cleanupPerTrackPorts();
 
 	auto createPorts = [=]( std::shared_ptr<Instrument> pInstrument,
 						   const QString& sPortName, bool* pError ) {
@@ -430,6 +439,13 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		} else {
 			bErrorEncountered = true;
 		}
+
+		ports = createPorts( m_pDummyPreviewInstrument, "SamplePreview", &bError );
+		if ( ! bError ) {
+			m_portMapStatic[ m_pDummyPreviewInstrument ] = ports;
+		} else {
+			bErrorEncountered = true;
+		}
 	}
 
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
@@ -453,6 +469,64 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 		}
 		return false;
 	};
+
+	// Truncate name to maximum allowed number of characters. According to
+	// the JACK API documentation this includes the prefix "<CLIENT_NAME>:"
+	// as well.
+	auto makePortNameUnique = [=]( const QString& sNameBase, PortMap portMap,
+								   std::shared_ptr<Instrument> pInstrumentToExclude =
+								   nullptr ) {
+		// "_L" or "_R" indicating the particular stereo channel
+		const int nSuffix = 2;
+		// Separator ":" between client name and port name
+		const int nSeparator = 1;
+		const int nMaxCharacters = jack_port_name_size() - nSuffix - nSeparator -
+			m_sClientName.size();
+
+		QString sName( sNameBase );
+		if ( sNameBase.size() > nMaxCharacters ) {
+			sName = sName.left( nMaxCharacters );
+		}
+
+		// Ensure uniqueness. Since the type must be unique and the classic
+		// version includes the instrument's index, the string should already be
+		// unique. But let's be check nevertheless.
+		const int nMaxTries = 100;
+		int nnTry = 1;
+		while ( portNameContained( sName, portMap, pInstrumentToExclude ) ) {
+			if ( sName.size() < nMaxCharacters ) {
+				sName = QString( "%1 (%2)" ).arg( sName ).arg( nnTry );
+			}
+			else {
+				// Account for the additional suffix.
+				sName = QString( "%1 (%2)" )
+					.arg( sName.left( nMaxCharacters - 3 - nnTry ) ).arg( nnTry );
+			}
+
+			++nnTry;
+			if ( nnTry > nMaxTries ) {
+				ERRORLOG( QString( "Could not find an unique port name. Using [%2] instead." )
+						  .arg( sName ) );
+				break;
+			}
+		}
+
+		return sName;
+	};
+
+	auto renamePorts = [=]( InstrumentPorts ports ) {
+		if ( ports.Left != nullptr ) {
+			jack_port_rename(
+				m_pClient, ports.Left,
+				QString( "%1_L" ).arg( ports.sPortNameBase ).toLocal8Bit() );
+		}
+		if ( ports.Right != nullptr ) {
+			jack_port_rename(
+				m_pClient, ports.Right,
+				QString( "%1_R" ).arg( ports.sPortNameBase ).toLocal8Bit() );
+		}
+	};
+
 	// When deriving the port name for an instrument the map it will be added to
 	// has to provided as well because we must ensure all port names are unique.
 	auto portNameFrom = [=]( std::shared_ptr<Instrument> pInstrument,
@@ -484,59 +558,29 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 				.arg( pInstrument->getName() );
 		}
 
-		// Truncate name to maximum allowed number of characters. According to
-		// the JACK API documentation this includes the prefix "<CLIENT_NAME>:"
-		// as well.
-		//
-		// "_L" or "_R" indicating the particular stereo channel
-		const int nSuffix = 2;
-		// Separator ":" between client name and port name
-		const int nSeparator = 1;
-		const int nMaxCharacters = jack_port_name_size() - nSuffix - nSeparator -
-			m_sClientName.size();
-
-		if ( sNameBase.size() > nMaxCharacters ) {
-			sNameBase = sNameBase.left( nMaxCharacters );
-		}
-
-		// Ensure uniqueness. Since the type must be unique and the classic
-		// version includes the instrument's index, the string should already be
-		// unique. But let's be check nevertheless.
-		const int nMaxTries = 100;
-		int nnTry = 1;
-		QString sName( sNameBase );
-		while ( portNameContained( sName, portMap, pInstrument ) ) {
-			if ( sName.size() < nMaxCharacters ) {
-				sName = QString( "%1 (%2)" ).arg( sName ).arg( nnTry );
-			}
-			else {
-				// Account for the additional suffix.
-				sName = QString( "%1 (%2)" )
-					.arg( sName.left( nMaxCharacters - 3 - nnTry ) ).arg( nnTry );
-			}
-
-			++nnTry;
-			if ( nnTry > nMaxTries ) {
-				ERRORLOG( QString( "Could not find an unique port name for instrument [%1]. Using [%2] instead." )
-						  .arg( pInstrument->getName() ).arg( sName ) );
-				break;
-			}
-		}
-
+		const auto sName = makePortNameUnique( sNameBase, portMap, pInstrument );
 		return sName;
 	};
 
 	if ( m_portMap.size() > 0 ) {
+		const QString sDeathRowSuffix = "_removed";
+
 		// We switched from one drumkit to another. Let's harness the same
 		// instrument mapping used for notes was well.
 		std::shared_ptr<Instrument> pMapped;
-		DrumkitMap::Type sMappedName;
+		std::list< std::pair< std::shared_ptr<Instrument>,
+							  InstrumentPorts > > newPorts;
 		for ( auto& [ ppInstrument, pports ] : m_portMap ) {
+			if ( pports.marked != InstrumentPorts::Marked::None ) {
+				// These ports had only been kept for fading out audio. They
+				// should not be carried over to the next configuration.
+				continue;
+			}
 			if ( ppInstrument != nullptr ) {
 				pMapped = pDrumkit->mapInstrument(
 					ppInstrument->getType(), ppInstrument->getId(), pOldDrumkit );
 				if ( pMapped != nullptr ) {
-					m_portMap[ pMapped ] = InstrumentPorts( pports );
+					newPorts.push_back( { pMapped, InstrumentPorts( pports ) } );
 
 					if ( pMapped != ppInstrument ) {
 						// In case we deal with the same instrument, there is no
@@ -544,20 +588,6 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 						pports.marked = InstrumentPorts::Marked::ForRemoval;
 					}
 
-					sMappedName = portNameFrom( pMapped, m_portMap );
-					if ( m_portMap[ pMapped ].sPortNameBase != sMappedName ) {
-						m_portMap[ pMapped ].sPortNameBase = sMappedName;
-						if ( m_portMap[ pMapped ].Left != nullptr ) {
-							jack_port_rename(
-								m_pClient, m_portMap[ pMapped ].Left,
-								QString( "%1_L" ).arg( sMappedName ).toLocal8Bit() );
-						}
-						if ( m_portMap[ pMapped ].Right != nullptr ) {
-							jack_port_rename(
-								m_pClient, m_portMap[ pMapped ].Right,
-								QString( "%1_R" ).arg( sMappedName ).toLocal8Bit() );
-						}
-					}
 				}
 				else {
 					pports.marked = InstrumentPorts::Marked::ForDeath;
@@ -566,23 +596,60 @@ void JackAudioDriver::makeTrackPorts( std::shared_ptr<Song> pSong,
 			else {
 				pports.marked = InstrumentPorts::Marked::ForDeath;
 			}
+
+			if ( pports.marked == InstrumentPorts::Marked::ForDeath ) {
+				// We rename ports marked for removal to both indicate what is
+				// happening to them and to ensure their names do not conflict
+				// with the kit loaded next.
+				pports.sPortNameBase = makePortNameUnique(
+					QString( "%1%2" ).arg( pports.sPortNameBase )
+					.arg( sDeathRowSuffix ), m_portMap, ppInstrument );
+				renamePorts( pports );
+			}
+		}
+
+		DrumkitMap::Type sMappedName;
+		for ( const auto& [ ppInstrument, pports ] : newPorts ) {
+			m_portMap[ ppInstrument ] = pports;
+
+			sMappedName = portNameFrom( ppInstrument, m_portMap );
+			if ( m_portMap[ ppInstrument ].sPortNameBase != sMappedName ) {
+				m_portMap[ ppInstrument ].sPortNameBase = sMappedName;
+				renamePorts( m_portMap[ ppInstrument ] );
+			}
 		}
 	}
 
 	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
-		if ( ppInstrument == nullptr ||
-			 m_portMap.find( ppInstrument ) != m_portMap.end() ) {
-			// Already added during the previous mapping step.
+		if ( ppInstrument == nullptr ) {
 			continue;
 		}
 
-		// No matching port found. Register a new ones.
-		auto ports = createPorts(
-			ppInstrument, portNameFrom( ppInstrument, m_portMap ), &bError );
-		if ( ! bError ) {
-			m_portMap[ ppInstrument ] = ports;
-		} else {
-			bErrorEncountered = true;
+		if ( m_portMap.find( ppInstrument ) != m_portMap.end() ) {
+			// Already added during the previous mapping step or already present
+			// in the death row.
+			auto ports = m_portMap[ ppInstrument ];
+			if ( ports.marked != InstrumentPorts::Marked::None ) {
+				// The instrument is already associated with ports in the death
+				// row. This can happen for particular long samples when e.g.
+				// deleting an instrument or switching a kit and undoing the
+				// action shortly after. We will remove the ports from the death
+				// row and reuse it.
+				ports.marked = InstrumentPorts::Marked::None;
+				ports.sPortNameBase = portNameFrom( ppInstrument, m_portMap );
+				renamePorts( ports );
+				m_portMap[ ppInstrument ] = ports;
+			}
+		}
+		else {
+			// No matching port found. Register a new ones.
+			auto ports = createPorts(
+				ppInstrument, portNameFrom( ppInstrument, m_portMap ), &bError );
+			if ( ! bError ) {
+				m_portMap[ ppInstrument ] = ports;
+			} else {
+				bErrorEncountered = true;
+			}
 		}
 	}
 

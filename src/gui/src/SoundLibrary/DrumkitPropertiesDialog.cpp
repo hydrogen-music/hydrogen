@@ -777,6 +777,11 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 			int nPatternNumber;
 		};
 		std::vector<noteToBeMapped> notesToBeMapped;
+		struct instrumentToBeMapped {
+			std::shared_ptr<Instrument> pInstrument;
+			DrumkitMap::Type sOldType;
+		};
+		std::vector<instrumentToBeMapped> newInstrumentTypes;
 		// This should always be true. Let's keep it safe.
 		if ( pOldKit != nullptr && pOldKit->getInstruments()->size() ==
 			 m_pDrumkit->getInstruments()->size() ) {
@@ -786,8 +791,11 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 				if ( pOldInstrument->getType().isEmpty() &&
 					 ! pNewInstrument->getType().isEmpty() &&
 					 pOldInstrument->getId() == pNewInstrument->getId() ) {
-					// First type assignment. Apply this type to all affected
-					// notes.
+					// First type assignment.
+					newInstrumentTypes.push_back( {
+							pNewInstrument, pOldInstrument->getType() } );
+
+					// Apply this type to all affected notes.
 					for ( const auto& ppPattern : *pSong->getPatternList() ) {
 						if ( ppPattern == nullptr ) {
 							continue;
@@ -839,6 +847,14 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 					ppNote->getKey(),
 					ppNote->getOctave(),
 					ppNote->getOctave() ) );
+		}
+
+		for ( const auto& [ ppInstrument, ssOldType ] :
+				  newInstrumentTypes ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_setInstrumentTypeAction(
+					ppInstrument->getId(), ppInstrument->getType(), ssOldType,
+					ppInstrument->getName() ) );
 		}
 
 		// When editing the properties of the current kit, the new version will

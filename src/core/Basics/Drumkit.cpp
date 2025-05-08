@@ -1390,13 +1390,20 @@ std::shared_ptr<Instrument> Drumkit::mapInstrument( const QString& sType,
 		// were loaded. Instead of loading the corresponding drumkit.xml file
 		// as is, the IDs of the instruments were overwritten in such a way it
 		// matched the order of the previous kit.
-		if ( pOldDrumkit != nullptr &&
-			 pOldDrumkit->getInstruments()->find( nInstrumentId ) != nullptr ) {
-			pInstrument = m_pInstruments->get(
-				pOldDrumkit->getInstruments()->index(
-					pOldDrumkit->getInstruments()->find( nInstrumentId ) ) );
+		if ( pOldDrumkit != nullptr ) {
+			auto pOldInstruments = pOldDrumkit->getInstruments();
+			const auto pOldInstrument =
+				pOldDrumkit->getInstruments()->find( nInstrumentId );
+			if ( pOldInstrument != nullptr ) {
+				const int nOldIndex = pOldInstruments->index( pOldInstrument );
+
+				if ( nOldIndex != -1 ) {
+					pInstrument = m_pInstruments->get( nOldIndex );
+				}
+			}
 		}
-		else {
+
+		if ( pInstrument == nullptr ) {
 			pInstrument = m_pInstruments->find( nInstrumentId );
 		}
 

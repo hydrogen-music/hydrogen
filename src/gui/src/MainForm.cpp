@@ -1289,7 +1289,42 @@ void MainForm::action_drumkit_addInstrument(
 		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionAddInstrument() );
 	}
 
-	// Instrument still has Id -1.
+	// If the instrument was not added to a particular row, ensure it uses an id
+	// not already present in both the notes within the current song (since the
+	// user action was explicitly _not_ to add an instrument to a row but a new
+	// one) and the instruments in the current drumkit (to prevent supplying an
+	// invalid ID and triggering the fallback in Drumkit::addInstrument which
+	// could end up using an ID of a note again).
+	if ( pInstrument->getType().isEmpty() &&
+		 pInstrument->getId() == EMPTY_INSTR_ID ) {
+		std::set<int> presentIds;
+		for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+			if ( ppInstrument != nullptr ) {
+				presentIds.insert( ppInstrument->getId() );
+			}
+		}
+
+		for ( const auto& ppPattern : *pSong->getPatternList() ) {
+			for ( const auto& [ _, ppNote ] : *ppPattern->getNotes() ) {
+				// We only have to take those note not bearing a type into
+				// account. A type will always take precedence in mapping and
+				// even though the note could have the same ID as the empty,
+				// untyped instrument, it will never be associated with it.
+				if ( ppNote != nullptr && ppNote->getType().isEmpty() ) {
+					presentIds.insert( ppNote->getInstrumentId() );
+				}
+			}
+		}
+
+		// Pick an unique ID for the new instrument.
+		for ( int ii = 0; ii < presentIds.size() + 1; ++ii ) {
+			if ( presentIds.find( ii ) == presentIds.end() ) {
+				pInstrument->setId( ii );
+				break;
+			}
+		}
+	}
+
 	pHydrogenApp->pushUndoCommand(
 		new SE_addInstrumentAction(
 			pInstrument, -1, SE_addInstrumentAction::Type::AddEmptyInstrument ) );
