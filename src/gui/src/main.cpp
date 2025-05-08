@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 		// Man your battle stations... this is not a drill.
 		auto pLogger = H2Core::Logger::bootstrap(
 			parser.getLogLevel(), parser.getLogFile(), true,
-			parser.getLogTimestamps() );
+			parser.getLogTimestamps(), parser.getLogColors() );
 		H2Core::Base::bootstrap(
 			pLogger, pLogger->should_log( H2Core::Logger::Debug ) );
 
