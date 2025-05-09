@@ -154,6 +154,7 @@ class Base {
 		}
 		static bool __count;               ///< should we count class instances
 		static Logger * __logger;
+		static bool bLogColors;
 		static void registerClass(const char *name, const atomic_obj_cpt_t *counters);
 	static timeval __last_clock;
 	

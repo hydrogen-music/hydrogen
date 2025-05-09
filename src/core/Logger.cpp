@@ -166,10 +166,12 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 
 	if ( ! m_bLogColors ) {
 		m_colorList << "" << "" << "" << "" << "" << "" << "";
+		m_sColorOff = "";
 	}
 	else {
 		m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
 					<< "\033[35;1m" << "\033[35;1m";
+		m_sColorOff = "\033[0m";
 	}
 
 	// Sanity checks.
@@ -242,11 +244,14 @@ void Logger::log( unsigned level, const QString& sClassName, const char* func_na
 			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
 	}
 
-	const QString sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
+	QString sCol = "";
+	if ( m_bLogColors ) {
+		sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
+	}
 
-	const QString tmp = QString( "%1%2%3[%4::%5] %6\033[0m\n" )
+	const QString tmp = QString( "%1%2%3[%4::%5] %6%7\n" )
 		.arg( sCol ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
-		.arg( sClassName ).arg( func_name ).arg( sMsg );
+		.arg( sClassName ).arg( func_name ).arg( sMsg ).arg( m_sColorOff );
 
 	pthread_mutex_lock( &__mutex );
 	__msg_queue.push_back( tmp );

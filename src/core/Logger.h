@@ -147,6 +147,8 @@ class Logger {
 		static QString *getCrashContext() { return Logger::pCrashContext; }
 		/** @} */
 
+		bool getLogColors() const;
+
 		/** Helper class to preserve and restore recursive crash context strings using an RAAI pattern */
 		class CrashContext {
 			QString *pSavedContext;
@@ -175,6 +177,7 @@ class Logger {
 
 		QStringList m_prefixList;
 		QStringList m_colorList;
+		QString m_sColorOff;
 
 	bool m_bUseStdout;
 		bool m_bLogTimestamps;
@@ -196,6 +199,10 @@ class Logger {
 		static int hextoi( const char* str, long len );
 #endif // HAVE_SSCANF
 };
+
+inline bool Logger::getLogColors() const {
+	return m_bLogColors;
+}
 
 };
 
