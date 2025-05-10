@@ -55,6 +55,7 @@
 namespace H2Core {
 
 Logger* Base::__logger = nullptr;
+bool Base::bLogColors = true;
 bool Base::__count = false;
 std::atomic<int> Base::__objects_count(0);
 pthread_mutex_t Base::__mutex;
@@ -62,10 +63,13 @@ object_internal_map_t Base::__objects_map;
 QString Base::sPrintIndention = "  ";
 timeval Base::__last_clock = { 0, 0 };
 
-int Base::bootstrap( Logger* logger, bool count ) {
-	if( __logger==nullptr && logger!=nullptr ) {
-		__logger = logger;
+int Base::bootstrap( Logger* pLogger, bool count ) {
+	if ( __logger == nullptr && pLogger != nullptr ) {
+		__logger = pLogger;
 		__count = count;
+
+		Base::bLogColors = pLogger->getLogColors();
+
 		pthread_mutex_init( &__mutex, nullptr );
 		return 0;
 	}
@@ -84,12 +88,13 @@ void Base::set_count( bool flag ) {
 
 void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 #ifdef H2CORE_HAVE_DEBUG
-	if( !__count ) {
-#ifdef WIN32
-		out << "level must be Debug or higher"<< std::endl;
-#else
-		out << "\033[35mlog level must be \033[31mDebug\033[35m or higher\033[0m"<< std::endl;
-#endif
+	if ( !__count ) {
+		if ( ! Base::bLogColors ) {
+			out << "level must be Debug or higher" << std::endl;
+		} else {
+			out << "\033[35mlog level must be \033[31mDebug\033[35m or higher\033[0m"<< std::endl;
+		}
+
 		return;
 	}
 	object_map_t snapshot;
@@ -109,20 +114,25 @@ void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 		it++;
 	}
 	pthread_mutex_unlock( &__mutex );
-#ifndef WIN32
-	out << std::endl << "\033[35m";
-#endif
+
+	out << std::endl;
+	if ( Base::bLogColors ) {
+		out << "\033[35m";
+	}
+
 	out << "Objects map :" << std::setw( 30 ) << "class\t" << "constr   destr   alive" << std::endl << o.str() << "Total : " << std::setw( 6 ) << __objects_count << " objects.";
-#ifndef WIN32
-	out << "\033[0m";
-#endif
+
+	if ( Base::bLogColors ) {
+		out << "\033[0m";
+	}
 	out << std::endl << std::endl;
 #else
-#ifdef WIN32
-	out << "Base::write_objects_map_to :: not compiled with H2CORE_HAVE_DEBUG flag set" << std::endl;
-#else
-	out << "\033[35mBase::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
-#endif
+
+	if ( ! Base::bLogColors ) {
+		out << "Base::write_objects_map_to :: not compiled with H2CORE_HAVE_DEBUG flag set" << std::endl;
+	} else {
+		out << "\033[35mBase::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
+	}
 #endif
 }
 

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.5] - XXXX-XX-XX
 
+### Added
+
+- CLI options `--log-colors` and `--no-log-colors` to enable and disable ANSI
+  colors in log messages.
+
 ### Changed
 
 - The shortcut for starting/pausing transport can now be used spin boxed (like

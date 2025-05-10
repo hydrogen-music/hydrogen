@@ -63,7 +63,8 @@ class Logger {
 	static Logger* bootstrap( unsigned msk,
 							  const QString& sLogFilePath = QString(),
 							  bool bUseStdout = true,
-							  bool bLogTimestamps = false );
+							  bool bLogTimestamps = false,
+							  bool bLogColors = true );
 		/**
 		 * If #__instance equals 0, a new H2Core::Logger
 		 * singleton will be created and stored in it.
@@ -72,7 +73,8 @@ class Logger {
 		 */
 	static Logger* create_instance( const QString& sLogFilePath = QString(),
 									bool bUseStdout = true,
-									bool bLogTimestamps = false );
+									bool bLogTimestamps = false,
+									bool bLogColors = true );
 
 		/**
 		 * Returns a pointer to the current H2Core::Logger
@@ -145,6 +147,8 @@ class Logger {
 		static QString *getCrashContext() { return Logger::pCrashContext; }
 		/** @} */
 
+		bool getLogColors() const;
+
 		/** Helper class to preserve and restore recursive crash context strings using an RAAI pattern */
 		class CrashContext {
 			QString *pSavedContext;
@@ -173,15 +177,17 @@ class Logger {
 
 		QStringList m_prefixList;
 		QStringList m_colorList;
+		QString m_sColorOff;
 
 	bool m_bUseStdout;
 		bool m_bLogTimestamps;
+		bool m_bLogColors;
 
 		thread_local static QString *pCrashContext;
 
 		/** constructor */
 	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true,
-			bool bLogTimestamps = false );
+			bool bLogTimestamps = false, bool bLogColors = true );
 
 #ifndef HAVE_SSCANF
 		/**
@@ -193,6 +199,10 @@ class Logger {
 		static int hextoi( const char* str, long len );
 #endif // HAVE_SSCANF
 };
+
+inline bool Logger::getLogColors() const {
+	return m_bLogColors;
+}
 
 };
 

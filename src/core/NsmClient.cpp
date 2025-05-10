@@ -467,12 +467,39 @@ void NsmClient::replaceDrumkitPath( std::shared_ptr<H2Core::Song> pSong, const Q
 }
 
 void NsmClient::printError( const QString& msg ) {
-	std::cerr << "[\033[30mHydrogen\033[0m]\033[31m "
-			  << "Error: " << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
+	const bool bLogColor = __logger->getLogColors();
+
+	if ( bLogColor ) {
+		std::cerr << "[\033[30mHydrogen\033[0m]\033[31m ";
+	} else {
+		std::cerr << "[Hydrogen] ";
+	}
+
+	std::cerr << "Error: " << msg.toLocal8Bit().data();
+
+	if ( bLogColor ) {
+		std::cerr << "\033[0m";
+	}
+
+	std::cerr << std::endl;
 }
+
 void NsmClient::printMessage( const QString& msg ) {
-	std::cerr << "[\033[30mHydrogen\033[0m]\033[32m "
-			  << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
+	const bool bLogColor = __logger->getLogColors();
+
+	if ( bLogColor ) {
+		std::cerr << "[\033[30mHydrogen\033[0m]\033[32m ";
+	} else {
+		std::cerr << "[Hydrogen] ";
+	}
+
+	std::cerr << msg.toLocal8Bit().data();
+
+	if ( bLogColor ) {
+		std::cerr << "\033[0m";
+	}
+
+	std::cerr << std::endl;
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {

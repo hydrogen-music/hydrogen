@@ -120,7 +120,8 @@ void* loggerThread_func( void* param ) {
 }
 
 Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
-						   bool bUseStdout, bool bLogTimestamps ) {
+						   bool bUseStdout, bool bLogTimestamps,
+						   bool bLogColors ) {
 	Logger::set_bit_mask( msk );
 
 	// When starting Hydrogen after a fresh install with no user-level .hydrogen
@@ -139,30 +140,39 @@ Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
 		Filesystem::mkdir( dir.absolutePath() );
 	}
 
-	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps );
+	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps,
+									bLogColors );
 }
 
 Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
-								 bool bLogTimestamps ) {
-	if ( __instance == nullptr ) __instance = new Logger( sLogFilePath, bUseStdout,
-														  bLogTimestamps );
+								 bool bLogTimestamps, bool bLogColors ) {
+	if ( __instance == nullptr ) {
+		__instance = new Logger(
+		sLogFilePath, bUseStdout, bLogTimestamps, bLogColors );
+	}
 	return __instance;
 }
 
-Logger::Logger( const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamps ) :
-	__running( true ),
-	m_sLogFilePath( sLogFilePath ),
-	m_bUseStdout( bUseStdout ),
-	m_bLogTimestamps( bLogTimestamps ) {
+Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
+				bool bLogTimestamps, bool bLogColors )
+	: __running( true )
+	, m_sLogFilePath( sLogFilePath )
+	, m_bUseStdout( bUseStdout )
+	, m_bLogTimestamps( bLogTimestamps )
+	, m_bLogColors( bLogColors ) {
 	__instance = this;
 
 	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
-#ifdef WIN32
-	m_colorList << "" << "" << "" << "" << "" << "" << "";
-#else
-	m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
-				<< "\033[35;1m" << "\033[35;1m";
-#endif
+
+	if ( ! m_bLogColors ) {
+		m_colorList << "" << "" << "" << "" << "" << "" << "";
+		m_sColorOff = "";
+	}
+	else {
+		m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
+					<< "\033[35;1m" << "\033[35;1m";
+		m_sColorOff = "\033[0m";
+	}
 
 	// Sanity checks.
 	QFileInfo fiLogFile( m_sLogFilePath );
@@ -234,11 +244,14 @@ void Logger::log( unsigned level, const QString& sClassName, const char* func_na
 			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
 	}
 
-	const QString sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
+	QString sCol = "";
+	if ( m_bLogColors ) {
+		sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
+	}
 
-	const QString tmp = QString( "%1%2%3[%4::%5] %6\033[0m\n" )
+	const QString tmp = QString( "%1%2%3[%4::%5] %6%7\n" )
 		.arg( sCol ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
-		.arg( sClassName ).arg( func_name ).arg( sMsg );
+		.arg( sClassName ).arg( func_name ).arg( sMsg ).arg( m_sColorOff );
 
 	pthread_mutex_lock( &__mutex );
 	__msg_queue.push_back( tmp );

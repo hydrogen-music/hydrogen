@@ -83,6 +83,11 @@ bool Parser::parse( int argc, char* argv[] ) {
 	QCommandLineOption logTimestampsOption(
 		QStringList() << "T" <<
 		"log-timestamps", "Add timestamps to all log messages" );
+	QCommandLineOption logColorsOption(
+		QStringList() << "log-colors", "Use ANSI colors in log messages" );
+	QCommandLineOption noLogColorsOption(
+		QStringList() << "no-log-colors",
+		"Suppress ANSI colors in log messages" );
 
 	QCommandLineOption systemDataPathOption(
 		QStringList() << "P" <<
@@ -119,6 +124,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addOption( verboseOption );
 	parser.addOption( logFileOption );
 	parser.addOption( logTimestampsOption );
+	parser.addOption( logColorsOption );
+	parser.addOption( noLogColorsOption );
 
 	parser.addOption( systemDataPathOption );
 	parser.addOption( configFileOption );
@@ -156,6 +163,20 @@ bool Parser::parse( int argc, char* argv[] ) {
 	}
 	m_sLogFile = parser.value( logFileOption );
 	m_bLogTimestamps = parser.isSet( logTimestampsOption );
+
+#ifdef WIN32
+	m_bLogColors = false;
+#else
+	m_bLogColors = true;
+#endif
+
+	// If both options are present, having colors wins.
+	if ( parser.isSet( logColorsOption ) ) {
+		m_bLogColors = true;
+	}
+	else if ( parser.isSet( noLogColorsOption ) ) {
+		m_bLogColors = false;
+	}
 
 	m_sSysDataPath = parser.value( systemDataPathOption );
 	m_sConfigFilePath = parser.value( configFileOption );
