@@ -92,10 +92,10 @@ void show_playlist (uint active )
 
 bool convertKitToDrumkitMap( const QString& sKit,
 							 const QString& sOutFilename ) {
-	bool bCompressed;
+	bool bCompressed, bLegacyFormatEncountered;
 	QString sKitFolder, sTmpFolder;
 	const auto pKit = CoreActionController::retrieveDrumkit(
-		sKit, &bCompressed, &sKitFolder, &sTmpFolder );
+		sKit, &bCompressed, &sKitFolder, &sTmpFolder, &bLegacyFormatEncountered );
 
 	if ( pKit == nullptr ) {
 		___ERRORLOG( QString( "Unable to load kit from [%1]" ).arg( sKit ) );

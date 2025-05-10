@@ -1385,9 +1385,10 @@ bool CoreActionController::upgradeDrumkit(const QString &sDrumkitPath,
 
 	QString sTemporaryFolder, sDrumkitDir;
 	// Whether the drumkit was provided as compressed .h2drumkit file.
-	bool bIsCompressed;
-	auto pDrumkit = retrieveDrumkit( sDrumkitPath, &bIsCompressed,
-									 &sDrumkitDir, &sTemporaryFolder );
+	bool bIsCompressed, bLegacyFormatEncountered;
+	auto pDrumkit = retrieveDrumkit(
+		sDrumkitPath, &bIsCompressed, &sDrumkitDir, &sTemporaryFolder,
+		&bLegacyFormatEncountered );
 
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit from source path [%1]" )
@@ -1494,9 +1495,10 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 
 	QString sTemporaryFolder, sDrumkitDir;
 	// Whether the drumkit was provided as compressed .h2drumkit file.
-	bool bIsCompressed;
-	auto pDrumkit = retrieveDrumkit( sDrumkitPath, &bIsCompressed,
-									 &sDrumkitDir, &sTemporaryFolder );
+	bool bIsCompressed, bLegacyFormatEncountered;
+	const auto pDrumkit = retrieveDrumkit(
+		sDrumkitPath, &bIsCompressed, &sDrumkitDir, &sTemporaryFolder,
+		&bLegacyFormatEncountered );
 
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit from source path [%1]" )
@@ -1510,73 +1512,13 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 		return false;
 	}
 
-	auto validateXSD = [&]( const QString& sXSDPath, const QString& sContext ) {
-		
-		XMLDoc doc;
-		if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ),
-						sXSDPath, true ) ) {
-			ERRORLOG( QString( "Drumkit file [%1] does not comply with [%2] XSD definition" )
-					  .arg( Filesystem::drumkit_file( sDrumkitDir ) )
-					  .arg( sContext ) );
-			return false;
-		}
-	
-		XMLNode root = doc.firstChildElement( "drumkit_info" );
-		if ( root.isNull() ) {
-			ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
-					  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
-			return false;
-		}
-
-		INFOLOG( QString( "Drumkit file [%1] validates [%2] XSD definition" )
-				 .arg( Filesystem::drumkit_file( sDrumkitDir ) )
-				 .arg( sContext ) );
-		
-		return true;
-	};
-
-	bool bValid = validateXSD( Filesystem::drumkit_xsd_path(), "current" );
-	if ( ! bValid && ! bCheckLegacyVersions ) {
-		return false;
-	}
-
-	if ( ! bValid && bCheckLegacyVersions ) {
-		const auto legacyXSDFiles = Filesystem::drumkit_xsd_legacy_paths();
-
-		for ( const auto& sPath : legacyXSDFiles ) {
-			QString sContext( sPath );
-			sContext.remove( Filesystem::xsd_dir() );
-			sContext.remove( Filesystem::drumkit_xsd() );
-
-			if ( validateXSD( sPath, sContext ) ) {
-				bValid = true;
-				break;
-			}
-		}
-
-		if ( ! bValid ) {
-			return false;
-		}
-	}
-
-	// Trailing whitespaces will cause the Windows version to fail
-	// extracting it.
-
-	// Trailing whitespace in drumkit folder or archive name
-	if ( sDrumkitDir.endsWith( " " ) ) {
-		ERRORLOG( QString( "Drumkit folder [%1] must not end with a trailing whitespace" )
-				  .arg( sDrumkitDir ) );
-		return false;
-	}
-
-	// Trailing whitespace in drumkit name element
 	XMLDoc doc;
 	if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ), nullptr, true ) ) {
-		ERRORLOG( QString( "Drumkit file in [%1] could not be opened." )
+		ERRORLOG( QString( "Drumkit XML file [%1] can not be parsed." )
 				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
 		return false;
 	}
-
+	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
@@ -1584,6 +1526,21 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 		return false;
 	}
 
+	if ( bLegacyFormatEncountered && ! bCheckLegacyVersions ) {
+		ERRORLOG( QString( "Drumkit [%1] uses a legacy format" )
+				  .arg( sDrumkitPath ) );
+		return false;
+	}
+
+	// Trailing whitespaces will cause the Windows version to fail
+	// extracting it.
+	if ( sDrumkitDir.endsWith( " " ) ) {
+		ERRORLOG( QString( "Drumkit folder [%1] must not end with a trailing whitespace" )
+				  .arg( sDrumkitDir ) );
+		return false;
+	}
+
+	// Trailing whitespace in drumkit name element
 	const QString sDrumkitName = root.read_string( "name", "", false, false, false );
 	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( QString( "Drumkit must have a non-empty 'name' element" ) );
@@ -1607,7 +1564,13 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath,
 	return true;
 }
 
-std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed, QString *sDrumkitDir, QString* sTemporaryFolder ) {
+std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit(
+	const QString& sDrumkitPath,
+	bool* bIsCompressed,
+	QString *sDrumkitDir,
+	QString* sTemporaryFolder,
+	bool* pLegacyFormatEncountered )
+{
 	auto pHydrogen = Hydrogen::get_instance();
 	assert( pHydrogen );
 	if ( pHydrogen == nullptr ) {
@@ -1622,7 +1585,7 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	// upgrading drumkits via CLI or OSC command. It should always
 	// refer to the latest copy found on disk.
 	if ( bIsCompressed == nullptr || sTemporaryFolder == nullptr ||
-		 sDrumkitDir == nullptr ) {
+		 sDrumkitDir == nullptr || pLegacyFormatEncountered == nullptr ) {
 		ERRORLOG( "Invalid input" );
 		return nullptr;
 	}
@@ -1630,13 +1593,15 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 	*bIsCompressed = false;
 	*sTemporaryFolder = "";
 	*sDrumkitDir = "";
+	*pLegacyFormatEncountered = false;
 
 	QFileInfo sourceFileInfo( sDrumkitPath );
 
 	if ( Filesystem::dir_readable( sDrumkitPath, true ) ) {
 
 		// Providing the folder containing the drumkit
-		pDrumkit = Drumkit::load( sDrumkitPath, false, true );
+		pDrumkit = Drumkit::load(
+			sDrumkitPath, false, pLegacyFormatEncountered, true );
 		*sDrumkitDir = sDrumkitPath;
 		
 	}
@@ -1650,7 +1615,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 		// Providing the path of a drumkit.xml file within a drumkit
 		// folder.
 		QString sDrumkitDirPath = QFileInfo( sDrumkitPath ).absoluteDir().absolutePath();
-		pDrumkit = Drumkit::load( sDrumkitDirPath, false, true );
+		pDrumkit = Drumkit::load(
+			sDrumkitDirPath, false, pLegacyFormatEncountered, true );
 		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
 			
 	}
@@ -1707,7 +1673,8 @@ std::shared_ptr<Drumkit> CoreActionController::retrieveDrumkit( const QString& s
 			return nullptr;
 		}
 
-		pDrumkit = Drumkit::load( *sDrumkitDir, false, true );
+		pDrumkit = Drumkit::load(
+			*sDrumkitDir, false, pLegacyFormatEncountered, true );
 		
 	} else {
 		ERRORLOG( QString( "Provided source path [%1] does not point to a Hydrogen drumkit" )

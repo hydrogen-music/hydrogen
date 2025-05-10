@@ -84,7 +84,8 @@ void XmlTest::tearDown() {
 void XmlTest::testDrumkitFormatIntegrity() {
 	___INFOLOG( "" );
 	const QString sTestFolder = H2TEST_FILE( "/drumkits/format-integrity/");
-	const auto pDrumkit = H2Core::Drumkit::load( sTestFolder, false, true );
+	const auto pDrumkit = H2Core::Drumkit::load(
+		sTestFolder, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 	const QString sTmpDrumkitXml =
@@ -122,8 +123,8 @@ void XmlTest::testDrumkit()
 	const auto timestampStart = info.lastModified();
 
 	// load without samples
-	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit"),
-											false, true );
+	pDrumkitLoaded = H2Core::Drumkit::load(
+		H2TEST_FILE( "/drumkits/baseKit"), false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
 	CPPUNIT_ASSERT( pDrumkitLoaded->areSamplesLoaded()==false );
 	CPPUNIT_ASSERT( checkSampleData( pDrumkitLoaded, false ) );
@@ -150,8 +151,8 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded = nullptr;
 	
 	// load with samples
-	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
-											false, true );
+	pDrumkitLoaded = H2Core::Drumkit::load(
+		H2TEST_FILE( "/drumkits/baseKit" ), false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
 
 	pDrumkitLoaded->loadSamples();
@@ -185,7 +186,8 @@ void XmlTest::testDrumkit()
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
 	
 	// load file
-	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath, false, true );
+	pDrumkitReloaded = H2Core::Drumkit::load(
+		sDrumkitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
 
 	info.refresh();
@@ -207,7 +209,8 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
 	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
 							  H2Core::Filesystem::drumkit_xsd_path() ) );
-	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath, false, true );
+	pDrumkitReloaded = H2Core::Drumkit::load(
+		sDrumkitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
 	// Cleanup
@@ -226,14 +229,14 @@ void XmlTest::testDrumkitLegacy()
 													QDir::NoDotAndDotDot ) ) {
 		___INFOLOG( ssDir );
 		const auto pDrumkit = H2Core::Drumkit::load(
-			legacyDir.filePath( ssDir ), false, false );
+			legacyDir.filePath( ssDir ), false, nullptr, false );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 	}
 
 	// Check wether the names stored in the DrumkitComponents in version 0.9.7 -
 	// 1.2.X are properly ported to InstrumentComponents.
 	const auto pDrumkit = H2Core::Drumkit::load(
-		H2TEST_FILE( "drumkits/legacyKits/kit-1.2.3" ), false, false );
+		H2TEST_FILE( "drumkits/legacyKits/kit-1.2.3" ), false, nullptr, false );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	CPPUNIT_ASSERT( pDrumkit->getInstruments()->get( 0 ) != nullptr );
 	const auto pInstrument = pDrumkit->getInstruments()->get( 0 );
@@ -254,8 +257,8 @@ void XmlTest::testDrumkit_invalidADSRValues()
 	std::shared_ptr<H2Core::Drumkit> pDrumkit = nullptr;
 
 	//1. Check, if the drumkit has been loaded
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit"),
-									  true, true );
+	pDrumkit = H2Core::Drumkit::load(
+		H2TEST_FILE( "drumkits/invAdsrKit"), true, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
@@ -338,10 +341,10 @@ void XmlTest::testDrumkitUpgrade() {
 							sUpgradedKit, false ) );
 
 		// Check whether the drumkit call be loaded properly.
-		bool b;
+		bool b, e;
 		QString s1, s2;
 		auto pDrumkit = H2Core::CoreActionController::retrieveDrumkit(
-			firstUpgrade.path() + "/" + ssFile, &b, &s1, &s2 );
+			firstUpgrade.path() + "/" + ssFile, &b, &s1, &s2, &e );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 		if ( pDrumkit->getName() == "Boss DR-110" ) {
 			// For our default kit we put in some prior knowledge to
@@ -456,10 +459,11 @@ void XmlTest::testDrumkitInstrumentTypeUniqueness()
 	const QString sRefFolder = H2TEST_FILE( "drumkits/instrument-type-ref" );
 	const QString sDuplicateFolder =
 		H2TEST_FILE( "drumkits/instrument-type-ref-duplicate" );
-	const auto pDrumkitRef = H2Core::Drumkit::load( sRefFolder, false, true );
+	const auto pDrumkitRef = H2Core::Drumkit::load(
+		sRefFolder, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
 	const auto pDrumkitDuplicates = H2Core::Drumkit::load(
-		sDuplicateFolder, false, true );
+		sDuplicateFolder, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitDuplicates != nullptr );
 
 	H2TEST_ASSERT_DRUMKIT_FILES_UNEQUAL( sRefFolder + "/drumkit.xml",
@@ -506,7 +510,7 @@ void XmlTest::testShippedDrumkits()
 
 		const auto pDrumkit = H2Core::Drumkit::load(
 			QString( "%1/%2" ).arg( H2Core::Filesystem::sys_drumkits_dir() )
-			.arg( ssKit ), false, true );
+			.arg( ssKit ), false, nullptr, true );
 		CPPUNIT_ASSERT( pDrumkit != nullptr );
 
 		const QString sTmpDrumkitXml = H2Core::Filesystem::tmp_file_path(
@@ -620,8 +624,8 @@ void XmlTest::testPattern()
 
 	H2Core::XMLDoc doc;
 
-	auto pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ),
-									  false, true );
+	auto pDrumkit = H2Core::Drumkit::load(
+		H2TEST_FILE( "/drumkits/baseKit" ), false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit!=nullptr );
 	auto pInstrumentList = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstrumentList->size()==4 );

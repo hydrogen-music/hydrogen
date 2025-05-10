@@ -180,7 +180,11 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 
 		// Drumkit is not present in database yet. We attempt to load
 		// and add it.
-		auto pDrumkit = Drumkit::load( sDrumkitPath, bUpgrade, false /*bSilent*/ );
+		auto pDrumkit = Drumkit::load( sDrumkitPath,
+									   true, // upgrade
+									   nullptr, // do not check for legacy format
+									   false // bSilent
+									   );
 		if ( pDrumkit == nullptr ) {
 			return nullptr;
 		}
