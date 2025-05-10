@@ -77,9 +77,9 @@ p, li { white-space: pre-wrap; }
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
    <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>5800</Release>
+   <Decay>-1</Decay>
+   <Sustain>-1</Sustain>
+   <Release>5800.98</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>
