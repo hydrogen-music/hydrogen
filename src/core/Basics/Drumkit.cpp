@@ -114,28 +114,19 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
 	
-	bool bReadingSuccessful = true;
-	
 	XMLDoc doc;
-	if ( !doc.read( sDrumkitFile, Filesystem::drumkit_xsd_path(), true ) ) {
-		// Drumkit does not comply with the XSD schema
-		// definition. It's probably an old one. loadFrom() will try
-		// to handle it regardlessly but we should upgrade it in order
-		// to avoid this in future loads.
-		doc.read( sDrumkitFile, nullptr, bSilent );
-		
-		bReadingSuccessful = false;
-	}
-	
+	doc.read( sDrumkitFile, nullptr, bSilent );
+
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
 		return nullptr;
 	}
 
-	auto pDrumkit =
-		Drumkit::loadFrom( root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
-						   "", false, nullptr, bSilent );
+	bool bLegacyFormatEncountered = false;
+	auto pDrumkit = Drumkit::loadFrom(
+		root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ), "", false,
+		&bLegacyFormatEncountered, bSilent );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
@@ -143,7 +134,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 	pDrumkit->setContext( DetermineContext( pDrumkit->getPath() ) );
 
-	if ( ! bReadingSuccessful && bUpgrade ) {
+	if ( bLegacyFormatEncountered && bUpgrade ) {
 		pDrumkit->upgrade( bSilent );
 	}
 
@@ -161,6 +152,11 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
+	}
+
+	auto formatVersionNode = node.firstChildElement( "formatVersion" );
+	if ( formatVersionNode.isNull() && pLegacyFormatEncountered != nullptr ) {
+		*pLegacyFormatEncountered = true;
 	}
 
 	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
