@@ -110,7 +110,7 @@ for:
 
       echo $DISPLAY_VERSION
 
-      cache_tag=usr_cache_portmidi # this can be modified to rebuild deps
+      cache_tag=usr_cache_xsd # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
