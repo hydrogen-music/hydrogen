@@ -457,12 +457,13 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 	return pPattern;
 }
 
-std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
+std::shared_ptr<Playlist> Legacy::load_playlist( const QString& sPath )
 {
 	WARNINGLOG( QString( "loading playlist with legacy code" ) );
 
 	XMLDoc doc;
-	if( !doc.read( pl_path ) ) {
+	if( !doc.read( sPath ) ) {
+		ERRORLOG( QString( "Unable to read playlist file [%1]" ).arg( sPath ) );
 		return nullptr;
 	}
 	XMLNode root = doc.firstChildElement( "playlist" );
@@ -470,14 +471,14 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 		ERRORLOG( "playlist node not found" );
 		return nullptr;
 	}
-	QFileInfo fileInfo = QFileInfo( pl_path );
+	QFileInfo fileInfo = QFileInfo( sPath );
 	QString filename = root.read_string( "Name", "", false, false );
 	if ( filename.isEmpty() ) {
 		WARNINGLOG( "Playlist has no name, abort" );
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setFilename( pl_path );
+	pPlaylist->setFilename( sPath );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );
 	if ( !songsNode.isNull() ) {
