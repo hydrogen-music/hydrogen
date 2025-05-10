@@ -307,12 +307,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
-	static std::shared_ptr<Drumkit> load_from( XMLNode* node,
-											   const QString& dk_path,
-											   bool bSilent = false );
+	static std::shared_ptr<Drumkit> load_from(
+		XMLNode* node,
+		const QString& dk_path,
+		bool* pLegacyFormatEncountered = nullptr,
+		bool bSilent = false );
 
 	/**
 	 * Loads the drumkit stored in @a sDrumkitDir into @a pDoc and

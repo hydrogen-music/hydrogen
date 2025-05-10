@@ -135,7 +135,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		pDrumkit = Future::loadDrumkit( root, sDrumkitDir, bSilent );
 	}
 	else {
-		pDrumkit = Drumkit::load_from( &root, sDrumkitDir, bSilent );
+		pDrumkit = Drumkit::load_from( &root, sDrumkitDir, nullptr, bSilent );
 	}
 
 	if ( pDrumkit == nullptr ) {
@@ -150,14 +150,17 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	return pDrumkit;
 }
 
-std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node,
+											 const QString& sDrumkitPath,
+											 bool* pLegacyFormatEncountered,
+											 bool bSilent )
 {
 	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
 	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
 	}
-	
+
 	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 
 	pDrumkit->__path = sDrumkitPath;
@@ -186,7 +189,8 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from(
+				&componentNode, pLegacyFormatEncountered );
 			if ( pDrumkitComponent != nullptr ) {
 				pDrumkit->get_components()->push_back(pDrumkitComponent);
 			}
@@ -197,16 +201,23 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 		WARNINGLOG( "componentList node not found" );
 		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 		pDrumkit->get_components()->push_back(pDrumkitComponent);
+
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
 	}
 
-	auto pInstrumentList = InstrumentList::load_from( node,
-													  sDrumkitPath,
-													  sDrumkitName,
-													  license, false );
+	auto pInstrumentList = InstrumentList::load_from(
+		node, sDrumkitPath, sDrumkitName, license, pLegacyFormatEncountered,
+		false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
 		pInstrumentList = std::make_shared<InstrumentList>();
+
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
 	}
 		
 	pDrumkit->set_instruments( pInstrumentList );
