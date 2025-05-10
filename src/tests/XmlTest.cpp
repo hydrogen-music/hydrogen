@@ -128,8 +128,7 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/snare.wav" ) );
 
 	// Check whether the generated drumkit is valid.
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
-							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ) ) );
 	
 	// load file
 	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
@@ -148,8 +147,7 @@ void XmlTest::testDrumkit()
 	pDrumkitNew = std::make_shared<H2Core::Drumkit>();
 	CPPUNIT_ASSERT( pDrumkitNew != nullptr );
 	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
-							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ) ) );
 	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
@@ -165,8 +163,7 @@ void XmlTest::testShippedDrumkits()
 	for ( auto ii : H2Core::Filesystem::sys_drumkit_list() ) {
 		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
 								  .arg( H2Core::Filesystem::sys_drumkits_dir() )
-								  .arg( ii ),
-								  H2Core::Filesystem::drumkit_xsd_path() ) );
+								  .arg( ii ) ) );
 
 	}
 	___INFOLOG( "passed" );
@@ -338,7 +335,7 @@ void XmlTest::testPattern()
 	pPatternCopied = new H2Core::Pattern( pPatternLoaded );
 
 	// Is stored pattern valid?
-	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
 	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
 
@@ -347,7 +344,7 @@ void XmlTest::testPattern()
 	// Check whether the constructor produces valid patterns.
 	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
 	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
-	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
 	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
 
@@ -362,8 +359,7 @@ void XmlTest::checkTestPatterns()
 {
 	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
-							  H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ) ) );
 	___INFOLOG( "passed" );
 }
 
@@ -378,7 +374,7 @@ void XmlTest::testPlaylist()
 	H2Core::XMLDoc doc;
 
 	CPPUNIT_ASSERT( pPlaylistCurrent->save_file( sPath, "ladida", true, false ) );
-	CPPUNIT_ASSERT( doc.read( sPath, H2Core::Filesystem::playlist_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sPath ) );
 	pPlaylistLoaded = H2Core::Playlist::load_file( sPath, false );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
 

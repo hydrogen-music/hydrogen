@@ -104,7 +104,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
 	
 	XMLDoc doc;
-	doc.read( sDrumkitFile, nullptr, bSilent );
+	doc.read( sDrumkitFile, bSilent );
 
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
@@ -271,19 +271,12 @@ bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) 
 
 	const QString sDrumkitPath = Filesystem::drumkit_file( sDrumkitDir );
 
-	if( ! pDoc->read( sDrumkitPath, Filesystem::drumkit_xsd_path(), true ) ) {
-		if ( ! bSilent ) {
-			WARNINGLOG( QString( "[%1] does not validate against drumkit schema. Trying to retrieve its name nevertheless.")
-						.arg( sDrumkitPath ) );
-		}
-		
-		if ( ! pDoc->read( sDrumkitPath, nullptr, bSilent ) ) {
-			ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
-					  .arg( sDrumkitPath ) );
-			return false;
-		}
+	if ( ! pDoc->read( sDrumkitPath, bSilent ) ) {
+		ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
+				  .arg( sDrumkitPath ) );
+		return false;
 	}
-	
+
 	XMLNode root = pDoc->firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( QString( "Unable to load drumkit name for [%1]. 'drumkit_info' node not found" )

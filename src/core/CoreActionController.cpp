@@ -1198,7 +1198,7 @@ bool CoreActionController::validateDrumkit( const QString& sDrumkitPath, bool bC
 	}
 
 	XMLDoc doc;
-	if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ), nullptr, true ) ) {
+	if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ), true ) ) {
 		ERRORLOG( QString( "Drumkit XML file [%1] can not be parsed." )
 				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
 		return false;
