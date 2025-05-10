@@ -246,11 +246,8 @@ void XmlTest::testDrumkitLegacy()
 	___INFOLOG( "passed" );
 }
 
-//Load drumkit which includes instrument with invalid ADSR values.
-// Expected behavior: The drumkit will be loaded successfully. 
-//					  In addition, the drumkit file will be saved with 
-//					  correct ADSR values.
-void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
+// Load drumkit which includes instrument with invalid ADSR values.
+void XmlTest::testDrumkit_invalidADSRValues()
 {
 	___INFOLOG( "" );
 	auto pTestHelper = TestHelper::get_instance();
@@ -260,14 +257,14 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit"),
 									  true, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	
+
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
 	auto pInstruments = pDrumkit->getInstruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
-	
+
 	auto pFirstInstrument = pInstruments->get(0);
 	CPPUNIT_ASSERT( pFirstInstrument != nullptr );
-	
+
 	auto pLayer = pFirstInstrument->getComponents()->front()->getLayer(0);
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	
@@ -275,29 +272,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
 	CPPUNIT_ASSERT( pSample->getFilename() == QString("snare.wav"));
-	
-	// 3. Make sure that the original (invalid) file has been saved as
-	// a backup.
-	if ( H2Core::Filesystem::dir_writable( H2TEST_FILE( "drumkits/invAdsrKit" ), true ) ) {
-		QStringList backupFiles = pTestHelper->findDrumkitBackupFiles(
-			H2TEST_FILE( "drumkits/invAdsrKit" ) );
-		CPPUNIT_ASSERT( backupFiles.size() == 1 );
-		CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( backupFiles[ 0 ] ) );
-	}
 
-	//4. Load the drumkit again to assure updated file is valid
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit"),
-									  false, true );
-	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles(
-		H2TEST_FILE( "drumkits/invAdsrKit" ) );
-	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	CPPUNIT_ASSERT( backupFiles.size() == 1 );
-	
-	// Cleanup
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_copy( backupFiles[ 0 ],
-												   H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml" ),
-												   true ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::rm( backupFiles[ 0 ], false ) );
 	___INFOLOG( "passed" );
 }
 
