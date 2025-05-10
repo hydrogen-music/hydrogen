@@ -259,13 +259,21 @@ void Instrument::load_from( const QString& sDrumkitPath, const QString& sInstrum
 	}
 }
 
-std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString& sDrumkitPath, const QString& sDrumkitName, const License& license, bool bSilent )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode,
+												   const QString& sDrumkitPath,
+												   const QString& sDrumkitName,
+												   const License& license,
+												   bool* pLegacyFormatEncountered,
+												   bool bSilent )
 {
 	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
 	// dummy kits)
 	int nId = pNode->read_int( "id", -2, false, false, bSilent );
 	if ( nId == -2 ) {
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
 		return nullptr;
 	}
 
@@ -357,6 +365,10 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 									.arg( sInstrumentDrumkitPath ) );
 					}
 				}
+
+				if ( pLegacyFormatEncountered != nullptr ) {
+					*pLegacyFormatEncountered = true;
+				}
 			}
 			else if ( ! pNode->firstChildElement( "drumkit" ).isNull() ) {
 				// Format used from version 0.9.7 till 1.1.0.
@@ -367,11 +379,19 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
 													 Filesystem::Lookup::stacked,
 													 bSilent );
+
+				if ( pLegacyFormatEncountered != nullptr ) {
+					*pLegacyFormatEncountered = true;
+				}
 			}
 			else {
 				// Format used prior to 0.9.7 which worked with absolute
 				// paths for the samples instead of relative ones.
 				sInstrumentDrumkitPath = "";
+
+				if ( pLegacyFormatEncountered != nullptr ) {
+					*pLegacyFormatEncountered = true;
+				}
 			}
 		}
 	}
@@ -508,7 +528,11 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* pNode, const QString
 		}
 
 		pInstrument->get_components()->push_back( pCompo );
-	}
+
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
+}
 
 	// Sanity checks
 

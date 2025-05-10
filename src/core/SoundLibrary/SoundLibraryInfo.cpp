@@ -37,7 +37,7 @@ bool SoundLibraryInfo::load( const QString& sPath ) {
 	setPath( sPath );
 
 	XMLDoc doc;
-	if ( ! doc.read( sPath, nullptr, true ) ) {
+	if ( ! doc.read( sPath, true ) ) {
 		ERRORLOG( QString( "Unable to load SoundLibraryInfo from [%1]" )
 				  .arg( sPath ) );
 		return false;

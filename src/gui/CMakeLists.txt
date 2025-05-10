@@ -77,6 +77,7 @@ endif()
 
 target_link_libraries(hydrogen
 	hydrogen-core-${VERSION}
+    Qt5::Network
 	Qt5::Widgets
 	Qt5::Svg
 )

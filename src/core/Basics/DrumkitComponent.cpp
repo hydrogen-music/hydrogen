@@ -101,10 +101,15 @@ void DrumkitComponent::load_from( std::shared_ptr<DrumkitComponent> component )
 	this->set_volume( component->get_volume() );
 }
 
-std::shared_ptr<DrumkitComponent> DrumkitComponent::load_from( XMLNode* node )
+std::shared_ptr<DrumkitComponent> DrumkitComponent::load_from(
+	XMLNode* node, bool* pLegacyFormatEncountered )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
+
 		return nullptr;
 	}
 
