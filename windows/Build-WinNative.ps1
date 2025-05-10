@@ -96,7 +96,7 @@ if($build)
     }
 
     Write-Host 'Bundling libraries required for Qt'
-    $arguments="-xmlpatterns", "--no-patchqt", "--dir", "windows\extralibs", "src\gui\hydrogen.exe"
+    $arguments="--no-patchqt", "--dir", "windows\extralibs", "src\gui\hydrogen.exe"
     $cmd="$env:QTDIR\bin\windeployqt.exe"
     & $cmd $arguments
 

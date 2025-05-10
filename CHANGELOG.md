@@ -201,6 +201,10 @@ All notable changes to this project will be documented in this file.
 - AppImage build dir is now removed on `build.sh r` (#2129).
 - Fix potential crash with JACK audio driver on startup, teardown, or
   song/drumkit loading.
+  
+### Removed
+
+- `Qt XmlPatterns` is no longer a dependency.
 
 ## [1.2.4] - 2024-12-07
 

@@ -636,7 +636,7 @@ for:
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Deploy Qt ***
-          set "DEPLOY_ARGS=-xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
+          set "DEPLOY_ARGS=--no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
 
           %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
