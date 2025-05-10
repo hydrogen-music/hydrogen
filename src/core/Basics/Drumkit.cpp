@@ -91,7 +91,10 @@ Drumkit::~Drumkit()
 {
 }
 
-std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgrade, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
+										bool bUpgrade,
+										bool* pLegacyFormatEncountered,
+										bool bSilent )
 {
 	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {
 		ERRORLOG( QString( "[%1] is not valid drumkit folder" ).arg( sDrumkitPath ) );
@@ -129,6 +132,10 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	else {
 		pDrumkit = Drumkit::load_from( &root, sDrumkitDir,
 									   &bLegacyFormatEncountered, bSilent );
+	}
+
+	if ( pLegacyFormatEncountered != nullptr ) {
+		*pLegacyFormatEncountered = bLegacyFormatEncountered;
 	}
 
 	if ( pDrumkit == nullptr ) {

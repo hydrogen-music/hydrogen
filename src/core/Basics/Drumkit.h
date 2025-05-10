@@ -56,18 +56,22 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Load drumkit information from a directory.
 		 *
 		 * \param dk_dir A directory containing a drumkit,
-		 * like those returned by
-		 * Filesystem::drumkit_dir_search().
+		 *   like those returned by
+		 *   Filesystem::drumkit_dir_search().
 		 * \param bUpgrade Whether the loaded drumkit should be
-		 * upgraded using upgrade_drumkit() in case it did not comply
-		 * with the current XSD file.
+		 *   upgraded using upgrade_drumkit() in case it did not comply
+		 *   with the current XSD file.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static std::shared_ptr<Drumkit> load( const QString& dk_dir,
 											  bool bUpgrade = true,
+											  bool* pLegacyFormatEncountered = nullptr,
 											  bool bSilent = false );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.

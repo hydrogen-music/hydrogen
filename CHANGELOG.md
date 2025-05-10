@@ -21,6 +21,8 @@ All notable changes to this project will be documented in this file.
   of virtual processors (#2128).
 - `Changelog` was renamed `CHANGELOG.md` and converted from GNU-style changelog
   to markdown similar to https://keepachangelog.com/en/1.1.0/.
+- Hydrogen no longer uses XSD files to validate XML files during loading or via
+  `h2cli --check` but uses direct XML inspection instead.
 
 ### Fixed
 
