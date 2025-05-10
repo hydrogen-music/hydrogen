@@ -203,6 +203,15 @@ for:
       echo "Validating AppStream meta data."
       appstreamcli validate ../linux/org.hydrogenmusic.Hydrogen.metainfo.xml || exit 1
 
+      echo "Check whether the XSD files are still on par with our XML files"
+      xmllint --schema ../data/xsd/drumkit.xsd ../src/tests/data/drumkits/baseKit/drumkit.xml || exit 1
+      xmllint --schema ../data/xsd/drumkit_pattern.xsd ../src/tests/data/pattern/pat.h2pattern || exit 1
+      xmllint --schema ../data/xsd/playlist.xsd ../src/tests/data/playlist/test.h2playlist || exit 1
+
+      echo "Validating shipped XML files"
+      xmllint --schema ../data/xsd/drumkit.xsd ../data/drumkits/GMRockKit/drumkit.xml || exit 1
+      xmllint --schema ../data/xsd/drumkit.xsd ../data/drumkits/TR808EmulationKit/drumkit.xml || exit 1
+
       ( exit $res )
 
   - 
