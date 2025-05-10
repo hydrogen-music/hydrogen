@@ -158,18 +158,22 @@ Instrument::~Instrument() {
 }
 
 std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
-												   const QString& sDrumkitPath,
-												   const QString& sDrumkitName,
-												   const QString& sSongPath,
-												   const License& license,
-												   bool bSongKit,
-												   bool bSilent )
+												  const QString& sDrumkitPath,
+												  const QString& sDrumkitName,
+												  const QString& sSongPath,
+												  const License& license,
+												  bool bSongKit,
+												  bool* pLegacyFormatEncountered,
+												  bool bSilent )
 {
 	// We use -2 instead of EMPTY_INSTR_ID (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
 	// dummy kits)
 	int nId = node.read_int( "id", -2, false, false, bSilent );
 	if ( nId == -2 ) {
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
 		return nullptr;
 	}
 
@@ -268,6 +272,10 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 									.arg( sInstrumentDrumkitPath ) );
 					}
 				}
+
+				if ( pLegacyFormatEncountered != nullptr ) {
+					*pLegacyFormatEncountered = true;
+				}
 			}
 			else if ( ! node.firstChildElement( "drumkit" ).isNull() ) {
 				// Format used from version 0.9.7 till 1.1.0.
@@ -278,11 +286,19 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 					Filesystem::drumkit_path_search( sInstrumentDrumkitName,
 													 Filesystem::Lookup::stacked,
 													 bSilent );
+
+				if ( pLegacyFormatEncountered != nullptr ) {
+					*pLegacyFormatEncountered = true;
+				}
 			}
 			else {
 				// Format used prior to 0.9.7 which worked with absolute
 				// paths for the samples instead of relative ones.
 				sInstrumentDrumkitPath = "";
+
+				if ( pLegacyFormatEncountered != nullptr ) {
+					*pLegacyFormatEncountered = true;
+				}
 			}
 		}
 	}
@@ -435,6 +451,10 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 		for ( auto& ppComponent : *pInstrument->getComponents() ) {
 			ppComponent->setSelection( selection );
 		}
+	}
+
+	if ( pLegacyFormatEncountered != nullptr ) {
+		*pLegacyFormatEncountered = true;
 	}
 
 	// Sanity checks

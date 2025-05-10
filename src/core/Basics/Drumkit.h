@@ -122,6 +122,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   part of a song (which allows composition of a drumkit from various
 		 *   kits and new instruments/samples). If `false`, it corresponds to
 		 *   the kit being loaded as part of the `SoundLibraryDatabase`.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
@@ -129,6 +132,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 												  const QString& sPath,
 												  const QString& sSongPath,
 												  bool bSongKit = false,
+												  bool* pLegacyFormatEncountered = nullptr,
 												  bool bSilent = false );
 
 		/*

@@ -135,8 +135,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 
 	auto pDrumkit =
 		Drumkit::loadFrom( root, sDrumkitFile.left( sDrumkitFile.lastIndexOf( "/" ) ),
-						   "", false, bSilent );
-	
+						   "", false, nullptr, bSilent );
 	if ( pDrumkit == nullptr ) {
 		ERRORLOG( QString( "Unable to load drumkit [%1]" ).arg( sDrumkitFile ) );
 		return nullptr;
@@ -155,6 +154,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											const QString& sDrumkitPath,
 											const QString& sSongPath,
 											bool bSongKit,
+											bool* pLegacyFormatEncountered,
 											bool bSilent )
 {
 	QString sDrumkitName = node.read_string( "name", "", false, false, bSilent );
@@ -162,7 +162,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
 	}
-	
+
 	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 
 	pDrumkit->m_sPath = sDrumkitPath;
@@ -190,11 +190,16 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	pDrumkit->setImageLicense( imageLicense );
 
 	auto pInstrumentList = InstrumentList::loadFrom(
-		node, sDrumkitPath, sDrumkitName, sSongPath, license, bSongKit, false );
+		node, sDrumkitPath, sDrumkitName, sSongPath, license, bSongKit,
+		pLegacyFormatEncountered, false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
 		pInstrumentList = std::make_shared<InstrumentList>();
+
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
 	}
 
 	// For kits created between 0.9.7 and 1.2.X, retrieve InstrumentComponent

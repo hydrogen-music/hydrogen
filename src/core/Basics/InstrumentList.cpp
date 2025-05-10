@@ -74,6 +74,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	const QString& sSongPath,
 	const License& license,
 	bool bSongKit,
+	bool* pLegacyFormatEncountered,
 	bool bSilent )
 {
 
@@ -96,7 +97,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 
 		auto pInstrument = Instrument::loadFrom(
 			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
-			license, bSongKit, bSilent );
+			license, bSongKit, pLegacyFormatEncountered, bSilent );
 		if ( pInstrument != nullptr ) {
 			pInstrumentList->add( pInstrument );
 		}
