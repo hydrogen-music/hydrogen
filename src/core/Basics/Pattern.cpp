@@ -92,7 +92,7 @@ std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath,
 	}
 
 	XMLDoc doc;
-	if ( ! doc.read( sPatternPath, nullptr ) ) {
+	if ( ! doc.read( sPatternPath ) ) {
 		ERRORLOG( QString( "Unable to read pattern [%1]" )
 				  .arg( sPatternPath ) );
 		return nullptr;

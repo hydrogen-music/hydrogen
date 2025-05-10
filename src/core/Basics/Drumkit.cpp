@@ -118,7 +118,7 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
 	
 	XMLDoc doc;
-	doc.read( sDrumkitFile, nullptr, bSilent );
+	doc.read( sDrumkitFile, bSilent );
 
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {

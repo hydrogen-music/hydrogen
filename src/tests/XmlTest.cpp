@@ -182,8 +182,7 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( timestampSave == timestampStart );
 
 	// Check whether the generated drumkit is valid.
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
-							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ) ) );
 	
 	// load file
 	pDrumkitReloaded = H2Core::Drumkit::load(
@@ -207,8 +206,7 @@ void XmlTest::testDrumkit()
 	pDrumkitNew = std::make_shared<H2Core::Drumkit>();
 	CPPUNIT_ASSERT( pDrumkitNew != nullptr );
 	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
-							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ) ) );
 	pDrumkitReloaded = H2Core::Drumkit::load(
 		sDrumkitPath, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
@@ -489,15 +487,14 @@ void XmlTest::testShippedDrumkits()
 {
 	___INFOLOG( "" );
 
-	// Since there are also optional elements in our XSD definition, we load,
+	// Since there are also optional elements in our XML files, we load,
 	// save, and compare all shipped kit to ensure they are cutting edge.
 	for ( const auto& ssKit : H2Core::Filesystem::sys_drumkit_list() ) {
 		___INFOLOG( ssKit );
 
 		// Since kits are upgraded during startup of Hydrogen, all shipped kits
-		// will already comply with our XSD file. But we can check for the
-		// presence of backup files which indicate that an upgrade was
-		// required/took place.
+		// will cutting edge. But we can check for the presence of backup files
+		// which indicate that an upgrade was required/took place.
 		const auto backupFiles =
 			TestHelper::get_instance()->findDrumkitBackupFiles(
 				QString( "%1/%2" ).arg( H2Core::Filesystem::sys_drumkits_dir() )
@@ -590,8 +587,9 @@ void XmlTest::testShippedDrumkitMaps()
 	CPPUNIT_ASSERT( shippedMaps.size() > 0 );
 
 	for ( const auto& ssMap : shippedMaps ) {
-		CPPUNIT_ASSERT( doc.read( mapDir.filePath( ssMap ),
-								  H2Core::Filesystem::drumkit_map_xsd_path() ) );
+		auto pDrumkitMap = H2Core::DrumkitMap::load(
+			mapDir.filePath( ssMap ), false );
+		CPPUNIT_ASSERT( pDrumkitMap != nullptr );
 	}
 	___INFOLOG( "passed" );
 }
@@ -646,8 +644,7 @@ void XmlTest::testPattern()
 		H2Core::Filesystem::tmp_dir() + "empty.h2pattern";
 	auto pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
 	CPPUNIT_ASSERT( pPatternNew->save( sPatternPath, true ) );
-	CPPUNIT_ASSERT( doc.read( sPatternPath,
-							  H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	H2TEST_ASSERT_XML_FILES_EQUAL( H2TEST_FILE( "pattern/empty.h2pattern" ),
 								   sPatternPath );
 
@@ -722,16 +719,12 @@ void XmlTest::checkTestPatterns()
 {
 	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/empty.h2pattern" ),
-							  H2Core::Filesystem::pattern_xsd_path() ) );
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pattern.h2pattern" ),
-							  H2Core::Filesystem::pattern_xsd_path() ) );
-	CPPUNIT_ASSERT( doc.read(
-						H2TEST_FILE( "/pattern/pattern-with-mismatch.h2pattern" ),
-						H2Core::Filesystem::pattern_xsd_path() ) );
-	CPPUNIT_ASSERT( doc.read(
-						H2TEST_FILE( "/pattern/pattern-without-types.h2pattern" ),
-						H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/empty.h2pattern" ) ) );
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pattern.h2pattern" ) ) );
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE(
+								  "/pattern/pattern-with-mismatch.h2pattern" ) ) );
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE(
+								  "/pattern/pattern-without-types.h2pattern" ) ) );
 
 	___INFOLOG( "passed" );
 }
@@ -773,8 +766,7 @@ void XmlTest::testPlaylist()
 
 	CPPUNIT_ASSERT( pPlaylist != nullptr );
 	CPPUNIT_ASSERT( pPlaylist->saveAs( sTmpPath ) );
-	CPPUNIT_ASSERT( doc.read( sTmpPath,
-							  H2Core::Filesystem::playlist_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sTmpPath ) );
 	const auto pPlaylistLoaded = H2Core::Playlist::load( sTmpPath );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
 
@@ -789,8 +781,6 @@ void XmlTest::testPlaylist()
 	H2Core::XMLDoc docEmpty;
 
 	CPPUNIT_ASSERT( pPlaylistEmpty->saveAs( sTmpPathEmpty ) );
-	CPPUNIT_ASSERT( docEmpty.read( sTmpPathEmpty,
-							  H2Core::Filesystem::playlist_xsd_path() ) );
 	const auto pPlaylistEmptyLoaded = H2Core::Playlist::load( sTmpPathEmpty );
 	CPPUNIT_ASSERT( pPlaylistEmptyLoaded != nullptr );
 

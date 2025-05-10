@@ -47,15 +47,7 @@ std::shared_ptr<DrumkitMap> DrumkitMap::load( const QString& sPath, bool bSilent
 	}
 
 	XMLDoc doc;
-	if ( !doc.read( sPath, Filesystem::drumkit_map_xsd_path(), true ) ) {
-		WARNINGLOG( QString( "Mapping file [%1] is not valid with respect to [%2]. Loading might fail." )
-					.arg( sPath )
-					.arg( Filesystem::drumkit_map_xsd_path() ) );
-		if ( ! doc.read( sPath, nullptr, bSilent ) ) {
-			WARNINGLOG( QString( "Mapping file [%1] could not be loaded cleanly without XSD file either" )
-						.arg( sPath ) );
-		}
-	}
+	doc.read( sPath, bSilent );
 
 	XMLNode rootNode = doc.firstChildElement( "drumkit_map" );
 	if ( rootNode.isNull() ) {

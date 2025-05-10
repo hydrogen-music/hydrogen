@@ -69,12 +69,6 @@ void CliTest::testKitToDrumkitMap() {
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		sTmpRefFile, H2TEST_FILE( "drumkit_map/sample.h2map" ) );
 
-	// Ensure the file can be loaded (and complies with our XSD). We do not use
-	// DrumkitMap::load directly, as it is resilient against XSD invalidity.
-	H2Core::XMLDoc docRef;
-	CPPUNIT_ASSERT( docRef.read( sTmpRefFile,
-								 H2Core::Filesystem::drumkit_map_xsd_path() ) );
-
 	H2Core::Filesystem::rm( sTmpRefFile, true );
 
 	// And now for the empty one.
@@ -93,8 +87,7 @@ void CliTest::testKitToDrumkitMap() {
 		sTmpNoTypesFile, H2TEST_FILE( "drumkit_map/empty.h2map" ) );
 
 	H2Core::XMLDoc docNoTypes;
-	CPPUNIT_ASSERT( docNoTypes.read( sTmpNoTypesFile,
-									 H2Core::Filesystem::drumkit_map_xsd_path() ) );
+	CPPUNIT_ASSERT( docNoTypes.read( sTmpNoTypesFile ) );
 
 	H2Core::Filesystem::rm( sTmpNoTypesFile, true );
 
