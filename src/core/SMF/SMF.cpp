@@ -36,7 +36,6 @@
 #include <math.h>
 
 #include <QFile>
-#include <QTextCodec>
 #include <QTextStream>
 
 namespace H2Core
