@@ -17,7 +17,7 @@ add_executable(h2JackTimebase WIN32 MACOSX_BUNDLE ${h2JackTimebase_SRCS} )
 set_property(TARGET h2JackTimebase PROPERTY CXX_STANDARD 17)
 target_link_libraries(h2JackTimebase
 	hydrogen-core-${VERSION}
-	Qt5::Widgets
+	Qt${QT_VERSION_MAJOR}::Widgets
 	${CPPUNIT_LIBRARIES}
 	${OSC_LIBRARIES}
 	)
