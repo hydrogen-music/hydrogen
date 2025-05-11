@@ -65,30 +65,37 @@ void Playlist::clear()
 Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 {
 	XMLDoc doc;
-	if ( !doc.read( pl_path, Filesystem::playlist_xsd_path() ) ) {
-		Playlist* pl = new Playlist();
-		Playlist* ret = Legacy::load_playlist( pl, pl_path );
-		if ( ret == nullptr ) {
-			delete pl;	// __instance = 0;
-			return nullptr;
-		}
-		WARNINGLOG( QString( "update playlist %1" ).arg( pl_path ) );
-		pl->save_file( pl_path, pl->getFilename(), true, useRelativePaths );
-		return pl;
-	}
-	XMLNode root = doc.firstChildElement( "playlist" );
-	if ( root.isNull() ) {
+	doc.read( pl_path );
+
+	XMLNode rootNode = doc.firstChildElement( "playlist" );
+	if ( rootNode.isNull() ) {
 		ERRORLOG( "playlist node not found" );
 		return nullptr;
 	}
-	QFileInfo fileInfo = QFileInfo( pl_path );
-	return Playlist::load_from( &root, fileInfo, useRelativePaths );
-}
 
-Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelativePaths )
-{
+	// Check whether we deal with a legacy format.
+	XMLNode legacyNextNode;
+	XMLNode capitalizedSongsNode = rootNode.firstChildElement( "Songs" );
+	if ( ! capitalizedSongsNode.isNull() ) {
+		legacyNextNode = capitalizedSongsNode.firstChildElement( "next" );
+	}
+	if ( ! legacyNextNode.isNull() ) {
+		Playlist* pl = new Playlist();
+		Playlist* ret = Legacy::load_playlist( pl, pl_path );
+		if ( ret == nullptr ) {
+			delete pl;
+			return nullptr;
+		}
+
+		WARNINGLOG( QString( "Upgrading playlist [%1]" ).arg( pl_path ) );
+		pl->save_file( pl_path, pl->getFilename(), true, useRelativePaths );
+		return pl;
+	}
+
+	QFileInfo fileInfo = QFileInfo( pl_path );
+
 	// Check whether the file was created using a newer version of Hydrogen.
-	auto formatVersionNode = node->firstChildElement( "formatVersion" );
+	auto formatVersionNode = rootNode.firstChildElement( "formatVersion" );
 	if ( ! formatVersionNode.isNull() ) {
 		WARNINGLOG( QString( "Playlist file [%1] was created with a more recent version of Hydrogen than the current one!" )
 					.arg( fileInfo.absoluteFilePath() ) );
@@ -97,7 +104,7 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 	Playlist* pPlaylist = new Playlist();
 	pPlaylist->setFilename( fileInfo.absoluteFilePath() );
 
-	XMLNode songsNode = node->firstChildElement( "songs" );
+	XMLNode songsNode = rootNode.firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
 		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {

@@ -195,17 +195,22 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param sDrumkitPath the directory holding the #Drumkit
 		 * \param sDrumkitName name of the #Drumkit found in @a sDrumkitPath
 		 * \param license License assigned to all Samples that will be
-		 * loaded. If empty, the license will be read from @a dk_path.
+		 *   loaded. If empty, the license will be read from @a dk_path.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return a new InstrumentList instance
 		 */
-	static std::shared_ptr<InstrumentList> load_from( XMLNode* node,
-									  const QString& sDrumkitPath,
-									  const QString& sDrumkitName,
-									  const License& license = License(),
-									  bool bSilent = false );
+	static std::shared_ptr<InstrumentList> load_from(
+		XMLNode* node,
+		const QString& sDrumkitPath,
+		const QString& sDrumkitName,
+		const License& license = License(),
+		bool* pLegacyFormatEncountered = nullptr,
+		bool bSilent = false );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.

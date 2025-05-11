@@ -79,17 +79,22 @@ class Pattern : public H2Core::Object<Pattern>
 
 		/**
 		 * load a pattern from a file
-		 * \param pattern_path the path to the file to load the pattern from
-		 * \param instruments the current instrument list to search instrument into
+		 * \param sPatternPath the path to the file to load the pattern from
+		 * \param pInstruments the current instrument list to search instrument
+		 *   into
+		 * \param bSilent Whether infos, warnings, and errors should
+		 *   be logged.
 		 */
-		static Pattern* load_file( const QString& pattern_path, std::shared_ptr<InstrumentList> instruments );
+		static Pattern* load_file( const QString& sPpatternPath,
+								   std::shared_ptr<InstrumentList> pInstruments,
+								   bool bSilent = false );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param instruments the current instrument list to search
-		 * instrument into
+		 *   instrument into
 		 * \param bSilent Whether infos, warnings, and errors should
-		 * be logged.
+		 *   be logged.
 		 * \return a new Pattern instance
 		 */
 	static Pattern* load_from( XMLNode* node, std::shared_ptr<InstrumentList> instruments, bool bSilent = false );
@@ -257,13 +262,6 @@ class Pattern : public H2Core::Object<Pattern>
 		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
 		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
 		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
-	/**
-	 * Loads the pattern stored in @a sPatternPath into @a pDoc and
-	 * takes care of all the error handling.
-	 *
-	 * \return true on success.
-	 */
-	static bool loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent = false );
 };
 
 /** Iterate over all provided notes in an immutable way. */

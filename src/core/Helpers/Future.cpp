@@ -95,7 +95,8 @@ std::shared_ptr<H2Core::Drumkit> Future::loadDrumkit( XMLNode& node,
 		}
 
 		auto pInstrument = Instrument::load_from(
-			&instrumentNode, sDrumkitPath, sDrumkitName, license, bSilent );
+			&instrumentNode, sDrumkitPath, sDrumkitName, license, nullptr,
+			bSilent );
 		if ( pInstrument != nullptr ) {
 			auto pInstrumentComponents = pInstrument->get_components();
 
@@ -193,7 +194,8 @@ std::vector<std::shared_ptr<DrumkitComponent>> Future::loadDrumkitComponentsFrom
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from(
+				&componentNode, nullptr );
 			if ( pDrumkitComponent != nullptr ) {
 				pComponents.push_back(pDrumkitComponent);
 			}

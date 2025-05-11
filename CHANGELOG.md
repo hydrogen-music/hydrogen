@@ -21,6 +21,8 @@ All notable changes to this project will be documented in this file.
   of virtual processors (#2128).
 - `Changelog` was renamed `CHANGELOG.md` and converted from GNU-style changelog
   to markdown similar to https://keepachangelog.com/en/1.1.0/.
+- Hydrogen no longer uses XSD files to validate XML files during loading or via
+  `h2cli --check` but uses direct XML inspection instead.
 
 ### Fixed
 
@@ -37,6 +39,10 @@ All notable changes to this project will be documented in this file.
 - AppImage build dir is now removed on `build.sh r` (#2129).
 - Fix potential crash with JACK audio driver on startup, teardown, or
   song/drumkit loading.
+  
+### Removed
+
+- `Qt XmlPatterns` is no longer a dependency.
 
 ## [1.2.4] - 2024-12-07
 

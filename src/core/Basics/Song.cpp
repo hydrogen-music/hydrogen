@@ -402,7 +402,8 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		if ( ( ! componentListNode.isNull()  ) ) {
 			XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 			while ( ! componentNode.isNull()  ) {
-				auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+				auto pDrumkitComponent = DrumkitComponent::load_from(
+					&componentNode, nullptr );
 				if ( pDrumkitComponent != nullptr ) {
 					pSong->getComponents()->push_back( pDrumkitComponent );
 				}
@@ -419,11 +420,13 @@ std::shared_ptr<Song> Song::loadFrom( XMLNode* pRootNode, const QString& sFilena
 		//
 		// By supplying no drumkit path the individual drumkit meta infos
 		// stored in the 'instrument' nodes will be used.
-		auto pInstrumentList = InstrumentList::load_from( pRootNode,
-														  "", // sDrumkitPath
-														  "", // sDrumkitName
-														  License(), // per-instrument licenses
-														  bSilent );
+		auto pInstrumentList = InstrumentList::load_from(
+			pRootNode,
+			"", // sDrumkitPath
+			"", // sDrumkitName
+			License(), // per-instrument licenses
+			nullptr, // check for legacy format is not required in here.
+			bSilent );
 
 		if ( pInstrumentList == nullptr ) {
 			return nullptr;
