@@ -20,7 +20,9 @@
  *
  */
 
-#include <QTextCodec>
+#ifndef H2CORE_HAVE_QT6
+  #include <QTextCodec>
+#endif
 
 #include "SoundLibraryExportDialog.h"
 #include "../HydrogenApp.h"
@@ -132,7 +134,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		QApplication::restoreOverrideCursor();
 		QString sError = tr( "Unable to export drumkit" );
 
-		
+#ifndef H2CORE_HAVE_QT6
 		// Check whether encoding might be the problem in here.
 		auto pCodec = QTextCodec::codecForLocale();
 		if ( ! pCodec->canEncode( drumkitPathTxt->text() ) ) {
@@ -145,6 +147,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		else {
 			QMessageBox::critical( this, "Hydrogen", sError );
 		}
+#else
+		QMessageBox::critical( this, "Hydrogen", sError );
+#endif
 		
 		return;
 	}
