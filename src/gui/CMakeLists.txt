@@ -77,9 +77,9 @@ endif()
 
 target_link_libraries(hydrogen
 	hydrogen-core-${VERSION}
-    Qt5::Network
-	Qt5::Widgets
-	Qt5::Svg
+    Qt${QT_VERSION_MAJOR}::Network
+	Qt${QT_VERSION_MAJOR}::Widgets
+	Qt${QT_VERSION_MAJOR}::Svg
 )
 
 if(Backtrace_FOUND)

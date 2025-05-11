@@ -38,6 +38,9 @@
 #ifndef H2CORE_HAVE_DEBUG
 #cmakedefine H2CORE_HAVE_DEBUG
 #endif
+#ifndef H2CORE_HAVE_QT6
+#cmakedefine H2CORE_HAVE_QT6
+#endif
 #ifndef H2CORE_HAVE_BUNDLE
 #cmakedefine H2CORE_HAVE_BUNDLE
 #endif
