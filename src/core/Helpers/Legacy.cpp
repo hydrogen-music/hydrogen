@@ -23,7 +23,6 @@
 #include <memory>
 #include <QFile>
 #include <QByteArray>
-#include <QTextCodec>
 
 #include <core/Helpers/Legacy.h>
 
@@ -365,14 +364,8 @@ QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
 				  .arg( pFile->fileName() ) );
 	}
 
-	QString sEncoding = QTextCodec::codecForLocale()->name();
-	if ( sEncoding == "System" ) {
-		sEncoding = "UTF-8";
-	}
 	QByteArray line;
-	QByteArray buf = QString("<?xml version='1.0' encoding='%1' ?>\n")
-		.arg( sEncoding )
-		.toLocal8Bit();
+	QByteArray buf = "<?xml version='1.0' ?>\n";
 
 	while ( ! pFile->atEnd() ) {
 		line = pFile->readLine();
