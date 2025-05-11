@@ -33,6 +33,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QDateTime>
+#include <QRegularExpression>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -815,7 +816,8 @@ QString Filesystem::tmp_file_path( const QString &base )
 {
 	// Ensure template base will produce a valid filename
 	QString validBase = base;
-	validBase.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
+	validBase.remove(
+		QRegularExpression( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	QFileInfo f( validBase );
 	QString templateName( tmp_dir() + "/" );
@@ -1076,7 +1078,8 @@ QString Filesystem::validateFilePath( const QString& sPath ) {
 	// Ensure the name will be a valid filename
 	QString sValidName( sPath );
 	sValidName.replace( " ", "_" );
-	sValidName.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
+	sValidName.remove(
+		QRegularExpression( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	return sValidName;
 }
@@ -1371,7 +1374,8 @@ QString Filesystem::TypeToQString( const Type& type ) {
 
 QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
 	QString sCleaned( sEncodedString );
-	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
+	return sCleaned.remove(
+		QRegularExpression( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
 }
 const std::vector<Filesystem::AudioFormat>& Filesystem::supportedAudioFormats() {
 	return m_supportedAudioFormats;

@@ -20,6 +20,7 @@
  *
  */
 
+#include <QRegularExpression>
 
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences/Preferences.h"
@@ -185,159 +186,178 @@ int OscServer::generic_handler(const char *	path,
 
 	bool bMessageProcessed = false;
 	
-	int nNumberOfStrips = pSong->getDrumkit()->getInstruments()->size();
-	
+	const int nNumberOfStrips = pSong->getDrumkit()->getInstruments()->size();
+
 	//First we're trying to map TouchOSC messages from multi-fader widgets
-	QString oscPath( path );
-	QRegExp rxStripVol( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" );
-	int pos = rxStripVol.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if( argc == 1 ){
-			int nStrip = rxStripVol.cap(1).toInt() -1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				STRIP_VOLUME_ABSOLUTE_Handler( nStrip , argv[0]->f );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips  ) );
-			}
+	const QString oscPath( path );
+
+	QRegularExpression rxStripVol(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" ) );
+	rxStripVol.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripVolMatch = rxStripVol.match( oscPath );
+	if ( rxStripVolMatch.hasMatch() && argc == 1 ) {
+		const int nStrip = rxStripVolMatch.captured( 1 ).toInt() -1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			STRIP_VOLUME_ABSOLUTE_Handler( nStrip , argv[0]->f );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips  ) );
 		}
 	}
 
-	QRegExp rxStripVolRel( "/Hydrogen/STRIP_VOLUME_RELATIVE/(\\d+)" );
-	pos = rxStripVolRel.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if( argc == 1 ){
-			int nStrip = rxStripVolRel.cap(1).toInt() - 1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				STRIP_VOLUME_RELATIVE_Handler( QString::number( nStrip ),
-											   QString::number( argv[0]->f, 'f', 0 ) );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips ) );
-			}
+	QRegularExpression rxStripVolRel(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/STRIP_VOLUME_RELATIVE/(\\d+)" ) );
+	rxStripVolRel.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripVolRelMatch = rxStripVolRel.match( oscPath );
+	if ( rxStripVolRelMatch.hasMatch() && argc == 1 ) {
+		const int nStrip = rxStripVolRelMatch.captured( 1 ).toInt() - 1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			STRIP_VOLUME_RELATIVE_Handler( QString::number( nStrip ),
+										   QString::number( argv[0]->f, 'f', 0 ) );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips ) );
 		}
 	}
 	
-	QRegExp rxStripPanAbs( "/Hydrogen/PAN_ABSOLUTE/(\\d+)" );
-	pos = rxStripPanAbs.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if( argc == 1 ){
-			int nStrip = rxStripPanAbs.cap(1).toInt() - 1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				INFOLOG( QString( "processing message as changing pan of strip [%1] in absolute numbers" )
-						 .arg( nStrip ) );
-				H2Core::CoreActionController::setStripPan(
-					nStrip, argv[0]->f, false );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips ) );
-			}
+	QRegularExpression rxStripPanAbs(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/PAN_ABSOLUTE/(\\d+)" ) );
+	rxStripPanAbs.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripPanAbsMatch = rxStripPanAbs.match( oscPath );
+	if ( rxStripPanAbsMatch.hasMatch() && argc == 1 ) {
+		const int nStrip = rxStripPanAbsMatch.captured( 1 ).toInt() - 1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			INFOLOG( QString( "processing message as changing pan of strip [%1] in absolute numbers" )
+					 .arg( nStrip ) );
+			H2Core::CoreActionController::setStripPan(
+				nStrip, argv[0]->f, false );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips ) );
 		}
 	}
 
-	QRegExp rxStripPanAbsSym( "/Hydrogen/PAN_ABSOLUTE_SYM/(\\d+)" );
-	pos = rxStripPanAbsSym.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if( argc == 1 ){
-			int nStrip = rxStripPanAbsSym.cap(1).toInt() - 1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				INFOLOG( QString( "processing message as changing pan of strip [%1] in symmetric, absolute numbers" )
-						 .arg( nStrip ) );
-				H2Core::CoreActionController::setStripPanSym( nStrip, argv[0]->f, false );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips ) );
-			}
+	QRegularExpression rxStripPanAbsSym(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/PAN_ABSOLUTE_SYM/(\\d+)" ) );
+	rxStripPanAbsSym.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripPanAbsSymMatch = rxStripPanAbsSym.match( oscPath );
+	if ( rxStripPanAbsSymMatch.hasMatch() && argc == 1 ) {
+		const int nStrip = rxStripPanAbsSymMatch.captured( 1 ).toInt() - 1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			INFOLOG( QString( "processing message as changing pan of strip [%1] in symmetric, absolute numbers" )
+					 .arg( nStrip ) );
+			H2Core::CoreActionController::setStripPanSym(
+				nStrip, argv[0]->f, false );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips ) );
 		}
 	}
 	
-	QRegExp rxStripPanRel( "/Hydrogen/PAN_RELATIVE/(\\d+)" );
-	pos = rxStripPanRel.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if( argc == 1 ){
-			int nStrip = rxStripPanRel.cap(1).toInt() - 1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				INFOLOG( QString( "processing message as changing pan of strip [%1] in relative numbers" )
-						 .arg( nStrip ) );
-				std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_RELATIVE");
-				pAction->setParameter1( QString::number( nStrip ) );
-				pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
-				MidiActionManager::get_instance()->handleAction( pAction );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips ) );
-			}
+	QRegularExpression rxStripPanRel(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/PAN_RELATIVE/(\\d+)" ) );
+	rxStripPanRel.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripPanRelMatch = rxStripPanRel.match( oscPath );
+	if ( rxStripPanRelMatch.hasMatch() && argc == 1 ) {
+		const int nStrip = rxStripPanRelMatch.captured( 1 ).toInt() - 1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			INFOLOG( QString( "processing message as changing pan of strip [%1] in relative numbers" )
+					 .arg( nStrip ) );
+			std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_RELATIVE");
+			pAction->setParameter1( QString::number( nStrip ) );
+			pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
+			MidiActionManager::get_instance()->handleAction( pAction );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips ) );
 		}
 	}
 
-	QRegExp rxStripFilterCutoffAbs( "/Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/(\\d+)" );
-	pos = rxStripFilterCutoffAbs.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if( argc == 1 ){
-			int nStrip = rxStripFilterCutoffAbs.cap(1).toInt() - 1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( nStrip ),
-													  QString::number( argv[0]->f, 'f', 0 ) );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips ) );
-			}
+	QRegularExpression rxStripFilterCutoffAbs(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/(\\d+)" ) );
+	rxStripFilterCutoffAbs.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripFilterCutoffAbsMatch =
+		rxStripFilterCutoffAbs.match( oscPath );
+	if ( rxStripFilterCutoffAbsMatch.hasMatch() && argc == 1 ) {
+		const int nStrip = rxStripFilterCutoffAbsMatch.captured( 1 ).toInt() - 1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(
+				QString::number( nStrip ), QString::number( argv[0]->f, 'f', 0 ) );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips ) );
 		}
 	}
 	
-	QRegExp rxStripMute( "/Hydrogen/STRIP_MUTE_TOGGLE/(\\d+)" );
-	pos = rxStripMute.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if( argc <= 1 ){
-			int nStrip = rxStripMute.cap(1).toInt() - 1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				INFOLOG( QString( "processing message as toggling mute of strip [%1]" )
-						 .arg( nStrip ) );
-				H2Core::CoreActionController::toggleStripIsMuted( nStrip );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips ) );
-			}
+	QRegularExpression rxStripMute(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/STRIP_MUTE_TOGGLE/(\\d+)" ) );
+	rxStripMute.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripMuteMatch = rxStripMute.match( oscPath );
+	if ( rxStripMuteMatch.hasMatch() && argc <= 1 ) {
+		const int nStrip = rxStripMuteMatch.captured( 1 ).toInt() - 1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			INFOLOG( QString( "processing message as toggling mute of strip [%1]" )
+					 .arg( nStrip ) );
+			H2Core::CoreActionController::toggleStripIsMuted( nStrip );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips ) );
 		}
 	}
 	
-	QRegExp rxStripSolo( "/Hydrogen/STRIP_SOLO_TOGGLE/(\\d+)" );
-	pos = rxStripSolo.indexIn( oscPath );
-	if ( pos > -1 ) {
-		if ( argc <= 1 ) {
-			int nStrip = rxStripSolo.cap(1).toInt() - 1;
-			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				INFOLOG( QString( "processing message as toggling solo of strip [%1]" )
-						 .arg( nStrip ) );
-				H2Core::CoreActionController::toggleStripIsSoloed( nStrip );
-				bMessageProcessed = true;
-			}
-			else {
-				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
-						  .arg( nStrip + 1 ).arg( 1 )
-						  .arg( nNumberOfStrips ) );
-			}
+	QRegularExpression rxStripSolo(
+		QRegularExpression::anchoredPattern(
+			"/Hydrogen/STRIP_SOLO_TOGGLE/(\\d+)" ) );
+	rxStripSolo.setPatternOptions(
+		QRegularExpression::UseUnicodePropertiesOption );
+	const auto rxStripSoloMatch = rxStripSolo.match( oscPath );
+	if ( rxStripSoloMatch.hasMatch() && argc <= 1 ) {
+		const int nStrip = rxStripSoloMatch.captured( 1 ).toInt() - 1;
+		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+			INFOLOG( QString( "processing message as toggling solo of strip [%1]" )
+					 .arg( nStrip ) );
+			H2Core::CoreActionController::toggleStripIsSoloed( nStrip );
+			bMessageProcessed = true;
+		}
+		else {
+			ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+					  .arg( nStrip + 1 ).arg( 1 )
+					  .arg( nNumberOfStrips ) );
 		}
 	}
 

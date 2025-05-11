@@ -20,6 +20,8 @@
  *
  */
 
+#include <QRegularExpression>
+
 #include <core/Hydrogen.h>
 #include <core/EventQueue.h>
 
@@ -86,7 +88,8 @@ QWidget *ShotList::findWidget( const QString& sName ) {
 
 void ShotList::shoot( const QString& s ) {
 	___INFOLOG( QString( "Taking shot: %1" ).arg( s.trimmed() ) );
-	QStringList words = s.trimmed().split( QRegExp( "\\s+" ) );
+	QStringList words = s.trimmed().split(
+		QRegularExpression( "\\s+" ) );
 	if ( s.size() == 0 ) {
 		return;
 	}
