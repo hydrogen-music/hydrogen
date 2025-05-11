@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - CLI options `--log-colors` and `--no-log-colors` to enable and disable ANSI
   colors in log messages.
+- CMake option `-DWANT_QT6` to build Hydrogen using Qt6 instead of Qt5.
 
 ### Changed
 

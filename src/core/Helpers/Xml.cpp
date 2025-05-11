@@ -28,6 +28,10 @@
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 
+#ifdef H2CORE_HAVE_QT6
+  #include <QStringConverter>
+#endif
+
 #define XMLNS_BASE "http://www.hydrogen-music.org/"
 #define XMLNS_XSI "http://www.w3.org/2001/XMLSchema-instance"
 
@@ -312,7 +316,11 @@ bool XMLDoc::write( const QString& filepath )
 		return false;
 	}
 	QTextStream out( &file );
+#ifdef H2CORE_HAVE_QT6
+	out.setEncoding( QStringConverter::Utf8 );
+#else
 	out.setCodec( "UTF-8" );
+#endif
 	out << toString().toUtf8();
 	out.flush();
 

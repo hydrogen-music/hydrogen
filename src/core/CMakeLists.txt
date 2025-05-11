@@ -51,10 +51,10 @@ target_link_libraries(hydrogen-core-${VERSION}
 )
 
 target_link_libraries(hydrogen-core-${VERSION}
-	Qt5::Core
-	Qt5::Xml
-    Qt5::Test
-	Qt5::Gui # For QColor
+	Qt${QT_VERSION_MAJOR}::Core
+	Qt${QT_VERSION_MAJOR}::Xml
+    Qt${QT_VERSION_MAJOR}::Test
+	Qt${QT_VERSION_MAJOR}::Gui # For QColor
 )
 
 #SET_TARGET_PROPERTIES(hydrogen-core-${VERSION} PROPERTIES PUBLIC_HEADER   "${hydrogen_INCLUDES}" )
