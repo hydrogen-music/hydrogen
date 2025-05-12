@@ -1100,7 +1100,7 @@ void SongEditor::scrolled( int nValue ) {
 	update();
 }
 
-void SongEditor::enterEvent( QEvent *ev ) {
+void SongEditor::enterEvent( QEnterEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

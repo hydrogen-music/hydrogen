@@ -1037,7 +1037,7 @@ void NotePropertiesRuler::scrolled( int nValue ) {
 	update();
 }
 
-void NotePropertiesRuler::enterEvent( QEvent *ev ) {
+void NotePropertiesRuler::enterEvent( QEnterEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

@@ -253,7 +253,7 @@ void WidgetWithInput::mouseMoveEvent( QMouseEvent *ev )
 	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
-void WidgetWithInput::enterEvent( QEvent *ev ) {
+void WidgetWithInput::enterEvent( QEnterEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

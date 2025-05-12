@@ -161,7 +161,7 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void LCDCombo::enterEvent( QEvent* ev ) {
+void LCDCombo::enterEvent( QEnterEvent* ev ) {
 	QComboBox::enterEvent( ev );
 	m_bEntered = true;
 }

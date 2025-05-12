@@ -99,7 +99,7 @@ protected:
 	virtual void mouseReleaseEvent( QMouseEvent *ev );
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void wheelEvent( QWheelEvent *ev );
-	virtual void enterEvent( QEvent *ev );
+	virtual void enterEvent( QEnterEvent *ev );
 	virtual void leaveEvent( QEvent *ev );
 	virtual void keyPressEvent( QKeyEvent *ev );
 

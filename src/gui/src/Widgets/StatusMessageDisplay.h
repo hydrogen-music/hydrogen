@@ -83,7 +83,7 @@ private:
 	bool m_bEntered;
 		
 	virtual void paintEvent( QPaintEvent *ev ) override;
-	virtual void enterEvent( QEvent *ev ) override;
+	virtual void enterEvent( QEnterEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void mousePressEvent( QMouseEvent* ev ) override;
 };

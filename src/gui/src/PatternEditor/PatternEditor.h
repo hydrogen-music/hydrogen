@@ -300,7 +300,7 @@ protected:
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;
-	virtual void enterEvent( QEvent *ev ) override;
+	virtual void enterEvent( QEnterEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;

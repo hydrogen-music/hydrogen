@@ -102,7 +102,7 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void ClickableLabel::enterEvent( QEvent* ev ) {
+void ClickableLabel::enterEvent( QEnterEvent* ev ) {
 	QLabel::enterEvent( ev );
 	if ( m_bIsEditable ) {
 		m_bEntered = true;

@@ -109,7 +109,7 @@ public slots:
 
 		virtual void mousePressEvent(QMouseEvent *ev) override;
 	virtual void mouseDoubleClickEvent( QMouseEvent* ev ) override;
-	virtual void enterEvent( QEvent *ev );
+	virtual void enterEvent( QEnterEvent *ev );
 	virtual void leaveEvent( QEvent *ev );
 	virtual void paintEvent( QPaintEvent* ev ) override;
 		H2Core::Pattern* getCurrentPattern();

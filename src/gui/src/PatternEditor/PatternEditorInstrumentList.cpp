@@ -197,7 +197,7 @@ QLabel {\
  }" ).arg( textColor.name() ) );
 }
 
-void InstrumentLine::enterEvent( QEvent* ev ) {
+void InstrumentLine::enterEvent( QEnterEvent* ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
 	update();
