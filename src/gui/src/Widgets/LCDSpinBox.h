@@ -125,7 +125,11 @@ private:
 	virtual QString textFromValue( double fValue ) const override;
 	virtual double valueFromText( const QString& sText ) const override;	
 	virtual void paintEvent( QPaintEvent *ev ) override;
-	virtual void enterEvent( QEnterEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void wheelEvent( QWheelEvent *ev ) override;
 	virtual void keyPressEvent( QKeyEvent *ev ) override;

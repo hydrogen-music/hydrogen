@@ -74,7 +74,11 @@ private:
 	void updateFont( const QString& sFontFamily,
 					 const H2Core::FontTheme::FontSize& fontSize );
 
-	virtual void enterEvent( QEnterEvent * e ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent * e ) override;
 	virtual void paintEvent( QPaintEvent * e ) override;
 	QSize m_size;

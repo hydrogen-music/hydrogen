@@ -2287,7 +2287,11 @@ void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
 	// button.
 }
 
+#ifdef H2CORE_HAVE_QT6
 void PatternEditor::enterEvent( QEnterEvent *ev ) {
+#else
+void PatternEditor::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 

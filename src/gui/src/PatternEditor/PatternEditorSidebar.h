@@ -29,6 +29,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/config.h>
 #include <core/Globals.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -81,7 +82,11 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 
 		static constexpr int nDimScaling = 125;
 
+#ifdef H2CORE_HAVE_QT6
 		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 		virtual void leaveEvent( QEvent *ev ) override;
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;
@@ -160,7 +165,11 @@ public slots:
 		 * to emphasize that one notes of one particular row are displayed. */
 		bool m_bDimed;
 
-	virtual void enterEvent( QEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent *ev ) override;
 
 		void setMuted(bool isMuted);

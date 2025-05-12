@@ -128,7 +128,11 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void ClickableLabel::enterEvent( QEnterEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void ClickableLabel::enterEvent( QEnterEvent *ev ) {
+#else
+void ClickableLabel::enterEvent( QEvent *ev ) {
+#endif
 	QLabel::enterEvent( ev );
 	if ( m_bIsEditable ) {
 		m_bEntered = true;

@@ -162,7 +162,11 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void LCDCombo::enterEvent( QEnterEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void LCDCombo::enterEvent( QEnterEvent *ev ) {
+#else
+void LCDCombo::enterEvent( QEvent *ev ) {
+#endif
 	QComboBox::enterEvent( ev );
 	m_bEntered = true;
 }

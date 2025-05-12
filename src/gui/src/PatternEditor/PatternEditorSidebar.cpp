@@ -127,7 +127,11 @@ void SidebarLabel::setColor( const QColor& backgroundColor,
 	updateStyle();
 }
 
-void SidebarLabel::enterEvent( QEnterEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void SidebarLabel::enterEvent( QEnterEvent *ev ) {
+#else
+void SidebarLabel::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();
@@ -805,7 +809,11 @@ void SidebarRow::updateTypeLabelVisibility( bool bVisible ) {
 	}
 }
 
-void SidebarRow::enterEvent( QEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void SidebarRow::enterEvent( QEnterEvent *ev ) {
+#else
+void SidebarRow::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

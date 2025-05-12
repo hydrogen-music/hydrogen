@@ -267,7 +267,11 @@ void WidgetWithInput::mouseMoveEvent( QMouseEvent *ev )
 	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
+#ifdef H2CORE_HAVE_QT6
 void WidgetWithInput::enterEvent( QEnterEvent *ev ) {
+#else
+void WidgetWithInput::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

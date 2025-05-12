@@ -104,7 +104,11 @@ QLabel {\
  }" ).arg( textColor.name() ) );
 }
 
-void PitchLabel::enterEvent( QEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void PitchLabel::enterEvent( QEnterEvent *ev ) {
+#else
+void PitchLabel::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

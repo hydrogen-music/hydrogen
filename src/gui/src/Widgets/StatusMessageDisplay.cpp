@@ -111,7 +111,11 @@ void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void StatusMessageDisplay::enterEvent( QEnterEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void StatusMessageDisplay::enterEvent( QEnterEvent *ev ) {
+#else
+void StatusMessageDisplay::enterEvent( QEvent *ev ) {
+#endif
 	LCDDisplay::enterEvent( ev );
 	m_bEntered = true;
 	update();
