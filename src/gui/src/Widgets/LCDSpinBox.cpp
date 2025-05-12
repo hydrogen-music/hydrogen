@@ -377,7 +377,7 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void LCDSpinBox::enterEvent( QEvent* ev ) {
+void LCDSpinBox::enterEvent( QEnterEvent* ev ) {
 	QDoubleSpinBox::enterEvent( ev );
 	m_bEntered = true;
 }

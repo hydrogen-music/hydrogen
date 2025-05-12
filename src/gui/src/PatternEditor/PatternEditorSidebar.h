@@ -81,7 +81,7 @@ class SidebarLabel : public QLabel, public H2Core::Object<SidebarLabel>
 
 		static constexpr int nDimScaling = 125;
 
-		virtual void enterEvent( QEvent *ev ) override;
+		virtual void enterEvent( QEnterEvent *ev ) override;
 		virtual void leaveEvent( QEvent *ev ) override;
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent* pEvent ) override;

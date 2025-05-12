@@ -2287,7 +2287,7 @@ void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
 	// button.
 }
 
-void PatternEditor::enterEvent( QEvent *ev ) {
+void PatternEditor::enterEvent( QEnterEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
 

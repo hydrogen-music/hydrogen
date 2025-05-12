@@ -94,7 +94,7 @@ private:
 	bool m_bHiding;
 
 	virtual void mousePressEvent(QMouseEvent *ev) override;
-	virtual void enterEvent(QEvent *ev) override;
+	virtual void enterEvent(QEnterEvent *ev) override;
 	virtual void leaveEvent(QEvent *ev) override;
 	virtual void paintEvent( QPaintEvent* ev) override;
 

@@ -105,7 +105,7 @@ protected:
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 	virtual void mouseMoveEvent(QMouseEvent *ev) override;
 	virtual void wheelEvent( QWheelEvent *ev ) override;
-	virtual void enterEvent( QEvent *ev ) override;
+	virtual void enterEvent( QEnterEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void keyPressEvent( QKeyEvent *ev ) override;
 

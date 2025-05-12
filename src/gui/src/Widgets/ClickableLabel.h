@@ -74,7 +74,7 @@ private:
 	void updateFont( const QString& sFontFamily,
 					 const H2Core::FontTheme::FontSize& fontSize );
 
-	virtual void enterEvent( QEvent * e ) override;
+	virtual void enterEvent( QEnterEvent * e ) override;
 	virtual void leaveEvent( QEvent * e ) override;
 	virtual void paintEvent( QPaintEvent * e ) override;
 	QSize m_size;

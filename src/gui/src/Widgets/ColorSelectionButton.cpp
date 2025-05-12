@@ -58,7 +58,7 @@ void ColorSelectionButton::mousePressEvent(QMouseEvent*ev) {
 	}
 }
 
-void ColorSelectionButton::enterEvent(QEvent *ev) {
+void ColorSelectionButton::enterEvent(QEnterEvent *ev) {
 	UNUSED( ev );
 	m_bMouseOver = true;
 

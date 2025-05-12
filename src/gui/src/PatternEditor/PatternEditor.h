@@ -433,7 +433,7 @@ protected:
 		 *   well. */
 		void keyPressEvent ( QKeyEvent *ev, bool bFullUpdate = false );
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
-	virtual void enterEvent( QEvent *ev ) override;
+	virtual void enterEvent( QEnterEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;

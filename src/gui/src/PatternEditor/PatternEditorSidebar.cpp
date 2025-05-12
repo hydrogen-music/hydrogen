@@ -127,7 +127,7 @@ void SidebarLabel::setColor( const QColor& backgroundColor,
 	updateStyle();
 }
 
-void SidebarLabel::enterEvent( QEvent* ev ) {
+void SidebarLabel::enterEvent( QEnterEvent* ev ) {
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

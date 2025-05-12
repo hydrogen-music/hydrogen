@@ -1072,7 +1072,6 @@ void NotePropertiesRuler::scrolled( int nValue ) {
 
 void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 												 int nIncrement ) {
-	
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	QColor lineColor(

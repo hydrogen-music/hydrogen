@@ -111,7 +111,7 @@ void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void StatusMessageDisplay::enterEvent( QEvent* ev ) {
+void StatusMessageDisplay::enterEvent( QEnterEvent* ev ) {
 	LCDDisplay::enterEvent( ev );
 	m_bEntered = true;
 	update();
