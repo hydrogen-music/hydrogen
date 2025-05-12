@@ -244,10 +244,12 @@ int main(int argc, char *argv[])
 		// See below for H2Core::Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-#ifndef H2CORE_HAVE_QT6
-		___INFOLOG( QString( "System encoding: [%1]" )
-					.arg( QString( QTextCodec::codecForLocale()->name() ) ) );
+#ifdef H2CORE_HAVE_QT6
+		const QString sEncoding = QLocale::system().name();
+#else
+		const QString sEncoding = QTextCodec::codecForLocale()->name();
 #endif
+		___INFOLOG( QString( "System encoding: [%1]" ).arg( sEncoding ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 		auto pPref = H2Core::Preferences::get_instance();
