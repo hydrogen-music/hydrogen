@@ -838,7 +838,8 @@ int Filesystem::get_basename_idx_under_drumkit( const QString& sFileName )
 #ifdef H2CORE_HAVE_QT6
 		const QString sDrumkitName = sFileName.sliced( nStart , nIndex - nStart );
 #else
-		const QString sDrumkitName = sFileName.midRef( nStart , nIndex - nStart );
+		const QString sDrumkitName =
+			sFileName.midRef( nStart , nIndex - nStart ).toString();
 #endif
 		if ( drumkit_list( sDrumkitDir ).contains( sDrumkitName ) ) {
 			return nIndex + 1;
