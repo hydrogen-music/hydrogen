@@ -2360,7 +2360,7 @@ void PreferencesDialog::importTheme() {
 		return;
 	}
 
-	QFileInfo fileInfo = fd.selectedFiles().first();
+	QFileInfo fileInfo( fd.selectedFiles().first() );
 	QString sSelectedPath = fileInfo.absoluteFilePath();
 	pPref->setLastImportThemeDirectory( fd.directory().absolutePath() );
 
@@ -2414,7 +2414,7 @@ void PreferencesDialog::exportTheme() {
 		return;
 	}
 
-	QFileInfo fileInfo = fd.selectedFiles().first();
+	QFileInfo fileInfo( fd.selectedFiles().first() );
 	QString sSelectedPath = fileInfo.absoluteFilePath();
 
 	if ( sSelectedPath.isEmpty() ||

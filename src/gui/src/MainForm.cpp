@@ -957,9 +957,9 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 		return;
 	}
 
-	QFileInfo fileInfo = fd.selectedFiles().first();
+	QFileInfo fileInfo( fd.selectedFiles().first() );
 	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
-	QString sFilePath = fileInfo.absoluteFilePath();
+	QString filePath = fileInfo.absoluteFilePath();
 
 	QString sOriginalName = pPattern->getName();
 	pPattern->setName( fileInfo.baseName() );
