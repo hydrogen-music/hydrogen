@@ -369,7 +369,11 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void LCDSpinBox::enterEvent( QEnterEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void LCDSpinBox::enterEvent( QEnterEvent *ev ) {
+#else
+void LCDSpinBox::enterEvent( QEvent *ev ) {
+#endif
 	QDoubleSpinBox::enterEvent( ev );
 	m_bEntered = true;
 }

@@ -1100,7 +1100,11 @@ void SongEditor::scrolled( int nValue ) {
 	update();
 }
 
+#ifdef H2CORE_HAVE_QT6
 void SongEditor::enterEvent( QEnterEvent *ev ) {
+#else
+void SongEditor::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

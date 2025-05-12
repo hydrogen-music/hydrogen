@@ -127,7 +127,11 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void keyPressEvent( QKeyEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( int x );
-		void enterEvent( QEnterEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 		void leaveEvent( QEvent *ev ) override;
 
 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;

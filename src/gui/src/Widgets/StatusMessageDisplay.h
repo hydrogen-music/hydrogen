@@ -83,7 +83,11 @@ private:
 	bool m_bEntered;
 		
 	virtual void paintEvent( QPaintEvent *ev ) override;
-	virtual void enterEvent( QEnterEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void mousePressEvent( QMouseEvent* ev ) override;
 };

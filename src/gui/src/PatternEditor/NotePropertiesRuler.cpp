@@ -1037,7 +1037,11 @@ void NotePropertiesRuler::scrolled( int nValue ) {
 	update();
 }
 
+#ifdef H2CORE_HAVE_QT6
 void NotePropertiesRuler::enterEvent( QEnterEvent *ev ) {
+#else
+void NotePropertiesRuler::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

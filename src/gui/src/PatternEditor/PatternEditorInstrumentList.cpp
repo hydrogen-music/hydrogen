@@ -197,7 +197,11 @@ QLabel {\
  }" ).arg( textColor.name() ) );
 }
 
-void InstrumentLine::enterEvent( QEnterEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void InstrumentLine::enterEvent( QEnterEvent *ev ) {
+#else
+void InstrumentLine::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();
