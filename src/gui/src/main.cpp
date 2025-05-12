@@ -20,6 +20,11 @@
  *
  */
 
+#include <core/config.h>
+#include <core/Version.h>
+#include <core/Preferences/Theme.h>
+#include <getopt.h>
+
 #include <QtGui>
 #include <QtWidgets>
 #include <QLibraryInfo>
@@ -29,11 +34,6 @@
 #ifndef H2CORE_HAVE_QT6
   #include <QTextCodec>
 #endif
-
-#include <core/config.h>
-#include <core/Version.h>
-#include <core/Preferences/Theme.h>
-#include <getopt.h>
 
 #include "ShotList.h"
 #include "SplashScreen.h"

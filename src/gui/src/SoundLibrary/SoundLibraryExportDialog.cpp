@@ -20,10 +20,6 @@
  *
  */
 
-#ifndef H2CORE_HAVE_QT6
-  #include <QTextCodec>
-#endif
-
 #include "SoundLibraryExportDialog.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
@@ -32,6 +28,10 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/DrumkitComponent.h>
+
+#ifndef H2CORE_HAVE_QT6
+  #include <QTextCodec>
+#endif
 
 using namespace H2Core;
 
