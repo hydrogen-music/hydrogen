@@ -139,9 +139,9 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 		painter.drawLine( x, RCenter, x, -m_pPeakData_Right[x +1] +RCenter  );
 	}
 
-	QFont Font;
-	Font.setWeight( 63 );
-	painter.setFont( Font );
+	QFont font;
+	font.setWeight( QFont::Bold );
+	painter.setFont( font );
 
 	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );

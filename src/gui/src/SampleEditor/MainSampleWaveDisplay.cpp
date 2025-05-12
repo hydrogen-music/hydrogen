@@ -141,7 +141,7 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	QColor startColor = QColor( 32, 173, 0, 200 );
 	QColor endColor = QColor( 217, 68, 0, 200 );
 	QColor loopColor =  QColor( 93, 170, 254, 200 );
-	font.setWeight( 63 );
+	font.setWeight( QFont::Bold );
 	painter.setFont( font );
 //start frame pointer
 	set_paint_color(painter, startColor, m_SelectedSlider == START, m_SelectedSlider);

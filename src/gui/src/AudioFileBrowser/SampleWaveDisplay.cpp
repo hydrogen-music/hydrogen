@@ -74,7 +74,7 @@ void SampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	}
 
 	QFont font;
-	font.setWeight( 63 );
+	font.setWeight( QFont::Bold );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
 	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
