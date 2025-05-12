@@ -39,7 +39,7 @@ DrumkitOpenDialog::DrumkitOpenDialog( QWidget* pParent )
 
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 6 );
-	pVBox->setMargin( 9 );
+	pVBox->setContentsMargins( 9, 9, 9, 9 );
 
 
 	// Sound Library Panel

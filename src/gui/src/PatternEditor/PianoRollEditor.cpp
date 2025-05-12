@@ -216,8 +216,8 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 
 	auto pSidebarVBox = new QVBoxLayout( this );
 	pSidebarVBox->setSpacing( 0 );
-	pSidebarVBox->setMargin( 0 );
-	pSidebarVBox->setMargin( Qt::AlignLeft );
+	pSidebarVBox->setContentsMargins( 0, 0, 0, 0 );
+	pSidebarVBox->setAlignment( Qt::AlignLeft );
 	setLayout( pSidebarVBox );
 
 	auto createLabel = [&]( const QString& sText, int* pIndex ) {

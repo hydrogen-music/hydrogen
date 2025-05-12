@@ -53,7 +53,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 		InstrumentRack::nWidth, ComponentView::nExpandedHeight );
 	m_pComponentsLayout = new QVBoxLayout();
 	m_pComponentsLayout->setSpacing( 0 );
-	m_pComponentsLayout->setMargin( 0 );
+	m_pComponentsLayout->setContentsMargins( 0, 0, 0, 0 );
 	m_pComponentsWidget->setLayout( m_pComponentsLayout );
 
 	m_pScrollArea = new WidgetScrollArea( this );
@@ -70,7 +70,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 
 	auto pMainLayout = new QVBoxLayout();
 	pMainLayout->setSpacing( 0 );
-	pMainLayout->setMargin( 0 );
+	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
 	pMainLayout->addWidget( m_pScrollArea );
 	setLayout( pMainLayout );
 

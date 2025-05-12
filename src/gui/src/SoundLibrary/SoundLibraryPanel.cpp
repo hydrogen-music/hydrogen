@@ -139,7 +139,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
-	pVBox->setMargin( 0 );
+	pVBox->setContentsMargins( 0, 0, 0, 0 );
 
 	pVBox->addWidget( __sound_library_tree );
 	

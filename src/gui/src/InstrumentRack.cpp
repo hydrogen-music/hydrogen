@@ -43,7 +43,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	auto pVBoxMainLayout = new QVBoxLayout();
 	pVBoxMainLayout->setSpacing( 0 );
-	pVBoxMainLayout->setMargin( 0 );
+	pVBoxMainLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	QFont fontButtons( theme.m_font.m_sApplicationFontFamily,
 					   getPointSize( theme.m_font.m_fontSize ) );
@@ -54,7 +54,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsWidget->setFixedSize( InstrumentRack::nWidth, 24 );
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
 	pTabHBox->setSpacing( 0 );
-	pTabHBox->setMargin( 0 );
+	pTabHBox->setContentsMargins( 0, 0, 0, 0 );
 	pTabButtonsWidget->setLayout( pTabHBox );
 
 	const int nInstrumentBtnWidth = InstrumentRack::nWidth / 2;
@@ -84,7 +84,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pPanelsWidget->setSizePolicy(
 		QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
 	m_pStackedPanelsLayout = new QStackedLayout();
-	m_pStackedPanelsLayout->setMargin( 0 );
+	m_pStackedPanelsLayout->setContentsMargins( 0, 0, 0, 0 );
 	pPanelsWidget->setLayout( m_pStackedPanelsLayout );
 	pVBoxMainLayout->addWidget( pPanelsWidget );
 
@@ -95,7 +95,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	m_pStackedPanelsLayout->addWidget( m_pSoundLibraryPanel );
 
 	setLayout( pVBoxMainLayout );
-	
+
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &InstrumentRack::onPreferencesChanged );
 

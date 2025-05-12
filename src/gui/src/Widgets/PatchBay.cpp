@@ -42,7 +42,7 @@ PatchBay::PatchBay( QWidget* pParent,
 	m_pMainLayout = new QVBoxLayout();
 
 	QHBoxLayout* pButtonLayout = new QHBoxLayout();
-	pButtonLayout->setMargin( 0 );
+	pButtonLayout->setContentsMargins( 0, 0, 0, 0 );
 	Button* pApplyButton =
 		new Button( this, QSize( 120, 24 ), Button::Type::Push, "",
 					pCommonStrings->getButtonApply() );

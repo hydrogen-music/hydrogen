@@ -71,7 +71,7 @@ SidebarLabel::SidebarLabel( QWidget* pParent, Type type, const QSize& size,
 	setText( sText );
 	setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	setIndent( nIndent );
-	setMargin( 1 );
+	setContentsMargins( 1, 1, 1, 1 );
 
 	updateFont();
 	setColor( theme.m_color.m_patternEditor_backgroundColor,
@@ -374,7 +374,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	auto pHBox = new QHBoxLayout();
 	pHBox->setSpacing( 0 );
-	pHBox->setMargin( 0 );
+	pHBox->setContentsMargins( 0, 0, 0, 0 );
 
 	QFont nameFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
@@ -972,7 +972,7 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget *parent )
 
 	auto pVBoxLayout = new QVBoxLayout( this );
 	pVBoxLayout->setSpacing( 0 );
-	pVBoxLayout->setMargin( 0 );
+	pVBoxLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	setLayout( pVBoxLayout );
 

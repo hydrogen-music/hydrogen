@@ -48,13 +48,13 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 
 	auto pVBoxMainLayout = new QVBoxLayout();
 	pVBoxMainLayout->setSpacing( 0 );
-	pVBoxMainLayout->setMargin( 0 );
+	pVBoxMainLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	// Editors
 
 	auto pEditorWidget = new QWidget( this );
 	auto pStackedEditorLayout = new QStackedLayout();
-	pStackedEditorLayout->setMargin( 0 );
+	pStackedEditorLayout->setContentsMargins( 0, 0, 0, 0 );
 	pEditorWidget->setLayout( pStackedEditorLayout );
 	m_pInstrumentEditor = new InstrumentEditor( this );
 	pStackedEditorLayout->addWidget( m_pInstrumentEditor );
@@ -62,10 +62,9 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent ) :
 	pStackedEditorLayout->addWidget( m_pComponentsEditor );
 
 	// Buttons
-
 	auto pHBoxButtonLayout = new QHBoxLayout();
 	pHBoxButtonLayout->setSpacing( 0 );
-	pHBoxButtonLayout->setMargin( 4 );
+	pHBoxButtonLayout->setContentsMargins( 4, 4, 4, 4 );
 	auto pButtonWidget = new QWidget( this );
 	pButtonWidget->setLayout( pHBoxButtonLayout );
 	pButtonWidget->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
