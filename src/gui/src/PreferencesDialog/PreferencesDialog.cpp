@@ -2222,7 +2222,7 @@ void PreferencesDialog::importTheme() {
 		return;
 	}
 
-	QFileInfo fileInfo = fd.selectedFiles().first();
+	QFileInfo fileInfo( fd.selectedFiles().first() );
 	QString sSelectedPath = fileInfo.absoluteFilePath();
 	H2Core::Preferences::get_instance()->setLastImportThemeDirectory( fd.directory().absolutePath() );
 
@@ -2277,7 +2277,7 @@ void PreferencesDialog::exportTheme() {
 		return;
 	}
 
-	QFileInfo fileInfo = fd.selectedFiles().first();
+	QFileInfo fileInfo( fd.selectedFiles().first() );
 	QString sSelectedPath = fileInfo.absoluteFilePath();
 
 	if ( sSelectedPath.isEmpty() ||
