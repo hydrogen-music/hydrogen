@@ -272,7 +272,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );
-	pHZoomLayout->setMargin( 0 );
+	pHZoomLayout->setContentsMargins( 0, 0, 0, 0 );
 	pHZoomLayout->addWidget( m_pViewPlaybackBtn );
 	pHZoomLayout->addWidget( m_pViewTimelineBtn );
 	pHZoomLayout->addWidget( m_pHScrollBar );
@@ -384,7 +384,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// ok...let's build the layout
 	QGridLayout *pGridLayout = new QGridLayout();
 	pGridLayout->setSpacing( 0 );
-	pGridLayout->setMargin( 0 );
+	pGridLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	pGridLayout->addWidget( pBackPanel, 0, 0 );
 	pGridLayout->addWidget( m_pWidgetStack, 0, 1 );

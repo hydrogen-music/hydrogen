@@ -46,7 +46,7 @@ FileBrowser::FileBrowser( QWidget* pParent )
 	QWidget *pDirectoryPanel = new QWidget( nullptr );
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setSpacing( 0 );
-	hbox->setMargin( 0 );
+	hbox->setContentsMargins( 0, 0, 0, 0 );
 	hbox->addWidget( m_pDirectoryLabel );
 	hbox->addWidget( m_pUpBtn );
 	pDirectoryPanel->setLayout( hbox );
@@ -71,7 +71,7 @@ FileBrowser::FileBrowser( QWidget* pParent )
 	// LAYOUT
 	QVBoxLayout *vbox = new QVBoxLayout();
 	vbox->setSpacing( 0 );
-	vbox->setMargin( 0 );
+	vbox->setContentsMargins( 0, 0, 0, 0 );
 
 	vbox->addWidget( pDirectoryPanel );
 	vbox->addWidget( m_pDirList );

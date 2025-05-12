@@ -196,7 +196,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
 	pSideBarLayout->setSpacing(0);
-	pSideBarLayout->setMargin(0);
+	pSideBarLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	// zoom-in btn
 	Button *pUpBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
