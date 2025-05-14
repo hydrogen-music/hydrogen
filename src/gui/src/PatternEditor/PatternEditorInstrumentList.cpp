@@ -33,6 +33,8 @@
 #include <core/Basics/Song.h>
 using namespace H2Core;
 
+#include "../Compatibility/DropEvent.h"
+#include "../Compatibility/MouseEvent.h"
 #include "CommonStrings.h"
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
@@ -366,6 +368,8 @@ void InstrumentLine::selectInstrumentNotes()
 
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( m_nInstrumentNumber );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 
@@ -380,7 +384,8 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		if ( pInstr != nullptr && pInstr->hasSamples() ) {
 
 			const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
-			const float fVelocity = std::min((float)ev->x()/(float)nWidth, 1.0f);
+			const float fVelocity = std::min(
+				(float)pEv->position().x()/(float)nWidth, 1.0f);
 			Note *pNote = new Note( pInstr, 0, fVelocity);
 			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		}
@@ -397,7 +402,8 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 			
 		setRowSelection( RowSelection::Popup );
 			
-		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
+		m_pFunctionPopup->popup(
+			QPoint( pEv->globalPosition().x(), pEv->globalPosition().y() ) );
 	}
 
 	// propago l'evento al parent: serve per il drag&drop
@@ -906,6 +912,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 							   QString( ": %1" ).arg( MAX_INSTRUMENTS ) );
 		return;
 	}
+
+	auto pEv = static_cast<DropEvent*>( event );
 	
 	QString sText = event->mimeData()->text();
 	
@@ -924,7 +932,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		// Starting point for instument list is 50 lower than
 		// on the drum pattern editor
 
-		int pos_y = ( event->pos().x() >= m_nEditorWidth ) ? event->pos().y() - 50 : event->pos().y();
+		int pos_y = ( pEv->position().x() >= m_nEditorWidth ) ?
+			pEv->position().y() - 50 : pEv->position().y();
 
 		int nTargetInstrument = pos_y / m_nGridHeight;
 
@@ -951,14 +960,14 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		QString sDrumkitPath = tokens.at( 0 );
 		QString sInstrumentName = tokens.at( 1 );
 
-		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+		int nTargetInstrument = pEv->position().y() / m_nGridHeight;
 
 		/*
 				"X > 181": border between the instrument names on the left and the grid
 				Because the right part of the grid starts above the name column, we have to subtract the difference
 		*/
-		if (  event->pos().x() > 181 ) {
-			nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
+		if (  pEv->position().x() > 181 ) {
+			nTargetInstrument = ( pEv->position().y() - 90 )  / m_nGridHeight ;
 		}
 
 		if( nTargetInstrument > pInstrumentList->size() ){
@@ -983,8 +992,10 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 void PatternEditorInstrumentList::mousePressEvent(QMouseEvent *event)
 {
+	auto pEv = static_cast<MouseEvent*>( event );
+
 	if (event->button() == Qt::LeftButton) {
-		__drag_start_position = event->pos();
+		__drag_start_position = pEv->position().toPoint();
 	}
 
 }
@@ -993,10 +1004,12 @@ void PatternEditorInstrumentList::mousePressEvent(QMouseEvent *event)
 
 void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 {
+	auto pEv = static_cast<MouseEvent*>( event );
+
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
-	if ( abs(event->pos().y() - __drag_start_position.y()) < (int)m_nGridHeight) {
+	if ( abs(pEv->position().y() - __drag_start_position.y()) < (int)m_nGridHeight) {
 		return;
 	}
 

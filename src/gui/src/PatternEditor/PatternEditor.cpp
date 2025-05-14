@@ -24,6 +24,7 @@
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
 #include "PatternEditorPanel.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../EventListener.h"
@@ -1090,11 +1091,13 @@ void PatternEditor::storeNoteProperties( const Note* pNote ) {
 
 void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Move cursor.
-	int nColumn = getColumn( ev->x() );
+	int nColumn = getColumn( pEv->position().x() );
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
 	// Hide cursor.
@@ -1113,19 +1116,19 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 	if ( ev->button() == Qt::RightButton ) {
 
-		int nPressedLine =
-			std::floor(static_cast<float>(ev->y()) / static_cast<float>(m_nGridHeight));
+		int nPressedLine = std::floor(static_cast<float>(pEv->position().y()) /
+									  static_cast<float>(m_nGridHeight));
 		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
 		
-		if( ev->x() > PatternEditor::nMargin ) {
+		if( pEv->position().x() > PatternEditor::nMargin ) {
 			nRealColumn =
 				static_cast<int>(std::floor(
-					static_cast<float>((ev->x() - PatternEditor::nMargin)) /
+					static_cast<float>((pEv->position().x() - PatternEditor::nMargin)) /
 					m_fGridWidth));
 		}
 
 		// Needed for undo changes in the note length
-		m_nOldPoint = ev->y();
+		m_nOldPoint = pEv->position().y();
 		m_nRealColumn = nRealColumn;
 		m_nColumn = nColumn;
 		m_nPressedLine = nPressedLine;
@@ -1144,7 +1147,9 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 		return;
 	}
 
-	int nTickColumn = getColumn( ev->x() );
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	int nTickColumn = getColumn( pEv->position().x() );
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	int nLen = nTickColumn - m_pDraggedNote->get_position();
@@ -1181,7 +1186,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 			fValue = m_pDraggedNote->get_probability();
 		}
 		
-		float fMoveY = m_nOldPoint - ev->y();
+		float fMoveY = m_nOldPoint - pEv->position().y();
 		fValue = fValue  + (fMoveY / 100);
 		if ( fValue > 1 ) {
 			fValue = 1;
@@ -1209,7 +1214,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 
 		PatternEditor::triggerStatusMessage( m_pDraggedNote, m_mode );
 		
-		m_nOldPoint = ev->y();
+		m_nOldPoint = pEv->position().y();
 	}
 
 	m_pAudioEngine->unlock(); // unlock the audio engine

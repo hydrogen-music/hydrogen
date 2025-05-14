@@ -29,6 +29,8 @@ using namespace H2Core;
 
 #include <cassert>
 
+#include "../Compatibility/MouseEvent.h"
+#include "../Compatibility/WheelEvent.h"
 #include "../HydrogenApp.h"
 
 #include "UndoActions.h"
@@ -104,14 +106,13 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		return;
 	}
 
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	prepareUndoAction( ev->position().x() ); //get all old values
-#else
-	prepareUndoAction( ev->x() ); //get all old values
-#endif
+	auto pEv = static_cast<WheelEvent*>( ev );
+
+	prepareUndoAction( pEv->position().x() ); //get all old values
 
 	float fDelta;
-	if ( ev->modifiers() == Qt::ControlModifier || ev->modifiers() == Qt::AltModifier ) {
+	if ( ev->modifiers() == Qt::ControlModifier ||
+		 ev->modifiers() == Qt::AltModifier ) {
 		fDelta = 0.01; // fine control
 	} else {
 		fDelta = 0.05; // coarse control
@@ -120,11 +121,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	int nColumn = getColumn( ev->position().x() );
-#else
-	int nColumn = getColumn( ev->x() );
-#endif
+	int nColumn = getColumn( pEv->position().x() );
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
@@ -177,8 +174,10 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 
 void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	if ( ev->button() == Qt::RightButton ) {
-		m_pPopupMenu->popup( ev->globalPos() );
+		m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
 
 	} else {
 		// Treat single click as an instantaneous drag
@@ -189,7 +188,9 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 }
 
 void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
-	if ( ev->x() > m_nActiveWidth ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	if ( pEv->position().x() > m_nActiveWidth ) {
 		return;
 	}
 
@@ -211,7 +212,7 @@ void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
 	
 	// Update cursor position
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
-		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+		int nColumn = getColumn( pEv->position().x(), /* bUseFineGrained=*/ true );
 		if ( ( m_pPattern != nullptr &&
 			   nColumn >= (int)m_pPattern->get_length() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
@@ -226,8 +227,10 @@ void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
 }
 
 void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	if ( m_selection.isMoving() ) {
-		prepareUndoAction( ev->x() );
+		prepareUndoAction( pEv->position().x() );
 		selectionMoveUpdateEvent( ev );
 	} else {
 		propertyDragStart( ev );
@@ -351,9 +354,11 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
 	
 	if ( ev->buttons() == Qt::NoButton ) {
-		int nColumn = getColumn( ev->x() );
+		int nColumn = getColumn( pEv->position().x() );
 		bool bFound = false;
 		FOREACH_NOTE_CST_IT_BOUND_LENGTH( m_pPattern->get_notes(), it, nColumn, m_pPattern ) {
 			bFound = true;
@@ -373,8 +378,10 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 
 void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	setCursor( Qt::CrossCursor );
-	prepareUndoAction( ev->x() );
+	prepareUndoAction( pEv->position().x() );
 	invalidateBackground();
 	update();
 }
@@ -429,7 +436,9 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		return;
 	}
 
-	int nColumn = getColumn( ev->x() );
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	int nColumn = getColumn( pEv->position().x() );
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 
@@ -442,10 +451,10 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	if ( m_nDragPreviousColumn != nColumn ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction();
-		prepareUndoAction( ev->x() );
+		prepareUndoAction( pEv->position().x() );
 	}
 
-	float val = height() - ev->y();
+	float val = height() - pEv->position().y();
 	if (val > height()) {
 		val = height();
 	}
@@ -503,19 +512,19 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 					 ev->button() == Qt::LeftButton ) ) {
 				int nKey = 666;
 				int nOctave = 666;
-				if ( ev->y() > 0 &&
-					 ev->y() <= NotePropertiesRuler::nNoteKeyOctaveHeight ) {
+				if ( pEv->position().y() > 0 &&
+					 pEv->position().y() <= NotePropertiesRuler::nNoteKeyOctaveHeight ) {
 					nOctave = std::round(
 						( NotePropertiesRuler::nNoteKeyOctaveHeight / 2 +
 						  NotePropertiesRuler::nNoteKeyLineHeight / 2 -
-						  ev->y() -
+						  pEv->position().y() -
 						  NotePropertiesRuler::nNoteKeyLineHeight / 2 ) /
 						NotePropertiesRuler::nNoteKeyLineHeight );
 					nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
 				}
-				else if ( ev->y() >= NotePropertiesRuler::nNoteKeyOctaveHeight &&
-						  ev->y() < NotePropertiesRuler::nNoteKeyHeight ) {
-					nKey = ( height() - ev->y() -
+				else if ( pEv->position().y() >= NotePropertiesRuler::nNoteKeyOctaveHeight &&
+						  pEv->position().y() < NotePropertiesRuler::nNoteKeyHeight ) {
+					nKey = ( height() - pEv->position().y() -
 							 NotePropertiesRuler::nNoteKeyLineHeight / 2 ) /
 						NotePropertiesRuler::nNoteKeyLineHeight;
 					nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
