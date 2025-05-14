@@ -2050,10 +2050,11 @@ void SongEditorPatternList::patternPopup_save()
 	QString sPath = Files::savePatternNew( pPattern->get_name(), pPattern,
 										   pSong, pHydrogen->getLastLoadedDrumkitName() );
 	if ( sPath.isEmpty() ) {
-		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
-									   pCommonStrings->getButtonOk(),
-									   pCommonStrings->getButtonCancel(),
-									   nullptr, 1 ) != 0 ) {
+		if ( QMessageBox::information(
+				 this, "Hydrogen",
+				 tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
+				 QMessageBox::Ok | QMessageBox::Cancel,
+				 QMessageBox::Cancel ) != QMessageBox::Ok ) {
 			setRowSelection( RowSelection::None );
 			return;
 		}

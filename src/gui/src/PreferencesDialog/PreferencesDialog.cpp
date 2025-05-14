@@ -813,12 +813,11 @@ void PreferencesDialog::on_okBtn_clicked()
 	updateDriverPreferences();
 
 	if ( m_bNeedDriverRestart ) {
-		int res = QMessageBox::information( this, "Hydrogen",
-											tr( "Driver restart required.\n Restart driver?"),
-											pCommonStrings->getButtonOk(),
-											pCommonStrings->getButtonCancel(),
-											nullptr, 1 );
-		if ( res != 0 ) {
+		if ( QMessageBox::information(
+				 this, "Hydrogen",
+				 tr( "Driver restart required.\n Restart driver?"),
+				 QMessageBox::Ok | QMessageBox::Cancel,
+				 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 			// Don't save the Preferences and don't close the PreferencesDialog
 			return;
 		}
@@ -827,14 +826,12 @@ void PreferencesDialog::on_okBtn_clicked()
 	// Check whether the current audio driver is valid
 	if ( pHydrogen->getAudioOutput() == nullptr ||
 		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
-		int nRes = QMessageBox::warning( this, "Hydrogen",
-										 QString( "%1\n" )
-										 .arg( pCommonStrings->getAudioDriverNotPresent() )
-										 .append( tr( "Are you sure you want to proceed?" ) ),
-										 pCommonStrings->getButtonOk(),
-										 pCommonStrings->getButtonCancel(),
-										 nullptr, 1 );
-		if ( nRes != 0 ) {
+		if ( QMessageBox::warning(
+				 this, "Hydrogen", QString( "%1\n" )
+				 .arg( pCommonStrings->getAudioDriverNotPresent() )
+				 .append( tr( "Are you sure you want to proceed?" ) ),
+				 QMessageBox::Ok | QMessageBox::Cancel,
+				 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 			return;
 		}
 	}

@@ -115,10 +115,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 						.arg( sTargetName ) );
 
 		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
-		msgBox.setButtonText(QMessageBox::Ok,
-							 pCommonStrings->getButtonOk() );
-		msgBox.setButtonText(QMessageBox::Cancel,
-							 pCommonStrings->getButtonCancel());
 		msgBox.setDefaultButton(QMessageBox::Ok);
 
 		if ( msgBox.exec() == QMessageBox::Cancel ) {

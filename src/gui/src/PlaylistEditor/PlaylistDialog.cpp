@@ -360,18 +360,17 @@ void PlaylistDialog::clearPlaylist()
 
 	if( IsModified ) {
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		switch(QMessageBox::information( this, "Hydrogen",
-										 tr("\nThe current playlist contains unsaved changes.\n"
-												"Do you want to discard the changes?\n"),
-										 pCommonStrings->getButtonDiscard(),
-										 pCommonStrings->getButtonCancel(),
-										 nullptr,      // Enter == button 0
-										 2 ) ) { // Escape == button 1
-		case 0: // Discard clicked or Alt+D pressed
+		switch(QMessageBox::information(
+				   this, "Hydrogen",
+				   tr("\nThe current playlist contains unsaved changes.\n"
+					  "Do you want to discard the changes?\n"),
+				   QMessageBox::Discard | QMessageBox::Cancel,
+				   QMessageBox::Cancel ) ) {
+		case QMessageBox::Discard:
 			// don't save but exit
 			DiscardChanges = true;
 			break;
-		case 1: // Cancel clicked or Alt+C pressed or Escape pressed
+		case QMessageBox::Cancel:
 			// don't exit
 			DiscardChanges = false;
 			break;

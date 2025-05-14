@@ -728,11 +728,12 @@ bool MainForm::action_file_save_as()
 		// We will prompt for saving the changes applied to the
 		// drumkit usage and require the user to exit this transient
 		// state first.
-		if ( QMessageBox::information( this, "Hydrogen",
-									   tr( "\nThere have been recent changes to the drumkit settings.\n"
-										   "The session needs to be saved before exporting will can be continued.\n" ),
-		                               QMessageBox::Save | QMessageBox::Cancel,
-		                               QMessageBox::Save )
+		if ( QMessageBox::information(
+				 this, "Hydrogen",
+				 tr( "\nThere have been recent changes to the drumkit settings.\n"
+					 "The session needs to be saved before exporting will can be continued.\n" ),
+				 QMessageBox::Save | QMessageBox::Cancel,
+				 QMessageBox::Save )
 		     == QMessageBox::Cancel ) {
 			INFOLOG( "Exporting cancelled at relinking" );
 			return false;
@@ -2337,16 +2338,13 @@ bool MainForm::handleUnsavedChanges()
 	bool done = false;
 	bool rv = true;
 	while ( !done && Hydrogen::get_instance()->getSong()->getIsModified() ) {
-		switch(
-				 QMessageBox::information( this, "Hydrogen",
-										 tr("\nThe document contains unsaved changes.\n"
-												"Do you want to save the changes?\n"),
-										   pCommonStrings->getButtonSave(),
-										   pCommonStrings->getButtonDiscard(),
-										   pCommonStrings->getButtonCancel(),
-										   0,      // Enter == button 0
-										   2 ) ) { // Escape == button 2
-		case 0: // Save clicked or Alt+S pressed or Enter pressed.
+		switch (
+			QMessageBox::information(
+				this, "Hydrogen", tr("\nThe document contains unsaved changes.\n"
+									 "Do you want to save the changes?\n"),
+				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+				QMessageBox::Save ) ) {
+		case QMessageBox::Save: // Save clicked or Alt+S pressed or Enter pressed.
 			// If the save fails, the __is_modified flag will still be true
 			if ( ! Hydrogen::get_instance()->getSong()->getFilename().isEmpty() ) {
 				if ( ! action_file_save() ) {
@@ -2361,11 +2359,11 @@ bool MainForm::handleUnsavedChanges()
 			}
 			// save
 			break;
-		case 1: // Discard clicked or Alt+D pressed
+		case QMessageBox::Discard:
 			// don't save but exit
 			done = true;
 			break;
-		case 2: // Cancel clicked or Alt+C pressed or Escape pressed
+		case QMessageBox::Cancel:
 			// don't exit
 			return false;
 		}
@@ -2374,19 +2372,16 @@ bool MainForm::handleUnsavedChanges()
 	while ( !done && Playlist::get_instance()->getIsModified() ) {
 		switch(
 			QMessageBox::information(
-				this, 
-				"Hydrogen",
+				this, "Hydrogen",
 				tr("\nThe current playlist contains unsaved changes.\n"
 				   "Do you want to discard the changes?\n"),
-				pCommonStrings->getButtonDiscard(),
-				pCommonStrings->getButtonCancel(),
-				nullptr,      // Enter == button 0
-				2 ) ) { // Escape == button 1
-		case 0: // Discard clicked or Alt+D pressed
+				QMessageBox::Discard | QMessageBox::Cancel,
+				QMessageBox::Discard ) ) {
+		case QMessageBox::Discard:
 				// don't save but exit
 			done = true;
 			break;
-		case 1: // Cancel clicked or Alt+C pressed or Escape pressed
+		case QMessageBox::Cancel:
 				// don't exit
 			return false;
 		}
