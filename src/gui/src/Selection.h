@@ -34,7 +34,9 @@
 #include <cassert>
 #include <memory>
 
+#include <core/config.h>
 #include <core/Preferences/Preferences.h>
+#include "Compatibility/MouseEvent.h"
 
 namespace H2Core {
 	class Pattern;
@@ -462,15 +464,26 @@ public:
 			m_mouseState = Down;
 			m_mouseButton = ev->button();
 			assert( m_pClickEvent == nullptr );
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-			m_pClickEvent = new QMouseEvent(QEvent::MouseButtonPress,
-											ev->localPos(), ev->windowPos(), ev->screenPos(),
-											m_mouseButton, ev->buttons(), ev->modifiers(),
-											Qt::MouseEventSynthesizedByApplication);
+
+			auto pEv = static_cast<MouseEvent*>( ev );
+
+#ifdef H2CORE_HAVE_QT6
+			m_pClickEvent = new QMouseEvent(
+				QEvent::MouseButtonPress,
+				pEv->position(), pEv->scenePosition(), pEv->globalPosition(),
+				m_mouseButton, ev->buttons(), ev->modifiers(),
+				Qt::MouseEventSynthesizedByApplication);
+#elif (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+			m_pClickEvent = new QMouseEvent(
+				QEvent::MouseButtonPress,
+				ev->localPos(), ev->windowPos(), ev->screenPos(),
+				m_mouseButton, ev->buttons(), ev->modifiers(),
+				Qt::MouseEventSynthesizedByApplication);
 #else
-			m_pClickEvent = new QMouseEvent(QEvent::MouseButtonPress,
-											ev->localPos(), ev->windowPos(), ev->screenPos(),
-											m_mouseButton, ev->buttons(), ev->modifiers());
+			m_pClickEvent = new QMouseEvent(
+				QEvent::MouseButtonPress,
+				ev->localPos(), ev->windowPos(), ev->screenPos(),
+				m_mouseButton, ev->buttons(), ev->modifiers());
 #endif
 			m_pClickEvent->setTimestamp( ev->timestamp() );
 		}
@@ -478,8 +491,11 @@ public:
 
 	void mouseMoveEvent( QMouseEvent *ev ) {
 
+		auto pEv = static_cast<MouseEvent*>( ev );
+		auto pClickEv = static_cast<MouseEvent*>( m_pClickEvent );
+
 		if ( m_mouseState == Down ) {
-			if ( (ev->pos() - m_pClickEvent->pos() ).manhattanLength() > QApplication::startDragDistance()
+			if ( (pEv->position() - pClickEv->position() ).manhattanLength() > QApplication::startDragDistance()
 				 || (ev->timestamp() - m_pClickEvent->timestamp()) > QApplication::startDragTime() ) {
 				// Mouse has moved far enough to consider this a drag rather than a click.
 				m_mouseState = Dragging;
@@ -541,10 +557,13 @@ public:
 	//! @{
 
 	void mouseClick( QMouseEvent *ev ) {
+		auto pEv = static_cast<MouseEvent*>( ev );
+		auto pClickEv = static_cast<MouseEvent*>( m_pClickEvent );
+
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				m_pClickEvent->pos(), m_pWidget->getCursorMargin( ev ) );
+				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ) );
 			for ( Elem e : elems) {
 				if ( m_pSelectionGroup->m_selectedElements.find( e )
 					 == m_pSelectionGroup->m_selectedElements.end() ) {
@@ -563,7 +582,8 @@ public:
 			} else if ( ev->button() == Qt::RightButton && m_pSelectionGroup->m_selectedElements.empty() ) {
 				// Right-clicking with an empty selection will first attempt to select anything at the click
 				// position before passing the click through to the client.
-				QRect r = QRect( ev->pos(), ev->pos() );
+				QRect r = QRect( pEv->position().toPoint(),
+								 pEv->position().toPoint() );
 				std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
 				for ( Elem e : elems) {
 					addToSelection( e );
@@ -582,9 +602,12 @@ public:
 		}
 		m_pDragScroller->startDrag();
 
+		auto pEv = static_cast<MouseEvent*>( ev );
+		auto pClickEv = static_cast<MouseEvent*>( m_pClickEvent );
+
 		if ( ev->button() == Qt::LeftButton) {
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				m_pClickEvent->pos(), m_pWidget->getCursorMargin( ev ) );
+				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ) );
 
 			/* Did the user start dragging a selected element, or an unselected element?
 			 */
@@ -601,7 +624,8 @@ public:
 				/* Move selection */
 				if ( bHitSelected ) {
 					m_selectionState = MouseMoving;
-					m_movingOffset = ev->pos() - m_pClickEvent->pos();
+					m_movingOffset = pEv->position().toPoint() -
+						pClickEv->position().toPoint();
 					m_pWidget->startMouseMove( ev );
 				}
 			} else if ( bHitAny && m_pWidget->canDragElements() ) {
@@ -611,8 +635,8 @@ public:
 				//  Didn't hit anything. Start new selection drag.
 				m_checkpointSelectedElements = m_pSelectionGroup->m_selectedElements;
 				m_selectionState = MouseLasso;
-				m_lasso.setTopLeft( m_pClickEvent->pos() );
-				m_lasso.setBottomRight( ev->pos() );
+				m_lasso.setTopLeft( pClickEv->position().toPoint() );
+				m_lasso.setBottomRight( pEv->position().toPoint() );
 				m_pWidget->startMouseLasso( ev );
 				m_pWidget->updateWidget();
 
@@ -624,8 +648,11 @@ public:
 
 	void mouseDragUpdate( QMouseEvent *ev ) {
 
+		auto pEv = static_cast<MouseEvent*>( ev );
+		auto pClickEv = static_cast<MouseEvent*>( m_pClickEvent );
+
 		if ( m_selectionState == MouseLasso) {
-			m_lasso.setBottomRight( ev->pos() );
+			m_lasso.setBottomRight( pEv->position().toPoint() );
 
 			if ( ev->modifiers() & Qt::ControlModifier ) {
 				// Start with previously selected elements
@@ -645,7 +672,8 @@ public:
 
 		}
 		else if ( m_selectionState == MouseMoving ) {
-			m_movingOffset = ev->pos() - m_pClickEvent->pos();
+			m_movingOffset = pEv->position().toPoint() -
+				pClickEv->position().toPoint();
 			m_pWidget->selectionMoveUpdateEvent( ev );
 		}
 		else {

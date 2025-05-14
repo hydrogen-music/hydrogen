@@ -22,14 +22,16 @@
 
 
 #include "PlaylistEditor.h"
+
+#include "../CommonStrings.h"
+#include "../Compatibility/DropEvent.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../CommonStrings.h"
-#include "../InstrumentRack.h"
 #include "../UndoActions.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
-#include "SongEditor/SongEditorPanel.h"
-#include "Widgets/PixmapWidget.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/PixmapWidget.h"
+#include "../Widgets/FileDialog.h"
 
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
@@ -41,8 +43,6 @@
 #include <core/Timeline.h>
 #include <core/Basics/Playlist.h>
 
-#include "../Widgets/Button.h"
-#include "../Widgets/FileDialog.h"
 
 #include <QDomDocument>
 #include <QMessageBox>
@@ -1221,8 +1221,10 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 }
 
 void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+	//
 	// Select the row the user just clicked.
-	const auto pItem = itemAt( pEvent->pos() );
+	const auto pItem = itemAt( pEv->position().toPoint() );
 
 	// In case no item was found the selection is cleared.
 	setCurrentItem( pItem );
@@ -1236,7 +1238,7 @@ void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
 		}
 
 		if ( currentRow() != -1 ) {
-			m_dragStartPosition = pEvent->pos();;
+			m_dragStartPosition = pEv->position().toPoint();
 		} else {
 			// No row selected
 			m_dragStartPosition = QPoint( 0, 0 );
@@ -1247,12 +1249,14 @@ void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
 }
 
 void PlaylistTableWidget::mouseMoveEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
     if ( ! ( pEvent->buttons() & Qt::LeftButton ) ||
 		 m_dragStartPosition.isNull() ) {
 		return;
 	}
 
-	if ( ( pEvent->pos() - m_dragStartPosition ).manhattanLength() <
+	if ( ( pEv->position().toPoint() - m_dragStartPosition ).manhattanLength() <
 		 QApplication::startDragDistance() ) {
         return;
 	}
@@ -1289,6 +1293,8 @@ void PlaylistTableWidget::dragEnterEvent( QDragEnterEvent* pEvent ) {
 }
 
 void PlaylistTableWidget::dropEvent( QDropEvent* pEvent ) {
+	auto pEv = static_cast<DropEvent*>( pEvent );
+
 	const auto pFromItem = itemAt( m_dragStartPosition );
 	if ( pFromItem == nullptr ) {
 		ERRORLOG( QString( "No valid source of dragging at [y: %1]" )
@@ -1297,7 +1303,7 @@ void PlaylistTableWidget::dropEvent( QDropEvent* pEvent ) {
 	}
 	int nFrom = row( pFromItem );
 
-	const auto pToItem = itemAt( pEvent->pos() );
+	const auto pToItem = itemAt( pEv->position().toPoint() );
 	int nTo;
 	if ( pToItem == nullptr ) {
 		// Dragged beyond the last row.

@@ -21,6 +21,7 @@
  */
 
 #include "DrumPatternEditor.h"
+
 #include "PatternEditorPanel.h"
 
 #include <core/Globals.h>
@@ -32,6 +33,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Helpers/Xml.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+
 
 #include <math.h>
 #include <cassert>

@@ -23,8 +23,10 @@
 #include <cassert>
 
 #include "PianoRollEditor.h"
+
 #include "PatternEditorPanel.h"
 #include "../CommonStrings.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -414,6 +416,8 @@ void PitchSidebar::selectedRow( int nRowIndex ) {
 }
 
 void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
 	if ( pLabel == nullptr ) {
 		return;
 	}
@@ -438,7 +442,7 @@ void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
 		Note::lineToPitch( nRowClicked ) );
 
 	if ( pEvent->button() == Qt::RightButton ) {
-		m_pFunctionPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
+		m_pFunctionPopup->popup( pEv->globalPosition().toPoint() );
 	}
 
 	// Hide cursor in case this behavior was selected in the

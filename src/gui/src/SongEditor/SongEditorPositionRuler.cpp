@@ -38,6 +38,7 @@
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanelTagWidget.h"
 #include "PlaybackTrackWaveDisplay.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/AutomationPathView.h"
@@ -242,18 +243,20 @@ void SongEditorPositionRuler::leaveEvent( QEvent* ev ){
 
 void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
 	
-	int nColumn = std::max( xToColumn( ev->x() ), 0 );
+	int nColumn = std::max( xToColumn( pEv->position().x() ), 0 );
 
 	HoveredRow row;
-	if ( ev->y() > 22 ) {
+	if ( pEv->position().y() > 22 ) {
 		row = HoveredRow::Ruler;
-	} else if ( ev->y() > 22 - 1 - m_nTagHeight ) {
+	} else if ( pEv->position().y() > 22 - 1 - m_nTagHeight ) {
 		row = HoveredRow::Tag;
 	} else {
 		row = HoveredRow::TempoMarker;
@@ -355,16 +358,18 @@ void SongEditorPositionRuler::showBpmWidget( int nColumn )
 
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
 
-	int nColumn = std::max( xToColumn( ev->x() ), 0 );
+	int nColumn = std::max( xToColumn( pEv->position().x() ), 0 );
 	
 	if (ev->button() == Qt::LeftButton ) {
-		if ( ev->y() > 22 ) {
+		if ( pEv->position().y() > 22 ) {
 			// Relocate transport using position ruler
 			m_bRightBtnPressed = false;
 
@@ -380,7 +385,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			CoreActionController::locateToColumn( nColumn );
 			update();
 		}
-		else if ( ev->y() > 22 - 1 - m_nTagHeight ) {
+		else if ( pEv->position().y() > 22 - 1 - m_nTagHeight ) {
 			showTagWidget( nColumn );
 		}	
 		else if ( pHydrogen->isTimelineEnabled() ){
@@ -390,7 +395,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 	else if ( ev->button() == Qt::MiddleButton ) {
 		showTagWidget( nColumn );
 	}
-	else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
+	else if (ev->button() == Qt::RightButton && pEv->position().y() >= 26) {
 		auto pPref = Preferences::get_instance();
 		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
 			pPref->unsetPunchArea();

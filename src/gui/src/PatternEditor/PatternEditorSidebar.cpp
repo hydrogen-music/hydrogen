@@ -21,7 +21,6 @@
  */
 
 #include "PatternEditorSidebar.h"
-#include "PianoRollEditor.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/CoreActionController.h>
@@ -35,12 +34,15 @@
 #include <core/Basics/Song.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
-#include "CommonStrings.h"
-#include "UndoActions.h"
+#include "PianoRollEditor.h"
+#include "../CommonStrings.h"
+#include "../Compatibility/DropEvent.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../Widgets/Button.h"
 #include "../Skin.h"
+#include "../UndoActions.h"
+#include "../Widgets/Button.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -392,6 +394,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	// of the click event. We will do so just for the instrument label.
 	connect(
 		m_pInstrumentNameLbl, &SidebarLabel::labelClicked, [=]( QMouseEvent* pEvent ){
+			auto pEv = static_cast<MouseEvent*>( pEvent );
 			if ( pEvent->button() == Qt::LeftButton &&
 				 ! m_pInstrumentNameLbl->isShowingPlusSign() ) {
 				// Play a sound
@@ -407,7 +410,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 					const int nWidth = m_pMuteBtn->x() - 5; // clickable field width
 					const float fVelocity = std::min(
-						(float)pEvent->x()/(float)nWidth, VELOCITY_MAX );
+						(float)pEv->position().x()/(float)nWidth, VELOCITY_MAX );
 					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity);
 					Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 						noteOn( pNote );
@@ -913,6 +916,8 @@ void SidebarRow::sampleWarningClicked()
 
 void SidebarRow::mousePressEvent(QMouseEvent *ev)
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	const auto pPref = Preferences::get_instance();
 
 	m_pPatternEditorPanel->setSelectedRowDB(
@@ -925,7 +930,7 @@ void SidebarRow::mousePressEvent(QMouseEvent *ev)
 				pPref->getPatternEditorAlwaysShowTypeLabels() );
 		}
 
-		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
+		m_pFunctionPopup->popup( pEv->globalPosition().toPoint() );
 	}
 
 	// Hide cursor in case this behavior was selected in the
@@ -1103,6 +1108,8 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 		return;
 	}
 
+	auto pEv = static_cast<DropEvent*>( event );
+
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -1134,10 +1141,11 @@ void PatternEditorSidebar::dropEvent(QDropEvent *event)
 	// Starting point for instument list is 50 lower than on the drum pattern
 	// editor
 	int nPosY;
-	if ( event->pos().x() >= PatternEditorSidebar::m_nWidth ) {
-		nPosY = event->pos().y() - 50;
-	} else {
-		nPosY = event->pos().y();
+	if ( pEv->position().x() >= PatternEditorSidebar::m_nWidth ) {
+		nPosY = pEv->position().y() - 50;
+	}
+	else {
+		nPosY = pEv->position().y();
 	}
 
 	int nTargetRow = nPosY / pPref->getPatternEditorGridHeight();
@@ -1233,12 +1241,14 @@ void PatternEditorSidebar::mousePressEvent( QMouseEvent *event ) {
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( event );
+
 	if ( m_pPatternEditorPanel->getRowDB(
 			 m_pPatternEditorPanel->getSelectedRowDB() ).nInstrumentID !=
 		 EMPTY_INSTR_ID ) {
 		// Drag started at a line corresponding to an instrument of the current
 		// drumkit.
-		m_nDragStartY = event->pos().y();
+		m_nDragStartY = pEv->position().y();
 	}
 	else {
 		m_nDragStartY = -1;
@@ -1252,13 +1262,15 @@ void PatternEditorSidebar::mouseMoveEvent(QMouseEvent *event)
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( event );
+
 	// No valid drag. Maybe it was started using a instrument type only row.
 	if ( m_nDragStartY == -1 ) {
 		return;
 	}
 
 	const auto pPref = H2Core::Preferences::get_instance();
-	if ( abs( event->pos().y() - m_nDragStartY ) <
+	if ( abs( pEv->position().y() - m_nDragStartY ) <
 		 pPref->getPatternEditorGridHeight() ) {
 		// Still within the same row.
 		return;

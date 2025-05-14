@@ -22,6 +22,8 @@
  */
 
 #include "StatusMessageDisplay.h"
+
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 
 #include <core/Preferences/Preferences.h>
@@ -139,7 +141,9 @@ void StatusMessageDisplay::mousePressEvent( QMouseEvent* ev ) {
 		messageMenu->addAction( sMessage );
 	}
 
-	messageMenu->popup( ev->globalPos() );
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	messageMenu->popup( pEv->globalPosition().toPoint() );
 }
 
 void StatusMessageDisplay::showMessage( const QString& sMessage, const QString& sCaller ) {

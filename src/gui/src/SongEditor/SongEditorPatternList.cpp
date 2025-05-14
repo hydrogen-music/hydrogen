@@ -42,6 +42,8 @@ using namespace H2Core;
 #include "MainForm.h"
 #include "SongEditorPanel.h"
 #include "VirtualPatternDialog.h"
+#include "../Compatibility/DropEvent.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
@@ -126,11 +128,13 @@ SongEditorPatternList::~SongEditorPatternList()
 /// Single click, select the next pattern
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
-	__drag_start_position = ev->pos();
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	__drag_start_position = pEv->position().toPoint();
 	
 	// -1 to compensate for the 1 pixel offset to align shadows and
 	// -grid lines.
-	int nRow = (( ev->y() - 1 ) / m_nGridHeight);
+	int nRow = (( pEv->position().y() - 1 ) / m_nGridHeight);
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -148,7 +152,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 	if ( ( ev->button() == Qt::MiddleButton ||
 		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton ) ||
 		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) ||
-		   ev->pos().x() < 15 ) &&
+		   pEv->position().x() < 15 ) &&
 		 pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 
 		// Mark the pattern to be played once end of currently playing patterns
@@ -169,7 +173,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		
 		if ( ev->button() == Qt::RightButton )  {
 			m_nRowClicked = nRow;
-			m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
+			m_pPatternPopup->popup( pEv->globalPosition().toPoint() );
 		}
 	}
 
@@ -178,8 +182,10 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 
 void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
 {
-	int row = (ev->y() / m_nGridHeight);
-	inlineEditPatternName( row );
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	const int nRow = pEv->position().y() / m_nGridHeight;
+	inlineEditPatternName( nRow );
 }
 
 void SongEditorPatternList::inlineEditPatternName( int row )
@@ -836,6 +842,8 @@ void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
 
 void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
+	auto pEv = static_cast<DropEvent*>( event );
+
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -847,7 +855,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 	int nTargetPattern = 0;
 	if(m_nGridHeight > 0)
 	{
-		nTargetPattern = event->pos().y() / m_nGridHeight;
+		nTargetPattern = pEv->position().y() / m_nGridHeight;
 	}
 	
 	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") || sText.startsWith("importInstrument:")){
@@ -979,16 +987,18 @@ void SongEditorPatternList::leaveEvent( QEvent* ev ) {
 
 void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 {
+	auto pEv = static_cast<MouseEvent*>( event );
+	//
 	// Update the highlighting of the hovered row.
-	if ( event->pos().y() / m_nGridHeight != m_nRowHovered ) {
-		m_nRowHovered = event->pos().y() / m_nGridHeight;
+	if ( pEv->position().y() / m_nGridHeight != m_nRowHovered ) {
+		m_nRowHovered = pEv->position().y() / m_nGridHeight;
 		updateEditor();
 	}
 	
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
-	if ( (event->pos().y() / m_nGridHeight) == (__drag_start_position.y() / m_nGridHeight) ) {
+	if ( (pEv->position().y() / m_nGridHeight) == (__drag_start_position.y() / m_nGridHeight) ) {
 		return;
 	}
 	auto pHydrogen = Hydrogen::get_instance();

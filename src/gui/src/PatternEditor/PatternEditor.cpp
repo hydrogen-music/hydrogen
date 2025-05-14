@@ -26,7 +26,9 @@
 #include "PatternEditorSidebar.h"
 #include "PatternEditorPanel.h"
 #include "PianoRollEditor.h"
+
 #include "../CommonStrings.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../UndoActions.h"
 #include "../Skin.h"
@@ -480,6 +482,7 @@ void PatternEditor::selectNone()
 
 void PatternEditor::showPopupMenu( QMouseEvent* pEvent )
 {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
 	if ( m_editor == Editor::DrumPattern || m_editor == Editor::PianoRoll ) {
 		// Enable or disable menu actions that only operate on selected notes.
 		for ( auto & action : m_selectionActions ) {
@@ -487,7 +490,7 @@ void PatternEditor::showPopupMenu( QMouseEvent* pEvent )
 		}
 	}
 
-	m_pPopupMenu->popup( pEvent->globalPos() );
+	m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
 }
 
 ///
@@ -976,11 +979,13 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	// Property drawing in the ruler is allowed to start within the margin.
 	// There is currently no plan to introduce a widget within this margin and
 	// in contrast to lasso selection this action is unique to the ruler.
-	if ( ev->x() > m_nActiveWidth ||
-		 ( ev->x() <= PatternEditor::nMarginSidebar &&
+	if ( pEv->position().x() > m_nActiveWidth ||
+		 ( pEv->position().x() <= PatternEditor::nMarginSidebar &&
 		   ! ( m_editor == Editor::NotePropertiesRuler &&
 			   ev->button() == Qt::RightButton ) ) ) {
 		if ( ! m_selection.isEmpty() ) {
@@ -1005,7 +1010,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 		// discard the current selection and add these notes under point to a
 		// transient one.
 		const auto notesUnderPoint = getElementsAtPoint(
-			ev->pos(), getCursorMargin( ev ), pPattern );
+			pEv->position().toPoint(), getCursorMargin( ev ), pPattern );
 
 		bool bSelectionHovered = false;
 		for ( const auto& ppNote : notesUnderPoint ) {
@@ -1058,11 +1063,13 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	updateModifiers( ev );
 
 	int nRow, nColumn, nRealColumn;
-	eventPointToColumnRow( ev->pos(), &nColumn, &nRow, &nRealColumn,
-						   /* fineGrained */true );
+	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
+						   &nRealColumn, /* fineGrained */true );
 
 
 	// Select the corresponding row
@@ -1087,7 +1094,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 		// Check whether an existing note or an empty grid cell was clicked.
 		const auto notesAtPoint = getElementsAtPoint(
-			ev->pos(), getCursorMargin( ev ), pPattern );
+			pEv->position().toPoint(), getCursorMargin( ev ), pPattern );
 		if ( notesAtPoint.size() == 0 ) {
 			// Empty grid cell
 
@@ -2724,6 +2731,8 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	m_property = m_pPatternEditorPanel->getSelectedNoteProperty();
@@ -2733,7 +2742,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 		// Adjusting note properties.
 		const auto notesAtPoint = getElementsAtPoint(
-			ev->pos(), getCursorMargin( ev ), pPattern );
+			pEv->position().toPoint(), getCursorMargin( ev ), pPattern );
 		if ( notesAtPoint.size() == 0 ) {
 			return;
 		}
@@ -2772,28 +2781,31 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 		}
 		// All notes at located at the same point.
 		m_nDragStartColumn = notesAtPoint[ 0 ]->getPosition();
-		m_nDragY = ev->y();
-		m_dragStart = ev->pos();
+		m_nDragY = pEv->position().y();
+		m_dragStart = pEv->position().toPoint();
 	}
 }
 
-void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
+void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || m_draggedNotes.size() == 0 ) {
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	updateModifiers( ev );
 
 	auto pHydrogen = Hydrogen::get_instance();
 	int nColumn, nRealColumn;
-	eventPointToColumnRow( ev->pos(), &nColumn, nullptr, &nRealColumn );
+	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
+						   &nRealColumn );
 
 	// In case this is the first drag update, decided whether we deal with a
 	// length or property drag.
 	if ( m_dragType == DragType::None ) {
-		const int nDiffY = std::abs( ev->y() - m_dragStart.y() );
-		const int nDiffX = std::abs( ev->x() - m_dragStart.x() );
+		const int nDiffY = std::abs( pEv->position().y() - m_dragStart.y() );
+		const int nDiffX = std::abs( pEv->position().x() - m_dragStart.x() );
 
 		if ( nDiffX == nDiffY ) {
 			// User is dragging diagonally and hasn't decided yet.
@@ -2845,7 +2857,8 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 				fValue = ppNote->getProbability();
 			}
 		
-			fValue = fValue + static_cast<float>(m_nDragY - ev->y()) / 100;
+			fValue = fValue +
+				static_cast<float>(m_nDragY - pEv->position().y()) / 100;
 			if ( fValue > 1 ) {
 				fValue = 1;
 			}
@@ -2870,7 +2883,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
 		}
 	}
 
-	m_nDragY = ev->y();
+	m_nDragY = pEv->position().y();
 
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
@@ -3812,13 +3825,17 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 
 void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 											 bool bUpdateEditors ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
 	const int nCursorMargin = getCursorMargin( pEvent );
 
 	int nRealColumn;
-	eventPointToColumnRow( pEvent->pos(), nullptr, nullptr, &nRealColumn );
+	eventPointToColumnRow( pEv->position().toPoint(), nullptr, nullptr,
+						   &nRealColumn );
 	int nRealColumnUpper;
-	eventPointToColumnRow( pEvent->pos() + QPoint( nCursorMargin, 0 ),
-						   nullptr, nullptr, &nRealColumnUpper );
+	eventPointToColumnRow(
+		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), nullptr,
+		nullptr, &nRealColumnUpper );
 
 	// getElementsAtPoint is generous in finding notes by taking a margin around
 	// the cursor into account as well. We have to ensure we only use to closest
@@ -3836,10 +3853,10 @@ void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
 	// hovered ones would appear in front of the dragged one in the ruler,
 	// hiding the newly adjusted value.
 	if ( m_dragType == DragType::None &&
-		 pEvent->x() > PatternEditor::nMarginSidebar ) {
+		 pEv->position().x() > PatternEditor::nMarginSidebar ) {
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes = getElementsAtPoint(
-				pEvent->pos(), nCursorMargin, ppPattern );
+				pEv->position().toPoint(), nCursorMargin, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
 				const int nDistance =
 					std::abs( hoveredNotes[ 0 ]->getPosition() - nRealColumn );

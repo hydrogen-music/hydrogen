@@ -21,6 +21,8 @@
  */
 
 #include "AutomationPathView.h"
+
+#include "../Compatibility/MouseEvent.h"
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../HydrogenApp.h"
@@ -137,9 +139,11 @@ QPoint AutomationPathView::translatePoint(const std::pair<float,float> &p) const
  */
 bool AutomationPathView::checkBounds(QMouseEvent *event) const
 {
-	return event->x() > SongEditor::nMargin
-		&& event->y() > m_nMarginHeight
-		&& event->y() < height()-m_nMarginHeight;
+	auto pEv = static_cast<MouseEvent*>( event );
+
+	return pEv->position().x() > SongEditor::nMargin
+		&& pEv->position().y() > m_nMarginHeight
+		&& pEv->position().y() < height()-m_nMarginHeight;
 }
 
 
@@ -150,8 +154,11 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
 {
 	int contentHeight = height() - 2* m_nMarginHeight;
 
-	float x = (event->x() - SongEditor::nMargin) / (float)m_nGridWidth;
-	float y = ((contentHeight-event->y()+m_nMarginHeight)/(float)contentHeight)
+	auto pEv = static_cast<MouseEvent*>( event );
+
+	float x = (pEv->position().x() - SongEditor::nMargin) / (float)m_nGridWidth;
+	float y = ((contentHeight - pEv->position().y() + m_nMarginHeight)/
+			   (float)contentHeight)
 		* (_path->get_max() - _path->get_min()) + _path->get_min();
 
 	return std::pair<const float,float>(x,y);

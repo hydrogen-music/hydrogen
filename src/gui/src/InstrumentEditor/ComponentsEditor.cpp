@@ -29,6 +29,7 @@
 #include "ComponentView.h"
 #include "InstrumentEditorPanel.h"
 #include "../CommonStrings.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "../UndoActions.h"
@@ -242,8 +243,9 @@ void ComponentsEditor::addComponent() {
 }
 
 void ComponentsEditor::mousePressEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
 	if ( pEvent->button() == Qt::RightButton ) {
-		m_pPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
+		m_pPopup->popup( pEv->globalPosition().toPoint() );
 	}
 }
 
