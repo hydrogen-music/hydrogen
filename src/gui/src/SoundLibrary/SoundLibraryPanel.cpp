@@ -698,12 +698,11 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	int res = QMessageBox::warning( this, "Hydrogen",
-									tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(sDrumkitName),
-									pCommonStrings->getButtonOk(),
-									pCommonStrings->getButtonCancel(),
-									nullptr, 1 );
-	if ( res == 1 ) {
+	if ( QMessageBox::warning(
+			 this, "Hydrogen",
+			 tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(sDrumkitName),
+			 QMessageBox::Ok | QMessageBox::Cancel,
+			 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 		return;
 	}
 
@@ -790,12 +789,11 @@ void SoundLibraryPanel::on_patternDeleteAction()
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString patternPath = __sound_library_tree->currentItem()->text( 1 );
 
-	int res = QMessageBox::information( this, "Hydrogen",
-										tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"),
-										pCommonStrings->getButtonOk(),
-										pCommonStrings->getButtonCancel(),
-										nullptr, 1 );
-	if ( res == 1 ) {
+	if ( QMessageBox::information(
+			 this, "Hydrogen",
+			 tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"),
+			 QMessageBox::Ok | QMessageBox::Cancel,
+			 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 		return;
 	}
 

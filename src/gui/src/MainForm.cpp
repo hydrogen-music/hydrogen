@@ -1603,20 +1603,12 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	}
 
 	if ( Filesystem::file_exists( sFilePath, true ) ) {
-		QMessageBox msgBox;
-		msgBox.setWindowTitle("Hydrogen");
-		msgBox.setIcon( QMessageBox::Warning );
-		msgBox.setText( tr( "The file [%1] does already exist and will be overwritten.")
-						.arg( sFilePath ) );
-
-		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
-		msgBox.setButtonText(QMessageBox::Ok,
-							 pCommonStrings->getButtonOk() );
-		msgBox.setButtonText(QMessageBox::Cancel,
-							 pCommonStrings->getButtonCancel());
-		msgBox.setDefaultButton(QMessageBox::Ok);
-
-		if ( msgBox.exec() == QMessageBox::Cancel ) {
+		if ( QMessageBox::warning(
+				 nullptr, "Hydrogen",
+				 tr( "The file [%1] does already exist and will be overwritten.")
+				 .arg( sFilePath ),
+				 QMessageBox::Ok | QMessageBox::Cancel,
+				 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 			return;
 		}
 	}

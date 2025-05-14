@@ -710,15 +710,14 @@ void SongEditorPanel::downBtnClicked()
 void SongEditorPanel::clearSequence()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	int res = QMessageBox::information( this, "Hydrogen",
-										tr( "Warning, this will erase your pattern sequence.\nAre you sure?"),
-										pCommonStrings->getButtonOk(),
-										pCommonStrings->getButtonCancel(),
-										nullptr, 1 );
-	if ( res == 1 ) {
+	if ( QMessageBox::information(
+			 this, "Hydrogen",
+			 tr( "Warning, this will erase your pattern sequence.\nAre you sure?"),
+			 QMessageBox::Ok | QMessageBox::Cancel,
+			 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 		return;
 	}
-	
+
 	const QString sFilename = Filesystem::tmp_file_path( "SEQ.xml" );
 	auto pAction = new SE_deletePatternSequenceAction( sFilename );
 	HydrogenApp::get_instance()->pushUndoCommand( pAction );
