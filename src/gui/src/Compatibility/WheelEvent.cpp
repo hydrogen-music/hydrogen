@@ -23,6 +23,8 @@
 
 #include <core/config.h>
 
+#include <QtGlobal>	// for QT_VERSION
+
 #include "WheelEvent.h"
 
 WheelEvent::WheelEvent( QWheelEvent* pEv ) :
