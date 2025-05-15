@@ -36,17 +36,36 @@ WheelEvent::~WheelEvent() {
 }
 
 QPointF WheelEvent::globalPosition() const {
-#if QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 )
-	return QWheelEvent::globalPos();
+
+#if QT_VERSION >= 0x060000
+	#pragma message("6.0.0")
 #else
+	#if QT_VERSION >= 0x051500
+         #pragma message("5.15.0")
+	#else
+        #if QT_VERSION >= 0x051400
+             #pragma message("5.14.0")
+        #else
+	        #if QT_VERSION >= 0x051200
+                    #pragma message("5.12.0")
+            #endif
+	    #endif
+	#endif
+#endif
+
+
+
+#if QT_VERSION >= 0x051400
 	return QWheelEvent::globalPosition();
+#else
+	return QWheelEvent::globalPos();
 #endif
 }
 
 QPointF WheelEvent::position() const {
-#if QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 )
-	return QWheelEvent::pos();
-#else
+#if QT_VERSION >= 0x051400
 	return QWheelEvent::position();
+#else
+	return QWheelEvent::pos();
 #endif
 }
