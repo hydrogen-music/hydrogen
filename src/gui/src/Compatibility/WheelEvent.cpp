@@ -23,7 +23,7 @@
 
 #include <core/config.h>
 
-#include <QtGlobal>	// for QT_VERSION
+#include <QtGlobal>
 
 #include "WheelEvent.h"
 
@@ -37,9 +37,17 @@ WheelEvent::~WheelEvent() {
 }
 
 QPointF WheelEvent::globalPosition() const {
+#if QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 )
+	#pragma message("[WheelEvent] Qt old <")
+#else
+	#pragma message("[WheelEvent] Qt new <")
+#end
+
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	#pragma message("[WheelEvent] Qt new >=")
 	return QWheelEvent::globalPosition();
 #else
+	#pragma message("[WheelEvent] Qt old >=")
 	return QWheelEvent::globalPos();
 #endif
 }
