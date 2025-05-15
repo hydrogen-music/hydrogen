@@ -328,7 +328,11 @@ int main(int argc, char *argv[])
 			}
 			languages << locale.uiLanguages();
 			if ( H2Core::Translations::loadTranslation( languages, qttor, QString( "qt" ),
+#ifdef H2CORE_HAVE_QT6
+														QLibraryInfo::path(QLibraryInfo::TranslationsPath) ) ) {
+#else
 														QLibraryInfo::location(QLibraryInfo::TranslationsPath) ) ) {
+#endif
 				pQApp->installTranslator( &qttor );
 			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
