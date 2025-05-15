@@ -22,13 +22,7 @@
  */
 
 #include <core/config.h>
-#include "../Widgets/WidgetWithInput.h"
-#include "../CommonStrings.h"
-#include "../HydrogenApp.h"
-#include "../Widgets/MidiSenseWidget.h"
-
-#include <core/Hydrogen.h>
-
+#include <QtGlobal>
 
 #include "WheelEvent.h"
 
@@ -43,24 +37,16 @@ WheelEvent::~WheelEvent() {
 
 QPointF WheelEvent::globalPosition() const {
 #if QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 )
-	#pragma message("[WheelEvent] Qt old <")
-#else
-	#pragma message("[WheelEvent] Qt new <")
-#endif
-
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	#pragma message("[WheelEvent] Qt new >=")
-	return QWheelEvent::globalPosition();
-#else
-	#pragma message("[WheelEvent] Qt old >=")
 	return QWheelEvent::globalPos();
+#else
+	return QWheelEvent::globalPosition();
 #endif
 }
 
 QPointF WheelEvent::position() const {
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	return QWheelEvent::position();
-#else
+#if QT_VERSION < QT_VERSION_CHECK( 5, 14, 0 )
 	return QWheelEvent::pos();
+#else
+	return QWheelEvent::position();
 #endif
 }
