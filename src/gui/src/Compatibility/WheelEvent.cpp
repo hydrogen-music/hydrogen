@@ -28,7 +28,11 @@
 #include "WheelEvent.h"
 
 WheelEvent::WheelEvent( QWheelEvent* pEv ) :
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	QWheelEvent( pEv->position(), pEv->globalPosition(),
+#else
+	QWheelEvent( pEv->pos(), pEv->globalPos(),
+#endif
 				 pEv->pixelDelta(), pEv->angleDelta(), pEv->buttons(),
 				 pEv->modifiers(), pEv->phase(), pEv->inverted() ) {
 };
