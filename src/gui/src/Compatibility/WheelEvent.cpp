@@ -22,8 +22,13 @@
  */
 
 #include <core/config.h>
+#include "../Widgets/WidgetWithInput.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../Widgets/MidiSenseWidget.h"
 
-#include <QtGlobal>
+#include <core/Hydrogen.h>
+
 
 #include "WheelEvent.h"
 
@@ -41,7 +46,7 @@ QPointF WheelEvent::globalPosition() const {
 	#pragma message("[WheelEvent] Qt old <")
 #else
 	#pragma message("[WheelEvent] Qt new <")
-#end
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	#pragma message("[WheelEvent] Qt new >=")
