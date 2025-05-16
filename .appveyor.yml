@@ -331,8 +331,8 @@ for:
       git submodule init || exit 1
       git submodule update || exit 1
 
-      export PATH=$HOME/Qt/5.15.2/gcc_64/bin:$PATH
-      export Qt5Widgets_DIR=$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5Widgets
+      export PATH=$HOME/Qt/6.7/gcc_64/bin:$PATH
+      export Qt5Widgets_DIR=$HOME/Qt/6.7/gcc_64/lib/cmake/Qt5Widgets
       export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
@@ -344,10 +344,11 @@ for:
             -DWANT_RUBBERBAND=1 \
             -DWANT_APPIMAGE=1 \
             -DWANT_DYNAMIC_JACK_CHECK=1 \
+            -DWANT_QT6:BOOL=ON \
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
-            -DCMAKE_PREFIX_PATH=$HOME/Qt/5.15.2/gcc_64 .. || exit 1
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/6.7/gcc_64 .. || exit 1
       make -j $CPUS || exit 1
 
       ccache -s || exit 1
@@ -381,7 +382,7 @@ for:
       ## Opus and FLAC.
       cp /usr/local/lib/libsndfile.so.1 AppDir/usr/lib || exit 1
 
-      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/5.15.2/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
+      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/6.7/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
         --library AppDir/usr/lib/libsndfile.so.1 \
@@ -604,8 +605,8 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-liblo
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5-tools
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt6
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt6-tools
 
           ccache -M 256M
           ccache -s
@@ -618,7 +619,7 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DWANT_QT6:BOOL=ON ..
 
     build_script:
       - cmd: |-
