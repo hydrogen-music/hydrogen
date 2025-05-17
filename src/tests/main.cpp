@@ -60,7 +60,8 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
 	/* Base */
 	H2Core::Base::bootstrap( pLogger, true );
 	/* Filesystem */
-	H2Core::Filesystem::bootstrap( pLogger, test_helper->getDataDir() );
+	H2Core::Filesystem::bootstrap(
+		pLogger, test_helper->getDataDir(), "", sLogFilePath );
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
@@ -122,15 +123,16 @@ int main( int argc, char **argv)
 			sLogFilePath = fi.absoluteFilePath();
 		}
 	}
+	else {
+		sLogFilePath = QString( "%1%2test.log" )
+			.arg( QDir::currentPath() ).arg( QDir::separator() );
+	}
 	
-	unsigned logLevelOpt = H2Core::Logger::None;
-	if( parser.isSet(verboseOption) || parser.isSet( outputFileOption ) ){
-		if ( !sVerbosityString.isEmpty() ) {
-			logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
-		} else {
-			logLevelOpt = H2Core::Logger::Error | H2Core::Logger::Warning |
-				H2Core::Logger::Info | H2Core::Logger::Debug;
-		}
+	auto logLevelOpt = H2Core::Logger::Error | H2Core::Logger::Warning |
+		H2Core::Logger::Info | H2Core::Logger::Debug ;
+	if ( ! sVerbosityString.isEmpty() ) {
+		logLevelOpt =  H2Core::Logger::parse_log_level(
+			sVerbosityString.toLocal8Bit() );
 	}
 
 	setupEnvironment( logLevelOpt, sLogFilePath );
