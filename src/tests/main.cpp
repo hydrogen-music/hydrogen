@@ -164,7 +164,6 @@ int main( int argc, char **argv)
 	// Ensure the log is written properly
 	auto pLogger = H2Core::Logger::get_instance();
 	pLogger->flush();
-	delete pLogger;
 
 	auto durationSeconds = std::chrono::duration_cast<std::chrono::seconds>( stop - start );
 	auto durationMilliSeconds =
