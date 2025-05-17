@@ -331,10 +331,8 @@ for:
       git submodule init || exit 1
       git submodule update || exit 1
 
-      tree -d $HOME
-
-      export PATH=$HOME/Qt/6.7/gcc_64/bin:$PATH
-      export Qt5Widgets_DIR=$HOME/Qt/6.7/gcc_64/lib/cmake/Qt5Widgets
+      export PATH=$HOME/Qt/5.15/gcc_64/bin:$PATH
+      export Qt5Widgets_DIR=$HOME/Qt/5.15/gcc_64/lib/cmake/Qt5Widgets
       export CMAKE_CXX_FLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
@@ -350,7 +348,7 @@ for:
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
-            -DCMAKE_PREFIX_PATH=$HOME/Qt/6.7/gcc_64 .. || exit 1
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/5.15/gcc_64 .. || exit 1
       make -j $CPUS || exit 1
 
       ccache -s || exit 1
@@ -384,7 +382,7 @@ for:
       ## Opus and FLAC.
       cp /usr/local/lib/libsndfile.so.1 AppDir/usr/lib || exit 1
 
-      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/6.7/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
+      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/5.15/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
         --library AppDir/usr/lib/libsndfile.so.1 \
