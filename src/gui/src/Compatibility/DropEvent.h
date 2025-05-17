@@ -20,46 +20,25 @@
  *
  */
 
-#include "SoundLibraryTree.h"
+#ifndef DROPEVENT_H_
+#define DROPEVENT_H_
 
-#include "../Compatibility/MouseEvent.h"
+#include <QDropEvent>
 
-#include <QMimeData>
-
-SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
- : QTreeWidget( pParent )
+/** Compatibility class to support QDropEvent more esily in Qt5 and Qt6.
+ *
+ * At some point, when we dropped Qt5 support, we can drop this class too and
+ * use the plain `QDropEvent` again. Therefore, it is important to _not_ add
+ * any members incompatible with the Qt6 interface of QDropEvent. */
+/** \ingroup docGUI docWidgets*/
+class DropEvent : public QDropEvent
 {
-	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
-	setAlternatingRowColors( true );
-	setRootIsDecorated( false );
 
-	headerItem()->setHidden( true ); // hides the header
+public:
+	DropEvent( QDropEvent* );
+	~DropEvent();
 
-}
+	QPointF	position() const;
+};
 
-
-void SoundLibraryTree::mousePressEvent(QMouseEvent *event)
-{
-//	INFOLOG( "[mousePressEvent]" );
-	QTreeWidget::mousePressEvent( event );
-
-	auto pEv = static_cast<MouseEvent*>( event );
-
-	if ( event->button() == Qt::RightButton ) {
-		emit rightClicked( pEv->globalPosition().toPoint() );
-
-	}
-	else if (event->button() == Qt::LeftButton ) {
-		emit leftClicked( pEv->globalPosition().toPoint() );
-	}
-}
-
-
-
-void SoundLibraryTree::mouseMoveEvent(QMouseEvent *event)
-{
-	emit onMouseMove( event );
-}
-
-
-
+#endif // DROPEVENT_H_

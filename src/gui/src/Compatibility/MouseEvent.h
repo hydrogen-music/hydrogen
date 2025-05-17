@@ -20,46 +20,26 @@
  *
  */
 
-#include "SoundLibraryTree.h"
+#ifndef MOUSEEVENT_H_
+#define MOUSEEVENT_H_
 
-#include "../Compatibility/MouseEvent.h"
+#include <QMouseEvent>
 
-#include <QMimeData>
-
-SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
- : QTreeWidget( pParent )
+/** Compatibility class to support QMouseEvent more esily in Qt5 and Qt6.
+ *
+ * At some point, when we dropped Qt5 support, we can drop this class too and
+ * use the plain `QMouseEvent` again. Therefore, it is important to _not_ add
+ * any members incompatible with the Qt6 interface of QMouseEvent. */
+/** \ingroup docGUI docWidgets*/
+class MouseEvent : public QMouseEvent
 {
-	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
-	setAlternatingRowColors( true );
-	setRootIsDecorated( false );
 
-	headerItem()->setHidden( true ); // hides the header
+public:
+	MouseEvent( QMouseEvent* );
+	~MouseEvent();
 
-}
+	QPointF	globalPosition() const;
+	QPointF	position() const;
+};
 
-
-void SoundLibraryTree::mousePressEvent(QMouseEvent *event)
-{
-//	INFOLOG( "[mousePressEvent]" );
-	QTreeWidget::mousePressEvent( event );
-
-	auto pEv = static_cast<MouseEvent*>( event );
-
-	if ( event->button() == Qt::RightButton ) {
-		emit rightClicked( pEv->globalPosition().toPoint() );
-
-	}
-	else if (event->button() == Qt::LeftButton ) {
-		emit leftClicked( pEv->globalPosition().toPoint() );
-	}
-}
-
-
-
-void SoundLibraryTree::mouseMoveEvent(QMouseEvent *event)
-{
-	emit onMouseMove( event );
-}
-
-
-
+#endif // MOUSEEVENT_H_

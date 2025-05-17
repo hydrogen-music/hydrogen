@@ -34,72 +34,72 @@ void MidiMessage::clear() {
 
 void MidiMessage::setType( int nStatusByte ) {
 
-	if ( ( nStatusByte >= 128 ) && ( nStatusByte < 144 ) ) {
+	if ( nStatusByte >= 128 && nStatusByte < 144 ) {
 		m_nChannel = nStatusByte - 128;
 		m_type = MidiMessage::NOTE_OFF;
 	}
-	else if ( ( nStatusByte >= 144 ) && ( nStatusByte < 160 ) ) {
+	else if ( nStatusByte >= 144 && nStatusByte < 160 ) {
 		m_nChannel = nStatusByte - 144;
 		m_type = MidiMessage::NOTE_ON;
 	}
-	else if ( ( nStatusByte >= 160 ) && ( nStatusByte < 176 ) ) {
+	else if ( nStatusByte >= 160 && nStatusByte < 176 ) {
 		m_nChannel = nStatusByte - 160;
 		m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
 	}
-	else if ( ( nStatusByte >= 176 ) && ( nStatusByte < 192 ) ) {
+	else if ( nStatusByte >= 176 && nStatusByte < 192 ) {
 		m_nChannel = nStatusByte - 176;
 		m_type = MidiMessage::CONTROL_CHANGE;
 	}
-	else if ( ( nStatusByte >= 192 ) && ( nStatusByte < 208 ) ) {
+	else if ( nStatusByte >= 192 && nStatusByte < 208 ) {
 		m_nChannel = nStatusByte - 192;
 		m_type = MidiMessage::PROGRAM_CHANGE;
 	}
-	else if ( ( nStatusByte >= 208 ) && ( nStatusByte < 224 ) ) {
+	else if ( nStatusByte >= 208 && nStatusByte < 224 ) {
 		m_nChannel = nStatusByte - 208;
 		m_type = MidiMessage::CHANNEL_PRESSURE;
 	}
-	else if ( ( nStatusByte >= 224 ) && ( nStatusByte < 240 ) ) {
+	else if ( nStatusByte >= 224 && nStatusByte < 240 ) {
 		m_nChannel = nStatusByte - 224;
 		m_type = MidiMessage::PITCH_WHEEL;
 	}
 	// System Common Messages
-	else if ( ( nStatusByte == 240 ) ) {
+	else if ( nStatusByte == 240 ) {
 		m_nChannel = nStatusByte - 224;
 		m_type = MidiMessage::SYSEX;
 	}
-	else if ( ( nStatusByte == 241 ) ) {
+	else if ( nStatusByte == 241 ) {
 		m_type = MidiMessage::QUARTER_FRAME;
 	}
-	else if ( ( nStatusByte == 242 ) ) {
+	else if ( nStatusByte == 242 ) {
 		m_type = MidiMessage::SONG_POS;
 	}
-	else if ( ( nStatusByte == 243 ) ) {
+	else if ( nStatusByte == 243 ) {
 		m_type = MidiMessage::SONG_SELECT;
 	}
 	// 244, 245 are undefined/reserved
-	else if ( ( nStatusByte == 246 ) ) {
+	else if ( nStatusByte == 246 ) {
 		m_type = MidiMessage::TUNE_REQUEST;
 	}
 	// 247 indicates the end of a SysEx (240) message
 	// System Realtime Messages
-	else if ( ( nStatusByte == 248 ) ) {
+	else if ( nStatusByte == 248 ) {
 		m_type = MidiMessage::TIMING_CLOCK;
 	}
 	// 249 is undefined/reserved
-	else if ( ( nStatusByte == 250 ) ) {
+	else if ( nStatusByte == 250 ) {
 		m_type = MidiMessage::START;
 	}
-	else if ( ( nStatusByte == 251 ) ) {
+	else if ( nStatusByte == 251 ) {
 		m_type = MidiMessage::CONTINUE;
 	}
-	else if ( ( nStatusByte == 252 ) ) {
+	else if ( nStatusByte == 252 ) {
 		m_type = MidiMessage::STOP;
 	}
 	// 253 is undefined/reserved
-	else if ( ( nStatusByte == 254 ) ) {
+	else if ( nStatusByte == 254 ) {
 		m_type = MidiMessage::ACTIVE_SENSING;
 	}
-	else if ( ( nStatusByte == 255 ) ) {
+	else if ( nStatusByte == 255 ) {
 		m_type = MidiMessage::RESET;
 	}
 }

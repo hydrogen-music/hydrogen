@@ -816,40 +816,46 @@ QStringList Filesystem::usr_drumkit_list( )
 	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
-QString Filesystem::prepare_sample_path( const QString& fname )
+QString Filesystem::prepare_sample_path( const QString& sFileName )
 {
-	int idx = get_basename_idx_under_drumkit( fname );
-	if ( idx >= 0 ) {
-		return fname.midRef( idx ).toString();
+	const int nIdx = get_basename_idx_under_drumkit( sFileName );
+	if ( nIdx >= 0 ) {
+		return sFileName.right( nIdx );
 	}
-	return fname;
+	return sFileName;
 }
 
-bool Filesystem::file_is_under_drumkit( const QString& fname )
+bool Filesystem::file_is_under_drumkit( const QString& sFileName )
 {
-	return get_basename_idx_under_drumkit( fname ) != -1;
+	return get_basename_idx_under_drumkit( sFileName ) != -1;
 }
 
-int Filesystem::get_basename_idx_under_drumkit( const QString& fname )
+int Filesystem::get_basename_idx_under_drumkit( const QString& sFileName )
 {
-	if( fname.startsWith( usr_drumkits_dir() ) )
-	{
-		int start = usr_drumkits_dir().size();
-		int index = fname.indexOf( "/", start );
-		QString dk_name = fname.midRef( start , index - start).toString();
-		if ( usr_drumkit_list().contains( dk_name ) ) {
-			return index + 1;
+	auto getIndex = [=]( const QString& sDrumkitDir ) {
+		const int nStart = usr_drumkits_dir().size();
+		const int nIndex = sFileName.indexOf( "/", nStart );
+#ifdef H2CORE_HAVE_QT6
+		const QString sDrumkitName = sFileName.sliced( nStart , nIndex - nStart );
+#else
+		const QString sDrumkitName =
+			sFileName.midRef( nStart , nIndex - nStart ).toString();
+#endif
+		if ( drumkit_list( sDrumkitDir ).contains( sDrumkitName ) ) {
+			return nIndex + 1;
 		}
+		else {
+			return -1;
+		}
+	};
+
+	if ( sFileName.startsWith( usr_drumkits_dir() ) ) {
+		return getIndex( usr_drumkits_dir() );
 	}
 
-	if( fname.startsWith( sys_drumkits_dir() ) )
-	{
-		int start = sys_drumkits_dir().size();
-		int index = fname.indexOf( "/", start);
-		QString dk_name = fname.midRef( start, index - start).toString();
-		if ( sys_drumkit_list().contains( dk_name ) ) {
-			return index + 1;
-		}
+
+	if ( sFileName.startsWith( sys_drumkits_dir() ) ) {
+		return getIndex( sys_drumkits_dir() );
 	}
 
 	return -1;
