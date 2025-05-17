@@ -337,9 +337,15 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 		return nullptr;
 	}
 
-	QString sName = pattern_node.read_string( "pattern_name", "", false, false );
-	if ( sName.isEmpty() ) {
-	    sName = pattern_node.read_string( "pattern_name", "unknown", false, false );
+	auto patternNameNode = pattern_node.firstChildElement( "pattern_name" );
+	QString sName;
+	if ( ! patternNameNode.isNull() ) {
+		// Older version
+		sName = pattern_node.read_string( "pattern_name", "", false, false );
+	}
+	else {
+		// More recent version
+	    sName = pattern_node.read_string( "name", "unknown", false, false );
 	}
 	QString sInfo = pattern_node.read_string( "info", "" );
 	QString sCategory = pattern_node.read_string( "category", "" );
