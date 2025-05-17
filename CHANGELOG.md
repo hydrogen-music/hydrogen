@@ -205,6 +205,8 @@ All notable changes to this project will be documented in this file.
 ### Removed
 
 - `Qt XmlPatterns` is no longer a dependency.
+- Folder `linux/debian` containing outdated Debian package rules used by the
+  previous development team to distributed Hydrogen as `.deb` package.
 
 ## [1.2.4] - 2024-12-07
 
