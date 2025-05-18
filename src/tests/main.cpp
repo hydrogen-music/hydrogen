@@ -30,6 +30,7 @@
 #include <core/config.h>
 
 #include <QCoreApplication>
+#include <QTemporaryDir>
 
 #include "registeredTests.h"
 #include "TestHelper.h"
@@ -44,7 +45,8 @@
 #include <string.h>
 #endif
 
-void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
+void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
+					  const QString& sUserDataFolder )
 {
 	/* Logger */
 	H2Core::Logger* pLogger = nullptr;
@@ -61,7 +63,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
 	H2Core::Base::bootstrap( pLogger, true );
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap(
-		pLogger, test_helper->getDataDir(), "", sLogFilePath );
+		pLogger, test_helper->getDataDir(), sUserDataFolder, sLogFilePath );
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
@@ -134,7 +136,14 @@ int main( int argc, char **argv)
 			sVerbosityString.toLocal8Bit() );
 	}
 
-	setupEnvironment( logLevelOpt, sLogFilePath );
+	// Transient user-level data to ensure no data of the system the unit tests
+	// are run on does leak into the test setup.
+	QTemporaryDir userDataDir( H2Core::Filesystem::tmp_dir() + "-user-data-XXXXX" );
+	userDataDir.setAutoRemove( false );
+
+	qDebug() << "Using transient data dir: [" << userDataDir.path() << "]";
+
+	setupEnvironment( logLevelOpt, sLogFilePath, userDataDir.path() );
 
 #ifdef HAVE_EXECINFO_H
 	signal(SIGSEGV, fatal_signal);
@@ -166,6 +175,8 @@ int main( int argc, char **argv)
 	// Ensure the log is written properly
 	auto pLogger = H2Core::Logger::get_instance();
 	pLogger->flush();
+
+	H2Core::Filesystem::rm( userDataDir.path(), true, true );
 
 	auto durationSeconds = std::chrono::duration_cast<std::chrono::seconds>( stop - start );
 	auto durationMilliSeconds =
