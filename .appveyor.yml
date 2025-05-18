@@ -604,8 +604,8 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-ccache
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-liblo
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5-tools
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt6
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt6-tools
 
           ccache -M 256M
           ccache -s
@@ -618,7 +618,7 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DWANT_QT6:BOOL=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
@@ -646,7 +646,7 @@ for:
           REM *** Deploy Qt ***
           set "DEPLOY_ARGS=--no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
 
-          %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
+          %QTDIR%\bin\windeployqt6.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python
