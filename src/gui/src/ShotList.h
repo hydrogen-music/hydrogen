@@ -66,25 +66,25 @@ class ShotList : public QObject, public EventListener {
 	public:
 		Arg( QString &sArg ) : m_sArg( sArg ) {}
 
-		operator QGenericArgument() {
-			if (( m_sArg == "true" )) {
-				m_b = true;
-				return Q_ARG( bool, m_b );
-			} else if (( m_sArg == "false" )) {
-				m_b = false;
-				return Q_ARG( bool, m_b );
-			}
-			bool bIsInt = false;
-			m_n = m_sArg.toInt( &bIsInt );
-			if ( bIsInt ) {
-				return Q_ARG( int, m_n );
-			} else if (( m_pWidget = findWidget( m_sArg ) )) {
-				return Q_ARG( QWidget *, m_pWidget );
-			} else {
-				// Last resort, treat as a QString
-				return Q_ARG( QString, m_sArg );
-			}
-		}
+		// operator QGenericArgument() {
+		// 	if (( m_sArg == "true" )) {
+		// 		m_b = true;
+		// 		return Q_ARG( bool, m_b );
+		// 	} else if (( m_sArg == "false" )) {
+		// 		m_b = false;
+		// 		return Q_ARG( bool, m_b );
+		// 	}
+		// 	bool bIsInt = false;
+		// 	m_n = m_sArg.toInt( &bIsInt );
+		// 	if ( bIsInt ) {
+		// 		return Q_ARG( int, m_n );
+		// 	} else if (( m_pWidget = findWidget( m_sArg ) )) {
+		// 		return Q_ARG( QWidget *, m_pWidget );
+		// 	} else {
+		// 		// Last resort, treat as a QString
+		// 		return Q_ARG( QString, m_sArg );
+		// 	}
+		// }
 	};
 
 private:
