@@ -211,6 +211,7 @@ Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath,
 }
 
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
+							const QString& sUsrDataPath,
 							const QString& sUserConfigPath,
 							const QString& sLogFile )
 {
@@ -249,6 +250,12 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 		INFOLOG( QString( "Using custom system data folder [%1]" )
 				 .arg( sSysDataPath ) );
 		__sys_data_path = sSysDataPath;
+	}
+
+	if ( ! sUsrDataPath.isEmpty() ) {
+		INFOLOG( QString( "Using custom user data folder [%1]" )
+				 .arg( sUsrDataPath ) );
+		__usr_data_path = sUsrDataPath;
 	}
 
 	if ( ! sUserConfigPath.isEmpty() ) {
