@@ -28,6 +28,8 @@
 #include "ShotList.h"
 #include "HydrogenApp.h"
 
+#ifndef H2CORE_HAVE_QT6
+
 ShotList::ShotList( const QString& sShotsFilename ) {
 	QFile shots( sShotsFilename );
 	m_nNextShot = 0;
@@ -248,3 +250,5 @@ void ShotList::nextShot( void ) {
 	}
 	shoot( m_shots[ m_nNextShot++ ] );
 }
+
+#endif
