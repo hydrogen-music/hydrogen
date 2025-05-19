@@ -7,34 +7,30 @@ param (
     [switch]$test=$false,
     [switch]$installdeps=$false,
     [switch]$deploy=$false,
-    [switch]$32bit=$false
+    [switch]$qt5=$false
  )
 
-if($32bit)
+if($qt5)
 {
-
-    $64bit_string = "OFF"
-    $msys_repo='mingw32/mingw-w64-i686'
-    $msys='C:\msys64\mingw32'
-    $libssl='libssl-3.dll'
-    $libcrypto='libcrypto-3.dll'
+    $CMAKE_OPTIONS="-DWANT_QT6:BOOL=OFF"
+    $windeployqt="windeployqt.exe"
 }
 else
 {
-    $64bit_string = "ON"
-    $msys_repo='mingw64/mingw-w64-x86_64'
-    $msys='C:\msys64\mingw64'
-    $libssl='libssl-3-x64.dll'
-    $libcrypto='libcrypto-3-x64.dll'
+    $CMAKE_OPTIONS="-DWANT_QT6:BOOL=ON"
+    $windeployqt="windeployqt6.exe"
 }
 
 
+$msys='C:\msys64\mingw64'
 $env:QTDIR=$msys
 $env:CMAKE_PREFIX_PATH=$env:QTDIR
 $env:PATH="$msys\bin;$env:PATH"
 $env:PKG_CONFIG_PATH="$msys\lib\pkgconfig"
-$python_exe="$msys\bin\python.exe"
 $build_type='Debug'
+$msys_repo='mingw64/mingw-w64-x86_64'
+$libssl='libssl-3-x64.dll'
+$libcrypto='libcrypto-3-x64.dll'
 
 if($installdeps)
 {
@@ -54,7 +50,11 @@ if($installdeps)
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-portaudio
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-portmidi
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-libwinpthread-git
-    c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-qt5
+    if ($qt5) {
+       c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-qt5
+    } else {
+       c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-qt6
+    }
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-ladspa-sdk
     c:\msys64\usr\bin\pacman --noconfirm -S -q $msys_repo-jack2
 }
@@ -79,7 +79,7 @@ if($build)
     }
 
     cd build
-    $arguments="-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=$build_type", "-DWANT_DEBUG:BOOL=ON","-DWIN64:BOOL=$64bit_string",".."
+    $arguments="-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=$build_type", "-DWANT_DEBUG:BOOL=ON","-DWIN64:BOOL=ON", $CMAKE_OPTIONS, ".."
     & cmake $arguments
 
     Write-Host 'Starting build'
@@ -95,14 +95,14 @@ if($build)
     }
 
     $arguments="--no-patchqt", "--dir", "windows\extralibs", "src\gui\hydrogen.exe"
-    $cmd="$env:QTDIR\bin\windeployqt.exe"
+    $cmd="$env:QTDIR\bin\$windeployqt"
     & $cmd $arguments
 
     $arguments= "-m","pip","install","-r","..\windows\ci\requirements.txt"
-    & $python_exe $arguments
+    & python $arguments
 
-    $arguments="..\windows\ci\copy_thirdparty_dlls.py","--no-overwrite", "-V", "debug" ,"-L","$msys\bin","-d","windows\extralibs", "src/gui/hydrogen.exe", "src/core/libhydrogen-core-*.dll"
-    & $python_exe $arguments
+    $arguments="..\windows\ci\copy_thirdparty_dlls.py","--no-overwrite", "-V", "debug" ,"-L","$msys\bin","-d","windows\extralibs", "--ignore-missing", "src/gui/hydrogen.exe", "src/core/libhydrogen-core-1.2.4.dll"
+    & python $arguments
     
     # libcrypto and libssl are not picked up by the Python script
     # above and needs to be copied manually
@@ -131,11 +131,11 @@ if($deploy)
 if(!$deploy -and !$build -and !$installdeps -and !$test )
 {
     Write-Host 'Usage: '
-    Write-Host 'Build-WinNative -build: Build hydrogen (64bit)'
-    Write-Host 'Build-WinNative -build -32bit : Build hydrogen (32bit)'
+    Write-Host 'Build-WinNative -build: Build hydrogen (Qt6)'
+    Write-Host 'Build-WinNative -build -qt5 : Build hydrogen (Qt5)'
     Write-Host 'Build-WinNative -test : Run unit tests after successful build'
-    Write-Host 'Build-WinNative -installdeps: Install build dependencies via pacman (64bit)'
-    Write-Host 'Build-WinNative -installdeps -32bit: Install build dependencies via pacman (32bit)'
+    Write-Host 'Build-WinNative -installdeps: Install build dependencies via pacman (including Qt6 libraries)'
+    Write-Host 'Build-WinNative -installdeps -qt5: Install build dependencies via pacman (including Qt5 libraries)'
     Write-Host 'Build-WinNative -deploy: Create installer'
-    Write-Host 'Note: please delete the build folder when switching from 64bit to 32bit (or vice versa)'
+    Write-Host 'Note: please delete the build folder when switching from Qt6 to Qt5 (or vice versa)'
 }
