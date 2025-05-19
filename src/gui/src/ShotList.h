@@ -119,7 +119,7 @@ public:
 		~ShotList(){};
 
 		void shoot() {};
-}
+};
 
 #endif // H2CORE_HAVE_QT6
 
