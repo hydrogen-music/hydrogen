@@ -10,7 +10,6 @@ All notable changes to this project will be documented in this file.
   colors in log messages.
 - CLI option `--user-data` for both `hydrogen` and `h2cli` to provide an
   alternative user-level data folder.
-- CMake option `-DWANT_QT6` to build Hydrogen using Qt6 instead of Qt5.
 
 ### Changed
 
