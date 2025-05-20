@@ -131,9 +131,11 @@ for:
 
         mkdir -p $cdir
 
+        sudo apt search qt
+
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
-        sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev qt6-svg-dev
+        sudo apt-get install -y clang qt6-base-dev qt6-base-dev-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev qt6-svg-dev
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libxml2-utils
 
         # Install a recent PortMidi version
