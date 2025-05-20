@@ -180,9 +180,12 @@ int main(int argc, char *argv[])
 		QCommandLineOption systemDataPathOption(
 			QStringList() << "P" << "data",
 			"Use an alternate system data path", "Path" );
+		QCommandLineOption userDataPathOption(
+			QStringList() << "user-data", "Use an alternate user data path",
+			"Path" );
 		QCommandLineOption configFileOption(
 			QStringList() << "config", "Use an alternate config file", "Path" );
-	QCommandLineOption kitOption(
+		QCommandLineOption kitOption(
 			QStringList() << "k" << "kit",
 			"Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption(
@@ -205,6 +208,7 @@ int main(int argc, char *argv[])
 		parser.addOption( playlistFileNameOption );
 		parser.addOption( outputFileOption );
 		parser.addOption( systemDataPathOption );
+		parser.addOption( userDataPathOption );
 		parser.addOption( configFileOption );
 		parser.addOption( rateOption );
 		parser.addOption( bitsOption );
@@ -232,6 +236,7 @@ int main(int argc, char *argv[])
 		QString sSongFilename = parser.value( songFileOption );
 		const QString sPlaylistFilename = parser.value( playlistFileNameOption );
 		const QString sSysDataPath = parser.value( systemDataPathOption );
+		const QString sUsrDataPath = parser.value( userDataPathOption );
 		const QString sConfigFilePath = parser.value( configFileOption );
 		const QString sOutFilename = parser.value( outputFileOption );
 		const QString sSelectedDriver = parser.value( audioDriverOption );
@@ -302,7 +307,7 @@ int main(int argc, char *argv[])
 											sLogFile, true, bLogTimestamps );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		H2Core::Filesystem::bootstrap(
-			pLogger, sSysDataPath, sConfigFilePath, sLogFile );
+			pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sLogFile );
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();
