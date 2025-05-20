@@ -45,9 +45,9 @@ environment:
   TARGET_VERSION: '1.2.4'
   matrix:
 
-    - job_name: 'Ubuntu 20.04'
+    - job_name: 'Ubuntu 22.04'
       job_group: 'Linux'
-      appveyor_build_worker_image: Ubuntu2004
+      appveyor_build_worker_image: Ubuntu2204
 
     - job_name: 'Ubuntu 16.04 (AppImage)'
       job_group: 'Linux (AppImage)'
