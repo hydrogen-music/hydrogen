@@ -185,7 +185,10 @@ All notable changes to this project will be documented in this file.
   to markdown similar to https://keepachangelog.com/en/1.1.0/.
 - Hydrogen no longer uses XSD files to validate XML files during loading or via
   `h2cli --check` but uses direct XML inspection instead.
-
+- Minimal `CMake` version was bumped to `3.5`.
+- Option `-qt5` was introduced to native Windows build script
+  `windows/Build-WinNative.ps1` to build against Qt5 instead of Qt6 (default).
+  
 ### Fixed
 
 - Fix compilation with LASH support enabled (#2076).
@@ -207,6 +210,8 @@ All notable changes to this project will be documented in this file.
 - `Qt XmlPatterns` is no longer a dependency.
 - Folder `linux/debian` containing outdated Debian package rules used by the
   previous development team to distributed Hydrogen as `.deb` package.
+- Option `-32bit` was dropped in native Windows build script
+  `windows/Build-WinNative.ps1`.
 
 ## [1.2.4] - 2024-12-07
 
