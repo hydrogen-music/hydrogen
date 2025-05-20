@@ -45,9 +45,9 @@ environment:
   TARGET_VERSION: '1.2.4'
   matrix:
 
-    - job_name: 'Ubuntu 20.04'
+    - job_name: 'Ubuntu 22.04'
       job_group: 'Linux'
-      appveyor_build_worker_image: Ubuntu2004
+      appveyor_build_worker_image: Ubuntu2204
 
     - job_name: 'Ubuntu 16.04 (AppImage)'
       job_group: 'Linux (AppImage)'
@@ -110,7 +110,7 @@ for:
 
       echo $DISPLAY_VERSION
 
-      cache_tag=usr_cache_xsd # this can be modified to rebuild deps
+      cache_tag=usr_cache_qt6 # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -133,7 +133,7 @@ for:
 
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
-        sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
+        sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt6svg6-dev
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libxml2-utils
 
         # Install a recent PortMidi version
@@ -171,6 +171,7 @@ for:
       cd build || exit 1
       cmake -DWANT_LASH=1 \
             -DWANT_LRDF=1 \
+            -DWANT_QT6:BOOL=ON \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
             -DWANT_RUBBERBAND=1 \
