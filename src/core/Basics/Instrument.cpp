@@ -453,10 +453,6 @@ std::shared_ptr<Instrument> Instrument::loadFrom( const XMLNode& node,
 		}
 	}
 
-	if ( pLegacyFormatEncountered != nullptr ) {
-		*pLegacyFormatEncountered = true;
-	}
-
 	// Sanity checks
 
 	// There has to be at least one InstrumentComponent
