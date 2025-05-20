@@ -63,7 +63,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	H2Core::Base::bootstrap( pLogger, true );
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap(
-		pLogger, test_helper->getDataDir(), sUserDataFolder, sLogFilePath );
+		pLogger, test_helper->getDataDir(), sUserDataFolder, "", sLogFilePath );
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
