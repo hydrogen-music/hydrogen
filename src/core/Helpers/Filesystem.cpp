@@ -896,8 +896,13 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 		if ( sSamplePath.startsWith( ssFolder ) ) {
 			int nStart = ssFolder.size();
 			int nIndex = sSamplePath.indexOf( "/", nStart );
-			QString sDrumkitName =
-				sSamplePath.midRef( nStart , nIndex - nStart ).toString();
+#ifdef H2CORE_HAVE_QT6
+			const QString sDrumkitName = sSamplePath.sliced(
+				nStart , nIndex - nStart );
+#else
+			const QString sDrumkitName = sSamplePath.midRef(
+				nStart , nIndex - nStart ).toString();
+#endif
 			if ( ssFolder.contains( sDrumkitName ) ) {
 				nIndexMatch = nIndex + 1;
 				break;
@@ -907,7 +912,7 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 
 	if ( nIndexMatch >= 0 ) {
 		// Sample is located in a drumkit folder. Just return basename.
-		QString sShortenedPath = sSamplePath.midRef( nIndexMatch ).toString();
+		QString sShortenedPath = sSamplePath.right( nIndexMatch );
 		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
 				 .arg( sSamplePath ).arg( sShortenedPath ) );
 
@@ -1289,7 +1294,7 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 
 QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath,
 										bool bSilent ) {
-	QRegExp prefix( "tmp-[\\w]{6}-+" );
+	QRegularExpression prefix( "tmp-[\\w]{6}-+" );
 
 	if ( sUniqueFilePath.contains( prefix ) ) {
 		QFileInfo info( sUniqueFilePath );
