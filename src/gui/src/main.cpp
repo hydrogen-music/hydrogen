@@ -245,8 +245,8 @@ int main(int argc, char *argv[])
 			pLogger, pLogger->should_log( H2Core::Logger::Debug ) );
 
 		H2Core::Filesystem::bootstrap(
-			pLogger, parser.getSysDataPath(), parser.getConfigFilePath(),
-			parser.getLogFile() );
+			pLogger, parser.getSysDataPath(), parser.getUsrDataPath(),
+			parser.getConfigFilePath(), parser.getLogFile() );
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
