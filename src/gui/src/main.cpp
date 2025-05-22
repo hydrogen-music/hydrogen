@@ -20,6 +20,8 @@
  *
  */
 
+#include <core/config.h>
+
 #include <QtGui>
 #include <QtWidgets>
 #include <QLibraryInfo>
@@ -30,7 +32,6 @@
   #include <QTextCodec>
 #endif
 
-#include <core/config.h>
 #include <core/Version.h>
 #include <getopt.h>
 

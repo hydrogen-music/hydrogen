@@ -72,7 +72,9 @@
 
 #include <QtGui>
 #include <QtWidgets>
-#include <QTextCodec>
+#ifndef H2CORE_HAVE_QT6
+  #include <QTextCodec>
+#endif
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -959,7 +961,7 @@ void MainForm::action_file_export_pattern_as( int nPatternRow )
 
 	QFileInfo fileInfo( fd.selectedFiles().first() );
 	pPref->setLastExportPatternAsDirectory( fileInfo.path() );
-	QString filePath = fileInfo.absoluteFilePath();
+	const QString sFilePath = fileInfo.absoluteFilePath();
 
 	QString sOriginalName = pPattern->getName();
 	pPattern->setName( fileInfo.baseName() );
@@ -1534,7 +1536,7 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 		return;
 	}
 
-	QFileInfo fileInfo = fd.selectedFiles().first();
+	QFileInfo fileInfo( fd.selectedFiles().first() );
 	pPref->setLastExportDrumkitDirectory( fileInfo.path() );
 	QString sFilePath = fileInfo.absoluteFilePath();
 
@@ -1570,6 +1572,7 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 	if ( ! pDrumkit->exportTo( sFilePath ) ) {
 		QApplication::restoreOverrideCursor();
 
+#ifndef H2CORE_HAVE_QT6
 		// Check whether encoding might be the problem in here.
 		auto pCodec = QTextCodec::codecForLocale();
 		if ( ! pCodec->canEncode( sFilePath ) ) {
@@ -1584,6 +1587,10 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 			QMessageBox::critical( nullptr, "Hydrogen",
 								   pCommonStrings->getExportDrumkitFailure() );
 		}
+#else
+		QMessageBox::critical( nullptr, "Hydrogen",
+							   pCommonStrings->getExportDrumkitFailure() );
+#endif
 
 		return;
 	}
@@ -1597,6 +1604,7 @@ void MainForm::exportDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 bool MainForm::checkDrumkitPathEncoding( const QString& sPath,
 										 const QString& sContext ) {
 
+#ifndef H2CORE_HAVE_QT6
 	// Check whether encoding might be the problem in here.
 	auto pCodec = QTextCodec::codecForLocale();
 	if ( ! pCodec->canEncode( sPath ) ) {
@@ -1608,6 +1616,7 @@ bool MainForm::checkDrumkitPathEncoding( const QString& sPath,
 			.arg( QString( pCodec->name() ) ) );
 		return false;
 	}
+#endif
 
 	return true;
 }
