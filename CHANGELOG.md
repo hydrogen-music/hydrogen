@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file.
 - Minimal `CMake` version was bumped to `3.5`.
 - Option `-qt5` was introduced to native Windows build script
   `windows/Build-WinNative.ps1` to build against Qt5 instead of Qt6 (default).
+- `build.sh` script compiles against Qt6 per default.
   
 ### Fixed
 
