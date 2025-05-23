@@ -40,6 +40,7 @@
 #include "ComponentView.h"
 #include "InstrumentEditorPanel.h"
 #include "WaveDisplay.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "../Skin.h"
@@ -239,6 +240,8 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	/*
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
@@ -252,11 +255,13 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 			int x1 = (int)( pLayer->getStartVelocity() * width() );
 			int x2 = (int)( pLayer->getEndVelocity() * width() );
 			
-			if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
+			if ( ( pEv->position().x() < x1  + 5 ) &&
+				 ( pEv->position().x() > x1 - 5 ) ){
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				showLayerStartVelocity(pLayer, ev);
 			}
-			else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ) {
+			else if ( ( pEv->position().x() < x2 + 5 ) &&
+					  ( pEv->position().x() > x2 - 5 ) ) {
 				setCursor( QCursor( Qt::SizeHorCursor ) );
 				showLayerEndVelocity(pLayer, ev);
 			}
@@ -273,13 +278,15 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pInstrumentEditorPanel =
 		HydrogenApp::get_instance()->getInstrumentRack()->getInstrumentEditorPanel();
 	const auto pInstrument = pInstrumentEditorPanel->getInstrument();
 
-	const float fVelocity = (float)ev->x() / (float)width();
+	const float fVelocity = (float)pEv->position().x() / (float)width();
 
-	if ( ev->y() < 20 ) {
+	if ( pEv->position().y() < 20 ) {
 		if ( pComponent->hasSamples() && pInstrument != nullptr ) {
 			auto pNote = std::make_shared<Note>(
 				pInstrument, nPosition, fVelocity );
@@ -313,7 +320,8 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		}
 	}
 	else {
-		const int nClickedLayer = ( ev->y() - 20 ) / LayerPreview::nLayerHeight;
+		const int nClickedLayer =
+			( pEv->position().y() - 20 ) / LayerPreview::nLayerHeight;
 		if ( nClickedLayer < InstrumentComponent::getMaxLayers() &&
 			 nClickedLayer >= 0 ) {
 			m_pComponentView->setSelectedLayer( nClickedLayer );
@@ -337,13 +345,15 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 				int x1 = (int)( pLayer->getStartVelocity() * width() );
 				int x2 = (int)( pLayer->getEndVelocity() * width() );
 
-				if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
+				if ( ( pEv->position().x() < x1  + 5 ) &&
+					 ( pEv->position().x() > x1 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
 					m_bGrabLeft = true;
 					m_bMouseGrab = true;
 					showLayerStartVelocity(pLayer, ev);
 				}
-				else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
+				else if ( ( pEv->position().x() < x2 + 5 ) &&
+						  ( pEv->position().x() > x2 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
 					m_bGrabLeft = false;
 					m_bMouseGrab = true;
@@ -365,8 +375,9 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	}
 	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
 
-	const int x = ev->pos().x();
-	const int y = ev->pos().y();
+	auto pEv = static_cast<MouseEvent*>( ev );
+	const int x = pEv->position().x();
+	const int y = pEv->position().y();
 
 	if ( y < 20 ) {
 		setCursor( QCursor( m_speakerPixmap ) );
@@ -406,7 +417,8 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		}
 	}
 	else {
-		int nHoveredLayer = ( ev->y() - 20 ) / LayerPreview::nLayerHeight;
+		int nHoveredLayer = ( pEv->position().y() - 20 ) /
+			LayerPreview::nLayerHeight;
 		if ( nHoveredLayer < InstrumentComponent::getMaxLayers() &&
 			 nHoveredLayer >= 0 ) {
 
@@ -414,7 +426,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 			if ( pHoveredLayer != nullptr ) {
 				int x1 = (int)( pHoveredLayer->getStartVelocity() * width() );
 				int x2 = (int)( pHoveredLayer->getEndVelocity() * width() );
-					
+
 				if ( ( x < x1  + 5 ) && ( x > x1 - 5 ) ){
 					setCursor( QCursor( Qt::SizeHorCursor ) );
 					showLayerStartVelocity(pHoveredLayer, ev);
@@ -445,22 +457,28 @@ int LayerPreview::getMidiVelocityFromRaw( const float raw )
 	return static_cast<int> (raw * 127);
 }
 
-void LayerPreview::showLayerStartVelocity( const std::shared_ptr<InstrumentLayer> pLayer, const QMouseEvent* pEvent )
+void LayerPreview::showLayerStartVelocity( const std::shared_ptr<InstrumentLayer> pLayer,
+										   QMouseEvent* pEvent )
 {
 	const float fVelo = pLayer->getStartVelocity();
 
-	QToolTip::showText( pEvent->globalPos(),
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
+	QToolTip::showText( pEv->globalPosition().toPoint(),
 			tr( "Dec. = %1\nMIDI = %2" )
 				.arg( QString::number( fVelo, 'f', 2) )
 				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
 			this);
 }
 
-void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> pLayer, const QMouseEvent* pEvent )
+void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> pLayer,
+										 QMouseEvent* pEvent )
 {
 	const float fVelo = pLayer->getEndVelocity();
 
-	QToolTip::showText( pEvent->globalPos(),
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
+	QToolTip::showText( pEv->globalPosition().toPoint(),
 			tr( "Dec. = %1\nMIDI = %2" )
 				.arg( QString::number( fVelo, 'f', 2) )
 				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),

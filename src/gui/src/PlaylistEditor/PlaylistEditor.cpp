@@ -22,14 +22,16 @@
 
 
 #include "PlaylistEditor.h"
+
+#include "../CommonStrings.h"
+#include "../Compatibility/DropEvent.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../CommonStrings.h"
-#include "../InstrumentRack.h"
 #include "../UndoActions.h"
-#include "SoundLibrary/SoundLibraryPanel.h"
-#include "SongEditor/SongEditorPanel.h"
-#include "Widgets/PixmapWidget.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/PixmapWidget.h"
+#include "../Widgets/FileDialog.h"
 
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
@@ -41,8 +43,6 @@
 #include <core/Timeline.h>
 #include <core/Basics/Playlist.h>
 
-#include "../Widgets/Button.h"
-#include "../Widgets/FileDialog.h"
 
 #include <QDomDocument>
 #include <QMessageBox>
@@ -150,7 +150,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
 	pSideBarLayout->setSpacing(0);
-	pSideBarLayout->setMargin(0);
+	pSideBarLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	// zoom-in btn
 	Button *pUpBtn = new Button(
@@ -197,38 +197,48 @@ void PlaylistEditor::populateMenuBar() {
 	// Playlist menu
 	m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
 
-	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this,
-								SLOT( newPlaylist() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
-	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( openPlaylist() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
+	auto pActionNew = m_pPlaylistMenu->addAction(
+		tr( "&New Playlist" ), this, SLOT( newPlaylist() ) );
+	pActionNew->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
+	auto pActionOpen = m_pPlaylistMenu->addAction(
+		tr( "&Open Playlist" ), this, SLOT( openPlaylist() ) );
+	pActionOpen->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
 	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( savePlaylist() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
-	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this,
-								SLOT( savePlaylistAs() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
+	auto pActionSave = m_pPlaylistMenu->addAction(
+		tr( "&Save Playlist" ), this, SLOT( savePlaylist() ) );
+	pActionSave->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
+	auto pActionSaveAs = m_pPlaylistMenu->addAction(
+		tr( "Save Playlist &as" ), this, SLOT( savePlaylistAs() ) );
+	pActionSaveAs->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
 	m_pPlaylistMenu->addSeparator();				// -----
-	m_pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this,
-								SLOT( addSong() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) );
-	m_pPlaylistMenu->addAction( tr( "Add &current song to Playlist" ), this,
-								SLOT( addCurrentSong() ),
-								pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) );
+	auto pActionAddSong = m_pPlaylistMenu->addAction(
+		tr( "Add song to Play&list" ), this, SLOT( addSong() ) );
+	pActionAddSong->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) );
+	auto pActionAddCurrentSong = m_pPlaylistMenu->addAction(
+		tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ) );
+	pActionAddCurrentSong->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) );
+
 	m_pPlaylistMenu->addSeparator();				// -----
-	m_actionsSelected.push_back(
-		m_pPlaylistMenu->addAction(
-			tr( "&Remove selected song from Playlist" ), this,
-			SLOT( removeSong() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) ) );
+
+	auto pActionRemoveSong = m_pPlaylistMenu->addAction(
+		tr( "&Remove selected song from Playlist" ), this, SLOT( removeSong() ) );
+	pActionRemoveSong->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) );
+	m_actionsSelected.push_back( pActionRemoveSong );
 	m_pPlaylistMenu->setFont( font );
 
 	// Undo menu
 	m_pUndoMenu = m_pMenubar->addMenu( pCommonStrings->getUndoMenuUndo() );
-	auto pUndoAction =
-		m_pUndoMenu->addAction(
-			pCommonStrings->getUndoMenuUndo(), this, SLOT( undo() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+	auto pUndoAction = m_pUndoMenu->addAction(
+		pCommonStrings->getUndoMenuUndo(), this, SLOT( undo() ) );
+	pUndoAction->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
 	pUndoAction->setEnabled( false );
 	connect( m_pUndoStack, &QUndoStack::canUndoChanged,
 			 [=]( bool bCanUndo ) {
@@ -236,10 +246,10 @@ void PlaylistEditor::populateMenuBar() {
 					 pUndoAction->setEnabled( bCanUndo );
 				 }
 			 } );
-	auto pRedoAction =
-		m_pUndoMenu->addAction(
-			pCommonStrings->getUndoMenuRedo(), this, SLOT( redo() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+	auto pRedoAction = m_pUndoMenu->addAction(
+		pCommonStrings->getUndoMenuRedo(), this, SLOT( redo() ) );
+	pRedoAction->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
 	pRedoAction->setEnabled( false );
 	connect( m_pUndoStack, &QUndoStack::canRedoChanged,
 			 [=]( bool bCanRedo ) {
@@ -247,24 +257,30 @@ void PlaylistEditor::populateMenuBar() {
 					 pRedoAction->setEnabled( bCanRedo );
 				 }
 			 } );
-	m_pUndoMenu->addAction( pCommonStrings->getUndoMenuHistory(), this,
-							SLOT( showUndoHistory() ),
-							pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
+	auto pActionUndoHistory = m_pUndoMenu->addAction(
+		pCommonStrings->getUndoMenuHistory(), this, SLOT( showUndoHistory() ) );
+	pActionUndoHistory->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
 
 #ifndef WIN32
 	// Script menu
 	m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
 
-	m_actionsSelected.push_back(
-		m_pScriptMenu->addAction(
-			tr( "&Create a new Script" ), this, SLOT( newScript() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) ) );
-	m_actionsSelected.push_back(
-		m_pScriptMenu->addAction(
-			tr( "&Add Script to selected song" ), this, SLOT( loadScript() ),
-			pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) ) );
+	auto pActionNewScript = m_pScriptMenu->addAction(
+		tr( "&Create a new Script" ), this, SLOT( newScript() ) );
+	pActionNewScript->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) );
+	m_actionsSelected.push_back( pActionNewScript );
+
+	auto pActionAddScript = m_pScriptMenu->addAction(
+		tr( "&Add Script to selected song" ), this, SLOT( loadScript() ) );
+	pActionAddScript->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) );
+	m_actionsSelected.push_back( pActionAddScript );
+
 	auto pScriptEditAction = m_pScriptMenu->addAction(
-		tr( "&Edit selected Script" ), this, SLOT( editScript() ),
+		tr( "&Edit selected Script" ), this, SLOT( editScript() ) );
+	pScriptEditAction->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) );
 	m_actionsSelected.push_back( pScriptEditAction );
 	m_actionsSelectedScript.push_back( pScriptEditAction );
@@ -272,7 +288,8 @@ void PlaylistEditor::populateMenuBar() {
 	m_pScriptMenu->addSeparator();
 
 	auto pScriptRemoveAction = m_pScriptMenu->addAction(
-		tr( "&Remove selected Script" ), this, SLOT( removeScript() ),
+		tr( "&Remove selected Script" ), this, SLOT( removeScript() ) );
+	pScriptRemoveAction->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) );
 	m_actionsSelected.push_back( pScriptRemoveAction );
 	m_actionsSelectedScript.push_back( pScriptRemoveAction );
@@ -1221,8 +1238,10 @@ PlaylistTableWidget::PlaylistTableWidget( QWidget* pParent )
 }
 
 void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+	//
 	// Select the row the user just clicked.
-	const auto pItem = itemAt( pEvent->pos() );
+	const auto pItem = itemAt( pEv->position().toPoint() );
 
 	// In case no item was found the selection is cleared.
 	setCurrentItem( pItem );
@@ -1236,7 +1255,7 @@ void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
 		}
 
 		if ( currentRow() != -1 ) {
-			m_dragStartPosition = pEvent->pos();;
+			m_dragStartPosition = pEv->position().toPoint();
 		} else {
 			// No row selected
 			m_dragStartPosition = QPoint( 0, 0 );
@@ -1247,12 +1266,14 @@ void PlaylistTableWidget::mousePressEvent( QMouseEvent* pEvent ) {
 }
 
 void PlaylistTableWidget::mouseMoveEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
     if ( ! ( pEvent->buttons() & Qt::LeftButton ) ||
 		 m_dragStartPosition.isNull() ) {
 		return;
 	}
 
-	if ( ( pEvent->pos() - m_dragStartPosition ).manhattanLength() <
+	if ( ( pEv->position().toPoint() - m_dragStartPosition ).manhattanLength() <
 		 QApplication::startDragDistance() ) {
         return;
 	}
@@ -1289,6 +1310,8 @@ void PlaylistTableWidget::dragEnterEvent( QDragEnterEvent* pEvent ) {
 }
 
 void PlaylistTableWidget::dropEvent( QDropEvent* pEvent ) {
+	auto pEv = static_cast<DropEvent*>( pEvent );
+
 	const auto pFromItem = itemAt( m_dragStartPosition );
 	if ( pFromItem == nullptr ) {
 		ERRORLOG( QString( "No valid source of dragging at [y: %1]" )
@@ -1297,7 +1320,7 @@ void PlaylistTableWidget::dropEvent( QDropEvent* pEvent ) {
 	}
 	int nFrom = row( pFromItem );
 
-	const auto pToItem = itemAt( pEvent->pos() );
+	const auto pToItem = itemAt( pEv->position().toPoint() );
 	int nTo;
 	if ( pToItem == nullptr ) {
 		// Dragged beyond the last row.

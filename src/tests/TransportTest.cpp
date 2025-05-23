@@ -222,7 +222,8 @@ void TransportTest::testSampleConsistency() {
 	pHydrogen->setSong( pSong );
 
 	// Apply drumkit containing the long sample to be tested.
-	const auto pDrumkit = H2Core::Drumkit::load( sDrumkitDir, false, true );
+	const auto pDrumkit = H2Core::Drumkit::load(
+		sDrumkitDir, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
 	H2Core::CoreActionController::setDrumkit( pDrumkit );
 

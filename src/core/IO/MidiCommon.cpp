@@ -34,31 +34,31 @@ void MidiMessage::clear() {
 
 void MidiMessage::setType( int nStatusByte ) {
 
-	if ( ( nStatusByte >= 128 ) && ( nStatusByte < 144 ) ) {
+	if ( nStatusByte >= 128 && nStatusByte < 144 ) {
 		m_nChannel = nStatusByte - 128;
 		m_type = MidiMessage::NOTE_OFF;
 	}
-	else if ( ( nStatusByte >= 144 ) && ( nStatusByte < 160 ) ) {
+	else if ( nStatusByte >= 144 && nStatusByte < 160 ) {
 		m_nChannel = nStatusByte - 144;
 		m_type = MidiMessage::NOTE_ON;
 	}
-	else if ( ( nStatusByte >= 160 ) && ( nStatusByte < 176 ) ) {
+	else if ( nStatusByte >= 160 && nStatusByte < 176 ) {
 		m_nChannel = nStatusByte - 160;
 		m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
 	}
-	else if ( ( nStatusByte >= 176 ) && ( nStatusByte < 192 ) ) {
+	else if ( nStatusByte >= 176 && nStatusByte < 192 ) {
 		m_nChannel = nStatusByte - 176;
 		m_type = MidiMessage::CONTROL_CHANGE;
 	}
-	else if ( ( nStatusByte >= 192 ) && ( nStatusByte < 208 ) ) {
+	else if ( nStatusByte >= 192 && nStatusByte < 208 ) {
 		m_nChannel = nStatusByte - 192;
 		m_type = MidiMessage::PROGRAM_CHANGE;
 	}
-	else if ( ( nStatusByte >= 208 ) && ( nStatusByte < 224 ) ) {
+	else if ( nStatusByte >= 208 && nStatusByte < 224 ) {
 		m_nChannel = nStatusByte - 208;
 		m_type = MidiMessage::CHANNEL_PRESSURE;
 	}
-	else if ( ( nStatusByte >= 224 ) && ( nStatusByte < 240 ) ) {
+	else if ( nStatusByte >= 224 && nStatusByte < 240 ) {
 		m_nChannel = nStatusByte - 224;
 		m_type = MidiMessage::PITCH_WHEEL;
 	}

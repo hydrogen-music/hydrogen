@@ -197,9 +197,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	QHBoxLayout* pToolBarHBox = new QHBoxLayout( m_pToolBar );
 	pToolBarHBox->setSpacing( 2 );
-	pToolBarHBox->setMargin( 0 );
+	pToolBarHBox->setContentsMargins( 0, 0, 0, 0 );
+	pToolBarHBox->setContentsMargins( 0, 0, 0, 0 );
 	pToolBarHBox->setAlignment( Qt::AlignLeft );
-
 
 	//soundlibrary name
 	m_pDrumkitLabel = new ClickableLabel( nullptr, QSize( 0, 0 ), "",
@@ -468,7 +468,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
 	pPatternEditorHScrollBarLayout->setSpacing( 0 );
-	pPatternEditorHScrollBarLayout->setMargin( 0 );
+	pPatternEditorHScrollBarLayout->setContentsMargins( 0, 0, 0, 0 );
 	pPatternEditorHScrollBarLayout->addWidget( m_pPatternEditorHScrollBar );
 	pPatternEditorHScrollBarLayout->addWidget( m_pZoomInBtn );
 	pPatternEditorHScrollBarLayout->addWidget( m_pZoomOutBtn );
@@ -691,7 +691,7 @@ void PatternEditorPanel::createEditors() {
 
 	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( m_pPropertiesPanel );
 	pPropertiesVBox->setSpacing( 0 );
-	pPropertiesVBox->setMargin( 0 );
+	pPropertiesVBox->setContentsMargins( 0, 0, 0, 0 );
 
 	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( 0, 0 ), false );
 	m_pPropertiesCombo->setFixedHeight( 18 );
@@ -716,7 +716,7 @@ void PatternEditorPanel::createEditors() {
 	QWidget *pMainPanel = new QWidget();
 	QGridLayout *pGrid = new QGridLayout();
 	pGrid->setSpacing( 0 );
-	pGrid->setMargin( 0 );
+	pGrid->setContentsMargins( 0, 0, 0, 0 );
 
 	pGrid->addWidget( m_pTabBar, 0, 1, 1, 2 );
 	pGrid->addWidget( m_pToolBar, 1, 1, 1, 2 );
@@ -742,7 +742,7 @@ void PatternEditorPanel::createEditors() {
 
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
-	pVBox->setMargin( 0 );
+	pVBox->setContentsMargins( 0, 0, 0, 0 );
 	this->setLayout( pVBox );
 
 	pVBox->addWidget( pMainPanel );

@@ -48,10 +48,11 @@ void CliTest::testKitToDrumkitMap() {
 	// Check whether things work for a kit without any kits too.
 	const QString sNoTypesFolder = H2TEST_FILE( "drumkits/baseKit" );
 	// We load the kits to ensure they are clean and can be loaded.
-	const auto pDrumkitRef = H2Core::Drumkit::load( sRefFolder, false, true );
+	const auto pDrumkitRef = H2Core::Drumkit::load(
+		sRefFolder, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
 	const auto pDrumkitNoTypes = H2Core::Drumkit::load(
-		sNoTypesFolder, false, true );
+		sNoTypesFolder, false, nullptr, true );
 	CPPUNIT_ASSERT( pDrumkitNoTypes != nullptr );
 
 	// Now, we also write the output and compare it with reference files.
@@ -67,12 +68,6 @@ void CliTest::testKitToDrumkitMap() {
 
 	H2TEST_ASSERT_XML_FILES_EQUAL(
 		sTmpRefFile, H2TEST_FILE( "drumkit_map/sample.h2map" ) );
-
-	// Ensure the file can be loaded (and complies with our XSD). We do not use
-	// DrumkitMap::load directly, as it is resilient against XSD invalidity.
-	H2Core::XMLDoc docRef;
-	CPPUNIT_ASSERT( docRef.read( sTmpRefFile,
-								 H2Core::Filesystem::drumkit_map_xsd_path() ) );
 
 	H2Core::Filesystem::rm( sTmpRefFile, true );
 
@@ -92,8 +87,7 @@ void CliTest::testKitToDrumkitMap() {
 		sTmpNoTypesFile, H2TEST_FILE( "drumkit_map/empty.h2map" ) );
 
 	H2Core::XMLDoc docNoTypes;
-	CPPUNIT_ASSERT( docNoTypes.read( sTmpNoTypesFile,
-									 H2Core::Filesystem::drumkit_map_xsd_path() ) );
+	CPPUNIT_ASSERT( docNoTypes.read( sTmpNoTypesFile ) );
 
 	H2Core::Filesystem::rm( sTmpNoTypesFile, true );
 

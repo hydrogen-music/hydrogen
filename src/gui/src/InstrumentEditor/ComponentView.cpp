@@ -35,6 +35,7 @@
 #include "WaveDisplay.h"
 #include "../AudioFileBrowser/AudioFileBrowser.h"
 #include "../CommonStrings.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "../Skin.h"
@@ -177,7 +178,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	auto pHBoxLayerButtonLayout = new QHBoxLayout();
 	pHBoxLayerButtonLayout->setSpacing( 0 );
-	pHBoxLayerButtonLayout->setMargin( 0 );
+	pHBoxLayerButtonLayout->setContentsMargins( 0, 0, 0, 0 );
 	pLayerButtonWidget->setLayout( pHBoxLayerButtonLayout );
 
 	const int nButtonWidth = static_cast<int>(
@@ -222,7 +223,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	pSampleSelectionWidget->setObjectName( "SampleSelectionWidget" );
 	auto pHBoxSampleSelectionLayout = new QHBoxLayout();
 	pHBoxSampleSelectionLayout->setSpacing( 0 );
-	pHBoxSampleSelectionLayout->setMargin( 0 );
+	pHBoxSampleSelectionLayout->setContentsMargins( 0, 0, 0, 0 );
 	pHBoxSampleSelectionLayout->setAlignment( Qt::AlignVCenter );
 	pSampleSelectionWidget->setLayout( pHBoxSampleSelectionLayout );
 
@@ -271,7 +272,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	pLayerPropWidget->setObjectName( "LayerPropWidget" );
 	auto pGridLayerPropLayout = new QGridLayout();
 	pGridLayerPropLayout->setSpacing( 0 );
-	pGridLayerPropLayout->setMargin( 0 );
+	pGridLayerPropLayout->setContentsMargins( 0, 0, 0, 0 );
 	pLayerPropWidget->setLayout( pGridLayerPropLayout );
 
 	m_pLayerPitchLCD = new LCDDisplay(
@@ -687,8 +688,9 @@ void ComponentView::renameComponentAction() {
 }
 
 void ComponentView::mousePressEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
 	if ( pEvent->button() == Qt::RightButton ) {
-		m_pPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
+		m_pPopup->popup( pEv->globalPosition().toPoint() );
 	}
 }
 

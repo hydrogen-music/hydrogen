@@ -58,7 +58,11 @@ void ColorSelectionButton::mousePressEvent(QMouseEvent*ev) {
 	}
 }
 
-void ColorSelectionButton::enterEvent(QEvent *ev) {
+#ifdef H2CORE_HAVE_QT6
+void ColorSelectionButton::enterEvent( QEnterEvent *ev ) {
+#else
+void ColorSelectionButton::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bMouseOver = true;
 

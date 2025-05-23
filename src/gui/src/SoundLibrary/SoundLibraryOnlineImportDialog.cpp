@@ -41,7 +41,6 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QCryptographicHash>
-#include <QTextCodec>
 
 #include <memory>
 

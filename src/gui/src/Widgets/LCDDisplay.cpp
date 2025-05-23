@@ -207,7 +207,11 @@ void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 	}
 }
 
-void LCDDisplay::enterEvent( QEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void LCDDisplay::enterEvent( QEnterEvent *ev ) {
+#else
+void LCDDisplay::enterEvent( QEvent *ev ) {
+#endif
 	QLineEdit::enterEvent( ev );
 	m_bEntered = true;
 	update();

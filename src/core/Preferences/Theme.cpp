@@ -1060,7 +1060,7 @@ std::unique_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 	INFOLOG( QString( "Importing theme to %1" ).arg( sPath ) );
 
 	XMLDoc doc;
-	if ( ! doc.read( sPath, nullptr, true ) ) {
+	if ( ! doc.read( sPath, true ) ) {
 		ERRORLOG( "Unable to load theme." );
 		return nullptr;
 	}

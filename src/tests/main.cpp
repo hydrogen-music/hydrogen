@@ -30,6 +30,7 @@
 #include <core/config.h>
 
 #include <QCoreApplication>
+#include <QTemporaryDir>
 
 #include "registeredTests.h"
 #include "TestHelper.h"
@@ -44,7 +45,8 @@
 #include <string.h>
 #endif
 
-void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
+void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
+					  const QString& sUserDataFolder )
 {
 	/* Logger */
 	H2Core::Logger* pLogger = nullptr;
@@ -60,7 +62,8 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath )
 	/* Base */
 	H2Core::Base::bootstrap( pLogger, true );
 	/* Filesystem */
-	H2Core::Filesystem::bootstrap( pLogger, test_helper->getDataDir() );
+	H2Core::Filesystem::bootstrap(
+		pLogger, test_helper->getDataDir(), sUserDataFolder, "", sLogFilePath );
 	H2Core::Filesystem::info();
 	
 	/* Use fake audio driver */
@@ -122,18 +125,26 @@ int main( int argc, char **argv)
 			sLogFilePath = fi.absoluteFilePath();
 		}
 	}
+	else {
+		sLogFilePath = QString( "%1%2test.log" )
+			.arg( QDir::currentPath() ).arg( QDir::separator() );
+	}
 	
-	unsigned logLevelOpt = H2Core::Logger::None;
-	if( parser.isSet(verboseOption) || parser.isSet( outputFileOption ) ){
-		if ( !sVerbosityString.isEmpty() ) {
-			logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
-		} else {
-			logLevelOpt = H2Core::Logger::Error | H2Core::Logger::Warning |
-				H2Core::Logger::Info | H2Core::Logger::Debug;
-		}
+	auto logLevelOpt = H2Core::Logger::Error | H2Core::Logger::Warning |
+		H2Core::Logger::Info | H2Core::Logger::Debug ;
+	if ( ! sVerbosityString.isEmpty() ) {
+		logLevelOpt =  H2Core::Logger::parse_log_level(
+			sVerbosityString.toLocal8Bit() );
 	}
 
-	setupEnvironment( logLevelOpt, sLogFilePath );
+	// Transient user-level data to ensure no data of the system the unit tests
+	// are run on does leak into the test setup.
+	QTemporaryDir userDataDir( H2Core::Filesystem::tmp_dir() + "-user-data-XXXXX" );
+	userDataDir.setAutoRemove( false );
+
+	qDebug() << "Using transient data dir: [" << userDataDir.path() << "]";
+
+	setupEnvironment( logLevelOpt, sLogFilePath, userDataDir.path() );
 
 #ifdef HAVE_EXECINFO_H
 	signal(SIGSEGV, fatal_signal);
@@ -165,7 +176,8 @@ int main( int argc, char **argv)
 	// Ensure the log is written properly
 	auto pLogger = H2Core::Logger::get_instance();
 	pLogger->flush();
-	delete pLogger;
+
+	H2Core::Filesystem::rm( userDataDir.path(), true, true );
 
 	auto durationSeconds = std::chrono::duration_cast<std::chrono::seconds>( stop - start );
 	auto durationMilliSeconds =

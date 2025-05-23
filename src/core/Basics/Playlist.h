@@ -144,7 +144,7 @@ class Playlist : public H2Core::Object<Playlist>
 		int m_nActiveSongNumber;
 		bool m_bIsModified;
 
-		/** Used to indicate changes in the underlying XSD file. */
+		/** Used to indicate changes in the underlying XML file. */
 		static constexpr int nCurrentFormatVersion = 2;
 };
 

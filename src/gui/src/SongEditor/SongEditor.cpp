@@ -36,6 +36,7 @@
 #include "SongEditorPanel.h"
 #include "SongEditorPatternList.h"
 #include "SongEditorPositionRuler.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -701,6 +702,8 @@ int operator<( QPoint a, QPoint b ) {
 
 void SongEditor::mousePressEvent( QMouseEvent *ev )
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -708,11 +711,11 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 	updateModifiers( ev );
-	m_currentMousePosition = ev->pos();
+	m_currentMousePosition = pEv->position().toPoint();
 	m_bSequenceChanged = true;
 
 	// Update keyboard cursor position
-	QPoint p = xyToColumnRow( ev->pos() );
+	QPoint p = xyToColumnRow( pEv->position().toPoint() );
 	m_nCursorColumn = p.x();
 	m_nCursorRow = p.y();
 
@@ -732,12 +735,12 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	else {
 		if ( ev->button() == Qt::LeftButton ) {
 			// Start of a drawing gesture. Pick up whether we are painting Active or Inactive cells.
-			QPoint p = xyToColumnRow( ev->pos() );
+			QPoint p = xyToColumnRow( pEv->position().toPoint() );
 			m_bDrawingActiveCell = pSong->isPatternActive( p.x(), p.y() );
 			setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
 
 		} else if ( ev->button() == Qt::RightButton ) {
-			m_pPopupMenu->popup( ev->globalPos() );
+			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
 		}
 	}
 
@@ -781,20 +784,22 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSong = Hydrogen::get_instance()->getSong();
 	updateModifiers( ev );
-	m_currentMousePosition = ev->pos();
+	m_currentMousePosition = pEv->position().toPoint();
 	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 
 	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {
-		if ( ev->x() < SongEditor::nMargin ) {
+		if ( pEv->position().x() < SongEditor::nMargin ) {
 			return;
 		}
 
-		QPoint p = xyToColumnRow( ev->pos() );
+		QPoint p = xyToColumnRow( pEv->position().toPoint() );
 		if ( m_nCursorColumn == p.x() && m_nCursorRow == p.y() ) {
 			// Cursor has not entered a different cell yet.
 			return;
@@ -885,8 +890,11 @@ void SongEditor::mouseClickEvent( QMouseEvent *ev )
 {
 	assert( Hydrogen::get_instance()->getActionMode() ==
 			H2Core::Song::ActionMode::selectMode );
+
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	if ( ev->button() == Qt::LeftButton ) {
-		QPoint p = xyToColumnRow( ev->pos() );
+		QPoint p = xyToColumnRow( pEv->position().toPoint() );
 
 		m_selection.clearSelection();
 		togglePatternActive( p.x(), p.y() );
@@ -898,7 +906,7 @@ void SongEditor::mouseClickEvent( QMouseEvent *ev )
 		}
 
 	} else if ( ev->button() == Qt::RightButton ) {
-		m_pPopupMenu->popup( ev->globalPos() );
+		m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
 	}
 }
 
@@ -944,7 +952,8 @@ void SongEditor::updateWidget() {
 			m_previousGridOffset = currentGridOffset;
 		}
 	} else if ( m_selection.isLasso() ) {
-		bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition );
+		bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) !=
+			xyToColumnRow( m_currentMousePosition );
 		// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
 		// drawn when drawing the pattern.
 		if ( bCellBoundaryCrossed ) {
@@ -1095,7 +1104,11 @@ void SongEditor::scrolled( int nValue ) {
 	update();
 }
 
+#ifdef H2CORE_HAVE_QT6
+void SongEditor::enterEvent( QEnterEvent *ev ) {
+#else
 void SongEditor::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 

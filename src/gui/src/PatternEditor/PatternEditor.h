@@ -433,7 +433,11 @@ protected:
 		 *   well. */
 		void keyPressEvent ( QKeyEvent *ev, bool bFullUpdate = false );
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
-	virtual void enterEvent( QEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;

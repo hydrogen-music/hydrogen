@@ -118,6 +118,9 @@ class Instrument : public H2Core::Object<Instrument>
 		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
 		 *   (unique identifier locally). If it is an absolute path, it will be
 		 *   loaded directly.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
 		 *   errors and warnings are suppressed.
 		 *
@@ -129,6 +132,7 @@ class Instrument : public H2Core::Object<Instrument>
 													 const QString& sSongPath = "",
 													 const License& license = License(),
 													 bool bSongKit = false,
+													 bool* pLegacyFormatEncountered = nullptr,
 													 bool bSilent = false );
 
 		///< set the name of the instrument

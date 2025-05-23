@@ -373,7 +373,8 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 	XMLNode drumkitNode = rootNode.firstChildElement( "drumkit_info");
 	if ( ! drumkitNode.isNull() ) {
 		// Current format (>= 2.0) storing a proper Drumkit
-		pDrumkit = Drumkit::loadFrom( drumkitNode, "", sSongPath, true, bSilent );
+		pDrumkit = Drumkit::loadFrom(
+			drumkitNode, "", sSongPath, true, nullptr, bSilent );
 		bCurrentDrumkitLoaded = true;
 	}
 	else {

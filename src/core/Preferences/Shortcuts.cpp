@@ -22,8 +22,20 @@
 #include <QtGlobal>
 
 #include <core/Preferences/Shortcuts.h>
+
+#include <core/config.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+
+// Unfortunately, there seems to be no combination of Qt6 QKeySequence
+// constructor working without compiler warnings but at the same time still
+// being valid Qt 5 code. Therefore, we have to circumvent this issue with some
+// custom code.
+#ifdef H2CORE_HAVE_QT6
+  #define SEPARATOR |
+#else
+  #define SEPARATOR +
+#endif
 
 namespace H2Core {
 Shortcuts::Shortcuts() :
@@ -131,16 +143,16 @@ void Shortcuts::createDefaultShortcuts() {
 	
 	// Global shortcuts
 	insertShortcut( Qt::Key_F12, Action::Panic );
-	insertShortcut( Qt::Key_S + Qt::ControlModifier, Action::SaveSong );
-	insertShortcut( Qt::Key_S + Qt::ControlModifier + Qt::ShiftModifier,
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_S, Action::SaveSong );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_S,
 					Action::SaveAsSong );
 	insertShortcut( QKeySequence::StandardKey::Undo, Action::Undo );
 	insertShortcut( QKeySequence::StandardKey::Redo, Action::Redo );
 	insertShortcut( Qt::Key_Space, Action::PlayPauseToggle );
 #ifndef Q_OS_MACX
-	insertShortcut( Qt::Key_Space + Qt::ControlModifier, Action::PlayPauseToggleAtCursor );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_Space , Action::PlayPauseToggleAtCursor );
 #else
-	insertShortcut( Qt::Key_Space + Qt::AltModifier, Action::PlayPauseToggleAtCursor );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_Space, Action::PlayPauseToggleAtCursor );
 #endif
 	insertShortcut( Qt::Key_Comma, Action::BeatCounter );
 	insertShortcut( Qt::Key_Backslash, Action::TapTempo );
@@ -153,29 +165,29 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::Key_F5, Action::PlaylistPrevSong );
 
 	// MainForm actions
-	insertShortcut( Qt::Key_N + Qt::ControlModifier, Action::NewSong );
-	insertShortcut( Qt::Key_O + Qt::ControlModifier, Action::OpenSong );
-	insertShortcut( Qt::Key_D + Qt::ControlModifier, Action::OpenDemoSong );
-	insertShortcut( Qt::Key_P + Qt::ControlModifier + Qt::ShiftModifier,
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_N, Action::NewSong );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_O, Action::OpenSong );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_D, Action::OpenDemoSong );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_P,
 					Action::OpenPattern );
-	insertShortcut( Qt::Key_P + Qt::ControlModifier, Action::ExportPattern );
-	insertShortcut( Qt::Key_E + Qt::ControlModifier, Action::ExportSong );
-	insertShortcut( Qt::Key_M + Qt::ControlModifier, Action::ExportMIDI );
-	insertShortcut( Qt::Key_L + Qt::ControlModifier, Action::ExportLilyPond );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_P, Action::ExportPattern );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_E, Action::ExportSong );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_M, Action::ExportMIDI );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_L, Action::ExportLilyPond );
 #ifndef Q_OS_MACX
-	insertShortcut( Qt::Key_Q + Qt::ControlModifier, Action::Quit );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_Q, Action::Quit );
 #endif
-	insertShortcut( Qt::Key_D + Qt::AltModifier, Action::ShowDirector );
-	insertShortcut( Qt::Key_M + Qt::AltModifier, Action::ShowMixer );
-	insertShortcut( Qt::Key_I + Qt::AltModifier, Action::ShowInstrumentRack );
-	insertShortcut( Qt::Key_A + Qt::AltModifier, Action::ShowAutomation );
-	insertShortcut( Qt::Key_F + Qt::AltModifier, Action::ShowFullscreen );
-	insertShortcut( Qt::Key_I + Qt::ControlModifier + Qt::AltModifier,
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_D, Action::ShowDirector );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_M, Action::ShowMixer );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_I, Action::ShowInstrumentRack );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_A, Action::ShowAutomation );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_F, Action::ShowFullscreen );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::AltModifier SEPARATOR Qt::Key_I,
 					Action::InputInstrument );
-	insertShortcut( Qt::Key_D + Qt::ControlModifier + Qt::AltModifier,
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::AltModifier SEPARATOR Qt::Key_D,
 					Action::InputDrumkit );
-	insertShortcut( Qt::Key_P + Qt::AltModifier, Action::ShowPreferencesDialog );
-	insertShortcut( Qt::Key_Question + Qt::ControlModifier, Action::OpenManual );
+	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_P, Action::ShowPreferencesDialog );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_Question, Action::OpenManual );
 
 	// Virtual MIDI keyboard
 	switch ( locale ) {
@@ -228,14 +240,14 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::Key_U, Action::VK_59_B3 );
 
 	// Playlist Editor
-	insertShortcut( Qt::Key_A + Qt::ControlModifier, Action::PlaylistAddSong );
-	insertShortcut( Qt::Key_A + Qt::ControlModifier + Qt::AltModifier,
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_A, Action::PlaylistAddSong );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::AltModifier SEPARATOR Qt::Key_A,
 					Action::PlaylistAddCurrentSong );
 	insertShortcut( QKeySequence::StandardKey::Delete, Action::PlaylistRemoveSong );
-	insertShortcut( Qt::Key_N + Qt::ControlModifier, Action::NewPlaylist );
-	insertShortcut( Qt::Key_O + Qt::ControlModifier, Action::OpenPlaylist );
-	insertShortcut( Qt::Key_S + Qt::ControlModifier, Action::SavePlaylist );
-	insertShortcut( Qt::Key_S + Qt::ControlModifier + Qt::ShiftModifier,
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_N, Action::NewPlaylist );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_O, Action::OpenPlaylist );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_S, Action::SavePlaylist );
+	insertShortcut( Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_S,
 					Action::SaveAsPlaylist );
 
 }

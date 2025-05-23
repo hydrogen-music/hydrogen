@@ -167,6 +167,9 @@ All notable changes to this project will be documented in this file.
 
 - CLI options `--log-colors` and `--no-log-colors` to enable and disable ANSI
   colors in log messages.
+- CLI option `--user-data` for both `hydrogen` and `h2cli` to provide an
+  alternative user-level data folder.
+- CMake option `-DWANT_QT6` to build Hydrogen using Qt6 instead of Qt5.
 
 ### Changed
 
@@ -180,7 +183,13 @@ All notable changes to this project will be documented in this file.
   of virtual processors (#2128).
 - `Changelog` was renamed `CHANGELOG.md` and converted from GNU-style changelog
   to markdown similar to https://keepachangelog.com/en/1.1.0/.
-
+- Hydrogen no longer uses XSD files to validate XML files during loading or via
+  `h2cli --check` but uses direct XML inspection instead.
+- Minimal `CMake` version was bumped to `3.5`.
+- Option `-qt5` was introduced to native Windows build script
+  `windows/Build-WinNative.ps1` to build against Qt5 instead of Qt6 (default).
+- `build.sh` script compiles against Qt6 per default.
+  
 ### Fixed
 
 - Fix compilation with LASH support enabled (#2076).
@@ -196,6 +205,14 @@ All notable changes to this project will be documented in this file.
 - AppImage build dir is now removed on `build.sh r` (#2129).
 - Fix potential crash with JACK audio driver on startup, teardown, or
   song/drumkit loading.
+  
+### Removed
+
+- `Qt XmlPatterns` is no longer a dependency.
+- Folder `linux/debian` containing outdated Debian package rules used by the
+  previous development team to distributed Hydrogen as `.deb` package.
+- Option `-32bit` was dropped in native Windows build script
+  `windows/Build-WinNative.ps1`.
 
 ## [1.2.4] - 2024-12-07
 

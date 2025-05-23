@@ -73,6 +73,8 @@ class Parser {
 
 		const QString& getSysDataPath() const {
 			return m_sSysDataPath; }
+		const QString& getUsrDataPath() const {
+			return m_sUsrDataPath; }
 		const QString& getConfigFilePath() const {
 			return m_sConfigFilePath; }
 		const QString& getUiLayout() const {
@@ -102,6 +104,7 @@ class Parser {
 		bool     m_bLogColors;
 
 		QString  m_sSysDataPath;
+		QString  m_sUsrDataPath;
 		QString  m_sConfigFilePath;
 		QString  m_sUiLayout;
 		int      m_nOscPort;

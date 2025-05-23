@@ -44,42 +44,47 @@ void Playlist::clear()
 
 std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 {
-	std::shared_ptr<Playlist> pPlaylist;
 	XMLDoc doc;
-	if ( !doc.read( sPath, Filesystem::playlist_xsd_path() ) ) {
-		pPlaylist = Legacy::load_playlist( sPath );
+	doc.read( sPath );
+
+	XMLNode rootNode = doc.firstChildElement( "playlist" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( "playlist node not found" );
+		return nullptr;
+	}
+
+	// Check whether we deal with a legacy format.
+	XMLNode legacyNextNode;
+	XMLNode capitalizedSongsNode = rootNode.firstChildElement( "Songs" );
+	if ( ! capitalizedSongsNode.isNull() ) {
+		legacyNextNode = capitalizedSongsNode.firstChildElement( "next" );
+	}
+	if ( ! legacyNextNode.isNull() ) {
+		auto pPlaylist = Legacy::load_playlist( sPath );
 		if ( pPlaylist == nullptr ) {
-			ERRORLOG( QString( "Unable to load playlist [%1]" )
+			ERRORLOG( QString( "Playlist [%1] could not be loaded" )
 					  .arg( sPath ) );
 			return nullptr;
 		}
-		WARNINGLOG( QString( "update playlist %1" ).arg( sPath ) );
+
+		WARNINGLOG( QString( "Upgrading playlist [%1]" ).arg( sPath ) );
 		pPlaylist->saveAs( sPath, true );
-	}
-	else {
-		XMLNode root = doc.firstChildElement( "playlist" );
-		if ( ! root.isNull() ) {
-			pPlaylist = Playlist::load_from( root, sPath );
-		}
-		else {
-			ERRORLOG( "playlist node not found" );
-			pPlaylist = nullptr;
-		}
-
+		return pPlaylist;
 	}
 
-	return pPlaylist;
-}
+	QFileInfo fileInfo = QFileInfo( sPath );
 
-std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& node,
-											   const QString& sPath )
-{
-	QFileInfo fileInfo( sPath );
+	// Check whether the file was created using a newer version of Hydrogen.
+	auto formatVersionNode = rootNode.firstChildElement( "formatVersion" );
+	if ( ! formatVersionNode.isNull() ) {
+		WARNINGLOG( QString( "Playlist file [%1] was created with a more recent version of Hydrogen than the current one!" )
+					.arg( fileInfo.absoluteFilePath() ) );
+	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
 	pPlaylist->setFilename( fileInfo.absoluteFilePath() );
 
-	XMLNode songsNode = node.firstChildElement( "songs" );
+	XMLNode songsNode = rootNode.firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
 		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {

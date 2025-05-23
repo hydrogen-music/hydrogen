@@ -15,9 +15,9 @@ add_executable(h2cli WIN32 MACOSX_BUNDLE ${h2cli_SRCS} )
 set_property(TARGET h2cli PROPERTY CXX_STANDARD 17)
 target_link_libraries(h2cli
 	hydrogen-core-${VERSION}
-	Qt5::Widgets
+	Qt${QT_VERSION_MAJOR}::Widgets
 	${OSC_LIBRARIES}
-	)
+)
 
 add_dependencies(h2cli hydrogen-core-${VERSION})
 

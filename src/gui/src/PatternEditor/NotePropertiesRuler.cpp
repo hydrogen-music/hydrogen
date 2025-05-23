@@ -21,6 +21,8 @@
  */
 #include "NotePropertiesRuler.h"
 
+#include "../Compatibility/MouseEvent.h"
+#include "../Compatibility/WheelEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -234,12 +236,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		return;
 	}
 
-	QPoint point;
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	point = ev->position().toPoint();
-#else
-	point = QPoint( ev->x(), 0 );
-#endif
+	auto pEv = static_cast<WheelEvent*>( ev );
 
 	QString sUndoContext = "NotePropertiesRuler::wheelEvent";
 	bool bUpdate = false;
@@ -248,7 +245,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
 	const auto notesUnderPoint = getElementsAtPoint(
-		point, getCursorMargin( nullptr ), pPattern );
+		pEv->position().toPoint(), getCursorMargin( nullptr ), pPattern );
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}
@@ -320,7 +317,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	// Check whether the wheel event was triggered while mouse was in octave or
 	// key section.
-	const bool bKey = point.y() >= NotePropertiesRuler::nOctaveHeight;
+	const bool bKey = pEv->position().y() >= NotePropertiesRuler::nOctaveHeight;
 
 	// Apply delta to the property
 	const bool bValueChanged = adjustNotePropertyDelta( notes, fDelta, bKey );
@@ -352,6 +349,7 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
 		return;
 	}
+	auto pEv = static_cast<MouseEvent*>( ev );
 
 	if ( ev->button() == Qt::LeftButton ) {
 		// Treat single click as an instantaneous drag
@@ -362,7 +360,8 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 		updateModifiers( ev );
 
 		// Focus cursor on clicked note
-		const auto notes = getElementsAtPoint( ev->pos(), getCursorMargin( ev ) );
+		const auto notes = getElementsAtPoint(
+			pEv->position().toPoint(), getCursorMargin( ev ) );
 		if ( notes.size() > 0 ) {
 			m_pPatternEditorPanel->setCursorColumn( notes[ 0 ]->getPosition() );
 		}
@@ -372,6 +371,8 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 }
 
 void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	if ( m_selection.isMoving() ) {
 		prepareUndoAction( ev );
 		selectionMoveUpdateEvent( ev );
@@ -399,6 +400,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->getSelectedRowDB() );
 	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
@@ -413,12 +416,13 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	QPoint movingOffset = m_selection.movingOffset();
 	if ( m_property == PatternEditor::Property::KeyOctave ) {
 		// Check whether the drag started within the key or octave section.
-		bKey = ( ev->y() - movingOffset.y() ) >=
+		bKey = ( pEv->position().y() - movingOffset.y() ) >=
 			NotePropertiesRuler::nOctaveHeight;
 
 		fDelta = static_cast<float>(-movingOffset.y()) /
 			static_cast<float>(NotePropertiesRuler::nKeyLineHeight);
-	} else {
+	}
+	else {
 		fDelta = (float)-movingOffset.y() / height();
 	}
 
@@ -529,12 +533,14 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
 	m_oldNotes.clear();
 
 	updateModifiers( pEvent );
 
 	const auto notesUnderPoint = getElementsAtPoint(
-		pEvent->pos(), getCursorMargin( pEvent ), pPattern );
+		pEv->position().toPoint(), getCursorMargin( pEvent ), pPattern );
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
 			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
@@ -560,13 +566,16 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	updateModifiers( ev );
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	// Issuing redo/undo actions bases on draw changes are issued in batches. In
 	// case the cursor is moved slowly, we might have updates without any new
 	// notes. If it is moved rapidly, it might have passed several columns since
 	// the last update. We will take all notes between the current position and
 	// the last one into account.
 	int nRealColumn;
-	eventPointToColumnRow( ev->pos(), nullptr, nullptr, &nRealColumn );
+	eventPointToColumnRow( pEv->position().toPoint(), nullptr, nullptr,
+						   &nRealColumn );
 	const auto row = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
 
@@ -603,7 +612,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 	// normalized
 	const double fHeight = static_cast<double>(height());
 	float fValue = static_cast<float>(
-		std::clamp( ( fHeight - static_cast<double>(ev->y()) )/ fHeight,
+		std::clamp( ( fHeight - static_cast<double>(pEv->position().y()) )/ fHeight,
 					0.0, 1.1 ));
 
 	// centered layouts support resetting the value to the baseline.
@@ -643,19 +652,19 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 				  ! ppNote->getNoteOff() ) {
 			int nKey = KEY_INVALID;
 			int nOctave = OCTAVE_INVALID;
-			if ( ev->y() > 0 &&
-				 ev->y() <= NotePropertiesRuler::nOctaveHeight ) {
+			if ( pEv->position().y() > 0 &&
+				 pEv->position().y() <= NotePropertiesRuler::nOctaveHeight ) {
 				nOctave = std::round(
 					( NotePropertiesRuler::nOctaveHeight / 2 +
 					  NotePropertiesRuler::nKeyLineHeight / 2 -
-					  ev->y() -
+					  pEv->position().y() -
 					  NotePropertiesRuler::nKeyLineHeight / 2 ) /
 					NotePropertiesRuler::nKeyLineHeight );
 				nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
 			}
-			else if ( ev->y() >= NotePropertiesRuler::nOctaveHeight &&
-					  ev->y() < NotePropertiesRuler::nKeyOctaveHeight ) {
-				nKey = ( height() - ev->y() -
+			else if ( pEv->position().y() >= NotePropertiesRuler::nOctaveHeight &&
+					  pEv->position().y() < NotePropertiesRuler::nKeyOctaveHeight ) {
+				nKey = ( height() - pEv->position().y() -
 						 NotePropertiesRuler::nKeyLineHeight / 2 ) /
 					NotePropertiesRuler::nKeyLineHeight;
 				nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
@@ -1072,7 +1081,6 @@ void NotePropertiesRuler::scrolled( int nValue ) {
 
 void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 												 int nIncrement ) {
-	
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	QColor lineColor(

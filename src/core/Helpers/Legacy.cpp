@@ -23,7 +23,6 @@
 #include <memory>
 #include <QFile>
 #include <QByteArray>
-#include <QTextCodec>
 
 #include <core/Helpers/Legacy.h>
 
@@ -153,12 +152,13 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	// By supplying no drumkit path the individual drumkit meta infos
 	// stored in the 'instrument' nodes will be used.
 	auto pInstrumentList = InstrumentList::loadFrom( node,
-													  "", // sDrumkitPath
-													  "", // sDrumkitName
-													  sSongPath,
-													  license, // per-instrument licenses
-													  true, // allow composition
-													  bSilent );
+													 "", // sDrumkitPath
+													 "", // sDrumkitName
+													 sSongPath,
+													 license, // per-instrument licenses
+													 true, // allow composition
+													 nullptr,
+													 bSilent );
 	if ( pInstrumentList == nullptr ) {
 		return nullptr;
 	}
@@ -337,9 +337,15 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 		return nullptr;
 	}
 
-	QString sName = pattern_node.read_string( "pattern_name", "", false, false );
-	if ( sName.isEmpty() ) {
-	    sName = pattern_node.read_string( "pattern_name", "unknown", false, false );
+	auto patternNameNode = pattern_node.firstChildElement( "pattern_name" );
+	QString sName;
+	if ( ! patternNameNode.isNull() ) {
+		// Older version
+		sName = pattern_node.read_string( "pattern_name", "", false, false );
+	}
+	else {
+		// More recent version
+	    sName = pattern_node.read_string( "name", "unknown", false, false );
 	}
 	QString sInfo = pattern_node.read_string( "info", "" );
 	QString sCategory = pattern_node.read_string( "category", "" );
@@ -450,12 +456,13 @@ std::shared_ptr<Pattern> Legacy::loadPattern( const QString& pattern_path ) {
 	return pPattern;
 }
 
-std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
+std::shared_ptr<Playlist> Legacy::load_playlist( const QString& sPath )
 {
 	WARNINGLOG( QString( "loading playlist with legacy code" ) );
 
 	XMLDoc doc;
-	if( !doc.read( pl_path ) ) {
+	if( !doc.read( sPath ) ) {
+		ERRORLOG( QString( "Unable to read playlist file [%1]" ).arg( sPath ) );
 		return nullptr;
 	}
 	XMLNode root = doc.firstChildElement( "playlist" );
@@ -463,14 +470,14 @@ std::shared_ptr<Playlist> Legacy::load_playlist( const QString& pl_path )
 		ERRORLOG( "playlist node not found" );
 		return nullptr;
 	}
-	QFileInfo fileInfo = QFileInfo( pl_path );
+	QFileInfo fileInfo = QFileInfo( sPath );
 	QString filename = root.read_string( "Name", "", false, false );
 	if ( filename.isEmpty() ) {
 		WARNINGLOG( "Playlist has no name, abort" );
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setFilename( pl_path );
+	pPlaylist->setFilename( sPath );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );
 	if ( !songsNode.isNull() ) {
@@ -574,14 +581,8 @@ QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
 				  .arg( pFile->fileName() ) );
 	}
 
-	QString sEncoding = QTextCodec::codecForLocale()->name();
-	if ( sEncoding == "System" ) {
-		sEncoding = "UTF-8";
-	}
 	QByteArray line;
-	QByteArray buf = QString("<?xml version='1.0' encoding='%1' ?>\n")
-		.arg( sEncoding )
-		.toLocal8Bit();
+	QByteArray buf = "<?xml version='1.0' ?>\n";
 
 	while ( ! pFile->atEnd() ) {
 		line = pFile->readLine();

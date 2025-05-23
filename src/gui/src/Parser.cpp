@@ -92,6 +92,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	QCommandLineOption systemDataPathOption(
 		QStringList() << "P" <<
 		"data", "Use an alternate system data path", "Path" );
+	QCommandLineOption userDataPathOption(
+		QStringList() << "user-data", "Use an alternate user data path", "Path" );
 	QCommandLineOption configFileOption(
 		QStringList() << "config", "Use an alternate config file", "Path" );
 	QCommandLineOption uiLayoutOption(
@@ -128,6 +130,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addOption( noLogColorsOption );
 
 	parser.addOption( systemDataPathOption );
+	parser.addOption( userDataPathOption );
 	parser.addOption( configFileOption );
 	parser.addOption( uiLayoutOption );
 #ifdef H2CORE_HAVE_OSC
@@ -179,6 +182,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 	}
 
 	m_sSysDataPath = parser.value( systemDataPathOption );
+	m_sUsrDataPath = parser.value( userDataPathOption );
 	m_sConfigFilePath = parser.value( configFileOption );
 	m_sUiLayout = parser.value( uiLayoutOption );
 	m_nOscPort = -1;

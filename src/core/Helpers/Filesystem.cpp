@@ -33,6 +33,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QDateTime>
+#include <QRegularExpression>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -218,6 +219,7 @@ Filesystem::AudioFormat Filesystem::AudioFormatFromSuffix( const QString& sPath,
 }
 
 bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
+							const QString& sUsrDataPath,
 							const QString& sUserConfigPath,
 							const QString& sLogFile )
 {
@@ -256,6 +258,20 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sSysDataPath,
 		INFOLOG( QString( "Using custom system data folder [%1]" )
 				 .arg( sSysDataPath ) );
 		__sys_data_path = sSysDataPath;
+		// Sanity check
+		if ( ! __sys_data_path.endsWith( QDir::separator() ) ) {
+			__sys_data_path.append( QDir::separator() );
+		}
+	}
+
+	if ( ! sUsrDataPath.isEmpty() ) {
+		INFOLOG( QString( "Using custom user data folder [%1]" )
+				 .arg( sUsrDataPath ) );
+		__usr_data_path = sUsrDataPath;
+		// Sanity check
+		if ( ! __usr_data_path.endsWith( QDir::separator() ) ) {
+			__usr_data_path.append( QDir::separator() );
+		}
 	}
 
 	if ( ! sUserConfigPath.isEmpty() ) {
@@ -800,7 +816,8 @@ QString Filesystem::tmp_file_path( const QString &base )
 {
 	// Ensure template base will produce a valid filename
 	QString validBase = base;
-	validBase.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
+	validBase.remove(
+		QRegularExpression( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	QFileInfo f( validBase );
 	QString templateName( tmp_dir() + "/" );
@@ -879,8 +896,13 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 		if ( sSamplePath.startsWith( ssFolder ) ) {
 			int nStart = ssFolder.size();
 			int nIndex = sSamplePath.indexOf( "/", nStart );
-			QString sDrumkitName =
-				sSamplePath.midRef( nStart , nIndex - nStart ).toString();
+#ifdef H2CORE_HAVE_QT6
+			const QString sDrumkitName = sSamplePath.sliced(
+				nStart , nIndex - nStart );
+#else
+			const QString sDrumkitName = sSamplePath.midRef(
+				nStart , nIndex - nStart ).toString();
+#endif
 			if ( ssFolder.contains( sDrumkitName ) ) {
 				nIndexMatch = nIndex + 1;
 				break;
@@ -890,7 +912,7 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 
 	if ( nIndexMatch >= 0 ) {
 		// Sample is located in a drumkit folder. Just return basename.
-		QString sShortenedPath = sSamplePath.midRef( nIndexMatch ).toString();
+		QString sShortenedPath = sSamplePath.right( nIndexMatch );
 		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
 				 .arg( sSamplePath ).arg( sShortenedPath ) );
 
@@ -1061,7 +1083,8 @@ QString Filesystem::validateFilePath( const QString& sPath ) {
 	// Ensure the name will be a valid filename
 	QString sValidName( sPath );
 	sValidName.replace( " ", "_" );
-	sValidName.remove( QRegExp( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
+	sValidName.remove(
+		QRegularExpression( "[\\\\|\\/|\\*|\\,|\\$|:|=|@|!|\\^|&|\\?|\"|'|>|<|\\||%|:]+" ) );
 
 	return sValidName;
 }
@@ -1271,7 +1294,7 @@ QString Filesystem::addUniquePrefix( const QString& sBaseFilePath ) {
 
 QString Filesystem::removeUniquePrefix( const QString& sUniqueFilePath,
 										bool bSilent ) {
-	QRegExp prefix( "tmp-[\\w]{6}-+" );
+	QRegularExpression prefix( "tmp-[\\w]{6}-+" );
 
 	if ( sUniqueFilePath.contains( prefix ) ) {
 		QFileInfo info( sUniqueFilePath );
@@ -1356,7 +1379,8 @@ QString Filesystem::TypeToQString( const Type& type ) {
 
 QString Filesystem::removeUtf8Characters( const QString &sEncodedString ) {
 	QString sCleaned( sEncodedString );
-	return sCleaned.remove( QRegExp( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
+	return sCleaned.remove(
+		QRegularExpression( "[^a-zA-Z0-9._/\\s()\\[\\]\\&\\+\\-]" ) );
 }
 const std::vector<Filesystem::AudioFormat>& Filesystem::supportedAudioFormats() {
 	return m_supportedAudioFormats;

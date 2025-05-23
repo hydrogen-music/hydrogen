@@ -90,19 +90,22 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/**
 		 * Load drumkit information from a directory.
 		 *
-		 * \param sDrumkitDir A directory containing a drumkit,
-		 * like those returned by
-		 * Filesystem::drumkit_dir_search().
+		 * \param sDrumkitDir A directory containing a drumkit, like those
+		 *   returned by Filesystem::drumkit_dir_search().
 		 * \param bUpgrade Whether the loaded drumkit should be
-		 * upgraded using upgrade_drumkit() in case it did not comply
-		 * with the current XSD file.
+		 *   upgraded using upgrade_drumkit() in case it did not comply
+		 *   with the current XSD file.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static std::shared_ptr<Drumkit> load( const QString& sDrumkitDir,
 											  bool bUpgrade = true,
+											  bool* pLegacyFormatEncountered = nullptr,
 											  bool bSilent = false );
 
 		/**
@@ -122,6 +125,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   part of a song (which allows composition of a drumkit from various
 		 *   kits and new instruments/samples). If `false`, it corresponds to
 		 *   the kit being loaded as part of the `SoundLibraryDatabase`.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
 		 */
@@ -129,6 +135,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 												  const QString& sPath,
 												  const QString& sSongPath,
 												  bool bSongKit = false,
+												  bool* pLegacyFormatEncountered = nullptr,
 												  bool bSilent = false );
 
 		/*

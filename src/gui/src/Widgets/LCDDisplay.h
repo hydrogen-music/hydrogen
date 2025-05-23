@@ -28,6 +28,7 @@
 #include <QtWidgets>
 #include <QLineEdit>
 
+#include <core/config.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -59,7 +60,11 @@ public slots:
 protected:
 	QSize m_size;
 	virtual void paintEvent( QPaintEvent *ev ) override;
-	virtual void enterEvent( QEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent *ev ) override;
 
 private:

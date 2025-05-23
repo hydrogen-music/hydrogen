@@ -44,6 +44,7 @@ tests/jackTimebase/jackTimebase
 tests/jackTimebase/hydrogen.log
 tests/jackTimebase/test*.log
 src/tests/data/playlist/tmp-duplicate-test.h2playlist
+test.log
 
 # Ignore cache folder of clangd used in LSP editor support.
 .cache/

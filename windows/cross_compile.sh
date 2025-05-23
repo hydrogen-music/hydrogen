@@ -114,7 +114,7 @@ mxe_files(){
 	declare -a gcclibs=("libgcc" "libstdc++")
 
 	#special stuff for qt5 handling
-	declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network." "Qt5Gui" "Qt5Widgets")
+	declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5Network." "Qt5Gui" "Qt5Widgets")
 	libs+=("libpcre-1" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8" "libpcre2-16" "libcrypto" "libssl")
 	qtdir="$mxedir/../qt5/bin"
 	platforms="$extralibs/platforms"

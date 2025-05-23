@@ -23,8 +23,10 @@
 #include <cassert>
 
 #include "PianoRollEditor.h"
+
 #include "PatternEditorPanel.h"
 #include "../CommonStrings.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -104,7 +106,11 @@ QLabel {\
  }" ).arg( textColor.name() ) );
 }
 
-void PitchLabel::enterEvent( QEvent* ev ) {
+#ifdef H2CORE_HAVE_QT6
+void PitchLabel::enterEvent( QEnterEvent *ev ) {
+#else
+void PitchLabel::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();
@@ -212,8 +218,8 @@ PitchSidebar::PitchSidebar( QWidget *parent, int nHeight, int nGridHeight )
 
 	auto pSidebarVBox = new QVBoxLayout( this );
 	pSidebarVBox->setSpacing( 0 );
-	pSidebarVBox->setMargin( 0 );
-	pSidebarVBox->setMargin( Qt::AlignLeft );
+	pSidebarVBox->setContentsMargins( 0, 0, 0, 0 );
+	pSidebarVBox->setAlignment( Qt::AlignLeft );
 	setLayout( pSidebarVBox );
 
 	auto createLabel = [&]( const QString& sText, int* pIndex ) {
@@ -410,6 +416,8 @@ void PitchSidebar::selectedRow( int nRowIndex ) {
 }
 
 void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
 	if ( pLabel == nullptr ) {
 		return;
 	}
@@ -434,7 +442,7 @@ void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
 		Note::lineToPitch( nRowClicked ) );
 
 	if ( pEvent->button() == Qt::RightButton ) {
-		m_pFunctionPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
+		m_pFunctionPopup->popup( pEv->globalPosition().toPoint() );
 	}
 
 	// Hide cursor in case this behavior was selected in the

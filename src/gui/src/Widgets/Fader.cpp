@@ -20,11 +20,12 @@
  *
  */
 
+#include "Fader.h"
 
+#include "../Compatibility/MouseEvent.h"
 #include "../Skin.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "Fader.h"
 #include "MidiSenseWidget.h"
 
 #include <QtGui>
@@ -126,11 +127,14 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	float fValue;
 	if ( m_type == Type::Vertical ) {
-		fValue = static_cast<float>( ev->x() ) / static_cast<float>( width() );
+		fValue = static_cast<float>( pEv->position().x() ) / static_cast<float>( width() );
 	} else {
-		fValue = static_cast<float>( height() - ev->y() ) / static_cast<float>( height() );
+		fValue = static_cast<float>( height() - pEv->position().y() ) /
+			static_cast<float>( height() );
 	}
 	if ( fValue > 1. ) { // for QToolTip text validity
 		fValue = 1.;
@@ -141,7 +145,8 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 	fValue = fValue * ( m_fMax - m_fMin ) + m_fMin;
 
 	setValue( fValue, true );
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	QToolTip::showText( pEv->globalPosition().toPoint(),
+						QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
 
@@ -150,6 +155,8 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 	if ( ! m_bIsActive ) {
 		return;
 	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
 	
 	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
@@ -164,11 +171,12 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 		setCursor( QCursor( Qt::SizeVerCursor ) );
 
 		m_fMousePressValue = m_fValue;
-		m_fMousePressY = ev->y();
+		m_fMousePressY = pEv->position().y();
 		mouseMoveEvent( ev );
 	}
 	
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	QToolTip::showText( pEv->globalPosition().toPoint(),
+						QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
 void Fader::paintEvent( QPaintEvent *ev)

@@ -105,9 +105,13 @@ protected:
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 	virtual void mouseMoveEvent(QMouseEvent *ev) override;
 	virtual void wheelEvent( QWheelEvent *ev ) override;
-	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void keyPressEvent( QKeyEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 
 	void updateTooltip() override;
 	

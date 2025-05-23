@@ -45,9 +45,9 @@ environment:
   TARGET_VERSION: '2.0.0-pre-alpha'
   matrix:
 
-    - job_name: 'Ubuntu 20.04'
+    - job_name: 'Ubuntu 22.04'
       job_group: 'Linux'
-      appveyor_build_worker_image: Ubuntu2004
+      appveyor_build_worker_image: Ubuntu2204
 
     - job_name: 'Ubuntu 16.04 (AppImage)'
       job_group: 'Linux (AppImage)'
@@ -110,7 +110,7 @@ for:
 
       echo $DISPLAY_VERSION
 
-      cache_tag=usr_cache_portmidi # this can be modified to rebuild deps
+      cache_tag=usr_cache_qt6 # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -133,8 +133,8 @@ for:
 
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
-        sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils
+        sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt6svg6-dev
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libxml2-utils
 
         # Install a recent PortMidi version
         git clone https://github.com/PortMidi/PortMidi || exit 1
@@ -172,6 +172,8 @@ for:
       mkdir build || exit 1
       cd build || exit 1
       cmake -DWANT_LRDF=1 \
+            -DWANT_LRDF=1 \
+            -DWANT_QT6:BOOL=ON \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
             -DWANT_RUBBERBAND=1 \
@@ -200,6 +202,15 @@ for:
 
       echo "Validating AppStream meta data."
       appstreamcli validate ../linux/org.hydrogenmusic.Hydrogen.metainfo.xml || exit 1
+
+      echo "Check whether the XSD files are still on par with our XML files"
+      xmllint --schema ../data/xsd/drumkit.xsd ../src/tests/data/drumkits/baseKit/drumkit.xml || exit 1
+      xmllint --schema ../data/xsd/drumkit_pattern.xsd ../src/tests/data/pattern/pattern.h2pattern || exit 1
+      xmllint --schema ../data/xsd/playlist.xsd ../src/tests/data/playlist/test.h2playlist || exit 1
+
+      echo "Validating shipped XML files"
+      xmllint --schema ../data/xsd/drumkit.xsd ../data/drumkits/GMRockKit/drumkit.xml || exit 1
+      xmllint --schema ../data/xsd/drumkit.xsd ../data/drumkits/TR808EmulationKit/drumkit.xml || exit 1
 
       ( exit $res )
 
@@ -634,7 +645,7 @@ for:
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Deploy Qt ***
-          set "DEPLOY_ARGS=-xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
+          set "DEPLOY_ARGS=--no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
 
           %QTDIR%\bin\windeployqt.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 

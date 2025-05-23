@@ -38,6 +38,7 @@ using namespace H2Core;
 #include "PatternEditorPanel.h"
 #include "PianoRollEditor.h"
 #include "NotePropertiesRuler.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -195,8 +196,10 @@ void PatternEditorRuler::hideEvent ( QHideEvent *ev )
 
 void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	if ( ev->button() == Qt::LeftButton &&
-		 ev->x() < m_nWidthActive ) {
+		 pEv->position().x() < m_nWidthActive ) {
 		auto pHydrogen = Hydrogen::get_instance();
 
 		float fTripletFactor;
@@ -223,7 +226,8 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
 void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
-	if ( ev->x() < m_nWidthActive ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+	if ( pEv->position().x() < m_nWidthActive ) {
 	
 		auto pHydrogenApp = HydrogenApp::get_instance();
 
@@ -240,7 +244,8 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
 		int nHoveredColumn =
 			static_cast<int>(std::floor( static_cast<float>(
-				std::max( ev->x() - PatternEditor::nMargin +
+				std::max( static_cast<int>(pEv->position().x()) -
+						  PatternEditor::nMargin +
 						  static_cast<int>(std::round(1 / fColumnWidth / 2) ), 0 )) *
 										 fColumnWidth ));
 		

@@ -81,61 +81,46 @@ Pattern::Pattern( std::shared_ptr<Pattern> pOther )
 Pattern::~Pattern() {
 }
 
-bool Pattern::loadDoc( const QString& sPatternPath, XMLDoc* pDoc, bool bSilent )
-{
+std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath,
+										bool bSilent ) {
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
+	}
+
 	if ( ! Filesystem::file_readable( sPatternPath, bSilent ) ) {
-		return false;
+		return nullptr;
 	}
-
-	bool bReadingSuccessful = true;
-	
-	if ( ! pDoc->read( sPatternPath, Filesystem::pattern_xsd_path() ) ) {
-		if ( ! pDoc->read( sPatternPath, nullptr ) ) {
-			ERRORLOG( QString( "Unable to read pattern [%1]" )
-					  .arg( sPatternPath ) );
-			return false;
-		}
-		else {
-			if ( ! bSilent ) {
-				WARNINGLOG( QString( "Pattern [%1] does not validate the current pattern schema. Loading might fail." )
-							.arg( sPatternPath ) );
-			}
-			bReadingSuccessful = false;
-		}
-	}
-	
-	XMLNode root = pDoc->firstChildElement( "drumkit_pattern" );
-	if ( root.isNull() ) {
-		ERRORLOG( QString( "'drumkit_pattern' node not found in [%1]" )
-				  .arg( sPatternPath ) );
-		return false;
-	}
-	
-	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	if ( pattern_node.isNull() ) {
-		ERRORLOG( QString( "'pattern' node not found in [%1]" )
-				  .arg( sPatternPath ) );
-		return false;
-	}
-
-	return bReadingSuccessful;
-}
-
-std::shared_ptr<Pattern> Pattern::load( const QString& sPatternPath )
-{
-	INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 
 	XMLDoc doc;
-	if ( ! loadDoc( sPatternPath, &doc, false ) ) {
-		// Try former pattern version
+	if ( ! doc.read( sPatternPath ) ) {
+		ERRORLOG( QString( "Unable to read pattern [%1]" )
+				  .arg( sPatternPath ) );
+		return nullptr;
+	}
+
+	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( QString( "'drumkit_pattern' node not found in [%1]" )
+				  .arg( sPatternPath ) );
+		return nullptr;
+	}
+	
+	XMLNode patternNode = rootNode.firstChildElement( "pattern" );
+	if ( patternNode.isNull() ) {
+		ERRORLOG( QString( "'pattern' node not found in [%1]" )
+				  .arg( sPatternPath ) );
+		return nullptr;
+	}
+
+	XMLNode formatVersionNode = patternNode.firstChildElement( "formatVersion" );
+	if ( formatVersionNode.isNull() ) {
 		return Legacy::loadPattern( sPatternPath );
 	}
 
-	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
-	const QString sDrumkitName =
-		root.read_string( "drumkit_name", "", false, false, false );
-	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	return loadFrom( pattern_node, sDrumkitName );
+	const QString sDrumkitName = rootNode.read_string(
+		"drumkit_name", "", false, false, bSilent );
+
+	return loadFrom( patternNode, sDrumkitName, nullptr, bSilent );
 }
 
 std::shared_ptr<Pattern> Pattern::loadFrom( const XMLNode& node,

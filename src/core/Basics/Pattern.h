@@ -85,8 +85,11 @@ class Pattern : public H2Core::Object<Pattern>
 		/**
 		 * load a pattern from a file
 		 * \param sPatternPath the path to the file to load the pattern from
+		 * \param bSilent Whether infos, warnings, and errors should
+		 *   be logged.
 		 */
-		static std::shared_ptr<Pattern> load( const QString& sPatternPath );
+		static std::shared_ptr<Pattern> load( const QString& sPatternPath,
+											  bool bSilent = false );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
@@ -96,7 +99,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 *   the current drumkit used to retrieve the types of all contained
 		 *   notes.
 		 * \param bSilent Whether infos, warnings, and errors should
-		 * be logged.
+		 *   be logged.
 		 * \return a new Pattern instance
 		 */
 	static std::shared_ptr<Pattern> loadFrom( const XMLNode& node,
@@ -320,14 +323,6 @@ class Pattern : public H2Core::Object<Pattern>
 		virtual_patterns_t m_virtualPatterns;
 		/** complete list of virtual patterns */
 		virtual_patterns_t m_flattenedVirtualPatterns;
-	/**
-	 * Loads the pattern stored in @a sPatternPath into @a pDoc and
-	 * takes care of all the error handling.
-	 *
-	 * \return true on success.
-	 */
-	static bool loadDoc( const QString& sPatternPath, XMLDoc* pDoc,
-						 bool bSilent = false );
 
 		/** Used to indicate changes in the underlying XSD file. */
 		static constexpr int nCurrentFormatVersion = 2;

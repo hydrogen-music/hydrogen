@@ -29,6 +29,7 @@
 #include "ComponentView.h"
 #include "InstrumentEditorPanel.h"
 #include "../CommonStrings.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "../UndoActions.h"
@@ -53,7 +54,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 		InstrumentRack::nWidth, ComponentView::nExpandedHeight );
 	m_pComponentsLayout = new QVBoxLayout();
 	m_pComponentsLayout->setSpacing( 0 );
-	m_pComponentsLayout->setMargin( 0 );
+	m_pComponentsLayout->setContentsMargins( 0, 0, 0, 0 );
 	m_pComponentsWidget->setLayout( m_pComponentsLayout );
 
 	m_pScrollArea = new WidgetScrollArea( this );
@@ -70,7 +71,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 
 	auto pMainLayout = new QVBoxLayout();
 	pMainLayout->setSpacing( 0 );
-	pMainLayout->setMargin( 0 );
+	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
 	pMainLayout->addWidget( m_pScrollArea );
 	setLayout( pMainLayout );
 
@@ -242,8 +243,9 @@ void ComponentsEditor::addComponent() {
 }
 
 void ComponentsEditor::mousePressEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
 	if ( pEvent->button() == Qt::RightButton ) {
-		m_pPopup->popup( QPoint( pEvent->globalX(), pEvent->globalY() ) );
+		m_pPopup->popup( pEv->globalPosition().toPoint() );
 	}
 }
 

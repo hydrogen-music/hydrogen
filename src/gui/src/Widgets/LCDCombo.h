@@ -72,7 +72,11 @@ private:
 	int m_nMaxWidth;
 		
 	virtual void paintEvent( QPaintEvent *ev ) override;
-	virtual void enterEvent( QEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent *ev ) override;
 };
 inline void LCDCombo::setModifyOnChange( bool bModifyOnChange ) {

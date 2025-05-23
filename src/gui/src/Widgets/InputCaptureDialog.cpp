@@ -41,7 +41,7 @@ InputCaptureDialog::InputCaptureDialog( QWidget* pParent, const QString& sTitle,
 	if ( ! m_sTitle.isEmpty() ) {
 		m_pLabelTitle = new QLabel( sTitle, this );
 		m_pLabelTitle->setAlignment( Qt::AlignCenter );
-		m_pLabelTitle->setMargin( 5 );
+		m_pLabelTitle->setContentsMargins( 5, 5, 5, 5 );
 		m_pLabelTitle->setStyleSheet( "QLabel { font-weight: bold; }" );
 		pVBoxLayout->addWidget( m_pLabelTitle );
 	}

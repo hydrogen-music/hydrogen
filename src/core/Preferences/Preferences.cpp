@@ -417,7 +417,7 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 	}
 
 	XMLDoc doc;
-	doc.read( sPath, nullptr, false );
+	doc.read( sPath, false );
 	const XMLNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
 	if ( rootNode.isNull() ) {
 		ERRORLOG( QString( "Preferences file [%1] ill-formatted. <hydrogen_preferences> node not found." )

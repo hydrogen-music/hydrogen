@@ -36,7 +36,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testDrumkitFormatIntegrity);
 	CPPUNIT_TEST(testDrumkit);
 	CPPUNIT_TEST(testDrumkitLegacy);
-	CPPUNIT_TEST(testDrumkit_UpgradeInvalidADSRValues);
+	CPPUNIT_TEST(testDrumkit_invalidADSRValues);
 	CPPUNIT_TEST(testDrumkitUpgrade);
 	CPPUNIT_TEST(testDrumkitInstrumentTypeUniqueness);
 	CPPUNIT_TEST(testShippedDrumkits);
@@ -66,7 +66,7 @@ class XmlTest : public CppUnit::TestCase {
 		void testDrumkitFormatIntegrity();
 		void testDrumkit();
 		void testDrumkitLegacy();
-		void testDrumkit_UpgradeInvalidADSRValues();
+		void testDrumkit_invalidADSRValues();
 		void testDrumkitUpgrade();
 		void testDrumkitInstrumentTypeUniqueness();
 		// Check whether the drumkits provided alongside this repo can

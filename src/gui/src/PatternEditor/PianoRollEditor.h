@@ -23,7 +23,9 @@
 #ifndef PIANO_ROLL_EDITOR_H
 #define PIANO_ROLL_EDITOR_H
 
+#include <core/config.h>
 #include <core/Object.h>
+
 #include "PatternEditor.h"
 #include "../Selection.h"
 
@@ -52,7 +54,11 @@ class PitchLabel : public QLabel, public H2Core::Object<PitchLabel>
 		void setSelected( bool bSelected );
 
 	private:
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
 		virtual void enterEvent( QEvent *ev ) override;
+#endif
 		virtual void leaveEvent( QEvent *ev ) override;
 		virtual void mousePressEvent( QMouseEvent* pEvent ) override;
 		virtual void paintEvent( QPaintEvent* ev) override;

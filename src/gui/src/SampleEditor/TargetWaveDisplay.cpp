@@ -20,6 +20,8 @@
  *
  */
 
+#include "TargetWaveDisplay.h"
+
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Instrument.h>
@@ -27,6 +29,7 @@
 
 #include <memory>
 
+#include "../Compatibility/MouseEvent.h"
 #include "HydrogenApp.h"
 #include "SampleEditor.h"
 
@@ -37,7 +40,6 @@ using namespace H2Core;
 
 #include <vector>
 #include <algorithm>
-#include "TargetWaveDisplay.h"
 #include "../Skin.h"
 
 static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
@@ -139,9 +141,9 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 		painter.drawLine( x, RCenter, x, -m_pPeakData_Right[x +1] +RCenter  );
 	}
 
-	QFont Font;
-	Font.setWeight( 63 );
-	painter.setFont( Font );
+	QFont font;
+	font.setWeight( QFont::Bold );
+	painter.setFont( font );
 
 	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
@@ -255,11 +257,13 @@ void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> 
 
 void TargetWaveDisplay::updateMouseSelection(QMouseEvent *ev)
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	m_EditMode = getEnvelopeEditMode();
 	const Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
-	m_nX = std::min(UI_WIDTH, std::max(0, ev->x()));
-	m_nY = std::min(UI_HEIGHT, std::max(0, ev->y()));
+	m_nX = std::min(UI_WIDTH, std::max(0, static_cast<int>(pEv->position().x())));
+	m_nY = std::min(UI_HEIGHT, std::max(0, static_cast<int>(pEv->position().y())));
 
 	if ( !(ev->buttons() & Qt::LeftButton) || m_nSelectedEnvelopePoint == -1) {
 		QPoint mousePoint(m_nX, m_nY);
