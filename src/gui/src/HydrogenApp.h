@@ -33,8 +33,9 @@
 
 #include <iostream>
 #include <cstdint>
-#include <vector>
 #include <memory>
+#include <set>
+#include <vector>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -203,11 +204,13 @@ signals:
 	void changePreferences( const H2Core::Preferences::Changes& changes );
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
-private slots:
-	void propagatePreferences();
+	private slots:
+		void propagatePreferences();
 
 		friend class MainForm;
 	private:
+		void updateEventListeners();
+
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
 #ifdef H2CORE_HAVE_LADSPA
@@ -230,23 +233,25 @@ private slots:
 		SampleEditor *				m_pSampleEditor;
 		Director *					m_pDirector;
 		QTimer *					m_pEventQueueTimer;
-		std::vector<EventListener*> 	m_EventListeners;
+		std::vector<EventListener*> m_eventListeners;
+		std::set<EventListener*> m_eventListenersToAdd;
+		std::set<EventListener*> m_eventListenersToRemove;
 		QTabWidget *				m_pTab;
 		QSplitter *					m_pSplitter;
 		QVBoxLayout *				m_pMainVBox;
-	std::shared_ptr<CommonStrings>				m_pCommonStrings;
+		std::shared_ptr<CommonStrings>				m_pCommonStrings;
 
 		bool						m_bHideKeyboardCursor;
 		QTimer *					m_pPreferencesUpdateTimer;
 		int						    m_nPreferencesUpdateTimeout;
-	H2Core::Preferences::Changes m_bufferedChanges;  
+		H2Core::Preferences::Changes m_bufferedChanges;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
 
 		void setupSinglePanedInterface();
 		virtual void songModifiedEvent() override;
-	virtual void XRunEvent() override;
+		virtual void XRunEvent() override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.

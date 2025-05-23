@@ -127,7 +127,10 @@ namespace H2Core
  * as the single source of truth for their most important properties, and
  * provided a number of buttons in a panel. */
 /** \ingroup docGUI*/
-class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<PatternEditorPanel>
+class PatternEditorPanel : public QWidget,
+						   protected WidgetWithScalableFont<8, 10, 12>,
+						   public EventListener,
+						   public H2Core::Object<PatternEditorPanel>
 {
 	H2_OBJECT(PatternEditorPanel)
 	Q_OBJECT
@@ -165,19 +168,19 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		virtual void resizeEvent(QResizeEvent *ev) override;
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
-		virtual void selectedInstrumentChangedEvent() override;
-	virtual void patternModifiedEvent() override;
-	virtual void playingPatternsChangedEvent() override;
-	virtual void drumkitLoadedEvent() override;
-	virtual void updateSongEvent( int nValue ) override;
-	virtual void songModeActivationEvent() override;
-	virtual void stackedModeActivationEvent( int ) override;
-	virtual void songSizeChangedEvent() override;
-	virtual void patternEditorLockedEvent() override;
-	virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
-	virtual void relocationEvent() override;
+		virtual void drumkitLoadedEvent() override;
 		virtual void instrumentMuteSoloChangedEvent( int ) override;
+		virtual void patternEditorLockedEvent() override;
+		virtual void patternModifiedEvent() override;
+		virtual void playingPatternsChangedEvent() override;
+		virtual void relocationEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void selectedPatternChangedEvent() override;
+		virtual void songSizeChangedEvent() override;
+		virtual void songModeActivationEvent() override;
+		virtual void stackedModeActivationEvent( int ) override;
+		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void updateSongEvent( int nValue ) override;
 		// ~ Implements EventListener interface
 
 		std::shared_ptr<H2Core::Pattern> getPattern() const;

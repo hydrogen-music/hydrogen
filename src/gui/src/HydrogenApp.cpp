@@ -918,189 +918,201 @@ void HydrogenApp::onEventQueueTimer()
 		if ( pEvent == nullptr ) {
 			break;
 		}
+
+		if ( m_eventListenersToAdd.size() > 0 ||
+			 m_eventListenersToRemove.size() > 0 ) {
+			updateEventListeners();
+		}
 		
 		// Provide the event to all EventListeners registered to
 		// HydrogenApp. By registering itself as EventListener and
 		// implementing at least on the methods used below a
 		// particular GUI component can react on specific events.
-		for (int i = 0; i < (int)m_EventListeners.size(); i++ ) {
-			EventListener *pListener = m_EventListeners[ i ];
+		for ( const auto& ppEventListener : m_eventListeners ) {
+			if ( m_eventListenersToRemove.size() > 0 &&
+				 m_eventListenersToRemove.find( ppEventListener ) !=
+				 m_eventListenersToRemove.end() ) {
+				// This listener was scheduled to be removed. Most probably the
+				// corresponding object is already destructed and we would risk
+				// a segfault when attempting to call its methods.
+				continue;
+			}
 
 			switch ( pEvent->getType() ) {
 			case Event::Type::ActionModeChanged:
-				pListener->actionModeChangeEvent( pEvent->getValue() );
+				ppEventListener->actionModeChangeEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::BbtChanged:
-				pListener->bbtChangedEvent();
+				ppEventListener->bbtChangedEvent();
 				break;
 
 			case Event::Type::BeatCounter:
-				pListener->beatCounterEvent();
+				ppEventListener->beatCounterEvent();
 				break;
 
 			case Event::Type::DriverChanged:
-				pListener->driverChangedEvent();
+				ppEventListener->driverChangedEvent();
 				break;
 
 			case Event::Type::DrumkitLoaded:
-				pListener->drumkitLoadedEvent();
+				ppEventListener->drumkitLoadedEvent();
 				break;
 
 			case Event::Type::EffectChanged:
-				pListener->effectChangedEvent();
+				ppEventListener->effectChangedEvent();
 				break;
 
 			case Event::Type::Error:
-				pListener->errorEvent( pEvent->getValue() );
+				ppEventListener->errorEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::GridCellToggled:
-				pListener->gridCellToggledEvent();
+				ppEventListener->gridCellToggledEvent();
 				break;
 
 			case Event::Type::InstrumentMuteSoloChanged:
-				pListener->instrumentMuteSoloChangedEvent( pEvent->getValue() );
+				ppEventListener->instrumentMuteSoloChangedEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::InstrumentParametersChanged:
-				pListener->instrumentParametersChangedEvent( pEvent->getValue() );
+				ppEventListener->instrumentParametersChangedEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::JackTimebaseStateChanged:
-				pListener->jackTimebaseStateChangedEvent( pEvent->getValue() );
+				ppEventListener->jackTimebaseStateChangedEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::JackTransportActivation:
-				pListener->jackTransportActivationEvent();
+				ppEventListener->jackTransportActivationEvent();
 				break;
 
 			case Event::Type::LoopModeActivation:
-				pListener->loopModeActivationEvent();
+				ppEventListener->loopModeActivationEvent();
 				break;
 
 			case Event::Type::Metronome:
-				pListener->metronomeEvent( pEvent->getValue() );
+				ppEventListener->metronomeEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::MidiActivity:
-				pListener->midiActivityEvent();
+				ppEventListener->midiActivityEvent();
 				break;
 
 			case Event::Type::MidiMapChanged:
-				pListener->midiMapChangedEvent();
+				ppEventListener->midiMapChangedEvent();
 				break;
 
 			case Event::Type::MixerSettingsChanged:
-				pListener->mixerSettingsChangedEvent();
+				ppEventListener->mixerSettingsChangedEvent();
 				break;
 
 			case Event::Type::NextPatternsChanged:
-				pListener->nextPatternsChangedEvent();
+				ppEventListener->nextPatternsChangedEvent();
 				break;
 
 			case Event::Type::NextShot:
-				pListener->nextShotEvent();
+				ppEventListener->nextShotEvent();
 				break;
 
 			case Event::Type::NoteOn:
-				pListener->noteOnEvent( pEvent->getValue() );
+				ppEventListener->noteOnEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::Quit:
-				pListener->quitEvent( pEvent->getValue() );
+				ppEventListener->quitEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::PatternEditorLocked:
-				pListener->patternEditorLockedEvent();
+				ppEventListener->patternEditorLockedEvent();
 				break;
 
 			case Event::Type::PatternModified:
-				pListener->patternModifiedEvent();
+				ppEventListener->patternModifiedEvent();
 				break;
 
 			case Event::Type::PlaybackTrackChanged:
-				pListener->playbackTrackChangedEvent();
+				ppEventListener->playbackTrackChangedEvent();
 				break;
 
 			case Event::Type::PlayingPatternsChanged:
-				pListener->playingPatternsChangedEvent();
+				ppEventListener->playingPatternsChangedEvent();
 				break;
 
 			case Event::Type::PlaylistChanged:
-				pListener->playlistChangedEvent( pEvent->getValue() );
+				ppEventListener->playlistChangedEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::PlaylistLoadSong:
-				pListener->playlistLoadSongEvent();
+				ppEventListener->playlistLoadSongEvent();
 				break;
 
 			case Event::Type::Progress:
-				pListener->progressEvent( pEvent->getValue() );
+				ppEventListener->progressEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::Relocation:
-				pListener->relocationEvent();
+				ppEventListener->relocationEvent();
 				break;
 
 			case Event::Type::SelectedPatternChanged:
-				pListener->selectedPatternChangedEvent();
+				ppEventListener->selectedPatternChangedEvent();
 				break;
 
 			case Event::Type::SelectedInstrumentChanged:
-				pListener->selectedInstrumentChangedEvent();
+				ppEventListener->selectedInstrumentChangedEvent();
 				break;
 
 			case Event::Type::SongModeActivation:
-				pListener->songModeActivationEvent();
+				ppEventListener->songModeActivationEvent();
 				break;
 
 			case Event::Type::SongModified:
-				pListener->songModifiedEvent();
+				ppEventListener->songModifiedEvent();
 				break;
 
 			case Event::Type::SongSizeChanged:
-				pListener->songSizeChangedEvent();
+				ppEventListener->songSizeChangedEvent();
 				break;
 
 			case Event::Type::State:
-				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(pEvent->getValue()) );
+				ppEventListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(pEvent->getValue()) );
 				break;
 
 			case Event::Type::StackedModeActivation:
-				pListener->stackedModeActivationEvent( pEvent->getValue() );
+				ppEventListener->stackedModeActivationEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::SoundLibraryChanged:
-				pListener->soundLibraryChangedEvent();
+				ppEventListener->soundLibraryChangedEvent();
 				break;
 
 			case Event::Type::TempoChanged:
-				pListener->tempoChangedEvent( pEvent->getValue() );
+				ppEventListener->tempoChangedEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::TimelineActivation:
-				pListener->timelineActivationEvent();
+				ppEventListener->timelineActivationEvent();
 				break;
 
 			case Event::Type::UpdateTimeline:
-				pListener->timelineUpdateEvent( pEvent->getValue() );
+				ppEventListener->timelineUpdateEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::UndoRedo:
-				pListener->undoRedoActionEvent( pEvent->getValue() );
+				ppEventListener->undoRedoActionEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::UpdatePreferences:
-				pListener->updatePreferencesEvent( pEvent->getValue() );
+				ppEventListener->updatePreferencesEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::UpdateSong:
-				pListener->updateSongEvent( pEvent->getValue() );
+				ppEventListener->updateSongEvent( pEvent->getValue() );
 				break;
 
 			case Event::Type::Xrun:
-				pListener->XRunEvent();
+				ppEventListener->XRunEvent();
 				break;
 
 			default:
@@ -1192,21 +1204,63 @@ void HydrogenApp::onEventQueueTimer()
 }
 
 
-void HydrogenApp::addEventListener( EventListener* pListener )
-{
-	if (pListener) {
-		m_EventListeners.push_back( pListener );
+void HydrogenApp::addEventListener( EventListener* pListener ) {
+	if ( pListener != nullptr ) {
+		m_eventListenersToAdd.insert( pListener );
+	}
+
+	if ( m_eventListenersToRemove.find( pListener ) !=
+		 m_eventListenersToRemove.end() ) {
+		// Listener was already scheduled to be removed. Last action wins.
+		for ( auto it = m_eventListenersToRemove.begin();
+			  it != m_eventListenersToRemove.end(); ) {
+			if ( *it == pListener ) {
+				it = m_eventListenersToRemove.erase( it );
+				break;
+			} else {
+				++it;
+			}
+		}
 	}
 }
 
+void HydrogenApp::removeEventListener( EventListener* pListener ) {
+	if ( pListener != nullptr ) {
+		m_eventListenersToRemove.insert( pListener );
+	}
 
-void HydrogenApp::removeEventListener( EventListener* pListener )
-{
-	for ( uint i = 0; i < m_EventListeners.size(); i++ ) {
-		if ( pListener == m_EventListeners[ i ] ) {
-			m_EventListeners.erase( m_EventListeners.begin() + i );
+	if ( m_eventListenersToAdd.find( pListener ) !=
+		 m_eventListenersToAdd.end() ) {
+		for ( auto it = m_eventListenersToAdd.begin();
+			  it != m_eventListenersToAdd.end(); ) {
+			if ( *it == pListener ) {
+				it = m_eventListenersToAdd.erase( it );
+				break;
+			} else {
+				++it;
+			}
 		}
 	}
+}
+
+void HydrogenApp::updateEventListeners() {
+	for ( const auto& ppEventListener : m_eventListenersToRemove ) {
+		for ( auto it = m_eventListeners.begin();
+			  it != m_eventListeners.end(); ) {
+			if ( *it == ppEventListener ) {
+				it = m_eventListeners.erase( it );
+				break;
+			} else {
+				++it;
+			}
+		}
+	}
+	m_eventListenersToRemove.clear();
+
+	for ( const auto& ppEventListener : m_eventListenersToAdd ) {
+		m_eventListeners.push_back( ppEventListener );
+	}
+	m_eventListenersToAdd.clear();
 }
 
 /**
