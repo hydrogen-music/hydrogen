@@ -107,7 +107,11 @@ void startTestJackDriver( lo_arg **argv, int argc ) {
 	CoreActionController::activateLoopMode( false );
 	CoreActionController::locateToTick( 0 );
 
+#ifdef H2CORE_HAVE_JACK
 	AudioEngineTests::startJackAudioDriver();
+#else
+	___ERRORLOG( "Compiled without JACK support!" );
+#endif
 
 	// This binary runs indefinitely. It is either stopped by an assertion or by
 	// the teardown of the parent process.
@@ -228,7 +232,11 @@ int main(int argc, char *argv[])
 		}
 		const auto timebaseState =
 			static_cast<JackAudioDriver::Timebase>(nTimebaseStateOption);
+#ifdef H2CORE_HAVE_JACK
 		AudioEngineTests::m_referenceTimebase = timebaseState;
+#else
+		___ERRORLOG( "Compiled without JACK support!" );
+#endif
 
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if ( parser.isSet( verboseOption ) ){
