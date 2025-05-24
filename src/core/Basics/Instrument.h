@@ -129,14 +129,17 @@ class Instrument : public H2Core::Object<Instrument>
 		 * load an instrument from an XMLNode
 		 * \param pNode the XMLDode to read from
 		 * \param sDrumkitPath the directory holding the drumkit
-		 * data. If empty, it will be read from @a pNode.
+		 *   data. If empty, it will be read from @a pNode.
 		 * \param sDrumkitName Name of the drumkit found in @a
-		 * sDrumkitPath.
+		 *   sDrumkitPath.
 		 * \param license License assigned to all Samples that will be
-		 * loaded. If empty, the license will be read from @a
-		 * sDrumkitPath.
+		 *   loaded. If empty, the license will be read from @a
+		 *   sDrumkitPath.
+		 * \param pLegacyFormatEncountered will be set to `true` is any of the
+		 *   XML elements requires legacy format support and left untouched
+		 *   otherwise.
 		 * \param bSilent if set to true, all log messages except of
-		 * errors and warnings are suppressed.
+		 *   errors and warnings are suppressed.
 		 *
 		 * \return a new Instrument instance
 		 */
@@ -144,6 +147,7 @@ class Instrument : public H2Core::Object<Instrument>
 													  const QString& sDrumkitPath = "",
 													  const QString& sDrumkitName = "",
 													  const License& license = License(),
+													  bool* pLegacyFormatEncountered = nullptr,
 													  bool bSilent = false );
 
 		///< set the name of the instrument

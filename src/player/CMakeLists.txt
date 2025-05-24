@@ -14,7 +14,7 @@ add_executable(h2player WIN32 MACOSX_BUNDLE ${h2player_SRCS} )
 set_property(TARGET h2player PROPERTY CXX_STANDARD 17)
 target_link_libraries(h2player
 	hydrogen-core-${VERSION}
-	Qt5::Widgets
+	Qt${QT_VERSION_MAJOR}::Widgets
 	)
 
 add_dependencies(h2player hydrogen-core-${VERSION})

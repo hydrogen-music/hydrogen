@@ -201,7 +201,11 @@ class SongEditor : public QWidget
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
 		virtual void enterEvent( QEvent *ev ) override;
+#endif
 		virtual void leaveEvent( QEvent *ev ) override;
 		//! @}
 
@@ -440,7 +444,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void paintEvent( QPaintEvent *ev ) override;
 
-	// virtual void enterEvent( QEvent* ev ) override;
 	virtual void leaveEvent( QEvent* ev ) override;
 	virtual bool event( QEvent* ev ) override;
 

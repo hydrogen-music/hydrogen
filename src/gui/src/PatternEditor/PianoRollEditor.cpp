@@ -37,6 +37,7 @@
 #include <core/Helpers/Xml.h>
 using namespace H2Core;
 
+#include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -460,15 +461,17 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
-	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
+	int nPressedLine = ((int) pEv->position().y()) / ((int) m_nGridHeight);
 	if ( nPressedLine >= (int) m_nOctaves * 12 ) {
 		return;
 	}
 
-	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+	int nColumn = getColumn( pEv->position().x(), /* bUseFineGrained=*/ true );
 
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );
@@ -492,8 +495,8 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	if (ev->button() == Qt::LeftButton ) {
 
 		unsigned nRealColumn = 0;
-		if( ev->x() > PatternEditor::nMargin ) {
-			nRealColumn = (ev->x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
+		if( pEv->position().x() > PatternEditor::nMargin ) {
+			nRealColumn = (pEv->position().x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
 		}
 
 		if ( ev->modifiers() & Qt::ShiftModifier ) {
@@ -523,14 +526,16 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
-		m_pPopupMenu->popup( ev->globalPos() );
+		m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
 
 	}
 
 }
 
 void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
-	if ( ev->x() > m_nActiveWidth ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	if ( pEv->position().x() > m_nActiveWidth ) {
 		return;
 	}
 
@@ -552,13 +557,13 @@ void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 
 	// Update cursor position
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
-		int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
+		int nPressedLine = ((int) pEv->position().y()) / ((int) m_nGridHeight);
 		if ( nPressedLine >= (int) m_nOctaves * 12 ) {
 			return;
 		}
 		m_nCursorPitch = lineToPitch( nPressedLine );	
 
-		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+		int nColumn = getColumn( pEv->position().x(), /* bUseFineGrained=*/ true );
 		if ( ( m_pPattern != nullptr &&
 			   nColumn >= (int)m_pPattern->get_length() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
@@ -578,20 +583,22 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 		return;
 	}
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	// Handles cursor repositioning and hiding and stores general
 	// properties.
 	PatternEditor::mouseDragStartEvent( ev );
 	
 	m_pDraggedNote = nullptr;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nColumn = getColumn( ev->x() );
+	int nColumn = getColumn( pEv->position().x() );
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
 	if ( pSelectedInstrument == nullptr ) {
 		DEBUGLOG( "No instrument selected" );
 		return;
 	}
 
-	int nRow = std::floor(static_cast<float>(ev->y()) /
+	int nRow = std::floor(static_cast<float>(pEv->position().y()) /
 						  static_cast<float>(m_nGridHeight));
 
 	Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
@@ -601,10 +608,10 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	if (ev->button() == Qt::RightButton ) {
 
 		int nRealColumn = 0;
-		if( ev->x() > PatternEditor::nMargin ) {
+		if( pEv->position().x() > PatternEditor::nMargin ) {
 			nRealColumn =
 				static_cast<int>(std::floor(
-					static_cast<float>((ev->x() - PatternEditor::nMargin)) /
+					static_cast<float>((pEv->position().x() - PatternEditor::nMargin)) /
 					m_fGridWidth));
 		}
 
@@ -622,7 +629,9 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
-	int nRow = std::floor(static_cast<float>(ev->y()) /
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	int nRow = std::floor(static_cast<float>(pEv->position().y()) /
 						  static_cast<float>(m_nGridHeight));
 	if ( nRow >= (int) m_nOctaves * 12 ) {
 		return;

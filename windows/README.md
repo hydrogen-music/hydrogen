@@ -10,9 +10,10 @@ You have the following options available:
 - `build`: compile all sources
 - `test`: run all unit tests
 - `installdeps`: install all MSYS2 package required for compilation
+- `installdeps -qt5`: install all MSYS2 package required for Qt5 compilation
 - `deploy`: create a `.exe` from the compiled sources (it will be located within
   the `build/` folder)
-- `32bit`: configure the build process to target a 32bit architecture
+- `qt5`: configure the build process to use Qt5 instead of Qt6 (default)
 
 ## Cross-compiling on a Unix System
 

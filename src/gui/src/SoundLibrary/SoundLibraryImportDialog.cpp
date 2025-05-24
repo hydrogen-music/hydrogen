@@ -42,7 +42,10 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QCryptographicHash>
-#include <QTextCodec>
+
+#ifndef H2CORE_HAVE_QT6
+  #include <QTextCodec>
+#endif
 
 #include <memory>
 
@@ -729,6 +732,7 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 				 &bEncodingIssues, false ) ) {
 			QApplication::restoreOverrideCursor();
 			
+#ifndef H2CORE_HAVE_QT6
 			// Check whether encoding might be the problem in here.
 			auto pCodec = QTextCodec::codecForLocale();
 			if ( ! pCodec->canEncode( SoundLibraryPathTxt->text() ) ) {
@@ -742,7 +746,10 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 			else {
 				QMessageBox::critical( this, "Hydrogen", sError );
 			}
-					 
+#else
+		QMessageBox::critical( this, "Hydrogen", sError );
+#endif
+
 			return;
 		}
 

@@ -84,7 +84,8 @@ public slots:
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerStartVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
+		void showLayerStartVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer,
+									 QMouseEvent* pEvent );
 
 		/**
 		 * display a layer's end velocity in a tooltip
@@ -92,7 +93,8 @@ public slots:
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
+		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer,
+								   QMouseEvent* pEvent );
 
 		virtual void selectedInstrumentChangedEvent() override;
 	virtual void drumkitLoadedEvent() override;

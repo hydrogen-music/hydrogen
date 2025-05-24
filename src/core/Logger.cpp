@@ -31,7 +31,12 @@
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
-#include <QTextCodec>
+
+#ifdef H2CORE_HAVE_QT6
+  #include <QStringConverter>
+#else
+  #include <QTextCodec>
+#endif
 
 #ifdef WIN32
 #include <windows.h>
@@ -61,16 +66,25 @@ void* loggerThread_func( void* param ) {
 #endif
 
 	QTextStream stdoutStream( stdout );
-	stdoutStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 	QTextStream stderrStream( stderr );
+#ifdef H2CORE_HAVE_QT6
+	stdoutStream.setEncoding( QStringConverter::Utf8 );
+	stderrStream.setEncoding( QStringConverter::Utf8 );
+#else
+	stdoutStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 	stderrStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
+#endif
 
 	bool bUseLogFile = true;
 	QFile logFile( pLogger->m_sLogFilePath );
 	QTextStream logFileStream = QTextStream();
 	if ( logFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
 		logFileStream.setDevice( &logFile );
+#ifdef H2CORE_HAVE_QT6
+		logFileStream.setEncoding( QStringConverter::Utf8 );
+#else
 		logFileStream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
+#endif
 	}
 	else {
 		stderrStream <<

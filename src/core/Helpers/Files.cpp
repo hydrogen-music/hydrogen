@@ -38,13 +38,14 @@ namespace H2Core
 		switch ( mode ) {
 			case SAVE_NEW:
 			case SAVE_OVERWRITE:
-				fileInfo = Filesystem::pattern_path( drumkitName, fileName );
+				fileInfo = QFileInfo( Filesystem::pattern_path( drumkitName,
+																fileName ) );
 				break;
 			case SAVE_PATH:
-				fileInfo = fileName;
+				fileInfo = QFileInfo( fileName );
 				break;
 			case SAVE_TMP:
-				fileInfo = Filesystem::tmp_file_path( fileName );
+				fileInfo = QFileInfo( Filesystem::tmp_file_path( fileName ) );
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
@@ -74,13 +75,13 @@ namespace H2Core
 		switch ( mode ) {
 			case SAVE_NEW:
 			case SAVE_OVERWRITE:
-				fileInfo = Filesystem::playlist_path( fileName );
+				fileInfo = QFileInfo( Filesystem::playlist_path( fileName ) );
 				break;
 			case SAVE_PATH:
-				fileInfo = fileName;
+				fileInfo = QFileInfo( fileName );
 				break;
 			case SAVE_TMP:
-				fileInfo = Filesystem::tmp_file_path( fileName );
+				fileInfo = QFileInfo( Filesystem::tmp_file_path( fileName ) );
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );

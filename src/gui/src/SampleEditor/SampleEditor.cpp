@@ -158,15 +158,14 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 {
 	if ( !m_bSampleEditorClean ) {
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		int err = QMessageBox::information( this, "Hydrogen",
-											pCommonStrings->getUnsavedChanges(),
-											pCommonStrings->getButtonOk(),
-											pCommonStrings->getButtonCancel(),
-											nullptr, 1 );
-		if ( err == 0 ) {
+		if ( QMessageBox::information(
+				 this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
+				 QMessageBox::Ok | QMessageBox::Cancel,
+				 QMessageBox::Cancel ) == QMessageBox::Ok ) {
 			setClean();
 			accept();
-		} else {
+		}
+		else {
 			event->ignore();
 			return;
 		}
@@ -367,20 +366,18 @@ void SampleEditor::on_ClosePushButton_clicked()
 {
 	if ( !m_bSampleEditorClean ){
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		int err = QMessageBox::information( this, "Hydrogen",
-											pCommonStrings->getUnsavedChanges(),
-											pCommonStrings->getButtonOk(),
-											pCommonStrings->getButtonCancel(),
-											nullptr, 1 );
-		if ( err == 0 ){
+		if ( QMessageBox::information(
+				 this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
+				 QMessageBox::Ok | QMessageBox::Cancel,
+				 QMessageBox::Cancel ) == QMessageBox::Ok ) {
 			setClean();
 			accept();
-		}else
-		{
+		}
+		else {
 			return;
 		}
-	}else
-	{
+	}
+	else {
 		accept();
 	}
 }
@@ -403,18 +400,11 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 bool SampleEditor::getCloseQuestion()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	bool close = false;
-	int err = QMessageBox::information( this, "Hydrogen", 
-										pCommonStrings->getUnsavedChanges(),
-										pCommonStrings->getButtonOk(),
-										pCommonStrings->getButtonCancel(),
-										nullptr, 1 );
-	if ( err == 0 ) {
-		close = true;
-	}
 
-	return close;
+	return QMessageBox::information(
+		this, "Hydrogen", pCommonStrings->getUnsavedChanges(),
+		QMessageBox::Ok | QMessageBox::Cancel,
+		QMessageBox::Cancel ) == QMessageBox::Ok;
 }
 
 

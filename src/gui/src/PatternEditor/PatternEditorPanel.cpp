@@ -94,12 +94,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	QHBoxLayout *m_pEditorTop1_hbox = new QHBoxLayout( m_pEditorTop1 );
 	m_pEditorTop1_hbox->setSpacing( 0 );
-	m_pEditorTop1_hbox->setMargin( 0 );
+	m_pEditorTop1_hbox->setContentsMargins( 0, 0, 0, 0 );
 	m_pEditorTop1_hbox->setAlignment( Qt::AlignLeft );
 
 	QHBoxLayout *m_pEditorTop1_hbox_2 = new QHBoxLayout( m_pEditorTop2 );
 	m_pEditorTop1_hbox_2->setSpacing( 2 );
-	m_pEditorTop1_hbox_2->setMargin( 0 );
+	m_pEditorTop1_hbox_2->setContentsMargins( 0, 0, 0, 0 );
 	m_pEditorTop1_hbox_2->setAlignment( Qt::AlignLeft );
 
 
@@ -504,7 +504,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
 	pPatternEditorHScrollBarLayout->setSpacing( 0 );
-	pPatternEditorHScrollBarLayout->setMargin( 0 );
+	pPatternEditorHScrollBarLayout->setContentsMargins( 0, 0, 0, 0 );
 	pPatternEditorHScrollBarLayout->addWidget( m_pPatternEditorHScrollBar );
 	pPatternEditorHScrollBarLayout->addWidget( zoom_in_btn );
 	pPatternEditorHScrollBarLayout->addWidget( zoom_out_btn );
@@ -535,7 +535,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	QVBoxLayout *pPropertiesVBox = new QVBoxLayout( pPropertiesPanel );
 	pPropertiesVBox->setSpacing( 0 );
-	pPropertiesVBox->setMargin( 0 );
+	pPropertiesVBox->setContentsMargins( 0, 0, 0, 0 );
 
 
 	m_pPropertiesCombo =
@@ -562,7 +562,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	QGridLayout *pGrid = new QGridLayout();
 	pGrid->setSpacing( 0 );
-	pGrid->setMargin( 0 );
+	pGrid->setContentsMargins( 0, 0, 0, 0 );
 
 	pGrid->addWidget( m_pEditorTop1, 0, 0 );
 	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 2 );
@@ -619,7 +619,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
-	pVBox->setMargin( 0 );
+	pVBox->setContentsMargins( 0, 0, 0, 0 );
 	this->setLayout( pVBox );
 
 	pVBox->addWidget( pMainPanel );

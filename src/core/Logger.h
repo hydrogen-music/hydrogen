@@ -32,8 +32,6 @@
 
 #include <core/config.h>
 
-class QStringList;
-
 namespace H2Core {
 
 /**

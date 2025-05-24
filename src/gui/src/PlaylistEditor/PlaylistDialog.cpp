@@ -85,16 +85,30 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	// Playlist menu
 	m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
 
-	m_pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this, SLOT( addSong() ), QKeySequence( "Ctrl+A" ) );
-	m_pPlaylistMenu->addAction( tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "Ctrl+Alt+A" ) );
+	auto pActionAddSong = m_pPlaylistMenu->addAction(
+		tr( "Add song to Play&list" ), this, SLOT( addSong() ) );
+	pActionAddSong->setShortcut( QKeySequence( "Ctrl+A" ) );
+	auto pActionAddCurrent = m_pPlaylistMenu->addAction(
+		tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ) );
+	pActionAddCurrent->setShortcut( QKeySequence( "Ctrl+Alt+A" ) );
 	m_pPlaylistMenu->addSeparator();				// -----
-	m_pPlaylistMenu->addAction( tr( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence::Delete );
-	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "Ctrl+N" ) );
+	auto pActionRemoveSong = m_pPlaylistMenu->addAction(
+		tr( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ) );
+	pActionRemoveSong->setShortcut( QKeySequence::Delete );
+	auto pActionNew = m_pPlaylistMenu->addAction(
+		tr( "&New Playlist" ), this, SLOT( clearPlaylist() ) );
+	pActionNew->setShortcut( QKeySequence( "Ctrl+N" ) );
 	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "Ctrl+O" ) );
+	auto pActionOpen = m_pPlaylistMenu->addAction(
+		tr( "&Open Playlist" ), this, SLOT( loadList() ) );
+	pActionOpen->setShortcut( QKeySequence( "Ctrl+O" ) );
 	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( saveList() ), QKeySequence( "Ctrl+S" ) );
-	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this, SLOT( saveListAs() ), QKeySequence( "Ctrl+Shift+S" ) );
+	auto pActionSave = m_pPlaylistMenu->addAction(
+		tr( "&Save Playlist" ), this, SLOT( saveList() ) );
+	pActionSave->setShortcut( QKeySequence( "Ctrl+S" ) );
+	auto pActionSaveAs = m_pPlaylistMenu->addAction(
+		tr( "Save Playlist &as" ), this, SLOT( saveListAs() ) );
+	pActionSaveAs->setShortcut( QKeySequence( "Ctrl+Shift+S" ) );
 	m_pPlaylistMenu->setFont( font );
 
 #ifdef WIN32
@@ -103,12 +117,12 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	// Script menu
 	m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
 
-	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this, SLOT( loadScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->addAction( tr( "&Edit selected Script" ), this, SLOT( editScript() ), QKeySequence( "" ) );
+	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this, SLOT( loadScript() ) );
+	m_pScriptMenu->addAction( tr( "&Edit selected Script" ), this, SLOT( editScript() ) );
 	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this, SLOT( removeScript() ), QKeySequence( "" ) );
+	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this, SLOT( removeScript() ) );
 	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this, SLOT( newScript() ), QKeySequence( "" ) );
+	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this, SLOT( newScript() ) );
 	m_pScriptMenu->setFont( font );
 #endif
 
@@ -196,7 +210,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
 	pSideBarLayout->setSpacing(0);
-	pSideBarLayout->setMargin(0);
+	pSideBarLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	// zoom-in btn
 	Button *pUpBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
@@ -346,18 +360,17 @@ void PlaylistDialog::clearPlaylist()
 
 	if( IsModified ) {
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-		switch(QMessageBox::information( this, "Hydrogen",
-										 tr("\nThe current playlist contains unsaved changes.\n"
-												"Do you want to discard the changes?\n"),
-										 pCommonStrings->getButtonDiscard(),
-										 pCommonStrings->getButtonCancel(),
-										 nullptr,      // Enter == button 0
-										 2 ) ) { // Escape == button 1
-		case 0: // Discard clicked or Alt+D pressed
+		switch(QMessageBox::information(
+				   this, "Hydrogen",
+				   tr("\nThe current playlist contains unsaved changes.\n"
+					  "Do you want to discard the changes?\n"),
+				   QMessageBox::Discard | QMessageBox::Cancel,
+				   QMessageBox::Cancel ) ) {
+		case QMessageBox::Discard:
 			// don't save but exit
 			DiscardChanges = true;
 			break;
-		case 1: // Cancel clicked or Alt+C pressed or Escape pressed
+		case QMessageBox::Cancel:
 			// don't exit
 			DiscardChanges = false;
 			break;

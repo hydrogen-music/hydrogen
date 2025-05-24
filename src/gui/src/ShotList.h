@@ -23,9 +23,13 @@
 #ifndef __SHOTLIST_H
 #define __SHOTLIST_H
 
+#include <core/config.h>
+
 #include <QtGui>
 #include <QtWidgets>
 #include "EventListener.h"
+
+#ifndef H2CORE_HAVE_QT6
 
 /// Shot List
 ///
@@ -106,6 +110,18 @@ public slots:
 
 };
 
+#else // H2CORE_HAVE_QT6
+class ShotList : public QObject, public EventListener {
+	Q_OBJECT
+public:
+		ShotList( QStringList shots ){};
+		ShotList( QString sShotsFilename ){};
+		~ShotList(){};
+
+		void shoot() {};
+};
+
+#endif // H2CORE_HAVE_QT6
 
 #endif
 

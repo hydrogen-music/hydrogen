@@ -537,6 +537,7 @@ bool AudioEngine::isEndOfSongReached( std::shared_ptr<TransportPosition> pPos ) 
 
 void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong ) {
 
+#ifdef H2CORE_HAVE_JACK
 	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( m_pAudioDriver );
 	if ( pJackAudioDriver != nullptr ) {
 		// We have to guard this call using the special output buffer mutex to
@@ -549,7 +550,7 @@ void AudioEngine::makeTrackPorts( std::shared_ptr<Song> pSong ) {
 
 		m_MutexOutputPointer.unlock();
 	}
-
+#endif
 }
 
 void AudioEngine::updateTransportPosition( double fTick, long long nFrame, std::shared_ptr<TransportPosition> pPos ) {

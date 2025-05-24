@@ -20,9 +20,9 @@ set_property(TARGET tests PROPERTY CXX_STANDARD 17)
 target_link_libraries(tests
 	hydrogen-core-${VERSION}
 	${CPPUNIT_LIBRARIES}
-	Qt5::Core
-	Qt5::Test
-	Qt5::Network
+	Qt${QT_VERSION_MAJOR}::Core
+	Qt${QT_VERSION_MAJOR}::Test
+	Qt${QT_VERSION_MAJOR}::Network
 )
 
 if(Backtrace_FOUND)

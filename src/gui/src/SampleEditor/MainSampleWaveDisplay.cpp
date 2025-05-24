@@ -20,14 +20,16 @@
  *
  */
 
+#include "MainSampleWaveDisplay.h"
+
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Instrument.h>
+#include "../Compatibility/MouseEvent.h"
 #include "HydrogenApp.h"
 #include "SampleEditor.h"
 using namespace H2Core;
 
-#include "MainSampleWaveDisplay.h"
 #include "../Skin.h"
 
 MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
@@ -141,7 +143,7 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	QColor startColor = QColor( 32, 173, 0, 200 );
 	QColor endColor = QColor( 217, 68, 0, 200 );
 	QColor loopColor =  QColor( 93, 170, 254, 200 );
-	font.setWeight( 63 );
+	font.setWeight( QFont::Bold );
 	painter.setFont( font );
 //start frame pointer
 	set_paint_color(painter, startColor, m_SelectedSlider == START, m_SelectedSlider);
@@ -245,8 +247,12 @@ void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 {
 	assert(ev);
+
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 //startframepointer
-	int x = std::min(width() - 25, std::max(25, ev->x()));
+	int x = std::min(width() - 25,
+					 std::max(25, static_cast<int>(pEv->position().x())));
 
 	if  ( m_SelectedSlider == START ) {
 		m_nStartFramePosition = x;
@@ -296,13 +302,15 @@ void MainSampleWaveDisplay::chooseSlider(QMouseEvent * ev)
 {
 	assert(ev);
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	QPoint start = QPoint(m_nStartFramePosition, height());
 	QPoint end = QPoint(m_nEndFramePosition, height() / 2);
 	QPoint loop = QPoint(m_nLoopFramePosition, 0);
 
-	int ds = (ev->pos() - start).manhattanLength();
-	int de = (ev->pos() - end).manhattanLength();
-	int dl = (ev->pos() - loop).manhattanLength();
+	int ds = (pEv->position() - start).manhattanLength();
+	int de = (pEv->position() - end).manhattanLength();
+	int dl = (pEv->position() - loop).manhattanLength();
 	m_SelectedSlider = NONE;
 
 	if (ds <= de && ds <= dl) {

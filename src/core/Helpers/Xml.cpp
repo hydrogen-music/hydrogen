@@ -27,35 +27,16 @@
 #include <QtCore/QLocale>
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
-#include <QtXmlPatterns/QXmlSchema>
-#include <QtXmlPatterns/QXmlSchemaValidator>
-#include <QAbstractMessageHandler>
+
+#ifdef H2CORE_HAVE_QT6
+  #include <QStringConverter>
+#endif
 
 #define XMLNS_BASE "http://www.hydrogen-music.org/"
 #define XMLNS_XSI "http://www.w3.org/2001/XMLSchema-instance"
 
 namespace H2Core
 {
-
-class SilentMessageHandler : public QAbstractMessageHandler
-{
-public:
-	SilentMessageHandler()
-		: QAbstractMessageHandler(nullptr)
-	{
-	}
-
-protected:
-	virtual void handleMessage(QtMsgType type, const QString &description,
-			const QUrl &identifier, const QSourceLocation &sourceLocation)
-	{
-		Q_UNUSED(type);
-		Q_UNUSED(identifier);
-	}
-
-};
-
-
 
 XMLNode::XMLNode() { }
 XMLNode::XMLNode( QDomNode node ) : QDomNode( node ) { }
@@ -293,7 +274,7 @@ void XMLNode::write_bool( const QString& name, const bool value )
 
 XMLDoc::XMLDoc( ) { }
 
-bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath, bool bSilent )
+bool XMLDoc::read( const QString& sFilePath, bool bSilent )
 {
 	
 	QFile file( sFilePath );
@@ -303,46 +284,6 @@ bool XMLDoc::read( const QString& sFilePath, const QString& sSchemaPath, bool bS
 		return false;
 	}
 	
-	SilentMessageHandler handler;
-	QXmlSchema schema;
-	schema.setMessageHandler( &handler );
-	
-	bool bSchemaUsable = false;
-	
-	if ( ! sSchemaPath.isEmpty() ) {
-		QFile file( sSchemaPath );
-		if ( !file.open( QIODevice::ReadOnly ) ) {
-			ERRORLOG( QString( "Unable to open XML schema [%1] for reading." )
-					  .arg( sSchemaPath ) );
-		} else {
-			schema.load( &file, QUrl::fromLocalFile( file.fileName() ) );
-			file.close();
-			if ( schema.isValid() ) {
-				bSchemaUsable = true;
-			} else {
-				ERRORLOG( QString( "XML schema [%1] is not valid. File [%2] will not be validated" )
-						  .arg( sSchemaPath ).arg( sFilePath ) );
-			}
-		}
-	}
-	
-	if ( bSchemaUsable ) {
-		QXmlSchemaValidator validator( schema );
-		if ( !validator.validate( &file, QUrl::fromLocalFile( file.fileName() ) ) ) {
-			if ( ! bSilent ) {
-				WARNINGLOG( QString( "XML document [%1] is not valid with respect to schema [%2], loading may fail" )
-							.arg( sFilePath ).arg( sSchemaPath ) );
-			}
-			file.close();
-			return false;
-		}
-		else if ( ! bSilent ) {
-			INFOLOG( QString( "XML document [%1] is valid with respect to schema [%2]" )
-					 .arg( sFilePath ).arg( sSchemaPath ) );
-		}
-		file.seek( 0 );
-	}
-
 	if ( Legacy::checkTinyXMLCompatMode( &file ) ) {
 		// Document was created using TinyXML and not using QtXML. We
 		// need to convert it first.
@@ -375,7 +316,11 @@ bool XMLDoc::write( const QString& filepath )
 		return false;
 	}
 	QTextStream out( &file );
+#ifdef H2CORE_HAVE_QT6
+	out.setEncoding( QStringConverter::Utf8 );
+#else
 	out.setCodec( "UTF-8" );
+#endif
 	out << toString().toUtf8();
 	out.flush();
 

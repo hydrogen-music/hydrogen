@@ -86,6 +86,8 @@ else()
     option(WANT_ALSA        "Include ALSA (Advanced Linux Sound Architecture) support" ON)
 endif()
 
+option(WANT_QT6             "Compile using Qt6 instead of Qt5 " OFF)
+
 option(WANT_LIBARCHIVE      "Enable use of libarchive instead of libtar" ON)
 option(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
@@ -205,13 +207,26 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
 mandatory_pkg(Threads)
 mandatory_pkg(LIBSNDFILE)
 
-# http://doc.qt.io/qt-5/cmake-manual.html
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Test REQUIRED)
-find_package(Qt5Svg REQUIRED)
-find_package(Qt5Xml REQUIRED)
-find_package(Qt5XmlPatterns REQUIRED)
-find_package(Qt5LinguistTools REQUIRED)
+# Instead of checking the Qt version on a fine scale throughout the source
+# files, we use one central preprocessor directive. This way we can more easily
+# drop Qt5 (and below) support at a future point in time.
+set(H2CORE_HAVE_QT6 FALSE)
+set(QT_VERSION_MAJOR 5)
+if(WANT_QT6)
+    find_package(Qt6 COMPONENTS Core)
+    if (Qt6_FOUND)
+        set(H2CORE_HAVE_QT6 TRUE)
+        set(QT_VERSION_MAJOR 6)
+    endif()
+endif()
+
+find_package(Qt${QT_VERSION_MAJOR}Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR}Test REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR}Svg REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR}Xml REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR}LinguistTools REQUIRED)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
@@ -425,6 +440,7 @@ color_message("${cyan}Installation Summary${reset}
 * Data path                    : ${H2_DATA_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
+* Qt6 usage                    : ${H2CORE_HAVE_QT6}
 * macOS bundle                 : ${H2CORE_HAVE_BUNDLE}
 * Windows fat build            : ${H2CORE_HAVE_FAT_BUILD}
 * AppImage build               : ${H2CORE_HAVE_APPIMAGE}
@@ -433,7 +449,7 @@ color_message("${cyan}Installation Summary${reset}
 )
 
 color_message("${cyan}Main librarires${reset}")
-color_message("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
+color_message("* ${purple}libQt${reset}                        : ${Qt${QT_VERSION_MAJOR}Widgets_VERSION}")
 color_message("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}

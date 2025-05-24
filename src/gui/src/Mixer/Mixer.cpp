@@ -61,7 +61,7 @@ Mixer::Mixer( QWidget* pParent )
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
 	m_pFaderHBox->setSpacing( 0 );
-	m_pFaderHBox->setMargin( 0 );
+	m_pFaderHBox->setContentsMargins( 0, 0, 0, 0 );
 
 	m_pFaderPanel = new QWidget( nullptr );
 	m_pFaderPanel->resize( MixerLine::nWidth * MAX_INSTRUMENTS, nFixedHeight );
@@ -150,7 +150,7 @@ Mixer::Mixer( QWidget* pParent )
 	// LAYOUT!
 	QHBoxLayout *pLayout = new QHBoxLayout();
 	pLayout->setSpacing( 0 );
-	pLayout->setMargin( 0 );
+	pLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	pLayout->addWidget( m_pFaderScrollArea );
 	pLayout->addWidget( m_pFXFrame );
@@ -171,7 +171,7 @@ Mixer::Mixer( QWidget* pParent )
 
 	auto pMainLayout = new QHBoxLayout();
 	pMainLayout->setSpacing( 0 );
-	pMainLayout->setMargin( 0 );
+	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
 	pMainLayout->addWidget( pMainScrollArea );
 	setLayout( pMainLayout );
 

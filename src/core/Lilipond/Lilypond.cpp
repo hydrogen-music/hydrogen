@@ -20,8 +20,15 @@
  *
  */
 
+#include <core/config.h>
+
 #include <QFile>
-#include <QTextCodec>
+
+#ifdef H2CORE_HAVE_QT6
+  #include <QStringConverter>
+#else
+  #include <QTextCodec>
+#endif
 
 #include <core/Lilipond/Lilypond.h>
 #include <core/Basics/Song.h>
@@ -95,7 +102,11 @@ void H2Core::LilyPond::write( const QString &sFilename ) const {
 	}
 
 	QTextStream stream( &file );
+#ifdef H2CORE_HAVE_QT6
+	stream.setEncoding( QStringConverter::Utf8 );
+#else
 	stream.setCodec( QTextCodec::codecForName( "UTF-8" ) );
+#endif
 
 	stream << sHeader;
 	stream << "\\header {\n";

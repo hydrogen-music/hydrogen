@@ -42,6 +42,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
+#include "../Compatibility/MouseEvent.h"
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
@@ -186,16 +187,20 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if ( pSong == nullptr ) {
 		return;
 	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	int nInstruments = pSong->getInstrumentList()->size();
-	int row = (int)( ev->y()  / (float)m_nGridHeight);
+	int row = (int)( pEv->position().y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
 		return;
 	}
-	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+	int nColumn = getColumn( pEv->position().x(), /* bUseFineGrained=*/ true );
 	int nRealColumn = 0;
 
-	if( ev->x() > PatternEditor::nMargin ) {
-		nRealColumn = ( ev->x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
+	if( pEv->position().x() > PatternEditor::nMargin ) {
+		nRealColumn = ( pEv->position().x() - PatternEditor::nMargin) /
+			static_cast<float>(m_fGridWidth);
 	}
 
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
@@ -217,7 +222,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 	} else if ( ev->button() == Qt::RightButton ) {
 
-		m_pPopupMenu->popup( ev->globalPos() );
+		m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
@@ -233,7 +238,9 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 
-	if ( ev->x() > m_nActiveWidth ) {
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	if ( pEv->position().x() > m_nActiveWidth ) {
 		return;
 	}
 	
@@ -243,7 +250,8 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
-	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
+	int nRow = static_cast<int>( pEv->position().y() /
+								 static_cast<float>(m_nGridHeight) );
 	if ( nRow >= nInstruments || nRow < 0 ) {
 		return;
 	}
@@ -265,7 +273,7 @@ void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 
 	// Update cursor position
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+		int nColumn = getColumn( pEv->position().x(), /* bUseFineGrained=*/ true );
 		if ( ( m_pPattern != nullptr &&
 			   nColumn >= (int)m_pPattern->get_length() ) ||
 			 nColumn >= MAX_INSTRUMENTS ) {
@@ -287,13 +295,15 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
 	// Set the selected instrument _before_ it will be stored in
 	// PatternEditor::mouseDragStartEvent.
-	int nRow = std::floor(static_cast<float>(ev->y()) /
+	int nRow = std::floor(static_cast<float>(pEv->position().y()) /
 						  static_cast<float>(m_nGridHeight));
 	pHydrogen->setSelectedInstrumentNumber( nRow );
 	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
@@ -308,16 +318,16 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	// properties.
 	PatternEditor::mouseDragStartEvent( ev );
 	
-	int nColumn = getColumn( ev->x() );
+	int nColumn = getColumn( pEv->position().x() );
 	
 	if ( ev->button() == Qt::RightButton ) {
 		// Right button drag: adjust note length
 		int nRealColumn = 0;
 
-		if( ev->x() > PatternEditor::nMargin ) {
+		if( pEv->position().x() > PatternEditor::nMargin ) {
 			nRealColumn =
 				static_cast<int>(std::floor(
-					static_cast<float>((ev->x() - PatternEditor::nMargin)) /
+					static_cast<float>((pEv->position().x() - PatternEditor::nMargin)) /
 					m_fGridWidth));
 		}
 
@@ -336,8 +346,9 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 ///
 void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
+	auto pEv = static_cast<MouseEvent*>( ev );
 	int nRow = MAX_INSTRUMENTS - 1 -
-		static_cast<int>(std::floor(static_cast<float>(ev->y())  /
+		static_cast<int>(std::floor(static_cast<float>(pEv->position().y())  /
 									static_cast<float>(m_nGridHeight)));
 	if ( nRow >= MAX_INSTRUMENTS ) {
 		return;

@@ -20,6 +20,9 @@
  *
  */
 #include "WidgetWithInput.h"
+
+#include "../Compatibility/MouseEvent.h"
+#include "../Compatibility/WheelEvent.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "MidiSenseWidget.h"
@@ -156,6 +159,8 @@ void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 	if ( ! m_bIsActive ) {
 		return;
 	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
 	
 	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
@@ -171,10 +176,11 @@ void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 		setCursor( QCursor( Qt::SizeVerCursor ) );
 
 		m_fMousePressValue = m_fValue;
-		m_fMousePressY = ev->y();
+		m_fMousePressY = pEv->position().y();
 	}
 	
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	QToolTip::showText( pEv->globalPosition().toPoint(),
+						QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
 void WidgetWithInput::mouseReleaseEvent( QMouseEvent *ev )
@@ -198,6 +204,8 @@ void WidgetWithInput::wheelEvent ( QWheelEvent *ev )
 		return;
 	}
 
+	auto pEv = static_cast<WheelEvent*>( ev );
+
 	float fStepFactor;
 	float fDelta = 1.0;
 
@@ -217,12 +225,7 @@ void WidgetWithInput::wheelEvent ( QWheelEvent *ev )
 
 	setValue( getValue() + ( fDelta * fStepFactor ), true );
 	
-	QToolTip::showText(
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-					    ev->globalPosition().toPoint(),
-#else
-					    ev->globalPos(),
-#endif
+	QToolTip::showText( pEv->globalPosition().toPoint(),
 						QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
@@ -237,6 +240,8 @@ void WidgetWithInput::mouseMoveEvent( QMouseEvent *ev )
 
 	float fStepFactor;
 
+	auto pEv = static_cast<MouseEvent*>( ev );
+
 	if ( ev->modifiers() == Qt::ControlModifier ) {
 		fStepFactor = m_nScrollSpeedFast;
 	} else {
@@ -245,15 +250,20 @@ void WidgetWithInput::mouseMoveEvent( QMouseEvent *ev )
 
 	float fRange = m_fMax - m_fMin;
 
-	float fDeltaY = ev->y() - m_fMousePressY;
+	float fDeltaY = pEv->position().y() - m_fMousePressY;
 	float fNewValue = ( m_fMousePressValue - fStepFactor * ( fDeltaY / 100.0 * fRange ) );
 
 	setValue( fNewValue, true );
 
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	QToolTip::showText( pEv->globalPosition().toPoint(),
+						QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
+#ifdef H2CORE_HAVE_QT6
+void WidgetWithInput::enterEvent( QEnterEvent *ev ) {
+#else
 void WidgetWithInput::enterEvent( QEvent *ev ) {
+#endif
 	UNUSED( ev );
 	m_bEntered = true;
 	update();

@@ -276,7 +276,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	pSouthPanel->setObjectName( "SouthPanel" );
 	QHBoxLayout *pEditorHBox = new QHBoxLayout();
 	pEditorHBox->setSpacing( 5 );
-	pEditorHBox->setMargin( 0 );
+	pEditorHBox->setContentsMargins( 0, 0, 0, 0 );
 	pSouthPanel->setLayout( pEditorHBox );
 
 	// INSTRUMENT RACK
@@ -309,7 +309,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// LAYOUT!!
 	m_pMainVBox = new QVBoxLayout();
 	m_pMainVBox->setSpacing( 1 );
-	m_pMainVBox->setMargin( 0 );
+	m_pMainVBox->setContentsMargins( 0, 0, 0, 0 );
 	m_pMainVBox->addWidget( m_pPlayerControl );
 
 	m_pMainVBox->addSpacing( 3 );

@@ -117,7 +117,6 @@ class Playlist : public H2Core::Object<Playlist>
 		void execScript( int index );
 
 		void save_to( XMLNode* node, bool useRelativePaths );
-		static Playlist* load_from( XMLNode* root, QFileInfo& fileInfo, bool useRelativePaths );
 };
 
 inline int Playlist::size() const

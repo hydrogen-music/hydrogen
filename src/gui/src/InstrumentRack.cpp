@@ -61,7 +61,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
 	pTabHBox->setSpacing( 0 );
-	pTabHBox->setMargin( 0 );
+	pTabHBox->setContentsMargins( 0, 0, 0, 0 );
 	pTabHBox->addWidget( m_pShowInstrumentEditorBtn );
 	pTabHBox->addWidget( m_pShowSoundLibraryBtn );
 
@@ -77,7 +77,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	// LAYOUT
 	QGridLayout *pGrid = new QGridLayout();
 	pGrid->setSpacing( 0 );
-	pGrid->setMargin( 0 );
+	pGrid->setContentsMargins( 0, 0, 0, 0 );
 
 	pGrid->addWidget( pTabButtonsPanel, 0, 0, 1, 3 );
 	pGrid->addWidget( InstrumentEditorPanel::get_instance(), 2, 1 );

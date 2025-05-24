@@ -167,6 +167,7 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getDrumkit( const QString& sDrumk
 		// and add it.
 		auto pDrumkit = Drumkit::load( sDrumkitPath,
 									   true, // upgrade
+									   nullptr, // check for legacy format
 									   false // bSilent
 									   );
 		if ( pDrumkit == nullptr ) {

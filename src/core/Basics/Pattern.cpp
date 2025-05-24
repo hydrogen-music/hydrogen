@@ -63,71 +63,54 @@ Pattern::~Pattern()
 	}
 }
 
-bool Pattern::loadDoc( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList, XMLDoc* pDoc, bool bSilent )
+Pattern* Pattern::load_file( const QString& sPatternPath,
+							 std::shared_ptr<InstrumentList> pInstrumentList,
+							 bool bSilent )
 {
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
+	}
+
 	if ( ! Filesystem::file_readable( sPatternPath, bSilent ) ) {
-		return false;
+		return nullptr;
 	}
-
-	bool bReadingSuccessful = true;
-
-	if ( ! pDoc->read( sPatternPath, Filesystem::pattern_xsd_path() ) ) {
-		if ( ! pDoc->read( sPatternPath, nullptr ) ) {
-			ERRORLOG( QString( "Unable to read pattern [%1]" )
-					  .arg( sPatternPath ) );
-			return false;
-		}
-		else {
-			if ( ! bSilent ) {
-				WARNINGLOG( QString( "Pattern [%1] does not validate the current pattern schema. Loading might fail." )
-							.arg( sPatternPath ) );
-			}
-			bReadingSuccessful = false;
-		}
-	}
-	
-	XMLNode root = pDoc->firstChildElement( "drumkit_pattern" );
-	if ( root.isNull() ) {
-		ERRORLOG( QString( "'drumkit_pattern' node not found in [%1]" )
-				  .arg( sPatternPath ) );
-		return false;
-	}
-	
-	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	if ( pattern_node.isNull() ) {
-		ERRORLOG( QString( "'pattern' node not found in [%1]" )
-				  .arg( sPatternPath ) );
-		return false;
-	}
-
-	return bReadingSuccessful;
-}
-
-Pattern* Pattern::load_file( const QString& sPatternPath, std::shared_ptr<InstrumentList> pInstrumentList )
-{
-	INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
 
 	XMLDoc doc;
-	const bool bLoadSuccessful = loadDoc(
-		sPatternPath, pInstrumentList, &doc, false );
-
-	const XMLNode root = doc.firstChildElement( "drumkit_pattern" );
-	XMLNode pattern_node = root.firstChildElement( "pattern" );
-
-	// Check whether the file was created using a newer version of Hydrogen.
-	auto formatVersionNode = pattern_node.firstChildElement( "formatVersion" );
-	if ( ! formatVersionNode.isNull() ) {
-		WARNINGLOG( QString( "Pattern file [%1] was created with a more recent version of Hydrogen than the current one!" )
-					.arg( sPatternPath ) );
-		// Even in case the future version is invalid with respect to the XSD
-		// file, the most recent version of the format will be the most
-		// successful one.
+	if ( ! doc.read( sPatternPath ) ) {
+		ERRORLOG( QString( "Unable to read pattern [%1]" ).arg( sPatternPath ) );
+		return nullptr;
 	}
-	else if ( ! bLoadSuccessful ) {
+
+	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( QString( "'drumkit_pattern' node not found in [%1]" )
+				  .arg( sPatternPath ) );
+		return nullptr;
+	}
+	
+	XMLNode patternNode = rootNode.firstChildElement( "pattern" );
+	if ( patternNode.isNull() ) {
+		ERRORLOG( QString( "'pattern' node not found in [%1]" )
+				  .arg( sPatternPath ) );
+		return nullptr;
+	}
+
+	// Legacy formats use `pattern_name` over `name` to store the name of the
+	// pattern.
+	XMLNode legacyPatternNameNode = patternNode.firstChildElement( "pattern_name" );
+	if ( ! legacyPatternNameNode.isNull() ) {
 		// Try former pattern version
 		return Legacy::load_drumkit_pattern( sPatternPath, pInstrumentList );
 	}
-	return load_from( &pattern_node, pInstrumentList );
+
+	// Check whether the file was created using a newer version of Hydrogen.
+	auto formatVersionNode = patternNode.firstChildElement( "formatVersion" );
+	if ( ! formatVersionNode.isNull() ) {
+		WARNINGLOG( QString( "Pattern file [%1] was created with a more recent version of Hydrogen than the current one!" )
+					.arg( sPatternPath ) );
+	}
+
+	return load_from( &patternNode, pInstrumentList );
 }
 
 Pattern* Pattern::load_from( XMLNode* node, std::shared_ptr<InstrumentList> pInstrumentList, bool bSilent )

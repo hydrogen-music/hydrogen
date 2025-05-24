@@ -21,6 +21,9 @@
  */
 
 #include "SoundLibraryTree.h"
+
+#include "../Compatibility/MouseEvent.h"
+
 #include <QMimeData>
 
 SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
@@ -40,12 +43,14 @@ void SoundLibraryTree::mousePressEvent(QMouseEvent *event)
 //	INFOLOG( "[mousePressEvent]" );
 	QTreeWidget::mousePressEvent( event );
 
+	auto pEv = static_cast<MouseEvent*>( event );
+
 	if ( event->button() == Qt::RightButton ) {
-		emit rightClicked( QPoint( event->globalX(), event->globalY() ) );
+		emit rightClicked( pEv->globalPosition().toPoint() );
 
 	}
 	else if (event->button() == Qt::LeftButton ) {
-		emit leftClicked( QPoint( event->globalX(), event->globalY() ) );
+		emit leftClicked( pEv->globalPosition().toPoint() );
 	}
 }
 

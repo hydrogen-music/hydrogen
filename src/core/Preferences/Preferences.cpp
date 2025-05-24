@@ -321,7 +321,7 @@ bool Preferences::loadPreferences( bool bGlobal )
 		// Preferences is readable.
 
 		XMLDoc doc;
-		doc.read( sPreferencesFilename, nullptr, false );
+		doc.read( sPreferencesFilename, false );
 		XMLNode rootNode = doc.firstChildElement( "hydrogen_preferences" );
 
 		if ( !rootNode.isNull() ) {

@@ -88,7 +88,7 @@ void WaveDisplay::createBackground( QPainter* painter ) {
 	}
 	
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
-	font.setWeight( 63 );
+	font.setWeight( QFont::Bold );
 	painter->setFont( font );
 	painter->setPen( QColor( 255 , 255, 255, 200 ) );
 	

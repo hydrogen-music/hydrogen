@@ -43,7 +43,8 @@ void TransportTestsTimebase::testTransportProcessingJack() {
 
 	perform( &AudioEngineTests::testTransportProcessingJack );
 #else
-	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+	throw CppUnit::Exception(
+		CppUnit::Message( "Unapplicable. Compiled without JACK support!" ) );
 #endif
 
 	___INFOLOG( "\npassed\n" );
@@ -57,7 +58,8 @@ void TransportTestsTimebase::testTransportProcessingOffsetsJack() {
 
 	perform( &AudioEngineTests::testTransportProcessingOffsetsJack );
 #else
-	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+	throw CppUnit::Exception(
+		CppUnit::Message( "Unapplicable. Compiled without JACK support!" ) );
 #endif
 
 	___INFOLOG( "\npassed\n" );
@@ -71,7 +73,8 @@ void TransportTestsTimebase::testTransportRelocationJack() {
 
 	perform( &AudioEngineTests::testTransportRelocationJack );
 #else
-	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+	throw CppUnit::Exception(
+		CppUnit::Message( "Unapplicable. Compiled without JACK support!" ) );
 #endif
 
 	___INFOLOG( "\npassed\n" );
@@ -85,7 +88,8 @@ void TransportTestsTimebase::testTransportRelocationOffsetsJack() {
 
 	perform( &AudioEngineTests::testTransportRelocationOffsetsJack );
 #else
-	throw CppUnit::Exception( "Unapplicable. Compiled without JACK support!" );
+	throw CppUnit::Exception(
+		CppUnit::Message( "Unapplicable. Compiled without JACK support!" ) );
 #endif
 
 	___INFOLOG( "\npassed\n" );
