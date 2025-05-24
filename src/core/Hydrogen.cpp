@@ -1096,6 +1096,7 @@ void Hydrogen::killInstruments() {
 		}
 	}
 
+#ifdef H2CORE_HAVE_JACK
 	if ( hasJackAudioDriver() ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(
 			m_pAudioEngine->getAudioDriver());
@@ -1103,6 +1104,7 @@ void Hydrogen::killInstruments() {
 			pJackAudioDriver->cleanupPerTrackPorts();
 		}
 	}
+#endif
 }
 
 
