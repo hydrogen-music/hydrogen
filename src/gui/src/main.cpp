@@ -20,17 +20,20 @@
  *
  */
 
+#include <core/config.h>
+#include <core/Version.h>
+#include <core/Preferences/Theme.h>
+#include <getopt.h>
+
 #include <QtGui>
 #include <QtWidgets>
 #include <QLibraryInfo>
 #include <QProcess>
 #include <QSslSocket>
-#include <QTextCodec>
 
-#include <core/config.h>
-#include <core/Version.h>
-#include <core/Preferences/Theme.h>
-#include <getopt.h>
+#ifndef H2CORE_HAVE_QT6
+  #include <QTextCodec>
+#endif
 
 #include "ShotList.h"
 #include "SplashScreen.h"
@@ -210,9 +213,11 @@ int main(int argc, char *argv[])
 #endif
 	Reporter::spawn( argc, argv );
 	try {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+#ifndef H2CORE_HAVE_QT6
+  #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 		QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+  #endif
 #endif
 		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
 		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
@@ -247,8 +252,12 @@ int main(int argc, char *argv[])
 		// See below for H2Core::Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
-		___INFOLOG( QString( "System encoding: [%1]" )
-					.arg( QString( QTextCodec::codecForLocale()->name() ) ) );
+#ifdef H2CORE_HAVE_QT6
+		const QString sEncoding = QLocale::system().name();
+#else
+		const QString sEncoding = QTextCodec::codecForLocale()->name();
+#endif
+		___INFOLOG( QString( "System encoding: [%1]" ).arg( sEncoding ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
@@ -328,7 +337,11 @@ int main(int argc, char *argv[])
 			}
 			languages << locale.uiLanguages();
 			if ( H2Core::Translations::loadTranslation( languages, qttor, QString( "qt" ),
+#ifdef H2CORE_HAVE_QT6
+														QLibraryInfo::path(QLibraryInfo::TranslationsPath) ) ) {
+#else
 														QLibraryInfo::location(QLibraryInfo::TranslationsPath) ) ) {
+#endif
 				pQApp->installTranslator( &qttor );
 			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));

@@ -187,11 +187,10 @@ class XMLDoc : public H2Core::Object<XMLDoc>, public QDomDocument
 		/**
 		 * read the content of an xml file
 		 * \param filepath the path to the file to read from
-		 * \param schemapath the path to the XML Schema file
 		 * \param bSilent Whether debug and info messages should be logged
-		 * when anomalies are encountered while reading the XML nodes.
+		 *   when anomalies are encountered while reading the XML nodes.
 		 */
-	bool read( const QString& filepath, const QString& schemapath=nullptr, bool bSilent = false );
+	bool read( const QString& filepath, bool bSilent = false );
 		/**
 		 * write itself into a file
 		 * \param filepath the path to the file to write to

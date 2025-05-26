@@ -54,7 +54,7 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setSpacing( 0 );
-	hbox->setMargin( 0 );
+	hbox->setContentsMargins( 0, 0, 0, 0 );
 	setLayout( hbox );
 
 

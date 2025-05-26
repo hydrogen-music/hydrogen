@@ -55,7 +55,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 	// LAYOUT
 	QGridLayout *vbox = new QGridLayout();
 	vbox->setSpacing( 0 );
-	vbox->setMargin( 0 );
+	vbox->setContentsMargins( 0, 0, 0, 0 );
 
 	vbox->addWidget( m_pInstrumentEditor, 0, 0 );
 

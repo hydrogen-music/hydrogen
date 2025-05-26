@@ -100,12 +100,12 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 	// In case the input text can not be parsed by Qt `fNewBpm' is 0
 	// and also covered by the warning below.
 	if ( fNewBpm > MAX_BPM || fNewBpm < MIN_BPM ){
-		QMessageBox::warning( this, "Hydrogen",
-							  QString( tr( "Please enter a number within the range of " )
-									   .append( QString( "[%1,%2]" )
-												.arg( MIN_BPM )
-												.arg( MAX_BPM ) ) ),
-							  pCommonStrings->getButtonCancel() );
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( tr( "Please enter a number within the range of " )
+					 .append( QString( "[%1,%2]" ).arg( MIN_BPM )
+							  .arg( MAX_BPM ) ) ),
+			QMessageBox::Cancel, QMessageBox::Cancel );
 		return;
 	}
 
@@ -113,9 +113,10 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 	int nNewColumn = columnSpinBox->text().toInt() - 1;
 	if ( ! ( m_bTempoMarkerPresent && nNewColumn == m_nColumn ) &&
 		 pTimeline->hasColumnTempoMarker( nNewColumn ) ) {
-		QMessageBox::warning( this, "Hydrogen",
-							  QString( tr( "There is already a tempo marker present at this Column. Please use left-click to edit it instead." ) ),
-							  pCommonStrings->getButtonCancel() );
+		QMessageBox::warning(
+			this, "Hydrogen",
+			QString( tr( "There is already a tempo marker present at this Column. Please use left-click to edit it instead." ) ),
+			QMessageBox::Cancel, QMessageBox::Cancel );
 		return;
 	}
 	

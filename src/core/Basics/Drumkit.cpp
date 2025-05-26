@@ -91,7 +91,10 @@ Drumkit::~Drumkit()
 {
 }
 
-std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgrade, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
+										bool bUpgrade,
+										bool* pLegacyFormatEncountered,
+										bool bSilent )
 {
 	if ( ! Filesystem::drumkit_valid( sDrumkitPath ) ) {
 		ERRORLOG( QString( "[%1] is not valid drumkit folder" ).arg( sDrumkitPath ) );
@@ -101,23 +104,15 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 	QString sDrumkitFile = Filesystem::drumkit_file( sDrumkitPath );
 	
 	XMLDoc doc;
+	doc.read( sDrumkitFile, bSilent );
 
-	bool bReadingSuccessful = true;
-	if ( !doc.read( sDrumkitFile, Filesystem::drumkit_xsd_path(), true ) ) {
-		// Drumkit does not comply with the XSD schema
-		// definition. It's probably an old one. load_from() will try
-		// to handle it regardlessly but we should upgrade it in order
-		// to avoid this in future loads.
-		doc.read( sDrumkitFile, nullptr, bSilent );
-		
-		bReadingSuccessful = false;
-	}
-	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
 		return nullptr;
 	}
+
+	bool bLegacyFormatEncountered = false;
 
 	std::shared_ptr<Drumkit> pDrumkit = nullptr;
 
@@ -135,7 +130,12 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		pDrumkit = Future::loadDrumkit( root, sDrumkitDir, bSilent );
 	}
 	else {
-		pDrumkit = Drumkit::load_from( &root, sDrumkitDir, bSilent );
+		pDrumkit = Drumkit::load_from( &root, sDrumkitDir,
+									   &bLegacyFormatEncountered, bSilent );
+	}
+
+	if ( pLegacyFormatEncountered != nullptr ) {
+		*pLegacyFormatEncountered = bLegacyFormatEncountered;
 	}
 
 	if ( pDrumkit == nullptr ) {
@@ -143,21 +143,24 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath, bool bUpgra
 		return nullptr;
 	}
 	
-	if ( ! bReadingSuccessful && bUpgrade ) {
+	if ( bLegacyFormatEncountered && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, sDrumkitPath );
 	}
 	
 	return pDrumkit;
 }
 
-std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrumkitPath, bool bSilent )
+std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node,
+											 const QString& sDrumkitPath,
+											 bool* pLegacyFormatEncountered,
+											 bool bSilent )
 {
 	QString sDrumkitName = node->read_string( "name", "", false, false, bSilent );
 	if ( sDrumkitName.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
 	}
-	
+
 	std::shared_ptr<Drumkit> pDrumkit = std::make_shared<Drumkit>();
 
 	pDrumkit->__path = sDrumkitPath;
@@ -186,7 +189,8 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			auto pDrumkitComponent = DrumkitComponent::load_from( &componentNode );
+			auto pDrumkitComponent = DrumkitComponent::load_from(
+				&componentNode, pLegacyFormatEncountered );
 			if ( pDrumkitComponent != nullptr ) {
 				pDrumkit->get_components()->push_back(pDrumkitComponent);
 			}
@@ -197,16 +201,23 @@ std::shared_ptr<Drumkit> Drumkit::load_from( XMLNode* node, const QString& sDrum
 		WARNINGLOG( "componentList node not found" );
 		auto pDrumkitComponent = std::make_shared<DrumkitComponent>( 0, "Main" );
 		pDrumkit->get_components()->push_back(pDrumkitComponent);
+
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
 	}
 
-	auto pInstrumentList = InstrumentList::load_from( node,
-													  sDrumkitPath,
-													  sDrumkitName,
-													  license, false );
+	auto pInstrumentList = InstrumentList::load_from(
+		node, sDrumkitPath, sDrumkitName, license, pLegacyFormatEncountered,
+		false );
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
 		pInstrumentList = std::make_shared<InstrumentList>();
+
+		if ( pLegacyFormatEncountered != nullptr ) {
+			*pLegacyFormatEncountered = true;
+		}
 	}
 		
 	pDrumkit->set_instruments( pInstrumentList );
@@ -260,19 +271,12 @@ bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) 
 
 	const QString sDrumkitPath = Filesystem::drumkit_file( sDrumkitDir );
 
-	if( ! pDoc->read( sDrumkitPath, Filesystem::drumkit_xsd_path(), true ) ) {
-		if ( ! bSilent ) {
-			WARNINGLOG( QString( "[%1] does not validate against drumkit schema. Trying to retrieve its name nevertheless.")
-						.arg( sDrumkitPath ) );
-		}
-		
-		if ( ! pDoc->read( sDrumkitPath, nullptr, bSilent ) ) {
-			ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
-					  .arg( sDrumkitPath ) );
-			return false;
-		}
+	if ( ! pDoc->read( sDrumkitPath, bSilent ) ) {
+		ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
+				  .arg( sDrumkitPath ) );
+		return false;
 	}
-	
+
 	XMLNode root = pDoc->firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( QString( "Unable to load drumkit name for [%1]. 'drumkit_info' node not found" )

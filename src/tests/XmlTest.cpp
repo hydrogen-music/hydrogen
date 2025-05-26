@@ -128,8 +128,7 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/snare.wav" ) );
 
 	// Check whether the generated drumkit is valid.
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
-							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ) ) );
 	
 	// load file
 	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
@@ -148,8 +147,7 @@ void XmlTest::testDrumkit()
 	pDrumkitNew = std::make_shared<H2Core::Drumkit>();
 	CPPUNIT_ASSERT( pDrumkitNew != nullptr );
 	CPPUNIT_ASSERT( pDrumkitNew->save( sDrumkitPath ) );
-	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ),
-							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2Core::Filesystem::drumkit_file( sDrumkitPath ) ) );
 	pDrumkitReloaded = H2Core::Drumkit::load( sDrumkitPath );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 
@@ -165,18 +163,14 @@ void XmlTest::testShippedDrumkits()
 	for ( auto ii : H2Core::Filesystem::sys_drumkit_list() ) {
 		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
 								  .arg( H2Core::Filesystem::sys_drumkits_dir() )
-								  .arg( ii ),
-								  H2Core::Filesystem::drumkit_xsd_path() ) );
+								  .arg( ii ) ) );
 
 	}
 	___INFOLOG( "passed" );
 }
 
-//Load drumkit which includes instrument with invalid ADSR values.
-// Expected behavior: The drumkit will be loaded successfully. 
-//					  In addition, the drumkit file will be saved with 
-//					  correct ADSR values.
-void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
+// Load drumkit which includes instrument with invalid ADSR values.
+void XmlTest::testDrumkit_invalidADSRValues()
 {
 	___INFOLOG( "" );
 	auto pTestHelper = TestHelper::get_instance();
@@ -185,41 +179,22 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	//1. Check, if the drumkit has been loaded
 	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit") );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	
+
 	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
 	auto pInstruments = pDrumkit->get_instruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
-	
+
 	auto pFirstInstrument = pInstruments->get(0);
 	CPPUNIT_ASSERT( pFirstInstrument != nullptr );
-	
+
 	auto pLayer = pFirstInstrument->get_components()->front()->get_layer(0);
 	CPPUNIT_ASSERT( pLayer != nullptr );
-	
+
 	auto pSample = pLayer->get_sample();
 	CPPUNIT_ASSERT( pSample != nullptr );
-	
-	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));
-	
-	// 3. Make sure that the original (invalid) file has been saved as
-	// a backup.
-	if ( H2Core::Filesystem::dir_writable( H2TEST_FILE( "drumkits/invAdsrKit" ), true ) ) {
-		QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
-		CPPUNIT_ASSERT( backupFiles.size() == 1 );
-		CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( backupFiles[ 0 ] ) );
-	}
 
-	//4. Load the drumkit again to assure updated file is valid
-	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/invAdsrKit") );
-	QStringList backupFiles = pTestHelper->findDrumkitBackupFiles( "drumkits/invAdsrKit" );
-	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	CPPUNIT_ASSERT( backupFiles.size() == 1 );
-	
-	// Cleanup
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_copy( backupFiles[ 0 ],
-												   H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml" ),
-												   true ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::rm( backupFiles[ 0 ], false ) );
+	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));
+
 	___INFOLOG( "passed" );
 }
 
@@ -360,7 +335,7 @@ void XmlTest::testPattern()
 	pPatternCopied = new H2Core::Pattern( pPatternLoaded );
 
 	// Is stored pattern valid?
-	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
 	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
 
@@ -369,7 +344,7 @@ void XmlTest::testPattern()
 	// Check whether the constructor produces valid patterns.
 	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
 	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
-	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sPatternPath ) );
 	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
 	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
 
@@ -384,8 +359,7 @@ void XmlTest::checkTestPatterns()
 {
 	___INFOLOG( "" );
 	H2Core::XMLDoc doc;
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
-							  H2Core::Filesystem::pattern_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ) ) );
 	___INFOLOG( "passed" );
 }
 
@@ -400,7 +374,7 @@ void XmlTest::testPlaylist()
 	H2Core::XMLDoc doc;
 
 	CPPUNIT_ASSERT( pPlaylistCurrent->save_file( sPath, "ladida", true, false ) );
-	CPPUNIT_ASSERT( doc.read( sPath, H2Core::Filesystem::playlist_xsd_path() ) );
+	CPPUNIT_ASSERT( doc.read( sPath ) );
 	pPlaylistLoaded = H2Core::Playlist::load_file( sPath, false );
 	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
 

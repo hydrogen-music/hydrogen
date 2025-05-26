@@ -468,20 +468,27 @@ private:
 	 * Loads the drumkit specified in @a sDrumkitPath.
 	 *
 	 * \param sDrumkitPath Can be either an absolute path to a folder
-	 * containing a drumkit file (drumkit.xml), an absolute path to a
-	 * drumkit file itself, or an absolute file to a compressed
-	 * drumkit (.h2drumkit).
+	 *   containing a drumkit file (drumkit.xml), an absolute path to a
+	 *   drumkit file itself, or an absolute file to a compressed
+	 *   drumkit (.h2drumkit).
 	 * \param bIsCompressed Stores whether the drumkit was provided as
-	 * a compressed .h2drumkit file
+	 *   a compressed .h2drumkit file
 	 * \param sDrumkitDir Stores the folder containing the drumkit
-	 * file. If a compressed drumkit was provided, this will point to
-	 * a temporary folder.
+	 *   file. If a compressed drumkit was provided, this will point to
+	 *   a temporary folder.
 	 * \param sTemporaryFolder Root path of a temporary folder
-	 * containing the extracted drumkit in case @a sDrumkitPath
-	 * pointed to a compressed .h2drumkit file.
+	 *   containing the extracted drumkit in case @a sDrumkitPath
+	 *   pointed to a compressed .h2drumkit file.
+	 * \param pLegacyFormatEncountered will be set to `true` is any of the
+	 *   XML elements requires legacy format support and left untouched
+	 *   otherwise.
 	 */
-	std::shared_ptr<Drumkit> retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
-											  QString* sDrumkitDir, QString* sTemporaryFolder );
+	std::shared_ptr<Drumkit> retrieveDrumkit(
+		const QString& sDrumkitPath,
+		bool* bIsCompressed,
+		QString* sDrumkitDir,
+		QString* sTemporaryFolder,
+		bool* pLegacyFormatEncountered );
 	/**
 	 * Add @a sFilename to the list of recent songs in
 	 * Preferences::m_recentFiles.

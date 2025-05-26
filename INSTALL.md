@@ -20,7 +20,7 @@ Hydrogen is supported on the following operating systems:
 
   * Linux/Unix/BSD
   * Mac OS X
-  * Windows 10 (maybe 7)
+  * Windows
 
 ## Binary Packages
 
@@ -70,6 +70,8 @@ page:
 
 - [Packaging Hydrogen for Windows](https://github.com/hydrogen-music/hydrogen/wiki/Packaging-for-Windows)
 
+as well as our native build scripts in the [windows](windows/) folder.
+
 ### Linux
 
 #### Prerequisites
@@ -86,29 +88,15 @@ libraries and development header files installed on your system:
 
 ##### Required
 
-- Qt 5 Library
-- Qt 5 SDK (moc, uic, etc.)
+- Qt 6 or Qt 5
 - GNU g++ compiler (>=4.0, 3.x might work)
-- cmake (>=2.6)
+- cmake (>=3.5)
 - libsndfile >=1.0.18
 - zlib and libtar *OR* libarchive
-- OS X: Xcode
-- At least one of the following audio and midi driver
-
-##### Audio and Midi Drivers
-
-- JACK Audio Connection Kit (>=0.103.0)
-- ALSA (Advanced Linux Sound Architecture)
-- OSS
-- PortAudio (v18, not v19)
-- PortMIDI (>=2.0.1)
-- CoreAudio (OS X)
-- CoreMidi (OS X)
 
 ##### Optional Support
 
 - liblo for OSC (Open Sound Control)
-- LASH (Linux Audio Session Handler)
 - NSM (Non Session Manager)
 - liblrdf for LADSPA plugins
 - librubberband2 (Rubberband support is experimental)
@@ -126,19 +114,12 @@ In order to build Hydrogen on Debian-based Systems, you can use the
 following command to install all basic and some optional requirements.
 
 ``` bash
-$ sudo apt-get install cmake qtbase5-dev qtbase5-dev-tools  \
-	qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev  \
-	libqt5svg5-dev libarchive-dev libsndfile1-dev libasound2-dev  \
-	liblo-dev libpulse-dev libcppunit-dev liblrdf0-dev  \
-	librubberband-dev
+$ sudo apt-get install cmake qt6-base-dev qt6-base-dev-tools qt6-tools-dev \
+  qt6-tools-dev-tools qt6-svg-dev libarchive-dev libsndfile1-dev           \
+  libasound2-dev liblo-dev libpulse-dev libcppunit-dev liblrdf0-dev        \
+  librubberband-dev libjack-jackd2-dev
 ```
 
-In addition, either the `libjack-jackd2-dev` or `libjack-dev` package
-must be present to enable the support of the **JACK** audio
-driver. [Which one to
-pick](https://github.com/jackaudio/jackaudio.github.com/wiki/Q_difference_jack1_jack2)
-depends on whether JACK2 or JACK1 is installed on your system. If none
-is present, either package will work.
 
 #### Building and Installing Hydrogen
 
@@ -149,9 +130,13 @@ installing will look like this:
 $ git clone git://github.com/hydrogen-music/hydrogen.git
 $ cd hydrogen
 $ mkdir build && cd build
-$ cmake ..
+$ cmake -DWANT_QT6:BOOL=ON ..
 $ make && sudo make install
 ```
+
+Note that we are in a transitional phase from Qt5 to Qt6 right now. You could
+also install the Qt5 versions of the packages above and omit the
+`-DWANT_QT6:BOOL=ON` option to build the application with Qt5 instead.
 
 #### Running Hydrogen
 

@@ -272,7 +272,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );
-	pHZoomLayout->setMargin( 0 );
+	pHZoomLayout->setContentsMargins( 0, 0, 0, 0 );
 	pHZoomLayout->addWidget( m_pViewPlaybackBtn );
 	pHZoomLayout->addWidget( m_pViewTimelineBtn );
 	pHZoomLayout->addWidget( m_pHScrollBar );
@@ -384,7 +384,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// ok...let's build the layout
 	QGridLayout *pGridLayout = new QGridLayout();
 	pGridLayout->setSpacing( 0 );
-	pGridLayout->setMargin( 0 );
+	pGridLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	pGridLayout->addWidget( pBackPanel, 0, 0 );
 	pGridLayout->addWidget( m_pWidgetStack, 0, 1 );
@@ -685,15 +685,14 @@ void SongEditorPanel::downBtnClicked()
 void SongEditorPanel::clearSequence()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	int res = QMessageBox::information( this, "Hydrogen",
-										tr( "Warning, this will erase your pattern sequence.\nAre you sure?"),
-										pCommonStrings->getButtonOk(),
-										pCommonStrings->getButtonCancel(),
-										nullptr, 1 );
-	if ( res == 1 ) {
+	if ( QMessageBox::information(
+			 this, "Hydrogen",
+			 tr( "Warning, this will erase your pattern sequence.\nAre you sure?"),
+			 QMessageBox::Ok | QMessageBox::Cancel,
+			 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
 		return;
 	}
-	
+
 	QString filename = Filesystem::tmp_file_path( "SEQ.xml" );
 	SE_deletePatternSequenceAction *pAction = new SE_deletePatternSequenceAction( filename );
 	HydrogenApp *pH2App = HydrogenApp::get_instance();

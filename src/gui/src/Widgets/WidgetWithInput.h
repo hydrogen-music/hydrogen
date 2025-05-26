@@ -99,7 +99,11 @@ protected:
 	virtual void mouseReleaseEvent( QMouseEvent *ev );
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void wheelEvent( QWheelEvent *ev );
-	virtual void enterEvent( QEvent *ev );
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent *ev ) override;
+#else
+		virtual void enterEvent( QEvent *ev ) override;
+#endif
 	virtual void leaveEvent( QEvent *ev );
 	virtual void keyPressEvent( QKeyEvent *ev );
 

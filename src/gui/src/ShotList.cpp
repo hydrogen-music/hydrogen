@@ -20,11 +20,15 @@
  *
  */
 
+#include <QRegularExpression>
+
 #include <core/Hydrogen.h>
 #include <core/EventQueue.h>
 
 #include "ShotList.h"
 #include "HydrogenApp.h"
+
+#ifndef H2CORE_HAVE_QT6
 
 ShotList::ShotList( QString sShotsFilename ) {
 	QFile shots( sShotsFilename );
@@ -86,7 +90,8 @@ QWidget *ShotList::findWidget( QString &sName ) {
 
 void ShotList::shoot( QString s ) {
 	___INFOLOG( QString( "Taking shot: %1" ).arg( s.trimmed() ) );
-	QStringList words = s.trimmed().split( QRegExp( "\\s+" ) );
+	QStringList words = s.trimmed().split(
+		QRegularExpression( "\\s+" ) );
 	if ( s.size() == 0 ) {
 		return;
 	}
@@ -245,3 +250,5 @@ void ShotList::nextShot( void ) {
 	}
 	shoot( m_shots[ m_nNextShot++ ] );
 }
+
+#endif

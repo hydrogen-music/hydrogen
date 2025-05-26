@@ -30,7 +30,6 @@
 #include <core/Basics/AutomationPath.h>
 
 #include <QFile>
-#include <QTextCodec>
 #include <QTextStream>
 
 namespace H2Core
