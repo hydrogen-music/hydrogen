@@ -262,9 +262,9 @@ protected:
 
 		void ensureCursorIsVisible() override;
 		void updateKeyboardHoveredElements() override;
-		void updateMouseHoveredElements() override;
-		void updateAllComponents() override;
-		void updateVisibleComponents() override;
+		void updateMouseHoveredElements( QMouseEvent* ev ) override;
+		void updateAllComponents( bool bContentOnly ) override;
+		void updateVisibleComponents( bool bContentOnly ) override;
 
 	//! Granularity of grid positioning (in ticks)
 	int granularity() const;

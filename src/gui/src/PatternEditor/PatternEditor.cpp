@@ -919,7 +919,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 			   ev->button() == Qt::RightButton ) ) ) {
 		if ( ! m_selection.isEmpty() ) {
 			m_selection.clearSelection();
-			updateVisibleComponents();
+			updateVisibleComponents( true );
 		}
 		return;
 	}
@@ -1048,40 +1048,16 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 	update();
 }
 
-void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
-{
+void PatternEditor::mouseMoveEvent( QMouseEvent *ev ) {
 	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
 		return;
 	}
 
-	if ( m_elementsToSelect.size() > 0 ) {
-		if ( ev->buttons() == Qt::LeftButton ||
-			 ev->buttons() == Qt::RightButton ) {
-			m_selection.clearSelection();
-			for ( const auto& ppNote : m_elementsToSelect ) {
-				m_selection.addToSelection( ppNote );
-			}
-		}
-		else {
-			m_elementsToSelect.clear();
-		}
-	}
+	BaseEditor::mouseMoveEvent( ev );
 
-	updateModifiers( ev );
-
-	// Check which note is hovered.
-	updateHoveredNotesMouse( ev );
-
-	if ( ev->buttons() != Qt::NoButton ) {
-		m_selection.mouseMoveEvent( ev );
-		if ( m_selection.isMoving() ) {
-			m_pPatternEditorPanel->getVisibleEditor()->update();
-			m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
-			}
-		else if ( syncLasso() ) {
-			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
-		}
+	if ( ev->buttons() != Qt::NoButton && ! m_selection.isMoving() &&
+		syncLasso() ) {
+		updateVisibleComponents( true );
 	}
 }
 
@@ -1941,7 +1917,7 @@ void PatternEditor::updateKeyboardHoveredElements() {
 	updateHoveredNotesKeyboard( true );
 }
 
-void PatternEditor::updateMouseHoveredElements() {
+void PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 	const QPoint globalPos = QCursor::pos();
 	const QPoint widgetPos = mapFromGlobal( globalPos );
 	if ( ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
@@ -1952,6 +1928,9 @@ void PatternEditor::updateMouseHoveredElements() {
 								std::vector< std::shared_ptr<Note> > > > empty;
 		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
+	else if ( ev != nullptr ) {
+		updateHoveredNotesMouse( ev, false );
+	}
 	else {
 		auto pEvent = new QMouseEvent(
 			QEvent::MouseButtonRelease, widgetPos, globalPos, Qt::LeftButton,
@@ -1960,15 +1939,15 @@ void PatternEditor::updateMouseHoveredElements() {
 	}
 }
 
-void PatternEditor::updateAllComponents() {
+void PatternEditor::updateAllComponents( bool bContentOnly ) {
 	m_pPatternEditorPanel->getSidebar()->updateEditor();
 	m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	updateVisibleComponents();
+	updateVisibleComponents( bContentOnly );
 }
 
-void PatternEditor::updateVisibleComponents() {
-	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
+void PatternEditor::updateVisibleComponents( bool bContentOnly ) {
+	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( bContentOnly );
+	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( bContentOnly );
 }
 
 int PatternEditor::granularity() const {

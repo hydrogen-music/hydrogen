@@ -134,18 +134,18 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 		virtual void updateKeyboardHoveredElements() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
-		virtual void updateMouseHoveredElements() {
+		virtual void updateMouseHoveredElements( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
 		/** In contrast to Selection::updateWidget() this method indicates a
 		 * state change in the overall editor and triggers an update of all its
 		 * visible components, e.g. including its ruler and sidebar. */
-		virtual void updateVisibleComponents() {
+		virtual void updateVisibleComponents( bool bContentOnly ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 		/** Updates all widgets dependent on this one. */
-		virtual void updateAllComponents() {
+		virtual void updateAllComponents( bool bContentOnly ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
@@ -194,7 +194,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 				m_update = Update::Background;
 			}
 
-			updateMouseHoveredElements();
+			updateMouseHoveredElements( nullptr );
 
 			// redraw
 			update();
@@ -330,7 +330,32 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			handleKeyboardCursor( false );
 		}
 
-// 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
+ 		virtual void mouseMoveEvent( QMouseEvent *ev ) override {
+			if ( m_elementsToSelect.size() > 0 ) {
+				if ( ev->buttons() == Qt::LeftButton ||
+					 ev->buttons() == Qt::RightButton ) {
+					m_selection.clearSelection();
+					for ( const auto& ppNote : m_elementsToSelect ) {
+						m_selection.addToSelection( ppNote );
+					}
+				}
+				else {
+					m_elementsToSelect.clear();
+				}
+			}
+
+			updateModifiers( ev );
+
+			// Check which note is hovered.
+			updateMouseHoveredElements( ev );
+
+			if ( ev->buttons() != Qt::NoButton ) {
+				m_selection.mouseMoveEvent( ev );
+				if ( m_selection.isMoving() ) {
+					updateVisibleComponents( true );
+				}
+			}
+		}
 // 		virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 // 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 
@@ -361,7 +386,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 						m_update = BaseEditor::Update::Content;
 					}
 				}
-				updateAllComponents();
+				updateAllComponents( true );
 			}
 		}
 // 		bool isSelectionMoving() const;
@@ -380,14 +405,14 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 				for ( const auto& ppNote : m_elementsToSelectForPopup ) {
 					m_selection.addToSelection( ppNote );
 				}
-				updateVisibleComponents();
+				updateVisibleComponents( true );
 			}
 		}
 
 		void popupMenuAboutToHide() {
 			if ( m_elementsToSelectForPopup.size() > 0 ) {
 				m_selection.clearSelection();
-				updateVisibleComponents();
+				updateVisibleComponents( false );
 			}
 		}
 // 		virtual void selectAll() = 0;
@@ -513,7 +538,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			// have to ensure not to display some glitchy notes previously
 			// hovered by mouse which are not present anymore (e.g. since they
 			// were aligned to a different position).
-			updateMouseHoveredElements();
+			updateMouseHoveredElements( nullptr );
 		}
 
 		/** Which parts of the editor to update in the next paint event. */
