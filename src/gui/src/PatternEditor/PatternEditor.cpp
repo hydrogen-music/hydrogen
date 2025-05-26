@@ -66,7 +66,6 @@ PatternEditor::PatternEditor( QWidget *pParent, BaseEditor::EditorType editorTyp
 	, m_nDragStartColumn( 0 )
 	, m_nDragY( 0 )
 	, m_dragStart( QPoint() )
-	, m_update( Update::Background )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
@@ -419,25 +418,6 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 			*pRealColumn = 0;
 		}
 	}
-}
-
-void PatternEditor::updateEditor( bool bPatternOnly )
-{
-	if ( updateWidth() ) {
-		m_update = Update::Background;
-	}
-	else if ( bPatternOnly && m_update != Update::Background ) {
-		// Background takes priority over Pattern.
-		m_update = Update::Pattern;
-	}
-	else {
-		m_update = Update::Background;
-	}
-
-	updateCursorHoveredElements();
-
-	// redraw
-	update();
 }
 
 void PatternEditor::selectNone()
@@ -2187,11 +2167,12 @@ void PatternEditor::handleKeyboardCursor( bool bVisible ) {
 			m_selection.updateKeyboardCursorPosition();
 			m_pPatternEditorPanel->ensureVisible();
 
-			if ( m_selection.isLasso() && m_update != Update::Background ) {
+			if ( m_selection.isLasso() && m_update !=
+				 BaseEditor::Update::Background ) {
 				// Since the event was used to alter the note selection, we need
 				// to repainting all note symbols (including whether or not they
 				// are selected).
-				m_update = Update::Pattern;
+				m_update = BaseEditor::Update::Content;
 			}
 		}
 
@@ -2272,13 +2253,13 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 
 	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
-		 m_update == Update::Background ) {
+		 m_update == BaseEditor::Update::Background ) {
 		createBackground();
 	}
 
-	if ( m_update == Update::Background || m_update == Update::Pattern ) {
+	if ( m_update == BaseEditor::Update::Background || m_update == BaseEditor::Update::Content ) {
 		drawPattern();
-		m_update = Update::None;
+		m_update = BaseEditor::Update::None;
 	}
 
 	QPainter painter( this );
@@ -3341,19 +3322,6 @@ QString PatternEditor::propertyToQString( const Property& property ) {
 	return s;
 }
 
-QString PatternEditor::updateToQString( const Update& update ) {
-	switch ( update ) {
-	case PatternEditor::Update::Background:
-		return "Background";
-	case PatternEditor::Update::Pattern:
-		return "Pattern";
-	case PatternEditor::Update::None:
-		return "None";
-	default:
-		return QString( "Unknown update [%1]" ).arg( static_cast<int>(update) ) ;
-	}
-}
-
 void PatternEditor::triggerStatusMessage(
 	const std::vector< std::shared_ptr<Note> > notes, const Property& property,
 	bool bSquash ) {
@@ -3553,7 +3521,7 @@ void PatternEditor::setCursorPitch( int nCursorPitch ) {
 
 	// Highlight selected row.
 	if ( m_editor == Editor::PianoRoll ) {
-		m_update = Update::Background;
+		m_update = BaseEditor::Update::Background;
 		update();
 	}
 

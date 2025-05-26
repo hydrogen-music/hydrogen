@@ -68,7 +68,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 		m_update = Update::Background;
 	}
 
-	PatternEditor::updateEditor( bPatternOnly );
+	BaseEditor::updateEditor( bPatternOnly );
 }
 
 ///

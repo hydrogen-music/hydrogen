@@ -337,8 +337,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
 		}
 
-		if ( m_update != Update::Background ) {
-			m_update = Update::Pattern;
+		if ( m_update != BaseEditor::Update::Background ) {
+			m_update = BaseEditor::Update::Content;
 		}
 		update();
 	}
@@ -457,8 +457,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	if ( bValueChanged ) {
 		triggerStatusMessage( notesStatusMessage, m_property );
-		if ( m_update != Update::Background ) {
-			m_update = Update::Pattern;
+		if ( m_update != BaseEditor::Update::Background ) {
+			m_update = BaseEditor::Update::Content;
 		}
 		update();
 
@@ -473,8 +473,8 @@ void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	//! The "move" has already been reflected in the notes. Now just complete Undo event.
 	addUndoAction( "" );
 
-	if ( m_update != Update::Background ) {
-		m_update = Update::Pattern;
+	if ( m_update != BaseEditor::Update::Background ) {
+		m_update = BaseEditor::Update::Content;
 	}
 	update();
 }
@@ -517,8 +517,8 @@ void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev );
 
-	if ( m_update != Update::Background ) {
-		m_update = Update::Pattern;
+	if ( m_update != BaseEditor::Update::Background ) {
+		m_update = BaseEditor::Update::Content;
 	}
 	update();
 }
@@ -694,8 +694,8 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		if ( m_update != Update::Background ) {
-			m_update = Update::Pattern;
+		if ( m_update != BaseEditor::Update::Background ) {
+			m_update = BaseEditor::Update::Content;
 		}
 		update();
 		if ( m_property == PatternEditor::Property::Velocity ) {
@@ -712,8 +712,8 @@ void NotePropertiesRuler::propertyDrawEnd()
 	addUndoAction( "NotePropertiesRuler::propertyDraw" );
 	unsetCursor();
 
-	if ( m_update != Update::Background ) {
-		m_update = Update::Pattern;
+	if ( m_update != BaseEditor::Update::Background ) {
+		m_update = BaseEditor::Update::Content;
 	}
 	update();
 }

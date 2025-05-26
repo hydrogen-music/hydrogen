@@ -73,10 +73,39 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-		BaseEditor( QWidget* pParent, EditorType type ) : QWidget( pParent )
-														, m_editorType( type )
-														, m_bCopyNotMove( false )
-														, m_selection( this ) {}
+		/** Specifies which parts of the editor need updating on a paintEvent().
+		 * Bigger numerical values imply updating elements with lower ones as
+		 * well.*/
+		enum class Update {
+			/** Just paint transient elements, like hovered notes, cursor, focus
+			 * or lasso. */
+			None = 0,
+			/** Update notes, pattern, etc. including selection of a cached background image. */
+			Content = 1,
+			/** Update the background image. */
+			Background = 2
+		};
+		static QString updateToQString( const Update& update ) {
+			switch ( update ) {
+				case Update::Background:
+					return "Background";
+				case Update::Content:
+					return "Pattern";
+				case Update::None:
+					return "None";
+				default:
+					return QString( "Unknown update [%1]" )
+						.arg( static_cast<int>(update) ) ;
+			}
+}
+
+
+		BaseEditor( QWidget* pParent, EditorType type )
+			: QWidget( pParent )
+			, m_editorType( type )
+			, m_selection( this )
+			, m_bCopyNotMove( false )
+			, m_update( Update::Background ) {}
 		virtual ~BaseEditor() {}
 
 		virtual void updateCursorHoveredElements() {
@@ -88,6 +117,15 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 		 * visible components, e.g. including its ruler and sidebar. */
 		virtual void updateVisibleComponents() {
 			___ERRORLOG( "To be implemented by parent" );
+		}
+
+		/** Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
+		 * state of the editor.
+		 *
+		 * @returns true in case the width of the widget did change. */
+		virtual bool updateWidth() {
+			___ERRORLOG( "To be implemented by parent" );
+			return false;
 		}
 
 // 		//! Clear the pattern editor selection
@@ -103,6 +141,29 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 
 // 		//! Ensure that the Selection contains only valid elements.
 // 		virtual void validateSelection() override;
+
+		//! Update a widget in response to a change in selection
+		virtual void updateWidget() override {
+			BaseEditor::updateEditor( true );
+		}
+
+		virtual void updateEditor( bool bContentOnly = true ) {
+			if ( updateWidth() ) {
+				m_update = Update::Background;
+			}
+			else if ( bContentOnly && m_update != Update::Background ) {
+				// Background takes priority over Pattern.
+				m_update = Update::Content;
+			}
+			else {
+				m_update = Update::Background;
+			}
+
+			updateCursorHoveredElements();
+
+			// redraw
+			update();
+		}
 
  		//! Update the status of modifier keys in response to input events.
  		virtual void updateModifiers( QInputEvent *ev ) {
@@ -388,6 +449,9 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			// were aligned to a different position).
 			updateCursorHoveredElements();
 		}
+
+		/** Which parts of the editor to update in the next paint event. */
+		Update m_update;
 
 		/** When left-click dragging or applying actions using right-click popup
 		 * menu on a single note/multiple notes at the same position which are

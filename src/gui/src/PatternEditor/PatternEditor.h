@@ -89,21 +89,6 @@ public:
 	};
 	static QString propertyToQString( const Property& property );
 
-		/** Specifies which parts of the editor need updating on a paintEvent().
-		 * Bigger numerical values imply updating elements with lower ones as
-		 * well.*/
-		enum class Update {
-			/** Just paint transient elements, like hovered notes, cursor, focus
-			 * or lasso. */
-			None = 0,
-			/** Update pattern notes including selection of a cached background
-			 * image. */
-			Pattern = 1,
-			/** Update the background image. */
-			Background = 2
-		};
-		static QString updateToQString( const Update& update );
-
 	PatternEditor( QWidget *pParent, BaseEditor::EditorType editorType );
 	~PatternEditor();
 
@@ -139,12 +124,6 @@ public:
 
 	//! Update the status of modifier keys in response to input events.
 	virtual void updateModifiers( QInputEvent *ev ) override;
-
-	//! Update a widget in response to a change in selection
-	virtual void updateWidget() override {
-		updateEditor( true );
-	}
-
 
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
@@ -262,7 +241,6 @@ public:
 		void setCursorPitch( int nCursorPitch );
 
 public slots:
-	virtual void updateEditor( bool bPatternOnly = false );
 	virtual void selectAll() = 0;
 	virtual void selectNone();
 	void deleteSelection( bool bHandleSetupTeardown = true );
@@ -391,14 +369,12 @@ protected:
 	QPixmap* m_pBackgroundPixmap;
 	QPixmap* m_pPatternPixmap;
 
-		/** Which parts of the editor to update in the next paint event. */
-		Update m_update;
 
 	/**
 	 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
 	 * state of the editor.
 	 */
-	bool updateWidth();
+	bool updateWidth() override;
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;
