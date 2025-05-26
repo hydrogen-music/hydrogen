@@ -99,11 +99,6 @@ public:
 	void zoomOut();
 		void zoomLasso( float fOldGridWidth );
 
-	//! Clear the pattern editor selection
-	void clearSelection() {
-		m_selection.clearSelection();
-	}
-
 	/** Move or copy notes.
 	 *
 	 * Moves or copies notes at the end of a Selection move, handling the
@@ -133,19 +128,6 @@ public:
 
 	//! Deselecting notes
 	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) override;
-
-	//! Change the mouse cursor during mouse gestures
-	virtual void startMouseLasso( QMouseEvent *ev ) override {
-		setCursor( Qt::CrossCursor );
-	}
-
-	virtual void startMouseMove( QMouseEvent *ev ) override {
-		setCursor( Qt::DragMoveCursor );
-	}
-
-	virtual void endMouseGesture() override {
-		unsetCursor();
-	}
 
 	//! Deselect some notes, and "overwrite" some others.
 	void deselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
@@ -229,7 +211,6 @@ public:
 			const Property& property, bool bSquash = false );
 
 		QPoint getCursorPosition();
-		void handleKeyboardCursor( bool bVisible );
 
 		/** Ensure the selection lassos of the other editors match the one of
 		 * this instance. */
@@ -279,7 +260,10 @@ protected:
 		 * which of the editors currently holds focus. */
 		static constexpr int nOutOfFocusDim = 110;
 
-		void updateCursorHoveredElements() override;
+		void ensureCursorIsVisible() override;
+		void updateKeyboardHoveredElements() override;
+		void updateMouseHoveredElements() override;
+		void updateAllComponents() override;
 		void updateVisibleComponents() override;
 
 	//! Granularity of grid positioning (in ticks)

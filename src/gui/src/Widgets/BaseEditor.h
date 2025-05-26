@@ -23,6 +23,7 @@
 #ifndef BASE_EDITOR_H
 #define BASE_EDITOR_H
 
+#include "../HydrogenApp.h"
 #include "../Selection.h"
 
 #include <memory>
@@ -127,7 +128,13 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-		virtual void updateCursorHoveredElements() {
+		virtual void ensureCursorIsVisible() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void updateKeyboardHoveredElements() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void updateMouseHoveredElements() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
@@ -135,6 +142,10 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 		 * state change in the overall editor and triggers an update of all its
 		 * visible components, e.g. including its ruler and sidebar. */
 		virtual void updateVisibleComponents() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		/** Updates all widgets dependent on this one. */
+		virtual void updateAllComponents() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
@@ -152,10 +163,10 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
-// 		//! Clear the pattern editor selection
-// 		void clearSelection() {
-// 			m_selection.clearSelection();
-// 		}
+		//! Clear the pattern editor selection
+		void clearSelection() {
+			m_selection.clearSelection();
+		}
 
 // 		/** Move or copy notes.
 // 		 *
@@ -183,7 +194,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 				m_update = Update::Background;
 			}
 
-			updateCursorHoveredElements();
+			updateMouseHoveredElements();
 
 			// redraw
 			update();
@@ -233,30 +244,22 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-// 		// //! Update a widget in response to a change in selection
-// 		// virtual void updateWidget() override {
-// 		// 	updateEditor( true );
-// 		// }
-
  		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
 			return BaseEditor::nDefaultCursorMargin;
 		}
 
-// 		//! Deselecting notes
-// 		virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) override;
+		//! Change the mouse cursor during mouse gestures
+		virtual void startMouseLasso( QMouseEvent *ev ) override {
+			setCursor( Qt::CrossCursor );
+		}
 
-// 		//! Change the mouse cursor during mouse gestures
-// 		virtual void startMouseLasso( QMouseEvent *ev ) override {
-// 			setCursor( Qt::CrossCursor );
-// 		}
+		virtual void startMouseMove( QMouseEvent *ev ) override {
+			setCursor( Qt::DragMoveCursor );
+		}
 
-// 		virtual void startMouseMove( QMouseEvent *ev ) override {
-// 			setCursor( Qt::DragMoveCursor );
-// 		}
-
-// 		virtual void endMouseGesture() override {
-// 			unsetCursor();
-// 		}
+		virtual void endMouseGesture() override {
+			unsetCursor();
+		}
 
 		virtual std::vector<Elem> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
@@ -322,9 +325,9 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			// created via keyboard events.
 			m_selection.mousePressEvent( ev );
 
-			// // Hide cursor in case this behavior was selected in the
-			// // Preferences.
-			// handleKeyboardCursor( false );
+			// Hide cursor in case this behavior was selected in the
+			// Preferences.
+			handleKeyboardCursor( false );
 		}
 
 // 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
@@ -337,8 +340,30 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 // 		virtual QRect getKeyboardCursorRect() override;
 
 // 		QPoint getCursorPosition();
-// 		void handleKeyboardCursor( bool bVisible );
+ 		void handleKeyboardCursor( bool bVisible ) {
+			auto pHydrogenApp = HydrogenApp::get_instance();
+			const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 
+			pHydrogenApp->setHideKeyboardCursor( ! bVisible );
+
+			// Only update on state changes
+			if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+				updateKeyboardHoveredElements();
+				if ( bVisible ) {
+					m_selection.updateKeyboardCursorPosition();
+					ensureCursorIsVisible();
+
+					if ( m_selection.isLasso() && m_update !=
+						 BaseEditor::Update::Background ) {
+						// Since the event was used to alter the note selection,
+						// we need to repainting all note symbols (including
+						// whether or not they are selected).
+						m_update = BaseEditor::Update::Content;
+					}
+				}
+				updateAllComponents();
+			}
+		}
 // 		bool isSelectionMoving() const;
 
 // 		QPoint movingGridOffset() const;
@@ -488,7 +513,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			// have to ensure not to display some glitchy notes previously
 			// hovered by mouse which are not present anymore (e.g. since they
 			// were aligned to a different position).
-			updateCursorHoveredElements();
+			updateMouseHoveredElements();
 		}
 
 		/** Which parts of the editor to update in the next paint event. */

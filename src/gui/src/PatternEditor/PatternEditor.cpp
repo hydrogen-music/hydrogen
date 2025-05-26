@@ -1933,7 +1933,15 @@ void PatternEditor::scrolled( int nValue ) {
 	update();
 }
 
-void PatternEditor::updateCursorHoveredElements() {
+void PatternEditor::ensureCursorIsVisible() {
+	m_pPatternEditorPanel->ensureCursorIsVisible();
+}
+
+void PatternEditor::updateKeyboardHoveredElements() {
+	updateHoveredNotesKeyboard( true );
+}
+
+void PatternEditor::updateMouseHoveredElements() {
 	const QPoint globalPos = QCursor::pos();
 	const QPoint widgetPos = mapFromGlobal( globalPos );
 	if ( ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
@@ -1950,6 +1958,12 @@ void PatternEditor::updateCursorHoveredElements() {
 			Qt::LeftButton, Qt::NoModifier );
 		updateHoveredNotesMouse( pEvent, false );
 	}
+}
+
+void PatternEditor::updateAllComponents() {
+	m_pPatternEditorPanel->getSidebar()->updateEditor();
+	m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	updateVisibleComponents();
 }
 
 void PatternEditor::updateVisibleComponents() {
@@ -2134,35 +2148,6 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 
 	if ( ! ev->isAccepted() ) {
 		ev->accept();
-	}
-}
-
-void PatternEditor::handleKeyboardCursor( bool bVisible ) {
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-
-	pHydrogenApp->setHideKeyboardCursor( ! bVisible );
-
-	// Only update on state changes
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		updateHoveredNotesKeyboard();
-		if ( bVisible ) {
-			m_selection.updateKeyboardCursorPosition();
-			m_pPatternEditorPanel->ensureVisible();
-
-			if ( m_selection.isLasso() && m_update !=
-				 BaseEditor::Update::Background ) {
-				// Since the event was used to alter the note selection, we need
-				// to repainting all note symbols (including whether or not they
-				// are selected).
-				m_update = BaseEditor::Update::Content;
-			}
-		}
-
-		m_pPatternEditorPanel->getSidebar()->updateEditor();
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getVisibleEditor()->update();
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
 	}
 }
 
@@ -3508,7 +3493,7 @@ void PatternEditor::setCursorPitch( int nCursorPitch ) {
 	}
 
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		m_pPatternEditorPanel->ensureVisible();
+		m_pPatternEditorPanel->ensureCursorIsVisible();
 		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();

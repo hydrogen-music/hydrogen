@@ -979,7 +979,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 		m_nSelectedRowDB = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	}
 
-	ensureVisible();
+	ensureCursorIsVisible();
 	updateEditors();
 	resizeEvent( nullptr );	// force a scrollbar update
 }
@@ -1024,7 +1024,7 @@ void PatternEditorPanel::showDrumEditor()
 	m_pSidebar->dimRows( false );
 
 	m_pDrumPatternEditor->updateEditor(); // force an update
-	ensureVisible();
+	ensureCursorIsVisible();
 
 	getVisiblePropertiesRuler()->syncLasso();
 
@@ -1048,7 +1048,7 @@ void PatternEditorPanel::showPianoRollEditor()
 	m_pSidebar->dimRows( true );
 
 	m_pPianoRollEditor->updateEditor(); // force an update
-	ensureVisible();
+	ensureCursorIsVisible();
 
 	getVisiblePropertiesRuler()->syncLasso();
 
@@ -1122,7 +1122,7 @@ void PatternEditorPanel::zoomInBtnClicked()
 	getVisiblePropertiesRuler()->zoomLasso( fOldGridWidth );
 	getVisibleEditor()->zoomLasso( fOldGridWidth );
 
-	ensureVisible();
+	ensureCursorIsVisible();
 
 	updateEditors();
 	resizeEvent( nullptr );
@@ -1148,7 +1148,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	getVisiblePropertiesRuler()->zoomLasso( fOldGridWidth );
 	getVisibleEditor()->zoomLasso( fOldGridWidth );
 
-	ensureVisible();
+	ensureCursorIsVisible();
 
 	updateEditors();
 	resizeEvent( nullptr );
@@ -1587,7 +1587,7 @@ int PatternEditorPanel::getCursorColumn()
 	return m_nCursorColumn;
 }
 
-void PatternEditorPanel::ensureVisible()
+void PatternEditorPanel::ensureCursorIsVisible()
 {
 	if ( m_pEditorScrollView->isVisible() ) {
 		const auto pos = m_pDrumPatternEditor->getCursorPosition();
@@ -1616,7 +1616,7 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 	m_nCursorColumn = nCursorColumn;
 
 	if ( bUpdateEditors && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		ensureVisible();
+		ensureCursorIsVisible();
 		m_pSidebar->updateEditor();
 		m_pPatternEditorRuler->update();
 		getVisibleEditor()->update();

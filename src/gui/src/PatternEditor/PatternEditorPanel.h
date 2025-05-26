@@ -215,7 +215,7 @@ class PatternEditorPanel : public QWidget,
 
 		/** Scrolls the viewport of the current editor until the selected row
 		 * (containingt the cursor, if shown) is visible. */
-		void ensureVisible();
+		void ensureCursorIsVisible();
 		/** The row of the particular editor is maintained by the editor itself
 		 * and can be accessed via #PatternEditor::getCursorPosition. */
 		int getCursorColumn();
