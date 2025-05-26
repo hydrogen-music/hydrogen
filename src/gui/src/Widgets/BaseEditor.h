@@ -104,9 +104,28 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			: QWidget( pParent )
 			, m_editorType( type )
 			, m_selection( this )
+			, m_nActiveWidth( width() )
+			, m_nEditorHeight( height() )
+			, m_nEditorWidth( width() )
 			, m_bCopyNotMove( false )
-			, m_update( Update::Background ) {}
-		virtual ~BaseEditor() {}
+			, m_update( Update::Background )
+		{
+			qreal pixelRatio = devicePixelRatio();
+			m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+											   m_nEditorHeight * pixelRatio );
+			m_pContentPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+											m_nEditorHeight * pixelRatio );
+			m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+			m_pContentPixmap->setDevicePixelRatio( pixelRatio );
+		}
+		virtual ~BaseEditor() {
+			if ( m_pContentPixmap != nullptr ) {
+				delete m_pContentPixmap;
+			}
+			if ( m_pBackgroundPixmap != nullptr ) {
+				delete m_pBackgroundPixmap;
+			}
+		}
 
 		virtual void updateCursorHoveredElements() {
 			___ERRORLOG( "To be implemented by parent" );
@@ -126,6 +145,11 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 		virtual bool updateWidth() {
 			___ERRORLOG( "To be implemented by parent" );
 			return false;
+		}
+
+		/** Updates #m_pBackgroundPixmap. */
+		virtual void createBackground() {
+			___ERRORLOG( "To be implemented by parent" );
 		}
 
 // 		//! Clear the pattern editor selection
@@ -189,6 +213,23 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 				else if ( ! m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
 					setCursor( QCursor( Qt::DragMoveCursor ) );
 				}
+			}
+		}
+
+		void updatePixmapSize() {
+			// Resize pixmap if pixel ratio has changed
+			qreal pixelRatio = devicePixelRatio();
+			if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
+				 m_pBackgroundPixmap->height() != m_nEditorHeight ||
+				 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+				delete m_pBackgroundPixmap;
+				m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+												   m_nEditorHeight * pixelRatio );
+				m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+				delete m_pContentPixmap;
+				m_pContentPixmap = new QPixmap( m_nEditorWidth  * pixelRatio,
+												m_nEditorHeight * pixelRatio );
+				m_pContentPixmap->setDevicePixelRatio( pixelRatio );
 			}
 		}
 
@@ -344,14 +385,14 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 
 		//! The Selection object.
 		Selection<Elem> m_selection;
-// 	uint m_nEditorHeight;
-// 	uint m_nEditorWidth;
 
-// 	// width of the editor covered by the current pattern.
-// 	int m_nActiveWidth;
+		QPixmap* m_pBackgroundPixmap;
+		QPixmap* m_pContentPixmap;
 
-// 	float m_fGridWidth;
-// 	unsigned m_nGridHeight;
+		// width of the editor covered by the current pattern.
+		int m_nActiveWidth;
+		int m_nEditorHeight;
+		int m_nEditorWidth;
 
  	bool m_bCopyNotMove;
 

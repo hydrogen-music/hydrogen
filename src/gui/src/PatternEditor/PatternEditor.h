@@ -285,12 +285,6 @@ protected:
 	//! Granularity of grid positioning (in ticks)
 	int granularity() const;
 
-	uint m_nEditorHeight;
-	uint m_nEditorWidth;
-
-	// width of the editor covered by the current pattern.
-	int m_nActiveWidth;
-
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
 
@@ -359,22 +353,17 @@ protected:
 	void drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 				   NoteStyle noteStyle ) const;
 
-		/** Update #m_pPatternPixmap based on #m_pBackgroundPixmap to show the
+		/** Update #m_pContentPixmap based on #m_pBackgroundPixmap to show the
 		 * latest content of all active pattern. */
 		virtual void drawPattern();
 		void drawFocus( QPainter& p );
 		void drawBorders( QPainter& p );
-	/** Updates #m_pBackgroundPixmap. */
-	virtual void createBackground();
-	QPixmap* m_pBackgroundPixmap;
-	QPixmap* m_pPatternPixmap;
-
 
 	/**
 	 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
 	 * state of the editor.
 	 */
-	bool updateWidth() override;
+	virtual bool updateWidth() override;
 
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;

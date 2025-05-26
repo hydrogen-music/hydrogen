@@ -155,6 +155,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	resize( m_nEditorWidth, m_nEditorHeight );
 	setMinimumHeight( m_nEditorHeight );
 
+	updatePixmapSize();
+
 	setFocusPolicy( Qt::StrongFocus );
 
 	// Generic pattern editor menu contains some operations that don't apply
@@ -1404,19 +1406,7 @@ void NotePropertiesRuler::createBackground()
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
 	}
 
-	const qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
-		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
-		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
-		delete m_pBackgroundPixmap;
-		m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio ,
-										   m_nEditorHeight * pixelRatio );
-		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-		delete m_pPatternPixmap;
-		m_pPatternPixmap = new QPixmap( m_nEditorWidth  * pixelRatio,
-										m_nEditorHeight * pixelRatio );
-		m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
-	}
+	updatePixmapSize();
 
 	m_pBackgroundPixmap->fill( backgroundInactiveColor );
 
@@ -1542,7 +1532,7 @@ void NotePropertiesRuler::drawPattern() {
 
 	const qreal pixelRatio = devicePixelRatio();
 
-	QPainter p( m_pPatternPixmap );
+	QPainter p( m_pContentPixmap );
 	// copy the background image
 	p.drawPixmap( rect(), *m_pBackgroundPixmap,
 						QRectF( pixelRatio * rect().x(),

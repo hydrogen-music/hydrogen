@@ -74,7 +74,11 @@ PatternEditor::PatternEditor( QWidget *pParent, BaseEditor::EditorType editorTyp
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
 		H2Core::nTicksPerQuarter;
+	m_nEditorHeight = height();
 	m_nActiveWidth = m_nEditorWidth;
+
+	updateWidth();
+	updatePixmapSize();
 
 	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking( true );
@@ -93,31 +97,10 @@ PatternEditor::PatternEditor( QWidget *pParent, BaseEditor::EditorType editorTyp
 		popupMenuAboutToShow(); } );
 	connect( m_pPopupMenu, &QMenu::aboutToHide, [&]() {
 		popupMenuAboutToHide(); } );
-
-
-	updateWidth();
-
-	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
-									   height() * pixelRatio );
-	m_pPatternPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
-									height() * pixelRatio );
-	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-	m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
-
-	DEBUGLOG( BaseEditor::editorTypeToQString( m_editorType ) );
 }
 
-PatternEditor::~PatternEditor()
-{
+PatternEditor::~PatternEditor() {
 	m_draggedNotes.clear();
-
-	if ( m_pPatternPixmap != nullptr ) {
-		delete m_pPatternPixmap;
-	}
-	if ( m_pBackgroundPixmap != nullptr ) {
-		delete m_pBackgroundPixmap;
-	}
 }
 
 void PatternEditor::zoomIn()
@@ -2263,7 +2246,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev )
 	}
 
 	QPainter painter( this );
-	painter.drawPixmap( ev->rect(), *m_pPatternPixmap,
+	painter.drawPixmap( ev->rect(), *m_pContentPixmap,
 						QRectF( pixelRatio * ev->rect().x(),
 								pixelRatio * ev->rect().y(),
 								pixelRatio * ev->rect().width(),
@@ -2306,7 +2289,7 @@ void PatternEditor::drawPattern()
 {
 	const qreal pixelRatio = devicePixelRatio();
 
-	QPainter p( m_pPatternPixmap );
+	QPainter p( m_pContentPixmap );
 	// copy the background image
 	p.drawPixmap( rect(), *m_pBackgroundPixmap,
 						QRectF( pixelRatio * rect().x(),
@@ -2546,9 +2529,6 @@ void PatternEditor::drawBorders( QPainter& p ) {
 	}
 }
 
-void PatternEditor::createBackground() {
-}
-
 bool PatternEditor::updateWidth() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
@@ -2591,6 +2571,8 @@ bool PatternEditor::updateWidth() {
 		m_nActiveWidth = nActiveWidth;
 
 		resize( m_nEditorWidth, m_nEditorHeight );
+
+		updatePixmapSize();
 
 		return true;
 	}
