@@ -133,7 +133,7 @@ void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent ) {
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 										  PatternEditor::Property property,
 										  Layout layout )
-	: PatternEditor( parent )
+	: PatternEditor( parent, BaseEditor::EditorType::Horizontal )
 	, m_nDrawPreviousColumn( -1 )
 	, m_layout( layout )
 {
@@ -245,7 +245,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
 	const auto notesUnderPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( nullptr ), pPattern );
+		pEv->position().toPoint(), getCursorMargin( nullptr ) );
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}
@@ -443,16 +443,16 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	// We only show status messages for notes at point.
 	std::vector< std::shared_ptr<Note> > notesStatusMessage;
-	for ( const auto& ppNote : m_notesHoveredOnDragStart ) {
+	for ( const auto& ppNote : m_elementsHoveredOnDragStart ) {
 		if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
 			notesStatusMessage.push_back( ppNote );
 		}
 	}
 
 	// Move cursor to dragged note(s).
-	if ( m_notesHoveredOnDragStart.size() > 0 ) {
+	if ( m_elementsHoveredOnDragStart.size() > 0 ) {
 		m_pPatternEditorPanel->setCursorColumn(
-			m_notesHoveredOnDragStart[ 0 ]->getPosition() );
+			m_elementsHoveredOnDragStart[ 0 ]->getPosition() );
 	}
 
 	if ( bValueChanged ) {
@@ -505,8 +505,8 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 		}
 	}
 
-	if ( m_notesHoveredOnDragStart.size() != 0 ) {
-		triggerStatusMessage( m_notesHoveredOnDragStart, m_property );
+	if ( m_elementsHoveredOnDragStart.size() != 0 ) {
+		triggerStatusMessage( m_elementsHoveredOnDragStart, m_property );
 	}
 
 	m_oldNotes.clear();
@@ -540,7 +540,7 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 	updateModifiers( pEvent );
 
 	const auto notesUnderPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( pEvent ), pPattern );
+		pEv->position().toPoint(), getCursorMargin( pEvent ) );
 	for ( const auto& ppNote : notesUnderPoint ) {
 		if ( ppNote != nullptr ) {
 			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
@@ -888,7 +888,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		// the current selection, we alter the values of all selected notes. It
 		// not, we discard the selection.
 		const auto notesUnderPoint =
-			getElementsAtPoint( getCursorPosition(), 0, pPattern );
+			getElementsAtPoint( getCursorPosition(), 0 );
 		if ( notesUnderPoint.size() == 0 ) {
 			return;
 		}

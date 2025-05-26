@@ -43,7 +43,7 @@
 using namespace H2Core;
 
 DrumPatternEditor::DrumPatternEditor( QWidget* parent )
- : PatternEditor( parent )
+ : PatternEditor( parent, BaseEditor::EditorType::Grid )
 {
 	m_editor = PatternEditor::Editor::DrumPattern;
 	const auto pPref = H2Core::Preferences::get_instance();

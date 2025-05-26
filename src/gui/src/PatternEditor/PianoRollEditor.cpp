@@ -453,7 +453,7 @@ void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
 ////////////////////////////////////////////////////////////////////////////////
 
 PianoRollEditor::PianoRollEditor( QWidget *pParent )
-	: PatternEditor( pParent )
+	: PatternEditor( pParent, BaseEditor::EditorType::Grid )
 {
 	m_editor = PatternEditor::Editor::PianoRoll;
 

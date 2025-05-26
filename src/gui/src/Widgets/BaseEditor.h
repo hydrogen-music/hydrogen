@@ -1,0 +1,437 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2020 by the Hydrogen Team
+ * Copyright(c) 2008-2025 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef BASE_EDITOR_H
+#define BASE_EDITOR_H
+
+#include "../Selection.h"
+
+#include <memory>
+
+#include <QtGui>
+#include <QtWidgets>
+
+namespace H2Core {
+	class Pattern;
+}
+
+/** Base Editor
+*
+* The BaseEditor class is an abstract base class for functionality common to all
+* our Editors (#DrumPatternEditor, #PianoRollEditor, #NotePropertiesRuler,
+* #SongEditor, #AutomationPathView, #TargetWaveDisplay).
+*
+* This covers common elements such as
+* - Keyboard arrow movement (plus modifiers)
+* - Selection via keyboard and mouse
+* - Highlighting of selected elements
+* - Lasso rendering
+* - Hovering of elements via keyboard and mouse as well as a shared cursor
+*   margins.
+* - Mouse and keyboard based moving of selected elements
+* - Left-click moving of single elements (selected or not)
+* - Right-click popup menu (if applicable)
+* - Right-click drawing lines.
+*
+* \ingroup docGUI */
+template<class Elem>
+class BaseEditor : public SelectionWidget<Elem>, public QWidget
+{
+	public:
+		enum class EditorType {
+			Horizontal,
+			Grid
+		};
+		static QString editorTypeToQString( const EditorType& type ) {
+			switch( type ) {
+			case EditorType::Horizontal:
+				return QString( "Horizontal" );
+			case EditorType::Grid:
+				return QString( "Grid" );
+			default:
+				return QString( "Unknown editor type [%1]" )
+					.arg( static_cast<int>(type) );
+			}
+		}
+
+		BaseEditor( QWidget* pParent, EditorType type ) : QWidget( pParent )
+														, m_editorType( type )
+														, m_bCopyNotMove( false )
+														, m_selection( this ) {}
+		virtual ~BaseEditor() {}
+
+		virtual void updateCursorHoveredElements() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+
+		/** In contrast to Selection::updateWidget() this method indicates a
+		 * state change in the overall editor and triggers an update of all its
+		 * visible components, e.g. including its ruler and sidebar. */
+		virtual void updateVisibleComponents() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+
+// 		//! Clear the pattern editor selection
+// 		void clearSelection() {
+// 			m_selection.clearSelection();
+// 		}
+
+// 		/** Move or copy notes.
+// 		 *
+// 		 * Moves or copies notes at the end of a Selection move, handling the
+// 		 * behaviours necessary for out-of-range moves or copies.*/
+// 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
+
+// 		//! Ensure that the Selection contains only valid elements.
+// 		virtual void validateSelection() override;
+
+ 		//! Update the status of modifier keys in response to input events.
+ 		virtual void updateModifiers( QInputEvent *ev ) {
+			// Key: Ctrl + drag: copy notes rather than moving
+			m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
+
+			if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( ev ) ) {
+				// Keyboard events for press and release of modifier keys don't
+				// have those keys in the modifiers set, so explicitly update
+				// these.
+				if ( pKeyEvent->key() == Qt::Key_Control ) {
+					m_bCopyNotMove = ev->type() == QEvent::KeyPress;
+				}
+			}
+
+			if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
+				// If a selection is currently being moved, change the cursor
+				// appropriately. Selection will change it back after the move
+				// is complete (or abandoned)
+				if ( m_bCopyNotMove && cursor().shape() != Qt::DragCopyCursor ) {
+					setCursor( QCursor( Qt::DragCopyCursor ) );
+				}
+				else if ( ! m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
+					setCursor( QCursor( Qt::DragMoveCursor ) );
+				}
+			}
+		}
+
+// 		// //! Update a widget in response to a change in selection
+// 		// virtual void updateWidget() override {
+// 		// 	updateEditor( true );
+// 		// }
+
+ 		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
+			return BaseEditor::nDefaultCursorMargin;
+		}
+
+// 		//! Deselecting notes
+// 		virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) override;
+
+// 		//! Change the mouse cursor during mouse gestures
+// 		virtual void startMouseLasso( QMouseEvent *ev ) override {
+// 			setCursor( Qt::CrossCursor );
+// 		}
+
+// 		virtual void startMouseMove( QMouseEvent *ev ) override {
+// 			setCursor( Qt::DragMoveCursor );
+// 		}
+
+// 		virtual void endMouseGesture() override {
+// 			unsetCursor();
+// 		}
+
+		virtual std::vector<Elem> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr )
+		{
+			___ERRORLOG( "To be implemented by parent" );
+			return std::vector<Elem>();
+		}
+
+ 		virtual void mousePressEvent( QMouseEvent *ev ) override {
+			auto pEv = static_cast<MouseEvent*>( ev );
+
+			updateModifiers( ev );
+
+			m_elementsToSelectForPopup.clear();
+			m_elementsHoveredForPopup.clear();
+			m_elementsHoveredOnDragStart.clear();
+			m_elementsToSelect.clear();
+
+			if ( ( ev->buttons() == Qt::LeftButton ||
+				   ev->buttons() == Qt::RightButton ) &&
+				 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
+
+				// When interacting with note(s) not already in a selection, we
+				// will discard the current selection and add these notes under
+				// point to a transient one.
+				const auto notesUnderPoint = getElementsAtPoint(
+					pEv->position().toPoint(), getCursorMargin( ev ) );
+
+				bool bSelectionHovered = false;
+				for ( const auto& ppNote : notesUnderPoint ) {
+					if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
+						bSelectionHovered = true;
+						break;
+					}
+				}
+
+				// We honor the current selection.
+				if ( bSelectionHovered ) {
+					for ( const auto& ppNote : notesUnderPoint ) {
+						if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
+							m_elementsHoveredOnDragStart.push_back( ppNote );
+						}
+					}
+				}
+				else {
+					m_elementsToSelect = notesUnderPoint;
+					m_elementsHoveredOnDragStart = notesUnderPoint;
+				}
+
+				if ( ev->button() == Qt::RightButton ) {
+					m_elementsToSelectForPopup = m_elementsToSelect;
+					m_elementsHoveredForPopup = m_elementsHoveredOnDragStart;
+				}
+
+				// Property drawing in the ruler must not select notes.
+				if ( ev->button() == Qt::RightButton ) {
+					m_elementsToSelect.clear();
+				}
+			}
+
+			// propagate event to selection. This could very well cancel a lasso
+			// created via keyboard events.
+			m_selection.mousePressEvent( ev );
+
+			// // Hide cursor in case this behavior was selected in the
+			// // Preferences.
+			// handleKeyboardCursor( false );
+		}
+
+// 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
+// 		virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
+// 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+
+// 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+// 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+// 		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+// 		virtual QRect getKeyboardCursorRect() override;
+
+// 		QPoint getCursorPosition();
+// 		void handleKeyboardCursor( bool bVisible );
+
+// 		bool isSelectionMoving() const;
+
+// 		QPoint movingGridOffset() const;
+
+// public slots:
+ 		/** When right-click opening a popup menu, ensure the clicked note is
+ 		 * selected. Note however that this is just temporary while the popup is
+ 		 * shown. Selection for the popup actions themselves is done by
+ 		 * popupSetup(). */
+		void popupMenuAboutToShow() {
+			if ( m_elementsToSelectForPopup.size() > 0 ) {
+				m_selection.clearSelection();
+
+				for ( const auto& ppNote : m_elementsToSelectForPopup ) {
+					m_selection.addToSelection( ppNote );
+				}
+				updateVisibleComponents();
+			}
+		}
+
+		void popupMenuAboutToHide() {
+			if ( m_elementsToSelectForPopup.size() > 0 ) {
+				m_selection.clearSelection();
+				updateVisibleComponents();
+			}
+		}
+// 		virtual void selectAll() = 0;
+// 		virtual void selectNone();
+// 		void deleteSelection( bool bHandleSetupTeardown = true );
+// 		virtual void copy( bool bHandleSetupTeardown = true );
+// 		void paste();
+// 		virtual void cut();
+
+	public:
+
+		/** Distance in pixel the cursor is allowed to be away from a note to
+		 * still be associated with it.
+		 *
+		 * Note that for very small resolutions a smaller margin will be used to
+		 * still allow adding notes to adjacent grid cells. */
+		static constexpr int nDefaultCursorMargin = 10;
+
+		EditorType m_editorType;
+
+		//! The Selection object.
+		Selection<Elem> m_selection;
+// 	uint m_nEditorHeight;
+// 	uint m_nEditorWidth;
+
+// 	// width of the editor covered by the current pattern.
+// 	int m_nActiveWidth;
+
+// 	float m_fGridWidth;
+// 	unsigned m_nGridHeight;
+
+ 	bool m_bCopyNotMove;
+
+// 		enum class DragType {
+// 			None,
+// 			Length,
+// 			Property
+// 		};
+// 		static QString DragTypeToQString( DragType dragType );
+// 		/** Specifies whether the user interaction is altering the length
+// 		 * (horizontal) or the currently selected property (vertical) of a
+// 		 * note. */
+// 		DragType m_dragType;
+
+// 		/** Keeps track of all notes being drag-edited using the right mouse
+// 		 * button. It maps the new, updated version of a note to an copy of
+// 		 * itself still bearing the original values.*/
+// 		std::map< std::shared_ptr<H2Core::Note>,
+// 			std::shared_ptr<H2Core::Note> > m_draggedNotes;
+// 		/** Column a click-drag event did started in.*/
+// 		int m_nDragStartColumn;
+// 		/** Latest vertical position of a drag event. Adjusted in every drag
+// 		 * update. */
+// 		int m_nDragY;
+// 		QPoint m_dragStart;
+// 		/** When drag editing note properties using right-click drag in
+// 		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
+// 		 * indicating the value change. But when dragging a selection of notes
+// 		 * or multiple notes at point, it is not obvious which information to
+// 		 * display. We show all values changes of notes at the initial mouse
+// 		 * cursor position. */
+// 		std::vector< std::shared_ptr<H2Core::Note> > m_elementsHoveredOnDragStart;
+
+// 	void showPopupMenu( QMouseEvent* pEvent );
+
+// 		/** Function in the same vein as getColumn() but calculates both column
+// 		 * and row information from the provided event position. */
+// 		void eventPointToColumnRow( const QPoint& point, int* pColumn,
+// 									int* pRow, int* pRealColumn = nullptr,
+// 									bool bUseFineGrained = false ) const;
+
+
+// 	/** Indicates whether the mouse pointer entered the widget.*/
+// 	bool m_bEntered;
+// 		/** @param bFullUpdate if `false`, just a simple update() of the widget
+// 		 *   will be triggered. If `true`, the background will be updated as
+// 		 *   well. */
+// 		void keyPressEvent ( QKeyEvent *ev, bool bFullUpdate = false );
+// 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
+// #ifdef H2CORE_HAVE_QT6
+// 		virtual void enterEvent( QEnterEvent *ev ) override;
+// #else
+// 		virtual void enterEvent( QEvent *ev ) override;
+// #endif
+// 	virtual void leaveEvent( QEvent *ev ) override;
+// 	virtual void focusInEvent( QFocusEvent *ev ) override;
+// 	virtual void focusOutEvent( QFocusEvent *ev ) override;
+// 		virtual void paintEvent( QPaintEvent* ev ) override;
+
+
+// 		/** When left-click dragging or applying actions using right-click popup
+// 		 * menu on a single note/multiple notes at the same position which are
+// 		 * not currently selected, the selection will be cleared and filled with
+// 		 * those notes. Else we would require the user to lasso-select each
+// 		 * single note before being able to move it.
+// 		 *
+// 		 * But we also have to take care of not establishing a selection
+// 		 * prematurely since a click event on the single note would result in
+// 		 * discarding the selection instead of removing the note. We thus use
+// 		 * this member to cache the notes and only select them in case the mouse
+// 		 * will be moved with left button down or right button is released
+// 		 * without move (click). */
+// 		std::vector< std::shared_ptr<Elem> > m_elementsToSelect;
+
+		void popupSetup() {
+			if ( m_elementsToSelectForPopup.size() > 0 ) {
+				m_selection.clearSelection();
+
+				for ( const auto& ppNote : m_elementsToSelectForPopup ) {
+					m_selection.addToSelection( ppNote );
+				}
+			}
+		}
+
+		void popupTeardown() {
+			if ( m_elementsToSelectForPopup.size() > 0 ) {
+				m_elementsToSelectForPopup.clear();
+				m_selection.clearSelection();
+			}
+
+			// The popup might have caused the cursor to move out of this widget
+			// and the latter will loose focus once the popup is torn down. We
+			// have to ensure not to display some glitchy notes previously
+			// hovered by mouse which are not present anymore (e.g. since they
+			// were aligned to a different position).
+			updateCursorHoveredElements();
+		}
+
+		/** When left-click dragging or applying actions using right-click popup
+		 * menu on a single note/multiple notes at the same position which are
+		 * not currently selected, the selection will be cleared and filled with
+		 * those notes. Else we would require the user to lasso-select each
+		 * single note before being able to move it.
+		 *
+		 * But we also have to take care of not establishing a selection
+		 * prematurely since a click event on the single note would result in
+		 * discarding the selection instead of removing the note. We thus use
+		 * this member to cache the notes and only select them in case the mouse
+		 * will be moved with left button down or right button is released
+		 * without move (click). */
+		std::vector<Elem> m_elementsToSelect;
+
+		/** When drag editing note properties using right-click drag in
+		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
+		 * indicating the value change. But when dragging a selection of notes
+		 * or multiple notes at point, it is not obvious which information to
+		 * display. We show all values changes of notes at the initial mouse
+		 * cursor position. */
+		std::vector<Elem> m_elementsHoveredOnDragStart;
+
+		/** Right-clicking a (hovered) note should make the popup menu act on
+		 * this note as well using a transient selection. However, as it is only
+		 * transient, we have to take care of clearing it later on. This "later"
+		 * is a little difficult. QMenu::aboutToHide() is called _before_ the
+		 * action trigger in the menu and thus too early for us to be used.
+		 * Clearing the selection on QMenu::triggered clears the selection
+		 * _after_ an action was triggered via the menu. But it does not in case
+		 * the menu was cancelled - e.g. just right-clicking a second time. The
+		 * later was implemented during development and felt quite weird.
+		 *
+		 * Instead, we use this member to cache notes which would be part of the
+		 * transient selection and both do select them and clear the selection
+		 * in all associated action slots/methods. */
+		std::vector<Elem> m_elementsToSelectForPopup;
+
+ 		std::vector<Elem> m_elementsHoveredForPopup;
+
+// 		void updateHoveredNotesMouse( QMouseEvent* pEvent,
+// 									  bool bUpdateEditors = true );
+// 		void updateHoveredNotesKeyboard( bool bUpdateEditors = true );
+
+};
+
+#endif // BASE_EDITOR_H

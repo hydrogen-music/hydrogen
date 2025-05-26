@@ -54,12 +54,10 @@ using namespace std;
 using namespace H2Core;
 
 
-PatternEditor::PatternEditor( QWidget *pParent )
+PatternEditor::PatternEditor( QWidget *pParent, BaseEditor::EditorType editorType )
 	: Object()
-	, QWidget( pParent )
-	, m_selection( this )
+	, BaseEditor( pParent, editorType )
 	, m_bEntered( false )
-	, m_bCopyNotMove( false )
 	, m_nTick( -1 )
 	, m_editor( Editor::None )
 	, m_property( Property::None )
@@ -92,10 +90,10 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
 	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
-	connect( m_pPopupMenu, SIGNAL( aboutToShow() ),
-			 this, SLOT( popupMenuAboutToShow() ) );
-	connect( m_pPopupMenu, SIGNAL( aboutToHide() ),
-			 this, SLOT( popupMenuAboutToHide() ) );
+	connect( m_pPopupMenu, &QMenu::aboutToShow, [&]() {
+		popupMenuAboutToShow(); } );
+	connect( m_pPopupMenu, &QMenu::aboutToHide, [&]() {
+		popupMenuAboutToHide(); } );
 
 
 	updateWidth();
@@ -107,6 +105,8 @@ PatternEditor::PatternEditor( QWidget *pParent )
 									height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	m_pPatternPixmap->setDevicePixelRatio( pixelRatio );
+
+	DEBUGLOG( BaseEditor::editorTypeToQString( m_editorType ) );
 }
 
 PatternEditor::~PatternEditor()
@@ -421,28 +421,6 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 	}
 }
 
-void PatternEditor::popupMenuAboutToShow() {
-	if ( m_notesToSelectForPopup.size() > 0 ) {
-		m_selection.clearSelection();
-
-		for ( const auto& ppNote : m_notesToSelectForPopup ) {
-			m_selection.addToSelection( ppNote );
-		}
-
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
-	}
-}
-
-void PatternEditor::popupMenuAboutToHide() {
-	if ( m_notesToSelectForPopup.size() > 0 ) {
-		m_selection.clearSelection();
-
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
-	}
-}
-
 void PatternEditor::updateEditor( bool bPatternOnly )
 {
 	if ( updateWidth() ) {
@@ -456,19 +434,7 @@ void PatternEditor::updateEditor( bool bPatternOnly )
 		m_update = Update::Background;
 	}
 
-	// update hovered notes
-	if ( hasFocus() ) {
-		updateHoveredNotesKeyboard( false );
-		const QPoint globalPos = QCursor::pos();
-		const QPoint widgetPos = mapFromGlobal( globalPos );
-		if ( widgetPos.x() >= 0 && widgetPos.x() < width() &&
-			 widgetPos.y() >= 0 && widgetPos.y() < height() ) {
-			auto pEvent = new QMouseEvent(
-				QEvent::MouseButtonRelease, widgetPos, globalPos, Qt::LeftButton,
-				Qt::LeftButton, Qt::NoModifier );
-			updateHoveredNotesMouse( pEvent, false );
-		}
-	}
+	updateCursorHoveredElements();
 
 	// redraw
 	update();
@@ -486,7 +452,7 @@ void PatternEditor::showPopupMenu( QMouseEvent* pEvent )
 	if ( m_editor == Editor::DrumPattern || m_editor == Editor::PianoRoll ) {
 		// Enable or disable menu actions that only operate on selected notes.
 		for ( auto & action : m_selectionActions ) {
-			action->setEnabled( m_notesHoveredForPopup.size() > 0 );
+			action->setEnabled( m_elementsHoveredForPopup.size() > 0 );
 		}
 	}
 
@@ -873,8 +839,8 @@ void PatternEditor::alignToGrid() {
 						 PatternEditor::AddNoteAction::None ) );
 
 		auto addNoteAction = AddNoteAction::None;
-		if ( m_notesHoveredForPopup.size() > 0 ) {
-			for ( const auto& ppHoveredNote : m_notesHoveredForPopup ) {
+		if ( m_elementsHoveredForPopup.size() > 0 ) {
+			for ( const auto& ppHoveredNote : m_elementsHoveredForPopup ) {
 				if ( ppNote == ppHoveredNote ) {
 					addNoteAction = AddNoteAction::MoveCursorTo;
 					break;
@@ -990,64 +956,12 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 			   ev->button() == Qt::RightButton ) ) ) {
 		if ( ! m_selection.isEmpty() ) {
 			m_selection.clearSelection();
-			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-			m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
+			updateVisibleComponents();
 		}
 		return;
 	}
 
-	updateModifiers( ev );
-
-	m_notesToSelectForPopup.clear();
-	m_notesHoveredForPopup.clear();
-	m_notesHoveredOnDragStart.clear();
-	m_notesToSelect.clear();
-
-	if ( ( ev->buttons() == Qt::LeftButton || ev->buttons() == Qt::RightButton ) &&
-		 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
-
-		// When interacting with note(s) not already in a selection, we will
-		// discard the current selection and add these notes under point to a
-		// transient one.
-		const auto notesUnderPoint = getElementsAtPoint(
-			pEv->position().toPoint(), getCursorMargin( ev ), pPattern );
-
-		bool bSelectionHovered = false;
-		for ( const auto& ppNote : notesUnderPoint ) {
-			if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
-				bSelectionHovered = true;
-				break;
-			}
-		}
-
-		// We honor the current selection.
-		if ( bSelectionHovered ) {
-			for ( const auto& ppNote : notesUnderPoint ) {
-				if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
-					m_notesHoveredOnDragStart.push_back( ppNote );
-				}
-			}
-		}
-		else {
-			m_notesToSelect = notesUnderPoint;
-			m_notesHoveredOnDragStart = notesUnderPoint;
-		}
-
-		if ( ev->button() == Qt::RightButton ) {
-			m_notesToSelectForPopup = m_notesToSelect;
-			m_notesHoveredForPopup = m_notesHoveredOnDragStart;
-		}
-
-		// Property drawing in the ruler must not select notes.
-		if ( m_editor == Editor::NotePropertiesRuler &&
-			 ev->button() == Qt::RightButton ) {
-			m_notesToSelect.clear();
-		}
-	}
-
-	// propagate event to selection. This could very well cancel a lasso created
-	// via keyboard events.
-	m_selection.mousePressEvent( ev );
+	BaseEditor::mousePressEvent( ev );
 
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
@@ -1094,7 +1008,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 		// Check whether an existing note or an empty grid cell was clicked.
 		const auto notesAtPoint = getElementsAtPoint(
-			pEv->position().toPoint(), getCursorMargin( ev ), pPattern );
+			pEv->position().toPoint(), getCursorMargin( ev ) );
 		if ( notesAtPoint.size() == 0 ) {
 			// Empty grid cell
 
@@ -1152,9 +1066,9 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 	}
 	else if ( ev->button() == Qt::RightButton ) {
-		if ( m_notesHoveredForPopup.size() > 0 ) {
+		if ( m_elementsHoveredForPopup.size() > 0 ) {
 			m_pPatternEditorPanel->setCursorColumn(
-				m_notesHoveredForPopup[ 0 ]->getPosition() );
+				m_elementsHoveredForPopup[ 0 ]->getPosition() );
 		}
 		else {
 			// For pasting we can not rely on the position of preexising notes.
@@ -1177,16 +1091,16 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( m_notesToSelect.size() > 0 ) {
+	if ( m_elementsToSelect.size() > 0 ) {
 		if ( ev->buttons() == Qt::LeftButton ||
 			 ev->buttons() == Qt::RightButton ) {
 			m_selection.clearSelection();
-			for ( const auto& ppNote : m_notesToSelect ) {
+			for ( const auto& ppNote : m_elementsToSelect ) {
 				m_selection.addToSelection( ppNote );
 			}
 		}
 		else {
-			m_notesToSelect.clear();
+			m_elementsToSelect.clear();
 		}
 	}
 
@@ -1226,12 +1140,12 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 		bUpdate = true;
 	}
 
-	m_notesHoveredOnDragStart.clear();
+	m_elementsHoveredOnDragStart.clear();
 
-	if ( ev->button() == Qt::LeftButton && m_notesToSelect.size() > 0 ) {
+	if ( ev->button() == Qt::LeftButton && m_elementsToSelect.size() > 0 ) {
 		// We used a transient selection of note(s) at a single position.
 		m_selection.clearSelection();
-		m_notesToSelect.clear();
+		m_elementsToSelect.clear();
 		bUpdate = true;
 	}
 
@@ -1244,29 +1158,7 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	m_pPatternEditorPanel->updateQuantization( ev );
 
-	// Key: Ctrl + drag: copy notes rather than moving
-	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
-
-	if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( ev ) ) {
-		// Keyboard events for press and release of modifier keys don't have
-		// those keys in the modifiers set, so explicitly update these.
-		bool bPressed = ev->type() == QEvent::KeyPress;
-		if ( pKeyEvent->key() == Qt::Key_Control ) {
-			m_bCopyNotMove = bPressed;
-		}
-	}
-
-	if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
-		// If a selection is currently being moved, change the cursor
-		// appropriately. Selection will change it back after the move
-		// is complete (or abandoned)
-		if ( m_bCopyNotMove &&  cursor().shape() != Qt::DragCopyCursor ) {
-			setCursor( QCursor( Qt::DragCopyCursor ) );
-		}
-		else if ( ! m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
-			setCursor( QCursor( Qt::DragMoveCursor ) );
-		}
-	}
+	BaseEditor::updateModifiers( ev );
 }
 
 // Ensure updateModifiers() was called on the input event before calling this
@@ -1281,10 +1173,10 @@ int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
 
 	const int nResolution = m_pPatternEditorPanel->getResolution();
 	if ( nResolution < 32 ) {
-		return PatternEditor::nDefaultCursorMargin;
+		return BaseEditor::nDefaultCursorMargin;
 	}
 	else if ( nResolution < 4 * H2Core::nTicksPerQuarter ) {
-		return PatternEditor::nDefaultCursorMargin / 2;
+		return BaseEditor::nDefaultCursorMargin / 2;
 	}
 	else {
 		return 0;
@@ -2019,7 +1911,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		// Check whether the note was hovered when the drag move action was
 		// started. If so, we will move the keyboard cursor to the resulting
 		// position.
-		for ( const auto ppHoveredNote : m_notesHoveredOnDragStart ) {
+		for ( const auto ppHoveredNote : m_elementsHoveredOnDragStart ) {
 			if ( ppHoveredNote == pNote ) {
 				addNoteAction = static_cast<AddNoteAction>(
 					AddNoteAction::AddToSelection | AddNoteAction::MoveCursorTo );
@@ -2078,6 +1970,30 @@ void PatternEditor::scrolled( int nValue ) {
 	update();
 }
 
+void PatternEditor::updateCursorHoveredElements() {
+	const QPoint globalPos = QCursor::pos();
+	const QPoint widgetPos = mapFromGlobal( globalPos );
+	if ( ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
+		   widgetPos.y() < 0 || widgetPos.y() >= height() ) ||
+		! hasFocus() ) {
+		// Outside of the current widget. Clear all hovered notes.
+		std::vector< std::pair< std::shared_ptr<Pattern>,
+								std::vector< std::shared_ptr<Note> > > > empty;
+		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
+	}
+	else {
+		auto pEvent = new QMouseEvent(
+			QEvent::MouseButtonRelease, widgetPos, globalPos, Qt::LeftButton,
+			Qt::LeftButton, Qt::NoModifier );
+		updateHoveredNotesMouse( pEvent, false );
+	}
+}
+
+void PatternEditor::updateVisibleComponents() {
+	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
+}
+
 int PatternEditor::granularity() const {
 	int nBase;
 	if ( m_pPatternEditorPanel->isUsingTriplets() ) {
@@ -2107,7 +2023,7 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 	// instead.
 	auto selectNotesAtPoint = [&]() {
 		const auto notesUnderPoint = getElementsAtPoint(
-			getCursorPosition(), 0, pPattern );
+			getCursorPosition(), 0 );
 		if ( notesUnderPoint.size() == 0 ) {
 			return false;
 		}
@@ -2742,7 +2658,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 
 		// Adjusting note properties.
 		const auto notesAtPoint = getElementsAtPoint(
-			pEv->position().toPoint(), getCursorMargin( ev ), pPattern );
+			pEv->position().toPoint(), getCursorMargin( ev ) );
 		if ( notesAtPoint.size() == 0 ) {
 			return;
 		}
@@ -2838,7 +2754,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev ) {
 			}
 			ppNote->setLength( nLen * fStep );
 
-			triggerStatusMessage( m_notesHoveredOnDragStart, Property::Length );
+			triggerStatusMessage( m_elementsHoveredOnDragStart, Property::Length );
 		}
 		else if ( m_dragType == DragType::Property &&
 				  m_property != Property::KeyOctave ) {
@@ -2879,7 +2795,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev ) {
 				ppNote->setProbability( fValue );
 			}
 
-			triggerStatusMessage( m_notesHoveredOnDragStart, m_property );
+			triggerStatusMessage( m_elementsHoveredOnDragStart, m_property );
 		}
 	}
 
@@ -3014,7 +2930,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 			editNoteProperty( Property::Length, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
-			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
+			for ( const auto ppNote : m_elementsHoveredOnDragStart ) {
 				if ( ppNote == ppOriginalNote ) {
 					notesStatus.push_back( ppUpdatedNote );
 				}
@@ -3030,7 +2946,7 @@ void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
 			editNoteProperty( m_property, ppUpdatedNote, ppOriginalNote );
 
 			// We only trigger status messages for notes hovered by the user.
-			for ( const auto ppNote : m_notesHoveredOnDragStart ) {
+			for ( const auto ppNote : m_elementsHoveredOnDragStart ) {
 				if ( ppNote == ppOriginalNote ) {
 					notesStatus.push_back( ppUpdatedNote );
 				}
@@ -4017,37 +3933,6 @@ bool PatternEditor::syncLasso() {
 
 bool PatternEditor::isSelectionMoving() const {
 	return m_selection.isMoving();
-}
-
-void PatternEditor::popupSetup() {
-	if ( m_notesToSelectForPopup.size() > 0 ) {
-		m_selection.clearSelection();
-
-		for ( const auto& ppNote : m_notesToSelectForPopup ) {
-			m_selection.addToSelection( ppNote );
-		}
-	}
-}
-
-void PatternEditor::popupTeardown() {
-	if ( m_notesToSelectForPopup.size() > 0 ) {
-		m_notesToSelectForPopup.clear();
-		m_selection.clearSelection();
-	}
-
-	// The popup might have caused the cursor to move out of this widget and the
-	// latter will loose focus once the popup is torn down. We have to ensure
-	// not to display some glitchy notes previously hovered by mouse which are
-	// not present anymore (e.g. since they were aligned to a different
-	// position).
-	const QPoint globalPos = QCursor::pos();
-	const QPoint widgetPos = mapFromGlobal( globalPos );
-	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
-		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
-		std::vector< std::pair< std::shared_ptr<Pattern>,
-								std::vector< std::shared_ptr<Note> > > > empty;
-		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
-	}
 }
 
 bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const {

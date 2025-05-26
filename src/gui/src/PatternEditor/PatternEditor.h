@@ -24,6 +24,7 @@
 #define PATERN_EDITOR_H
 
 #include "../Selection.h"
+#include "../Widgets/BaseEditor.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Basics/Note.h>
@@ -33,9 +34,7 @@
 #include <memory>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 namespace H2Core
 {
@@ -55,10 +54,9 @@ class PatternEditorPanel;
 //! timebase functions, and drawing grid lines.
 //!
 /** \ingroup docGUI*/
-class PatternEditor : public QWidget,
+class PatternEditor : public BaseEditor<std::shared_ptr<H2Core::Note>>,
 					  public H2Core::Object<PatternEditor>,
-					  protected WidgetWithScalableFont<7, 9, 11>,
-					  public SelectionWidget<std::shared_ptr<H2Core::Note>>
+					  protected WidgetWithScalableFont<7, 9, 11>
 {
 	H2_OBJECT(PatternEditor)
 	Q_OBJECT
@@ -106,7 +104,7 @@ public:
 		};
 		static QString updateToQString( const Update& update );
 
-	PatternEditor( QWidget *pParent );
+	PatternEditor( QWidget *pParent, BaseEditor::EditorType editorType );
 	~PatternEditor();
 
 	float getGridWidth() const { return m_fGridWidth; }
@@ -140,7 +138,7 @@ public:
 	virtual void validateSelection() override;
 
 	//! Update the status of modifier keys in response to input events.
-	virtual void updateModifiers( QInputEvent *ev );
+	virtual void updateModifiers( QInputEvent *ev ) override;
 
 	//! Update a widget in response to a change in selection
 	virtual void updateWidget() override {
@@ -263,18 +261,7 @@ public:
 
 		void setCursorPitch( int nCursorPitch );
 
-protected:
-
-	//! The Selection object.
-	Selection< SelectionIndex > m_selection;
-
 public slots:
-		/** When right-click opening a popup menu, ensure the clicked note is
-		 * selected. Note however that this is just temporary while the popup is
-		 * shown. Selection for the popup actions themselves is done by
-		 * popupSetup(). */
-		void popupMenuAboutToShow();
-		void popupMenuAboutToHide();
 	virtual void updateEditor( bool bPatternOnly = false );
 	virtual void selectAll() = 0;
 	virtual void selectNone();
@@ -314,12 +301,8 @@ protected:
 		 * which of the editors currently holds focus. */
 		static constexpr int nOutOfFocusDim = 110;
 
-		/** Distance in pixel the cursor is allowed to be away from a note to
-		 * still be associated with it.
-		 *
-		 * Note that for very small resolutions a smaller margin will be used to
-		 * still allow adding notes to adjacent grid cells. */
-		static constexpr int nDefaultCursorMargin = 10;
+		void updateCursorHoveredElements() override;
+		void updateVisibleComponents() override;
 
 	//! Granularity of grid positioning (in ticks)
 	int granularity() const;
@@ -332,8 +315,6 @@ protected:
 
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
-
-	bool m_bCopyNotMove;
 
 		enum class DragType {
 			None,
@@ -357,13 +338,6 @@ protected:
 		 * update. */
 		int m_nDragY;
 		QPoint m_dragStart;
-		/** When drag editing note properties using right-click drag in
-		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
-		 * indicating the value change. But when dragging a selection of notes
-		 * or multiple notes at point, it is not obvious which information to
-		 * display. We show all values changes of notes at the initial mouse
-		 * cursor position. */
-		std::vector< std::shared_ptr<H2Core::Note> > m_notesHoveredOnDragStart;
 
 	PatternEditorPanel* m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
@@ -455,39 +429,6 @@ protected:
 	Editor m_editor;
 	Property m_property;
 
-		/** When left-click dragging or applying actions using right-click popup
-		 * menu on a single note/multiple notes at the same position which are
-		 * not currently selected, the selection will be cleared and filled with
-		 * those notes. Else we would require the user to lasso-select each
-		 * single note before being able to move it.
-		 *
-		 * But we also have to take care of not establishing a selection
-		 * prematurely since a click event on the single note would result in
-		 * discarding the selection instead of removing the note. We thus use
-		 * this member to cache the notes and only select them in case the mouse
-		 * will be moved with left button down or right button is released
-		 * without move (click). */
-		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelect;
-
-		void popupSetup();
-		void popupTeardown();
-
-		/** Right-clicking a (hovered) note should make the popup menu act on
-		 * this note as well using a transient selection. However, as it is only
-		 * transient, we have to take care of clearing it later on. This "later"
-		 * is a little difficult. QMenu::aboutToHide() is called _before_ the
-		 * action trigger in the menu and thus too early for us to be used.
-		 * Clearing the selection on QMenu::triggered clears the selection
-		 * _after_ an action was triggered via the menu. But it does not in case
-		 * the menu was cancelled - e.g. just right-clicking a second time. The
-		 * later was implemented during development and felt quite weird.
-		 *
-		 * Instead, we use this member to cache notes which would be part of the
-		 * transient selection and both do select them and clear the selection
-		 * in all associated action slots/methods. */
-		std::vector< std::shared_ptr<H2Core::Note> > m_notesToSelectForPopup;
-
-		std::vector< std::shared_ptr<H2Core::Note> > m_notesHoveredForPopup;
 
 		void updateHoveredNotesMouse( QMouseEvent* pEvent,
 									  bool bUpdateEditors = true );
