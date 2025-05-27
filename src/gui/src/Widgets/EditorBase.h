@@ -174,8 +174,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				m_update = Update::Background;
 			}
 
-			updateMouseHoveredElements( nullptr );
-
 			// redraw
 			update();
 		}
