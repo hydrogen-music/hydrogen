@@ -56,7 +56,6 @@ using namespace H2Core;
 PatternEditor::PatternEditor( QWidget *pParent )
 	: Object()
 	, Editor::Base<Elem>( pParent )
-	, m_bEntered( false )
 	, m_nTick( -1 )
 	, m_property( Property::None )
 	, m_nCursorPitch( 0 )
@@ -2111,56 +2110,6 @@ void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
 	// user might position a note carefully and it jumps to different place
 	// because she released the Alt modifier slightly earlier than the mouse
 	// button.
-}
-
-#ifdef H2CORE_HAVE_QT6
-void PatternEditor::enterEvent( QEnterEvent *ev ) {
-#else
-void PatternEditor::enterEvent( QEvent *ev ) {
-#endif
-	UNUSED( ev );
-	m_bEntered = true;
-
-	// Update focus, hovered notes and selection color.
-	m_pPatternEditorPanel->updateEditors( true );
-}
-
-void PatternEditor::leaveEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = false;
-
-	if ( m_pPatternEditorPanel->getHoveredNotes().size() > 0 ) {
-		std::vector< std::pair< std::shared_ptr<Pattern>,
-								std::vector< std::shared_ptr<Note> > > > empty;
-		// Takes care of the update.
-		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
-	}
-
-	// Ending the enclosing undo context. This is key to enable the Undo/Redo
-	// buttons in the main menu again and it feels like a good rule of thumb to
-	// consider an action done whenever the user moves mouse or cursor away from
-	// the widget.
-	HydrogenApp::get_instance()->endUndoContext();
-
-	// Update focus, hovered notes and selection color.
-	m_pPatternEditorPanel->updateEditors( true );
-}
-
-void PatternEditor::focusInEvent( QFocusEvent *ev ) {
-	UNUSED( ev );
-	if ( ev->reason() == Qt::TabFocusReason ||
-		 ev->reason() == Qt::BacktabFocusReason ) {
-		handleKeyboardCursor( true );
-	}
-
-	// Update hovered notes, cursor, background color, selection color...
-	m_pPatternEditorPanel->updateEditors();
-}
-
-void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
-	UNUSED( ev );
-	// Update hovered notes, cursor, background color, selection color...
-	m_pPatternEditorPanel->updateEditors();
 }
 
 void PatternEditor::paintEvent( QPaintEvent* ev )

@@ -70,6 +70,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			, m_nEditorHeight( height() )
 			, m_nEditorWidth( width() )
 			, m_bCopyNotMove( false )
+			, m_bEntered( false )
 			, m_instance( Instance::None )
 			, m_update( Update::Background )
 			, m_pPopupMenu( new QMenu( this ) )
@@ -472,7 +473,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		int m_nEditorHeight;
 		int m_nEditorWidth;
 
- 	bool m_bCopyNotMove;
+		bool m_bCopyNotMove;
+		/** Indicates whether the mouse pointer entered the widget.*/
+		bool m_bEntered;
 
 // 		enum class DragType {
 // 			None,
@@ -520,37 +523,57 @@ class Base : public SelectionWidget<Elem>, public QWidget
 // 									bool bUseFineGrained = false ) const;
 
 
-// 	/** Indicates whether the mouse pointer entered the widget.*/
-// 	bool m_bEntered;
-// 		/** @param bFullUpdate if `false`, just a simple update() of the widget
+// 		 ** @param bFullUpdate if `false`, just a simple update() of the widget
 // 		 *   will be triggered. If `true`, the background will be updated as
 // 		 *   well. */
 // 		void keyPressEvent ( QKeyEvent *ev, bool bFullUpdate = false );
-// 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
-// #ifdef H2CORE_HAVE_QT6
-// 		virtual void enterEvent( QEnterEvent *ev ) override;
-// #else
-// 		virtual void enterEvent( QEvent *ev ) override;
-// #endif
-// 	virtual void leaveEvent( QEvent *ev ) override;
-// 	virtual void focusInEvent( QFocusEvent *ev ) override;
-// 	virtual void focusOutEvent( QFocusEvent *ev ) override;
-// 		virtual void paintEvent( QPaintEvent* ev ) override;
 
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent* ev ) override {
+#else
+		virtual void enterEvent( QEvent* ev ) override {
+#endif
+			UNUSED( ev );
+			m_bEntered = true;
 
-// 		/** When left-click dragging or applying actions using right-click popup
-// 		 * menu on a single note/multiple notes at the same position which are
-// 		 * not currently selected, the selection will be cleared and filled with
-// 		 * those notes. Else we would require the user to lasso-select each
-// 		 * single note before being able to move it.
-// 		 *
-// 		 * But we also have to take care of not establishing a selection
-// 		 * prematurely since a click event on the single note would result in
-// 		 * discarding the selection instead of removing the note. We thus use
-// 		 * this member to cache the notes and only select them in case the mouse
-// 		 * will be moved with left button down or right button is released
-// 		 * without move (click). */
-// 		std::vector< std::shared_ptr<Elem> > m_elementsToSelect;
+			// Update focus, hovered notes and selection color.
+			updateVisibleComponents( true );
+		}
+
+		virtual void leaveEvent( QEvent* ev ) override {
+			UNUSED( ev );
+			m_bEntered = false;
+
+			updateMouseHoveredElements( nullptr );
+
+			// Ending the enclosing undo context. This is key to enable the
+			// Undo/Redo buttons in the main menu again and it feels like a good
+			// rule of thumb to consider an action done whenever the user moves
+			// mouse or cursor away from the widget.
+			HydrogenApp::get_instance()->endUndoContext();
+
+			// Update focus, hovered notes and selection color.
+			updateVisibleComponents( true );
+		}
+
+		virtual void focusInEvent( QFocusEvent* ev ) override {
+			UNUSED( ev );
+			if ( ev->reason() == Qt::TabFocusReason ||
+				 ev->reason() == Qt::BacktabFocusReason ) {
+				handleKeyboardCursor( true );
+			}
+
+			// Update hovered notes, cursor, background color, selection
+			// color...
+			updateAllComponents( false );
+		}
+
+		virtual void focusOutEvent( QFocusEvent *ev ) override {
+			UNUSED( ev );
+			// Update hovered notes, cursor, background color, selection
+			// color...
+			updateAllComponents( false );
+		}
 
 		void popupSetup() {
 			if ( m_elementsToSelectForPopup.size() > 0 ) {
