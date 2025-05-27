@@ -732,13 +732,25 @@ void HydrogenApp::onEventQueueTimer()
 
 	Event event;
 	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
-		
+
+		if ( m_eventListenersToAdd.size() > 0 ||
+			 m_eventListenersToRemove.size() > 0 ) {
+			updateEventListeners();
+		}
+
 		// Provide the event to all EventListeners registered to
 		// HydrogenApp. By registering itself as EventListener and
 		// implementing at least on the methods used below a
 		// particular GUI component can react on specific events.
-		for (int i = 0; i < (int)m_EventListeners.size(); i++ ) {
-			EventListener *pListener = m_EventListeners[ i ];
+		for ( const auto& pListener : m_eventListeners ) {
+			if ( m_eventListenersToRemove.size() > 0 &&
+				 m_eventListenersToRemove.find( pListener ) !=
+				 m_eventListenersToRemove.end() ) {
+				// This listener was scheduled to be removed. Most probably the
+				// corresponding object is already destructed and we would risk
+				// a segfault when attempting to call its methods.
+				continue;
+			}
 
 			switch ( event.type ) {
 			case EVENT_STATE:
@@ -966,21 +978,63 @@ void HydrogenApp::onEventQueueTimer()
 }
 
 
-void HydrogenApp::addEventListener( EventListener* pListener )
-{
-	if (pListener) {
-		m_EventListeners.push_back( pListener );
+void HydrogenApp::addEventListener( EventListener* pListener ) {
+	if ( pListener != nullptr ) {
+		m_eventListenersToAdd.insert( pListener );
+	}
+
+	if ( m_eventListenersToRemove.find( pListener ) !=
+		 m_eventListenersToRemove.end() ) {
+		// Listener was already scheduled to be removed. Last action wins.
+		for ( auto it = m_eventListenersToRemove.begin();
+			  it != m_eventListenersToRemove.end(); ) {
+			if ( *it == pListener ) {
+				it = m_eventListenersToRemove.erase( it );
+				break;
+			} else {
+				++it;
+			}
+		}
 	}
 }
 
+void HydrogenApp::removeEventListener( EventListener* pListener ) {
+	if ( pListener != nullptr ) {
+		m_eventListenersToRemove.insert( pListener );
+	}
 
-void HydrogenApp::removeEventListener( EventListener* pListener )
-{
-	for ( uint i = 0; i < m_EventListeners.size(); i++ ) {
-		if ( pListener == m_EventListeners[ i ] ) {
-			m_EventListeners.erase( m_EventListeners.begin() + i );
+	if ( m_eventListenersToAdd.find( pListener ) !=
+		 m_eventListenersToAdd.end() ) {
+		for ( auto it = m_eventListenersToAdd.begin();
+			  it != m_eventListenersToAdd.end(); ) {
+			if ( *it == pListener ) {
+				it = m_eventListenersToAdd.erase( it );
+				break;
+			} else {
+				++it;
+			}
 		}
 	}
+}
+
+void HydrogenApp::updateEventListeners() {
+	for ( const auto& ppEventListener : m_eventListenersToRemove ) {
+		for ( auto it = m_eventListeners.begin();
+			  it != m_eventListeners.end(); ) {
+			if ( *it == ppEventListener ) {
+				it = m_eventListeners.erase( it );
+				break;
+			} else {
+				++it;
+			}
+		}
+	}
+	m_eventListenersToRemove.clear();
+
+	for ( const auto& ppEventListener : m_eventListenersToAdd ) {
+		m_eventListeners.push_back( ppEventListener );
+	}
+	m_eventListenersToAdd.clear();
 }
 
 /**
