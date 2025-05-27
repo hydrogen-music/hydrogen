@@ -35,6 +35,7 @@
 
 #include "PatternEditor.h"
 #include "../EventListener.h"
+#include "../Widgets/EditorDefs.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
@@ -246,8 +247,8 @@ class PatternEditorPanel : public QWidget,
 		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
 							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
 							   bool bDoDelete = true, bool bIsNoteOff = false,
-							   PatternEditor::AddNoteAction action =
-							   PatternEditor::AddNoteAction::None );
+							   Editor::Action action =
+							   Editor::Action::None );
 
 		/**
 		 * Determines whether to pattern editor should show further

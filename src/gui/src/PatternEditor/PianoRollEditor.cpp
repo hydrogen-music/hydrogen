@@ -453,9 +453,10 @@ void PitchSidebar::rowPressed( QMouseEvent* pEvent, PitchLabel* pLabel ) {
 ////////////////////////////////////////////////////////////////////////////////
 
 PianoRollEditor::PianoRollEditor( QWidget *pParent )
-	: PatternEditor( pParent, BaseEditor::EditorType::Grid )
+	: PatternEditor( pParent )
 {
-	m_editor = PatternEditor::Editor::PianoRoll;
+	m_type = Editor::Type::Grid;
+	m_instance = Editor::Instance::PianoRoll;
 
 	const auto pPref = H2Core::Preferences::get_instance();
 	QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
@@ -743,7 +744,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 			Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ),
 			/* bDoAdd */ true, /* bDoDelete */ true,
 			/* bIsNoteOff */ false,
-			PatternEditor::AddNoteAction::Playback );
+			Editor::Action::Playback );
 	}
 	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete: delete selection or note at keyboard cursor
@@ -760,7 +761,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 				Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ),
 				/* bDoAdd */ false, /* bDoDelete */ true,
 				/* bIsNoteOff */ false,
-				PatternEditor::AddNoteAction::None );
+				Editor::Action::None );
 		}
 	}
 	else {

@@ -41,11 +41,14 @@
 #include <stack>
 
 using namespace H2Core;
+using namespace Editor;
 
 DrumPatternEditor::DrumPatternEditor( QWidget* parent )
- : PatternEditor( parent, BaseEditor::EditorType::Grid )
+	: PatternEditor( parent )
 {
-	m_editor = PatternEditor::Editor::DrumPattern;
+	m_type = Editor::Type::Grid;
+	m_instance = Editor::Instance::DrumPattern;
+
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	m_nGridHeight = pPref->getPatternEditorGridHeight();
@@ -67,10 +70,10 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	if ( m_nEditorHeight != nTargetHeight ) {
 		m_nEditorHeight = nTargetHeight;
 		resize( m_nEditorWidth, m_nEditorHeight );
-		m_update = Update::Background;
+		m_update = Editor::Update::Background;
 	}
 
-	BaseEditor::updateEditor( bPatternOnly );
+	Editor::Base<Elem>::updateEditor( bPatternOnly );
 }
 
 ///
@@ -160,7 +163,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 			nSelectedRow, KEY_INVALID, OCTAVE_INVALID,
 			/*bDoAdd*/ true, /*bDoDelete*/true,
 			/* bIsNoteOff */ false,
-			PatternEditor::AddNoteAction::Playback );
+			Editor::Action::Playback );
 	}
 	else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under
@@ -175,7 +178,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 				nSelectedRow, KEY_INVALID, OCTAVE_INVALID,
 				/*bDoAdd=*/false, /*bDoDelete=*/true,
 				/* bIsNoteOff */ false,
-				PatternEditor::AddNoteAction::None );
+				Editor::Action::None );
 		}
 	}
 	else {

@@ -133,13 +133,15 @@ void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent ) {
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 										  PatternEditor::Property property,
 										  Layout layout )
-	: PatternEditor( parent, BaseEditor::EditorType::Horizontal )
+	: PatternEditor( parent )
 	, m_nDrawPreviousColumn( -1 )
 	, m_layout( layout )
 {
+	m_type = Editor::Type::Horizontal;
+	m_instance = Editor::Instance::NotePropertiesRuler;
+
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_property = property;
-	m_editor = PatternEditor::Editor::NotePropertiesRuler;
 
 	m_fGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
@@ -339,8 +341,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
 		}
 
-		if ( m_update != BaseEditor::Update::Background ) {
-			m_update = BaseEditor::Update::Content;
+		if ( m_update != Editor::Update::Background ) {
+			m_update = Editor::Update::Content;
 		}
 		update();
 	}
@@ -459,8 +461,8 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	if ( bValueChanged ) {
 		triggerStatusMessage( notesStatusMessage, m_property );
-		if ( m_update != BaseEditor::Update::Background ) {
-			m_update = BaseEditor::Update::Content;
+		if ( m_update != Editor::Update::Background ) {
+			m_update = Editor::Update::Content;
 		}
 		update();
 
@@ -475,8 +477,8 @@ void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	//! The "move" has already been reflected in the notes. Now just complete Undo event.
 	addUndoAction( "" );
 
-	if ( m_update != BaseEditor::Update::Background ) {
-		m_update = BaseEditor::Update::Content;
+	if ( m_update != Editor::Update::Background ) {
+		m_update = Editor::Update::Content;
 	}
 	update();
 }
@@ -519,8 +521,8 @@ void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev );
 
-	if ( m_update != BaseEditor::Update::Background ) {
-		m_update = BaseEditor::Update::Content;
+	if ( m_update != Editor::Update::Background ) {
+		m_update = Editor::Update::Content;
 	}
 	update();
 }
@@ -696,8 +698,8 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		if ( m_update != BaseEditor::Update::Background ) {
-			m_update = BaseEditor::Update::Content;
+		if ( m_update != Editor::Update::Background ) {
+			m_update = Editor::Update::Content;
 		}
 		update();
 		if ( m_property == PatternEditor::Property::Velocity ) {
@@ -714,8 +716,8 @@ void NotePropertiesRuler::propertyDrawEnd()
 	addUndoAction( "NotePropertiesRuler::propertyDraw" );
 	unsetCursor();
 
-	if ( m_update != BaseEditor::Update::Background ) {
-		m_update = BaseEditor::Update::Content;
+	if ( m_update != Editor::Update::Background ) {
+		m_update = Editor::Update::Content;
 	}
 	update();
 }

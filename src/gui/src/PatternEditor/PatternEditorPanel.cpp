@@ -2202,7 +2202,7 @@ void PatternEditorPanel::printDB() const {
 void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 										   int nOctave, bool bDoAdd,
 										   bool bDoDelete, bool bIsNoteOff,
-										   PatternEditor::AddNoteAction action ) {
+										   Editor::Action action ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	if ( m_pPattern == nullptr ) {
@@ -2251,7 +2251,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
 			 row.bMappedToDrumkit &&
-			 action & PatternEditor::AddNoteAction::Playback ) {
+			 ( static_cast<char>(action) &
+			   static_cast<char>(Editor::Action::Playback) ) ) {
 			auto pSelectedInstrument = getSelectedInstrument();
 			if ( pSelectedInstrument != nullptr &&
 				 pSelectedInstrument->hasSamples() ) {
@@ -2395,7 +2396,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						/* bIsDelete */ true,
 						ppNote->getNoteOff(),
 						ppNote->getInstrument() != nullptr,
-						PatternEditor::AddNoteAction::None ) );
+						Editor::Action::None ) );
 			}
 		}
 	}
@@ -2479,7 +2480,7 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
 							  true /* bDoAdd */, false /* bDoDelete */,
 							  false /* bIsNoteOff */,
-							  PatternEditor::AddNoteAction::None );
+							  Editor::Action::None );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -2671,7 +2672,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							/* bIsDelete */ false,
 							ppNote->getNoteOff(),
 							row.bMappedToDrumkit,
-							PatternEditor::AddNoteAction::None ) );
+							Editor::Action::None ) );
 				}
 			}
 		}

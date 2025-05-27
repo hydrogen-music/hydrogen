@@ -20,9 +20,10 @@
  *
  */
 
-#ifndef BASE_EDITOR_H
-#define BASE_EDITOR_H
+#ifndef EDITOR_BASE_H
+#define EDITOR_BASE_H
 
+#include "EditorDefs.h"
 #include "../HydrogenApp.h"
 #include "../Selection.h"
 
@@ -35,10 +36,12 @@ namespace H2Core {
 	class Pattern;
 }
 
+namespace Editor {
+
 /** Base Editor
 *
-* The BaseEditor class is an abstract base class for functionality common to all
-* our Editors (#DrumPatternEditor, #PianoRollEditor, #NotePropertiesRuler,
+* The Base class is an abstract base class for functionality common to all our
+* Editors (#DrumPatternEditor, #PianoRollEditor, #NotePropertiesRuler,
 * #SongEditor, #AutomationPathView, #TargetWaveDisplay).
 *
 * This covers common elements such as
@@ -55,61 +58,21 @@ namespace H2Core {
 *
 * \ingroup docGUI */
 template<class Elem>
-class BaseEditor : public SelectionWidget<Elem>, public QWidget
+class Base : public SelectionWidget<Elem>, public QWidget
 {
 	public:
-		enum class EditorType {
-			Horizontal,
-			Grid
-		};
-		static QString editorTypeToQString( const EditorType& type ) {
-			switch( type ) {
-			case EditorType::Horizontal:
-				return QString( "Horizontal" );
-			case EditorType::Grid:
-				return QString( "Grid" );
-			default:
-				return QString( "Unknown editor type [%1]" )
-					.arg( static_cast<int>(type) );
-			}
-		}
 
-		/** Specifies which parts of the editor need updating on a paintEvent().
-		 * Bigger numerical values imply updating elements with lower ones as
-		 * well.*/
-		enum class Update {
-			/** Just paint transient elements, like hovered notes, cursor, focus
-			 * or lasso. */
-			None = 0,
-			/** Update notes, pattern, etc. including selection of a cached background image. */
-			Content = 1,
-			/** Update the background image. */
-			Background = 2
-		};
-		static QString updateToQString( const Update& update ) {
-			switch ( update ) {
-				case Update::Background:
-					return "Background";
-				case Update::Content:
-					return "Pattern";
-				case Update::None:
-					return "None";
-				default:
-					return QString( "Unknown update [%1]" )
-						.arg( static_cast<int>(update) ) ;
-			}
-}
-
-
-		BaseEditor( QWidget* pParent, EditorType type )
+		Base( QWidget* pParent )
 			: QWidget( pParent )
-			, m_editorType( type )
+			, m_type( Type::Grid )
 			, m_selection( this )
 			, m_nActiveWidth( width() )
 			, m_nEditorHeight( height() )
 			, m_nEditorWidth( width() )
 			, m_bCopyNotMove( false )
+			, m_instance( Instance::None )
 			, m_update( Update::Background )
+			, m_pPopupMenu( new QMenu( this ) )
 		{
 			qreal pixelRatio = devicePixelRatio();
 			m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
@@ -119,7 +82,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 			m_pContentPixmap->setDevicePixelRatio( pixelRatio );
 		}
-		virtual ~BaseEditor() {
+		virtual ~Base() {
 			if ( m_pContentPixmap != nullptr ) {
 				delete m_pContentPixmap;
 			}
@@ -129,6 +92,23 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 		}
 
 		virtual void ensureCursorIsVisible() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void addElement( QMouseEvent* ev ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void deleteElements( std::vector<Elem> ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void setCursorTo( Elem ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void setCursorTo( QMouseEvent* ev ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		/** Can be called to e.g. disable some options based on the selected
+		 * elements. */
+		virtual void setupPopupMenu() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 		virtual void updateKeyboardHoveredElements() {
@@ -179,7 +159,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 
 		//! Update a widget in response to a change in selection
 		virtual void updateWidget() override {
-			BaseEditor::updateEditor( true );
+			updateEditor( true );
 		}
 
 		virtual void updateEditor( bool bContentOnly = true ) {
@@ -245,7 +225,7 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 		}
 
  		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
-			return BaseEditor::nDefaultCursorMargin;
+			return Editor::nDefaultCursorMargin;
 		}
 
 		//! Change the mouse cursor during mouse gestures
@@ -356,8 +336,62 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 				}
 			}
 		}
-// 		virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
-// 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+ 		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
+			// Don't call updateModifiers( ev ) in here because we want to apply
+			// the state of the modifiers used during the last update/rendering.
+			// Else the user might position a note carefully and it jumps to
+			// different place because she released the Alt modifier slightly
+			// earlier than the mouse button.
+
+			m_selection.mouseReleaseEvent( ev );
+
+			m_elementsHoveredOnDragStart.clear();
+
+			if ( ev->button() == Qt::LeftButton && m_elementsToSelect.size() > 0 ) {
+				// We used a transient selection of note(s) at a single
+				// position.
+				m_selection.clearSelection();
+				m_elementsToSelect.clear();
+				updateVisibleComponents( true );
+			}
+		}
+
+ 		virtual void mouseClickEvent( QMouseEvent *ev ) override {
+			auto pEv = static_cast<MouseEvent*>( ev );
+
+			updateModifiers( ev );
+
+			// main button action
+			if ( ev->button() == Qt::LeftButton &&
+				 m_instance != Instance::NotePropertiesRuler ) {
+
+				// Check whether an existing note or an empty grid cell was
+				// clicked.
+				const auto elementsAtPoint = getElementsAtPoint(
+					pEv->position().toPoint(), getCursorMargin( ev ) );
+				if ( elementsAtPoint.size() == 0 ) {
+					// Empty grid cell
+					addElement( ev );
+				}
+				else {
+					deleteElements( elementsAtPoint );
+				}
+
+				m_selection.clearSelection();
+				updateMouseHoveredElements( ev );
+			}
+			else if ( ev->button() == Qt::RightButton ) {
+				if ( m_elementsHoveredForPopup.size() > 0 ) {
+					setCursorTo( m_elementsHoveredForPopup[ 0 ] );
+				}
+				else {
+					setCursorTo( ev );
+				}
+				showPopupMenu( ev );
+			}
+
+			update();
+		}
 
 // 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 // 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
@@ -379,11 +413,11 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 					ensureCursorIsVisible();
 
 					if ( m_selection.isLasso() && m_update !=
-						 BaseEditor::Update::Background ) {
+						 Editor::Update::Background ) {
 						// Since the event was used to alter the note selection,
 						// we need to repainting all note symbols (including
 						// whether or not they are selected).
-						m_update = BaseEditor::Update::Content;
+						m_update = Editor::Update::Content;
 					}
 				}
 				updateAllComponents( true );
@@ -424,14 +458,10 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 
 	public:
 
-		/** Distance in pixel the cursor is allowed to be away from a note to
-		 * still be associated with it.
-		 *
-		 * Note that for very small resolutions a smaller margin will be used to
-		 * still allow adding notes to adjacent grid cells. */
-		static constexpr int nDefaultCursorMargin = 10;
-
-		EditorType m_editorType;
+		/** Which parts of the editor to update in the next paint event. */
+		Update m_update;
+		Instance m_instance;
+		Type m_type;
 
 		//! The Selection object.
 		Selection<Elem> m_selection;
@@ -476,7 +506,14 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 // 		 * cursor position. */
 // 		std::vector< std::shared_ptr<H2Core::Note> > m_elementsHoveredOnDragStart;
 
-// 	void showPopupMenu( QMouseEvent* pEvent );
+		QMenu *m_pPopupMenu;
+
+		void showPopupMenu( QMouseEvent* pEvent ){
+			setupPopupMenu();
+
+			auto pEv = static_cast<MouseEvent*>( pEvent );
+			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
+		}
 
 // 		/** Function in the same vein as getColumn() but calculates both column
 // 		 * and row information from the provided event position. */
@@ -541,9 +578,6 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 			updateMouseHoveredElements( nullptr );
 		}
 
-		/** Which parts of the editor to update in the next paint event. */
-		Update m_update;
-
 		/** When left-click dragging or applying actions using right-click popup
 		 * menu on a single note/multiple notes at the same position which are
 		 * not currently selected, the selection will be cleared and filled with
@@ -589,4 +623,6 @@ class BaseEditor : public SelectionWidget<Elem>, public QWidget
 
 };
 
-#endif // BASE_EDITOR_H
+} // namespace Base
+
+#endif // EDITOR_BASE_H

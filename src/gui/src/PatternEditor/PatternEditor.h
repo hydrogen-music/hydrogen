@@ -24,7 +24,8 @@
 #define PATERN_EDITOR_H
 
 #include "../Selection.h"
-#include "../Widgets/BaseEditor.h"
+#include "../Widgets/EditorBase.h"
+#include "../Widgets/EditorDefs.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Basics/Note.h>
@@ -54,7 +55,7 @@ class PatternEditorPanel;
 //! timebase functions, and drawing grid lines.
 //!
 /** \ingroup docGUI*/
-class PatternEditor : public BaseEditor<std::shared_ptr<H2Core::Note>>,
+class PatternEditor : public Editor::Base<std::shared_ptr<H2Core::Note>>,
 					  public H2Core::Object<PatternEditor>,
 					  protected WidgetWithScalableFont<7, 9, 11>
 {
@@ -62,14 +63,8 @@ class PatternEditor : public BaseEditor<std::shared_ptr<H2Core::Note>>,
 	Q_OBJECT
 
 public:
-	enum class Editor {
-		DrumPattern = 0,
-		PianoRoll = 1,
-		NotePropertiesRuler = 2,
-		None = 3
-	};
-		static QString editorToQString( const Editor& editor );
-	
+		typedef std::shared_ptr<H2Core::Note> Elem;
+
 	enum class Property {
 		Velocity = 0,
 		Pan = 1,
@@ -89,7 +84,7 @@ public:
 	};
 	static QString propertyToQString( const Property& property );
 
-	PatternEditor( QWidget *pParent, BaseEditor::EditorType editorType );
+	PatternEditor( QWidget *pParent );
 	~PatternEditor();
 
 	float getGridWidth() const { return m_fGridWidth; }
@@ -157,18 +152,6 @@ public:
 		variable #m_nTick and triggers an update(). */
 	void updatePosition( float fTick );
 
-		/** Additional action to perform on the first redo() call of
-		 * #SE_addOrRemoveNotes. */
-		enum AddNoteAction {
-			None = 0x000,
-			/** Add the new note to the current selection. */
-			AddToSelection = 0x001,
-			/** Move cursor to focus newly added note. */
-			MoveCursorTo = 0x002,
-			/** Play back the new note in case hear notes is enabled. */
-			Playback = 0x004
-		};
-
 		static void addOrRemoveNoteAction( int nPosition,
 										   int nInstrumentId,
 										   const QString& sType,
@@ -183,7 +166,7 @@ public:
 										   bool bIsDelete,
 										   bool bIsNoteOff,
 										   bool bIsMappedToDrumkit,
-										   AddNoteAction action );
+										   Editor::Action action );
 
 		/** For notes in #PianoRollEditor and the note key version of
 		 * #NotePropertiesEditor @a nOldKey and @a nOldOctave will be
@@ -261,6 +244,11 @@ protected:
 		static constexpr int nOutOfFocusDim = 110;
 
 		void ensureCursorIsVisible() override;
+		void addElement( QMouseEvent* ev ) override;
+		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
+		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;
+		void setCursorTo( QMouseEvent* ev ) override;
+		void setupPopupMenu() override;
 		void updateKeyboardHoveredElements() override;
 		void updateMouseHoveredElements( QMouseEvent* ev ) override;
 		void updateAllComponents( bool bContentOnly ) override;
@@ -296,11 +284,8 @@ protected:
 		QPoint m_dragStart;
 
 	PatternEditorPanel* m_pPatternEditorPanel;
-	QMenu *m_pPopupMenu;
 
 	QList< QAction * > m_selectionActions;
-
-	void showPopupMenu( QMouseEvent* pEvent );
 
 		/** Function in the same vein as getColumn() but calculates both column
 		 * and row information from the provided event position. */
@@ -375,7 +360,6 @@ protected:
 		// instead and #NotePropertiesPanel does only contain a single row.
 		int m_nCursorPitch;
 
-	Editor m_editor;
 	Property m_property;
 
 
