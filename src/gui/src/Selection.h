@@ -643,7 +643,10 @@ public:
 			}
 
 		}
-		m_pWidget->mouseDragStartEvent( ev );
+
+		if ( m_selectionState == Idle ) {
+			m_pWidget->mouseDragStartEvent( ev );
+		}
 	}
 
 	void mouseDragUpdate( QMouseEvent *ev ) {
