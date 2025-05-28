@@ -416,9 +416,9 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 
 	if ( ev->button() == Qt::LeftButton ) {
 		// Treat single click as an instantaneous drag
-		propertyDrawStart( ev );
-		propertyDrawUpdate( ev );
-		propertyDrawEnd();
+		mouseDrawStart( ev );
+		mouseDrawUpdate( ev );
+		mouseDrawEnd();
 
 		updateModifiers( ev );
 
@@ -551,7 +551,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	m_oldNotes.clear();
 }
 
-void NotePropertiesRuler::propertyDrawStart( QMouseEvent *ev )
+void NotePropertiesRuler::mouseDrawStart( QMouseEvent *ev )
 {
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev );
@@ -596,7 +596,7 @@ void NotePropertiesRuler::prepareUndoAction( QMouseEvent* pEvent )
 //! complete an undo action until the notes final value has been set. This
 //! occurs either when the mouse is released, or when the pointer moves off of
 //! the note's column.
-void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
+void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -641,7 +641,7 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 
 	if ( m_nDrawPreviousColumn != nRealColumn ) {
 		// Complete current undo action, and start a new one.
-		addUndoAction( "NotePropertiesRuler::propertyDraw" );
+		addUndoAction( "NotePropertiesRuler::mouseDraw" );
 		for ( const auto& ppNote : notesSinceLastAction ) {
 			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 		}
@@ -745,10 +745,10 @@ void NotePropertiesRuler::propertyDrawUpdate( QMouseEvent *ev )
 	}
 }
 
-void NotePropertiesRuler::propertyDrawEnd()
+void NotePropertiesRuler::mouseDrawEnd()
 {
 	m_nDrawPreviousColumn = -1;
-	addUndoAction( "NotePropertiesRuler::propertyDraw" );
+	addUndoAction( "NotePropertiesRuler::mouseDraw" );
 	unsetCursor();
 
 	if ( m_update != Editor::Update::Background ) {

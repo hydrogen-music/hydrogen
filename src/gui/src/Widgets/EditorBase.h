@@ -146,13 +146,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
-		virtual void propertyDrawStart( QMouseEvent* ev ) {
+		virtual void mouseDrawStart( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
-		virtual void propertyDrawUpdate( QMouseEvent* ev ) {
+		virtual void mouseDrawUpdate( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
-		virtual void propertyDrawEnd() {
+		virtual void mouseDrawEnd() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
@@ -438,16 +438,17 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		}
 
 		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
-			propertyDrawStart( ev );
-			propertyDrawUpdate( ev );
+			setCursor( Qt::CrossCursor );
+			mouseDrawStart( ev );
 		}
 
 		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override {
-			propertyDrawUpdate( ev );
+			mouseDrawUpdate( ev );
 		}
 
 		virtual void mouseDrawEndEvent( QMouseEvent *ev ) override {
-			propertyDrawEnd();
+			unsetCursor();
+			mouseDrawEnd();
 		}
 
  		void handleKeyboardCursor( bool bVisible ) {

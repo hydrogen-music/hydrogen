@@ -105,14 +105,13 @@ class NotePropertiesRuler : public PatternEditor,
 
 		//! @name Property draw (right-click drag) gestures
 		//! 
-		//! The user can right-click drag notes (or just left-click a single one)
-		//! on a note's bar or dot to change that property. Properties are
-		//! updated live during the draw gesture, with 'undo' information being
-		//! written at the end.
+		//! The user can right-click drag on a note's bar or dot to change that
+		//! property. Properties are updated live during the draw gesture, with
+		//! 'undo' information being written at the end.
 		//! @{
-		void propertyDrawStart( QMouseEvent *ev ) override;
-		void propertyDrawUpdate( QMouseEvent *ev ) override;
-		void propertyDrawEnd() override;
+		void mouseDrawStart( QMouseEvent *ev ) override;
+		void mouseDrawUpdate( QMouseEvent *ev ) override;
+		void mouseDrawEnd() override;
 		//! @}
 
 		//! @name PatternEditor interfaces
