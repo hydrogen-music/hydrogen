@@ -137,6 +137,9 @@ class PatternEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nToolbarHeight = 28;
+		static constexpr int nToolbarGroupHeight = nToolbarHeight - 4;
+
 		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
 
@@ -402,27 +405,27 @@ class PatternEditorPanel : public QWidget,
 		ClickableLabel*		m_pDrumkitLabel;
 
 		QTabBar* m_pTabBar;
-		QWidget* m_pToolBar;
-	QWidget* m_pSizeResol;
-	QWidget* m_pRec;
 
-	LCDSpinBox* m_pLCDSpinBoxNumerator;
-	LCDSpinBox* m_pLCDSpinBoxDenominator;
-
-		// Editor top
-		LCDCombo *			m_pResolutionCombo;
-		Button *		__show_drum_btn;
-		Button *		__show_piano_btn;
-	Button *		m_pHearNotesBtn;
-	Button *		m_pQuantizeEventsBtn;
+		/** Contains all buttons */
+		QWidget* m_pToolbarSidebar;
+		QWidget* m_pEditModeGroup;
+		Button* m_pSelectBtn;
+		Button* m_pDrawBtn;
+		Button* m_pEditBtn;
+		Button* m_pHearNotesBtn;
+		Button* m_pQuantizeEventsBtn;
+		QWidget* m_pInstanceGroup;
+		Button* m_pDrumPatternBtn;
+		Button*	m_pPianoRollBtn;
 		Button* m_pPatchBayBtn;
-	
-		ClickableLabel*		m_pPatternSizeLbl;
-		ClickableLabel*		m_pResolutionLbl;
-		ClickableLabel*		m_pHearNotesLbl;
-		ClickableLabel*		m_pQuantizeEventsLbl;
-		ClickableLabel*		m_pShowPianoLbl;
-		// ~Editor top
+
+		/** Contains the pattern size and resolution widget. */
+		QWidget* m_pToolbar;
+		QWidget* m_pSizeGroup;
+		LCDSpinBox* m_pLCDSpinBoxNumerator;
+		LCDSpinBox* m_pLCDSpinBoxDenominator;
+		QWidget* m_pResolutionGroup;
+		LCDCombo* m_pResolutionCombo;
 
 		//note properties combo
 		LCDCombo *			m_pPropertiesCombo;
