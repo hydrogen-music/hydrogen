@@ -137,9 +137,9 @@ public:
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 	
-	virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-	virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+	void editPropertyStart( QMouseEvent *ev );
+	void editPropertyUpdate( QMouseEvent *ev );
+	void editPropertyEnd( QMouseEvent *ev );
 		virtual QRect getKeyboardCursorRect() override;
 
 		/** Area taken available for an addition sidebar or button */

@@ -146,6 +146,16 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
+		virtual void propertyDrawStart( QMouseEvent* ev ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void propertyDrawUpdate( QMouseEvent* ev ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void propertyDrawEnd() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+
 		/** In contrast to Selection::updateWidget() this method indicates a
 		 * state change in the overall editor and triggers an update of all its
 		 * visible components, e.g. including its ruler and sidebar. */
@@ -427,10 +437,18 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			update();
 		}
 
-// 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-// 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-// 		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
-// 		virtual QRect getKeyboardCursorRect() override;
+		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
+			propertyDrawStart( ev );
+			propertyDrawUpdate( ev );
+		}
+
+		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override {
+			propertyDrawUpdate( ev );
+		}
+
+		virtual void mouseDrawEndEvent( QMouseEvent *ev ) override {
+			propertyDrawEnd();
+		}
 
  		void handleKeyboardCursor( bool bVisible ) {
 			auto pHydrogenApp = HydrogenApp::get_instance();

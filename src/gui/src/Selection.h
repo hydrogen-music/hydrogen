@@ -103,9 +103,9 @@ public:
 	//!
 	//! @{
 	virtual void mouseClickEvent( QMouseEvent *ev ) = 0;
-	virtual void mouseDragStartEvent( QMouseEvent *ev ) = 0;
-	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) = 0;
-	virtual void mouseDragEndEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseDrawStartEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseDrawEndEvent( QMouseEvent *ev ) = 0;
 	virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) {};
 	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
 	virtual void selectionMoveCancelEvent() {};
@@ -629,7 +629,7 @@ public:
 					m_pWidget->startMouseMove( ev );
 				}
 			} else if ( bHitAny && m_pWidget->canDragElements() ) {
-				// Allow mouseDragStartEvent to handle anything
+				// Allow mouseDrawStartEvent to handle anything
 
 			} else {
 				//  Didn't hit anything. Start new selection drag.
@@ -645,7 +645,7 @@ public:
 		}
 
 		if ( m_selectionState == Idle ) {
-			m_pWidget->mouseDragStartEvent( ev );
+			m_pWidget->mouseDrawStartEvent( ev );
 		}
 	}
 
@@ -681,7 +681,7 @@ public:
 		}
 		else {
 			// Pass drag update to widget
-			m_pWidget->mouseDragUpdateEvent( ev );
+			m_pWidget->mouseDrawUpdateEvent( ev );
 		}
 	}
 
@@ -703,7 +703,7 @@ public:
 
 		} else {
 			// Pass drag end to widget
-			m_pWidget->mouseDragEndEvent( ev );
+			m_pWidget->mouseDrawEndEvent( ev );
 		}
 	}
 	//! @}

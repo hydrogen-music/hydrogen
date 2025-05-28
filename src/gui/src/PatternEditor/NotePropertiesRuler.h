@@ -110,9 +110,9 @@ class NotePropertiesRuler : public PatternEditor,
 		//! updated live during the draw gesture, with 'undo' information being
 		//! written at the end.
 		//! @{
-		void propertyDrawStart( QMouseEvent *ev );
-		void propertyDrawUpdate( QMouseEvent *ev );
-		void propertyDrawEnd();
+		void propertyDrawStart( QMouseEvent *ev ) override;
+		void propertyDrawUpdate( QMouseEvent *ev ) override;
+		void propertyDrawEnd() override;
 		//! @}
 
 		//! @name PatternEditor interfaces
@@ -120,9 +120,6 @@ class NotePropertiesRuler : public PatternEditor,
 		virtual bool canMoveElements() const override { return false; };
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 		virtual void selectionMoveCancelEvent() override;

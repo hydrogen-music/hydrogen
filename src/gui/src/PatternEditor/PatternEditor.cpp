@@ -2316,7 +2316,7 @@ void PatternEditor::updatePosition( float fTick ) {
 	}
 }
 
-void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
+void PatternEditor::editPropertyStart( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
@@ -2377,7 +2377,7 @@ void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
 	}
 }
 
-void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev ) {
+void PatternEditor::editPropertyUpdate( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr || m_draggedNotes.size() == 0 ) {
 		return;
@@ -2482,7 +2482,7 @@ void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev ) {
 	m_pPatternEditorPanel->updateEditors( true );
 }
 
-void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
+void PatternEditor::editPropertyEnd( QMouseEvent* ev ) {
 
 	UNUSED( ev );
 	unsetCursor();

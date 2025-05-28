@@ -433,30 +433,6 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 	PatternEditor::mouseClickEvent( ev );
 }
 
-void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	if ( m_selection.isMoving() ) {
-		prepareUndoAction( ev );
-		selectionMoveUpdateEvent( ev );
-	}
-	else if ( ev->buttons() == Qt::RightButton ) {
-		propertyDrawStart( ev );
-		propertyDrawUpdate( ev );
-	}
-}
-
-void NotePropertiesRuler::mouseDragUpdateEvent( QMouseEvent *ev ) {
-	if ( ev->buttons() == Qt::RightButton ) {
-		propertyDrawUpdate( ev );
-	}
-}
-
-void NotePropertiesRuler::mouseDragEndEvent( QMouseEvent *ev ) {
-	propertyDrawEnd();
-}
-
-
 void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
