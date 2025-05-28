@@ -193,8 +193,6 @@ public:
 			const std::vector< std::shared_ptr<H2Core::Note> > notes,
 			const Property& property, bool bSquash = false );
 
-		QPoint getCursorPosition();
-
 		/** Ensure the selection lassos of the other editors match the one of
 		 * this instance. */
 		bool syncLasso();
@@ -204,13 +202,23 @@ public:
 
 		void setCursorPitch( int nCursorPitch );
 
+		void ensureCursorIsVisible() override;
+		void handleElements( QInputEvent* ev, Editor::Action action ) override;
+		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
+		void copy() override;
+		void paste() override;
+		void moveCursorLeft( QKeyEvent* ev, Editor::Step step ) override;
+		void moveCursorRight( QKeyEvent* ev, Editor::Step step ) override;
+		QPoint getCursorPosition() override;
+		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;
+		void setCursorTo( QMouseEvent* ev ) override;
+		void setupPopupMenu() override;
+		void updateKeyboardHoveredElements() override;
+		void updateMouseHoveredElements( QMouseEvent* ev ) override;
+		void updateAllComponents( bool bContentOnly ) override;
+		void updateVisibleComponents( bool bContentOnly ) override;
+
 public slots:
-	virtual void selectAll() = 0;
-	virtual void selectNone();
-	void deleteSelection( bool bHandleSetupTeardown = true );
-	virtual void copy( bool bHandleSetupTeardown = true );
-	void paste();
-	virtual void cut();
 	virtual void alignToGrid();
 	virtual void randomizeVelocity();
 	void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
@@ -242,17 +250,6 @@ protected:
 		 * case the widget is not in focus. This should help users to determine
 		 * which of the editors currently holds focus. */
 		static constexpr int nOutOfFocusDim = 110;
-
-		void ensureCursorIsVisible() override;
-		void addElement( QMouseEvent* ev ) override;
-		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
-		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;
-		void setCursorTo( QMouseEvent* ev ) override;
-		void setupPopupMenu() override;
-		void updateKeyboardHoveredElements() override;
-		void updateMouseHoveredElements( QMouseEvent* ev ) override;
-		void updateAllComponents( bool bContentOnly ) override;
-		void updateVisibleComponents( bool bContentOnly ) override;
 
 	//! Granularity of grid positioning (in ticks)
 	int granularity() const;
@@ -334,10 +331,7 @@ protected:
 	 */
 	virtual bool updateWidth() override;
 
-		/** @param bFullUpdate if `false`, just a simple update() of the widget
-		 *   will be triggered. If `true`, the background will be updated as
-		 *   well. */
-		void keyPressEvent ( QKeyEvent *ev, bool bFullUpdate = false );
+		virtual void keyPressEvent ( QKeyEvent* ev ) override;
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent( QPaintEvent* ev ) override;
 

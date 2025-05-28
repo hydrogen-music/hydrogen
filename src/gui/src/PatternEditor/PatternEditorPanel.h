@@ -221,8 +221,8 @@ class PatternEditorPanel : public QWidget,
 		 * and can be accessed via #PatternEditor::getCursorPosition. */
 		int getCursorColumn();
 		void setCursorColumn( int nCursorColumn, bool bUpdateEditors = true );
-		void moveCursorLeft( QKeyEvent* pEvent, int n = 1 );
-		void moveCursorRight( QKeyEvent* pEvent, int n = 1 );
+		void moveCursorLeft( QKeyEvent* pEvent, Editor::Step step );
+		void moveCursorRight( QKeyEvent* pEvent, Editor::Step step );
 
 		void updateEditors( bool bPatternOnly = false );
 

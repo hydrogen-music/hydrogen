@@ -81,14 +81,32 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	setMouseTracking( true );
 
 	// Popup context menu
-	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) ) );
-	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) ) );
-	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
-	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) ) );
+	m_selectionActions.push_back(
+		m_pPopupMenu->addAction( tr( "&Cut" ), this, [&]() {
+			popupSetup();
+			cut();
+			popupTeardown(); } ) );
+	m_selectionActions.push_back(
+		m_pPopupMenu->addAction( tr( "&Copy" ), this, [&]() {
+			popupSetup();
+			copy();
+			popupTeardown(); } ) );
+	m_pPopupMenu->addAction( tr( "&Paste" ), this, [&]() {
+		popupSetup();
+		paste();
+		popupTeardown(); } );
+	m_selectionActions.push_back(
+		m_pPopupMenu->addAction( tr( "&Delete" ), this, [&]() {
+			popupSetup();
+			deleteSelection();
+			popupTeardown(); } ) );
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) ) );
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
-	m_selectionActions.push_back( 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) ) );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this,
+							 [&]() { selectAll(); } );
+	m_selectionActions.push_back(
+		m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
+			m_selection.clearSelection(); } ) );
 	connect( m_pPopupMenu, &QMenu::aboutToShow, [&]() {
 		popupMenuAboutToShow(); } );
 	connect( m_pPopupMenu, &QMenu::aboutToHide, [&]() {
@@ -396,280 +414,6 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 		else {
 			*pRealColumn = 0;
 		}
-	}
-}
-
-void PatternEditor::selectNone()
-{
-	m_selection.clearSelection();
-	m_selection.updateWidgetGroup();
-}
-
-
-///
-/// Copy selection to clipboard in XML
-///
-void PatternEditor::copy( bool bHandleSetupTeardown )
-{
-	if ( bHandleSetupTeardown ) {
-		popupSetup();
-	}
-
-	XMLDoc doc;
-	XMLNode selection = doc.set_root( "noteSelection" );
-	XMLNode noteList = selection.createNode( "noteList");
-	XMLNode positionNode = selection.createNode( "sourcePosition" );
-	bool bWroteNote = false;
-	// "Top left" of selection, in the three dimensional time*instrument*pitch space.
-	int nMinColumn, nMinRow, nMaxPitch;
-
-	for ( const auto& ppNote : m_selection ) {
-		const int nPitch = ppNote->getPitchFromKeyOctave();
-		const int nColumn = ppNote->getPosition();
-		const int nRow = m_pPatternEditorPanel->findRowDB( ppNote );
-		if ( bWroteNote ) {
-			nMinColumn = std::min( nColumn, nMinColumn );
-			nMinRow = std::min( nRow, nMinRow );
-			nMaxPitch = std::max( nPitch, nMaxPitch );
-		} else {
-			nMinColumn = nColumn;
-			nMinRow = nRow;
-			nMaxPitch = nPitch;
-			bWroteNote = true;
-		}
-		XMLNode note_node = noteList.createNode( "note" );
-		ppNote->saveTo( note_node );
-	}
-
-	if ( bWroteNote ) {
-		positionNode.write_int( "minColumn", nMinColumn );
-		positionNode.write_int( "minRow", nMinRow );
-		positionNode.write_int( "maxPitch", nMaxPitch );
-	} else {
-		positionNode.write_int( "minColumn",
-								m_pPatternEditorPanel->getCursorColumn() );
-		positionNode.write_int( "minRow",
-								m_pPatternEditorPanel->getSelectedRowDB() );
-	}
-
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText( doc.toString() );
-
-	// This selection will probably be pasted at some point. So show the
-	// keyboard cursor as this is the place where the selection will be pasted.
-	handleKeyboardCursor( true );
-
-	if ( bHandleSetupTeardown ) {
-		popupTeardown();
-	}
-}
-
-
-void PatternEditor::cut()
-{
-	popupSetup();
-
-	copy( false );
-	deleteSelection( false );
-
-	popupTeardown();
-}
-
-///
-/// Paste selection
-///
-/// Selection is XML containing notes, contained in a root 'note_selection' element.
-///
-void PatternEditor::paste()
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		// No pattern selected.
-		return;
-	}
-
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	QClipboard *clipboard = QApplication::clipboard();
-	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
-	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row" );
-		return;
-	}
-
-	XMLNode noteList;
-	int nDeltaPos = 0, nDeltaRow = 0, nDeltaPitch = 0;
-
-	XMLDoc doc;
-	if ( ! doc.setContent( clipboard->text() ) ) {
-		// Pasted something that's not valid XML.
-		return;
-	}
-
-	XMLNode selection = doc.firstChildElement( "noteSelection" );
-	if ( ! selection.isNull() ) {
-
-		// Got a noteSelection.
-		// <noteSelection>
-		//   <noteList>
-		//     <note> ...
-		noteList = selection.firstChildElement( "noteList" );
-		if ( noteList.isNull() ) {
-			return;
-		}
-
-		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
-
-		// If position information is supplied in the selection, use
-		// it to adjust the location relative to the current keyboard
-		// input cursor.
-		if ( ! positionNode.isNull() ) {
-			int nCurrentPos = m_pPatternEditorPanel->getCursorColumn();
-			nDeltaPos = nCurrentPos -
-				positionNode.read_int( "minColumn", nCurrentPos );
-
-			// In NotePropertiesRuler there is no vertical offset.
-			if ( m_instance == Editor::Instance::PianoRoll ) {
-				nDeltaPitch = m_nCursorPitch -
-					positionNode.read_int( "maxPitch", m_nCursorPitch );
-			}
-			else if ( m_instance == Editor::Instance::DrumPattern ) {
-				nDeltaRow = nSelectedRow -
-					positionNode.read_int( "minRow", nSelectedRow );
-			}
-		}
-	}
-	else {
-
-		XMLNode instrumentLine = doc.firstChildElement( "instrument_line" );
-		if ( ! instrumentLine.isNull() ) {
-			// Found 'instrument_line', structure is:
-			// <instrument_line>
-			//   <patternList>
-			//     <pattern>
-			//       <noteList>
-			//         <note> ...
-			XMLNode patternList = instrumentLine.firstChildElement( "patternList" );
-			if ( patternList.isNull() ) {
-				return;
-			}
-			XMLNode pattern = patternList.firstChildElement( "pattern" );
-			if ( pattern.isNull() ) {
-				return;
-			}
-			// Don't attempt to paste multiple patterns
-			if ( ! pattern.nextSiblingElement( "pattern" ).isNull() ) {
-				QMessageBox::information( this, "Hydrogen",
-										  tr( "Cannot paste multi-pattern selection" ) );
-				return;
-			}
-			noteList = pattern.firstChildElement( "noteList" );
-			if ( noteList.isNull() ) {
-				return;
-			}
-		}
-	}
-
-	m_selection.clearSelection();
-	bool bAppendedToDB = false;
-
-	if ( noteList.hasChildNodes() ) {
-
-		pHydrogenApp->beginUndoMacro( tr( "paste notes" ) );
-		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull();
-			  n = n.nextSiblingElement() ) {
-			auto pNote = Note::loadFrom( n );
-			if ( pNote == nullptr ) {
-				ERRORLOG( QString( "Unable to load note from XML node [%1]" )
-						  .arg( n.toQString() ) );
-				continue;
-			}
-
-			const int nPos = pNote->getPosition() + nDeltaPos;
-			if ( nPos < 0 || nPos >= pPattern->getLength() ) {
-				continue;
-			}
-
-			int nInstrumentId;
-			QString sType;
-			DrumPatternRow targetRow;
-			if ( m_instance == Editor::Instance::DrumPattern ) {
-				const auto nNoteRow =
-					m_pPatternEditorPanel->findRowDB( pNote, true );
-				if ( nNoteRow != -1 ) {
-					// Note belongs to a row already present in the DB.
-					const int nRow = nNoteRow + nDeltaRow;
-					if ( nRow < 0 ||
-						 nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
-						continue;
-					}
-					targetRow = m_pPatternEditorPanel->getRowDB( nRow );
-					nInstrumentId = targetRow.nInstrumentID;
-					sType = targetRow.sType;
-				}
-				else {
-					// Note can not be represented in the current DB. This means
-					// it might be a type-only one copied from a a different
-					// pattern. We will append it to the DB.
-					nInstrumentId = pNote->getInstrumentId();
-					sType = pNote->getType();
-					bAppendedToDB = true;
-				}
-			}
-			else {
-				targetRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-				nInstrumentId = targetRow.nInstrumentID;
-				sType = targetRow.sType;
-			}
-
-			int nKey, nOctave;
-			if ( m_instance == Editor::Instance::PianoRoll ) {
-				const int nPitch = pNote->getPitchFromKeyOctave() + nDeltaPitch;
-				if ( nPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
-					 nPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
-					continue;
-				}
-
-				nKey = Note::pitchToKey( nPitch );
-				nOctave = Note::pitchToOctave( nPitch );
-			}
-			else {
-				nKey = pNote->getKey();
-				nOctave = pNote->getOctave();
-			}
-
-			pHydrogenApp->pushUndoCommand(
-				new SE_addOrRemoveNoteAction(
-					nPos,
-					nInstrumentId,
-					sType,
-					m_pPatternEditorPanel->getPatternNumber(),
-					pNote->getLength(),
-					pNote->getVelocity(),
-					pNote->getPan(),
-					pNote->getLeadLag(),
-					nKey,
-					nOctave,
-					pNote->getProbability(),
-					/* bIsDelete */ false,
-					/* bIsNoteOff */ pNote->getNoteOff(),
-					targetRow.bMappedToDrumkit,
-					Editor::Action::AddToSelection ) );
-		}
-		pHydrogenApp->endUndoMacro();
-	}
-
-	if ( bAppendedToDB ) {
-		// We added a note to the pattern currently not represented by the DB.
-		// We have to force its update in order to avoid inconsistencies.
-		const int nOldSize = m_pPatternEditorPanel->getRowNumberDB();
-		m_pPatternEditorPanel->updateDB();
-		m_pPatternEditorPanel->updateEditors( true );
-		m_pPatternEditorPanel->resizeEvent( nullptr );
-
-		// Select the append line
-		m_pPatternEditorPanel->setSelectedRowDB( nOldSize );
 	}
 }
 
@@ -1549,66 +1293,6 @@ void PatternEditor::validateSelection()
 	}
 }
 
-void PatternEditor::deleteSelection( bool bHandleSetupTeardown )
-{
-	if ( bHandleSetupTeardown ) {
-		popupSetup();
-	}
-
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		// No pattern selected.
-		return;
-	}
-
-	if ( m_selection.begin() != m_selection.end() ) {
-		// Selection exists, delete it.
-
-		auto pHydrogenApp = HydrogenApp::get_instance();
-
-		validateSelection();
-
-		// Construct list of UndoActions to perform before performing any of them, as the
-		// addOrDeleteNoteAction may delete duplicate notes in undefined order.
-		std::list<QUndoCommand*> actions;
-		for ( const auto pNote : m_selection ) {
-			if ( pNote != nullptr && m_selection.isSelected( pNote ) ) {
-				actions.push_back( new SE_addOrRemoveNoteAction(
-									   pNote->getPosition(),
-									   pNote->getInstrumentId(),
-									   pNote->getType(),
-									   m_pPatternEditorPanel->getPatternNumber(),
-									   pNote->getLength(),
-									   pNote->getVelocity(),
-									   pNote->getPan(),
-									   pNote->getLeadLag(),
-									   pNote->getKey(),
-									   pNote->getOctave(),
-									   pNote->getProbability(),
-									   true, // bIsDelete
-									   pNote->getNoteOff(),
-									   pNote->getInstrument() != nullptr,
-									   Editor::Action::None ) );
-			}
-		}
-		m_selection.clearSelection();
-
-		if ( actions.size() > 0 ) {
-			pHydrogenApp->beginUndoMacro(
-				HydrogenApp::get_instance()->getCommonStrings()
-				->getActionDeleteNotes() );
-			for ( QUndoCommand *pAction : actions ) {
-				pHydrogenApp->pushUndoCommand( pAction );
-			}
-			pHydrogenApp->endUndoMacro();
-		}
-	}
-
-	if ( bHandleSetupTeardown ) {
-		popupTeardown();
-	}
-}
-
 // Selection manager interface
 void PatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
@@ -1791,33 +1475,69 @@ void PatternEditor::ensureCursorIsVisible() {
 	m_pPatternEditorPanel->ensureCursorIsVisible();
 }
 
-void PatternEditor::addElement( QMouseEvent* ev ) {
-	auto pEv = static_cast<MouseEvent*>( ev );
+void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
+	// Determine what to do
+	bool bAdd, bDelete;
+	if ( static_cast<char>(action) &
+		 static_cast<char>(Editor::Action::ToggleElements) ) {
+		bAdd = true;
+		bDelete = true;
+	}
+	else if ( static_cast<char>(action) &
+			  static_cast<char>(Editor::Action::AddElements) ) {
+		bAdd = true;
+		bDelete = false;
+	}
+	else if ( static_cast<char>(action) &
+			  static_cast<char>(Editor::Action::DeleteElements) ) {
+		bAdd = false;
+		bDelete = true;
+	}
+	else {
+		ERRORLOG( QString( "Unknown action [%1]" )
+				  .arg( Editor::actionToQString( action ) ) );
+		return;
+	}
 
-	int nRow, nColumn, nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
-						   &nRealColumn, /* fineGrained */true );
+	// Retrieve the coordinates
+	int nColumn, nRow;
+	if ( dynamic_cast<QMouseEvent*>(ev) != nullptr ) {
+		// Element added via mouse.
+		auto pEv = static_cast<MouseEvent*>( ev );
+
+		int nCoarseColumn, nRealColumn;
+		eventPointToColumnRow( pEv->position().toPoint(), &nCoarseColumn, &nRow,
+							   &nRealColumn, /* fineGrained */true );
+		nColumn = m_pPatternEditorPanel->isQuantized() ?
+			nCoarseColumn : nRealColumn;
+	}
+	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
+		nColumn = m_pPatternEditorPanel->getCursorColumn();
+	}
+	else {
+		ERRORLOG( "Unknown event" );
+		return;
+	}
 
 	int nKey = KEY_MIN;
 	int nOctave = OCTAVE_DEFAULT;
+	if ( m_instance != Editor::Instance::DrumPattern ) {
+		nRow = m_pPatternEditorPanel->getSelectedRowDB();
+	}
+
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Use the row of the DrumPatternEditor/DB for further note
 		// interactions.
-		nRow = m_pPatternEditorPanel->getSelectedRowDB();
 		nOctave = Note::pitchToOctave( m_nCursorPitch );
 		nKey = Note::pitchToKey( m_nCursorPitch );
 	}
 
-	const int nTargetColumn =
-		m_pPatternEditorPanel->isQuantized() ? nColumn : nRealColumn;
+	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
 
+	// Perform the action.
 	m_pPatternEditorPanel->addOrRemoveNotes(
-		nTargetColumn, nRow, nKey, nOctave,
-		/* bDoAdd */true, /* bDoDelete */false,
-		/* bIsNoteOff */ ev->modifiers() & Qt::ShiftModifier,
+		nColumn, nRow, nKey, nOctave, bAdd, bDelete, bNoteOff,
 		Editor::Action::Playback );
-
-	m_pPatternEditorPanel->setCursorColumn( nTargetColumn );
 }
 
 void PatternEditor::deleteElements( std::vector< std::shared_ptr<H2Core::Note> > notes ) {
@@ -1828,9 +1548,6 @@ void PatternEditor::deleteElements( std::vector< std::shared_ptr<H2Core::Note> >
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-	m_pPatternEditorPanel->setCursorColumn( notes[ 0 ]->getPosition() );
-
-	// Note(s) clicked. Delete them.
 	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionDeleteNotes() );
 	for ( const auto& ppNote : notes ) {
 		pHydrogenApp->pushUndoCommand(
@@ -1852,6 +1569,248 @@ void PatternEditor::deleteElements( std::vector< std::shared_ptr<H2Core::Note> >
 				Editor::Action::None ) );
 	}
 	pHydrogenApp->endUndoMacro();
+}
+
+void PatternEditor::copy() {
+	XMLDoc doc;
+	XMLNode selection = doc.set_root( "noteSelection" );
+	XMLNode noteList = selection.createNode( "noteList");
+	XMLNode positionNode = selection.createNode( "sourcePosition" );
+	bool bWroteNote = false;
+	// "Top left" of selection, in the three dimensional time*instrument*pitch space.
+	int nMinColumn, nMinRow, nMaxPitch;
+
+	for ( const auto& ppNote : m_selection ) {
+		const int nPitch = ppNote->getPitchFromKeyOctave();
+		const int nColumn = ppNote->getPosition();
+		const int nRow = m_pPatternEditorPanel->findRowDB( ppNote );
+		if ( bWroteNote ) {
+			nMinColumn = std::min( nColumn, nMinColumn );
+			nMinRow = std::min( nRow, nMinRow );
+			nMaxPitch = std::max( nPitch, nMaxPitch );
+		} else {
+			nMinColumn = nColumn;
+			nMinRow = nRow;
+			nMaxPitch = nPitch;
+			bWroteNote = true;
+		}
+		XMLNode note_node = noteList.createNode( "note" );
+		ppNote->saveTo( note_node );
+	}
+
+	if ( bWroteNote ) {
+		positionNode.write_int( "minColumn", nMinColumn );
+		positionNode.write_int( "minRow", nMinRow );
+		positionNode.write_int( "maxPitch", nMaxPitch );
+	} else {
+		positionNode.write_int( "minColumn",
+								m_pPatternEditorPanel->getCursorColumn() );
+		positionNode.write_int( "minRow",
+								m_pPatternEditorPanel->getSelectedRowDB() );
+	}
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText( doc.toString() );
+}
+
+void PatternEditor::paste() {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		// No pattern selected.
+		return;
+	}
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	QClipboard *clipboard = QApplication::clipboard();
+	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
+	const auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
+		 selectedRow.sType.isEmpty() ) {
+		DEBUGLOG( "Empty row" );
+		return;
+	}
+
+	XMLNode noteList;
+	int nDeltaPos = 0, nDeltaRow = 0, nDeltaPitch = 0;
+
+	XMLDoc doc;
+	if ( ! doc.setContent( clipboard->text() ) ) {
+		// Pasted something that's not valid XML.
+		return;
+	}
+
+	XMLNode selection = doc.firstChildElement( "noteSelection" );
+	if ( ! selection.isNull() ) {
+
+		// Got a noteSelection.
+		// <noteSelection>
+		//   <noteList>
+		//     <note> ...
+		noteList = selection.firstChildElement( "noteList" );
+		if ( noteList.isNull() ) {
+			return;
+		}
+
+		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
+
+		// If position information is supplied in the selection, use
+		// it to adjust the location relative to the current keyboard
+		// input cursor.
+		if ( ! positionNode.isNull() ) {
+			int nCurrentPos = m_pPatternEditorPanel->getCursorColumn();
+			nDeltaPos = nCurrentPos -
+				positionNode.read_int( "minColumn", nCurrentPos );
+
+			// In NotePropertiesRuler there is no vertical offset.
+			if ( m_instance == Editor::Instance::PianoRoll ) {
+				nDeltaPitch = m_nCursorPitch -
+					positionNode.read_int( "maxPitch", m_nCursorPitch );
+			}
+			else if ( m_instance == Editor::Instance::DrumPattern ) {
+				nDeltaRow = nSelectedRow -
+					positionNode.read_int( "minRow", nSelectedRow );
+			}
+		}
+	}
+	else {
+
+		XMLNode instrumentLine = doc.firstChildElement( "instrument_line" );
+		if ( ! instrumentLine.isNull() ) {
+			// Found 'instrument_line', structure is:
+			// <instrument_line>
+			//   <patternList>
+			//     <pattern>
+			//       <noteList>
+			//         <note> ...
+			XMLNode patternList = instrumentLine.firstChildElement( "patternList" );
+			if ( patternList.isNull() ) {
+				return;
+			}
+			XMLNode pattern = patternList.firstChildElement( "pattern" );
+			if ( pattern.isNull() ) {
+				return;
+			}
+			// Don't attempt to paste multiple patterns
+			if ( ! pattern.nextSiblingElement( "pattern" ).isNull() ) {
+				QMessageBox::information( this, "Hydrogen",
+										  tr( "Cannot paste multi-pattern selection" ) );
+				return;
+			}
+			noteList = pattern.firstChildElement( "noteList" );
+			if ( noteList.isNull() ) {
+				return;
+			}
+		}
+	}
+
+	m_selection.clearSelection();
+	bool bAppendedToDB = false;
+
+	if ( noteList.hasChildNodes() ) {
+
+		pHydrogenApp->beginUndoMacro( tr( "paste notes" ) );
+		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull();
+			  n = n.nextSiblingElement() ) {
+			auto pNote = Note::loadFrom( n );
+			if ( pNote == nullptr ) {
+				ERRORLOG( QString( "Unable to load note from XML node [%1]" )
+						  .arg( n.toQString() ) );
+				continue;
+			}
+
+			const int nPos = pNote->getPosition() + nDeltaPos;
+			if ( nPos < 0 || nPos >= pPattern->getLength() ) {
+				continue;
+			}
+
+			int nInstrumentId;
+			QString sType;
+			DrumPatternRow targetRow;
+			if ( m_instance == Editor::Instance::DrumPattern ) {
+				const auto nNoteRow =
+					m_pPatternEditorPanel->findRowDB( pNote, true );
+				if ( nNoteRow != -1 ) {
+					// Note belongs to a row already present in the DB.
+					const int nRow = nNoteRow + nDeltaRow;
+					if ( nRow < 0 ||
+						 nRow >= m_pPatternEditorPanel->getRowNumberDB() ) {
+						continue;
+					}
+					targetRow = m_pPatternEditorPanel->getRowDB( nRow );
+					nInstrumentId = targetRow.nInstrumentID;
+					sType = targetRow.sType;
+				}
+				else {
+					// Note can not be represented in the current DB. This means
+					// it might be a type-only one copied from a a different
+					// pattern. We will append it to the DB.
+					nInstrumentId = pNote->getInstrumentId();
+					sType = pNote->getType();
+					bAppendedToDB = true;
+				}
+			}
+			else {
+				targetRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
+				nInstrumentId = targetRow.nInstrumentID;
+				sType = targetRow.sType;
+			}
+
+			int nKey, nOctave;
+			if ( m_instance == Editor::Instance::PianoRoll ) {
+				const int nPitch = pNote->getPitchFromKeyOctave() + nDeltaPitch;
+				if ( nPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
+					 nPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
+					continue;
+				}
+
+				nKey = Note::pitchToKey( nPitch );
+				nOctave = Note::pitchToOctave( nPitch );
+			}
+			else {
+				nKey = pNote->getKey();
+				nOctave = pNote->getOctave();
+			}
+
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemoveNoteAction(
+					nPos,
+					nInstrumentId,
+					sType,
+					m_pPatternEditorPanel->getPatternNumber(),
+					pNote->getLength(),
+					pNote->getVelocity(),
+					pNote->getPan(),
+					pNote->getLeadLag(),
+					nKey,
+					nOctave,
+					pNote->getProbability(),
+					/* bIsDelete */ false,
+					/* bIsNoteOff */ pNote->getNoteOff(),
+					targetRow.bMappedToDrumkit,
+					Editor::Action::AddToSelection ) );
+		}
+		pHydrogenApp->endUndoMacro();
+	}
+
+	if ( bAppendedToDB ) {
+		// We added a note to the pattern currently not represented by the DB.
+		// We have to force its update in order to avoid inconsistencies.
+		const int nOldSize = m_pPatternEditorPanel->getRowNumberDB();
+		m_pPatternEditorPanel->updateDB();
+		m_pPatternEditorPanel->updateEditors( true );
+		m_pPatternEditorPanel->resizeEvent( nullptr );
+
+		// Select the append line
+		m_pPatternEditorPanel->setSelectedRowDB( nOldSize );
+	}
+}
+
+void PatternEditor::moveCursorLeft( QKeyEvent* ev, Editor::Step step ) {
+	m_pPatternEditorPanel->moveCursorLeft( ev, step );
+}
+
+void PatternEditor::moveCursorRight( QKeyEvent* ev, Editor::Step step ) {
+	m_pPatternEditorPanel->moveCursorRight( ev, step );
 }
 
 void PatternEditor::setCursorTo( std::shared_ptr<H2Core::Note> pNote ) {
@@ -1936,134 +1895,14 @@ int PatternEditor::granularity() const {
 		( nBase * m_pPatternEditorPanel->getResolution() );
 }
 
-void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
+void PatternEditor::keyPressEvent( QKeyEvent *ev )
 {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
 
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-
-	const int nWordSize = 5;
-
-	// Checks whether the notes at point are part of the current selection. If
-	// not, the latter is cleared and notes at point/cursor will be selected
-	// instead.
-	auto selectNotesAtPoint = [&]() {
-		const auto notesUnderPoint = getElementsAtPoint(
-			getCursorPosition(), 0 );
-		if ( notesUnderPoint.size() == 0 ) {
-			return false;
-		}
-
-		bool bNotesSelected = false;
-		if ( ! m_selection.isEmpty() ) {
-			for ( const auto& ppNote : notesUnderPoint ) {
-				if ( m_selection.isSelected( ppNote ) ) {
-					bNotesSelected = true;
-					break;
-				}
-			}
-		}
-
-		if ( ! bNotesSelected ) {
-			m_selection.clearSelection();
-			for ( const auto& ppNote : notesUnderPoint ) {
-				m_selection.addToSelection( ppNote );
-			}
-
-			return true;
-		}
-
-		return false;
-	};
-
-	bool bUnhideCursor = ev->key() != Qt::Key_Delete;
-
-	auto pCleanedEvent = new QKeyEvent(
-		QEvent::KeyPress, ev->key(), Qt::NoModifier, ev->text() );
-
-	// Check whether the event was already handled by a method of a child class.
-	if ( ! ev->isAccepted() ) {
-		updateModifiers( ev );
-
-		if ( ev->matches( QKeySequence::MoveToNextChar ) ||
-			 ev->matches( QKeySequence::SelectNextChar ) ||
-			 ( ev->modifiers() & Qt::AltModifier && (
-				 pCleanedEvent->matches( QKeySequence::MoveToNextChar ) ||
-				 pCleanedEvent->matches( QKeySequence::SelectNextChar ) ) ) ) {
-			// ->
-			m_pPatternEditorPanel->moveCursorRight( ev );
-		}
-		else if ( ev->matches( QKeySequence::MoveToNextWord ) ||
-				  ev->matches( QKeySequence::SelectNextWord ) ) {
-			// -->
-			m_pPatternEditorPanel->moveCursorRight( ev, nWordSize );
-		}
-		else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ||
-				  ev->matches( QKeySequence::SelectEndOfLine ) ) {
-			// -->|
-			m_pPatternEditorPanel->setCursorColumn( pPattern->getLength() );
-		}
-		else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ||
-				  ev->matches( QKeySequence::SelectPreviousChar ) ||
-				  ( ev->modifiers() & Qt::AltModifier && (
-					  pCleanedEvent->matches( QKeySequence::MoveToPreviousChar ) ||
-					  pCleanedEvent->matches( QKeySequence::SelectPreviousChar ) ) ) ) {
-			// <-
-			m_pPatternEditorPanel->moveCursorLeft( ev );
-		}
-		else if ( ev->matches( QKeySequence::MoveToPreviousWord ) ||
-				  ev->matches( QKeySequence::SelectPreviousWord ) ) {
-			// <--
-			m_pPatternEditorPanel->moveCursorLeft( ev, nWordSize );
-		}
-		else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ||
-				  ev->matches( QKeySequence::SelectStartOfLine ) ) {
-			// |<--
-			m_pPatternEditorPanel->setCursorColumn( 0 );
-		}
-		else if ( ev->matches( QKeySequence::SelectAll ) ) {
-			// Key: Ctrl + A: Select all
-			bUnhideCursor = false;
-			selectAll();
-		}
-		else if ( ev->matches( QKeySequence::Deselect ) ) {
-			// Key: Shift + Ctrl + A: clear selection
-			bUnhideCursor = false;
-			selectNone();
-		}
-		else if ( ev->matches( QKeySequence::Copy ) ) {
-			bUnhideCursor = false;
-			const bool bTransientSelection = selectNotesAtPoint();
-
-			copy();
-
-			if ( bTransientSelection ) {
-				m_selection.clearSelection();
-			}
-		}
-		else if ( ev->matches( QKeySequence::Paste ) ) {
-			bUnhideCursor = false;
-			paste();
-		}
-		else if ( ev->matches( QKeySequence::Cut ) ) {
-			bUnhideCursor = false;
-			const bool bTransientSelection = selectNotesAtPoint();
-
-			cut();
-
-			if ( bTransientSelection ) {
-				m_selection.clearSelection();
-			}
-		}
-		else {
-			ev->ignore();
-			return;
-		}
-	}
+	Editor::Base<Elem>::keyPressEvent( ev );
 
 	// synchronize lassos
 	auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
@@ -2076,31 +1915,15 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev, bool bFullUpdate )
 		 pVisibleEditor->m_selection.isLasso() && m_selection.isLasso() &&
 		 dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 		pVisibleEditor->m_selection.updateKeyboardCursorPosition();
-		bFullUpdate = pVisibleEditor->syncLasso() || bFullUpdate;
+		if ( pVisibleEditor->syncLasso() ) {
+			updateVisibleComponents( true );
+		}
 	}
 	else {
 		m_selection.updateKeyboardCursorPosition();
-		bFullUpdate = syncLasso() || bFullUpdate;
-	}
-	updateHoveredNotesKeyboard();
-
-	if ( bUnhideCursor ) {
-		handleKeyboardCursor( bUnhideCursor );
-	}
-
-	if ( bFullUpdate ) {
-		// Notes have might become selected. We have to update the background as
-		// well.
-		m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
-	}
-	else {
-		m_pPatternEditorPanel->getVisibleEditor()->update();
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
-	}
-
-	if ( ! ev->isAccepted() ) {
-		ev->accept();
+		if ( syncLasso() ) {
+			updateVisibleComponents( true );
+		}
 	}
 }
 

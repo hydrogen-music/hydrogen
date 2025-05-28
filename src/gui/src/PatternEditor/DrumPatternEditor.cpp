@@ -63,6 +63,58 @@ DrumPatternEditor::~DrumPatternEditor()
 {
 }
 
+void DrumPatternEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
+	const int nMaxRow = m_pPatternEditorPanel->getRowNumberDB() - 1;
+
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		m_pPatternEditorPanel->setSelectedRowDB( nMaxRow );
+		return;
+	}
+
+	m_pPatternEditorPanel->setSelectedRowDB(
+		std::min( m_pPatternEditorPanel->getSelectedRowDB() + nStep, nMaxRow ) );
+}
+
+void DrumPatternEditor::moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		m_pPatternEditorPanel->setSelectedRowDB( 0 );
+		return;
+	}
+
+	m_pPatternEditorPanel->setSelectedRowDB(
+		std::max( m_pPatternEditorPanel->getSelectedRowDB() - nStep, 0 ) );
+}
+
 void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
 	const int nTargetHeight =
@@ -74,122 +126,6 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	}
 
 	Editor::Base<Elem>::updateEditor( bPatternOnly );
-}
-
-///
-/// Handle key press events.
-///
-/// Events are passed to Selection first, which may claim them (in which case they are ignored here).
-///
-void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-	
-	const int nBlockSize = 5;
-	const int nSelectedRow = m_pPatternEditorPanel->getSelectedRowDB();
-	const int nMaxRows = m_pPatternEditorPanel->getRowNumberDB();
-	auto selectedRow = m_pPatternEditorPanel->getRowDB( nSelectedRow );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row [%1]" ).arg( nSelectedRow ) );
-		return;
-	}
-
-	bool bEventUsed = true;
-	const bool bIsSelectionKey = m_selection.keyPressEvent( ev );
-	updateModifiers( ev );
-
-	if ( bIsSelectionKey ) {
-		// Key was claimed by Selection
-	}
-	else if ( ev->matches( QKeySequence::MoveToNextLine ) ||
-				ev->matches( QKeySequence::SelectNextLine ) ) {
-		if ( nSelectedRow + 1 < nMaxRows ) {
-			m_pPatternEditorPanel->setSelectedRowDB( nSelectedRow + 1 );
-		}
-	}
-	else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) ||
-				ev->matches( QKeySequence::SelectEndOfBlock ) ) {
-		m_pPatternEditorPanel->setSelectedRowDB(
-			std::min( nSelectedRow + nBlockSize, nMaxRows-1 ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToNextPage ) ||
-				ev->matches( QKeySequence::SelectNextPage ) ) {
-		// Page down, scroll by the number of instruments that fit into the
-		// viewport
-		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
-		assert( pParent );
-		m_pPatternEditorPanel->setSelectedRowDB(
-			std::min( nMaxRows - 1,
-					  nSelectedRow + static_cast<int>(pParent->height() /
-													  m_nGridHeight) ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ||
-				ev->matches( QKeySequence::SelectEndOfDocument ) ) {
-		m_pPatternEditorPanel->setSelectedRowDB( nMaxRows-1 );
-	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ||
-				ev->matches( QKeySequence::SelectPreviousLine ) ) {
-		if ( nSelectedRow > 0 ) {
-			m_pPatternEditorPanel->setSelectedRowDB( nSelectedRow - 1 );
-		}
-	}
-	else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) ||
-				ev->matches( QKeySequence::SelectStartOfBlock ) ) {
-		m_pPatternEditorPanel->setSelectedRowDB(
-			std::max( nSelectedRow - nBlockSize, 0 ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousPage ) ||
-				ev->matches( QKeySequence::SelectPreviousPage ) ) {
-		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
-		assert( pParent );
-		m_pPatternEditorPanel->setSelectedRowDB(
-			std::max( nSelectedRow - static_cast<int>(pParent->height() /
-													  m_nGridHeight),
-					  0 ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ||
-				ev->matches( QKeySequence::SelectStartOfDocument ) ) {
-		m_pPatternEditorPanel->setSelectedRowDB( 0 );
-	}
-	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-		// Key: Enter / Return: add or remove note at current position
-		m_selection.clearSelection();
-		m_pPatternEditorPanel->addOrRemoveNotes(
-			m_pPatternEditorPanel->getCursorColumn(),
-			nSelectedRow, KEY_INVALID, OCTAVE_INVALID,
-			/*bDoAdd*/ true, /*bDoDelete*/true,
-			/* bIsNoteOff */ false,
-			Editor::Action::Playback );
-	}
-	else if ( ev->key() == Qt::Key_Delete ) {
-		// Key: Delete / Backspace: delete selected notes, or note under
-		// keyboard cursor
-		if ( m_selection.begin() != m_selection.end() ) {
-			// Delete selected notes if any
-			deleteSelection();
-		} else {
-			// Delete note under the keyboard cursor.
-			m_pPatternEditorPanel->addOrRemoveNotes(
-				m_pPatternEditorPanel->getCursorColumn(),
-				nSelectedRow, KEY_INVALID, OCTAVE_INVALID,
-				/*bDoAdd=*/false, /*bDoDelete=*/true,
-				/* bIsNoteOff */ false,
-				Editor::Action::None );
-		}
-	}
-	else {
-		bEventUsed = false;
-	}
-
-	if ( ! bEventUsed ) {
-		ev->setAccepted( false );
-	}
-
-	PatternEditor::keyPressEvent( ev );
 }
 
 ///

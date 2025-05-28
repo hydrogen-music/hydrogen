@@ -78,20 +78,18 @@ namespace Editor {
 	};
 	static QString updateToQString( const Update& update ) {
 		switch ( update ) {
-			case Update::Background:
-				return "Background";
-			case Update::Content:
-				return "Pattern";
-			case Update::None:
-				return "None";
-			default:
-				return QString( "Unknown update [%1]" )
-					.arg( static_cast<int>(update) ) ;
+		case Update::Background:
+			return "Background";
+		case Update::Content:
+			return "Content";
+		case Update::None:
+			return "None";
+		default:
+			return QString( "Unknown update [%1]" )
+				.arg( static_cast<int>(update) ) ;
 		}
 	}
 
-	/** Additional action to perform on the first redo() call of
-	 * #SE_addOrRemoveNotes. */
 	enum class Action {
 		None = 0x000,
 		/** Add the new note to the current selection. */
@@ -99,8 +97,75 @@ namespace Editor {
 		/** Move cursor to focus newly added note. */
 		MoveCursorTo = 0x002,
 		/** Play back the new note in case hear notes is enabled. */
-		Playback = 0x004
+		Playback = 0x004,
+		/** Add a new element */
+		AddElements = 0x008,
+		/** Deletes an existing elements */
+		DeleteElements = 0x010,
+		/** If an elements exists, delete it. If not, create a new one. */
+		ToggleElements = 0x020
 	};
+	static QString actionToQString( const Action& action ) {
+		QStringList actions;
+		if ( static_cast<char>(action) & static_cast<char>(Action::None) ) {
+			actions << "None";
+		}
+		if ( static_cast<char>(action) &
+			 static_cast<char>(Action::AddToSelection) ) {
+			actions << "AddToSelection";
+		}
+		if ( static_cast<char>(action) &
+			 static_cast<char>(Action::MoveCursorTo) ) {
+			actions << "MoveCursorTo";
+		}
+		if ( static_cast<char>(action) &
+			 static_cast<char>(Action::Playback) ) {
+			actions << "Playback";
+		}
+		if ( static_cast<char>(action) &
+			 static_cast<char>(Action::AddElements) ) {
+			actions << "AddElements";
+		}
+		if ( static_cast<char>(action) &
+			 static_cast<char>(Action::DeleteElements) ) {
+			actions << "DeleteElements";
+		}
+		if ( static_cast<char>(action) &
+			 static_cast<char>(Action::ToggleElements) ) {
+			actions << "ToggleElements";
+		}
+		return actions.join( ", " );
+	}
+
+	/** Symbolic step sizes employed on keyboard interactions. */
+	enum class Step {
+		None = 0,
+		Tiny = 1,
+		Character = 2,
+		Word = 3,
+		Page = 4,
+		Document = 5
+	};
+	static QString stepToQString( const Step& step ) {
+		switch ( step ) {
+		case Step::None:
+			return "None";
+		case Step::Tiny:
+			return "Tiny";
+		case Step::Character:
+			return "Character";
+		case Step::Word:
+			return "Word";
+		case Step::Page:
+			return "Page";
+		case Step::Document:
+			return "Document";
+		default:
+			return QString( "Unknown step [%1]" ).arg( static_cast<int>(step) ) ;
+		}
+	}
+	static constexpr int nWordSize = 5;
+	static constexpr int nPageSize = 15;
 
 	/** Distance in pixel the cursor is allowed to be away from a note to still
 	 * be associated with it.

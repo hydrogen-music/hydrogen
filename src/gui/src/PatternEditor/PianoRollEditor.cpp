@@ -491,6 +491,56 @@ QPoint PianoRollEditor::noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const
 		Note::pitchToLine( pNote->getPitchFromKeyOctave() ) + 1 );
 }
 
+void PianoRollEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		setCursorPitch( PITCH_MIN );
+		return;
+	}
+
+	setCursorPitch( std::max( m_nCursorPitch - nStep * KEYS_PER_OCTAVE,
+							  PITCH_MIN ) );
+}
+
+void PianoRollEditor::moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		setCursorPitch( PITCH_MAX );
+		return;
+	}
+
+	setCursorPitch( std::min( m_nCursorPitch + nStep * KEYS_PER_OCTAVE,
+							  PITCH_MAX ) );
+}
+
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
 {
 	if (!isVisible()) {
@@ -658,122 +708,6 @@ void PianoRollEditor::updateStyleSheet() {
 void PianoRollEditor::selectAll()
 {
 	selectAllNotesInRow( m_pPatternEditorPanel->getSelectedRowDB() );
-}
-
-void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
-{
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	auto selectedRow = m_pPatternEditorPanel->getRowDB(
-		m_pPatternEditorPanel->getSelectedRowDB() );
-	if ( selectedRow.nInstrumentID == EMPTY_INSTR_ID &&
-		 selectedRow.sType.isEmpty() ) {
-		DEBUGLOG( "Empty row [%1]" );
-		return;
-	}
-
-	const int nBlockSize = 5;
-	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
-	bool bUnhideCursor = true;
-	bool bEventUsed = true;
-	updateModifiers( ev );
-
-	if ( bIsSelectionKey ) {
-		// Selection key, nothing more to do (other than update editor)
-	}
-	else if ( ev->matches( QKeySequence::MoveToNextLine ) ||
-			  ev->matches( QKeySequence::SelectNextLine ) ) {
-		if ( m_nCursorPitch > Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
-													(Note::Key)KEY_MIN ) ) {
-			setCursorPitch( m_nCursorPitch - 1 );
-		}
-	}
-	else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) ||
-			  ev->matches( QKeySequence::SelectEndOfBlock ) ) {
-		setCursorPitch( std::max( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
-														(Note::Key)KEY_MIN ),
-								m_nCursorPitch - nBlockSize ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToNextPage ) ||
-			  ev->matches( QKeySequence::SelectNextPage ) ) {
-		// Page down -- move down by a whole octave
-		const int nMinPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
-													  (Note::Key)KEY_MIN );
-		setCursorPitch( std::max( m_nCursorPitch - KEYS_PER_OCTAVE, nMinPitch ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ||
-			  ev->matches( QKeySequence::SelectEndOfDocument ) ) {
-		setCursorPitch( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MIN,
-											  (Note::Key)KEY_MIN ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ||
-			  ev->matches( QKeySequence::SelectPreviousLine ) ) {
-		if ( m_nCursorPitch < Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
-													(Note::Key)KEY_MAX ) ) {
-			setCursorPitch( m_nCursorPitch + 1 );
-		}
-	}
-	else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) ||
-			  ev->matches( QKeySequence::SelectStartOfBlock ) ) {
-		setCursorPitch( std::min( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
-														(Note::Key)KEY_MAX ),
-								m_nCursorPitch + nBlockSize ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToPreviousPage ) ||
-			  ev->matches( QKeySequence::SelectPreviousPage ) ) {
-		const int nMaxPitch = Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
-													  (Note::Key)KEY_MAX );
-		setCursorPitch( std::min( m_nCursorPitch + KEYS_PER_OCTAVE, nMaxPitch ) );
-	}
-	else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ||
-			  ev->matches( QKeySequence::SelectStartOfDocument ) ) {
-		setCursorPitch( Note::octaveKeyToPitch( (Note::Octave)OCTAVE_MAX,
-											  (Note::Key)KEY_MAX ) );
-	}
-	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-		// Key: Enter/Return : Place or remove note at current position
-		m_selection.clearSelection();
-		int pressedline = Note::pitchToLine( m_nCursorPitch );
-		int nPitch = Note::lineToPitch( pressedline );
-		m_pPatternEditorPanel->addOrRemoveNotes(
-			m_pPatternEditorPanel->getCursorColumn(),
-			m_pPatternEditorPanel->getSelectedRowDB(),
-			Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ),
-			/* bDoAdd */ true, /* bDoDelete */ true,
-			/* bIsNoteOff */ false,
-			Editor::Action::Playback );
-	}
-	else if ( ev->key() == Qt::Key_Delete ) {
-		// Key: Delete: delete selection or note at keyboard cursor
-		if ( m_selection.begin() != m_selection.end() ) {
-			deleteSelection();
-		}
-		else {
-			// Delete a note under the keyboard cursor
-			int pressedline = Note::pitchToLine( m_nCursorPitch );
-			int nPitch = Note::lineToPitch( pressedline );
-			m_pPatternEditorPanel->addOrRemoveNotes(
-				m_pPatternEditorPanel->getCursorColumn(),
-				m_pPatternEditorPanel->getSelectedRowDB(),
-				Note::pitchToKey( nPitch ), Note::pitchToOctave( nPitch ),
-				/* bDoAdd */ false, /* bDoDelete */ true,
-				/* bIsNoteOff */ false,
-				Editor::Action::None );
-		}
-	}
-	else {
-		bEventUsed = false;
-	}
-
-	if ( ! bEventUsed ) {
-		ev->setAccepted( false );
-	}
-
-
-	PatternEditor::keyPressEvent( ev );
 }
 
 std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( const QRect& r )

@@ -95,11 +95,38 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		virtual void ensureCursorIsVisible() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
-		virtual void addElement( QMouseEvent* ev ) {
+		virtual void handleElements( QInputEvent* ev, Editor::Action action ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 		virtual void deleteElements( std::vector<Elem> ) {
 			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void copy() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void paste() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void moveCursorLeft( QKeyEvent* ev, Editor::Step step ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void moveCursorRight( QKeyEvent* ev, Editor::Step step ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void selectAll() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		/** Since the cursor might be shared amongst various components of the
+		 * editor, we do not store it in here. */
+ 		virtual QPoint getCursorPosition() {
+			___ERRORLOG( "To be implemented by parent" );
+			return QPoint( 0, 0 );
 		}
 		virtual void setCursorTo( Elem ) {
 			___ERRORLOG( "To be implemented by parent" );
@@ -147,6 +174,20 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		//! Clear the pattern editor selection
 		void clearSelection() {
 			m_selection.clearSelection();
+		}
+
+		void cut() {
+			copy();
+			deleteSelection();
+		}
+
+		void deleteSelection() {
+			// Delete selected elements.
+			std::vector<Elem> elementsToDelete;
+			for ( const auto& eelem : m_selection ) {
+				elementsToDelete.push_back( eelem );
+			}
+			deleteElements( elementsToDelete );
 		}
 
 // 		/** Move or copy notes.
@@ -364,17 +405,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			if ( ev->button() == Qt::LeftButton &&
 				 m_instance != Instance::NotePropertiesRuler ) {
 
+				setCursorTo( ev );
+
 				// Check whether an existing note or an empty grid cell was
 				// clicked.
-				const auto elementsAtPoint = getElementsAtPoint(
-					pEv->position().toPoint(), getCursorMargin( ev ) );
-				if ( elementsAtPoint.size() == 0 ) {
-					// Empty grid cell
-					addElement( ev );
-				}
-				else {
-					deleteElements( elementsAtPoint );
-				}
+				handleElements( ev, Editor::Action::ToggleElements );
 
 				m_selection.clearSelection();
 				updateMouseHoveredElements( ev );
@@ -397,7 +432,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 // 		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 // 		virtual QRect getKeyboardCursorRect() override;
 
-// 		QPoint getCursorPosition();
  		void handleKeyboardCursor( bool bVisible ) {
 			auto pHydrogenApp = HydrogenApp::get_instance();
 			const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
@@ -448,12 +482,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				updateVisibleComponents( false );
 			}
 		}
-// 		virtual void selectAll() = 0;
-// 		virtual void selectNone();
-// 		void deleteSelection( bool bHandleSetupTeardown = true );
-// 		virtual void copy( bool bHandleSetupTeardown = true );
-// 		void paste();
-// 		virtual void cut();
 
 	public:
 
@@ -523,10 +551,197 @@ class Base : public SelectionWidget<Elem>, public QWidget
 // 									bool bUseFineGrained = false ) const;
 
 
-// 		 ** @param bFullUpdate if `false`, just a simple update() of the widget
-// 		 *   will be triggered. If `true`, the background will be updated as
-// 		 *   well. */
-// 		void keyPressEvent ( QKeyEvent *ev, bool bFullUpdate = false );
+ 		virtual void keyPressEvent( QKeyEvent* ev ) override {
+
+			auto pHydrogenApp = HydrogenApp::get_instance();
+			const bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+
+			// Checks whether the elements at point are part of the current
+			// selection. If not, the latter is cleared and elements at
+			// point/cursor will be selected instead.
+			auto selectElementsAtPoint = [&]() {
+				const auto elementsUnderPoint = getElementsAtPoint(
+					getCursorPosition(), 0 );
+				if ( elementsUnderPoint.size() == 0 ) {
+					return false;
+				}
+
+				bool bElementsSelected = false;
+				if ( ! m_selection.isEmpty() ) {
+					for ( const auto& ppElement : elementsUnderPoint ) {
+						if ( m_selection.isSelected( ppElement ) ) {
+							bElementsSelected = true;
+							break;
+						}
+					}
+				}
+
+				if ( ! bElementsSelected ) {
+					m_selection.clearSelection();
+					for ( const auto& ppElement : elementsUnderPoint ) {
+						m_selection.addToSelection( ppElement );
+					}
+					return true;
+				}
+
+				return false;
+			};
+
+			bool bUnhideCursor = ev->key() != Qt::Key_Delete;
+
+			auto pCleanedEvent = new QKeyEvent(
+				QEvent::KeyPress, ev->key(), Qt::NoModifier, ev->text() );
+
+			const bool bIsSelectionKey = m_selection.keyPressEvent( ev );
+			updateModifiers( ev );
+
+			if ( bIsSelectionKey ) {
+				// Key was claimed by Selection
+			}
+			else if ( ev->matches( QKeySequence::MoveToNextLine ) ||
+					  ev->matches( QKeySequence::SelectNextLine ) ) {
+				moveCursorDown( ev, Editor::Step::Character );
+			}
+			else if ( ev->key() == Qt::Key_Down &&
+					  ev->modifiers() & Qt::AltModifier ) {
+				moveCursorDown( ev, Editor::Step::Tiny );
+			}
+			else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) ||
+					  ev->matches( QKeySequence::SelectEndOfBlock ) ) {
+				moveCursorDown( ev, Editor::Step::Word );
+			}
+			else if ( ev->matches( QKeySequence::MoveToNextPage ) ||
+					  ev->matches( QKeySequence::SelectNextPage ) ) {
+				moveCursorDown( ev, Editor::Step::Page );
+			}
+			else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ||
+					  ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+				moveCursorDown( ev, Editor::Step::Document );
+			}
+			else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ||
+					  ev->matches( QKeySequence::SelectPreviousLine ) ) {
+				moveCursorUp( ev, Editor::Step::Character );
+			}
+			else if ( ev->key() == Qt::Key_Up &&
+					  ev->modifiers() & Qt::AltModifier ) {
+				moveCursorUp( ev, Editor::Step::Tiny );
+			}
+			else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) ||
+					  ev->matches( QKeySequence::SelectStartOfBlock ) ) {
+				moveCursorUp( ev, Editor::Step::Word );
+			}
+			else if ( ev->matches( QKeySequence::MoveToPreviousPage ) ||
+					  ev->matches( QKeySequence::SelectPreviousPage ) ) {
+				moveCursorUp( ev, Editor::Step::Page );
+			}
+			else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ||
+					  ev->matches( QKeySequence::SelectStartOfDocument ) ) {
+				moveCursorUp( ev, Editor::Step::Document );
+			}
+			else if ( ev->matches( QKeySequence::MoveToNextChar ) ||
+					  ev->matches( QKeySequence::SelectNextChar ) ||
+					  ( ev->modifiers() & Qt::AltModifier && (
+						  pCleanedEvent->matches( QKeySequence::MoveToNextChar ) ||
+						  pCleanedEvent->matches( QKeySequence::SelectNextChar ) ) ) ) {
+				// ->
+				moveCursorRight( ev, Editor::Step::Character );
+			}
+			else if ( ev->matches( QKeySequence::MoveToNextWord ) ||
+					  ev->matches( QKeySequence::SelectNextWord ) ) {
+				// -->
+				moveCursorRight( ev, Editor::Step::Word );
+			}
+			else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ||
+					  ev->matches( QKeySequence::SelectEndOfLine ) ) {
+				// -->|
+				moveCursorRight( ev, Editor::Step::Document );
+			}
+			else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ||
+					  ev->matches( QKeySequence::SelectPreviousChar ) ||
+					  ( ev->modifiers() & Qt::AltModifier && (
+						  pCleanedEvent->matches( QKeySequence::MoveToPreviousChar ) ||
+						  pCleanedEvent->matches( QKeySequence::SelectPreviousChar ) ) ) ) {
+				// <-
+				moveCursorLeft( ev, Editor::Step::Character );
+			}
+			else if ( ev->matches( QKeySequence::MoveToPreviousWord ) ||
+					  ev->matches( QKeySequence::SelectPreviousWord ) ) {
+				// <--
+				moveCursorLeft( ev, Editor::Step::Word );
+			}
+			else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ||
+					  ev->matches( QKeySequence::SelectStartOfLine ) ) {
+				// |<--
+				moveCursorLeft( ev, Editor::Step::Document );
+			}
+			else if ( ev->matches( QKeySequence::SelectAll ) ) {
+				// Key: Ctrl + A: Select all
+				bUnhideCursor = false;
+				selectAll();
+			}
+			else if ( ev->matches( QKeySequence::Deselect ) ) {
+				// Key: Shift + Ctrl + A: clear selection
+				bUnhideCursor = false;
+				m_selection.clearSelection();
+			}
+			else if ( ev->matches( QKeySequence::Copy ) ) {
+				bUnhideCursor = false;
+				const bool bTransientSelection = selectElementsAtPoint();
+
+				copy();
+
+				if ( bTransientSelection ) {
+					m_selection.clearSelection();
+				}
+			}
+			else if ( ev->matches( QKeySequence::Paste ) ) {
+				bUnhideCursor = false;
+				paste();
+			}
+			else if ( ev->matches( QKeySequence::Cut ) ) {
+				bUnhideCursor = false;
+				const bool bTransientSelection = selectElementsAtPoint();
+
+				cut();
+
+				if ( bTransientSelection ) {
+					m_selection.clearSelection();
+				}
+			}
+			else if ( ev->key() == Qt::Key_Enter ||
+					  ev->key() == Qt::Key_Return ) {
+				// Key: Enter / Return: add or remove note at current
+				// position
+				m_selection.clearSelection();
+				handleElements( ev, Editor::Action::ToggleElements );
+			}
+			else if ( ev->key() == Qt::Key_Delete ) {
+				// Key: Delete / Backspace: delete selected notes, or note
+				// under keyboard cursor
+				if ( m_selection.begin() != m_selection.end() ) {
+					deleteSelection();
+				}
+				else {
+					handleElements( ev, Editor::Action::DeleteElements );
+				}
+			}
+			else {
+				ev->ignore();
+				return;
+			}
+
+			updateKeyboardHoveredElements();
+
+			if ( bUnhideCursor ) {
+				handleKeyboardCursor( bUnhideCursor );
+			}
+
+			updateVisibleComponents( true );
+
+			if ( ! ev->isAccepted() ) {
+				ev->accept();
+			}
+		}
 
 #ifdef H2CORE_HAVE_QT6
 		virtual void enterEvent( QEnterEvent* ev ) override {

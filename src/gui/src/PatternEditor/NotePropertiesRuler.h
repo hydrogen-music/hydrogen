@@ -97,6 +97,9 @@ class NotePropertiesRuler : public PatternEditor,
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
 		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
 
+		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
+		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
+
 		void updateColors();
 		void updateFont();
 
@@ -158,7 +161,6 @@ class NotePropertiesRuler : public PatternEditor,
 
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;
-		void keyPressEvent( QKeyEvent *ev ) override;
 		void addUndoAction( const QString& sUndoContext );
 		void prepareUndoAction( QMouseEvent* pEvent );
 
@@ -180,6 +182,7 @@ class NotePropertiesRuler : public PatternEditor,
 		bool adjustNotePropertyDelta(
 			std::vector< std::shared_ptr<H2Core::Note> > notes, float fDelta,
 			bool bKey );
+		void applyCursorDelta( float fDelta );
 
 		int m_nDrawPreviousColumn;
 		Layout m_layout;

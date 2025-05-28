@@ -1625,18 +1625,38 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 }
 
 // Ensure updateModifiers() was called on the provided event first.
-void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, int n ) {
+void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, Editor::Step step ) {
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		setCursorColumn( 0 );
+		return;
+	}
+
 	int nNewColumn;
 	if ( ! m_bQuantized ) {
-		nNewColumn = m_nCursorColumn - 1;
+		nNewColumn = m_nCursorColumn - nStep;
 	}
 	else {
 		if ( m_nCursorColumn % m_nCursorIncrement == 0 ) {
-			nNewColumn = m_nCursorColumn - m_nCursorIncrement * n;
+			nNewColumn = m_nCursorColumn - m_nCursorIncrement * nStep;
 		}
 		else {
 			nNewColumn = m_nCursorColumn - m_nCursorColumn % m_nCursorIncrement -
-				m_nCursorIncrement * ( n - 1 );
+				m_nCursorIncrement * std::max( nStep - 1, 0 );
 		}
 	}
 
@@ -1644,26 +1664,44 @@ void PatternEditorPanel::moveCursorLeft( QKeyEvent* pEvent, int n ) {
 }
 
 // Ensure updateModifiers() was called on the provided event first.
-void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, int n ) {
+void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, Editor::Step step ) {
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
 
-	int nNewColumn, nIncrement;
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		setCursorColumn( m_pPattern->getLength() );
+		return;
+	}
+
+	int nNewColumn;
 	// By pressing the Alt button the user can bypass quantization.
 	if ( ! m_bQuantized ) {
-		nNewColumn = m_nCursorColumn + 1;
-		nIncrement = 1;
+		nNewColumn = m_nCursorColumn + nStep;
 	}
 	else {
-		nIncrement = m_nCursorIncrement;
 		if ( m_nCursorColumn % m_nCursorIncrement == 0 ) {
-			nNewColumn = m_nCursorColumn + m_nCursorIncrement * n;
+			nNewColumn = m_nCursorColumn + m_nCursorIncrement * nStep;
 		}
 		else {
 			nNewColumn = m_nCursorColumn + m_nCursorIncrement -
 				m_nCursorColumn % m_nCursorIncrement +
-				m_nCursorIncrement * ( n - 1 );
+				m_nCursorIncrement * std::max( nStep - 1, 0 );
 		}
 
 		// If a jump would be positioned beyond the end of the pattern, we move
@@ -2049,7 +2087,7 @@ void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
 			if ( pKeyEvent != nullptr ) {
 				// Re-quantize keyboard cursor (moved notes will be re-quantized
 				// automatically via movingGridOffset).
-				moveCursorLeft( pKeyEvent, 0 );
+				moveCursorLeft( pKeyEvent, Editor::Step::None );
 			}
 		}
 
