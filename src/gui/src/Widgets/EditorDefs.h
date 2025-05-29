@@ -167,6 +167,34 @@ namespace Editor {
 	static constexpr int nWordSize = 5;
 	static constexpr int nPageSize = 15;
 
+	/** Specifies what happens on left-mouse button interaction. */
+	enum class Input {
+		/** Clicking will delete an existing element or create a new one and
+		 * dragging will either move the clicked note (and its corresponding
+		 * selection) or start a new lasso for selection. */
+		Select = 0,
+		/** Clicking will delete an existing element or create a new one and
+		 * dragging will delete existing/add new elements on all encountered
+		 * grid points. For horizontal editors, this might change the values of
+		 * existing elements instead. */
+		Draw = 1,
+		/** Clicking will delete an existing element or create a new one and
+		 * dragging will change the properties of the clicked element. */
+		Edit = 2
+	};
+	static QString inputToQString( const Input& input ) {
+		switch ( input ) {
+		case Input::Select:
+			return "Select";
+		case Input::Draw:
+			return "Draw";
+		case Input::Edit:
+			return "Edit";
+		default:
+			return QString( "Unknown input [%1]" ).arg( static_cast<int>(input) );
+		}
+	}
+
 	/** Distance in pixel the cursor is allowed to be away from a note to still
 	 * be associated with it.
 	 *
