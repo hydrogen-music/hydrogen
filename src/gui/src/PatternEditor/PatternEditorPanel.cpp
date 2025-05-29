@@ -208,12 +208,15 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pToolbarSidebarLayout->addWidget( pBtnContainer );
 	auto pBtnContainerLayout = new QHBoxLayout( pBtnContainer );
 	pBtnContainerLayout->setContentsMargins( 2, 1, 2, 1 );
-	pBtnContainerLayout->setSpacing( 4 );
+	pBtnContainerLayout->setSpacing( 3 );
 
-	const auto buttonSize = QSize( PatternEditorPanel::nToolbarGroupHeight ,
+	const auto buttonSize = QSize( PatternEditorPanel::nToolbarGroupHeight + 1,
 								   PatternEditorPanel::nToolbarGroupHeight - 4 );
-	const auto iconSize = QSize( PatternEditorPanel::nToolbarGroupHeight - 2,
+	const auto iconSize = QSize( PatternEditorPanel::nToolbarGroupHeight - 1,
 								 PatternEditorPanel::nToolbarGroupHeight - 6 );
+
+	const auto buttonSizeOutside = buttonSize + QSize( 0, 2 );
+	const auto iconSizeOutside = iconSize + QSize( 0, 2 );
 
 	m_pEditModeGroup = new QWidget( pBtnContainer );
 	m_pEditModeGroup->setFocusPolicy( Qt::ClickFocus );
@@ -222,7 +225,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pBtnContainerLayout->addWidget( m_pEditModeGroup );
 	auto pEditModeGroupLayout = new QHBoxLayout( m_pEditModeGroup );
 	pEditModeGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pEditModeGroupLayout->setSpacing( 2 );
+	pEditModeGroupLayout->setSpacing( 1 );
 
 	m_pSelectBtn = new Button(
 		m_pEditModeGroup, buttonSize, Button::Type::Toggle, "select.svg", "",
@@ -251,8 +254,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pBtnContainerLayout->addStretch();
 
 	m_pHearNotesBtn = new Button(
-		pBtnContainer, buttonSize, Button::Type::Toggle, "speaker.svg", "",
-		iconSize, tr( "Hear new notes" ), false, false );
+		pBtnContainer, buttonSizeOutside, Button::Type::Toggle, "speaker.svg", "",
+		iconSizeOutside, tr( "Hear new notes" ), false, false );
 	connect( m_pHearNotesBtn, SIGNAL( clicked() ),
 			 this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
@@ -261,8 +264,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pBtnContainerLayout->addWidget( m_pHearNotesBtn );
 
 	m_pQuantizeEventsBtn = new Button(
-		pBtnContainer, buttonSize, Button::Type::Toggle, "quantization.svg",
-		"", iconSize, tr( "Quantize keyboard/midi events to grid" ), false,
+		pBtnContainer, buttonSizeOutside, Button::Type::Toggle, "quantization.svg",
+		"", iconSizeOutside, tr( "Quantize keyboard/midi events to grid" ), false,
 		false );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
@@ -281,7 +284,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pBtnContainerLayout->addWidget( m_pInstanceGroup );
 	auto pInstanceGroupLayout = new QHBoxLayout( m_pInstanceGroup );
 	pInstanceGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pInstanceGroupLayout->setSpacing( 2 );
+	pInstanceGroupLayout->setSpacing( 1 );
 
 	m_pDrumPatternBtn = new Button(
 		m_pInstanceGroup, buttonSize, Button::Type::Toggle, "drum.svg", "",
