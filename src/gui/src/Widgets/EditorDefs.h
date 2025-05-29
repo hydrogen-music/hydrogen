@@ -43,20 +43,21 @@ namespace Editor {
 	}
 
 	enum class Instance {
-		DrumPattern = 0,
-		PianoRoll = 1,
-		NotePropertiesRuler = 2,
-		None = 3
+		None = 0,
+		DrumPattern = 1,
+		PianoRoll = 2,
+		NotePropertiesRuler = 3
 	};
 	static QString instanceToQString( const Instance& instance ) {
 		switch ( instance ) {
+		case Instance::None:
+			return "None";
 		case Instance::DrumPattern:
 			return "DrumPattern";
 		case Instance::PianoRoll:
 			return "PianoRoll";
 		case Instance::NotePropertiesRuler:
 			return "NotePropertiesRuler";
-		case Instance::None:
 		default:
 			return QString( "Unknown instance [%1]" )
 				.arg( static_cast<int>(instance) ) ;
