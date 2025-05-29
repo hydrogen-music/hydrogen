@@ -97,31 +97,22 @@ class NotePropertiesRuler : public PatternEditor,
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
 		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
 
-		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
-		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
-
 		void updateColors();
 		void updateFont();
 
-		//! @name Property draw (right-click drag) gestures
-		//! 
-		//! The user can right-click drag on a note's bar or dot to change that
-		//! property. Properties are updated live during the draw gesture, with
-		//! 'undo' information being written at the end.
+		//! @name Editor::Base interfaces
 		//! @{
+		bool canMoveElements() const override { return false; };
+		std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
+		void mouseClickEvent( QMouseEvent *ev ) override;
+		void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
+		void selectionMoveEndEvent( QInputEvent *ev ) override;
+		void selectionMoveCancelEvent() override;
+		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
+		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
 		void mouseDrawStart( QMouseEvent *ev ) override;
 		void mouseDrawUpdate( QMouseEvent *ev ) override;
 		void mouseDrawEnd() override;
-		//! @}
-
-		//! @name PatternEditor interfaces
-		//! @{
-		virtual bool canMoveElements() const override { return false; };
-		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-		virtual void selectionMoveCancelEvent() override;
 		//! @}
 
 
