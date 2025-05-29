@@ -346,6 +346,9 @@ class PatternEditorPanel : public QWidget,
 		 * focus.*/
 		bool hasPatternEditorFocus() const;
 
+		Editor::Input getInput() const;
+		void setInput( Editor::Input input);
+
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
@@ -376,6 +379,7 @@ class PatternEditorPanel : public QWidget,
 
 	private:
 
+		void updateInput();
 		void updatePatternInfo();
 		void updatePatternsToShow();
 		void updateStyleSheet();
@@ -385,6 +389,8 @@ class PatternEditorPanel : public QWidget,
 
 		/** All patterns currently playing. They are cached in here or  */
 		std::vector< std::shared_ptr<H2Core::Pattern> > m_patternsToShow;
+
+		Editor::Input m_input;
 
 		/** Number corresponding to #m_pPattern. */
 		int m_nPatternNumber;
@@ -408,7 +414,7 @@ class PatternEditorPanel : public QWidget,
 
 		/** Contains all buttons */
 		QWidget* m_pToolbarSidebar;
-		QWidget* m_pEditModeGroup;
+		QWidget* m_pInputModeGroup;
 		Button* m_pSelectBtn;
 		Button* m_pDrawBtn;
 		Button* m_pEditBtn;
@@ -536,6 +542,9 @@ inline const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 									 std::vector< std::shared_ptr<H2Core::Note> > >
 						  >& PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
+}
+inline Editor::Input PatternEditorPanel::getInput() const {
+	return m_input;
 }
 
 #endif
