@@ -137,9 +137,6 @@ public:
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 	
-	void editPropertyStart( QMouseEvent *ev );
-	void editPropertyUpdate( QMouseEvent *ev );
-	void editPropertyEnd( QMouseEvent *ev );
 		virtual QRect getKeyboardCursorRect() override;
 
 		/** Area taken available for an addition sidebar or button */
@@ -215,6 +212,10 @@ public:
 		void setupPopupMenu() override;
 		void updateKeyboardHoveredElements() override;
 		void updateMouseHoveredElements( QMouseEvent* ev ) override;
+		Editor::Input getInput() const override;
+		void mouseEditStart( QMouseEvent* ev ) override;
+		void mouseEditUpdate( QMouseEvent* ev ) override;
+		void mouseEditEnd() override;
 		void updateAllComponents( bool bContentOnly ) override;
 		void updateVisibleComponents( bool bContentOnly ) override;
 

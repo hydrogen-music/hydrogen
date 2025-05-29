@@ -146,6 +146,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
+		virtual Editor::Input getInput() const {
+			___ERRORLOG( "To be implemented by parent" );
+			return Editor::Input::Select;
+		}
+
 		virtual void mouseDrawStart( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
@@ -153,6 +158,16 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 		virtual void mouseDrawEnd() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+
+		virtual void mouseEditStart( QMouseEvent* ev ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void mouseEditUpdate( QMouseEvent* ev ) {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		virtual void mouseEditEnd() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
@@ -351,9 +366,19 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				}
 			}
 
-			// propagate event to selection. This could very well cancel a lasso
-			// created via keyboard events.
-			m_selection.mousePressEvent( ev );
+			if ( getInput() == Editor::Input::Draw &&
+				 ev->buttons() == Qt::LeftButton ) {
+				mouseDrawStart( ev );
+			}
+			else if ( getInput() == Editor::Input::Edit &&
+				 ev->buttons() == Qt::LeftButton ) {
+				mouseEditStart( ev );
+			}
+			else {
+				// propagate event to selection. This could very well cancel a
+				// lasso created via keyboard events.
+				m_selection.mousePressEvent( ev );
+			}
 
 			// Hide cursor in case this behavior was selected in the
 			// Preferences.
@@ -380,20 +405,42 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateMouseHoveredElements( ev );
 
 			if ( ev->buttons() != Qt::NoButton ) {
-				m_selection.mouseMoveEvent( ev );
-				if ( m_selection.isMoving() ) {
-					updateVisibleComponents( true );
+				if ( getInput() == Editor::Input::Draw &&
+					 ev->buttons() == Qt::LeftButton ) {
+					mouseDrawUpdate( ev );
+				}
+				else if ( getInput() == Editor::Input::Edit &&
+						  ev->buttons() == Qt::LeftButton ) {
+					mouseEditUpdate( ev );
+				}
+				else {
+					m_selection.mouseMoveEvent( ev );
+					if ( m_selection.isMoving() ) {
+						updateVisibleComponents( true );
+					}
 				}
 			}
 		}
  		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
+			unsetCursor();
+
 			// Don't call updateModifiers( ev ) in here because we want to apply
 			// the state of the modifiers used during the last update/rendering.
 			// Else the user might position a note carefully and it jumps to
 			// different place because she released the Alt modifier slightly
 			// earlier than the mouse button.
 
-			m_selection.mouseReleaseEvent( ev );
+			if ( getInput() == Editor::Input::Draw &&
+				 ev->button() == Qt::LeftButton ) {
+				mouseDrawEnd();
+			}
+			else if ( getInput() == Editor::Input::Edit &&
+				 ev->button() == Qt::LeftButton ) {
+				mouseEditEnd();
+			}
+			else {
+				m_selection.mouseReleaseEvent( ev );
+			}
 
 			m_elementsHoveredOnDragStart.clear();
 
@@ -502,8 +549,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-	public:
-
 		/** Which parts of the editor to update in the next paint event. */
 		Update m_update;
 		Instance m_instance;
@@ -524,36 +569,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		/** Indicates whether the mouse pointer entered the widget.*/
 		bool m_bEntered;
 
-// 		enum class DragType {
-// 			None,
-// 			Length,
-// 			Property
-// 		};
-// 		static QString DragTypeToQString( DragType dragType );
-// 		/** Specifies whether the user interaction is altering the length
-// 		 * (horizontal) or the currently selected property (vertical) of a
-// 		 * note. */
-// 		DragType m_dragType;
-
-// 		/** Keeps track of all notes being drag-edited using the right mouse
-// 		 * button. It maps the new, updated version of a note to an copy of
-// 		 * itself still bearing the original values.*/
-// 		std::map< std::shared_ptr<H2Core::Note>,
-// 			std::shared_ptr<H2Core::Note> > m_draggedNotes;
-// 		/** Column a click-drag event did started in.*/
-// 		int m_nDragStartColumn;
-// 		/** Latest vertical position of a drag event. Adjusted in every drag
-// 		 * update. */
-// 		int m_nDragY;
-// 		QPoint m_dragStart;
-// 		/** When drag editing note properties using right-click drag in
-// 		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
-// 		 * indicating the value change. But when dragging a selection of notes
-// 		 * or multiple notes at point, it is not obvious which information to
-// 		 * display. We show all values changes of notes at the initial mouse
-// 		 * cursor position. */
-// 		std::vector< std::shared_ptr<H2Core::Note> > m_elementsHoveredOnDragStart;
-
 		QMenu *m_pPopupMenu;
 
 		void showPopupMenu( QMouseEvent* pEvent ){
@@ -562,13 +577,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			auto pEv = static_cast<MouseEvent*>( pEvent );
 			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
 		}
-
-// 		/** Function in the same vein as getColumn() but calculates both column
-// 		 * and row information from the provided event position. */
-// 		void eventPointToColumnRow( const QPoint& point, int* pColumn,
-// 									int* pRow, int* pRealColumn = nullptr,
-// 									bool bUseFineGrained = false ) const;
-
 
  		virtual void keyPressEvent( QKeyEvent* ev ) override {
 
@@ -871,11 +879,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		std::vector<Elem> m_elementsToSelectForPopup;
 
  		std::vector<Elem> m_elementsHoveredForPopup;
-
-// 		void updateHoveredNotesMouse( QMouseEvent* pEvent,
-// 									  bool bUpdateEditors = true );
-// 		void updateHoveredNotesKeyboard( bool bUpdateEditors = true );
-
 };
 
 } // namespace Base
