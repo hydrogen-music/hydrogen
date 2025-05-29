@@ -349,9 +349,10 @@ class PatternEditorPanel : public QWidget,
 		Editor::Input getInput() const;
 		void setInput( Editor::Input input);
 
+		Editor::Instance getInstance() const;
+		void setInstance( Editor::Instance instance);
+
 	public slots:
-		void showDrumEditor();
-		void showPianoRollEditor();
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private slots:
@@ -360,8 +361,6 @@ class PatternEditorPanel : public QWidget,
 
 		void hearNotesBtnClick();
 		void quantizeEventsBtnClick();
-
-		void showDrumEditorBtnClick();
 
 		void syncToExternalHorizontalScrollbar(int);
 		void contentsMoving(int dummy);
@@ -380,6 +379,7 @@ class PatternEditorPanel : public QWidget,
 	private:
 
 		void updateInput();
+		void updateInstance();
 		void updatePatternInfo();
 		void updatePatternsToShow();
 		void updateStyleSheet();
@@ -391,6 +391,7 @@ class PatternEditorPanel : public QWidget,
 		std::vector< std::shared_ptr<H2Core::Pattern> > m_patternsToShow;
 
 		Editor::Input m_input;
+		Editor::Instance m_instance;
 
 		/** Number corresponding to #m_pPattern. */
 		int m_nPatternNumber;
@@ -545,6 +546,9 @@ inline const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 }
 inline Editor::Input PatternEditorPanel::getInput() const {
 	return m_input;
+}
+inline Editor::Instance PatternEditorPanel::getInstance() const {
+	return m_instance;
 }
 
 #endif

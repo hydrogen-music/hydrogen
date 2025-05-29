@@ -3213,14 +3213,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Quantifier les événements entrant du clavier/MIDI = inactif</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation>Afficher l&apos;éditeur piano-roll</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Afficher l&apos;éditeur de batterie</translation>
-    </message>
-    <message>
         <source>quarter</source>
         <translation>noire</translation>
     </message>

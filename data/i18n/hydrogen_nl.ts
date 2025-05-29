@@ -3170,14 +3170,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Selecteer noot opties</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>quarter</source>
         <translation type="unfinished"></translation>
     </message>

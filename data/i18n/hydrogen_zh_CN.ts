@@ -653,7 +653,7 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     <message>
         <source>Show drumkit editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>显示鼓编辑器</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -3164,10 +3164,6 @@ LilyPond 导出是一项实验性功能。
         <translation>量化 键盘/MIDI 事件到网格</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation>显示钢琴卷帘编辑器</translation>
-    </message>
-    <message>
         <source>Zoom in</source>
         <translation>放大</translation>
     </message>
@@ -3198,10 +3194,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>量化传入的键盘/MIDI 事件：关</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>显示鼓编辑器</translation>
     </message>
     <message>
         <source>quarter</source>

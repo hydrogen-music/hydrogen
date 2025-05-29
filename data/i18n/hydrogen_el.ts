@@ -653,7 +653,7 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     <message>
         <source>Show drumkit editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Προβολή του επεξεργαστή κρουστών</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -3166,10 +3166,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Κβαντισμός των γενόμενων του πληκτρολόγιου ή του ΜΙΝΤΙ στο πλέγμα</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Zoom in</source>
         <translation>Εστίαση</translation>
     </message>
@@ -3200,10 +3196,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Κβαντισμός των εισερχομένων γενομένων του πληκτρολογίου ή του ΜΙΝΤΙ = Ανενεργός</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Προβολή του επεξεργαστή κρουστών</translation>
     </message>
     <message>
         <source>quarter</source>

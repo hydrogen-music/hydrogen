@@ -653,7 +653,7 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     <message>
         <source>Show drumkit editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Amosar o editor de baterías</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -3195,14 +3195,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Cuantizar eventos teclado/MIDI entrantes = Non</translation>
-    </message>
-    <message>
-        <source>Show piano roll editor</source>
-        <translation>Amosar o editor da pianola</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Amosar o editor de baterías</translation>
     </message>
     <message>
         <source>quarter</source>

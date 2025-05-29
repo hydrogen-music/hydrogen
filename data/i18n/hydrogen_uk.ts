@@ -653,7 +653,7 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     <message>
         <source>Show drumkit editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Показати редактор перкусії</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -3194,14 +3194,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Select note properties</source>
         <translation>Вибрати властивості ноти</translation>
-    </message>
-    <message>
-        <source>Show piano roll editor</source>
-        <translation>Показати матричний редактор</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Показати редактор перкусії</translation>
     </message>
     <message>
         <source>quarter</source>

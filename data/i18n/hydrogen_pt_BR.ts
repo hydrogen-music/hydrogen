@@ -3210,14 +3210,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Selecionar propriedades da nota</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation>Exibir editor de piano automático</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Exibir editor de bateria</translation>
-    </message>
-    <message>
         <source>quarter</source>
         <translation>semínima</translation>
     </message>

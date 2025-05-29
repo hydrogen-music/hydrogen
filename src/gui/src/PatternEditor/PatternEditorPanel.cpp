@@ -135,6 +135,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
 	, m_input( Editor::Input::Select )
+	, m_instance( Editor::Instance::DrumPattern )
 	, m_nCursorColumn( 0 )
 	, m_bPatternSelectedViaTab( false )
 	, m_bTypeLabelsMustBeVisible( false )
@@ -298,9 +299,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		m_pInstanceGroup, buttonSize, Button::Type::Toggle, "drum.svg", "",
 		iconSize, pCommonStrings->getShowDrumkitEditorTooltip() );
 	m_pDrumPatternBtn->setObjectName( "ShowDrumBtn" );
-	m_pDrumPatternBtn->setChecked( true );
-	connect( m_pDrumPatternBtn, SIGNAL( clicked() ),
-			 this, SLOT( showDrumEditorBtnClick() ) );
+	m_pDrumPatternBtn->setChecked( m_instance == Editor::Instance::DrumPattern );
+	connect( m_pDrumPatternBtn, &Button::clicked, [&](){
+		setInstance( Editor::Instance::DrumPattern );
+	} );
 	m_pDrumPatternBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pInstanceGroupLayout->addWidget( m_pDrumPatternBtn );
 
@@ -308,9 +310,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		m_pInstanceGroup, buttonSize, Button::Type::Toggle, "piano.svg", "",
 		iconSize, pCommonStrings->getShowPianoRollEditorTooltip() );
 	m_pPianoRollBtn->setObjectName( "ShowPianoBtn" );
-	m_pPianoRollBtn->setChecked( false );
-	connect( m_pPianoRollBtn, SIGNAL( clicked() ),
-			 this, SLOT( showDrumEditorBtnClick() ) );
+	m_pPianoRollBtn->setChecked( m_instance == Editor::Instance::PianoRoll );
+	connect( m_pPianoRollBtn, &Button::clicked, [&](){
+		setInstance( Editor::Instance::PianoRoll );
+	} );
 	m_pPianoRollBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pInstanceGroupLayout->addWidget( m_pPianoRollBtn );
 
@@ -1052,71 +1055,17 @@ void PatternEditorPanel::setInput( Editor::Input input ) {
 	}
 }
 
-void PatternEditorPanel::showDrumEditor()
-{
-	m_pDrumPatternBtn->setToolTip( tr( "Show piano roll editor" ) );
-	m_pDrumPatternBtn->setChecked( false );
-	m_pPianoRollScrollView->hide();
-	m_pEditorScrollView->show();
-	m_pSidebarScrollView->show();
-
-	m_pEditorScrollView->setFocus();
-	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
-	m_pSidebar->setFocusProxy( m_pEditorScrollView );
-	m_pSidebar->dimRows( false );
-
-	m_pDrumPatternEditor->updateEditor(); // force an update
-	ensureCursorIsVisible();
-
-	getVisiblePropertiesRuler()->syncLasso();
-
-	// force a re-sync of extern scrollbars
-	resizeEvent( nullptr );
-
-}
-
-void PatternEditorPanel::showPianoRollEditor()
-{
-	m_pDrumPatternBtn->setToolTip( tr( "Show drum editor" ) );
-	m_pDrumPatternBtn->setChecked( true );
-	m_pPianoRollScrollView->show();
-	m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
-	m_pEditorScrollView->hide();
-	m_pSidebarScrollView->show();
-
-	m_pPianoRollScrollView->setFocus();
-	m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
-	m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
-	m_pSidebar->dimRows( true );
-
-	m_pPianoRollEditor->updateEditor(); // force an update
-	ensureCursorIsVisible();
-
-	getVisiblePropertiesRuler()->syncLasso();
-
-	// force a re-sync of extern scrollbars
-	resizeEvent( nullptr );
-}
-
-void PatternEditorPanel::showDrumEditorBtnClick()
-{
-	if ( m_pDrumPatternBtn->isVisible() ){
-		showPianoRollEditor();
-		m_pDrumPatternBtn->hide();
-		m_pPianoRollBtn->show();
-		m_pDrumPatternBtn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowDrumkitEditorTooltip() );
-		m_pPianoRollBtn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowDrumkitEditorTooltip() );
-	} else {
-		showDrumEditor();
-		m_pDrumPatternBtn->show();
-		m_pPianoRollBtn->hide();
-		m_pDrumPatternBtn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
-		m_pPianoRollBtn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+void PatternEditorPanel::setInstance( Editor::Instance instance ) {
+	if ( m_instance != instance &&
+		 ( instance == Editor::Instance::DrumPattern ||
+		   instance == Editor::Instance::PianoRoll ) ) {
+		m_instance = instance;
+		updateInstance();
 	}
 }
 
 PatternEditor* PatternEditorPanel::getVisibleEditor() const {
-	if ( m_pPianoRollScrollView->isVisible() ) {
+	if ( m_instance == Editor::Instance::PianoRoll ) {
 		return m_pPianoRollEditor;
 	}
 	return m_pDrumPatternEditor;
@@ -1216,6 +1165,49 @@ void PatternEditorPanel::updateInput() {
 		ERRORLOG( QString( "Unhandled input [%1]" )
 				  .arg( Editor::inputToQString( m_input ) ) );
 	}
+}
+
+void PatternEditorPanel::updateInstance() {
+	if ( m_instance == Editor::Instance::DrumPattern ) {
+		m_pDrumPatternBtn->setChecked( true );
+		m_pPianoRollBtn->setChecked( false );
+
+		m_pPianoRollScrollView->hide();
+		m_pEditorScrollView->show();
+
+		m_pEditorScrollView->setFocus();
+		m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
+		m_pSidebar->setFocusProxy( m_pEditorScrollView );
+		m_pSidebar->dimRows( false );
+
+		m_pDrumPatternEditor->updateEditor();
+}
+	else if ( m_instance == Editor::Instance::PianoRoll ) {
+		m_pDrumPatternBtn->setChecked( false );
+		m_pPianoRollBtn->setChecked( true );
+
+		m_pPianoRollScrollView->show();
+		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
+		m_pEditorScrollView->hide();
+
+		m_pPianoRollScrollView->setFocus();
+		m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
+		m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
+		m_pSidebar->dimRows( true );
+
+		m_pPianoRollEditor->updateEditor();
+	}
+	else {
+		ERRORLOG( QString( "Unhandled instance [%1]" )
+				  .arg( Editor::instanceToQString( m_instance ) ) );
+	}
+
+	ensureCursorIsVisible();
+
+	getVisiblePropertiesRuler()->syncLasso();
+
+	// force a re-sync of extern scrollbars
+	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::updatePatternInfo() {
@@ -1653,7 +1645,7 @@ int PatternEditorPanel::getCursorColumn()
 
 void PatternEditorPanel::ensureCursorIsVisible()
 {
-	if ( m_pEditorScrollView->isVisible() ) {
+	if ( m_instance == Editor::Instance::DrumPattern ) {
 		const auto pos = m_pDrumPatternEditor->getCursorPosition();
 		m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
 	}

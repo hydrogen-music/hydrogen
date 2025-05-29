@@ -3126,10 +3126,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Zoom in</source>
         <translation></translation>
     </message>
@@ -3159,10 +3155,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
         <translation></translation>
     </message>
     <message>

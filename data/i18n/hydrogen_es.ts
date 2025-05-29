@@ -3212,14 +3212,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>No se ha seleccionado un patrón</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation>Mostrar editor del piano roll</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Mostrar drum editor</translation>
-    </message>
-    <message>
         <source>quarter</source>
         <translation>negra</translation>
     </message>

@@ -3205,14 +3205,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Eigenschaften der Note wählen</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation>Piano-Roll anzeigen</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Schlagzeug-Editor anzeigen</translation>
-    </message>
-    <message>
         <source>quarter</source>
         <translation>Viertel</translation>
     </message>
