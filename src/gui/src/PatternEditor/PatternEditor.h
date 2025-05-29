@@ -65,89 +65,33 @@ class PatternEditor : public Editor::Base<std::shared_ptr<H2Core::Note>>,
 public:
 		typedef std::shared_ptr<H2Core::Note> Elem;
 
-	enum class Property {
-		Velocity = 0,
-		Pan = 1,
-		LeadLag = 2,
-		KeyOctave = 3,
-		Probability = 4,
-		/** For this property there is no dedicated NotePropertiesEditor
-		 * instance but we solely use it within undo/redo actions.*/
-		Length = 5,
-		/** For this property there is no dedicated NotePropertiesEditor
-		 * instance but we solely use it within undo/redo actions.*/
-		Type = 6,
-		/** For this property there is no dedicated NotePropertiesEditor
-		 * instance but we solely use it within undo/redo actions.*/
-		InstrumentId = 7,
-		None = 8
-	};
-	static QString propertyToQString( const Property& property );
-
-	PatternEditor( QWidget *pParent );
-	~PatternEditor();
-
-	float getGridWidth() const { return m_fGridWidth; }
-	unsigned getGridHeight() const { return m_nGridHeight; }
-	//! Zoom in / out on the time axis
-	void zoomIn();
-	void zoomOut();
-		void zoomLasso( float fOldGridWidth );
-
-	/** Move or copy notes.
-	 *
-	 * Moves or copies notes at the end of a Selection move, handling the
-	 * behaviours necessary for out-of-range moves or copies.*/
-	virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-
-	//! Calculate colour to use for note representation based on note velocity. 
-	static QColor computeNoteColor( float velocity );
-
-
-	//! Merge together the selection groups of two PatternEditor objects to share a common selection.
-	void mergeSelectionGroups( PatternEditor *pPatternEditor ) {
-		m_selection.merge( &pPatternEditor->m_selection );
-	}
-
-	//! Ensure that the Selection contains only valid elements.
-	virtual void validateSelection() override;
-
-	//! Update the status of modifier keys in response to input events.
-	virtual void updateModifiers( QInputEvent *ev ) override;
-
-		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
-
-		virtual int getCursorMargin( QInputEvent* pEvent ) const override;
-
-	//! Deselecting notes
-	virtual bool checkDeselectElements( const std::vector<SelectionIndex>& elements ) override;
-
-	//! Deselect some notes, and "overwrite" some others.
-	void deselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
-									const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
-
-	void undoDeselectAndOverwriteNotes( const std::vector< std::shared_ptr<H2Core::Note> >& selected,
-										const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
-
-	//! Raw Qt mouse events are passed to the Selection
-	virtual void mousePressEvent( QMouseEvent *ev ) override;
-	virtual void mouseMoveEvent( QMouseEvent *ev ) override;
-	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-	
-		virtual QRect getKeyboardCursorRect() override;
-
 		/** Area taken available for an addition sidebar or button */
 		static constexpr int nMarginSidebar = 32;
 		/** #nMarginSidebar + some additional space to contain a margin and half
 		 * of the notes on first grid point. */
 		static constexpr int nMargin = nMarginSidebar + 10;
 
-	/** Caches the AudioEngine::m_nPatternTickPosition in the member
-		variable #m_nTick and triggers an update(). */
-	void updatePosition( float fTick );
+		enum class Property {
+			Velocity = 0,
+			Pan = 1,
+			LeadLag = 2,
+			KeyOctave = 3,
+			Probability = 4,
+			/** For this property there is no dedicated NotePropertiesEditor
+			 * instance but we solely use it within undo/redo actions.*/
+			Length = 5,
+			/** For this property there is no dedicated NotePropertiesEditor
+			 * instance but we solely use it within undo/redo actions.*/
+			Type = 6,
+			/** For this property there is no dedicated NotePropertiesEditor
+			 * instance but we solely use it within undo/redo actions.*/
+			InstrumentId = 7,
+			None = 8
+		};
+		static QString propertyToQString( const Property& property );
+
+		PatternEditor( QWidget *pParent );
+		~PatternEditor();
 
 		static void addOrRemoveNoteAction( int nPosition,
 										   int nInstrumentId,
@@ -165,48 +109,108 @@ public:
 										   bool bIsMappedToDrumkit,
 										   Editor::Action action );
 
+		//! Deselect some notes, and "overwrite" some others.
+		void deselectAndOverwriteNotes(
+			const std::vector< std::shared_ptr<H2Core::Note> >& selected,
+			const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
+
+		void undoDeselectAndOverwriteNotes(
+			const std::vector< std::shared_ptr<H2Core::Note> >& selected,
+			const std::vector< std::shared_ptr<H2Core::Note> >& overwritten );
+
 		/** For notes in #PianoRollEditor and the note key version of
 		 * #NotePropertiesEditor @a nOldKey and @a nOldOctave will be
 		 * used to find the actual #H2Core::Note to alter. In the latter
 		 * adjusting note/octave can be done too. This is covered using @a
 		 * nNewKey and @a nNewOctave. */
-	static void editNotePropertiesAction( const Property& property,
-										  int nPatternNumber,
-										  int nPosition,
-										  int nOldInstrumentId,
-										  int nNewInstrumentId,
-										  const QString& sOldType,
-										  const QString& sNewType,
-										  float fVelocity,
-										  float fPan,
-										  float fLeadLag,
-										  float fProbability,
-										  int nLength,
-										  int nNewKey,
-										  int nOldKey,
-										  int nNewOctave,
-										  int nOldOctave );
-		void triggerStatusMessage(
-			const std::vector< std::shared_ptr<H2Core::Note> > notes,
-			const Property& property, bool bSquash = false );
+		static void editNotePropertiesAction( const Property& property,
+											  int nPatternNumber,
+											  int nPosition,
+											  int nOldInstrumentId,
+											  int nNewInstrumentId,
+											  const QString& sOldType,
+											  const QString& sNewType,
+											  float fVelocity,
+											  float fPan,
+											  float fLeadLag,
+											  float fProbability,
+											  int nLength,
+											  int nNewKey,
+											  int nOldKey,
+											  int nNewOctave,
+											  int nOldOctave );
 
-		/** Ensure the selection lassos of the other editors match the one of
-		 * this instance. */
-		bool syncLasso();
+		float getGridWidth() const { return m_fGridWidth; }
+		unsigned getGridHeight() const { return m_nGridHeight; }
+
 		bool isSelectionMoving() const;
+
+		//! Merge together the selection groups of two PatternEditor objects to
+		//! share a common selection.
+		void mergeSelectionGroups( PatternEditor *pPatternEditor ) {
+			m_selection.merge( &pPatternEditor->m_selection );
+		}
 
 		QPoint movingGridOffset() const;
 
 		void setCursorPitch( int nCursorPitch );
 
-		void ensureCursorIsVisible() override;
+		/** Ensure the selection lassos of the other editors match the one of
+		 * this instance. */
+		bool syncLasso();
+
+		void triggerStatusMessage(
+			const std::vector< std::shared_ptr<H2Core::Note> > notes,
+			const Property& property, bool bSquash = false );
+
+		/** Caches the AudioEngine::m_nPatternTickPosition in the member
+			variable #m_nTick and triggers an update(). */
+		void updatePosition( float fTick );
+
+		// Zoom in / out on the time axis
+		void zoomIn();
+		void zoomLasso( float fOldGridWidth );
+		void zoomOut();
+
+		//! Raw Qt mouse events are passed to the Selection.
+		virtual void keyPressEvent( QKeyEvent* ev ) override;
+		virtual void keyReleaseEvent(QKeyEvent *ev) override;
+		virtual void mousePressEvent( QMouseEvent *ev ) override;
+		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
+		virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void paintEvent( QPaintEvent* ev ) override;
+	
+		//! @name SelectionWidget interfaces
+		//! @{
+		//! Deselecting notes
+		bool checkDeselectElements(
+			const std::vector< std::shared_ptr<H2Core::Note> >& elements ) override;
+		int getCursorMargin( QInputEvent* pEvent ) const override;
+		//! Update the status of modifier keys in response to input events.
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
+		QRect getKeyboardCursorRect() override;
+		/** Move or copy notes.
+		 *
+		 * Moves or copies notes at the end of a Selection move, handling the
+		 * behaviours necessary for out-of-range moves or copies.*/
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
+		//! Ensure that the Selection contains only valid elements.
+		virtual void validateSelection() override;
+		//! @)
+
+		// @name Editor::Base interfaces
+		//! @{
 		void handleElements( QInputEvent* ev, Editor::Action action ) override;
 		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
 		void copy() override;
 		void paste() override;
+		void ensureCursorIsVisible() override;
+		QPoint getCursorPosition() override;
 		void moveCursorLeft( QKeyEvent* ev, Editor::Step step ) override;
 		void moveCursorRight( QKeyEvent* ev, Editor::Step step ) override;
-		QPoint getCursorPosition() override;
 		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;
 		void setCursorTo( QMouseEvent* ev ) override;
 		void setupPopupMenu() override;
@@ -218,12 +222,19 @@ public:
 		void mouseEditEnd() override;
 		void updateAllComponents( bool bContentOnly ) override;
 		void updateVisibleComponents( bool bContentOnly ) override;
+		void updateModifiers( QInputEvent *ev ) override;
+		/**
+		 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
+		 * state of the editor.
+		 */
+		bool updateWidth() override;
+		//! @}
 
 public slots:
-	virtual void alignToGrid();
-	virtual void randomizeVelocity();
-	void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
-	void scrolled( int nValue );
+		virtual void alignToGrid();
+		virtual void randomizeVelocity();
+		void selectAllNotesInRow( int nRow, int nPitch = PITCH_INVALID );
+		void scrolled( int nValue );
 
 protected:
 		enum NoteStyle {
@@ -247,23 +258,85 @@ protected:
 			EffectiveLength = 0x020,
 		};
 
-		/** Scaling factor by which the background colors will be made darker in
-		 * case the widget is not in focus. This should help users to determine
-		 * which of the editors currently holds focus. */
-		static constexpr int nOutOfFocusDim = 110;
-
-	//! Granularity of grid positioning (in ticks)
-	int granularity() const;
-
-	float m_fGridWidth;
-	unsigned m_nGridHeight;
-
 		enum class DragType {
 			None,
 			Length,
 			Property
 		};
 		static QString DragTypeToQString( DragType dragType );
+
+		/** Scaling factor by which the background colors will be made darker in
+		 * case the widget is not in focus. This should help users to determine
+		 * which of the editors currently holds focus. */
+		static constexpr int nOutOfFocusDim = 110;
+
+
+		//! Colour to use for rendering and outlining notes
+		void applyColor( std::shared_ptr<H2Core::Note> pNote, QPen* pNotePen,
+						 QBrush* pNoteBrush, QPen* pNoteTailPen,
+						 QBrush* pNoteTailBrush, QPen* pHighlightPen,
+						 QBrush* pHighlightBrush, QPen* pMovingPen,
+						 QBrush* pMovingBrush, NoteStyle noteStyle ) const;
+		//! Calculate colour to use for note representation based on note
+		//! velocity.
+		static QColor computeNoteColor( float velocity );
+		void drawBorders( QPainter& p );
+		void drawFocus( QPainter& p );
+		//! Draw lines for note grid.
+		void drawGridLines( QPainter &p,
+							const Qt::PenStyle& style = Qt::SolidLine ) const;
+		/** * Draw a note
+		 *
+		 * @param p Painting device
+		 * @param pNote Particular note to draw
+		 * @param noteStyle Whether the @a pNote is contained in the pattern
+		 *   currently shown in the pattern editor (the one selected in the song
+		 *   editor), currently hovered, or selected. */
+		void drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
+					   NoteStyle noteStyle ) const;
+		/** Update #m_pContentPixmap based on #m_pBackgroundPixmap to show the
+		 * latest content of all active pattern. */
+		virtual void drawPattern();
+		/** If there are multiple notes at the same position and column, the one
+		 * with lowest pitch (bottom-most one in PianoRollEditor) will be
+		 * rendered up front. If a subset of notes at this point is selected,
+		 * the note with lowest pitch within the selection is used. */
+		void sortAndDrawNotes( QPainter& p,
+							   std::vector< std::shared_ptr<H2Core::Note> > notes,
+							   NoteStyle baseStyle );
+
+
+		/** If the note is left of a NoteOff of the same instrument or of a note
+		 * within the same mute group, its sample will only be rendered till
+		 * that next note is encountered. We will indicate this behavior by
+		 * drawing an effective (more dim) tail of the note. */
+		int calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> pNote ) const;
+
+		/** Checks whether the note would be played back when picked up by the
+		 * audio engine. */
+		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
+
+		/** Function in the same vein as getColumn() but calculates both column
+		 * and row information from the provided event position. */
+		void eventPointToColumnRow( const QPoint& point, int* pColumn,
+									int* pRow, int* pRealColumn = nullptr,
+									bool bUseFineGrained = false ) const;
+
+		//! Granularity of grid positioning (in ticks)
+		int granularity() const;
+
+		void updateHoveredNotesMouse( QMouseEvent* pEvent,
+									  bool bUpdateEditors = true );
+		void updateHoveredNotesKeyboard( bool bUpdateEditors = true );
+
+		PatternEditorPanel* m_pPatternEditorPanel;
+		Property m_property;
+
+		QList< QAction * > m_selectionActions;
+
+		float m_fGridWidth;
+		unsigned m_nGridHeight;
+
 		/** Specifies whether the user interaction is altering the length
 		 * (horizontal) or the currently selected property (vertical) of a
 		 * note. */
@@ -281,62 +354,7 @@ protected:
 		int m_nDragY;
 		QPoint m_dragStart;
 
-	PatternEditorPanel* m_pPatternEditorPanel;
-
-	QList< QAction * > m_selectionActions;
-
-		/** Function in the same vein as getColumn() but calculates both column
-		 * and row information from the provided event position. */
-		void eventPointToColumnRow( const QPoint& point, int* pColumn,
-									int* pRow, int* pRealColumn = nullptr,
-									bool bUseFineGrained = false ) const;
-
-	//! Draw lines for note grid.
-	void drawGridLines( QPainter &p, const Qt::PenStyle& style = Qt::SolidLine ) const;
-
-	//! Colour to use for rendering and outlining notes
-	void applyColor( std::shared_ptr<H2Core::Note> pNote, QPen* pNotePen,
-					 QBrush* pNoteBrush, QPen* pNoteTailPen,
-					 QBrush* pNoteTailBrush, QPen* pHighlightPen,
-					 QBrush* pHighlightBrush, QPen* pMovingPen,
-					 QBrush* pMovingBrush, NoteStyle noteStyle ) const;
-
-		/** If there are multiple notes at the same position and column, the one
-		 * with lowest pitch (bottom-most one in PianoRollEditor) will be
-		 * rendered up front. If a subset of notes at this point is selected,
-		 * the note with lowest pitch within the selection is used. */
-		void sortAndDrawNotes( QPainter& p,
-							   std::vector< std::shared_ptr<H2Core::Note> > notes,
-							   NoteStyle baseStyle );
-	/**
-	 * Draw a note
-	 *
-	 * @param p Painting device
-	 * @param pNote Particular note to draw
-	 * @param noteStyle Whether the @a pNote is contained in the pattern
-	 *   currently shown in the pattern editor (the one selected in the song
-	 *   editor), currently hovered, or selected.
-	 */
-	void drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
-				   NoteStyle noteStyle ) const;
-
-		/** Update #m_pContentPixmap based on #m_pBackgroundPixmap to show the
-		 * latest content of all active pattern. */
-		virtual void drawPattern();
-		void drawFocus( QPainter& p );
-		void drawBorders( QPainter& p );
-
-	/**
-	 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
-	 * state of the editor.
-	 */
-	virtual bool updateWidth() override;
-
-		virtual void keyPressEvent ( QKeyEvent* ev ) override;
-		virtual void keyReleaseEvent (QKeyEvent *ev) override;
-		virtual void paintEvent( QPaintEvent* ev ) override;
-
-	int m_nTick;
+		int m_nTick;
 
 		// Row the keyboard cursor is residing in.
 		//
@@ -344,23 +362,6 @@ protected:
 		// #DrumPatternEditor #PatternEditorPanel::m_nSelectedRowDB is used
 		// instead and #NotePropertiesPanel does only contain a single row.
 		int m_nCursorPitch;
-
-	Property m_property;
-
-
-		void updateHoveredNotesMouse( QMouseEvent* pEvent,
-									  bool bUpdateEditors = true );
-		void updateHoveredNotesKeyboard( bool bUpdateEditors = true );
-
-		/** Checks whether the note would be played back when picked up by the
-		 * audio engine. */
-		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
-
-		/** If the note is left of a NoteOff of the same instrument or of a note
-		 * within the same mute group, its sample will only be rendered till
-		 * that next note is encountered. We will indicate this behavior by
-		 * drawing an effective (more dim) tail of the note. */
-		int calculateEffectiveNoteLength( std::shared_ptr<H2Core::Note> pNote ) const;
 };
 
 #endif // PATERN_EDITOR_H
