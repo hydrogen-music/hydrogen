@@ -48,13 +48,14 @@ namespace Editor {
 * - Keyboard arrow movement (plus modifiers)
 * - Selection via keyboard and mouse
 * - Highlighting of selected elements
-* - Lasso rendering
 * - Hovering of elements via keyboard and mouse as well as a shared cursor
 *   margins.
 * - Mouse and keyboard based moving of selected elements
-* - Left-click moving of single elements (selected or not)
+* - Left-click moving of single elements (selected or not) [select mode]
+* - Left-click drawing of elements [draw mode]
+* - Left-click editing of elements [edit mode]
 * - Right-click popup menu (if applicable)
-* - Right-click drawing lines.
+* - Right-click drawing of elements.
 *
 * \ingroup docGUI */
 template<class Elem>
@@ -64,16 +65,16 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 		Base( QWidget* pParent )
 			: QWidget( pParent )
-			, m_type( Type::Grid )
-			, m_selection( this )
+			, m_pPopupMenu( new QMenu( this ) )
 			, m_nActiveWidth( width() )
+			, m_bCopyNotMove( false )
 			, m_nEditorHeight( height() )
 			, m_nEditorWidth( width() )
-			, m_bCopyNotMove( false )
 			, m_bEntered( false )
 			, m_instance( Instance::None )
+			, m_selection( this )
+			, m_type( Type::Grid )
 			, m_update( Update::Background )
-			, m_pPopupMenu( new QMenu( this ) )
 		{
 			qreal pixelRatio = devicePixelRatio();
 			m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
@@ -92,20 +93,40 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-		virtual void ensureCursorIsVisible() {
-			___ERRORLOG( "To be implemented by parent" );
-		}
+		////////////////////////////////////////////////////////////////////////
+		// Mandatory interface to implement by the child editor.
+
+		/** Performs (some) @a action on all elements determined by @a ev. */
 		virtual void handleElements( QInputEvent* ev, Editor::Action action ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 		virtual void deleteElements( std::vector<Elem> ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
+
+		/** Serialize and copy all currently selected elements. */
 		virtual void copy() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
+		/** Deserialize and add all copied elements. */
 		virtual void paste() {
 			___ERRORLOG( "To be implemented by parent" );
+		}
+
+		/** Select all elements accessible in the editor. */
+		virtual void selectAll() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+
+		/** Scroll the keyboard cursor into view. */
+		virtual void ensureCursorIsVisible() {
+			___ERRORLOG( "To be implemented by parent" );
+		}
+		/** Since the cursor might be shared amongst various components of the
+		 * editor, we do not store it in here. */
+ 		virtual QPoint getCursorPosition() {
+			___ERRORLOG( "To be implemented by parent" );
+			return QPoint( 0, 0 );
 		}
 		virtual void moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
 			___ERRORLOG( "To be implemented by parent" );
@@ -119,26 +140,21 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		virtual void moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
-		virtual void selectAll() {
-			___ERRORLOG( "To be implemented by parent" );
-		}
-		/** Since the cursor might be shared amongst various components of the
-		 * editor, we do not store it in here. */
- 		virtual QPoint getCursorPosition() {
-			___ERRORLOG( "To be implemented by parent" );
-			return QPoint( 0, 0 );
-		}
+		/** Move the keyboard cursor to a particular element. */
 		virtual void setCursorTo( Elem ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
+		/** Move the keyboard cursor to a point specified by mouse pointer. */
 		virtual void setCursorTo( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
+
 		/** Can be called to e.g. disable some options based on the selected
 		 * elements. */
 		virtual void setupPopupMenu() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
+
 		virtual void updateKeyboardHoveredElements() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
@@ -161,12 +177,18 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
+		/** Only have to be implemented in case the editor supports editing of
+		 * elements. */
 		virtual void mouseEditStart( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
+		/** Only have to be implemented in case the editor supports editing of
+		 * elements. */
 		virtual void mouseEditUpdate( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
+		/** Only have to be implemented in case the editor supports editing of
+		 * elements. */
 		virtual void mouseEditEnd() {
 			___ERRORLOG( "To be implemented by parent" );
 		}
@@ -196,6 +218,8 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
+		////////////////////////////////////////////////////////////////////////
+
 		//! Clear the pattern editor selection
 		void clearSelection() {
 			m_selection.clearSelection();
@@ -215,95 +239,59 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			deleteElements( elementsToDelete );
 		}
 
-// 		/** Move or copy notes.
-// 		 *
-// 		 * Moves or copies notes at the end of a Selection move, handling the
-// 		 * behaviours necessary for out-of-range moves or copies.*/
-// 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-
-// 		//! Ensure that the Selection contains only valid elements.
-// 		virtual void validateSelection() override;
-
-		//! Update a widget in response to a change in selection
-		virtual void updateWidget() override {
-			updateEditor( true );
+		virtual void endMouseGesture() override {
+			unsetCursor();
 		}
 
-		virtual void updateEditor( bool bContentOnly = true ) {
-			if ( updateWidth() ) {
-				m_update = Update::Background;
-			}
-			else if ( bContentOnly && m_update != Update::Background ) {
-				// Background takes priority over Pattern.
-				m_update = Update::Content;
-			}
-			else {
-				m_update = Update::Background;
-			}
+#ifdef H2CORE_HAVE_QT6
+		virtual void enterEvent( QEnterEvent* ev ) override {
+#else
+		virtual void enterEvent( QEvent* ev ) override {
+#endif
+			UNUSED( ev );
+			m_bEntered = true;
 
-			// redraw
-			update();
+			// Update focus, hovered elements, and selection color.
+			updateVisibleComponents( true );
 		}
 
- 		//! Update the status of modifier keys in response to input events.
- 		virtual void updateModifiers( QInputEvent *ev ) {
-			// Key: Ctrl + drag: copy notes rather than moving
-			m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
+		virtual void leaveEvent( QEvent* ev ) override {
+			UNUSED( ev );
+			m_bEntered = false;
 
-			if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( ev ) ) {
-				// Keyboard events for press and release of modifier keys don't
-				// have those keys in the modifiers set, so explicitly update
-				// these.
-				if ( pKeyEvent->key() == Qt::Key_Control ) {
-					m_bCopyNotMove = ev->type() == QEvent::KeyPress;
-				}
-			}
+			updateMouseHoveredElements( nullptr );
 
-			if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
-				// If a selection is currently being moved, change the cursor
-				// appropriately. Selection will change it back after the move
-				// is complete (or abandoned)
-				if ( m_bCopyNotMove && cursor().shape() != Qt::DragCopyCursor ) {
-					setCursor( QCursor( Qt::DragCopyCursor ) );
-				}
-				else if ( ! m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
-					setCursor( QCursor( Qt::DragMoveCursor ) );
-				}
-			}
+			// Ending the enclosing undo context. This is key to enable the
+			// Undo/Redo buttons in the main menu again and it feels like a good
+			// rule of thumb to consider an action done whenever the user moves
+			// mouse or cursor away from the widget.
+			HydrogenApp::get_instance()->endUndoContext();
+
+			// Update focus, hovered elements, and selection color.
+			updateVisibleComponents( true );
 		}
 
-		void updatePixmapSize() {
-			// Resize pixmap if pixel ratio has changed
-			qreal pixelRatio = devicePixelRatio();
-			if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
-				 m_pBackgroundPixmap->height() != m_nEditorHeight ||
-				 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
-				delete m_pBackgroundPixmap;
-				m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
-												   m_nEditorHeight * pixelRatio );
-				m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-				delete m_pContentPixmap;
-				m_pContentPixmap = new QPixmap( m_nEditorWidth  * pixelRatio,
-												m_nEditorHeight * pixelRatio );
-				m_pContentPixmap->setDevicePixelRatio( pixelRatio );
+		virtual void focusInEvent( QFocusEvent* ev ) override {
+			UNUSED( ev );
+			if ( ev->reason() == Qt::TabFocusReason ||
+				 ev->reason() == Qt::BacktabFocusReason ) {
+				handleKeyboardCursor( true );
 			}
+
+			// Update hovered elements, cursor, background color, selection
+			// color...
+			updateAllComponents( false );
+		}
+
+		virtual void focusOutEvent( QFocusEvent *ev ) override {
+			UNUSED( ev );
+			// Update hovered elements, cursor, background color, selection
+			// color...
+			updateAllComponents( false );
 		}
 
  		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
 			return Editor::nDefaultCursorMargin;
-		}
-
-		//! Change the mouse cursor during mouse gestures
-		virtual void startMouseLasso( QMouseEvent *ev ) override {
-			setCursor( Qt::CrossCursor );
-		}
-
-		virtual void startMouseMove( QMouseEvent *ev ) override {
-			setCursor( Qt::DragMoveCursor );
-		}
-
-		virtual void endMouseGesture() override {
-			unsetCursor();
 		}
 
 		virtual std::vector<Elem> getElementsAtPoint(
@@ -312,190 +300,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		{
 			___ERRORLOG( "To be implemented by parent" );
 			return std::vector<Elem>();
-		}
-
- 		virtual void mousePressEvent( QMouseEvent *ev ) override {
-			auto pEv = static_cast<MouseEvent*>( ev );
-
-			updateModifiers( ev );
-
-			m_elementsToSelectForPopup.clear();
-			m_elementsHoveredForPopup.clear();
-			m_elementsHoveredOnDragStart.clear();
-			m_elementsToSelect.clear();
-
-			if ( ( ev->buttons() == Qt::LeftButton ||
-				   ev->buttons() == Qt::RightButton ) &&
-				 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
-
-				// When interacting with note(s) not already in a selection, we
-				// will discard the current selection and add these notes under
-				// point to a transient one.
-				const auto notesUnderPoint = getElementsAtPoint(
-					pEv->position().toPoint(), getCursorMargin( ev ) );
-
-				bool bSelectionHovered = false;
-				for ( const auto& ppNote : notesUnderPoint ) {
-					if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
-						bSelectionHovered = true;
-						break;
-					}
-				}
-
-				// We honor the current selection.
-				if ( bSelectionHovered ) {
-					for ( const auto& ppNote : notesUnderPoint ) {
-						if ( ppNote != nullptr && m_selection.isSelected( ppNote ) ) {
-							m_elementsHoveredOnDragStart.push_back( ppNote );
-						}
-					}
-				}
-				else {
-					m_elementsToSelect = notesUnderPoint;
-					m_elementsHoveredOnDragStart = notesUnderPoint;
-				}
-
-				if ( ev->button() == Qt::RightButton ) {
-					m_elementsToSelectForPopup = m_elementsToSelect;
-					m_elementsHoveredForPopup = m_elementsHoveredOnDragStart;
-				}
-
-				// Property drawing in the ruler must not select notes.
-				if ( ev->button() == Qt::RightButton ) {
-					m_elementsToSelect.clear();
-				}
-			}
-
-			if ( getInput() == Editor::Input::Draw &&
-				 ev->buttons() == Qt::LeftButton ) {
-				mouseDrawStart( ev );
-			}
-			else if ( getInput() == Editor::Input::Edit &&
-				 ev->buttons() == Qt::LeftButton ) {
-				mouseEditStart( ev );
-			}
-			else {
-				// propagate event to selection. This could very well cancel a
-				// lasso created via keyboard events.
-				m_selection.mousePressEvent( ev );
-			}
-
-			// Hide cursor in case this behavior was selected in the
-			// Preferences.
-			handleKeyboardCursor( false );
-		}
-
- 		virtual void mouseMoveEvent( QMouseEvent *ev ) override {
-			if ( m_elementsToSelect.size() > 0 ) {
-				if ( ev->buttons() == Qt::LeftButton ||
-					 ev->buttons() == Qt::RightButton ) {
-					m_selection.clearSelection();
-					for ( const auto& ppNote : m_elementsToSelect ) {
-						m_selection.addToSelection( ppNote );
-					}
-				}
-				else {
-					m_elementsToSelect.clear();
-				}
-			}
-
-			updateModifiers( ev );
-
-			// Check which note is hovered.
-			updateMouseHoveredElements( ev );
-
-			if ( ev->buttons() != Qt::NoButton ) {
-				if ( getInput() == Editor::Input::Draw &&
-					 ev->buttons() == Qt::LeftButton ) {
-					mouseDrawUpdate( ev );
-				}
-				else if ( getInput() == Editor::Input::Edit &&
-						  ev->buttons() == Qt::LeftButton ) {
-					mouseEditUpdate( ev );
-				}
-				else {
-					m_selection.mouseMoveEvent( ev );
-					if ( m_selection.isMoving() ) {
-						updateVisibleComponents( true );
-					}
-				}
-			}
-		}
- 		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
-			unsetCursor();
-
-			// Don't call updateModifiers( ev ) in here because we want to apply
-			// the state of the modifiers used during the last update/rendering.
-			// Else the user might position a note carefully and it jumps to
-			// different place because she released the Alt modifier slightly
-			// earlier than the mouse button.
-
-			if ( getInput() == Editor::Input::Draw &&
-				 ev->button() == Qt::LeftButton ) {
-				mouseDrawEnd();
-			}
-			else if ( getInput() == Editor::Input::Edit &&
-				 ev->button() == Qt::LeftButton ) {
-				mouseEditEnd();
-			}
-			else {
-				m_selection.mouseReleaseEvent( ev );
-			}
-
-			m_elementsHoveredOnDragStart.clear();
-
-			if ( ev->button() == Qt::LeftButton && m_elementsToSelect.size() > 0 ) {
-				// We used a transient selection of note(s) at a single
-				// position.
-				m_selection.clearSelection();
-				m_elementsToSelect.clear();
-				updateVisibleComponents( true );
-			}
-		}
-
- 		virtual void mouseClickEvent( QMouseEvent *ev ) override {
-			auto pEv = static_cast<MouseEvent*>( ev );
-
-			updateModifiers( ev );
-
-			// main button action
-			if ( ev->button() == Qt::LeftButton &&
-				 m_instance != Instance::NotePropertiesRuler ) {
-
-				setCursorTo( ev );
-
-				// Check whether an existing note or an empty grid cell was
-				// clicked.
-				handleElements( ev, Editor::Action::ToggleElements );
-
-				m_selection.clearSelection();
-				updateMouseHoveredElements( ev );
-			}
-			else if ( ev->button() == Qt::RightButton ) {
-				if ( m_elementsHoveredForPopup.size() > 0 ) {
-					setCursorTo( m_elementsHoveredForPopup[ 0 ] );
-				}
-				else {
-					setCursorTo( ev );
-				}
-				showPopupMenu( ev );
-			}
-
-			update();
-		}
-
-		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
-			setCursor( Qt::CrossCursor );
-			mouseDrawStart( ev );
-		}
-
-		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override {
-			mouseDrawUpdate( ev );
-		}
-
-		virtual void mouseDrawEndEvent( QMouseEvent *ev ) override {
-			unsetCursor();
-			mouseDrawEnd();
 		}
 
  		void handleKeyboardCursor( bool bVisible ) {
@@ -513,71 +317,15 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 					if ( m_selection.isLasso() && m_update !=
 						 Editor::Update::Background ) {
-						// Since the event was used to alter the note selection,
-						// we need to repainting all note symbols (including
-						// whether or not they are selected).
+						// Since the event was used to alter the element
+						// selection, we need to repainting all elements
+						// (including whether or not they are selected).
 						m_update = Editor::Update::Content;
 					}
 				}
 				updateAllComponents( true );
 			}
 		}
-// 		bool isSelectionMoving() const;
-
-// 		QPoint movingGridOffset() const;
-
-// public slots:
- 		/** When right-click opening a popup menu, ensure the clicked note is
- 		 * selected. Note however that this is just temporary while the popup is
- 		 * shown. Selection for the popup actions themselves is done by
- 		 * popupSetup(). */
-		void popupMenuAboutToShow() {
-			if ( m_elementsToSelectForPopup.size() > 0 ) {
-				m_selection.clearSelection();
-
-				for ( const auto& ppNote : m_elementsToSelectForPopup ) {
-					m_selection.addToSelection( ppNote );
-				}
-				updateVisibleComponents( true );
-			}
-		}
-
-		void popupMenuAboutToHide() {
-			if ( m_elementsToSelectForPopup.size() > 0 ) {
-				m_selection.clearSelection();
-				updateVisibleComponents( false );
-			}
-		}
-
-		/** Which parts of the editor to update in the next paint event. */
-		Update m_update;
-		Instance m_instance;
-		Type m_type;
-
-		//! The Selection object.
-		Selection<Elem> m_selection;
-
-		QPixmap* m_pBackgroundPixmap;
-		QPixmap* m_pContentPixmap;
-
-		// width of the editor covered by the current pattern.
-		int m_nActiveWidth;
-		int m_nEditorHeight;
-		int m_nEditorWidth;
-
-		bool m_bCopyNotMove;
-		/** Indicates whether the mouse pointer entered the widget.*/
-		bool m_bEntered;
-
-		QMenu *m_pPopupMenu;
-
-		void showPopupMenu( QMouseEvent* pEvent ){
-			setupPopupMenu();
-
-			auto pEv = static_cast<MouseEvent*>( pEvent );
-			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
-		}
-
  		virtual void keyPressEvent( QKeyEvent* ev ) override {
 
 			auto pHydrogenApp = HydrogenApp::get_instance();
@@ -737,13 +485,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 			else if ( ev->key() == Qt::Key_Enter ||
 					  ev->key() == Qt::Key_Return ) {
-				// Key: Enter / Return: add or remove note at current
+				// Key: Enter / Return: add or remove elements at current
 				// position
 				m_selection.clearSelection();
 				handleElements( ev, Editor::Action::ToggleElements );
 			}
 			else if ( ev->key() == Qt::Key_Delete ) {
-				// Key: Delete / Backspace: delete selected notes, or note
+				// Key: Delete / Backspace: delete selected elements or those
 				// under keyboard cursor
 				if ( m_selection.begin() != m_selection.end() ) {
 					deleteSelection();
@@ -770,59 +518,220 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-#ifdef H2CORE_HAVE_QT6
-		virtual void enterEvent( QEnterEvent* ev ) override {
-#else
-		virtual void enterEvent( QEvent* ev ) override {
-#endif
-			UNUSED( ev );
-			m_bEntered = true;
-
-			// Update focus, hovered notes and selection color.
-			updateVisibleComponents( true );
+		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
+			setCursor( Qt::CrossCursor );
+			mouseDrawStart( ev );
 		}
 
-		virtual void leaveEvent( QEvent* ev ) override {
-			UNUSED( ev );
-			m_bEntered = false;
-
-			updateMouseHoveredElements( nullptr );
-
-			// Ending the enclosing undo context. This is key to enable the
-			// Undo/Redo buttons in the main menu again and it feels like a good
-			// rule of thumb to consider an action done whenever the user moves
-			// mouse or cursor away from the widget.
-			HydrogenApp::get_instance()->endUndoContext();
-
-			// Update focus, hovered notes and selection color.
-			updateVisibleComponents( true );
+		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override {
+			mouseDrawUpdate( ev );
 		}
 
-		virtual void focusInEvent( QFocusEvent* ev ) override {
-			UNUSED( ev );
-			if ( ev->reason() == Qt::TabFocusReason ||
-				 ev->reason() == Qt::BacktabFocusReason ) {
-				handleKeyboardCursor( true );
+		virtual void mouseDrawEndEvent( QMouseEvent *ev ) override {
+			unsetCursor();
+			mouseDrawEnd();
+		}
+
+ 		virtual void mousePressEvent( QMouseEvent *ev ) override {
+			auto pEv = static_cast<MouseEvent*>( ev );
+
+			updateModifiers( ev );
+
+			m_elementsToSelectForPopup.clear();
+			m_elementsHoveredForPopup.clear();
+			m_elementsHoveredOnDragStart.clear();
+			m_elementsToSelect.clear();
+
+			if ( ( ev->buttons() == Qt::LeftButton ||
+				   ev->buttons() == Qt::RightButton ) &&
+				 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
+
+				// When interacting with element(s) not already in a selection,
+				// we will discard the current selection and add those elements
+				// under point to a transient one.
+				const auto elementsUnderPoint = getElementsAtPoint(
+					pEv->position().toPoint(), getCursorMargin( ev ) );
+
+				bool bSelectionHovered = false;
+				for ( const auto& ppElement : elementsUnderPoint ) {
+					if ( ppElement != nullptr &&
+						 m_selection.isSelected( ppElement ) ) {
+						bSelectionHovered = true;
+						break;
+					}
+				}
+
+				// We honor the current selection.
+				if ( bSelectionHovered ) {
+					for ( const auto& ppElement : elementsUnderPoint ) {
+						if ( ppElement != nullptr &&
+							 m_selection.isSelected( ppElement ) ) {
+							m_elementsHoveredOnDragStart.push_back( ppElement );
+						}
+					}
+				}
+				else {
+					m_elementsToSelect = elementsUnderPoint;
+					m_elementsHoveredOnDragStart = elementsUnderPoint;
+				}
+
+				if ( ev->button() == Qt::RightButton ) {
+					m_elementsToSelectForPopup = m_elementsToSelect;
+					m_elementsHoveredForPopup = m_elementsHoveredOnDragStart;
+				}
+
+				// Property drawing in the ruler must not select elements.
+				if ( ev->button() == Qt::RightButton ) {
+					m_elementsToSelect.clear();
+				}
 			}
 
-			// Update hovered notes, cursor, background color, selection
-			// color...
-			updateAllComponents( false );
+			if ( getInput() == Editor::Input::Draw &&
+				 ev->buttons() == Qt::LeftButton ) {
+				mouseDrawStart( ev );
+			}
+			else if ( getInput() == Editor::Input::Edit &&
+				 ev->buttons() == Qt::LeftButton ) {
+				mouseEditStart( ev );
+			}
+			else {
+				// propagate event to selection. This could very well cancel a
+				// lasso created via keyboard events.
+				m_selection.mousePressEvent( ev );
+			}
+
+			// Hide cursor in case this behavior was selected in the
+			// Preferences.
+			handleKeyboardCursor( false );
 		}
 
-		virtual void focusOutEvent( QFocusEvent *ev ) override {
-			UNUSED( ev );
-			// Update hovered notes, cursor, background color, selection
-			// color...
-			updateAllComponents( false );
+ 		virtual void mouseMoveEvent( QMouseEvent *ev ) override {
+			if ( m_elementsToSelect.size() > 0 ) {
+				if ( ev->buttons() == Qt::LeftButton ||
+					 ev->buttons() == Qt::RightButton ) {
+					m_selection.clearSelection();
+					for ( const auto& ppElement : m_elementsToSelect ) {
+						m_selection.addToSelection( ppElement );
+					}
+				}
+				else {
+					m_elementsToSelect.clear();
+				}
+			}
+
+			updateModifiers( ev );
+
+			// Check which elements are hovered.
+			updateMouseHoveredElements( ev );
+
+			if ( ev->buttons() != Qt::NoButton ) {
+				if ( getInput() == Editor::Input::Draw &&
+					 ev->buttons() == Qt::LeftButton ) {
+					mouseDrawUpdate( ev );
+				}
+				else if ( getInput() == Editor::Input::Edit &&
+						  ev->buttons() == Qt::LeftButton ) {
+					mouseEditUpdate( ev );
+				}
+				else {
+					m_selection.mouseMoveEvent( ev );
+					if ( m_selection.isMoving() ) {
+						updateVisibleComponents( true );
+					}
+				}
+			}
+		}
+ 		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
+			unsetCursor();
+
+			// Don't call updateModifiers( ev ) in here because we want to apply
+			// the state of the modifiers used during the last update/rendering.
+			// Else the user might position a element carefully and it jumps to
+			// different place because she released the Alt modifier slightly
+			// earlier than the mouse button.
+
+			if ( getInput() == Editor::Input::Draw &&
+				 ev->button() == Qt::LeftButton ) {
+				mouseDrawEnd();
+			}
+			else if ( getInput() == Editor::Input::Edit &&
+				 ev->button() == Qt::LeftButton ) {
+				mouseEditEnd();
+			}
+			else {
+				m_selection.mouseReleaseEvent( ev );
+			}
+
+			m_elementsHoveredOnDragStart.clear();
+
+			if ( ev->button() == Qt::LeftButton && m_elementsToSelect.size() > 0 ) {
+				// We used a transient selection of element(s) at a single
+				// position.
+				m_selection.clearSelection();
+				m_elementsToSelect.clear();
+				updateVisibleComponents( true );
+			}
+		}
+
+ 		virtual void mouseClickEvent( QMouseEvent *ev ) override {
+			auto pEv = static_cast<MouseEvent*>( ev );
+
+			updateModifiers( ev );
+
+			// main button action
+			if ( ev->button() == Qt::LeftButton &&
+				 m_instance != Instance::NotePropertiesRuler ) {
+
+				setCursorTo( ev );
+
+				// Check whether an existing element or an empty grid cell was
+				// clicked.
+				handleElements( ev, Editor::Action::ToggleElements );
+
+				m_selection.clearSelection();
+				updateMouseHoveredElements( ev );
+			}
+			else if ( ev->button() == Qt::RightButton ) {
+				if ( m_elementsHoveredForPopup.size() > 0 ) {
+					setCursorTo( m_elementsHoveredForPopup[ 0 ] );
+				}
+				else {
+					setCursorTo( ev );
+				}
+				showPopupMenu( ev );
+			}
+
+			update();
+		}
+
+		void popupMenuAboutToHide() {
+			if ( m_elementsToSelectForPopup.size() > 0 ) {
+				m_selection.clearSelection();
+				updateVisibleComponents( false );
+			}
+		}
+
+ 		/** When right-click opening a popup menu, ensure the clicked element is
+ 		 * selected. Note however that this is just temporary while the popup is
+ 		 * shown. Selection for the popup actions themselves is done by
+ 		 * popupSetup(). */
+		void popupMenuAboutToShow() {
+			if ( m_elementsToSelectForPopup.size() > 0 ) {
+				m_selection.clearSelection();
+
+				for ( const auto& ppElement : m_elementsToSelectForPopup ) {
+					m_selection.addToSelection( ppElement );
+				}
+				updateVisibleComponents( true );
+			}
 		}
 
 		void popupSetup() {
 			if ( m_elementsToSelectForPopup.size() > 0 ) {
 				m_selection.clearSelection();
 
-				for ( const auto& ppNote : m_elementsToSelectForPopup ) {
-					m_selection.addToSelection( ppNote );
+				for ( const auto& ppElement : m_elementsToSelectForPopup ) {
+					m_selection.addToSelection( ppElement );
 				}
 			}
 		}
@@ -835,50 +744,150 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 			// The popup might have caused the cursor to move out of this widget
 			// and the latter will loose focus once the popup is torn down. We
-			// have to ensure not to display some glitchy notes previously
+			// have to ensure not to display some glitchy elements previously
 			// hovered by mouse which are not present anymore (e.g. since they
 			// were aligned to a different position).
 			updateMouseHoveredElements( nullptr );
 		}
 
+		void showPopupMenu( QMouseEvent* pEvent ){
+			setupPopupMenu();
+
+			auto pEv = static_cast<MouseEvent*>( pEvent );
+			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
+		}
+
+		//! Change the mouse cursor during mouse gestures
+		virtual void startMouseLasso( QMouseEvent *ev ) override {
+			setCursor( Qt::CrossCursor );
+		}
+
+		virtual void startMouseMove( QMouseEvent *ev ) override {
+			setCursor( Qt::DragMoveCursor );
+		}
+
+		virtual void updateEditor( bool bContentOnly = true ) {
+			if ( updateWidth() ) {
+				m_update = Update::Background;
+			}
+			else if ( bContentOnly && m_update != Update::Background ) {
+				// Background takes priority over Pattern.
+				m_update = Update::Content;
+			}
+			else {
+				m_update = Update::Background;
+			}
+
+			// redraw
+			update();
+		}
+
+ 		//! Update the status of modifier keys in response to input events.
+ 		virtual void updateModifiers( QInputEvent *ev ) {
+			// Key: Ctrl + drag: copy elements rather than moving
+			m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
+
+			if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( ev ) ) {
+				// Keyboard events for press and release of modifier keys don't
+				// have those keys in the modifiers set, so explicitly update
+				// these.
+				if ( pKeyEvent->key() == Qt::Key_Control ) {
+					m_bCopyNotMove = ev->type() == QEvent::KeyPress;
+				}
+			}
+
+			if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
+				// If a selection is currently being moved, change the cursor
+				// appropriately. Selection will change it back after the move
+				// is complete (or abandoned)
+				if ( m_bCopyNotMove && cursor().shape() != Qt::DragCopyCursor ) {
+					setCursor( QCursor( Qt::DragCopyCursor ) );
+				}
+				else if ( ! m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
+					setCursor( QCursor( Qt::DragMoveCursor ) );
+				}
+			}
+		}
+
+		void updatePixmapSize() {
+			// Resize pixmap if pixel ratio has changed
+			qreal pixelRatio = devicePixelRatio();
+			if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
+				 m_pBackgroundPixmap->height() != m_nEditorHeight ||
+				 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+				delete m_pBackgroundPixmap;
+				m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+												   m_nEditorHeight * pixelRatio );
+				m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+				delete m_pContentPixmap;
+				m_pContentPixmap = new QPixmap( m_nEditorWidth  * pixelRatio,
+												m_nEditorHeight * pixelRatio );
+				m_pContentPixmap->setDevicePixelRatio( pixelRatio );
+			}
+		}
+
+		// Update a widget in response to a change in selection
+		virtual void updateWidget() override {
+			updateEditor( true );
+		}
+
+		QPixmap* m_pBackgroundPixmap;
+		QPixmap* m_pContentPixmap;
+		QMenu *m_pPopupMenu;
+
+		/** width of the editor covered by the current pattern. */
+		int m_nActiveWidth;
+		bool m_bCopyNotMove;
+		int m_nEditorHeight;
+		int m_nEditorWidth;
+		/** Indicates whether the mouse pointer entered the widget.*/
+		bool m_bEntered;
+		Instance m_instance;
+		//! The Selection object.
+		Selection<Elem> m_selection;
+		Type m_type;
+		/** Which parts of the editor to update in the next paint event. */
+		Update m_update;
+
+ 		std::vector<Elem> m_elementsHoveredForPopup;
+
+		/** When drag editing element properties using right-click drag in
+		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
+		 * indicating the value change. But when dragging a selection of
+		 * elements or multiple elements at point, it is not obvious which
+		 * information to display. We show all values changes of elements at the
+		 * initial mouse cursor position. */
+		std::vector<Elem> m_elementsHoveredOnDragStart;
+
 		/** When left-click dragging or applying actions using right-click popup
-		 * menu on a single note/multiple notes at the same position which are
-		 * not currently selected, the selection will be cleared and filled with
-		 * those notes. Else we would require the user to lasso-select each
-		 * single note before being able to move it.
+		 * menu on a single element/multiple elements at the same position which
+		 * are not currently selected, the selection will be cleared and filled
+		 * with those elements. Else we would require the user to lasso-select
+		 * each single element before being able to move it.
 		 *
 		 * But we also have to take care of not establishing a selection
-		 * prematurely since a click event on the single note would result in
-		 * discarding the selection instead of removing the note. We thus use
-		 * this member to cache the notes and only select them in case the mouse
-		 * will be moved with left button down or right button is released
+		 * prematurely since a click event on the single element would result in
+		 * discarding the selection instead of removing the element. We thus use
+		 * this member to cache the elements and only select them in case the
+		 * mouse will be moved with left button down or right button is released
 		 * without move (click). */
 		std::vector<Elem> m_elementsToSelect;
 
-		/** When drag editing note properties using right-click drag in
-		 * #DrumPatternEditor and #PianoRollEditor, we display a status message
-		 * indicating the value change. But when dragging a selection of notes
-		 * or multiple notes at point, it is not obvious which information to
-		 * display. We show all values changes of notes at the initial mouse
-		 * cursor position. */
-		std::vector<Elem> m_elementsHoveredOnDragStart;
-
-		/** Right-clicking a (hovered) note should make the popup menu act on
-		 * this note as well using a transient selection. However, as it is only
-		 * transient, we have to take care of clearing it later on. This "later"
-		 * is a little difficult. QMenu::aboutToHide() is called _before_ the
-		 * action trigger in the menu and thus too early for us to be used.
-		 * Clearing the selection on QMenu::triggered clears the selection
-		 * _after_ an action was triggered via the menu. But it does not in case
-		 * the menu was cancelled - e.g. just right-clicking a second time. The
-		 * later was implemented during development and felt quite weird.
+		/** Right-clicking a (hovered) element should make the popup menu act on
+		 * this element as well using a transient selection. However, as it is
+		 * only transient, we have to take care of clearing it later on. This
+		 * "later" is a little difficult. QMenu::aboutToHide() is called
+		 * _before_ the action trigger in the menu and thus too early for us to
+		 * be used. Clearing the selection on QMenu::triggered clears the
+		 * selection _after_ an action was triggered via the menu. But it does
+		 * not in case the menu was cancelled - e.g. just right-clicking a
+		 * second time. The later was implemented during development and felt
+		 * quite weird.
 		 *
-		 * Instead, we use this member to cache notes which would be part of the
-		 * transient selection and both do select them and clear the selection
-		 * in all associated action slots/methods. */
+		 * Instead, we use this member to cache elements which would be part of
+		 * the transient selection and both do select them and clear the
+		 * selection in all associated action slots/methods. */
 		std::vector<Elem> m_elementsToSelectForPopup;
-
- 		std::vector<Elem> m_elementsHoveredForPopup;
 };
 
 } // namespace Base
