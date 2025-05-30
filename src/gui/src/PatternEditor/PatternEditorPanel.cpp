@@ -1181,7 +1181,7 @@ void PatternEditorPanel::updateInstance() {
 		m_pSidebar->dimRows( false );
 
 		m_pDrumPatternEditor->updateEditor();
-}
+	}
 	else if ( m_instance == Editor::Instance::PianoRoll ) {
 		m_pDrumPatternBtn->setChecked( false );
 		m_pPianoRollBtn->setChecked( true );

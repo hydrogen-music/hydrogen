@@ -165,9 +165,14 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	// here, and we will want to add menu options specific to this later.
 	delete m_pPopupMenu;
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, [&]() { selectAll(); } );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, [&]() {
+		selectAll();
+		updateVisibleComponents( true );
+	} );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
-		m_selection.clearSelection(); } );
+		m_selection.clearSelection();
+		updateVisibleComponents( true );
+	} );
 
 	// Create a small sidebar containing labels
 	if ( layout == Layout::KeyOctave ) {
@@ -1607,9 +1612,6 @@ void NotePropertiesRuler::selectAll()
 	for ( const auto& ppNote : notes ) {
 		m_selection.addToSelection( ppNote );
 	}
-
-	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
-	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( true );
 }
 
 std::set< std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes() const {

@@ -754,6 +754,5 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 			}
 		}
 	}
-	updateEditor( true );
 	return std::move( result );
 }

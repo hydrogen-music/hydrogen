@@ -103,10 +103,13 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "A&lign to grid" ), this, SLOT( alignToGrid() ) ) );
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this,
-							 [&]() { selectAll(); } );
+							 [&]() { selectAll();
+								 updateVisibleComponents( true ); } );
 	m_selectionActions.push_back(
 		m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
-			m_selection.clearSelection(); } ) );
+			m_selection.clearSelection();
+			updateVisibleComponents( true );
+		} ) );
 	connect( m_pPopupMenu, &QMenu::aboutToShow, [&]() {
 		popupMenuAboutToShow(); } );
 	connect( m_pPopupMenu, &QMenu::aboutToHide, [&]() {
@@ -346,7 +349,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	pHydrogen->setIsModified( true );
-	m_pPatternEditorPanel->updateEditors( true );
+	updateVisibleComponents( true );
 }
 
 void PatternEditor::editNotePropertiesAction( const Property& property,
