@@ -1741,7 +1741,9 @@ void PatternEditorPanel::moveCursorRight( QKeyEvent* pEvent, Editor::Step step )
 		nStep = Editor::nPageSize;
 		break;
 	case Editor::Step::Document:
-		setCursorColumn( m_pPattern->getLength() );
+		setCursorColumn( std::floor( m_pPattern->getLength() /
+									 m_nCursorIncrement ) * m_nCursorIncrement -
+						 m_nCursorIncrement );
 		return;
 	}
 
