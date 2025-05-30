@@ -105,11 +105,10 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_pPopupMenu->addAction( tr( "Select &all" ), this,
 							 [&]() { selectAll();
 								 updateVisibleComponents( true ); } );
-	m_selectionActions.push_back(
-		m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
-			m_selection.clearSelection();
-			updateVisibleComponents( true );
-		} ) );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
+		m_selection.clearSelection();
+		updateVisibleComponents( true );
+	} );
 	connect( m_pPopupMenu, &QMenu::aboutToShow, [&]() {
 		popupMenuAboutToShow(); } );
 	connect( m_pPopupMenu, &QMenu::aboutToHide, [&]() {
