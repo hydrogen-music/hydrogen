@@ -155,11 +155,15 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
-		virtual void updateKeyboardHoveredElements() {
+		/** @returns true in case the set of hovered elements did change. */
+		virtual bool updateKeyboardHoveredElements() {
 			___ERRORLOG( "To be implemented by parent" );
+			return false;
 		}
-		virtual void updateMouseHoveredElements( QMouseEvent* ev ) {
+		/** @returns true in case the set of hovered elements did change. */
+		virtual bool updateMouseHoveredElements( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
+			return false;
 		}
 
 		virtual Editor::Input getInput() const {
@@ -622,7 +626,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateModifiers( ev );
 
 			// Check which elements are hovered.
-			updateMouseHoveredElements( ev );
+			bool bUpdate = updateMouseHoveredElements( ev );
 
 			if ( ev->buttons() != Qt::NoButton ) {
 				if ( getInput() == Editor::Input::Draw &&
@@ -636,9 +640,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				else {
 					m_selection.mouseMoveEvent( ev );
 					if ( m_selection.isMoving() ) {
-						updateVisibleComponents( true );
+						bUpdate = true;
 					}
 				}
+			}
+
+			if ( bUpdate ) {
+				updateVisibleComponents( true );
 			}
 		}
  		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
@@ -701,7 +709,8 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				showPopupMenu( ev );
 			}
 
-			update();
+			// New cursor position, selection and hovered notes update.
+			updateVisibleComponents( true );
 		}
 
 		void popupMenuAboutToHide() {
@@ -747,7 +756,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// have to ensure not to display some glitchy elements previously
 			// hovered by mouse which are not present anymore (e.g. since they
 			// were aligned to a different position).
-			updateMouseHoveredElements( nullptr );
+			if ( updateMouseHoveredElements( nullptr ) ) {
+				updateVisibleComponents( true );
+			}
 		}
 
 		void showPopupMenu( QMouseEvent* pEvent ){

@@ -1931,29 +1931,106 @@ void PatternEditor::setupPopupMenu() {
 	}
 }
 
-void PatternEditor::updateKeyboardHoveredElements() {
-	updateHoveredNotesKeyboard( true );
+bool PatternEditor::updateKeyboardHoveredElements() {
+	std::vector< std::pair< std::shared_ptr<Pattern>,
+							std::vector< std::shared_ptr<Note> > > > hovered;
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// cursor visible
+
+		// In case we are within the property ruler and a note from a different
+		// row is hovered by mouse in the drum pattern BaseEditor::editor, we must ensure we
+		// are not adding this one to the keyboard hovered notes too.
+		PatternEditor* pEditor = this;
+		if ( m_instance == Editor::Instance::NotePropertiesRuler ) {
+			auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
+			if ( dynamic_cast<DrumPatternEditor*>( pVisibleEditor ) != nullptr ) {
+				pEditor = pVisibleEditor;
+			}
+		}
+
+		const auto point = pEditor->getCursorPosition();
+
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			const auto hoveredNotes =
+				pEditor->getElementsAtPoint( point, 0, ppPattern );
+			if ( hoveredNotes.size() > 0 ) {
+				hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
+			}
+		}
+	}
+
+	return m_pPatternEditorPanel->setHoveredNotesKeyboard( hovered );
 }
 
-void PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
+bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
+
+	// Check whether the mouse pointer is Outside of the current widget.
 	const QPoint globalPos = QCursor::pos();
 	const QPoint widgetPos = mapFromGlobal( globalPos );
 	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
 		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
-		// Outside of the current widget. Clear all hovered notes.
+		// Clear all hovered notes.
 		std::vector< std::pair< std::shared_ptr<Pattern>,
 								std::vector< std::shared_ptr<Note> > > > empty;
-		m_pPatternEditorPanel->setHoveredNotesMouse( empty );
+		return m_pPatternEditorPanel->setHoveredNotesMouse( empty );
 	}
-	else if ( ev != nullptr ) {
-		updateHoveredNotesMouse( ev, false );
-	}
-	else {
-		auto pEvent = new QMouseEvent(
+
+	if ( ev == nullptr ) {
+		// The update was triggered outside of one of Qt's mouse events. We have
+		// to create an artifical one instead.
+		ev = new QMouseEvent(
 			QEvent::MouseButtonRelease, widgetPos, globalPos, Qt::LeftButton,
 			Qt::LeftButton, Qt::NoModifier );
-		updateHoveredNotesMouse( pEvent, false );
 	}
+	const auto pEv = static_cast<MouseEvent*>( ev );
+	const int nCursorMargin = getCursorMargin( ev );
+
+	int nRealColumn;
+	eventPointToColumnRow( pEv->position().toPoint(), nullptr, nullptr,
+						   &nRealColumn );
+	int nRealColumnUpper;
+	eventPointToColumnRow(
+		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), nullptr,
+		nullptr, &nRealColumnUpper );
+
+	// getElementsAtPoint is generous in finding notes by taking a margin around
+	// the cursor into account as well. We have to ensure we only use to closest
+	// notes reported.
+	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
+
+	// In addition, we have to ensure to only provide notes from a single
+	// position. In case the cursor is placed exactly in the middle of two
+	// notes, the left one wins.
+	int nLastPosition = -1;
+
+	std::vector< std::pair< std::shared_ptr<Pattern>,
+							std::vector< std::shared_ptr<Note> > > > hovered;
+	// We do not highlight hovered notes during a property drag. Else, the
+	// hovered ones would appear in front of the dragged one in the ruler,
+	// hiding the newly adjusted value.
+	if ( m_dragType == DragType::None &&
+		 pEv->position().x() > PatternEditor::nMarginSidebar ) {
+		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
+			const auto hoveredNotes = getElementsAtPoint(
+				pEv->position().toPoint(), nCursorMargin, ppPattern );
+			if ( hoveredNotes.size() > 0 ) {
+				const int nDistance =
+					std::abs( hoveredNotes[ 0 ]->getPosition() - nRealColumn );
+				if ( nDistance < nLastDistance ) {
+					// This batch of notes is nearer than (potential) previous ones.
+					hovered.clear();
+					nLastDistance = nDistance;
+					nLastPosition = hoveredNotes[ 0 ]->getPosition();
+				}
+
+				if ( hoveredNotes[ 0 ]->getPosition() == nLastPosition ) {
+					hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
+				}
+			}
+		}
+	}
+
+	return m_pPatternEditorPanel->setHoveredNotesMouse( hovered );
 }
 
 Editor::Input PatternEditor::getInput() const {
@@ -3574,89 +3651,6 @@ int PatternEditor::granularity() const {
 	}
 	return 4 * 4 * H2Core::nTicksPerQuarter /
 		( nBase * m_pPatternEditorPanel->getResolution() );
-}
-
-void PatternEditor::updateHoveredNotesKeyboard( bool bUpdateEditors ) {
-	std::vector< std::pair< std::shared_ptr<Pattern>,
-							std::vector< std::shared_ptr<Note> > > > hovered;
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		// cursor visible
-
-		// In case we are within the property ruler and a note from a different
-		// row is hovered by mouse in the drum pattern BaseEditor::editor, we must ensure we
-		// are not adding this one to the keyboard hovered notes too.
-		PatternEditor* pEditor = this;
-		if ( m_instance == Editor::Instance::NotePropertiesRuler ) {
-			auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
-			if ( dynamic_cast<DrumPatternEditor*>( pVisibleEditor ) != nullptr ) {
-				pEditor = pVisibleEditor;
-			}
-		}
-
-		const auto point = pEditor->getCursorPosition();
-
-		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-			const auto hoveredNotes =
-				pEditor->getElementsAtPoint( point, 0, ppPattern );
-			if ( hoveredNotes.size() > 0 ) {
-				hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
-			}
-		}
-	}
-	m_pPatternEditorPanel->setHoveredNotesKeyboard( hovered, bUpdateEditors );
-}
-
-void PatternEditor::updateHoveredNotesMouse( QMouseEvent* pEvent,
-											 bool bUpdateEditors ) {
-	auto pEv = static_cast<MouseEvent*>( pEvent );
-
-	const int nCursorMargin = getCursorMargin( pEvent );
-
-	int nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), nullptr, nullptr,
-						   &nRealColumn );
-	int nRealColumnUpper;
-	eventPointToColumnRow(
-		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), nullptr,
-		nullptr, &nRealColumnUpper );
-
-	// getElementsAtPoint is generous in finding notes by taking a margin around
-	// the cursor into account as well. We have to ensure we only use to closest
-	// notes reported.
-	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
-
-	// In addition, we have to ensure to only provide notes from a single
-	// position. In case the cursor is placed exactly in the middle of two
-	// notes, the left one wins.
-	int nLastPosition = -1;
-
-	std::vector< std::pair< std::shared_ptr<Pattern>,
-							std::vector< std::shared_ptr<Note> > > > hovered;
-	// We do not highlight hovered notes during a property drag. Else, the
-	// hovered ones would appear in front of the dragged one in the ruler,
-	// hiding the newly adjusted value.
-	if ( m_dragType == DragType::None &&
-		 pEv->position().x() > PatternEditor::nMarginSidebar ) {
-		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
-			const auto hoveredNotes = getElementsAtPoint(
-				pEv->position().toPoint(), nCursorMargin, ppPattern );
-			if ( hoveredNotes.size() > 0 ) {
-				const int nDistance =
-					std::abs( hoveredNotes[ 0 ]->getPosition() - nRealColumn );
-				if ( nDistance < nLastDistance ) {
-					// This batch of notes is nearer than (potential) previous ones.
-					hovered.clear();
-					nLastDistance = nDistance;
-					nLastPosition = hoveredNotes[ 0 ]->getPosition();
-				}
-
-				if ( hoveredNotes[ 0 ]->getPosition() == nLastPosition ) {
-					hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
-				}
-			}
-		}
-	}
-	m_pPatternEditorPanel->setHoveredNotesMouse( hovered, bUpdateEditors );
 }
 
 QString PatternEditor::propertyToQString( const Property& property ) {

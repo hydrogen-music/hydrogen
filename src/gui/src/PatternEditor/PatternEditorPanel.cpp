@@ -2201,44 +2201,34 @@ void PatternEditorPanel::updateTypeLabelVisibility() {
 	m_pSidebar->updateTypeLabelVisibility( bVisible );
 }
 
-void PatternEditorPanel::setHoveredNotesMouse(
+bool PatternEditorPanel::setHoveredNotesMouse(
 	std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 							std::vector< std::shared_ptr<H2Core::Note> > >
-			   > hoveredNotes,
-	bool bUpdateEditors )
+			   > hoveredNotes )
 {
 	if ( hoveredNotes == m_hoveredNotesMouse ) {
-		return;
+		return false;
 	}
 
 	m_hoveredNotesMouse = hoveredNotes;
-
 	updateHoveredNotes();
 
-	if ( bUpdateEditors ) {
-		getVisibleEditor()->update();
-		getVisiblePropertiesRuler()->update();
-	}
+	return true;
 }
 
-void PatternEditorPanel::setHoveredNotesKeyboard(
+bool PatternEditorPanel::setHoveredNotesKeyboard(
 	std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 							std::vector< std::shared_ptr<H2Core::Note> > >
-			   > hoveredNotes,
-	bool bUpdateEditors )
+			   > hoveredNotes )
 {
 	if ( hoveredNotes == m_hoveredNotesKeyboard ) {
-		return;
+		return false;
 	}
 
 	m_hoveredNotesKeyboard = hoveredNotes;
-
 	updateHoveredNotes();
 
-	if ( bUpdateEditors ) {
-		getVisibleEditor()->updateEditor( true );
-		getVisiblePropertiesRuler()->updateEditor( true );
-	}
+	return true;
 }
 
 void PatternEditorPanel::updateHoveredNotes() {

@@ -214,8 +214,8 @@ public:
 		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;
 		void setCursorTo( QMouseEvent* ev ) override;
 		void setupPopupMenu() override;
-		void updateKeyboardHoveredElements() override;
-		void updateMouseHoveredElements( QMouseEvent* ev ) override;
+		bool updateKeyboardHoveredElements() override;
+		bool updateMouseHoveredElements( QMouseEvent* ev ) override;
 		Editor::Input getInput() const override;
 		void mouseEditStart( QMouseEvent* ev ) override;
 		void mouseEditUpdate( QMouseEvent* ev ) override;
@@ -324,10 +324,6 @@ protected:
 
 		//! Granularity of grid positioning (in ticks)
 		int granularity() const;
-
-		void updateHoveredNotesMouse( QMouseEvent* pEvent,
-									  bool bUpdateEditors = true );
-		void updateHoveredNotesKeyboard( bool bUpdateEditors = true );
 
 		PatternEditorPanel* m_pPatternEditorPanel;
 		Property m_property;

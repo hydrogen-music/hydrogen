@@ -331,16 +331,16 @@ class PatternEditorPanel : public QWidget,
 		const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 									  std::vector< std::shared_ptr<H2Core::Note> > >
 						   >& getHoveredNotes() const;
-		void setHoveredNotesMouse(
+		/** @returns true in case the set of hovered elements did change. */
+		bool setHoveredNotesMouse(
 			std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 								    std::vector< std::shared_ptr<H2Core::Note> > >
-					   > hoveredNotes,
-			bool bUpdateEditors = true );
-		void setHoveredNotesKeyboard(
+					   > hoveredNotes );
+		/** @returns true in case the set of hovered elements did change. */
+		bool setHoveredNotesKeyboard(
 			std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 								    std::vector< std::shared_ptr<H2Core::Note> > >
-					   > hoveredNotes,
-			bool bUpdateEditors = true );
+					   > hoveredNotes );
 
 		/** @returns `true` in case any of the child editors or sidebar has
 		 * focus.*/
