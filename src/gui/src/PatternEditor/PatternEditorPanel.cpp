@@ -2163,8 +2163,8 @@ void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
 			}
 		}
 
-		getVisibleEditor()->updateEditor();
-		getVisiblePropertiesRuler()->updateEditor();
+		getVisibleEditor()->updateEditor( false );
+		getVisiblePropertiesRuler()->updateEditor( false );
 	}
 }
 
