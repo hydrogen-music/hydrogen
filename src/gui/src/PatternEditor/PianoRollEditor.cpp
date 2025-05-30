@@ -512,7 +512,7 @@ void PianoRollEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
 		return;
 	}
 
-	setCursorPitch( std::max( m_nCursorPitch - nStep * KEYS_PER_OCTAVE,
+	setCursorPitch( std::max( m_nCursorPitch - nStep,
 							  PITCH_MIN ) );
 }
 
@@ -537,7 +537,7 @@ void PianoRollEditor::moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
 		return;
 	}
 
-	setCursorPitch( std::min( m_nCursorPitch + nStep * KEYS_PER_OCTAVE,
+	setCursorPitch( std::min( m_nCursorPitch + nStep,
 							  PITCH_MAX ) );
 }
 
