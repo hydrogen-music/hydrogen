@@ -516,10 +516,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 
 			updateVisibleComponents( true );
-
-			if ( ! ev->isAccepted() ) {
-				ev->accept();
-			}
 		}
 
 		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
