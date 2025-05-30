@@ -1938,9 +1938,8 @@ void PatternEditor::updateKeyboardHoveredElements() {
 void PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 	const QPoint globalPos = QCursor::pos();
 	const QPoint widgetPos = mapFromGlobal( globalPos );
-	if ( ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
-		   widgetPos.y() < 0 || widgetPos.y() >= height() ) ||
-		! hasFocus() ) {
+	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
+		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
 		// Outside of the current widget. Clear all hovered notes.
 		std::vector< std::pair< std::shared_ptr<Pattern>,
 								std::vector< std::shared_ptr<Note> > > > empty;
