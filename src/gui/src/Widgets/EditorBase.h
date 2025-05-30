@@ -705,6 +705,10 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				showPopupMenu( ev );
 			}
 
+			// Since we move the cursor, we also have the check whether is
+			// hovers an element at the new position.
+			updateKeyboardHoveredElements();
+
 			// New cursor position, selection and hovered notes update.
 			updateVisibleComponents( true );
 		}
