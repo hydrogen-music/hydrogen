@@ -36,7 +36,7 @@ envelope point in `TargetWaveDisplay`.
 
 1. We could take the UX of the pattern editor and implement similar code in all
    other editors.
-2. We introduce a common base class, like `BaseEditor`.
+2. We introduce a common base class, like `Editor::Base`.
 
 ## Decision Outcome
 
@@ -68,9 +68,9 @@ What should be part of the common base?
 ### Consequences
 
 * Based on the recent work in `PatternEditor` a common base class called
-  `BaseEditor` - itself a child class of `Selection` - will be split off.
+  `Editor::Base` - itself a child class of `Selection` - will be split off.
 * First, all pattern editors will be ported to the new base class.
 * Second, the `SongEditor` will be ported.
-* The automation code base will be reviewed and ported to `BaseEditor`.
+* The automation code base will be reviewed and ported to `Editor::Base`.
 * `TargetWaveDisplay` code base will be dropped in favor for inheriting a shared
   automation code.
