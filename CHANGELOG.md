@@ -109,15 +109,18 @@ All notable changes to this project will be documented in this file.
   - Notes not associated with an instrument of the current kit are now visible
     and can be handled like regular notes.
   - Pattern name is now shown together with other active patterns tab bar.
-  - Property drawing (NotePropertiesRuler) is now only bound to right mouse
+  - Property drawing in the properties ruler is now only bound to right mouse
     button.
+  - Right-click drag in drum pattern and piano roll editor does not alter note properties anymore but draws notes.
+  - Whether left mouse button interactions to select, draw, or editing existing
+    notes can be set by buttons in the left-most part of the toolbar.
+  - Note editing does now alter either note length or property. Not both.
   - Cursor, selection lasso, and selected and hovered notes are now synced
     between among all editors.
   - Property changes based on wheel and key event on the same set of notes as
     well as property drawing can now be undone/redone in a single action.
   - PianoRoll does now have a proper sidebar including per-line action in right
     click popup menu.
-  - Right-click drag does now alter either note length or property.
   - The hear notes button does now also affect sounds triggered by clicking the
     sidebar of the pattern editor.
 - InstrumentEditor:
