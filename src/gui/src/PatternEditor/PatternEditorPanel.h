@@ -222,8 +222,9 @@ class PatternEditorPanel : public QWidget,
 		void ensureCursorIsVisible();
 		/** The row of the particular editor is maintained by the editor itself
 		 * and can be accessed via #PatternEditor::getCursorPosition. */
-		int getCursorColumn();
+		int getCursorColumn() const;
 		void setCursorColumn( int nCursorColumn, bool bUpdateEditors = true );
+		int getCursorIncrement() const;
 		void moveCursorLeft( QKeyEvent* pEvent, Editor::Step step );
 		void moveCursorRight( QKeyEvent* pEvent, Editor::Step step );
 
@@ -250,8 +251,8 @@ class PatternEditorPanel : public QWidget,
 		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
 							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
 							   bool bDoDelete = true, bool bIsNoteOff = false,
-							   Editor::Action action =
-							   Editor::Action::None );
+							   Editor::Action action = Editor::Action::None,
+							   const QString& sUndoContext = "" );
 
 		/**
 		 * Determines whether to pattern editor should show further

@@ -62,6 +62,11 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_nDragY( 0 )
 	, m_dragStart( QPoint() )
 	, m_nTick( -1 )
+	, m_drawPreviousPosition( QPointF( 0, 0 ) )
+	, m_nDrawPreviousColumn( -1 )
+	, m_nDrawPreviousKey( -1 )
+	, m_nDrawPreviousOctave( -1 )
+	, m_nDrawPreviousRow( -1 )
 	, m_nCursorPitch( 0 )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -2037,6 +2042,142 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 
 Editor::Input PatternEditor::getInput() const {
 	return m_pPatternEditorPanel->getInput();
+}
+
+void PatternEditor::mouseDrawStart( QMouseEvent* ev ) {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+
+	m_drawPreviousPosition = pEv->position();
+}
+
+void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	auto pEv = static_cast<MouseEvent*>( ev );
+
+	const auto end = pEv->position();
+	const int nCursorMargin = getCursorMargin( ev );
+
+	auto pointToRowColumn = [&]( QPoint point, int* nRow, int* nColumn,
+								 int* nKey, int* nOctave ) {
+		const auto notes = getElementsAtPoint( point, nCursorMargin, pPattern );
+		if ( notes.size() > 0 && notes[ 0 ] != nullptr ) {
+			*nColumn = notes[ 0 ]->getPosition();
+			if ( m_instance == Editor::Instance::DrumPattern ) {
+				*nRow = m_pPatternEditorPanel->findRowDB( notes[ 0 ] );
+				*nKey = KEY_MIN;
+				*nOctave = OCTAVE_DEFAULT;
+			} else {
+				*nRow = m_pPatternEditorPanel->getSelectedRowDB();
+				*nKey = notes[ 0 ]->getKey();
+				*nOctave = notes[ 0 ]->getOctave();
+			}
+		}
+		else {
+			// Determine the point on the grid to toggle the note
+			eventPointToColumnRow( point, nColumn, nRow, nullptr, false );
+			if ( m_instance == Editor::Instance::DrumPattern ) {
+				*nKey = KEY_MIN;
+				*nOctave = OCTAVE_DEFAULT;
+			} else {
+				const auto nPitch = Note::lineToPitch( *nRow );
+				*nRow = m_pPatternEditorPanel->getSelectedRowDB();
+				*nKey = Note::pitchToKey( nPitch );
+				*nOctave = Note::pitchToOctave( nPitch );
+			}
+		}
+	};
+
+	// Check whether we are still at the same grid point as in the last update.
+	// We do not want to toggle the same note twice.
+	int nEndColumn, nEndRow, nEndKey, nEndOctave;
+	pointToRowColumn( end.toPoint(), &nEndRow, &nEndColumn, &nEndKey,
+					  &nEndOctave );
+	if ( nEndColumn == m_nDrawPreviousColumn && nEndRow == m_nDrawPreviousRow &&
+		 nEndKey == m_nDrawPreviousKey && nEndOctave == m_nDrawPreviousOctave ) {
+		m_drawPreviousPosition = end;
+		return;
+	}
+
+	// Toggle all notes between this and the previous position in individual
+	// undo/redo actions bundled into a single undo macro.
+
+	const auto start = m_drawPreviousPosition;
+	const auto sUndoContext =
+		QString( "%1::draw" ).arg( Editor::instanceToQString( m_instance ) );
+
+	// We assume the cursor path was a straight line between both points
+	// ( y = fM * x + fN ).
+	double fM;
+	if ( end.x() != start.x() ) {
+		fM = std::min( std::abs( ( end.y() - start.y() ) /
+								 ( end.x() - start.x() ) ),
+					   static_cast<double>(m_nGridHeight) / 2 );
+	} else {
+		fM = static_cast<double>(m_nGridHeight) / 2;
+	}
+
+	// Since we have to properly handle all hovered notes (already present) we
+	// have to assume the smallest possible resolution: grid on the x axis being
+	// turned off. We will project this smallest increment onto the straight
+	// line while ensuring we do not miss rows on almost vertical movements to
+	// get our increment.
+	const QPointF increment( start.x() <= end.x() ? 1 : -1,
+							 start.y() <= end.y() ? fM : ( -1 * fM ) );
+
+	int nColumn, nRow, nKey, nOctave;
+	int nLastColumn = m_nDrawPreviousColumn;
+	int nLastRow = m_nDrawPreviousRow;
+	int nLastKey = m_nDrawPreviousKey;
+	int nLastOctave = m_nDrawPreviousOctave;
+	// Since we can only toggle notes on the grid, we use the projection of the
+	// movement on the x axis to drive the loop. This ensures that we are always
+	// on grid.
+	for ( auto ppoint = start; ( ppoint - start ).manhattanLength() <=
+			  ( end - start ).manhattanLength(); ppoint += increment ) {
+		// We prioritize existing notes
+		pointToRowColumn( ppoint.toPoint(), &nRow, &nColumn, &nKey, &nOctave );
+
+		if ( nRow != nLastRow || nColumn != nLastColumn || nKey != nLastKey ||
+			 nOctave != nLastOctave ) {
+			m_pPatternEditorPanel->addOrRemoveNotes(
+				nColumn, nRow, nKey, nOctave, /* bAdd */true, /* bDelete */ true,
+				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
+				Editor::Action::Playback, sUndoContext );
+			nLastRow = nRow;
+			nLastColumn = nColumn;
+			nLastKey = nKey;
+			nLastOctave = nOctave;
+		}
+	}
+
+	m_drawPreviousPosition = end;
+	m_nDrawPreviousColumn = nLastColumn;
+	m_nDrawPreviousRow = nLastRow;
+	m_nDrawPreviousKey = nLastKey;
+	m_nDrawPreviousOctave = nLastOctave;
+}
+
+void PatternEditor::mouseDrawEnd() {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	HydrogenApp::get_instance()->endUndoContext();
+
+	m_drawPreviousPosition = QPointF( 0, 0 );
+	m_nDrawPreviousColumn = -1;
+	m_nDrawPreviousRow = -1;
 }
 
 void PatternEditor::mouseEditStart( QMouseEvent *ev ) {

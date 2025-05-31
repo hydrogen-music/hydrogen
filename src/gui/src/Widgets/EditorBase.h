@@ -104,6 +104,14 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
+		virtual std::vector<Elem> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr )
+		{
+			___ERRORLOG( "To be implemented by parent" );
+			return std::vector<Elem>();
+		}
+
 		/** Serialize and copy all currently selected elements. */
 		virtual void copy() {
 			___ERRORLOG( "To be implemented by parent" );
@@ -296,14 +304,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
  		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
 			return Editor::nDefaultCursorMargin;
-		}
-
-		virtual std::vector<Elem> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr )
-		{
-			___ERRORLOG( "To be implemented by parent" );
-			return std::vector<Elem>();
 		}
 
  		void handleKeyboardCursor( bool bVisible ) {

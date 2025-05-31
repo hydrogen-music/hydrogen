@@ -1638,9 +1638,12 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	}
 }
 
-int PatternEditorPanel::getCursorColumn()
-{
+int PatternEditorPanel::getCursorColumn() const {
 	return m_nCursorColumn;
+}
+
+int PatternEditorPanel::getCursorIncrement() const {
+	return m_nCursorIncrement;
 }
 
 void PatternEditorPanel::ensureCursorIsVisible()
@@ -2296,7 +2299,8 @@ void PatternEditorPanel::printDB() const {
 void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 										   int nOctave, bool bDoAdd,
 										   bool bDoDelete, bool bIsNoteOff,
-										   Editor::Action action ) {
+										   Editor::Action action,
+										   const QString& sUndoContext ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	if ( m_pPattern == nullptr ) {
@@ -2375,12 +2379,12 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 				/* bIsDelete */ false,
 				bIsNoteOff,
 				row.bMappedToDrumkit,
-				action ) );
+				action ), sUndoContext );
 	}
 	else {
 		// delete notes
 		pHydrogenApp->beginUndoMacro(
-			pCommonStrings->getActionDeleteNotes() );
+			pCommonStrings->getActionDeleteNotes(), sUndoContext );
 		for ( const auto& ppNote : oldNotes ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemoveNoteAction(
@@ -2398,9 +2402,9 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 					/* bIsDelete */ true,
 					ppNote->getNoteOff(),
 					ppNote->getInstrument() != nullptr,
-					action ) );
+					action ), sUndoContext );
 		}
-		pHydrogenApp->endUndoMacro();
+		pHydrogenApp->endUndoMacro( sUndoContext );
 	}
 }
 

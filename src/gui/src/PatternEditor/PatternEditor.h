@@ -217,6 +217,9 @@ public:
 		bool updateKeyboardHoveredElements() override;
 		bool updateMouseHoveredElements( QMouseEvent* ev ) override;
 		Editor::Input getInput() const override;
+		virtual void mouseDrawStart( QMouseEvent* ev ) override;
+		virtual void mouseDrawUpdate( QMouseEvent* ev ) override;
+		virtual void mouseDrawEnd() override;
 		void mouseEditStart( QMouseEvent* ev ) override;
 		void mouseEditUpdate( QMouseEvent* ev ) override;
 		void mouseEditEnd() override;
@@ -351,6 +354,11 @@ protected:
 		QPoint m_dragStart;
 
 		int m_nTick;
+		QPointF m_drawPreviousPosition;
+		int m_nDrawPreviousColumn;
+		int m_nDrawPreviousKey;
+		int m_nDrawPreviousOctave;
+		int m_nDrawPreviousRow;
 
 		// Row the keyboard cursor is residing in.
 		//
