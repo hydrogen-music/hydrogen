@@ -559,31 +559,6 @@ B</translation>
         <translation>Sél. échant</translation>
     </message>
     <message>
-        <source>Size</source>
-        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation>Tail</translation>
-    </message>
-    <message>
-        <source>Res</source>
-        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation>Rés</translation>
-    </message>
-    <message>
-        <source>Hear</source>
-        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
-        <translation>Écou</translation>
-    </message>
-    <message>
-        <source>Quant</source>
-        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
-        <translation>Quant</translation>
-    </message>
-    <message>
-        <source>Input</source>
-        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation>Entrée</translation>
-    </message>
-    <message>
         <source>MIDI-In</source>
         <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
         <translation>En-MIDI</translation>
@@ -1416,6 +1391,21 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Edit layer</source>
         <extracomment>Representing editing an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables lasso-selection * and element moving using left-click mouse interaction.</extracomment>
+        <translation>Mode sélection</translation>
+    </message>
+    <message>
+        <source>Draw mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables toggling elements * or changing their properties (in the note ruler) while left-click * dragging mouse interaction.</extracomment>
+        <translation>Mode dessin</translation>
+    </message>
+    <message>
+        <source>Edit mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables changing element * properties, like note length in the pattern editor using left-click * dragging mouse interaction.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3221,14 +3211,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Quantifier les événements entrant du clavier/MIDI = inactif</translation>
-    </message>
-    <message>
-        <source>Show piano roll editor</source>
-        <translation>Afficher l&apos;éditeur piano-roll</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Afficher l&apos;éditeur de batterie</translation>
     </message>
     <message>
         <source>quarter</source>
@@ -5821,14 +5803,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Clear pattern sequence</source>
         <translation>Effacer la séquence de motifs</translation>
-    </message>
-    <message>
-        <source>Select mode</source>
-        <translation>Mode sélection</translation>
-    </message>
-    <message>
-        <source>Draw mode</source>
-        <translation>Mode dessin</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.

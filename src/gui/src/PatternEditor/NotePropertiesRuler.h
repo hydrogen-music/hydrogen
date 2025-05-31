@@ -100,29 +100,19 @@ class NotePropertiesRuler : public PatternEditor,
 		void updateColors();
 		void updateFont();
 
-		//! @name Property draw (right-click drag) gestures
-		//! 
-		//! The user can right-click drag notes (or just left-click a single one)
-		//! on a note's bar or dot to change that property. Properties are
-		//! updated live during the draw gesture, with 'undo' information being
-		//! written at the end.
+		//! @name Editor::Base interfaces
 		//! @{
-		void propertyDrawStart( QMouseEvent *ev );
-		void propertyDrawUpdate( QMouseEvent *ev );
-		void propertyDrawEnd();
-		//! @}
-
-		//! @name PatternEditor interfaces
-		//! @{
-		virtual bool canMoveElements() const override { return false; };
-		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-		virtual void selectionMoveCancelEvent() override;
+		bool canMoveElements() const override { return false; };
+		std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
+		void mouseClickEvent( QMouseEvent *ev ) override;
+		void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
+		void selectionMoveEndEvent( QInputEvent *ev ) override;
+		void selectionMoveCancelEvent() override;
+		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
+		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
+		void mouseDrawStart( QMouseEvent *ev ) override;
+		void mouseDrawUpdate( QMouseEvent *ev ) override;
+		void mouseDrawEnd() override;
 		//! @}
 
 
@@ -158,7 +148,6 @@ class NotePropertiesRuler : public PatternEditor,
 
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;
-		void keyPressEvent( QKeyEvent *ev ) override;
 		void addUndoAction( const QString& sUndoContext );
 		void prepareUndoAction( QMouseEvent* pEvent );
 
@@ -180,6 +169,7 @@ class NotePropertiesRuler : public PatternEditor,
 		bool adjustNotePropertyDelta(
 			std::vector< std::shared_ptr<H2Core::Note> > notes, float fDelta,
 			bool bKey );
+		void applyCursorDelta( float fDelta );
 
 		int m_nDrawPreviousColumn;
 		Layout m_layout;

@@ -57,6 +57,7 @@
 #include "SongEditor/SongEditorPositionRuler.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "Widgets/AutomationPathView.h"
+#include "Widgets/EditorDefs.h"
 
 
 //=====================================================================================================================================
@@ -520,8 +521,8 @@ public:
 							  bool bIsDelete,
 							  bool bIsNoteOff,
 							  bool bIsMappedToDrumkit,
-							  PatternEditor::AddNoteAction addNoteAction =
-							  PatternEditor::AddNoteAction::None
+							  Editor::Action addNoteAction =
+							  Editor::Action::None
  ){
 
 		if ( bIsDelete ){
@@ -583,7 +584,7 @@ public:
 											  m_bIsMappedToDrumkit,
 											  m_addNoteAction );
 		// Only on the first redo the corresponding action is triggered.
-		m_addNoteAction = PatternEditor::AddNoteAction::None;
+		m_addNoteAction = Editor::Action::None;
 	}
 private:
 	int m_nColumn;
@@ -600,7 +601,7 @@ private:
 	bool m_bIsDelete;
 	bool m_bIsNoteOff;
 	bool m_bIsMappedToDrumkit;
-	PatternEditor::AddNoteAction m_addNoteAction;
+	Editor::Action m_addNoteAction;
 };
 
 // Deselect some notes and overwrite them

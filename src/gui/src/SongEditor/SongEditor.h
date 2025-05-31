@@ -106,9 +106,9 @@ class SongEditor : public QWidget
 			const QPoint& point, int nCursorMargin,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDrawEndEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 		virtual void updateModifiers( QInputEvent *ev );
 		virtual bool canDragElements() override {

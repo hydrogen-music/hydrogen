@@ -55,6 +55,8 @@
 #define LENGTH_ENTIRE_SAMPLE    -1
 #define PITCH_DEFAULT           0.0f /* C2 */
 #define PITCH_INVALID           666
+#define PITCH_MAX               KEYS_PER_OCTAVE * OCTAVE_MAX + KEY_MAX
+#define PITCH_MIN               KEYS_PER_OCTAVE * OCTAVE_MIN + KEY_MIN
 #define PROBABILITY_MIN         0.0f
 #define PROBABILITY_DEFAULT     1.0f
 #define PROBABILITY_MAX         1.0f

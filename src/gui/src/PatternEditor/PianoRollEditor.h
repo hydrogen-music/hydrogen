@@ -119,6 +119,9 @@ class PianoRollEditor: public PatternEditor,
 
 		QPoint noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const;
 
+		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
+		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
+
 		void updateFont();
 		void updateStyleSheet();
 
@@ -129,7 +132,6 @@ class PianoRollEditor: public PatternEditor,
 		void createBackground() override;
 
 		virtual void paintEvent(QPaintEvent *ev) override;
-		virtual void keyPressEvent ( QKeyEvent * ev ) override;
 
 		PitchSidebar* m_pPitchSidebar;
 };

@@ -125,14 +125,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// shown unpressed.
 	m_pSelectionModeBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "select.svg", "",
-		QSize( 17, 16 ), tr( "Select mode" ) );
+		QSize( 17, 16 ), pCommonStrings->getSelectModeButton() );
 	m_pSelectionModeBtn->move( 116, 25 );
 	connect( m_pSelectionModeBtn, &QPushButton::clicked,
 			 [=](){ activateSelectMode( true ); } );
 
 	m_pDrawModeBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "draw.svg", "",
-		QSize( 17, 16 ), tr( "Draw mode" ) );
+		QSize( 17, 16 ), pCommonStrings->getDrawModeButton() );
 	m_pDrawModeBtn->move( 116, 25 );
 	connect( m_pDrawModeBtn, &QPushButton::clicked,
 			 [=](){ activateSelectMode( false ); } );

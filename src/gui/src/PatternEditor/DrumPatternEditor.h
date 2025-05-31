@@ -48,21 +48,23 @@ class DrumPatternEditor : public PatternEditor,
 		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
 
+		void moveCursorDown( QKeyEvent* ev, Editor::Step step );
+		void moveCursorUp( QKeyEvent* ev, Editor::Step step );
+
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk
 		// that state pointers to deleted notes may find their way into
 		// the selection.
-		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
+		std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
 	public slots:
-		virtual void updateEditor( bool bPatternOnly = false ) override;
-		virtual void selectAll() override;
+		void updateEditor( bool bPatternOnly = false ) override;
+		void selectAll() override;
 
 	private:
-	void createBackground() override;
+		void createBackground() override;
 
-		virtual void keyPressEvent (QKeyEvent *ev) override;
-		virtual void paintEvent(QPaintEvent *ev) override;
+		void paintEvent(QPaintEvent *ev) override;
 
 		QString renameCompo( const QString& OriginalName );
 };

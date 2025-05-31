@@ -126,6 +126,17 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button activating Song Mode for playback. Its
 	  size is designed to hold four characters and is slightly flexible.*/
 	m_sSongModeButton = tr( "Song" );
+	/*: Text displayed as tooltip on the button which enables lasso-selection
+	 *  and element moving using left-click mouse interaction. */
+	m_sSelectModeButton = tr( "Select mode" );
+	/*: Text displayed as tooltip on the button which enables toggling elements
+	 *  or changing their properties (in the note ruler) while left-click
+	 *  dragging mouse interaction. */
+	m_sDrawModeButton = tr( "Draw mode" );
+	/*: Text displayed as tooltip on the button which enables changing element
+	 *  properties, like note length in the pattern editor using left-click
+	 *  dragging mouse interaction. */
+	m_sEditModeButton = tr( "Edit mode" );
 
 	/*: Text displayed below the rotary to adjust the attack of the
 	  ADSR in the Instrument Editor. Designed to hold six characters
@@ -220,22 +231,6 @@ CommonStrings::CommonStrings(){
 	 Instrument Editor. Designed to hold eleven characters but not
 	 that flexible.*/
 	m_sSampleSelectionLabel = tr( "Sample Sel." );
-	/*: Text displayed left of the pattern size LCD combo in the panel
-	 of the Pattern Editor.*/
-	m_sPatternSizeLabel = tr( "Size" );
-	/*: Text displayed left of the resolution LCD combo in the panel
-	 of the Pattern Editor.*/
-	m_sResolutionLabel = tr( "Res" );
-	/*: Text displayed left of the button to activate the playback of
-	 inserted notes in the panel of the Pattern Editor.*/
-	m_sHearNotesLabel = tr( "Hear" );
-	/*: Text displayed left of the button to toggle the quantization
-	 in the panel of the Pattern Editor.*/
-	m_sQuantizeEventsLabel = tr( "Quant" );
-	/*: Text displayed left of the button to switch between the
-	 Drum Pattern Editor and the Piano Roll Editor in the panel
-	 of the Pattern Editor.*/
-	m_sShowPianoLabel = tr( "Input" );
 	/*: Text displayed in the Player Control to indicate incoming MIDI
 	  events. Designed to hold seven characters but not that
 	  flexible.*/

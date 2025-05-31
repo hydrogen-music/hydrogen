@@ -52,6 +52,7 @@
 #include "SampleEditor/SampleEditor.h"
 #include "UndoActions.h"
 #include "Widgets/AutomationPathView.h"
+#include "Widgets/EditorDefs.h"
 #include "Widgets/InfoBar.h"
 
 
@@ -1177,7 +1178,7 @@ void HydrogenApp::onEventQueueTimer()
 								 /*isDelete*/ true,
 								 /*isNoteOff*/ false,
 								 pOldNote->getInstrument() != nullptr,
-								 PatternEditor::AddNoteAction::None ) );
+								 Editor::Action::None ) );
 		}
 		
 		// add the new note
@@ -1196,7 +1197,7 @@ void HydrogenApp::onEventQueueTimer()
 							 /*isDelete*/ false,
 							 /*isNoteOff*/ false,
 							 row.bMappedToDrumkit,
-							 PatternEditor::AddNoteAction::Playback ) );
+							 Editor::Action::Playback ) );
 		endUndoMacro();
 
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
