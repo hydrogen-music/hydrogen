@@ -1051,8 +1051,10 @@ bool PatternEditorPanel::hasPatternEditorFocus() const {
 void PatternEditorPanel::setInput( Editor::Input input ) {
 	if ( m_input != input ) {
 		m_input = input;
-		updateInput();
 	}
+
+	// Always update button state to ensure the proper one remains toggled.
+	updateInput();
 }
 
 void PatternEditorPanel::setInstance( Editor::Instance instance ) {
@@ -1060,8 +1062,9 @@ void PatternEditorPanel::setInstance( Editor::Instance instance ) {
 		 ( instance == Editor::Instance::DrumPattern ||
 		   instance == Editor::Instance::PianoRoll ) ) {
 		m_instance = instance;
-		updateInstance();
 	}
+	// Always update button state to ensure the proper one remains toggled.
+	updateInstance();
 }
 
 PatternEditor* PatternEditorPanel::getVisibleEditor() const {
