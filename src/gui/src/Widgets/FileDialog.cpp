@@ -24,10 +24,22 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 
+#include <core/config.h>
 #include <core/Helpers/Filesystem.h>
 
 FileDialog::FileDialog( QWidget *pParent )
  : QFileDialog( pParent ) {
+
+#if not defined(WIN32) and not defined(__APPLE__) // Linux
+	// Occassionally users reported freezing of Hydrogen when interactive with
+	// native file dialogs on Linux, e.g. #2165. Qt's bug tracker is full of
+	// such tickets and it seems to be a problem with the interaction of the Qt
+	// library with the underlying windows manager. Since I
+	// (@theGreatWhiteShark) was never able to reproduce this issue and we have
+	// no control of which Qt version will be combined using with window
+	// manager, we will circumvent this issue by avoid all native file dialogs.
+	setOption( QFileDialog::DontUseNativeDialog, true );
+#endif
 }
 
 FileDialog::~FileDialog() {
