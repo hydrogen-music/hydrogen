@@ -750,7 +750,6 @@ bool MainForm::action_file_save_as()
 		sPath = Filesystem::songs_dir();
 	}
 
-	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	FileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::songs_filter_name );
