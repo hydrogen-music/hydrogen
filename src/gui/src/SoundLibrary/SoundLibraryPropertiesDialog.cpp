@@ -341,7 +341,14 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 	// Try to get the drumkit directory and open file browser
 	QString sDrumkitDir = m_pDrumkit->get_path();
 
-	QString sFilePath = QFileDialog::getOpenFileName(this, tr("Open Image"), sDrumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
+	QString sFilePath = QFileDialog::getOpenFileName(
+		this, tr("Open Image"), sDrumkitDir,
+		tr("Image Files (*.png *.jpg *.jpeg)"), nullptr
+#if not defined(WIN32) and not defined(__APPLE__) // Linux
+		// See FileDialog.h for details
+		, QFileDialog::DontUseNativeDialog
+#endif
+	);
 
 	// If cancel was clicked just abort
 	if ( sFilePath == nullptr || sFilePath.isEmpty() ) {
