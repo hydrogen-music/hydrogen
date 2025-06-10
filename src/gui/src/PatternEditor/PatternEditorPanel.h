@@ -35,6 +35,7 @@
 
 #include "PatternEditor.h"
 #include "../EventListener.h"
+#include "../Widgets/EditorDefs.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
@@ -136,6 +137,9 @@ class PatternEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nToolbarHeight = 28;
+		static constexpr int nToolbarGroupHeight = nToolbarHeight - 4;
+
 		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
 
@@ -215,13 +219,14 @@ class PatternEditorPanel : public QWidget,
 
 		/** Scrolls the viewport of the current editor until the selected row
 		 * (containingt the cursor, if shown) is visible. */
-		void ensureVisible();
+		void ensureCursorIsVisible();
 		/** The row of the particular editor is maintained by the editor itself
 		 * and can be accessed via #PatternEditor::getCursorPosition. */
-		int getCursorColumn();
+		int getCursorColumn() const;
 		void setCursorColumn( int nCursorColumn, bool bUpdateEditors = true );
-		void moveCursorLeft( QKeyEvent* pEvent, int n = 1 );
-		void moveCursorRight( QKeyEvent* pEvent, int n = 1 );
+		int getCursorIncrement() const;
+		void moveCursorLeft( QKeyEvent* pEvent, Editor::Step step );
+		void moveCursorRight( QKeyEvent* pEvent, Editor::Step step );
 
 		void updateEditors( bool bPatternOnly = false );
 
@@ -246,8 +251,8 @@ class PatternEditorPanel : public QWidget,
 		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
 							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
 							   bool bDoDelete = true, bool bIsNoteOff = false,
-							   PatternEditor::AddNoteAction action =
-							   PatternEditor::AddNoteAction::None );
+							   Editor::Action action = Editor::Action::None,
+							   const QString& sUndoContext = "" );
 
 		/**
 		 * Determines whether to pattern editor should show further
@@ -327,24 +332,28 @@ class PatternEditorPanel : public QWidget,
 		const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 									  std::vector< std::shared_ptr<H2Core::Note> > >
 						   >& getHoveredNotes() const;
-		void setHoveredNotesMouse(
+		/** @returns true in case the set of hovered elements did change. */
+		bool setHoveredNotesMouse(
 			std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 								    std::vector< std::shared_ptr<H2Core::Note> > >
-					   > hoveredNotes,
-			bool bUpdateEditors = true );
-		void setHoveredNotesKeyboard(
+					   > hoveredNotes );
+		/** @returns true in case the set of hovered elements did change. */
+		bool setHoveredNotesKeyboard(
 			std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 								    std::vector< std::shared_ptr<H2Core::Note> > >
-					   > hoveredNotes,
-			bool bUpdateEditors = true );
+					   > hoveredNotes );
 
 		/** @returns `true` in case any of the child editors or sidebar has
 		 * focus.*/
 		bool hasPatternEditorFocus() const;
 
+		Editor::Input getInput() const;
+		void setInput( Editor::Input input);
+
+		Editor::Instance getInstance() const;
+		void setInstance( Editor::Instance instance);
+
 	public slots:
-		void showDrumEditor();
-		void showPianoRollEditor();
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
 	private slots:
@@ -353,8 +362,6 @@ class PatternEditorPanel : public QWidget,
 
 		void hearNotesBtnClick();
 		void quantizeEventsBtnClick();
-
-		void showDrumEditorBtnClick();
 
 		void syncToExternalHorizontalScrollbar(int);
 		void contentsMoving(int dummy);
@@ -372,6 +379,8 @@ class PatternEditorPanel : public QWidget,
 
 	private:
 
+		void updateInput();
+		void updateInstance();
 		void updatePatternInfo();
 		void updatePatternsToShow();
 		void updateStyleSheet();
@@ -381,6 +390,9 @@ class PatternEditorPanel : public QWidget,
 
 		/** All patterns currently playing. They are cached in here or  */
 		std::vector< std::shared_ptr<H2Core::Pattern> > m_patternsToShow;
+
+		Editor::Input m_input;
+		Editor::Instance m_instance;
 
 		/** Number corresponding to #m_pPattern. */
 		int m_nPatternNumber;
@@ -401,27 +413,27 @@ class PatternEditorPanel : public QWidget,
 		ClickableLabel*		m_pDrumkitLabel;
 
 		QTabBar* m_pTabBar;
-		QWidget* m_pToolBar;
-	QWidget* m_pSizeResol;
-	QWidget* m_pRec;
 
-	LCDSpinBox* m_pLCDSpinBoxNumerator;
-	LCDSpinBox* m_pLCDSpinBoxDenominator;
-
-		// Editor top
-		LCDCombo *			m_pResolutionCombo;
-		Button *		__show_drum_btn;
-		Button *		__show_piano_btn;
-	Button *		m_pHearNotesBtn;
-	Button *		m_pQuantizeEventsBtn;
+		/** Contains all buttons */
+		QWidget* m_pToolbarSidebar;
+		QWidget* m_pInputModeGroup;
+		Button* m_pSelectBtn;
+		Button* m_pDrawBtn;
+		Button* m_pEditBtn;
+		Button* m_pHearNotesBtn;
+		Button* m_pQuantizeEventsBtn;
+		QWidget* m_pInstanceGroup;
+		Button* m_pDrumPatternBtn;
+		Button*	m_pPianoRollBtn;
 		Button* m_pPatchBayBtn;
-	
-		ClickableLabel*		m_pPatternSizeLbl;
-		ClickableLabel*		m_pResolutionLbl;
-		ClickableLabel*		m_pHearNotesLbl;
-		ClickableLabel*		m_pQuantizeEventsLbl;
-		ClickableLabel*		m_pShowPianoLbl;
-		// ~Editor top
+
+		/** Contains the pattern size and resolution widget. */
+		QWidget* m_pToolbar;
+		QWidget* m_pSizeGroup;
+		LCDSpinBox* m_pLCDSpinBoxNumerator;
+		LCDSpinBox* m_pLCDSpinBoxDenominator;
+		QWidget* m_pResolutionGroup;
+		LCDCombo* m_pResolutionCombo;
 
 		//note properties combo
 		LCDCombo *			m_pPropertiesCombo;
@@ -532,6 +544,12 @@ inline const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 									 std::vector< std::shared_ptr<H2Core::Note> > >
 						  >& PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
+}
+inline Editor::Input PatternEditorPanel::getInput() const {
+	return m_input;
+}
+inline Editor::Instance PatternEditorPanel::getInstance() const {
+	return m_instance;
 }
 
 #endif

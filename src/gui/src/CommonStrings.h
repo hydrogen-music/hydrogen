@@ -73,6 +73,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getInstrumentRackButton() const { return m_sInstrumentRackButton; }
 	const QString& getPatternModeButton() const { return m_sPatternModeButton; }
 	const QString& getSongModeButton() const { return m_sSongModeButton; }
+	const QString& getSelectModeButton() const { return m_sSelectModeButton; }
+	const QString& getDrawModeButton() const { return m_sDrawModeButton; }
+	const QString& getEditModeButton() const { return m_sEditModeButton; }
 	const QString& getAttackLabel() const { return m_sAttackLabel; }
 	const QString& getDecayLabel() const { return m_sDecayLabel; }
 	const QString& getSustainLabel() const { return m_sSustainLabel; }
@@ -96,11 +99,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLayerGainLabel() const { return m_sLayerGainLabel; }
 	const QString& getComponentGainLabel() const { return m_sComponentGainLabel; }
 	const QString& getSampleSelectionLabel() const { return m_sSampleSelectionLabel; }
-	const QString& getPatternSizeLabel() const { return m_sPatternSizeLabel; }
-	const QString& getResolutionLabel() const { return m_sResolutionLabel; }
-	const QString& getHearNotesLabel() const { return m_sHearNotesLabel; }
-	const QString& getQuantizeEventsLabel() const { return m_sQuantizeEventsLabel; }
-	const QString& getShowPianoLabel() const { return m_sShowPianoLabel; }
 	const QString& getMidiInLabel() const { return m_sMidiInLabel; }
 	const QString& getCpuLabel() const { return m_sCpuLabel; }
 	const QString& getBPMLabel() const { return m_sBPMLabel; }
@@ -367,6 +365,9 @@ private:
 	QString m_sInstrumentRackButton;
 	QString m_sPatternModeButton;
 	QString m_sSongModeButton;
+	QString m_sSelectModeButton;
+	QString m_sDrawModeButton;
+	QString m_sEditModeButton;
 	QString m_sAttackLabel;
 	QString m_sDecayLabel;
 	QString m_sSustainLabel;
@@ -390,11 +391,6 @@ private:
 	QString m_sLayerGainLabel;
 	QString m_sComponentGainLabel;
 	QString m_sSampleSelectionLabel;
-	QString m_sPatternSizeLabel;
-	QString m_sResolutionLabel;
-	QString m_sHearNotesLabel;
-	QString m_sQuantizeEventsLabel;
-	QString m_sShowPianoLabel;
 	QString m_sMidiInLabel;
 	QString m_sCpuLabel;
 	QString m_sBPMLabel;

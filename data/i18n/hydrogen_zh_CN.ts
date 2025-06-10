@@ -557,31 +557,6 @@ B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Size</source>
-        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Res</source>
-        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hear</source>
-        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Quant</source>
-        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Input</source>
-        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation>输入</translation>
-    </message>
-    <message>
         <source>MIDI-In</source>
         <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
         <translation type="unfinished"></translation>
@@ -678,7 +653,7 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     <message>
         <source>Show drumkit editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>显示鼓编辑器</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -1414,6 +1389,21 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Edit layer</source>
         <extracomment>Representing editing an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables lasso-selection * and element moving using left-click mouse interaction.</extracomment>
+        <translation>选择模式</translation>
+    </message>
+    <message>
+        <source>Draw mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables toggling elements * or changing their properties (in the note ruler) while left-click * dragging mouse interaction.</extracomment>
+        <translation>绘图模式</translation>
+    </message>
+    <message>
+        <source>Edit mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables changing element * properties, like note length in the pattern editor using left-click * dragging mouse interaction.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3174,10 +3164,6 @@ LilyPond 导出是一项实验性功能。
         <translation>量化 键盘/MIDI 事件到网格</translation>
     </message>
     <message>
-        <source>Show piano roll editor</source>
-        <translation>显示钢琴卷帘编辑器</translation>
-    </message>
-    <message>
         <source>Zoom in</source>
         <translation>放大</translation>
     </message>
@@ -3208,10 +3194,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>量化传入的键盘/MIDI 事件：关</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>显示鼓编辑器</translation>
     </message>
     <message>
         <source>quarter</source>
@@ -5804,14 +5786,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Move the selected pattern up</source>
         <translation>上移所选样式</translation>
-    </message>
-    <message>
-        <source>Select mode</source>
-        <translation>选择模式</translation>
-    </message>
-    <message>
-        <source>Draw mode</source>
-        <translation>绘图模式</translation>
     </message>
     <message>
         <source>View playback track</source>

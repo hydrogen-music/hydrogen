@@ -557,31 +557,6 @@ B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Size</source>
-        <extracomment>Text displayed left of the pattern size LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Res</source>
-        <extracomment>Text displayed left of the resolution LCD combo in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hear</source>
-        <extracomment>Text displayed left of the button to activate the playback of inserted notes in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Quant</source>
-        <extracomment>Text displayed left of the button to toggle the quantization in the panel of the Pattern Editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Input</source>
-        <extracomment>Text displayed left of the button to switch between the Drum Pattern Editor and the Piano Roll Editor in the panel of the Pattern Editor.</extracomment>
-        <translation>Entrada</translation>
-    </message>
-    <message>
         <source>MIDI-In</source>
         <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
         <translation type="unfinished"></translation>
@@ -678,7 +653,7 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     <message>
         <source>Show drumkit editor</source>
         <extracomment>Displayed when hovering over the button in the PatternEditorPanel to activate the DrumkitEditor.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Amosar o editor de baterías</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
@@ -1413,6 +1388,21 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Edit layer</source>
         <extracomment>Representing editing an instrument layer in the undo history. Both the * name of the layer and the corresponding instrument will be appended.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables lasso-selection * and element moving using left-click mouse interaction.</extracomment>
+        <translation>Seleccionar modo</translation>
+    </message>
+    <message>
+        <source>Draw mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables toggling elements * or changing their properties (in the note ruler) while left-click * dragging mouse interaction.</extracomment>
+        <translation>Modo de debuxo</translation>
+    </message>
+    <message>
+        <source>Edit mode</source>
+        <extracomment>Text displayed as tooltip on the button which enables changing element * properties, like note length in the pattern editor using left-click * dragging mouse interaction.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3205,14 +3195,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
         <translation>Cuantizar eventos teclado/MIDI entrantes = Non</translation>
-    </message>
-    <message>
-        <source>Show piano roll editor</source>
-        <translation>Amosar o editor da pianola</translation>
-    </message>
-    <message>
-        <source>Show drum editor</source>
-        <translation>Amosar o editor de baterías</translation>
     </message>
     <message>
         <source>quarter</source>
@@ -5790,14 +5772,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Clear pattern sequence</source>
         <translation>Eliminar a secuencia do patrón</translation>
-    </message>
-    <message>
-        <source>Select mode</source>
-        <translation>Seleccionar modo</translation>
-    </message>
-    <message>
-        <source>Draw mode</source>
-        <translation>Modo de debuxo</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.

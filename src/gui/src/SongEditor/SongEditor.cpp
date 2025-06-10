@@ -830,15 +830,15 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 }
 
-void SongEditor::mouseDragStartEvent( QMouseEvent *ev )
+void SongEditor::mouseDrawStartEvent( QMouseEvent *ev )
 {
 }
 
-void SongEditor::mouseDragUpdateEvent( QMouseEvent *ev )
+void SongEditor::mouseDrawUpdateEvent( QMouseEvent *ev )
 {
 }
 
-void SongEditor::mouseDragEndEvent( QMouseEvent *ev )
+void SongEditor::mouseDrawEndEvent( QMouseEvent *ev )
 {
 	unsetCursor();
 }

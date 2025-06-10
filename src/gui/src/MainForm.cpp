@@ -1431,7 +1431,7 @@ void MainForm::action_drumkit_addInstrument(
 	pPatternEditorPanel->setSelectedRowDB(
 		pSong->getDrumkit()->getInstruments()->size() - 1 );
 	pPatternEditorPanel->updateEditors();
-	pPatternEditorPanel->ensureVisible();
+	pPatternEditorPanel->ensureCursorIsVisible();
 }
 
 void MainForm::action_drumkit_deleteInstrument( int nInstrumentIndex )
