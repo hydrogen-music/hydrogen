@@ -57,7 +57,7 @@
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PlaylistEditor/PlaylistEditor.h"
-#include "PlayerControl.h"
+#include "PlayerControl/PlayerControl.h"
 #include "Skin.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"

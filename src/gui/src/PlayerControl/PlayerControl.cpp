@@ -21,34 +21,32 @@ https://www.gnu.org/licenses
  *
  */
 
-
-#include "Skin.h"
-#include "CommonStrings.h"
 #include "PlayerControl.h"
-#include "InstrumentRack.h"
-#include "HydrogenApp.h"
 
-#include "Widgets/ClickableLabel.h"
-#include "Widgets/LCDDisplay.h"
-#include "Widgets/LCDSpinBox.h"
-#include "Widgets/LED.h"
-#include "Widgets/Button.h"
-#include "Widgets/CpuLoadWidget.h"
-#include "Widgets/PixmapWidget.h"
-#include "Widgets/StatusMessageDisplay.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
+#include "../Mixer/Mixer.h"
+#include "../Skin.h"
+#include "../Widgets/ClickableLabel.h"
+#include "../Widgets/LCDDisplay.h"
+#include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/LED.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/CpuLoadWidget.h"
+#include "../Widgets/PixmapWidget.h"
+#include "../Widgets/StatusMessageDisplay.h"
 
-#include "Mixer/Mixer.h"
-
-#include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
 #include <core/IO/JackAudioDriver.h>
-using namespace H2Core;
+#include <core/Hydrogen.h>
 
+using namespace H2Core;
 
 //beatconter global
 int bcDisplaystatus = 0;

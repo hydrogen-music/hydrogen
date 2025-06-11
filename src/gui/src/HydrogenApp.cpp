@@ -44,7 +44,7 @@
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternEditor/PatternEditorRuler.h"
-#include "PlayerControl.h"
+#include "PlayerControl/PlayerControl.h"
 #include "PlaylistEditor/PlaylistEditor.h"
 #include "PreferencesDialog/PreferencesDialog.h"
 #include "SongEditor/SongEditor.h"
