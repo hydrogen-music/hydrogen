@@ -541,7 +541,6 @@ for:
       only:
         - job_group: 'Windows'
 
-    cache: '%USERPROFILE%\AppData\Roaming\ccache-new'
     before_build:
       cmd: |-
           REM *** In case we are not at a tag, we append some additional information to a)
