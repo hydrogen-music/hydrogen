@@ -231,10 +231,10 @@ CommonStrings::CommonStrings(){
 	 Instrument Editor. Designed to hold eleven characters but not
 	 that flexible.*/
 	m_sSampleSelectionLabel = tr( "Sample Sel." );
-	/*: Text displayed in the Player Control to indicate incoming MIDI
-	  events. Designed to hold seven characters but not that
-	  flexible.*/
-	m_sMidiInLabel = tr( "MIDI-In" );
+	/*: Text displayed in the Player Control on the button indicating incoming
+	  and outgoing MIDI events. Designed to hold four capital characters and
+	  slightly flexible.*/
+	m_sMidiLabel = tr( "MIDI" );
 	/*: Text displayed in the Player Control to indicate the CPU
 	 load. Designed to hold three characters but not that flexible.*/
 	m_sCpuLabel = tr( "CPU" );

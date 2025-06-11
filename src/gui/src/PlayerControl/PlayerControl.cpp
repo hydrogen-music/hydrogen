@@ -23,6 +23,7 @@ https://www.gnu.org/licenses
 
 #include "PlayerControl.h"
 
+#include "MidiControlButton.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
@@ -52,10 +53,7 @@ using namespace H2Core;
 int bcDisplaystatus = 0;
 // ~ beatcounter
 
-PlayerControl::PlayerControl(QWidget *parent)
- : QLabel(parent)
- , m_midiActivityTimeout( 125 )
-{
+PlayerControl::PlayerControl( QWidget* pParent) : QLabel( pParent ) {
 
 	m_pHydrogen = Hydrogen::get_instance();
 	
@@ -355,9 +353,6 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( pJackPanel );
 
 	// Jack transport mode button
-
-	/*: Using the JACK the audio/midi input and output ports of any
-	  number of application can be connected.*/
 	m_pJackTransportBtn = new Button(
 		pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "",
 		pCommonStrings->getJackTransportButton(), QSize(),
@@ -376,28 +371,20 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pJackTimebaseBtn, SIGNAL( clicked() ), this,
 			SLOT( jackTimebaseBtnClicked() ) );
 	m_pJackTimebaseBtn->move( 56, 24 );
+	// ~ JACK
 
 	// CPU load widget
 	m_pCpuLoadWidget = new CpuLoadWidget( pJackPanel );
 	m_pCpuLoadWidget->setObjectName( "CpuLoadWidget" );
-
-	// Midi Activity widget
-	m_pMidiActivityLED = new LED( pJackPanel, QSize( 11, 9 ) );
-	m_pMidiActivityLED->setObjectName( "MidiActivityLED" );
-	m_pMidiActivityTimer = new QTimer( this );
-	connect( m_pMidiActivityTimer, SIGNAL( timeout() ),
-			 this, SLOT( deactivateMidiActivityLED() ) );
-	m_pMidiInLbl = new ClickableLabel( pJackPanel, QSize( 45, 9 ),
-									   pCommonStrings->getMidiInLabel() );
-	m_pMidiInLbl->move( 22, 14 );
+	m_pCpuLoadWidget->move( 10, 3 );
 	m_pCpuLbl = new ClickableLabel( pJackPanel, QSize( 30, 9 ),
 									pCommonStrings->getCpuLabel() );
 	m_pCpuLbl->move( 71, 14 );
 
-	m_pMidiActivityLED->move( 11, 14 );
-	m_pCpuLoadWidget->move( 10, 3 );
-// ~ JACK
-
+	// Midi Activity widget
+	m_pMidiControlButton = new MidiControlButton(pJackPanel );
+	m_pMidiControlButton->move( 11, 14 );
+	m_pMidiControlButton->setFixedSize( 64, 16 );
 
 	QWidget *pLcdBackGround = new QWidget( nullptr );
 	pLcdBackGround->setFixedSize( 256, 43 );
@@ -627,18 +614,6 @@ void PlayerControl::stopBtnClicked()
 	m_pHydrogen->sequencerStop();
 	CoreActionController::locateToColumn( 0 );
 	(HydrogenApp::get_instance())->showStatusBarMessage( tr("Stopped.") );
-}
-
-void PlayerControl::midiActivityEvent() {
-	m_pMidiActivityTimer->stop();
-	m_pMidiActivityLED->setActivated( true );
-	m_pMidiActivityTimer->start( std::chrono::duration_cast<std::chrono::milliseconds>( m_midiActivityTimeout )
-								 .count() );
-}
-
-void PlayerControl::deactivateMidiActivityLED() {
-	m_pMidiActivityTimer->stop();
-	m_pMidiActivityLED->setActivated( false );
 }
 
 void PlayerControl::updateTime() {

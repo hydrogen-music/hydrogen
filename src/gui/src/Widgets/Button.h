@@ -146,6 +146,10 @@ private slots:
 signals:
 	void rightClicked();
 
+protected:
+	virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void paintEvent( QPaintEvent* ev) override;
+
 private:
 	void updateStyleSheet();
 	void updateFont();
@@ -172,9 +176,6 @@ private:
 
 		QColor m_checkedBackgroundColor;
 		QColor m_checkedBackgroundTextColor;
-
-	virtual void mousePressEvent(QMouseEvent *ev) override;
-	virtual void paintEvent( QPaintEvent* ev) override;
 
 };
 inline bool Button::getIsActive() const {

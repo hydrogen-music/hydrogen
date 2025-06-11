@@ -560,11 +560,6 @@ B</translation>
         <translation>Sel. Amostra</translation>
     </message>
     <message>
-        <source>MIDI-In</source>
-        <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
-        <translation>MIDI-In</translation>
-    </message>
-    <message>
         <source>CPU</source>
         <extracomment>Text displayed in the Player Control to indicate the CPU load. Designed to hold three characters but not that flexible.</extracomment>
         <translation>CPU</translation>
@@ -635,7 +630,9 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     </message>
     <message>
         <source>MIDI</source>
-        <extracomment>Displayed in the tooltip of input widgets. General heading of the part associating the Action of the widget with the MIDI event and parameter it is bound to.</extracomment>
+        <extracomment>Text displayed in the Player Control on the button indicating incoming and outgoing MIDI events. Designed to hold four capital characters and slightly flexible.
+----------
+Displayed in the tooltip of input widgets. General heading of the part associating the Action of the widget with the MIDI event and parameter it is bound to.</extracomment>
         <translation>MIDI</translation>
     </message>
     <message>
@@ -3468,7 +3465,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
     <message>
         <source>JACK transport on/off</source>
-        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
         <translation>Transporte JACK Lig./Des.</translation>
     </message>
     <message>

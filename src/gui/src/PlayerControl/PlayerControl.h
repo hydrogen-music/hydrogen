@@ -25,7 +25,6 @@
 
 #include <QtGui>
 #include <QtWidgets>
-#include <chrono>
 
 #include "EventListener.h"
 #include <core/Object.h>
@@ -44,11 +43,15 @@ class CpuLoadWidget;
 class PixmapWidget;
 class LED;
 class MetronomeLED;
+class MidiControlButton;
 class ClickableLabel;
 class StatusMessageDisplay;
 
 /** \ingroup docGUI*/
-class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl> {
+class PlayerControl : public QLabel,
+					  protected WidgetWithScalableFont<5, 6, 7>,
+					  public EventListener,
+					  public H2Core::Object<PlayerControl> {
     H2_OBJECT(PlayerControl)
 	Q_OBJECT
 public:
@@ -100,14 +103,12 @@ private slots:
 	//rubberband
 	void rubberbandButtonToggle();
 
-	void deactivateMidiActivityLED();
 		void updateTime();
 private:
 	/** Ensure that the full width of the status label is used without
 	 * cutting of the beginning of the message.*/
 	void updateStatusLabel();
-	void midiActivityEvent() override;
-	
+
 	H2Core::Hydrogen *m_pHydrogen;
 	QPixmap m_background;
 
@@ -145,9 +146,8 @@ private:
 	Button *m_pJackTimebaseBtn;
 
 	CpuLoadWidget *m_pCpuLoadWidget;
-	LED *m_pMidiActivityLED;
-	ClickableLabel* m_pMidiInLbl;
 	ClickableLabel* m_pCpuLbl;
+		MidiControlButton* m_pMidiControlButton;
 
 	LCDSpinBox *m_pBpmSpinBox;
 	ClickableLabel* m_pBPMLbl;
@@ -164,11 +164,6 @@ private:
 	Button *m_pShowInstrumentRackBtn;
 
 	StatusMessageDisplay *m_pStatusLabel;
-	/** Used to turn off the LED #m_pMidiActivityLED indicating an
-		incoming MIDI event after #m_midiActivityTimeout
-		milliseconds.*/ 
-	QTimer *m_pMidiActivityTimer;
-	std::chrono::milliseconds m_midiActivityTimeout;
 
 		void updateBeatCounter();
 		void updateBpmSpinBox();

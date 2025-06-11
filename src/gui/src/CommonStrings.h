@@ -99,7 +99,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLayerGainLabel() const { return m_sLayerGainLabel; }
 	const QString& getComponentGainLabel() const { return m_sComponentGainLabel; }
 	const QString& getSampleSelectionLabel() const { return m_sSampleSelectionLabel; }
-	const QString& getMidiInLabel() const { return m_sMidiInLabel; }
+	const QString& getMidiLabel() const { return m_sMidiLabel; }
 	const QString& getCpuLabel() const { return m_sCpuLabel; }
 	const QString& getBPMLabel() const { return m_sBPMLabel; }
 	const QString& getTimeHoursLabel() const { return m_sTimeHoursLabel; }
@@ -391,7 +391,7 @@ private:
 	QString m_sLayerGainLabel;
 	QString m_sComponentGainLabel;
 	QString m_sSampleSelectionLabel;
-	QString m_sMidiInLabel;
+	QString m_sMidiLabel;
 	QString m_sCpuLabel;
 	QString m_sBPMLabel;
 	QString m_sTimeHoursLabel;
