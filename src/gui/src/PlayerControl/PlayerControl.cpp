@@ -436,9 +436,11 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	 	pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON );
 	connect( showBeatCounterAction, &QAction::triggered, this, [=](){
 		if ( showBeatCounterAction->isChecked() ) {
-			pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_ON;
+			Preferences::get_instance()->m_bBeatCounterOn =
+				Preferences::BEAT_COUNTER_ON;
 		} else {
-			pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_OFF;
+			Preferences::get_instance()->m_bBeatCounterOn =
+				Preferences::BEAT_COUNTER_OFF;
 		}
 		updateBeatCounter();
 	} );
