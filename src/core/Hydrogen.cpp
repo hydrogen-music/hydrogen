@@ -917,13 +917,17 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong,
 }
 
 void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
-	m_nBeatCounterTotalBeats = nBeatsToCount;
-	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	if ( m_nBeatCounterTotalBeats != nBeatsToCount ) {
+		m_nBeatCounterTotalBeats = nBeatsToCount;
+		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	}
 }
 
 void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
-	m_fBeatCounterBeatLength = fBeatLength;
-	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	if ( m_fBeatCounterBeatLength != fBeatLength ) {
+		m_fBeatCounterBeatLength = fBeatLength;
+		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	}
 }
 
 bool Hydrogen::handleBeatCounter()
