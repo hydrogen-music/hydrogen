@@ -790,13 +790,6 @@ void PlayerControl::updateBeatCounter() {
 		return;
 	}
 
-	if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song ) {
-		// Disable
-	}
-	else {
-		// enable
-	}
-
 	m_pBeatCounter->updateBeatCounter();
 
 	switch ( pHydrogen->getTempoSource() ) {
