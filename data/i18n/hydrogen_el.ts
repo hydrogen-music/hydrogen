@@ -3420,14 +3420,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Επιλέχτηκε κατάσταση λειτουργίας μήτρας.</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation>Πλαίσιο του Μετ.Χτύπ. ενεργό</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation>Πλαίσιο του Μετ.Χτύπ. ανενεργό</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation> Μέτρημα των Χτ.ΑνάΛεπ. και εκκίνηση της ΑΝΑΠΑΡΑΓΩΓΗΣ</translation>
     </message>
@@ -3465,10 +3457,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

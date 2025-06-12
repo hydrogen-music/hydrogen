@@ -3380,14 +3380,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation></translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation></translation>
     </message>
@@ -3426,10 +3418,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>JACK transport mode = Off</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>

@@ -3418,14 +3418,6 @@ LilyPond 导出是一项实验性功能。
         <translation>已选择样式模式。</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation> 打开 BC 面板</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation> 关闭 BC 面板</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation> 计算 BPM 并开始播放</translation>
     </message>
@@ -3464,10 +3456,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>JACK transport mode = Off</source>
         <translation>JACK 传输模式：关</translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>

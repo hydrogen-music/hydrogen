@@ -3401,14 +3401,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Постави о/м — Постави о/м и свирај</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation> Укљ. пано бројача откуцаја</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation> Искљ. пано бројача откуцаја</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation> Израчунај број о/м и свирај</translation>
     </message>
@@ -3458,10 +3450,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

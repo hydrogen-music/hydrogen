@@ -48,19 +48,24 @@ class ClickableLabel;
 class StatusMessageDisplay;
 
 /** \ingroup docGUI*/
-class PlayerControl : public QLabel,
+class PlayerControl : public QWidget,
 					  protected WidgetWithScalableFont<5, 6, 7>,
 					  public EventListener,
 					  public H2Core::Object<PlayerControl> {
     H2_OBJECT(PlayerControl)
 	Q_OBJECT
 public:
-	explicit PlayerControl(QWidget *parent);
-	~PlayerControl();
 
-	void updatePlayerControl();
+		static constexpr int nHeight = 45;
+		static constexpr int nLabelHeight = 9;
 
-	void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
+
+		explicit PlayerControl(QWidget *parent);
+		~PlayerControl();
+
+		void updatePlayerControl();
+
+		void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
 		virtual void beatCounterEvent() override;
 		virtual void driverChangedEvent() override;
@@ -73,8 +78,6 @@ public:
 		virtual void tempoChangedEvent( int nValue ) override;
 		virtual void timelineActivationEvent() override;
 		virtual void updateSongEvent( int nValue ) override;
-
-		static constexpr int m_nMinimumHeight = 43;
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -105,65 +108,61 @@ private slots:
 
 		void updateTime();
 private:
-	/** Ensure that the full width of the status label is used without
-	 * cutting of the beginning of the message.*/
-	void updateStatusLabel();
+		void updateStyleSheet();
 
 	H2Core::Hydrogen *m_pHydrogen;
-	QPixmap m_background;
 
-	Button *m_pRwdBtn;
-	Button *m_pRecBtn;
-	Button *m_pPlayBtn;
-	Button *m_pStopBtn;
-	Button *m_pFfwdBtn;
+		QWidget* m_pTimeGroup;
+		LCDDisplay* m_pTimeDisplay;
+		ClickableLabel* m_pTimeHoursLbl;
+		ClickableLabel* m_pTimeMinutesLbl;
+		ClickableLabel* m_pTimeSecondsLbl;
+		ClickableLabel* m_pTimeMilliSecondsLbl;
 
-	Button *m_pSongLoopBtn;
-	Button *m_pSongModeBtn;
-	LED			 *m_pSongModeLED;
-	Button *m_pPatternModeBtn;
-	LED			 *m_pPatternModeLED;
+		QWidget* m_pSongModeGroup;
+		Button* m_pSongLoopBtn;
+		Button* m_pSongModeBtn;
+		Button* m_pPatternModeBtn;
 
-	//beatcounter
-	PixmapWidget *m_pControlsBCPanel;
+		QWidget* m_pTransportGroup;
+		Button* m_pRwdBtn;
+		Button* m_pRecBtn;
+		Button* m_pPlayBtn;
+		Button* m_pStopBtn;
+		Button* m_pFfwdBtn;
 
-	QLabel *m_pBCDisplayZ;
-	QLabel *m_pBeatCounterTotalBeatsDisplay;
-	QLabel *m_pBeatCounterBeatLengthDisplay;
+		PixmapWidget* m_pBeatCounterGroup;
+		QLabel* m_pBCDisplayZ;
+		QLabel* m_pBeatCounterTotalBeatsDisplay;
+		QLabel* m_pBeatCounterBeatLengthDisplay;
+		Button* m_pBeatCounterSetPlayBtn;
+		Button* m_pBeatCounterBeatLengthUpBtn;
+		Button* m_pBeatCounterBeatLengthDownBtn;
+		Button* m_pBeatCounterTotalBeatsUpBtn;
+		Button* m_pBeatCounterTotalBeatsDownBtn;
 
-	Button *m_pBCOnOffBtn;
-	Button *m_pBeatCounterSetPlayBtn;
-	Button *m_pBeatCounterBeatLengthUpBtn;
-	Button *m_pBeatCounterBeatLengthDownBtn;
-	Button *m_pBeatCounterTotalBeatsUpBtn;
-	Button *m_pBeatCounterTotalBeatsDownBtn;
-	// ~ beatcounter
+		QWidget* m_pTempoGroup;
+		MetronomeLED* m_pMetronomeLED;
+		Button* m_pMetronomeBtn;
+		LCDSpinBox* m_pBpmSpinBox;
+		ClickableLabel* m_pBPMLbl;
 
-	//rubberbandBPMChange
-	Button *m_pRubberBPMChange;
+		QWidget* m_pRubberBandGroup;
+		Button* m_pRubberBPMChange;
 
-	Button *m_pJackTransportBtn;
-	Button *m_pJackTimebaseBtn;
+		QWidget* m_pJackGroup;
+		Button* m_pJackTransportBtn;
+		Button* m_pJackTimebaseBtn;
 
-	CpuLoadWidget *m_pCpuLoadWidget;
-	ClickableLabel* m_pCpuLbl;
+		QWidget* m_pSystemGroup;
+		CpuLoadWidget* m_pCpuLoadWidget;
+		ClickableLabel* m_pCpuLbl;
 		MidiControlButton* m_pMidiControlButton;
 
-	LCDSpinBox *m_pBpmSpinBox;
-	ClickableLabel* m_pBPMLbl;
-	LCDDisplay *m_pTimeDisplay;
-	ClickableLabel* m_pTimeHoursLbl;
-	ClickableLabel* m_pTimeMinutesLbl;
-	ClickableLabel* m_pTimeSecondsLbl;
-	ClickableLabel* m_pTimeMilliSecondsLbl;
+		Button* m_pShowMixerBtn;
+		Button* m_pShowInstrumentRackBtn;
 
-	MetronomeLED *m_pMetronomeLED;
-	Button *m_pMetronomeBtn;
-
-	Button *m_pShowMixerBtn;
-	Button *m_pShowInstrumentRackBtn;
-
-	StatusMessageDisplay *m_pStatusLabel;
+		StatusMessageDisplay* m_pStatusLabel;
 
 		void updateBeatCounter();
 		void updateBpmSpinBox();
@@ -173,12 +172,12 @@ private:
 		void updateSongMode();
 		void updateTransportControl();
 
-	QString m_sBCOnOffBtnToolTip;
-	QString m_sBCOnOffBtnTimelineToolTip;
-	QString m_sBCOnOffBtnJackTimebaseToolTip;
-	QString m_sLCDBPMSpinboxToolTip;
-	QString m_sLCDBPMSpinboxTimelineToolTip;
-	QString m_sLCDBPMSpinboxJackTimebaseToolTip;
+		QString m_sBCOnOffBtnToolTip;
+		QString m_sBCOnOffBtnTimelineToolTip;
+		QString m_sBCOnOffBtnJackTimebaseToolTip;
+		QString m_sLCDBPMSpinboxToolTip;
+		QString m_sLCDBPMSpinboxTimelineToolTip;
+		QString m_sLCDBPMSpinboxJackTimebaseToolTip;
 };
 
 

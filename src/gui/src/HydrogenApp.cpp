@@ -309,8 +309,6 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMainVBox->setContentsMargins( 0, 0, 0, 0 );
 	m_pMainVBox->addWidget( m_pPlayerControl );
 
-	m_pMainVBox->addSpacing( 3 );
-
 	if( layout == InterfaceTheme::Layout::SinglePane ) {
 		m_pMainVBox->addWidget( m_pSplitter );
 	} else {
@@ -322,7 +320,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	mainArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 	mainArea->setMinimumSize( 1000,
 							  180 + // menu bar, margins etc.
-							  PlayerControl::m_nMinimumHeight +
+							  PlayerControl::nHeight +
 							  SongEditorPanel::m_nMinimumHeight +
 							  InstrumentRack::m_nMinimumHeight +
 							  SongEditorPositionRuler::m_nMinimumHeight +

@@ -3422,14 +3422,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Fijar PPM / Fijar PPM y reproducir</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation> Panel CP sí</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation> Panel CP no</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation> Contar PPM y REPRODUCIR</translation>
     </message>
@@ -3480,10 +3472,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>JACK transport mode = Off</source>
         <translation>Modo transporte JACK: = Apagado</translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
-        <translation>Conmutar el Panel del BeatCounter</translation>
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>

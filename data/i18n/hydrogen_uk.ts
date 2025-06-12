@@ -3406,14 +3406,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Задати уд/хв / задати уд/хв і грати</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation>Увімкнути панель лічильника бітів</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation>Вимкнути панель лічильника бітів</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation>Підрахувати уд/хв і почати грати</translation>
     </message>
@@ -3463,10 +3455,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

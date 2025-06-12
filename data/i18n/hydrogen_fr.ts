@@ -3423,14 +3423,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation>Régler le BPM / régler le BPM et jouer</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation> Panneau du compteur BPM actif</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation> Panneau du compteur BPM inactif</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation> Compter les BPM et jouer</translation>
     </message>
@@ -3481,10 +3473,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>JACK transport mode = Off</source>
         <translation>Mode transport JACK = off</translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
-        <translation>Basculer le panneau Compteur de pulsation</translation>
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>

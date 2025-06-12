@@ -3420,14 +3420,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Definir BPM / definir BPM e executar</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation>Painel do CB Lig.</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation>Painel do CB Des.</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation> Contar BPM e EXECUTAR</translation>
     </message>
@@ -3478,10 +3470,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>JACK transport mode = Off</source>
         <translation>Modo transporte JACK: Desligado</translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
-        <translation>Alternar o Painel de BeatCounter</translation>
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>

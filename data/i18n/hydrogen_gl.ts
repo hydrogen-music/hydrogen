@@ -3407,14 +3407,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Estabelecer os BPM / Estabelecer os BPM e reproducir</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation> Panel CdeG activado</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation> Panel CdeG apagado</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation> Contar os BPM e iniciar a reprodución</translation>
     </message>
@@ -3464,10 +3456,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

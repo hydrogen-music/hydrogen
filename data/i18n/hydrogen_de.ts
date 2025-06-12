@@ -3415,14 +3415,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Setze Geschwindigkeit / Setze Geschwindigkeit und spiele ab</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation>Takt Zähler Anzeige sichtbar</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation>Takt Zähler Anzeige aus</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation>Zähle Takte und spiele ab</translation>
     </message>
@@ -3473,10 +3465,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>JACK transport mode = Off</source>
         <translation>JACK Transport Modus = Aus</translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
-        <translation>BeatCounter Konsole umschalten</translation>
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>

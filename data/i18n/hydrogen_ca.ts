@@ -3381,14 +3381,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Fixar PPM / Fixar PPM i reproduïr</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation>Panell CP Activat</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation>Panell CP Desactivat</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation>Contar PPM i REPRODUÏR</translation>
     </message>
@@ -3438,10 +3430,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

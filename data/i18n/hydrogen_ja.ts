@@ -3405,14 +3405,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>BPMの設定/BPMの設定と再生</translation>
     </message>
     <message>
-        <source> BC Panel on</source>
-        <translation> BC パネル on</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation> BC パネル off</translation>
-    </message>
-    <message>
         <source> Count BPM and start PLAY</source>
         <translation>BPMのカウントと再生開始</translation>
     </message>
@@ -3462,10 +3454,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
