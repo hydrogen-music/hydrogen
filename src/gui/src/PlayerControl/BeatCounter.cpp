@@ -192,7 +192,7 @@ void BeatCounter::paintEvent( QPaintEvent* pEvent )
 					  height() - 2, colorCanvas );
 
 	painter.setPen( theme.m_color.m_windowTextColor );
-	const QFont font( theme.m_font.m_sApplicationFontFamily,
+	const QFont font( theme.m_font.m_sLevel3FontFamily,
 					  getPointSize( theme.m_font.m_fontSize ) );
 	painter.setFont( font );
 
