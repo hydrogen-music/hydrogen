@@ -23,6 +23,7 @@ https://www.gnu.org/licenses
 
 #include "PlayerControl.h"
 
+#include "CpuLoadWidget.h"
 #include "MidiControlButton.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
@@ -34,7 +35,6 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/LED.h"
 #include "../Widgets/Button.h"
-#include "../Widgets/CpuLoadWidget.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/StatusMessageDisplay.h"
 
