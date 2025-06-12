@@ -833,9 +833,11 @@ void PlayerControl::updateBpmSpinBox() {
 void PlayerControl::updateJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( ! pHydrogen->hasJackAudioDriver() ) {
-		m_pJackTransportBtn->hide();
-	} else {
-		m_pJackTransportBtn->show();
+		m_pJackGroup->hide();
+		return;
+	}
+	else {
+		m_pJackGroup->show();
 	}
 
 	if ( pHydrogen->hasJackTransport() ) {
@@ -851,9 +853,11 @@ void PlayerControl::updateJackTimebase()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( ! pHydrogen->hasJackAudioDriver() ) {
-		m_pJackTimebaseBtn->hide();
-	} else {
-		m_pJackTimebaseBtn->show();
+		m_pJackGroup->hide();
+		return;
+	}
+	else {
+		m_pJackGroup->show();
 	}
 
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
