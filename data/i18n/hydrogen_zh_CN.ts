@@ -304,6 +304,21 @@
     </message>
 </context>
 <context>
+    <name>BeatCounter</name>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>设置 BPM / 设置 BPM 并播放</translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation> 计算 BPM 并开始播放</translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation> 计算并设置 BPM</translation>
+    </message>
+</context>
+<context>
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
@@ -401,12 +416,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     <message>
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B
-C</source>
-        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3370,10 +3379,6 @@ LilyPond 导出是一项实验性功能。
         <translation>乐曲模式</translation>
     </message>
     <message>
-        <source>Set BPM / Set BPM and play</source>
-        <translation>设置 BPM / 设置 BPM 并播放</translation>
-    </message>
-    <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
         <translation>如果 BPM 会改变，请重新计算 Rubberband 修改的采样</translation>
     </message>
@@ -3416,14 +3421,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Pattern mode selected.</source>
         <translation>已选择样式模式。</translation>
-    </message>
-    <message>
-        <source> Count BPM and start PLAY</source>
-        <translation> 计算 BPM 并开始播放</translation>
-    </message>
-    <message>
-        <source> Count and set BPM</source>
-        <translation> 计算并设置 BPM</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>

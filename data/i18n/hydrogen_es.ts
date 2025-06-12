@@ -304,6 +304,21 @@
     </message>
 </context>
 <context>
+    <name>BeatCounter</name>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>Fijar PPM / Fijar PPM y reproducir</translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation> Contar PPM y REPRODUCIR</translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation> Contar y fijar PPM</translation>
+    </message>
+</context>
+<context>
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
@@ -402,13 +417,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation>Editar Capa</translation>
-    </message>
-    <message>
-        <source>B
-C</source>
-        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
-        <translation>C
-P</translation>
     </message>
     <message>
         <source>R
@@ -3416,18 +3424,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Show Instrument Rack</source>
         <translation>Ver rack de instrumentos</translation>
-    </message>
-    <message>
-        <source>Set BPM / Set BPM and play</source>
-        <translation>Fijar PPM / Fijar PPM y reproducir</translation>
-    </message>
-    <message>
-        <source> Count BPM and start PLAY</source>
-        <translation> Contar PPM y REPRODUCIR</translation>
-    </message>
-    <message>
-        <source> Count and set BPM</source>
-        <translation> Contar y fijar PPM</translation>
     </message>
     <message>
         <source>Record</source>

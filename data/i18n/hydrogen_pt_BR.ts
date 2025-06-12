@@ -304,6 +304,21 @@
     </message>
 </context>
 <context>
+    <name>BeatCounter</name>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>Definir BPM / definir BPM e executar</translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation> Contar BPM e EXECUTAR</translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation>Contar e definir BPM</translation>
+    </message>
+</context>
+<context>
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
@@ -402,13 +417,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation>Editar camada</translation>
-    </message>
-    <message>
-        <source>B
-C</source>
-        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
-        <translation>B
-C</translation>
     </message>
     <message>
         <source>R
@@ -3414,18 +3422,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Show Instrument Rack</source>
         <translation>Exibir Rack de Instrumentos </translation>
-    </message>
-    <message>
-        <source>Set BPM / Set BPM and play</source>
-        <translation>Definir BPM / definir BPM e executar</translation>
-    </message>
-    <message>
-        <source> Count BPM and start PLAY</source>
-        <translation> Contar BPM e EXECUTAR</translation>
-    </message>
-    <message>
-        <source> Count and set BPM</source>
-        <translation>Contar e definir BPM</translation>
     </message>
     <message>
         <source>Record</source>

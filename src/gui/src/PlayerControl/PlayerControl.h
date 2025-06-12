@@ -26,25 +26,26 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "EventListener.h"
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include "Widgets/WidgetWithScalableFont.h"
+
+#include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 	class Hydrogen;
 }
 
+class BeatCounter;
+class Button;
+class ClickableLabel;
+class CpuLoadWidget;
 class LCDSpinBox;
 class LCDDisplay;
-class Button;
-class CpuLoadWidget;
-class PixmapWidget;
 class LED;
 class MetronomeLED;
 class MidiControlButton;
-class ClickableLabel;
 class StatusMessageDisplay;
 
 /** \ingroup docGUI*/
@@ -94,15 +95,8 @@ private slots:
 	void rewindBtnClicked();
 	void metronomeButtonClicked();
 
-	//beatcounter
-	void activateBeatCounter();
-	void beatCounterSetPlayBtnClicked();
-	void beatCounterTotalBeatsUpBtnClicked();
-	void beatCounterTotalBeatsDownBtnClicked();
-	void beatCounterBeatLengthUpBtnClicked();
-	void beatCounterBeatLengthDownBtnClicked();
-	// ~ beatcounter
-		
+		void activateBeatCounter();
+
 	//rubberband
 	void rubberbandButtonToggle();
 
@@ -131,15 +125,8 @@ private:
 		Button* m_pStopBtn;
 		Button* m_pFfwdBtn;
 
-		PixmapWidget* m_pBeatCounterGroup;
-		QLabel* m_pBCDisplayZ;
-		QLabel* m_pBeatCounterTotalBeatsDisplay;
-		QLabel* m_pBeatCounterBeatLengthDisplay;
-		Button* m_pBeatCounterSetPlayBtn;
-		Button* m_pBeatCounterBeatLengthUpBtn;
-		Button* m_pBeatCounterBeatLengthDownBtn;
-		Button* m_pBeatCounterTotalBeatsUpBtn;
-		Button* m_pBeatCounterTotalBeatsDownBtn;
+		QWidget* m_pBeatCounterGroup;
+		BeatCounter* m_pBeatCounter;
 
 		QWidget* m_pTempoGroup;
 		MetronomeLED* m_pMetronomeLED;

@@ -304,6 +304,21 @@
     </message>
 </context>
 <context>
+    <name>BeatCounter</name>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>Régler le BPM / régler le BPM et jouer</translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation> Compter les BPM et jouer</translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation> Compter et régler les BPM</translation>
+    </message>
+</context>
+<context>
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
@@ -402,12 +417,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation>Édit couches</translation>
-    </message>
-    <message>
-        <source>B
-C</source>
-        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
-        <translation>B</translation>
     </message>
     <message>
         <source>R
@@ -3417,18 +3426,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Loop song = Off</source>
         <translation>Morceau en boucle = inactif</translation>
-    </message>
-    <message>
-        <source>Set BPM / Set BPM and play</source>
-        <translation>Régler le BPM / régler le BPM et jouer</translation>
-    </message>
-    <message>
-        <source> Count BPM and start PLAY</source>
-        <translation> Compter les BPM et jouer</translation>
-    </message>
-    <message>
-        <source> Count and set BPM</source>
-        <translation> Compter et régler les BPM</translation>
     </message>
     <message>
         <source>Record</source>

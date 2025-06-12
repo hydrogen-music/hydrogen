@@ -305,6 +305,21 @@
     </message>
 </context>
 <context>
+    <name>BeatCounter</name>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>BPMの設定/BPMの設定と再生</translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation>BPMのカウントと再生開始</translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation> BPMのカウントと設定</translation>
+    </message>
+</context>
+<context>
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
@@ -402,12 +417,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     <message>
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B
-C</source>
-        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3399,18 +3408,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Show Instrument Rack</source>
         <translation>インストルメントラックの表示</translation>
-    </message>
-    <message>
-        <source>Set BPM / Set BPM and play</source>
-        <translation>BPMの設定/BPMの設定と再生</translation>
-    </message>
-    <message>
-        <source> Count BPM and start PLAY</source>
-        <translation>BPMのカウントと再生開始</translation>
-    </message>
-    <message>
-        <source> Count and set BPM</source>
-        <translation> BPMのカウントと設定</translation>
     </message>
     <message>
         <source>Record</source>

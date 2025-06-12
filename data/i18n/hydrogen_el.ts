@@ -304,6 +304,21 @@
     </message>
 </context>
 <context>
+    <name>BeatCounter</name>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>Όρισε τους Χτ.ΑνάΛεπ. ή Ορισμός των Χτ.ΑνάΛεπ. και αναπαραγωγή</translation>
+    </message>
+    <message>
+        <source> Count BPM and start PLAY</source>
+        <translation> Μέτρημα των Χτ.ΑνάΛεπ. και εκκίνηση της ΑΝΑΠΑΡΑΓΩΓΗΣ</translation>
+    </message>
+    <message>
+        <source> Count and set BPM</source>
+        <translation> Μέτρημα και ορισμός των Χτ.ΑνάΛεπ.</translation>
+    </message>
+</context>
+<context>
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
@@ -401,12 +416,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     <message>
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B
-C</source>
-        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3372,10 +3381,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Κατάσταση Λειτουργίας Τραγουδιού</translation>
     </message>
     <message>
-        <source>Set BPM / Set BPM and play</source>
-        <translation>Όρισε τους Χτ.ΑνάΛεπ. ή Ορισμός των Χτ.ΑνάΛεπ. και αναπαραγωγή</translation>
-    </message>
-    <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
         <translation>Επανυπολογισμός των δειγμάτων, που έχουν μετατραπεί με το Ράμπερμπανντ, αν αλλάξουν οι ΧτύποιΑνάΛεπτό</translation>
     </message>
@@ -3418,14 +3423,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Pattern mode selected.</source>
         <translation>Επιλέχτηκε κατάσταση λειτουργίας μήτρας.</translation>
-    </message>
-    <message>
-        <source> Count BPM and start PLAY</source>
-        <translation> Μέτρημα των Χτ.ΑνάΛεπ. και εκκίνηση της ΑΝΑΠΑΡΑΓΩΓΗΣ</translation>
-    </message>
-    <message>
-        <source> Count and set BPM</source>
-        <translation> Μέτρημα και ορισμός των Χτ.ΑνάΛεπ.</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>

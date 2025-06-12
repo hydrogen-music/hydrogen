@@ -23,6 +23,7 @@ https://www.gnu.org/licenses
 
 #include "PlayerControl.h"
 
+#include "BeatCounter.h"
 #include "CpuLoadWidget.h"
 #include "MidiControlButton.h"
 #include "../CommonStrings.h"
@@ -35,7 +36,6 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/LED.h"
 #include "../Widgets/Button.h"
-#include "../Widgets/PixmapWidget.h"
 #include "../Widgets/StatusMessageDisplay.h"
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -235,77 +235,21 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pTransportGroupLayout->addWidget( m_pSongLoopBtn );
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pBeatCounterGroup = new PixmapWidget( this );
-	m_pBeatCounterGroup->setFixedWidth( 86 );
-	m_pBeatCounterGroup->setObjectName( "BeatCounter" );
-	m_pBeatCounterGroup->setPixmap( "/playerControlPanel/beatConter_BG.png" );
+	m_pBeatCounterGroup = new QWidget( this );
+	m_pBeatCounterGroup->setFixedWidth( BeatCounter::nWidth + 2 );
+	m_pBeatCounterGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pBeatCounterGroup );
+	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
+	pBeatCounterGroupLayout->setContentsMargins( 1, 1, 1, 1 );
+	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
 
 	m_sBCOnOffBtnTimelineToolTip =
 		tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
 	m_sBCOnOffBtnJackTimebaseToolTip =
 		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
 
-	m_pBCDisplayZ = new QLabel( m_pBeatCounterGroup );
-	m_pBCDisplayZ->resize( QSize( 23, 13 ) );
-	m_pBCDisplayZ->move( 45, 8 );
-	m_pBCDisplayZ->setText( "--" );
-
-	QLabel* pLabelBC1 = new QLabel( m_pBeatCounterGroup );
-	pLabelBC1->resize( QSize( 9, 11 ) );
-	pLabelBC1->move( 25, 9 );
-	pLabelBC1->setText( "1" );
-	QLabel* pLabelBC2 = new QLabel( m_pBeatCounterGroup );
-	pLabelBC2->resize( QSize( 9, 3 ) );
-	pLabelBC2->move( 25, 20 );
-	pLabelBC2->setText( "—" );
-	
-	m_pBeatCounterBeatLengthDisplay = new QLabel( m_pBeatCounterGroup );
-	m_pBeatCounterBeatLengthDisplay->resize( QSize( 9, 11 ) );
-	m_pBeatCounterBeatLengthDisplay->move( 25, 25 );
-	m_pBeatCounterBeatLengthDisplay->setText( "4" );
-
-	m_pBeatCounterTotalBeatsDisplay = new QLabel( m_pBeatCounterGroup );
-	m_pBeatCounterTotalBeatsDisplay->resize( QSize( 23, 11 ) );
-	m_pBeatCounterTotalBeatsDisplay->move( 45, 25 );
-	m_pBeatCounterTotalBeatsDisplay->setText( "04" );
-
-	m_pBeatCounterBeatLengthUpBtn = new Button(
-		m_pBeatCounterGroup, QSize( 19, 12 ), Button::Type::Push, "plus.svg", "",
-		QSize( 8, 8 ), "", false, true );
-	m_pBeatCounterBeatLengthUpBtn->move( 2, 3 );
-	connect( m_pBeatCounterBeatLengthUpBtn, SIGNAL( clicked() ),
-			 this, SLOT( beatCounterBeatLengthUpBtnClicked() ) );
-
-	m_pBeatCounterBeatLengthDownBtn = new Button(
-		m_pBeatCounterGroup, QSize( 19, 12 ), Button::Type::Push, "minus.svg", "",
-		QSize( 8, 8 ), "", false, true );
-	m_pBeatCounterBeatLengthDownBtn->move( 2, 14 );
-	connect( m_pBeatCounterBeatLengthDownBtn, SIGNAL( clicked() ),
-			 this, SLOT( beatCounterBeatLengthDownBtnClicked() ) );
-
-	m_pBeatCounterTotalBeatsUpBtn = new Button(
-		m_pBeatCounterGroup, QSize( 19, 12 ), Button::Type::Push, "plus.svg", "",
-		QSize( 8, 8 ), "", false, true );
-	m_pBeatCounterTotalBeatsUpBtn->move( 64, 3 );
-	connect( m_pBeatCounterTotalBeatsUpBtn, SIGNAL( clicked() ),
-			 this, SLOT( beatCounterTotalBeatsUpBtnClicked() ) );
-
-	m_pBeatCounterTotalBeatsDownBtn = new Button(
-		m_pBeatCounterGroup, QSize( 19, 12 ), Button::Type::Push, "minus.svg", "",
-		QSize( 8, 8 ), "", false, true );
-	m_pBeatCounterTotalBeatsDownBtn->move( 64, 14 );
-	connect( m_pBeatCounterTotalBeatsDownBtn, SIGNAL( clicked() ),
-			 this, SLOT( beatCounterTotalBeatsDownBtnClicked() ) );
-
-	m_pBeatCounterSetPlayBtn = new Button(
-		m_pBeatCounterGroup, QSize( 19, 15 ), Button::Type::Push, "",
-		pCommonStrings->getBeatCounterSetPlayButtonOff(), QSize(),
-		tr("Set BPM / Set BPM and play"), false, true );
-	m_pBeatCounterSetPlayBtn->setObjectName( "BeatCounterSetPlayButton" );
-	m_pBeatCounterSetPlayBtn->move( 64, 25 );
-	connect(m_pBeatCounterSetPlayBtn, SIGNAL( clicked() ),
-			this, SLOT( beatCounterSetPlayBtnClicked() ));
+	m_pBeatCounter = new BeatCounter( this );
+	pBeatCounterGroupLayout->addWidget( m_pBeatCounter );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTempoGroup = new QWidget( this );
@@ -718,8 +662,6 @@ void PlayerControl::bpmChanged( double fNewBpmValue ) {
 	}
 }
 
-
-
 //beatcounter
 void PlayerControl::activateBeatCounter()
 {
@@ -732,24 +674,6 @@ void PlayerControl::activateBeatCounter()
 	// 	pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_OFF;
 	// 	HydrogenApp::get_instance()->showStatusBarMessage( tr(" BC Panel off") );
 	// }
-	Hydrogen::get_instance()->updateBeatCounterSettings();
-}
-
-void PlayerControl::beatCounterSetPlayBtnClicked()
-{
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	auto pPref = Preferences::get_instance();
-	if ( m_pBeatCounterSetPlayBtn->text() ==
-		 pCommonStrings->getBeatCounterSetPlayButtonOff() ) {
-		pPref->m_bBeatCounterSetPlay = Preferences::BEAT_COUNTER_SET_PLAY_ON;
-		pHydrogenApp->showStatusBarMessage( tr(" Count BPM and start PLAY") );
-	}
-	else {
-		pPref->m_bBeatCounterSetPlay = Preferences::BEAT_COUNTER_SET_PLAY_OFF;
-		pHydrogenApp->showStatusBarMessage( tr(" Count and set BPM") );
-	}
-
 	Hydrogen::get_instance()->updateBeatCounterSettings();
 }
 
@@ -783,51 +707,6 @@ void PlayerControl::rubberbandButtonToggle()
 	updatePlayerControl();
 }
 
-
-void PlayerControl::beatCounterTotalBeatsUpBtnClicked()
-{
-	int nBeatsToCount = m_pHydrogen->getBeatCounterTotalBeats();
-	nBeatsToCount++;
-	if ( nBeatsToCount > 16 ) {
-		nBeatsToCount = 2;
-	}
-
-	m_pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-}
-
-void PlayerControl::beatCounterTotalBeatsDownBtnClicked()
-{
-	int nBeatsToCount = m_pHydrogen->getBeatCounterTotalBeats();
-	nBeatsToCount--;
-	if ( nBeatsToCount < 2 ) {
-		nBeatsToCount = 16;
-	}
-	m_pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-}
-
-void PlayerControl::beatCounterBeatLengthUpBtnClicked()
-{
-	float tmp = m_pHydrogen->getBeatCounterBeatLength() * 4;
-
-	tmp = tmp / 2 ;
-	if ( tmp < 1 ) {
-		tmp = 8;
-	}
-
-	m_pHydrogen->setBeatCounterBeatLength( (tmp) / 4 );
-}
-
-void PlayerControl::beatCounterBeatLengthDownBtnClicked()
-{
-	float tmp = m_pHydrogen->getBeatCounterBeatLength() * 4;
-
-	tmp = tmp * 2;
-	if ( tmp > 8 ) {
-		tmp = 1;
-	}
-	m_pHydrogen->setBeatCounterBeatLength( (tmp) / 4 );
-}
-
 void PlayerControl::beatCounterEvent() {
 	updateBeatCounter();
 }
@@ -851,7 +730,6 @@ void PlayerControl::jackTransportBtnClicked()
 		pHydrogenApp->showStatusBarMessage( tr( "JACK transport mode = On" ) );
 	}
 }
-
 
 void PlayerControl::jackTimebaseBtnClicked()
 {
@@ -878,8 +756,6 @@ void PlayerControl::fastForwardBtnClicked() {
 		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
 }
 
-
-
 void PlayerControl::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
 	CoreActionController::locateToColumn(
@@ -891,57 +767,36 @@ void PlayerControl::metronomeButtonClicked() {
 }
 
 void PlayerControl::updateBeatCounter() {
-	// auto pPref = Preferences::get_instance();
-	// auto pHydrogen = Hydrogen::get_instance();
-	// const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 
-	// if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON &&
-	// 	 pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song ) {
-	// 	m_pControlsBCPanel->show();
-	// 	m_pBCOnOffBtn->setChecked( true );
-	// }
-	// else {
-	// 	m_pControlsBCPanel->hide();
-	// 	m_pBCOnOffBtn->setChecked( false );
-	// }
-	// m_pBCOnOffBtn->setIsActive(
-	// 	pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song );
+	if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
+		m_pBeatCounterGroup->show();
+	}
+	else {
+		m_pBeatCounterGroup->hide();
+		return;
+	}
 
-	// if ( pPref->m_bBeatCounterSetPlay == Preferences::BEAT_COUNTER_SET_PLAY_ON ) {
-	// 	m_pBeatCounterSetPlayBtn->setText(
-	// 		pCommonStrings->getBeatCounterSetPlayButtonOn() );
-	// }
-	// else {
-	// 	m_pBeatCounterSetPlayBtn->setText(
-	// 		pCommonStrings->getBeatCounterSetPlayButtonOff() );
-	// }
+	if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song ) {
+		// Disable
+	}
+	else {
+		// enable
+	}
 
-	// switch ( pHydrogen->getTempoSource() ) {
-	// case H2Core::Hydrogen::Tempo::Jack:
-	// 	m_pBeatCounterGroup->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
-	// 	break;
-	// case H2Core::Hydrogen::Tempo::Timeline:
-	// 	m_pBeatCounterGroup->setToolTip( m_sBCOnOffBtnTimelineToolTip );
-	// 	break;
-	// default:
-	// 	m_pBeatCounterGroup->setToolTip( "" );
-	// }
+	m_pBeatCounter->updateBeatCounter();
 
-	// m_pBeatCounterTotalBeatsDisplay->setText(
-	// 	QString( "%1" ).arg( pHydrogen->getBeatCounterTotalBeats(), 2, 10,
-	// 						 QChar( 0x0030 ) ) );
-	// m_pBeatCounterBeatLengthDisplay->setText(
-	// 	QString::number( pHydrogen->getBeatCounterBeatLength() * 4 ) );
-
-	// QString sBcStatus;
-	// const int nEventCount = pHydrogen->getBeatCounterEventCount();
-	// if ( nEventCount == 1 ) {
-	// 	sBcStatus = "R";
-	// }
-	// else {
-	// 	sBcStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10, QChar( 0x0030 ) );
-	// }
-	// m_pBCDisplayZ->setText( sBcStatus );
+	switch ( pHydrogen->getTempoSource() ) {
+	case H2Core::Hydrogen::Tempo::Jack:
+		m_pBeatCounterGroup->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Timeline:
+		m_pBeatCounterGroup->setToolTip( m_sBCOnOffBtnTimelineToolTip );
+		break;
+	default:
+		m_pBeatCounterGroup->setToolTip( "" );
+	}
 }
 
 void PlayerControl::updateBpmSpinBox() {
@@ -1101,7 +956,7 @@ QWidget#MainToolbar {\
 				   .arg( colorToolbar.name() ).arg( colorText.name() ) );
 
 	const QString sGroupStyleSheet = QString( "\
-QWidget#GroupBox, QWidget#BeatCounter, QWidget#BPM, QWidget#JackPanel {\
+QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
     background-color: %1;\
     color: %2;\
     border: 1px solid #000;\

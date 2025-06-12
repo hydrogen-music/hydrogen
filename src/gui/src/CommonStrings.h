@@ -63,7 +63,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLoadLayerButton() const { return m_sLoadLayerButton; }
 	const QString& getDeleteLayerButton() const { return m_sDeleteLayerButton; }
 	const QString& getEditLayerButton() const { return m_sEditLayerButton; }
-	const QString& getBeatCounterButton() const { return m_sBeatCounterButton; }
 	const QString& getBeatCounterSetPlayButtonOff() const { return m_sBeatCounterSetPlayButtonOff; }
 	const QString& getBeatCounterSetPlayButtonOn() const { return m_sBeatCounterSetPlayButtonOn; }
 	const QString& getRubberbandButton() const { return m_sRubberbandButton; }
@@ -355,7 +354,6 @@ private:
 	QString m_sLoadLayerButton;
 	QString m_sEditLayerButton;
 	QString m_sDeleteLayerButton;
-	QString m_sBeatCounterButton;
 	QString m_sBeatCounterSetPlayButtonOff;
 	QString m_sBeatCounterSetPlayButtonOn;
 	QString m_sRubberbandButton;

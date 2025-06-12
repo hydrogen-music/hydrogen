@@ -90,10 +90,6 @@ CommonStrings::CommonStrings(){
 	  flexible.*/
 	m_sEditLayerButton = tr( "Edit Layer" );
 
-	/*: Text displayed on the button to activate the Beat Counter. Its
-	  size is designed to hold two characters in two separate rows.*/
-	m_sBeatCounterButton = tr( "B\nC" );
-
 	/*: Text displayed on the button indicating that the Beat Counter will
 	  only set tempo. Its size is designed to hold one character.*/
 	m_sBeatCounterSetPlayButtonOff = tr( "S" );
