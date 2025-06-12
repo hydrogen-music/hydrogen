@@ -26,6 +26,7 @@ https://www.gnu.org/licenses
 #include "BeatCounter.h"
 #include "CpuLoadWidget.h"
 #include "MidiControlButton.h"
+#include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
@@ -427,6 +428,23 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 
+	m_pPopupMenu = new QMenu( this );
+	auto showBeatCounterAction = m_pPopupMenu->addAction(
+		tr( "Show BeatCounter" ) );
+	showBeatCounterAction->setCheckable( true );
+	showBeatCounterAction->setChecked(
+	 	pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON );
+	connect( showBeatCounterAction, &QAction::triggered, this, [=](){
+		if ( showBeatCounterAction->isChecked() ) {
+			pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_ON;
+		} else {
+			pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_OFF;
+		}
+		updateBeatCounter();
+	} );
+
+	////////////////////////////////////////////////////////////////////////////
+
 	updateBeatCounter();
 	updateBpmSpinBox();
 	updateJackTimebase();
@@ -662,21 +680,6 @@ void PlayerControl::bpmChanged( double fNewBpmValue ) {
 	}
 }
 
-//beatcounter
-void PlayerControl::activateBeatCounter()
-{
-	// auto pPref = Preferences::get_instance();
-	// if ( m_pBCOnOffBtn->isChecked() ) {
-	// 	pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_ON;
-	// 	HydrogenApp::get_instance()->showStatusBarMessage( tr(" BC Panel on") );
-	// }
-	// else {
-	// 	pPref->m_bBeatCounterOn = Preferences::BEAT_COUNTER_OFF;
-	// 	HydrogenApp::get_instance()->showStatusBarMessage( tr(" BC Panel off") );
-	// }
-	Hydrogen::get_instance()->updateBeatCounterSettings();
-}
-
 void PlayerControl::rubberbandButtonToggle()
 {
 	auto pPref = Preferences::get_instance();
@@ -705,6 +708,13 @@ void PlayerControl::rubberbandButtonToggle()
 	}
 
 	updatePlayerControl();
+}
+
+void PlayerControl::mousePressEvent( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+	if ( pEvent->button() == Qt::RightButton ) {
+		m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
+	}
 }
 
 void PlayerControl::beatCounterEvent() {

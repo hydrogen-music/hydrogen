@@ -68,6 +68,8 @@ public:
 
 		void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
+		void mousePressEvent( QMouseEvent* pEvent ) override;
+
 		virtual void beatCounterEvent() override;
 		virtual void driverChangedEvent() override;
 		virtual void jackTimebaseStateChangedEvent( int nState ) override;
@@ -94,8 +96,6 @@ private slots:
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
 	void metronomeButtonClicked();
-
-		void activateBeatCounter();
 
 	//rubberband
 	void rubberbandButtonToggle();
@@ -150,6 +150,8 @@ private:
 		Button* m_pShowInstrumentRackBtn;
 
 		StatusMessageDisplay* m_pStatusLabel;
+
+		QMenu* m_pPopupMenu;
 
 		void updateBeatCounter();
 		void updateBpmSpinBox();

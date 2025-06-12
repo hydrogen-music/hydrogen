@@ -3503,6 +3503,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Show BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistEditor</name>
