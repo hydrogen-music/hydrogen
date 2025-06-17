@@ -31,8 +31,6 @@
 #include "EventListener.h"
 #include "MainForm.h"
 
-#include <iostream>
-#include <cstdint>
 #include <memory>
 #include <set>
 #include <vector>
@@ -53,23 +51,19 @@ namespace H2Core
 	class Song;
 }
 
-class SongEditorPanel;
-class PlayerControl;
-class PatternEditorPanel;
-class SongEditor;
-class Mixer;
 class AudioEngineInfoForm;
+class CommonStrings;
+class Director;
 class FilesystemInfoForm;
-class SimpleHTMLBrowser;
-class LadspaFXProperties;
-class LadspaFXInfo;
-class LadspaFXGroup;
+class InfoBar;
 class InstrumentRack;
+class LadspaFXProperties;
+class Mixer;
+class PatternEditorPanel;
+class PlayerControl;
 class PlaylistEditor;
 class SampleEditor;
-class Director;
-class InfoBar;
-class CommonStrings;
+class SongEditorPanel;
 
 /** \ingroup docGUI*/
 class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
