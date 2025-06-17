@@ -146,8 +146,14 @@ private:
 		ClickableLabel* m_pCpuLbl;
 		MidiControlButton* m_pMidiControlButton;
 
+		QWidget* m_pVisibilityGroup;
 		Button* m_pShowMixerBtn;
 		Button* m_pShowInstrumentRackBtn;
+		Button* m_pShowPreferencesBtn;
+		Button* m_pShowDirectorBtn;
+		Button* m_pShowPlaylistEditorBtn;
+		Button* m_pShowAutomationBtn;
+		Button* m_pShowPlaybackTrackBtn;
 
 		StatusMessageDisplay* m_pStatusLabel;
 

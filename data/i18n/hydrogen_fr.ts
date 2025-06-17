@@ -3511,6 +3511,26 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Show BeatCounter</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Show Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playlist Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playback Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistEditor</name>

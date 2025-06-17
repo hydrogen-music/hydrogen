@@ -32,6 +32,7 @@ https://www.gnu.org/licenses
 #include "../InstrumentRack.h"
 #include "../Mixer/Mixer.h"
 #include "../Skin.h"
+#include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
@@ -80,6 +81,11 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->setSpacing( 2 );
 	pMainLayout->setAlignment( Qt::AlignLeft );
 	pMainToolbar->setLayout( pMainLayout );
+
+	const auto buttonSize = QSize(
+		PlayerControl::nHeight - 7, PlayerControl::nHeight - 12 );
+	const auto iconSize = QSize(
+		PlayerControl::nHeight - 9, PlayerControl::nHeight - 14 );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeGroup = new QWidget( this );
@@ -387,34 +393,92 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pOthersGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 	pOthersGroupLayout->setSpacing( 1 );
 
-	auto pOthersButtonsGroup = new QWidget( pOthersGroup );
-	pOthersGroupLayout->addWidget( pOthersButtonsGroup );
-	auto pOthersButtonsGroupLayout = new QHBoxLayout( pOthersButtonsGroup );
-	pOthersButtonsGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pOthersButtonsGroupLayout->setSpacing( 2 );
+	m_pVisibilityGroup = new QWidget( pOthersGroup );
+	m_pVisibilityGroup->setObjectName( "GroupBox" );
+	pOthersGroupLayout->addWidget( m_pVisibilityGroup );
+	auto pVisibilityLayout = new QHBoxLayout( m_pVisibilityGroup );
+	pVisibilityLayout->setContentsMargins( 0, 0, 0, 0 );
+	pVisibilityLayout->setSpacing( 2 );
+
+	const auto visibilityButtonSize = QSize(
+		PlayerControl::nHeight / 2 + 2, PlayerControl::nHeight / 2 - 2 );
 
 	m_pShowMixerBtn = new Button(
-		pOthersButtonsGroup, QSize( 88, modeButtonSize.height() + 2 ),
-		Button::Type::Toggle, "", pCommonStrings->getMixerButton(), QSize(),
+		m_pVisibilityGroup, visibilityButtonSize,
+		Button::Type::Toggle, "", "M", QSize(),
+		//Button::Type::Toggle, "", pCommonStrings->getMixerButton(), QSize(),
 		tr( "Show mixer" ) );
 	m_pShowMixerBtn->setChecked( pPref->getMixerProperties().visible );
 	connect( m_pShowMixerBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerBtn->isChecked() ); });
-	pOthersButtonsGroupLayout->addWidget( m_pShowMixerBtn );
+	pVisibilityLayout->addWidget( m_pShowMixerBtn );
 
 	m_pShowInstrumentRackBtn = new Button(
-		pOthersButtonsGroup, QSize( 168, modeButtonSize.height() + 2 ),
-		Button::Type::Toggle, "", pCommonStrings->getInstrumentRackButton(),
+		m_pVisibilityGroup, visibilityButtonSize,
+		Button::Type::Toggle, "", "I",
+		//Button::Type::Toggle, "", pCommonStrings->getInstrumentRackButton(),
 		QSize(), tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setChecked(
 		pPref->getInstrumentRackProperties().visible );
 	connect( m_pShowInstrumentRackBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showInstrumentRack(
 			m_pShowInstrumentRackBtn->isChecked() ); });
-	pOthersButtonsGroupLayout->addWidget( m_pShowInstrumentRackBtn );
+	pVisibilityLayout->addWidget( m_pShowInstrumentRackBtn );
+
+	m_pShowDirectorBtn = new Button(
+		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "D",
+		QSize(), tr( "Show Director" ) );
+	m_pShowDirectorBtn->setChecked( false );
+	connect( m_pShowDirectorBtn, &Button::clicked, [&]() {
+		HydrogenApp::get_instance()->showDirector();
+	});
+	pVisibilityLayout->addWidget( m_pShowDirectorBtn );
+
+	m_pShowPlaylistEditorBtn = new Button(
+		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "P",
+		QSize(), tr( "Show Playlist Editor" ) );
+	m_pShowPlaylistEditorBtn->setChecked( false );
+	connect( m_pShowPlaylistEditorBtn, &Button::clicked, [&]() {
+		HydrogenApp::get_instance()->showPlaylistEditor();
+	});
+	pVisibilityLayout->addWidget( m_pShowPlaylistEditorBtn );
+
+	m_pShowAutomationBtn = new Button(
+		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "A",
+		QSize(), tr( "Show Automation" ) );
+	m_pShowAutomationBtn->setChecked( false );
+	connect( m_pShowAutomationBtn, &Button::clicked, [&]() {
+		HydrogenApp::get_instance()->getSongEditorPanel()->
+			toggleAutomationAreaVisibility();
+	});
+	pVisibilityLayout->addWidget( m_pShowAutomationBtn );
+
+	m_pShowPlaybackTrackBtn = new Button(
+		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "P",
+		QSize(), tr( "Show Playback Track" ) );
+	m_pShowPlaybackTrackBtn->setChecked( false );
+	connect( m_pShowPlaybackTrackBtn, &Button::clicked, [=]() {
+		if ( m_pShowPlaybackTrackBtn->isChecked() ) {
+			HydrogenApp::get_instance()->getSongEditorPanel()->
+				showTimeline();
+		} else {
+			HydrogenApp::get_instance()->getSongEditorPanel()->
+				showPlaybackTrack();
+		}
+	});
+	pVisibilityLayout->addWidget( m_pShowPlaybackTrackBtn );
+
+	m_pShowPreferencesBtn = new Button(
+		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "P",
+		QSize(), tr( "Show Preferences" ) );
+	m_pShowPreferencesBtn->setChecked( false );
+	connect( m_pShowPreferencesBtn, &Button::clicked, [&]() {
+		HydrogenApp::get_instance()->showPreferencesDialog();
+	});
+	pVisibilityLayout->addWidget( m_pShowPreferencesBtn );
 
 	m_pStatusLabel = new StatusMessageDisplay(
-		pOthersGroup, QSize( 260, modeButtonSize.height() + 2 ) );
+		pOthersGroup, QSize( 260, visibilityButtonSize.height() + 2 ) );
 	pOthersGroupLayout->addWidget( m_pStatusLabel );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -980,4 +1044,5 @@ QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
 	m_pRubberBandGroup->setStyleSheet( sGroupStyleSheet );
 	m_pJackGroup->setStyleSheet( sGroupStyleSheet );
 	m_pSystemGroup->setStyleSheet( sGroupStyleSheet );
+	m_pVisibilityGroup->setStyleSheet( sGroupStyleSheet );
 }
