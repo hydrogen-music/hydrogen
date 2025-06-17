@@ -61,8 +61,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	m_pHydrogen = Hydrogen::get_instance();
-
 	setFixedHeight( PlayerControl::nHeight );
 	setFocusPolicy( Qt::ClickFocus );
 	setObjectName( "PlayerControl" );
@@ -640,7 +638,7 @@ void PlayerControl::updateSongEvent( int nValue ) {
 
 /// Toggle record mode
 void PlayerControl::recBtnClicked() {
-	if ( m_pHydrogen->getAudioEngine()->getState() !=
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() !=
 		 H2Core::AudioEngine::State::Playing ) {
 		if ( m_pRecBtn->isChecked() ) {
 			Preferences::get_instance()->setRecordEvents(true);
@@ -658,11 +656,12 @@ void PlayerControl::recBtnClicked() {
 /// Start audio engine
 void PlayerControl::playBtnClicked() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
-	if ( m_pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(m_pHydrogen->getAudioOutput()) != nullptr ) {
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
 		QMessageBox::warning( this, "Hydrogen",
 							   QString( "%1\n%2" )
 							  .arg( pCommonStrings->getAudioDriverNotPresent() )
@@ -671,11 +670,11 @@ void PlayerControl::playBtnClicked() {
 	}
 	
 	if ( m_pPlayBtn->isChecked() ) {
-		m_pHydrogen->sequencerPlay();
+		pHydrogen->sequencerPlay();
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Playing.") );
 	}
 	else {
-		m_pHydrogen->sequencerStop();
+		pHydrogen->sequencerStop();
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Pause.") );
 	}
 }
@@ -684,11 +683,12 @@ void PlayerControl::playBtnClicked() {
 void PlayerControl::stopBtnClicked()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
-	if ( m_pHydrogen->getAudioOutput() == nullptr ||
-		 dynamic_cast<NullDriver*>(m_pHydrogen->getAudioOutput()) != nullptr ) {
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
 		QMessageBox::warning( this, "Hydrogen",
 							   QString( "%1\n%2" )
 							  .arg( pCommonStrings->getAudioDriverNotPresent() )
@@ -696,7 +696,7 @@ void PlayerControl::stopBtnClicked()
 		return;
 	}
 	
-	m_pHydrogen->sequencerStop();
+	pHydrogen->sequencerStop();
 	CoreActionController::locateToColumn( 0 );
 	(HydrogenApp::get_instance())->showStatusBarMessage( tr("Stopped.") );
 }
@@ -782,7 +782,7 @@ void PlayerControl::beatCounterEvent() {
 
 void PlayerControl::jackTransportBtnClicked()
 {
-	if ( !m_pHydrogen->hasJackAudioDriver() ) {
+	if ( ! Hydrogen::get_instance()->hasJackAudioDriver() ) {
 		QMessageBox::warning(
 			this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
@@ -803,7 +803,7 @@ void PlayerControl::jackTransportBtnClicked()
 void PlayerControl::jackTimebaseBtnClicked()
 {
 #ifdef H2CORE_HAVE_JACK
-	if ( !m_pHydrogen->hasJackTransport() ) {
+	if ( ! Hydrogen::get_instance()->hasJackTransport() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
 	}

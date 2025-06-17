@@ -32,11 +32,6 @@
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
-namespace H2Core
-{
-	class Hydrogen;
-}
-
 class BeatCounter;
 class Button;
 class ClickableLabel;
@@ -103,8 +98,6 @@ private slots:
 		void updateTime();
 private:
 		void updateStyleSheet();
-
-	H2Core::Hydrogen *m_pHydrogen;
 
 		QWidget* m_pTimeGroup;
 		LCDDisplay* m_pTimeDisplay;
