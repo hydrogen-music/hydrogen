@@ -135,19 +135,16 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pSongModeGroup = new QWidget( this );
-	m_pSongModeGroup->setFixedWidth( 61 );
 	m_pSongModeGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pSongModeGroup );
-	auto pSongModeGroupLayout = new QVBoxLayout( m_pSongModeGroup );
+	auto pSongModeGroupLayout = new QHBoxLayout( m_pSongModeGroup );
 	pSongModeGroupLayout->setContentsMargins( 2, 2, 2, 1 );
-	pSongModeGroupLayout->setSpacing( 1 );
-
-	const auto modeButtonSize = QSize(
-		m_pSongModeGroup->width() - 4, PlayerControl::nHeight / 2 - 4 );
+	pSongModeGroupLayout->setSpacing( 3 );
 
 	m_pPatternModeBtn = new Button(
-		m_pSongModeGroup, modeButtonSize, Button::Type::Toggle, "",
-		pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
+		m_pSongModeGroup, buttonSize, Button::Type::Toggle, "",
+		"P", QSize(), tr( "Pattern Mode" ),
+		//pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
 		false, true );
 	m_pPatternModeBtn->setObjectName( "PlayerControlPatternModeButton" );
 	connect( m_pPatternModeBtn, &QPushButton::clicked,
@@ -155,8 +152,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pSongModeGroupLayout->addWidget( m_pPatternModeBtn );
 
 	m_pSongModeBtn = new Button(
-		m_pSongModeGroup, modeButtonSize, Button::Type::Toggle, "",
-		pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
+		m_pSongModeGroup, buttonSize, Button::Type::Toggle, "",
+		"S", QSize(), tr( "Song Mode" ),
+		//pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
 		false, true );
 	m_pSongModeBtn->setObjectName( "PlayerControlSongModeButton" );
 	connect( m_pSongModeBtn, &QPushButton::clicked,
@@ -170,11 +168,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	auto pTransportGroupLayout = new QHBoxLayout( m_pTransportGroup );
 	pTransportGroupLayout->setContentsMargins( 2, 1, 2, 1 );
 	pTransportGroupLayout->setSpacing( 3 );
-
-	const auto buttonSize = QSize(
-		PlayerControl::nHeight - 7, PlayerControl::nHeight - 12 );
-	const auto iconSize = QSize(
-		PlayerControl::nHeight - 9, PlayerControl::nHeight - 14 );
 
 	// Rewind button
 	m_pRwdBtn = new Button(
@@ -307,14 +300,13 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandGroup = new QWidget( this );
-	m_pRubberBandGroup->setFixedWidth( 13 );
 	m_pRubberBandGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pRubberBandGroup );
 	auto pRubberBandGroupLayout = new QHBoxLayout( m_pRubberBandGroup );
 	pRubberBandGroupLayout->setContentsMargins( 2, 1, 2, 1 );
 
 	m_pRubberBPMChange = new Button(
-		m_pRubberBandGroup, QSize( 13, 42 ), Button::Type::Toggle, "",
+		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "",
 		pCommonStrings->getRubberbandButton(), QSize(),
 		tr( "Recalculate Rubberband modified samples if bpm will change" ),
 		false, true );
@@ -331,15 +323,15 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	////////////////////////////////////////////////////////////////////////////
 	m_pJackGroup = new QWidget( this );
 	m_pJackGroup->setObjectName( "JackPanel" );
-	m_pJackGroup->setFixedWidth( 61 );
 	pMainLayout->addWidget( m_pJackGroup );
-	auto pJackGroupLayout = new QVBoxLayout( m_pJackGroup );
+	auto pJackGroupLayout = new QHBoxLayout( m_pJackGroup );
 	pJackGroupLayout->setContentsMargins( 2, 2, 2, 1 );
-	pJackGroupLayout->setSpacing( 1 );
+	pJackGroupLayout->setSpacing( 3 );
 
 	m_pJackTransportBtn = new Button(
-		m_pJackGroup, modeButtonSize, Button::Type::Toggle, "",
-		pCommonStrings->getJackTransportButton(), QSize(),
+		m_pJackGroup, buttonSize, Button::Type::Toggle, "",
+		"J", QSize(),
+		//pCommonStrings->getJackTransportButton(), QSize(),
 		tr( "JACK transport on/off" ), false, true );
 	m_pJackTransportBtn->setObjectName( "PlayerControlJackTransportButton" );
 	connect( m_pJackTransportBtn, SIGNAL( clicked() ),
@@ -347,8 +339,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pJackGroupLayout->addWidget( m_pJackTransportBtn );
 
 	m_pJackTimebaseBtn = new Button(
-		m_pJackGroup, modeButtonSize, Button::Type::Toggle, "",
-		pCommonStrings->getJackTimebaseButton(), QSize(),
+		m_pJackGroup, buttonSize, Button::Type::Toggle, "",
+		"T", QSize(),
+		//pCommonStrings->getJackTimebaseButton(), QSize(),
 		pCommonStrings->getJackTimebaseTooltip(), false, true );
 	m_pJackTimebaseBtn->setObjectName( "PlayerControlJackTimebaseButton" );
 	connect( m_pJackTimebaseBtn, SIGNAL( clicked() ), this,
