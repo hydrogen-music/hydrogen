@@ -35,7 +35,6 @@
 class BeatCounter;
 class Button;
 class ClickableLabel;
-class CpuLoadWidget;
 class LCDSpinBox;
 class LCDDisplay;
 class LED;
@@ -132,8 +131,6 @@ private:
 		Button* m_pJackTimebaseBtn;
 
 		QWidget* m_pSystemGroup;
-		CpuLoadWidget* m_pCpuLoadWidget;
-		ClickableLabel* m_pCpuLbl;
 		MidiControlButton* m_pMidiControlButton;
 
 		QWidget* m_pVisibilityGroup;

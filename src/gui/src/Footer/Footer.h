@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <chrono>
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -48,6 +49,7 @@ class Footer : public QWidget,
 public:
 
 		static constexpr int nHeight = 23;
+		static constexpr std::chrono::seconds cpuTimeout{ 1 };
 
 		explicit Footer(QWidget *parent);
 		~Footer();
@@ -59,6 +61,9 @@ public:
 
 public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
+
+private slots:
+		void updateCpuLoad();
 
 private:
 		void updateStyleSheet();

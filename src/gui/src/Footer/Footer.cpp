@@ -66,13 +66,15 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pCpuGroup = new QWidget( pMainFooter );
+	m_pCpuGroup->setFixedWidth( 102 );
 	m_pCpuGroup->setObjectName( "GroupBox" );
 	pMainFooterLayout->addWidget( m_pCpuGroup );
 	auto pCpuGroupLayout = new QVBoxLayout( m_pCpuGroup );
 	pCpuGroupLayout->setContentsMargins( 2, 2, 2, 1 );
-	pCpuGroupLayout->setSpacing( 0 );
-	m_pCpuLabel = new QLabel( "CPU: 954%", m_pCpuGroup );
+	m_pCpuLabel = new QLabel( m_pCpuGroup );
+	m_pCpuLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	m_pCpuLabel->setObjectName( "FooterCpusLabel" );
+	m_pCpuLabel->setContentsMargins( 5, 0, 5, 0 );
 	pCpuGroupLayout->addWidget( m_pCpuLabel );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -81,15 +83,23 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 	pMainFooterLayout->addWidget( m_pXRunGroup );
 	auto pXRunGroupLayout = new QHBoxLayout( m_pXRunGroup );
 	pXRunGroupLayout->setContentsMargins( 2, 2, 2, 1 );
-	pXRunGroupLayout->setSpacing( 3 );
 
 	m_pXRunLabel = new QLabel( "XRuns: 9933", m_pXRunGroup );
 	m_pXRunLabel->setObjectName( "FooterXRunsLabel" );
+	m_pXRunLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
+	m_pXRunLabel->setContentsMargins( 5, 0, 5, 0 );
 	pXRunGroupLayout->addWidget( m_pXRunLabel );
 
 	////////////////////////////////////////////////////////////////////////////
 
+	auto pCpuTimer = new QTimer( this );
+	connect( pCpuTimer, SIGNAL( timeout() ), this, SLOT( updateCpuLoad() ) );
+	pCpuTimer->start( Footer::cpuTimeout );
+
+	////////////////////////////////////////////////////////////////////////////
+
 	updateStyleSheet();
+	updateCpuLoad();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 }
@@ -118,6 +128,19 @@ void Footer::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
 	}
+}
+
+void Footer::updateCpuLoad() {
+	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	int nPercentage = 0;
+	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
+		nPercentage = std::clamp(
+			static_cast<int>(
+				std::round( pAudioEngine->getProcessTime() /
+							pAudioEngine->getMaxProcessTime() * 100 ) ), 0, 100 );
+	}
+
+	m_pCpuLabel->setText( QString( "CPU: %1%" ).arg( nPercentage ) );
 }
 
 void Footer::updateStyleSheet() {

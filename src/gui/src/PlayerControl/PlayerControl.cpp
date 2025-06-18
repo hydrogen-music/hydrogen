@@ -24,7 +24,6 @@ https://www.gnu.org/licenses
 #include "PlayerControl.h"
 
 #include "BeatCounter.h"
-#include "CpuLoadWidget.h"
 #include "MidiControlButton.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
@@ -348,31 +347,14 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	////////////////////////////////////////////////////////////////////////////
 	m_pSystemGroup = new QWidget( this );
 	m_pSystemGroup->setObjectName( "GroupBox" );
-	m_pSystemGroup->setFixedWidth( 100 );
+	m_pSystemGroup->setFixedWidth( buttonSize.width() * 3 + 4 );
 	pMainLayout->addWidget( m_pSystemGroup );
 	auto pSystemGroupLayout = new QVBoxLayout( m_pSystemGroup );
 	pSystemGroupLayout->setContentsMargins( 2, 2, 2, 2 );
-	pSystemGroupLayout->setSpacing( 0 );
-
-	auto pSystemCpuGroup = new QWidget( m_pSystemGroup );
-	pSystemGroupLayout->addWidget( pSystemCpuGroup );
-	auto pSystemCpuGroupLayout = new QVBoxLayout( pSystemCpuGroup );
-	pSystemCpuGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pSystemCpuGroupLayout->setSpacing( 2 );
-
-	m_pCpuLoadWidget = new CpuLoadWidget( pSystemCpuGroup );
-	m_pCpuLoadWidget->setObjectName( "CpuLoadWidget" );
-	pSystemCpuGroupLayout->addWidget( m_pCpuLoadWidget );
-	m_pCpuLbl = new ClickableLabel(
-		pSystemCpuGroup, QSize( 96, PlayerControl::nLabelHeight ),
-		pCommonStrings->getCpuLabel() );
-	m_pCpuLbl->setAlignment( Qt::AlignLeft );
-	m_pCpuLbl->setIndent( 10 );
-	pSystemCpuGroupLayout->addWidget( m_pCpuLbl );
 
 	m_pMidiControlButton = new MidiControlButton( m_pSystemGroup );
 	m_pMidiControlButton->setFixedSize(
-		96, PlayerControl::nHeight / 2 - 4 );
+		buttonSize.width() * 3, buttonSize.height() );
 	pSystemGroupLayout->addWidget( m_pMidiControlButton );
 
 	////////////////////////////////////////////////////////////////////////////
