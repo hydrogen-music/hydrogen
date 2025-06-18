@@ -50,6 +50,7 @@ public:
 
 		static constexpr int nHeight = 23;
 		static constexpr std::chrono::seconds cpuTimeout{ 1 };
+		static constexpr int nCpuLoadWarningThreshold = 90;
 
 		explicit Footer(QWidget *parent);
 		~Footer();
@@ -77,6 +78,7 @@ private:
 		QLabel* m_pXRunLabel;
 
 		int m_nXRuns;
+		bool m_bCpuLoadWarning;
 };
 
 

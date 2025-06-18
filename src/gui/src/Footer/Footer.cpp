@@ -33,6 +33,7 @@ using namespace H2Core;
 
 Footer::Footer( QWidget* pParent) : QWidget( pParent )
 								  , m_nXRuns( 0 )
+								  , m_bCpuLoadWarning( false )
 {
 	const auto pPref = Preferences::get_instance();
 	const auto pSong = Hydrogen::get_instance()->getSong();
@@ -140,6 +141,17 @@ void Footer::updateCpuLoad() {
 							pAudioEngine->getMaxProcessTime() * 100 ) ), 0, 100 );
 	}
 
+	if ( nPercentage >= Footer::nCpuLoadWarningThreshold &&
+		 ! m_bCpuLoadWarning ) {
+		m_bCpuLoadWarning = true;
+		updateStyleSheet();
+	}
+	else if ( nPercentage < Footer::nCpuLoadWarningThreshold &&
+		 m_bCpuLoadWarning ) {
+		m_bCpuLoadWarning = false;
+		updateStyleSheet();
+	}
+
 	m_pCpuLabel->setText( QString( "CPU: %1%" ).arg( nPercentage ) );
 }
 
@@ -152,6 +164,7 @@ void Footer::updateStyleSheet() {
 	const QColor colorFooter =
 		colorTheme.m_windowColor.lighter( 134 );
 	const QColor colorFooterLighter = colorFooter.lighter( 130 );
+	const QColor colorRed = colorTheme.m_buttonRedColor;
 
 	setStyleSheet( QString( "\
 QWidget#MainFooter {\
@@ -169,6 +182,16 @@ QWidget#GroupBox {\
     border-radius: 2px;\
 }" )
 		.arg( colorFooterLighter.name() ).arg( colorText.name() );
+
 	m_pCpuGroup->setStyleSheet( sGroupStyleSheet );
 	m_pXRunGroup->setStyleSheet( sGroupStyleSheet );
+
+	if ( m_bCpuLoadWarning ) {
+		m_pCpuLabel->setStyleSheet(
+			QString( "color: %1;" ).arg( colorRed.name() ) );
+	}
+	else {
+		m_pCpuLabel->setStyleSheet(
+			QString( "color: %1;" ).arg( colorText.name() ) );
+	}
 }
