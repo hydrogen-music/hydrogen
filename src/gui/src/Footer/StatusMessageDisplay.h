@@ -24,12 +24,13 @@
 #define STATUS_MESSAGE_Display_H
 
 
-#include "LCDDisplay.h"
+#include "../Widgets/LCDDisplay.h"
 
 /** Non-interactive display for status messages in the
 	#PlayerControl. Shows a popup list of previous messages when clicking it.*/
 /** \ingroup docGUI docWidgets*/
-class StatusMessageDisplay : public LCDDisplay, public H2Core::Object<StatusMessageDisplay>
+class StatusMessageDisplay : public LCDDisplay,
+							 public H2Core::Object<StatusMessageDisplay>
 {
     H2_OBJECT(StatusMessageDisplay)
 	Q_OBJECT
@@ -82,14 +83,15 @@ private:
 	
 	bool m_bEntered;
 		
-	virtual void paintEvent( QPaintEvent *ev ) override;
 #ifdef H2CORE_HAVE_QT6
-		virtual void enterEvent( QEnterEvent *ev ) override;
+		void enterEvent( QEnterEvent *ev ) override;
 #else
-		virtual void enterEvent( QEvent *ev ) override;
+		void enterEvent( QEvent *ev ) override;
 #endif
-	virtual void leaveEvent( QEvent *ev ) override;
-	virtual void mousePressEvent( QMouseEvent* ev ) override;
+	void leaveEvent( QEvent *ev ) override;
+	void mousePressEvent( QMouseEvent* ev ) override;
+	void paintEvent( QPaintEvent *ev ) override;
+	void resizeEvent( QResizeEvent* ev ) override;
 };
 
 #endif

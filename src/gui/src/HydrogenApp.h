@@ -55,6 +55,7 @@ class AudioEngineInfoForm;
 class CommonStrings;
 class Director;
 class FilesystemInfoForm;
+class Footer;
 class InfoBar;
 class InstrumentRack;
 class LadspaFXProperties;
@@ -114,16 +115,18 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void setHideKeyboardCursor( bool bHidden );
 
 		AudioEngineInfoForm*		getAudioEngineInfoForm();
+		std::shared_ptr<CommonStrings>			getCommonStrings();
 		Director*			getDirector();
-		Mixer*				getMixer();
+		Footer*			getFooter();
+		InstrumentRack*			getInstrumentRack();
 		MainForm*			getMainForm();
-		SongEditorPanel*		getSongEditorPanel();
-		PlaylistEditor*			getPlaylistEditor();
-		SampleEditor*			getSampleEditor();
+		Mixer*				getMixer();
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
-		InstrumentRack*			getInstrumentRack();
-	std::shared_ptr<CommonStrings>			getCommonStrings();
+		PlaylistEditor*			getPlaylistEditor();
+		SampleEditor*			getSampleEditor();
+		SongEditorPanel*		getSongEditorPanel();
+
 		InfoBar *			addInfoBar();
 
 		/** If a non-empty @a sContext is provided, all successive undo commands
@@ -215,24 +218,28 @@ signals:
 		 * has to be shrunk below its minimum size - magnified using the Qt
 		 * scale factor so its efficitive size is below the minimum one. */
 		QScrollArea*				m_pMainScrollArea;
+		QVBoxLayout *				m_pMainVBox;
+		QTabWidget *				m_pTab;
+		QSplitter *					m_pSplitter;
+
 		MainForm *					m_pMainForm;
+
+		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
+		Director *					m_pDirector;
+		FilesystemInfoForm *		m_pFilesystemInfoForm;
+		Footer *					m_pFooter;
+		InstrumentRack*				m_pInstrumentRack;
 		Mixer *						m_pMixer;
 		PatternEditorPanel*			m_pPatternEditorPanel;
-		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
-		FilesystemInfoForm *		m_pFilesystemInfoForm;
-		SongEditorPanel *			m_pSongEditorPanel;
-		InstrumentRack*				m_pInstrumentRack;
 		PlayerControl *				m_pPlayerControl;
 		PlaylistEditor *			m_pPlaylistEditor;
 		SampleEditor *				m_pSampleEditor;
-		Director *					m_pDirector;
+		SongEditorPanel *			m_pSongEditorPanel;
+
 		QTimer *					m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;
 		std::set<EventListener*> m_eventListenersToAdd;
 		std::set<EventListener*> m_eventListenersToRemove;
-		QTabWidget *				m_pTab;
-		QSplitter *					m_pSplitter;
-		QVBoxLayout *				m_pMainVBox;
 		std::shared_ptr<CommonStrings>				m_pCommonStrings;
 
 		bool						m_bHideKeyboardCursor;
@@ -344,6 +351,10 @@ inline PlaylistEditor* HydrogenApp::getPlaylistEditor()
 inline Director* HydrogenApp::getDirector()
 {
 	return m_pDirector;
+}
+
+inline Footer* HydrogenApp::getFooter() {
+	return m_pFooter;
 }
 
 inline SampleEditor* HydrogenApp::getSampleEditor()

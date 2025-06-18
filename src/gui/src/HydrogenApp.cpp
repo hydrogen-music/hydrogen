@@ -37,6 +37,7 @@
 #include "AudioEngineInfoForm.h"
 #include "CommonStrings.h"
 #include "Director.h"
+#include "Footer/Footer.h"
 #include "FilesystemInfoForm.h"
 #include "InstrumentRack.h"
 #include "LadspaFXProperties.h"
@@ -207,6 +208,7 @@ HydrogenApp::~HydrogenApp()
 	delete m_pMixer;
 	delete m_pPlaylistEditor;
 	delete m_pDirector;
+	delete m_pFooter;
 	delete m_pSampleEditor;
 
 	if ( m_pTab ) {
@@ -300,6 +302,8 @@ void HydrogenApp::setupSinglePanedInterface()
 	// PLayer control
 	m_pPlayerControl = new PlayerControl( nullptr );
 
+	m_pFooter = new Footer( nullptr );
+
 	QWidget *mainArea = new QWidget( m_pMainForm );	// this is the main widget
 	m_pMainForm->setCentralWidget( mainArea );
 
@@ -315,6 +319,8 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pMainVBox->addWidget( m_pTab );
 	}
 
+	m_pMainVBox->addWidget( m_pFooter );
+
 	mainArea->setLayout( m_pMainVBox );
 
 	mainArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
@@ -325,6 +331,7 @@ void HydrogenApp::setupSinglePanedInterface()
 							  InstrumentRack::m_nMinimumHeight +
 							  SongEditorPositionRuler::m_nMinimumHeight +
 							  SongEditor::m_nMinimumHeight +
+							  Footer::nHeight +
 							  AutomationPathView::m_nMinimumHeight );
 
 	m_pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
@@ -777,8 +784,8 @@ void HydrogenApp::showPreferencesDialog()
 
 void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& sCaller )
 {
-	if ( m_pPlayerControl != nullptr ) {
-		m_pPlayerControl->showStatusBarMessage( sMessage, sCaller );
+	if ( m_pFooter != nullptr ) {
+		m_pFooter->showStatusBarMessage( sMessage, sCaller );
 	}
 }
 

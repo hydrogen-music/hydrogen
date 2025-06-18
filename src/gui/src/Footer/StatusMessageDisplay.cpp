@@ -75,7 +75,7 @@ void StatusMessageDisplay::updateStyleSheet() {
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
 
 	QColor textColor = theme.m_color.m_windowTextColor;
-	QColor backgroundColor = theme.m_color.m_windowColor;
+	QColor backgroundColor = theme.m_color.m_windowColor.lighter( 134 );
 
 	QString sStyleSheet = QString( "\
 QLineEdit { \
@@ -109,7 +109,7 @@ void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {
 		pen.setColor( colorHighlightActive );
 		pen.setWidth( 3 );
 		painter.setPen( pen );
-		painter.drawRoundedRect( QRect( 0, 0, m_size.width() - 1, m_size.height() - 1 ), 3, 3 );
+		painter.drawRoundedRect( QRect( 0, 0, width() - 1, height() - 1 ), 3, 3 );
 	}
 }
 
@@ -144,6 +144,10 @@ void StatusMessageDisplay::mousePressEvent( QMouseEvent* ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	messageMenu->popup( pEv->globalPosition().toPoint() );
+}
+
+void StatusMessageDisplay::resizeEvent( QResizeEvent* pEvent ) {
+	updateMaxLength();
 }
 
 void StatusMessageDisplay::showMessage( const QString& sMessage, const QString& sCaller ) {
@@ -216,9 +220,8 @@ void StatusMessageDisplay::reset()
 
 void StatusMessageDisplay::updateMaxLength()
 {
-	QString sLongString( "ThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFonts" );
-	setMaxLength( 120 );
-	
+	QString sLongString( "ThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFontsThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFontsThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFontsThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFontsThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFontsThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFontsThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFonts" );
+
 	while ( fontMetrics().size( Qt::TextSingleLine, sLongString ).width() >
 			width() && ! sLongString.isEmpty() ) {
 		sLongString.chop( 1 );

@@ -41,7 +41,6 @@ class LCDDisplay;
 class LED;
 class MetronomeLED;
 class MidiControlButton;
-class StatusMessageDisplay;
 
 /** \ingroup docGUI*/
 class PlayerControl : public QWidget,
@@ -60,8 +59,6 @@ public:
 		~PlayerControl();
 
 		void updatePlayerControl();
-
-		void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
 		void mousePressEvent( QMouseEvent* pEvent ) override;
 
@@ -147,8 +144,6 @@ private:
 		Button* m_pShowPlaylistEditorBtn;
 		Button* m_pShowAutomationBtn;
 		Button* m_pShowPlaybackTrackBtn;
-
-		StatusMessageDisplay* m_pStatusLabel;
 
 		QMenu* m_pPopupMenu;
 

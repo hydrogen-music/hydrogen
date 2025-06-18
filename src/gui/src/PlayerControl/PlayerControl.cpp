@@ -38,7 +38,6 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/LED.h"
 #include "../Widgets/Button.h"
-#include "../Widgets/StatusMessageDisplay.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -377,26 +376,15 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pSystemGroupLayout->addWidget( m_pMidiControlButton );
 
 	////////////////////////////////////////////////////////////////////////////
-	auto pOthersGroup = new QWidget( this );
-	pOthersGroup->setFixedWidth( 262 );
-	pMainLayout->addWidget( pOthersGroup );
-	auto pOthersGroupLayout = new QVBoxLayout( pOthersGroup );
-	pOthersGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pOthersGroupLayout->setSpacing( 1 );
-
-	m_pVisibilityGroup = new QWidget( pOthersGroup );
+	m_pVisibilityGroup = new QWidget( this );
 	m_pVisibilityGroup->setObjectName( "GroupBox" );
-	pOthersGroupLayout->addWidget( m_pVisibilityGroup );
+	pMainLayout->addWidget( m_pVisibilityGroup );
 	auto pVisibilityLayout = new QHBoxLayout( m_pVisibilityGroup );
 	pVisibilityLayout->setContentsMargins( 0, 0, 0, 0 );
 	pVisibilityLayout->setSpacing( 2 );
 
-	const auto visibilityButtonSize = QSize(
-		PlayerControl::nHeight / 2 + 2, PlayerControl::nHeight / 2 - 2 );
-
 	m_pShowMixerBtn = new Button(
-		m_pVisibilityGroup, visibilityButtonSize,
-		Button::Type::Toggle, "", "M", QSize(),
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "M", QSize(),
 		//Button::Type::Toggle, "", pCommonStrings->getMixerButton(), QSize(),
 		tr( "Show mixer" ) );
 	m_pShowMixerBtn->setChecked( pPref->getMixerProperties().visible );
@@ -405,8 +393,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowMixerBtn );
 
 	m_pShowInstrumentRackBtn = new Button(
-		m_pVisibilityGroup, visibilityButtonSize,
-		Button::Type::Toggle, "", "I",
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "I",
 		//Button::Type::Toggle, "", pCommonStrings->getInstrumentRackButton(),
 		QSize(), tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setChecked(
@@ -417,7 +404,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowInstrumentRackBtn );
 
 	m_pShowDirectorBtn = new Button(
-		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "D",
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "D",
 		QSize(), tr( "Show Director" ) );
 	m_pShowDirectorBtn->setChecked( false );
 	connect( m_pShowDirectorBtn, &Button::clicked, [&]() {
@@ -426,7 +413,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowDirectorBtn );
 
 	m_pShowPlaylistEditorBtn = new Button(
-		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "P",
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "P",
 		QSize(), tr( "Show Playlist Editor" ) );
 	m_pShowPlaylistEditorBtn->setChecked( false );
 	connect( m_pShowPlaylistEditorBtn, &Button::clicked, [&]() {
@@ -435,7 +422,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowPlaylistEditorBtn );
 
 	m_pShowAutomationBtn = new Button(
-		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "A",
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "A",
 		QSize(), tr( "Show Automation" ) );
 	m_pShowAutomationBtn->setChecked( false );
 	connect( m_pShowAutomationBtn, &Button::clicked, [&]() {
@@ -445,7 +432,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowAutomationBtn );
 
 	m_pShowPlaybackTrackBtn = new Button(
-		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "P",
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "P",
 		QSize(), tr( "Show Playback Track" ) );
 	m_pShowPlaybackTrackBtn->setChecked( false );
 	connect( m_pShowPlaybackTrackBtn, &Button::clicked, [=]() {
@@ -460,17 +447,13 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowPlaybackTrackBtn );
 
 	m_pShowPreferencesBtn = new Button(
-		m_pVisibilityGroup, visibilityButtonSize, Button::Type::Toggle, "", "P",
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "P",
 		QSize(), tr( "Show Preferences" ) );
 	m_pShowPreferencesBtn->setChecked( false );
 	connect( m_pShowPreferencesBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showPreferencesDialog();
 	});
 	pVisibilityLayout->addWidget( m_pShowPreferencesBtn );
-
-	m_pStatusLabel = new StatusMessageDisplay(
-		pOthersGroup, QSize( 260, visibilityButtonSize.height() + 2 ) );
-	pOthersGroupLayout->addWidget( m_pStatusLabel );
 
 	////////////////////////////////////////////////////////////////////////////
 	pMainLayout->addStretch();
@@ -982,14 +965,6 @@ void PlayerControl::updateTransportControl() {
 	m_pPlayBtn->setChecked(
 		pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing );
 	m_pRecBtn->setChecked( pPref->getRecordEvents() );
-}
-
-void PlayerControl::showStatusBarMessage( const QString& sMessage,
-										  const QString& sCaller ) {
-	if ( H2Core::Hydrogen::get_instance()->getGUIState() ==
-		 H2Core::Hydrogen::GUIState::ready ) {
-		m_pStatusLabel->showMessage( sMessage, sCaller );
-	}
 }
 
 void PlayerControl::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
