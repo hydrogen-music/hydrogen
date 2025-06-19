@@ -67,6 +67,13 @@ private slots:
 		void updateCpuLoad();
 
 private:
+		/** We need to ensure the size of the widget is not constantly changing
+		 * when the CPU load changes from <10% to >=10%. On the other hand, we
+		 * do not want to reserve too much space either because "CPU: 100%" of
+		 * the largest font size has to fit in. Instead, we use a fixed size,
+		 * but one that varies with the selected font size. */
+		void updateCpuLoadLabelWidth();
+		void updateFont();
 		void updateStyleSheet();
 		void updateXRuns();
 

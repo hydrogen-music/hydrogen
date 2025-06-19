@@ -67,7 +67,6 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pCpuGroup = new QWidget( pMainFooter );
-	m_pCpuGroup->setFixedWidth( 102 );
 	m_pCpuGroup->setObjectName( "GroupBox" );
 	pMainFooterLayout->addWidget( m_pCpuGroup );
 	auto pCpuGroupLayout = new QVBoxLayout( m_pCpuGroup );
@@ -100,10 +99,15 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 	////////////////////////////////////////////////////////////////////////////
 
 	updateStyleSheet();
+	updateFont();
 	updateCpuLoad();
+	updateCpuLoadLabelWidth();
 	updateXRuns();
 
 	HydrogenApp::get_instance()->addEventListener( this );
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &Footer::onPreferencesChanged );
 }
 
 Footer::~Footer() {
@@ -132,6 +136,10 @@ void Footer::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
 	}
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		updateFont();
+		updateCpuLoadLabelWidth();
+	}
 }
 
 void Footer::updateCpuLoad() {
@@ -156,6 +164,24 @@ void Footer::updateCpuLoad() {
 	}
 
 	m_pCpuLabel->setText( QString( "CPU: %1%" ).arg( nPercentage ) );
+}
+
+void Footer::updateCpuLoadLabelWidth() {
+	const int nMargin = 4 * getPointSize(
+		H2Core::Preferences::get_instance()->getTheme().m_font.m_fontSize );
+	const QString sText{ "CPU: 100%" };
+
+	m_pCpuGroup->setFixedWidth(
+		nMargin * 2 + fontMetrics().size( Qt::TextSingleLine, sText ).width() );
+}
+
+void Footer::updateFont() {
+	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+
+	QFont newFont = font();
+	newFont.setFamily( theme.m_font.m_sLevel3FontFamily );
+	newFont.setPointSize( getPointSize( theme.m_font.m_fontSize ) );
+	setFont( newFont );
 }
 
 void Footer::updateStyleSheet() {
