@@ -85,7 +85,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 	auto pXRunGroupLayout = new QHBoxLayout( m_pXRunGroup );
 	pXRunGroupLayout->setContentsMargins( 2, 2, 2, 1 );
 
-	m_pXRunLabel = new QLabel( "XRuns: 9933", m_pXRunGroup );
+	m_pXRunLabel = new QLabel( m_pXRunGroup );
 	m_pXRunLabel->setObjectName( "FooterXRunsLabel" );
 	m_pXRunLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	m_pXRunLabel->setContentsMargins( 5, 0, 5, 0 );
@@ -101,6 +101,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 
 	updateStyleSheet();
 	updateCpuLoad();
+	updateXRuns();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 }
@@ -110,10 +111,12 @@ Footer::~Footer() {
 
 void Footer::driverChangedEvent() {
 	m_nXRuns = 0;
+	updateXRuns();
 }
 
 void Footer::XRunEvent() {
 	++m_nXRuns;
+	updateXRuns();
 }
 
 void Footer::showStatusBarMessage( const QString& sMessage,
@@ -194,4 +197,16 @@ QWidget#GroupBox {\
 		m_pCpuLabel->setStyleSheet(
 			QString( "color: %1;" ).arg( colorText.name() ) );
 	}
+}
+
+void Footer::updateXRuns() {
+	if ( m_nXRuns > 0 && ! m_pXRunGroup->isVisible() ) {
+		m_pXRunGroup->show();
+	}
+	else if ( m_nXRuns == 0 && m_pXRunGroup->isVisible() ) {
+		m_pXRunGroup->hide();
+		return;
+	}
+
+	m_pXRunLabel->setText( QString( "XRuns: %1" ).arg( m_nXRuns ) );
 }

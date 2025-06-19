@@ -68,6 +68,7 @@ private slots:
 
 private:
 		void updateStyleSheet();
+		void updateXRuns();
 
 		StatusMessageDisplay* m_pStatusMessageDisplay;
 
