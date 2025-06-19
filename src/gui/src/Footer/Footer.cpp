@@ -53,14 +53,14 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 	pOverallLayout->addWidget( pMainFooter );
 
 	auto pMainFooterLayout = new QHBoxLayout( pMainFooter );
-	pMainFooterLayout->setContentsMargins( 2, 2, 2, 2 );
-	pMainFooterLayout->setSpacing( 2 );
+	pMainFooterLayout->setContentsMargins( 0, 0, 0, 0 );
+	pMainFooterLayout->setSpacing( 1 );
 	pMainFooterLayout->setAlignment( Qt::AlignLeft );
 	pMainFooter->setLayout( pMainFooterLayout );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pStatusMessageDisplay = new StatusMessageDisplay( pMainFooter, QSize() );
-	m_pStatusMessageDisplay->setFixedHeight( Footer::nHeight - 2 );
+	m_pStatusMessageDisplay->setFixedHeight( Footer::nHeight );
 	m_pStatusMessageDisplay->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Fixed );
 	pMainFooterLayout->addWidget( m_pStatusMessageDisplay );
@@ -70,7 +70,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 	m_pCpuGroup->setObjectName( "GroupBox" );
 	pMainFooterLayout->addWidget( m_pCpuGroup );
 	auto pCpuGroupLayout = new QVBoxLayout( m_pCpuGroup );
-	pCpuGroupLayout->setContentsMargins( 2, 2, 2, 1 );
+	pCpuGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 	m_pCpuLabel = new QLabel( m_pCpuGroup );
 	m_pCpuLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	m_pCpuLabel->setObjectName( "FooterCpusLabel" );
@@ -82,7 +82,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 	m_pXRunGroup->setObjectName( "GroupBox" );
 	pMainFooterLayout->addWidget( m_pXRunGroup );
 	auto pXRunGroupLayout = new QHBoxLayout( m_pXRunGroup );
-	pXRunGroupLayout->setContentsMargins( 2, 2, 2, 1 );
+	pXRunGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 
 	m_pXRunLabel = new QLabel( m_pXRunGroup );
 	m_pXRunLabel->setObjectName( "FooterXRunsLabel" );
@@ -192,7 +192,6 @@ void Footer::updateStyleSheet() {
 	const QColor colorText = colorTheme.m_windowTextColor;
 	const QColor colorFooter =
 		colorTheme.m_windowColor.lighter( 134 );
-	const QColor colorFooterLighter = colorFooter.lighter( 130 );
 	const QColor colorRed = colorTheme.m_buttonRedColor;
 
 	setStyleSheet( QString( "\
@@ -210,7 +209,7 @@ QWidget#GroupBox {\
     border: 1px solid #000;\
     border-radius: 2px;\
 }" )
-		.arg( colorFooterLighter.name() ).arg( colorText.name() );
+		.arg( colorFooter.name() ).arg( colorText.name() );
 
 	m_pCpuGroup->setStyleSheet( sGroupStyleSheet );
 	m_pXRunGroup->setStyleSheet( sGroupStyleSheet );

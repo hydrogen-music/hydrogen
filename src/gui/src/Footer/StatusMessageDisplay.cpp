@@ -81,6 +81,7 @@ void StatusMessageDisplay::updateStyleSheet() {
 QLineEdit { \
     color: %1; \
     background-color: %2; \
+     border: 1px solid #000;\
 }" )
 		.arg( textColor.name() )
 		.arg( backgroundColor.name() );
