@@ -73,15 +73,21 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pOverallLayout->addWidget( pMainToolbar );
 
 	auto pMainLayout = new QHBoxLayout( pMainToolbar );
-	pMainLayout->setContentsMargins( 2, 2, 2, 2 );
-	pMainLayout->setSpacing( 2 );
+	pMainLayout->setContentsMargins(
+		PlayerControl::nMargin, PlayerControl::nMargin, PlayerControl::nMargin,
+		PlayerControl::nMargin );
+	pMainLayout->setSpacing( PlayerControl::nMargin );
 	pMainLayout->setAlignment( Qt::AlignLeft );
 	pMainToolbar->setLayout( pMainLayout );
 
+	const auto margins = QMargins(
+		PlayerControl::nMargin, PlayerControl::nMargin, PlayerControl::nMargin,
+		PlayerControl::nMargin );
+	const int nSpacing = PlayerControl::nMargin;
 	const auto buttonSize = QSize(
-		PlayerControl::nHeight - 7, PlayerControl::nHeight - 12 );
+		PlayerControl::nButtonWidth, PlayerControl::nWidgetHeight );
 	const auto iconSize = QSize(
-		PlayerControl::nHeight - 9, PlayerControl::nHeight - 14 );
+		PlayerControl::nButtonWidth - 2, PlayerControl::nWidgetHeight - 2 );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeGroup = new QWidget( this );
@@ -89,11 +95,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pTimeGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pTimeGroup );
 	auto pTimeGroupVBoxLayout = new QVBoxLayout( m_pTimeGroup );
-	pTimeGroupVBoxLayout->setContentsMargins( 2, 2, 2, 1 );
+	pTimeGroupVBoxLayout->setContentsMargins( margins );
 	pTimeGroupVBoxLayout->setSpacing( 0 );
 	m_pTimeDisplay = new LCDDisplay(
-		m_pTimeGroup, QSize( 146, PlayerControl::nHeight -
-							 PlayerControl::nLabelHeight - 9 ), true, false );
+		m_pTimeGroup, QSize( 146, PlayerControl::nWidgetHeight ), true, false );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:000" );
 	m_pTimeDisplay->setStyleSheet(
@@ -103,7 +108,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	auto pTimeGroupLabels = new QWidget( m_pTimeGroup );
 	pTimeGroupLabels->setFixedHeight( PlayerControl::nLabelHeight );
 	auto pTimeGroupLabelsHBoxLayout = new QHBoxLayout( pTimeGroupLabels );
-	pTimeGroupLabelsHBoxLayout->setContentsMargins( 2, 1, 2, 1 );
+	pTimeGroupLabelsHBoxLayout->setContentsMargins( margins );
 	pTimeGroupLabelsHBoxLayout->setSpacing( 0 );
 
 	m_pTimeHoursLbl = new ClickableLabel(
@@ -134,8 +139,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pSongModeGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pSongModeGroup );
 	auto pSongModeGroupLayout = new QHBoxLayout( m_pSongModeGroup );
-	pSongModeGroupLayout->setContentsMargins( 2, 2, 2, 1 );
-	pSongModeGroupLayout->setSpacing( 3 );
+	pSongModeGroupLayout->setAlignment( Qt::AlignTop );
+	pSongModeGroupLayout->setContentsMargins( margins );
+	pSongModeGroupLayout->setSpacing( nSpacing );
 
 	m_pPatternModeBtn = new Button(
 		m_pSongModeGroup, buttonSize, Button::Type::Toggle, "",
@@ -162,8 +168,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pTransportGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pTransportGroup );
 	auto pTransportGroupLayout = new QHBoxLayout( m_pTransportGroup );
-	pTransportGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pTransportGroupLayout->setSpacing( 3 );
+	pTransportGroupLayout->setAlignment( Qt::AlignTop );
+	pTransportGroupLayout->setContentsMargins( margins );
+	pTransportGroupLayout->setSpacing( nSpacing );
 
 	// Rewind button
 	m_pRwdBtn = new Button(
@@ -186,8 +193,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	// Play button
 	m_pPlayBtn = new Button(
-		m_pTransportGroup, buttonSize + QSize( 4, 4 ), Button::Type::Toggle,
-		"play_pause.svg", "", iconSize + QSize( 6, 6 ), tr( "Play/ Pause" ) );
+		m_pTransportGroup, buttonSize, Button::Type::Toggle,
+		"play_pause.svg", "", iconSize + QSize( 2, 2 ), tr( "Play/ Pause" ) );
 	m_pPlayBtn->setObjectName( "PlayerControlPlayButton" );
 	m_pPlayBtn->setChecked( false );
 	connect( m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( playBtnClicked() ));
@@ -253,11 +260,13 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pTempoGroup->setObjectName( "BPM" );
 	pMainLayout->addWidget( m_pTempoGroup );
 	auto pTempoGroupGridLayout = new QGridLayout( m_pTempoGroup );
-	pTempoGroupGridLayout->setContentsMargins( 2, 1, 2, 1 );
-	pTempoGroupGridLayout->setSpacing( 2 );
+	pTempoGroupGridLayout->setAlignment( Qt::AlignTop );
+	pTempoGroupGridLayout->setContentsMargins( margins );
+	pTempoGroupGridLayout->setSpacing( nSpacing );
 
 	m_pMetronomeBtn = new Button(
-		m_pTempoGroup, QSize( 24, 30 ), Button::Type::Toggle, "metronome.svg", "",
+		m_pTempoGroup, QSize( 24, PlayerControl::nWidgetHeight ),
+		Button::Type::Toggle, "metronome.svg", "",
 		QSize( 20, 20 ), tr( "Switch metronome on/off" ), false, true );
 	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
@@ -267,7 +276,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pTempoGroupGridLayout->addWidget( m_pMetronomeBtn, 0, 0 );
 
 	m_pMetronomeLED = new MetronomeLED(
-		m_pTempoGroup, QSize( 24, PlayerControl::nLabelHeight - 2 ) );
+		m_pTempoGroup, QSize( 24, PlayerControl::nLabelHeight ) );
 	pTempoGroupGridLayout->addWidget( m_pMetronomeLED, 1, 0 );
 
 	m_sLCDBPMSpinboxToolTip =
@@ -278,7 +287,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		tr( "In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK" );
 
 	m_pBpmSpinBox = new LCDSpinBox(
-		m_pTempoGroup, QSize( 95, 30 ), LCDSpinBox::Type::Double,
+		m_pTempoGroup, QSize( 95, PlayerControl::nWidgetHeight ),
+		LCDSpinBox::Type::Double,
 		static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ), true );
 	m_pBpmSpinBox->setStyleSheet(
 		m_pBpmSpinBox->styleSheet().append(
@@ -299,7 +309,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pRubberBandGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pRubberBandGroup );
 	auto pRubberBandGroupLayout = new QHBoxLayout( m_pRubberBandGroup );
-	pRubberBandGroupLayout->setContentsMargins( 2, 1, 2, 1 );
+	pRubberBandGroupLayout->setAlignment( Qt::AlignTop );
+	pRubberBandGroupLayout->setContentsMargins( margins );
 
 	m_pRubberBPMChange = new Button(
 		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "",
@@ -321,8 +332,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pJackGroup->setObjectName( "JackPanel" );
 	pMainLayout->addWidget( m_pJackGroup );
 	auto pJackGroupLayout = new QHBoxLayout( m_pJackGroup );
-	pJackGroupLayout->setContentsMargins( 2, 2, 2, 1 );
-	pJackGroupLayout->setSpacing( 3 );
+	pJackGroupLayout->setAlignment( Qt::AlignTop );
+	pJackGroupLayout->setContentsMargins( margins );
+	pJackGroupLayout->setSpacing( nSpacing );
 
 	m_pJackTransportBtn = new Button(
 		m_pJackGroup, buttonSize, Button::Type::Toggle, "",
@@ -350,7 +362,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pSystemGroup->setFixedWidth( buttonSize.width() * 3 + 4 );
 	pMainLayout->addWidget( m_pSystemGroup );
 	auto pSystemGroupLayout = new QVBoxLayout( m_pSystemGroup );
-	pSystemGroupLayout->setContentsMargins( 2, 2, 2, 2 );
+	pSystemGroupLayout->setAlignment( Qt::AlignTop );
+	pSystemGroupLayout->setContentsMargins( margins );
 
 	m_pMidiControlButton = new MidiControlButton( m_pSystemGroup );
 	m_pMidiControlButton->setFixedSize(
@@ -362,8 +375,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pVisibilityGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pVisibilityGroup );
 	auto pVisibilityLayout = new QHBoxLayout( m_pVisibilityGroup );
-	pVisibilityLayout->setContentsMargins( 0, 0, 0, 0 );
-	pVisibilityLayout->setSpacing( 2 );
+	pVisibilityLayout->setAlignment( Qt::AlignTop );
+	pVisibilityLayout->setContentsMargins( margins );
+	pVisibilityLayout->setSpacing( nSpacing );
 
 	m_pShowMixerBtn = new Button(
 		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "M", QSize(),
@@ -974,18 +988,20 @@ void PlayerControl::updateStyleSheet() {
 QWidget#MainToolbar {\
      background-color: %1; \
      color: %2; \
-     border: 1px solid #000;\
+     border: %3px solid #000;\
 }")
-				   .arg( colorToolbar.name() ).arg( colorText.name() ) );
+				   .arg( colorToolbar.name() ).arg( colorText.name() )
+				   .arg( PlayerControl::nBorder ) );
 
 	const QString sGroupStyleSheet = QString( "\
 QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
     background-color: %1;\
     color: %2;\
-    border: 1px solid #000;\
+    border: %3px solid #000;\
     border-radius: 2px;\
 }" )
-		.arg( colorToolbarLighter.name() ).arg( colorText.name() );
+		.arg( colorToolbarLighter.name() ).arg( colorText.name() )
+		.arg( PlayerControl::nBorder );
 	m_pTimeGroup->setStyleSheet( sGroupStyleSheet );
 	m_pTransportGroup->setStyleSheet( sGroupStyleSheet );
 	m_pSongModeGroup->setStyleSheet( sGroupStyleSheet );

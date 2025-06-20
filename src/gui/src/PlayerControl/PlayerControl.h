@@ -51,7 +51,13 @@ class PlayerControl : public QWidget,
 public:
 
 		static constexpr int nHeight = 45;
+		static constexpr int nMargin = 2;
+		static constexpr int nBorder = 1;
 		static constexpr int nLabelHeight = 9;
+		static constexpr int nWidgetHeight = PlayerControl::nHeight -
+			PlayerControl::nLabelHeight - PlayerControl::nMargin * 4 -
+			PlayerControl::nBorder * 2;
+		static constexpr int nButtonWidth = nWidgetHeight + 6;
 
 
 		explicit PlayerControl(QWidget *parent);
