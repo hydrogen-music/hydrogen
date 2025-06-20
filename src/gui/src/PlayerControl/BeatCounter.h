@@ -28,6 +28,8 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include "PlayerControl.h"
+
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
@@ -40,29 +42,26 @@ class BeatCounter : public QWidget,
 	Q_OBJECT
 
 public:
-		static constexpr int nWidth = 86;
 		static constexpr int nButtonWidth = 19;
-		static constexpr int nButtonHeight = 11;
+		static constexpr int nMargin = 1;
 
 		explicit BeatCounter( QWidget* pParent );
 		~BeatCounter();
 
 		void updateBeatCounter();
+		void updateStyleSheet();
 
 private slots:
 
 
 private:
-		QLabel* m_pDisplayZ;
-		QLabel* m_pTotalBeatsDisplay;
-		QLabel* m_pBeatLengthDisplay;
-		Button* m_pSetPlayBtn;
 		Button* m_pBeatLengthUpBtn;
 		Button* m_pBeatLengthDownBtn;
+		QLabel* m_pBeatLengthLabel;
+		QLabel* m_pTotalBeatsLabel;
 		Button* m_pTotalBeatsUpBtn;
 		Button* m_pTotalBeatsDownBtn;
-
-		void paintEvent( QPaintEvent* pEvent ) override;
+		Button* m_pSetPlayBtn;
 };
 
 

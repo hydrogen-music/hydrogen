@@ -239,11 +239,11 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pBeatCounterGroup = new QWidget( this );
-	m_pBeatCounterGroup->setFixedWidth( BeatCounter::nWidth + 2 );
 	m_pBeatCounterGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pBeatCounterGroup );
 	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
-	pBeatCounterGroupLayout->setContentsMargins( 1, 1, 1, 1 );
+	pBeatCounterGroupLayout->setAlignment( Qt::AlignTop );
+	pBeatCounterGroupLayout->setContentsMargins( margins );
 	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
 
 	m_sBCOnOffBtnTimelineToolTip =
@@ -1011,4 +1011,6 @@ QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
 	m_pJackGroup->setStyleSheet( sGroupStyleSheet );
 	m_pSystemGroup->setStyleSheet( sGroupStyleSheet );
 	m_pVisibilityGroup->setStyleSheet( sGroupStyleSheet );
+
+	m_pBeatCounter->updateStyleSheet();
 }

@@ -36,8 +36,8 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
+	setFixedHeight( PlayerControl::nWidgetHeight );
 	setAttribute( Qt::WA_OpaquePaintEvent );
-	setFixedWidth( BeatCounter::nWidth );
 	setObjectName( "BeatCounter" );
 
 	auto pOverallLayout = new QHBoxLayout( this );
@@ -50,26 +50,30 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 	pOverallLayout->addWidget( pBackground );
 
 	auto pMainLayout = new QHBoxLayout( pBackground );
-	pMainLayout->setContentsMargins( 1, 1, 1, 1 );
-	pMainLayout->setSpacing( 0 );
-	pMainLayout->setAlignment( Qt::AlignLeft );
+	pMainLayout->setAlignment( Qt::AlignTop );
+	pMainLayout->setContentsMargins(
+		BeatCounter::nMargin, BeatCounter::nMargin, BeatCounter::nMargin,
+		BeatCounter::nMargin );
+	pMainLayout->setSpacing( BeatCounter::nMargin );
 	pBackground->setLayout( pMainLayout );
 
 	const auto smallButtonSize = QSize(
-		BeatCounter::nButtonWidth, BeatCounter::nButtonHeight );
-	const auto smallIconSize = QSize( 8, 8 );
+		BeatCounter::nButtonWidth,
+		PlayerControl::nWidgetHeight / 2 - BeatCounter::nMargin );
+	const auto smallIconSize = QSize(
+		smallButtonSize.height() - 2, smallButtonSize.height() - 2 );
 
 	////////////////////////////////////////////////////////////////////////////
-	auto pLeftMargin = new QWidget( pBackground );
-	pLeftMargin->setFixedWidth( BeatCounter::nButtonWidth );
-	pMainLayout->addWidget( pLeftMargin );
-	auto pLeftLayout = new QVBoxLayout( pLeftMargin );
-	pLeftLayout->setContentsMargins( 0, 0, 0, 0 );
-	pLeftLayout->setSpacing( 0 );
+	auto pBeatLengthButtonsGroup = new QWidget( pBackground );
+	pBeatLengthButtonsGroup->setFixedWidth( BeatCounter::nButtonWidth );
+	pMainLayout->addWidget( pBeatLengthButtonsGroup );
+	auto pBeatLengthButtonsGroupLayout = new QVBoxLayout( pBeatLengthButtonsGroup );
+	pBeatLengthButtonsGroupLayout->setContentsMargins( 0, 0, 0, 0 );
+	pBeatLengthButtonsGroupLayout->setSpacing( 0 );
 
 	m_pBeatLengthUpBtn = new Button(
-		pLeftMargin, smallButtonSize, Button::Type::Push, "plus.svg", "",
-		smallIconSize, "", false, true );
+		pBeatLengthButtonsGroup, smallButtonSize, Button::Type::Push, "plus.svg",
+		"", smallIconSize, "", false, true );
 	connect( m_pBeatLengthUpBtn, &Button::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 2;
@@ -77,13 +81,13 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 			fBeatLength = 8;
 		}
 		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
-		update();
+		updateBeatCounter();
 	} );
-	pLeftLayout->addWidget( m_pBeatLengthUpBtn );
+	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
 
 	m_pBeatLengthDownBtn = new Button(
-		pLeftMargin, smallButtonSize, Button::Type::Push, "minus.svg", "",
-		smallIconSize, "", false, true );
+		pBeatLengthButtonsGroup, smallButtonSize, Button::Type::Push, "minus.svg",
+		"", smallIconSize, "", false, true );
 	connect( m_pBeatLengthDownBtn, &Button::clicked, [&](){
 		auto pHydrogen = Hydrogen::get_instance();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 8;
@@ -91,26 +95,41 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 			fBeatLength = 1;
 		}
 		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
-		update();
+		updateBeatCounter();
 	} );
-	pLeftLayout->addWidget( m_pBeatLengthDownBtn );
-	pLeftLayout->addStretch();
+	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthDownBtn );
+	pBeatLengthButtonsGroupLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
+	auto pLabelsGroup = new QWidget( pBackground );
+	pMainLayout->addWidget( pLabelsGroup );
+	auto pLabelsLayout = new QHBoxLayout( pLabelsGroup );
+	pLabelsLayout->setContentsMargins( 0, 0, 0, 0 );
+	pLabelsLayout->setSpacing( 0 );
 
-	pMainLayout->addStretch();
+	m_pBeatLengthLabel = new QLabel( pLabelsGroup );
+	m_pBeatLengthLabel->setFixedHeight( PlayerControl::nWidgetHeight );
+	m_pBeatLengthLabel->setContentsMargins( 5, 0, 5, 0 );
+	pLabelsLayout->addWidget( m_pBeatLengthLabel );
+
+	m_pTotalBeatsLabel = new QLabel( pLabelsGroup );
+	m_pTotalBeatsLabel->setAlignment( Qt::AlignRight );
+	m_pTotalBeatsLabel->setFixedWidth( 45 );
+	m_pTotalBeatsLabel->setFixedHeight( PlayerControl::nWidgetHeight );
+	m_pTotalBeatsLabel->setContentsMargins( 5, 0, 5, 0 );
+	pLabelsLayout->addWidget( m_pTotalBeatsLabel );
 
 	////////////////////////////////////////////////////////////////////////////
-	auto pRightMargin = new QWidget( pBackground );
-	pRightMargin->setFixedWidth( BeatCounter::nButtonWidth );
-	pMainLayout->addWidget( pRightMargin );
-	auto pRightLayout = new QVBoxLayout( pRightMargin );
-	pRightLayout->setContentsMargins( 0, 0, 0, 0 );
-	pRightLayout->setSpacing( 0 );
+	auto pTotalBeatsButtonsGroup = new QWidget( pBackground );
+	pTotalBeatsButtonsGroup->setFixedWidth( BeatCounter::nButtonWidth );
+	pMainLayout->addWidget( pTotalBeatsButtonsGroup );
+	auto pTotalBeatsButtonsLayout = new QVBoxLayout( pTotalBeatsButtonsGroup );
+	pTotalBeatsButtonsLayout->setContentsMargins( 0, 0, 0, 0 );
+	pTotalBeatsButtonsLayout->setSpacing( 0 );
 
 	m_pTotalBeatsUpBtn = new Button(
-		pRightMargin, smallButtonSize, Button::Type::Push, "plus.svg", "",
-		smallIconSize, "", false, true );
+		pTotalBeatsButtonsGroup, smallButtonSize, Button::Type::Push, "plus.svg",
+		"", smallIconSize, "", false, true );
 	connect( m_pTotalBeatsUpBtn, &Button::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
@@ -119,13 +138,13 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 			nBeatsToCount = 2;
 		}
 		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-		update();
+		updateBeatCounter();
 	} );
-	pRightLayout->addWidget( m_pTotalBeatsUpBtn );
+	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
 
 	m_pTotalBeatsDownBtn = new Button(
-		pRightMargin, smallButtonSize, Button::Type::Push, "minus.svg", "",
-		smallIconSize, "", false, true );
+		pTotalBeatsButtonsGroup, smallButtonSize, Button::Type::Push, "minus.svg",
+		"", smallIconSize, "", false, true );
 	connect( m_pTotalBeatsDownBtn, &Button::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
@@ -134,12 +153,15 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 			nBeatsToCount = 16;
 		}
 		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-		update();
+		updateBeatCounter();
 	} );
-	pRightLayout->addWidget( m_pTotalBeatsDownBtn );
+	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsDownBtn );
+	pTotalBeatsButtonsLayout->addStretch();
 
+	////////////////////////////////////////////////////////////////////////////
 	m_pSetPlayBtn = new Button(
-		pRightMargin, QSize( BeatCounter::nButtonWidth, 15 ),
+		pBackground, QSize( PlayerControl::nButtonWidth,
+							PlayerControl::nWidgetHeight - BeatCounter::nMargin * 2 ),
 		Button::Type::Push, "",
 		pCommonStrings->getBeatCounterSetPlayButtonOff(), QSize(),
 		tr("Set BPM / Set BPM and play"), false, true );
@@ -161,76 +183,82 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 		// For instantaneous text update.
 		updateBeatCounter();
 	} );
-	pRightLayout->addWidget( m_pSetPlayBtn );
-	pRightLayout->addStretch();
+	pMainLayout->addWidget( m_pSetPlayBtn );
+
+	////////////////////////////////////////////////////////////////////////////
+	updateStyleSheet();
 }
 
 BeatCounter::~BeatCounter(){
 }
 
-void BeatCounter::paintEvent( QPaintEvent* pEvent )
-{
-	if ( !isVisible() ) {
-		return;
-	}
-
-	const auto pHydrogen = Hydrogen::get_instance();
-
-	const auto theme = Preferences::get_instance()->getTheme();
-	const QColor colorBackground =
-		theme.m_color.m_windowColor.lighter( 134 ).lighter( 130 );
-	const QColor colorCanvas = theme.m_color.m_windowColor;
-
-	QPainter painter(this);
-
-	// Background
-	painter.fillRect( 0, 0, width(), height(), colorBackground );
-
-	// Canvas
-	painter.fillRect( BeatCounter::nButtonWidth + 2, 1,
-					  BeatCounter::nWidth - BeatCounter::nButtonWidth * 2 - 4,
-					  height() - 2, colorCanvas );
-
-	painter.setPen( theme.m_color.m_windowTextColor );
-	const QFont font( theme.m_font.m_sLevel3FontFamily,
-					  getPointSize( theme.m_font.m_fontSize ) );
-	painter.setFont( font );
-
-	const int nMarginY = 3;
-	const int nXLeftColumn = BeatCounter::nButtonWidth + 6;
-	const int nXRightColumn = nXLeftColumn + 16;
-	const int nTextHeight = height() / 2 - nMarginY - 2;
-
-	painter.drawText( nXLeftColumn, nMarginY, 9, nTextHeight, Qt::AlignCenter, "1" );
-	painter.drawText( nXLeftColumn, height() / 2 - 1, 9, 3, Qt::AlignCenter,
-					  QChar( 0x2015 ) );
-
-	// beat length
-	painter.drawText( nXLeftColumn, height() - nMarginY - nTextHeight,
-					  9, nTextHeight, Qt::AlignCenter,
-					  QString::number( pHydrogen->getBeatCounterBeatLength() * 4 ) );
-
-	// status
-	QString sStatus;
-	const int nEventCount = pHydrogen->getBeatCounterEventCount();
-	if ( nEventCount == 1 ) {
-		sStatus = "R";
-	} else {
-		sStatus = QString( "%1" ).arg( nEventCount - 1, 2, 10, QChar( 0x0030 ) );
-	}
-	painter.drawText( nXRightColumn, nMarginY, 23, nTextHeight,
-					  Qt::AlignCenter, sStatus );
-
-	// total beats
-	painter.drawText( nXRightColumn, height() - nMarginY - nTextHeight,
-					  23, nTextHeight, Qt::AlignCenter,
-					  QString( "%1" ).arg( pHydrogen->getBeatCounterTotalBeats(),
-										   2, 10, QChar( 0x0030 ) ) );
-}
-
 void BeatCounter::updateBeatCounter() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = Preferences::get_instance();
+	const auto pHydrogen = Hydrogen::get_instance();
+
+	auto toSuperScript = []( int nNumber ) {
+		const QString sNumber = QString::number( nNumber );
+		QString sResult;
+
+		// We convert the number into a string and each separate digit into the
+		// corresponding superscript.
+		bool bOk;
+		for ( const auto ssCharacter : sNumber ) {
+			auto nNumber =
+				static_cast<char>(QString(ssCharacter).toInt( &bOk, 10 ));
+			if ( bOk ) {
+				switch( nNumber ) {
+				case 1:
+					sResult.append( QChar( 0x00B9 ) );
+					break;
+				case 2:
+					sResult.append( QChar( 0x00B2 ) );
+					break;
+				case 3:
+					sResult.append( QChar( 0x00B3 ) );
+					break;
+				default:
+					sResult.append( QChar( 0x2070 + nNumber ) );
+					break;
+				}
+			}
+		}
+		return sResult;
+	};
+
+	auto toSubScript = []( int nNumber ) {
+		const QString sNumber = QString::number( nNumber );
+		QString sResult;
+
+		// We convert the number into a string and each separate digit into the
+		// corresponding subscript.
+		bool bOk;
+		for ( const auto ssCharacter : sNumber ) {
+			auto nnNumber =
+				static_cast<char>(QString(ssCharacter).toInt( &bOk, 10 ));
+			if ( bOk ) {
+				sResult.append( QChar( 0x2080 + nnNumber ) );
+			}
+		}
+		return sResult;
+	};
+
+	m_pBeatLengthLabel->setText(
+		QString( "%1%2%3" ).arg( toSuperScript( 1 ) ).arg( QChar( 0x2044 ) )
+		.arg( toSubScript( pHydrogen->getBeatCounterBeatLength() * 4 ) ) );
+
+	QString sStatus;
+	const int nEventCount = pHydrogen->getBeatCounterEventCount();
+	if ( nEventCount == 1 ) {
+		// -
+		sStatus = QChar( 0x207B );
+	} else {
+		sStatus = toSuperScript( nEventCount - 1 );
+	}
+	m_pTotalBeatsLabel->setText(
+		QString( "%1%2%3" ).arg( sStatus ).arg( QChar( 0x2044 ) )
+		.arg( toSubScript( pHydrogen->getBeatCounterTotalBeats() ) ) );
 
 	if ( pPref->m_bBeatCounterSetPlay == Preferences::BEAT_COUNTER_SET_PLAY_ON ) {
 		m_pSetPlayBtn->setText(
@@ -240,6 +268,34 @@ void BeatCounter::updateBeatCounter() {
 		m_pSetPlayBtn->setText(
 			pCommonStrings->getBeatCounterSetPlayButtonOff() );
 	}
+}
 
-	update();
+void BeatCounter::updateStyleSheet() {
+
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
+
+	const QColor colorText = colorTheme.m_windowTextColor;
+	const QColor colorBackground =
+		colorTheme.m_windowColor.lighter( 134 ).lighter( 130 );
+	const QColor colorLabel = colorTheme.m_windowColor;
+
+	setStyleSheet( QString( "\
+QWidget#Background {\
+     background-color: %1; \
+     color: %2; \
+     border: %3px solid #000;\
+}")
+				   .arg( colorBackground.name() ).arg( colorText.name() )
+				   .arg( PlayerControl::nBorder ) );
+
+	const QString sLabelStyleSheet = QString( "\
+QLabel {\
+    background-color: %1;\
+    color: %2;\
+    font-size: 20px;\
+}" )
+		.arg( colorLabel.name() ).arg( colorText.name() );
+	m_pBeatLengthLabel->setStyleSheet( sLabelStyleSheet );
+	m_pTotalBeatsLabel->setStyleSheet( sLabelStyleSheet );
 }
