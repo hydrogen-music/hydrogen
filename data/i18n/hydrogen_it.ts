@@ -2836,6 +2836,13 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MetronomeButton</name>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Passa a metronomo on/off</translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>Action</source>
@@ -3409,10 +3416,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
         <translation>Ricalcola tutti i sample usando Rubberband OFF</translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Passa a metronomo on/off</translation>
     </message>
     <message>
         <source>JACK transport on/off</source>

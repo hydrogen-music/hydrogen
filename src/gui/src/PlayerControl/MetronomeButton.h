@@ -1,5 +1,6 @@
 /*
  * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  * Copyright(c) 2008-2025 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
@@ -15,54 +16,44 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 
-#ifndef LED_H
-#define LED_H
-
-#include <chrono>
+#ifndef METRONOME_BUTTON_H
+#define METRONOME_BUTTON_H
 
 #include <core/Object.h>
-#include <core/Preferences/Preferences.h>
-
-#include <QtGui>
-#include <QtWidgets>
-#include <QSvgRenderer>
 
 #include "../EventListener.h"
+#include "../Widgets/Button.h"
 
-/**
- * LED identicating a user selection.
- */
+#include <QtGui>
+#include <QPushButton>
+
+
 /** \ingroup docGUI docWidgets*/
-class LED : public QWidget, public H2Core::Object<LED>
+class MetronomeButton : public Button
+					  , public H2Core::Object<MetronomeButton>
 {
-    H2_OBJECT(LED)
+    H2_OBJECT(MetronomeButton)
 	Q_OBJECT
 
-public:
-	LED( QWidget *pParent, const QSize& size );
-	virtual ~LED();
-	
-	LED(const LED&) = delete;
-	LED& operator=( const LED& rhs ) = delete;
- 
-	bool getActivated() const;
-	void setActivated( bool bActivated );
+	public:
+		MetronomeButton( QWidget *pParent, const QSize& size );
+		~MetronomeButton();
 
-protected:
-	QSvgRenderer* m_background;
-	
-	bool m_bActivated;
-	virtual void paintEvent( QPaintEvent* ev) override;
+		void metronomeEvent( int nValue ) override;
 
+		void updateStyleSheet();
+
+	private:
+		QTimer* m_pTimer;
+
+		QColor m_colorBackgroundChecked;
+		QColor m_colorBeat;
+		QColor m_colorFirstBeat;
 };
 
-inline bool LED::getActivated() const {
-	return m_bActivated;
-}
 #endif

@@ -2873,6 +2873,13 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
 </context>
 <context>
+    <name>MetronomeButton</name>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Metrônomo Lig./Des.</translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>Action</source>
@@ -3446,10 +3453,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
         <translation>Recalcular todas as amostras usando Rubberband DES</translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Metrônomo Lig./Des.</translation>
     </message>
     <message>
         <source>JACK transport on/off</source>

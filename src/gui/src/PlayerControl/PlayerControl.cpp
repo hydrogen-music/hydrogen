@@ -24,6 +24,7 @@ https://www.gnu.org/licenses
 #include "PlayerControl.h"
 
 #include "BeatCounter.h"
+#include "MetronomeButton.h"
 #include "MidiControlButton.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
@@ -35,7 +36,6 @@ https://www.gnu.org/licenses
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
-#include "../Widgets/LED.h"
 #include "../Widgets/Button.h"
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -259,25 +259,19 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pTempoGroup->setFixedWidth( 125 );
 	m_pTempoGroup->setObjectName( "BPM" );
 	pMainLayout->addWidget( m_pTempoGroup );
-	auto pTempoGroupGridLayout = new QGridLayout( m_pTempoGroup );
-	pTempoGroupGridLayout->setAlignment( Qt::AlignTop );
-	pTempoGroupGridLayout->setContentsMargins( margins );
-	pTempoGroupGridLayout->setSpacing( nSpacing );
+	auto pTempoGroupLayout = new QHBoxLayout( m_pTempoGroup );
+	pTempoGroupLayout->setAlignment( Qt::AlignTop );
+	pTempoGroupLayout->setContentsMargins( margins );
+	pTempoGroupLayout->setSpacing( nSpacing );
 
-	m_pMetronomeBtn = new Button(
-		m_pTempoGroup, QSize( 24, PlayerControl::nWidgetHeight ),
-		Button::Type::Toggle, "metronome.svg", "",
-		QSize( 20, 20 ), tr( "Switch metronome on/off" ), false, true );
+	m_pMetronomeBtn = new MetronomeButton(
+		m_pTempoGroup, QSize( 24, PlayerControl::nWidgetHeight ) );
 	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 	connect( m_pMetronomeBtn, SIGNAL( clicked() ),
 			 this, SLOT( metronomeButtonClicked() ) );
 	m_pMetronomeBtn->setAction( std::make_shared<Action>("TOGGLE_METRONOME") );
-	pTempoGroupGridLayout->addWidget( m_pMetronomeBtn, 0, 0 );
-
-	m_pMetronomeLED = new MetronomeLED(
-		m_pTempoGroup, QSize( 24, PlayerControl::nLabelHeight ) );
-	pTempoGroupGridLayout->addWidget( m_pMetronomeLED, 1, 0 );
+	pTempoGroupLayout->addWidget( m_pMetronomeBtn );
 
 	m_sLCDBPMSpinboxToolTip =
 		tr("Alter the Playback Speed");
@@ -295,14 +289,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 			" QAbstractSpinBox {font-size: 16px;}" ) );
 	connect( m_pBpmSpinBox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
-	pTempoGroupGridLayout->addWidget( m_pBpmSpinBox, 0, 1 );
+	pTempoGroupLayout->addWidget( m_pBpmSpinBox );
 
-	m_pBPMLbl = new ClickableLabel(
-		m_pTempoGroup, QSize( 95, PlayerControl::nLabelHeight ),
-		pCommonStrings->getBPMLabel() );
-	m_pBPMLbl->setAlignment( Qt::AlignLeft );
-	m_pBPMLbl->setIndent( 10 );
-	pTempoGroupGridLayout->addWidget( m_pBPMLbl, 1, 1 );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandGroup = new QWidget( this );
@@ -1013,4 +1001,5 @@ QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
 	m_pVisibilityGroup->setStyleSheet( sGroupStyleSheet );
 
 	m_pBeatCounter->updateStyleSheet();
+	m_pMetronomeBtn->updateStyleSheet();
 }

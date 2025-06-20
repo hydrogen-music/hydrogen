@@ -44,7 +44,7 @@
  *
  * \ingroup docGUI docWidgets docMIDI
  */
-class MidiLearnable : EventListener
+class MidiLearnable : public EventListener
 {
 public:
     MidiLearnable();

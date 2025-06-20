@@ -2860,6 +2860,13 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
+    <name>MetronomeButton</name>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>打开/关闭节拍器</translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>press button to record midi event</source>
@@ -3381,10 +3388,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
         <translation>如果 BPM 会改变，请重新计算 Rubberband 修改的采样</translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>打开/关闭节拍器</translation>
     </message>
     <message>
         <source>Show mixer</source>

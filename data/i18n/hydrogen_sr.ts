@@ -2855,6 +2855,13 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MetronomeButton</name>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Укљ/Искљ. метроном</translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>Action</source>
@@ -3412,10 +3419,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
         <translation>Уколико се мења број о/м прерачунај рабербендове измењене узорке</translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Укљ/Искљ. метроном</translation>
     </message>
     <message>
         <source>Record midi events = On</source>

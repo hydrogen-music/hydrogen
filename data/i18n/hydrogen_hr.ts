@@ -2833,6 +2833,13 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MetronomeButton</name>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>press button to record midi event</source>
@@ -3405,10 +3412,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

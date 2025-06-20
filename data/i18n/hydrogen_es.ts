@@ -2875,6 +2875,13 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
 </context>
 <context>
+    <name>MetronomeButton</name>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Encender/apagar metrónomo</translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>Action</source>
@@ -3448,10 +3455,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
         <translation>Recalcular todos los samples usando Rubberband OFF</translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Encender/apagar metrónomo</translation>
     </message>
     <message>
         <source>JACK transport on/off</source>

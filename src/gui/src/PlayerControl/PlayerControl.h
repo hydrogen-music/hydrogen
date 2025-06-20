@@ -38,7 +38,7 @@ class ClickableLabel;
 class LCDSpinBox;
 class LCDDisplay;
 class LED;
-class MetronomeLED;
+class MetronomeButton;
 class MidiControlButton;
 
 /** \ingroup docGUI*/
@@ -124,10 +124,8 @@ private:
 		BeatCounter* m_pBeatCounter;
 
 		QWidget* m_pTempoGroup;
-		MetronomeLED* m_pMetronomeLED;
-		Button* m_pMetronomeBtn;
+		MetronomeButton* m_pMetronomeBtn;
 		LCDSpinBox* m_pBpmSpinBox;
-		ClickableLabel* m_pBPMLbl;
 
 		QWidget* m_pRubberBandGroup;
 		Button* m_pRubberBPMChange;

@@ -2877,6 +2877,13 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
+    <name>MetronomeButton</name>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Active/désactive le métronome</translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>Action</source>
@@ -3450,10 +3457,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
         <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Active/désactive le métronome</translation>
     </message>
     <message>
         <source>JACK transport on/off</source>
