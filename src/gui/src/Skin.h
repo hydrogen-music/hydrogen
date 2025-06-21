@@ -114,6 +114,10 @@ public:
 									  const Skin::Stacked& stacked );
 
 		static bool moreBlackThanWhite( const QColor& color );
+
+		/** Factor by which the border of a PanelGroupBox will be darker or
+		 * lighter than the surrounding panel background. */
+		static constexpr int nPanelGroupBoxBorderFactor = 175;
 };
 
 

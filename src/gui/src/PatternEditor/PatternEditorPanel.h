@@ -40,14 +40,15 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
+class ClickableLabel;
+class DrumPatternEditor;
 class Fader;
+class LCDSpinBox;
+class NotePropertiesRuler;
+class PanelGroupBox;
 class PatternEditorRuler;
 class PatternEditorSidebar;
-class NotePropertiesRuler;
-class DrumPatternEditor;
 class PianoRollEditor;
-class ClickableLabel;
-class LCDSpinBox;
 class PixmapWidget;
 
 enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
@@ -416,13 +417,13 @@ class PatternEditorPanel : public QWidget,
 
 		/** Contains all buttons */
 		QWidget* m_pToolbarSidebar;
-		QWidget* m_pInputModeGroup;
+		PanelGroupBox* m_pInputModeGroup;
 		Button* m_pSelectBtn;
 		Button* m_pDrawBtn;
 		Button* m_pEditBtn;
 		Button* m_pHearNotesBtn;
 		Button* m_pQuantizeEventsBtn;
-		QWidget* m_pInstanceGroup;
+		PanelGroupBox* m_pInstanceGroup;
 		Button* m_pDrumPatternBtn;
 		Button*	m_pPianoRollBtn;
 		Button* m_pPatchBayBtn;

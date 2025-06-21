@@ -40,6 +40,7 @@ class LCDDisplay;
 class LED;
 class MetronomeButton;
 class MidiControlButton;
+class PanelGroupBox;
 
 /** \ingroup docGUI*/
 class PlayerControl : public QWidget,
@@ -101,8 +102,7 @@ private:
 
 		LCDDisplay* m_pTimeDisplay;
 
-		QWidget* m_pSongModeGroup;
-		Button* m_pSongLoopBtn;
+		PanelGroupBox* m_pEditorGroup;
 		Button* m_pSongModeBtn;
 		Button* m_pPatternModeBtn;
 
@@ -112,6 +112,7 @@ private:
 		Button* m_pPlayBtn;
 		Button* m_pStopBtn;
 		Button* m_pFfwdBtn;
+		Button* m_pSongLoopBtn;
 
 		QWidget* m_pBeatCounterGroup;
 		BeatCounter* m_pBeatCounter;

@@ -49,6 +49,7 @@
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/PatchBay.h"
+#include "../Widgets/PanelGroupBox.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 #include "../UndoActions.h"
@@ -220,14 +221,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	const auto buttonSizeOutside = buttonSize + QSize( 0, 2 );
 	const auto iconSizeOutside = iconSize + QSize( 0, 2 );
 
-	m_pInputModeGroup = new QWidget( pBtnContainer );
-	m_pInputModeGroup->setFocusPolicy( Qt::ClickFocus );
-	m_pInputModeGroup->setObjectName( "GroupBox" );
-	m_pInputModeGroup->setFixedHeight( PatternEditorPanel::nToolbarGroupHeight );
+	m_pInputModeGroup = new PanelGroupBox( pBtnContainer );
+	m_pInputModeGroup->setFixedHeight(
+		PatternEditorPanel::nToolbarHeight - 2 * PanelGroupBox::nBorder -
+		2 * PanelGroupBox::nMarginVertical );
 	pBtnContainerLayout->addWidget( m_pInputModeGroup );
-	auto pEditModeGroupLayout = new QHBoxLayout( m_pInputModeGroup );
-	pEditModeGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pEditModeGroupLayout->setSpacing( 1 );
 
 	m_pSelectBtn = new Button(
 		m_pInputModeGroup, buttonSize, Button::Type::Toggle, "select.svg", "",
@@ -237,7 +235,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pSelectBtn, &Button::clicked, [&](){
 		setInput( Editor::Input::Select );
 	} );
-	pEditModeGroupLayout->addWidget( m_pSelectBtn );
+	m_pInputModeGroup->addWidget( m_pSelectBtn );
 
 	m_pDrawBtn = new Button(
 		m_pInputModeGroup, buttonSize, Button::Type::Toggle, "draw.svg", "",
@@ -247,7 +245,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pDrawBtn, &Button::clicked, [&](){
 		setInput( Editor::Input::Draw );
 	} );
-	pEditModeGroupLayout->addWidget( m_pDrawBtn );
+	m_pInputModeGroup->addWidget( m_pDrawBtn );
 
 	m_pEditBtn = new Button(
 		m_pInputModeGroup, buttonSize, Button::Type::Toggle, "edit.svg", "",
@@ -257,7 +255,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pEditBtn, &Button::clicked, [&](){
 		setInput( Editor::Input::Edit );
 	} );
-	pEditModeGroupLayout->addWidget( m_pEditBtn );
+	m_pInputModeGroup->addWidget( m_pEditBtn );
 	updateInput();
 
 	pBtnContainerLayout->addStretch();
@@ -286,14 +284,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pBtnContainerLayout->addStretch();
 
 	// Switching editor instances
-	m_pInstanceGroup = new QWidget( pBtnContainer );
-	m_pInstanceGroup->setFocusPolicy( Qt::ClickFocus );
-	m_pInstanceGroup->setObjectName( "GroupBox" );
-	m_pInstanceGroup->setFixedHeight( PatternEditorPanel::nToolbarGroupHeight );
+	m_pInstanceGroup = new PanelGroupBox( pBtnContainer );
+	m_pInstanceGroup->setFixedHeight(
+		PatternEditorPanel::nToolbarHeight - 2 * PanelGroupBox::nBorder -
+		2 * PanelGroupBox::nMarginVertical );
 	pBtnContainerLayout->addWidget( m_pInstanceGroup );
-	auto pInstanceGroupLayout = new QHBoxLayout( m_pInstanceGroup );
-	pInstanceGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pInstanceGroupLayout->setSpacing( 1 );
 
 	m_pDrumPatternBtn = new Button(
 		m_pInstanceGroup, buttonSize, Button::Type::Toggle, "drum.svg", "",
@@ -304,7 +299,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		setInstance( Editor::Instance::DrumPattern );
 	} );
 	m_pDrumPatternBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pInstanceGroupLayout->addWidget( m_pDrumPatternBtn );
+	m_pInstanceGroup->addWidget( m_pDrumPatternBtn );
 
 	m_pPianoRollBtn = new Button(
 		m_pInstanceGroup, buttonSize, Button::Type::Toggle, "piano.svg", "",
@@ -315,7 +310,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		setInstance( Editor::Instance::PianoRoll );
 	} );
 	m_pPianoRollBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pInstanceGroupLayout->addWidget( m_pPianoRollBtn );
+	m_pInstanceGroup->addWidget( m_pPianoRollBtn );
 
 	m_pPatchBayBtn = new Button(
 		pBtnContainer, buttonSize, Button::Type::Push, "patchBay.svg", "",
@@ -1824,8 +1819,17 @@ void PatternEditorPanel::updateStyleSheet() {
 	const QColor colorToolbar =
 		colorTheme.m_patternEditor_selectedRowColor.darker( 134 );
 	const QColor colorToolbarLighter =
-		colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
+		colorTheme.m_widgetColor.darker( 120 );
 	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
+
+	QColor colorGroupBoxBorder;
+	const int nWidgetBorderScaling = Skin::nPanelGroupBoxBorderFactor;
+	if ( Skin::moreBlackThanWhite( colorToolbar ) ) {
+		colorGroupBoxBorder = colorToolbar.lighter( nWidgetBorderScaling );
+	}
+	else {
+		colorGroupBoxBorder = colorToolbar.darker( nWidgetBorderScaling );
+	}
 
 	m_pToolbarSidebar->setStyleSheet( QString( "\
 QWidget#PatternEditorToolbarSidebar  {\
@@ -1871,8 +1875,11 @@ QWidget#GroupBox {\
     border-radius: 2px;\
 }" )
 		.arg( colorToolbarLighter.name() ).arg( colorPatternText.name() );
-	m_pInputModeGroup->setStyleSheet( sWidgetStyleSheet );
-	m_pInstanceGroup->setStyleSheet( sWidgetStyleSheet );
+
+	m_pInputModeGroup->setBorderColor( colorGroupBoxBorder );
+	m_pInputModeGroup->updateStyleSheet();
+	m_pInstanceGroup->setBorderColor( colorGroupBoxBorder );
+	m_pInstanceGroup->updateStyleSheet();
 	m_pSizeGroup->setStyleSheet( sWidgetStyleSheet );
 	m_pResolutionGroup->setStyleSheet( sWidgetStyleSheet );
 

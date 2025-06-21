@@ -33,10 +33,11 @@ https://www.gnu.org/licenses
 #include "../Mixer/Mixer.h"
 #include "../Skin.h"
 #include "../SongEditor/SongEditorPanel.h"
+#include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
-#include "../Widgets/Button.h"
+#include "../Widgets/PanelGroupBox.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -99,32 +100,31 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pTimeDisplay );
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pSongModeGroup = new QWidget( this );
-	m_pSongModeGroup->setObjectName( "GroupBox" );
-	pMainLayout->addWidget( m_pSongModeGroup );
-	auto pSongModeGroupLayout = new QHBoxLayout( m_pSongModeGroup );
-	pSongModeGroupLayout->setContentsMargins( margins );
-	pSongModeGroupLayout->setSpacing( nSpacing );
+	m_pEditorGroup = new PanelGroupBox( this );
+	m_pEditorGroup->setFixedHeight(
+		PlayerControl::nHeight - 2 * PanelGroupBox::nBorder -
+		2 * PanelGroupBox::nMarginVertical );
+	pMainLayout->addWidget( m_pEditorGroup );
 
 	m_pPatternModeBtn = new Button(
-		m_pSongModeGroup, buttonSize, Button::Type::Toggle, "",
+		m_pEditorGroup, buttonSize, Button::Type::Toggle, "",
 		"P", QSize(), tr( "Pattern Mode" ),
 		//pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
 		false, true );
 	m_pPatternModeBtn->setObjectName( "PlayerControlPatternModeButton" );
 	connect( m_pPatternModeBtn, &QPushButton::clicked,
 			[=]() { activateSongMode( false ); } );
-	pSongModeGroupLayout->addWidget( m_pPatternModeBtn );
+	m_pEditorGroup->addWidget( m_pPatternModeBtn );
 
 	m_pSongModeBtn = new Button(
-		m_pSongModeGroup, buttonSize, Button::Type::Toggle, "",
+		m_pEditorGroup, buttonSize, Button::Type::Toggle, "",
 		"S", QSize(), tr( "Song Mode" ),
 		//pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
 		false, true );
 	m_pSongModeBtn->setObjectName( "PlayerControlSongModeButton" );
 	connect( m_pSongModeBtn, &QPushButton::clicked,
 			[=]() { activateSongMode( true ); } );
-	pSongModeGroupLayout->addWidget( m_pSongModeBtn );
+	m_pEditorGroup->addWidget( m_pSongModeBtn );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTransportGroup = new QWidget( this );
@@ -928,6 +928,15 @@ void PlayerControl::updateStyleSheet() {
 		colorTheme.m_windowColor.lighter( 134 );
 	const QColor colorToolbarLighter = colorToolbar.lighter( 130 );
 
+	QColor colorGroupBoxBorder;
+	const int nWidgetBorderScaling = Skin::nPanelGroupBoxBorderFactor;
+	if ( Skin::moreBlackThanWhite( colorToolbar ) ) {
+		colorGroupBoxBorder = colorToolbar.darker( nWidgetBorderScaling );
+	}
+	else {
+		colorGroupBoxBorder = colorToolbar.lighter( nWidgetBorderScaling );
+	}
+
 	setStyleSheet( QString( "\
 QWidget#MainToolbar {\
      background-color: %1; \
@@ -947,13 +956,15 @@ QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
 		.arg( colorToolbarLighter.name() ).arg( colorText.name() )
 		.arg( PlayerControl::nBorder );
 	m_pTransportGroup->setStyleSheet( sGroupStyleSheet );
-	m_pSongModeGroup->setStyleSheet( sGroupStyleSheet );
 	m_pBeatCounterGroup->setStyleSheet( sGroupStyleSheet );
 	m_pTempoGroup->setStyleSheet( sGroupStyleSheet );
 	m_pRubberBandGroup->setStyleSheet( sGroupStyleSheet );
 	m_pJackGroup->setStyleSheet( sGroupStyleSheet );
 	m_pSystemGroup->setStyleSheet( sGroupStyleSheet );
 	m_pVisibilityGroup->setStyleSheet( sGroupStyleSheet );
+
+	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
+	m_pEditorGroup->updateStyleSheet();
 
 	m_pBeatCounter->updateStyleSheet();
 	m_pMetronomeBtn->updateStyleSheet();
