@@ -50,13 +50,11 @@ class PlayerControl : public QWidget,
 	Q_OBJECT
 public:
 
-		static constexpr int nHeight = 45;
+		static constexpr int nHeight = 36;
 		static constexpr int nMargin = 2;
 		static constexpr int nBorder = 1;
-		static constexpr int nLabelHeight = 9;
 		static constexpr int nWidgetHeight = PlayerControl::nHeight -
-			PlayerControl::nLabelHeight - PlayerControl::nMargin * 4 -
-			PlayerControl::nBorder * 2;
+			PlayerControl::nMargin * 3 - PlayerControl::nBorder * 2;
 		static constexpr int nButtonWidth = nWidgetHeight + 6;
 
 
@@ -101,12 +99,7 @@ private slots:
 private:
 		void updateStyleSheet();
 
-		QWidget* m_pTimeGroup;
 		LCDDisplay* m_pTimeDisplay;
-		ClickableLabel* m_pTimeHoursLbl;
-		ClickableLabel* m_pTimeMinutesLbl;
-		ClickableLabel* m_pTimeSecondsLbl;
-		ClickableLabel* m_pTimeMilliSecondsLbl;
 
 		QWidget* m_pSongModeGroup;
 		Button* m_pSongLoopBtn;

@@ -90,56 +90,19 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		PlayerControl::nButtonWidth - 2, PlayerControl::nWidgetHeight - 2 );
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pTimeGroup = new QWidget( this );
-	m_pTimeGroup->setFixedWidth( 150 );
-	m_pTimeGroup->setObjectName( "GroupBox" );
-	pMainLayout->addWidget( m_pTimeGroup );
-	auto pTimeGroupVBoxLayout = new QVBoxLayout( m_pTimeGroup );
-	pTimeGroupVBoxLayout->setContentsMargins( margins );
-	pTimeGroupVBoxLayout->setSpacing( 0 );
 	m_pTimeDisplay = new LCDDisplay(
-		m_pTimeGroup, QSize( 146, PlayerControl::nWidgetHeight ), true, false );
+		pMainToolbar, QSize( 146, PlayerControl::nWidgetHeight ), true, false );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:000" );
 	m_pTimeDisplay->setStyleSheet(
 		m_pTimeDisplay->styleSheet().append(" QLineEdit { font-size: 20px; }" ) );
-	pTimeGroupVBoxLayout->addWidget( m_pTimeDisplay );
-
-	auto pTimeGroupLabels = new QWidget( m_pTimeGroup );
-	pTimeGroupLabels->setFixedHeight( PlayerControl::nLabelHeight );
-	auto pTimeGroupLabelsHBoxLayout = new QHBoxLayout( pTimeGroupLabels );
-	pTimeGroupLabelsHBoxLayout->setContentsMargins( margins );
-	pTimeGroupLabelsHBoxLayout->setSpacing( 0 );
-
-	m_pTimeHoursLbl = new ClickableLabel(
-		m_pTimeGroup, QSize( 31, PlayerControl::nLabelHeight ),
-		pCommonStrings->getTimeHoursLabel() );
-	m_pTimeHoursLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
-	pTimeGroupLabelsHBoxLayout->addWidget( m_pTimeHoursLbl );
-	m_pTimeMinutesLbl = new ClickableLabel(
-		m_pTimeGroup, QSize( 29, PlayerControl::nLabelHeight ),
-		pCommonStrings->getTimeMinutesLabel() );
-	m_pTimeMinutesLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
-	pTimeGroupLabelsHBoxLayout->addWidget( m_pTimeMinutesLbl );
-	m_pTimeSecondsLbl = new ClickableLabel(
-		m_pTimeGroup, QSize( 30, PlayerControl::nLabelHeight ),
-		pCommonStrings->getTimeSecondsLabel() );
-	m_pTimeSecondsLbl->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
-	pTimeGroupLabelsHBoxLayout->addWidget( m_pTimeSecondsLbl );
-	m_pTimeMilliSecondsLbl = new ClickableLabel(
-		m_pTimeGroup, QSize( 35, PlayerControl::nLabelHeight ),
-		pCommonStrings->getTimeMilliSecondsLabel() );
-	m_pTimeMilliSecondsLbl->setSizePolicy(
-		QSizePolicy::Preferred, QSizePolicy::Fixed );
-	pTimeGroupLabelsHBoxLayout->addWidget( m_pTimeMilliSecondsLbl );
-	pTimeGroupVBoxLayout->addWidget( pTimeGroupLabels );
+	pMainLayout->addWidget( m_pTimeDisplay );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pSongModeGroup = new QWidget( this );
 	m_pSongModeGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pSongModeGroup );
 	auto pSongModeGroupLayout = new QHBoxLayout( m_pSongModeGroup );
-	pSongModeGroupLayout->setAlignment( Qt::AlignTop );
 	pSongModeGroupLayout->setContentsMargins( margins );
 	pSongModeGroupLayout->setSpacing( nSpacing );
 
@@ -168,7 +131,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pTransportGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pTransportGroup );
 	auto pTransportGroupLayout = new QHBoxLayout( m_pTransportGroup );
-	pTransportGroupLayout->setAlignment( Qt::AlignTop );
 	pTransportGroupLayout->setContentsMargins( margins );
 	pTransportGroupLayout->setSpacing( nSpacing );
 
@@ -242,7 +204,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pBeatCounterGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pBeatCounterGroup );
 	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
-	pBeatCounterGroupLayout->setAlignment( Qt::AlignTop );
 	pBeatCounterGroupLayout->setContentsMargins( margins );
 	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
 
@@ -260,7 +221,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pTempoGroup->setObjectName( "BPM" );
 	pMainLayout->addWidget( m_pTempoGroup );
 	auto pTempoGroupLayout = new QHBoxLayout( m_pTempoGroup );
-	pTempoGroupLayout->setAlignment( Qt::AlignTop );
 	pTempoGroupLayout->setContentsMargins( margins );
 	pTempoGroupLayout->setSpacing( nSpacing );
 
@@ -297,7 +257,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pRubberBandGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pRubberBandGroup );
 	auto pRubberBandGroupLayout = new QHBoxLayout( m_pRubberBandGroup );
-	pRubberBandGroupLayout->setAlignment( Qt::AlignTop );
 	pRubberBandGroupLayout->setContentsMargins( margins );
 
 	m_pRubberBPMChange = new Button(
@@ -320,7 +279,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pJackGroup->setObjectName( "JackPanel" );
 	pMainLayout->addWidget( m_pJackGroup );
 	auto pJackGroupLayout = new QHBoxLayout( m_pJackGroup );
-	pJackGroupLayout->setAlignment( Qt::AlignTop );
 	pJackGroupLayout->setContentsMargins( margins );
 	pJackGroupLayout->setSpacing( nSpacing );
 
@@ -350,7 +308,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pSystemGroup->setFixedWidth( buttonSize.width() * 3 + 4 );
 	pMainLayout->addWidget( m_pSystemGroup );
 	auto pSystemGroupLayout = new QVBoxLayout( m_pSystemGroup );
-	pSystemGroupLayout->setAlignment( Qt::AlignTop );
 	pSystemGroupLayout->setContentsMargins( margins );
 
 	m_pMidiControlButton = new MidiControlButton( m_pSystemGroup );
@@ -363,7 +320,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pVisibilityGroup->setObjectName( "GroupBox" );
 	pMainLayout->addWidget( m_pVisibilityGroup );
 	auto pVisibilityLayout = new QHBoxLayout( m_pVisibilityGroup );
-	pVisibilityLayout->setAlignment( Qt::AlignTop );
 	pVisibilityLayout->setContentsMargins( margins );
 	pVisibilityLayout->setSpacing( nSpacing );
 
@@ -990,7 +946,6 @@ QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
 }" )
 		.arg( colorToolbarLighter.name() ).arg( colorText.name() )
 		.arg( PlayerControl::nBorder );
-	m_pTimeGroup->setStyleSheet( sGroupStyleSheet );
 	m_pTransportGroup->setStyleSheet( sGroupStyleSheet );
 	m_pSongModeGroup->setStyleSheet( sGroupStyleSheet );
 	m_pBeatCounterGroup->setStyleSheet( sGroupStyleSheet );
