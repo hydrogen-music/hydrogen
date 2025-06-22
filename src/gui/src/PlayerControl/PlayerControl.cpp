@@ -86,9 +86,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		PlayerControl::nMargin );
 	const int nSpacing = PlayerControl::nMargin;
 	const auto buttonSize = QSize(
-		PlayerControl::nButtonWidth, PlayerControl::nWidgetHeight );
-	const auto iconSize = QSize(
-		PlayerControl::nButtonWidth - 2, PlayerControl::nWidgetHeight - 2 );
+		static_cast<int>(std::round( PlayerControl::nWidgetHeight *
+									 Skin::fButtonWidthHeightRatio ) ),
+		PlayerControl::nWidgetHeight );
+	const auto iconSize = QSize( buttonSize.width() - 4, buttonSize.height() - 4 );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeDisplay = new LCDDisplay(
@@ -96,7 +97,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:000" );
 	m_pTimeDisplay->setStyleSheet(
-		m_pTimeDisplay->styleSheet().append(" QLineEdit { font-size: 20px; }" ) );
+		m_pTimeDisplay->styleSheet().append(
+			QString( " QLineEdit { font-size: %1px; }" )
+			.arg( PlayerControl::nFontSize ) ) );
 	pMainLayout->addWidget( m_pTimeDisplay );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -217,15 +220,13 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTempoGroup = new QWidget( this );
-	m_pTempoGroup->setFixedWidth( 125 );
 	m_pTempoGroup->setObjectName( "BPM" );
 	pMainLayout->addWidget( m_pTempoGroup );
 	auto pTempoGroupLayout = new QHBoxLayout( m_pTempoGroup );
 	pTempoGroupLayout->setContentsMargins( margins );
 	pTempoGroupLayout->setSpacing( nSpacing );
 
-	m_pMetronomeBtn = new MetronomeButton(
-		m_pTempoGroup, QSize( 24, PlayerControl::nWidgetHeight ) );
+	m_pMetronomeBtn = new MetronomeButton( m_pTempoGroup, buttonSize );
 	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 	connect( m_pMetronomeBtn, SIGNAL( clicked() ),
@@ -244,9 +245,11 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		m_pTempoGroup, QSize( 95, PlayerControl::nWidgetHeight ),
 		LCDSpinBox::Type::Double,
 		static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ), true );
+	m_pBpmSpinBox->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	m_pBpmSpinBox->setStyleSheet(
 		m_pBpmSpinBox->styleSheet().append(
-			" QAbstractSpinBox {font-size: 16px;}" ) );
+			QString( " QAbstractSpinBox {font-size: %1px;}" )
+			.arg( PlayerControl::nFontSize ) ) );
 	connect( m_pBpmSpinBox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
 	pTempoGroupLayout->addWidget( m_pBpmSpinBox );

@@ -28,6 +28,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 #include "../Widgets/Button.h"
 
 using namespace H2Core;
@@ -57,15 +58,18 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 	pMainLayout->setSpacing( BeatCounter::nMargin );
 	pBackground->setLayout( pMainLayout );
 
+	const int nSmallButtonHeight =
+		PlayerControl::nWidgetHeight / 2 - BeatCounter::nMargin;
 	const auto smallButtonSize = QSize(
-		BeatCounter::nButtonWidth,
-		PlayerControl::nWidgetHeight / 2 - BeatCounter::nMargin );
+		static_cast<int>(std::round( nSmallButtonHeight *
+									 Skin::fButtonWidthHeightRatio ) ),
+		nSmallButtonHeight );
 	const auto smallIconSize = QSize(
 		smallButtonSize.height() - 2, smallButtonSize.height() - 2 );
 
 	////////////////////////////////////////////////////////////////////////////
 	auto pBeatLengthButtonsGroup = new QWidget( pBackground );
-	pBeatLengthButtonsGroup->setFixedWidth( BeatCounter::nButtonWidth );
+	pBeatLengthButtonsGroup->setFixedWidth( smallButtonSize.width() );
 	pMainLayout->addWidget( pBeatLengthButtonsGroup );
 	auto pBeatLengthButtonsGroupLayout = new QVBoxLayout( pBeatLengthButtonsGroup );
 	pBeatLengthButtonsGroupLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -108,12 +112,13 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 	pLabelsLayout->setSpacing( 0 );
 
 	m_pBeatLengthLabel = new QLabel( pLabelsGroup );
+	m_pBeatLengthLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	m_pBeatLengthLabel->setFixedHeight( PlayerControl::nWidgetHeight );
 	m_pBeatLengthLabel->setContentsMargins( 5, 0, 5, 0 );
 	pLabelsLayout->addWidget( m_pBeatLengthLabel );
 
 	m_pTotalBeatsLabel = new QLabel( pLabelsGroup );
-	m_pTotalBeatsLabel->setAlignment( Qt::AlignRight );
+	m_pTotalBeatsLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
 	m_pTotalBeatsLabel->setFixedWidth( 45 );
 	m_pTotalBeatsLabel->setFixedHeight( PlayerControl::nWidgetHeight );
 	m_pTotalBeatsLabel->setContentsMargins( 5, 0, 5, 0 );
@@ -121,7 +126,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	auto pTotalBeatsButtonsGroup = new QWidget( pBackground );
-	pTotalBeatsButtonsGroup->setFixedWidth( BeatCounter::nButtonWidth );
+	pTotalBeatsButtonsGroup->setFixedWidth( smallButtonSize.width() );
 	pMainLayout->addWidget( pTotalBeatsButtonsGroup );
 	auto pTotalBeatsButtonsLayout = new QVBoxLayout( pTotalBeatsButtonsGroup );
 	pTotalBeatsButtonsLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -159,11 +164,13 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 	pTotalBeatsButtonsLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
+	const int nButtonHeight = PlayerControl::nWidgetHeight -
+		BeatCounter::nMargin * 2;
+	const int nButtonWidth = static_cast<int>(
+		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
 	m_pSetPlayBtn = new Button(
-		pBackground, QSize( PlayerControl::nButtonWidth,
-							PlayerControl::nWidgetHeight - BeatCounter::nMargin * 2 ),
-		Button::Type::Push, "",
-		pCommonStrings->getBeatCounterSetPlayButtonOff(), QSize(),
+		pBackground, QSize( nButtonWidth, nButtonHeight ), Button::Type::Push,
+		"", pCommonStrings->getBeatCounterSetPlayButtonOff(), QSize(),
 		tr("Set BPM / Set BPM and play"), false, true );
 	m_pSetPlayBtn->setObjectName( "BeatCounterSetPlayButton" );
 	connect( m_pSetPlayBtn, &Button::clicked, [&]() {
@@ -293,9 +300,10 @@ QWidget#Background {\
 QLabel {\
     background-color: %1;\
     color: %2;\
-    font-size: 20px;\
+    font-size: %3px;\
 }" )
-		.arg( colorLabel.name() ).arg( colorText.name() );
+		.arg( colorLabel.name() ).arg( colorText.name() )
+		.arg( PlayerControl::nFontSize );
 	m_pBeatLengthLabel->setStyleSheet( sLabelStyleSheet );
 	m_pTotalBeatsLabel->setStyleSheet( sLabelStyleSheet );
 }

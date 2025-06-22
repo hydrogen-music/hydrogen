@@ -38,7 +38,7 @@ MetronomeButton::MetronomeButton( QWidget *pParent, const QSize& size )
 			  Button::Type::Toggle,
 			  "metronome.svg", /* icon */
 			  "", /* label */
-			  QSize( size.width() - 4, size.width() - 4 ), /* icon size */
+			  QSize( size.width() - 6, size.height() - 6 ), /* icon size */
 			  tr( "Switch metronome on/off" ), /* tooltip */
 			  false, /* colorful */
 			  true /* modify on change */ )
