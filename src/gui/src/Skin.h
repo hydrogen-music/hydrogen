@@ -32,6 +32,9 @@
 class Skin
 {
 public:
+		/** Factor by which an average button (in a panel) is more wide than
+		 * high. */
+		static constexpr float fButtonWidthHeightRatio = 1.2;
 
 		/** Different parts of the pattern editor share a common cursor. We will
 		 * add a slight transparency to those cursors _not_ current focussed by
