@@ -21,9 +21,93 @@
  */
 
 #include "Skin.h"
+
+#include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
 
 #include <QApplication>
+
+void Skin::drawListBackground( QPainter* p, const QRect& rect,
+							   QColor background, bool bHovered ) {
+
+	if ( bHovered ) {
+		background = background.lighter( 110 );
+	}
+
+	QColor borderLight = background.lighter(
+		Skin::nListBackgroundLightBorderScaling );
+	QColor borderDark = background.darker(
+		Skin::nListBackgroundDarkBorderScaling );
+
+	p->fillRect( QRect( rect.x() + 1, rect.y() + 1,
+						rect.width() - 2, rect.height() - 2 ), background );
+	p->fillRect( QRect( rect.x(), rect.y(), rect.width(), 1 ), borderLight );
+	p->fillRect( QRect( rect.x(), rect.y(), 1, rect.height() ), borderLight );
+	p->fillRect( QRect( rect.x(), rect.y() + rect.height() - 1, rect.width(), 1 ),
+				 borderDark );
+	p->fillRect( QRect( rect.x() + rect.width() - 1, rect.y(), 1, rect.height() ),
+				 borderDark );
+}
+
+void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
+
+	const QPointF points[3] = {
+		QPointF( x, y ),
+		QPointF( x + Skin::nPlayheadWidth - 1, y ),
+		QPointF( x + Skin::getPlayheadShaftOffset(),
+				 y + Skin::nPlayheadHeight ),
+	};
+
+	QColor playheadColor( H2Core::Preferences::get_instance()->getTheme().m_color.m_playheadColor );
+	if ( bHovered ) {
+		playheadColor = Skin::makeTextColorInactive( playheadColor );
+	}
+
+	Skin::setPlayheadPen( p, bHovered );
+	p->setBrush( playheadColor );
+	p->drawPolygon( points, 3 );
+	p->setBrush( Qt::NoBrush );
+}
+
+void Skin::drawStackedIndicator( QPainter* p, int x, int y,
+								 const Skin::Stacked& stacked ) {
+
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
+
+	const QPointF points[3] = {
+		QPointF( x, y ),
+		QPointF( x + 8, y + 6 ),
+		QPointF( x, y + 12 )
+	};
+
+	QPen pen( Qt::black );
+	pen.setWidth( 1 );
+
+	QColor fillColor;
+	switch ( stacked ) {
+	case Skin::Stacked::None:
+	case Skin::Stacked::Off:
+		fillColor = QColor( 0, 0, 0 );
+		fillColor.setAlpha( 0 );
+		break;
+	case Skin::Stacked::OffNext:
+		fillColor = colorTheme.m_songEditor_stackedModeOffNextColor;
+		break;
+	case Skin::Stacked::On:
+		fillColor = colorTheme.m_songEditor_stackedModeOnColor;
+		break;
+	case Skin::Stacked::OnNext:
+		fillColor = colorTheme.m_songEditor_stackedModeOnNextColor;
+		break;
+	}
+
+	p->setPen( pen );
+	p->setBrush( fillColor );
+	p->setRenderHint( QPainter::Antialiasing );
+	p->drawPolygon( points, 3 );
+	p->setBrush( Qt::NoBrush );
+}
 
 QString Skin::getGlobalStyleSheet() {
 	const auto colorTheme =
@@ -115,6 +199,48 @@ QDoubleSpinBox, QSpinBox { \
 		.arg( spinBoxSelection.name() );
 }
 
+QColor Skin::makeTextColorInactive( const QColor& color ) {
+	int nHue, nSaturation, nValue;
+	color.getHsv( &nHue, &nSaturation, &nValue );
+	if ( nValue >= 130 ) {
+		// TextInactive color is more white than black. Make it darker.
+		nValue -= 55;
+	} else {
+		nValue += 55;
+	}
+
+	auto newColor = QColor( color );
+	newColor.setHsv( nHue, nSaturation, nValue );
+	return newColor;
+}
+
+QString Skin::getImagePath() {
+	return H2Core::Filesystem::img_dir().append( "/gray" );
+}
+
+QString Skin::getSvgImagePath() {
+	return H2Core::Filesystem::img_dir().append( "/scalable" );
+}
+
+QColor Skin::makeWidgetColorInactive( const QColor& color ){
+	int nHue, nSaturation, nValue;
+	color.getHsv( &nHue, &nSaturation, &nValue );
+	nValue = std::max( 0, nValue - 40 );
+
+	auto newColor = QColor( color );
+	newColor.setHsv( nHue, nSaturation, nValue );
+	return newColor;
+}
+
+bool Skin::moreBlackThanWhite( const QColor& color ) {
+	const int nThreshold = 128;
+	int nHue, nSaturation, nValue;
+
+	color.getHsv( &nHue, &nSaturation, &nValue );
+
+	return nValue < nThreshold;
+}
+
 void Skin::setPalette( QApplication *pQApp ) {
 	const auto colorTheme =
 		H2Core::Preferences::get_instance()->getTheme().m_color;
@@ -154,53 +280,6 @@ void Skin::setPalette( QApplication *pQApp ) {
 	pQApp->setStyleSheet( getGlobalStyleSheet() );
 }
 
-void Skin::drawListBackground( QPainter* p, const QRect& rect,
-							   QColor background, bool bHovered ) {
-
-	if ( bHovered ) {
-		background = background.lighter( 110 );
-	}
-
-	QColor borderLight = background.lighter(
-		Skin::nListBackgroundLightBorderScaling );
-	QColor borderDark = background.darker(
-		Skin::nListBackgroundDarkBorderScaling );
-
-	p->fillRect( QRect( rect.x() + 1, rect.y() + 1,
-						rect.width() - 2, rect.height() - 2 ), background );
-	p->fillRect( QRect( rect.x(), rect.y(), rect.width(), 1 ), borderLight );
-	p->fillRect( QRect( rect.x(), rect.y(), 1, rect.height() ), borderLight );
-	p->fillRect( QRect( rect.x(), rect.y() + rect.height() - 1, rect.width(), 1 ),
-				 borderDark );
-	p->fillRect( QRect( rect.x() + rect.width() - 1, rect.y(), 1, rect.height() ),
-				 borderDark );
-}
-
-QColor Skin::makeWidgetColorInactive( const QColor& color ){
-	int nHue, nSaturation, nValue;
-	color.getHsv( &nHue, &nSaturation, &nValue );
-	nValue = std::max( 0, nValue - 40 );
-
-	auto newColor = QColor( color );
-	newColor.setHsv( nHue, nSaturation, nValue );
-	return newColor;
-}
-
-QColor Skin::makeTextColorInactive( const QColor& color ) {
-	int nHue, nSaturation, nValue;
-	color.getHsv( &nHue, &nSaturation, &nValue );
-	if ( nValue >= 130 ) {
-		// TextInactive color is more white than black. Make it darker.
-		nValue -= 55;
-	} else {
-		nValue += 55;
-	}
-
-	auto newColor = QColor( color );
-	newColor.setHsv( nHue, nSaturation, nValue );
-	return newColor;
-}
-
 void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 
 	QColor playheadColor( H2Core::Preferences::get_instance()->getTheme().m_color.m_playheadColor );
@@ -209,76 +288,7 @@ void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 	}
 	QPen pen ( playheadColor );
 	pen.setWidth( 2 );
-	
-	p->setPen( pen );
-	p->setRenderHint( QPainter::Antialiasing );
-}
-
-void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
-
-	const QPointF points[3] = {
-		QPointF( x, y ),
-		QPointF( x + Skin::nPlayheadWidth - 1, y ),
-		QPointF( x + Skin::getPlayheadShaftOffset(),
-				 y + Skin::nPlayheadHeight ),
-	};
-
-	QColor playheadColor( H2Core::Preferences::get_instance()->getTheme().m_color.m_playheadColor );
-	if ( bHovered ) {
-		playheadColor = Skin::makeTextColorInactive( playheadColor );
-	}
-
-	Skin::setPlayheadPen( p, bHovered );
-	p->setBrush( playheadColor );
-	p->drawPolygon( points, 3 );
-	p->setBrush( Qt::NoBrush );
-}
-
-void Skin::drawStackedIndicator( QPainter* p, int x, int y,
-								 const Skin::Stacked& stacked ) {
-
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
-
-	const QPointF points[3] = {
-		QPointF( x, y ),
-		QPointF( x + 8, y + 6 ),
-		QPointF( x, y + 12 )
-	};
-
-	QPen pen( Qt::black );
-	pen.setWidth( 1 );
-	
-	QColor fillColor;
-	switch ( stacked ) {
-	case Skin::Stacked::None:
-	case Skin::Stacked::Off:
-		fillColor = QColor( 0, 0, 0 );
-		fillColor.setAlpha( 0 );
-		break;
-	case Skin::Stacked::OffNext:
-		fillColor = colorTheme.m_songEditor_stackedModeOffNextColor;
-		break;
-	case Skin::Stacked::On:
-		fillColor = colorTheme.m_songEditor_stackedModeOnColor;
-		break;
-	case Skin::Stacked::OnNext:
-		fillColor = colorTheme.m_songEditor_stackedModeOnNextColor;
-		break;
-	}
 
 	p->setPen( pen );
-	p->setBrush( fillColor );
 	p->setRenderHint( QPainter::Antialiasing );
-	p->drawPolygon( points, 3 );
-	p->setBrush( Qt::NoBrush );
-}
-
-bool Skin::moreBlackThanWhite( const QColor& color ) {
-	const int nThreshold = 128;
-	int nHue, nSaturation, nValue;
-
-	color.getHsv( &nHue, &nSaturation, &nValue );
-
-	return nValue < nThreshold;
 }
