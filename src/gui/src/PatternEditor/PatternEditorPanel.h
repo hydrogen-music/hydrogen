@@ -138,8 +138,11 @@ class PatternEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nToolbarBorder = 1;
 		static constexpr int nToolbarHeight = 28;
-		static constexpr int nToolbarGroupHeight = nToolbarHeight - 4;
+		static constexpr int nToolbarMarginHorizontal = 2;
+		static constexpr int nToolbarMarginVertical = 1;
+		static constexpr int nToolbarSpacing = 2;
 
 		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
@@ -430,10 +433,8 @@ class PatternEditorPanel : public QWidget,
 
 		/** Contains the pattern size and resolution widget. */
 		QWidget* m_pToolbar;
-		QWidget* m_pSizeGroup;
 		LCDSpinBox* m_pLCDSpinBoxNumerator;
 		LCDSpinBox* m_pLCDSpinBoxDenominator;
-		QWidget* m_pResolutionGroup;
 		LCDCombo* m_pResolutionCombo;
 
 		//note properties combo
