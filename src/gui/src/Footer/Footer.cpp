@@ -190,8 +190,7 @@ void Footer::updateStyleSheet() {
 		H2Core::Preferences::get_instance()->getTheme().m_color;
 
 	const QColor colorText = colorTheme.m_windowTextColor;
-	const QColor colorFooter =
-		colorTheme.m_windowColor.lighter( 134 );
+	const QColor colorFooter = colorTheme.m_baseColor;
 	const QColor colorRed = colorTheme.m_buttonRedColor;
 
 	setStyleSheet( QString( "\
