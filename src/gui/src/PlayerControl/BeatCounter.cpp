@@ -30,6 +30,7 @@
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/Button.h"
+#include "../Widgets/PanelGroupBox.h"
 
 using namespace H2Core;
 
@@ -37,7 +38,10 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	setFixedHeight( PlayerControl::nWidgetHeight );
+	const int nWidgetHeight = PlayerControl::nWidgetHeight -
+		PanelGroupBox::nMarginVertical * 2 - PanelGroupBox::nBorder * 2;
+
+	setFixedHeight( nWidgetHeight );
 	setAttribute( Qt::WA_OpaquePaintEvent );
 	setObjectName( "BeatCounter" );
 
@@ -59,7 +63,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 	pBackground->setLayout( pMainLayout );
 
 	const int nSmallButtonHeight =
-		PlayerControl::nWidgetHeight / 2 - BeatCounter::nMargin;
+		nWidgetHeight / 2 - BeatCounter::nMargin;
 	const auto smallButtonSize = QSize(
 		static_cast<int>(std::round( nSmallButtonHeight *
 									 Skin::fButtonWidthHeightRatio ) ),
@@ -113,14 +117,14 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 
 	m_pBeatLengthLabel = new QLabel( pLabelsGroup );
 	m_pBeatLengthLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-	m_pBeatLengthLabel->setFixedHeight( PlayerControl::nWidgetHeight );
+	m_pBeatLengthLabel->setFixedHeight( nWidgetHeight );
 	m_pBeatLengthLabel->setContentsMargins( 5, 0, 5, 0 );
 	pLabelsLayout->addWidget( m_pBeatLengthLabel );
 
 	m_pTotalBeatsLabel = new QLabel( pLabelsGroup );
 	m_pTotalBeatsLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
 	m_pTotalBeatsLabel->setFixedWidth( 45 );
-	m_pTotalBeatsLabel->setFixedHeight( PlayerControl::nWidgetHeight );
+	m_pTotalBeatsLabel->setFixedHeight( nWidgetHeight );
 	m_pTotalBeatsLabel->setContentsMargins( 5, 0, 5, 0 );
 	pLabelsLayout->addWidget( m_pTotalBeatsLabel );
 
@@ -164,7 +168,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
 	pTotalBeatsButtonsLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
-	const int nButtonHeight = PlayerControl::nWidgetHeight -
+	const int nButtonHeight = nWidgetHeight -
 		BeatCounter::nMargin * 2;
 	const int nButtonWidth = static_cast<int>(
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );

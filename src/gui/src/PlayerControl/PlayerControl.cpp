@@ -91,6 +91,15 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		PlayerControl::nWidgetHeight );
 	const auto iconSize = QSize( buttonSize.width() - 4, buttonSize.height() - 4 );
 
+	const int nButtonHeightGroup = PlayerControl::nWidgetHeight -
+		PanelGroupBox::nBorder * 2 - PanelGroupBox::nMarginVertical * 2;
+	const auto buttonSizeGroup = QSize(
+		static_cast<int>(std::round( nButtonHeightGroup *
+									 Skin::fButtonWidthHeightRatio ) ),
+		nButtonHeightGroup );
+	const auto iconSizeGroup = QSize( buttonSizeGroup.width() - 4,
+									  buttonSizeGroup.height() - 4 );
+
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeDisplay = new LCDDisplay(
 		pMainToolbar, QSize( 146, PlayerControl::nWidgetHeight ), true, false );
@@ -110,7 +119,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pEditorGroup );
 
 	m_pPatternModeBtn = new Button(
-		m_pEditorGroup, buttonSize, Button::Type::Toggle, "",
+		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
 		"P", QSize(), tr( "Pattern Mode" ),
 		//pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
 		false, true );
@@ -120,7 +129,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pEditorGroup->addWidget( m_pPatternModeBtn );
 
 	m_pSongModeBtn = new Button(
-		m_pEditorGroup, buttonSize, Button::Type::Toggle, "",
+		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
 		"S", QSize(), tr( "Song Mode" ),
 		//pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
 		false, true );
@@ -130,11 +139,12 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pEditorGroup->addWidget( m_pSongModeBtn );
 
 	////////////////////////////////////////////////////////////////////////////
+	// Invisible wrapper group for snapshots.
 	m_pTransportGroup = new QWidget( this );
-	m_pTransportGroup->setObjectName( "GroupBox" );
+	m_pTransportGroup->setObjectName( "PlayerControlTransport" );
 	pMainLayout->addWidget( m_pTransportGroup );
 	auto pTransportGroupLayout = new QHBoxLayout( m_pTransportGroup );
-	pTransportGroupLayout->setContentsMargins( margins );
+	pTransportGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 	pTransportGroupLayout->setSpacing( nSpacing );
 
 	// Rewind button
@@ -200,11 +210,12 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 				 }
 
 			 });
-	pTransportGroupLayout->addWidget( m_pSongLoopBtn );
+	pMainLayout->addWidget( m_pSongLoopBtn );
 
 	////////////////////////////////////////////////////////////////////////////
+	// BeatCounter
 	m_pBeatCounterGroup = new QWidget( this );
-	m_pBeatCounterGroup->setObjectName( "GroupBox" );
+	m_pBeatCounterGroup->setObjectName( "PlayerControlBeatCounter" );
 	pMainLayout->addWidget( m_pBeatCounterGroup );
 	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
 	pBeatCounterGroupLayout->setContentsMargins( margins );
@@ -219,11 +230,12 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pBeatCounterGroupLayout->addWidget( m_pBeatCounter );
 
 	////////////////////////////////////////////////////////////////////////////
+	// Invisible wrapper group for snapshots.
 	m_pTempoGroup = new QWidget( this );
 	m_pTempoGroup->setObjectName( "BPM" );
 	pMainLayout->addWidget( m_pTempoGroup );
 	auto pTempoGroupLayout = new QHBoxLayout( m_pTempoGroup );
-	pTempoGroupLayout->setContentsMargins( margins );
+	pTempoGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 	pTempoGroupLayout->setSpacing( nSpacing );
 
 	m_pMetronomeBtn = new MetronomeButton( m_pTempoGroup, buttonSize );
@@ -242,7 +254,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		tr( "In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK" );
 
 	m_pBpmSpinBox = new LCDSpinBox(
-		m_pTempoGroup, QSize( 95, PlayerControl::nWidgetHeight ),
+		pMainToolbar, QSize( 95, PlayerControl::nWidgetHeight ),
 		LCDSpinBox::Type::Double,
 		static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ), true );
 	m_pBpmSpinBox->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
@@ -256,33 +268,34 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pRubberBandGroup = new QWidget( this );
-	m_pRubberBandGroup->setObjectName( "GroupBox" );
+	m_pRubberBandGroup = new QWidget( pMainToolbar );
+	m_pRubberBandGroup->setObjectName( "PlayerControlRubberBand" );
 	pMainLayout->addWidget( m_pRubberBandGroup );
 	auto pRubberBandGroupLayout = new QHBoxLayout( m_pRubberBandGroup );
-	pRubberBandGroupLayout->setContentsMargins( margins );
+	pRubberBandGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 
-	m_pRubberBPMChange = new Button(
+	m_pRubberBandBtn = new Button(
 		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "",
 		pCommonStrings->getRubberbandButton(), QSize(),
 		tr( "Recalculate Rubberband modified samples if bpm will change" ),
 		false, true );
-	m_pRubberBPMChange->setObjectName( "PlayerControlRubberbandButton" );
-	m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode() );
-	connect( m_pRubberBPMChange, SIGNAL( clicked() ),
+	m_pRubberBandBtn->setObjectName( "PlayerControlRubberbandButton" );
+	m_pRubberBandBtn->setChecked( pPref->getRubberBandBatchMode() );
+	connect( m_pRubberBandBtn, SIGNAL( clicked() ),
 			 this, SLOT( rubberbandButtonToggle() ) );
-	pRubberBandGroupLayout->addWidget( m_pRubberBPMChange );
+	pRubberBandGroupLayout->addWidget( m_pRubberBandBtn );
 	// test the path. if test fails, no button
 	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false) {
-		m_pRubberBandGroup->hide();
+		m_pRubberBandBtn->hide();
 	}
 
 	////////////////////////////////////////////////////////////////////////////
+	// Invisible wrapper group for snapshots.
 	m_pJackGroup = new QWidget( this );
 	m_pJackGroup->setObjectName( "JackPanel" );
 	pMainLayout->addWidget( m_pJackGroup );
 	auto pJackGroupLayout = new QHBoxLayout( m_pJackGroup );
-	pJackGroupLayout->setContentsMargins( margins );
+	pJackGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 	pJackGroupLayout->setSpacing( nSpacing );
 
 	m_pJackTransportBtn = new Button(
@@ -306,24 +319,18 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pJackGroupLayout->addWidget( m_pJackTimebaseBtn );
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pSystemGroup = new QWidget( this );
-	m_pSystemGroup->setObjectName( "GroupBox" );
-	m_pSystemGroup->setFixedWidth( buttonSize.width() * 3 + 4 );
-	pMainLayout->addWidget( m_pSystemGroup );
-	auto pSystemGroupLayout = new QVBoxLayout( m_pSystemGroup );
-	pSystemGroupLayout->setContentsMargins( margins );
-
-	m_pMidiControlButton = new MidiControlButton( m_pSystemGroup );
+	m_pMidiControlButton = new MidiControlButton( pMainToolbar );
 	m_pMidiControlButton->setFixedSize(
 		buttonSize.width() * 3, buttonSize.height() );
-	pSystemGroupLayout->addWidget( m_pMidiControlButton );
+	pMainLayout->addWidget( m_pMidiControlButton );
 
 	////////////////////////////////////////////////////////////////////////////
+	// Invisible wrapper group for snapshots.
 	m_pVisibilityGroup = new QWidget( this );
-	m_pVisibilityGroup->setObjectName( "GroupBox" );
+	m_pVisibilityGroup->setObjectName( "PlayerControlVisibility" );
 	pMainLayout->addWidget( m_pVisibilityGroup );
 	auto pVisibilityLayout = new QHBoxLayout( m_pVisibilityGroup );
-	pVisibilityLayout->setContentsMargins( margins );
+	pVisibilityLayout->setContentsMargins( 0, 0, 0, 0 );
 	pVisibilityLayout->setSpacing( nSpacing );
 
 	m_pShowMixerBtn = new Button(
@@ -455,8 +462,8 @@ void PlayerControl::updatePlayerControl()
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 
 	// Rubberband
-	if ( m_pRubberBPMChange->isChecked() != pPref->getRubberBandBatchMode() ) {
-		m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
+	if ( m_pRubberBandBtn->isChecked() != pPref->getRubberBandBatchMode() ) {
+		m_pRubberBandBtn->setChecked( pPref->getRubberBandBatchMode());
 	}
 }
 
@@ -669,7 +676,7 @@ void PlayerControl::rubberbandButtonToggle()
 {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( m_pRubberBPMChange->isChecked() ) {
+	if ( m_pRubberBandBtn->isChecked() ) {
 		auto pSong = pHydrogen->getSong();
 
 		if ( pSong != nullptr ) {
@@ -949,22 +956,15 @@ QWidget#MainToolbar {\
 				   .arg( colorToolbar.name() ).arg( colorText.name() )
 				   .arg( PlayerControl::nBorder ) );
 
-	const QString sGroupStyleSheet = QString( "\
-QWidget#GroupBox, QWidget#BPM, QWidget#JackPanel {\
+	m_pBeatCounterGroup->setStyleSheet( QString( "\
+#PlayerControlBeatCounter {\
     background-color: %1;\
     color: %2;\
     border: %3px solid #000;\
     border-radius: 2px;\
 }" )
 		.arg( colorToolbarLighter.name() ).arg( colorText.name() )
-		.arg( PlayerControl::nBorder );
-	m_pTransportGroup->setStyleSheet( sGroupStyleSheet );
-	m_pBeatCounterGroup->setStyleSheet( sGroupStyleSheet );
-	m_pTempoGroup->setStyleSheet( sGroupStyleSheet );
-	m_pRubberBandGroup->setStyleSheet( sGroupStyleSheet );
-	m_pJackGroup->setStyleSheet( sGroupStyleSheet );
-	m_pSystemGroup->setStyleSheet( sGroupStyleSheet );
-	m_pVisibilityGroup->setStyleSheet( sGroupStyleSheet );
+		.arg( PlayerControl::nBorder ) );
 
 	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
 	m_pEditorGroup->updateStyleSheet();

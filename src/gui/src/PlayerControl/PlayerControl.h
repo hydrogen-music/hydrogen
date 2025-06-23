@@ -56,7 +56,7 @@ public:
 		static constexpr int nHeight = 36;
 		static constexpr int nMargin = 2;
 		static constexpr int nWidgetHeight = PlayerControl::nHeight -
-			PlayerControl::nMargin * 3 - PlayerControl::nBorder * 2;
+			PlayerControl::nMargin * 2;
 
 
 		explicit PlayerControl(QWidget *parent);
@@ -122,13 +122,12 @@ private:
 		LCDSpinBox* m_pBpmSpinBox;
 
 		QWidget* m_pRubberBandGroup;
-		Button* m_pRubberBPMChange;
+		Button* m_pRubberBandBtn;
 
 		QWidget* m_pJackGroup;
 		Button* m_pJackTransportBtn;
 		Button* m_pJackTimebaseBtn;
 
-		QWidget* m_pSystemGroup;
 		MidiControlButton* m_pMidiControlButton;
 
 		QWidget* m_pVisibilityGroup;
