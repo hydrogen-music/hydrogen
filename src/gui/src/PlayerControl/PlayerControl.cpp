@@ -977,8 +977,7 @@ void PlayerControl::updateStyleSheet() {
 		H2Core::Preferences::get_instance()->getTheme().m_color;
 
 	const QColor colorText = colorTheme.m_windowTextColor;
-	const QColor colorToolbar =
-		colorTheme.m_windowColor.lighter( 134 );
+	const QColor colorToolbar = colorTheme.m_baseColor;
 	const QColor colorToolbarLighter = colorToolbar.lighter( 130 );
 
 	QColor colorGroupBoxBorder;
