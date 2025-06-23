@@ -41,6 +41,7 @@ class LED;
 class MetronomeButton;
 class MidiControlButton;
 class PanelGroupBox;
+class PanelSeparator;
 
 /** \ingroup docGUI*/
 class PlayerControl : public QWidget,
@@ -101,10 +102,12 @@ private:
 		void updateStyleSheet();
 
 		LCDDisplay* m_pTimeDisplay;
+		PanelSeparator* m_pSeparatorTime;
 
 		PanelGroupBox* m_pEditorGroup;
 		Button* m_pSongModeBtn;
 		Button* m_pPatternModeBtn;
+		PanelSeparator* m_pSeparatorEditor;
 
 		QWidget* m_pTransportGroup;
 		Button* m_pRwdBtn;
@@ -113,22 +116,29 @@ private:
 		Button* m_pStopBtn;
 		Button* m_pFfwdBtn;
 		Button* m_pSongLoopBtn;
+		PanelSeparator* m_pSeparatorTransport;
 
+		QWidget* m_pBeatCounterWrapper;
 		QWidget* m_pBeatCounterGroup;
 		BeatCounter* m_pBeatCounter;
+		PanelSeparator* m_pSeparatorBeatCounter;
 
 		QWidget* m_pTempoGroup;
 		MetronomeButton* m_pMetronomeBtn;
 		LCDSpinBox* m_pBpmSpinBox;
+		PanelSeparator* m_pSeparatorTempo;
 
 		QWidget* m_pRubberBandGroup;
 		Button* m_pRubberBandBtn;
+		PanelSeparator* m_pSeparatorRubberBand;
 
 		QWidget* m_pJackGroup;
 		Button* m_pJackTransportBtn;
 		Button* m_pJackTimebaseBtn;
+		PanelSeparator* m_pSeparatorJack;
 
 		MidiControlButton* m_pMidiControlButton;
+		PanelSeparator* m_pSeparatorMidi;
 
 		QWidget* m_pVisibilityGroup;
 		Button* m_pShowMixerBtn;

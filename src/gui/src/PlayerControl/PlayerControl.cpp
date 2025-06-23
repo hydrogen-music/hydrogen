@@ -38,6 +38,7 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/PanelGroupBox.h"
+#include "../Widgets/PanelSeparator.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -111,6 +112,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 			.arg( PlayerControl::nFontSize ) ) );
 	pMainLayout->addWidget( m_pTimeDisplay );
 
+	m_pSeparatorTime = new PanelSeparator( pMainToolbar );
+	m_pSeparatorTime->setFixedHeight( buttonSize.height() );
+	pMainLayout->addWidget( m_pSeparatorTime );
+
 	////////////////////////////////////////////////////////////////////////////
 	m_pEditorGroup = new PanelGroupBox( this );
 	m_pEditorGroup->setFixedHeight(
@@ -137,6 +142,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	connect( m_pSongModeBtn, &QPushButton::clicked,
 			[=]() { activateSongMode( true ); } );
 	m_pEditorGroup->addWidget( m_pSongModeBtn );
+
+	m_pSeparatorEditor = new PanelSeparator( pMainToolbar );
+	m_pSeparatorEditor->setFixedHeight( buttonSize.height() );
+	pMainLayout->addWidget( m_pSeparatorEditor );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Invisible wrapper group for snapshots.
@@ -212,11 +221,25 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 			 });
 	pMainLayout->addWidget( m_pSongLoopBtn );
 
+	m_pSeparatorTransport = new PanelSeparator( pMainToolbar );
+	m_pSeparatorTransport->setFixedHeight( buttonSize.height() );
+	pMainLayout->addWidget( m_pSeparatorTransport );
+
 	////////////////////////////////////////////////////////////////////////////
 	// BeatCounter
-	m_pBeatCounterGroup = new QWidget( this );
+	//
+	// Additional wrapper object to associate separator with beat counter while
+	// not including it into the outlined box.
+	m_pBeatCounterWrapper = new QWidget( this );
+	pMainLayout->addWidget( m_pBeatCounterWrapper );
+	auto pBeatCounterWrapperLayout = new QHBoxLayout( m_pBeatCounterWrapper );
+	pBeatCounterWrapperLayout->setContentsMargins( 0, 0, 0, 0 );
+	pBeatCounterWrapperLayout->setSpacing( nSpacing );
+	m_pBeatCounterWrapper->setLayout( pBeatCounterWrapperLayout );
+
+	m_pBeatCounterGroup = new QWidget( m_pBeatCounterWrapper );
 	m_pBeatCounterGroup->setObjectName( "PlayerControlBeatCounter" );
-	pMainLayout->addWidget( m_pBeatCounterGroup );
+	pBeatCounterWrapperLayout->addWidget( m_pBeatCounterGroup );
 	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
 	pBeatCounterGroupLayout->setContentsMargins( margins );
 	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
@@ -228,6 +251,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	m_pBeatCounter = new BeatCounter( this );
 	pBeatCounterGroupLayout->addWidget( m_pBeatCounter );
+
+	m_pSeparatorBeatCounter = new PanelSeparator( m_pBeatCounterWrapper );
+	m_pSeparatorBeatCounter->setFixedHeight( buttonSize.height() );
+	pBeatCounterWrapperLayout->addWidget( m_pSeparatorBeatCounter );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Invisible wrapper group for snapshots.
@@ -266,6 +293,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 			 this, SLOT( bpmChanged( double ) ) );
 	pTempoGroupLayout->addWidget( m_pBpmSpinBox );
 
+	m_pSeparatorTempo = new PanelSeparator( pMainToolbar );
+	m_pSeparatorTempo->setFixedHeight( buttonSize.height() );
+	pMainLayout->addWidget( m_pSeparatorTempo );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandGroup = new QWidget( pMainToolbar );
@@ -273,6 +303,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pRubberBandGroup );
 	auto pRubberBandGroupLayout = new QHBoxLayout( m_pRubberBandGroup );
 	pRubberBandGroupLayout->setContentsMargins( 0, 0, 0, 0 );
+	pRubberBandGroupLayout->setSpacing( nSpacing );
 
 	m_pRubberBandBtn = new Button(
 		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "",
@@ -288,6 +319,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false) {
 		m_pRubberBandBtn->hide();
 	}
+
+	m_pSeparatorRubberBand = new PanelSeparator( m_pRubberBandGroup );
+	m_pSeparatorRubberBand->setFixedHeight( buttonSize.height() );
+	pRubberBandGroupLayout->addWidget( m_pSeparatorRubberBand );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Invisible wrapper group for snapshots.
@@ -318,11 +353,19 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 			SLOT( jackTimebaseBtnClicked() ) );
 	pJackGroupLayout->addWidget( m_pJackTimebaseBtn );
 
+	m_pSeparatorJack = new PanelSeparator( m_pJackGroup );
+	m_pSeparatorJack->setFixedHeight( buttonSize.height() );
+	pJackGroupLayout->addWidget( m_pSeparatorJack );
+
 	////////////////////////////////////////////////////////////////////////////
 	m_pMidiControlButton = new MidiControlButton( pMainToolbar );
 	m_pMidiControlButton->setFixedSize(
 		buttonSize.width() * 3, buttonSize.height() );
 	pMainLayout->addWidget( m_pMidiControlButton );
+
+	m_pSeparatorMidi = new PanelSeparator( pMainToolbar );
+	m_pSeparatorMidi->setFixedHeight( buttonSize.height() );
+	pMainLayout->addWidget( m_pSeparatorMidi );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Invisible wrapper group for snapshots.
@@ -773,10 +816,10 @@ void PlayerControl::updateBeatCounter() {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
-		m_pBeatCounterGroup->show();
+		m_pBeatCounterWrapper->show();
 	}
 	else {
-		m_pBeatCounterGroup->hide();
+		m_pBeatCounterWrapper->hide();
 		return;
 	}
 
@@ -784,13 +827,13 @@ void PlayerControl::updateBeatCounter() {
 
 	switch ( pHydrogen->getTempoSource() ) {
 	case H2Core::Hydrogen::Tempo::Jack:
-		m_pBeatCounterGroup->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
+		m_pBeatCounterWrapper->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
 		break;
 	case H2Core::Hydrogen::Tempo::Timeline:
-		m_pBeatCounterGroup->setToolTip( m_sBCOnOffBtnTimelineToolTip );
+		m_pBeatCounterWrapper->setToolTip( m_sBCOnOffBtnTimelineToolTip );
 		break;
 	default:
-		m_pBeatCounterGroup->setToolTip( "" );
+		m_pBeatCounterWrapper->setToolTip( "" );
 	}
 }
 
@@ -968,6 +1011,15 @@ QWidget#MainToolbar {\
 
 	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
 	m_pEditorGroup->updateStyleSheet();
+
+	m_pSeparatorTime->setColor( colorGroupBoxBorder );
+	m_pSeparatorEditor->setColor( colorGroupBoxBorder );
+	m_pSeparatorTransport->setColor( colorGroupBoxBorder );
+	m_pSeparatorBeatCounter->setColor( colorGroupBoxBorder );
+	m_pSeparatorTempo->setColor( colorGroupBoxBorder );
+	m_pSeparatorRubberBand->setColor( colorGroupBoxBorder );
+	m_pSeparatorJack->setColor( colorGroupBoxBorder );
+	m_pSeparatorMidi->setColor( colorGroupBoxBorder );
 
 	m_pBeatCounter->updateStyleSheet();
 	m_pMetronomeBtn->updateStyleSheet();

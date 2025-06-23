@@ -50,6 +50,7 @@
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/PatchBay.h"
 #include "../Widgets/PanelGroupBox.h"
+#include "../Widgets/PanelSeparator.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 #include "../UndoActions.h"
@@ -353,7 +354,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		PatternEditorPanel::nToolbarMarginVertical,
 		PatternEditorPanel::nToolbarMarginHorizontal,
 		PatternEditorPanel::nToolbarMarginVertical );
-	pToolbarLayout->setAlignment( Qt::AlignLeft );
+	pToolbarLayout->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
 	// Pattern size
 	m_pLCDSpinBoxNumerator = new LCDSpinBox(
@@ -391,6 +392,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		QSizePolicy::Fixed, QSizePolicy::Fixed );
 	m_pLCDSpinBoxDenominator->setFocusPolicy( Qt::ClickFocus );
 	pToolbarLayout->addWidget( m_pLCDSpinBoxDenominator );
+
+	m_pSeparatorSize = new PanelSeparator( m_pToolbar );
+	m_pSeparatorSize->setFixedHeight( buttonSize.height() );
+	pToolbarLayout->addWidget( m_pSeparatorSize );
 
 	// GRID resolution
 	m_pResolutionCombo = new LCDCombo( m_pToolbar, QSize( 0, 0 ), true );
@@ -1872,6 +1877,7 @@ QLabel {\
 	m_pInputModeGroup->updateStyleSheet();
 	m_pInstanceGroup->setBorderColor( colorGroupBoxBorder );
 	m_pInstanceGroup->updateStyleSheet();
+	m_pSeparatorSize->setColor( colorGroupBoxBorder );
 
 	m_pPianoRollEditor->updateStyleSheet();
 	m_pNoteKeyOctaveEditor->updateColors();

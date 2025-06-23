@@ -46,6 +46,7 @@ class Fader;
 class LCDSpinBox;
 class NotePropertiesRuler;
 class PanelGroupBox;
+class PanelSeparator;
 class PatternEditorRuler;
 class PatternEditorSidebar;
 class PianoRollEditor;
@@ -435,6 +436,7 @@ class PatternEditorPanel : public QWidget,
 		QWidget* m_pToolbar;
 		LCDSpinBox* m_pLCDSpinBoxNumerator;
 		LCDSpinBox* m_pLCDSpinBoxDenominator;
+		PanelSeparator* m_pSeparatorSize;
 		LCDCombo* m_pResolutionCombo;
 
 		//note properties combo
