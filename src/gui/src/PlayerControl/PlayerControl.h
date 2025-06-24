@@ -119,15 +119,15 @@ private:
 		Button* m_pPatternModeBtn;
 		PanelSeparator* m_pSeparatorEditor;
 
-		QWidget* m_pBeatCounterWrapper;
-		QWidget* m_pBeatCounterGroup;
-		BeatCounter* m_pBeatCounter;
-		PanelSeparator* m_pSeparatorBeatCounter;
-
 		QWidget* m_pTempoGroup;
 		MetronomeButton* m_pMetronomeBtn;
 		BpmSpinBox* m_pBpmSpinBox;
 		PanelSeparator* m_pSeparatorTempo;
+
+		QWidget* m_pBeatCounterWrapper;
+		QWidget* m_pBeatCounterGroup;
+		BeatCounter* m_pBeatCounter;
+		PanelSeparator* m_pSeparatorBeatCounter;
 
 		QWidget* m_pRubberBandGroup;
 		Button* m_pRubberBandBtn;

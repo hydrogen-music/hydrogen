@@ -218,37 +218,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pSeparatorEditor );
 
 	////////////////////////////////////////////////////////////////////////////
-	// BeatCounter
-	//
-	// Additional wrapper object to associate separator with beat counter while
-	// not including it into the outlined box.
-	m_pBeatCounterWrapper = new QWidget( this );
-	pMainLayout->addWidget( m_pBeatCounterWrapper );
-	auto pBeatCounterWrapperLayout = new QHBoxLayout( m_pBeatCounterWrapper );
-	pBeatCounterWrapperLayout->setContentsMargins( 0, 0, 0, 0 );
-	pBeatCounterWrapperLayout->setSpacing( PlayerControl::nSpacing );
-	m_pBeatCounterWrapper->setLayout( pBeatCounterWrapperLayout );
-
-	m_pBeatCounterGroup = new QWidget( m_pBeatCounterWrapper );
-	m_pBeatCounterGroup->setObjectName( "PlayerControlBeatCounter" );
-	pBeatCounterWrapperLayout->addWidget( m_pBeatCounterGroup );
-	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
-	pBeatCounterGroupLayout->setContentsMargins( 2, 2, 2, 2 );
-	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
-
-	m_sBCOnOffBtnTimelineToolTip =
-		tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
-	m_sBCOnOffBtnJackTimebaseToolTip =
-		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
-
-	m_pBeatCounter = new BeatCounter( this );
-	pBeatCounterGroupLayout->addWidget( m_pBeatCounter );
-
-	m_pSeparatorBeatCounter = new PanelSeparator( m_pBeatCounterWrapper );
-	m_pSeparatorBeatCounter->setFixedHeight( PlayerControl::nWidgetHeight );
-	pBeatCounterWrapperLayout->addWidget( m_pSeparatorBeatCounter );
-
-	////////////////////////////////////////////////////////////////////////////
 	// Invisible wrapper group for snapshots.
 	m_pTempoGroup = new QWidget( this );
 	m_pTempoGroup->setObjectName( "BPM" );
@@ -285,6 +254,37 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pSeparatorTempo = new PanelSeparator( pMainToolbar );
 	m_pSeparatorTempo->setFixedHeight( buttonSize.height() );
 	pMainLayout->addWidget( m_pSeparatorTempo );
+
+	////////////////////////////////////////////////////////////////////////////
+	// BeatCounter
+	//
+	// Additional wrapper object to associate separator with beat counter while
+	// not including it into the outlined box.
+	m_pBeatCounterWrapper = new QWidget( this );
+	pMainLayout->addWidget( m_pBeatCounterWrapper );
+	auto pBeatCounterWrapperLayout = new QHBoxLayout( m_pBeatCounterWrapper );
+	pBeatCounterWrapperLayout->setContentsMargins( 0, 0, 0, 0 );
+	pBeatCounterWrapperLayout->setSpacing( PlayerControl::nSpacing );
+	m_pBeatCounterWrapper->setLayout( pBeatCounterWrapperLayout );
+
+	m_pBeatCounterGroup = new QWidget( m_pBeatCounterWrapper );
+	m_pBeatCounterGroup->setObjectName( "PlayerControlBeatCounter" );
+	pBeatCounterWrapperLayout->addWidget( m_pBeatCounterGroup );
+	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
+	pBeatCounterGroupLayout->setContentsMargins( 2, 2, 2, 2 );
+	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
+
+	m_sBCOnOffBtnTimelineToolTip =
+		tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
+	m_sBCOnOffBtnJackTimebaseToolTip =
+		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
+
+	m_pBeatCounter = new BeatCounter( this );
+	pBeatCounterGroupLayout->addWidget( m_pBeatCounter );
+
+	m_pSeparatorBeatCounter = new PanelSeparator( m_pBeatCounterWrapper );
+	m_pSeparatorBeatCounter->setFixedHeight( PlayerControl::nWidgetHeight );
+	pBeatCounterWrapperLayout->addWidget( m_pSeparatorBeatCounter );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandGroup = new QWidget( pMainToolbar );
@@ -992,6 +992,10 @@ QWidget#MainToolbar {\
 				   .arg( colorToolbar.name() ).arg( colorText.name() )
 				   .arg( PlayerControl::nBorder ) );
 
+	m_pEditorGroup->setBackgroundColor( colorGroupBoxBackground );
+	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
+	m_pEditorGroup->updateStyleSheet();
+
 	m_pBeatCounterGroup->setStyleSheet( QString( "\
 #PlayerControlBeatCounter {\
     background-color: %1;\
@@ -1001,10 +1005,6 @@ QWidget#MainToolbar {\
 }" )
 		.arg( colorGroupBoxBackground.name() ).arg( colorText.name() )
 		.arg( PlayerControl::nBorder ).arg( colorGroupBoxBorder.name() ) );
-
-	m_pEditorGroup->setBackgroundColor( colorGroupBoxBackground );
-	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
-	m_pEditorGroup->updateStyleSheet();
 
 	m_pSeparatorEditor->setColor( colorGroupBoxBorder );
 	m_pSeparatorTransport->setColor( colorGroupBoxBorder );
