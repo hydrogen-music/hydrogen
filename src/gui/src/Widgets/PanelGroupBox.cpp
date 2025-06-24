@@ -31,6 +31,7 @@
 
 PanelGroupBox::PanelGroupBox( QWidget *pParent )
 	: QWidget( pParent )
+	, m_backgroundColor( Qt::white )
 	, m_borderColor( Qt::black )
 {
 	setFocusPolicy( Qt::ClickFocus );
@@ -64,17 +65,12 @@ void PanelGroupBox::addWidget( QWidget* pWidget ) {
 }
 
 void PanelGroupBox::updateStyleSheet() {
-	const auto colorTheme =
-		H2Core::Preferences::get_instance()->getTheme().m_color;
-
-	const QColor colorBackground = colorTheme.m_widgetColor;
-
 	setStyleSheet( QString( "\
 #PanelGroupBox {\
      background-color: %1; \
      border: %2px solid %3;\
 }")
-				   .arg( colorBackground.name() )
+				   .arg( m_backgroundColor.name() )
 				   .arg( PanelGroupBox::nBorder )
 				   .arg( m_borderColor.name() ) );
 }

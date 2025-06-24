@@ -54,17 +54,22 @@ public:
 
 		void addWidget( QWidget* pWidget );
 
-		void setBorderColor( const QColor& borderColor );
+		void setBackgroundColor( const QColor& color );
+		void setBorderColor( const QColor& color );
 
 		void updateStyleSheet();
 
 	private:
 		QHBoxLayout* m_pLayout;
 
+		QColor m_backgroundColor;
 		QColor m_borderColor;
 };
 
-inline void PanelGroupBox::setBorderColor( const QColor& borderColor ) {
-	m_borderColor = borderColor;
+inline void PanelGroupBox::setBackgroundColor( const QColor& color ) {
+	m_backgroundColor = color;
+}
+inline void PanelGroupBox::setBorderColor( const QColor& color ) {
+	m_borderColor = color;
 }
 #endif

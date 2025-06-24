@@ -48,6 +48,9 @@ public:
 		explicit BeatCounter( QWidget* pParent );
 		~BeatCounter();
 
+		void setBackgroundColor( const QColor& color );
+		void setBorderColor( const QColor& color );
+
 		void updateBeatCounter();
 		void updateStyleSheet();
 
@@ -62,7 +65,16 @@ private:
 		Button* m_pTotalBeatsUpBtn;
 		Button* m_pTotalBeatsDownBtn;
 		Button* m_pSetPlayBtn;
+
+		QColor m_backgroundColor;
+		QColor m_borderColor;
 };
 
+inline void BeatCounter::setBackgroundColor( const QColor& color ) {
+	m_backgroundColor = color;
+}
+inline void BeatCounter::setBorderColor( const QColor& color ) {
+	m_borderColor = color;
+}
 
 #endif

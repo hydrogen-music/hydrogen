@@ -1823,13 +1823,18 @@ void PatternEditorPanel::updateStyleSheet() {
 		colorTheme.m_widgetColor.darker( 120 );
 	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
 
-	QColor colorGroupBoxBorder;
-	const int nWidgetBorderScaling = Skin::nPanelGroupBoxBorderFactor;
+	QColor colorGroupBoxBorder, colorGroupBoxBackground;
 	if ( Skin::moreBlackThanWhite( colorToolbar ) ) {
-		colorGroupBoxBorder = colorToolbar.lighter( nWidgetBorderScaling );
+		colorGroupBoxBorder = colorToolbar.lighter(
+			Skin::nPanelGroupBoxBorderScaling );
+		colorGroupBoxBackground = colorToolbar.lighter(
+			Skin::nPanelGroupBoxBackgroundScaling );
 	}
 	else {
-		colorGroupBoxBorder = colorToolbar.darker( nWidgetBorderScaling );
+		colorGroupBoxBorder = colorToolbar.darker(
+			Skin::nPanelGroupBoxBorderScaling );
+		colorGroupBoxBackground = colorToolbar.darker(
+			Skin::nPanelGroupBoxBackgroundScaling );
 	}
 
 	m_pToolbarSidebar->setStyleSheet( QString( "\
@@ -1868,8 +1873,10 @@ QLabel {\
      border: 1px solid #000;\
 }" ).arg( colorDrumkit.name() ).arg( colorDrumkitText.name() ) );
 
+	m_pInputModeGroup->setBackgroundColor( colorGroupBoxBackground );
 	m_pInputModeGroup->setBorderColor( colorGroupBoxBorder );
 	m_pInputModeGroup->updateStyleSheet();
+	m_pInstanceGroup->setBackgroundColor( colorGroupBoxBackground );
 	m_pInstanceGroup->setBorderColor( colorGroupBoxBorder );
 	m_pInstanceGroup->updateStyleSheet();
 	m_pSeparatorSize->setColor( colorGroupBoxBorder );

@@ -34,7 +34,10 @@
 
 using namespace H2Core;
 
-BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent ) {
+BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
+											 , m_backgroundColor( Qt::red )
+											 , m_borderColor( Qt::green )
+{
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
@@ -287,18 +290,16 @@ void BeatCounter::updateStyleSheet() {
 		H2Core::Preferences::get_instance()->getTheme().m_color;
 
 	const QColor colorText = colorTheme.m_windowTextColor;
-	const QColor colorBackground =
-		colorTheme.m_windowColor.lighter( 134 ).lighter( 130 );
 	const QColor colorLabel = colorTheme.m_windowColor;
 
 	setStyleSheet( QString( "\
 QWidget#Background {\
      background-color: %1; \
      color: %2; \
-     border: %3px solid #000;\
+     border: %3px solid %4;\
 }")
-				   .arg( colorBackground.name() ).arg( colorText.name() )
-				   .arg( PlayerControl::nBorder ) );
+				   .arg( m_backgroundColor.name() ).arg( colorText.name() )
+				   .arg( PlayerControl::nBorder ).arg( m_borderColor.name() ) );
 
 	const QString sLabelStyleSheet = QString( "\
 QLabel {\

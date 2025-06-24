@@ -969,13 +969,18 @@ void PlayerControl::updateStyleSheet() {
 	const QColor colorToolbar = colorTheme.m_baseColor;
 	const QColor colorToolbarLighter = colorToolbar.lighter( 130 );
 
-	QColor colorGroupBoxBorder;
-	const int nWidgetBorderScaling = Skin::nPanelGroupBoxBorderFactor;
+	QColor colorGroupBoxBorder, colorGroupBoxBackground;
 	if ( Skin::moreBlackThanWhite( colorToolbar ) ) {
-		colorGroupBoxBorder = colorToolbar.darker( nWidgetBorderScaling );
+		colorGroupBoxBorder = colorToolbar.darker(
+			Skin::nPanelGroupBoxBorderScaling );
+		colorGroupBoxBackground = colorToolbar.darker(
+			Skin::nPanelGroupBoxBackgroundScaling );
 	}
 	else {
-		colorGroupBoxBorder = colorToolbar.lighter( nWidgetBorderScaling );
+		colorGroupBoxBorder = colorToolbar.lighter(
+			Skin::nPanelGroupBoxBorderScaling );
+		colorGroupBoxBackground = colorToolbar.lighter(
+			Skin::nPanelGroupBoxBackgroundScaling );
 	}
 
 	setStyleSheet( QString( "\
@@ -991,12 +996,13 @@ QWidget#MainToolbar {\
 #PlayerControlBeatCounter {\
     background-color: %1;\
     color: %2;\
-    border: %3px solid #000;\
+    border: %3px solid %4;\
     border-radius: 2px;\
 }" )
-		.arg( colorToolbarLighter.name() ).arg( colorText.name() )
-		.arg( PlayerControl::nBorder ) );
+		.arg( colorGroupBoxBackground.name() ).arg( colorText.name() )
+		.arg( PlayerControl::nBorder ).arg( colorGroupBoxBorder.name() ) );
 
+	m_pEditorGroup->setBackgroundColor( colorGroupBoxBackground );
 	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
 	m_pEditorGroup->updateStyleSheet();
 
@@ -1008,6 +1014,8 @@ QWidget#MainToolbar {\
 	m_pSeparatorJack->setColor( colorGroupBoxBorder );
 	m_pSeparatorMidi->setColor( colorGroupBoxBorder );
 
+	m_pBeatCounter->setBackgroundColor( colorGroupBoxBackground );
+	m_pBeatCounter->setBorderColor( colorGroupBoxBorder );
 	m_pBeatCounter->updateStyleSheet();
 	m_pMetronomeBtn->updateStyleSheet();
 }
