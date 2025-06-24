@@ -33,6 +33,7 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class BeatCounter;
+class BpmSpinBox;
 class Button;
 class ClickableLabel;
 class LCDSpinBox;
@@ -125,7 +126,7 @@ private:
 
 		QWidget* m_pTempoGroup;
 		MetronomeButton* m_pMetronomeBtn;
-		LCDSpinBox* m_pBpmSpinBox;
+		BpmSpinBox* m_pBpmSpinBox;
 		PanelSeparator* m_pSeparatorTempo;
 
 		QWidget* m_pRubberBandGroup;

@@ -24,6 +24,7 @@ https://www.gnu.org/licenses
 #include "PlayerControl.h"
 
 #include "BeatCounter.h"
+#include "BpmSpinBox.h"
 #include "MetronomeButton.h"
 #include "MidiControlButton.h"
 #include "../Compatibility/MouseEvent.h"
@@ -280,11 +281,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_sLCDBPMSpinboxJackTimebaseToolTip =
 		tr( "In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK" );
 
-	m_pBpmSpinBox = new LCDSpinBox(
-		pMainToolbar, QSize( 95, PlayerControl::nWidgetHeight ),
-		LCDSpinBox::Type::Double,
-		static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ), true );
-	m_pBpmSpinBox->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
+	m_pBpmSpinBox = new BpmSpinBox(
+		pMainToolbar, QSize( 95, PlayerControl::nWidgetHeight ) );
 	m_pBpmSpinBox->setStyleSheet(
 		m_pBpmSpinBox->styleSheet().append(
 			QString( " QAbstractSpinBox {font-size: %1px;}" )
