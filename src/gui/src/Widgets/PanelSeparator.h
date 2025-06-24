@@ -37,7 +37,7 @@ class PanelSeparator : public QWidget
 
 public:
 		static constexpr float fEffectiveHeight = 0.8;
-		static constexpr int nMarginHorizontal = 5;
+		static constexpr int nMarginHorizontal = 4;
 		static constexpr int nWidth = 1;
 
 		PanelSeparator( QWidget* pParent );

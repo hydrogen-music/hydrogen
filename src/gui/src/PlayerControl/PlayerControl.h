@@ -55,8 +55,9 @@ public:
 
 		static constexpr int nBorder = 1;
 		static constexpr int nFontSize = 20;
-		static constexpr int nHeight = 36;
-		static constexpr int nMargin = 2;
+		static constexpr int nHeight = 34;
+		static constexpr int nMargin = 3;
+		static constexpr int nSpacing = 3;
 		static constexpr int nWidgetHeight = PlayerControl::nHeight -
 			PlayerControl::nMargin * 2;
 

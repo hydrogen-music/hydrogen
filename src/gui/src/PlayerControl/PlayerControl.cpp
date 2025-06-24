@@ -79,18 +79,15 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->setContentsMargins(
 		PlayerControl::nMargin, PlayerControl::nMargin, PlayerControl::nMargin,
 		PlayerControl::nMargin );
-	pMainLayout->setSpacing( PlayerControl::nMargin );
+	pMainLayout->setSpacing( PlayerControl::nSpacing );
 	pMainLayout->setAlignment( Qt::AlignLeft );
 	pMainToolbar->setLayout( pMainLayout );
 
-	const auto margins = QMargins(
-		PlayerControl::nMargin, PlayerControl::nMargin, PlayerControl::nMargin,
-		PlayerControl::nMargin );
-	const int nSpacing = PlayerControl::nMargin;
+	const int nButtonHeight = PlayerControl::nWidgetHeight - 2;
 	const auto buttonSize = QSize(
-		static_cast<int>(std::round( PlayerControl::nWidgetHeight *
+		static_cast<int>(std::round( nButtonHeight *
 									 Skin::fButtonWidthHeightRatio ) ),
-		PlayerControl::nWidgetHeight );
+		nButtonHeight );
 	const auto iconSize = QSize( buttonSize.width() - 4, buttonSize.height() - 4 );
 
 	const int nButtonHeightGroup = PlayerControl::nWidgetHeight -
@@ -119,9 +116,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pEditorGroup = new PanelGroupBox( this );
-	m_pEditorGroup->setFixedHeight(
-		PlayerControl::nHeight - 2 * PanelGroupBox::nBorder -
-		2 * PanelGroupBox::nMarginVertical );
+	m_pEditorGroup->setFixedHeight( nWidgetHeight );
 	pMainLayout->addWidget( m_pEditorGroup );
 
 	m_pPatternModeBtn = new Button(
@@ -155,7 +150,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pTransportGroup );
 	auto pTransportGroupLayout = new QHBoxLayout( m_pTransportGroup );
 	pTransportGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pTransportGroupLayout->setSpacing( nSpacing );
+	pTransportGroupLayout->setSpacing( PlayerControl::nSpacing );
 
 	// Rewind button
 	m_pRwdBtn = new Button(
@@ -235,14 +230,14 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pBeatCounterWrapper );
 	auto pBeatCounterWrapperLayout = new QHBoxLayout( m_pBeatCounterWrapper );
 	pBeatCounterWrapperLayout->setContentsMargins( 0, 0, 0, 0 );
-	pBeatCounterWrapperLayout->setSpacing( nSpacing );
+	pBeatCounterWrapperLayout->setSpacing( PlayerControl::nSpacing );
 	m_pBeatCounterWrapper->setLayout( pBeatCounterWrapperLayout );
 
 	m_pBeatCounterGroup = new QWidget( m_pBeatCounterWrapper );
 	m_pBeatCounterGroup->setObjectName( "PlayerControlBeatCounter" );
 	pBeatCounterWrapperLayout->addWidget( m_pBeatCounterGroup );
 	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
-	pBeatCounterGroupLayout->setContentsMargins( margins );
+	pBeatCounterGroupLayout->setContentsMargins( 2, 2, 2, 2 );
 	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
 
 	m_sBCOnOffBtnTimelineToolTip =
@@ -254,7 +249,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pBeatCounterGroupLayout->addWidget( m_pBeatCounter );
 
 	m_pSeparatorBeatCounter = new PanelSeparator( m_pBeatCounterWrapper );
-	m_pSeparatorBeatCounter->setFixedHeight( buttonSize.height() );
+	m_pSeparatorBeatCounter->setFixedHeight( PlayerControl::nWidgetHeight );
 	pBeatCounterWrapperLayout->addWidget( m_pSeparatorBeatCounter );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -264,7 +259,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pTempoGroup );
 	auto pTempoGroupLayout = new QHBoxLayout( m_pTempoGroup );
 	pTempoGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pTempoGroupLayout->setSpacing( nSpacing );
+	pTempoGroupLayout->setSpacing( PlayerControl::nSpacing );
 
 	m_pMetronomeBtn = new MetronomeButton( m_pTempoGroup, buttonSize );
 	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
@@ -301,7 +296,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pRubberBandGroup );
 	auto pRubberBandGroupLayout = new QHBoxLayout( m_pRubberBandGroup );
 	pRubberBandGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pRubberBandGroupLayout->setSpacing( nSpacing );
+	pRubberBandGroupLayout->setSpacing( PlayerControl::nSpacing );
 
 	m_pRubberBandBtn = new Button(
 		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "",
@@ -329,7 +324,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pJackGroup );
 	auto pJackGroupLayout = new QHBoxLayout( m_pJackGroup );
 	pJackGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pJackGroupLayout->setSpacing( nSpacing );
+	pJackGroupLayout->setSpacing( PlayerControl::nSpacing );
 
 	m_pJackTransportBtn = new Button(
 		m_pJackGroup, buttonSize, Button::Type::Toggle, "",
@@ -372,7 +367,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pVisibilityGroup );
 	auto pVisibilityLayout = new QHBoxLayout( m_pVisibilityGroup );
 	pVisibilityLayout->setContentsMargins( 0, 0, 0, 0 );
-	pVisibilityLayout->setSpacing( nSpacing );
+	pVisibilityLayout->setSpacing( PlayerControl::nSpacing );
 
 	m_pShowMixerBtn = new Button(
 		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "M", QSize(),
