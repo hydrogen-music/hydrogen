@@ -143,7 +143,7 @@ class PatternEditorPanel : public QWidget,
 		static constexpr int nToolbarHeight = 28;
 		static constexpr int nToolbarMarginHorizontal = 2;
 		static constexpr int nToolbarMarginVertical = 1;
-		static constexpr int nToolbarSpacing = 2;
+		static constexpr int nToolbarSpacing = 3;
 
 		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();

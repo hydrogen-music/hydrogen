@@ -202,7 +202,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	QHBoxLayout* pToolbarSidebarLayout = new QHBoxLayout( m_pToolbarSidebar );
 	pToolbarSidebarLayout->setContentsMargins( 0, 0, 0, 0 );
 	pToolbarSidebarLayout->setSpacing( 0 );
-	pToolbarSidebarLayout->setAlignment( Qt::AlignLeft );
+	pToolbarSidebarLayout->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
 	// Button container - fix the buttons to the un-expanded sidebar (without
 	// the type labels)
@@ -217,10 +217,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		PatternEditorPanel::nToolbarMarginHorizontal,
 		PatternEditorPanel::nToolbarMarginVertical );
 	pBtnContainerLayout->setSpacing( PatternEditorPanel::nToolbarSpacing );
+	pBtnContainerLayout->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 
 	const int nButtonHeight = PatternEditorPanel::nToolbarHeight -
 		2 * PatternEditorPanel::nToolbarBorder -
-		2 * PatternEditorPanel::nToolbarMarginVertical;
+		2 * PatternEditorPanel::nToolbarMarginVertical - 2;
 	const int nButtonWidth = static_cast<int>(
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
 	const auto buttonSize = QSize( nButtonWidth, nButtonHeight );
@@ -228,7 +229,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		buttonSize.width() - 4, buttonSize.height() - 4 );
 
 	const int nButtonHeightGroup = nButtonHeight - 2 * PanelGroupBox::nBorder -
-		2 * PanelGroupBox::nMarginVertical;
+		2 * PanelGroupBox::nMarginVertical + 2;
 	const int nButtonWidthGroup = static_cast<int>(
 		std::round( nButtonHeightGroup * Skin::fButtonWidthHeightRatio ) );
 	const auto buttonSizeGroup = QSize( nButtonWidthGroup, nButtonHeightGroup );
@@ -272,8 +273,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pInputModeGroup->addWidget( m_pEditBtn );
 	updateInput();
 
-	pBtnContainerLayout->addStretch();
-
 	m_pHearNotesBtn = new Button(
 		pBtnContainer, buttonSize, Button::Type::Toggle, "speaker.svg", "",
 		iconSize, tr( "Hear new notes" ), false, false );
@@ -283,8 +282,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
 	m_pHearNotesBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pBtnContainerLayout->addWidget( m_pHearNotesBtn );
-
-	pBtnContainerLayout->addStretch();
 
 	m_pQuantizeEventsBtn = new Button(
 		pBtnContainer, buttonSize, Button::Type::Toggle, "quantization.svg",
@@ -296,8 +293,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			 this, SLOT( quantizeEventsBtnClick() ) );
 	m_pQuantizeEventsBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	pBtnContainerLayout->addWidget( m_pQuantizeEventsBtn );
-
-	pBtnContainerLayout->addStretch();
 
 	// Switching editor instances
 	m_pInstanceGroup = new PanelGroupBox( pBtnContainer );
