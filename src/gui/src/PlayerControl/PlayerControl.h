@@ -104,12 +104,6 @@ private:
 		void updateStyleSheet();
 
 		LCDDisplay* m_pTimeDisplay;
-		PanelSeparator* m_pSeparatorTime;
-
-		PanelGroupBox* m_pEditorGroup;
-		Button* m_pSongModeBtn;
-		Button* m_pPatternModeBtn;
-		PanelSeparator* m_pSeparatorEditor;
 
 		QWidget* m_pTransportGroup;
 		Button* m_pRwdBtn;
@@ -119,6 +113,11 @@ private:
 		Button* m_pFfwdBtn;
 		Button* m_pSongLoopBtn;
 		PanelSeparator* m_pSeparatorTransport;
+
+		PanelGroupBox* m_pEditorGroup;
+		Button* m_pSongModeBtn;
+		Button* m_pPatternModeBtn;
+		PanelSeparator* m_pSeparatorEditor;
 
 		QWidget* m_pBeatCounterWrapper;
 		QWidget* m_pBeatCounterGroup;

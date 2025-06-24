@@ -110,39 +110,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 			.arg( PlayerControl::nFontSize ) ) );
 	pMainLayout->addWidget( m_pTimeDisplay );
 
-	m_pSeparatorTime = new PanelSeparator( pMainToolbar );
-	m_pSeparatorTime->setFixedHeight( buttonSize.height() );
-	pMainLayout->addWidget( m_pSeparatorTime );
-
-	////////////////////////////////////////////////////////////////////////////
-	m_pEditorGroup = new PanelGroupBox( this );
-	m_pEditorGroup->setFixedHeight( nWidgetHeight );
-	pMainLayout->addWidget( m_pEditorGroup );
-
-	m_pPatternModeBtn = new Button(
-		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
-		"P", QSize(), tr( "Pattern Mode" ),
-		//pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
-		false, true );
-	m_pPatternModeBtn->setObjectName( "PlayerControlPatternModeButton" );
-	connect( m_pPatternModeBtn, &QPushButton::clicked,
-			[=]() { activateSongMode( false ); } );
-	m_pEditorGroup->addWidget( m_pPatternModeBtn );
-
-	m_pSongModeBtn = new Button(
-		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
-		"S", QSize(), tr( "Song Mode" ),
-		//pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
-		false, true );
-	m_pSongModeBtn->setObjectName( "PlayerControlSongModeButton" );
-	connect( m_pSongModeBtn, &QPushButton::clicked,
-			[=]() { activateSongMode( true ); } );
-	m_pEditorGroup->addWidget( m_pSongModeBtn );
-
-	m_pSeparatorEditor = new PanelSeparator( pMainToolbar );
-	m_pSeparatorEditor->setFixedHeight( buttonSize.height() );
-	pMainLayout->addWidget( m_pSeparatorEditor );
-
 	////////////////////////////////////////////////////////////////////////////
 	// Invisible wrapper group for snapshots.
 	m_pTransportGroup = new QWidget( this );
@@ -220,6 +187,35 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pSeparatorTransport = new PanelSeparator( pMainToolbar );
 	m_pSeparatorTransport->setFixedHeight( buttonSize.height() );
 	pMainLayout->addWidget( m_pSeparatorTransport );
+
+	////////////////////////////////////////////////////////////////////////////
+	m_pEditorGroup = new PanelGroupBox( this );
+	m_pEditorGroup->setFixedHeight( nWidgetHeight );
+	pMainLayout->addWidget( m_pEditorGroup );
+
+	m_pPatternModeBtn = new Button(
+		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
+		"P", QSize(), tr( "Pattern Mode" ),
+		//pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
+		false, true );
+	m_pPatternModeBtn->setObjectName( "PlayerControlPatternModeButton" );
+	connect( m_pPatternModeBtn, &QPushButton::clicked,
+			[=]() { activateSongMode( false ); } );
+	m_pEditorGroup->addWidget( m_pPatternModeBtn );
+
+	m_pSongModeBtn = new Button(
+		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
+		"S", QSize(), tr( "Song Mode" ),
+		//pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
+		false, true );
+	m_pSongModeBtn->setObjectName( "PlayerControlSongModeButton" );
+	connect( m_pSongModeBtn, &QPushButton::clicked,
+			[=]() { activateSongMode( true ); } );
+	m_pEditorGroup->addWidget( m_pSongModeBtn );
+
+	m_pSeparatorEditor = new PanelSeparator( pMainToolbar );
+	m_pSeparatorEditor->setFixedHeight( buttonSize.height() );
+	pMainLayout->addWidget( m_pSeparatorEditor );
 
 	////////////////////////////////////////////////////////////////////////////
 	// BeatCounter
@@ -1004,7 +1000,6 @@ QWidget#MainToolbar {\
 	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
 	m_pEditorGroup->updateStyleSheet();
 
-	m_pSeparatorTime->setColor( colorGroupBoxBorder );
 	m_pSeparatorEditor->setColor( colorGroupBoxBorder );
 	m_pSeparatorTransport->setColor( colorGroupBoxBorder );
 	m_pSeparatorBeatCounter->setColor( colorGroupBoxBorder );
