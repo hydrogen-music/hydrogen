@@ -443,16 +443,6 @@ B</translation>
         <translation>Rack Instrumentos</translation>
     </message>
     <message>
-        <source>Pattern</source>
-        <extracomment>Text displayed on the button activating Pattern Mode for playback. Its size is designed to hold seven characters and is slightly flexible.</extracomment>
-        <translation>Padrão</translation>
-    </message>
-    <message>
-        <source>Song</source>
-        <extracomment>Text displayed on the button activating Song Mode for playback. Its size is designed to hold four characters and is slightly flexible.</extracomment>
-        <translation>Canção</translation>
-    </message>
-    <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
         <translation>Ataque</translation>

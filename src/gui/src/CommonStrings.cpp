@@ -116,12 +116,6 @@ CommonStrings::CommonStrings(){
 	  size is designed to hold 15 characters and is flexible.*/
 	m_sInstrumentRackButton = tr( "Instrument Rack" );
 
-	/*: Text displayed on the button activating Pattern Mode for playback. Its
-	  size is designed to hold seven characters and is slightly flexible.*/
-	m_sPatternModeButton = tr( "Pattern" );
-	/*: Text displayed on the button activating Song Mode for playback. Its
-	  size is designed to hold four characters and is slightly flexible.*/
-	m_sSongModeButton = tr( "Song" );
 	/*: Text displayed as tooltip on the button which enables lasso-selection
 	 *  and element moving using left-click mouse interaction. */
 	m_sSelectModeButton = tr( "Select mode" );

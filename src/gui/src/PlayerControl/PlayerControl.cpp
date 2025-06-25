@@ -194,9 +194,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pMainLayout->addWidget( m_pEditorGroup );
 
 	m_pPatternModeBtn = new Button(
-		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
-		"P", QSize(), tr( "Pattern Mode" ),
-		//pCommonStrings->getPatternModeButton(), QSize(), tr( "Pattern Mode" ),
+		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle,
+		"pattern-editor.svg", "", iconSizeGroup, tr( "Pattern Mode" ),
 		false, true );
 	m_pPatternModeBtn->setObjectName( "PlayerControlPatternModeButton" );
 	connect( m_pPatternModeBtn, &QPushButton::clicked,
@@ -204,9 +203,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pEditorGroup->addWidget( m_pPatternModeBtn );
 
 	m_pSongModeBtn = new Button(
-		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle, "",
-		"S", QSize(), tr( "Song Mode" ),
-		//pCommonStrings->getSongModeButton(), QSize(), tr( "Song Mode" ),
+		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle,
+		"song-editor.svg", "", iconSizeGroup, tr( "Song Mode" ),
 		false, true );
 	m_pSongModeBtn->setObjectName( "PlayerControlSongModeButton" );
 	connect( m_pSongModeBtn, &QPushButton::clicked,
