@@ -302,6 +302,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// PATTERN LIST
 	m_pPatternListScrollView = new WidgetScrollArea( nullptr );
+	m_pPatternListScrollView->setObjectName( "PatternListScrollView" );
 	m_pPatternListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPatternListScrollView->setFixedWidth( m_nPatternListWidth );
 	m_pPatternListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -315,6 +316,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
+	m_pEditorScrollView->setObjectName( "EditorScrollView" );
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -333,6 +335,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack->setFixedHeight( m_nMinimumHeight );
 	
 	m_pPositionRulerScrollView = new WidgetScrollArea( m_pWidgetStack );
+	m_pPositionRulerScrollView->setObjectName( "PositionRulerScrollView" );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -347,6 +350,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 
 	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
+	m_pPlaybackTrackScrollView->setObjectName( "PlaybackTrackScrollView" );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -363,6 +367,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setFixedHeight( m_nMinimumHeight );
 	
 	m_pAutomationPathScrollView = new WidgetScrollArea( nullptr );
+	m_pAutomationPathScrollView->setObjectName( "AutomationPathScrollView" );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
 	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -394,7 +399,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 		showTimeline();
 	}
 	
-	// ok...let's build the layout
+	QWidget *pMainPanel = new QWidget();
+	pMainPanel->setObjectName( "SongEditorPanel" );
 	QGridLayout *pGridLayout = new QGridLayout();
 	pGridLayout->setSpacing( 0 );
 	pGridLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -413,14 +419,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 		m_pAutomationCombo->hide();
 	}
 
-	this->setLayout( pGridLayout );
-	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
-	this->setPalette( defaultPalette );
+	pMainPanel->setLayout( pGridLayout );
+
+	QVBoxLayout *pVBox = new QVBoxLayout();
+	pVBox->setSpacing( 0 );
+	pVBox->setContentsMargins( 0, 0, 0, 0 );
+	this->setLayout( pVBox );
+	pVBox->addWidget( pMainPanel );
 
 	show();
 
-	updateColors();
+	updateStyleSheet();
 	updateEditors();
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -817,6 +826,7 @@ void SongEditorPanel::songModeActivationEvent() {
 	updateTimeline();
 	updatePatternEditorLocked();
 	updatePatternMode();
+	updateStyleSheet();
 
 	m_pPatternList->updateEditor();
 	m_pPositionRuler->updatePosition();
@@ -882,6 +892,7 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 	updateJacktimebaseState();
 	updatePatternEditorLocked();
 	updateTimeline();
+	updateStyleSheet();
 
 	m_pPositionRuler->updatePosition();
 	m_pPositionRuler->updateSongSize();
@@ -1122,7 +1133,7 @@ void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& 
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
-		updateColors();
+		updateStyleSheet();
 	}
 
 	if ( changes & ( H2Core::Preferences::Changes::GeneralTab |
@@ -1211,14 +1222,6 @@ void SongEditorPanel::updateActionMode() {
 	}
 }
 
-void SongEditorPanel::updateColors() {
-	const auto theme = Preferences::get_instance()->getTheme();
-
-	m_pMutePlaybackBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
-	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_muteTextColor );
-}
-
 void SongEditorPanel::updateJacktimebaseState() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1288,6 +1291,31 @@ void SongEditorPanel::updatePatternMode() {
 		m_pPlaySelectedMultipleBtn->setDisabled( false );
 		m_pPlaySelectedSingleBtn->setDisabled( false );
 	}
+}
+
+void SongEditorPanel::updateStyleSheet() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+		backgroundInactiveColor = theme.m_color.m_windowColor.lighter(
+		 	Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = theme.m_color.m_windowColor;
+	}
+
+	setStyleSheet( QString( "\
+#PatternListScrollView, #EditorScrollView, #PositionRulerScrollView,\
+#PlaybackTrackScrollView, #AutomationPathScrollView, #SongEditorPanel {\
+     background-color: %1;\
+}" )
+				   .arg( backgroundInactiveColor.name() ) );
+
+	m_pMutePlaybackBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_muteTextColor );
+
 }
 
 void SongEditorPanel::updateTimeline() {

@@ -146,10 +146,10 @@ class SongEditorPanel : public QWidget,
 		void setTimelineEnabled( bool bEnabled );
 
 		void updateActionMode();
-		void updateColors();
 		void updateJacktimebaseState();
 		void updatePatternEditorLocked();
 		void updatePatternMode();
+		void updateStyleSheet();
 		void updateTimeline();
 
 		static const int			m_nPatternListWidth = 200;
