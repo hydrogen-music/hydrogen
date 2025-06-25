@@ -36,6 +36,11 @@ public:
 		 * high. */
 		static constexpr float fButtonWidthHeightRatio = 1.2;
 
+		/** Factor by which the window background (empty space not covered by
+		 * any other widget) of either pattern or song editor is made lighter in
+		 * case the particular editor is chosen. */
+		static constexpr int nEditorActiveScaling = 120;
+
 		/** Different parts of the pattern editor share a common cursor. We will
 		 * add a slight transparency to those cursors _not_ current focussed by
 		 * the user. */

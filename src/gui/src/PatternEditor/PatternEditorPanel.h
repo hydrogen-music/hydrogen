@@ -50,7 +50,6 @@ class PanelSeparator;
 class PatternEditorRuler;
 class PatternEditorSidebar;
 class PianoRollEditor;
-class PixmapWidget;
 
 enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
@@ -441,7 +440,7 @@ class PatternEditorPanel : public QWidget,
 
 		//note properties combo
 		LCDCombo *			m_pPropertiesCombo;
-		PixmapWidget*		m_pPropertiesPanel;
+		QWidget*			m_pPropertiesPanel;
 
 		// drum editor
 		QScrollArea*		m_pEditorScrollView;

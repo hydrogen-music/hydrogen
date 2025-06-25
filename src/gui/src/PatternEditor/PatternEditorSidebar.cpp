@@ -784,7 +784,17 @@ void SidebarRow::updateStyleSheet() {
 		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
 	}
 
-	setColor( colorTheme.m_windowColor );
+	// Indicate chosen editor mode.
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor = colorTheme.m_windowColor.lighter(
+			Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = colorTheme.m_windowColor;
+	}
+
+	setColor( backgroundInactiveColor );
 
 	m_pInstrumentNameLbl->setColor(
 		backgroundColor, textColor, colorTheme.m_cursorColor );

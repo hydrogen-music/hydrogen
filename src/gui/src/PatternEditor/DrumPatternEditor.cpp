@@ -23,15 +23,16 @@
 #include "DrumPatternEditor.h"
 
 #include "PatternEditorPanel.h"
+#include "../Skin.h"
 
-#include <core/Globals.h>
-#include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportPosition.h>
+#include <core/Globals.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 
@@ -208,10 +209,19 @@ void DrumPatternEditor::createBackground() {
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
-	const QColor backgroundInactiveColor(
-		pPref->getTheme().m_color.m_windowColor );
 	const QColor lineInactiveColor(
 		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	// Indicate chosen editor mode.
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor =
+			pPref->getTheme().m_color.m_windowColor.lighter(
+				Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+	}
 
 	if ( ! hasFocus() ) {
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );

@@ -51,7 +51,6 @@
 #include "../Widgets/PatchBay.h"
 #include "../Widgets/PanelGroupBox.h"
 #include "../Widgets/PanelSeparator.h"
-#include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 #include "../UndoActions.h"
 
@@ -509,10 +508,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorHScrollBarContainer = new QWidget();
 	m_pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
 
-
-	QPalette label_palette;
-	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
-
 	updatePatternInfo();
 	updateDB();
 
@@ -535,6 +530,7 @@ void PatternEditorPanel::createEditors() {
 
 	// Ruler ScrollView
 	m_pRulerScrollView = new WidgetScrollArea( nullptr );
+	m_pRulerScrollView->setObjectName( "RulerScrollView" );
 	m_pRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -715,9 +711,8 @@ void PatternEditorPanel::createEditors() {
 
 	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-	m_pPropertiesPanel = new PixmapWidget( nullptr );
+	m_pPropertiesPanel = new QWidget( nullptr );
 	m_pPropertiesPanel->setObjectName( "PropertiesPanel" );
-	m_pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
 	m_pPropertiesPanel->setFixedHeight( 100 );
 	m_pPropertiesPanel->setMaximumWidth( PatternEditorSidebar::m_nWidth );
 
@@ -747,6 +742,7 @@ void PatternEditorPanel::createEditors() {
 
 	// Layout
 	QWidget *pMainPanel = new QWidget();
+	pMainPanel->setObjectName( "MainPanel" );
 	QGridLayout *pGrid = new QGridLayout();
 	pGrid->setSpacing( 0 );
 	pGrid->setContentsMargins( 0, 0, 0, 0 );
@@ -1412,6 +1408,7 @@ void PatternEditorPanel::playingPatternsChangedEvent() {
 void PatternEditorPanel::songModeActivationEvent() {
 	updatePatternInfo();
 	updateDB();
+	updateStyleSheet();
 	updateEditors( true );
 
 	resizeEvent( nullptr );
@@ -1572,6 +1569,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		updateDrumkitLabel();
 		updatePatternInfo();
 		updateDB();
+		updateStyleSheet();
 		updateEditors();
 		m_pPatternEditorRuler->updatePosition();
 		m_pSidebar->updateRows();
@@ -1823,6 +1821,15 @@ void PatternEditorPanel::updateStyleSheet() {
 		colorTheme.m_widgetColor.darker( 120 );
 	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
 
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor = colorTheme.m_windowColor.lighter(
+			Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = colorTheme.m_windowColor;
+	}
+
 	QColor colorGroupBoxBorder, colorGroupBoxBackground;
 	if ( Skin::moreBlackThanWhite( colorToolbar ) ) {
 		colorGroupBoxBorder = colorToolbar.lighter(
@@ -1836,6 +1843,14 @@ void PatternEditorPanel::updateStyleSheet() {
 		colorGroupBoxBackground = colorToolbar.darker(
 			Skin::nPanelGroupBoxBackgroundScaling );
 	}
+
+	setStyleSheet( QString( "\
+#MainPanel, #EditorScrollView, #RulerScrollView, #PianoRollScrollView, \
+#SidebarScrollView, #NoteVelocityScrollView, #NotePanScrollView, \
+#NoteLeadLagScrollView, #NoteNoteKeyScrollView, #NoteProbabilityScrollView {\
+     background-color: %1;\
+}" )
+				   .arg( backgroundInactiveColor.name() ) );
 
 	m_pToolbarSidebar->setStyleSheet( QString( "\
 QWidget#PatternEditorToolbarSidebar  {\
