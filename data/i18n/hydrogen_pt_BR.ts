@@ -419,15 +419,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <translation>Editar camada</translation>
     </message>
     <message>
-        <source>R
-U
-B</source>
-        <extracomment>Text displayed on the button to activate the resampling using Rubberband. Its size is designed to hold three characters in two separate rows.</extracomment>
-        <translation>R
-U
-B</translation>
-    </message>
-    <message>
         <source>J.Trans</source>
         <extracomment>Text displayed on the button to activate the JACK transport control. Its size is designed to hold seven characters and is moderately flexible.</extracomment>
         <translation>J.Trans</translation>

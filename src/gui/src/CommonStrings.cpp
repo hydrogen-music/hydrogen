@@ -97,11 +97,6 @@ CommonStrings::CommonStrings(){
 	  start playing after setting the tempo. Its size is designed to hold one character.*/
 	m_sBeatCounterSetPlayButtonOn = tr( "P" );
 
-	/*: Text displayed on the button to activate the resampling using 
-	  Rubberband. Its
-	  size is designed to hold three characters in two separate rows.*/
-	m_sRubberbandButton = tr( "R\nU\nB" );
-
 	/*: Text displayed on the button to activate the JACK transport control. Its
 	  size is designed to hold seven characters and is moderately flexible.*/
 	m_sJackTransportButton = tr( "J.Trans" );

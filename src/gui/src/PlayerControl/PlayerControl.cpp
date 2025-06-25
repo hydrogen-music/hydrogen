@@ -293,8 +293,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pRubberBandGroupLayout->setSpacing( PlayerControl::nSpacing );
 
 	m_pRubberBandBtn = new Button(
-		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "",
-		pCommonStrings->getRubberbandButton(), QSize(),
+		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "rubberband.svg",
+		"", iconSize,
 		tr( "Recalculate Rubberband modified samples if bpm will change" ),
 		false, true );
 	m_pRubberBandBtn->setObjectName( "PlayerControlRubberbandButton" );
