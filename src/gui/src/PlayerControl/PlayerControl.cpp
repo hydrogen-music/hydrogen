@@ -688,6 +688,9 @@ void PlayerControl::activateSongMode( bool bActivate ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	CoreActionController::activateSongMode( bActivate );
+	// Immediate update and prevent buttons from being inchecked when clicked
+	// twice.
+	updateSongMode();
 	if ( bActivate ) {
 		pHydrogenApp->showStatusBarMessage( tr("Song mode selected.") );
 	}
