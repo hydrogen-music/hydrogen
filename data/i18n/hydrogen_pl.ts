@@ -419,11 +419,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>J.Trans</source>
-        <extracomment>Text displayed on the button to activate the JACK transport control. Its size is designed to hold seven characters and is moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Mixer</source>
         <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
         <translation>Mikser</translation>
@@ -1093,11 +1088,6 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Add instrument</source>
         <extracomment>Representing adding a new instrument in the undo history as well as * names the action presenting when right-clicking the instrument list in * the pattern editor.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timebase</source>
-        <extracomment>Text displayed on the button to register Hydrogen to be in the JACK Timebase control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>

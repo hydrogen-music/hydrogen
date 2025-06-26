@@ -321,9 +321,7 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pJackGroupLayout->setSpacing( PlayerControl::nSpacing );
 
 	m_pJackTransportBtn = new Button(
-		m_pJackGroup, buttonSize, Button::Type::Toggle, "",
-		"J", QSize(),
-		//pCommonStrings->getJackTransportButton(), QSize(),
+		m_pJackGroup, buttonSize, Button::Type::Toggle, "jack.svg", "", iconSize,
 		tr( "JACK transport on/off" ), false, true );
 	m_pJackTransportBtn->setObjectName( "PlayerControlJackTransportButton" );
 	connect( m_pJackTransportBtn, SIGNAL( clicked() ),
@@ -331,10 +329,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pJackGroupLayout->addWidget( m_pJackTransportBtn );
 
 	m_pJackTimebaseBtn = new Button(
-		m_pJackGroup, buttonSize, Button::Type::Toggle, "",
-		"T", QSize(),
-		//pCommonStrings->getJackTimebaseButton(), QSize(),
-		pCommonStrings->getJackTimebaseTooltip(), false, true );
+		m_pJackGroup, buttonSize, Button::Type::Toggle, "jack-timebase.svg",
+		"", iconSize, pCommonStrings->getJackTimebaseTooltip(), false, true );
 	m_pJackTimebaseBtn->setObjectName( "PlayerControlJackTimebaseButton" );
 	connect( m_pJackTimebaseBtn, SIGNAL( clicked() ), this,
 			SLOT( jackTimebaseBtnClicked() ) );
