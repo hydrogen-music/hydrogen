@@ -174,6 +174,10 @@ private:
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
 
+		/** We will change the checked background color along with theme changes
+		 * until we receive an explicit user action to customize the background
+		 * color. */
+		bool m_bUseCustomBackgroundColors;
 		QColor m_checkedBackgroundColor;
 		QColor m_checkedBackgroundTextColor;
 
