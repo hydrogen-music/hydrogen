@@ -360,18 +360,16 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->setSpacing( PlayerControl::nSpacing );
 
 	m_pShowMixerBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "M", QSize(),
-		//Button::Type::Toggle, "", pCommonStrings->getMixerButton(), QSize(),
-		tr( "Show mixer" ) );
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "mixer.svg",
+		"", iconSize, tr( "Show mixer" ) );
 	m_pShowMixerBtn->setChecked( pPref->getMixerProperties().visible );
 	connect( m_pShowMixerBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerBtn->isChecked() ); });
 	pVisibilityLayout->addWidget( m_pShowMixerBtn );
 
 	m_pShowInstrumentRackBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "I",
-		//Button::Type::Toggle, "", pCommonStrings->getInstrumentRackButton(),
-		QSize(), tr( "Show Instrument Rack" ) );
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "component-editor.svg",
+		"", iconSize + QSize( 2, 2 ), tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setChecked(
 		pPref->getInstrumentRackProperties().visible );
 	connect( m_pShowInstrumentRackBtn, &Button::clicked, [&]() {
@@ -380,8 +378,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowInstrumentRackBtn );
 
 	m_pShowDirectorBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "D",
-		QSize(), tr( "Show Director" ) );
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "director.svg",
+		"", iconSize + QSize( 1, 1 ), tr( "Show Director" ) );
 	m_pShowDirectorBtn->setChecked( false );
 	connect( m_pShowDirectorBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showDirector();
@@ -389,8 +387,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowDirectorBtn );
 
 	m_pShowPlaylistEditorBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "P",
-		QSize(), tr( "Show Playlist Editor" ) );
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "playlist.svg",
+		"", iconSize + QSize( 2, 2 ), tr( "Show Playlist Editor" ) );
 	m_pShowPlaylistEditorBtn->setChecked( false );
 	connect( m_pShowPlaylistEditorBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showPlaylistEditor();
@@ -398,8 +396,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowPlaylistEditorBtn );
 
 	m_pShowAutomationBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "A",
-		QSize(), tr( "Show Automation" ) );
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "automation.svg",
+		"", iconSize + QSize( 1, 1 ), tr( "Show Automation" ) );
 	m_pShowAutomationBtn->setChecked( false );
 	connect( m_pShowAutomationBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->getSongEditorPanel()->
@@ -408,8 +406,9 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowAutomationBtn );
 
 	m_pShowPlaybackTrackBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "P",
-		QSize(), tr( "Show Playback Track" ) );
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle,
+		"playback-track.svg", "", iconSize + QSize( 4, 4 ),
+		tr( "Show Playback Track" ) );
 	m_pShowPlaybackTrackBtn->setChecked( false );
 	connect( m_pShowPlaybackTrackBtn, &Button::clicked, [=]() {
 		if ( m_pShowPlaybackTrackBtn->isChecked() ) {
@@ -423,8 +422,8 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->addWidget( m_pShowPlaybackTrackBtn );
 
 	m_pShowPreferencesBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "", "P",
-		QSize(), tr( "Show Preferences" ) );
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "cog.svg", "",
+		iconSize - QSize( 6, 6 ), tr( "Show Preferences" ) );
 	m_pShowPreferencesBtn->setChecked( false );
 	connect( m_pShowPreferencesBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showPreferencesDialog();

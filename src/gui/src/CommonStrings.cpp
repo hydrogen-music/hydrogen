@@ -97,13 +97,6 @@ CommonStrings::CommonStrings(){
 	  start playing after setting the tempo. Its size is designed to hold one character.*/
 	m_sBeatCounterSetPlayButtonOn = tr( "P" );
 
-	/*: Text displayed on the button to show the Mixer window. Its
-	  size is designed to hold five characters and is flexible.*/
-	m_sMixerButton = tr( "Mixer" );
-	/*: Text displayed on the button to show the Instrument Rack. Its
-	  size is designed to hold 15 characters and is flexible.*/
-	m_sInstrumentRackButton = tr( "Instrument Rack" );
-
 	/*: Text displayed as tooltip on the button which enables lasso-selection
 	 *  and element moving using left-click mouse interaction. */
 	m_sSelectModeButton = tr( "Select mode" );

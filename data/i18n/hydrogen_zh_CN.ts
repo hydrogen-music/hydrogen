@@ -419,16 +419,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mixer</source>
-        <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation>混音器</translation>
-    </message>
-    <message>
-        <source>Instrument Rack</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold 15 characters and is flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attack</source>
         <extracomment>Text displayed below the rotary to adjust the attack of the ADSR in the Instrument Editor. Designed to hold six characters but flexible.</extracomment>
         <translation>起音</translation>
