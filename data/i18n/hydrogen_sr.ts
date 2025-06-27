@@ -2944,6 +2944,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Show Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Укљ/Искљ. метроном</translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
@@ -2982,13 +2986,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Поставите вредност за напетост (свинг) [%1]</translation>
-    </message>
-</context>
-<context>
-    <name>MetronomeButton</name>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Укљ/Искљ. метроном</translation>
     </message>
 </context>
 <context>

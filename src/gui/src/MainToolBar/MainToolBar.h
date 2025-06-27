@@ -39,7 +39,6 @@ class ClickableLabel;
 class LCDSpinBox;
 class LCDDisplay;
 class LED;
-class MetronomeButton;
 class MidiControlButton;
 class PanelGroupBox;
 
@@ -72,17 +71,17 @@ public:
 
 		void mousePressEvent( QMouseEvent* pEvent ) override;
 
-		virtual void beatCounterEvent() override;
-		virtual void driverChangedEvent() override;
-		virtual void jackTimebaseStateChangedEvent( int nState ) override;
-		virtual void jackTransportActivationEvent() override;
-		virtual void loopModeActivationEvent() override;
-		virtual void metronomeEvent( int ) override;
-		virtual void songModeActivationEvent() override;
-		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
-		virtual void tempoChangedEvent( int nValue ) override;
-		virtual void timelineActivationEvent() override;
-		virtual void updateSongEvent( int nValue ) override;
+		void beatCounterEvent() override;
+		void driverChangedEvent() override;
+		void jackTimebaseStateChangedEvent( int nState ) override;
+		void jackTransportActivationEvent() override;
+		void loopModeActivationEvent() override;
+		void metronomeEvent( int ) override;
+		void songModeActivationEvent() override;
+		void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		void tempoChangedEvent( int nValue ) override;
+		void timelineActivationEvent() override;
+		void updateSongEvent( int nValue ) override;
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
@@ -97,7 +96,6 @@ private slots:
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
-	void metronomeButtonClicked();
 
 	//rubberband
 	void rubberbandButtonToggle();
@@ -119,7 +117,7 @@ private:
 		QAction* m_pSongModeAction;
 		QAction* m_pPatternModeAction;
 
-		MetronomeButton* m_pMetronomeBtn;
+		QToolButton* m_pMetronomeButton;
 		BpmSpinBox* m_pBpmSpinBox;
 
 		BeatCounter* m_pBeatCounter;
@@ -142,6 +140,8 @@ private:
 		QAction* m_pShowPlaybackTrackAction;
 
 		QMenu* m_pPopupMenu;
+
+		QTimer* m_pTimer;
 
 		void updateBeatCounter();
 		void updateBpmSpinBox();

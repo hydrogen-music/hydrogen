@@ -2964,6 +2964,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Show Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Active/désactive le métronome</translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
@@ -3002,13 +3006,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Régler le facteur de swing [%1]</translation>
-    </message>
-</context>
-<context>
-    <name>MetronomeButton</name>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Active/désactive le métronome</translation>
     </message>
 </context>
 <context>

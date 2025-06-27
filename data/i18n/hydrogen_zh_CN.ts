@@ -2949,6 +2949,10 @@ LilyPond 导出是一项实验性功能。
         <source>Show Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>打开/关闭节拍器</translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
@@ -2987,13 +2991,6 @@ LilyPond 导出是一项实验性功能。
     <message>
         <source>Set swing factor [%1]</source>
         <translation>设置摇摆系数 [%1]</translation>
-    </message>
-</context>
-<context>
-    <name>MetronomeButton</name>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>打开/关闭节拍器</translation>
     </message>
 </context>
 <context>

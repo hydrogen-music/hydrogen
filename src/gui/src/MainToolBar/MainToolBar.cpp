@@ -25,7 +25,6 @@ https://www.gnu.org/licenses
 
 #include "BeatCounter.h"
 #include "BpmSpinBox.h"
-#include "MetronomeButton.h"
 #include "MidiControlButton.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
@@ -209,13 +208,17 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pMetronomeBtn = new MetronomeButton( this, buttonSize );
-	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
-	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
-	connect( m_pMetronomeBtn, SIGNAL( clicked() ),
-			 this, SLOT( metronomeButtonClicked() ) );
-	m_pMetronomeBtn->setAction( std::make_shared<Action>("TOGGLE_METRONOME") );
-	addWidget( m_pMetronomeBtn );
+	m_pMetronomeButton = new QToolButton( this );
+	m_pMetronomeButton->setObjectName( "MetronomeButton" );
+	m_pMetronomeButton->setCheckable( true );
+	m_pMetronomeButton->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/black/metronome.svg" ) );
+	m_pMetronomeButton->setToolTip( tr( "Switch metronome on/off" ) );
+	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
+		CoreActionController::setMetronomeIsActive( bChecked );
+	} );
+	//pMetronomeAction->setAction( std::make_shared<Action>("TOGGLE_METRONOME") );
+	addWidget( m_pMetronomeButton );
 
 	m_sLCDBPMSpinboxToolTip =
 		tr("Alter the Playback Speed");
@@ -373,6 +376,11 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	} );
 
 	////////////////////////////////////////////////////////////////////////////
+	m_pTimer = new QTimer();
+	connect( m_pTimer, &QTimer::timeout, [=]() {
+		m_pMetronomeButton->setStyleSheet( "" );
+		m_pTimer->stop();
+	} );
 
 	updateBeatCounter();
 	updateBpmSpinBox();
@@ -409,7 +417,7 @@ void MainToolBar::updateActions()
 	m_pShowPlaybackTrackAction->setChecked(
 		pH2App->getSongEditorPanel()->getPlaybackTrackWaveDisplay()->isVisible() );
 
-	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
+	m_pMetronomeButton->setChecked( pPref->m_bUseMetronome );
 
 	// Rubberband
 	if ( m_pRubberBandAction->isChecked() != pPref->getRubberBandBatchMode() ) {
@@ -467,7 +475,40 @@ void MainToolBar::loopModeActivationEvent() {
 }
 
 void MainToolBar::metronomeEvent( int nValue ) {
-	updateActions();
+	const auto pPref = H2Core::Preferences::get_instance();
+
+	// Only trigger LED if the metronome button was pressed or it was
+	// activated via MIDI or OSC.
+	//
+	// Value 2 corresponds to the metronome being turned on or off an is not
+	// handled in here neither.
+	if ( ! pPref->m_bUseMetronome ||
+		 nValue == 2 ) {
+		return;
+	}
+
+	if ( nValue == 0 ) {
+		m_pMetronomeButton->setStyleSheet( QString( "\
+#MetronomeButton {				 \
+   background-color: %1;\
+}" ).arg( pPref->getTheme().m_color.m_highlightColor.name() ) );
+	}
+	else {
+		m_pMetronomeButton->setStyleSheet( QString( "\
+#MetronomeButton {\
+   background-color: %1;\
+}" ).arg( pPref->getTheme().m_color.m_accentColor.name() ) );
+	}
+
+	// Percentage [0,1] the button stays highlighted over the duration of a
+	// beat. We make this one tempo-dependent so it works for both small and
+	// high tempi as well.
+	const float fPercentage = 0.5;
+	const auto fBpm = H2Core::Hydrogen::get_instance()->getAudioEngine()->
+		getTransportPosition()->getBpm();
+	const std::chrono::milliseconds duration{ static_cast<int>(
+		std::round( 60 * 1000 / fBpm * fPercentage))};
+	m_pTimer->start( duration );
 }
 
 void MainToolBar::songModeActivationEvent() {
@@ -717,10 +758,6 @@ void MainToolBar::rewindBtnClicked() {
 		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 }
 
-void MainToolBar::metronomeButtonClicked() {
-	CoreActionController::setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
-}
-
 void MainToolBar::updateBeatCounter() {
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -932,5 +969,4 @@ QToolBar {\
 	m_pBeatCounter->setBackgroundColor( colorGroupBoxBackground );
 	m_pBeatCounter->setBorderColor( colorGroupBoxBorder );
 	m_pBeatCounter->updateStyleSheet();
-	m_pMetronomeBtn->updateStyleSheet();
 }

@@ -2962,6 +2962,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Show Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Encender/apagar metrónomo</translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
@@ -3000,13 +3004,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Factor de swing [%1]</translation>
-    </message>
-</context>
-<context>
-    <name>MetronomeButton</name>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Encender/apagar metrónomo</translation>
     </message>
 </context>
 <context>

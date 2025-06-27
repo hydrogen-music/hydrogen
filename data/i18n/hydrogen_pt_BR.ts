@@ -2960,6 +2960,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Show Preferences</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Metrônomo Lig./Des.</translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
@@ -2998,13 +3002,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Ajustar o fator de swing [%1]</translation>
-    </message>
-</context>
-<context>
-    <name>MetronomeButton</name>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Metrônomo Lig./Des.</translation>
     </message>
 </context>
 <context>
