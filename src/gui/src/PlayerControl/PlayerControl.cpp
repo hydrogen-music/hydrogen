@@ -363,6 +363,24 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	pVisibilityLayout->setContentsMargins( 0, 0, 0, 0 );
 	pVisibilityLayout->setSpacing( PlayerControl::nSpacing );
 
+	m_pShowPlaylistEditorBtn = new Button(
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "playlist.svg",
+		"", iconSize + QSize( 2, 2 ), tr( "Show Playlist Editor" ) );
+	m_pShowPlaylistEditorBtn->setChecked( false );
+	connect( m_pShowPlaylistEditorBtn, &Button::clicked, [&]() {
+		HydrogenApp::get_instance()->showPlaylistEditor();
+	});
+	pVisibilityLayout->addWidget( m_pShowPlaylistEditorBtn );
+
+	m_pShowDirectorBtn = new Button(
+		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "director.svg",
+		"", iconSize + QSize( 1, 1 ), tr( "Show Director" ) );
+	m_pShowDirectorBtn->setChecked( false );
+	connect( m_pShowDirectorBtn, &Button::clicked, [&]() {
+		HydrogenApp::get_instance()->showDirector();
+	});
+	pVisibilityLayout->addWidget( m_pShowDirectorBtn );
+
 	m_pShowMixerBtn = new Button(
 		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "mixer.svg",
 		"", iconSize, tr( "Show mixer" ) );
@@ -380,24 +398,6 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		HydrogenApp::get_instance()->showInstrumentRack(
 			m_pShowInstrumentRackBtn->isChecked() ); });
 	pVisibilityLayout->addWidget( m_pShowInstrumentRackBtn );
-
-	m_pShowDirectorBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "director.svg",
-		"", iconSize + QSize( 1, 1 ), tr( "Show Director" ) );
-	m_pShowDirectorBtn->setChecked( false );
-	connect( m_pShowDirectorBtn, &Button::clicked, [&]() {
-		HydrogenApp::get_instance()->showDirector();
-	});
-	pVisibilityLayout->addWidget( m_pShowDirectorBtn );
-
-	m_pShowPlaylistEditorBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "playlist.svg",
-		"", iconSize + QSize( 2, 2 ), tr( "Show Playlist Editor" ) );
-	m_pShowPlaylistEditorBtn->setChecked( false );
-	connect( m_pShowPlaylistEditorBtn, &Button::clicked, [&]() {
-		HydrogenApp::get_instance()->showPlaylistEditor();
-	});
-	pVisibilityLayout->addWidget( m_pShowPlaylistEditorBtn );
 
 	m_pShowAutomationBtn = new Button(
 		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "automation.svg",
@@ -488,12 +488,12 @@ void PlayerControl::updatePlayerControl()
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	const auto pHydrogen = Hydrogen::get_instance();
 
+	m_pShowPlaylistEditorBtn->setChecked(
+		pH2App->getPlaylistEditor()->isVisible() );
+	m_pShowDirectorBtn->setChecked( pH2App->getDirector()->isVisible() );
 	m_pShowMixerBtn->setChecked( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setChecked(
 		pH2App->getInstrumentRack()->isVisible() );
-	m_pShowDirectorBtn->setChecked( pH2App->getDirector()->isVisible() );
-	m_pShowPlaylistEditorBtn->setChecked(
-		pH2App->getPlaylistEditor()->isVisible() );
 	m_pShowAutomationBtn->setChecked(
 		pH2App->getSongEditorPanel()->getAutomationPathView()->isVisible() );
 	m_pShowPlaybackTrackBtn->setChecked(
