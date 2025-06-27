@@ -42,10 +42,9 @@ class LED;
 class MetronomeButton;
 class MidiControlButton;
 class PanelGroupBox;
-class PanelSeparator;
 
 /** \ingroup docGUI*/
-class PlayerControl : public QWidget,
+class PlayerControl : public QToolBar,
 					  protected WidgetWithScalableFont<5, 6, 7>,
 					  public EventListener,
 					  public H2Core::Object<PlayerControl> {
@@ -109,48 +108,36 @@ private:
 
 		LCDDisplay* m_pTimeDisplay;
 
-		QWidget* m_pTransportGroup;
 		Button* m_pRwdBtn;
 		Button* m_pRecBtn;
 		Button* m_pPlayBtn;
 		Button* m_pStopBtn;
 		Button* m_pFfwdBtn;
 		Button* m_pSongLoopBtn;
-		PanelSeparator* m_pSeparatorTransport;
 
 		PanelGroupBox* m_pEditorGroup;
 		Button* m_pSongModeBtn;
 		Button* m_pPatternModeBtn;
-		PanelSeparator* m_pSeparatorEditor;
 
-		QWidget* m_pTempoGroup;
 		MetronomeButton* m_pMetronomeBtn;
 		BpmSpinBox* m_pBpmSpinBox;
-		PanelSeparator* m_pSeparatorTempo;
 
-		QWidget* m_pBeatCounterWrapper;
-		QWidget* m_pBeatCounterGroup;
 		BeatCounter* m_pBeatCounter;
-		PanelSeparator* m_pSeparatorBeatCounter;
+		QAction* m_pBeatCounterAction;
+		QAction* m_pBeatCounterSeparator;
 
-		QWidget* m_pRubberBandGroup;
 		Button* m_pRubberBandBtn;
-		PanelSeparator* m_pSeparatorRubberBand;
 
-		QWidget* m_pJackGroup;
 		Button* m_pJackTransportBtn;
 		Button* m_pJackTimebaseBtn;
-		PanelSeparator* m_pSeparatorJack;
 
 		MidiControlButton* m_pMidiControlButton;
-		PanelSeparator* m_pSeparatorMidi;
 
-		QWidget* m_pVisibilityGroup;
+		QAction* m_pShowPlaylistEditorAction;
+		Button* m_pShowDirectorBtn;
 		Button* m_pShowMixerBtn;
 		Button* m_pShowInstrumentRackBtn;
 		Button* m_pShowPreferencesBtn;
-		Button* m_pShowDirectorBtn;
-		Button* m_pShowPlaylistEditorBtn;
 		Button* m_pShowAutomationBtn;
 		Button* m_pShowPlaybackTrackBtn;
 

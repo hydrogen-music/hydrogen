@@ -43,7 +43,6 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/PanelGroupBox.h"
-#include "../Widgets/PanelSeparator.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -60,32 +59,16 @@ using namespace H2Core;
 int bcDisplaystatus = 0;
 // ~ beatcounter
 
-PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
+PlayerControl::PlayerControl( QWidget* pParent) : QToolBar( pParent ) {
 
 	const auto pPref = Preferences::get_instance();
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFixedHeight( PlayerControl::nHeight );
+	setMinimumWidth( HydrogenApp::nMinimumWidth );
 	setFocusPolicy( Qt::ClickFocus );
 	setObjectName( "PlayerControl" );
-
-	auto pOverallLayout = new QHBoxLayout( this );
-	pOverallLayout->setContentsMargins( 0, 0, 0, 0 );
-	pOverallLayout->setSpacing( 0 );
-	setLayout( pOverallLayout );
-
-	auto pMainToolbar = new QWidget( this );
-	pMainToolbar->setObjectName( "MainToolbar" );
-	pOverallLayout->addWidget( pMainToolbar );
-
-	auto pMainLayout = new QHBoxLayout( pMainToolbar );
-	pMainLayout->setContentsMargins(
-		PlayerControl::nMargin, PlayerControl::nMargin, PlayerControl::nMargin,
-		PlayerControl::nMargin );
-	pMainLayout->setSpacing( PlayerControl::nSpacing );
-	pMainLayout->setAlignment( Qt::AlignLeft );
-	pMainToolbar->setLayout( pMainLayout );
 
 	const int nButtonHeight = PlayerControl::nWidgetHeight - 2;
 	const auto buttonSize = QSize(
@@ -105,74 +88,66 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeDisplay = new LCDDisplay(
-		pMainToolbar, QSize( 146, PlayerControl::nWidgetHeight ), true, false );
+		nullptr, QSize( 146, PlayerControl::nWidgetHeight ), true, false );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:000" );
 	m_pTimeDisplay->setStyleSheet(
 		m_pTimeDisplay->styleSheet().append(
 			QString( " QLineEdit { font-size: %1px; }" )
 			.arg( PlayerControl::nFontSize ) ) );
-	pMainLayout->addWidget( m_pTimeDisplay );
+	addWidget( m_pTimeDisplay );
 
 	////////////////////////////////////////////////////////////////////////////
-	// Invisible wrapper group for snapshots.
-	m_pTransportGroup = new QWidget( this );
-	m_pTransportGroup->setObjectName( "PlayerControlTransport" );
-	pMainLayout->addWidget( m_pTransportGroup );
-	auto pTransportGroupLayout = new QHBoxLayout( m_pTransportGroup );
-	pTransportGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pTransportGroupLayout->setSpacing( PlayerControl::nSpacing );
-
 	// Rewind button
 	m_pRwdBtn = new Button(
-		m_pTransportGroup, buttonSize, Button::Type::Push, "rewind.svg", "",
+		this, buttonSize, Button::Type::Push, "rewind.svg", "",
 		iconSize - QSize( 4, 4 ), tr( "Rewind" ) );
 	m_pRwdBtn->setObjectName( "PlayerControlRewindButton" );
 	connect( m_pRwdBtn, SIGNAL( clicked() ), this, SLOT( rewindBtnClicked() ));
 	m_pRwdBtn->setAction( std::make_shared<Action>("<<_PREVIOUS_BAR") );
-	pTransportGroupLayout->addWidget( m_pRwdBtn );
+	addWidget( m_pRwdBtn );
 
 	// Record button
 	m_pRecBtn = new Button(
-		m_pTransportGroup, buttonSize, Button::Type::Toggle, "record.svg", "",
+		this, buttonSize, Button::Type::Toggle, "record.svg", "",
 		iconSize - QSize( 8, 8 ), tr( "Record" ), true );
 	m_pRecBtn->setObjectName( "PlayerControlRecordButton" );
 	m_pRecBtn->setChecked( false );
 	connect( m_pRecBtn, SIGNAL( clicked() ), this, SLOT( recBtnClicked() ));
 	m_pRecBtn->setAction( std::make_shared<Action>("RECORD_READY") );
-	pTransportGroupLayout->addWidget( m_pRecBtn );
+	addWidget( m_pRecBtn );
 
 	// Play button
 	m_pPlayBtn = new Button(
-		m_pTransportGroup, buttonSize, Button::Type::Toggle,
+		this, buttonSize, Button::Type::Toggle,
 		"play_pause.svg", "", iconSize + QSize( 2, 2 ), tr( "Play/ Pause" ) );
 	m_pPlayBtn->setObjectName( "PlayerControlPlayButton" );
 	m_pPlayBtn->setChecked( false );
 	connect( m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( playBtnClicked() ));
 	m_pPlayBtn->setAction( std::make_shared<Action>("PLAY/PAUSE_TOGGLE") );
-	pTransportGroupLayout->addWidget( m_pPlayBtn );
+	addWidget( m_pPlayBtn );
 
 	// Stop button
 	m_pStopBtn = new Button(
-		m_pTransportGroup, buttonSize, Button::Type::Push, "stop.svg", "",
+		this, buttonSize, Button::Type::Push, "stop.svg", "",
 		iconSize - QSize( 8, 8 ), tr( "Stop" ) );
 	m_pStopBtn->setObjectName( "PlayerControlStopButton" );
 	connect(m_pStopBtn, SIGNAL( clicked() ), this, SLOT( stopBtnClicked() ));
 	m_pStopBtn->setAction( std::make_shared<Action>("STOP") );
-	pTransportGroupLayout->addWidget( m_pStopBtn );
+	addWidget( m_pStopBtn );
 
 	// Fast forward button
 	m_pFfwdBtn = new Button(
-		m_pTransportGroup, buttonSize, Button::Type::Push, "fast_forward.svg",
+		this, buttonSize, Button::Type::Push, "fast_forward.svg",
 		"", iconSize - QSize( 4, 4 ), tr( "Fast Forward" ) );
 	m_pFfwdBtn->setObjectName( "PlayerControlForwardButton" );
 	connect(m_pFfwdBtn, SIGNAL( clicked() ), this, SLOT( fastForwardBtnClicked() ));
 	m_pFfwdBtn->setAction( std::make_shared<Action>(">>_NEXT_BAR") );
-	pTransportGroupLayout->addWidget( m_pFfwdBtn );
+	addWidget( m_pFfwdBtn );
 
 	// Loop song button button
 	m_pSongLoopBtn = new Button(
-		m_pTransportGroup, buttonSize, Button::Type::Toggle, "loop.svg", "",
+		this, buttonSize, Button::Type::Toggle, "loop.svg", "",
 		iconSize - QSize( 8, 8 ), tr( "Loop song" ), false, true );
 	m_pSongLoopBtn->setObjectName( "PlayerControlLoopButton" );
 	connect( m_pSongLoopBtn, &QPushButton::clicked,
@@ -186,55 +161,43 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 				 }
 
 			 });
-	pMainLayout->addWidget( m_pSongLoopBtn );
+	addWidget( m_pSongLoopBtn );
 
-	m_pSeparatorTransport = new PanelSeparator( pMainToolbar );
-	m_pSeparatorTransport->setFixedHeight( buttonSize.height() );
-	pMainLayout->addWidget( m_pSeparatorTransport );
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pEditorGroup = new PanelGroupBox( this );
-	m_pEditorGroup->setFixedHeight( nWidgetHeight );
-	pMainLayout->addWidget( m_pEditorGroup );
+	// m_pEditorGroup = new PanelGroupBox( this );
+	// m_pEditorGroup->setFixedHeight( nWidgetHeight );
+	//addWidget( m_pEditorGroup );
 
 	m_pPatternModeBtn = new Button(
-		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle,
+		this, buttonSizeGroup, Button::Type::Toggle,
 		"pattern-editor.svg", "", iconSizeGroup, tr( "Pattern Mode" ),
 		false, true );
 	m_pPatternModeBtn->setObjectName( "PlayerControlPatternModeButton" );
 	connect( m_pPatternModeBtn, &QPushButton::clicked,
 			[=]() { activateSongMode( false ); } );
-	m_pEditorGroup->addWidget( m_pPatternModeBtn );
+	addWidget( m_pPatternModeBtn );
 
 	m_pSongModeBtn = new Button(
-		m_pEditorGroup, buttonSizeGroup, Button::Type::Toggle,
+		this, buttonSizeGroup, Button::Type::Toggle,
 		"song-editor.svg", "", iconSizeGroup, tr( "Song Mode" ),
 		false, true );
 	m_pSongModeBtn->setObjectName( "PlayerControlSongModeButton" );
 	connect( m_pSongModeBtn, &QPushButton::clicked,
 			[=]() { activateSongMode( true ); } );
-	m_pEditorGroup->addWidget( m_pSongModeBtn );
+	addWidget( m_pSongModeBtn );
 
-	m_pSeparatorEditor = new PanelSeparator( pMainToolbar );
-	m_pSeparatorEditor->setFixedHeight( buttonSize.height() );
-	pMainLayout->addWidget( m_pSeparatorEditor );
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	// Invisible wrapper group for snapshots.
-	m_pTempoGroup = new QWidget( this );
-	m_pTempoGroup->setObjectName( "BPM" );
-	pMainLayout->addWidget( m_pTempoGroup );
-	auto pTempoGroupLayout = new QHBoxLayout( m_pTempoGroup );
-	pTempoGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pTempoGroupLayout->setSpacing( PlayerControl::nSpacing );
-
-	m_pMetronomeBtn = new MetronomeButton( m_pTempoGroup, buttonSize );
+	m_pMetronomeBtn = new MetronomeButton( this, buttonSize );
 	m_pMetronomeBtn->setObjectName( "MetronomeButton" );
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 	connect( m_pMetronomeBtn, SIGNAL( clicked() ),
 			 this, SLOT( metronomeButtonClicked() ) );
 	m_pMetronomeBtn->setAction( std::make_shared<Action>("TOGGLE_METRONOME") );
-	pTempoGroupLayout->addWidget( m_pMetronomeBtn );
+	addWidget( m_pMetronomeBtn );
 
 	m_sLCDBPMSpinboxToolTip =
 		tr("Alter the Playback Speed");
@@ -244,60 +207,31 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 		tr( "In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK" );
 
 	m_pBpmSpinBox = new BpmSpinBox(
-		pMainToolbar, QSize( 95, PlayerControl::nWidgetHeight ) );
+		this, QSize( 95, PlayerControl::nWidgetHeight ) );
 	m_pBpmSpinBox->setStyleSheet(
 		m_pBpmSpinBox->styleSheet().append(
 			QString( " QAbstractSpinBox {font-size: %1px;}" )
 			.arg( PlayerControl::nFontSize ) ) );
 	connect( m_pBpmSpinBox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
-	pTempoGroupLayout->addWidget( m_pBpmSpinBox );
+	addWidget( m_pBpmSpinBox );
 
-	m_pSeparatorTempo = new PanelSeparator( pMainToolbar );
-	m_pSeparatorTempo->setFixedHeight( buttonSize.height() );
-	pMainLayout->addWidget( m_pSeparatorTempo );
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	// BeatCounter
-	//
-	// Additional wrapper object to associate separator with beat counter while
-	// not including it into the outlined box.
-	m_pBeatCounterWrapper = new QWidget( this );
-	pMainLayout->addWidget( m_pBeatCounterWrapper );
-	auto pBeatCounterWrapperLayout = new QHBoxLayout( m_pBeatCounterWrapper );
-	pBeatCounterWrapperLayout->setContentsMargins( 0, 0, 0, 0 );
-	pBeatCounterWrapperLayout->setSpacing( PlayerControl::nSpacing );
-	m_pBeatCounterWrapper->setLayout( pBeatCounterWrapperLayout );
-
-	m_pBeatCounterGroup = new QWidget( m_pBeatCounterWrapper );
-	m_pBeatCounterGroup->setObjectName( "PlayerControlBeatCounter" );
-	pBeatCounterWrapperLayout->addWidget( m_pBeatCounterGroup );
-	auto pBeatCounterGroupLayout = new QHBoxLayout( m_pBeatCounterGroup );
-	pBeatCounterGroupLayout->setContentsMargins( 2, 2, 2, 2 );
-	m_pBeatCounterGroup->setLayout( pBeatCounterGroupLayout );
-
 	m_sBCOnOffBtnTimelineToolTip =
 		tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
 	m_sBCOnOffBtnJackTimebaseToolTip =
 		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
 
 	m_pBeatCounter = new BeatCounter( this );
-	pBeatCounterGroupLayout->addWidget( m_pBeatCounter );
+	m_pBeatCounterAction = addWidget( m_pBeatCounter );
 
-	m_pSeparatorBeatCounter = new PanelSeparator( m_pBeatCounterWrapper );
-	m_pSeparatorBeatCounter->setFixedHeight( PlayerControl::nWidgetHeight );
-	pBeatCounterWrapperLayout->addWidget( m_pSeparatorBeatCounter );
+	m_pBeatCounterSeparator = addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pRubberBandGroup = new QWidget( pMainToolbar );
-	m_pRubberBandGroup->setObjectName( "PlayerControlRubberBand" );
-	pMainLayout->addWidget( m_pRubberBandGroup );
-	auto pRubberBandGroupLayout = new QHBoxLayout( m_pRubberBandGroup );
-	pRubberBandGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pRubberBandGroupLayout->setSpacing( PlayerControl::nSpacing );
-
 	m_pRubberBandBtn = new Button(
-		m_pRubberBandGroup, buttonSize, Button::Type::Toggle, "rubberband.svg",
+		this, buttonSize, Button::Type::Toggle, "rubberband.svg",
 		"", iconSize,
 		tr( "Recalculate Rubberband modified samples if bpm will change" ),
 		false, true );
@@ -305,112 +239,94 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	m_pRubberBandBtn->setChecked( pPref->getRubberBandBatchMode() );
 	connect( m_pRubberBandBtn, SIGNAL( clicked() ),
 			 this, SLOT( rubberbandButtonToggle() ) );
-	pRubberBandGroupLayout->addWidget( m_pRubberBandBtn );
 	// test the path. if test fails, no button
 	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false) {
 		m_pRubberBandBtn->hide();
 	}
+	addWidget( m_pRubberBandBtn );
 
-	m_pSeparatorRubberBand = new PanelSeparator( m_pRubberBandGroup );
-	m_pSeparatorRubberBand->setFixedHeight( buttonSize.height() );
-	pRubberBandGroupLayout->addWidget( m_pSeparatorRubberBand );
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	// Invisible wrapper group for snapshots.
-	m_pJackGroup = new QWidget( this );
-	m_pJackGroup->setObjectName( "JackPanel" );
-	pMainLayout->addWidget( m_pJackGroup );
-	auto pJackGroupLayout = new QHBoxLayout( m_pJackGroup );
-	pJackGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pJackGroupLayout->setSpacing( PlayerControl::nSpacing );
-
 	m_pJackTransportBtn = new Button(
-		m_pJackGroup, buttonSize, Button::Type::Toggle, "jack.svg", "", iconSize,
+		this, buttonSize, Button::Type::Toggle, "jack.svg", "", iconSize,
 		tr( "JACK transport on/off" ), false, true );
 	m_pJackTransportBtn->setObjectName( "PlayerControlJackTransportButton" );
 	connect( m_pJackTransportBtn, SIGNAL( clicked() ),
 			 this, SLOT( jackTransportBtnClicked() ));
-	pJackGroupLayout->addWidget( m_pJackTransportBtn );
+	addWidget( m_pJackTransportBtn );
 
 	m_pJackTimebaseBtn = new Button(
-		m_pJackGroup, buttonSize, Button::Type::Toggle, "jack-timebase.svg",
+		this, buttonSize, Button::Type::Toggle, "jack-timebase.svg",
 		"", iconSize, pCommonStrings->getJackTimebaseTooltip(), false, true );
 	m_pJackTimebaseBtn->setObjectName( "PlayerControlJackTimebaseButton" );
 	connect( m_pJackTimebaseBtn, SIGNAL( clicked() ), this,
 			SLOT( jackTimebaseBtnClicked() ) );
-	pJackGroupLayout->addWidget( m_pJackTimebaseBtn );
+	addWidget( m_pJackTimebaseBtn );
 
-	m_pSeparatorJack = new PanelSeparator( m_pJackGroup );
-	m_pSeparatorJack->setFixedHeight( buttonSize.height() );
-	pJackGroupLayout->addWidget( m_pSeparatorJack );
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pMidiControlButton = new MidiControlButton( pMainToolbar );
+	m_pMidiControlButton = new MidiControlButton( this );
 	m_pMidiControlButton->setFixedSize(
 		buttonSize.width() * 3, buttonSize.height() );
-	pMainLayout->addWidget( m_pMidiControlButton );
+	addWidget( m_pMidiControlButton );
 
-	m_pSeparatorMidi = new PanelSeparator( pMainToolbar );
-	m_pSeparatorMidi->setFixedHeight( buttonSize.height() );
-	pMainLayout->addWidget( m_pSeparatorMidi );
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	// Invisible wrapper group for snapshots.
-	m_pVisibilityGroup = new QWidget( this );
-	m_pVisibilityGroup->setObjectName( "PlayerControlVisibility" );
-	pMainLayout->addWidget( m_pVisibilityGroup );
-	auto pVisibilityLayout = new QHBoxLayout( m_pVisibilityGroup );
-	pVisibilityLayout->setContentsMargins( 0, 0, 0, 0 );
-	pVisibilityLayout->setSpacing( PlayerControl::nSpacing );
-
-	m_pShowPlaylistEditorBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "playlist.svg",
-		"", iconSize + QSize( 2, 2 ), tr( "Show Playlist Editor" ) );
-	m_pShowPlaylistEditorBtn->setChecked( false );
-	connect( m_pShowPlaylistEditorBtn, &Button::clicked, [&]() {
+	m_pShowPlaylistEditorAction = new QAction( this );
+	m_pShowPlaylistEditorAction ->setCheckable( true );
+	m_pShowPlaylistEditorAction->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/black/playlist.svg" ) );
+	m_pShowPlaylistEditorAction->setIconText( "PlaylistEditor" );
+	m_pShowPlaylistEditorAction->setToolTip(
+		tr( "Show Playlist Editor" ) );
+	m_pShowPlaylistEditorAction->setChecked( false );
+	connect( m_pShowPlaylistEditorAction, &QAction::triggered, []() {
 		HydrogenApp::get_instance()->showPlaylistEditor();
 	});
-	pVisibilityLayout->addWidget( m_pShowPlaylistEditorBtn );
+	addAction( m_pShowPlaylistEditorAction );
 
 	m_pShowDirectorBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "director.svg",
+		this, buttonSize, Button::Type::Toggle, "director.svg",
 		"", iconSize + QSize( 1, 1 ), tr( "Show Director" ) );
 	m_pShowDirectorBtn->setChecked( false );
 	connect( m_pShowDirectorBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showDirector();
 	});
-	pVisibilityLayout->addWidget( m_pShowDirectorBtn );
+	addWidget( m_pShowDirectorBtn );
 
 	m_pShowMixerBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "mixer.svg",
+		this, buttonSize, Button::Type::Toggle, "mixer.svg",
 		"", iconSize, tr( "Show mixer" ) );
 	m_pShowMixerBtn->setChecked( pPref->getMixerProperties().visible );
 	connect( m_pShowMixerBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerBtn->isChecked() ); });
-	pVisibilityLayout->addWidget( m_pShowMixerBtn );
+	addWidget( m_pShowMixerBtn );
 
 	m_pShowInstrumentRackBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "component-editor.svg",
+		this, buttonSize, Button::Type::Toggle, "component-editor.svg",
 		"", iconSize + QSize( 2, 2 ), tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setChecked(
 		pPref->getInstrumentRackProperties().visible );
 	connect( m_pShowInstrumentRackBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showInstrumentRack(
 			m_pShowInstrumentRackBtn->isChecked() ); });
-	pVisibilityLayout->addWidget( m_pShowInstrumentRackBtn );
+	addWidget( m_pShowInstrumentRackBtn );
 
 	m_pShowAutomationBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "automation.svg",
+		this, buttonSize, Button::Type::Toggle, "automation.svg",
 		"", iconSize + QSize( 1, 1 ), tr( "Show Automation" ) );
 	m_pShowAutomationBtn->setChecked( false );
 	connect( m_pShowAutomationBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->getSongEditorPanel()->
 			toggleAutomationAreaVisibility();
 	});
-	pVisibilityLayout->addWidget( m_pShowAutomationBtn );
+	addWidget( m_pShowAutomationBtn );
 
 	m_pShowPlaybackTrackBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle,
+		this, buttonSize, Button::Type::Toggle,
 		"playback-track.svg", "", iconSize + QSize( 4, 4 ),
 		tr( "Show Playback Track" ) );
 	m_pShowPlaybackTrackBtn->setChecked( false );
@@ -423,19 +339,18 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 				showTimeline();
 		}
 	});
-	pVisibilityLayout->addWidget( m_pShowPlaybackTrackBtn );
+	addWidget( m_pShowPlaybackTrackBtn );
 
 	m_pShowPreferencesBtn = new Button(
-		m_pVisibilityGroup, buttonSize, Button::Type::Toggle, "cog.svg", "",
+		this, buttonSize, Button::Type::Toggle, "cog.svg", "",
 		iconSize - QSize( 6, 6 ), tr( "Show Preferences" ) );
 	m_pShowPreferencesBtn->setChecked( false );
 	connect( m_pShowPreferencesBtn, &Button::clicked, [&]() {
 		HydrogenApp::get_instance()->showPreferencesDialog();
 	});
-	pVisibilityLayout->addWidget( m_pShowPreferencesBtn );
+	addWidget( m_pShowPreferencesBtn );
 
 	////////////////////////////////////////////////////////////////////////////
-	pMainLayout->addStretch();
 
 	QTimer *timer = new QTimer( this );
 	connect( timer, SIGNAL( timeout() ), this, SLOT( updateTime() ) );
@@ -488,7 +403,7 @@ void PlayerControl::updatePlayerControl()
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	const auto pHydrogen = Hydrogen::get_instance();
 
-	m_pShowPlaylistEditorBtn->setChecked(
+	m_pShowPlaylistEditorAction->setChecked(
 		pH2App->getPlaylistEditor()->isVisible() );
 	m_pShowDirectorBtn->setChecked( pH2App->getDirector()->isVisible() );
 	m_pShowMixerBtn->setChecked( pH2App->getMixer()->isVisible() );
@@ -816,10 +731,14 @@ void PlayerControl::updateBeatCounter() {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
-		m_pBeatCounterWrapper->show();
+		DEBUGLOG( "show" );
+		m_pBeatCounterAction->setVisible( true );
+		m_pBeatCounterSeparator->setVisible( true );
 	}
 	else {
-		m_pBeatCounterWrapper->hide();
+		DEBUGLOG( "hide" );
+		m_pBeatCounterAction->setVisible( false );
+		m_pBeatCounterSeparator->setVisible( false );
 		return;
 	}
 
@@ -827,13 +746,13 @@ void PlayerControl::updateBeatCounter() {
 
 	switch ( pHydrogen->getTempoSource() ) {
 	case H2Core::Hydrogen::Tempo::Jack:
-		m_pBeatCounterWrapper->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
+		m_pBeatCounter->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
 		break;
 	case H2Core::Hydrogen::Tempo::Timeline:
-		m_pBeatCounterWrapper->setToolTip( m_sBCOnOffBtnTimelineToolTip );
+		m_pBeatCounter->setToolTip( m_sBCOnOffBtnTimelineToolTip );
 		break;
 	default:
-		m_pBeatCounterWrapper->setToolTip( "" );
+		m_pBeatCounter->setToolTip( "" );
 	}
 }
 
@@ -861,11 +780,11 @@ void PlayerControl::updateBpmSpinBox() {
 void PlayerControl::updateJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( ! pHydrogen->hasJackAudioDriver() ) {
-		m_pJackGroup->hide();
+		this->hide();
 		return;
 	}
 	else {
-		m_pJackGroup->show();
+		this->show();
 	}
 
 	if ( pHydrogen->hasJackTransport() ) {
@@ -881,11 +800,11 @@ void PlayerControl::updateJackTimebase()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( ! pHydrogen->hasJackAudioDriver() ) {
-		m_pJackGroup->hide();
+		this->hide();
 		return;
 	}
 	else {
-		m_pJackGroup->show();
+		this->show();
 	}
 
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
@@ -995,7 +914,7 @@ void PlayerControl::updateStyleSheet() {
 	}
 
 	setStyleSheet( QString( "\
-QWidget#MainToolbar {\
+QToolBar {\
      background-color: %1; \
      color: %2; \
      border: %3px solid #000;\
@@ -1003,27 +922,19 @@ QWidget#MainToolbar {\
 				   .arg( colorToolbar.name() ).arg( colorText.name() )
 				   .arg( PlayerControl::nBorder ) );
 
-	m_pEditorGroup->setBackgroundColor( colorGroupBoxBackground );
-	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
-	m_pEditorGroup->updateStyleSheet();
+// 	m_pEditorGroup->setBackgroundColor( colorGroupBoxBackground );
+// 	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
+// 	m_pEditorGroup->updateStyleSheet();
 
-	m_pBeatCounterGroup->setStyleSheet( QString( "\
-#PlayerControlBeatCounter {\
-    background-color: %1;\
-    color: %2;\
-    border: %3px solid %4;\
-    border-radius: 2px;\
-}" )
-		.arg( colorGroupBoxBackground.name() ).arg( colorText.name() )
-		.arg( PlayerControl::nBorder ).arg( colorGroupBoxBorder.name() ) );
-
-	m_pSeparatorEditor->setColor( colorGroupBoxBorder );
-	m_pSeparatorTransport->setColor( colorGroupBoxBorder );
-	m_pSeparatorBeatCounter->setColor( colorGroupBoxBorder );
-	m_pSeparatorTempo->setColor( colorGroupBoxBorder );
-	m_pSeparatorRubberBand->setColor( colorGroupBoxBorder );
-	m_pSeparatorJack->setColor( colorGroupBoxBorder );
-	m_pSeparatorMidi->setColor( colorGroupBoxBorder );
+// 	m_pBeatCounterGroup->setStyleSheet( QString( "\
+// #PlayerControlBeatCounter {\
+//     background-color: %1;\
+//     color: %2;\
+//     border: %3px solid %4;\
+//     border-radius: 2px;\
+// }" )
+// 		.arg( colorGroupBoxBackground.name() ).arg( colorText.name() )
+// 		.arg( PlayerControl::nBorder ).arg( colorGroupBoxBorder.name() ) );
 
 	m_pBeatCounter->setBackgroundColor( colorGroupBoxBackground );
 	m_pBeatCounter->setBorderColor( colorGroupBoxBorder );
