@@ -127,7 +127,7 @@ private:
 		QAction* m_pRubberBandAction;
 
 		QAction* m_pJackTransportAction;
-		Button* m_pJackTimebaseBtn;
+		QToolButton* m_pJackTimebaseButton;
 
 		MidiControlButton* m_pMidiControlButton;
 

@@ -276,13 +276,17 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	});
 	addAction( m_pJackTransportAction );
 
-	m_pJackTimebaseBtn = new Button(
-		this, buttonSize, Button::Type::Toggle, "jack-timebase.svg",
-		"", iconSize, pCommonStrings->getJackTimebaseTooltip(), false, true );
-	m_pJackTimebaseBtn->setObjectName( "MainToolBarJackTimebaseButton" );
-	connect( m_pJackTimebaseBtn, SIGNAL( clicked() ), this,
-			SLOT( jackTimebaseBtnClicked() ) );
-	addWidget( m_pJackTimebaseBtn );
+	m_pJackTimebaseButton = new QToolButton( this );
+	m_pJackTimebaseButton->setObjectName( "JackTimebaseButton" );
+	m_pJackTimebaseButton->setCheckable( true );
+	m_pJackTimebaseButton->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/black/jack-timebase.svg" ) );
+	m_pJackTimebaseButton->setToolTip(
+		pCommonStrings->getJackTimebaseTooltip() );
+	connect( m_pJackTimebaseButton, &QToolButton::clicked, [&]() {
+		jackTimebaseBtnClicked();
+	} );
+	addWidget( m_pJackTimebaseButton );
 
 	addSeparator();
 
@@ -837,41 +841,38 @@ void MainToolBar::updateJackTimebase()
 		this->show();
 	}
 
+	m_pJackTimebaseButton->setStyleSheet( "" );
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
-		m_pJackTimebaseBtn->setChecked( false );
-		m_pJackTimebaseBtn->setCheckedBackgroundColor(
-			theme.m_color.m_accentColor );
-		m_pJackTimebaseBtn->setCheckedBackgroundTextColor(
-			theme.m_color.m_accentTextColor );
-		m_pJackTimebaseBtn->setIsActive( false );
-		m_pJackTimebaseBtn->setBaseToolTip(
+		m_pJackTimebaseButton->setChecked( false );
+		m_pJackTimebaseButton->setEnabled( false );
+		m_pJackTimebaseButton->setToolTip(
 			pCommonStrings->getJackTimebaseDisabledTooltip() );
 		return;
 	}
 	else {
-		m_pJackTimebaseBtn->setIsActive( true );
-		m_pJackTimebaseBtn->setChecked( false );
-		m_pJackTimebaseBtn->setCheckedBackgroundColor(
-			theme.m_color.m_accentColor );
-		m_pJackTimebaseBtn->setCheckedBackgroundTextColor(
-			theme.m_color.m_accentTextColor );
-		m_pJackTimebaseBtn->setToolTip(
+		m_pJackTimebaseButton->setEnabled( true );
+		m_pJackTimebaseButton->setChecked( false );
+		m_pJackTimebaseButton->setToolTip(
 			pCommonStrings->getJackTimebaseTooltip() );
 	}
 
 	if ( pHydrogen->hasJackTransport() ) {
 		switch ( pHydrogen->getJackTimebaseState() ) {
 		case JackAudioDriver::Timebase::Controller:
-			m_pJackTimebaseBtn->setChecked( true );
+			m_pJackTimebaseButton->setChecked( true );
+			m_pJackTimebaseButton->setStyleSheet( QString( "\
+#JackTimebaseButton {\
+    background-color: %1;\
+}" ).arg( theme.m_color.m_highlightColor.name() ) );
 			break;
 
 		case JackAudioDriver::Timebase::Listener:
-			m_pJackTimebaseBtn->setChecked( true );
-		m_pJackTimebaseBtn->setCheckedBackgroundColor(
-			theme.m_color.m_buttonRedColor );
-		m_pJackTimebaseBtn->setCheckedBackgroundTextColor(
-			theme.m_color.m_buttonRedTextColor );
-			m_pJackTimebaseBtn->setToolTip(
+			m_pJackTimebaseButton->setChecked( true );
+			m_pJackTimebaseButton->setStyleSheet( QString( "\
+#JackTimebaseButton {\
+    background-color: %1;\
+}" ).arg( theme.m_color.m_buttonRedColor.name() ) );
+			m_pJackTimebaseButton->setToolTip(
 				pCommonStrings->getJackTimebaseListenerTooltip() );
 			break;
 		}
