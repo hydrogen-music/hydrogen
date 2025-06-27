@@ -2797,6 +2797,173 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
 </context>
 <context>
+    <name>MainToolBar</name>
+    <message>
+        <source>Song Mode</source>
+        <translation>Modo canción</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation>Reproduciendo.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Parado.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation>Modo canción seleccionado.</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Parar</translation>
+    </message>
+    <message>
+        <source>Pattern Mode</source>
+        <translation>Modo de patrón</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation>Modo de patrón seleccionado.</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Regresar</translation>
+    </message>
+    <message>
+        <source>Play/ Pause</source>
+        <translation>Reproducir/ Pausa</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Adelantar</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pausa.</translation>
+    </message>
+    <message>
+        <source>Loop song</source>
+        <translation>Repetir canción</translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation>Repetir canción = Si</translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation>Repetir canción = No</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation>Ver mezclador</translation>
+    </message>
+    <message>
+        <source>Show Instrument Rack</source>
+        <translation>Ver rack de instrumentos</translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation>Grabar</translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation>Grabar eventos midi = Sí</translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation>Grabar eventos midi = No</translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
+        <translation>Recalcular samples modificados con Rubberband si cambian las PPM</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband ON</source>
+        <translation>Recalcular todos los samples usando Rubberband ON</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband OFF</source>
+        <translation>Recalcular todos los samples usando Rubberband OFF</translation>
+    </message>
+    <message>
+        <source>JACK transport on/off</source>
+        <translation>Transporte JACK encendido/apagado</translation>
+    </message>
+    <message>
+        <source>JACK transport will work only with JACK driver.</source>
+        <translation>El transporte JACK solo funcionará con el driver JACK.</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = On</source>
+        <translation>Modo transporte JACK: = Encendido</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = Off</source>
+        <translation>Modo transporte JACK: = Apagado</translation>
+    </message>
+    <message>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation>Por favor desactiva la Línea de Tiempo primero para usar el BeatCounter</translation>
+    </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <translation>Alterar Velocidad de Reproducción</translation>
+    </message>
+    <message>
+        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
+        <translation>Mientras está activa la Línea de Tiempo, este widget está en modo solo lectura y únicamente muestra el tempo establecido utilizando la posición actual de la Línea de Tiempo</translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation>JACK-transport operará sólo con el controlador JACK.</translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
+        <translation>Se ha detectado un cambio de tempo vía MIDI, OSC, BeatCounter, o TapTempo. Solo se utilizará tras desactivar la Línea de Tiempo y a la izquierda del primer Marcador de Tempo al activarlo de nuevo.</translation>
+    </message>
+    <message>
+        <source>JACK Timebase mode</source>
+        <translation>Modo JACK Timebase</translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playlist Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playback Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MasterLine</name>
     <message>
         <source>Master volume</source>
@@ -3325,173 +3492,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>No playback track selected</source>
         <translation>Ninguna pista de reproducción seleccionada</translation>
-    </message>
-</context>
-<context>
-    <name>PlayerControl</name>
-    <message>
-        <source>Song Mode</source>
-        <translation>Modo canción</translation>
-    </message>
-    <message>
-        <source>Playing.</source>
-        <translation>Reproduciendo.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Parado.</translation>
-    </message>
-    <message>
-        <source>Song mode selected.</source>
-        <translation>Modo canción seleccionado.</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Parar</translation>
-    </message>
-    <message>
-        <source>Pattern Mode</source>
-        <translation>Modo de patrón</translation>
-    </message>
-    <message>
-        <source>Pattern mode selected.</source>
-        <translation>Modo de patrón seleccionado.</translation>
-    </message>
-    <message>
-        <source>Rewind</source>
-        <translation>Regresar</translation>
-    </message>
-    <message>
-        <source>Play/ Pause</source>
-        <translation>Reproducir/ Pausa</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Adelantar</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Pausa.</translation>
-    </message>
-    <message>
-        <source>Loop song</source>
-        <translation>Repetir canción</translation>
-    </message>
-    <message>
-        <source>Loop song = On</source>
-        <translation>Repetir canción = Si</translation>
-    </message>
-    <message>
-        <source>Loop song = Off</source>
-        <translation>Repetir canción = No</translation>
-    </message>
-    <message>
-        <source>Show mixer</source>
-        <translation>Ver mezclador</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Ver rack de instrumentos</translation>
-    </message>
-    <message>
-        <source>Record</source>
-        <translation>Grabar</translation>
-    </message>
-    <message>
-        <source>Record midi events = On</source>
-        <translation>Grabar eventos midi = Sí</translation>
-    </message>
-    <message>
-        <source>Record midi events = Off</source>
-        <translation>Grabar eventos midi = No</translation>
-    </message>
-    <message>
-        <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation>Recalcular samples modificados con Rubberband si cambian las PPM</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Recalcular todos los samples usando Rubberband ON</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Recalcular todos los samples usando Rubberband OFF</translation>
-    </message>
-    <message>
-        <source>JACK transport on/off</source>
-        <translation>Transporte JACK encendido/apagado</translation>
-    </message>
-    <message>
-        <source>JACK transport will work only with JACK driver.</source>
-        <translation>El transporte JACK solo funcionará con el driver JACK.</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = On</source>
-        <translation>Modo transporte JACK: = Encendido</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = Off</source>
-        <translation>Modo transporte JACK: = Apagado</translation>
-    </message>
-    <message>
-        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation>Por favor desactiva la Línea de Tiempo primero para usar el BeatCounter</translation>
-    </message>
-    <message>
-        <source>Alter the Playback Speed</source>
-        <translation>Alterar Velocidad de Reproducción</translation>
-    </message>
-    <message>
-        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation>Mientras está activa la Línea de Tiempo, este widget está en modo solo lectura y únicamente muestra el tempo establecido utilizando la posición actual de la Línea de Tiempo</translation>
-    </message>
-    <message>
-        <source>JACK-transport will work only with JACK driver.</source>
-        <translation>JACK-transport operará sólo con el controlador JACK.</translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
-        <translation>Se ha detectado un cambio de tempo vía MIDI, OSC, BeatCounter, o TapTempo. Solo se utilizará tras desactivar la Línea de Tiempo y a la izquierda del primer Marcador de Tempo al activarlo de nuevo.</translation>
-    </message>
-    <message>
-        <source>JACK Timebase mode</source>
-        <translation>Modo JACK Timebase</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Director</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playlist Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Automation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playback Track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Preferences</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

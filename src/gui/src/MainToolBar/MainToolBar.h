@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PLAYER_CONTROL_H
-#define PLAYER_CONTROL_H
+#ifndef MAIN_TOOL_BAR_H
+#define MAIN_TOOL_BAR_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -44,11 +44,11 @@ class MidiControlButton;
 class PanelGroupBox;
 
 /** \ingroup docGUI*/
-class PlayerControl : public QToolBar,
-					  protected WidgetWithScalableFont<5, 6, 7>,
-					  public EventListener,
-					  public H2Core::Object<PlayerControl> {
-    H2_OBJECT(PlayerControl)
+class MainToolBar : public QToolBar,
+					protected WidgetWithScalableFont<5, 6, 7>,
+					public EventListener,
+					public H2Core::Object<MainToolBar> {
+    H2_OBJECT(MainToolBar)
 	Q_OBJECT
 public:
 
@@ -57,18 +57,18 @@ public:
 		static constexpr int nHeight = 40;
 		static constexpr int nMargin = 3;
 		static constexpr int nSpacing = 3;
-		static constexpr int nWidgetHeight = PlayerControl::nHeight -
-			PlayerControl::nMargin * 2;
+		static constexpr int nWidgetHeight = MainToolBar::nHeight -
+			MainToolBar::nMargin * 2;
 
 
-		explicit PlayerControl(QWidget *parent);
-		~PlayerControl();
+		explicit MainToolBar(QWidget *parent);
+		~MainToolBar();
 
 		/** Unlike all other widgets we have provide visibility buttons for,
 		 * #PreferencesDialog is a transient widget we can not check visibility
 		 * on. */
 		void setPreferencesVisibilityState( bool bChecked );
-		void updatePlayerControl();
+		void updateActions();
 
 		void mousePressEvent( QMouseEvent* pEvent ) override;
 

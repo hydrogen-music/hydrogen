@@ -42,7 +42,7 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "Parser.h"
-#include "PlayerControl/PlayerControl.h"
+#include "MainToolBar/MainToolBar.h"
 #include "Reporter.h"
 #include "ShotList.h"
 #include "Skin.h"
@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
 		// Update visibility button states.
-		pHydrogenApp->getPlayerControl()->updatePlayerControl();
+		pHydrogenApp->getMainToolBar()->updateActions();
 	
 		pSplash->finish( pMainForm );
 

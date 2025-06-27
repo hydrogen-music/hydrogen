@@ -2790,6 +2790,173 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MainToolBar</name>
+    <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Song Mode</source>
+        <translation>Songmodus</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation>Spielt ab.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Gestoppt.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation>Songmodus gewählt.</translation>
+    </message>
+    <message>
+        <source>Pattern Mode</source>
+        <translation>Patternmodus</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation>Patternmodus gewählt.</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Zurückspulen</translation>
+    </message>
+    <message>
+        <source>Play/ Pause</source>
+        <translation>Play/Pause</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Vorspulen</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pause.</translation>
+    </message>
+    <message>
+        <source>Loop song</source>
+        <translation>Song wiederholen</translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation>Song wiederholen = aktiviert</translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation>Song wiederholen = deaktiviert</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation>Mixer anzeigen</translation>
+    </message>
+    <message>
+        <source>Show Instrument Rack</source>
+        <translation>Instrumenten Rack anzeigen</translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation>Aufnehmen</translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation>Midi-Eingaben aufnehmen = aktiviert</translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation>Midi-Eingaben aufnehmen = deaktiviert</translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
+        <translation>Berechne Samples neu, welche mit Rubberband verändert wurden, sobald die BPM verändert werden</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband ON</source>
+        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband OFF</source>
+        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
+    </message>
+    <message>
+        <source>JACK transport on/off</source>
+        <translation>JACK Transport an/aus</translation>
+    </message>
+    <message>
+        <source>JACK transport will work only with JACK driver.</source>
+        <translation>Der JACK Transport funktioniert nur mit dem JACK Treiber.</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = On</source>
+        <translation>JACK Transport Modus = An</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = Off</source>
+        <translation>JACK Transport Modus = Aus</translation>
+    </message>
+    <message>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation>Um BeatCounter zu benutzen muss zuerst der Zeitstrahl (timeline) ausgeschalten werden</translation>
+    </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <translation>Wiedergabe-Geschwindigkeit ändern</translation>
+    </message>
+    <message>
+        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
+        <translation>Während der Zeitstrahl (timeline) aktiviert ist, ist dieses Element schreibgeschützt und zeigt das Tempo der aktuellen Wiedergabe-Position an</translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation>JACK Transport ist nur über den JACK Audio Treiber verfügbar.</translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
+        <translation>Eine Tempoänderung über MIDI, OSC, BeatCounter oder TapTempo wurde registriert. Diese wird erst nach Deaktivierung des Zeitstrahls (timeline) übernommen und auch für den Bereich links vom ersten Tempo Marker nach anschließender wiederholter Aktivierung übernommen.</translation>
+    </message>
+    <message>
+        <source>JACK Timebase mode</source>
+        <translation>JACK Timebase modus</translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playlist Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playback Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MasterLine</name>
     <message>
         <source>Master volume</source>
@@ -3318,173 +3485,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>No playback track selected</source>
         <translation>Kein Playback Track ausgewählt</translation>
-    </message>
-</context>
-<context>
-    <name>PlayerControl</name>
-    <message>
-        <source>Stop</source>
-        <translation>Stopp</translation>
-    </message>
-    <message>
-        <source>Song Mode</source>
-        <translation>Songmodus</translation>
-    </message>
-    <message>
-        <source>Playing.</source>
-        <translation>Spielt ab.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Gestoppt.</translation>
-    </message>
-    <message>
-        <source>Song mode selected.</source>
-        <translation>Songmodus gewählt.</translation>
-    </message>
-    <message>
-        <source>Pattern Mode</source>
-        <translation>Patternmodus</translation>
-    </message>
-    <message>
-        <source>Pattern mode selected.</source>
-        <translation>Patternmodus gewählt.</translation>
-    </message>
-    <message>
-        <source>Rewind</source>
-        <translation>Zurückspulen</translation>
-    </message>
-    <message>
-        <source>Play/ Pause</source>
-        <translation>Play/Pause</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Vorspulen</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Pause.</translation>
-    </message>
-    <message>
-        <source>Loop song</source>
-        <translation>Song wiederholen</translation>
-    </message>
-    <message>
-        <source>Loop song = On</source>
-        <translation>Song wiederholen = aktiviert</translation>
-    </message>
-    <message>
-        <source>Loop song = Off</source>
-        <translation>Song wiederholen = deaktiviert</translation>
-    </message>
-    <message>
-        <source>Show mixer</source>
-        <translation>Mixer anzeigen</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Instrumenten Rack anzeigen</translation>
-    </message>
-    <message>
-        <source>Record</source>
-        <translation>Aufnehmen</translation>
-    </message>
-    <message>
-        <source>Record midi events = On</source>
-        <translation>Midi-Eingaben aufnehmen = aktiviert</translation>
-    </message>
-    <message>
-        <source>Record midi events = Off</source>
-        <translation>Midi-Eingaben aufnehmen = deaktiviert</translation>
-    </message>
-    <message>
-        <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation>Berechne Samples neu, welche mit Rubberband verändert wurden, sobald die BPM verändert werden</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
-    </message>
-    <message>
-        <source>JACK transport on/off</source>
-        <translation>JACK Transport an/aus</translation>
-    </message>
-    <message>
-        <source>JACK transport will work only with JACK driver.</source>
-        <translation>Der JACK Transport funktioniert nur mit dem JACK Treiber.</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = On</source>
-        <translation>JACK Transport Modus = An</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = Off</source>
-        <translation>JACK Transport Modus = Aus</translation>
-    </message>
-    <message>
-        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation>Um BeatCounter zu benutzen muss zuerst der Zeitstrahl (timeline) ausgeschalten werden</translation>
-    </message>
-    <message>
-        <source>Alter the Playback Speed</source>
-        <translation>Wiedergabe-Geschwindigkeit ändern</translation>
-    </message>
-    <message>
-        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation>Während der Zeitstrahl (timeline) aktiviert ist, ist dieses Element schreibgeschützt und zeigt das Tempo der aktuellen Wiedergabe-Position an</translation>
-    </message>
-    <message>
-        <source>JACK-transport will work only with JACK driver.</source>
-        <translation>JACK Transport ist nur über den JACK Audio Treiber verfügbar.</translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
-        <translation>Eine Tempoänderung über MIDI, OSC, BeatCounter oder TapTempo wurde registriert. Diese wird erst nach Deaktivierung des Zeitstrahls (timeline) übernommen und auch für den Bereich links vom ersten Tempo Marker nach anschließender wiederholter Aktivierung übernommen.</translation>
-    </message>
-    <message>
-        <source>JACK Timebase mode</source>
-        <translation>JACK Timebase modus</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Director</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playlist Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Automation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playback Track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Preferences</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

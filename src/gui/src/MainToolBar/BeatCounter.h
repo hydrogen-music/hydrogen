@@ -28,7 +28,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "PlayerControl.h"
+#include "MainToolBar.h"
 
 #include "../Widgets/WidgetWithScalableFont.h"
 

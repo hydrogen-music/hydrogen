@@ -27,7 +27,7 @@
 #include "../Widgets/LCDDisplay.h"
 
 /** Non-interactive display for status messages in the
-	#PlayerControl. Shows a popup list of previous messages when clicking it.*/
+	#MainToolBar. Shows a popup list of previous messages when clicking it.*/
 /** \ingroup docGUI docWidgets*/
 class StatusMessageDisplay : public LCDDisplay,
 							 public H2Core::Object<StatusMessageDisplay>

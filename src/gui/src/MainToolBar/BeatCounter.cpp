@@ -41,7 +41,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	const int nWidgetHeight = PlayerControl::nWidgetHeight -
+	const int nWidgetHeight = MainToolBar::nWidgetHeight -
 		PanelGroupBox::nMarginVertical * 2 - PanelGroupBox::nBorder * 2;
 
 	setFixedHeight( nWidgetHeight );
@@ -299,7 +299,7 @@ QWidget#Background {\
      border: %3px solid %4;\
 }")
 				   .arg( m_backgroundColor.name() ).arg( colorText.name() )
-				   .arg( PlayerControl::nBorder ).arg( m_borderColor.name() ) );
+				   .arg( MainToolBar::nBorder ).arg( m_borderColor.name() ) );
 
 	const QString sLabelStyleSheet = QString( "\
 QLabel {\
@@ -308,7 +308,7 @@ QLabel {\
     font-size: %3px;\
 }" )
 		.arg( colorLabel.name() ).arg( colorText.name() )
-		.arg( PlayerControl::nFontSize );
+		.arg( MainToolBar::nFontSize );
 	m_pBeatLengthLabel->setStyleSheet( sLabelStyleSheet );
 	m_pTotalBeatsLabel->setStyleSheet( sLabelStyleSheet );
 }

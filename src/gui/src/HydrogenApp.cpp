@@ -45,7 +45,7 @@
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternEditor/PatternEditorRuler.h"
-#include "PlayerControl/PlayerControl.h"
+#include "MainToolBar/MainToolBar.h"
 #include "PlaylistEditor/PlaylistEditor.h"
 #include "PreferencesDialog/PreferencesDialog.h"
 #include "SongEditor/SongEditor.h"
@@ -72,7 +72,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  , m_pPatternEditorPanel( nullptr )
  , m_pAudioEngineInfoForm( nullptr )
  , m_pSongEditorPanel( nullptr )
- , m_pPlayerControl( nullptr )
+ , m_pMainToolBar( nullptr )
  , m_pPlaylistEditor( nullptr )
  , m_pSampleEditor( nullptr )
  , m_pDirector( nullptr )
@@ -300,7 +300,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	pEditorHBox->addWidget( m_pInstrumentRack );
 
 	// PLayer control
-	m_pPlayerControl = new PlayerControl( nullptr );
+	m_pMainToolBar = new MainToolBar( nullptr );
 
 	m_pFooter = new Footer( nullptr );
 
@@ -311,7 +311,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMainVBox = new QVBoxLayout();
 	m_pMainVBox->setSpacing( 1 );
 	m_pMainVBox->setContentsMargins( 0, 0, 0, 0 );
-	m_pMainVBox->addWidget( m_pPlayerControl );
+	m_pMainVBox->addWidget( m_pMainToolBar );
 
 	if( layout == InterfaceTheme::Layout::SinglePane ) {
 		m_pMainVBox->addWidget( m_pSplitter );
@@ -326,7 +326,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	mainArea->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 	mainArea->setMinimumSize( HydrogenApp::nMinimumWidth,
 							  180 + // menu bar, margins etc.
-							  PlayerControl::nHeight +
+							  MainToolBar::nHeight +
 							  SongEditorPanel::m_nMinimumHeight +
 							  InstrumentRack::m_nMinimumHeight +
 							  SongEditorPositionRuler::m_nMinimumHeight +
@@ -450,7 +450,7 @@ void HydrogenApp::handleUndoContext( const QString& sContext,
 void HydrogenApp::currentTabChanged(int index)
 {
 	Preferences::get_instance()->setLastOpenTab( index );
-	m_pPlayerControl->updatePlayerControl();
+	m_pMainToolBar->updateActions();
 }
 
 void HydrogenApp::closeFXProperties()
@@ -747,7 +747,7 @@ void HydrogenApp::showMixer(bool show)
 	}
 
 	// Update visibility button.
-	m_pPlayerControl->updatePlayerControl();
+	m_pMainToolBar->updateActions();
 	m_pMainForm->updateMenuBar();
 }
 
@@ -769,12 +769,12 @@ void HydrogenApp::showInstrumentRack(bool show)
 	}
 
 	// Update visibility button.
-	m_pPlayerControl->updatePlayerControl();
+	m_pMainToolBar->updateActions();
 	m_pMainForm->updateMenuBar();
 }
 
 void HydrogenApp::showPreferencesDialog() {
-	m_pPlayerControl->setPreferencesVisibilityState( true );
+	m_pMainToolBar->setPreferencesVisibilityState( true );
 
 	PreferencesDialog preferencesDialog(m_pMainForm);
 	preferencesDialog.exec();
@@ -870,7 +870,7 @@ void HydrogenApp::showPlaylistEditor()
 	m_pMainForm->update_playlist_checkbox();
 
 	// Update visibility button.
-	m_pPlayerControl->updatePlayerControl();
+	m_pMainToolBar->updateActions();
 }
 
 
@@ -884,7 +884,7 @@ void HydrogenApp::showDirector()
 	m_pMainForm->update_director_checkbox();
 
 	// Update visibility button.
-	m_pPlayerControl->updatePlayerControl();
+	m_pMainToolBar->updateActions();
 }
 
 
@@ -1351,7 +1351,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		}
 #endif
 
-		m_pPlayerControl->updatePlayerControl();
+		m_pMainToolBar->updateActions();
 
 		// Inform the user about which file was loaded.
 		showStatusBarMessage( tr("Preferences loaded.") + 

@@ -57,7 +57,7 @@
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PlaylistEditor/PlaylistEditor.h"
-#include "PlayerControl/PlayerControl.h"
+#include "MainToolBar/MainToolBar.h"
 #include "Skin.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -182,7 +182,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	h2app->getMixer()->installEventFilter (this);
 	h2app->getPatternEditorPanel()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
-	h2app->getPlayerControl()->installEventFilter(this);
+	h2app->getMainToolBar()->installEventFilter(this);
 	h2app->getInstrumentRack()->getInstrumentEditorPanel()
 		->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);

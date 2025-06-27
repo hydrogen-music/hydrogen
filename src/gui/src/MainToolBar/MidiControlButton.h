@@ -33,7 +33,7 @@
 
 class LED;
 
-/** Button in the #PlayerControl indicating the current state of the MIDI input
+/** Button in the #MainToolBar indicating the current state of the MIDI input
  * and output (using two LEDs). Clicking it will open the #MidiControlDialog.
  *
  * \ingroup docGUI*/

@@ -58,7 +58,7 @@ public:
 		updates from.*/
 	enum class Tempo {
 		/** BeatCounter, TapTempo, OSC and MIDI commands as well as
-			the BPM widget in the PlayerControl are used to change the
+			the BPM widget in the MainToolBar are used to change the
 			tempo.*/
 		Song = 0,
 		/** Only tempo markers on the Timeline are considered.*/

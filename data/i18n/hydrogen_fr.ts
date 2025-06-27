@@ -2799,6 +2799,173 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
+    <name>MainToolBar</name>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
+    </message>
+    <message>
+        <source>Song Mode</source>
+        <translation>Mode morceau</translation>
+    </message>
+    <message>
+        <source>Pattern Mode</source>
+        <translation>Mode motif</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation>Lecture en cours.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Arrêté.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation>Mode morceau sélectionné.</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation>Mode motif sélectionné.</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation>Montrer la table de mixage</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Reculer</translation>
+    </message>
+    <message>
+        <source>Play/ Pause</source>
+        <translation>Jouer/Pause</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Avancer</translation>
+    </message>
+    <message>
+        <source>Loop song</source>
+        <translation>Morceau en boucle</translation>
+    </message>
+    <message>
+        <source>Show Instrument Rack</source>
+        <translation>Afficher les instruments</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pause.</translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation>Morceau en boucle = actif</translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation>Morceau en boucle = inactif</translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation>Enregistrer</translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation>Enregistrer les événements MIDI = actif</translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation>Enregistrer les événements MIDI = inactif</translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
+        <translation>Recalcule les échantillons modifiés par Rubberband si le BPM change</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband ON</source>
+        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband OFF</source>
+        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
+    </message>
+    <message>
+        <source>JACK transport on/off</source>
+        <translation>Transport JACK on/off</translation>
+    </message>
+    <message>
+        <source>JACK transport will work only with JACK driver.</source>
+        <translation>Le transport JACK ne fonctionne qu&apos;avec le pilote JACK.</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = On</source>
+        <translation>Mode transport JACK = on</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = Off</source>
+        <translation>Mode transport JACK = off</translation>
+    </message>
+    <message>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation>Veuillez d&apos;abord désactiver la ligne de temps afin d&apos;utiliser le compteur de pulsation</translation>
+    </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <translation>Modifier la vitesse de lecture</translation>
+    </message>
+    <message>
+        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
+        <translation>Lorsque la ligne de temps est active, ce widget est en mode lecture seule et affiche simplement le tempo réglé en utilisant la position actuelle de la ligne de temps.</translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation>JACK-transport ne fonctionne qu&apos;avec le pilote JACK.</translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
+        <translation>Un changement de tempo via MIDI, OSC, Compteur de pulsation ou TapTempo a été détecté. Il ne sera utilisé qu&apos;après la désactivation de la ligne de temps et à gauche du premier marqueur de tempo lors de sa réactivation.</translation>
+    </message>
+    <message>
+        <source>JACK Timebase mode</source>
+        <translation>Mide base de temps JACK</translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playlist Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playback Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MasterLine</name>
     <message>
         <source>Master volume</source>
@@ -3327,173 +3494,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>No playback track selected</source>
         <translation>Aucune piste de lecture sélectionnée</translation>
-    </message>
-</context>
-<context>
-    <name>PlayerControl</name>
-    <message>
-        <source>Stop</source>
-        <translation>Arrêter</translation>
-    </message>
-    <message>
-        <source>Song Mode</source>
-        <translation>Mode morceau</translation>
-    </message>
-    <message>
-        <source>Pattern Mode</source>
-        <translation>Mode motif</translation>
-    </message>
-    <message>
-        <source>Playing.</source>
-        <translation>Lecture en cours.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Arrêté.</translation>
-    </message>
-    <message>
-        <source>Song mode selected.</source>
-        <translation>Mode morceau sélectionné.</translation>
-    </message>
-    <message>
-        <source>Pattern mode selected.</source>
-        <translation>Mode motif sélectionné.</translation>
-    </message>
-    <message>
-        <source>Show mixer</source>
-        <translation>Montrer la table de mixage</translation>
-    </message>
-    <message>
-        <source>Rewind</source>
-        <translation>Reculer</translation>
-    </message>
-    <message>
-        <source>Play/ Pause</source>
-        <translation>Jouer/Pause</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Avancer</translation>
-    </message>
-    <message>
-        <source>Loop song</source>
-        <translation>Morceau en boucle</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Afficher les instruments</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Pause.</translation>
-    </message>
-    <message>
-        <source>Loop song = On</source>
-        <translation>Morceau en boucle = actif</translation>
-    </message>
-    <message>
-        <source>Loop song = Off</source>
-        <translation>Morceau en boucle = inactif</translation>
-    </message>
-    <message>
-        <source>Record</source>
-        <translation>Enregistrer</translation>
-    </message>
-    <message>
-        <source>Record midi events = On</source>
-        <translation>Enregistrer les événements MIDI = actif</translation>
-    </message>
-    <message>
-        <source>Record midi events = Off</source>
-        <translation>Enregistrer les événements MIDI = inactif</translation>
-    </message>
-    <message>
-        <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation>Recalcule les échantillons modifiés par Rubberband si le BPM change</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
-    </message>
-    <message>
-        <source>JACK transport on/off</source>
-        <translation>Transport JACK on/off</translation>
-    </message>
-    <message>
-        <source>JACK transport will work only with JACK driver.</source>
-        <translation>Le transport JACK ne fonctionne qu&apos;avec le pilote JACK.</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = On</source>
-        <translation>Mode transport JACK = on</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = Off</source>
-        <translation>Mode transport JACK = off</translation>
-    </message>
-    <message>
-        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation>Veuillez d&apos;abord désactiver la ligne de temps afin d&apos;utiliser le compteur de pulsation</translation>
-    </message>
-    <message>
-        <source>Alter the Playback Speed</source>
-        <translation>Modifier la vitesse de lecture</translation>
-    </message>
-    <message>
-        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation>Lorsque la ligne de temps est active, ce widget est en mode lecture seule et affiche simplement le tempo réglé en utilisant la position actuelle de la ligne de temps.</translation>
-    </message>
-    <message>
-        <source>JACK-transport will work only with JACK driver.</source>
-        <translation>JACK-transport ne fonctionne qu&apos;avec le pilote JACK.</translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
-        <translation>Un changement de tempo via MIDI, OSC, Compteur de pulsation ou TapTempo a été détecté. Il ne sera utilisé qu&apos;après la désactivation de la ligne de temps et à gauche du premier marqueur de tempo lors de sa réactivation.</translation>
-    </message>
-    <message>
-        <source>JACK Timebase mode</source>
-        <translation>Mide base de temps JACK</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Director</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playlist Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Automation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playback Track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Preferences</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

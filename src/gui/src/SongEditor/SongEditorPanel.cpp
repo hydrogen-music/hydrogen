@@ -28,7 +28,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
-#include "../PlayerControl/PlayerControl.h"
+#include "../MainToolBar/MainToolBar.h"
 #include "../Skin.h"
 #include "../SongPropertiesDialog.h"
 #include "../UndoActions.h"
@@ -928,7 +928,7 @@ void SongEditorPanel::showTimeline()
 	Preferences::get_instance()->setShowPlaybackTrack( false );
 
 	// Update visibility buttons.
-	HydrogenApp::get_instance()->getPlayerControl()->updatePlayerControl();
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
 
@@ -950,7 +950,7 @@ void SongEditorPanel::showPlaybackTrack()
 	updatePlaybackTrack();
 
 	// Update visibility buttons.
-	HydrogenApp::get_instance()->getPlayerControl()->updatePlayerControl();
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
 void SongEditorPanel::viewTimelineBtnClicked()
@@ -1118,7 +1118,7 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 	}
 
 	// Update visibility buttons.
-	HydrogenApp::get_instance()->getPlayerControl()->updatePlayerControl();
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
 void SongEditorPanel::activateStackedMode( bool bActive ) {

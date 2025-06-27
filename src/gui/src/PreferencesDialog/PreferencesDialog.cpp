@@ -43,7 +43,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../PlayerControl/PlayerControl.h"
+#include "../MainToolBar/MainToolBar.h"
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/FileDialog.h"
@@ -706,7 +706,7 @@ PreferencesDialog::~PreferencesDialog()
 	INFOLOG("~PREFERENCES_DIALOG");
 
 	// Update visibility buttons.
-	HydrogenApp::get_instance()->getPlayerControl()->
+	HydrogenApp::get_instance()->getMainToolBar()->
 		setPreferencesVisibilityState( false );
 }
 

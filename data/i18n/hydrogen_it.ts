@@ -2760,6 +2760,173 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MainToolBar</name>
+    <message>
+        <source>Song Mode</source>
+        <translation>Modalità canzone</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation>In esecuzione.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Fermato.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation>Modalità canzone selezionata.</translation>
+    </message>
+    <message>
+        <source>Pattern Mode</source>
+        <translation>Modalità Pattern</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation>Modalità pattern selezionata.</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Indietro</translation>
+    </message>
+    <message>
+        <source>Play/ Pause</source>
+        <translation>Riproduci / Pausa</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Avanti</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pausa.</translation>
+    </message>
+    <message>
+        <source>Loop song</source>
+        <translation>Riproduzione continua canzone</translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation>Riproduzione continua canzone = Attivo</translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation>Riproduzione continua canzone = Disattivato</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation>Mostra mixer</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Ferma</translation>
+    </message>
+    <message>
+        <source>Show Instrument Rack</source>
+        <translation>Mostra Rack strumenti</translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation>Registra</translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation>Registrazione eventi MIDI = On</translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation>Registrazione eventi MIDI = Off</translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
+        <translation>Ricalcola i sample Rubberband modificati se cambia il BPM</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband ON</source>
+        <translation>Ricalcola tutti i sample usando Rubberband ON</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband OFF</source>
+        <translation>Ricalcola tutti i sample usando Rubberband OFF</translation>
+    </message>
+    <message>
+        <source>JACK transport on/off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK transport will work only with JACK driver.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK transport mode = On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK transport mode = Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JACK Timebase mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show BeatCounter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playlist Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playback Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MasterLine</name>
     <message>
         <source>Master volume</source>
@@ -3287,173 +3454,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <name>PlaybackTrackWaveDisplay</name>
     <message>
         <source>No playback track selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PlayerControl</name>
-    <message>
-        <source>Song Mode</source>
-        <translation>Modalità canzone</translation>
-    </message>
-    <message>
-        <source>Playing.</source>
-        <translation>In esecuzione.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Fermato.</translation>
-    </message>
-    <message>
-        <source>Song mode selected.</source>
-        <translation>Modalità canzone selezionata.</translation>
-    </message>
-    <message>
-        <source>Pattern Mode</source>
-        <translation>Modalità Pattern</translation>
-    </message>
-    <message>
-        <source>Pattern mode selected.</source>
-        <translation>Modalità pattern selezionata.</translation>
-    </message>
-    <message>
-        <source>Rewind</source>
-        <translation>Indietro</translation>
-    </message>
-    <message>
-        <source>Play/ Pause</source>
-        <translation>Riproduci / Pausa</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Avanti</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Pausa.</translation>
-    </message>
-    <message>
-        <source>Loop song</source>
-        <translation>Riproduzione continua canzone</translation>
-    </message>
-    <message>
-        <source>Loop song = On</source>
-        <translation>Riproduzione continua canzone = Attivo</translation>
-    </message>
-    <message>
-        <source>Loop song = Off</source>
-        <translation>Riproduzione continua canzone = Disattivato</translation>
-    </message>
-    <message>
-        <source>Show mixer</source>
-        <translation>Mostra mixer</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Ferma</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Mostra Rack strumenti</translation>
-    </message>
-    <message>
-        <source>Record</source>
-        <translation>Registra</translation>
-    </message>
-    <message>
-        <source>Record midi events = On</source>
-        <translation>Registrazione eventi MIDI = On</translation>
-    </message>
-    <message>
-        <source>Record midi events = Off</source>
-        <translation>Registrazione eventi MIDI = Off</translation>
-    </message>
-    <message>
-        <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation>Ricalcola i sample Rubberband modificati se cambia il BPM</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Ricalcola tutti i sample usando Rubberband ON</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Ricalcola tutti i sample usando Rubberband OFF</translation>
-    </message>
-    <message>
-        <source>JACK transport on/off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JACK transport will work only with JACK driver.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JACK transport mode = On</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JACK transport mode = Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alter the Playback Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JACK-transport will work only with JACK driver.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JACK Timebase mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Director</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playlist Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Automation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Playback Track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Preferences</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

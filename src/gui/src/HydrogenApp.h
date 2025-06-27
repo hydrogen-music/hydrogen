@@ -59,9 +59,9 @@ class Footer;
 class InfoBar;
 class InstrumentRack;
 class LadspaFXProperties;
+class MainToolBar;
 class Mixer;
 class PatternEditorPanel;
-class PlayerControl;
 class PlaylistEditor;
 class SampleEditor;
 class SongEditorPanel;
@@ -124,7 +124,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		MainForm*			getMainForm();
 		Mixer*				getMixer();
 		PatternEditorPanel*		getPatternEditorPanel();
-		PlayerControl*			getPlayerControl();
+		MainToolBar*			getMainToolBar();
 		PlaylistEditor*			getPlaylistEditor();
 		SampleEditor*			getSampleEditor();
 		SongEditorPanel*		getSongEditorPanel();
@@ -233,7 +233,7 @@ signals:
 		InstrumentRack*				m_pInstrumentRack;
 		Mixer *						m_pMixer;
 		PatternEditorPanel*			m_pPatternEditorPanel;
-		PlayerControl *				m_pPlayerControl;
+		MainToolBar*				m_pMainToolBar;
 		PlaylistEditor *			m_pPlaylistEditor;
 		SampleEditor *				m_pSampleEditor;
 		SongEditorPanel *			m_pSongEditorPanel;
@@ -369,9 +369,9 @@ inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel()
 	return m_pPatternEditorPanel;
 }
 
-inline PlayerControl* HydrogenApp::getPlayerControl()
+inline MainToolBar* HydrogenApp::getMainToolBar()
 {
-	return m_pPlayerControl;
+	return m_pMainToolBar;
 }
 
 inline InstrumentRack* HydrogenApp::getInstrumentRack()
