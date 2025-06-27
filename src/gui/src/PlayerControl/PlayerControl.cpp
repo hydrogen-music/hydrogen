@@ -29,11 +29,15 @@ https://www.gnu.org/licenses
 #include "MidiControlButton.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
+#include "../Director.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "../Mixer/Mixer.h"
+#include "../PlaylistEditor/PlaylistEditor.h"
 #include "../Skin.h"
+#include "../SongEditor/PlaybackTrackWaveDisplay.h"
 #include "../SongEditor/SongEditorPanel.h"
+#include "../Widgets/AutomationPathView.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDDisplay.h"
@@ -413,10 +417,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 	connect( m_pShowPlaybackTrackBtn, &Button::clicked, [=]() {
 		if ( m_pShowPlaybackTrackBtn->isChecked() ) {
 			HydrogenApp::get_instance()->getSongEditorPanel()->
-				showTimeline();
+				showPlaybackTrack();
 		} else {
 			HydrogenApp::get_instance()->getSongEditorPanel()->
-				showPlaybackTrack();
+				showTimeline();
 		}
 	});
 	pVisibilityLayout->addWidget( m_pShowPlaybackTrackBtn );
@@ -474,6 +478,10 @@ PlayerControl::PlayerControl( QWidget* pParent) : QWidget( pParent ) {
 PlayerControl::~PlayerControl() {
 }
 
+void PlayerControl::setPreferencesVisibilityState( bool bChecked ) {
+	m_pShowPreferencesBtn->setChecked( bChecked );
+}
+
 void PlayerControl::updatePlayerControl()
 {
 	const auto pPref = Preferences::get_instance();
@@ -483,6 +491,13 @@ void PlayerControl::updatePlayerControl()
 	m_pShowMixerBtn->setChecked( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setChecked(
 		pH2App->getInstrumentRack()->isVisible() );
+	m_pShowDirectorBtn->setChecked( pH2App->getDirector()->isVisible() );
+	m_pShowPlaylistEditorBtn->setChecked(
+		pH2App->getPlaylistEditor()->isVisible() );
+	m_pShowAutomationBtn->setChecked(
+		pH2App->getSongEditorPanel()->getAutomationPathView()->isVisible() );
+	m_pShowPlaybackTrackBtn->setChecked(
+		pH2App->getSongEditorPanel()->getPlaybackTrackWaveDisplay()->isVisible() );
 
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
 

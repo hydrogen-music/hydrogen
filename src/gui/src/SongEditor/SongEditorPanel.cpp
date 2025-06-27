@@ -20,13 +20,18 @@
  *
  */
 #include "SongEditorPanel.h"
+
 #include "PlaybackTrackWaveDisplay.h"
+#include "SongEditor.h"
 
 #include "../AudioFileBrowser/AudioFileBrowser.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
-#include "../SongPropertiesDialog.h"
+#include "../PlayerControl/PlayerControl.h"
 #include "../Skin.h"
+#include "../SongPropertiesDialog.h"
+#include "../UndoActions.h"
 #include "../Widgets/AutomationPathView.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/Fader.h"
@@ -34,17 +39,13 @@
 #include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 
-#include "SongEditor.h"
-#include "UndoActions.h"
-#include "CommonStrings.h"
-
-#include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -57,6 +58,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
  {
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	const bool bShowPlaybackTrack = pPref->getShowPlaybackTrack();
 
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
@@ -280,8 +283,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pViewTimelineBtn->setObjectName( "TimeLineToggleBtn" );
 	connect( m_pViewTimelineBtn, SIGNAL( clicked() ), this, SLOT( viewTimelineBtnClicked() ) );
 	m_pViewTimelineBtn->setChecked( ! pPref->getShowPlaybackTrack() );
-	
-	
+
+	m_pTimelineBtn->setVisible( ! bShowPlaybackTrack );
+	m_pMutePlaybackBtn->setVisible( bShowPlaybackTrack );
+	m_pEditPlaybackBtn->setVisible( bShowPlaybackTrack );
+	m_pPlaybackTrackFader->setVisible( bShowPlaybackTrack );
+	m_pViewPlaybackBtn->setChecked( bShowPlaybackTrack );
+	m_pViewTimelineBtn->setChecked( ! bShowPlaybackTrack );
+
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );
 	pHZoomLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -354,7 +363,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	
+
 	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->getComponents()->front();
 	assert(pCompo);
 
@@ -392,13 +401,12 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack->addWidget( m_pPositionRulerScrollView );
 	m_pWidgetStack->addWidget( m_pPlaybackTrackScrollView );
 
-	if( pPref->getShowPlaybackTrack() ) {
-		showPlaybackTrack();
+	if ( bShowPlaybackTrack ) {
+		m_pWidgetStack->setCurrentWidget( m_pPlaybackTrackScrollView );
+	} else {
+		m_pWidgetStack->setCurrentWidget( m_pPositionRulerScrollView );
 	}
-	else {
-		showTimeline();
-	}
-	
+
 	QWidget *pMainPanel = new QWidget();
 	pMainPanel->setObjectName( "SongEditorPanel" );
 	QGridLayout *pGridLayout = new QGridLayout();
@@ -918,6 +926,9 @@ void SongEditorPanel::showTimeline()
 		m_pViewTimelineBtn->setChecked( true );
 	}
 	Preferences::get_instance()->setShowPlaybackTrack( false );
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getPlayerControl()->updatePlayerControl();
 }
 
 
@@ -937,6 +948,9 @@ void SongEditorPanel::showPlaybackTrack()
 	Preferences::get_instance()->setShowPlaybackTrack( true );
 
 	updatePlaybackTrack();
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getPlayerControl()->updatePlayerControl();
 }
 
 void SongEditorPanel::viewTimelineBtnClicked()
@@ -1102,6 +1116,9 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 		m_pAutomationCombo->hide();
 		pPref->setShowAutomationArea( false );
 	}
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getPlayerControl()->updatePlayerControl();
 }
 
 void SongEditorPanel::activateStackedMode( bool bActive ) {

@@ -746,6 +746,7 @@ void HydrogenApp::showMixer(bool show)
 		m_pMixer->setVisible( show );
 	}
 
+	// Update visibility button.
 	m_pPlayerControl->updatePlayerControl();
 	m_pMainForm->updateMenuBar();
 }
@@ -767,20 +768,17 @@ void HydrogenApp::showInstrumentRack(bool show)
 		m_pInstrumentRack->setVisible( show );
 	}
 
+	// Update visibility button.
 	m_pPlayerControl->updatePlayerControl();
 	m_pMainForm->updateMenuBar();
 }
 
+void HydrogenApp::showPreferencesDialog() {
+	m_pPlayerControl->setPreferencesVisibilityState( true );
 
-
-void HydrogenApp::showPreferencesDialog()
-{
 	PreferencesDialog preferencesDialog(m_pMainForm);
 	preferencesDialog.exec();
 }
-
-
-
 
 void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& sCaller )
 {
@@ -870,6 +868,9 @@ void HydrogenApp::showPlaylistEditor()
 		m_pPlaylistEditor->show();
 	}
 	m_pMainForm->update_playlist_checkbox();
+
+	// Update visibility button.
+	m_pPlayerControl->updatePlayerControl();
 }
 
 
@@ -881,6 +882,9 @@ void HydrogenApp::showDirector()
 		m_pDirector->show();
 	}
 	m_pMainForm->update_director_checkbox();
+
+	// Update visibility button.
+	m_pPlayerControl->updatePlayerControl();
 }
 
 

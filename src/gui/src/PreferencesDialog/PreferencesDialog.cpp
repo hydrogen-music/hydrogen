@@ -40,14 +40,14 @@
 #include <core/IO/PortAudioDriver.h>
 #include <core/Sampler/Sampler.h>
 
-#include "../SongEditor/SongEditor.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
-#include "../CommonStrings.h"
-
+#include "../PlayerControl/PlayerControl.h"
+#include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
-#include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/FileDialog.h"
+#include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/MidiTable.h"
 #include "../Widgets/ShortcutCaptureDialog.h"
 
@@ -704,6 +704,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 PreferencesDialog::~PreferencesDialog()
 {
 	INFOLOG("~PREFERENCES_DIALOG");
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getPlayerControl()->
+		setPreferencesVisibilityState( false );
 }
 
 void PreferencesDialog::on_cancelBtn_clicked()

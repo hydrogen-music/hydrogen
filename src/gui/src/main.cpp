@@ -42,6 +42,7 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "Parser.h"
+#include "PlayerControl/PlayerControl.h"
 #include "Reporter.h"
 #include "ShotList.h"
 #include "Skin.h"
@@ -448,7 +449,9 @@ int main(int argc, char *argv[])
 						  parser.getPlaylistFilename() );
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
-		
+		// Update visibility button states.
+		pHydrogenApp->getPlayerControl()->updatePlayerControl();
+	
 		pSplash->finish( pMainForm );
 
 		if( ! parser.getDrumkitToLoad().isEmpty() ) {
