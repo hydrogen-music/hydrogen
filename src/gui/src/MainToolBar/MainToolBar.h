@@ -108,16 +108,16 @@ private:
 
 		LCDDisplay* m_pTimeDisplay;
 
-		Button* m_pRwdBtn;
-		Button* m_pRecBtn;
-		Button* m_pPlayBtn;
-		Button* m_pStopBtn;
-		Button* m_pFfwdBtn;
-		Button* m_pSongLoopBtn;
+		QAction* m_pRwdAction;
+		QAction* m_pRecAction;
+		QAction* m_pPlayAction;
+		QAction* m_pStopAction;
+		QAction* m_pFfwdAction;
+		QAction* m_pSongLoopAction;
 
 		PanelGroupBox* m_pEditorGroup;
-		Button* m_pSongModeBtn;
-		Button* m_pPatternModeBtn;
+		QAction* m_pSongModeAction;
+		QAction* m_pPatternModeAction;
 
 		MetronomeButton* m_pMetronomeBtn;
 		BpmSpinBox* m_pBpmSpinBox;
@@ -126,20 +126,20 @@ private:
 		QAction* m_pBeatCounterAction;
 		QAction* m_pBeatCounterSeparator;
 
-		Button* m_pRubberBandBtn;
+		QAction* m_pRubberBandAction;
 
-		Button* m_pJackTransportBtn;
+		QAction* m_pJackTransportAction;
 		Button* m_pJackTimebaseBtn;
 
 		MidiControlButton* m_pMidiControlButton;
 
 		QAction* m_pShowPlaylistEditorAction;
-		Button* m_pShowDirectorBtn;
-		Button* m_pShowMixerBtn;
-		Button* m_pShowInstrumentRackBtn;
-		Button* m_pShowPreferencesBtn;
-		Button* m_pShowAutomationBtn;
-		Button* m_pShowPlaybackTrackBtn;
+		QAction* m_pShowDirectorAction;
+		QAction* m_pShowMixerAction;
+		QAction* m_pShowInstrumentRackAction;
+		QAction* m_pShowPreferencesAction;
+		QAction* m_pShowAutomationAction;
+		QAction* m_pShowPlaybackTrackAction;
 
 		QMenu* m_pPopupMenu;
 
