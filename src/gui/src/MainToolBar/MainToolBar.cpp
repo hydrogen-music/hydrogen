@@ -450,13 +450,13 @@ void MainToolBar::loopModeActivationEvent() {
 void MainToolBar::metronomeEvent( int nValue ) {
 	const auto pPref = H2Core::Preferences::get_instance();
 
-	// Only trigger LED if the metronome button was pressed or it was
-	// activated via MIDI or OSC.
-	//
-	// Value 2 corresponds to the metronome being turned on or off an is not
-	// handled in here neither.
-	if ( ! pPref->m_bUseMetronome ||
-		 nValue == 2 ) {
+	// Value 2 corresponds to the metronome being turned on or off.
+	if ( nValue == 2 ) {
+		updateActions();
+		return;
+	}
+
+	if ( ! pPref->m_bUseMetronome ) {
 		return;
 	}
 
