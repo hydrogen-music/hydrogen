@@ -102,6 +102,7 @@ private slots:
 
 		void updateTime();
 private:
+		void updateIcons();
 		void updateStyleSheet();
 
 		LCDDisplay* m_pTimeDisplay;

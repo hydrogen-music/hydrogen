@@ -81,22 +81,9 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	const auto iconSizeGroup = QSize( buttonSizeGroup.width() - 4,
 									  buttonSizeGroup.height() - 4 );
 
-	auto createStandardAction = [&]( QStyle::StandardPixmap pixmap,
-									 const QString& sText ) {
+	auto createAction = [&]( const QString& sText ) {
 		auto pAction = new QAction( this );
 		pAction->setCheckable( true );
-		pAction->setIcon( style()->standardIcon( pixmap ) );
-		pAction->setIconText( sText );
-		pAction->setToolTip( sText );
-
-		return pAction;
-	};
-	auto createAction = [&]( const QString& sIcon, const QString& sText ) {
-		auto pAction = new QAction( this );
-		pAction->setCheckable( true );
-		pAction->setIcon(
-			QIcon( Skin::getSvgImagePath() + QString( "/icons/black/%1" )
-				   .arg( sIcon ) ) );
 		pAction->setIconText( sText );
 		pAction->setToolTip( sText );
 
@@ -116,8 +103,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	// Rewind button
-	m_pRwdAction = createStandardAction(
-		QStyle::SP_MediaSeekBackward, tr( "Rewind" ) );
+	m_pRwdAction = createAction( tr( "Rewind" ) );
 	m_pRwdAction->setObjectName( "MainToolBarRewindButton" );
 	connect( m_pRwdAction, &QAction::triggered, [&]() {
 		rewindBtnClicked();
@@ -126,12 +112,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addAction( m_pRwdAction );
 
 	// Record button
-	m_pRecAction = new QAction( this );
-	m_pRecAction->setCheckable( true );
-	m_pRecAction->setIcon(
-			QIcon( Skin::getSvgImagePath() + "/icons/record.svg" ) );
-	m_pRecAction->setIconText( tr( "Record" ) );
-	m_pRecAction->setToolTip( tr( "Record" ) );
+	m_pRecAction = createAction( tr( "Record" ) );
 	m_pRecAction->setObjectName( "MainToolBarRecordButton" );
 	connect( m_pRecAction, &QAction::triggered, [&]() {
 		recBtnClicked();
@@ -140,8 +121,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addAction( m_pRecAction );
 
 	// Play button
-	m_pPlayAction = createStandardAction(
-		QStyle::SP_MediaPlay, tr( "Play/ Pause" ) );
+	m_pPlayAction = createAction( tr( "Play/ Pause" ) );
 	m_pPlayAction->setObjectName( "MainToolBarPlayButton" );
 	connect( m_pPlayAction, &QAction::triggered, [&]() {
 		playBtnClicked();
@@ -150,7 +130,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addAction( m_pPlayAction );
 
 	// Stop button
-	m_pStopAction = createStandardAction( QStyle::SP_MediaStop, tr( "Stop" ) );
+	m_pStopAction = createAction( tr( "Stop" ) );
 	m_pStopAction->setObjectName( "MainToolBarStopButton" );
 	connect( m_pStopAction, &QAction::triggered, [&](){
 		stopBtnClicked();
@@ -159,17 +139,16 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addAction( m_pStopAction );
 
 	// Fast forward button
-	m_pFfwdAction = createStandardAction(
-		QStyle::SP_MediaSeekForward, tr( "Fast Forward" ) );
+	m_pFfwdAction = createAction( tr( "Fast Forward" ) );
 	m_pFfwdAction->setObjectName( "MainToolBarForwardButton" );
-	connect(m_pFfwdAction, &QAction::triggered, [&](){
+	connect( m_pFfwdAction, &QAction::triggered, [&](){
 		fastForwardBtnClicked();
 	});
 	//m_pFfwdAction->setAction( std::make_shared<Action>(">>_NEXT_BAR") );
 	addAction( m_pFfwdAction );
 
 	// Loop song button button
-	m_pSongLoopAction = createAction("loop.svg", tr( "Loop song" ) );
+	m_pSongLoopAction = createAction( tr( "Loop song" ) );
 	m_pSongLoopAction->setObjectName( "MainToolBarLoopButton" );
 	connect( m_pSongLoopAction, &QAction::triggered,
 			 [=]( bool bChecked ) {
@@ -192,14 +171,13 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	// m_pEditorGroup->setFixedHeight( nWidgetHeight );
 	//addWidget( m_pEditorGroup );
 
-	m_pPatternModeAction = createAction(
-		"pattern-editor.svg", tr( "Pattern Mode" ) );
+	m_pPatternModeAction = createAction( tr( "Pattern Mode" ) );
 	m_pPatternModeAction->setObjectName( "MainToolBarPatternModeButton" );
 	connect( m_pPatternModeAction, &QAction::triggered,
 			[=]() { activateSongMode( false ); } );
 	addAction( m_pPatternModeAction );
 
-	m_pSongModeAction = createAction( "song-editor.svg", tr( "Song Mode" ) );
+	m_pSongModeAction = createAction( tr( "Song Mode" ) );
 	m_pSongModeAction->setObjectName( "MainToolBarSongModeButton" );
 	connect( m_pSongModeAction, &QAction::triggered,
 			[=]() { activateSongMode( true ); } );
@@ -211,8 +189,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	m_pMetronomeButton = new QToolButton( this );
 	m_pMetronomeButton->setObjectName( "MetronomeButton" );
 	m_pMetronomeButton->setCheckable( true );
-	m_pMetronomeButton->setIcon(
-		QIcon( Skin::getSvgImagePath() + "/icons/black/metronome.svg" ) );
 	m_pMetronomeButton->setToolTip( tr( "Switch metronome on/off" ) );
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
 		CoreActionController::setMetronomeIsActive( bChecked );
@@ -252,7 +228,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandAction = createAction(
-		"rubberband.svg",
 		tr( "Recalculate Rubberband modified samples if bpm will change" ) );
 	m_pRubberBandAction->setObjectName( "MainToolBarRubberbandButton" );
 	m_pRubberBandAction->setChecked( pPref->getRubberBandBatchMode() );
@@ -268,8 +243,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pJackTransportAction = createAction(
-		"jack.svg", tr( "JACK transport on/off" ) );
+	m_pJackTransportAction = createAction( tr( "JACK transport on/off" ) );
 	m_pJackTransportAction->setObjectName( "MainToolBarJackTransportButton" );
 	connect( m_pJackTransportAction, &QAction::triggered, [&]() {
 		jackTransportBtnClicked();
@@ -279,8 +253,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	m_pJackTimebaseButton = new QToolButton( this );
 	m_pJackTimebaseButton->setObjectName( "JackTimebaseButton" );
 	m_pJackTimebaseButton->setCheckable( true );
-	m_pJackTimebaseButton->setIcon(
-		QIcon( Skin::getSvgImagePath() + "/icons/black/jack-timebase.svg" ) );
 	m_pJackTimebaseButton->setToolTip(
 		pCommonStrings->getJackTimebaseTooltip() );
 	connect( m_pJackTimebaseButton, &QToolButton::clicked, [&]() {
@@ -299,41 +271,37 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pShowPlaylistEditorAction = createAction(
-		"playlist.svg", tr( "Show Playlist Editor" ) );
+	m_pShowPlaylistEditorAction = createAction( tr( "Show Playlist Editor" ) );
 	connect( m_pShowPlaylistEditorAction, &QAction::triggered, []() {
 		HydrogenApp::get_instance()->showPlaylistEditor();
 	});
 	addAction( m_pShowPlaylistEditorAction );
 
-	m_pShowDirectorAction = createAction( "director.svg", tr( "Show Director" ) );
+	m_pShowDirectorAction = createAction( tr( "Show Director" ) );
 	connect( m_pShowDirectorAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showDirector();
 	});
 	addAction( m_pShowDirectorAction );
 
-	m_pShowMixerAction = createAction( "mixer.svg", tr( "Show mixer" ) );
+	m_pShowMixerAction = createAction( tr( "Show mixer" ) );
 	connect( m_pShowMixerAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showMixer( m_pShowMixerAction->isChecked() ); });
 	addAction( m_pShowMixerAction );
 
-	m_pShowInstrumentRackAction = createAction(
-		"component-editor.svg", tr( "Show Instrument Rack" ) );
+	m_pShowInstrumentRackAction = createAction( tr( "Show Instrument Rack" ) );
 	connect( m_pShowInstrumentRackAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showInstrumentRack(
 			m_pShowInstrumentRackAction->isChecked() ); });
 	addAction( m_pShowInstrumentRackAction );
 
-	m_pShowAutomationAction = createAction(
-		"automation.svg", tr( "Show Automation" ) );
+	m_pShowAutomationAction = createAction( tr( "Show Automation" ) );
 	connect( m_pShowAutomationAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->getSongEditorPanel()->
 			toggleAutomationAreaVisibility();
 	});
 	addAction( m_pShowAutomationAction );
 
-	m_pShowPlaybackTrackAction = createAction(
-		"playback-track.svg", tr( "Show Playback Track" ) );
+	m_pShowPlaybackTrackAction = createAction( tr( "Show Playback Track" ) );
 	connect( m_pShowPlaybackTrackAction, &QAction::triggered, [=]() {
 		if ( m_pShowPlaybackTrackAction->isChecked() ) {
 			HydrogenApp::get_instance()->getSongEditorPanel()->
@@ -345,8 +313,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	});
 	addAction( m_pShowPlaybackTrackAction );
 
-	m_pShowPreferencesAction = createAction(
-		"cog.svg", tr( "Show Preferences" ) );
+	m_pShowPreferencesAction = createAction( tr( "Show Preferences" ) );
 	connect( m_pShowPreferencesAction, &QAction::triggered, [&]() {
 		HydrogenApp::get_instance()->showPreferencesDialog();
 	});
@@ -392,6 +359,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	updateJackTransport();
 	updateLoopMode();
 	updateSongMode();
+	updateIcons();
 	updateStyleSheet();
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -919,6 +887,42 @@ void MainToolBar::onPreferencesChanged( const H2Core::Preferences::Changes& chan
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
 	}
+	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateIcons();
+	}
+}
+
+void MainToolBar::updateIcons() {
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
+
+	m_pRwdAction->setIcon( QIcon( sIconPath + "rewind.svg" ) );
+	m_pRecAction->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/record.svg" ) );
+	m_pPlayAction->setIcon( QIcon( sIconPath + "play.svg" ) );
+	m_pStopAction->setIcon( QIcon( sIconPath + "stop.svg" ) );
+	m_pFfwdAction->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
+	m_pSongLoopAction->setIcon( QIcon( sIconPath + "loop.svg" ) );
+	m_pPatternModeAction->setIcon( QIcon( sIconPath + "pattern-editor.svg" ) );
+	m_pSongModeAction->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
+	m_pMetronomeButton->setIcon( QIcon( sIconPath + "metronome.svg" ) );
+	m_pRubberBandAction->setIcon( QIcon( sIconPath + "rubberband.svg" ) );
+	m_pJackTransportAction->setIcon( QIcon( sIconPath + "jack.svg" ) );
+	m_pJackTimebaseButton->setIcon( QIcon( sIconPath + "jack-timebase.svg" ) );
+	m_pShowPlaylistEditorAction->setIcon( QIcon( sIconPath + "playlist.svg" ) );
+	m_pShowDirectorAction->setIcon( QIcon( sIconPath + "director.svg" ) );
+	m_pShowMixerAction->setIcon( QIcon( sIconPath + "mixer.svg" ) );
+	m_pShowInstrumentRackAction->setIcon(
+		QIcon( sIconPath + "component-editor.svg" ) );
+	m_pShowAutomationAction->setIcon( QIcon( sIconPath + "automation.svg" ) );
+	m_pShowPlaybackTrackAction->setIcon(
+		QIcon( sIconPath + "playback-track.svg" ) );
+	m_pShowPreferencesAction->setIcon( QIcon( sIconPath + "cog.svg" ) );
 }
 
 void MainToolBar::updateStyleSheet() {
