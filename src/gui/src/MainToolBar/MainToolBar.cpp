@@ -41,6 +41,7 @@ https://www.gnu.org/licenses
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/MidiLearnableToolButton.h"
 #include "../Widgets/PanelGroupBox.h"
 
 #include <core/AudioEngine/AudioEngine.h>
@@ -186,14 +187,14 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pMetronomeButton = new QToolButton( this );
+	m_pMetronomeButton = new MidiLearnableToolButton( this );
 	m_pMetronomeButton->setObjectName( "MetronomeButton" );
 	m_pMetronomeButton->setCheckable( true );
 	m_pMetronomeButton->setToolTip( tr( "Switch metronome on/off" ) );
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
 		CoreActionController::setMetronomeIsActive( bChecked );
 	} );
-	//pMetronomeAction->setAction( std::make_shared<Action>("TOGGLE_METRONOME") );
+	m_pMetronomeButton->setAction( std::make_shared<Action>("TOGGLE_METRONOME") );
 	addWidget( m_pMetronomeButton );
 
 	m_sLCDBPMSpinboxToolTip =
@@ -250,7 +251,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	});
 	addAction( m_pJackTransportAction );
 
-	m_pJackTimebaseButton = new QToolButton( this );
+	m_pJackTimebaseButton = new MidiLearnableToolButton( this );
 	m_pJackTimebaseButton->setObjectName( "JackTimebaseButton" );
 	m_pJackTimebaseButton->setCheckable( true );
 	m_pJackTimebaseButton->setToolTip(

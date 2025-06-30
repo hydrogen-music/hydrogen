@@ -40,6 +40,7 @@ class LCDSpinBox;
 class LCDDisplay;
 class LED;
 class MidiControlButton;
+class MidiLearnableToolButton;
 class PanelGroupBox;
 
 /** \ingroup docGUI*/
@@ -118,7 +119,7 @@ private:
 		QAction* m_pSongModeAction;
 		QAction* m_pPatternModeAction;
 
-		QToolButton* m_pMetronomeButton;
+		MidiLearnableToolButton* m_pMetronomeButton;
 		BpmSpinBox* m_pBpmSpinBox;
 
 		BeatCounter* m_pBeatCounter;
@@ -128,7 +129,7 @@ private:
 		QAction* m_pRubberBandAction;
 
 		QAction* m_pJackTransportAction;
-		QToolButton* m_pJackTimebaseButton;
+		MidiLearnableToolButton* m_pJackTimebaseButton;
 
 		MidiControlButton* m_pMidiControlButton;
 
