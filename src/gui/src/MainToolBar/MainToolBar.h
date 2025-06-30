@@ -108,11 +108,11 @@ private:
 
 		LCDDisplay* m_pTimeDisplay;
 
-		QAction* m_pRwdAction;
-		QAction* m_pRecAction;
-		QAction* m_pPlayAction;
-		QAction* m_pStopAction;
-		QAction* m_pFfwdAction;
+		MidiLearnableToolButton* m_pRwdButton;
+		MidiLearnableToolButton* m_pRecButton;
+		MidiLearnableToolButton* m_pPlayButton;
+		MidiLearnableToolButton* m_pStopButton;
+		MidiLearnableToolButton* m_pFfwdButton;
 		QAction* m_pSongLoopAction;
 
 		PanelGroupBox* m_pEditorGroup;

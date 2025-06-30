@@ -91,6 +91,14 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 		return pAction;
 	};
 
+	auto createButton = [&]( const QString& sText, bool bCheckable ) {
+		auto pAction = new MidiLearnableToolButton( this );
+		pAction->setCheckable( bCheckable );
+		pAction->setToolTip( sText );
+
+		return pAction;
+	};
+
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeDisplay = new LCDDisplay(
 		nullptr, QSize( 146, MainToolBar::nWidgetHeight ), true, false );
@@ -104,49 +112,49 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	// Rewind button
-	m_pRwdAction = createAction( tr( "Rewind" ) );
-	m_pRwdAction->setObjectName( "MainToolBarRewindButton" );
-	connect( m_pRwdAction, &QAction::triggered, [&]() {
+	m_pRwdButton = createButton( tr( "Rewind" ), false );
+	m_pRwdButton->setObjectName( "MainToolBarRewindButton" );
+	connect( m_pRwdButton, &QToolButton::clicked, [&]() {
 		rewindBtnClicked();
 	});
-	//m_pRwdAction->setAction( std::make_shared<Action>("<<_PREVIOUS_BAR") );
-	addAction( m_pRwdAction );
+	m_pRwdButton->setAction( std::make_shared<Action>("<<_PREVIOUS_BAR") );
+	addWidget( m_pRwdButton );
 
 	// Record button
-	m_pRecAction = createAction( tr( "Record" ) );
-	m_pRecAction->setObjectName( "MainToolBarRecordButton" );
-	connect( m_pRecAction, &QAction::triggered, [&]() {
+	m_pRecButton = createButton( tr( "Record" ), true );
+	m_pRecButton->setObjectName( "MainToolBarRecordButton" );
+	connect( m_pRecButton, &QToolButton::clicked, [&]() {
 		recBtnClicked();
 	});
-	// m_pRecAction->setAction( std::make_shared<Action>("RECORD_READY") );
-	addAction( m_pRecAction );
+	m_pRecButton->setAction( std::make_shared<Action>("RECORD_READY") );
+	addWidget( m_pRecButton );
 
 	// Play button
-	m_pPlayAction = createAction( tr( "Play/ Pause" ) );
-	m_pPlayAction->setObjectName( "MainToolBarPlayButton" );
-	connect( m_pPlayAction, &QAction::triggered, [&]() {
+	m_pPlayButton = createButton( tr( "Play/ Pause" ), true );
+	m_pPlayButton->setObjectName( "MainToolBarPlayButton" );
+	connect( m_pPlayButton, &QToolButton::clicked, [&]() {
 		playBtnClicked();
 	} );
-	//m_pPlayAction->setAction( std::make_shared<Action>("PLAY/PAUSE_TOGGLE") );
-	addAction( m_pPlayAction );
+	m_pPlayButton->setAction( std::make_shared<Action>("PLAY/PAUSE_TOGGLE") );
+	addWidget( m_pPlayButton );
 
 	// Stop button
-	m_pStopAction = createAction( tr( "Stop" ) );
-	m_pStopAction->setObjectName( "MainToolBarStopButton" );
-	connect( m_pStopAction, &QAction::triggered, [&](){
+	m_pStopButton = createButton( tr( "Stop" ), true );
+	m_pStopButton->setObjectName( "MainToolBarStopButton" );
+	connect( m_pStopButton, &QToolButton::clicked, [&](){
 		stopBtnClicked();
 	});
-	//m_pStopAction->setAction( std::make_shared<Action>("STOP") );
-	addAction( m_pStopAction );
+	m_pStopButton->setAction( std::make_shared<Action>("STOP") );
+	addWidget( m_pStopButton );
 
 	// Fast forward button
-	m_pFfwdAction = createAction( tr( "Fast Forward" ) );
-	m_pFfwdAction->setObjectName( "MainToolBarForwardButton" );
-	connect( m_pFfwdAction, &QAction::triggered, [&](){
+	m_pFfwdButton = createButton( tr( "Fast Forward" ), false );
+	m_pFfwdButton->setObjectName( "MainToolBarForwardButton" );
+	connect( m_pFfwdButton, &QToolButton::clicked, [&](){
 		fastForwardBtnClicked();
 	});
-	//m_pFfwdAction->setAction( std::make_shared<Action>(">>_NEXT_BAR") );
-	addAction( m_pFfwdAction );
+	m_pFfwdButton->setAction( std::make_shared<Action>(">>_NEXT_BAR") );
+	addWidget( m_pFfwdButton );
 
 	// Loop song button button
 	m_pSongLoopAction = createAction( tr( "Loop song" ) );
@@ -187,10 +195,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pMetronomeButton = new MidiLearnableToolButton( this );
+	m_pMetronomeButton = createButton( tr( "Switch metronome on/off" ), true );
 	m_pMetronomeButton->setObjectName( "MetronomeButton" );
-	m_pMetronomeButton->setCheckable( true );
-	m_pMetronomeButton->setToolTip( tr( "Switch metronome on/off" ) );
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
 		CoreActionController::setMetronomeIsActive( bChecked );
 	} );
@@ -251,11 +257,9 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	});
 	addAction( m_pJackTransportAction );
 
-	m_pJackTimebaseButton = new MidiLearnableToolButton( this );
+	m_pJackTimebaseButton = createButton(
+		pCommonStrings->getJackTimebaseTooltip(), true );
 	m_pJackTimebaseButton->setObjectName( "JackTimebaseButton" );
-	m_pJackTimebaseButton->setCheckable( true );
-	m_pJackTimebaseButton->setToolTip(
-		pCommonStrings->getJackTimebaseTooltip() );
 	connect( m_pJackTimebaseButton, &QToolButton::clicked, [&]() {
 		jackTimebaseBtnClicked();
 	} );
@@ -537,7 +541,7 @@ void MainToolBar::updateSongEvent( int nValue ) {
 void MainToolBar::recBtnClicked() {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() !=
 		 H2Core::AudioEngine::State::Playing ) {
-		if ( m_pRecAction->isChecked() ) {
+		if ( m_pRecButton->isChecked() ) {
 			Preferences::get_instance()->setRecordEvents(true);
 			(HydrogenApp::get_instance())->showStatusBarMessage(
 				tr("Record midi events = On" ) );
@@ -566,7 +570,7 @@ void MainToolBar::playBtnClicked() {
 		return;
 	}
 	
-	if ( m_pPlayAction->isChecked() ) {
+	if ( m_pPlayButton->isChecked() ) {
 		pHydrogen->sequencerPlay();
 		(HydrogenApp::get_instance())->showStatusBarMessage( tr("Playing.") );
 	}
@@ -874,9 +878,9 @@ void MainToolBar::updateTransportControl() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
 
-	m_pPlayAction->setChecked(
+	m_pPlayButton->setChecked(
 		pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing );
-	m_pRecAction->setChecked( pPref->getRecordEvents() );
+	m_pRecButton->setChecked( pPref->getRecordEvents() );
 }
 
 void MainToolBar::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
@@ -902,12 +906,12 @@ void MainToolBar::updateIcons() {
 		sIconPath.append( "/icons/black/" );
 	}
 
-	m_pRwdAction->setIcon( QIcon( sIconPath + "rewind.svg" ) );
-	m_pRecAction->setIcon(
+	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
+	m_pRecButton->setIcon(
 		QIcon( Skin::getSvgImagePath() + "/icons/record.svg" ) );
-	m_pPlayAction->setIcon( QIcon( sIconPath + "play.svg" ) );
-	m_pStopAction->setIcon( QIcon( sIconPath + "stop.svg" ) );
-	m_pFfwdAction->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
+	m_pPlayButton->setIcon( QIcon( sIconPath + "play.svg" ) );
+	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
+	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
 	m_pSongLoopAction->setIcon( QIcon( sIconPath + "loop.svg" ) );
 	m_pPatternModeAction->setIcon( QIcon( sIconPath + "pattern-editor.svg" ) );
 	m_pSongModeAction->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
