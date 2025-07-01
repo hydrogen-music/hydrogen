@@ -2049,36 +2049,20 @@ Overwrite the existing file?</source>
         <translation>Detén la nota de instrumento actualmente reproduciéndose antes de disparar el sample de la siguiente nota</translation>
     </message>
     <message>
-        <source>Length of Attack phase.
-
-Value</source>
-        <translation>Longitud fase de Ataque.
-
-Valor</translation>
+        <source>Length of Attack phase</source>
+        <translation>Longitud fase de Ataque.</translation>
     </message>
     <message>
-        <source>Length of Decay phase.
-
-Value</source>
-        <translation>Longitud fase de Decay.
-
-Valor</translation>
+        <source>Length of Decay phase</source>
+        <translation>Longitud fase de Decay.</translation>
     </message>
     <message>
-        <source>Sample volume in Sustain phase.
-
-Value</source>
-        <translation>Volumen de sample en phase de Sustain.
-
-Valor</translation>
+        <source>Sample volume in Sustain phase</source>
+        <translation>Volumen de sample en phase de Sustain.</translation>
     </message>
     <message>
-        <source>Length of Release phase.
-
-Value</source>
-        <translation>Longitud fase de Release.
-
-Valor</translation>
+        <source>Length of Release phase</source>
+        <translation>Longitud fase de Release.</translation>
     </message>
 </context>
 <context>

@@ -2047,27 +2047,19 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Length of Attack phase.
-
-Value</source>
+        <source>Length of Attack phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Length of Decay phase.
-
-Value</source>
+        <source>Length of Decay phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sample volume in Sustain phase.
-
-Value</source>
+        <source>Sample volume in Sustain phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Length of Release phase.
-
-Value</source>
+        <source>Length of Release phase</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

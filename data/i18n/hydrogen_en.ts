@@ -2046,28 +2046,20 @@ Overwrite the existing file?</source>
         <translation>Stop the current playing instrument-note before triggering the next note sample</translation>
     </message>
     <message>
-        <source>Length of Attack phase.
-
-Value</source>
-        <translation></translation>
+        <source>Length of Attack phase</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Length of Decay phase.
-
-Value</source>
-        <translation></translation>
+        <source>Length of Decay phase</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sample volume in Sustain phase.
-
-Value</source>
-        <translation></translation>
+        <source>Sample volume in Sustain phase</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Length of Release phase.
-
-Value</source>
-        <translation></translation>
+        <source>Length of Release phase</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

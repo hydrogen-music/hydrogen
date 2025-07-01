@@ -196,7 +196,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	// ADSR
 	m_pAttackRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Length of Attack phase.\n\nValue" ), false );
+		tr( "Length of Attack phase" ), false );
 	m_pAttackRotary->move( 45, 52 );
 	connect( m_pAttackRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setAttack(
@@ -208,7 +208,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 
 	m_pDecayRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Length of Decay phase.\n\nValue" ), false );
+		tr( "Length of Decay phase" ), false );
 	m_pDecayRotary->move( 101, 52 );
 	connect( m_pDecayRotary, &Rotary::valueChanged, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->getAdsr()->setDecay(
@@ -220,7 +220,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 
 	m_pSustainRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Sample volume in Sustain phase.\n\nValue" ), false );
+		tr( "Sample volume in Sustain phase" ), false );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
 	m_pSustainRotary->move( 157, 52 );
 	connect( m_pSustainRotary, &Rotary::valueChanged, [&]() {
@@ -233,7 +233,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 
 	m_pReleaseRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Length of Release phase.\n\nValue" ), false );
+		tr( "Length of Release phase" ), false );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	m_pReleaseRotary->move( 213, 52 );
 	connect( m_pReleaseRotary, &Rotary::valueChanged, [&]() {

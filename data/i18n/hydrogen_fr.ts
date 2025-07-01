@@ -2051,36 +2051,20 @@ Overwrite the existing file?</source>
         <translation>Arrêtez la note de l&apos;instrument en cours de lecture avant de déclencher l&apos;échantillon de note suivant</translation>
     </message>
     <message>
-        <source>Length of Attack phase.
-
-Value</source>
-        <translation>Durée de la phase d&apos;attaque.
-
-Valeur</translation>
+        <source>Length of Attack phase</source>
+        <translation>Durée de la phase d&apos;attaque.</translation>
     </message>
     <message>
-        <source>Length of Decay phase.
-
-Value</source>
-        <translation>Durée de la phase de décroissance.
-
-Valeur</translation>
+        <source>Length of Decay phase</source>
+        <translation>Durée de la phase de décroissance.</translation>
     </message>
     <message>
-        <source>Sample volume in Sustain phase.
-
-Value</source>
-        <translation>Volume de l&apos;échantillon en phase de maintien.
-
-Valeur</translation>
+        <source>Sample volume in Sustain phase</source>
+        <translation>Volume de l&apos;échantillon en phase de maintien.</translation>
     </message>
     <message>
-        <source>Length of Release phase.
-
-Value</source>
-        <translation>Durée de la phase de relâchement.
-
-Valeur</translation>
+        <source>Length of Release phase</source>
+        <translation>Durée de la phase de relâchement.</translation>
     </message>
 </context>
 <context>

@@ -2046,36 +2046,20 @@ Overwrite the existing file?</source>
         <translation>Stoppe die aktuell abgespielte Note für dieses Instrument bevor nächste Note abgespielt wird</translation>
     </message>
     <message>
-        <source>Length of Attack phase.
-
-Value</source>
-        <translation>Länge der Attack Phase.
-
-Wert</translation>
+        <source>Length of Attack phase</source>
+        <translation>Länge der Attack Phase.</translation>
     </message>
     <message>
-        <source>Length of Decay phase.
-
-Value</source>
-        <translation>Länge der Decay (Abkling-) Phase.
-
-Wert</translation>
+        <source>Length of Decay phase</source>
+        <translation>Länge der Decay (Abkling-) Phase.</translation>
     </message>
     <message>
-        <source>Sample volume in Sustain phase.
-
-Value</source>
-        <translation>Sample Lautstärke in der Sustain Phase.
-
-Wert</translation>
+        <source>Sample volume in Sustain phase</source>
+        <translation>Sample Lautstärke in der Sustain Phase.</translation>
     </message>
     <message>
-        <source>Length of Release phase.
-
-Value</source>
-        <translation>Länge der Release (Abkling-) Phase.
-
-Wert</translation>
+        <source>Length of Release phase</source>
+        <translation>Länge der Release (Abkling-) Phase.</translation>
     </message>
 </context>
 <context>

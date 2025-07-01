@@ -2048,36 +2048,20 @@ Sobrescrever o arquivo existente?</translation>
         <translation>Pare de tocar a nota do instrumento atual antes de iniciar a próxima nota de amostra</translation>
     </message>
     <message>
-        <source>Length of Attack phase.
-
-Value</source>
-        <translation>Tamanho da fase de Ataque.
-
-Valor</translation>
+        <source>Length of Attack phase</source>
+        <translation>Tamanho da fase de Ataque.</translation>
     </message>
     <message>
-        <source>Length of Decay phase.
-
-Value</source>
-        <translation>Tamanho da fase de Decaímento.
-
-Valor</translation>
+        <source>Length of Decay phase</source>
+        <translation>Tamanho da fase de Decaímento.</translation>
     </message>
     <message>
-        <source>Sample volume in Sustain phase.
-
-Value</source>
-        <translation>Volume da amostra na fase de Sustentação.
-
-Valor</translation>
+        <source>Sample volume in Sustain phase</source>
+        <translation>Volume da amostra na fase de Sustentação.</translation>
     </message>
     <message>
-        <source>Length of Release phase.
-
-Value</source>
-        <translation>Tamanho da fase de Repouso (Release).
-
-Valor</translation>
+        <source>Length of Release phase</source>
+        <translation>Tamanho da fase de Repouso (Release).</translation>
     </message>
 </context>
 <context>
