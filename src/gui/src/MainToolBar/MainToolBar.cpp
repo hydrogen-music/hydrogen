@@ -175,21 +175,22 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	// m_pEditorGroup = new PanelGroupBox( this );
-	// m_pEditorGroup->setFixedHeight( nWidgetHeight );
-	//addWidget( m_pEditorGroup );
+	auto pEditorGroup = new QButtonGroup( this );
+	pEditorGroup->setExclusive( true );
 
-	m_pPatternModeAction = createAction( tr( "Pattern Mode" ) );
-	m_pPatternModeAction->setObjectName( "MainToolBarPatternModeButton" );
-	connect( m_pPatternModeAction, &QAction::triggered,
+	m_pPatternModeButton = createButton( tr( "Pattern Mode" ), true );
+	m_pPatternModeButton->setObjectName( "MainToolBarPatternModeButton" );
+	connect( m_pPatternModeButton, &QToolButton::clicked,
 			[=]() { activateSongMode( false ); } );
-	addAction( m_pPatternModeAction );
+	addWidget( m_pPatternModeButton );
+	pEditorGroup->addButton( m_pPatternModeButton );
 
-	m_pSongModeAction = createAction( tr( "Song Mode" ) );
-	m_pSongModeAction->setObjectName( "MainToolBarSongModeButton" );
-	connect( m_pSongModeAction, &QAction::triggered,
+	m_pSongModeButton = createButton( tr( "Song Mode" ), true );
+	m_pSongModeButton->setObjectName( "MainToolBarSongModeButton" );
+	connect( m_pSongModeButton, &QToolButton::clicked,
 			[=]() { activateSongMode( true ); } );
-	addAction( m_pSongModeAction );
+	addWidget( m_pSongModeButton );
+	pEditorGroup->addButton( m_pSongModeButton );
 
 	addSeparator();
 
@@ -868,8 +869,8 @@ void MainToolBar::updateSongMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	const bool bSongMode = pHydrogen->getMode() == Song::Mode::Song;
-	m_pSongModeAction->setChecked( bSongMode );
-	m_pPatternModeAction->setChecked( ! bSongMode );
+	m_pSongModeButton->setChecked( bSongMode );
+	m_pPatternModeButton->setChecked( ! bSongMode );
 	m_pSongLoopAction->setEnabled( bSongMode );
 }
 
@@ -912,8 +913,8 @@ void MainToolBar::updateIcons() {
 	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
 	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
 	m_pSongLoopAction->setIcon( QIcon( sIconPath + "loop.svg" ) );
-	m_pPatternModeAction->setIcon( QIcon( sIconPath + "pattern-editor.svg" ) );
-	m_pSongModeAction->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
+	m_pPatternModeButton->setIcon( QIcon( sIconPath + "pattern-editor.svg" ) );
+	m_pSongModeButton->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
 	m_pMetronomeButton->setIcon( QIcon( sIconPath + "metronome.svg" ) );
 	m_pRubberBandAction->setIcon( QIcon( sIconPath + "rubberband.svg" ) );
 	m_pJackTransportAction->setIcon( QIcon( sIconPath + "jack.svg" ) );
@@ -960,10 +961,6 @@ QToolBar {\
 }")
 				   .arg( colorToolbar.name() ).arg( colorText.name() )
 				   .arg( MainToolBar::nBorder ) );
-
-// 	m_pEditorGroup->setBackgroundColor( colorGroupBoxBackground );
-// 	m_pEditorGroup->setBorderColor( colorGroupBoxBorder );
-// 	m_pEditorGroup->updateStyleSheet();
 
 // 	m_pBeatCounterGroup->setStyleSheet( QString( "\
 // #MainToolBarBeatCounter {\

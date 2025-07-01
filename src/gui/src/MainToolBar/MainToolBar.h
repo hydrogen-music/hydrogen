@@ -41,7 +41,6 @@ class LCDDisplay;
 class LED;
 class MidiControlButton;
 class MidiLearnableToolButton;
-class PanelGroupBox;
 
 /** \ingroup docGUI*/
 class MainToolBar : public QToolBar,
@@ -115,9 +114,8 @@ private:
 		MidiLearnableToolButton* m_pFfwdButton;
 		QAction* m_pSongLoopAction;
 
-		PanelGroupBox* m_pEditorGroup;
-		QAction* m_pSongModeAction;
-		QAction* m_pPatternModeAction;
+		MidiLearnableToolButton* m_pSongModeButton;
+		MidiLearnableToolButton* m_pPatternModeButton;
 
 		MidiLearnableToolButton* m_pMetronomeButton;
 		BpmSpinBox* m_pBpmSpinBox;
