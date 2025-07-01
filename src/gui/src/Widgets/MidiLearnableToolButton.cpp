@@ -25,8 +25,11 @@ https://www.gnu.org/licenses
 #include "MidiLearnableToolButton.h"
 #include "MidiSenseWidget.h"
 
-MidiLearnableToolButton::MidiLearnableToolButton( QWidget* pParent ) :
-	QToolButton( pParent ) {
+MidiLearnableToolButton::MidiLearnableToolButton( QWidget* pParent,
+												  const QString& sBaseToolTip )
+	: QToolButton( pParent )
+{
+	setBaseToolTip( sBaseToolTip );
 }
 
 MidiLearnableToolButton::~MidiLearnableToolButton() {
@@ -43,4 +46,8 @@ void MidiLearnableToolButton::mousePressEvent(QMouseEvent*ev) {
 	}
 
 	QToolButton::mousePressEvent( ev );
+}
+
+void MidiLearnableToolButton::updateToolTip() {
+	setToolTip( composeToolTip() );
 }

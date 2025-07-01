@@ -92,9 +92,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	};
 
 	auto createButton = [&]( const QString& sText, bool bCheckable ) {
-		auto pAction = new MidiLearnableToolButton( this );
+		auto pAction = new MidiLearnableToolButton( this, sText );
 		pAction->setCheckable( bCheckable );
-		pAction->setToolTip( sText );
 
 		return pAction;
 	};
@@ -258,7 +257,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addAction( m_pJackTransportAction );
 
 	m_pJackTimebaseButton = createButton(
-		pCommonStrings->getJackTimebaseTooltip(), true );
+		pCommonStrings->getJackTimebaseToolTip(), true );
 	m_pJackTimebaseButton->setObjectName( "JackTimebaseButton" );
 	connect( m_pJackTimebaseButton, &QToolButton::clicked, [&]() {
 		jackTimebaseBtnClicked();
@@ -819,14 +818,14 @@ void MainToolBar::updateJackTimebase()
 		m_pJackTimebaseButton->setChecked( false );
 		m_pJackTimebaseButton->setEnabled( false );
 		m_pJackTimebaseButton->setToolTip(
-			pCommonStrings->getJackTimebaseDisabledTooltip() );
+			pCommonStrings->getJackTimebaseDisabledToolTip() );
 		return;
 	}
 	else {
 		m_pJackTimebaseButton->setEnabled( true );
 		m_pJackTimebaseButton->setChecked( false );
 		m_pJackTimebaseButton->setToolTip(
-			pCommonStrings->getJackTimebaseTooltip() );
+			pCommonStrings->getJackTimebaseToolTip() );
 	}
 
 	if ( pHydrogen->hasJackTransport() ) {
@@ -846,7 +845,7 @@ void MainToolBar::updateJackTimebase()
     background-color: %1;\
 }" ).arg( theme.m_color.m_buttonRedColor.name() ) );
 			m_pJackTimebaseButton->setToolTip(
-				pCommonStrings->getJackTimebaseListenerTooltip() );
+				pCommonStrings->getJackTimebaseListenerToolTip() );
 			break;
 		}
 	}

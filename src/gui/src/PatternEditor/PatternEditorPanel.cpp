@@ -302,7 +302,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pDrumPatternBtn = new Button(
 		m_pInstanceGroup, buttonSizeGroup, Button::Type::Toggle, "drum.svg", "",
-		iconSizeGroup, pCommonStrings->getShowDrumkitEditorTooltip() );
+		iconSizeGroup, pCommonStrings->getShowDrumkitEditorToolTip() );
 	m_pDrumPatternBtn->setObjectName( "ShowDrumBtn" );
 	m_pDrumPatternBtn->setChecked( m_instance == Editor::Instance::DrumPattern );
 	connect( m_pDrumPatternBtn, &Button::clicked, [&](){
@@ -313,7 +313,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pPianoRollBtn = new Button(
 		m_pInstanceGroup, buttonSizeGroup, Button::Type::Toggle, "piano.svg", "",
-		iconSizeGroup, pCommonStrings->getShowPianoRollEditorTooltip() );
+		iconSizeGroup, pCommonStrings->getShowPianoRollEditorToolTip() );
 	m_pPianoRollBtn->setObjectName( "ShowPianoBtn" );
 	m_pPianoRollBtn->setChecked( m_instance == Editor::Instance::PianoRoll );
 	connect( m_pPianoRollBtn, &Button::clicked, [&](){

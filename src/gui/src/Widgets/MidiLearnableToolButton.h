@@ -38,10 +38,13 @@ class MidiLearnableToolButton : public QToolButton,
 		Q_OBJECT
 
 public:
-		MidiLearnableToolButton( QWidget* pParent );
+		MidiLearnableToolButton( QWidget* pParent, const QString& sBaseToolTip );
 		~MidiLearnableToolButton();
 
 		void mousePressEvent( QMouseEvent* pEvent ) override;
+
+	private:
+		void updateToolTip() override;
 };
 
 #endif

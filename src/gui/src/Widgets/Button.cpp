@@ -36,13 +36,12 @@
 
 Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 				const QString& sIcon, const QString& sText, const QSize& iconSize,
-				const QString& sBaseTooltip, bool bColorful,
+				const QString& sBaseToolTip, bool bColorful,
 				bool bModifyOnChange, int nBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_type( type )
 	, m_iconSize( iconSize )
-	, m_sBaseTooltip( sBaseTooltip )
 	, m_bColorful( bColorful )
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
@@ -76,7 +75,7 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	}
 
 	updateStyleSheet();
-	updateTooltip();
+	setBaseToolTip( sBaseToolTip );
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &Button::onPreferencesChanged );
@@ -318,11 +317,6 @@ QPushButton:disabled:checked:hover { \
 				   .arg( y1 ).arg( y2 ) );
 }
 
-void Button::setBaseToolTip( const QString& sNewTip ) {
-	m_sBaseTooltip = sNewTip;
-	updateTooltip();
-}
-
 void Button::mousePressEvent(QMouseEvent*ev) {
 	if ( ev->button() == Qt::RightButton ) {
 		emit rightClicked();
@@ -341,39 +335,8 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	QPushButton::mousePressEvent( ev );
 }
 
-void Button::updateTooltip() {
-
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	QString sTip = QString("%1" ).arg( m_sBaseTooltip );
-
-	// Add the associated MIDI action.
-	if ( m_pAction != nullptr ) {
-		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
-					 .arg( m_pAction->getType() ) );
-		if ( m_registeredMidiEvents.size() > 0 ) {
-			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
-				if ( event == H2Core::MidiMessage::Event::Note ||
-					 event == H2Core::MidiMessage::Event::CC ) {
-					sTip.append( QString( "\n%1 [%2 : %3]" )
-								 .arg( pCommonStrings->getMidiTooltipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) )
-								 .arg( nnParam ) );
-				}
-				else {
-					// PC and MMC_x do not have a parameter.
-					sTip.append( QString( "\n%1 [%2]" )
-								 .arg( pCommonStrings->getMidiTooltipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
-				}
-			}
-		}
-		else {
-			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiTooltipUnbound() ) );
-		}
-	}
-			
-	setToolTip( sTip );
+void Button::updateToolTip() {
+	setToolTip( composeToolTip() );
 }
 
 void Button::setSize( const QSize& size ) {

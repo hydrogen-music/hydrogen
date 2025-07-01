@@ -64,7 +64,6 @@ Rotary::Rotary( QWidget* parent, const Type& type, const QString& sBaseTooltip,
 	}
 
 	m_fValue = m_fDefaultValue;
-	updateTooltip();
 
 	// Since the load function does not report success, we will check
 	// for the existence of the knob image separately.

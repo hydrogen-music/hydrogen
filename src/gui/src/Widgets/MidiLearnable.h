@@ -56,19 +56,26 @@ public:
 		return m_pAction;
     }
 
+		const QString& getBaseToolTip() const;
+		void setBaseToolTip( const QString& sNewTip );
+
 	/**
 	 * Update #m_registeredMidiEvents since the underlying
 	 * #H2Core::MidiMap changed.
 	 */
 	void midiMapChangedEvent() override;
 
-	/**
-	 * Indicates child class to recalculate its tool tip in case
-	 * #m_registeredMidiEvents changed.
-	 */
-	virtual void updateTooltip(){};
-
 protected:
+		/** Create the resulting tool tip by combining #m_sBaseToolTip with some
+		 * formatting, stock strings and current MIDI assignments. */
+		QString composeToolTip() const;
+		/** To be implemented by the child widget to set the result of
+		 * #composeToolTip().
+		 */
+		virtual void updateToolTip() = 0;
+
+		QString m_sBaseToolTip;
+
     std::shared_ptr<Action> m_pAction;
 
 	/**
@@ -79,5 +86,9 @@ protected:
 	 */ 
 	std::vector<std::pair<H2Core::MidiMessage::Event,int>> m_registeredMidiEvents;
 };
+
+inline const QString& MidiLearnable::getBaseToolTip() const {
+	return m_sBaseToolTip;
+}
 
 #endif // MIDILEARNABLE_H

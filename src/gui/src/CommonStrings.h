@@ -105,22 +105,22 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMasterLabel() const { return m_sMasterLabel; }
 	const QString& getReturnLabel() const { return m_sReturnLabel; }
 
-	const QString& getRangeTooltip() const { return m_sRangeTooltip; }
-	const QString& getMidiTooltipHeading() const { return m_sMidiTooltipHeading; }
-	const QString& getMidiTooltipBound() const { return m_sMidiTooltipBound; }
-	const QString& getMidiTooltipUnbound() const { return m_sMidiTooltipUnbound; }
+	const QString& getRangeToolTip() const { return m_sRangeToolTip; }
+	const QString& getMidiToolTipHeading() const { return m_sMidiToolTipHeading; }
+	const QString& getMidiToolTipBound() const { return m_sMidiToolTipBound; }
+	const QString& getMidiToolTipUnbound() const { return m_sMidiToolTipUnbound; }
 	
-	const QString& getShowDrumkitEditorTooltip() const { return m_sShowDrumkitEditorTooltip; }
-	const QString& getShowPianoRollEditorTooltip() const { return m_sShowPianoRollEditorTooltip; }
-	const QString& getPatternSizeDisabledTooltip() const { return m_sPatternSizeDisabledTooltip; }
+	const QString& getShowDrumkitEditorToolTip() const { return m_sShowDrumkitEditorToolTip; }
+	const QString& getShowPianoRollEditorToolTip() const { return m_sShowPianoRollEditorToolTip; }
+	const QString& getPatternSizeDisabledToolTip() const { return m_sPatternSizeDisabledToolTip; }
 	
 	const QString& getAudioDriverStartError() const { return m_sAudioDriverStartError; }
 	const QString& getAudioDriverErrorHint() const { return m_sAudioDriverErrorHint; }
 	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
 	
-	const QString& getJackTimebaseTooltip() const { return m_sJackTimebaseTooltip; }
-	const QString& getJackTimebaseListenerTooltip() const { return m_sJackTimebaseListenerTooltip; }
-	const QString& getJackTimebaseDisabledTooltip() const { return m_sJackTimebaseDisabledTooltip; }
+	const QString& getJackTimebaseToolTip() const { return m_sJackTimebaseToolTip; }
+	const QString& getJackTimebaseListenerToolTip() const { return m_sJackTimebaseListenerToolTip; }
+	const QString& getJackTimebaseDisabledToolTip() const { return m_sJackTimebaseDisabledToolTip; }
 	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
@@ -143,7 +143,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
 	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
-	const QString& getPreferencesJackTooltip() const { return m_sPreferencesJackTooltip; }
+	const QString& getPreferencesJackToolTip() const { return m_sPreferencesJackToolTip; }
 	const QString& getPreferencesShortcutCapture() const { return m_sPreferencesShortcutCapture; }
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
@@ -389,22 +389,22 @@ private:
 	QString m_sMasterLabel;
 	QString m_sReturnLabel;
 	
-	QString m_sRangeTooltip;
-	QString m_sMidiTooltipHeading;
-	QString m_sMidiTooltipBound;
-	QString m_sMidiTooltipUnbound;
-	QString m_sPatternSizeDisabledTooltip;
+	QString m_sRangeToolTip;
+	QString m_sMidiToolTipHeading;
+	QString m_sMidiToolTipBound;
+	QString m_sMidiToolTipUnbound;
+	QString m_sPatternSizeDisabledToolTip;
 	
-	QString m_sShowDrumkitEditorTooltip;
-	QString m_sShowPianoRollEditorTooltip;
+	QString m_sShowDrumkitEditorToolTip;
+	QString m_sShowPianoRollEditorToolTip;
 	
 	QString m_sAudioDriverStartError;
 	QString m_sAudioDriverErrorHint;
 	QString m_sAudioDriverNotPresent;
 
-	QString m_sJackTimebaseTooltip;
-	QString m_sJackTimebaseListenerTooltip;
-	QString m_sJackTimebaseDisabledTooltip;
+	QString m_sJackTimebaseToolTip;
+	QString m_sJackTimebaseListenerToolTip;
+	QString m_sJackTimebaseDisabledToolTip;
 	
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
@@ -426,7 +426,7 @@ private:
 	
 	QString m_sPreferencesNotCompiled;
 	QString m_sPreferencesNone;
-	QString m_sPreferencesJackTooltip;
+	QString m_sPreferencesJackToolTip;
 	QString m_sPreferencesShortcutCapture;
 
 	QString m_sButtonOk;

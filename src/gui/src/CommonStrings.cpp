@@ -254,38 +254,38 @@ CommonStrings::CommonStrings(){
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/
-	m_sRangeTooltip = tr( "Range" );
+	m_sRangeToolTip = tr( "Range" );
 	/*: Displayed in the tooltip of input widgets. General heading of
 	  the part associating the Action of the widget with the MIDI
 	  event and parameter it is bound to.*/
-	m_sMidiTooltipHeading = tr( "MIDI" );
+	m_sMidiToolTipHeading = tr( "MIDI" );
 	/*: Displayed in the tooltip of input widgets. Body of the part
 	  associating the Action of the widget with the MIDI event and
 	  parameter it is bound to. It's full context is "ACTION bound to
 	  [EVENT : PARAMETER]".*/
-	m_sMidiTooltipBound = tr( "bound to" );
+	m_sMidiToolTipBound = tr( "bound to" );
 	/*: Displayed in the tooltip of input widgets. Body of the part
 	  displaying the Action that is not associate to a MIDI event
 	  yet. It's full context is "ACTION not bound".*/
-	m_sMidiTooltipUnbound = tr( "not bound" );
+	m_sMidiToolTipUnbound = tr( "not bound" );
 	/*: Displayed on both LCDSpinBoxes used for the pattern size while
 	  playback is rolling.*/
-	m_sPatternSizeDisabledTooltip = tr( "It's not possible to change the pattern size when playing." );
+	m_sPatternSizeDisabledToolTip = tr( "It's not possible to change the pattern size when playing." );
 
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the DrumkitEditor.*/
-	m_sShowDrumkitEditorTooltip = tr( "Show drumkit editor" );
+	m_sShowDrumkitEditorToolTip = tr( "Show drumkit editor" );
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the PianoRollEditor.*/
-	m_sShowPianoRollEditorTooltip = tr( "Show piano roll editor" );
+	m_sShowPianoRollEditorToolTip = tr( "Show piano roll editor" );
 	
 	m_sAudioDriverStartError = tr( "Unable to start audio driver!" );
 	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
-	m_sJackTimebaseTooltip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
-	m_sJackTimebaseListenerTooltip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
-	m_sJackTimebaseDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
+	m_sJackTimebaseToolTip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
+	m_sJackTimebaseListenerToolTip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
+	m_sJackTimebaseDisabledToolTip = tr( "JACK timebase support is disabled in the Preferences" );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/
@@ -331,7 +331,7 @@ CommonStrings::CommonStrings(){
 	m_sPreferencesNone = tr( "None" );
 	/*: Displayed in the Preferences dialog as a tooltip for both the
 	  sample rate combobox and buffer size spinbox.*/
-	m_sPreferencesJackTooltip = tr( "Both buffer size and sample rate can only be altered in the configuration of the JACK server itself." );
+	m_sPreferencesJackToolTip = tr( "Both buffer size and sample rate can only be altered in the configuration of the JACK server itself." );
 	/*: Displayed both as tooltip in the Preferences dialog >
 	  Shortcuts tab as well as window title.*/
 	m_sPreferencesShortcutCapture = tr( "Define a keybinding for the selected shortcut" );

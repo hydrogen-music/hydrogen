@@ -1449,8 +1449,8 @@ void PreferencesDialog::setDriverInfoJack() {
 	latencyTargetSpinBox->hide();
 	latencyValueLabel->hide();
 
-	bufferSizeSpinBox->setToolTip( pCommonStrings->getPreferencesJackTooltip() );
-	sampleRateComboBox->setToolTip( pCommonStrings->getPreferencesJackTooltip() );
+	bufferSizeSpinBox->setToolTip( pCommonStrings->getPreferencesJackToolTip() );
+	sampleRateComboBox->setToolTip( pCommonStrings->getPreferencesJackToolTip() );
 }
 
 void PreferencesDialog::setDriverInfoCoreAudio() {

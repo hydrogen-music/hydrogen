@@ -21,6 +21,8 @@
  */
 
 #include "MidiLearnable.h"
+
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 
 #include <core/MidiMap.h>
@@ -43,10 +45,50 @@ void MidiLearnable::setAction( std::shared_ptr<Action> pAction ){
 	midiMapChangedEvent();
 }
 
+void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
+	m_sBaseToolTip = sNewTip;
+	updateToolTip();
+}
+
 void MidiLearnable::midiMapChangedEvent() {
 	if ( m_pAction != nullptr ) {
 		m_registeredMidiEvents = H2Core::Preferences::get_instance()->
 			getMidiMap()->getRegisteredMidiEvents( m_pAction );
-		updateTooltip();
+		updateToolTip();
 	}
+}
+
+QString MidiLearnable::composeToolTip() const {
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QString sTip( m_sBaseToolTip );
+
+	// Add the associated MIDI action.
+	if ( m_pAction != nullptr ) {
+		sTip.append( QString( "\n\n%1: %2 " ).arg( pCommonStrings->getMidiToolTipHeading() )
+					 .arg( m_pAction->getType() ) );
+		if ( m_registeredMidiEvents.size() > 0 ) {
+			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
+				if ( event == H2Core::MidiMessage::Event::Note ||
+					 event == H2Core::MidiMessage::Event::CC ) {
+					sTip.append( QString( "\n%1 [%2 : %3]" )
+								 .arg( pCommonStrings->getMidiToolTipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) )
+								 .arg( nnParam ) );
+				}
+				else {
+					// PC and MMC_x do not have a parameter.
+					sTip.append( QString( "\n%1 [%2]" )
+								 .arg( pCommonStrings->getMidiToolTipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
+				}
+			}
+		}
+		else {
+			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiToolTipUnbound() ) );
+		}
+	}
+
+	return sTip;
 }

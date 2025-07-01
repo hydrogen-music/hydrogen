@@ -105,7 +105,7 @@ public:
 		   const QString& sIcon = "",
 		   const QString& sText = "",
 		   const QSize& iconSize = QSize( 0, 0 ),
-		   const QString& sBaseTooltip = "",
+		   const QString& sBaseToolTip = "",
 		   bool bColorful = false,
 		   bool bModifyOnChange = false,
 		   int nBorderRadius = -1
@@ -115,8 +115,6 @@ public:
 	Button(const Button&) = delete;
 	Button& operator=( const Button& rhs ) = delete;
 
-	void setBaseToolTip( const QString& sNewTip );
-	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
@@ -153,13 +151,12 @@ protected:
 private:
 	void updateStyleSheet();
 	void updateFont();
-	void updateTooltip() override;
+	void updateToolTip() override;
 	void updateIcon();
 
 	Type m_type;
 	QSize m_size;
 	QSize m_iconSize;
-	QString m_sBaseTooltip;
 	QString m_sIcon;
 	int m_nFixedFontSize;
 
