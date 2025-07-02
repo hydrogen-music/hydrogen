@@ -3383,10 +3383,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation>Drumkit usado na canção atual</translation>
     </message>
     <message>
-        <source>Show PatchBay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
     </message>

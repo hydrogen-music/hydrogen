@@ -3380,10 +3380,6 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show PatchBay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
     </message>

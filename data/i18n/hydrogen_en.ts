@@ -3342,10 +3342,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
-        <source>Show PatchBay</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Change pattern size to %1/%2</source>
         <translation></translation>
     </message>

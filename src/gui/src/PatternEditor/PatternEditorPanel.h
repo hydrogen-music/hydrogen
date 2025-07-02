@@ -44,9 +44,8 @@ class ClickableLabel;
 class DrumPatternEditor;
 class Fader;
 class LCDSpinBox;
+class MidiLearnableToolButton;
 class NotePropertiesRuler;
-class PanelGroupBox;
-class PanelSeparator;
 class PatternEditorRuler;
 class PatternEditorSidebar;
 class PianoRollEditor;
@@ -138,11 +137,10 @@ class PatternEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
-		static constexpr int nToolbarBorder = 1;
-		static constexpr int nToolbarHeight = 28;
-		static constexpr int nToolbarMarginHorizontal = 2;
-		static constexpr int nToolbarMarginVertical = 1;
-		static constexpr int nToolbarSpacing = 3;
+		static constexpr int nToolBarBorder = 1;
+		static constexpr int nToolBarHeight = 28;
+		static constexpr int nToolBarMargin = 2;
+		static constexpr int nToolBarSpacing = 3;
 
 		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
@@ -383,6 +381,7 @@ class PatternEditorPanel : public QWidget,
 
 	private:
 
+		void updateIcons();
 		void updateInput();
 		void updateInstance();
 		void updatePatternInfo();
@@ -418,24 +417,18 @@ class PatternEditorPanel : public QWidget,
 
 		QTabBar* m_pTabBar;
 
-		/** Contains all buttons */
-		QWidget* m_pToolbarSidebar;
-		PanelGroupBox* m_pInputModeGroup;
-		Button* m_pSelectBtn;
-		Button* m_pDrawBtn;
-		Button* m_pEditBtn;
-		Button* m_pHearNotesBtn;
-		Button* m_pQuantizeEventsBtn;
-		PanelGroupBox* m_pInstanceGroup;
-		Button* m_pDrumPatternBtn;
-		Button*	m_pPianoRollBtn;
-		Button* m_pPatchBayBtn;
+		QToolBar* m_pToolBar;
+		MidiLearnableToolButton* m_pSelectButton;
+		MidiLearnableToolButton* m_pDrawButton;
+		MidiLearnableToolButton* m_pEditButton;
+		QAction* m_pHearNotesAction;
+		QAction* m_pQuantizeAction;
+		MidiLearnableToolButton* m_pDrumPatternButton;
+		MidiLearnableToolButton* m_pPianoRollButton;
+		//QAction* m_pPatchBayAction;
 
-		/** Contains the pattern size and resolution widget. */
-		QWidget* m_pToolbar;
 		LCDSpinBox* m_pLCDSpinBoxNumerator;
 		LCDSpinBox* m_pLCDSpinBoxDenominator;
-		PanelSeparator* m_pSeparatorSize;
 		LCDCombo* m_pResolutionCombo;
 
 		//note properties combo

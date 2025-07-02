@@ -3378,10 +3378,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show PatchBay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
