@@ -695,7 +695,7 @@ void PatternEditorPanel::createEditors() {
 	pGrid->setContentsMargins( 0, 0, 0, 0 );
 
 	pGrid->addWidget( m_pTabBar, 0, 1, 1, 2 );
-	pGrid->addWidget( m_pToolBar, 1, 0, 1, 3 );
+	pGrid->addWidget( m_pToolBar, 1, 1, 1, 2 );
 	pGrid->addWidget( m_pDrumkitLabel, 2, 0 );
 	pGrid->addWidget( m_pRulerScrollView, 2, 1, 1, 2 );
 
