@@ -428,6 +428,7 @@ class PatternEditorPanel : public QWidget,
 		//QAction* m_pPatchBayAction;
 
 		LCDSpinBox* m_pLCDSpinBoxNumerator;
+		ClickableLabel* m_pPatternSizeSeparatorLabel;
 		LCDSpinBox* m_pLCDSpinBoxDenominator;
 		LCDCombo* m_pResolutionCombo;
 

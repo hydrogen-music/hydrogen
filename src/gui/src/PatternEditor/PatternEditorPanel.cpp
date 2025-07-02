@@ -317,12 +317,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator->setFocusPolicy( Qt::ClickFocus );
 	m_pToolBar->addWidget( m_pLCDSpinBoxNumerator );
 			
-	auto pLabel1 = new ClickableLabel(
-		m_pToolBar, QSize( 5, nWidgetHeight ), "/", ClickableLabel::Color::Dark );
-	pLabel1->setText( "/" );
-	pLabel1->setFont( boldFont );
-	pLabel1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
-	m_pToolBar->addWidget( pLabel1 );
+	m_pPatternSizeSeparatorLabel = new ClickableLabel(
+		m_pToolBar, QSize( 9, nWidgetHeight ), "/", ClickableLabel::Color::Dark );
+	m_pPatternSizeSeparatorLabel->setText( "/" );
+	m_pPatternSizeSeparatorLabel->setFont( boldFont );
+	m_pPatternSizeSeparatorLabel->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
+	m_pToolBar->addWidget( m_pPatternSizeSeparatorLabel );
 	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox(
 		m_pToolBar, QSize( 48, nWidgetHeight ), LCDSpinBox::Type::Int, 1, 192,
@@ -1085,12 +1085,15 @@ void PatternEditorPanel::zoomOutBtnClicked()
 }
 
 void PatternEditorPanel::updateIcons() {
+	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
+		color = Qt::white;
 	} else {
 		sIconPath.append( "/icons/black/" );
+		color = Qt::black;
 	}
 
 	m_pSelectButton->setIcon( QIcon( sIconPath + "select.svg" ) );
@@ -1100,6 +1103,12 @@ void PatternEditorPanel::updateIcons() {
 	m_pQuantizeAction->setIcon( QIcon( sIconPath + "quantization.svg" ) );
 	m_pDrumPatternButton->setIcon( QIcon( sIconPath + "drum.svg" ) );
 	m_pPianoRollButton->setIcon( QIcon( sIconPath + "piano.svg" ) );
+
+	m_pPatternSizeSeparatorLabel->setStyleSheet( QString( "\
+ClickableLabel {\
+    color: %1;\
+    font-size: 17px;\
+}" ).arg( color.name() ) );
 }
 
 void PatternEditorPanel::updateInput() {
