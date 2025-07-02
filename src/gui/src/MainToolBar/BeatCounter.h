@@ -38,7 +38,6 @@ class BeatCounter : public QWidget,
 	Q_OBJECT
 
 public:
-		static constexpr int nButtonWidth = 19;
 		static constexpr int nMargin = 1;
 
 		explicit BeatCounter( QWidget* pParent );
@@ -64,14 +63,10 @@ private:
 		QToolButton* m_pSetPlayBtn;
 
 		QColor m_backgroundColor;
-		QColor m_borderColor;
 };
 
 inline void BeatCounter::setBackgroundColor( const QColor& color ) {
 	m_backgroundColor = color;
-}
-inline void BeatCounter::setBorderColor( const QColor& color ) {
-	m_borderColor = color;
 }
 
 #endif

@@ -1793,20 +1793,6 @@ void PatternEditorPanel::updateStyleSheet() {
 		backgroundInactiveColor = colorTheme.m_windowColor;
 	}
 
-	QColor colorGroupBoxBorder, colorGroupBoxBackground;
-	if ( Skin::moreBlackThanWhite( colorToolbar ) ) {
-		colorGroupBoxBorder = colorToolbar.lighter(
-			Skin::nPanelGroupBoxBorderScaling );
-		colorGroupBoxBackground = colorToolbar.lighter(
-			Skin::nPanelGroupBoxBackgroundScaling );
-	}
-	else {
-		colorGroupBoxBorder = colorToolbar.darker(
-			Skin::nPanelGroupBoxBorderScaling );
-		colorGroupBoxBackground = colorToolbar.darker(
-			Skin::nPanelGroupBoxBackgroundScaling );
-	}
-
 	setStyleSheet( QString( "\
 #MainPanel, #EditorScrollView, #RulerScrollView, #PianoRollScrollView, \
 #SidebarScrollView, #NoteVelocityScrollView, #NotePanScrollView, \

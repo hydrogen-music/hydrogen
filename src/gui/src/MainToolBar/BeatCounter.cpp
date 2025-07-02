@@ -31,19 +31,17 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
-#include "../Widgets/PanelGroupBox.h"
 
 using namespace H2Core;
 
 BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 											 , m_backgroundColor( Qt::red )
-											 , m_borderColor( Qt::green )
 {
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	const int nWidgetHeight = MainToolBar::nWidgetHeight -
-		PanelGroupBox::nMarginVertical * 2 - PanelGroupBox::nBorder * 2;
+		MainToolBar::nBorder * 2;
 
 	setFixedHeight( nWidgetHeight );
 	setAttribute( Qt::WA_OpaquePaintEvent );
@@ -310,16 +308,15 @@ void BeatCounter::updateStyleSheet() {
 	setStyleSheet( QString( "\
 QToolButton {\
     background-color: %1; \
-    font-size: %5px;\
+    font-size: %4px;\
 }\
 QWidget#Background {\
      background-color: %1; \
      color: %2; \
-     border: %3px solid %4;\
+     border: %3px solid #000;\
 }")
 				   .arg( m_backgroundColor.name() ).arg( colorText.name() )
-				   .arg( MainToolBar::nBorder ).arg( m_borderColor.name() )
-				   .arg( MainToolBar::nFontSize ) );
+				   .arg( MainToolBar::nBorder ).arg( MainToolBar::nFontSize ) );
 
 	const QString sLabelStyleSheet = QString( "\
 QLabel {\

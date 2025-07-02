@@ -56,11 +56,6 @@ public:
 		 * lightened in order to produce the border color. */
 		static constexpr int nListBackgroundLightBorderScaling = 150;
 
-		/** Factor by which the background of a PanelGroupBox will be darker or
-		 * lighter than the surrounding panel background. */
-		static constexpr int nPanelGroupBoxBackgroundScaling = 117;
-		static constexpr int nPanelGroupBoxBorderScaling = 205;
-
 		static constexpr int nPlayheadHeight = 8;
 		static constexpr int nPlayheadWidth = 11;
 

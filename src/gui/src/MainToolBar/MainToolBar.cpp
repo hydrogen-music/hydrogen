@@ -42,7 +42,6 @@ https://www.gnu.org/licenses
 #include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/MidiLearnableToolButton.h"
-#include "../Widgets/PanelGroupBox.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
@@ -71,16 +70,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 		static_cast<int>(std::round( nButtonHeight *
 									 Skin::fButtonWidthHeightRatio ) ),
 		nButtonHeight );
-	const auto iconSize = QSize( buttonSize.width() - 4, buttonSize.height() - 4 );
-
-	const int nButtonHeightGroup = MainToolBar::nWidgetHeight -
-		PanelGroupBox::nBorder * 2 - PanelGroupBox::nMarginVertical * 2;
-	const auto buttonSizeGroup = QSize(
-		static_cast<int>(std::round( nButtonHeightGroup *
-									 Skin::fButtonWidthHeightRatio ) ),
-		nButtonHeightGroup );
-	const auto iconSizeGroup = QSize( buttonSizeGroup.width() - 4,
-									  buttonSizeGroup.height() - 4 );
 
 	auto createAction = [&]( const QString& sText ) {
 		auto pAction = new QAction( this );
@@ -939,21 +928,6 @@ void MainToolBar::updateStyleSheet() {
 
 	const QColor colorText = colorTheme.m_windowTextColor;
 	const QColor colorToolBar = colorTheme.m_baseColor;
-	const QColor colorToolBarLighter = colorToolBar.lighter( 130 );
-
-	QColor colorGroupBoxBorder, colorGroupBoxBackground;
-	if ( Skin::moreBlackThanWhite( colorToolBar ) ) {
-		colorGroupBoxBorder = colorToolBar.darker(
-			Skin::nPanelGroupBoxBorderScaling );
-		colorGroupBoxBackground = colorToolBar.darker(
-			Skin::nPanelGroupBoxBackgroundScaling );
-	}
-	else {
-		colorGroupBoxBorder = colorToolBar.lighter(
-			Skin::nPanelGroupBoxBorderScaling );
-		colorGroupBoxBackground = colorToolBar.lighter(
-			Skin::nPanelGroupBoxBackgroundScaling );
-	}
 
 	setStyleSheet( QString( "\
 QToolBar {\
@@ -964,17 +938,6 @@ QToolBar {\
 				   .arg( colorToolBar.name() ).arg( colorText.name() )
 				   .arg( MainToolBar::nBorder ) );
 
-// 	m_pBeatCounterGroup->setStyleSheet( QString( "\
-// #MainToolBarBeatCounter {\
-//     background-color: %1;\
-//     color: %2;\
-//     border: %3px solid %4;\
-//     border-radius: 2px;\
-// }" )
-// 		.arg( colorGroupBoxBackground.name() ).arg( colorText.name() )
-// 		.arg( MainToolBar::nBorder ).arg( colorGroupBoxBorder.name() ) );
-
 	m_pBeatCounter->setBackgroundColor( colorToolBar );
-	m_pBeatCounter->setBorderColor( colorGroupBoxBorder );
 	m_pBeatCounter->updateStyleSheet();
 }
