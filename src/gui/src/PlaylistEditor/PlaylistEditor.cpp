@@ -30,28 +30,17 @@
 #include "../MainForm.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
+#include "../Widgets/MidiLearnableToolButton.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/FileDialog.h"
 
-#include <core/CoreActionController.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Preferences/Shortcuts.h>
-#include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
+#include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Shortcuts.h>
 #include <core/Timeline.h>
-#include <core/Basics/Playlist.h>
-
-
-#include <QDomDocument>
-#include <QMessageBox>
-#include <QHeaderView>
-#include <vector>
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <memory>
 
 using namespace H2Core;
 
@@ -107,66 +96,73 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	pMenuBarLayout->addWidget( m_pMenubar );
 
 	// CONTROLS
-	PixmapWidget *pControlsPanel = new PixmapWidget( controlWidget );
-	pControlsPanel->setFixedSize( 119, 32 );
-	pControlsPanel->setPixmap( "/playerControlPanel/playlist_background_Control.png" );
+	QHBoxLayout* pToolBarLayout = new QHBoxLayout( controlWidget );
+	pToolBarLayout->setAlignment( Qt::AlignCenter );
+	pToolBarLayout->setSpacing( 0 );
+	pToolBarLayout->setContentsMargins( 0, 0, 0, 0 );
+
+	m_pToolBar = new QToolBar( this );
+	m_pToolBar->setFixedHeight( 36 );
+	pToolBarLayout->addWidget( m_pToolBar );
 
 	// Rewind button
-	m_pRwdBtn = new Button(
-		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "",
-		QSize( 13, 13 ), tr( "Rewind" ) );
-	m_pRwdBtn->move( 4, 4 );
-	connect(m_pRwdBtn, SIGNAL( clicked() ), this, SLOT( rewindBtnClicked() ));
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
-	m_pRwdBtn->setAction( pAction );
+	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, tr( "Rewind" ) );
+	connect( m_pRwdButton, &QToolButton::clicked, [=](){
+		CoreActionController::locateToColumn(
+			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->
+			getColumn() - 1 );
+	});
+	m_pRwdButton->setAction( std::make_shared<Action>("PLAYLIST_PREV_SONG") );
+	m_pToolBar->addWidget( m_pRwdButton );
 
 	// Play button
-	m_pPlayBtn = new Button(
-		pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play.svg", "",
-		QSize( 13, 13 ), tr( "Play/ Pause/ Load selected song" ) );
-	m_pPlayBtn->move( 31, 4 );
-	m_pPlayBtn->setChecked(false);
-	connect(m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( nodePlayBTN() ));
-	pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
-	m_pPlayBtn->setAction( pAction );
+	m_pPlayButton = new MidiLearnableToolButton(
+		m_pToolBar, tr( "Play/ Pause/ Load selected song" ) );
+	connect( m_pPlayButton, &QToolButton::clicked, [=](){
+		playButtonClicked();
+	});
+	m_pPlayButton->setAction( std::make_shared<Action>("PLAY/PAUSE_TOGGLE") );
+	m_pToolBar->addWidget( m_pPlayButton );
 
 	// Stop button
-	m_pStopBtn = new Button(
-		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "",
-		QSize( 11, 11 ), tr( "Stop" ) );
-	m_pStopBtn->move( 63, 4 );
-	connect(m_pStopBtn, SIGNAL( clicked() ), this, SLOT( nodeStopBTN() ));
-	pAction = std::make_shared<Action>("STOP");
-	m_pStopBtn->setAction( pAction );
+	m_pStopButton = new MidiLearnableToolButton( m_pToolBar, tr( "Stop" ) );
+	connect( m_pStopButton, &QToolButton::clicked, [=](){
+		Hydrogen::get_instance()->sequencerStop();
+		CoreActionController::locateToColumn( 0 );
+	});
+	m_pStopButton->setAction( std::make_shared<Action>("STOP") );
+	m_pToolBar->addWidget( m_pStopButton );
 
 	// Fast forward button
-	m_pFfwdBtn = new Button(
-		pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg",
-		"", QSize( 13, 13 ), tr( "Fast Forward" ) );
-	m_pFfwdBtn->move( 90, 4 );
-	connect(m_pFfwdBtn, SIGNAL( clicked() ), this, SLOT( ffWDBtnClicked() ));
-	pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
-	m_pFfwdBtn->setAction( pAction );
+	m_pFfwdButton = new MidiLearnableToolButton(
+		m_pToolBar, tr( "Fast Forward" ) );
+	connect( m_pFfwdButton, &QToolButton::clicked, [=](){
+		CoreActionController::locateToColumn(
+			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->
+			getColumn() + 1 );
+	});
+	m_pFfwdButton->setAction( std::make_shared<Action>("PLAYLIST_NEXT_SONG") );
+	m_pToolBar->addWidget( m_pFfwdButton );
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
 	pSideBarLayout->setSpacing(0);
 	pSideBarLayout->setContentsMargins( 0, 0, 0, 0 );
 
-	// zoom-in btn
-	Button *pUpBtn = new Button(
+	Button *pUpButton = new Button(
 		nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", QSize( 9, 9 ),
 		tr( "sort" ) );
-	connect(pUpBtn, SIGNAL( clicked() ), this, SLOT(o_upBClicked()) );
-	pSideBarLayout->addWidget(pUpBtn);
+	connect(pUpButton, SIGNAL( clicked() ), this, SLOT(o_upBClicked()) );
+	pSideBarLayout->addWidget(pUpButton);
 
-	// zoom-in btn
-	Button *pDownBtn = new Button(
+	Button *pDownButton = new Button(
 		nullptr, QSize( 16, 16 ), Button::Type::Push, "down.svg", "",
 		QSize( 9, 9 ), tr( "sort" ) );
-	connect(pDownBtn, SIGNAL( clicked() ), this, SLOT(o_downBClicked()));
-	pSideBarLayout->addWidget(pDownBtn);
+	connect(pDownButton, SIGNAL( clicked() ), this, SLOT(o_downBClicked()));
+	pSideBarLayout->addWidget(pDownButton);
 
 	update();
+	updateIcons();
+	updateStyleSheet();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -887,7 +883,7 @@ void PlaylistEditor::on_m_pPlaylistTable_itemClicked( QTableWidgetItem* pItem ) 
 	m_pUndoStack->endMacro();
 }
 
-void PlaylistEditor::nodePlayBTN()
+void PlaylistEditor::playButtonClicked()
 {
 	Hydrogen *		pHydrogen = Hydrogen::get_instance();
 	HydrogenApp *	pH2App = HydrogenApp::get_instance();
@@ -898,7 +894,7 @@ void PlaylistEditor::nodePlayBTN()
 
 	auto onFailure = [=](){
 		QMessageBox::warning( this, "Hydrogen", tr( "No valid song selected!" ) );
-		m_pPlayBtn->setChecked( false );
+		m_pPlayButton->setChecked( false );
 	};
 
 	const int nIndex = m_pPlaylistTable->currentRow();
@@ -920,40 +916,19 @@ void PlaylistEditor::nodePlayBTN()
 									  pEntry->getSongPath() ) ) {
 			ERRORLOG( QString( "Unable to load song [%1]" )
 					  .arg( pEntry->getSongPath() ) );
-			m_pPlayBtn->setChecked(false);
+			m_pPlayButton->setChecked(false);
 			return;
 		}
 		CoreActionController::activatePlaylistSong( nIndex );
 	}
 
-	if ( m_pPlayBtn->isChecked() ) {
+	if ( m_pPlayButton->isChecked() ) {
 		pHydrogen->sequencerPlay();
 	}
 	else {
 		pHydrogen->sequencerStop();
 		pH2App->showStatusBarMessage( tr("Pause.") );
 	}
-}
-
-void PlaylistEditor::nodeStopBTN()
-{
-	m_pPlayBtn->setChecked(false);
-	Hydrogen::get_instance()->sequencerStop();
-	CoreActionController::locateToColumn( 0 );
-}
-
-void PlaylistEditor::ffWDBtnClicked()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	CoreActionController::locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
-}
-
-void PlaylistEditor::rewindBtnClicked()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	CoreActionController::locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 }
 
 bool PlaylistEditor::eventFilter( QObject *o, QEvent *e )
@@ -1118,6 +1093,33 @@ void PlaylistEditor::update() {
 	updateWindowTitle();
 }
 
+void PlaylistEditor::updateIcons() {
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
+
+	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
+	m_pPlayButton->setIcon( QIcon( sIconPath + "play.svg" ) );
+	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
+	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
+}
+
+void PlaylistEditor::updateStyleSheet() {
+	const auto colorTheme =
+		H2Core::Preferences::get_instance()->getTheme().m_color;
+
+	setStyleSheet( QString( "\
+QToolBar {\
+    background-color: %1;\
+    border: 1px solid #000;\
+}" ).arg( colorTheme.m_baseColor.name() ) );
+
+}
+
 void PlaylistEditor::updateWindowTitle() {
 
 	const auto pPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
@@ -1170,6 +1172,14 @@ void PlaylistEditor::onPreferencesChanged( const H2Core::Preferences::Changes& c
 			m_pPlaylistTable->item( ii, 2 )->setFont( font );
 #endif
 		}
+	}
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateStyleSheet();
+	}
+
+	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateIcons();
 	}
 	
 	if ( changes & H2Core::Preferences::Changes::ShortcutTab ) {
