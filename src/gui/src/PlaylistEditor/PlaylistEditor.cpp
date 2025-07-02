@@ -106,7 +106,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	pToolBarLayout->addWidget( m_pToolBar );
 
 	// Rewind button
-	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, tr( "Rewind" ) );
+	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
 	connect( m_pRwdButton, &QToolButton::clicked, [=](){
 		CoreActionController::locateToColumn(
 			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->
@@ -121,11 +121,10 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	connect( m_pPlayButton, &QToolButton::clicked, [=](){
 		playButtonClicked();
 	});
-	m_pPlayButton->setAction( std::make_shared<Action>("PLAY/PAUSE_TOGGLE") );
 	m_pToolBar->addWidget( m_pPlayButton );
 
 	// Stop button
-	m_pStopButton = new MidiLearnableToolButton( m_pToolBar, tr( "Stop" ) );
+	m_pStopButton = new MidiLearnableToolButton( m_pToolBar, "" );
 	connect( m_pStopButton, &QToolButton::clicked, [=](){
 		Hydrogen::get_instance()->sequencerStop();
 		CoreActionController::locateToColumn( 0 );
@@ -134,8 +133,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	m_pToolBar->addWidget( m_pStopButton );
 
 	// Fast forward button
-	m_pFfwdButton = new MidiLearnableToolButton(
-		m_pToolBar, tr( "Fast Forward" ) );
+	m_pFfwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
 	connect( m_pFfwdButton, &QToolButton::clicked, [=](){
 		CoreActionController::locateToColumn(
 			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->

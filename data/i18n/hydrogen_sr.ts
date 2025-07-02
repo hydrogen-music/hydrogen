@@ -3464,18 +3464,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>PlaylistEditor</name>
     <message>
-        <source>Stop</source>
-        <translation>Заустави</translation>
-    </message>
-    <message>
-        <source>Rewind</source>
-        <translation>Премотавање уназад</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Премотавање унапред</translation>
-    </message>
-    <message>
         <source>Pause.</source>
         <translation>Пауза.</translation>
     </message>

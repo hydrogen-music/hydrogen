@@ -3568,20 +3568,8 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
         <translation>&amp;Criar novo Script</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Rebobinar</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Executar/ Pausar/ Carregar música selecionada</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Parar</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Avançar rápido</translation>
     </message>
     <message>
         <source>Please save your song first</source>

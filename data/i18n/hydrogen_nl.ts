@@ -3535,20 +3535,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Terugspoelen</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stop</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Doorspoelen</translation>
     </message>
     <message>
         <source>Please save your song first</source>

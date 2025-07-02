@@ -3473,20 +3473,8 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Оглядач списку відтворення</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Назад</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Відтворити/ Зупинити/ Завантажити вибрану композицію</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Зупинити</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Вперед</translation>
     </message>
     <message>
         <source>sort</source>

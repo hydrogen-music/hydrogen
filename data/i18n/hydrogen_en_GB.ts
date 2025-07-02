@@ -3435,19 +3435,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

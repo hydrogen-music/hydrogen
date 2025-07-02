@@ -3566,20 +3566,8 @@ A ruta ao script e o nome do script non pode conter espazos en branco.</translat
         <translation>&amp;Crear un script novo</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Regresar</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Reproducir/ Pausar/ Cargar/ a canción seleccionada</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Deter</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Adiantar</translation>
     </message>
     <message>
         <source>Please save your song first</source>

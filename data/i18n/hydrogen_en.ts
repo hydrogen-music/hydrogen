@@ -3487,19 +3487,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation></translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
         <translation></translation>
     </message>
     <message>

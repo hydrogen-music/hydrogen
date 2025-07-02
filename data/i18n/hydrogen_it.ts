@@ -3449,20 +3449,8 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Browser della Playlist</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Indietro</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Play/ Pausa / Carica canzone</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Ferma</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Avanti</translation>
     </message>
     <message>
         <source>sort</source>

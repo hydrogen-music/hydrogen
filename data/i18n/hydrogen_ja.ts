@@ -3564,20 +3564,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>新しいスクリプトの作成(&amp;C)</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>巻き戻し</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>再生 / 一時停止 / 選択したソングの読み込み</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>早送り</translation>
     </message>
     <message>
         <source>Please save your song first</source>

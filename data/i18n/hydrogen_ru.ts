@@ -3561,20 +3561,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>&amp;Создать выбранный сценарий</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Перемотать назад</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Воспроизведение / Пауза / Загрузить выбранную композицию</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Стоп</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Перемотать вперёд</translation>
     </message>
     <message>
         <source>Please save your song first</source>

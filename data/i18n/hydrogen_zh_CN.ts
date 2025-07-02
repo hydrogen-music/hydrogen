@@ -3473,20 +3473,8 @@ LilyPond 导出是一项实验性功能。
         <translation>浏览播放列表</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>倒回</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>播放/暂停/加载所选乐曲</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>快进</translation>
     </message>
     <message>
         <source>sort</source>

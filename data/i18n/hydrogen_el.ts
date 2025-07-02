@@ -3475,20 +3475,8 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation>Πλοηγός Κατάστιχου Αναπαραγωγής</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Μετακίνηση προς την αρχή</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Παίξιμο, Παύση, Φόρτωμα του επιλεγμένου τραγουδιού</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Σταμάτημα</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Γρήγορα Μπροστά</translation>
     </message>
     <message>
         <source>sort</source>

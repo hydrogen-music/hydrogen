@@ -3560,20 +3560,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Neues Skript erstellen</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Zurückspulen</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Wiederhabe / Pause/ Lade ausgewähltes Lied</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stopp</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Vorspulen</translation>
     </message>
     <message>
         <source>Please save your song first</source>

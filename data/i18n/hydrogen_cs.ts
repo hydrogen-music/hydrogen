@@ -3538,20 +3538,8 @@ Cesta ke skriptu a jeho název nesmí obsahovat mezery.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Zpět</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stop</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Vpřed</translation>
     </message>
     <message>
         <source>Please save your song first</source>

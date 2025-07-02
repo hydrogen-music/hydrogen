@@ -3572,20 +3572,8 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
         <translation>&amp;Créer un nouveau script</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Reculer</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Lecture/ Pause/ Chargement du morceau sélectionné</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Arrêter</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Avancer</translation>
     </message>
     <message>
         <source>Please save your song first</source>

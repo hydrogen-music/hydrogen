@@ -3570,20 +3570,8 @@ La ruta al script y el nombre no pueden contener espacios en blanco.</translatio
         <translation>&amp;Crear nuevo Script</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Regresar</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Reproducir/ Pausar/ Cargar canción seleccionada</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Parar</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Adelantar</translation>
     </message>
     <message>
         <source>Please save your song first</source>
