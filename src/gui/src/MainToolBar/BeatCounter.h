@@ -28,11 +28,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "MainToolBar.h"
-
 #include "../Widgets/WidgetWithScalableFont.h"
-
-class Button;
 
 class BeatCounter : public QWidget,
 					protected WidgetWithScalableFont<8, 10, 12>,
@@ -52,19 +48,20 @@ public:
 		void setBorderColor( const QColor& color );
 
 		void updateBeatCounter();
+		void updateIcons();
 		void updateStyleSheet();
 
 private slots:
 
 
 private:
-		Button* m_pBeatLengthUpBtn;
-		Button* m_pBeatLengthDownBtn;
+		QToolButton* m_pBeatLengthUpBtn;
+		QToolButton* m_pBeatLengthDownBtn;
 		QLabel* m_pBeatLengthLabel;
 		QLabel* m_pTotalBeatsLabel;
-		Button* m_pTotalBeatsUpBtn;
-		Button* m_pTotalBeatsDownBtn;
-		Button* m_pSetPlayBtn;
+		QToolButton* m_pTotalBeatsUpBtn;
+		QToolButton* m_pTotalBeatsDownBtn;
+		QToolButton* m_pSetPlayBtn;
 
 		QColor m_backgroundColor;
 		QColor m_borderColor;

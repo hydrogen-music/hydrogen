@@ -928,6 +928,8 @@ void MainToolBar::updateIcons() {
 	m_pShowPlaybackTrackAction->setIcon(
 		QIcon( sIconPath + "playback-track.svg" ) );
 	m_pShowPreferencesAction->setIcon( QIcon( sIconPath + "cog.svg" ) );
+
+	m_pBeatCounter->updateIcons();
 }
 
 void MainToolBar::updateStyleSheet() {
@@ -936,20 +938,20 @@ void MainToolBar::updateStyleSheet() {
 		H2Core::Preferences::get_instance()->getTheme().m_color;
 
 	const QColor colorText = colorTheme.m_windowTextColor;
-	const QColor colorToolbar = colorTheme.m_baseColor;
-	const QColor colorToolbarLighter = colorToolbar.lighter( 130 );
+	const QColor colorToolBar = colorTheme.m_baseColor;
+	const QColor colorToolBarLighter = colorToolBar.lighter( 130 );
 
 	QColor colorGroupBoxBorder, colorGroupBoxBackground;
-	if ( Skin::moreBlackThanWhite( colorToolbar ) ) {
-		colorGroupBoxBorder = colorToolbar.darker(
+	if ( Skin::moreBlackThanWhite( colorToolBar ) ) {
+		colorGroupBoxBorder = colorToolBar.darker(
 			Skin::nPanelGroupBoxBorderScaling );
-		colorGroupBoxBackground = colorToolbar.darker(
+		colorGroupBoxBackground = colorToolBar.darker(
 			Skin::nPanelGroupBoxBackgroundScaling );
 	}
 	else {
-		colorGroupBoxBorder = colorToolbar.lighter(
+		colorGroupBoxBorder = colorToolBar.lighter(
 			Skin::nPanelGroupBoxBorderScaling );
-		colorGroupBoxBackground = colorToolbar.lighter(
+		colorGroupBoxBackground = colorToolBar.lighter(
 			Skin::nPanelGroupBoxBackgroundScaling );
 	}
 
@@ -959,7 +961,7 @@ QToolBar {\
      color: %2; \
      border: %3px solid #000;\
 }")
-				   .arg( colorToolbar.name() ).arg( colorText.name() )
+				   .arg( colorToolBar.name() ).arg( colorText.name() )
 				   .arg( MainToolBar::nBorder ) );
 
 // 	m_pBeatCounterGroup->setStyleSheet( QString( "\
@@ -972,7 +974,7 @@ QToolBar {\
 // 		.arg( colorGroupBoxBackground.name() ).arg( colorText.name() )
 // 		.arg( MainToolBar::nBorder ).arg( colorGroupBoxBorder.name() ) );
 
-	m_pBeatCounter->setBackgroundColor( colorGroupBoxBackground );
+	m_pBeatCounter->setBackgroundColor( colorToolBar );
 	m_pBeatCounter->setBorderColor( colorGroupBoxBorder );
 	m_pBeatCounter->updateStyleSheet();
 }

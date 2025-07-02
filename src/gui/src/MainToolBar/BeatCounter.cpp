@@ -22,6 +22,8 @@
 
 #include "BeatCounter.h"
 
+#include "MainToolBar.h"
+
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
@@ -29,7 +31,6 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
-#include "../Widgets/Button.h"
 #include "../Widgets/PanelGroupBox.h"
 
 using namespace H2Core;
@@ -82,10 +83,8 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	pBeatLengthButtonsGroupLayout->setContentsMargins( 0, 0, 0, 0 );
 	pBeatLengthButtonsGroupLayout->setSpacing( 0 );
 
-	m_pBeatLengthUpBtn = new Button(
-		pBeatLengthButtonsGroup, smallButtonSize, Button::Type::Push, "plus.svg",
-		"", smallIconSize, "", false, true );
-	connect( m_pBeatLengthUpBtn, &Button::clicked, [&]() {
+	m_pBeatLengthUpBtn = new QToolButton( pBeatLengthButtonsGroup );
+	connect( m_pBeatLengthUpBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 2;
 		if ( fBeatLength < 1 ) {
@@ -96,10 +95,8 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	} );
 	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
 
-	m_pBeatLengthDownBtn = new Button(
-		pBeatLengthButtonsGroup, smallButtonSize, Button::Type::Push, "minus.svg",
-		"", smallIconSize, "", false, true );
-	connect( m_pBeatLengthDownBtn, &Button::clicked, [&](){
+	m_pBeatLengthDownBtn = new QToolButton( pBeatLengthButtonsGroup );
+	connect( m_pBeatLengthDownBtn, &QToolButton::clicked, [&](){
 		auto pHydrogen = Hydrogen::get_instance();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 8;
 		if ( fBeatLength > 8 ) {
@@ -139,10 +136,8 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	pTotalBeatsButtonsLayout->setContentsMargins( 0, 0, 0, 0 );
 	pTotalBeatsButtonsLayout->setSpacing( 0 );
 
-	m_pTotalBeatsUpBtn = new Button(
-		pTotalBeatsButtonsGroup, smallButtonSize, Button::Type::Push, "plus.svg",
-		"", smallIconSize, "", false, true );
-	connect( m_pTotalBeatsUpBtn, &Button::clicked, [&]() {
+	m_pTotalBeatsUpBtn = new QToolButton( pTotalBeatsButtonsGroup );
+	connect( m_pTotalBeatsUpBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
 		nBeatsToCount++;
@@ -154,10 +149,8 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	} );
 	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
 
-	m_pTotalBeatsDownBtn = new Button(
-		pTotalBeatsButtonsGroup, smallButtonSize, Button::Type::Push, "minus.svg",
-		"", smallIconSize, "", false, true );
-	connect( m_pTotalBeatsDownBtn, &Button::clicked, [&]() {
+	m_pTotalBeatsDownBtn = new QToolButton( pTotalBeatsButtonsGroup );
+	connect( m_pTotalBeatsDownBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
 		nBeatsToCount--;
@@ -171,16 +164,15 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	pTotalBeatsButtonsLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
-	const int nButtonHeight = nWidgetHeight -
-		BeatCounter::nMargin * 2;
+	const int nButtonHeight = nWidgetHeight - BeatCounter::nMargin * 2;
 	const int nButtonWidth = static_cast<int>(
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
-	m_pSetPlayBtn = new Button(
-		pBackground, QSize( nButtonWidth, nButtonHeight ), Button::Type::Push,
-		"", pCommonStrings->getBeatCounterSetPlayButtonOff(), QSize(),
-		tr("Set BPM / Set BPM and play"), false, true );
+	m_pSetPlayBtn = new QToolButton( pBackground );
+	m_pSetPlayBtn->setFixedSize( nButtonWidth, nButtonHeight );
+	m_pSetPlayBtn->setText( pCommonStrings->getBeatCounterSetPlayButtonOff() );
+	m_pSetPlayBtn->setToolTip( tr( "Set BPM / Set BPM and play" ) );
 	m_pSetPlayBtn->setObjectName( "BeatCounterSetPlayButton" );
-	connect( m_pSetPlayBtn, &Button::clicked, [&]() {
+	connect( m_pSetPlayBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		auto pPref = Preferences::get_instance();
 		auto pHydrogenApp = HydrogenApp::get_instance();
@@ -200,6 +192,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	pMainLayout->addWidget( m_pSetPlayBtn );
 
 	////////////////////////////////////////////////////////////////////////////
+	updateIcons();
 	updateStyleSheet();
 }
 
@@ -284,6 +277,28 @@ void BeatCounter::updateBeatCounter() {
 	}
 }
 
+void BeatCounter::updateIcons() {
+	QColor color;
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+		color = Qt::white;
+	} else {
+		sIconPath.append( "/icons/black/" );
+		color = Qt::black;
+	}
+
+	m_pBeatLengthUpBtn->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pBeatLengthDownBtn->setIcon( QIcon( sIconPath + "minus.svg" ) );
+	m_pTotalBeatsUpBtn->setIcon( QIcon( sIconPath + "plus.svg" ) );
+	m_pTotalBeatsDownBtn->setIcon( QIcon( sIconPath + "minus.svg" ) );
+	m_pSetPlayBtn->setStyleSheet( QString( "\
+QToolButton {\
+    color: %1;\
+}" ).arg( color.name() ) );
+}
+
 void BeatCounter::updateStyleSheet() {
 
 	const auto colorTheme =
@@ -293,13 +308,18 @@ void BeatCounter::updateStyleSheet() {
 	const QColor colorLabel = colorTheme.m_windowColor;
 
 	setStyleSheet( QString( "\
+QToolButton {\
+    background-color: %1; \
+    font-size: %5px;\
+}\
 QWidget#Background {\
      background-color: %1; \
      color: %2; \
      border: %3px solid %4;\
 }")
 				   .arg( m_backgroundColor.name() ).arg( colorText.name() )
-				   .arg( MainToolBar::nBorder ).arg( m_borderColor.name() ) );
+				   .arg( MainToolBar::nBorder ).arg( m_borderColor.name() )
+				   .arg( MainToolBar::nFontSize ) );
 
 	const QString sLabelStyleSheet = QString( "\
 QLabel {\
