@@ -329,16 +329,12 @@
     <name>CommonStrings</name>
     <message>
         <source>P</source>
-        <extracomment>Text displayed on the button to show the Playback track. Its size is designed to hold a single character.
-----------
-Text displayed on the button indicating that the Beat Counter will start playing after setting the tempo. Its size is designed to hold one character.</extracomment>
+        <extracomment>Text displayed on the button to show the Playback track. Its size is designed to hold a single character.</extracomment>
         <translation>R</translation>
     </message>
     <message>
         <source>S</source>
-        <extracomment>Text displayed on the button for soloing an instrument strip in the mixer. Its size is designed for a single character.
-----------
-Text displayed on the button indicating that the Beat Counter will only set tempo. Its size is designed to hold one character.</extracomment>
+        <extracomment>Text displayed on the button for soloing an instrument strip in the mixer. Its size is designed for a single character.</extracomment>
         <translation>S</translation>
     </message>
     <message>

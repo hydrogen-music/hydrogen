@@ -90,13 +90,6 @@ CommonStrings::CommonStrings(){
 	  flexible.*/
 	m_sEditLayerButton = tr( "Edit Layer" );
 
-	/*: Text displayed on the button indicating that the Beat Counter will
-	  only set tempo. Its size is designed to hold one character.*/
-	m_sBeatCounterSetPlayButtonOff = tr( "S" );
-	/*: Text displayed on the button indicating that the Beat Counter will
-	  start playing after setting the tempo. Its size is designed to hold one character.*/
-	m_sBeatCounterSetPlayButtonOn = tr( "P" );
-
 	/*: Text displayed as tooltip on the button which enables lasso-selection
 	 *  and element moving using left-click mouse interaction. */
 	m_sSelectModeButton = tr( "Select mode" );
