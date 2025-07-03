@@ -1110,12 +1110,46 @@ void PlaylistEditor::updateStyleSheet() {
 	const auto colorTheme =
 		H2Core::Preferences::get_instance()->getTheme().m_color;
 
+	const QColor colorBackground = colorTheme.m_baseColor;
+
+	QColor colorBackgroundChecked, colorBackgroundHovered;
+	if ( Skin::moreBlackThanWhite( colorBackground ) ) {
+		colorBackgroundChecked = colorBackground.lighter(
+			Skin::nToolBarCheckedScaling );
+		colorBackgroundHovered = colorBackground.lighter(
+			Skin::nToolBarHoveredScaling );
+	}
+	else {
+		colorBackgroundChecked = colorBackground.darker(
+			Skin::nToolBarCheckedScaling );
+		colorBackgroundHovered = colorBackground.darker(
+			Skin::nToolBarHoveredScaling );
+	}
+
 	setStyleSheet( QString( "\
 QToolBar {\
-    background-color: %1;\
-    border: 1px solid #000;\
-}" ).arg( colorTheme.m_baseColor.name() ) );
-
+     background-color: %1; \
+     border: 1px solid #000;\
+     spacing: 4px;\
+}\
+QToolButton {\
+    background-color: %1; \
+}\
+QToolButton:checked {\
+    background-color: %2;\
+}\
+QToolButton:hover {\
+    background-color: %3;\
+}\
+QToolButton:hover, QToolButton:checked {\
+    background-color: %2;\
+}\
+QToolButton:hover, QToolButton:pressed {\
+    background-color: %2;\
+}")
+				   .arg( colorBackground.name() )
+				   .arg( colorBackgroundChecked.name() )
+				   .arg( colorBackgroundHovered.name() ) );
 }
 
 void PlaylistEditor::updateWindowTitle() {

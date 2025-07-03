@@ -62,6 +62,9 @@ public:
 		/** in pixel */
 		static constexpr int nScrollBarWidth = 12;
 
+		static constexpr int nToolBarCheckedScaling = 125;
+		static constexpr int nToolBarHoveredScaling = 110;
+
 		enum class Stacked {
 			None,
 			Off,

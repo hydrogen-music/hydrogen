@@ -305,18 +305,47 @@ void BeatCounter::updateStyleSheet() {
 	const QColor colorText = colorTheme.m_windowTextColor;
 	const QColor colorLabel = colorTheme.m_windowColor;
 
+	QColor colorBackgroundPressed, colorBackgroundHovered;
+	if ( Skin::moreBlackThanWhite( m_backgroundColor ) ) {
+		colorBackgroundPressed = m_backgroundColor.lighter(
+			Skin::nToolBarCheckedScaling );
+		colorBackgroundHovered = m_backgroundColor.lighter(
+			Skin::nToolBarHoveredScaling );
+	}
+	else {
+		colorBackgroundPressed = m_backgroundColor.darker(
+			Skin::nToolBarCheckedScaling );
+		colorBackgroundHovered = m_backgroundColor.darker(
+			Skin::nToolBarHoveredScaling );
+	}
+
+
 	setStyleSheet( QString( "\
 QToolButton {\
     background-color: %1; \
-    font-size: %4px;\
+}\
+QToolButton:pressed {\
+    background-color: %2; \
+}\
+QToolButton:hover {\
+    background-color: %3; \
+}\
+QToolButton:hover, QToolButton:pressed {\
+    background-color: %2; \
 }\
 QWidget#Background {\
      background-color: %1; \
-     color: %2; \
-     border: %3px solid #000;\
+     color: %4; \
+     border: %5px solid #000;\
+}\
+QToolButton#BeatCounterTapButton {\
+     icon-size: 25px;\
 }")
-				   .arg( m_backgroundColor.name() ).arg( colorText.name() )
-				   .arg( MainToolBar::nBorder ).arg( MainToolBar::nFontSize ) );
+				   .arg( m_backgroundColor.name() )
+				   .arg( colorBackgroundPressed.name() )
+				   .arg( colorBackgroundHovered.name() )
+				   .arg( colorText.name() )
+				   .arg( MainToolBar::nBorder ) );
 
 	const QString sLabelStyleSheet = QString( "\
 QLabel {\

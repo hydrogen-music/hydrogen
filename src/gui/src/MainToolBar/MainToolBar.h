@@ -55,7 +55,7 @@ public:
 		static constexpr int nFontSize = 20;
 		static constexpr int nHeight = 40;
 		static constexpr int nMargin = 3;
-		static constexpr int nSpacing = 3;
+		static constexpr int nSpacing = 4;
 		static constexpr int nWidgetHeight = MainToolBar::nHeight -
 			MainToolBar::nMargin * 2;
 

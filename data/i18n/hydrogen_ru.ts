@@ -229,7 +229,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Остановить</translation>
     </message>
     <message>
         <source>Name: </source>

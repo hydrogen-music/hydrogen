@@ -1787,10 +1787,8 @@ void PatternEditorPanel::updateStyleSheet() {
 		colorTheme.m_patternEditor_instrumentRowTextColor;
 	const QColor colorPatternLabel =
 		colorTheme.m_patternEditor_alternateRowColor.darker( 120 );
-	const QColor colorToolbar =
+	const QColor colorToolBar =
 		colorTheme.m_patternEditor_selectedRowColor.darker( 134 );
-	const QColor colorToolbarLighter =
-		colorTheme.m_widgetColor.darker( 120 );
 	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
 
 	QColor backgroundInactiveColor;
@@ -1800,6 +1798,20 @@ void PatternEditorPanel::updateStyleSheet() {
 	}
 	else {
 		backgroundInactiveColor = colorTheme.m_windowColor;
+	}
+
+	QColor colorToolBarChecked, colorToolBarHovered;
+	if ( Skin::moreBlackThanWhite( colorToolBar ) ) {
+		colorToolBarChecked = colorToolBar.lighter(
+			Skin::nToolBarCheckedScaling );
+		colorToolBarHovered = colorToolBar.lighter(
+			Skin::nToolBarHoveredScaling );
+	}
+	else {
+		colorToolBarChecked = colorToolBar.darker(
+			Skin::nToolBarCheckedScaling );
+		colorToolBarHovered = colorToolBar.darker(
+			Skin::nToolBarHoveredScaling );
 	}
 
 	setStyleSheet( QString( "\
@@ -1814,11 +1826,28 @@ void PatternEditorPanel::updateStyleSheet() {
 QToolBar {\
      background-color: %1; \
      color: %2; \
-     border-top: 1px solid #000;\
-     border-bottom: 1px solid #000;\
-     border-right: 1px solid #000;\
+     border: 1px solid #000;\
+     spacing: 4px;\
+}\
+QToolButton {\
+    background-color: %1; \
+}\
+QToolButton:checked {\
+    background-color: %3;\
+}\
+QToolButton:hover {\
+    background-color: %4;\
+}\
+QToolButton:hover, QToolButton:checked {\
+    background-color: %3;\
+}\
+QToolButton:hover, QToolButton:pressed {\
+    background-color: %3;\
 }")
-		.arg( colorToolbar.name() ).arg( colorPatternText.name() ) );
+							   .arg( colorToolBar.name() )
+							   .arg( colorPatternText.name() )
+							   .arg( colorToolBarChecked.name() )
+							   .arg( colorToolBarHovered.name() ) );
 
 	m_pTabBar->setStyleSheet( QString( "\
 QWidget#patternEditorTabBar {\

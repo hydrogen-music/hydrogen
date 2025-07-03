@@ -127,7 +127,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	addWidget( m_pPlayButton );
 
 	// Stop button
-	m_pStopButton = createButton( tr( "Stop" ), true );
+	m_pStopButton = createButton( tr( "Stop" ), false );
 	m_pStopButton->setObjectName( "MainToolBarStopButton" );
 	connect( m_pStopButton, &QToolButton::clicked, [&](){
 		stopBtnClicked();
@@ -926,18 +926,48 @@ void MainToolBar::updateStyleSheet() {
 	const auto colorTheme =
 		H2Core::Preferences::get_instance()->getTheme().m_color;
 
-	const QColor colorText = colorTheme.m_windowTextColor;
-	const QColor colorToolBar = colorTheme.m_baseColor;
+	const QColor colorBackground = colorTheme.m_baseColor;
+
+	QColor colorBackgroundChecked, colorBackgroundHovered;
+	if ( Skin::moreBlackThanWhite( colorBackground ) ) {
+		colorBackgroundChecked = colorBackground.lighter(
+			Skin::nToolBarCheckedScaling );
+		colorBackgroundHovered = colorBackground.lighter(
+			Skin::nToolBarHoveredScaling );
+	}
+	else {
+		colorBackgroundChecked = colorBackground.darker(
+			Skin::nToolBarCheckedScaling );
+		colorBackgroundHovered = colorBackground.darker(
+			Skin::nToolBarHoveredScaling );
+	}
 
 	setStyleSheet( QString( "\
 QToolBar {\
      background-color: %1; \
-     color: %2; \
-     border: %3px solid #000;\
+     border: %2px solid #000;\
+     spacing: %3px;\
+}\
+QToolButton {\
+    background-color: %1; \
+}\
+QToolButton:checked {\
+    background-color: %4;\
+}\
+QToolButton:hover {\
+    background-color: %5;\
+}\
+QToolButton:hover, QToolButton:pressed {\
+    background-color: %4;\
+}\
+QToolButton:hover, QToolButton:checked {\
+    background-color: %4;\
 }")
-				   .arg( colorToolBar.name() ).arg( colorText.name() )
-				   .arg( MainToolBar::nBorder ) );
+				   .arg( colorBackground.name() ).arg( MainToolBar::nBorder )
+				   .arg( MainToolBar::nSpacing )
+				   .arg( colorBackgroundChecked.name() )
+				   .arg( colorBackgroundHovered.name() ) );
 
-	m_pBeatCounter->setBackgroundColor( colorToolBar );
+	m_pBeatCounter->setBackgroundColor( colorBackground );
 	m_pBeatCounter->updateStyleSheet();
 }
