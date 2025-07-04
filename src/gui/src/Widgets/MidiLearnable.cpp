@@ -40,14 +40,19 @@ MidiLearnable::~MidiLearnable() {
 }
 
 void MidiLearnable::setAction( std::shared_ptr<Action> pAction ){
-	m_pAction = pAction;
+	if ( pAction != m_pAction ) {
+		m_pAction = pAction;
 
-	midiMapChangedEvent();
+		midiMapChangedEvent();
+	}
+	updateToolTip();
 }
 
 void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
-	m_sBaseToolTip = sNewTip;
-	updateToolTip();
+	if ( sNewTip != m_sBaseToolTip ) {
+		m_sBaseToolTip = sNewTip;
+		updateToolTip();
+	}
 }
 
 void MidiLearnable::midiMapChangedEvent() {
