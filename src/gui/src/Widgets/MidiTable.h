@@ -25,11 +25,12 @@
 
 #include <memory>
 
-#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
 #include <QtGui>
 #include <QtWidgets>
+
+class MidiAction;
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiTable :  public QTableWidget,  public H2Core::Object<MidiTable>
@@ -53,8 +54,8 @@ private slots:
 	void sendChanged();
 	
 private:
-	void insertNewRow( std::shared_ptr<Action> pAction, const QString& eventString,
-					   int eventParameter );
+	void insertNewRow( std::shared_ptr<MidiAction> pAction,
+					   const QString& eventString, int eventParameter );
 	void updateRow( int nRow );
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	

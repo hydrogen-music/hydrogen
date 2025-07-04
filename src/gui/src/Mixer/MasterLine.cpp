@@ -70,7 +70,7 @@ MasterLine::MasterLine( QWidget* pParent )
 			QString( "%1:faderChanged" ).arg( class_name() ) );
 	});
 
-	auto pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
+	auto pAction = std::make_shared<MidiAction>("MASTER_VOLUME_ABSOLUTE");
 	m_pFader->setMidiAction( pAction );
 
 	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ), false, false );
@@ -123,7 +123,7 @@ MasterLine::MasterLine( QWidget* pParent )
 		pCommonStrings->getBigMuteButton() );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
-	pAction = std::make_shared<Action>("MUTE_TOGGLE");
+	pAction = std::make_shared<MidiAction>("MUTE_TOGGLE");
 	m_pMuteBtn->setMidiAction( pAction );
 	connect( m_pMuteBtn, &Button::clicked, [&]() {
 		CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );

@@ -35,6 +35,8 @@
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/Lilipond/Lilypond.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiCommon.h>
 #include <core/Midi/SMF.h>
 #include <core/Preferences/Preferences.h>
@@ -2664,9 +2666,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::MasterVolume: {
-				auto pAction = std::make_shared<Action>( sAction );
+				auto pAction = std::make_shared<MidiAction>( sAction );
 				pAction->setValue( sArg );
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 				break;
 			}
 				
@@ -2678,14 +2680,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::StripVolumeDecrease:
 			case Shortcuts::Action::StripMuteToggle:
 			case Shortcuts::Action::StripSoloToggle: {
-				auto pAction = std::make_shared<Action>( sAction );
+				auto pAction = std::make_shared<MidiAction>( sAction );
 				pAction->setParameter1( sArg );
 				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
 					pAction->setValue( QString::number( 1 ) );
 				} else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
 					pAction->setValue( QString::number( -1 ) );
 				}
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 				break;
 			}
 
@@ -2784,10 +2786,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::StripVolume:
 			case Shortcuts::Action::StripPan:
 			case Shortcuts::Action::StripFilterCutoff: {
-				auto pAction = std::make_shared<Action>( sAction );
+				auto pAction = std::make_shared<MidiAction>( sAction );
 				pAction->setValue( sArg1 );
 				pAction->setParameter1( sArg2 );
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 				break;
 			}
 
@@ -2851,11 +2853,11 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			delete pInputCaptureDialog;
 			
 			// Deploy action
-			auto pAction = std::make_shared<Action>( sAction );
+			auto pAction = std::make_shared<MidiAction>( sAction );
 			pAction->setValue( sValue );
 			pAction->setParameter1( QString::number( nInstrument ) );
 			pAction->setParameter2( sFX );
-			pActionManager->handleAction( pAction );
+			pActionManager->handleMidiAction( pAction );
 		}
 		else if ( action == Shortcuts::Action::LayerPitch ||
 				  action == Shortcuts::Action::LayerGain ) {
@@ -2933,15 +2935,15 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			// Deploy action
-			auto pAction = std::make_shared<Action>( sAction );
+			auto pAction = std::make_shared<MidiAction>( sAction );
 			pAction->setValue( sValue );
 			pAction->setParameter1( QString::number( nInstrument ) );
 			pAction->setParameter2( QString::number( nComponent ) );
 			pAction->setParameter3( QString::number( nLayer )  );
-			pActionManager->handleAction( pAction );
+			pActionManager->handleMidiAction( pAction );
 		}
 		else {
-			std::shared_ptr<Action> pAction = nullptr;
+			std::shared_ptr<MidiAction> pAction = nullptr;
 			
 			// Actions without input arguments
 			switch ( action ) {
@@ -2952,19 +2954,19 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::Play:
-				pAction = std::make_shared<Action>( "PLAY" );
+				pAction = std::make_shared<MidiAction>( "PLAY" );
 				break;
 			case Shortcuts::Action::Pause:
-				pAction = std::make_shared<Action>( "PAUSE" );
+				pAction = std::make_shared<MidiAction>( "PAUSE" );
 				break;
 			case Shortcuts::Action::Stop:
-				pAction = std::make_shared<Action>( "STOP" );
+				pAction = std::make_shared<MidiAction>( "STOP" );
 				break;
 			case Shortcuts::Action::PlayPauseToggle:
-				pAction = std::make_shared<Action>( "PLAY/PAUSE_TOGGLE" );
+				pAction = std::make_shared<MidiAction>( "PLAY/PAUSE_TOGGLE" );
 				break;
 			case Shortcuts::Action::PlayStopToggle:
-				pAction = std::make_shared<Action>( "PLAY/STOP_TOGGLE" );
+				pAction = std::make_shared<MidiAction>( "PLAY/STOP_TOGGLE" );
 				break;
 			case Shortcuts::Action::PlayPauseToggleAtCursor:
 				if ( nullDriverCheck() ) {
@@ -2973,33 +2975,33 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 				
 			case Shortcuts::Action::RecordReady:
-				pAction = std::make_shared<Action>( "RECORD_READY" );
+				pAction = std::make_shared<MidiAction>( "RECORD_READY" );
 				break;
 			case Shortcuts::Action::RecordStrobe:
-				pAction = std::make_shared<Action>( "RECORD_STROBE" );
+				pAction = std::make_shared<MidiAction>( "RECORD_STROBE" );
 				break;
 			case Shortcuts::Action::RecordStrobeToggle:
-				pAction = std::make_shared<Action>( "RECORD/STROBE_TOGGLE" );
+				pAction = std::make_shared<MidiAction>( "RECORD/STROBE_TOGGLE" );
 				break;
 			case Shortcuts::Action::RecordExit:
-				pAction = std::make_shared<Action>( "RECORD_EXIT" );
+				pAction = std::make_shared<MidiAction>( "RECORD_EXIT" );
 				break;
 
 			case Shortcuts::Action::MasterMute:
-				pAction = std::make_shared<Action>( "MUTE" );
+				pAction = std::make_shared<MidiAction>( "MUTE" );
 				break;
 			case Shortcuts::Action::MasterUnmute:
-				pAction = std::make_shared<Action>( "UNMUTE" );
+				pAction = std::make_shared<MidiAction>( "UNMUTE" );
 				break;
 			case Shortcuts::Action::MasterMuteToggle:
-				pAction = std::make_shared<Action>( "MUTE_TOGGLE" );
+				pAction = std::make_shared<MidiAction>( "MUTE_TOGGLE" );
 				break;
 			case Shortcuts::Action::MasterVolumeIncrease:
-				pAction = std::make_shared<Action>( "MASTER_VOLUME_RELATIVE" );
+				pAction = std::make_shared<MidiAction>( "MASTER_VOLUME_RELATIVE" );
 				pAction->setValue( QString::number( 1 ) );
 				break;
 			case Shortcuts::Action::MasterVolumeDecrease:
-				pAction = std::make_shared<Action>( "MASTER_VOLUME_RELATIVE" );
+				pAction = std::make_shared<MidiAction>( "MASTER_VOLUME_RELATIVE" );
 				pAction->setValue( QString::number( -1 ) );
 				break;
 
@@ -3007,26 +3009,26 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				H2Core::CoreActionController::locateToColumn( 0 );
 				break;
 			case Shortcuts::Action::JumpBarForward:
-				pAction = std::make_shared<Action>( ">>_NEXT_BAR" );
+				pAction = std::make_shared<MidiAction>( ">>_NEXT_BAR" );
 				break;
 			case Shortcuts::Action::JumpBarBackward:
-				pAction = std::make_shared<Action>( "<<_PREVIOUS_BAR" );
+				pAction = std::make_shared<MidiAction>( "<<_PREVIOUS_BAR" );
 				break;
 
 			case Shortcuts::Action::BPMIncreaseCoarse:
-				pAction = std::make_shared<Action>( "BPM_INCR" );
+				pAction = std::make_shared<MidiAction>( "BPM_INCR" );
 				pAction->setParameter1( QString::number( 0.1 ) );
 				break;
 			case Shortcuts::Action::BPMDecreaseCoarse:
-				pAction = std::make_shared<Action>( "BPM_DECR" );
+				pAction = std::make_shared<MidiAction>( "BPM_DECR" );
 				pAction->setParameter1( QString::number( 0.1 ) );
 				break;
 			case Shortcuts::Action::BPMIncreaseFine:
-				pAction = std::make_shared<Action>( "BPM_INCR" );
+				pAction = std::make_shared<MidiAction>( "BPM_INCR" );
 				pAction->setParameter1( QString::number( 0.01 ) );
 				break;
 			case Shortcuts::Action::BPMDecreaseFine:
-				pAction = std::make_shared<Action>( "BPM_DECR" );
+				pAction = std::make_shared<MidiAction>( "BPM_DECR" );
 				pAction->setParameter1( QString::number( 0.01 ) );
 				break;
 
@@ -3039,17 +3041,17 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::PlaylistNextSong:
-				pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
+				pAction = std::make_shared<MidiAction>( "PLAYLIST_NEXT_SONG" );
 				break;
 			case Shortcuts::Action::PlaylistPrevSong:
-				pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
+				pAction = std::make_shared<MidiAction>( "PLAYLIST_PREV_SONG" );
 				break;
 
 			case Shortcuts::Action::TimelineToggle:
 				H2Core::CoreActionController::toggleTimeline();
 				break;
 			case Shortcuts::Action::MetronomeToggle:
-				pAction = std::make_shared<Action>( "TOGGLE_METRONOME" );
+				pAction = std::make_shared<MidiAction>( "TOGGLE_METRONOME" );
 				break;
 			case Shortcuts::Action::JackTransportToggle:
 				H2Core::CoreActionController::toggleJackTransport();
@@ -3275,7 +3277,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			if ( pAction != nullptr ) {
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 			}
 		}
 	}

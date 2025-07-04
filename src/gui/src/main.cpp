@@ -32,6 +32,7 @@
 #include <core/Helpers/Translations.h>
 #include <core/Hydrogen.h>
 #include <core/Logger.h>
+#include <core/Midi/MidiActionManager.h>
 #ifdef H2CORE_HAVE_OSC
   #include <core/NsmClient.h>
 #endif

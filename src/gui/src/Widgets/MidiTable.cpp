@@ -29,6 +29,8 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiCommon.h>
 #include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
@@ -116,7 +118,7 @@ void MidiTable::updateTable() {
 		}
 
 		if( ! pActionCombo->currentText().isEmpty() && ! pEventCombo->currentText().isEmpty() ) {
-			std::shared_ptr<Action> pAction = std::make_shared<Action>();
+			auto pAction = std::make_shared<MidiAction>();
 			insertNewRow( pAction, "", 0 );
 		}
 
@@ -133,7 +135,7 @@ void MidiTable::sendChanged() {
 	emit changed();
 }
 
-void MidiTable::insertNewRow(std::shared_ptr<Action> pAction,
+void MidiTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 							 const QString& eventString, int eventParameter)
 {
 	MidiActionManager *pActionHandler = MidiActionManager::get_instance();
@@ -188,7 +190,7 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction,
 	actionBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
 	actionBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
 	actionBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	actionBox->insertItems( oldRowCount, pActionHandler->getActionList());
+	actionBox->insertItems( oldRowCount, pActionHandler->getMidiActionList());
 	actionBox->setCurrentIndex ( actionBox->findText( pAction->getType() ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ),
@@ -294,7 +296,7 @@ void MidiTable::setupMidiTable()
 		}
 	}
 
-	std::shared_ptr<Action> pAction = std::make_shared<Action>();
+	std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>();
 	insertNewRow( pAction, "", 0 );
 }
 
@@ -319,7 +321,7 @@ void MidiTable::saveMidiTable()
 
 			const QString actionString = actionCombo->currentText();
 		
-			std::shared_ptr<Action> pAction = std::make_shared<Action>( actionString );
+			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>( actionString );
 
 			if( actionSpinner1->cleanText() != ""){
 				pAction->setParameter1( actionSpinner1->cleanText() );
@@ -403,7 +405,7 @@ void MidiTable::updateRow( int nRow ) {
 	LCDSpinBox* pActionSpinner1 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
 	LCDSpinBox* pActionSpinner2 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
 	LCDSpinBox* pActionSpinner3 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
-	if ( sActionType == Action::getNullActionType() || sActionType.isEmpty() ) {
+	if ( sActionType == MidiAction::getNullMidiActionType() || sActionType.isEmpty() ) {
 		pActionSpinner1->hide();
 		pActionSpinner2->hide();
 		pActionSpinner3->hide();
@@ -427,7 +429,7 @@ void MidiTable::updateRow( int nRow ) {
 				pActionSpinner1->show();
 			}
 		} else {
-			ERRORLOG( QString( "Unable to find MIDI action [%1]" ).arg( sActionType ) );
+			ERRORLOG( QString( "Unable to find MIDI Midiaction [%1]" ).arg( sActionType ) );
 		}
 
 		// Relative changes should allow for both increasing and

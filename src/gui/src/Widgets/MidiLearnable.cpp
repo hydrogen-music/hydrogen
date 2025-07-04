@@ -25,6 +25,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 
+#include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 
@@ -39,9 +40,9 @@ MidiLearnable::~MidiLearnable() {
 	}
 }
 
-void MidiLearnable::setMidiAction( std::shared_ptr<Action> pAction ){
-	if ( pAction != m_pMidiAction ) {
-		m_pMidiAction = pAction;
+void MidiLearnable::setMidiAction( std::shared_ptr<MidiAction> pMidiAction ){
+	if ( pMidiAction != m_pMidiAction ) {
+		m_pMidiAction = pMidiAction;
 
 		midiMapChangedEvent();
 	}
@@ -69,7 +70,7 @@ QString MidiLearnable::composeToolTip() const {
 
 	QString sTip( m_sBaseToolTip );
 
-	// Add the associated MIDI action.
+	// Add the associated MIDI Midiaction.
 	if ( m_pMidiAction != nullptr ) {
 		sTip.append( QString( "\n\n%1: %2 " ).arg( pCommonStrings->getMidiToolTipHeading() )
 					 .arg( m_pMidiAction->getType() ) );

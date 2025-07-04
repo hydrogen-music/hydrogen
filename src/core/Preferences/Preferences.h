@@ -31,7 +31,6 @@
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Globals.h>
-#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
 #include <QStringList>

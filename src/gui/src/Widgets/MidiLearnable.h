@@ -29,9 +29,10 @@
 #include <QString>
 
 #include <core/Midi/MidiCommon.h>
-#include <core/Midi/MidiAction.h>
 
 #include "../EventListener.h"
+
+class MidiAction;
 
 /**
  * Every widget which supports MidiLearn should derive from this
@@ -51,9 +52,9 @@ public:
     MidiLearnable();
 	~MidiLearnable();
 
-    void setMidiAction( std::shared_ptr<Action> pAction );
+    void setMidiAction( std::shared_ptr<MidiAction> pMidiAction );
 
-    std::shared_ptr<Action> getMidiAction() const {
+    std::shared_ptr<MidiAction> getMidiAction() const {
 		return m_pMidiAction;
     }
 
@@ -77,7 +78,7 @@ protected:
 
 		QString m_sBaseToolTip;
 
-    std::shared_ptr<Action> m_pMidiAction;
+    std::shared_ptr<MidiAction> m_pMidiAction;
 
 	/**
 	 * Stores all MIDI events mapped to #m_pAction.

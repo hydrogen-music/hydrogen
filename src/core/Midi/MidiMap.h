@@ -33,7 +33,7 @@
 
 #include <QtCore/QMutex>
 
-class Action;
+class MidiAction;
 
 namespace H2Core {
 
@@ -51,27 +51,27 @@ public:
 	
 	void reset();  ///< Reinitializes the object.
 
-	/** Sets up the relation between a mmc event and an action */
-	void registerMMCEvent( const QString&, std::shared_ptr<Action> );
-	/** Sets up the relation between a note event and an action */
-	void registerNoteEvent( int , std::shared_ptr<Action> );
-	/** Sets up the relation between a cc event and an action */
-	void registerCCEvent( int , std::shared_ptr<Action> );
-	/** Sets up the relation between a program change and an action */
-	void registerPCEvent( std::shared_ptr<Action> );
+	/** Sets up the relation between a mmc event and an Midiaction */
+	void registerMMCEvent( const QString&, std::shared_ptr<MidiAction> );
+	/** Sets up the relation between a note event and an Midiaction */
+	void registerNoteEvent( int , std::shared_ptr<MidiAction> );
+	/** Sets up the relation between a cc event and an Midiaction */
+	void registerCCEvent( int , std::shared_ptr<MidiAction> );
+	/** Sets up the relation between a program change and an Midiaction */
+	void registerPCEvent( std::shared_ptr<MidiAction> );
 
-	const std::multimap<QString, std::shared_ptr<Action>>& getMMCActionMap() const;
-	const std::multimap<int, std::shared_ptr<Action>>& getNoteActionMap() const;
-	const std::multimap<int, std::shared_ptr<Action>>& getCCActionMap() const;
+	const std::multimap<QString, std::shared_ptr<MidiAction>>& getMMCActionMap() const;
+	const std::multimap<int, std::shared_ptr<MidiAction>>& getNoteActionMap() const;
+	const std::multimap<int, std::shared_ptr<MidiAction>>& getCCActionMap() const;
 	
 	/** Returns all MMC actions which are linked to the given event. */
-	std::vector<std::shared_ptr<Action>> getMMCActions( const QString& sEventString );
+	std::vector<std::shared_ptr<MidiAction>> getMMCActions( const QString& sEventString );
 	/** Returns all note actions which are linked to the given event. */
-	std::vector<std::shared_ptr<Action>> getNoteActions( int nNote );
-	/** Returns the cc action which was linked to the given event. */
-	std::vector<std::shared_ptr<Action>> getCCActions( int nParameter );
-	/** Returns the pc action which was linked to the given event. */
-	const std::vector<std::shared_ptr<Action>>& getPCActions() const;
+	std::vector<std::shared_ptr<MidiAction>> getNoteActions( int nNote );
+	/** Returns the cc Midiaction which was linked to the given event. */
+	std::vector<std::shared_ptr<MidiAction>> getCCActions( int nParameter );
+	/** Returns the pc Midiaction which was linked to the given event. */
+	const std::vector<std::shared_ptr<MidiAction>>& getPCActions() const;
 		
 	std::vector<int> findCCValuesByActionParam1( const QString& sActionType,
 												 const QString& sParam1 );
@@ -82,7 +82,7 @@ public:
 	 *   @a pAction grouped in MIDI event type name and MIDI event
 	 *   parameter pairs.
 	 */
-	std::vector<std::pair<H2Core::MidiMessage::Event,int>> getRegisteredMidiEvents( std::shared_ptr<Action> pAction ) const;
+	std::vector<std::pair<H2Core::MidiMessage::Event,int>> getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -95,24 +95,24 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 
-	std::multimap<int, std::shared_ptr<Action>> m_noteActionMap;
-	std::multimap<int, std::shared_ptr<Action>> m_ccActionMap;
-	std::multimap<QString, std::shared_ptr<Action>> m_mmcActionMap;
-	std::vector<std::shared_ptr<Action>> m_pcActionVector;
+	std::multimap<int, std::shared_ptr<MidiAction>> m_noteActionMap;
+	std::multimap<int, std::shared_ptr<MidiAction>> m_ccActionMap;
+	std::multimap<QString, std::shared_ptr<MidiAction>> m_mmcActionMap;
+	std::vector<std::shared_ptr<MidiAction>> m_pcActionVector;
 
 	QMutex __mutex;
 };
 
-inline const std::multimap<QString, std::shared_ptr<Action>>& MidiMap::getMMCActionMap() const {
+inline const std::multimap<QString, std::shared_ptr<MidiAction>>& MidiMap::getMMCActionMap() const {
 	return m_mmcActionMap;
 }
-inline const std::multimap<int, std::shared_ptr<Action>>& MidiMap::getNoteActionMap() const {
+inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiMap::getNoteActionMap() const {
 	return m_noteActionMap;
 }
-inline const std::multimap<int, std::shared_ptr<Action>>& MidiMap::getCCActionMap() const {
+inline const std::multimap<int, std::shared_ptr<MidiAction>>& MidiMap::getCCActionMap() const {
 	return m_ccActionMap;
 }
-inline const std::vector<std::shared_ptr<Action>>& MidiMap::getPCActions() const {
+inline const std::vector<std::shared_ptr<MidiAction>>& MidiMap::getPCActions() const {
 	return m_pcActionVector;
 }
 

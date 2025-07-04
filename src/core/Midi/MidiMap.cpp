@@ -49,8 +49,8 @@ MidiMap::MidiMap()
 
 	// Constructor
 	m_pcActionVector.resize( 1 );
-	m_pcActionVector[ 0 ] = std::make_shared<Action>(
-		Action::getNullActionType() );
+	m_pcActionVector[ 0 ] = std::make_shared<MidiAction>(
+		MidiAction::getNullMidiActionType() );
 }
 
 MidiMap::~MidiMap()
@@ -66,8 +66,8 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 	while ( ! eventNode.isNull() ) {
 		const QString sNodeName = eventNode.firstChildElement().nodeName();
 		if ( sNodeName == "mmcEvent" ) {
-			std::shared_ptr<Action> pAction = std::make_shared<Action>(
-				eventNode.firstChildElement( "action" ).text() );
+			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
+				eventNode.firstChildElement( "Midiaction" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -80,8 +80,8 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 				pAction );
 		}
 		else if ( sNodeName == "noteEvent" ) {
-			std::shared_ptr<Action> pAction = std::make_shared<Action>(
-				eventNode.firstChildElement( "action" ).text() );
+			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
+				eventNode.firstChildElement( "Midiaction" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -94,8 +94,8 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 				pAction );
 		}
 		else if ( sNodeName == "ccEvent" ){
-			std::shared_ptr<Action> pAction = std::make_shared<Action>(
-				eventNode.firstChildElement( "action" ).text() );
+			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
+				eventNode.firstChildElement( "Midiaction" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -107,8 +107,8 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 				pAction );
 		}
 		else if ( sNodeName == "pcEvent" ){
-			std::shared_ptr<Action> pAction = std::make_shared<Action>(
-				eventNode.firstChildElement( "action" ).text() );
+			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
+				eventNode.firstChildElement( "Midiaction" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -136,7 +136,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string( "mmcEvent" , ssType );
-			midiEventNode.write_string( "action" , ppAction->getType());
+			midiEventNode.write_string( "Midiaction" , ppAction->getType());
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
@@ -151,7 +151,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 				"noteEvent", H2Core::MidiMessage::EventToQString(
 					H2Core::MidiMessage::Event::Note ) );
 			midiEventNode.write_int( "eventParameter" , nnPitch );
-			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "Midiaction" , ppAction->getType() );
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
@@ -166,7 +166,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 				"ccEvent", H2Core::MidiMessage::EventToQString(
 					H2Core::MidiMessage::Event::CC ) );
 			midiEventNode.write_int( "eventParameter" , nnParam );
-			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "Midiaction" , ppAction->getType() );
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
@@ -180,7 +180,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 			midiEventNode.write_string(
 				"pcEvent", H2Core::MidiMessage::EventToQString(
 					H2Core::MidiMessage::Event::PC ) );
-			midiEventNode.write_string( "action" , ppAction->getType() );
+			midiEventNode.write_string( "Midiaction" , ppAction->getType() );
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
@@ -202,16 +202,16 @@ void MidiMap::reset()
 	
 	m_pcActionVector.clear();
 	m_pcActionVector.resize( 1 );
-	m_pcActionVector[ 0 ] = std::make_shared<Action>(
-		Action::getNullActionType() );
+	m_pcActionVector[ 0 ] = std::make_shared<MidiAction>(
+		MidiAction::getNullMidiActionType() );
 }
 
-void MidiMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<Action> pAction )
+void MidiMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<MidiAction> pAction )
 {
 	QMutexLocker mx(&__mutex);
 
 	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid action" );
+		ERRORLOG( "Invalid Midiaction" );
 		return;
 	}
 
@@ -228,7 +228,7 @@ void MidiMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<Act
 	for ( const auto& [ssType, ppAction] : m_mmcActionMap ) {
 		if ( ppAction != nullptr && ssType == sEventString &&
 			 ppAction->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "MMC event [%1] for Action [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
+			WARNINGLOG( QString( "MMC event [%1] for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
 						.arg( sEventString ).arg( pAction->getType() )
 						.arg( pAction->getParameter1() )
 						.arg( pAction->getParameter2() )
@@ -240,12 +240,12 @@ void MidiMap::registerMMCEvent( const QString& sEventString, std::shared_ptr<Act
 	m_mmcActionMap.insert( { sEventString, pAction } );
 }
 
-void MidiMap::registerNoteEvent( int nNote, std::shared_ptr<Action> pAction )
+void MidiMap::registerNoteEvent( int nNote, std::shared_ptr<MidiAction> pAction )
 {
 	QMutexLocker mx(&__mutex);
 
 	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid action" );
+		ERRORLOG( "Invalid Midiaction" );
 		return;
 	}
 	
@@ -259,7 +259,7 @@ void MidiMap::registerNoteEvent( int nNote, std::shared_ptr<Action> pAction )
 	for ( const auto& [nnPitch, ppAction] : m_noteActionMap ) {
 		if ( ppAction != nullptr && nnPitch == nNote &&
 			 ppAction->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "NOTE event [%1] for Action [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
+			WARNINGLOG( QString( "NOTE event [%1] for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
 						.arg( nNote ).arg( pAction->getType() )
 						.arg( pAction->getParameter1() )
 						.arg( pAction->getParameter2() )
@@ -271,11 +271,11 @@ void MidiMap::registerNoteEvent( int nNote, std::shared_ptr<Action> pAction )
 	m_noteActionMap.insert( { nNote, pAction } );
 }
 
-void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<Action> pAction ){
+void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<MidiAction> pAction ){
 	QMutexLocker mx(&__mutex);
 
 	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid action" );
+		ERRORLOG( "Invalid Midiaction" );
 		return;
 	}
 
@@ -288,7 +288,7 @@ void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<Action> pAction )
 	for ( const auto& [nnParam, ppAction] : m_ccActionMap ) {
 		if ( ppAction != nullptr && nnParam == nParameter &&
 			 ppAction->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "CC event [%1] for Action [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
+			WARNINGLOG( QString( "CC event [%1] for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
 						.arg( nParameter ).arg( pAction->getType() )
 						.arg( pAction->getParameter1() )
 						.arg( pAction->getParameter2() )
@@ -300,17 +300,17 @@ void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<Action> pAction )
 	m_ccActionMap.insert( { nParameter, pAction } );
 }
 
-void MidiMap::registerPCEvent( std::shared_ptr<Action> pAction ){
+void MidiMap::registerPCEvent( std::shared_ptr<MidiAction> pAction ){
 	QMutexLocker mx(&__mutex);
 
 	if ( pAction == nullptr || pAction->isNull() ) {
-		ERRORLOG( "Invalid action" );
+		ERRORLOG( "Invalid Midiaction" );
 		return;
 	}
 
 	for ( const auto& ppAction : m_pcActionVector ) {
 		if ( ppAction != nullptr && ppAction->isEquivalentTo( pAction ) ) {
-			WARNINGLOG( QString( "PC event for Action [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
+			WARNINGLOG( QString( "PC event for MidiAction [%2: Param1: [%3], Param2: [%4], Param3: [%5]] was already registered" )
 						.arg( pAction->getType() )
 						.arg( pAction->getParameter1() )
 						.arg( pAction->getParameter2() )
@@ -322,11 +322,11 @@ void MidiMap::registerPCEvent( std::shared_ptr<Action> pAction ){
 	m_pcActionVector.push_back( pAction );
 }
 
-std::vector<std::shared_ptr<Action>> MidiMap::getMMCActions( const QString& sEventString )
+std::vector<std::shared_ptr<MidiAction>> MidiMap::getMMCActions( const QString& sEventString )
 {
 	QMutexLocker mx(&__mutex);
 
-	std::vector<std::shared_ptr<Action>> actions;
+	std::vector<std::shared_ptr<MidiAction>> actions;
 
 	auto range = m_mmcActionMap.equal_range( sEventString );
  
@@ -339,11 +339,11 @@ std::vector<std::shared_ptr<Action>> MidiMap::getMMCActions( const QString& sEve
 	return actions;
 }
 
-std::vector<std::shared_ptr<Action>> MidiMap::getNoteActions( int nNote )
+std::vector<std::shared_ptr<MidiAction>> MidiMap::getNoteActions( int nNote )
 {
 	QMutexLocker mx(&__mutex);
 
-	std::vector<std::shared_ptr<Action>> actions;
+	std::vector<std::shared_ptr<MidiAction>> actions;
 
 	auto range = m_noteActionMap.equal_range( nNote );
  
@@ -356,10 +356,10 @@ std::vector<std::shared_ptr<Action>> MidiMap::getNoteActions( int nNote )
 	return actions;
 }
 
-std::vector<std::shared_ptr<Action>> MidiMap::getCCActions( int nParameter ) {
+std::vector<std::shared_ptr<MidiAction>> MidiMap::getCCActions( int nParameter ) {
 	QMutexLocker mx(&__mutex);
 
-	std::vector<std::shared_ptr<Action>> actions;
+	std::vector<std::shared_ptr<MidiAction>> actions;
 
 	auto range = m_ccActionMap.equal_range( nParameter );
  
@@ -400,7 +400,7 @@ std::vector<int> MidiMap::findCCValuesByActionType( const QString& sActionType )
 	return values;
 }
 
-std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiMap::getRegisteredMidiEvents( std::shared_ptr<Action> pAction ) const {
+std::vector<std::pair<H2Core::MidiMessage::Event,int>> MidiMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction ) const {
 	std::vector<std::pair<H2Core::MidiMessage::Event,int>> midiEvents;
 
 	if ( pAction != nullptr && ! pAction->isNull() ) {

@@ -30,6 +30,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/MidiInput.h>
 #include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 
@@ -115,20 +116,20 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		case MidiMessage::START: /* Start from position 0 */
 			if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 				CoreActionController::locateToColumn( 0 );
-				auto pAction = std::make_shared<Action>("PLAY");
-				MidiActionManager::get_instance()->handleAction( pAction );
+				auto pAction = std::make_shared<MidiAction>("PLAY");
+				MidiActionManager::get_instance()->handleMidiAction( pAction );
 			}
 			break;
 
 		case MidiMessage::CONTINUE: /* Just start */ {
-			auto pAction = std::make_shared<Action>("PLAY");
-			MidiActionManager::get_instance()->handleAction( pAction );
+			auto pAction = std::make_shared<MidiAction>("PLAY");
+			MidiActionManager::get_instance()->handleMidiAction( pAction );
 			break;
 		}
 
 		case MidiMessage::STOP: /* Stop in current position i.e. Pause */ {
-			auto pAction = std::make_shared<Action>("PAUSE");
-			MidiActionManager::get_instance()->handleAction( pAction );
+			auto pAction = std::make_shared<MidiAction>("PAUSE");
+			MidiActionManager::get_instance()->handleMidiAction( pAction );
 			break;
 		}
 
@@ -169,9 +170,9 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 	for ( const auto& ppAction : pMidiMap->getCCActions( msg.m_nData1 ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<Action>( ppAction );
+			auto pNewAction = std::make_shared<MidiAction>( ppAction );
 			pNewAction->setValue( QString::number( msg.m_nData2 ) );
-			pMidiActionManager->handleAction( pNewAction );
+			pMidiActionManager->handleMidiAction( pNewAction );
 		}
 	}
 
@@ -191,9 +192,9 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 
 	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<Action>( ppAction );
+			auto pNewAction = std::make_shared<MidiAction>( ppAction );
 			pNewAction->setValue( QString::number( msg.m_nData1 ) );
-			pMidiActionManager->handleAction( pNewAction );
+			pMidiActionManager->handleMidiAction( pNewAction );
 		}
 	}
 
@@ -222,9 +223,9 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg ) {
 	bool bActionSuccess = false;
 	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.m_nData1 ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<Action>( ppAction );
+			auto pNewAction = std::make_shared<MidiAction>( ppAction );
 			pNewAction->setValue( QString::number( msg.m_nData2 ) );
-			if ( pMidiActionManager->handleAction( pNewAction ) ) {
+			if ( pMidiActionManager->handleMidiAction( pNewAction ) ) {
 				bActionSuccess = true;
 			}
 		}
@@ -342,7 +343,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			pHydrogen->setLastMidiEvent( event );
 			pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
 			
-			pMidiActionManager->handleActions( pMidiMap->getMMCActions( sMMCtype ) );
+			pMidiActionManager->handleMidiActions( pMidiMap->getMMCActions( sMMCtype ) );
 		}
 		else {
 			WARNINGLOG( "Unknown MIDI Machine Control (MMC) Command" );

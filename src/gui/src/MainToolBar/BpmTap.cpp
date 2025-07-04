@@ -136,8 +136,8 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 		}
 	} );
 
-	m_pTapTempoMidiAction = std::make_shared<Action>( "TAP_TEMPO" );
-	m_pBeatCounterMidiAction = std::make_shared<Action>( "BEATCOUNTER" );
+	m_pTapTempoMidiAction = std::make_shared<MidiAction>( "TAP_TEMPO" );
+	m_pBeatCounterMidiAction = std::make_shared<MidiAction>( "BEATCOUNTER" );
 
 	m_pTapButton = new MidiLearnableToolButton( pBackground, "" );
 	m_pTapButton->setFixedSize( nButtonWidth, nButtonHeight );

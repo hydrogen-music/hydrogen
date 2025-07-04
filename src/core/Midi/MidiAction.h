@@ -19,26 +19,47 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef ACTION_H
-#define ACTION_H
-#include <core/Object.h>
-#include <map>
-#include <memory>
-#include <string>
-#include <cassert>
+#ifndef MIDI_ACTION_H
+#define MIDI_ACTION_H
 
-/** \ingroup docCore docMIDI */
-class Action : public H2Core::Object<Action> {
-	H2_OBJECT(Action)
+#include <QString>
+
+#include <core/Object.h>
+
+#include <memory>
+
+/**
+* @class MidiAction
+*
+* @brief This class represents a midi action.
+*
+* This class represents actions which can be executed
+* after a midi event occurred. An example is the "MUTE"
+* action, which mutes the outputs of hydrogen.
+*
+* An action can be linked to an event. If this event occurs,
+* the action gets triggered. The handling of events takes place
+* in midi_input.cpp .
+*
+* Each action has two independent parameters. The two parameters are optional and
+* can be used to carry additional information, which mean
+* only something to this very Action. They can have totally different meanings for other Actions.
+* Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
+*
+* @author Sebastian Moors
+*
+* \ingroup docCore docMIDI */
+class MidiAction : public H2Core::Object<MidiAction> {
+	H2_OBJECT(MidiAction)
 	public:
-	static QString getNullActionType() {
+	static QString getNullMidiActionType() {
 		return "NOTHING";
 	}
 
-	Action( const QString& sType = getNullActionType() );
-	Action( const std::shared_ptr<Action> pAction );
+	MidiAction( const QString& sType = getNullMidiActionType() );
+	MidiAction( const std::shared_ptr<MidiAction> pMidiAction );
 
-	/** Checks whether m_sType is of getNullActionType() */
+	/** Checks whether m_sType is of getNullMidiActionType() */
 	bool isNull() const;
 
 		void setParameter1( const QString& text ){
@@ -78,28 +99,29 @@ class Action : public H2Core::Object<Action> {
 		}
 
 	/**
-	 * @returns whether the current action and @a pOther identically
+	 * @returns whether the current MidiAction and @a pOther identically
 	 *   in all member except of #m_sValue. If true, they are associated
 	 *   with the same widget. The value will differ depending on the
 	 *   incoming MIDI event.
 	 */
-	bool isEquivalentTo( const std::shared_ptr<Action> pOther ) const;
+	bool isEquivalentTo( const std::shared_ptr<MidiAction> pOther ) const;
 
-	friend bool operator ==(const Action& lhs, const Action& rhs ) {
+	friend bool operator ==(const MidiAction& lhs, const MidiAction& rhs ) {
 		return ( lhs.m_sType == rhs.m_sType &&
 				 lhs.m_sParameter1 == rhs.m_sParameter1 &&
 				 lhs.m_sParameter2 == rhs.m_sParameter2 &&
 				 lhs.m_sParameter3 == rhs.m_sParameter3 &&
 				 lhs.m_sValue == rhs.m_sValue );
 	}
-	friend bool operator !=(const Action& lhs, const Action& rhs ) {
+	friend bool operator !=(const MidiAction& lhs, const MidiAction& rhs ) {
 		return ( lhs.m_sType != rhs.m_sType ||
 				 lhs.m_sParameter1 != rhs.m_sParameter1 ||
 				 lhs.m_sParameter2 != rhs.m_sParameter2 ||
 				 lhs.m_sParameter3 != rhs.m_sParameter3 ||
 				 lhs.m_sValue != rhs.m_sValue );
 	}
-	friend bool operator ==(std::shared_ptr<Action> lhs, std::shared_ptr<Action> rhs ) {
+	friend bool operator ==( std::shared_ptr<MidiAction> lhs,
+							 std::shared_ptr<MidiAction> rhs ) {
 		if ( lhs == nullptr || rhs == nullptr ) {
 			return false;
 		}
@@ -109,7 +131,8 @@ class Action : public H2Core::Object<Action> {
 				 lhs->m_sParameter3 == rhs->m_sParameter3 &&
 				 lhs->m_sValue == rhs->m_sValue );
 	}
-	friend bool operator !=(std::shared_ptr<Action> lhs, std::shared_ptr<Action> rhs ) {
+	friend bool operator !=( std::shared_ptr<MidiAction> lhs,
+							 std::shared_ptr<MidiAction> rhs ) {
 		if ( lhs == nullptr || rhs == nullptr ) {
 			return true;
 		}
@@ -128,7 +151,8 @@ class Action : public H2Core::Object<Action> {
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "",
+						   bool bShort = true ) const override;
 
 	private:
 		QString m_sType;
@@ -138,139 +162,4 @@ class Action : public H2Core::Object<Action> {
 		QString m_sValue;
 };
 
-namespace H2Core
-{
-	class Hydrogen;
-}
-
-/** \ingroup docCore docMIDI */
-class MidiActionManager : public H2Core::Object<MidiActionManager>
-{
-	H2_OBJECT(MidiActionManager)
-	private:
-		/**
-		 * Object holding the current MidiActionManager
-		 * singleton. It is initialized with NULL, set with
-		 * create_instance(), and accessed with
-		 * get_instance().
-		 */
-		static MidiActionManager *__instance;
-
-		/**
-		 * Holds the names of all Action identifiers which Hydrogen is
-		 * able to interpret.
-		 */
-	QStringList m_actionList;
-
-		typedef bool (MidiActionManager::*action_f)(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		/**
-		 * Holds all Action identifiers which Hydrogen is able to
-		 * interpret.  
-		 *
-		 * It holds a pair consisting of a pointer to member function
-		 * performing the desired action and an integer specifying how
-		 * many additional Action parameters are required to do so.
-		 */
-	std::map<QString, std::pair<action_f,int>> m_actionMap;
-		bool play(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool play_stop_pause_toggle(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool stop(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool pause(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool record_ready(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool record_strobe_toggle(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool record_strobe(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool record_exit(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool mute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool unmute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool mute_toggle(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool strip_mute_toggle(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool strip_solo_toggle(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool next_bar(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool previous_bar(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool bpm_increase(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool bpm_decrease(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool bpm_cc_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool bpm_fine_cc_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool master_volume_relative(std::shared_ptr<Action> , H2Core::Hydrogen *);
-		bool master_volume_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool strip_volume_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool strip_volume_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool effect_level_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool effect_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool select_next_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
-	bool select_only_next_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
-	bool select_only_next_pattern_cc_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool select_next_pattern_cc_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool select_next_pattern_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool select_and_play_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool pan_relative(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool pan_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-	bool pan_absolute_sym(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool instrument_pitch(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool filter_cutoff_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool beatcounter(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool tap_tempo(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool playlist_song(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool playlist_next_song(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool playlist_previous_song(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool toggle_metronome(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool select_instrument(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool undo_action(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool redo_action(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool gain_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool pitch_level_absolute(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool clear_selected_instrument(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool clear_pattern(std::shared_ptr<Action> , H2Core::Hydrogen * );
-		bool loadNextDrumkit( std::shared_ptr<Action>, H2Core::Hydrogen* );
-		bool loadPrevDrumkit( std::shared_ptr<Action>, H2Core::Hydrogen* );
-
-		int m_nLastBpmChangeCCParameter;
-
-	bool setSongFromPlaylist( int nSongNumber, H2Core::Hydrogen* pHydrogen );
-	bool nextPatternSelection( int nPatternNumber );
-	bool onlyNextPatternSelection( int nPatternNumber );
-
-	public:
-
-		/**
-		 * Handles multiple actions at once and calls handleAction()
-		 * on them.
-		 *
-		 * \return true - if at least one Action was handled
-		 *   successfully. Calling functions should treat the event
-		 *   resulting in @a actions as consumed.
-		 */
-	bool handleActions( const std::vector<std::shared_ptr<Action>>& actions );
-		/**
-		 * The handleAction method is the heart of the
-		 * MidiActionManager class. It executes the operations that
-		 * are needed to carry the desired action.
-		 *
-		 * @return true - if @a action was handled successfully.
-		 */
-		bool handleAction( const std::shared_ptr<Action> action );
-		/**
-		 * If #__instance equals 0, a new MidiActionManager
-		 * singleton will be created and stored in it.
-		 *
-		 * It is called in H2Core::Hydrogen::create_instance().
-		 */
-		static void create_instance();
-		/**
-		 * Returns a pointer to the current MidiActionManager
-		 * singleton stored in #__instance.
-		 */
-		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
-
-		const QStringList& getActionList() const {
-			return m_actionList;
-		}
-	/**
-	 * \return -1 in case the @a couldn't be found.
-	 */
-	int getParameterNumber( const QString& sActionType ) const;
-
-		MidiActionManager();
-		~MidiActionManager();
-};
 #endif

@@ -81,6 +81,7 @@
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>

@@ -49,6 +49,7 @@
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/OscServer.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Interpolation.h>

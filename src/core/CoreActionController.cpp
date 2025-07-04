@@ -410,12 +410,12 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 #ifdef H2CORE_HAVE_OSC
 	if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		
-		std::shared_ptr<Action> pFeedbackAction =
-			std::make_shared<Action>( "MASTER_VOLUME_ABSOLUTE" );
+		std::shared_ptr<MidiAction> pFeedbackAction =
+			std::make_shared<MidiAction>( "MASTER_VOLUME_ABSOLUTE" );
 		
 		pFeedbackAction->setValue( QString("%1")
 								   .arg( fMasterVolume ) );
-		OscServer::get_instance()->handleAction( pFeedbackAction );
+		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
 #endif
 	
@@ -437,12 +437,12 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "STRIP_VOLUME_ABSOLUTE" );
+			std::shared_ptr<MidiAction> pFeedbackAction =
+				std::make_shared<MidiAction>( "STRIP_VOLUME_ABSOLUTE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
 			pFeedbackAction->setValue( QString("%1").arg( fStripVolume ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 
@@ -464,12 +464,12 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( pPref->getOscFeedbackEnabled() ) {
-		std::shared_ptr<Action> pFeedbackAction =
-			std::make_shared<Action>( "TOGGLE_METRONOME" );
+		std::shared_ptr<MidiAction> pFeedbackAction =
+			std::make_shared<MidiAction>( "TOGGLE_METRONOME" );
 		
 		pFeedbackAction->setParameter1( QString("%1")
 										.arg( static_cast<int>(pPref->m_bUseMetronome) ) );
-		OscServer::get_instance()->handleAction( pFeedbackAction );
+		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
 #endif
 	
@@ -492,12 +492,12 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-		std::shared_ptr<Action> pFeedbackAction =
-			std::make_shared<Action>( "MUTE_TOGGLE" );
+		std::shared_ptr<MidiAction> pFeedbackAction =
+			std::make_shared<MidiAction>( "MUTE_TOGGLE" );
 		
 		pFeedbackAction->setParameter1( QString("%1")
 										.arg( static_cast<int>(pSong->getIsMuted()) ) );
-		OscServer::get_instance()->handleAction( pFeedbackAction );
+		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
 #endif
 
@@ -517,13 +517,13 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 	
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "STRIP_MUTE_TOGGLE" );
+			std::shared_ptr<MidiAction> pFeedbackAction =
+				std::make_shared<MidiAction>( "STRIP_MUTE_TOGGLE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
 			pFeedbackAction->setValue( QString("%1")
 											.arg( static_cast<int>(pInstr->isMuted()) ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 
@@ -547,13 +547,13 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 	
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "STRIP_SOLO_TOGGLE" );
+			std::shared_ptr<MidiAction> pFeedbackAction =
+				std::make_shared<MidiAction>( "STRIP_SOLO_TOGGLE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
 			pFeedbackAction->setValue( QString("%1")
 									   .arg( static_cast<int>(pInstr->isSoloed()) ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 
@@ -576,13 +576,13 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "PAN_ABSOLUTE" );
+			std::shared_ptr<MidiAction> pFeedbackAction =
+				std::make_shared<MidiAction>( "PAN_ABSOLUTE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
 			pFeedbackAction->setValue( QString("%1")
 									   .arg( pInstr->getPanWithRangeFrom0To1() ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 	
@@ -1810,7 +1810,7 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 	// Thus, it will be added to the death row, which guarantuees that its
 	// samples will be unloaded once all notes referencing it are gone. Note
 	// that this does not mean the instrument will be destructed. GUI can still
-	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// hold a shared pointer as part of an undo/redo Midiaction (that's why it is so
 	// important to unload the samples).
 	pHydrogen->addInstrumentToDeathRow( pInstrument );
 
@@ -1879,7 +1879,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	// Thus, it will be added to the death row, which guarantuees that its
 	// samples will be unloaded once all notes referencing it are gone. Note
 	// that this does not mean the instrument will be destructed. GUI can still
-	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// hold a shared pointer as part of an undo/redo Midiaction (that's why it is so
 	// important to unload the samples).
 	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
 

@@ -42,6 +42,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
 #include <core/Globals.h>
@@ -49,6 +50,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Interpolation.h>
 #include <core/Version.h>
