@@ -105,7 +105,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pRwdButton, &QToolButton::clicked, [&]() {
 		rewindBtnClicked();
 	});
-	m_pRwdButton->setAction( std::make_shared<Action>("<<_PREVIOUS_BAR") );
+	m_pRwdButton->setMidiAction( std::make_shared<Action>("<<_PREVIOUS_BAR") );
 	addWidget( m_pRwdButton );
 
 	// Record button
@@ -114,7 +114,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pRecButton, &QToolButton::clicked, [&]() {
 		recBtnClicked();
 	});
-	m_pRecButton->setAction( std::make_shared<Action>("RECORD_READY") );
+	m_pRecButton->setMidiAction( std::make_shared<Action>("RECORD_READY") );
 	addWidget( m_pRecButton );
 
 	// Play button
@@ -123,7 +123,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pPlayButton, &QToolButton::clicked, [&]() {
 		playBtnClicked();
 	} );
-	m_pPlayButton->setAction( std::make_shared<Action>("PLAY/PAUSE_TOGGLE") );
+	m_pPlayButton->setMidiAction( std::make_shared<Action>("PLAY/PAUSE_TOGGLE") );
 	addWidget( m_pPlayButton );
 
 	// Stop button
@@ -132,7 +132,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pStopButton, &QToolButton::clicked, [&](){
 		stopBtnClicked();
 	});
-	m_pStopButton->setAction( std::make_shared<Action>("STOP") );
+	m_pStopButton->setMidiAction( std::make_shared<Action>("STOP") );
 	addWidget( m_pStopButton );
 
 	// Fast forward button
@@ -141,7 +141,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pFfwdButton, &QToolButton::clicked, [&](){
 		fastForwardBtnClicked();
 	});
-	m_pFfwdButton->setAction( std::make_shared<Action>(">>_NEXT_BAR") );
+	m_pFfwdButton->setMidiAction( std::make_shared<Action>(">>_NEXT_BAR") );
 	addWidget( m_pFfwdButton );
 
 	// Loop song button button
@@ -189,7 +189,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
 		CoreActionController::setMetronomeIsActive( bChecked );
 	} );
-	m_pMetronomeButton->setAction( std::make_shared<Action>("TOGGLE_METRONOME") );
+	m_pMetronomeButton->setMidiAction( std::make_shared<Action>("TOGGLE_METRONOME") );
 	addWidget( m_pMetronomeButton );
 
 	m_sLCDBPMSpinboxToolTip =

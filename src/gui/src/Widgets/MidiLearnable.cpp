@@ -28,7 +28,7 @@
 #include <core/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 
-MidiLearnable::MidiLearnable() : m_pAction( nullptr ) {
+MidiLearnable::MidiLearnable() : m_pMidiAction( nullptr ) {
 	HydrogenApp::get_instance()->addEventListener( this );
 }
 
@@ -39,9 +39,9 @@ MidiLearnable::~MidiLearnable() {
 	}
 }
 
-void MidiLearnable::setAction( std::shared_ptr<Action> pAction ){
-	if ( pAction != m_pAction ) {
-		m_pAction = pAction;
+void MidiLearnable::setMidiAction( std::shared_ptr<Action> pAction ){
+	if ( pAction != m_pMidiAction ) {
+		m_pMidiAction = pAction;
 
 		midiMapChangedEvent();
 	}
@@ -56,9 +56,9 @@ void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
 }
 
 void MidiLearnable::midiMapChangedEvent() {
-	if ( m_pAction != nullptr ) {
+	if ( m_pMidiAction != nullptr ) {
 		m_registeredMidiEvents = H2Core::Preferences::get_instance()->
-			getMidiMap()->getRegisteredMidiEvents( m_pAction );
+			getMidiMap()->getRegisteredMidiEvents( m_pMidiAction );
 		updateToolTip();
 	}
 }
@@ -70,9 +70,9 @@ QString MidiLearnable::composeToolTip() const {
 	QString sTip( m_sBaseToolTip );
 
 	// Add the associated MIDI action.
-	if ( m_pAction != nullptr ) {
+	if ( m_pMidiAction != nullptr ) {
 		sTip.append( QString( "\n\n%1: %2 " ).arg( pCommonStrings->getMidiToolTipHeading() )
-					 .arg( m_pAction->getType() ) );
+					 .arg( m_pMidiAction->getType() ) );
 		if ( m_registeredMidiEvents.size() > 0 ) {
 			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
 				if ( event == H2Core::MidiMessage::Event::Note ||

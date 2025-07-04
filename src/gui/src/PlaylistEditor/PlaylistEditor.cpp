@@ -112,7 +112,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->
 			getColumn() - 1 );
 	});
-	m_pRwdButton->setAction( std::make_shared<Action>("PLAYLIST_PREV_SONG") );
+	m_pRwdButton->setMidiAction( std::make_shared<Action>("PLAYLIST_PREV_SONG") );
 	m_pToolBar->addWidget( m_pRwdButton );
 
 	// Play button
@@ -129,7 +129,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 		Hydrogen::get_instance()->sequencerStop();
 		CoreActionController::locateToColumn( 0 );
 	});
-	m_pStopButton->setAction( std::make_shared<Action>("STOP") );
+	m_pStopButton->setMidiAction( std::make_shared<Action>("STOP") );
 	m_pToolBar->addWidget( m_pStopButton );
 
 	// Fast forward button
@@ -139,7 +139,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 			Hydrogen::get_instance()->getAudioEngine()->getTransportPosition()->
 			getColumn() + 1 );
 	});
-	m_pFfwdButton->setAction( std::make_shared<Action>("PLAYLIST_NEXT_SONG") );
+	m_pFfwdButton->setMidiAction( std::make_shared<Action>("PLAYLIST_NEXT_SONG") );
 	m_pToolBar->addWidget( m_pFfwdButton );
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);

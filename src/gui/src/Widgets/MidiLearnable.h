@@ -50,10 +50,10 @@ public:
     MidiLearnable();
 	~MidiLearnable();
 
-    void setAction( std::shared_ptr<Action> pAction );
+    void setMidiAction( std::shared_ptr<Action> pAction );
 
-    std::shared_ptr<Action> getAction() const {
-		return m_pAction;
+    std::shared_ptr<Action> getMidiAction() const {
+		return m_pMidiAction;
     }
 
 		const QString& getBaseToolTip() const;
@@ -76,7 +76,7 @@ protected:
 
 		QString m_sBaseToolTip;
 
-    std::shared_ptr<Action> m_pAction;
+    std::shared_ptr<Action> m_pMidiAction;
 
 	/**
 	 * Stores all MIDI events mapped to #m_pAction.

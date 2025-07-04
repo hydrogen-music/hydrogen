@@ -327,7 +327,7 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	*/
 	
 	if ( ev->button() == Qt::LeftButton && ( ev->modifiers() & Qt::ShiftModifier ) ){
-		MidiSenseWidget midiSense( this, true, this->getAction() );
+		MidiSenseWidget midiSense( this, true, this->getMidiAction() );
 		midiSense.exec();
 		return;
 	}

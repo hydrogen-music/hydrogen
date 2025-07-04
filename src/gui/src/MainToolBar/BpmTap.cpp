@@ -352,7 +352,7 @@ void BpmTap::updateBpmTap() {
 		if ( m_pTapButton->defaultAction() != pBeatCounterAction ) {
 			m_pTapButton->setDefaultAction( pBeatCounterAction );
 		}
-		m_pTapButton->setAction( m_pBeatCounterMidiAction );
+		m_pTapButton->setMidiAction( m_pBeatCounterMidiAction );
 	}
 	else {
 		// Widgets disabled
@@ -364,7 +364,7 @@ void BpmTap::updateBpmTap() {
 		if ( m_pTapButton->defaultAction() != m_pTapTempoAction ) {
 			m_pTapButton->setDefaultAction( m_pTapTempoAction );
 		}
-		m_pTapButton->setAction( m_pTapTempoMidiAction );
+		m_pTapButton->setMidiAction( m_pTapTempoMidiAction );
 	}
 }
 

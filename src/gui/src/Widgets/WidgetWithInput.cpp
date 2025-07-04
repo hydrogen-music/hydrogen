@@ -154,7 +154,7 @@ void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 		m_bIgnoreMouseMove = true;
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
-		MidiSenseWidget midiSense( this, true, this->m_pAction );
+		MidiSenseWidget midiSense( this, true, this->m_pMidiAction );
 		midiSense.exec();
 	
 		m_bIgnoreMouseMove = true;
