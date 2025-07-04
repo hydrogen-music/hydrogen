@@ -252,7 +252,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	} );
 	addWidget( m_pJackTimebaseButton );
 
-	addSeparator();
+	m_pJackSeparator = addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pMidiControlButton = new MidiControlButton( this );
@@ -737,13 +737,10 @@ void MainToolBar::updateBpmTap() {
 
 void MainToolBar::updateJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( ! pHydrogen->hasJackAudioDriver() ) {
-		this->hide();
-		return;
-	}
-	else {
-		this->show();
-	}
+	const bool bVisible = pHydrogen->hasJackAudioDriver();
+	m_pJackTimebaseButton->setVisible( bVisible );
+	m_pJackTransportAction->setVisible( bVisible );
+	m_pJackSeparator->setVisible( bVisible );
 
 	if ( pHydrogen->hasJackTransport() ) {
 		m_pJackTransportAction->setChecked( true );
@@ -757,13 +754,10 @@ void MainToolBar::updateJackTimebase()
 	const auto theme = Preferences::get_instance()->getTheme();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	if ( ! pHydrogen->hasJackAudioDriver() ) {
-		this->hide();
-		return;
-	}
-	else {
-		this->show();
-	}
+	const bool bVisible = pHydrogen->hasJackAudioDriver();
+	m_pJackTimebaseButton->setVisible( bVisible );
+	m_pJackTransportAction->setVisible( bVisible );
+	m_pJackSeparator->setVisible( bVisible );
 
 	m_pJackTimebaseButton->setStyleSheet( "" );
 	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {

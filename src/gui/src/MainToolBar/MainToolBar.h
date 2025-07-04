@@ -124,6 +124,7 @@ private:
 
 		QAction* m_pJackTransportAction;
 		MidiLearnableToolButton* m_pJackTimebaseButton;
+		QAction* m_pJackSeparator;
 
 		MidiControlButton* m_pMidiControlButton;
 
