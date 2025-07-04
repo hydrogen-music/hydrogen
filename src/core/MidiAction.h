@@ -100,6 +100,9 @@ class Action : public H2Core::Object<Action> {
 				 lhs.m_sValue != rhs.m_sValue );
 	}
 	friend bool operator ==(std::shared_ptr<Action> lhs, std::shared_ptr<Action> rhs ) {
+		if ( lhs == nullptr || rhs == nullptr ) {
+			return false;
+		}
 		return ( lhs->m_sType == rhs->m_sType &&
 				 lhs->m_sParameter1 == rhs->m_sParameter1 &&
 				 lhs->m_sParameter2 == rhs->m_sParameter2 &&
@@ -107,6 +110,9 @@ class Action : public H2Core::Object<Action> {
 				 lhs->m_sValue == rhs->m_sValue );
 	}
 	friend bool operator !=(std::shared_ptr<Action> lhs, std::shared_ptr<Action> rhs ) {
+		if ( lhs == nullptr || rhs == nullptr ) {
+			return true;
+		}
 		return ( lhs->m_sType != rhs->m_sType ||
 				 lhs->m_sParameter1 != rhs->m_sParameter1 ||
 				 lhs->m_sParameter2 != rhs->m_sParameter2 ||
