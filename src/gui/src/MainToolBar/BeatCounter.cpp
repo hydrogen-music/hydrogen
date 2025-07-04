@@ -166,40 +166,72 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	const int nButtonWidth = static_cast<int>(
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
 
-	m_pTapAction = new QAction( this );
-	m_pTapAction->setText( "tap" );
-	connect( m_pTapAction, &QAction::triggered, [=](){
+	m_pTapTempoAction = new QAction( this );
+	m_pTapTempoAction->setText( "tap tempo" );
+	connect( m_pTapTempoAction, &QAction::triggered, [=](){
 		auto pPref = Preferences::get_instance();
-		if ( pPref->m_bBeatCounterSetPlay ==
-			 Preferences::BEAT_COUNTER_SET_PLAY_ON ) {
-			pPref->m_bBeatCounterSetPlay = Preferences::BEAT_COUNTER_SET_PLAY_OFF;
+		if ( pPref->m_bpmTap != Preferences::BpmTap::TapTempo ) {
+			pPref->m_bpmTap = Preferences::BpmTap::TapTempo;
 			HydrogenApp::get_instance()->showStatusBarMessage(
 				tr(" Count and set BPM") );
 		}
 		Hydrogen::get_instance()->updateBeatCounterSettings();
 	} );
 
-	m_pTapAndPlayAction = new QAction( this );
-	m_pTapAndPlayAction->setText( "tap and play" );
-	connect( m_pTapAndPlayAction, &QAction::triggered, [=](){
+	m_pBeatCounterTapAction = new QAction( this );
+	m_pBeatCounterTapAction->setText( "bc tap" );
+	connect( m_pBeatCounterTapAction, &QAction::triggered, [=](){
 		auto pPref = Preferences::get_instance();
-		if ( pPref->m_bBeatCounterSetPlay !=
-			 Preferences::BEAT_COUNTER_SET_PLAY_ON ) {
-			pPref->m_bBeatCounterSetPlay = Preferences::BEAT_COUNTER_SET_PLAY_ON;
+		bool bChange = false;
+		if ( pPref->m_bpmTap != Preferences::BpmTap::BeatCounter ) {
+			pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
+			bChange = true;
+		}
+		if ( pPref->m_beatCounter != Preferences::BeatCounter::Tap ) {
+			pPref->m_beatCounter = Preferences::BeatCounter::Tap;
+			bChange = true;
+		}
+		if ( bChange ) {
+			HydrogenApp::get_instance()->showStatusBarMessage(
+				tr(" Count and set BPM") );
+			Hydrogen::get_instance()->updateBeatCounterSettings();
+		}
+	} );
+
+	m_pBeatCounterTapAndPlayAction = new QAction( this );
+	m_pBeatCounterTapAndPlayAction->setText( "bc tap and play" );
+	connect( m_pBeatCounterTapAndPlayAction, &QAction::triggered, [=](){
+		auto pPref = Preferences::get_instance();
+		bool bChange = false;
+		if ( pPref->m_bpmTap != Preferences::BpmTap::BeatCounter ) {
+			pPref->m_bpmTap = Preferences::BpmTap::BeatCounter;
+			bChange = true;
+		}
+		if ( pPref->m_beatCounter != Preferences::BeatCounter::TapAndPlay ) {
+			pPref->m_beatCounter = Preferences::BeatCounter::TapAndPlay;
+			bChange = true;
+		}
+		if ( bChange ) {
 			HydrogenApp::get_instance()->showStatusBarMessage(
 				tr(" Count BPM and start PLAY") );
+			Hydrogen::get_instance()->updateBeatCounterSettings();
 		}
-		Hydrogen::get_instance()->updateBeatCounterSettings();
 	} );
 
 	m_pTapButton = new QToolButton( pBackground );
 	m_pTapButton->setFixedSize( nButtonWidth, nButtonHeight );
-	m_pTapButton->addAction( m_pTapAction );
-	m_pTapButton->addAction( m_pTapAndPlayAction );
+	m_pTapButton->addAction( m_pTapTempoAction );
+	m_pTapButton->addAction( m_pBeatCounterTapAction );
+	m_pTapButton->addAction( m_pBeatCounterTapAndPlayAction );
 	m_pTapButton->setToolTip( tr( "Set BPM / Set BPM and play" ) );
 	m_pTapButton->setObjectName( "BeatCounterTapButton" );
 	connect( m_pTapButton, &QToolButton::clicked, [&]() {
-		Hydrogen::get_instance()->handleBeatCounter();
+		if ( Preferences::get_instance()->m_bpmTap ==
+			 Preferences::BpmTap::TapTempo ) {
+			Hydrogen::get_instance()->onTapTempoAccelEvent();
+		} else {
+			Hydrogen::get_instance()->handleBeatCounter();
+		}
 		// For instantaneous update.
 		updateBeatCounter();
 	} );
@@ -266,27 +298,62 @@ void BeatCounter::updateBeatCounter() {
 		return sResult;
 	};
 
-	m_pBeatLengthLabel->setText(
-		QString( "%1%2%3" ).arg( toSuperScript( 1 ) ).arg( QChar( 0x2044 ) )
-		.arg( toSubScript( pHydrogen->getBeatCounterBeatLength() * 4 ) ) );
+	if ( pPref->m_bpmTap == Preferences::BpmTap::BeatCounter ) {
+		m_pBeatLengthLabel->setText(
+			QString( "%1%2%3" ).arg( toSuperScript( 1 ) ).arg( QChar( 0x2044 ) )
+			.arg( toSubScript( pHydrogen->getBeatCounterBeatLength() * 4 ) ) );
 
-	QString sStatus;
-	const int nEventCount = pHydrogen->getBeatCounterEventCount();
-	if ( nEventCount == 1 ) {
-		// -
-		sStatus = QChar( 0x207B );
-	} else {
-		sStatus = toSuperScript( nEventCount - 1 );
-	}
-	m_pTotalBeatsLabel->setText(
-		QString( "%1%2%3" ).arg( sStatus ).arg( QChar( 0x2044 ) )
-		.arg( toSubScript( pHydrogen->getBeatCounterTotalBeats() ) ) );
+		QString sStatus;
+		const int nEventCount = pHydrogen->getBeatCounterEventCount();
+		if ( nEventCount == 1 ) {
+			// -
+			sStatus = QChar( 0x207B );
+		} else {
+			sStatus = toSuperScript( nEventCount - 1 );
+		}
+		m_pTotalBeatsLabel->setText(
+			QString( "%1%2%3" ).arg( sStatus ).arg( QChar( 0x2044 ) )
+			.arg( toSubScript( pHydrogen->getBeatCounterTotalBeats() ) ) );
 
-	if ( pPref->m_bBeatCounterSetPlay == Preferences::BEAT_COUNTER_SET_PLAY_ON ) {
-		m_pTapButton->setDefaultAction( m_pTapAndPlayAction );
+		if ( ! m_pTotalBeatsUpBtn->isEnabled() ) {
+			m_pTotalBeatsUpBtn->setEnabled( true );
+		}
+		if ( ! m_pTotalBeatsDownBtn->isEnabled() ) {
+			m_pTotalBeatsDownBtn->setEnabled( true );
+		}
+		if ( ! m_pBeatLengthDownBtn->isEnabled() ) {
+			m_pBeatLengthDownBtn->setEnabled( true );
+		}
+		if ( ! m_pBeatLengthUpBtn->isEnabled() ) {
+			m_pBeatLengthUpBtn->setEnabled( true );
+		}
+
+		if ( pPref->m_beatCounter == Preferences::BeatCounter::TapAndPlay ) {
+			m_pTapButton->setDefaultAction( m_pBeatCounterTapAndPlayAction );
+		}
+		else {
+			m_pTapButton->setDefaultAction( m_pBeatCounterTapAction );
+		}
 	}
 	else {
-		m_pTapButton->setDefaultAction( m_pTapAction );
+		// Widgets disabled
+		m_pBeatLengthLabel->setText( "" );
+		m_pTotalBeatsLabel->setText( "" );
+
+		if ( m_pTotalBeatsUpBtn->isEnabled() ) {
+			m_pTotalBeatsUpBtn->setEnabled( false );
+		}
+		if ( m_pTotalBeatsDownBtn->isEnabled() ) {
+			m_pTotalBeatsDownBtn->setEnabled( false );
+		}
+		if ( m_pBeatLengthDownBtn->isEnabled() ) {
+			m_pBeatLengthDownBtn->setEnabled( false );
+		}
+		if ( m_pBeatLengthUpBtn->isEnabled() ) {
+			m_pBeatLengthUpBtn->setEnabled( false );
+		}
+
+		m_pTapButton->setDefaultAction( m_pTapTempoAction );
 	}
 }
 
@@ -306,8 +373,12 @@ void BeatCounter::updateIcons() {
 	m_pBeatLengthDownBtn->setIcon( QIcon( sIconPath + "minus.svg" ) );
 	m_pTotalBeatsUpBtn->setIcon( QIcon( sIconPath + "plus.svg" ) );
 	m_pTotalBeatsDownBtn->setIcon( QIcon( sIconPath + "minus.svg" ) );
-	m_pTapAction->setIcon( QIcon( sIconPath + "beat-counter-tap.svg" ) );
-	m_pTapAndPlayAction->setIcon(
+	// We use the same icon for both tap tempo and regular beat counter. They
+	// are still visually distinct because for the former all other buttons of
+	// the widgets will be disabled and all labels will be left blank.
+	m_pTapTempoAction->setIcon( QIcon( sIconPath + "beat-counter-tap.svg" ) );
+	m_pBeatCounterTapAction->setIcon( QIcon( sIconPath + "beat-counter-tap.svg" ) );
+	m_pBeatCounterTapAndPlayAction->setIcon(
 		QIcon( sIconPath + "beat-counter-tap-and-play.svg" ) );
 }
 

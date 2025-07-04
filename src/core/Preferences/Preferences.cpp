@@ -97,8 +97,8 @@ Preferences::Preferences()
 	, m_bFollowPlayhead( true )
 	, m_bExpandSongItem( true )
 	, m_bExpandPatternItem( true )
-	, m_bBeatCounterOn( BEAT_COUNTER_OFF )
-	, m_bBeatCounterSetPlay( BEAT_COUNTER_SET_PLAY_OFF )
+	, m_bpmTap( BpmTap::TapTempo )
+	, m_beatCounter( BeatCounter::Tap )
 	, m_nBeatCounterDriftCompensation( 0 )
 	, m_nBeatCounterStartOffset( 0 )
 	, m_audioDriver( AudioDriver::Auto )
@@ -277,8 +277,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bFollowPlayhead( pOther->m_bFollowPlayhead )
 	, m_bExpandSongItem( pOther->m_bExpandSongItem )
 	, m_bExpandPatternItem( pOther->m_bExpandPatternItem )
-	, m_bBeatCounterOn( pOther->m_bBeatCounterOn )
-	, m_bBeatCounterSetPlay( pOther->m_bBeatCounterSetPlay )
+	, m_bpmTap( pOther->m_bpmTap )
+	, m_beatCounter( pOther->m_beatCounter )
 	, m_nBeatCounterDriftCompensation( pOther->m_nBeatCounterDriftCompensation )
 	, m_nBeatCounterStartOffset( pOther->m_nBeatCounterStartOffset )
 	, m_audioDriver( pOther->m_audioDriver )
@@ -944,10 +944,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sUseBeatCounter =
 			guiNode.read_string( "bc", "", false, false, bSilent );
 		if ( sUseBeatCounter == "BC_OFF" ) {
-			pPref->m_bBeatCounterOn = BEAT_COUNTER_OFF;
+			pPref->m_bpmTap = BpmTap::TapTempo;
 		}
 		else if ( sUseBeatCounter == "BC_ON" ) {
-			pPref->m_bBeatCounterOn = BEAT_COUNTER_ON;
+			pPref->m_bpmTap = BpmTap::BeatCounter;
 		}
 		else if ( ! sUseBeatCounter.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <bc>: [%1]" )
@@ -957,10 +957,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sBeatCounterSetPlay =
 			guiNode.read_string( "setplay", "", false, false, bSilent );
 		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
-			pPref->m_bBeatCounterSetPlay = BEAT_COUNTER_SET_PLAY_OFF;
+			pPref->m_beatCounter = BeatCounter::Tap;
 		}
 		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
-			pPref->m_bBeatCounterSetPlay = BEAT_COUNTER_SET_PLAY_ON;
+			pPref->m_beatCounter = BeatCounter::TapAndPlay;
 		}
 		else if ( ! sBeatCounterSetPlay.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <setplay>: [%1]" )
@@ -1335,19 +1335,14 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 							m_bMidiExportUseHumanization );
 
 		//beatcounter
-		QString sBeatCounterOn;
-
-		if ( m_bBeatCounterOn == BEAT_COUNTER_OFF ) {
-			sBeatCounterOn = "BC_OFF";
-		} else if ( m_bBeatCounterOn  == BEAT_COUNTER_ON ) {
+		QString sBeatCounterOn( "BC_OFF" );
+		if ( m_bpmTap == BpmTap::BeatCounter ) {
 			sBeatCounterOn = "BC_ON";
 		}
 		guiNode.write_string( "bc", sBeatCounterOn );
 
-		QString setPlay;
-		if ( m_bBeatCounterSetPlay == BEAT_COUNTER_SET_PLAY_OFF ) {
-			setPlay = "SET_PLAY_OFF";
-		} else if ( m_bBeatCounterSetPlay == BEAT_COUNTER_SET_PLAY_ON ) {
+		QString setPlay( "SET_PLAY_OFF" );
+		if ( m_beatCounter == BeatCounter::TapAndPlay ) {
 			setPlay = "SET_PLAY_ON";
 		}
 		guiNode.write_string( "setplay", setPlay );
@@ -1674,10 +1669,12 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bExpandSongItem ) )
 			.append( QString( "%1%2m_bExpandPatternItem: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bExpandPatternItem ) )
-			.append( QString( "%1%2m_bBeatCounterOn: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bBeatCounterOn ) )
-			.append( QString( "%1%2m_bBeatCounterSetPlay: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bBeatCounterSetPlay ) )
+			.append( QString( "%1%2m_bpmTap: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bpmTap == BpmTap::TapTempo ?
+									"Tap Tempo" : "Beat Counter" ) )
+			.append( QString( "%1%2m_beatCounter: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_beatCounter == BeatCounter::Tap ?
+									"Tap" : "Tap and Play" ) )
 			.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( "%1%2m_nBeatCounterStartOffset: %3\n" ).arg( sPrefix )
@@ -1922,10 +1919,12 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bExpandSongItem ) )
 			.append( QString( ", m_bExpandPatternItem: %1" )
 					 .arg( m_bExpandPatternItem ) )
-			.append( QString( ", m_bBeatCounterOn: %1" )
-					 .arg( m_bBeatCounterOn ) )
-			.append( QString( ", m_bBeatCounterSetPlay: %1" )
-					 .arg( m_bBeatCounterSetPlay ) )
+			.append( QString( ", m_bpmTap: %1" )
+					 .arg( m_bpmTap == BpmTap::TapTempo ?
+						   "Tap Tempo" : "Beat Counter" ) )
+			.append( QString( ", m_beatCounter: %1" )
+					 .arg( m_beatCounter == BeatCounter::Tap ?
+						   "Tap" : "Tap and Play" ) )
 			.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
 					 .arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( ", m_nBeatCounterStartOffset: %1" )

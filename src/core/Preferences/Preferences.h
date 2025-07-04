@@ -130,6 +130,27 @@ public:
 	      BEAT_COUNTER_OFF = 1
 	};
 
+		/** Specifies which tempo input widget will be displayed in
+		 * #MainToolBar. Via keyboard or MIDI/OSC both TapTempo and BeatCounter
+		 * are available at the same time. */
+		enum class BpmTap {
+			/** Plain averaging over the most recent tap activations. */
+			TapTempo,
+			/** Input a user-specified number of tabs and average once all of
+			 * them have been received. */
+			BeatCounter
+		};
+
+		/** These options aren't integrated in #BpmTap since the BeatCounter is
+		 * always accessible via keyboard, MIDI, and OSC. */
+		enum class BeatCounter {
+			/** Input a user-specified number of tabs and average once all of
+			 * them have been received. */
+			Tap,
+			/** As #Tap but also starts playback when done. */
+			TapAndPlay
+		};
+
 	/** Bitwise or-able options showing which part of the Preferences
 	 * were altered using the PreferencesDialog.*/ 
 	enum Changes {
@@ -241,8 +262,8 @@ public:
 	bool				m_bExpandPatternItem;
 
 	// BeatCounter
-	bool				m_bBeatCounterOn;
-	bool				m_bBeatCounterSetPlay;
+	BpmTap				m_bpmTap;
+	BeatCounter			m_beatCounter;
 	int					m_nBeatCounterDriftCompensation;
 	int					m_nBeatCounterStartOffset;
 

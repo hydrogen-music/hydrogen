@@ -326,19 +326,19 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	m_pPopupMenu = new QMenu( this );
 	auto showBeatCounterAction = m_pPopupMenu->addAction(
 		tr( "Show BeatCounter" ) );
-	showBeatCounterAction->setCheckable( true );
-	showBeatCounterAction->setChecked(
-	 	pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON );
-	connect( showBeatCounterAction, &QAction::triggered, this, [=](){
-		if ( showBeatCounterAction->isChecked() ) {
-			Preferences::get_instance()->m_bBeatCounterOn =
-				Preferences::BEAT_COUNTER_ON;
-		} else {
-			Preferences::get_instance()->m_bBeatCounterOn =
-				Preferences::BEAT_COUNTER_OFF;
-		}
-		updateBeatCounter();
-	} );
+	// showBeatCounterAction->setCheckable( true );
+	// showBeatCounterAction->setChecked(
+	//  	pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON );
+	// connect( showBeatCounterAction, &QAction::triggered, this, [=](){
+	// 	if ( showBeatCounterAction->isChecked() ) {
+	// 		Preferences::get_instance()->m_bBeatCounterOn =
+	// 			Preferences::BEAT_COUNTER_ON;
+	// 	} else {
+	// 		Preferences::get_instance()->m_bBeatCounterOn =
+	// 			Preferences::BEAT_COUNTER_OFF;
+	// 	}
+	// 	updateBeatCounter();
+	// } );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimer = new QTimer();
@@ -728,15 +728,15 @@ void MainToolBar::updateBeatCounter() {
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
-	if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
-		m_pBeatCounterAction->setVisible( true );
-		m_pBeatCounterSeparator->setVisible( true );
-	}
-	else {
-		m_pBeatCounterAction->setVisible( false );
-		m_pBeatCounterSeparator->setVisible( false );
-		return;
-	}
+	// if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
+	// 	m_pBeatCounterAction->setVisible( true );
+	// 	m_pBeatCounterSeparator->setVisible( true );
+	// }
+	// else {
+	// 	m_pBeatCounterAction->setVisible( false );
+	// 	m_pBeatCounterSeparator->setVisible( false );
+	// 	return;
+	// }
 
 	m_pBeatCounter->updateBeatCounter();
 

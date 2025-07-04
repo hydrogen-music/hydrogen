@@ -995,8 +995,8 @@ bool Hydrogen::handleBeatCounter()
 		m_nBeatCounterBeatCount = 1;
 		m_nBeatCounterEventCount = 1;
 
-		if ( Preferences::get_instance()->m_bBeatCounterSetPlay !=
-			 Preferences::BEAT_COUNTER_SET_PLAY_OFF &&
+		if ( Preferences::get_instance()->m_beatCounter ==
+			 Preferences::BeatCounter::TapAndPlay &&
 			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
 			const int nSampleRate =
 					m_pAudioEngine->getAudioDriver()->getSampleRate();

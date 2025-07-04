@@ -60,8 +60,9 @@ private:
 		QLabel* m_pTotalBeatsLabel;
 		QToolButton* m_pTotalBeatsUpBtn;
 		QToolButton* m_pTotalBeatsDownBtn;
-		QAction* m_pTapAction;
-		QAction* m_pTapAndPlayAction;
+		QAction* m_pTapTempoAction;
+		QAction* m_pBeatCounterTapAction;
+		QAction* m_pBeatCounterTapAndPlayAction;
 		QToolButton* m_pTapButton;
 
 		QColor m_backgroundColor;
