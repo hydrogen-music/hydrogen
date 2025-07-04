@@ -119,7 +119,13 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getJackTimebaseToolTip() const { return m_sJackTimebaseToolTip; }
 	const QString& getJackTimebaseListenerToolTip() const { return m_sJackTimebaseListenerToolTip; }
 	const QString& getJackTimebaseDisabledToolTip() const { return m_sJackTimebaseDisabledToolTip; }
-	
+
+	const QString& getTapTempoToolTip() const { return m_sTapTempoToolTip; }
+	const QString& getBeatCounterTapToolTip() const {
+		return m_sBeatCounterTapToolTip; }
+	const QString& getBeatCounterTapAndPlayToolTip() const {
+		return m_sBeatCounterTapAndPlayToolTip; }
+
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
@@ -401,6 +407,10 @@ private:
 	QString m_sJackTimebaseToolTip;
 	QString m_sJackTimebaseListenerToolTip;
 	QString m_sJackTimebaseDisabledToolTip;
+
+	QString m_sTapTempoToolTip;
+	QString m_sBeatCounterTapToolTip;
+	QString m_sBeatCounterTapAndPlayToolTip;
 	
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;

@@ -310,12 +310,22 @@
         <translation>Fijar PPM / Fijar PPM y reproducir</translation>
     </message>
     <message>
-        <source> Count BPM and start PLAY</source>
-        <translation> Contar PPM y REPRODUCIR</translation>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> Count and set BPM</source>
-        <translation> Contar y fijar PPM</translation>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation type="unfinished">Por favor desactiva la Línea de Tiempo primero para usar el BeatCounter</translation>
+    </message>
+    <message>
+        <source>Indicates the type of note you are tapping</source>
+        <extracomment>Tool tip for the left label in the beat counter within the main * toolbar.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current vs. total number of taps to average</source>
+        <extracomment>Tool tip for the left label in the beat counter within the main * toolbar.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1369,6 +1379,21 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Edit mode</source>
         <extracomment>Text displayed as tooltip on the button which enables changing element * properties, like note length in the pattern editor using left-click * dragging mouse interaction.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust BPM by continuously tapping</source>
+        <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever tap tempo was selected.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust BPM using BeatCounter</source>
+        <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever plain beat counter was selected.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust BPM using BeatCounter and start playback</source>
+        <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever beat counter was selected and playback is set to start * right after the tempo adjustment.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2883,10 +2908,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation>Modo transporte JACK: = Apagado</translation>
     </message>
     <message>
-        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation>Por favor desactiva la Línea de Tiempo primero para usar el BeatCounter</translation>
-    </message>
-    <message>
         <source>Alter the Playback Speed</source>
         <translation>Alterar Velocidad de Reproducción</translation>
     </message>
@@ -2905,10 +2926,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>JACK Timebase mode</source>
         <translation>Modo JACK Timebase</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>

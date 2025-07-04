@@ -279,6 +279,17 @@ CommonStrings::CommonStrings(){
 	m_sJackTimebaseToolTip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
 	m_sJackTimebaseListenerToolTip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
 	m_sJackTimebaseDisabledToolTip = tr( "JACK timebase support is disabled in the Preferences" );
+
+	/*: Tool tip and menu description used for the tap button in the main tool
+	 *  bar whenever tap tempo was selected. */
+	m_sTapTempoToolTip = tr( "Adjust BPM by continuously tapping" );
+	/*: Tool tip and menu description used for the tap button in the main tool
+	 *  bar whenever plain beat counter was selected. */
+	m_sBeatCounterTapToolTip = tr( "Adjust BPM using BeatCounter" );
+	/*: Tool tip and menu description used for the tap button in the main tool
+	 *  bar whenever beat counter was selected and playback is set to start
+	 *  right after the tempo adjustment. */
+	m_sBeatCounterTapAndPlayToolTip = tr( "Adjust BPM using BeatCounter and start playback" );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/

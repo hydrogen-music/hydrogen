@@ -85,19 +85,22 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
 
 	m_pTapTempoAction = new QAction( this );
-	m_pTapTempoAction->setText( "tap tempo" );
+	m_pTapTempoAction->setText(
+		pCommonStrings->getTapTempoToolTip() );
 	connect( m_pTapTempoAction, &QAction::triggered, [=](){
 		auto pPref = Preferences::get_instance();
 		if ( pPref->m_bpmTap != Preferences::BpmTap::TapTempo ) {
 			pPref->m_bpmTap = Preferences::BpmTap::TapTempo;
-			HydrogenApp::get_instance()->showStatusBarMessage(
-				tr(" Count and set BPM") );
+			auto pHydrogenApp = HydrogenApp::get_instance();
+			pHydrogenApp->showStatusBarMessage(
+				pHydrogenApp->getCommonStrings()->getTapTempoToolTip() );
+			Hydrogen::get_instance()->updateBeatCounterSettings();
 		}
-		Hydrogen::get_instance()->updateBeatCounterSettings();
 	} );
 
 	m_pBeatCounterTapAction = new QAction( this );
-	m_pBeatCounterTapAction->setText( "bc tap" );
+	m_pBeatCounterTapAction->setText(
+		pCommonStrings->getBeatCounterTapToolTip() );
 	connect( m_pBeatCounterTapAction, &QAction::triggered, [=](){
 		auto pPref = Preferences::get_instance();
 		bool bChange = false;
@@ -110,14 +113,16 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			bChange = true;
 		}
 		if ( bChange ) {
-			HydrogenApp::get_instance()->showStatusBarMessage(
-				tr(" Count and set BPM") );
+			auto pHydrogenApp = HydrogenApp::get_instance();
+			pHydrogenApp->showStatusBarMessage(
+				pHydrogenApp->getCommonStrings()->getBeatCounterTapToolTip() );
 			Hydrogen::get_instance()->updateBeatCounterSettings();
 		}
 	} );
 
 	m_pBeatCounterTapAndPlayAction = new QAction( this );
-	m_pBeatCounterTapAndPlayAction->setText( "bc tap and play" );
+	m_pBeatCounterTapAndPlayAction->setText(
+		pCommonStrings->getBeatCounterTapAndPlayToolTip() );
 	connect( m_pBeatCounterTapAndPlayAction, &QAction::triggered, [=](){
 		auto pPref = Preferences::get_instance();
 		bool bChange = false;
@@ -130,8 +135,9 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			bChange = true;
 		}
 		if ( bChange ) {
-			HydrogenApp::get_instance()->showStatusBarMessage(
-				tr(" Count BPM and start PLAY") );
+			auto pHydrogenApp = HydrogenApp::get_instance();
+			pHydrogenApp->showStatusBarMessage(
+				pHydrogenApp->getCommonStrings()->getBeatCounterTapAndPlayToolTip() );
 			Hydrogen::get_instance()->updateBeatCounterSettings();
 		}
 	} );
@@ -203,6 +209,10 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pBeatLengthLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
 	m_pBeatLengthLabel->setFixedHeight( nWidgetHeight );
 	m_pBeatLengthLabel->setContentsMargins( 5, 0, 5, 0 );
+	/*: Tool tip for the left label in the beat counter within the main
+	 *  toolbar. */
+	m_pBeatLengthLabel->setToolTip(
+		tr( "Indicates the type of note you are tapping" ) );
 	pLabelsLayout->addWidget( m_pBeatLengthLabel );
 
 	m_pTotalBeatsLabel = new QLabel( pLabelsGroup );
@@ -210,6 +220,10 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	m_pTotalBeatsLabel->setFixedWidth( 45 );
 	m_pTotalBeatsLabel->setFixedHeight( nWidgetHeight );
 	m_pTotalBeatsLabel->setContentsMargins( 5, 0, 5, 0 );
+	/*: Tool tip for the left label in the beat counter within the main
+	 *  toolbar. */
+	m_pTotalBeatsLabel->setToolTip(
+		tr( "Current vs. total number of taps to average" ) );
 	pLabelsLayout->addWidget( m_pTotalBeatsLabel );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -308,18 +322,6 @@ void BpmTap::updateBpmTap() {
 		return sResult;
 	};
 
-	switch ( pHydrogen->getTempoSource() ) {
-	case H2Core::Hydrogen::Tempo::Jack:
-		m_pTapButton->setBaseToolTip( m_sJackActiveToolTip );
-		break;
-	case H2Core::Hydrogen::Tempo::Timeline:
-		m_pTapButton->setBaseToolTip( m_sTimelineActiveToolTip );
-		break;
-	default:
-		m_pTapButton->setBaseToolTip( "" );
-	}
-
-
 	if ( pPref->m_bpmTap == Preferences::BpmTap::BeatCounter ) {
 		m_pBeatLengthLabel->setVisible( true );
 		m_pTotalBeatsLabel->setVisible( true );
@@ -366,6 +368,32 @@ void BpmTap::updateBpmTap() {
 		}
 		m_pTapButton->setMidiAction( m_pTapTempoMidiAction );
 	}
+
+	// Tool tip
+	switch ( pHydrogen->getTempoSource() ) {
+	case H2Core::Hydrogen::Tempo::Jack:
+		m_pTapButton->setBaseToolTip( m_sJackActiveToolTip );
+		m_pTapButton->setEnabled( false );
+		break;
+	case H2Core::Hydrogen::Tempo::Timeline:
+		m_pTapButton->setBaseToolTip( m_sTimelineActiveToolTip );
+		m_pTapButton->setEnabled( false );
+		break;
+	default:
+		if ( pPref->m_bpmTap == Preferences::BpmTap::TapTempo ) {
+			m_pTapButton->setBaseToolTip(
+				pCommonStrings->getTapTempoToolTip() );
+		}
+		else if ( pPref->m_beatCounter == Preferences::BeatCounter::Tap ) {
+			m_pTapButton->setBaseToolTip(
+				pCommonStrings->getBeatCounterTapToolTip() );
+		} else {
+			m_pTapButton->setBaseToolTip(
+				pCommonStrings->getBeatCounterTapAndPlayToolTip() );
+		}
+		m_pTapButton->setEnabled( true );
+	}
+
 }
 
 void BpmTap::updateIcons() {
