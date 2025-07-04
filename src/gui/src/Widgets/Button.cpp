@@ -30,9 +30,9 @@
 #include <qglobal.h>	// for QT_VERSION
 
 #include <core/Globals.h>
+#include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
-#include <core/Hydrogen.h>
 
 Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 				const QString& sIcon, const QString& sText, const QSize& iconSize,

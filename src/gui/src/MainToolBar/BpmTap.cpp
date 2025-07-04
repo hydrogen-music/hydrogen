@@ -25,7 +25,7 @@
 #include "MainToolBar.h"
 
 #include <core/Hydrogen.h>
-#include <core/MidiAction.h>
+#include <core/Midi/MidiAction.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 

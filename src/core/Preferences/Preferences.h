@@ -23,17 +23,15 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 
-#include <list>
-#include <vector>
-#include <cassert>
 #include <memory>
+#include <vector>
 
-#include <core/Preferences/Theme.h>
-#include <core/Preferences/Shortcuts.h>
+#include "Shortcuts.h"
+#include "Theme.h"
 
-#include <core/MidiAction.h>
-#include <core/Globals.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Globals.h>
+#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
 #include <QStringList>

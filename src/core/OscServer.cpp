@@ -43,8 +43,8 @@
 #include "core/Hydrogen.h"
 #include "core/AudioEngine/AudioEngine.h"
 #include "core/Basics/Song.h"
-#include "core/MidiAction.h"
-#include "core/IO/MidiCommon.h"
+#include "core/Midi/MidiAction.h"
+#include "core/Midi/MidiCommon.h"
 
 OscServer * OscServer::__instance = nullptr;
 

@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/SMF/SMF.h>
+#include "SMF.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>

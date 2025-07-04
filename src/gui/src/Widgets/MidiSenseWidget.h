@@ -27,9 +27,10 @@
 #include <QtWidgets>
 
 #include <memory>
+
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiCommon.h>
 #include <core/Object.h>
-#include <core/MidiAction.h>
-#include <core/IO/MidiCommon.h>
 
 /** \ingroup docGUI docWidgets docMIDI*/
 class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>

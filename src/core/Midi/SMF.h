@@ -30,7 +30,7 @@
 #include <vector>
 #include <QByteArray>
 
-#include <core/SMF/SMFEvent.h>
+#include "SMFEvent.h"
 
 namespace H2Core
 {

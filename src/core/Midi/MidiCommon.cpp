@@ -19,7 +19,7 @@
  *
  */
 
-#include <core/IO/MidiCommon.h>
+#include "MidiCommon.h"
 
 namespace H2Core
 {

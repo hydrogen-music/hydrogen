@@ -19,18 +19,18 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
+#include "MidiTable.h"
 
-#include "../Skin.h"
 #include "LCDCombo.h"
 #include "LCDSpinBox.h"
 #include "MidiSenseWidget.h"
-#include "MidiTable.h"
+#include "../Skin.h"
 
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Globals.h>
 #include <core/Hydrogen.h>
-#include <core/IO/MidiCommon.h>
-#include <core/MidiMap.h>
+#include <core/Globals.h>
+#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 
 #include <QHeaderView>

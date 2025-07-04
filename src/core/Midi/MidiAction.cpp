@@ -20,6 +20,8 @@
  *
  */
 
+#include "MidiAction.h"
+
 #include <sstream>
 #include <iterator>
 
@@ -27,26 +29,20 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/EventQueue.h>
-#include <core/CoreActionController.h>
-#include <core/Hydrogen.h>
-#include <core/SoundLibrary/SoundLibraryDatabase.h>
-
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
-#include <core/Basics/PatternList.h>
-
+#include <core/CoreActionController.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
-#include <core/MidiAction.h>
-
-
-// #include <QFileInfo>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 using namespace H2Core;
 

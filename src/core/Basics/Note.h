@@ -26,11 +26,10 @@
 #include <map>
 #include <memory>
 
-#include <core/Object.h>
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
-
-#include <core/IO/MidiCommon.h>
+#include <core/Midi/MidiCommon.h>
+#include <core/Object.h>
 
 #define KEY_MIN                 0
 #define KEY_MAX                 11

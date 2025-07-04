@@ -20,28 +20,21 @@
  *
  */
 
-#include <stdlib.h>
-#include <core/Preferences/Preferences.h>
+#include "Preferences.h"
 
 #ifndef WIN32
 #include <pwd.h>
 #include <unistd.h>
 #endif
+#include <algorithm>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <stdlib.h>
-#include <fstream>
-#include <iostream>
-#include <cstdio>
-#include <list>
-#include <algorithm>
-#include <memory>
 
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
-#include <core/MidiMap.h>
+#include <core/Midi/MidiMap.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 

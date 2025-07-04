@@ -24,19 +24,17 @@
 
 #include <cassert>
 
-#include <core/Hydrogen.h>
-
-#include <core/Helpers/Legacy.h>
-#include <core/Helpers/Xml.h>
-
 #include <core/Basics/Adsr.h>
-#include <core/Basics/Sample.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/IO/MidiCommon.h>
+#include <core/Basics/Sample.h>
+#include <core/Helpers/Legacy.h>
+#include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiCommon.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 

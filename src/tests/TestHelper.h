@@ -25,7 +25,8 @@
 
 #include <QString>
 #include <cassert>
-#include <core/SMF/SMF.h>
+
+#include <core/Midi/SMF.h>
 
 class TestHelper {
 	static TestHelper*	m_pInstance;

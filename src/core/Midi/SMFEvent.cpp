@@ -20,7 +20,8 @@
  *
  */
 
-#include <core/SMF/SMFEvent.h>
+#include "SMFEvent.h"
+
 #include <core/Timehelper.h>
 
 #include "math.h"

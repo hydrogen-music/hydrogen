@@ -20,18 +20,18 @@
  *
  */
 
-#include <core/IO/MidiInput.h>
-#include <core/EventQueue.h>
-#include <core/Preferences/Preferences.h>
-#include <core/CoreActionController.h>
-#include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/MidiAction.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/MidiMap.h>
+#include <core/CoreActionController.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/IO/MidiInput.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiMap.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {

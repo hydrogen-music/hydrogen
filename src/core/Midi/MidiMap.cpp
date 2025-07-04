@@ -19,9 +19,10 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-
-#include <core/MidiAction.h>
 #include "MidiMap.h"
+
+#include <core/Midi/MidiAction.h>
+
 #include <map>
 #include <QMutexLocker>
 

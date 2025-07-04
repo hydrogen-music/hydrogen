@@ -27,8 +27,9 @@
 #include <memory>
 #include <vector>
 #include <QString>
-#include <core/MidiAction.h>
-#include <core/IO/MidiCommon.h>
+
+#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiAction.h>
 
 #include "../EventListener.h"
 

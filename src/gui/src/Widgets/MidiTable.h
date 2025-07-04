@@ -25,8 +25,8 @@
 
 #include <memory>
 
+#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
-#include <core/MidiAction.h>
 
 #include <QtGui>
 #include <QtWidgets>

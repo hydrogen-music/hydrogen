@@ -26,9 +26,9 @@
 
 #include <memory>
 
+#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include <core/MidiAction.h>
 
 #include "MidiLearnable.h"
 #include "WidgetWithScalableFont.h"

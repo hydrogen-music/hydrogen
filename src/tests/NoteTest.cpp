@@ -31,11 +31,12 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
-#include <core/IO/MidiCommon.h>
-#include <core/Preferences/Shortcuts.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/MidiCommon.h>
+#include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+
 #include <QDomDocument>
 
 #include <algorithm>

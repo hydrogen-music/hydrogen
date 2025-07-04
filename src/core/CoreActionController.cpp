@@ -20,30 +20,30 @@
  *
  */
 
+#include "CoreActionController.h"
+
 #include <QDir>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/CoreActionController.h>
-#include <core/EventQueue.h>
-#include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
-#include "core/OscServer.h"
-#include <core/MidiAction.h>
-#include "core/MidiMap.h"
+#include <core/EventQueue.h>
 #include <core/Helpers/Xml.h>
-#include <core/SoundLibrary/SoundLibraryDatabase.h>
-
+#include <core/Hydrogen.h>
 #include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/IO/MidiOutput.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiMap.h>
+#include <core/OscServer.h>
+#include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>

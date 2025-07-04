@@ -22,20 +22,20 @@
 
 #include "MasterLine.h"
 
-#include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
-#include "../Widgets/Rotary.h"
-#include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
+#include "../Widgets/Rotary.h"
 #include "../Widgets/WidgetWithInput.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/MidiAction.h>
+#include <core/Midi/MidiAction.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 

@@ -22,17 +22,17 @@
 #ifndef HYDROGEN_H
 #define HYDROGEN_H
 
-#include <core/config.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
-#include <core/Object.h>
-#include <core/Timeline.h>
+#include <core/config.h>
 #include <core/IO/AudioOutput.h>
-#include <core/IO/MidiCommon.h>
+#include <core/IO/JackAudioDriver.h>
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
-#include <core/IO/JackAudioDriver.h>
+#include <core/Midi/MidiCommon.h>
+#include <core/Object.h>
 #include <core/Timehelper.h>
+#include <core/Timeline.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>

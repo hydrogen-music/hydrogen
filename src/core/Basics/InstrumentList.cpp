@@ -20,16 +20,16 @@
  *
  */
 
+#include "InstrumentList.h"
+
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Sample.h>
-
 #include <core/Helpers/Xml.h>
-#include <core/IO/MidiCommon.h>
 #include <core/License.h>
+#include <core/Midi/MidiCommon.h>
 
 #include <set>
 

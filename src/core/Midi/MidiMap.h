@@ -27,9 +27,9 @@
 #include <map>
 #include <cassert>
 
-#include <core/Object.h>
 #include <core/Helpers/Xml.h>
-#include <core/IO/MidiCommon.h>
+#include <core/Midi/MidiCommon.h>
+#include <core/Object.h>
 
 #include <QtCore/QMutex>
 

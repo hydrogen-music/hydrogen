@@ -25,7 +25,7 @@
 #ifdef H2CORE_HAVE_OSC
 
 #include "OscServerTest.h"
-#include <core/MidiAction.h>
+#include <core/Midi/MidiAction.h>
 #include <core/OscServer.h>
 
 #include <QTest>

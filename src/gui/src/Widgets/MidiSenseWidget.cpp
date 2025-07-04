@@ -22,12 +22,12 @@
 
 #include "MidiSenseWidget.h"
 
-#include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+#include "../HydrogenApp.h"
 
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
-#include <core/MidiMap.h>
+#include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 
 MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::shared_ptr<Action> pAction)

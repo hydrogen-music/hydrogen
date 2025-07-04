@@ -25,7 +25,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 
-#include <core/MidiMap.h>
+#include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 
 MidiLearnable::MidiLearnable() : m_pMidiAction( nullptr ) {
