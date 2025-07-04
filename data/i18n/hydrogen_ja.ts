@@ -305,7 +305,7 @@
     </message>
 </context>
 <context>
-    <name>BeatCounter</name>
+    <name>BpmTap</name>
     <message>
         <source>Set BPM / Set BPM and play</source>
         <translation>BPMの設定/BPMの設定と再生</translation>

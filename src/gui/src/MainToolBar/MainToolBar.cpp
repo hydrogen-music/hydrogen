@@ -23,8 +23,8 @@ https://www.gnu.org/licenses
 
 #include "MainToolBar.h"
 
-#include "BeatCounter.h"
 #include "BpmSpinBox.h"
+#include "BpmTap.h"
 #include "MidiControlButton.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
@@ -217,10 +217,9 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	m_sBCOnOffBtnJackTimebaseToolTip =
 		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
 
-	m_pBeatCounter = new BeatCounter( this );
-	m_pBeatCounterAction = addWidget( m_pBeatCounter );
-
-	m_pBeatCounterSeparator = addSeparator();
+	m_pBpmTap = new BpmTap( this );
+	m_pBpmTapAction = addWidget( m_pBpmTap );
+	m_pBpmTapSeparator = addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandAction = createAction(
@@ -337,7 +336,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	// 		Preferences::get_instance()->m_bBeatCounterOn =
 	// 			Preferences::BEAT_COUNTER_OFF;
 	// 	}
-	// 	updateBeatCounter();
+	// 	updateBpmTap();
 	// } );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -347,8 +346,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 		m_pTimer->stop();
 	} );
 
-	updateBeatCounter();
 	updateBpmSpinBox();
+	updateBpmTap();
 	updateJackTimebase();
 	updateJackTransport();
 	updateLoopMode();
@@ -432,7 +431,7 @@ void MainToolBar::jackTimebaseStateChangedEvent( int nState )
 	}
 	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 
-	updateBeatCounter();
+	updateBpmTap();
 	updateBpmSpinBox();
 }
 
@@ -480,7 +479,7 @@ void MainToolBar::metronomeEvent( int nValue ) {
 void MainToolBar::songModeActivationEvent() {
 	updateSongMode();
 	updateBpmSpinBox();
-	updateBeatCounter();
+	updateBpmTap();
 	updateTransportControl();
 }
 
@@ -509,7 +508,7 @@ void MainToolBar::tempoChangedEvent( int nValue )
 
 void MainToolBar::timelineActivationEvent() {
 	updateBpmSpinBox();
-	updateBeatCounter();
+	updateBpmTap();
 }
 
 void MainToolBar::updateSongEvent( int nValue ) {
@@ -517,7 +516,7 @@ void MainToolBar::updateSongEvent( int nValue ) {
 	if ( nValue == 0 ) {
 		updateSongMode();
 		updateBpmSpinBox();
-		updateBeatCounter();
+		updateBpmTap();
 		updateLoopMode();
 		updateJackTransport();
 		updateJackTimebase();
@@ -670,7 +669,7 @@ void MainToolBar::mousePressEvent( QMouseEvent* pEvent ) {
 }
 
 void MainToolBar::beatCounterEvent() {
-	updateBeatCounter();
+	updateBpmTap();
 }
 
 void MainToolBar::jackTransportBtnClicked()
@@ -724,34 +723,6 @@ void MainToolBar::rewindBtnClicked() {
 		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
 }
 
-void MainToolBar::updateBeatCounter() {
-	const auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-
-	// if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
-	// 	m_pBeatCounterAction->setVisible( true );
-	// 	m_pBeatCounterSeparator->setVisible( true );
-	// }
-	// else {
-	// 	m_pBeatCounterAction->setVisible( false );
-	// 	m_pBeatCounterSeparator->setVisible( false );
-	// 	return;
-	// }
-
-	m_pBeatCounter->updateBeatCounter();
-
-	switch ( pHydrogen->getTempoSource() ) {
-	case H2Core::Hydrogen::Tempo::Jack:
-		m_pBeatCounter->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
-		break;
-	case H2Core::Hydrogen::Tempo::Timeline:
-		m_pBeatCounter->setToolTip( m_sBCOnOffBtnTimelineToolTip );
-		break;
-	default:
-		m_pBeatCounter->setToolTip( "" );
-	}
-}
-
 void MainToolBar::updateBpmSpinBox() {
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -770,6 +741,34 @@ void MainToolBar::updateBpmSpinBox() {
 		break;
 	default:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxToolTip );
+	}
+}
+
+void MainToolBar::updateBpmTap() {
+	const auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+
+	// if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
+	// 	m_pBpmTapAction->setVisible( true );
+	// 	m_pBpmTapSeparator->setVisible( true );
+	// }
+	// else {
+	// 	m_pBpmTapAction->setVisible( false );
+	// 	m_pBpmTapSeparator->setVisible( false );
+	// 	return;
+	// }
+
+	m_pBpmTap->updateBpmTap();
+
+	switch ( pHydrogen->getTempoSource() ) {
+	case H2Core::Hydrogen::Tempo::Jack:
+		m_pBpmTap->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Timeline:
+		m_pBpmTap->setToolTip( m_sBCOnOffBtnTimelineToolTip );
+		break;
+	default:
+		m_pBpmTap->setToolTip( "" );
 	}
 }
 
@@ -918,7 +917,7 @@ void MainToolBar::updateIcons() {
 		QIcon( sIconPath + "playback-track.svg" ) );
 	m_pShowPreferencesAction->setIcon( QIcon( sIconPath + "cog.svg" ) );
 
-	m_pBeatCounter->updateIcons();
+	m_pBpmTap->updateIcons();
 }
 
 void MainToolBar::updateStyleSheet() {
@@ -968,6 +967,6 @@ QToolButton:hover, QToolButton:checked {\
 				   .arg( colorBackgroundChecked.name() )
 				   .arg( colorBackgroundHovered.name() ) );
 
-	m_pBeatCounter->setBackgroundColor( colorBackground );
-	m_pBeatCounter->updateStyleSheet();
+	m_pBpmTap->setBackgroundColor( colorBackground );
+	m_pBpmTap->updateStyleSheet();
 }

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef BEAT_COUNTER_H
-#define BEAT_COUNTER_H
+#ifndef BEAT_TAP_H
+#define BEAT_TAP_H
 
 #include <core/Object.h>
 
@@ -30,28 +30,25 @@
 
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class BeatCounter : public QWidget,
-					protected WidgetWithScalableFont<8, 10, 12>,
-					public H2Core::Object<BeatCounter>
+class BpmTap : public QWidget,
+			   protected WidgetWithScalableFont<8, 10, 12>,
+			   public H2Core::Object<BpmTap>
 {
-    H2_OBJECT(BeatCounter)
+    H2_OBJECT(BpmTap)
 	Q_OBJECT
 
 public:
 		static constexpr int nMargin = 1;
 
-		explicit BeatCounter( QWidget* pParent );
-		~BeatCounter();
+		explicit BpmTap( QWidget* pParent );
+		~BpmTap();
 
 		void setBackgroundColor( const QColor& color );
 		void setBorderColor( const QColor& color );
 
-		void updateBeatCounter();
+		void updateBpmTap();
 		void updateIcons();
 		void updateStyleSheet();
-
-private slots:
-
 
 private:
 		QToolButton* m_pBeatLengthUpBtn;
@@ -68,7 +65,7 @@ private:
 		QColor m_backgroundColor;
 };
 
-inline void BeatCounter::setBackgroundColor( const QColor& color ) {
+inline void BpmTap::setBackgroundColor( const QColor& color ) {
 	m_backgroundColor = color;
 }
 

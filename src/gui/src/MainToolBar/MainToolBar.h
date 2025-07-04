@@ -32,8 +32,8 @@
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class BeatCounter;
 class BpmSpinBox;
+class BpmTap;
 class Button;
 class ClickableLabel;
 class LCDSpinBox;
@@ -120,9 +120,9 @@ private:
 		MidiLearnableToolButton* m_pMetronomeButton;
 		BpmSpinBox* m_pBpmSpinBox;
 
-		BeatCounter* m_pBeatCounter;
-		QAction* m_pBeatCounterAction;
-		QAction* m_pBeatCounterSeparator;
+		BpmTap* m_pBpmTap;
+		QAction* m_pBpmTapAction;
+		QAction* m_pBpmTapSeparator;
 
 		QAction* m_pRubberBandAction;
 
@@ -143,8 +143,8 @@ private:
 
 		QTimer* m_pTimer;
 
-		void updateBeatCounter();
 		void updateBpmSpinBox();
+		void updateBpmTap();
 		void updateJackTransport();
 		void updateJackTimebase();
 		void updateLoopMode();

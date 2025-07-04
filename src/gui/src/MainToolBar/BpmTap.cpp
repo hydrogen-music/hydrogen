@@ -20,7 +20,7 @@
  *
  */
 
-#include "BeatCounter.h"
+#include "BpmTap.h"
 
 #include "MainToolBar.h"
 
@@ -34,8 +34,8 @@
 
 using namespace H2Core;
 
-BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
-											 , m_backgroundColor( Qt::red )
+BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
+								   , m_backgroundColor( Qt::red )
 {
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -45,7 +45,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 
 	setFixedHeight( nWidgetHeight );
 	setAttribute( Qt::WA_OpaquePaintEvent );
-	setObjectName( "BeatCounter" );
+	setObjectName( "BpmTap" );
 
 	auto pOverallLayout = new QHBoxLayout( this );
 	pOverallLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -59,13 +59,11 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	auto pMainLayout = new QHBoxLayout( pBackground );
 	pMainLayout->setAlignment( Qt::AlignTop );
 	pMainLayout->setContentsMargins(
-		BeatCounter::nMargin, BeatCounter::nMargin, BeatCounter::nMargin,
-		BeatCounter::nMargin );
-	pMainLayout->setSpacing( BeatCounter::nMargin );
+		BpmTap::nMargin, BpmTap::nMargin, BpmTap::nMargin, BpmTap::nMargin );
+	pMainLayout->setSpacing( BpmTap::nMargin );
 	pBackground->setLayout( pMainLayout );
 
-	const int nSmallButtonHeight =
-		nWidgetHeight / 2 - BeatCounter::nMargin;
+	const int nSmallButtonHeight = nWidgetHeight / 2 - BpmTap::nMargin;
 	const auto smallButtonSize = QSize(
 		static_cast<int>(std::round( nSmallButtonHeight *
 									 Skin::fButtonWidthHeightRatio ) ),
@@ -89,7 +87,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 			fBeatLength = 8;
 		}
 		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
-		updateBeatCounter();
+		updateBpmTap();
 	} );
 	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
 
@@ -101,7 +99,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 			fBeatLength = 1;
 		}
 		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
-		updateBeatCounter();
+		updateBpmTap();
 	} );
 	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthDownBtn );
 	pBeatLengthButtonsGroupLayout->addStretch();
@@ -143,7 +141,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 			nBeatsToCount = 2;
 		}
 		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-		updateBeatCounter();
+		updateBpmTap();
 	} );
 	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
 
@@ -156,13 +154,13 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 			nBeatsToCount = 16;
 		}
 		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-		updateBeatCounter();
+		updateBpmTap();
 	} );
 	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsDownBtn );
 	pTotalBeatsButtonsLayout->addStretch();
 
 	////////////////////////////////////////////////////////////////////////////
-	const int nButtonHeight = nWidgetHeight - BeatCounter::nMargin * 2;
+	const int nButtonHeight = nWidgetHeight - BpmTap::nMargin * 2;
 	const int nButtonWidth = static_cast<int>(
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
 
@@ -224,7 +222,7 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 	m_pTapButton->addAction( m_pBeatCounterTapAction );
 	m_pTapButton->addAction( m_pBeatCounterTapAndPlayAction );
 	m_pTapButton->setToolTip( tr( "Set BPM / Set BPM and play" ) );
-	m_pTapButton->setObjectName( "BeatCounterTapButton" );
+	m_pTapButton->setObjectName( "BpmTapTapButton" );
 	connect( m_pTapButton, &QToolButton::clicked, [&]() {
 		if ( Preferences::get_instance()->m_bpmTap ==
 			 Preferences::BpmTap::TapTempo ) {
@@ -233,20 +231,20 @@ BeatCounter::BeatCounter( QWidget *pParent ) : QWidget( pParent )
 			Hydrogen::get_instance()->handleBeatCounter();
 		}
 		// For instantaneous update.
-		updateBeatCounter();
+		updateBpmTap();
 	} );
 	pMainLayout->addWidget( m_pTapButton );
 
 	////////////////////////////////////////////////////////////////////////////
-	updateBeatCounter();
+	updateBpmTap();
 	updateIcons();
 	updateStyleSheet();
 }
 
-BeatCounter::~BeatCounter(){
+BpmTap::~BpmTap(){
 }
 
-void BeatCounter::updateBeatCounter() {
+void BpmTap::updateBpmTap() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = Preferences::get_instance();
 	const auto pHydrogen = Hydrogen::get_instance();
@@ -357,7 +355,7 @@ void BeatCounter::updateBeatCounter() {
 	}
 }
 
-void BeatCounter::updateIcons() {
+void BpmTap::updateIcons() {
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
@@ -382,7 +380,7 @@ void BeatCounter::updateIcons() {
 		QIcon( sIconPath + "beat-counter-tap-and-play.svg" ) );
 }
 
-void BeatCounter::updateStyleSheet() {
+void BpmTap::updateStyleSheet() {
 
 	const auto colorTheme =
 		H2Core::Preferences::get_instance()->getTheme().m_color;
@@ -423,7 +421,7 @@ QWidget#Background {\
      color: %4; \
      border: %5px solid #000;\
 }\
-QToolButton#BeatCounterTapButton {\
+QToolButton#BpmTapTapButton {\
      icon-size: 25px;\
 }")
 				   .arg( m_backgroundColor.name() )

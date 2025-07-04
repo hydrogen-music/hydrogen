@@ -304,7 +304,7 @@
     </message>
 </context>
 <context>
-    <name>BeatCounter</name>
+    <name>BpmTap</name>
     <message>
         <source>Set BPM / Set BPM and play</source>
         <translation>设置 BPM / 设置 BPM 并播放</translation>
