@@ -976,6 +976,8 @@ bool Hydrogen::handleBeatCounter()
 	}
 
 	// Compute and reset
+	double fAverageTime;
+	bool bTempoSet = false;
 	if ( m_nBeatCounterBeatCount == m_nBeatCounterTotalBeats ){
 		double fTotalDiffs = 0;
 		for ( const auto& ffDiff : m_beatCounterDiffs ) {
@@ -983,45 +985,49 @@ bool Hydrogen::handleBeatCounter()
 		}
 
 		// Time between the beats / beat counter activations.
-		const double fAverageTime = fTotalDiffs /
+		fAverageTime = fTotalDiffs /
 			( m_nBeatCounterBeatCount - 1 ) * m_fBeatCounterBeatLength;
 		const float fBeatCountBpm =
 			static_cast<float>(std::floor( 60 / fAverageTime * 100 ) / 100);
 			
-		CoreActionController::setBpm( fBeatCountBpm );
+		if ( CoreActionController::setBpm( fBeatCountBpm ) ) {
+			bTempoSet = true;
+		}
 
 		m_nBeatCounterBeatCount = 1;
 		m_nBeatCounterEventCount = 1;
-
-		if ( Preferences::get_instance()->m_beatCounter ==
-			 Preferences::BeatCounter::TapAndPlay &&
-			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
-			const int nSampleRate =
-					m_pAudioEngine->getAudioDriver()->getSampleRate();
-			long nRtStartFrame = 0;
-			if ( m_fBeatCounterBeatLength <= 1 ){
-				nRtStartFrame =
-					nSampleRate * fAverageTime * ( 1/ m_fBeatCounterBeatLength );
-			}
-			else {
-				nRtStartFrame =
-					nSampleRate * fAverageTime / m_fBeatCounterBeatLength ;
-			}
-
-			const int nSleepTime =
-				static_cast<int>( static_cast<float>(nRtStartFrame) * 1000 /
-								  static_cast<float>(nSampleRate) ) +
-				m_nBeatCounterDriftCompensation + m_nBeatCounterStartOffset;
-			std::this_thread::sleep_for( std::chrono::milliseconds( nSleepTime ) );
-
-			sequencerPlay();
-		}
 	}
 	else {
 		m_nBeatCounterBeatCount++;
 	}
 
+	// Update counter numbers before starting playback. Else the user could
+	// experience visual delays in the BpmTap.
 	pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+
+	if ( bTempoSet && Preferences::get_instance()->m_beatCounter ==
+		 Preferences::BeatCounter::TapAndPlay &&
+		 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		const int nSampleRate =
+			m_pAudioEngine->getAudioDriver()->getSampleRate();
+		long nRtStartFrame = 0;
+		if ( m_fBeatCounterBeatLength <= 1 ){
+			nRtStartFrame =
+				nSampleRate * fAverageTime * ( 1/ m_fBeatCounterBeatLength );
+		}
+		else {
+			nRtStartFrame =
+				nSampleRate * fAverageTime / m_fBeatCounterBeatLength ;
+		}
+
+		const int nSleepTime =
+			static_cast<int>( static_cast<float>(nRtStartFrame) * 1000 /
+							  static_cast<float>(nSampleRate) ) +
+			m_nBeatCounterDriftCompensation + m_nBeatCounterStartOffset;
+		std::this_thread::sleep_for( std::chrono::milliseconds( nSleepTime ) );
+
+		sequencerPlay();
+	}
 
 	return true;
 }
