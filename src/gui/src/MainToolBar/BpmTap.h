@@ -51,10 +51,12 @@ public:
 		void updateStyleSheet();
 
 private:
+		QWidget* m_pBeatLengthButtonsGroup;
 		QToolButton* m_pBeatLengthUpBtn;
 		QToolButton* m_pBeatLengthDownBtn;
 		QLabel* m_pBeatLengthLabel;
 		QLabel* m_pTotalBeatsLabel;
+		QWidget* m_pTotalBeatsButtonsGroup;
 		QToolButton* m_pTotalBeatsUpBtn;
 		QToolButton* m_pTotalBeatsDownBtn;
 		QAction* m_pTapTempoAction;

@@ -72,94 +72,6 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 		smallButtonSize.height() - 2, smallButtonSize.height() - 2 );
 
 	////////////////////////////////////////////////////////////////////////////
-	auto pBeatLengthButtonsGroup = new QWidget( pBackground );
-	pBeatLengthButtonsGroup->setFixedWidth( smallButtonSize.width() );
-	pMainLayout->addWidget( pBeatLengthButtonsGroup );
-	auto pBeatLengthButtonsGroupLayout = new QVBoxLayout( pBeatLengthButtonsGroup );
-	pBeatLengthButtonsGroupLayout->setContentsMargins( 0, 0, 0, 0 );
-	pBeatLengthButtonsGroupLayout->setSpacing( 0 );
-
-	m_pBeatLengthUpBtn = new QToolButton( pBeatLengthButtonsGroup );
-	connect( m_pBeatLengthUpBtn, &QToolButton::clicked, [&]() {
-		auto pHydrogen = Hydrogen::get_instance();
-		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 2;
-		if ( fBeatLength < 1 ) {
-			fBeatLength = 8;
-		}
-		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
-		updateBpmTap();
-	} );
-	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
-
-	m_pBeatLengthDownBtn = new QToolButton( pBeatLengthButtonsGroup );
-	connect( m_pBeatLengthDownBtn, &QToolButton::clicked, [&](){
-		auto pHydrogen = Hydrogen::get_instance();
-		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 8;
-		if ( fBeatLength > 8 ) {
-			fBeatLength = 1;
-		}
-		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
-		updateBpmTap();
-	} );
-	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthDownBtn );
-	pBeatLengthButtonsGroupLayout->addStretch();
-
-	////////////////////////////////////////////////////////////////////////////
-	auto pLabelsGroup = new QWidget( pBackground );
-	pMainLayout->addWidget( pLabelsGroup );
-	auto pLabelsLayout = new QHBoxLayout( pLabelsGroup );
-	pLabelsLayout->setContentsMargins( 0, 0, 0, 0 );
-	pLabelsLayout->setSpacing( 0 );
-
-	m_pBeatLengthLabel = new QLabel( pLabelsGroup );
-	m_pBeatLengthLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-	m_pBeatLengthLabel->setFixedHeight( nWidgetHeight );
-	m_pBeatLengthLabel->setContentsMargins( 5, 0, 5, 0 );
-	pLabelsLayout->addWidget( m_pBeatLengthLabel );
-
-	m_pTotalBeatsLabel = new QLabel( pLabelsGroup );
-	m_pTotalBeatsLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-	m_pTotalBeatsLabel->setFixedWidth( 45 );
-	m_pTotalBeatsLabel->setFixedHeight( nWidgetHeight );
-	m_pTotalBeatsLabel->setContentsMargins( 5, 0, 5, 0 );
-	pLabelsLayout->addWidget( m_pTotalBeatsLabel );
-
-	////////////////////////////////////////////////////////////////////////////
-	auto pTotalBeatsButtonsGroup = new QWidget( pBackground );
-	pTotalBeatsButtonsGroup->setFixedWidth( smallButtonSize.width() );
-	pMainLayout->addWidget( pTotalBeatsButtonsGroup );
-	auto pTotalBeatsButtonsLayout = new QVBoxLayout( pTotalBeatsButtonsGroup );
-	pTotalBeatsButtonsLayout->setContentsMargins( 0, 0, 0, 0 );
-	pTotalBeatsButtonsLayout->setSpacing( 0 );
-
-	m_pTotalBeatsUpBtn = new QToolButton( pTotalBeatsButtonsGroup );
-	connect( m_pTotalBeatsUpBtn, &QToolButton::clicked, [&]() {
-		auto pHydrogen = Hydrogen::get_instance();
-		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
-		nBeatsToCount++;
-		if ( nBeatsToCount > 16 ) {
-			nBeatsToCount = 2;
-		}
-		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-		updateBpmTap();
-	} );
-	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
-
-	m_pTotalBeatsDownBtn = new QToolButton( pTotalBeatsButtonsGroup );
-	connect( m_pTotalBeatsDownBtn, &QToolButton::clicked, [&]() {
-		auto pHydrogen = Hydrogen::get_instance();
-		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
-		nBeatsToCount--;
-		if ( nBeatsToCount < 2 ) {
-			nBeatsToCount = 16;
-		}
-		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
-		updateBpmTap();
-	} );
-	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsDownBtn );
-	pTotalBeatsButtonsLayout->addStretch();
-
-	////////////////////////////////////////////////////////////////////////////
 	const int nButtonHeight = nWidgetHeight - BpmTap::nMargin * 2;
 	const int nButtonWidth = static_cast<int>(
 		std::round( nButtonHeight * Skin::fButtonWidthHeightRatio ) );
@@ -236,6 +148,95 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pMainLayout->addWidget( m_pTapButton );
 
 	////////////////////////////////////////////////////////////////////////////
+	m_pBeatLengthButtonsGroup = new QWidget( pBackground );
+	m_pBeatLengthButtonsGroup->setFixedWidth( smallButtonSize.width() );
+	pMainLayout->addWidget( m_pBeatLengthButtonsGroup );
+	auto pBeatLengthButtonsGroupLayout =
+		new QVBoxLayout( m_pBeatLengthButtonsGroup );
+	pBeatLengthButtonsGroupLayout->setContentsMargins( 0, 0, 0, 0 );
+	pBeatLengthButtonsGroupLayout->setSpacing( 0 );
+
+	m_pBeatLengthUpBtn = new QToolButton( m_pBeatLengthButtonsGroup );
+	connect( m_pBeatLengthUpBtn, &QToolButton::clicked, [&]() {
+		auto pHydrogen = Hydrogen::get_instance();
+		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 2;
+		if ( fBeatLength < 1 ) {
+			fBeatLength = 8;
+		}
+		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
+		updateBpmTap();
+	} );
+	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
+
+	m_pBeatLengthDownBtn = new QToolButton( m_pBeatLengthButtonsGroup );
+	connect( m_pBeatLengthDownBtn, &QToolButton::clicked, [&](){
+		auto pHydrogen = Hydrogen::get_instance();
+		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 8;
+		if ( fBeatLength > 8 ) {
+			fBeatLength = 1;
+		}
+		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
+		updateBpmTap();
+	} );
+	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthDownBtn );
+	pBeatLengthButtonsGroupLayout->addStretch();
+
+	////////////////////////////////////////////////////////////////////////////
+	auto pLabelsGroup = new QWidget( pBackground );
+	pMainLayout->addWidget( pLabelsGroup );
+	auto pLabelsLayout = new QHBoxLayout( pLabelsGroup );
+	pLabelsLayout->setContentsMargins( 0, 0, 0, 0 );
+	pLabelsLayout->setSpacing( 0 );
+
+	m_pBeatLengthLabel = new QLabel( pLabelsGroup );
+	m_pBeatLengthLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
+	m_pBeatLengthLabel->setFixedHeight( nWidgetHeight );
+	m_pBeatLengthLabel->setContentsMargins( 5, 0, 5, 0 );
+	pLabelsLayout->addWidget( m_pBeatLengthLabel );
+
+	m_pTotalBeatsLabel = new QLabel( pLabelsGroup );
+	m_pTotalBeatsLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+	m_pTotalBeatsLabel->setFixedWidth( 45 );
+	m_pTotalBeatsLabel->setFixedHeight( nWidgetHeight );
+	m_pTotalBeatsLabel->setContentsMargins( 5, 0, 5, 0 );
+	pLabelsLayout->addWidget( m_pTotalBeatsLabel );
+
+	////////////////////////////////////////////////////////////////////////////
+	m_pTotalBeatsButtonsGroup = new QWidget( pBackground );
+	m_pTotalBeatsButtonsGroup->setFixedWidth( smallButtonSize.width() );
+	pMainLayout->addWidget( m_pTotalBeatsButtonsGroup );
+	auto pTotalBeatsButtonsLayout = new QVBoxLayout( m_pTotalBeatsButtonsGroup );
+	pTotalBeatsButtonsLayout->setContentsMargins( 0, 0, 0, 0 );
+	pTotalBeatsButtonsLayout->setSpacing( 0 );
+
+	m_pTotalBeatsUpBtn = new QToolButton( m_pTotalBeatsButtonsGroup );
+	connect( m_pTotalBeatsUpBtn, &QToolButton::clicked, [&]() {
+		auto pHydrogen = Hydrogen::get_instance();
+		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
+		nBeatsToCount++;
+		if ( nBeatsToCount > 16 ) {
+			nBeatsToCount = 2;
+		}
+		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
+		updateBpmTap();
+	} );
+	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
+
+	m_pTotalBeatsDownBtn = new QToolButton( m_pTotalBeatsButtonsGroup );
+	connect( m_pTotalBeatsDownBtn, &QToolButton::clicked, [&]() {
+		auto pHydrogen = Hydrogen::get_instance();
+		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
+		nBeatsToCount--;
+		if ( nBeatsToCount < 2 ) {
+			nBeatsToCount = 16;
+		}
+		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
+		updateBpmTap();
+	} );
+	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsDownBtn );
+	pTotalBeatsButtonsLayout->addStretch();
+
+	////////////////////////////////////////////////////////////////////////////
 	updateBpmTap();
 	updateIcons();
 	updateStyleSheet();
@@ -297,6 +298,11 @@ void BpmTap::updateBpmTap() {
 	};
 
 	if ( pPref->m_bpmTap == Preferences::BpmTap::BeatCounter ) {
+		m_pBeatLengthLabel->setVisible( true );
+		m_pTotalBeatsLabel->setVisible( true );
+		m_pBeatLengthButtonsGroup->setVisible( true );
+		m_pTotalBeatsButtonsGroup->setVisible( true );
+
 		m_pBeatLengthLabel->setText(
 			QString( "%1%2%3" ).arg( toSuperScript( 1 ) ).arg( QChar( 0x2044 ) )
 			.arg( toSubScript( pHydrogen->getBeatCounterBeatLength() * 4 ) ) );
@@ -313,19 +319,6 @@ void BpmTap::updateBpmTap() {
 			QString( "%1%2%3" ).arg( sStatus ).arg( QChar( 0x2044 ) )
 			.arg( toSubScript( pHydrogen->getBeatCounterTotalBeats() ) ) );
 
-		if ( ! m_pTotalBeatsUpBtn->isEnabled() ) {
-			m_pTotalBeatsUpBtn->setEnabled( true );
-		}
-		if ( ! m_pTotalBeatsDownBtn->isEnabled() ) {
-			m_pTotalBeatsDownBtn->setEnabled( true );
-		}
-		if ( ! m_pBeatLengthDownBtn->isEnabled() ) {
-			m_pBeatLengthDownBtn->setEnabled( true );
-		}
-		if ( ! m_pBeatLengthUpBtn->isEnabled() ) {
-			m_pBeatLengthUpBtn->setEnabled( true );
-		}
-
 		if ( pPref->m_beatCounter == Preferences::BeatCounter::TapAndPlay ) {
 			m_pTapButton->setDefaultAction( m_pBeatCounterTapAndPlayAction );
 		}
@@ -335,21 +328,10 @@ void BpmTap::updateBpmTap() {
 	}
 	else {
 		// Widgets disabled
-		m_pBeatLengthLabel->setText( "" );
-		m_pTotalBeatsLabel->setText( "" );
-
-		if ( m_pTotalBeatsUpBtn->isEnabled() ) {
-			m_pTotalBeatsUpBtn->setEnabled( false );
-		}
-		if ( m_pTotalBeatsDownBtn->isEnabled() ) {
-			m_pTotalBeatsDownBtn->setEnabled( false );
-		}
-		if ( m_pBeatLengthDownBtn->isEnabled() ) {
-			m_pBeatLengthDownBtn->setEnabled( false );
-		}
-		if ( m_pBeatLengthUpBtn->isEnabled() ) {
-			m_pBeatLengthUpBtn->setEnabled( false );
-		}
+		m_pBeatLengthLabel->setVisible( false );
+		m_pTotalBeatsLabel->setVisible( false );
+		m_pBeatLengthButtonsGroup->setVisible( false );
+		m_pTotalBeatsButtonsGroup->setVisible( false );
 
 		m_pTapButton->setDefaultAction( m_pTapTempoAction );
 	}
