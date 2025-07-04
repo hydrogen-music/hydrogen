@@ -735,7 +735,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 void Hydrogen::onTapTempoAccelEvent()
 {
 #ifndef WIN32
-	INFOLOG( "tap tempo" );
 	static timeval oldTimeVal;
 
 	struct timeval now;
@@ -791,7 +790,6 @@ void Hydrogen::onTapTempoAccelEvent()
 	fBPM = ( fBPM + fOldBpm1 + fOldBpm2 + fOldBpm3 + fOldBpm4 + fOldBpm5
 			 + fOldBpm6 + fOldBpm7 + fOldBpm8 ) / 9.0;
 
-	INFOLOG( QString( "avg BPM = %1" ).arg( fBPM ) );
 	fOldBpm8 = fOldBpm7;
 	fOldBpm7 = fOldBpm6;
 	fOldBpm6 = fOldBpm5;
