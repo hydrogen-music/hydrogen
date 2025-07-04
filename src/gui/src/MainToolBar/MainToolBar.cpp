@@ -218,8 +218,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
 
 	m_pBpmTap = new BpmTap( this );
-	m_pBpmTapAction = addWidget( m_pBpmTap );
-	m_pBpmTapSeparator = addSeparator();
+	addWidget( m_pBpmTap );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandAction = createAction(
@@ -319,25 +318,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	timer->start( 100 );	// update at 10 fps
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &MainToolBar::onPreferencesChanged );
-
-	////////////////////////////////////////////////////////////////////////////
-
-	m_pPopupMenu = new QMenu( this );
-	auto showBeatCounterAction = m_pPopupMenu->addAction(
-		tr( "Show BeatCounter" ) );
-	// showBeatCounterAction->setCheckable( true );
-	// showBeatCounterAction->setChecked(
-	//  	pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON );
-	// connect( showBeatCounterAction, &QAction::triggered, this, [=](){
-	// 	if ( showBeatCounterAction->isChecked() ) {
-	// 		Preferences::get_instance()->m_bBeatCounterOn =
-	// 			Preferences::BEAT_COUNTER_ON;
-	// 	} else {
-	// 		Preferences::get_instance()->m_bBeatCounterOn =
-	// 			Preferences::BEAT_COUNTER_OFF;
-	// 	}
-	// 	updateBpmTap();
-	// } );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimer = new QTimer();
@@ -661,13 +641,6 @@ void MainToolBar::rubberbandButtonToggle()
 	updateActions();
 }
 
-void MainToolBar::mousePressEvent( QMouseEvent* pEvent ) {
-	auto pEv = static_cast<MouseEvent*>( pEvent );
-	if ( pEvent->button() == Qt::RightButton ) {
-		m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
-	}
-}
-
 void MainToolBar::beatCounterEvent() {
 	updateBpmTap();
 }
@@ -747,16 +720,6 @@ void MainToolBar::updateBpmSpinBox() {
 void MainToolBar::updateBpmTap() {
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-
-	// if ( pPref->m_bBeatCounterOn == Preferences::BEAT_COUNTER_ON ) {
-	// 	m_pBpmTapAction->setVisible( true );
-	// 	m_pBpmTapSeparator->setVisible( true );
-	// }
-	// else {
-	// 	m_pBpmTapAction->setVisible( false );
-	// 	m_pBpmTapSeparator->setVisible( false );
-	// 	return;
-	// }
 
 	m_pBpmTap->updateBpmTap();
 

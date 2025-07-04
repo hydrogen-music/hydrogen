@@ -2914,10 +2914,6 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show Director</source>
         <translation type="unfinished"></translation>
     </message>

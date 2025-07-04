@@ -2919,10 +2919,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show Director</source>
         <translation type="unfinished"></translation>
     </message>

@@ -2921,10 +2921,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show Director</source>
         <translation type="unfinished"></translation>
     </message>

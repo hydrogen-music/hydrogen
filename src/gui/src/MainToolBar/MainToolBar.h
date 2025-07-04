@@ -69,8 +69,6 @@ public:
 		void setPreferencesVisibilityState( bool bChecked );
 		void updateActions();
 
-		void mousePressEvent( QMouseEvent* pEvent ) override;
-
 		void beatCounterEvent() override;
 		void driverChangedEvent() override;
 		void jackTimebaseStateChangedEvent( int nState ) override;
@@ -121,8 +119,6 @@ private:
 		BpmSpinBox* m_pBpmSpinBox;
 
 		BpmTap* m_pBpmTap;
-		QAction* m_pBpmTapAction;
-		QAction* m_pBpmTapSeparator;
 
 		QAction* m_pRubberBandAction;
 
@@ -138,8 +134,6 @@ private:
 		QAction* m_pShowPreferencesAction;
 		QAction* m_pShowAutomationAction;
 		QAction* m_pShowPlaybackTrackAction;
-
-		QMenu* m_pPopupMenu;
 
 		QTimer* m_pTimer;
 

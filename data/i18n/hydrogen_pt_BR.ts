@@ -2917,10 +2917,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show BeatCounter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show Director</source>
         <translation type="unfinished"></translation>
     </message>
