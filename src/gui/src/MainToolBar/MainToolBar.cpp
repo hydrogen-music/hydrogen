@@ -209,9 +209,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 			 this, SLOT( bpmChanged( double ) ) );
 	addWidget( m_pBpmSpinBox );
 
-	addSeparator();
 
-	////////////////////////////////////////////////////////////////////////////
 	m_sBCOnOffBtnTimelineToolTip =
 		tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
 	m_sBCOnOffBtnJackTimebaseToolTip =
@@ -219,6 +217,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 
 	m_pBpmTap = new BpmTap( this );
 	addWidget( m_pBpmTap );
+
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pRubberBandAction = createAction(
