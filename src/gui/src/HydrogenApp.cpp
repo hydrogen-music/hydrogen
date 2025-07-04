@@ -299,7 +299,6 @@ void HydrogenApp::setupSinglePanedInterface()
 	pEditorHBox->addWidget( m_pPatternEditorPanel );
 	pEditorHBox->addWidget( m_pInstrumentRack );
 
-	// PLayer control
 	m_pMainToolBar = new MainToolBar( nullptr );
 
 	m_pFooter = new Footer( nullptr );

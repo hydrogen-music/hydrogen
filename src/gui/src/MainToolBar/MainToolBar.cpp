@@ -209,12 +209,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 			 this, SLOT( bpmChanged( double ) ) );
 	addWidget( m_pBpmSpinBox );
 
-
-	m_sBCOnOffBtnTimelineToolTip =
-		tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
-	m_sBCOnOffBtnJackTimebaseToolTip =
-		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
-
 	m_pBpmTap = new BpmTap( this );
 	addWidget( m_pBpmTap );
 
@@ -327,13 +321,13 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	} );
 
 	updateBpmSpinBox();
-	updateBpmTap();
 	updateJackTimebase();
 	updateJackTransport();
 	updateLoopMode();
 	updateSongMode();
 	updateIcons();
 	updateStyleSheet();
+	m_pBpmTap->updateBpmTap();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 }
@@ -411,7 +405,7 @@ void MainToolBar::jackTimebaseStateChangedEvent( int nState )
 	}
 	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
 
-	updateBpmTap();
+	m_pBpmTap->updateBpmTap();
 	updateBpmSpinBox();
 }
 
@@ -459,7 +453,7 @@ void MainToolBar::metronomeEvent( int nValue ) {
 void MainToolBar::songModeActivationEvent() {
 	updateSongMode();
 	updateBpmSpinBox();
-	updateBpmTap();
+	m_pBpmTap->updateBpmTap();
 	updateTransportControl();
 }
 
@@ -488,7 +482,7 @@ void MainToolBar::tempoChangedEvent( int nValue )
 
 void MainToolBar::timelineActivationEvent() {
 	updateBpmSpinBox();
-	updateBpmTap();
+	m_pBpmTap->updateBpmTap();
 }
 
 void MainToolBar::updateSongEvent( int nValue ) {
@@ -496,7 +490,7 @@ void MainToolBar::updateSongEvent( int nValue ) {
 	if ( nValue == 0 ) {
 		updateSongMode();
 		updateBpmSpinBox();
-		updateBpmTap();
+		m_pBpmTap->updateBpmTap();
 		updateLoopMode();
 		updateJackTransport();
 		updateJackTimebase();
@@ -642,7 +636,7 @@ void MainToolBar::rubberbandButtonToggle()
 }
 
 void MainToolBar::beatCounterEvent() {
-	updateBpmTap();
+	m_pBpmTap->updateBpmTap();
 }
 
 void MainToolBar::jackTransportBtnClicked()
@@ -714,24 +708,6 @@ void MainToolBar::updateBpmSpinBox() {
 		break;
 	default:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxToolTip );
-	}
-}
-
-void MainToolBar::updateBpmTap() {
-	const auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-
-	m_pBpmTap->updateBpmTap();
-
-	switch ( pHydrogen->getTempoSource() ) {
-	case H2Core::Hydrogen::Tempo::Jack:
-		m_pBpmTap->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
-		break;
-	case H2Core::Hydrogen::Tempo::Timeline:
-		m_pBpmTap->setToolTip( m_sBCOnOffBtnTimelineToolTip );
-		break;
-	default:
-		m_pBpmTap->setToolTip( "" );
 	}
 }
 

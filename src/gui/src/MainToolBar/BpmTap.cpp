@@ -25,12 +25,14 @@
 #include "MainToolBar.h"
 
 #include <core/Hydrogen.h>
+#include <core/MidiAction.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "../Widgets/MidiLearnableToolButton.h"
 
 using namespace H2Core;
 
@@ -40,6 +42,12 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
+	m_sJackActiveToolTip =
+		tr( "In the presence of an external JACK Timebase controller the BeatCounter can not be used" );
+	m_sTimelineActiveToolTip =
+		tr( "Please deactivate the Timeline first in order to use the BeatCounter" );
+
+	////////////////////////////////////////////////////////////////////////////
 	const int nWidgetHeight = MainToolBar::nWidgetHeight -
 		MainToolBar::nBorder * 2;
 
@@ -128,12 +136,15 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 		}
 	} );
 
-	m_pTapButton = new QToolButton( pBackground );
+	m_pTapTempoMidiAction = std::make_shared<Action>( "TAP_TEMPO" );
+	m_pBeatCounterMidiAction = std::make_shared<Action>( "BEATCOUNTER" );
+
+	m_pTapButton = new MidiLearnableToolButton( pBackground, "" );
 	m_pTapButton->setFixedSize( nButtonWidth, nButtonHeight );
 	m_pTapButton->addAction( m_pTapTempoAction );
 	m_pTapButton->addAction( m_pBeatCounterTapAction );
 	m_pTapButton->addAction( m_pBeatCounterTapAndPlayAction );
-	m_pTapButton->setToolTip( tr( "Set BPM / Set BPM and play" ) );
+	m_pTapButton->setBaseToolTip( tr( "Set BPM / Set BPM and play" ) );
 	m_pTapButton->setObjectName( "BpmTapTapButton" );
 	connect( m_pTapButton, &QToolButton::clicked, [&]() {
 		if ( Preferences::get_instance()->m_bpmTap ==
@@ -297,6 +308,18 @@ void BpmTap::updateBpmTap() {
 		return sResult;
 	};
 
+	switch ( pHydrogen->getTempoSource() ) {
+	case H2Core::Hydrogen::Tempo::Jack:
+		m_pTapButton->setBaseToolTip( m_sJackActiveToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Timeline:
+		m_pTapButton->setBaseToolTip( m_sTimelineActiveToolTip );
+		break;
+	default:
+		m_pTapButton->setBaseToolTip( "" );
+	}
+
+
 	if ( pPref->m_bpmTap == Preferences::BpmTap::BeatCounter ) {
 		m_pBeatLengthLabel->setVisible( true );
 		m_pTotalBeatsLabel->setVisible( true );
@@ -319,12 +342,17 @@ void BpmTap::updateBpmTap() {
 			QString( "%1%2%3" ).arg( sStatus ).arg( QChar( 0x2044 ) )
 			.arg( toSubScript( pHydrogen->getBeatCounterTotalBeats() ) ) );
 
+		QAction* pBeatCounterAction;
 		if ( pPref->m_beatCounter == Preferences::BeatCounter::TapAndPlay ) {
-			m_pTapButton->setDefaultAction( m_pBeatCounterTapAndPlayAction );
+			pBeatCounterAction = m_pBeatCounterTapAndPlayAction;
 		}
 		else {
-			m_pTapButton->setDefaultAction( m_pBeatCounterTapAction );
+			pBeatCounterAction = m_pBeatCounterTapAction;
 		}
+		if ( m_pTapButton->defaultAction() != pBeatCounterAction ) {
+			m_pTapButton->setDefaultAction( pBeatCounterAction );
+		}
+		m_pTapButton->setAction( m_pBeatCounterMidiAction );
 	}
 	else {
 		// Widgets disabled
@@ -333,7 +361,10 @@ void BpmTap::updateBpmTap() {
 		m_pBeatLengthButtonsGroup->setVisible( false );
 		m_pTotalBeatsButtonsGroup->setVisible( false );
 
-		m_pTapButton->setDefaultAction( m_pTapTempoAction );
+		if ( m_pTapButton->defaultAction() != m_pTapTempoAction ) {
+			m_pTapButton->setDefaultAction( m_pTapTempoAction );
+		}
+		m_pTapButton->setAction( m_pTapTempoMidiAction );
 	}
 }
 

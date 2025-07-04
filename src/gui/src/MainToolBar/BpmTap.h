@@ -25,10 +25,15 @@
 
 #include <core/Object.h>
 
+#include <memory>
+
 #include <QtGui>
 #include <QtWidgets>
 
 #include "../Widgets/WidgetWithScalableFont.h"
+
+class Action;
+class MidiLearnableToolButton;
 
 class BpmTap : public QWidget,
 			   protected WidgetWithScalableFont<8, 10, 12>,
@@ -51,6 +56,19 @@ public:
 		void updateStyleSheet();
 
 private:
+		QString m_sJackActiveToolTip;
+		QString m_sTimelineActiveToolTip;
+
+		QAction* m_pTapTempoAction;
+		QAction* m_pBeatCounterTapAction;
+		QAction* m_pBeatCounterTapAndPlayAction;
+
+		/** Midi actions associated with the particular button states. */
+		std::shared_ptr<Action> m_pTapTempoMidiAction;
+		std::shared_ptr<Action> m_pBeatCounterMidiAction;
+
+		MidiLearnableToolButton* m_pTapButton;
+
 		QWidget* m_pBeatLengthButtonsGroup;
 		QToolButton* m_pBeatLengthUpBtn;
 		QToolButton* m_pBeatLengthDownBtn;
@@ -59,10 +77,6 @@ private:
 		QWidget* m_pTotalBeatsButtonsGroup;
 		QToolButton* m_pTotalBeatsUpBtn;
 		QToolButton* m_pTotalBeatsDownBtn;
-		QAction* m_pTapTempoAction;
-		QAction* m_pBeatCounterTapAction;
-		QAction* m_pBeatCounterTapAndPlayAction;
-		QToolButton* m_pTapButton;
 
 		QColor m_backgroundColor;
 };

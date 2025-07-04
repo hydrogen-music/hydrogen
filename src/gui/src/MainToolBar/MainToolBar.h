@@ -139,16 +139,12 @@ private:
 		QTimer* m_pTimer;
 
 		void updateBpmSpinBox();
-		void updateBpmTap();
 		void updateJackTransport();
 		void updateJackTimebase();
 		void updateLoopMode();
 		void updateSongMode();
 		void updateTransportControl();
 
-		QString m_sBCOnOffBtnToolTip;
-		QString m_sBCOnOffBtnTimelineToolTip;
-		QString m_sBCOnOffBtnJackTimebaseToolTip;
 		QString m_sLCDBPMSpinboxToolTip;
 		QString m_sLCDBPMSpinboxTimelineToolTip;
 		QString m_sLCDBPMSpinboxJackTimebaseToolTip;
