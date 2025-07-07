@@ -24,64 +24,66 @@ https://www.gnu.org/licenses
 
 #include "MidiControlButton.h"
 
+#include <QSvgRenderer>
+
+#include "MainToolBar.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
-#include "../Widgets/LED.h"
+#include "../Skin.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
-MidiControlButton::MidiControlButton( QWidget* pParent ) : Button( pParent ) {
+MidiControlButton::MidiControlButton( QWidget* pParent )
+	: QToolButton( pParent )
+	, m_bMidiInputActive( false )
+	, m_bMidiOutputActive( false )
+{
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setObjectName( "MidiControlButton" );
 
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	auto pHBoxLayout = new QHBoxLayout();
-	pHBoxLayout->setSpacing( 0 );
-	pHBoxLayout->setContentsMargins( 0, 0, 0, 0 );
-	setLayout( pHBoxLayout );
+	setContentsMargins( MidiControlButton::nIconWidth, 0,
+						MidiControlButton::nIconWidth, 0 );
 
-	// Midi Activity widget
-	m_pMidiInputLED = new LED(
-		this, QSize( MidiControlButton::nLEDWidth,
-					 MidiControlButton::nLEDHeight ) );
-	m_pMidiInputLED->setObjectName( "MidiInputLED" );
-	m_pMidiInputLED->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pHBoxLayout->addWidget( m_pMidiInputLED );
+	setText( "MIDI" );
 
-	m_pLabel = new QLabel( pCommonStrings->getMidiLabel() );
-	m_pLabel->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
-	pHBoxLayout->addWidget( m_pLabel );
-
-	m_pMidiOutputLED = new LED(
-		this, QSize( MidiControlButton::nLEDWidth,
-					 MidiControlButton::nLEDHeight ) );
-	m_pMidiOutputLED->setObjectName( "MidiOutputLED" );
-	m_pMidiOutputLED->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pHBoxLayout->addWidget( m_pMidiOutputLED );
+	m_pIconInput = new QSvgRenderer(
+		Skin::getSvgImagePath() + "/icons/black/mixer.svg", this );
+	m_pIconOutput = new QSvgRenderer(
+		Skin::getSvgImagePath() + "/icons/black/component-editor.svg", this );
 
 	m_pMidiInputTimer = new QTimer( this );
-	connect( m_pMidiInputTimer, SIGNAL( timeout() ),
-			 this, SLOT( deactivateMidiInputLED() ) );
+	connect( m_pMidiInputTimer, &QTimer::timeout, [=]() {
+		m_pMidiInputTimer->stop();
+		m_bMidiInputActive = false;
+		update();
+	} );
 	m_pMidiOutputTimer = new QTimer( this );
-	connect( m_pMidiOutputTimer, SIGNAL( timeout() ),
-			 this, SLOT( deactivateMidiOutputLED() ) );
+	connect( m_pMidiOutputTimer, &QTimer::timeout, [=]() {
+		m_pMidiOutputTimer->stop();
+		m_bMidiOutputActive = false;
+		update();
+	} );
+
+	HydrogenApp::get_instance()->addEventListener( this );
 }
 
 MidiControlButton::~MidiControlButton() {
 }
 
-void MidiControlButton::flashMidiInputLED() {
+void MidiControlButton::flashMidiInputIcon() {
 	m_pMidiInputTimer->stop();
-	m_pMidiInputLED->setActivated( true );
+	m_bMidiInputActive = true;
+	update();
 	m_pMidiInputTimer->start(
 		MidiControlButton::midiActivityTimeout );
 }
 
-void MidiControlButton::flashMidiOutputLED() {
+void MidiControlButton::flashMidiOutputIcon() {
 	m_pMidiOutputTimer->stop();
-	m_pMidiOutputLED->setActivated( true );
+	m_bMidiOutputActive = true;
+	update();
 	m_pMidiOutputTimer->start( MidiControlButton::midiActivityTimeout );
 }
 
@@ -98,21 +100,56 @@ void MidiControlButton::driverChangedEvent() {
 }
 
 void MidiControlButton::midiActivityEvent() {
-	flashMidiInputLED();
-	flashMidiOutputLED();
-}
-
-void MidiControlButton::deactivateMidiInputLED() {
-	m_pMidiInputTimer->stop();
-	m_pMidiInputLED->setActivated( false );
-}
-
-void MidiControlButton::deactivateMidiOutputLED() {
-	m_pMidiOutputTimer->stop();
-	m_pMidiOutputLED->setActivated( false );
+	flashMidiInputIcon();
+	flashMidiOutputIcon();
 }
 
 void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
-	DEBUGLOG( "" );
-	Button::paintEvent( pEvent );
+	QToolButton::paintEvent( pEvent );
+
+	const auto highlightColor =
+		H2Core::Preferences::get_instance()->getTheme().m_color.m_highlightColor;
+
+	QPainter painter( this );
+
+	QRect inputIconRect( 0, MainToolBar::nMargin, MidiControlButton::nIconWidth,
+						 height() - 2 * MainToolBar::nMargin );
+ 	if ( m_bMidiInputActive ) {
+		// Change the color of the input icon.
+		QPixmap inputPixmap( inputIconRect.width(), inputIconRect.height() );
+		inputPixmap.fill( Qt::GlobalColor::transparent );
+
+		QPainter inputPainter( &inputPixmap );
+
+		m_pIconInput->render( &inputPainter );
+
+		inputPainter.setCompositionMode(
+			QPainter::CompositionMode_SourceIn);
+		inputPainter.fillRect( inputPixmap.rect(), highlightColor );
+		painter.drawPixmap( inputIconRect, inputPixmap );
+	}
+	else {
+		m_pIconInput->render( &painter, inputIconRect );
+	}
+
+	QRect outputIconRect(
+		width() - MidiControlButton::nIconWidth, MainToolBar::nMargin,
+		MidiControlButton::nIconWidth, height() - 2 * MainToolBar::nMargin );
+ 	if ( m_bMidiOutputActive ) {
+		// Change the color of the output icon.
+		QPixmap outputPixmap( outputIconRect.width(), outputIconRect.height() );
+		outputPixmap.fill( Qt::GlobalColor::transparent );
+
+		QPainter outputPainter( &outputPixmap );
+
+		m_pIconOutput->render( &outputPainter );
+
+		outputPainter.setCompositionMode(
+			QPainter::CompositionMode_SourceIn);
+		outputPainter.fillRect( outputPixmap.rect(), highlightColor );
+		painter.drawPixmap( outputIconRect, outputPixmap );
+	}
+	else {
+		m_pIconOutput->render( &painter, outputIconRect );
+	}
 }

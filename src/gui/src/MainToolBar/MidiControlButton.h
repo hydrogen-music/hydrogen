@@ -23,21 +23,24 @@
 #ifndef MIDI_CONTROL_BUTTON_H
 #define MIDI_CONTROL_BUTTON_H
 
+#include <QSvgRenderer>
 #include <QtGui>
 #include <QtWidgets>
 #include <chrono>
 
 #include <core/Object.h>
-#include "Widgets/Button.h"
-#include "Widgets/WidgetWithScalableFont.h"
 
-class LED;
+#include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
+
+//class LED;
 
 /** Button in the #MainToolBar indicating the current state of the MIDI input
  * and output (using two LEDs). Clicking it will open the #MidiControlDialog.
  *
  * \ingroup docGUI*/
-class MidiControlButton : public Button,
+class MidiControlButton : public QToolButton,
+						  public EventListener,
 						  protected WidgetWithScalableFont<5, 6, 7>,
 						  public H2Core::Object<MidiControlButton> {
 		H2_OBJECT(MidiControlButton)
@@ -45,36 +48,32 @@ class MidiControlButton : public Button,
 
 public:
 		static constexpr std::chrono::milliseconds midiActivityTimeout{ 125 };
-		static constexpr int nLEDHeight = 9;
-		static constexpr int nLEDWidth = 11;
+		static constexpr int nIconWidth = 32;
 
 		explicit MidiControlButton( QWidget* pParent );
 		~MidiControlButton();
 
-		/** Activates the LED for a predefined time interval. */
-		void flashMidiInputLED();
-		/** Activates the LED for a predefined time interval. */
-		void flashMidiOutputLED();
+		/** Activates icon for MIDI input for a predefined time interval. */
+		void flashMidiInputIcon();
+		/** Activates icon for MIDI input for a predefined time interval. */
+		void flashMidiOutputIcon();
 
-		/** Enables or disables the input and output LEDs based on the current
-		 * preferences. */
+		/** Enables or disables the input and output symbols based on the
+		 * current preferences. */
 		void updateActivation();
 
 		// EventListerer
 		void driverChangedEvent() override;
 		void midiActivityEvent() override;
 
-private slots:
-		void deactivateMidiInputLED();
-		void deactivateMidiOutputLED();
-
 private:
 		void paintEvent( QPaintEvent* pEvent ) override;
 
-		LED* m_pMidiInputLED;
-		LED* m_pMidiOutputLED;
+		bool m_bMidiInputActive;
+		bool m_bMidiOutputActive;
 
-		QLabel* m_pLabel;
+		QSvgRenderer* m_pIconInput;
+		QSvgRenderer* m_pIconOutput;
 		QTimer* m_pMidiInputTimer;
 		QTimer* m_pMidiOutputTimer;
 };
