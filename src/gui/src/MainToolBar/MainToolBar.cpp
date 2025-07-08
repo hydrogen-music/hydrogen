@@ -829,7 +829,7 @@ void MainToolBar::updateIcons() {
 
 	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
 	m_pRecButton->setIcon(
-		QIcon( Skin::getSvgImagePath() + "/icons/record.svg" ) );
+		QIcon( sIconPath + "record.svg" ) );
 	m_pPlayButton->setIcon( QIcon( sIconPath + "play.svg" ) );
 	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
 	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );

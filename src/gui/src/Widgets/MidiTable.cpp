@@ -34,6 +34,7 @@
 #include <core/Midi/MidiCommon.h>
 #include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include <QHeaderView>
 
@@ -146,9 +147,17 @@ void MidiTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 
 	++m_nRowCount;
 
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( H2Core::Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
+
 	QPushButton *midiSenseButton = new QPushButton(this);
 	midiSenseButton->setObjectName( "MidiSenseButton" );
-	midiSenseButton->setIcon(QIcon(Skin::getSvgImagePath() + "/icons/record.svg"));
+	midiSenseButton->setIcon( QIcon( sIconPath + "record.svg" ) );
 	midiSenseButton->setIconSize( QSize( 13, 13 ) );
 	midiSenseButton->setToolTip( tr("press button to record midi event") );
 

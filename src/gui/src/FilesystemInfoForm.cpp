@@ -37,18 +37,25 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 	ui->setupUi(this);
 
 	const auto theme = H2Core::Preferences::get_instance()->getTheme();
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( theme.m_interface.m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
 
 	QColor windowColor = theme.m_color.m_windowColor;
 	QColor windowTextColor = theme.m_color.m_windowTextColor;
 
-	ui->tmpDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
+	ui->tmpDirWarningButton->setIcon( QIcon( sIconPath + "warning.svg" ) );
 	ui->tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );
 	ui->tmpDirWarningButton->setType( Button::Type::Icon );
 	ui->tmpDirWarningButton->setSize( QSize( 16, 14 ) );
 	
 	ui->tmpDirLineEdit->setReadOnly( true );
 	
-	ui->usrDataDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
+	ui->usrDataDirWarningButton->setIcon( QIcon( sIconPath + "warning.svg" ) );
 	ui->usrDataDirWarningButton->setToolTip( tr( "User data folder is not writable!" ) );
 	ui->usrDataDirWarningButton->setType( Button::Type::Icon );
 	ui->usrDataDirWarningButton->setSize( QSize( 16, 14 ) );

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="22"
    height="22"
    viewBox="0 0 5.8208332 5.8208335"
    version="1.1"
    id="svg8"
-   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
-   sodipodi:docname="warning.svg">
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="record.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -23,20 +23,23 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.4"
-     inkscape:cx="11.232067"
-     inkscape:cy="12.422649"
+     inkscape:zoom="11.2"
+     inkscape:cx="8.7053571"
+     inkscape:cy="20.982143"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
      units="px"
      showguides="false"
-     inkscape:window-width="1166"
-     inkscape:window-height="1041"
-     inkscape:window-x="0"
+     inkscape:window-width="1916"
+     inkscape:window-height="1161"
+     inkscape:window-x="1920"
      inkscape:window-y="18"
-     inkscape:window-maximized="0">
+     inkscape:window-maximized="0"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid833"
@@ -46,35 +49,43 @@
     <sodipodi:guide
        position="0,5.8208333"
        orientation="0,22"
-       id="guide1472" />
+       id="guide1472"
+       inkscape:locked="false" />
     <sodipodi:guide
        position="5.8208333,5.8208333"
        orientation="22,0"
-       id="guide1474" />
+       id="guide1474"
+       inkscape:locked="false" />
     <sodipodi:guide
        position="5.8208333,0"
        orientation="0,-22"
-       id="guide1476" />
+       id="guide1476"
+       inkscape:locked="false" />
     <sodipodi:guide
        position="0,0"
        orientation="-22,0"
-       id="guide1478" />
+       id="guide1478"
+       inkscape:locked="false" />
     <sodipodi:guide
        position="0,5.8208333"
        orientation="0,22"
-       id="guide1480" />
+       id="guide1480"
+       inkscape:locked="false" />
     <sodipodi:guide
        position="5.8208333,5.8208333"
        orientation="22,0"
-       id="guide1482" />
+       id="guide1482"
+       inkscape:locked="false" />
     <sodipodi:guide
        position="5.8208333,0"
        orientation="0,-22"
-       id="guide1484" />
+       id="guide1484"
+       inkscape:locked="false" />
     <sodipodi:guide
        position="0,0"
        orientation="-22,0"
-       id="guide1486" />
+       id="guide1486"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -84,7 +95,6 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
         <cc:license
            rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
       </cc:Work>
@@ -103,20 +113,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <path
-       style="fill:#ffff00;stroke:#000000;stroke-width:0.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       d="M 0.52916669,5.2916669 2.9104166,0.52916669 5.2916669,5.2916669 Z"
-       id="path9024" />
-    <text
-       xml:space="preserve"
-       style="font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;stroke-width:0.264583"
-       x="1.995524"
-       y="4.9499292"
-       id="text9028"><tspan
-         sodipodi:role="line"
-         id="tspan9026"
-         x="1.995524"
-         y="4.9499292"
-         style="font-size:4.58611px;stroke-width:0.264583">!</tspan></text>
+    <circle
+       style="fill:#b04141;fill-opacity:1;stroke:#ffffff;stroke-width:0.112278;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       id="path5683"
+       cx="2.9104166"
+       cy="2.9104166"
+       r="1.8520834" />
   </g>
 </svg>

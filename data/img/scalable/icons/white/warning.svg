@@ -6,7 +6,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   sodipodi:docname="record.svg"
+   sodipodi:docname="warning.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,9 +23,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="8.6160714"
-     inkscape:cy="20.982143"
+     inkscape:zoom="22.4"
+     inkscape:cx="11.316964"
+     inkscape:cy="12.410714"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -95,7 +95,6 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
         <cc:license
            rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
       </cc:Work>
@@ -114,11 +113,20 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <circle
-       style="fill:#b04141;fill-opacity:1;stroke:#000000;stroke-width:0.112278;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
-       id="path5683"
-       cx="2.9104166"
-       cy="2.9104166"
-       r="1.8520834" />
+    <path
+       style="fill:#ffff00;stroke:#ffffff;stroke-width:0.165;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 0.52916669,5.2916669 2.9104166,0.52916669 5.2916669,5.2916669 Z"
+       id="path9024" />
+    <text
+       xml:space="preserve"
+       style="font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;stroke-width:0.264583;fill:#ffffff"
+       x="1.995524"
+       y="4.9499292"
+       id="text9028"><tspan
+         sodipodi:role="line"
+         id="tspan9026"
+         x="1.995524"
+         y="4.9499292"
+         style="font-size:4.58611px;stroke-width:0.264583;fill:#ffffff">!</tspan></text>
   </g>
 </svg>
