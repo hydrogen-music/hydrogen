@@ -113,14 +113,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// down button
 	m_pDownBtn = new Button(
 		pBackPanel, QSize( 25, 10 ), Button::Type::Push, "down.svg", "",
-		QSize( 7, 7 ), tr( "Move the selected pattern down" ), false, true, 2 );
+		QSize( 7, 7 ), tr( "Move the selected pattern down" ), true, 2 );
 	m_pDownBtn->move( 90, 36 );
 	connect( m_pDownBtn, SIGNAL( clicked() ), this, SLOT( downBtnClicked() ) );
 
 	// up button
 	m_pUpBtn = new Button(
 		pBackPanel, QSize( 25, 10 ), Button::Type::Push, "up.svg", "",
-		QSize( 7, 7 ), tr( "Move the selected pattern up" ), false, true, 2 );
+		QSize( 7, 7 ), tr( "Move the selected pattern up" ), true, 2 );
 	m_pUpBtn->move( 90, 25 );
 	connect( m_pUpBtn, SIGNAL( clicked() ), this, SLOT( upBtnClicked() ) );
 
@@ -150,14 +150,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// shown unpressed
 	m_pPatternEditorLockedBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "lock_closed.svg", "",
-		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), false, true );
+		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), true );
 	m_pPatternEditorLockedBtn->move( 142, 25 );
 	connect( m_pPatternEditorLockedBtn, &QPushButton::clicked,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( false ); } );
 
 	m_pPatternEditorUnlockedBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Push, "lock_open.svg", "",
-		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), false, true );
+		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), true );
 	m_pPatternEditorUnlockedBtn->move( 142, 25 );
 	connect( m_pPatternEditorUnlockedBtn, &QPushButton::clicked,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( true ); } );
@@ -180,7 +180,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// shown unpressed.
 	m_pPlaySelectedSingleBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Push, "single_layer.svg", "",
-		QSize( 17, 13 ), tr( "selected pattern mode" ), false, true );
+		QSize( 17, 13 ), tr( "selected pattern mode" ), true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
 	connect( m_pPlaySelectedSingleBtn, &QPushButton::clicked, [=]() {
 		activateStackedMode( true );
@@ -188,7 +188,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pPlaySelectedMultipleBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Push, "multiple_layers.svg", "",
-		QSize( 21, 17 ), tr( "stacked pattern mode" ), false, true );
+		QSize( 21, 17 ), tr( "stacked pattern mode" ), true );
 	m_pPlaySelectedMultipleBtn->move( 168, 25 );
 	m_pPlaySelectedMultipleBtn->hide();
 	connect( m_pPlaySelectedMultipleBtn, &QPushButton::clicked, [=]() {
@@ -250,7 +250,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pMutePlaybackBtn = new Button(
 		pBackPanel, QSize( 34, 17 ), Button::Type::Toggle, "",
 		pCommonStrings->getBigMuteButton(), QSize(), tr( "Mute playback track" ),
-		false, true );
+		true );
 	m_pMutePlaybackBtn->setObjectName( "SongEditorPlaybackTrackMuteButton" );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();

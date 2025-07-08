@@ -453,7 +453,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pMuteBtn = new Button(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
 		"", pCommonStrings->getSmallMuteButton(), QSize(), tr("Mute instrument"),
-		false, true );
+		true );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	pHBox->addWidget( m_pMuteBtn );
@@ -462,7 +462,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pSoloBtn = new Button(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
 		"", pCommonStrings->getSmallSoloButton(), QSize(),
-		pCommonStrings->getBigSoloButton(), false, true );
+		pCommonStrings->getBigSoloButton(), true );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	pHBox->addWidget( m_pSoloBtn );

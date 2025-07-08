@@ -87,10 +87,6 @@ public:
 	 * \param sText
 	 * \param iconSize
 	 * \param sBaseTooltip
-	 * \param bColorful If set to false, the icon @a sIcon is expected
-	 * to exist in both subfolders "black" and "white" in the "icons"
-	 * folder. If the button is not checked, the black version is used
-	 * and if checked, the white one is used instead.
 	 * \param bModifyOnChange Whether Hydrogen::setIsModified() is
 	 * invoked with `true` as soon as the value of the widget does
 	 * change.
@@ -105,7 +101,6 @@ public:
 		   const QString& sText = "",
 		   const QSize& iconSize = QSize( 0, 0 ),
 		   const QString& sBaseToolTip = "",
-		   bool bColorful = false,
 		   bool bModifyOnChange = false,
 		   int nBorderRadius = -1
 		   );
@@ -161,7 +156,6 @@ private:
 
 	int m_nBorderRadius;
 
-	bool m_bColorful;
 	bool m_bLastCheckedState;
 
 	bool m_bIsActive;

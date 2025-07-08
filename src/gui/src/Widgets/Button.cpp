@@ -36,13 +36,12 @@
 
 Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 				const QString& sIcon, const QString& sText, const QSize& iconSize,
-				const QString& sBaseToolTip, bool bColorful,
-				bool bModifyOnChange, int nBorderRadius )
+				const QString& sBaseToolTip, bool bModifyOnChange,
+				int nBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_type( type )
 	, m_iconSize( iconSize )
-	, m_bColorful( bColorful )
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
 	, m_bIsActive( true )
@@ -96,16 +95,13 @@ void Button::setIsActive( bool bIsActive ) {
 
 
 void Button::updateIcon() {
-	if ( m_bColorful ) {
-		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + m_sIcon ) );
-	} else {
-		if ( H2Core::Preferences::get_instance()->
-			 getTheme().m_interface.m_iconColor ==
-			 H2Core::InterfaceTheme::IconColor::White ) {
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
-		} else {
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
-		}
+	if ( H2Core::Preferences::get_instance()->
+		 getTheme().m_interface.m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
+	}
+	else {
+		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
 	}
 
 	if ( ! m_iconSize.isNull() && ! m_iconSize.isEmpty() ) {

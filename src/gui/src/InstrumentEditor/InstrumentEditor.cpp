@@ -161,7 +161,7 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	// Filter
 	m_pFilterBypassBtn = new Button(
 		m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle, "",
-		pCommonStrings->getBypassButton(), QSize( 0, 0 ), "", false, true );
+		pCommonStrings->getBypassButton(), QSize( 0, 0 ), "", true );
 	connect( m_pFilterBypassBtn, &Button::clicked, [&]() {
 		m_pInstrumentEditorPanel->getInstrument()->setFilterActive(
 			! m_pFilterBypassBtn->isChecked() );
