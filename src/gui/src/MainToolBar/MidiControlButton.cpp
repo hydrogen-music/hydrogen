@@ -34,6 +34,8 @@ https://www.gnu.org/licenses
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
+using namespace H2Core;
+
 MidiControlButton::MidiControlButton( QWidget* pParent )
 	: QToolButton( pParent )
 	, m_bMidiInputActive( false )
@@ -43,15 +45,13 @@ MidiControlButton::MidiControlButton( QWidget* pParent )
 
 	setObjectName( "MidiControlButton" );
 
-	setContentsMargins( MidiControlButton::nIconWidth, 0,
-						MidiControlButton::nIconWidth, 0 );
+	setFixedWidth( MidiControlButton::nIconWidth * 2 +
+				   MainToolBar::nSpacing * 2 +
+				   MidiControlButton::nLogoWidth );
 
-	setText( "MIDI" );
-
-	m_pIconInput = new QSvgRenderer(
-		Skin::getSvgImagePath() + "/icons/black/mixer.svg", this );
-	m_pIconOutput = new QSvgRenderer(
-		Skin::getSvgImagePath() + "/icons/black/component-editor.svg", this );
+	m_pIconInputSvg = new QSvgRenderer( this );
+	m_pMidiLogoSvg = new QSvgRenderer( this );
+	m_pIconOutputSvg = new QSvgRenderer( this );
 
 	m_pMidiInputTimer = new QTimer( this );
 	connect( m_pMidiInputTimer, &QTimer::timeout, [=]() {
@@ -65,6 +65,8 @@ MidiControlButton::MidiControlButton( QWidget* pParent )
 		m_bMidiOutputActive = false;
 		update();
 	} );
+
+	updateIcons();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 }
@@ -95,6 +97,21 @@ void MidiControlButton::updateActivation() {
 	// m_pMidiOutputLED->setIsActive( true );
 }
 
+void MidiControlButton::updateIcons() {
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
+
+	m_pIconInputSvg->load( sIconPath + "midi-input.svg" );
+	m_pMidiLogoSvg->load( sIconPath + "midi-logo.svg" );
+	m_pIconOutputSvg->load( sIconPath + "midi-output.svg" );
+	update();
+}
+
 void MidiControlButton::driverChangedEvent() {
 	updateActivation();
 }
@@ -112,8 +129,11 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 
 	QPainter painter( this );
 
-	QRect inputIconRect( 0, MainToolBar::nMargin, MidiControlButton::nIconWidth,
-						 height() - 2 * MainToolBar::nMargin );
+	////////////////////////////////////////////////////////////////////////////
+	// Input symbol
+	QRect inputIconRect( 0, height() / 2 - MidiControlButton::nIconWidth / 2,
+						 MidiControlButton::nIconWidth,
+						 MidiControlButton::nIconWidth );
  	if ( m_bMidiInputActive ) {
 		// Change the color of the input icon.
 		QPixmap inputPixmap( inputIconRect.width(), inputIconRect.height() );
@@ -121,7 +141,7 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 
 		QPainter inputPainter( &inputPixmap );
 
-		m_pIconInput->render( &inputPainter );
+		m_pIconInputSvg->render( &inputPainter );
 
 		inputPainter.setCompositionMode(
 			QPainter::CompositionMode_SourceIn);
@@ -129,12 +149,23 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 		painter.drawPixmap( inputIconRect, inputPixmap );
 	}
 	else {
-		m_pIconInput->render( &painter, inputIconRect );
+		m_pIconInputSvg->render( &painter, inputIconRect );
 	}
 
-	QRect outputIconRect(
-		width() - MidiControlButton::nIconWidth, MainToolBar::nMargin,
-		MidiControlButton::nIconWidth, height() - 2 * MainToolBar::nMargin );
+	////////////////////////////////////////////////////////////////////////////
+	// MIDI logo
+	QRect midiLogoRect(
+		MidiControlButton::nIconWidth + MainToolBar::nSpacing,
+		MainToolBar::nMargin + 1,
+		MidiControlButton::nLogoWidth, height() - 2 * MainToolBar::nMargin - 2 );
+	m_pMidiLogoSvg->render( &painter, midiLogoRect );
+
+	////////////////////////////////////////////////////////////////////////////
+	// Output symbol
+	QRect outputIconRect( width() - MidiControlButton::nIconWidth,
+						  height() / 2 - MidiControlButton::nIconWidth / 2,
+						  MidiControlButton::nIconWidth,
+						  MidiControlButton::nIconWidth );
  	if ( m_bMidiOutputActive ) {
 		// Change the color of the output icon.
 		QPixmap outputPixmap( outputIconRect.width(), outputIconRect.height() );
@@ -142,7 +173,7 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 
 		QPainter outputPainter( &outputPixmap );
 
-		m_pIconOutput->render( &outputPainter );
+		m_pIconOutputSvg->render( &outputPainter );
 
 		outputPainter.setCompositionMode(
 			QPainter::CompositionMode_SourceIn);
@@ -150,6 +181,6 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 		painter.drawPixmap( outputIconRect, outputPixmap );
 	}
 	else {
-		m_pIconOutput->render( &painter, outputIconRect );
+		m_pIconOutputSvg->render( &painter, outputIconRect );
 	}
 }

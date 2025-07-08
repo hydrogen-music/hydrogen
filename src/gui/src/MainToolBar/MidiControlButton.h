@@ -48,7 +48,8 @@ class MidiControlButton : public QToolButton,
 
 public:
 		static constexpr std::chrono::milliseconds midiActivityTimeout{ 125 };
-		static constexpr int nIconWidth = 32;
+		static constexpr int nIconWidth = 17;
+		static constexpr int nLogoWidth = 55;
 
 		explicit MidiControlButton( QWidget* pParent );
 		~MidiControlButton();
@@ -61,6 +62,7 @@ public:
 		/** Enables or disables the input and output symbols based on the
 		 * current preferences. */
 		void updateActivation();
+		void updateIcons();
 
 		// EventListerer
 		void driverChangedEvent() override;
@@ -72,8 +74,9 @@ private:
 		bool m_bMidiInputActive;
 		bool m_bMidiOutputActive;
 
-		QSvgRenderer* m_pIconInput;
-		QSvgRenderer* m_pIconOutput;
+		QSvgRenderer* m_pIconInputSvg;
+		QSvgRenderer* m_pMidiLogoSvg;
+		QSvgRenderer* m_pIconOutputSvg;
 		QTimer* m_pMidiInputTimer;
 		QTimer* m_pMidiOutputTimer;
 };

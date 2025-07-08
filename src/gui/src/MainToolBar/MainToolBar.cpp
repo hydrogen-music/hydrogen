@@ -251,8 +251,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pMidiControlButton = new MidiControlButton( this );
-	m_pMidiControlButton->setFixedSize(
-		buttonSize.width() * 3, buttonSize.height() );
+	m_pMidiControlButton->setFixedHeight( buttonSize.height() );
 	addWidget( m_pMidiControlButton );
 
 	addSeparator();
@@ -852,6 +851,7 @@ void MainToolBar::updateIcons() {
 	m_pShowPreferencesAction->setIcon( QIcon( sIconPath + "cog.svg" ) );
 
 	m_pBpmTap->updateIcons();
+	m_pMidiControlButton->updateIcons();
 }
 
 void MainToolBar::updateStyleSheet() {

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   width="1000"
+   height="455"
+   viewBox="0 0 1000 455"
+   xml:space="preserve"
+   id="svg54"
+   sodipodi:docname="midi-logo.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"><defs
+   id="defs58" /><sodipodi:namedview
+   id="namedview56"
+   pagecolor="#ffffff"
+   bordercolor="#000000"
+   borderopacity="0.25"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1"
+   showgrid="true"
+   inkscape:zoom="1.307"
+   inkscape:cx="501.53022"
+   inkscape:cy="227.23795"
+   inkscape:window-width="1916"
+   inkscape:window-height="1161"
+   inkscape:window-x="1920"
+   inkscape:window-y="18"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg54"><inkscape:grid
+     type="xygrid"
+     id="grid29586" /></sodipodi:namedview>
+	<path
+   id="path46"
+   style="stroke-width:1.375;stroke-dasharray:none;fill:#ffffff;fill-opacity:1"
+   d="M 10.265611,48.652602 H 330.65461 c 26.95117,0 42.62685,23.238514 42.62685,50.877221 V 414.41858 h -89.3789 V 140.78163 H 231.65027 V 414.41858 H 150.52174 V 140.78163 H 99.64452 V 414.41858 H 10.265611 Z" />
+	<rect
+   aria-label="I"
+   text-data="I"
+   x="417.28339"
+   y="48.652603"
+   width="89.378906"
+   height="365.76599"
+   id="rect48"
+   style="stroke-width:1.375;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
+	<path
+   aria-label="D"
+   text-data="D"
+   d="m 549.28916,48.652602 h 265.38658 c 26.95118,0 42.62687,23.238514 42.62687,50.877221 V 369.0416 c 0,34.23899 -14.30062,45.37698 -45.37698,45.37698 H 549.28916 V 182.03343 h 90.75397 V 325.03967 H 767.9237 V 131.1562 H 549.28916 Z"
+   id="path50"
+   style="stroke-width:1.375;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
+	<rect
+   aria-label="I"
+   text-data="I"
+   x="898.55444"
+   y="48.652603"
+   width="90.753967"
+   height="365.76599"
+   id="rect52"
+   style="stroke-width:1.375;stroke-dasharray:none;fill:#fcfcfc;fill-opacity:1" />
+<metadata
+   id="metadata3382"><rdf:RDF><cc:License
+       rdf:about="http://creativecommons.org/publicdomain/zero/1.0/"><cc:permits
+         rdf:resource="http://creativecommons.org/ns#Reproduction" /><cc:permits
+         rdf:resource="http://creativecommons.org/ns#Distribution" /><cc:permits
+         rdf:resource="http://creativecommons.org/ns#DerivativeWorks" /></cc:License><cc:Work
+       rdf:about=""><cc:license
+         rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" /></cc:Work></rdf:RDF></metadata></svg>
