@@ -116,7 +116,7 @@ void MidiControlButton::driverChangedEvent() {
 	updateActivation();
 }
 
-void MidiControlButton::midiActivityEvent() {
+void MidiControlButton::midiInputEvent() {
 	flashMidiInputIcon();
 	flashMidiOutputIcon();
 }

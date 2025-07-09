@@ -1004,8 +1004,8 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->metronomeEvent( pEvent->getValue() );
 				break;
 
-			case Event::Type::MidiActivity:
-				ppEventListener->midiActivityEvent();
+			case Event::Type::MidiInput:
+				ppEventListener->midiInputEvent();
 				break;
 
 			case Event::Type::MidiMapChanged:

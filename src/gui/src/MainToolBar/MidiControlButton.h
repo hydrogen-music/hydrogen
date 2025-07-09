@@ -66,7 +66,7 @@ public:
 
 		// EventListerer
 		void driverChangedEvent() override;
-		void midiActivityEvent() override;
+		void midiInputEvent() override;
 
 private:
 		void paintEvent( QPaintEvent* pEvent ) override;

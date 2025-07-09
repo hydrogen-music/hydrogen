@@ -101,7 +101,8 @@ public:
 			 * Handled by EventListener::metronomeEvent().
 			 */
 			Metronome,
-			MidiActivity,
+			/** Hydrogen did received a MIDI event. */
+			MidiInput,
 			MidiMapChanged,
 			/** Miscellaneous things shown in the Mixer apart from the
 			 * per-instrument MixerLines did change. */

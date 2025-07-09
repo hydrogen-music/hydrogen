@@ -55,8 +55,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "LoopModeActivation";
 	case Event::Type::Metronome:
 		return "Metronome";
-	case Event::Type::MidiActivity:
-		return "MidiActivity";
+	case Event::Type::MidiInput:
+		return "MidiInput";
 	case Event::Type::MidiMapChanged:
 		return "MidiMapChanged";
 	case Event::Type::MixerSettingsChanged:
