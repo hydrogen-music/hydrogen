@@ -58,7 +58,7 @@ public:
 	virtual std::vector<QString> getOutputPortList() override;
 
 	virtual void sendNoteOnMessage( const MidiMessage& msg ) override;
-	virtual void sendNoteOffMessage( int channel, int key, int velocity ) override;
+	virtual void sendNoteOffMessage( const MidiMessage& msg ) override;
 	virtual void handleQueueAllNoteOff() override;
 	virtual void sendControlChangeMessage( int param, int value, int channel ) override;
 

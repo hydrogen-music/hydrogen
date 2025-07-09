@@ -92,6 +92,13 @@ class MidiMessage
 		 * drum in the General MIDI notation. */
 		static constexpr int instrumentOffset = 36;
 
+		/** Helper to construct NoteOff MIDI messages. */
+		struct NoteOff {
+			int nKey;
+			int nVelocity;
+			int nChannel;
+		};
+
 		MidiMessage()
 			: m_type( Type::Unknown )
 			, m_nData1( -1 )
@@ -111,6 +118,7 @@ class MidiMessage
 		static Type deriveType( int nStatusByte );
 
 		static MidiMessage from( std::shared_ptr<Note> pNote );
+		static MidiMessage from( const NoteOff& noteOff );
 
 		Type getType() const;
 		void setType( Type type );

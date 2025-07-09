@@ -264,7 +264,7 @@ void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 	sendMidiPacket( &packetList );
 }
 
-void CoreMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
+void CoreMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
@@ -280,9 +280,9 @@ void CoreMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | channel;
-	packetList.packet->data[1] = key;
-	packetList.packet->data[2] = velocity;
+	packetList.packet->data[0] = 0x80 | msg.getChannel();
+	packetList.packet->data[1] = msg.getData1();
+	packetList.packet->data[2] = msg.getData2();
 
 	sendMidiPacket( &packetList );
 }

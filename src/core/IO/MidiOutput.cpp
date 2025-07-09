@@ -35,10 +35,16 @@ MidiOutput::~MidiOutput() {
 
 void MidiOutput::sendMessage( const MidiMessage& msg ) {
 
-	if ( msg.getType() == MidiMessage::Type::NoteOn ) {
+	switch( msg.getType() ) {
+	case MidiMessage::Type::NoteOn:
 		sendNoteOnMessage( msg );
-	}
-	else {
+		break;
+
+	case MidiMessage::Type::NoteOff:
+		sendNoteOffMessage( msg );
+		break;
+
+	default:
 		ERRORLOG( QString( "Unhandled message [%1]" ).arg( msg.toQString() ) );
 	}
 }

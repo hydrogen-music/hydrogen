@@ -165,10 +165,12 @@ void Sampler::process( uint32_t nFrames )
 
 				if ( pNote->getInstrument() != nullptr ) {
 					if ( ! pNote->getInstrument()->isMuted() ){
-						pMidiOutput->sendNoteOffMessage(
-							pNote->getInstrument()->getMidiOutChannel(),
-							pNote->getMidiKey(),
-							pNote->getMidiVelocity() );
+						MidiMessage::NoteOff noteOff;
+						noteOff.nChannel =
+							pNote->getInstrument()->getMidiOutChannel();
+						noteOff.nKey = pNote->getMidiKey();
+						noteOff.nVelocity = pNote->getMidiVelocity();
+						pMidiOutput->sendMessage( MidiMessage::from( noteOff ) );
 					}
 				}
 				else {

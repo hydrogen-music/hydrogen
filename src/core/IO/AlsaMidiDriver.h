@@ -58,8 +58,7 @@ public:
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
-	
-	virtual void sendNoteOffMessage( int channel, int key, int velocity ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
 	virtual void handleQueueAllNoteOff() override;
 	virtual void sendControlChangeMessage( int param, int value, int channel ) override;
 

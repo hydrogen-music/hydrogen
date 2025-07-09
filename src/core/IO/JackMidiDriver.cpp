@@ -402,24 +402,11 @@ void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 }
 
 void
-JackMidiDriver::sendNoteOffMessage(int channel, int key, int vel)
-{
+JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];
 
-	if (channel < 0 || channel > 15) {
-		return;
-	}
-	
-	if (key < 0 || key > 127) {
-		return;
-	}
-	
-	if (vel < 0 || vel > 127) {
-		return;
-	}
-
-	buffer[0] = 0x80 | channel;	/* note off */
-	buffer[1] = key;
+	buffer[0] = 0x80 | msg.getChannel();	/* note off */
+	buffer[1] = msg.getData1();
 	buffer[2] = 0;
 	buffer[3] = 0;
 
@@ -434,6 +421,7 @@ void JackMidiDriver::handleQueueAllNoteOff()
 	unsigned int i = 0;
 	int channel = 0;
 	int key = 0;
+	MidiMessage::NoteOff noteOff;
 
 	for (i = 0; i < numInstruments; i++) {
 			pCurInstr = pInstrList->get(i);
@@ -448,7 +436,10 @@ void JackMidiDriver::handleQueueAllNoteOff()
 			continue;
 		}
 
-		sendNoteOffMessage(channel, key, 0);
+		noteOff.nChannel = channel;
+		noteOff.nKey = key;
+
+		sendNoteOffMessage( MidiMessage::from( noteOff ) );
 	}
 }
 

@@ -143,12 +143,22 @@ MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 		// provided note.
 	}
 	else {
-		msg.m_type = Type::NoteOn;
-		msg.m_nData1 = std::clamp( pNote->getMidiKey(), 0, 127 );
-		msg.m_nData2 = std::clamp( pNote->getMidiVelocity(), 0, 127 );
-		msg.m_nChannel = std::clamp(
-			pNote->getInstrument()->getMidiOutChannel(), 0, 15 );
+		msg.setType( Type::NoteOn );
+		msg.setData1( std::clamp( pNote->getMidiKey(), 0, 127 ) );
+		msg.setData2( std::clamp( pNote->getMidiVelocity(), 0, 127 ) );
+		msg.setChannel(
+			std::clamp( pNote->getInstrument()->getMidiOutChannel(), 0, 15 ) );
 	}
+
+	return msg;
+}
+
+MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
+	MidiMessage msg;
+	msg.setType( Type::NoteOff );
+	msg.setData1( std::clamp( noteOff.nKey, 0, 127 ) );
+	msg.setData2( std::clamp( noteOff.nVelocity, 0, 127 ) );
+	msg.setChannel( std::clamp( noteOff.nChannel, 0, 15 ) );
 
 	return msg;
 }

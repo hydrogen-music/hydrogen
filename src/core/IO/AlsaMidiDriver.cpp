@@ -582,14 +582,9 @@ void AlsaMidiDriver::sendControlChangeMessage( int param, int value, int channel
 	snd_seq_event_output_direct(seq_handle, &ev);
 }
 
-void AlsaMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
-{
+void AlsaMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );
-		return;
-	}
-
-	if (channel < 0) {
 		return;
 	}
 
@@ -600,7 +595,8 @@ void AlsaMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
 	snd_seq_ev_set_source(&ev, outPortId);
 	snd_seq_ev_set_subs(&ev);
 	snd_seq_ev_set_direct(&ev);
-	snd_seq_ev_set_noteoff(&ev, channel, key, velocity);
+	snd_seq_ev_set_noteoff(
+		&ev, msg.getChannel(), msg.getData1(), msg.getData2() );
 	snd_seq_event_output(seq_handle, &ev);
 	snd_seq_drain_output(seq_handle);
 }

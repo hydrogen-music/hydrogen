@@ -501,13 +501,9 @@ void PortMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 	}
 }
 
-void PortMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
+void PortMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 {
 	if ( m_pMidiOut == nullptr ) {
-		return;
-	}
-
-	if ( channel < 0 ) {
 		return;
 	}
 
@@ -515,7 +511,8 @@ void PortMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
 	event.timestamp = 0;
 
 	//Note off
-	event.message = Pm_Message(0x80 | channel, key, velocity);
+	event.message =
+		Pm_Message( 0x80 | msg.getChannel(), msg.getData1(), msg.getData2() );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write: [%1]" )
