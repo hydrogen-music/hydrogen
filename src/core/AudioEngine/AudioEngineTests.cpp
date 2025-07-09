@@ -19,12 +19,9 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#include <random>
-#include <stdexcept>
-
-#include <QTest>
 
 #include <core/AudioEngine/AudioEngineTests.h>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
@@ -35,11 +32,17 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
-#include <core/Sampler/Sampler.h>
-#include <core/Hydrogen.h>
-#include <core/CoreActionController.h>
-#include <core/Preferences/Preferences.h>
 #include <core/config.h>
+#include <core/CoreActionController.h>
+#include <core/Hydrogen.h>
+#include <core/IO/MidiOutput.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Sampler.h>
+
+#include <random>
+#include <stdexcept>
+
+#include <QTest>
 
 namespace H2Core
 {

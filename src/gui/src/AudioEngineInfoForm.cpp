@@ -28,15 +28,16 @@
 
 #include "HydrogenApp.h"
 
-#include <core/Basics/Pattern.h>
-#include <core/Basics/PatternList.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
-#include <core/IO/MidiInput.h>
-#include <core/IO/AudioOutput.h>
-#include <core/Sampler/Sampler.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Hydrogen.h>
+#include <core/IO/AudioOutput.h>
+#include <core/IO/MidiInput.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Sampler.h>
+
 using namespace H2Core;
 
 AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
@@ -164,7 +165,7 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Midi driver info
-	MidiInput *pMidiDriver = pHydrogen->getMidiInput();
+	auto pMidiDriver = pHydrogen->getMidiInput();
 	if ( pMidiDriver != nullptr ) {
 		midiDriverName->setText( pMidiDriver->class_name() );
 	}

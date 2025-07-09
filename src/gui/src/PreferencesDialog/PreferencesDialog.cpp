@@ -37,6 +37,7 @@
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/MidiInput.h>
+#include <core/IO/MidiOutput.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/Sampler/Sampler.h>
 
@@ -375,7 +376,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
 	if ( pHydrogen->getMidiInput() != nullptr ) {
-		std::vector<QString> midiOutList = pHydrogen->getMidiInput()->getOutputPortList();
+		std::vector<QString> midiOutList =
+			pHydrogen->getMidiInput()->getOutputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
@@ -396,7 +398,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
 	if ( pHydrogen->getMidiOutput() != nullptr ) {
-		std::vector<QString> midiOutList = pHydrogen->getMidiOutput()->getInputPortList();
+		std::vector<QString> midiOutList =
+			pHydrogen->getMidiOutput()->getInputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiOutportComboBox->setEnabled( true );

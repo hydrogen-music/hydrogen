@@ -306,8 +306,8 @@ public:
 					
 	void			setupLadspaFX();
 	
-	MidiInput*		getMidiDriver() const;
-	MidiOutput*		getMidiOutDriver() const;
+	std::shared_ptr<MidiInput>		getMidiDriver() const;
+	std::shared_ptr<MidiOutput>		getMidiOutDriver() const;
 	
 	std::shared_ptr<Instrument> getMetronomeInstrument() const;
 		
@@ -609,8 +609,8 @@ private:
 
 	Sampler* 			m_pSampler;
 	AudioOutput *		m_pAudioDriver;
-	MidiInput *			m_pMidiDriver;
-	MidiOutput *		m_pMidiDriverOut;
+	std::shared_ptr<MidiInput>		m_pMidiDriver;
+	std::shared_ptr<MidiOutput>		m_pMidiDriverOut;
 
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];
@@ -798,11 +798,11 @@ inline AudioOutput*	AudioEngine::getAudioDriver() const {
 	return m_pAudioDriver;
 }
 
-inline 	MidiInput*	AudioEngine::getMidiDriver() const {
+inline std::shared_ptr<MidiInput>	AudioEngine::getMidiDriver() const {
 	return m_pMidiDriver;
 }
 
-inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
+inline std::shared_ptr<MidiOutput>	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
 }
 

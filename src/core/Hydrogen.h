@@ -25,10 +25,7 @@
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/config.h>
-#include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 #include <core/Timehelper.h>
@@ -41,9 +38,12 @@
 namespace H2Core
 {
 	class AudioEngine;
+	class AudioOutput;
 	class Drumkit;
-	class SoundLibraryDatabase;
+	class MidiInput;
+	class MidiOutput;
 	class Playlist;
+	class SoundLibraryDatabase;
 
 ///
 /// Hydrogen Audio Engine.
@@ -256,9 +256,9 @@ public:
 
 		void			restartDrivers();
 
-		AudioOutput*		getAudioOutput() const;
-		MidiInput*		getMidiInput() const;
-		MidiOutput*		getMidiOutput() const;
+		AudioOutput*	getAudioOutput() const;
+		std::shared_ptr<MidiInput>		getMidiInput() const;
+		std::shared_ptr<MidiOutput>		getMidiOutput() const;
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/

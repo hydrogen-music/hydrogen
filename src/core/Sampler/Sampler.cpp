@@ -48,6 +48,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/IO/MidiOutput.h>
 #include <core/Preferences/Preferences.h>
 
 
@@ -156,15 +157,15 @@ void Sampler::process( uint32_t nFrames )
 	}
 
 	if ( m_queuedNoteOffs.size() > 0 ) {
-		MidiOutput* pMidiOut = pHydrogen->getMidiOutput();
-		if ( pMidiOut != nullptr ) {
+		auto pMidiOutput = pHydrogen->getMidiOutput();
+		if ( pMidiOutput != nullptr ) {
 			//Queue midi note off messages for notes that have a length specified for them
 			while ( ! m_queuedNoteOffs.empty() ) {
 				pNote =  m_queuedNoteOffs[0];
 
 				if ( pNote->getInstrument() != nullptr ) {
 					if ( ! pNote->getInstrument()->isMuted() ){
-						pMidiOut->sendNoteOffMessage(
+						pMidiOutput->sendNoteOffMessage(
 							pNote->getInstrument()->getMidiOutChannel(),
 							pNote->getMidiKey(),
 							pNote->getMidiVelocity() );

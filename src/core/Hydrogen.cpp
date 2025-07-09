@@ -723,12 +723,12 @@ AudioOutput* Hydrogen::getAudioOutput() const
 }
 
 /// Used to display midi driver info
-MidiInput* Hydrogen::getMidiInput() const 
+std::shared_ptr<MidiInput> Hydrogen::getMidiInput() const
 {
 	return m_pAudioEngine->getMidiDriver();
 }
 
-MidiOutput* Hydrogen::getMidiOutput() const
+std::shared_ptr<MidiOutput> Hydrogen::getMidiOutput() const
 {
 	return m_pAudioEngine->getMidiOutDriver();
 }

@@ -603,7 +603,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	const auto pPref = Preferences::get_instance();
-	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
+	auto pMidiDriver = pHydrogen->getMidiOutput();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
