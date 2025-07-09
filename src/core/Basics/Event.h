@@ -104,6 +104,8 @@ public:
 			/** Hydrogen did received a MIDI event. */
 			MidiInput,
 			MidiMapChanged,
+			/** Hydrogen did sent a MIDI event. */
+			MidiOutput,
 			/** Miscellaneous things shown in the Mixer apart from the
 			 * per-instrument MixerLines did change. */
 			MixerSettingsChanged,

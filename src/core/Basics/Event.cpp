@@ -59,6 +59,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "MidiInput";
 	case Event::Type::MidiMapChanged:
 		return "MidiMapChanged";
+	case Event::Type::MidiOutput:
+		return "MidiOutput";
 	case Event::Type::MixerSettingsChanged:
 		return "MixerSettingsChanged";
 	case Event::Type::NextPatternsChanged:
