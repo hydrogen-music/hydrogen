@@ -22,13 +22,14 @@
 
 
 #include <core/IO/PortMidiDriver.h>
-#include <core/Preferences/Preferences.h>
+
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Hydrogen.h>
 #include <core/Globals.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 
 #ifdef WIN32
@@ -472,29 +473,16 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 	return portList;
 }
 
-void PortMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
-{
+void PortMidiDriver::handleQueueNote( const MidiMessage& msg ) {
 	if ( m_pMidiOut == nullptr ) {
 		return;
 	}
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return;
-	}
-
-	int channel = pNote->getInstrument()->getMidiOutChannel();
-	if ( channel < 0 ) {
-		return;
-	}
-
-	int key = pNote->getMidiKey();
-	int velocity = pNote->getMidiVelocity();
 
 	PmEvent event;
 	event.timestamp = 0;
 
 	//Note off
-	event.message = Pm_Message(0x80 | channel, key, velocity);
+	event.message = Pm_Message(0x80 | msg.m_nChannel, msg.m_nData1, msg.m_nData2);
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note off: [%1]" )
@@ -502,7 +490,7 @@ void PortMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 	}
 
 	//Note on
-	event.message = Pm_Message(0x90 | channel, key, velocity);
+	event.message = Pm_Message(0x90 | msg.m_nChannel, msg.m_nData1, msg.m_nData2);
 	err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )

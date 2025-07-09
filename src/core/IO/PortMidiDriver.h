@@ -37,7 +37,9 @@ namespace H2Core
 	class Note;
 
 /** \ingroup docCore docMIDI */
-class PortMidiDriver : public Object<PortMidiDriver>, public virtual MidiInput, public virtual MidiOutput
+class PortMidiDriver : public Object<PortMidiDriver>,
+					   public virtual MidiInput,
+					   public virtual MidiOutput
 {
 	H2_OBJECT(PortMidiDriver)
 public:
@@ -53,7 +55,7 @@ public:
 	virtual std::vector<QString> getInputPortList() override;
 	virtual std::vector<QString> getOutputPortList() override;
 
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) override;
+	virtual void handleQueueNote( const MidiMessage& msg ) override;
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;

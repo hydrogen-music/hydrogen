@@ -21,6 +21,8 @@
 
 #include "MidiMessage.h"
 
+#include <core/Basics/Note.h>
+
 namespace H2Core
 {
 
@@ -30,6 +32,28 @@ void MidiMessage::clear() {
 	m_nData2 = -1;
 	m_nChannel = -1;
 	m_sysexData.clear();
+}
+
+MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
+	MidiMessage msg;
+
+	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
+		// In case we do not have a valid note, we do not construct a valid
+		// message either.
+	}
+	if ( pNote->getInstrument()->getMidiOutChannel() == 0 ) {
+		// MIDI output was turned off for the instrument associated to the
+		// provided note.
+	}
+	else {
+		msg.m_type = Type::NoteOn;
+		msg.m_nData1 = std::clamp( pNote->getMidiKey(), 0, 127 );
+		msg.m_nData2 = std::clamp( pNote->getMidiVelocity(), 0, 127 );
+		msg.m_nChannel = std::clamp(
+			pNote->getInstrument()->getMidiOutChannel(), 0, 15 );
+	}
+
+	return msg;
 }
 
 void MidiMessage::setType( int nStatusByte ) {

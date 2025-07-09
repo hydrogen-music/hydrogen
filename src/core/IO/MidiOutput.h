@@ -28,10 +28,9 @@
 #include <vector>
 #include <memory>
 
-namespace H2Core
-{
-class Note;
+namespace H2Core {
 
+class MidiMessage;
 
 /**
  * MIDI input base class
@@ -46,7 +45,7 @@ public:
 	
 	virtual std::vector<QString> getInputPortList() = 0;
 
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) = 0;
+	virtual void handleQueueNote( const MidiMessage& msg ) = 0;
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
 	virtual void handleQueueAllNoteOff() = 0;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) = 0;

@@ -33,6 +33,8 @@
 namespace H2Core
 {
 
+class Note;
+
 /** \ingroup docCore docMIDI */
 class MidiMessage
 {
@@ -96,14 +98,16 @@ public:
 	int m_nChannel;
 	std::vector<unsigned char> m_sysexData;
 
-	MidiMessage()
+		MidiMessage()
 			: m_type( Type::Unknown )
 			, m_nData1( -1 )
 			, m_nData2( -1 )
 			, m_nChannel( -1 ) {}
 
-	/** Reset message */
-	void clear();
+		/** Reset message */
+		void clear();
+
+		static MidiMessage from( std::shared_ptr<Note> pNote );
 
 	/**
 	 * Derives and set #m_type (and if applicable #m_nChannel) using

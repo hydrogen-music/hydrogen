@@ -20,37 +20,37 @@
  *
  */
 
+#include <core/Sampler/Sampler.h>
+
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <iostream>
+#include <QDebug>
 
-#include <core/IO/AudioOutput.h>
-#include <core/IO/JackAudioDriver.h>
-
-#include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/Globals.h>
-#include <core/Hydrogen.h>
+#include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Song.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Helpers/Filesystem.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
-
 #include <core/FX/Effects.h>
-#include <core/Sampler/Sampler.h>
+#include <core/Globals.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/IO/AudioOutput.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/Midi/NoteOnMessage.h>
+#include <core/Preferences/Preferences.h>
 
-#include <iostream>
-#include <QDebug>
 
 namespace H2Core
 {
@@ -808,7 +808,8 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// it to all connected MIDI devices.
 		if ( (int) pSelectedLayerInfo->fSamplePosition == 0  && ! pInstr->isMuted() ) {
 			if ( pHydrogen->getMidiOutput() != nullptr ){
-				pHydrogen->getMidiOutput()->handleQueueNote( pNote );
+				pHydrogen->getMidiOutput()->handleQueueNote(
+					MidiMessage::from( pNote ) );
 			}
 		}
 

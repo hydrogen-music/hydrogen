@@ -29,13 +29,13 @@
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
-#include <core/Globals.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Globals.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
@@ -378,43 +378,23 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 	nPort = 0;
 }
 
-void JackMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
-{
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return;
-	}
+void JackMidiDriver::handleQueueNote( const MidiMessage& msg ) {
 
 	uint8_t buffer[4];
 	int channel;
 	int key;
 	int vel;
 
-	channel = pNote->getInstrument()->getMidiOutChannel();
-	if (channel < 0 || channel > 15) {
-		return;
-	}
-
-	key = pNote->getMidiKey();
-	if (key < 0 || key > 127) {
-		return;
-	}
-
-	vel = pNote->getMidiVelocity();
-	if (vel < 0 || vel > 127) {
-		return;
-	}
-
-	buffer[0] = 0x80 | channel;	/* note off */
-	buffer[1] = key;
+	buffer[0] = 0x80 | msg.m_nChannel;	/* note off */
+	buffer[1] = msg.m_nData1;
 	buffer[2] = 0;
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
 
-	buffer[0] = 0x90 | channel;	/* note on */
-	buffer[1] = key;
-	buffer[2] = vel;
+	buffer[0] = 0x90 | msg.m_nChannel;	/* note on */
+	buffer[1] = msg.m_nData1;
+	buffer[2] = msg.m_nData2;
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);

@@ -27,14 +27,14 @@
  * Added CFRelease code (20060514 Jonathan Dempsey)
  */
 
-#include <core/Hydrogen.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/Song.h>
+#include <core/IO/CoreMidiDriver.h>
+
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
-#include <core/IO/CoreMidiDriver.h>
 
 #if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 
@@ -238,39 +238,27 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 	return cmPortList;
 }
 
-void CoreMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote )
+void CoreMidiDriver::handleQueueNote( const MidiMessage& msg )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
 		return;
 	}
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return;
-	}
-
-	int channel = pNote->getInstrument()->getMidiOutChannel();
-	if (channel < 0) {
-		return;
-	}
-
-	int key = pNote->getMidiKey();
-	int velocity = pNote->getMidiVelocity();
 
 	MIDIPacketList packetList;
 	packetList.numPackets = 1;
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | channel;
-	packetList.packet->data[1] = key;
-	packetList.packet->data[2] = velocity;
+	packetList.packet->data[0] = 0x80 | msg.m_nChannel;
+	packetList.packet->data[1] = msg.m_nData1;
+	packetList.packet->data[2] = msg.m_nData2;
 
 	sendMidiPacket( &packetList );
 
-	packetList.packet->data[0] = 0x90 | channel;
-	packetList.packet->data[1] = key;
-	packetList.packet->data[2] = velocity;
+	packetList.packet->data[0] = 0x90 | msg.m_nChannel;
+	packetList.packet->data[1] = msg.m_nData1;
+	packetList.packet->data[2] = msg.m_nData2;
 
 	sendMidiPacket( &packetList );
 }

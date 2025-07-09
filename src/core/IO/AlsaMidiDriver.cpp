@@ -24,17 +24,16 @@
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
-#include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
-
-#include <core/Globals.h>
-
-#include <pthread.h>
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Globals.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
+
+#include <pthread.h>
 
 namespace H2Core
 {
@@ -530,23 +529,12 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 	ERRORLOG( "Midi port " + sPortName + " not found" );
 }
 
-void AlsaMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
+void AlsaMidiDriver::handleQueueNote( const MidiMessage& msg )
 {
 	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return;
-	}
-
-	int channel = pNote->getInstrument()->getMidiOutChannel();
-	if (channel < 0) {
-		return;
-	}
-	int key = pNote->getMidiKey();
-	int velocity = pNote->getMidiVelocity();
 
 	snd_seq_event_t ev;
 
@@ -555,7 +543,7 @@ void AlsaMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 		snd_seq_ev_set_source(&ev, outPortId);
 		snd_seq_ev_set_subs(&ev);
 		snd_seq_ev_set_direct(&ev);
-	snd_seq_ev_set_noteoff(&ev, channel, key, velocity);
+	snd_seq_ev_set_noteoff( &ev, msg.m_nChannel, msg.m_nData1, msg.m_nData2 );
 	snd_seq_event_output(seq_handle, &ev);
 	snd_seq_drain_output(seq_handle);
 
@@ -567,7 +555,7 @@ void AlsaMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
 		snd_seq_ev_set_direct(&ev);
 		//snd_seq_event_output_direct( seq_handle, ev );
 
-	snd_seq_ev_set_noteon(&ev, channel, key, velocity);
+	snd_seq_ev_set_noteon( &ev, msg.m_nChannel, msg.m_nData1, msg.m_nData2 );
 	snd_seq_event_output(seq_handle, &ev);
 
 		//snd_seq_free_event(ev);

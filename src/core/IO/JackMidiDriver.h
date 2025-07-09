@@ -48,7 +48,9 @@ namespace H2Core
 {
 
 /** \ingroup docCore docMIDI */
-class JackMidiDriver : public Object<JackMidiDriver>, public virtual MidiInput, public virtual MidiOutput
+class JackMidiDriver : public Object<JackMidiDriver>,
+					   public virtual MidiInput,
+					   public virtual MidiOutput
 {
 	H2_OBJECT(JackMidiDriver)
 public:
@@ -64,7 +66,7 @@ public:
 	void JackMidiWrite(jack_nframes_t nframes);
 	void JackMidiRead(jack_nframes_t nframes);
 	
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) override;
+	virtual void handleQueueNote( const MidiMessage& msg ) override;
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;
 	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;

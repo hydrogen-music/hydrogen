@@ -41,7 +41,9 @@ namespace H2Core
 /// Based on Matthias Nagorni alsa sequencer example
 ///
 /** \ingroup docCore docMIDI */
-class AlsaMidiDriver : public Object<AlsaMidiDriver>, public virtual MidiInput, public virtual MidiOutput
+class AlsaMidiDriver : public Object<AlsaMidiDriver>,
+					   public virtual MidiInput,
+					   public virtual MidiOutput
 {
 	H2_OBJECT(AlsaMidiDriver)
 public:
@@ -55,7 +57,7 @@ public:
 
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote) override;
+	void handleQueueNote( const MidiMessage& msg ) override;
 	
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;
