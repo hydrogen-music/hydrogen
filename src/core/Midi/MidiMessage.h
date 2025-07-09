@@ -38,53 +38,53 @@ class Note;
 /** \ingroup docCore docMIDI */
 class MidiMessage
 {
-public:
-	/** All possible types of incoming MIDI messages.*/
-	enum class Type {
-		Unknown,
-		Sysex,
-		NoteOn,
-		NoteOff,
-		PolyphonicKeyPressure,
-		ControlChange,
-		ProgramChange,
-		ChannelPressure,
-		PitchWheel,
-		Start,
-		Continue,
-		Stop,
-		SongPos,
-		QuarterFrame,
-		SongSelect,
-		TuneRequest,
-		TimingClock,
-		ActiveSensing,
-		Reset
-	};
-	static QString TypeToQString( Type type );
+	public:
+		/** All possible types of incoming MIDI messages.*/
+		enum class Type {
+			Unknown,
+			Sysex,
+			NoteOn,
+			NoteOff,
+			PolyphonicKeyPressure,
+			ControlChange,
+			ProgramChange,
+			ChannelPressure,
+			PitchWheel,
+			Start,
+			Continue,
+			Stop,
+			SongPos,
+			QuarterFrame,
+			SongSelect,
+			TuneRequest,
+			TimingClock,
+			ActiveSensing,
+			Reset
+		};
+		static QString TypeToQString( Type type );
 
-	/** Subset of incoming MIDI events that will be handled by
-		Hydrogen. */
-	enum class Event {
-		Null,
-		Note,
-		CC,
-		PC,
-		MmcStop,
-		MmcPlay,
-		MmcPause,
-		MmcDeferredPlay,
-		MmcFastForward,
-		MmcRewind,
-		MmcRecordStrobe,
-		MmcRecordExit,
-		MmcRecordReady
-	};
-	static QString EventToQString( const Event& event );
-	static Event QStringToEvent( const QString& sEvent );
-	/** Retrieve the string representation for all available
-	 * #Event. */
-	static QStringList getEventList();
+		/** Subset of incoming MIDI events that will be handled by
+			Hydrogen. */
+		enum class Event {
+			Null,
+			Note,
+			CC,
+			PC,
+			MmcStop,
+			MmcPlay,
+			MmcPause,
+			MmcDeferredPlay,
+			MmcFastForward,
+			MmcRewind,
+			MmcRecordStrobe,
+			MmcRecordExit,
+			MmcRecordReady
+		};
+		static QString EventToQString( const Event& event );
+		static Event QStringToEvent( const QString& sEvent );
+		/** Retrieve the string representation for all available
+		 * #Event. */
+		static QStringList getEventList();
 
 		/** When recording notes using MIDI NOTE_ON events this offset will be
 		 * applied to the provided pitch in order to map it to an instrument
@@ -92,11 +92,11 @@ public:
 		 * drum in the General MIDI notation. */
 		static constexpr int instrumentOffset = 36;
 
-	Type m_type;
-	int m_nData1;
-	int m_nData2;
-	int m_nChannel;
-	std::vector<unsigned char> m_sysexData;
+		Type m_type;
+		int m_nData1;
+		int m_nData2;
+		int m_nChannel;
+		std::vector<unsigned char> m_sysexData;
 
 		MidiMessage()
 			: m_type( Type::Unknown )
@@ -109,23 +109,23 @@ public:
 
 		static MidiMessage from( std::shared_ptr<Note> pNote );
 
-	/**
-	 * Derives and set #m_type (and if applicable #m_nChannel) using
-	 * the @a statusByte of an incoming MIDI message. The particular
-	 * values are defined by the MIDI standard and do not dependent on
-	 * the individual drivers.
-	 */
-	void setType( int nStatusByte );
+		/**
+		 * Derives and set #m_type (and if applicable #m_nChannel) using the @a
+		 * statusByte of an incoming MIDI message. The particular values are
+		 * defined by the MIDI standard and do not dependent on the individual
+		 * drivers.
+		 */
+		void setType( int nStatusByte );
 
-	/** Formatted string version for debugging purposes.
-	 * \param sPrefix String prefix which will be added in front of
-	 *   every new line
-	 * \param bShort Instead of the whole content of all classes
-	 *   stored as members just a single unique identifier will be
-	 *   displayed without line breaks.
-	 *
-	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 *   every new line
+		 * \param bShort Instead of the whole content of all classes
+		 *   stored as members just a single unique identifier will be
+		 *   displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 };
 };
 
