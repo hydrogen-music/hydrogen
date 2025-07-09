@@ -92,12 +92,6 @@ class MidiMessage
 		 * drum in the General MIDI notation. */
 		static constexpr int instrumentOffset = 36;
 
-		Type m_type;
-		int m_nData1;
-		int m_nData2;
-		int m_nChannel;
-		std::vector<unsigned char> m_sysexData;
-
 		MidiMessage()
 			: m_type( Type::Unknown )
 			, m_nData1( -1 )
@@ -107,15 +101,32 @@ class MidiMessage
 		/** Reset message */
 		void clear();
 
+		/** Derives the channel associated to the incoming MIDI message (if
+		 * applicable #m_nChannel). The particular values are defined by the
+		 * MIDI standard and do not dependent on the individual drivers. */
+		static int deriveChannel( int nStatusByte );
+		/** Derives the type of the incoming MIDI message. The particular values
+		 * are defined by the MIDI standard and do not dependent on the
+		 * individual drivers. */
+		static Type deriveType( int nStatusByte );
+
 		static MidiMessage from( std::shared_ptr<Note> pNote );
 
-		/**
-		 * Derives and set #m_type (and if applicable #m_nChannel) using the @a
-		 * statusByte of an incoming MIDI message. The particular values are
-		 * defined by the MIDI standard and do not dependent on the individual
-		 * drivers.
-		 */
-		void setType( int nStatusByte );
+		Type getType() const;
+		void setType( Type type );
+
+		int getData1() const;
+		void setData1( int nData1 );
+
+		int getData2() const;
+		void setData2( int nData2 );
+
+		int getChannel() const;
+		void setChannel( int Channel );
+
+		std::vector<unsigned char> getSysexData() const;
+		void setSysexData( std::vector<unsigned char> data );
+		void appendToSysexData( unsigned char newData );
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -126,7 +137,50 @@ class MidiMessage
 		 *
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
+
+	private:
+		Type m_type;
+		int m_nData1;
+		int m_nData2;
+		int m_nChannel;
+		std::vector<unsigned char> m_sysexData;
+
 };
+
+inline MidiMessage::Type MidiMessage::getType() const {
+	return m_type;
+}
+inline void MidiMessage::setType( MidiMessage::Type type ) {
+	m_type = type;
+}
+inline int MidiMessage::getData1() const {
+	return m_nData1;
+}
+inline void MidiMessage::setData1( int nData1 ) {
+	m_nData1 = nData1;
+}
+inline int MidiMessage::getData2() const {
+	return m_nData2;
+}
+inline void MidiMessage::setData2( int nData2 ) {
+	m_nData2 = nData2;
+}
+inline int MidiMessage::getChannel() const {
+	return m_nChannel;
+}
+inline void MidiMessage::setChannel( int nChannel ) {
+	m_nChannel = nChannel;
+}
+inline std::vector<unsigned char> MidiMessage::getSysexData() const {
+	return m_sysexData;
+}
+inline void MidiMessage::setSysexData( std::vector<unsigned char> sysexData ) {
+	m_sysexData = sysexData;
+}
+inline void MidiMessage::appendToSysexData( unsigned char newData ) {
+	m_sysexData.push_back( newData );
+}
+
 };
 
 #endif

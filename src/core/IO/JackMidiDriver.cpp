@@ -101,23 +101,24 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 		memset(buffer, 0, sizeof(buffer));
 		memcpy(buffer, event.buffer, error);
 
-		msg.setType( buffer[ 0 ] );
-		if ( msg.m_type == MidiMessage::Type::Sysex ) {
+		msg.setType( MidiMessage::deriveType( buffer[ 0 ] ) );
+		msg.setChannel( MidiMessage::deriveChannel( buffer[ 0 ] ) );
+		if ( msg.getType() == MidiMessage::Type::Sysex ) {
 			if ( buffer[ 3 ] == 06 ){// MMC message
 				for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
-					msg.m_sysexData.push_back( buffer[ i ] );
+					msg.appendToSysexData( buffer[ i ] );
 				}
 			}
 			else {
 				for ( int i = 0; i < sizeof(buffer); i++ ) {
-					msg.m_sysexData.push_back( buffer[ i ] );
+					msg.appendToSysexData( buffer[ i ] );
 				}
 			}
 		}
 		else {
 			// All other MIDI messages
-			msg.m_nData1 = buffer[1];
-			msg.m_nData2 = buffer[2];
+			msg.setData1( buffer[1] );
+			msg.setData2( buffer[2] );
 		}
 		handleMidiMessage( msg );
 	}
@@ -385,16 +386,16 @@ void JackMidiDriver::handleQueueNote( const MidiMessage& msg ) {
 	int key;
 	int vel;
 
-	buffer[0] = 0x80 | msg.m_nChannel;	/* note off */
-	buffer[1] = msg.m_nData1;
+	buffer[0] = 0x80 | msg.getChannel();	/* note off */
+	buffer[1] = msg.getData1();
 	buffer[2] = 0;
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
 
-	buffer[0] = 0x90 | msg.m_nChannel;	/* note on */
-	buffer[1] = msg.m_nData1;
-	buffer[2] = msg.m_nData2;
+	buffer[0] = 0x90 | msg.getChannel();	/* note on */
+	buffer[1] = msg.getData1();
+	buffer[2] = msg.getData2();
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);

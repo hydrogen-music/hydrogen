@@ -54,18 +54,19 @@ static void midiProc ( const MIDIPacketList * pktlist,
 	for ( uint i = 0; i < pktlist->numPackets; i++ ) {
 		MidiMessage msg;
 		int nEventType = packet->data[0];
-		msg.setType( nEventType );
-		
+		msg.setType( MidiMessage::deriveType( nEventType ) );
+		msg.setChannel( MidiMessage::deriveChannel( nEventType ) );
+
 		if ( nEventType == 240 ) {
 			// SysEx messages also contain arbitrary data which has to
 			// be copied manually.
 			for ( int i = 0; i < packet->length; i++ ) {
-				msg.m_sysexData.push_back( packet->data[ i ] );
+				msg.appendToSysexData( packet->data[ i ] );
 			}
 		}
 		else {
-			msg.m_nData1 = packet->data[1];
-			msg.m_nData2 = packet->data[2];
+			msg.setData1( packet->data[1] );
+			msg.setData2( packet->data[2] );
 		}
 
 		instance->handleMidiMessage( msg );
@@ -250,15 +251,15 @@ void CoreMidiDriver::handleQueueNote( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | msg.m_nChannel;
-	packetList.packet->data[1] = msg.m_nData1;
-	packetList.packet->data[2] = msg.m_nData2;
+	packetList.packet->data[0] = 0x80 | msg.getChannel();
+	packetList.packet->data[1] = msg.getData1();
+	packetList.packet->data[2] = msg.getData2();
 
 	sendMidiPacket( &packetList );
 
-	packetList.packet->data[0] = 0x90 | msg.m_nChannel;
-	packetList.packet->data[1] = msg.m_nData1;
-	packetList.packet->data[2] = msg.m_nData2;
+	packetList.packet->data[0] = 0x90 | msg.getChannel();
+	packetList.packet->data[1] = msg.getData1();
+	packetList.packet->data[2] = msg.getData2();
 
 	sendMidiPacket( &packetList );
 }

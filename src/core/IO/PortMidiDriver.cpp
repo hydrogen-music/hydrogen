@@ -91,7 +91,7 @@ void* PortMidiDriver_thread( void* param )
 
 				if ( nEventType == 240 ) {
 					// New SysEx message
-					sysExMsg.m_type = MidiMessage::Type::Sysex;
+					sysExMsg.setType( MidiMessage::Type::Sysex );
 					if ( PortMidiDriver::appendSysExData( &sysExMsg,
 														  buffer[0].message ) ) {
 						instance->handleMidiMessage( sysExMsg );
@@ -100,9 +100,10 @@ void* PortMidiDriver_thread( void* param )
 				else {
 					// Other MIDI message consisting only of a single PmEvent.
 					MidiMessage msg;
-					msg.setType( nEventType );
-					msg.m_nData1 = Pm_MessageData1( buffer[0].message );
-					msg.m_nData2 = Pm_MessageData2( buffer[0].message );
+					msg.setChannel( MidiMessage::deriveChannel( nEventType ) );
+					msg.setType( MidiMessage::deriveType( nEventType ) );
+					msg.setData1( Pm_MessageData1( buffer[0].message ) );
+					msg.setData2( Pm_MessageData2( buffer[0].message ) );
 					instance->handleMidiMessage( msg );
 				}
 			}
@@ -482,7 +483,8 @@ void PortMidiDriver::handleQueueNote( const MidiMessage& msg ) {
 	event.timestamp = 0;
 
 	//Note off
-	event.message = Pm_Message(0x80 | msg.m_nChannel, msg.m_nData1, msg.m_nData2);
+	event.message = Pm_Message(
+		0x80 | msg.getChannel(), msg.getData1(), msg.getData2() );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note off: [%1]" )
@@ -490,7 +492,8 @@ void PortMidiDriver::handleQueueNote( const MidiMessage& msg ) {
 	}
 
 	//Note on
-	event.message = Pm_Message(0x90 | msg.m_nChannel, msg.m_nData1, msg.m_nData2);
+	event.message = Pm_Message(
+		0x90 | msg.getChannel(), msg.getData1(), msg.getData2() );
 	err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )
@@ -552,29 +555,30 @@ void PortMidiDriver::handleQueueAllNoteOff()
 	}
 }
 
-bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage, const PmMessage& msg ) {
+bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage,
+									  const PmMessage& msg ) {
 	// End of exception byte indicating the end of a SysEx message.
 	unsigned char eox = 247;
 	unsigned char c = msg & 0x000000ffUL;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
 
     c = (msg & 0x0000ff00UL) >>  8;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
 
 	c = (msg & 0x00ff0000UL) >> 16;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
 
 	c = (msg & 0xff000000UL) >> 24;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
