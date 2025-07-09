@@ -22,18 +22,24 @@
 
 #include <core/IO/MidiOutput.h>
 
+#include <core/Midi/MidiMessage.h>
+
 namespace H2Core
 {
 
-MidiOutput::MidiOutput()
-{
-	//
+MidiOutput::MidiOutput() {
 }
 
-
-MidiOutput::~MidiOutput()
-{
-	//INFOLOG( "DESTROY" );
+MidiOutput::~MidiOutput() {
 }
 
+void MidiOutput::sendMessage( const MidiMessage& msg ) {
+
+	if ( msg.getType() == MidiMessage::Type::NoteOn ) {
+		sendNoteOnMessage( msg );
+	}
+	else {
+		ERRORLOG( QString( "Unhandled message [%1]" ).arg( msg.toQString() ) );
+	}
+}
 };

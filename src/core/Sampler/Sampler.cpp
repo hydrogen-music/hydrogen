@@ -807,7 +807,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// it to all connected MIDI devices.
 		if ( (int) pSelectedLayerInfo->fSamplePosition == 0  && ! pInstr->isMuted() ) {
 			if ( pHydrogen->getMidiOutput() != nullptr ){
-				pHydrogen->getMidiOutput()->sendNoteOnMessage(
+				pHydrogen->getMidiOutput()->sendMessage(
 					MidiMessage::from( pNote ) );
 			}
 		}

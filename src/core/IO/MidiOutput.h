@@ -39,16 +39,21 @@ class MidiMessage;
 class MidiOutput : public virtual Object<MidiOutput>
 {
 	H2_OBJECT(MidiOutput)
-public:
-	MidiOutput();
-	virtual ~MidiOutput();
-	
-	virtual std::vector<QString> getInputPortList() = 0;
 
-	virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
-	virtual void sendNoteOffMessage( int channel, int key, int velocity ) = 0;
-	virtual void handleQueueAllNoteOff() = 0;
-	virtual void sendControlChangeMessage( int param, int value, int channel ) = 0;
+	public:
+		MidiOutput();
+		virtual ~MidiOutput();
+	
+		virtual std::vector<QString> getInputPortList() = 0;
+
+		void sendMessage( const MidiMessage& msg );
+
+		virtual void sendNoteOffMessage( int channel, int key, int velocity ) = 0;
+		virtual void handleQueueAllNoteOff() = 0;
+		virtual void sendControlChangeMessage( int param, int value, int channel ) = 0;
+
+	private:
+		virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
 };
 
 };
