@@ -28,7 +28,7 @@
 
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 #define KEY_MIN                 0

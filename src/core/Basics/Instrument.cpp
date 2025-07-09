@@ -34,7 +34,7 @@
 #include <core/Helpers/Legacy.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 

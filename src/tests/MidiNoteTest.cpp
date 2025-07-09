@@ -28,7 +28,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 
 #include <QFileInfo>
 

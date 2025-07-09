@@ -28,7 +28,7 @@
 
 #include <memory>
 
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 class MidiAction;

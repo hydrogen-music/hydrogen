@@ -37,7 +37,7 @@
 #include <core/Lilipond/Lilypond.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Midi/SMF.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>

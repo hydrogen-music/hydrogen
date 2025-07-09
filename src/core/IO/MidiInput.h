@@ -23,7 +23,7 @@
 #ifndef H2_MIDI_INPUT_H
 #define H2_MIDI_INPUT_H
 
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 #include <string>

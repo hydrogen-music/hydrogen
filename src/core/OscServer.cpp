@@ -45,7 +45,7 @@
 #include "core/Basics/Song.h"
 #include "core/Midi/MidiAction.h"
 #include "core/Midi/MidiActionManager.h"
-#include "core/Midi/MidiCommon.h"
+#include "core/Midi/MidiMessage.h"
 
 OscServer * OscServer::__instance = nullptr;
 

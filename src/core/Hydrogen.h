@@ -29,7 +29,7 @@
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 #include <core/Timehelper.h>
 #include <core/Timeline.h>

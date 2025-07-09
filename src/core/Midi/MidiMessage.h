@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2_MIDI_COMMON_H
-#define H2_MIDI_COMMON_H
+#ifndef MIDI_MESSAGE_H
+#define MIDI_MESSAGE_H
 
 #include <core/config.h>
 #include <core/Object.h>

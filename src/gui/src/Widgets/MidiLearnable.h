@@ -28,7 +28,7 @@
 #include <vector>
 #include <QString>
 
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 
 #include "../EventListener.h"
 

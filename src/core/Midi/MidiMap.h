@@ -28,7 +28,7 @@
 #include <cassert>
 
 #include <core/Helpers/Xml.h>
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 #include <QtCore/QMutex>

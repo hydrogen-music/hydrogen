@@ -29,7 +29,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Helpers/Xml.h>
 #include <core/License.h>
-#include <core/Midi/MidiCommon.h>
+#include <core/Midi/MidiMessage.h>
 
 #include <set>
 
