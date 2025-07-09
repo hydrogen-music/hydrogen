@@ -57,10 +57,7 @@ public:
 	virtual std::vector<QString> getInputPortList() override;
 	virtual std::vector<QString> getOutputPortList() override;
 
-	virtual void sendNoteOnMessage( const MidiMessage& msg ) override;
-	virtual void sendNoteOffMessage( const MidiMessage& msg ) override;
 	virtual void handleQueueAllNoteOff() override;
-	virtual void sendControlChangeMessage( int param, int value, int channel ) override;
 
 	MIDIClientRef  h2MIDIClient;
 	ItemCount cmSources;
@@ -73,7 +70,10 @@ public:
 	MIDIEndpointRef h2VirtualOut;
 
 private:
+	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendMidiPacket (MIDIPacketList *packetList);
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
 };
 
 }

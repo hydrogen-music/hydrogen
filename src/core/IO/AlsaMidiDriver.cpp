@@ -550,8 +550,7 @@ void AlsaMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 }
 
 
-void AlsaMidiDriver::sendControlChangeMessage( int param, int value, int channel )
-{
+void AlsaMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	snd_seq_event_t ev;
 	snd_seq_ev_clear(&ev);
 	
@@ -561,9 +560,9 @@ void AlsaMidiDriver::sendControlChangeMessage( int param, int value, int channel
 	snd_seq_ev_set_subs(&ev);
 	snd_seq_ev_set_direct(&ev);
 	
-	ev.data.control.param = param;
-	ev.data.control.value = value;
-	ev.data.control.channel = channel;
+	ev.data.control.param = msg.getData1();
+	ev.data.control.value = msg.getData2();
+	ev.data.control.channel = msg.getChannel();
 	
 	snd_seq_event_output_direct(seq_handle, &ev);
 }

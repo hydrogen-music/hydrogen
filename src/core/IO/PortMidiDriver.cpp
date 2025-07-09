@@ -166,13 +166,9 @@ PortMidiDriver::~PortMidiDriver()
 	}
 }
 
-void PortMidiDriver::sendControlChangeMessage( int param, int value, int channel )
+void PortMidiDriver::sendControlChangeMessage( const MidiMessage& msg )
 {
 	if ( m_pMidiOut == nullptr ) {
-		return;
-	}
-
-	if (channel < 0) {
 		return;
 	}
 
@@ -180,7 +176,8 @@ void PortMidiDriver::sendControlChangeMessage( int param, int value, int channel
 	event.timestamp = 0;
 
 	//Control change
-	event.message = Pm_Message(0xB0 | channel, param, value);
+	event.message = Pm_Message(
+		0xB0 | msg.getChannel(), msg.getData1(), msg.getData2() );
 	Pm_Write(m_pMidiOut, &event, 1);
 }
 

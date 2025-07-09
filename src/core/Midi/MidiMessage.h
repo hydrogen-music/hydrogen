@@ -92,6 +92,13 @@ class MidiMessage
 		 * drum in the General MIDI notation. */
 		static constexpr int instrumentOffset = 36;
 
+		/** Helper to construct ControlChange MIDI messages. */
+		struct ControlChange {
+			int nParameter;
+			int nValue;
+			int nChannel;
+		};
+
 		/** Helper to construct NoteOff MIDI messages. */
 		struct NoteOff {
 			int nKey;
@@ -117,6 +124,7 @@ class MidiMessage
 		 * individual drivers. */
 		static Type deriveType( int nStatusByte );
 
+		static MidiMessage from( const ControlChange& controlChange );
 		static MidiMessage from( std::shared_ptr<Note> pNote );
 		static MidiMessage from( const NoteOff& noteOff );
 

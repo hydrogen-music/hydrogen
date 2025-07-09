@@ -131,6 +131,16 @@ MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {
 	}
 }
 
+MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
+	MidiMessage msg;
+	msg.setType( Type::ControlChange );
+	msg.setData1( std::clamp( controlChange.nParameter, 0, 127 ) );
+	msg.setData2( std::clamp( controlChange.nValue, 0, 127 ) );
+	msg.setChannel( std::clamp( controlChange.nChannel, 0, 15 ) );
+
+	return msg;
+}
+
 MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 	MidiMessage msg;
 

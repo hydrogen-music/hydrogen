@@ -124,26 +124,12 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 	}
 }
 
-void
-JackMidiDriver::sendControlChangeMessage( int param, int value, int channel )
-{
+void JackMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];	
 	
-	if (channel < 0 || channel > 15) {
-		return;
-	}
-	
-	if (param < 0 || param > 127) {
-		return;
-	}
-
-	if (value < 0 || value > 127) {
-		return;
-	}
-
-	buffer[0] = 0xB0 | channel;	/* note off */
-	buffer[1] = param;
-	buffer[2] = value;
+	buffer[0] = 0xB0 | msg.getChannel();
+	buffer[1] = msg.getData1();
+	buffer[2] = msg.getData2();
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);

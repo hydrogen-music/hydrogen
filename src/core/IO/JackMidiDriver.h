@@ -66,14 +66,15 @@ public:
 	void JackMidiWrite(jack_nframes_t nframes);
 	void JackMidiRead(jack_nframes_t nframes);
 	
-	virtual void sendNoteOnMessage( const MidiMessage& msg ) override;
-	virtual void sendNoteOffMessage( const MidiMessage& msg ) override;
 	virtual void handleQueueAllNoteOff() override;
-	virtual void sendControlChangeMessage( int param, int value, int channel ) override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	void JackMidiOutEvent(uint8_t *buf, uint8_t len);
+
+	void sendControlChangeMessage( const MidiMessage& msg ) override;
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
 
 	void lock();
 	void unlock();

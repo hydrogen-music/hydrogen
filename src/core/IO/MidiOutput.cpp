@@ -36,6 +36,10 @@ MidiOutput::~MidiOutput() {
 void MidiOutput::sendMessage( const MidiMessage& msg ) {
 
 	switch( msg.getType() ) {
+	case MidiMessage::Type::ControlChange:
+		sendControlChangeMessage( msg );
+		break;
+
 	case MidiMessage::Type::NoteOn:
 		sendNoteOffMessage( msg );
 		sendNoteOnMessage( msg );

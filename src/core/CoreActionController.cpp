@@ -610,11 +610,15 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 		return false;
 	}
 
+	MidiMessage::ControlChange controlChange;
 	for ( const auto& param : params ) {
 		if ( pMidiDriver != nullptr &&
 			 pPref->m_bEnableMidiFeedback && param >= 0 ){
+			controlChange.nParameter = param;
+			controlChange.nValue = nValue;
 			// For now the MIDI feedback channel is always 0.
-			pMidiDriver->sendControlChangeMessage( param, nValue, 0 );
+			controlChange.nChannel = 0;
+			pMidiDriver->sendMessage( MidiMessage::from( controlChange ) );
 		}
 	}
 

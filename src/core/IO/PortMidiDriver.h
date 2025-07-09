@@ -55,10 +55,7 @@ public:
 	virtual std::vector<QString> getInputPortList() override;
 	virtual std::vector<QString> getOutputPortList() override;
 
-	virtual void sendNoteOnMessage( const MidiMessage& msg ) override;
-	virtual void sendNoteOffMessage( const MidiMessage& msg ) override;
 	virtual void handleQueueAllNoteOff() override;
-	virtual void sendControlChangeMessage( int param, int value, int channel ) override;
 
 	static QString translatePmError( const PmError& err );
 	/**
@@ -73,7 +70,12 @@ public:
 	static bool appendSysExData( MidiMessage* pMidiMessage, const PmMessage& msg );
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
+	void sendControlChangeMessage( const MidiMessage& msg ) override;
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
+
 	int m_nVirtualInputDeviceId;
 	int m_nVirtualOutputDeviceId;
 };

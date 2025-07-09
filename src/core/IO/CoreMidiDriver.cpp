@@ -320,14 +320,9 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 	}
 }
 
-void CoreMidiDriver::sendControlChangeMessage( int param, int value, int channel )
-{
+void CoreMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
-		return;
-	}
-
-	if (channel < 0) {
 		return;
 	}
 
@@ -336,9 +331,9 @@ void CoreMidiDriver::sendControlChangeMessage( int param, int value, int channel
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0xB0 | channel;
-	packetList.packet->data[1] = param;
-	packetList.packet->data[2] = value;
+	packetList.packet->data[0] = 0xB0 | msg.getChannel();
+	packetList.packet->data[1] = msg.getData1();
+	packetList.packet->data[2] = msg.getData2();
 
 	sendMidiPacket( &packetList );
 }
