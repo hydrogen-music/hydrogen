@@ -45,10 +45,10 @@ public:
 	
 	virtual std::vector<QString> getInputPortList() = 0;
 
-	virtual void handleQueueNote( const MidiMessage& msg ) = 0;
-	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
+	virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
+	virtual void sendNoteOffMessage( int channel, int key, int velocity ) = 0;
 	virtual void handleQueueAllNoteOff() = 0;
-	virtual void handleOutgoingControlChange( int param, int value, int channel ) = 0;
+	virtual void sendControlChangeMessage( int param, int value, int channel ) = 0;
 };
 
 };

@@ -166,7 +166,7 @@ PortMidiDriver::~PortMidiDriver()
 	}
 }
 
-void PortMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+void PortMidiDriver::sendControlChangeMessage( int param, int value, int channel )
 {
 	if ( m_pMidiOut == nullptr ) {
 		return;
@@ -474,7 +474,7 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 	return portList;
 }
 
-void PortMidiDriver::handleQueueNote( const MidiMessage& msg ) {
+void PortMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 	if ( m_pMidiOut == nullptr ) {
 		return;
 	}
@@ -501,7 +501,7 @@ void PortMidiDriver::handleQueueNote( const MidiMessage& msg ) {
 	}
 }
 
-void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
+void PortMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
 {
 	if ( m_pMidiOut == nullptr ) {
 		return;

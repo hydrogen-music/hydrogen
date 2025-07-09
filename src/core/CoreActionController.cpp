@@ -614,7 +614,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 		if ( pMidiDriver != nullptr &&
 			 pPref->m_bEnableMidiFeedback && param >= 0 ){
 			// For now the MIDI feedback channel is always 0.
-			pMidiDriver->handleOutgoingControlChange( param, nValue, 0 );
+			pMidiDriver->sendControlChangeMessage( param, nValue, 0 );
 		}
 	}
 

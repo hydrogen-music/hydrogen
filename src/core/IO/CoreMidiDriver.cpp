@@ -239,7 +239,7 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 	return cmPortList;
 }
 
-void CoreMidiDriver::handleQueueNote( const MidiMessage& msg )
+void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
@@ -264,7 +264,7 @@ void CoreMidiDriver::handleQueueNote( const MidiMessage& msg )
 	sendMidiPacket( &packetList );
 }
 
-void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
+void CoreMidiDriver::sendNoteOffMessage( int channel, int key, int velocity )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
@@ -330,7 +330,7 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 	}
 }
 
-void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+void CoreMidiDriver::sendControlChangeMessage( int param, int value, int channel )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );

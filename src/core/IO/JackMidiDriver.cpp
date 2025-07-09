@@ -125,7 +125,7 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 }
 
 void
-JackMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+JackMidiDriver::sendControlChangeMessage( int param, int value, int channel )
 {
 	uint8_t buffer[4];	
 	
@@ -379,7 +379,7 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 	nPort = 0;
 }
 
-void JackMidiDriver::handleQueueNote( const MidiMessage& msg ) {
+void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 
 	uint8_t buffer[4];
 	int channel;
@@ -402,7 +402,7 @@ void JackMidiDriver::handleQueueNote( const MidiMessage& msg ) {
 }
 
 void
-JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
+JackMidiDriver::sendNoteOffMessage(int channel, int key, int vel)
 {
 	uint8_t buffer[4];
 
@@ -448,7 +448,7 @@ void JackMidiDriver::handleQueueAllNoteOff()
 			continue;
 		}
 
-		handleQueueNoteOff(channel, key, 0);
+		sendNoteOffMessage(channel, key, 0);
 	}
 }
 

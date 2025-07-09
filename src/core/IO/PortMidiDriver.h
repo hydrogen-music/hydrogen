@@ -55,10 +55,10 @@ public:
 	virtual std::vector<QString> getInputPortList() override;
 	virtual std::vector<QString> getOutputPortList() override;
 
-	virtual void handleQueueNote( const MidiMessage& msg ) override;
-	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
+	virtual void sendNoteOnMessage( const MidiMessage& msg ) override;
+	virtual void sendNoteOffMessage( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;
-	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
+	virtual void sendControlChangeMessage( int param, int value, int channel ) override;
 
 	static QString translatePmError( const PmError& err );
 	/**

@@ -164,7 +164,7 @@ void Sampler::process( uint32_t nFrames )
 
 				if ( pNote->getInstrument() != nullptr ) {
 					if ( ! pNote->getInstrument()->isMuted() ){
-						pMidiOut->handleQueueNoteOff(
+						pMidiOut->sendNoteOffMessage(
 							pNote->getInstrument()->getMidiOutChannel(),
 							pNote->getMidiKey(),
 							pNote->getMidiVelocity() );
@@ -807,7 +807,7 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// it to all connected MIDI devices.
 		if ( (int) pSelectedLayerInfo->fSamplePosition == 0  && ! pInstr->isMuted() ) {
 			if ( pHydrogen->getMidiOutput() != nullptr ){
-				pHydrogen->getMidiOutput()->handleQueueNote(
+				pHydrogen->getMidiOutput()->sendNoteOnMessage(
 					MidiMessage::from( pNote ) );
 			}
 		}

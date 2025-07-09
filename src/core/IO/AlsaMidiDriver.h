@@ -57,11 +57,11 @@ public:
 
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	void handleQueueNote( const MidiMessage& msg ) override;
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
 	
-	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
+	virtual void sendNoteOffMessage( int channel, int key, int velocity ) override;
 	virtual void handleQueueAllNoteOff() override;
-	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
+	virtual void sendControlChangeMessage( int param, int value, int channel ) override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
