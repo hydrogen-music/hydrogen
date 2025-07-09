@@ -48,7 +48,6 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/Midi/NoteOnMessage.h>
 #include <core/Preferences/Preferences.h>
 
 
