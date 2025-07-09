@@ -38,28 +38,28 @@ class MidiMessage
 {
 public:
 	/** All possible types of incoming MIDI messages.*/
-	enum MidiMessageType {
-		UNKNOWN,
-		SYSEX,
-		NOTE_ON,
-		NOTE_OFF,
-		POLYPHONIC_KEY_PRESSURE,
-		CONTROL_CHANGE,
-		PROGRAM_CHANGE,
-		CHANNEL_PRESSURE,
-		PITCH_WHEEL,
-		START,
-		CONTINUE,
-		STOP,
-		SONG_POS,
-		QUARTER_FRAME,
-		SONG_SELECT,
-		TUNE_REQUEST,
-		TIMING_CLOCK,
-		ACTIVE_SENSING,
-		RESET
+	enum class Type {
+		Unknown,
+		Sysex,
+		NoteOn,
+		NoteOff,
+		PolyphonicKeyPressure,
+		ControlChange,
+		ProgramChange,
+		ChannelPressure,
+		PitchWheel,
+		Start,
+		Continue,
+		Stop,
+		SongPos,
+		QuarterFrame,
+		SongSelect,
+		TuneRequest,
+		TimingClock,
+		ActiveSensing,
+		Reset
 	};
-	static QString TypeToQString( MidiMessageType type );
+	static QString TypeToQString( Type type );
 
 	/** Subset of incoming MIDI events that will be handled by
 		Hydrogen. */
@@ -90,14 +90,14 @@ public:
 		 * drum in the General MIDI notation. */
 		static constexpr int instrumentOffset = 36;
 
-	MidiMessageType m_type;
+	Type m_type;
 	int m_nData1;
 	int m_nData2;
 	int m_nChannel;
 	std::vector<unsigned char> m_sysexData;
 
 	MidiMessage()
-			: m_type( UNKNOWN )
+			: m_type( Type::Unknown )
 			, m_nData1( -1 )
 			, m_nData2( -1 )
 			, m_nChannel( -1 ) {}

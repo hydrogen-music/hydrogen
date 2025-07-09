@@ -90,7 +90,7 @@ void* PortMidiDriver_thread( void* param )
 
 				if ( nEventType == 240 ) {
 					// New SysEx message
-					sysExMsg.m_type = MidiMessage::SYSEX;
+					sysExMsg.m_type = MidiMessage::Type::Sysex;
 					if ( PortMidiDriver::appendSysExData( &sysExMsg,
 														  buffer[0].message ) ) {
 						instance->handleMidiMessage( sysExMsg );

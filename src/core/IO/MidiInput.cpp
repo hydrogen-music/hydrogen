@@ -66,13 +66,13 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		}
 
 		// exclude all midi channel filter independent messages
-		int type = msg.m_type;
-		if (  MidiMessage::SYSEX == type
-		   || MidiMessage::START == type
-		   || MidiMessage::CONTINUE == type
-		   || MidiMessage::STOP == type
-		   || MidiMessage::SONG_POS == type
-		   || MidiMessage::QUARTER_FRAME == type
+		auto type = msg.m_type;
+		if (  MidiMessage::Type::Sysex == type
+		   || MidiMessage::Type::Start == type
+		   || MidiMessage::Type::Continue == type
+		   || MidiMessage::Type::Stop == type
+		   || MidiMessage::Type::SongPos == type
+		   || MidiMessage::Type::QuarterFrame == type
 		) {
 			bIsChannelValid = true;
 		}
@@ -89,31 +89,31 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		}
 
 		switch ( type ) {
-		case MidiMessage::SYSEX:
+		case MidiMessage::Type::Sysex:
 				handleSysexMessage( msg );
 				break;
 
-		case MidiMessage::NOTE_ON:
+		case MidiMessage::Type::NoteOn:
 				handleNoteOnMessage( msg );
 				break;
 
-		case MidiMessage::NOTE_OFF:
+		case MidiMessage::Type::NoteOff:
 				handleNoteOffMessage( msg, false );
 				break;
 
-		case MidiMessage::POLYPHONIC_KEY_PRESSURE:
+		case MidiMessage::Type::PolyphonicKeyPressure:
 				handlePolyphonicKeyPressureMessage( msg );
 				break;
 
-		case MidiMessage::CONTROL_CHANGE:
+		case MidiMessage::Type::ControlChange:
 				handleControlChangeMessage( msg );
 				break;
 
-		case MidiMessage::PROGRAM_CHANGE:
+		case MidiMessage::Type::ProgramChange:
 				handleProgramChangeMessage( msg );
 				break;
 
-		case MidiMessage::START: /* Start from position 0 */
+		case MidiMessage::Type::Start: /* Start from position 0 */
 			if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 				CoreActionController::locateToColumn( 0 );
 				auto pAction = std::make_shared<MidiAction>("PLAY");
@@ -121,32 +121,32 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 			}
 			break;
 
-		case MidiMessage::CONTINUE: /* Just start */ {
+		case MidiMessage::Type::Continue: /* Just start */ {
 			auto pAction = std::make_shared<MidiAction>("PLAY");
 			MidiActionManager::get_instance()->handleMidiAction( pAction );
 			break;
 		}
 
-		case MidiMessage::STOP: /* Stop in current position i.e. Pause */ {
+		case MidiMessage::Type::Stop: /* Stop in current position i.e. Pause */ {
 			auto pAction = std::make_shared<MidiAction>("PAUSE");
 			MidiActionManager::get_instance()->handleMidiAction( pAction );
 			break;
 		}
 
-		case MidiMessage::CHANNEL_PRESSURE:
-		case MidiMessage::PITCH_WHEEL:
-		case MidiMessage::SONG_POS:
-		case MidiMessage::QUARTER_FRAME:
-		case MidiMessage::SONG_SELECT:
-		case MidiMessage::TUNE_REQUEST:
-		case MidiMessage::TIMING_CLOCK:
-		case MidiMessage::ACTIVE_SENSING:
-		case MidiMessage::RESET:
+		case MidiMessage::Type::ChannelPressure:
+		case MidiMessage::Type::PitchWheel:
+		case MidiMessage::Type::SongPos:
+		case MidiMessage::Type::QuarterFrame:
+		case MidiMessage::Type::SongSelect:
+		case MidiMessage::Type::TuneRequest:
+		case MidiMessage::Type::TimingClock:
+		case MidiMessage::Type::ActiveSensing:
+		case MidiMessage::Type::Reset:
 			INFOLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
 					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
 			return;
 
-		case MidiMessage::UNKNOWN:
+		case MidiMessage::Type::Unknown:
 			WARNINGLOG( "Unknown midi message" );
 			return;
 

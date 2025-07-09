@@ -25,7 +25,7 @@ namespace H2Core
 {
 
 void MidiMessage::clear() {
-	m_type = UNKNOWN;
+	m_type = Type::Unknown;
 	m_nData1 = -1;
 	m_nData2 = -1;
 	m_nChannel = -1;
@@ -36,71 +36,71 @@ void MidiMessage::setType( int nStatusByte ) {
 
 	if ( nStatusByte >= 128 && nStatusByte < 144 ) {
 		m_nChannel = nStatusByte - 128;
-		m_type = MidiMessage::NOTE_OFF;
+		m_type = Type::NoteOff;
 	}
 	else if ( nStatusByte >= 144 && nStatusByte < 160 ) {
 		m_nChannel = nStatusByte - 144;
-		m_type = MidiMessage::NOTE_ON;
+		m_type = Type::NoteOn;
 	}
 	else if ( nStatusByte >= 160 && nStatusByte < 176 ) {
 		m_nChannel = nStatusByte - 160;
-		m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
+		m_type = Type::PolyphonicKeyPressure;
 	}
 	else if ( nStatusByte >= 176 && nStatusByte < 192 ) {
 		m_nChannel = nStatusByte - 176;
-		m_type = MidiMessage::CONTROL_CHANGE;
+		m_type = Type::ControlChange;
 	}
 	else if ( nStatusByte >= 192 && nStatusByte < 208 ) {
 		m_nChannel = nStatusByte - 192;
-		m_type = MidiMessage::PROGRAM_CHANGE;
+		m_type = Type::ProgramChange;
 	}
 	else if ( nStatusByte >= 208 && nStatusByte < 224 ) {
 		m_nChannel = nStatusByte - 208;
-		m_type = MidiMessage::CHANNEL_PRESSURE;
+		m_type = Type::ChannelPressure;
 	}
 	else if ( nStatusByte >= 224 && nStatusByte < 240 ) {
 		m_nChannel = nStatusByte - 224;
-		m_type = MidiMessage::PITCH_WHEEL;
+		m_type = Type::PitchWheel;
 	}
 	// System Common Messages
 	else if ( nStatusByte == 240 ) {
 		m_nChannel = nStatusByte - 224;
-		m_type = MidiMessage::SYSEX;
+		m_type = Type::Sysex;
 	}
 	else if ( nStatusByte == 241 ) {
-		m_type = MidiMessage::QUARTER_FRAME;
+		m_type = Type::QuarterFrame;
 	}
 	else if ( nStatusByte == 242 ) {
-		m_type = MidiMessage::SONG_POS;
+		m_type = Type::SongPos;
 	}
 	else if ( nStatusByte == 243 ) {
-		m_type = MidiMessage::SONG_SELECT;
+		m_type = Type::SongSelect;
 	}
 	// 244, 245 are undefined/reserved
 	else if ( nStatusByte == 246 ) {
-		m_type = MidiMessage::TUNE_REQUEST;
+		m_type = Type::TuneRequest;
 	}
 	// 247 indicates the end of a SysEx (240) message
 	// System Realtime Messages
 	else if ( nStatusByte == 248 ) {
-		m_type = MidiMessage::TIMING_CLOCK;
+		m_type = Type::TimingClock;
 	}
 	// 249 is undefined/reserved
 	else if ( nStatusByte == 250 ) {
-		m_type = MidiMessage::START;
+		m_type = Type::Start;
 	}
 	else if ( nStatusByte == 251 ) {
-		m_type = MidiMessage::CONTINUE;
+		m_type = Type::Continue;
 	}
 	else if ( nStatusByte == 252 ) {
-		m_type = MidiMessage::STOP;
+		m_type = Type::Stop;
 	}
 	// 253 is undefined/reserved
 	else if ( nStatusByte == 254 ) {
-		m_type = MidiMessage::ACTIVE_SENSING;
+		m_type = Type::ActiveSensing;
 	}
 	else if ( nStatusByte == 255 ) {
-		m_type = MidiMessage::RESET;
+		m_type = Type::Reset;
 	}
 }
 
@@ -111,7 +111,7 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[MidiMessage]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_type: %3\n" )
-					 .arg( MidiMessage::TypeToQString( m_type ) ) )
+					 .arg( TypeToQString( m_type ) ) )
 			.append( QString( "%1%2m_nData1: %3\n" )
 					 .arg( m_nData1 ) )
 			.append( QString( "%1%2m_nData2: %3\n" )
@@ -133,7 +133,7 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 		sOutput = QString( "[MidiMessage] " )
-			.append( QString( "m_type: %1" ).arg( MidiMessage::TypeToQString( m_type ) ) )
+			.append( QString( "m_type: %1" ).arg( TypeToQString( m_type ) ) )
 			.append( QString( ", m_nData1: %1" ).arg( m_nData1 ) )
 			.append( QString( ", m_nData2: %1" ).arg( m_nData2 ) )
 			.append( QString( ", m_nChannel: %1" ).arg( m_nChannel ) )
@@ -154,64 +154,64 @@ QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-QString MidiMessage::TypeToQString( MidiMessageType type ) {
+QString MidiMessage::TypeToQString( Type type ) {
 	QString sType;
 	switch( type ) {
-	case MidiMessageType::SYSEX:
+	case Type::Sysex:
 		sType = "SYSEX";
 		break;
-	case MidiMessageType::NOTE_ON:
+	case Type::NoteOn:
 		sType = "NOTE_ON";
 		break;
-	case MidiMessageType::NOTE_OFF:
+	case Type::NoteOff:
 		sType = "NOTE_OFF";
 		break;
-	case MidiMessageType::POLYPHONIC_KEY_PRESSURE:
+	case Type::PolyphonicKeyPressure:
 		sType = "POLYPHONIC_KEY_PRESSURE";
 		break;
-	case MidiMessageType::CONTROL_CHANGE:
+	case Type::ControlChange:
 		sType = "CONTROL_CHANGE";
 		break;
-	case MidiMessageType::PROGRAM_CHANGE:
+	case Type::ProgramChange:
 		sType = "PROGRAM_CHANGE";
 		break;
-	case MidiMessageType::CHANNEL_PRESSURE:
+	case Type::ChannelPressure:
 		sType = "CHANNEL_PRESSURE";
 		break;
-	case MidiMessageType::PITCH_WHEEL:
+	case Type::PitchWheel:
 		sType = "PITCH_WHEEL";
 		break;
-	case MidiMessageType::START:
+	case Type::Start:
 		sType = "START";
 		break;
-	case MidiMessageType::CONTINUE:
+	case Type::Continue:
 		sType = "CONTINUE";
 		break;
-	case MidiMessageType::STOP:
+	case Type::Stop:
 		sType = "STOP";
 		break;
-	case MidiMessageType::SONG_POS:
+	case Type::SongPos:
 		sType = "SONG_POS";
 		break;
-	case MidiMessageType::QUARTER_FRAME:
+	case Type::QuarterFrame:
 		sType = "QUARTER_FRAME";
 		break;
-	case MidiMessageType::SONG_SELECT:
+	case Type::SongSelect:
 		sType = "SONG_SELECT";
 		break;
-	case MidiMessageType::TUNE_REQUEST:
+	case Type::TuneRequest:
 		sType = "TUNE_REQUEST";
 		break;
-	case MidiMessageType::TIMING_CLOCK:
+	case Type::TimingClock:
 		sType = "TIMING_CLOCK";
 		break;
-	case MidiMessageType::ACTIVE_SENSING:
+	case Type::ActiveSensing:
 		sType = "ACTIVE_SENSING";
 		break;
-	case MidiMessageType::RESET:
+	case Type::Reset:
 		sType = "RESET";
 		break;
-	case MidiMessageType::UNKNOWN:
+	case Type::Unknown:
 	default:
 		sType = "Unknown MIDI message type";
 	}

@@ -102,7 +102,7 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 		memcpy(buffer, event.buffer, error);
 
 		msg.setType( buffer[ 0 ] );
-		if ( msg.m_type == MidiMessage::SYSEX ) {
+		if ( msg.m_type == MidiMessage::Type::Sysex ) {
 			if ( buffer[ 3 ] == 06 ){// MMC message
 				for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
 					msg.m_sysexData.push_back( buffer[ i ] );
