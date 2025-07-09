@@ -481,20 +481,9 @@ void PortMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 
 	PmEvent event;
 	event.timestamp = 0;
-
-	//Note off
-	event.message = Pm_Message(
-		0x80 | msg.getChannel(), msg.getData1(), msg.getData2() );
-	PmError err = Pm_Write(m_pMidiOut, &event, 1);
-	if ( err != pmNoError ) {
-		ERRORLOG( QString( "Error in Pm_Write for Note off: [%1]" )
-				  .arg( PortMidiDriver::translatePmError( err ) ) );
-	}
-
-	//Note on
 	event.message = Pm_Message(
 		0x90 | msg.getChannel(), msg.getData1(), msg.getData2() );
-	err = Pm_Write(m_pMidiOut, &event, 1);
+	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )
 				  .arg( PortMidiDriver::translatePmError( err ) ) );

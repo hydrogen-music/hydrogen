@@ -539,27 +539,13 @@ void AlsaMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 
 	snd_seq_event_t ev;
 
-	//Note off
 	snd_seq_ev_clear(&ev);
-		snd_seq_ev_set_source(&ev, outPortId);
-		snd_seq_ev_set_subs(&ev);
-		snd_seq_ev_set_direct(&ev);
-	snd_seq_ev_set_noteoff( &ev, msg.getChannel(), msg.getData1(), msg.getData2() );
+	snd_seq_ev_set_source(&ev, outPortId);
+	snd_seq_ev_set_subs(&ev);
+	snd_seq_ev_set_direct(&ev);
+	snd_seq_ev_set_noteon(
+		&ev, msg.getChannel(), msg.getData1(), msg.getData2() );
 	snd_seq_event_output(seq_handle, &ev);
-	snd_seq_drain_output(seq_handle);
-
-	//Note on
-	//snd_seq_event_input(seq_handle, &ev);
-	snd_seq_ev_clear(&ev);
-		snd_seq_ev_set_source(&ev, outPortId);
-		snd_seq_ev_set_subs(&ev);
-		snd_seq_ev_set_direct(&ev);
-		//snd_seq_event_output_direct( seq_handle, ev );
-
-	snd_seq_ev_set_noteon( &ev, msg.getChannel(), msg.getData1(), msg.getData2() );
-	snd_seq_event_output(seq_handle, &ev);
-
-		//snd_seq_free_event(ev);
 	snd_seq_drain_output(seq_handle);
 }
 

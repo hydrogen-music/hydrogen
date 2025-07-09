@@ -251,12 +251,6 @@ void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | msg.getChannel();
-	packetList.packet->data[1] = msg.getData1();
-	packetList.packet->data[2] = msg.getData2();
-
-	sendMidiPacket( &packetList );
-
 	packetList.packet->data[0] = 0x90 | msg.getChannel();
 	packetList.packet->data[1] = msg.getData1();
 	packetList.packet->data[2] = msg.getData2();
@@ -268,10 +262,6 @@ void CoreMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
-		return;
-	}
-
-	if (channel < 0) {
 		return;
 	}
 

@@ -382,16 +382,6 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 
 	uint8_t buffer[4];
-	int channel;
-	int key;
-	int vel;
-
-	buffer[0] = 0x80 | msg.getChannel();	/* note off */
-	buffer[1] = msg.getData1();
-	buffer[2] = 0;
-	buffer[3] = 0;
-
-	JackMidiOutEvent(buffer, 3);
 
 	buffer[0] = 0x90 | msg.getChannel();	/* note on */
 	buffer[1] = msg.getData1();
