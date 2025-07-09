@@ -126,6 +126,9 @@ MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {
 	else if ( nStatusByte == 255 ) {
 		return Type::Reset;
 	}
+	else {
+		return Type::Unknown;
+	}
 }
 
 MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
