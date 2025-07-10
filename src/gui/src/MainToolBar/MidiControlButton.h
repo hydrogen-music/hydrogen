@@ -47,7 +47,7 @@ class MidiControlButton : public QToolButton,
 		Q_OBJECT
 
 public:
-		static constexpr std::chrono::milliseconds midiActivityTimeout{ 125 };
+		static constexpr std::chrono::milliseconds midiActivityTimeout{ 250 };
 		static constexpr int nIconWidth = 17;
 		static constexpr int nLogoWidth = 55;
 
