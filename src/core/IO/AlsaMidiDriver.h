@@ -57,7 +57,6 @@ public:
 
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	virtual void handleQueueAllNoteOff() override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 

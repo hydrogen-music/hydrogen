@@ -2678,4 +2678,34 @@ bool CoreActionController::activatePlaylistSong( int nSongNumber ) {
 
 	return true;
 }
+
+bool CoreActionController::sendAllNoteOffMessages() {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Unable to send MIDI messages" );
+		return false;
+	}
+
+	auto pMidiDriver = pHydrogen->getAudioEngine()->getMidiOutDriver();
+	if ( pMidiDriver == nullptr ) {
+		return false;
+	}
+
+	MidiMessage::NoteOff noteOff;
+	noteOff.nVelocity = 0;
+	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		// Using a negative MIDI channel MIDI output can be deactivated per
+		// instrument.
+		if ( ppInstrument != nullptr && ppInstrument->getMidiOutChannel() > 0 ) {
+			noteOff.nKey = ppInstrument->getMidiOutNote();
+			noteOff.nChannel = ppInstrument->getMidiOutChannel();
+			pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+		}
+	}
+
+	return true;
+}
 }

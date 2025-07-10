@@ -55,8 +55,6 @@ public:
 	virtual std::vector<QString> getInputPortList() override;
 	virtual std::vector<QString> getOutputPortList() override;
 
-	virtual void handleQueueAllNoteOff() override;
-
 	static QString translatePmError( const PmError& err );
 	/**
 	 * Appends the content of @a msg to #MidiMessage::m_sysexData of

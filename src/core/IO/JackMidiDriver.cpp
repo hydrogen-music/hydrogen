@@ -29,9 +29,6 @@
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
@@ -387,36 +384,6 @@ JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
-}
-
-void JackMidiDriver::handleQueueAllNoteOff()
-{
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-	std::shared_ptr<Instrument>		pCurInstr;
-	unsigned int numInstruments = pInstrList->size();
-	unsigned int i = 0;
-	int channel = 0;
-	int key = 0;
-	MidiMessage::NoteOff noteOff;
-
-	for (i = 0; i < numInstruments; i++) {
-			pCurInstr = pInstrList->get(i);
-
-		channel = 	pCurInstr->getMidiOutChannel();
-		if (channel < 0 || channel > 15) {
-			continue;
-		}
-		
-		key = 	pCurInstr->getMidiOutNote();
-		if (key < 0 || key > 127) {
-			continue;
-		}
-
-		noteOff.nChannel = channel;
-		noteOff.nKey = key;
-
-		sendNoteOffMessage( MidiMessage::from( noteOff ) );
-	}
 }
 
 QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {

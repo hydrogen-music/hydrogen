@@ -57,9 +57,7 @@ public:
 	virtual std::vector<QString> getInputPortList() override;
 	virtual std::vector<QString> getOutputPortList() override;
 
-	virtual void handleQueueAllNoteOff() override;
-
-	MIDIClientRef  h2MIDIClient;
+	MIDIClientRef h2MIDIClient;
 	ItemCount cmSources;
 	MIDIEndpointRef cmH2Src;
 

@@ -48,8 +48,6 @@ class MidiOutput : public virtual Object<MidiOutput>
 
 		void sendMessage( const MidiMessage& msg );
 
-		virtual void handleQueueAllNoteOff() = 0;
-
 	private:
 		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;
 		virtual void sendNoteOffMessage( const MidiMessage& msg ) = 0;

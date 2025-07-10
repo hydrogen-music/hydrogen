@@ -1567,9 +1567,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
-			if ( pHydrogen->getMidiOutput() != nullptr ) {
-				pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
-			}
+			CoreActionController::sendAllNoteOffMessages();
 
 			pAudioEngine->stop();
 			pAudioEngine->stopPlayback();

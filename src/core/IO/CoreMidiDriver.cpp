@@ -29,9 +29,6 @@
 
 #include <core/IO/CoreMidiDriver.h>
 
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
@@ -275,49 +272,6 @@ void CoreMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 	packetList.packet->data[2] = msg.getData2();
 
 	sendMidiPacket( &packetList );
-}
-
-void CoreMidiDriver::handleQueueAllNoteOff()
-{
-	if (cmH2Dst == 0 ) {
-		ERRORLOG( "cmH2Dst = 0 " );
-		return;
-	}
-
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "invalid song" );
-		return;
-	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "invalid drumkit" );
-		return;
-	}
-
-	auto pInstrumentList = pDrumkit->getInstruments();
-
-	unsigned int numInstruments = pInstrumentList->size();
-	for (int index = 0; index < numInstruments; ++index) {
-		auto curInst = pInstrumentList->get(index);
-
-		int channel = curInst->getMidiOutChannel();
-		if (channel < 0) {
-			continue;
-		}
-		int key = curInst->getMidiOutNote();
-
-		MIDIPacketList packetList;
-		packetList.numPackets = 1;
-
-		packetList.packet->timeStamp = 0;
-		packetList.packet->length = 3;
-		packetList.packet->data[0] = 0x80 | channel;
-		packetList.packet->data[1] = key;
-		packetList.packet->data[2] = 0;
-
-		sendMidiPacket( &packetList );
-	}
 }
 
 void CoreMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {

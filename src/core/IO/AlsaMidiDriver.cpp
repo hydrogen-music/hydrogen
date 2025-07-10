@@ -25,9 +25,6 @@
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
@@ -584,38 +581,6 @@ void AlsaMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 		&ev, msg.getChannel(), msg.getData1(), msg.getData2() );
 	snd_seq_event_output(seq_handle, &ev);
 	snd_seq_drain_output(seq_handle);
-}
-
-void AlsaMidiDriver::handleQueueAllNoteOff()
-{
-	if ( seq_handle == nullptr ) {
-		ERRORLOG( "seq_handle = NULL " );
-		return;
-	}
-
-	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-
-	unsigned int numInstruments = instList->size();
-	for (int index = 0; index < numInstruments; ++index) {
-		auto curInst = instList->get(index);
-
-		int channel = curInst->getMidiOutChannel();
-		if (channel < 0) {
-			continue;
-		}
-		int key = curInst->getMidiOutNote();
-
-		snd_seq_event_t ev;
-
-		//Note off
-		snd_seq_ev_clear(&ev);
-			snd_seq_ev_set_source(&ev, outPortId);
-			snd_seq_ev_set_subs(&ev);
-			snd_seq_ev_set_direct(&ev);
-		snd_seq_ev_set_noteoff(&ev, channel, key, 0);
-		snd_seq_event_output(seq_handle, &ev);
-		snd_seq_drain_output(seq_handle);
-	}
 }
 
 QString AlsaMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {

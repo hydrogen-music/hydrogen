@@ -23,9 +23,6 @@
 
 #include <core/IO/PortMidiDriver.h>
 
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiMessage.h>
@@ -503,38 +500,6 @@ void PortMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write: [%1]" )
 				  .arg( PortMidiDriver::translatePmError( err ) ) );
-	}
-}
-
-void PortMidiDriver::handleQueueAllNoteOff()
-{
-	if ( m_pMidiOut == nullptr ) {
-		return;
-	}
-
-	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-
-	unsigned int numInstruments = instList->size();
-	for (int index = 0; index < numInstruments; ++index) {
-		auto pCurInst = instList->get(index);
-
-		int channel = pCurInst->getMidiOutChannel();
-		if (channel < 0) {
-			continue;
-		}
-		int key = pCurInst->getMidiOutNote();
-
-		PmEvent event;
-		event.timestamp = 0;
-
-		//Note off
-		event.message = Pm_Message(0x80 | channel, key, 0);
-		PmError err = Pm_Write(m_pMidiOut, &event, 1);
-		if ( err != pmNoError ) {
-			ERRORLOG( QString( "Error for instrument [%1] in Pm_Write: [%2]" )
-					  .arg( pCurInst->getName() )
-					  .arg( PortMidiDriver::translatePmError( err ) ) );
-		}
 	}
 }
 

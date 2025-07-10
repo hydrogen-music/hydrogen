@@ -66,8 +66,6 @@ public:
 	void JackMidiWrite(jack_nframes_t nframes);
 	void JackMidiRead(jack_nframes_t nframes);
 	
-	virtual void handleQueueAllNoteOff() override;
-
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	void JackMidiOutEvent(uint8_t *buf, uint8_t len);

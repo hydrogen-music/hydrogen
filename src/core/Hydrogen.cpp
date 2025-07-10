@@ -203,9 +203,7 @@ void Hydrogen::sequencerPlay()
 /// Stop the internal sequencer
 void Hydrogen::sequencerStop()
 {
-	if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
-		Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
-	}
+	CoreActionController::sendAllNoteOffMessages();
 
 	m_pAudioEngine->stop();
 	Preferences::get_instance()->setRecordEvents(false);

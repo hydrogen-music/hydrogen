@@ -3183,9 +3183,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
-			if ( pHydrogen->getMidiOutput() != nullptr ) {
-				pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
-			}
+			CoreActionController::sendAllNoteOffMessages();
 
 			pAudioEngine->stop();
 			pAudioEngine->stopPlayback();
