@@ -2824,7 +2824,7 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
-	pAudioEngine->stopAudioDrivers();
+	pAudioEngine->stopAudioDriver();
 
 	// Start a modified version of the JACK audio driver.
 	auto pDriver = new JackAudioDriver( jackTestProcessCallback );
@@ -2869,7 +2869,7 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 	pAudioEngine->unlock();
 
 	if ( pDriver->connect() != 0 ) {
-		pAudioEngine->restartAudioDrivers();
+		pHydrogen->restartAudioDriver();
 		throwException( "[startJackAudioDriver] Unable to connect driver" );
 	}
 
@@ -2895,7 +2895,7 @@ void AudioEngineTests::stopJackAudioDriver() {
 	}
 
 	// We rely on the driver set via the Preferences (most probably FakeDriver).
-	pAudioEngine->restartAudioDrivers();
+	pHydrogen->restartAudioDriver();
 
 #ifdef H2CORE_HAVE_JACK
 	auto pDriver = dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver);

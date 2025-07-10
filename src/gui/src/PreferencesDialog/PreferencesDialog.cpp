@@ -1123,7 +1123,8 @@ void PreferencesDialog::on_okBtn_clicked()
 		// Restart audio and MIDI drivers now that we updated all
 		// values in Preferences.
 		QApplication::setOverrideCursor( Qt::WaitCursor );
-		pHydrogen->restartDrivers();
+		pHydrogen->restartAudioDriver();
+		pHydrogen->restartMidiDriver();
 		QApplication::restoreOverrideCursor();
 	}
 
@@ -1822,7 +1823,8 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	
 	updateDriverPreferences();
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->restartDrivers();
+	pHydrogen->restartAudioDriver();
+	pHydrogen->restartMidiDriver();
 	
 	QApplication::restoreOverrideCursor();
 

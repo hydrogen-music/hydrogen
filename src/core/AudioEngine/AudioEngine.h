@@ -276,15 +276,9 @@ public:
 	/** \return Time passed since the beginning of the song*/
 	float			getElapsedTime() const;	
 
-	/** 
-	 * Creation and initialization of all audio and MIDI drivers called in
-	 * Hydrogen::Hydrogen().
-	 */
-	void			startAudioDrivers();
-	/**
-	 * Stops all audio and MIDI drivers.
-	 */
-	void			stopAudioDrivers();
+	/** * Choice, creation, and initialization of th audio driver. */
+	void			startAudioDriver();
+	void			stopAudioDriver();
 	AudioOutput*	getAudioDriver() const;
 	/**
 	 * Create an audio driver using audioEngine_process() as its argument
@@ -301,11 +295,13 @@ public:
 	 */
 	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver );
 					
-	void			restartAudioDrivers();
-					
+	void			restartAudioDriver();
+		void startMidiDriver();
+		void stopMidiDriver();
+		std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
+
 	void			setupLadspaFX();
-	
-	std::shared_ptr<MidiBaseDriver>		getMidiDriver() const;
+
 
 	std::shared_ptr<Instrument> getMetronomeInstrument() const;
 		
@@ -446,6 +442,8 @@ public:
 	 * \return String presentation of current object.*/
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
+		/** Is allowed to start playback. */
+		friend void Hydrogen::restartAudioDriver();
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to use locate() to directly set the position in

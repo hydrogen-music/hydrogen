@@ -762,7 +762,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	pAudioEngine->unlock();
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
-		pHydrogen->restartDrivers();
+		pHydrogen->restartAudioDriver();
 	}
 	else {
 		// Add the new loaded song in the "last used song" vector.

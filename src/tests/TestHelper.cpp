@@ -152,7 +152,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 	___INFOLOG( QString( "New bufferSize: %1, new sampleRate: %2" )
 				.arg( pPref->m_nBufferSize ).arg( pPref->m_nSampleRate ) );
 
-	H2Core::Hydrogen::get_instance()->restartDrivers();
+	H2Core::Hydrogen::get_instance()->restartAudioDriver();
 }
 
 void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,

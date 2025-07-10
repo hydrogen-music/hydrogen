@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
 			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
 			// we're definitely busy.
 			QApplication::setOverrideCursor( Qt::WaitCursor );
-			pHydrogen->restartDrivers();
+			pHydrogen->restartAudioDriver();
 			QApplication::restoreOverrideCursor();
 		}
 

@@ -140,7 +140,8 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-	m_pAudioEngine->startAudioDrivers();
+	m_pAudioEngine->startAudioDriver();
+	m_pAudioEngine->startMidiDriver();
 
 	if ( pPref->getOscServerEnabled() ) {
 		toggleOscServer( true );
@@ -614,9 +615,21 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 	return false;
 }
 
-void Hydrogen::restartDrivers()
-{
-	m_pAudioEngine->restartAudioDrivers();
+void Hydrogen::restartAudioDriver() {
+	const bool bWasPlaying =
+		m_pAudioEngine->getState() == AudioEngine::State::Playing;
+
+	m_pAudioEngine->stopAudioDriver();
+	m_pAudioEngine->startAudioDriver();
+
+	if ( bWasPlaying ) {
+		m_pAudioEngine->startPlayback();
+	}
+}
+
+void Hydrogen::restartMidiDriver() {
+	m_pAudioEngine->stopMidiDriver();
+	m_pAudioEngine->startMidiDriver();
 }
 
 bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
@@ -640,12 +653,12 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 	pSong->setMode( Song::Mode::Song );
 	pSong->setLoopMode( Song::LoopMode::Disabled );
 	
-	/*
-	 * Currently an audio driver is loaded
-	 * which is not the DiskWriter driver.
-	 * Stop the current driver and fire up the DiskWriter.
-	 */
-	pAudioEngine->stopAudioDrivers();
+	/* Currently an audio driver is loaded which is not the DiskWriter driver.
+	 * Stop the current driver and fire up the DiskWriter. */
+	pAudioEngine->stopAudioDriver();
+	// We do not want to have any MIDI feedback or note on/off event while
+	// exporting audio to file.
+	pAudioEngine->stopMidiDriver();
 
 	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
 		Preferences::AudioDriver::Disk );
@@ -706,9 +719,14 @@ void Hydrogen::stopExportSession()
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 
 	pAudioEngine->stop();
- 	pAudioEngine->restartAudioDrivers();
+	pAudioEngine->stopAudioDriver();
+	pAudioEngine->startAudioDriver();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
+	}
+	pAudioEngine->startMidiDriver();
+	if ( pAudioEngine->getMidiDriver() == nullptr ) {
+		ERRORLOG( "Unable to restart MIDI driver after exporting song." );
 	}
 	m_bExportSessionIsActive = false;
 }

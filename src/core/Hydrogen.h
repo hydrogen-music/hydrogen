@@ -77,10 +77,8 @@ public:
 		 */
 		UNKNOWN_DRIVER,
 		/**
-		 * Unable to connect the audio driver stored in
-		 * #H2Core::AudioEngine::m_pAudioDriver in
-		 * audioEngine_startAudioDrivers(). The NullDriver
-		 * will be used as a fallback instead.
+		 * Unable to connect the audio driver stored. The NullDriver will be
+		 * used as a fallback instead.
 		 */
 		ERROR_STARTING_DRIVER,
 		JACK_SERVER_SHUTDOWN,
@@ -253,7 +251,8 @@ public:
 		int getHihatOpenness() const;
 		void setHihatOpenness( int nValue );
 
-		void			restartDrivers();
+		void			restartAudioDriver();
+		void			restartMidiDriver();
 
 		AudioOutput*	getAudioOutput() const;
 		std::shared_ptr<MidiBaseDriver>	getMidiDriver() const;

@@ -141,7 +141,8 @@ AudioEngine::AudioEngine()
 
 AudioEngine::~AudioEngine()
 {
-	stopAudioDrivers();
+	stopAudioDriver();
+	stopMidiDriver();
 	if ( getState() != State::Initialized ) {
 		AE_ERRORLOG( "Error the audio engine is not in State::Initialized" );
 		return;
@@ -1022,8 +1023,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	return pAudioDriver;
 }
 
-void AudioEngine::startAudioDrivers()
-{
+void AudioEngine::startAudioDriver() {
 	AE_INFOLOG("");
 	const auto pPref = Preferences::get_instance();
 	
@@ -1035,9 +1035,6 @@ void AudioEngine::startAudioDrivers()
 
 	if ( m_pAudioDriver != nullptr ) {	// check if audio driver is still alive
 		AE_ERRORLOG( "The audio driver is still alive" );
-	}
-	if ( m_pMidiDriver != nullptr ) {	// check if midi driver is still alive
-		AE_ERRORLOG( "The MIDI driver is still active" );
 	}
 
 	const auto audioDriver = pPref->m_audioDriver;
@@ -1059,46 +1056,9 @@ void AudioEngine::startAudioDrivers()
 				  .arg( Preferences::audioDriverToQString( audioDriver ) ) );
 		createAudioDriver( Preferences::AudioDriver::Null );
 	}
-
-	this->lock( RIGHT_HERE );
-	m_MutexOutputPointer.lock();
-	
-	if ( pPref->m_midiDriver == Preferences::MidiDriver::Alsa ) {
-#ifdef H2CORE_HAVE_ALSA
-		auto pAlsaMidiDriver = std::make_shared<AlsaMidiDriver>();
-		m_pMidiDriver = pAlsaMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( pPref->m_midiDriver == Preferences::MidiDriver::PortMidi ) {
-#ifdef H2CORE_HAVE_PORTMIDI
-		auto pPortMidiDriver = std::make_shared<PortMidiDriver>();
-		m_pMidiDriver = pPortMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( pPref->m_midiDriver == Preferences::MidiDriver::CoreMidi ) {
-#ifdef H2CORE_HAVE_COREMIDI
-		auto pCoreMidiDriver = std::make_shared<CoreMidiDriver>();
-		m_pMidiDriver = pCoreMidiDriver;
-		m_pMidiDriverOut = pCoreMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
-#ifdef H2CORE_HAVE_JACK
-		auto pJackMidiDriver = std::make_shared<JackMidiDriver>();
-		m_pMidiDriver = pJackMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	}
-	
-	m_MutexOutputPointer.unlock();
-	this->unlock();
 }
 
-void AudioEngine::stopAudioDrivers()
+void AudioEngine::stopAudioDriver()
 {
 	AE_INFOLOG( "" );
 
@@ -1116,13 +1076,7 @@ void AudioEngine::stopAudioDrivers()
 		return;
 	}
 
-
 	setState( State::Initialized );
-
-	if ( m_pMidiDriver != nullptr ) {
-		m_pMidiDriver->close();
-		m_pMidiDriver = nullptr;
-	}
 
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->disconnect();
@@ -1135,17 +1089,65 @@ void AudioEngine::stopAudioDrivers()
 	this->unlock();
 }
 
-void AudioEngine::restartAudioDrivers()
-{
-	bool bPlaying = m_state == State::Playing;
-	if ( m_pAudioDriver != nullptr ) {
-		stopAudioDrivers();
-	}
-	startAudioDrivers();
-	if ( bPlaying ) {
-		this->startPlayback();
+void AudioEngine::startMidiDriver() {
+	AE_INFOLOG("");
+	const auto pPref = Preferences::get_instance();
+
+	if ( m_pMidiDriver != nullptr ) {
+		AE_ERRORLOG( "The MIDI driver is still active" );
 	}
 
+	this->lock( RIGHT_HERE );
+
+	if ( pPref->m_midiDriver == Preferences::MidiDriver::Alsa ) {
+#ifdef H2CORE_HAVE_ALSA
+		auto pAlsaMidiDriver = std::make_shared<AlsaMidiDriver>();
+		m_pMidiDriver = pAlsaMidiDriver;
+		m_pMidiDriver->open();
+		m_pMidiDriver->setActive( true );
+#endif
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::PortMidi ) {
+#ifdef H2CORE_HAVE_PORTMIDI
+		auto pPortMidiDriver = std::make_shared<PortMidiDriver>();
+		m_pMidiDriver = pPortMidiDriver;
+		m_pMidiDriver->open();
+		m_pMidiDriver->setActive( true );
+#endif
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::CoreMidi ) {
+#ifdef H2CORE_HAVE_COREMIDI
+		auto pCoreMidiDriver = std::make_shared<CoreMidiDriver>();
+		m_pMidiDriver = pCoreMidiDriver;
+		m_pMidiDriverOut = pCoreMidiDriver;
+		m_pMidiDriver->open();
+		m_pMidiDriver->setActive( true );
+#endif
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
+#ifdef H2CORE_HAVE_JACK
+		auto pJackMidiDriver = std::make_shared<JackMidiDriver>();
+		m_pMidiDriver = pJackMidiDriver;
+		m_pMidiDriver->open();
+		m_pMidiDriver->setActive( true );
+#endif
+	}
+
+	this->unlock();
+}
+
+void AudioEngine::stopMidiDriver()
+{
+	AE_INFOLOG( "" );
+
+	this->lock( RIGHT_HERE );
+
+	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->close();
+		m_pMidiDriver = nullptr;
+	}
+
+	this->unlock();
 }
 
 void AudioEngine::handleLoopModeChanged() {

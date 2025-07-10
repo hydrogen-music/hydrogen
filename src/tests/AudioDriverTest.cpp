@@ -49,13 +49,13 @@ void AudioDriverTest::testDriverSwitching() {
 			// output. No need for a visual separation.
 			std::cout << ii << std::endl;
 		}
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::Alsa );
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::Oss );
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		if ( bCheckJack ) {
 			pDriver = pAudioEngine->createAudioDriver(
 				H2Core::Preferences::AudioDriver::Jack );
@@ -63,22 +63,22 @@ void AudioDriverTest::testDriverSwitching() {
 				bCheckJack = false;
 			}
 		}
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::PortAudio );
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::CoreAudio );
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::PulseAudio );
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::Disk );
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::Null );
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver();
 		pAudioEngine->createAudioDriver(
 			H2Core::Preferences::AudioDriver::Fake );
 	}
@@ -94,7 +94,7 @@ void AudioDriverTest::tearDown() {
 	pPref->m_nBufferSize = m_nPrevBufferSize;
 	pPref->m_audioDriver = m_prevAudioDriver;
 
-	pAudioEngine->stopAudioDrivers();
+	pAudioEngine->stopAudioDriver();
 	pAudioEngine->createAudioDriver(
 		H2Core::Preferences::AudioDriver::Fake );
 }
