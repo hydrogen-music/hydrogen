@@ -40,8 +40,7 @@ namespace H2Core
 	class AudioEngine;
 	class AudioOutput;
 	class Drumkit;
-	class MidiInput;
-	class MidiOutput;
+	class MidiBaseDriver;
 	class Playlist;
 	class SoundLibraryDatabase;
 
@@ -257,8 +256,7 @@ public:
 		void			restartDrivers();
 
 		AudioOutput*	getAudioOutput() const;
-		std::shared_ptr<MidiInput>		getMidiInput() const;
-		std::shared_ptr<MidiOutput>		getMidiOutput() const;
+		std::shared_ptr<MidiBaseDriver>	getMidiDriver() const;
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/

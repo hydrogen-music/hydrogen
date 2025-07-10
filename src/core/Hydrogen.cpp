@@ -74,8 +74,7 @@
 #include <core/IO/FakeDriver.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
@@ -721,14 +720,8 @@ AudioOutput* Hydrogen::getAudioOutput() const
 }
 
 /// Used to display midi driver info
-std::shared_ptr<MidiInput> Hydrogen::getMidiInput() const
-{
+std::shared_ptr<MidiBaseDriver> Hydrogen::getMidiDriver() const {
 	return m_pAudioEngine->getMidiDriver();
-}
-
-std::shared_ptr<MidiOutput> Hydrogen::getMidiOutput() const
-{
-	return m_pAudioEngine->getMidiOutDriver();
 }
 
 void Hydrogen::onTapTempoAccelEvent()

@@ -26,6 +26,8 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 
+#include <QString>
+
 namespace H2Core {
 
 /** \ingroup docCore docMIDI */
@@ -35,10 +37,15 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 {
 	H2_OBJECT(MidiBaseDriver)
 
-public:
-	MidiBaseDriver();
-	virtual ~MidiBaseDriver();
+	public:
 
+		MidiBaseDriver();
+		virtual ~MidiBaseDriver();
+
+		virtual QString toQString( const QString& sPrefix = "",
+								   bool bShort = true ) const override {
+			return "";
+		}
 };
 
 };

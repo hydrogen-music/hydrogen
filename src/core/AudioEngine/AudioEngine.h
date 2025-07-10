@@ -65,8 +65,7 @@ namespace H2Core
 {
 	class Drumkit;
 	class Instrument;
-	class MidiInput;
-	class MidiOutput;
+	class MidiBaseDriver;
 	class Note;
 	class PatternList;
 	class Song;
@@ -306,9 +305,8 @@ public:
 					
 	void			setupLadspaFX();
 	
-	std::shared_ptr<MidiInput>		getMidiDriver() const;
-	std::shared_ptr<MidiOutput>		getMidiOutDriver() const;
-	
+	std::shared_ptr<MidiBaseDriver>		getMidiDriver() const;
+
 	std::shared_ptr<Instrument> getMetronomeInstrument() const;
 		
 	
@@ -609,8 +607,7 @@ private:
 
 	Sampler* 			m_pSampler;
 	AudioOutput *		m_pAudioDriver;
-	std::shared_ptr<MidiInput>		m_pMidiDriver;
-	std::shared_ptr<MidiOutput>		m_pMidiDriverOut;
+	std::shared_ptr<MidiBaseDriver>		m_pMidiDriver;
 
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];
@@ -798,12 +795,8 @@ inline AudioOutput*	AudioEngine::getAudioDriver() const {
 	return m_pAudioDriver;
 }
 
-inline std::shared_ptr<MidiInput>	AudioEngine::getMidiDriver() const {
+inline std::shared_ptr<MidiBaseDriver>	AudioEngine::getMidiDriver() const {
 	return m_pMidiDriver;
-}
-
-inline std::shared_ptr<MidiOutput>	AudioEngine::getMidiOutDriver() const {
-	return m_pMidiDriverOut;
 }
 
 inline long long AudioEngine::getRealtimeFrame() const {

@@ -35,7 +35,6 @@
 #include <core/config.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/IO/MidiOutput.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 

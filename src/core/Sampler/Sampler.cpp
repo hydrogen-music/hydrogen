@@ -48,7 +48,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/Preferences/Preferences.h>
 
 
@@ -157,8 +157,8 @@ void Sampler::process( uint32_t nFrames )
 	}
 
 	if ( m_queuedNoteOffs.size() > 0 ) {
-		auto pMidiOutput = pHydrogen->getMidiOutput();
-		if ( pMidiOutput != nullptr ) {
+		auto pMidiDriver = pHydrogen->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
 			//Queue midi note off messages for notes that have a length specified for them
 			while ( ! m_queuedNoteOffs.empty() ) {
 				pNote =  m_queuedNoteOffs[0];
@@ -170,7 +170,7 @@ void Sampler::process( uint32_t nFrames )
 							pNote->getInstrument()->getMidiOutChannel();
 						noteOff.nKey = pNote->getMidiKey();
 						noteOff.nVelocity = pNote->getMidiVelocity();
-						pMidiOutput->sendMessage( MidiMessage::from( noteOff ) );
+						pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
 					}
 				}
 				else {
@@ -809,8 +809,8 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// Once the Sampler does start rendering a note we also push
 		// it to all connected MIDI devices.
 		if ( (int) pSelectedLayerInfo->fSamplePosition == 0  && ! pInstr->isMuted() ) {
-			if ( pHydrogen->getMidiOutput() != nullptr ){
-				pHydrogen->getMidiOutput()->sendMessage(
+			if ( pHydrogen->getMidiDriver() != nullptr ) {
+				pHydrogen->getMidiDriver()->sendMessage(
 					MidiMessage::from( pNote ) );
 			}
 		}

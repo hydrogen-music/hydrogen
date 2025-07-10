@@ -34,7 +34,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AudioOutput.h>
-#include <core/IO/MidiInput.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 
@@ -165,7 +165,7 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Midi driver info
-	auto pMidiDriver = pHydrogen->getMidiInput();
+	auto pMidiDriver = pHydrogen->getMidiDriver();
 	if ( pMidiDriver != nullptr ) {
 		midiDriverName->setText( pMidiDriver->class_name() );
 	}

@@ -38,7 +38,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiMap.h>
 #include <core/OscServer.h>
@@ -603,7 +603,7 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	const auto pPref = Preferences::get_instance();
-	auto pMidiDriver = pHydrogen->getMidiOutput();
+	auto pMidiDriver = pHydrogen->getMidiDriver();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -2689,7 +2689,7 @@ bool CoreActionController::sendAllNoteOffMessages() {
 		return false;
 	}
 
-	auto pMidiDriver = pHydrogen->getAudioEngine()->getMidiOutDriver();
+	auto pMidiDriver = pHydrogen->getMidiDriver();
 	if ( pMidiDriver == nullptr ) {
 		return false;
 	}
