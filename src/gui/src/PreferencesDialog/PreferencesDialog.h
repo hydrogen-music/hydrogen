@@ -109,17 +109,10 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
-		void on_restartDriverBtn_clicked();
+		void on_restartAudioDriverBtn_clicked();
 		void driverComboBoxActivated( int index );
 		void portaudioHostAPIComboBoxActivated( int index );
-		void latencyTargetSpinBoxValueChanged( int i );
-		void bufferSizeSpinBoxValueChanged( int i );
-		void sampleRateComboBoxEditTextChanged( const QString& text );
-		void midiPortComboBoxActivated( int index );
-		void midiOutportComboBoxActivated( int index );		
 		void styleComboBoxActivated( int index );
-		void onMidiDriverComboBoxIndexChanged( int index );
-		void audioDeviceTxtChanged( const QString& );
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
 	void onRejected();
@@ -163,15 +156,15 @@ private:
 
 		void applyCurrentColor();
 	void updateColors();
-	void updateDriverInfo();
-	void updateDriverInfoLabel();
-	void setDriverInfoOss();
-	void setDriverInfoAlsa();
-	void setDriverInfoJack();
-	void setDriverInfoCoreAudio();
-	void setDriverInfoPortAudio();
-	void setDriverInfoPulseAudio();
-	void updateDriverPreferences();
+	void updateAudioDriverInfo();
+	void updateAudioDriverInfoLabel();
+	void setAudioDriverInfoOss();
+	void setAudioDriverInfoAlsa();
+	void setAudioDriverInfoJack();
+	void setAudioDriverInfoCoreAudio();
+	void setAudioDriverInfoPortAudio();
+	void setAudioDriverInfoPulseAudio();
+	void updateAudioDriverPreferences();
 	void updateAppearanceTab( const H2Core::Theme& pTheme );
 
 	void initializeShortcutsTab();
@@ -209,7 +202,8 @@ private:
 	/** Stores which part of the dialog was altered.*/
 	H2Core::Preferences::Changes m_changes;
 
-	bool m_bNeedDriverRestart;
+	bool m_bAudioDriverRestartRequired;
+	bool m_bMidiDriverRestartRequired;
 	QString m_sInitialLanguage;
 	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
 

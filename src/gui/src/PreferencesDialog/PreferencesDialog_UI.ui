@@ -491,7 +491,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="restartDriverBtn">
+              <widget class="QPushButton" name="restartAudioDriverBtn">
                <property name="text">
                 <string>Apply and restart output</string>
                </property>
