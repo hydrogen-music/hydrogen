@@ -102,8 +102,7 @@ public:
 	       * Its counterpart is #NO_JACK_TIMEBASE_CONTROL.
 	       */
 	      USE_JACK_TIMEBASE_CONTROL = 0,
-	      BEAT_COUNTER_SET_PLAY_ON = 0,
-	      BEAT_COUNTER_ON = 0,/**
+	      /**
 	       * Specifies whether or not to use JACK transport
 	       * capabilities. If set, Hydrogen can be used
 	       * independent of the JACK system while still using the
@@ -122,9 +121,7 @@ public:
 	       *
 	       * Its counterpart is #USE_JACK_TIMEBASE_CONTROL.
 	       */
-	      NO_JACK_TIMEBASE_CONTROL = 1,
-	      BEAT_COUNTER_SET_PLAY_OFF = 1,
-	      BEAT_COUNTER_OFF = 1
+	      NO_JACK_TIMEBASE_CONTROL = 1
 	};
 
 		/** Specifies which tempo input widget will be displayed in
