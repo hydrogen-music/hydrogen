@@ -205,17 +205,17 @@ Preferences::Preferences()
 
 	//___ MIDI Driver properties
 #if defined(H2CORE_HAVE_ALSA)
-	m_sMidiDriver = QString("ALSA");
+	m_midiDriver = MidiDriver::Alsa;
 #elif defined(H2CORE_HAVE_PORTMIDI)
-	m_sMidiDriver = QString("PortMidi");
+	m_midiDriver = MidiDriver::PortMidi;
 #elif defined(H2CORE_HAVE_COREMIDI)
-	m_sMidiDriver = QString("CoreMIDI");
+	m_midiDriver = MidiDriver::CoreMidi;
 #elif defined(H2CORE_HAVE_JACK)
-	m_sMidiDriver = QString("JACK-MIDI");
+	m_midiDriver = MidiDriver::Jack;
 #else
 	// Set ALSA as fallback if none of the above options are available
 	// (although MIDI won't work in this case).
-	m_sMidiDriver = QString( "ALSA" );
+	m_midiDriver = MidiDriver::Alsa;
 #endif
 
 	//___  alsa audio driver properties ___
@@ -281,7 +281,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nBufferSize( pOther->m_nBufferSize )
 	, m_nSampleRate( pOther->m_nSampleRate )
 	, m_sOSSDevice( pOther->m_sOSSDevice )
-	, m_sMidiDriver( pOther->m_sMidiDriver )
+	, m_midiDriver( pOther->m_midiDriver )
 	, m_sMidiPortName( pOther->m_sMidiPortName )
 	, m_sMidiOutputPortName( pOther->m_sMidiOutputPortName )
 	, m_nMidiChannelFilter( pOther->m_nMidiChannelFilter )
@@ -692,17 +692,11 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const XMLNode midiDriverNode =
 			audioEngineNode.firstChildElement( "midi_driver" );
 		if ( ! midiDriverNode.isNull() ) {
-			pPref->m_sMidiDriver = midiDriverNode.read_string(
-				"driverName", pPref->m_sMidiDriver, false, false, bSilent );
-			// Ensure compatibility with older versions of the
-			// files after capitalization in the GUI
-			// (2021-02-05). This can be dropped in releases
-			// >= 1.2
-			if ( pPref->m_sMidiDriver == "JackMidi" ) {
-				pPref->m_sMidiDriver = "JACK-MIDI";
-			} else if ( pPref->m_sMidiDriver == "CoreMidi" ) {
-				pPref->m_sMidiDriver = "CoreMIDI";
-			}
+			const auto sMidiDriver = midiDriverNode.read_string(
+				"driverName",
+				Preferences::midiDriverToQString( pPref->m_midiDriver ),
+				false, false, bSilent );
+			pPref->m_midiDriver = Preferences::parseMidiDriver( sMidiDriver );
 			pPref->m_sMidiPortName = midiDriverNode.read_string(
 				"port_name", pPref->m_sMidiPortName, false, false, bSilent );
 			pPref->m_sMidiOutputPortName = midiDriverNode.read_string(
@@ -1228,7 +1222,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		/// MIDI DRIVER ///
 		XMLNode midiDriverNode = audioEngineNode.createNode( "midi_driver" );
 		{
-			midiDriverNode.write_string( "driverName", m_sMidiDriver );
+			midiDriverNode.write_string(
+				"driverName", Preferences::midiDriverToQString( m_midiDriver ) );
 			midiDriverNode.write_string( "port_name", m_sMidiPortName );
 			midiDriverNode.write_string( "output_port_name", m_sMidiOutputPortName );
 			midiDriverNode.write_int( "channel_filter", m_nMidiChannelFilter );
@@ -1437,6 +1432,47 @@ QString Preferences::audioDriverToQString( const Preferences::AudioDriver& drive
 		return "Null";
 	case AudioDriver::None:
 		return "nullptr";
+	default:
+		return "Unhandled driver type";
+	}
+}
+
+Preferences::MidiDriver Preferences::parseMidiDriver( const QString& sDriver ) {
+	const QString s = QString( sDriver ).toLower();
+	// Ensure compatibility with older versions of the files after
+	// capitalization in the GUI (2021-02-05).
+	if ( s == "jackmidi" || s == "jack-midi") {
+		return MidiDriver::Jack;
+	}
+	else if ( s == "alsa" ) {
+		return MidiDriver::Alsa;
+	}
+	else if ( s == "portmidi" ) {
+		return MidiDriver::PortMidi;
+	}
+	else if ( s == "coremidi" ) {
+		return MidiDriver::CoreMidi;
+	}
+	else {
+		if ( Logger::isAvailable() ) {
+			ERRORLOG( QString( "Unable to parse driver [%1]" ). arg( sDriver ) );
+		}
+		return MidiDriver::None;
+	}
+}
+
+QString Preferences::midiDriverToQString( const Preferences::MidiDriver& driver ) {
+	switch ( driver ) {
+	case MidiDriver::Alsa:
+		return "ALSA";
+	case MidiDriver::CoreMidi:
+		return "CoreMIDI";
+	case MidiDriver::Jack:
+		return "JACK-MIDI";
+	case MidiDriver::None:
+		return "nullptr";
+	case MidiDriver::PortMidi:
+		return "PortMidi";
 	default:
 		return "Unhandled driver type";
 	}
@@ -1690,8 +1726,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nSampleRate ) )
 			.append( QString( "%1%2m_sOSSDevice: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sOSSDevice ) )
-			.append( QString( "%1%2m_sMidiDriver: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sMidiDriver ) )
+			.append( QString( "%1%2m_midiDriver: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( midiDriverToQString( m_midiDriver ) ) )
 			.append( QString( "%1%2m_sMidiPortName: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sMidiPortName ) )
 			.append( QString( "%1%2m_sMidiOutputPortName: %3\n" ).arg( sPrefix )
@@ -1940,8 +1976,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nSampleRate ) )
 			.append( QString( ", m_sOSSDevice: %1" )
 					 .arg( m_sOSSDevice ) )
-			.append( QString( ", m_sMidiDriver: %1" )
-					 .arg( m_sMidiDriver ) )
+			.append( QString( ", m_midiDriver: %1" )
+					 .arg( midiDriverToQString( m_midiDriver ) ) )
 			.append( QString( ", m_sMidiPortName: %1" )
 					 .arg( m_sMidiPortName ) )
 			.append( QString( ", m_sMidiOutputPortName: %1" )

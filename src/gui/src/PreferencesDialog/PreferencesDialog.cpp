@@ -343,23 +343,31 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pMidiDriverComboBox->setSize( midiTabWidgetSize );
 	m_pMidiDriverComboBox->clear();
 #ifdef H2CORE_HAVE_ALSA
-	m_pMidiDriverComboBox->addItem( "ALSA" );
+	m_pMidiDriverComboBox->addItem(
+		Preferences::midiDriverToQString( Preferences::MidiDriver::Alsa ) );
 #endif
 #ifdef H2CORE_HAVE_PORTMIDI
-	m_pMidiDriverComboBox->addItem( "PortMidi" );
+	m_pMidiDriverComboBox->addItem(
+		Preferences::midiDriverToQString( Preferences::MidiDriver::PortMidi ) );
 #endif
 #ifdef H2CORE_HAVE_COREMIDI
-	m_pMidiDriverComboBox->addItem( "CoreMIDI" );
+	m_pMidiDriverComboBox->addItem(
+		Preferences::midiDriverToQString( Preferences::MidiDriver::CoreMidi ) );
 #endif
 #ifdef H2CORE_HAVE_JACK
-	m_pMidiDriverComboBox->addItem( "JACK-MIDI" );
+	m_pMidiDriverComboBox->addItem(
+		Preferences::midiDriverToQString( Preferences::MidiDriver::Jack ) );
 #endif
 
-	if ( m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver) > -1 ) {
-		m_pMidiDriverComboBox->setCurrentIndex(m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver));
-	} else {
+	const auto nMidiIndex = m_pMidiDriverComboBox->findText(
+		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
+	if ( nMidiIndex > -1 ) {
+		m_pMidiDriverComboBox->setCurrentIndex( nMidiIndex );
+	}
+	else {
 		driverInfoLbl->setText( tr("Select your MIDI Driver" ) );
-		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sMidiDriver + "]" );
+		ERRORLOG( QString( "Unknown MIDI input from preferences [%1]" )
+				  .arg( Preferences::midiDriverToQString( pPref->m_midiDriver ) ) );
 	}
 	connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)),
 			this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
@@ -951,24 +959,10 @@ void PreferencesDialog::on_okBtn_clicked()
 		H2Core::EventQueue::get_instance()->pushEvent( H2Core::Event::Type::MidiMapChanged, 0 );
 	}
 
-	if ( m_pMidiDriverComboBox->currentText() == "ALSA" &&
-		 pPref->m_sMidiDriver != "ALSA" ) {
-		pPref->m_sMidiDriver = "ALSA";
-		bMidiOptionAltered = true;
-	}
-	else if ( m_pMidiDriverComboBox->currentText() == "PortMidi" &&
-			  pPref->m_sMidiDriver != "PortMidi" ) {
-		pPref->m_sMidiDriver = "PortMidi";
-		bMidiOptionAltered = true;
-	}
-	else if ( m_pMidiDriverComboBox->currentText() == "CoreMIDI" &&
-			  pPref->m_sMidiDriver != "CoreMIDI" ) {
-		pPref->m_sMidiDriver = "CoreMIDI";
-		bMidiOptionAltered = true;
-	}
-	else if ( m_pMidiDriverComboBox->currentText() == "JACK-MIDI" &&
-			  pPref->m_sMidiDriver != "JACK-MIDI" ) {
-		pPref->m_sMidiDriver = "JACK-MIDI";
+	if ( m_pMidiDriverComboBox->currentText() !=
+		 Preferences::midiDriverToQString( pPref->m_midiDriver) ) {
+		pPref->m_midiDriver = Preferences::parseMidiDriver(
+			m_pMidiDriverComboBox->currentText() );
 		bMidiOptionAltered = true;
 	}
 

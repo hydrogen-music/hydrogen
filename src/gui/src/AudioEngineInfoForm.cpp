@@ -165,16 +165,9 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Midi driver info
-	auto pMidiDriver = pHydrogen->getMidiDriver();
-	if ( pMidiDriver != nullptr ) {
-		midiDriverName->setText( pMidiDriver->class_name() );
-	}
-	else {
-		midiDriverName->setText("No MIDI driver support");
-	}
-
+	midiDriverName->setText(
+		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
 	m_pMidiDeviceName->setText( pPref->m_sMidiPortName );
-
 
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if (nSelectedPatternNumber == -1) {

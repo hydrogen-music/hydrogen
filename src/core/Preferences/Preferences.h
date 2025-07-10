@@ -183,6 +183,18 @@ public:
 		CoreAudio,
 		PortAudio
 	};
+	static AudioDriver parseAudioDriver( const QString& sDriver );
+	static QString audioDriverToQString( const AudioDriver& driver );
+
+	enum class MidiDriver {
+		Alsa,
+		CoreMidi,
+		Jack,
+		None,
+		PortMidi
+	};
+	static MidiDriver parseMidiDriver( const QString& sDriver );
+	static QString midiDriverToQString( const MidiDriver& driver );
 
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
@@ -218,8 +230,6 @@ public:
 		bool			saveCopyAs( const QString& sPath,
 									const bool bSilent = false ) const;
 
-	static AudioDriver parseAudioDriver( const QString& sDriver );
-	static QString audioDriverToQString( const AudioDriver& driver );
 	static std::vector<AudioDriver> getSupportedAudioDrivers();
 
 	/**
@@ -292,20 +302,7 @@ public:
 	//	OSS driver properties ___
 	QString				m_sOSSDevice;		///< Device used for output
 
-	//	MIDI Driver properties
-	/**
-	 * MIDI driver
-	 *
-	 * Used in the audioEngine_startAudioDrivers() to create an
-	 * MIDI driver. 
-	 *
-	 * These choices are support:
-	 * - "JackMidi" : A JackMidiDriver will be called.
-	 * - "ALSA" : An AlsaMidiDriver will be called.
-	 * - "CoreMidi" : A CoreMidiDriver will be called.
-	 * - "PortMidi" : A PortMidiDriver will be called.
-	 */
-	QString				m_sMidiDriver;
+	MidiDriver				m_midiDriver;
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
 

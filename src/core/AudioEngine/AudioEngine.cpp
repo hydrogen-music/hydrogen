@@ -1063,21 +1063,21 @@ void AudioEngine::startAudioDrivers()
 	this->lock( RIGHT_HERE );
 	m_MutexOutputPointer.lock();
 	
-	if ( pPref->m_sMidiDriver == "ALSA" ) {
+	if ( pPref->m_midiDriver == Preferences::MidiDriver::Alsa ) {
 #ifdef H2CORE_HAVE_ALSA
 		auto pAlsaMidiDriver = std::make_shared<AlsaMidiDriver>();
 		m_pMidiDriver = pAlsaMidiDriver;
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( pPref->m_sMidiDriver == "PortMidi" ) {
+	} else if ( pPref->m_midiDriver == Preferences::MidiDriver::PortMidi ) {
 #ifdef H2CORE_HAVE_PORTMIDI
 		auto pPortMidiDriver = std::make_shared<PortMidiDriver>();
 		m_pMidiDriver = pPortMidiDriver;
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( pPref->m_sMidiDriver == "CoreMIDI" ) {
+	} else if ( pPref->m_midiDriver == Preferences::MidiDriver::CoreMidi ) {
 #ifdef H2CORE_HAVE_COREMIDI
 		auto pCoreMidiDriver = std::make_shared<CoreMidiDriver>();
 		m_pMidiDriver = pCoreMidiDriver;
@@ -1085,7 +1085,7 @@ void AudioEngine::startAudioDrivers()
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( pPref->m_sMidiDriver == "JACK-MIDI" ) {
+	} else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
 		auto pJackMidiDriver = std::make_shared<JackMidiDriver>();
 		m_pMidiDriver = pJackMidiDriver;
