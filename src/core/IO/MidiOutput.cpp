@@ -22,6 +22,7 @@
 
 #include <core/IO/MidiOutput.h>
 
+#include <core/EventQueue.h>
 #include <core/Midi/MidiMessage.h>
 
 namespace H2Core
@@ -50,7 +51,10 @@ void MidiOutput::sendMessage( const MidiMessage& msg ) {
 		break;
 
 	default:
-		ERRORLOG( QString( "Unhandled message [%1]" ).arg( msg.toQString() ) );
+		// Not handled, we won't send the corresponding event.
+		return;
 	}
+
+	EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
 }
 };
