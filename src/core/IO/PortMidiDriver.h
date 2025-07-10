@@ -23,8 +23,7 @@
 #ifndef PORT_MIDI_DRIVER_H
 #define PORT_MIDI_DRIVER_H
 
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 
 #include <memory>
 
@@ -38,8 +37,7 @@ namespace H2Core
 
 /** \ingroup docCore docMIDI */
 class PortMidiDriver : public Object<PortMidiDriver>,
-					   public virtual MidiInput,
-					   public virtual MidiOutput
+					   public virtual MidiBaseDriver
 {
 	H2_OBJECT(PortMidiDriver)
 public:

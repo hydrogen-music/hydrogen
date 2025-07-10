@@ -27,8 +27,7 @@
 #ifndef JACK_MIDI_DRIVER_H
 #define JACK_MIDI_DRIVER_H
 
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
@@ -49,8 +48,7 @@ namespace H2Core
 
 /** \ingroup docCore docMIDI */
 class JackMidiDriver : public Object<JackMidiDriver>,
-					   public virtual MidiInput,
-					   public virtual MidiOutput
+					   public virtual MidiBaseDriver
 {
 	H2_OBJECT(JackMidiDriver)
 public:

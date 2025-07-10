@@ -73,7 +73,7 @@ static void midiProc ( const MIDIPacketList * pktlist,
 
 
 CoreMidiDriver::CoreMidiDriver()
-		: MidiInput() ,MidiOutput(), Object<CoreMidiDriver>()
+		: MidiBaseDriver()
 		, m_bRunning( false )
 {
 	

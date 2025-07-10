@@ -139,7 +139,7 @@ void* PortMidiDriver_thread( void* param )
 }
 
 PortMidiDriver::PortMidiDriver()
-		: MidiInput(), MidiOutput(), Object<PortMidiDriver>()
+		: MidiBaseDriver()
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )

@@ -23,8 +23,7 @@
 #ifndef ALSA_MIDI_DRIVER_H
 #define ALSA_MIDI_DRIVER_H
 
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
@@ -42,8 +41,7 @@ namespace H2Core
 ///
 /** \ingroup docCore docMIDI */
 class AlsaMidiDriver : public Object<AlsaMidiDriver>,
-					   public virtual MidiInput,
-					   public virtual MidiOutput
+					   public virtual MidiBaseDriver
 {
 	H2_OBJECT(AlsaMidiDriver)
 public:

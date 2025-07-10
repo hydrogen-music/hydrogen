@@ -179,21 +179,13 @@ void* alsaMidiDriver_thread( void* param )
 
 
 
-AlsaMidiDriver::AlsaMidiDriver()
-		: MidiInput(), MidiOutput(), Object<AlsaMidiDriver>()
-{
-//	infoLog("INIT");
+AlsaMidiDriver::AlsaMidiDriver() : MidiBaseDriver() {
 }
 
-
-
-
-AlsaMidiDriver::~AlsaMidiDriver()
-{
+AlsaMidiDriver::~AlsaMidiDriver() {
 	if ( isMidiDriverRunning ) {
 		close();
 	}
-//	infoLog("DESTROY");
 }
 
 void AlsaMidiDriver::open()

@@ -28,8 +28,7 @@
 #ifndef CORE_MIDI_DRIVER_H
 #define CORE_MIDI_DRIVER_H
 
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 
 #include <memory>
 
@@ -42,8 +41,7 @@ namespace H2Core
 
 /** \ingroup docCore docMIDI */
 class CoreMidiDriver : public Object<CoreMidiDriver>,
-					   public virtual MidiInput,
-					   public virtual MidiOutput
+					   public virtual MidiBaseDriver
 {
 	H2_OBJECT(CoreMidiDriver)
 public:

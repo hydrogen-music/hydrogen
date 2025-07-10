@@ -20,41 +20,27 @@
  *
  */
 
-#ifndef H2_MIDI_OUTPUT_H
-#define H2_MIDI_OUTPUT_H
+#ifndef MIDI_BASE_DRIVER_H
+#define MIDI_BASE_DRIVER_H
 
-#include <core/Object.h>
-
-#include <QString>
-#include <vector>
+#include <core/IO/MidiInput.h>
+#include <core/IO/MidiOutput.h>
 
 namespace H2Core {
 
-class MidiMessage;
-
-/**
- * MIDI input base class
- */
 /** \ingroup docCore docMIDI */
-class MidiOutput : public virtual Object<MidiOutput>
+class MidiBaseDriver : public Object<MidiBaseDriver>,
+					   public virtual MidiInput,
+					   public virtual MidiOutput
 {
-	H2_OBJECT(MidiOutput)
+	H2_OBJECT(MidiBaseDriver)
 
-	public:
-		MidiOutput();
-		virtual ~MidiOutput();
-	
-		virtual std::vector<QString> getInputPortList() = 0;
+public:
+	MidiBaseDriver();
+	virtual ~MidiBaseDriver();
 
-		void sendMessage( const MidiMessage& msg );
-
-	private:
-		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;
-		virtual void sendNoteOffMessage( const MidiMessage& msg ) = 0;
-		virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
 };
 
 };
 
 #endif
-

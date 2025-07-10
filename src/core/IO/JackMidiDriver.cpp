@@ -243,9 +243,7 @@ JackMidiShutdown(void *arg)
 		Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 
-JackMidiDriver::JackMidiDriver()
-	: MidiInput(), MidiOutput(), Object<JackMidiDriver>()
-{
+JackMidiDriver::JackMidiDriver() : MidiBaseDriver() {
 	pthread_mutex_init(&mtx, nullptr);
 
 	running = 0;
