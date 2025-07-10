@@ -133,10 +133,14 @@ MidiMessage::Type MidiMessage::deriveType( int nStatusByte ) {
 
 MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 	MidiMessage msg;
-	msg.setType( Type::ControlChange );
-	msg.setData1( std::clamp( controlChange.nParameter, 0, 127 ) );
-	msg.setData2( std::clamp( controlChange.nValue, 0, 127 ) );
-	msg.setChannel( std::clamp( controlChange.nChannel, 0, 15 ) );
+	if ( controlChange.nChannel > 0 ) {
+		// By providing a negative value the resulting message will be
+		// suppressed.
+		msg.setType( Type::ControlChange );
+		msg.setData1( std::clamp( controlChange.nParameter, 0, 127 ) );
+		msg.setData2( std::clamp( controlChange.nValue, 0, 127 ) );
+		msg.setChannel( std::clamp( controlChange.nChannel, 0, 15 ) );
+	}
 
 	return msg;
 }
@@ -144,15 +148,11 @@ MidiMessage MidiMessage::from( const ControlChange& controlChange ) {
 MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 	MidiMessage msg;
 
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		// In case we do not have a valid note, we do not construct a valid
-		// message either.
-	}
-	if ( pNote->getInstrument()->getMidiOutChannel() == 0 ) {
-		// MIDI output was turned off for the instrument associated to the
-		// provided note.
-	}
-	else {
+	// In case we do not have a valid note or MIDI output was turned off for the
+	// instrument associated to the provided note, we do not assign a valid type
+	// and the message will be dropped.
+	if ( pNote != nullptr && pNote->getInstrument() != nullptr &&
+		 pNote->getInstrument()->getMidiOutChannel() >= 0 ) {
 		msg.setType( Type::NoteOn );
 		msg.setData1( std::clamp( pNote->getMidiKey(), 0, 127 ) );
 		msg.setData2( std::clamp( pNote->getMidiVelocity(), 0, 127 ) );
@@ -165,10 +165,14 @@ MidiMessage MidiMessage::from( std::shared_ptr<Note> pNote ) {
 
 MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 	MidiMessage msg;
-	msg.setType( Type::NoteOff );
-	msg.setData1( std::clamp( noteOff.nKey, 0, 127 ) );
-	msg.setData2( std::clamp( noteOff.nVelocity, 0, 127 ) );
-	msg.setChannel( std::clamp( noteOff.nChannel, 0, 15 ) );
+	if ( noteOff.nChannel > 0 ) {
+		// By providing a negative value the resulting message will be
+		// suppressed.
+		msg.setType( Type::NoteOff );
+		msg.setData1( std::clamp( noteOff.nKey, 0, 127 ) );
+		msg.setData2( std::clamp( noteOff.nVelocity, 0, 127 ) );
+		msg.setChannel( std::clamp( noteOff.nChannel, 0, 15 ) );
+	}
 
 	return msg;
 }
