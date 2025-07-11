@@ -43,8 +43,6 @@ public:
 	MidiInput();
 	virtual ~MidiInput();
 
-	virtual void open() = 0;
-	virtual void close() = 0;
 	virtual std::vector<QString> getOutputPortList() = 0;
 
 	void handleMidiMessage( const MidiMessage& msg );

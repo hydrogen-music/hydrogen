@@ -42,6 +42,9 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 		MidiBaseDriver();
 		virtual ~MidiBaseDriver();
 
+		virtual void open() = 0;
+		virtual void close() = 0;
+
 		virtual QString toQString( const QString& sPrefix = "",
 								   bool bShort = true ) const override {
 			return "";
