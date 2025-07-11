@@ -188,8 +188,7 @@ AlsaMidiDriver::~AlsaMidiDriver() {
 	}
 }
 
-void AlsaMidiDriver::open()
-{
+void AlsaMidiDriver::open() {
 	// start main thread
 	isMidiDriverRunning = true;
 	pthread_attr_t attr;
@@ -197,21 +196,12 @@ void AlsaMidiDriver::open()
 	pthread_create( &midiDriverThread, &attr, alsaMidiDriver_thread, ( void* )this );
 }
 
-
-
-
-void AlsaMidiDriver::close()
-{
+void AlsaMidiDriver::close() {
 	isMidiDriverRunning = false;
 	pthread_join( midiDriverThread, nullptr );
 }
 
-
-
-
-
-void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
-{
+void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	if ( ( pAudioEngine->getState() != AudioEngine::State::Ready ) &&
 		 ( pAudioEngine->getState() != AudioEngine::State::Playing ) ) {
@@ -366,101 +356,12 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 	} while ( snd_seq_event_input_pending( seq_handle, 0 ) > 0 );
 }
 
-std::vector<QString> AlsaMidiDriver::getInputPortList()
-{
-	std::vector<QString> inputList;
-
-	if ( seq_handle == nullptr ) {
-		return inputList;
-	}
-
-	snd_seq_client_info_t *cinfo;	// client info
-	snd_seq_port_info_t *pinfo;	// port info
-
-	snd_seq_client_info_alloca( &cinfo );
-	snd_seq_client_info_set_client( cinfo, -1 );
-
-	/* while the next client one the sequencer is available */
-	while ( snd_seq_query_next_client( seq_handle, cinfo ) >= 0 ) {
-		// get client from cinfo
-		int client = snd_seq_client_info_get_client( cinfo );
-
-		// fill pinfo
-		snd_seq_port_info_alloca( &pinfo );
-		snd_seq_port_info_set_client( pinfo, client );
-		snd_seq_port_info_set_port( pinfo, -1 );
-
-		// while the next port is available
-		while ( snd_seq_query_next_port( seq_handle, pinfo ) >= 0 ) {
-
-			/* get its capability */
-			int cap =  snd_seq_port_info_get_capability( pinfo );
-
-			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo ) && snd_seq_port_info_get_client( pinfo ) != 0 ) {
-				// output ports
-				if  (
-					( cap & SND_SEQ_PORT_CAP_SUBS_WRITE ) != 0 &&
-					snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
-				) {
-					INFOLOG( snd_seq_port_info_get_name( pinfo ) );
-					inputList.push_back( snd_seq_port_info_get_name( pinfo ) );
-					//info.m_nClient = snd_seq_port_info_get_client(pinfo);
-					//info.m_nPort = snd_seq_port_info_get_port(pinfo);
-				}
-			}
-		}
-	}
-
-	return inputList;
+std::vector<QString> AlsaMidiDriver::getInputPortList() {
+	return getPortList( SND_SEQ_PORT_CAP_SUBS_WRITE );
 }
 
-
-std::vector<QString> AlsaMidiDriver::getOutputPortList()
-{
-	std::vector<QString> outputList;
-
-	if ( seq_handle == nullptr ) {
-		return outputList;
-	}
-
-	snd_seq_client_info_t *cinfo;	// client info
-	snd_seq_port_info_t *pinfo;	// port info
-
-	snd_seq_client_info_alloca( &cinfo );
-	snd_seq_client_info_set_client( cinfo, -1 );
-
-	/* while the next client one the sequencer is available */
-	while ( snd_seq_query_next_client( seq_handle, cinfo ) >= 0 ) {
-		// get client from cinfo
-		int client = snd_seq_client_info_get_client( cinfo );
-
-		// fill pinfo
-		snd_seq_port_info_alloca( &pinfo );
-		snd_seq_port_info_set_client( pinfo, client );
-		snd_seq_port_info_set_port( pinfo, -1 );
-
-		// while the next port is available
-		while ( snd_seq_query_next_port( seq_handle, pinfo ) >= 0 ) {
-
-			/* get its capability */
-			int cap =  snd_seq_port_info_get_capability( pinfo );
-
-			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo ) && snd_seq_port_info_get_client( pinfo ) != 0 ) {
-				// output ports
-				if  (
-					( cap & SND_SEQ_PORT_CAP_SUBS_READ ) != 0 &&
-					snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
-				) {
-					INFOLOG( snd_seq_port_info_get_name( pinfo ) );
-					outputList.push_back( snd_seq_port_info_get_name( pinfo ) );
-					//info.m_nClient = snd_seq_port_info_get_client(pinfo);
-					//info.m_nPort = snd_seq_port_info_get_port(pinfo);
-				}
-			}
-		}
-	}
-
-	return outputList;
+std::vector<QString> AlsaMidiDriver::getOutputPortList() {
+	return getPortList( SND_SEQ_PORT_CAP_SUBS_READ );
 }
 
 void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& nPort )
@@ -571,6 +472,50 @@ void AlsaMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 		&ev, msg.getChannel(), msg.getData1(), msg.getData2() );
 	snd_seq_event_output(seq_handle, &ev);
 	snd_seq_drain_output(seq_handle);
+}
+
+std::vector<QString> AlsaMidiDriver::getPortList( int nCapability ) {
+	std::vector<QString> outputList;
+
+	if ( seq_handle == nullptr ) {
+		return outputList;
+	}
+
+	snd_seq_client_info_t *cinfo;	// client info
+	snd_seq_port_info_t *pinfo;	// port info
+
+	snd_seq_client_info_alloca( &cinfo );
+	snd_seq_client_info_set_client( cinfo, -1 );
+
+	const auto nClientId = snd_seq_client_id( seq_handle );
+
+	/* while the next client one the sequencer is available */
+	while ( snd_seq_query_next_client( seq_handle, cinfo ) >= 0 ) {
+		// get client from cinfo
+		const int client = snd_seq_client_info_get_client( cinfo );
+
+		// fill pinfo
+		snd_seq_port_info_alloca( &pinfo );
+		snd_seq_port_info_set_client( pinfo, client );
+		snd_seq_port_info_set_port( pinfo, -1 );
+
+		// while the next port is available
+		while ( snd_seq_query_next_port( seq_handle, pinfo ) >= 0 ) {
+
+			/* get its capability */
+			const int nOtherCapability = snd_seq_port_info_get_capability( pinfo );
+			const auto nOtherClientId = snd_seq_port_info_get_client( pinfo );
+
+			if ( nClientId != nOtherClientId && nOtherClientId != 0 ) {
+				// output ports
+				if  ( ( nOtherCapability & nCapability ) != 0 ) {
+					outputList.push_back( snd_seq_port_info_get_name( pinfo ) );
+				}
+			}
+		}
+	}
+
+	return outputList;
 }
 
 QString AlsaMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {

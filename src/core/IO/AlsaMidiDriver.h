@@ -62,6 +62,8 @@ private:
 	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
 	void sendNoteOffMessage( const MidiMessage& msg ) override;
+
+		std::vector<QString> getPortList( int nCapability );
 };
 
 };
