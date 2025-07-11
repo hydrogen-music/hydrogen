@@ -62,41 +62,19 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	/** Checks whether m_sType is of getNullMidiActionType() */
 	bool isNull() const;
 
-		void setParameter1( const QString& text ){
-			m_sParameter1 = text;
-		}
+		const QString& getParameter1() const;
+		void setParameter1( const QString& text );
 
-		void setParameter2( const QString& text ){
-			m_sParameter2 = text;
-		}
+		const QString& getParameter2() const;
+		void setParameter2( const QString& text );
 
-		void setParameter3( const QString& text ){
-			m_sParameter3 = text;
-		}
+		const QString& getParameter3() const;
+		void setParameter3( const QString& text );
 
-		void setValue( const QString& text ){
-			m_sValue = text;
-		}
+		const QString& getValue() const;
+		void setValue( const QString& text );
 
-		const QString& getParameter1() const {
-			return m_sParameter1;
-		}
-
-		const QString& getParameter2() const {
-			return m_sParameter2;
-		}
-
-		const QString& getParameter3() const {
-			return m_sParameter3;
-		}
-
-		const QString& getValue() const {
-			return m_sValue;
-		}
-
-		const QString& getType() const {
-			return m_sType;
-		}
+		const QString& getType() const;
 
 	/**
 	 * @returns whether the current MidiAction and @a pOther identically
@@ -161,5 +139,41 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		QString m_sParameter3;
 		QString m_sValue;
 };
+
+inline const QString& MidiAction::getParameter1() const {
+	return m_sParameter1;
+}
+
+inline void MidiAction::setParameter1( const QString& text ) {
+	m_sParameter1 = text;
+}
+
+inline const QString& MidiAction::getParameter2() const {
+	return m_sParameter2;
+}
+
+inline void MidiAction::setParameter2( const QString& text ){
+	m_sParameter2 = text;
+}
+
+inline const QString& MidiAction::getParameter3() const {
+	return m_sParameter3;
+}
+
+inline void MidiAction::setParameter3( const QString& text ){
+	m_sParameter3 = text;
+}
+
+inline const QString& MidiAction::getValue() const {
+	return m_sValue;
+}
+
+inline void MidiAction::setValue( const QString& text ){
+	m_sValue = text;
+}
+
+inline const QString& MidiAction::getType() const {
+	return m_sType;
+}
 
 #endif
