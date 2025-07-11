@@ -44,8 +44,6 @@ class MidiOutput : public virtual Object<MidiOutput>
 		MidiOutput();
 		virtual ~MidiOutput();
 	
-		virtual std::vector<QString> getInputPortList() = 0;
-
 		void sendMessage( const MidiMessage& msg );
 
 	private:

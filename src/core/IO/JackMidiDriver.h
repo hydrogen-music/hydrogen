@@ -55,10 +55,9 @@ public:
 	JackMidiDriver();
 	virtual ~JackMidiDriver();
 
-	virtual void open() override;
-	virtual void close() override;
-	virtual std::vector<QString> getInputPortList() override;
-	virtual std::vector<QString> getOutputPortList() override;
+	void close() override;
+	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	void open() override;
 
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 	void JackMidiWrite(jack_nframes_t nframes);

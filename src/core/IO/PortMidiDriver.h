@@ -48,10 +48,9 @@ public:
 	PortMidiDriver();
 	virtual ~PortMidiDriver();
 
-	virtual void open() override;
-	virtual void close() override;
-	virtual std::vector<QString> getInputPortList() override;
-	virtual std::vector<QString> getOutputPortList() override;
+	void close() override;
+	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	void open() override;
 
 	static QString translatePmError( const PmError& err );
 	/**

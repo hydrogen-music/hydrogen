@@ -394,15 +394,15 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
 	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		std::vector<QString> midiOutList =
-			pHydrogen->getMidiDriver()->getOutputPortList();
+		std::vector<QString> midiOutputPorts = pHydrogen->getMidiDriver()->
+			getExternalPortList( MidiBaseDriver::PortType::Output );
 
-		if ( midiOutList.size() != 0 ) {
+		if ( midiOutputPorts.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
 			midiPortChannelComboBox->setEnabled( true );
 		}
-		for (uint i = 0; i < midiOutList.size(); i++) {
-			QString sPortName = midiOutList[i];
+		for (uint i = 0; i < midiOutputPorts.size(); i++) {
+			QString sPortName = midiOutputPorts[i];
 			midiPortComboBox->addItem( sPortName );
 
 			if ( sPortName == pPref->m_sMidiPortName ) {
@@ -416,15 +416,15 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
 	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		std::vector<QString> midiOutList =
-			pHydrogen->getMidiDriver()->getInputPortList();
+		std::vector<QString> midiInputPorts = pHydrogen->getMidiDriver()->
+			getExternalPortList( MidiBaseDriver::PortType::Input );
 
-		if ( midiOutList.size() != 0 ) {
+		if ( midiInputPorts.size() != 0 ) {
 			midiOutportComboBox->setEnabled( true );
 			midiPortChannelComboBox->setEnabled( true );
 		}
-		for (uint i = 0; i < midiOutList.size(); i++) {
-			QString sPortName = midiOutList[i];
+		for (uint i = 0; i < midiInputPorts.size(); i++) {
+			QString sPortName = midiInputPorts[i];
 			midiOutportComboBox->addItem( sPortName );
 
 			if ( sPortName == pPref->m_sMidiOutputPortName ) {

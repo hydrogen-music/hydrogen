@@ -27,6 +27,7 @@
 #include <core/IO/MidiOutput.h>
 
 #include <QString>
+#include <vector>
 
 namespace H2Core {
 
@@ -38,12 +39,18 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	H2_OBJECT(MidiBaseDriver)
 
 	public:
+		enum class PortType {
+			Input,
+			Output
+		};
+		static QString portTypeToQString( const PortType& portType );
 
 		MidiBaseDriver();
 		virtual ~MidiBaseDriver();
 
-		virtual void open() = 0;
 		virtual void close() = 0;
+		virtual std::vector<QString> getExternalPortList( const PortType& portType ) = 0;
+		virtual void open() = 0;
 
 		virtual QString toQString( const QString& sPrefix = "",
 								   bool bShort = true ) const override {

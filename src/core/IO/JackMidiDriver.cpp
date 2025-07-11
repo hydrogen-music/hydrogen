@@ -37,21 +37,15 @@
 namespace H2Core
 {
 
-void
-JackMidiDriver::lock(void)
-{
+void JackMidiDriver::lock( void ) {
 	pthread_mutex_lock(&mtx);
 }
 
-void
-JackMidiDriver::unlock(void)
-{
+void JackMidiDriver::unlock( void ) {
 	pthread_mutex_unlock(&mtx);
 }
 
-void
-JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
-{
+void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 	int error;
 	int events;
 	int i;
@@ -132,9 +126,7 @@ void JackMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	JackMidiOutEvent(buffer, 3);
 }
 
-void
-JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
-{
+void JackMidiDriver::JackMidiRead( jack_nframes_t nframes ) {
 	uint8_t *buffer;
 	void *buf;
 	jack_nframes_t t;
@@ -188,9 +180,7 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 	unlock();
 }
 
-void
-JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
-{
+void JackMidiDriver::JackMidiOutEvent( uint8_t buf[4], uint8_t len ) {
 	uint32_t next_pos;
 
 	lock();
@@ -220,9 +210,7 @@ JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
 	unlock();
 }
 
-static int
-JackMidiProcessCallback(jack_nframes_t nframes, void *arg)
-{
+static int JackMidiProcessCallback( jack_nframes_t nframes, void *arg ) {
 	JackMidiDriver *jmd = (JackMidiDriver *)arg;
 
 	if (nframes <= 0) {
@@ -235,9 +223,7 @@ JackMidiProcessCallback(jack_nframes_t nframes, void *arg)
 	return (0);
 }
 
-static void
-JackMidiShutdown(void *arg)
-{
+static void JackMidiShutdown( void *arg ) {
 	UNUSED(arg);
 	Hydrogen::get_instance()->getAudioEngine()->raiseError(
 		Hydrogen::JACK_SERVER_SHUTDOWN );
@@ -315,41 +301,24 @@ JackMidiDriver::~JackMidiDriver()
 
 }
 
-void
-JackMidiDriver::open()
-{
-	running ++;
+void JackMidiDriver::open() {
+	running++;
 }
 
-void
-JackMidiDriver::close()
-{
-	running --;
+void JackMidiDriver::close() {
+	running--;
 }
 
-std::vector<QString>
-JackMidiDriver::getInputPortList()
-{
-	std::vector<QString> inputList;
+std::vector<QString> JackMidiDriver::getExternalPortList( const PortType &portType ) {
+	std::vector<QString> portList;
 
-	inputList.push_back("Default");
+	portList.push_back("Default");
 
-	return inputList;
+	return portList;
 }
 
-std::vector<QString>
-JackMidiDriver::getOutputPortList()
-{
-	std::vector<QString> outputList;
-
-	outputList.push_back("Default");
-
-	return outputList;
-}
-
-void
-JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
-{
+void JackMidiDriver::getPortInfo( const QString& sPortName, int& nClient,
+								  int& nPort ) {
 	if ( sPortName == Preferences::getNullMidiPort() ) {
 		nClient = -1;
 		nPort = -1;
@@ -372,8 +341,7 @@ void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 	JackMidiOutEvent(buffer, 3);
 }
 
-void
-JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
+void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];
 
 	buffer[0] = 0x80 | msg.getChannel();	/* note off */

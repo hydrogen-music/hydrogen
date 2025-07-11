@@ -29,4 +29,14 @@ MidiBaseDriver::MidiBaseDriver() : MidiInput(), MidiOutput() {
 MidiBaseDriver::~MidiBaseDriver() {
 }
 
+QString MidiBaseDriver::portTypeToQString( const PortType& portType ) {
+	switch ( portType ) {
+	case PortType::Input:
+		return "Input";
+	case PortType::Output:
+		return "Output";
+	default:
+		return "Unhandled port type";
+	}
+}
 };

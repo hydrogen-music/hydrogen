@@ -50,10 +50,9 @@ public:
 
 	bool m_bRunning;
 
-	virtual void open() override;
-	virtual void close() override;
-	virtual std::vector<QString> getInputPortList() override;
-	virtual std::vector<QString> getOutputPortList() override;
+	void close() override;
+	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	void open() override;
 
 	MIDIClientRef h2MIDIClient;
 	ItemCount cmSources;

@@ -356,14 +356,6 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 	} while ( snd_seq_event_input_pending( seq_handle, 0 ) > 0 );
 }
 
-std::vector<QString> AlsaMidiDriver::getInputPortList() {
-	return getPortList( SND_SEQ_PORT_CAP_SUBS_WRITE );
-}
-
-std::vector<QString> AlsaMidiDriver::getOutputPortList() {
-	return getPortList( SND_SEQ_PORT_CAP_SUBS_READ );
-}
-
 void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& nPort )
 {
 	if ( seq_handle == nullptr ) {
@@ -474,11 +466,18 @@ void AlsaMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	snd_seq_drain_output(seq_handle);
 }
 
-std::vector<QString> AlsaMidiDriver::getPortList( int nCapability ) {
-	std::vector<QString> outputList;
+std::vector<QString> AlsaMidiDriver::getExternalPortList( const PortType& portType ) {
+	std::vector<QString> portList;
 
 	if ( seq_handle == nullptr ) {
-		return outputList;
+		return portList;
+	}
+
+	int nCapability;
+	if ( portType == PortType::Input ) {
+		nCapability = SND_SEQ_PORT_CAP_SUBS_WRITE;
+	} else {
+		nCapability = SND_SEQ_PORT_CAP_SUBS_READ;
 	}
 
 	snd_seq_client_info_t *cinfo;	// client info
@@ -509,13 +508,13 @@ std::vector<QString> AlsaMidiDriver::getPortList( int nCapability ) {
 			if ( nClientId != nOtherClientId && nOtherClientId != 0 ) {
 				// output ports
 				if  ( ( nOtherCapability & nCapability ) != 0 ) {
-					outputList.push_back( snd_seq_port_info_get_name( pinfo ) );
+					portList.push_back( snd_seq_port_info_get_name( pinfo ) );
 				}
 			}
 		}
 	}
 
-	return outputList;
+	return portList;
 }
 
 QString AlsaMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {

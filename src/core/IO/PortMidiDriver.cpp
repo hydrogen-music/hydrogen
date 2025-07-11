@@ -412,8 +412,7 @@ void PortMidiDriver::close()
 	}
 }
 
-std::vector<QString> PortMidiDriver::getInputPortList()
-{
+std::vector<QString> PortMidiDriver::getExternalPortList( const PortType& portType ) {
 	std::vector<QString> portList;
 
 	const int nDevices = Pm_CountDevices();
@@ -428,38 +427,11 @@ std::vector<QString> PortMidiDriver::getInputPortList()
 			// feedback loops.
 			const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( ii );
 			if ( pInfo == nullptr ) {
-				ERRORLOG( QString( "Could not open output device [%1]" ).arg( ii ) );
+				ERRORLOG( QString( "Could not open %1 device [%2]" )
+						  .arg( portTypeToQString( portType ) ).arg( ii ) );
 			}
-			else if ( pInfo->output == TRUE ) {
-				INFOLOG( pInfo->name );
-				portList.push_back( pInfo->name );
-			}
-		}
-	}
-
-	return portList;
-}
-
-std::vector<QString> PortMidiDriver::getOutputPortList()
-{
-	std::vector<QString> portList;
-
-	const int nDevices = Pm_CountDevices();
-	for ( int ii = 0; ii < nDevices; ii++ ) {
-		if ( ii != m_nVirtualInputDeviceId && ii != m_nVirtualOutputDeviceId ) {
-			// Be sure to avoid a potential virtual device created by
-			// Hydrogen itself (it can not possibly be connected to
-			// since those virtual devices are deleted when restarting
-			// the PortMidiDriver - which is done to establish a
-			// connection). Also, there is no real use case and an
-			// extreme risk to lock Hydrogen due to MIDI signal
-			// feedback loops.
-			const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( ii );
-			if ( pInfo == nullptr ) {
-				ERRORLOG( QString( "Could not open input device [%1]" ).arg( ii ) );
-			}
-			else if ( pInfo->input == TRUE ) {
-				INFOLOG( pInfo->name );
+			else if ( portType == PortType::Output && pInfo->input == TRUE ||
+					  portType == PortType::Input && pInfo->output == TRUE ) {
 				portList.push_back( pInfo->name );
 			}
 		}
