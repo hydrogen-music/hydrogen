@@ -47,9 +47,6 @@ public:
 	virtual void close() = 0;
 	virtual std::vector<QString> getOutputPortList() = 0;
 
-	void setActive( bool isActive ) {
-		m_bActive = isActive;
-	}
 	void handleMidiMessage( const MidiMessage& msg );
 	void handleSysexMessage( const MidiMessage& msg );
 	void handleControlChangeMessage( const MidiMessage& msg );
@@ -57,8 +54,6 @@ public:
 	void handlePolyphonicKeyPressureMessage( const MidiMessage& msg );
 
 protected:
-	bool m_bActive;
-
 	void handleNoteOnMessage( const MidiMessage& msg );
 	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke );
 };

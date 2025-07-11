@@ -1104,7 +1104,6 @@ void AudioEngine::startMidiDriver() {
 		auto pAlsaMidiDriver = std::make_shared<AlsaMidiDriver>();
 		m_pMidiDriver = pAlsaMidiDriver;
 		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::PortMidi ) {
@@ -1112,7 +1111,6 @@ void AudioEngine::startMidiDriver() {
 		auto pPortMidiDriver = std::make_shared<PortMidiDriver>();
 		m_pMidiDriver = pPortMidiDriver;
 		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::CoreMidi ) {
@@ -1121,7 +1119,6 @@ void AudioEngine::startMidiDriver() {
 		m_pMidiDriver = pCoreMidiDriver;
 		m_pMidiDriverOut = pCoreMidiDriver;
 		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
@@ -1129,7 +1126,6 @@ void AudioEngine::startMidiDriver() {
 		auto pJackMidiDriver = std::make_shared<JackMidiDriver>();
 		m_pMidiDriver = pJackMidiDriver;
 		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
 #endif
 	}
 

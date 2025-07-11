@@ -389,8 +389,6 @@ QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[JackMidiDriver]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_bActive: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bActive ) )
 			.append( QString( "%1%2running: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( running ) )
 			.append( QString( "%1%2rx_in_pos: %3\n" ).arg( sPrefix ).arg( s )
@@ -399,7 +397,6 @@ QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( rx_out_pos ) );
 	} else {
 		sOutput = QString( "[JackMidiDriver]" )
-			.append( QString( " m_bActive: %1" ).arg( m_bActive ) )
 			.append( QString( ", running: %1" ).arg( running ) )
 			.append( QString( ", rx_in_pos: %1" ).arg( rx_in_pos ) )
 			.append( QString( ", rx_out_pos: %1" ).arg( rx_out_pos ) );

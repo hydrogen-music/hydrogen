@@ -37,7 +37,7 @@
 namespace H2Core
 {
 
-MidiInput::MidiInput() : m_bActive( false ) {
+MidiInput::MidiInput() {
 }
 
 MidiInput::~MidiInput() {

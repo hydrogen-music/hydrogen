@@ -219,8 +219,6 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 		return;
 	}
 
-//	bool useMidiTransport = true;
-
 	snd_seq_event_t *ev;
 	do {
 		if ( !seq_handle ) {
@@ -228,7 +226,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 		}
 		snd_seq_event_input( seq_handle, &ev );
 
-		if ( m_bActive && ev != nullptr ) {
+		if ( ev != nullptr ) {
 
 			MidiMessage msg;
 
@@ -580,8 +578,6 @@ QString AlsaMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[AlsaMidiDriver]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_bActive: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bActive ) )
 			.append( QString( "%1%2isMidiDriverRunning: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( isMidiDriverRunning ) )
 			.append( QString( "%1%2portId: %3\n" ).arg( sPrefix ).arg( s )
@@ -592,7 +588,6 @@ QString AlsaMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( outPortId ) );
 	} else {
 		sOutput = QString( "[AlsaMidiDriver]" )
-			.append( QString( " m_bActive: %1" ).arg( m_bActive ) )
 			.append( QString( ", isMidiDriverRunning: %1" ).arg( isMidiDriverRunning ) )
 			.append( QString( ", portId: %1" ).arg( portId ) )
 			.append( QString( ", clientId: %1" ).arg( clientId ) )
