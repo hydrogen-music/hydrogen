@@ -113,7 +113,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 Footer::~Footer() {
 }
 
-void Footer::driverChangedEvent() {
+void Footer::audioDriverChangedEvent() {
 	m_nXRuns = 0;
 	updateXRuns();
 }

@@ -65,7 +65,7 @@ public:
 		void updateIcons();
 
 		// EventListerer
-		void driverChangedEvent() override;
+		void midiDriverChangedEvent() override;
 		void midiInputEvent() override;
 		void midiOutputEvent() override;
 

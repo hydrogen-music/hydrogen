@@ -70,7 +70,7 @@ public:
 		void updateActions();
 
 		void beatCounterEvent() override;
-		void driverChangedEvent() override;
+		void audioDriverChangedEvent() override;
 		void jackTimebaseStateChangedEvent( int nState ) override;
 		void jackTransportActivationEvent() override;
 		void loopModeActivationEvent() override;

@@ -1018,7 +1018,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 	unlock();
 
-	EventQueue::get_instance()->pushEvent( Event::Type::DriverChanged, 0 );
+	EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 
 	return pAudioDriver;
 }

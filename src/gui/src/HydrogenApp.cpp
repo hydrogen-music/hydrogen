@@ -952,16 +952,16 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->actionModeChangeEvent( pEvent->getValue() );
 				break;
 
+			case Event::Type::AudioDriverChanged:
+				ppEventListener->audioDriverChangedEvent();
+				break;
+
 			case Event::Type::BbtChanged:
 				ppEventListener->bbtChangedEvent();
 				break;
 
 			case Event::Type::BeatCounter:
 				ppEventListener->beatCounterEvent();
-				break;
-
-			case Event::Type::DriverChanged:
-				ppEventListener->driverChangedEvent();
 				break;
 
 			case Event::Type::DrumkitLoaded:
@@ -1002,6 +1002,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::Metronome:
 				ppEventListener->metronomeEvent( pEvent->getValue() );
+				break;
+
+			case Event::Type::MidiDriverChanged:
+				ppEventListener->midiDriverChangedEvent();
 				break;
 
 			case Event::Type::MidiInput:

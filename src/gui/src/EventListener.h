@@ -29,9 +29,9 @@ class EventListener
 {
 	public:
 		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void audioDriverChangedEvent(){}
 		virtual void bbtChangedEvent(){}
 		virtual void beatCounterEvent() {}
-		virtual void driverChangedEvent(){}
 		virtual void drumkitLoadedEvent(){}
 		virtual void effectChangedEvent(){}
 		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
@@ -46,6 +46,7 @@ class EventListener
 		virtual void jackTimebaseStateChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void loopModeActivationEvent(){}
 		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
+		virtual void midiDriverChangedEvent(){}
 		virtual void midiInputEvent() {}
 		virtual void midiMapChangedEvent(){}
 		virtual void midiOutputEvent() {}

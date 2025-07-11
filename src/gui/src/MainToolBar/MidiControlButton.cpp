@@ -123,7 +123,7 @@ void MidiControlButton::updateIcons() {
 	update();
 }
 
-void MidiControlButton::driverChangedEvent() {
+void MidiControlButton::midiDriverChangedEvent() {
 	updateActivation();
 }
 

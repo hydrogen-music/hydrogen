@@ -364,7 +364,7 @@ void MainToolBar::updateActions()
 	}
 }
 
-void MainToolBar::driverChangedEvent() {
+void MainToolBar::audioDriverChangedEvent() {
 	updateJackTransport();
 	updateJackTimebase();
 	updateTransportControl();

@@ -57,7 +57,7 @@ public:
 
 		void showStatusBarMessage( const QString& msg, const QString& sCaller = "" );
 
-		void driverChangedEvent() override;
+		void audioDriverChangedEvent() override;
 		void XRunEvent() override;
 
 public slots:
