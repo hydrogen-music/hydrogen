@@ -28,6 +28,7 @@
 #include <cassert>
 
 #include <core/Helpers/Xml.h>
+#include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
@@ -73,9 +74,9 @@ public:
 	/** Returns the pc Midiaction which was linked to the given event. */
 	const std::vector<std::shared_ptr<MidiAction>>& getPCActions() const;
 		
-	std::vector<int> findCCValuesByActionParam1( const QString& sActionType,
+	std::vector<int> findCCValuesByTypeAndParam1( MidiAction::Type type,
 												 const QString& sParam1 );
-	std::vector<int> findCCValuesByActionType( const QString& sActionType );
+	std::vector<int> findCCValuesByType( MidiAction::Type type );
 
 	/**
 	 * @returns a list of all MIDI events registered to a particular

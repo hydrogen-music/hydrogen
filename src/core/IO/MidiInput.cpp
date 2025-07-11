@@ -108,20 +108,20 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		case MidiMessage::Type::Start: /* Start from position 0 */
 			if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 				CoreActionController::locateToColumn( 0 );
-				auto pAction = std::make_shared<MidiAction>("PLAY");
-				MidiActionManager::get_instance()->handleMidiAction( pAction );
+				MidiActionManager::get_instance()->handleMidiAction(
+					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
 			}
 			break;
 
 		case MidiMessage::Type::Continue: /* Just start */ {
-			auto pAction = std::make_shared<MidiAction>("PLAY");
-			MidiActionManager::get_instance()->handleMidiAction( pAction );
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::Play ) );
 			break;
 		}
 
 		case MidiMessage::Type::Stop: /* Stop in current position i.e. Pause */ {
-			auto pAction = std::make_shared<MidiAction>("PAUSE");
-			MidiActionManager::get_instance()->handleMidiAction( pAction );
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
 			break;
 		}
 

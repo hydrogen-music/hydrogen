@@ -106,7 +106,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pRwdButton, &QToolButton::clicked, [&]() {
 		rewindBtnClicked();
 	});
-	m_pRwdButton->setMidiAction( std::make_shared<MidiAction>("<<_PREVIOUS_BAR") );
+	m_pRwdButton->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::PreviousBar ) );
 	addWidget( m_pRwdButton );
 
 	// Record button
@@ -115,7 +116,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pRecButton, &QToolButton::clicked, [&]() {
 		recBtnClicked();
 	});
-	m_pRecButton->setMidiAction( std::make_shared<MidiAction>("RECORD_READY") );
+	m_pRecButton->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::RecordReady ) );
 	addWidget( m_pRecButton );
 
 	// Play button
@@ -124,7 +126,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pPlayButton, &QToolButton::clicked, [&]() {
 		playBtnClicked();
 	} );
-	m_pPlayButton->setMidiAction( std::make_shared<MidiAction>("PLAY/PAUSE_TOGGLE") );
+	m_pPlayButton->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::PlayPauseToggle ) );
 	addWidget( m_pPlayButton );
 
 	// Stop button
@@ -133,7 +136,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pStopButton, &QToolButton::clicked, [&](){
 		stopBtnClicked();
 	});
-	m_pStopButton->setMidiAction( std::make_shared<MidiAction>("STOP") );
+	m_pStopButton->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::Stop ) );
 	addWidget( m_pStopButton );
 
 	// Fast forward button
@@ -142,7 +146,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pFfwdButton, &QToolButton::clicked, [&](){
 		fastForwardBtnClicked();
 	});
-	m_pFfwdButton->setMidiAction( std::make_shared<MidiAction>(">>_NEXT_BAR") );
+	m_pFfwdButton->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::NextBar ) );
 	addWidget( m_pFfwdButton );
 
 	// Loop song button button
@@ -190,7 +195,8 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
 		CoreActionController::setMetronomeIsActive( bChecked );
 	} );
-	m_pMetronomeButton->setMidiAction( std::make_shared<MidiAction>("TOGGLE_METRONOME") );
+	m_pMetronomeButton->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome ) );
 	addWidget( m_pMetronomeButton );
 
 	m_sLCDBPMSpinboxToolTip =

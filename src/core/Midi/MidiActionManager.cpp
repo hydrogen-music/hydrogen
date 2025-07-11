@@ -36,7 +36,6 @@
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
-#include <core/Midi/MidiAction.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -52,70 +51,169 @@ MidiActionManager::MidiActionManager() {
 		the m_actionMap holds all Action identifiers which hydrogen is able to interpret.
 		it holds pointer to member function
 	*/
-	m_midiActionMap.insert(std::make_pair("PLAY", std::make_pair( &MidiActionManager::play, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("PLAY/STOP_TOGGLE", std::make_pair( &MidiActionManager::play_stop_pause_toggle, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("PLAY/PAUSE_TOGGLE", std::make_pair( &MidiActionManager::play_stop_pause_toggle, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("STOP", std::make_pair( &MidiActionManager::stop, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("PAUSE", std::make_pair( &MidiActionManager::pause, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("RECORD_READY", std::make_pair( &MidiActionManager::record_ready, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("RECORD/STROBE_TOGGLE", std::make_pair( &MidiActionManager::record_strobe_toggle, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("RECORD_STROBE", std::make_pair( &MidiActionManager::record_strobe, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("RECORD_EXIT", std::make_pair( &MidiActionManager::record_exit, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("MUTE", std::make_pair( &MidiActionManager::mute, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("UNMUTE", std::make_pair( &MidiActionManager::unmute, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("MUTE_TOGGLE", std::make_pair( &MidiActionManager::mute_toggle, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("STRIP_MUTE_TOGGLE", std::make_pair( &MidiActionManager::strip_mute_toggle, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("STRIP_SOLO_TOGGLE", std::make_pair( &MidiActionManager::strip_solo_toggle, 1 ) ));
-	m_midiActionMap.insert(std::make_pair(">>_NEXT_BAR", std::make_pair( &MidiActionManager::next_bar, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("<<_PREVIOUS_BAR", std::make_pair( &MidiActionManager::previous_bar, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("BPM_INCR", std::make_pair( &MidiActionManager::bpm_increase, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("BPM_DECR", std::make_pair( &MidiActionManager::bpm_decrease, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("BPM_CC_RELATIVE", std::make_pair( &MidiActionManager::bpm_cc_relative, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("BPM_FINE_CC_RELATIVE", std::make_pair( &MidiActionManager::bpm_fine_cc_relative, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("MASTER_VOLUME_RELATIVE", std::make_pair( &MidiActionManager::master_volume_relative, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("MASTER_VOLUME_ABSOLUTE", std::make_pair( &MidiActionManager::master_volume_absolute, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("STRIP_VOLUME_RELATIVE", std::make_pair( &MidiActionManager::strip_volume_relative, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("STRIP_VOLUME_ABSOLUTE", std::make_pair( &MidiActionManager::strip_volume_absolute, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("EFFECT_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::effect_level_absolute, 2 ) ));
-	m_midiActionMap.insert(std::make_pair("EFFECT_LEVEL_RELATIVE", std::make_pair( &MidiActionManager::effect_level_relative, 2 ) ));
-	m_midiActionMap.insert(std::make_pair("GAIN_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::gain_level_absolute, 3 ) ));
-	m_midiActionMap.insert(std::make_pair("PITCH_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::pitch_level_absolute, 3 ) ));
-	m_midiActionMap.insert(std::make_pair("SELECT_NEXT_PATTERN", std::make_pair( &MidiActionManager::select_next_pattern, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN", std::make_pair( &MidiActionManager::select_only_next_pattern, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair( &MidiActionManager::select_next_pattern_cc_absolute, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair( &MidiActionManager::select_only_next_pattern_cc_absolute, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_RELATIVE", std::make_pair( &MidiActionManager::select_next_pattern_relative, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", std::make_pair( &MidiActionManager::select_and_play_pattern, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("PAN_ABSOLUTE", std::make_pair( &MidiActionManager::pan_absolute, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("PAN_ABSOLUTE_SYM", std::make_pair( &MidiActionManager::pan_absolute_sym, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("INSTRUMENT_PITCH",
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::Play,
+					   std::make_pair( &MidiActionManager::play, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PlayStopToggle,
+					   std::make_pair( &MidiActionManager::play_stop_toggle, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PlayPauseToggle,
+					   std::make_pair( &MidiActionManager::play_pause_toggle, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::Stop,
+					   std::make_pair( &MidiActionManager::stop, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::Pause,
+					   std::make_pair( &MidiActionManager::pause, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::RecordReady,
+					   std::make_pair( &MidiActionManager::record_ready, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::RecordStrobeToggle,
+					   std::make_pair( &MidiActionManager::record_strobe_toggle, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::RecordStrobe,
+					   std::make_pair( &MidiActionManager::record_strobe, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::RecordExit,
+					   std::make_pair( &MidiActionManager::record_exit, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::Mute,
+					   std::make_pair( &MidiActionManager::mute, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::Unmute,
+					   std::make_pair( &MidiActionManager::unmute, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::MuteToggle,
+					   std::make_pair( &MidiActionManager::mute_toggle, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::StripMuteToggle,
+					   std::make_pair( &MidiActionManager::strip_mute_toggle, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::StripSoloToggle,
+					   std::make_pair( &MidiActionManager::strip_solo_toggle, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::NextBar,
+					   std::make_pair( &MidiActionManager::next_bar, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PreviousBar,
+					   std::make_pair( &MidiActionManager::previous_bar, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::BpmIncr,
+					   std::make_pair( &MidiActionManager::bpm_increase, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::BpmDecr,
+					   std::make_pair( &MidiActionManager::bpm_decrease, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::BpmCcRelative,
+					   std::make_pair( &MidiActionManager::bpm_cc_relative, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::BpmFineCcRelative,
+					   std::make_pair( &MidiActionManager::bpm_fine_cc_relative, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::MasterVolumeRelative,
+					   std::make_pair( &MidiActionManager::master_volume_relative, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::MasterVolumeAbsolute,
+					   std::make_pair( &MidiActionManager::master_volume_absolute, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::StripVolumeRelative,
+					   std::make_pair( &MidiActionManager::strip_volume_relative, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::StripVolumeAbsolute,
+					   std::make_pair( &MidiActionManager::strip_volume_absolute, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::EffectLevelAbsolute,
+					   std::make_pair( &MidiActionManager::effect_level_absolute, 2 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::EffectLevelRelative,
+					   std::make_pair( &MidiActionManager::effect_level_relative, 2 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::GainLevelAbsolute,
+					   std::make_pair( &MidiActionManager::gain_level_absolute, 3 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PitchLevelAbsolute,
+					   std::make_pair( &MidiActionManager::pitch_level_absolute, 3 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::SelectNextPattern,
+					   std::make_pair( &MidiActionManager::select_next_pattern, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::SelectOnlyNextPattern,
+					   std::make_pair( &MidiActionManager::select_only_next_pattern, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::SelectNextPatternCcAbsolute,
+					   std::make_pair( &MidiActionManager::select_next_pattern_cc_absolute, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::SelectOnlyNextPatternCcAbsolute,
+					   std::make_pair( &MidiActionManager::select_only_next_pattern_cc_absolute, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::SelectNextPatternRelative,
+					   std::make_pair( &MidiActionManager::select_next_pattern_relative, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::SelectAndPlayPattern,
+					   std::make_pair( &MidiActionManager::select_and_play_pattern, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PanRelative,
+					   std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PanAbsolute,
+					   std::make_pair( &MidiActionManager::pan_absolute, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PanAbsoluteSym,
+					   std::make_pair( &MidiActionManager::pan_absolute_sym, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::InstrumentPitch,
 									  std::make_pair( &MidiActionManager::instrument_pitch, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::filter_cutoff_level_absolute, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("BEATCOUNTER", std::make_pair( &MidiActionManager::beatcounter, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("TAP_TEMPO", std::make_pair( &MidiActionManager::tap_tempo, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("PLAYLIST_SONG", std::make_pair( &MidiActionManager::playlist_song, 1 ) ));
-	m_midiActionMap.insert(std::make_pair("PLAYLIST_NEXT_SONG", std::make_pair( &MidiActionManager::playlist_next_song, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("PLAYLIST_PREV_SONG", std::make_pair( &MidiActionManager::playlist_previous_song, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("TOGGLE_METRONOME", std::make_pair( &MidiActionManager::toggle_metronome, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("SELECT_INSTRUMENT", std::make_pair( &MidiActionManager::select_instrument, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("UNDO_ACTION", std::make_pair( &MidiActionManager::undo_action, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("REDO_ACTION", std::make_pair( &MidiActionManager::redo_action, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("CLEAR_SELECTED_INSTRUMENT", std::make_pair(
-										  &MidiActionManager::clear_selected_instrument, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("CLEAR_PATTERN", std::make_pair(
-										  &MidiActionManager::clear_pattern, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("LOAD_NEXT_DRUMKIT", std::make_pair(
-										  &MidiActionManager::loadNextDrumkit, 0 ) ));
-	m_midiActionMap.insert(std::make_pair("LOAD_PREV_DRUMKIT", std::make_pair(
-										  &MidiActionManager::loadPrevDrumkit, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::FilterCutoffLevelAbsolute,
+					   std::make_pair( &MidiActionManager::filter_cutoff_level_absolute, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::BeatCounter,
+					   std::make_pair( &MidiActionManager::beatcounter, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::TapTempo,
+					   std::make_pair( &MidiActionManager::tap_tempo, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PlaylistSong,
+					   std::make_pair( &MidiActionManager::playlist_song, 1 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PlaylistNextSong,
+					   std::make_pair( &MidiActionManager::playlist_next_song, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::PlaylistPrevSong,
+					   std::make_pair( &MidiActionManager::playlist_previous_song, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::ToggleMetronome,
+					   std::make_pair( &MidiActionManager::toggle_metronome, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::SelectInstrument,
+					   std::make_pair( &MidiActionManager::select_instrument, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::UndoAction,
+					   std::make_pair( &MidiActionManager::undo_action, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::RedoAction,
+					   std::make_pair( &MidiActionManager::redo_action, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::ClearSelectedInstrument,
+					   std::make_pair( &MidiActionManager::clear_selected_instrument, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::ClearPattern,
+					   std::make_pair( &MidiActionManager::clear_pattern, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::LoadNextDrumkit,
+					   std::make_pair( &MidiActionManager::loadNextDrumkit, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::LoadPrevDrumkit,
+					   std::make_pair( &MidiActionManager::loadPrevDrumkit, 0 ) ));
 
-	/*
-	  the m_actionList holds all Action identifiers which hydrogen is able to interpret.
-	*/
-	m_midiActionList <<"";
 	for ( const auto& ppAction : m_midiActionMap ) {
-		m_midiActionList << ppAction.first;
+		auto ret = m_midiActions.insert( ppAction.first );
+		if ( ! ret.second ) {
+			ERRORLOG( QString( "Unable to insert [%1]" )
+					  .arg( MidiAction::typeToQString( ppAction.first ) ) );
+		}
 	}
 }
 
@@ -172,32 +270,48 @@ bool MidiActionManager::stop( std::shared_ptr<MidiAction>  ) {
 	return CoreActionController::locateToColumn( 0 );
 }
 
-bool MidiActionManager::play_stop_pause_toggle( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::play_pause_toggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
-
-	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
 		return false;
 	}
-	
-	QString sActionString = pAction->getType();
-	switch ( pHydrogen->getAudioEngine()->getState() )
-	{
+
+	switch ( pHydrogen->getAudioEngine()->getState() ) {
 	case AudioEngine::State::Ready:
 		pHydrogen->sequencerPlay();
 		break;
 
 	case AudioEngine::State::Playing:
-		if( sActionString == "PLAY/STOP_TOGGLE" ) {
-			CoreActionController::locateToColumn( 0 );
-		}
 		pHydrogen->sequencerStop();
 		break;
 
 	default:
-		ERRORLOG( "[Hydrogen::ActionManager(PLAY): Unhandled case" );
+		ERRORLOG( "AudioEngine not ready yet." );
+		return false;
+	}
+
+	return true;
+}
+
+bool MidiActionManager::play_stop_toggle( std::shared_ptr<MidiAction> pAction ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		return false;
+	}
+	
+	switch ( pHydrogen->getAudioEngine()->getState() ) {
+	case AudioEngine::State::Ready:
+		pHydrogen->sequencerPlay();
 		break;
+
+	case AudioEngine::State::Playing:
+		CoreActionController::locateToColumn( 0 );
+		pHydrogen->sequencerStop();
+		break;
+
+	default:
+		ERRORLOG( "AudioEngine not ready yet." );
+		return false;
 	}
 
 	return true;
@@ -1281,12 +1395,14 @@ bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<MidiAction> ) {
 		pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() );
 }
 
-int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
-	auto foundActionPair = m_midiActionMap.find( sActionType );
+int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const {
+	auto foundActionPair = m_midiActionMap.find( type );
 	if ( foundActionPair != m_midiActionMap.end() ) {
 		return foundActionPair->second.second;
-	} else {
-		ERRORLOG( QString( "MIDI MidiAction type [%1] couldn't be found" ).arg( sActionType ) );
+	}
+	else {
+		ERRORLOG( QString( "MIDI MidiAction type [%1] couldn't be found" )
+				  .arg( MidiAction::typeToQString( type ) ) );
 	}
 		
 	return -1;
@@ -1356,18 +1472,18 @@ bool MidiActionManager::handleMidiAction( const std::shared_ptr<MidiAction> pAct
 		return false if Midiaction is null
 		(for example if no MidiAction exists for an event)
 	*/
-	if( pAction == nullptr ) {
+	if ( pAction == nullptr ) {
 		return false;
 	}
 
-	QString sActionString = pAction->getType();
-
-	auto foundActionPair = m_midiActionMap.find( sActionString );
+	auto foundActionPair = m_midiActionMap.find( pAction->getType() );
 	if( foundActionPair != m_midiActionMap.end() ) {
 		action_f Midiaction = foundActionPair->second.first;
 		return (this->*Midiaction)(pAction);
-	} else {
-		ERRORLOG( QString( "MIDI MidiAction type [%1] couldn't be found" ).arg( sActionString ) );
+	}
+	else {
+		ERRORLOG( QString( "MIDI MidiAction type [%1] couldn't be found" )
+				  .arg( MidiAction::typeToQString( pAction->getType() ) ) );
 	}
 
 	return false;

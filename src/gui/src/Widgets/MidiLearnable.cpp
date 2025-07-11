@@ -72,8 +72,9 @@ QString MidiLearnable::composeToolTip() const {
 
 	// Add the associated MIDI Midiaction.
 	if ( m_pMidiAction != nullptr ) {
-		sTip.append( QString( "\n\n%1: %2 " ).arg( pCommonStrings->getMidiToolTipHeading() )
-					 .arg( m_pMidiAction->getType() ) );
+		sTip.append( QString( "\n\n%1: %2 " )
+					 .arg( pCommonStrings->getMidiToolTipHeading() )
+					 .arg( MidiAction::typeToQString( m_pMidiAction->getType() ) ) );
 		if ( m_registeredMidiEvents.size() > 0 ) {
 			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
 				if ( event == H2Core::MidiMessage::Event::Note ||

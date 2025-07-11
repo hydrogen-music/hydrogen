@@ -33,18 +33,18 @@
 *
 * @brief This class represents a midi action.
 *
-* This class represents actions which can be executed
-* after a midi event occurred. An example is the "MUTE"
-* action, which mutes the outputs of hydrogen.
+* This class represents actions which can be executed after a midi event
+* occurred. An example is the Type::Mute action, which mutes the outputs of
+* hydrogen.
 *
-* An action can be linked to an event. If this event occurs,
-* the action gets triggered. The handling of events takes place
-* in midi_input.cpp .
+* An action can be linked to an event. If this event occurs, the action gets
+* triggered. The handling of events takes place in #MidiInput.
 *
-* Each action has two independent parameters. The two parameters are optional and
-* can be used to carry additional information, which mean
-* only something to this very Action. They can have totally different meanings for other Actions.
-* Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
+* Each action has two independent parameters. The two parameters are optional
+* and can be used to carry additional information, which mean only something to
+* this very Action. They can have totally different meanings for other Actions.
+* Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the
+* volume change on this strip
 *
 * @author Sebastian Moors
 *
@@ -52,14 +52,68 @@
 class MidiAction : public H2Core::Object<MidiAction> {
 	H2_OBJECT(MidiAction)
 	public:
-	static QString getNullMidiActionType() {
-		return "NOTHING";
-	}
 
-	MidiAction( const QString& sType = getNullMidiActionType() );
+		enum class Type {
+			BeatCounter,
+			BpmCcRelative,
+			BpmDecr,
+			BpmFineCcRelative,
+			BpmIncr,
+			ClearPattern,
+			ClearSelectedInstrument,
+			EffectLevelAbsolute,
+			EffectLevelRelative,
+			FilterCutoffLevelAbsolute,
+			GainLevelAbsolute,
+			InstrumentPitch,
+			LoadNextDrumkit,
+			LoadPrevDrumkit,
+			MasterVolumeAbsolute,
+			MasterVolumeRelative,
+			Mute,
+			MuteToggle,
+			NextBar,
+			Null,
+			PanAbsolute,
+			PanAbsoluteSym,
+			PanRelative,
+			Pause,
+			PitchLevelAbsolute,
+			Play,
+			PlaylistSong,
+			PlaylistNextSong,
+			PlaylistPrevSong,
+			PlayPauseToggle,
+			PlayStopToggle,
+			PreviousBar,
+			RecordExit,
+			RecordReady,
+			RecordStrobe,
+			RecordStrobeToggle,
+			RedoAction,
+			SelectAndPlayPattern,
+			SelectInstrument,
+			SelectNextPattern,
+			SelectNextPatternCcAbsolute,
+			SelectNextPatternRelative,
+			SelectOnlyNextPattern,
+			SelectOnlyNextPatternCcAbsolute,
+			Stop,
+			StripMuteToggle,
+			StripSoloToggle,
+			StripVolumeAbsolute,
+			StripVolumeRelative,
+			TapTempo,
+			ToggleMetronome,
+			UndoAction,
+			Unmute
+		};
+		static QString typeToQString( const Type& type );
+		static Type parseType( const QString& sType );
+
+	MidiAction( Type type );
 	MidiAction( const std::shared_ptr<MidiAction> pMidiAction );
 
-	/** Checks whether m_sType is of getNullMidiActionType() */
 	bool isNull() const;
 
 		const QString& getParameter1() const;
@@ -74,7 +128,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		const QString& getValue() const;
 		void setValue( const QString& text );
 
-		const QString& getType() const;
+		const Type& getType() const;
 
 	/**
 	 * @returns whether the current MidiAction and @a pOther identically
@@ -85,14 +139,14 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	bool isEquivalentTo( const std::shared_ptr<MidiAction> pOther ) const;
 
 	friend bool operator ==(const MidiAction& lhs, const MidiAction& rhs ) {
-		return ( lhs.m_sType == rhs.m_sType &&
+		return ( lhs.m_type == rhs.m_type &&
 				 lhs.m_sParameter1 == rhs.m_sParameter1 &&
 				 lhs.m_sParameter2 == rhs.m_sParameter2 &&
 				 lhs.m_sParameter3 == rhs.m_sParameter3 &&
 				 lhs.m_sValue == rhs.m_sValue );
 	}
 	friend bool operator !=(const MidiAction& lhs, const MidiAction& rhs ) {
-		return ( lhs.m_sType != rhs.m_sType ||
+		return ( lhs.m_type != rhs.m_type ||
 				 lhs.m_sParameter1 != rhs.m_sParameter1 ||
 				 lhs.m_sParameter2 != rhs.m_sParameter2 ||
 				 lhs.m_sParameter3 != rhs.m_sParameter3 ||
@@ -103,7 +157,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		if ( lhs == nullptr || rhs == nullptr ) {
 			return false;
 		}
-		return ( lhs->m_sType == rhs->m_sType &&
+		return ( lhs->m_type == rhs->m_type &&
 				 lhs->m_sParameter1 == rhs->m_sParameter1 &&
 				 lhs->m_sParameter2 == rhs->m_sParameter2 &&
 				 lhs->m_sParameter3 == rhs->m_sParameter3 &&
@@ -114,7 +168,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		if ( lhs == nullptr || rhs == nullptr ) {
 			return true;
 		}
-		return ( lhs->m_sType != rhs->m_sType ||
+		return ( lhs->m_type != rhs->m_type ||
 				 lhs->m_sParameter1 != rhs->m_sParameter1 ||
 				 lhs->m_sParameter2 != rhs->m_sParameter2 ||
 				 lhs->m_sParameter3 != rhs->m_sParameter3 ||
@@ -133,7 +187,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 						   bool bShort = true ) const override;
 
 	private:
-		QString m_sType;
+		Type m_type;
 		QString m_sParameter1;
 		QString m_sParameter2;
 		QString m_sParameter3;
@@ -172,8 +226,8 @@ inline void MidiAction::setValue( const QString& text ){
 	m_sValue = text;
 }
 
-inline const QString& MidiAction::getType() const {
-	return m_sType;
+inline const MidiAction::Type& MidiAction::getType() const {
+	return m_type;
 }
 
 #endif

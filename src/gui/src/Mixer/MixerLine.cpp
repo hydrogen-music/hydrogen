@@ -387,15 +387,17 @@ void MixerLine::updateActions() {
 	const int nInstrument =
 		pSong->getDrumkit()->getInstruments()->index( m_pInstrument );
 
-	pAction = std::make_shared<MidiAction>( "STRIP_MUTE_TOGGLE" );
+	pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripMuteToggle );
 	pAction->setParameter1( QString::number( nInstrument ));
 	m_pMuteBtn->setMidiAction( pAction );
 
-	pAction = std::make_shared<MidiAction>( "STRIP_SOLO_TOGGLE" );
+	pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripSoloToggle );
 	pAction->setParameter1( QString::number( nInstrument ));
 	m_pSoloBtn->setMidiAction( pAction );
 
-	pAction = std::make_shared<MidiAction>( "PAN_ABSOLUTE" );
+	pAction = std::make_shared<MidiAction>( MidiAction::Type::PanAbsolute );
 	pAction->setParameter1( QString::number( nInstrument ) );
 	pAction->setValue( QString::number( 0 ));
 	m_pPanRotary->setMidiAction( pAction );
@@ -404,13 +406,15 @@ void MixerLine::updateActions() {
 	for ( int ii = 0; ii < m_fxRotaries.size(); ii++ ) {
 		auto ppFxRotary = m_fxRotaries[ ii ];
 		ppFxRotary->setObjectName( "FXRotary" );
-		pAction = std::make_shared<MidiAction>( "EFFECT_LEVEL_ABSOLUTE" );
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::EffectLevelAbsolute );
 		pAction->setParameter1( QString::number( nInstrument ) );
 		pAction->setParameter2( QString::number( ii ) );
 		ppFxRotary->setMidiAction( pAction );
 	}
 
-	pAction = std::make_shared<MidiAction>( "STRIP_VOLUME_ABSOLUTE" );
+	pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripVolumeAbsolute );
 	pAction->setParameter1( QString::number( nInstrument ) );
 	m_pFader->setMidiAction( pAction );
 }

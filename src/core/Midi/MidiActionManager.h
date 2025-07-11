@@ -22,17 +22,16 @@
 #ifndef MIDI_ACTION_MANAGER_H
 #define MIDI_ACTION_MANAGER_H
 
+#include <core/Midi/MidiAction.h>
 #include <core/Object.h>
 
 #include <QString>
-#include <QStringList>
 
 #include <cassert>
 #include <map>
 #include <memory>
+#include <set>
 #include <vector>
-
-class MidiAction;
 
 namespace H2Core
 {
@@ -64,11 +63,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 */
 		static MidiActionManager *__instance;
 
-		/**
-		 * Holds the names of all Action identifiers which Hydrogen is
-		 * able to interpret.
-		 */
-	QStringList m_midiActionList;
+		/** Holds all Actions which Hydrogen is able to interpret. */
+		std::set<MidiAction::Type> m_midiActions;
 
 		typedef bool (MidiActionManager::*action_f)( std::shared_ptr<MidiAction> );
 		/**
@@ -79,9 +75,10 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 * performing the desired MidiAction and an integer specifying how
 		 * many additional MidiAction parameters are required to do so.
 		 */
-	std::map<QString, std::pair<action_f,int>> m_midiActionMap;
+	std::map<MidiAction::Type, std::pair<action_f,int>> m_midiActionMap;
 		bool play( std::shared_ptr<MidiAction> );
-		bool play_stop_pause_toggle( std::shared_ptr<MidiAction> );
+		bool play_pause_toggle( std::shared_ptr<MidiAction> );
+		bool play_stop_toggle( std::shared_ptr<MidiAction> );
 		bool stop( std::shared_ptr<MidiAction> );
 		bool pause( std::shared_ptr<MidiAction> );
 		bool record_ready( std::shared_ptr<MidiAction> );
@@ -170,13 +167,12 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 */
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
-		const QStringList& getMidiActionList() const {
-			return m_midiActionList;
+		const std::set<MidiAction::Type>& getMidiActions() const {
+			return m_midiActions;
 		}
-	/**
-	 * \return -1 in case the @a couldn't be found.
-	 */
-	int getParameterNumber( const QString& sActionType ) const;
+
+		/** \return -1 in case the @a couldn't be found. */
+		int getParameterNumber( const MidiAction::Type& type ) const;
 
 		MidiActionManager();
 		~MidiActionManager();
