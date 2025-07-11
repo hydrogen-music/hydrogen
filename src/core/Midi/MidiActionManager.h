@@ -70,7 +70,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 */
 	QStringList m_midiActionList;
 
-		typedef bool (MidiActionManager::*action_f)(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
+		typedef bool (MidiActionManager::*action_f)( std::shared_ptr<MidiAction> );
 		/**
 		 * Holds all MidiAction identifiers which Hydrogen is able to
 		 * interpret.  
@@ -80,61 +80,61 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 * many additional MidiAction parameters are required to do so.
 		 */
 	std::map<QString, std::pair<action_f,int>> m_midiActionMap;
-		bool play(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool play_stop_pause_toggle(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool stop(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool pause(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool record_ready(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool record_strobe_toggle(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool record_strobe(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool record_exit(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool mute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool unmute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool mute_toggle(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool strip_mute_toggle(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool strip_solo_toggle(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool next_bar(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool previous_bar(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool bpm_increase(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool bpm_decrease(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool bpm_cc_relative(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool bpm_fine_cc_relative(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool master_volume_relative(std::shared_ptr<MidiAction> , H2Core::Hydrogen *);
-		bool master_volume_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool strip_volume_relative(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool strip_volume_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool effect_level_relative(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool effect_level_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool select_next_pattern(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-	bool select_only_next_pattern(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-	bool select_only_next_pattern_cc_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool select_next_pattern_cc_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool select_next_pattern_relative(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool select_and_play_pattern(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool pan_relative(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool pan_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-	bool pan_absolute_sym(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool instrument_pitch(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool filter_cutoff_level_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool beatcounter(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool tap_tempo(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool playlist_song(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool playlist_next_song(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool playlist_previous_song(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool toggle_metronome(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool select_instrument(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool undo_action(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool redo_action(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool gain_level_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool pitch_level_absolute(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool clear_selected_instrument(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool clear_pattern(std::shared_ptr<MidiAction> , H2Core::Hydrogen * );
-		bool loadNextDrumkit( std::shared_ptr<MidiAction>, H2Core::Hydrogen* );
-		bool loadPrevDrumkit( std::shared_ptr<MidiAction>, H2Core::Hydrogen* );
+		bool play( std::shared_ptr<MidiAction> );
+		bool play_stop_pause_toggle( std::shared_ptr<MidiAction> );
+		bool stop( std::shared_ptr<MidiAction> );
+		bool pause( std::shared_ptr<MidiAction> );
+		bool record_ready( std::shared_ptr<MidiAction> );
+		bool record_strobe_toggle( std::shared_ptr<MidiAction> );
+		bool record_strobe( std::shared_ptr<MidiAction> );
+		bool record_exit( std::shared_ptr<MidiAction> );
+		bool mute( std::shared_ptr<MidiAction> );
+		bool unmute( std::shared_ptr<MidiAction> );
+		bool mute_toggle( std::shared_ptr<MidiAction> );
+		bool strip_mute_toggle( std::shared_ptr<MidiAction> );
+		bool strip_solo_toggle( std::shared_ptr<MidiAction> );
+		bool next_bar( std::shared_ptr<MidiAction> );
+		bool previous_bar( std::shared_ptr<MidiAction> );
+		bool bpm_increase( std::shared_ptr<MidiAction> );
+		bool bpm_decrease( std::shared_ptr<MidiAction> );
+		bool bpm_cc_relative( std::shared_ptr<MidiAction> );
+		bool bpm_fine_cc_relative( std::shared_ptr<MidiAction> );
+		bool master_volume_relative( std::shared_ptr<MidiAction>);
+		bool master_volume_absolute( std::shared_ptr<MidiAction> );
+		bool strip_volume_relative( std::shared_ptr<MidiAction> );
+		bool strip_volume_absolute( std::shared_ptr<MidiAction> );
+		bool effect_level_relative( std::shared_ptr<MidiAction> );
+		bool effect_level_absolute( std::shared_ptr<MidiAction> );
+		bool select_next_pattern( std::shared_ptr<MidiAction> );
+	bool select_only_next_pattern( std::shared_ptr<MidiAction> );
+	bool select_only_next_pattern_cc_absolute( std::shared_ptr<MidiAction> );
+		bool select_next_pattern_cc_absolute( std::shared_ptr<MidiAction> );
+		bool select_next_pattern_relative( std::shared_ptr<MidiAction> );
+		bool select_and_play_pattern( std::shared_ptr<MidiAction> );
+		bool pan_relative( std::shared_ptr<MidiAction> );
+		bool pan_absolute( std::shared_ptr<MidiAction> );
+	bool pan_absolute_sym( std::shared_ptr<MidiAction> );
+		bool instrument_pitch( std::shared_ptr<MidiAction> );
+		bool filter_cutoff_level_absolute( std::shared_ptr<MidiAction> );
+		bool beatcounter( std::shared_ptr<MidiAction> );
+		bool tap_tempo( std::shared_ptr<MidiAction> );
+		bool playlist_song( std::shared_ptr<MidiAction> );
+		bool playlist_next_song( std::shared_ptr<MidiAction> );
+		bool playlist_previous_song( std::shared_ptr<MidiAction> );
+		bool toggle_metronome( std::shared_ptr<MidiAction> );
+		bool select_instrument( std::shared_ptr<MidiAction> );
+		bool undo_action( std::shared_ptr<MidiAction> );
+		bool redo_action( std::shared_ptr<MidiAction> );
+		bool gain_level_absolute( std::shared_ptr<MidiAction> );
+		bool pitch_level_absolute( std::shared_ptr<MidiAction> );
+		bool clear_selected_instrument( std::shared_ptr<MidiAction> );
+		bool clear_pattern( std::shared_ptr<MidiAction> );
+		bool loadNextDrumkit( std::shared_ptr<MidiAction> );
+		bool loadPrevDrumkit( std::shared_ptr<MidiAction> );
 
 		int m_nLastBpmChangeCCParameter;
 
-	bool setSongFromPlaylist( int nSongNumber, H2Core::Hydrogen* pHydrogen );
+	bool setSongFromPlaylist( int nSongNumber );
 	bool nextPatternSelection( int nPatternNumber );
 	bool onlyNextPatternSelection( int nPatternNumber );
 
