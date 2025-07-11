@@ -67,7 +67,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 		const QString sNodeName = eventNode.firstChildElement().nodeName();
 		if ( sNodeName == "mmcEvent" ) {
 			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
-				eventNode.firstChildElement( "Midiaction" ).text() );
+				eventNode.firstChildElement( "action" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -81,7 +81,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 		}
 		else if ( sNodeName == "noteEvent" ) {
 			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
-				eventNode.firstChildElement( "Midiaction" ).text() );
+				eventNode.firstChildElement( "action" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -95,7 +95,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 		}
 		else if ( sNodeName == "ccEvent" ){
 			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
-				eventNode.firstChildElement( "Midiaction" ).text() );
+				eventNode.firstChildElement( "action" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -108,7 +108,7 @@ std::shared_ptr<MidiMap> MidiMap::loadFrom( const H2Core::XMLNode& node,
 		}
 		else if ( sNodeName == "pcEvent" ){
 			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
-				eventNode.firstChildElement( "Midiaction" ).text() );
+				eventNode.firstChildElement( "action" ).text() );
 			pAction->setParameter1(
 				eventNode.firstChildElement( "parameter" ).text() );
 			pAction->setParameter2(
@@ -136,7 +136,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 			auto midiEventNode = midiEventMapNode.createNode( "midiEvent" );
 
 			midiEventNode.write_string( "mmcEvent" , ssType );
-			midiEventNode.write_string( "Midiaction" , ppAction->getType());
+			midiEventNode.write_string( "action" , ppAction->getType());
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
@@ -151,7 +151,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 				"noteEvent", H2Core::MidiMessage::EventToQString(
 					H2Core::MidiMessage::Event::Note ) );
 			midiEventNode.write_int( "eventParameter" , nnPitch );
-			midiEventNode.write_string( "Midiaction" , ppAction->getType() );
+			midiEventNode.write_string( "action" , ppAction->getType() );
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
@@ -166,7 +166,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 				"ccEvent", H2Core::MidiMessage::EventToQString(
 					H2Core::MidiMessage::Event::CC ) );
 			midiEventNode.write_int( "eventParameter" , nnParam );
-			midiEventNode.write_string( "Midiaction" , ppAction->getType() );
+			midiEventNode.write_string( "action" , ppAction->getType() );
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
@@ -180,7 +180,7 @@ void MidiMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 			midiEventNode.write_string(
 				"pcEvent", H2Core::MidiMessage::EventToQString(
 					H2Core::MidiMessage::Event::PC ) );
-			midiEventNode.write_string( "Midiaction" , ppAction->getType() );
+			midiEventNode.write_string( "action" , ppAction->getType() );
 			midiEventNode.write_string( "parameter" , ppAction->getParameter1() );
 			midiEventNode.write_string( "parameter2" , ppAction->getParameter2() );
 			midiEventNode.write_string( "parameter3" , ppAction->getParameter3() );
