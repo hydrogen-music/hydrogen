@@ -140,8 +140,8 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-	m_pAudioEngine->startAudioDriver();
-	m_pAudioEngine->startMidiDriver();
+	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
+	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 
 	if ( pPref->getOscServerEnabled() ) {
 		toggleOscServer( true );
@@ -619,8 +619,8 @@ void Hydrogen::restartAudioDriver() {
 	const bool bWasPlaying =
 		m_pAudioEngine->getState() == AudioEngine::State::Playing;
 
-	m_pAudioEngine->stopAudioDriver();
-	m_pAudioEngine->startAudioDriver();
+	m_pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
+	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
 
 	if ( bWasPlaying ) {
 		m_pAudioEngine->startPlayback();
@@ -628,8 +628,8 @@ void Hydrogen::restartAudioDriver() {
 }
 
 void Hydrogen::restartMidiDriver() {
-	m_pAudioEngine->stopMidiDriver();
-	m_pAudioEngine->startMidiDriver();
+	m_pAudioEngine->stopMidiDriver( Event::Trigger::Suppress );
+	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 }
 
 bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
@@ -655,13 +655,13 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 	
 	/* Currently an audio driver is loaded which is not the DiskWriter driver.
 	 * Stop the current driver and fire up the DiskWriter. */
-	pAudioEngine->stopAudioDriver();
+	pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
 	// We do not want to have any MIDI feedback or note on/off event while
 	// exporting audio to file.
-	pAudioEngine->stopMidiDriver();
+	pAudioEngine->stopMidiDriver( Event::Trigger::Default );
 
 	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
-		Preferences::AudioDriver::Disk );
+		Preferences::AudioDriver::Disk, Event::Trigger::Default );
 
 	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
@@ -719,12 +719,12 @@ void Hydrogen::stopExportSession()
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 
 	pAudioEngine->stop();
-	pAudioEngine->stopAudioDriver();
-	pAudioEngine->startAudioDriver();
+	pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
+	pAudioEngine->startAudioDriver( Event::Trigger::Default );
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
-	pAudioEngine->startMidiDriver();
+	pAudioEngine->startMidiDriver( Event::Trigger::Default );
 	if ( pAudioEngine->getMidiDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart MIDI driver after exporting song." );
 	}

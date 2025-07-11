@@ -34,6 +34,7 @@
 #include <core/Basics/Song.h>
 #include <core/config.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -2824,7 +2825,7 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
-	pAudioEngine->stopAudioDriver();
+	pAudioEngine->stopAudioDriver( Event::Trigger::Default );
 
 	// Start a modified version of the JACK audio driver.
 	auto pDriver = new JackAudioDriver( jackTestProcessCallback );
@@ -2878,6 +2879,8 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 		pAudioEngine->handleDriverChange();
 		pAudioEngine->unlock();
 	}
+
+	EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 
 	INFOLOG( "DONE Starting custom JACK audio driver." );
 

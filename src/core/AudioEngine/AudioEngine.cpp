@@ -141,8 +141,8 @@ AudioEngine::AudioEngine()
 
 AudioEngine::~AudioEngine()
 {
-	stopAudioDriver();
-	stopMidiDriver();
+	stopAudioDriver( Event::Trigger::Suppress );
+	stopMidiDriver( Event::Trigger::Suppress );
 	if ( getState() != State::Initialized ) {
 		AE_ERRORLOG( "Error the audio engine is not in State::Initialized" );
 		return;
@@ -903,7 +903,8 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
-AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& driver )
+AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& driver,
+											 Event::Trigger trigger )
 {
 	AE_INFOLOG( QString( "Creating driver [%1]" )
 				.arg( Preferences::audioDriverToQString( driver ) ) );
@@ -1018,12 +1019,14 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 	unlock();
 
-	EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
+	}
 
 	return pAudioDriver;
 }
 
-void AudioEngine::startAudioDriver() {
+void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 	AE_INFOLOG("");
 	const auto pPref = Preferences::get_instance();
 	
@@ -1040,12 +1043,13 @@ void AudioEngine::startAudioDriver() {
 	const auto audioDriver = pPref->m_audioDriver;
 
 	if ( audioDriver != Preferences::AudioDriver::Auto ) {
-		createAudioDriver( audioDriver );
+		createAudioDriver( audioDriver, Event::Trigger::Suppress );
 	}
 	else {
 		AudioOutput* pAudioDriver;
 		for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
-			if ( ( pAudioDriver = createAudioDriver( ddriver ) ) != nullptr ) {
+			if ( ( pAudioDriver = createAudioDriver(
+					   ddriver, Event::Trigger::Suppress ) ) != nullptr ) {
 				break;
 			}
 		}
@@ -1054,11 +1058,16 @@ void AudioEngine::startAudioDriver() {
 	if ( m_pAudioDriver == nullptr ) {
 		AE_ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to NullDriver" )
 				  .arg( Preferences::audioDriverToQString( audioDriver ) ) );
-		createAudioDriver( Preferences::AudioDriver::Null );
+		createAudioDriver( Preferences::AudioDriver::Null,
+						   Event::Trigger::Suppress );
+	}
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 	}
 }
 
-void AudioEngine::stopAudioDriver()
+void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 {
 	AE_INFOLOG( "" );
 
@@ -1087,9 +1096,13 @@ void AudioEngine::stopAudioDriver()
 	}
 
 	this->unlock();
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
+	}
 }
 
-void AudioEngine::startMidiDriver() {
+void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	AE_INFOLOG("");
 	const auto pPref = Preferences::get_instance();
 
@@ -1130,9 +1143,13 @@ void AudioEngine::startMidiDriver() {
 	}
 
 	this->unlock();
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiDriverChanged, 0 );
+	}
 }
 
-void AudioEngine::stopMidiDriver()
+void AudioEngine::stopMidiDriver( Event::Trigger trigger )
 {
 	AE_INFOLOG( "" );
 
@@ -1144,6 +1161,10 @@ void AudioEngine::stopMidiDriver()
 	}
 
 	this->unlock();
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiDriverChanged, 0 );
+	}
 }
 
 void AudioEngine::handleLoopModeChanged() {

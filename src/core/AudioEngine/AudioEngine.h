@@ -277,8 +277,8 @@ public:
 	float			getElapsedTime() const;	
 
 	/** * Choice, creation, and initialization of th audio driver. */
-	void			startAudioDriver();
-	void			stopAudioDriver();
+	void			startAudioDriver( Event::Trigger trigger );
+	void			stopAudioDriver( Event::Trigger trigger );
 	AudioOutput*	getAudioDriver() const;
 	/**
 	 * Create an audio driver using audioEngine_process() as its argument
@@ -293,11 +293,11 @@ public:
 	 * creation resulted in a NullDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
-	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver );
+	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver,
+									   Event::Trigger trigger );
 					
-	void			restartAudioDriver();
-		void startMidiDriver();
-		void stopMidiDriver();
+		void startMidiDriver( Event::Trigger trigger );
+		void stopMidiDriver( Event::Trigger trigger );
 		std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
 	void			setupLadspaFX();
