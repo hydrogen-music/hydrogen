@@ -72,6 +72,9 @@ public:
 private:
 		void paintEvent( QPaintEvent* pEvent ) override;
 
+		bool m_bMidiInputEnabled;
+		bool m_bMidiOutputEnabled;
+
 		bool m_bMidiInputActive;
 		bool m_bMidiOutputActive;
 

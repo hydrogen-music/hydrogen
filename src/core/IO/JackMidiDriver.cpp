@@ -301,12 +301,20 @@ JackMidiDriver::~JackMidiDriver()
 
 }
 
-void JackMidiDriver::open() {
-	running++;
-}
-
 void JackMidiDriver::close() {
 	running--;
+}
+
+bool JackMidiDriver::isInputActive() const {
+	return jack_client != nullptr && input_port != nullptr;
+}
+
+bool JackMidiDriver::isOutputActive() const {
+	return jack_client != nullptr && output_port != nullptr;
+}
+
+void JackMidiDriver::open() {
+	running++;
 }
 
 std::vector<QString> JackMidiDriver::getExternalPortList( const PortType &portType ) {

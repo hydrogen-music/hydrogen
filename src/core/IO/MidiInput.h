@@ -43,6 +43,13 @@ public:
 	MidiInput();
 	virtual ~MidiInput();
 
+		/** Checks whether input part of the MIDI driver was properly set up and
+		 * could receive incoming MIDI events. This does not mean yet that there
+		 * is an established connection to another MIDI device. Such a
+		 * connection could (depending on the driver and OS) be established
+		 * outside of Hydrogen without letting us know. */
+		virtual bool isInputActive() const = 0;
+
 	void handleMidiMessage( const MidiMessage& msg );
 	void handleSysexMessage( const MidiMessage& msg );
 	void handleControlChangeMessage( const MidiMessage& msg );

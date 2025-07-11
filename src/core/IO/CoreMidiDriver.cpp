@@ -213,6 +213,14 @@ std::vector<QString> CoreMidiDriver::getExternalPortList( const PortType& portTy
 	return portList;
 }
 
+bool CoreMidiDriver::isInputActive() const {
+	return m_bRunning;
+}
+
+bool CoreMidiDriver::isOutputActive() const {
+	return cmH2Dst != 0;
+}
+
 void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 {
 	if (cmH2Dst == 0 ) {

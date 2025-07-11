@@ -440,6 +440,14 @@ std::vector<QString> PortMidiDriver::getExternalPortList( const PortType& portTy
 	return portList;
 }
 
+bool PortMidiDriver::isInputActive() const {
+	return m_pMidiIn != nullptr;
+}
+
+bool PortMidiDriver::isOutputActive() const {
+	return m_pMidiIn != nullptr;
+}
+
 void PortMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 	if ( m_pMidiOut == nullptr ) {
 		return;

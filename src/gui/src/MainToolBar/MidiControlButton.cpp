@@ -31,6 +31,8 @@ https://www.gnu.org/licenses
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
+#include <core/Hydrogen.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -38,6 +40,8 @@ using namespace H2Core;
 
 MidiControlButton::MidiControlButton( QWidget* pParent )
 	: QToolButton( pParent )
+	, m_bMidiInputEnabled( false )
+	, m_bMidiOutputEnabled( false )
 	, m_bMidiInputActive( false )
 	, m_bMidiOutputActive( false )
 {
@@ -66,6 +70,7 @@ MidiControlButton::MidiControlButton( QWidget* pParent )
 		update();
 	} );
 
+	updateActivation();
 	updateIcons();
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -75,26 +80,32 @@ MidiControlButton::~MidiControlButton() {
 }
 
 void MidiControlButton::flashMidiInputIcon() {
-	m_pMidiInputTimer->stop();
-	m_bMidiInputActive = true;
-	update();
-	m_pMidiInputTimer->start(
-		MidiControlButton::midiActivityTimeout );
+	if ( m_bMidiInputEnabled ) {
+		m_pMidiInputTimer->stop();
+		m_bMidiInputActive = true;
+		update();
+		m_pMidiInputTimer->start(
+			MidiControlButton::midiActivityTimeout );
+	}
 }
 
 void MidiControlButton::flashMidiOutputIcon() {
-	m_pMidiOutputTimer->stop();
-	m_bMidiOutputActive = true;
-	update();
-	m_pMidiOutputTimer->start( MidiControlButton::midiActivityTimeout );
+	if ( m_bMidiOutputEnabled ) {
+		m_pMidiOutputTimer->stop();
+		m_bMidiOutputActive = true;
+		update();
+		m_pMidiOutputTimer->start( MidiControlButton::midiActivityTimeout );
+	}
 }
 
 void MidiControlButton::updateActivation() {
 	const auto pPref = H2Core::Preferences::get_instance();
 
 	// No MIDI driver or device -> turn off
-	// m_pMidiInputLED->setIsActive( true );
-	// m_pMidiOutputLED->setIsActive( true );
+	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+	m_bMidiInputEnabled = pMidiDriver->isInputActive();
+	m_bMidiOutputEnabled = pMidiDriver->isOutputActive();
+	update();
 }
 
 void MidiControlButton::updateIcons() {
@@ -129,6 +140,8 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 
 	const auto highlightColor =
 		H2Core::Preferences::get_instance()->getTheme().m_color.m_highlightColor;
+	const auto disabledColor =
+		H2Core::Preferences::get_instance()->getTheme().m_color.m_lightColor;
 
 	QPainter painter( this );
 
@@ -137,7 +150,7 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 	QRect inputIconRect( 0, height() / 2 - MidiControlButton::nIconWidth / 2,
 						 MidiControlButton::nIconWidth,
 						 MidiControlButton::nIconWidth );
- 	if ( m_bMidiInputActive ) {
+ 	if ( m_bMidiInputActive || ! m_bMidiInputEnabled ) {
 		// Change the color of the input icon.
 		QPixmap inputPixmap( inputIconRect.width(), inputIconRect.height() );
 		inputPixmap.fill( Qt::GlobalColor::transparent );
@@ -148,7 +161,11 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 
 		inputPainter.setCompositionMode(
 			QPainter::CompositionMode_SourceIn);
-		inputPainter.fillRect( inputPixmap.rect(), highlightColor );
+		if ( m_bMidiInputEnabled ) {
+			inputPainter.fillRect( inputPixmap.rect(), highlightColor );
+		} else {
+			inputPainter.fillRect( inputPixmap.rect(), disabledColor );
+		}
 		painter.drawPixmap( inputIconRect, inputPixmap );
 	}
 	else {
@@ -169,7 +186,7 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 						  height() / 2 - MidiControlButton::nIconWidth / 2,
 						  MidiControlButton::nIconWidth,
 						  MidiControlButton::nIconWidth );
- 	if ( m_bMidiOutputActive ) {
+ 	if ( m_bMidiOutputActive || ! m_bMidiOutputEnabled ) {
 		// Change the color of the output icon.
 		QPixmap outputPixmap( outputIconRect.width(), outputIconRect.height() );
 		outputPixmap.fill( Qt::GlobalColor::transparent );
@@ -180,7 +197,11 @@ void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 
 		outputPainter.setCompositionMode(
 			QPainter::CompositionMode_SourceIn);
-		outputPainter.fillRect( outputPixmap.rect(), highlightColor );
+		if ( m_bMidiOutputEnabled ) {
+			outputPainter.fillRect( outputPixmap.rect(), highlightColor );
+		} else {
+			outputPainter.fillRect( outputPixmap.rect(), disabledColor );
+		}
 		painter.drawPixmap( outputIconRect, outputPixmap );
 	}
 	else {

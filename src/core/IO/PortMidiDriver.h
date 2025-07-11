@@ -50,6 +50,8 @@ public:
 
 	void close() override;
 	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	bool isInputActive() const override;
+	bool isOutputActive() const override;
 	void open() override;
 
 	static QString translatePmError( const PmError& err );

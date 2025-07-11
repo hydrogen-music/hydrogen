@@ -409,6 +409,13 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 	}
 	ERRORLOG( "Midi port " + sPortName + " not found" );
 }
+bool AlsaMidiDriver::isInputActive() const {
+	return seq_handle != nullptr;
+}
+
+bool AlsaMidiDriver::isOutputActive() const {
+	return seq_handle != nullptr;
+}
 
 void AlsaMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 {

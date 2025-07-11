@@ -43,6 +43,13 @@ class MidiOutput : public virtual Object<MidiOutput>
 	public:
 		MidiOutput();
 		virtual ~MidiOutput();
+
+		/** Checks whether output part of the MIDI driver was properly set up
+		 * and could send MIDI events. This does not mean yet that there is an
+		 * established connection to another MIDI device. Such a connection
+		 * could (depending on the driver and OS) be established outside of
+		 * Hydrogen without letting us know. */
+		virtual bool isOutputActive() const = 0;
 	
 		void sendMessage( const MidiMessage& msg );
 

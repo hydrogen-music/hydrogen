@@ -57,6 +57,8 @@ public:
 
 	void close() override;
 	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	bool isInputActive() const override;
+	bool isOutputActive() const override;
 	void open() override;
 
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
