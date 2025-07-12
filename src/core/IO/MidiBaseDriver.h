@@ -58,8 +58,10 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 		virtual std::vector<QString> getExternalPortList( const PortType& portType ) = 0;
 		virtual void open() = 0;
 
+		MidiInput::HandledInput handleMessage( const MidiMessage& msg ) override;
 		MidiOutput::HandledOutput sendMessage( const MidiMessage& msg ) override;
 
+		const std::deque<MidiInput::HandledInput>& getHandledInputs() const;
 		const std::deque<MidiOutput::HandledOutput>& getHandledOutputs() const;
 
 		virtual QString toQString( const QString& sPrefix = "",
@@ -69,9 +71,13 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 
 	private:
 
+		std::deque<MidiInput::HandledInput> m_handledInputs;
 		std::deque<MidiOutput::HandledOutput> m_handledOutputs;
 };
 
+inline const std::deque<MidiInput::HandledInput>& MidiBaseDriver::getHandledInputs() const {
+	return m_handledInputs;
+}
 inline const std::deque<MidiOutput::HandledOutput>& MidiBaseDriver::getHandledOutputs() const {
 	return m_handledOutputs;
 }

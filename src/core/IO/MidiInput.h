@@ -23,6 +23,7 @@
 #ifndef H2_MIDI_INPUT_H
 #define H2_MIDI_INPUT_H
 
+#include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
@@ -32,6 +33,8 @@
 namespace H2Core
 {
 
+class Instrument;
+
 /**
  * MIDI input base class
  */
@@ -40,6 +43,17 @@ class MidiInput : public virtual Object<MidiInput>
 {
 	H2_OBJECT(MidiInput);
 public:
+		struct HandledInput {
+			QTime timestamp;
+			MidiMessage::Type type;
+			int nData1;
+			int nData2;
+			int nChannel;
+
+			std::vector<MidiAction::Type> actionTypes;
+			QStringList mappedInstruments;
+		};
+
 	MidiInput();
 	virtual ~MidiInput();
 
@@ -50,15 +64,20 @@ public:
 		 * outside of Hydrogen without letting us know. */
 		virtual bool isInputActive() const = 0;
 
-	void handleMidiMessage( const MidiMessage& msg );
-	void handleSysexMessage( const MidiMessage& msg );
-	void handleControlChangeMessage( const MidiMessage& msg );
-	void handleProgramChangeMessage( const MidiMessage& msg );
-	void handlePolyphonicKeyPressureMessage( const MidiMessage& msg );
+		virtual HandledInput handleMessage( const MidiMessage& msg );
+		void handleSysexMessage( const MidiMessage& msg,
+								 HandledInput& handledInput );
+		void handleControlChangeMessage( const MidiMessage& msg,
+										 HandledInput& handledInput );
+		void handleProgramChangeMessage( const MidiMessage& msg,
+										 HandledInput& handledInput );
+		void handlePolyphonicKeyPressureMessage( const MidiMessage& msg,
+												 HandledInput& handledInput );
 
 protected:
-	void handleNoteOnMessage( const MidiMessage& msg );
-	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke );
+	void handleNoteOnMessage( const MidiMessage& msg, HandledInput& handledInput );
+	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
+							   HandledInput& handledInput );
 };
 
 };

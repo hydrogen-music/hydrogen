@@ -349,7 +349,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {
 							.arg( ( int )ev->type ) );
 			}
 			if ( msg.getType() != MidiMessage::Type::Unknown ) {
-				handleMidiMessage( msg );
+				handleMessage( msg );
 			}
 		}
 		snd_seq_free_event( ev );

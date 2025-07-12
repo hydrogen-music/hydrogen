@@ -458,9 +458,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *   between [36,127] inspired by the General MIDI standard.
 		 * @param fVelocity how "hard" the note was triggered.
 		 * @param bNoteOff whether note should trigger or stop sound.
+		 * @param pMappedInstrument if provided, will hold the names of all
+		 *   instruments the note was mapped to.
 		 *
 		 * @return bool true on success */
-		static bool handleNote( int nNote, float fVelocity, bool bNoteOff = false );
+		static bool handleNote( int nNote, float fVelocity, bool bNoteOff = false,
+								QStringList* pMappedInstruments = nullptr );
 
 	/**
 	 * Loads the drumkit specified in @a sDrumkitPath.

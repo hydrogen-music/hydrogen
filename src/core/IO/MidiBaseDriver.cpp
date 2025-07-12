@@ -42,25 +42,33 @@ QString MidiBaseDriver::portTypeToQString( const PortType& portType ) {
 	}
 }
 
-bool MidiBaseDriver::sendMessage( const MidiMessage &msg ) {
-	if ( ! MidiOutput::sendMessage( msg ) ) {
-		return false;
+MidiInput::HandledInput MidiBaseDriver::handleMessage( const MidiMessage &msg ) {
+	const auto handledInput = MidiInput::handleMessage( msg );
+
+	if ( handledInput.type != MidiMessage::Type::Unknown ) {
+		m_handledInputs.push_back( handledInput );
+		if ( m_handledInputs.size() > MidiBaseDriver::nBacklogSize ) {
+			m_handledInputs.pop_front();
+		}
+
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiInput, 0 );
 	}
 
-	HandledOutput handledOutput;
-	handledOutput.timestamp = QTime::currentTime();
-	handledOutput.type = msg.getType();
-	handledOutput.nData1 = msg.getData1();
-	handledOutput.nData2 = msg.getData2();
-	handledOutput.nChannel = msg.getChannel();
+	return handledInput;
+}
 
-	m_handledOutputs.push_back( handledOutput );
-	if ( m_handledOutputs.size() > MidiBaseDriver::nBacklogSize ) {
-		m_handledOutputs.pop_front();
+MidiOutput::HandledOutput MidiBaseDriver::sendMessage( const MidiMessage &msg ) {
+	const auto handledOutput = MidiOutput::sendMessage( msg );
+
+	if ( handledOutput.type != MidiMessage::Type::Unknown ) {
+		m_handledOutputs.push_back( handledOutput );
+		if ( m_handledOutputs.size() > MidiBaseDriver::nBacklogSize ) {
+			m_handledOutputs.pop_front();
+		}
+
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
 	}
 
-	EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
-
-	return true;
+	return handledOutput;
 }
 };

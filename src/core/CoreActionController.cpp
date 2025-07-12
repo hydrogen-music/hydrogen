@@ -2355,7 +2355,8 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
-bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff ) {
+bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff,
+									   QStringList* pMappedInstruments ) {
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
@@ -2447,6 +2448,10 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 
 	INFOLOG( QString( "[%1] mapped note [%2] to instrument(s) [%3]" )
 			 .arg( sMode ).arg( nNote ).arg( instrumentStrings.join( ", " ) ) );
+
+	if ( pMappedInstruments != nullptr ) {
+		*pMappedInstruments = instrumentStrings;
+	}
 
 	return bSuccess;
 }

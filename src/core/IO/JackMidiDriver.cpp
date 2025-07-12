@@ -111,7 +111,7 @@ void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 			msg.setData1( buffer[1] );
 			msg.setData2( buffer[2] );
 		}
-		handleMidiMessage( msg );
+		handleMessage( msg );
 	}
 }
 
