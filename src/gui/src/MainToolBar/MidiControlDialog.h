@@ -58,6 +58,7 @@ private:
 		static QString timestampToQString( QTime );
 
 		void updateFont();
+		void updateInputTable();
 		void updateOutputTable();
 
 		QTabWidget* m_pTabWidget;
