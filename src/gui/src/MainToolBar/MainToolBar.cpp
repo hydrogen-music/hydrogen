@@ -26,6 +26,7 @@ https://www.gnu.org/licenses
 #include "BpmSpinBox.h"
 #include "BpmTap.h"
 #include "MidiControlButton.h"
+#include "MidiControlDialog.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../CommonStrings.h"
 #include "../Director.h"
@@ -256,8 +257,13 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	m_pJackSeparator = addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
+	m_pMidiControlDialog = new MidiControlDialog( this );
+
 	m_pMidiControlButton = new MidiControlButton( this );
 	m_pMidiControlButton->setFixedHeight( buttonSize.height() );
+	connect( m_pMidiControlButton, &QToolButton::clicked, [&]() {
+		m_pMidiControlDialog->setVisible( m_pMidiControlButton->isChecked() );
+	});
 	addWidget( m_pMidiControlButton );
 
 	addSeparator();

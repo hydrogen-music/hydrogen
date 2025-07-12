@@ -40,6 +40,7 @@ class LCDSpinBox;
 class LCDDisplay;
 class LED;
 class MidiControlButton;
+class MidiControlDialog;
 class MidiLearnableToolButton;
 
 /** \ingroup docGUI*/
@@ -124,6 +125,7 @@ private:
 
 		QAction* m_pJackTransportAction;
 		MidiLearnableToolButton* m_pJackTimebaseButton;
+		MidiControlDialog* m_pMidiControlDialog;
 		QAction* m_pJackSeparator;
 
 		MidiControlButton* m_pMidiControlButton;

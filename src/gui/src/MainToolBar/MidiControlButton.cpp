@@ -47,6 +47,7 @@ MidiControlButton::MidiControlButton( QWidget* pParent )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
+	setCheckable( true );
 	setObjectName( "MidiControlButton" );
 
 	setFixedWidth( MidiControlButton::nIconWidth * 2 +
