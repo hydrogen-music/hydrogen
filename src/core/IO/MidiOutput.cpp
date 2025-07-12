@@ -33,7 +33,8 @@ MidiOutput::MidiOutput() {
 MidiOutput::~MidiOutput() {
 }
 
-bool MidiOutput::sendMessage( const MidiMessage& msg ) {
+MidiOutput::HandledOutput MidiOutput::sendMessage( const MidiMessage& msg ) {
+	HandledOutput handledOutput;
 
 	switch( msg.getType() ) {
 	case MidiMessage::Type::ControlChange:
@@ -51,9 +52,16 @@ bool MidiOutput::sendMessage( const MidiMessage& msg ) {
 
 	default:
 		// Not handled, we won't send the corresponding event.
-		return false;
+		handledOutput.type = MidiMessage::Type::Unknown;
+		return handledOutput;
 	}
 
-	return true;
+	handledOutput.timestamp = QTime::currentTime();
+	handledOutput.type = msg.getType();
+	handledOutput.nData1 = msg.getData1();
+	handledOutput.nData2 = msg.getData2();
+	handledOutput.nChannel = msg.getChannel();
+
+	return handledOutput;
 }
 };

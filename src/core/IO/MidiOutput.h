@@ -23,6 +23,7 @@
 #ifndef H2_MIDI_OUTPUT_H
 #define H2_MIDI_OUTPUT_H
 
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
 #include <QString>
@@ -41,6 +42,14 @@ class MidiOutput : public virtual Object<MidiOutput>
 	H2_OBJECT(MidiOutput)
 
 	public:
+		struct HandledOutput {
+			QTime timestamp;
+			MidiMessage::Type type;
+			int nData1;
+			int nData2;
+			int nChannel;
+		};
+
 		MidiOutput();
 		virtual ~MidiOutput();
 
@@ -52,7 +61,7 @@ class MidiOutput : public virtual Object<MidiOutput>
 		virtual bool isOutputActive() const = 0;
 
 		/** @returns true in case #msg could be sent. */
-		virtual bool sendMessage( const MidiMessage& msg );
+		virtual HandledOutput sendMessage( const MidiMessage& msg );
 
 	private:
 		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;
