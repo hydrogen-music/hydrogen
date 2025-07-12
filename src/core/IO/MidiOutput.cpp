@@ -22,7 +22,6 @@
 
 #include <core/IO/MidiOutput.h>
 
-#include <core/EventQueue.h>
 #include <core/Midi/MidiMessage.h>
 
 namespace H2Core
@@ -34,7 +33,7 @@ MidiOutput::MidiOutput() {
 MidiOutput::~MidiOutput() {
 }
 
-void MidiOutput::sendMessage( const MidiMessage& msg ) {
+bool MidiOutput::sendMessage( const MidiMessage& msg ) {
 
 	switch( msg.getType() ) {
 	case MidiMessage::Type::ControlChange:
@@ -52,9 +51,9 @@ void MidiOutput::sendMessage( const MidiMessage& msg ) {
 
 	default:
 		// Not handled, we won't send the corresponding event.
-		return;
+		return false;
 	}
 
-	EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
+	return true;
 }
 };

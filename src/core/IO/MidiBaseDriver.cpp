@@ -22,6 +22,8 @@
 
 #include <core/IO/MidiBaseDriver.h>
 
+#include <core/EventQueue.h>
+
 namespace H2Core {
 
 MidiBaseDriver::MidiBaseDriver() : MidiInput(), MidiOutput() {
@@ -38,5 +40,27 @@ QString MidiBaseDriver::portTypeToQString( const PortType& portType ) {
 	default:
 		return "Unhandled port type";
 	}
+}
+
+bool MidiBaseDriver::sendMessage( const MidiMessage &msg ) {
+	if ( ! MidiOutput::sendMessage( msg ) ) {
+		return false;
+	}
+
+	HandledOutput handledOutput;
+	handledOutput.timestamp = QTime::currentTime();
+	handledOutput.type = msg.getType();
+	handledOutput.nData1 = msg.getData1();
+	handledOutput.nData2 = msg.getData2();
+	handledOutput.nChannel = msg.getChannel();
+
+	m_handledOutputs.push_back( handledOutput );
+	if ( m_handledOutputs.size() > MidiBaseDriver::nBacklogSize ) {
+		m_handledOutputs.pop_front();
+	}
+
+	EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
+
+	return true;
 }
 };

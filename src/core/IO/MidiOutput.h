@@ -50,8 +50,9 @@ class MidiOutput : public virtual Object<MidiOutput>
 		 * could (depending on the driver and OS) be established outside of
 		 * Hydrogen without letting us know. */
 		virtual bool isOutputActive() const = 0;
-	
-		void sendMessage( const MidiMessage& msg );
+
+		/** @returns true in case #msg could be sent. */
+		virtual bool sendMessage( const MidiMessage& msg );
 
 	private:
 		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;

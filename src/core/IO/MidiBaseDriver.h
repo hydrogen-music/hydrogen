@@ -25,8 +25,12 @@
 
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
+#include <core/Midi/MidiMessage.h>
 
 #include <QString>
+#include <QTime>
+
+#include <deque>
 #include <vector>
 
 namespace H2Core {
@@ -45,18 +49,39 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 		};
 		static QString portTypeToQString( const PortType& portType );
 
+		static constexpr int nBacklogSize = 200;
+
+		struct HandledOutput {
+			QTime timestamp;
+			MidiMessage::Type type;
+			int nData1;
+			int nData2;
+			int nChannel;
+		};
+
 		MidiBaseDriver();
 		virtual ~MidiBaseDriver();
 
 		virtual void close() = 0;
 		virtual std::vector<QString> getExternalPortList( const PortType& portType ) = 0;
 		virtual void open() = 0;
+		bool sendMessage( const MidiMessage& msg ) override;
+
+		const std::deque<HandledOutput>& getHandledOutputs() const;
 
 		virtual QString toQString( const QString& sPrefix = "",
 								   bool bShort = true ) const override {
 			return "";
 		}
+
+	private:
+
+		std::deque<HandledOutput> m_handledOutputs;
 };
+
+inline const std::deque<MidiBaseDriver::HandledOutput>& MidiBaseDriver::getHandledOutputs() const {
+	return m_handledOutputs;
+}
 
 };
 
