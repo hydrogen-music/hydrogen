@@ -106,6 +106,10 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 		return pBinButton;
 	};
 	m_pInputBinButton = addBinButton( pInputWidget );
+	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
+		Hydrogen::get_instance()->getMidiDriver()->clearHandledInput();
+		updateInputTable();
+	});
 
 	auto pOutputWidget = new QWidget( m_pTabWidget );
 	m_pTabWidget->addTab( pOutputWidget, tr( "Outgoing" ) );
@@ -132,6 +136,10 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	pOutputLayout->addWidget( m_pMidiOutputTable );
 	m_pOutputBinButton = addBinButton( pOutputWidget );
+	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
+		Hydrogen::get_instance()->getMidiDriver()->clearHandledOutput();
+		updateOutputTable();
+	});
 
 	updateFont();
 	updateIcons();
