@@ -27,6 +27,7 @@ https://www.gnu.org/licenses
 #include "MainToolBar.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
@@ -48,11 +49,18 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	// difficult.
 	setWindowTitle( "MidiControlDialog" );
 
-	auto pLayout = new QVBoxLayout( this );
-	setLayout( pLayout );
+	auto pMainLayout = new QVBoxLayout( this );
+	setLayout( pMainLayout );
 
 	m_pTabWidget = new QTabWidget( this );
-	pLayout->addWidget( m_pTabWidget );
+	pMainLayout->addWidget( m_pTabWidget );
+
+	auto pInputWidget = new QWidget( m_pTabWidget );
+	m_pTabWidget->addTab( pInputWidget, tr( "Incoming" ) );
+	auto pInputLayout = new QVBoxLayout( pInputWidget );
+	pInputLayout->setContentsMargins( 0, 0, 0, 0 );
+	pInputLayout->setSpacing( 1 );
+	pInputWidget->setLayout( pInputLayout );
 
 	m_pMidiInputTable = new QTableWidget( this );
 	m_pMidiInputTable->setColumnCount( 7 );
@@ -73,9 +81,40 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 		5, QHeaderView::Stretch );
 	m_pMidiInputTable->horizontalHeader()->setSectionResizeMode(
 		6, QHeaderView::Stretch );
-	m_pTabWidget->addTab( m_pMidiInputTable, tr( "Incoming" ) );
+	pInputLayout->addWidget( m_pMidiInputTable );
 
-	m_pMidiOutputTable = new QTableWidget( this );
+	const auto binButtonSize = QSize(
+		MidiControlDialog::nBinButtonHeight * Skin::fButtonWidthHeightRatio,
+		MidiControlDialog::nBinButtonHeight );
+
+	auto addBinButton = [&]( QWidget* pParent ) {
+		auto pContainerWidget = new QWidget( pParent );
+		pParent->layout()->addWidget( pContainerWidget );
+		auto pContainerLayout = new QHBoxLayout( pContainerWidget );
+		pContainerLayout->setAlignment( Qt::AlignRight );
+		pContainerLayout->setContentsMargins( 1, 1, 1, 1 );
+		pContainerWidget->setLayout( pContainerLayout );
+
+		auto pBinButton = new QToolButton( pContainerWidget );
+		pBinButton->setCheckable( false );
+		pBinButton->setFixedSize( binButtonSize );
+		pBinButton->setIconSize(
+			binButtonSize - QSize( MidiControlDialog::nBinButtonMargin,
+								   MidiControlDialog::nBinButtonMargin ) );
+		pContainerLayout->addWidget( pBinButton );
+
+		return pBinButton;
+	};
+	m_pInputBinButton = addBinButton( pInputWidget );
+
+	auto pOutputWidget = new QWidget( m_pTabWidget );
+	m_pTabWidget->addTab( pOutputWidget, tr( "Outgoing" ) );
+	auto pOutputLayout = new QVBoxLayout( pOutputWidget );
+	pOutputLayout->setContentsMargins( 0, 0, 0, 0 );
+	pOutputLayout->setSpacing( 1 );
+	pOutputWidget->setLayout( pOutputLayout );
+
+	m_pMidiOutputTable = new QTableWidget( pOutputWidget );
 	m_pMidiOutputTable->setColumnCount( 5 );
 	m_pMidiOutputTable->setHorizontalHeaderLabels(
 		QStringList() << tr( "Timestamp" ) << tr( "Type" ) << tr( "Data1" ) <<
@@ -91,13 +130,17 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	m_pMidiOutputTable->horizontalHeader()->setSectionResizeMode(
 		4, QHeaderView::Stretch );
 
-	m_pTabWidget->addTab( m_pMidiOutputTable, tr( "Outgoing" ) );
+	pOutputLayout->addWidget( m_pMidiOutputTable );
+	m_pOutputBinButton = addBinButton( pOutputWidget );
 
 	updateFont();
+	updateIcons();
 	updateInputTable();
 	updateOutputTable();
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &MidiControlDialog::onPreferencesChanged );
 }
 
 MidiControlDialog::~MidiControlDialog() {
@@ -118,6 +161,9 @@ void MidiControlDialog::midiOutputEvent() {
 void MidiControlDialog::onPreferencesChanged(
 	const H2Core::Preferences::Changes& changes )
 {
+	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateIcons();
+	}
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		updateFont();
 	}
@@ -152,6 +198,20 @@ void MidiControlDialog::updateFont() {
 	m_pTabWidget->setFont( font );
 	m_pMidiInputTable->setFont( childFont );
 	m_pMidiOutputTable->setFont( childFont );
+}
+
+void MidiControlDialog::updateIcons() {
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
+
+	m_pInputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
+	m_pOutputBinButton->setIcon( QIcon( sIconPath + "bin.svg" ) );
+
 }
 
 void MidiControlDialog::updateInputTable() {

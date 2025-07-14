@@ -42,6 +42,8 @@ class MidiControlDialog : public QDialog,
 public:
 		static constexpr int nWidth = 800;
 		static constexpr int nHeight = 740;
+		static constexpr int nBinButtonHeight = 30;
+		static constexpr int nBinButtonMargin = 7;
 
 		explicit MidiControlDialog( QWidget* pParent );
 		~MidiControlDialog();
@@ -61,13 +63,16 @@ private:
 		void showEvent( QShowEvent* pEvent ) override;
 
 		void updateFont();
+		void updateIcons();
 		void updateInputTable();
 		void updateOutputTable();
 
 		QTabWidget* m_pTabWidget;
 
 		QTableWidget* m_pMidiInputTable;
+		QToolButton* m_pInputBinButton;
 		QTableWidget* m_pMidiOutputTable;
+		QToolButton* m_pOutputBinButton;
 };
 
 
