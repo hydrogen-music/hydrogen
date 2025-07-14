@@ -357,6 +357,8 @@ void MainToolBar::updateActions()
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	const auto pHydrogen = Hydrogen::get_instance();
 
+	m_pMidiControlButton->setChecked( m_pMidiControlDialog->isVisible() );
+
 	m_pShowPlaylistEditorAction->setChecked(
 		pH2App->getPlaylistEditor()->isVisible() );
 	m_pShowDirectorAction->setChecked( pH2App->getDirector()->isVisible() );

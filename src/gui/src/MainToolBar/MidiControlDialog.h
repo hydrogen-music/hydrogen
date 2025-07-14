@@ -57,6 +57,9 @@ public slots:
 private:
 		static QString timestampToQString( QTime );
 
+		void hideEvent( QHideEvent* pEvent ) override;
+		void showEvent( QShowEvent* pEvent ) override;
+
 		void updateFont();
 		void updateInputTable();
 		void updateOutputTable();

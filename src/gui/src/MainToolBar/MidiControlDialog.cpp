@@ -24,6 +24,7 @@ https://www.gnu.org/licenses
 
 #include "MidiControlDialog.h"
 
+#include "MainToolBar.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 
@@ -124,6 +125,20 @@ void MidiControlDialog::onPreferencesChanged(
 
 QString MidiControlDialog::timestampToQString( QTime timestamp ) {
 	return timestamp.toString( "HH:mm:ss.zzz" );
+}
+
+void MidiControlDialog::hideEvent( QHideEvent* pEvent ) {
+	UNUSED( pEvent );
+
+	// Update corresponding button
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
+}
+
+void MidiControlDialog::showEvent( QShowEvent* pEvent ) {
+	UNUSED( pEvent );
+
+	// Update corresponding button
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
 void MidiControlDialog::updateFont() {
