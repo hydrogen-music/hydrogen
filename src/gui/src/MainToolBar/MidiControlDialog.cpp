@@ -333,9 +333,11 @@ void MidiControlDialog::updateOutputTable() {
 			nRow, 4, newLabel( QString::number( handledOutput.nChannel ) ) );
 	};
 
+	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
+
 	// Table is in prestine shape. We just add the missing rows.
 	if ( ! bInvalid ) {
-		for ( int ii = m_pMidiOutputTable->rowCount();
+		for ( int ii = m_pMidiOutputTable->rowCount() - 1;
 			  ii < handledOutputs.size(); ++ii ) {
 			addRow( handledOutputs[ ii ], ii );
 		}
@@ -347,6 +349,4 @@ void MidiControlDialog::updateOutputTable() {
 			addRow( handledOutputs[ ii ], ii );
 		}
 	}
-
-	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
 }
