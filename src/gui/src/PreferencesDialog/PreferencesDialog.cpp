@@ -269,13 +269,15 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	latencyTargetSpinBox->setSize( QSize( 55, 23 ) );
 	latencyTargetSpinBox->setValue( pPref->m_nLatencyTarget );
-	connect( latencyTargetSpinBox, &QDoubleSpinBox::valueChanged, [&]() {
+	connect( static_cast<QDoubleSpinBox*>(latencyTargetSpinBox),
+			 QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&]( double ) {
 		m_bAudioDriverRestartRequired = true;
 	});
 
 	bufferSizeSpinBox->setSize( audioTabWidgetSizeTop );
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
-	connect( bufferSizeSpinBox, &QDoubleSpinBox::valueChanged, [&]() {
+	connect( static_cast<QDoubleSpinBox*>(bufferSizeSpinBox),
+			 QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&]( double ) {
 		m_bAudioDriverRestartRequired = true;
 	});
 
@@ -378,7 +380,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ERRORLOG( QString( "Unknown MIDI input from preferences [%1]" )
 				  .arg( Preferences::midiDriverToQString( pPref->m_midiDriver ) ) );
 	}
-	connect( m_pMidiDriverComboBox, &QComboBox::activated, [&]() {
+	connect( static_cast<QComboBox*>(m_pMidiDriverComboBox),
+			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		m_bMidiDriverRestartRequired = true;
 	});
 
@@ -386,7 +389,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiPortChannelComboBox->setEnabled( false );
 	midiPortComboBox->setSize( midiTabWidgetSize );
 	midiPortComboBox->setEnabled( false );
-	connect( midiPortComboBox, &QComboBox::activated, [&]() {
+	connect( static_cast<QComboBox*>(midiPortComboBox),
+			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		m_bMidiDriverRestartRequired = true;
 	});
 	
@@ -432,7 +436,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			}
 		}
 	}
-	connect( midiOutportComboBox, &QComboBox::activated, [&]() {
+	connect( static_cast<QComboBox*>(midiOutportComboBox),
+			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		m_bMidiDriverRestartRequired = true;
 	});
 
