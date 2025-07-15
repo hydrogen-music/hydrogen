@@ -1188,8 +1188,6 @@ void PlaylistEditor::onPreferencesChanged( const H2Core::Preferences::Changes& c
 		
 		QFont font( pPref->getTheme().m_font.m_sApplicationFontFamily,
 					getPointSize( pPref->getTheme().m_font.m_fontSize ) );
-		QFont childFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
-						 getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );
