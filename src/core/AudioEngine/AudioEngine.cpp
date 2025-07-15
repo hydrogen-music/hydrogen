@@ -1114,30 +1114,25 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 
 	if ( pPref->m_midiDriver == Preferences::MidiDriver::Alsa ) {
 #ifdef H2CORE_HAVE_ALSA
-		auto pAlsaMidiDriver = std::make_shared<AlsaMidiDriver>();
-		m_pMidiDriver = pAlsaMidiDriver;
+		m_pMidiDriver = std::make_shared<AlsaMidiDriver>();
 		m_pMidiDriver->open();
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::PortMidi ) {
 #ifdef H2CORE_HAVE_PORTMIDI
-		auto pPortMidiDriver = std::make_shared<PortMidiDriver>();
-		m_pMidiDriver = pPortMidiDriver;
+		m_pMidiDriver = std::make_shared<PortMidiDriver>();
 		m_pMidiDriver->open();
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::CoreMidi ) {
 #ifdef H2CORE_HAVE_COREMIDI
-		auto pCoreMidiDriver = std::make_shared<CoreMidiDriver>();
-		m_pMidiDriver = pCoreMidiDriver;
-		m_pMidiDriverOut = pCoreMidiDriver;
+		m_pMidiDriver = std::make_shared<CoreMidiDriver>();
 		m_pMidiDriver->open();
 #endif
 	}
 	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
-		auto pJackMidiDriver = std::make_shared<JackMidiDriver>();
-		m_pMidiDriver = pJackMidiDriver;
+		m_pMidiDriver = std::make_shared<JackMidiDriver>();
 		m_pMidiDriver->open();
 #endif
 	}
