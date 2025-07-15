@@ -315,7 +315,7 @@
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation type="unfinished">Veuillez d&apos;abord désactiver la ligne de temps afin d&apos;utiliser le compteur de pulsation</translation>
+        <translation>Veuillez d&apos;abord désactiver la ligne de temps afin d&apos;utiliser le compteur de pulsation</translation>
     </message>
     <message>
         <source>Indicates the type of note you are tapping</source>
@@ -2999,6 +2999,45 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Régler le facteur de swing [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiControlDialog</name>
+    <message>
+        <source>Incoming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <translation>Canal</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Action</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Instrument</translation>
+    </message>
+    <message>
+        <source>Outgoing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

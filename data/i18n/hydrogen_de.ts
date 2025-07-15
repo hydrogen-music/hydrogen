@@ -315,7 +315,7 @@
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation type="unfinished">Um BeatCounter zu benutzen muss zuerst der Zeitstrahl (timeline) ausgeschalten werden</translation>
+        <translation>Um BeatCounter zu benutzen muss zuerst der Zeitstrahl (timeline) ausgeschalten werden</translation>
     </message>
     <message>
         <source>Indicates the type of note you are tapping</source>
@@ -2990,6 +2990,45 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Swingfaktor [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiControlDialog</name>
+    <message>
+        <source>Incoming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <translation>Kanal</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Aktion</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Instrument</translation>
+    </message>
+    <message>
+        <source>Outgoing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

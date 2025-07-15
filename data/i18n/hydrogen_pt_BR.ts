@@ -315,7 +315,7 @@
     </message>
     <message>
         <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation type="unfinished">Por favor desative a Linha do Tempo primeiro para usar o Contador de Beat</translation>
+        <translation>Por favor desative a Linha do Tempo primeiro para usar o Contador de Beat</translation>
     </message>
     <message>
         <source>Indicates the type of note you are tapping</source>
@@ -2995,6 +2995,45 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Ajustar o fator de swing [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiControlDialog</name>
+    <message>
+        <source>Incoming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
+        <source>Data1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <translation>Canal</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Ação</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Instrumento</translation>
+    </message>
+    <message>
+        <source>Outgoing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
