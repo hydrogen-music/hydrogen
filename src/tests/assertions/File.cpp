@@ -130,30 +130,42 @@ void H2Test::checkXmlFilesEqual( const QString& sExpected, const QString& sActua
 				// `lastXXDirectory` used to cache last folders selected in
 				// various file browsers. These elements must not exist (to
 				// allow them to fallback to e.g. the users home directory).
-				QStringList linesToRemove;
-				for ( const auto& ssLine : actualLines ) {
-					if ( ssLine.contains( "<lastExportPatternAsDirectory>" ) ||
-						 ssLine.contains( "<lastExportSongDirectory>" ) ||
-						 ssLine.contains( "<lastSaveSongAsDirectory>" ) ||
-						 ssLine.contains( "<lastOpenSongDirectory>" ) ||
-						 ssLine.contains( "<lastOpenPatternDirectory>" ) ||
-						 ssLine.contains( "<lastExportLilypondDirectory>" ) ||
-						 ssLine.contains( "<lastExportMidiDirectory>" ) ||
-						 ssLine.contains( "<lastImportDrumkitDirectory>" ) ||
-						 ssLine.contains( "<lastExportDrumkitDirectory>" ) ||
-						 ssLine.contains( "<lastOpenLayerDirectory>" ) ||
-						 ssLine.contains( "<lastOpenPlaybackTrackDirectory>" ) ||
-						 ssLine.contains( "<lastAddSongToPlaylistDirectory>" ) ||
-						 ssLine.contains( "<lastPlaylistDirectory>" ) ||
-						 ssLine.contains( "<lastPlaylistScriptDirectory>" ) ||
-						 ssLine.contains( "<lastImportThemeDirectory>" ) ||
-						 ssLine.contains( "<lastExportThemeDirectory>" ) ) {
-						linesToRemove << ssLine;
+				//
+				// In addition, we will remove the <path_to_rubberband> elements
+				// as they would differ depending of whether the rubberband CLI
+				// was installed on the system or not.
+				auto removeLines = [&]( QStringList lines ){
+					QStringList linesToRemove;
+					for ( const auto& ssLine : lines ) {
+						if ( ssLine.contains( "<lastExportPatternAsDirectory>" ) ||
+							 ssLine.contains( "<lastExportSongDirectory>" ) ||
+							 ssLine.contains( "<lastSaveSongAsDirectory>" ) ||
+							 ssLine.contains( "<lastOpenSongDirectory>" ) ||
+							 ssLine.contains( "<lastOpenPatternDirectory>" ) ||
+							 ssLine.contains( "<lastExportLilypondDirectory>" ) ||
+							 ssLine.contains( "<lastExportMidiDirectory>" ) ||
+							 ssLine.contains( "<lastImportDrumkitDirectory>" ) ||
+							 ssLine.contains( "<lastExportDrumkitDirectory>" ) ||
+							 ssLine.contains( "<lastOpenLayerDirectory>" ) ||
+							 ssLine.contains( "<lastOpenPlaybackTrackDirectory>" ) ||
+							 ssLine.contains( "<lastAddSongToPlaylistDirectory>" ) ||
+							 ssLine.contains( "<lastPlaylistDirectory>" ) ||
+							 ssLine.contains( "<lastPlaylistScriptDirectory>" ) ||
+							 ssLine.contains( "<lastImportThemeDirectory>" ) ||
+							 ssLine.contains( "<lastExportThemeDirectory>" ) ||
+							 ssLine.contains( "<path_to_rubberband>" ) ) {
+							linesToRemove << ssLine;
+						}
 					}
-				}
-				for ( const auto& ssRemoveLine : linesToRemove ) {
-					CPPUNIT_ASSERT( actualLines.removeAll( ssRemoveLine ) == 1 );
-				}
+					for ( const auto& ssRemoveLine : linesToRemove ) {
+						CPPUNIT_ASSERT( lines.removeAll( ssRemoveLine ) == 1 );
+					}
+
+					return lines;
+				};
+
+				actualLines = removeLines( actualLines );
+				expectedLines = removeLines( expectedLines );
 			}
 			else if ( fileType == FileType::Theme ) {
 				// In case the fonts specified in the theme are not installed on
