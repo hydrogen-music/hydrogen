@@ -254,11 +254,16 @@ void MidiControlDialog::updateInputTable() {
 	const auto handledInputs = Hydrogen::get_instance()->getAudioEngine()->
 		getMidiDriver()->getHandledInputs();
 
+	const int nOldRowCount = m_pMidiInputTable->rowCount();
+	m_pMidiInputTable->setRowCount( handledInputs.size() );
+
 	// First, we check whether the table holds mostly the same entries and we
-	// just have to insert a new one at the bottom.
+	// just have to insert a new one at the bottom. But after
+	// MidiBaseDriver::nBacklogSize events the first one will be poped and a new
+	// one appended.
 	bool bInvalid = false;
 	for ( int ii = 0; ii < handledInputs.size(); ++ii ) {
-		if ( ii < m_pMidiInputTable->rowCount() ) {
+		if ( ii < nOldRowCount ) {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiInputTable->cellWidget( ii, 0 ) );
 			if ( ppLabel == nullptr || ppLabel->text() !=
@@ -270,7 +275,7 @@ void MidiControlDialog::updateInputTable() {
 	}
 
 	auto newLabel = [&]( const QString& sText ) {
-		auto pLabel = new QLabel( this );
+		auto pLabel = new QLabel( m_pMidiInputTable );
 		pLabel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 		pLabel->setAlignment( Qt::AlignCenter );
 		pLabel->setText( sText );
@@ -301,20 +306,70 @@ void MidiControlDialog::updateInputTable() {
 			nRow, 6, newLabel( handledInput.mappedInstruments.join( ", " ) ) );
 	};
 
-	m_pMidiInputTable->setRowCount( handledInputs.size() );
+	auto updateRow = [&]( const MidiBaseDriver::HandledInput& handledInput,
+						  int nRow ) {
+		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
+			m_pMidiInputTable->cellWidget( nRow, 0 ) );
+		if ( ppLabelTimestamp != nullptr ) {
+			ppLabelTimestamp->setText( timestampToQString( handledInput.timestamp ) );
+		}
+		auto ppLabelType = dynamic_cast<QLabel*>(
+			m_pMidiInputTable->cellWidget( nRow, 1 ) );
+		if ( ppLabelType != nullptr ) {
+			ppLabelType->setText( MidiMessage::TypeToQString( handledInput.type ) );
+		}
+		auto ppLabelData1 = dynamic_cast<QLabel*>(
+			m_pMidiInputTable->cellWidget( nRow, 2 ) );
+		if ( ppLabelData1 != nullptr ) {
+			ppLabelData1->setText( QString::number( handledInput.nData1 ) );
+		}
+		auto ppLabelData2 = dynamic_cast<QLabel*>(
+			m_pMidiInputTable->cellWidget( nRow, 3 ) );
+		if ( ppLabelData2 != nullptr ) {
+			ppLabelData2->setText( QString::number( handledInput.nData2 ) );
+		}
+		auto ppLabelChannel = dynamic_cast<QLabel*>(
+			m_pMidiInputTable->cellWidget( nRow, 4 ) );
+		if ( ppLabelChannel != nullptr ) {
+			ppLabelChannel->setText( QString::number( handledInput.nChannel ) );
+		}
+
+		QStringList types;
+		for ( const auto& ttype : handledInput.actionTypes ) {
+			types << MidiAction::typeToQString( ttype );
+		}
+		auto ppLabelAction = dynamic_cast<QLabel*>(
+			m_pMidiInputTable->cellWidget( nRow, 5 ) );
+		if ( ppLabelAction != nullptr ) {
+			ppLabelAction->setText( types.join( ", " ) );
+		}
+		auto ppLabelInstruments = dynamic_cast<QLabel*>(
+			m_pMidiInputTable->cellWidget( nRow, 6 ) );
+		if ( ppLabelInstruments != nullptr ) {
+			ppLabelInstruments->setText(
+				handledInput.mappedInstruments.join( ", " ) );
+		}
+	};
 
 	// Table is in prestine shape. We just add the missing rows.
 	if ( ! bInvalid ) {
-		for ( int ii = m_pMidiInputTable->rowCount() - 1;
-			  ii < handledInputs.size(); ++ii ) {
+		for ( int ii = nOldRowCount - 1; ii < handledInputs.size(); ++ii ) {
 			addRow( handledInputs[ ii ], ii );
 		}
 	}
 	else {
-		// Clear and renew the whole table.
-		m_pMidiInputTable->clearContents();
+		// Renew the whole table.
 		for ( int ii = 0; ii < handledInputs.size(); ++ii ) {
-			addRow( handledInputs[ ii ], ii );
+			// Check whether there are already labels within this row. (Should
+			// be. But let's be sure.)
+			auto ppLabel = dynamic_cast<QLabel*>(
+				m_pMidiInputTable->cellWidget( ii, 0 ) );
+			if ( ppLabel == nullptr ) {
+				addRow( handledInputs[ ii ], ii );
+			}
+			else {
+				updateRow( handledInputs[ ii ], ii );
+			}
 		}
 	}
 }
@@ -322,6 +377,9 @@ void MidiControlDialog::updateInputTable() {
 void MidiControlDialog::updateOutputTable() {
 	const auto handledOutputs = Hydrogen::get_instance()->getAudioEngine()->
 		getMidiDriver()->getHandledOutputs();
+
+	const int nOldRowCount = m_pMidiOutputTable->rowCount();
+	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
 
 	// First, we check whether the table holds mostly the same entries and we
 	// just have to insert a new one at the bottom.
@@ -362,20 +420,54 @@ void MidiControlDialog::updateOutputTable() {
 			nRow, 4, newLabel( QString::number( handledOutput.nChannel ) ) );
 	};
 
-	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
+	auto updateRow = [&]( const MidiBaseDriver::HandledOutput& handledOutput,
+						  int nRow ) {
+		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
+			m_pMidiOutputTable->cellWidget( nRow, 0 ) );
+		if ( ppLabelTimestamp != nullptr ) {
+			ppLabelTimestamp->setText( timestampToQString( handledOutput.timestamp ) );
+		}
+		auto ppLabelType = dynamic_cast<QLabel*>(
+			m_pMidiOutputTable->cellWidget( nRow, 1 ) );
+		if ( ppLabelType != nullptr ) {
+			ppLabelType->setText( MidiMessage::TypeToQString( handledOutput.type ) );
+		}
+		auto ppLabelData1 = dynamic_cast<QLabel*>(
+			m_pMidiOutputTable->cellWidget( nRow, 2 ) );
+		if ( ppLabelData1 != nullptr ) {
+			ppLabelData1->setText( QString::number( handledOutput.nData1 ) );
+		}
+		auto ppLabelData2 = dynamic_cast<QLabel*>(
+			m_pMidiOutputTable->cellWidget( nRow, 3 ) );
+		if ( ppLabelData2 != nullptr ) {
+			ppLabelData2->setText( QString::number( handledOutput.nData2 ) );
+		}
+		auto ppLabelChannel = dynamic_cast<QLabel*>(
+			m_pMidiOutputTable->cellWidget( nRow, 4 ) );
+		if ( ppLabelChannel != nullptr ) {
+			ppLabelChannel->setText( QString::number( handledOutput.nChannel ) );
+		}
+	};
 
 	// Table is in prestine shape. We just add the missing rows.
 	if ( ! bInvalid ) {
-		for ( int ii = m_pMidiOutputTable->rowCount() - 1;
-			  ii < handledOutputs.size(); ++ii ) {
+		for ( int ii = nOldRowCount - 1; ii < handledOutputs.size(); ++ii ) {
 			addRow( handledOutputs[ ii ], ii );
 		}
 	}
 	else {
-		// Clear and renew the whole table.
-		m_pMidiOutputTable->clearContents();
+		// Renew the whole table.
 		for ( int ii = 0; ii < handledOutputs.size(); ++ii ) {
-			addRow( handledOutputs[ ii ], ii );
+			// Check whether there are already labels within this row. (Should
+			// be. But let's be sure.)
+			auto ppLabel = dynamic_cast<QLabel*>(
+				m_pMidiOutputTable->cellWidget( ii, 0 ) );
+			if ( ppLabel == nullptr ) {
+				addRow( handledOutputs[ ii ], ii );
+			}
+			else {
+				updateRow( handledOutputs[ ii ], ii );
+			}
 		}
 	}
 }
