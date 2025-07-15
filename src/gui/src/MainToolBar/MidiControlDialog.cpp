@@ -203,9 +203,18 @@ void MidiControlDialog::updateFont() {
 	QFont childFont( pPref->getTheme().m_font.m_sLevel2FontFamily,
 					 getPointSize( pPref->getTheme().m_font.m_fontSize ) );
 	setFont( font );
-	m_pTabWidget->setFont( font );
-	m_pMidiInputTable->setFont( childFont );
-	m_pMidiOutputTable->setFont( childFont );
+
+	// In order to affect the fonts of all child widgets in the table as well,
+	// we have to use its stylesheet instead of the setFont() method.
+	const auto sTableStyle = QString( "\
+font-family: %1; \
+font-size: %2; \
+" )
+		.arg( childFont.family() )
+		.arg( childFont.pixelSize() );
+
+	m_pMidiInputTable->setStyleSheet( sTableStyle );
+	m_pMidiOutputTable->setStyleSheet( sTableStyle );
 }
 
 void MidiControlDialog::updateIcons() {
