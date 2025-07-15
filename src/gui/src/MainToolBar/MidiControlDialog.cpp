@@ -42,7 +42,12 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	setFixedSize( MidiControlDialog::nWidth, MidiControlDialog::nHeight );
+	setMinimumSize( MidiControlDialog::nColumnActionWidth +
+					MidiControlDialog::nColumnInstrumentWidth +
+					MidiControlDialog::nColumnTimestampWidth +
+					MidiControlDialog::nColumnTypeWidth +
+					3 * MidiControlDialog::nColumnValueWidth + 20,
+					MidiControlDialog::nMinimumHeight );
 	setFocusPolicy( Qt::NoFocus );
 	setObjectName( "MidiControlDialog" );
 	// Not translated because it would make explanation within tickets more
@@ -70,7 +75,7 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	m_pMidiInputTable->horizontalHeader()->setSectionResizeMode(
 		0, QHeaderView::Fixed );
 	m_pMidiInputTable->horizontalHeader()->setSectionResizeMode(
-		1, QHeaderView::Fixed );
+		1, QHeaderView::Stretch );
 	m_pMidiInputTable->horizontalHeader()->setSectionResizeMode(
 		2, QHeaderView::Fixed );
 	m_pMidiInputTable->horizontalHeader()->setSectionResizeMode(
@@ -81,6 +86,20 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 		5, QHeaderView::Stretch );
 	m_pMidiInputTable->horizontalHeader()->setSectionResizeMode(
 		6, QHeaderView::Stretch );
+
+	m_pMidiInputTable->setColumnWidth(
+		0, MidiControlDialog::nColumnTimestampWidth );
+	m_pMidiInputTable->setColumnWidth( 1, MidiControlDialog::nColumnTypeWidth );
+	m_pMidiInputTable->setColumnWidth(
+		2, MidiControlDialog::nColumnValueWidth );
+	m_pMidiInputTable->setColumnWidth(
+		3, MidiControlDialog::nColumnValueWidth );
+	m_pMidiInputTable->setColumnWidth(
+		4, MidiControlDialog::nColumnValueWidth );
+	m_pMidiInputTable->setColumnWidth(
+		5, MidiControlDialog::nColumnActionWidth );
+	m_pMidiInputTable->setColumnWidth(
+		6, MidiControlDialog::nColumnInstrumentWidth );
 	pInputLayout->addWidget( m_pMidiInputTable );
 
 	const auto binButtonSize = QSize(
@@ -324,6 +343,7 @@ void MidiControlDialog::updateOutputTable() {
 		pLabel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 		pLabel->setAlignment( Qt::AlignCenter );
 		pLabel->setText( sText );
+		pLabel->setToolTip( sText );
 
 		return pLabel;
 	};

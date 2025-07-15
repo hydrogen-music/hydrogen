@@ -40,10 +40,15 @@ class MidiControlDialog : public QDialog,
 		Q_OBJECT
 
 public:
-		static constexpr int nWidth = 800;
-		static constexpr int nHeight = 740;
+		static constexpr int nMinimumHeight = 740;
 		static constexpr int nBinButtonHeight = 30;
 		static constexpr int nBinButtonMargin = 7;
+
+		static constexpr int nColumnActionWidth = 220;
+		static constexpr int nColumnInstrumentWidth = 220;
+		static constexpr int nColumnTimestampWidth = 120;
+		static constexpr int nColumnTypeWidth = 220;
+		static constexpr int nColumnValueWidth = 70;
 
 		explicit MidiControlDialog( QWidget* pParent );
 		~MidiControlDialog();
