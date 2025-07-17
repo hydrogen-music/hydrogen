@@ -85,7 +85,7 @@ order to make a release has several, easy-to-forget steps.  They are:
 
      a. Configure the correct version in [CMakeLists.txt](CMakeLists.txt)
 
-     b. Update [ChangeLog](ChangeLog)
+     b. Update [CHAMGELOG.md](CHAMGELOG.md)
 
      c. Check if nothing has changed and update version and date in
         [linux/hydrogen.1](linux/hydrogen.1)
@@ -103,24 +103,24 @@ order to make a release has several, easy-to-forget steps.  They are:
 
   4. Commit your changes.
 
-  5. Create a dedicated branch containing the suffix `-artifacts`,
-     like `releases/1.2.2-release-artifacts`, and manually set in
-     [CMakeLists.txt](CMakeLists.txt) the `IS_DEVEL_BUILD` variable to
-     `"false"` and
-     ensure `DISPLAY_VERSION` does not have a suffix. When pushing
-     this branch to Github, our AppVeyor pipeline will create release
-     artifacts for Linux, macOS, and Windows.
+  5. Create a dedicated branch containing the suffix `-artifacts`, like
+     `releases/1.2.2-release-artifacts`, and manually set in `CMakeLists.txt`
+     the `IS_DEVEL_BUILD` variable to "false" and ensure `DISPLAY_VERSION` does
+     not have a suffix as well as removing the lines from the Windows pipeline
+     in `.appveyor` tweaking the `DISPLAY_VERSION` variable according to tag and
+     commit id. When pushing this branch to Github, our AppVeyor pipeline will
+     create release artifacts for Linux, macOS, and Windows.
 
-  7. Call your friends.  Have a party.  Be sure to tests the artifacts
+  6. Call your friends.  Have a party.  Be sure to tests the artifacts
      on as many systems as possible.  Be sure to install and uninstall
      them, too.
 
-  8. If the release passes these "internal" tests, add new version,
-     date, ChangeLog updates as well as the release artifacts including
+  7. If the release passes these "internal" tests, add new version,
+     date, `CHANGELOG.md` updates as well as the release artifacts including
      their SHA256 sums to [linux/org.hydrogenmusic.Hydrogen.metainfo.xml.in](linux/org.hydrogenmusic.Hydrogen.metainfo.xml.in)
      and run `make` in [linux](linux)
 
-  10. Tag the release.  Remember, after tagging the release you may not
+  8. Tag the release.  Remember, after tagging the release you may not
      commit changes to the tag.
 
       ```bash
@@ -128,22 +128,23 @@ order to make a release has several, easy-to-forget steps.  They are:
       git push --tags origin
       ```
 
-  11. In case the release is a new major or minor version, also create
+  9. In case the release is a new major or minor version, also create
      a dedicated release branch, like `releases/1.2`.
 
-  12. Create a Github release, incorporating binary packages, source
+  10. Create a Github release, incorporating binary packages, source
       package, tag and release announcement.
 
-  13. Upload the release artifacts to
+  11. Upload the release artifacts to
       [SourceForge](https://sourceforge.net/projects/hydrogen/files/Hydrogen/)
       and make them the default download for all supported platforms.
 
-  14. Make release announcements on
+  12. Add the new download links to the `README.md` on the `main` branch as well
+      as the Download section of the hydrogen-music.org web page.
+
+  13. Make release announcements on
       - hydrogen-users@lists.sourceforge.net
       - [hydrogen-music.org](https://github.com/hydrogen-music/hydrogen-music)
 
-  15. Update the download links in [README.md](README.md).
-
-  16. Update third party repos. Make a PR against:
+  14. Update third party repos. Make a PR against:
       - Homebrew: https://github.com/Homebrew/homebrew-cask/blob/master/Casks/hydrogen.rb
       - Flatpak: https://github.com/flathub/org.hydrogenmusic.Hydrogen/
