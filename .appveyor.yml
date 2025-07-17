@@ -592,8 +592,12 @@ for:
           g++ --version
 
           REM *** Update pacman cache ***
-          c:\msys64\usr\bin\pacman --noconfirm -R -c -s mingw-w64-x86_64-gcc-libs
           c:\msys64\usr\bin\pacman --noconfirm -S -y
+
+          REM *** The pacman cache of the AppVeyor image is hopelessly out of ***
+          REM *** date. To still allow installing package, we have to remove ***
+          REM *** and reinstall some basic packages ***
+          c:\msys64\usr\bin\pacman --noconfirm -R -c -s mingw-w64-x86_64-gcc-libs
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-make
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gdb-multiarch
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tools-git
@@ -627,6 +631,7 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gmp
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-bzip2
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gcc-libs
+          REM *** This section is hopefully just a temporary one ***
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-libarchive
