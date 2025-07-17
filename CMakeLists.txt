@@ -24,11 +24,7 @@ set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 # Consider any tagged commit as a release build
 execute_process(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_ON_TAG)
-if(GIT_ON_TAG)
-    set(IS_DEVEL_BUILD "false")
-else()
-    set(IS_DEVEL_BUILD "true")
-endif()
+set(IS_DEVEL_BUILD "false")
 
 # In order to avoid for things to get out of sync, it is also possible to hand
 # over a version (from e.g. the build pipeline) and bypass the version string
@@ -36,41 +32,7 @@ endif()
 # patch version in here must still match the TARGET_VERSION of the pipeline!
 set(DISLPAY_VERSION_PIPELINE "" CACHE INTERNAL "")
 
-if(NOT ${DISPLAY_VERSION_PIPELINE} STREQUAL "")
-    set(DISPLAY_VERSION "${DISPLAY_VERSION_PIPELINE}")
-else()
-    set(DISPLAY_VERSION "${VERSION}")
-
-    if(VERSION_SUFFIX)
-        set(DISPLAY_VERSION "${DISPLAY_VERSION}-${VERSION_SUFFIX}")
-    endif()
-
-    if(NOT GIT_ON_TAG)
-        # For developer builds we append some additional data to version.
-        execute_process(COMMAND git describe --abbrev=0
-            OUTPUT_VARIABLE GIT_LAST_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-        if("${DISPLAY_VERSION}" STREQUAL "${GIT_LAST_TAG}")
-            # If the last tag matches the display version (we are working on the
-            # same branch the tag is located in - the release branch), we will use
-            # `git describe` since it nicely adds the number of commits passed since
-            # the tag next to the current commit id.
-            execute_process(COMMAND git describe --tags
-                OUTPUT_VARIABLE GIT_DESCRIPTION OUTPUT_STRIP_TRAILING_WHITESPACE)
-            set(DISPLAY_VERSION "${GIT_DESCRIPTION}")
-            message(STATUS "MATCH")
-        else()
-            # We are working on a release which is not a patch release of the
-            # last one (feature branch, develop branch, main after splitting of
-            # a dedicated release branch). We just add the commit hash to the
-            # display version.
-            execute_process(COMMAND git log --pretty=format:'%h' -n 1
-                OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
-            set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
-            message(STATUS "MIS")
-        endif()
-    endif()
-endif()
+set(DISPLAY_VERSION "${VERSION}")
 message(STATUS "${DISPLAY_VERSION}")
 
 #
