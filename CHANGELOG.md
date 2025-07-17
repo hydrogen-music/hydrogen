@@ -189,8 +189,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- The shortcut for starting/pausing transport can now be used spin boxed (like
-  the BPM one) too (#2098).
+- The shortcut for starting/pausing transport can now be used while focusing
+  spin boxes (like the BPM one) too (#2098).
 - Combo boxes do not accept focus (and preventing shortcuts) anymore.
 - LASH support has been deprecated and will be removed in version 2.0 of
   Hydrogen (#1649).
@@ -218,7 +218,7 @@ All notable changes to this project will be documented in this file.
 - Fix memory leakage for songs created in version >= 2.0.
 - Fix memory leakage for notes with probability < 1.0.
 - Fix incoming MIDI NOTE OFF handling.
-- AppImage build dir is now removed on `build.sh r` (#2129).
+- AppImage build folder is now removed on `build.sh r` (#2129).
 - Fix potential crash with JACK audio driver on startup, teardown, or
   song/drumkit loading.
   
