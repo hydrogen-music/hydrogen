@@ -73,7 +73,7 @@ order to make a release has several, easy-to-forget steps.  They are:
   1. Set the version
      a. Configure the correct version in CMakeLists.txt
 
-     b. Update ChangeLog
+     b. Update CHANGELOG.md
 
      c. Check if nothing has changed and update version and date in
         linux/hydrogen.1
@@ -91,19 +91,20 @@ order to make a release has several, easy-to-forget steps.  They are:
 
   4. Commit your changes.
 
-  5. Create a dedicated branch containing the suffix `-artifacts`,
-     like `releases/1.2.2-release-artifacts`, and manually set in
-     `CMakeLists.txt` the `IS_DEVEL_BUILD` variable to "false" and
-     ensure `DISPLAY_VERSION` does not have a suffix. When pushing
-     this branch to Github, our AppVeyor pipeline will create release
-     artifacts for Linux, macOS, and Windows.
+  5. Create a dedicated branch containing the suffix `-artifacts`, like
+     `releases/1.2.2-release-artifacts`, and manually set in `CMakeLists.txt`
+     the `IS_DEVEL_BUILD` variable to "false" and ensure `DISPLAY_VERSION` does
+     not have a suffix as well as removing the lines from the Windows pipeline
+     in `.appveyor` tweaking the `DISPLAY_VERSION` variable according to tag and
+     commit id. When pushing this branch to Github, our AppVeyor pipeline will
+     create release artifacts for Linux, macOS, and Windows.
 
   6. Call your friends.  Have a party.  Be sure to tests the artifacts
      on as many systems as possible.  Be sure to install and uninstall
      them, too.
 
   7. If the release passes these "internal" tests, add new version,
-     date, ChangeLog as well as the release artifacts including their
+     date, CHANGELOG.md as well as the release artifacts including their
      SHA256 sums to `linux/org.hydrogenmusic.Hydrogen.metainfo.xml.in`
      and run `make` in `linux/` folder
 
@@ -122,10 +123,13 @@ order to make a release has several, easy-to-forget steps.  They are:
   11. Upload the release to SourceForge and make it the default download
       for all supported platforms.
 
-  12. Make release announcements on
+  12. Add the new download links to the `README.md` on the `main` branch as well
+      as the Download section of the hydrogen-music.org web page.
+
+  13. Make release announcements on
       - hydrogen-users@lists.sourceforge.net
       - hydrogen-music.org
 
-  13. Update third party repos. Make a PR against:
+  14. Update third party repos. Make a PR against:
       - Homebrew: https://github.com/Homebrew/homebrew-cask/blob/master/Casks/hydrogen.rb
       - Flatpak: https://github.com/flathub/org.hydrogenmusic.Hydrogen/
