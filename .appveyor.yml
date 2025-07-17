@@ -45,17 +45,17 @@ environment:
   TARGET_VERSION: '1.2.5'
   matrix:
 
-    - job_name: 'Ubuntu 22.04'
-      job_group: 'Linux'
-      appveyor_build_worker_image: Ubuntu2204
+    # - job_name: 'Ubuntu 22.04'
+    #   job_group: 'Linux'
+    #   appveyor_build_worker_image: Ubuntu2204
 
-    - job_name: 'Ubuntu 16.04 (AppImage)'
-      job_group: 'Linux (AppImage)'
-      appveyor_build_worker_image: Ubuntu1604
+    # - job_name: 'Ubuntu 16.04 (AppImage)'
+    #   job_group: 'Linux (AppImage)'
+    #   appveyor_build_worker_image: Ubuntu1604
 
-    - job_name: 'OS X'
-      job_group: 'Mac OS X'
-      appveyor_build_worker_image: macos
+    # - job_name: 'OS X'
+    #   job_group: 'Mac OS X'
+    #   appveyor_build_worker_image: macos
 
     - job_name: 'Windows64'
       job_group: 'Windows'
@@ -555,31 +555,6 @@ for:
           set DISPLAY_VERSION=%TARGET_VERSION%
 
           echo %TARGET_VERSION%
-
-          FOR /F "delims=" %%i IN ('"git describe --abbrev=0"') DO set GIT_LAST_TAG=%%i
-          echo %GIT_LAST_TAG%
-
-          FOR /F "delims=" %%i IN ('"git describe --tags"') DO set GIT_DESCRIPTION=%%i
-          echo %GIT_DESCRIPTION%
-
-          FOR /F "delims=" %%i IN ('"git log --pretty=format:'%%h' -n 1"') DO set GIT_COMMIT_HASH=%%i
-          echo %GIT_COMMIT_HASH%
-
-          REM *** If the last tag matches the display version (we are working on the
-          REM *** same branch the tag is located in - the release branch), we will use
-          REM *** `git describe` since it nicely adds the number of commits passed
-          REM *** since the tag next to the current commit id.
-          if %GIT_LAST_TAG%==%TARGET_VERSION% set DISPLAY_VERSION=%GIT_DESCRIPTION%
-
-          REM *** We are working on a release which is not a patch release of the last
-          REM *** one (feature branch, develop branch, master after splitting of a
-          REM *** dedicated release branch). We just add the commit hash to the
-          REM *** display version.
-          if not %GIT_LAST_TAG%==%TARGET_VERSION% set DISPLAY_VERSION=%TARGET_VERSION%-%GIT_COMMIT_HASH%
-
-          REM *** Remove quotes from variable as this would prevent use from
-          REM *** properly find the file during upload.
-          set DISPLAY_VERSION=%DISPLAY_VERSION:'=%
           echo %DISPLAY_VERSION%
 
           set MSYS=C:\msys64\mingw64
