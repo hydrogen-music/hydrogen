@@ -37,12 +37,11 @@
 #endif
 
 WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps,
-								  const QString& sBaseTooltip, int nScrollSpeed,
+								  const QString& sBaseToolTip, int nScrollSpeed,
 								  int nScrollSpeedFast, float fMin, float fMax,
 								  bool bModifyOnChange )
 	: QWidget( parent )
 	, m_bUseIntSteps( bUseIntSteps )
-	, m_sBaseTooltip( sBaseTooltip )
 	, m_nScrollSpeed( nScrollSpeed )
 	, m_nScrollSpeedFast( nScrollSpeedFast )
 	, m_fMin( fMin )
@@ -62,48 +61,22 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps,
 	
 	setAttribute( Qt::WA_Hover );
 	setFocusPolicy( Qt::ClickFocus );
-	updateTooltip();
+	setBaseToolTip( sBaseToolTip );
 	
 	gettimeofday( &m_inputBufferTimeval, nullptr );
 }
 
 WidgetWithInput::~WidgetWithInput() {}
 
-void WidgetWithInput::updateTooltip() {
-
+void WidgetWithInput::updateToolTip() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	QString sTip = QString("%1: %2\n\n%3: [%4, %5]" ).arg( m_sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )
-		.arg( pCommonStrings->getRangeTooltip() )
-		.arg( m_fMin, 0, 'f', 2 ).arg( m_fMax, 0, 'f', 2 );
+	QString sTip = composeToolTip();
 
-	// Add the associated MIDI action.
-	if ( m_pAction != nullptr ) {
-		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
-					 .arg( m_pAction->getType() ) );
-		if ( m_registeredMidiEvents.size() > 0 ) {
-			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
-				if ( event == H2Core::MidiMessage::Event::Note ||
-					 event == H2Core::MidiMessage::Event::CC ) {
-					sTip.append( QString( "\n%1 [%2 : %3]" )
-								 .arg( pCommonStrings->getMidiTooltipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) )
-								 .arg( nnParam ) );
-				}
-				else {
-					// PC and MMC_x do not have a parameter.
-					sTip.append( QString( "\n%1 [%2]" )
-								 .arg( pCommonStrings->getMidiTooltipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
-				}
-			}
+	sTip.append( QString("\n\n%1\t%2: [%3, %4]" ).arg( m_fValue, 0, 'f', 2 )
+				 .arg( pCommonStrings->getRangeToolTip() )
+				 .arg( m_fMin, 0, 'f', 2 ).arg( m_fMax, 0, 'f', 2 ) );
 
-		}
-		else {
-			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiTooltipUnbound() ) );
-		}
-	}
-			
 	setToolTip( sTip );
 }
 
@@ -158,7 +131,7 @@ void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction,
 			emit valueChanged( this );
 		}
 
-		updateTooltip();
+		updateToolTip();
 		update();
 
 		if ( m_bModifyOnChange && bTriggeredByUserInteraction ) {
@@ -181,7 +154,7 @@ void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 		m_bIgnoreMouseMove = true;
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
-		MidiSenseWidget midiSense( this, true, this->m_pAction );
+		MidiSenseWidget midiSense( this, true, this->m_pMidiAction );
 		midiSense.exec();
 	
 		m_bIgnoreMouseMove = true;

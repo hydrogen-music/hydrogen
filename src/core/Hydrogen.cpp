@@ -74,13 +74,13 @@
 #include <core/IO/FakeDriver.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -140,7 +140,8 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-	m_pAudioEngine->startAudioDrivers();
+	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
+	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 
 	if ( pPref->getOscServerEnabled() ) {
 		toggleOscServer( true );
@@ -202,9 +203,7 @@ void Hydrogen::sequencerPlay()
 /// Stop the internal sequencer
 void Hydrogen::sequencerStop()
 {
-	if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
-		Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
-	}
+	CoreActionController::sendAllNoteOffMessages();
 
 	m_pAudioEngine->stop();
 	Preferences::get_instance()->setRecordEvents(false);
@@ -616,9 +615,21 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 	return false;
 }
 
-void Hydrogen::restartDrivers()
-{
-	m_pAudioEngine->restartAudioDrivers();
+void Hydrogen::restartAudioDriver() {
+	const bool bWasPlaying =
+		m_pAudioEngine->getState() == AudioEngine::State::Playing;
+
+	m_pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
+	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
+
+	if ( bWasPlaying ) {
+		m_pAudioEngine->startPlayback();
+	}
+}
+
+void Hydrogen::restartMidiDriver() {
+	m_pAudioEngine->stopMidiDriver( Event::Trigger::Suppress );
+	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 }
 
 bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
@@ -642,15 +653,15 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 	pSong->setMode( Song::Mode::Song );
 	pSong->setLoopMode( Song::LoopMode::Disabled );
 	
-	/*
-	 * Currently an audio driver is loaded
-	 * which is not the DiskWriter driver.
-	 * Stop the current driver and fire up the DiskWriter.
-	 */
-	pAudioEngine->stopAudioDrivers();
+	/* Currently an audio driver is loaded which is not the DiskWriter driver.
+	 * Stop the current driver and fire up the DiskWriter. */
+	pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
+	// We do not want to have any MIDI feedback or note on/off event while
+	// exporting audio to file.
+	pAudioEngine->stopMidiDriver( Event::Trigger::Default );
 
 	AudioOutput* pDriver = pAudioEngine->createAudioDriver(
-		Preferences::AudioDriver::Disk );
+		Preferences::AudioDriver::Disk, Event::Trigger::Default );
 
 	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
@@ -708,9 +719,14 @@ void Hydrogen::stopExportSession()
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 
 	pAudioEngine->stop();
- 	pAudioEngine->restartAudioDrivers();
+	pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
+	pAudioEngine->startAudioDriver( Event::Trigger::Default );
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
+	}
+	pAudioEngine->startMidiDriver( Event::Trigger::Default );
+	if ( pAudioEngine->getMidiDriver() == nullptr ) {
+		ERRORLOG( "Unable to restart MIDI driver after exporting song." );
 	}
 	m_bExportSessionIsActive = false;
 }
@@ -722,20 +738,13 @@ AudioOutput* Hydrogen::getAudioOutput() const
 }
 
 /// Used to display midi driver info
-MidiInput* Hydrogen::getMidiInput() const 
-{
+std::shared_ptr<MidiBaseDriver> Hydrogen::getMidiDriver() const {
 	return m_pAudioEngine->getMidiDriver();
-}
-
-MidiOutput* Hydrogen::getMidiOutput() const
-{
-	return m_pAudioEngine->getMidiOutDriver();
 }
 
 void Hydrogen::onTapTempoAccelEvent()
 {
 #ifndef WIN32
-	INFOLOG( "tap tempo" );
 	static timeval oldTimeVal;
 
 	struct timeval now;
@@ -791,7 +800,6 @@ void Hydrogen::onTapTempoAccelEvent()
 	fBPM = ( fBPM + fOldBpm1 + fOldBpm2 + fOldBpm3 + fOldBpm4 + fOldBpm5
 			 + fOldBpm6 + fOldBpm7 + fOldBpm8 ) / 9.0;
 
-	INFOLOG( QString( "avg BPM = %1" ).arg( fBPM ) );
 	fOldBpm8 = fOldBpm7;
 	fOldBpm7 = fOldBpm6;
 	fOldBpm6 = fOldBpm5;
@@ -917,13 +925,17 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong,
 }
 
 void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
-	m_nBeatCounterTotalBeats = nBeatsToCount;
-	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	if ( m_nBeatCounterTotalBeats != nBeatsToCount ) {
+		m_nBeatCounterTotalBeats = nBeatsToCount;
+		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	}
 }
 
 void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
-	m_fBeatCounterBeatLength = fBeatLength;
-	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	if ( m_fBeatCounterBeatLength != fBeatLength ) {
+		m_fBeatCounterBeatLength = fBeatLength;
+		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	}
 }
 
 bool Hydrogen::handleBeatCounter()
@@ -974,6 +986,8 @@ bool Hydrogen::handleBeatCounter()
 	}
 
 	// Compute and reset
+	double fAverageTime;
+	bool bTempoSet = false;
 	if ( m_nBeatCounterBeatCount == m_nBeatCounterTotalBeats ){
 		double fTotalDiffs = 0;
 		for ( const auto& ffDiff : m_beatCounterDiffs ) {
@@ -981,45 +995,49 @@ bool Hydrogen::handleBeatCounter()
 		}
 
 		// Time between the beats / beat counter activations.
-		const double fAverageTime = fTotalDiffs /
+		fAverageTime = fTotalDiffs /
 			( m_nBeatCounterBeatCount - 1 ) * m_fBeatCounterBeatLength;
 		const float fBeatCountBpm =
 			static_cast<float>(std::floor( 60 / fAverageTime * 100 ) / 100);
 			
-		CoreActionController::setBpm( fBeatCountBpm );
+		if ( CoreActionController::setBpm( fBeatCountBpm ) ) {
+			bTempoSet = true;
+		}
 
 		m_nBeatCounterBeatCount = 1;
 		m_nBeatCounterEventCount = 1;
-
-		if ( Preferences::get_instance()->m_bBeatCounterSetPlay !=
-			 Preferences::BEAT_COUNTER_SET_PLAY_OFF &&
-			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
-			const int nSampleRate =
-					m_pAudioEngine->getAudioDriver()->getSampleRate();
-			long nRtStartFrame = 0;
-			if ( m_fBeatCounterBeatLength <= 1 ){
-				nRtStartFrame =
-					nSampleRate * fAverageTime * ( 1/ m_fBeatCounterBeatLength );
-			}
-			else {
-				nRtStartFrame =
-					nSampleRate * fAverageTime / m_fBeatCounterBeatLength ;
-			}
-
-			const int nSleepTime =
-				static_cast<int>( static_cast<float>(nRtStartFrame) * 1000 /
-								  static_cast<float>(nSampleRate) ) +
-				m_nBeatCounterDriftCompensation + m_nBeatCounterStartOffset;
-			std::this_thread::sleep_for( std::chrono::milliseconds( nSleepTime ) );
-
-			sequencerPlay();
-		}
 	}
 	else {
 		m_nBeatCounterBeatCount++;
 	}
 
+	// Update counter numbers before starting playback. Else the user could
+	// experience visual delays in the BpmTap.
 	pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+
+	if ( bTempoSet && Preferences::get_instance()->m_beatCounter ==
+		 Preferences::BeatCounter::TapAndPlay &&
+		 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		const int nSampleRate =
+			m_pAudioEngine->getAudioDriver()->getSampleRate();
+		long nRtStartFrame = 0;
+		if ( m_fBeatCounterBeatLength <= 1 ){
+			nRtStartFrame =
+				nSampleRate * fAverageTime * ( 1/ m_fBeatCounterBeatLength );
+		}
+		else {
+			nRtStartFrame =
+				nSampleRate * fAverageTime / m_fBeatCounterBeatLength ;
+		}
+
+		const int nSleepTime =
+			static_cast<int>( static_cast<float>(nRtStartFrame) * 1000 /
+							  static_cast<float>(nSampleRate) ) +
+			m_nBeatCounterDriftCompensation + m_nBeatCounterStartOffset;
+		std::this_thread::sleep_for( std::chrono::milliseconds( nSleepTime ) );
+
+		sequencerPlay();
+	}
 
 	return true;
 }

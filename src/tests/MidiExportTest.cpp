@@ -26,7 +26,7 @@
 
 #include <core/Basics/Pattern.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/SMF/SMF.h>
+#include <core/Midi/SMF.h>
 
 #include "TestHelper.h"
 #include "assertions/File.h"

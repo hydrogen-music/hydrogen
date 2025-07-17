@@ -54,7 +54,7 @@ public:
 	};
 	
 	Fader( QWidget *pParent, const Type& type,
-		   const QString& sBaseTooltip, bool bUseIntSteps = false,
+		   const QString& sBaseToolTip, bool bUseIntSteps = false,
 		   bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0,
 		   bool bModifyOnChange = true );
 	~Fader();

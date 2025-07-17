@@ -453,7 +453,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pMuteBtn = new Button(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
 		"", pCommonStrings->getSmallMuteButton(), QSize(), tr("Mute instrument"),
-		false, true );
+		true );
 	m_pMuteBtn->setChecked( false );
 	m_pMuteBtn->setObjectName( "SidebarRowMuteButton" );
 	pHBox->addWidget( m_pMuteBtn );
@@ -462,7 +462,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pSoloBtn = new Button(
 		this, QSize( SidebarRow::m_nButtonWidth, height() ), Button::Type::Toggle,
 		"", pCommonStrings->getSmallSoloButton(), QSize(),
-		pCommonStrings->getBigSoloButton(), false, true );
+		pCommonStrings->getBigSoloButton(), true );
 	m_pSoloBtn->setChecked( false );
 	m_pSoloBtn->setObjectName( "SidebarRowSoloButton" );
 	pHBox->addWidget( m_pSoloBtn );
@@ -784,7 +784,17 @@ void SidebarRow::updateStyleSheet() {
 		textColor = colorTheme.m_patternEditor_instrumentRowTextColor;
 	}
 
-	setColor( colorTheme.m_windowColor );
+	// Indicate chosen editor mode.
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor = colorTheme.m_windowColor.lighter(
+			Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = colorTheme.m_windowColor;
+	}
+
+	setColor( backgroundInactiveColor );
 
 	m_pInstrumentNameLbl->setColor(
 		backgroundColor, textColor, colorTheme.m_cursorColor );

@@ -23,15 +23,15 @@
 #ifndef H2_MIDI_OUTPUT_H
 #define H2_MIDI_OUTPUT_H
 
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
-#include <string>
+
+#include <QString>
 #include <vector>
-#include <memory>
 
-namespace H2Core
-{
-class Note;
+namespace H2Core {
 
+class MidiMessage;
 
 /**
  * MIDI input base class
@@ -40,16 +40,33 @@ class Note;
 class MidiOutput : public virtual Object<MidiOutput>
 {
 	H2_OBJECT(MidiOutput)
-public:
-	MidiOutput();
-	virtual ~MidiOutput();
-	
-	virtual std::vector<QString> getInputPortList() = 0;
 
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) = 0;
-	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
-	virtual void handleQueueAllNoteOff() = 0;
-	virtual void handleOutgoingControlChange( int param, int value, int channel ) = 0;
+	public:
+		struct HandledOutput {
+			QTime timestamp;
+			MidiMessage::Type type;
+			int nData1;
+			int nData2;
+			int nChannel;
+		};
+
+		MidiOutput();
+		virtual ~MidiOutput();
+
+		/** Checks whether output part of the MIDI driver was properly set up
+		 * and could send MIDI events. This does not mean yet that there is an
+		 * established connection to another MIDI device. Such a connection
+		 * could (depending on the driver and OS) be established outside of
+		 * Hydrogen without letting us know. */
+		virtual bool isOutputActive() const = 0;
+
+		/** @returns true in case #msg could be sent. */
+		virtual HandledOutput sendMessage( const MidiMessage& msg );
+
+	private:
+		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;
+		virtual void sendNoteOffMessage( const MidiMessage& msg ) = 0;
+		virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
 };
 
 };

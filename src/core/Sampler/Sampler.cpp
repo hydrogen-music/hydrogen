@@ -20,37 +20,37 @@
  *
  */
 
+#include <core/Sampler/Sampler.h>
+
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <iostream>
+#include <QDebug>
 
-#include <core/IO/AudioOutput.h>
-#include <core/IO/JackAudioDriver.h>
-
-#include <core/Basics/Adsr.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/Globals.h>
-#include <core/Hydrogen.h>
+#include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Song.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Helpers/Filesystem.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
-
 #include <core/FX/Effects.h>
-#include <core/Sampler/Sampler.h>
+#include <core/Globals.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/IO/AudioOutput.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/IO/MidiBaseDriver.h>
+#include <core/Preferences/Preferences.h>
 
-#include <iostream>
-#include <QDebug>
 
 namespace H2Core
 {
@@ -157,18 +157,20 @@ void Sampler::process( uint32_t nFrames )
 	}
 
 	if ( m_queuedNoteOffs.size() > 0 ) {
-		MidiOutput* pMidiOut = pHydrogen->getMidiOutput();
-		if ( pMidiOut != nullptr ) {
+		auto pMidiDriver = pHydrogen->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
 			//Queue midi note off messages for notes that have a length specified for them
 			while ( ! m_queuedNoteOffs.empty() ) {
 				pNote =  m_queuedNoteOffs[0];
 
 				if ( pNote->getInstrument() != nullptr ) {
 					if ( ! pNote->getInstrument()->isMuted() ){
-						pMidiOut->handleQueueNoteOff(
-							pNote->getInstrument()->getMidiOutChannel(),
-							pNote->getMidiKey(),
-							pNote->getMidiVelocity() );
+						MidiMessage::NoteOff noteOff;
+						noteOff.nChannel =
+							pNote->getInstrument()->getMidiOutChannel();
+						noteOff.nKey = pNote->getMidiKey();
+						noteOff.nVelocity = pNote->getMidiVelocity();
+						pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
 					}
 				}
 				else {
@@ -807,8 +809,9 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 		// Once the Sampler does start rendering a note we also push
 		// it to all connected MIDI devices.
 		if ( (int) pSelectedLayerInfo->fSamplePosition == 0  && ! pInstr->isMuted() ) {
-			if ( pHydrogen->getMidiOutput() != nullptr ){
-				pHydrogen->getMidiOutput()->handleQueueNote( pNote );
+			if ( pHydrogen->getMidiDriver() != nullptr ) {
+				pHydrogen->getMidiDriver()->sendMessage(
+					MidiMessage::from( pNote ) );
 			}
 		}
 

@@ -31,8 +31,6 @@
 #include "EventListener.h"
 #include "MainForm.h"
 
-#include <iostream>
-#include <cstdint>
 #include <memory>
 #include <set>
 #include <vector>
@@ -53,23 +51,20 @@ namespace H2Core
 	class Song;
 }
 
-class SongEditorPanel;
-class PlayerControl;
-class PatternEditorPanel;
-class SongEditor;
-class Mixer;
 class AudioEngineInfoForm;
+class CommonStrings;
+class Director;
 class FilesystemInfoForm;
-class SimpleHTMLBrowser;
-class LadspaFXProperties;
-class LadspaFXInfo;
-class LadspaFXGroup;
+class Footer;
+class InfoBar;
 class InstrumentRack;
+class LadspaFXProperties;
+class MainToolBar;
+class Mixer;
+class PatternEditorPanel;
 class PlaylistEditor;
 class SampleEditor;
-class Director;
-class InfoBar;
-class CommonStrings;
+class SongEditorPanel;
 
 /** \ingroup docGUI*/
 class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
@@ -77,6 +72,8 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		H2_OBJECT(HydrogenApp)
 	Q_OBJECT
 	public:
+		static constexpr int nMinimumWidth = 1000;
+
 		HydrogenApp( MainForm* pMainForm, QUndoStack* pUndoStack );
 
 		/// Returns the instance of HydrogenApp class
@@ -120,16 +117,18 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void setHideKeyboardCursor( bool bHidden );
 
 		AudioEngineInfoForm*		getAudioEngineInfoForm();
+		std::shared_ptr<CommonStrings>			getCommonStrings();
 		Director*			getDirector();
-		Mixer*				getMixer();
+		Footer*			getFooter();
+		InstrumentRack*			getInstrumentRack();
 		MainForm*			getMainForm();
-		SongEditorPanel*		getSongEditorPanel();
+		Mixer*				getMixer();
+		PatternEditorPanel*		getPatternEditorPanel();
+		MainToolBar*			getMainToolBar();
 		PlaylistEditor*			getPlaylistEditor();
 		SampleEditor*			getSampleEditor();
-		PatternEditorPanel*		getPatternEditorPanel();
-		PlayerControl*			getPlayerControl();
-		InstrumentRack*			getInstrumentRack();
-	std::shared_ptr<CommonStrings>			getCommonStrings();
+		SongEditorPanel*		getSongEditorPanel();
+
 		InfoBar *			addInfoBar();
 
 		/** If a non-empty @a sContext is provided, all successive undo commands
@@ -221,24 +220,28 @@ signals:
 		 * has to be shrunk below its minimum size - magnified using the Qt
 		 * scale factor so its efficitive size is below the minimum one. */
 		QScrollArea*				m_pMainScrollArea;
+		QVBoxLayout *				m_pMainVBox;
+		QTabWidget *				m_pTab;
+		QSplitter *					m_pSplitter;
+
 		MainForm *					m_pMainForm;
+
+		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
+		Director *					m_pDirector;
+		FilesystemInfoForm *		m_pFilesystemInfoForm;
+		Footer *					m_pFooter;
+		InstrumentRack*				m_pInstrumentRack;
 		Mixer *						m_pMixer;
 		PatternEditorPanel*			m_pPatternEditorPanel;
-		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
-		FilesystemInfoForm *		m_pFilesystemInfoForm;
-		SongEditorPanel *			m_pSongEditorPanel;
-		InstrumentRack*				m_pInstrumentRack;
-		PlayerControl *				m_pPlayerControl;
+		MainToolBar*				m_pMainToolBar;
 		PlaylistEditor *			m_pPlaylistEditor;
 		SampleEditor *				m_pSampleEditor;
-		Director *					m_pDirector;
+		SongEditorPanel *			m_pSongEditorPanel;
+
 		QTimer *					m_pEventQueueTimer;
 		std::vector<EventListener*> m_eventListeners;
 		std::set<EventListener*> m_eventListenersToAdd;
 		std::set<EventListener*> m_eventListenersToRemove;
-		QTabWidget *				m_pTab;
-		QSplitter *					m_pSplitter;
-		QVBoxLayout *				m_pMainVBox;
 		std::shared_ptr<CommonStrings>				m_pCommonStrings;
 
 		bool						m_bHideKeyboardCursor;
@@ -352,6 +355,10 @@ inline Director* HydrogenApp::getDirector()
 	return m_pDirector;
 }
 
+inline Footer* HydrogenApp::getFooter() {
+	return m_pFooter;
+}
+
 inline SampleEditor* HydrogenApp::getSampleEditor()
 {
 	return m_pSampleEditor;	
@@ -362,9 +369,9 @@ inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel()
 	return m_pPatternEditorPanel;
 }
 
-inline PlayerControl* HydrogenApp::getPlayerControl()
+inline MainToolBar* HydrogenApp::getMainToolBar()
 {
-	return m_pPlayerControl;
+	return m_pMainToolBar;
 }
 
 inline InstrumentRack* HydrogenApp::getInstrumentRack()

@@ -20,13 +20,18 @@
  *
  */
 #include "SongEditorPanel.h"
+
 #include "PlaybackTrackWaveDisplay.h"
+#include "SongEditor.h"
 
 #include "../AudioFileBrowser/AudioFileBrowser.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
-#include "../SongPropertiesDialog.h"
+#include "../MainToolBar/MainToolBar.h"
 #include "../Skin.h"
+#include "../SongPropertiesDialog.h"
+#include "../UndoActions.h"
 #include "../Widgets/AutomationPathView.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/Fader.h"
@@ -34,17 +39,13 @@
 #include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 
-#include "SongEditor.h"
-#include "UndoActions.h"
-#include "CommonStrings.h"
-
-#include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -57,6 +58,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
  {
 	const auto pPref = Preferences::get_instance();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	const bool bShowPlaybackTrack = pPref->getShowPlaybackTrack();
 
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
@@ -110,14 +113,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// down button
 	m_pDownBtn = new Button(
 		pBackPanel, QSize( 25, 10 ), Button::Type::Push, "down.svg", "",
-		QSize( 7, 7 ), tr( "Move the selected pattern down" ), false, true, 2 );
+		QSize( 7, 7 ), tr( "Move the selected pattern down" ), true, 2 );
 	m_pDownBtn->move( 90, 36 );
 	connect( m_pDownBtn, SIGNAL( clicked() ), this, SLOT( downBtnClicked() ) );
 
 	// up button
 	m_pUpBtn = new Button(
 		pBackPanel, QSize( 25, 10 ), Button::Type::Push, "up.svg", "",
-		QSize( 7, 7 ), tr( "Move the selected pattern up" ), false, true, 2 );
+		QSize( 7, 7 ), tr( "Move the selected pattern up" ), true, 2 );
 	m_pUpBtn->move( 90, 25 );
 	connect( m_pUpBtn, SIGNAL( clicked() ), this, SLOT( upBtnClicked() ) );
 
@@ -147,14 +150,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// shown unpressed
 	m_pPatternEditorLockedBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "lock_closed.svg", "",
-		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), false, true );
+		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), true );
 	m_pPatternEditorLockedBtn->move( 142, 25 );
 	connect( m_pPatternEditorLockedBtn, &QPushButton::clicked,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( false ); } );
 
 	m_pPatternEditorUnlockedBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Push, "lock_open.svg", "",
-		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), false, true );
+		QSize( 21, 17 ), pCommonStrings->getPatternEditorLocked(), true );
 	m_pPatternEditorUnlockedBtn->move( 142, 25 );
 	connect( m_pPatternEditorUnlockedBtn, &QPushButton::clicked,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( true ); } );
@@ -177,7 +180,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// shown unpressed.
 	m_pPlaySelectedSingleBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Push, "single_layer.svg", "",
-		QSize( 17, 13 ), tr( "selected pattern mode" ), false, true );
+		QSize( 17, 13 ), tr( "selected pattern mode" ), true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
 	connect( m_pPlaySelectedSingleBtn, &QPushButton::clicked, [=]() {
 		activateStackedMode( true );
@@ -185,7 +188,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pPlaySelectedMultipleBtn = new Button(
 		pBackPanel, QSize( 25, 21 ), Button::Type::Push, "multiple_layers.svg", "",
-		QSize( 21, 17 ), tr( "stacked pattern mode" ), false, true );
+		QSize( 21, 17 ), tr( "stacked pattern mode" ), true );
 	m_pPlaySelectedMultipleBtn->move( 168, 25 );
 	m_pPlaySelectedMultipleBtn->hide();
 	connect( m_pPlaySelectedMultipleBtn, &QPushButton::clicked, [=]() {
@@ -247,7 +250,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pMutePlaybackBtn = new Button(
 		pBackPanel, QSize( 34, 17 ), Button::Type::Toggle, "",
 		pCommonStrings->getBigMuteButton(), QSize(), tr( "Mute playback track" ),
-		false, true );
+		true );
 	m_pMutePlaybackBtn->setObjectName( "SongEditorPlaybackTrackMuteButton" );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
@@ -280,8 +283,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pViewTimelineBtn->setObjectName( "TimeLineToggleBtn" );
 	connect( m_pViewTimelineBtn, SIGNAL( clicked() ), this, SLOT( viewTimelineBtnClicked() ) );
 	m_pViewTimelineBtn->setChecked( ! pPref->getShowPlaybackTrack() );
-	
-	
+
+	m_pTimelineBtn->setVisible( ! bShowPlaybackTrack );
+	m_pMutePlaybackBtn->setVisible( bShowPlaybackTrack );
+	m_pEditPlaybackBtn->setVisible( bShowPlaybackTrack );
+	m_pPlaybackTrackFader->setVisible( bShowPlaybackTrack );
+	m_pViewPlaybackBtn->setChecked( bShowPlaybackTrack );
+	m_pViewTimelineBtn->setChecked( ! bShowPlaybackTrack );
+
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );
 	pHZoomLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -302,6 +311,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// PATTERN LIST
 	m_pPatternListScrollView = new WidgetScrollArea( nullptr );
+	m_pPatternListScrollView->setObjectName( "PatternListScrollView" );
 	m_pPatternListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPatternListScrollView->setFixedWidth( m_nPatternListWidth );
 	m_pPatternListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -315,6 +325,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
+	m_pEditorScrollView->setObjectName( "EditorScrollView" );
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -333,6 +344,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack->setFixedHeight( m_nMinimumHeight );
 	
 	m_pPositionRulerScrollView = new WidgetScrollArea( m_pWidgetStack );
+	m_pPositionRulerScrollView->setObjectName( "PositionRulerScrollView" );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -347,10 +359,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 
 	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
+	m_pPlaybackTrackScrollView->setObjectName( "PlaybackTrackScrollView" );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	
+
 	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->getComponents()->front();
 	assert(pCompo);
 
@@ -363,6 +376,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setFixedHeight( m_nMinimumHeight );
 	
 	m_pAutomationPathScrollView = new WidgetScrollArea( nullptr );
+	m_pAutomationPathScrollView->setObjectName( "AutomationPathScrollView" );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
 	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -387,14 +401,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack->addWidget( m_pPositionRulerScrollView );
 	m_pWidgetStack->addWidget( m_pPlaybackTrackScrollView );
 
-	if( pPref->getShowPlaybackTrack() ) {
-		showPlaybackTrack();
+	if ( bShowPlaybackTrack ) {
+		m_pWidgetStack->setCurrentWidget( m_pPlaybackTrackScrollView );
+	} else {
+		m_pWidgetStack->setCurrentWidget( m_pPositionRulerScrollView );
 	}
-	else {
-		showTimeline();
-	}
-	
-	// ok...let's build the layout
+
+	QWidget *pMainPanel = new QWidget();
+	pMainPanel->setObjectName( "SongEditorPanel" );
 	QGridLayout *pGridLayout = new QGridLayout();
 	pGridLayout->setSpacing( 0 );
 	pGridLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -413,14 +427,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 		m_pAutomationCombo->hide();
 	}
 
-	this->setLayout( pGridLayout );
-	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
-	this->setPalette( defaultPalette );
+	pMainPanel->setLayout( pGridLayout );
+
+	QVBoxLayout *pVBox = new QVBoxLayout();
+	pVBox->setSpacing( 0 );
+	pVBox->setContentsMargins( 0, 0, 0, 0 );
+	this->setLayout( pVBox );
+	pVBox->addWidget( pMainPanel );
 
 	show();
 
-	updateColors();
+	updateStyleSheet();
 	updateEditors();
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -817,6 +834,7 @@ void SongEditorPanel::songModeActivationEvent() {
 	updateTimeline();
 	updatePatternEditorLocked();
 	updatePatternMode();
+	updateStyleSheet();
 
 	m_pPatternList->updateEditor();
 	m_pPositionRuler->updatePosition();
@@ -882,6 +900,7 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 	updateJacktimebaseState();
 	updatePatternEditorLocked();
 	updateTimeline();
+	updateStyleSheet();
 
 	m_pPositionRuler->updatePosition();
 	m_pPositionRuler->updateSongSize();
@@ -907,6 +926,9 @@ void SongEditorPanel::showTimeline()
 		m_pViewTimelineBtn->setChecked( true );
 	}
 	Preferences::get_instance()->setShowPlaybackTrack( false );
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
 
@@ -926,6 +948,9 @@ void SongEditorPanel::showPlaybackTrack()
 	Preferences::get_instance()->setShowPlaybackTrack( true );
 
 	updatePlaybackTrack();
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
 void SongEditorPanel::viewTimelineBtnClicked()
@@ -1091,6 +1116,9 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 		m_pAutomationCombo->hide();
 		pPref->setShowAutomationArea( false );
 	}
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 
 void SongEditorPanel::activateStackedMode( bool bActive ) {
@@ -1122,7 +1150,7 @@ void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& 
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
-		updateColors();
+		updateStyleSheet();
 	}
 
 	if ( changes & ( H2Core::Preferences::Changes::GeneralTab |
@@ -1211,14 +1239,6 @@ void SongEditorPanel::updateActionMode() {
 	}
 }
 
-void SongEditorPanel::updateColors() {
-	const auto theme = Preferences::get_instance()->getTheme();
-
-	m_pMutePlaybackBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
-	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
-		theme.m_color.m_muteTextColor );
-}
-
 void SongEditorPanel::updateJacktimebaseState() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1288,6 +1308,31 @@ void SongEditorPanel::updatePatternMode() {
 		m_pPlaySelectedMultipleBtn->setDisabled( false );
 		m_pPlaySelectedSingleBtn->setDisabled( false );
 	}
+}
+
+void SongEditorPanel::updateStyleSheet() {
+	const auto theme = Preferences::get_instance()->getTheme();
+
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+		backgroundInactiveColor = theme.m_color.m_windowColor.lighter(
+		 	Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = theme.m_color.m_windowColor;
+	}
+
+	setStyleSheet( QString( "\
+#PatternListScrollView, #EditorScrollView, #PositionRulerScrollView,\
+#PlaybackTrackScrollView, #AutomationPathScrollView, #SongEditorPanel {\
+     background-color: %1;\
+}" )
+				   .arg( backgroundInactiveColor.name() ) );
+
+	m_pMutePlaybackBtn->setCheckedBackgroundColor( theme.m_color.m_muteColor );
+	m_pMutePlaybackBtn->setCheckedBackgroundTextColor(
+		theme.m_color.m_muteTextColor );
+
 }
 
 void SongEditorPanel::updateTimeline() {

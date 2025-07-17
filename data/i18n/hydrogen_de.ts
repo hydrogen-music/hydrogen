@@ -304,6 +304,31 @@
     </message>
 </context>
 <context>
+    <name>BpmTap</name>
+    <message>
+        <source>Set BPM / Set BPM and play</source>
+        <translation>Setze Geschwindigkeit / Setze Geschwindigkeit und spiele ab</translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
+        <translation>Um BeatCounter zu benutzen muss zuerst der Zeitstrahl (timeline) ausgeschalten werden</translation>
+    </message>
+    <message>
+        <source>Indicates the type of note you are tapping</source>
+        <extracomment>Tool tip for the left label in the beat counter within the main * toolbar.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current vs. total number of taps to average</source>
+        <extracomment>Tool tip for the left label in the beat counter within the main * toolbar.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColorSelectionButton</name>
     <message>
         <source>Pick a pattern color</source>
@@ -314,16 +339,12 @@
     <name>CommonStrings</name>
     <message>
         <source>P</source>
-        <extracomment>Text displayed on the button to show the Playback track. Its size is designed to hold a single character.
-----------
-Text displayed on the button indicating that the Beat Counter will start playing after setting the tempo. Its size is designed to hold one character.</extracomment>
+        <extracomment>Text displayed on the button to show the Playback track. Its size is designed to hold a single character.</extracomment>
         <translation>P</translation>
     </message>
     <message>
         <source>S</source>
-        <extracomment>Text displayed on the button for soloing an instrument strip in the mixer. Its size is designed for a single character.
-----------
-Text displayed on the button indicating that the Beat Counter will only set tempo. Its size is designed to hold one character.</extracomment>
+        <extracomment>Text displayed on the button for soloing an instrument strip in the mixer. Its size is designed for a single character.</extracomment>
         <translation>S</translation>
     </message>
     <message>
@@ -402,47 +423,6 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
         <source>Edit Layer</source>
         <extracomment>Text displayed on the button to edit a layer into an instrument. Its size is designed to hold ten characters but is quite flexible.</extracomment>
         <translation>Edit Ebene</translation>
-    </message>
-    <message>
-        <source>B
-C</source>
-        <extracomment>Text displayed on the button to activate the Beat Counter. Its size is designed to hold two characters in two separate rows.</extracomment>
-        <translation>B
-C</translation>
-    </message>
-    <message>
-        <source>R
-U
-B</source>
-        <extracomment>Text displayed on the button to activate the resampling using Rubberband. Its size is designed to hold three characters in two separate rows.</extracomment>
-        <translation>R
-U
-B</translation>
-    </message>
-    <message>
-        <source>J.Trans</source>
-        <extracomment>Text displayed on the button to activate the JACK transport control. Its size is designed to hold seven characters and is moderately flexible.</extracomment>
-        <translation>J.Trans</translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <extracomment>Text displayed on the button to show the Mixer window. Its size is designed to hold five characters and is flexible.</extracomment>
-        <translation>Mixer</translation>
-    </message>
-    <message>
-        <source>Instrument Rack</source>
-        <extracomment>Text displayed on the button to show the Instrument Rack. Its size is designed to hold 15 characters and is flexible.</extracomment>
-        <translation>Instrument Editor</translation>
-    </message>
-    <message>
-        <source>Pattern</source>
-        <extracomment>Text displayed on the button activating Pattern Mode for playback. Its size is designed to hold seven characters and is slightly flexible.</extracomment>
-        <translation>Pattern</translation>
-    </message>
-    <message>
-        <source>Song</source>
-        <extracomment>Text displayed on the button activating Song Mode for playback. Its size is designed to hold four characters and is slightly flexible.</extracomment>
-        <translation>Song</translation>
     </message>
     <message>
         <source>Attack</source>
@@ -560,11 +540,6 @@ B</translation>
         <translation>Sample Ausw.</translation>
     </message>
     <message>
-        <source>MIDI-In</source>
-        <extracomment>Text displayed in the Player Control to indicate incoming MIDI events. Designed to hold seven characters but not that flexible.</extracomment>
-        <translation>MIDI-In</translation>
-    </message>
-    <message>
         <source>CPU</source>
         <extracomment>Text displayed in the Player Control to indicate the CPU load. Designed to hold three characters but not that flexible.</extracomment>
         <translation>CPU</translation>
@@ -635,7 +610,9 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
     </message>
     <message>
         <source>MIDI</source>
-        <extracomment>Displayed in the tooltip of input widgets. General heading of the part associating the Action of the widget with the MIDI event and parameter it is bound to.</extracomment>
+        <extracomment>Text displayed in the Player Control on the button indicating incoming and outgoing MIDI events. Designed to hold four capital characters and slightly flexible.
+----------
+Displayed in the tooltip of input widgets. General heading of the part associating the Action of the widget with the MIDI event and parameter it is bound to.</extracomment>
         <translation>MIDI</translation>
     </message>
     <message>
@@ -1110,11 +1087,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation>Instrument hinzufügen</translation>
     </message>
     <message>
-        <source>Timebase</source>
-        <extracomment>Text displayed on the button to register Hydrogen to be in the JACK Timebase control. Its size is designed to hold eight characters and is moderately flexible.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1406,6 +1378,21 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Edit mode</source>
         <extracomment>Text displayed as tooltip on the button which enables changing element * properties, like note length in the pattern editor using left-click * dragging mouse interaction.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust BPM by continuously tapping</source>
+        <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever tap tempo was selected.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust BPM using BeatCounter</source>
+        <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever plain beat counter was selected.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust BPM using BeatCounter and start playback</source>
+        <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever beat counter was selected and playback is set to start * right after the tempo adjustment.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2080,36 +2067,20 @@ Overwrite the existing file?</source>
         <translation>Stoppe die aktuell abgespielte Note für dieses Instrument bevor nächste Note abgespielt wird</translation>
     </message>
     <message>
-        <source>Length of Attack phase.
-
-Value</source>
-        <translation>Länge der Attack Phase.
-
-Wert</translation>
+        <source>Length of Attack phase</source>
+        <translation>Länge der Attack Phase.</translation>
     </message>
     <message>
-        <source>Length of Decay phase.
-
-Value</source>
-        <translation>Länge der Decay (Abkling-) Phase.
-
-Wert</translation>
+        <source>Length of Decay phase</source>
+        <translation>Länge der Decay (Abkling-) Phase.</translation>
     </message>
     <message>
-        <source>Sample volume in Sustain phase.
-
-Value</source>
-        <translation>Sample Lautstärke in der Sustain Phase.
-
-Wert</translation>
+        <source>Sample volume in Sustain phase</source>
+        <translation>Sample Lautstärke in der Sustain Phase.</translation>
     </message>
     <message>
-        <source>Length of Release phase.
-
-Value</source>
-        <translation>Länge der Release (Abkling-) Phase.
-
-Wert</translation>
+        <source>Length of Release phase</source>
+        <translation>Länge der Release (Abkling-) Phase.</translation>
     </message>
 </context>
 <context>
@@ -2824,6 +2795,165 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MainToolBar</name>
+    <message>
+        <source>Stop</source>
+        <translation>Stopp</translation>
+    </message>
+    <message>
+        <source>Song Mode</source>
+        <translation>Songmodus</translation>
+    </message>
+    <message>
+        <source>Playing.</source>
+        <translation>Spielt ab.</translation>
+    </message>
+    <message>
+        <source>Stopped.</source>
+        <translation>Gestoppt.</translation>
+    </message>
+    <message>
+        <source>Song mode selected.</source>
+        <translation>Songmodus gewählt.</translation>
+    </message>
+    <message>
+        <source>Pattern Mode</source>
+        <translation>Patternmodus</translation>
+    </message>
+    <message>
+        <source>Pattern mode selected.</source>
+        <translation>Patternmodus gewählt.</translation>
+    </message>
+    <message>
+        <source>Rewind</source>
+        <translation>Zurückspulen</translation>
+    </message>
+    <message>
+        <source>Play/ Pause</source>
+        <translation>Play/Pause</translation>
+    </message>
+    <message>
+        <source>Fast Forward</source>
+        <translation>Vorspulen</translation>
+    </message>
+    <message>
+        <source>Pause.</source>
+        <translation>Pause.</translation>
+    </message>
+    <message>
+        <source>Loop song</source>
+        <translation>Song wiederholen</translation>
+    </message>
+    <message>
+        <source>Loop song = On</source>
+        <translation>Song wiederholen = aktiviert</translation>
+    </message>
+    <message>
+        <source>Loop song = Off</source>
+        <translation>Song wiederholen = deaktiviert</translation>
+    </message>
+    <message>
+        <source>Show mixer</source>
+        <translation>Mixer anzeigen</translation>
+    </message>
+    <message>
+        <source>Show Instrument Rack</source>
+        <translation>Instrumenten Rack anzeigen</translation>
+    </message>
+    <message>
+        <source>Record</source>
+        <translation>Aufnehmen</translation>
+    </message>
+    <message>
+        <source>Record midi events = On</source>
+        <translation>Midi-Eingaben aufnehmen = aktiviert</translation>
+    </message>
+    <message>
+        <source>Record midi events = Off</source>
+        <translation>Midi-Eingaben aufnehmen = deaktiviert</translation>
+    </message>
+    <message>
+        <source>Recalculate Rubberband modified samples if bpm will change</source>
+        <translation>Berechne Samples neu, welche mit Rubberband verändert wurden, sobald die BPM verändert werden</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband ON</source>
+        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
+    </message>
+    <message>
+        <source>Recalculate all samples using Rubberband OFF</source>
+        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
+    </message>
+    <message>
+        <source>JACK transport on/off</source>
+        <translation>JACK Transport an/aus</translation>
+    </message>
+    <message>
+        <source>JACK transport will work only with JACK driver.</source>
+        <translation>Der JACK Transport funktioniert nur mit dem JACK Treiber.</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = On</source>
+        <translation>JACK Transport Modus = An</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = Off</source>
+        <translation>JACK Transport Modus = Aus</translation>
+    </message>
+    <message>
+        <source>Alter the Playback Speed</source>
+        <translation>Wiedergabe-Geschwindigkeit ändern</translation>
+    </message>
+    <message>
+        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
+        <translation>Während der Zeitstrahl (timeline) aktiviert ist, ist dieses Element schreibgeschützt und zeigt das Tempo der aktuellen Wiedergabe-Position an</translation>
+    </message>
+    <message>
+        <source>JACK-transport will work only with JACK driver.</source>
+        <translation>JACK Transport ist nur über den JACK Audio Treiber verfügbar.</translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
+        <translation>Eine Tempoänderung über MIDI, OSC, BeatCounter oder TapTempo wurde registriert. Diese wird erst nach Deaktivierung des Zeitstrahls (timeline) übernommen und auch für den Bereich links vom ersten Tempo Marker nach anschließender wiederholter Aktivierung übernommen.</translation>
+    </message>
+    <message>
+        <source>JACK Timebase mode</source>
+        <translation>JACK Timebase modus</translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Director</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playlist Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Automation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Playback Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch metronome on/off</source>
+        <translation>Metronom An/Aus</translation>
+    </message>
+</context>
+<context>
     <name>MasterLine</name>
     <message>
         <source>Master volume</source>
@@ -2860,6 +2990,45 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Swingfaktor [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiControlDialog</name>
+    <message>
+        <source>Incoming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timestamp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel</source>
+        <translation>Kanal</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Aktion</translation>
+    </message>
+    <message>
+        <source>Instrument</source>
+        <translation>Instrument</translation>
+    </message>
+    <message>
+        <source>Outgoing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3257,10 +3426,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show PatchBay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change pattern size to %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3345,178 +3510,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>No playback track selected</source>
         <translation>Kein Playback Track ausgewählt</translation>
-    </message>
-</context>
-<context>
-    <name>PlayerControl</name>
-    <message>
-        <source>Stop</source>
-        <translation>Stopp</translation>
-    </message>
-    <message>
-        <source>Song Mode</source>
-        <translation>Songmodus</translation>
-    </message>
-    <message>
-        <source>Playing.</source>
-        <translation>Spielt ab.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Gestoppt.</translation>
-    </message>
-    <message>
-        <source>Song mode selected.</source>
-        <translation>Songmodus gewählt.</translation>
-    </message>
-    <message>
-        <source>Pattern Mode</source>
-        <translation>Patternmodus</translation>
-    </message>
-    <message>
-        <source>Pattern mode selected.</source>
-        <translation>Patternmodus gewählt.</translation>
-    </message>
-    <message>
-        <source>Rewind</source>
-        <translation>Zurückspulen</translation>
-    </message>
-    <message>
-        <source>Play/ Pause</source>
-        <translation>Play/Pause</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Vorspulen</translation>
-    </message>
-    <message>
-        <source>Pause.</source>
-        <translation>Pause.</translation>
-    </message>
-    <message>
-        <source>Loop song</source>
-        <translation>Song wiederholen</translation>
-    </message>
-    <message>
-        <source>Loop song = On</source>
-        <translation>Song wiederholen = aktiviert</translation>
-    </message>
-    <message>
-        <source>Loop song = Off</source>
-        <translation>Song wiederholen = deaktiviert</translation>
-    </message>
-    <message>
-        <source>Show mixer</source>
-        <translation>Mixer anzeigen</translation>
-    </message>
-    <message>
-        <source>Show Instrument Rack</source>
-        <translation>Instrumenten Rack anzeigen</translation>
-    </message>
-    <message>
-        <source>Set BPM / Set BPM and play</source>
-        <translation>Setze Geschwindigkeit / Setze Geschwindigkeit und spiele ab</translation>
-    </message>
-    <message>
-        <source> BC Panel on</source>
-        <translation>Takt Zähler Anzeige sichtbar</translation>
-    </message>
-    <message>
-        <source> BC Panel off</source>
-        <translation>Takt Zähler Anzeige aus</translation>
-    </message>
-    <message>
-        <source> Count BPM and start PLAY</source>
-        <translation>Zähle Takte und spiele ab</translation>
-    </message>
-    <message>
-        <source> Count and set BPM</source>
-        <translation>Zähle Takte setze BPM</translation>
-    </message>
-    <message>
-        <source>Record</source>
-        <translation>Aufnehmen</translation>
-    </message>
-    <message>
-        <source>Record midi events = On</source>
-        <translation>Midi-Eingaben aufnehmen = aktiviert</translation>
-    </message>
-    <message>
-        <source>Record midi events = Off</source>
-        <translation>Midi-Eingaben aufnehmen = deaktiviert</translation>
-    </message>
-    <message>
-        <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation>Berechne Samples neu, welche mit Rubberband verändert wurden, sobald die BPM verändert werden</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
-    </message>
-    <message>
-        <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Alle Samples mit Rubberband neu berechnen = aktiviert</translation>
-    </message>
-    <message>
-        <source>Switch metronome on/off</source>
-        <translation>Metronom An/Aus</translation>
-    </message>
-    <message>
-        <source>JACK transport on/off</source>
-        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
-        <translation>JACK Transport an/aus</translation>
-    </message>
-    <message>
-        <source>JACK transport will work only with JACK driver.</source>
-        <translation>Der JACK Transport funktioniert nur mit dem JACK Treiber.</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = On</source>
-        <translation>JACK Transport Modus = An</translation>
-    </message>
-    <message>
-        <source>JACK transport mode = Off</source>
-        <translation>JACK Transport Modus = Aus</translation>
-    </message>
-    <message>
-        <source>Toggle the BeatCounter Panel</source>
-        <translation>BeatCounter Konsole umschalten</translation>
-    </message>
-    <message>
-        <source>Please deactivate the Timeline first in order to use the BeatCounter</source>
-        <translation>Um BeatCounter zu benutzen muss zuerst der Zeitstrahl (timeline) ausgeschalten werden</translation>
-    </message>
-    <message>
-        <source>Alter the Playback Speed</source>
-        <translation>Wiedergabe-Geschwindigkeit ändern</translation>
-    </message>
-    <message>
-        <source>While the Timeline is active this widget is in read-only mode and just displays the tempo set using the current Timeline position</source>
-        <translation>Während der Zeitstrahl (timeline) aktiviert ist, ist dieses Element schreibgeschützt und zeigt das Tempo der aktuellen Wiedergabe-Position an</translation>
-    </message>
-    <message>
-        <source>JACK-transport will work only with JACK driver.</source>
-        <translation>JACK Transport ist nur über den JACK Audio Treiber verfügbar.</translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.</source>
-        <translation>Eine Tempoänderung über MIDI, OSC, BeatCounter oder TapTempo wurde registriert. Diese wird erst nach Deaktivierung des Zeitstrahls (timeline) übernommen und auch für den Bereich links vom ersten Tempo Marker nach anschließender wiederholter Aktivierung übernommen.</translation>
-    </message>
-    <message>
-        <source>JACK Timebase mode</source>
-        <translation>JACK Timebase modus</translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller the BeatCounter can not be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>In the presence of an external JACK Timebase controller this widget just displays the tempo broadcasted by JACK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK Timebase support or making Hydrogen take Timebase control.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3615,20 +3608,8 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Neues Skript erstellen</translation>
     </message>
     <message>
-        <source>Rewind</source>
-        <translation>Zurückspulen</translation>
-    </message>
-    <message>
         <source>Play/ Pause/ Load selected song</source>
         <translation>Wiederhabe / Pause/ Lade ausgewähltes Lied</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation>Stopp</translation>
-    </message>
-    <message>
-        <source>Fast Forward</source>
-        <translation>Vorspulen</translation>
     </message>
     <message>
         <source>Please save your song first</source>

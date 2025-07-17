@@ -23,8 +23,7 @@
 #ifndef ALSA_MIDI_DRIVER_H
 #define ALSA_MIDI_DRIVER_H
 
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
@@ -41,28 +40,31 @@ namespace H2Core
 /// Based on Matthias Nagorni alsa sequencer example
 ///
 /** \ingroup docCore docMIDI */
-class AlsaMidiDriver : public Object<AlsaMidiDriver>, public virtual MidiInput, public virtual MidiOutput
+class AlsaMidiDriver : public Object<AlsaMidiDriver>,
+					   public virtual MidiBaseDriver
 {
 	H2_OBJECT(AlsaMidiDriver)
 public:
 	AlsaMidiDriver();
 	virtual ~AlsaMidiDriver();
 
-	virtual void open() override;
-	virtual void close() override;
-	virtual std::vector<QString> getInputPortList() override;
-	virtual std::vector<QString> getOutputPortList() override;
+	void close() override;
+	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	bool isInputActive() const override;
+	bool isOutputActive() const override;
+	void open() override;
 
 	void midi_action( snd_seq_t *seq_handle );
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote) override;
-	
-	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
-	virtual void handleQueueAllNoteOff() override;
-	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
+	void sendControlChangeMessage( const MidiMessage& msg ) override;
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
+
+		std::vector<QString> getPortList( int nCapability );
 };
 
 };

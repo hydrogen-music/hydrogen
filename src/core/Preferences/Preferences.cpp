@@ -20,28 +20,21 @@
  *
  */
 
-#include <stdlib.h>
-#include <core/Preferences/Preferences.h>
+#include "Preferences.h"
 
 #ifndef WIN32
 #include <pwd.h>
 #include <unistd.h>
 #endif
+#include <algorithm>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <stdlib.h>
-#include <fstream>
-#include <iostream>
-#include <cstdio>
-#include <list>
-#include <algorithm>
-#include <memory>
 
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include <core/IO/AlsaAudioDriver.h>
-#include <core/MidiMap.h>
+#include <core/Midi/MidiMap.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
@@ -97,8 +90,8 @@ Preferences::Preferences()
 	, m_bFollowPlayhead( true )
 	, m_bExpandSongItem( true )
 	, m_bExpandPatternItem( true )
-	, m_bBeatCounterOn( BEAT_COUNTER_OFF )
-	, m_bBeatCounterSetPlay( BEAT_COUNTER_SET_PLAY_OFF )
+	, m_bpmTap( BpmTap::TapTempo )
+	, m_beatCounter( BeatCounter::Tap )
 	, m_nBeatCounterDriftCompensation( 0 )
 	, m_nBeatCounterStartOffset( 0 )
 	, m_audioDriver( AudioDriver::Auto )
@@ -212,17 +205,17 @@ Preferences::Preferences()
 
 	//___ MIDI Driver properties
 #if defined(H2CORE_HAVE_ALSA)
-	m_sMidiDriver = QString("ALSA");
+	m_midiDriver = MidiDriver::Alsa;
 #elif defined(H2CORE_HAVE_PORTMIDI)
-	m_sMidiDriver = QString("PortMidi");
+	m_midiDriver = MidiDriver::PortMidi;
 #elif defined(H2CORE_HAVE_COREMIDI)
-	m_sMidiDriver = QString("CoreMIDI");
+	m_midiDriver = MidiDriver::CoreMidi;
 #elif defined(H2CORE_HAVE_JACK)
-	m_sMidiDriver = QString("JACK-MIDI");
+	m_midiDriver = MidiDriver::Jack;
 #else
 	// Set ALSA as fallback if none of the above options are available
 	// (although MIDI won't work in this case).
-	m_sMidiDriver = QString( "ALSA" );
+	m_midiDriver = MidiDriver::Alsa;
 #endif
 
 	//___  alsa audio driver properties ___
@@ -277,8 +270,8 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bFollowPlayhead( pOther->m_bFollowPlayhead )
 	, m_bExpandSongItem( pOther->m_bExpandSongItem )
 	, m_bExpandPatternItem( pOther->m_bExpandPatternItem )
-	, m_bBeatCounterOn( pOther->m_bBeatCounterOn )
-	, m_bBeatCounterSetPlay( pOther->m_bBeatCounterSetPlay )
+	, m_bpmTap( pOther->m_bpmTap )
+	, m_beatCounter( pOther->m_beatCounter )
 	, m_nBeatCounterDriftCompensation( pOther->m_nBeatCounterDriftCompensation )
 	, m_nBeatCounterStartOffset( pOther->m_nBeatCounterStartOffset )
 	, m_audioDriver( pOther->m_audioDriver )
@@ -288,7 +281,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_nBufferSize( pOther->m_nBufferSize )
 	, m_nSampleRate( pOther->m_nSampleRate )
 	, m_sOSSDevice( pOther->m_sOSSDevice )
-	, m_sMidiDriver( pOther->m_sMidiDriver )
+	, m_midiDriver( pOther->m_midiDriver )
 	, m_sMidiPortName( pOther->m_sMidiPortName )
 	, m_sMidiOutputPortName( pOther->m_sMidiOutputPortName )
 	, m_nMidiChannelFilter( pOther->m_nMidiChannelFilter )
@@ -699,17 +692,11 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const XMLNode midiDriverNode =
 			audioEngineNode.firstChildElement( "midi_driver" );
 		if ( ! midiDriverNode.isNull() ) {
-			pPref->m_sMidiDriver = midiDriverNode.read_string(
-				"driverName", pPref->m_sMidiDriver, false, false, bSilent );
-			// Ensure compatibility with older versions of the
-			// files after capitalization in the GUI
-			// (2021-02-05). This can be dropped in releases
-			// >= 1.2
-			if ( pPref->m_sMidiDriver == "JackMidi" ) {
-				pPref->m_sMidiDriver = "JACK-MIDI";
-			} else if ( pPref->m_sMidiDriver == "CoreMidi" ) {
-				pPref->m_sMidiDriver = "CoreMIDI";
-			}
+			const auto sMidiDriver = midiDriverNode.read_string(
+				"driverName",
+				Preferences::midiDriverToQString( pPref->m_midiDriver ),
+				false, false, bSilent );
+			pPref->m_midiDriver = Preferences::parseMidiDriver( sMidiDriver );
 			pPref->m_sMidiPortName = midiDriverNode.read_string(
 				"port_name", pPref->m_sMidiPortName, false, false, bSilent );
 			pPref->m_sMidiOutputPortName = midiDriverNode.read_string(
@@ -944,10 +931,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sUseBeatCounter =
 			guiNode.read_string( "bc", "", false, false, bSilent );
 		if ( sUseBeatCounter == "BC_OFF" ) {
-			pPref->m_bBeatCounterOn = BEAT_COUNTER_OFF;
+			pPref->m_bpmTap = BpmTap::TapTempo;
 		}
 		else if ( sUseBeatCounter == "BC_ON" ) {
-			pPref->m_bBeatCounterOn = BEAT_COUNTER_ON;
+			pPref->m_bpmTap = BpmTap::BeatCounter;
 		}
 		else if ( ! sUseBeatCounter.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <bc>: [%1]" )
@@ -957,10 +944,10 @@ std::shared_ptr<Preferences> Preferences::load( const QString& sPath, const bool
 		const QString sBeatCounterSetPlay =
 			guiNode.read_string( "setplay", "", false, false, bSilent );
 		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
-			pPref->m_bBeatCounterSetPlay = BEAT_COUNTER_SET_PLAY_OFF;
+			pPref->m_beatCounter = BeatCounter::Tap;
 		}
 		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
-			pPref->m_bBeatCounterSetPlay = BEAT_COUNTER_SET_PLAY_ON;
+			pPref->m_beatCounter = BeatCounter::TapAndPlay;
 		}
 		else if ( ! sBeatCounterSetPlay.isEmpty() ) {
 			WARNINGLOG( QString( "Unable to parse <setplay>: [%1]" )
@@ -1235,7 +1222,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 		/// MIDI DRIVER ///
 		XMLNode midiDriverNode = audioEngineNode.createNode( "midi_driver" );
 		{
-			midiDriverNode.write_string( "driverName", m_sMidiDriver );
+			midiDriverNode.write_string(
+				"driverName", Preferences::midiDriverToQString( m_midiDriver ) );
 			midiDriverNode.write_string( "port_name", m_sMidiPortName );
 			midiDriverNode.write_string( "output_port_name", m_sMidiOutputPortName );
 			midiDriverNode.write_int( "channel_filter", m_nMidiChannelFilter );
@@ -1335,19 +1323,14 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const {
 							m_bMidiExportUseHumanization );
 
 		//beatcounter
-		QString sBeatCounterOn;
-
-		if ( m_bBeatCounterOn == BEAT_COUNTER_OFF ) {
-			sBeatCounterOn = "BC_OFF";
-		} else if ( m_bBeatCounterOn  == BEAT_COUNTER_ON ) {
+		QString sBeatCounterOn( "BC_OFF" );
+		if ( m_bpmTap == BpmTap::BeatCounter ) {
 			sBeatCounterOn = "BC_ON";
 		}
 		guiNode.write_string( "bc", sBeatCounterOn );
 
-		QString setPlay;
-		if ( m_bBeatCounterSetPlay == BEAT_COUNTER_SET_PLAY_OFF ) {
-			setPlay = "SET_PLAY_OFF";
-		} else if ( m_bBeatCounterSetPlay == BEAT_COUNTER_SET_PLAY_ON ) {
+		QString setPlay( "SET_PLAY_OFF" );
+		if ( m_beatCounter == BeatCounter::TapAndPlay ) {
 			setPlay = "SET_PLAY_ON";
 		}
 		guiNode.write_string( "setplay", setPlay );
@@ -1449,6 +1432,47 @@ QString Preferences::audioDriverToQString( const Preferences::AudioDriver& drive
 		return "Null";
 	case AudioDriver::None:
 		return "nullptr";
+	default:
+		return "Unhandled driver type";
+	}
+}
+
+Preferences::MidiDriver Preferences::parseMidiDriver( const QString& sDriver ) {
+	const QString s = QString( sDriver ).toLower();
+	// Ensure compatibility with older versions of the files after
+	// capitalization in the GUI (2021-02-05).
+	if ( s == "jackmidi" || s == "jack-midi") {
+		return MidiDriver::Jack;
+	}
+	else if ( s == "alsa" ) {
+		return MidiDriver::Alsa;
+	}
+	else if ( s == "portmidi" ) {
+		return MidiDriver::PortMidi;
+	}
+	else if ( s == "coremidi" ) {
+		return MidiDriver::CoreMidi;
+	}
+	else {
+		if ( Logger::isAvailable() ) {
+			ERRORLOG( QString( "Unable to parse driver [%1]" ). arg( sDriver ) );
+		}
+		return MidiDriver::None;
+	}
+}
+
+QString Preferences::midiDriverToQString( const Preferences::MidiDriver& driver ) {
+	switch ( driver ) {
+	case MidiDriver::Alsa:
+		return "ALSA";
+	case MidiDriver::CoreMidi:
+		return "CoreMIDI";
+	case MidiDriver::Jack:
+		return "JACK-MIDI";
+	case MidiDriver::None:
+		return "nullptr";
+	case MidiDriver::PortMidi:
+		return "PortMidi";
 	default:
 		return "Unhandled driver type";
 	}
@@ -1674,10 +1698,12 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_bExpandSongItem ) )
 			.append( QString( "%1%2m_bExpandPatternItem: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bExpandPatternItem ) )
-			.append( QString( "%1%2m_bBeatCounterOn: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bBeatCounterOn ) )
-			.append( QString( "%1%2m_bBeatCounterSetPlay: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_bBeatCounterSetPlay ) )
+			.append( QString( "%1%2m_bpmTap: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_bpmTap == BpmTap::TapTempo ?
+									"Tap Tempo" : "Beat Counter" ) )
+			.append( QString( "%1%2m_beatCounter: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( m_beatCounter == BeatCounter::Tap ?
+									"Tap" : "Tap and Play" ) )
 			.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( "%1%2m_nBeatCounterStartOffset: %3\n" ).arg( sPrefix )
@@ -1700,8 +1726,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nSampleRate ) )
 			.append( QString( "%1%2m_sOSSDevice: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sOSSDevice ) )
-			.append( QString( "%1%2m_sMidiDriver: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sMidiDriver ) )
+			.append( QString( "%1%2m_midiDriver: %3\n" ).arg( sPrefix )
+					 .arg( s ).arg( midiDriverToQString( m_midiDriver ) ) )
 			.append( QString( "%1%2m_sMidiPortName: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sMidiPortName ) )
 			.append( QString( "%1%2m_sMidiOutputPortName: %3\n" ).arg( sPrefix )
@@ -1922,10 +1948,12 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bExpandSongItem ) )
 			.append( QString( ", m_bExpandPatternItem: %1" )
 					 .arg( m_bExpandPatternItem ) )
-			.append( QString( ", m_bBeatCounterOn: %1" )
-					 .arg( m_bBeatCounterOn ) )
-			.append( QString( ", m_bBeatCounterSetPlay: %1" )
-					 .arg( m_bBeatCounterSetPlay ) )
+			.append( QString( ", m_bpmTap: %1" )
+					 .arg( m_bpmTap == BpmTap::TapTempo ?
+						   "Tap Tempo" : "Beat Counter" ) )
+			.append( QString( ", m_beatCounter: %1" )
+					 .arg( m_beatCounter == BeatCounter::Tap ?
+						   "Tap" : "Tap and Play" ) )
 			.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
 					 .arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( ", m_nBeatCounterStartOffset: %1" )
@@ -1948,8 +1976,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nSampleRate ) )
 			.append( QString( ", m_sOSSDevice: %1" )
 					 .arg( m_sOSSDevice ) )
-			.append( QString( ", m_sMidiDriver: %1" )
-					 .arg( m_sMidiDriver ) )
+			.append( QString( ", m_midiDriver: %1" )
+					 .arg( midiDriverToQString( m_midiDriver ) ) )
 			.append( QString( ", m_sMidiPortName: %1" )
 					 .arg( m_sMidiPortName ) )
 			.append( QString( ", m_sMidiOutputPortName: %1" )

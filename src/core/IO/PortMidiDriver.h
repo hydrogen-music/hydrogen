@@ -23,8 +23,7 @@
 #ifndef PORT_MIDI_DRIVER_H
 #define PORT_MIDI_DRIVER_H
 
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 
 #include <memory>
 
@@ -37,7 +36,8 @@ namespace H2Core
 	class Note;
 
 /** \ingroup docCore docMIDI */
-class PortMidiDriver : public Object<PortMidiDriver>, public virtual MidiInput, public virtual MidiOutput
+class PortMidiDriver : public Object<PortMidiDriver>,
+					   public virtual MidiBaseDriver
 {
 	H2_OBJECT(PortMidiDriver)
 public:
@@ -48,15 +48,11 @@ public:
 	PortMidiDriver();
 	virtual ~PortMidiDriver();
 
-	virtual void open() override;
-	virtual void close() override;
-	virtual std::vector<QString> getInputPortList() override;
-	virtual std::vector<QString> getOutputPortList() override;
-
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) override;
-	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
-	virtual void handleQueueAllNoteOff() override;
-	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
+	void close() override;
+	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	bool isInputActive() const override;
+	bool isOutputActive() const override;
+	void open() override;
 
 	static QString translatePmError( const PmError& err );
 	/**
@@ -71,7 +67,12 @@ public:
 	static bool appendSysExData( MidiMessage* pMidiMessage, const PmMessage& msg );
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
+	void sendControlChangeMessage( const MidiMessage& msg ) override;
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
+
 	int m_nVirtualInputDeviceId;
 	int m_nVirtualOutputDeviceId;
 };

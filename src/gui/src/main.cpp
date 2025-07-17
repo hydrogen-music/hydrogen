@@ -20,60 +20,56 @@
  *
  */
 
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Playlist.h>
 #include <core/config.h>
-
-#include <QtGui>
-#include <QtWidgets>
-#include <QLibraryInfo>
-#include <QProcess>
-#include <QSslSocket>
-
-#ifndef H2CORE_HAVE_QT6
-  #include <QTextCodec>
+#include <core/EventQueue.h>
+#include <core/Globals.h>
+#include <core/H2Exception.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Translations.h>
+#include <core/Hydrogen.h>
+#include <core/Logger.h>
+#include <core/Midi/MidiActionManager.h>
+#ifdef H2CORE_HAVE_OSC
+  #include <core/NsmClient.h>
 #endif
-
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 #include <core/Version.h>
-#include <getopt.h>
 
-#include "ShotList.h"
-#include "SplashScreen.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "Parser.h"
-#include "Skin.h"
+#include "MainToolBar/MainToolBar.h"
 #include "Reporter.h"
+#include "ShotList.h"
+#include "Skin.h"
+#include "SplashScreen.h"
 
-#ifdef WIN32
-#include <windows.h>
-#include <stdio.h>
+#ifdef HAVE_EXECINFO_H
+  #include <execinfo.h>
 #endif
-
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/Hydrogen.h>
-#include <core/Globals.h>
-#include <core/EventQueue.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Preferences/Theme.h>
-#include <core/H2Exception.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Playlist.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/Helpers/Translations.h>
-#include <core/Logger.h>
-#include <core/Version.h>
-
-#ifdef H2CORE_HAVE_OSC
-#include <core/NsmClient.h>
-#endif
-
-#include <signal.h>
+#include <getopt.h>
 #include <iostream>
 #include <map>
 #include <set>
-
-#ifdef HAVE_EXECINFO_H
-#include <execinfo.h>
+#include <signal.h>
+#ifdef WIN32
+  #include <stdio.h>
+  #include <windows.h>
 #endif
+
+#include <QLibraryInfo>
+#include <QProcess>
+#include <QSslSocket>
+#ifndef H2CORE_HAVE_QT6
+  #include <QTextCodec>
+#endif
+#include <QtGui>
+#include <QtWidgets>
 
 namespace H2Core {
 	void init_gui_object_map();
@@ -445,7 +441,7 @@ int main(int argc, char *argv[])
 			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
 			// we're definitely busy.
 			QApplication::setOverrideCursor( Qt::WaitCursor );
-			pHydrogen->restartDrivers();
+			pHydrogen->restartAudioDriver();
 			QApplication::restoreOverrideCursor();
 		}
 
@@ -454,7 +450,9 @@ int main(int argc, char *argv[])
 						  parser.getPlaylistFilename() );
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
-		
+		// Update visibility button states.
+		pHydrogenApp->getMainToolBar()->updateActions();
+	
 		pSplash->finish( pMainForm );
 
 		if( ! parser.getDrumkitToLoad().isEmpty() ) {

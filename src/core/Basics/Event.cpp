@@ -29,12 +29,12 @@ QString Event::TypeToQString( Event::Type type ) {
 	switch( type ) {
 	case Event::Type::ActionModeChanged:
 		return "ActionModeChanged";
+	case Event::Type::AudioDriverChanged:
+		return "AudioDriverChanged";
 	case Event::Type::BbtChanged:
 		return "BbtChanged";
 	case Event::Type::BeatCounter:
 		return "BeatCounter";
-	case Event::Type::DriverChanged:
-		return "DriverChanged";
 	case Event::Type::DrumkitLoaded:
 		return "DrumkitLoaded";
 	case Event::Type::EffectChanged:
@@ -55,10 +55,14 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "LoopModeActivation";
 	case Event::Type::Metronome:
 		return "Metronome";
-	case Event::Type::MidiActivity:
-		return "MidiActivity";
+	case Event::Type::MidiDriverChanged:
+		return "MidiDriverChanged";
+	case Event::Type::MidiInput:
+		return "MidiInput";
 	case Event::Type::MidiMapChanged:
 		return "MidiMapChanged";
+	case Event::Type::MidiOutput:
+		return "MidiOutput";
 	case Event::Type::MixerSettingsChanged:
 		return "MixerSettingsChanged";
 	case Event::Type::NextPatternsChanged:

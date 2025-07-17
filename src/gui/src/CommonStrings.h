@@ -63,16 +63,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLoadLayerButton() const { return m_sLoadLayerButton; }
 	const QString& getDeleteLayerButton() const { return m_sDeleteLayerButton; }
 	const QString& getEditLayerButton() const { return m_sEditLayerButton; }
-	const QString& getBeatCounterButton() const { return m_sBeatCounterButton; }
-	const QString& getBeatCounterSetPlayButtonOff() const { return m_sBeatCounterSetPlayButtonOff; }
-	const QString& getBeatCounterSetPlayButtonOn() const { return m_sBeatCounterSetPlayButtonOn; }
-	const QString& getRubberbandButton() const { return m_sRubberbandButton; }
-	const QString& getJackTransportButton() const { return m_sJackTransportButton; }
-	const QString& getJackTimebaseButton() const { return m_sJackTimebaseButton; }
-	const QString& getMixerButton() const { return m_sMixerButton; }
-	const QString& getInstrumentRackButton() const { return m_sInstrumentRackButton; }
-	const QString& getPatternModeButton() const { return m_sPatternModeButton; }
-	const QString& getSongModeButton() const { return m_sSongModeButton; }
 	const QString& getSelectModeButton() const { return m_sSelectModeButton; }
 	const QString& getDrawModeButton() const { return m_sDrawModeButton; }
 	const QString& getEditModeButton() const { return m_sEditModeButton; }
@@ -99,7 +89,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLayerGainLabel() const { return m_sLayerGainLabel; }
 	const QString& getComponentGainLabel() const { return m_sComponentGainLabel; }
 	const QString& getSampleSelectionLabel() const { return m_sSampleSelectionLabel; }
-	const QString& getMidiInLabel() const { return m_sMidiInLabel; }
+	const QString& getMidiLabel() const { return m_sMidiLabel; }
 	const QString& getCpuLabel() const { return m_sCpuLabel; }
 	const QString& getBPMLabel() const { return m_sBPMLabel; }
 	const QString& getTimeHoursLabel() const { return m_sTimeHoursLabel; }
@@ -113,23 +103,29 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMasterLabel() const { return m_sMasterLabel; }
 	const QString& getReturnLabel() const { return m_sReturnLabel; }
 
-	const QString& getRangeTooltip() const { return m_sRangeTooltip; }
-	const QString& getMidiTooltipHeading() const { return m_sMidiTooltipHeading; }
-	const QString& getMidiTooltipBound() const { return m_sMidiTooltipBound; }
-	const QString& getMidiTooltipUnbound() const { return m_sMidiTooltipUnbound; }
+	const QString& getRangeToolTip() const { return m_sRangeToolTip; }
+	const QString& getMidiToolTipHeading() const { return m_sMidiToolTipHeading; }
+	const QString& getMidiToolTipBound() const { return m_sMidiToolTipBound; }
+	const QString& getMidiToolTipUnbound() const { return m_sMidiToolTipUnbound; }
 	
-	const QString& getShowDrumkitEditorTooltip() const { return m_sShowDrumkitEditorTooltip; }
-	const QString& getShowPianoRollEditorTooltip() const { return m_sShowPianoRollEditorTooltip; }
-	const QString& getPatternSizeDisabledTooltip() const { return m_sPatternSizeDisabledTooltip; }
+	const QString& getShowDrumkitEditorToolTip() const { return m_sShowDrumkitEditorToolTip; }
+	const QString& getShowPianoRollEditorToolTip() const { return m_sShowPianoRollEditorToolTip; }
+	const QString& getPatternSizeDisabledToolTip() const { return m_sPatternSizeDisabledToolTip; }
 	
 	const QString& getAudioDriverStartError() const { return m_sAudioDriverStartError; }
 	const QString& getAudioDriverErrorHint() const { return m_sAudioDriverErrorHint; }
 	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
 	
-	const QString& getJackTimebaseTooltip() const { return m_sJackTimebaseTooltip; }
-	const QString& getJackTimebaseListenerTooltip() const { return m_sJackTimebaseListenerTooltip; }
-	const QString& getJackTimebaseDisabledTooltip() const { return m_sJackTimebaseDisabledTooltip; }
-	
+	const QString& getJackTimebaseToolTip() const { return m_sJackTimebaseToolTip; }
+	const QString& getJackTimebaseListenerToolTip() const { return m_sJackTimebaseListenerToolTip; }
+	const QString& getJackTimebaseDisabledToolTip() const { return m_sJackTimebaseDisabledToolTip; }
+
+	const QString& getTapTempoToolTip() const { return m_sTapTempoToolTip; }
+	const QString& getBeatCounterTapToolTip() const {
+		return m_sBeatCounterTapToolTip; }
+	const QString& getBeatCounterTapAndPlayToolTip() const {
+		return m_sBeatCounterTapAndPlayToolTip; }
+
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
@@ -151,7 +147,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
 	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
-	const QString& getPreferencesJackTooltip() const { return m_sPreferencesJackTooltip; }
+	const QString& getPreferencesJackToolTip() const { return m_sPreferencesJackToolTip; }
 	const QString& getPreferencesShortcutCapture() const { return m_sPreferencesShortcutCapture; }
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
@@ -355,16 +351,6 @@ private:
 	QString m_sLoadLayerButton;
 	QString m_sEditLayerButton;
 	QString m_sDeleteLayerButton;
-	QString m_sBeatCounterButton;
-	QString m_sBeatCounterSetPlayButtonOff;
-	QString m_sBeatCounterSetPlayButtonOn;
-	QString m_sRubberbandButton;
-	QString m_sJackTransportButton;
-	QString m_sJackTimebaseButton;
-	QString m_sMixerButton;
-	QString m_sInstrumentRackButton;
-	QString m_sPatternModeButton;
-	QString m_sSongModeButton;
 	QString m_sSelectModeButton;
 	QString m_sDrawModeButton;
 	QString m_sEditModeButton;
@@ -391,7 +377,7 @@ private:
 	QString m_sLayerGainLabel;
 	QString m_sComponentGainLabel;
 	QString m_sSampleSelectionLabel;
-	QString m_sMidiInLabel;
+	QString m_sMidiLabel;
 	QString m_sCpuLabel;
 	QString m_sBPMLabel;
 	QString m_sTimeHoursLabel;
@@ -405,22 +391,26 @@ private:
 	QString m_sMasterLabel;
 	QString m_sReturnLabel;
 	
-	QString m_sRangeTooltip;
-	QString m_sMidiTooltipHeading;
-	QString m_sMidiTooltipBound;
-	QString m_sMidiTooltipUnbound;
-	QString m_sPatternSizeDisabledTooltip;
+	QString m_sRangeToolTip;
+	QString m_sMidiToolTipHeading;
+	QString m_sMidiToolTipBound;
+	QString m_sMidiToolTipUnbound;
+	QString m_sPatternSizeDisabledToolTip;
 	
-	QString m_sShowDrumkitEditorTooltip;
-	QString m_sShowPianoRollEditorTooltip;
+	QString m_sShowDrumkitEditorToolTip;
+	QString m_sShowPianoRollEditorToolTip;
 	
 	QString m_sAudioDriverStartError;
 	QString m_sAudioDriverErrorHint;
 	QString m_sAudioDriverNotPresent;
 
-	QString m_sJackTimebaseTooltip;
-	QString m_sJackTimebaseListenerTooltip;
-	QString m_sJackTimebaseDisabledTooltip;
+	QString m_sJackTimebaseToolTip;
+	QString m_sJackTimebaseListenerToolTip;
+	QString m_sJackTimebaseDisabledToolTip;
+
+	QString m_sTapTempoToolTip;
+	QString m_sBeatCounterTapToolTip;
+	QString m_sBeatCounterTapAndPlayToolTip;
 	
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
@@ -442,7 +432,7 @@ private:
 	
 	QString m_sPreferencesNotCompiled;
 	QString m_sPreferencesNone;
-	QString m_sPreferencesJackTooltip;
+	QString m_sPreferencesJackToolTip;
 	QString m_sPreferencesShortcutCapture;
 
 	QString m_sButtonOk;

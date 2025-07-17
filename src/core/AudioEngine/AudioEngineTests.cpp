@@ -19,12 +19,9 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#include <random>
-#include <stdexcept>
-
-#include <QTest>
 
 #include <core/AudioEngine/AudioEngineTests.h>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
@@ -35,11 +32,17 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
-#include <core/Sampler/Sampler.h>
-#include <core/Hydrogen.h>
-#include <core/CoreActionController.h>
-#include <core/Preferences/Preferences.h>
 #include <core/config.h>
+#include <core/CoreActionController.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Sampler.h>
+
+#include <random>
+#include <stdexcept>
+
+#include <QTest>
 
 namespace H2Core
 {
@@ -2822,7 +2825,7 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 		throwException( "[startJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
-	pAudioEngine->stopAudioDrivers();
+	pAudioEngine->stopAudioDriver( Event::Trigger::Default );
 
 	// Start a modified version of the JACK audio driver.
 	auto pDriver = new JackAudioDriver( jackTestProcessCallback );
@@ -2867,7 +2870,7 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 	pAudioEngine->unlock();
 
 	if ( pDriver->connect() != 0 ) {
-		pAudioEngine->restartAudioDrivers();
+		pHydrogen->restartAudioDriver();
 		throwException( "[startJackAudioDriver] Unable to connect driver" );
 	}
 
@@ -2876,6 +2879,8 @@ JackAudioDriver* AudioEngineTests::startJackAudioDriver() {
 		pAudioEngine->handleDriverChange();
 		pAudioEngine->unlock();
 	}
+
+	EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 
 	INFOLOG( "DONE Starting custom JACK audio driver." );
 
@@ -2893,7 +2898,7 @@ void AudioEngineTests::stopJackAudioDriver() {
 	}
 
 	// We rely on the driver set via the Preferences (most probably FakeDriver).
-	pAudioEngine->restartAudioDrivers();
+	pHydrogen->restartAudioDriver();
 
 #ifdef H2CORE_HAVE_JACK
 	auto pDriver = dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver);
@@ -3180,9 +3185,7 @@ int AudioEngineTests::jackTestProcessCallback( uint32_t nframes, void* args ) {
 
 			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
-			if ( pHydrogen->getMidiOutput() != nullptr ) {
-				pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
-			}
+			CoreActionController::sendAllNoteOffMessages();
 
 			pAudioEngine->stop();
 			pAudioEngine->stopPlayback();

@@ -20,30 +20,30 @@
  *
  */
 
+#include "CoreActionController.h"
+
 #include <QDir>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
-#include <core/CoreActionController.h>
-#include <core/EventQueue.h>
-#include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/PatternList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
-#include "core/OscServer.h"
-#include <core/MidiAction.h>
-#include "core/MidiMap.h"
+#include <core/EventQueue.h>
 #include <core/Helpers/Xml.h>
-#include <core/SoundLibrary/SoundLibraryDatabase.h>
-
+#include <core/Hydrogen.h>
 #include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/IO/MidiBaseDriver.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiMap.h>
+#include <core/OscServer.h>
+#include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -410,18 +410,19 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 #ifdef H2CORE_HAVE_OSC
 	if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		
-		std::shared_ptr<Action> pFeedbackAction =
-			std::make_shared<Action>( "MASTER_VOLUME_ABSOLUTE" );
+		auto pFeedbackAction = std::make_shared<MidiAction>(
+			MidiAction::Type::MasterVolumeAbsolute );
 		
 		pFeedbackAction->setValue( QString("%1")
 								   .arg( fMasterVolume ) );
-		OscServer::get_instance()->handleAction( pFeedbackAction );
+		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
 #endif
 	
 	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
-	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
+	auto ccParamValues = pMidiMap->findCCValuesByType(
+		MidiAction::Type::MasterVolumeAbsolute );
 	
 	return handleOutgoingControlChanges( ccParamValues, (fMasterVolume / 1.5) * 127 );
 }
@@ -437,19 +438,19 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "STRIP_VOLUME_ABSOLUTE" );
+			auto pFeedbackAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripVolumeAbsolute );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
 			pFeedbackAction->setValue( QString("%1").arg( fStripVolume ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 
 		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
-		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"),
-																   QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+			MidiAction::Type::StripVolumeAbsolute, QString("%1").arg( nStrip ) );
 	
 		return handleOutgoingControlChanges( ccParamValues, (fStripVolume / 1.5) * 127 );
 	}
@@ -464,21 +465,22 @@ bool CoreActionController::sendMetronomeIsActiveFeedback() {
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( pPref->getOscFeedbackEnabled() ) {
-		std::shared_ptr<Action> pFeedbackAction =
-			std::make_shared<Action>( "TOGGLE_METRONOME" );
+		auto pFeedbackAction = std::make_shared<MidiAction>(
+			MidiAction::Type::ToggleMetronome );
 		
-		pFeedbackAction->setParameter1( QString("%1")
-										.arg( static_cast<int>(pPref->m_bUseMetronome) ) );
-		OscServer::get_instance()->handleAction( pFeedbackAction );
+		pFeedbackAction->setParameter1(
+			QString("%1") .arg( static_cast<int>(pPref->m_bUseMetronome) ) );
+		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
 #endif
 	
 	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
-	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("TOGGLE_METRONOME"));
+	auto ccParamValues = pMidiMap->findCCValuesByType(
+		MidiAction::Type::ToggleMetronome );
 	
-	return handleOutgoingControlChanges( ccParamValues,
-										 static_cast<int>(pPref->m_bUseMetronome) * 127 );
+	return handleOutgoingControlChanges(
+		ccParamValues, static_cast<int>(pPref->m_bUseMetronome) * 127 );
 }
 
 bool CoreActionController::sendMasterIsMutedFeedback() {
@@ -492,21 +494,22 @@ bool CoreActionController::sendMasterIsMutedFeedback() {
 	
 #ifdef H2CORE_HAVE_OSC
 	if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-		std::shared_ptr<Action> pFeedbackAction =
-			std::make_shared<Action>( "MUTE_TOGGLE" );
+		auto pFeedbackAction = std::make_shared<MidiAction>(
+			MidiAction::Type::MuteToggle );
 		
-		pFeedbackAction->setParameter1( QString("%1")
-										.arg( static_cast<int>(pSong->getIsMuted()) ) );
-		OscServer::get_instance()->handleAction( pFeedbackAction );
+		pFeedbackAction->setParameter1(
+			QString("%1") .arg( static_cast<int>(pSong->getIsMuted()) ) );
+		OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 	}
 #endif
 
 	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 
-	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MUTE_TOGGLE") );
+	auto ccParamValues = pMidiMap->findCCValuesByType(
+		MidiAction::Type::MuteToggle );
 
-	return handleOutgoingControlChanges( ccParamValues,
-										 static_cast<int>(pSong->getIsMuted()) * 127 );
+	return handleOutgoingControlChanges(
+		ccParamValues, static_cast<int>(pSong->getIsMuted()) * 127 );
 }
 
 bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
@@ -517,23 +520,23 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 	
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "STRIP_MUTE_TOGGLE" );
+			auto pFeedbackAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripMuteToggle );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setValue( QString("%1")
-											.arg( static_cast<int>(pInstr->isMuted()) ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			pFeedbackAction->setValue(
+				QString("%1") .arg( static_cast<int>(pInstr->isMuted()) ) );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 
 		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	
-		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_MUTE_TOGGLE"),
-																   QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+			MidiAction::Type::StripMuteToggle, QString("%1").arg( nStrip ) );
 	
-		return handleOutgoingControlChanges( ccParamValues,
-											 static_cast<int>(pInstr->isMuted()) * 127 );
+		return handleOutgoingControlChanges(
+			ccParamValues, static_cast<int>(pInstr->isMuted()) * 127 );
 	}
 	
 	return false;
@@ -547,22 +550,22 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 	
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "STRIP_SOLO_TOGGLE" );
+			auto pFeedbackAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripSoloToggle );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setValue( QString("%1")
-									   .arg( static_cast<int>(pInstr->isSoloed()) ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			pFeedbackAction->setValue(
+				QString("%1") .arg( static_cast<int>(pInstr->isSoloed()) ) );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 
 		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
-		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_SOLO_TOGGLE"),
-																   QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+			MidiAction::Type::StripSoloToggle, QString("%1").arg( nStrip ) );
 	
-		return handleOutgoingControlChanges( ccParamValues,
-											 static_cast<int>(pInstr->isSoloed()) * 127 );
+		return handleOutgoingControlChanges(
+			ccParamValues, static_cast<int>(pInstr->isSoloed()) * 127 );
 	}
 
 	return false;
@@ -576,22 +579,22 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 
 #ifdef H2CORE_HAVE_OSC
 		if ( Preferences::get_instance()->getOscFeedbackEnabled() ) {
-			std::shared_ptr<Action> pFeedbackAction =
-				std::make_shared<Action>( "PAN_ABSOLUTE" );
+			auto pFeedbackAction = std::make_shared<MidiAction>(
+				MidiAction::Type::PanAbsolute );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setValue( QString("%1")
-									   .arg( pInstr->getPanWithRangeFrom0To1() ) );
-			OscServer::get_instance()->handleAction( pFeedbackAction );
+			pFeedbackAction->setValue(
+				QString("%1") .arg( pInstr->getPanWithRangeFrom0To1() ) );
+			OscServer::get_instance()->handleMidiAction( pFeedbackAction );
 		}
 #endif
 	
 		const auto pMidiMap = Preferences::get_instance()->getMidiMap();
-		auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE"),
-																   QString("%1").arg( nStrip ) );
+		auto ccParamValues = pMidiMap->findCCValuesByTypeAndParam1(
+			MidiAction::Type::PanAbsolute, QString("%1").arg( nStrip ) );
 
-		return handleOutgoingControlChanges( ccParamValues,
-											 pInstr->getPanWithRangeFrom0To1() * 127 );
+		return handleOutgoingControlChanges(
+			ccParamValues, pInstr->getPanWithRangeFrom0To1() * 127 );
 	}
 
 	return false;
@@ -603,18 +606,22 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 	const auto pPref = Preferences::get_instance();
-	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
+	auto pMidiDriver = pHydrogen->getMidiDriver();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 
+	MidiMessage::ControlChange controlChange;
 	for ( const auto& param : params ) {
 		if ( pMidiDriver != nullptr &&
 			 pPref->m_bEnableMidiFeedback && param >= 0 ){
+			controlChange.nParameter = param;
+			controlChange.nValue = nValue;
 			// For now the MIDI feedback channel is always 0.
-			pMidiDriver->handleOutgoingControlChange( param, nValue, 0 );
+			controlChange.nChannel = 0;
+			pMidiDriver->sendMessage( MidiMessage::from( controlChange ) );
 		}
 	}
 
@@ -758,7 +765,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	pAudioEngine->unlock();
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
-		pHydrogen->restartDrivers();
+		pHydrogen->restartAudioDriver();
 	}
 	else {
 		// Add the new loaded song in the "last used song" vector.
@@ -1810,7 +1817,7 @@ bool CoreActionController::removeInstrument( std::shared_ptr<Instrument> pInstru
 	// Thus, it will be added to the death row, which guarantuees that its
 	// samples will be unloaded once all notes referencing it are gone. Note
 	// that this does not mean the instrument will be destructed. GUI can still
-	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// hold a shared pointer as part of an undo/redo Midiaction (that's why it is so
 	// important to unload the samples).
 	pHydrogen->addInstrumentToDeathRow( pInstrument );
 
@@ -1879,7 +1886,7 @@ bool CoreActionController::replaceInstrument( std::shared_ptr<Instrument> pNewIn
 	// Thus, it will be added to the death row, which guarantuees that its
 	// samples will be unloaded once all notes referencing it are gone. Note
 	// that this does not mean the instrument will be destructed. GUI can still
-	// hold a shared pointer as part of an undo/redo action (that's why it is so
+	// hold a shared pointer as part of an undo/redo Midiaction (that's why it is so
 	// important to unload the samples).
 	pHydrogen->addInstrumentToDeathRow( pOldInstrument );
 
@@ -2348,7 +2355,8 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
-bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff ) {
+bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff,
+									   QStringList* pMappedInstruments ) {
 	const auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
@@ -2440,6 +2448,10 @@ bool CoreActionController::handleNote( int nNote, float fVelocity, bool bNoteOff
 
 	INFOLOG( QString( "[%1] mapped note [%2] to instrument(s) [%3]" )
 			 .arg( sMode ).arg( nNote ).arg( instrumentStrings.join( ", " ) ) );
+
+	if ( pMappedInstruments != nullptr ) {
+		*pMappedInstruments = instrumentStrings;
+	}
 
 	return bSuccess;
 }
@@ -2671,6 +2683,36 @@ bool CoreActionController::activatePlaylistSong( int nSongNumber ) {
 	}
 	EventQueue::get_instance()->pushEvent( H2Core::Event::Type::PlaylistLoadSong,
 											nSongNumber );
+
+	return true;
+}
+
+bool CoreActionController::sendAllNoteOffMessages() {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "Unable to send MIDI messages" );
+		return false;
+	}
+
+	auto pMidiDriver = pHydrogen->getMidiDriver();
+	if ( pMidiDriver == nullptr ) {
+		return false;
+	}
+
+	MidiMessage::NoteOff noteOff;
+	noteOff.nVelocity = 0;
+	for ( const auto& ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		// Using a negative MIDI channel MIDI output can be deactivated per
+		// instrument.
+		if ( ppInstrument != nullptr && ppInstrument->getMidiOutChannel() > 0 ) {
+			noteOff.nKey = ppInstrument->getMidiOutNote();
+			noteOff.nChannel = ppInstrument->getMidiOutChannel();
+			pMidiDriver->sendMessage( MidiMessage::from( noteOff ) );
+		}
+	}
 
 	return true;
 }

@@ -27,14 +27,11 @@
  * Added CFRelease code (20060514 Jonathan Dempsey)
  */
 
-#include <core/Hydrogen.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/Song.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Preferences/Preferences.h>
 #include <core/IO/CoreMidiDriver.h>
+
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 #if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 
@@ -54,28 +51,29 @@ static void midiProc ( const MIDIPacketList * pktlist,
 	for ( uint i = 0; i < pktlist->numPackets; i++ ) {
 		MidiMessage msg;
 		int nEventType = packet->data[0];
-		msg.setType( nEventType );
-		
+		msg.setType( MidiMessage::deriveType( nEventType ) );
+		msg.setChannel( MidiMessage::deriveChannel( nEventType ) );
+
 		if ( nEventType == 240 ) {
 			// SysEx messages also contain arbitrary data which has to
 			// be copied manually.
 			for ( int i = 0; i < packet->length; i++ ) {
-				msg.m_sysexData.push_back( packet->data[ i ] );
+				msg.appendToSysexData( packet->data[ i ] );
 			}
 		}
 		else {
-			msg.m_nData1 = packet->data[1];
-			msg.m_nData2 = packet->data[2];
+			msg.setData1( packet->data[1] );
+			msg.setData2( packet->data[2] );
 		}
 
-		instance->handleMidiMessage( msg );
+		instance->handleMessage( msg );
 		packet = MIDIPacketNext( packet );
 	}
 }
 
 
 CoreMidiDriver::CoreMidiDriver()
-		: MidiInput() ,MidiOutput(), Object<CoreMidiDriver>()
+		: MidiBaseDriver()
 		, m_bRunning( false )
 {
 	
@@ -173,23 +171,32 @@ void CoreMidiDriver::close()
 	err = MIDIClientDispose( h2MIDIClient );
 }
 
-std::vector<QString> CoreMidiDriver::getInputPortList()
-{
-	INFOLOG( "retrieving output list" );
+std::vector<QString> CoreMidiDriver::getExternalPortList( const PortType& portType ) {
+	INFOLOG( "retrieving port list" );
 	OSStatus err = noErr;
 
-	std::vector<QString> cmPortList;
-	
-	cmSources = MIDIGetNumberOfDestinations();
+	std::vector<QString> portList;
 
-	INFOLOG ( "Getting number of MIDI sources . . .\n" );
+	if ( portType == PortType::Input ) {
+		cmSources = MIDIGetNumberOfDestinations();
+	} else {
+		cmSources = MIDIGetNumberOfSources();
+	}
+
+	INFOLOG( QString( "Getting number of MIDI %1 sources . . .\n" )
+			 .arg( portTypeToQString( portType ) ) );
 
 	unsigned i;
 	for ( i = 0; i < cmSources; i++ ) {
 		CFStringRef H2MidiNames;
-		cmH2Src = MIDIGetDestination( i );
+		if ( portType == PortType::Input ) {
+			cmH2Src = MIDIGetDestination( i );
+		} else {
+			cmH2Src = MIDIGetSource( i );
+		}
 		if ( cmH2Src == 0 ) {
-			ERRORLOG( "Could not open output device" );
+			ERRORLOG( QString( "Could not open %1 device" )
+					  .arg( portTypeToQString( portType ) ) );
 		}
 		if ( cmH2Src ) {
 			err = MIDIObjectGetStringProperty( cmH2Src, kMIDIPropertyName, &H2MidiNames );
@@ -198,91 +205,26 @@ std::vector<QString> CoreMidiDriver::getInputPortList()
 			CFStringGetCString( H2MidiNames, cmName, 64, kCFStringEncodingASCII );
 			INFOLOG ( "Getting MIDI object name . . .\n" );
 			QString h2MidiPortName = cmName;
-			cmPortList.push_back( h2MidiPortName );
+			portList.push_back( h2MidiPortName );
 		}
 		CFRelease( H2MidiNames );
 	}
 
-	return cmPortList;
+	return portList;
 }
 
-std::vector<QString> CoreMidiDriver::getOutputPortList()
-{
-	INFOLOG( "retrieving output list" );
-	OSStatus err = noErr;
-
-	std::vector<QString> cmPortList;
-	cmSources = MIDIGetNumberOfSources();
-
-	INFOLOG ( "Getting number of MIDI sources . . .\n" );
-
-	unsigned i;
-	for ( i = 0; i < cmSources; i++ ) {
-		CFStringRef H2MidiNames;
-		cmH2Src = MIDIGetSource( i );
-		if ( cmH2Src == 0 ) {
-			ERRORLOG( "Could not open input device" );
-		}
-		if ( cmH2Src ) {
-			err = MIDIObjectGetStringProperty( cmH2Src, kMIDIPropertyName, &H2MidiNames );
-			INFOLOG ( "Getting MIDI object string property . . .\n" );
-			char cmName[ 64 ];
-			CFStringGetCString( H2MidiNames, cmName, 64, kCFStringEncodingASCII );
-			INFOLOG ( "Getting MIDI object name . . .\n" );
-			QString h2MidiPortName = cmName;
-			cmPortList.push_back( h2MidiPortName );
-		}
-		CFRelease( H2MidiNames );
-	}
-
-	return cmPortList;
+bool CoreMidiDriver::isInputActive() const {
+	return m_bRunning;
 }
 
-void CoreMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote )
+bool CoreMidiDriver::isOutputActive() const {
+	return cmH2Dst != 0;
+}
+
+void CoreMidiDriver::sendNoteOnMessage( const MidiMessage& msg )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
-		return;
-	}
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return;
-	}
-
-	int channel = pNote->getInstrument()->getMidiOutChannel();
-	if (channel < 0) {
-		return;
-	}
-
-	int key = pNote->getMidiKey();
-	int velocity = pNote->getMidiVelocity();
-
-	MIDIPacketList packetList;
-	packetList.numPackets = 1;
-
-	packetList.packet->timeStamp = 0;
-	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | channel;
-	packetList.packet->data[1] = key;
-	packetList.packet->data[2] = velocity;
-
-	sendMidiPacket( &packetList );
-
-	packetList.packet->data[0] = 0x90 | channel;
-	packetList.packet->data[1] = key;
-	packetList.packet->data[2] = velocity;
-
-	sendMidiPacket( &packetList );
-}
-
-void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
-{
-	if (cmH2Dst == 0 ) {
-		ERRORLOG( "cmH2Dst = 0 " );
-		return;
-	}
-
-	if (channel < 0) {
 		return;
 	}
 
@@ -291,64 +233,17 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0x80 | channel;
-	packetList.packet->data[1] = key;
-	packetList.packet->data[2] = velocity;
+	packetList.packet->data[0] = 0x90 | msg.getChannel();
+	packetList.packet->data[1] = msg.getData1();
+	packetList.packet->data[2] = msg.getData2();
 
 	sendMidiPacket( &packetList );
 }
 
-void CoreMidiDriver::handleQueueAllNoteOff()
+void CoreMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 {
 	if (cmH2Dst == 0 ) {
 		ERRORLOG( "cmH2Dst = 0 " );
-		return;
-	}
-
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "invalid song" );
-		return;
-	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "invalid drumkit" );
-		return;
-	}
-
-	auto pInstrumentList = pDrumkit->getInstruments();
-
-	unsigned int numInstruments = pInstrumentList->size();
-	for (int index = 0; index < numInstruments; ++index) {
-		auto curInst = pInstrumentList->get(index);
-
-		int channel = curInst->getMidiOutChannel();
-		if (channel < 0) {
-			continue;
-		}
-		int key = curInst->getMidiOutNote();
-
-		MIDIPacketList packetList;
-		packetList.numPackets = 1;
-
-		packetList.packet->timeStamp = 0;
-		packetList.packet->length = 3;
-		packetList.packet->data[0] = 0x80 | channel;
-		packetList.packet->data[1] = key;
-		packetList.packet->data[2] = 0;
-
-		sendMidiPacket( &packetList );
-	}
-}
-
-void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
-{
-	if (cmH2Dst == 0 ) {
-		ERRORLOG( "cmH2Dst = 0 " );
-		return;
-	}
-
-	if (channel < 0) {
 		return;
 	}
 
@@ -357,9 +252,27 @@ void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int chan
 
 	packetList.packet->timeStamp = 0;
 	packetList.packet->length = 3;
-	packetList.packet->data[0] = 0xB0 | channel;
-	packetList.packet->data[1] = param;
-	packetList.packet->data[2] = value;
+	packetList.packet->data[0] = 0x80 | msg.getChannel();
+	packetList.packet->data[1] = msg.getData1();
+	packetList.packet->data[2] = msg.getData2();
+
+	sendMidiPacket( &packetList );
+}
+
+void CoreMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
+	if (cmH2Dst == 0 ) {
+		ERRORLOG( "cmH2Dst = 0 " );
+		return;
+	}
+
+	MIDIPacketList packetList;
+	packetList.numPackets = 1;
+
+	packetList.packet->timeStamp = 0;
+	packetList.packet->length = 3;
+	packetList.packet->data[0] = 0xB0 | msg.getChannel();
+	packetList.packet->data[1] = msg.getData1();
+	packetList.packet->data[2] = msg.getData2();
 
 	sendMidiPacket( &packetList );
 }

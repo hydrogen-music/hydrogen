@@ -20,170 +20,172 @@
  *
  */
 
-#include <core/IO/MidiInput.h>
-#include <core/EventQueue.h>
-#include <core/Preferences/Preferences.h>
-#include <core/CoreActionController.h>
-#include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/MidiAction.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/MidiMap.h>
+#include <core/CoreActionController.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/IO/MidiInput.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
+#include <core/Midi/MidiMap.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
 
-MidiInput::MidiInput()
-		: m_bActive( false )
-{
-	//
-
+MidiInput::MidiInput() {
 }
 
-
-MidiInput::~MidiInput()
-{
-	//INFOLOG( "DESTROY" );
+MidiInput::~MidiInput() {
 }
 
-void MidiInput::handleMidiMessage( const MidiMessage& msg )
-{
-		EventQueue::get_instance()->pushEvent( Event::Type::MidiActivity, -1 );
+MidiInput::HandledInput MidiInput::handleMessage( const MidiMessage& msg ) {
+	HandledInput handledInput;
+	handledInput.timestamp = QTime::currentTime();
+	handledInput.type = msg.getType();
+	handledInput.nData1 = msg.getData1();
+	handledInput.nData2 = msg.getData2();
+	handledInput.nChannel = msg.getChannel();
 
-		INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
+	INFOLOG( QString( "Incoming message:  [%1]" ).arg( msg.toQString() ) );
 
-		// midi channel filter for all messages
-		bool bIsChannelValid = true;
-		auto pPref = Preferences::get_instance();
-		if ( pPref->m_nMidiChannelFilter != -1
-		  && pPref->m_nMidiChannelFilter != msg.m_nChannel
+	// midi channel filter for all messages
+	bool bIsChannelValid = true;
+	auto pPref = Preferences::get_instance();
+	if ( pPref->m_nMidiChannelFilter != -1 &&
+		 pPref->m_nMidiChannelFilter != msg.getChannel() ) {
+		bIsChannelValid = false;
+	}
+
+	// exclude all midi channel filter independent messages
+	auto type = msg.getType();
+	if (  MidiMessage::Type::Sysex == type
+		  || MidiMessage::Type::Start == type
+		  || MidiMessage::Type::Continue == type
+		  || MidiMessage::Type::Stop == type
+		  || MidiMessage::Type::SongPos == type
+		  || MidiMessage::Type::QuarterFrame == type
 		) {
-			bIsChannelValid = false;
+		bIsChannelValid = true;
+	}
+
+	if ( ! bIsChannelValid ) {
+		return handledInput;
+	}
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	if ( ! pHydrogen->getSong() ) {
+		ERRORLOG( "No song loaded, skipping note" );
+		return handledInput;
+	}
+
+	switch ( type ) {
+	case MidiMessage::Type::Sysex:
+		handleSysexMessage( msg, handledInput );
+		break;
+
+	case MidiMessage::Type::NoteOn:
+		handleNoteOnMessage( msg, handledInput );
+		break;
+
+	case MidiMessage::Type::NoteOff:
+		handleNoteOffMessage( msg, false, handledInput );
+		break;
+
+	case MidiMessage::Type::PolyphonicKeyPressure:
+		handlePolyphonicKeyPressureMessage( msg, handledInput );
+		break;
+
+	case MidiMessage::Type::ControlChange:
+		handleControlChangeMessage( msg, handledInput );
+		break;
+
+	case MidiMessage::Type::ProgramChange:
+		handleProgramChangeMessage( msg, handledInput );
+		break;
+
+	case MidiMessage::Type::Start: /* Start from position 0 */
+		if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			CoreActionController::locateToColumn( 0 );
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::Play ) );
 		}
+		break;
 
-		// exclude all midi channel filter independent messages
-		int type = msg.m_type;
-		if (  MidiMessage::SYSEX == type
-		   || MidiMessage::START == type
-		   || MidiMessage::CONTINUE == type
-		   || MidiMessage::STOP == type
-		   || MidiMessage::SONG_POS == type
-		   || MidiMessage::QUARTER_FRAME == type
-		) {
-			bIsChannelValid = true;
-		}
+	case MidiMessage::Type::Continue: /* Just start */ {
+		MidiActionManager::get_instance()->handleMidiAction(
+			std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+		break;
+	}
 
-		if ( !bIsChannelValid) {
-			return;
-		}
+	case MidiMessage::Type::Stop: /* Stop in current position i.e. Pause */ {
+		MidiActionManager::get_instance()->handleMidiAction(
+			std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
+		break;
+	}
 
-		Hydrogen* pHydrogen = Hydrogen::get_instance();
-		auto pAudioEngine = pHydrogen->getAudioEngine();
-		if ( ! pHydrogen->getSong() ) {
-			ERRORLOG( "No song loaded, skipping note" );
-			return;
-		}
+	case MidiMessage::Type::ChannelPressure:
+	case MidiMessage::Type::PitchWheel:
+	case MidiMessage::Type::SongPos:
+	case MidiMessage::Type::QuarterFrame:
+	case MidiMessage::Type::SongSelect:
+	case MidiMessage::Type::TuneRequest:
+	case MidiMessage::Type::TimingClock:
+	case MidiMessage::Type::ActiveSensing:
+	case MidiMessage::Type::Reset:
+		INFOLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
+				  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		return handledInput;
 
-		switch ( type ) {
-		case MidiMessage::SYSEX:
-				handleSysexMessage( msg );
-				break;
+	case MidiMessage::Type::Unknown:
+		WARNINGLOG( "Unknown midi message" );
+		return handledInput;
 
-		case MidiMessage::NOTE_ON:
-				handleNoteOnMessage( msg );
-				break;
+	default:
+		INFOLOG( QString( "unhandled midi message type: %1 (%2)" )
+				 .arg( static_cast<int>( msg.getType() ) )
+				 .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		return handledInput;
+	}
 
-		case MidiMessage::NOTE_OFF:
-				handleNoteOffMessage( msg, false );
-				break;
+	// Two spaces after "msg." in a row to align message parameters
+	DEBUGLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
 
-		case MidiMessage::POLYPHONIC_KEY_PRESSURE:
-				handlePolyphonicKeyPressureMessage( msg );
-				break;
-
-		case MidiMessage::CONTROL_CHANGE:
-				handleControlChangeMessage( msg );
-				break;
-
-		case MidiMessage::PROGRAM_CHANGE:
-				handleProgramChangeMessage( msg );
-				break;
-
-		case MidiMessage::START: /* Start from position 0 */
-			if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-				CoreActionController::locateToColumn( 0 );
-				auto pAction = std::make_shared<Action>("PLAY");
-				MidiActionManager::get_instance()->handleAction( pAction );
-			}
-			break;
-
-		case MidiMessage::CONTINUE: /* Just start */ {
-			auto pAction = std::make_shared<Action>("PLAY");
-			MidiActionManager::get_instance()->handleAction( pAction );
-			break;
-		}
-
-		case MidiMessage::STOP: /* Stop in current position i.e. Pause */ {
-			auto pAction = std::make_shared<Action>("PAUSE");
-			MidiActionManager::get_instance()->handleAction( pAction );
-			break;
-		}
-
-		case MidiMessage::CHANNEL_PRESSURE:
-		case MidiMessage::PITCH_WHEEL:
-		case MidiMessage::SONG_POS:
-		case MidiMessage::QUARTER_FRAME:
-		case MidiMessage::SONG_SELECT:
-		case MidiMessage::TUNE_REQUEST:
-		case MidiMessage::TIMING_CLOCK:
-		case MidiMessage::ACTIVE_SENSING:
-		case MidiMessage::RESET:
-			INFOLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
-					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
-			return;
-
-		case MidiMessage::UNKNOWN:
-			WARNINGLOG( "Unknown midi message" );
-			return;
-
-		default:
-			INFOLOG( QString( "unhandled midi message type: %1 (%2)" )
-					  .arg( static_cast<int>( msg.m_type ) )
-					  .arg( MidiMessage::TypeToQString( msg.m_type ) ) );
-			return;
-		}
-
-		// Two spaces after "msg." in a row to align message parameters
-		DEBUGLOG( QString( "DONE handling msg: [%1]" ).arg( msg.toQString() ) );
+	return handledInput;
 }
 
-void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
+void MidiInput::handleControlChangeMessage( const MidiMessage& msg,
+											HandledInput& handledInput )
 {
-	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
+	//INFOLOG( QString( "[handleMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 
-	for ( const auto& ppAction : pMidiMap->getCCActions( msg.m_nData1 ) ) {
+	for ( const auto& ppAction : pMidiMap->getCCActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<Action>( ppAction );
-			pNewAction->setValue( QString::number( msg.m_nData2 ) );
-			pMidiActionManager->handleAction( pNewAction );
+			auto pNewAction = std::make_shared<MidiAction>( ppAction );
+			pNewAction->setValue( QString::number( msg.getData2() ) );
+			pMidiActionManager->handleMidiAction( pNewAction );
+			handledInput.actionTypes.push_back( pNewAction->getType() );
 		}
 	}
 
-	if ( msg.m_nData1 == 04 ) {
-		pHydrogen->setHihatOpenness( msg.m_nData2 );
+	if ( msg.getData1() == 04 ) {
+		pHydrogen->setHihatOpenness( msg.getData2() );
 	}
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::CC );
-	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
+	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 }
 
-void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
+void MidiInput::handleProgramChangeMessage( const MidiMessage& msg,
+											HandledInput& handledInput )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
@@ -191,9 +193,10 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 
 	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<Action>( ppAction );
-			pNewAction->setValue( QString::number( msg.m_nData1 ) );
-			pMidiActionManager->handleAction( pNewAction );
+			auto pNewAction = std::make_shared<MidiAction>( ppAction );
+			pNewAction->setValue( QString::number( msg.getData1() ) );
+			pMidiActionManager->handleMidiAction( pNewAction );
+			handledInput.actionTypes.push_back( pNewAction->getType() );
 		}
 	}
 
@@ -201,13 +204,14 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	pHydrogen->setLastMidiEventParameter( 0 );
 }
 
-void MidiInput::handleNoteOnMessage( const MidiMessage& msg ) {
-
-	const int nNote = msg.m_nData1;
-	const float fVelocity = msg.m_nData2 / 127.0;
+void MidiInput::handleNoteOnMessage( const MidiMessage& msg,
+									 HandledInput& handledInput )
+{
+	const int nNote = msg.getData1();
+	const float fVelocity = msg.getData2() / 127.0;
 
 	if ( fVelocity == 0 ) {
-		handleNoteOffMessage( msg, false );
+		handleNoteOffMessage( msg, false, handledInput );
 		return;
 	}
 
@@ -217,15 +221,16 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
-	pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
+	pHydrogen->setLastMidiEventParameter( msg.getData1() );
 
 	bool bActionSuccess = false;
-	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.m_nData1 ) ) {
+	for ( const auto& ppAction : pMidiMap->getNoteActions( msg.getData1() ) ) {
 		if ( ppAction != nullptr && ! ppAction->isNull() ) {
-			auto pNewAction = std::make_shared<Action>( ppAction );
-			pNewAction->setValue( QString::number( msg.m_nData2 ) );
-			if ( pMidiActionManager->handleAction( pNewAction ) ) {
+			auto pNewAction = std::make_shared<MidiAction>( ppAction );
+			pNewAction->setValue( QString::number( msg.getData2() ) );
+			if ( pMidiActionManager->handleMidiAction( pNewAction ) ) {
 				bActionSuccess = true;
+				handledInput.actionTypes.push_back( pNewAction->getType() );
 			}
 		}
 	}
@@ -234,7 +239,10 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg ) {
 		return;
 	}
 
-	CoreActionController::handleNote( nNote, fVelocity, false );
+	QStringList mappedInstruments;
+	CoreActionController::handleNote( nNote, fVelocity, false, &mappedInstruments );
+
+	handledInput.mappedInstruments = mappedInstruments;
 }
 
 /*
@@ -242,24 +250,31 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg ) {
 	for cymbal choke.
 	If the message is 127 (choked) we send a NoteOff
 */
-void MidiInput::handlePolyphonicKeyPressureMessage( const MidiMessage& msg )
+void MidiInput::handlePolyphonicKeyPressureMessage( const MidiMessage& msg,
+													HandledInput& handledInput )
 {
-	if( msg.m_nData2 == 127 ) {
-		handleNoteOffMessage( msg, true );
+	if( msg.getData2() == 127 ) {
+		handleNoteOffMessage( msg, true, handledInput );
 	}
 }
 
-void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
+void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
+									  HandledInput& handledInput )
 {
 //	INFOLOG( "handleNoteOffMessage" );
 	if ( !CymbalChoke && Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
 		return;
 	}
 
-	CoreActionController::handleNote( msg.m_nData1, 0.0, true );
+	QStringList mappedInstruments;
+	CoreActionController::handleNote(
+		msg.getData1(), 0.0, true, &mappedInstruments );
+
+	handledInput.mappedInstruments = mappedInstruments;
 }
 
-void MidiInput::handleSysexMessage( const MidiMessage& msg )
+void MidiInput::handleSysexMessage( const MidiMessage& msg,
+									HandledInput& handledInput )
 {
 
 	/*
@@ -289,14 +304,15 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
+	const auto sysexData = msg.getSysexData();
 
-	if ( msg.m_sysexData.size() == 6 && 
-		 msg.m_sysexData[ 1 ] == 127 && msg.m_sysexData[ 3 ] == 6 ) {
+	if ( sysexData.size() == 6 &&
+		 sysexData[ 1 ] == 127 && sysexData[ 3 ] == 6 ) {
 		// MIDI Machine Control (MMC) message
 
 		MidiMessage::Event event = MidiMessage::Event::Null;
 		QString sMMCtype;
-		switch ( msg.m_sysexData[4] ) {
+		switch ( sysexData[4] ) {
 		case 1:	// STOP
 			event = MidiMessage::Event::MmcStop;
 			break;
@@ -340,22 +356,28 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 					 .arg( sMMCtype ) );
 			
 			pHydrogen->setLastMidiEvent( event );
-			pHydrogen->setLastMidiEventParameter( msg.m_nData1 );
-			
-			pMidiActionManager->handleActions( pMidiMap->getMMCActions( sMMCtype ) );
+			pHydrogen->setLastMidiEventParameter( msg.getData1() );
+
+			auto actions = pMidiMap->getMMCActions( sMMCtype );
+			pMidiActionManager->handleMidiActions( actions );
+			for ( const auto& ppAction : actions ) {
+				if ( ppAction != nullptr ) {
+					handledInput.actionTypes.push_back( ppAction->getType() );
+				}
+			}
 		}
 		else {
 			WARNINGLOG( "Unknown MIDI Machine Control (MMC) Command" );
 		}
 	}
-	else if ( msg.m_sysexData.size() == 13 && 
-			  msg.m_sysexData[ 1 ] == 127 && msg.m_sysexData[ 3 ] == 68 ) {
+	else if ( sysexData.size() == 13 &&
+			  sysexData[ 1 ] == 127 && sysexData[ 3 ] == 68 ) {
 		WARNINGLOG( "MMC GOTO Message not implemented yet" );
-		// int hr = msg.m_sysexData[7];
-		// int mn = msg.m_sysexData[8];
-		// int sc = msg.m_sysexData[9];
-		// int fr = msg.m_sysexData[10];
-		// int ff = msg.m_sysexData[11];
+		// int hr = sysexData[7];
+		// int mn = sysexData[8];
+		// int sc = sysexData[9];
+		// int fr = sysexData[10];
+		// int ff = sysexData[11];
 		// char tmp[200];
 		// sprintf( tmp, "[handleSysexMessage] GOTO %d:%d:%d:%d:%d", hr, mn, sc, fr, ff );
 		// INFOLOG( tmp );

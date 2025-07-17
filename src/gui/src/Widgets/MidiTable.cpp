@@ -19,19 +19,22 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
+#include "MidiTable.h"
 
-#include "../Skin.h"
 #include "LCDCombo.h"
 #include "LCDSpinBox.h"
 #include "MidiSenseWidget.h"
-#include "MidiTable.h"
+#include "../Skin.h"
 
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Globals.h>
 #include <core/Hydrogen.h>
-#include <core/IO/MidiCommon.h>
-#include <core/MidiMap.h>
+#include <core/Globals.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include <QHeaderView>
 
@@ -116,7 +119,7 @@ void MidiTable::updateTable() {
 		}
 
 		if( ! pActionCombo->currentText().isEmpty() && ! pEventCombo->currentText().isEmpty() ) {
-			std::shared_ptr<Action> pAction = std::make_shared<Action>();
+			auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Null );
 			insertNewRow( pAction, "", 0 );
 		}
 
@@ -133,7 +136,7 @@ void MidiTable::sendChanged() {
 	emit changed();
 }
 
-void MidiTable::insertNewRow(std::shared_ptr<Action> pAction,
+void MidiTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 							 const QString& eventString, int eventParameter)
 {
 	MidiActionManager *pActionHandler = MidiActionManager::get_instance();
@@ -144,9 +147,17 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction,
 
 	++m_nRowCount;
 
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( H2Core::Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+	} else {
+		sIconPath.append( "/icons/black/" );
+	}
+
 	QPushButton *midiSenseButton = new QPushButton(this);
 	midiSenseButton->setObjectName( "MidiSenseButton" );
-	midiSenseButton->setIcon(QIcon(Skin::getSvgImagePath() + "/icons/record.svg"));
+	midiSenseButton->setIcon( QIcon( sIconPath + "record.svg" ) );
 	midiSenseButton->setIconSize( QSize( 13, 13 ) );
 	midiSenseButton->setToolTip( tr("press button to record midi event") );
 
@@ -183,13 +194,18 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction,
 	connect( eventParameterSpinner, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
 
+	QStringList availableActions;
+	for ( const auto& ttype : pActionHandler->getMidiActions() ) {
+		availableActions << MidiAction::typeToQString( ttype );
+	}
 
 	LCDCombo *actionBox = new LCDCombo(this);
 	actionBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
 	actionBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
 	actionBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	actionBox->insertItems( oldRowCount, pActionHandler->getActionList());
-	actionBox->setCurrentIndex ( actionBox->findText( pAction->getType() ) );
+	actionBox->insertItems( oldRowCount, availableActions );
+	actionBox->setCurrentIndex(
+		actionBox->findText( MidiAction::typeToQString( pAction->getType() ) ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( sendChanged() ) );
@@ -294,7 +310,7 @@ void MidiTable::setupMidiTable()
 		}
 	}
 
-	std::shared_ptr<Action> pAction = std::make_shared<Action>();
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Null );
 	insertNewRow( pAction, "", 0 );
 }
 
@@ -319,15 +335,16 @@ void MidiTable::saveMidiTable()
 
 			const QString actionString = actionCombo->currentText();
 		
-			std::shared_ptr<Action> pAction = std::make_shared<Action>( actionString );
+			std::shared_ptr<MidiAction> pAction = std::make_shared<MidiAction>(
+				MidiAction::parseType( actionString ) );
 
-			if( actionSpinner1->cleanText() != ""){
+			if ( actionSpinner1->cleanText() != "" ) {
 				pAction->setParameter1( actionSpinner1->cleanText() );
 			}
-			if( actionSpinner2->cleanText() != ""){
+			if ( actionSpinner2->cleanText() != "" ) {
 				pAction->setParameter2( actionSpinner2->cleanText() );
 			}
-			if( actionSpinner3->cleanText() != ""){
+			if ( actionSpinner3->cleanText() != "" ) {
 				pAction->setParameter3( actionSpinner3->cleanText() );
 			}
 
@@ -399,17 +416,20 @@ void MidiTable::updateRow( int nRow ) {
 		pEventParameterSpinner->hide();
 	}
 
-	QString sActionType = pActionCombo->currentText();
+	const QString sActionType = pActionCombo->currentText();
 	LCDSpinBox* pActionSpinner1 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
 	LCDSpinBox* pActionSpinner2 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
 	LCDSpinBox* pActionSpinner3 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
-	if ( sActionType == Action::getNullActionType() || sActionType.isEmpty() ) {
+	if ( sActionType == MidiAction::typeToQString( MidiAction::Type::Null ) ||
+		 sActionType.isEmpty() ) {
 		pActionSpinner1->hide();
 		pActionSpinner2->hide();
 		pActionSpinner3->hide();
 
-	} else {
-		int nParameterNumber = MidiActionManager::get_instance()->getParameterNumber( sActionType );
+	}
+	else {
+		const int nParameterNumber = MidiActionManager::get_instance()->getParameterNumber(
+			MidiAction::parseType( sActionType ) );
 		if ( nParameterNumber != -1 ) {
 			if ( nParameterNumber < 3 ) {
 				pActionSpinner3->hide();
@@ -427,7 +447,7 @@ void MidiTable::updateRow( int nRow ) {
 				pActionSpinner1->show();
 			}
 		} else {
-			ERRORLOG( QString( "Unable to find MIDI action [%1]" ).arg( sActionType ) );
+			ERRORLOG( QString( "Unable to find MIDI Midiaction [%1]" ).arg( sActionType ) );
 		}
 
 		// Relative changes should allow for both increasing and

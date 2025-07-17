@@ -241,7 +241,7 @@ private:
 	 * corresponding values are stored in different places.
 	 *
 	 * 1. The most fundamental one is stored in #Song::m_fBpm and can
-	 * be set using the BPM widget in the #PlayerControl or via MIDI
+	 * be set using the BPM widget in the #MainToolBar or via MIDI
 	 * and OSC commands. Writing the value to the current #Song is
 	 * done by the latter commands and widget and not within the
 	 * #AudioEngine.

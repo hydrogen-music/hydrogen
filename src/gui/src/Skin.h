@@ -24,7 +24,6 @@
 
 #include <QString>
 #include <QtGui>
-#include <core/Helpers/Filesystem.h>
 
 ///
 /// Skin support
@@ -33,51 +32,20 @@
 class Skin
 {
 public:
+		/** Factor by which an average button (in a panel) is more wide than
+		 * high. */
+		static constexpr float fButtonWidthHeightRatio = 1.2;
 
-		/** in pixel */
-		static constexpr int nScrollBarWidth = 12;
-
-	static QString getImagePath()
-	{
-		return H2Core::Filesystem::img_dir().append( "/gray" );
-	}
-	static QString getSvgImagePath()
-	{
-		return H2Core::Filesystem::img_dir().append( "/scalable" );
-	}
-	/** Top-level stylesheet for Hydrogen.
-
-		This one affects all widgets within Hydrogen (including
-		popups, file browser etc) and will get the most recent color
-		values from the #H2Core::Preferences.
-		
-		\return String version of the stylesheet.*/
-	static QString getGlobalStyleSheet();
+		/** Factor by which the window background (empty space not covered by
+		 * any other widget) of either pattern or song editor is made lighter in
+		 * case the particular editor is chosen. */
+		static constexpr int nEditorActiveScaling = 120;
 
 		/** Different parts of the pattern editor share a common cursor. We will
 		 * add a slight transparency to those cursors _not_ current focussed by
 		 * the user. */
 		static constexpr int nInactiveCursorAlpha = 170;
 
-	/** Function used to update the global palette of the
-	QApplication.
-	
-	It will get the most recent color values from the #H2Core::Preferences.*/
-	static void setPalette( QApplication *pQApp );
-
-	/**
-	 * Draws the background of a row in both the pattern list of the
-	 * SongEditor and the instrument list in the PatternEditor using
-	 * @a p.
-	 *
-	 * \param p Painter used in the calling QPaintEvent routine.
-	 * \param rect Boundary that encloses element (one row).
-	 * \param background Color used.
-	 * \param bHovered Whether the element is currently hovered by mouse.
-	 */
-	static void drawListBackground( QPainter* p, const QRect& rect,
-									QColor background,
-									bool bHovered );
 		/** Factor by which the background of a list element (sidebar) will be
 		 * darker than the corresponding line. */
 		static constexpr int nListBackgroundColorScaling = 120;
@@ -88,32 +56,70 @@ public:
 		 * lightened in order to produce the border color. */
 		static constexpr int nListBackgroundLightBorderScaling = 150;
 
-	/** If a widget is marked inactive the value of its background
-		color are reduced by this factor.*/
-	static QColor makeWidgetColorInactive( const QColor& color );
-		/** If a widget is marked inactive the value of its text color
-		are reduced by this factor.*/
-	static QColor makeTextColorInactive( const QColor& color );
+		static constexpr int nPlayheadHeight = 8;
+		static constexpr int nPlayheadWidth = 11;
 
-	static constexpr int nPlayheadWidth = 11;
-	static constexpr int nPlayheadHeight = 8;
-	static int getPlayheadShaftOffset() {
-		return std::floor( Skin::nPlayheadWidth / 2 ); }
-	static void setPlayheadPen( QPainter* p, bool bHovered = false );
-	static void drawPlayhead( QPainter* p, int x, int y, bool bHovered = false );
+		/** in pixel */
+		static constexpr int nScrollBarWidth = 12;
 
-	enum class Stacked {
-		None,
-		Off,
-		OffNext,
-		On,
-		OnNext
-	};
+		static constexpr int nToolBarCheckedScaling = 125;
+		static constexpr int nToolBarHoveredScaling = 110;
 
-	static void drawStackedIndicator( QPainter* p, int x, int y,
-									  const Skin::Stacked& stacked );
+		enum class Stacked {
+			None,
+			Off,
+			OffNext,
+			On,
+			OnNext
+		};
+
+		/**
+		 * Draws the background of a row in both the pattern list of the
+		 * SongEditor and the instrument list in the PatternEditor using @a p.
+		 *
+		 * \param p Painter used in the calling QPaintEvent routine.
+		 * \param rect Boundary that encloses element (one row).
+		 * \param background Color used.
+		 * \param bHovered Whether the element is currently hovered by mouse.
+		 */
+		static void drawListBackground( QPainter* p, const QRect& rect,
+										QColor background,
+										bool bHovered );
+		static void drawPlayhead( QPainter* p, int x, int y,
+								  bool bHovered = false );
+		static void drawStackedIndicator( QPainter* p, int x, int y,
+										  const Skin::Stacked& stacked );
+
+		/** Top-level stylesheet for Hydrogen.
+		 *
+		 * This one affects all widgets within Hydrogen (including popups, file
+		 * browser etc) and will get the most recent color values from the
+		 * #H2Core::Preferences.
+		 *
+		 * \return String version of the stylesheet.*/
+		static QString getGlobalStyleSheet();
+
+		static QString getImagePath();
+		static int getPlayheadShaftOffset() {
+			return std::floor( Skin::nPlayheadWidth / 2 ); }
+		static QString getSvgImagePath();
+
+		/** If a widget is marked inactive the value of its text color are
+		 * reduced by this factor.*/
+		static QColor makeTextColorInactive( const QColor& color );
+		/** If a widget is marked inactive the value of its background color are
+		 * reduced by this factor.*/
+		static QColor makeWidgetColorInactive( const QColor& color );
 
 		static bool moreBlackThanWhite( const QColor& color );
+
+		/** Function used to update the global palette of the QApplication.
+		 *
+		 * It will get the most recent color values from the
+		 * #H2Core::Preferences. */
+		static void setPalette( QApplication *pQApp );
+
+		static void setPlayheadPen( QPainter* p, bool bHovered = false );
 };
 
 

@@ -30,8 +30,8 @@
 
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/SMF.h>
 #include <core/Preferences/Preferences.h>
-#include <core/SMF/SMF.h>
 
 using namespace H2Core;
 

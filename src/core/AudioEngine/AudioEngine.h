@@ -65,8 +65,7 @@ namespace H2Core
 {
 	class Drumkit;
 	class Instrument;
-	class MidiInput;
-	class MidiOutput;
+	class MidiBaseDriver;
 	class Note;
 	class PatternList;
 	class Song;
@@ -277,15 +276,9 @@ public:
 	/** \return Time passed since the beginning of the song*/
 	float			getElapsedTime() const;	
 
-	/** 
-	 * Creation and initialization of all audio and MIDI drivers called in
-	 * Hydrogen::Hydrogen().
-	 */
-	void			startAudioDrivers();
-	/**
-	 * Stops all audio and MIDI drivers.
-	 */
-	void			stopAudioDrivers();
+	/** * Choice, creation, and initialization of th audio driver. */
+	void			startAudioDriver( Event::Trigger trigger );
+	void			stopAudioDriver( Event::Trigger trigger );
 	AudioOutput*	getAudioDriver() const;
 	/**
 	 * Create an audio driver using audioEngine_process() as its argument
@@ -300,15 +293,16 @@ public:
 	 * creation resulted in a NullDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
-	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver );
+	AudioOutput*	createAudioDriver( const Preferences::AudioDriver& driver,
+									   Event::Trigger trigger );
 					
-	void			restartAudioDrivers();
-					
+		void startMidiDriver( Event::Trigger trigger );
+		void stopMidiDriver( Event::Trigger trigger );
+		std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
+
 	void			setupLadspaFX();
-	
-	MidiInput*		getMidiDriver() const;
-	MidiOutput*		getMidiOutDriver() const;
-	
+
+
 	std::shared_ptr<Instrument> getMetronomeInstrument() const;
 		
 	
@@ -448,6 +442,8 @@ public:
 	 * \return String presentation of current object.*/
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
+		/** Is allowed to start playback. */
+		friend void Hydrogen::restartAudioDriver();
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to use locate() to directly set the position in
@@ -609,8 +605,7 @@ private:
 
 	Sampler* 			m_pSampler;
 	AudioOutput *		m_pAudioDriver;
-	MidiInput *			m_pMidiDriver;
-	MidiOutput *		m_pMidiDriverOut;
+	std::shared_ptr<MidiBaseDriver>		m_pMidiDriver;
 
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];
@@ -798,12 +793,8 @@ inline AudioOutput*	AudioEngine::getAudioDriver() const {
 	return m_pAudioDriver;
 }
 
-inline 	MidiInput*	AudioEngine::getMidiDriver() const {
+inline std::shared_ptr<MidiBaseDriver>	AudioEngine::getMidiDriver() const {
 	return m_pMidiDriver;
-}
-
-inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
-	return m_pMidiDriverOut;
 }
 
 inline long long AudioEngine::getRealtimeFrame() const {

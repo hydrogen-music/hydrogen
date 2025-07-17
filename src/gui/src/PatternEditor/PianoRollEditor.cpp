@@ -589,8 +589,6 @@ void PianoRollEditor::createBackground()
 	
 	QColor backgroundColor(
 		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
-	const QColor backgroundInactiveColor(
-		pPref->getTheme().m_color.m_windowColor );
 	QColor alternateRowColor(
 		pPref->getTheme().m_color.m_patternEditor_alternateRowColor );
 	QColor octaveColor = pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
@@ -598,8 +596,21 @@ void PianoRollEditor::createBackground()
 	// Row clicked by the user.
 	QColor selectedRowColor(
 		pPref->getTheme().m_color.m_patternEditor_selectedRowColor );
+
+	// Everything beyond the current pattern (used when another, larger pattern
+	// is played as well).
 	const QColor lineInactiveColor(
 		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+	// Indicate chosen editor mode.
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor =
+			pPref->getTheme().m_color.m_windowColor.lighter(
+				Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+	}
 
 	if ( ! hasFocus() ) {
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );

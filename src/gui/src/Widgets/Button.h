@@ -28,7 +28,6 @@
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include <core/MidiAction.h>
 
 #include "MidiLearnable.h"
 #include "WidgetWithScalableFont.h"
@@ -88,10 +87,6 @@ public:
 	 * \param sText
 	 * \param iconSize
 	 * \param sBaseTooltip
-	 * \param bColorful If set to false, the icon @a sIcon is expected
-	 * to exist in both subfolders "black" and "white" in the "icons"
-	 * folder. If the button is not checked, the black version is used
-	 * and if checked, the white one is used instead.
 	 * \param bModifyOnChange Whether Hydrogen::setIsModified() is
 	 * invoked with `true` as soon as the value of the widget does
 	 * change.
@@ -105,8 +100,7 @@ public:
 		   const QString& sIcon = "",
 		   const QString& sText = "",
 		   const QSize& iconSize = QSize( 0, 0 ),
-		   const QString& sBaseTooltip = "",
-		   bool bColorful = false,
+		   const QString& sBaseToolTip = "",
 		   bool bModifyOnChange = false,
 		   int nBorderRadius = -1
 		   );
@@ -115,8 +109,6 @@ public:
 	Button(const Button&) = delete;
 	Button& operator=( const Button& rhs ) = delete;
 
-	void setBaseToolTip( const QString& sNewTip );
-	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
@@ -146,22 +138,24 @@ private slots:
 signals:
 	void rightClicked();
 
+protected:
+	virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void paintEvent( QPaintEvent* ev) override;
+
 private:
 	void updateStyleSheet();
 	void updateFont();
-	void updateTooltip() override;
+	void updateToolTip() override;
 	void updateIcon();
 
 	Type m_type;
 	QSize m_size;
 	QSize m_iconSize;
-	QString m_sBaseTooltip;
 	QString m_sIcon;
 	int m_nFixedFontSize;
 
 	int m_nBorderRadius;
 
-	bool m_bColorful;
 	bool m_bLastCheckedState;
 
 	bool m_bIsActive;
@@ -170,11 +164,12 @@ private:
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
 
+		/** We will change the checked background color along with theme changes
+		 * until we receive an explicit user action to customize the background
+		 * color. */
+		bool m_bUseCustomBackgroundColors;
 		QColor m_checkedBackgroundColor;
 		QColor m_checkedBackgroundTextColor;
-
-	virtual void mousePressEvent(QMouseEvent *ev) override;
-	virtual void paintEvent( QPaintEvent* ev) override;
 
 };
 inline bool Button::getIsActive() const {

@@ -43,8 +43,9 @@
 #include "core/Hydrogen.h"
 #include "core/AudioEngine/AudioEngine.h"
 #include "core/Basics/Song.h"
-#include "core/MidiAction.h"
-#include "core/IO/MidiCommon.h"
+#include "core/Midi/MidiAction.h"
+#include "core/Midi/MidiActionManager.h"
+#include "core/Midi/MidiMessage.h"
 
 OscServer * OscServer::__instance = nullptr;
 
@@ -285,10 +286,11 @@ int OscServer::generic_handler(const char *	path,
 		if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 			INFOLOG( QString( "processing message as changing pan of strip [%1] in relative numbers" )
 					 .arg( nStrip ) );
-			std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_RELATIVE");
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::PanRelative );
 			pAction->setParameter1( QString::number( nStrip ) );
 			pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
-			MidiActionManager::get_instance()->handleAction( pAction );
+			MidiActionManager::get_instance()->handleMidiAction( pAction );
 			bMessageProcessed = true;
 		}
 		else {
@@ -435,127 +437,127 @@ void OscServer::create_instance()
 void OscServer::PLAY_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::Play ) );
 }
 
 void OscServer::PLAY_STOP_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/STOP_TOGGLE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::PlayStopToggle ) );
 }
 
 void OscServer::PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::PlayPauseToggle ) );
 }
 
 void OscServer::STOP_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("STOP");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::Stop ) );
 }
 
 void OscServer::PAUSE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAUSE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
 }
 
 void OscServer::RECORD_READY_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_READY");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::RecordReady ) );
 }
 
 void OscServer::RECORD_STROBE_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD/STROBE_TOGGLE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobeToggle ) );
 }
 
 void OscServer::RECORD_STROBE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_STROBE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::RecordStrobe ) );
 }
 
 void OscServer::RECORD_EXIT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_EXIT");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::RecordExit ) );
 }
 
 void OscServer::MUTE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::Mute ) );
 }
 
 void OscServer::UNMUTE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNMUTE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::Unmute ) );
 }
 
 void OscServer::MUTE_TOGGLE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE_TOGGLE");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle ) );
 }
 
 void OscServer::NEXT_BAR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>(">>_NEXT_BAR");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::NextBar ) );
 }
 
 void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("<<_PREVIOUS_BAR");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::PreviousBar ) );
 }
 
 void OscServer::BPM_Handler(lo_arg **argv,int i)
@@ -567,21 +569,21 @@ void OscServer::BPM_Handler(lo_arg **argv,int i)
 void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("BPM_INCR");
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmIncr );
 	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("BPM_DECR");
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmDecr );
 	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 	
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
@@ -593,11 +595,12 @@ void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_RELATIVE");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::MasterVolumeRelative );
 	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ));
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
@@ -610,54 +613,59 @@ void OscServer::STRIP_VOLUME_RELATIVE_Handler( const QString& param1,
 											  const QString& param2 )
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("STRIP_VOLUME_RELATIVE");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripVolumeRelative );
 	pAction->setParameter1( param1 );
 	pAction->setValue( param2 );
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_NEXT_PATTERN");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::SelectNextPattern );
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_ONLY_NEXT_PATTERN");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::SelectOnlyNextPattern );
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_AND_PLAY_PATTERN");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::SelectAndPlayPattern );
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( const QString& param1,
 													  const QString& param2)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("FILTER_CUTOFF_LEVEL_ABSOLUTE");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::FilterCutoffLevelAbsolute );
 	pAction->setParameter1( param1 );
 	pAction->setValue( param2 );
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 
@@ -672,84 +680,86 @@ void OscServer::INSTRUMENT_PITCH_Handler( lo_arg** argv, int )
 void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("BEATCOUNTER");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::BeatCounter ) );
 }
 
 void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("TAP_TEMPO");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::TapTempo ) );
 }
 
 void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_SONG");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PlaylistSong );
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::PlaylistNextSong ) );
 }
 
 void OscServer::PLAYLIST_PREV_SONG_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::PlaylistPrevSong ) );
 }
 
 void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("TOGGLE_METRONOME");
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome ) );
 }
 
 void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_INSTRUMENT");
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::SelectInstrument );
 	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
 
 	// Null song handling done in MidiActionManager.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNDO_ACTION");
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::UndoAction );
 
 	// This one does also work the current song being nullptr.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("REDO_ACTION");
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RedoAction );
 
 	// This one does also work the current song being nullptr.
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 // -------------------------------------------------------------------
@@ -903,8 +913,8 @@ void OscServer::CLEAR_INSTRUMENT_Handler(lo_arg **argv,int i)
 void OscServer::CLEAR_PATTERN_Handler( lo_arg **argv, int i )
 {
 	INFOLOG( "processing message" );
-	std::shared_ptr<Action> pAction = std::make_shared<Action>( "CLEAR_PATTERN" );
-	MidiActionManager::get_instance()->handleAction( pAction );
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::ClearPattern );
+	MidiActionManager::get_instance()->handleMidiAction( pAction );
 }
 
 void OscServer::NOTE_ON_Handler( lo_arg **argv, int i )
@@ -965,17 +975,15 @@ void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
 void OscServer::LOAD_NEXT_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 
-	std::shared_ptr<Action> pAction =
-		std::make_shared<Action>("LOAD_NEXT_DRUMKIT");
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::LoadNextDrumkit ) );
 }
 
 void OscServer::LOAD_PREV_DRUMKIT_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 
-	std::shared_ptr<Action> pAction =
-		std::make_shared<Action>("LOAD_PREV_DRUMKIT");
-	MidiActionManager::get_instance()->handleAction( pAction );
+	MidiActionManager::get_instance()->handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::LoadPrevDrumkit ) );
 }
 
 void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
@@ -1107,15 +1115,15 @@ void OscServer::broadcastMessage( const char* msgText, const lo_message& message
 }
 
 // -------------------------------------------------------------------
-// Main action handler
+// Main Midiaction handler
 
-void OscServer::handleAction( std::shared_ptr<Action> pAction )
+void OscServer::handleMidiAction( std::shared_ptr<MidiAction> pAction )
 {
 	if ( ! H2Core::Preferences::get_instance()->getOscFeedbackEnabled() ) {
 		return;
 	}
 	
-	if( pAction->getType() == "MASTER_VOLUME_ABSOLUTE"){
+	if ( pAction->getType() == MidiAction::Type::MasterVolumeAbsolute ) {
 		bool ok;
 		float fValue = pAction->getValue().toFloat(&ok);
 			
@@ -1127,7 +1135,7 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 		lo_message_free( reply );
 	}
 	
-	if( pAction->getType() == "STRIP_VOLUME_ABSOLUTE"){
+	if ( pAction->getType() == MidiAction::Type::StripVolumeAbsolute ) {
 		bool ok;
 		float fValue = pAction->getValue().toFloat(&ok);
 
@@ -1142,7 +1150,7 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 		lo_message_free( reply );
 	}
 	
-	if( pAction->getType() == "TOGGLE_METRONOME"){
+	if ( pAction->getType() == MidiAction::Type::ToggleMetronome ) {
 		bool ok;
 		float param1 = pAction->getParameter1().toFloat(&ok);
 
@@ -1154,7 +1162,7 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 		lo_message_free( reply );
 	}
 	
-	if( pAction->getType() == "MUTE_TOGGLE"){
+	if ( pAction->getType() == MidiAction::Type::MuteToggle ) {
 		bool ok;
 		float param1 = pAction->getParameter1().toFloat(&ok);
 
@@ -1166,14 +1174,15 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 		lo_message_free( reply );
 	}
 	
-	if( pAction->getType() == "STRIP_MUTE_TOGGLE"){
+	if ( pAction->getType() == MidiAction::Type::StripMuteToggle ) {
 		bool ok;
 		float fValue = pAction->getValue().toFloat(&ok);
 
 		lo_message reply = lo_message_new();
 		lo_message_add_float( reply, fValue );
 
-		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
+		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1")
+			.arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
 		broadcastMessage( c_str2, reply);
@@ -1181,7 +1190,7 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 		lo_message_free( reply );
 	}
 	
-	if( pAction->getType() == "STRIP_SOLO_TOGGLE"){
+	if ( pAction->getType() == MidiAction::Type::StripSoloToggle ) {
 		bool ok;
 		float fValue = pAction->getValue().toFloat(&ok);
 
@@ -1196,7 +1205,7 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 		lo_message_free( reply );
 	}
 	
-	if( pAction->getType() == "PAN_ABSOLUTE"){
+	if ( pAction->getType() == MidiAction::Type::PanAbsolute ) {
 		bool ok;
 		float fValue = pAction->getValue().toFloat(&ok);
 
@@ -1211,7 +1220,7 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 		lo_message_free( reply );
 	}
 
-	if( pAction->getType() == "PAN_ABSOLUTE_SYM"){
+	if ( pAction->getType() == MidiAction::Type::PanAbsoluteSym ) {
 		bool ok;
 		float fValue = pAction->getValue().toFloat(&ok);
 
@@ -1239,18 +1248,18 @@ bool OscServer::init()
 	 */
 
 	//This handler is responsible for registering clients
-	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg){
+	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg) {
 		lo_address address = lo_message_get_source(msg);
 
 		bool AddressRegistered = false;
-		for ( const auto& cclientAddress : m_pClientRegistry ){
+		for ( const auto& cclientAddress : m_pClientRegistry ) {
 			if ( IsLoAddressEqual( address, cclientAddress ) ) {
 				AddressRegistered = true;
 				break;
 			}
 		}
 
-		if( ! AddressRegistered ){
+		if ( ! AddressRegistered ) {
 			lo_address newAddress =
 				lo_address_new_with_proto( lo_address_get_protocol( address ),
 										   lo_address_get_hostname( address ),

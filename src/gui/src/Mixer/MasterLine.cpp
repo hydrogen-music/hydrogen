@@ -22,20 +22,20 @@
 
 #include "MasterLine.h"
 
-#include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
-#include "../Widgets/Rotary.h"
-#include "../Widgets/Button.h"
 #include "../Widgets/LCDDisplay.h"
+#include "../Widgets/Rotary.h"
 #include "../Widgets/WidgetWithInput.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/MidiAction.h>
+#include <core/Midi/MidiAction.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -70,8 +70,8 @@ MasterLine::MasterLine( QWidget* pParent )
 			QString( "%1:faderChanged" ).arg( class_name() ) );
 	});
 
-	auto pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
-	m_pFader->setAction( pAction );
+	m_pFader->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::MasterVolumeAbsolute ) );
 
 	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ), false, false );
 	m_pPeakLCD->move( 22, 51 );
@@ -123,8 +123,8 @@ MasterLine::MasterLine( QWidget* pParent )
 		pCommonStrings->getBigMuteButton() );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
 	m_pMuteBtn->move( 20, 31 );
-	pAction = std::make_shared<Action>("MUTE_TOGGLE");
-	m_pMuteBtn->setAction( pAction );
+	m_pMuteBtn->setMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle ) );
 	connect( m_pMuteBtn, &Button::clicked, [&]() {
 		CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
 	});

@@ -32,9 +32,9 @@
 
 #include <cassert>
 
-#include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Hydrogen.h>
 
 using namespace H2Core;
 
@@ -1051,12 +1051,24 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 
 	QColor lineColor(
 		pPref->getTheme().m_color.m_patternEditor_line5Color );
-	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 	QColor backgroundColor(
 		pPref->getTheme().m_color.m_patternEditor_backgroundColor );
-	const QColor backgroundInactiveColor(
-		pPref->getTheme().m_color.m_windowColor );
+
+	// Everything beyond the current pattern (used when another, larger pattern
+	// is played as well).
+	const QColor lineInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	// Indicate chosen editor mode.
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor =
+			pPref->getTheme().m_color.m_windowColor.lighter(
+				Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+	}
 
 	if ( ! hasFocus() ) {
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );
@@ -1354,17 +1366,29 @@ void NotePropertiesRuler::createBackground()
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	const QColor backgroundInactiveColor(
-		pPref->getTheme().m_color.m_windowColor );
 	QColor lineColor(
 		pPref->getTheme().m_color.m_patternEditor_lineColor );
 	QColor textColor( pPref->getTheme().m_color.m_patternEditor_textColor );
-	const QColor lineInactiveColor(
-		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
 	const QColor alternateRowColor =
 		pPref->getTheme().m_color.m_patternEditor_alternateRowColor;
 	const QColor octaveColor =
 		pPref->getTheme().m_color.m_patternEditor_octaveRowColor;
+
+	// Everything beyond the current pattern (used when another, larger pattern
+	// is played as well).
+	const QColor lineInactiveColor(
+		pPref->getTheme().m_color.m_windowTextColor.darker( 170 ) );
+
+	// Indicate chosen editor mode.
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor =
+			pPref->getTheme().m_color.m_windowColor.lighter(
+				Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = pPref->getTheme().m_color.m_windowColor;
+	}
 
 	if ( ! hasFocus() ) {
 		lineColor = lineColor.darker( PatternEditor::nOutOfFocusDim );

@@ -48,8 +48,8 @@
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/MidiLearnableToolButton.h"
 #include "../Widgets/PatchBay.h"
-#include "../Widgets/PixmapWidget.h"
 #include "../WidgetScrollArea.h"
 #include "../UndoActions.h"
 
@@ -190,215 +190,159 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	////////////////////////////////////////////////////////////////////////////
 	// Sidebar toolbar containing all buttons
-	m_pToolbarSidebar = new QWidget( nullptr );
-	m_pToolbarSidebar->setFocusPolicy( Qt::ClickFocus );
-	m_pToolbarSidebar->setFixedHeight( PatternEditorPanel::nToolbarHeight );
-	m_pToolbarSidebar->setFixedWidth(
-		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth );
-	m_pToolbarSidebar->setObjectName( "PatternEditorToolbarSidebar" );
+	m_pToolBar = new QToolBar( nullptr );
+	m_pToolBar->setFixedHeight( PatternEditorPanel::nToolBarHeight );
+	m_pToolBar->setFocusPolicy( Qt::ClickFocus );
 
-	QHBoxLayout* pToolbarSidebarLayout = new QHBoxLayout( m_pToolbarSidebar );
-	pToolbarSidebarLayout->setContentsMargins( 0, 0, 0, 0 );
-	pToolbarSidebarLayout->setSpacing( 0 );
-	pToolbarSidebarLayout->setAlignment( Qt::AlignLeft );
+	auto createAction = [&]( const QString& sText ) {
+		auto pAction = new QAction( m_pToolBar );
+		pAction->setCheckable( true );
+		pAction->setIconText( sText );
+		pAction->setToolTip( sText );
 
-	// Button container - fix the buttons to the un-expanded sidebar (without
-	// the type labels)
-	auto pBtnContainer = new QWidget( m_pToolbarSidebar );
-	pBtnContainer->setFixedWidth(
-		PatternEditorSidebar::m_nWidth - SidebarRow::m_nTypeLblWidth );
-	pToolbarSidebarLayout->addWidget( pBtnContainer );
-	auto pBtnContainerLayout = new QHBoxLayout( pBtnContainer );
-	pBtnContainerLayout->setContentsMargins( 2, 1, 2, 1 );
-	pBtnContainerLayout->setSpacing( 3 );
+		return pAction;
+	};
 
-	const auto buttonSize = QSize( PatternEditorPanel::nToolbarGroupHeight + 1,
-								   PatternEditorPanel::nToolbarGroupHeight - 4 );
-	const auto iconSize = QSize( PatternEditorPanel::nToolbarGroupHeight - 1,
-								 PatternEditorPanel::nToolbarGroupHeight - 6 );
+	auto createButton = [&]( const QString& sText ) {
+		auto pAction = new MidiLearnableToolButton( m_pToolBar, sText );
+		pAction->setCheckable( true );
 
-	const auto buttonSizeOutside = buttonSize + QSize( 0, 2 );
-	const auto iconSizeOutside = iconSize + QSize( 0, 2 );
+		return pAction;
+	};
 
-	m_pInputModeGroup = new QWidget( pBtnContainer );
-	m_pInputModeGroup->setFocusPolicy( Qt::ClickFocus );
-	m_pInputModeGroup->setObjectName( "GroupBox" );
-	m_pInputModeGroup->setFixedHeight( PatternEditorPanel::nToolbarGroupHeight );
-	pBtnContainerLayout->addWidget( m_pInputModeGroup );
-	auto pEditModeGroupLayout = new QHBoxLayout( m_pInputModeGroup );
-	pEditModeGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pEditModeGroupLayout->setSpacing( 1 );
+	////////////////////////////////////////////////////////////////////////////
+	auto pInputModeGroup = new QButtonGroup( m_pToolBar );
+	pInputModeGroup->setExclusive( true );
 
-	m_pSelectBtn = new Button(
-		m_pInputModeGroup, buttonSize, Button::Type::Toggle, "select.svg", "",
-		iconSize, pCommonStrings->getSelectModeButton() );
-	m_pSelectBtn->setObjectName( "PatternEditorSelectModeBtn" );
-	m_pSelectBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	connect( m_pSelectBtn, &Button::clicked, [&](){
+	m_pSelectButton = createButton( pCommonStrings->getSelectModeButton() );
+	m_pSelectButton->setObjectName( "PatternEditorSelectModeBtn" );
+	connect( m_pSelectButton, &QToolButton::clicked, [&](){
 		setInput( Editor::Input::Select );
 	} );
-	pEditModeGroupLayout->addWidget( m_pSelectBtn );
+	m_pToolBar->addWidget( m_pSelectButton );
+	pInputModeGroup->addButton( m_pSelectButton );
 
-	m_pDrawBtn = new Button(
-		m_pInputModeGroup, buttonSize, Button::Type::Toggle, "draw.svg", "",
-		iconSize, pCommonStrings->getDrawModeButton() );
-	m_pDrawBtn->setObjectName( "PatternEditorDrawModeBtn" );
-	m_pDrawBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	connect( m_pDrawBtn, &Button::clicked, [&](){
+	m_pDrawButton = createButton( pCommonStrings->getDrawModeButton() );
+	m_pDrawButton->setObjectName( "PatternEditorDrawModeBtn" );
+	connect( m_pDrawButton, &QToolButton::clicked, [&](){
 		setInput( Editor::Input::Draw );
 	} );
-	pEditModeGroupLayout->addWidget( m_pDrawBtn );
+	m_pToolBar->addWidget( m_pDrawButton );
+	pInputModeGroup->addButton( m_pDrawButton );
 
-	m_pEditBtn = new Button(
-		m_pInputModeGroup, buttonSize, Button::Type::Toggle, "edit.svg", "",
-		iconSize, pCommonStrings->getEditModeButton() );
-	m_pEditBtn->setObjectName( "PatternEditorEditModeBtn" );
-	m_pEditBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	connect( m_pEditBtn, &Button::clicked, [&](){
+	m_pEditButton = createButton( pCommonStrings->getEditModeButton() );
+	m_pEditButton->setObjectName( "PatternEditorEditModeBtn" );
+	connect( m_pEditButton, &QToolButton::clicked, [&](){
 		setInput( Editor::Input::Edit );
 	} );
-	pEditModeGroupLayout->addWidget( m_pEditBtn );
+	m_pToolBar->addWidget( m_pEditButton );
+	pInputModeGroup->addButton( m_pEditButton );
 	updateInput();
 
-	pBtnContainerLayout->addStretch();
-
-	m_pHearNotesBtn = new Button(
-		pBtnContainer, buttonSizeOutside, Button::Type::Toggle, "speaker.svg", "",
-		iconSizeOutside, tr( "Hear new notes" ), false, false );
-	connect( m_pHearNotesBtn, SIGNAL( clicked() ),
-			 this, SLOT( hearNotesBtnClick() ) );
-	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
-	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
-	m_pHearNotesBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pBtnContainerLayout->addWidget( m_pHearNotesBtn );
-
-	m_pQuantizeEventsBtn = new Button(
-		pBtnContainer, buttonSizeOutside, Button::Type::Toggle, "quantization.svg",
-		"", iconSizeOutside, tr( "Quantize keyboard/midi events to grid" ), false,
-		false );
-	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
-	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
-	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ),
-			 this, SLOT( quantizeEventsBtnClick() ) );
-	m_pQuantizeEventsBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pBtnContainerLayout->addWidget( m_pQuantizeEventsBtn );
-
-	pBtnContainerLayout->addStretch();
+	m_pToolBar->addSeparator();
 
 	// Switching editor instances
-	m_pInstanceGroup = new QWidget( pBtnContainer );
-	m_pInstanceGroup->setFocusPolicy( Qt::ClickFocus );
-	m_pInstanceGroup->setObjectName( "GroupBox" );
-	m_pInstanceGroup->setFixedHeight( PatternEditorPanel::nToolbarGroupHeight );
-	pBtnContainerLayout->addWidget( m_pInstanceGroup );
-	auto pInstanceGroupLayout = new QHBoxLayout( m_pInstanceGroup );
-	pInstanceGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pInstanceGroupLayout->setSpacing( 1 );
+	auto pInstanceGroup = new QButtonGroup( m_pToolBar );
+	pInstanceGroup->setExclusive( true );
 
-	m_pDrumPatternBtn = new Button(
-		m_pInstanceGroup, buttonSize, Button::Type::Toggle, "drum.svg", "",
-		iconSize, pCommonStrings->getShowDrumkitEditorTooltip() );
-	m_pDrumPatternBtn->setObjectName( "ShowDrumBtn" );
-	m_pDrumPatternBtn->setChecked( m_instance == Editor::Instance::DrumPattern );
-	connect( m_pDrumPatternBtn, &Button::clicked, [&](){
+	m_pDrumPatternButton = createButton(
+		pCommonStrings->getShowDrumkitEditorToolTip() );
+	m_pDrumPatternButton->setObjectName( "ShowDrumBtn" );
+	m_pDrumPatternButton->setChecked(
+		m_instance == Editor::Instance::DrumPattern );
+	connect( m_pDrumPatternButton, &QToolButton::clicked, [&](){
 		setInstance( Editor::Instance::DrumPattern );
 	} );
-	m_pDrumPatternBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pInstanceGroupLayout->addWidget( m_pDrumPatternBtn );
+	m_pToolBar->addWidget( m_pDrumPatternButton );
+	pInstanceGroup->addButton( m_pDrumPatternButton );
 
-	m_pPianoRollBtn = new Button(
-		m_pInstanceGroup, buttonSize, Button::Type::Toggle, "piano.svg", "",
-		iconSize, pCommonStrings->getShowPianoRollEditorTooltip() );
-	m_pPianoRollBtn->setObjectName( "ShowPianoBtn" );
-	m_pPianoRollBtn->setChecked( m_instance == Editor::Instance::PianoRoll );
-	connect( m_pPianoRollBtn, &Button::clicked, [&](){
+	m_pPianoRollButton = createButton(
+		pCommonStrings->getShowPianoRollEditorToolTip() );
+	m_pPianoRollButton->setObjectName( "ShowPianoBtn" );
+	m_pPianoRollButton->setChecked( m_instance == Editor::Instance::PianoRoll );
+	connect( m_pPianoRollButton, &QToolButton::clicked, [&](){
 		setInstance( Editor::Instance::PianoRoll );
 	} );
-	m_pPianoRollBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pInstanceGroupLayout->addWidget( m_pPianoRollBtn );
+	m_pToolBar->addWidget( m_pPianoRollButton );
+	pInstanceGroup->addButton( m_pPianoRollButton );
 
-	m_pPatchBayBtn = new Button(
-		pBtnContainer, buttonSize, Button::Type::Push, "patchBay.svg", "",
-		iconSize, tr( "Show PatchBay" ) );
-	m_pPatchBayBtn->hide();
-	m_pPatchBayBtn->setObjectName( "ShowPatchBayBtn" );
-	connect( m_pPatchBayBtn, SIGNAL( clicked() ),
-			 this, SLOT( patchBayBtnClicked() ) );
-	m_pPatchBayBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pBtnContainerLayout->addWidget( m_pPatchBayBtn );
+	m_pToolBar->addSeparator();
+
+	m_pHearNotesAction = createAction( tr( "Hear new notes" ) );
+	connect( m_pHearNotesAction, &QAction::triggered, [=](){
+		hearNotesBtnClick();
+	} );
+	m_pHearNotesAction->setChecked( pPref->getHearNewNotes() );
+	m_pHearNotesAction->setObjectName( "HearNotesBtn" );
+	m_pToolBar->addAction( m_pHearNotesAction );
+
+	m_pToolBar->addSeparator();
+
+	m_pQuantizeAction = createAction(
+		tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeAction->setChecked( pPref->getQuantizeEvents() );
+	m_pQuantizeAction->setObjectName( "QuantizeEventsBtn" );
+	connect( m_pQuantizeAction, &QAction::triggered, [=]() {
+		quantizeEventsBtnClick();
+	} );
+	m_pToolBar->addAction( m_pQuantizeAction );
+
+	m_pToolBar->addSeparator();
+
+	// m_pPatchBayBtn = new Button(
+	// 	pBtnContainer, buttonSize, Button::Type::Push, "patchBay.svg", "",
+	// 	iconSize, tr( "Show PatchBay" ) );
+	// m_pPatchBayBtn->hide();
+	// m_pPatchBayBtn->setObjectName( "ShowPatchBayBtn" );
+	// connect( m_pPatchBayBtn, SIGNAL( clicked() ),
+	// 		 this, SLOT( patchBayBtnClicked() ) );
+	// m_pPatchBayBtn->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	// m_pToolBar->addWidget( m_pPatchBayBtn );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Main toolbar containing the patter size and resolution widgets
 
-	m_pToolbar = new QWidget( nullptr );
-	m_pToolbar->setFocusPolicy( Qt::ClickFocus );
-	m_pToolbar->setFont( boldFont );
-	m_pToolbar->setFixedHeight( PatternEditorPanel::nToolbarHeight );
-	m_pToolbar->setObjectName( "PatternEditorToolbar" );
-
-	QHBoxLayout* pToolbarLayout = new QHBoxLayout( m_pToolbar );
-	pToolbarLayout->setSpacing( 4 );
-	pToolbarLayout->setContentsMargins( 4, 1, 2, 1 );
-	pToolbarLayout->setAlignment( Qt::AlignLeft );
-
-	// Pattern size
-	m_pSizeGroup = new QWidget( m_pToolbar );
-	m_pSizeGroup->setFocusPolicy( Qt::ClickFocus );
-	m_pSizeGroup->setFixedHeight( PatternEditorPanel::nToolbarGroupHeight );
-	m_pSizeGroup->setObjectName( "GroupBox" );
-	pToolbarLayout->addWidget( m_pSizeGroup );
-	auto pSizeGroupLayout = new QHBoxLayout( m_pSizeGroup );
-	pSizeGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pSizeGroupLayout->setSpacing( 1 );
+	const int nWidgetHeight = PatternEditorPanel::nToolBarHeight -
+		2 * PatternEditorPanel::nToolBarMargin;
 
 	m_pLCDSpinBoxNumerator = new LCDSpinBox(
-		m_pSizeGroup, QSize( 62, buttonSize.height() ), LCDSpinBox::Type::Double,
-		0.1, 16.0, true );
+		m_pToolBar, QSize( 62, nWidgetHeight ), LCDSpinBox::Type::Double, 0.1,
+		16.0, true );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed,
 			 this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxNumerator->setKeyboardTracking( false );
-	m_pLCDSpinBoxNumerator->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 	m_pLCDSpinBoxNumerator->setFocusPolicy( Qt::ClickFocus );
-	pSizeGroupLayout->addWidget( m_pLCDSpinBoxNumerator );
+	m_pToolBar->addWidget( m_pLCDSpinBoxNumerator );
 			
-	auto pLabel1 = new ClickableLabel(
-		m_pSizeGroup, QSize( 5, buttonSize.height() ), "/",
-		ClickableLabel::Color::Dark );
-	pLabel1->setText( "/" );
-	pLabel1->setFont( boldFont );
-	pLabel1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
-	pLabel1->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
-	pSizeGroupLayout->addWidget( pLabel1 );
+	m_pPatternSizeSeparatorLabel = new ClickableLabel(
+		m_pToolBar, QSize( 9, nWidgetHeight ), "/", ClickableLabel::Color::Dark );
+	m_pPatternSizeSeparatorLabel->setText( "/" );
+	m_pPatternSizeSeparatorLabel->setFont( boldFont );
+	m_pPatternSizeSeparatorLabel->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
+	m_pToolBar->addWidget( m_pPatternSizeSeparatorLabel );
 	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox(
-		m_pSizeGroup, QSize( 48, buttonSize.height() ), LCDSpinBox::Type::Int,
-		1, 192, true );
+		m_pToolBar, QSize( 48, nWidgetHeight ), LCDSpinBox::Type::Int, 1, 192,
+		true );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
 	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed,
 			 this, &PatternEditorPanel::switchPatternSizeFocus );
 	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( patternSizeChanged( double ) ) );
 	m_pLCDSpinBoxDenominator->setKeyboardTracking( false );
-	m_pLCDSpinBoxDenominator->setSizePolicy(
-		QSizePolicy::Fixed, QSizePolicy::Fixed );
 	m_pLCDSpinBoxDenominator->setFocusPolicy( Qt::ClickFocus );
-	pSizeGroupLayout->addWidget( m_pLCDSpinBoxDenominator );
+	m_pToolBar->addWidget( m_pLCDSpinBoxDenominator );
+
+	m_pToolBar->addSeparator();
 
 	// GRID resolution
-	m_pResolutionGroup = new QWidget( m_pToolbar );
-	m_pResolutionGroup->setFocusPolicy( Qt::ClickFocus );
-	m_pResolutionGroup->setFixedHeight( PatternEditorPanel::nToolbarGroupHeight );
-	m_pResolutionGroup->setObjectName( "GroupBox" );
-	pToolbarLayout->addWidget( m_pResolutionGroup );
-	auto pResolutionGroupLayout = new QHBoxLayout( m_pResolutionGroup );
-	pResolutionGroupLayout->setContentsMargins( 2, 1, 2, 1 );
-	pResolutionGroupLayout->setSpacing( 1 );
-
-	m_pResolutionCombo = new LCDCombo( m_pResolutionGroup, QSize( 0, 0 ), true );
+	m_pResolutionCombo = new LCDCombo( m_pToolBar, QSize( 0, 0 ), true );
 	m_pResolutionCombo->setFocusPolicy( Qt::ClickFocus );
+	m_pResolutionCombo->setMinimumSize( QSize( 24, nWidgetHeight ) );
+	m_pResolutionCombo->setMaximumSize( QSize( 500, nWidgetHeight ) );
 	// Large enough for "1/32T" to be fully visible at large font size.
 	// m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
 	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
@@ -422,9 +366,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 								 .append( tr( "thirty-second triplet" ) ) );
 	m_pResolutionCombo->insertSeparator( 10 );
 	m_pResolutionCombo->insertItem( 11, tr( "off" ) );
-	m_pResolutionCombo->setMinimumSize( QSize( 24, buttonSize.height() ) );
-	m_pResolutionCombo->setMaximumSize( QSize( 500, buttonSize.height() ) );
-	m_pResolutionCombo->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 
 	int nIndex;
 
@@ -455,7 +396,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionCombo->setCurrentIndex( nIndex );
 	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ),
 			 this, SLOT( gridResolutionChanged( int ) ) );
-	pResolutionGroupLayout->addWidget( m_pResolutionCombo );
+	m_pToolBar->addWidget( m_pResolutionCombo );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Drumkit label
@@ -513,12 +454,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorHScrollBarContainer = new QWidget();
 	m_pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
 
-
-	QPalette label_palette;
-	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
-
 	updatePatternInfo();
 	updateDB();
+	updateIcons();
 
 	// restore grid resolution
 	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) *
@@ -539,6 +477,7 @@ void PatternEditorPanel::createEditors() {
 
 	// Ruler ScrollView
 	m_pRulerScrollView = new WidgetScrollArea( nullptr );
+	m_pRulerScrollView->setObjectName( "RulerScrollView" );
 	m_pRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -719,9 +658,8 @@ void PatternEditorPanel::createEditors() {
 
 	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
-	m_pPropertiesPanel = new PixmapWidget( nullptr );
+	m_pPropertiesPanel = new QWidget( nullptr );
 	m_pPropertiesPanel->setObjectName( "PropertiesPanel" );
-	m_pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
 	m_pPropertiesPanel->setFixedHeight( 100 );
 	m_pPropertiesPanel->setMaximumWidth( PatternEditorSidebar::m_nWidth );
 
@@ -751,13 +689,13 @@ void PatternEditorPanel::createEditors() {
 
 	// Layout
 	QWidget *pMainPanel = new QWidget();
+	pMainPanel->setObjectName( "MainPanel" );
 	QGridLayout *pGrid = new QGridLayout();
 	pGrid->setSpacing( 0 );
 	pGrid->setContentsMargins( 0, 0, 0, 0 );
 
 	pGrid->addWidget( m_pTabBar, 0, 1, 1, 2 );
-	pGrid->addWidget( m_pToolbarSidebar, 1, 0 );
-	pGrid->addWidget( m_pToolbar, 1, 1, 1, 2 );
+	pGrid->addWidget( m_pToolBar, 1, 1, 1, 2 );
 	pGrid->addWidget( m_pDrumkitLabel, 2, 0 );
 	pGrid->addWidget( m_pRulerScrollView, 2, 1, 1, 2 );
 
@@ -953,9 +891,9 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 void PatternEditorPanel::hearNotesBtnClick()
 {
-	Preferences::get_instance()->setHearNewNotes( m_pHearNotesBtn->isChecked() );
+	Preferences::get_instance()->setHearNewNotes( m_pHearNotesAction->isChecked() );
 
-	if ( m_pHearNotesBtn->isChecked() ) {
+	if ( m_pHearNotesAction->isChecked() ) {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = On" ) );
 	} else {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Hear new notes = Off" ) );
@@ -965,11 +903,11 @@ void PatternEditorPanel::hearNotesBtnClick()
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
 	Preferences::get_instance()->setQuantizeEvents(
-		m_pQuantizeEventsBtn->isChecked() );
+		m_pQuantizeAction->isChecked() );
 
 	updateQuantization( nullptr );
 
-	if ( m_pQuantizeEventsBtn->isChecked() ) {
+	if ( m_pQuantizeAction->isChecked() ) {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ) );
 	} else {
 		( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ) );
@@ -1037,15 +975,13 @@ bool PatternEditorPanel::hasPatternEditorFocus() const {
 		m_pPatternEditorHScrollBar->hasFocus() ||
 		m_pPatternEditorVScrollBar->hasFocus() ||
 		m_pPianoRollScrollView->hasFocus() ||
-		m_pToolbarSidebar->hasFocus() ||
 		m_pResolutionCombo->hasFocus() ||
-		m_pToolbar->hasFocus() ||
 		m_pLCDSpinBoxNumerator->hasFocus() ||
 		m_pLCDSpinBoxDenominator->hasFocus() ||
 		m_pPropertiesCombo->hasFocus() ||
 		m_pDrumkitLabel->hasFocus() ||
 		m_pTabBar->hasFocus() ||
-		m_pToolbar->hasFocus();
+		m_pToolBar->hasFocus();
 }
 
 void PatternEditorPanel::setInput( Editor::Input input ) {
@@ -1148,21 +1084,48 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	resizeEvent( nullptr );
 }
 
+void PatternEditorPanel::updateIcons() {
+	QColor color;
+	QString sIconPath( Skin::getSvgImagePath() );
+	if ( Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
+		 InterfaceTheme::IconColor::White ) {
+		sIconPath.append( "/icons/white/" );
+		color = Qt::white;
+	} else {
+		sIconPath.append( "/icons/black/" );
+		color = Qt::black;
+	}
+
+	m_pSelectButton->setIcon( QIcon( sIconPath + "select.svg" ) );
+	m_pDrawButton->setIcon( QIcon( sIconPath + "draw.svg" ) );
+	m_pEditButton->setIcon( QIcon( sIconPath + "edit.svg" ) );
+	m_pHearNotesAction->setIcon( QIcon( sIconPath + "speaker.svg" ) );
+	m_pQuantizeAction->setIcon( QIcon( sIconPath + "quantization.svg" ) );
+	m_pDrumPatternButton->setIcon( QIcon( sIconPath + "drum.svg" ) );
+	m_pPianoRollButton->setIcon( QIcon( sIconPath + "piano.svg" ) );
+
+	m_pPatternSizeSeparatorLabel->setStyleSheet( QString( "\
+ClickableLabel {\
+    color: %1;\
+    font-size: 17px;\
+}" ).arg( color.name() ) );
+}
+
 void PatternEditorPanel::updateInput() {
 	if ( m_input == Editor::Input::Select ) {
-		m_pSelectBtn->setChecked( true );
-		m_pDrawBtn->setChecked( false );
-		m_pEditBtn->setChecked( false );
+		m_pSelectButton->setChecked( true );
+		m_pDrawButton->setChecked( false );
+		m_pEditButton->setChecked( false );
 	}
 	else if ( m_input == Editor::Input::Draw ) {
-		m_pSelectBtn->setChecked( false );
-		m_pDrawBtn->setChecked( true );
-		m_pEditBtn->setChecked( false );
+		m_pSelectButton->setChecked( false );
+		m_pDrawButton->setChecked( true );
+		m_pEditButton->setChecked( false );
 	}
 	else if ( m_input == Editor::Input::Edit ) {
-		m_pSelectBtn->setChecked( false );
-		m_pDrawBtn->setChecked( false );
-		m_pEditBtn->setChecked( true );
+		m_pSelectButton->setChecked( false );
+		m_pDrawButton->setChecked( false );
+		m_pEditButton->setChecked( true );
 	}
 	else {
 		ERRORLOG( QString( "Unhandled input [%1]" )
@@ -1172,8 +1135,8 @@ void PatternEditorPanel::updateInput() {
 
 void PatternEditorPanel::updateInstance() {
 	if ( m_instance == Editor::Instance::DrumPattern ) {
-		m_pDrumPatternBtn->setChecked( true );
-		m_pPianoRollBtn->setChecked( false );
+		m_pDrumPatternButton->setChecked( true );
+		m_pPianoRollButton->setChecked( false );
 
 		m_pPianoRollScrollView->hide();
 		m_pEditorScrollView->show();
@@ -1186,8 +1149,8 @@ void PatternEditorPanel::updateInstance() {
 		m_pDrumPatternEditor->updateEditor();
 	}
 	else if ( m_instance == Editor::Instance::PianoRoll ) {
-		m_pDrumPatternBtn->setChecked( false );
-		m_pPianoRollBtn->setChecked( true );
+		m_pDrumPatternButton->setChecked( false );
+		m_pPianoRollButton->setChecked( true );
 
 		m_pPianoRollScrollView->show();
 		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
@@ -1416,6 +1379,7 @@ void PatternEditorPanel::playingPatternsChangedEvent() {
 void PatternEditorPanel::songModeActivationEvent() {
 	updatePatternInfo();
 	updateDB();
+	updateStyleSheet();
 	updateEditors( true );
 
 	resizeEvent( nullptr );
@@ -1576,6 +1540,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		updateDrumkitLabel();
 		updatePatternInfo();
 		updateDB();
+		updateStyleSheet();
 		updateEditors();
 		m_pPatternEditorRuler->updatePosition();
 		m_pSidebar->updateRows();
@@ -1807,6 +1772,7 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 	}
 	else if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
 		updateEditors( true );
+		updateIcons();
 	}
 }
 
@@ -1821,32 +1787,67 @@ void PatternEditorPanel::updateStyleSheet() {
 		colorTheme.m_patternEditor_instrumentRowTextColor;
 	const QColor colorPatternLabel =
 		colorTheme.m_patternEditor_alternateRowColor.darker( 120 );
-	const QColor colorToolbar =
+	const QColor colorToolBar =
 		colorTheme.m_patternEditor_selectedRowColor.darker( 134 );
-	const QColor colorToolbarLighter =
-		colorTheme.m_patternEditor_selectedRowColor.darker( 114 );
 	const QColor colorPatternText = colorTheme.m_patternEditor_textColor;
 
-	m_pToolbarSidebar->setStyleSheet( QString( "\
-QWidget#PatternEditorToolbarSidebar  {\
-     background-color: %1; \
-     color: %2; \
-     border-top: 1px solid #000;\
-     border-bottom: 1px solid #000;\
-     border-left: 1px solid #000;\
-     border-right: 1px solid #000;\
-}")
-		.arg( colorToolbar.name() ).arg( colorPatternText.name() ) );
+	QColor backgroundInactiveColor;
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor = colorTheme.m_windowColor.lighter(
+			Skin::nEditorActiveScaling );
+	}
+	else {
+		backgroundInactiveColor = colorTheme.m_windowColor;
+	}
 
-	m_pToolbar->setStyleSheet( QString( "\
-QWidget#PatternEditorToolbar  {\
+	QColor colorToolBarChecked, colorToolBarHovered;
+	if ( Skin::moreBlackThanWhite( colorToolBar ) ) {
+		colorToolBarChecked = colorToolBar.lighter(
+			Skin::nToolBarCheckedScaling );
+		colorToolBarHovered = colorToolBar.lighter(
+			Skin::nToolBarHoveredScaling );
+	}
+	else {
+		colorToolBarChecked = colorToolBar.darker(
+			Skin::nToolBarCheckedScaling );
+		colorToolBarHovered = colorToolBar.darker(
+			Skin::nToolBarHoveredScaling );
+	}
+
+	setStyleSheet( QString( "\
+#MainPanel, #EditorScrollView, #RulerScrollView, #PianoRollScrollView, \
+#SidebarScrollView, #NoteVelocityScrollView, #NotePanScrollView, \
+#NoteLeadLagScrollView, #NoteNoteKeyScrollView, #NoteProbabilityScrollView {\
+     background-color: %1;\
+}" )
+				   .arg( backgroundInactiveColor.name() ) );
+
+	m_pToolBar->setStyleSheet( QString( "\
+QToolBar {\
      background-color: %1; \
      color: %2; \
-     border-top: 1px solid #000;\
-     border-bottom: 1px solid #000;\
-     border-right: 1px solid #000;\
+     border: 1px solid #000;\
+     spacing: 4px;\
+}\
+QToolButton {\
+    background-color: %1; \
+}\
+QToolButton:checked {\
+    background-color: %3;\
+}\
+QToolButton:hover {\
+    background-color: %4;\
+}\
+QToolButton:hover, QToolButton:checked {\
+    background-color: %3;\
+}\
+QToolButton:hover, QToolButton:pressed {\
+    background-color: %3;\
 }")
-		.arg( colorToolbar.name() ).arg( colorPatternText.name() ) );
+							   .arg( colorToolBar.name() )
+							   .arg( colorPatternText.name() )
+							   .arg( colorToolBarChecked.name() )
+							   .arg( colorToolBarHovered.name() ) );
 
 	m_pTabBar->setStyleSheet( QString( "\
 QWidget#patternEditorTabBar {\
@@ -1862,19 +1863,6 @@ QLabel {\
      color: %2; \
      border: 1px solid #000;\
 }" ).arg( colorDrumkit.name() ).arg( colorDrumkitText.name() ) );
-
-	const QString sWidgetStyleSheet = QString( "\
-QWidget#GroupBox {\
-    background-color: %1;\
-    color: %2;\
-    border: 1px solid #000;\
-    border-radius: 2px;\
-}" )
-		.arg( colorToolbarLighter.name() ).arg( colorPatternText.name() );
-	m_pInputModeGroup->setStyleSheet( sWidgetStyleSheet );
-	m_pInstanceGroup->setStyleSheet( sWidgetStyleSheet );
-	m_pSizeGroup->setStyleSheet( sWidgetStyleSheet );
-	m_pResolutionGroup->setStyleSheet( sWidgetStyleSheet );
 
 	m_pPianoRollEditor->updateStyleSheet();
 	m_pNoteKeyOctaveEditor->updateColors();
@@ -2190,7 +2178,6 @@ void PatternEditorPanel::updateTypeLabelVisibility() {
 		nWidth = PatternEditorSidebar::m_nWidth;
 	}
 
-	m_pToolbarSidebar->setFixedWidth( nWidth );
 	m_pDrumkitLabel->setFixedWidth( nWidth );
 	m_pSidebar->setFixedWidth( nWidth );
 	m_pSidebarScrollView->setFixedWidth( nWidth );

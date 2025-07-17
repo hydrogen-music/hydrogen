@@ -22,13 +22,11 @@
 
 
 #include <core/IO/PortMidiDriver.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Hydrogen.h>
+
 #include <core/Globals.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 
 #ifdef WIN32
@@ -90,19 +88,20 @@ void* PortMidiDriver_thread( void* param )
 
 				if ( nEventType == 240 ) {
 					// New SysEx message
-					sysExMsg.m_type = MidiMessage::SYSEX;
+					sysExMsg.setType( MidiMessage::Type::Sysex );
 					if ( PortMidiDriver::appendSysExData( &sysExMsg,
 														  buffer[0].message ) ) {
-						instance->handleMidiMessage( sysExMsg );
+						instance->handleMessage( sysExMsg );
 					}
 				}
 				else {
 					// Other MIDI message consisting only of a single PmEvent.
 					MidiMessage msg;
-					msg.setType( nEventType );
-					msg.m_nData1 = Pm_MessageData1( buffer[0].message );
-					msg.m_nData2 = Pm_MessageData2( buffer[0].message );
-					instance->handleMidiMessage( msg );
+					msg.setChannel( MidiMessage::deriveChannel( nEventType ) );
+					msg.setType( MidiMessage::deriveType( nEventType ) );
+					msg.setData1( Pm_MessageData1( buffer[0].message ) );
+					msg.setData2( Pm_MessageData2( buffer[0].message ) );
+					instance->handleMessage( msg );
 				}
 			}
 			else if ( nEventType >= 256 ) {
@@ -113,7 +112,7 @@ void* PortMidiDriver_thread( void* param )
 				// Continuation of a SysEx message.
 				if ( PortMidiDriver::appendSysExData( &sysExMsg,
 													  buffer[0].message ) ) {
-					instance->handleMidiMessage( sysExMsg );
+					instance->handleMessage( sysExMsg );
 				}
 			}
 		}
@@ -140,7 +139,7 @@ void* PortMidiDriver_thread( void* param )
 }
 
 PortMidiDriver::PortMidiDriver()
-		: MidiInput(), MidiOutput(), Object<PortMidiDriver>()
+		: MidiBaseDriver()
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )
@@ -164,13 +163,9 @@ PortMidiDriver::~PortMidiDriver()
 	}
 }
 
-void PortMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+void PortMidiDriver::sendControlChangeMessage( const MidiMessage& msg )
 {
 	if ( m_pMidiOut == nullptr ) {
-		return;
-	}
-
-	if (channel < 0) {
 		return;
 	}
 
@@ -178,7 +173,8 @@ void PortMidiDriver::handleOutgoingControlChange( int param, int value, int chan
 	event.timestamp = 0;
 
 	//Control change
-	event.message = Pm_Message(0xB0 | channel, param, value);
+	event.message = Pm_Message(
+		0xB0 | msg.getChannel(), msg.getData1(), msg.getData2() );
 	Pm_Write(m_pMidiOut, &event, 1);
 }
 
@@ -416,8 +412,7 @@ void PortMidiDriver::close()
 	}
 }
 
-std::vector<QString> PortMidiDriver::getInputPortList()
-{
+std::vector<QString> PortMidiDriver::getExternalPortList( const PortType& portType ) {
 	std::vector<QString> portList;
 
 	const int nDevices = Pm_CountDevices();
@@ -432,10 +427,11 @@ std::vector<QString> PortMidiDriver::getInputPortList()
 			// feedback loops.
 			const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( ii );
 			if ( pInfo == nullptr ) {
-				ERRORLOG( QString( "Could not open output device [%1]" ).arg( ii ) );
+				ERRORLOG( QString( "Could not open %1 device [%2]" )
+						  .arg( portTypeToQString( portType ) ).arg( ii ) );
 			}
-			else if ( pInfo->output == TRUE ) {
-				INFOLOG( pInfo->name );
+			else if ( portType == PortType::Output && pInfo->input == TRUE ||
+					  portType == PortType::Input && pInfo->output == TRUE ) {
 				portList.push_back( pInfo->name );
 			}
 		}
@@ -444,79 +440,33 @@ std::vector<QString> PortMidiDriver::getInputPortList()
 	return portList;
 }
 
-std::vector<QString> PortMidiDriver::getOutputPortList()
-{
-	std::vector<QString> portList;
-
-	const int nDevices = Pm_CountDevices();
-	for ( int ii = 0; ii < nDevices; ii++ ) {
-		if ( ii != m_nVirtualInputDeviceId && ii != m_nVirtualOutputDeviceId ) {
-			// Be sure to avoid a potential virtual device created by
-			// Hydrogen itself (it can not possibly be connected to
-			// since those virtual devices are deleted when restarting
-			// the PortMidiDriver - which is done to establish a
-			// connection). Also, there is no real use case and an
-			// extreme risk to lock Hydrogen due to MIDI signal
-			// feedback loops.
-			const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( ii );
-			if ( pInfo == nullptr ) {
-				ERRORLOG( QString( "Could not open input device [%1]" ).arg( ii ) );
-			}
-			else if ( pInfo->input == TRUE ) {
-				INFOLOG( pInfo->name );
-				portList.push_back( pInfo->name );
-			}
-		}
-	}
-
-	return portList;
+bool PortMidiDriver::isInputActive() const {
+	return m_pMidiIn != nullptr;
 }
 
-void PortMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
-{
+bool PortMidiDriver::isOutputActive() const {
+	return m_pMidiIn != nullptr;
+}
+
+void PortMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 	if ( m_pMidiOut == nullptr ) {
 		return;
 	}
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return;
-	}
-
-	int channel = pNote->getInstrument()->getMidiOutChannel();
-	if ( channel < 0 ) {
-		return;
-	}
-
-	int key = pNote->getMidiKey();
-	int velocity = pNote->getMidiVelocity();
 
 	PmEvent event;
 	event.timestamp = 0;
-
-	//Note off
-	event.message = Pm_Message(0x80 | channel, key, velocity);
+	event.message = Pm_Message(
+		0x90 | msg.getChannel(), msg.getData1(), msg.getData2() );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
-	if ( err != pmNoError ) {
-		ERRORLOG( QString( "Error in Pm_Write for Note off: [%1]" )
-				  .arg( PortMidiDriver::translatePmError( err ) ) );
-	}
-
-	//Note on
-	event.message = Pm_Message(0x90 | channel, key, velocity);
-	err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write for Note on: [%1]" )
 				  .arg( PortMidiDriver::translatePmError( err ) ) );
 	}
 }
 
-void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
+void PortMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 {
 	if ( m_pMidiOut == nullptr ) {
-		return;
-	}
-
-	if ( channel < 0 ) {
 		return;
 	}
 
@@ -524,7 +474,8 @@ void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	event.timestamp = 0;
 
 	//Note off
-	event.message = Pm_Message(0x80 | channel, key, velocity);
+	event.message =
+		Pm_Message( 0x80 | msg.getChannel(), msg.getData1(), msg.getData2() );
 	PmError err = Pm_Write(m_pMidiOut, &event, 1);
 	if ( err != pmNoError ) {
 		ERRORLOG( QString( "Error in Pm_Write: [%1]" )
@@ -532,61 +483,30 @@ void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	}
 }
 
-void PortMidiDriver::handleQueueAllNoteOff()
-{
-	if ( m_pMidiOut == nullptr ) {
-		return;
-	}
-
-	auto instList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-
-	unsigned int numInstruments = instList->size();
-	for (int index = 0; index < numInstruments; ++index) {
-		auto pCurInst = instList->get(index);
-
-		int channel = pCurInst->getMidiOutChannel();
-		if (channel < 0) {
-			continue;
-		}
-		int key = pCurInst->getMidiOutNote();
-
-		PmEvent event;
-		event.timestamp = 0;
-
-		//Note off
-		event.message = Pm_Message(0x80 | channel, key, 0);
-		PmError err = Pm_Write(m_pMidiOut, &event, 1);
-		if ( err != pmNoError ) {
-			ERRORLOG( QString( "Error for instrument [%1] in Pm_Write: [%2]" )
-					  .arg( pCurInst->getName() )
-					  .arg( PortMidiDriver::translatePmError( err ) ) );
-		}
-	}
-}
-
-bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage, const PmMessage& msg ) {
+bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage,
+									  const PmMessage& msg ) {
 	// End of exception byte indicating the end of a SysEx message.
 	unsigned char eox = 247;
 	unsigned char c = msg & 0x000000ffUL;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
 
     c = (msg & 0x0000ff00UL) >>  8;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
 
 	c = (msg & 0x00ff0000UL) >> 16;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
 
 	c = (msg & 0xff000000UL) >> 24;
-	pMidiMessage->m_sysexData.push_back( c );
+	pMidiMessage->appendToSysexData( c );
 	if ( c == eox ) {
 		return true;
 	}
@@ -612,8 +532,6 @@ QString PortMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[PortMidiDriver]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_bActive: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bActive ) )
 			.append( QString( "%1%2m_bRunning: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bRunning ) )
 			.append( QString( "%1%2m_nVirtualInputDeviceId: %3\n" ).arg( sPrefix ).arg( s )
@@ -622,7 +540,6 @@ QString PortMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nVirtualOutputDeviceId ) );
 	} else {
 		sOutput = QString( "[PortMidiDriver]" )
-			.append( QString( " m_bActive: %1" ).arg( m_bActive ) )
 			.append( QString( ", m_bRunning: %1" ).arg( m_bRunning ) )
 			.append( QString( ", m_nVirtualInputDeviceId: %1" ).arg( m_nVirtualInputDeviceId ) )
 			.append( QString( ", m_nVirtualOutputDeviceId: %1" ).arg( m_nVirtualOutputDeviceId ) );

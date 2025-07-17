@@ -34,11 +34,13 @@
 #include <core/Basics/Playlist.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
-#include <core/IO/MidiCommon.h>
 #include <core/Lilipond/Lilypond.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Midi/SMF.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
-#include <core/SMF/SMF.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Timeline.h>
 #include <core/Version.h>
@@ -57,7 +59,7 @@
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PlaylistEditor/PlaylistEditor.h"
-#include "PlayerControl.h"
+#include "MainToolBar/MainToolBar.h"
 #include "Skin.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -182,7 +184,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 	h2app->getMixer()->installEventFilter (this);
 	h2app->getPatternEditorPanel()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
-	h2app->getPlayerControl()->installEventFilter(this);
+	h2app->getMainToolBar()->installEventFilter(this);
 	h2app->getInstrumentRack()->getInstrumentEditorPanel()
 		->installEventFilter(this);
 	h2app->getAudioEngineInfoForm()->installEventFilter(this);
@@ -2574,7 +2576,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			auto inputType = InputCaptureDialog::Type::IntMidi;
 			float fMax = 1;
 			float fMin = 0;
-			QString sAction, sLabel;
+			QString sLabel;
+			auto midiActionType = MidiAction::Type::Null;
 			
 			switch ( action ) {
 			case Shortcuts::Action::BPM:
@@ -2585,7 +2588,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::MasterVolume:
-				sAction = "MASTER_VOLUME_ABSOLUTE";
+				midiActionType = MidiAction::Type::MasterVolumeAbsolute;
 				sLabel = pCommonStrings->getInputCaptureVolume();
 				break;
 
@@ -2599,11 +2602,13 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::SelectOnlyNextPattern:
 			case Shortcuts::Action::SelectAndPlayPattern:
 				if ( action == Shortcuts::Action::SelectNextPattern ) {
-					sAction = "SELECT_NEXT_PATTERN";
-				} else if ( action == Shortcuts::Action::SelectOnlyNextPattern ) {
-					sAction = "SELECT_ONLY_NEXT_PATTERN";
-				} else if ( action == Shortcuts::Action::SelectAndPlayPattern ) {
-					sAction = "SELECT_AND_PLAY_PATTERN";
+					midiActionType = MidiAction::Type::SelectNextPattern;
+				}
+				else if ( action == Shortcuts::Action::SelectOnlyNextPattern ) {
+					midiActionType = MidiAction::Type::SelectOnlyNextPattern;
+				}
+				else if ( action == Shortcuts::Action::SelectAndPlayPattern ) {
+					midiActionType = MidiAction::Type::SelectAndPlayPattern;
 				}
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCapturePattern();
@@ -2611,7 +2616,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::PlaylistSong:
-				sAction = "PLAYLIST_SONG";
+				midiActionType = MidiAction::Type::PlaylistSong;
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCapturePattern();
 				fMax = static_cast<float>(pHydrogen->getPlaylist()->size()) - 1;
@@ -2630,13 +2635,16 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::StripMuteToggle:
 			case Shortcuts::Action::StripSoloToggle:
 				if ( action == Shortcuts::Action::SelectInstrument ) {
-					sAction = "SELECT_INSTRUMENT";
-				} else if ( action == Shortcuts::Action::StripMuteToggle ) {
-					sAction = "STRIP_MUTE_TOGGLE";
-				} else if ( action == Shortcuts::Action::StripSoloToggle ) {
-					sAction = "STRIP_SOLO_TOGGLE";
-				} else {
-					sAction = "STRIP_VOLUME_RELATIVE";
+					midiActionType = MidiAction::Type::SelectInstrument;
+				}
+				else if ( action == Shortcuts::Action::StripMuteToggle ) {
+					midiActionType = MidiAction::Type::StripMuteToggle;
+				}
+				else if ( action == Shortcuts::Action::StripSoloToggle ) {
+					midiActionType = MidiAction::Type::StripSoloToggle;
+				}
+				else {
+					midiActionType = MidiAction::Type::StripVolumeRelative;
 				}
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCaptureInstrument();
@@ -2664,9 +2672,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::MasterVolume: {
-				auto pAction = std::make_shared<Action>( sAction );
+				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setValue( sArg );
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 				break;
 			}
 				
@@ -2678,14 +2686,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::StripVolumeDecrease:
 			case Shortcuts::Action::StripMuteToggle:
 			case Shortcuts::Action::StripSoloToggle: {
-				auto pAction = std::make_shared<Action>( sAction );
+				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setParameter1( sArg );
 				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
 					pAction->setValue( QString::number( 1 ) );
 				} else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
 					pAction->setValue( QString::number( -1 ) );
 				}
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 				break;
 			}
 
@@ -2712,22 +2720,23 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			float fMin1 = 0;
 			float fMax2 = 1;
 			float fMin2 = 0;
-			QString sAction, sLabel1, sAction2, sLabel2;
-			
+			QString sLabel1, sLabel2;
+			auto midiActionType = MidiAction::Type::Null;
+
 			switch ( action ) {
 			case Shortcuts::Action::StripVolume:
 			case Shortcuts::Action::StripPan:
 			case Shortcuts::Action::StripFilterCutoff:
 				if ( action == Shortcuts::Action::StripVolume ) {
-					sAction = "STRIP_VOLUME_ABSOLUTE";
+					midiActionType = MidiAction::Type::StripVolumeAbsolute;
 					sLabel1 = pCommonStrings->getInputCaptureVolume();
 				}
 				else if ( action == Shortcuts::Action::StripPan ) {
-					sAction = "PAN_ABSOLUTE";
+					midiActionType = MidiAction::Type::PanAbsolute;
 					sLabel1 = pCommonStrings->getNotePropertyPan();
 				}
 				else if ( action == Shortcuts::Action::StripFilterCutoff ) {
-					sAction = "FILTER_CUTOFF_LEVEL_ABSOLUTE";
+					midiActionType = MidiAction::Type::FilterCutoffLevelAbsolute;
 					sLabel1 = pCommonStrings->getInputCaptureFilterCutoff();
 				}
 				inputType2 = InputCaptureDialog::Type::Int;
@@ -2764,16 +2773,16 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			// Capture arguments
-			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, sLabel1, inputType1, fMin1, fMax1 );
+			auto pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, sLabel1, inputType1, fMin1, fMax1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
 			const QString sArg1 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
 			
-			pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, sLabel2, inputType2, fMin2, fMax2 );
+			pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, sLabel2, inputType2, fMin2, fMax2 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2784,10 +2793,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			case Shortcuts::Action::StripVolume:
 			case Shortcuts::Action::StripPan:
 			case Shortcuts::Action::StripFilterCutoff: {
-				auto pAction = std::make_shared<Action>( sAction );
+				auto pAction = std::make_shared<MidiAction>( midiActionType );
 				pAction->setValue( sArg1 );
 				pAction->setParameter1( sArg2 );
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 				break;
 			}
 
@@ -2810,12 +2819,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 		else if ( action == Shortcuts::Action::StripEffectLevel ) {
 			// Core actions with three input arguments
 
-			const QString sAction = "EFFECT_LEVEL_ABSOLUTE";
-
 			// Capture new parameter value
-			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureFXLevel(),
-										InputCaptureDialog::Type::IntMidi );
+			auto pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, pCommonStrings->getInputCaptureFXLevel(),
+				InputCaptureDialog::Type::IntMidi );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2823,10 +2830,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			delete pInputCaptureDialog;
 
 			// Capture instrument number
-			pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
-										InputCaptureDialog::Type::Int, 0,
-										static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
+			pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, pCommonStrings->getInputCaptureInstrument(),
+				InputCaptureDialog::Type::Int, 0,
+				static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2840,10 +2847,9 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			// Capture FX number
-			pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureFXNumber(),
-										InputCaptureDialog::Type::Int, 0,
-										static_cast<float>(MAX_FX) - 1);
+			pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, pCommonStrings->getInputCaptureFXNumber(),
+				InputCaptureDialog::Type::Int, 0, static_cast<float>(MAX_FX) - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2851,30 +2857,32 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			delete pInputCaptureDialog;
 			
 			// Deploy action
-			auto pAction = std::make_shared<Action>( sAction );
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::EffectLevelAbsolute );
 			pAction->setValue( sValue );
 			pAction->setParameter1( QString::number( nInstrument ) );
 			pAction->setParameter2( sFX );
-			pActionManager->handleAction( pAction );
+			pActionManager->handleMidiAction( pAction );
 		}
 		else if ( action == Shortcuts::Action::LayerPitch ||
 				  action == Shortcuts::Action::LayerGain ) {
 			// Core actions with more than three input arguments
 			
-			QString sAction, sLabel;
+			QString sLabel;
+			auto midiActionType = MidiAction::Type::Null;
 
 			if ( action == Shortcuts::Action::LayerPitch ) {
-				sAction = "PITCH_LEVEL_ABSOLUTE";
+				midiActionType = MidiAction::Type::PitchLevelAbsolute;
 				sLabel = pCommonStrings->getPitchLabel();
 			}
 			else if ( action == Shortcuts::Action::LayerGain ) {
-				sAction = "GAIN_LEVEL_ABSOLUTE";
+				midiActionType = MidiAction::Type::GainLevelAbsolute;
 				sLabel = pCommonStrings->getGainLabel();
 			}
 
 			// Capture new parameter value
-			auto pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, sLabel, InputCaptureDialog::Type::IntMidi );
+			auto pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, sLabel, InputCaptureDialog::Type::IntMidi );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2882,10 +2890,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			delete pInputCaptureDialog;
 
 			// Capture instrument number
-			pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureInstrument(),
-										InputCaptureDialog::Type::Int, 0,
-										static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
+			pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, pCommonStrings->getInputCaptureInstrument(),
+				InputCaptureDialog::Type::Int, 0,
+				static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2899,10 +2907,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			// Capture component number
-			pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureComponent(),
-										InputCaptureDialog::Type::Int, 0,
-										pInstrument->getComponents()->size() - 1);
+			pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, pCommonStrings->getInputCaptureComponent(),
+				InputCaptureDialog::Type::Int, 0,
+				pInstrument->getComponents()->size() - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2916,10 +2924,10 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			// Capture layer number
-			pInputCaptureDialog =
-				new InputCaptureDialog( this, sTitle, pCommonStrings->getInputCaptureLayer(),
-										InputCaptureDialog::Type::Int, 0,
-										pComponent->getLayers().size() - 1);
+			pInputCaptureDialog = new InputCaptureDialog(
+				this, sTitle, pCommonStrings->getInputCaptureLayer(),
+				InputCaptureDialog::Type::Int, 0,
+				pComponent->getLayers().size() - 1);
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
@@ -2933,15 +2941,15 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			// Deploy action
-			auto pAction = std::make_shared<Action>( sAction );
+			auto pAction = std::make_shared<MidiAction>( midiActionType );
 			pAction->setValue( sValue );
 			pAction->setParameter1( QString::number( nInstrument ) );
 			pAction->setParameter2( QString::number( nComponent ) );
 			pAction->setParameter3( QString::number( nLayer )  );
-			pActionManager->handleAction( pAction );
+			pActionManager->handleMidiAction( pAction );
 		}
 		else {
-			std::shared_ptr<Action> pAction = nullptr;
+			std::shared_ptr<MidiAction> pAction = nullptr;
 			
 			// Actions without input arguments
 			switch ( action ) {
@@ -2952,19 +2960,21 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::Play:
-				pAction = std::make_shared<Action>( "PLAY" );
+				pAction = std::make_shared<MidiAction>( MidiAction::Type::Play );
 				break;
 			case Shortcuts::Action::Pause:
-				pAction = std::make_shared<Action>( "PAUSE" );
+				pAction = std::make_shared<MidiAction>( MidiAction::Type::Pause );
 				break;
 			case Shortcuts::Action::Stop:
-				pAction = std::make_shared<Action>( "STOP" );
+				pAction = std::make_shared<MidiAction>( MidiAction::Type::Stop );
 				break;
 			case Shortcuts::Action::PlayPauseToggle:
-				pAction = std::make_shared<Action>( "PLAY/PAUSE_TOGGLE" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::PlayPauseToggle );
 				break;
 			case Shortcuts::Action::PlayStopToggle:
-				pAction = std::make_shared<Action>( "PLAY/STOP_TOGGLE" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::PlayStopToggle );
 				break;
 			case Shortcuts::Action::PlayPauseToggleAtCursor:
 				if ( nullDriverCheck() ) {
@@ -2973,33 +2983,40 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 				
 			case Shortcuts::Action::RecordReady:
-				pAction = std::make_shared<Action>( "RECORD_READY" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::RecordReady );
 				break;
 			case Shortcuts::Action::RecordStrobe:
-				pAction = std::make_shared<Action>( "RECORD_STROBE" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::RecordStrobe );
 				break;
 			case Shortcuts::Action::RecordStrobeToggle:
-				pAction = std::make_shared<Action>( "RECORD/STROBE_TOGGLE" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::RecordStrobeToggle );
 				break;
 			case Shortcuts::Action::RecordExit:
-				pAction = std::make_shared<Action>( "RECORD_EXIT" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::RecordExit );
 				break;
 
 			case Shortcuts::Action::MasterMute:
-				pAction = std::make_shared<Action>( "MUTE" );
+				pAction = std::make_shared<MidiAction>( MidiAction::Type::Mute );
 				break;
 			case Shortcuts::Action::MasterUnmute:
-				pAction = std::make_shared<Action>( "UNMUTE" );
+				pAction = std::make_shared<MidiAction>( MidiAction::Type::Unmute );
 				break;
 			case Shortcuts::Action::MasterMuteToggle:
-				pAction = std::make_shared<Action>( "MUTE_TOGGLE" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::MuteToggle );
 				break;
 			case Shortcuts::Action::MasterVolumeIncrease:
-				pAction = std::make_shared<Action>( "MASTER_VOLUME_RELATIVE" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::MasterVolumeRelative );
 				pAction->setValue( QString::number( 1 ) );
 				break;
 			case Shortcuts::Action::MasterVolumeDecrease:
-				pAction = std::make_shared<Action>( "MASTER_VOLUME_RELATIVE" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::MasterVolumeRelative );
 				pAction->setValue( QString::number( -1 ) );
 				break;
 
@@ -3007,26 +3024,32 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				H2Core::CoreActionController::locateToColumn( 0 );
 				break;
 			case Shortcuts::Action::JumpBarForward:
-				pAction = std::make_shared<Action>( ">>_NEXT_BAR" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::NextBar );
 				break;
 			case Shortcuts::Action::JumpBarBackward:
-				pAction = std::make_shared<Action>( "<<_PREVIOUS_BAR" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::PreviousBar );
 				break;
 
 			case Shortcuts::Action::BPMIncreaseCoarse:
-				pAction = std::make_shared<Action>( "BPM_INCR" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::BpmIncr );
 				pAction->setParameter1( QString::number( 0.1 ) );
 				break;
 			case Shortcuts::Action::BPMDecreaseCoarse:
-				pAction = std::make_shared<Action>( "BPM_DECR" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::BpmDecr );
 				pAction->setParameter1( QString::number( 0.1 ) );
 				break;
 			case Shortcuts::Action::BPMIncreaseFine:
-				pAction = std::make_shared<Action>( "BPM_INCR" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::BpmIncr );
 				pAction->setParameter1( QString::number( 0.01 ) );
 				break;
 			case Shortcuts::Action::BPMDecreaseFine:
-				pAction = std::make_shared<Action>( "BPM_DECR" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::BpmDecr );
 				pAction->setParameter1( QString::number( 0.01 ) );
 				break;
 
@@ -3039,17 +3062,20 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::PlaylistNextSong:
-				pAction = std::make_shared<Action>( "PLAYLIST_NEXT_SONG" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::PlaylistNextSong );
 				break;
 			case Shortcuts::Action::PlaylistPrevSong:
-				pAction = std::make_shared<Action>( "PLAYLIST_PREV_SONG" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::PlaylistPrevSong );
 				break;
 
 			case Shortcuts::Action::TimelineToggle:
 				H2Core::CoreActionController::toggleTimeline();
 				break;
 			case Shortcuts::Action::MetronomeToggle:
-				pAction = std::make_shared<Action>( "TOGGLE_METRONOME" );
+				pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::ToggleMetronome );
 				break;
 			case Shortcuts::Action::JackTransportToggle:
 				H2Core::CoreActionController::toggleJackTransport();
@@ -3275,7 +3301,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			}
 
 			if ( pAction != nullptr ) {
-				pActionManager->handleAction( pAction );
+				pActionManager->handleMidiAction( pAction );
 			}
 		}
 	}

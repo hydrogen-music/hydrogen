@@ -26,33 +26,34 @@
 #endif
 
 #include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/TestResult.h>
+#include <cppunit/ui/text/TestRunner.h>
 
-#include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
+#include <QCoreApplication>
 #include <QLibraryInfo>
 #include <QStringList>
 #include <QThread>
-#include <core/config.h>
-#include <core/Version.h>
 #include <getopt.h>
 
-#include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/AudioEngineTests.h>
-#include <core/Hydrogen.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
-#include <core/Globals.h>
-#include <core/EventQueue.h>
-#include <core/Preferences/Preferences.h>
-#include <core/H2Exception.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Playlist.h>
-#include <core/Sampler/Interpolation.h>
+#include <core/Basics/Song.h>
+#include <core/config.h>
+#include <core/EventQueue.h>
+#include <core/Globals.h>
+#include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/OscServer.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Interpolation.h>
+#include <core/Version.h>
 
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>

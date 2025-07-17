@@ -40,15 +40,15 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
+class ClickableLabel;
+class DrumPatternEditor;
 class Fader;
+class LCDSpinBox;
+class MidiLearnableToolButton;
+class NotePropertiesRuler;
 class PatternEditorRuler;
 class PatternEditorSidebar;
-class NotePropertiesRuler;
-class DrumPatternEditor;
 class PianoRollEditor;
-class ClickableLabel;
-class LCDSpinBox;
-class PixmapWidget;
 
 enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
@@ -137,8 +137,10 @@ class PatternEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
-		static constexpr int nToolbarHeight = 28;
-		static constexpr int nToolbarGroupHeight = nToolbarHeight - 4;
+		static constexpr int nToolBarBorder = 1;
+		static constexpr int nToolBarHeight = 28;
+		static constexpr int nToolBarMargin = 2;
+		static constexpr int nToolBarSpacing = 3;
 
 		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
@@ -379,6 +381,7 @@ class PatternEditorPanel : public QWidget,
 
 	private:
 
+		void updateIcons();
 		void updateInput();
 		void updateInstance();
 		void updatePatternInfo();
@@ -414,30 +417,24 @@ class PatternEditorPanel : public QWidget,
 
 		QTabBar* m_pTabBar;
 
-		/** Contains all buttons */
-		QWidget* m_pToolbarSidebar;
-		QWidget* m_pInputModeGroup;
-		Button* m_pSelectBtn;
-		Button* m_pDrawBtn;
-		Button* m_pEditBtn;
-		Button* m_pHearNotesBtn;
-		Button* m_pQuantizeEventsBtn;
-		QWidget* m_pInstanceGroup;
-		Button* m_pDrumPatternBtn;
-		Button*	m_pPianoRollBtn;
-		Button* m_pPatchBayBtn;
+		QToolBar* m_pToolBar;
+		MidiLearnableToolButton* m_pSelectButton;
+		MidiLearnableToolButton* m_pDrawButton;
+		MidiLearnableToolButton* m_pEditButton;
+		QAction* m_pHearNotesAction;
+		QAction* m_pQuantizeAction;
+		MidiLearnableToolButton* m_pDrumPatternButton;
+		MidiLearnableToolButton* m_pPianoRollButton;
+		//QAction* m_pPatchBayAction;
 
-		/** Contains the pattern size and resolution widget. */
-		QWidget* m_pToolbar;
-		QWidget* m_pSizeGroup;
 		LCDSpinBox* m_pLCDSpinBoxNumerator;
+		ClickableLabel* m_pPatternSizeSeparatorLabel;
 		LCDSpinBox* m_pLCDSpinBoxDenominator;
-		QWidget* m_pResolutionGroup;
 		LCDCombo* m_pResolutionCombo;
 
 		//note properties combo
 		LCDCombo *			m_pPropertiesCombo;
-		PixmapWidget*		m_pPropertiesPanel;
+		QWidget*			m_pPropertiesPanel;
 
 		// drum editor
 		QScrollArea*		m_pEditorScrollView;

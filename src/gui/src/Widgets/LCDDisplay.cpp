@@ -65,7 +65,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, const QSize& size, bool bFixedFont,
 	m_fontPointSizes[ 1 ] = m_fontPointSizes[ 0 ] + nStepSize;
 	m_fontPointSizes[ 2 ] = m_fontPointSizes[ 0 ] + 2 * nStepSize;
 	
-	if ( ! size.isNull() ) {
+	if ( ! size.isNull() && ! size.isEmpty() ) {
 		adjustSize();
 		setFixedSize( size );
 	}

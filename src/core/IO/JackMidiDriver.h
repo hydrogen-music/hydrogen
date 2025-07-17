@@ -27,8 +27,7 @@
 #ifndef JACK_MIDI_DRIVER_H
 #define JACK_MIDI_DRIVER_H
 
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
@@ -48,30 +47,31 @@ namespace H2Core
 {
 
 /** \ingroup docCore docMIDI */
-class JackMidiDriver : public Object<JackMidiDriver>, public virtual MidiInput, public virtual MidiOutput
+class JackMidiDriver : public Object<JackMidiDriver>,
+					   public virtual MidiBaseDriver
 {
 	H2_OBJECT(JackMidiDriver)
 public:
 	JackMidiDriver();
 	virtual ~JackMidiDriver();
 
-	virtual void open() override;
-	virtual void close() override;
-	virtual std::vector<QString> getInputPortList() override;
-	virtual std::vector<QString> getOutputPortList() override;
+	void close() override;
+	std::vector<QString> getExternalPortList( const PortType& portType ) override;
+	bool isInputActive() const override;
+	bool isOutputActive() const override;
+	void open() override;
 
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 	void JackMidiWrite(jack_nframes_t nframes);
 	void JackMidiRead(jack_nframes_t nframes);
 	
-	virtual void handleQueueNote( std::shared_ptr<Note> pNote ) override;
-	virtual void handleQueueNoteOff( int channel, int key, int velocity ) override;
-	virtual void handleQueueAllNoteOff() override;
-	virtual void handleOutgoingControlChange( int param, int value, int channel ) override;
-
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
 	void JackMidiOutEvent(uint8_t *buf, uint8_t len);
+
+	void sendControlChangeMessage( const MidiMessage& msg ) override;
+	void sendNoteOnMessage( const MidiMessage& msg ) override;
+	void sendNoteOffMessage( const MidiMessage& msg ) override;
 
 	void lock();
 	void unlock();

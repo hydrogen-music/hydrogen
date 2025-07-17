@@ -57,8 +57,7 @@
 #include <core/IO/FakeDriver.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
@@ -95,7 +94,6 @@ AudioEngine::AudioEngine()
 		: m_pSampler( nullptr )
 		, m_pAudioDriver( nullptr )
 		, m_pMidiDriver( nullptr )
-		, m_pMidiDriverOut( nullptr )
 		, m_state( State::Initialized )
 		, m_pMetronomeInstrument( nullptr )
 		, m_fSongSizeInTicks( 4 * H2Core::nTicksPerQuarter )
@@ -143,7 +141,8 @@ AudioEngine::AudioEngine()
 
 AudioEngine::~AudioEngine()
 {
-	stopAudioDrivers();
+	stopAudioDriver( Event::Trigger::Suppress );
+	stopMidiDriver( Event::Trigger::Suppress );
 	if ( getState() != State::Initialized ) {
 		AE_ERRORLOG( "Error the audio engine is not in State::Initialized" );
 		return;
@@ -904,7 +903,8 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
-AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& driver )
+AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& driver,
+											 Event::Trigger trigger )
 {
 	AE_INFOLOG( QString( "Creating driver [%1]" )
 				.arg( Preferences::audioDriverToQString( driver ) ) );
@@ -1019,13 +1019,14 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 	unlock();
 
-	EventQueue::get_instance()->pushEvent( Event::Type::DriverChanged, 0 );
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
+	}
 
 	return pAudioDriver;
 }
 
-void AudioEngine::startAudioDrivers()
-{
+void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 	AE_INFOLOG("");
 	const auto pPref = Preferences::get_instance();
 	
@@ -1038,19 +1039,17 @@ void AudioEngine::startAudioDrivers()
 	if ( m_pAudioDriver != nullptr ) {	// check if audio driver is still alive
 		AE_ERRORLOG( "The audio driver is still alive" );
 	}
-	if ( m_pMidiDriver != nullptr ) {	// check if midi driver is still alive
-		AE_ERRORLOG( "The MIDI driver is still active" );
-	}
 
 	const auto audioDriver = pPref->m_audioDriver;
 
 	if ( audioDriver != Preferences::AudioDriver::Auto ) {
-		createAudioDriver( audioDriver );
+		createAudioDriver( audioDriver, Event::Trigger::Suppress );
 	}
 	else {
 		AudioOutput* pAudioDriver;
 		for ( const auto& ddriver : Preferences::getSupportedAudioDrivers() ) {
-			if ( ( pAudioDriver = createAudioDriver( ddriver ) ) != nullptr ) {
+			if ( ( pAudioDriver = createAudioDriver(
+					   ddriver, Event::Trigger::Suppress ) ) != nullptr ) {
 				break;
 			}
 		}
@@ -1059,51 +1058,16 @@ void AudioEngine::startAudioDrivers()
 	if ( m_pAudioDriver == nullptr ) {
 		AE_ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to NullDriver" )
 				  .arg( Preferences::audioDriverToQString( audioDriver ) ) );
-		createAudioDriver( Preferences::AudioDriver::Null );
+		createAudioDriver( Preferences::AudioDriver::Null,
+						   Event::Trigger::Suppress );
 	}
 
-	this->lock( RIGHT_HERE );
-	m_MutexOutputPointer.lock();
-	
-	if ( pPref->m_sMidiDriver == "ALSA" ) {
-#ifdef H2CORE_HAVE_ALSA
-		AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
-		m_pMidiDriverOut = alsaMidiDriver;
-		m_pMidiDriver = alsaMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( pPref->m_sMidiDriver == "PortMidi" ) {
-#ifdef H2CORE_HAVE_PORTMIDI
-		PortMidiDriver* pPortMidiDriver = new PortMidiDriver();
-		m_pMidiDriver = pPortMidiDriver;
-		m_pMidiDriverOut = pPortMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( pPref->m_sMidiDriver == "CoreMIDI" ) {
-#ifdef H2CORE_HAVE_COREMIDI
-		CoreMidiDriver *coreMidiDriver = new CoreMidiDriver();
-		m_pMidiDriver = coreMidiDriver;
-		m_pMidiDriverOut = coreMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( pPref->m_sMidiDriver == "JACK-MIDI" ) {
-#ifdef H2CORE_HAVE_JACK
-		JackMidiDriver *jackMidiDriver = new JackMidiDriver();
-		m_pMidiDriverOut = jackMidiDriver;
-		m_pMidiDriver = jackMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
 	}
-	
-	m_MutexOutputPointer.unlock();
-	this->unlock();
 }
 
-void AudioEngine::stopAudioDrivers()
+void AudioEngine::stopAudioDriver( Event::Trigger trigger )
 {
 	AE_INFOLOG( "" );
 
@@ -1121,15 +1085,7 @@ void AudioEngine::stopAudioDrivers()
 		return;
 	}
 
-
 	setState( State::Initialized );
-
-	if ( m_pMidiDriver != nullptr ) {
-		m_pMidiDriver->close();
-		delete m_pMidiDriver;
-		m_pMidiDriver = nullptr;
-		m_pMidiDriverOut = nullptr;
-	}
 
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->disconnect();
@@ -1140,19 +1096,70 @@ void AudioEngine::stopAudioDrivers()
 	}
 
 	this->unlock();
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::AudioDriverChanged, 0 );
+	}
 }
 
-void AudioEngine::restartAudioDrivers()
-{
-	bool bPlaying = m_state == State::Playing;
-	if ( m_pAudioDriver != nullptr ) {
-		stopAudioDrivers();
-	}
-	startAudioDrivers();
-	if ( bPlaying ) {
-		this->startPlayback();
+void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
+	AE_INFOLOG("");
+	const auto pPref = Preferences::get_instance();
+
+	if ( m_pMidiDriver != nullptr ) {
+		AE_ERRORLOG( "The MIDI driver is still active" );
 	}
 
+	this->lock( RIGHT_HERE );
+
+	if ( pPref->m_midiDriver == Preferences::MidiDriver::Alsa ) {
+#ifdef H2CORE_HAVE_ALSA
+		m_pMidiDriver = std::make_shared<AlsaMidiDriver>();
+		m_pMidiDriver->open();
+#endif
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::PortMidi ) {
+#ifdef H2CORE_HAVE_PORTMIDI
+		m_pMidiDriver = std::make_shared<PortMidiDriver>();
+		m_pMidiDriver->open();
+#endif
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::CoreMidi ) {
+#ifdef H2CORE_HAVE_COREMIDI
+		m_pMidiDriver = std::make_shared<CoreMidiDriver>();
+		m_pMidiDriver->open();
+#endif
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
+#ifdef H2CORE_HAVE_JACK
+		m_pMidiDriver = std::make_shared<JackMidiDriver>();
+		m_pMidiDriver->open();
+#endif
+	}
+
+	this->unlock();
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiDriverChanged, 0 );
+	}
+}
+
+void AudioEngine::stopMidiDriver( Event::Trigger trigger )
+{
+	AE_INFOLOG( "" );
+
+	this->lock( RIGHT_HERE );
+
+	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->close();
+		m_pMidiDriver = nullptr;
+	}
+
+	this->unlock();
+
+	if ( trigger != Event::Trigger::Suppress ) {
+		EventQueue::get_instance()->pushEvent( Event::Type::MidiDriverChanged, 0 );
+	}
 }
 
 void AudioEngine::handleLoopModeChanged() {
@@ -1568,9 +1575,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 			___INFOLOG( QString( "[%1] End of song received" ).arg( sDrivers ) );
 
-			if ( pHydrogen->getMidiOutput() != nullptr ) {
-				pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
-			}
+			CoreActionController::sendAllNoteOffMessages();
 
 			pAudioEngine->stop();
 			pAudioEngine->stopPlayback();
@@ -2883,10 +2888,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 						   m_pAudioDriver->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pMidiDriver: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
-						   m_pMidiDriver->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_pMidiDriverOut: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_pMidiDriverOut == nullptr ? "nullptr" :
-						   m_pMidiDriverOut->toQString( sPrefix + s, bShort ) ) );
+						   m_pMidiDriver->toQString( sPrefix + s, bShort ) ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( QString( "%1%2m_fFXPeak_L: [" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ii : m_fFXPeak_L ) {
@@ -2984,10 +2986,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 						   m_pAudioDriver->toQString( "", bShort ) ) )
 			.append( QString( ", m_pMidiDriver: %1" )
 					 .arg( m_pMidiDriver == nullptr ? "nullptr" :
-						   m_pMidiDriver->toQString( "", bShort ) ) )
-			.append( QString( ", m_pMidiDriverOut: %1" )
-					 .arg( m_pMidiDriverOut == nullptr ? "nullptr" :
-						   m_pMidiDriverOut->toQString( "", bShort ) ) );
+						   m_pMidiDriver->toQString( "", bShort ) ) );
 #ifdef H2CORE_HAVE_LADSPA
 		sOutput.append( ", m_fFXPeak_L: [" );
 		for ( const auto& ii : m_fFXPeak_L ) {
@@ -3101,8 +3100,7 @@ QString AudioEngine::StateToQString( const State& state ) {
 
 QString AudioEngine::getDriverNames() const {
 	Preferences::AudioDriver audioDriver = Preferences::AudioDriver::Null;
-	QString sMidiInputDriver( "unknown" );
-	QString sMidiOutputDriver( "unknown" );
+	QString sMidiDriver( "unknown" );
 
 	if ( m_pAudioDriver == nullptr ) {
 		audioDriver = Preferences::AudioDriver::None;
@@ -3136,53 +3134,32 @@ QString AudioEngine::getDriverNames() const {
 	}
 	
 	if ( m_pMidiDriver == nullptr ) {
-		sMidiInputDriver = "nullptr";
+		sMidiDriver = "nullptr";
 #ifdef H2CORE_HAVE_ALSA
-	} else if ( dynamic_cast<AlsaMidiDriver*>(m_pMidiDriver) != nullptr ) {
-		sMidiInputDriver = "ALSA";
+	} else if ( std::dynamic_pointer_cast<AlsaMidiDriver>(m_pMidiDriver) !=
+				nullptr ) {
+		sMidiDriver = "ALSA";
 #endif
 #ifdef H2CORE_HAVE_PORTMIDI
-	} else if ( dynamic_cast<PortMidiDriver*>(m_pMidiDriver) != nullptr ) {
-		sMidiInputDriver = "PortMidi";
+	} else if ( std::dynamic_pointer_cast<PortMidiDriver>(m_pMidiDriver) !=
+				nullptr ) {
+		sMidiDriver = "PortMidi";
 #endif
 #ifdef H2CORE_HAVE_COREMIDI
-	} else if ( dynamic_cast<CoreMidiDriver*>(m_pMidiDriver) != nullptr ) {
-		sMidiInputDriver = "CoreMidi";
+	} else if ( std::dynamic_pointer_cast<CoreMidiDriver>(m_pMidiDriver) !=
+				nullptr ) {
+		sMidiDriver = "CoreMidi";
 #endif
 #ifdef H2CORE_HAVE_JACK
-	} else if ( dynamic_cast<JackMidiDriver*>(m_pMidiDriver) != nullptr ) {
-		sMidiInputDriver = "JACK";
+	} else if ( std::dynamic_pointer_cast<JackMidiDriver>(m_pMidiDriver) !=
+				nullptr ) {
+		sMidiDriver = "JACK";
 #endif
 	}
 		
-	if ( m_pMidiDriverOut == nullptr ) {
-		sMidiOutputDriver = "nullptr";
-#ifdef H2CORE_HAVE_ALSA
-	} else if ( dynamic_cast<AlsaMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
-		sMidiOutputDriver = "ALSA";
-#endif
-#ifdef H2CORE_HAVE_PORTMIDI
-	} else if ( dynamic_cast<PortMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
-		sMidiOutputDriver = "PortMidi";
-#endif
-#ifdef H2CORE_HAVE_COREMIDI
-	} else if ( dynamic_cast<CoreMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
-		sMidiOutputDriver = "CoreMidi";
-#endif
-#ifdef H2CORE_HAVE_JACK
-	} else if ( dynamic_cast<JackMidiDriver*>(m_pMidiDriverOut) != nullptr ) {
-		sMidiOutputDriver = "JACK";
-#endif
-	}
-	
-	auto res = QString( "%1|" )
-		.arg( Preferences::audioDriverToQString( audioDriver ) );
-	if ( sMidiInputDriver == sMidiOutputDriver ) {
-		res.append( QString( "%1" ).arg( sMidiInputDriver ) );
-	} else {
-		res.append( QString( "in: %1;out: %2" ).arg( sMidiInputDriver )
-					.arg( sMidiOutputDriver ) );
-	}
+	auto res = QString( "%1|%2" )
+		.arg( Preferences::audioDriverToQString( audioDriver ) )
+		.arg( sMidiDriver );
 
 	return std::move( res );
 }

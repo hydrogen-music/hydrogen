@@ -23,21 +23,20 @@
 #ifndef PLAYLIST_EDITOR_H
 #define PLAYLIST_EDITOR_H
 
-#include <QAction>
-#include <QMenuBar>
-#include <QDialog>
-#include <QTableWidget>
-#include <QUndoStack>
-#include <QUndoView>
+#include <QtGui>
+#include <QtWidgets>
+
+#include <memory>
+#include <vector>
+
+#include <core/Basics/Playlist.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
-#include <core/Basics/Playlist.h>
-#include "../Widgets/WidgetWithScalableFont.h"
-#include "../EventListener.h"
 
-class Button;
-class PixmapWidget;
+#include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
+
+class MidiLearnableToolButton;
 
 class PlaylistTableWidget : public QTableWidget,
 							public H2Core::Object<PlaylistTableWidget> {
@@ -101,10 +100,7 @@ public slots:
 		virtual void closeEvent( QCloseEvent* ev ) override;
 		virtual bool eventFilter( QObject *o, QEvent *e ) override;
 
-		void ffWDBtnClicked();
-		void nodePlayBTN();
-		void nodeStopBTN();
-		void rewindBtnClicked();
+		void playButtonClicked();
 		void on_m_pPlaylistTable_itemClicked( QTableWidgetItem* item );
 		void o_upBClicked();
 		void o_downBClicked();
@@ -118,6 +114,8 @@ public slots:
 	private:
 
 		void update();
+		void updateIcons();
+		void updateStyleSheet();
 		void updateWindowTitle();
 	void populateMenuBar();
 	bool handleKeyEvent( QKeyEvent* pKeyEvent );
@@ -130,7 +128,6 @@ public slots:
 		 * selected row containing a script.*/
 		std::vector<QAction*> m_actionsSelectedScript;
 
-		Button *	zoom_in_btn;
 		QMenuBar *	m_pMenubar;
 		QMenu *		m_pPlaylistMenu;
 		QMenu* m_pUndoMenu;
@@ -138,11 +135,12 @@ public slots:
 	//no scripts under windows
 		QMenu *		m_pScriptMenu;
 #endif
+		QToolBar* m_pToolBar;
 
-		Button *	m_pRwdBtn;
-		Button *	m_pPlayBtn;
-		Button *	m_pStopBtn;
-		Button *	m_pFfwdBtn;
+		MidiLearnableToolButton*	m_pRwdButton;
+		MidiLearnableToolButton*	m_pPlayButton;
+		MidiLearnableToolButton*	m_pStopButton;
+		MidiLearnableToolButton*	m_pFfwdButton;
 
 		QUndoStack* m_pUndoStack;
 		QUndoView* m_pUndoView;

@@ -65,30 +65,4 @@ protected:
 inline bool LED::getActivated() const {
 	return m_bActivated;
 }
-
-/** Custom LED that comes with its own timer.*/
-/** \ingroup docGUI docWidgets*/
-class MetronomeLED : public LED, public EventListener, public H2Core::Object<MetronomeLED>
-{
-    H2_OBJECT(MetronomeLED)
-	Q_OBJECT
-
-public:
-	MetronomeLED( QWidget *pParent, const QSize& size );
-	virtual ~MetronomeLED();
-
-public slots:
-	virtual void metronomeEvent( int nValue ) override;
-						   
-private slots:
-	void turnOff();
-	
-private:
-	bool m_bFirstBar;
-	QTimer* m_pTimer;
-	std::chrono::milliseconds m_activityTimeout;
-	
-	virtual void paintEvent( QPaintEvent* ev) override; 
-};
-
 #endif

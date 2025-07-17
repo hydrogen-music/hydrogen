@@ -35,12 +35,12 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
-Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseTooltip,
+Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseToolTip,
 			  bool bUseIntSteps, bool bWithoutKnob, float fMin, float fMax,
 			  bool bModifyOnChange )
 	: WidgetWithInput( pParent,
 					   bUseIntSteps,
-					   sBaseTooltip,
+					   sBaseToolTip,
 					   1, // nScrollSpeed
 					   5, // nScrollSpeedFast
 					   fMin,
@@ -55,7 +55,6 @@ Fader::Fader( QWidget *pParent, const Type& type, const QString& sBaseTooltip,
 {
 	m_fDefaultValue = m_fMax;
 	m_fValue = m_fDefaultValue;
-	updateTooltip();
 
 	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 
@@ -163,7 +162,7 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 		m_bIgnoreMouseMove = true;
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
-		MidiSenseWidget midiSense( this, true, this->getAction() );
+		MidiSenseWidget midiSense( this, true, this->getMidiAction() );
 		midiSense.exec();
 		m_bIgnoreMouseMove = true;
 	}

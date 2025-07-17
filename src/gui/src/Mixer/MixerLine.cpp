@@ -30,7 +30,7 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/MidiAction.h>
+#include <core/Midi/MidiAction.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
@@ -372,45 +372,49 @@ void MixerLine::updateActions() {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( m_pInstrument == nullptr || pSong == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
-		m_pMuteBtn->setAction( nullptr );
-		m_pSoloBtn->setAction( nullptr );
-		m_pPanRotary->setAction( nullptr );
-		m_pFader->setAction( nullptr );
+		m_pMuteBtn->setMidiAction( nullptr );
+		m_pSoloBtn->setMidiAction( nullptr );
+		m_pPanRotary->setMidiAction( nullptr );
+		m_pFader->setMidiAction( nullptr );
 		for ( auto& ppFxRotary : m_fxRotaries ) {
-			ppFxRotary->setAction( nullptr );
+			ppFxRotary->setMidiAction( nullptr );
 		}
 
 		return;
 	}
 
-	std::shared_ptr<Action> pAction = nullptr;
+	std::shared_ptr<MidiAction> pAction = nullptr;
 	const int nInstrument =
 		pSong->getDrumkit()->getInstruments()->index( m_pInstrument );
 
-	pAction = std::make_shared<Action>( "STRIP_MUTE_TOGGLE" );
+	pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripMuteToggle );
 	pAction->setParameter1( QString::number( nInstrument ));
-	m_pMuteBtn->setAction( pAction );
+	m_pMuteBtn->setMidiAction( pAction );
 
-	pAction = std::make_shared<Action>( "STRIP_SOLO_TOGGLE" );
+	pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripSoloToggle );
 	pAction->setParameter1( QString::number( nInstrument ));
-	m_pSoloBtn->setAction( pAction );
+	m_pSoloBtn->setMidiAction( pAction );
 
-	pAction = std::make_shared<Action>( "PAN_ABSOLUTE" );
+	pAction = std::make_shared<MidiAction>( MidiAction::Type::PanAbsolute );
 	pAction->setParameter1( QString::number( nInstrument ) );
 	pAction->setValue( QString::number( 0 ));
-	m_pPanRotary->setAction( pAction );
+	m_pPanRotary->setMidiAction( pAction );
 
 	// FX send
 	for ( int ii = 0; ii < m_fxRotaries.size(); ii++ ) {
 		auto ppFxRotary = m_fxRotaries[ ii ];
 		ppFxRotary->setObjectName( "FXRotary" );
-		pAction = std::make_shared<Action>( "EFFECT_LEVEL_ABSOLUTE" );
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::EffectLevelAbsolute );
 		pAction->setParameter1( QString::number( nInstrument ) );
 		pAction->setParameter2( QString::number( ii ) );
-		ppFxRotary->setAction( pAction );
+		ppFxRotary->setMidiAction( pAction );
 	}
 
-	pAction = std::make_shared<Action>( "STRIP_VOLUME_ABSOLUTE" );
+	pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripVolumeAbsolute );
 	pAction->setParameter1( QString::number( nInstrument ) );
-	m_pFader->setAction( pAction );
+	m_pFader->setMidiAction( pAction );
 }

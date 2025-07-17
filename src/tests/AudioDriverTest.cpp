@@ -22,6 +22,7 @@
 #include "AudioDriverTest.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Event.h>
 #include <core/Hydrogen.h>
 
 void AudioDriverTest::setUp() {
@@ -49,38 +50,47 @@ void AudioDriverTest::testDriverSwitching() {
 			// output. No need for a visual separation.
 			std::cout << ii << std::endl;
 		}
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::Alsa );
-		pAudioEngine->stopAudioDrivers();
+			H2Core::Preferences::AudioDriver::Alsa,
+			H2Core::Event::Trigger::Default );
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::Oss );
-		pAudioEngine->stopAudioDrivers();
+			H2Core::Preferences::AudioDriver::Oss,
+			H2Core::Event::Trigger::Default );
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		if ( bCheckJack ) {
 			pDriver = pAudioEngine->createAudioDriver(
-				H2Core::Preferences::AudioDriver::Jack );
+				H2Core::Preferences::AudioDriver::Jack,
+				H2Core::Event::Trigger::Default );
 			if ( pDriver == nullptr ) {
 				bCheckJack = false;
 			}
 		}
-		pAudioEngine->stopAudioDrivers();
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::PortAudio );
-		pAudioEngine->stopAudioDrivers();
+			H2Core::Preferences::AudioDriver::PortAudio,
+			H2Core::Event::Trigger::Default );
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::CoreAudio );
-		pAudioEngine->stopAudioDrivers();
+			H2Core::Preferences::AudioDriver::CoreAudio,
+			H2Core::Event::Trigger::Default );
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::PulseAudio );
-		pAudioEngine->stopAudioDrivers();
+			H2Core::Preferences::AudioDriver::PulseAudio,
+			H2Core::Event::Trigger::Default );
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::Disk );
-		pAudioEngine->stopAudioDrivers();
+			H2Core::Preferences::AudioDriver::Disk,
+			H2Core::Event::Trigger::Default );
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::Null );
-		pAudioEngine->stopAudioDrivers();
+			H2Core::Preferences::AudioDriver::Null,
+			H2Core::Event::Trigger::Default );
+		pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 		pAudioEngine->createAudioDriver(
-			H2Core::Preferences::AudioDriver::Fake );
+			H2Core::Preferences::AudioDriver::Fake,
+			H2Core::Event::Trigger::Default );
 	}
 
 	___INFOLOG("done");
@@ -94,7 +104,8 @@ void AudioDriverTest::tearDown() {
 	pPref->m_nBufferSize = m_nPrevBufferSize;
 	pPref->m_audioDriver = m_prevAudioDriver;
 
-	pAudioEngine->stopAudioDrivers();
+	pAudioEngine->stopAudioDriver( H2Core::Event::Trigger::Default );
 	pAudioEngine->createAudioDriver(
-		H2Core::Preferences::AudioDriver::Fake );
+		H2Core::Preferences::AudioDriver::Fake,
+		H2Core::Event::Trigger::Default );
 }

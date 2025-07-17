@@ -21,12 +21,15 @@
  */
 
 #include "MidiLearnable.h"
+
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 
-#include <core/MidiMap.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiMap.h>
 #include <core/Preferences/Preferences.h>
 
-MidiLearnable::MidiLearnable() : m_pAction( nullptr ) {
+MidiLearnable::MidiLearnable() : m_pMidiAction( nullptr ) {
 	HydrogenApp::get_instance()->addEventListener( this );
 }
 
@@ -37,16 +40,62 @@ MidiLearnable::~MidiLearnable() {
 	}
 }
 
-void MidiLearnable::setAction( std::shared_ptr<Action> pAction ){
-	m_pAction = pAction;
+void MidiLearnable::setMidiAction( std::shared_ptr<MidiAction> pMidiAction ){
+	if ( pMidiAction != m_pMidiAction ) {
+		m_pMidiAction = pMidiAction;
 
-	midiMapChangedEvent();
+		midiMapChangedEvent();
+	}
+	updateToolTip();
+}
+
+void MidiLearnable::setBaseToolTip( const QString& sNewTip ) {
+	if ( sNewTip != m_sBaseToolTip ) {
+		m_sBaseToolTip = sNewTip;
+		updateToolTip();
+	}
 }
 
 void MidiLearnable::midiMapChangedEvent() {
-	if ( m_pAction != nullptr ) {
+	if ( m_pMidiAction != nullptr ) {
 		m_registeredMidiEvents = H2Core::Preferences::get_instance()->
-			getMidiMap()->getRegisteredMidiEvents( m_pAction );
-		updateTooltip();
+			getMidiMap()->getRegisteredMidiEvents( m_pMidiAction );
+		updateToolTip();
 	}
+}
+
+QString MidiLearnable::composeToolTip() const {
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QString sTip( m_sBaseToolTip );
+
+	// Add the associated MIDI Midiaction.
+	if ( m_pMidiAction != nullptr ) {
+		sTip.append( QString( "\n\n%1: %2 " )
+					 .arg( pCommonStrings->getMidiToolTipHeading() )
+					 .arg( MidiAction::typeToQString( m_pMidiAction->getType() ) ) );
+		if ( m_registeredMidiEvents.size() > 0 ) {
+			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
+				if ( event == H2Core::MidiMessage::Event::Note ||
+					 event == H2Core::MidiMessage::Event::CC ) {
+					sTip.append( QString( "\n%1 [%2 : %3]" )
+								 .arg( pCommonStrings->getMidiToolTipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) )
+								 .arg( nnParam ) );
+				}
+				else {
+					// PC and MMC_x do not have a parameter.
+					sTip.append( QString( "\n%1 [%2]" )
+								 .arg( pCommonStrings->getMidiToolTipBound() )
+								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
+				}
+			}
+		}
+		else {
+			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiToolTipUnbound() ) );
+		}
+	}
+
+	return sTip;
 }

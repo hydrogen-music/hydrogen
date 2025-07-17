@@ -594,6 +594,45 @@ for:
           REM *** Update pacman cache ***
           c:\msys64\usr\bin\pacman --noconfirm -S -y
 
+          REM *** The pacman cache of the AppVeyor image is hopelessly out of ***
+          REM *** date. To still allow installing package, we have to remove ***
+          REM *** and reinstall some basic packages ***
+          c:\msys64\usr\bin\pacman --noconfirm -R -c -s mingw-w64-x86_64-gcc-libs
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-make
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gdb-multiarch
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tools-git
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gdb
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-xxhash
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-python
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tzdata
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-openssl
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libffi
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-expat
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-ncurses
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libsystre
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libtre
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-xz
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-sqlite3
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-readline
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-termcap
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tcl
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-mpdecimal
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gcc
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-windows-default-manifest
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-isl
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-mpc
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-binutils
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-zlib
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gettext-runtime
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libiconv
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-zstd
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-mpfr
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gmp
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-bzip2
+          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gcc-libs
+          REM *** This section is hopefully just a temporary one ***
+
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-libarchive
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-libsndfile

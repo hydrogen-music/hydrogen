@@ -30,26 +30,25 @@
 #include <qglobal.h>	// for QT_VERSION
 
 #include <core/Globals.h>
+#include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
-#include <core/Hydrogen.h>
 
 Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 				const QString& sIcon, const QString& sText, const QSize& iconSize,
-				const QString& sBaseTooltip, bool bColorful,
-				bool bModifyOnChange, int nBorderRadius )
+				const QString& sBaseToolTip, bool bModifyOnChange,
+				int nBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_type( type )
 	, m_iconSize( iconSize )
-	, m_sBaseTooltip( sBaseTooltip )
-	, m_bColorful( bColorful )
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
 	, m_bIsActive( true )
 	, m_nFixedFontSize( -1 )
 	, m_bModifyOnChange( bModifyOnChange )
 	, m_nBorderRadius( nBorderRadius )
+	, m_bUseCustomBackgroundColors( false )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	m_checkedBackgroundColor = pPref->getTheme().m_color.m_accentColor;
@@ -75,7 +74,7 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	}
 
 	updateStyleSheet();
-	updateTooltip();
+	setBaseToolTip( sBaseToolTip );
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &Button::onPreferencesChanged );
@@ -96,16 +95,13 @@ void Button::setIsActive( bool bIsActive ) {
 
 
 void Button::updateIcon() {
-	if ( m_bColorful ) {
-		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + m_sIcon ) );
-	} else {
-		if ( H2Core::Preferences::get_instance()->
-			 getTheme().m_interface.m_iconColor ==
-			 H2Core::InterfaceTheme::IconColor::White ) {
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
-		} else {
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
-		}
+	if ( H2Core::Preferences::get_instance()->
+		 getTheme().m_interface.m_iconColor ==
+		 H2Core::InterfaceTheme::IconColor::White ) {
+		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
+	}
+	else {
+		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
 	}
 
 	if ( ! m_iconSize.isNull() && ! m_iconSize.isEmpty() ) {
@@ -116,6 +112,7 @@ void Button::updateIcon() {
 void Button::setCheckedBackgroundColor( const QColor& color ) {
 	if ( color != m_checkedBackgroundColor ) {
 		m_checkedBackgroundColor = color;
+		m_bUseCustomBackgroundColors = true;
 
 		updateStyleSheet();
 		update();
@@ -125,6 +122,7 @@ void Button::setCheckedBackgroundColor( const QColor& color ) {
 void Button::setCheckedBackgroundTextColor( const QColor& color ) {
 	if ( color != m_checkedBackgroundTextColor ) {
 		m_checkedBackgroundTextColor = color;
+		m_bUseCustomBackgroundColors = true;
 
 		updateStyleSheet();
 		update();
@@ -162,22 +160,30 @@ void Button::updateStyleSheet() {
 	const QColor backgroundShadowDarkHover = baseColorBackground.darker( nFactorGradientShadow + nHover );
 	const QColor border = Qt::black;
 
+	QColor backgroundCheckedColor, backgroundCheckedTextColor;
+	if ( m_bUseCustomBackgroundColors ) {
+		backgroundCheckedColor = m_checkedBackgroundColor;
+		backgroundCheckedTextColor = m_checkedBackgroundTextColor;
+	} else {
+		backgroundCheckedColor = theme.m_color.m_accentColor;
+		backgroundCheckedTextColor = theme.m_color.m_accentTextColor;
+	}
 	const QColor backgroundCheckedLight =
-		m_checkedBackgroundColor.lighter( nFactorGradient );
+		backgroundCheckedColor.lighter( nFactorGradient );
 	const QColor backgroundCheckedDark =
-		m_checkedBackgroundColor.darker( nFactorGradient );
+		backgroundCheckedColor.darker( nFactorGradient );
 	const QColor backgroundCheckedLightHover =
-		m_checkedBackgroundColor.lighter( nFactorGradient + nHover );
+		backgroundCheckedColor.lighter( nFactorGradient + nHover );
 	const QColor backgroundCheckedDarkHover =
-		m_checkedBackgroundColor.darker( nFactorGradient + nHover );
+		backgroundCheckedColor.darker( nFactorGradient + nHover );
 	const QColor backgroundShadowCheckedLight =
-		m_checkedBackgroundColor.lighter( nFactorGradientShadow );
+		backgroundCheckedColor.lighter( nFactorGradientShadow );
 	const QColor backgroundShadowCheckedDark =
-		m_checkedBackgroundColor.darker( nFactorGradientShadow );
+		backgroundCheckedColor.darker( nFactorGradientShadow );
 	const QColor backgroundShadowCheckedLightHover =
-		m_checkedBackgroundColor.lighter( nFactorGradientShadow + nHover );
+		backgroundCheckedColor.lighter( nFactorGradientShadow + nHover );
 	const QColor backgroundShadowCheckedDarkHover =
-		m_checkedBackgroundColor.darker( nFactorGradientShadow + nHover );
+		backgroundCheckedColor.darker( nFactorGradientShadow + nHover );
 
 	const QColor textColor = theme.m_color.m_widgetTextColor;
 	
@@ -271,7 +277,7 @@ QPushButton:disabled:checked:hover { \
 				   .arg( backgroundDark.name() )
 				   .arg( backgroundLightHover.name() )
 				   .arg( backgroundDarkHover.name() )
-				   .arg( m_checkedBackgroundTextColor.name() )
+				   .arg( backgroundCheckedTextColor.name() )
 				   .arg( backgroundCheckedLight.name() )
 				   .arg( backgroundCheckedDark.name() )
 				   .arg( backgroundCheckedLightHover.name() )
@@ -282,7 +288,7 @@ QPushButton:disabled:checked:hover { \
 				   .arg( backgroundInactiveDark.name() )
 				   .arg( backgroundInactiveLightHover.name() )
 				   .arg( backgroundInactiveDarkHover.name() )
-				   .arg( m_checkedBackgroundTextColor.name() )
+				   .arg( backgroundCheckedTextColor.name() )
 				   .arg( backgroundInactiveCheckedLight.name() )
 				   .arg( backgroundInactiveCheckedDark.name() )
 				   .arg( backgroundInactiveCheckedLightHover.name() )
@@ -307,11 +313,6 @@ QPushButton:disabled:checked:hover { \
 				   .arg( y1 ).arg( y2 ) );
 }
 
-void Button::setBaseToolTip( const QString& sNewTip ) {
-	m_sBaseTooltip = sNewTip;
-	updateTooltip();
-}
-
 void Button::mousePressEvent(QMouseEvent*ev) {
 	if ( ev->button() == Qt::RightButton ) {
 		emit rightClicked();
@@ -322,7 +323,7 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	*/
 	
 	if ( ev->button() == Qt::LeftButton && ( ev->modifiers() & Qt::ShiftModifier ) ){
-		MidiSenseWidget midiSense( this, true, this->getAction() );
+		MidiSenseWidget midiSense( this, true, this->getMidiAction() );
 		midiSense.exec();
 		return;
 	}
@@ -330,39 +331,8 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	QPushButton::mousePressEvent( ev );
 }
 
-void Button::updateTooltip() {
-
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	QString sTip = QString("%1" ).arg( m_sBaseTooltip );
-
-	// Add the associated MIDI action.
-	if ( m_pAction != nullptr ) {
-		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
-					 .arg( m_pAction->getType() ) );
-		if ( m_registeredMidiEvents.size() > 0 ) {
-			for ( const auto& [event, nnParam] : m_registeredMidiEvents ) {
-				if ( event == H2Core::MidiMessage::Event::Note ||
-					 event == H2Core::MidiMessage::Event::CC ) {
-					sTip.append( QString( "\n%1 [%2 : %3]" )
-								 .arg( pCommonStrings->getMidiTooltipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) )
-								 .arg( nnParam ) );
-				}
-				else {
-					// PC and MMC_x do not have a parameter.
-					sTip.append( QString( "\n%1 [%2]" )
-								 .arg( pCommonStrings->getMidiTooltipBound() )
-								 .arg( H2Core::MidiMessage::EventToQString( event ) ) );
-				}
-			}
-		}
-		else {
-			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiTooltipUnbound() ) );
-		}
-	}
-			
-	setToolTip( sTip );
+void Button::updateToolTip() {
+	setToolTip( composeToolTip() );
 }
 
 void Button::setSize( const QSize& size ) {

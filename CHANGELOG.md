@@ -51,6 +51,8 @@ All notable changes to this project will be documented in this file.
 - Custom colors for 'mute' and 'solo'.
 - When activating per-track JACK outputs, Hydrogen does now provided additional
   ports for metronome, playback track, and sample preview (#1150).
+- Button in main toolbar indicating both MIDI input and output signals and
+  opening a dialog showing the latest MIDI events.
 
 ### Changed
 
@@ -134,6 +136,17 @@ All notable changes to this project will be documented in this file.
 - Per default JACK per-track output ports are named according to the instrument
   types. But via Preferences > Audio > "Enforce instrument name instead of type"
   the previous naming scheme can be used.
+- MIDI and audio drivers are now restarted separately in Preferences.
+- Main toolbar was redesigned:
+  - Status messages, CPU load, and number of XRuns were moved to the very bottom
+    of Hydrogen.
+  - Instead of showing text, all buttons are now icon based.
+  - New visibility buttons for playlist dialog, director, automation, playback
+    track, and preferences dialog have been introduced.
+  - The previous "S"/"P" button of the `BeatCounter` has been converted into a
+    tap button. Press long to switch between the two beat counter modes or the
+    usage of the plain tap tempo and use regular clicking to adjust tempo.
+    
 
 ### Fixed
 

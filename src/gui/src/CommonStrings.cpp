@@ -90,42 +90,6 @@ CommonStrings::CommonStrings(){
 	  flexible.*/
 	m_sEditLayerButton = tr( "Edit Layer" );
 
-	/*: Text displayed on the button to activate the Beat Counter. Its
-	  size is designed to hold two characters in two separate rows.*/
-	m_sBeatCounterButton = tr( "B\nC" );
-
-	/*: Text displayed on the button indicating that the Beat Counter will
-	  only set tempo. Its size is designed to hold one character.*/
-	m_sBeatCounterSetPlayButtonOff = tr( "S" );
-	/*: Text displayed on the button indicating that the Beat Counter will
-	  start playing after setting the tempo. Its size is designed to hold one character.*/
-	m_sBeatCounterSetPlayButtonOn = tr( "P" );
-
-	/*: Text displayed on the button to activate the resampling using 
-	  Rubberband. Its
-	  size is designed to hold three characters in two separate rows.*/
-	m_sRubberbandButton = tr( "R\nU\nB" );
-
-	/*: Text displayed on the button to activate the JACK transport control. Its
-	  size is designed to hold seven characters and is moderately flexible.*/
-	m_sJackTransportButton = tr( "J.Trans" );
-	/*: Text displayed on the button to register Hydrogen to be in the JACK
-	  Timebase control. Its size is designed to hold eight characters and is
-	  moderately flexible.*/
-	m_sJackTimebaseButton = tr( "Timebase" );
-	/*: Text displayed on the button to show the Mixer window. Its
-	  size is designed to hold five characters and is flexible.*/
-	m_sMixerButton = tr( "Mixer" );
-	/*: Text displayed on the button to show the Instrument Rack. Its
-	  size is designed to hold 15 characters and is flexible.*/
-	m_sInstrumentRackButton = tr( "Instrument Rack" );
-
-	/*: Text displayed on the button activating Pattern Mode for playback. Its
-	  size is designed to hold seven characters and is slightly flexible.*/
-	m_sPatternModeButton = tr( "Pattern" );
-	/*: Text displayed on the button activating Song Mode for playback. Its
-	  size is designed to hold four characters and is slightly flexible.*/
-	m_sSongModeButton = tr( "Song" );
 	/*: Text displayed as tooltip on the button which enables lasso-selection
 	 *  and element moving using left-click mouse interaction. */
 	m_sSelectModeButton = tr( "Select mode" );
@@ -231,10 +195,10 @@ CommonStrings::CommonStrings(){
 	 Instrument Editor. Designed to hold eleven characters but not
 	 that flexible.*/
 	m_sSampleSelectionLabel = tr( "Sample Sel." );
-	/*: Text displayed in the Player Control to indicate incoming MIDI
-	  events. Designed to hold seven characters but not that
-	  flexible.*/
-	m_sMidiInLabel = tr( "MIDI-In" );
+	/*: Text displayed in the Player Control on the button indicating incoming
+	  and outgoing MIDI events. Designed to hold four capital characters and
+	  slightly flexible.*/
+	m_sMidiLabel = tr( "MIDI" );
 	/*: Text displayed in the Player Control to indicate the CPU
 	 load. Designed to hold three characters but not that flexible.*/
 	m_sCpuLabel = tr( "CPU" );
@@ -283,38 +247,49 @@ CommonStrings::CommonStrings(){
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/
-	m_sRangeTooltip = tr( "Range" );
+	m_sRangeToolTip = tr( "Range" );
 	/*: Displayed in the tooltip of input widgets. General heading of
 	  the part associating the Action of the widget with the MIDI
 	  event and parameter it is bound to.*/
-	m_sMidiTooltipHeading = tr( "MIDI" );
+	m_sMidiToolTipHeading = tr( "MIDI" );
 	/*: Displayed in the tooltip of input widgets. Body of the part
 	  associating the Action of the widget with the MIDI event and
 	  parameter it is bound to. It's full context is "ACTION bound to
 	  [EVENT : PARAMETER]".*/
-	m_sMidiTooltipBound = tr( "bound to" );
+	m_sMidiToolTipBound = tr( "bound to" );
 	/*: Displayed in the tooltip of input widgets. Body of the part
 	  displaying the Action that is not associate to a MIDI event
 	  yet. It's full context is "ACTION not bound".*/
-	m_sMidiTooltipUnbound = tr( "not bound" );
+	m_sMidiToolTipUnbound = tr( "not bound" );
 	/*: Displayed on both LCDSpinBoxes used for the pattern size while
 	  playback is rolling.*/
-	m_sPatternSizeDisabledTooltip = tr( "It's not possible to change the pattern size when playing." );
+	m_sPatternSizeDisabledToolTip = tr( "It's not possible to change the pattern size when playing." );
 
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the DrumkitEditor.*/
-	m_sShowDrumkitEditorTooltip = tr( "Show drumkit editor" );
+	m_sShowDrumkitEditorToolTip = tr( "Show drumkit editor" );
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the PianoRollEditor.*/
-	m_sShowPianoRollEditorTooltip = tr( "Show piano roll editor" );
+	m_sShowPianoRollEditorToolTip = tr( "Show piano roll editor" );
 	
 	m_sAudioDriverStartError = tr( "Unable to start audio driver!" );
 	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
-	m_sJackTimebaseTooltip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
-	m_sJackTimebaseListenerTooltip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
-	m_sJackTimebaseDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
+	m_sJackTimebaseToolTip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
+	m_sJackTimebaseListenerToolTip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
+	m_sJackTimebaseDisabledToolTip = tr( "JACK timebase support is disabled in the Preferences" );
+
+	/*: Tool tip and menu description used for the tap button in the main tool
+	 *  bar whenever tap tempo was selected. */
+	m_sTapTempoToolTip = tr( "Adjust BPM by continuously tapping" );
+	/*: Tool tip and menu description used for the tap button in the main tool
+	 *  bar whenever plain beat counter was selected. */
+	m_sBeatCounterTapToolTip = tr( "Adjust BPM using BeatCounter" );
+	/*: Tool tip and menu description used for the tap button in the main tool
+	 *  bar whenever beat counter was selected and playback is set to start
+	 *  right after the tempo adjustment. */
+	m_sBeatCounterTapAndPlayToolTip = tr( "Adjust BPM using BeatCounter and start playback" );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/
@@ -360,7 +335,7 @@ CommonStrings::CommonStrings(){
 	m_sPreferencesNone = tr( "None" );
 	/*: Displayed in the Preferences dialog as a tooltip for both the
 	  sample rate combobox and buffer size spinbox.*/
-	m_sPreferencesJackTooltip = tr( "Both buffer size and sample rate can only be altered in the configuration of the JACK server itself." );
+	m_sPreferencesJackToolTip = tr( "Both buffer size and sample rate can only be altered in the configuration of the JACK server itself." );
 	/*: Displayed both as tooltip in the Preferences dialog >
 	  Shortcuts tab as well as window title.*/
 	m_sPreferencesShortcutCapture = tr( "Define a keybinding for the selected shortcut" );

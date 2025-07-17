@@ -27,7 +27,7 @@
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
 
-// used in PlayerControl
+// used in MainToolBar
 LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange, bool bMinusOneAsOff )
  : QDoubleSpinBox( pParent )
  , m_size( size )

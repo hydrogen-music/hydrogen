@@ -55,6 +55,7 @@ public:
 			/** Switches between select mode (0) and draw mode (1) in the
 			 * SongEditor.*/
 			ActionModeChanged,
+			AudioDriverChanged,
 			/**
 			 * The coarse grained transport position in beats and bars did
 			 * change. (Tick - the "T" in BBT - resolution is not implemented
@@ -62,7 +63,6 @@ public:
 			 */
 			BbtChanged,
 			BeatCounter,
-			DriverChanged,
 			/** A the current drumkit was replaced by a new one. */
 			DrumkitLoaded,
 			EffectChanged,
@@ -101,8 +101,12 @@ public:
 			 * Handled by EventListener::metronomeEvent().
 			 */
 			Metronome,
-			MidiActivity,
+			MidiDriverChanged,
+			/** Hydrogen did received a MIDI event. */
+			MidiInput,
 			MidiMapChanged,
+			/** Hydrogen did sent a MIDI event. */
+			MidiOutput,
 			/** Miscellaneous things shown in the Mixer apart from the
 			 * per-instrument MixerLines did change. */
 			MixerSettingsChanged,

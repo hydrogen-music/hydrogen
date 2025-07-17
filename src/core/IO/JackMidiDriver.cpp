@@ -29,32 +29,23 @@
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
 #include <core/Globals.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
+#include <core/Hydrogen.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
 
-void
-JackMidiDriver::lock(void)
-{
+void JackMidiDriver::lock( void ) {
 	pthread_mutex_lock(&mtx);
 }
 
-void
-JackMidiDriver::unlock(void)
-{
+void JackMidiDriver::unlock( void ) {
 	pthread_mutex_unlock(&mtx);
 }
 
-void
-JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
-{
+void JackMidiDriver::JackMidiWrite( jack_nframes_t nframes ) {
 	int error;
 	int events;
 	int i;
@@ -101,56 +92,41 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 		memset(buffer, 0, sizeof(buffer));
 		memcpy(buffer, event.buffer, error);
 
-		msg.setType( buffer[ 0 ] );
-		if ( msg.m_type == MidiMessage::SYSEX ) {
+		msg.setType( MidiMessage::deriveType( buffer[ 0 ] ) );
+		msg.setChannel( MidiMessage::deriveChannel( buffer[ 0 ] ) );
+		if ( msg.getType() == MidiMessage::Type::Sysex ) {
 			if ( buffer[ 3 ] == 06 ){// MMC message
 				for ( int i = 0; i < sizeof(buffer) && i<6; i++ ) {
-					msg.m_sysexData.push_back( buffer[ i ] );
+					msg.appendToSysexData( buffer[ i ] );
 				}
 			}
 			else {
 				for ( int i = 0; i < sizeof(buffer); i++ ) {
-					msg.m_sysexData.push_back( buffer[ i ] );
+					msg.appendToSysexData( buffer[ i ] );
 				}
 			}
 		}
 		else {
 			// All other MIDI messages
-			msg.m_nData1 = buffer[1];
-			msg.m_nData2 = buffer[2];
+			msg.setData1( buffer[1] );
+			msg.setData2( buffer[2] );
 		}
-		handleMidiMessage( msg );
+		handleMessage( msg );
 	}
 }
 
-void
-JackMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
-{
+void JackMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];	
 	
-	if (channel < 0 || channel > 15) {
-		return;
-	}
-	
-	if (param < 0 || param > 127) {
-		return;
-	}
-
-	if (value < 0 || value > 127) {
-		return;
-	}
-
-	buffer[0] = 0xB0 | channel;	/* note off */
-	buffer[1] = param;
-	buffer[2] = value;
+	buffer[0] = 0xB0 | msg.getChannel();
+	buffer[1] = msg.getData1();
+	buffer[2] = msg.getData2();
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
 }
 
-void
-JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
-{
+void JackMidiDriver::JackMidiRead( jack_nframes_t nframes ) {
 	uint8_t *buffer;
 	void *buf;
 	jack_nframes_t t;
@@ -204,9 +180,7 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 	unlock();
 }
 
-void
-JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
-{
+void JackMidiDriver::JackMidiOutEvent( uint8_t buf[4], uint8_t len ) {
 	uint32_t next_pos;
 
 	lock();
@@ -236,9 +210,7 @@ JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
 	unlock();
 }
 
-static int
-JackMidiProcessCallback(jack_nframes_t nframes, void *arg)
-{
+static int JackMidiProcessCallback( jack_nframes_t nframes, void *arg ) {
 	JackMidiDriver *jmd = (JackMidiDriver *)arg;
 
 	if (nframes <= 0) {
@@ -251,17 +223,13 @@ JackMidiProcessCallback(jack_nframes_t nframes, void *arg)
 	return (0);
 }
 
-static void
-JackMidiShutdown(void *arg)
-{
+static void JackMidiShutdown( void *arg ) {
 	UNUSED(arg);
 	Hydrogen::get_instance()->getAudioEngine()->raiseError(
 		Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 
-JackMidiDriver::JackMidiDriver()
-	: MidiInput(), MidiOutput(), Object<JackMidiDriver>()
-{
+JackMidiDriver::JackMidiDriver() : MidiBaseDriver() {
 	pthread_mutex_init(&mtx, nullptr);
 
 	running = 0;
@@ -333,41 +301,32 @@ JackMidiDriver::~JackMidiDriver()
 
 }
 
-void
-JackMidiDriver::open()
-{
-	running ++;
+void JackMidiDriver::close() {
+	running--;
 }
 
-void
-JackMidiDriver::close()
-{
-	running --;
+bool JackMidiDriver::isInputActive() const {
+	return jack_client != nullptr && input_port != nullptr;
 }
 
-std::vector<QString>
-JackMidiDriver::getInputPortList()
-{
-	std::vector<QString> inputList;
-
-	inputList.push_back("Default");
-
-	return inputList;
+bool JackMidiDriver::isOutputActive() const {
+	return jack_client != nullptr && output_port != nullptr;
 }
 
-std::vector<QString>
-JackMidiDriver::getOutputPortList()
-{
-	std::vector<QString> outputList;
-
-	outputList.push_back("Default");
-
-	return outputList;
+void JackMidiDriver::open() {
+	running++;
 }
 
-void
-JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
-{
+std::vector<QString> JackMidiDriver::getExternalPortList( const PortType &portType ) {
+	std::vector<QString> portList;
+
+	portList.push_back("Default");
+
+	return portList;
+}
+
+void JackMidiDriver::getPortInfo( const QString& sPortName, int& nClient,
+								  int& nPort ) {
 	if ( sPortName == Preferences::getNullMidiPort() ) {
 		nClient = -1;
 		nPort = -1;
@@ -378,97 +337,27 @@ JackMidiDriver::getPortInfo(const QString& sPortName, int& nClient, int& nPort)
 	nPort = 0;
 }
 
-void JackMidiDriver::handleQueueNote( std::shared_ptr<Note> pNote)
-{
-	if ( pNote == nullptr || pNote->getInstrument() == nullptr ) {
-		ERRORLOG( "Invalid note" );
-		return;
-	}
+void JackMidiDriver::sendNoteOnMessage( const MidiMessage& msg ) {
 
 	uint8_t buffer[4];
-	int channel;
-	int key;
-	int vel;
 
-	channel = pNote->getInstrument()->getMidiOutChannel();
-	if (channel < 0 || channel > 15) {
-		return;
-	}
-
-	key = pNote->getMidiKey();
-	if (key < 0 || key > 127) {
-		return;
-	}
-
-	vel = pNote->getMidiVelocity();
-	if (vel < 0 || vel > 127) {
-		return;
-	}
-
-	buffer[0] = 0x80 | channel;	/* note off */
-	buffer[1] = key;
-	buffer[2] = 0;
-	buffer[3] = 0;
-
-	JackMidiOutEvent(buffer, 3);
-
-	buffer[0] = 0x90 | channel;	/* note on */
-	buffer[1] = key;
-	buffer[2] = vel;
+	buffer[0] = 0x90 | msg.getChannel();	/* note on */
+	buffer[1] = msg.getData1();
+	buffer[2] = msg.getData2();
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
 }
 
-void
-JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
-{
+void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	uint8_t buffer[4];
 
-	if (channel < 0 || channel > 15) {
-		return;
-	}
-	
-	if (key < 0 || key > 127) {
-		return;
-	}
-	
-	if (vel < 0 || vel > 127) {
-		return;
-	}
-
-	buffer[0] = 0x80 | channel;	/* note off */
-	buffer[1] = key;
+	buffer[0] = 0x80 | msg.getChannel();	/* note off */
+	buffer[1] = msg.getData1();
 	buffer[2] = 0;
 	buffer[3] = 0;
 
 	JackMidiOutEvent(buffer, 3);
-}
-
-void JackMidiDriver::handleQueueAllNoteOff()
-{
-	auto pInstrList = Hydrogen::get_instance()->getSong()->getDrumkit()->getInstruments();
-	std::shared_ptr<Instrument>		pCurInstr;
-	unsigned int numInstruments = pInstrList->size();
-	unsigned int i = 0;
-	int channel = 0;
-	int key = 0;
-
-	for (i = 0; i < numInstruments; i++) {
-			pCurInstr = pInstrList->get(i);
-
-		channel = 	pCurInstr->getMidiOutChannel();
-		if (channel < 0 || channel > 15) {
-			continue;
-		}
-		
-		key = 	pCurInstr->getMidiOutNote();
-		if (key < 0 || key > 127) {
-			continue;
-		}
-
-		handleQueueNoteOff(channel, key, 0);
-	}
 }
 
 QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
@@ -476,8 +365,6 @@ QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[JackMidiDriver]\n" ).arg( sPrefix )
-			.append( QString( "%1%2m_bActive: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bActive ) )
 			.append( QString( "%1%2running: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( running ) )
 			.append( QString( "%1%2rx_in_pos: %3\n" ).arg( sPrefix ).arg( s )
@@ -486,7 +373,6 @@ QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( rx_out_pos ) );
 	} else {
 		sOutput = QString( "[JackMidiDriver]" )
-			.append( QString( " m_bActive: %1" ).arg( m_bActive ) )
 			.append( QString( ", running: %1" ).arg( running ) )
 			.append( QString( ", rx_in_pos: %1" ).arg( rx_in_pos ) )
 			.append( QString( ", rx_out_pos: %1" ).arg( rx_out_pos ) );

@@ -23,17 +23,14 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 
-#include <list>
-#include <vector>
-#include <cassert>
 #include <memory>
+#include <vector>
 
-#include <core/Preferences/Theme.h>
-#include <core/Preferences/Shortcuts.h>
+#include "Shortcuts.h"
+#include "Theme.h"
 
-#include <core/MidiAction.h>
-#include <core/Globals.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Globals.h>
 #include <core/Object.h>
 
 #include <QStringList>
@@ -105,8 +102,7 @@ public:
 	       * Its counterpart is #NO_JACK_TIMEBASE_CONTROL.
 	       */
 	      USE_JACK_TIMEBASE_CONTROL = 0,
-	      BEAT_COUNTER_SET_PLAY_ON = 0,
-	      BEAT_COUNTER_ON = 0,/**
+	      /**
 	       * Specifies whether or not to use JACK transport
 	       * capabilities. If set, Hydrogen can be used
 	       * independent of the JACK system while still using the
@@ -125,10 +121,29 @@ public:
 	       *
 	       * Its counterpart is #USE_JACK_TIMEBASE_CONTROL.
 	       */
-	      NO_JACK_TIMEBASE_CONTROL = 1,
-	      BEAT_COUNTER_SET_PLAY_OFF = 1,
-	      BEAT_COUNTER_OFF = 1
+	      NO_JACK_TIMEBASE_CONTROL = 1
 	};
+
+		/** Specifies which tempo input widget will be displayed in
+		 * #MainToolBar. Via keyboard or MIDI/OSC both TapTempo and BeatCounter
+		 * are available at the same time. */
+		enum class BpmTap {
+			/** Plain averaging over the most recent tap activations. */
+			TapTempo,
+			/** Input a user-specified number of tabs and average once all of
+			 * them have been received. */
+			BeatCounter
+		};
+
+		/** These options aren't integrated in #BpmTap since the BeatCounter is
+		 * always accessible via keyboard, MIDI, and OSC. */
+		enum class BeatCounter {
+			/** Input a user-specified number of tabs and average once all of
+			 * them have been received. */
+			Tap,
+			/** As #Tap but also starts playback when done. */
+			TapAndPlay
+		};
 
 	/** Bitwise or-able options showing which part of the Preferences
 	 * were altered using the PreferencesDialog.*/ 
@@ -168,6 +183,18 @@ public:
 		CoreAudio,
 		PortAudio
 	};
+	static AudioDriver parseAudioDriver( const QString& sDriver );
+	static QString audioDriverToQString( const AudioDriver& driver );
+
+	enum class MidiDriver {
+		Alsa,
+		CoreMidi,
+		Jack,
+		None,
+		PortMidi
+	};
+	static MidiDriver parseMidiDriver( const QString& sDriver );
+	static QString midiDriverToQString( const MidiDriver& driver );
 
 	/** Specifies which audio settings will be applied to the sample
 		supplied in the JACK per track output ports.*/
@@ -203,8 +230,6 @@ public:
 		bool			saveCopyAs( const QString& sPath,
 									const bool bSilent = false ) const;
 
-	static AudioDriver parseAudioDriver( const QString& sDriver );
-	static QString audioDriverToQString( const AudioDriver& driver );
 	static std::vector<AudioDriver> getSupportedAudioDrivers();
 
 	/**
@@ -241,8 +266,8 @@ public:
 	bool				m_bExpandPatternItem;
 
 	// BeatCounter
-	bool				m_bBeatCounterOn;
-	bool				m_bBeatCounterSetPlay;
+	BpmTap				m_bpmTap;
+	BeatCounter			m_beatCounter;
 	int					m_nBeatCounterDriftCompensation;
 	int					m_nBeatCounterStartOffset;
 
@@ -277,20 +302,7 @@ public:
 	//	OSS driver properties ___
 	QString				m_sOSSDevice;		///< Device used for output
 
-	//	MIDI Driver properties
-	/**
-	 * MIDI driver
-	 *
-	 * Used in the audioEngine_startAudioDrivers() to create an
-	 * MIDI driver. 
-	 *
-	 * These choices are support:
-	 * - "JackMidi" : A JackMidiDriver will be called.
-	 * - "ALSA" : An AlsaMidiDriver will be called.
-	 * - "CoreMidi" : A CoreMidiDriver will be called.
-	 * - "PortMidi" : A PortMidiDriver will be called.
-	 */
-	QString				m_sMidiDriver;
+	MidiDriver				m_midiDriver;
 	QString				m_sMidiPortName;
 	QString				m_sMidiOutputPortName;
 

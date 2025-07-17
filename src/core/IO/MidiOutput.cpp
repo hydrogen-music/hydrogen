@@ -22,18 +22,46 @@
 
 #include <core/IO/MidiOutput.h>
 
+#include <core/Midi/MidiMessage.h>
+
 namespace H2Core
 {
 
-MidiOutput::MidiOutput()
-{
-	//
+MidiOutput::MidiOutput() {
 }
 
-
-MidiOutput::~MidiOutput()
-{
-	//INFOLOG( "DESTROY" );
+MidiOutput::~MidiOutput() {
 }
 
+MidiOutput::HandledOutput MidiOutput::sendMessage( const MidiMessage& msg ) {
+	HandledOutput handledOutput;
+
+	switch( msg.getType() ) {
+	case MidiMessage::Type::ControlChange:
+		sendControlChangeMessage( msg );
+		break;
+
+	case MidiMessage::Type::NoteOn:
+		sendNoteOffMessage( msg );
+		sendNoteOnMessage( msg );
+		break;
+
+	case MidiMessage::Type::NoteOff:
+		sendNoteOffMessage( msg );
+		break;
+
+	default:
+		// Not handled, we won't send the corresponding event.
+		handledOutput.type = MidiMessage::Type::Unknown;
+		return handledOutput;
+	}
+
+	handledOutput.timestamp = QTime::currentTime();
+	handledOutput.type = msg.getType();
+	handledOutput.nData1 = msg.getData1();
+	handledOutput.nData2 = msg.getData2();
+	handledOutput.nChannel = msg.getChannel();
+
+	return handledOutput;
+}
 };

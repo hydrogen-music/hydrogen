@@ -22,17 +22,14 @@
 #ifndef HYDROGEN_H
 #define HYDROGEN_H
 
-#include <core/config.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
-#include <core/Object.h>
-#include <core/Timeline.h>
-#include <core/IO/AudioOutput.h>
-#include <core/IO/MidiCommon.h>
-#include <core/IO/MidiInput.h>
-#include <core/IO/MidiOutput.h>
+#include <core/config.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Object.h>
 #include <core/Timehelper.h>
+#include <core/Timeline.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
@@ -41,9 +38,11 @@
 namespace H2Core
 {
 	class AudioEngine;
+	class AudioOutput;
 	class Drumkit;
-	class SoundLibraryDatabase;
+	class MidiBaseDriver;
 	class Playlist;
+	class SoundLibraryDatabase;
 
 ///
 /// Hydrogen Audio Engine.
@@ -58,7 +57,7 @@ public:
 		updates from.*/
 	enum class Tempo {
 		/** BeatCounter, TapTempo, OSC and MIDI commands as well as
-			the BPM widget in the PlayerControl are used to change the
+			the BPM widget in the MainToolBar are used to change the
 			tempo.*/
 		Song = 0,
 		/** Only tempo markers on the Timeline are considered.*/
@@ -78,10 +77,8 @@ public:
 		 */
 		UNKNOWN_DRIVER,
 		/**
-		 * Unable to connect the audio driver stored in
-		 * #H2Core::AudioEngine::m_pAudioDriver in
-		 * audioEngine_startAudioDrivers(). The NullDriver
-		 * will be used as a fallback instead.
+		 * Unable to connect the audio driver stored. The NullDriver will be
+		 * used as a fallback instead.
 		 */
 		ERROR_STARTING_DRIVER,
 		JACK_SERVER_SHUTDOWN,
@@ -254,11 +251,11 @@ public:
 		int getHihatOpenness() const;
 		void setHihatOpenness( int nValue );
 
-		void			restartDrivers();
+		void			restartAudioDriver();
+		void			restartMidiDriver();
 
-		AudioOutput*		getAudioOutput() const;
-		MidiInput*		getMidiInput() const;
-		MidiOutput*		getMidiOutput() const;
+		AudioOutput*	getAudioOutput() const;
+		std::shared_ptr<MidiBaseDriver>	getMidiDriver() const;
 
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/

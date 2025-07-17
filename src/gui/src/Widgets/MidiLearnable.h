@@ -27,10 +27,12 @@
 #include <memory>
 #include <vector>
 #include <QString>
-#include <core/MidiAction.h>
-#include <core/IO/MidiCommon.h>
+
+#include <core/Midi/MidiMessage.h>
 
 #include "../EventListener.h"
+
+class MidiAction;
 
 /**
  * Every widget which supports MidiLearn should derive from this
@@ -44,17 +46,20 @@
  *
  * \ingroup docGUI docWidgets docMIDI
  */
-class MidiLearnable : EventListener
+class MidiLearnable : public EventListener
 {
 public:
     MidiLearnable();
 	~MidiLearnable();
 
-    void setAction( std::shared_ptr<Action> pAction );
+    void setMidiAction( std::shared_ptr<MidiAction> pMidiAction );
 
-    std::shared_ptr<Action> getAction() const {
-		return m_pAction;
+    std::shared_ptr<MidiAction> getMidiAction() const {
+		return m_pMidiAction;
     }
+
+		const QString& getBaseToolTip() const;
+		void setBaseToolTip( const QString& sNewTip );
 
 	/**
 	 * Update #m_registeredMidiEvents since the underlying
@@ -62,14 +67,18 @@ public:
 	 */
 	void midiMapChangedEvent() override;
 
-	/**
-	 * Indicates child class to recalculate its tool tip in case
-	 * #m_registeredMidiEvents changed.
-	 */
-	virtual void updateTooltip(){};
-
 protected:
-    std::shared_ptr<Action> m_pAction;
+		/** Create the resulting tool tip by combining #m_sBaseToolTip with some
+		 * formatting, stock strings and current MIDI assignments. */
+		QString composeToolTip() const;
+		/** To be implemented by the child widget to set the result of
+		 * #composeToolTip().
+		 */
+		virtual void updateToolTip() = 0;
+
+		QString m_sBaseToolTip;
+
+    std::shared_ptr<MidiAction> m_pMidiAction;
 
 	/**
 	 * Stores all MIDI events mapped to #m_pAction.
@@ -79,5 +88,9 @@ protected:
 	 */ 
 	std::vector<std::pair<H2Core::MidiMessage::Event,int>> m_registeredMidiEvents;
 };
+
+inline const QString& MidiLearnable::getBaseToolTip() const {
+	return m_sBaseToolTip;
+}
 
 #endif // MIDILEARNABLE_H

@@ -28,6 +28,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../MainToolBar/MainToolBar.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/PixmapWidget.h"
 #include "MixerSettingsDialog.h"
@@ -293,12 +294,19 @@ void Mixer::updatePeaks()
 
 void Mixer::showEvent ( QShowEvent *ev ) {
 	UNUSED( ev );
+
+	// Update visibility button
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
+
 	updateMixer();
 }
 
 
 void Mixer::hideEvent( QHideEvent *ev ) {
 	UNUSED( ev );
+
+	// Update visibility button
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }
 void Mixer::resizeEvent( QResizeEvent *ev ) {
 	UNUSED( ev );
