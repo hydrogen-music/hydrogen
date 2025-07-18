@@ -1267,8 +1267,8 @@ bool CoreActionController::activateRecordMode( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
-	if ( Preferences::get_instance()->getRecordEvents() != bActivate ) {
-		Preferences::get_instance()->setRecordEvents( bActivate );
+	if ( pHydrogen->getRecordEnabled() != bActivate ) {
+		pHydrogen->setRecordEnabled( bActivate );
 	}
 
 	return true;
@@ -1278,8 +1278,7 @@ bool CoreActionController::toggleRecordMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
-	return activateRecordMode(
-		! Preferences::get_instance()->getRecordEvents() );
+	return activateRecordMode( ! pHydrogen->getRecordEnabled() );
 }
 
 bool CoreActionController::setDrumkit( const QString& sDrumkit ) {

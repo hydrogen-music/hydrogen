@@ -825,7 +825,7 @@ void MainToolBar::updateTransportControl() {
 
 	m_pPlayButton->setChecked(
 		pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing );
-	m_pRecButton->setChecked( pPref->getRecordEvents() );
+	m_pRecButton->setChecked( pHydrogen->getRecordEnabled() );
 }
 
 void MainToolBar::onPreferencesChanged( const H2Core::Preferences::Changes& changes )

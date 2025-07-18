@@ -409,6 +409,9 @@ public:
 		supported.*/
 	bool			isUnderSessionManagement() const;
 
+		bool getRecordEnabled() const;
+		void setRecordEnabled( bool bEnabled );
+
 	void			setSessionIsExported( bool bIsExported );
 	bool			getSessionIsExported() const;
 
@@ -546,6 +549,8 @@ private:
 	 */
 	int				m_nLastRecordedMIDINoteTick;
 
+		bool m_bRecordEnabled;
+
 	/**
 	 * Central instance of the audio engine. 
 	 */
@@ -602,6 +607,13 @@ inline int Hydrogen::getSelectedPatternNumber() const
 inline int Hydrogen::getSelectedInstrumentNumber() const
 {
 	return m_nSelectedInstrumentNumber;
+}
+
+inline bool Hydrogen::getRecordEnabled() const {
+	return m_bRecordEnabled;
+}
+inline void Hydrogen::setRecordEnabled( bool bEnabled ) {
+	m_bRecordEnabled = bEnabled;
 }
 
 inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {

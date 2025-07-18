@@ -116,6 +116,7 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 					 , m_oldEngineMode( Song::Mode::Song ) 
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
+					 , m_bRecordEnabled( false )
 					 , m_bSessionIsExported( false )
 					 , m_nHihatOpenness( 127 )
 {
@@ -374,8 +375,8 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	long nTickInPattern = 0;
 	const float fPan = 0;
 
-	bool doRecord = pPref->getRecordEvents();
-	if ( getMode() == Song::Mode::Song && doRecord &&
+	bool bDoRecord = m_bRecordEnabled;
+	if ( getMode() == Song::Mode::Song && bDoRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing ) {
 
 		// Recording + song playback mode + actually playing
@@ -406,7 +407,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 		}
 
 		// Cancel recording if punch area disagrees
-		doRecord = pPref->inPunchArea( nColumn );
+		bDoRecord = pPref->inPunchArea( nColumn );
 
 	}
 	else { // Not song-record mode
@@ -472,7 +473,7 @@ bool Hydrogen::addRealtimeNote(	int		nInstrument,
 	// Record note
 	if ( pCurrentPattern != nullptr &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing &&
-		 doRecord ) {
+		 bDoRecord ) {
 
 		INFOLOG( QString( "Recording [%1] to pattern: %2 (%3), tick: [%4/%5]." )
 				 .arg( bNoteOff ? "NoteOff" : "NoteOn")
@@ -1636,6 +1637,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bSessionIsExported ) )
 			.append( QString( "%1%2m_nLastRecordedMIDINoteTick: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( "%1%2m_bRecordEnabled: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bRecordEnabled ) )
 			.append( QString( "%1%2m_pAudioEngine:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
@@ -1708,6 +1711,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 						.arg( m_bSessionIsExported ) )
 			.append( QString( ", m_nLastRecordedMIDINoteTick: %1" )
 						.arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( ", m_bRecordEnabled: %1" )
+						.arg( m_bRecordEnabled ) )
 			.append( ", m_pAudioEngine:" );
 		if ( m_pAudioEngine != nullptr ) {
 			sOutput.append( QString( "%1" )
