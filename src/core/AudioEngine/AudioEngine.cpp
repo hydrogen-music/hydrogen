@@ -616,15 +616,24 @@ void AudioEngine::updatePatternTransportPosition( double fTick, long long nFrame
 	const double fPatternStartTick =
 		static_cast<double>(pPos->getPatternStartTick());
 	const int nPatternSize = pPos->getPatternSize();
-	
-	if ( fTick >= fPatternStartTick + static_cast<double>(nPatternSize) ||
-		 fTick < fPatternStartTick ) {
+
+	if ( fTick == 0 && fPatternStartTick > 0 && m_state != State::Playing ) {
+		// Transport was just stopped.
+		pPos->setPatternStartTick( 0 );
+
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			updatePlayingPatternsPos( pPos, trigger );
+		}
+	}
+	else if ( fTick >= fPatternStartTick + static_cast<double>(nPatternSize) ||
+			  fTick < fPatternStartTick ) {
 		// Transport went past the end of the pattern or Pattern mode
 		// was just activated.
-		pPos->setPatternStartTick( pPos->getPatternStartTick() +
-								   static_cast<long>(std::floor( ( fTick - fPatternStartTick ) /
-																 static_cast<double>(nPatternSize) )) *
-								   nPatternSize );
+		pPos->setPatternStartTick(
+			pPos->getPatternStartTick() +
+			static_cast<long>(std::floor( ( fTick - fPatternStartTick ) /
+										  static_cast<double>(nPatternSize) )) *
+			nPatternSize );
 
 		// In stacked pattern mode we will only update the playing
 		// patterns if the transport of the original pattern is looped
