@@ -2493,13 +2493,14 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->lock( RIGHT_HERE );
 	// Use tempo in the next process cycle of the audio engine.
 	pAudioEngine->setNextBpm( fBpm );
-	pAudioEngine->unlock();
 
 	// Store it's value in the .h2song file.
 	pSong->setBpm( fBpm );
 	if ( pSong->getTimeline() != nullptr ) {
 		pSong->getTimeline()->setDefaultBpm( fBpm );
 	}
+
+	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
 	
