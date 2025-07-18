@@ -333,14 +333,22 @@ void SampleEditor::getAllFrameInfos()
 	}
 	m_pTargetSampleView->updateDisplay( pLayer );
 
-	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
-	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
-	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
-	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopCountSpinBox( int ) ) );
-	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString& ) ) );
-	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString& ) ) );
-	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString& ) ) );
-	connect( pitchdoubleSpinBox, SIGNAL ( valueChanged( double )  ), this, SLOT( valueChangedpitchdoubleSpinBox( double ) ) );
+	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this,
+			 SLOT( valueChangedStartFrameSpinBox(int) ) );
+	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this,
+			 SLOT( valueChangedLoopFrameSpinBox(int) ) );
+	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this,
+			 SLOT( valueChangedEndFrameSpinBox(int) ) );
+	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this,
+			 SLOT( valueChangedLoopCountSpinBox( int ) ) );
+	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged( int )),
+			 this, SLOT( valueChangedProcessingTypeComboBox( int ) ) );
+	connect( rubberComboBox, SIGNAL(currentIndexChanged( int )), this,
+			 SLOT( valueChangedrubberComboBox( int ) ) );
+	connect( rubberbandCsettingscomboBox, SIGNAL(currentIndexChanged( int )),
+			 this, SLOT( valueChangedrubberbandCsettingscomboBox( int ) ) );
+	connect( pitchdoubleSpinBox, SIGNAL ( valueChanged( double )  ), this,
+			 SLOT( valueChangedpitchdoubleSpinBox( double ) ) );
 }
 
 void SampleEditor::getAllLocalFrameInfos()
@@ -922,7 +930,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 
 
 
-void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString&  )
+void SampleEditor::valueChangedrubberbandCsettingscomboBox( int )
 {
 	int new_settings = rubberbandCsettingscomboBox->currentIndex();
 	if (new_settings == __rubberband.c_settings) {
@@ -947,7 +955,7 @@ void SampleEditor::valueChangedpitchdoubleSpinBox( double )
 }
 
 
-void SampleEditor::valueChangedrubberComboBox( const QString&  )
+void SampleEditor::valueChangedrubberComboBox( int )
 {
 
 	if( rubberComboBox->currentText() != "off" ){
@@ -1035,7 +1043,7 @@ void SampleEditor::checkRatioSettings()
 }
 
 
-void SampleEditor::valueChangedProcessingTypeComboBox( const QString& unused )
+void SampleEditor::valueChangedProcessingTypeComboBox( int nUnused )
 {
 	switch ( ProcessingTypeComboBox->currentIndex() ){
 		case 0 ://
