@@ -1978,14 +1978,14 @@ bool CoreActionController::setInstrumentType( int nInstrumentId,
 	return true;
 }
 
-bool CoreActionController::locateToColumn( int nPatternGroup ) {
+bool CoreActionController::locateToColumn( int nColumn ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
-	if ( nPatternGroup < -1 ) {
-		ERRORLOG( QString( "Provided column [%1] too low. Assigning 0  instead." )
-				  .arg( nPatternGroup ) );
-		nPatternGroup = 0;
+	if ( nColumn < -1 ) {
+		ERRORLOG( QString( "Provided column [%1] too low. Using 0 instead." )
+				  .arg( nColumn ) );
+		nColumn = 0;
 	}
 	
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1993,11 +1993,11 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		return false;
 	}
 	
-	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
+	long nTotalTick = pHydrogen->getTickForColumn( nColumn );
 	if ( nTotalTick < 0 ) {
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
 			ERRORLOG( QString( "Provided column [%1] violates the allowed range [0;%2). No relocation done." )
-					  .arg( nPatternGroup )
+					  .arg( nColumn )
 					  .arg( pHydrogen->getSong()->getPatternGroupVector()->size() ) );
 			return false;
 		} else {
