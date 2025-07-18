@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.6] - XXXX-XX-XX
+
+### Fixed
+
+- Fix velocity automation for patterns that are not of size 4/4 (#2171).
+
 ## [1.2.5] - 2025-07-17
 
 ### Added

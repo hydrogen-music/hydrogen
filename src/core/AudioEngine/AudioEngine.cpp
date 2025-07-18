@@ -2679,8 +2679,17 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 						pCopiedNote->computeNoteStart();
 						
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
-							const float fPos = static_cast<float>( m_pQueuingPosition->getColumn() ) +
-								pCopiedNote->get_position() % 192 / 192.f;
+							// Onset of the current column + the percentage by
+							// which the current column was already passed. For
+							// large patterns the cursor will move slower and
+							// for shorter faster within a column.
+							const float fPos =
+								static_cast<float>( m_pQueuingPosition->getColumn() ) +
+								( ( pCopiedNote->get_position() -
+									m_pQueuingPosition->getPatternStartTick() ) %
+								  m_pQueuingPosition->getPatternSize() ) /
+								static_cast<float>(m_pQueuingPosition->getPatternSize());
+
 							pCopiedNote->set_velocity( pCopiedNote->get_velocity() *
 													   pAutomationPath->get_value( fPos ) );
 						}
