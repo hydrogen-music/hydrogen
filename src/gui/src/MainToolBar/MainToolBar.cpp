@@ -814,6 +814,8 @@ void MainToolBar::updateSongMode() {
 	const bool bSongMode = pHydrogen->getMode() == Song::Mode::Song;
 	m_pSongModeButton->setChecked( bSongMode );
 	m_pPatternModeButton->setChecked( ! bSongMode );
+	m_pRwdButton->setEnabled( bSongMode );
+	m_pFfwdButton->setEnabled( bSongMode );
 	m_pSongLoopAction->setEnabled( bSongMode );
 }
 
