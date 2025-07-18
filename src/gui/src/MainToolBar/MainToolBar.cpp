@@ -694,14 +694,22 @@ void MainToolBar::jackTimebaseBtnClicked()
 
 void MainToolBar::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	CoreActionController::locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		const int nCurrentColumn =
+			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
+		CoreActionController::locateToColumn(
+			std::max( nCurrentColumn, 0 ) + 1 );
+	}
 }
 
 void MainToolBar::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	CoreActionController::locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		const int nCurrentColumn =
+			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
+		CoreActionController::locateToColumn(
+			std::max( nCurrentColumn - 1, 0 ) );
+	}
 }
 
 void MainToolBar::updateBpmSpinBox() {
