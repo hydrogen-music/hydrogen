@@ -1269,6 +1269,9 @@ bool CoreActionController::activateRecordMode( bool bActivate ) {
 
 	if ( pHydrogen->getRecordEnabled() != bActivate ) {
 		pHydrogen->setRecordEnabled( bActivate );
+
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::RecordModeChanged, static_cast<int>( bActivate ) );
 	}
 
 	return true;

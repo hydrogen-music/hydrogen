@@ -336,6 +336,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	updateJackTimebase();
 	updateJackTransport();
 	updateLoopMode();
+	updateRecordMode();
 	updateSongMode();
 	updateIcons();
 	updateStyleSheet();
@@ -462,6 +463,10 @@ void MainToolBar::metronomeEvent( int nValue ) {
 	const std::chrono::milliseconds duration{ static_cast<int>(
 		std::round( 60 * 1000 / fBpm * fPercentage))};
 	m_pTimer->start( duration );
+}
+
+void MainToolBar::recordingModeChangedEvent() {
+	updateRecordMode();
 }
 
 void MainToolBar::songModeActivationEvent() {
@@ -806,6 +811,11 @@ void MainToolBar::updateLoopMode() {
 	} else {
 		m_pSongLoopAction->setChecked( false );
 	}
+}
+
+void MainToolBar::updateRecordMode() {
+	auto pHydrogen = Hydrogen::get_instance();
+	m_pRecButton->setChecked( pHydrogen->getRecordEnabled() );
 }
 
 void MainToolBar::updateSongMode() {

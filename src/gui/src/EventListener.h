@@ -62,6 +62,7 @@ class EventListener
 		virtual void playlistLoadSongEvent(){}
 		virtual void progressEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void recordingModeChangedEvent(){}
 		virtual void relocationEvent(){}
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}

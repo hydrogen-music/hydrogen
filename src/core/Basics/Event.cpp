@@ -87,6 +87,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "Progress";
 	case Event::Type::Quit:
 		return "Quit";
+	case Event::Type::RecordModeChanged:
+		return "RecordModeChanged";
 	case Event::Type::Relocation:
 		return "Relocation";
 	case Event::Type::SelectedInstrumentChanged:
