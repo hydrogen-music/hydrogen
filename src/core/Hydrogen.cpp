@@ -206,7 +206,7 @@ void Hydrogen::sequencerStop()
 	CoreActionController::sendAllNoteOffMessages();
 
 	m_pAudioEngine->stop();
-	Preferences::get_instance()->setRecordEvents(false);
+	CoreActionController::activateRecordMode( false );
 
 	// Delete redundant instruments still alive after switching the
 	// drumkit to a smaller one.

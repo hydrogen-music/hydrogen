@@ -518,12 +518,12 @@ void MainToolBar::recBtnClicked() {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() !=
 		 H2Core::AudioEngine::State::Playing ) {
 		if ( m_pRecButton->isChecked() ) {
-			Preferences::get_instance()->setRecordEvents(true);
+			CoreActionController::activateRecordMode( true );
 			(HydrogenApp::get_instance())->showStatusBarMessage(
 				tr("Record midi events = On" ) );
 		}
 		else {
-			Preferences::get_instance()->setRecordEvents(false);
+			CoreActionController::activateRecordMode( false );
 			(HydrogenApp::get_instance())->showStatusBarMessage(
 				tr("Record midi events = Off" ) );
 		}

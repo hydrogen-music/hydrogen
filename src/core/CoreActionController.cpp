@@ -1263,6 +1263,25 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 	return true;
 }
 
+bool CoreActionController::activateRecordMode( bool bActivate ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	if ( Preferences::get_instance()->getRecordEvents() != bActivate ) {
+		Preferences::get_instance()->setRecordEvents( bActivate );
+	}
+
+	return true;
+}
+
+bool CoreActionController::toggleRecordMode() {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	return activateRecordMode(
+		! Preferences::get_instance()->getRecordEvents() );
+}
+
 bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
