@@ -710,29 +710,50 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 		return;
 	}
 
-	/* previewInstrument() deletes the last used preview instrument, therefore
-	 * we have to construct a temporary instrument. Otherwise pInstr would be
-	 * deleted if consumed by previewInstrument(). */
-	auto pTmpInstrument = std::make_shared<Instrument>(pInstr);
-	if ( pTmpInstrument == nullptr ) {
+	// Construct a custom instrument containing the current settings -
+	// instrument, component, and layer - but using the original sample.
+	auto pPreviewInstrument = std::make_shared<Instrument>(pInstr);
+	if ( pPreviewInstrument == nullptr ) {
 		ERRORLOG( QString( "Unable to load instrument [%1] from [%2]" )
 				  .arg( pInstr->getName() ).arg( pInstr->getDrumkitPath() ) );
 		tearDown();
 		return;
 	}
-	const QString sSamplePath = pInstr->getComponent( m_nSelectedComponent )
-		->getLayer( nSelectedlayer )->getSample()->getFilepath();
+	auto pComponent = pPreviewInstrument->getComponent( m_nSelectedComponent );
+	if ( pComponent == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve component [%1]" )
+				  .arg( m_nSelectedComponent ) );
+		tearDown();
+		return;
+	}
+	auto pLayer = pComponent->getLayer( nSelectedlayer );
+	if ( pLayer == nullptr ) {
+		ERRORLOG( QString( "Unable to load layer [%1]" ).arg( nSelectedlayer ) );
+		tearDown();
+		return;
+	}
+	const QString sSamplePath = pLayer->getSample()->getFilepath();
 	auto pNewSample = Sample::load( sSamplePath );
 	if ( pNewSample == nullptr ) {
 		ERRORLOG( QString( "Unable to load sample from [%1]" )
 				  .arg( sSamplePath ) );
 		tearDown();
+		return;
 	}
 
+	pLayer->setSample( pNewSample );
+
+	// Construct a note rendering just our new sample.
 	const int nLength = ( pNewSample->getFrames() /
 						  pNewSample->getSampleRate() + 1 ) * 100;
-	pHydrogen->getAudioEngine()->getSampler()->previewInstrument( pTmpInstrument );
-	pHydrogen->getAudioEngine()->getSampler()->previewSample( pNewSample, nLength );
+	auto pNote = std::make_shared<Note>(
+		pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
+	auto pSelectedLayerInfo = std::make_shared<SelectedLayerInfo>();
+	pSelectedLayerInfo->pLayer = pLayer;
+	pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
+
+	pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
+		pPreviewInstrument, pNote );
 	m_nSlframes = pNewSample->getFrames();
 
 	tearDown();

@@ -419,21 +419,24 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 			return;
 		}
 
-		auto pInstrument = std::make_shared<Instrument>( pTargetInstrument );
-		pInstrument->loadSamples(
+		auto pPreviewInstrument = std::make_shared<Instrument>( pTargetInstrument );
+		pPreviewInstrument->loadSamples(
 			pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
 
 		INFOLOG( QString( "Loading instrument [%1] from drumkit [%2] located in [%3]" )
 				 .arg( sInstrumentName ).arg( sDrumkitName ).arg( sDrumkitPath ) );
 
-		if ( pInstrument == nullptr ) {
+		if ( pPreviewInstrument == nullptr ) {
 			ERRORLOG( "Unable to load instrument. Abort" );
 			return;
 		}
 		
-		pInstrument->setMuted( false );
+		pPreviewInstrument->setMuted( false );
+		auto pNote = std::make_shared<Note>(
+			pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
 
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->previewInstrument( pInstrument );
+		pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
+			pPreviewInstrument, pNote );
 	}
 }
 

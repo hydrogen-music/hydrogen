@@ -1405,7 +1405,36 @@ void Sampler::releasePlayingNotes( std::shared_ptr<Instrument> pInstr )
 	}
 }
 
-/// Preview, uses only the first layer
+void Sampler::previewInstrument( std::shared_ptr<Instrument> pInstr,
+								 std::shared_ptr<Note> pNote )
+{
+	if ( pInstr == nullptr || pNote == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return;
+	}
+
+	if ( ! pInstr->hasSamples() ) {
+		ERRORLOG( "Provided instrument not meant for playback" )
+		return;
+	}
+
+	if ( pNote->getInstrument() == nullptr ||
+		 pNote->getInstrument() != pInstr ) {
+		ERRORLOG( "Provided note not associated with the provided instrument" );
+		return;
+	}
+
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+
+	stopPlayingNotes( m_pPreviewInstrument );
+
+	m_pPreviewInstrument = pInstr;
+	pInstr->setIsPreviewInstrument( true );
+	noteOn( pNote );
+
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
+}
+
 void Sampler::previewSample(std::shared_ptr<Sample> pSample, int nLength )
 {
 	if ( m_pPreviewInstrument == nullptr ) {
@@ -1435,35 +1464,6 @@ void Sampler::previewSample(std::shared_ptr<Sample> pSample, int nLength )
 		noteOn( pPreviewNote );
 	}
 
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
-}
-
-
-
-void Sampler::previewInstrument( std::shared_ptr<Instrument> pInstr )
-{
-	if ( pInstr == nullptr ) {
-		ERRORLOG( "Invalid instrument" );
-		return;
-	}
-
-	if ( ! pInstr->hasSamples() ) {
-		return;
-	}
-	
-	std::shared_ptr<Instrument> pOldPreview;
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-
-	stopPlayingNotes( m_pPreviewInstrument );
-
-	pOldPreview = m_pPreviewInstrument;
-	m_pPreviewInstrument = pInstr;
-	pInstr->setIsPreviewInstrument(true);
-
-	auto pPreviewNote = std::make_shared<Note>(
-		m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
-
-	noteOn( pPreviewNote );	// exclusive note
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 

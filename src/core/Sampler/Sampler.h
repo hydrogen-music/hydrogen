@@ -24,8 +24,8 @@
 #ifndef SAMPLER_H
 #define SAMPLER_H
 
-#include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 
 #include <inttypes.h>
@@ -35,13 +35,13 @@
 namespace H2Core
 {
 
-class Note;
-class Song;
-class Sample;
 class Instrument;
 class InstrumentComponent;
 class InstrumentLayer;
+class Note;
+class Sample;
 struct SelectedLayerInfo;
+class Song;
 
 ///
 /// Waveform based sampler.
@@ -195,8 +195,16 @@ public:
 		return m_playingNotesQueue.size();
 	}
 
+		/** Override the last preview instrument and render it using @a
+		 * pNote.
+		 *
+		 * This will honor all instrument, component, and layer settings. In
+		 * case you want trigger just a single #H2Core::InstrumentComponent
+		 * and/or a specific #H2Core::InstrumentLayer, use
+		 * #H2Core::Note::setSelectedLayerInfo(). */
+		void previewInstrument( std::shared_ptr<Instrument> pInstr,
+								std::shared_ptr<Note> pNote );
 	void previewSample( std::shared_ptr<Sample> pSample, int length );
-	void previewInstrument( std::shared_ptr<Instrument> pInstr );
 
 	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr ) const;
 
