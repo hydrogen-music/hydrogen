@@ -762,8 +762,22 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			  bAnyComponentIsSoloed && ! pCompo->getIsSoloed() ||
 			  bAnyLayerIsSoloed && ! pLayer->getIsSoloed() );
 
-		if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||
-			 pCompo->getIsMuted() || pLayer->getIsMuted() || bIsMutedBecauseOfSolo ) {
+		bool bIsMuted = false;
+		if ( pInstr->isPreviewInstrument() ) {
+			// Preview is done for things not related to the current song or
+			// drumkit. But, then again, it should still be possible to prevent
+			// all audio output of Hydrogen. This can be done using the master
+			// mute button.
+			bIsMuted = pSong->getIsMuted();
+		}
+		else if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||
+				  pCompo->getIsMuted() || pLayer->getIsMuted() ||
+				  bIsMutedBecauseOfSolo ) {
+			// Regular instruments/notes.
+			bIsMuted = true;
+		}
+
+		if ( bIsMuted ) {
 			fCost_L = 0.0;
 			fCost_R = 0.0;
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
