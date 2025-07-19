@@ -56,6 +56,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testPreferencesFormatIntegrity);
 	CPPUNIT_TEST(testShippedPreferences);
 	CPPUNIT_TEST(testShippedThemes);
+	CPPUNIT_TEST(testSamplePathsWritten);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -113,6 +114,13 @@ class XmlTest : public CppUnit::TestCase {
 		// Check whether the shipped default/fallback .h2theme files are
 		// up-to-date.
 		void testShippedThemes();
+
+		/** When saving a drumkit all sample <filename> elements should contain
+		 * only the basename + file extention. In songs this holds too for all
+		 * samples which are part of a user or system drumkit. Samples manually
+		 * loaded by the user, on the other hand, must hold an absolute file
+		 * path. */
+		void testSamplePathsWritten();
 
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,
