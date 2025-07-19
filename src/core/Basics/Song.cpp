@@ -472,6 +472,8 @@ std::shared_ptr<Song> Song::loadFrom( const XMLNode& rootNode, const QString& sF
 		}
 
 		if ( tempoMarkers.size() > 0 ) {
+			// No need to lock the audio engine in here because this is not the
+			// timeline associated with the _current_ song.
 			pTimeline->addTempoMarkers( tempoMarkers );
 		}
 	} else if ( ! bSilent ) {

@@ -64,9 +64,9 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 
 	private slots:
 		void valueChangedLoopCountSpinBox( int );
-		void valueChangedProcessingTypeComboBox( const QString& );
-		void valueChangedrubberComboBox( const QString& );
-		void valueChangedrubberbandCsettingscomboBox( const QString& );
+		void valueChangedProcessingTypeComboBox( int );
+		void valueChangedrubberComboBox( int );
+		void valueChangedrubberbandCsettingscomboBox( int );
 		void valueChangedpitchdoubleSpinBox( double );
 		void on_ClosePushButton_clicked();
 		void on_PrevChangesPushButton_clicked();

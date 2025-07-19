@@ -114,6 +114,7 @@ public:
 	 */
 	void deactivate();
 
+		/** Has to be called while the #H2Core::AudioEngine is locked. */
 		void setDefaultBpm( float fDefaultBpm );
 
 	/** Adds a TempoMarker to the Timeline.
@@ -124,9 +125,13 @@ public:
 	 *   tempo marker.
 	 * @param fBpm New tempo in beats per minute. All values
 	 *   below 30 and above 500 will be cut.
+	 *
+	 * Has to be called while the #H2Core::AudioEngine is locked.
 	 */
 	void		addTempoMarker( int nColumn, float fBpm );
-	/** Variant of #addTempoMarker() to add more than one at a time.*/
+	/** Variant of #addTempoMarker() to add more than one at a time.
+	 *
+	 * Has to be called while the #H2Core::AudioEngine is locked. */
 	void		addTempoMarkers( const std::vector<std::shared_ptr<TempoMarker>>& );
 
 	/** Delete all tempo markers except for the first one and
@@ -134,11 +139,10 @@ public:
 	 *
 	 * @param nColumn Position of the Timeline to delete the
 	 * tempo marker at (if one is present).
+	 *
+	 * Has to be called while the #H2Core::AudioEngine is locked.
 	 */
 	void		deleteTempoMarker( int nColumn );
-	/** Deletes all TempoMarkers set by the user. But not the
-		special one.*/
-	void		deleteAllTempoMarkers();
 	/**
 	 * Returns the tempo of the Song at a given column.
 	 *
@@ -180,7 +184,6 @@ public:
 	 * at (if one is present).
 	 */
 	void		deleteTag( int nColumn );
-	void 		deleteAllTags();
 	/**
 	 * Returns the tag of the Song at a given column.
 	 *
@@ -246,12 +249,6 @@ private:
 	};
 };
 	
-inline void Timeline::deleteAllTempoMarkers() {
-		m_tempoMarkers.clear();
-}
-inline void Timeline::deleteAllTags() {
-	m_tags.clear();
-}
 inline const std::vector<std::shared_ptr<const Timeline::TempoMarker>>& Timeline::getAllTempoMarkers() const {
 	return m_allTempoMarkers;
 }

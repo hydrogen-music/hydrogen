@@ -70,12 +70,13 @@ public:
 		void setPreferencesVisibilityState( bool bChecked );
 		void updateActions();
 
-		void beatCounterEvent() override;
 		void audioDriverChangedEvent() override;
+		void beatCounterEvent() override;
 		void jackTimebaseStateChangedEvent( int nState ) override;
 		void jackTransportActivationEvent() override;
 		void loopModeActivationEvent() override;
 		void metronomeEvent( int ) override;
+		void recordingModeChangedEvent() override;
 		void songModeActivationEvent() override;
 		void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
 		void tempoChangedEvent( int nValue ) override;
@@ -144,6 +145,7 @@ private:
 		void updateJackTransport();
 		void updateJackTimebase();
 		void updateLoopMode();
+		void updateRecordMode();
 		void updateSongMode();
 		void updateTransportControl();
 

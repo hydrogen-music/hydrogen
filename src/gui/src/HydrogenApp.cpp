@@ -1068,6 +1068,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->progressEvent( pEvent->getValue() );
 				break;
 
+			case Event::Type::RecordModeChanged:
+				ppEventListener->recordingModeChangedEvent();
+				break;
+
 			case Event::Type::Relocation:
 				ppEventListener->relocationEvent();
 				break;

@@ -1263,6 +1263,27 @@ bool CoreActionController::activateLoopMode( bool bActivate ) {
 	return true;
 }
 
+bool CoreActionController::activateRecordMode( bool bActivate ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	if ( pHydrogen->getRecordEnabled() != bActivate ) {
+		pHydrogen->setRecordEnabled( bActivate );
+
+		EventQueue::get_instance()->pushEvent(
+			Event::Type::RecordModeChanged, static_cast<int>( bActivate ) );
+	}
+
+	return true;
+}
+
+bool CoreActionController::toggleRecordMode() {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	return activateRecordMode( ! pHydrogen->getRecordEnabled() );
+}
+
 bool CoreActionController::setDrumkit( const QString& sDrumkit ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
@@ -1978,14 +1999,14 @@ bool CoreActionController::setInstrumentType( int nInstrumentId,
 	return true;
 }
 
-bool CoreActionController::locateToColumn( int nPatternGroup ) {
+bool CoreActionController::locateToColumn( int nColumn ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
-	if ( nPatternGroup < -1 ) {
-		ERRORLOG( QString( "Provided column [%1] too low. Assigning 0  instead." )
-				  .arg( nPatternGroup ) );
-		nPatternGroup = 0;
+	if ( nColumn < -1 ) {
+		ERRORLOG( QString( "Provided column [%1] too low. Using 0 instead." )
+				  .arg( nColumn ) );
+		nColumn = 0;
 	}
 	
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -1993,11 +2014,11 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		return false;
 	}
 	
-	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
+	long nTotalTick = pHydrogen->getTickForColumn( nColumn );
 	if ( nTotalTick < 0 ) {
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
 			ERRORLOG( QString( "Provided column [%1] violates the allowed range [0;%2). No relocation done." )
-					  .arg( nPatternGroup )
+					  .arg( nColumn )
 					  .arg( pHydrogen->getSong()->getPatternGroupVector()->size() ) );
 			return false;
 		} else {
@@ -2493,13 +2514,14 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->lock( RIGHT_HERE );
 	// Use tempo in the next process cycle of the audio engine.
 	pAudioEngine->setNextBpm( fBpm );
-	pAudioEngine->unlock();
 
 	// Store it's value in the .h2song file.
 	pSong->setBpm( fBpm );
 	if ( pSong->getTimeline() != nullptr ) {
 		pSong->getTimeline()->setDefaultBpm( fBpm );
 	}
+
+	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
 	

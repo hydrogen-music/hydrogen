@@ -256,7 +256,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		static bool activateSongMode( bool bActivate );
 	static bool toggleSongMode();
 	     /**
-		 * Toggle loop mode of playback.
+		 * (De)activates loop mode of playback.
 		 *
 		 * @param bActivate If true - activates loop mode.
 		 *
@@ -264,6 +264,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		static bool activateLoopMode( bool bActivate );
 	static bool toggleLoopMode();
+		static bool activateRecordMode( bool bActivate );
+		static bool toggleRecordMode();
 	/** Wrapper around setDrumkit() that allows loading drumkits by
 	 *	name or path.
 	 *

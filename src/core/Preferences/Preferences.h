@@ -437,8 +437,6 @@ public:
 	bool			getHearNewNotes() const;
 	void			setHearNewNotes( bool value );
 
-	bool			getRecordEvents() const;
-	void			setRecordEvents( bool value );
 	int				getPunchInPos() const;
 	void			setPunchInPos( unsigned pos );
 	int				getPunchOutPos() const;
@@ -651,7 +649,6 @@ private:
 	QString				m_sLastPlaylistFilename;
 
 	bool				m_bHearNewNotes;
-	bool				m_bRecordEvents;
 	int					m_nPunchInPos;
 	int					m_nPunchOutPos;
 	bool				m_bQuantizeEvents;
@@ -992,13 +989,6 @@ inline void Preferences::setHearNewNotes( bool value ) {
 }
 inline bool Preferences::getHearNewNotes() const {
 	return m_bHearNewNotes;
-}
-
-inline void Preferences::setRecordEvents( bool value ) {
-	m_bRecordEvents = value;
-}
-inline bool Preferences::getRecordEvents() const {
-	return m_bRecordEvents;
 }
 
 inline void Preferences::setPunchInPos ( unsigned pos ) {

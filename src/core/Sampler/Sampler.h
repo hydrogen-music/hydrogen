@@ -24,8 +24,8 @@
 #ifndef SAMPLER_H
 #define SAMPLER_H
 
-#include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 
 #include <inttypes.h>
@@ -35,13 +35,13 @@
 namespace H2Core
 {
 
-class Note;
-class Song;
-class Sample;
 class Instrument;
 class InstrumentComponent;
 class InstrumentLayer;
+class Note;
+class Sample;
 struct SelectedLayerInfo;
+class Song;
 
 ///
 /// Waveform based sampler.
@@ -195,8 +195,19 @@ public:
 		return m_playingNotesQueue.size();
 	}
 
-	void previewSample( std::shared_ptr<Sample> pSample, int length );
-	void previewInstrument( std::shared_ptr<Instrument> pInstr );
+		/** Uses @a pInstr as the new preview instrument and renders it using @a
+		 * pNote.
+		 *
+		 * This will honor all instrument, component, and layer settings. In
+		 * case you want trigger just a single #H2Core::InstrumentComponent
+		 * and/or a specific #H2Core::InstrumentLayer, use
+		 * #H2Core::Note::setSelectedLayerInfo(). */
+		void previewInstrument( std::shared_ptr<Instrument> pInstr,
+								std::shared_ptr<Note> pNote );
+		/** To prevent leaking other components to instrument/component/layer
+		 * settings into rendering @a pSample, #m_pDefaultPreviewInstrument will
+		 * be used. */
+		void previewSample( std::shared_ptr<Sample> pSample, int length );
 
 	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr ) const;
 
@@ -274,6 +285,11 @@ private:
 
 	/// Instrument used for the preview feature.
 	std::shared_ptr<Instrument> m_pPreviewInstrument;
+
+	/** Default preview instrument consisting of a single component containing a
+	 * single layer. Whenever a sample is going to be preview, it will be
+	 * assigned to that layer and the preview instrument will be triggered. */
+	std::shared_ptr<Instrument> m_pDefaultPreviewInstrument;
 
 	/** Maximum number of layers to be used in the Instrument
 	    editor. It will be inferred from

@@ -221,7 +221,7 @@ QTextEdit { \
 	saveBtn->setSize( QSize( 110, 23 ) );
 	saveBtn->setBorderRadius( 3 );
 	saveBtn->setType( Button::Type::Push );
-	if ( m_pDrumkit != nullptr &&
+	if ( m_pDrumkit != nullptr && bEditingNotSaving &&
 		 m_pDrumkit->getContext() == Drumkit::Context::Song ) {
 		saveBtn->setText( pCommonStrings->getActionSaveSong() );
 	}

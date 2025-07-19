@@ -1298,62 +1298,21 @@ bool MidiActionManager::record_ready( std::shared_ptr<MidiAction> pAction ) {
 	}
 	
 	if ( pHydrogen->getAudioEngine()->getState() != AudioEngine::State::Playing ) {
-		if (!Preferences::get_instance()->getRecordEvents()) {
-			Preferences::get_instance()->setRecordEvents(true);
-		}
-		else {
-			Preferences::get_instance()->setRecordEvents(false);
-		}
+		return CoreActionController::toggleRecordMode();
 	}
 	return true;
 }
 
 bool MidiActionManager::record_strobe_toggle( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-	
-	if (!Preferences::get_instance()->getRecordEvents()) {
-		Preferences::get_instance()->setRecordEvents(true);
-	}
-	else {
-		Preferences::get_instance()->setRecordEvents(false);
-	}
-	return true;
+	return CoreActionController::toggleRecordMode();
 }
 
 bool MidiActionManager::record_strobe( std::shared_ptr<MidiAction>  ) {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-	
-	if (!Preferences::get_instance()->getRecordEvents()) {
-		Preferences::get_instance()->setRecordEvents(true);
-	}
-	return true;
+	return CoreActionController::activateRecordMode( true );
 }
 
 bool MidiActionManager::record_exit( std::shared_ptr<MidiAction> ) {
-	auto pHydrogen = Hydrogen::get_instance();
-
-	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return false;
-	}
-	
-	if (Preferences::get_instance()->getRecordEvents()) {
-		Preferences::get_instance()->setRecordEvents(false);
-	}
-	return true;
+	return CoreActionController::activateRecordMode( false );
 }
 
 bool MidiActionManager::toggle_metronome( std::shared_ptr<MidiAction> ) {

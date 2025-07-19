@@ -162,6 +162,8 @@ public:
 			 * entire application via the command line.
 			 */
 			Quit,
+			/** Triggered whenever recording was enabled or disabled. */
+			RecordModeChanged,
 			/** Triggered in case there is a relocation of the transport
 			 * position while trasnsport is not rolling. This can be either due
 			 * to an user interaction or an incoming MIDI/OSC/JACK command or at

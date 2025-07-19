@@ -336,6 +336,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	updateJackTimebase();
 	updateJackTransport();
 	updateLoopMode();
+	updateRecordMode();
 	updateSongMode();
 	updateIcons();
 	updateStyleSheet();
@@ -464,6 +465,10 @@ void MainToolBar::metronomeEvent( int nValue ) {
 	m_pTimer->start( duration );
 }
 
+void MainToolBar::recordingModeChangedEvent() {
+	updateRecordMode();
+}
+
 void MainToolBar::songModeActivationEvent() {
 	updateSongMode();
 	updateBpmSpinBox();
@@ -518,12 +523,12 @@ void MainToolBar::recBtnClicked() {
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() !=
 		 H2Core::AudioEngine::State::Playing ) {
 		if ( m_pRecButton->isChecked() ) {
-			Preferences::get_instance()->setRecordEvents(true);
+			CoreActionController::activateRecordMode( true );
 			(HydrogenApp::get_instance())->showStatusBarMessage(
 				tr("Record midi events = On" ) );
 		}
 		else {
-			Preferences::get_instance()->setRecordEvents(false);
+			CoreActionController::activateRecordMode( false );
 			(HydrogenApp::get_instance())->showStatusBarMessage(
 				tr("Record midi events = Off" ) );
 		}
@@ -694,14 +699,22 @@ void MainToolBar::jackTimebaseBtnClicked()
 
 void MainToolBar::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	CoreActionController::locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() + 1 );
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		const int nCurrentColumn =
+			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
+		CoreActionController::locateToColumn(
+			std::max( nCurrentColumn, 0 ) + 1 );
+	}
 }
 
 void MainToolBar::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
-	CoreActionController::locateToColumn(
-		pHydrogen->getAudioEngine()->getTransportPosition()->getColumn() - 1 );
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		const int nCurrentColumn =
+			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
+		CoreActionController::locateToColumn(
+			std::max( nCurrentColumn - 1, 0 ) );
+	}
 }
 
 void MainToolBar::updateBpmSpinBox() {
@@ -800,12 +813,19 @@ void MainToolBar::updateLoopMode() {
 	}
 }
 
+void MainToolBar::updateRecordMode() {
+	auto pHydrogen = Hydrogen::get_instance();
+	m_pRecButton->setChecked( pHydrogen->getRecordEnabled() );
+}
+
 void MainToolBar::updateSongMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	const bool bSongMode = pHydrogen->getMode() == Song::Mode::Song;
 	m_pSongModeButton->setChecked( bSongMode );
 	m_pPatternModeButton->setChecked( ! bSongMode );
+	m_pRwdButton->setEnabled( bSongMode );
+	m_pFfwdButton->setEnabled( bSongMode );
 	m_pSongLoopAction->setEnabled( bSongMode );
 }
 
@@ -815,7 +835,7 @@ void MainToolBar::updateTransportControl() {
 
 	m_pPlayButton->setChecked(
 		pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing );
-	m_pRecButton->setChecked( pPref->getRecordEvents() );
+	m_pRecButton->setChecked( pHydrogen->getRecordEnabled() );
 }
 
 void MainToolBar::onPreferencesChanged( const H2Core::Preferences::Changes& changes )

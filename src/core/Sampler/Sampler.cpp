@@ -86,8 +86,10 @@ Sampler::Sampler()
 	QString sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	// instrument used in file preview
-	m_pPreviewInstrument = createInstrument( EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );
-	m_pPreviewInstrument->setIsPreviewInstrument( true );
+	m_pDefaultPreviewInstrument = createInstrument(
+		EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );
+	m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
+	m_pPreviewInstrument = m_pDefaultPreviewInstrument;
 
 	// dummy instrument used for playback track
 	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
@@ -760,8 +762,22 @@ bool Sampler::renderNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			  bAnyComponentIsSoloed && ! pCompo->getIsSoloed() ||
 			  bAnyLayerIsSoloed && ! pLayer->getIsSoloed() );
 
-		if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||
-			 pCompo->getIsMuted() || pLayer->getIsMuted() || bIsMutedBecauseOfSolo ) {
+		bool bIsMuted = false;
+		if ( pInstr->isPreviewInstrument() ) {
+			// Preview is done for things not related to the current song or
+			// drumkit. But, then again, it should still be possible to prevent
+			// all audio output of Hydrogen. This can be done using the master
+			// mute button.
+			bIsMuted = pSong->getIsMuted();
+		}
+		else if ( bIsMutedForExport || pInstr->isMuted() || pSong->getIsMuted() ||
+				  pCompo->getIsMuted() || pLayer->getIsMuted() ||
+				  bIsMutedBecauseOfSolo ) {
+			// Regular instruments/notes.
+			bIsMuted = true;
+		}
+
+		if ( bIsMuted ) {
 			fCost_L = 0.0;
 			fCost_R = 0.0;
 			if ( Preferences::get_instance()->m_JackTrackOutputMode ==
@@ -1405,65 +1421,63 @@ void Sampler::releasePlayingNotes( std::shared_ptr<Instrument> pInstr )
 	}
 }
 
-/// Preview, uses only the first layer
-void Sampler::previewSample(std::shared_ptr<Sample> pSample, int nLength )
+void Sampler::previewInstrument( std::shared_ptr<Instrument> pInstr,
+								 std::shared_ptr<Note> pNote )
 {
-	if ( m_pPreviewInstrument == nullptr ) {
-		ERRORLOG( "Invalid preview instrument" );
-		return;
-	}
-
-	if ( ! m_pPreviewInstrument->hasSamples() ) {
-		return;
-	}
-	
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-
-	for (const auto& pComponent: *m_pPreviewInstrument->getComponents()) {
-		if ( pComponent == nullptr ) {
-			ERRORLOG( "Invalid component" );
-			continue;
-		}
-		auto pLayer = pComponent->getLayer( 0 );
-
-		pLayer->setSample( pSample );
-
-		auto pPreviewNote = std::make_shared<Note>(
-			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
-
-		stopPlayingNotes( m_pPreviewInstrument );
-		noteOn( pPreviewNote );
-	}
-
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
-}
-
-
-
-void Sampler::previewInstrument( std::shared_ptr<Instrument> pInstr )
-{
-	if ( pInstr == nullptr ) {
-		ERRORLOG( "Invalid instrument" );
+	if ( pInstr == nullptr || pNote == nullptr ) {
+		ERRORLOG( "Invalid input" );
 		return;
 	}
 
 	if ( ! pInstr->hasSamples() ) {
+		ERRORLOG( "Provided instrument not meant for playback" )
 		return;
 	}
-	
-	std::shared_ptr<Instrument> pOldPreview;
+
+	if ( pNote->getInstrument() == nullptr ||
+		 pNote->getInstrument() != pInstr ) {
+		ERRORLOG( "Provided note not associated with the provided instrument" );
+		return;
+	}
+
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
 
-	pOldPreview = m_pPreviewInstrument;
 	m_pPreviewInstrument = pInstr;
-	pInstr->setIsPreviewInstrument(true);
+	pInstr->setIsPreviewInstrument( true );
+	noteOn( pNote );
+
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
+}
+
+void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
+{
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+
+	stopPlayingNotes( m_pPreviewInstrument );
+
+	if ( m_pPreviewInstrument != m_pDefaultPreviewInstrument ) {
+		m_pPreviewInstrument = m_pDefaultPreviewInstrument;
+	}
+
+	// The default preview instrument has a single component with a single
+	// layer. This is where we assign the new sample to.
+	if ( m_pPreviewInstrument == nullptr ||
+		 m_pPreviewInstrument->getComponent( 0 ) == nullptr ||
+		 m_pPreviewInstrument->getComponent( 0 )->getLayer( 0 ) == nullptr ) {
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
+		ERRORLOG( "Invalid preview instrument" );
+		return;
+	}
+
+	m_pPreviewInstrument->getComponent( 0 )->getLayer( 0 )->setSample( pSample );
 
 	auto pPreviewNote = std::make_shared<Note>(
-		m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
+			m_pPreviewInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, nLength );
 
-	noteOn( pPreviewNote );	// exclusive note
+	noteOn( pPreviewNote );
+
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
