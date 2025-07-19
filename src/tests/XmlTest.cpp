@@ -22,27 +22,29 @@
 
 #include "XmlTest.h"
 
+#include "TestHelper.h"
+#include "assertions/File.h"
+
 #include <unistd.h>
 
 #include <core/Basics/Drumkit.h>
-#include <core/Basics/Pattern.h>
 #include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
-#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/Sample.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
+#include <core/Basics/Sample.h>
+#include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
-#include <core/CoreActionController.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QDir>
 #include <QTemporaryDir>
-
-#include <core/Helpers/Filesystem.h>
-#include <core/Helpers/Xml.h>
-#include "TestHelper.h"
-#include "assertions/File.h"
+#include <QTextStream>
 
 static bool check_samples_data( std::shared_ptr<H2Core::Drumkit> dk, bool loaded )
 {
@@ -380,6 +382,171 @@ void XmlTest::testPlaylist()
 
 	delete pPlaylistLoaded;
 	delete pPlaylistCurrent;
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testSamplePathsWritten() {
+	___INFOLOG( "" );
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	const auto sBaseKit = QString( "%1/GMRockKit" )
+		.arg( H2Core::Filesystem::sys_drumkits_dir() );
+
+	// We use a two-stage approach to check all the sample paths: 1. we parse
+	// the XML file into a DOM and select only the part corresponding to the
+	// drumkit (containing the samples) and 2. convert this part of the DOM back
+	// into a string and perform a line-by-line search for the elements
+	// containing sample paths. This way we ensure no other filenames, like the
+	// ones for the LADSPA effects, will leak into our check and, at the same
+	// time, be resilient to changes in the drumkit structure.
+	const QString sSamplePathElement( "<filename>" );
+	const QString sSamplePathClosingElement( "</filename>" );
+
+	// Create a new drumkit and save it to disk.
+	const auto pBaseKit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
+		sBaseKit );
+	CPPUNIT_ASSERT( pBaseKit != nullptr );
+
+	auto pNewKit = std::make_shared<H2Core::Drumkit>( pBaseKit );
+	CPPUNIT_ASSERT( pNewKit != nullptr );
+
+	pNewKit->set_name( "testSamplePathsWrittenKit" );
+	const auto sNewKitPath = QString( "%1/%2" )
+		.arg( H2Core::Filesystem::usr_drumkits_dir() ).arg( pNewKit->get_name() );
+	CPPUNIT_ASSERT( ! H2Core::Filesystem::dir_exists( sNewKitPath ) );
+	CPPUNIT_ASSERT( pNewKit->save( sNewKitPath ) );
+
+	// Load the new drumkit.xml file and validate that there are no absolute
+	// paths.
+	H2Core::XMLDoc docNewKit;
+	CPPUNIT_ASSERT( docNewKit.read( H2Core::Filesystem::drumkit_file(
+										sNewKitPath ) ) );
+
+	auto rootNodeNewKit = docNewKit.firstChildElement( "drumkit_info" );
+	CPPUNIT_ASSERT( ! rootNodeNewKit.isNull() );
+
+	QString sRootNodeNewKit;
+	QTextStream streamNewKit( &sRootNodeNewKit );
+	rootNodeNewKit.save( streamNewKit, 0 );
+	QString ssLineDrumkit;
+	while ( streamNewKit.readLineInto( &ssLineDrumkit ) ) {
+		if ( ssLineDrumkit.contains( sSamplePathElement ) ) {
+			const auto sSamplePath = ssLineDrumkit.replace( sSamplePathElement, "" )
+				.replace( sSamplePathClosingElement, "" ).trimmed();
+			___INFOLOG( QString( "[%1] containing sample path [%2]" )
+						.arg( sNewKitPath ).arg( sSamplePath ) );
+			CPPUNIT_ASSERT( ! sSamplePath.isEmpty() );
+			CPPUNIT_ASSERT( sSamplePath.contains( "." ) );
+			CPPUNIT_ASSERT( ! sSamplePath.contains( "/" ) );
+			CPPUNIT_ASSERT( ! sSamplePath.contains( "\\" ) );
+		}
+	}
+
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sNewKitPath, true ) );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	// Create a new song and save it to disk.
+	auto pSong = H2Core::Song::getEmptySong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	pSong->setDrumkit( pNewKit, false );
+	const auto sSongPath = H2Core::Filesystem::tmp_file_path(
+		"testSamplePathsWritten.h2song");
+	CPPUNIT_ASSERT( pSong->save( sSongPath ) );
+
+	// Load the new .h2song file and validate that there are no absolute paths.
+	H2Core::XMLDoc docSong;
+	CPPUNIT_ASSERT( docSong.read( sSongPath ) );
+
+	auto rootNodeSong = docSong.firstChildElement( "song" );
+	CPPUNIT_ASSERT( ! rootNodeSong.isNull() );
+	auto drumkitNodeSong = rootNodeSong.firstChildElement( "instrumentList" );
+	CPPUNIT_ASSERT( ! drumkitNodeSong.isNull() );
+
+	QString sDrumkitNodeSong;
+	QTextStream streamSong( &sDrumkitNodeSong );
+	drumkitNodeSong.save( streamSong, 0 );
+	QString ssLineSong;
+	while ( streamSong.readLineInto( &ssLineSong ) ) {
+		if ( ssLineSong.contains( sSamplePathElement ) ) {
+			const auto sSamplePath = ssLineSong
+				.replace( sSamplePathElement, "" )
+				.replace( sSamplePathClosingElement, "" )
+				.trimmed();
+			___INFOLOG( QString( "[%1] containing sample path [%2]" )
+						.arg( sSongPath ).arg( sSamplePath ) );
+			CPPUNIT_ASSERT( ! sSamplePath.isEmpty() );
+			CPPUNIT_ASSERT( sSamplePath.contains( "." ) );
+			CPPUNIT_ASSERT( ! sSamplePath.contains( "/" ) );
+			CPPUNIT_ASSERT( ! sSamplePath.contains( "\\" ) );
+		}
+	}
+
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sSongPath ) );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	// Create a new song, manually add a sample, and save it to disk.
+
+	// Create a new song and save it to disk.
+	auto pSongCustom = H2Core::Song::getEmptySong();
+	CPPUNIT_ASSERT( pSongCustom != nullptr );
+	pSongCustom->setDrumkit( pNewKit, false );
+
+	const QString sCustomSamplePath( "/path/to/custom/sample.wav" );
+	auto pInstrument = pSongCustom->getInstrumentList()->get( 0 );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+	auto pComponent = pInstrument->get_component( 0 );
+	CPPUNIT_ASSERT( pComponent != nullptr );
+	auto pLayer = pComponent->get_layer( 0 );
+	CPPUNIT_ASSERT( pLayer != nullptr );
+	auto pSample = pLayer->get_sample();
+	CPPUNIT_ASSERT( pSample != nullptr );
+	pSample->set_filepath( sCustomSamplePath );
+
+	const auto sSongPathCustom = H2Core::Filesystem::tmp_file_path(
+		"testCustomSamplePathsWritten.h2song");
+	CPPUNIT_ASSERT( pSongCustom->save( sSongPathCustom ) );
+
+	// Load the new .h2song file and validate that there is a single absolute
+	// path.
+	H2Core::XMLDoc docSongCustom;
+	CPPUNIT_ASSERT( docSongCustom.read( sSongPathCustom ) );
+
+	auto rootNodeSongCustom = docSongCustom.firstChildElement( "song" );
+	CPPUNIT_ASSERT( ! rootNodeSongCustom.isNull() );
+	auto drumkitNodeSongCustom = rootNodeSongCustom.firstChildElement(
+		"instrumentList" );
+	CPPUNIT_ASSERT( ! drumkitNodeSongCustom.isNull() );
+
+	const int nExpectedAbsolutePaths = 1;
+	int nnAbsolutePaths = 0;
+
+	QString sDrumkitNodeSongCustom;
+	QTextStream streamSongCustom( &sDrumkitNodeSongCustom );
+	drumkitNodeSongCustom.save( streamSongCustom, 0 );
+	QString ssLineSongCustom;
+	while ( streamSongCustom.readLineInto( &ssLineSongCustom ) ) {
+		if ( ssLineSongCustom.contains( sSamplePathElement ) ) {
+			const auto sSamplePath = ssLineSongCustom
+				.replace( sSamplePathElement, "" )
+				.replace( sSamplePathClosingElement, "" )
+				.trimmed();
+			___INFOLOG( QString( "[%1] containing sample path [%2]" )
+						.arg( sSongPathCustom ).arg( sSamplePath ) );
+			CPPUNIT_ASSERT( ! sSamplePath.isEmpty() );
+			CPPUNIT_ASSERT( sSamplePath.contains( "." ) );
+			if ( sSamplePath.contains( "/" ) || sSamplePath.contains( "\\" ) ) {
+				++nnAbsolutePaths;
+			}
+		}
+	}
+
+	CPPUNIT_ASSERT( nnAbsolutePaths == nExpectedAbsolutePaths );
+
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sSongPathCustom ) );
+
 	___INFOLOG( "passed" );
 }
 
