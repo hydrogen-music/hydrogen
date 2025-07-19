@@ -831,46 +831,39 @@ QStringList Filesystem::usr_drumkit_list( )
 	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
-QString Filesystem::prepare_sample_path( const QString& sFileName )
+QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 {
-	const int nIdx = get_basename_idx_under_drumkit( sFileName );
-	if ( nIdx >= 0 ) {
-		return sFileName.right( nIdx );
-	}
-	return sFileName;
-}
+	// Check whether the provided absolute sample path is located within a
+	// known drumkit directory.
+	int nIndexMatch = -1;
+	const auto drumkitFolders = QStringList() << sys_drumkits_dir() <<
+		usr_drumkits_dir();
 
-int Filesystem::get_basename_idx_under_drumkit( const QString& sFileName )
-{
-	auto getIndex = [=]( const QString& sDrumkitDir ) {
-		const int nStart = usr_drumkits_dir().size();
-		const int nIndex = sFileName.indexOf( "/", nStart );
-#ifdef H2CORE_HAVE_QT6
-		const QString sDrumkitName = sFileName.sliced( nStart , nIndex - nStart );
-#else
-		const QString sDrumkitName =
-			sFileName.midRef( nStart , nIndex - nStart ).toString();
-#endif
-		if ( drumkit_list( sDrumkitDir ).contains( sDrumkitName ) ) {
-			return nIndex + 1;
+	// When composing paths by combining different elements, two file separators
+	// can be used in a row. This is no problem in file access itself but would
+	// mess up our index-based approach in here.
+	const auto sSamplePathCleaned = QString( sSamplePath ).replace( "//", "/" );
+
+	for ( const auto& ssFolder : drumkitFolders ) {
+		if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
+			nIndexMatch = sSamplePathCleaned.indexOf(
+				"/", ssFolder.size() ) + 1;
+			break;
 		}
-		else {
-			return -1;
-		}
-	};
-
-	if ( sFileName.startsWith( usr_drumkits_dir() ) ) {
-		return getIndex( usr_drumkits_dir() );
 	}
 
+	if ( nIndexMatch >= 0 ) {
+		// Sample is located in a drumkit folder. Just return basename.
+		QString sShortenedPath = sSamplePathCleaned.right(
+			sSamplePathCleaned.size() - nIndexMatch );
+		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
+				 .arg( sSamplePath ).arg( sShortenedPath ) );
 
-	if ( sFileName.startsWith( sys_drumkits_dir() ) ) {
-		return getIndex( sys_drumkits_dir() );
+		return std::move( sShortenedPath );
 	}
 
-	return -1;
+	return sSamplePath;
 }
-
 
 bool Filesystem::drumkit_exists( const QString& dk_name )
 {
