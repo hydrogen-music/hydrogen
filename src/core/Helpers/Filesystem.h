@@ -266,8 +266,6 @@ namespace H2Core
 		/* DRUMKIT */
 		/** Returns the basename if the given path is under an existing user or system drumkit path, otherwise the given fname */
 		static QString prepare_sample_path( const QString& fname );
-		/** Checks if the given filepath is under an existing user or system drumkit path, not the existence of the file */
-		static bool file_is_under_drumkit( const QString& fname);
 		/** Returns the index of the basename if the given path is under an existing user or system drumkit path, otherwise -1 */
 		static int get_basename_idx_under_drumkit( const QString& fname);
 		/** returns list of usable system drumkits ( see Filesystem::drumkit_list ) */

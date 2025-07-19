@@ -840,11 +840,6 @@ QString Filesystem::prepare_sample_path( const QString& sFileName )
 	return sFileName;
 }
 
-bool Filesystem::file_is_under_drumkit( const QString& sFileName )
-{
-	return get_basename_idx_under_drumkit( sFileName ) != -1;
-}
-
 int Filesystem::get_basename_idx_under_drumkit( const QString& sFileName )
 {
 	auto getIndex = [=]( const QString& sDrumkitDir ) {
