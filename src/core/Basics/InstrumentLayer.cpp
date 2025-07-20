@@ -97,11 +97,15 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	QString sFilename = pNode->read_string( "filename", "", false, false, bSilent );
-	QString sAbsoluteFilename = sFilename;
+	const QString sFileName = pNode->read_string(
+		"filename", "", false, false, bSilent );
+	QString sFilePath = sFileName;
 
-	if ( ! Filesystem::file_exists( sFilename, true ) && ! sDrumkitPath.isEmpty() &&
-		 ! sFilename.startsWith( "/" ) ) {
+	// In case just the filename is provided, like "sample.wav", the
+	// corresponding sample will be searched in the folder of the corresponding
+	// drumkit.
+	if ( ! Filesystem::file_exists( sFileName, true ) && ! sDrumkitPath.isEmpty() &&
+		 ! sFileName.startsWith( "/" ) ) {
 
 #ifdef H2CORE_HAVE_OSC
 		if ( pHydrogen->isUnderSessionManagement() ) {
@@ -115,32 +119,58 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 			// samples within drumkits within the user or system
 			// drumkit folder are stored relatively as well (by saving
 			// just the filename).
-			if ( sFilename.left( 2 ) == "./" ||
-				 sFilename.left( 2 ) == ".\\" ) {
+			if ( sFileName.left( 2 ) == "./" ||
+				 sFileName.left( 2 ) == ".\\" ) {
 				// Removing the leading "." of the relative path in
-				// sFilename while still using the associated folder
+				// sFileName while still using the associated folder
 				// separator.
-				sAbsoluteFilename = NsmClient::get_instance()->getSessionFolderPath() +
-					sFilename.right( sFilename.size() - 1 );
+				sFilePath = NsmClient::get_instance()->getSessionFolderPath() +
+					sFileName.right( sFileName.size() - 1 );
 			}
 			else {
-				sFilename = sDrumkitPath + "/" + sFilename;
-				sAbsoluteFilename = sFilename;
+				sFilePath = sDrumkitPath + "/" + sFileName;
 			}
 		}
 		else {
-			sFilename = sDrumkitPath + "/" + sFilename;
-			sAbsoluteFilename = sFilename;
+			sFilePath = sDrumkitPath + "/" + sFileName;
 		}
 #else
-		sFilename = sDrumkitPath + "/" + sFilename;
-		sAbsoluteFilename = sFilename;
+		sFilePath = sDrumkitPath + "/" + sFileName;
 #endif
 	}
 
+	// If the sample still could not be found, this could be e.g. due to an
+	// absolute path referencing a sample imported from a session kit - one,
+	// which was loaded by the user manually and does not reside in either user
+	// or system drumkit folder - or due to a bug like #2174. We give it another
+	// try by checking whether the /path/to/<drumkit>/<sample> could refer to
+	// the exact same <drumkit>/<sample> in one of our drumkit folders.
+	if ( ! Filesystem::file_exists( sFilePath, true ) &&
+		 sFileName.contains( "/" ) ) {
+		const auto pathSegments = sFileName.split( "/" );
+		if ( pathSegments.size() > 2 ) {
+			const auto sDrumkitSampleSegment = QString( "%1/%2" )
+				.arg( pathSegments[ pathSegments.size() - 2 ] )
+				.arg( pathSegments[ pathSegments.size() - 1 ] );
+
+			const auto drumkitFolders = QStringList() <<
+				Filesystem::usr_drumkits_dir() << Filesystem::sys_drumkits_dir();
+			for ( const auto& ssFolder : drumkitFolders ) {
+				const auto sNewPath = QString( "%1/%2" )
+					.arg( ssFolder ).arg( sDrumkitSampleSegment );
+				if ( Filesystem::file_exists( sNewPath, true ) ) {
+					WARNINGLOG( QString( "File [%1] does not exist. Loading similar file [%2] instead." )
+								.arg( sFileName ).arg( sNewPath ) );
+					sFilePath = sNewPath;
+					break;
+				}
+			}
+		}
+	}
+
 	std::shared_ptr<Sample> pSample = nullptr;
-	if ( Filesystem::file_exists( sAbsoluteFilename, true ) ) {
-		pSample = std::make_shared<Sample>( sFilename, drumkitLicense );
+	if ( Filesystem::file_exists( sFilePath, true ) ) {
+		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
 
 		// If 'ismodified' is not present, InstrumentLayer was stored as
 		// part of a drumkit. All the additional Sample info, like Loops,
@@ -197,8 +227,8 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* pNode, con
 		}
 	}
 	else {
-		WARNINGLOG( QString( "Sample file [%1] does not exist" )
-					.arg( sAbsoluteFilename ) );
+		WARNINGLOG( QString( "Sample file [%1] does not exist at [%2]" )
+					.arg( sFileName ).arg( sFilePath ) );
 	}
 	
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
@@ -224,7 +254,7 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 	
 	XMLNode layer_node = node->createNode( "layer" );
 
-	QString sFilename;
+	QString sFileName;
 	if ( bFull ) {
 
 		if ( pHydrogen->isUnderSessionManagement() ) {
@@ -234,21 +264,21 @@ void InstrumentLayer::save_to( XMLNode* node, bool bFull )
 			// are written out. This is vital in order to support
 			// renaming, duplicating, and porting sessions.
 			if ( pSample->get_raw_filepath().startsWith( '.' ) ) {
-				sFilename = pSample->get_raw_filepath();
+				sFileName = pSample->get_raw_filepath();
 			}
 			else {
-				sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
+				sFileName = Filesystem::prepare_sample_path( pSample->get_filepath() );
 			}
 		}
 		else {
-			sFilename = Filesystem::prepare_sample_path( pSample->get_filepath() );
+			sFileName = Filesystem::prepare_sample_path( pSample->get_filepath() );
 		}
 	}
 	else {
-		sFilename = pSample->get_filename();
+		sFileName = pSample->get_filename();
 	}
 	
-	layer_node.write_string( "filename", sFilename );
+	layer_node.write_string( "filename", sFileName );
 	layer_node.write_float( "min", __start_velocity );
 	layer_node.write_float( "max", __end_velocity );
 	layer_node.write_float( "gain", __gain );
