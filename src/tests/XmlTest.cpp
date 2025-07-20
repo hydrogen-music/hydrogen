@@ -962,6 +962,17 @@ void XmlTest::testShippedThemes() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testSamplePathPortability() {
+	___INFOLOG( "" );
+
+	auto pSong = H2Core::Song::load(
+		H2TEST_FILE( "/song/sample-path-portability.h2song" ) );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
+
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testSamplePathsWritten() {
 	___INFOLOG( "" );
 
