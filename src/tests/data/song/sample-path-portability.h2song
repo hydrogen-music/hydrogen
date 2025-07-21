@@ -104,7 +104,7 @@
      <rubberPitch>1</rubberPitch>
     </layer>
     <layer>
-     <filename>/tmp/.mount_HydrogaIAoJo/usr/share/hydrogen/data/drumkits/GMRockKit/Kick-Med.wav</filename>
+     <filename>C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Med.wav</filename>
      <min>0.369565</min>
      <max>0.731884</max>
      <gain>1</gain>
