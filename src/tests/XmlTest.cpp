@@ -485,6 +485,16 @@ void XmlTest::testSamplePathsWritten() {
 				.replace( sSamplePathElement, "" )
 				.replace( sSamplePathClosingElement, "" )
 				.trimmed();
+			qDebug() << QString( "stock song file [%1] contains sample path [%2]" )
+						.arg( sSongPath ).arg( sSamplePath );
+		}
+	}
+	while ( streamSong.readLineInto( &ssLineSong ) ) {
+		if ( ssLineSong.contains( sSamplePathElement ) ) {
+			const auto sSamplePath = ssLineSong
+				.replace( sSamplePathElement, "" )
+				.replace( sSamplePathClosingElement, "" )
+				.trimmed();
 			___INFOLOG( QString( "[%1] containing sample path [%2]" )
 						.arg( sSongPath ).arg( sSamplePath ) );
 			CPPUNIT_ASSERT( ! sSamplePath.isEmpty() );
