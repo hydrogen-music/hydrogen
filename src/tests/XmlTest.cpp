@@ -475,6 +475,10 @@ void XmlTest::testSamplePathsWritten() {
 	auto drumkitNodeSong = rootNodeSong.firstChildElement( "instrumentList" );
 	CPPUNIT_ASSERT( ! drumkitNodeSong.isNull() );
 
+	qDebug() << QString( "sys drumkit dir: [%1], usr drumkit dir: [%2]" )
+		.arg( H2Core::Filesystem::sys_drumkits_dir() )
+		.arg( H2Core::Filesystem::usr_drumkits_dir() );
+
 	QString sDrumkitNodeSong;
 	QTextStream streamSong( &sDrumkitNodeSong );
 	drumkitNodeSong.save( streamSong, 0 );
