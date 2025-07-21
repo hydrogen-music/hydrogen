@@ -836,8 +836,13 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 	// Check whether the provided absolute sample path is located within a
 	// known drumkit directory.
 	int nIndexMatch = -1;
-	const auto drumkitFolders = QStringList() << sys_drumkits_dir() <<
-		usr_drumkits_dir();
+	// On Windows the provided system dir needs cleaning and looks like this
+	// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is not
+	// necessary. But it does no harm either and might be a live safer in some
+	// edge cases.
+	const auto drumkitFolders = QStringList()
+		<< sys_drumkits_dir().replace( "\\", "/" ).replace( "//", "/" )
+		<< usr_drumkits_dir().replace( "\\", "/" ).replace( "//", "/" );
 
 	QString sSamplePathCleaned( sSamplePath );
 #ifdef WIN32
