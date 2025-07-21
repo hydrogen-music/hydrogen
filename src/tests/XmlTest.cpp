@@ -489,16 +489,6 @@ void XmlTest::testSamplePathsWritten() {
 				.replace( sSamplePathElement, "" )
 				.replace( sSamplePathClosingElement, "" )
 				.trimmed();
-			qDebug() << QString( "stock song file [%1] contains sample path [%2]" )
-						.arg( sSongPath ).arg( sSamplePath );
-		}
-	}
-	while ( streamSong.readLineInto( &ssLineSong ) ) {
-		if ( ssLineSong.contains( sSamplePathElement ) ) {
-			const auto sSamplePath = ssLineSong
-				.replace( sSamplePathElement, "" )
-				.replace( sSamplePathClosingElement, "" )
-				.trimmed();
 			___INFOLOG( QString( "[%1] containing sample path [%2]" )
 						.arg( sSongPath ).arg( sSamplePath ) );
 			CPPUNIT_ASSERT( ! sSamplePath.isEmpty() );
@@ -553,6 +543,7 @@ void XmlTest::testSamplePathsWritten() {
 	drumkitNodeSongCustom.save( streamSongCustom, 0 );
 	QString ssLineSongCustom;
 	while ( streamSongCustom.readLineInto( &ssLineSongCustom ) ) {
+		qDebug() << ssLineSongCustom;
 		if ( ssLineSongCustom.contains( sSamplePathElement ) ) {
 			const auto sSamplePath = ssLineSongCustom
 				.replace( sSamplePathElement, "" )
@@ -560,13 +551,18 @@ void XmlTest::testSamplePathsWritten() {
 				.trimmed();
 			___INFOLOG( QString( "[%1] containing sample path [%2]" )
 						.arg( sSongPathCustom ).arg( sSamplePath ) );
+			qDebug() << QString( "[%1] containing sample path [%2]" )
+				.arg( sSongPathCustom ).arg( sSamplePath );
 			CPPUNIT_ASSERT( ! sSamplePath.isEmpty() );
 			CPPUNIT_ASSERT( sSamplePath.contains( "." ) );
 			if ( sSamplePath.contains( "/" ) || sSamplePath.contains( "\\" ) ) {
+				qDebug() << "absolute path in " << sSamplePath;
 				++nnAbsolutePaths;
 			}
 		}
 	}
+
+	qDebug() << "absolute paths: " << nnAbsolutePaths;
 
 	CPPUNIT_ASSERT( nnAbsolutePaths == nExpectedAbsolutePaths );
 
