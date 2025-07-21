@@ -157,8 +157,14 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	// try by checking whether the /path/to/<drumkit>/<sample> could refer to
 	// the exact same <drumkit>/<sample> in one of our drumkit folders.
 	if ( ! Filesystem::file_exists( sFilePath, true ) &&
-		 sFileName.contains( "/" ) ) {
-		const auto pathSegments = sFileName.split( "/" );
+		 ( sFileName.contains( "/" ) || sFileName.contains( "\\" ) ) ) {
+		// We need to ensure we work on a single set of separators without any
+		// duplication. This is especially important as songs created on Windows
+		// could be loaded on Linux/macOS and vice versa.
+		const QString sFileNameCleaned = QString( sFileName )
+			.replace( "\\", "/" ).replace( "//", "/" );
+
+		const auto pathSegments = sFileNameCleaned.split( "/" );
 		if ( pathSegments.size() > 2 ) {
 			const auto sDrumkitSampleSegment = QString( "%1/%2" )
 				.arg( pathSegments[ pathSegments.size() - 2 ] )
