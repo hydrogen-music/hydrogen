@@ -839,10 +839,19 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 	const auto drumkitFolders = QStringList() << sys_drumkits_dir() <<
 		usr_drumkits_dir();
 
+	QString sSamplePathCleaned( sSamplePath );
+#ifdef WIN32
+	// Qt uses posix separators `/` internally but things can easily mix up
+	// (maybe due to our code) and we end up with something like
+	// C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Softest.wav .
+	// We have to ensure to work on a single separator.
+	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "\\", "/" );
+#endif
+
 	// When composing paths by combining different elements, two file separators
 	// can be used in a row. This is no problem in file access itself but would
 	// mess up our index-based approach in here.
-	const auto sSamplePathCleaned = QString( sSamplePath ).replace( "//", "/" );
+	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "//", "/" );
 
 	for ( const auto& ssFolder : drumkitFolders ) {
 		if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
