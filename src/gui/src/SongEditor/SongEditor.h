@@ -73,7 +73,6 @@ class SongEditor : public Editor::Base<QPoint>
 					SongEditorPanel *pSongEditorPanel );
 		~SongEditor();
 
-		void updateEditor( bool bSequenceOnly = false );
 		void updatePosition( float fTick );
 
 		int getGridWidth();
@@ -95,12 +94,12 @@ class SongEditor : public Editor::Base<QPoint>
 	static constexpr int nMargin = 10;
 		/** Default value of Preferences::m_nSongEditorGridHeight * 5
 		 * (patterns)*/
-		static constexpr int m_nMinimumHeight = 90;
+		static constexpr int nMinimumHeight = 90;
 		static constexpr int nMinGridWidth = 8;
 		static constexpr int nMaxGridWidth = 16;
 
 		//! @name Selection interfaces
-		//! see Selection.h for details.
+		// @name Editor::Base interfaces
 		//! @{
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual QRect getKeyboardCursorRect() override;
@@ -119,6 +118,9 @@ class SongEditor : public Editor::Base<QPoint>
 		virtual bool canDragElements() override {
 			return false;
 		}
+		void updateAllComponents( bool bContentOnly ) override;
+		void updateVisibleComponents( bool bContentOnly ) override;
+		bool updateWidth() override;
 		//! @}
 
 	public slots:
@@ -151,21 +153,6 @@ class SongEditor : public Editor::Base<QPoint>
 		bool 					m_bSequenceChanged;
 
 		QMenu *					m_pPopupMenu;
-
-		bool m_bBackgroundInvalid;
-
-
-		//! @name Background pixmap caching
-		//!
-		//! To make painting the song editor sequence grid more efficient, the drawing uses multiple levels of lazy painting.
-		//!   * The grid background pixmap is only updated when the size of the pattern grid changes.
-		//!   * The sequence pixmap are only updated when cells are added/removed or selections change
-		//!       * the cached grid background pixmap is used when repainting the pattern
-		//!   * selections and moving cells are painted on top of the cached sequence pixmap
-		//! @{
-		QPixmap *				m_pBackgroundPixmap;
-		QPixmap *				m_pSequencePixmap;
-		//! @}
 
 		//! @name Position of the keyboard input cursor
 		//! @{
@@ -207,12 +194,6 @@ class SongEditor : public Editor::Base<QPoint>
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 	virtual void focusOutEvent( QFocusEvent *ev ) override;
-#ifdef H2CORE_HAVE_QT6
-		virtual void enterEvent( QEnterEvent *ev ) override;
-#else
-		virtual void enterEvent( QEvent *ev ) override;
-#endif
-		virtual void leaveEvent( QEvent *ev ) override;
 		//! @}
 
     	void togglePatternActive( int nColumn, int nRow );
@@ -225,7 +206,6 @@ class SongEditor : public Editor::Base<QPoint>
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
-		bool m_bEntered;
 
 	/** Cached position of the playhead.*/
 	float m_fTick;

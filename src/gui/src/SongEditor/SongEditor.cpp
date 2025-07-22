@@ -45,14 +45,9 @@ using namespace H2Core;
 SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 						SongEditorPanel *pSongEditorPanel )
  : Editor::Base<Elem>( parent )
- , m_bSequenceChanged( true )
- , m_bBackgroundInvalid( true )
  , m_pScrollView( pScrollView )
  , m_pSongEditorPanel( pSongEditorPanel )
  , m_selection( this )
- , m_bEntered( false )
- , m_pBackgroundPixmap( nullptr )
- , m_pSequencePixmap( nullptr )
 {
 	const auto pPref = Preferences::get_instance();
 
@@ -70,9 +65,17 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 	m_nCursorRow = 0;
 	m_nCursorColumn = 0;
 
-	int nInitialWidth = SongEditor::nMargin + pPref->getMaxBars() * m_nGridWidth;
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		m_nEditorHeight = pSong->getPatternList()->size() * m_nGridWidth;
+	}
+	else {
+		m_nEditorHeight = SongEditor::nMinimumHeight;
+	}
+	m_nEditorWidth = SongEditor::nMargin + pPref->getMaxBars() * m_nGridWidth;
 
-	this->resize( QSize( nInitialWidth, m_nMinimumHeight ) );
+	resize( QSize( m_nEditorWidth, m_nEditorHeight ) );
+	updatePixmapSize();
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
@@ -85,16 +88,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 	m_pPopupMenu->setObjectName( "SongEditorPopup" );
 }
 
-
-
-SongEditor::~SongEditor()
-{
-	if ( m_pBackgroundPixmap ) {
-		delete m_pBackgroundPixmap;
-	}
-	if ( m_pSequencePixmap ) {
-		delete m_pSequencePixmap;
-	}
+SongEditor::~SongEditor() {
 }
 
 
@@ -270,13 +264,12 @@ int SongEditor::getGridWidth ()
 
 
 
-void SongEditor::setGridWidth( int width )
-{
-	if ( SongEditor::nMinGridWidth <= width &&
-		 SongEditor::nMaxGridWidth >= width ) {
-		m_nGridWidth = width;
-		resize( SongEditor::nMargin +
-				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
+void SongEditor::setGridWidth( int nNewWidth ) {
+	const int nWidth = std::clamp(
+		nNewWidth, SongEditor::nMinGridWidth, SongEditor::nMaxGridWidth );
+	if ( m_nGridWidth != nWidth ) {
+		m_nGridWidth = nWidth;
+		updateWidth();
 		updateEditor();
 	}
 }
@@ -332,15 +325,13 @@ void SongEditor::selectAll() {
 			}
 		}
 	}
-	m_bSequenceChanged = true;
-	update();
+	updateEditor( true );
 }
 
 void SongEditor::selectNone() {
 	m_selection.clearSelection();
 
-	m_bSequenceChanged = true;
-	update();
+	updateEditor( true );
 }
 
 void SongEditor::deleteSelection() {
@@ -587,7 +578,6 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		bUnhideCursor = false;
 		if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
 			selectNone();
-			m_bSequenceChanged = false;
 		}
 
 	} else if ( ev->matches( QKeySequence::Copy ) ) {
@@ -630,11 +620,11 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			pHydrogen->setActionMode( H2Core::Song::ActionMode::selectMode );
 		}
 		// Any selection key may need a repaint of the selection
-		m_bSequenceChanged = true;
+		updateEditor( true );
 	}
 	if ( m_selection.isMoving() ) {
 		// If a selection is being moved, it will need to be repainted
-		m_bSequenceChanged = true;
+		updateEditor( true );
 	}
 
 	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
@@ -712,7 +702,6 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	}
 	updateModifiers( ev );
 	m_currentMousePosition = pEv->position().toPoint();
-	m_bSequenceChanged = true;
 
 	// Update keyboard cursor position
 	QPoint p = xyToColumnRow( pEv->position().toPoint() );
@@ -750,6 +739,8 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
 		update();
 	}
+
+	updateEditor( true );
 }
 
 
@@ -780,6 +771,39 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 		}
 	}
 
+}
+
+void SongEditor::updateAllComponents( bool bContentOnly ) {
+	updateEditor( bContentOnly );
+}
+
+void SongEditor::updateVisibleComponents( bool bContentOnly ) {
+	updateEditor( bContentOnly );
+}
+
+bool SongEditor::updateWidth() {
+	auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return false ;
+	}
+
+	const int nEditorWidth =
+		SongEditor::nMargin + pPref->getMaxBars() * m_nGridHeight;
+	const int nEditorHeight = std::max(
+		pSong->getPatternList()->size() * m_nGridHeight,
+		SongEditor::nMinimumHeight );
+
+	if ( m_nEditorHeight != nEditorHeight || m_nEditorWidth != nEditorWidth ) {
+		m_nEditorHeight = nEditorHeight;
+		m_nEditorWidth = nEditorWidth;
+		resize( m_nEditorWidth, m_nEditorHeight );
+		updatePixmapSize();
+		return true;
+	}
+
+	return false;
 }
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
@@ -825,8 +849,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	if ( m_selection.isMoving() || m_selection.isLasso() ) {
-		m_bSequenceChanged = true;
-		update();
+		updateEditor( true );
 	}
 }
 
@@ -898,8 +921,7 @@ void SongEditor::mouseClickEvent( QMouseEvent *ev )
 
 		m_selection.clearSelection();
 		togglePatternActive( p.x(), p.y() );
-		m_bSequenceChanged = true;
-		update();
+		updateEditor( true );
 		if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
 			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
@@ -957,12 +979,12 @@ void SongEditor::updateWidget() {
 		// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
 		// drawn when drawing the pattern.
 		if ( bCellBoundaryCrossed ) {
-			m_bSequenceChanged = true;
+			m_update = Editor::Update::Content;
 		}
 		update();
 	} else {
 		// Other reasons: force update
-		m_bSequenceChanged = true;
+		m_update = Editor::Update::Content;
 		update();
 	}
 	m_previousMousePosition = m_currentMousePosition;
@@ -979,16 +1001,6 @@ std::vector<SongEditor::SelectionIndex> SongEditor::getElementsAtPoint(
 	}
 
 	return elems;
-}
-
-void SongEditor::updateEditor( bool bSequenceOnly ) {
-	if ( ! bSequenceOnly ) {
-		m_bBackgroundInvalid = true;
-	}
-
-	m_bSequenceChanged = true;
-
-	update();
 }
 
 void SongEditor::updatePosition( float fTick ) {
@@ -1008,22 +1020,23 @@ void SongEditor::updatePosition( float fTick ) {
 	}
 }
 
-void SongEditor::paintEvent( QPaintEvent *ev )
-{
-	if ( m_bBackgroundInvalid ) {
+void SongEditor::paintEvent( QPaintEvent *ev ) {
+	const qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 m_update == Editor::Update::Background ) {
 		createBackground();
 	}
 
-	// ridisegno tutto solo se sono cambiate le note
-	if (m_bSequenceChanged) {
-		m_bSequenceChanged = false;
+	if ( m_update == Editor::Update::Background ||
+		 m_update == Editor::Update::Content ) {
 		drawSequence();
+		m_update = Editor::Update::None;
 	}
-	
+
 	const auto pPref = Preferences::get_instance();
 
 	QPainter painter(this);
-	painter.drawPixmap( ev->rect(), *m_pSequencePixmap, ev->rect() );
+	painter.drawPixmap( ev->rect(), *m_pContentPixmap, ev->rect() );
 
 	// Draw moving selected cells
 	QColor patternColor( 0, 0, 0 );
@@ -1058,9 +1071,10 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 		// Aim to leave a visible gap between the border of the
 		// pattern cell, and the cursor line, for consistency and
 		// visibility.
-		painter.drawRoundedRect( QRect( QPoint(0, 1 ) + columnRowToXy( QPoint(m_nCursorColumn, m_nCursorRow ) ),
-										QSize( m_nGridWidth+1, m_nGridHeight-1 ) ),
-								 4, 4 );
+		painter.drawRoundedRect(
+			QRect( QPoint( 0, 1 ) +
+				   columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ),
+				   QSize( m_nGridWidth + 1, m_nGridHeight - 1 ) ), 4, 4 );
 	}
 }
 
@@ -1104,33 +1118,7 @@ void SongEditor::scrolled( int nValue ) {
 	update();
 }
 
-#ifdef H2CORE_HAVE_QT6
-void SongEditor::enterEvent( QEnterEvent *ev ) {
-#else
-void SongEditor::enterEvent( QEvent *ev ) {
-#endif
-	UNUSED( ev );
-	m_bEntered = true;
-
-	if ( ! m_selection.isEmpty() ) {
-		m_bSequenceChanged = true;
-	}
-	update();
-}
-
-void SongEditor::leaveEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = false;
-
-	if ( ! m_selection.isEmpty() ) {
-		m_bSequenceChanged = true;
-	}
-	update();
-}
-
-void SongEditor::createBackground()
-{
-	m_bBackgroundInvalid = false;
+void SongEditor::createBackground() {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1138,32 +1126,12 @@ void SongEditor::createBackground()
 		return;
 	}
 
-	int nPatterns = pSong->getPatternList()->size();
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	int nMaxPatternSequence = pPref->getMaxBars();
+	const int nPatterns = pSong->getPatternList()->size();
+	const int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+	const int nMaxPatternSequence = pPref->getMaxBars();
 
-	static int nOldHeight = -1;
-	int nNewHeight = m_nGridHeight * nPatterns;
+	updatePixmapSize();
 
-	if (nOldHeight != nNewHeight) {
-		// cambiamento di dimensioni...
-		if ( nNewHeight < m_nMinimumHeight ) {
-			WARNINGLOG( QString( "nNewHeight [%1] below minimum one [%2]" )
-						.arg( nNewHeight ).arg( m_nMinimumHeight ) );
-			nNewHeight = m_nMinimumHeight;	// the pixmap should not be empty
-		}
-		if ( m_pBackgroundPixmap ) {
-			delete m_pBackgroundPixmap;
-		}
-		if ( m_pSequencePixmap ) {
-			delete m_pSequencePixmap;
-		}
-		m_pBackgroundPixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
-		m_pSequencePixmap = new QPixmap( width(), nNewHeight );	// initialize the pixmap
-		this->resize( QSize( width(), nNewHeight ) );
-	}
-
-	
 	m_pBackgroundPixmap->fill( pPref->getTheme().m_color.m_songEditor_backgroundColor );
 
 	QPainter p( m_pBackgroundPixmap );
@@ -1200,10 +1168,6 @@ void SongEditor::createBackground()
 
 		p.drawLine( 0, y, (nMaxPatternSequence * m_nGridWidth), y );
 	}
-
-	// ~ celle
-	m_bSequenceChanged = true;
-
 }
 
 // Update the GridCell representation.
@@ -1256,7 +1220,7 @@ void SongEditor::drawSequence()
 {
 	QPainter p;
 
-	p.begin( m_pSequencePixmap );
+	p.begin( m_pContentPixmap );
 	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
 	p.end();
 
@@ -1284,7 +1248,7 @@ void SongEditor::drawSequence()
 
 void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double fWidth )
 {
-	QPainter p( m_pSequencePixmap );
+	QPainter p( m_pContentPixmap );
 	/*
 	 * The default color of the cubes in rgb is 97,167,251.
 	 */
@@ -1397,6 +1361,5 @@ void SongEditor::clearThePatternSequenceVector( const QString& filename )
 	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
-	m_bSequenceChanged = true;
-	update();
+	updateEditor( true );
 }
