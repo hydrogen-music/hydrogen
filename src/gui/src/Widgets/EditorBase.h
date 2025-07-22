@@ -554,8 +554,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 				bool bSelectionHovered = false;
 				for ( const auto& ppElement : elementsUnderPoint ) {
-					if ( ppElement != nullptr &&
-						 m_selection.isSelected( ppElement ) ) {
+					if ( m_selection.isSelected( ppElement ) ) {
 						bSelectionHovered = true;
 						break;
 					}
@@ -564,8 +563,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// We honor the current selection.
 				if ( bSelectionHovered ) {
 					for ( const auto& ppElement : elementsUnderPoint ) {
-						if ( ppElement != nullptr &&
-							 m_selection.isSelected( ppElement ) ) {
+						if ( m_selection.isSelected( ppElement ) ) {
 							m_elementsHoveredOnDragStart.push_back( ppElement );
 						}
 					}
