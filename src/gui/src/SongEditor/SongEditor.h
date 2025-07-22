@@ -23,16 +23,18 @@
 #ifndef SONG_EDITOR_H
 #define SONG_EDITOR_H
 
+#include "../Selection.h"
+#include "../Widgets/EditorBase.h"
+#include "../Widgets/EditorDefs.h"
+
+#include <core/Object.h>
+
 #include <map>
 #include <memory>
 #include <vector>
 
 #include <QtGui>
 #include <QtWidgets>
-#include <QList>
-
-#include <core/Object.h>
-#include "../Selection.h"
 
 namespace H2Core {
 	class Pattern;
@@ -43,16 +45,17 @@ class SongEditorPanel;
 //!
 //! Song editor
 //!
-//! The main widget of SongEditorPanel, responsible for altering the sequence of patterns.
+//! The main widget of SongEditorPanel, responsible for altering the sequence of
+//! patterns.
 //!
-//! It supports mouse and keyboard based activation of patterns in timeslots, as well as visual editing of
-//! multiple pattern+timeslot cells using a 2-dimensional visual representation, with copy, paste, move,
-//! delete, duplicate etc.
+//! It supports mouse and keyboard based activation of patterns in timeslots, as
+//! well as visual editing of multiple pattern+timeslot cells using a
+//! 2-dimensional visual representation, with copy, paste, move, delete,
+//! duplicate etc.
 //!
 /** \ingroup docGUI*/
-class SongEditor : public QWidget
+class SongEditor : public Editor::Base<QPoint>
 				 , public H2Core::Object<SongEditor>
-				 , public SelectionWidget<QPoint>
 {
     H2_OBJECT(SongEditor)
 	Q_OBJECT
@@ -64,6 +67,8 @@ class SongEditor : public QWidget
 		};
 	
 	public:
+		typedef QPoint Elem;
+
 		SongEditor( QWidget *parent, QScrollArea *pScrollView,
 					SongEditorPanel *pSongEditorPanel );
 		~SongEditor();

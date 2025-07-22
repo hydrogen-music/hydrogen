@@ -44,7 +44,7 @@ using namespace H2Core;
 
 SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 						SongEditorPanel *pSongEditorPanel )
- : QWidget( parent )
+ : Editor::Base<Elem>( parent )
  , m_bSequenceChanged( true )
  , m_bBackgroundInvalid( true )
  , m_pScrollView( pScrollView )
