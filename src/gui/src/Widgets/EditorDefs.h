@@ -109,6 +109,15 @@ namespace Editor {
 		/** If an elements exists, delete it. If not, create a new one. */
 		ToggleElements = 0x020
 	};
+	static Action undoAction( Action action ) {
+		if ( action == Action::AddElements ) {
+			return Action::DeleteElements;
+		}
+		else if ( action == Action::DeleteElements ) {
+			return Action::AddElements;
+		}
+		return action;
+	};
 	static QString actionToQString( const Action& action ) {
 		QStringList actions;
 		if ( static_cast<char>(action) & static_cast<char>(Action::None) ) {
