@@ -892,27 +892,31 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 	const QStringList drumkitFolders =
 		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders();
 
-	for ( const auto& ssFolder : drumkitFolders ) {
-		if ( sSamplePath.startsWith( ssFolder ) ) {
-			int nStart = ssFolder.size();
-			int nIndex = sSamplePath.indexOf( "/", nStart );
-#ifdef H2CORE_HAVE_QT6
-			const QString sDrumkitName = sSamplePath.sliced(
-				nStart , nIndex - nStart );
-#else
-			const QString sDrumkitName = sSamplePath.midRef(
-				nStart , nIndex - nStart ).toString();
+	QString sSamplePathCleaned( sSamplePath );
+#ifdef WIN32
+	// Qt uses posix separators `/` internally but things can easily mix up
+	// (maybe due to our code) and we end up with something like
+	// C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Softest.wav .
+	// We have to ensure to work on a single separator.
+	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "\\", "/" );
 #endif
-			if ( ssFolder.contains( sDrumkitName ) ) {
-				nIndexMatch = nIndex + 1;
-				break;
-			}
+
+	// When composing paths by combining different elements, two file separators
+	// can be used in a row. This is no problem in file access itself but would
+	// mess up our index-based approach in here.
+	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "//", "/" );
+
+	for ( const auto& ssFolder : drumkitFolders ) {
+		if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
+			nIndexMatch = sSamplePathCleaned.indexOf( "/", ssFolder.size() ) + 1;
+			break;
 		}
 	}
 
 	if ( nIndexMatch >= 0 ) {
 		// Sample is located in a drumkit folder. Just return basename.
-		QString sShortenedPath = sSamplePath.right( nIndexMatch );
+		QString sShortenedPath = sSamplePathCleaned.right(
+			sSamplePathCleaned.size() - nIndexMatch );
 		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
 				 .arg( sSamplePath ).arg( sShortenedPath ) );
 

@@ -211,6 +211,7 @@ class Sample : public H2Core::Object<Sample>
 		bool isLoaded() const;
 		const QString& getFilepath() const;
 		/** \return Filename part of #m_sFilepath */
+		void setFilepath( const QString& sPath );
 		QString getFilename() const;
 		/** \param filename Filename part of #m_sFilepath*/
 		void setFilename( const QString& filename );
@@ -329,6 +330,14 @@ class Sample : public H2Core::Object<Sample>
 
 inline bool Sample::isLoaded() const {
 	return m_bIsLoaded;
+}
+
+inline const QString& Sample::getFilepath() const {
+	return m_sFilepath;
+}
+
+inline void Sample::setFilepath( const QString& sPath ) {
+	m_sFilepath = sPath;
 }
 
 inline QString Sample::getFilename() const

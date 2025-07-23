@@ -130,12 +130,6 @@ void Sample::setFilename( const QString& filename )
 	m_sFilepath = QDir(Dest.absolutePath()).filePath( Filename.fileName() );
 }
 
-
-const QString& Sample::getFilepath() const
-{
-	return m_sFilepath;
-}
-
 std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& license )
 {
 	std::shared_ptr<Sample> pSample;

@@ -56,6 +56,8 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testPreferencesFormatIntegrity);
 	CPPUNIT_TEST(testShippedPreferences);
 	CPPUNIT_TEST(testShippedThemes);
+	CPPUNIT_TEST(testSamplePathPortability);
+	CPPUNIT_TEST(testSamplePathsWritten);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -113,6 +115,21 @@ class XmlTest : public CppUnit::TestCase {
 		// Check whether the shipped default/fallback .h2theme files are
 		// up-to-date.
 		void testShippedThemes();
+
+		/** In case an absolute path was provided for a sample - e.g. one is
+		 * loaded manually using the instrument editor into the song - and the
+		 * path is not valid anymore - e.g. the previous session kit was moved
+		 * into the user's drumkit folder or the song is loaded on a device with
+		 * a different user account /home directoy - Hydrogen should try to load
+		 * the <drumkit_name>/<sample_file> combination from its drumkit
+		 * folders */
+		void testSamplePathPortability();
+		/** When saving a drumkit all sample <filename> elements should contain
+		 * only the basename + file extention. In songs this holds too for all
+		 * samples which are part of a user or system drumkit. Samples manually
+		 * loaded by the user, on the other hand, must hold an absolute file
+		 * path. */
+		void testSamplePathsWritten();
 
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,

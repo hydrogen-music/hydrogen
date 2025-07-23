@@ -21,15 +21,16 @@
  */
 
 #include <core/Basics/InstrumentLayer.h>
+
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Sample.h>
-
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
-#include <core/License.h>
 #include <core/Hydrogen.h>
+#include <core/License.h>
 #include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core
 {
@@ -111,21 +112,21 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	const QString sFilename =
+	const QString sFileName =
 		node.read_string( "filename", "", false, false, bSilent );
 
-	QFileInfo filenameInfo( sFilename );
+	QFileInfo filenameInfo( sFileName );
 	QString sFilePath;
 	if ( filenameInfo.isAbsolute() ) {
 		// Samples with absolute filenames are those added using the
 		// InstrumentEditor.
-		sFilePath = sFilename;
+		sFilePath = sFileName;
 	}
 	else {
 		// QFileInfo::isRelative() can not be used in here as samples of
 		// drumkits within the user or system drumkit folder are stored
 		// relatively as well (by saving just the filename).
-		if ( ( sFilename.contains( QDir::separator() ) || sFilename.contains( "/" ) ) &&
+		if ( ( sFileName.contains( "\\" ) || sFileName.contains( "/" ) ) &&
 			 ! sSongPath.isEmpty() ) {
 			// Sample path can be stored relative to the .h2song file. This is
 			// mainly present to allow for more thorough unit test. It, however,
@@ -133,18 +134,53 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			// relatively (except when under session management) to increase
 			// portability.
 			QFileInfo songPathInfo( sSongPath );
-			sFilePath = songPathInfo.absoluteDir().absoluteFilePath( sFilename );
+			sFilePath = songPathInfo.absoluteDir().absoluteFilePath( sFileName );
 		}
 		else if ( ! sDrumkitPath.isEmpty() ){
 			// Plain filenames of samples associated with an installed drumkit.
 			QFileInfo drumkitPathInfo( sDrumkitPath );
 			if ( drumkitPathInfo.isDir() ) {
-				sFilePath = QDir( sDrumkitPath ).absoluteFilePath( sFilename );
+				sFilePath = QDir( sDrumkitPath ).absoluteFilePath( sFileName );
 			} else {
 				// Path to drumkit.xml was entered. Not standard. Probably done
 				// manually.
-				sFilePath = drumkitPathInfo.absoluteDir().absoluteFilePath( sFilename );
+				sFilePath = drumkitPathInfo.absoluteDir().absoluteFilePath(
+					sFileName );
+			}
+		}
+	}
 
+	// If the sample still could not be found, this could be e.g. due to an
+	// absolute path referencing a sample imported from a session kit - one,
+	// which was loaded by the user manually and does not reside in either user
+	// or system drumkit folder - or due to a bug like #2174. We give it another
+	// try by checking whether the /path/to/<drumkit>/<sample> could refer to
+	// the exact same <drumkit>/<sample> in one of our drumkit folders.
+	if ( ! Filesystem::file_exists( sFilePath, true ) &&
+		 ( sFileName.contains( "/" ) || sFileName.contains( "\\" ) ) ) {
+		// We need to ensure we work on a single set of separators without any
+		// duplication. This is especially important as songs created on Windows
+		// could be loaded on Linux/macOS and vice versa.
+		const QString sFileNameCleaned = QString( sFileName )
+			.replace( "\\", "/" ).replace( "//", "/" );
+
+		const auto pathSegments = sFileNameCleaned.split( "/" );
+		if ( pathSegments.size() > 2 ) {
+			const auto sDrumkitSampleSegment = QString( "%1/%2" )
+				.arg( pathSegments[ pathSegments.size() - 2 ] )
+				.arg( pathSegments[ pathSegments.size() - 1 ] );
+
+			const auto drumkitFolders = pHydrogen->getSoundLibraryDatabase()
+				->getDrumkitFolders();
+			for ( const auto& ssFolder : drumkitFolders ) {
+				const auto sNewPath = QString( "%1/%2" )
+					.arg( ssFolder ).arg( sDrumkitSampleSegment );
+				if ( Filesystem::file_exists( sNewPath, true ) ) {
+					WARNINGLOG( QString( "File [%1] does not exist. Loading similar file [%2] instead." )
+								.arg( sFileName ).arg( sNewPath ) );
+					sFilePath = sNewPath;
+					break;
+				}
 			}
 		}
 	}
@@ -207,10 +243,10 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	else {
 		if ( sFilePath.isEmpty() ) {
 			ERRORLOG( QString( "Unable to find sample [%1] from sDrumkitPath [%2], sSongPath [%3]" )
-					  .arg( sFilename ).arg( sDrumkitPath ).arg( sSongPath ) );
+					  .arg( sFileName ).arg( sDrumkitPath ).arg( sSongPath ) );
 		} else {
 			ERRORLOG( QString( "Unable to find sample file [%1] based on filename [%2], sDrumkitPath [%3], sSongPath [%4]" )
-					  .arg( sFilePath ).arg( sFilename ).arg( sDrumkitPath )
+					  .arg( sFilePath ).arg( sFileName ).arg( sDrumkitPath )
 					  .arg( sSongPath ) );
 		}
 	}
@@ -242,15 +278,15 @@ void InstrumentLayer::saveTo( XMLNode& node, bool bSongKit ) const
 	
 	XMLNode layer_node = node.createNode( "layer" );
 
-	QString sFilename;
+	QString sFileName;
 	if ( bSongKit ) {
-		sFilename = Filesystem::prepare_sample_path( pSample->getFilepath() );
+		sFileName = Filesystem::prepare_sample_path( pSample->getFilepath() );
 	}
 	else {
-		sFilename = pSample->getFilename();
+		sFileName = pSample->getFilename();
 	}
 	
-	layer_node.write_string( "filename", sFilename );
+	layer_node.write_string( "filename", sFileName );
 	layer_node.write_float( "min", m_fStartVelocity );
 	layer_node.write_float( "max", m_fEndVelocity );
 	layer_node.write_float( "gain", m_fGain );

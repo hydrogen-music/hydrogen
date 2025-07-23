@@ -313,15 +313,25 @@ QString SoundLibraryDatabase::getUniqueLabel( const QString& sDrumkitPath ) cons
 
 void SoundLibraryDatabase::registerDrumkitFolder( const QString& sDrumkitFolder ) {
 	if ( ! m_customDrumkitFolders.contains( sDrumkitFolder ) ) {
-		m_customDrumkitFolders << sDrumkitFolder;
+		// On Windows the provided system dir needs cleaning and looks like this
+		// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is
+		// not necessary. But it does no harm either and might be a live safer
+		// in some edge cases.
+		m_customDrumkitFolders <<
+			QString( sDrumkitFolder ).replace( "\\", "/" ).replace( "//", "/" );
 	}
 }
 
 QStringList SoundLibraryDatabase::getDrumkitFolders() const {
 	QStringList drumkitFolders( m_customDrumkitFolders );
 
-	drumkitFolders << Filesystem::sys_drumkits_dir()
-		<< Filesystem::usr_drumkits_dir();
+	// On Windows the provided system dir needs cleaning and looks like this
+	// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is not
+	// necessary. But it does no harm either and might be a live safer in some
+	// edge cases.
+	drumkitFolders
+		<< Filesystem::sys_drumkits_dir().replace( "\\", "/" ).replace( "//", "/" )
+		<< Filesystem::usr_drumkits_dir().replace( "\\", "/" ).replace( "//", "/" );
 
 	return drumkitFolders;
 }
