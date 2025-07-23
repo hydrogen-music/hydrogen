@@ -987,9 +987,9 @@ void XmlTest::testSamplePathsWritten() {
 	auto pNewKit = std::make_shared<H2Core::Drumkit>( pBaseKit );
 	CPPUNIT_ASSERT( pNewKit != nullptr );
 
-	pNewKit->set_name( "testSamplePathsWrittenKit" );
+	pNewKit->setName( "testSamplePathsWrittenKit" );
 	const auto sNewKitPath = QString( "%1/%2" )
-		.arg( H2Core::Filesystem::usr_drumkits_dir() ).arg( pNewKit->get_name() );
+		.arg( H2Core::Filesystem::usr_drumkits_dir() ).arg( pNewKit->getName() );
 	CPPUNIT_ASSERT( ! H2Core::Filesystem::dir_exists( sNewKitPath ) );
 	CPPUNIT_ASSERT( pNewKit->save( sNewKitPath ) );
 
@@ -1027,7 +1027,7 @@ void XmlTest::testSamplePathsWritten() {
 	auto pSong = H2Core::Song::getEmptySong();
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	pSong->setDrumkit( pNewKit, false );
+	pSong->setDrumkit( pNewKit );
 	const auto sSongPath = H2Core::Filesystem::tmp_file_path(
 		"testSamplePathsWritten.h2song");
 	CPPUNIT_ASSERT( pSong->save( sSongPath ) );
@@ -1038,7 +1038,7 @@ void XmlTest::testSamplePathsWritten() {
 
 	auto rootNodeSong = docSong.firstChildElement( "song" );
 	CPPUNIT_ASSERT( ! rootNodeSong.isNull() );
-	auto drumkitNodeSong = rootNodeSong.firstChildElement( "instrumentList" );
+	auto drumkitNodeSong = rootNodeSong.firstChildElement( "drumkit_info" );
 	CPPUNIT_ASSERT( ! drumkitNodeSong.isNull() );
 
 	QString sDrumkitNodeSong;
@@ -1069,18 +1069,18 @@ void XmlTest::testSamplePathsWritten() {
 	// Create a new song and save it to disk.
 	auto pSongCustom = H2Core::Song::getEmptySong();
 	CPPUNIT_ASSERT( pSongCustom != nullptr );
-	pSongCustom->setDrumkit( pNewKit, false );
+	pSongCustom->setDrumkit( pNewKit );
 
 	const QString sCustomSamplePath( "/path/to/custom/sample.wav" );
-	auto pInstrument = pSongCustom->getInstrumentList()->get( 0 );
+	auto pInstrument = pSongCustom->getDrumkit()->getInstruments()->get( 0 );
 	CPPUNIT_ASSERT( pInstrument != nullptr );
-	auto pComponent = pInstrument->get_component( 0 );
+	auto pComponent = pInstrument->getComponent( 0 );
 	CPPUNIT_ASSERT( pComponent != nullptr );
-	auto pLayer = pComponent->get_layer( 0 );
+	auto pLayer = pComponent->getLayer( 0 );
 	CPPUNIT_ASSERT( pLayer != nullptr );
-	auto pSample = pLayer->get_sample();
+	auto pSample = pLayer->getSample();
 	CPPUNIT_ASSERT( pSample != nullptr );
-	pSample->set_filepath( sCustomSamplePath );
+	pSample->setFilepath( sCustomSamplePath );
 
 	const auto sSongPathCustom = H2Core::Filesystem::tmp_file_path(
 		"testCustomSamplePathsWritten.h2song");
@@ -1094,7 +1094,7 @@ void XmlTest::testSamplePathsWritten() {
 	auto rootNodeSongCustom = docSongCustom.firstChildElement( "song" );
 	CPPUNIT_ASSERT( ! rootNodeSongCustom.isNull() );
 	auto drumkitNodeSongCustom = rootNodeSongCustom.firstChildElement(
-		"instrumentList" );
+		"drumkit_info" );
 	CPPUNIT_ASSERT( ! drumkitNodeSongCustom.isNull() );
 
 	const int nExpectedAbsolutePaths = 1;
