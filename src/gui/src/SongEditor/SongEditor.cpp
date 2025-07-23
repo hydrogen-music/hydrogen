@@ -445,9 +445,13 @@ void SongEditor::paste() {
 				}
 			}
 
+			const auto pCommonStrings =
+				HydrogenApp::get_instance()->getCommonStrings();
+
 			HydrogenApp::get_instance()->pushUndoCommand(
-				new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
-												 tr( "Paste cells" ) ) );
+				new SE_modifyPatternCellsAction(
+					addCells, deleteCells, mergeCells,
+					pCommonStrings->getActionPastePatternCells() ) );
 		}
 	}
 }
@@ -904,11 +908,13 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 		}
 	}
 
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
 	HydrogenApp::get_instance()->pushUndoCommand(
-		new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
-										 (m_bCopyNotMove
-										  ? tr( "Copy selected cells" )
-										  : tr( "Move selected cells" ) ) ) );
+		new SE_modifyPatternCellsAction(
+			addCells, deleteCells, mergeCells,
+			(m_bCopyNotMove ? pCommonStrings->getActionCopyPatternCells()
+			 : pCommonStrings->getActionMovePatternCells() ) ) );
 }
 
 

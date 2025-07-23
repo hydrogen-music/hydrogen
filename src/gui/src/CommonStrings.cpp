@@ -663,6 +663,20 @@ CommonStrings::CommonStrings(){
 	 *  appended. */
 	m_sActionEditTypes = tr( "Edit type for notes in row" );
 
+	/*: Shown in the undo history copying pattern cells in the song editor to
+	 *  another location. */
+	m_sActionCopyPatternCells = tr( "Copy selected cells" );
+	/*: Shown in the undo history deleting pattern cells in the song editor. */
+	m_sActionDeletePatternCells = tr( "Delete selected cells" );
+	/*: Shown in the undo history moving pattern cells in the song editor to
+	 *  another location. */
+	m_sActionMovePatternCells = tr( "Move selected cells" );
+	/*: Shown in the undo history pasting pattern cells in the song editor. */
+	m_sActionPastePatternCells = tr( "Paste cells" );
+	/*: Shown in the undo history adding or toggling pattern cells in the song
+	 *  editor. */
+	m_sActionTogglePatternCells = tr( "Toggle selected cells" );
+
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the
 	 *  song path in the Playlist editor.*/

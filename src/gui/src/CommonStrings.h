@@ -299,6 +299,17 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionEditTypes() const {
 			return m_sActionEditTypes; }
 
+		const QString& getActionCopyPatternCells() const {
+			return m_sActionCopyPatternCells; }
+		const QString& getActionDeletePatternCells() const {
+			return m_sActionDeletePatternCells; }
+		const QString& getActionMovePatternCells() const {
+			return m_sActionMovePatternCells; }
+		const QString& getActionPastePatternCells() const {
+			return m_sActionPastePatternCells; }
+		const QString& getActionTogglePatternCells() const {
+			return m_sActionTogglePatternCells; }
+
 		const QString& getNotePropertyVelocity() const {
 			return m_sNotePropertyVelocity; }
 		const QString& getNotePropertyPan() const { return m_sNotePropertyPan; }
@@ -554,6 +565,12 @@ private:
 		QString m_sActionEditAllPatterns;
 		QString m_sActionCopyNotes;
 		QString m_sActionEditTypes;
+
+		QString m_sActionCopyPatternCells;
+		QString m_sActionDeletePatternCells;
+		QString m_sActionMovePatternCells;
+		QString m_sActionPastePatternCells;
+		QString m_sActionTogglePatternCells;
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;

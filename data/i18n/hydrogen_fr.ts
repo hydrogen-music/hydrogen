@@ -1396,6 +1396,31 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever beat counter was selected and playback is set to start * right after the tempo adjustment.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Copy selected cells</source>
+        <extracomment>Shown in the undo history copying pattern cells in the song editor to * another location.</extracomment>
+        <translation>Copier les cellules sélectionnées</translation>
+    </message>
+    <message>
+        <source>Delete selected cells</source>
+        <extracomment>Shown in the undo history deleting pattern cells in the song editor.</extracomment>
+        <translation>Supprimer les cellules sélectionnées</translation>
+    </message>
+    <message>
+        <source>Move selected cells</source>
+        <extracomment>Shown in the undo history moving pattern cells in the song editor to * another location.</extracomment>
+        <translation>Déplacer les cellules sélectionnées</translation>
+    </message>
+    <message>
+        <source>Paste cells</source>
+        <extracomment>Shown in the undo history pasting pattern cells in the song editor.</extracomment>
+        <translation>Coller les cellules</translation>
+    </message>
+    <message>
+        <source>Toggle selected cells</source>
+        <extracomment>Shown in the undo history adding or toggling pattern cells in the song * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -5746,22 +5771,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Clear selection</source>
         <translation>Effacer la sélection</translation>
-    </message>
-    <message>
-        <source>Delete selected cells</source>
-        <translation>Supprimer les cellules sélectionnées</translation>
-    </message>
-    <message>
-        <source>Paste cells</source>
-        <translation>Coller les cellules</translation>
-    </message>
-    <message>
-        <source>Copy selected cells</source>
-        <translation>Copier les cellules sélectionnées</translation>
-    </message>
-    <message>
-        <source>Move selected cells</source>
-        <translation>Déplacer les cellules sélectionnées</translation>
     </message>
 </context>
 <context>
