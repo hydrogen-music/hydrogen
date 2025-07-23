@@ -892,27 +892,22 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 	const QStringList drumkitFolders =
 		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkitFolders();
 
+	// When composing paths by combining different elements, two file separators
+	// can be used in a row. This is no problem in file access itself but would
+	// mess up our index-based approach in here.
+	const auto sSamplePathCleaned = QString( sSamplePath ).replace( "//", "/" );
+
 	for ( const auto& ssFolder : drumkitFolders ) {
-		if ( sSamplePath.startsWith( ssFolder ) ) {
-			int nStart = ssFolder.size();
-			int nIndex = sSamplePath.indexOf( "/", nStart );
-#ifdef H2CORE_HAVE_QT6
-			const QString sDrumkitName = sSamplePath.sliced(
-				nStart , nIndex - nStart );
-#else
-			const QString sDrumkitName = sSamplePath.midRef(
-				nStart , nIndex - nStart ).toString();
-#endif
-			if ( ssFolder.contains( sDrumkitName ) ) {
-				nIndexMatch = nIndex + 1;
-				break;
-			}
+		if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
+			nIndexMatch = sSamplePathCleaned.indexOf( "/", ssFolder.size() ) + 1;
+			break;
 		}
 	}
 
 	if ( nIndexMatch >= 0 ) {
 		// Sample is located in a drumkit folder. Just return basename.
-		QString sShortenedPath = sSamplePath.right( nIndexMatch );
+		QString sShortenedPath = sSamplePathCleaned.right(
+			sSamplePathCleaned.size() - nIndexMatch );
 		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
 				 .arg( sSamplePath ).arg( sShortenedPath ) );
 
