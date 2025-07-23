@@ -44,11 +44,14 @@ using namespace H2Core;
 
 SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 						SongEditorPanel *pSongEditorPanel )
- : Editor::Base<Elem>( parent )
- , m_pScrollView( pScrollView )
- , m_pSongEditorPanel( pSongEditorPanel )
- , m_selection( this )
+	: Editor::Base<Elem>( parent )
+	, m_pScrollView( pScrollView )
+	, m_pSongEditorPanel( pSongEditorPanel )
+	, m_selection( this )
 {
+	m_instance = Editor::Instance::SongEditor;
+	m_type = Editor::Type::Grid;
+
 	const auto pPref = Preferences::get_instance();
 
 	connect( m_pScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
