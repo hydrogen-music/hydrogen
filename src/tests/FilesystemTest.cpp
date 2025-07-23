@@ -65,6 +65,7 @@ void FilesystemTest::testPermissions(){
 }
 
 void FilesystemTest::testFilePathValidation() {
+	___INFOLOG( "" );
 	QStringList invalidFilenames, validFilenames;
 
 	validFilenames << "test.h2song" << "123-te-s_t.h2drumkit"
@@ -82,4 +83,46 @@ void FilesystemTest::testFilePathValidation() {
 		CPPUNIT_ASSERT( ssName != ssValidated );
 		CPPUNIT_ASSERT( ssValidatedTwice == ssValidated );
 	}
+	___INFOLOG( "passed" );
+}
+
+void FilesystemTest::testSamplePathHandling() {
+	___INFOLOG( "" );
+	const auto sPathInSystemKit = QString( "%1/sampleKit/sample.wav" )
+		.arg( Filesystem::sys_drumkits_dir() );
+	const auto sPathInUserKit = QString( "%1/sampleKit/sample.wav" )
+		.arg( Filesystem::usr_drumkits_dir() );
+	const auto sAbsolutePath( "/path/to/sample.wav" );
+	const auto sRelativePath( "../../sample.wav" );
+	const QString sFileName( "sample.wav" );
+
+	const auto sPathInSystemKitPrepared = Filesystem::prepare_sample_path(
+		sPathInSystemKit );
+	___INFOLOG( QString( "sPathInSystemKitPrepared: [%1]" )
+				.arg( sPathInSystemKitPrepared ) );
+	CPPUNIT_ASSERT( sPathInSystemKit != sPathInSystemKitPrepared );
+	CPPUNIT_ASSERT( sFileName == sPathInSystemKitPrepared );
+
+	const auto sPathInUserKitPrepared = Filesystem::prepare_sample_path(
+		sPathInUserKit );
+	___INFOLOG( QString( "sPathInUserKitPrepared: [%1]" )
+				.arg( sPathInUserKitPrepared ) );
+	CPPUNIT_ASSERT( sPathInUserKit != sPathInUserKitPrepared );
+	CPPUNIT_ASSERT( sFileName == sPathInUserKitPrepared );
+
+	const auto sAbsolutePathPrepared = Filesystem::prepare_sample_path(
+		sAbsolutePath );
+	___INFOLOG( QString( "sAbsolutePathPrepared: [%1]" )
+				.arg( sAbsolutePathPrepared ) );
+	CPPUNIT_ASSERT( sAbsolutePath == sAbsolutePathPrepared );
+	CPPUNIT_ASSERT( sFileName != sAbsolutePathPrepared );
+
+	const auto sRelativePathPrepared = Filesystem::prepare_sample_path(
+		sRelativePath );
+	___INFOLOG( QString( "sRelativePathPrepared: [%1]" )
+				.arg( sRelativePathPrepared ) );
+	CPPUNIT_ASSERT( sRelativePath == sRelativePathPrepared );
+	CPPUNIT_ASSERT( sFileName != sRelativePathPrepared );
+
+	___INFOLOG( "passed" );
 }

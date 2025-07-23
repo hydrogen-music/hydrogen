@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.6] - XXXX-XX-XX
+
+### Changed
+
+- Sample loading in songs has been made more portable.
+
+### Fixed
+
+- Fix saving and loading of sample files (#2174).
+
 ## [1.2.5] - 2025-07-17
 
 ### Added

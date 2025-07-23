@@ -831,51 +831,53 @@ QStringList Filesystem::usr_drumkit_list( )
 	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
-QString Filesystem::prepare_sample_path( const QString& sFileName )
+QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 {
-	const int nIdx = get_basename_idx_under_drumkit( sFileName );
-	if ( nIdx >= 0 ) {
-		return sFileName.right( nIdx );
-	}
-	return sFileName;
-}
+	// Check whether the provided absolute sample path is located within a
+	// known drumkit directory.
+	int nIndexMatch = -1;
+	// On Windows the provided system dir needs cleaning and looks like this
+	// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is not
+	// necessary. But it does no harm either and might be a live safer in some
+	// edge cases.
+	const auto drumkitFolders = QStringList()
+		<< sys_drumkits_dir().replace( "\\", "/" ).replace( "//", "/" )
+		<< usr_drumkits_dir().replace( "\\", "/" ).replace( "//", "/" );
 
-bool Filesystem::file_is_under_drumkit( const QString& sFileName )
-{
-	return get_basename_idx_under_drumkit( sFileName ) != -1;
-}
-
-int Filesystem::get_basename_idx_under_drumkit( const QString& sFileName )
-{
-	auto getIndex = [=]( const QString& sDrumkitDir ) {
-		const int nStart = usr_drumkits_dir().size();
-		const int nIndex = sFileName.indexOf( "/", nStart );
-#ifdef H2CORE_HAVE_QT6
-		const QString sDrumkitName = sFileName.sliced( nStart , nIndex - nStart );
-#else
-		const QString sDrumkitName =
-			sFileName.midRef( nStart , nIndex - nStart ).toString();
+	QString sSamplePathCleaned( sSamplePath );
+#ifdef WIN32
+	// Qt uses posix separators `/` internally but things can easily mix up
+	// (maybe due to our code) and we end up with something like
+	// C:\projects\hydrogen/data/\drumkits/GMRockKit/Kick-Softest.wav .
+	// We have to ensure to work on a single separator.
+	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "\\", "/" );
 #endif
-		if ( drumkit_list( sDrumkitDir ).contains( sDrumkitName ) ) {
-			return nIndex + 1;
-		}
-		else {
-			return -1;
-		}
-	};
 
-	if ( sFileName.startsWith( usr_drumkits_dir() ) ) {
-		return getIndex( usr_drumkits_dir() );
+	// When composing paths by combining different elements, two file separators
+	// can be used in a row. This is no problem in file access itself but would
+	// mess up our index-based approach in here.
+	sSamplePathCleaned = QString( sSamplePathCleaned ).replace( "//", "/" );
+
+	for ( const auto& ssFolder : drumkitFolders ) {
+		if ( sSamplePathCleaned.startsWith( ssFolder ) ) {
+			nIndexMatch = sSamplePathCleaned.indexOf(
+				"/", ssFolder.size() ) + 1;
+			break;
+		}
 	}
 
+	if ( nIndexMatch >= 0 ) {
+		// Sample is located in a drumkit folder. Just return basename.
+		QString sShortenedPath = sSamplePathCleaned.right(
+			sSamplePathCleaned.size() - nIndexMatch );
+		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
+				 .arg( sSamplePath ).arg( sShortenedPath ) );
 
-	if ( sFileName.startsWith( sys_drumkits_dir() ) ) {
-		return getIndex( sys_drumkits_dir() );
+		return std::move( sShortenedPath );
 	}
 
-	return -1;
+	return sSamplePath;
 }
-
 
 bool Filesystem::drumkit_exists( const QString& dk_name )
 {
