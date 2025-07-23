@@ -102,16 +102,12 @@ class SongEditor : public Editor::Base<QPoint>
 		static constexpr int nMaxGridWidth = 16;
 
 		//! @name Selection interfaces
-		// @name Editor::Base interfaces
 		//! @{
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual QRect getKeyboardCursorRect() override;
 		virtual void validateSelection() override {};
 		virtual void updateWidget() override;
 		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
-		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override;
@@ -121,23 +117,32 @@ class SongEditor : public Editor::Base<QPoint>
 		virtual bool canDragElements() override {
 			return false;
 		}
+		//! @}
+
+		//! @name Editor::Base interfaces
+		//! @{
+		void handleElements( QInputEvent* ev, Editor::Action action ) override;
+		void deleteElements( std::vector<QPoint> vec ) override;
+		virtual std::vector<QPoint> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
+
+		void copy() override;
+		void paste() override;
+
+		void selectAll() override;
+
 		void updateAllComponents( bool bContentOnly ) override;
 		void updateVisibleComponents( bool bContentOnly ) override;
 		bool updateWidth() override;
+		void createBackground() override;
 		//! @}
 
 	public slots:
 
-		void selectAll();
-		void selectNone();
-		void deleteSelection();
-		void copy();
-		void paste();
-		void cut();
 		void scrolled( int );
 
 	private:
-		void createBackground();
 
 		Selection<QPoint> m_selection;
 

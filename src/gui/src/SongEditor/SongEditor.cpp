@@ -82,12 +82,24 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, SLOT( cut() ) );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, SLOT( copy() ) );
-	m_pPopupMenu->addAction( tr( "&Paste" ), this, SLOT( paste() ) );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, SLOT( deleteSelection() ) );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, SLOT( selectAll() ) );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, SLOT( selectNone() ) );
+	m_pPopupMenu->addAction( tr( "&Cut" ), this, [&]() {
+		cut();
+	});
+	m_pPopupMenu->addAction( tr( "&Copy" ), this, [&]() {
+		copy();
+	});
+	m_pPopupMenu->addAction( tr( "&Paste" ), this, [&]() {
+		paste();
+	});
+	m_pPopupMenu->addAction( tr( "&Delete" ), this, [&]() {
+		deleteSelection();
+	});
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, [&]() {
+		selectAll();
+	});
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
+		clearSelection();
+	});
 	m_pPopupMenu->setObjectName( "SongEditorPopup" );
 }
 
@@ -350,24 +362,6 @@ void SongEditor::selectAll() {
 	updateEditor( true );
 }
 
-void SongEditor::selectNone() {
-	m_selection.clearSelection();
-
-	updateEditor( true );
-}
-
-void SongEditor::deleteSelection() {
-	std::vector< QPoint > addCells, deleteCells, mergeCells;
-	for ( QPoint cell : m_selection ) {
-		deleteCells.push_back( cell );
-	}
-	HydrogenApp::get_instance()->pushUndoCommand(
-		new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
-										 tr( "Delete selected cells" ) ) );
-	m_selection.clearSelection();
-}
-
-
 //! Copy a selection of cells to an XML representation in the clipboard
 //!
 //! * \<patternSelection\>
@@ -473,11 +467,6 @@ void SongEditor::paste() {
 					pCommonStrings->getActionPastePatternCells() ) );
 		}
 	}
-}
-
-void SongEditor::cut() {
-	copy();
-	deleteSelection();
 }
 
 void SongEditor::keyPressEvent( QKeyEvent * ev )
@@ -603,7 +592,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		bSelectionKey = true;
 		bUnhideCursor = false;
 		if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
-			selectNone();
+			clearSelection();
 		}
 
 	} else if ( ev->matches( QKeySequence::Copy ) ) {
@@ -797,6 +786,61 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 		}
 	}
 
+}
+
+void SongEditor::handleElements( QInputEvent* pEvent, Editor::Action action ) {
+
+	// Retrieve the coordinates
+	QPoint point;
+	if ( dynamic_cast<QMouseEvent*>(pEvent) != nullptr ) {
+		// Element added via mouse.
+		auto pEv = static_cast<MouseEvent*>( pEvent );
+		point = xyToColumnRow( pEv->position().toPoint() );
+	}
+	else if ( dynamic_cast<QKeyEvent*>(pEvent) != nullptr ) {
+		point = QPoint( m_nCursorColumn, m_nCursorRow );
+	}
+	else {
+		ERRORLOG( "Unknown event" );
+		return;
+	}
+
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_addOrRemovePatternCellAction( point, action ) );
+}
+
+void SongEditor::deleteElements( std::vector<QPoint> points ) {
+	if ( points.size() == 0 ) {
+		return;
+	}
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+	pHydrogenApp->beginUndoMacro( pCommonStrings->getActionDeletePatternCells() );
+	for ( const auto& ppoint : points ) {
+		pHydrogenApp->pushUndoCommand(
+			new SE_addOrRemovePatternCellAction(
+				ppoint, Editor::Action::DeleteElements ) );
+	}
+	pHydrogenApp->endUndoMacro();
+}
+
+std::vector<QPoint> SongEditor::getElementsAtPoint( const QPoint& point,
+													int /*nCursorMargin*/,
+													std::shared_ptr<Pattern> ) {
+	// Cursor margin and pattern aren't used within the song editor.
+	std::vector<QPoint> vec;
+
+	const auto gridPoint = xyToColumnRow( point ) ;
+
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr &&
+		 pSong->isPatternActive( gridPoint.x(), gridPoint.y() ) ) {
+		vec.push_back( gridPoint );
+	}
+
+	return std::move( vec );
 }
 
 void SongEditor::updateAllComponents( bool bContentOnly ) {
@@ -1016,19 +1060,6 @@ void SongEditor::updateWidget() {
 		update();
 	}
 	m_previousMousePosition = m_currentMousePosition;
-}
-
-std::vector<SongEditor::SelectionIndex> SongEditor::getElementsAtPoint(
-	const QPoint& point, int nCursorMargin, std::shared_ptr<H2Core::Pattern> ) {
-
-	std::vector<SelectionIndex> elems;
-
-	const QPoint p = xyToColumnRow( point );
-	if ( Hydrogen::get_instance()->getSong()->isPatternActive( p.x(), p.y() ) ) {
-		elems.push_back( p );
-	}
-
-	return elems;
 }
 
 void SongEditor::updatePosition( float fTick ) {
