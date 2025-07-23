@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Fix velocity automation for patterns that are not of size 4/4 (#2171).
 - Fix saving and loading of sample files (#2174).
 
 ## [1.2.5] - 2025-07-17
