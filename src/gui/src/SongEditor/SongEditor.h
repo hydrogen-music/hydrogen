@@ -73,6 +73,9 @@ class SongEditor : public Editor::Base<QPoint>
 					SongEditorPanel *pSongEditorPanel );
 		~SongEditor();
 
+		static void addOrRemovePatternCellAction( const QPoint& point,
+												  Editor::Action action );
+
 		void updatePosition( float fTick );
 
 		int getGridWidth();

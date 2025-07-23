@@ -366,6 +366,37 @@ private:
 	int __nPattern;
 };
 
+class SE_addOrRemovePatternCellAction : public QUndoCommand {
+	public:
+		SE_addOrRemovePatternCellAction( const QPoint& point, Editor::Action action )
+			: m_point( point )
+			, m_action( action ) {
+			const auto pCommonStrings =
+				HydrogenApp::get_instance()->getCommonStrings();
+			if ( ( action == Editor::Action::ToggleElements ) ||
+				 ( action == Editor::Action::AddElements ) ) {
+				setText( pCommonStrings->getActionTogglePatternCells() );
+			}
+			else if ( action == Editor::Action::DeleteElements ) {
+				setText( pCommonStrings->getActionDeletePatternCells() );
+			}
+			else {
+				setText( QString( "Performing [%1] on pattern cell [%2,%3]" )
+						 .arg( Editor::actionToQString( action ) )
+						 .arg( point.x() ).arg( point.y() ) );
+			}
+		}
+		virtual void redo() {
+			SongEditor::addOrRemovePatternCellAction( m_point, m_action );
+		}
+		virtual void undo() {
+			SongEditor::addOrRemovePatternCellAction(
+				m_point, Editor::undoAction( m_action ) );
+		}
+	private:
+		QPoint m_point;
+		Editor::Action m_action;
+};
 
 /** \ingroup docGUI*/
 class SE_modifyPatternCellsAction : public QUndoCommand

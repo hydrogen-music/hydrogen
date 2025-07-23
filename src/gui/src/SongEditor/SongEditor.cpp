@@ -94,6 +94,25 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 SongEditor::~SongEditor() {
 }
 
+void SongEditor::addOrRemovePatternCellAction( const QPoint& point,
+											   Editor::Action action ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
+	const QPoint gridPoint = HydrogenApp::get_instance()->getSongEditorPanel()
+		->getSongEditor()->xyToColumnRow( point );
+	const bool bGridPointActive = pSong->isPatternActive(
+		gridPoint.x(), gridPoint.y() );
+
+	if ( ( action == Editor::Action::ToggleElements ) ||
+		 ( ( action == Editor::Action::AddElements ) && ! bGridPointActive ) ||
+		 ( ( action == Editor::Action::DeleteElements ) && bGridPointActive ) ) {
+		CoreActionController::toggleGridCell( gridPoint.x(), gridPoint.y() );
+	}
+}
 
 /// Calculate a target Y scroll value for tracking a playing song
 ///
