@@ -46,7 +46,8 @@ namespace Editor {
 		None = 0,
 		DrumPattern = 1,
 		PianoRoll = 2,
-		NotePropertiesRuler = 3
+		NotePropertiesRuler = 3,
+		SongEditor = 4
 	};
 	static QString instanceToQString( const Instance& instance ) {
 		switch ( instance ) {
@@ -58,6 +59,8 @@ namespace Editor {
 			return "PianoRoll";
 		case Instance::NotePropertiesRuler:
 			return "NotePropertiesRuler";
+		case Instance::SongEditor:
+			return "SongEditor";
 		default:
 			return QString( "Unknown instance [%1]" )
 				.arg( static_cast<int>(instance) ) ;
