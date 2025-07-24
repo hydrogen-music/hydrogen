@@ -2289,7 +2289,7 @@ void PatternEditorPanel::printDB() const {
 void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 										   int nOctave, bool bDoAdd,
 										   bool bDoDelete, bool bIsNoteOff,
-										   Editor::Action action,
+										   Editor::ActionModifier modifier,
 										   const QString& sUndoContext ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
@@ -2339,8 +2339,8 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
 			 row.bMappedToDrumkit &&
-			 ( static_cast<char>(action) &
-			   static_cast<char>(Editor::Action::Playback) ) ) {
+			 ( static_cast<char>(modifier) &
+			   static_cast<char>(Editor::ActionModifier::Playback) ) ) {
 			auto pSelectedInstrument = getSelectedInstrument();
 			if ( pSelectedInstrument != nullptr &&
 				 pSelectedInstrument->hasSamples() ) {
@@ -2369,7 +2369,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 				/* bIsDelete */ false,
 				bIsNoteOff,
 				row.bMappedToDrumkit,
-				action ), sUndoContext );
+				modifier ), sUndoContext );
 	}
 	else {
 		// delete notes
@@ -2392,7 +2392,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 					/* bIsDelete */ true,
 					ppNote->getNoteOff(),
 					ppNote->getInstrument() != nullptr,
-					action ), sUndoContext );
+					modifier ), sUndoContext );
 		}
 		pHydrogenApp->endUndoMacro( sUndoContext );
 	}
@@ -2484,7 +2484,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						/* bIsDelete */ true,
 						ppNote->getNoteOff(),
 						ppNote->getInstrument() != nullptr,
-						Editor::Action::None ) );
+						Editor::ActionModifier::None ) );
 			}
 		}
 	}
@@ -2568,7 +2568,7 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
 							  true /* bDoAdd */, false /* bDoDelete */,
 							  false /* bIsNoteOff */,
-							  Editor::Action::None );
+							  Editor::ActionModifier::None );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -2760,7 +2760,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							/* bIsDelete */ false,
 							ppNote->getNoteOff(),
 							row.bMappedToDrumkit,
-							Editor::Action::None ) );
+							Editor::ActionModifier::None ) );
 				}
 			}
 		}

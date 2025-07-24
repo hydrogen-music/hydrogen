@@ -373,11 +373,11 @@ class SE_addOrRemovePatternCellAction : public QUndoCommand {
 			, m_action( action ) {
 			const auto pCommonStrings =
 				HydrogenApp::get_instance()->getCommonStrings();
-			if ( ( action == Editor::Action::ToggleElements ) ||
-				 ( action == Editor::Action::AddElements ) ) {
+			if ( ( action == Editor::Action::Toggle ) ||
+				 ( action == Editor::Action::Add ) ) {
 				setText( pCommonStrings->getActionTogglePatternCells() );
 			}
-			else if ( action == Editor::Action::DeleteElements ) {
+			else if ( action == Editor::Action::Delete ) {
 				setText( pCommonStrings->getActionDeletePatternCells() );
 			}
 			else {
@@ -552,8 +552,8 @@ public:
 							  bool bIsDelete,
 							  bool bIsNoteOff,
 							  bool bIsMappedToDrumkit,
-							  Editor::Action addNoteAction =
-							  Editor::Action::None
+							  Editor::ActionModifier modifier =
+							  Editor::ActionModifier::None
  ){
 
 		if ( bIsDelete ){
@@ -579,7 +579,7 @@ public:
 		m_bIsDelete = bIsDelete;
 		m_bIsNoteOff = bIsNoteOff;
 		m_bIsMappedToDrumkit = bIsMappedToDrumkit;
-		m_addNoteAction = addNoteAction;
+		m_modifier = modifier;
 	}
 	virtual void undo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
@@ -596,7 +596,7 @@ public:
 											  ! m_bIsDelete,
 											  m_bIsNoteOff,
 											  m_bIsMappedToDrumkit,
-											  m_addNoteAction );
+											  m_modifier );
 	}
 	virtual void redo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
@@ -613,9 +613,9 @@ public:
 											  m_bIsDelete,
 											  m_bIsNoteOff,
 											  m_bIsMappedToDrumkit,
-											  m_addNoteAction );
+											  m_modifier );
 		// Only on the first redo the corresponding action is triggered.
-		m_addNoteAction = Editor::Action::None;
+		m_modifier = Editor::ActionModifier::None;
 	}
 private:
 	int m_nColumn;
@@ -632,7 +632,7 @@ private:
 	bool m_bIsDelete;
 	bool m_bIsNoteOff;
 	bool m_bIsMappedToDrumkit;
-	Editor::Action m_addNoteAction;
+	Editor::ActionModifier m_modifier;
 };
 
 // Deselect some notes and overwrite them

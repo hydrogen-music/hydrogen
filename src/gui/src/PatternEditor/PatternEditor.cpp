@@ -138,7 +138,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   bool bIsDelete,
 										   bool bIsNoteOff,
 										   bool bIsMappedToDrumkit,
-										   Editor::Action action )
+										   Editor::ActionModifier modifier )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -264,13 +264,13 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 							   static_cast<Note::Octave>(nOldOctave) );
 		pPattern->insertNote( pNote );
 
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Editor::Action::AddToSelection) ) {
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(Editor::ActionModifier::AddToSelection) ) {
 			pVisibleEditor->m_selection.addToSelection( pNote );
 		}
 
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Editor::Action::MoveCursorTo) ) {
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(Editor::ActionModifier::MoveCursorTo) ) {
 			pPatternEditorPanel->setCursorColumn( pNote->getPosition() );
 			pPatternEditorPanel->setSelectedRowDB(
 				pPatternEditorPanel->findRowDB( pNote ) );
@@ -1456,18 +1456,18 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					/* bIsDelete */ true,
 					bNoteOff,
 					bIsMappedToDrumkit,
-					Editor::Action::None ) );
+					Editor::ActionModifier::None ) );
 		}
 
-		auto action = Editor::Action::AddToSelection;
+		auto modifier = Editor::ActionModifier::AddToSelection;
 		// Check whether the note was hovered when the drag move action was
 		// started. If so, we will move the keyboard cursor to the resulting
 		// position.
 		for ( const auto ppHoveredNote : m_elementsHoveredOnDragStart ) {
 			if ( ppHoveredNote == pNote ) {
-				action = static_cast<Editor::Action>(
-					static_cast<char>(Editor::Action::AddToSelection) |
-					static_cast<char>(Editor::Action::MoveCursorTo) );
+				modifier = static_cast<Editor::ActionModifier>(
+					static_cast<char>(Editor::ActionModifier::AddToSelection) |
+					static_cast<char>(Editor::ActionModifier::MoveCursorTo) );
 				break;
 			}
 		}
@@ -1490,7 +1490,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					/* bIsDelete */ false,
 					bNoteOff,
 					bIsMappedToDrumkit,
-					action ) );
+					modifier ) );
 		}
 	}
 
@@ -1550,18 +1550,15 @@ void PatternEditor::validateSelection() {
 void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 	// Determine what to do
 	bool bAdd, bDelete;
-	if ( static_cast<char>(action) &
-		 static_cast<char>(Editor::Action::ToggleElements) ) {
+	if ( action == Editor::Action::Toggle ) {
 		bAdd = true;
 		bDelete = true;
 	}
-	else if ( static_cast<char>(action) &
-			  static_cast<char>(Editor::Action::AddElements) ) {
+	else if ( action == Editor::Action::Add ) {
 		bAdd = true;
 		bDelete = false;
 	}
-	else if ( static_cast<char>(action) &
-			  static_cast<char>(Editor::Action::DeleteElements) ) {
+	else if ( action == Editor::Action::Delete ) {
 		bAdd = false;
 		bDelete = true;
 	}
@@ -1609,7 +1606,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 	// Perform the action.
 	m_pPatternEditorPanel->addOrRemoveNotes(
 		nColumn, nRow, nKey, nOctave, bAdd, bDelete, bNoteOff,
-		Editor::Action::Playback );
+		Editor::ActionModifier::Playback );
 }
 
 void PatternEditor::deleteElements(
@@ -1640,7 +1637,7 @@ void PatternEditor::deleteElements(
 				/* bIsDelete */ true,
 				/* bIsNoteOff */ ppNote->getNoteOff(),
 				ppNote->getInstrument() != nullptr,
-				Editor::Action::None ) );
+				Editor::ActionModifier::None ) );
 	}
 	pHydrogenApp->endUndoMacro();
 }
@@ -1861,7 +1858,7 @@ void PatternEditor::paste() {
 					/* bIsDelete */ false,
 					/* bIsNoteOff */ pNote->getNoteOff(),
 					targetRow.bMappedToDrumkit,
-					Editor::Action::AddToSelection ) );
+					Editor::ActionModifier::AddToSelection ) );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -2152,7 +2149,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			m_pPatternEditorPanel->addOrRemoveNotes(
 				nColumn, nRow, nKey, nOctave, /* bAdd */true, /* bDelete */ true,
 				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
-				Editor::Action::Playback, sUndoContext );
+				Editor::ActionModifier::Playback, sUndoContext );
 			nLastRow = nRow;
 			nLastColumn = nColumn;
 			nLastKey = nKey;
@@ -2648,13 +2645,13 @@ void PatternEditor::alignToGrid() {
 						 /* bIsDelete */ true,
 						 bNoteOff,
 						 bIsMappedToDrumkit,
-						 Editor::Action::None ) );
+						 Editor::ActionModifier::None ) );
 
-		auto action = Editor::Action::None;
+		auto modifier = Editor::ActionModifier::None;
 		if ( m_elementsHoveredForPopup.size() > 0 ) {
 			for ( const auto& ppHoveredNote : m_elementsHoveredForPopup ) {
 				if ( ppNote == ppHoveredNote ) {
-					action = Editor::Action::MoveCursorTo;
+					modifier = Editor::ActionModifier::MoveCursorTo;
 					break;
 				}
 			}
@@ -2676,7 +2673,7 @@ void PatternEditor::alignToGrid() {
 						 /* bIsDelete */ false,
 						 bNoteOff,
 						 bIsMappedToDrumkit,
-						 action ) );
+						 modifier ) );
 	}
 
 	pHydrogenApp->endUndoMacro();

@@ -492,7 +492,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// Key: Enter / Return: add or remove elements at current
 				// position
 				m_selection.clearSelection();
-				handleElements( ev, Editor::Action::ToggleElements );
+				handleElements( ev, Editor::Action::Toggle );
 			}
 			else if ( ev->key() == Qt::Key_Delete ) {
 				// Key: Delete / Backspace: delete selected elements or those
@@ -501,7 +501,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 					deleteSelection();
 				}
 				else {
-					handleElements( ev, Editor::Action::DeleteElements );
+					handleElements( ev, Editor::Action::Delete );
 				}
 			}
 			else {
@@ -688,7 +688,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 				// Check whether an existing element or an empty grid cell was
 				// clicked.
-				handleElements( ev, Editor::Action::ToggleElements );
+				handleElements( ev, Editor::Action::Toggle );
 
 				m_selection.clearSelection();
 				updateMouseHoveredElements( ev );

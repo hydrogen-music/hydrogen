@@ -119,9 +119,9 @@ void SongEditor::addOrRemovePatternCellAction( const QPoint& point,
 	const bool bGridPointActive = pSong->isPatternActive(
 		gridPoint.x(), gridPoint.y() );
 
-	if ( ( action == Editor::Action::ToggleElements ) ||
-		 ( ( action == Editor::Action::AddElements ) && ! bGridPointActive ) ||
-		 ( ( action == Editor::Action::DeleteElements ) && bGridPointActive ) ) {
+	if ( ( action == Editor::Action::Toggle ) ||
+		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
+		 ( ( action == Editor::Action::Delete ) && bGridPointActive ) ) {
 		CoreActionController::toggleGridCell( gridPoint.x(), gridPoint.y() );
 	}
 }
@@ -821,7 +821,7 @@ void SongEditor::deleteElements( std::vector<QPoint> points ) {
 	for ( const auto& ppoint : points ) {
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemovePatternCellAction(
-				ppoint, Editor::Action::DeleteElements ) );
+				ppoint, Editor::Action::Delete ) );
 	}
 	pHydrogenApp->endUndoMacro();
 }

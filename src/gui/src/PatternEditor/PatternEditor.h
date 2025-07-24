@@ -107,7 +107,7 @@ public:
 										   bool bIsDelete,
 										   bool bIsNoteOff,
 										   bool bIsMappedToDrumkit,
-										   Editor::Action action );
+										   Editor::ActionModifier modifier );
 
 		//! Deselect some notes, and "overwrite" some others.
 		void deselectAndOverwriteNotes(

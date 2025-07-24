@@ -94,60 +94,71 @@ namespace Editor {
 		}
 	}
 
+	/** Main action performed when interacting with elements. */
 	enum class Action {
+		/** Add a new element */
+		Add,
+		/** Deletes an existing element */
+		Delete,
+		/** If an elements exists, delete it. If not, create a new one. */
+		Toggle
+	};
+	static Action undoAction( Action action ) {
+		switch( action ) {
+			case Action::Add:
+				return Action::Delete;
+			case Action::Delete:
+				return Action::Add;
+			case Action::Toggle:
+				return Action::Toggle;
+			default:
+				___ERRORLOG( "Unknown action" );
+				return action;
+		}
+	};
+	static QString actionToQString( const Action& action ) {
+		switch( action ) {
+			case Action::Add:
+				return "Delete";
+			case Action::Delete:
+				return "Add";
+			case Action::Toggle:
+				return "Toggle";
+			default:
+				return "Unknown action";
+		}
+	};
+
+	/** Additional action, which can be performed in combination with
+	 * #Action. */
+	enum class ActionModifier {
 		None = 0x000,
 		/** Add the new note to the current selection. */
 		AddToSelection = 0x001,
 		/** Move cursor to focus newly added note. */
 		MoveCursorTo = 0x002,
 		/** Play back the new note in case hear notes is enabled. */
-		Playback = 0x004,
-		/** Add a new element */
-		AddElements = 0x008,
-		/** Deletes an existing elements */
-		DeleteElements = 0x010,
-		/** If an elements exists, delete it. If not, create a new one. */
-		ToggleElements = 0x020
+		Playback = 0x004
 	};
-	static Action undoAction( Action action ) {
-		if ( action == Action::AddElements ) {
-			return Action::DeleteElements;
+	static QString actionModifierToQString( const ActionModifier& modifier ) {
+		QStringList strings;
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::None) ) {
+			strings << "None";
 		}
-		else if ( action == Action::DeleteElements ) {
-			return Action::AddElements;
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::AddToSelection) ) {
+			strings << "AddToSelection";
 		}
-		return action;
-	};
-	static QString actionToQString( const Action& action ) {
-		QStringList actions;
-		if ( static_cast<char>(action) & static_cast<char>(Action::None) ) {
-			actions << "None";
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::MoveCursorTo) ) {
+			strings << "MoveCursorTo";
 		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::AddToSelection) ) {
-			actions << "AddToSelection";
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::Playback) ) {
+			strings << "Playback";
 		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::MoveCursorTo) ) {
-			actions << "MoveCursorTo";
-		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::Playback) ) {
-			actions << "Playback";
-		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::AddElements) ) {
-			actions << "AddElements";
-		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::DeleteElements) ) {
-			actions << "DeleteElements";
-		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::ToggleElements) ) {
-			actions << "ToggleElements";
-		}
-		return actions.join( ", " );
+		return strings.join( ", " );
 	}
 
 	/** Symbolic step sizes employed on keyboard interactions. */

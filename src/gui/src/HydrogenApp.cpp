@@ -1198,7 +1198,7 @@ void HydrogenApp::onEventQueueTimer()
 								 /*isDelete*/ true,
 								 /*isNoteOff*/ false,
 								 pOldNote->getInstrument() != nullptr,
-								 Editor::Action::None ) );
+								 Editor::ActionModifier::None ) );
 		}
 		
 		// add the new note
@@ -1217,7 +1217,7 @@ void HydrogenApp::onEventQueueTimer()
 							 /*isDelete*/ false,
 							 /*isNoteOff*/ false,
 							 row.bMappedToDrumkit,
-							 Editor::Action::Playback ) );
+							 Editor::ActionModifier::Playback ) );
 		endUndoMacro();
 
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );

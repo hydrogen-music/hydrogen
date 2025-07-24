@@ -253,7 +253,8 @@ class PatternEditorPanel : public QWidget,
 		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
 							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
 							   bool bDoDelete = true, bool bIsNoteOff = false,
-							   Editor::Action action = Editor::Action::None,
+							   Editor::ActionModifier modifier =
+							   Editor::ActionModifier::None,
 							   const QString& sUndoContext = "" );
 
 		/**
