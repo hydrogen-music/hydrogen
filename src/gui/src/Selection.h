@@ -59,9 +59,6 @@ public:
 	//! a single point such as a mouse click. This should concern itself only with the geometry.
 	virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) = 0;
 
-	//! Can elements be dragged as well as being selected? This may change to suit widget's current state.
-	virtual bool canDragElements() { return true; }
-
 		virtual bool canMoveElements() const { return true; }
 
 	//! Calculate screen space occupied by keyboard cursor
@@ -628,7 +625,7 @@ public:
 						pClickEv->position().toPoint();
 					m_pWidget->startMouseMove( ev );
 				}
-			} else if ( bHitAny && m_pWidget->canDragElements() ) {
+			} else if ( bHitAny ) {
 				// Allow mouseDrawStartEvent to handle anything
 
 			} else {
