@@ -131,6 +131,14 @@ class SongEditor : public Editor::Base<QPoint>
 
 		void selectAll() override;
 
+		void setupPopupMenu() override {};
+
+		bool updateMouseHoveredElements( QMouseEvent* pEvent ) override;
+
+		Editor::Input getInput() const override {
+			return Editor::Input::Select;
+		}
+
 		void updateAllComponents( bool bContentOnly ) override;
 		void updateVisibleComponents( bool bContentOnly ) override;
 		bool updateWidth() override;
@@ -208,6 +216,12 @@ class SongEditor : public Editor::Base<QPoint>
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
+
+		/** There should be at most one grid cell hovered in the SongEditor. But
+		 * by making this member a std::vector we can both deal with no element
+		 * hovered neatly as well as keep the code similar to the one in
+		 * #PatternEditor. */
+		std::vector<QPoint> m_hoveredCells;
 
 	/** Cached position of the playhead.*/
 	float m_fTick;

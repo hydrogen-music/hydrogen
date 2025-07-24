@@ -58,8 +58,9 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 	connect( m_pScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 this, SLOT( scrolled( int ) ) );
 
-	setAttribute(Qt::WA_OpaquePaintEvent);
-	setFocusPolicy (Qt::StrongFocus);
+	setAttribute( Qt::WA_OpaquePaintEvent );
+	setFocusPolicy( Qt::StrongFocus );
+	setMouseTracking( true );
 
 	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nGridHeight = pPref->getSongEditorGridHeight();
@@ -776,6 +777,54 @@ std::vector<QPoint> SongEditor::getElementsAtPoint( const QPoint& point,
 	return std::move( vec );
 }
 
+bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
+	// Check whether the mouse pointer is Outside of the current widget.
+	const QPoint globalPos = QCursor::pos();
+	const QPoint widgetPos = mapFromGlobal( globalPos );
+	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
+		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
+		if ( m_hoveredCells.size() > 0 ) {
+			m_hoveredCells.clear();
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	if ( pEvent == nullptr ) {
+		// The update was triggered outside of one of Qt's mouse events. We have
+		// to create an artifical one instead.
+		pEvent = new QMouseEvent(
+			QEvent::MouseButtonRelease, widgetPos, globalPos, Qt::LeftButton,
+			Qt::LeftButton, Qt::NoModifier );
+	}
+	const auto pEv = static_cast<MouseEvent*>( pEvent );
+
+	const auto hoveredCells = getElementsAtPoint( pEv->position().toPoint(), 0 );
+	if ( hoveredCells.size() == m_hoveredCells.size() ) {
+		bool bIdentical = true;
+		for ( int ii = 0; ii < hoveredCells.size(); ++ii ) {
+			if ( hoveredCells[ ii ] != m_hoveredCells[ ii ] ) {
+				bIdentical = false;
+				break;
+			}
+		}
+
+		if ( bIdentical ) {
+			return false;
+		}
+	}
+
+	// The current and the last hovered elments differ
+	m_hoveredCells.clear();
+	for ( auto& ppoint : hoveredCells ) {
+		m_hoveredCells.push_back( ppoint );
+	}
+
+	return true;
+}
+
 void SongEditor::updateAllComponents( bool bContentOnly ) {
 	updateVisibleComponents( bContentOnly );
 }
@@ -949,8 +998,38 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 
 	const auto pPref = Preferences::get_instance();
 
+	QColor hoverColor;
+	QColor selectionColor = pPref->getTheme().m_color.m_selectionHighlightColor;
+	int nFactor = 100;
+	// if ( noteStyle & NoteStyle::Selected && noteStyle & NoteStyle::Hovered ) {
+	// 	nFactor = 107;
+	// }
+	// else if ( noteStyle & NoteStyle::Hovered ) {
+		nFactor = 125;
+//}
+
+	//if ( noteStyle & NoteStyle::Hovered ) {
+		// Depending on the highlight color, we make it either darker or
+		// lighter.
+		if ( Skin::moreBlackThanWhite( selectionColor ) ) {
+			hoverColor = selectionColor.lighter( nFactor );
+		} else {
+			hoverColor = selectionColor.darker( nFactor );
+		}
+	//}
+
 	QPainter painter(this);
 	painter.drawPixmap( ev->rect(), *m_pContentPixmap, ev->rect() );
+
+	// Draw hovered cells
+	for ( const auto& ppoint : m_hoveredCells ) {
+		QPen p( hoverColor );
+		painter.setPen( p );
+		const int nWidth = m_gridCells[ ppoint ].m_fWidth * m_nGridWidth;
+		const QRect r = QRect( columnRowToXy( ppoint ),
+						 QSize( nWidth, m_nGridHeight ) );
+		painter.drawRect( r );
+	}
 
 	// Draw moving selected cells
 	QColor patternColor( 0, 0, 0 );
