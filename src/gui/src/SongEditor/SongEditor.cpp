@@ -106,7 +106,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 SongEditor::~SongEditor() {
 }
 
-void SongEditor::addOrRemovePatternCellAction( const QPoint& point,
+void SongEditor::addOrRemovePatternCellAction( const QPoint& gridPoint,
 											   Editor::Action action ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -114,8 +114,11 @@ void SongEditor::addOrRemovePatternCellAction( const QPoint& point,
 		return;
 	}
 
-	const QPoint gridPoint = HydrogenApp::get_instance()->getSongEditorPanel()
-		->getSongEditor()->xyToColumnRow( point );
+	if ( gridPoint.x() < 0 || gridPoint.y() >= pSong->getPatternList()->size() ||
+		 gridPoint.y() < 0 ) {
+		return;
+	}
+
 	const bool bGridPointActive = pSong->isPatternActive(
 		gridPoint.x(), gridPoint.y() );
 
@@ -693,35 +696,6 @@ void SongEditor::focusOutEvent( QFocusEvent *ev )
 	}
 }
 
-void SongEditor::updateModifiers( QInputEvent *ev )
-{
-	if ( ev->modifiers() == Qt::ControlModifier ) {
-		m_bCopyNotMove = true;
-	} else {
-		m_bCopyNotMove = false;
-	}
-
-	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
-		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
-		// so explicitly update these.
-		if ( pEv->key() == Qt::Key_Control ) {
-			m_bCopyNotMove = ( ev->type() == QEvent::KeyPress );
-		}
-	}
-
-	if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
-		// If a selection is currently being moved, change the cursor
-		// appropriately. Selection will change it back after the move
-		// is complete (or abandoned)
-		if ( m_bCopyNotMove &&  cursor().shape() != Qt::DragCopyCursor ) {
-			setCursor( QCursor( Qt::DragCopyCursor ) );
-		} else if ( !m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
-			setCursor( QCursor( Qt::DragMoveCursor ) );
-		}
-	}
-
-}
-
 void SongEditor::handleElements( QInputEvent* pEvent, Editor::Action action ) {
 
 	// Retrieve the coordinates
@@ -825,6 +799,83 @@ bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 	return true;
 }
 
+void SongEditor::mouseDrawStart( QMouseEvent* pEvent ) {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+	m_drawPreviousPosition = pEv->position();
+}
+
+void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
+	const auto end = pEv->position();
+
+	// Check whether we are still at the same grid point as in the last update.
+	// We do not want to toggle the same note twice.
+	const QPoint endGridPoint = xyToColumnRow( end.toPoint() );
+	if ( endGridPoint.y() == m_nDrawPreviousColumn &&
+		 endGridPoint.x() == m_nDrawPreviousRow ) {
+		m_drawPreviousPosition = end;
+		return;
+	}
+
+	// Toggle all cells between this and the previous position in individual
+	// undo/redo actions bundled into a single undo macro.
+
+	const auto start = m_drawPreviousPosition;
+	const auto sUndoContext =
+		QString( "%1::draw" ).arg( Editor::instanceToQString( m_instance ) );
+
+	// We assume the cursor path was a straight line between both points
+	// ( y = fM * x + fN ).
+	double fM;
+	if ( end.x() != start.x() ) {
+		fM = std::min( std::abs( ( end.y() - start.y() ) /
+								 ( end.x() - start.x() ) ),
+					   static_cast<double>(m_nGridHeight) / 2 );
+	} else {
+		fM = static_cast<double>(m_nGridHeight) / 2;
+	}
+
+	// Since we have to properly handle all hovered notes (already present) we
+	// have to assume the smallest possible resolution: grid on the x axis being
+	// turned off. We will project this smallest increment onto the straight
+	// line while ensuring we do not miss rows on almost vertical movements to
+	// get our increment.
+	const QPointF increment( start.x() <= end.x() ? 1 : -1,
+							 start.y() <= end.y() ? fM : ( -1 * fM ) );
+
+	int nLastColumn = m_nDrawPreviousColumn;
+	int nLastRow = m_nDrawPreviousRow;
+	// Since we can only toggle notes on the grid, we use the projection of the
+	// movement on the x axis to drive the loop. This ensures that we are always
+	// on grid.
+	for ( auto ppoint = start; ( ppoint - start ).manhattanLength() <=
+			  ( end - start ).manhattanLength(); ppoint += increment ) {
+		// We prioritize existing notes
+		const QPoint gridPoint = xyToColumnRow( ppoint.toPoint() );
+		if ( gridPoint.x() != nLastRow || gridPoint.y() != nLastColumn ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					gridPoint, Editor::Action::Toggle ), sUndoContext );
+			nLastRow = gridPoint.x();
+			nLastColumn = gridPoint.y();
+		}
+	}
+
+	m_drawPreviousPosition = end;
+	m_nDrawPreviousColumn = nLastColumn;
+	m_nDrawPreviousRow = nLastRow;
+}
+
+void SongEditor::mouseDrawEnd() {
+	HydrogenApp::get_instance()->endUndoContext();
+
+	m_drawPreviousPosition = QPointF( 0, 0 );
+	m_nDrawPreviousColumn = -1;
+	m_nDrawPreviousRow = -1;
+}
+
 void SongEditor::updateAllComponents( bool bContentOnly ) {
 	updateVisibleComponents( bContentOnly );
 }
@@ -859,19 +910,6 @@ bool SongEditor::updateWidth() {
 	}
 
 	return false;
-}
-
-void SongEditor::mouseDrawStartEvent( QMouseEvent *ev )
-{
-}
-
-void SongEditor::mouseDrawUpdateEvent( QMouseEvent *ev )
-{
-}
-
-void SongEditor::mouseDrawEndEvent( QMouseEvent *ev )
-{
-	unsetCursor();
 }
 
 void SongEditor::selectionMoveEndEvent( QInputEvent *ev )

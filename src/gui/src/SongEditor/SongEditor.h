@@ -107,15 +107,9 @@ class SongEditor : public Editor::Base<QPoint>
 		virtual QRect getKeyboardCursorRect() override;
 		virtual void validateSelection() override {};
 		virtual void updateWidget() override;
-		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
-		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override;
-		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDrawEndEvent( QMouseEvent *ev ) override;
+		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
+			return 0; };
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-		virtual void updateModifiers( QInputEvent *ev );
-		virtual bool canDragElements() override {
-			return false;
-		}
 		//! @}
 
 		//! @name Editor::Base interfaces
@@ -138,6 +132,14 @@ class SongEditor : public Editor::Base<QPoint>
 		Editor::Input getInput() const override {
 			return Editor::Input::Select;
 		}
+
+		void mouseDrawStart( QMouseEvent* pEvent ) override;
+		void mouseDrawUpdate( QMouseEvent* pEvent ) override;
+		void mouseDrawEnd() override;
+
+		void mouseEditStart( QMouseEvent* pEvent ) override {};
+		void mouseEditUpdate( QMouseEvent* pEvent ) override {};
+		void mouseEditEnd() override {};
 
 		void updateAllComponents( bool bContentOnly ) override;
 		void updateVisibleComponents( bool bContentOnly ) override;
@@ -222,6 +224,10 @@ class SongEditor : public Editor::Base<QPoint>
 		 * hovered neatly as well as keep the code similar to the one in
 		 * #PatternEditor. */
 		std::vector<QPoint> m_hoveredCells;
+
+		QPointF m_drawPreviousPosition;
+		int m_nDrawPreviousColumn;
+		int m_nDrawPreviousRow;
 
 	/** Cached position of the playhead.*/
 	float m_fTick;
