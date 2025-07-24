@@ -47,7 +47,6 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 	: Editor::Base<Elem>( parent )
 	, m_pScrollView( pScrollView )
 	, m_pSongEditorPanel( pSongEditorPanel )
-	, m_selection( this )
 {
 	m_instance = Editor::Instance::SongEditor;
 	m_type = Editor::Type::Grid;
@@ -693,72 +692,6 @@ void SongEditor::focusOutEvent( QFocusEvent *ev )
 	}
 }
 
-
-// Implement comparison between QPoints needed for std::set
-int operator<( QPoint a, QPoint b ) {
-	int nAx = a.x(), nBx = b.x();
-	if ( nAx != nBx ) {
-		return nAx < nBx;
-	} else {
-		int nAy = a.y(), nBy = b.y();
-		return nAy < nBy;
-	}
-}
-
-void SongEditor::mousePressEvent( QMouseEvent *ev )
-{
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	updateModifiers( ev );
-	m_currentMousePosition = pEv->position().toPoint();
-
-	// Update keyboard cursor position
-	QPoint p = xyToColumnRow( pEv->position().toPoint() );
-	m_nCursorColumn = p.x();
-	m_nCursorRow = p.y();
-
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	
-	pHydrogenApp->setHideKeyboardCursor( true );
-
-	if ( pHydrogen->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
-		m_selection.mousePressEvent( ev );
-		if ( ! pHydrogenApp->hideKeyboardCursor() ) {
-			pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
-			pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-			update();
-		}
-
-	}
-	else {
-		if ( ev->button() == Qt::LeftButton ) {
-			// Start of a drawing gesture. Pick up whether we are painting Active or Inactive cells.
-			QPoint p = xyToColumnRow( pEv->position().toPoint() );
-			m_bDrawingActiveCell = pSong->isPatternActive( p.x(), p.y() );
-			setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
-
-		} else if ( ev->button() == Qt::RightButton ) {
-			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
-		}
-	}
-
-	// Cursor just got hidden.
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
-		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-		update();
-	}
-
-	updateEditor( true );
-}
-
-
 void SongEditor::updateModifiers( QInputEvent *ev )
 {
 	if ( ev->modifiers() == Qt::ControlModifier ) {
@@ -844,10 +777,13 @@ std::vector<QPoint> SongEditor::getElementsAtPoint( const QPoint& point,
 }
 
 void SongEditor::updateAllComponents( bool bContentOnly ) {
-	updateEditor( bContentOnly );
+	updateVisibleComponents( bContentOnly );
 }
 
 void SongEditor::updateVisibleComponents( bool bContentOnly ) {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
+	pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
 	updateEditor( bContentOnly );
 }
 
@@ -874,53 +810,6 @@ bool SongEditor::updateWidth() {
 	}
 
 	return false;
-}
-
-void SongEditor::mouseMoveEvent(QMouseEvent *ev)
-{
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pSong = Hydrogen::get_instance()->getSong();
-	updateModifiers( ev );
-	m_currentMousePosition = pEv->position().toPoint();
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-
-	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
-		m_selection.mouseMoveEvent( ev );
-	} else {
-		if ( pEv->position().x() < SongEditor::nMargin ) {
-			return;
-		}
-
-		QPoint p = xyToColumnRow( pEv->position().toPoint() );
-		if ( m_nCursorColumn == p.x() && m_nCursorRow == p.y() ) {
-			// Cursor has not entered a different cell yet.
-			return;
-		}
-		m_nCursorColumn = p.x();
-		m_nCursorRow = p.y();
-		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
-
-		if ( m_nCursorRow >= pSong->getPatternList()->size() ) {
-			// We are below the bottom of the pattern list.
-			return;
-		}
-
-		// Drawing mode: continue drawing over other cells
-		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
-	}
-
-	// Cursor just got hidden.
-	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-		pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
-		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-		update();
-	}
-
-	if ( m_selection.isMoving() || m_selection.isLasso() ) {
-		updateEditor( true );
-	}
 }
 
 void SongEditor::mouseDrawStartEvent( QMouseEvent *ev )
@@ -979,40 +868,6 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 			(m_bCopyNotMove ? pCommonStrings->getActionCopyPatternCells()
 			 : pCommonStrings->getActionMovePatternCells() ) ) );
 }
-
-
-void SongEditor::mouseClickEvent( QMouseEvent *ev )
-{
-	assert( Hydrogen::get_instance()->getActionMode() ==
-			H2Core::Song::ActionMode::selectMode );
-
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	if ( ev->button() == Qt::LeftButton ) {
-		QPoint p = xyToColumnRow( pEv->position().toPoint() );
-
-		m_selection.clearSelection();
-		togglePatternActive( p.x(), p.y() );
-		updateEditor( true );
-		if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
-			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-		}
-
-	} else if ( ev->button() == Qt::RightButton ) {
-		m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
-	}
-}
-
-void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
-{
-	if ( Hydrogen::get_instance()->getActionMode() ==
-		 H2Core::Song::ActionMode::selectMode ) {
-		m_selection.mouseReleaseEvent( ev );
-		return;
-	}
-}
-
 
 //! Modify pattern cells by first deleting some, then adding some.
 //! deleteCells and addCells *may* safely overlap

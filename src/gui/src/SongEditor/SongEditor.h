@@ -108,7 +108,6 @@ class SongEditor : public Editor::Base<QPoint>
 		virtual void validateSelection() override {};
 		virtual void updateWidget() override;
 		virtual int getCursorMargin( QInputEvent* pEvent ) const override { return 0; };
-		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) override;
 		virtual void mouseDrawEndEvent( QMouseEvent *ev ) override;
@@ -143,8 +142,6 @@ class SongEditor : public Editor::Base<QPoint>
 		void scrolled( int );
 
 	private:
-
-		Selection<QPoint> m_selection;
 
 		QScrollArea *			m_pScrollView;
 		SongEditorPanel *		m_pSongEditorPanel;
@@ -194,9 +191,6 @@ class SongEditor : public Editor::Base<QPoint>
 
 		//! @name System events
 		//! @{
-		virtual void mousePressEvent(QMouseEvent *ev) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-		virtual void mouseMoveEvent(QMouseEvent *ev) override;
 		virtual void keyPressEvent (QKeyEvent *ev) override;
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;

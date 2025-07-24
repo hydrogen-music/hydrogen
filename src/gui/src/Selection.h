@@ -910,4 +910,16 @@ public:
 
 };
 
+// Implement comparison between QPoints needed for std::set. This is required
+// for the #SongEditor version of the selection.
+inline int operator<( QPoint a, QPoint b ) {
+	int nAx = a.x(), nBx = b.x();
+	if ( nAx != nBx ) {
+		return nAx < nBx;
+	} else {
+		int nAy = a.y(), nBy = b.y();
+		return nAy < nBy;
+	}
+}
+
 #endif // SELECTION_H
