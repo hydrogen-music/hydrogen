@@ -211,13 +211,6 @@ class PatternEditorPanel : public QWidget,
 		int findRowDB( std::shared_ptr<H2Core::Note> pNote,
 					   bool bSilent = false ) const;
 		int getRowNumberDB() const;
-		/** Returns the instrument corresponding to the currently selected row
-		 * of the DB.
-		 *
-		 * In case this row is not associated with an instrument in the current
-		 * drumkit - only instrument type set - or no row was selected at all, a
-		 * nullptr is returned. */
-		std::shared_ptr<H2Core::Instrument> getSelectedInstrument() const;
 
 		/** Scrolls the viewport of the current editor until the selected row
 		 * (containingt the cursor, if shown) is visible. */

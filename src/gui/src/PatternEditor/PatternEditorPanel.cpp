@@ -1996,26 +1996,6 @@ int PatternEditorPanel::findRowDB( std::shared_ptr<Note> pNote,
 	return -1;
 }
 
-std::shared_ptr<H2Core::Instrument> PatternEditorPanel::getSelectedInstrument() const {
-	if ( m_nSelectedRowDB < 0 || m_nSelectedRowDB >= m_db.size() ) {
-		return nullptr;
-	}
-
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return nullptr;
-	}
-
-	auto row = m_db.at( m_nSelectedRowDB );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
-		// Row is associated with a type but not an instrument of the current
-		// kit.
-		return nullptr;
-	}
-
-	return pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
-}
-
 void PatternEditorPanel::updateDB() {
 	m_db.clear();
 
@@ -2298,6 +2278,11 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		return;
 	}
 
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
 	if ( nPosition >= m_pPattern->getLength() ) {
 		// Note would be beyond the active region of the current pattern.
 		return;
@@ -2341,10 +2326,10 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 			 row.bMappedToDrumkit &&
 			 ( static_cast<char>(modifier) &
 			   static_cast<char>(Editor::ActionModifier::Playback) ) ) {
-			auto pSelectedInstrument = getSelectedInstrument();
-			if ( pSelectedInstrument != nullptr &&
-				 pSelectedInstrument->hasSamples() ) {
-				auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
+			auto pInstrument = pSong->getDrumkit()->getInstruments()
+				->find( row.nInstrumentID );
+			if ( pInstrument != nullptr && pInstrument->hasSamples() ) {
+				auto pNote2 = std::make_shared<Note>( pInstrument );
 				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
 									  static_cast<Note::Octave>(nOctave) );
 				pNote2->setNoteOff( bIsNoteOff );
