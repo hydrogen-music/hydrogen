@@ -319,11 +319,16 @@ protected:
 		 * audio engine. */
 		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
 
+		enum class GridTarget {
+			QuantizedElement,
+			Element,
+			Grid
+		};
+
 		/** Function in the same vein as getColumn() but calculates both column
 		 * and row information from the provided event position. */
 		void eventPointToColumnRow( const QPoint& point, int* pColumn,
-									int* pRow, int* pRealColumn = nullptr,
-									bool bUseFineGrained = false ) const;
+									int* pRow, GridTarget gridTarget ) const;
 
 		//! Granularity of grid positioning (in ticks)
 		int granularity() const;

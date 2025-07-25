@@ -1011,10 +1011,9 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	int nRow, nColumn, nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
-						   &nRealColumn, /* fineGrained */true );
-
+	int nRow;
+	eventPointToColumnRow( pEv->position().toPoint(), nullptr, &nRow,
+						   GridTarget::Grid );
 
 	// Select the corresponding row
 	if ( m_instance == Editor::Instance::DrumPattern ) {
@@ -1185,15 +1184,14 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		}
 	}
 
-	int nRow, nRealColumn;
-	eventPointToColumnRow( point, nullptr, &nRow, &nRealColumn );
+	int nRow, nColumn;
+	eventPointToColumnRow( point, &nColumn, &nRow, GridTarget::Grid );
 
-	int nRealColumnLower, nRealColumnUpper;
+	int nColumnLower, nColumnUpper;
 	eventPointToColumnRow( point - QPoint( nCursorMargin, 0 ),
-						   nullptr, nullptr, &nRealColumnLower );
+						   &nColumnLower, nullptr, GridTarget::Grid );
 	eventPointToColumnRow( point + QPoint( nCursorMargin, 0 ),
-						   nullptr, nullptr, &nRealColumnUpper );
-
+						   &nColumnUpper, nullptr, GridTarget::Grid );
 
 	// Assemble all notes to be edited.
 	DrumPatternRow row;
@@ -1212,7 +1210,7 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	// Instead, we introduce a certain rectangle (manhattan distance) around the
 	// cursor which can select notes but only return those nearest to the
 	// center.
-	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
+	int nLastDistance = nColumnUpper - nColumn + 1;
 
 	// We have to ensure to only provide notes from a single position. In case
 	// the cursor is placed exactly in the middle of two notes, the left one
@@ -1220,14 +1218,14 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	int nLastPosition = -1;
 
 	const auto notes = pPattern->getNotes();
-	for ( auto it = notes->lower_bound( nRealColumnLower );
-		  it != notes->end() && it->first <= nRealColumnUpper; ++it ) {
+	for ( auto it = notes->lower_bound( nColumnLower );
+		  it != notes->end() && it->first <= nColumnUpper; ++it ) {
 		const auto ppNote = it->second;
 		if ( ppNote != nullptr && row.contains( ppNote ) &&
 			 ppNote->getPosition() < pPattern->getLength() ) {
 
 			const int nDistance =
-				std::abs( ppNote->getPosition() - nRealColumn );
+				std::abs( ppNote->getPosition() - nColumn );
 
 			if ( nDistance < nLastDistance ) {
 				// This note is nearer than (potential) previous ones.
@@ -1296,7 +1294,7 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		}
 
 		for ( const auto& ppNote : furtherNotes ) {
-			const int nDistance = std::abs( ppNote->getPosition() - nRealColumn );
+			const int nDistance = std::abs( ppNote->getPosition() - nColumn );
 
 			if ( nDistance < nLastDistance ) {
 				// This note is nearer than (potential) previous ones.
@@ -1498,7 +1496,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 	auto pMouseEvent = dynamic_cast<QMouseEvent*>(ev);
 	if ( pMouseEvent != nullptr ) {
 		int nRow;
-		eventPointToColumnRow( pMouseEvent->pos(), nullptr, &nRow, nullptr );
+		eventPointToColumnRow( pMouseEvent->pos(), nullptr, &nRow,
+							   GridTarget::Grid );
 
 		if ( m_instance == Editor::Instance::DrumPattern ) {
 			m_pPatternEditorPanel->setSelectedRowDB( nRow );
@@ -1574,11 +1573,6 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 		// Element added via mouse.
 		auto pEv = static_cast<MouseEvent*>( ev );
 
-		int nCoarseColumn, nRealColumn;
-		eventPointToColumnRow( pEv->position().toPoint(), &nCoarseColumn, &nRow,
-							   &nRealColumn, /* fineGrained */true );
-		nColumn = m_pPatternEditorPanel->isQuantized() ?
-			nCoarseColumn : nRealColumn;
 		// If there are already notes at the provided point, delete them.
 		auto notesAtPoint = getElementsAtPoint(
 			pEv->position().toPoint(), getCursorMargin( ev ) );
@@ -1588,6 +1582,10 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 		}
 
 		// Nothing found at point. Add a new note.
+		const auto granularity = m_pPatternEditorPanel->isQuantized() ?
+			GridTarget::Element : GridTarget::Grid;
+		eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
+							   granularity );
 	}
 	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
 		nColumn = m_pPatternEditorPanel->getCursorColumn();
@@ -1922,16 +1920,13 @@ void PatternEditor::setCursorTo( std::shared_ptr<H2Core::Note> pNote ) {
 void PatternEditor::setCursorTo( QMouseEvent* ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	int nRow, nColumn, nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
-						   &nRealColumn, /* fineGrained */true );
+	const auto granularity = m_pPatternEditorPanel->isQuantized() ?
+		GridTarget::Element : GridTarget::Grid;
+	int nColumn;
+	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
+						   granularity );
 
-	// For pasting we can not rely on the position of preexising notes.
-	if ( m_pPatternEditorPanel->isQuantized() ) {
-		m_pPatternEditorPanel->setCursorColumn( nColumn );
-	} else {
-		m_pPatternEditorPanel->setCursorColumn( nRealColumn );
-	}
+	m_pPatternEditorPanel->setCursorColumn( nColumn );
 }
 
 void PatternEditor::setupPopupMenu() {
@@ -1998,18 +1993,18 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 	const auto pEv = static_cast<MouseEvent*>( ev );
 	const int nCursorMargin = getCursorMargin( ev );
 
-	int nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), nullptr, nullptr,
-						   &nRealColumn );
-	int nRealColumnUpper;
+	int nColumn;
+	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
+						   GridTarget::Grid );
+	int nColumnUpper;
 	eventPointToColumnRow(
-		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), nullptr,
-		nullptr, &nRealColumnUpper );
+		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), &nColumnUpper,
+		nullptr, GridTarget::Grid );
 
 	// getElementsAtPoint is generous in finding notes by taking a margin around
 	// the cursor into account as well. We have to ensure we only use to closest
 	// notes reported.
-	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
+	int nLastDistance = nColumnUpper - nColumn + 1;
 
 	// In addition, we have to ensure to only provide notes from a single
 	// position. In case the cursor is placed exactly in the middle of two
@@ -2028,7 +2023,7 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 				pEv->position().toPoint(), nCursorMargin, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
 				const int nDistance =
-					std::abs( hoveredNotes[ 0 ]->getPosition() - nRealColumn );
+					std::abs( hoveredNotes[ 0 ]->getPosition() - nColumn );
 				if ( nDistance < nLastDistance ) {
 					// This batch of notes is nearer than (potential) previous ones.
 					hovered.clear();
@@ -2090,7 +2085,8 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 		}
 		else {
 			// Determine the point on the grid to toggle the note
-			eventPointToColumnRow( point, nColumn, nRow, nullptr, false );
+			eventPointToColumnRow( point, nColumn, nRow,
+								   GridTarget::QuantizedElement );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
 				*nKey = KEY_MIN;
 				*nOctave = OCTAVE_DEFAULT;
@@ -2250,9 +2246,12 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	int nColumn, nRealColumn;
+
+	const auto granularity = m_pPatternEditorPanel->isQuantized() ?
+		GridTarget::QuantizedElement : GridTarget::Grid;
+	int nColumn;
 	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
-						   &nRealColumn );
+						   granularity );
 
 	// In case this is the first drag update, decided whether we deal with a
 	// length or property drag.
@@ -2274,10 +2273,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	const int nTargetColumn =
-		m_pPatternEditorPanel->isQuantized() ? nColumn : nRealColumn;
-
-	int nLen = nTargetColumn - m_nDragStartColumn;
+	int nLen = nColumn - m_nDragStartColumn;
 
 	if ( nLen <= 0 ) {
 		nLen = -1;
@@ -3757,8 +3753,8 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 }
 
 void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
-										   int* pRow, int* pRealColumn,
-										   bool bUseFineGrained ) const {
+										   int* pRow,
+										   GridTarget gridTarget ) const {
 	if ( pRow != nullptr ) {
 		*pRow = static_cast<int>(
 			std::floor( static_cast<float>(point.y()) /
@@ -3766,26 +3762,27 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 	}
 
 	if ( pColumn != nullptr ) {
-		int nGranularity = 1;
-		if ( ! ( bUseFineGrained &&
-				 ! m_pPatternEditorPanel->isQuantized() ) ) {
-			nGranularity = granularity();
-		}
-		const int nWidth = m_fGridWidth * nGranularity;
-		int nColumn = ( point.x() - PatternEditor::nMargin + (nWidth / 2) ) /
-			nWidth;
-		*pColumn = std::max( 0, nColumn * nGranularity );
-	}
-
-	if ( pRealColumn != nullptr ) {
-		if ( point.x() > PatternEditor::nMargin ) {
-			*pRealColumn = static_cast<int>(
-				std::floor( ( point.x() -
-							  static_cast<float>(PatternEditor::nMargin) ) /
-							static_cast<float>(m_fGridWidth) ) );
+		if ( point.x() <= PatternEditor::nMargin ) {
+			*pColumn = 0;
 		}
 		else {
-			*pRealColumn = 0;
+			if ( gridTarget == GridTarget::Grid ) {
+				*pColumn = static_cast<int>(
+					std::floor( ( point.x() -
+								  static_cast<float>(PatternEditor::nMargin) ) /
+								static_cast<float>(m_fGridWidth) ) );
+			}
+			else {
+				int nGranularity = 1;
+				if ( gridTarget == GridTarget::QuantizedElement ||
+					 m_pPatternEditorPanel->isQuantized() ) {
+					nGranularity = granularity();
+				}
+				const int nWidth = m_fGridWidth * nGranularity;
+				const int nColumn =
+					( point.x() - PatternEditor::nMargin + (nWidth / 2) ) / nWidth;
+				*pColumn = std::max( 0, nColumn * nGranularity );
+			}
 		}
 	}
 }
