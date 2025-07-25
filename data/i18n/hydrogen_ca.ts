@@ -4673,10 +4673,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit tempo marker</source>
         <translation type="unfinished"></translation>
     </message>

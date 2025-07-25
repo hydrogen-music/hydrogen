@@ -4704,10 +4704,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Mover ponto</translation>
     </message>
     <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation>Alternar Padrão ( %1, %2 )</translation>
-    </message>
-    <message>
         <source>Edit tempo marker</source>
         <translation>Editar marcador de andamento</translation>
     </message>

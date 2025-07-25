@@ -334,28 +334,6 @@ QPoint SongEditor::columnRowToXy( const QPoint& p ) const
 	return QPoint( SongEditor::nMargin + p.x() * m_nGridWidth, p.y() * m_nGridHeight );
 }
 
-
-void SongEditor::togglePatternActive( int nColumn, int nRow ) {
-	SE_togglePatternAction *action = new SE_togglePatternAction( nColumn, nRow );
-	HydrogenApp::get_instance()->pushUndoCommand( action );
-}
-
-void SongEditor::setPatternActive( int nColumn, int nRow, bool bActivate )
-{
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	bool bPatternIsActive = pSong->isPatternActive( nColumn, nRow );
-
-	if ( bPatternIsActive && ! bActivate || ! bPatternIsActive && bActivate ) {
-		pHydrogenApp->pushUndoCommand(
-			new SE_togglePatternAction( nColumn, nRow ) );
-	}
-}
-
-
 void SongEditor::selectAll() {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
@@ -1136,6 +1114,9 @@ void SongEditor::updateGridCells() {
 
 	m_gridCells.clear();
 	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	auto pPatternList = pSong->getPatternList();
 	auto pColumns = pSong->getPatternGroupVector();
 

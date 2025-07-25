@@ -4708,10 +4708,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Déplacer un point</translation>
     </message>
     <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation>Basculer le motif ( %1, %2 )</translation>
-    </message>
-    <message>
         <source>Edit tempo marker</source>
         <translation>Modifier le marqueur de tempo</translation>
     </message>

@@ -66,6 +66,14 @@ class SongEditor : public Editor::Base<QPoint>
 		};
 	
 	public:
+
+		static constexpr int nMargin = 10;
+		/** Default value of Preferences::m_nSongEditorGridHeight * 5
+		 * (patterns)*/
+		static constexpr int nMinimumHeight = 90;
+		static constexpr int nMinGridWidth = 8;
+		static constexpr int nMaxGridWidth = 16;
+
 		typedef QPoint Elem;
 
 		SongEditor( QWidget *parent, QScrollArea *pScrollView,
@@ -88,13 +96,6 @@ class SongEditor : public Editor::Base<QPoint>
 		void clearThePatternSequenceVector( const QString& filename );
 
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
-
-	static constexpr int nMargin = 10;
-		/** Default value of Preferences::m_nSongEditorGridHeight * 5
-		 * (patterns)*/
-		static constexpr int nMinimumHeight = 90;
-		static constexpr int nMinGridWidth = 8;
-		static constexpr int nMaxGridWidth = 16;
 
 		//! @name Selection interfaces
 		//! @{
@@ -161,16 +162,6 @@ class SongEditor : public Editor::Base<QPoint>
 
 		int 				m_nGridHeight;
 		int 				m_nGridWidth;
-		bool					m_bCopyNotMove;
-
-		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
-		//! set at the start of the draw gesture.
-		bool 					m_bDrawingActiveCell;
-
-		//! Pattern sequence or selection has changed, so must be redrawn.
-		bool 					m_bSequenceChanged;
-
-		QMenu *					m_pPopupMenu;
 
 		//! @name Position of the keyboard input cursor
 		//! @{
@@ -194,7 +185,6 @@ class SongEditor : public Editor::Base<QPoint>
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 
-    	void togglePatternActive( int nColumn, int nRow );
 		void setPatternActive( int nColumn, int nRow, bool bActivate );
 
 		void drawSequence();

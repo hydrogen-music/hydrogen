@@ -4706,10 +4706,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Mover punto</translation>
     </message>
     <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation>Conmutar Patrón ( %1, %2 )</translation>
-    </message>
-    <message>
         <source>Edit tempo marker</source>
         <translation>Editar marcador de tempo</translation>
     </message>

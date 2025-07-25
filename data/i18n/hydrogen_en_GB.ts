@@ -4656,10 +4656,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit tempo marker</source>
         <translation type="unfinished"></translation>
     </message>

@@ -63,26 +63,6 @@
 //=====================================================================================================================================
 //song editor commands
 /** \ingroup docGUI*/
-class SE_togglePatternAction : public QUndoCommand
-{
-public:
-	SE_togglePatternAction( int nColumn, int nRow ){
-		setText( QObject::tr( "Toggle Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-		m_nColumn = nColumn;
-		m_nRow = nRow;
-	}
-	virtual void undo() {
-		H2Core::CoreActionController::toggleGridCell( m_nColumn, m_nRow );
-	}
-	virtual void redo() {
-		H2Core::CoreActionController::toggleGridCell( m_nColumn, m_nRow );
-	}
-private:
-	int m_nColumn;
-	int m_nRow;
-};
-
-/** \ingroup docGUI*/
 class SE_movePatternListItemAction : public QUndoCommand
 {
 public:

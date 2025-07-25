@@ -4693,10 +4693,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Punkt verschieben</translation>
     </message>
     <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation>Pattern ( %1, %2 ) umschalten</translation>
-    </message>
-    <message>
         <source>Edit tempo marker</source>
         <translation>Tempo Marker ändern</translation>
     </message>

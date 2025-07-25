@@ -4675,10 +4675,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit tempo marker</source>
         <translation type="unfinished"></translation>
     </message>
