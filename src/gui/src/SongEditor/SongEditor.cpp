@@ -886,30 +886,31 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 }
 
 void SongEditor::updateWidget() {
-	// Only update the drawn sequence if necessary. This is only possible when the c
-	if ( m_selection.isMoving() ) {
-		QPoint currentGridOffset = movingGridOffset();
-		// Moving a selection never has to update the sequence (it's drawn on top of the sequence). Update
-		// is only ever needed when the move delta (in grid spaces) changes
-		if ( m_previousGridOffset != currentGridOffset ) {
-			update();
-			m_previousGridOffset = currentGridOffset;
-		}
-	} else if ( m_selection.isLasso() ) {
-		bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) !=
-			xyToColumnRow( m_currentMousePosition );
-		// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
-		// drawn when drawing the pattern.
-		if ( bCellBoundaryCrossed ) {
-			m_update = Editor::Update::Content;
-		}
-		update();
-	} else {
-		// Other reasons: force update
-		m_update = Editor::Update::Content;
-		update();
-	}
-	m_previousMousePosition = m_currentMousePosition;
+	// // Only update the drawn sequence if necessary. This is only possible when the c
+	// if ( m_selection.isMoving() ) {
+	// 	QPoint currentGridOffset = movingGridOffset();
+	// 	// Moving a selection never has to update the sequence (it's drawn on top of the sequence). Update
+	// 	// is only ever needed when the move delta (in grid spaces) changes
+	// 	if ( m_previousGridOffset != currentGridOffset ) {
+	// 		update();
+	// 		m_previousGridOffset = currentGridOffset;
+	// 	}
+	// } else if ( m_selection.isLasso() ) {
+	// 	bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) !=
+	// 		xyToColumnRow( m_currentMousePosition );
+	// 	// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
+	// 	// drawn when drawing the pattern.
+	// 	if ( bCellBoundaryCrossed ) {
+	// 		m_update = Editor::Update::Content;
+	// 	}
+	// 	update();
+	// } else {
+	// 	// Other reasons: force update
+	// 	m_update = Editor::Update::Content;
+	// 	update();
+	// }
+	// m_previousMousePosition = m_currentMousePosition;
+	updateEditor( true );
 }
 
 void SongEditor::updatePosition( float fTick ) {
