@@ -320,7 +320,6 @@ protected:
 		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
 
 		enum class GridTarget {
-			QuantizedElement,
 			Element,
 			Grid
 		};

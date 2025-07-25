@@ -2086,7 +2086,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 		else {
 			// Determine the point on the grid to toggle the note
 			eventPointToColumnRow( point, nColumn, nRow,
-								   GridTarget::QuantizedElement );
+								   GridTarget::Element );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
 				*nKey = KEY_MIN;
 				*nOctave = OCTAVE_DEFAULT;
@@ -2248,7 +2248,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	const auto granularity = m_pPatternEditorPanel->isQuantized() ?
-		GridTarget::QuantizedElement : GridTarget::Grid;
+		GridTarget::Element : GridTarget::Grid;
 	int nColumn;
 	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
 						   granularity );
@@ -3774,8 +3774,7 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 			}
 			else {
 				int nGranularity = 1;
-				if ( gridTarget == GridTarget::QuantizedElement ||
-					 m_pPatternEditorPanel->isQuantized() ) {
+				if ( m_pPatternEditorPanel->isQuantized() ) {
 					nGranularity = granularity();
 				}
 				const int nWidth = m_fGridWidth * nGranularity;
