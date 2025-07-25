@@ -619,7 +619,7 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 	// the last one into account.
 	int nColumn;
 	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
-						   GridTarget::Grid );
+						   false );
 	const auto row = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
 

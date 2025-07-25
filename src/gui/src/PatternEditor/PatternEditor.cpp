@@ -1012,8 +1012,7 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	int nRow;
-	eventPointToColumnRow( pEv->position().toPoint(), nullptr, &nRow,
-						   GridTarget::Grid );
+	eventPointToColumnRow( pEv->position().toPoint(), nullptr, &nRow, true );
 
 	// Select the corresponding row
 	if ( m_instance == Editor::Instance::DrumPattern ) {
@@ -1185,13 +1184,13 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	}
 
 	int nRow, nColumn;
-	eventPointToColumnRow( point, &nColumn, &nRow, GridTarget::Grid );
+	eventPointToColumnRow( point, &nColumn, &nRow, false );
 
 	int nColumnLower, nColumnUpper;
 	eventPointToColumnRow( point - QPoint( nCursorMargin, 0 ),
-						   &nColumnLower, nullptr, GridTarget::Grid );
+						   &nColumnLower, nullptr, false );
 	eventPointToColumnRow( point + QPoint( nCursorMargin, 0 ),
-						   &nColumnUpper, nullptr, GridTarget::Grid );
+						   &nColumnUpper, nullptr, false );
 
 	// Assemble all notes to be edited.
 	DrumPatternRow row;
@@ -1496,8 +1495,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 	auto pMouseEvent = dynamic_cast<QMouseEvent*>(ev);
 	if ( pMouseEvent != nullptr ) {
 		int nRow;
-		eventPointToColumnRow( pMouseEvent->pos(), nullptr, &nRow,
-							   GridTarget::Grid );
+		eventPointToColumnRow( pMouseEvent->pos(), nullptr, &nRow, true );
 
 		if ( m_instance == Editor::Instance::DrumPattern ) {
 			m_pPatternEditorPanel->setSelectedRowDB( nRow );
@@ -1582,10 +1580,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 		}
 
 		// Nothing found at point. Add a new note.
-		const auto granularity = m_pPatternEditorPanel->isQuantized() ?
-			GridTarget::Element : GridTarget::Grid;
-		eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
-							   granularity );
+		eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow, true );
 	}
 	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
 		nColumn = m_pPatternEditorPanel->getCursorColumn();
@@ -1920,11 +1915,8 @@ void PatternEditor::setCursorTo( std::shared_ptr<H2Core::Note> pNote ) {
 void PatternEditor::setCursorTo( QMouseEvent* ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	const auto granularity = m_pPatternEditorPanel->isQuantized() ?
-		GridTarget::Element : GridTarget::Grid;
 	int nColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
-						   granularity );
+	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr, true );
 
 	m_pPatternEditorPanel->setCursorColumn( nColumn );
 }
@@ -1994,12 +1986,11 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 	const int nCursorMargin = getCursorMargin( ev );
 
 	int nColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
-						   GridTarget::Grid );
+	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr, false );
 	int nColumnUpper;
 	eventPointToColumnRow(
 		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), &nColumnUpper,
-		nullptr, GridTarget::Grid );
+		nullptr, false );
 
 	// getElementsAtPoint is generous in finding notes by taking a margin around
 	// the cursor into account as well. We have to ensure we only use to closest
@@ -2085,8 +2076,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 		}
 		else {
 			// Determine the point on the grid to toggle the note
-			eventPointToColumnRow( point, nColumn, nRow,
-								   GridTarget::Element );
+			eventPointToColumnRow( point, nColumn, nRow, true );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
 				*nKey = KEY_MIN;
 				*nOctave = OCTAVE_DEFAULT;
@@ -2247,11 +2237,8 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 
-	const auto granularity = m_pPatternEditorPanel->isQuantized() ?
-		GridTarget::Element : GridTarget::Grid;
 	int nColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
-						   granularity );
+	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr, true );
 
 	// In case this is the first drag update, decided whether we deal with a
 	// length or property drag.
@@ -3753,8 +3740,7 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 }
 
 void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
-										   int* pRow,
-										   GridTarget gridTarget ) const {
+										   int* pRow, bool bHonorQuantization ) const {
 	if ( pRow != nullptr ) {
 		*pRow = static_cast<int>(
 			std::floor( static_cast<float>(point.y()) /
@@ -3766,22 +3752,18 @@ void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
 			*pColumn = 0;
 		}
 		else {
-			if ( gridTarget == GridTarget::Grid ) {
-				*pColumn = static_cast<int>(
-					std::floor( ( point.x() -
-								  static_cast<float>(PatternEditor::nMargin) ) /
-								static_cast<float>(m_fGridWidth) ) );
+			int nGranularity = 1;
+			if ( bHonorQuantization && m_pPatternEditorPanel->isQuantized() ) {
+				nGranularity = granularity();
 			}
-			else {
-				int nGranularity = 1;
-				if ( m_pPatternEditorPanel->isQuantized() ) {
-					nGranularity = granularity();
-				}
-				const int nWidth = m_fGridWidth * nGranularity;
-				const int nColumn =
-					( point.x() - PatternEditor::nMargin + (nWidth / 2) ) / nWidth;
-				*pColumn = std::max( 0, nColumn * nGranularity );
-			}
+			const int nWidth = m_fGridWidth * nGranularity;
+			// We add half the distance between two grid points (nWidth/2)
+			// in order for point.x() to be "rounded" to the nearest grid
+			// point.
+			const int nColumn = std::round(
+				( point.x() - PatternEditor::nMargin + (nWidth / 2) ) /
+				nWidth ) * nGranularity ;
+			*pColumn = std::max( 0, nColumn );
 		}
 	}
 }
