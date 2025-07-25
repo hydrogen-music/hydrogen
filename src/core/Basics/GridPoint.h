@@ -67,6 +67,10 @@ class GridPoint {
 			return m_nRow == other.m_nRow && m_nColumn == other.m_nColumn;
 		}
 
+		bool operator!=( const GridPoint& other ) {
+			return m_nRow != other.m_nRow || m_nColumn != other.m_nColumn;
+		}
+
 		QString toQString() const {
 			return QString( "[ column: %1, row: %2 ]" )
 				.arg( m_nColumn ).arg( m_nRow );
