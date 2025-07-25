@@ -54,8 +54,6 @@ class PatternEditorRuler;
 class PatternEditorSidebar;
 class PianoRollEditor;
 
-enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
-
 /** Properties of a single row in #DrumPatternEditor.
  *
  * It is used to correlate an instrument ID and instrument type with a row in
