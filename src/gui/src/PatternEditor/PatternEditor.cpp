@@ -1579,6 +1579,15 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 							   &nRealColumn, /* fineGrained */true );
 		nColumn = m_pPatternEditorPanel->isQuantized() ?
 			nCoarseColumn : nRealColumn;
+		// If there are already notes at the provided point, delete them.
+		auto notesAtPoint = getElementsAtPoint(
+			pEv->position().toPoint(), getCursorMargin( ev ) );
+		if ( notesAtPoint.size() > 0 ) {
+			deleteElements( notesAtPoint );
+			return;
+		}
+
+		// Nothing found at point. Add a new note.
 	}
 	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
 		nColumn = m_pPatternEditorPanel->getCursorColumn();
