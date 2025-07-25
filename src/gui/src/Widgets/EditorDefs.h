@@ -217,6 +217,22 @@ namespace Editor {
 		}
 	}
 
+	/** Specifies which user input resulted in hovering an element. */
+	enum class Hover {
+		Keyboard = 0,
+		Mouse = 1
+	};
+	static QString hoverToQString( const Hover& hover ) {
+		switch ( hover ) {
+		case Hover::Keyboard:
+			return "Keyboard";
+		case Hover::Mouse:
+			return "Mouse";
+		default:
+			return QString( "Unknown hover [%1]" ).arg( static_cast<int>(hover) );
+		}
+	}
+
 	/** Distance in pixel the cursor is allowed to be away from a note to still
 	 * be associated with it.
 	 *
