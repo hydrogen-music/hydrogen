@@ -368,9 +368,12 @@ private:
 
 class SE_addOrRemovePatternCellAction : public QUndoCommand {
 	public:
-		SE_addOrRemovePatternCellAction( const QPoint& point, Editor::Action action )
+		SE_addOrRemovePatternCellAction( const QPoint& point,
+										 Editor::Action action,
+										 Editor::ActionModifier modifier )
 			: m_point( point )
-			, m_action( action ) {
+			, m_action( action )
+			, m_modifier( modifier ) {
 			const auto pCommonStrings =
 				HydrogenApp::get_instance()->getCommonStrings();
 			if ( ( action == Editor::Action::Toggle ) ||
@@ -387,46 +390,21 @@ class SE_addOrRemovePatternCellAction : public QUndoCommand {
 			}
 		}
 		virtual void redo() {
-			SongEditor::addOrRemovePatternCellAction( m_point, m_action );
+			SongEditor::addOrRemovePatternCellAction(
+				m_point, m_action, m_modifier );
 		}
 		virtual void undo() {
+			// The side effect of the modifier is only triggered once.
+			m_modifier = Editor::ActionModifier::None;
 			SongEditor::addOrRemovePatternCellAction(
-				m_point, Editor::undoAction( m_action ) );
+				m_point, Editor::undoAction( m_action ), m_modifier );
 		}
 	private:
 		QPoint m_point;
 		Editor::Action m_action;
+		Editor::ActionModifier m_modifier;
 };
 
-/** \ingroup docGUI*/
-class SE_modifyPatternCellsAction : public QUndoCommand
-{
-public:
-	SE_modifyPatternCellsAction( const std::vector< QPoint >& addCells,
-								 const std::vector< QPoint >& deleteCells,
-								 const std::vector< QPoint >& mergeCells,
-								 const QString& sText ) {
-		setText( sText );
-		m_addCells = addCells;
-		m_deleteCells = deleteCells;
-		m_mergeCells = mergeCells;
-	}
-	virtual void redo()
-	{
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-			->modifyPatternCellsAction( m_addCells, m_deleteCells, m_mergeCells );
-	}
-	virtual void undo()
-	{
-		std::vector< QPoint > selectCells;
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-			->modifyPatternCellsAction( m_deleteCells, m_addCells, selectCells );
-	}
-private:
-	std::vector< QPoint > m_addCells;
-	std::vector< QPoint > m_deleteCells;
-	std::vector< QPoint > m_mergeCells;
-};
 
 // ~song editor commands
 //=====================================================================================================================================

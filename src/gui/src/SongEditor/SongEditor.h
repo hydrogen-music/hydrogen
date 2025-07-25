@@ -23,7 +23,6 @@
 #ifndef SONG_EDITOR_H
 #define SONG_EDITOR_H
 
-#include "../Selection.h"
 #include "../Widgets/EditorBase.h"
 #include "../Widgets/EditorDefs.h"
 
@@ -73,8 +72,9 @@ class SongEditor : public Editor::Base<QPoint>
 					SongEditorPanel *pSongEditorPanel );
 		~SongEditor();
 
-		static void addOrRemovePatternCellAction( const QPoint& point,
-												  Editor::Action action );
+		static void addOrRemovePatternCellAction(
+			const QPoint& point, Editor::Action action,
+			Editor::ActionModifier modifiert );
 
 		void updatePosition( float fTick );
 
@@ -84,11 +84,6 @@ class SongEditor : public Editor::Base<QPoint>
 
 		int getCursorRow() const;
 		int getCursorColumn() const;
-
-		//! Modify many pattern cells at once, for use in a single efficient undo/redo action
-		void modifyPatternCellsAction( const std::vector<QPoint>& addCells,
-									   const std::vector<QPoint>& deleteCells,
-									   const std::vector<QPoint>& selectCells );
 
 		void clearThePatternSequenceVector( const QString& filename );
 

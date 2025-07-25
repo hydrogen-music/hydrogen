@@ -100,6 +100,9 @@ namespace Editor {
 		Add,
 		/** Deletes an existing element */
 		Delete,
+		/** Preforms no action. This maybe be used when just the side effect of
+		 * ActionModifier is desired. */
+		None,
 		/** If an elements exists, delete it. If not, create a new one. */
 		Toggle
 	};
@@ -109,19 +112,18 @@ namespace Editor {
 				return Action::Delete;
 			case Action::Delete:
 				return Action::Add;
-			case Action::Toggle:
-				return Action::Toggle;
 			default:
-				___ERRORLOG( "Unknown action" );
 				return action;
 		}
 	};
 	static QString actionToQString( const Action& action ) {
 		switch( action ) {
 			case Action::Add:
-				return "Delete";
-			case Action::Delete:
 				return "Add";
+			case Action::Delete:
+				return "Delete";
+			case Action::None:
+				return "None";
 			case Action::Toggle:
 				return "Toggle";
 			default:

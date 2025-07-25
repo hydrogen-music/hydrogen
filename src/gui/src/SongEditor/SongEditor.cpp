@@ -107,7 +107,8 @@ SongEditor::~SongEditor() {
 }
 
 void SongEditor::addOrRemovePatternCellAction( const QPoint& gridPoint,
-											   Editor::Action action ) {
+											   Editor::Action action,
+											   Editor::ActionModifier modifier ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -126,6 +127,14 @@ void SongEditor::addOrRemovePatternCellAction( const QPoint& gridPoint,
 		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
 		 ( ( action == Editor::Action::Delete ) && bGridPointActive ) ) {
 		CoreActionController::toggleGridCell( gridPoint.x(), gridPoint.y() );
+	}
+
+	auto pSongEditor = HydrogenApp::get_instance()->getSongEditorPanel()
+		->getSongEditor();
+	if ( static_cast<char>(modifier) &
+		 static_cast<char>(Editor::ActionModifier::AddToSelection) &&
+		 ! pSongEditor->m_selection.isSelected( gridPoint ) ) {
+		pSongEditor->m_selection.addToSelection( gridPoint );
 	}
 }
 
@@ -412,9 +421,10 @@ void SongEditor::copy() {
 }
 
 void SongEditor::paste() {
-	int nDeltaColumn = 0, nDeltaRow = 0;
 	auto pSong = Hydrogen::get_instance()->getSong();
-	int nPatterns = pSong->getPatternList()->size();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
 	XMLDoc doc;
 	if ( ! doc.setContent( QApplication::clipboard()->text() ) ) {
@@ -425,54 +435,74 @@ void SongEditor::paste() {
 	m_selection.clearSelection();
 	updateGridCells();
 
-	XMLNode selection = doc.firstChildElement( "patternSelection" );
+	// Retrieves all cells to be activated
+	std::vector<QPoint> newCells, mergedCells;
+	const XMLNode selection = doc.firstChildElement( "patternSelection" );
 	if ( ! selection.isNull() ) {
-		// Got pattern selection.
-		std::vector< QPoint > addCells, deleteCells, mergeCells;
-
-		XMLNode cellList = selection.firstChildElement( "cellList" );
+		const XMLNode cellList = selection.firstChildElement( "cellList" );
 		if ( cellList.isNull() ) {
 			return;
 		}
 
-		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
+		const XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
 
 		// If position information is supplied in the selection, use
 		// it to adjust the location relative to the current keyboard
 		// input cursor.
-		if ( !positionNode.isNull() ) {
-
-			nDeltaColumn = m_nCursorColumn - positionNode.read_int( "column", m_nCursorColumn );
-			nDeltaRow = m_nCursorRow - positionNode.read_int( "row", m_nCursorRow );
+		int nDeltaColumn = 0, nDeltaRow = 0;
+		if ( ! positionNode.isNull() ) {
+			nDeltaColumn = m_nCursorColumn -
+				positionNode.read_int( "column", m_nCursorColumn );
+			nDeltaRow = m_nCursorRow -
+				positionNode.read_int( "row", m_nCursorRow );
 		}
 
+		const int nMaxRow = pSong->getPatternList()->size() - 1;
+		const int nMaxColumn = Preferences::get_instance()->getMaxBars() - 1;
 		if ( cellList.hasChildNodes() ) {
 			for ( XMLNode cellNode = cellList.firstChildElement( "cell" );
 				  ! cellNode.isNull();
 				  cellNode = cellNode.nextSiblingElement() ) {
-				int nCol = cellNode.read_int( "x", m_nCursorColumn ) + nDeltaColumn;
-				int nRow = cellNode.read_int( "y", m_nCursorRow ) + nDeltaRow;
-				if ( nCol >= 0 && nRow >= 0 && nRow < nPatterns ) {
+				const int nCol = cellNode.read_int( "x", m_nCursorColumn ) +
+					nDeltaColumn;
+				const int nRow = cellNode.read_int( "y", m_nCursorRow ) +
+					nDeltaRow;
+				if ( nCol >= 0 && nRow >= 0 && nRow <= nMaxRow &&
+					 nCol <= nMaxColumn ) {
 					// Paste cells
 					QPoint p = QPoint( nCol, nRow );
 					if ( m_gridCells.find( p ) == m_gridCells.end() ) {
 						// Cell is not active. Activate it.
-						addCells.push_back( p );
-					} else {
-						// Merge cell with existing
-						mergeCells.push_back( p );
+						newCells.push_back( p );
+					}
+					else {
+						// This cell already exists. We do not have to add but
+						// just to select it.
+						mergedCells.push_back( p );
 					}
 				}
 			}
-
-			const auto pCommonStrings =
-				HydrogenApp::get_instance()->getCommonStrings();
-
-			HydrogenApp::get_instance()->pushUndoCommand(
-				new SE_modifyPatternCellsAction(
-					addCells, deleteCells, mergeCells,
-					pCommonStrings->getActionPastePatternCells() ) );
 		}
+	}
+
+	if ( newCells.size() > 0 || mergedCells.size() ) {
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
+
+		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionPastePatternCells() );
+		for ( const auto& ccell : newCells ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					ccell, Editor::Action::Add,
+					Editor::ActionModifier::AddToSelection ) );
+		}
+		for ( const auto& ccell : mergedCells ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					ccell, Editor::Action::None,
+					Editor::ActionModifier::AddToSelection ) );
+		}
+		pHydrogenApp->endUndoMacro();
 	}
 }
 
@@ -494,7 +524,8 @@ void SongEditor::handleElements( QInputEvent* pEvent, Editor::Action action ) {
 	}
 
 	HydrogenApp::get_instance()->pushUndoCommand(
-		new SE_addOrRemovePatternCellAction( point, action ) );
+		new SE_addOrRemovePatternCellAction(
+			point, action, Editor::ActionModifier::None ) );
 }
 
 void SongEditor::deleteElements( std::vector<QPoint> points ) {
@@ -509,7 +540,7 @@ void SongEditor::deleteElements( std::vector<QPoint> points ) {
 	for ( const auto& ppoint : points ) {
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemovePatternCellAction(
-				ppoint, Editor::Action::Delete ) );
+				ppoint, Editor::Action::Delete, Editor::ActionModifier::None ) );
 	}
 	pHydrogenApp->endUndoMacro();
 }
@@ -532,7 +563,7 @@ std::vector<QPoint> SongEditor::getElementsAtPoint( const QPoint& point,
 }
 
 void SongEditor::ensureCursorIsVisible() {
-	HydrogenApp::get_instance()->getSongEditorPanel()->ensureCursorIsVisible();
+	m_pSongEditorPanel->ensureCursorIsVisible();
 }
 
 QPoint SongEditor::getCursorPosition() {
@@ -753,7 +784,8 @@ void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
 		if ( gridPoint.x() != nLastRow || gridPoint.y() != nLastColumn ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					gridPoint, Editor::Action::Toggle ), sUndoContext );
+					gridPoint, Editor::Action::Toggle,
+					Editor::ActionModifier::None ), sUndoContext );
 			nLastRow = gridPoint.x();
 			nLastColumn = gridPoint.y();
 		}
@@ -777,9 +809,8 @@ void SongEditor::updateAllComponents( bool bContentOnly ) {
 }
 
 void SongEditor::updateVisibleComponents( bool bContentOnly ) {
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
-	pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
+	m_pSongEditorPanel->getSongEditorPatternList()->update();
+	m_pSongEditorPanel->getSongEditorPositionRuler()->update();
 	updateEditor( bContentOnly );
 }
 
@@ -822,10 +853,12 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 	if ( offset == QPoint( 0, 0 ) ) {
 		return;
 	}
-	std::vector< QPoint > addCells, deleteCells, mergeCells;
+	std::vector<QPoint> newCells, mergeCells, deleteCells;
 
 	updateGridCells();
 
+	const int nMaxRow = pSong->getPatternList()->size() - 1;
+	const int nMaxColumn = Preferences::get_instance()->getMaxBars() - 1;
 	for ( QPoint cell : m_selection ) {
 		// Remove original active cell
 		if ( ! m_bCopyNotMove ) {
@@ -833,43 +866,44 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 		}
 		QPoint newCell = cell + offset;
 		// Place new cell if not already active
-		if ( newCell.x() >= 0 && newCell.y() >= 0 && newCell.y() < nMaxPattern ) {
-			if ( m_gridCells.find( newCell ) == m_gridCells.end() || m_selection.isSelected( newCell ) ) {
-				addCells.push_back( newCell );
+		if ( newCell.x() >= 0 && newCell.y() >= 0 &&
+			 newCell.y() <= nMaxRow && newCell.x() <= nMaxColumn ) {
+			if ( m_gridCells.find( newCell ) == m_gridCells.end() ||
+				 m_selection.isSelected( newCell ) ) {
+				// Cell is not active. Activate it.
+				newCells.push_back( newCell );
 			} else {
-				// Cell is moved, but merges with existing cell
+				// This cell already exists. We do not have to add but just to
+				// select it.
 				mergeCells.push_back( newCell );
 			}
 		}
 	}
 
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	if ( newCells.size() > 0 || mergeCells.size() ) {
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-	HydrogenApp::get_instance()->pushUndoCommand(
-		new SE_modifyPatternCellsAction(
-			addCells, deleteCells, mergeCells,
-			(m_bCopyNotMove ? pCommonStrings->getActionCopyPatternCells()
-			 : pCommonStrings->getActionMovePatternCells() ) ) );
-}
-
-//! Modify pattern cells by first deleting some, then adding some.
-//! deleteCells and addCells *may* safely overlap
-void SongEditor::modifyPatternCellsAction( const std::vector<QPoint>& addCells,
-										   const std::vector<QPoint>& deleteCells,
-										   const std::vector<QPoint>& selectCells ) {
-	
-	for ( QPoint cell : deleteCells ) {
-		setPatternActive( cell.x(), cell.y(), false );
-	}
-
-	m_selection.clearSelection();
-	for ( QPoint cell : addCells ) {
-		setPatternActive( cell.x(), cell.y(), true );
-		m_selection.addToSelection( cell );
-	}
-	// Select additional cells (probably merged cells on redo)
-	for ( QPoint cell : selectCells ) {
-		m_selection.addToSelection( cell );
+		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionMovePatternCells() );
+		for ( const auto& ccell : newCells ) {
+		pHydrogenApp->pushUndoCommand(
+			new SE_addOrRemovePatternCellAction(
+				ccell, Editor::Action::Add,
+				Editor::ActionModifier::AddToSelection ) );
+		}
+		for ( const auto& ccell : mergeCells ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					ccell, Editor::Action::None,
+					Editor::ActionModifier::AddToSelection ) );
+		}
+		for ( const auto& ccell : deleteCells ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					ccell, Editor::Action::Delete,
+					Editor::ActionModifier::None ) );
+		}
+		pHydrogenApp->endUndoMacro();
 	}
 }
 
