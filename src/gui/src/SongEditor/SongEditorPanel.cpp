@@ -590,7 +590,7 @@ void SongEditorPanel::hScrollTo( int value )
 	}
 }
 
-void SongEditorPanel::ensureVisible() {
+void SongEditorPanel::ensureCursorIsVisible() {
 	const int nSelectedPattern =
 		Hydrogen::get_instance()->getSelectedPatternNumber();
 
@@ -826,7 +826,7 @@ void SongEditorPanel::relocationEvent() {
 }
 
 void SongEditorPanel::selectedPatternChangedEvent() {
-	ensureVisible();
+	ensureCursorIsVisible();
 	updateEditors();
 }
 
@@ -894,7 +894,7 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 
 	// Song loaded
 
-	ensureVisible();
+	ensureCursorIsVisible();
 	updateActionMode();
 	updatePatternMode();
 	updateJacktimebaseState();

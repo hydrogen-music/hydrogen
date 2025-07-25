@@ -61,7 +61,7 @@ class SongEditorPanel : public QWidget,
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
 	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
 
-		void ensureVisible();
+		void ensureCursorIsVisible();
 		void updateEditors( bool bSequenceOnly = false );
 
 		void showTimeline();

@@ -122,11 +122,19 @@ class SongEditor : public Editor::Base<QPoint>
 
 		void copy() override;
 		void paste() override;
-
 		void selectAll() override;
+		void ensureCursorIsVisible() override;
+		QPoint getCursorPosition() override;
+		void moveCursorDown( QKeyEvent* pEvent, Editor::Step step ) override;
+		void moveCursorLeft( QKeyEvent* pEvent, Editor::Step step ) override;
+		void moveCursorRight( QKeyEvent* pEvent, Editor::Step step ) override;
+		void moveCursorUp( QKeyEvent* pEvent, Editor::Step step ) override;
+		void setCursorTo( QPoint point ) override;
+		void setCursorTo( QMouseEvent* pEvent ) override;
 
 		void setupPopupMenu() override {};
 
+		bool updateKeyboardHoveredElements() override;
 		bool updateMouseHoveredElements( QMouseEvent* pEvent ) override;
 
 		Editor::Input getInput() const override {
@@ -187,26 +195,9 @@ class SongEditor : public Editor::Base<QPoint>
 		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
 		QPoint m_previousMousePosition, m_currentMousePosition, m_previousGridOffset;
 
-		//! @name Change the mouse cursor during mouse gestures
-		//! @{
-		virtual void startMouseLasso( QMouseEvent *ev ) override {
-			m_bSequenceChanged = true;
-			setCursor( Qt::CrossCursor );
-		}
-
-		virtual void endMouseGesture() override {
-			unsetCursor();
-		}
 		//! @}
 
-		//! @name System events
-		//! @{
-		virtual void keyPressEvent (QKeyEvent *ev) override;
-		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
-		virtual void focusInEvent( QFocusEvent *ev ) override;
-	virtual void focusOutEvent( QFocusEvent *ev ) override;
-		//! @}
 
     	void togglePatternActive( int nColumn, int nRow );
 		void setPatternActive( int nColumn, int nRow, bool bActivate );
@@ -219,11 +210,15 @@ class SongEditor : public Editor::Base<QPoint>
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
 
+		bool updateHoveredCells( std::vector<QPoint> hoveredCells,
+								 Editor::Hover hover );
+		std::vector<QPoint> m_hoveredCells;
 		/** There should be at most one grid cell hovered in the SongEditor. But
 		 * by making this member a std::vector we can both deal with no element
 		 * hovered neatly as well as keep the code similar to the one in
 		 * #PatternEditor. */
-		std::vector<QPoint> m_hoveredCells;
+		std::vector<QPoint> m_keyboardHoveredCells;
+		std::vector<QPoint> m_mouseHoveredCells;
 
 		QPointF m_drawPreviousPosition;
 		int m_nDrawPreviousColumn;

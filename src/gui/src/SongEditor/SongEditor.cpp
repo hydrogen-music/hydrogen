@@ -131,23 +131,27 @@ void SongEditor::addOrRemovePatternCellAction( const QPoint& gridPoint,
 
 /// Calculate a target Y scroll value for tracking a playing song
 ///
-/// Songs with many patterns may not fit in the current viewport of the Song Editor. Depending on how the song
-/// is structured, as the viewport scrolls to show different times, the playing patterns may end up being
-/// off-screen. It would be ideal to be able to follow the progression of the song in a meaningful and useful
-/// way, but since multiple patterns may be active at any one time, it's non-trivial to define a useful
-/// behaviour that captures more than the simple case of a song with one pattern active at a time.
+/// Songs with many patterns may not fit in the current viewport of the Song
+/// Editor. Depending on how the song is structured, as the viewport scrolls to
+/// show different times, the playing patterns may end up being off-screen. It
+/// would be ideal to be able to follow the progression of the song in a
+/// meaningful and useful way, but since multiple patterns may be active at any
+/// one time, it's non-trivial to define a useful behaviour that captures more
+/// than the simple case of a song with one pattern active at a time.
 ///
-/// As an attempt to define a useful behaviour which captures what the user might expect to happen, we define
-/// the behaviour as follows:
-///   * If there are no currently playing patterns which are entirely visible:
-///       * Find the position with the smallest amount of scrolling from the current location which:
-///           * Fits the maximum number of currently playing patterns in view at the same time.
+/// As an attempt to define a useful behaviour which captures what the user
+/// might expect to happen, we define the behaviour as follows:
+/// * If there are no currently playing patterns which are entirely visible:
+///   -> Find the position with the smallest amount of scrolling from the
+///      current location which:
+///      -> Fits the maximum number of currently playing patterns in view at the
+///         same time.
 ///
-/// This covers the trivial cases where only a single pattern is playing, and gives some intuitive behaviour
-/// for songs containing multiple playing patterns where the general progression is diagonal but with constant
-/// (or near-constant) background elements, and the "minimum scrolling" allows the user to hint if we stray
-/// off the path.
-///
+/// This covers the trivial cases where only a single pattern is playing, and
+/// gives some intuitive behaviour for songs containing multiple playing
+/// patterns where the general progression is diagonal but with constant (or
+/// near-constant) background elements, and the "minimum scrolling" allows the
+/// user to hint if we stray off the path.
 int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -472,230 +476,6 @@ void SongEditor::paste() {
 	}
 }
 
-void SongEditor::keyPressEvent( QKeyEvent * ev )
-{
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	const int nBlockSize = 5, nWordSize = 5;
-	
-	bool bIsSelectionKey = false;
-	bool bUnhideCursor = true;
-
-	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
-	
-	H2Core::Song::ActionMode actionMode = pHydrogen->getActionMode();
-		
-	if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
-		bIsSelectionKey = m_selection.keyPressEvent( ev );
-	}
-
-	auto pPatternList = pSong->getPatternList();
-	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
-	bool bSelectionKey = false;
-
-	int nMaxPatternSequence = Preferences::get_instance()->getMaxBars();
-
-	updateModifiers( ev );
-
-	if ( bIsSelectionKey ) {
-		// Key was claimed by selection
-	} else if ( ev->key() == Qt::Key_Delete ) {
-		// Key: Delete: delete selected pattern cells, or cell at current position
-		if ( m_selection.begin() != m_selection.end() ) {
-			deleteSelection();
-		} else {
-			// No selection, delete at the current cursor position
-			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
-		}
-
-	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextChar ) ) ) {
-		// ->
-		if ( m_nCursorColumn < nMaxPatternSequence -1 ) {
-			m_nCursorColumn += 1;
-		}
-
-	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextWord ) ) ) {
-		// -->
-		m_nCursorColumn = std::min( (int)nMaxPatternSequence, m_nCursorColumn + nWordSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfLine ) ) ) {
-		// ->|
-		m_nCursorColumn = nMaxPatternSequence -1;
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousChar ) ) ) {
-		// <-
-		if ( m_nCursorColumn > 0 ) {
-			m_nCursorColumn -= 1;
-		}
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousWord ) ) ) {
-		// <--
-		m_nCursorColumn = std::max( 0, m_nCursorColumn - nWordSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfLine ) ) ) {
-		// |<-
-		m_nCursorColumn = 0;
-
-	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextLine ) ) ) {
-		if ( m_nCursorRow < pPatternList->size()-1 ) {
-			m_nCursorRow += 1;
-		}
-
-	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfBlock ) ) ) {
-		m_nCursorRow = std::min( pPatternList->size()-1, m_nCursorRow + nBlockSize );
-
-	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextPage ) ) ) {
-		// Page down, scroll by the number of patterns that fit into the viewport
-		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
-		assert( pParent );
-		m_nCursorRow += pParent->height() / m_nGridHeight;
-
-		if ( m_nCursorRow >= pPatternList->size() ) {
-			m_nCursorRow = pPatternList->size()-1;
-		}
-
-	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfDocument ) ) ) {
-		m_nCursorRow = pPatternList->size() -1;
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousLine ) ) ) {
-		if ( m_nCursorRow > 0 ) {
-			m_nCursorRow -= 1;
-		}
-
-	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfBlock ) ) ) {
-		m_nCursorRow = std::max( 0, m_nCursorRow - nBlockSize );
-
-
-	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousPage ) ) ) {
-		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
-		assert( pParent );
-		m_nCursorRow -= pParent->height() / m_nGridHeight;
-
-		if ( m_nCursorRow < 0 ) {
-			m_nCursorRow = 0;
-		}
-
-	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfDocument ) ) ) {
-		m_nCursorRow = 0;
-
-	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
-		// Key: Ctrl + A: Select all pattern
-		bSelectionKey = true;
-		bUnhideCursor = false;
-		if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
-			selectAll();
-		}
-
-	} else if ( ev->matches( QKeySequence::Deselect ) ) {
-		// Key: Shift + Ctrl + A: deselect any selected cells
-		bSelectionKey = true;
-		bUnhideCursor = false;
-		if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
-			clearSelection();
-		}
-
-	} else if ( ev->matches( QKeySequence::Copy ) ) {
-		bUnhideCursor = false;
-		copy();
-
-	} else if ( ev->matches( QKeySequence::Paste ) ) {
-		bUnhideCursor = false;
-		paste();
-	} else if ( ev->matches( QKeySequence::Cut ) ) {
-		bUnhideCursor = false;
-		cut();
-
-	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-		// Key: Return: Set or clear cell (draw mode), or start/end selection or move (select mode)
-
-		// In DRAW mode, Enter's obvious action is the same as a
-		// click - insert or delete pattern.
-		togglePatternActive( m_nCursorColumn, m_nCursorRow );
-
-	} else {
-		ev->ignore();
-		pHydrogenApp->setHideKeyboardCursor( true );
-
-		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
-			pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
-			pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-			update();
-		}
-		return;
-	}
-	if ( bUnhideCursor ) {
-		pHydrogenApp->setHideKeyboardCursor( false );
-	}
-
-	if ( bSelectionKey ) {
-		// If a "select" key movement is used in "draw" mode, it's probably a good idea to go straight into
-		// "select" mode.
-		if ( actionMode == H2Core::Song::ActionMode::drawMode ) {
-			pHydrogen->setActionMode( H2Core::Song::ActionMode::selectMode );
-		}
-		// Any selection key may need a repaint of the selection
-		updateEditor( true );
-	}
-	if ( m_selection.isMoving() ) {
-		// If a selection is being moved, it will need to be repainted
-		updateEditor( true );
-	}
-
-	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
-	m_pScrollView->ensureVisible( cursorCentre.x(), cursorCentre.y() );
-	m_selection.updateKeyboardCursorPosition();
-
-	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
-		pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
-		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-	}	
-	update();
-	ev->accept();
-}
-
-void SongEditor::keyReleaseEvent( QKeyEvent * ev ) {
-	updateModifiers( ev );
-}
-
-// Make cursor visible on focus
-void SongEditor::focusInEvent( QFocusEvent *ev )
-{
-	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		QPoint pos = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ))
-			+ QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
-		m_pScrollView->ensureVisible( pos.x(), pos.y() );
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
-	}
-
-	// If there are some patterns selected, we have to switch their
-	// border color inactive <-> active.
-	updateEditor();
-
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-	}
-}
-
-// Make cursor hidden
-void SongEditor::focusOutEvent( QFocusEvent *ev )
-{
-	UNUSED( ev );
-
-	// If there are some patterns selected, we have to switch their
-	// border color inactive <-> active.
-	updateEditor();
-
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-	}
-}
-
 void SongEditor::handleElements( QInputEvent* pEvent, Editor::Action action ) {
 
 	// Retrieve the coordinates
@@ -751,19 +531,154 @@ std::vector<QPoint> SongEditor::getElementsAtPoint( const QPoint& point,
 	return std::move( vec );
 }
 
+void SongEditor::ensureCursorIsVisible() {
+	HydrogenApp::get_instance()->getSongEditorPanel()->ensureCursorIsVisible();
+}
+
+QPoint SongEditor::getCursorPosition() {
+	return QPoint( m_nCursorColumn, m_nCursorRow );
+}
+
+void SongEditor::moveCursorDown( QKeyEvent* pEvent, Editor::Step step ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	const int nMax = pSong->getPatternList()->size() - 1;
+
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		m_nCursorRow = nMax;
+		return;
+	}
+
+	m_nCursorRow = std::min( m_nCursorRow + nStep, nMax );
+}
+
+void SongEditor::moveCursorLeft( QKeyEvent* pEvent, Editor::Step step ) {
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		m_nCursorColumn = 0;
+		return;
+	}
+
+	m_nCursorColumn = std::max( m_nCursorColumn - nStep, 0 );
+}
+
+void SongEditor::moveCursorRight( QKeyEvent* pEvent, Editor::Step step ) {
+	const int nMax = Preferences::get_instance()->getMaxBars() - 1;
+
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		m_nCursorColumn = nMax;
+		return;
+	}
+
+	m_nCursorColumn = std::min( m_nCursorColumn + nStep, nMax );
+}
+
+void SongEditor::moveCursorUp( QKeyEvent* pEvent, Editor::Step step ) {
+	int nStep;
+	switch( step ) {
+	case Editor::Step::None:
+		nStep = 0;
+		break;
+	case Editor::Step::Character:
+	case Editor::Step::Tiny:
+		nStep = 1;
+		break;
+	case Editor::Step::Word:
+		nStep = Editor::nWordSize;
+		break;
+	case Editor::Step::Page:
+		nStep = Editor::nPageSize;
+		break;
+	case Editor::Step::Document:
+		m_nCursorRow = 0;
+		return;
+	}
+
+	m_nCursorRow = std::max( m_nCursorRow - nStep, 0 );
+}
+
+void SongEditor::setCursorTo( QPoint point ) {
+	m_nCursorColumn = point.x();
+	m_nCursorRow = point.y();
+}
+
+void SongEditor::setCursorTo( QMouseEvent* pEvent ) {
+	setCursorTo( xyToColumnRow(
+					 static_cast<MouseEvent*>(pEvent)->position().toPoint() ) );
+}
+
+bool SongEditor::updateKeyboardHoveredElements() {
+	if ( HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Cursor is invisible and can not hover anything
+		return updateHoveredCells( std::vector<QPoint>(),
+								   Editor::Hover::Keyboard );
+	}
+	else {
+		std::vector<QPoint> hoveredCells;
+
+		const auto pSong = Hydrogen::get_instance()->getSong();
+		if ( pSong != nullptr &&
+			 pSong->isPatternActive( m_nCursorColumn, m_nCursorRow ) ) {
+			hoveredCells.push_back(
+				QPoint( m_nCursorColumn, m_nCursorRow ) );
+		}
+		return updateHoveredCells( hoveredCells, Editor::Hover::Keyboard );
+	}
+}
+
 bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 	// Check whether the mouse pointer is Outside of the current widget.
 	const QPoint globalPos = QCursor::pos();
 	const QPoint widgetPos = mapFromGlobal( globalPos );
 	if ( widgetPos.x() < 0 || widgetPos.x() >= width() ||
 		 widgetPos.y() < 0 || widgetPos.y() >= height() ) {
-		if ( m_hoveredCells.size() > 0 ) {
-			m_hoveredCells.clear();
-			return true;
-		}
-		else {
-			return false;
-		}
+		return updateHoveredCells( std::vector<QPoint>(), Editor::Hover::Mouse );
 	}
 
 	if ( pEvent == nullptr ) {
@@ -773,30 +688,11 @@ bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 			QEvent::MouseButtonRelease, widgetPos, globalPos, Qt::LeftButton,
 			Qt::LeftButton, Qt::NoModifier );
 	}
-	const auto pEv = static_cast<MouseEvent*>( pEvent );
 
-	const auto hoveredCells = getElementsAtPoint( pEv->position().toPoint(), 0 );
-	if ( hoveredCells.size() == m_hoveredCells.size() ) {
-		bool bIdentical = true;
-		for ( int ii = 0; ii < hoveredCells.size(); ++ii ) {
-			if ( hoveredCells[ ii ] != m_hoveredCells[ ii ] ) {
-				bIdentical = false;
-				break;
-			}
-		}
+	const auto hoveredCells = getElementsAtPoint(
+		static_cast<MouseEvent*>(pEvent)->position().toPoint(), 0 );
 
-		if ( bIdentical ) {
-			return false;
-		}
-	}
-
-	// The current and the last hovered elments differ
-	m_hoveredCells.clear();
-	for ( auto& ppoint : hoveredCells ) {
-		m_hoveredCells.push_back( ppoint );
-	}
-
-	return true;
+	return updateHoveredCells( hoveredCells, Editor::Hover::Mouse );
 }
 
 void SongEditor::mouseDrawStart( QMouseEvent* pEvent ) {
@@ -1228,6 +1124,53 @@ void SongEditor::updateGridCells() {
 			}
 		}
 	}
+}
+
+bool SongEditor::updateHoveredCells( std::vector<QPoint> hoveredCells,
+									 Editor::Hover hover ) {
+	QStringList hovered, m_hovered;
+	for ( const auto& ppoint : hoveredCells ) {
+		hovered << QString( "%1, %2" ).arg( ppoint.x() ).arg( ppoint.y() );
+	}
+	for ( const auto& ppoint : m_hoveredCells ) {
+		m_hovered << QString( "%1, %2" ).arg( ppoint.x() ).arg( ppoint.y() );
+	}
+	bool bIdentical = true;
+	std::vector<QPoint>* pCachedCells;
+	if ( hover == Editor::Hover::Keyboard ) {
+		pCachedCells = &m_keyboardHoveredCells;
+	} else {
+		pCachedCells = &m_mouseHoveredCells;
+	}
+
+	if ( hoveredCells.size() == pCachedCells->size() ) {
+		for ( int ii = 0; ii < hoveredCells.size(); ++ii ) {
+			if ( hoveredCells[ ii ] != pCachedCells->at( ii ) ) {
+				bIdentical = false;
+				break;
+			}
+		}
+
+		if ( bIdentical ) {
+			return false;
+		}
+	}
+
+	// The current and the last hovered elments differ
+	pCachedCells->clear();
+	for ( auto& ppoint : hoveredCells ) {
+		pCachedCells->push_back( ppoint );
+	}
+
+	m_hoveredCells.clear();
+	for ( const auto& ppoint : m_keyboardHoveredCells ) {
+		m_hoveredCells.push_back( ppoint );
+	}
+	for ( const auto& ppoint : m_mouseHoveredCells ) {
+		m_hoveredCells.push_back( ppoint );
+	}
+
+	return true;
 }
 
 // Return grid offset (in cell coordinate space) of moving selection
