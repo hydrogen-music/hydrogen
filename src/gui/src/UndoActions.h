@@ -507,14 +507,14 @@ public:
 							  int nOldKey,
 							  int nOldOctave,
 							  float fOldProbability,
-							  bool bIsDelete,
+							  Editor::Action action,
 							  bool bIsNoteOff,
 							  bool bIsMappedToDrumkit,
 							  Editor::ActionModifier modifier =
 							  Editor::ActionModifier::None
  ){
 
-		if ( bIsDelete ){
+		if ( action == Editor::Action::Delete ){
 			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
 					 .arg( QObject::tr( "Delete note" ) ).arg( nColumn ).
 					 arg( nInstrumentId ).arg( sType ).arg( nPatternNumber ) );
@@ -534,7 +534,7 @@ public:
 		m_nOldKey = nOldKey;
 		m_nOldOctave = nOldOctave;
 		m_fOldProbability = fOldProbability;
-		m_bIsDelete = bIsDelete;
+		m_action = action;
 		m_bIsNoteOff = bIsNoteOff;
 		m_bIsMappedToDrumkit = bIsMappedToDrumkit;
 		m_modifier = modifier;
@@ -551,7 +551,7 @@ public:
 											  m_nOldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
-											  ! m_bIsDelete,
+											  Editor::undoAction( m_action ),
 											  m_bIsNoteOff,
 											  m_bIsMappedToDrumkit,
 											  m_modifier );
@@ -568,7 +568,7 @@ public:
 											  m_nOldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
-											  m_bIsDelete,
+											  m_action,
 											  m_bIsNoteOff,
 											  m_bIsMappedToDrumkit,
 											  m_modifier );
@@ -587,7 +587,7 @@ private:
 	int m_nOldKey;
 	int m_nOldOctave;
 	float m_fOldProbability;
-	bool m_bIsDelete;
+	Editor::Action m_action;
 	bool m_bIsNoteOff;
 	bool m_bIsMappedToDrumkit;
 	Editor::ActionModifier m_modifier;

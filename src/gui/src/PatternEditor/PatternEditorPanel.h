@@ -39,6 +39,10 @@
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+namespace H2Core {
+	class GridPoint;
+}
+
 class Button;
 class ClickableLabel;
 class DrumPatternEditor;
@@ -243,9 +247,10 @@ class PatternEditorPanel : public QWidget,
 		/** If @a nKey or @a nOctave are set to invalid values, all notes on the
 		 * position specified using @a nPosition and @a nRow will be
 		 * deleted or a move with default key and octave will be added. */
-		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
-							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
-							   bool bDoDelete = true, bool bIsNoteOff = false,
+		void addOrRemoveNotes( H2Core::GridPoint gridPoint, int nKey = KEY_INVALID,
+							   int nOctave = OCTAVE_INVALID,
+							   bool bIsNoteOff = false,
+							   Editor::Action action = Editor::Action::None,
 							   Editor::ActionModifier modifier =
 							   Editor::ActionModifier::None,
 							   const QString& sUndoContext = "" );

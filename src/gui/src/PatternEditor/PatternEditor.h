@@ -104,7 +104,7 @@ public:
 										   int nOldKey,
 										   int nOldOctave,
 										   float fOldProbability,
-										   bool bIsDelete,
+										   Editor::Action action,
 										   bool bIsNoteOff,
 										   bool bIsMappedToDrumkit,
 										   Editor::ActionModifier modifier );

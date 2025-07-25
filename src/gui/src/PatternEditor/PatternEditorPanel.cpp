@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
@@ -2266,9 +2267,9 @@ void PatternEditorPanel::printDB() const {
 	DEBUGLOG( sMsg );
 }
 
-void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
-										   int nOctave, bool bDoAdd,
-										   bool bDoDelete, bool bIsNoteOff,
+void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
+										   int nOctave, bool bIsNoteOff,
+										   Editor::Action action,
 										   Editor::ActionModifier modifier,
 										   const QString& sUndoContext ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -2283,14 +2284,14 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		return;
 	}
 
-	if ( nPosition >= m_pPattern->getLength() ) {
+	if ( gridPoint.getColumn() >= m_pPattern->getLength() ) {
 		// Note would be beyond the active region of the current pattern.
 		return;
 	}
 
-	auto row = getRowDB( nRow );
+	auto row = getRowDB( gridPoint.getRow() );
 	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( gridPoint.getRow() ) );
 		return;
 	}
 
@@ -2299,23 +2300,23 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 	int nNewOctave = nOctave;
 	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
 		oldNotes = m_pPattern->findNotes(
-			nPosition, row.nInstrumentID, row.sType );
+			gridPoint.getColumn(), row.nInstrumentID, row.sType );
 		nNewKey = KEY_MIN;
 		nNewOctave = OCTAVE_DEFAULT;
 	}
 	else {
 		auto pOldNote = m_pPattern->findNote(
-			nPosition, row.nInstrumentID, row.sType,
+			gridPoint.getColumn(), row.nInstrumentID, row.sType,
 			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
 		if ( pOldNote != nullptr ) {
 			oldNotes.push_back( pOldNote );
 		}
 	}
 
-	if ( oldNotes.size() > 0 && ! bDoDelete ) {
+	if ( oldNotes.size() > 0 && action == Editor::Action::Add ) {
 		// Found an old note, but we don't want to delete, so just return.
 		return;
-	} else if ( oldNotes.size() == 0 && ! bDoAdd ) {
+	} else if ( oldNotes.size() == 0 && action == Editor::Action::Delete ) {
 		// No note there, but we don't want to add a new one, so return.
 		return;
 	}
@@ -2340,7 +2341,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemoveNoteAction(
-				nPosition,
+				gridPoint.getColumn(),
 				row.nInstrumentID,
 				row.sType,
 				m_nPatternNumber,
@@ -2351,7 +2352,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 				nNewKey,
 				nNewOctave,
 				PROBABILITY_DEFAULT,
-				/* bIsDelete */ false,
+				Editor::Action::Add,
 				bIsNoteOff,
 				row.bMappedToDrumkit,
 				modifier ), sUndoContext );
@@ -2363,7 +2364,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		for ( const auto& ppNote : oldNotes ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemoveNoteAction(
-					nPosition,
+					gridPoint.getColumn(),
 					ppNote->getInstrumentId(),
 					ppNote->getType(),
 					m_nPatternNumber,
@@ -2374,7 +2375,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 					ppNote->getKey(),
 					ppNote->getOctave(),
 					ppNote->getProbability(),
-					/* bIsDelete */ true,
+					Editor::Action::Delete,
 					ppNote->getNoteOff(),
 					ppNote->getInstrument() != nullptr,
 					modifier ), sUndoContext );
@@ -2466,7 +2467,7 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						ppNote->getKey(),
 						ppNote->getOctave(),
 						ppNote->getProbability(),
-						/* bIsDelete */ true,
+						Editor::Action::Delete,
 						ppNote->getNoteOff(),
 						ppNote->getInstrument() != nullptr,
 						Editor::ActionModifier::None ) );
@@ -2550,9 +2551,8 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
-			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
-							  true /* bDoAdd */, false /* bDoDelete */,
-							  false /* bIsNoteOff */,
+			addOrRemoveNotes( GridPoint( nnPosition, nRow ), nKey, nOctave,
+							  false /* bIsNoteOff */, Editor::Action::Add,
 							  Editor::ActionModifier::None );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -2742,7 +2742,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							nPitch == PITCH_INVALID ? ppNote->getOctave() :
 							  Note::pitchToOctave( nPitch ),
 							ppNote->getProbability(),
-							/* bIsDelete */ false,
+							Editor::Action::Add,
 							ppNote->getNoteOff(),
 							row.bMappedToDrumkit,
 							Editor::ActionModifier::None ) );

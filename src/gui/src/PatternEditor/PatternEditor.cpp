@@ -133,7 +133,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   int nOldKey,
 										   int nOldOctave,
 										   float fOldProbability,
-										   bool bIsDelete,
+										   Editor::Action action,
 										   bool bIsNoteOff,
 										   bool bIsMappedToDrumkit,
 										   Editor::ActionModifier modifier )
@@ -170,7 +170,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
 
-	if ( bIsDelete ) {
+	if ( action == Editor::Action::Delete ) {
 		// Find and delete an existing (matching) note.
 
 		// In case there are multiple notes at this position, use all provided
@@ -1445,7 +1445,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					nKey,
 					nOctave,
 					fProbability,
-					/* bIsDelete */ true,
+					Editor::Action::Delete,
 					bNoteOff,
 					bIsMappedToDrumkit,
 					Editor::ActionModifier::None ) );
@@ -1479,7 +1479,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					nNewKey,
 					nNewOctave,
 					fProbability,
-					/* bIsDelete */ false,
+					Editor::Action::Add,
 					bNoteOff,
 					bIsMappedToDrumkit,
 					modifier ) );
@@ -1539,26 +1539,6 @@ void PatternEditor::validateSelection() {
 }
 
 void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
-	// Determine what to do
-	bool bAdd, bDelete;
-	if ( action == Editor::Action::Toggle ) {
-		bAdd = true;
-		bDelete = true;
-	}
-	else if ( action == Editor::Action::Add ) {
-		bAdd = true;
-		bDelete = false;
-	}
-	else if ( action == Editor::Action::Delete ) {
-		bAdd = false;
-		bDelete = true;
-	}
-	else {
-		ERRORLOG( QString( "Unknown action [%1]" )
-				  .arg( Editor::actionToQString( action ) ) );
-		return;
-	}
-
 	// Retrieve the coordinates
 	GridPoint gridPoint;
 	if ( dynamic_cast<QMouseEvent*>(ev) != nullptr ) {
@@ -1601,8 +1581,8 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 
 	// Perform the action.
 	m_pPatternEditorPanel->addOrRemoveNotes(
-		gridPoint.getColumn(), gridPoint.getRow(), nKey, nOctave, bAdd, bDelete,
-		bNoteOff, Editor::ActionModifier::Playback );
+		gridPoint, nKey, nOctave, bNoteOff, action,
+		Editor::ActionModifier::Playback );
 }
 
 void PatternEditor::deleteElements(
@@ -1630,7 +1610,7 @@ void PatternEditor::deleteElements(
 				ppNote->getKey(),
 				ppNote->getOctave(),
 				ppNote->getProbability(),
-				/* bIsDelete */ true,
+				Editor::Action::Delete,
 				/* bIsNoteOff */ ppNote->getNoteOff(),
 				ppNote->getInstrument() != nullptr,
 				Editor::ActionModifier::None ) );
@@ -1851,7 +1831,7 @@ void PatternEditor::paste() {
 					nKey,
 					nOctave,
 					pNote->getProbability(),
-					/* bIsDelete */ false,
+					Editor::Action::Add,
 					/* bIsNoteOff */ pNote->getNoteOff(),
 					targetRow.bMappedToDrumkit,
 					Editor::ActionModifier::AddToSelection ) );
@@ -2132,9 +2112,9 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 		if ( gridPoint != lastGridPoint || nKey != nLastKey ||
 			 nOctave != nLastOctave ) {
 			m_pPatternEditorPanel->addOrRemoveNotes(
-				gridPoint.getColumn(), gridPoint.getRow(), nKey, nOctave,
-				/* bAdd */true, /* bDelete */ true,
+				gridPoint, nKey, nOctave,
 				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
+				Editor::Action::Toggle,
 				Editor::ActionModifier::Playback, sUndoContext );
 			lastGridPoint = gridPoint;
 			nLastKey = nKey;
@@ -2621,7 +2601,7 @@ void PatternEditor::alignToGrid() {
 						 nKey,
 						 nOctave,
 						 fProbability,
-						 /* bIsDelete */ true,
+						 Editor::Action::Delete,
 						 bNoteOff,
 						 bIsMappedToDrumkit,
 						 Editor::ActionModifier::None ) );
@@ -2649,7 +2629,7 @@ void PatternEditor::alignToGrid() {
 						 nKey,
 						 nOctave,
 						 fProbability,
-						 /* bIsDelete */ false,
+						 Editor::Action::Add,
 						 bNoteOff,
 						 bIsMappedToDrumkit,
 						 modifier ) );

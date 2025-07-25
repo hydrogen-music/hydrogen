@@ -1195,7 +1195,7 @@ void HydrogenApp::onEventQueueTimer()
 								 pOldNote->getKey(),
 								 pOldNote->getOctave(),
 								 pOldNote->getProbability(),
-								 /*isDelete*/ true,
+								 Editor::Action::Delete,
 								 /*isNoteOff*/ false,
 								 pOldNote->getInstrument() != nullptr,
 								 Editor::ActionModifier::None ) );
@@ -1214,7 +1214,7 @@ void HydrogenApp::onEventQueueTimer()
 							 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 							 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 							 PROBABILITY_DEFAULT,
-							 /*isDelete*/ false,
+							 Editor::Action::Add,
 							 /*isNoteOff*/ false,
 							 row.bMappedToDrumkit,
 							 Editor::ActionModifier::Playback ) );
