@@ -617,18 +617,16 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 	// notes. If it is moved rapidly, it might have passed several columns since
 	// the last update. We will take all notes between the current position and
 	// the last one into account.
-	int nColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
-						   false );
+	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), false );
 	const auto row = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
 
 	if ( m_nDrawPreviousColumn == -1 ) {
-		m_nDrawPreviousColumn = nColumn;
+		m_nDrawPreviousColumn = gridPoint.getColumn();
 	}
 
-	const int nDrawStart = std::min( m_nDrawPreviousColumn, nColumn );
-	const int nDrawEnd = std::max( m_nDrawPreviousColumn, nColumn );
+	const int nDrawStart = std::min( m_nDrawPreviousColumn, gridPoint.getColumn() );
+	const int nDrawEnd = std::max( m_nDrawPreviousColumn, gridPoint.getColumn() );
 	std::vector< std::shared_ptr<Note> > notesSinceLastAction;
 	const auto notes = pPattern->getNotes();
 	for ( auto it = notes->lower_bound( nDrawStart );
@@ -644,13 +642,13 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 		return;
 	}
 
-	if ( m_nDrawPreviousColumn != nColumn ) {
+	if ( m_nDrawPreviousColumn != gridPoint.getColumn() ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction( "NotePropertiesRuler::mouseDraw" );
 		for ( const auto& ppNote : notesSinceLastAction ) {
 			m_oldNotes[ ppNote ] = std::make_shared<Note>( ppNote );
 		}
-		m_nDrawPreviousColumn = nColumn;
+		m_nDrawPreviousColumn = gridPoint.getColumn();
 	}
 
 	// normalized

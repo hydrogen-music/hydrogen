@@ -28,6 +28,7 @@
 #include "../Widgets/EditorDefs.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Note.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -39,7 +40,6 @@
 
 namespace H2Core
 {
-	class Note;
 	class Instrument;
 }
 
@@ -319,8 +319,8 @@ protected:
 		 * audio engine. */
 		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
 
-		void eventPointToColumnRow( const QPoint& point, int* pColumn,
-									int* pRow, bool bHonorQuantization ) const;
+		H2Core::GridPoint pointToGridPoint( const QPoint& point,
+									bool bHonorQuantization ) const;
 
 		// How many #m_fGridWidth do make up a quantized grid cell in the
 		// current resolution.
@@ -353,10 +353,9 @@ protected:
 
 		int m_nTick;
 		QPointF m_drawPreviousPosition;
-		int m_nDrawPreviousColumn;
+		H2Core::GridPoint m_drawPreviousGridPoint;
 		int m_nDrawPreviousKey;
 		int m_nDrawPreviousOctave;
-		int m_nDrawPreviousRow;
 
 		// Row the keyboard cursor is residing in.
 		//
