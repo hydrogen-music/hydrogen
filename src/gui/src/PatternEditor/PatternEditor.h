@@ -319,8 +319,11 @@ protected:
 		 * audio engine. */
 		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
 
+		H2Core::GridPoint elementToGridPoint(
+			std::shared_ptr<H2Core::Note> pNote ) const;
+		QPoint gridPointToPoint( const H2Core::GridPoint& gridPoint ) const;
 		H2Core::GridPoint pointToGridPoint( const QPoint& point,
-									bool bHonorQuantization ) const;
+											bool bHonorQuantization ) const;
 
 		// How many #m_fGridWidth do make up a quantized grid cell in the
 		// current resolution.

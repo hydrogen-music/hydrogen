@@ -3240,13 +3240,8 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	}
 
 	// Determine the center of the note symbol.
-	int nY;
-	if ( m_instance == Editor::Instance::DrumPattern ) {
-		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
-		nY = ( nRow * m_nGridHeight) + (m_nGridHeight / 2) - 3;
-
-	}
-	else {
+	auto point = gridPointToPoint( elementToGridPoint( pNote ) );
+	if ( m_instance == Editor::Instance::PianoRoll ) {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
 		if ( ! selectedRow.contains( pNote ) ) {
@@ -3255,11 +3250,11 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			return;
 		}
 
-		nY = m_nGridHeight *
-			Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
-			(m_nGridHeight / 2) - 3;
+		point.setY( m_nGridHeight *
+				 Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
+				 (m_nGridHeight / 2) );
 	}
-	const int nX = PatternEditor::nMargin + pNote->getPosition() * m_fGridWidth;
+	point.setY( point.y() - 3 );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -3300,7 +3295,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 						   NoteStyle::NoPlayback ) ) {
 			p.setPen( highlightPen );
 			p.setBrush( highlightBrush );
-			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+			p.drawEllipse( point.x() - 4 - 3, point.y() - 3, w + 6, h + 6 );
 			p.setBrush( Qt::NoBrush );
 		}
 
@@ -3332,23 +3327,27 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 					p.setPen( highlightPen );
 					p.setBrush( highlightBrush );
 					// Tail highlight
-					p.drawRect( nX - 3, nY - 1, width + 6, 3 + 6 );
-					p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
-					p.fillRect( nX - 4, nY, width, 3 + 4, highlightBrush );
+					p.drawRect( point.x() - 3, point.y() - 1,
+								width + 6, 3 + 6 );
+					p.drawEllipse( point.x() - 4 - 3, point.y() - 3,
+								   w + 6, h + 6 );
+					p.fillRect( point.x() - 4, point.y(),
+								width, 3 + 4, highlightBrush );
 				}
 
 				p.setPen( noteTailPen );
 				p.setBrush( noteTailBrush );
 
-				int nRectOnsetX = nX;
+				int nRectOnsetX = point.x();
 				int nRectWidth = width;
 				if ( noteStyle & NoteStyle::Background ) {
 					nRectOnsetX = nRectOnsetX + w / 2;
 					nRectWidth = nRectWidth - w / 2;
 				}
 
-				p.drawRect( nRectOnsetX, nY + 2, nRectWidth, 3 );
-				p.drawLine( nX + width, nY, nX + width, nY + h );
+				p.drawRect( nRectOnsetX, point.y() + 2, nRectWidth, 3 );
+				p.drawLine( point.x() + width, point.y(),
+							point.x() + width, point.y() + h );
 			}
 		}
 
@@ -3356,15 +3355,15 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
-			p.drawEllipse( nX -4 , nY, w, h );
+			p.drawEllipse( point.x() -4 , point.y(), w, h );
 		}
 		else {
 			p.setPen( movingPen );
 			p.setBrush( movingBrush );
 
 			if ( nNoteLength == LENGTH_ENTIRE_SAMPLE ) {
-				p.drawEllipse( movingOffset.x() + nX -4 -2,
-							   movingOffset.y() + nY -2 , w + 4, h + 4 );
+				p.drawEllipse( movingOffset.x() + point.x() - 4 - 2,
+							   movingOffset.y() + point.y() - 2 , w + 4, h + 4 );
 			}
 			else {
 				// Moving note with tail
@@ -3378,8 +3377,8 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 									qAsin( static_cast<qreal>(nHeightTail) /
 										   static_cast<qreal>(nDiameterNote) ) ) ) );
 
-				const int nMoveX = movingOffset.x() + nX;
-				const int nMoveY = movingOffset.y() + nY;
+				const int nMoveX = movingOffset.x() + point.x();
+				const int nMoveY = movingOffset.y() + point.y();
 
 				p.drawArc( nMoveX - 4 - 2, nMoveY - 2, nDiameterNote, nDiameterNote,
 						   nAngleIntersection * 16,
@@ -3403,18 +3402,19 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 							   NoteStyle::NoPlayback ) ) {
 				p.setPen( highlightPen );
 				p.setBrush( highlightBrush );
-				p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+				p.drawEllipse( point.x() - 4 - 3, point.y() - 3, w + 6, h + 6 );
 				p.setBrush( Qt::NoBrush );
 			}
 
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
-			p.drawEllipse( nX -4 , nY, w, h );
+			p.drawEllipse( point.x() - 4 , point.y(), w, h );
 		}
 		else {
 			p.setPen( movingPen );
 			p.setBrush( movingBrush );
-			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2,
+			p.drawEllipse( movingOffset.x() + point.x() - 4 - 2,
+						   movingOffset.y() + point.y() - 2,
 						   w + 4, h + 4 );
 		}
 	}
@@ -3704,6 +3704,24 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->findRowDB( pNote ) );
 	return row.bPlaysBackAudio;
+}
+
+GridPoint PatternEditor::elementToGridPoint( std::shared_ptr<Note> pNote ) const {
+	GridPoint gridPoint;
+	if ( pNote == nullptr ) {
+		return gridPoint;
+	}
+
+	gridPoint.setColumn( pNote->getPosition() );
+	gridPoint.setRow( m_pPatternEditorPanel->findRowDB( pNote ) );
+
+	return gridPoint;
+}
+
+QPoint PatternEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
+	return QPoint(
+		PatternEditor::nMargin + gridPoint.getColumn() * m_fGridWidth,
+		gridPoint.getRow() * m_nGridHeight + m_nGridHeight / 2 );
 }
 
 GridPoint PatternEditor::pointToGridPoint( const QPoint& point,
