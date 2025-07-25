@@ -25,6 +25,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Pattern.h>
@@ -801,7 +802,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
-		CoreActionController::toggleGridCell( nNewColumn, 0 );
+		CoreActionController::toggleGridCell( GridPoint( nNewColumn, 0 ) );
 		pAE->lock( RIGHT_HERE );
 		pAE->setState( AudioEngine::State::Testing );
 
@@ -809,7 +810,7 @@ void AudioEngineTests::testSongSizeChangeInLoopMode() {
 
 		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
-		CoreActionController::toggleGridCell( nNewColumn, 0 );
+		CoreActionController::toggleGridCell( GridPoint( nNewColumn, 0 ) );
 		pAE->lock( RIGHT_HERE );
 		pAE->setState( AudioEngine::State::Testing );
 
@@ -1320,8 +1321,8 @@ void AudioEngineTests::testHumanization() {
 	// customizations reach the Sampler.
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
-	CoreActionController::toggleGridCell( 0, 0 );
-	CoreActionController::toggleGridCell( 0, 1 );
+	CoreActionController::toggleGridCell( GridPoint( 0, 0 ) );
+	CoreActionController::toggleGridCell( GridPoint( 0, 1 ) );
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
@@ -1385,8 +1386,8 @@ void AudioEngineTests::testHumanization() {
 	// Switch back to pattern 1
 	pAE->setState( AudioEngine::State::Ready );
 	pAE->unlock();
-	CoreActionController::toggleGridCell( 0, 1 );
-	CoreActionController::toggleGridCell( 0, 0 );
+	CoreActionController::toggleGridCell( GridPoint( 0, 1 ) );
+	CoreActionController::toggleGridCell( GridPoint( 0, 0 ) );
 	pAE->lock( RIGHT_HERE );
 	pAE->setState( AudioEngine::State::Testing );
 
@@ -1984,7 +1985,8 @@ void AudioEngineTests::toggleAndCheckConsistency( int nToggleColumn, int nToggle
 
 		pAE->setState( AudioEngine::State::Ready );
 		pAE->unlock();
-		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
+		CoreActionController::toggleGridCell(
+			GridPoint( nToggleColumn, nToggleRow ) );
 		pAE->lock( RIGHT_HERE );
 		pAE->setState( AudioEngine::State::Testing );
 
@@ -2357,7 +2359,8 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
+		CoreActionController::toggleGridCell(
+			GridPoint( nToggleColumn, nToggleRow ) );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportProcessingOffsetsJack] song size did not change." );
 		}
@@ -2398,7 +2401,8 @@ void AudioEngineTests::testTransportProcessingOffsetsJack() {
 	// Ensure the additional grid cell we activate/deactivate is set to its
 	// original state.
 	if ( pAE->m_fSongSizeInTicks != fOriginalSongSize ) {
-		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
+		CoreActionController::toggleGridCell(
+			GridPoint( nToggleColumn, nToggleRow ) );
 	}
 
 	stopJackAudioDriver();
@@ -2697,7 +2701,8 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 		// song size. It should never change during regular playback (which is
 		// covered by a separate test).
 		const auto nOldSongSize = pAE->m_fSongSizeInTicks;
-		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
+		CoreActionController::toggleGridCell(
+			GridPoint( nToggleColumn, nToggleRow ) );
 		if ( nOldSongSize == pAE->m_fSongSizeInTicks ) {
 			throwException( "[testTransportRelocationOffsetsJack] song size did not change." );
 		}
@@ -2808,7 +2813,8 @@ void AudioEngineTests::testTransportRelocationOffsetsJack() {
 	// Ensure the additional grid cell we activate/deactivate is set to its
 	// original state.
 	if ( pAE->m_fSongSizeInTicks != fOriginalSongSize ) {
-		CoreActionController::toggleGridCell( nToggleColumn, nToggleRow );
+		CoreActionController::toggleGridCell(
+			GridPoint( nToggleColumn, nToggleRow ) );
 	}
 
 	stopJackAudioDriver();

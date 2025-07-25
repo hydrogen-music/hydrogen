@@ -25,6 +25,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
@@ -2809,7 +2810,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::ToggleGridCell:
 				H2Core::CoreActionController::toggleGridCell(
-					sArg1.toInt(), sArg2.toInt() );
+					GridPoint( sArg1.toInt(), sArg2.toInt() ) );
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly handled" )

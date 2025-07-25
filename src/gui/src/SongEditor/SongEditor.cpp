@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
@@ -126,7 +127,8 @@ void SongEditor::addOrRemovePatternCellAction( const QPoint& gridPoint,
 	if ( ( action == Editor::Action::Toggle ) ||
 		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
 		 ( ( action == Editor::Action::Delete ) && bGridPointActive ) ) {
-		CoreActionController::toggleGridCell( gridPoint.x(), gridPoint.y() );
+		CoreActionController::toggleGridCell(
+			GridPoint( gridPoint.x(), gridPoint.y() ) );
 	}
 
 	auto pSongEditor = HydrogenApp::get_instance()->getSongEditorPanel()
