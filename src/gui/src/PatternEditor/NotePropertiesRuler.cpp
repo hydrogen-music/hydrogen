@@ -556,6 +556,25 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	m_oldNotes.clear();
 }
 
+QPoint NotePropertiesRuler::gridPointToPoint( const GridPoint& gridPoint ) const {
+	auto point = PatternEditor::gridPointToPoint( gridPoint );
+
+	// In a horizontal editor we do not keep track of the y coordinate. We make
+	// this design decision transparent by always setting y to 0.
+	point.setY( 0 );
+	return point;
+}
+
+GridPoint NotePropertiesRuler::pointToGridPoint( const QPoint& point,
+												 bool bHonorQuantization ) const {
+	auto gridPoint = PatternEditor::pointToGridPoint( point, bHonorQuantization );
+
+	// In a horizontal editor we do not keep track of the y coordinate. We make
+	// this design decision transparent by always returning an invalid row.
+	gridPoint.setRow( -1 );
+	return gridPoint;
+}
+
 void NotePropertiesRuler::mouseDrawStart( QMouseEvent *ev )
 {
 	setCursor( Qt::CrossCursor );

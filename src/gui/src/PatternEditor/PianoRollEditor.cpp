@@ -480,15 +480,22 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent )
 PianoRollEditor::~PianoRollEditor() {
 }
 
-QPoint PianoRollEditor::noteToPoint( std::shared_ptr<H2Core::Note> pNote ) const {
+GridPoint PianoRollEditor::elementToGridPoint( std::shared_ptr<H2Core::Note> pNote ) const {
+	GridPoint gridPoint;
 	if ( pNote == nullptr ) {
-		return QPoint();
+		return gridPoint;
 	}
 
-	return QPoint(
-		PatternEditor::nMarginSidebar + pNote->getPosition() * m_fGridWidth,
-		m_nGridHeight *
-		Note::pitchToLine( pNote->getPitchFromKeyOctave() ) + 1 );
+	gridPoint.setColumn( pNote->getPosition() );
+	gridPoint.setRow( Note::pitchToLine( pNote->getPitchFromKeyOctave() ) + 1 );
+
+	return gridPoint;
+}
+
+QPoint PianoRollEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
+	auto point = PatternEditor::gridPointToPoint( gridPoint );
+	point.setY( m_nGridHeight * gridPoint.getRow() );
+	return point;
 }
 
 void PianoRollEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
@@ -757,9 +764,9 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		auto pNote = it->second;
 		if ( selectedRow.contains( pNote ) ) {
-			const auto notePoint = noteToPoint( pNote );
+			const auto point = gridPointToPoint( elementToGridPoint( pNote ) );
 
-			if ( rNormalized.intersects( QRect( notePoint.x() -4 , notePoint.y(),
+			if ( rNormalized.intersects( QRect( point.x() -4 , point.y(),
 												w, h ) ) ) {
 				result.push_back( pNote );
 			}

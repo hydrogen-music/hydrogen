@@ -27,6 +27,8 @@
 #include "../HydrogenApp.h"
 #include "../Selection.h"
 
+#include <core/Basics/GridPoint.h>
+
 #include <memory>
 
 #include <QtGui>
@@ -110,6 +112,25 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		{
 			___ERRORLOG( "To be implemented by parent" );
 			return std::vector<Elem>();
+		}
+		/** Retrieve the position a particular element is located at. */
+		virtual H2Core::GridPoint elementToGridPoint( Elem elem ) const {
+			___ERRORLOG( "To be implemented by parent" );
+			return H2Core::GridPoint( -1, -1 );
+		}
+		/** Converts a pixel-based event point into a point on the editor's
+		 * grid. If @a bHonorQuantization is set to false, the current
+		 * quantization is disregarded and the resulting grid point will be
+		 * determined on the smallest resolution possible. */
+		virtual H2Core::GridPoint pointToGridPoint( const QPoint& point,
+													bool bHonorQuantization ) const {
+			___ERRORLOG( "To be implemented by parent" );
+			return H2Core::GridPoint( -1, -1 );
+		}
+		/** Converts a point on the editor's grid into a pixel-based point. */
+		virtual QPoint gridPointToPoint( const H2Core::GridPoint& gridPoint ) const {
+			___ERRORLOG( "To be implemented by parent" );
+			return QPoint();
 		}
 
 		/** Serialize and copy all currently selected elements. */

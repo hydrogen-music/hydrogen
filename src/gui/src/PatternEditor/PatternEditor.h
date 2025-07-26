@@ -187,10 +187,6 @@ public:
 		bool checkDeselectElements(
 			const std::vector< std::shared_ptr<H2Core::Note> >& elements ) override;
 		int getCursorMargin( QInputEvent* pEvent ) const override;
-		//! Update the status of modifier keys in response to input events.
-		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		QRect getKeyboardCursorRect() override;
 		/** Move or copy notes.
 		 *
@@ -205,6 +201,15 @@ public:
 		//! @{
 		void handleElements( QInputEvent* ev, Editor::Action action ) override;
 		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
+		virtual H2Core::GridPoint elementToGridPoint(
+			std::shared_ptr<H2Core::Note> pNote ) const override;
+		virtual QPoint gridPointToPoint(
+			const H2Core::GridPoint& gridPoint) const override;
+		virtual H2Core::GridPoint pointToGridPoint(
+			const QPoint& point, bool bHonorQuantization ) const override;
 		void copy() override;
 		void paste() override;
 		void ensureCursorIsVisible() override;
@@ -318,12 +323,6 @@ protected:
 		/** Checks whether the note would be played back when picked up by the
 		 * audio engine. */
 		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
-
-		H2Core::GridPoint elementToGridPoint(
-			std::shared_ptr<H2Core::Note> pNote ) const;
-		QPoint gridPointToPoint( const H2Core::GridPoint& gridPoint ) const;
-		H2Core::GridPoint pointToGridPoint( const QPoint& point,
-											bool bHonorQuantization ) const;
 
 		// How many #m_fGridWidth do make up a quantized grid cell in the
 		// current resolution.
