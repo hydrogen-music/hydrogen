@@ -204,7 +204,7 @@ public:
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
-		virtual H2Core::GridPoint elementToGridPoint(
+		virtual QPoint elementToPoint(
 			std::shared_ptr<H2Core::Note> pNote ) const override;
 		virtual QPoint gridPointToPoint(
 			const H2Core::GridPoint& gridPoint) const override;

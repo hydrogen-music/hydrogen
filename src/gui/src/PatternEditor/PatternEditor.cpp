@@ -641,8 +641,7 @@ bool PatternEditor::syncLasso() {
 
 			for ( const auto& ppNote : m_selection ) {
 				if ( ppNote != nullptr && row.contains( ppNote ) ) {
-					const QPoint np = gridPointToPoint(
-						elementToGridPoint( ppNote ) );
+					const QPoint np = elementToPoint( ppNote );
 					const QRect noteRect = QRect(
 						np.x() - cursor.width() / 2, np.y() - cursor.height() / 2,
 						cursor.width(), cursor.height() );
@@ -1612,16 +1611,15 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 	return std::move( notesUnderPoint );
 }
 
-GridPoint PatternEditor::elementToGridPoint( std::shared_ptr<Note> pNote ) const {
-	GridPoint gridPoint;
+QPoint PatternEditor::elementToPoint( std::shared_ptr<Note> pNote ) const {
 	if ( pNote == nullptr ) {
-		return gridPoint;
+		return QPoint();
 	}
 
-	gridPoint.setColumn( pNote->getPosition() );
-	gridPoint.setRow( m_pPatternEditorPanel->findRowDB( pNote ) );
+	GridPoint gridPoint( pNote->getPosition(),
+						 m_pPatternEditorPanel->findRowDB( pNote ) );
 
-	return gridPoint;
+	return gridPointToPoint( gridPoint );
 }
 
 QPoint PatternEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
@@ -3276,7 +3274,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	}
 
 	// Determine the center of the note symbol.
-	auto point = gridPointToPoint( elementToGridPoint( pNote ) );
+	auto point = elementToPoint( pNote );
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );

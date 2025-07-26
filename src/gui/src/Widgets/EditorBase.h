@@ -114,9 +114,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			return std::vector<Elem>();
 		}
 		/** Retrieve the position a particular element is located at. */
-		virtual H2Core::GridPoint elementToGridPoint( Elem elem ) const {
+		virtual QPoint elementToPoint( Elem elem ) const {
 			___ERRORLOG( "To be implemented by parent" );
-			return H2Core::GridPoint( -1, -1 );
+			return QPoint();
 		}
 		/** Converts a pixel-based event point into a point on the editor's
 		 * grid. If @a bHonorQuantization is set to false, the current
