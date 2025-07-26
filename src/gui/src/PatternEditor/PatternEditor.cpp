@@ -518,7 +518,7 @@ bool PatternEditor::isSelectionMoving() const {
 	return m_selection.isMoving();
 }
 
-QPoint PatternEditor::movingGridOffset( ) const {
+QPoint PatternEditor::movingGridOffset() const {
 	QPoint rawOffset = m_selection.movingOffset();
 
 	// Quantization in y direction is mandatory. A note can not be placed
@@ -530,23 +530,16 @@ QPoint PatternEditor::movingGridOffset( ) const {
 	}
 	const int nOffsetY = (rawOffset.y() + nBiasY) / nQuantY;
 
-	int nOffsetX;
-	if ( ! m_pPatternEditorPanel->isQuantized() ) {
-		// No quantization
-		nOffsetX = static_cast<int>(
-			std::floor( static_cast<float>(rawOffset.x()) / m_fGridWidth ) );
+	float fX = static_cast<float>(rawOffset.x());
+	float fGranularity = 1.0;
+	if ( m_pPatternEditorPanel->isQuantized() ) {
+		fGranularity = static_cast<float>(granularity());
 	}
-	else {
-		// Quantize offset to multiples of m_nGrid{Width,Height}
-		const float fFactor = granularity();
-		const int nQuantX = m_fGridWidth * fFactor;
-		int nBiasX = nQuantX / 2;
-		if ( rawOffset.x() < 0 ) {
-			nBiasX = -nBiasX;
-		}
-		nOffsetX = fFactor * static_cast<int>((rawOffset.x() + nBiasX) / nQuantX);
-	}
-
+	// A bias of m_fGridWidth * fGranularity / 2 -> half the distance between to
+	// grid point is introduced to "round" to the nearest grid point.
+	const int nOffsetX = static_cast<int>(
+		fGranularity * std::floor( ( fX + m_fGridWidth * fGranularity / 2 ) /
+								   ( m_fGridWidth * fGranularity ) ) );
 
 	return QPoint( nOffsetX, nOffsetY);
 }
