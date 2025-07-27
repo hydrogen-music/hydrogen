@@ -81,8 +81,8 @@ class SongEditor : public Editor::Base<QPoint>
 		~SongEditor();
 
 		static void addOrRemovePatternCellAction(
-			const QPoint& point, Editor::Action action,
-			Editor::ActionModifier modifiert );
+			const H2Core::GridPoint& gridPoint, Editor::Action action,
+			Editor::ActionModifier modifier );
 
 		void updatePosition( float fTick );
 
@@ -115,6 +115,11 @@ class SongEditor : public Editor::Base<QPoint>
 		virtual std::vector<QPoint> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
+		virtual QPoint elementToPoint( QPoint point ) const override;
+		virtual QPoint gridPointToPoint(
+			const H2Core::GridPoint& gridPoint) const override;
+		virtual H2Core::GridPoint pointToGridPoint(
+			const QPoint& point, bool bHonorQuantization ) const override;
 
 		void copy() override;
 		void paste() override;
@@ -184,8 +189,6 @@ class SongEditor : public Editor::Base<QPoint>
 		//! @}
 
 		virtual void paintEvent(QPaintEvent *ev) override;
-
-		void setPatternActive( int nColumn, int nRow, bool bActivate );
 
 		void drawSequence();
   

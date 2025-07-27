@@ -107,7 +107,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 SongEditor::~SongEditor() {
 }
 
-void SongEditor::addOrRemovePatternCellAction( const QPoint& gridPoint,
+void SongEditor::addOrRemovePatternCellAction( const GridPoint& gridPoint,
 											   Editor::Action action,
 											   Editor::ActionModifier modifier ) {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -116,27 +116,29 @@ void SongEditor::addOrRemovePatternCellAction( const QPoint& gridPoint,
 		return;
 	}
 
-	if ( gridPoint.x() < 0 || gridPoint.y() >= pSong->getPatternList()->size() ||
-		 gridPoint.y() < 0 ) {
+	if ( gridPoint.getColumn() < 0 ||
+		 gridPoint.getColumn() >= pSong->getPatternList()->size() ||
+		 gridPoint.getColumn() < 0 ) {
 		return;
 	}
 
 	const bool bGridPointActive = pSong->isPatternActive(
-		gridPoint.x(), gridPoint.y() );
+		gridPoint.getRow(), gridPoint.getColumn() );
 
 	if ( ( action == Editor::Action::Toggle ) ||
 		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
 		 ( ( action == Editor::Action::Delete ) && bGridPointActive ) ) {
-		CoreActionController::toggleGridCell(
-			GridPoint( gridPoint.x(), gridPoint.y() ) );
+		CoreActionController::toggleGridCell( gridPoint );
 	}
 
 	auto pSongEditor = HydrogenApp::get_instance()->getSongEditorPanel()
 		->getSongEditor();
 	if ( static_cast<char>(modifier) &
 		 static_cast<char>(Editor::ActionModifier::AddToSelection) &&
-		 ! pSongEditor->m_selection.isSelected( gridPoint ) ) {
-		pSongEditor->m_selection.addToSelection( gridPoint );
+		 ! pSongEditor->m_selection.isSelected(
+			 QPoint( gridPoint.getColumn(), gridPoint.getRow() ) ) ) {
+		pSongEditor->m_selection.addToSelection(
+			QPoint( gridPoint.getColumn(), gridPoint.getRow() ) );
 	}
 }
 
@@ -326,11 +328,6 @@ void SongEditor::setGridWidth( int nNewWidth ) {
 	}
 }
 
-QPoint SongEditor::xyToColumnRow( const QPoint& p ) const
-{
-	return QPoint( (p.x() - SongEditor::nMargin) / (int)m_nGridWidth, p.y() / (int)m_nGridHeight );
-}
-
 QPoint SongEditor::columnRowToXy( const QPoint& p ) const
 {
 	return QPoint( SongEditor::nMargin + p.x() * m_nGridWidth, p.y() * m_nGridHeight );
@@ -473,13 +470,13 @@ void SongEditor::paste() {
 		for ( const auto& ccell : newCells ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					ccell, Editor::Action::Add,
+					GridPoint( ccell.x(), ccell.y() ), Editor::Action::Add,
 					Editor::ActionModifier::AddToSelection ) );
 		}
 		for ( const auto& ccell : mergedCells ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					ccell, Editor::Action::None,
+					GridPoint( ccell.x(), ccell.y() ), Editor::Action::None,
 					Editor::ActionModifier::AddToSelection ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -489,14 +486,14 @@ void SongEditor::paste() {
 void SongEditor::handleElements( QInputEvent* pEvent, Editor::Action action ) {
 
 	// Retrieve the coordinates
-	QPoint point;
+	GridPoint gridPoint;
 	if ( dynamic_cast<QMouseEvent*>(pEvent) != nullptr ) {
 		// Element added via mouse.
 		auto pEv = static_cast<MouseEvent*>( pEvent );
-		point = xyToColumnRow( pEv->position().toPoint() );
+		gridPoint = pointToGridPoint( pEv->position().toPoint(), false );
 	}
 	else if ( dynamic_cast<QKeyEvent*>(pEvent) != nullptr ) {
-		point = QPoint( m_nCursorColumn, m_nCursorRow );
+		gridPoint = GridPoint( m_nCursorColumn, m_nCursorRow );
 	}
 	else {
 		ERRORLOG( "Unknown event" );
@@ -505,7 +502,7 @@ void SongEditor::handleElements( QInputEvent* pEvent, Editor::Action action ) {
 
 	HydrogenApp::get_instance()->pushUndoCommand(
 		new SE_addOrRemovePatternCellAction(
-			point, action, Editor::ActionModifier::None ) );
+			gridPoint, action, Editor::ActionModifier::None ) );
 }
 
 void SongEditor::deleteElements( std::vector<QPoint> points ) {
@@ -520,7 +517,8 @@ void SongEditor::deleteElements( std::vector<QPoint> points ) {
 	for ( const auto& ppoint : points ) {
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemovePatternCellAction(
-				ppoint, Editor::Action::Delete, Editor::ActionModifier::None ) );
+				GridPoint( ppoint.x(), ppoint.y() ), Editor::Action::Delete,
+				Editor::ActionModifier::None ) );
 	}
 	pHydrogenApp->endUndoMacro();
 }
@@ -531,15 +529,30 @@ std::vector<QPoint> SongEditor::getElementsAtPoint( const QPoint& point,
 	// Cursor margin and pattern aren't used within the song editor.
 	std::vector<QPoint> vec;
 
-	const auto gridPoint = xyToColumnRow( point ) ;
+	const auto gridPoint = pointToGridPoint( point, false ) ;
 
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr &&
-		 pSong->isPatternActive( gridPoint.x(), gridPoint.y() ) ) {
-		vec.push_back( gridPoint );
+		 pSong->isPatternActive( gridPoint.getColumn(), gridPoint.getRow() ) ) {
+		vec.push_back( QPoint( gridPoint.getColumn(), gridPoint.getRow() ) );
 	}
 
 	return std::move( vec );
+}
+
+QPoint SongEditor::elementToPoint( QPoint point ) const {
+	return gridPointToPoint( GridPoint( point.x(), point.y() ) );
+}
+
+QPoint SongEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
+	return QPoint( SongEditor::nMargin + gridPoint.getColumn() * m_nGridWidth,
+				   gridPoint.getRow() * m_nGridHeight );
+}
+
+GridPoint SongEditor::pointToGridPoint( const QPoint& point,
+										bool /* bHonorQuantization */ ) const {
+	return GridPoint( ( point.x() - SongEditor::nMargin ) / m_nGridWidth,
+					  point.y() / m_nGridHeight );
 }
 
 void SongEditor::ensureCursorIsVisible() {
@@ -655,13 +668,13 @@ void SongEditor::moveCursorUp( QKeyEvent* pEvent, Editor::Step step ) {
 }
 
 void SongEditor::setCursorTo( QPoint point ) {
-	m_nCursorColumn = point.x();
-	m_nCursorRow = point.y();
+	const auto gridPoint = pointToGridPoint( point, true );
+	m_nCursorColumn = gridPoint.getColumn();
+	m_nCursorRow = gridPoint.getRow();
 }
 
 void SongEditor::setCursorTo( QMouseEvent* pEvent ) {
-	setCursorTo( xyToColumnRow(
-					 static_cast<MouseEvent*>(pEvent)->position().toPoint() ) );
+	setCursorTo( static_cast<MouseEvent*>(pEvent)->position().toPoint() );
 }
 
 bool SongEditor::updateKeyboardHoveredElements() {
@@ -719,9 +732,9 @@ void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
 
 	// Check whether we are still at the same grid point as in the last update.
 	// We do not want to toggle the same note twice.
-	const QPoint endGridPoint = xyToColumnRow( end.toPoint() );
-	if ( endGridPoint.y() == m_nDrawPreviousColumn &&
-		 endGridPoint.x() == m_nDrawPreviousRow ) {
+	const auto endGridPoint = pointToGridPoint( end.toPoint(), true );
+	if ( endGridPoint.getColumn() == m_nDrawPreviousColumn &&
+		 endGridPoint.getRow() == m_nDrawPreviousRow ) {
 		m_drawPreviousPosition = end;
 		return;
 	}
@@ -760,14 +773,15 @@ void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
 	for ( auto ppoint = start; ( ppoint - start ).manhattanLength() <=
 			  ( end - start ).manhattanLength(); ppoint += increment ) {
 		// We prioritize existing notes
-		const QPoint gridPoint = xyToColumnRow( ppoint.toPoint() );
-		if ( gridPoint.x() != nLastRow || gridPoint.y() != nLastColumn ) {
+		const auto gridPoint = pointToGridPoint( ppoint.toPoint(), true );
+		if ( gridPoint.getRow() != nLastRow ||
+			 gridPoint.getColumn() != nLastColumn ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
 					gridPoint, Editor::Action::Toggle,
 					Editor::ActionModifier::None ), sUndoContext );
-			nLastRow = gridPoint.x();
-			nLastColumn = gridPoint.y();
+			nLastRow = gridPoint.getRow();
+			nLastColumn = gridPoint.getColumn();
 		}
 	}
 
@@ -868,19 +882,19 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 		for ( const auto& ccell : newCells ) {
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemovePatternCellAction(
-				ccell, Editor::Action::Add,
+				GridPoint( ccell.x(), ccell.y() ), Editor::Action::Add,
 				Editor::ActionModifier::AddToSelection ) );
 		}
 		for ( const auto& ccell : mergeCells ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					ccell, Editor::Action::None,
+					GridPoint( ccell.x(), ccell.y() ), Editor::Action::None,
 					Editor::ActionModifier::AddToSelection ) );
 		}
 		for ( const auto& ccell : deleteCells ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					ccell, Editor::Action::Delete,
+					GridPoint( ccell.x(), ccell.y() ), Editor::Action::Delete,
 					Editor::ActionModifier::None ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -1015,7 +1029,7 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 		// visibility.
 		painter.drawRoundedRect(
 			QRect( QPoint( 0, 1 ) +
-				   columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ),
+				   gridPointToPoint( GridPoint( m_nCursorColumn, m_nCursorRow ) ),
 				   QSize( m_nGridWidth + 1, m_nGridHeight - 1 ) ), 4, 4 );
 	}
 }
@@ -1324,7 +1338,8 @@ std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( const 
 }
 
 QRect SongEditor::getKeyboardCursorRect() {
-	return QRect( QPoint( 0, 1 ) + columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ),
+	return QRect( QPoint( 0, 1 ) +
+				  gridPointToPoint( GridPoint( m_nCursorColumn, m_nCursorRow ) ),
 				  QSize( m_nGridWidth, m_nGridHeight -1 ) );
 }
 

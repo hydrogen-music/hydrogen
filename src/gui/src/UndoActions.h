@@ -34,6 +34,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -348,10 +349,10 @@ private:
 
 class SE_addOrRemovePatternCellAction : public QUndoCommand {
 	public:
-		SE_addOrRemovePatternCellAction( const QPoint& point,
+		SE_addOrRemovePatternCellAction( const H2Core::GridPoint& gridPoint,
 										 Editor::Action action,
 										 Editor::ActionModifier modifier )
-			: m_point( point )
+			: m_gridPoint( gridPoint )
 			, m_action( action )
 			, m_modifier( modifier ) {
 			const auto pCommonStrings =
@@ -364,23 +365,23 @@ class SE_addOrRemovePatternCellAction : public QUndoCommand {
 				setText( pCommonStrings->getActionDeletePatternCells() );
 			}
 			else {
-				setText( QString( "Performing [%1] on pattern cell [%2,%3]" )
+				setText( QString( "Performing [%1] on pattern cell [%2]" )
 						 .arg( Editor::actionToQString( action ) )
-						 .arg( point.x() ).arg( point.y() ) );
+						 .arg( gridPoint.toQString() ) );
 			}
 		}
 		virtual void redo() {
 			SongEditor::addOrRemovePatternCellAction(
-				m_point, m_action, m_modifier );
+				m_gridPoint, m_action, m_modifier );
 		}
 		virtual void undo() {
 			// The side effect of the modifier is only triggered once.
 			m_modifier = Editor::ActionModifier::None;
 			SongEditor::addOrRemovePatternCellAction(
-				m_point, Editor::undoAction( m_action ), m_modifier );
+				m_gridPoint, Editor::undoAction( m_action ), m_modifier );
 		}
 	private:
-		QPoint m_point;
+		H2Core::GridPoint m_gridPoint;
 		Editor::Action m_action;
 		Editor::ActionModifier m_modifier;
 };

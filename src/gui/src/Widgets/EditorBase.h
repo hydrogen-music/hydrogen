@@ -106,13 +106,16 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
+		/** @name Conversion between screen position, grid position, and element
+		 * position. How a grid position/point is defined, is up to the
+		 * particular implementation of editor.
+		 *
+		 * @{ */
 		virtual std::vector<Elem> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr )
-		{
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) {
 			___ERRORLOG( "To be implemented by parent" );
-			return std::vector<Elem>();
-		}
+			return std::vector<Elem>(); }
 		/** Retrieve the position a particular element is located at. */
 		virtual QPoint elementToPoint( Elem elem ) const {
 			___ERRORLOG( "To be implemented by parent" );
@@ -132,6 +135,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 			return QPoint();
 		}
+		/** @} */
 
 		/** Serialize and copy all currently selected elements. */
 		virtual void copy() {
