@@ -41,13 +41,14 @@ namespace H2Core
 {
 
 class ADSR;
-class Sample;
-class Note;
-class Instrument;
-class Pattern;
-class Drumkit;
-class PatternList;
 class AutomationPath;
+class Drumkit;
+class GridPoint;
+class Instrument;
+class Note;
+class Pattern;
+class PatternList;
+class Sample;
 class SoundLibraryDatabase;
 class Timeline;
 
@@ -278,7 +279,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void setPanLawKNorm( float fKNorm );
 		float getPanLawKNorm() const;
 
-		bool isPatternActive( int nColumn, int nRow ) const;
+		bool isPatternActive( const GridPoint& gridPoint ) const;
 
 	std::shared_ptr<Timeline> getTimeline() const;
 

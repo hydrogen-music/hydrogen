@@ -122,8 +122,7 @@ void SongEditor::addOrRemovePatternCellAction( const GridPoint& gridPoint,
 		return;
 	}
 
-	const bool bGridPointActive = pSong->isPatternActive(
-		gridPoint.getRow(), gridPoint.getColumn() );
+	const bool bGridPointActive = pSong->isPatternActive( gridPoint );
 
 	if ( ( action == Editor::Action::Toggle ) ||
 		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
@@ -532,8 +531,7 @@ std::vector<QPoint> SongEditor::getElementsAtPoint( const QPoint& point,
 	const auto gridPoint = pointToGridPoint( point, false ) ;
 
 	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong != nullptr &&
-		 pSong->isPatternActive( gridPoint.getColumn(), gridPoint.getRow() ) ) {
+	if ( pSong != nullptr && pSong->isPatternActive( gridPoint ) ) {
 		vec.push_back( QPoint( gridPoint.getColumn(), gridPoint.getRow() ) );
 	}
 
@@ -688,7 +686,7 @@ bool SongEditor::updateKeyboardHoveredElements() {
 
 		const auto pSong = Hydrogen::get_instance()->getSong();
 		if ( pSong != nullptr &&
-			 pSong->isPatternActive( m_nCursorColumn, m_nCursorRow ) ) {
+			 pSong->isPatternActive( GridPoint( m_nCursorColumn, m_nCursorRow ) ) ) {
 			hoveredCells.push_back(
 				QPoint( m_nCursorColumn, m_nCursorRow ) );
 		}
