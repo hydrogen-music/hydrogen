@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.6] - XXXX-XX-XX
 
+### Added
+
+- The AppImage version does now provide all drumkits in
+  `/usr/share/hydrogen/data/drumkits/` and
+  `/usr/local/share/hydrogen/data/drumkits/` via the "Sound Library" as session
+  kits.
+
 ### Changed
 
 - Sample loading in songs has been made more portable.
@@ -11,7 +18,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Fix velocity automation for patterns that are not of size 4/4 (#2171).
-- Fix saving and loading of sample files (#2174).
+- Fix saving and loading of sample files introduced in 1.2.5 (#2174).
 
 ## [1.2.5] - 2025-07-17
 

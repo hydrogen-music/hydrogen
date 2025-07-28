@@ -83,6 +83,29 @@ void SoundLibraryDatabase::updateDrumkits( bool bTriggerEvent ) {
 		drumkitPaths <<
 			Filesystem::absolute_path( Filesystem::usr_drumkits_dir() + sDrumkitName );
 	}
+
+#ifdef H2CORE_HAVE_APPIMAGE
+	// When starting Hydrogen as an AppImage, all drumkits installed via the
+	// package manager are not part of the system drumkit folder of this
+	// instance. Instead, we treat them as custom drumkit.
+	const auto additionalDirs = QStringList()
+		<< "/usr/share/hydrogen/data/drumkits"
+		<< "/usr/local/share/hydrogen/data/drumkits";
+	for ( const auto& ssDir : additionalDirs ) {
+		if ( Filesystem::dir_exists( ssDir, true ) ) {
+			for ( const auto& ssEntry : QDir( ssDir ).entryList(
+					  QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot ) ) {
+				const auto sFilePath = QString( "%1/%2" ).arg( ssDir )
+					.arg( ssEntry );
+				if ( Filesystem::drumkit_valid( sFilePath ) &&
+					 ! m_customDrumkitPaths.contains( sFilePath ) ) {
+					m_customDrumkitPaths << sFilePath;
+				}
+			}
+		}
+	}
+#endif
+
 	// custom drumkits added by the user
 	for ( const auto& sDrumkitPath : m_customDrumkitPaths ) {
 		if ( ! drumkitPaths.contains( sDrumkitPath ) ) {
