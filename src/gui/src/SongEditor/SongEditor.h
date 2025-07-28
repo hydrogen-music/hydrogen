@@ -23,6 +23,7 @@
 #ifndef SONG_EDITOR_H
 #define SONG_EDITOR_H
 
+#include "GridCell.h"
 #include "../Widgets/EditorBase.h"
 #include "../Widgets/EditorDefs.h"
 
@@ -59,12 +60,6 @@ class SongEditor : public Editor::Base<QPoint>
     H2_OBJECT(SongEditor)
 	Q_OBJECT
 
-		struct GridCell {
-			bool m_bActive;
-			bool m_bDrawnVirtual;
-			float m_fWidth;
-		};
-	
 	public:
 
 		static constexpr int nMargin = 10;

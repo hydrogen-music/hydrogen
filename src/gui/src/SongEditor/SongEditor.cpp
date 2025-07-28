@@ -983,13 +983,17 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	painter.drawPixmap( ev->rect(), *m_pContentPixmap, ev->rect() );
 
 	// Draw hovered cells
-	for ( const auto& ppoint : m_hoveredCells ) {
+	if ( m_hoveredCells.size() > 0 ) {
 		QPen p( hoverColor );
 		painter.setPen( p );
-		const int nWidth = m_gridCells[ ppoint ].m_fWidth * m_nGridWidth;
-		const QRect r = QRect( columnRowToXy( ppoint ),
-						 QSize( nWidth, m_nGridHeight ) );
-		painter.drawRect( r );
+	}
+	for ( const auto& ppoint : m_hoveredCells ) {
+		if ( m_gridCells.find( ppoint ) != m_gridCells.end() ) {
+			const int nWidth = m_gridCells.at( ppoint ).getWidth() * m_nGridWidth;
+			const QRect r = QRect( columnRowToXy( ppoint ),
+								   QSize( nWidth, m_nGridHeight ) );
+			painter.drawRect( r );
+		}
 	}
 
 	// Draw moving selected cells
@@ -997,11 +1001,13 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	if ( m_selection.isMoving() ) {
 		QPoint offset = movingGridOffset();
 		for ( QPoint point : m_selection ) {
-			int nWidth = m_gridCells[ point ].m_fWidth * m_nGridWidth;
-			QRect r = QRect( columnRowToXy( point + offset ),
-							 QSize( nWidth, m_nGridHeight ) )
-				.marginsRemoved( QMargins( 2, 4, 1 , 3 ) );
-			painter.fillRect( r, patternColor );
+			if ( m_gridCells.find( point ) != m_gridCells.end() ) {
+				const int nWidth = m_gridCells.at( point ).getWidth() * m_nGridWidth;
+				const QRect r = QRect( columnRowToXy( point + offset ),
+									   QSize( nWidth, m_nGridHeight ) )
+					.marginsRemoved( QMargins( 2, 4, 1 , 3 ) );
+				painter.fillRect( r, patternColor );
+			}
 		}
 	}
 	// Draw playhead
@@ -1141,16 +1147,30 @@ void SongEditor::updateGridCells() {
 
 		for ( int nPat = 0; nPat < pColumn->size(); nPat++ ) {
 			auto pPattern = (*pColumn)[ nPat ];
-			int y = pPatternList->index( pPattern );
+			if ( pPattern == nullptr ) {
+				continue;
+			}
+			const int y = pPatternList->index( pPattern );
 			assert( y != -1 );
-			GridCell *pCell = &( m_gridCells[ QPoint( nColumn, y ) ] );
-			pCell->m_bActive = true;
-			pCell->m_fWidth = (float) pPattern->getLength() / nMaxLength;
+			const float fWidth = pPattern->getLength() / nMaxLength;
+
+			const GridPoint gridPoint( nColumn, y );
+			const GridCell gridCell( gridPoint, true, fWidth, false );
+			m_gridCells.insert( { QPoint( gridPoint.getColumn(),
+										  gridPoint.getRow() ), gridCell } );
 
 			for ( const auto& pVPattern : *( pPattern->getFlattenedVirtualPatterns() ) ) {
-				GridCell *pVCell = &( m_gridCells[ QPoint( nColumn, pPatternList->index( pVPattern ) ) ] );
-				pVCell->m_bDrawnVirtual = true;
-				pVCell->m_fWidth = (float) pVPattern->getLength() / nMaxLength;
+				if ( pVPattern == nullptr ) {
+					continue;
+				}
+				const float fWidthVirtual = pVPattern->getLength() / nMaxLength;
+				const GridPoint gridPointVirtual(
+					nColumn, pPatternList->index( pVPattern ) );
+				const GridCell gridCellVirtual(
+					gridPointVirtual, false, fWidthVirtual, true );
+				m_gridCells.insert( {
+					QPoint( gridPointVirtual.getColumn(),
+							gridPointVirtual.getRow() ), gridCellVirtual } );
 			}
 		}
 	}
@@ -1234,7 +1254,7 @@ void SongEditor::drawSequence()
 	for ( const auto& it : m_gridCells ) {
 		if ( ! m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
 			drawPattern( it.first.x(), it.first.y(),
-						 it.second.m_bDrawnVirtual, it.second.m_fWidth );
+						 it.second.getDrawnVirtual(), it.second.getWidth() );
 		}
 	}
 	// We draw all selected patterns in a second run to ensure their
@@ -1243,7 +1263,7 @@ void SongEditor::drawSequence()
 	for ( const auto& it : m_gridCells ) {
 		if ( m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
 			drawPattern( it.first.x(), it.first.y(),
-						 it.second.m_bDrawnVirtual, it.second.m_fWidth );
+						 it.second.getDrawnVirtual(), it.second.getWidth() );
 		}
 	}
 }
@@ -1327,7 +1347,7 @@ std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( const 
 	for ( auto it : m_gridCells ) {
 		if ( r.intersects( QRect( columnRowToXy( it.first ),
 								  QSize( m_nGridWidth, m_nGridHeight) ) ) ) {
-			if ( ! it.second.m_bDrawnVirtual ) {
+			if ( ! it.second.getDrawnVirtual() ) {
 				elems.push_back( it.first );
 			}
 		}
