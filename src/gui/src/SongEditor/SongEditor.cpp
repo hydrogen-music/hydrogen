@@ -364,22 +364,23 @@ void SongEditor::selectAll() {
 void SongEditor::copy() {
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "patternSelection" );
-	XMLNode cellList = selection.createNode( "cellList" );
+	XMLNode gridPointList = selection.createNode( "gridPointList" );
 	XMLNode positionNode = selection.createNode( "sourcePosition" );
 	// Top left of selection
 	int nMinX, nMinY;
 	bool bWrotePattern = false;
 
-	for ( QPoint cell : m_selection ) {
-		XMLNode cellNode = cellList.createNode( "cell" );
-		cellNode.write_int( "x", cell.x() );
-		cellNode.write_int( "y", cell.y() );
+	for ( QPoint ppoint : m_selection ) {
+		const GridPoint gridPoint( ppoint.x(), ppoint.y() );
+		XMLNode gridPointNode = gridPointList.createNode( "gridPoint" );
+		gridPointNode.write_int( "column", gridPoint.getColumn() );
+		gridPointNode.write_int( "row", gridPoint.getRow() );
 		if ( bWrotePattern ) {
-			nMinX = std::min( nMinX, cell.x() );
-			nMinY = std::min( nMinY, cell.y() );
+			nMinX = std::min( nMinX, gridPoint.getColumn() );
+			nMinY = std::min( nMinY, gridPoint.getRow() );
 		} else {
-			nMinX = cell.x();
-			nMinY = cell.y();
+			nMinX = gridPoint.getColumn();
+			nMinY = gridPoint.getRow();
 			bWrotePattern = true;
 		}
 	}
@@ -412,11 +413,11 @@ void SongEditor::paste() {
 	updateGridCells();
 
 	// Retrieves all cells to be activated
-	std::vector<QPoint> newCells, mergedCells;
+	std::vector<GridPoint> newGridPoints, mergedGridPoints;
 	const XMLNode selection = doc.firstChildElement( "patternSelection" );
 	if ( ! selection.isNull() ) {
-		const XMLNode cellList = selection.firstChildElement( "cellList" );
-		if ( cellList.isNull() ) {
+		const XMLNode gridPointList = selection.firstChildElement( "gridPointList" );
+		if ( gridPointList.isNull() ) {
 			return;
 		}
 
@@ -435,47 +436,48 @@ void SongEditor::paste() {
 
 		const int nMaxRow = pSong->getPatternList()->size() - 1;
 		const int nMaxColumn = Preferences::get_instance()->getMaxBars() - 1;
-		if ( cellList.hasChildNodes() ) {
-			for ( XMLNode cellNode = cellList.firstChildElement( "cell" );
-				  ! cellNode.isNull();
-				  cellNode = cellNode.nextSiblingElement() ) {
-				const int nCol = cellNode.read_int( "x", m_nCursorColumn ) +
+		if ( gridPointList.hasChildNodes() ) {
+			for ( XMLNode gridPointNode =
+					  gridPointList.firstChildElement( "gridPoint" );
+				  ! gridPointNode.isNull();
+				  gridPointNode = gridPointNode.nextSiblingElement() ) {
+				const int nCol = gridPointNode.read_int( "column", m_nCursorColumn ) +
 					nDeltaColumn;
-				const int nRow = cellNode.read_int( "y", m_nCursorRow ) +
+				const int nRow = gridPointNode.read_int( "row", m_nCursorRow ) +
 					nDeltaRow;
 				if ( nCol >= 0 && nRow >= 0 && nRow <= nMaxRow &&
 					 nCol <= nMaxColumn ) {
 					// Paste cells
-					QPoint p = QPoint( nCol, nRow );
-					if ( m_gridCells.find( p ) == m_gridCells.end() ) {
+					const GridPoint gridPoint( nCol, nRow );
+					if ( m_gridCells.find( gridPoint ) == m_gridCells.end() ) {
 						// Cell is not active. Activate it.
-						newCells.push_back( p );
+						newGridPoints.push_back( gridPoint );
 					}
 					else {
 						// This cell already exists. We do not have to add but
 						// just to select it.
-						mergedCells.push_back( p );
+						mergedGridPoints.push_back( gridPoint );
 					}
 				}
 			}
 		}
 	}
 
-	if ( newCells.size() > 0 || mergedCells.size() ) {
+	if ( newGridPoints.size() > 0 || mergedGridPoints.size() ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionPastePatternCells() );
-		for ( const auto& ccell : newCells ) {
+		for ( const auto& ggridPoint : newGridPoints ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					GridPoint( ccell.x(), ccell.y() ), Editor::Action::Add,
+					ggridPoint, Editor::Action::Add,
 					Editor::ActionModifier::AddToSelection ) );
 		}
-		for ( const auto& ccell : mergedCells ) {
+		for ( const auto& ggridPoint : mergedGridPoints ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					GridPoint( ccell.x(), ccell.y() ), Editor::Action::None,
+					ggridPoint, Editor::Action::None,
 					Editor::ActionModifier::AddToSelection ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -841,58 +843,62 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 	int nMaxPattern = pPatternList->size();
 
 	updateModifiers( ev );
-	QPoint offset = movingGridOffset();
-	if ( offset == QPoint( 0, 0 ) ) {
+	const GridPoint offset = movingGridOffset();
+	if ( offset == GridPoint( 0, 0 ) ) {
 		return;
 	}
-	std::vector<QPoint> newCells, mergeCells, deleteCells;
+	std::vector<GridPoint> newGridPoints, mergeGridPoints, deleteGridPoints;
 
 	updateGridCells();
 
 	const int nMaxRow = pSong->getPatternList()->size() - 1;
 	const int nMaxColumn = Preferences::get_instance()->getMaxBars() - 1;
-	for ( QPoint cell : m_selection ) {
+	for ( QPoint ppoint : m_selection ) {
+		const GridPoint gridPoint( ppoint.x(), ppoint.y() );
 		// Remove original active cell
 		if ( ! m_bCopyNotMove ) {
-			deleteCells.push_back( cell );
+			deleteGridPoints.push_back( gridPoint );
 		}
-		QPoint newCell = cell + offset;
+		const GridPoint newGridPoint = gridPoint + offset;
 		// Place new cell if not already active
-		if ( newCell.x() >= 0 && newCell.y() >= 0 &&
-			 newCell.y() <= nMaxRow && newCell.x() <= nMaxColumn ) {
-			if ( m_gridCells.find( newCell ) == m_gridCells.end() ||
-				 m_selection.isSelected( newCell ) ) {
+		if ( newGridPoint.getColumn() >= 0 && newGridPoint.getRow() >= 0 &&
+			 newGridPoint.getRow() <= nMaxRow &&
+			 newGridPoint.getColumn() <= nMaxColumn ) {
+			if ( m_gridCells.find( newGridPoint ) == m_gridCells.end() ||
+				 m_selection.isSelected( QPoint( newGridPoint.getColumn(),
+												 newGridPoint.getRow() ) ) ) {
 				// Cell is not active. Activate it.
-				newCells.push_back( newCell );
+				newGridPoints.push_back( newGridPoint );
 			} else {
 				// This cell already exists. We do not have to add but just to
 				// select it.
-				mergeCells.push_back( newCell );
+				mergeGridPoints.push_back( newGridPoint );
 			}
 		}
 	}
 
-	if ( newCells.size() > 0 || mergeCells.size() ) {
+	if ( newGridPoints.size() > 0 || mergeGridPoints.size() > 0 ||
+		 deleteGridPoints.size() > 0) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionMovePatternCells() );
-		for ( const auto& ccell : newCells ) {
+		for ( const auto& ggridPoint : newGridPoints ) {
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemovePatternCellAction(
-				GridPoint( ccell.x(), ccell.y() ), Editor::Action::Add,
+				ggridPoint, Editor::Action::Add,
 				Editor::ActionModifier::AddToSelection ) );
 		}
-		for ( const auto& ccell : mergeCells ) {
+		for ( const auto& ggridPoint : mergeGridPoints ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					GridPoint( ccell.x(), ccell.y() ), Editor::Action::None,
+					ggridPoint, Editor::Action::None,
 					Editor::ActionModifier::AddToSelection ) );
 		}
-		for ( const auto& ccell : deleteCells ) {
+		for ( const auto& ggridPoint : deleteGridPoints ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
-					GridPoint( ccell.x(), ccell.y() ), Editor::Action::Delete,
+					ggridPoint, Editor::Action::Delete,
 					Editor::ActionModifier::None ) );
 		}
 		pHydrogenApp->endUndoMacro();
@@ -988,9 +994,11 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 		painter.setPen( p );
 	}
 	for ( const auto& ppoint : m_hoveredCells ) {
-		if ( m_gridCells.find( ppoint ) != m_gridCells.end() ) {
-			const int nWidth = m_gridCells.at( ppoint ).getWidth() * m_nGridWidth;
-			const QRect r = QRect( columnRowToXy( ppoint ),
+		const GridPoint ggridPoint( ppoint.x(), ppoint.y() );
+		if ( m_gridCells.find( ggridPoint ) != m_gridCells.end() ) {
+			const int nWidth =
+				m_gridCells.at( ggridPoint ).getWidth() * m_nGridWidth;
+			const QRect r = QRect( gridPointToPoint( ggridPoint ),
 								   QSize( nWidth, m_nGridHeight ) );
 			painter.drawRect( r );
 		}
@@ -999,11 +1007,13 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	// Draw moving selected cells
 	QColor patternColor( 0, 0, 0 );
 	if ( m_selection.isMoving() ) {
-		QPoint offset = movingGridOffset();
+		const GridPoint offset = movingGridOffset();
 		for ( QPoint point : m_selection ) {
-			if ( m_gridCells.find( point ) != m_gridCells.end() ) {
-				const int nWidth = m_gridCells.at( point ).getWidth() * m_nGridWidth;
-				const QRect r = QRect( columnRowToXy( point + offset ),
+			const GridPoint ggridPoint( point.x(), point.y() );
+			if ( m_gridCells.find( ggridPoint ) != m_gridCells.end() ) {
+				const int nWidth =
+					m_gridCells.at( ggridPoint ).getWidth() * m_nGridWidth;
+				const QRect r = QRect( gridPointToPoint( ggridPoint + offset ),
 									   QSize( nWidth, m_nGridHeight ) )
 					.marginsRemoved( QMargins( 2, 4, 1 , 3 ) );
 				painter.fillRect( r, patternColor );
@@ -1156,8 +1166,7 @@ void SongEditor::updateGridCells() {
 
 			const GridPoint gridPoint( nColumn, y );
 			const GridCell gridCell( gridPoint, true, fWidth, false );
-			m_gridCells.insert( { QPoint( gridPoint.getColumn(),
-										  gridPoint.getRow() ), gridCell } );
+			m_gridCells.insert( { gridPoint, gridCell } );
 
 			for ( const auto& pVPattern : *( pPattern->getFlattenedVirtualPatterns() ) ) {
 				if ( pVPattern == nullptr ) {
@@ -1168,9 +1177,7 @@ void SongEditor::updateGridCells() {
 					nColumn, pPatternList->index( pVPattern ) );
 				const GridCell gridCellVirtual(
 					gridPointVirtual, false, fWidthVirtual, true );
-				m_gridCells.insert( {
-					QPoint( gridPointVirtual.getColumn(),
-							gridPointVirtual.getRow() ), gridCellVirtual } );
+				m_gridCells.insert( { gridPointVirtual, gridCellVirtual } );
 			}
 		}
 	}
@@ -1224,8 +1231,9 @@ bool SongEditor::updateHoveredCells( std::vector<QPoint> hoveredCells,
 }
 
 // Return grid offset (in cell coordinate space) of moving selection
-QPoint SongEditor::movingGridOffset( ) const {
-	QPoint rawOffset = m_selection.movingOffset();
+GridPoint SongEditor::movingGridOffset( ) const {
+	const QPoint rawOffset = m_selection.movingOffset();
+
 	// Quantize offset to multiples of m_nGrid{Width,Height}
 	int x_bias = m_nGridWidth / 2, y_bias = m_nGridHeight / 2;
 	if ( rawOffset.y() < 0 ) {
@@ -1234,9 +1242,9 @@ QPoint SongEditor::movingGridOffset( ) const {
 	if ( rawOffset.x() < 0 ) {
 		x_bias = -x_bias;
 	}
-	int x_off = (rawOffset.x() + x_bias) / (int)m_nGridWidth;
-	int y_off = (rawOffset.y() + y_bias) / (int)m_nGridHeight;
-	return QPoint( x_off, y_off );
+	const int x_off = (rawOffset.x() + x_bias) / (int)m_nGridWidth;
+	const int y_off = (rawOffset.y() + y_bias) / (int)m_nGridHeight;
+	return GridPoint( x_off, y_off );
 }
 
 
@@ -1252,8 +1260,9 @@ void SongEditor::drawSequence()
 
 	// Draw using GridCells representation
 	for ( const auto& it : m_gridCells ) {
-		if ( ! m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
-			drawPattern( it.first.x(), it.first.y(),
+		if ( ! m_selection.isSelected( QPoint( it.first.getColumn(),
+											   it.first.getRow() ) ) ) {
+			drawPattern( it.first.getColumn(), it.first.getRow(),
 						 it.second.getDrawnVirtual(), it.second.getWidth() );
 		}
 	}
@@ -1261,8 +1270,9 @@ void SongEditor::drawSequence()
 	// border does have the proper color (else the bottom and left one
 	// could be overwritten by an adjecent, unselected pattern).
 	for ( const auto& it : m_gridCells ) {
-		if ( m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
-			drawPattern( it.first.x(), it.first.y(),
+		if ( m_selection.isSelected( QPoint( it.first.getColumn(),
+											 it.first.getRow() ) ) ) {
+			drawPattern( it.first.getColumn(), it.first.getRow(),
 						 it.second.getDrawnVirtual(), it.second.getWidth() );
 		}
 	}
@@ -1345,10 +1355,11 @@ std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( const 
 {
 	std::vector<SelectionIndex> elems;
 	for ( auto it : m_gridCells ) {
-		if ( r.intersects( QRect( columnRowToXy( it.first ),
+		if ( r.intersects( QRect( gridPointToPoint( it.first ),
 								  QSize( m_nGridWidth, m_nGridHeight) ) ) ) {
 			if ( ! it.second.getDrawnVirtual() ) {
-				elems.push_back( it.first );
+				elems.push_back( QPoint( it.first.getColumn(),
+										 it.first.getRow() ) );
 			}
 		}
 	}

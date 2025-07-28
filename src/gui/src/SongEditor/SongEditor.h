@@ -176,7 +176,7 @@ class SongEditor : public Editor::Base<QPoint>
 		//! @}
 
 		//! Quantise the selection move offset to the sequence grid
-		QPoint movingGridOffset() const;
+		H2Core::GridPoint movingGridOffset() const;
 
 		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
 		QPoint m_previousMousePosition, m_currentMousePosition, m_previousGridOffset;
@@ -190,7 +190,7 @@ class SongEditor : public Editor::Base<QPoint>
 		void drawPattern( int pos, int number, bool invertColour, double width );
 		void drawFocus( QPainter& painter );
 
-		std::map< QPoint, GridCell > m_gridCells;
+		std::map<H2Core::GridPoint, GridCell> m_gridCells;
 		void updateGridCells();
 
 		bool updateHoveredCells( std::vector<QPoint> hoveredCells,
