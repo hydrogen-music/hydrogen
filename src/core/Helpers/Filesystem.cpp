@@ -917,8 +917,6 @@ QString Filesystem::prepare_sample_path( const QString& sSamplePath )
 		// Sample is located in a drumkit folder. Just return basename.
 		QString sShortenedPath = sSamplePathCleaned.right(
 			sSamplePathCleaned.size() - nIndexMatch );
-		INFOLOG( QString( "Shortening sample path [%1] to [%2]" )
-				 .arg( sSamplePath ).arg( sShortenedPath ) );
 
 		return std::move( sShortenedPath );
 	}
