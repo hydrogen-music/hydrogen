@@ -250,7 +250,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_libsndfile_5 # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_main # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -277,7 +277,7 @@ for:
         mkdir -p $cdir || exit 1
 
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
-        sudo apt-get update || exit 1
+        sudo apt-get update
         sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libgl1-mesa-dev libgles2-mesa-dev libglu1-mesa-dev libogg-dev libvorbis-dev mesa-common-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 autogen || exit 1
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libflac-dev libopus-dev libvorbis-dev libmpg123-dev || exit 1
 
