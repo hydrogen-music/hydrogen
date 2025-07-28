@@ -63,11 +63,11 @@ class GridPoint {
 			m_nRow = nRow;
 		}
 
-		bool operator==( const GridPoint& other ) {
+		bool operator==( const GridPoint& other ) const {
 			return m_nRow == other.m_nRow && m_nColumn == other.m_nColumn;
 		}
 
-		bool operator!=( const GridPoint& other ) {
+		bool operator!=( const GridPoint& other ) const {
 			return m_nRow != other.m_nRow || m_nColumn != other.m_nColumn;
 		}
 
@@ -90,6 +90,13 @@ inline int operator<( GridPoint a, GridPoint b ) {
 		int nRowA = a.getRow(), nRowB = b.getRow();
 		return nRowA < nRowB;
 	}
+}
+
+inline GridPoint operator+( const GridPoint& a, const GridPoint& b ) {
+	return GridPoint( a.getColumn() + b.getColumn(), a.getRow() + b.getRow() );
+}
+inline GridPoint operator-( const GridPoint& a, const GridPoint& b ) {
+	return GridPoint( a.getColumn() - b.getColumn(), a.getRow() - b.getRow() );
 }
 };
 
