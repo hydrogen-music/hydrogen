@@ -177,7 +177,7 @@ All notable changes to this project will be documented in this file.
 - `LASH` support has been dropped (#1649).
 - `cmake` option `MAX_NOTES` has been dropped.
 
-## [1.2.6] - XXXX-XX-XX
+## [1.2.6] - 2025-07-29
 
 ### Added
 
