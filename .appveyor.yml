@@ -42,7 +42,7 @@
 environment:
   GENERATOR: "MinGW Makefiles"
   UPLOAD_ARTIFACTS: false
-  TARGET_VERSION: '1.2.5'
+  TARGET_VERSION: '1.2.6'
   matrix:
 
     - job_name: 'Ubuntu 22.04'
