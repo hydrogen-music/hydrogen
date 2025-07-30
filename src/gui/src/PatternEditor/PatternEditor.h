@@ -213,7 +213,7 @@ public:
 		void copy() override;
 		void paste() override;
 		void ensureCursorIsVisible() override;
-		QPoint getCursorPosition() override;
+		virtual H2Core::GridPoint getCursorPosition() const override;
 		void moveCursorLeft( QKeyEvent* ev, Editor::Step step ) override;
 		void moveCursorRight( QKeyEvent* ev, Editor::Step step ) override;
 		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;

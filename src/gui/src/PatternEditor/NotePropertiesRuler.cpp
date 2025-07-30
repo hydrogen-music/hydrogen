@@ -890,7 +890,8 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta ) {
 	// We interact only with notes under cursor. If any of them are part of the
 	// current selection, we alter the values of all selected notes. It not, we
 	// discard the selection.
-	const auto notesUnderPoint = getElementsAtPoint( getCursorPosition(), 0 );
+	const auto notesUnderPoint = getElementsAtPoint(
+		gridPointToPoint( getCursorPosition() ), 0 );
 	if ( notesUnderPoint.size() == 0 ) {
 		return;
 	}

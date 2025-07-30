@@ -119,6 +119,7 @@ class PianoRollEditor: public PatternEditor,
 
 		H2Core::GridPoint elementToGridPoint( std::shared_ptr<H2Core::Note> pNote ) const;
 		QPoint gridPointToPoint( const H2Core::GridPoint& gridPoint ) const override;
+		H2Core::GridPoint getCursorPosition() const override;
 		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
 		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
 

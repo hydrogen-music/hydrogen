@@ -498,6 +498,11 @@ QPoint PianoRollEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
 	return point;
 }
 
+GridPoint PianoRollEditor::getCursorPosition() const {
+	return GridPoint( m_pPatternEditorPanel->getCursorColumn(),
+					  Note::pitchToLine( m_nCursorPitch ) + 1 );
+}
+
 void PianoRollEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
 	int nStep;
 	switch( step ) {

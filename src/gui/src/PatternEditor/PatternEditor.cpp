@@ -1162,7 +1162,7 @@ int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
 }
 
 QRect PatternEditor::getKeyboardCursorRect() {
-	QPoint pos = getCursorPosition();
+	const auto pos = gridPointToPoint( getCursorPosition() );
 
 	float fHalfWidth;
 	if ( m_pPatternEditorPanel->getResolution() != 4 * H2Core::nTicksPerQuarter ) {
@@ -1890,18 +1890,9 @@ void PatternEditor::ensureCursorIsVisible() {
 	m_pPatternEditorPanel->ensureCursorIsVisible();
 }
 
-QPoint PatternEditor::getCursorPosition() {
-	const int nX = PatternEditor::nMargin +
-		m_pPatternEditorPanel->getCursorColumn() * m_fGridWidth;
-	int nY;
-	if ( m_instance == Editor::Instance::PianoRoll ) {
-		nY = m_nGridHeight * Note::pitchToLine( m_nCursorPitch ) + 1;
-	}
-	else {
-		nY = m_nGridHeight * m_pPatternEditorPanel->getSelectedRowDB();
-	}
-
-	return QPoint( nX, nY );
+GridPoint PatternEditor::getCursorPosition() const {
+	return GridPoint( m_pPatternEditorPanel->getCursorColumn(),
+					  m_pPatternEditorPanel->getSelectedRowDB() );
 }
 
 void PatternEditor::moveCursorLeft( QKeyEvent* ev, Editor::Step step ) {
@@ -1955,7 +1946,7 @@ bool PatternEditor::updateKeyboardHoveredElements() {
 			}
 		}
 
-		const auto point = pEditor->getCursorPosition();
+		const auto point = gridPointToPoint( pEditor->getCursorPosition() );
 
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes =

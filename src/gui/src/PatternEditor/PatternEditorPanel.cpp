@@ -1618,11 +1618,13 @@ int PatternEditorPanel::getCursorIncrement() const {
 void PatternEditorPanel::ensureCursorIsVisible()
 {
 	if ( m_instance == Editor::Instance::DrumPattern ) {
-		const auto pos = m_pDrumPatternEditor->getCursorPosition();
+		const auto pos = m_pDrumPatternEditor->gridPointToPoint(
+			m_pDrumPatternEditor->getCursorPosition() );
 		m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
 	}
 	else {
-		const auto pos = m_pPianoRollEditor->getCursorPosition();
+		const auto pos = m_pPianoRollEditor->gridPointToPoint(
+			m_pPianoRollEditor->getCursorPosition() );
 		m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
 	}
 }

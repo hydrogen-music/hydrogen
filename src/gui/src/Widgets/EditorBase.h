@@ -157,9 +157,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		}
 		/** Since the cursor might be shared amongst various components of the
 		 * editor, we do not store it in here. */
- 		virtual QPoint getCursorPosition() {
+ 		virtual H2Core::GridPoint getCursorPosition() const {
 			___ERRORLOG( "To be implemented by parent" );
-			return QPoint( 0, 0 );
+			return H2Core::GridPoint( -1, -1 );
 		}
 		virtual void moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
 			___ERRORLOG( "To be implemented by parent" );
@@ -365,7 +365,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// point/cursor will be selected instead.
 			auto selectElementsAtPoint = [&]() {
 				const auto elementsUnderPoint = getElementsAtPoint(
-					getCursorPosition(), 0 );
+					gridPointToPoint( getCursorPosition() ), 0 );
 				if ( elementsUnderPoint.size() == 0 ) {
 					return false;
 				}
