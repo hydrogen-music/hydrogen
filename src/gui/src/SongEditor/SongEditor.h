@@ -175,7 +175,7 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 
 		void drawSequence();
   
-		void drawPattern( int pos, int number, bool invertColour, double width );
+		void drawPattern( std::shared_ptr<GridCell> pCell );
 		void drawFocus( QPainter& painter );
 
 		std::map<H2Core::GridPoint, std::shared_ptr<GridCell> > m_gridCells;

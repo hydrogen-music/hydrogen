@@ -1274,9 +1274,7 @@ GridPoint SongEditor::movingGridOffset( ) const {
 	return GridPoint( x_off, y_off );
 }
 
-
-void SongEditor::drawSequence()
-{
+void SongEditor::drawSequence() {
 	QPainter p;
 
 	p.begin( m_pContentPixmap );
@@ -1286,33 +1284,35 @@ void SongEditor::drawSequence()
 	updateGridCells();
 
 	// Draw using GridCells representation
-	for ( const auto& it : m_gridCells ) {
-		if ( it.second != nullptr && ! m_selection.isSelected( it.second ) ) {
-			drawPattern( it.first.getColumn(), it.first.getRow(),
-						 it.second->getDrawnVirtual(), it.second->getWidth() );
+	for ( const auto& [ _, ppCell ] : m_gridCells ) {
+		if ( ppCell != nullptr && ! m_selection.isSelected( ppCell ) ) {
+			drawPattern( ppCell );
 		}
 	}
 	// We draw all selected patterns in a second run to ensure their
 	// border does have the proper color (else the bottom and left one
 	// could be overwritten by an adjecent, unselected pattern).
-	for ( const auto& it : m_gridCells ) {
-		if ( it.second != nullptr && m_selection.isSelected( it.second ) ) {
-			drawPattern( it.first.getColumn(), it.first.getRow(),
-						 it.second->getDrawnVirtual(), it.second->getWidth() );
+	for ( const auto& [ _, ppCell ] : m_gridCells ) {
+		if ( ppCell != nullptr && m_selection.isSelected( ppCell ) ) {
+			drawPattern( ppCell );
 		}
 	}
 }
 
+void SongEditor::drawPattern( std::shared_ptr<GridCell> pCell ) {
+	if ( pCell == nullptr ) {
+		return;
+	}
 
-
-void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double fWidth )
-{
 	QPainter p( m_pContentPixmap );
 	/*
 	 * The default color of the cubes in rgb is 97,167,251.
 	 */
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	auto pPatternList = pSong->getPatternList();
 
 	QColor patternColor;
@@ -1326,32 +1326,22 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	 */
 	if ( pPref->getTheme().m_interface.m_coloringMethod ==
 		 H2Core::InterfaceTheme::ColoringMethod::Automatic ) {
-		int nSteps = pPatternList->size();
-
-		if( nSteps == 0 ) {
-			//beware of the division by zero..
-			nSteps = 1;
-		}
-
-		int nHue = ( (nNumber % nSteps) * (300 / nSteps) + 213) % 300;
-		patternColor.setHsv( nHue , 156 , 249);
+		// beware of the division by zero..
+		const int nSteps = std::max( 1, pPatternList->size() );
+		const int nHue = ( (pCell->getRow() % nSteps) * (300 / nSteps) + 213) % 300;
+		patternColor.setHsv( nHue , 156 , 249 );
 	} else {
-		int nIndex =
-			std::clamp( nNumber % pPref->getTheme().m_interface.m_nVisiblePatternColors,
-						0, InterfaceTheme::nMaxPatternColors );
-		patternColor =
-			pPref->getTheme().m_interface.m_patternColors[ nIndex ].toHsv();
+		const int nIndex = std::clamp(
+			pCell->getRow() % pPref->getTheme().m_interface.m_nVisiblePatternColors,
+			0, InterfaceTheme::nMaxPatternColors );
+		patternColor = pPref->getTheme()
+			.m_interface.m_patternColors[ nIndex ].toHsv();
 	}
 
-	if ( true == bInvertColour ) {
-		patternColor = patternColor.darker(200);
+	if ( pCell->getDrawnVirtual() ) {
+		patternColor = patternColor.darker( 200 );
 	}
 
-	const GridPoint gridPoint( nPos, nNumber );
-	std::shared_ptr<GridCell> pCell;
-	if ( m_gridCells.find( gridPoint ) != m_gridCells.end() ) {
-		pCell = m_gridCells.at( gridPoint );
-	}
 	const bool bIsSelected = pCell != nullptr && m_selection.isSelected( pCell );
 
 	if ( bIsSelected ) {
@@ -1360,10 +1350,11 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 
 	patternColor.setAlpha( 230 );
 
-	int x = SongEditor::nMargin + m_nGridWidth * nPos;
-	int y = m_nGridHeight * nNumber;
+	const auto point = gridPointToPoint( pCell->getGridPoint() );
 
-	p.fillRect( x + 1, y + 1, fWidth * (m_nGridWidth - 1), m_nGridHeight - 1, patternColor );
+	p.fillRect( point.x() + 1, point.y() + 1,
+				pCell->getWidth() * ( m_nGridWidth - 1 ), m_nGridHeight - 1,
+				patternColor );
 
 	// To better distinguish between the individual patterns, they
 	// will have a pronounced border.
@@ -1378,7 +1369,8 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 		borderColor = QColor( 0, 0, 0 );
 	}
 	p.setPen( borderColor );
-	p.drawRect( x, y, fWidth * m_nGridWidth, m_nGridHeight );
+	p.drawRect( point.x(), point.y(), pCell->getWidth() * m_nGridWidth,
+				m_nGridHeight );
 }
 
 std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( const QRect& r )
