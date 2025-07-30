@@ -736,8 +736,7 @@ void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
 	// Check whether we are still at the same grid point as in the last update.
 	// We do not want to toggle the same note twice.
 	const auto endGridPoint = pointToGridPoint( end.toPoint(), true );
-	if ( endGridPoint.getColumn() == m_nDrawPreviousColumn &&
-		 endGridPoint.getRow() == m_nDrawPreviousRow ) {
+	if ( endGridPoint == m_drawPreviousGridPoint ) {
 		m_drawPreviousPosition = end;
 		return;
 	}
@@ -768,8 +767,7 @@ void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
 	const QPointF increment( start.x() <= end.x() ? 1 : -1,
 							 start.y() <= end.y() ? fM : ( -1 * fM ) );
 
-	int nLastColumn = m_nDrawPreviousColumn;
-	int nLastRow = m_nDrawPreviousRow;
+	auto lastGridPoint = m_drawPreviousGridPoint;
 	// Since we can only toggle notes on the grid, we use the projection of the
 	// movement on the x axis to drive the loop. This ensures that we are always
 	// on grid.
@@ -777,28 +775,24 @@ void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
 			  ( end - start ).manhattanLength(); ppoint += increment ) {
 		// We prioritize existing notes
 		const auto gridPoint = pointToGridPoint( ppoint.toPoint(), true );
-		if ( gridPoint.getRow() != nLastRow ||
-			 gridPoint.getColumn() != nLastColumn ) {
+		if ( gridPoint != lastGridPoint ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
 					gridPoint, Editor::Action::Toggle,
 					Editor::ActionModifier::None ), sUndoContext );
-			nLastRow = gridPoint.getRow();
-			nLastColumn = gridPoint.getColumn();
+			lastGridPoint = gridPoint;
 		}
 	}
 
 	m_drawPreviousPosition = end;
-	m_nDrawPreviousColumn = nLastColumn;
-	m_nDrawPreviousRow = nLastRow;
+	m_drawPreviousGridPoint = lastGridPoint;
 }
 
 void SongEditor::mouseDrawEnd() {
 	HydrogenApp::get_instance()->endUndoContext();
 
 	m_drawPreviousPosition = QPointF( 0, 0 );
-	m_nDrawPreviousColumn = -1;
-	m_nDrawPreviousRow = -1;
+	m_drawPreviousGridPoint = GridPoint( -1, -1 );
 }
 
 void SongEditor::updateAllComponents( bool bContentOnly ) {

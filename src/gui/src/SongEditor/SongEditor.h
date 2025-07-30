@@ -193,8 +193,7 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		std::vector< std::shared_ptr<GridCell> > m_mouseHoveredCells;
 
 		QPointF m_drawPreviousPosition;
-		int m_nDrawPreviousColumn;
-		int m_nDrawPreviousRow;
+		H2Core::GridPoint m_drawPreviousGridPoint;
 
 	/** Cached position of the playhead.*/
 	float m_fTick;
