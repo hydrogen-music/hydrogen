@@ -88,26 +88,34 @@ inline H2Core::GridPoint GridCell::getGridPoint() const {
 	return m_gridPoint;
 }
 inline void GridCell::setGridPoint( H2Core::GridPoint gridPoint ) {
-	m_gridPoint = gridPoint;
+	if ( m_gridPoint != gridPoint ) {
+		m_gridPoint = gridPoint;
+	}
 }
 
 inline bool GridCell::getActive() const {
 	return m_bActive;
 }
 inline void GridCell::setActive( bool bActive ) {
-	m_bActive = bActive;
+	if ( m_bActive != bActive ) {
+		m_bActive = bActive;
+	}
 }
 inline float GridCell::getWidth() const {
 	return m_fWidth;
 }
 inline void GridCell::setWidth( float fWidth ) {
-	m_fWidth = fWidth;
+	if ( m_fWidth != fWidth ) {
+		m_fWidth = fWidth;
+	}
 }
 inline bool GridCell::getDrawnVirtual() const {
 	return m_bDrawnVirtual;
 }
 inline void GridCell::setDrawnVirtual( bool bDrawnVirtual ) {
-	m_bDrawnVirtual = bDrawnVirtual;
+	if ( m_bDrawnVirtual != bDrawnVirtual ) {
+		m_bDrawnVirtual = bDrawnVirtual;
+	}
 }
 
 #endif
