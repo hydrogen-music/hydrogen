@@ -49,6 +49,7 @@ class GridCell : public H2Core::Object<GridCell>
 
 		int getColumn() const;
 		int getRow() const;
+		H2Core::GridPoint getGridPoint() const;
 		void setGridPoint( H2Core::GridPoint gridPoint );
 
 		bool getActive() const;
@@ -82,6 +83,9 @@ inline int GridCell::getColumn() const {
 }
 inline int GridCell::getRow() const {
 	return m_gridPoint.getRow();
+}
+inline H2Core::GridPoint GridCell::getGridPoint() const {
+	return m_gridPoint;
 }
 inline void GridCell::setGridPoint( H2Core::GridPoint gridPoint ) {
 	m_gridPoint = gridPoint;
