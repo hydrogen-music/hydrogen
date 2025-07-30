@@ -371,14 +371,16 @@ class SE_addOrRemovePatternCellAction : public QUndoCommand {
 			}
 		}
 		virtual void redo() {
-			SongEditor::addOrRemovePatternCellAction(
-				m_gridPoint, m_action, m_modifier );
+			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+				->addOrRemovePatternCellAction(
+					m_gridPoint, m_action, m_modifier );
 		}
 		virtual void undo() {
 			// The side effect of the modifier is only triggered once.
 			m_modifier = Editor::ActionModifier::None;
-			SongEditor::addOrRemovePatternCellAction(
-				m_gridPoint, Editor::undoAction( m_action ), m_modifier );
+			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+				->addOrRemovePatternCellAction(
+					m_gridPoint, Editor::undoAction( m_action ), m_modifier );
 		}
 	private:
 		H2Core::GridPoint m_gridPoint;

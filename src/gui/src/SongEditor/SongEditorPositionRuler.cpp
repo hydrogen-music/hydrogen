@@ -638,7 +638,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	// Draw cursor
 	if ( ! pHydrogenApp->hideKeyboardCursor() && pSongEditor->hasFocus() ) {
-		int nCursorX = columnToX( pSongEditor->getCursorColumn() ) + 2;
+		int nCursorX = columnToX(
+			pSongEditor->getCursorPosition().getColumn() ) + 2;
 
 		QColor cursorColor = theme.m_color.m_cursorColor;
 

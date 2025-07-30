@@ -2439,8 +2439,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			H2Core::CoreActionController::activateSongMode( true );
 		}
 
-		const int nCursorColumn =
-			pHydrogenApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
+		const int nCursorColumn = pHydrogenApp->getSongEditorPanel()->
+			getSongEditor()->getCursorPosition().getColumn();
 
 		// Within the core locating to a position beyond the length of
 		// the song with loop mode enabled is a valid
