@@ -153,6 +153,19 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		void scrolled( int );
 
 	private:
+		enum CellStyle {
+			/** Default style. */
+			Default = 0x000,
+			/** Cell is hovered by mouse or keyboard.*/
+			Hovered = 0x001,
+			/** Cell is part of the current selection.*/
+			Selected = 0x004,
+			/** Cell is in a transient state while being moved to another
+			 * location. A silhouette will be rendered at the new position. */
+			Moved = 0x008,
+			/** Cell is activated as part of a virtual pattern/another cell. */
+			Virtual = 0x010,
+		};
 
 		QScrollArea *			m_pScrollView;
 		SongEditorPanel *		m_pSongEditorPanel;
@@ -175,7 +188,8 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 
 		void drawSequence();
   
-		void drawPattern( std::shared_ptr<GridCell> pCell );
+		void drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell,
+						  CellStyle cellStyle );
 		void drawFocus( QPainter& painter );
 
 		std::map<H2Core::GridPoint, std::shared_ptr<GridCell> > m_gridCells;

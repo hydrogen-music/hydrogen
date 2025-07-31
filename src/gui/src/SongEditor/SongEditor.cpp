@@ -963,60 +963,26 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 
 	const auto pPref = Preferences::get_instance();
 
-	QColor hoverColor;
-	QColor selectionColor = pPref->getTheme().m_color.m_selectionHighlightColor;
-	int nFactor = 100;
-	// if ( noteStyle & NoteStyle::Selected && noteStyle & NoteStyle::Hovered ) {
-	// 	nFactor = 107;
-	// }
-	// else if ( noteStyle & NoteStyle::Hovered ) {
-		nFactor = 125;
-//}
-
-	//if ( noteStyle & NoteStyle::Hovered ) {
-		// Depending on the highlight color, we make it either darker or
-		// lighter.
-		if ( Skin::moreBlackThanWhite( selectionColor ) ) {
-			hoverColor = selectionColor.lighter( nFactor );
-		} else {
-			hoverColor = selectionColor.darker( nFactor );
-		}
-	//}
-
 	QPainter painter(this);
 	painter.drawPixmap( ev->rect(), *m_pContentPixmap, ev->rect() );
 
 	// Draw hovered cells
-	if ( m_hoveredCells.size() > 0 ) {
-		QPen p( hoverColor );
-		painter.setPen( p );
-	}
-	for ( const auto& ccell : m_hoveredCells ) {
-		if ( ccell == nullptr ) {
-			continue;
+	for ( const auto& ppCell : m_hoveredCells ) {
+		if ( ppCell != nullptr ) {
+			drawPattern( painter, ppCell, CellStyle::Hovered );
 		}
-
-		const int nWidth = ccell->getWidth() * m_nGridWidth;
-		const QRect r = QRect( gridPointToPoint( ccell->getGridPoint() ),
-							   QSize( nWidth, m_nGridHeight ) );
-		painter.drawRect( r );
 	}
 
 	// Draw moving selected cells
-	QColor patternColor( 0, 0, 0 );
 	if ( m_selection.isMoving() ) {
-		const GridPoint offset = movingGridOffset();
 		for ( const auto& ppCell : m_selection ) {
-			if ( ppCell == nullptr ) {
+			if ( ppCell != nullptr ) {
+				drawPattern( painter, ppCell, CellStyle::Moved );
 				continue;
 			}
-			const QRect r = QRect(
-				gridPointToPoint( ppCell->getGridPoint() + offset ),
-				QSize( ppCell->getWidth() * m_nGridWidth, m_nGridHeight ) )
-				.marginsRemoved( QMargins( 2, 4, 1 , 3 ) );
-			painter.fillRect( r, patternColor );
 		}
 	}
+
 	// Draw playhead
 	if ( m_fTick != -1 ) {
 		int nX = SongEditorPositionRuler::tickToColumn( m_fTick, m_nGridWidth );
@@ -1275,18 +1241,15 @@ GridPoint SongEditor::movingGridOffset( ) const {
 }
 
 void SongEditor::drawSequence() {
-	QPainter p;
-
-	p.begin( m_pContentPixmap );
+	QPainter p( m_pContentPixmap );
 	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
-	p.end();
 
 	updateGridCells();
 
 	// Draw using GridCells representation
 	for ( const auto& [ _, ppCell ] : m_gridCells ) {
 		if ( ppCell != nullptr && ! m_selection.isSelected( ppCell ) ) {
-			drawPattern( ppCell );
+			drawPattern( p, ppCell, CellStyle::Default );
 		}
 	}
 	// We draw all selected patterns in a second run to ensure their
@@ -1294,83 +1257,125 @@ void SongEditor::drawSequence() {
 	// could be overwritten by an adjecent, unselected pattern).
 	for ( const auto& [ _, ppCell ] : m_gridCells ) {
 		if ( ppCell != nullptr && m_selection.isSelected( ppCell ) ) {
-			drawPattern( ppCell );
+			drawPattern( p, ppCell, CellStyle::Selected );
 		}
 	}
 }
 
-void SongEditor::drawPattern( std::shared_ptr<GridCell> pCell ) {
+void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell,
+							  CellStyle cellStyle ) {
 	if ( pCell == nullptr ) {
 		return;
 	}
-
-	QPainter p( m_pContentPixmap );
-	/*
-	 * The default color of the cubes in rgb is 97,167,251.
-	 */
-	const auto pPref = H2Core::Preferences::get_instance();
 	auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
 	auto pPatternList = pSong->getPatternList();
+	const auto pPref = Preferences::get_instance();
+	const auto colorTheme = pPref->getTheme().m_color;
 
-	QColor patternColor;
-	/*
-	 * The following color modes are available:
-	 *
-	 * Automatic: Steps = Number of pattern in song and colors will be
-	 *            chosen internally.
-	 * Custom: Number of steps as well as the colors used are defined
-	 *            by the user.
-	 */
-	if ( pPref->getTheme().m_interface.m_coloringMethod ==
-		 H2Core::InterfaceTheme::ColoringMethod::Automatic ) {
-		// beware of the division by zero..
-		const int nSteps = std::max( 1, pPatternList->size() );
-		const int nHue = ( (pCell->getRow() % nSteps) * (300 / nSteps) + 213) % 300;
-		patternColor.setHsv( nHue , 156 , 249 );
-	} else {
-		const int nIndex = std::clamp(
-			pCell->getRow() % pPref->getTheme().m_interface.m_nVisiblePatternColors,
-			0, InterfaceTheme::nMaxPatternColors );
-		patternColor = pPref->getTheme()
-			.m_interface.m_patternColors[ nIndex ].toHsv();
+	if ( m_selection.isSelected( pCell ) ) {
+		cellStyle = static_cast<CellStyle>(cellStyle | CellStyle::Selected);
 	}
-
 	if ( pCell->getDrawnVirtual() ) {
-		patternColor = patternColor.darker( 200 );
+		cellStyle = static_cast<CellStyle>(cellStyle | CellStyle::Virtual);
 	}
-
-	const bool bIsSelected = pCell != nullptr && m_selection.isSelected( pCell );
-
-	if ( bIsSelected ) {
-		patternColor = patternColor.darker( 130 );
-	}
-
-	patternColor.setAlpha( 230 );
 
 	const auto point = gridPointToPoint( pCell->getGridPoint() );
 
-	p.fillRect( point.x() + 1, point.y() + 1,
-				pCell->getWidth() * ( m_nGridWidth - 1 ), m_nGridHeight - 1,
-				patternColor );
-
-	// To better distinguish between the individual patterns, they
-	// will have a pronounced border.
-	QColor borderColor;
-	if ( bIsSelected ){
-		if ( hasFocus() || m_bEntered ) {
-			borderColor = pPref->getTheme().m_color.m_selectionHighlightColor;
-		} else {
-			borderColor = pPref->getTheme().m_color.m_selectionInactiveColor;
-		}
-	} else {
-		borderColor = QColor( 0, 0, 0 );
+	QPoint movingOffset;
+	if ( cellStyle & CellStyle::Moved ) {
+		const auto delta = movingGridOffset();
+		movingOffset = QPoint( delta.getColumn() * m_nGridWidth,
+							   delta.getRow() * m_nGridHeight );
 	}
-	p.setPen( borderColor );
-	p.drawRect( point.x(), point.y(), pCell->getWidth() * m_nGridWidth,
-				m_nGridHeight );
+
+	if ( ! ( cellStyle & CellStyle::Moved ) ) {
+		// Draw cell content
+		QColor cellColor;
+		/* The following color modes are available:
+		 *
+		 * Automatic: Steps = Number of pattern in song and colors will be
+		 *            chosen internally.
+		 * Custom: Number of steps as well as the colors used are defined
+		 *            by the user. */
+		if ( pPref->getTheme().m_interface.m_coloringMethod ==
+			 H2Core::InterfaceTheme::ColoringMethod::Automatic ) {
+			// beware of the division by zero..
+			const int nSteps = std::max( 1, pPatternList->size() );
+			const int nHue = ( (pCell->getRow() % nSteps) *
+							   (300 / nSteps) + 213) % 300;
+			cellColor.setHsv( nHue , 156 , 249 );
+		}
+		else {
+			const int nIndex = std::clamp(
+				pCell->getRow() %
+				pPref->getTheme().m_interface.m_nVisiblePatternColors,
+				0, InterfaceTheme::nMaxPatternColors );
+			cellColor = pPref->getTheme()
+				.m_interface.m_patternColors[ nIndex ].toHsv();
+		}
+
+		if ( cellStyle & CellStyle::Virtual ) {
+			cellColor = cellColor.darker( 200 );
+		}
+
+		// color base note will be filled with
+		QBrush cellBrush( cellColor );
+
+		if ( cellStyle & ( CellStyle::Selected | CellStyle::Hovered ) ) {
+			QColor highlightColor;
+			if ( hasFocus() || m_bEntered ) {
+				highlightColor = colorTheme.m_selectionHighlightColor;
+			} else {
+				highlightColor = colorTheme.m_selectionInactiveColor;
+			}
+
+			if ( cellStyle & CellStyle::Hovered ) {
+				int nFactor = 125;
+				if ( cellStyle & CellStyle::Selected ) {
+					nFactor = 107;
+				}
+
+				// Depending on the highlight color, we make it either darker or
+				// lighter.
+				if ( Skin::moreBlackThanWhite( highlightColor ) ) {
+					highlightColor = highlightColor.lighter( nFactor );
+				} else {
+					highlightColor = highlightColor.darker( nFactor );
+				}
+			}
+
+			// Highlight
+			painter.setPen( QPen( highlightColor ) );
+			painter.setBrush( QBrush( Qt::black ) );
+			painter.drawRect( point.x(), point.y(),
+							  pCell->getWidth() * m_nGridWidth, m_nGridHeight );
+
+			// Grid cell
+			painter.fillRect( point.x() + 2, point.y() + 2,
+							  pCell->getWidth() * ( m_nGridWidth - 3 ),
+							  m_nGridHeight - 3, cellBrush );
+		}
+		else {
+			// outline color
+			painter.setPen( Qt::black );
+			painter.setBrush( cellBrush );
+			painter.drawRect( point.x(), point.y(),
+							  pCell->getWidth() * m_nGridWidth, m_nGridHeight );
+		}
+	}
+	else {
+		QPen movingPen( Qt::black );
+		movingPen.setStyle( Qt::DotLine );
+		movingPen.setWidth( 2 );
+		painter.setPen( movingPen );
+		painter.setBrush( Qt::NoBrush );
+		painter.drawRect( point.x() + movingOffset.x(),
+						  point.y() + movingOffset.y(),
+						  pCell->getWidth() * m_nGridWidth, m_nGridHeight );
+	}
 }
 
 std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( const QRect& r )
