@@ -749,7 +749,7 @@ void PatternEditorPanel::drumkitLoadedEvent() {
 	const int nPreviousRows = m_db.size();
 
 	updateDB();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	m_pSidebar->updateRows();
 
 	if ( nPreviousRows != m_db.size() ) {
@@ -876,16 +876,13 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	setCursorColumn(
 		m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement ), false );
 
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 }
 
-
-
-void PatternEditorPanel::selectedPatternChangedEvent()
-{
+void PatternEditorPanel::selectedPatternChangedEvent() {
 	updatePatternInfo();
 	updateDB();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 
 	resizeEvent( nullptr ); // force an update of the scrollbars
 }
@@ -957,7 +954,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 	}
 
 	ensureCursorIsVisible();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );	// force a scrollbar update
 }
 
@@ -1055,7 +1052,7 @@ void PatternEditorPanel::zoomInBtnClicked()
 
 	ensureCursorIsVisible();
 
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
 }
 
@@ -1081,7 +1078,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 
 	ensureCursorIsVisible();
 
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
 }
 
@@ -1147,7 +1144,7 @@ void PatternEditorPanel::updateInstance() {
 		m_pSidebar->setFocusProxy( m_pEditorScrollView );
 		m_pSidebar->dimRows( false );
 
-		m_pDrumPatternEditor->updateEditor();
+		m_pDrumPatternEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( m_instance == Editor::Instance::PianoRoll ) {
 		m_pDrumPatternButton->setChecked( false );
@@ -1162,7 +1159,7 @@ void PatternEditorPanel::updateInstance() {
 		m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
 		m_pSidebar->dimRows( true );
 
-		m_pPianoRollEditor->updateEditor();
+		m_pPianoRollEditor->updateEditor( Editor::Update::Background );
 	}
 	else {
 		ERRORLOG( QString( "Unhandled instance [%1]" )
@@ -1347,33 +1344,33 @@ void PatternEditorPanel::updatePatternsToShow()
 	}
 }
 
-void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
+void PatternEditorPanel::updateEditors( Editor::Update update ) {
 
 	// Changes of pattern may leave the cursor out of bounds.
 	setCursorColumn( getCursorColumn(), false );
 
 	m_pPatternEditorRuler->updateEditor( true );
-	m_pNoteVelocityEditor->updateEditor( bPatternOnly );
-	m_pNotePanEditor->updateEditor( bPatternOnly );
-	m_pNoteLeadLagEditor->updateEditor( bPatternOnly );
-	m_pNoteKeyOctaveEditor->updateEditor( bPatternOnly );
-	m_pNoteProbabilityEditor->updateEditor( bPatternOnly );
-	m_pPianoRollEditor->updateEditor( bPatternOnly );
-	m_pDrumPatternEditor->updateEditor( bPatternOnly );
+	m_pNoteVelocityEditor->updateEditor( update );
+	m_pNotePanEditor->updateEditor( update );
+	m_pNoteLeadLagEditor->updateEditor( update );
+	m_pNoteKeyOctaveEditor->updateEditor( update );
+	m_pNoteProbabilityEditor->updateEditor( update );
+	m_pPianoRollEditor->updateEditor( update );
+	m_pDrumPatternEditor->updateEditor( update );
 	m_pSidebar->updateEditor();
 	updateTypeLabelVisibility();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
 	updatePatternInfo();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
 	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updatePatternInfo();
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 	}
 }
 
@@ -1381,7 +1378,7 @@ void PatternEditorPanel::songModeActivationEvent() {
 	updatePatternInfo();
 	updateDB();
 	updateStyleSheet();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 
 	resizeEvent( nullptr );
 }
@@ -1389,21 +1386,21 @@ void PatternEditorPanel::songModeActivationEvent() {
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
 	updatePatternInfo();
 	updateDB();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 
 	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::songSizeChangedEvent() {
 	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 	}
 }
 
 void PatternEditorPanel::patternEditorLockedEvent() {
 	updatePatternInfo();
 	updateDB();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 }
 
 void PatternEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& state ) {
@@ -1425,13 +1422,13 @@ void PatternEditorPanel::relocationEvent() {
 	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
 		updatePatternInfo();
 		updateDB();
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 	}
 }
 
 void PatternEditorPanel::instrumentMuteSoloChangedEvent( int ) {
 	updateDB();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
@@ -1542,7 +1539,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		updatePatternInfo();
 		updateDB();
 		updateStyleSheet();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 		m_pPatternEditorRuler->updatePosition();
 		m_pSidebar->updateRows();
 		resizeEvent( nullptr );
@@ -1558,7 +1555,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteVelocityScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteVelocityEditor->updateEditor();
+		m_pNoteVelocityEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 1 ) {		// Pan
 		m_pNoteVelocityScrollView->hide();
@@ -1567,7 +1564,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNotePanScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNotePanEditor->updateEditor();
+		m_pNotePanEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 2 ) {		// Lead and Lag
 		m_pNoteVelocityScrollView->hide();
@@ -1576,7 +1573,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteLeadLagScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteLeadLagEditor->updateEditor();
+		m_pNoteLeadLagEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 3 ) {		// KeyOctave
 		m_pNoteVelocityScrollView->hide();
@@ -1585,7 +1582,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteKeyOctaveScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteKeyOctaveEditor->updateEditor();
+		m_pNoteKeyOctaveEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 4 ) {		// Probability
 		m_pNotePanScrollView->hide();
@@ -1594,7 +1591,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteProbabilityScrollView->show();
 
-		m_pNoteProbabilityEditor->updateEditor();
+		m_pNoteProbabilityEditor->updateEditor( Editor::Update::Background );
 	}
 	/*
 	else if ( nSelected == 5 ) {		// Cutoff
@@ -1648,9 +1645,9 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 	if ( bUpdateEditors && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		ensureCursorIsVisible();
 		m_pSidebar->updateEditor();
-		m_pPatternEditorRuler->update();
-		getVisibleEditor()->update();
-		getVisiblePropertiesRuler()->update();
+		m_pPatternEditorRuler->updateEditor( true );
+		getVisibleEditor()->updateEditor( Editor::Update::Transient );
+		getVisiblePropertiesRuler()->updateEditor( Editor::Update::Transient );
 	}
 }
 
@@ -1765,16 +1762,16 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		m_pPianoRollEditor->updateFont();
 		m_pNoteKeyOctaveEditor->updateFont();
 		m_pSidebar->updateFont();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 	}
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		m_pSidebar->updateColors();
 		updateStyleSheet();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 	}
 	else if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 		updateIcons();
 	}
 }
@@ -2133,8 +2130,8 @@ void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
 	if ( bQuantized != m_bQuantized ) {
 		m_bQuantized = bQuantized;
 
-		getVisibleEditor()->updateEditor( false );
-		getVisiblePropertiesRuler()->updateEditor( false );
+		getVisibleEditor()->updateEditor( Editor::Update::Background );
+		getVisiblePropertiesRuler()->updateEditor( Editor::Update::Background );
 	}
 }
 
@@ -2583,7 +2580,7 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 		// Nothing to do. All notes seem to have been deleted before triggering
 		// this action.
 		updateDB();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 		return;
 	}
 
@@ -2644,7 +2641,7 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 	pHydrogenApp->endUndoMacro();
 
 	updateDB();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 
 	getVisibleEditor()->triggerStatusMessage(
 		notes, PatternEditor::Property::Type );

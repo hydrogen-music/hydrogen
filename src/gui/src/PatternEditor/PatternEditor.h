@@ -228,8 +228,8 @@ public:
 		void mouseEditStart( QMouseEvent* ev ) override;
 		void mouseEditUpdate( QMouseEvent* ev ) override;
 		void mouseEditEnd() override;
-		void updateAllComponents( bool bContentOnly ) override;
-		void updateVisibleComponents( bool bContentOnly ) override;
+		void updateAllComponents( Editor::Update update ) override;
+		void updateVisibleComponents( Editor::Update update ) override;
 		void updateModifiers( QInputEvent *ev ) override;
 		/**
 		 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current

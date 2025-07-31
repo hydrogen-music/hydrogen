@@ -1433,7 +1433,7 @@ void MainForm::action_drumkit_addInstrument(
 	pPatternEditorPanel->updateDB();
 	pPatternEditorPanel->setSelectedRowDB(
 		pSong->getDrumkit()->getInstruments()->size() - 1 );
-	pPatternEditorPanel->updateEditors();
+	pPatternEditorPanel->updateEditors( Editor::Update::Background );
 	pPatternEditorPanel->ensureCursorIsVisible();
 }
 

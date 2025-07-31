@@ -58,7 +58,7 @@ class DrumPatternEditor : public PatternEditor,
 		std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 
 	public slots:
-		void updateEditor( bool bPatternOnly = false ) override;
+		void updateEditor( Editor::Update update ) override;
 		void selectAll() override;
 
 	private:

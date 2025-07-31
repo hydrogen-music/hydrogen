@@ -116,7 +116,7 @@ void DrumPatternEditor::moveCursorUp( QKeyEvent* ev, Editor::Step step ) {
 		std::max( m_pPatternEditorPanel->getSelectedRowDB() - nStep, 0 ) );
 }
 
-void DrumPatternEditor::updateEditor( bool bPatternOnly )
+void DrumPatternEditor::updateEditor( Editor::Update update )
 {
 	const int nTargetHeight =
 		m_pPatternEditorPanel->getRowNumberDB() * m_nGridHeight;
@@ -126,7 +126,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 		m_update = Editor::Update::Background;
 	}
 
-	Editor::Base<Elem>::updateEditor( bPatternOnly );
+	Editor::Base<Elem>::updateEditor( update );
 }
 
 ///

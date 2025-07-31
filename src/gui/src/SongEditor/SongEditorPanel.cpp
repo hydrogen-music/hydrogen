@@ -438,7 +438,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	show();
 
 	updateStyleSheet();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -602,10 +602,10 @@ void SongEditorPanel::ensureCursorIsVisible() {
 	}
 }
 
-void SongEditorPanel::updateEditors( bool bSequenceOnly )
+void SongEditorPanel::updateEditors( Editor::Update update )
 {
 	m_pPatternList->updateEditor();
-	m_pSongEditor->updateEditor( bSequenceOnly );
+	m_pSongEditor->updateEditor( update );
 	m_pPositionRuler->updateEditor();
 	m_pAutomationPathView->updateAutomationPath();
 	updatePlaybackTrack();
@@ -764,7 +764,7 @@ void SongEditorPanel::restoreGroupVector( const QString& filename )
 	pAudioEngine->unlock();
 
 	m_pPositionRuler->updateSongSize();
-	updateEditors();
+	updateEditors( Editor::Update::Content );
 }
 
 void SongEditorPanel::actionModeChangeEvent( int ) {
@@ -772,7 +772,7 @@ void SongEditorPanel::actionModeChangeEvent( int ) {
 }
 
 void SongEditorPanel::gridCellToggledEvent() {
-	updateEditors();
+	updateEditors( Editor::Update::Content );
 }
 
 void SongEditorPanel::jackTimebaseStateChangedEvent( int ) {
@@ -793,7 +793,7 @@ void SongEditorPanel::patternEditorLockedEvent() {
 }
 
 void SongEditorPanel::patternModifiedEvent() {
-	updateEditors();
+	updateEditors( Editor::Update::Content );
 }
 
 void SongEditorPanel::playbackTrackChangedEvent() {
@@ -818,7 +818,7 @@ void SongEditorPanel::playingPatternsChangedEvent() {
 
 void SongEditorPanel::relocationEvent() {
 	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
-		m_pSongEditor->updateEditor();
+		m_pSongEditor->updateEditor( Editor::Update::Background );
 		m_pPatternList->updateEditor();
 	}
 
@@ -827,7 +827,7 @@ void SongEditorPanel::relocationEvent() {
 
 void SongEditorPanel::selectedPatternChangedEvent() {
 	ensureCursorIsVisible();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 }
 
 void SongEditorPanel::songModeActivationEvent() {
@@ -842,7 +842,7 @@ void SongEditorPanel::songModeActivationEvent() {
 }
 
 void SongEditorPanel::songSizeChangedEvent() {
-	m_pSongEditor->updateEditor();
+	m_pSongEditor->updateEditor( Editor::Update::Content );
 	m_pPositionRuler->updateSongSize();
 	m_pPositionRuler->updateEditor();
 }
@@ -883,7 +883,7 @@ void SongEditorPanel::timelineActivationEvent(){
 }
 
 void SongEditorPanel::timelineUpdateEvent( int nValue ) {
-	updateEditors();
+	updateEditors( Editor::Update::Transient );
 }
 
 void SongEditorPanel::updateSongEvent( int nValue ) {
@@ -904,7 +904,7 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 
 	m_pPositionRuler->updatePosition();
 	m_pPositionRuler->updateSongSize();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 }
 
 void SongEditorPanel::timelineBtnClicked() {
@@ -1039,7 +1039,7 @@ void SongEditorPanel::zoomInBtnClicked()
 	pPref->setSongEditorGridWidth( width );
 	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
 	
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 }
 
 void SongEditorPanel::zoomOutBtnClicked()
@@ -1055,7 +1055,7 @@ void SongEditorPanel::zoomOutBtnClicked()
 	pPref->setSongEditorGridWidth( width );
 	pPref->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
 	
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 }
 
 void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
@@ -1162,7 +1162,7 @@ void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& 
 		m_pSongEditor->resize( nNewWidth, m_pSongEditor->height() );
 		m_pPositionRuler->resize( nNewWidth, m_pPositionRuler->height() );
 
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 	}
 }
 

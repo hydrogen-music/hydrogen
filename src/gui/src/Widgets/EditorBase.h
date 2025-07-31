@@ -233,11 +233,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		/** In contrast to Selection::updateWidget() this method indicates a
 		 * state change in the overall editor and triggers an update of all its
 		 * visible components, e.g. including its ruler and sidebar. */
-		virtual void updateVisibleComponents( bool bContentOnly ) {
+		virtual void updateVisibleComponents( Editor::Update update ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 		/** Updates all widgets dependent on this one. */
-		virtual void updateAllComponents( bool bContentOnly ) {
+		virtual void updateAllComponents( Editor::Update update ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
@@ -289,7 +289,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			m_bEntered = true;
 
 			// Update focus, hovered elements, and selection color.
-			updateVisibleComponents( true );
+			updateVisibleComponents( Update::Content );
 		}
 
 		virtual void leaveEvent( QEvent* ev ) override {
@@ -305,7 +305,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			HydrogenApp::get_instance()->endUndoContext();
 
 			// Update focus, hovered elements, and selection color.
-			updateVisibleComponents( true );
+			updateVisibleComponents( Update::Content );
 		}
 
 		virtual void focusInEvent( QFocusEvent* ev ) override {
@@ -317,14 +317,14 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 			// Update hovered elements, cursor, background color, selection
 			// color...
-			updateAllComponents( false );
+			updateAllComponents( Update::Background );
 		}
 
 		virtual void focusOutEvent( QFocusEvent *ev ) override {
 			UNUSED( ev );
 			// Update hovered elements, cursor, background color, selection
 			// color...
-			updateAllComponents( false );
+			updateAllComponents( Update::Background );
 		}
 
  		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
@@ -352,7 +352,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 						m_update = Editor::Update::Content;
 					}
 				}
-				updateAllComponents( true );
+				updateAllComponents( Update::Transient );
 			}
 		}
  		virtual void keyPressEvent( QKeyEvent* ev ) override {
@@ -540,7 +540,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				handleKeyboardCursor( bUnhideCursor );
 			}
 
-			updateVisibleComponents( true );
+			updateVisibleComponents( Update::Transient );
 		}
 
 		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
@@ -665,7 +665,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 
 			if ( bUpdate ) {
-				updateVisibleComponents( true );
+				updateVisibleComponents( Update::Transient );
 			}
 		}
  		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
@@ -696,7 +696,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// position.
 				m_selection.clearSelection();
 				m_elementsToSelect.clear();
-				updateVisibleComponents( true );
+				updateVisibleComponents( Update::Transient );
 			}
 		}
 
@@ -733,13 +733,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateKeyboardHoveredElements();
 
 			// New cursor position, selection and hovered notes update.
-			updateVisibleComponents( true );
+			updateVisibleComponents( Update::Transient );
 		}
 
 		void popupMenuAboutToHide() {
 			if ( m_elementsToSelectForPopup.size() > 0 ) {
 				m_selection.clearSelection();
-				updateVisibleComponents( false );
+				updateVisibleComponents( Update::Content );
 			}
 		}
 
@@ -754,7 +754,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				for ( const auto& ppElement : m_elementsToSelectForPopup ) {
 					m_selection.addToSelection( ppElement );
 				}
-				updateVisibleComponents( true );
+				updateVisibleComponents( Update::Content );
 			}
 		}
 
@@ -780,7 +780,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// hovered by mouse which are not present anymore (e.g. since they
 			// were aligned to a different position).
 			if ( updateMouseHoveredElements( nullptr ) ) {
-				updateVisibleComponents( true );
+				updateVisibleComponents( Update::Transient );
 			}
 		}
 
@@ -800,12 +800,20 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			setCursor( Qt::DragMoveCursor );
 		}
 
-		virtual void updateEditor( bool bContentOnly = true ) {
+		virtual void updateEditor( Editor::Update newUpdate ) {
 			if ( updateWidth() ) {
 				m_update = Update::Background;
 			}
-			else if ( bContentOnly && m_update != Update::Background ) {
-				// Background takes priority over Pattern.
+			else if ( newUpdate == Update::Transient &&
+					  ( m_update != Update::Content &&
+						m_update != Update::Background ) ) {
+				// Content and background take priority over just transient
+				// stuff.
+				m_update = Update::Transient;
+			}
+			else if ( newUpdate == Update::Content &&
+					  m_update != Update::Background ) {
+				// Background takes priority over content.
 				m_update = Update::Content;
 			}
 			else {
@@ -862,7 +870,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 		// Update a widget in response to a change in selection
 		virtual void updateWidget() override {
-			updateEditor( true );
+			updateEditor( Update::Content );
 		}
 
 		QPixmap* m_pBackgroundPixmap;

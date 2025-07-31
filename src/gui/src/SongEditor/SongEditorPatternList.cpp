@@ -823,7 +823,8 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 
 	// Update
 	pHydrogen->setIsModified( true );
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors();
+	HydrogenApp::get_instance()->getSongEditorPanel()
+		->updateEditors( Editor::Update::Content );
 }
 
 void SongEditorPatternList::updateEditor() {
@@ -975,7 +976,8 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 		pHydrogen->setSelectedPatternNumber(
 			nTargetPattern, true, Event::Trigger::Default );
 	}
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors();
+	HydrogenApp::get_instance()->getSongEditorPanel()
+		->updateEditors( Editor::Update::Content );
 	pHydrogen->setIsModified( true );
 }
 

@@ -142,8 +142,8 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		void mouseEditUpdate( QMouseEvent* pEvent ) override {};
 		void mouseEditEnd() override {};
 
-		void updateAllComponents( bool bContentOnly ) override;
-		void updateVisibleComponents( bool bContentOnly ) override;
+		void updateAllComponents( Editor::Update update ) override;
+		void updateVisibleComponents( Editor::Update update ) override;
 		bool updateWidth() override;
 		void createBackground() override;
 		//! @}

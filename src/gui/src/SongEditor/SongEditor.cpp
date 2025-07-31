@@ -328,7 +328,7 @@ void SongEditor::setGridWidth( int nNewWidth ) {
 	if ( m_nGridWidth != nWidth ) {
 		m_nGridWidth = nWidth;
 		updateWidth();
-		updateEditor();
+		updateEditor( Editor::Update::Background );
 	}
 }
 
@@ -345,7 +345,7 @@ void SongEditor::selectAll() {
 			m_selection.addToSelection( ppCell );
 		}
 	}
-	updateEditor( true );
+	updateEditor( Editor::Update::Content );
 }
 
 //! Copy a selection of cells to an XML representation in the clipboard
@@ -795,14 +795,14 @@ void SongEditor::mouseDrawEnd() {
 	m_drawPreviousGridPoint = GridPoint( -1, -1 );
 }
 
-void SongEditor::updateAllComponents( bool bContentOnly ) {
-	updateVisibleComponents( bContentOnly );
+void SongEditor::updateAllComponents( Editor::Update update ) {
+	updateVisibleComponents( update );
 }
 
-void SongEditor::updateVisibleComponents( bool bContentOnly ) {
+void SongEditor::updateVisibleComponents( Editor::Update update ) {
 	m_pSongEditorPanel->getSongEditorPatternList()->update();
 	m_pSongEditorPanel->getSongEditorPositionRuler()->update();
-	updateEditor( bContentOnly );
+	updateEditor( update );
 }
 
 bool SongEditor::updateWidth() {
@@ -928,7 +928,7 @@ void SongEditor::updateWidget() {
 	// 	update();
 	// }
 	// m_previousMousePosition = m_currentMousePosition;
-	updateEditor( true );
+	updateEditor( Editor::Update::Content );
 }
 
 void SongEditor::updatePosition( float fTick ) {
@@ -958,7 +958,7 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	if ( m_update == Editor::Update::Background ||
 		 m_update == Editor::Update::Content ) {
 		drawSequence();
-		m_update = Editor::Update::None;
+		m_update = Editor::Update::Transient;
 	}
 
 	const auto pPref = Preferences::get_instance();
@@ -1422,5 +1422,5 @@ void SongEditor::clearThePatternSequenceVector( const QString& filename )
 	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
-	updateEditor( true );
+	updateEditor( Editor::Update::Content );
 }

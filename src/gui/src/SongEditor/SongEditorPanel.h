@@ -32,6 +32,7 @@
 #include <QtWidgets>
 
 #include "Widgets/Button.h"
+#include "Widgets/EditorDefs.h"
 
 class SongEditor;
 class SongEditorPatternList;
@@ -62,7 +63,7 @@ class SongEditorPanel : public QWidget,
 	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
 
 		void ensureCursorIsVisible();
-		void updateEditors( bool bSequenceOnly = false );
+		void updateEditors( Editor::Update update );
 
 		void showTimeline();
 		void showPlaybackTrack();

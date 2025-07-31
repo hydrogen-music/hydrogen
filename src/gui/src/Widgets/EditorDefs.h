@@ -73,12 +73,12 @@ namespace Editor {
 	enum class Update {
 		/** Just paint transient elements, like hovered notes, cursor, focus
 		 * or lasso. */
-		None = 0,
+		Transient,
 		/** Update notes, pattern, etc. including selection of a cached
 		 * background image. */
-		Content = 1,
+		Content,
 		/** Update the background image. */
-		Background = 2
+		Background
 	};
 	static QString updateToQString( const Update& update ) {
 		switch ( update ) {
@@ -86,8 +86,8 @@ namespace Editor {
 			return "Background";
 		case Update::Content:
 			return "Content";
-		case Update::None:
-			return "None";
+		case Update::Transient:
+			return "Transient";
 		default:
 			return QString( "Unknown update [%1]" )
 				.arg( static_cast<int>(update) ) ;

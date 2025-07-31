@@ -167,11 +167,11 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	m_pPopupMenu = new QMenu( this );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, [&]() {
 		selectAll();
-		updateVisibleComponents( true );
+		updateVisibleComponents( Editor::Update::Content );
 	} );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
 		m_selection.clearSelection();
-		updateVisibleComponents( true );
+		updateVisibleComponents( Editor::Update::Content );
 	} );
 
 	// Create a small sidebar containing labels
@@ -402,13 +402,11 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		}
 
 		if ( m_property == Property::Velocity ) {
-			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+			m_pPatternEditorPanel->getVisibleEditor()
+				->updateEditor( Editor::Update::Content );
 		}
 
-		if ( m_update != Editor::Update::Background ) {
-			m_update = Editor::Update::Content;
-		}
-		update();
+		updateEditor( Editor::Update::Content );
 	}
 }
 
@@ -501,14 +499,12 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 
 	if ( bValueChanged ) {
 		triggerStatusMessage( notesStatusMessage, m_property );
-		if ( m_update != Editor::Update::Background ) {
-			m_update = Editor::Update::Content;
-		}
-		update();
+		updateEditor( Editor::Update::Content );
 
 		if ( m_property == Property::Velocity ) {
 			// Update note color.
-			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+			m_pPatternEditorPanel->getVisibleEditor()
+				->updateEditor( Editor::Update::Content );
 		}
 	}
 }
@@ -517,10 +513,7 @@ void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent *ev ) {
 	//! The "move" has already been reflected in the notes. Now just complete Undo event.
 	addUndoAction( "" );
 
-	if ( m_update != Editor::Update::Background ) {
-		m_update = Editor::Update::Content;
-	}
-	update();
+	updateEditor( Editor::Update::Content );
 }
 
 //! Move of selection is cancelled. Revert notes to preserved state.
@@ -580,10 +573,7 @@ void NotePropertiesRuler::mouseDrawStart( QMouseEvent *ev )
 	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev );
 
-	if ( m_update != Editor::Update::Background ) {
-		m_update = Editor::Update::Content;
-	}
-	update();
+	updateEditor( Editor::Update::Content );
 }
 
 
@@ -755,28 +745,21 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		if ( m_update != Editor::Update::Background ) {
-			m_update = Editor::Update::Content;
-		}
-		update();
+		updateEditor( Editor::Update::Content );
 		if ( m_property == PatternEditor::Property::Velocity ) {
 			// A note's velocity determines its color in the other pattern
 			// editors as well.
-			m_pPatternEditorPanel->getVisibleEditor()->updateEditor( true );
+			m_pPatternEditorPanel->getVisibleEditor()
+				->updateEditor( Editor::Update::Content );
 		}
 	}
 }
 
-void NotePropertiesRuler::mouseDrawEnd()
-{
+void NotePropertiesRuler::mouseDrawEnd() {
 	m_nDrawPreviousColumn = -1;
 	addUndoAction( "NotePropertiesRuler::mouseDraw" );
 	unsetCursor();
-
-	if ( m_update != Editor::Update::Background ) {
-		m_update = Editor::Update::Content;
-	}
-	update();
+	updateEditor( Editor::Update::Content );
 }
 
 //! Adjust note properties by applying a delta to the current values, and

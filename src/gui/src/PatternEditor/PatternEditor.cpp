@@ -107,10 +107,10 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this,
 							 [&]() { selectAll();
-								 updateVisibleComponents( true ); } );
+								 updateVisibleComponents( Editor::Update::Content ); } );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
 		m_selection.clearSelection();
-		updateVisibleComponents( true );
+		updateVisibleComponents( Editor::Update::Content );
 	} );
 	connect( m_pPopupMenu, &QMenu::aboutToShow, [&]() {
 		popupMenuAboutToShow(); } );
@@ -277,7 +277,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
 
-	pPatternEditorPanel->updateEditors( true );
+	pPatternEditorPanel->updateEditors( Editor::Update::Content );
 }
 
 void PatternEditor::deselectAndOverwriteNotes(
@@ -351,7 +351,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	pHydrogen->setIsModified( true );
-	updateVisibleComponents( true );
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 void PatternEditor::editNotePropertiesAction( const Property& property,
@@ -505,11 +505,11 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 
 		if ( property == Property::Type || property == Property::InstrumentId ) {
 			pPatternEditorPanel->updateDB();
-			pPatternEditorPanel->updateEditors();
+			pPatternEditorPanel->updateEditors( Editor::Update::Content );
 			pPatternEditorPanel->resizeEvent( nullptr );
 		}
 		else {
-			pPatternEditorPanel->updateEditors( true );
+			pPatternEditorPanel->updateEditors( Editor::Update::Content );
 		}
 	}
 }
@@ -573,7 +573,8 @@ void PatternEditor::setCursorPitch( int nCursorPitch ) {
 		m_pPatternEditorPanel->ensureCursorIsVisible();
 		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()
+			->updateEditor( Editor::Update::Transient );
 	}
 }
 
@@ -920,13 +921,13 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev ) {
 		 dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 		pVisibleEditor->m_selection.updateKeyboardCursorPosition();
 		if ( pVisibleEditor->syncLasso() ) {
-			updateVisibleComponents( true );
+			updateVisibleComponents( Editor::Update::Transient );
 		}
 	}
 	else {
 		m_selection.updateKeyboardCursorPosition();
 		if ( syncLasso() ) {
-			updateVisibleComponents( true );
+			updateVisibleComponents( Editor::Update::Transient );
 		}
 	}
 }
@@ -956,7 +957,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 			   ev->button() == Qt::RightButton ) ) ) {
 		if ( ! m_selection.isEmpty() ) {
 			m_selection.clearSelection();
-			updateVisibleComponents( true );
+			updateVisibleComponents( Editor::Update::Content );
 		}
 		return;
 	}
@@ -977,7 +978,7 @@ void PatternEditor::mouseMoveEvent( QMouseEvent *ev ) {
 
 	if ( ev->buttons() != Qt::NoButton && ! m_selection.isMoving() &&
 		syncLasso() ) {
-		updateVisibleComponents( true );
+		updateVisibleComponents( Editor::Update::Transient );
 	}
 }
 
@@ -990,7 +991,7 @@ void PatternEditor::mouseReleaseEvent( QMouseEvent *ev ) {
 
 	if ( oldState != m_selection.getSelectionState() ) {
 		syncLasso();
-		updateVisibleComponents( true );
+		updateVisibleComponents( Editor::Update::Transient );
 	}
 }
 
@@ -1037,7 +1038,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev ) {
 	if ( m_update == Editor::Update::Background ||
 		 m_update == Editor::Update::Content ) {
 		drawPattern();
-		m_update = Editor::Update::None;
+		m_update = Editor::Update::Transient;
 	}
 
 	QPainter painter( this );
@@ -1878,7 +1879,7 @@ void PatternEditor::paste() {
 		// We have to force its update in order to avoid inconsistencies.
 		const int nOldSize = m_pPatternEditorPanel->getRowNumberDB();
 		m_pPatternEditorPanel->updateDB();
-		m_pPatternEditorPanel->updateEditors( true );
+		m_pPatternEditorPanel->updateEditors( Editor::Update::Content );
 		m_pPatternEditorPanel->resizeEvent( nullptr );
 
 		// Select the append line
@@ -2316,7 +2317,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
 
-	updateVisibleComponents( true );
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 void PatternEditor::mouseEditEnd() {
@@ -2483,15 +2484,15 @@ void PatternEditor::mouseEditEnd() {
 	m_dragType = DragType::None;
 }
 
-void PatternEditor::updateAllComponents( bool bContentOnly ) {
+void PatternEditor::updateAllComponents( Editor::Update update ) {
 	m_pPatternEditorPanel->getSidebar()->updateEditor();
 	m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	updateVisibleComponents( bContentOnly );
+	updateVisibleComponents( update );
 }
 
-void PatternEditor::updateVisibleComponents( bool bContentOnly ) {
-	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( bContentOnly );
-	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( bContentOnly );
+void PatternEditor::updateVisibleComponents( Editor::Update update ) {
+	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( update );
+	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( update );
 }
 
 void PatternEditor::updateModifiers( QInputEvent *ev ) {

@@ -225,7 +225,7 @@ class PatternEditorPanel : public QWidget,
 		void moveCursorLeft( QKeyEvent* pEvent, Editor::Step step );
 		void moveCursorRight( QKeyEvent* pEvent, Editor::Step step );
 
-		void updateEditors( bool bPatternOnly = false );
+		void updateEditors( Editor::Update update );
 
 	void patternSizeChangedAction( int nLength, double fDenominator,
 								   int nSelectedPatternNumber );
