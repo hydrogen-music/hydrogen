@@ -1114,14 +1114,26 @@ void SongEditor::updateGridCells() {
 
 			const GridPoint gridPoint( nColumn, y );
 
-			// Check whether the cell was already created
+			// Check whether the cell was already created - either during the
+			// last update or as part of a virtual pattern.
+			pCell = nullptr;
 			if ( oldGridCells.find( gridPoint ) != oldGridCells.end() ) {
 				pCell = oldGridCells.at( gridPoint );
+			}
+			else if ( m_gridCells.find( gridPoint ) != m_gridCells.end() ) {
+				pCell = m_gridCells.at( gridPoint );
+			}
+
+			if ( pCell != nullptr ) {
 				pCell->setWidth( fWidth );
 				pCell->setActive( true );
 				pCell->setDrawnVirtual( false );
-				m_gridCells.insert( { gridPoint, pCell } );
-				oldGridCells.erase( oldGridCells.find( gridPoint ) );
+				if ( m_gridCells.find( gridPoint ) == m_gridCells.end() ) {
+					m_gridCells.insert( { gridPoint, pCell } );
+				}
+				if ( oldGridCells.find( gridPoint ) != oldGridCells.end() ) {
+					oldGridCells.erase( oldGridCells.find( gridPoint ) );
+				}
 			}
 			else {
 				const auto pCell = std::make_shared<GridCell>(
@@ -1136,6 +1148,12 @@ void SongEditor::updateGridCells() {
 				const float fWidthVirtual = pVPattern->getLength() / nMaxLength;
 				const GridPoint gridPointVirtual(
 					nColumn, pPatternList->index( pVPattern ) );
+				if ( m_gridCells.find( gridPointVirtual ) != m_gridCells.end() ) {
+					// In case the pattern is already present, we do not add it
+					// as virtual one again.
+					continue;
+				}
+
 				if ( oldGridCells.find( gridPointVirtual ) != oldGridCells.end() ) {
 					pCell = oldGridCells.at( gridPointVirtual );
 					pCell->setWidth( fWidthVirtual );
