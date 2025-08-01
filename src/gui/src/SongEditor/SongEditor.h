@@ -130,9 +130,7 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		bool updateKeyboardHoveredElements() override;
 		bool updateMouseHoveredElements( QMouseEvent* pEvent ) override;
 
-		Editor::Input getInput() const override {
-			return Editor::Input::Select;
-		}
+		Editor::Input getInput() const override;
 		bool syncLasso() override {
 			return false;
 		}

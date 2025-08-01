@@ -39,6 +39,7 @@
 #include "SongEditorPositionRuler.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
+#include "../MainToolBar/MainToolBar.h"
 #include "../Skin.h"
 
 using namespace H2Core;
@@ -729,6 +730,10 @@ bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 	const auto hoveredCells = getElementsAtPoint(
 		static_cast<MouseEvent*>(pEvent)->position().toPoint(), 0 );
 	return updateHoveredCells( hoveredCells, Editor::Hover::Mouse );
+}
+
+Editor::Input SongEditor::getInput() const {
+	return HydrogenApp::get_instance()->getMainToolBar()->getInput();
 }
 
 void SongEditor::mouseDrawStart( QMouseEvent* pEvent ) {
