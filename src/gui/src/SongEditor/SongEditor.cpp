@@ -1146,7 +1146,7 @@ void SongEditor::updateGridCells() {
 				}
 				else {
 					const auto pCell = std::make_shared<GridCell>(
-						gridPointVirtual, true, fWidth, false );
+						gridPointVirtual, false, fWidth, true );
 					m_gridCells.insert( { gridPointVirtual, pCell } );
 				}
 			}
