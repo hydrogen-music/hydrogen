@@ -120,6 +120,11 @@ void SongEditor::addOrRemovePatternCellAction( const GridPoint& gridPoint,
 		return;
 	}
 
+	std::shared_ptr<GridCell> pOldCell;
+	if ( m_gridCells.find( gridPoint ) != m_gridCells.end() ) {
+		pOldCell = m_gridCells.at( gridPoint );
+	}
+
 	const bool bGridPointActive = pSong->isPatternActive( gridPoint );
 
 	if ( ( action == Editor::Action::Toggle ) ||
@@ -143,6 +148,10 @@ void SongEditor::addOrRemovePatternCellAction( const GridPoint& gridPoint,
 		if ( pCell != nullptr && ! m_selection.isSelected( pCell ) ) {
 			m_selection.addToSelection( pCell );
 		}
+	}
+
+	if ( action == Editor::Action::Delete && pOldCell != nullptr ) {
+		m_selection.removeFromSelection( pOldCell );
 	}
 }
 
