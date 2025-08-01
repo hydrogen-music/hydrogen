@@ -151,7 +151,7 @@ public:
 			m_selection.merge( &pPatternEditor->m_selection );
 		}
 
-		QPoint movingGridOffset() const;
+		H2Core::GridPoint movingGridOffset() const;
 
 		void setCursorPitch( int nCursorPitch );
 

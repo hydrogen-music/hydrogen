@@ -1152,10 +1152,12 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	// Silhouette to show when a note is selected and moved to a different
 	// position (in another editor!).
 	auto pEditor = m_pPatternEditorPanel->getVisibleEditor();
-	QPoint movingOffset, delta;
+	QPoint movingOffsetPoint;
+	GridPoint movingOffsetGridPoint;
 	if ( noteStyle & NoteStyle::Moved ) {
-		delta = pEditor->movingGridOffset();
-		movingOffset = QPoint( delta.x() * m_fGridWidth, 0 );
+		movingOffsetGridPoint = pEditor->movingGridOffset();
+		movingOffsetPoint = QPoint(
+			movingOffsetGridPoint.getColumn() * m_fGridWidth, 0 );
 	}
 
 	if ( m_layout == Layout::Centered || m_layout == Layout::Normalized ) {
@@ -1197,7 +1199,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			else {
 				p.setPen( movingPen );
 				p.setBrush( Qt::NoBrush );
-				p.drawEllipse( movingOffset.x() + nX - 6, nY - 6, 12, 12 );
+				p.drawEllipse( movingOffsetPoint.x() + nX - 6, nY - 6, 12, 12 );
 			}
 		}
 		else {
@@ -1233,7 +1235,7 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			else {
 				p.setPen( movingPen );
 				p.setBrush( movingBrush );
-				p.drawRoundedRect( movingOffset.x() + nX - 1 - 2, nY - 2,
+				p.drawRoundedRect( movingOffsetPoint.x() + nX - 1 - 2, nY - 2,
 								   nLineWidth + 4, nHeight + 4, 5, 5 );
 			}
 		}
@@ -1280,7 +1282,8 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			bool bDrawMoveSilhouettes = true;
 			if ( dynamic_cast<PianoRollEditor*>( pEditor ) != nullptr ) {
 				const int nGridHeight = pEditor->getGridHeight();
-				const int nNewPitch = pNote->getPitchFromKeyOctave() - delta.y();
+				const int nNewPitch = pNote->getPitchFromKeyOctave() -
+					movingOffsetGridPoint.getColumn();
 				if ( nNewPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
 					 nNewPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
 					bDrawMoveSilhouettes = false;
@@ -1296,11 +1299,11 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			if ( bDrawMoveSilhouettes ) {
 				p.setPen( movingPen );
 				p.setBrush( movingBrush );
-				p.drawEllipse( QPoint( movingOffset.x() + nX, nMovedOctaveY ),
+				p.drawEllipse( QPoint( movingOffsetPoint.x() + nX, nMovedOctaveY ),
 							   nRadiusOctave + 1, nRadiusOctave + 1 );
 
 				// Key
-				p.drawEllipse( QPoint( movingOffset.x() + nX, nMovedKeyY ),
+				p.drawEllipse( QPoint( movingOffsetPoint.x() + nX, nMovedKeyY ),
 							   nRadiusKey + 1, nRadiusKey + 1 );
 			}
 		}

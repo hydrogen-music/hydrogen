@@ -518,19 +518,19 @@ bool PatternEditor::isSelectionMoving() const {
 	return m_selection.isMoving();
 }
 
-QPoint PatternEditor::movingGridOffset() const {
-	QPoint rawOffset = m_selection.movingOffset();
+GridPoint PatternEditor::movingGridOffset() const {
+	const QPoint rawOffset = m_selection.movingOffset();
 
 	// Quantization in y direction is mandatory. A note can not be placed
 	// between lines.
-	int nQuantY = m_nGridHeight;
+	const int nQuantY = m_nGridHeight;
 	int nBiasY = nQuantY / 2;
 	if ( rawOffset.y() < 0 ) {
 		nBiasY = -nBiasY;
 	}
 	const int nOffsetY = (rawOffset.y() + nBiasY) / nQuantY;
 
-	float fX = static_cast<float>(rawOffset.x());
+	const float fX = static_cast<float>(rawOffset.x());
 	float fGranularity = 1.0;
 	if ( m_pPatternEditorPanel->isQuantized() ) {
 		fGranularity = static_cast<float>(granularity());
@@ -541,7 +541,7 @@ QPoint PatternEditor::movingGridOffset() const {
 		fGranularity * std::floor( ( fX + m_fGridWidth * fGranularity / 2 ) /
 								   ( m_fGridWidth * fGranularity ) ) );
 
-	return QPoint( nOffsetX, nOffsetY);
+	return GridPoint( nOffsetX, nOffsetY);
 }
 
 void PatternEditor::setCursorPitch( int nCursorPitch ) {
@@ -1207,8 +1207,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 	// because she released the Alt modifier slightly earlier than the mouse
 	// button.
 
-	QPoint offset = movingGridOffset();
-	if ( offset.x() == 0 && offset.y() == 0 ) {
+	const auto offset = movingGridOffset();
+	if ( offset.getColumn() == 0 && offset.getRow() == 0 ) {
 		// Move with no effect.
 		return;
 	}
@@ -1234,14 +1234,15 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 			continue;
 		}
 		const int nPosition = pNote->getPosition();
-		const int nNewPosition = nPosition + offset.x();
+		const int nNewPosition = nPosition + offset.getColumn();
 
 		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
 		int nNewRow = nRow;
 		// For all other editors the moved/copied note is still associated to
 		// the same instrument.
-		if ( m_instance == Editor::Instance::DrumPattern && offset.y() != 0 ) {
-			nNewRow += offset.y();
+		if ( m_instance == Editor::Instance::DrumPattern &&
+			 offset.getRow() != 0 ) {
+			nNewRow += offset.getRow();
 		}
 		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 		const auto newRow = m_pPatternEditorPanel->getRowDB( nNewRow );
@@ -1249,8 +1250,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		int nNewKey = pNote->getKey();
 		int nNewOctave = pNote->getOctave();
 		int nNewPitch = pNote->getPitchFromKeyOctave();
-		if ( m_instance == Editor::Instance::PianoRoll && offset.y() != 0 ) {
-			nNewPitch -= offset.y();
+		if ( m_instance == Editor::Instance::PianoRoll && offset.getRow() != 0 ) {
+			nNewPitch -= offset.getRow();
 			nNewKey = Note::pitchToKey( nNewPitch );
 			nNewOctave = Note::pitchToOctave( nNewPitch );
 		}
@@ -3307,9 +3308,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 	QPoint movingOffset;
 	if ( noteStyle & NoteStyle::Moved ) {
-		QPoint delta = movingGridOffset();
-		movingOffset = QPoint( delta.x() * m_fGridWidth,
-							   delta.y() * m_nGridHeight );
+		const auto delta = movingGridOffset();
+		movingOffset = QPoint( delta.getColumn() * m_fGridWidth,
+							   delta.getRow() * m_nGridHeight );
 	}
 
 	if ( pNote->getNoteOff() == false ) {
