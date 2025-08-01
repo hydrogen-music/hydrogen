@@ -649,6 +649,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			auto pEv = static_cast<MouseEvent*>( ev );
 			m_currentMousePosition = pEv->position().toPoint();
 
+			bool bUpdate = false;
+			auto update = Editor::Update::Transient;
+
 			if ( m_elementsToSelect.size() > 0 ) {
 				if ( ev->buttons() == Qt::LeftButton ||
 					 ev->buttons() == Qt::RightButton ) {
@@ -656,6 +659,8 @@ class Base : public SelectionWidget<Elem>, public QWidget
 					for ( const auto& ppElement : m_elementsToSelect ) {
 						m_selection.addToSelection( ppElement );
 					}
+					update = Editor::Update::Content;
+					bUpdate = true;
 				}
 				else {
 					m_elementsToSelect.clear();
@@ -665,7 +670,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateModifiers( ev );
 
 			// Check which elements are hovered.
-			bool bUpdate = updateMouseHoveredElements( ev );
+			bUpdate = updateMouseHoveredElements( ev ) || bUpdate;
 
 			if ( ev->buttons() != Qt::NoButton ) {
 				if ( getInput() == Editor::Input::Draw &&
@@ -690,7 +695,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 
 			if ( bUpdate ) {
-				updateVisibleComponents( Update::Transient );
+				updateVisibleComponents( update );
 			}
 		}
  		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
@@ -904,7 +909,12 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 		// Update a widget in response to a change in selection while only
 		// update the drawn content if necessary.
-		void updateWidget() override {
+		void updateWidget( Editor::Update update ) override {
+			if ( update != Editor::Update::Transient ) {
+				updateEditor( update );
+				return;
+			}
+
 			if ( m_selection.isMoving() ) {
 				const auto currentGridOffset = movingGridOffset();
 				// Moving a selection never has to update the content (it's

@@ -36,7 +36,9 @@
 
 #include <core/config.h>
 #include <core/Preferences/Preferences.h>
+
 #include "Compatibility/MouseEvent.h"
+#include "Widgets/EditorDefs.h"
 
 namespace H2Core {
 	class Pattern;
@@ -69,7 +71,7 @@ public:
 
 	//! Selection or selection-related visual elements have changed, widget needs to be updated.
 	//! At a minimum, the widget's own update() method should be called.
-	virtual void updateWidget() = 0;
+	virtual void updateWidget( Editor::Update update ) = 0;
 
 		/** Retrieves a resolution-dependent margin determining how many pixel a
 		 * note is allowed to be away from mouse cursor to still be selected. */
@@ -399,9 +401,9 @@ public:
 	//! @}
 
 	//! Update any widgets in this selection group.
-	void updateWidgetGroup() {
+	void updateWidgetGroup( Editor::Update update ) {
 		for ( auto pW : m_pSelectionGroup->m_selectionWidgets ) {
-			pW->updateWidget();
+			pW->updateWidget( update );
 		}
 	}
 
@@ -420,7 +422,7 @@ public:
 			m_pWidget->selectionMoveCancelEvent();
 		}
 		m_selectionState = Idle;
-		updateWidgetGroup();
+		updateWidgetGroup( Editor::Update::Transient );
 	}
 
 	// -------------------------------------------------------------------------------------------------------
@@ -569,16 +571,21 @@ public:
 					removeFromSelection( e );
 				}
 			}
-			updateWidgetGroup();
+			updateWidgetGroup( elems.size() > 0 ? Editor::Update::Content :
+							   Editor::Update::Transient );
 		} else {
-			if ( ev->button() != Qt::RightButton && !m_pSelectionGroup->m_selectedElements.empty() ) {
+			if ( ev->button() != Qt::RightButton &&
+				 ! m_pSelectionGroup->m_selectedElements.empty() ) {
 				// Click without control or right button, and
 				// non-empty selection, will just clear selection
 				clearSelection();
-				updateWidgetGroup();
-			} else if ( ev->button() == Qt::RightButton && m_pSelectionGroup->m_selectedElements.empty() ) {
-				// Right-clicking with an empty selection will first attempt to select anything at the click
-				// position before passing the click through to the client.
+				updateWidgetGroup( Editor::Update::Content );
+			}
+			else if ( ev->button() == Qt::RightButton &&
+					  m_pSelectionGroup->m_selectedElements.empty() ) {
+				// Right-clicking with an empty selection will first attempt to
+				// select anything at the click position before passing the
+				// click through to the client.
 				QRect r = QRect( pEv->position().toPoint(),
 								 pEv->position().toPoint() );
 				std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
@@ -586,7 +593,8 @@ public:
 					addToSelection( e );
 				}
 				m_pWidget->mouseClickEvent( ev );
-			} else {
+			}
+			else {
 				m_pWidget->mouseClickEvent( ev );
 			}
 		}
@@ -635,7 +643,7 @@ public:
 				m_lasso.setTopLeft( pClickEv->position().toPoint() );
 				m_lasso.setBottomRight( pEv->position().toPoint() );
 				m_pWidget->startMouseLasso( ev );
-				m_pWidget->updateWidget();
+				m_pWidget->updateWidget( Editor::Update::Transient );
 
 			}
 
@@ -662,13 +670,18 @@ public:
 				m_checkpointSelectedElements.clear();
 				clearSelection();
 			}
+
+			bool bSelectionChanged = false;
 			auto selected = m_pWidget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
-				if ( m_checkpointSelectedElements.find( s ) == m_checkpointSelectedElements.end() ) {
+				if ( m_checkpointSelectedElements.find( s ) ==
+					 m_checkpointSelectedElements.end() ) {
 					addToSelection( s );
+					bSelectionChanged = true;
 				}
 			}
-			updateWidgetGroup();
+			updateWidgetGroup( bSelectionChanged ? Editor::Update::Content :
+							   Editor::Update::Transient );
 
 		}
 		else if ( m_selectionState == MouseMoving ) {
@@ -690,13 +703,13 @@ public:
 			m_checkpointSelectedElements.clear();
 			m_selectionState = Idle;
 			m_pWidget->endMouseGesture();
-			updateWidgetGroup();
+			updateWidgetGroup( Editor::Update::Transient );
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
 			m_pWidget->endMouseGesture();
 			m_pWidget->selectionMoveEndEvent( ev );
-			updateWidgetGroup();
+			updateWidgetGroup( Editor::Update::Transient );
 
 		} else {
 			// Pass drag end to widget
@@ -755,7 +768,8 @@ public:
 				m_lasso = m_keyboardCursorStart;
 			}
 
-		} else if ( ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) &&
+		} else if ( ( ev->key() == Qt::Key_Enter ||
+					  ev->key() == Qt::Key_Return ) &&
 					m_pWidget->canMoveElements() ) {
 
 			// Key: Enter/Return: start or end a move or copy
@@ -773,7 +787,7 @@ public:
 					// Hit "Enter" over a selected element. Begin move.
 					m_keyboardCursorStart = m_pWidget->getKeyboardCursorRect();
 					m_selectionState = KeyboardMoving;
-					updateWidgetGroup();
+					updateWidgetGroup( Editor::Update::Transient );
 					return true;
 				}
 
@@ -781,7 +795,7 @@ public:
 				// If we hit 'Enter' from lasso mode, go directly to move
 				m_keyboardCursorStart = m_pWidget->getKeyboardCursorRect();
 				m_selectionState = KeyboardMoving;
-				updateWidgetGroup();
+				updateWidgetGroup( Editor::Update::Transient );
 				return true;
 
 			} else if ( m_selectionState == KeyboardMoving ) {
@@ -796,13 +810,13 @@ public:
 				return true;
 			}
 
-		} else if ( ev->key() == Qt::Key_Escape ) {
-
+		}
+		else if ( ev->key() == Qt::Key_Escape ) {
 			// Key: Escape: cancel any lasso or move/copy in progress; or clear any selection.
 			if ( m_selectionState == Idle ) {
 				if ( !m_pSelectionGroup->m_selectedElements.empty() ) {
 					clearSelection();
-					updateWidgetGroup();
+					updateWidgetGroup( Editor::Update::Content );
 					return true;
 				}
 			} else {
@@ -811,7 +825,7 @@ public:
 					m_pWidget->selectionMoveCancelEvent();
 				}
 				m_selectionState = Idle;
-				updateWidgetGroup();
+				updateWidgetGroup( Editor::Update::Transient );
 				return true;
 			}
 
@@ -822,7 +836,7 @@ public:
 
 				if ( m_selectionState != Idle ) {
 					m_selectionState = Idle;
-					updateWidgetGroup();
+					updateWidgetGroup( Editor::Update::Transient );
 					// Cancelling lasso should not eat event.
 					return false;
 				}
