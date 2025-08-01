@@ -300,53 +300,6 @@ private:
 	bool m_bDragFromList;
 };
 
-
-/** \ingroup docGUI*/
-class SE_fillRangePatternAction : public QUndoCommand
-{
-public:
-	SE_fillRangePatternAction( FillRange* pRange, int nPattern ){
-		setText( QObject::tr( "Fill/remove range of pattern" ) );
-		__pRange = pRange;
-		__from = pRange->fromVal;
-		__to = pRange->toVal;
-		__bInsert = pRange->bInsert;
-		__nPattern = nPattern;
-	}
-	virtual void undo()
-	{
-		//qDebug() << "fill/remove range of undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		bool insert;
-		if( __bInsert ){
-			insert = false;
-		}else
-		{
-			insert = true;
-		}
-		__pRange->bInsert = insert;
-		__pRange->fromVal = __from;
-		__pRange->toVal = __to;
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->fillRangeWithPattern( __pRange, __nPattern);
-	}
-
-	virtual void redo()
-	{
-		//qDebug() <<  "fill/remove range of redo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		__pRange->bInsert = __bInsert;
-		__pRange->fromVal = __from;
-		__pRange->toVal = __to;
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->fillRangeWithPattern( __pRange, __nPattern);
-	}
-private:
-	FillRange* __pRange;
-	int __from;
-	int __to;
-	bool __bInsert;
-	int __nPattern;
-};
-
 class SE_addOrRemovePatternCellAction : public QUndoCommand {
 	public:
 		SE_addOrRemovePatternCellAction( const H2Core::GridPoint& gridPoint,

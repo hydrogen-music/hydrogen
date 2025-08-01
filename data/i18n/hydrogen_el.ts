@@ -4683,10 +4683,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5928,6 +5924,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Open Pattern to Replace </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

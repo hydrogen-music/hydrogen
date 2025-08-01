@@ -4651,10 +4651,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5872,6 +5868,10 @@ Confermi?</translation>
     </message>
     <message>
         <source>Open Pattern to Replace </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

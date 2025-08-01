@@ -4677,10 +4677,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>加载/拖动样式</translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation>填充/删除样式范围</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>编辑时间轴标签</translation>
     </message>
@@ -5922,6 +5918,10 @@ Are you sure?</source>
     <message>
         <source>Open Pattern to Replace </source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
+        <translation>填充/删除样式范围</translation>
     </message>
 </context>
 <context>

@@ -4682,10 +4682,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Cargar/arrastrar patrón</translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation>Rellenar/quitar rango de patrón</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Editar etiqueta línea de tiempo</translation>
     </message>
@@ -5927,6 +5923,10 @@ Are you sure?</source>
     <message>
         <source>Open Pattern to Replace </source>
         <translation>Abrir Patrón para Reemplazar </translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
+        <translation>Rellenar/quitar rango de patrón</translation>
     </message>
 </context>
 <context>

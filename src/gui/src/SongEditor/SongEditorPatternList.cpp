@@ -757,96 +757,45 @@ void SongEditorPatternList::patternPopup_duplicate()
 	delete dialog;
 }
 
-void SongEditorPatternList::patternPopup_fill()
-{
+void SongEditorPatternList::patternPopup_fill() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	FillRange range;
 	PatternFillDialog *dialog = new PatternFillDialog( this, &range );
 
 	// use a PatternFillDialog to get the range and mode data
 	if ( dialog->exec() == QDialog::Accepted ) {
 
-		SE_fillRangePatternAction *action =
-			new SE_fillRangePatternAction( &range, m_nRowClicked );
-		HydrogenApp::get_instance()->pushUndoCommand( action );
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		pHydrogenApp->getSongEditorPanel()->getSongEditor()->clearSelection();
+
+		const auto action = range.bInsert ? Editor::Action::Add :
+			Editor::Action::Delete;
+
+		pHydrogenApp->beginUndoMacro( tr( "Fill/remove range of pattern" ) );
+		for ( int nnColumn = range.fromVal; nnColumn <= range.toVal; ++nnColumn ) {
+			const auto gridPoint = GridPoint( nnColumn, m_nRowClicked );
+			if ( ( action == Editor::Action::Delete &&
+				   ! pSong->isPatternActive( gridPoint ) ) ||
+				 ( action == Editor::Action::Add &&
+				   pSong->isPatternActive( gridPoint ) ) ) {
+				// We have to ensure to only act on elements which are already
+				// present. Else, undo will misbehave.
+				continue;
+			}
+
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					gridPoint, Editor::Action::Toggle,
+					Editor::ActionModifier::AddToSelection ) );
+		}
+		pHydrogenApp->endUndoMacro();
 	}
 
 	delete dialog;
-}
-
-
-void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPattern )
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	auto pPatternList = pSong->getPatternList();
-	auto pPattern = pPatternList->get( nPattern );
-	auto pColumns = pSong->getPatternGroupVector();	// E' la lista di "colonne" di pattern
-	std::shared_ptr<PatternList> pColumn = nullptr;
-
-	int nColumn, nColumnIndex;
-	bool bHasPattern = false;
-	int fromVal = pRange->fromVal - 1;
-	int toVal   = pRange->toVal;
-
-	// Add patternlists to PatternGroupVector as necessary
-	int nDelta = toVal - pColumns->size() + 1;
-
-	for ( int i = 0; i < nDelta; i++ ) {
-		pColumn = std::make_shared<PatternList>();
-		pColumns->push_back( pColumn );
-	}
-
-	// Fill or Clear each cell in range
-	for ( nColumn = fromVal; nColumn < toVal; nColumn++ ) {
-
-		// expand Pattern
-		pColumn = ( *pColumns )[ nColumn ];
-		
-		assert( pColumn );
-
-		bHasPattern = false;
-
-		// check whether the pattern (and column) already exists
-		for ( nColumnIndex = 0; pColumn && nColumnIndex < (int)pColumn->size(); nColumnIndex++) {
-
-			if ( pColumn->get( nColumnIndex ) == pPattern ) {
-				bHasPattern = true;
-				break;
-			}
-		}
-
-		if ( pRange->bInsert && !bHasPattern ) {       //fill
-			pColumn->add( pPattern);
-		}
-		else if ( !pRange->bInsert && bHasPattern ) {  // clear
-			pColumn->del( pPattern);
-		}
-	}
-
-		// remove all the empty patternlists at the end of the song
-		for ( int i = pColumns->size() - 1; i != 0 ; i-- ) {
-			auto pList = (*pColumns)[ i ];
-			int nSize = pList->size();
-			if ( nSize == 0 ) {
-				pColumns->erase( pColumns->begin() + i );
-			}
-			else {
-				break;
-			}
-		}
-	pHydrogen->getAudioEngine()->unlock();
-
-
-	// Update
-	pHydrogen->setIsModified( true );
-	HydrogenApp::get_instance()->getSongEditorPanel()
-		->updateEditors( Editor::Update::Content );
 }
 
 void SongEditorPatternList::updateEditor() {

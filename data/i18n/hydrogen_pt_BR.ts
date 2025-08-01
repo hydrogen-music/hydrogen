@@ -4680,10 +4680,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Carregar/arrastar padrão</translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation>Preencher/remover intervalo do padrão</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Editar tag de linha do tempo</translation>
     </message>
@@ -5925,6 +5921,10 @@ Está certo disto?</translation>
     <message>
         <source>Open Pattern to Replace </source>
         <translation>Abrir Padrão para Substituir</translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
+        <translation>Preencher/remover intervalo do padrão</translation>
     </message>
 </context>
 <context>

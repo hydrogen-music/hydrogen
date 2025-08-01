@@ -4669,10 +4669,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Lade/Ziehe Pattern</translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation>Fülle/Leere Teil eines Patterns</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Editiere Timeline Tag</translation>
     </message>
@@ -5914,6 +5910,10 @@ Fortsetzen?</translation>
     <message>
         <source>Open Pattern to Replace </source>
         <translation>Öffne Pattern zum Ersetzen </translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
+        <translation>Fülle/Leere Teil eines Patterns</translation>
     </message>
 </context>
 <context>

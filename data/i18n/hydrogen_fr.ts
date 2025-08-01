@@ -4684,10 +4684,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Charger/traîner un motif</translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation>Remplir/retirer une série de motif</translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation>Modifier l&apos;étiquette de la ligne temporelle</translation>
     </message>
@@ -5929,6 +5925,10 @@ Voulez-vous continuer?</translation>
     <message>
         <source>Open Pattern to Replace </source>
         <translation>Ouvrir un motif pour remplacer </translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
+        <translation>Remplir/retirer une série de motif</translation>
     </message>
 </context>
 <context>

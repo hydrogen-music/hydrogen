@@ -75,7 +75,6 @@ class SongEditorPatternList :  public QWidget
 													const H2Core::License& oldLicense,
 													const QString& oldPatternCategory,
 													int patternNr);
-		void fillRangeWithPattern(FillRange* r, int nPattern);
 		int getGridHeight() { return m_nGridHeight; }
 
 		void updateEditor();

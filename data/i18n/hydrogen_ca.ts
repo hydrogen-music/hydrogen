@@ -4649,10 +4649,6 @@ La ruta a l&apos;Script i el nom del Script no poden tenir espais en blanc.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Fill/remove range of pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit timeline tag</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5870,6 +5866,10 @@ N&apos;estàs segur?</translation>
     </message>
     <message>
         <source>Open Pattern to Replace </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
