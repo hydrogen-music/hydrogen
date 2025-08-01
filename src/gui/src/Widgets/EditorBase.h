@@ -926,7 +926,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// Selection must redraw the content when a cell boundary is
 				// crossed, as the selected elements are part of the content.
 				if ( bCellBoundaryCrossed ) {
-					updateEditor( Editor::Update::Content );
+					updateVisibleComponents( Editor::Update::Content );
 				} else {
 					updateEditor( Editor::Update::Transient );
 				}
