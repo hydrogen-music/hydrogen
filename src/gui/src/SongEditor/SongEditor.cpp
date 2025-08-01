@@ -968,7 +968,8 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	m_selection.paintSelection( &painter );
 
 	// Draw cursor
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() && hasFocus() ) {
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
+		 m_pSongEditorPanel->hasSongEditorFocus() ) {
 		QPen p( pPref->getTheme().m_color.m_cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );
@@ -1298,7 +1299,7 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 
 		if ( cellStyle & ( CellStyle::Selected | CellStyle::Hovered ) ) {
 			QColor highlightColor;
-			if ( hasFocus() || m_bEntered ) {
+			if ( m_pSongEditorPanel->hasSongEditorFocus() || m_bEntered ) {
 				highlightColor = colorTheme.m_selectionHighlightColor;
 			} else {
 				highlightColor = colorTheme.m_selectionInactiveColor;

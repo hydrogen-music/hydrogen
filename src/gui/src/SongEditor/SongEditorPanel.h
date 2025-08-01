@@ -76,6 +76,10 @@ class SongEditorPanel : public QWidget,
 		void highlightPatternEditorLocked();
 		void restoreGroupVector( const QString& filename );
 
+		/** @returns `true` in case any of the child editors or sidebar has
+		 * focus.*/
+		bool hasSongEditorFocus() const;
+
 		static constexpr int m_nMinimumHeight = 50;
 		
 		// Implements EventListener interface

@@ -740,6 +740,20 @@ void SongEditorPanel::clearSequence()
 	HydrogenApp::get_instance()->pushUndoCommand( pAction );
 }
 
+bool SongEditorPanel::hasSongEditorFocus() const{
+	return hasFocus() ||
+		m_pEditorScrollView->hasFocus() ||
+		m_pPatternListScrollView->hasFocus() ||
+		m_pPositionRulerScrollView->hasFocus() ||
+		m_pPlaybackTrackScrollView->hasFocus() ||
+		m_pVScrollBar->hasFocus() ||
+		m_pHScrollBar->hasFocus() ||
+		m_pWidgetStack->hasFocus() ||
+		m_pSongEditor->hasFocus() ||
+		m_pPatternList->hasFocus() ||
+		m_pPositionRuler->hasFocus() ||
+		m_pPlaybackTrackWaveDisplay->hasFocus();
+}
 
 void SongEditorPanel::restoreGroupVector( const QString& filename )
 {
