@@ -56,8 +56,9 @@ https://www.gnu.org/licenses
 
 using namespace H2Core;
 
-MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
-
+MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
+											, m_input( Editor::Input::Select )
+{
 	const auto pPref = Preferences::get_instance();
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
@@ -88,6 +89,34 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 
 		return pAction;
 	};
+	////////////////////////////////////////////////////////////////////////////
+
+	auto pInputModeGroup = new QButtonGroup( this );
+	pInputModeGroup->setExclusive( true );
+
+	m_pSelectButton = createButton( pCommonStrings->getSelectModeButton(), true );
+	m_pSelectButton->setObjectName( "PatternEditorSelectModeBtn" );
+	connect( m_pSelectButton, &QToolButton::clicked, [&](){
+		if ( m_input != Editor::Input::Select ) {
+			m_input = Editor::Input::Select;
+			updateInput();
+		}
+	} );
+	addWidget( m_pSelectButton );
+	pInputModeGroup->addButton( m_pSelectButton );
+
+	m_pDrawButton = createButton( pCommonStrings->getDrawModeButton(), true );
+	m_pDrawButton->setObjectName( "PatternEditorDrawModeBtn" );
+	connect( m_pDrawButton, &QToolButton::clicked, [&](){
+		if ( m_input != Editor::Input::Draw ) {
+			m_input = Editor::Input::Draw;
+			updateInput();
+		}
+	} );
+	addWidget( m_pDrawButton );
+	pInputModeGroup->addButton( m_pDrawButton );
+
+	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pTimeDisplay = new LCDDisplay(
@@ -333,6 +362,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent ) {
 	} );
 
 	updateBpmSpinBox();
+	updateInput();
 	updateJackTimebase();
 	updateJackTransport();
 	updateLoopMode();
@@ -352,8 +382,7 @@ void MainToolBar::setPreferencesVisibilityState( bool bChecked ) {
 	m_pShowPreferencesAction->setChecked( bChecked );
 }
 
-void MainToolBar::updateActions()
-{
+void MainToolBar::updateActions() {
 	const auto pPref = Preferences::get_instance();
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	const auto pHydrogen = Hydrogen::get_instance();
@@ -376,6 +405,18 @@ void MainToolBar::updateActions()
 	// Rubberband
 	if ( m_pRubberBandAction->isChecked() != pPref->getRubberBandBatchMode() ) {
 		m_pRubberBandAction->setChecked( pPref->getRubberBandBatchMode());
+	}
+}
+
+void MainToolBar::updateInput() {
+	m_pSelectButton->setChecked( m_input == Editor::Input::Select );
+	m_pDrawButton->setChecked( m_input == Editor::Input::Draw );
+}
+
+void MainToolBar::setInput( Editor::Input input ) {
+	if ( m_input != input ) {
+		m_input = input;
+		updateInput();
 	}
 }
 
@@ -861,6 +902,8 @@ void MainToolBar::updateIcons() {
 		sIconPath.append( "/icons/black/" );
 	}
 
+	m_pSelectButton->setIcon( QIcon( sIconPath + "select.svg" ) );
+	m_pDrawButton->setIcon( QIcon( sIconPath + "draw.svg" ) );
 	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
 	m_pRecButton->setIcon(
 		QIcon( sIconPath + "record.svg" ) );

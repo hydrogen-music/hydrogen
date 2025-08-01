@@ -346,8 +346,9 @@ class PatternEditorPanel : public QWidget,
 		 * focus.*/
 		bool hasPatternEditorFocus() const;
 
+		/** In case m_pEditButton was pressed, it takes preceedence. Otherwise,
+		 * #MainToolBar::getInput() used. */
 		Editor::Input getInput() const;
-		void setInput( Editor::Input input);
 
 		Editor::Instance getInstance() const;
 		void setInstance( Editor::Instance instance);
@@ -391,7 +392,6 @@ class PatternEditorPanel : public QWidget,
 		/** All patterns currently playing. They are cached in here or  */
 		std::vector< std::shared_ptr<H2Core::Pattern> > m_patternsToShow;
 
-		Editor::Input m_input;
 		Editor::Instance m_instance;
 
 		/** Number corresponding to #m_pPattern. */
@@ -415,8 +415,6 @@ class PatternEditorPanel : public QWidget,
 		QTabBar* m_pTabBar;
 
 		QToolBar* m_pToolBar;
-		MidiLearnableToolButton* m_pSelectButton;
-		MidiLearnableToolButton* m_pDrawButton;
 		MidiLearnableToolButton* m_pEditButton;
 		QAction* m_pHearNotesAction;
 		QAction* m_pQuantizeAction;
@@ -538,9 +536,6 @@ inline const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 									 std::vector< std::shared_ptr<H2Core::Note> > >
 						  >& PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
-}
-inline Editor::Input PatternEditorPanel::getInput() const {
-	return m_input;
 }
 inline Editor::Instance PatternEditorPanel::getInstance() const {
 	return m_instance;

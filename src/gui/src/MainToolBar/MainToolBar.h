@@ -30,6 +30,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include "../EventListener.h"
+#include "../Widgets/EditorDefs.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class BpmSpinBox;
@@ -69,6 +70,10 @@ public:
 		 * on. */
 		void setPreferencesVisibilityState( bool bChecked );
 		void updateActions();
+		void updateInput();
+
+		Editor::Input getInput() const;
+		void setInput( Editor::Input input );
 
 		void audioDriverChangedEvent() override;
 		void beatCounterEvent() override;
@@ -104,6 +109,9 @@ private slots:
 private:
 		void updateIcons();
 		void updateStyleSheet();
+
+		MidiLearnableToolButton* m_pSelectButton;
+		MidiLearnableToolButton* m_pDrawButton;
 
 		LCDDisplay* m_pTimeDisplay;
 
@@ -152,7 +160,13 @@ private:
 		QString m_sLCDBPMSpinboxToolTip;
 		QString m_sLCDBPMSpinboxTimelineToolTip;
 		QString m_sLCDBPMSpinboxJackTimebaseToolTip;
+
+		Editor::Input m_input;
 };
+
+inline Editor::Input MainToolBar::getInput() const {
+	return m_input;
+}
 
 
 #endif

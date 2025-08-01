@@ -43,6 +43,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../MainToolBar/MainToolBar.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/Button.h"
@@ -135,7 +136,6 @@ QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
-	, m_input( Editor::Input::Select )
 	, m_instance( Editor::Instance::DrumPattern )
 	, m_nCursorColumn( 0 )
 	, m_bPatternSelectedViaTab( false )
@@ -212,33 +212,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	};
 
 	////////////////////////////////////////////////////////////////////////////
-	auto pInputModeGroup = new QButtonGroup( m_pToolBar );
-	pInputModeGroup->setExclusive( true );
-
-	m_pSelectButton = createButton( pCommonStrings->getSelectModeButton() );
-	m_pSelectButton->setObjectName( "PatternEditorSelectModeBtn" );
-	connect( m_pSelectButton, &QToolButton::clicked, [&](){
-		setInput( Editor::Input::Select );
-	} );
-	m_pToolBar->addWidget( m_pSelectButton );
-	pInputModeGroup->addButton( m_pSelectButton );
-
-	m_pDrawButton = createButton( pCommonStrings->getDrawModeButton() );
-	m_pDrawButton->setObjectName( "PatternEditorDrawModeBtn" );
-	connect( m_pDrawButton, &QToolButton::clicked, [&](){
-		setInput( Editor::Input::Draw );
-	} );
-	m_pToolBar->addWidget( m_pDrawButton );
-	pInputModeGroup->addButton( m_pDrawButton );
 
 	m_pEditButton = createButton( pCommonStrings->getEditModeButton() );
 	m_pEditButton->setObjectName( "PatternEditorEditModeBtn" );
-	connect( m_pEditButton, &QToolButton::clicked, [&](){
-		setInput( Editor::Input::Edit );
-	} );
 	m_pToolBar->addWidget( m_pEditButton );
-	pInputModeGroup->addButton( m_pEditButton );
-	updateInput();
 
 	m_pToolBar->addSeparator();
 
@@ -982,13 +959,9 @@ bool PatternEditorPanel::hasPatternEditorFocus() const {
 		m_pToolBar->hasFocus();
 }
 
-void PatternEditorPanel::setInput( Editor::Input input ) {
-	if ( m_input != input ) {
-		m_input = input;
-	}
-
-	// Always update button state to ensure the proper one remains toggled.
-	updateInput();
+Editor::Input PatternEditorPanel::getInput() const {
+	return m_pEditButton->isChecked() ? Editor::Input::Edit :
+		HydrogenApp::get_instance()->getMainToolBar()->getInput();
 }
 
 void PatternEditorPanel::setInstance( Editor::Instance instance ) {
@@ -1094,8 +1067,6 @@ void PatternEditorPanel::updateIcons() {
 		color = Qt::black;
 	}
 
-	m_pSelectButton->setIcon( QIcon( sIconPath + "select.svg" ) );
-	m_pDrawButton->setIcon( QIcon( sIconPath + "draw.svg" ) );
 	m_pEditButton->setIcon( QIcon( sIconPath + "edit.svg" ) );
 	m_pHearNotesAction->setIcon( QIcon( sIconPath + "speaker.svg" ) );
 	m_pQuantizeAction->setIcon( QIcon( sIconPath + "quantization.svg" ) );
@@ -1107,28 +1078,6 @@ ClickableLabel {\
     color: %1;\
     font-size: 17px;\
 }" ).arg( color.name() ) );
-}
-
-void PatternEditorPanel::updateInput() {
-	if ( m_input == Editor::Input::Select ) {
-		m_pSelectButton->setChecked( true );
-		m_pDrawButton->setChecked( false );
-		m_pEditButton->setChecked( false );
-	}
-	else if ( m_input == Editor::Input::Draw ) {
-		m_pSelectButton->setChecked( false );
-		m_pDrawButton->setChecked( true );
-		m_pEditButton->setChecked( false );
-	}
-	else if ( m_input == Editor::Input::Edit ) {
-		m_pSelectButton->setChecked( false );
-		m_pDrawButton->setChecked( false );
-		m_pEditButton->setChecked( true );
-	}
-	else {
-		ERRORLOG( QString( "Unhandled input [%1]" )
-				  .arg( Editor::inputToQString( m_input ) ) );
-	}
 }
 
 void PatternEditorPanel::updateInstance() {
