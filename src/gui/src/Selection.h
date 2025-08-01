@@ -910,10 +910,12 @@ public:
 				m_pSelectionGroup->m_selectedElements.insert( s );
 			}
 
-		} else if ( m_selectionState == KeyboardMoving ) {
+			updateWidgetGroup( Editor::Update::Content );
+		}
+		else if ( m_selectionState == KeyboardMoving ) {
 			QRect cursorPosition = m_pWidget->getKeyboardCursorRect();
-			m_movingOffset = cursorPosition.topLeft() - m_keyboardCursorStart.topLeft();
-
+			m_movingOffset = cursorPosition.topLeft() -
+				m_keyboardCursorStart.topLeft();
 		}
 	}
 
