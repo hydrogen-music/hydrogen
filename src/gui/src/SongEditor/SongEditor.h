@@ -104,14 +104,15 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		//! @{
 		void handleElements( QInputEvent* ev, Editor::Action action ) override;
 		void deleteElements( std::vector<std::shared_ptr<GridCell>> vec ) override;
-		virtual std::vector< std::shared_ptr<GridCell> > getElementsAtPoint(
+		std::vector< std::shared_ptr<GridCell> > getElementsAtPoint(
 			const QPoint& point, int nCursorMargin,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
-		virtual QPoint elementToPoint( std::shared_ptr<GridCell> pCell ) const override;
-		virtual QPoint gridPointToPoint(
+		QPoint elementToPoint( std::shared_ptr<GridCell> pCell ) const override;
+		QPoint gridPointToPoint(
 			const H2Core::GridPoint& gridPoint) const override;
-		virtual H2Core::GridPoint pointToGridPoint(
+		H2Core::GridPoint pointToGridPoint(
 			const QPoint& point, bool bHonorQuantization ) const override;
+		H2Core::GridPoint movingGridOffset() const override;
 
 		void copy() override;
 		void paste() override;
@@ -175,9 +176,6 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 
 		//! @name Position of the keyboard input cursor
 		H2Core::GridPoint m_cursor;
-
-		//! Quantise the selection move offset to the sequence grid
-		H2Core::GridPoint movingGridOffset() const;
 
 		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
 		QPoint m_previousMousePosition, m_currentMousePosition, m_previousGridOffset;

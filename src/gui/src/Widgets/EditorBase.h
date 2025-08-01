@@ -135,6 +135,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 			return QPoint();
 		}
+		//! Quantise the selection move offset to the sequence grid
+		virtual H2Core::GridPoint movingGridOffset() const {
+			___ERRORLOG( "To be implemented by parent" );
+			return H2Core::GridPoint( -1, -1 );
+		}
 		/** @} */
 
 		/** Serialize and copy all currently selected elements. */

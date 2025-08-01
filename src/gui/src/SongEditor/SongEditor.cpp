@@ -1224,7 +1224,7 @@ bool SongEditor::updateHoveredCells(
 }
 
 // Return grid offset (in cell coordinate space) of moving selection
-GridPoint SongEditor::movingGridOffset( ) const {
+GridPoint SongEditor::movingGridOffset() const {
 	const QPoint rawOffset = m_selection.movingOffset();
 
 	// Quantize offset to multiples of m_nGrid{Width,Height}

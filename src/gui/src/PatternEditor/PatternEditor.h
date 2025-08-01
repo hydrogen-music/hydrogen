@@ -151,8 +151,6 @@ public:
 			m_selection.merge( &pPatternEditor->m_selection );
 		}
 
-		H2Core::GridPoint movingGridOffset() const;
-
 		void setCursorPitch( int nCursorPitch );
 
 		/** Ensure the selection lassos of the other editors match the one of
@@ -210,6 +208,7 @@ public:
 			const H2Core::GridPoint& gridPoint) const override;
 		virtual H2Core::GridPoint pointToGridPoint(
 			const QPoint& point, bool bHonorQuantization ) const override;
+		H2Core::GridPoint movingGridOffset() const override;
 		void copy() override;
 		void paste() override;
 		void ensureCursorIsVisible() override;
