@@ -5741,14 +5741,6 @@ p, li { white-space: pre-wrap; }
         <translation>Создать новый паттерн</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Опустить выбранный паттерн</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Повысить выбранный паттерн</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Стереть данные паттерна</translation>
     </message>

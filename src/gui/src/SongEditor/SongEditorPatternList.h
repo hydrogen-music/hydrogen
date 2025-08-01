@@ -53,6 +53,7 @@ class SongEditorPatternList :  public QWidget
 	Q_OBJECT
 
 	public:
+		static constexpr int nWidth = 200;
 	
 		explicit SongEditorPatternList( QWidget *parent );
 		~SongEditorPatternList();

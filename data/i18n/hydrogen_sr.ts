@@ -5760,14 +5760,6 @@ p, li { white-space: pre-wrap; }
         <translation>Додај нову мустру</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Спусти одабрану мустру</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Подигни одабрану мустру</translation>
-    </message>
-    <message>
         <source>Song Editor</source>
         <translation>Уредник песме</translation>
     </message>

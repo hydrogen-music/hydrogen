@@ -5720,14 +5720,6 @@ p, li { white-space: pre-wrap; }
         <translation>Vytvořit nový patern</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Přesunout vybraný patern dolů</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Přesunout vybraný patern nahoru</translation>
-    </message>
-    <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>Varování: toto vymaže vaši sekvenci paternu.￼

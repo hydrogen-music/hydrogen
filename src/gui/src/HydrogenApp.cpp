@@ -326,7 +326,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	mainArea->setMinimumSize( HydrogenApp::nMinimumWidth,
 							  180 + // menu bar, margins etc.
 							  MainToolBar::nHeight +
-							  SongEditorPanel::m_nMinimumHeight +
+							  SongEditorPanel::nMinimumHeight +
 							  InstrumentRack::m_nMinimumHeight +
 							  SongEditorPositionRuler::m_nMinimumHeight +
 							  SongEditor::nMinimumHeight +

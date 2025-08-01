@@ -5706,14 +5706,6 @@ p, li { white-space: pre-wrap; }
         <translation>Új motívum</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Kijelölt lefelé mozgatása</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Kijelölt felfelé mozgatása</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Motívum törlése</translation>
     </message>

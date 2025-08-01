@@ -5705,14 +5705,6 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>View playback track</source>
         <translation></translation>
     </message>

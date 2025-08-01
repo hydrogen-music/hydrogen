@@ -5757,14 +5757,6 @@ p, li { white-space: pre-wrap; }
         <translation>Neues Pattern</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Verschiebe ausgewähltes Pattern nach unten</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Verschiebe ausgewähltes Pattern nach oben</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Pattern löschen</translation>
     </message>

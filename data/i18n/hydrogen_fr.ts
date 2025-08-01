@@ -5772,14 +5772,6 @@ p, li { white-space: pre-wrap; }
         <translation>Créer un nouveau motif</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Descendre le motif sélectionné</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Monter le motif sélectionné</translation>
-    </message>
-    <message>
         <source>Song Editor</source>
         <translation>Éditeur de morceau</translation>
     </message>

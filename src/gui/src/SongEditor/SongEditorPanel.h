@@ -34,15 +34,16 @@
 #include "Widgets/Button.h"
 #include "Widgets/EditorDefs.h"
 
+class AutomationPathView;
+class Button;
+class Fader;
+class LCDCombo;
+class MidiLearnableToolButton;
+class PlaybackTrackWaveDisplay;
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
-class Button;
-class Fader;
 class WidgetWithInput;
-class AutomationPathView;
-class LCDCombo;
-class PlaybackTrackWaveDisplay;
 
 /** \ingroup docGUI*/
 class SongEditorPanel : public QWidget,
@@ -53,6 +54,8 @@ class SongEditorPanel : public QWidget,
 	Q_OBJECT
 
 	public:
+		static constexpr int nMinimumHeight = 50;
+
 		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
@@ -80,15 +83,12 @@ class SongEditorPanel : public QWidget,
 		 * focus.*/
 		bool hasSongEditorFocus() const;
 
-		static constexpr int m_nMinimumHeight = 50;
-		
 		// Implements EventListener interface
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.
 		 *
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
-		virtual void actionModeChangeEvent( int nValue ) override;
 		virtual void gridCellToggledEvent() override;
 		virtual void jackTimebaseStateChangedEvent( int nState ) override;
 		virtual void nextPatternsChangedEvent() override;
@@ -108,10 +108,6 @@ class SongEditorPanel : public QWidget,
 		virtual void updateSongEvent( int ) override;
 
 	public slots:
-	/** Used by the shotlist during automated generation of images
-		for the manual. */
-	void activateStackedMode( bool bActivate );
-	void activateSelectMode( bool bActivate );
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 		void toggleAutomationAreaVisibility();
 
@@ -121,8 +117,6 @@ class SongEditorPanel : public QWidget,
 		void hScrollTo( int value );
 
 		void newPatBtnClicked();
-		void upBtnClicked();
-		void downBtnClicked();
 		void clearSequence();
 		
 		void updatePlaybackFaderPeaks();
@@ -150,7 +144,7 @@ class SongEditorPanel : public QWidget,
 		void setTimelineActive( bool bActive );
 		void setTimelineEnabled( bool bEnabled );
 
-		void updateActionMode();
+		void updateIcons();
 		void updateJacktimebaseState();
 		void updatePatternEditorLocked();
 		void updatePatternMode();
@@ -170,19 +164,18 @@ class SongEditorPanel : public QWidget,
 		QStackedWidget*				m_pWidgetStack;
 		QScrollArea*				m_pAutomationPathScrollView;
 									
-									
 		SongEditor*					m_pSongEditor;
 		SongEditorPatternList *		m_pPatternList;
 		SongEditorPositionRuler *	m_pPositionRuler;
 		PlaybackTrackWaveDisplay*	m_pPlaybackTrackWaveDisplay;
 
+		QToolBar*					m_pToolBar;
+		QAction*					m_pClearAction;
+		QAction*					m_pNewPatternAction;
+		MidiLearnableToolButton*	m_pSinglePatternModeButton;
+		MidiLearnableToolButton*	m_pStackedPatternModeButton;
+		MidiLearnableToolButton*	m_pPatternEditorLockedButton;
 
-		Button *					m_pUpBtn;
-		Button *					m_pDownBtn;
-		Button *					m_pClearPatternSeqBtn;
-		Button *					m_pSelectionModeBtn;
-		Button *					m_pDrawModeBtn;
-		
 		Fader*						m_pPlaybackTrackFader;
 
 		Button *					m_pTimelineBtn;
@@ -190,11 +183,6 @@ class SongEditorPanel : public QWidget,
 		Button *					m_pViewPlaybackBtn;
 		Button *					m_pMutePlaybackBtn;
 		Button *					m_pEditPlaybackBtn;
-
-		Button *			m_pPlaySelectedSingleBtn;
-		Button *			m_pPlaySelectedMultipleBtn;
-		Button *			m_pPatternEditorLockedBtn;
-		Button *			m_pPatternEditorUnlockedBtn;
 
 
 		QTimer*						m_pHighlightLockedTimer;

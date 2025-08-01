@@ -5749,14 +5749,6 @@ p, li { white-space: pre-wrap; }
         <translation>新しいパターンの作成</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>選択したパターンを下に</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>選択したパターンを上に</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>パターンシーケンスのクリア</translation>
     </message>

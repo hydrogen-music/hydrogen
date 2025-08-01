@@ -5770,14 +5770,6 @@ p, li { white-space: pre-wrap; }
         <translation>Crear nuevo patrón</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Mover el patrón seleccionado hacia abajo</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Mover el patrón seleccionado hacia arriba</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Eliminar la secuencia del patrón</translation>
     </message>

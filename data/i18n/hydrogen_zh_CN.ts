@@ -5773,14 +5773,6 @@ p, li { white-space: pre-wrap; }
         <translation>创建新样式</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>下移所选样式</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>上移所选样式</translation>
-    </message>
-    <message>
         <source>View playback track</source>
         <translation>查看回放轨道</translation>
     </message>

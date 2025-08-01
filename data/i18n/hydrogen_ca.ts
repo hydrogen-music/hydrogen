@@ -5714,14 +5714,6 @@ p, li { white-space: pre-wrap; }
         <translation>Crear un nou patró</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Moure avall el patró seleccionat</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Moure amunt el patró seleccionat</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Eliminar la seqüència de patrons</translation>
     </message>

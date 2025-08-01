@@ -5772,14 +5772,6 @@ p, li { white-space: pre-wrap; }
         <translation>Criar novo padrão</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Mover o padrão selecionado para baixo</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Mover o padrão selecionado para cima</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Limpar sequência de padrões</translation>
     </message>

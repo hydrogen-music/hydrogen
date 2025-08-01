@@ -5712,14 +5712,6 @@ p, li { white-space: pre-wrap; }
         <translation>Kreiraj novi uzorak</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Pomakni dolje odabrani uzorak</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Pomakni gore odabrani uzorak</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Obriši sekvencu uzoraka</translation>
     </message>

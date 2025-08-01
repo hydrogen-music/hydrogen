@@ -5710,14 +5710,6 @@ p, li { white-space: pre-wrap; }
         <translation>Skapa nytt mönster</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Flytta ner valt mönster</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Flytta upp valt mönster</translation>
-    </message>
-    <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>Varning, detta kommer att radera din mönster sekvens.

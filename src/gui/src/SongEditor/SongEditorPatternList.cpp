@@ -69,7 +69,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	const auto pPref = Preferences::get_instance();
 	
-	m_nWidth = 200;
 	m_nGridHeight = pPref->getSongEditorGridHeight();
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
@@ -85,7 +84,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	connect( m_pLineEdit, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
 	connect( m_pLineEdit, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
 
-	this->resize( m_nWidth, m_nInitialHeight );
+	this->resize( SongEditorPatternList::nWidth, m_nInitialHeight );
 
 	m_playingPattern_on_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_on.png" );
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
@@ -110,7 +109,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pDragScroller = new DragScroller( pScrollArea );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( m_nWidth * pixelRatio,
+	m_pBackgroundPixmap = new QPixmap( SongEditorPatternList::nWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 }
@@ -200,7 +199,7 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 		return;
 	}
 	m_pPatternBeingEdited = pPatternList->get( row );
-	m_pLineEdit->setGeometry( 23, row * m_nGridHeight + 1 , m_nWidth - 23, m_nGridHeight  );
+	m_pLineEdit->setGeometry( 23, row * m_nGridHeight + 1 , SongEditorPatternList::nWidth - 23, m_nGridHeight  );
 	m_pLineEdit->setText( m_pPatternBeingEdited->getName() );
 	m_pLineEdit->selectAll();
 	m_pLineEdit->show();
@@ -317,7 +316,7 @@ void SongEditorPatternList::createBackground()
 
 	int newHeight = m_nGridHeight * nPatterns + 1;
 
-	if ( m_nWidth != m_pBackgroundPixmap->width() ||
+	if ( SongEditorPatternList::nWidth != m_pBackgroundPixmap->width() ||
 		 newHeight != m_pBackgroundPixmap->height() ||
 		 m_pBackgroundPixmap->devicePixelRatio() != devicePixelRatio() ) {
 		if (newHeight == 0) {
@@ -325,9 +324,9 @@ void SongEditorPatternList::createBackground()
 		}
 		delete m_pBackgroundPixmap;
 		qreal pixelRatio = devicePixelRatio();
-		m_pBackgroundPixmap = new QPixmap( m_nWidth  * pixelRatio , newHeight * pixelRatio );	// initialize the pixmap
+		m_pBackgroundPixmap = new QPixmap( SongEditorPatternList::nWidth  * pixelRatio , newHeight * pixelRatio );	// initialize the pixmap
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-		this->resize( m_nWidth, newHeight );
+		this->resize( SongEditorPatternList::nWidth, newHeight );
 	}
 
 	QColor backgroundColor = pPref->getTheme().m_color.m_songEditor_backgroundColor.darker( 120 );
@@ -411,7 +410,7 @@ void SongEditorPatternList::createBackground()
 
 		int text_y = i * m_nGridHeight;
 
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2,
+		p.drawText( 25, text_y - 1, SongEditorPatternList::nWidth - 25, m_nGridHeight + 2,
 					Qt::AlignVCenter, PatternArray[i].sPatternName);
 
 		Skin::Stacked mode = Skin::Stacked::None;

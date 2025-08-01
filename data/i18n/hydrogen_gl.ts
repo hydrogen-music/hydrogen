@@ -5751,14 +5751,6 @@ p, li { white-space: pre-wrap; }
         <translation>Crear un novo patrón</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Mover o patrón seleccionado cara abaixo</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Mover o patrón seleccionado cara arriba</translation>
-    </message>
-    <message>
         <source>Song Editor</source>
         <translation>Editor de cancións</translation>
     </message>

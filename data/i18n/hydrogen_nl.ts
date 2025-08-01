@@ -5713,14 +5713,6 @@ p, li { white-space: pre-wrap; }
         <translation>Maak een nieuw patroon</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Verplaats het geselecteerde patroon naar beneden</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Verplaats het geselecteerde patroon naar boven</translation>
-    </message>
-    <message>
         <source>Clear pattern sequence</source>
         <translation>Wis patroon sequenties</translation>
     </message>

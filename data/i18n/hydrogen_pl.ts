@@ -5713,14 +5713,6 @@ p, li { white-space: pre-wrap; }
         <translation>Tworzy nowy układ rytmiczny</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Przesuwa wybrany układ rytmiczny w dół</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Przesuwa wybrany układ rytmiczny w górę</translation>
-    </message>
-    <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
         <translation>Ostrzeżenie: ta operacja usunie całą twoją sekwencję układów rytmicznych.

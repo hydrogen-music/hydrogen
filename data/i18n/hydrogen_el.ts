@@ -5779,14 +5779,6 @@ p, li { white-space: pre-wrap; }
         <translation>Δημιουργία νέας μήτρας</translation>
     </message>
     <message>
-        <source>Move the selected pattern down</source>
-        <translation>Μετακίνηση, προς τα κάτω, της επιλεγμένης μήτρας</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Μετακίνηση, προς τα πάνω, της επιλεγμένης μήτρας</translation>
-    </message>
-    <message>
         <source>Pattern %1</source>
         <translation>Μήτρα %1</translation>
     </message>
