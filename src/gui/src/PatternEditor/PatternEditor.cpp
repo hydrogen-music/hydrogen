@@ -2728,7 +2728,7 @@ void PatternEditor::selectAllNotesInRow( int nRow, int nPitch ) {
 			}
 		}
 	}
-	m_selection.updateWidgetGroup();
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 void PatternEditor::scrolled( int nValue ) {

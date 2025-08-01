@@ -189,7 +189,7 @@ void DrumPatternEditor::selectAll()
 	FOREACH_NOTE_CST_IT_BEGIN_LENGTH(pPattern->getNotes(), it, pPattern) {
 		m_selection.addToSelection( it->second );
 	}
-	m_selection.updateWidgetGroup();
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 void DrumPatternEditor::createBackground() {
