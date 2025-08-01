@@ -94,7 +94,6 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
 		virtual QRect getKeyboardCursorRect() override;
 		virtual void validateSelection() override {};
-		virtual void updateWidget() override;
 		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
 			return 0; };
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
@@ -176,9 +175,6 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 
 		//! @name Position of the keyboard input cursor
 		H2Core::GridPoint m_cursor;
-
-		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
-		QPoint m_previousMousePosition, m_currentMousePosition, m_previousGridOffset;
 
 		//! @}
 

@@ -564,6 +564,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
  		virtual void mousePressEvent( QMouseEvent *ev ) override {
 			auto pEv = static_cast<MouseEvent*>( ev );
+			m_currentMousePosition = pEv->position().toPoint();
 
 			updateModifiers( ev );
 
@@ -634,6 +635,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		}
 
  		virtual void mouseMoveEvent( QMouseEvent *ev ) override {
+			auto pEv = static_cast<MouseEvent*>( ev );
+			m_currentMousePosition = pEv->position().toPoint();
+
 			if ( m_elementsToSelect.size() > 0 ) {
 				if ( ev->buttons() == Qt::LeftButton ||
 					 ev->buttons() == Qt::RightButton ) {
@@ -873,9 +877,40 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-		// Update a widget in response to a change in selection
-		virtual void updateWidget() override {
-			updateEditor( Update::Content );
+		// Update a widget in response to a change in selection while only
+		// update the drawn content if necessary.
+		void updateWidget() override {
+			if ( m_selection.isMoving() ) {
+				const auto currentGridOffset = movingGridOffset();
+				// Moving a selection never has to update the content (it's
+				// drawn on top of it). Update is only ever needed when the move
+				// delta (in grid spaces) changes
+				if ( m_previousGridOffset != currentGridOffset ) {
+					updateEditor( Editor::Update::Transient );
+					m_previousGridOffset = currentGridOffset;
+				}
+			}
+			else if ( m_selection.isLasso() ) {
+				// We do not honor the current quantization level of the editor
+				// in here because we want its elements to appear selected once
+				// the lasso crossed them and not once we reach the next grid
+				// point.
+				const bool bCellBoundaryCrossed =
+					pointToGridPoint( m_previousMousePosition, false ) !=
+					pointToGridPoint( m_currentMousePosition, false );
+				// Selection must redraw the content when a cell boundary is
+				// crossed, as the selected elements are part of the content.
+				if ( bCellBoundaryCrossed ) {
+					updateEditor( Editor::Update::Content );
+				} else {
+					updateEditor( Editor::Update::Transient );
+				}
+			}
+			else {
+				// Other reasons: force update
+				updateEditor( Editor::Update::Content );
+			}
+			m_previousMousePosition = m_currentMousePosition;
 		}
 
 		QPixmap* m_pBackgroundPixmap;
@@ -895,6 +930,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		Type m_type;
 		/** Which parts of the editor to update in the next paint event. */
 		Update m_update;
+
+		//! Mouse position caching during selection gestures (used to detect
+		//! crossing cell boundaries and allows to avoid redundant redraws).
+		QPoint m_previousMousePosition, m_currentMousePosition;
+		H2Core::GridPoint m_previousGridOffset;
 
  		std::vector<Elem> m_elementsHoveredForPopup;
 
