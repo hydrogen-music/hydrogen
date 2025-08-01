@@ -487,7 +487,7 @@ GridPoint PianoRollEditor::elementToGridPoint( std::shared_ptr<H2Core::Note> pNo
 	}
 
 	gridPoint.setColumn( pNote->getPosition() );
-	gridPoint.setRow( Note::pitchToLine( pNote->getPitchFromKeyOctave() ) + 1 );
+	gridPoint.setRow( Note::pitchToLine( pNote->getPitchFromKeyOctave() ) );
 
 	return gridPoint;
 }
@@ -500,7 +500,7 @@ QPoint PianoRollEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
 
 GridPoint PianoRollEditor::getCursorPosition() const {
 	return GridPoint( m_pPatternEditorPanel->getCursorColumn(),
-					  Note::pitchToLine( m_nCursorPitch ) + 1 );
+					  Note::pitchToLine( m_nCursorPitch ) );
 }
 
 void PianoRollEditor::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {

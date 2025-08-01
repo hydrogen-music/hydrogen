@@ -1142,13 +1142,18 @@ QRect PatternEditor::getKeyboardCursorRect() {
 		// "off".
 		fHalfWidth = m_fGridWidth;
 	}
+
+	// gridPointToPoint() is tailored to retrieve the position of an element
+	// (note) from a grid point. As it is located in the center of a line,
+	// we have to account for that.
+	const int nHalfHeight = m_nGridHeight / 2;
 	if ( m_instance == Editor::Instance::DrumPattern ) {
-		return QRect( pos.x() - fHalfWidth, pos.y() + 2,
+		return QRect( pos.x() - fHalfWidth, pos.y() - nHalfHeight + 2,
 					  fHalfWidth * 2, m_nGridHeight - 3 );
 	}
 	else if ( m_instance == Editor::Instance::PianoRoll ){
-		return QRect( pos.x() - fHalfWidth, pos.y()-2,
-					  fHalfWidth * 2, m_nGridHeight+3 );
+		return QRect( pos.x() - fHalfWidth, pos.y() + 2,
+					  fHalfWidth * 2, m_nGridHeight - 3 );
 	}
 	else {
 		if ( hasFocus() ) {
