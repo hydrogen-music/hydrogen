@@ -251,7 +251,14 @@ void SongEditorPatternList::inlineEditingFinished()
 
 void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pSongEditorPanel = pHydrogenApp->getSongEditorPanel();
+	auto pSongEditor = pSongEditorPanel->getSongEditor();
+	auto pPref = Preferences::get_instance();
+
 	QPainter painter(this);
+	painter.setRenderHint( QPainter::Antialiasing );
+
 	qreal pixelRatio = devicePixelRatio();
 	if ( width() != m_pBackgroundPixmap->width() ||
 		 height() != m_pBackgroundPixmap->height() ||
@@ -266,6 +273,21 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 			pixelRatio * ev->rect().height()
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
+
+	// Draw focus
+	if ( pSongEditorPanel->hasSongEditorFocus() &&
+		 ! pHydrogenApp->hideKeyboardCursor() ) {
+		const auto cursorPoint = pSongEditor->gridPointToPoint(
+			pSongEditor->getCursorPosition() );
+
+		QPen cursorPen( pPref->getTheme().m_color.m_cursorColor );
+		cursorPen.setWidth( 2 );
+		painter.setPen( cursorPen );
+		painter.setBrush( Qt::NoBrush );
+		painter.drawRoundedRect(
+			0, cursorPoint.y() + 1, width() -1, pSongEditor->getGridHeight() - 1,
+			4, 4 );
+	}
 }
 
 void SongEditorPatternList::createBackground()
