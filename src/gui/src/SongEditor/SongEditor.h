@@ -133,6 +133,9 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		Editor::Input getInput() const override {
 			return Editor::Input::Select;
 		}
+		bool syncLasso() override {
+			return false;
+		}
 
 		void mouseDrawStart( QMouseEvent* pEvent ) override;
 		void mouseDrawUpdate( QMouseEvent* pEvent ) override;

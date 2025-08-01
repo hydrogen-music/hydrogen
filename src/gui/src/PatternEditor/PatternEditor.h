@@ -153,10 +153,6 @@ public:
 
 		void setCursorPitch( int nCursorPitch );
 
-		/** Ensure the selection lassos of the other editors match the one of
-		 * this instance. */
-		bool syncLasso();
-
 		void triggerStatusMessage(
 			const std::vector< std::shared_ptr<H2Core::Note> > notes,
 			const Property& property, bool bSquash = false );
@@ -174,8 +170,6 @@ public:
 		virtual void keyPressEvent( QKeyEvent* ev ) override;
 		virtual void keyReleaseEvent(QKeyEvent *ev) override;
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
-		virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void paintEvent( QPaintEvent* ev ) override;
 	
@@ -221,6 +215,7 @@ public:
 		bool updateKeyboardHoveredElements() override;
 		bool updateMouseHoveredElements( QMouseEvent* ev ) override;
 		Editor::Input getInput() const override;
+		bool syncLasso() override;
 		virtual void mouseDrawStart( QMouseEvent* ev ) override;
 		virtual void mouseDrawUpdate( QMouseEvent* ev ) override;
 		virtual void mouseDrawEnd() override;

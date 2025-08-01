@@ -209,6 +209,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			return Editor::Input::Select;
 		}
 
+		/** Ensure the selection lassos of the other components of the editors
+		 * within the same group match the one of this instance. */
+		virtual bool syncLasso() {
+			___ERRORLOG( "To be implemented by parent" );
+			return false;
+		}
+
 		virtual void mouseDrawStart( QMouseEvent* ev ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
@@ -545,7 +552,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				handleKeyboardCursor( bUnhideCursor );
 			}
 
-			updateVisibleComponents( Update::Transient );
+			// Update and synchronize lasso(s)
+			m_selection.updateKeyboardCursorPosition();
+			syncLasso();
+
+			updateVisibleComponents( Editor::Update::Transient );
 		}
 
 		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
@@ -673,11 +684,20 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				}
 			}
 
+			if ( ev->buttons() != Qt::NoButton && ! m_selection.isMoving() &&
+				 syncLasso() ) {
+				bUpdate = true;
+			}
+
 			if ( bUpdate ) {
 				updateVisibleComponents( Update::Transient );
 			}
 		}
  		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
+			// In case we just cancelled a lasso, we have to tell the other
+			// editors in the same group.
+			const bool oldState = m_selection.getSelectionState();
+
 			unsetCursor();
 
 			// Don't call updateModifiers( ev ) in here because we want to apply
@@ -705,7 +725,12 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// position.
 				m_selection.clearSelection();
 				m_elementsToSelect.clear();
-				updateVisibleComponents( Update::Transient );
+				updateVisibleComponents( Update::Content );
+			}
+
+			if ( oldState != m_selection.getSelectionState() ) {
+				syncLasso();
+				updateVisibleComponents( Editor::Update::Transient );
 			}
 		}
 

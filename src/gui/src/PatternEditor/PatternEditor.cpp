@@ -924,12 +924,6 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev ) {
 			updateVisibleComponents( Editor::Update::Transient );
 		}
 	}
-	else {
-		m_selection.updateKeyboardCursorPosition();
-		if ( syncLasso() ) {
-			updateVisibleComponents( Editor::Update::Transient );
-		}
-	}
 }
 
 void PatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
@@ -967,32 +961,6 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	// Hide cursor in case this behavior was selected in the
 	// Preferences.
 	handleKeyboardCursor( false );
-}
-
-void PatternEditor::mouseMoveEvent( QMouseEvent *ev ) {
-	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
-		return;
-	}
-
-	Editor::Base<Elem>::mouseMoveEvent( ev );
-
-	if ( ev->buttons() != Qt::NoButton && ! m_selection.isMoving() &&
-		syncLasso() ) {
-		updateVisibleComponents( Editor::Update::Transient );
-	}
-}
-
-void PatternEditor::mouseReleaseEvent( QMouseEvent *ev ) {
-	// In case we just cancelled a lasso, we have to tell the other
-	// editors.
-	const bool oldState = m_selection.getSelectionState();
-
-	Editor::Base<Elem>::mouseReleaseEvent( ev );
-
-	if ( oldState != m_selection.getSelectionState() ) {
-		syncLasso();
-		updateVisibleComponents( Editor::Update::Transient );
-	}
 }
 
 void PatternEditor::mouseClickEvent( QMouseEvent *ev ) {
