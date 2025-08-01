@@ -936,6 +936,7 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	const auto pPref = Preferences::get_instance();
 
 	QPainter painter(this);
+	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), *m_pContentPixmap, ev->rect() );
 
 	// Draw hovered cells
@@ -970,10 +971,10 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	// Draw cursor
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
 		 m_pSongEditorPanel->hasSongEditorFocus() ) {
-		QPen p( pPref->getTheme().m_color.m_cursorColor );
-		p.setWidth( 2 );
-		painter.setPen( p );
-		painter.setRenderHint( QPainter::Antialiasing );
+		QPen cursorPen( pPref->getTheme().m_color.m_cursorColor );
+		cursorPen.setWidth( 2 );
+		painter.setPen( cursorPen );
+		painter.setBrush( Qt::NoBrush );
 		// Aim to leave a visible gap between the border of the
 		// pattern cell, and the cursor line, for consistency and
 		// visibility.
