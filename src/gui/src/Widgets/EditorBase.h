@@ -193,12 +193,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
-		/** Can be called to e.g. disable some options based on the selected
-		 * elements. */
-		virtual void setupPopupMenu() {
-			___ERRORLOG( "To be implemented by parent" );
-		}
-
 		/** @returns true in case the set of hovered elements did change. */
 		virtual bool updateKeyboardHoveredElements() {
 			___ERRORLOG( "To be implemented by parent" );
@@ -847,7 +841,10 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		}
 
 		void showPopupMenu( QMouseEvent* pEvent ){
-			setupPopupMenu();
+			// Enable or disable menu actions that only operate on selected notes.
+			for ( auto & action : m_selectionActions ) {
+				action->setEnabled( m_elementsHoveredForPopup.size() > 0 );
+			}
 
 			auto pEv = static_cast<MouseEvent*>( pEvent );
 			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
@@ -974,6 +971,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		QPixmap* m_pBackgroundPixmap;
 		QPixmap* m_pContentPixmap;
 		QMenu *m_pPopupMenu;
+		/** Actions within #m_pPopupMenu requiring selected elements to work
+		 * on. */
+		QList< QAction * > m_selectionActions;
 
 		/** width of the editor covered by the current pattern. */
 		int m_nActiveWidth;

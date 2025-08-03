@@ -1904,16 +1904,6 @@ void PatternEditor::setCursorTo( QMouseEvent* ev ) {
 	m_pPatternEditorPanel->setCursorColumn( gridPoint.getColumn() );
 }
 
-void PatternEditor::setupPopupMenu() {
-	if ( m_instance == Editor::Instance::DrumPattern ||
-		 m_instance == Editor::Instance::PianoRoll ) {
-		// Enable or disable menu actions that only operate on selected notes.
-		for ( auto & action : m_selectionActions ) {
-			action->setEnabled( m_elementsHoveredForPopup.size() > 0 );
-		}
-	}
-}
-
 bool PatternEditor::updateKeyboardHoveredElements() {
 	std::vector< std::pair< std::shared_ptr<Pattern>,
 							std::vector< std::shared_ptr<Note> > > > hovered;

@@ -81,26 +81,36 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 	updatePixmapSize();
 
 	// Popup context menu
-	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, [&]() {
-		cut();
-	});
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, [&]() {
-		copy();
-	});
+	m_selectionActions.push_back(
+		m_pPopupMenu->addAction( tr( "&Cut" ), this, [&]() {
+			popupSetup();
+			cut();
+			popupTeardown(); } ) );
+	m_selectionActions.push_back(
+		m_pPopupMenu->addAction( tr( "&Copy" ), this, [&]() {
+			popupSetup();
+			copy();
+			popupTeardown(); } ) );
 	m_pPopupMenu->addAction( tr( "&Paste" ), this, [&]() {
+		popupSetup();
 		paste();
-	});
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, [&]() {
-		deleteSelection();
-	});
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, [&]() {
-		selectAll();
-	});
+		popupTeardown(); } );
+	m_selectionActions.push_back(
+		m_pPopupMenu->addAction( tr( "&Delete" ), this, [&]() {
+			popupSetup();
+			deleteSelection();
+			popupTeardown(); } ) );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this,
+							 [&]() { selectAll();
+								 updateVisibleComponents( Editor::Update::Content ); } );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
-		clearSelection();
-	});
-	m_pPopupMenu->setObjectName( "SongEditorPopup" );
+		m_selection.clearSelection();
+		updateVisibleComponents( Editor::Update::Content );
+	} );
+	connect( m_pPopupMenu, &QMenu::aboutToShow, [&]() {
+		popupMenuAboutToShow(); } );
+	connect( m_pPopupMenu, &QMenu::aboutToHide, [&]() {
+		popupMenuAboutToHide(); } );
 }
 
 SongEditor::~SongEditor() {

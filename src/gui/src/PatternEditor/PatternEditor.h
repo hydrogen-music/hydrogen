@@ -211,7 +211,6 @@ public:
 		void moveCursorRight( QKeyEvent* ev, Editor::Step step ) override;
 		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;
 		void setCursorTo( QMouseEvent* ev ) override;
-		void setupPopupMenu() override;
 		bool updateKeyboardHoveredElements() override;
 		bool updateMouseHoveredElements( QMouseEvent* ev ) override;
 		Editor::Input getInput() const override;
@@ -324,8 +323,6 @@ protected:
 
 		PatternEditorPanel* m_pPatternEditorPanel;
 		Property m_property;
-
-		QList< QAction * > m_selectionActions;
 
 		float m_fGridWidth;
 		unsigned m_nGridHeight;

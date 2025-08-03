@@ -125,8 +125,6 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		void setCursorTo( std::shared_ptr<GridCell> pCell ) override;
 		void setCursorTo( QMouseEvent* pEvent ) override;
 
-		void setupPopupMenu() override {};
-
 		bool updateKeyboardHoveredElements() override;
 		bool updateMouseHoveredElements( QMouseEvent* pEvent ) override;
 
