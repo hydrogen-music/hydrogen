@@ -223,6 +223,105 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 NotePropertiesRuler::~NotePropertiesRuler() {
 }
 
+bool NotePropertiesRuler::applyProperty( std::shared_ptr<Note> pNote,
+										 PatternEditor::Property property,
+										 float fYValue ) {
+	if ( pNote == nullptr ) {
+		return false;
+	}
+
+	switch( property ) {
+		case PatternEditor::Property::Velocity:
+			if ( ! pNote->getNoteOff() && pNote->getVelocity() != fYValue ) {
+				pNote->setVelocity( fYValue );
+				return true;
+			}
+			break;
+
+		case PatternEditor::Property::Pan:
+			if ( ! pNote->getNoteOff() &&
+				 pNote->getPanWithRangeFrom0To1() != fYValue ) {
+				pNote->setPanWithRangeFrom0To1( fYValue );
+				return true;
+			}
+			break;
+
+		case PatternEditor::Property::LeadLag:
+			if ( pNote->getLeadLag() != ( fYValue * -2.0 + 1.0 ) ) {
+				pNote->setLeadLag( fYValue * -2.0 + 1.0 );
+				return true;
+			}
+			break;
+
+		case PatternEditor::Property::KeyOctave:
+			if ( ! pNote->getNoteOff() ) {
+				const int nY = static_cast<int>(fYValue);
+				int nKey = KEY_INVALID;
+				int nOctave = OCTAVE_INVALID;
+				if ( nY > 0 &&
+					 nY <= NotePropertiesRuler::nOctaveHeight ) {
+					nOctave = std::round(
+						( NotePropertiesRuler::nOctaveHeight / 2 +
+						  NotePropertiesRuler::nKeyLineHeight / 2 - nY -
+						  NotePropertiesRuler::nKeyLineHeight / 2 ) /
+						NotePropertiesRuler::nKeyLineHeight );
+					nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
+				}
+				else if ( nY >= NotePropertiesRuler::nOctaveHeight &&
+						  nY < NotePropertiesRuler::nKeyOctaveHeight ) {
+					nKey = ( NotePropertiesRuler::nKeyOctaveHeight - nY -
+							 NotePropertiesRuler::nKeyLineHeight / 2 ) /
+						NotePropertiesRuler::nKeyLineHeight;
+					nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
+				}
+
+				if ( ( nKey != KEY_INVALID &&
+					   nKey != static_cast<int>(pNote->getKey()) ) ||
+					 ( nOctave != KEY_INVALID &&
+					   nOctave != static_cast<int>(pNote->getOctave()) ) ) {
+					pNote->setKeyOctave(
+						static_cast<Note::Key>(nKey),
+						static_cast<Note::Octave>(nOctave));
+					return true;
+				}
+			}
+			break;
+
+		case PatternEditor::Property::Probability:
+			if ( pNote->getProbability() != fYValue ) {
+				pNote->setProbability( fYValue );
+				return true;
+			}
+			break;
+	}
+
+	return false;
+}
+
+float NotePropertiesRuler::eventToYValue( QMouseEvent* pEvent ) const {
+	auto pEv = static_cast<MouseEvent*>( pEvent );
+
+	if ( m_property == PatternEditor::Property::KeyOctave ) {
+		return pEv->position().y();
+	}
+
+	// normalized
+	const double fHeight = static_cast<double>(height());
+	float fValue = static_cast<float>(
+		std::clamp( ( fHeight - static_cast<double>(pEv->position().y()) )/ fHeight,
+					0.0, 1.1 ));
+
+	// centered layouts support resetting the value to the baseline.
+	if ( m_layout == Layout::Centered &&
+		 ( pEvent->button() == Qt::MiddleButton ||
+		   ( pEvent->modifiers() == Qt::ControlModifier &&
+			 pEvent->button() == Qt::LeftButton ) )  ) {
+		fValue = 0.5;
+	}
+
+	return fValue;
+}
+
 void NotePropertiesRuler::moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
 	float fStep;
 	switch( step ) {
@@ -660,97 +759,30 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 		m_nDrawPreviousColumn = gridPoint.getColumn();
 	}
 
-	// normalized
-	const double fHeight = static_cast<double>(height());
-	float fValue = static_cast<float>(
-		std::clamp( ( fHeight - static_cast<double>(pEv->position().y()) )/ fHeight,
-					0.0, 1.1 ));
-
-	// centered layouts support resetting the value to the baseline.
-	if ( m_layout == Layout::Centered &&
-		 ( ev->button() == Qt::MiddleButton ||
-		   ( ev->modifiers() == Qt::ControlModifier &&
-			 ev->button() == Qt::LeftButton ) )  ) {
-		fValue = 0.5;
-	}
-
+	const auto fYValue = eventToYValue( ev );
 	bool bValueChanged = false;
 
 	for ( const auto& ppNote : notesSinceLastAction ) {
 		// If a subset of notes is selected, we only act on them.
-		if ( ! m_selection.isEmpty() == ! m_selection.isSelected( ppNote ) ) {
+		if ( ! m_selection.isEmpty() && ! m_selection.isSelected( ppNote ) ) {
 			continue;
 		}
-		if ( m_property == PatternEditor::Property::Velocity && !ppNote->getNoteOff() ) {
-			if ( ppNote->getVelocity() != fValue ) {
-				ppNote->setVelocity( fValue );
-				bValueChanged = true;
-			}
-		}
-		else if ( m_property == PatternEditor::Property::Pan && !ppNote->getNoteOff() ){
-			if ( ppNote->getPanWithRangeFrom0To1() != fValue ) {
-				ppNote->setPanWithRangeFrom0To1( fValue );
-				bValueChanged = true;
-			}
-		}
-		else if ( m_property == PatternEditor::Property::LeadLag ){
-			if ( ppNote->getLeadLag() != ( fValue * -2.0 + 1.0 ) ) {
-				ppNote->setLeadLag( fValue * -2.0 + 1.0 );
-				bValueChanged = true;
-			}
-		}
-		else if ( m_property == PatternEditor::Property::KeyOctave &&
-				  ! ppNote->getNoteOff() ) {
-			int nKey = KEY_INVALID;
-			int nOctave = OCTAVE_INVALID;
-			if ( pEv->position().y() > 0 &&
-				 pEv->position().y() <= NotePropertiesRuler::nOctaveHeight ) {
-				nOctave = std::round(
-					( NotePropertiesRuler::nOctaveHeight / 2 +
-					  NotePropertiesRuler::nKeyLineHeight / 2 -
-					  pEv->position().y() -
-					  NotePropertiesRuler::nKeyLineHeight / 2 ) /
-					NotePropertiesRuler::nKeyLineHeight );
-				nOctave = std::clamp( nOctave, OCTAVE_MIN, OCTAVE_MAX );
-			}
-			else if ( pEv->position().y() >= NotePropertiesRuler::nOctaveHeight &&
-					  pEv->position().y() < NotePropertiesRuler::nKeyOctaveHeight ) {
-				nKey = ( height() - pEv->position().y() -
-						 NotePropertiesRuler::nKeyLineHeight / 2 ) /
-					NotePropertiesRuler::nKeyLineHeight;
-				nKey = std::clamp( nKey, KEY_MIN, KEY_MAX );
-			}
 
-			if ( ( nKey != KEY_INVALID &&
-				   nKey != static_cast<int>(ppNote->getKey()) ) ||
-				 ( nOctave != KEY_INVALID &&
-				   nOctave != static_cast<int>(ppNote->getOctave()) ) ) {
-				ppNote->setKeyOctave(
-					static_cast<Note::Key>(nKey),
-					static_cast<Note::Octave>(nOctave));
-				bValueChanged = true;
-			}
-		}
-		else if ( m_property == PatternEditor::Property::Probability ) {
-			if ( ppNote->getProbability() != fValue ) {
-				ppNote->setProbability( fValue );
-				bValueChanged = true;
-			}
-		}
-		
-		if ( bValueChanged ) {
+		if ( applyProperty( ppNote, m_property, fYValue ) ) {
+			bValueChanged = true;
 			triggerStatusMessage( notesSinceLastAction, m_property, true );
 		}
 	}
 
 	if ( bValueChanged ) {
 		Hydrogen::get_instance()->setIsModified( true );
-		updateEditor( Editor::Update::Content );
 		if ( m_property == PatternEditor::Property::Velocity ) {
 			// A note's velocity determines its color in the other pattern
 			// editors as well.
-			m_pPatternEditorPanel->getVisibleEditor()
-				->updateEditor( Editor::Update::Content );
+			updateVisibleComponents( Editor::Update::Content );
+		}
+		else {
+			updateEditor( Editor::Update::Content );
 		}
 	}
 }

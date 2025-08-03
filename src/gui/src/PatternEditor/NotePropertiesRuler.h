@@ -97,6 +97,15 @@ class NotePropertiesRuler : public PatternEditor,
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
 		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
 
+		/** Sets a specific property of @a pNote based on the relative y
+		 * coordinate @a fYValue retrieved using eventToYValue(). */
+		static bool applyProperty( std::shared_ptr<H2Core::Note> pNote,
+								   PatternEditor::Property property,
+								   float fYValue );
+		/** Transforms the y coordinate of the provided event into a value which
+		 * is intended to be used with applyProperty(). */
+		float eventToYValue( QMouseEvent* pEvent ) const;
+
 		void updateColors();
 		void updateFont();
 
