@@ -1384,6 +1384,9 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 
 		// Nothing found at point. Add a new note.
 		gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
+		if ( m_instance != Editor::Instance::DrumPattern ) {
+			gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
+		}
 	}
 	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
 		gridPoint.setColumn( m_pPatternEditorPanel->getCursorColumn() );
