@@ -1124,7 +1124,8 @@ void SongEditor::updateGridCells() {
 			}
 			const int y = pPatternList->index( pPattern );
 			assert( y != -1 );
-			const float fWidth = pPattern->getLength() / nMaxLength;
+			const float fWidth = static_cast<float>(pPattern->getLength()) /
+				static_cast<float>(nMaxLength);
 
 			const GridPoint gridPoint( nColumn, y );
 
