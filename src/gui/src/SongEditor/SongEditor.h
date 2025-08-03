@@ -104,7 +104,7 @@ class SongEditor : public Editor::Base<std::shared_ptr<GridCell>>
 		void handleElements( QInputEvent* ev, Editor::Action action ) override;
 		void deleteElements( std::vector<std::shared_ptr<GridCell>> vec ) override;
 		std::vector< std::shared_ptr<GridCell> > getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		QPoint elementToPoint( std::shared_ptr<GridCell> pCell ) const override;
 		QPoint gridPointToPoint(

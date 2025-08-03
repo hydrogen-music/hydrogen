@@ -82,7 +82,7 @@ public:
 		 * @a nCursorMargin can be provided. The closest elements within this
 		 * margin will be selected. */
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) = 0;
 
 	//! Inform the client that we're deselecting elements.
@@ -562,7 +562,8 @@ public:
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ) );
+				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ),
+				true );
 			for ( Elem e : elems) {
 				if ( m_pSelectionGroup->m_selectedElements.find( e )
 					 == m_pSelectionGroup->m_selectedElements.end() ) {
@@ -612,7 +613,8 @@ public:
 
 		if ( ev->button() == Qt::LeftButton) {
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ) );
+				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ),
+				true );
 
 			/* Did the user start dragging a selected element, or an unselected element?
 			 */

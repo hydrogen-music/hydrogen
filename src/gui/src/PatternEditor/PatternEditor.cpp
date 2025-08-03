@@ -1328,7 +1328,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		}
 
 		auto hoveredNotes = getElementsAtPoint(
-			pMouseEvent->pos(), getCursorMargin( ev ) );
+			pMouseEvent->pos(), getCursorMargin( ev ), true );
 		if ( hoveredNotes.size() > 0 ) {
 			m_pPatternEditorPanel->setCursorColumn(
 				hoveredNotes[ 0 ]->getPosition(), true );
@@ -1376,7 +1376,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 
 		// If there are already notes at the provided point, delete them.
 		auto notesAtPoint = getElementsAtPoint(
-			pEv->position().toPoint(), getCursorMargin( ev ) );
+			pEv->position().toPoint(), getCursorMargin( ev ), true );
 		if ( notesAtPoint.size() > 0 ) {
 			deleteElements( notesAtPoint );
 			return;
@@ -1456,7 +1456,7 @@ void PatternEditor::deleteElements(
 }
 
 std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
-	const QPoint& point, int nCursorMargin,
+	const QPoint& point, int nCursorMargin, bool bIncludeHovered,
 	std::shared_ptr<H2Core::Pattern> pPattern )
 {
 	std::vector< std::shared_ptr<Note> > notesUnderPoint;
@@ -1553,22 +1553,24 @@ std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
 		}
 
 		// Check and add hovered notes.
-		for ( const auto& [ ppPattern, nnotes ] :
-				  m_pPatternEditorPanel->getHoveredNotes() ) {
-			if ( ppPattern != pPattern ) {
-				continue;
-			}
-
-			for ( const auto& ppHoveredNote : nnotes ) {
-				bFound = false;
-				for ( const auto& ppPatternNote : notesUnderPoint ) {
-					if ( ppPatternNote == ppHoveredNote ) {
-						bFound = true;
-						break;
-					}
+		if ( bIncludeHovered ) {
+			for ( const auto& [ ppPattern, nnotes ] :
+					  m_pPatternEditorPanel->getHoveredNotes() ) {
+				if ( ppPattern != pPattern ) {
+					continue;
 				}
-				if ( ! bFound && ppHoveredNote != nullptr ) {
-					furtherNotes.insert( ppHoveredNote );
+
+				for ( const auto& ppHoveredNote : nnotes ) {
+					bFound = false;
+					for ( const auto& ppPatternNote : notesUnderPoint ) {
+						if ( ppPatternNote == ppHoveredNote ) {
+							bFound = true;
+							break;
+						}
+					}
+					if ( ! bFound && ppHoveredNote != nullptr ) {
+						furtherNotes.insert( ppHoveredNote );
+					}
 				}
 			}
 		}
@@ -1931,7 +1933,7 @@ bool PatternEditor::updateKeyboardHoveredElements() {
 
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes =
-				pEditor->getElementsAtPoint( point, 0, ppPattern );
+				pEditor->getElementsAtPoint( point, 0, false, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
 				hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
 			}
@@ -1987,7 +1989,7 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 		 pEv->position().x() > PatternEditor::nMarginSidebar ) {
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes = getElementsAtPoint(
-				pEv->position().toPoint(), nCursorMargin, ppPattern );
+				pEv->position().toPoint(), nCursorMargin, false, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
 				const int nDistance = std::abs(
 					hoveredNotes[ 0 ]->getPosition() - gridPoint.getColumn() );
@@ -2037,7 +2039,8 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 
 	auto pointToRowColumn = [&]( QPoint point, GridPoint* pGridPoint, int* nKey,
 								 int* nOctave ) {
-		const auto notes = getElementsAtPoint( point, nCursorMargin, pPattern );
+		const auto notes = getElementsAtPoint(
+			point, nCursorMargin, true, pPattern );
 		if ( notes.size() > 0 && notes[ 0 ] != nullptr ) {
 			pGridPoint->setColumn( notes[ 0 ]->getPosition() );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
@@ -2159,7 +2162,7 @@ void PatternEditor::mouseEditStart( QMouseEvent *ev ) {
 
 	// Adjusting note properties.
 	const auto notesAtPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( ev ) );
+		pEv->position().toPoint(), getCursorMargin( ev ), true );
 	if ( notesAtPoint.size() == 0 ) {
 		return;
 	}

@@ -194,7 +194,7 @@ public:
 		void handleElements( QInputEvent* ev, Editor::Action action ) override;
 		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		virtual QPoint elementToPoint(
 			std::shared_ptr<H2Core::Note> pNote ) const override;

@@ -535,7 +535,8 @@ void SongEditor::deleteElements( std::vector< std::shared_ptr<GridCell> > cells 
 }
 
 std::vector< std::shared_ptr<GridCell> > SongEditor::getElementsAtPoint(
-	const QPoint& point, int /*nCursorMargin*/, std::shared_ptr<Pattern> )
+	const QPoint& point, int /*nCursorMargin*/, bool /*bIncludeHovered*/,
+	std::shared_ptr<Pattern> )
 {
 	// Cursor margin and pattern aren't used within the song editor.
 	std::vector< std::shared_ptr<GridCell> > vec;
@@ -728,7 +729,7 @@ bool SongEditor::updateMouseHoveredElements( QMouseEvent* pEvent ) {
 	}
 
 	const auto hoveredCells = getElementsAtPoint(
-		static_cast<MouseEvent*>(pEvent)->position().toPoint(), 0 );
+		static_cast<MouseEvent*>(pEvent)->position().toPoint(), 0, false );
 	return updateHoveredCells( hoveredCells, Editor::Hover::Mouse );
 }
 

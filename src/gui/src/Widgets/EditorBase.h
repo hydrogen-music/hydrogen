@@ -109,10 +109,16 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		/** @name Conversion between screen position, grid position, and element
 		 * position. How a grid position/point is defined, is up to the
 		 * particular implementation of editor.
-		 *
-		 * @{ */
+		 @{ */
+
+		/**
+		 * The NotePropertiesRuler also allows to interact with hovered note not
+		 * part of the current row (its actual elements). When determining which
+		 * elements are hovered in there, it is key to exclude the previously
+		 * hovered ones using @a bIncludeHovered. Else we end up rendering
+		 * elements already deleted.*/
 		virtual std::vector<Elem> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) {
 			___ERRORLOG( "To be implemented by parent" );
 			return std::vector<Elem>(); }
@@ -308,7 +314,12 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			UNUSED( ev );
 			m_bEntered = false;
 
-			updateMouseHoveredElements( nullptr );
+			auto update = Editor::Update::Transient;
+
+			if ( updateMouseHoveredElements( nullptr ) ||
+				 ! m_selection.isEmpty() ) {
+				update = Editor::Update::Content;
+			}
 
 			// Ending the enclosing undo context. This is key to enable the
 			// Undo/Redo buttons in the main menu again and it feels like a good
@@ -317,7 +328,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			HydrogenApp::get_instance()->endUndoContext();
 
 			// Update focus, hovered elements, and selection color.
-			updateVisibleComponents( Update::Content );
+			updateVisibleComponents( update );
 		}
 
 		virtual void focusInEvent( QFocusEvent* ev ) override {
@@ -352,19 +363,19 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// Only update on state changes
 			if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 				updateKeyboardHoveredElements();
+				auto update = Editor::Update::Transient;
 				if ( bVisible ) {
 					m_selection.updateKeyboardCursorPosition();
 					ensureCursorIsVisible();
 
-					if ( m_selection.isLasso() && m_update !=
-						 Editor::Update::Background ) {
+					if ( m_selection.isLasso() ) {
 						// Since the event was used to alter the element
 						// selection, we need to repainting all elements
 						// (including whether or not they are selected).
-						m_update = Editor::Update::Content;
+						update = Editor::Update::Content;
 					}
 				}
-				updateAllComponents( Update::Transient );
+				updateAllComponents( update );
 			}
 		}
  		virtual void keyPressEvent( QKeyEvent* ev ) override {
@@ -377,7 +388,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// point/cursor will be selected instead.
 			auto selectElementsAtPoint = [&]() {
 				const auto elementsUnderPoint = getElementsAtPoint(
-					gridPointToPoint( getCursorPosition() ), 0 );
+					gridPointToPoint( getCursorPosition() ), 0, true );
 				if ( elementsUnderPoint.size() == 0 ) {
 					return false;
 				}
@@ -530,6 +541,10 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// position
 				m_selection.clearSelection();
 				handleElements( ev, Editor::Action::Toggle );
+
+				// Ensure the note will not be rendered as hovered by mouse
+				// anymore.
+				updateMouseHoveredElements( nullptr );
 			}
 			else if ( ev->key() == Qt::Key_Delete ) {
 				// Key: Delete / Backspace: delete selected elements or those
@@ -540,6 +555,10 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				else {
 					handleElements( ev, Editor::Action::Delete );
 				}
+
+				// Ensure the note will not be rendered as hovered by mouse
+				// anymore.
+				updateMouseHoveredElements( nullptr );
 			}
 			else {
 				ev->ignore();
@@ -592,7 +611,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// we will discard the current selection and add those elements
 				// under point to a transient one.
 				const auto elementsUnderPoint = getElementsAtPoint(
-					pEv->position().toPoint(), getCursorMargin( ev ) );
+					pEv->position().toPoint(), getCursorMargin( ev ), true );
 
 				bool bSelectionHovered = false;
 				for ( const auto& ppElement : elementsUnderPoint ) {
@@ -744,6 +763,8 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 			updateModifiers( ev );
 
+			auto update = Editor::Update::Transient;
+
 			// main button action
 			if ( ev->button() == Qt::LeftButton ) {
 
@@ -753,7 +774,10 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// clicked.
 				handleElements( ev, Editor::Action::Toggle );
 
-				m_selection.clearSelection();
+				if ( ! m_selection.isEmpty() ) {
+					m_selection.clearSelection();
+					update = Editor::Update::Content;
+				}
 				updateMouseHoveredElements( ev );
 			}
 			else if ( ev->button() == Qt::RightButton ) {
@@ -771,7 +795,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateKeyboardHoveredElements();
 
 			// New cursor position, selection and hovered notes update.
-			updateVisibleComponents( Update::Transient );
+			updateVisibleComponents( update );
 		}
 
 		void popupMenuAboutToHide() {
