@@ -263,6 +263,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	// PATTERN LIST
 	m_pPatternListScrollView = new WidgetScrollArea( nullptr );
 	m_pPatternListScrollView->setObjectName( "PatternListScrollView" );
+	m_pPatternListScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPatternListScrollView->setFixedWidth( m_nPatternListWidth );
 	m_pPatternListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -277,6 +278,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
 	m_pEditorScrollView->setObjectName( "EditorScrollView" );
+	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -296,6 +298,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	
 	m_pPositionRulerScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPositionRulerScrollView->setObjectName( "PositionRulerScrollView" );
+	m_pPositionRulerScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -311,6 +314,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 
 	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setObjectName( "PlaybackTrackScrollView" );
+	m_pPlaybackTrackScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -328,6 +332,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	
 	m_pAutomationPathScrollView = new WidgetScrollArea( nullptr );
 	m_pAutomationPathScrollView->setObjectName( "AutomationPathScrollView" );
+	m_pAutomationPathScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
 	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );

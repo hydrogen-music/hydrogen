@@ -335,6 +335,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	m_pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	m_pMainScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pMainScrollArea->setWidget( mainArea );
 	m_pMainScrollArea->setWidgetResizable( true );
 

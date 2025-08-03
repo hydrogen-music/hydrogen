@@ -58,6 +58,7 @@ ComponentsEditor::ComponentsEditor( InstrumentEditorPanel* pPanel )
 	m_pComponentsWidget->setLayout( m_pComponentsLayout );
 
 	m_pScrollArea = new WidgetScrollArea( this );
+	m_pScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pScrollArea->setFixedWidth( InstrumentRack::nWidth );
 	m_pScrollArea->setMinimumHeight( ComponentView::nExpandedHeight );
