@@ -30,6 +30,7 @@ MidiLearnableToolButton::MidiLearnableToolButton( QWidget* pParent,
 	: QToolButton( pParent )
 {
 	setBaseToolTip( sBaseToolTip );
+	setFocusPolicy( Qt::ClickFocus );
 }
 
 MidiLearnableToolButton::~MidiLearnableToolButton() {
