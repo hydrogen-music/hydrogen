@@ -1640,6 +1640,7 @@ void NotePropertiesRuler::selectAll()
 	for ( const auto& ppNote : notes ) {
 		m_selection.addToSelection( ppNote );
 	}
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 std::set< std::shared_ptr<H2Core::Note> > NotePropertiesRuler::getAllNotes() const {
