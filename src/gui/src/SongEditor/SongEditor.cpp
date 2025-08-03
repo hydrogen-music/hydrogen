@@ -132,14 +132,14 @@ void SongEditor::addOrRemovePatternCellAction( const GridPoint& gridPoint,
 		 ( ( action == Editor::Action::Add ) && ! bGridPointActive ) ||
 		 ( ( action == Editor::Action::Delete ) && bGridPointActive ) ) {
 		CoreActionController::toggleGridCell( gridPoint );
+		// Immediate update of all grid cells to allow retrieving the added one
+		// to the selection and to get the hovered cells straight.
+		updateGridCells();
 	}
 
 	if ( static_cast<char>(modifier) &
 		 static_cast<char>(Editor::ActionModifier::AddToSelection) &&
 		 action != Editor::Action::Delete ) {
-		// Immediate update of all grid cells to allow retrieving the added one
-		// to the selection.
-		updateGridCells();
 
 		std::shared_ptr<GridCell> pCell;
 		if ( m_gridCells.find( gridPoint ) != m_gridCells.end() ) {
