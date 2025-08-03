@@ -1420,6 +1420,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history adding or toggling pattern cells in the song * editor.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Duplicate pattern</source>
+        <extracomment>Shown in the undo history after duplicating a pattern.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4662,10 +4667,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Modify pattern properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duplicate pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

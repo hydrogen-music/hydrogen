@@ -217,7 +217,8 @@ class SE_duplicatePatternAction : public QUndoCommand
 {
 public:
 	SE_duplicatePatternAction( const QString& patternFilename, int patternPosition ){
-		setText( QObject::tr( "Duplicate pattern" ) );
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		setText( pCommonStrings->getActionDuplicatePattern() );
 		m_sPatternFilename = patternFilename;
 		m_nPatternPosition = patternPosition;
 	}

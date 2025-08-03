@@ -663,6 +663,8 @@ CommonStrings::CommonStrings(){
 	 *  appended. */
 	m_sActionEditTypes = tr( "Edit type for notes in row" );
 
+	/*: Shown in the undo history after duplicating a pattern. */
+	m_sActionDuplicatePattern = tr( "Duplicate pattern" );
 	/*: Shown in the undo history copying pattern cells in the song editor to
 	 *  another location. */
 	m_sActionCopyPatternCells = tr( "Copy selected cells" );

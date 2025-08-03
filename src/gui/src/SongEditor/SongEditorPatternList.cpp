@@ -710,6 +710,8 @@ void SongEditorPatternList::patternPopup_delete()
 
 void SongEditorPatternList::patternPopup_duplicate()
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -740,20 +742,43 @@ void SongEditorPatternList::patternPopup_duplicate()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(
 		this, pNewPattern, m_nRowClicked, true );
 
-	if ( dialog->exec() == QDialog::Accepted ) {
-		const QString sPath = Filesystem::tmp_file_path(
-			"patternDuplicate.h2pattern" );
-		if ( ! pNewPattern->save( sPath ) ) {
-			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
-		}
-		else {
-			SE_duplicatePatternAction *action =
-				new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 );
-			HydrogenApp::get_instance()->pushUndoCommand( action );
-		}
+	if ( dialog->exec() != QDialog::Accepted ) {
+		delete dialog;
+		return;
+	}
+	delete dialog;
+
+	const QString sPath = Filesystem::tmp_file_path(
+		"patternDuplicate.h2pattern" );
+	if ( ! pNewPattern->save( sPath ) ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
+		return;
 	}
 
-	delete dialog;
+	pHydrogenApp->beginUndoMacro(
+		pCommonStrings->getActionDuplicatePattern() );
+	pHydrogenApp->pushUndoCommand(
+		new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 ) );
+
+	// Duplicate all activations of the corresponding row as well
+	const int nIndex = pPatternList->index( pPattern );
+	const auto pPatternGroupVector = pSong->getPatternGroupVector();
+	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size(); ++nnColumn ) {
+		const auto ppColumn = pPatternGroupVector->at( nnColumn );
+		if ( ppColumn != nullptr ) {
+			for ( int nnPattern = 0; nnPattern < ppColumn->size(); ++nnPattern ) {
+				const auto ppPattern = ppColumn->get( nnPattern );
+				if ( ppPattern != nullptr && ppPattern == pPattern ) {
+					pHydrogenApp->pushUndoCommand(
+						new SE_addOrRemovePatternCellAction(
+							GridPoint( nnColumn, m_nRowClicked + 1 ),
+							Editor::Action::Add,
+							Editor::ActionModifier::AddToSelection ) );
+				}
+			}
+		}
+	}
+	pHydrogenApp->endUndoMacro();
 }
 
 void SongEditorPatternList::patternPopup_fill() {

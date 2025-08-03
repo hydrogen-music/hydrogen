@@ -299,6 +299,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionEditTypes() const {
 			return m_sActionEditTypes; }
 
+		const QString& getActionDuplicatePattern() const {
+			return m_sActionDuplicatePattern; }
 		const QString& getActionCopyPatternCells() const {
 			return m_sActionCopyPatternCells; }
 		const QString& getActionDeletePatternCells() const {
@@ -566,6 +568,7 @@ private:
 		QString m_sActionCopyNotes;
 		QString m_sActionEditTypes;
 
+		QString m_sActionDuplicatePattern;
 		QString m_sActionCopyPatternCells;
 		QString m_sActionDeletePatternCells;
 		QString m_sActionMovePatternCells;
