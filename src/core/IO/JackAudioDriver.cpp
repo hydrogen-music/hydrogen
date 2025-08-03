@@ -693,17 +693,18 @@ void JackAudioDriver::updateTransportPosition()
 				else {
 					m_timebaseTracking = TimebaseTracking::Valid;
 
+					if ( m_timebaseState != Timebase::None ) {
 #if JACK_DEBUG
 				J_DEBUGLOG( QString( "Updating Timebase [2] [%1] -> [%2]" )
 							.arg( TimebaseToQString( m_timebaseState ) )
 							.arg( TimebaseToQString( Timebase::None ) ) );
 #endif
-
-					m_timebaseState = Timebase::None;
+						m_timebaseState = Timebase::None;
+						EventQueue::get_instance()->push_event(
+							EVENT_JACK_TIMEBASE_STATE_CHANGED,
+							static_cast<int>(m_timebaseState) );
+					}
 					m_nTimebaseFrameOffset = 0;
-					EventQueue::get_instance()->push_event(
-						EVENT_JACK_TIMEBASE_STATE_CHANGED,
-						static_cast<int>(m_timebaseState) );
 				}
 			}
 		}
