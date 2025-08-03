@@ -1908,9 +1908,6 @@ bool PatternEditor::updateKeyboardHoveredElements() {
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// cursor visible
 
-		// In case we are within the property ruler and a note from a different
-		// row is hovered by mouse in the drum pattern BaseEditor::editor, we must ensure we
-		// are not adding this one to the keyboard hovered notes too.
 		PatternEditor* pEditor = this;
 		if ( m_instance == Editor::Instance::NotePropertiesRuler ) {
 			auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
@@ -1919,7 +1916,8 @@ bool PatternEditor::updateKeyboardHoveredElements() {
 			}
 		}
 
-		const auto point = gridPointToPoint( pEditor->getCursorPosition() );
+		const auto point = pEditor->gridPointToPoint(
+			pEditor->getCursorPosition() );
 
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes =
