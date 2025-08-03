@@ -1387,6 +1387,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 	}
 	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
 		gridPoint.setColumn( m_pPatternEditorPanel->getCursorColumn() );
+		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 	else {
 		ERRORLOG( "Unknown event" );
@@ -1395,9 +1396,6 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 
 	int nKey = KEY_MIN;
 	int nOctave = OCTAVE_DEFAULT;
-	if ( m_instance != Editor::Instance::DrumPattern ) {
-		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
-	}
 
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Use the row of the DrumPatternEditor/DB for further note
