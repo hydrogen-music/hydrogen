@@ -1397,8 +1397,8 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 		return;
 	}
 
-	int nKey = KEY_MIN;
-	int nOctave = OCTAVE_DEFAULT;
+	int nKey = KEY_INVALID;
+	int nOctave = OCTAVE_INVALID;
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Use the row of the DrumPatternEditor/DB for further note
 		// interactions.
