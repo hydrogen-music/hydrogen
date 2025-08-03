@@ -509,32 +509,6 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	}
 }
 
-
-void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
-	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
-		return;
-	}
-	auto pEv = static_cast<MouseEvent*>( ev );
-
-	if ( ev->button() == Qt::LeftButton ) {
-		// Treat single click as an instantaneous drag
-		mouseDrawStart( ev );
-		mouseDrawUpdate( ev );
-		mouseDrawEnd();
-
-		updateModifiers( ev );
-
-		// Focus cursor on clicked note
-		const auto notes = getElementsAtPoint(
-			pEv->position().toPoint(), getCursorMargin( ev ) );
-		if ( notes.size() > 0 ) {
-			m_pPatternEditorPanel->setCursorColumn( notes[ 0 ]->getPosition() );
-		}
-	}
-
-	PatternEditor::mouseClickEvent( ev );
-}
-
 void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {

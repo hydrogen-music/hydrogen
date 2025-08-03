@@ -113,7 +113,6 @@ class NotePropertiesRuler : public PatternEditor,
 		//! @{
 		bool canMoveElements() const override { return false; };
 		std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
-		void mouseClickEvent( QMouseEvent *ev ) override;
 		void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
 		void selectionMoveEndEvent( QInputEvent *ev ) override;
 		void selectionMoveCancelEvent() override;

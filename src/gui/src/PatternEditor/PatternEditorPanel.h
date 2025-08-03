@@ -248,6 +248,9 @@ class PatternEditorPanel : public QWidget,
 		void addOrRemoveNotes( H2Core::GridPoint gridPoint, int nKey = KEY_INVALID,
 							   int nOctave = OCTAVE_INVALID,
 							   bool bIsNoteOff = false,
+							   float fPropertyValue = std::nan( "" ),
+							   PatternEditor::Property property =
+							      PatternEditor::Property::None,
 							   Editor::Action action = Editor::Action::None,
 							   Editor::ActionModifier modifier =
 							   Editor::ActionModifier::None,

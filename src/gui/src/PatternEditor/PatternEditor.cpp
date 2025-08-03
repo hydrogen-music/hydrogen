@@ -1399,7 +1399,6 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 
 	int nKey = KEY_MIN;
 	int nOctave = OCTAVE_DEFAULT;
-
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Use the row of the DrumPatternEditor/DB for further note
 		// interactions.
@@ -1409,9 +1408,17 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 
 	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
 
+	float fYValue = std::nan( "" );
+	auto property = m_property;
+	if ( m_instance == Editor::Instance::NotePropertiesRuler &&
+		 dynamic_cast<QMouseEvent*>(ev) != nullptr ) {
+		fYValue = static_cast<NotePropertiesRuler*>(this)->eventToYValue(
+			dynamic_cast<QMouseEvent*>(ev) );
+	}
+
 	// Perform the action.
 	m_pPatternEditorPanel->addOrRemoveNotes(
-		gridPoint, nKey, nOctave, bNoteOff, action,
+		gridPoint, nKey, nOctave, bNoteOff, fYValue, property, action,
 		Editor::ActionModifier::Playback );
 }
 
@@ -2113,6 +2120,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			m_pPatternEditorPanel->addOrRemoveNotes(
 				gridPoint, nKey, nOctave,
 				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
+				std::nan( "" ), Property::None,
 				Editor::Action::Toggle,
 				Editor::ActionModifier::Playback, sUndoContext );
 			lastGridPoint = gridPoint;

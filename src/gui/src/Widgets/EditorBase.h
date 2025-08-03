@@ -745,8 +745,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateModifiers( ev );
 
 			// main button action
-			if ( ev->button() == Qt::LeftButton &&
-				 m_instance != Instance::NotePropertiesRuler ) {
+			if ( ev->button() == Qt::LeftButton ) {
 
 				setCursorTo( ev );
 

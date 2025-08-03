@@ -2217,6 +2217,8 @@ void PatternEditorPanel::printDB() const {
 
 void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 										   int nOctave, bool bIsNoteOff,
+										   float fYValue,
+										   PatternEditor::Property property,
 										   Editor::Action action,
 										   Editor::ActionModifier modifier,
 										   const QString& sUndoContext ) {
@@ -2282,8 +2284,45 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
 									  static_cast<Note::Octave>(nOctave) );
 				pNote2->setNoteOff( bIsNoteOff );
+
+				if ( ! std::isnan( fYValue ) ) {
+					NotePropertiesRuler::applyProperty(
+						pNote2, property, fYValue );
+				}
+
 				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 					noteOn( pNote2 );
+			}
+		}
+
+		// Check whether the note was created in the NotePropertiesRuler and we
+		// need to set some custom property.
+		float fVelocity = VELOCITY_DEFAULT;
+		float fPan = PAN_DEFAULT;
+		float fLeadLag = LEAD_LAG_DEFAULT;
+		float fProbability = PROBABILITY_DEFAULT;
+		if ( ! std::isnan( fYValue ) ) {
+			// We use a dummy note to retrieve the value.
+			auto pDummyNote = std::make_shared<Note>(
+				static_cast< std::shared_ptr<Instrument> >(nullptr) );
+			NotePropertiesRuler::applyProperty(
+				pDummyNote, property, fYValue );
+
+			if ( property == PatternEditor::Property::Velocity ) {
+				fVelocity = pDummyNote->getVelocity();
+			}
+			else if ( property == PatternEditor::Property::Pan ) {
+				fPan = pDummyNote->getPan();
+			}
+			else if ( property == PatternEditor::Property::LeadLag ) {
+				fLeadLag = pDummyNote->getLeadLag();
+			}
+			else if ( property == PatternEditor::Property::KeyOctave ) {
+				nNewKey = pDummyNote->getKey();
+				nNewOctave = pDummyNote->getOctave();
+			}
+			else if ( property == PatternEditor::Property::Probability ) {
+				fProbability = pDummyNote->getProbability();
 			}
 		}
 
@@ -2294,12 +2333,12 @@ void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
 				row.sType,
 				m_nPatternNumber,
 				LENGTH_ENTIRE_SAMPLE,
-				VELOCITY_DEFAULT,
-				PAN_DEFAULT,
-				LEAD_LAG_DEFAULT,
+				fVelocity,
+				fPan,
+				fLeadLag,
 				nNewKey,
 				nNewOctave,
-				PROBABILITY_DEFAULT,
+				fProbability,
 				Editor::Action::Add,
 				bIsNoteOff,
 				row.bMappedToDrumkit,
@@ -2500,7 +2539,8 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
 			addOrRemoveNotes( GridPoint( nnPosition, nRow ), nKey, nOctave,
-							  false /* bIsNoteOff */, Editor::Action::Add,
+							  false /* bIsNoteOff */, std::nan( "" ),
+							  PatternEditor::Property::None, Editor::Action::Add,
 							  Editor::ActionModifier::None );
 		}
 		pHydrogenApp->endUndoMacro();
