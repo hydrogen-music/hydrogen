@@ -962,7 +962,11 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 
 	QPainter painter(this);
 	painter.setRenderHint( QPainter::Antialiasing );
-	painter.drawPixmap( ev->rect(), *m_pContentPixmap, ev->rect() );
+	painter.drawPixmap( ev->rect(), *m_pContentPixmap,
+						QRectF( pixelRatio * ev->rect().x(),
+								pixelRatio * ev->rect().y(),
+								pixelRatio * ev->rect().width(),
+								pixelRatio * ev->rect().height() ) );
 
 	// Draw hovered cells
 	for ( const auto& ppCell : m_hoveredCells ) {
@@ -1259,8 +1263,13 @@ GridPoint SongEditor::movingGridOffset() const {
 }
 
 void SongEditor::drawSequence() {
+	const qreal pixelRatio = devicePixelRatio();
 	QPainter p( m_pContentPixmap );
-	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
+	p.drawPixmap( rect(), *m_pBackgroundPixmap,
+				  QRectF( pixelRatio * rect().x(),
+						  pixelRatio * rect().y(),
+						  pixelRatio * rect().width(),
+						  pixelRatio * rect().height() ) );
 
 	updateGridCells();
 
