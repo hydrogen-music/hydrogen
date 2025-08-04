@@ -110,8 +110,8 @@ private:
 		void updateIcons();
 		void updateStyleSheet();
 
-		MidiLearnableToolButton* m_pSelectButton;
-		MidiLearnableToolButton* m_pDrawButton;
+		QAction* m_pSelectAction;
+		QAction* m_pDrawAction;
 
 		LCDDisplay* m_pTimeDisplay;
 
@@ -122,8 +122,8 @@ private:
 		MidiLearnableToolButton* m_pFfwdButton;
 		QAction* m_pSongLoopAction;
 
-		MidiLearnableToolButton* m_pSongModeButton;
-		MidiLearnableToolButton* m_pPatternModeButton;
+		QAction* m_pSongModeAction;
+		QAction* m_pPatternModeAction;
 
 		MidiLearnableToolButton* m_pMetronomeButton;
 		BpmSpinBox* m_pBpmSpinBox;

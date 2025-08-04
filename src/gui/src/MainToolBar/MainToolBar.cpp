@@ -91,30 +91,50 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	};
 	////////////////////////////////////////////////////////////////////////////
 
-	auto pInputModeGroup = new QButtonGroup( this );
+	auto pInputModeGroup = new QActionGroup( this );
 	pInputModeGroup->setExclusive( true );
 
-	m_pSelectButton = createButton( pCommonStrings->getSelectModeButton(), true );
-	m_pSelectButton->setObjectName( "PatternEditorSelectModeBtn" );
-	connect( m_pSelectButton, &QToolButton::clicked, [&](){
+	m_pSelectAction = createAction( pCommonStrings->getSelectModeButton() );
+	m_pSelectAction->setObjectName( "PatternEditorSelectModeBtn" );
+	connect( m_pSelectAction, &QAction::triggered, [&](){
 		if ( m_input != Editor::Input::Select ) {
 			m_input = Editor::Input::Select;
 			updateInput();
 		}
 	} );
-	addWidget( m_pSelectButton );
-	pInputModeGroup->addButton( m_pSelectButton );
+	addAction( m_pSelectAction );
+	pInputModeGroup->addAction( m_pSelectAction );
 
-	m_pDrawButton = createButton( pCommonStrings->getDrawModeButton(), true );
-	m_pDrawButton->setObjectName( "PatternEditorDrawModeBtn" );
-	connect( m_pDrawButton, &QToolButton::clicked, [&](){
+	m_pDrawAction = createAction( pCommonStrings->getDrawModeButton() );
+	m_pDrawAction->setObjectName( "PatternEditorDrawModeBtn" );
+	connect( m_pDrawAction, &QAction::triggered, [&](){
 		if ( m_input != Editor::Input::Draw ) {
 			m_input = Editor::Input::Draw;
 			updateInput();
 		}
 	} );
-	addWidget( m_pDrawButton );
-	pInputModeGroup->addButton( m_pDrawButton );
+	addAction( m_pDrawAction );
+	pInputModeGroup->addAction( m_pDrawAction );
+
+	addSeparator();
+
+	////////////////////////////////////////////////////////////////////////////
+	auto pEditorGroup = new QActionGroup( this );
+	pEditorGroup->setExclusive( true );
+
+	m_pPatternModeAction = createAction( tr( "Pattern Mode" ) );
+	m_pPatternModeAction->setObjectName( "MainToolBarPatternModeButton" );
+	connect( m_pPatternModeAction, &QAction::triggered, [=]() {
+		activateSongMode( false ); } );
+	addAction( m_pPatternModeAction );
+	pEditorGroup->addAction( m_pPatternModeAction );
+
+	m_pSongModeAction = createAction( tr( "Song Mode" ) );
+	m_pSongModeAction->setObjectName( "MainToolBarSongModeButton" );
+	connect( m_pSongModeAction, &QAction::triggered, [=]() {
+		activateSongMode( true ); } );
+	addAction( m_pSongModeAction );
+	pEditorGroup->addAction( m_pSongModeAction );
 
 	addSeparator();
 
@@ -196,26 +216,6 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 
 			 });
 	addAction( m_pSongLoopAction );
-
-	addSeparator();
-
-	////////////////////////////////////////////////////////////////////////////
-	auto pEditorGroup = new QButtonGroup( this );
-	pEditorGroup->setExclusive( true );
-
-	m_pPatternModeButton = createButton( tr( "Pattern Mode" ), true );
-	m_pPatternModeButton->setObjectName( "MainToolBarPatternModeButton" );
-	connect( m_pPatternModeButton, &QToolButton::clicked,
-			[=]() { activateSongMode( false ); } );
-	addWidget( m_pPatternModeButton );
-	pEditorGroup->addButton( m_pPatternModeButton );
-
-	m_pSongModeButton = createButton( tr( "Song Mode" ), true );
-	m_pSongModeButton->setObjectName( "MainToolBarSongModeButton" );
-	connect( m_pSongModeButton, &QToolButton::clicked,
-			[=]() { activateSongMode( true ); } );
-	addWidget( m_pSongModeButton );
-	pEditorGroup->addButton( m_pSongModeButton );
 
 	addSeparator();
 
@@ -409,8 +409,8 @@ void MainToolBar::updateActions() {
 }
 
 void MainToolBar::updateInput() {
-	m_pSelectButton->setChecked( m_input == Editor::Input::Select );
-	m_pDrawButton->setChecked( m_input == Editor::Input::Draw );
+	m_pSelectAction->setChecked( m_input == Editor::Input::Select );
+	m_pDrawAction->setChecked( m_input == Editor::Input::Draw );
 }
 
 void MainToolBar::setInput( Editor::Input input ) {
@@ -863,8 +863,8 @@ void MainToolBar::updateSongMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	const bool bSongMode = pHydrogen->getMode() == Song::Mode::Song;
-	m_pSongModeButton->setChecked( bSongMode );
-	m_pPatternModeButton->setChecked( ! bSongMode );
+	m_pSongModeAction->setChecked( bSongMode );
+	m_pPatternModeAction->setChecked( ! bSongMode );
 	m_pRwdButton->setEnabled( bSongMode );
 	m_pFfwdButton->setEnabled( bSongMode );
 	m_pSongLoopAction->setEnabled( bSongMode );
@@ -902,8 +902,8 @@ void MainToolBar::updateIcons() {
 		sIconPath.append( "/icons/black/" );
 	}
 
-	m_pSelectButton->setIcon( QIcon( sIconPath + "select.svg" ) );
-	m_pDrawButton->setIcon( QIcon( sIconPath + "draw.svg" ) );
+	m_pSelectAction->setIcon( QIcon( sIconPath + "select.svg" ) );
+	m_pDrawAction->setIcon( QIcon( sIconPath + "draw.svg" ) );
 	m_pRwdButton->setIcon( QIcon( sIconPath + "rewind.svg" ) );
 	m_pRecButton->setIcon(
 		QIcon( sIconPath + "record.svg" ) );
@@ -911,8 +911,8 @@ void MainToolBar::updateIcons() {
 	m_pStopButton->setIcon( QIcon( sIconPath + "stop.svg" ) );
 	m_pFfwdButton->setIcon( QIcon( sIconPath + "fast_forward.svg" ) );
 	m_pSongLoopAction->setIcon( QIcon( sIconPath + "loop.svg" ) );
-	m_pPatternModeButton->setIcon( QIcon( sIconPath + "pattern-editor.svg" ) );
-	m_pSongModeButton->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
+	m_pPatternModeAction->setIcon( QIcon( sIconPath + "pattern-editor.svg" ) );
+	m_pSongModeAction->setIcon( QIcon( sIconPath + "song-editor.svg" ) );
 	m_pMetronomeButton->setIcon( QIcon( sIconPath + "metronome.svg" ) );
 	m_pRubberBandAction->setIcon( QIcon( sIconPath + "rubberband.svg" ) );
 	m_pJackTransportAction->setIcon( QIcon( sIconPath + "jack.svg" ) );
