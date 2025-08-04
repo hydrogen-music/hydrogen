@@ -72,7 +72,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		H2_OBJECT(HydrogenApp)
 	Q_OBJECT
 	public:
-		static constexpr int nMinimumWidth = 1000;
+		static constexpr int nMinimumWidth = 1040;
 
 		HydrogenApp( MainForm* pMainForm, QUndoStack* pUndoStack );
 
