@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
 		Logger* pLogger = Logger::bootstrap( logLevelOpt,
 											sLogFile, true, true );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
-		Filesystem::bootstrap( pLogger, "", sConfigFilePath, sLogFile );
+		Filesystem::bootstrap( pLogger, "", "", sConfigFilePath, sLogFile );
 		Preferences::create_instance();
 		auto pPref = Preferences::get_instance();
 		pPref->setOscServerEnabled( true );
