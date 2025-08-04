@@ -252,18 +252,15 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pRubberBandAction = createAction(
-		tr( "Recalculate Rubberband modified samples if bpm will change" ) );
-	m_pRubberBandAction->setObjectName( "MainToolBarRubberbandButton" );
-	m_pRubberBandAction->setChecked( pPref->getRubberBandBatchMode() );
-	connect( m_pRubberBandAction, &QAction::triggered, [&]() {
-			 rubberbandButtonToggle();
+
+	m_pMidiControlDialog = new MidiControlDialog( this );
+
+	m_pMidiControlButton = new MidiControlButton( this );
+	m_pMidiControlButton->setFixedHeight( buttonSize.height() );
+	connect( m_pMidiControlButton, &QToolButton::clicked, [&]() {
+		m_pMidiControlDialog->setVisible( m_pMidiControlButton->isChecked() );
 	});
-	// test the path. if test fails, no button
-	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false) {
-		m_pRubberBandAction->setVisible( false );
-	}
-	addAction( m_pRubberBandAction );
+	addWidget( m_pMidiControlButton );
 
 	addSeparator();
 
@@ -286,14 +283,18 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	m_pJackSeparator = addSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
-	m_pMidiControlDialog = new MidiControlDialog( this );
-
-	m_pMidiControlButton = new MidiControlButton( this );
-	m_pMidiControlButton->setFixedHeight( buttonSize.height() );
-	connect( m_pMidiControlButton, &QToolButton::clicked, [&]() {
-		m_pMidiControlDialog->setVisible( m_pMidiControlButton->isChecked() );
+	m_pRubberBandAction = createAction(
+		tr( "Recalculate Rubberband modified samples if bpm will change" ) );
+	m_pRubberBandAction->setObjectName( "MainToolBarRubberbandButton" );
+	m_pRubberBandAction->setChecked( pPref->getRubberBandBatchMode() );
+	connect( m_pRubberBandAction, &QAction::triggered, [&]() {
+			 rubberbandButtonToggle();
 	});
-	addWidget( m_pMidiControlButton );
+	// test the path. if test fails, no button
+	if ( QFile( pPref->m_sRubberBandCLIexecutable ).exists() == false) {
+		m_pRubberBandAction->setVisible( false );
+	}
+	addAction( m_pRubberBandAction );
 
 	addSeparator();
 
