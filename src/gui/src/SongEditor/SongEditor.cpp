@@ -889,7 +889,8 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 		if ( newGridPoint.getColumn() >= 0 && newGridPoint.getRow() >= 0 &&
 			 newGridPoint.getRow() <= nMaxRow &&
 			 newGridPoint.getColumn() <= nMaxColumn ) {
-			if ( m_gridCells.find( newGridPoint ) == m_gridCells.end() ) {
+			if ( m_gridCells.find( newGridPoint ) == m_gridCells.end() ||
+				 ! m_bCopyNotMove ) {
 				// Cell is not active. Activate it.
 				newGridPoints.push_back( newGridPoint );
 			} else {
@@ -906,23 +907,23 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
 		pHydrogenApp->beginUndoMacro( pCommonStrings->getActionMovePatternCells() );
+		for ( const auto& ggridPoint : deleteGridPoints ) {
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					ggridPoint, Editor::Action::Delete,
+					Editor::ActionModifier::None ) );
+		}
 		for ( const auto& ggridPoint : newGridPoints ) {
-		pHydrogenApp->pushUndoCommand(
-			new SE_addOrRemovePatternCellAction(
-				ggridPoint, Editor::Action::Add,
-				Editor::ActionModifier::AddToSelection ) );
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					ggridPoint, Editor::Action::Add,
+					Editor::ActionModifier::AddToSelection ) );
 		}
 		for ( const auto& ggridPoint : mergeGridPoints ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemovePatternCellAction(
 					ggridPoint, Editor::Action::None,
 					Editor::ActionModifier::AddToSelection ) );
-		}
-		for ( const auto& ggridPoint : deleteGridPoints ) {
-			pHydrogenApp->pushUndoCommand(
-				new SE_addOrRemovePatternCellAction(
-					ggridPoint, Editor::Action::Delete,
-					Editor::ActionModifier::None ) );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
