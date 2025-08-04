@@ -133,6 +133,7 @@ private:
 		QAction* m_pRubberBandAction;
 
 		QAction* m_pJackTransportAction;
+		QAction* m_pJackTimebaseAction;
 		MidiLearnableToolButton* m_pJackTimebaseButton;
 		MidiControlDialog* m_pMidiControlDialog;
 		QAction* m_pJackSeparator;

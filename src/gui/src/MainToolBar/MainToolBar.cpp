@@ -278,7 +278,7 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 	connect( m_pJackTimebaseButton, &QToolButton::clicked, [&]() {
 		jackTimebaseBtnClicked();
 	} );
-	addWidget( m_pJackTimebaseButton );
+	m_pJackTimebaseAction = addWidget( m_pJackTimebaseButton );
 
 	m_pJackSeparator = addSeparator();
 
@@ -783,7 +783,8 @@ void MainToolBar::updateBpmSpinBox() {
 void MainToolBar::updateJackTransport() {
 	auto pHydrogen = Hydrogen::get_instance();
 	const bool bVisible = pHydrogen->hasJackAudioDriver();
-	m_pJackTimebaseButton->setVisible( bVisible );
+	m_pJackTimebaseAction->setVisible( bVisible &&
+		Preferences::get_instance()->m_bJackTimebaseEnabled );
 	m_pJackTransportAction->setVisible( bVisible );
 	m_pJackSeparator->setVisible( bVisible );
 
@@ -800,25 +801,16 @@ void MainToolBar::updateJackTimebase()
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const bool bVisible = pHydrogen->hasJackAudioDriver();
-	m_pJackTimebaseButton->setVisible( bVisible );
+	m_pJackTimebaseAction->setVisible( bVisible &&
+		Preferences::get_instance()->m_bJackTimebaseEnabled );
 	m_pJackTransportAction->setVisible( bVisible );
 	m_pJackSeparator->setVisible( bVisible );
 
-	m_pJackTimebaseButton->setStyleSheet( "" );
-	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
-		m_pJackTimebaseButton->setChecked( false );
-		m_pJackTimebaseButton->setEnabled( false );
-		m_pJackTimebaseButton->setToolTip(
-			pCommonStrings->getJackTimebaseDisabledToolTip() );
+	if ( ! m_pJackTimebaseAction->isVisible() ) {
 		return;
 	}
-	else {
-		m_pJackTimebaseButton->setEnabled( true );
-		m_pJackTimebaseButton->setChecked( false );
-		m_pJackTimebaseButton->setToolTip(
-			pCommonStrings->getJackTimebaseToolTip() );
-	}
 
+	m_pJackTimebaseButton->setStyleSheet( "" );
 	if ( pHydrogen->hasJackTransport() ) {
 		switch ( pHydrogen->getJackTimebaseState() ) {
 		case JackAudioDriver::Timebase::Controller:
@@ -838,6 +830,10 @@ void MainToolBar::updateJackTimebase()
 			m_pJackTimebaseButton->setToolTip(
 				pCommonStrings->getJackTimebaseListenerToolTip() );
 			break;
+
+		default:
+			m_pJackTimebaseButton->setToolTip(
+				pCommonStrings->getJackTimebaseToolTip() );
 		}
 	}
 }
