@@ -1375,6 +1375,7 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 			}
 
 			// Highlight
+			painter.setRenderHint( QPainter::Antialiasing );
 			painter.setPen( QPen( highlightColor ) );
 			painter.setBrush( QBrush( Qt::black ) );
 			painter.drawRect( point.x(), point.y(),
@@ -1382,8 +1383,8 @@ void SongEditor::drawPattern( QPainter& painter, std::shared_ptr<GridCell> pCell
 
 			// Grid cell
 			painter.fillRect( point.x() + 2, point.y() + 2,
-							  pCell->getWidth() * ( m_nGridWidth - 3 ),
-							  m_nGridHeight - 3, cellBrush );
+							  pCell->getWidth() * m_nGridWidth - 4,
+							  m_nGridHeight - 4, cellBrush );
 		}
 		else {
 			// outline color
