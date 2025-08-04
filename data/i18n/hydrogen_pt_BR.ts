@@ -1083,14 +1083,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation>Adicionar instrumento</translation>
     </message>
     <message>
-        <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1420,6 +1412,18 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Duplicate pattern</source>
         <extracomment>Shown in the undo history after duplicating a pattern.</extracomment>
         <translation>Duplicar padrão</translation>
+    </message>
+    <message>
+        <source>JACK Timebase support deactivated. Press to make Hydrogen in control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External Timebase controller. Hydrogen is listening for tempo and position info.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is Timebase controller and sends tempo and position info.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

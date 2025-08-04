@@ -276,8 +276,9 @@ CommonStrings::CommonStrings(){
 	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
-	m_sJackTimebaseToolTip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
-	m_sJackTimebaseListenerToolTip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
+	m_sJackTimebaseToolTip = tr("JACK Timebase support deactivated. Press to make Hydrogen in control.");
+	m_sJackTimebaseListenerToolTip = tr("External Timebase controller. Hydrogen is listening for tempo and position info.");
+	m_sJackTimebaseControllerToolTip = tr("Hydrogen is Timebase controller and sends tempo and position info.");
 
 	/*: Tool tip and menu description used for the tap button in the main tool
 	 *  bar whenever tap tempo was selected. */

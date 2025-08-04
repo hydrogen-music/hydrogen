@@ -118,6 +118,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	
 	const QString& getJackTimebaseToolTip() const { return m_sJackTimebaseToolTip; }
 	const QString& getJackTimebaseListenerToolTip() const { return m_sJackTimebaseListenerToolTip; }
+	const QString& getJackTimebaseControllerToolTip() const {
+		return m_sJackTimebaseControllerToolTip; }
 
 	const QString& getTapTempoToolTip() const { return m_sTapTempoToolTip; }
 	const QString& getBeatCounterTapToolTip() const {
@@ -418,7 +420,7 @@ private:
 
 	QString m_sJackTimebaseToolTip;
 	QString m_sJackTimebaseListenerToolTip;
-	QString m_sJackTimebaseDisabledToolTip;
+	QString m_sJackTimebaseControllerToolTip;
 
 	QString m_sTapTempoToolTip;
 	QString m_sBeatCounterTapToolTip;

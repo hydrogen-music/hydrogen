@@ -819,6 +819,8 @@ void MainToolBar::updateJackTimebase()
 #JackTimebaseButton {\
     background-color: %1;\
 }" ).arg( theme.m_color.m_highlightColor.name() ) );
+			m_pJackTimebaseButton->setToolTip(
+				pCommonStrings->getJackTimebaseControllerToolTip() );
 			break;
 
 		case JackAudioDriver::Timebase::Listener:
