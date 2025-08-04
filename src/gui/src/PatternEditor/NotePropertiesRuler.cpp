@@ -164,6 +164,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent,
 	// Generic pattern editor menu contains some operations that don't apply
 	// here, and we will want to add menu options specific to this later.
 	delete m_pPopupMenu;
+	m_selectionActions.clear();
 	m_pPopupMenu = new QMenu( this );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, [&]() {
 		selectAll();
