@@ -1892,6 +1892,15 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 				);
 #endif
 
+	if ( m_fSongSizeInTicks == fNewSongSizeInTicks ) {
+		// Nothing to do
+		if ( trigger == Event::Trigger::Force ) {
+			EventQueue::get_instance()->pushEvent(
+				Event::Type::SongSizeChanged, 0 );
+		}
+		return;
+	}
+
 	AE_INFOLOG( QString( "[Song] Size update: [%1] -> [%2]" )
 				.arg( m_fSongSizeInTicks ).arg( fNewSongSizeInTicks ) );
 
