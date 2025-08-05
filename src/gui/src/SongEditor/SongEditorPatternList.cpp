@@ -760,7 +760,12 @@ void SongEditorPatternList::patternPopup_duplicate()
 	pHydrogenApp->pushUndoCommand(
 		new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 ) );
 
-	// Duplicate all activations of the corresponding row as well
+	// Duplicate all activations of the corresponding row as well. Because we
+	// will select the newly created patterns, we should clear the former
+	// selection first.
+	pHydrogenApp->getSongEditorPanel()->getSongEditor()
+		->m_selection.clearSelection();
+
 	const int nIndex = pPatternList->index( pPattern );
 	const auto pPatternGroupVector = pSong->getPatternGroupVector();
 	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size(); ++nnColumn ) {
