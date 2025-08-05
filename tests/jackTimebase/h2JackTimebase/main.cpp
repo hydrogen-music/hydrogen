@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 		Logger* pLogger = Logger::bootstrap( logLevelOpt,
 											sLogFile, true, true );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
-		Filesystem::bootstrap( pLogger, "", sConfigFilePath, sLogFile );
+		Filesystem::bootstrap( pLogger, "", "", sConfigFilePath, sLogFile );
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();
