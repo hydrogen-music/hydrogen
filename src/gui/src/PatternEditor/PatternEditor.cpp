@@ -2568,8 +2568,7 @@ void PatternEditor::alignToGrid() {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	// Move the notes
-	pHydrogenApp->beginUndoMacro( tr( "Align notes to grid" ) );
+	std::vector<QUndoCommand*> deleteCommands, addCommands;
 
 	for ( const auto& ppNote : notes ) {
 		if ( ppNote == nullptr ) {
@@ -2604,22 +2603,22 @@ void PatternEditor::alignToGrid() {
 		const bool bIsMappedToDrumkit = ppNote->getInstrument() != nullptr;
 
 		// Move note -> delete at source position
-		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
-						 nPosition,
-						 nInstrumentId,
-						 sType,
-						 m_pPatternEditorPanel->getPatternNumber(),
-						 nLength,
-						 fVelocity,
-						 fPan,
-						 fLeadLag,
-						 nKey,
-						 nOctave,
-						 fProbability,
-						 Editor::Action::Delete,
-						 bNoteOff,
-						 bIsMappedToDrumkit,
-						 Editor::ActionModifier::None ) );
+		deleteCommands.push_back( new SE_addOrRemoveNoteAction(
+									  nPosition,
+									  nInstrumentId,
+									  sType,
+									  m_pPatternEditorPanel->getPatternNumber(),
+									  nLength,
+									  fVelocity,
+									  fPan,
+									  fLeadLag,
+									  nKey,
+									  nOctave,
+									  fProbability,
+									  Editor::Action::Delete,
+									  bNoteOff,
+									  bIsMappedToDrumkit,
+									  Editor::ActionModifier::None ) );
 
 		auto modifier = Editor::ActionModifier::None;
 		if ( m_elementsHoveredForPopup.size() > 0 ) {
@@ -2632,24 +2631,32 @@ void PatternEditor::alignToGrid() {
 		}
 
 		// Add at target position
-		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
-						 nNewPosition,
-						 nInstrumentId,
-						 sType,
-						 m_pPatternEditorPanel->getPatternNumber(),
-						 nLength,
-						 fVelocity,
-						 fPan,
-						 fLeadLag,
-						 nKey,
-						 nOctave,
-						 fProbability,
-						 Editor::Action::Add,
-						 bNoteOff,
-						 bIsMappedToDrumkit,
-						 modifier ) );
+		addCommands.push_back( new SE_addOrRemoveNoteAction(
+								   nNewPosition,
+								   nInstrumentId,
+								   sType,
+								   m_pPatternEditorPanel->getPatternNumber(),
+								   nLength,
+								   fVelocity,
+								   fPan,
+								   fLeadLag,
+								   nKey,
+								   nOctave,
+								   fProbability,
+								   Editor::Action::Add,
+								   bNoteOff,
+								   bIsMappedToDrumkit,
+								   modifier ) );
 	}
 
+	// Move the notes
+	pHydrogenApp->beginUndoMacro( tr( "Align notes to grid" ) );
+	for ( const auto ppCommand : deleteCommands ) {
+		pHydrogenApp->pushUndoCommand( ppCommand );
+	}
+	for ( const auto ppCommand : addCommands ) {
+		pHydrogenApp->pushUndoCommand( ppCommand );
+	}
 	pHydrogenApp->endUndoMacro();
 
 	popupTeardown();
