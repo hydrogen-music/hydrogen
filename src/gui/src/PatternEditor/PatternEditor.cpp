@@ -1202,6 +1202,11 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		selectedNotes.push_back( pNote );
 	}
 
+	// When moving a bulk of notes, it is important to delete them all first.
+	// Moving notes one by one could cause note loss in case the target grid
+	// point of an early point is the source grid point of a latter one.
+	std::vector<QUndoCommand*> deleteActions, addActions;
+
 	for ( auto pNote : selectedNotes ) {
 		if ( pNote == nullptr ) {
 			continue;
@@ -1261,7 +1266,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		if ( ! m_bCopyNotMove ) {
 			// Note is moved either out of range or to a new position. Delete
 			// the note at the source position.
-			pHydrogenApp->pushUndoCommand(
+			deleteActions.push_back(
 				new SE_addOrRemoveNoteAction(
 					nPosition,
 					pNote->getInstrumentId(),
@@ -1295,7 +1300,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 
 		if ( bNoteInRange ) {
 			// Create a new note at the target position
-			pHydrogenApp->pushUndoCommand(
+			addActions.push_back(
 				new SE_addOrRemoveNoteAction(
 					nNewPosition,
 					newRow.nInstrumentID,
@@ -1313,6 +1318,13 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					bIsMappedToDrumkit,
 					modifier ) );
 		}
+	}
+
+	for ( const auto ppAction : deleteActions ) {
+		pHydrogenApp->pushUndoCommand( ppAction );
+	}
+	for ( const auto ppAction : addActions ) {
+		pHydrogenApp->pushUndoCommand( ppAction );
 	}
 
 	// Selecting the clicked row
