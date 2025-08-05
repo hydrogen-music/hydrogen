@@ -277,6 +277,9 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
 
+	pVisibleEditor->updateMouseHoveredElements( nullptr );
+	pVisibleEditor->updateKeyboardHoveredElements();
+
 	pPatternEditorPanel->updateEditors( Editor::Update::Content );
 }
 
