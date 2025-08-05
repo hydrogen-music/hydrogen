@@ -805,7 +805,7 @@ void SongEditorPatternList::patternPopup_fill() {
 			Editor::Action::Delete;
 
 		pHydrogenApp->beginUndoMacro( tr( "Fill/remove range of pattern" ) );
-		for ( int nnColumn = range.fromVal; nnColumn <= range.toVal; ++nnColumn ) {
+		for ( int nnColumn = range.nFrom; nnColumn <= range.nTo; ++nnColumn ) {
 			const auto gridPoint = GridPoint( nnColumn, m_nRowClicked );
 			if ( ( action == Editor::Action::Delete &&
 				   ! pSong->isPatternActive( gridPoint ) ) ||
