@@ -1169,8 +1169,8 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	GridPoint movingOffsetGridPoint;
 	if ( noteStyle & NoteStyle::Moved ) {
 		movingOffsetGridPoint = pEditor->movingGridOffset();
-		movingOffsetPoint = QPoint(
-			movingOffsetGridPoint.getColumn() * m_fGridWidth, 0 );
+		movingOffsetPoint = pEditor->gridPointToPoint( movingOffsetGridPoint ) -
+			QPoint( PatternEditor::nMargin, 0 );
 	}
 
 	if ( m_layout == Layout::Centered || m_layout == Layout::Normalized ) {
@@ -1255,13 +1255,20 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 	}
 	else {
 		// KeyOctave layout
+
+		auto octaveToY = [&]( int nOctave ) {
+			return ( 4 - nOctave ) * NotePropertiesRuler::nKeyLineHeight;
+		};
+		auto keyToY = [&]( int nKey ) {
+			return NotePropertiesRuler::nOctaveHeight +
+				( ( KEYS_PER_OCTAVE - nKey - 1 ) *
+				  NotePropertiesRuler::nKeyLineHeight );
+		};
+
 		const int nRadiusOctave = 3;
-		const int nOctaveY = ( 4 - pNote->getOctave() ) *
-			NotePropertiesRuler::nKeyLineHeight;
+		const int nOctaveY = octaveToY( pNote->getOctave() );
 		const int nRadiusKey = 5;
-		const int nKeyY = NotePropertiesRuler::nOctaveHeight +
-			( ( KEYS_PER_OCTAVE - pNote->getKey() - 1 ) *
-			  NotePropertiesRuler::nKeyLineHeight );
+		const int nKeyY = keyToY( pNote->getKey() );
 
 		// Paint selection outlines
 		if ( noteStyle & ( NoteStyle::Selected |
@@ -1295,18 +1302,16 @@ void NotePropertiesRuler::drawNote( QPainter& p,
 			bool bDrawMoveSilhouettes = true;
 			if ( dynamic_cast<PianoRollEditor*>( pEditor ) != nullptr ) {
 				const int nGridHeight = pEditor->getGridHeight();
-				const int nNewPitch = pNote->getPitchFromKeyOctave() -
-					movingOffsetGridPoint.getColumn();
+				const int nNewPitch = Note::lineToPitch(
+					Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
+					movingOffsetGridPoint.getRow() );
 				if ( nNewPitch < KEYS_PER_OCTAVE * OCTAVE_MIN ||
 					 nNewPitch >= KEYS_PER_OCTAVE * ( OCTAVE_MAX + 1 ) ) {
 					bDrawMoveSilhouettes = false;
 				}
 
-				nMovedKeyY = NotePropertiesRuler::nKeyOctaveHeight -
-					( ( Note::pitchToKey( nNewPitch ) + 1 ) *
-					  NotePropertiesRuler::nKeyLineHeight );
-				nMovedOctaveY = ( 4 - Note::pitchToOctave( nNewPitch ) ) *
-					NotePropertiesRuler::nKeyLineHeight;
+				nMovedKeyY = keyToY( Note::pitchToKey( nNewPitch ) );
+				nMovedOctaveY = octaveToY( Note::pitchToOctave( nNewPitch ) );
 			}
 
 			if ( bDrawMoveSilhouettes ) {
