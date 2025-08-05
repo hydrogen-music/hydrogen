@@ -830,12 +830,15 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				m_selection.clearSelection();
 			}
 
-			// The popup might have caused the cursor to move out of this widget
-			// and the latter will loose focus once the popup is torn down. We
-			// have to ensure not to display some glitchy elements previously
-			// hovered by mouse which are not present anymore (e.g. since they
-			// were aligned to a different position).
-			if ( updateMouseHoveredElements( nullptr ) ) {
+			// The popup might have caused the mouse cursor to move out of this
+			// widget and the latter will loose focus once the popup is torn
+			// down. We have to ensure not to display some glitchy elements
+			// previously hovered by mouse which are not present anymore (e.g.
+			// since they were aligned to a different position).
+			//
+			// It can also result in the hovered element being deleted.
+			const bool bUpdate = updateMouseHoveredElements( nullptr );
+			if ( updateKeyboardHoveredElements() || bUpdate ) {
 				updateVisibleComponents( Update::Transient );
 			}
 		}
