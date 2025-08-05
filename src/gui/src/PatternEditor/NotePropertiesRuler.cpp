@@ -934,6 +934,12 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta ) {
 
 		addUndoAction( "NotePropertiesRuler::keyPressEvent" );
 
+		if ( m_property == PatternEditor::Property::Velocity ) {
+			updateVisibleComponents( Editor::Update::Content );
+		} else {
+			updateEditor( Editor::Update::Content );
+		}
+
 		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
