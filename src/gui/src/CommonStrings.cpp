@@ -372,6 +372,18 @@ CommonStrings::CommonStrings(){
 	/*: Displayed in popup dialogs in case the user attempts to close
 	  a window which still contains unsaved changes. The '\n'
 	  character introduces a linebreak and must not be translated*/
+	/*: Text displayed on the Fill button in the pattern fill dialog of the
+	  song editor. The character after the '&' symbol can be used as a hotkey
+	  and the '&' symbol itself will not be displayed. Note that this button
+	  will be displayed in combination with "Cancel" and "Clear" and the symbol
+	  after '&' should be different in all three translations. */
+	m_sButtonFill = tr( "&Fill" );
+	/*: Text displayed on the Clear button in the pattern fill dialog of the
+	  song editor. The character after the '&' symbol can be used as a hotkey
+	  and the '&' symbol itself will not be displayed. Note that this button
+	  will be displayed in combination with "Cancel" and "Fill" and the symbol
+	  after '&' should be different in all three translations. */
+	m_sButtonClear = tr( "Clea&r" );
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 

@@ -746,8 +746,6 @@ Displayed in the tooltip of input widgets. General heading of the part associati
     <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
-        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
-&apos; character introduces a linebreak and must not be translated</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1424,6 +1422,17 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Hydrogen is Timebase controller and sends tempo and position info.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Fill</source>
+        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
+&apos; character introduces a linebreak and must not be translatedText displayed on the Fill button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Clear&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
+        <translation>&amp;F Omplir</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r</source>
+        <extracomment>Text displayed on the Clear button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Fill&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
