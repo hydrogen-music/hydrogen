@@ -3481,45 +3481,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Cancel</source>
-        <translation>Поништи</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>Form 1</source>
-        <translation>Формулар 1</translation>
-    </message>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>&amp;Попуни</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation>Alt+F</translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>У&amp;клони</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>Од:</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>До:</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>У реду</translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>

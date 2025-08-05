@@ -3485,45 +3485,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Alt+C</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Form 1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>並べる(&amp;F)</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>除去(&amp;C)</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>開始:</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>終了:</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>

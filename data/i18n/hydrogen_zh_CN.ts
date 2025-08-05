@@ -3486,45 +3486,6 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Form 1</source>
-        <translation>表单 1</translation>
-    </message>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>填充(&amp;F)</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation>Alt+F</translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>清除(&amp;C)</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>从：</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>至：</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>确定</translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>

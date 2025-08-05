@@ -3493,45 +3493,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>Form 1</source>
-        <translation>Form 1</translation>
-    </message>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>Remplir (&amp;F)</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation>Alt+F</translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>Effa&amp;cer</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>De :</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>À :</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>

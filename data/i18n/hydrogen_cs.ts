@@ -3459,45 +3459,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Form 1</source>
-        <translation>Form 1</translation>
-    </message>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>Vy&amp;plnit</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation>Alt+F</translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>&amp;Vyčistit</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>Od:</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>Do:</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Storno</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>

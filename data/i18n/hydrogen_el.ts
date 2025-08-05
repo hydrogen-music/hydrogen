@@ -3488,45 +3488,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>&amp;Γέμισμα</translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>&amp;Καθάρισμα</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>Στο:</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>Από:</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Ακύρωση</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>Εντάξει</translation>
-    </message>
-    <message>
-        <source>Form 1</source>
-        <translation>Προμόρφωμα1</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation>Alt+F</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
