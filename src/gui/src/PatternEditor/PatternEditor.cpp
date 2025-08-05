@@ -2569,6 +2569,10 @@ void PatternEditor::alignToGrid() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	std::vector<QUndoCommand*> deleteCommands, addCommands;
+	// When aligning notes to a more coarse-grained grid, it is likely to have
+	// identical notes coinciding. In order to not show false positive error
+	// messages, we ensure there will be no duplicates.
+	std::vector< std::pair< std::shared_ptr<Note>, int > > alignedNotes;
 
 	for ( const auto& ppNote : notes ) {
 		if ( ppNote == nullptr ) {
@@ -2619,6 +2623,22 @@ void PatternEditor::alignToGrid() {
 									  bNoteOff,
 									  bIsMappedToDrumkit,
 									  Editor::ActionModifier::None ) );
+
+		bool bGridPointAlreadyAdded = false;
+		for ( const auto& [ ppAlignedNote, nnNewPosition ] : alignedNotes ) {
+			if ( ppNote->getInstrumentId() == ppAlignedNote->getInstrumentId() &&
+				 ppNote->getType() == ppAlignedNote->getType() &&
+				 ppNote->getKey() == ppAlignedNote->getKey() &&
+				 ppNote->getOctave() == ppAlignedNote->getOctave() &&
+				 nNewPosition == nnNewPosition ) {
+				bGridPointAlreadyAdded = true;
+				break;
+			}
+		}
+		if ( bGridPointAlreadyAdded ) {
+			continue;
+		}
+		alignedNotes.push_back( std::make_pair( ppNote, nNewPosition ) );
 
 		auto modifier = Editor::ActionModifier::None;
 		if ( m_elementsHoveredForPopup.size() > 0 ) {
