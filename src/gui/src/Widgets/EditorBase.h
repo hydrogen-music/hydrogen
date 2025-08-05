@@ -597,7 +597,8 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			m_elementsHoveredOnDragStart.clear();
 			m_elementsToSelect.clear();
 
-			if ( ( ev->buttons() == Qt::LeftButton ||
+			if ( ( ( ev->buttons() == Qt::LeftButton &&
+					 getInput() != Editor::Input::Draw ) ||
 				   ev->buttons() == Qt::RightButton ) &&
 				 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
 
