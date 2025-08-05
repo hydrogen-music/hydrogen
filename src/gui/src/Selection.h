@@ -77,6 +77,10 @@ public:
 		 * note is allowed to be away from mouse cursor to still be selected. */
 		virtual int getCursorMargin( QInputEvent* pEvent ) const = 0;
 
+		/** Whether the editor is configured to select, draw, or edit
+		 * elements. */
+		virtual Editor::Input getInput() const = 0;
+
 		/** Retrieve all elements currently hovered by the mouse pointer. To
 		 * ease selection in the pattern editors, a resolution-dependent margin
 		 * @a nCursorMargin can be provided. The closest elements within this
@@ -105,6 +109,9 @@ public:
 	virtual void mouseDrawStartEvent( QMouseEvent *ev ) = 0;
 	virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) = 0;
 	virtual void mouseDrawEndEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseEditStartEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseEditUpdateEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseEditEndEvent( QMouseEvent *ev ) = 0;
 	virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) {};
 	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
 	virtual void selectionMoveCancelEvent() {};
@@ -289,6 +296,9 @@ private:
 	//! Scroller to use while dragging selections
 	DragScroller *m_pDragScroller;
 
+		//! Remember what kind of interaction did start the dragging in order to
+		//! cancel the correct one.
+		Editor::Input m_lastInput;
 
 public:
 
@@ -608,10 +618,13 @@ public:
 		}
 		m_pDragScroller->startDrag();
 
+		m_lastInput = m_pWidget->getInput();
+
 		auto pEv = static_cast<MouseEvent*>( ev );
 		auto pClickEv = static_cast<MouseEvent*>( m_pClickEvent );
 
-		if ( ev->button() == Qt::LeftButton) {
+		if ( ev->button() == Qt::LeftButton &&
+			 m_pWidget->getInput() == Editor::Input::Select ) {
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
 				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ),
 				true );
@@ -650,9 +663,16 @@ public:
 			}
 
 		}
-
-		if ( m_selectionState == Idle ) {
+		else if ( ( ev->buttons() == Qt::RightButton &&
+					m_pWidget->getInput() == Editor::Input::Select ) ||
+				  ( ev->buttons() == Qt::LeftButton &&
+					m_pWidget->getInput() == Editor::Input::Draw ) ) {
 			m_pWidget->mouseDrawStartEvent( ev );
+			m_lastInput = Editor::Input::Draw;
+		}
+		else if ( ev->buttons() == Qt::LeftButton &&
+				  m_pWidget->getInput() == Editor::Input::Edit ) {
+			m_pWidget->mouseEditStartEvent( ev );
 		}
 	}
 
@@ -691,9 +711,15 @@ public:
 				pClickEv->position().toPoint();
 			m_pWidget->selectionMoveUpdateEvent( ev );
 		}
-		else {
-			// Pass drag update to widget
+		else if ( ( ev->buttons() == Qt::RightButton &&
+					m_pWidget->getInput() == Editor::Input::Select ) ||
+				  ( ev->buttons() == Qt::LeftButton &&
+					m_pWidget->getInput() == Editor::Input::Draw ) ) {
 			m_pWidget->mouseDrawUpdateEvent( ev );
+		}
+		else if ( ev->buttons() == Qt::LeftButton &&
+				  m_pWidget->getInput() == Editor::Input::Edit ) {
+			m_pWidget->mouseEditUpdateEvent( ev );
 		}
 	}
 
@@ -706,16 +732,18 @@ public:
 			m_selectionState = Idle;
 			m_pWidget->endMouseGesture();
 			updateWidgetGroup( Editor::Update::Transient );
-
-		} else if ( m_selectionState == MouseMoving ) {
+		}
+		else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
 			m_pWidget->endMouseGesture();
 			m_pWidget->selectionMoveEndEvent( ev );
 			updateWidgetGroup( Editor::Update::Transient );
-
-		} else {
-			// Pass drag end to widget
+		}
+		else if ( m_lastInput == Editor::Input::Draw ) {
 			m_pWidget->mouseDrawEndEvent( ev );
+		}
+		else if ( m_lastInput == Editor::Input::Edit ) {
+			m_pWidget->mouseEditEndEvent( ev );
 		}
 	}
 	//! @}

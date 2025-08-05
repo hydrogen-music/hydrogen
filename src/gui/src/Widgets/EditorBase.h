@@ -586,6 +586,20 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			mouseDrawEnd();
 		}
 
+		virtual void mouseEditStartEvent( QMouseEvent *ev ) override {
+			setCursor( Qt::CrossCursor );
+			mouseEditStart( ev );
+		}
+
+		virtual void mouseEditUpdateEvent( QMouseEvent *ev ) override {
+			mouseEditUpdate( ev );
+		}
+
+		virtual void mouseEditEndEvent( QMouseEvent *ev ) override {
+			unsetCursor();
+			mouseEditEnd();
+		}
+
  		virtual void mousePressEvent( QMouseEvent *ev ) override {
 			auto pEv = static_cast<MouseEvent*>( ev );
 			m_currentMousePosition = pEv->position().toPoint();
@@ -640,19 +654,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				}
 			}
 
-			if ( getInput() == Editor::Input::Draw &&
-				 ev->buttons() == Qt::LeftButton ) {
-				mouseDrawStart( ev );
-			}
-			else if ( getInput() == Editor::Input::Edit &&
-				 ev->buttons() == Qt::LeftButton ) {
-				mouseEditStart( ev );
-			}
-			else {
-				// propagate event to selection. This could very well cancel a
-				// lasso created via keyboard events.
-				m_selection.mousePressEvent( ev );
-			}
+			// propagate event to selection. This could very well cancel a
+			// lasso created via keyboard events.
+			m_selection.mousePressEvent( ev );
 
 			// Hide cursor in case this behavior was selected in the
 			// Preferences.
@@ -687,19 +691,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			bUpdate = updateMouseHoveredElements( ev ) || bUpdate;
 
 			if ( ev->buttons() != Qt::NoButton ) {
-				if ( getInput() == Editor::Input::Draw &&
-					 ev->buttons() == Qt::LeftButton ) {
-					mouseDrawUpdate( ev );
-				}
-				else if ( getInput() == Editor::Input::Edit &&
-						  ev->buttons() == Qt::LeftButton ) {
-					mouseEditUpdate( ev );
-				}
-				else {
-					m_selection.mouseMoveEvent( ev );
-					if ( m_selection.isMoving() ) {
-						bUpdate = true;
-					}
+				m_selection.mouseMoveEvent( ev );
+				if ( m_selection.isMoving() ) {
+					bUpdate = true;
 				}
 			}
 
@@ -725,17 +719,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// different place because she released the Alt modifier slightly
 			// earlier than the mouse button.
 
-			if ( getInput() == Editor::Input::Draw &&
-				 ev->button() == Qt::LeftButton ) {
-				mouseDrawEnd();
-			}
-			else if ( getInput() == Editor::Input::Edit &&
-				 ev->button() == Qt::LeftButton ) {
-				mouseEditEnd();
-			}
-			else {
-				m_selection.mouseReleaseEvent( ev );
-			}
+			m_selection.mouseReleaseEvent( ev );
 
 			m_elementsHoveredOnDragStart.clear();
 
