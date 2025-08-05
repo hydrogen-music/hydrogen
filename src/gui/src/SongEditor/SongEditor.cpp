@@ -962,7 +962,6 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 	const auto pPref = Preferences::get_instance();
 
 	QPainter painter(this);
-	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), *m_pContentPixmap,
 						QRectF( pixelRatio * ev->rect().x(),
 								pixelRatio * ev->rect().y(),
@@ -1003,14 +1002,12 @@ void SongEditor::paintEvent( QPaintEvent *ev ) {
 		 m_pSongEditorPanel->hasSongEditorFocus() ) {
 		QPen cursorPen( pPref->getTheme().m_color.m_cursorColor );
 		cursorPen.setWidth( 2 );
+		painter.setRenderHint( QPainter::Antialiasing );
 		painter.setPen( cursorPen );
 		painter.setBrush( Qt::NoBrush );
-		// Aim to leave a visible gap between the border of the
-		// pattern cell, and the cursor line, for consistency and
-		// visibility.
 		painter.drawRoundedRect(
-			QRect( QPoint( 0, 1 ) + gridPointToPoint( m_cursor ),
-				   QSize( m_nGridWidth + 1, m_nGridHeight - 1 ) ), 4, 4 );
+			QRect( gridPointToPoint( m_cursor ),
+				   QSize( m_nGridWidth, m_nGridHeight ) ), 4, 4 );
 	}
 }
 
