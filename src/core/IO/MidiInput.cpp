@@ -388,4 +388,16 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 	}
 }
 
+QString MidiInput::HandledInput::toQString() const {
+	QStringList types;
+	for ( const auto& ttype : actionTypes ) {
+		types << MidiAction::typeToQString( ttype );
+	}
+	return QString( "timestamp: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5, actionTypes: [%6], mappedInstrument: [%7]" )
+		.arg( timestamp.toString( "HH:mm:ss.zzz" ) )
+		.arg( MidiMessage::TypeToQString( type ) ).arg( nData1 ).arg( nData2 )
+		.arg( nChannel ).arg( types.join( "," ) )
+		.arg( mappedInstruments.join( ", " ) );
+}
+
 };

@@ -52,6 +52,8 @@ public:
 
 			std::vector<MidiAction::Type> actionTypes;
 			QStringList mappedInstruments;
+
+			QString toQString() const;
 		};
 
 	MidiInput();
