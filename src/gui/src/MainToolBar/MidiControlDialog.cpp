@@ -353,7 +353,7 @@ void MidiControlDialog::updateInputTable() {
 
 	// Table is in prestine shape. We just add the missing rows.
 	if ( ! bInvalid ) {
-		for ( int ii = nOldRowCount - 1; ii < handledInputs.size(); ++ii ) {
+		for ( int ii = nOldRowCount; ii < handledInputs.size(); ++ii ) {
 			addRow( handledInputs[ ii ], ii );
 		}
 	}
@@ -451,7 +451,7 @@ void MidiControlDialog::updateOutputTable() {
 
 	// Table is in prestine shape. We just add the missing rows.
 	if ( ! bInvalid ) {
-		for ( int ii = nOldRowCount - 1; ii < handledOutputs.size(); ++ii ) {
+		for ( int ii = nOldRowCount; ii < handledOutputs.size(); ++ii ) {
 			addRow( handledOutputs[ ii ], ii );
 		}
 	}
