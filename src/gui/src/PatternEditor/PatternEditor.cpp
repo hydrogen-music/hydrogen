@@ -2157,6 +2157,19 @@ void PatternEditor::mouseDrawEnd() {
 
 	HydrogenApp::get_instance()->endUndoContext();
 
+	// Drawing can result in duplicated notes - e.g. creating many notes in a
+	// column of the PianoRollEditor and drawing in the KeyOctave section of the
+	// NotePropertiesRuler. We have to check all notes.
+	std::vector< std::shared_ptr<Note> > notes;
+	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		if ( ppNote != nullptr ) {
+			notes.push_back( ppNote );
+		}
+	}
+	if ( notes.size() > 0 ) {
+		checkDeselectElements( notes );
+	}
+
 	m_drawPreviousPosition = QPointF( 0, 0 );
 	m_drawPreviousGridPoint = GridPoint( -1, -1 );
 }

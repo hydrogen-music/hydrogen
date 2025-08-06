@@ -419,7 +419,7 @@ public:
 
 	//! Cancel any selection gesture (lasso, move, with keyboard or mouse) in progress.
 	void cancelGesture() {
-		if ( m_mouseState == Dragging ) {
+		if ( m_mouseState == Dragging && m_lastInput == Editor::Input::Select ) {
 			mouseDragEnd();
 		}
 		m_mouseState = Up;

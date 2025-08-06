@@ -763,10 +763,28 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent *ev )
 }
 
 void NotePropertiesRuler::mouseDrawEnd() {
+	auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
 	m_nDrawPreviousColumn = -1;
 	addUndoAction( "NotePropertiesRuler::mouseDraw" );
 	unsetCursor();
 	updateEditor( Editor::Update::Content );
+
+	// Drawing can result in duplicated notes - e.g. creating many notes in a
+	// column of the PianoRollEditor and drawing in the KeyOctave section of the
+	// NotePropertiesRuler. We have to check all notes.
+	std::vector< std::shared_ptr<Note> > notes;
+	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		if ( ppNote != nullptr ) {
+			notes.push_back( ppNote );
+		}
+	}
+	if ( notes.size() > 0 ) {
+		checkDeselectElements( notes );
+	}
 }
 
 //! Adjust note properties by applying a delta to the current values, and
