@@ -99,6 +99,14 @@ All notable changes to this project will be documented in this file.
   drumkit and config files. This integer will be increment each time the format
   will be changed.
 - pre-fader gain does now include component gain as well.
+- SongEditor:
+  - Single cells can now be dragged and are affected by right-click popup menu
+    without prior selection.
+  - Switching between left-click selection or drawing was moved into the main
+    toolbar.
+  - Duplicating a pattern will duplicate all grid cells of the corresponding row
+    as well.
+  - Pattern Fill Dialog was reworked.
 - PatternEditor:
   - Handling is now centered on interaction with existing notes. Only adding of
     new notes is dependent on the current grid.
@@ -141,11 +149,15 @@ All notable changes to this project will be documented in this file.
   - Status messages, CPU load, and number of XRuns were moved to the very bottom
     of Hydrogen.
   - Instead of showing text, all buttons are now icon based.
+  - New buttons to switch between selection and drawing mode in Song and Pattern
+    Editor.
   - New visibility buttons for playlist dialog, director, automation, playback
     track, and preferences dialog have been introduced.
   - The previous "S"/"P" button of the `BeatCounter` has been converted into a
     tap button. Press long to switch between the two beat counter modes or the
     usage of the plain tap tempo and use regular clicking to adjust tempo.
+  - If JACK Timebase support was disabled in Preferences, the button is now
+    hidden instead of disabled.
     
 
 ### Fixed
