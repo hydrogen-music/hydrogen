@@ -171,6 +171,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool clearPattern( std::shared_ptr<MidiAction> );
 		bool loadNextDrumkit( std::shared_ptr<MidiAction> );
 		bool loadPrevDrumkit( std::shared_ptr<MidiAction> );
+		bool timingClockTick( std::shared_ptr<MidiAction> );
 
 		bool setSongFromPlaylist( int nSongNumber );
 		bool nextPatternSelection( int nPatternNumber );

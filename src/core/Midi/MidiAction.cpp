@@ -126,6 +126,8 @@ QString MidiAction::typeToQString( const Type &type ) {
 		return "STRIP_VOLUME_RELATIVE";
 	case Type::TapTempo:
 		return "TAP_TEMPO";
+	case Type::TimingClockTick:
+		return "TIMING_CLOCK_TICK";
 	case Type::ToggleMetronome:
 		return "TOGGLE_METRONOME";
 	case Type::UndoAction:
@@ -288,6 +290,9 @@ MidiAction::Type MidiAction::parseType( const QString &sType ) {
 	}
 	else if ( s == "tap_tempo" ) {
 		return Type::TapTempo;
+	}
+	else if ( s == "timing_clock_tick" ) {
+		return Type::TimingClockTick;
 	}
 	else if ( s == "toggle_metronome" ) {
 		return Type::ToggleMetronome;

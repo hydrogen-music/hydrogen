@@ -199,6 +199,9 @@ MidiActionManager::MidiActionManager() {
 		std::make_pair( MidiAction::Type::TapTempo,
 					   std::make_pair( &MidiActionManager::tapTempo, 0 ) ));
 	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::TimingClockTick,
+					   std::make_pair( &MidiActionManager::timingClockTick, 0 ) ));
+	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::ToggleMetronome,
 					   std::make_pair( &MidiActionManager::toggleMetronome, 0 ) ));
 	m_midiActionMap.insert(
@@ -428,6 +431,18 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
 	}
 	
 	pHydrogen->onTapTempoAccelEvent();
+	return true;
+}
+
+bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
+	auto pHydrogen = Hydrogen::get_instance();
+
+	// Preventive measure to avoid bad things.
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
 	return true;
 }
 

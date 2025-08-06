@@ -132,13 +132,17 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		break;
 	}
 
+	case MidiMessage::Type::TimingClock:
+		MidiActionManager::get_instance()->handleMidiAction(
+			std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick ));
+		break;
+
 	case MidiMessage::Type::ChannelPressure:
 	case MidiMessage::Type::PitchWheel:
 	case MidiMessage::Type::SongPos:
 	case MidiMessage::Type::QuarterFrame:
 	case MidiMessage::Type::SongSelect:
 	case MidiMessage::Type::TuneRequest:
-	case MidiMessage::Type::TimingClock:
 	case MidiMessage::Type::ActiveSensing:
 	case MidiMessage::Type::Reset:
 		INFOLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )
