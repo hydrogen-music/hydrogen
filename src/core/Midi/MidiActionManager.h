@@ -54,6 +54,49 @@ namespace H2Core
 class MidiActionManager : public H2Core::Object<MidiActionManager>
 {
 	H2_OBJECT(MidiActionManager)
+
+	public:
+
+		MidiActionManager();
+		~MidiActionManager();
+		/**
+		 * If #__instance equals 0, a new MidiActionManager
+		 * singleton will be created and stored in it.
+		 *
+		 * It is called in H2Core::Hydrogen::create_instance().
+		 */
+		static void create_instance();
+		/**
+		 * Returns a pointer to the current MidiActionManager
+		 * singleton stored in #__instance.
+		 */
+		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
+
+		/**
+		 * Handles multiple actions at once and calls handleAction()
+		 * on them.
+		 *
+		 * \return true - if at least one MidiAction was handled
+		 *   successfully. Calling functions should treat the event
+		 *   resulting in @a actions as consumed.
+		 */
+		bool handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& actions );
+		/**
+		 * The handleAction method is the heart of the
+		 * MidiActionManager class. It executes the operations that
+		 * are needed to carry the desired MidiAction.
+		 *
+		 * @return true - if @a MidiAction was handled successfully.
+		 */
+		bool handleMidiAction( const std::shared_ptr<MidiAction> MidiAction );
+
+		const std::set<MidiAction::Type>& getMidiActions() const {
+			return m_midiActions;
+		}
+
+		/** \return -1 in case the @a couldn't be found. */
+		int getParameterNumber( const MidiAction::Type& type ) const;
+
 	private:
 		/**
 		 * Object holding the current MidiActionManager
@@ -75,7 +118,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 * performing the desired MidiAction and an integer specifying how
 		 * many additional MidiAction parameters are required to do so.
 		 */
-	std::map<MidiAction::Type, std::pair<action_f,int>> m_midiActionMap;
+		std::map<MidiAction::Type, std::pair<action_f,int>> m_midiActionMap;
 		bool play( std::shared_ptr<MidiAction> );
 		bool playPauseToggle( std::shared_ptr<MidiAction> );
 		bool playStopToggle( std::shared_ptr<MidiAction> );
@@ -129,52 +172,10 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool loadNextDrumkit( std::shared_ptr<MidiAction> );
 		bool loadPrevDrumkit( std::shared_ptr<MidiAction> );
 
+		bool setSongFromPlaylist( int nSongNumber );
+		bool nextPatternSelection( int nPatternNumber );
+		bool onlyNextPatternSelection( int nPatternNumber );
+
 		int m_nLastBpmChangeCCParameter;
-
-	bool setSongFromPlaylist( int nSongNumber );
-	bool nextPatternSelection( int nPatternNumber );
-	bool onlyNextPatternSelection( int nPatternNumber );
-
-	public:
-
-		/**
-		 * Handles multiple actions at once and calls handleAction()
-		 * on them.
-		 *
-		 * \return true - if at least one MidiAction was handled
-		 *   successfully. Calling functions should treat the event
-		 *   resulting in @a actions as consumed.
-		 */
-	bool handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& actions );
-		/**
-		 * The handleAction method is the heart of the
-		 * MidiActionManager class. It executes the operations that
-		 * are needed to carry the desired MidiAction.
-		 *
-		 * @return true - if @a MidiAction was handled successfully.
-		 */
-		bool handleMidiAction( const std::shared_ptr<MidiAction> MidiAction );
-		/**
-		 * If #__instance equals 0, a new MidiActionManager
-		 * singleton will be created and stored in it.
-		 *
-		 * It is called in H2Core::Hydrogen::create_instance().
-		 */
-		static void create_instance();
-		/**
-		 * Returns a pointer to the current MidiActionManager
-		 * singleton stored in #__instance.
-		 */
-		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
-
-		const std::set<MidiAction::Type>& getMidiActions() const {
-			return m_midiActions;
-		}
-
-		/** \return -1 in case the @a couldn't be found. */
-		int getParameterNumber( const MidiAction::Type& type ) const;
-
-		MidiActionManager();
-		~MidiActionManager();
 };
 #endif
