@@ -756,7 +756,13 @@ void SongEditor::mouseDrawUpdate( QMouseEvent* pEvent ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pEv = static_cast<MouseEvent*>( pEvent );
 
-	const auto end = pEv->position();
+	// When creating a lasso to select elements or adjusting a property of
+	// elements using the delta of a cursor movement, it make sense to move out
+	// of the editor. But in drawing mode we just want to create/delete elements
+	// witin the editor.
+	const QPointF end(
+		std::clamp( static_cast<int>(pEv->position().x()), 0, width() ),
+		std::clamp( static_cast<int>(pEv->position().y()), 0, height() ) );
 
 	// Check whether we are still at the same grid point as in the last update.
 	// We do not want to toggle the same note twice.

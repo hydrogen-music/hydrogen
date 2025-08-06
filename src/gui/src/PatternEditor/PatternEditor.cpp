@@ -2039,7 +2039,13 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	const auto end = pEv->position();
+	// When creating a lasso to select elements or adjusting a property of
+	// elements using the delta of a cursor movement, it make sense to move out
+	// of the editor. But in drawing mode we just want to create/delete elements
+	// witin the editor.
+	const QPointF end(
+		std::clamp( static_cast<int>(pEv->position().x()), 0, width() ),
+		std::clamp( static_cast<int>(pEv->position().y()), 0, height() ) );
 	const int nCursorMargin = getCursorMargin( ev );
 
 	auto pointToRowColumn = [&]( QPoint point, GridPoint* pGridPoint, int* nKey,
