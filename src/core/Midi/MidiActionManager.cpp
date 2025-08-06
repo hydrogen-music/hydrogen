@@ -56,37 +56,37 @@ MidiActionManager::MidiActionManager() {
 					   std::make_pair( &MidiActionManager::beatcounter, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::BpmCcRelative,
-					   std::make_pair( &MidiActionManager::bpm_cc_relative, 1 ) ));
+					   std::make_pair( &MidiActionManager::bpmCcRelative, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::BpmDecr,
-					   std::make_pair( &MidiActionManager::bpm_decrease, 1 ) ));
+					   std::make_pair( &MidiActionManager::bpmDecrease, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::BpmFineCcRelative,
-					   std::make_pair( &MidiActionManager::bpm_fine_cc_relative, 1 ) ));
+					   std::make_pair( &MidiActionManager::bpmFineCcRelative, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::BpmIncr,
-					   std::make_pair( &MidiActionManager::bpm_increase, 1 ) ));
+					   std::make_pair( &MidiActionManager::bpmIncrease, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::ClearPattern,
-					   std::make_pair( &MidiActionManager::clear_pattern, 0 ) ));
+					   std::make_pair( &MidiActionManager::clearPattern, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::ClearSelectedInstrument,
-					   std::make_pair( &MidiActionManager::clear_selected_instrument, 0 ) ));
+					   std::make_pair( &MidiActionManager::clearSelectedInstrument, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::EffectLevelAbsolute,
-					   std::make_pair( &MidiActionManager::effect_level_absolute, 2 ) ));
+					   std::make_pair( &MidiActionManager::effectLevelAbsolute, 2 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::EffectLevelRelative,
-					   std::make_pair( &MidiActionManager::effect_level_relative, 2 ) ));
+					   std::make_pair( &MidiActionManager::effectLevelRelative, 2 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::FilterCutoffLevelAbsolute,
-					   std::make_pair( &MidiActionManager::filter_cutoff_level_absolute, 1 ) ));
+					   std::make_pair( &MidiActionManager::filterCutoffLevelAbsolute, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::GainLevelAbsolute,
-					   std::make_pair( &MidiActionManager::gain_level_absolute, 3 ) ));
+					   std::make_pair( &MidiActionManager::gainLevelAbsolute, 3 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::InstrumentPitch,
-						std::make_pair( &MidiActionManager::instrument_pitch, 1 ) ));
+						std::make_pair( &MidiActionManager::instrumentPitch, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::LoadNextDrumkit,
 					   std::make_pair( &MidiActionManager::loadNextDrumkit, 0 ) ));
@@ -95,115 +95,115 @@ MidiActionManager::MidiActionManager() {
 					   std::make_pair( &MidiActionManager::loadPrevDrumkit, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::MasterVolumeRelative,
-					   std::make_pair( &MidiActionManager::master_volume_relative, 0 ) ));
+					   std::make_pair( &MidiActionManager::masterVolumeRelative, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::MasterVolumeAbsolute,
-					   std::make_pair( &MidiActionManager::master_volume_absolute, 0 ) ));
+					   std::make_pair( &MidiActionManager::masterVolumeAbsolute, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::Mute,
 					   std::make_pair( &MidiActionManager::mute, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::MuteToggle,
-					   std::make_pair( &MidiActionManager::mute_toggle, 0 ) ));
+					   std::make_pair( &MidiActionManager::muteToggle, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::NextBar,
-					   std::make_pair( &MidiActionManager::next_bar, 0 ) ));
+					   std::make_pair( &MidiActionManager::nextBar, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PanAbsolute,
-					   std::make_pair( &MidiActionManager::pan_absolute, 1 ) ));
+					   std::make_pair( &MidiActionManager::panAbsolute, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PanAbsoluteSym,
-					   std::make_pair( &MidiActionManager::pan_absolute_sym, 1 ) ));
+					   std::make_pair( &MidiActionManager::panAbsoluteSym, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PanRelative,
-					   std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
+					   std::make_pair( &MidiActionManager::panRelative, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::Pause,
 					   std::make_pair( &MidiActionManager::pause, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PitchLevelAbsolute,
-					   std::make_pair( &MidiActionManager::pitch_level_absolute, 3 ) ));
+					   std::make_pair( &MidiActionManager::pitchLevelAbsolute, 3 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::Play,
 					   std::make_pair( &MidiActionManager::play, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PlaylistNextSong,
-					   std::make_pair( &MidiActionManager::playlist_next_song, 0 ) ));
+					   std::make_pair( &MidiActionManager::playlistNextSong, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PlaylistPrevSong,
-					   std::make_pair( &MidiActionManager::playlist_previous_song, 0 ) ));
+					   std::make_pair( &MidiActionManager::playlistPreviousSong, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PlaylistSong,
-					   std::make_pair( &MidiActionManager::playlist_song, 1 ) ));
+					   std::make_pair( &MidiActionManager::playlistSong, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PlayPauseToggle,
-					   std::make_pair( &MidiActionManager::play_pause_toggle, 0 ) ));
+					   std::make_pair( &MidiActionManager::playPauseToggle, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PlayStopToggle,
-					   std::make_pair( &MidiActionManager::play_stop_toggle, 0 ) ));
+					   std::make_pair( &MidiActionManager::playStopToggle, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::PreviousBar,
-					   std::make_pair( &MidiActionManager::previous_bar, 0 ) ));
+					   std::make_pair( &MidiActionManager::previousBar, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::RecordExit,
-					   std::make_pair( &MidiActionManager::record_exit, 0 ) ));
+					   std::make_pair( &MidiActionManager::recordExit, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::RecordReady,
-					   std::make_pair( &MidiActionManager::record_ready, 0 ) ));
+					   std::make_pair( &MidiActionManager::recordReady, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::RecordStrobe,
-					   std::make_pair( &MidiActionManager::record_strobe, 0 ) ));
+					   std::make_pair( &MidiActionManager::recordStrobe, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::RecordStrobeToggle,
-					   std::make_pair( &MidiActionManager::record_strobe_toggle, 0 ) ));
+					   std::make_pair( &MidiActionManager::recordStrobeToggle, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::RedoAction,
-					   std::make_pair( &MidiActionManager::redo_action, 0 ) ));
+					   std::make_pair( &MidiActionManager::redoAction, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::SelectAndPlayPattern,
-					   std::make_pair( &MidiActionManager::select_and_play_pattern, 1 ) ));
+					   std::make_pair( &MidiActionManager::selectAndPlayPattern, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::SelectInstrument,
-					   std::make_pair( &MidiActionManager::select_instrument, 0 ) ));
+					   std::make_pair( &MidiActionManager::selectInstrument, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::SelectNextPattern,
-					   std::make_pair( &MidiActionManager::select_next_pattern, 1 ) ));
+					   std::make_pair( &MidiActionManager::selectNextPattern, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::SelectNextPatternCcAbsolute,
-					   std::make_pair( &MidiActionManager::select_next_pattern_cc_absolute, 0 ) ));
+					   std::make_pair( &MidiActionManager::selectNextPatternCcAbsolute, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::SelectNextPatternRelative,
-					   std::make_pair( &MidiActionManager::select_next_pattern_relative, 1 ) ));
+					   std::make_pair( &MidiActionManager::selectNextPatternRelative, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::SelectOnlyNextPattern,
-					   std::make_pair( &MidiActionManager::select_only_next_pattern, 1 ) ));
+					   std::make_pair( &MidiActionManager::selectOnlyNextPattern, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::SelectOnlyNextPatternCcAbsolute,
-					   std::make_pair( &MidiActionManager::select_only_next_pattern_cc_absolute, 0 ) ));
+					   std::make_pair( &MidiActionManager::selectOnlyNextPatternCcAbsolute, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::Stop,
 					   std::make_pair( &MidiActionManager::stop, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::StripMuteToggle,
-					   std::make_pair( &MidiActionManager::strip_mute_toggle, 1 ) ));
+					   std::make_pair( &MidiActionManager::stripMuteToggle, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::StripSoloToggle,
-					   std::make_pair( &MidiActionManager::strip_solo_toggle, 1 ) ));
+					   std::make_pair( &MidiActionManager::stripSoloToggle, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::StripVolumeAbsolute,
-					   std::make_pair( &MidiActionManager::strip_volume_absolute, 1 ) ));
+					   std::make_pair( &MidiActionManager::stripVolumeAbsolute, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::StripVolumeRelative,
-					   std::make_pair( &MidiActionManager::strip_volume_relative, 1 ) ));
+					   std::make_pair( &MidiActionManager::stripVolumeRelative, 1 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::TapTempo,
-					   std::make_pair( &MidiActionManager::tap_tempo, 0 ) ));
+					   std::make_pair( &MidiActionManager::tapTempo, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::ToggleMetronome,
-					   std::make_pair( &MidiActionManager::toggle_metronome, 0 ) ));
+					   std::make_pair( &MidiActionManager::toggleMetronome, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::UndoAction,
-					   std::make_pair( &MidiActionManager::undo_action, 0 ) ));
+					   std::make_pair( &MidiActionManager::undoAction, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::Unmute,
 					   std::make_pair( &MidiActionManager::unmute, 0 ) ));
@@ -270,7 +270,7 @@ bool MidiActionManager::stop( std::shared_ptr<MidiAction>  ) {
 	return CoreActionController::locateToColumn( 0 );
 }
 
-bool MidiActionManager::play_pause_toggle( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::playPauseToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getSong() == nullptr ) {
 		return false;
@@ -293,7 +293,7 @@ bool MidiActionManager::play_pause_toggle( std::shared_ptr<MidiAction> pAction )
 	return true;
 }
 
-bool MidiActionManager::play_stop_toggle( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getSong() == nullptr ) {
 		return false;
@@ -342,7 +342,7 @@ bool MidiActionManager::unmute( std::shared_ptr<MidiAction>  ) {
 	return CoreActionController::setMasterIsMuted( false );
 }
 
-bool MidiActionManager::mute_toggle( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::muteToggle( std::shared_ptr<MidiAction>  ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -354,7 +354,7 @@ bool MidiActionManager::mute_toggle( std::shared_ptr<MidiAction>  ) {
 	return CoreActionController::setMasterIsMuted( !pHydrogen->getSong()->getIsMuted() );
 }
 
-bool MidiActionManager::strip_mute_toggle( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::stripMuteToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -380,7 +380,7 @@ bool MidiActionManager::strip_mute_toggle( std::shared_ptr<MidiAction> pAction )
 		nLine, !pInstr->isMuted(), false );
 }
 
-bool MidiActionManager::strip_solo_toggle( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::stripSoloToggle( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -418,7 +418,7 @@ bool MidiActionManager::beatcounter( std::shared_ptr<MidiAction>  ) {
 	return pHydrogen->handleBeatCounter();
 }
 
-bool MidiActionManager::tap_tempo( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -431,13 +431,13 @@ bool MidiActionManager::tap_tempo( std::shared_ptr<MidiAction>  ) {
 	return true;
 }
 
-bool MidiActionManager::select_next_pattern( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::selectNextPattern( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
 	return nextPatternSelection( pAction->getParameter1().toInt(&ok,10) );
 }
 
 
-bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::selectNextPatternRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	bool ok;
@@ -445,7 +445,7 @@ bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<MidiAction
 								 pAction->getParameter1().toInt(&ok,10) );
 }
 
-bool MidiActionManager::select_next_pattern_cc_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::selectNextPatternCcAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
 	return nextPatternSelection( pAction->getValue().toInt(&ok,10) );
 }
@@ -478,12 +478,12 @@ bool MidiActionManager::nextPatternSelection( int nPatternNumber ) {
 	return true;
 }
 
-bool MidiActionManager::select_only_next_pattern( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::selectOnlyNextPattern( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
 	return onlyNextPatternSelection( pAction->getParameter1().toInt(&ok,10) );
 }
 
-bool MidiActionManager::select_only_next_pattern_cc_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::selectOnlyNextPatternCcAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
 	return onlyNextPatternSelection( pAction->getValue().toInt(&ok,10) );
 }
@@ -520,7 +520,7 @@ bool MidiActionManager::onlyNextPatternSelection( int nPatternNumber ) {
 	return pHydrogen->flushAndAddNextPattern( nPatternNumber );
 }
 
-bool MidiActionManager::select_and_play_pattern( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::selectAndPlayPattern( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -529,7 +529,7 @@ bool MidiActionManager::select_and_play_pattern( std::shared_ptr<MidiAction> pAc
 		return false;
 	}
 	
-	if ( ! select_next_pattern( pAction ) ) {
+	if ( ! selectNextPattern( pAction ) ) {
 		return false;
 	}
 
@@ -540,7 +540,7 @@ bool MidiActionManager::select_and_play_pattern( std::shared_ptr<MidiAction> pAc
 	return true;
 }
 
-bool MidiActionManager::select_instrument( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::selectInstrument( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -564,7 +564,7 @@ bool MidiActionManager::select_instrument( std::shared_ptr<MidiAction> pAction )
 	return true;
 }
 
-bool MidiActionManager::effect_level_absolute( std::shared_ptr<MidiAction> pAction) {
+bool MidiActionManager::effectLevelAbsolute( std::shared_ptr<MidiAction> pAction) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -596,7 +596,7 @@ bool MidiActionManager::effect_level_absolute( std::shared_ptr<MidiAction> pActi
 	return CoreActionController::setStripEffectLevel( nLine, fx_id, fValue, true );
 }
 
-bool MidiActionManager::effect_level_relative( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::effectLevelRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -634,7 +634,7 @@ bool MidiActionManager::effect_level_relative( std::shared_ptr<MidiAction> pActi
 }
 
 //sets the volume of a master output to a given level (percentage)
-bool MidiActionManager::master_volume_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::masterVolumeAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -658,7 +658,7 @@ bool MidiActionManager::master_volume_absolute( std::shared_ptr<MidiAction> pAct
 }
 
 //increments/decrements the volume of the whole song
-bool MidiActionManager::master_volume_relative( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::masterVolumeRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -686,7 +686,7 @@ bool MidiActionManager::master_volume_relative( std::shared_ptr<MidiAction> pAct
 }
 
 //sets the volume of a mixer strip to a given level (percentage)
-bool MidiActionManager::strip_volume_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::stripVolumeAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -722,7 +722,7 @@ bool MidiActionManager::strip_volume_absolute( std::shared_ptr<MidiAction> pActi
 }
 
 //increments/decrements the volume of one mixer strip
-bool MidiActionManager::strip_volume_relative( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::stripVolumeRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -765,7 +765,7 @@ bool MidiActionManager::strip_volume_relative( std::shared_ptr<MidiAction> pActi
 }
 
 // sets the absolute panning of a given mixer channel
-bool MidiActionManager::pan_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::panAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -798,7 +798,7 @@ bool MidiActionManager::pan_absolute( std::shared_ptr<MidiAction> pAction ) {
 }
 
 // sets the absolute panning of a given mixer channel
-bool MidiActionManager::pan_absolute_sym( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::panAbsoluteSym( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -832,7 +832,7 @@ bool MidiActionManager::pan_absolute_sym( std::shared_ptr<MidiAction> pAction ) 
 
 // changes the panning of a given mixer channel
 // this is useful if the panning is set by a rotary control knob
-bool MidiActionManager::pan_relative( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::panRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -870,7 +870,7 @@ bool MidiActionManager::pan_relative( std::shared_ptr<MidiAction> pAction ) {
 	return true;
 }
 
-bool MidiActionManager::gain_level_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::gainLevelAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -919,7 +919,7 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<MidiAction> pAction
 	return true;
 }
 
-bool MidiActionManager::pitch_level_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::pitchLevelAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -970,7 +970,7 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<MidiAction> pActio
 	return true;
 }
 
-bool MidiActionManager::instrument_pitch( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::instrumentPitch( std::shared_ptr<MidiAction> pAction ) {
 
 	bool ok;
 	float fPitch;
@@ -986,7 +986,7 @@ bool MidiActionManager::instrument_pitch( std::shared_ptr<MidiAction> pAction ) 
 	return CoreActionController::setInstrumentPitch( nInstrument, fPitch );
 }
 
-bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -1027,7 +1027,7 @@ bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<MidiAction
  * increments/decrements the BPM
  * this is useful if the bpm is set by a rotary control knob
  */
-bool MidiActionManager::bpm_cc_relative( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::bpmCcRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -1071,7 +1071,7 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<MidiAction> pAction ) {
  * increments/decrements the BPM
  * this is useful if the bpm is set by a rotary control knob
  */
-bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::bpmFineCcRelative( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -1109,7 +1109,7 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<MidiAction> pActio
 	return true;
 }
 
-bool MidiActionManager::bpm_increase( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::bpmIncrease( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -1130,7 +1130,7 @@ bool MidiActionManager::bpm_increase( std::shared_ptr<MidiAction> pAction ) {
 	return true;
 }
 
-bool MidiActionManager::bpm_decrease( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::bpmDecrease( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -1151,7 +1151,7 @@ bool MidiActionManager::bpm_decrease( std::shared_ptr<MidiAction> pAction ) {
 	return true;
 }
 
-bool MidiActionManager::next_bar( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::nextBar( std::shared_ptr<MidiAction>  ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	const auto pSong = pHydrogen->getSong();
@@ -1195,7 +1195,7 @@ bool MidiActionManager::next_bar( std::shared_ptr<MidiAction>  ) {
 }
 
 
-bool MidiActionManager::previous_bar( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::previousBar( std::shared_ptr<MidiAction>  ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	const auto pSong = pHydrogen->getSong();
@@ -1268,27 +1268,27 @@ bool MidiActionManager::setSongFromPlaylist( int nSongNumber ) {
 	return true;
 }
 
-bool MidiActionManager::playlist_song( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::playlistSong( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
 	int songnumber = pAction->getParameter1().toInt(&ok,10);
 	return setSongFromPlaylist( songnumber );
 }
 
-bool MidiActionManager::playlist_next_song( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::playlistNextSong( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
 	return setSongFromPlaylist( ++songnumber );
 }
 
-bool MidiActionManager::playlist_previous_song( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::playlistPreviousSong( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	int songnumber = pHydrogen->getPlaylist()->getActiveSongNumber();
 	return setSongFromPlaylist( --songnumber );
 }
 
-bool MidiActionManager::record_ready( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::recordReady( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -1303,19 +1303,19 @@ bool MidiActionManager::record_ready( std::shared_ptr<MidiAction> pAction ) {
 	return true;
 }
 
-bool MidiActionManager::record_strobe_toggle( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::recordStrobeToggle( std::shared_ptr<MidiAction>  ) {
 	return CoreActionController::toggleRecordMode();
 }
 
-bool MidiActionManager::record_strobe( std::shared_ptr<MidiAction>  ) {
+bool MidiActionManager::recordStrobe( std::shared_ptr<MidiAction>  ) {
 	return CoreActionController::activateRecordMode( true );
 }
 
-bool MidiActionManager::record_exit( std::shared_ptr<MidiAction> ) {
+bool MidiActionManager::recordExit( std::shared_ptr<MidiAction> ) {
 	return CoreActionController::activateRecordMode( false );
 }
 
-bool MidiActionManager::toggle_metronome( std::shared_ptr<MidiAction> ) {
+bool MidiActionManager::toggleMetronome( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	// Preventive measure to avoid bad things.
@@ -1332,12 +1332,12 @@ bool MidiActionManager::toggle_metronome( std::shared_ptr<MidiAction> ) {
 	return true;
 }
 
-bool MidiActionManager::undo_action( std::shared_ptr<MidiAction> ) {
+bool MidiActionManager::undoAction( std::shared_ptr<MidiAction> ) {
 	EventQueue::get_instance()->pushEvent( Event::Type::UndoRedo, 0);// 0 = undo
 	return true;
 }
 
-bool MidiActionManager::redo_action( std::shared_ptr<MidiAction> ) {
+bool MidiActionManager::redoAction( std::shared_ptr<MidiAction> ) {
 	EventQueue::get_instance()->pushEvent( Event::Type::UndoRedo, 1);// 1 = redo
 	return true;
 }
@@ -1367,7 +1367,7 @@ int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const 
 	return -1;
 }
 
-bool MidiActionManager::clear_selected_instrument( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::clearSelectedInstrument( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
@@ -1385,7 +1385,7 @@ bool MidiActionManager::clear_selected_instrument( std::shared_ptr<MidiAction> p
 	return CoreActionController::clearInstrumentInPattern( nInstr );
 }
 
-bool MidiActionManager::clear_pattern( std::shared_ptr<MidiAction> pAction ) {
+bool MidiActionManager::clearPattern( std::shared_ptr<MidiAction> pAction ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
 	auto pSong = pHydrogen->getSong();
