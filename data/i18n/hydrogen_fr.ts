@@ -3041,6 +3041,37 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
+    <name>MidiActionTable</name>
+    <message>
+        <source>Action</source>
+        <translation>Action</translation>
+    </message>
+    <message>
+        <source>press button to record midi event</source>
+        <translation>Appuyer sur le bouton pour enregistrer les événements MIDI</translation>
+    </message>
+    <message>
+        <source>Incoming Event</source>
+        <translation>Événement entrant</translation>
+    </message>
+    <message>
+        <source>Para. 1</source>
+        <translation>Para. 1</translation>
+    </message>
+    <message>
+        <source>Para. 2</source>
+        <translation>Para. 2</translation>
+    </message>
+    <message>
+        <source>Para. 3</source>
+        <translation>Para. 3</translation>
+    </message>
+    <message>
+        <source>E. Para.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MidiControlDialog</name>
     <message>
         <source>Incoming</source>
@@ -3080,37 +3111,6 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Midi Actions</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MidiTable</name>
-    <message>
-        <source>Action</source>
-        <translation>Action</translation>
-    </message>
-    <message>
-        <source>press button to record midi event</source>
-        <translation>Appuyer sur le bouton pour enregistrer les événements MIDI</translation>
-    </message>
-    <message>
-        <source>Incoming Event</source>
-        <translation>Événement entrant</translation>
-    </message>
-    <message>
-        <source>Para. 1</source>
-        <translation>Para. 1</translation>
-    </message>
-    <message>
-        <source>Para. 2</source>
-        <translation>Para. 2</translation>
-    </message>
-    <message>
-        <source>Para. 3</source>
-        <translation>Para. 3</translation>
-    </message>
-    <message>
-        <source>E. Para.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

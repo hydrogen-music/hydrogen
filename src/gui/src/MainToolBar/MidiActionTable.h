@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_TABLE_H
-#define MIDI_TABLE_H
+#ifndef MIDI_ACTION_TABLE_H
+#define MIDI_ACTION_TABLE_H
 
 #include <memory>
 
@@ -33,16 +33,17 @@
 class MidiAction;
 
 /** \ingroup docGUI docWidgets docMIDI*/
-class MidiTable :  public QTableWidget,  public H2Core::Object<MidiTable>
+class MidiActionTable : public QTableWidget,
+						public H2Core::Object<MidiActionTable>
 {
-    H2_OBJECT(MidiTable)
+    H2_OBJECT(MidiActionTable)
 	Q_OBJECT
 	public:
-		explicit MidiTable( QWidget* pParent );
-		~MidiTable();
+		explicit MidiActionTable( QWidget* pParent );
+		~MidiActionTable();
 
-		void setupMidiTable();
-		void saveMidiTable();
+		void setupMidiActionTable();
+		void saveMidiActionTable();
 
 signals:
 	/** Identicates a user action changing the content of the table.*/

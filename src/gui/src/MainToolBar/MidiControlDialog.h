@@ -31,7 +31,7 @@
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class MidiTable;
+class MidiActionTable;
 
 /** \ingroup docGUI*/
 class MidiControlDialog : public QDialog,
@@ -82,7 +82,7 @@ private:
 		QTableWidget* m_pMidiOutputTable;
 		QToolButton* m_pOutputBinButton;
 
-		MidiTable* m_pMidiTable;
+		MidiActionTable* m_pMidiActionTable;
 };
 
 

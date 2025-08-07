@@ -2996,6 +2996,37 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MidiActionTable</name>
+    <message>
+        <source>press button to record midi event</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Incoming Event</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Para. 1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Para. 2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Para. 3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>E. Para.</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>MidiControlDialog</name>
     <message>
         <source>Incoming</source>
@@ -3036,37 +3067,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     <message>
         <source>Midi Actions</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MidiTable</name>
-    <message>
-        <source>press button to record midi event</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Action</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Incoming Event</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Para. 1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Para. 2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Para. 3</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>E. Para.</source>
-        <translation></translation>
     </message>
 </context>
 <context>

@@ -25,10 +25,10 @@ https://www.gnu.org/licenses
 #include "MidiControlDialog.h"
 
 #include "MainToolBar.h"
+#include "MidiActionTable.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
-#include "../Widgets/MidiTable.h"
 
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -59,21 +59,21 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	auto pMainLayout = new QVBoxLayout( this );
 	setLayout( pMainLayout );
 
+	m_pTabWidget = new QTabWidget( this );
+	pMainLayout->addWidget( m_pTabWidget );
+
 	////////////////////////////////////////////////////////////////////////////
 
-	m_pMidiTable = new MidiTable( this );
-	m_pTabWidget->addTab( m_pMidiTable, tr( "Midi Actions" ) );
+	m_pMidiActionTable = new MidiActionTable( this );
+	m_pTabWidget->addTab( m_pMidiActionTable, tr( "Midi Actions" ) );
 
-	connect( m_pMidiTable, &MidiTable::changed, [=]() {
-		m_pMidiTable->saveMidiTable();
+	connect( m_pMidiActionTable, &MidiActionTable::changed, [=]() {
+		m_pMidiActionTable->saveMidiActionTable();
 		H2Core::EventQueue::get_instance()->pushEvent(
 			H2Core::Event::Type::MidiMapChanged, 0 );
 	});
 
 	////////////////////////////////////////////////////////////////////////////
-
-	m_pTabWidget = new QTabWidget( this );
-	pMainLayout->addWidget( m_pTabWidget );
 
 	auto pInputWidget = new QWidget( m_pTabWidget );
 	m_pTabWidget->addTab( pInputWidget, tr( "Incoming" ) );

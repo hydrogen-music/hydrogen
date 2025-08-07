@@ -3039,6 +3039,37 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     </message>
 </context>
 <context>
+    <name>MidiActionTable</name>
+    <message>
+        <source>Action</source>
+        <translation>Acción</translation>
+    </message>
+    <message>
+        <source>press button to record midi event</source>
+        <translation>Pulse el botón para grabar evento midi</translation>
+    </message>
+    <message>
+        <source>Incoming Event</source>
+        <translation>Evento Entrante</translation>
+    </message>
+    <message>
+        <source>Para. 1</source>
+        <translation>Parám. 1</translation>
+    </message>
+    <message>
+        <source>Para. 2</source>
+        <translation>Parám. 2</translation>
+    </message>
+    <message>
+        <source>Para. 3</source>
+        <translation>Parám. 3</translation>
+    </message>
+    <message>
+        <source>E. Para.</source>
+        <translation>Parám. Evento</translation>
+    </message>
+</context>
+<context>
     <name>MidiControlDialog</name>
     <message>
         <source>Incoming</source>
@@ -3079,37 +3110,6 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
     <message>
         <source>Midi Actions</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MidiTable</name>
-    <message>
-        <source>Action</source>
-        <translation>Acción</translation>
-    </message>
-    <message>
-        <source>press button to record midi event</source>
-        <translation>Pulse el botón para grabar evento midi</translation>
-    </message>
-    <message>
-        <source>Incoming Event</source>
-        <translation>Evento Entrante</translation>
-    </message>
-    <message>
-        <source>Para. 1</source>
-        <translation>Parám. 1</translation>
-    </message>
-    <message>
-        <source>Para. 2</source>
-        <translation>Parám. 2</translation>
-    </message>
-    <message>
-        <source>Para. 3</source>
-        <translation>Parám. 3</translation>
-    </message>
-    <message>
-        <source>E. Para.</source>
-        <translation>Parám. Evento</translation>
     </message>
 </context>
 <context>
