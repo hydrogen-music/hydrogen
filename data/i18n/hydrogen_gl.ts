@@ -3072,6 +3072,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Outgoing</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Midi Actions</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiTable</name>

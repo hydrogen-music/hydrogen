@@ -28,7 +28,9 @@ https://www.gnu.org/licenses
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "../Widgets/MidiTable.h"
 
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Preferences/Preferences.h>
@@ -56,6 +58,19 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	auto pMainLayout = new QVBoxLayout( this );
 	setLayout( pMainLayout );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	m_pMidiTable = new MidiTable( this );
+	m_pTabWidget->addTab( m_pMidiTable, tr( "Midi Actions" ) );
+
+	connect( m_pMidiTable, &MidiTable::changed, [=]() {
+		m_pMidiTable->saveMidiTable();
+		H2Core::EventQueue::get_instance()->pushEvent(
+			H2Core::Event::Type::MidiMapChanged, 0 );
+	});
+
+	////////////////////////////////////////////////////////////////////////////
 
 	m_pTabWidget = new QTabWidget( this );
 	pMainLayout->addWidget( m_pTabWidget );
@@ -130,6 +145,8 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 		updateInputTable();
 	});
 
+	////////////////////////////////////////////////////////////////////////////
+
 	auto pOutputWidget = new QWidget( m_pTabWidget );
 	m_pTabWidget->addTab( pOutputWidget, tr( "Outgoing" ) );
 	auto pOutputLayout = new QVBoxLayout( pOutputWidget );
@@ -159,6 +176,8 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 		Hydrogen::get_instance()->getMidiDriver()->clearHandledOutput();
 		updateOutputTable();
 	});
+
+	////////////////////////////////////////////////////////////////////////////
 
 	updateFont();
 	updateIcons();

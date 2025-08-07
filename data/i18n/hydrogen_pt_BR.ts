@@ -3074,6 +3074,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Outgoing</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Midi Actions</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MidiTable</name>

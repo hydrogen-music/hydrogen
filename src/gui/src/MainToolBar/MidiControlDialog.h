@@ -31,6 +31,8 @@
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+class MidiTable;
+
 /** \ingroup docGUI*/
 class MidiControlDialog : public QDialog,
 						  public EventListener,
@@ -76,8 +78,11 @@ private:
 
 		QTableWidget* m_pMidiInputTable;
 		QToolButton* m_pInputBinButton;
+
 		QTableWidget* m_pMidiOutputTable;
 		QToolButton* m_pOutputBinButton;
+
+		MidiTable* m_pMidiTable;
 };
 
 

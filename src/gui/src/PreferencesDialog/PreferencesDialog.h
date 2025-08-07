@@ -206,9 +206,6 @@ private:
 	bool m_bMidiDriverRestartRequired;
 	QString m_sInitialLanguage;
 	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
-
-	bool m_bMidiTableChanged;
-
 };
 
 

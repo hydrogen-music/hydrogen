@@ -48,7 +48,6 @@
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/FileDialog.h"
 #include "../Widgets/LCDSpinBox.h"
-#include "../Widgets/MidiTable.h"
 #include "../Widgets/ShortcutCaptureDialog.h"
 
 using namespace H2Core;
@@ -155,7 +154,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	, m_previousTheme( H2Core::Preferences::get_instance()->getTheme() )
 	, m_bAudioDriverRestartRequired( false )
 	, m_bMidiDriverRestartRequired( false )
-	, m_bMidiTableChanged( false )
 {
 	setupUi( this );
 
@@ -453,13 +451,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pDiscardMidiMsgCheckbox->setChecked( pPref->m_bMidiDiscardNoteAfterAction );
 	m_pFixedMapping->setChecked( pPref->m_bMidiFixedMapping );
 
-	connect( midiTable, &MidiTable::changed,
-			 [=]() {
-				 m_changes =
-					 static_cast<H2Core::Preferences::Changes>(
-							m_changes | H2Core::Preferences::Changes::MidiTab );
-				 m_bMidiTableChanged = true;
-			 });
 
 	//////
 	// OSC tab
@@ -960,12 +951,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	// MIDI tab
 	//////////////////////////////////////////////////////////////////
 	bool bMidiOptionAltered = false;
-	if ( m_bMidiTableChanged ) {
-		midiTable->saveMidiTable();
-		H2Core::EventQueue::get_instance()->pushEvent(
-			H2Core::Event::Type::MidiMapChanged, 0 );
-	}
-
 	if ( m_pMidiDriverComboBox->currentText() !=
 		 Preferences::midiDriverToQString( pPref->m_midiDriver) ) {
 		pPref->m_midiDriver = Preferences::parseMidiDriver(
