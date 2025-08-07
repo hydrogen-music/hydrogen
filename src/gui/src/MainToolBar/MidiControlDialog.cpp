@@ -179,6 +179,13 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	////////////////////////////////////////////////////////////////////////////
 
+	// Since we only update the message tables in case they are visible, we have
+	// to ensure to update them when bringing them into view.
+	connect( m_pTabWidget, &QTabWidget::currentChanged, [&]() {
+		updateInputTable();
+		updateOutputTable();
+	});
+
 	updateFont();
 	updateIcons();
 	updateInputTable();
@@ -270,6 +277,10 @@ void MidiControlDialog::updateIcons() {
 }
 
 void MidiControlDialog::updateInputTable() {
+	if ( ! m_pMidiInputTable->isVisible() ) {
+		return;
+	}
+
 	const auto handledInputs = Hydrogen::get_instance()->getAudioEngine()->
 		getMidiDriver()->getHandledInputs();
 
@@ -394,6 +405,10 @@ void MidiControlDialog::updateInputTable() {
 }
 
 void MidiControlDialog::updateOutputTable() {
+	if ( ! m_pMidiOutputTable->isVisible() ) {
+		return;
+	}
+
 	const auto handledOutputs = Hydrogen::get_instance()->getAudioEngine()->
 		getMidiDriver()->getHandledOutputs();
 
