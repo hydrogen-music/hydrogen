@@ -456,7 +456,7 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     </message>
     <message>
         <source>MIDI Output</source>
-        <extracomment>Text displayed in the left part of the row of the Instrument Editor concerned with MIDI output parameters. Designed to hold eleven characters but flexible.</extracomment>
+        <extracomment>Text displayed in the left part of the row of the Instrument Editor concerned with MIDI output parameters (Designed to hold eleven characters but flexible) as well as in the header of the Settings tab of the MidiControlDialog.</extracomment>
         <translation>Salida MIDI</translation>
     </message>
     <message>
@@ -1433,6 +1433,11 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Clea&amp;r</source>
         <extracomment>Text displayed on the Clear button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Fill&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI Input</source>
+        <extracomment>Text displayed in the header of the Settings tab of the MidiControlDialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

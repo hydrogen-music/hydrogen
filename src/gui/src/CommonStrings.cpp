@@ -126,10 +126,14 @@ CommonStrings::CommonStrings(){
 	  in the Instrument Editor. Designed to hold four characters but
 	  flexible.*/
 	m_sMidiOutNoteLabel = tr( "Note" );
-	/*: Text displayed in the left part of the row of the Instrument
-	  Editor concerned with MIDI output parameters. Designed to hold
-	  eleven characters but flexible.*/
+	/*: Text displayed in the left part of the row of the Instrument Editor
+	  concerned with MIDI output parameters (Designed to hold eleven characters
+	  but flexible) as well as in the header of the Settings tab of the
+	  MidiControlDialog.*/
 	m_sMidiOutLabel = tr( "MIDI Output" );
+	/*: Text displayed in the header of the Settings tab of the
+	  MidiControlDialog.*/
+	m_sMidiInputLabel = tr( "MIDI Input" );
 	/*: Text displayed in the Instrument Editor in the row of the
 	  pitch widget. Designed to hold five characters but flexible.*/
 	m_sPitchLabel = tr( "Pitch" );

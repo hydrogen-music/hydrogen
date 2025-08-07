@@ -73,6 +73,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMidiOutChannelLabel() const { return  m_sMidiOutChannelLabel; }
 	const QString& getMidiOutNoteLabel() const { return  m_sMidiOutNoteLabel; }
 	const QString& getMidiOutLabel() const { return  m_sMidiOutLabel; }
+	const QString& getMidiInputLabel() const { return  m_sMidiInputLabel; }
 	const QString& getPitchLabel() const { return  m_sPitchLabel; }
 	const QString& getPitchCoarseLabel() const { return  m_sPitchCoarseLabel; }
 	const QString& getPitchFineLabel() const { return  m_sPitchFineLabel; }
@@ -377,6 +378,7 @@ private:
 	QString m_sMidiOutChannelLabel;
 	QString m_sMidiOutNoteLabel;
 	QString m_sMidiOutLabel;
+	QString m_sMidiInputLabel;
 	QString m_sPitchLabel;
 	QString m_sPitchCoarseLabel;
 	QString m_sPitchFineLabel;

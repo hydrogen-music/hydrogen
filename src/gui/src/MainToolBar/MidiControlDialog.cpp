@@ -64,6 +64,59 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	////////////////////////////////////////////////////////////////////////////
 
+	const QColor borderColor( 80, 80, 80 );
+	const int nHeaderTextSize = 20;
+
+	auto pConfigWidget = new QWidget( m_pTabWidget );
+	m_pTabWidget->addTab( pConfigWidget, pCommonStrings->getSettings() );
+	auto pConfigLayout = new QHBoxLayout( pConfigWidget );
+	pConfigLayout->setSpacing( 0 );
+	pConfigWidget->setLayout( pConfigLayout );
+
+	auto pInputSettingsWidget = new QWidget( pConfigWidget );
+	pInputSettingsWidget->setStyleSheet( QString( "\
+border-right: 1px solid %1;" ).arg( borderColor.name() ) );
+	pConfigLayout->addWidget( pInputSettingsWidget );
+	auto pInputSettingsLayout = new QVBoxLayout( pInputSettingsWidget );
+	pInputSettingsLayout->setAlignment( Qt::AlignTop );
+	pInputSettingsWidget->setLayout( pInputSettingsLayout );
+
+	auto pInputLabel = new QLabel( pCommonStrings->getMidiInputLabel() );
+	pInputLabel->setAlignment( Qt::AlignCenter );
+	pInputLabel->setFixedHeight( 32 );
+	pInputLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nHeaderTextSize ) );
+	pInputSettingsLayout->addWidget( pInputLabel );
+
+	// Well, `border-bottom` does not seem to work on QLabel.
+	auto pInputSeparator = new QWidget( pInputSettingsWidget );
+	pInputSeparator->setFixedHeight( 1 );
+	pInputSeparator->setStyleSheet( QString( "\
+background-color: %1;" ).arg( borderColor.name() ) );
+	pInputSettingsLayout->addWidget( pInputSeparator );
+
+	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
+	pConfigLayout->addWidget( pOutputSettingsWidget );
+	auto pOutputSettingsLayout = new QVBoxLayout( pOutputSettingsWidget );
+	pOutputSettingsLayout->setAlignment( Qt::AlignTop );
+	pOutputSettingsWidget->setLayout( pOutputSettingsLayout );
+
+	auto pOutputLabel = new QLabel( pCommonStrings->getMidiOutLabel() );
+	pOutputLabel->setAlignment( Qt::AlignCenter );
+	pOutputLabel->setFixedHeight( 32 );
+	pOutputLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nHeaderTextSize ) );
+	pOutputSettingsLayout->addWidget( pOutputLabel );
+
+	// Well, `border-bottom` does not seem to work on QLabel.
+	auto pOutputSeparator = new QWidget( pOutputSettingsWidget );
+	pOutputSeparator->setFixedHeight( 1 );
+	pOutputSeparator->setStyleSheet( QString( "\
+background-color: %1;" ).arg( borderColor.name() ) );
+	pOutputSettingsLayout->addWidget( pOutputSeparator );
+
+	////////////////////////////////////////////////////////////////////////////
+
 	m_pMidiActionTable = new MidiActionTable( this );
 	m_pTabWidget->addTab( m_pMidiActionTable, tr( "Midi Actions" ) );
 
