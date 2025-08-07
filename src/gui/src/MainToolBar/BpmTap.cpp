@@ -176,6 +176,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pBeatLengthButtonsGroupLayout->setSpacing( 0 );
 
 	m_pBeatLengthUpBtn = new QToolButton( m_pBeatLengthButtonsGroup );
+	m_pBeatLengthUpBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pBeatLengthUpBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 2;
@@ -188,6 +189,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
 
 	m_pBeatLengthDownBtn = new QToolButton( m_pBeatLengthButtonsGroup );
+	m_pBeatLengthDownBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pBeatLengthDownBtn, &QToolButton::clicked, [&](){
 		auto pHydrogen = Hydrogen::get_instance();
 		float fBeatLength = pHydrogen->getBeatCounterBeatLength() * 8;
@@ -237,6 +239,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pTotalBeatsButtonsLayout->setSpacing( 0 );
 
 	m_pTotalBeatsUpBtn = new QToolButton( m_pTotalBeatsButtonsGroup );
+	m_pTotalBeatsUpBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pTotalBeatsUpBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();
@@ -250,6 +253,7 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
 
 	m_pTotalBeatsDownBtn = new QToolButton( m_pTotalBeatsButtonsGroup );
+	m_pTotalBeatsDownBtn->setFocusPolicy( Qt::ClickFocus );
 	connect( m_pTotalBeatsDownBtn, &QToolButton::clicked, [&]() {
 		auto pHydrogen = Hydrogen::get_instance();
 		int nBeatsToCount = pHydrogen->getBeatCounterTotalBeats();

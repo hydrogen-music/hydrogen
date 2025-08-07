@@ -71,7 +71,9 @@ public:
 		PatternSizeDenominator
 	};
 
-	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = false, bool bMinusOneAsOff = false );
+	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,
+				double fMin = 0.0, double fMax = 1.0,
+				bool bModifyOnChange = false, bool bMinusOneAsOff = false );
 	~LCDSpinBox();
 
 	void setType( Type type );

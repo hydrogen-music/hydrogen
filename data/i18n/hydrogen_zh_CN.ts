@@ -653,10 +653,6 @@ Displayed in the tooltip of input widgets. General heading of the part associati
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JACK timebase support is disabled in the Preferences</source>
-        <translation>在首选项中禁用了 JACK Timebase 支持</translation>
-    </message>
-    <message>
         <source>Waiting...</source>
         <extracomment>Title of the window displayed when using the MIDI learning capabilities of Hydrogen.</extracomment>
         <translation type="unfinished"></translation>
@@ -749,8 +745,6 @@ Displayed in the tooltip of input widgets. General heading of the part associati
     <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
-        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
-&apos; character introduces a linebreak and must not be translated</extracomment>
         <translation>有未保存的更改。这些更改将丢失。
 是否确定？</translation>
     </message>
@@ -1088,14 +1082,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation>添加乐器</translation>
     </message>
     <message>
-        <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1394,6 +1380,59 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Adjust BPM using BeatCounter and start playback</source>
         <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever beat counter was selected and playback is set to start * right after the tempo adjustment.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy selected cells</source>
+        <extracomment>Shown in the undo history copying pattern cells in the song editor to * another location.</extracomment>
+        <translation>复制所选单元格</translation>
+    </message>
+    <message>
+        <source>Delete selected cells</source>
+        <extracomment>Shown in the undo history deleting pattern cells in the song editor.</extracomment>
+        <translation>删除所选单元格</translation>
+    </message>
+    <message>
+        <source>Move selected cells</source>
+        <extracomment>Shown in the undo history moving pattern cells in the song editor to * another location.</extracomment>
+        <translation>移动所选单元格</translation>
+    </message>
+    <message>
+        <source>Paste cells</source>
+        <extracomment>Shown in the undo history pasting pattern cells in the song editor.</extracomment>
+        <translation>粘贴单元格</translation>
+    </message>
+    <message>
+        <source>Toggle selected cells</source>
+        <extracomment>Shown in the undo history adding or toggling pattern cells in the song * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate pattern</source>
+        <extracomment>Shown in the undo history after duplicating a pattern.</extracomment>
+        <translation>重复样式</translation>
+    </message>
+    <message>
+        <source>JACK Timebase support deactivated. Press to make Hydrogen in control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External Timebase controller. Hydrogen is listening for tempo and position info.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is Timebase controller and sends tempo and position info.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Fill</source>
+        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
+&apos; character introduces a linebreak and must not be translatedText displayed on the Fill button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Clear&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
+        <translation>填充(&amp;F)</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r</source>
+        <extracomment>Text displayed on the Clear button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Fill&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3447,45 +3486,6 @@ LilyPond 导出是一项实验性功能。
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Form 1</source>
-        <translation>表单 1</translation>
-    </message>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>填充(&amp;F)</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation>Alt+F</translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>清除(&amp;C)</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>从：</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>至：</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>确定</translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
@@ -4640,20 +4640,12 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>修改样式属性</translation>
     </message>
     <message>
-        <source>Duplicate pattern</source>
-        <translation>重复样式</translation>
-    </message>
-    <message>
         <source>Add pattern</source>
         <translation>添加样式</translation>
     </message>
     <message>
         <source>Load/drag pattern</source>
         <translation>加载/拖动样式</translation>
-    </message>
-    <message>
-        <source>Fill/remove range of pattern</source>
-        <translation>填充/删除样式范围</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
@@ -4674,10 +4666,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Move point</source>
         <translation>移动节点</translation>
-    </message>
-    <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit tempo marker</source>
@@ -5740,22 +5728,6 @@ p, li { white-space: pre-wrap; }
         <source>Clear selection</source>
         <translation>清除选择</translation>
     </message>
-    <message>
-        <source>Delete selected cells</source>
-        <translation>删除所选单元格</translation>
-    </message>
-    <message>
-        <source>Paste cells</source>
-        <translation>粘贴单元格</translation>
-    </message>
-    <message>
-        <source>Copy selected cells</source>
-        <translation>复制所选单元格</translation>
-    </message>
-    <message>
-        <source>Move selected cells</source>
-        <translation>移动所选单元格</translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanel</name>
@@ -5770,14 +5742,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Create new pattern</source>
         <translation>创建新样式</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern down</source>
-        <translation>下移所选样式</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>上移所选样式</translation>
     </message>
     <message>
         <source>View playback track</source>
@@ -5917,6 +5881,10 @@ Are you sure?</source>
     <message>
         <source>Open Pattern to Replace </source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
+        <translation>填充/删除样式范围</translation>
     </message>
 </context>
 <context>

@@ -29,15 +29,16 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/AutomationPathSerializer.h>
-#include <core/Basics/Sample.h>
+#include <core/Basics/AutomationPath.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>
-#include <core/Basics/AutomationPath.h>
+#include <core/Basics/Sample.h>
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
 #include <core/Globals.h>
@@ -161,19 +162,20 @@ long Song::lengthInTicks() const {
     return nSongLength;
 }
 
-bool Song::isPatternActive( int nColumn, int nRow ) const {
-	if ( nRow < 0 || nRow > m_pPatternList->size() ) {
+bool Song::isPatternActive( const GridPoint& gridPoint ) const {
+	if ( gridPoint.getRow() < 0 || gridPoint.getRow() > m_pPatternList->size() ) {
 		return false;
 	}
 
-	auto pPattern = m_pPatternList->get( nRow );
+	auto pPattern = m_pPatternList->get( gridPoint.getRow() );
 	if ( pPattern == nullptr ) {
 		return false;
 	}
-	if ( nColumn < 0 || nColumn >= m_pPatternGroupSequence->size() ) {
+	if ( gridPoint.getColumn() < 0 ||
+		 gridPoint.getColumn() >= m_pPatternGroupSequence->size() ) {
 		return false;
 	}
-	auto pColumn = ( *m_pPatternGroupSequence )[ nColumn ];
+	auto pColumn = ( *m_pPatternGroupSequence )[ gridPoint.getColumn() ];
 	if ( pColumn->index( pPattern ) == -1 ) {
 		return false;
 	}

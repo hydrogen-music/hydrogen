@@ -28,6 +28,7 @@
 #include "../Widgets/EditorDefs.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Note.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -39,7 +40,6 @@
 
 namespace H2Core
 {
-	class Note;
 	class Instrument;
 }
 
@@ -104,10 +104,10 @@ public:
 										   int nOldKey,
 										   int nOldOctave,
 										   float fOldProbability,
-										   bool bIsDelete,
+										   Editor::Action action,
 										   bool bIsNoteOff,
 										   bool bIsMappedToDrumkit,
-										   Editor::Action action );
+										   Editor::ActionModifier modifier );
 
 		//! Deselect some notes, and "overwrite" some others.
 		void deselectAndOverwriteNotes(
@@ -151,13 +151,7 @@ public:
 			m_selection.merge( &pPatternEditor->m_selection );
 		}
 
-		QPoint movingGridOffset() const;
-
 		void setCursorPitch( int nCursorPitch );
-
-		/** Ensure the selection lassos of the other editors match the one of
-		 * this instance. */
-		bool syncLasso();
 
 		void triggerStatusMessage(
 			const std::vector< std::shared_ptr<H2Core::Note> > notes,
@@ -176,8 +170,6 @@ public:
 		virtual void keyPressEvent( QKeyEvent* ev ) override;
 		virtual void keyReleaseEvent(QKeyEvent *ev) override;
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
-		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
-		virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void paintEvent( QPaintEvent* ev ) override;
 	
@@ -187,10 +179,6 @@ public:
 		bool checkDeselectElements(
 			const std::vector< std::shared_ptr<H2Core::Note> >& elements ) override;
 		int getCursorMargin( QInputEvent* pEvent ) const override;
-		//! Update the status of modifier keys in response to input events.
-		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
 		QRect getKeyboardCursorRect() override;
 		/** Move or copy notes.
 		 *
@@ -205,26 +193,36 @@ public:
 		//! @{
 		void handleElements( QInputEvent* ev, Editor::Action action ) override;
 		void deleteElements( std::vector< std::shared_ptr<H2Core::Note>> ) override;
+		virtual std::vector<SelectionIndex> getElementsAtPoint(
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override;
+		virtual QPoint elementToPoint(
+			std::shared_ptr<H2Core::Note> pNote ) const override;
+		virtual QPoint gridPointToPoint(
+			const H2Core::GridPoint& gridPoint) const override;
+		virtual H2Core::GridPoint pointToGridPoint(
+			const QPoint& point, bool bHonorQuantization ) const override;
+		H2Core::GridPoint movingGridOffset() const override;
 		void copy() override;
 		void paste() override;
 		void ensureCursorIsVisible() override;
-		QPoint getCursorPosition() override;
+		virtual H2Core::GridPoint getCursorPosition() const override;
 		void moveCursorLeft( QKeyEvent* ev, Editor::Step step ) override;
 		void moveCursorRight( QKeyEvent* ev, Editor::Step step ) override;
 		void setCursorTo( std::shared_ptr<H2Core::Note> ) override;
 		void setCursorTo( QMouseEvent* ev ) override;
-		void setupPopupMenu() override;
 		bool updateKeyboardHoveredElements() override;
 		bool updateMouseHoveredElements( QMouseEvent* ev ) override;
 		Editor::Input getInput() const override;
+		bool syncLasso() override;
 		virtual void mouseDrawStart( QMouseEvent* ev ) override;
 		virtual void mouseDrawUpdate( QMouseEvent* ev ) override;
 		virtual void mouseDrawEnd() override;
 		void mouseEditStart( QMouseEvent* ev ) override;
 		void mouseEditUpdate( QMouseEvent* ev ) override;
 		void mouseEditEnd() override;
-		void updateAllComponents( bool bContentOnly ) override;
-		void updateVisibleComponents( bool bContentOnly ) override;
+		void updateAllComponents( Editor::Update update ) override;
+		void updateVisibleComponents( Editor::Update update ) override;
 		void updateModifiers( QInputEvent *ev ) override;
 		/**
 		 * Adjusts #m_nActiveWidth and #m_nEditorWidth to the current
@@ -319,19 +317,12 @@ protected:
 		 * audio engine. */
 		bool checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const;
 
-		/** Function in the same vein as getColumn() but calculates both column
-		 * and row information from the provided event position. */
-		void eventPointToColumnRow( const QPoint& point, int* pColumn,
-									int* pRow, int* pRealColumn = nullptr,
-									bool bUseFineGrained = false ) const;
-
-		//! Granularity of grid positioning (in ticks)
+		// How many #m_fGridWidth do make up a quantized grid cell in the
+		// current resolution.
 		int granularity() const;
 
 		PatternEditorPanel* m_pPatternEditorPanel;
 		Property m_property;
-
-		QList< QAction * > m_selectionActions;
 
 		float m_fGridWidth;
 		unsigned m_nGridHeight;
@@ -355,10 +346,9 @@ protected:
 
 		int m_nTick;
 		QPointF m_drawPreviousPosition;
-		int m_nDrawPreviousColumn;
+		H2Core::GridPoint m_drawPreviousGridPoint;
 		int m_nDrawPreviousKey;
 		int m_nDrawPreviousOctave;
-		int m_nDrawPreviousRow;
 
 		// Row the keyboard cursor is residing in.
 		//

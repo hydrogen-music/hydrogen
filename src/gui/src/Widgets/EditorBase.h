@@ -27,6 +27,8 @@
 #include "../HydrogenApp.h"
 #include "../Selection.h"
 
+#include <core/Basics/GridPoint.h>
+
 #include <memory>
 
 #include <QtGui>
@@ -104,13 +106,47 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
+		/** @name Conversion between screen position, grid position, and element
+		 * position. How a grid position/point is defined, is up to the
+		 * particular implementation of editor.
+		 @{ */
+
+		/**
+		 * The NotePropertiesRuler also allows to interact with hovered note not
+		 * part of the current row (its actual elements). When determining which
+		 * elements are hovered in there, it is key to exclude the previously
+		 * hovered ones using @a bIncludeHovered. Else we end up rendering
+		 * elements already deleted.*/
 		virtual std::vector<Elem> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr )
-		{
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) {
 			___ERRORLOG( "To be implemented by parent" );
-			return std::vector<Elem>();
+			return std::vector<Elem>(); }
+		/** Retrieve the position a particular element is located at. */
+		virtual QPoint elementToPoint( Elem elem ) const {
+			___ERRORLOG( "To be implemented by parent" );
+			return QPoint();
 		}
+		/** Converts a pixel-based event point into a point on the editor's
+		 * grid. If @a bHonorQuantization is set to false, the current
+		 * quantization is disregarded and the resulting grid point will be
+		 * determined on the smallest resolution possible. */
+		virtual H2Core::GridPoint pointToGridPoint( const QPoint& point,
+													bool bHonorQuantization ) const {
+			___ERRORLOG( "To be implemented by parent" );
+			return H2Core::GridPoint( -1, -1 );
+		}
+		/** Converts a point on the editor's grid into a pixel-based point. */
+		virtual QPoint gridPointToPoint( const H2Core::GridPoint& gridPoint ) const {
+			___ERRORLOG( "To be implemented by parent" );
+			return QPoint();
+		}
+		//! Quantise the selection move offset to the sequence grid
+		virtual H2Core::GridPoint movingGridOffset() const {
+			___ERRORLOG( "To be implemented by parent" );
+			return H2Core::GridPoint( -1, -1 );
+		}
+		/** @} */
 
 		/** Serialize and copy all currently selected elements. */
 		virtual void copy() {
@@ -132,9 +168,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		}
 		/** Since the cursor might be shared amongst various components of the
 		 * editor, we do not store it in here. */
- 		virtual QPoint getCursorPosition() {
+ 		virtual H2Core::GridPoint getCursorPosition() const {
 			___ERRORLOG( "To be implemented by parent" );
-			return QPoint( 0, 0 );
+			return H2Core::GridPoint( -1, -1 );
 		}
 		virtual void moveCursorDown( QKeyEvent* ev, Editor::Step step ) {
 			___ERRORLOG( "To be implemented by parent" );
@@ -157,12 +193,6 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
-		/** Can be called to e.g. disable some options based on the selected
-		 * elements. */
-		virtual void setupPopupMenu() {
-			___ERRORLOG( "To be implemented by parent" );
-		}
-
 		/** @returns true in case the set of hovered elements did change. */
 		virtual bool updateKeyboardHoveredElements() {
 			___ERRORLOG( "To be implemented by parent" );
@@ -177,6 +207,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		virtual Editor::Input getInput() const {
 			___ERRORLOG( "To be implemented by parent" );
 			return Editor::Input::Select;
+		}
+
+		/** Ensure the selection lassos of the other components of the editors
+		 * within the same group match the one of this instance. */
+		virtual bool syncLasso() {
+			___ERRORLOG( "To be implemented by parent" );
+			return false;
 		}
 
 		virtual void mouseDrawStart( QMouseEvent* ev ) {
@@ -208,11 +245,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		/** In contrast to Selection::updateWidget() this method indicates a
 		 * state change in the overall editor and triggers an update of all its
 		 * visible components, e.g. including its ruler and sidebar. */
-		virtual void updateVisibleComponents( bool bContentOnly ) {
+		virtual void updateVisibleComponents( Editor::Update update ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 		/** Updates all widgets dependent on this one. */
-		virtual void updateAllComponents( bool bContentOnly ) {
+		virtual void updateAllComponents( Editor::Update update ) {
 			___ERRORLOG( "To be implemented by parent" );
 		}
 
@@ -264,14 +301,19 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			m_bEntered = true;
 
 			// Update focus, hovered elements, and selection color.
-			updateVisibleComponents( true );
+			updateVisibleComponents( Update::Content );
 		}
 
 		virtual void leaveEvent( QEvent* ev ) override {
 			UNUSED( ev );
 			m_bEntered = false;
 
-			updateMouseHoveredElements( nullptr );
+			auto update = Editor::Update::Transient;
+
+			if ( updateMouseHoveredElements( nullptr ) ||
+				 ! m_selection.isEmpty() ) {
+				update = Editor::Update::Content;
+			}
 
 			// Ending the enclosing undo context. This is key to enable the
 			// Undo/Redo buttons in the main menu again and it feels like a good
@@ -280,7 +322,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			HydrogenApp::get_instance()->endUndoContext();
 
 			// Update focus, hovered elements, and selection color.
-			updateVisibleComponents( true );
+			updateVisibleComponents( update );
 		}
 
 		virtual void focusInEvent( QFocusEvent* ev ) override {
@@ -292,14 +334,14 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 			// Update hovered elements, cursor, background color, selection
 			// color...
-			updateAllComponents( false );
+			updateAllComponents( Update::Background );
 		}
 
 		virtual void focusOutEvent( QFocusEvent *ev ) override {
 			UNUSED( ev );
 			// Update hovered elements, cursor, background color, selection
 			// color...
-			updateAllComponents( false );
+			updateAllComponents( Update::Background );
 		}
 
  		virtual int getCursorMargin( QInputEvent* pEvent ) const override {
@@ -315,19 +357,19 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// Only update on state changes
 			if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 				updateKeyboardHoveredElements();
+				auto update = Editor::Update::Transient;
 				if ( bVisible ) {
 					m_selection.updateKeyboardCursorPosition();
 					ensureCursorIsVisible();
 
-					if ( m_selection.isLasso() && m_update !=
-						 Editor::Update::Background ) {
+					if ( m_selection.isLasso() ) {
 						// Since the event was used to alter the element
 						// selection, we need to repainting all elements
 						// (including whether or not they are selected).
-						m_update = Editor::Update::Content;
+						update = Editor::Update::Content;
 					}
 				}
-				updateAllComponents( true );
+				updateAllComponents( update );
 			}
 		}
  		virtual void keyPressEvent( QKeyEvent* ev ) override {
@@ -340,7 +382,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// point/cursor will be selected instead.
 			auto selectElementsAtPoint = [&]() {
 				const auto elementsUnderPoint = getElementsAtPoint(
-					getCursorPosition(), 0 );
+					gridPointToPoint( getCursorPosition() ), 0, true );
 				if ( elementsUnderPoint.size() == 0 ) {
 					return false;
 				}
@@ -492,7 +534,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// Key: Enter / Return: add or remove elements at current
 				// position
 				m_selection.clearSelection();
-				handleElements( ev, Editor::Action::ToggleElements );
+				handleElements( ev, Editor::Action::Toggle );
+
+				// Ensure the note will not be rendered as hovered by mouse
+				// anymore.
+				updateMouseHoveredElements( nullptr );
 			}
 			else if ( ev->key() == Qt::Key_Delete ) {
 				// Key: Delete / Backspace: delete selected elements or those
@@ -501,8 +547,12 @@ class Base : public SelectionWidget<Elem>, public QWidget
 					deleteSelection();
 				}
 				else {
-					handleElements( ev, Editor::Action::DeleteElements );
+					handleElements( ev, Editor::Action::Delete );
 				}
+
+				// Ensure the note will not be rendered as hovered by mouse
+				// anymore.
+				updateMouseHoveredElements( nullptr );
 			}
 			else {
 				ev->ignore();
@@ -515,7 +565,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				handleKeyboardCursor( bUnhideCursor );
 			}
 
-			updateVisibleComponents( true );
+			// Update and synchronize lasso(s)
+			m_selection.updateKeyboardCursorPosition();
+			syncLasso();
+
+			updateVisibleComponents( Editor::Update::Transient );
 		}
 
 		virtual void mouseDrawStartEvent( QMouseEvent *ev ) override {
@@ -532,8 +586,23 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			mouseDrawEnd();
 		}
 
+		virtual void mouseEditStartEvent( QMouseEvent *ev ) override {
+			setCursor( Qt::CrossCursor );
+			mouseEditStart( ev );
+		}
+
+		virtual void mouseEditUpdateEvent( QMouseEvent *ev ) override {
+			mouseEditUpdate( ev );
+		}
+
+		virtual void mouseEditEndEvent( QMouseEvent *ev ) override {
+			unsetCursor();
+			mouseEditEnd();
+		}
+
  		virtual void mousePressEvent( QMouseEvent *ev ) override {
 			auto pEv = static_cast<MouseEvent*>( ev );
+			m_currentMousePosition = pEv->position().toPoint();
 
 			updateModifiers( ev );
 
@@ -542,7 +611,8 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			m_elementsHoveredOnDragStart.clear();
 			m_elementsToSelect.clear();
 
-			if ( ( ev->buttons() == Qt::LeftButton ||
+			if ( ( ( ev->buttons() == Qt::LeftButton &&
+					 getInput() != Editor::Input::Draw ) ||
 				   ev->buttons() == Qt::RightButton ) &&
 				 ! ( ev->modifiers() & Qt::ControlModifier ) ) {
 
@@ -550,12 +620,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// we will discard the current selection and add those elements
 				// under point to a transient one.
 				const auto elementsUnderPoint = getElementsAtPoint(
-					pEv->position().toPoint(), getCursorMargin( ev ) );
+					pEv->position().toPoint(), getCursorMargin( ev ), true );
 
 				bool bSelectionHovered = false;
 				for ( const auto& ppElement : elementsUnderPoint ) {
-					if ( ppElement != nullptr &&
-						 m_selection.isSelected( ppElement ) ) {
+					if ( m_selection.isSelected( ppElement ) ) {
 						bSelectionHovered = true;
 						break;
 					}
@@ -564,8 +633,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// We honor the current selection.
 				if ( bSelectionHovered ) {
 					for ( const auto& ppElement : elementsUnderPoint ) {
-						if ( ppElement != nullptr &&
-							 m_selection.isSelected( ppElement ) ) {
+						if ( m_selection.isSelected( ppElement ) ) {
 							m_elementsHoveredOnDragStart.push_back( ppElement );
 						}
 					}
@@ -586,19 +654,9 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				}
 			}
 
-			if ( getInput() == Editor::Input::Draw &&
-				 ev->buttons() == Qt::LeftButton ) {
-				mouseDrawStart( ev );
-			}
-			else if ( getInput() == Editor::Input::Edit &&
-				 ev->buttons() == Qt::LeftButton ) {
-				mouseEditStart( ev );
-			}
-			else {
-				// propagate event to selection. This could very well cancel a
-				// lasso created via keyboard events.
-				m_selection.mousePressEvent( ev );
-			}
+			// propagate event to selection. This could very well cancel a
+			// lasso created via keyboard events.
+			m_selection.mousePressEvent( ev );
 
 			// Hide cursor in case this behavior was selected in the
 			// Preferences.
@@ -606,6 +664,12 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		}
 
  		virtual void mouseMoveEvent( QMouseEvent *ev ) override {
+			auto pEv = static_cast<MouseEvent*>( ev );
+			m_currentMousePosition = pEv->position().toPoint();
+
+			bool bUpdate = false;
+			auto update = Editor::Update::Transient;
+
 			if ( m_elementsToSelect.size() > 0 ) {
 				if ( ev->buttons() == Qt::LeftButton ||
 					 ev->buttons() == Qt::RightButton ) {
@@ -613,6 +677,8 @@ class Base : public SelectionWidget<Elem>, public QWidget
 					for ( const auto& ppElement : m_elementsToSelect ) {
 						m_selection.addToSelection( ppElement );
 					}
+					update = Editor::Update::Content;
+					bUpdate = true;
 				}
 				else {
 					m_elementsToSelect.clear();
@@ -622,30 +688,29 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateModifiers( ev );
 
 			// Check which elements are hovered.
-			bool bUpdate = updateMouseHoveredElements( ev );
+			bUpdate = updateMouseHoveredElements( ev ) || bUpdate;
 
 			if ( ev->buttons() != Qt::NoButton ) {
-				if ( getInput() == Editor::Input::Draw &&
-					 ev->buttons() == Qt::LeftButton ) {
-					mouseDrawUpdate( ev );
+				m_selection.mouseMoveEvent( ev );
+				if ( m_selection.isMoving() ) {
+					bUpdate = true;
 				}
-				else if ( getInput() == Editor::Input::Edit &&
-						  ev->buttons() == Qt::LeftButton ) {
-					mouseEditUpdate( ev );
-				}
-				else {
-					m_selection.mouseMoveEvent( ev );
-					if ( m_selection.isMoving() ) {
-						bUpdate = true;
-					}
-				}
+			}
+
+			if ( ev->buttons() != Qt::NoButton && ! m_selection.isMoving() &&
+				 syncLasso() ) {
+				bUpdate = true;
 			}
 
 			if ( bUpdate ) {
-				updateVisibleComponents( true );
+				updateVisibleComponents( update );
 			}
 		}
  		virtual void mouseReleaseEvent( QMouseEvent *ev ) override {
+			// In case we just cancelled a lasso, we have to tell the other
+			// editors in the same group.
+			const bool oldState = m_selection.getSelectionState();
+
 			unsetCursor();
 
 			// Don't call updateModifiers( ev ) in here because we want to apply
@@ -654,17 +719,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			// different place because she released the Alt modifier slightly
 			// earlier than the mouse button.
 
-			if ( getInput() == Editor::Input::Draw &&
-				 ev->button() == Qt::LeftButton ) {
-				mouseDrawEnd();
-			}
-			else if ( getInput() == Editor::Input::Edit &&
-				 ev->button() == Qt::LeftButton ) {
-				mouseEditEnd();
-			}
-			else {
-				m_selection.mouseReleaseEvent( ev );
-			}
+			m_selection.mouseReleaseEvent( ev );
 
 			m_elementsHoveredOnDragStart.clear();
 
@@ -673,7 +728,12 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				// position.
 				m_selection.clearSelection();
 				m_elementsToSelect.clear();
-				updateVisibleComponents( true );
+				updateVisibleComponents( Update::Content );
+			}
+
+			if ( oldState != m_selection.getSelectionState() ) {
+				syncLasso();
+				updateVisibleComponents( Editor::Update::Transient );
 			}
 		}
 
@@ -682,17 +742,21 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 			updateModifiers( ev );
 
+			auto update = Editor::Update::Transient;
+
 			// main button action
-			if ( ev->button() == Qt::LeftButton &&
-				 m_instance != Instance::NotePropertiesRuler ) {
+			if ( ev->button() == Qt::LeftButton ) {
 
 				setCursorTo( ev );
 
 				// Check whether an existing element or an empty grid cell was
 				// clicked.
-				handleElements( ev, Editor::Action::ToggleElements );
+				handleElements( ev, Editor::Action::Toggle );
 
-				m_selection.clearSelection();
+				if ( ! m_selection.isEmpty() ) {
+					m_selection.clearSelection();
+					update = Editor::Update::Content;
+				}
 				updateMouseHoveredElements( ev );
 			}
 			else if ( ev->button() == Qt::RightButton ) {
@@ -710,13 +774,13 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			updateKeyboardHoveredElements();
 
 			// New cursor position, selection and hovered notes update.
-			updateVisibleComponents( true );
+			updateVisibleComponents( update );
 		}
 
 		void popupMenuAboutToHide() {
 			if ( m_elementsToSelectForPopup.size() > 0 ) {
 				m_selection.clearSelection();
-				updateVisibleComponents( false );
+				updateVisibleComponents( Update::Content );
 			}
 		}
 
@@ -731,7 +795,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				for ( const auto& ppElement : m_elementsToSelectForPopup ) {
 					m_selection.addToSelection( ppElement );
 				}
-				updateVisibleComponents( true );
+				updateVisibleComponents( Update::Content );
 			}
 		}
 
@@ -751,18 +815,24 @@ class Base : public SelectionWidget<Elem>, public QWidget
 				m_selection.clearSelection();
 			}
 
-			// The popup might have caused the cursor to move out of this widget
-			// and the latter will loose focus once the popup is torn down. We
-			// have to ensure not to display some glitchy elements previously
-			// hovered by mouse which are not present anymore (e.g. since they
-			// were aligned to a different position).
-			if ( updateMouseHoveredElements( nullptr ) ) {
-				updateVisibleComponents( true );
+			// The popup might have caused the mouse cursor to move out of this
+			// widget and the latter will loose focus once the popup is torn
+			// down. We have to ensure not to display some glitchy elements
+			// previously hovered by mouse which are not present anymore (e.g.
+			// since they were aligned to a different position).
+			//
+			// It can also result in the hovered element being deleted.
+			const bool bUpdate = updateMouseHoveredElements( nullptr );
+			if ( updateKeyboardHoveredElements() || bUpdate ) {
+				updateVisibleComponents( Update::Transient );
 			}
 		}
 
 		void showPopupMenu( QMouseEvent* pEvent ){
-			setupPopupMenu();
+			// Enable or disable menu actions that only operate on selected notes.
+			for ( auto & action : m_selectionActions ) {
+				action->setEnabled( m_elementsHoveredForPopup.size() > 0 );
+			}
 
 			auto pEv = static_cast<MouseEvent*>( pEvent );
 			m_pPopupMenu->popup( pEv->globalPosition().toPoint() );
@@ -777,12 +847,20 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			setCursor( Qt::DragMoveCursor );
 		}
 
-		virtual void updateEditor( bool bContentOnly = true ) {
+		virtual void updateEditor( Editor::Update newUpdate ) {
 			if ( updateWidth() ) {
 				m_update = Update::Background;
 			}
-			else if ( bContentOnly && m_update != Update::Background ) {
-				// Background takes priority over Pattern.
+			else if ( newUpdate == Update::Transient &&
+					  ( m_update != Update::Content &&
+						m_update != Update::Background ) ) {
+				// Content and background take priority over just transient
+				// stuff.
+				m_update = Update::Transient;
+			}
+			else if ( newUpdate == Update::Content &&
+					  m_update != Update::Background ) {
+				// Background takes priority over content.
 				m_update = Update::Content;
 			}
 			else {
@@ -837,14 +915,53 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			}
 		}
 
-		// Update a widget in response to a change in selection
-		virtual void updateWidget() override {
-			updateEditor( true );
+		// Update a widget in response to a change in selection while only
+		// update the drawn content if necessary.
+		void updateWidget( Editor::Update update ) override {
+			if ( update != Editor::Update::Transient ) {
+				updateEditor( update );
+				return;
+			}
+
+			if ( m_selection.isMoving() ) {
+				const auto currentGridOffset = movingGridOffset();
+				// Moving a selection never has to update the content (it's
+				// drawn on top of it). Update is only ever needed when the move
+				// delta (in grid spaces) changes
+				if ( m_previousGridOffset != currentGridOffset ) {
+					updateEditor( Editor::Update::Transient );
+					m_previousGridOffset = currentGridOffset;
+				}
+			}
+			else if ( m_selection.isLasso() ) {
+				// We do not honor the current quantization level of the editor
+				// in here because we want its elements to appear selected once
+				// the lasso crossed them and not once we reach the next grid
+				// point.
+				const bool bCellBoundaryCrossed =
+					pointToGridPoint( m_previousMousePosition, false ) !=
+					pointToGridPoint( m_currentMousePosition, false );
+				// Selection must redraw the content when a cell boundary is
+				// crossed, as the selected elements are part of the content.
+				if ( bCellBoundaryCrossed ) {
+					updateVisibleComponents( Editor::Update::Content );
+				} else {
+					updateEditor( Editor::Update::Transient );
+				}
+			}
+			else {
+				// Other reasons: force update
+				updateEditor( Editor::Update::Content );
+			}
+			m_previousMousePosition = m_currentMousePosition;
 		}
 
 		QPixmap* m_pBackgroundPixmap;
 		QPixmap* m_pContentPixmap;
 		QMenu *m_pPopupMenu;
+		/** Actions within #m_pPopupMenu requiring selected elements to work
+		 * on. */
+		QList< QAction * > m_selectionActions;
 
 		/** width of the editor covered by the current pattern. */
 		int m_nActiveWidth;
@@ -859,6 +976,11 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		Type m_type;
 		/** Which parts of the editor to update in the next paint event. */
 		Update m_update;
+
+		//! Mouse position caching during selection gestures (used to detect
+		//! crossing cell boundaries and allows to avoid redundant redraws).
+		QPoint m_previousMousePosition, m_currentMousePosition;
+		H2Core::GridPoint m_previousGridOffset;
 
  		std::vector<Elem> m_elementsHoveredForPopup;
 

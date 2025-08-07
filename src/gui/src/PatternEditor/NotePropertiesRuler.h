@@ -97,6 +97,15 @@ class NotePropertiesRuler : public PatternEditor,
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
 		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
 
+		/** Sets a specific property of @a pNote based on the relative y
+		 * coordinate @a fYValue retrieved using eventToYValue(). */
+		static bool applyProperty( std::shared_ptr<H2Core::Note> pNote,
+								   PatternEditor::Property property,
+								   float fYValue );
+		/** Transforms the y coordinate of the provided event into a value which
+		 * is intended to be used with applyProperty(). */
+		float eventToYValue( QMouseEvent* pEvent ) const;
+
 		void updateColors();
 		void updateFont();
 
@@ -104,15 +113,18 @@ class NotePropertiesRuler : public PatternEditor,
 		//! @{
 		bool canMoveElements() const override { return false; };
 		std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) override;
-		void mouseClickEvent( QMouseEvent *ev ) override;
 		void selectionMoveUpdateEvent( QMouseEvent *ev ) override;
 		void selectionMoveEndEvent( QInputEvent *ev ) override;
 		void selectionMoveCancelEvent() override;
+		QPoint gridPointToPoint( const H2Core::GridPoint& gridPoint ) const override;
+		H2Core::GridPoint pointToGridPoint( const QPoint& point,
+											bool bHonorQuantization ) const override;
 		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
 		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
 		void mouseDrawStart( QMouseEvent *ev ) override;
 		void mouseDrawUpdate( QMouseEvent *ev ) override;
 		void mouseDrawEnd() override;
+		void createBackground() override;
 		//! @}
 
 
@@ -122,7 +134,6 @@ class NotePropertiesRuler : public PatternEditor,
 
 	private:
 
-		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawPattern() override;
 		void drawNote( QPainter& painter, std::shared_ptr<H2Core::Note> pNote,

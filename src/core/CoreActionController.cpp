@@ -26,6 +26,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -2292,7 +2293,7 @@ bool CoreActionController::clearInstrumentInPattern( int nInstrument,
 	return true;
 }
 
-bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
+bool CoreActionController::toggleGridCell( const GridPoint& gridPoint ){
 	auto pHydrogen = Hydrogen::get_instance();
 	ASSERT_HYDROGEN
 
@@ -2306,23 +2307,24 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	auto pPatternList = pSong->getPatternList();
 	auto pColumns = pSong->getPatternGroupVector();
 
-	if ( nRow < 0 || nRow > pPatternList->size() ) {
+	if ( gridPoint.getRow() < 0 || gridPoint.getRow() > pPatternList->size() ) {
 		ERRORLOG( QString( "Provided row [%1] is out of bound [0,%2]" )
-				  .arg( nRow ).arg( pPatternList->size() ) );
+				  .arg( gridPoint.getRow() ).arg( pPatternList->size() ) );
 		return false;
 	}
 	
-	auto pNewPattern = pPatternList->get( nRow );
+	auto pNewPattern = pPatternList->get( gridPoint.getRow() );
 	if ( pNewPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to obtain Pattern in row [%1]." )
-				  .arg( nRow ) );
+				  .arg( gridPoint.getRow() ) );
 
 		return false;
 	}
 
 	pAudioEngine->lock( RIGHT_HERE );
-	if ( nColumn >= 0 && nColumn < pColumns->size() ) {
-		auto pColumn = ( *pColumns )[ nColumn ];
+	if ( gridPoint.getColumn() >= 0 &&
+		 gridPoint.getColumn() < pColumns->size() ) {
+		auto pColumn = ( *pColumns )[ gridPoint.getColumn() ];
 		auto pPattern = pColumn->del( pNewPattern );
 		if ( pPattern == nullptr ) {
 			// No pattern in this row. Let's add it.
@@ -2343,20 +2345,20 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 			}
 		}
 	}
-	else if ( nColumn >= pColumns->size() ) {
+	else if ( gridPoint.getColumn() >= pColumns->size() ) {
 		// We need to add some new columns..
 		std::shared_ptr<PatternList> pColumn;
 
-		for ( int ii = 0; nColumn - pColumns->size() + 1; ii++ ) {
+		for ( int ii = 0; gridPoint.getColumn() - pColumns->size() + 1; ii++ ) {
 			pColumn = std::make_shared<PatternList>();
 			pColumns->push_back( pColumn );
 		}
 		pColumn->add( pNewPattern );
 	}
 	else {
-		// nColumn < 0
+		// gridPoint.getColumn() < 0
 		ERRORLOG( QString( "Provided column [%1] is out of bound [0,%2]" )
-				  .arg( nColumn ).arg( pColumns->size() ) );
+				  .arg( gridPoint.getColumn() ).arg( pColumns->size() ) );
 		pAudioEngine->unlock();
 		return false;
 	}

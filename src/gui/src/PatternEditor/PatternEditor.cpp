@@ -22,31 +22,30 @@
 
 #include "PatternEditor.h"
 
+#include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorSidebar.h"
-#include "PatternEditorPanel.h"
 #include "PianoRollEditor.h"
 
 #include "../CommonStrings.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
-#include "../UndoActions.h"
 #include "../Skin.h"
+#include "../UndoActions.h"
 
-#include <core/Globals.h>
-#include <core/Basics/Song.h>
-#include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
-#include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Basics/Adsr.h>
-#include <core/Basics/Note.h>
-#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Song.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/Globals.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QtMath>
 
@@ -63,10 +62,9 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	, m_dragStart( QPoint() )
 	, m_nTick( -1 )
 	, m_drawPreviousPosition( QPointF( 0, 0 ) )
-	, m_nDrawPreviousColumn( -1 )
+	, m_drawPreviousGridPoint( GridPoint( -1, -1 ) )
 	, m_nDrawPreviousKey( -1 )
 	, m_nDrawPreviousOctave( -1 )
-	, m_nDrawPreviousRow( -1 )
 	, m_nCursorPitch( 0 )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -109,10 +107,10 @@ PatternEditor::PatternEditor( QWidget *pParent )
 	m_selectionActions.push_back( m_pPopupMenu->addAction( tr( "Randomize velocity" ), this, SLOT( randomizeVelocity() ) ) );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this,
 							 [&]() { selectAll();
-								 updateVisibleComponents( true ); } );
+								 updateVisibleComponents( Editor::Update::Content ); } );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, [&]() {
 		m_selection.clearSelection();
-		updateVisibleComponents( true );
+		updateVisibleComponents( Editor::Update::Content );
 	} );
 	connect( m_pPopupMenu, &QMenu::aboutToShow, [&]() {
 		popupMenuAboutToShow(); } );
@@ -135,10 +133,10 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   int nOldKey,
 										   int nOldOctave,
 										   float fOldProbability,
-										   bool bIsDelete,
+										   Editor::Action action,
 										   bool bIsNoteOff,
 										   bool bIsMappedToDrumkit,
-										   Editor::Action action )
+										   Editor::ActionModifier modifier )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -172,7 +170,7 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
 
-	if ( bIsDelete ) {
+	if ( action == Editor::Action::Delete ) {
 		// Find and delete an existing (matching) note.
 
 		// In case there are multiple notes at this position, use all provided
@@ -264,13 +262,13 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 							   static_cast<Note::Octave>(nOldOctave) );
 		pPattern->insertNote( pNote );
 
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Editor::Action::AddToSelection) ) {
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(Editor::ActionModifier::AddToSelection) ) {
 			pVisibleEditor->m_selection.addToSelection( pNote );
 		}
 
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Editor::Action::MoveCursorTo) ) {
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(Editor::ActionModifier::MoveCursorTo) ) {
 			pPatternEditorPanel->setCursorColumn( pNote->getPosition() );
 			pPatternEditorPanel->setSelectedRowDB(
 				pPatternEditorPanel->findRowDB( pNote ) );
@@ -279,7 +277,10 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
 
-	pPatternEditorPanel->updateEditors( true );
+	pVisibleEditor->updateMouseHoveredElements( nullptr );
+	pVisibleEditor->updateKeyboardHoveredElements();
+
+	pPatternEditorPanel->updateEditors( Editor::Update::Content );
 }
 
 void PatternEditor::deselectAndOverwriteNotes(
@@ -353,7 +354,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 	}
 	pHydrogen->getAudioEngine()->unlock();
 	pHydrogen->setIsModified( true );
-	updateVisibleComponents( true );
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 void PatternEditor::editNotePropertiesAction( const Property& property,
@@ -507,11 +508,11 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 
 		if ( property == Property::Type || property == Property::InstrumentId ) {
 			pPatternEditorPanel->updateDB();
-			pPatternEditorPanel->updateEditors();
+			pPatternEditorPanel->updateEditors( Editor::Update::Content );
 			pPatternEditorPanel->resizeEvent( nullptr );
 		}
 		else {
-			pPatternEditorPanel->updateEditors( true );
+			pPatternEditorPanel->updateEditors( Editor::Update::Content );
 		}
 	}
 }
@@ -520,37 +521,30 @@ bool PatternEditor::isSelectionMoving() const {
 	return m_selection.isMoving();
 }
 
-QPoint PatternEditor::movingGridOffset( ) const {
-	QPoint rawOffset = m_selection.movingOffset();
+GridPoint PatternEditor::movingGridOffset() const {
+	const QPoint rawOffset = m_selection.movingOffset();
 
 	// Quantization in y direction is mandatory. A note can not be placed
 	// between lines.
-	int nQuantY = m_nGridHeight;
+	const int nQuantY = m_nGridHeight;
 	int nBiasY = nQuantY / 2;
 	if ( rawOffset.y() < 0 ) {
 		nBiasY = -nBiasY;
 	}
 	const int nOffsetY = (rawOffset.y() + nBiasY) / nQuantY;
 
-	int nOffsetX;
-	if ( ! m_pPatternEditorPanel->isQuantized() ) {
-		// No quantization
-		nOffsetX = static_cast<int>(
-			std::floor( static_cast<float>(rawOffset.x()) / m_fGridWidth ) );
+	const float fX = static_cast<float>(rawOffset.x());
+	float fGranularity = 1.0;
+	if ( m_pPatternEditorPanel->isQuantized() ) {
+		fGranularity = static_cast<float>(granularity());
 	}
-	else {
-		// Quantize offset to multiples of m_nGrid{Width,Height}
-		const float fFactor = granularity();
-		const int nQuantX = m_fGridWidth * fFactor;
-		int nBiasX = nQuantX / 2;
-		if ( rawOffset.x() < 0 ) {
-			nBiasX = -nBiasX;
-		}
-		nOffsetX = fFactor * static_cast<int>((rawOffset.x() + nBiasX) / nQuantX);
-	}
+	// A bias of m_fGridWidth * fGranularity / 2 -> half the distance between to
+	// grid point is introduced to "round" to the nearest grid point.
+	const int nOffsetX = static_cast<int>(
+		fGranularity * std::floor( ( fX + m_fGridWidth * fGranularity / 2 ) /
+								   ( m_fGridWidth * fGranularity ) ) );
 
-
-	return QPoint( nOffsetX, nOffsetY);
+	return GridPoint( nOffsetX, nOffsetY);
 }
 
 void PatternEditor::setCursorPitch( int nCursorPitch ) {
@@ -582,7 +576,8 @@ void PatternEditor::setCursorPitch( int nCursorPitch ) {
 		m_pPatternEditorPanel->ensureCursorIsVisible();
 		m_pPatternEditorPanel->getSidebar()->updateEditor();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-		m_pPatternEditorPanel->getVisiblePropertiesRuler()->update();
+		m_pPatternEditorPanel->getVisiblePropertiesRuler()
+			->updateEditor( Editor::Update::Transient );
 	}
 }
 
@@ -650,7 +645,7 @@ bool PatternEditor::syncLasso() {
 
 			for ( const auto& ppNote : m_selection ) {
 				if ( ppNote != nullptr && row.contains( ppNote ) ) {
-					const QPoint np = pPianoRoll->noteToPoint( ppNote );
+					const QPoint np = elementToPoint( ppNote );
 					const QRect noteRect = QRect(
 						np.x() - cursor.width() / 2, np.y() - cursor.height() / 2,
 						cursor.width(), cursor.height() );
@@ -929,13 +924,7 @@ void PatternEditor::keyPressEvent( QKeyEvent *ev ) {
 		 dynamic_cast<DrumPatternEditor*>(pVisibleEditor) != nullptr ) {
 		pVisibleEditor->m_selection.updateKeyboardCursorPosition();
 		if ( pVisibleEditor->syncLasso() ) {
-			updateVisibleComponents( true );
-		}
-	}
-	else {
-		m_selection.updateKeyboardCursorPosition();
-		if ( syncLasso() ) {
-			updateVisibleComponents( true );
+			updateVisibleComponents( Editor::Update::Transient );
 		}
 	}
 }
@@ -965,7 +954,7 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 			   ev->button() == Qt::RightButton ) ) ) {
 		if ( ! m_selection.isEmpty() ) {
 			m_selection.clearSelection();
-			updateVisibleComponents( true );
+			updateVisibleComponents( Editor::Update::Content );
 		}
 		return;
 	}
@@ -977,32 +966,6 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev ) {
 	handleKeyboardCursor( false );
 }
 
-void PatternEditor::mouseMoveEvent( QMouseEvent *ev ) {
-	if ( m_pPatternEditorPanel->getPattern() == nullptr ) {
-		return;
-	}
-
-	Editor::Base<Elem>::mouseMoveEvent( ev );
-
-	if ( ev->buttons() != Qt::NoButton && ! m_selection.isMoving() &&
-		syncLasso() ) {
-		updateVisibleComponents( true );
-	}
-}
-
-void PatternEditor::mouseReleaseEvent( QMouseEvent *ev ) {
-	// In case we just cancelled a lasso, we have to tell the other
-	// editors.
-	const bool oldState = m_selection.getSelectionState();
-
-	Editor::Base<Elem>::mouseReleaseEvent( ev );
-
-	if ( oldState != m_selection.getSelectionState() ) {
-		syncLasso();
-		updateVisibleComponents( true );
-	}
-}
-
 void PatternEditor::mouseClickEvent( QMouseEvent *ev ) {
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
@@ -1011,21 +974,18 @@ void PatternEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	int nRow, nColumn, nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
-						   &nRealColumn, /* fineGrained */true );
-
+	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 
 	// Select the corresponding row
 	if ( m_instance == Editor::Instance::DrumPattern ) {
-		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
+		const auto row = m_pPatternEditorPanel->getRowDB( gridPoint.getRow() );
 		if ( row.nInstrumentID != EMPTY_INSTR_ID || ! row.sType.isEmpty() ) {
-			m_pPatternEditorPanel->setSelectedRowDB( nRow );
+			m_pPatternEditorPanel->setSelectedRowDB( gridPoint.getRow() );
 		}
 	}
 	else if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Update the row of the piano roll itself.
-		setCursorPitch( Note::lineToPitch( nRow ) );
+		setCursorPitch( Note::lineToPitch( gridPoint.getRow() ) );
 	}
 
 	Editor::Base<Elem>::mouseClickEvent( ev );
@@ -1049,7 +1009,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev ) {
 	if ( m_update == Editor::Update::Background ||
 		 m_update == Editor::Update::Content ) {
 		drawPattern();
-		m_update = Editor::Update::None;
+		m_update = Editor::Update::Transient;
 	}
 
 	QPainter painter( this );
@@ -1173,150 +1133,8 @@ int PatternEditor::getCursorMargin( QInputEvent* pEvent ) const {
 	}
 }
 
-std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
-	const QPoint& point, int nCursorMargin,
-	std::shared_ptr<H2Core::Pattern> pPattern )
-{
-	std::vector< std::shared_ptr<Note> > notesUnderPoint;
-	if ( pPattern == nullptr ) {
-		pPattern = m_pPatternEditorPanel->getPattern();
-		if ( pPattern == nullptr ) {
-			return std::move( notesUnderPoint );
-		}
-	}
-
-	int nRow, nRealColumn;
-	eventPointToColumnRow( point, nullptr, &nRow, &nRealColumn );
-
-	int nRealColumnLower, nRealColumnUpper;
-	eventPointToColumnRow( point - QPoint( nCursorMargin, 0 ),
-						   nullptr, nullptr, &nRealColumnLower );
-	eventPointToColumnRow( point + QPoint( nCursorMargin, 0 ),
-						   nullptr, nullptr, &nRealColumnUpper );
-
-
-	// Assemble all notes to be edited.
-	DrumPatternRow row;
-	if ( m_instance == Editor::Instance::DrumPattern ) {
-		row = m_pPatternEditorPanel->getRowDB( nRow );
-	}
-	else {
-		row = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->getSelectedRowDB() );
-	}
-
-	// Prior to version 2.0 notes where selected by clicking its grid cell,
-	// while this caused only notes on the current grid to be accessible it also
-	// made them quite easy select. Just using the position of the mouse cursor
-	// would feel like a regression, as it would be way harded to hit the notes.
-	// Instead, we introduce a certain rectangle (manhattan distance) around the
-	// cursor which can select notes but only return those nearest to the
-	// center.
-	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
-
-	// We have to ensure to only provide notes from a single position. In case
-	// the cursor is placed exactly in the middle of two notes, the left one
-	// wins.
-	int nLastPosition = -1;
-
-	const auto notes = pPattern->getNotes();
-	for ( auto it = notes->lower_bound( nRealColumnLower );
-		  it != notes->end() && it->first <= nRealColumnUpper; ++it ) {
-		const auto ppNote = it->second;
-		if ( ppNote != nullptr && row.contains( ppNote ) &&
-			 ppNote->getPosition() < pPattern->getLength() ) {
-
-			const int nDistance =
-				std::abs( ppNote->getPosition() - nRealColumn );
-
-			if ( nDistance < nLastDistance ) {
-				// This note is nearer than (potential) previous ones.
-				notesUnderPoint.clear();
-				nLastDistance = nDistance;
-				nLastPosition = ppNote->getPosition();
-			}
-
-			if ( nDistance <= nLastDistance &&
-				 ppNote->getPosition() == nLastPosition ) {
-				// In case of the PianoRoll BaseEditor::editor we do have to additionally
-				// differentiate between different pitches.
-				if ( m_instance != Editor::Instance::PianoRoll ||
-					 ( m_instance == Editor::Instance::PianoRoll &&
-					   ppNote->getKey() ==
-					   Note::pitchToKey( Note::lineToPitch( nRow ) ) &&
-					   ppNote->getOctave() ==
-					   Note::pitchToOctave( Note::lineToPitch( nRow ) ) ) ) {
-					notesUnderPoint.push_back( ppNote );
-				}
-			}
-		}
-	}
-
-	// Within the ruler all selected and hovered notes along with notes of the
-	// selected row are rendered. These notes can be interacted with (property
-	// change, deselect etc.).
-	if ( m_instance == Editor::Instance::NotePropertiesRuler ) {
-		// Ensure we do not add the same note twice.
-		std::set< std::shared_ptr<Note> > furtherNotes;
-
-		// Check and add selected notes.
-		bool bFound = false;
-		for ( const auto& ppSelectedNote : m_selection ) {
-			bFound = false;
-			for ( const auto& ppPatternNote : notesUnderPoint ) {
-				if ( ppPatternNote == ppSelectedNote ) {
-					bFound = true;
-					break;
-				}
-			}
-			if ( ! bFound && ppSelectedNote != nullptr ) {
-				furtherNotes.insert( ppSelectedNote );
-			}
-		}
-
-		// Check and add hovered notes.
-		for ( const auto& [ ppPattern, nnotes ] :
-				  m_pPatternEditorPanel->getHoveredNotes() ) {
-			if ( ppPattern != pPattern ) {
-				continue;
-			}
-
-			for ( const auto& ppHoveredNote : nnotes ) {
-				bFound = false;
-				for ( const auto& ppPatternNote : notesUnderPoint ) {
-					if ( ppPatternNote == ppHoveredNote ) {
-						bFound = true;
-						break;
-					}
-				}
-				if ( ! bFound && ppHoveredNote != nullptr ) {
-					furtherNotes.insert( ppHoveredNote );
-				}
-			}
-		}
-
-		for ( const auto& ppNote : furtherNotes ) {
-			const int nDistance = std::abs( ppNote->getPosition() - nRealColumn );
-
-			if ( nDistance < nLastDistance ) {
-				// This note is nearer than (potential) previous ones.
-				notesUnderPoint.clear();
-				nLastDistance = nDistance;
-				nLastPosition = ppNote->getPosition();
-			}
-
-			if ( nDistance <= nLastDistance &&
-				 ppNote->getPosition() == nLastPosition ) {
-				notesUnderPoint.push_back( ppNote );
-			}
-		}
-	}
-
-	return std::move( notesUnderPoint );
-}
-
 QRect PatternEditor::getKeyboardCursorRect() {
-	QPoint pos = getCursorPosition();
+	const auto pos = gridPointToPoint( getCursorPosition() );
 
 	float fHalfWidth;
 	if ( m_pPatternEditorPanel->getResolution() != 4 * H2Core::nTicksPerQuarter ) {
@@ -1327,13 +1145,18 @@ QRect PatternEditor::getKeyboardCursorRect() {
 		// "off".
 		fHalfWidth = m_fGridWidth;
 	}
+
+	// gridPointToPoint() is tailored to retrieve the position of an element
+	// (note) from a grid point. As it is located in the center of a line,
+	// we have to account for that.
+	const int nHalfHeight = m_nGridHeight / 2;
 	if ( m_instance == Editor::Instance::DrumPattern ) {
-		return QRect( pos.x() - fHalfWidth, pos.y() + 2,
+		return QRect( pos.x() - fHalfWidth, pos.y() - nHalfHeight + 2,
 					  fHalfWidth * 2, m_nGridHeight - 3 );
 	}
 	else if ( m_instance == Editor::Instance::PianoRoll ){
-		return QRect( pos.x() - fHalfWidth, pos.y()-2,
-					  fHalfWidth * 2, m_nGridHeight+3 );
+		return QRect( pos.x() - fHalfWidth, pos.y() + 2,
+					  fHalfWidth * 2, m_nGridHeight - 3 );
 	}
 	else {
 		if ( hasFocus() ) {
@@ -1360,8 +1183,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 	// because she released the Alt modifier slightly earlier than the mouse
 	// button.
 
-	QPoint offset = movingGridOffset();
-	if ( offset.x() == 0 && offset.y() == 0 ) {
+	const auto offset = movingGridOffset();
+	if ( offset.getColumn() == 0 && offset.getRow() == 0 ) {
 		// Move with no effect.
 		return;
 	}
@@ -1382,19 +1205,25 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		selectedNotes.push_back( pNote );
 	}
 
+	// When moving a bulk of notes, it is important to delete them all first.
+	// Moving notes one by one could cause note loss in case the target grid
+	// point of an early point is the source grid point of a latter one.
+	std::vector<QUndoCommand*> deleteActions, addActions;
+
 	for ( auto pNote : selectedNotes ) {
 		if ( pNote == nullptr ) {
 			continue;
 		}
 		const int nPosition = pNote->getPosition();
-		const int nNewPosition = nPosition + offset.x();
+		const int nNewPosition = nPosition + offset.getColumn();
 
 		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
 		int nNewRow = nRow;
 		// For all other editors the moved/copied note is still associated to
 		// the same instrument.
-		if ( m_instance == Editor::Instance::DrumPattern && offset.y() != 0 ) {
-			nNewRow += offset.y();
+		if ( m_instance == Editor::Instance::DrumPattern &&
+			 offset.getRow() != 0 ) {
+			nNewRow += offset.getRow();
 		}
 		const auto row = m_pPatternEditorPanel->getRowDB( nRow );
 		const auto newRow = m_pPatternEditorPanel->getRowDB( nNewRow );
@@ -1402,8 +1231,8 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		int nNewKey = pNote->getKey();
 		int nNewOctave = pNote->getOctave();
 		int nNewPitch = pNote->getPitchFromKeyOctave();
-		if ( m_instance == Editor::Instance::PianoRoll && offset.y() != 0 ) {
-			nNewPitch -= offset.y();
+		if ( m_instance == Editor::Instance::PianoRoll && offset.getRow() != 0 ) {
+			nNewPitch -= offset.getRow();
 			nNewKey = Note::pitchToKey( nNewPitch );
 			nNewOctave = Note::pitchToOctave( nNewPitch );
 		}
@@ -1440,7 +1269,7 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		if ( ! m_bCopyNotMove ) {
 			// Note is moved either out of range or to a new position. Delete
 			// the note at the source position.
-			pHydrogenApp->pushUndoCommand(
+			deleteActions.push_back(
 				new SE_addOrRemoveNoteAction(
 					nPosition,
 					pNote->getInstrumentId(),
@@ -1453,28 +1282,28 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					nKey,
 					nOctave,
 					fProbability,
-					/* bIsDelete */ true,
+					Editor::Action::Delete,
 					bNoteOff,
 					bIsMappedToDrumkit,
-					Editor::Action::None ) );
+					Editor::ActionModifier::None ) );
 		}
 
-		auto action = Editor::Action::AddToSelection;
+		auto modifier = Editor::ActionModifier::AddToSelection;
 		// Check whether the note was hovered when the drag move action was
 		// started. If so, we will move the keyboard cursor to the resulting
 		// position.
 		for ( const auto ppHoveredNote : m_elementsHoveredOnDragStart ) {
 			if ( ppHoveredNote == pNote ) {
-				action = static_cast<Editor::Action>(
-					static_cast<char>(Editor::Action::AddToSelection) |
-					static_cast<char>(Editor::Action::MoveCursorTo) );
+				modifier = static_cast<Editor::ActionModifier>(
+					static_cast<char>(Editor::ActionModifier::AddToSelection) |
+					static_cast<char>(Editor::ActionModifier::MoveCursorTo) );
 				break;
 			}
 		}
 
 		if ( bNoteInRange ) {
 			// Create a new note at the target position
-			pHydrogenApp->pushUndoCommand(
+			addActions.push_back(
 				new SE_addOrRemoveNoteAction(
 					nNewPosition,
 					newRow.nInstrumentID,
@@ -1487,28 +1316,34 @@ void PatternEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 					nNewKey,
 					nNewOctave,
 					fProbability,
-					/* bIsDelete */ false,
+					Editor::Action::Add,
 					bNoteOff,
 					bIsMappedToDrumkit,
-					action ) );
+					modifier ) );
 		}
+	}
+
+	for ( const auto ppAction : deleteActions ) {
+		pHydrogenApp->pushUndoCommand( ppAction );
+	}
+	for ( const auto ppAction : addActions ) {
+		pHydrogenApp->pushUndoCommand( ppAction );
 	}
 
 	// Selecting the clicked row
 	auto pMouseEvent = dynamic_cast<QMouseEvent*>(ev);
 	if ( pMouseEvent != nullptr ) {
-		int nRow;
-		eventPointToColumnRow( pMouseEvent->pos(), nullptr, &nRow, nullptr );
+		const auto gridPoint = pointToGridPoint( pMouseEvent->pos(), true );
 
 		if ( m_instance == Editor::Instance::DrumPattern ) {
-			m_pPatternEditorPanel->setSelectedRowDB( nRow );
+			m_pPatternEditorPanel->setSelectedRowDB( gridPoint.getRow() );
 		}
 		else if ( m_instance == Editor::Instance::PianoRoll ) {
-			setCursorPitch( Note::lineToPitch( nRow ) );
+			setCursorPitch( Note::lineToPitch( gridPoint.getRow() ) );
 		}
 
 		auto hoveredNotes = getElementsAtPoint(
-			pMouseEvent->pos(), getCursorMargin( ev ) );
+			pMouseEvent->pos(), getCursorMargin( ev ), true );
 		if ( hoveredNotes.size() > 0 ) {
 			m_pPatternEditorPanel->setCursorColumn(
 				hoveredNotes[ 0 ]->getPosition(), true );
@@ -1548,55 +1383,37 @@ void PatternEditor::validateSelection() {
 }
 
 void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
-	// Determine what to do
-	bool bAdd, bDelete;
-	if ( static_cast<char>(action) &
-		 static_cast<char>(Editor::Action::ToggleElements) ) {
-		bAdd = true;
-		bDelete = true;
-	}
-	else if ( static_cast<char>(action) &
-			  static_cast<char>(Editor::Action::AddElements) ) {
-		bAdd = true;
-		bDelete = false;
-	}
-	else if ( static_cast<char>(action) &
-			  static_cast<char>(Editor::Action::DeleteElements) ) {
-		bAdd = false;
-		bDelete = true;
-	}
-	else {
-		ERRORLOG( QString( "Unknown action [%1]" )
-				  .arg( Editor::actionToQString( action ) ) );
-		return;
-	}
-
 	// Retrieve the coordinates
-	int nColumn, nRow;
+	GridPoint gridPoint;
 	if ( dynamic_cast<QMouseEvent*>(ev) != nullptr ) {
 		// Element added via mouse.
 		auto pEv = static_cast<MouseEvent*>( ev );
 
-		int nCoarseColumn, nRealColumn;
-		eventPointToColumnRow( pEv->position().toPoint(), &nCoarseColumn, &nRow,
-							   &nRealColumn, /* fineGrained */true );
-		nColumn = m_pPatternEditorPanel->isQuantized() ?
-			nCoarseColumn : nRealColumn;
+		// If there are already notes at the provided point, delete them.
+		auto notesAtPoint = getElementsAtPoint(
+			pEv->position().toPoint(), getCursorMargin( ev ), true );
+		if ( notesAtPoint.size() > 0 ) {
+			deleteElements( notesAtPoint );
+			return;
+		}
+
+		// Nothing found at point. Add a new note.
+		gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
+		if ( m_instance != Editor::Instance::DrumPattern ) {
+			gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
+		}
 	}
 	else if ( dynamic_cast<QKeyEvent*>(ev) != nullptr ) {
-		nColumn = m_pPatternEditorPanel->getCursorColumn();
+		gridPoint.setColumn( m_pPatternEditorPanel->getCursorColumn() );
+		gridPoint.setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 	}
 	else {
 		ERRORLOG( "Unknown event" );
 		return;
 	}
 
-	int nKey = KEY_MIN;
-	int nOctave = OCTAVE_DEFAULT;
-	if ( m_instance != Editor::Instance::DrumPattern ) {
-		nRow = m_pPatternEditorPanel->getSelectedRowDB();
-	}
-
+	int nKey = KEY_INVALID;
+	int nOctave = OCTAVE_INVALID;
 	if ( m_instance == Editor::Instance::PianoRoll ) {
 		// Use the row of the DrumPatternEditor/DB for further note
 		// interactions.
@@ -1606,10 +1423,18 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action ) {
 
 	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
 
+	float fYValue = std::nan( "" );
+	auto property = m_property;
+	if ( m_instance == Editor::Instance::NotePropertiesRuler &&
+		 dynamic_cast<QMouseEvent*>(ev) != nullptr ) {
+		fYValue = static_cast<NotePropertiesRuler*>(this)->eventToYValue(
+			dynamic_cast<QMouseEvent*>(ev) );
+	}
+
 	// Perform the action.
 	m_pPatternEditorPanel->addOrRemoveNotes(
-		nColumn, nRow, nKey, nOctave, bAdd, bDelete, bNoteOff,
-		Editor::Action::Playback );
+		gridPoint, nKey, nOctave, bNoteOff, fYValue, property, action,
+		Editor::ActionModifier::Playback );
 }
 
 void PatternEditor::deleteElements(
@@ -1637,12 +1462,194 @@ void PatternEditor::deleteElements(
 				ppNote->getKey(),
 				ppNote->getOctave(),
 				ppNote->getProbability(),
-				/* bIsDelete */ true,
+				Editor::Action::Delete,
 				/* bIsNoteOff */ ppNote->getNoteOff(),
 				ppNote->getInstrument() != nullptr,
-				Editor::Action::None ) );
+				Editor::ActionModifier::None ) );
 	}
 	pHydrogenApp->endUndoMacro();
+}
+
+std::vector< std::shared_ptr<Note> > PatternEditor::getElementsAtPoint(
+	const QPoint& point, int nCursorMargin, bool bIncludeHovered,
+	std::shared_ptr<H2Core::Pattern> pPattern )
+{
+	std::vector< std::shared_ptr<Note> > notesUnderPoint;
+	if ( pPattern == nullptr ) {
+		pPattern = m_pPatternEditorPanel->getPattern();
+		if ( pPattern == nullptr ) {
+			return std::move( notesUnderPoint );
+		}
+	}
+
+	const auto gridPoint = pointToGridPoint( point, false );
+	const auto gridPointLower = pointToGridPoint(
+		point - QPoint( nCursorMargin, 0 ), false );
+	const auto gridPointUpper = pointToGridPoint(
+		point + QPoint( nCursorMargin, 0 ), false );
+
+	// Assemble all notes to be edited.
+	DrumPatternRow row;
+	if ( m_instance == Editor::Instance::DrumPattern ) {
+		row = m_pPatternEditorPanel->getRowDB( gridPoint.getRow() );
+	}
+	else {
+		row = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->getSelectedRowDB() );
+	}
+
+	// Prior to version 2.0 notes where selected by clicking its grid cell,
+	// while this caused only notes on the current grid to be accessible it also
+	// made them quite easy select. Just using the position of the mouse cursor
+	// would feel like a regression, as it would be way harded to hit the notes.
+	// Instead, we introduce a certain rectangle (manhattan distance) around the
+	// cursor which can select notes but only return those nearest to the
+	// center.
+	int nLastDistance = gridPointUpper.getColumn() - gridPoint.getColumn() + 1;
+
+	// We have to ensure to only provide notes from a single position. In case
+	// the cursor is placed exactly in the middle of two notes, the left one
+	// wins.
+	int nLastPosition = -1;
+
+	const auto notes = pPattern->getNotes();
+	for ( auto it = notes->lower_bound( gridPointLower.getColumn() );
+		  it != notes->end() && it->first <= gridPointUpper.getColumn(); ++it ) {
+		const auto ppNote = it->second;
+		if ( ppNote != nullptr && row.contains( ppNote ) &&
+			 ppNote->getPosition() < pPattern->getLength() ) {
+
+			const int nDistance =
+				std::abs( ppNote->getPosition() - gridPoint.getColumn() );
+
+			if ( nDistance < nLastDistance ) {
+				// This note is nearer than (potential) previous ones.
+				notesUnderPoint.clear();
+				nLastDistance = nDistance;
+				nLastPosition = ppNote->getPosition();
+			}
+
+			if ( nDistance <= nLastDistance &&
+				 ppNote->getPosition() == nLastPosition ) {
+				// In case of the PianoRoll BaseEditor::editor we do have to additionally
+				// differentiate between different pitches.
+				if ( m_instance != Editor::Instance::PianoRoll ||
+					 ( m_instance == Editor::Instance::PianoRoll &&
+					   ppNote->getKey() ==
+					   Note::pitchToKey( Note::lineToPitch( gridPoint.getRow() ) ) &&
+					   ppNote->getOctave() ==
+					   Note::pitchToOctave( Note::lineToPitch( gridPoint.getRow() ) ) ) ) {
+					notesUnderPoint.push_back( ppNote );
+				}
+			}
+		}
+	}
+
+	// Within the ruler all selected and hovered notes along with notes of the
+	// selected row are rendered. These notes can be interacted with (property
+	// change, deselect etc.).
+	if ( m_instance == Editor::Instance::NotePropertiesRuler ) {
+		// Ensure we do not add the same note twice.
+		std::set< std::shared_ptr<Note> > furtherNotes;
+
+		// Check and add selected notes.
+		bool bFound = false;
+		for ( const auto& ppSelectedNote : m_selection ) {
+			bFound = false;
+			for ( const auto& ppPatternNote : notesUnderPoint ) {
+				if ( ppPatternNote == ppSelectedNote ) {
+					bFound = true;
+					break;
+				}
+			}
+			if ( ! bFound && ppSelectedNote != nullptr ) {
+				furtherNotes.insert( ppSelectedNote );
+			}
+		}
+
+		// Check and add hovered notes.
+		if ( bIncludeHovered ) {
+			for ( const auto& [ ppPattern, nnotes ] :
+					  m_pPatternEditorPanel->getHoveredNotes() ) {
+				if ( ppPattern != pPattern ) {
+					continue;
+				}
+
+				for ( const auto& ppHoveredNote : nnotes ) {
+					bFound = false;
+					for ( const auto& ppPatternNote : notesUnderPoint ) {
+						if ( ppPatternNote == ppHoveredNote ) {
+							bFound = true;
+							break;
+						}
+					}
+					if ( ! bFound && ppHoveredNote != nullptr ) {
+						furtherNotes.insert( ppHoveredNote );
+					}
+				}
+			}
+		}
+
+		for ( const auto& ppNote : furtherNotes ) {
+			const int nDistance =
+				std::abs( ppNote->getPosition() - gridPoint.getColumn() );
+
+			if ( nDistance < nLastDistance ) {
+				// This note is nearer than (potential) previous ones.
+				notesUnderPoint.clear();
+				nLastDistance = nDistance;
+				nLastPosition = ppNote->getPosition();
+			}
+
+			if ( nDistance <= nLastDistance &&
+				 ppNote->getPosition() == nLastPosition ) {
+				notesUnderPoint.push_back( ppNote );
+			}
+		}
+	}
+
+	return std::move( notesUnderPoint );
+}
+
+QPoint PatternEditor::elementToPoint( std::shared_ptr<Note> pNote ) const {
+	if ( pNote == nullptr ) {
+		return QPoint();
+	}
+
+	GridPoint gridPoint( pNote->getPosition(),
+						 m_pPatternEditorPanel->findRowDB( pNote ) );
+
+	return gridPointToPoint( gridPoint );
+}
+
+QPoint PatternEditor::gridPointToPoint( const GridPoint& gridPoint ) const {
+	return QPoint(
+		PatternEditor::nMargin + gridPoint.getColumn() * m_fGridWidth,
+		gridPoint.getRow() * m_nGridHeight + m_nGridHeight / 2 );
+}
+
+GridPoint PatternEditor::pointToGridPoint( const QPoint& point,
+										   bool bHonorQuantization ) const {
+	const int nRow = static_cast<int>(
+		std::floor( static_cast<float>(point.y()) /
+					static_cast<float>(m_nGridHeight) ) );
+
+	int nColumn = 0;
+	if ( point.x() > PatternEditor::nMargin ) {
+		int nGranularity = 1;
+		if ( bHonorQuantization && m_pPatternEditorPanel->isQuantized() ) {
+			nGranularity = granularity();
+		}
+		const int nWidth = m_fGridWidth * nGranularity;
+		// We add half the distance between two grid points (nWidth/2) in order
+		// for point.x() to be "rounded" to the nearest grid point.
+		nColumn = std::round(
+			( point.x() - PatternEditor::nMargin + (nWidth / 2) ) /
+			nWidth ) * nGranularity ;
+		nColumn = std::max( 0, nColumn );
+	}
+
+	return GridPoint( nColumn, nRow );
 }
 
 void PatternEditor::copy() {
@@ -1858,10 +1865,10 @@ void PatternEditor::paste() {
 					nKey,
 					nOctave,
 					pNote->getProbability(),
-					/* bIsDelete */ false,
+					Editor::Action::Add,
 					/* bIsNoteOff */ pNote->getNoteOff(),
 					targetRow.bMappedToDrumkit,
-					Editor::Action::AddToSelection ) );
+					Editor::ActionModifier::AddToSelection ) );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -1871,7 +1878,7 @@ void PatternEditor::paste() {
 		// We have to force its update in order to avoid inconsistencies.
 		const int nOldSize = m_pPatternEditorPanel->getRowNumberDB();
 		m_pPatternEditorPanel->updateDB();
-		m_pPatternEditorPanel->updateEditors( true );
+		m_pPatternEditorPanel->updateEditors( Editor::Update::Content );
 		m_pPatternEditorPanel->resizeEvent( nullptr );
 
 		// Select the append line
@@ -1883,18 +1890,9 @@ void PatternEditor::ensureCursorIsVisible() {
 	m_pPatternEditorPanel->ensureCursorIsVisible();
 }
 
-QPoint PatternEditor::getCursorPosition() {
-	const int nX = PatternEditor::nMargin +
-		m_pPatternEditorPanel->getCursorColumn() * m_fGridWidth;
-	int nY;
-	if ( m_instance == Editor::Instance::PianoRoll ) {
-		nY = m_nGridHeight * Note::pitchToLine( m_nCursorPitch ) + 1;
-	}
-	else {
-		nY = m_nGridHeight * m_pPatternEditorPanel->getSelectedRowDB();
-	}
-
-	return QPoint( nX, nY );
+GridPoint PatternEditor::getCursorPosition() const {
+	return GridPoint( m_pPatternEditorPanel->getCursorColumn(),
+					  m_pPatternEditorPanel->getSelectedRowDB() );
 }
 
 void PatternEditor::moveCursorLeft( QKeyEvent* ev, Editor::Step step ) {
@@ -1916,26 +1914,9 @@ void PatternEditor::setCursorTo( std::shared_ptr<H2Core::Note> pNote ) {
 void PatternEditor::setCursorTo( QMouseEvent* ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	int nRow, nColumn, nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, &nRow,
-						   &nRealColumn, /* fineGrained */true );
+	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 
-	// For pasting we can not rely on the position of preexising notes.
-	if ( m_pPatternEditorPanel->isQuantized() ) {
-		m_pPatternEditorPanel->setCursorColumn( nColumn );
-	} else {
-		m_pPatternEditorPanel->setCursorColumn( nRealColumn );
-	}
-}
-
-void PatternEditor::setupPopupMenu() {
-	if ( m_instance == Editor::Instance::DrumPattern ||
-		 m_instance == Editor::Instance::PianoRoll ) {
-		// Enable or disable menu actions that only operate on selected notes.
-		for ( auto & action : m_selectionActions ) {
-			action->setEnabled( m_elementsHoveredForPopup.size() > 0 );
-		}
-	}
+	m_pPatternEditorPanel->setCursorColumn( gridPoint.getColumn() );
 }
 
 bool PatternEditor::updateKeyboardHoveredElements() {
@@ -1944,9 +1925,6 @@ bool PatternEditor::updateKeyboardHoveredElements() {
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		// cursor visible
 
-		// In case we are within the property ruler and a note from a different
-		// row is hovered by mouse in the drum pattern BaseEditor::editor, we must ensure we
-		// are not adding this one to the keyboard hovered notes too.
 		PatternEditor* pEditor = this;
 		if ( m_instance == Editor::Instance::NotePropertiesRuler ) {
 			auto pVisibleEditor = m_pPatternEditorPanel->getVisibleEditor();
@@ -1955,11 +1933,12 @@ bool PatternEditor::updateKeyboardHoveredElements() {
 			}
 		}
 
-		const auto point = pEditor->getCursorPosition();
+		const auto point = pEditor->gridPointToPoint(
+			pEditor->getCursorPosition() );
 
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes =
-				pEditor->getElementsAtPoint( point, 0, ppPattern );
+				pEditor->getElementsAtPoint( point, 0, false, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
 				hovered.push_back( std::make_pair( ppPattern, hoveredNotes ) );
 			}
@@ -1992,18 +1971,14 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 	const auto pEv = static_cast<MouseEvent*>( ev );
 	const int nCursorMargin = getCursorMargin( ev );
 
-	int nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), nullptr, nullptr,
-						   &nRealColumn );
-	int nRealColumnUpper;
-	eventPointToColumnRow(
-		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), nullptr,
-		nullptr, &nRealColumnUpper );
+	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), false );
+	const auto gridPointUpper = pointToGridPoint(
+		pEv->position().toPoint() + QPoint( nCursorMargin, 0 ), false );
 
 	// getElementsAtPoint is generous in finding notes by taking a margin around
 	// the cursor into account as well. We have to ensure we only use to closest
 	// notes reported.
-	int nLastDistance = nRealColumnUpper - nRealColumn + 1;
+	int nLastDistance = gridPointUpper.getColumn() - gridPoint.getColumn() + 1;
 
 	// In addition, we have to ensure to only provide notes from a single
 	// position. In case the cursor is placed exactly in the middle of two
@@ -2019,10 +1994,10 @@ bool PatternEditor::updateMouseHoveredElements( QMouseEvent* ev ) {
 		 pEv->position().x() > PatternEditor::nMarginSidebar ) {
 		for ( const auto& ppPattern : m_pPatternEditorPanel->getPatternsToShow() ) {
 			const auto hoveredNotes = getElementsAtPoint(
-				pEv->position().toPoint(), nCursorMargin, ppPattern );
+				pEv->position().toPoint(), nCursorMargin, false, ppPattern );
 			if ( hoveredNotes.size() > 0 ) {
-				const int nDistance =
-					std::abs( hoveredNotes[ 0 ]->getPosition() - nRealColumn );
+				const int nDistance = std::abs(
+					hoveredNotes[ 0 ]->getPosition() - gridPoint.getColumn() );
 				if ( nDistance < nLastDistance ) {
 					// This batch of notes is nearer than (potential) previous ones.
 					hovered.clear();
@@ -2064,33 +2039,40 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	const auto end = pEv->position();
+	// When creating a lasso to select elements or adjusting a property of
+	// elements using the delta of a cursor movement, it make sense to move out
+	// of the editor. But in drawing mode we just want to create/delete elements
+	// witin the editor.
+	const QPointF end(
+		std::clamp( static_cast<int>(pEv->position().x()), 0, width() ),
+		std::clamp( static_cast<int>(pEv->position().y()), 0, height() ) );
 	const int nCursorMargin = getCursorMargin( ev );
 
-	auto pointToRowColumn = [&]( QPoint point, int* nRow, int* nColumn,
-								 int* nKey, int* nOctave ) {
-		const auto notes = getElementsAtPoint( point, nCursorMargin, pPattern );
+	auto pointToRowColumn = [&]( QPoint point, GridPoint* pGridPoint, int* nKey,
+								 int* nOctave ) {
+		const auto notes = getElementsAtPoint(
+			point, nCursorMargin, true, pPattern );
 		if ( notes.size() > 0 && notes[ 0 ] != nullptr ) {
-			*nColumn = notes[ 0 ]->getPosition();
+			pGridPoint->setColumn( notes[ 0 ]->getPosition() );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
-				*nRow = m_pPatternEditorPanel->findRowDB( notes[ 0 ] );
+				pGridPoint->setRow( m_pPatternEditorPanel->findRowDB( notes[ 0 ] ) );
 				*nKey = KEY_MIN;
 				*nOctave = OCTAVE_DEFAULT;
 			} else {
-				*nRow = m_pPatternEditorPanel->getSelectedRowDB();
+				pGridPoint->setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 				*nKey = notes[ 0 ]->getKey();
 				*nOctave = notes[ 0 ]->getOctave();
 			}
 		}
 		else {
 			// Determine the point on the grid to toggle the note
-			eventPointToColumnRow( point, nColumn, nRow, nullptr, false );
+			*pGridPoint = pointToGridPoint( point, true );
 			if ( m_instance == Editor::Instance::DrumPattern ) {
 				*nKey = KEY_MIN;
 				*nOctave = OCTAVE_DEFAULT;
 			} else {
-				const auto nPitch = Note::lineToPitch( *nRow );
-				*nRow = m_pPatternEditorPanel->getSelectedRowDB();
+				const auto nPitch = Note::lineToPitch( pGridPoint->getRow() );
+				pGridPoint->setRow( m_pPatternEditorPanel->getSelectedRowDB() );
 				*nKey = Note::pitchToKey( nPitch );
 				*nOctave = Note::pitchToOctave( nPitch );
 			}
@@ -2099,10 +2081,10 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 
 	// Check whether we are still at the same grid point as in the last update.
 	// We do not want to toggle the same note twice.
-	int nEndColumn, nEndRow, nEndKey, nEndOctave;
-	pointToRowColumn( end.toPoint(), &nEndRow, &nEndColumn, &nEndKey,
-					  &nEndOctave );
-	if ( nEndColumn == m_nDrawPreviousColumn && nEndRow == m_nDrawPreviousRow &&
+	int nEndKey, nEndOctave;
+	GridPoint endGridPoint;
+	pointToRowColumn( end.toPoint(), &endGridPoint, &nEndKey, &nEndOctave );
+	if ( endGridPoint == m_drawPreviousGridPoint &&
 		 nEndKey == m_nDrawPreviousKey && nEndOctave == m_nDrawPreviousOctave ) {
 		m_drawPreviousPosition = end;
 		return;
@@ -2134,9 +2116,9 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 	const QPointF increment( start.x() <= end.x() ? 1 : -1,
 							 start.y() <= end.y() ? fM : ( -1 * fM ) );
 
-	int nColumn, nRow, nKey, nOctave;
-	int nLastColumn = m_nDrawPreviousColumn;
-	int nLastRow = m_nDrawPreviousRow;
+	GridPoint gridPoint;
+	int nKey, nOctave;
+	GridPoint lastGridPoint( m_drawPreviousGridPoint );
 	int nLastKey = m_nDrawPreviousKey;
 	int nLastOctave = m_nDrawPreviousOctave;
 	// Since we can only toggle notes on the grid, we use the projection of the
@@ -2145,24 +2127,24 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 	for ( auto ppoint = start; ( ppoint - start ).manhattanLength() <=
 			  ( end - start ).manhattanLength(); ppoint += increment ) {
 		// We prioritize existing notes
-		pointToRowColumn( ppoint.toPoint(), &nRow, &nColumn, &nKey, &nOctave );
+		pointToRowColumn( ppoint.toPoint(), &gridPoint, &nKey, &nOctave );
 
-		if ( nRow != nLastRow || nColumn != nLastColumn || nKey != nLastKey ||
+		if ( gridPoint != lastGridPoint || nKey != nLastKey ||
 			 nOctave != nLastOctave ) {
 			m_pPatternEditorPanel->addOrRemoveNotes(
-				nColumn, nRow, nKey, nOctave, /* bAdd */true, /* bDelete */ true,
+				gridPoint, nKey, nOctave,
 				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
-				Editor::Action::Playback, sUndoContext );
-			nLastRow = nRow;
-			nLastColumn = nColumn;
+				std::nan( "" ), Property::None,
+				Editor::Action::Toggle,
+				Editor::ActionModifier::Playback, sUndoContext );
+			lastGridPoint = gridPoint;
 			nLastKey = nKey;
 			nLastOctave = nOctave;
 		}
 	}
 
 	m_drawPreviousPosition = end;
-	m_nDrawPreviousColumn = nLastColumn;
-	m_nDrawPreviousRow = nLastRow;
+	m_drawPreviousGridPoint = lastGridPoint;
 	m_nDrawPreviousKey = nLastKey;
 	m_nDrawPreviousOctave = nLastOctave;
 }
@@ -2175,9 +2157,21 @@ void PatternEditor::mouseDrawEnd() {
 
 	HydrogenApp::get_instance()->endUndoContext();
 
+	// Drawing can result in duplicated notes - e.g. creating many notes in a
+	// column of the PianoRollEditor and drawing in the KeyOctave section of the
+	// NotePropertiesRuler. We have to check all notes.
+	std::vector< std::shared_ptr<Note> > notes;
+	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		if ( ppNote != nullptr ) {
+			notes.push_back( ppNote );
+		}
+	}
+	if ( notes.size() > 0 ) {
+		checkDeselectElements( notes );
+	}
+
 	m_drawPreviousPosition = QPointF( 0, 0 );
-	m_nDrawPreviousColumn = -1;
-	m_nDrawPreviousRow = -1;
+	m_drawPreviousGridPoint = GridPoint( -1, -1 );
 }
 
 void PatternEditor::mouseEditStart( QMouseEvent *ev ) {
@@ -2192,7 +2186,7 @@ void PatternEditor::mouseEditStart( QMouseEvent *ev ) {
 
 	// Adjusting note properties.
 	const auto notesAtPoint = getElementsAtPoint(
-		pEv->position().toPoint(), getCursorMargin( ev ) );
+		pEv->position().toPoint(), getCursorMargin( ev ), true );
 	if ( notesAtPoint.size() == 0 ) {
 		return;
 	}
@@ -2244,9 +2238,8 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	int nColumn, nRealColumn;
-	eventPointToColumnRow( pEv->position().toPoint(), &nColumn, nullptr,
-						   &nRealColumn );
+
+	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 
 	// In case this is the first drag update, decided whether we deal with a
 	// length or property drag.
@@ -2268,10 +2261,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	const int nTargetColumn =
-		m_pPatternEditorPanel->isQuantized() ? nColumn : nRealColumn;
-
-	int nLen = nTargetColumn - m_nDragStartColumn;
+	int nLen = gridPoint.getColumn() - m_nDragStartColumn;
 
 	if ( nLen <= 0 ) {
 		nLen = -1;
@@ -2335,7 +2325,7 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 	pHydrogen->setIsModified( true );
 
-	updateVisibleComponents( true );
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 void PatternEditor::mouseEditEnd() {
@@ -2502,15 +2492,15 @@ void PatternEditor::mouseEditEnd() {
 	m_dragType = DragType::None;
 }
 
-void PatternEditor::updateAllComponents( bool bContentOnly ) {
+void PatternEditor::updateAllComponents( Editor::Update update ) {
 	m_pPatternEditorPanel->getSidebar()->updateEditor();
 	m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	updateVisibleComponents( bContentOnly );
+	updateVisibleComponents( update );
 }
 
-void PatternEditor::updateVisibleComponents( bool bContentOnly ) {
-	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( bContentOnly );
-	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( bContentOnly );
+void PatternEditor::updateVisibleComponents( Editor::Update update ) {
+	m_pPatternEditorPanel->getVisibleEditor()->updateEditor( update );
+	m_pPatternEditorPanel->getVisiblePropertiesRuler()->updateEditor( update );
 }
 
 void PatternEditor::updateModifiers( QInputEvent *ev ) {
@@ -2597,8 +2587,11 @@ void PatternEditor::alignToGrid() {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	// Move the notes
-	pHydrogenApp->beginUndoMacro( tr( "Align notes to grid" ) );
+	std::vector<QUndoCommand*> deleteCommands, addCommands;
+	// When aligning notes to a more coarse-grained grid, it is likely to have
+	// identical notes coinciding. In order to not show false positive error
+	// messages, we ensure there will be no duplicates.
+	std::vector< std::pair< std::shared_ptr<Note>, int > > alignedNotes;
 
 	for ( const auto& ppNote : notes ) {
 		if ( ppNote == nullptr ) {
@@ -2633,52 +2626,76 @@ void PatternEditor::alignToGrid() {
 		const bool bIsMappedToDrumkit = ppNote->getInstrument() != nullptr;
 
 		// Move note -> delete at source position
-		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
-						 nPosition,
-						 nInstrumentId,
-						 sType,
-						 m_pPatternEditorPanel->getPatternNumber(),
-						 nLength,
-						 fVelocity,
-						 fPan,
-						 fLeadLag,
-						 nKey,
-						 nOctave,
-						 fProbability,
-						 /* bIsDelete */ true,
-						 bNoteOff,
-						 bIsMappedToDrumkit,
-						 Editor::Action::None ) );
+		deleteCommands.push_back( new SE_addOrRemoveNoteAction(
+									  nPosition,
+									  nInstrumentId,
+									  sType,
+									  m_pPatternEditorPanel->getPatternNumber(),
+									  nLength,
+									  fVelocity,
+									  fPan,
+									  fLeadLag,
+									  nKey,
+									  nOctave,
+									  fProbability,
+									  Editor::Action::Delete,
+									  bNoteOff,
+									  bIsMappedToDrumkit,
+									  Editor::ActionModifier::None ) );
 
-		auto action = Editor::Action::None;
+		bool bGridPointAlreadyAdded = false;
+		for ( const auto& [ ppAlignedNote, nnNewPosition ] : alignedNotes ) {
+			if ( ppNote->getInstrumentId() == ppAlignedNote->getInstrumentId() &&
+				 ppNote->getType() == ppAlignedNote->getType() &&
+				 ppNote->getKey() == ppAlignedNote->getKey() &&
+				 ppNote->getOctave() == ppAlignedNote->getOctave() &&
+				 nNewPosition == nnNewPosition ) {
+				bGridPointAlreadyAdded = true;
+				break;
+			}
+		}
+		if ( bGridPointAlreadyAdded ) {
+			continue;
+		}
+		alignedNotes.push_back( std::make_pair( ppNote, nNewPosition ) );
+
+		auto modifier = Editor::ActionModifier::None;
 		if ( m_elementsHoveredForPopup.size() > 0 ) {
 			for ( const auto& ppHoveredNote : m_elementsHoveredForPopup ) {
 				if ( ppNote == ppHoveredNote ) {
-					action = Editor::Action::MoveCursorTo;
+					modifier = Editor::ActionModifier::MoveCursorTo;
 					break;
 				}
 			}
 		}
 
 		// Add at target position
-		pHydrogenApp->pushUndoCommand( new SE_addOrRemoveNoteAction(
-						 nNewPosition,
-						 nInstrumentId,
-						 sType,
-						 m_pPatternEditorPanel->getPatternNumber(),
-						 nLength,
-						 fVelocity,
-						 fPan,
-						 fLeadLag,
-						 nKey,
-						 nOctave,
-						 fProbability,
-						 /* bIsDelete */ false,
-						 bNoteOff,
-						 bIsMappedToDrumkit,
-						 action ) );
+		addCommands.push_back( new SE_addOrRemoveNoteAction(
+								   nNewPosition,
+								   nInstrumentId,
+								   sType,
+								   m_pPatternEditorPanel->getPatternNumber(),
+								   nLength,
+								   fVelocity,
+								   fPan,
+								   fLeadLag,
+								   nKey,
+								   nOctave,
+								   fProbability,
+								   Editor::Action::Add,
+								   bNoteOff,
+								   bIsMappedToDrumkit,
+								   modifier ) );
 	}
 
+	// Move the notes
+	pHydrogenApp->beginUndoMacro( tr( "Align notes to grid" ) );
+	for ( const auto ppCommand : deleteCommands ) {
+		pHydrogenApp->pushUndoCommand( ppCommand );
+	}
+	for ( const auto ppCommand : addCommands ) {
+		pHydrogenApp->pushUndoCommand( ppCommand );
+	}
 	pHydrogenApp->endUndoMacro();
 
 	popupTeardown();
@@ -2777,7 +2794,7 @@ void PatternEditor::selectAllNotesInRow( int nRow, int nPitch ) {
 			}
 		}
 	}
-	m_selection.updateWidgetGroup();
+	updateVisibleComponents( Editor::Update::Content );
 }
 
 void PatternEditor::scrolled( int nValue ) {
@@ -3284,13 +3301,8 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 	}
 
 	// Determine the center of the note symbol.
-	int nY;
-	if ( m_instance == Editor::Instance::DrumPattern ) {
-		const int nRow = m_pPatternEditorPanel->findRowDB( pNote );
-		nY = ( nRow * m_nGridHeight) + (m_nGridHeight / 2) - 3;
-
-	}
-	else {
+	auto point = elementToPoint( pNote );
+	if ( m_instance == Editor::Instance::PianoRoll ) {
 		const auto selectedRow = m_pPatternEditorPanel->getRowDB(
 			m_pPatternEditorPanel->getSelectedRowDB() );
 		if ( ! selectedRow.contains( pNote ) ) {
@@ -3299,11 +3311,11 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 			return;
 		}
 
-		nY = m_nGridHeight *
-			Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
-			(m_nGridHeight / 2) - 3;
+		point.setY( m_nGridHeight *
+				 Note::pitchToLine( pNote->getPitchFromKeyOctave() ) +
+				 (m_nGridHeight / 2) );
 	}
-	const int nX = PatternEditor::nMargin + pNote->getPosition() * m_fGridWidth;
+	point.setY( point.y() - 3 );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -3330,9 +3342,9 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 
 	QPoint movingOffset;
 	if ( noteStyle & NoteStyle::Moved ) {
-		QPoint delta = movingGridOffset();
-		movingOffset = QPoint( delta.x() * m_fGridWidth,
-							   delta.y() * m_nGridHeight );
+		const auto delta = movingGridOffset();
+		movingOffset = QPoint( delta.getColumn() * m_fGridWidth,
+							   delta.getRow() * m_nGridHeight );
 	}
 
 	if ( pNote->getNoteOff() == false ) {
@@ -3344,7 +3356,7 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 						   NoteStyle::NoPlayback ) ) {
 			p.setPen( highlightPen );
 			p.setBrush( highlightBrush );
-			p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+			p.drawEllipse( point.x() - 4 - 3, point.y() - 3, w + 6, h + 6 );
 			p.setBrush( Qt::NoBrush );
 		}
 
@@ -3376,23 +3388,27 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 					p.setPen( highlightPen );
 					p.setBrush( highlightBrush );
 					// Tail highlight
-					p.drawRect( nX - 3, nY - 1, width + 6, 3 + 6 );
-					p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
-					p.fillRect( nX - 4, nY, width, 3 + 4, highlightBrush );
+					p.drawRect( point.x() - 3, point.y() - 1,
+								width + 6, 3 + 6 );
+					p.drawEllipse( point.x() - 4 - 3, point.y() - 3,
+								   w + 6, h + 6 );
+					p.fillRect( point.x() - 4, point.y(),
+								width, 3 + 4, highlightBrush );
 				}
 
 				p.setPen( noteTailPen );
 				p.setBrush( noteTailBrush );
 
-				int nRectOnsetX = nX;
+				int nRectOnsetX = point.x();
 				int nRectWidth = width;
 				if ( noteStyle & NoteStyle::Background ) {
 					nRectOnsetX = nRectOnsetX + w / 2;
 					nRectWidth = nRectWidth - w / 2;
 				}
 
-				p.drawRect( nRectOnsetX, nY + 2, nRectWidth, 3 );
-				p.drawLine( nX + width, nY, nX + width, nY + h );
+				p.drawRect( nRectOnsetX, point.y() + 2, nRectWidth, 3 );
+				p.drawLine( point.x() + width, point.y(),
+							point.x() + width, point.y() + h );
 			}
 		}
 
@@ -3400,15 +3416,15 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 		if ( ! ( noteStyle & NoteStyle::Moved ) ) {
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
-			p.drawEllipse( nX -4 , nY, w, h );
+			p.drawEllipse( point.x() -4 , point.y(), w, h );
 		}
 		else {
 			p.setPen( movingPen );
 			p.setBrush( movingBrush );
 
 			if ( nNoteLength == LENGTH_ENTIRE_SAMPLE ) {
-				p.drawEllipse( movingOffset.x() + nX -4 -2,
-							   movingOffset.y() + nY -2 , w + 4, h + 4 );
+				p.drawEllipse( movingOffset.x() + point.x() - 4 - 2,
+							   movingOffset.y() + point.y() - 2 , w + 4, h + 4 );
 			}
 			else {
 				// Moving note with tail
@@ -3422,8 +3438,8 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 									qAsin( static_cast<qreal>(nHeightTail) /
 										   static_cast<qreal>(nDiameterNote) ) ) ) );
 
-				const int nMoveX = movingOffset.x() + nX;
-				const int nMoveY = movingOffset.y() + nY;
+				const int nMoveX = movingOffset.x() + point.x();
+				const int nMoveY = movingOffset.y() + point.y();
 
 				p.drawArc( nMoveX - 4 - 2, nMoveY - 2, nDiameterNote, nDiameterNote,
 						   nAngleIntersection * 16,
@@ -3447,18 +3463,19 @@ void PatternEditor::drawNote( QPainter &p, std::shared_ptr<H2Core::Note> pNote,
 							   NoteStyle::NoPlayback ) ) {
 				p.setPen( highlightPen );
 				p.setBrush( highlightBrush );
-				p.drawEllipse( nX - 4 - 3, nY - 3, w + 6, h + 6 );
+				p.drawEllipse( point.x() - 4 - 3, point.y() - 3, w + 6, h + 6 );
 				p.setBrush( Qt::NoBrush );
 			}
 
 			p.setPen( notePen );
 			p.setBrush( noteBrush );
-			p.drawEllipse( nX -4 , nY, w, h );
+			p.drawEllipse( point.x() - 4 , point.y(), w, h );
 		}
 		else {
 			p.setPen( movingPen );
 			p.setBrush( movingBrush );
-			p.drawEllipse( movingOffset.x() + nX -4 -2, movingOffset.y() + nY -2,
+			p.drawEllipse( movingOffset.x() + point.x() - 4 - 2,
+						   movingOffset.y() + point.y() - 2,
 						   w + 4, h + 4 );
 		}
 	}
@@ -3748,40 +3765,6 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 	const auto row = m_pPatternEditorPanel->getRowDB(
 		m_pPatternEditorPanel->findRowDB( pNote ) );
 	return row.bPlaysBackAudio;
-}
-
-void PatternEditor::eventPointToColumnRow( const QPoint& point, int* pColumn,
-										   int* pRow, int* pRealColumn,
-										   bool bUseFineGrained ) const {
-	if ( pRow != nullptr ) {
-		*pRow = static_cast<int>(
-			std::floor( static_cast<float>(point.y()) /
-						static_cast<float>(m_nGridHeight) ) );
-	}
-
-	if ( pColumn != nullptr ) {
-		int nGranularity = 1;
-		if ( ! ( bUseFineGrained &&
-				 ! m_pPatternEditorPanel->isQuantized() ) ) {
-			nGranularity = granularity();
-		}
-		const int nWidth = m_fGridWidth * nGranularity;
-		int nColumn = ( point.x() - PatternEditor::nMargin + (nWidth / 2) ) /
-			nWidth;
-		*pColumn = std::max( 0, nColumn * nGranularity );
-	}
-
-	if ( pRealColumn != nullptr ) {
-		if ( point.x() > PatternEditor::nMargin ) {
-			*pRealColumn = static_cast<int>(
-				std::floor( ( point.x() -
-							  static_cast<float>(PatternEditor::nMargin) ) /
-							static_cast<float>(m_fGridWidth) ) );
-		}
-		else {
-			*pRealColumn = 0;
-		}
-	}
 }
 
 int PatternEditor::granularity() const {

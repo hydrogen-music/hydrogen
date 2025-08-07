@@ -36,7 +36,9 @@
 
 #include <core/config.h>
 #include <core/Preferences/Preferences.h>
+
 #include "Compatibility/MouseEvent.h"
+#include "Widgets/EditorDefs.h"
 
 namespace H2Core {
 	class Pattern;
@@ -59,9 +61,6 @@ public:
 	//! a single point such as a mouse click. This should concern itself only with the geometry.
 	virtual std::vector<SelectionIndex> elementsIntersecting( const QRect& r ) = 0;
 
-	//! Can elements be dragged as well as being selected? This may change to suit widget's current state.
-	virtual bool canDragElements() { return true; }
-
 		virtual bool canMoveElements() const { return true; }
 
 	//! Calculate screen space occupied by keyboard cursor
@@ -72,18 +71,22 @@ public:
 
 	//! Selection or selection-related visual elements have changed, widget needs to be updated.
 	//! At a minimum, the widget's own update() method should be called.
-	virtual void updateWidget() = 0;
+	virtual void updateWidget( Editor::Update update ) = 0;
 
 		/** Retrieves a resolution-dependent margin determining how many pixel a
 		 * note is allowed to be away from mouse cursor to still be selected. */
 		virtual int getCursorMargin( QInputEvent* pEvent ) const = 0;
+
+		/** Whether the editor is configured to select, draw, or edit
+		 * elements. */
+		virtual Editor::Input getInput() const = 0;
 
 		/** Retrieve all elements currently hovered by the mouse pointer. To
 		 * ease selection in the pattern editors, a resolution-dependent margin
 		 * @a nCursorMargin can be provided. The closest elements within this
 		 * margin will be selected. */
 		virtual std::vector<SelectionIndex> getElementsAtPoint(
-			const QPoint& point, int nCursorMargin,
+			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
 			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) = 0;
 
 	//! Inform the client that we're deselecting elements.
@@ -106,6 +109,9 @@ public:
 	virtual void mouseDrawStartEvent( QMouseEvent *ev ) = 0;
 	virtual void mouseDrawUpdateEvent( QMouseEvent *ev ) = 0;
 	virtual void mouseDrawEndEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseEditStartEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseEditUpdateEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseEditEndEvent( QMouseEvent *ev ) = 0;
 	virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) {};
 	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
 	virtual void selectionMoveCancelEvent() {};
@@ -290,6 +296,9 @@ private:
 	//! Scroller to use while dragging selections
 	DragScroller *m_pDragScroller;
 
+		//! Remember what kind of interaction did start the dragging in order to
+		//! cancel the correct one.
+		Editor::Input m_lastInput;
 
 public:
 
@@ -402,15 +411,15 @@ public:
 	//! @}
 
 	//! Update any widgets in this selection group.
-	void updateWidgetGroup() {
+	void updateWidgetGroup( Editor::Update update ) {
 		for ( auto pW : m_pSelectionGroup->m_selectionWidgets ) {
-			pW->updateWidget();
+			pW->updateWidget( update );
 		}
 	}
 
 	//! Cancel any selection gesture (lasso, move, with keyboard or mouse) in progress.
 	void cancelGesture() {
-		if ( m_mouseState == Dragging ) {
+		if ( m_mouseState == Dragging && m_lastInput == Editor::Input::Select ) {
 			mouseDragEnd();
 		}
 		m_mouseState = Up;
@@ -423,7 +432,7 @@ public:
 			m_pWidget->selectionMoveCancelEvent();
 		}
 		m_selectionState = Idle;
-		updateWidgetGroup();
+		updateWidgetGroup( Editor::Update::Transient );
 	}
 
 	// -------------------------------------------------------------------------------------------------------
@@ -563,7 +572,8 @@ public:
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ) );
+				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ),
+				true );
 			for ( Elem e : elems) {
 				if ( m_pSelectionGroup->m_selectedElements.find( e )
 					 == m_pSelectionGroup->m_selectedElements.end() ) {
@@ -572,16 +582,21 @@ public:
 					removeFromSelection( e );
 				}
 			}
-			updateWidgetGroup();
+			updateWidgetGroup( elems.size() > 0 ? Editor::Update::Content :
+							   Editor::Update::Transient );
 		} else {
-			if ( ev->button() != Qt::RightButton && !m_pSelectionGroup->m_selectedElements.empty() ) {
+			if ( ev->button() != Qt::RightButton &&
+				 ! m_pSelectionGroup->m_selectedElements.empty() ) {
 				// Click without control or right button, and
 				// non-empty selection, will just clear selection
 				clearSelection();
-				updateWidgetGroup();
-			} else if ( ev->button() == Qt::RightButton && m_pSelectionGroup->m_selectedElements.empty() ) {
-				// Right-clicking with an empty selection will first attempt to select anything at the click
-				// position before passing the click through to the client.
+				updateWidgetGroup( Editor::Update::Content );
+			}
+			else if ( ev->button() == Qt::RightButton &&
+					  m_pSelectionGroup->m_selectedElements.empty() ) {
+				// Right-clicking with an empty selection will first attempt to
+				// select anything at the click position before passing the
+				// click through to the client.
 				QRect r = QRect( pEv->position().toPoint(),
 								 pEv->position().toPoint() );
 				std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
@@ -589,7 +604,8 @@ public:
 					addToSelection( e );
 				}
 				m_pWidget->mouseClickEvent( ev );
-			} else {
+			}
+			else {
 				m_pWidget->mouseClickEvent( ev );
 			}
 		}
@@ -602,12 +618,16 @@ public:
 		}
 		m_pDragScroller->startDrag();
 
+		m_lastInput = m_pWidget->getInput();
+
 		auto pEv = static_cast<MouseEvent*>( ev );
 		auto pClickEv = static_cast<MouseEvent*>( m_pClickEvent );
 
-		if ( ev->button() == Qt::LeftButton) {
+		if ( ev->button() == Qt::LeftButton &&
+			 m_pWidget->getInput() == Editor::Input::Select ) {
 			std::vector<Elem> elems = m_pWidget->getElementsAtPoint(
-				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ) );
+				pClickEv->position().toPoint(), m_pWidget->getCursorMargin( ev ),
+				true );
 
 			/* Did the user start dragging a selected element, or an unselected element?
 			 */
@@ -628,7 +648,7 @@ public:
 						pClickEv->position().toPoint();
 					m_pWidget->startMouseMove( ev );
 				}
-			} else if ( bHitAny && m_pWidget->canDragElements() ) {
+			} else if ( bHitAny ) {
 				// Allow mouseDrawStartEvent to handle anything
 
 			} else {
@@ -638,14 +658,21 @@ public:
 				m_lasso.setTopLeft( pClickEv->position().toPoint() );
 				m_lasso.setBottomRight( pEv->position().toPoint() );
 				m_pWidget->startMouseLasso( ev );
-				m_pWidget->updateWidget();
+				m_pWidget->updateWidget( Editor::Update::Transient );
 
 			}
 
 		}
-
-		if ( m_selectionState == Idle ) {
+		else if ( ( ev->buttons() == Qt::RightButton &&
+					m_pWidget->getInput() == Editor::Input::Select ) ||
+				  ( ev->buttons() == Qt::LeftButton &&
+					m_pWidget->getInput() == Editor::Input::Draw ) ) {
 			m_pWidget->mouseDrawStartEvent( ev );
+			m_lastInput = Editor::Input::Draw;
+		}
+		else if ( ev->buttons() == Qt::LeftButton &&
+				  m_pWidget->getInput() == Editor::Input::Edit ) {
+			m_pWidget->mouseEditStartEvent( ev );
 		}
 	}
 
@@ -665,13 +692,18 @@ public:
 				m_checkpointSelectedElements.clear();
 				clearSelection();
 			}
+
+			bool bSelectionChanged = false;
 			auto selected = m_pWidget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
-				if ( m_checkpointSelectedElements.find( s ) == m_checkpointSelectedElements.end() ) {
+				if ( m_checkpointSelectedElements.find( s ) ==
+					 m_checkpointSelectedElements.end() ) {
 					addToSelection( s );
+					bSelectionChanged = true;
 				}
 			}
-			updateWidgetGroup();
+			updateWidgetGroup( bSelectionChanged ? Editor::Update::Content :
+							   Editor::Update::Transient );
 
 		}
 		else if ( m_selectionState == MouseMoving ) {
@@ -679,9 +711,15 @@ public:
 				pClickEv->position().toPoint();
 			m_pWidget->selectionMoveUpdateEvent( ev );
 		}
-		else {
-			// Pass drag update to widget
+		else if ( ( ev->buttons() == Qt::RightButton &&
+					m_pWidget->getInput() == Editor::Input::Select ) ||
+				  ( ev->buttons() == Qt::LeftButton &&
+					m_pWidget->getInput() == Editor::Input::Draw ) ) {
 			m_pWidget->mouseDrawUpdateEvent( ev );
+		}
+		else if ( ev->buttons() == Qt::LeftButton &&
+				  m_pWidget->getInput() == Editor::Input::Edit ) {
+			m_pWidget->mouseEditUpdateEvent( ev );
 		}
 	}
 
@@ -693,17 +731,19 @@ public:
 			m_checkpointSelectedElements.clear();
 			m_selectionState = Idle;
 			m_pWidget->endMouseGesture();
-			updateWidgetGroup();
-
-		} else if ( m_selectionState == MouseMoving ) {
+			updateWidgetGroup( Editor::Update::Transient );
+		}
+		else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
 			m_pWidget->endMouseGesture();
 			m_pWidget->selectionMoveEndEvent( ev );
-			updateWidgetGroup();
-
-		} else {
-			// Pass drag end to widget
+			updateWidgetGroup( Editor::Update::Transient );
+		}
+		else if ( m_lastInput == Editor::Input::Draw ) {
 			m_pWidget->mouseDrawEndEvent( ev );
+		}
+		else if ( m_lastInput == Editor::Input::Edit ) {
+			m_pWidget->mouseEditEndEvent( ev );
 		}
 	}
 	//! @}
@@ -758,7 +798,8 @@ public:
 				m_lasso = m_keyboardCursorStart;
 			}
 
-		} else if ( ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) &&
+		} else if ( ( ev->key() == Qt::Key_Enter ||
+					  ev->key() == Qt::Key_Return ) &&
 					m_pWidget->canMoveElements() ) {
 
 			// Key: Enter/Return: start or end a move or copy
@@ -776,7 +817,7 @@ public:
 					// Hit "Enter" over a selected element. Begin move.
 					m_keyboardCursorStart = m_pWidget->getKeyboardCursorRect();
 					m_selectionState = KeyboardMoving;
-					updateWidgetGroup();
+					updateWidgetGroup( Editor::Update::Transient );
 					return true;
 				}
 
@@ -784,7 +825,7 @@ public:
 				// If we hit 'Enter' from lasso mode, go directly to move
 				m_keyboardCursorStart = m_pWidget->getKeyboardCursorRect();
 				m_selectionState = KeyboardMoving;
-				updateWidgetGroup();
+				updateWidgetGroup( Editor::Update::Transient );
 				return true;
 
 			} else if ( m_selectionState == KeyboardMoving ) {
@@ -799,13 +840,13 @@ public:
 				return true;
 			}
 
-		} else if ( ev->key() == Qt::Key_Escape ) {
-
+		}
+		else if ( ev->key() == Qt::Key_Escape ) {
 			// Key: Escape: cancel any lasso or move/copy in progress; or clear any selection.
 			if ( m_selectionState == Idle ) {
 				if ( !m_pSelectionGroup->m_selectedElements.empty() ) {
 					clearSelection();
-					updateWidgetGroup();
+					updateWidgetGroup( Editor::Update::Content );
 					return true;
 				}
 			} else {
@@ -814,7 +855,7 @@ public:
 					m_pWidget->selectionMoveCancelEvent();
 				}
 				m_selectionState = Idle;
-				updateWidgetGroup();
+				updateWidgetGroup( Editor::Update::Transient );
 				return true;
 			}
 
@@ -825,7 +866,7 @@ public:
 
 				if ( m_selectionState != Idle ) {
 					m_selectionState = Idle;
-					updateWidgetGroup();
+					updateWidgetGroup( Editor::Update::Transient );
 					// Cancelling lasso should not eat event.
 					return false;
 				}
@@ -899,15 +940,29 @@ public:
 				m_pSelectionGroup->m_selectedElements.insert( s );
 			}
 
-		} else if ( m_selectionState == KeyboardMoving ) {
+			updateWidgetGroup( Editor::Update::Content );
+		}
+		else if ( m_selectionState == KeyboardMoving ) {
 			QRect cursorPosition = m_pWidget->getKeyboardCursorRect();
-			m_movingOffset = cursorPosition.topLeft() - m_keyboardCursorStart.topLeft();
-
+			m_movingOffset = cursorPosition.topLeft() -
+				m_keyboardCursorStart.topLeft();
 		}
 	}
 
 	//! @}
 
 };
+
+// Implement comparison between QPoints needed for std::set. This is required
+// for the #SongEditor version of the selection.
+inline int operator<( QPoint a, QPoint b ) {
+	int nAx = a.x(), nBx = b.x();
+	if ( nAx != nBx ) {
+		return nAx < nBx;
+	} else {
+		int nAy = a.y(), nBy = b.y();
+		return nAy < nBy;
+	}
+}
 
 #endif // SELECTION_H

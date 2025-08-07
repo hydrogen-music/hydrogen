@@ -30,6 +30,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include "../EventListener.h"
+#include "../Widgets/EditorDefs.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class BpmSpinBox;
@@ -69,6 +70,10 @@ public:
 		 * on. */
 		void setPreferencesVisibilityState( bool bChecked );
 		void updateActions();
+		void updateInput();
+
+		Editor::Input getInput() const;
+		void setInput( Editor::Input input );
 
 		void audioDriverChangedEvent() override;
 		void beatCounterEvent() override;
@@ -105,6 +110,9 @@ private:
 		void updateIcons();
 		void updateStyleSheet();
 
+		QAction* m_pSelectAction;
+		QAction* m_pDrawAction;
+
 		LCDDisplay* m_pTimeDisplay;
 
 		MidiLearnableToolButton* m_pRwdButton;
@@ -114,8 +122,8 @@ private:
 		MidiLearnableToolButton* m_pFfwdButton;
 		QAction* m_pSongLoopAction;
 
-		MidiLearnableToolButton* m_pSongModeButton;
-		MidiLearnableToolButton* m_pPatternModeButton;
+		QAction* m_pSongModeAction;
+		QAction* m_pPatternModeAction;
 
 		MidiLearnableToolButton* m_pMetronomeButton;
 		BpmSpinBox* m_pBpmSpinBox;
@@ -125,6 +133,7 @@ private:
 		QAction* m_pRubberBandAction;
 
 		QAction* m_pJackTransportAction;
+		QAction* m_pJackTimebaseAction;
 		MidiLearnableToolButton* m_pJackTimebaseButton;
 		MidiControlDialog* m_pMidiControlDialog;
 		QAction* m_pJackSeparator;
@@ -152,7 +161,13 @@ private:
 		QString m_sLCDBPMSpinboxToolTip;
 		QString m_sLCDBPMSpinboxTimelineToolTip;
 		QString m_sLCDBPMSpinboxJackTimebaseToolTip;
+
+		Editor::Input m_input;
 };
+
+inline Editor::Input MainToolBar::getInput() const {
+	return m_input;
+}
 
 
 #endif

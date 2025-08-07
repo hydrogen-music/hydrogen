@@ -25,6 +25,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
@@ -1432,7 +1433,7 @@ void MainForm::action_drumkit_addInstrument(
 	pPatternEditorPanel->updateDB();
 	pPatternEditorPanel->setSelectedRowDB(
 		pSong->getDrumkit()->getInstruments()->size() - 1 );
-	pPatternEditorPanel->updateEditors();
+	pPatternEditorPanel->updateEditors( Editor::Update::Background );
 	pPatternEditorPanel->ensureCursorIsVisible();
 }
 
@@ -2438,8 +2439,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			H2Core::CoreActionController::activateSongMode( true );
 		}
 
-		const int nCursorColumn =
-			pHydrogenApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
+		const int nCursorColumn = pHydrogenApp->getSongEditorPanel()->
+			getSongEditor()->getCursorPosition().getColumn();
 
 		// Within the core locating to a position beyond the length of
 		// the song with loop mode enabled is a valid
@@ -2809,7 +2810,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 			case Shortcuts::Action::ToggleGridCell:
 				H2Core::CoreActionController::toggleGridCell(
-					sArg1.toInt(), sArg2.toInt() );
+					GridPoint( sArg1.toInt(), sArg2.toInt() ) );
 				break;
 			default:
 				WARNINGLOG( QString( "Action [%1] not properly handled" )

@@ -34,6 +34,7 @@
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
@@ -62,26 +63,6 @@
 
 //=====================================================================================================================================
 //song editor commands
-/** \ingroup docGUI*/
-class SE_togglePatternAction : public QUndoCommand
-{
-public:
-	SE_togglePatternAction( int nColumn, int nRow ){
-		setText( QObject::tr( "Toggle Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-		m_nColumn = nColumn;
-		m_nRow = nRow;
-	}
-	virtual void undo() {
-		H2Core::CoreActionController::toggleGridCell( m_nColumn, m_nRow );
-	}
-	virtual void redo() {
-		H2Core::CoreActionController::toggleGridCell( m_nColumn, m_nRow );
-	}
-private:
-	int m_nColumn;
-	int m_nRow;
-};
-
 /** \ingroup docGUI*/
 class SE_movePatternListItemAction : public QUndoCommand
 {
@@ -236,7 +217,8 @@ class SE_duplicatePatternAction : public QUndoCommand
 {
 public:
 	SE_duplicatePatternAction( const QString& patternFilename, int patternPosition ){
-		setText( QObject::tr( "Duplicate pattern" ) );
+		const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		setText( pCommonStrings->getActionDuplicatePattern() );
 		m_sPatternFilename = patternFilename;
 		m_nPatternPosition = patternPosition;
 	}
@@ -319,83 +301,47 @@ private:
 	bool m_bDragFromList;
 };
 
-
-/** \ingroup docGUI*/
-class SE_fillRangePatternAction : public QUndoCommand
-{
-public:
-	SE_fillRangePatternAction( FillRange* pRange, int nPattern ){
-		setText( QObject::tr( "Fill/remove range of pattern" ) );
-		__pRange = pRange;
-		__from = pRange->fromVal;
-		__to = pRange->toVal;
-		__bInsert = pRange->bInsert;
-		__nPattern = nPattern;
-	}
-	virtual void undo()
-	{
-		//qDebug() << "fill/remove range of undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		bool insert;
-		if( __bInsert ){
-			insert = false;
-		}else
-		{
-			insert = true;
+class SE_addOrRemovePatternCellAction : public QUndoCommand {
+	public:
+		SE_addOrRemovePatternCellAction( const H2Core::GridPoint& gridPoint,
+										 Editor::Action action,
+										 Editor::ActionModifier modifier )
+			: m_gridPoint( gridPoint )
+			, m_action( action )
+			, m_modifier( modifier ) {
+			const auto pCommonStrings =
+				HydrogenApp::get_instance()->getCommonStrings();
+			if ( ( action == Editor::Action::Toggle ) ||
+				 ( action == Editor::Action::Add ) ) {
+				setText( pCommonStrings->getActionTogglePatternCells() );
+			}
+			else if ( action == Editor::Action::Delete ) {
+				setText( pCommonStrings->getActionDeletePatternCells() );
+			}
+			else {
+				setText( QString( "Performing [%1] on pattern cell [%2]" )
+						 .arg( Editor::actionToQString( action ) )
+						 .arg( gridPoint.toQString() ) );
+			}
 		}
-		__pRange->bInsert = insert;
-		__pRange->fromVal = __from;
-		__pRange->toVal = __to;
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->fillRangeWithPattern( __pRange, __nPattern);
-	}
-
-	virtual void redo()
-	{
-		//qDebug() <<  "fill/remove range of redo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		__pRange->bInsert = __bInsert;
-		__pRange->fromVal = __from;
-		__pRange->toVal = __to;
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->fillRangeWithPattern( __pRange, __nPattern);
-	}
-private:
-	FillRange* __pRange;
-	int __from;
-	int __to;
-	bool __bInsert;
-	int __nPattern;
+		virtual void redo() {
+			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+				->addOrRemovePatternCellAction(
+					m_gridPoint, m_action, m_modifier );
+		}
+		virtual void undo() {
+			// The side effect of the modifier is only triggered once.
+			m_modifier = Editor::ActionModifier::None;
+			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+				->addOrRemovePatternCellAction(
+					m_gridPoint, Editor::undoAction( m_action ), m_modifier );
+		}
+	private:
+		H2Core::GridPoint m_gridPoint;
+		Editor::Action m_action;
+		Editor::ActionModifier m_modifier;
 };
 
-
-/** \ingroup docGUI*/
-class SE_modifyPatternCellsAction : public QUndoCommand
-{
-public:
-	SE_modifyPatternCellsAction( const std::vector< QPoint >& addCells,
-								 const std::vector< QPoint >& deleteCells,
-								 const std::vector< QPoint >& mergeCells,
-								 const QString& sText ) {
-		setText( sText );
-		m_addCells = addCells;
-		m_deleteCells = deleteCells;
-		m_mergeCells = mergeCells;
-	}
-	virtual void redo()
-	{
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-			->modifyPatternCellsAction( m_addCells, m_deleteCells, m_mergeCells );
-	}
-	virtual void undo()
-	{
-		std::vector< QPoint > selectCells;
-		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-			->modifyPatternCellsAction( m_deleteCells, m_addCells, selectCells );
-	}
-private:
-	std::vector< QPoint > m_addCells;
-	std::vector< QPoint > m_deleteCells;
-	std::vector< QPoint > m_mergeCells;
-};
 
 // ~song editor commands
 //=====================================================================================================================================
@@ -518,14 +464,14 @@ public:
 							  int nOldKey,
 							  int nOldOctave,
 							  float fOldProbability,
-							  bool bIsDelete,
+							  Editor::Action action,
 							  bool bIsNoteOff,
 							  bool bIsMappedToDrumkit,
-							  Editor::Action addNoteAction =
-							  Editor::Action::None
+							  Editor::ActionModifier modifier =
+							  Editor::ActionModifier::None
  ){
 
-		if ( bIsDelete ){
+		if ( action == Editor::Action::Delete ){
 			setText( QString( "%1 [column: %2, id: %3, type: %4, pattern: %5]" )
 					 .arg( QObject::tr( "Delete note" ) ).arg( nColumn ).
 					 arg( nInstrumentId ).arg( sType ).arg( nPatternNumber ) );
@@ -545,10 +491,10 @@ public:
 		m_nOldKey = nOldKey;
 		m_nOldOctave = nOldOctave;
 		m_fOldProbability = fOldProbability;
-		m_bIsDelete = bIsDelete;
+		m_action = action;
 		m_bIsNoteOff = bIsNoteOff;
 		m_bIsMappedToDrumkit = bIsMappedToDrumkit;
-		m_addNoteAction = addNoteAction;
+		m_modifier = modifier;
 	}
 	virtual void undo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
@@ -562,10 +508,10 @@ public:
 											  m_nOldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
-											  ! m_bIsDelete,
+											  Editor::undoAction( m_action ),
 											  m_bIsNoteOff,
 											  m_bIsMappedToDrumkit,
-											  m_addNoteAction );
+											  m_modifier );
 	}
 	virtual void redo() {
 		PatternEditor::addOrRemoveNoteAction( m_nColumn,
@@ -579,12 +525,12 @@ public:
 											  m_nOldKey,
 											  m_nOldOctave,
 											  m_fOldProbability,
-											  m_bIsDelete,
+											  m_action,
 											  m_bIsNoteOff,
 											  m_bIsMappedToDrumkit,
-											  m_addNoteAction );
+											  m_modifier );
 		// Only on the first redo the corresponding action is triggered.
-		m_addNoteAction = Editor::Action::None;
+		m_modifier = Editor::ActionModifier::None;
 	}
 private:
 	int m_nColumn;
@@ -598,10 +544,10 @@ private:
 	int m_nOldKey;
 	int m_nOldOctave;
 	float m_fOldProbability;
-	bool m_bIsDelete;
+	Editor::Action m_action;
 	bool m_bIsNoteOff;
 	bool m_bIsMappedToDrumkit;
-	Editor::Action m_addNoteAction;
+	Editor::ActionModifier m_modifier;
 };
 
 // Deselect some notes and overwrite them

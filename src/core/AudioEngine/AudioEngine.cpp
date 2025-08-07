@@ -1826,13 +1826,24 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 	updatePatternSize( m_pQueuingPosition );
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		AE_INFOLOG( QString( "[Pattern] Size update: [%1] -> [%2]" )
-					.arg( m_fSongSizeInTicks )
-					.arg( static_cast<double>( pSong->lengthInTicks() ) ) );
-		m_fSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
+		if ( m_fSongSizeInTicks ==
+			 static_cast<double>( pSong->lengthInTicks() ) ) {
+			// Nothing to do
+			if ( trigger == Event::Trigger::Force ) {
+				EventQueue::get_instance()->pushEvent(
+					Event::Type::SongSizeChanged, 0 );
+			}
+		}
+		else {
+			AE_INFOLOG( QString( "[Pattern] Size update: [%1] -> [%2]" )
+						.arg( m_fSongSizeInTicks )
+						.arg( static_cast<double>( pSong->lengthInTicks() ) ) );
+			m_fSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
-		if ( trigger != Event::Trigger::Suppress ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::SongSizeChanged, 0 );
+			if ( trigger != Event::Trigger::Suppress ) {
+				EventQueue::get_instance()->pushEvent(
+					Event::Type::SongSizeChanged, 0 );
+			}
 		}
 		return;
 	}
@@ -1880,6 +1891,15 @@ void AudioEngine::updateSongSize( Event::Trigger trigger ) {
 				.arg( m_pQueuingPosition->toQString( "", true ) )
 				);
 #endif
+
+	if ( m_fSongSizeInTicks == fNewSongSizeInTicks ) {
+		// Nothing to do
+		if ( trigger == Event::Trigger::Force ) {
+			EventQueue::get_instance()->pushEvent(
+				Event::Type::SongSizeChanged, 0 );
+		}
+		return;
+	}
 
 	AE_INFOLOG( QString( "[Song] Size update: [%1] -> [%2]" )
 				.arg( m_fSongSizeInTicks ).arg( fNewSongSizeInTicks ) );

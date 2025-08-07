@@ -27,48 +27,30 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include "ui_PatternFillDialog_UI.h"
-
 #include <core/Object.h>
 
-namespace H2Core
-{
-	class Pattern;
-}
+class LCDSpinBox;
 
 struct FillRange {
-
-	int fromVal;
-	int toVal;
+	int nFrom;
+	int nTo;
 	bool bInsert;
 };
 
-
-///
-/// Pattern Fill Dialog
-///
 /** \ingroup docGUI*/
-class PatternFillDialog :  public QDialog, public Ui_PatternFillDialog_UI,  public H2Core::Object<PatternFillDialog>
-{
+class PatternFillDialog : public QDialog,
+						  public H2Core::Object<PatternFillDialog> {
 	H2_OBJECT(PatternFillDialog)
 	Q_OBJECT
 	public:
-		PatternFillDialog( QWidget* parent, FillRange* range );
+		PatternFillDialog( QWidget* pParent, FillRange* pRange );
 		~PatternFillDialog();
 
-	private slots:
-		void on_cancelBtn_clicked();
-		void on_okBtn_clicked();
-		void on_fromText_textChanged(const QString & text);
-		void on_toText_textChanged(const QString & text);
-
 	private:
-		FillRange* __fill_range;
+		FillRange* m_pFillRange;
 
-		/// Does some name check
-		void __text_changed();
-
-
+		LCDSpinBox* m_pFromSpinBox;
+		LCDSpinBox* m_pToSpinBox;
 };
 
 

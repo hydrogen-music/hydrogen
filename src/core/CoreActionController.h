@@ -32,6 +32,7 @@
 namespace H2Core
 {
 	class Drumkit;
+	class GridPoint;
 	class Instrument;
 	class Pattern;
 	class Playlist;
@@ -446,12 +447,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 											  int nPatternNumber = -1 );
 	    /** Fills or clears a specific grid cell in the SongEditor.
 		 *
-		 * @param nColumn column of the pattern.
-		 * @param nRow row of the pattern.
+		 * @param gridPoint position on the #SongEditor grid.
 		 *
 		 * @return bool true on success
 		 */
-    	static bool toggleGridCell( int nColumn, int nRow );
+    	static bool toggleGridCell( const GridPoint& gridPoint );
 
 		/** Handle an incoming note event, e.g. a MIDI or OSC NOTE_ON or
 		 * NOTE_OFF as well as virtual keyboard stroke.

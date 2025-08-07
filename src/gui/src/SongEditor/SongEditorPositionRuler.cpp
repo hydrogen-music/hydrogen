@@ -426,7 +426,8 @@ void SongEditorPositionRuler::mouseReleaseEvent(QMouseEvent *ev)
 void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pSongEditor = pHydrogenApp->getSongEditorPanel()->getSongEditor();
+	auto pSongEditorPanel = pHydrogenApp->getSongEditorPanel();
+	auto pSongEditor = pSongEditorPanel->getSongEditor();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pTimeline = pHydrogen->getTimeline();
 	const auto pPref = Preferences::get_instance();
@@ -637,8 +638,10 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	}
 
 	// Draw cursor
-	if ( ! pHydrogenApp->hideKeyboardCursor() && pSongEditor->hasFocus() ) {
-		int nCursorX = columnToX( pSongEditor->getCursorColumn() ) + 2;
+	if ( ! pHydrogenApp->hideKeyboardCursor() &&
+		 pSongEditorPanel->hasSongEditorFocus() ) {
+		int nCursorX = columnToX(
+			pSongEditor->getCursorPosition().getColumn() ) + 2;
 
 		QColor cursorColor = theme.m_color.m_cursorColor;
 

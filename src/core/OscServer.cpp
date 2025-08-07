@@ -35,6 +35,7 @@
 #include <lo/lo_cpp.h>
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include "core/Basics/InstrumentList.h"
 #include "core/Basics/Playlist.h"
 #include "core/OscServer.h"
@@ -961,8 +962,8 @@ void OscServer::NOTE_OFF_Handler( lo_arg** argv, int i )
 void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
 	H2Core::CoreActionController::toggleGridCell(
-		static_cast<int>(std::round( argv[0]->f )),
-		static_cast<int>(std::round( argv[1]->f )) );
+		H2Core::GridPoint( static_cast<int>(std::round( argv[0]->f )),
+						   static_cast<int>(std::round( argv[1]->f )) ) );
 }
 
 void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {

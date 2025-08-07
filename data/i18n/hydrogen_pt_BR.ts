@@ -653,10 +653,6 @@ Displayed in the tooltip of input widgets. General heading of the part associati
         <translation>Driver de áudio não estabelecido!</translation>
     </message>
     <message>
-        <source>JACK timebase support is disabled in the Preferences</source>
-        <translation>Suporte a JACK Timebase desativado nas Preferências</translation>
-    </message>
-    <message>
         <source>Waiting...</source>
         <extracomment>Title of the window displayed when using the MIDI learning capabilities of Hydrogen.</extracomment>
         <translation>Aguardando...</translation>
@@ -981,8 +977,6 @@ Shown in table headers when referring to a license of an object.</extracomment>
     <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
-        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
-&apos; character introduces a linebreak and must not be translated</extracomment>
         <translation>Ainda há mudanças não salvas. Elas serão perdidas.</translation>
     </message>
     <message>
@@ -1085,14 +1079,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Add instrument</source>
         <extracomment>Representing adding a new instrument in the undo history as well as * names the action presenting when right-clicking the instrument list in * the pattern editor.</extracomment>
         <translation>Adicionar instrumento</translation>
-    </message>
-    <message>
-        <source>No external JACK Timebase controller. Press to make Hydrogen in control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>In the presence of an external JACK Timebase controller the tempo can not be altered from within Hydrogen</source>
@@ -1393,6 +1379,59 @@ Please set your system&apos;s locale to UTF-8!</source>
     <message>
         <source>Adjust BPM using BeatCounter and start playback</source>
         <extracomment>Tool tip and menu description used for the tap button in the main tool * bar whenever beat counter was selected and playback is set to start * right after the tempo adjustment.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy selected cells</source>
+        <extracomment>Shown in the undo history copying pattern cells in the song editor to * another location.</extracomment>
+        <translation>Copiar células selecionadas</translation>
+    </message>
+    <message>
+        <source>Delete selected cells</source>
+        <extracomment>Shown in the undo history deleting pattern cells in the song editor.</extracomment>
+        <translation>Deletar células selecionadas</translation>
+    </message>
+    <message>
+        <source>Move selected cells</source>
+        <extracomment>Shown in the undo history moving pattern cells in the song editor to * another location.</extracomment>
+        <translation>Mover células selecionadas</translation>
+    </message>
+    <message>
+        <source>Paste cells</source>
+        <extracomment>Shown in the undo history pasting pattern cells in the song editor.</extracomment>
+        <translation>Colar células</translation>
+    </message>
+    <message>
+        <source>Toggle selected cells</source>
+        <extracomment>Shown in the undo history adding or toggling pattern cells in the song * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate pattern</source>
+        <extracomment>Shown in the undo history after duplicating a pattern.</extracomment>
+        <translation>Duplicar padrão</translation>
+    </message>
+    <message>
+        <source>JACK Timebase support deactivated. Press to make Hydrogen in control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>External Timebase controller. Hydrogen is listening for tempo and position info.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen is Timebase controller and sends tempo and position info.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Fill</source>
+        <extracomment>Displayed in popup dialogs in case the user attempts to close a window which still contains unsaved changes. The &apos;
+&apos; character introduces a linebreak and must not be translatedText displayed on the Fill button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Clear&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
+        <translation>&amp;Preencher</translation>
+    </message>
+    <message>
+        <source>Clea&amp;r</source>
+        <extracomment>Text displayed on the Clear button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Fill&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3450,45 +3489,6 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
     </message>
 </context>
 <context>
-    <name>PatternFillDialog_UI</name>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
-    </message>
-    <message>
-        <source>Form 1</source>
-        <translation>Forma 1</translation>
-    </message>
-    <message>
-        <source>&amp;Fill</source>
-        <translation>&amp;Preencher</translation>
-    </message>
-    <message>
-        <source>Alt+F</source>
-        <translation>Alt+F</translation>
-    </message>
-    <message>
-        <source>&amp;Clear</source>
-        <translation>&amp;Limpar</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+C</translation>
-    </message>
-    <message>
-        <source>From:</source>
-        <translation>De:</translation>
-    </message>
-    <message>
-        <source>To:</source>
-        <translation>Para:</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
-</context>
-<context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
@@ -4643,20 +4643,12 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Modificar propriedades de padrão</translation>
     </message>
     <message>
-        <source>Duplicate pattern</source>
-        <translation>Duplicar padrão</translation>
-    </message>
-    <message>
         <source>Add pattern</source>
         <translation>Adicionar padrão</translation>
     </message>
     <message>
         <source>Load/drag pattern</source>
         <translation>Carregar/arrastar padrão</translation>
-    </message>
-    <message>
-        <source>Fill/remove range of pattern</source>
-        <translation>Preencher/remover intervalo do padrão</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
@@ -4677,10 +4669,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Move point</source>
         <translation>Mover ponto</translation>
-    </message>
-    <message>
-        <source>Toggle Pattern ( %1, %2 )</source>
-        <translation>Alternar Padrão ( %1, %2 )</translation>
     </message>
     <message>
         <source>Edit tempo marker</source>
@@ -5743,22 +5731,6 @@ p, li { white-space: pre-wrap; }
         <source>Clear selection</source>
         <translation>Limpar seleção</translation>
     </message>
-    <message>
-        <source>Delete selected cells</source>
-        <translation>Deletar células selecionadas</translation>
-    </message>
-    <message>
-        <source>Paste cells</source>
-        <translation>Colar células</translation>
-    </message>
-    <message>
-        <source>Copy selected cells</source>
-        <translation>Copiar células selecionadas</translation>
-    </message>
-    <message>
-        <source>Move selected cells</source>
-        <translation>Mover células selecionadas</translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanel</name>
@@ -5769,14 +5741,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Create new pattern</source>
         <translation>Criar novo padrão</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern down</source>
-        <translation>Mover o padrão selecionado para baixo</translation>
-    </message>
-    <message>
-        <source>Move the selected pattern up</source>
-        <translation>Mover o padrão selecionado para cima</translation>
     </message>
     <message>
         <source>Clear pattern sequence</source>
@@ -5920,6 +5884,10 @@ Está certo disto?</translation>
     <message>
         <source>Open Pattern to Replace </source>
         <translation>Abrir Padrão para Substituir</translation>
+    </message>
+    <message>
+        <source>Fill/remove range of pattern</source>
+        <translation>Preencher/remover intervalo do padrão</translation>
     </message>
 </context>
 <context>

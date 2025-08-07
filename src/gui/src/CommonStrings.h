@@ -118,7 +118,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	
 	const QString& getJackTimebaseToolTip() const { return m_sJackTimebaseToolTip; }
 	const QString& getJackTimebaseListenerToolTip() const { return m_sJackTimebaseListenerToolTip; }
-	const QString& getJackTimebaseDisabledToolTip() const { return m_sJackTimebaseDisabledToolTip; }
+	const QString& getJackTimebaseControllerToolTip() const {
+		return m_sJackTimebaseControllerToolTip; }
 
 	const QString& getTapTempoToolTip() const { return m_sTapTempoToolTip; }
 	const QString& getBeatCounterTapToolTip() const {
@@ -157,6 +158,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
 	const QString& getButtonPlay() const { return m_sButtonPlay; }
 	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
+	const QString& getButtonFill() const { return m_sButtonFill; }
+	const QString& getButtonClear() const { return m_sButtonClear; }
 	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
 	const QString& getSavingChanges() const { return m_sSavingChanges; }
 
@@ -299,6 +302,19 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		const QString& getActionEditTypes() const {
 			return m_sActionEditTypes; }
 
+		const QString& getActionDuplicatePattern() const {
+			return m_sActionDuplicatePattern; }
+		const QString& getActionCopyPatternCells() const {
+			return m_sActionCopyPatternCells; }
+		const QString& getActionDeletePatternCells() const {
+			return m_sActionDeletePatternCells; }
+		const QString& getActionMovePatternCells() const {
+			return m_sActionMovePatternCells; }
+		const QString& getActionPastePatternCells() const {
+			return m_sActionPastePatternCells; }
+		const QString& getActionTogglePatternCells() const {
+			return m_sActionTogglePatternCells; }
+
 		const QString& getNotePropertyVelocity() const {
 			return m_sNotePropertyVelocity; }
 		const QString& getNotePropertyPan() const { return m_sNotePropertyPan; }
@@ -406,7 +422,7 @@ private:
 
 	QString m_sJackTimebaseToolTip;
 	QString m_sJackTimebaseListenerToolTip;
-	QString m_sJackTimebaseDisabledToolTip;
+	QString m_sJackTimebaseControllerToolTip;
 
 	QString m_sTapTempoToolTip;
 	QString m_sBeatCounterTapToolTip;
@@ -441,6 +457,8 @@ private:
 	QString m_sButtonCancel;
 	QString m_sButtonDiscard;
 	QString m_sButtonPlay;
+	QString m_sButtonFill;
+	QString m_sButtonClear;
 	QString m_sButtonPlayOriginalSample;
 	QString m_sUnsavedChanges;
 	QString m_sSavingChanges;
@@ -554,6 +572,13 @@ private:
 		QString m_sActionEditAllPatterns;
 		QString m_sActionCopyNotes;
 		QString m_sActionEditTypes;
+
+		QString m_sActionDuplicatePattern;
+		QString m_sActionCopyPatternCells;
+		QString m_sActionDeletePatternCells;
+		QString m_sActionMovePatternCells;
+		QString m_sActionPastePatternCells;
+		QString m_sActionTogglePatternCells;
 
 		QString m_sErrorNotFound;
 		QString m_sErrorNotFoundShort;

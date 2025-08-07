@@ -53,6 +53,7 @@ class SongEditorPatternList :  public QWidget
 	Q_OBJECT
 
 	public:
+		static constexpr int nWidth = 200;
 	
 		explicit SongEditorPatternList( QWidget *parent );
 		~SongEditorPatternList();
@@ -75,7 +76,6 @@ class SongEditorPatternList :  public QWidget
 													const H2Core::License& oldLicense,
 													const QString& oldPatternCategory,
 													int patternNr);
-		void fillRangeWithPattern(FillRange* r, int nPattern);
 		int getGridHeight() { return m_nGridHeight; }
 
 		void updateEditor();

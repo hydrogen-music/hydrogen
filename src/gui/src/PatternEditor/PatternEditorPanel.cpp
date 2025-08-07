@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
@@ -42,6 +43,7 @@
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../MainToolBar/MainToolBar.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/Button.h"
@@ -134,7 +136,6 @@ QString DrumPatternRow::toQString( const QString& sPrefix, bool bShort ) const {
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	: QWidget( pParent )
 	, m_pPattern( nullptr )
-	, m_input( Editor::Input::Select )
 	, m_instance( Editor::Instance::DrumPattern )
 	, m_nCursorColumn( 0 )
 	, m_bPatternSelectedViaTab( false )
@@ -211,33 +212,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	};
 
 	////////////////////////////////////////////////////////////////////////////
-	auto pInputModeGroup = new QButtonGroup( m_pToolBar );
-	pInputModeGroup->setExclusive( true );
-
-	m_pSelectButton = createButton( pCommonStrings->getSelectModeButton() );
-	m_pSelectButton->setObjectName( "PatternEditorSelectModeBtn" );
-	connect( m_pSelectButton, &QToolButton::clicked, [&](){
-		setInput( Editor::Input::Select );
-	} );
-	m_pToolBar->addWidget( m_pSelectButton );
-	pInputModeGroup->addButton( m_pSelectButton );
-
-	m_pDrawButton = createButton( pCommonStrings->getDrawModeButton() );
-	m_pDrawButton->setObjectName( "PatternEditorDrawModeBtn" );
-	connect( m_pDrawButton, &QToolButton::clicked, [&](){
-		setInput( Editor::Input::Draw );
-	} );
-	m_pToolBar->addWidget( m_pDrawButton );
-	pInputModeGroup->addButton( m_pDrawButton );
 
 	m_pEditButton = createButton( pCommonStrings->getEditModeButton() );
 	m_pEditButton->setObjectName( "PatternEditorEditModeBtn" );
-	connect( m_pEditButton, &QToolButton::clicked, [&](){
-		setInput( Editor::Input::Edit );
-	} );
 	m_pToolBar->addWidget( m_pEditButton );
-	pInputModeGroup->addButton( m_pEditButton );
-	updateInput();
 
 	m_pToolBar->addSeparator();
 
@@ -748,7 +726,7 @@ void PatternEditorPanel::drumkitLoadedEvent() {
 	const int nPreviousRows = m_db.size();
 
 	updateDB();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	m_pSidebar->updateRows();
 
 	if ( nPreviousRows != m_db.size() ) {
@@ -875,16 +853,13 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	setCursorColumn(
 		m_nCursorIncrement * ( m_nCursorColumn / m_nCursorIncrement ), false );
 
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 }
 
-
-
-void PatternEditorPanel::selectedPatternChangedEvent()
-{
+void PatternEditorPanel::selectedPatternChangedEvent() {
 	updatePatternInfo();
 	updateDB();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 
 	resizeEvent( nullptr ); // force an update of the scrollbars
 }
@@ -956,7 +931,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 	}
 
 	ensureCursorIsVisible();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );	// force a scrollbar update
 }
 
@@ -984,13 +959,9 @@ bool PatternEditorPanel::hasPatternEditorFocus() const {
 		m_pToolBar->hasFocus();
 }
 
-void PatternEditorPanel::setInput( Editor::Input input ) {
-	if ( m_input != input ) {
-		m_input = input;
-	}
-
-	// Always update button state to ensure the proper one remains toggled.
-	updateInput();
+Editor::Input PatternEditorPanel::getInput() const {
+	return m_pEditButton->isChecked() ? Editor::Input::Edit :
+		HydrogenApp::get_instance()->getMainToolBar()->getInput();
 }
 
 void PatternEditorPanel::setInstance( Editor::Instance instance ) {
@@ -1054,7 +1025,7 @@ void PatternEditorPanel::zoomInBtnClicked()
 
 	ensureCursorIsVisible();
 
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
 }
 
@@ -1080,7 +1051,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 
 	ensureCursorIsVisible();
 
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
 }
 
@@ -1096,8 +1067,6 @@ void PatternEditorPanel::updateIcons() {
 		color = Qt::black;
 	}
 
-	m_pSelectButton->setIcon( QIcon( sIconPath + "select.svg" ) );
-	m_pDrawButton->setIcon( QIcon( sIconPath + "draw.svg" ) );
 	m_pEditButton->setIcon( QIcon( sIconPath + "edit.svg" ) );
 	m_pHearNotesAction->setIcon( QIcon( sIconPath + "speaker.svg" ) );
 	m_pQuantizeAction->setIcon( QIcon( sIconPath + "quantization.svg" ) );
@@ -1109,28 +1078,6 @@ ClickableLabel {\
     color: %1;\
     font-size: 17px;\
 }" ).arg( color.name() ) );
-}
-
-void PatternEditorPanel::updateInput() {
-	if ( m_input == Editor::Input::Select ) {
-		m_pSelectButton->setChecked( true );
-		m_pDrawButton->setChecked( false );
-		m_pEditButton->setChecked( false );
-	}
-	else if ( m_input == Editor::Input::Draw ) {
-		m_pSelectButton->setChecked( false );
-		m_pDrawButton->setChecked( true );
-		m_pEditButton->setChecked( false );
-	}
-	else if ( m_input == Editor::Input::Edit ) {
-		m_pSelectButton->setChecked( false );
-		m_pDrawButton->setChecked( false );
-		m_pEditButton->setChecked( true );
-	}
-	else {
-		ERRORLOG( QString( "Unhandled input [%1]" )
-				  .arg( Editor::inputToQString( m_input ) ) );
-	}
 }
 
 void PatternEditorPanel::updateInstance() {
@@ -1146,7 +1093,7 @@ void PatternEditorPanel::updateInstance() {
 		m_pSidebar->setFocusProxy( m_pEditorScrollView );
 		m_pSidebar->dimRows( false );
 
-		m_pDrumPatternEditor->updateEditor();
+		m_pDrumPatternEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( m_instance == Editor::Instance::PianoRoll ) {
 		m_pDrumPatternButton->setChecked( false );
@@ -1161,7 +1108,7 @@ void PatternEditorPanel::updateInstance() {
 		m_pSidebar->setFocusProxy( m_pPianoRollScrollView );
 		m_pSidebar->dimRows( true );
 
-		m_pPianoRollEditor->updateEditor();
+		m_pPianoRollEditor->updateEditor( Editor::Update::Background );
 	}
 	else {
 		ERRORLOG( QString( "Unhandled instance [%1]" )
@@ -1346,33 +1293,33 @@ void PatternEditorPanel::updatePatternsToShow()
 	}
 }
 
-void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
+void PatternEditorPanel::updateEditors( Editor::Update update ) {
 
 	// Changes of pattern may leave the cursor out of bounds.
 	setCursorColumn( getCursorColumn(), false );
 
 	m_pPatternEditorRuler->updateEditor( true );
-	m_pNoteVelocityEditor->updateEditor( bPatternOnly );
-	m_pNotePanEditor->updateEditor( bPatternOnly );
-	m_pNoteLeadLagEditor->updateEditor( bPatternOnly );
-	m_pNoteKeyOctaveEditor->updateEditor( bPatternOnly );
-	m_pNoteProbabilityEditor->updateEditor( bPatternOnly );
-	m_pPianoRollEditor->updateEditor( bPatternOnly );
-	m_pDrumPatternEditor->updateEditor( bPatternOnly );
+	m_pNoteVelocityEditor->updateEditor( update );
+	m_pNotePanEditor->updateEditor( update );
+	m_pNoteLeadLagEditor->updateEditor( update );
+	m_pNoteKeyOctaveEditor->updateEditor( update );
+	m_pNoteProbabilityEditor->updateEditor( update );
+	m_pPianoRollEditor->updateEditor( update );
+	m_pDrumPatternEditor->updateEditor( update );
 	m_pSidebar->updateEditor();
 	updateTypeLabelVisibility();
 }
 
 void PatternEditorPanel::patternModifiedEvent() {
 	updatePatternInfo();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::playingPatternsChangedEvent() {
 	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
 		updatePatternInfo();
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 	}
 }
 
@@ -1380,7 +1327,7 @@ void PatternEditorPanel::songModeActivationEvent() {
 	updatePatternInfo();
 	updateDB();
 	updateStyleSheet();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 
 	resizeEvent( nullptr );
 }
@@ -1388,21 +1335,21 @@ void PatternEditorPanel::songModeActivationEvent() {
 void PatternEditorPanel::stackedModeActivationEvent( int ) {
 	updatePatternInfo();
 	updateDB();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 
 	resizeEvent( nullptr );
 }
 
 void PatternEditorPanel::songSizeChangedEvent() {
 	if ( PatternEditorPanel::isUsingAdditionalPatterns( m_pPattern ) ) {
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 	}
 }
 
 void PatternEditorPanel::patternEditorLockedEvent() {
 	updatePatternInfo();
 	updateDB();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 }
 
 void PatternEditorPanel::stateChangedEvent( const H2Core::AudioEngine::State& state ) {
@@ -1424,13 +1371,13 @@ void PatternEditorPanel::relocationEvent() {
 	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
 		updatePatternInfo();
 		updateDB();
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 	}
 }
 
 void PatternEditorPanel::instrumentMuteSoloChangedEvent( int ) {
 	updateDB();
-	updateEditors( true );
+	updateEditors( Editor::Update::Content );
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
@@ -1541,7 +1488,7 @@ void PatternEditorPanel::updateSongEvent( int nValue ) {
 		updatePatternInfo();
 		updateDB();
 		updateStyleSheet();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 		m_pPatternEditorRuler->updatePosition();
 		m_pSidebar->updateRows();
 		resizeEvent( nullptr );
@@ -1557,7 +1504,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteVelocityScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteVelocityEditor->updateEditor();
+		m_pNoteVelocityEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 1 ) {		// Pan
 		m_pNoteVelocityScrollView->hide();
@@ -1566,7 +1513,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNotePanScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNotePanEditor->updateEditor();
+		m_pNotePanEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 2 ) {		// Lead and Lag
 		m_pNoteVelocityScrollView->hide();
@@ -1575,7 +1522,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteLeadLagScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteLeadLagEditor->updateEditor();
+		m_pNoteLeadLagEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 3 ) {		// KeyOctave
 		m_pNoteVelocityScrollView->hide();
@@ -1584,7 +1531,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteKeyOctaveScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
 
-		m_pNoteKeyOctaveEditor->updateEditor();
+		m_pNoteKeyOctaveEditor->updateEditor( Editor::Update::Background );
 	}
 	else if ( nSelected == 4 ) {		// Probability
 		m_pNotePanScrollView->hide();
@@ -1593,7 +1540,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteProbabilityScrollView->show();
 
-		m_pNoteProbabilityEditor->updateEditor();
+		m_pNoteProbabilityEditor->updateEditor( Editor::Update::Background );
 	}
 	/*
 	else if ( nSelected == 5 ) {		// Cutoff
@@ -1617,11 +1564,13 @@ int PatternEditorPanel::getCursorIncrement() const {
 void PatternEditorPanel::ensureCursorIsVisible()
 {
 	if ( m_instance == Editor::Instance::DrumPattern ) {
-		const auto pos = m_pDrumPatternEditor->getCursorPosition();
+		const auto pos = m_pDrumPatternEditor->gridPointToPoint(
+			m_pDrumPatternEditor->getCursorPosition() );
 		m_pEditorScrollView->ensureVisible( pos.x(), pos.y() );
 	}
 	else {
-		const auto pos = m_pPianoRollEditor->getCursorPosition();
+		const auto pos = m_pPianoRollEditor->gridPointToPoint(
+			m_pPianoRollEditor->getCursorPosition() );
 		m_pPianoRollScrollView->ensureVisible( pos.x(), pos.y() );
 	}
 }
@@ -1645,9 +1594,9 @@ void PatternEditorPanel::setCursorColumn( int nCursorColumn,
 	if ( bUpdateEditors && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		ensureCursorIsVisible();
 		m_pSidebar->updateEditor();
-		m_pPatternEditorRuler->update();
-		getVisibleEditor()->update();
-		getVisiblePropertiesRuler()->update();
+		m_pPatternEditorRuler->updateEditor( true );
+		getVisibleEditor()->updateEditor( Editor::Update::Transient );
+		getVisiblePropertiesRuler()->updateEditor( Editor::Update::Transient );
 	}
 }
 
@@ -1762,16 +1711,16 @@ void PatternEditorPanel::onPreferencesChanged( const H2Core::Preferences::Change
 		m_pPianoRollEditor->updateFont();
 		m_pNoteKeyOctaveEditor->updateFont();
 		m_pSidebar->updateFont();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 	}
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		m_pSidebar->updateColors();
 		updateStyleSheet();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 	}
 	else if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
-		updateEditors( true );
+		updateEditors( Editor::Update::Content );
 		updateIcons();
 	}
 }
@@ -1996,26 +1945,6 @@ int PatternEditorPanel::findRowDB( std::shared_ptr<Note> pNote,
 	return -1;
 }
 
-std::shared_ptr<H2Core::Instrument> PatternEditorPanel::getSelectedInstrument() const {
-	if ( m_nSelectedRowDB < 0 || m_nSelectedRowDB >= m_db.size() ) {
-		return nullptr;
-	}
-
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return nullptr;
-	}
-
-	auto row = m_db.at( m_nSelectedRowDB );
-	if ( row.nInstrumentID == EMPTY_INSTR_ID ) {
-		// Row is associated with a type but not an instrument of the current
-		// kit.
-		return nullptr;
-	}
-
-	return pSong->getDrumkit()->getInstruments()->find( row.nInstrumentID );
-}
-
 void PatternEditorPanel::updateDB() {
 	m_db.clear();
 
@@ -2150,8 +2079,8 @@ void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
 	if ( bQuantized != m_bQuantized ) {
 		m_bQuantized = bQuantized;
 
-		getVisibleEditor()->updateEditor( false );
-		getVisiblePropertiesRuler()->updateEditor( false );
+		getVisibleEditor()->updateEditor( Editor::Update::Background );
+		getVisiblePropertiesRuler()->updateEditor( Editor::Update::Background );
 	}
 }
 
@@ -2286,10 +2215,12 @@ void PatternEditorPanel::printDB() const {
 	DEBUGLOG( sMsg );
 }
 
-void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
-										   int nOctave, bool bDoAdd,
-										   bool bDoDelete, bool bIsNoteOff,
+void PatternEditorPanel::addOrRemoveNotes( GridPoint gridPoint, int nKey,
+										   int nOctave, bool bIsNoteOff,
+										   float fYValue,
+										   PatternEditor::Property property,
 										   Editor::Action action,
+										   Editor::ActionModifier modifier,
 										   const QString& sUndoContext ) {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
@@ -2298,14 +2229,19 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		return;
 	}
 
-	if ( nPosition >= m_pPattern->getLength() ) {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	if ( gridPoint.getColumn() >= m_pPattern->getLength() ) {
 		// Note would be beyond the active region of the current pattern.
 		return;
 	}
 
-	auto row = getRowDB( nRow );
+	auto row = getRowDB( gridPoint.getRow() );
 	if ( row.nInstrumentID == EMPTY_INSTR_ID && row.sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row [%1]" ).arg( nRow ) );
+		DEBUGLOG( QString( "Empty row [%1]" ).arg( gridPoint.getRow() ) );
 		return;
 	}
 
@@ -2314,23 +2250,23 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 	int nNewOctave = nOctave;
 	if ( nKey == KEY_INVALID || nOctave == OCTAVE_INVALID ) {
 		oldNotes = m_pPattern->findNotes(
-			nPosition, row.nInstrumentID, row.sType );
+			gridPoint.getColumn(), row.nInstrumentID, row.sType );
 		nNewKey = KEY_MIN;
 		nNewOctave = OCTAVE_DEFAULT;
 	}
 	else {
 		auto pOldNote = m_pPattern->findNote(
-			nPosition, row.nInstrumentID, row.sType,
+			gridPoint.getColumn(), row.nInstrumentID, row.sType,
 			static_cast<Note::Key>(nKey), static_cast<Note::Octave>(nOctave) );
 		if ( pOldNote != nullptr ) {
 			oldNotes.push_back( pOldNote );
 		}
 	}
 
-	if ( oldNotes.size() > 0 && ! bDoDelete ) {
+	if ( oldNotes.size() > 0 && action == Editor::Action::Add ) {
 		// Found an old note, but we don't want to delete, so just return.
 		return;
-	} else if ( oldNotes.size() == 0 && ! bDoAdd ) {
+	} else if ( oldNotes.size() == 0 && action == Editor::Action::Delete ) {
 		// No note there, but we don't want to add a new one, so return.
 		return;
 	}
@@ -2339,37 +2275,74 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		// Play back added notes.
 		if ( Preferences::get_instance()->getHearNewNotes() &&
 			 row.bMappedToDrumkit &&
-			 ( static_cast<char>(action) &
-			   static_cast<char>(Editor::Action::Playback) ) ) {
-			auto pSelectedInstrument = getSelectedInstrument();
-			if ( pSelectedInstrument != nullptr &&
-				 pSelectedInstrument->hasSamples() ) {
-				auto pNote2 = std::make_shared<Note>( pSelectedInstrument );
+			 ( static_cast<char>(modifier) &
+			   static_cast<char>(Editor::ActionModifier::Playback) ) ) {
+			auto pInstrument = pSong->getDrumkit()->getInstruments()
+				->find( row.nInstrumentID );
+			if ( pInstrument != nullptr && pInstrument->hasSamples() ) {
+				auto pNote2 = std::make_shared<Note>( pInstrument );
 				pNote2->setKeyOctave( static_cast<Note::Key>(nKey),
 									  static_cast<Note::Octave>(nOctave) );
 				pNote2->setNoteOff( bIsNoteOff );
+
+				if ( ! std::isnan( fYValue ) ) {
+					NotePropertiesRuler::applyProperty(
+						pNote2, property, fYValue );
+				}
+
 				Hydrogen::get_instance()->getAudioEngine()->getSampler()->
 					noteOn( pNote2 );
 			}
 		}
 
+		// Check whether the note was created in the NotePropertiesRuler and we
+		// need to set some custom property.
+		float fVelocity = VELOCITY_DEFAULT;
+		float fPan = PAN_DEFAULT;
+		float fLeadLag = LEAD_LAG_DEFAULT;
+		float fProbability = PROBABILITY_DEFAULT;
+		if ( ! std::isnan( fYValue ) ) {
+			// We use a dummy note to retrieve the value.
+			auto pDummyNote = std::make_shared<Note>(
+				static_cast< std::shared_ptr<Instrument> >(nullptr) );
+			NotePropertiesRuler::applyProperty(
+				pDummyNote, property, fYValue );
+
+			if ( property == PatternEditor::Property::Velocity ) {
+				fVelocity = pDummyNote->getVelocity();
+			}
+			else if ( property == PatternEditor::Property::Pan ) {
+				fPan = pDummyNote->getPan();
+			}
+			else if ( property == PatternEditor::Property::LeadLag ) {
+				fLeadLag = pDummyNote->getLeadLag();
+			}
+			else if ( property == PatternEditor::Property::KeyOctave ) {
+				nNewKey = pDummyNote->getKey();
+				nNewOctave = pDummyNote->getOctave();
+			}
+			else if ( property == PatternEditor::Property::Probability ) {
+				fProbability = pDummyNote->getProbability();
+			}
+		}
+
 		pHydrogenApp->pushUndoCommand(
 			new SE_addOrRemoveNoteAction(
-				nPosition,
+				gridPoint.getColumn(),
 				row.nInstrumentID,
 				row.sType,
 				m_nPatternNumber,
 				LENGTH_ENTIRE_SAMPLE,
-				VELOCITY_DEFAULT,
-				PAN_DEFAULT,
-				LEAD_LAG_DEFAULT,
+				fVelocity,
+				fPan,
+				fLeadLag,
 				nNewKey,
 				nNewOctave,
-				PROBABILITY_DEFAULT,
-				/* bIsDelete */ false,
+				fProbability,
+				Editor::Action::Add,
 				bIsNoteOff,
 				row.bMappedToDrumkit,
-				action ), sUndoContext );
+				modifier ), sUndoContext );
 	}
 	else {
 		// delete notes
@@ -2378,7 +2351,7 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 		for ( const auto& ppNote : oldNotes ) {
 			pHydrogenApp->pushUndoCommand(
 				new SE_addOrRemoveNoteAction(
-					nPosition,
+					gridPoint.getColumn(),
 					ppNote->getInstrumentId(),
 					ppNote->getType(),
 					m_nPatternNumber,
@@ -2389,10 +2362,10 @@ void PatternEditorPanel::addOrRemoveNotes( int nPosition, int nRow, int nKey,
 					ppNote->getKey(),
 					ppNote->getOctave(),
 					ppNote->getProbability(),
-					/* bIsDelete */ true,
+					Editor::Action::Delete,
 					ppNote->getNoteOff(),
 					ppNote->getInstrument() != nullptr,
-					action ), sUndoContext );
+					modifier ), sUndoContext );
 		}
 		pHydrogenApp->endUndoMacro( sUndoContext );
 	}
@@ -2481,10 +2454,10 @@ void PatternEditorPanel::clearNotesInRow( int nRow, int nPattern, int nPitch,
 						ppNote->getKey(),
 						ppNote->getOctave(),
 						ppNote->getProbability(),
-						/* bIsDelete */ true,
+						Editor::Action::Delete,
 						ppNote->getNoteOff(),
 						ppNote->getInstrument() != nullptr,
-						Editor::Action::None ) );
+						Editor::ActionModifier::None ) );
 			}
 		}
 	}
@@ -2565,10 +2538,10 @@ void PatternEditorPanel::fillNotesInRow( int nRow, FillNotes every, int nPitch )
 
 		pHydrogenApp->beginUndoMacro( FillNotesToQString( every ) );
 		for ( int nnPosition : notePositions ) {
-			addOrRemoveNotes( nnPosition, nRow, nKey, nOctave,
-							  true /* bDoAdd */, false /* bDoDelete */,
-							  false /* bIsNoteOff */,
-							  Editor::Action::None );
+			addOrRemoveNotes( GridPoint( nnPosition, nRow ), nKey, nOctave,
+							  false /* bIsNoteOff */, std::nan( "" ),
+							  PatternEditor::Property::None, Editor::Action::Add,
+							  Editor::ActionModifier::None );
 		}
 		pHydrogenApp->endUndoMacro();
 	}
@@ -2596,7 +2569,7 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 		// Nothing to do. All notes seem to have been deleted before triggering
 		// this action.
 		updateDB();
-		updateEditors();
+		updateEditors( Editor::Update::Background );
 		return;
 	}
 
@@ -2657,7 +2630,7 @@ void PatternEditorPanel::setTypeInRow( int nRow ) {
 	pHydrogenApp->endUndoMacro();
 
 	updateDB();
-	updateEditors();
+	updateEditors( Editor::Update::Background );
 
 	getVisibleEditor()->triggerStatusMessage(
 		notes, PatternEditor::Property::Type );
@@ -2757,10 +2730,10 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns( int nRow, int nPitch ) {
 							nPitch == PITCH_INVALID ? ppNote->getOctave() :
 							  Note::pitchToOctave( nPitch ),
 							ppNote->getProbability(),
-							/* bIsDelete */ false,
+							Editor::Action::Add,
 							ppNote->getNoteOff(),
 							row.bMappedToDrumkit,
-							Editor::Action::None ) );
+							Editor::ActionModifier::None ) );
 				}
 			}
 		}

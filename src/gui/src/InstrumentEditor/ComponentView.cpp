@@ -162,6 +162,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pLayerPreview = new LayerPreview( this );
 
 	m_pLayerScrollArea = new QScrollArea( m_pComponentWidget );
+	m_pLayerScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	if ( InstrumentComponent::getMaxLayers() > 16 ) {

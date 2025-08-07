@@ -276,9 +276,9 @@ CommonStrings::CommonStrings(){
 	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
-	m_sJackTimebaseToolTip = tr("No external JACK Timebase controller. Press to make Hydrogen in control.");
-	m_sJackTimebaseListenerToolTip = tr("Hydrogen is listening to tempo and position info. Press to make Hydrogen in control instead.");
-	m_sJackTimebaseDisabledToolTip = tr( "JACK timebase support is disabled in the Preferences" );
+	m_sJackTimebaseToolTip = tr("JACK Timebase support deactivated. Press to make Hydrogen in control.");
+	m_sJackTimebaseListenerToolTip = tr("External Timebase controller. Hydrogen is listening for tempo and position info.");
+	m_sJackTimebaseControllerToolTip = tr("Hydrogen is Timebase controller and sends tempo and position info.");
 
 	/*: Tool tip and menu description used for the tap button in the main tool
 	 *  bar whenever tap tempo was selected. */
@@ -372,6 +372,18 @@ CommonStrings::CommonStrings(){
 	/*: Displayed in popup dialogs in case the user attempts to close
 	  a window which still contains unsaved changes. The '\n'
 	  character introduces a linebreak and must not be translated*/
+	/*: Text displayed on the Fill button in the pattern fill dialog of the
+	  song editor. The character after the '&' symbol can be used as a hotkey
+	  and the '&' symbol itself will not be displayed. Note that this button
+	  will be displayed in combination with "Cancel" and "Clear" and the symbol
+	  after '&' should be different in all three translations. */
+	m_sButtonFill = tr( "&Fill" );
+	/*: Text displayed on the Clear button in the pattern fill dialog of the
+	  song editor. The character after the '&' symbol can be used as a hotkey
+	  and the '&' symbol itself will not be displayed. Note that this button
+	  will be displayed in combination with "Cancel" and "Fill" and the symbol
+	  after '&' should be different in all three translations. */
+	m_sButtonClear = tr( "Clea&r" );
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
 	m_sSavingChanges = tr( "Do you want to save the changes?" );
 
@@ -662,6 +674,22 @@ CommonStrings::CommonStrings(){
 	 *  Separated by a whitespace the corresponding column number will be
 	 *  appended. */
 	m_sActionEditTypes = tr( "Edit type for notes in row" );
+
+	/*: Shown in the undo history after duplicating a pattern. */
+	m_sActionDuplicatePattern = tr( "Duplicate pattern" );
+	/*: Shown in the undo history copying pattern cells in the song editor to
+	 *  another location. */
+	m_sActionCopyPatternCells = tr( "Copy selected cells" );
+	/*: Shown in the undo history deleting pattern cells in the song editor. */
+	m_sActionDeletePatternCells = tr( "Delete selected cells" );
+	/*: Shown in the undo history moving pattern cells in the song editor to
+	 *  another location. */
+	m_sActionMovePatternCells = tr( "Move selected cells" );
+	/*: Shown in the undo history pasting pattern cells in the song editor. */
+	m_sActionPastePatternCells = tr( "Paste cells" );
+	/*: Shown in the undo history adding or toggling pattern cells in the song
+	 *  editor. */
+	m_sActionTogglePatternCells = tr( "Toggle selected cells" );
 
 	m_sErrorNotFound = tr( "File could not be found!" );
 	/*: Shorter version of missing file warning. E.g. used as a prefix for the

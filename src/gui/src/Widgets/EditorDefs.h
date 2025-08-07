@@ -46,7 +46,8 @@ namespace Editor {
 		None = 0,
 		DrumPattern = 1,
 		PianoRoll = 2,
-		NotePropertiesRuler = 3
+		NotePropertiesRuler = 3,
+		SongEditor = 4
 	};
 	static QString instanceToQString( const Instance& instance ) {
 		switch ( instance ) {
@@ -58,6 +59,8 @@ namespace Editor {
 			return "PianoRoll";
 		case Instance::NotePropertiesRuler:
 			return "NotePropertiesRuler";
+		case Instance::SongEditor:
+			return "SongEditor";
 		default:
 			return QString( "Unknown instance [%1]" )
 				.arg( static_cast<int>(instance) ) ;
@@ -70,12 +73,12 @@ namespace Editor {
 	enum class Update {
 		/** Just paint transient elements, like hovered notes, cursor, focus
 		 * or lasso. */
-		None = 0,
+		Transient,
 		/** Update notes, pattern, etc. including selection of a cached
 		 * background image. */
-		Content = 1,
+		Content,
 		/** Update the background image. */
-		Background = 2
+		Background
 	};
 	static QString updateToQString( const Update& update ) {
 		switch ( update ) {
@@ -83,59 +86,81 @@ namespace Editor {
 			return "Background";
 		case Update::Content:
 			return "Content";
-		case Update::None:
-			return "None";
+		case Update::Transient:
+			return "Transient";
 		default:
 			return QString( "Unknown update [%1]" )
 				.arg( static_cast<int>(update) ) ;
 		}
 	}
 
+	/** Main action performed when interacting with elements. */
 	enum class Action {
+		/** Add a new element */
+		Add,
+		/** Deletes an existing element */
+		Delete,
+		/** Preforms no action. This maybe be used when just the side effect of
+		 * ActionModifier is desired. */
+		None,
+		/** If an elements exists, delete it. If not, create a new one. */
+		Toggle
+	};
+	static Action undoAction( Action action ) {
+		switch( action ) {
+			case Action::Add:
+				return Action::Delete;
+			case Action::Delete:
+				return Action::Add;
+			default:
+				return action;
+		}
+	};
+	static QString actionToQString( const Action& action ) {
+		switch( action ) {
+			case Action::Add:
+				return "Add";
+			case Action::Delete:
+				return "Delete";
+			case Action::None:
+				return "None";
+			case Action::Toggle:
+				return "Toggle";
+			default:
+				return "Unknown action";
+		}
+	};
+
+	/** Additional action, which can be performed in combination with
+	 * #Action. */
+	enum class ActionModifier {
 		None = 0x000,
 		/** Add the new note to the current selection. */
 		AddToSelection = 0x001,
 		/** Move cursor to focus newly added note. */
 		MoveCursorTo = 0x002,
 		/** Play back the new note in case hear notes is enabled. */
-		Playback = 0x004,
-		/** Add a new element */
-		AddElements = 0x008,
-		/** Deletes an existing elements */
-		DeleteElements = 0x010,
-		/** If an elements exists, delete it. If not, create a new one. */
-		ToggleElements = 0x020
+		Playback = 0x004
 	};
-	static QString actionToQString( const Action& action ) {
-		QStringList actions;
-		if ( static_cast<char>(action) & static_cast<char>(Action::None) ) {
-			actions << "None";
+	static QString actionModifierToQString( const ActionModifier& modifier ) {
+		QStringList strings;
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::None) ) {
+			strings << "None";
 		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::AddToSelection) ) {
-			actions << "AddToSelection";
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::AddToSelection) ) {
+			strings << "AddToSelection";
 		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::MoveCursorTo) ) {
-			actions << "MoveCursorTo";
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::MoveCursorTo) ) {
+			strings << "MoveCursorTo";
 		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::Playback) ) {
-			actions << "Playback";
+		if ( static_cast<char>(modifier) &
+			 static_cast<char>(ActionModifier::Playback) ) {
+			strings << "Playback";
 		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::AddElements) ) {
-			actions << "AddElements";
-		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::DeleteElements) ) {
-			actions << "DeleteElements";
-		}
-		if ( static_cast<char>(action) &
-			 static_cast<char>(Action::ToggleElements) ) {
-			actions << "ToggleElements";
-		}
-		return actions.join( ", " );
+		return strings.join( ", " );
 	}
 
 	/** Symbolic step sizes employed on keyboard interactions. */
@@ -191,6 +216,22 @@ namespace Editor {
 			return "Edit";
 		default:
 			return QString( "Unknown input [%1]" ).arg( static_cast<int>(input) );
+		}
+	}
+
+	/** Specifies which user input resulted in hovering an element. */
+	enum class Hover {
+		Keyboard = 0,
+		Mouse = 1
+	};
+	static QString hoverToQString( const Hover& hover ) {
+		switch ( hover ) {
+		case Hover::Keyboard:
+			return "Keyboard";
+		case Hover::Mouse:
+			return "Mouse";
+		default:
+			return QString( "Unknown hover [%1]" ).arg( static_cast<int>(hover) );
 		}
 	}
 

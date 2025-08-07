@@ -69,7 +69,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	const auto pPref = Preferences::get_instance();
 	
-	m_nWidth = 200;
 	m_nGridHeight = pPref->getSongEditorGridHeight();
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
@@ -85,7 +84,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	connect( m_pLineEdit, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
 	connect( m_pLineEdit, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
 
-	this->resize( m_nWidth, m_nInitialHeight );
+	this->resize( SongEditorPatternList::nWidth, m_nInitialHeight );
 
 	m_playingPattern_on_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_on.png" );
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
@@ -110,7 +109,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pDragScroller = new DragScroller( pScrollArea );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( m_nWidth * pixelRatio,
+	m_pBackgroundPixmap = new QPixmap( SongEditorPatternList::nWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 }
@@ -200,7 +199,7 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 		return;
 	}
 	m_pPatternBeingEdited = pPatternList->get( row );
-	m_pLineEdit->setGeometry( 23, row * m_nGridHeight + 1 , m_nWidth - 23, m_nGridHeight  );
+	m_pLineEdit->setGeometry( 23, row * m_nGridHeight + 1 , SongEditorPatternList::nWidth - 23, m_nGridHeight  );
 	m_pLineEdit->setText( m_pPatternBeingEdited->getName() );
 	m_pLineEdit->selectAll();
 	m_pLineEdit->show();
@@ -251,7 +250,14 @@ void SongEditorPatternList::inlineEditingFinished()
 
 void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pSongEditorPanel = pHydrogenApp->getSongEditorPanel();
+	auto pSongEditor = pSongEditorPanel->getSongEditor();
+	auto pPref = Preferences::get_instance();
+
 	QPainter painter(this);
+	painter.setRenderHint( QPainter::Antialiasing );
+
 	qreal pixelRatio = devicePixelRatio();
 	if ( width() != m_pBackgroundPixmap->width() ||
 		 height() != m_pBackgroundPixmap->height() ||
@@ -266,6 +272,21 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 			pixelRatio * ev->rect().height()
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
+
+	// Draw focus
+	if ( pSongEditorPanel->hasSongEditorFocus() &&
+		 ! pHydrogenApp->hideKeyboardCursor() ) {
+		const auto cursorPoint = pSongEditor->gridPointToPoint(
+			pSongEditor->getCursorPosition() );
+
+		QPen cursorPen( pPref->getTheme().m_color.m_cursorColor );
+		cursorPen.setWidth( 2 );
+		painter.setPen( cursorPen );
+		painter.setBrush( Qt::NoBrush );
+		painter.drawRoundedRect(
+			0, cursorPoint.y() + 1, width() -1, pSongEditor->getGridHeight() - 1,
+			4, 4 );
+	}
 }
 
 void SongEditorPatternList::createBackground()
@@ -295,7 +316,7 @@ void SongEditorPatternList::createBackground()
 
 	int newHeight = m_nGridHeight * nPatterns + 1;
 
-	if ( m_nWidth != m_pBackgroundPixmap->width() ||
+	if ( SongEditorPatternList::nWidth != m_pBackgroundPixmap->width() ||
 		 newHeight != m_pBackgroundPixmap->height() ||
 		 m_pBackgroundPixmap->devicePixelRatio() != devicePixelRatio() ) {
 		if (newHeight == 0) {
@@ -303,9 +324,9 @@ void SongEditorPatternList::createBackground()
 		}
 		delete m_pBackgroundPixmap;
 		qreal pixelRatio = devicePixelRatio();
-		m_pBackgroundPixmap = new QPixmap( m_nWidth  * pixelRatio , newHeight * pixelRatio );	// initialize the pixmap
+		m_pBackgroundPixmap = new QPixmap( SongEditorPatternList::nWidth  * pixelRatio , newHeight * pixelRatio );	// initialize the pixmap
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-		this->resize( m_nWidth, newHeight );
+		this->resize( SongEditorPatternList::nWidth, newHeight );
 	}
 
 	QColor backgroundColor = pPref->getTheme().m_color.m_songEditor_backgroundColor.darker( 120 );
@@ -389,7 +410,7 @@ void SongEditorPatternList::createBackground()
 
 		int text_y = i * m_nGridHeight;
 
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2,
+		p.drawText( 25, text_y - 1, SongEditorPatternList::nWidth - 25, m_nGridHeight + 2,
 					Qt::AlignVCenter, PatternArray[i].sPatternName);
 
 		Skin::Stacked mode = Skin::Stacked::None;
@@ -689,6 +710,8 @@ void SongEditorPatternList::patternPopup_delete()
 
 void SongEditorPatternList::patternPopup_duplicate()
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -719,111 +742,89 @@ void SongEditorPatternList::patternPopup_duplicate()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(
 		this, pNewPattern, m_nRowClicked, true );
 
-	if ( dialog->exec() == QDialog::Accepted ) {
-		const QString sPath = Filesystem::tmp_file_path(
-			"patternDuplicate.h2pattern" );
-		if ( ! pNewPattern->save( sPath ) ) {
-			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
-		}
-		else {
-			SE_duplicatePatternAction *action =
-				new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 );
-			HydrogenApp::get_instance()->pushUndoCommand( action );
-		}
+	if ( dialog->exec() != QDialog::Accepted ) {
+		delete dialog;
+		return;
+	}
+	delete dialog;
+
+	const QString sPath = Filesystem::tmp_file_path(
+		"patternDuplicate.h2pattern" );
+	if ( ! pNewPattern->save( sPath ) ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
+		return;
 	}
 
-	delete dialog;
+	pHydrogenApp->beginUndoMacro(
+		pCommonStrings->getActionDuplicatePattern() );
+	pHydrogenApp->pushUndoCommand(
+		new SE_duplicatePatternAction( sPath, m_nRowClicked + 1 ) );
+
+	// Duplicate all activations of the corresponding row as well. Because we
+	// will select the newly created patterns, we should clear the former
+	// selection first.
+	pHydrogenApp->getSongEditorPanel()->getSongEditor()
+		->m_selection.clearSelection();
+
+	const int nIndex = pPatternList->index( pPattern );
+	const auto pPatternGroupVector = pSong->getPatternGroupVector();
+	for ( int nnColumn = 0; nnColumn < pPatternGroupVector->size(); ++nnColumn ) {
+		const auto ppColumn = pPatternGroupVector->at( nnColumn );
+		if ( ppColumn != nullptr ) {
+			for ( int nnPattern = 0; nnPattern < ppColumn->size(); ++nnPattern ) {
+				const auto ppPattern = ppColumn->get( nnPattern );
+				if ( ppPattern != nullptr && ppPattern == pPattern ) {
+					pHydrogenApp->pushUndoCommand(
+						new SE_addOrRemovePatternCellAction(
+							GridPoint( nnColumn, m_nRowClicked + 1 ),
+							Editor::Action::Add,
+							Editor::ActionModifier::AddToSelection ) );
+				}
+			}
+		}
+	}
+	pHydrogenApp->endUndoMacro();
 }
 
-void SongEditorPatternList::patternPopup_fill()
-{
+void SongEditorPatternList::patternPopup_fill() {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	FillRange range;
 	PatternFillDialog *dialog = new PatternFillDialog( this, &range );
 
 	// use a PatternFillDialog to get the range and mode data
 	if ( dialog->exec() == QDialog::Accepted ) {
 
-		SE_fillRangePatternAction *action =
-			new SE_fillRangePatternAction( &range, m_nRowClicked );
-		HydrogenApp::get_instance()->pushUndoCommand( action );
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		pHydrogenApp->getSongEditorPanel()->getSongEditor()->clearSelection();
+
+		const auto action = range.bInsert ? Editor::Action::Add :
+			Editor::Action::Delete;
+
+		pHydrogenApp->beginUndoMacro( tr( "Fill/remove range of pattern" ) );
+		for ( int nnColumn = range.nFrom; nnColumn <= range.nTo; ++nnColumn ) {
+			const auto gridPoint = GridPoint( nnColumn, m_nRowClicked );
+			if ( ( action == Editor::Action::Delete &&
+				   ! pSong->isPatternActive( gridPoint ) ) ||
+				 ( action == Editor::Action::Add &&
+				   pSong->isPatternActive( gridPoint ) ) ) {
+				// We have to ensure to only act on elements which are already
+				// present. Else, undo will misbehave.
+				continue;
+			}
+
+			pHydrogenApp->pushUndoCommand(
+				new SE_addOrRemovePatternCellAction(
+					gridPoint, Editor::Action::Toggle,
+					Editor::ActionModifier::AddToSelection ) );
+		}
+		pHydrogenApp->endUndoMacro();
 	}
 
 	delete dialog;
-}
-
-
-void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPattern )
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	auto pPatternList = pSong->getPatternList();
-	auto pPattern = pPatternList->get( nPattern );
-	auto pColumns = pSong->getPatternGroupVector();	// E' la lista di "colonne" di pattern
-	std::shared_ptr<PatternList> pColumn = nullptr;
-
-	int nColumn, nColumnIndex;
-	bool bHasPattern = false;
-	int fromVal = pRange->fromVal - 1;
-	int toVal   = pRange->toVal;
-
-	// Add patternlists to PatternGroupVector as necessary
-	int nDelta = toVal - pColumns->size() + 1;
-
-	for ( int i = 0; i < nDelta; i++ ) {
-		pColumn = std::make_shared<PatternList>();
-		pColumns->push_back( pColumn );
-	}
-
-	// Fill or Clear each cell in range
-	for ( nColumn = fromVal; nColumn < toVal; nColumn++ ) {
-
-		// expand Pattern
-		pColumn = ( *pColumns )[ nColumn ];
-		
-		assert( pColumn );
-
-		bHasPattern = false;
-
-		// check whether the pattern (and column) already exists
-		for ( nColumnIndex = 0; pColumn && nColumnIndex < (int)pColumn->size(); nColumnIndex++) {
-
-			if ( pColumn->get( nColumnIndex ) == pPattern ) {
-				bHasPattern = true;
-				break;
-			}
-		}
-
-		if ( pRange->bInsert && !bHasPattern ) {       //fill
-			pColumn->add( pPattern);
-		}
-		else if ( !pRange->bInsert && bHasPattern ) {  // clear
-			pColumn->del( pPattern);
-		}
-	}
-
-		// remove all the empty patternlists at the end of the song
-		for ( int i = pColumns->size() - 1; i != 0 ; i-- ) {
-			auto pList = (*pColumns)[ i ];
-			int nSize = pList->size();
-			if ( nSize == 0 ) {
-				pColumns->erase( pColumns->begin() + i );
-			}
-			else {
-				break;
-			}
-		}
-	pHydrogen->getAudioEngine()->unlock();
-
-
-	// Update
-	pHydrogen->setIsModified( true );
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors();
 }
 
 void SongEditorPatternList::updateEditor() {
@@ -975,7 +976,8 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 		pHydrogen->setSelectedPatternNumber(
 			nTargetPattern, true, Event::Trigger::Default );
 	}
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors();
+	HydrogenApp::get_instance()->getSongEditorPanel()
+		->updateEditors( Editor::Update::Content );
 	pHydrogen->setIsModified( true );
 }
 

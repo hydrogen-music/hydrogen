@@ -39,6 +39,10 @@
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
+namespace H2Core {
+	class GridPoint;
+}
+
 class Button;
 class ClickableLabel;
 class DrumPatternEditor;
@@ -49,8 +53,6 @@ class NotePropertiesRuler;
 class PatternEditorRuler;
 class PatternEditorSidebar;
 class PianoRollEditor;
-
-enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
 /** Properties of a single row in #DrumPatternEditor.
  *
@@ -211,13 +213,6 @@ class PatternEditorPanel : public QWidget,
 		int findRowDB( std::shared_ptr<H2Core::Note> pNote,
 					   bool bSilent = false ) const;
 		int getRowNumberDB() const;
-		/** Returns the instrument corresponding to the currently selected row
-		 * of the DB.
-		 *
-		 * In case this row is not associated with an instrument in the current
-		 * drumkit - only instrument type set - or no row was selected at all, a
-		 * nullptr is returned. */
-		std::shared_ptr<H2Core::Instrument> getSelectedInstrument() const;
 
 		/** Scrolls the viewport of the current editor until the selected row
 		 * (containingt the cursor, if shown) is visible. */
@@ -230,7 +225,7 @@ class PatternEditorPanel : public QWidget,
 		void moveCursorLeft( QKeyEvent* pEvent, Editor::Step step );
 		void moveCursorRight( QKeyEvent* pEvent, Editor::Step step );
 
-		void updateEditors( bool bPatternOnly = false );
+		void updateEditors( Editor::Update update );
 
 	void patternSizeChangedAction( int nLength, double fDenominator,
 								   int nSelectedPatternNumber );
@@ -250,10 +245,15 @@ class PatternEditorPanel : public QWidget,
 		/** If @a nKey or @a nOctave are set to invalid values, all notes on the
 		 * position specified using @a nPosition and @a nRow will be
 		 * deleted or a move with default key and octave will be added. */
-		void addOrRemoveNotes( int nPosition, int nRow, int nKey = KEY_INVALID,
-							   int nOctave = OCTAVE_INVALID, bool bDoAdd = true,
-							   bool bDoDelete = true, bool bIsNoteOff = false,
+		void addOrRemoveNotes( H2Core::GridPoint gridPoint, int nKey = KEY_INVALID,
+							   int nOctave = OCTAVE_INVALID,
+							   bool bIsNoteOff = false,
+							   float fPropertyValue = std::nan( "" ),
+							   PatternEditor::Property property =
+							      PatternEditor::Property::None,
 							   Editor::Action action = Editor::Action::None,
+							   Editor::ActionModifier modifier =
+							   Editor::ActionModifier::None,
 							   const QString& sUndoContext = "" );
 
 		/**
@@ -349,8 +349,9 @@ class PatternEditorPanel : public QWidget,
 		 * focus.*/
 		bool hasPatternEditorFocus() const;
 
+		/** In case m_pEditButton was pressed, it takes preceedence. Otherwise,
+		 * #MainToolBar::getInput() used. */
 		Editor::Input getInput() const;
-		void setInput( Editor::Input input);
 
 		Editor::Instance getInstance() const;
 		void setInstance( Editor::Instance instance);
@@ -394,7 +395,6 @@ class PatternEditorPanel : public QWidget,
 		/** All patterns currently playing. They are cached in here or  */
 		std::vector< std::shared_ptr<H2Core::Pattern> > m_patternsToShow;
 
-		Editor::Input m_input;
 		Editor::Instance m_instance;
 
 		/** Number corresponding to #m_pPattern. */
@@ -418,8 +418,6 @@ class PatternEditorPanel : public QWidget,
 		QTabBar* m_pTabBar;
 
 		QToolBar* m_pToolBar;
-		MidiLearnableToolButton* m_pSelectButton;
-		MidiLearnableToolButton* m_pDrawButton;
 		MidiLearnableToolButton* m_pEditButton;
 		QAction* m_pHearNotesAction;
 		QAction* m_pQuantizeAction;
@@ -541,9 +539,6 @@ inline const std::vector< std::pair< std::shared_ptr<H2Core::Pattern>,
 									 std::vector< std::shared_ptr<H2Core::Note> > >
 						  >& PatternEditorPanel::getHoveredNotes() const {
 	return m_hoveredNotes;
-}
-inline Editor::Input PatternEditorPanel::getInput() const {
-	return m_input;
 }
 inline Editor::Instance PatternEditorPanel::getInstance() const {
 	return m_instance;

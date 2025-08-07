@@ -326,15 +326,16 @@ void HydrogenApp::setupSinglePanedInterface()
 	mainArea->setMinimumSize( HydrogenApp::nMinimumWidth,
 							  180 + // menu bar, margins etc.
 							  MainToolBar::nHeight +
-							  SongEditorPanel::m_nMinimumHeight +
+							  SongEditorPanel::nMinimumHeight +
 							  InstrumentRack::m_nMinimumHeight +
 							  SongEditorPositionRuler::m_nMinimumHeight +
-							  SongEditor::m_nMinimumHeight +
+							  SongEditor::nMinimumHeight +
 							  Footer::nHeight +
 							  AutomationPathView::m_nMinimumHeight );
 
 	m_pMainScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pMainScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
+	m_pMainScrollArea->setFocusPolicy( Qt::ClickFocus );
 	m_pMainScrollArea->setWidget( mainArea );
 	m_pMainScrollArea->setWidgetResizable( true );
 
@@ -1195,10 +1196,10 @@ void HydrogenApp::onEventQueueTimer()
 								 pOldNote->getKey(),
 								 pOldNote->getOctave(),
 								 pOldNote->getProbability(),
-								 /*isDelete*/ true,
+								 Editor::Action::Delete,
 								 /*isNoteOff*/ false,
 								 pOldNote->getInstrument() != nullptr,
-								 Editor::Action::None ) );
+								 Editor::ActionModifier::None ) );
 		}
 		
 		// add the new note
@@ -1214,10 +1215,10 @@ void HydrogenApp::onEventQueueTimer()
 							 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 							 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 							 PROBABILITY_DEFAULT,
-							 /*isDelete*/ false,
+							 Editor::Action::Add,
 							 /*isNoteOff*/ false,
 							 row.bMappedToDrumkit,
-							 Editor::Action::Playback ) );
+							 Editor::ActionModifier::Playback ) );
 		endUndoMacro();
 
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
