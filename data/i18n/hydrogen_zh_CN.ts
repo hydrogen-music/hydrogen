@@ -3111,6 +3111,26 @@ LilyPond 导出是一项实验性功能。
         <source>Midi Actions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Ignore note-off</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>忽略音符：关(&amp;I)</translation>
+    </message>
+    <message>
+        <source>&amp;Discard MIDI messages after action has been triggered</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>触发动作后丢弃 MIDI 消息(&amp;D)</translation>
+    </message>
+    <message>
+        <source>&amp;Use output note as input note</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>使用输出音符作为输入音符(&amp;U)</translation>
+    </message>
+    <message>
+        <source>&amp;Enable MIDI feedback</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>启用 MIDI 反馈(&amp;E)</translation>
+    </message>
 </context>
 <context>
     <name>Mixer</name>
@@ -4404,22 +4424,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>MIDI driver</source>
         <translation>MIDI 驱动</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore note-off</source>
-        <translation>忽略音符：关(&amp;I)</translation>
-    </message>
-    <message>
-        <source>&amp;Enable MIDI feedback</source>
-        <translation>启用 MIDI 反馈(&amp;E)</translation>
-    </message>
-    <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <translation>触发动作后丢弃 MIDI 消息(&amp;D)</translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
-        <translation>使用输出音符作为输入音符(&amp;U)</translation>
     </message>
     <message>
         <source>High-resolution display scaling</source>

@@ -446,12 +446,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
 	}
 
-	m_pIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
-	m_pEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
-	m_pDiscardMidiMsgCheckbox->setChecked( pPref->m_bMidiDiscardNoteAfterAction );
-	m_pFixedMapping->setChecked( pPref->m_bMidiFixedMapping );
-
-
 	//////
 	// OSC tab
 	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
@@ -955,28 +949,6 @@ void PreferencesDialog::on_okBtn_clicked()
 		 Preferences::midiDriverToQString( pPref->m_midiDriver) ) {
 		pPref->m_midiDriver = Preferences::parseMidiDriver(
 			m_pMidiDriverComboBox->currentText() );
-		bMidiOptionAltered = true;
-	}
-
-	if ( pPref->m_bMidiNoteOffIgnore != m_pIgnoreNoteOffCheckBox->isChecked() ) {
-		pPref->m_bMidiNoteOffIgnore = m_pIgnoreNoteOffCheckBox->isChecked();
-		bMidiOptionAltered = true;
-	}
-	
-	if ( pPref->m_bMidiFixedMapping != m_pFixedMapping->isChecked() ) {
-		pPref->m_bMidiFixedMapping = m_pFixedMapping->isChecked();
-		bMidiOptionAltered = true;
-	}
-	
-	if ( pPref->m_bMidiDiscardNoteAfterAction !=
-		 m_pDiscardMidiMsgCheckbox->isChecked() ) {
-		pPref->m_bMidiDiscardNoteAfterAction = m_pDiscardMidiMsgCheckbox->isChecked();
-		bMidiOptionAltered = true;
-	}
-		
-	if ( pPref->m_bEnableMidiFeedback !=
-		 m_pEnableMidiFeedbackCheckBox->isChecked() ) {
-		pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
 		bMidiOptionAltered = true;
 	}
 

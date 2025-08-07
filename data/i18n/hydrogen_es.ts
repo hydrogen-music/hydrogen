@@ -3116,6 +3116,26 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Midi Actions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Ignore note-off</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>&amp;Ignorar note-off</translation>
+    </message>
+    <message>
+        <source>&amp;Discard MIDI messages after action has been triggered</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>&amp;Descartar mensajes MIDI tras dispararse una acción</translation>
+    </message>
+    <message>
+        <source>&amp;Use output note as input note</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>&amp;Utilizar nota de salida como nota de entrada</translation>
+    </message>
+    <message>
+        <source>&amp;Enable MIDI feedback</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>Habilitar f&amp;eedback MIDI</translation>
+    </message>
 </context>
 <context>
     <name>Mixer</name>
@@ -4409,22 +4429,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>MIDI driver</source>
         <translation>Driver MIDI</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore note-off</source>
-        <translation>&amp;Ignorar note-off</translation>
-    </message>
-    <message>
-        <source>&amp;Enable MIDI feedback</source>
-        <translation>Habilitar f&amp;eedback MIDI</translation>
-    </message>
-    <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <translation>&amp;Descartar mensajes MIDI tras dispararse una acción</translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
-        <translation>&amp;Utilizar nota de salida como nota de entrada</translation>
     </message>
     <message>
         <source>High-resolution display scaling</source>

@@ -3114,6 +3114,26 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Midi Actions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Ignore note-off</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>&amp;Ignorar note-off</translation>
+    </message>
+    <message>
+        <source>&amp;Discard MIDI messages after action has been triggered</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>&amp;Descart mensagens MIDI depois que uma ação for disparada</translation>
+    </message>
+    <message>
+        <source>&amp;Use output note as input note</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>&amp;Usar nota de saída como nota de entrada</translation>
+    </message>
+    <message>
+        <source>&amp;Enable MIDI feedback</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation>&amp;Ativar feedback MIDI</translation>
+    </message>
 </context>
 <context>
     <name>Mixer</name>
@@ -4407,22 +4427,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Output</source>
         <translation>Saída</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore note-off</source>
-        <translation>&amp;Ignorar note-off</translation>
-    </message>
-    <message>
-        <source>&amp;Enable MIDI feedback</source>
-        <translation>&amp;Ativar feedback MIDI</translation>
-    </message>
-    <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <translation>&amp;Descart mensagens MIDI depois que uma ação for disparada</translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
-        <translation>&amp;Usar nota de saída como nota de entrada</translation>
     </message>
     <message>
         <source>High-resolution display scaling</source>

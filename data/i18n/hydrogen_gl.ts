@@ -3112,6 +3112,26 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Midi Actions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Ignore note-off</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Discard MIDI messages after action has been triggered</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Use output note as input note</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Enable MIDI feedback</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Mixer</name>
@@ -4402,22 +4422,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>MIDI driver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore note-off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Enable MIDI feedback</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

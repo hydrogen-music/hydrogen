@@ -42,6 +42,7 @@ using namespace H2Core;
 MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	: QDialog( pParent )
 {
+	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setMinimumSize( MidiControlDialog::nColumnActionWidth +
@@ -68,14 +69,17 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	const int nHeaderTextSize = 20;
 
 	auto pConfigWidget = new QWidget( m_pTabWidget );
+	pConfigWidget->setStyleSheet( QString( "\
+#MidiInputSettings {\
+    border-right: 1px solid %1;\
+}" ).arg( borderColor.name() ) );
 	m_pTabWidget->addTab( pConfigWidget, pCommonStrings->getSettings() );
 	auto pConfigLayout = new QHBoxLayout( pConfigWidget );
 	pConfigLayout->setSpacing( 0 );
 	pConfigWidget->setLayout( pConfigLayout );
 
 	auto pInputSettingsWidget = new QWidget( pConfigWidget );
-	pInputSettingsWidget->setStyleSheet( QString( "\
-border-right: 1px solid %1;" ).arg( borderColor.name() ) );
+	pInputSettingsWidget->setObjectName( "MidiInputSettings" );
 	pConfigLayout->addWidget( pInputSettingsWidget );
 	auto pInputSettingsLayout = new QVBoxLayout( pInputSettingsWidget );
 	pInputSettingsLayout->setAlignment( Qt::AlignTop );
@@ -94,6 +98,47 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	pInputSeparator->setStyleSheet( QString( "\
 background-color: %1;" ).arg( borderColor.name() ) );
 	pInputSettingsLayout->addWidget( pInputSeparator );
+
+	auto pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
+	pInputSettingsLayout->addWidget( pInputIgnoreNoteOffCheckBox );
+	connect( pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [&]() {
+		Preferences::get_instance()->m_bMidiNoteOffIgnore =
+			pInputIgnoreNoteOffCheckBox->isChecked();
+	} );
+
+	auto pInputDiscardAfterActionOffCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputDiscardAfterActionOffCheckBox->setChecked(
+		pPref->m_bMidiDiscardNoteAfterAction );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pInputDiscardAfterActionOffCheckBox->setText(
+		tr( "&Discard MIDI messages after action has been triggered" ) );
+	pInputSettingsLayout->addWidget( pInputDiscardAfterActionOffCheckBox );
+	connect( pInputDiscardAfterActionOffCheckBox, &QAbstractButton::toggled, [&]() {
+		Preferences::get_instance()->m_bMidiDiscardNoteAfterAction =
+			pInputDiscardAfterActionOffCheckBox->isChecked();
+	} );
+
+	auto pInputNoteAsOutputCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pInputNoteAsOutputCheckBox->setText( tr( "&Use output note as input note" ) );
+	pInputSettingsLayout->addWidget( pInputNoteAsOutputCheckBox );
+	connect( pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [&]() {
+		Preferences::get_instance()->m_bMidiFixedMapping =
+			pInputNoteAsOutputCheckBox->isChecked();
+	} );
 
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
 	pConfigLayout->addWidget( pOutputSettingsWidget );
@@ -114,6 +159,19 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	pOutputSeparator->setStyleSheet( QString( "\
 background-color: %1;" ).arg( borderColor.name() ) );
 	pOutputSettingsLayout->addWidget( pOutputSeparator );
+
+	auto pOutputEnableMidiFeedbackCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pOutputEnableMidiFeedbackCheckBox->setText( tr( "&Enable MIDI feedback" ) );
+	pOutputSettingsLayout->addWidget( pOutputEnableMidiFeedbackCheckBox );
+	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [&]() {
+		Preferences::get_instance()->m_bEnableMidiFeedback =
+			pOutputEnableMidiFeedbackCheckBox->isChecked();
+	} );
 
 	////////////////////////////////////////////////////////////////////////////
 
