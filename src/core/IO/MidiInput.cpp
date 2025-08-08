@@ -137,6 +137,15 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		break;
 	}
 
+	case MidiMessage::Type::SongPos:
+		if ( pPref->getMidiTransportInputHandling() ) {
+			// A song position provided via MIDI has the lowest resolution of a
+			// 1/16 note / 6 MIDI clocks. 24 MIDI clocks make a quarter.
+			CoreActionController::locateToTick(
+				msg.getData1() * 6 * H2Core::nTicksPerQuarter / 24, true );
+		}
+		break;
+
 	case MidiMessage::Type::TimingClock:
 		if ( pPref->getMidiClockInputHandling() ) {
 			MidiActionManager::get_instance()->handleMidiAction(
@@ -146,7 +155,6 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 
 	case MidiMessage::Type::ChannelPressure:
 	case MidiMessage::Type::PitchWheel:
-	case MidiMessage::Type::SongPos:
 	case MidiMessage::Type::QuarterFrame:
 	case MidiMessage::Type::SongSelect:
 	case MidiMessage::Type::TuneRequest:
