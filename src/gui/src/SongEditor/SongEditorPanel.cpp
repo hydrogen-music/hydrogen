@@ -83,9 +83,17 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pTimelineBtn->setObjectName( "TimelineBtn" );
 	m_pTimelineBtn->setChecked( m_bLastIsTimelineActivated );
 	connect( m_pTimelineBtn, SIGNAL( clicked() ), this, SLOT( timelineBtnClicked() ) );
-	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Listener ) {
+
+	const auto tempoSource = pHydrogen->getTempoSource();
+
+	if ( tempoSource == Hydrogen::Tempo::Jack ) {
 		m_pTimelineBtn->setToolTip(
 			pCommonStrings->getTimelineDisabledTimebaseListener() );
+		m_pTimelineBtn->setIsActive( false );
+	}
+	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledMidiClock() );
 		m_pTimelineBtn->setIsActive( false );
 	}
 	else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
@@ -1092,16 +1100,17 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 }
 
 void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
+	const auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( bEnabled ) {
 		m_pTimelineBtn->setIsActive( true );
-		// setTimelineActive( m_bLastIsTimelineActivated );
-	} else {
-		m_bLastIsTimelineActivated = Hydrogen::get_instance()->getSong()->getIsTimelineActivated();
-		if ( m_pTimelineBtn->isChecked() ) {
-			// setTimelineActive( false );
-		}
+	}
+	else {
+		m_bLastIsTimelineActivated = pSong->getIsTimelineActivated();
 		m_pTimelineBtn->setIsActive( false );
 	}
 
@@ -1138,11 +1147,17 @@ void SongEditorPanel::updateIcons() {
 void SongEditorPanel::updateJacktimebaseState() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
-	const auto state = pHydrogen->getJackTimebaseState();
-	if ( state == JackAudioDriver::Timebase::Listener ) {
+	const auto tempoSource = pHydrogen->getTempoSource();
+
+	if ( tempoSource == Hydrogen::Tempo::Jack ) {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip(
 			pCommonStrings->getTimelineDisabledTimebaseListener() );
+	}
+	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
+		setTimelineEnabled( false );
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledMidiClock() );
 	}
 	else if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 		setTimelineEnabled( true );
@@ -1283,17 +1298,21 @@ QToolButton:hover, QToolButton:pressed {\
 void SongEditorPanel::updateTimeline() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	const auto tempoSource = pHydrogen->getTempoSource();
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip(
 			pCommonStrings->getTimelineDisabledPatternMode() );
 	}
-	else if ( pHydrogen->getJackTimebaseState() !=
-				JackAudioDriver::Timebase::Listener ) {
+	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
+		setTimelineEnabled( false );
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledMidiClock() );
+	}
+	else if ( tempoSource != Hydrogen::Tempo::Jack ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
-
 	}
 
 	if ( ! pHydrogen->isTimelineEnabled() && m_pTimelineBtn->isChecked() ) {

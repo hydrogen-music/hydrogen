@@ -62,12 +62,17 @@ public:
 		Song = 0,
 		/** Only tempo markers on the Timeline are considered.*/
 		Timeline = 1,
+		/** Hydrogen is synchronizing tempo and transport handling - like start,
+		 * stop, and relocation - to incoming MIDI (clock) events. This will
+		 * only work, if there is _no_ external JACK Timebase controller
+		 * present. */
+		Midi = 2,
 		/** Hydrogen will disregard all internal tempo settings and uses the
 			ones provided by the JACK server instead. This mode is only used in
 			case the JACK audio driver is used, JACK Timebase support is
 			activated in the Preferences, and an external Timebase controller is
 			registered to the JACK server.*/
-		Jack = 2
+		Jack = 3
 	};
 
 	enum ErrorMessages {

@@ -1450,6 +1450,10 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
         <translation>Tot</translation>
     </message>
+    <message>
+        <source>While MIDI clock handling is activated tempo can not be altered from within Hydrogen</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>

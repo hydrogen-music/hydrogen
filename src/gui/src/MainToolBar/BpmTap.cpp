@@ -381,6 +381,11 @@ void BpmTap::updateBpmTap() {
 		m_pTapButton->setBaseToolTip( m_sJackActiveToolTip );
 		m_pTapButton->setEnabled( false );
 		break;
+	case H2Core::Hydrogen::Tempo::Midi:
+		m_pTapButton->setBaseToolTip(
+			pCommonStrings->getTimelineDisabledMidiClock() );
+		m_pTapButton->setEnabled( false );
+		break;
 	case H2Core::Hydrogen::Tempo::Timeline:
 		m_pTapButton->setBaseToolTip( m_sTimelineActiveToolTip );
 		m_pTapButton->setEnabled( false );

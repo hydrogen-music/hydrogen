@@ -1222,8 +1222,20 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 			AE_ERRORLOG( "Unable to retrieve tempo from JACK server" );
 		}
 	}
+	else if ( Preferences::get_instance()->getMidiClockInputHandling() ) {
+		// Change in speed due to incoming MIDI clock messages.
+		if ( pAudioEngine->getNextBpm() != fBpm ) {
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "BPM changed via MIDI clock [%1] -> [%2]." )
+					  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+			// We do not return AudioEngine::m_fNextBpm since it is considered
+			// transient until applied in updateBpmAndTickSize(). It's not the
+			// current tempo.
+#endif
+		}
+	}
 	else if ( pSong->getIsTimelineActivated() &&
-				pHydrogen->getMode() == Song::Mode::Song ) {
+			  pHydrogen->getMode() == Song::Mode::Song ) {
 
 		const float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {

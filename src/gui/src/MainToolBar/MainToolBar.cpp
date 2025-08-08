@@ -765,6 +765,7 @@ void MainToolBar::rewindBtnClicked() {
 }
 
 void MainToolBar::updateBpmSpinBox() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	m_pBpmSpinBox->setIsActive(
@@ -776,6 +777,10 @@ void MainToolBar::updateBpmSpinBox() {
 	switch ( pHydrogen->getTempoSource() ) {
 	case H2Core::Hydrogen::Tempo::Jack:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Midi:
+		m_pBpmSpinBox->setToolTip(
+			pCommonStrings->getTimelineDisabledMidiClock() );
 		break;
 	case H2Core::Hydrogen::Tempo::Timeline:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
