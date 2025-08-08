@@ -443,6 +443,7 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
 
 bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	// Preventive measure to avoid bad things.
 	if ( pHydrogen->getSong() == nullptr ) {
@@ -479,8 +480,12 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
 		for ( const auto& nnInterval : m_tickIntervals ) {
 			fAverageInterval += static_cast<float>(nnInterval);
 		}
-		const float fBpm = 60000.0 * m_tickIntervals.size() / fAverageInterval / 24.0;
-		pHydrogen->getAudioEngine()->setNextBpm( fBpm );
+		const float fBpm = 60000.0 * m_tickIntervals.size() /
+			fAverageInterval / 24.0;
+
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( fBpm );
+		pAudioEngine->unlock();
 	}
 
 	return true;
