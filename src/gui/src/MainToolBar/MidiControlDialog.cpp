@@ -180,7 +180,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
 	pInputSettingsLayout->addWidget( pInputMidiClockCheckBox );
 	connect( pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->setMidiClockInputHandling(
+		CoreActionController::setMidiClockInputHandling(
 			pInputMidiClockCheckBox->isChecked() );
 	} );
 

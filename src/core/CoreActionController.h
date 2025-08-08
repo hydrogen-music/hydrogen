@@ -550,6 +550,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * drumkit. */
 		static bool sendAllNoteOffMessages();
 
+		/** Enable or disable tempo control using MIDI clock. */
+		static bool setMidiClockInputHandling( bool bHandle );
+
 private:
 	static bool sendMasterVolumeFeedback();
 	static bool sendStripVolumeFeedback( int nStrip );

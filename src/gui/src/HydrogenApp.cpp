@@ -1011,6 +1011,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->metronomeEvent( pEvent->getValue() );
 				break;
 
+			case Event::Type::MidiClockActivation:
+				ppEventListener->midiClockActivationEvent();
+				break;
+
 			case Event::Type::MidiDriverChanged:
 				ppEventListener->midiDriverChangedEvent();
 				break;

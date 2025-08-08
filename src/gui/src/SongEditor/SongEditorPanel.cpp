@@ -702,6 +702,10 @@ void SongEditorPanel::jackTimebaseStateChangedEvent( int ) {
 	m_pPositionRuler->updateEditor();
 }
 
+void SongEditorPanel::midiClockActivationEvent() {
+	updateTimeline();
+}
+
 void SongEditorPanel::nextPatternsChangedEvent() {
 	m_pPatternList->updateEditor();
 }

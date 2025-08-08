@@ -475,6 +475,11 @@ void MainToolBar::loopModeActivationEvent() {
 	updateLoopMode();
 }
 
+void MainToolBar::midiClockActivationEvent() {
+	updateBpmSpinBox();
+	m_pBpmTap->updateBpmTap();
+}
+
 void MainToolBar::metronomeEvent( int nValue ) {
 	const auto pPref = H2Core::Preferences::get_instance();
 

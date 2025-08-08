@@ -2740,4 +2740,34 @@ bool CoreActionController::sendAllNoteOffMessages() {
 
 	return true;
 }
+
+bool CoreActionController::setMidiClockInputHandling( bool bHandle ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pPref = Preferences::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+
+	if ( pPref->getMidiClockInputHandling() == bHandle ) {
+		return false;
+	}
+
+	pPref->setMidiClockInputHandling( bHandle );
+
+	EventQueue::get_instance()->pushEvent(
+		H2Core::Event::Type::MidiClockActivation, 0 );
+
+	if ( ! bHandle && pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ) {
+		// Restore the previous tempo.
+		auto pAudioEngine = pHydrogen->getAudioEngine();
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( pSong->getBpm() );
+		pAudioEngine->unlock();
+	}
+
+	return true;
+}
 }

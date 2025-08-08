@@ -91,6 +91,7 @@ class SongEditorPanel : public QWidget,
 		 */
 		virtual void gridCellToggledEvent() override;
 		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		virtual void midiClockActivationEvent() override;
 		virtual void nextPatternsChangedEvent() override;
 		virtual void patternEditorLockedEvent() override;
 		virtual void patternModifiedEvent() override;
