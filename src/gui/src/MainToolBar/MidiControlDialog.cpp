@@ -187,7 +187,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	auto pInputMidiTransportCheckBox = new QCheckBox( pInputSettingsWidget );
 	pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
 	pInputMidiTransportCheckBox->setText(
-		tr( "Handle MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER" ) );
+		tr( "Handle MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
 	pInputSettingsLayout->addWidget( pInputMidiTransportCheckBox );
 	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportInputHandling(
@@ -239,7 +239,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	auto pOutputMidiTransportCheckBox = new QCheckBox( pOutputSettingsWidget );
 	pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
 	pOutputMidiTransportCheckBox->setText(
-		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER" ) );
+		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
 	pOutputSettingsLayout->addWidget( pOutputMidiTransportCheckBox );
 	connect( pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportOutputSend(

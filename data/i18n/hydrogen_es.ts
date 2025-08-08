@@ -3159,15 +3159,15 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Handle MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Send MIDI Clock messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER</source>
+        <source>Handle MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

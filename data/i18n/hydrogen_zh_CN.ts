@@ -3154,15 +3154,15 @@ LilyPond 导出是一项实验性功能。
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Handle MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Send MIDI Clock messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER</source>
+        <source>Handle MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

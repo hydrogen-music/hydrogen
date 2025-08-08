@@ -3156,15 +3156,15 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Handle MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Send MIDI Clock messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER</source>
+        <source>Handle MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
