@@ -22,6 +22,8 @@
 
 #include <core/EventQueue.h>
 
+#include <core/Hydrogen.h>
+
 namespace H2Core
 {
 
@@ -46,6 +48,13 @@ EventQueue::~EventQueue() {
 
 void EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 	std::lock_guard< std::mutex > lock( m_mutex );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen == nullptr ||
+		 pHydrogen->getGUIState() == Hydrogen::GUIState::startup ||
+		 pHydrogen->getGUIState() == Hydrogen::GUIState::shutdown ) {
+		return;
+	}
 
 	/* The event queue is full. We could drop the old event, or the new event
 	   we're trying to place. It's preferable to drop the oldest event in the
