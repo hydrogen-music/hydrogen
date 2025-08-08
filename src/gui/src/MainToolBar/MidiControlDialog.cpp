@@ -68,12 +68,17 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	const QColor borderColor( 80, 80, 80 );
 	const int nHeaderTextSize = 20;
 
-	auto pConfigWidget = new QWidget( m_pTabWidget );
+	auto pSettingsWidget = new QWidget( m_pTabWidget );
+	m_pTabWidget->addTab( pSettingsWidget, pCommonStrings->getSettings() );
+	auto pSettingsLayout = new QVBoxLayout( pSettingsWidget );
+	pSettingsWidget->setLayout( pSettingsLayout );
+
+	auto pConfigWidget = new QWidget( pSettingsWidget );
 	pConfigWidget->setStyleSheet( QString( "\
 #MidiInputSettings {\
     border-right: 1px solid %1;\
 }" ).arg( borderColor.name() ) );
-	m_pTabWidget->addTab( pConfigWidget, pCommonStrings->getSettings() );
+	pSettingsLayout->addWidget( pConfigWidget );
 	auto pConfigLayout = new QHBoxLayout( pConfigWidget );
 	pConfigLayout->setSpacing( 0 );
 	pConfigWidget->setLayout( pConfigLayout );
@@ -171,6 +176,29 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [&]() {
 		Preferences::get_instance()->m_bEnableMidiFeedback =
 			pOutputEnableMidiFeedbackCheckBox->isChecked();
+	} );
+
+	const int nLinkHeight = 24;
+	
+	auto pPreferencesLinkWidget = new QWidget( pSettingsWidget );
+	pPreferencesLinkWidget->setFixedHeight( nLinkHeight );
+	pSettingsLayout->addWidget( pPreferencesLinkWidget );
+	auto pPreferencesLinkLayout = new QHBoxLayout( pPreferencesLinkWidget );
+	pPreferencesLinkLayout->setContentsMargins( 0, 0, 0, 0 );
+	pPreferencesLinkWidget->setLayout( pOutputSettingsLayout );
+
+	pPreferencesLinkLayout->addStretch();
+	auto pPreferencesLinkLabel = new QLabel(
+		tr( "MIDI driver settings can be found in the Preferences Dialog" ) );
+	pPreferencesLinkLabel->setFixedHeight( nLinkHeight );
+	pPreferencesLinkLayout->addWidget( pPreferencesLinkLabel );
+	auto pPreferencesLinkButton = new QToolButton( pPreferencesLinkWidget );
+	pPreferencesLinkButton->setFixedSize( nLinkHeight, nLinkHeight );
+	pPreferencesLinkLayout->addWidget( pPreferencesLinkButton );
+	pPreferencesLinkButton->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/black/cog.svg" ) );
+	connect( pPreferencesLinkButton, &QToolButton::clicked, [&]() {
+		HydrogenApp::get_instance()->showPreferencesDialog();
 	} );
 
 	////////////////////////////////////////////////////////////////////////////

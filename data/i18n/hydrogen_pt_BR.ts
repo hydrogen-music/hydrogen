@@ -3139,6 +3139,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>&amp;Ativar feedback MIDI</translation>
     </message>
+    <message>
+        <source>MIDI driver settings can be found in the Preferences Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Mixer</name>
