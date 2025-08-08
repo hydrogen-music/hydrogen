@@ -464,8 +464,9 @@ void MidiControlDialog::updateInputTable() {
 		if ( ii < nOldRowCount ) {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiInputTable->cellWidget( ii, 0 ) );
-			if ( ppLabel == nullptr || ppLabel->text() !=
-				 timestampToQString( handledInputs[ ii ].timestamp ) ) {
+			if ( ppLabel == nullptr || handledInputs[ ii ] != nullptr ||
+				 ppLabel->text() != timestampToQString(
+					 handledInputs[ ii ]->timestamp ) ) {
 				bInvalid = true;
 				break;
 			}
@@ -481,59 +482,65 @@ void MidiControlDialog::updateInputTable() {
 		return pLabel;
 	};
 
-	auto addRow = [&]( const MidiBaseDriver::HandledInput& handledInput,
+	auto addRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput> pHandledInput,
 					   int nRow ) {
+		if ( pHandledInput == nullptr ) {
+			return;
+		}
 		m_pMidiInputTable->setCellWidget(
-			nRow, 0, newLabel( timestampToQString( handledInput.timestamp ) ) );
+			nRow, 0, newLabel( timestampToQString( pHandledInput->timestamp ) ) );
 		m_pMidiInputTable->setCellWidget(
-			nRow, 1, newLabel( MidiMessage::TypeToQString( handledInput.type ) ) );
+			nRow, 1, newLabel( MidiMessage::TypeToQString( pHandledInput->type ) ) );
 		m_pMidiInputTable->setCellWidget(
-			nRow, 2, newLabel( QString::number( handledInput.nData1 ) ) );
+			nRow, 2, newLabel( QString::number( pHandledInput->nData1 ) ) );
 		m_pMidiInputTable->setCellWidget(
-			nRow, 3, newLabel( QString::number( handledInput.nData2 ) ) );
+			nRow, 3, newLabel( QString::number( pHandledInput->nData2 ) ) );
 		m_pMidiInputTable->setCellWidget(
-			nRow, 4, newLabel( QString::number( handledInput.nChannel ) ) );
+			nRow, 4, newLabel( QString::number( pHandledInput->nChannel ) ) );
 
 		QStringList types;
-		for ( const auto& ttype : handledInput.actionTypes ) {
+		for ( const auto& ttype : pHandledInput->actionTypes ) {
 			types << MidiAction::typeToQString( ttype );
 		}
 		m_pMidiInputTable->setCellWidget(
 			nRow, 5, newLabel( types.join( ", " ) ) );
 		m_pMidiInputTable->setCellWidget(
-			nRow, 6, newLabel( handledInput.mappedInstruments.join( ", " ) ) );
+			nRow, 6, newLabel( pHandledInput->mappedInstruments.join( ", " ) ) );
 	};
 
-	auto updateRow = [&]( const MidiBaseDriver::HandledInput& handledInput,
+	auto updateRow = [&]( std::shared_ptr<MidiBaseDriver::HandledInput> pHandledInput,
 						  int nRow ) {
+		if ( pHandledInput == nullptr ) {
+			return;
+		}
 		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 0 ) );
 		if ( ppLabelTimestamp != nullptr ) {
-			ppLabelTimestamp->setText( timestampToQString( handledInput.timestamp ) );
+			ppLabelTimestamp->setText( timestampToQString( pHandledInput->timestamp ) );
 		}
 		auto ppLabelType = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 1 ) );
 		if ( ppLabelType != nullptr ) {
-			ppLabelType->setText( MidiMessage::TypeToQString( handledInput.type ) );
+			ppLabelType->setText( MidiMessage::TypeToQString( pHandledInput->type ) );
 		}
 		auto ppLabelData1 = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText( QString::number( handledInput.nData1 ) );
+			ppLabelData1->setText( QString::number( pHandledInput->nData1 ) );
 		}
 		auto ppLabelData2 = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText( QString::number( handledInput.nData2 ) );
+			ppLabelData2->setText( QString::number( pHandledInput->nData2 ) );
 		}
 		auto ppLabelChannel = dynamic_cast<QLabel*>(
 			m_pMidiInputTable->cellWidget( nRow, 4 ) );
 		if ( ppLabelChannel != nullptr ) {
-			ppLabelChannel->setText( QString::number( handledInput.nChannel ) );
+			ppLabelChannel->setText( QString::number( pHandledInput->nChannel ) );
 		}
 
 		QStringList types;
-		for ( const auto& ttype : handledInput.actionTypes ) {
+		for ( const auto& ttype : pHandledInput->actionTypes ) {
 			types << MidiAction::typeToQString( ttype );
 		}
 		auto ppLabelAction = dynamic_cast<QLabel*>(
@@ -545,7 +552,7 @@ void MidiControlDialog::updateInputTable() {
 			m_pMidiInputTable->cellWidget( nRow, 6 ) );
 		if ( ppLabelInstruments != nullptr ) {
 			ppLabelInstruments->setText(
-				handledInput.mappedInstruments.join( ", " ) );
+				pHandledInput->mappedInstruments.join( ", " ) );
 		}
 	};
 
@@ -590,8 +597,9 @@ void MidiControlDialog::updateOutputTable() {
 		if ( ii < m_pMidiOutputTable->rowCount() ) {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiOutputTable->cellWidget( ii, 0 ) );
-			if ( ppLabel == nullptr || ppLabel->text() !=
-				 timestampToQString( handledOutputs[ ii ].timestamp ) ) {
+			if ( ppLabel == nullptr || handledOutputs[ ii ] == nullptr ||
+				 ppLabel->text() != timestampToQString(
+					 handledOutputs[ ii ]->timestamp ) ) {
 				bInvalid = true;
 				break;
 			}
@@ -608,46 +616,52 @@ void MidiControlDialog::updateOutputTable() {
 		return pLabel;
 	};
 
-	auto addRow = [&]( const MidiBaseDriver::HandledOutput& handledOutput,
+	auto addRow = [&]( std::shared_ptr<MidiBaseDriver::HandledOutput> pHandledOutput,
 					   int nRow ) {
+		if ( pHandledOutput == nullptr ) {
+			return;
+		}
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 0, newLabel( timestampToQString( handledOutput.timestamp ) ) );
+			nRow, 0, newLabel( timestampToQString( pHandledOutput->timestamp ) ) );
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 1, newLabel( MidiMessage::TypeToQString( handledOutput.type ) ) );
+			nRow, 1, newLabel( MidiMessage::TypeToQString( pHandledOutput->type ) ) );
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 2, newLabel( QString::number( handledOutput.nData1 ) ) );
+			nRow, 2, newLabel( QString::number( pHandledOutput->nData1 ) ) );
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 3, newLabel( QString::number( handledOutput.nData2 ) ) );
+			nRow, 3, newLabel( QString::number( pHandledOutput->nData2 ) ) );
 		m_pMidiOutputTable->setCellWidget(
-			nRow, 4, newLabel( QString::number( handledOutput.nChannel ) ) );
+			nRow, 4, newLabel( QString::number( pHandledOutput->nChannel ) ) );
 	};
 
-	auto updateRow = [&]( const MidiBaseDriver::HandledOutput& handledOutput,
+	auto updateRow = [&]( std::shared_ptr<MidiBaseDriver::HandledOutput> pHandledOutput,
 						  int nRow ) {
+		if ( pHandledOutput == nullptr ) {
+			return;
+		}
 		auto ppLabelTimestamp = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 0 ) );
 		if ( ppLabelTimestamp != nullptr ) {
-			ppLabelTimestamp->setText( timestampToQString( handledOutput.timestamp ) );
+			ppLabelTimestamp->setText( timestampToQString( pHandledOutput->timestamp ) );
 		}
 		auto ppLabelType = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 1 ) );
 		if ( ppLabelType != nullptr ) {
-			ppLabelType->setText( MidiMessage::TypeToQString( handledOutput.type ) );
+			ppLabelType->setText( MidiMessage::TypeToQString( pHandledOutput->type ) );
 		}
 		auto ppLabelData1 = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 2 ) );
 		if ( ppLabelData1 != nullptr ) {
-			ppLabelData1->setText( QString::number( handledOutput.nData1 ) );
+			ppLabelData1->setText( QString::number( pHandledOutput->nData1 ) );
 		}
 		auto ppLabelData2 = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 3 ) );
 		if ( ppLabelData2 != nullptr ) {
-			ppLabelData2->setText( QString::number( handledOutput.nData2 ) );
+			ppLabelData2->setText( QString::number( pHandledOutput->nData2 ) );
 		}
 		auto ppLabelChannel = dynamic_cast<QLabel*>(
 			m_pMidiOutputTable->cellWidget( nRow, 4 ) );
 		if ( ppLabelChannel != nullptr ) {
-			ppLabelChannel->setText( QString::number( handledOutput.nChannel ) );
+			ppLabelChannel->setText( QString::number( pHandledOutput->nChannel ) );
 		}
 	};
 

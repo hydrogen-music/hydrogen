@@ -443,10 +443,16 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// Appearance tab - Fonts
 	fontSizeComboBox->setSize( appearanceTabWidgetSize );
-	connect( applicationFontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onApplicationFontChanged );
-	connect( level2FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel2FontChanged );
-	connect( level3FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel3FontChanged );
-	connect( fontSizeComboBox, SIGNAL( currentIndexChanged(int) ),
+	connect( applicationFontComboBox,
+			 QOverload<int>::of(&QFontComboBox::activated),
+			 this, &PreferencesDialog::onApplicationFontComboBoxActivated );
+	connect( level2FontComboBox,
+			 QOverload<int>::of(&QFontComboBox::activated),
+			 this, &PreferencesDialog::onLevel2FontComboBoxActivated );
+	connect( level3FontComboBox,
+			 QOverload<int>::of(&QFontComboBox::activated),
+			 this, &PreferencesDialog::onLevel3FontComboBoxActivated );
+	connect( fontSizeComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onFontSizeChanged(int) ) );
 	
 	// Appearance tab - Interface
@@ -466,40 +472,46 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	indicateNotePlaybackComboBox->setSize( appearanceTabWidgetSize );
 	indicateEffectiveNoteLengthComboBox->setSize( appearanceTabWidgetSize );
 
+	// Since there is no signal to distinct user interactions from batch updates
+	// in QSpinBox, we have to set the value before connecting it.
+	coloringMethodAuxSpinBox->setValue(
+		m_currentTheme.m_interface.m_nVisiblePatternColors );
+
 	connect( styleComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( styleComboBoxActivated(int) ) );
-	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this,
+	connect( uiLayoutComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( onUILayoutChanged(int) ) );
-	connect( uiScalingPolicyComboBox, SIGNAL( currentIndexChanged(int) ), this,
+	connect( uiScalingPolicyComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( uiScalingPolicyComboBoxCurrentIndexChanged(int) ) );
-	connect( mixerFalloffComboBox, SIGNAL( currentIndexChanged(int) ), this,
+	connect( mixerFalloffComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( mixerFalloffComboBoxCurrentIndexChanged(int) ) );
-	connect( iconColorComboBox, SIGNAL(currentIndexChanged(int)), this,
+	connect( iconColorComboBox, SIGNAL(activated(int)), this,
 			 SLOT( onIconColorChanged(int)) );
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)),
 			 this, SLOT( onColorNumberChanged( int ) ) );
 
-	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( InterfaceTheme::nMaxPatternColors );
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>(
+		InterfaceTheme::nMaxPatternColors );
 	int nButtonSize = fontSizeComboBox->height();
 	// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
 	// Using a fixed one size resizing of the widget seems to happen
 	// after the constructor is called.
 	float fLineWidth = 308;
-	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
+	int nButtonsPerLine = std::floor(
+		fLineWidth / static_cast<float>(nButtonSize + 6) );
 
 	colorSelectionGrid->setHorizontalSpacing( 4 );
 	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
-		ColorSelectionButton* bbutton =
-			new ColorSelectionButton( this, m_currentTheme.m_interface.m_patternColors[ ii ],
-									  nButtonSize );
+		ColorSelectionButton* bbutton = new ColorSelectionButton(
+			this, m_currentTheme.m_interface.m_patternColors[ ii ], nButtonSize );
 		bbutton->pretendToHide();
 		connect( bbutton, &ColorSelectionButton::colorChanged, this,
 				 &PreferencesDialog::onColorSelectionClicked );
-		colorSelectionGrid->addWidget( bbutton,
-									   std::floor( static_cast<float>( ii ) /
-												   static_cast<float>( nButtonsPerLine ) ),
-									   (ii % nButtonsPerLine) + 1,
-									   Qt::AlignRight ); //+1 to take the hspace into account.
+		//+1 to take the hspace into account
+		colorSelectionGrid->addWidget(
+			bbutton, std::floor( static_cast<float>( ii ) /
+								 static_cast<float>( nButtonsPerLine ) ),
+			(ii % nButtonsPerLine) + 1, Qt::AlignRight );
 		m_colorSelectionButtons[ ii ] = bbutton;
 	}
 	
@@ -507,7 +519,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	coloringMethodCombo->clear();
 	coloringMethodCombo->addItem(tr("Automatic"));
 	coloringMethodCombo->addItem(tr("Custom"));
-	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ),
+	connect( coloringMethodCombo, SIGNAL( activated(int) ),
 			 this, SLOT( onColoringMethodChanged(int) ) );
 
 	indicateNotePlaybackComboBox->clear();
@@ -519,7 +531,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
 	}
-	connect( indicateNotePlaybackComboBox, SIGNAL( currentIndexChanged(int) ),
+	connect( indicateNotePlaybackComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onIndicateNotePlaybackChanged(int) ) );
 
 	indicateEffectiveNoteLengthComboBox->clear();
@@ -532,7 +544,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
 	}
-	connect( indicateEffectiveNoteLengthComboBox, SIGNAL( currentIndexChanged(int) ),
+	connect( indicateEffectiveNoteLengthComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onIndicateEffectiveNoteLengthChanged(int) ) );
 
 	// Appearance tab - Colors
@@ -636,16 +648,26 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	sval->setFixedWidth( nColorLCDWidth );
 	vval->setFixedWidth( nColorLCDWidth );
 
+	// We initialize the tree by expanding the "Widget" node and
+	// selecting the first color. This looks more nice than with no
+	// color selected at all and works better with the Shotlist.
+	colorTree->expandItem( pWidgetItem );
+	colorTree->setCurrentItem( pDefaultItem );
+	if ( pDefaultItem != nullptr ) {
+		m_nCurrentId = pDefaultItem->getId();
+	}
+	updateAppearanceTab( m_currentTheme );
+
 	connect( colorTree, SIGNAL(itemSelectionChanged()),
 			 this, SLOT(colorTreeSelectionChanged()) );
 	connect( colorButton, SIGNAL(colorChanged()),
 			 this, SLOT(colorButtonChanged()) );
-	connect(rslider, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
-	connect(gslider, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
-	connect(bslider, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
-	connect(hslider, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
-	connect(sslider, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
-	connect(vslider, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
+	connect(rslider, SIGNAL(sliderMoved(int)), SLOT(rsliderChanged(int)));
+	connect(gslider, SIGNAL(sliderMoved(int)), SLOT(gsliderChanged(int)));
+	connect(bslider, SIGNAL(sliderMoved(int)), SLOT(bsliderChanged(int)));
+	connect(hslider, SIGNAL(sliderMoved(int)), SLOT(hsliderChanged(int)));
+	connect(sslider, SIGNAL(sliderMoved(int)), SLOT(ssliderChanged(int)));
+	connect(vslider, SIGNAL(sliderMoved(int)), SLOT(vsliderChanged(int)));
 
 	connect(rval, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
 	connect(gval, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
@@ -653,16 +675,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(hval, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
 	connect(sval, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
 	connect(vval, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
-	
-	// We initialize the tree by expanding the "Widget" node and
-	// selecting the first color. This looks more nice than with no
-	// color selected at all and works better with the Shotlist.
-	colorTree->expandItem( pWidgetItem );
-	colorTree->setCurrentItem( pDefaultItem );
-
-	updateColorTree();
-
-	updateAppearanceTab( m_currentTheme );
 
 	m_pShortcuts = std::make_shared<H2Core::Shortcuts>( pPref->getShortcuts() );
 	initializeShortcutsTab();
@@ -1524,9 +1536,10 @@ void PreferencesDialog::setAudioDriverInfoPulseAudio() {
 	sampleRateComboBox->setToolTip( "" );
 }
 
-void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
+void PreferencesDialog::onApplicationFontComboBoxActivated( int ) {
 	const auto pPref = Preferences::get_instance();
 
+	const auto font = applicationFontComboBox->currentFont();
 	m_currentTheme.m_font.m_sApplicationFontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sApplicationFontFamily = font.family();
 
@@ -1537,9 +1550,10 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
-void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
+void PreferencesDialog::onLevel2FontComboBoxActivated( int ) {
 	const auto pPref = Preferences::get_instance();
 
+	const auto font = level2FontComboBox->currentFont();
 	m_currentTheme.m_font.m_sLevel2FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel2FontFamily = font.family();
 
@@ -1550,9 +1564,10 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
-void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
+void PreferencesDialog::onLevel3FontComboBoxActivated( int ) {
 	const auto pPref = Preferences::get_instance();
 
+	const auto font = level3FontComboBox->currentFont();
 	m_currentTheme.m_font.m_sLevel3FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel3FontFamily = font.family();
 

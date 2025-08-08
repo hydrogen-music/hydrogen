@@ -24,6 +24,8 @@
 
 #include <core/EventQueue.h>
 
+#include <QMutexLocker>
+
 namespace H2Core {
 
 MidiBaseDriver::MidiBaseDriver() : MidiInput(), MidiOutput() {
@@ -42,11 +44,15 @@ QString MidiBaseDriver::portTypeToQString( const PortType& portType ) {
 	}
 }
 
-MidiInput::HandledInput MidiBaseDriver::handleMessage( const MidiMessage &msg ) {
-	const auto handledInput = MidiInput::handleMessage( msg );
+std::shared_ptr<MidiInput::HandledInput> MidiBaseDriver::handleMessage(
+	const MidiMessage &msg )
+{
+	const auto pHandledInput = MidiInput::handleMessage( msg );
 
-	if ( handledInput.type != MidiMessage::Type::Unknown ) {
-		m_handledInputs.push_back( handledInput );
+	if ( pHandledInput != nullptr &&
+		 pHandledInput->type != MidiMessage::Type::Unknown ) {
+		QMutexLocker mx( &m_inputMutex );
+		m_handledInputs.push_back( pHandledInput );
 		if ( m_handledInputs.size() > MidiBaseDriver::nBacklogSize ) {
 			m_handledInputs.pop_front();
 		}
@@ -54,14 +60,18 @@ MidiInput::HandledInput MidiBaseDriver::handleMessage( const MidiMessage &msg ) 
 		EventQueue::get_instance()->pushEvent( Event::Type::MidiInput, 0 );
 	}
 
-	return handledInput;
+	return pHandledInput;
 }
 
-MidiOutput::HandledOutput MidiBaseDriver::sendMessage( const MidiMessage &msg ) {
-	const auto handledOutput = MidiOutput::sendMessage( msg );
+std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
+	const MidiMessage &msg )
+{
+	const auto pHandledOutput = MidiOutput::sendMessage( msg );
 
-	if ( handledOutput.type != MidiMessage::Type::Unknown ) {
-		m_handledOutputs.push_back( handledOutput );
+	if ( pHandledOutput != nullptr &&
+		 pHandledOutput->type != MidiMessage::Type::Unknown ) {
+		QMutexLocker mx( &m_outputMutex );
+		m_handledOutputs.push_back( pHandledOutput );
 		if ( m_handledOutputs.size() > MidiBaseDriver::nBacklogSize ) {
 			m_handledOutputs.pop_front();
 		}
@@ -69,6 +79,32 @@ MidiOutput::HandledOutput MidiBaseDriver::sendMessage( const MidiMessage &msg ) 
 		EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
 	}
 
-	return handledOutput;
+	return pHandledOutput;
+}
+
+std::vector< std::shared_ptr<MidiInput::HandledInput> > MidiBaseDriver::getHandledInputs() {
+	std::vector< std::shared_ptr<MidiInput::HandledInput> > inputs;
+
+	QMutexLocker mx( &m_inputMutex );
+	inputs.reserve( m_handledInputs.size() );
+
+	for ( const auto& ppHandledInput : m_handledInputs ) {
+		inputs.push_back( ppHandledInput );
+	}
+
+	return std::move( inputs );
+}
+
+std::vector< std::shared_ptr<MidiOutput::HandledOutput> > MidiBaseDriver::getHandledOutputs() {
+	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > outputs;
+
+	QMutexLocker mx( &m_outputMutex );
+	outputs.reserve( m_handledOutputs.size() );
+
+	for ( const auto& ppHandledOutput : m_handledOutputs ) {
+		outputs.push_back( ppHandledOutput );
+	}
+
+	return std::move( outputs );
 }
 };
