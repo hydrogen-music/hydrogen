@@ -758,10 +758,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 	// there is no external application controling tempo of Hydrogen, we are
 	// free to apply a new tempo. This was set by the user either via UI or
 	// MIDI/OSC message.
-	if ( pHydrogen->getJackTimebaseState() !=
-		 JackAudioDriver::Timebase::Listener &&
-		 ( ( pSong != nullptr && ! pSong->getIsTimelineActivated() ) ||
-				pHydrogen->getMode() != Song::Mode::Song ) &&
+	const auto tempoSource = pHydrogen->getTempoSource();
+	if ( ( tempoSource == Hydrogen::Tempo::Midi ||
+		   tempoSource == Hydrogen::Tempo::Song ) &&
 		 fNewBpm != m_fNextBpm ) {
 		fNewBpm = m_fNextBpm;
 	}
