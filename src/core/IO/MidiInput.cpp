@@ -133,8 +133,10 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	}
 
 	case MidiMessage::Type::TimingClock:
-		MidiActionManager::get_instance()->handleMidiAction(
-			std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick ));
+		if ( pPref->getMidiClockInputHandling() ) {
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick ));
+		}
 		break;
 
 	case MidiMessage::Type::ChannelPressure:
