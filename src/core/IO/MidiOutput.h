@@ -27,6 +27,7 @@
 #include <core/Object.h>
 
 #include <QString>
+#include <memory>
 #include <vector>
 
 namespace H2Core {
@@ -63,7 +64,7 @@ class MidiOutput : public virtual Object<MidiOutput>
 		virtual bool isOutputActive() const = 0;
 
 		/** @returns true in case #msg could be sent. */
-		virtual HandledOutput sendMessage( const MidiMessage& msg );
+		virtual std::shared_ptr<HandledOutput> sendMessage( const MidiMessage& msg );
 
 	private:
 		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;

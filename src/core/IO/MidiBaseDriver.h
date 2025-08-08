@@ -28,6 +28,7 @@
 #include <core/Midi/MidiMessage.h>
 
 #include <QString>
+#include <QtCore/QMutex>
 #include <QTime>
 
 #include <deque>
@@ -61,11 +62,13 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 		void clearHandledInput();
 		void clearHandledOutput();
 
-		MidiInput::HandledInput handleMessage( const MidiMessage& msg ) override;
-		MidiOutput::HandledOutput sendMessage( const MidiMessage& msg ) override;
+		std::shared_ptr<MidiInput::HandledInput> handleMessage(
+			const MidiMessage& msg ) override;
+		std::shared_ptr<MidiOutput::HandledOutput> sendMessage(
+			const MidiMessage& msg ) override;
 
-		const std::deque<MidiInput::HandledInput>& getHandledInputs() const;
-		const std::deque<MidiOutput::HandledOutput>& getHandledOutputs() const;
+		std::vector< std::shared_ptr<MidiInput::HandledInput> > getHandledInputs();
+		std::vector< std::shared_ptr<MidiOutput::HandledOutput> > getHandledOutputs();
 
 		virtual QString toQString( const QString& sPrefix = "",
 								   bool bShort = true ) const override {
@@ -74,8 +77,21 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 
 	private:
 
-		std::deque<MidiInput::HandledInput> m_handledInputs;
-		std::deque<MidiOutput::HandledOutput> m_handledOutputs;
+		/** The Core thread running the #AudioEngine and the MIDI drivers does
+		 * fill both #m_handledInputs and #m_handledOutputs. It is accessed,
+		 * however, by a different thread running the GUI.
+		 *
+		 * To avoid race conditions, we wrap all summary handlers in shared_ptr
+		 * and do not return the actual deques holding the latest value, but a
+		 * snapshot taken at the time the getter method was called.
+		 *
+		 * @{ */
+		QMutex m_inputMutex;
+		QMutex m_outputMutex;
+
+		std::deque< std::shared_ptr<MidiInput::HandledInput> > m_handledInputs;
+		std::deque< std::shared_ptr<MidiOutput::HandledOutput> > m_handledOutputs;
+		/** #} */
 };
 
 inline void MidiBaseDriver::clearHandledInput() {
@@ -83,13 +99,6 @@ inline void MidiBaseDriver::clearHandledInput() {
 }
 inline void MidiBaseDriver::clearHandledOutput() {
 	m_handledOutputs.clear();
-}
-
-inline const std::deque<MidiInput::HandledInput>& MidiBaseDriver::getHandledInputs() const {
-	return m_handledInputs;
-}
-inline const std::deque<MidiOutput::HandledOutput>& MidiBaseDriver::getHandledOutputs() const {
-	return m_handledOutputs;
 }
 
 };

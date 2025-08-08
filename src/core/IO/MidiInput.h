@@ -27,6 +27,7 @@
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -66,20 +67,22 @@ public:
 		 * outside of Hydrogen without letting us know. */
 		virtual bool isInputActive() const = 0;
 
-		virtual HandledInput handleMessage( const MidiMessage& msg );
+		virtual std::shared_ptr<HandledInput> handleMessage(
+			const MidiMessage& msg );
 		void handleSysexMessage( const MidiMessage& msg,
-								 HandledInput& handledInput );
-		void handleControlChangeMessage( const MidiMessage& msg,
-										 HandledInput& handledInput );
-		void handleProgramChangeMessage( const MidiMessage& msg,
-										 HandledInput& handledInput );
-		void handlePolyphonicKeyPressureMessage( const MidiMessage& msg,
-												 HandledInput& handledInput );
+								 std::shared_ptr<HandledInput> handledInput );
+		void handleControlChangeMessage(
+			const MidiMessage& msg, std::shared_ptr<HandledInput> handledInput );
+		void handleProgramChangeMessage(
+			const MidiMessage& msg, std::shared_ptr<HandledInput> handledInput );
+		void handlePolyphonicKeyPressureMessage(
+			const MidiMessage& msg, std::shared_ptr<HandledInput> handledInput );
 
 protected:
-	void handleNoteOnMessage( const MidiMessage& msg, HandledInput& handledInput );
+	void handleNoteOnMessage(
+		const MidiMessage& msg, std::shared_ptr<HandledInput> handledInput );
 	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke,
-							   HandledInput& handledInput );
+							   std::shared_ptr<HandledInput> handledInput );
 };
 
 };

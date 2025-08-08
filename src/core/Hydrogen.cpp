@@ -40,9 +40,6 @@
 #include <thread>
 #include <chrono>
 
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
-
 #include <core/Hydrogen.h>
 
 #include <core/AudioEngine/AudioEngine.h>

@@ -33,8 +33,10 @@ MidiOutput::MidiOutput() {
 MidiOutput::~MidiOutput() {
 }
 
-MidiOutput::HandledOutput MidiOutput::sendMessage( const MidiMessage& msg ) {
-	HandledOutput handledOutput;
+std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
+	const MidiMessage& msg )
+{
+	auto pHandledOutput = std::make_shared<HandledOutput>();
 
 	switch( msg.getType() ) {
 	case MidiMessage::Type::ControlChange:
@@ -52,17 +54,17 @@ MidiOutput::HandledOutput MidiOutput::sendMessage( const MidiMessage& msg ) {
 
 	default:
 		// Not handled, we won't send the corresponding event.
-		handledOutput.type = MidiMessage::Type::Unknown;
-		return handledOutput;
+		pHandledOutput->type = MidiMessage::Type::Unknown;
+		return pHandledOutput;
 	}
 
-	handledOutput.timestamp = QTime::currentTime();
-	handledOutput.type = msg.getType();
-	handledOutput.nData1 = msg.getData1();
-	handledOutput.nData2 = msg.getData2();
-	handledOutput.nChannel = msg.getChannel();
+	pHandledOutput->timestamp = QTime::currentTime();
+	pHandledOutput->type = msg.getType();
+	pHandledOutput->nData1 = msg.getData1();
+	pHandledOutput->nData2 = msg.getData2();
+	pHandledOutput->nChannel = msg.getChannel();
 
-	return handledOutput;
+	return pHandledOutput;
 }
 
 QString MidiOutput::HandledOutput::toQString() const {
