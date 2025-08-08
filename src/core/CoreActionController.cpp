@@ -958,12 +958,17 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 	}
 
 	pHydrogen->setIsTimelineActivated( bActivate );
-	
-	if ( pHydrogen->getJackTimebaseState() ==
-		 JackAudioDriver::Timebase::Listener ) {
+
+	const auto tempoSource = pHydrogen->getTempoSource();
+	if ( tempoSource == Hydrogen::Tempo::Jack ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK Timebase controller." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
-	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+	}
+	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
+		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as MIDI clock handling is enabled." )
+					.arg( bActivate ? "enabled" : "disabled" ) );
+	}
+	else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as Pattern Mode is still activated." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	}

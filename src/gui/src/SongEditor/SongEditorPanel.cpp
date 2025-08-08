@@ -82,25 +82,16 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pTimelineBtn->move( 94, 4 );
 	m_pTimelineBtn->setObjectName( "TimelineBtn" );
 	m_pTimelineBtn->setChecked( m_bLastIsTimelineActivated );
-	connect( m_pTimelineBtn, SIGNAL( clicked() ), this, SLOT( timelineBtnClicked() ) );
+	connect( m_pTimelineBtn, &QPushButton::clicked, [=]() {
+		CoreActionController::activateTimeline( m_pTimelineBtn->isChecked() );
 
-	const auto tempoSource = pHydrogen->getTempoSource();
-
-	if ( tempoSource == Hydrogen::Tempo::Jack ) {
-		m_pTimelineBtn->setToolTip(
-			pCommonStrings->getTimelineDisabledTimebaseListener() );
-		m_pTimelineBtn->setIsActive( false );
-	}
-	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
-		m_pTimelineBtn->setToolTip(
-			pCommonStrings->getTimelineDisabledMidiClock() );
-		m_pTimelineBtn->setIsActive( false );
-	}
-	else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pTimelineBtn->setToolTip(
-			pCommonStrings->getTimelineDisabledPatternMode() );
-		m_pTimelineBtn->setIsActive( false );
-	}
+		const QString sMessage = QString( "%1 = %2" )
+			.arg( pCommonStrings->getTimelineBigButton() )
+			.arg( m_pTimelineBtn->isChecked() ? pCommonStrings->getStatusOn() :
+				  pCommonStrings->getStatusOff() );
+		HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
+		Hydrogen::get_instance()->setIsModified( true );
+	} );
 
 	////////////////////////////////////////////////////////////////////////////
 	m_pToolBar = new QToolBar( nullptr );
@@ -403,6 +394,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	updateIcons();
 	updateStyleSheet();
 	updateEditors( Editor::Update::Background );
+	updateTimeline();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -832,11 +824,6 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 	updateEditors( Editor::Update::Background );
 }
 
-void SongEditorPanel::timelineBtnClicked() {
-	setTimelineActive( m_pTimelineBtn->isChecked() );
-	Hydrogen::get_instance()->setIsModified( true );
-}
-
 void SongEditorPanel::showTimeline()
 {
 	m_pWidgetStack->setCurrentWidget( m_pPositionRulerScrollView );
@@ -1087,44 +1074,6 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::setTimelineActive( bool bActive ){
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	if ( ! m_pTimelineBtn->isDown() ) {
-		m_pTimelineBtn->setChecked( bActive );
-	}
-
-	Hydrogen::get_instance()->setIsTimelineActivated( bActive );
-
-	QString sMessage = QString( "%1 = %2" )
-		.arg( pCommonStrings->getTimelineBigButton() )
-		.arg( bActive ? pCommonStrings->getStatusOn() :
-			  pCommonStrings->getStatusOff() );
-	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-}
-
-void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
-	const auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	if ( bEnabled ) {
-		m_pTimelineBtn->setIsActive( true );
-	}
-	else {
-		m_bLastIsTimelineActivated = pSong->getIsTimelineActivated();
-		m_pTimelineBtn->setIsActive( false );
-	}
-
-	QString sMessage = QString( "%1 = %2" )
-		.arg( pCommonStrings->getTimelineBigButton() )
-		.arg( bEnabled ? pCommonStrings->getStatusEnabled() :
-			  pCommonStrings->getStatusDisabled() );
-	HydrogenApp::get_instance()->showStatusBarMessage( sMessage );
-}
-
 void SongEditorPanel::updateIcons() {
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
@@ -1149,24 +1098,7 @@ void SongEditorPanel::updateIcons() {
 }
 
 void SongEditorPanel::updateJacktimebaseState() {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
-	const auto tempoSource = pHydrogen->getTempoSource();
-
-	if ( tempoSource == Hydrogen::Tempo::Jack ) {
-		setTimelineEnabled( false );
-		m_pTimelineBtn->setToolTip(
-			pCommonStrings->getTimelineDisabledTimebaseListener() );
-	}
-	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
-		setTimelineEnabled( false );
-		m_pTimelineBtn->setToolTip(
-			pCommonStrings->getTimelineDisabledMidiClock() );
-	}
-	else if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-		setTimelineEnabled( true );
-		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
-	}
+	updateTimeline();
 }
 
 void SongEditorPanel::updatePatternEditorLocked() {
@@ -1301,28 +1233,35 @@ QToolButton:hover, QToolButton:pressed {\
 
 void SongEditorPanel::updateTimeline() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto tempoSource = pHydrogen->getTempoSource();
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		setTimelineEnabled( false );
+		m_pTimelineBtn->setEnabled( false );
+		m_pTimelineBtn->setChecked( false );
 		m_pTimelineBtn->setToolTip(
 			pCommonStrings->getTimelineDisabledPatternMode() );
 	}
 	else if ( tempoSource == Hydrogen::Tempo::Midi ) {
-		setTimelineEnabled( false );
+		m_pTimelineBtn->setEnabled( false );
+		m_pTimelineBtn->setChecked( false );
 		m_pTimelineBtn->setToolTip(
 			pCommonStrings->getTimelineDisabledMidiClock() );
 	}
-	else if ( tempoSource != Hydrogen::Tempo::Jack ) {
-		setTimelineEnabled( true );
+	else if ( tempoSource == Hydrogen::Tempo::Jack ) {
+		m_pTimelineBtn->setEnabled( false );
+		m_pTimelineBtn->setChecked( false );
+		m_pTimelineBtn->setToolTip(
+			pCommonStrings->getTimelineDisabledTimebaseListener() );
+	}
+	else {
+		m_pTimelineBtn->setEnabled( true );
+		m_pTimelineBtn->setChecked( pSong->getIsTimelineActivated() );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
-	}
-
-	if ( ! pHydrogen->isTimelineEnabled() && m_pTimelineBtn->isChecked() ) {
-		setTimelineActive( false );
-	}
-	else if ( pHydrogen->isTimelineEnabled() && ! m_pTimelineBtn->isChecked() ) {
-		setTimelineActive( true );
 	}
 }
