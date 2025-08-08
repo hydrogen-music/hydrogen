@@ -45,7 +45,6 @@ using namespace H2Core;
 InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	: QWidget( pPanel )
 	, m_pInstrumentEditorPanel( pPanel )
-	, m_fPreviousMidiOutChannel( -1.0 )
 {
 	setFixedWidth( InstrumentRack::nWidth );
 
@@ -71,12 +70,19 @@ InstrumentEditor::InstrumentEditor( InstrumentEditorPanel* pPanel )
 	pMidiOutLbl->move( 28, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox(
-		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 16,
+		m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 15,
 		true, true );
 	m_pMidiOutChannelLCD->move( 146, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
-	connect( m_pMidiOutChannelLCD, SIGNAL( valueChanged( double ) ),
-			 this, SLOT( midiOutChannelChanged( double ) ) );
+	connect(
+		m_pMidiOutChannelLCD, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+		[&](double fValue) {
+			auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
+			if ( pInstrument == nullptr ) {
+				return;
+			}
+			pInstrument->setMidiOutChannel( static_cast<int>(fValue) );
+		});
 	m_pMidiOutChannelLbl = new ClickableLabel(
 		m_pInstrumentProp, QSize( 61, 10 ),
 		pCommonStrings->getMidiOutChannelLabel() );
@@ -475,7 +481,7 @@ void InstrumentEditor::updateEditor() {
 		else {
 			// The MIDI channels start at 1 instead of zero.
 			m_pMidiOutChannelLCD->setValue(
-				pInstrument->getMidiOutChannel() + 1,
+				pInstrument->getMidiOutChannel(),
 				Event::Trigger::Suppress );
 		}
 
@@ -564,26 +570,4 @@ void InstrumentEditor::updateActivation() {
 		m_pHihatMaxRangeLCD->setIsActive( false );
 		m_pHihatMaxRangeLCD->clear();
 	}
-}
-
-void InstrumentEditor::midiOutChannelChanged( double fValue ) {
-	auto pInstrument = m_pInstrumentEditorPanel->getInstrument();
-	 if ( pInstrument == nullptr ) {
-		 return;
-	 }
-
-	if ( fValue != 0.0 ) {
-		pInstrument->setMidiOutChannel(
-			std::max( static_cast<int>(fValue) - 1, -1 ) );
-	} else {
-		if ( m_fPreviousMidiOutChannel == -1.0 ) {
-			m_pMidiOutChannelLCD->setValue( 1 );
-			return;
-		} else {
-			m_pMidiOutChannelLCD->setValue( -1 );
-			return;
-		}
-	}
-
-	m_fPreviousMidiOutChannel = fValue;
 }

@@ -115,7 +115,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	auto pInputChannelFilterComboBox = new QComboBox( pInputChannelFilterWidget );
 	pInputChannelFilterLayout->addWidget( pInputChannelFilterComboBox );
 	pInputChannelFilterComboBox->addItem( pCommonStrings->getAllLabel() );
-	for ( int ii = 1; ii <= 16; ++ii ) {
+	for ( int ii = 0; ii <= 15; ++ii ) {
 		pInputChannelFilterComboBox->addItem( QString::number( ii ) );
 	}
 	if ( pPref->m_nMidiChannelFilter == -1 ) {
