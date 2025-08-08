@@ -2052,7 +2052,22 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	pAudioEngine->locate( nTick, bWithJackBroadcast );
 	
 	pAudioEngine->unlock();
-	
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() ) {
+		auto pMidiDriver = pHydrogen->getMidiDriver();
+
+		if ( pMidiDriver != nullptr ) {
+			// A song position provided via MIDI has the lowest resolution of a
+			// 1/16 note / 6 MIDI clocks. 24 MIDI clocks make a quarter.
+			MidiMessage midiMessage;
+			midiMessage.setType( MidiMessage::Type::SongPos );
+			midiMessage.setData1(
+				pAudioEngine->getTransportPosition()->getTick() *
+				24 / 6 / H2Core::nTicksPerQuarter );
+			pMidiDriver->sendMessage( midiMessage );
+		}
+	}
+
 	EventQueue::get_instance()->pushEvent( Event::Type::Relocation, 0 );
 	return true;
 }
