@@ -443,11 +443,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// Appearance tab - Fonts
 	fontSizeComboBox->setSize( appearanceTabWidgetSize );
-	connect( applicationFontComboBox, &QFontComboBox::activated,
+	connect( applicationFontComboBox,
+			 QOverload<int>::of(&QFontComboBox::activated),
 			 this, &PreferencesDialog::onApplicationFontComboBoxActivated );
-	connect( level2FontComboBox, &QFontComboBox::activated,
+	connect( level2FontComboBox,
+			 QOverload<int>::of(&QFontComboBox::activated),
 			 this, &PreferencesDialog::onLevel2FontComboBoxActivated );
-	connect( level3FontComboBox, &QFontComboBox::activated,
+	connect( level3FontComboBox,
+			 QOverload<int>::of(&QFontComboBox::activated),
 			 this, &PreferencesDialog::onLevel3FontComboBoxActivated );
 	connect( fontSizeComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onFontSizeChanged(int) ) );
