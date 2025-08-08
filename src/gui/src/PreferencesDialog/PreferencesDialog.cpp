@@ -443,10 +443,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// Appearance tab - Fonts
 	fontSizeComboBox->setSize( appearanceTabWidgetSize );
-	connect( applicationFontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onApplicationFontChanged );
-	connect( level2FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel2FontChanged );
-	connect( level3FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel3FontChanged );
-	connect( fontSizeComboBox, SIGNAL( currentIndexChanged(int) ),
+	connect( applicationFontComboBox, &QFontComboBox::activated,
+			 this, &PreferencesDialog::onApplicationFontComboBoxActivated );
+	connect( level2FontComboBox, &QFontComboBox::activated,
+			 this, &PreferencesDialog::onLevel2FontComboBoxActivated );
+	connect( level3FontComboBox, &QFontComboBox::activated,
+			 this, &PreferencesDialog::onLevel3FontComboBoxActivated );
+	connect( fontSizeComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onFontSizeChanged(int) ) );
 	
 	// Appearance tab - Interface
@@ -1524,9 +1527,10 @@ void PreferencesDialog::setAudioDriverInfoPulseAudio() {
 	sampleRateComboBox->setToolTip( "" );
 }
 
-void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
+void PreferencesDialog::onApplicationFontComboBoxActivated( int ) {
 	const auto pPref = Preferences::get_instance();
 
+	const auto font = applicationFontComboBox->currentFont();
 	m_currentTheme.m_font.m_sApplicationFontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sApplicationFontFamily = font.family();
 
@@ -1537,9 +1541,10 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
-void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
+void PreferencesDialog::onLevel2FontComboBoxActivated( int ) {
 	const auto pPref = Preferences::get_instance();
 
+	const auto font = level2FontComboBox->currentFont();
 	m_currentTheme.m_font.m_sLevel2FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel2FontFamily = font.family();
 
@@ -1550,9 +1555,10 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
-void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
+void PreferencesDialog::onLevel3FontComboBoxActivated( int ) {
 	const auto pPref = Preferences::get_instance();
 
+	const auto font = level3FontComboBox->currentFont();
 	m_currentTheme.m_font.m_sLevel3FontFamily = font.family();
 	pPref->getThemeWritable().m_font.m_sLevel3FontFamily = font.family();
 

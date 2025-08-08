@@ -92,7 +92,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
 	// theme will slow down the GUI significantly.
 	m_pPreferencesUpdateTimer = new QTimer( this );
 	m_pPreferencesUpdateTimer->setSingleShot( true );
-	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()), this, SLOT(propagatePreferences()) );
+	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()),
+			 this, SLOT(propagatePreferences()) );
 
 	m_pCommonStrings = std::make_shared<CommonStrings>();
 

@@ -117,9 +117,9 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
 	void onRejected();
-	void onApplicationFontChanged(const QFont& font);
-	void onLevel2FontChanged( const QFont& font );
-	void onLevel3FontChanged( const QFont& font );
+	void onApplicationFontComboBoxActivated( int );
+	void onLevel2FontComboBoxActivated( int );
+	void onLevel3FontComboBoxActivated( int );
 	void onFontSizeChanged( int nIndex );
 	void onUILayoutChanged( int nIndex );
 	void onColorNumberChanged( int nIndex );
