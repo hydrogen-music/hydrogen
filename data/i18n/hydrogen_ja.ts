@@ -447,7 +447,7 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     </message>
     <message>
         <source>Channel</source>
-        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor (designed to hold seven characters but flexible) as well in the Settings tab of the MidiControlDialog .</extracomment>
         <translation>キャンセル</translation>
     </message>
     <message>
@@ -1444,6 +1444,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Apply and restart driver</source>
         <extracomment>Text displayed on the buttons used to restart audio or MIDI driver in * the Preferences dialog.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
+        <translation>すべて</translation>
     </message>
 </context>
 <context>
@@ -4119,14 +4124,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>入力</translation>
     </message>
     <message>
-        <source>Channel</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>すべて</translation>
-    </message>
-    <message>
         <source>Meters falloff speed</source>
         <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
         <translation>メータ減衰速度</translation>
@@ -4161,70 +4158,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>###</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>9</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>10</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>11</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>12</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>13</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>14</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>15</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>16</source>
         <translation></translation>
     </message>
     <message>

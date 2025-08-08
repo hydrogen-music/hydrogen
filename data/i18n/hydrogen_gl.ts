@@ -446,7 +446,7 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     </message>
     <message>
         <source>Channel</source>
-        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor (designed to hold seven characters but flexible) as well in the Settings tab of the MidiControlDialog .</extracomment>
         <translation>Canle</translation>
     </message>
     <message>
@@ -1443,6 +1443,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Apply and restart driver</source>
         <extracomment>Text displayed on the buttons used to restart audio or MIDI driver in * the Preferences dialog.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
+        <translation>Todo</translation>
     </message>
 </context>
 <context>
@@ -4129,14 +4134,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Entrada</translation>
     </message>
     <message>
-        <source>Channel</source>
-        <translation>Canle</translation>
-    </message>
-    <message>
-        <source>All</source>
-        <translation>Todo</translation>
-    </message>
-    <message>
         <source>Slow</source>
         <translation>Lento</translation>
     </message>
@@ -4212,70 +4209,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Metronome volume</source>
         <translation>Volume do metrónomo</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation>2</translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation>3</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation>4</translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation>5</translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation>6</translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation>7</translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation>8</translation>
-    </message>
-    <message>
-        <source>9</source>
-        <translation>9</translation>
-    </message>
-    <message>
-        <source>10</source>
-        <translation>10</translation>
-    </message>
-    <message>
-        <source>11</source>
-        <translation>11</translation>
-    </message>
-    <message>
-        <source>12</source>
-        <translation>12</translation>
-    </message>
-    <message>
-        <source>13</source>
-        <translation>13</translation>
-    </message>
-    <message>
-        <source>14</source>
-        <translation>14</translation>
-    </message>
-    <message>
-        <source>15</source>
-        <translation>15</translation>
-    </message>
-    <message>
-        <source>16</source>
-        <translation>16</translation>
     </message>
     <message>
         <source>&amp;Appearance</source>

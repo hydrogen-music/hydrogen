@@ -376,7 +376,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		m_bMidiDriverRestartRequired = true;
 	});
 
-	midiPortChannelComboBox->setSize( midiTabWidgetSize );
 	midiPortComboBox->setSize( midiTabWidgetSize );
 	connect( static_cast<QComboBox*>(midiPortComboBox),
 			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
@@ -388,13 +387,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		m_bMidiDriverRestartRequired = true;
 	});
-
-	if ( pPref->m_nMidiChannelFilter == -1 ) {
-		midiPortChannelComboBox->setCurrentIndex( 0 );
-	}
-	else {
-		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
-	}
 
 	updateMidiDriverInfo();
 
@@ -860,18 +852,10 @@ void PreferencesDialog::writeMidiDriverPreferences() {
 		m_bMidiDriverRestartRequired = true;
 	}
 
-	if ( pPref->m_nMidiChannelFilter !=
-		 midiPortChannelComboBox->currentIndex() - 1 ) {
-		pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
-		bMidiOptionAltered = true;
-	}
-
 	if ( bMidiOptionAltered ) {
 		m_changes = static_cast<H2Core::Preferences::Changes>(
 			m_changes | H2Core::Preferences::Changes::MidiTab );
 	}
-
-
 }
 
 void PreferencesDialog::on_okBtn_clicked()
@@ -1333,7 +1317,6 @@ void PreferencesDialog::updateMidiDriverInfo() {
 
 		if ( midiOutputPorts.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
-			midiPortChannelComboBox->setEnabled( true );
 
 			for ( uint i = 0; i < midiOutputPorts.size(); i++) {
 				const QString sPortName = midiOutputPorts[i];
@@ -1361,7 +1344,6 @@ void PreferencesDialog::updateMidiDriverInfo() {
 
 		if ( midiInputPorts.size() != 0 ) {
 			midiOutportComboBox->setEnabled( true );
-			midiPortChannelComboBox->setEnabled( true );
 
 			for ( uint i = 0; i < midiInputPorts.size(); i++) {
 				const QString sPortName = midiInputPorts[i];

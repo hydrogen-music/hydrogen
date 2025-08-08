@@ -104,6 +104,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMasterLabel() const { return m_sMasterLabel; }
 	const QString& getReturnLabel() const { return m_sReturnLabel; }
 	const QString& getDriverRestartButton() const { return m_sDriverRestartButton; }
+	const QString& getAllLabel() const { return m_sAllLabel; }
 
 	const QString& getRangeToolTip() const { return m_sRangeToolTip; }
 	const QString& getMidiToolTipHeading() const { return m_sMidiToolTipHeading; }
@@ -410,6 +411,7 @@ private:
 	QString m_sMasterLabel;
 	QString m_sReturnLabel;
 	QString m_sDriverRestartButton;
+	QString m_sAllLabel;
 
 	QString m_sRangeToolTip;
 	QString m_sMidiToolTipHeading;

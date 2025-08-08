@@ -104,6 +104,35 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 background-color: %1;" ).arg( borderColor.name() ) );
 	pInputSettingsLayout->addWidget( pInputSeparator );
 
+	auto pInputChannelFilterWidget = new QWidget( pInputSettingsWidget );
+	pInputSettingsLayout->addWidget( pInputChannelFilterWidget );
+	auto pInputChannelFilterLayout = new QHBoxLayout( pInputChannelFilterWidget );
+	pInputChannelFilterWidget->setLayout( pInputChannelFilterLayout );
+
+	auto pInputChannelFilterLabel = new QLabel(
+		pCommonStrings->getMidiOutChannelLabel() );
+	pInputChannelFilterLayout->addWidget( pInputChannelFilterLabel );
+	auto pInputChannelFilterComboBox = new QComboBox( pInputChannelFilterWidget );
+	pInputChannelFilterLayout->addWidget( pInputChannelFilterComboBox );
+	pInputChannelFilterComboBox->addItem( pCommonStrings->getAllLabel() );
+	for ( int ii = 1; ii <= 16; ++ii ) {
+		pInputChannelFilterComboBox->addItem( QString::number( ii ) );
+	}
+	if ( pPref->m_nMidiChannelFilter == -1 ) {
+		pInputChannelFilterComboBox->setCurrentIndex( 0 );
+	} else {
+		pInputChannelFilterComboBox->setCurrentIndex(
+			pPref->m_nMidiChannelFilter + 1 );
+	}
+	connect( pInputChannelFilterComboBox, &QComboBox::currentIndexChanged, [=]() {
+		auto pPref = Preferences::get_instance();
+		if ( pPref->m_nMidiChannelFilter !=
+			 pInputChannelFilterComboBox->currentIndex() - 1 ) {
+			pPref->m_nMidiChannelFilter =
+				pInputChannelFilterComboBox->currentIndex() - 1;
+		}
+	} );
+
 	auto pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
 	pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt

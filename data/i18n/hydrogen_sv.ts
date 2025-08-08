@@ -446,7 +446,7 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     </message>
     <message>
         <source>Channel</source>
-        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor (designed to hold seven characters but flexible) as well in the Settings tab of the MidiControlDialog .</extracomment>
         <translation>Kanal</translation>
     </message>
     <message>
@@ -1443,6 +1443,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Apply and restart driver</source>
         <extracomment>Text displayed on the buttons used to restart audio or MIDI driver in * the Preferences dialog.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
+        <translation>Alla</translation>
     </message>
 </context>
 <context>
@@ -4098,14 +4103,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Metronome volym</translation>
     </message>
     <message>
-        <source>All</source>
-        <translation>Alla</translation>
-    </message>
-    <message>
-        <source>Channel</source>
-        <translation>Kanal</translation>
-    </message>
-    <message>
         <source>&amp;Appearance</source>
         <translation>&amp;Utseende</translation>
     </message>
@@ -4163,70 +4160,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Alt+D</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>9</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>10</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>11</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>12</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>13</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>14</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>15</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
