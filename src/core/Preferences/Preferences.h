@@ -311,7 +311,15 @@ public:
 	bool				m_bMidiFixedMapping;
 	bool				m_bMidiDiscardNoteAfterAction;
 	bool				m_bEnableMidiFeedback;
-	
+	bool				getMidiClockInputHandling() const;
+	void				setMidiClockInputHandling( bool bHandle );
+	bool				getMidiTransportInputHandling() const;
+	void				setMidiTransportInputHandling( bool bHandle );
+	bool				getMidiClockOutputSend() const;
+	void				setMidiClockOutputSend( bool bHandle );
+	bool				getMidiTransportOutputSend() const;
+	void				setMidiTransportOutputSend( bool bHandle );
+
 	// OSC Server properties
 	/** \return #m_bOscServerEnabled*/
 	bool			getOscServerEnabled() const;
@@ -666,6 +674,20 @@ private:
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 		QString			m_sNsmClientId;
 #endif
+
+		/** Whether Hydrogen will set its tempo according to incoming MIDI clock
+		 * ticks. */
+		bool m_bMidiClockInputHandling;
+		/** Whether Hydrogen will handle incoming MIDI START, STOP, CONTINUE,
+		 * and SONG_POSITION_POINTER events. */
+		bool m_bMidiTransportInputHandling;
+		/** Whether Hydrogen will send outgoing MIDI clock messages based on the
+		 * current tempo. */
+		bool m_bMidiClockOutputSend;
+		/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
+		 * and SONG_POSITION_POINTER messages on transport changes. */
+		bool m_bMidiTransportOutputSend;
+
 		/** Name of hydrogen's main process */
 		QString			m_sH2ProcessName;
 
@@ -1204,6 +1226,30 @@ inline const QString& Preferences::getNsmClientId(void) const {
 }
 #endif
 
+inline bool Preferences::getMidiClockInputHandling() const {
+	return m_bMidiClockInputHandling;
+}
+inline void Preferences::setMidiClockInputHandling( bool bHandle ) {
+	m_bMidiClockInputHandling = bHandle;
+}
+inline bool Preferences::getMidiTransportInputHandling() const {
+	return m_bMidiTransportInputHandling;
+}
+inline void Preferences::setMidiTransportInputHandling( bool bHandle ) {
+	m_bMidiTransportInputHandling = bHandle;
+}
+inline bool Preferences::getMidiClockOutputSend() const {
+	return m_bMidiClockOutputSend;
+}
+inline void Preferences::setMidiClockOutputSend( bool bHandle ) {
+	m_bMidiClockOutputSend = bHandle;
+}
+inline bool Preferences::getMidiTransportOutputSend() const {
+	return m_bMidiTransportOutputSend;
+}
+inline void Preferences::setMidiTransportOutputSend( bool bHandle ) {
+	m_bMidiTransportOutputSend = bHandle;
+}
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;
 }
