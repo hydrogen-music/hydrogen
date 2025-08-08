@@ -113,7 +113,8 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		break;
 
 	case MidiMessage::Type::Start: /* Start from position 0 */
-		if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		if ( pPref->getMidiTransportInputHandling() &&
+			 pAudioEngine->getState() != AudioEngine::State::Playing ) {
 			CoreActionController::locateToColumn( 0 );
 			MidiActionManager::get_instance()->handleMidiAction(
 				std::make_shared<MidiAction>( MidiAction::Type::Play ) );
@@ -121,14 +122,18 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		break;
 
 	case MidiMessage::Type::Continue: /* Just start */ {
-		MidiActionManager::get_instance()->handleMidiAction(
-			std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+		if ( pPref->getMidiTransportInputHandling() ) {
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+		}
 		break;
 	}
 
 	case MidiMessage::Type::Stop: /* Stop in current position i.e. Pause */ {
-		MidiActionManager::get_instance()->handleMidiAction(
-			std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
+		if ( pPref->getMidiTransportInputHandling() ) {
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
+		}
 		break;
 	}
 
