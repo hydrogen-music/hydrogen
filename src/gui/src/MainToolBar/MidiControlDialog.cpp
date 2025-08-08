@@ -112,7 +112,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	 *  '&'. */
 	pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
 	pInputSettingsLayout->addWidget( pInputIgnoreNoteOffCheckBox );
-	connect( pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [&]() {
+	connect( pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiNoteOffIgnore =
 			pInputIgnoreNoteOffCheckBox->isChecked();
 	} );
@@ -127,7 +127,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	pInputDiscardAfterActionOffCheckBox->setText(
 		tr( "&Discard MIDI messages after action has been triggered" ) );
 	pInputSettingsLayout->addWidget( pInputDiscardAfterActionOffCheckBox );
-	connect( pInputDiscardAfterActionOffCheckBox, &QAbstractButton::toggled, [&]() {
+	connect( pInputDiscardAfterActionOffCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiDiscardNoteAfterAction =
 			pInputDiscardAfterActionOffCheckBox->isChecked();
 	} );
@@ -140,7 +140,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	 *  '&'. */
 	pInputNoteAsOutputCheckBox->setText( tr( "&Use output note as input note" ) );
 	pInputSettingsLayout->addWidget( pInputNoteAsOutputCheckBox );
-	connect( pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [&]() {
+	connect( pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiFixedMapping =
 			pInputNoteAsOutputCheckBox->isChecked();
 	} );
@@ -173,19 +173,18 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	 *  '&'. */
 	pOutputEnableMidiFeedbackCheckBox->setText( tr( "&Enable MIDI feedback" ) );
 	pOutputSettingsLayout->addWidget( pOutputEnableMidiFeedbackCheckBox );
-	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [&]() {
+	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bEnableMidiFeedback =
 			pOutputEnableMidiFeedbackCheckBox->isChecked();
 	} );
 
 	const int nLinkHeight = 24;
-	
+
 	auto pPreferencesLinkWidget = new QWidget( pSettingsWidget );
 	pPreferencesLinkWidget->setFixedHeight( nLinkHeight );
 	pSettingsLayout->addWidget( pPreferencesLinkWidget );
 	auto pPreferencesLinkLayout = new QHBoxLayout( pPreferencesLinkWidget );
 	pPreferencesLinkLayout->setContentsMargins( 0, 0, 0, 0 );
-	pPreferencesLinkWidget->setLayout( pOutputSettingsLayout );
 
 	pPreferencesLinkLayout->addStretch();
 	auto pPreferencesLinkLabel = new QLabel(
