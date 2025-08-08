@@ -440,7 +440,10 @@ public:
 	 * synced.
 	 */
 	void updateVirtualPatterns();
-	
+
+		bool getSendBbtChangeEvents() const;
+		void setSendBbtChangeEvents( bool bSend );
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -569,6 +572,11 @@ private:
 	MidiMessage::Event m_lastMidiEvent;
 	int					m_nLastMidiEventParameter;
 
+		/** The update of the Director is event-based. But if the widget is not
+		 * visible (probably most of the time) we do omit the corresponding
+		 * event for better performance. */
+		bool m_bSendBbtChangeEvents;
+
 };
 
 
@@ -655,7 +663,12 @@ inline float Hydrogen::getBeatCounterBeatLength() const {
 inline int Hydrogen::getBeatCounterEventCount() const {
 	return m_nBeatCounterEventCount;
 }
-
+inline bool Hydrogen::getSendBbtChangeEvents() const {
+	return m_bSendBbtChangeEvents;
+}
+inline void Hydrogen::setSendBbtChangeEvents( bool bSend ) {
+	m_bSendBbtChangeEvents = bSend;
+}
 };
 
 #endif

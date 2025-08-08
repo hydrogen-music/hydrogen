@@ -589,7 +589,8 @@ void AudioEngine::updateTransportPosition( double fTick, long long nFrame,
 		bBBTChanged = true;
 	}
 
-	if ( pPos == m_pTransportPosition && bBBTChanged &&
+	if ( pHydrogen->getSendBbtChangeEvents() &&
+		 pPos == m_pTransportPosition && bBBTChanged &&
 		 trigger != Event::Trigger::Suppress ) {
 		EventQueue::get_instance()->pushEvent( Event::Type::BbtChanged, 0 );
 	}

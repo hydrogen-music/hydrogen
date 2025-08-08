@@ -876,9 +876,14 @@ void HydrogenApp::showPlaylistEditor()
 
 void HydrogenApp::showDirector()
 {
+	auto pHydrogen = Hydrogen::get_instance();
+
 	if ( m_pDirector->isVisible() ) {
 		m_pDirector->hide();
-	} else {
+		pHydrogen->setSendBbtChangeEvents( false );
+	}
+	else {
+		pHydrogen->setSendBbtChangeEvents( true );
 		m_pDirector->show();
 	}
 	m_pMainForm->update_director_checkbox();
