@@ -379,6 +379,11 @@ MainToolBar::MainToolBar( QWidget* pParent) : QToolBar( pParent )
 MainToolBar::~MainToolBar() {
 }
 
+void MainToolBar::setMidiControlDialogVisible( bool bVisible ) {
+	m_pMidiControlDialog->setVisible( bVisible );
+	updateActions();
+}
+
 void MainToolBar::setPreferencesVisibilityState( bool bChecked ) {
 	m_pShowPreferencesAction->setChecked( bChecked );
 }

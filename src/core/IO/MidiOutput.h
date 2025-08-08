@@ -48,6 +48,8 @@ class MidiOutput : public virtual Object<MidiOutput>
 			int nData1;
 			int nData2;
 			int nChannel;
+
+			QString toQString() const;
 		};
 
 		MidiOutput();

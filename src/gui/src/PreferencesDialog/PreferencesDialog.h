@@ -110,6 +110,7 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
 		void on_restartAudioDriverBtn_clicked();
+		void on_restartMidiDriverButton_clicked();
 		void driverComboBoxActivated( int index );
 		void portaudioHostAPIComboBoxActivated( int index );
 		void styleComboBoxActivated( int index );
@@ -158,13 +159,15 @@ private:
 	void updateColors();
 	void updateAudioDriverInfo();
 	void updateAudioDriverInfoLabel();
+	void updateMidiDriverInfo();
 	void setAudioDriverInfoOss();
 	void setAudioDriverInfoAlsa();
 	void setAudioDriverInfoJack();
 	void setAudioDriverInfoCoreAudio();
 	void setAudioDriverInfoPortAudio();
 	void setAudioDriverInfoPulseAudio();
-	void updateAudioDriverPreferences();
+	void writeAudioDriverPreferences();
+	void writeMidiDriverPreferences();
 	void updateAppearanceTab( const H2Core::Theme& pTheme );
 
 	void initializeShortcutsTab();
@@ -206,9 +209,6 @@ private:
 	bool m_bMidiDriverRestartRequired;
 	QString m_sInitialLanguage;
 	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
-
-	bool m_bMidiTableChanged;
-
 };
 
 

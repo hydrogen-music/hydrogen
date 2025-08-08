@@ -41,25 +41,25 @@ class MidiMessage
 	public:
 		/** All possible types of incoming MIDI messages.*/
 		enum class Type {
-			Unknown,
-			Sysex,
-			NoteOn,
-			NoteOff,
-			PolyphonicKeyPressure,
-			ControlChange,
-			ProgramChange,
-			ChannelPressure,
-			PitchWheel,
-			Start,
-			Continue,
-			Stop,
-			SongPos,
-			QuarterFrame,
-			SongSelect,
-			TuneRequest,
-			TimingClock,
 			ActiveSensing,
-			Reset
+			ChannelPressure,
+			Continue,
+			ControlChange,
+			NoteOff,
+			NoteOn,
+			PitchWheel,
+			PolyphonicKeyPressure,
+			ProgramChange,
+			Reset,
+			QuarterFrame,
+			SongPos,
+			SongSelect,
+			Start,
+			Stop,
+			Sysex,
+			TimingClock,
+			TuneRequest,
+			Unknown
 		};
 		static QString TypeToQString( Type type );
 

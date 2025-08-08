@@ -60,9 +60,6 @@ class InstrumentEditor :  public QWidget,
 		void updateColors();
 		void updateEditor();
 
-	private slots:
-		void midiOutChannelChanged( double fValue );
-
 	private:
 		InstrumentEditorPanel* m_pInstrumentEditorPanel;
 
@@ -115,9 +112,6 @@ class InstrumentEditor :  public QWidget,
 		// Instrument midi out
 		LCDSpinBox *m_pMidiOutChannelLCD;
 		ClickableLabel* m_pMidiOutChannelLbl;
-	/** In order to allow for enumerations starting at 1 while using
-		-1 to turn off the LCD.*/
-	double m_fPreviousMidiOutChannel;
 
 		LCDSpinBox *m_pMidiOutNoteLCD;
 		ClickableLabel* m_pMidiOutNoteLbl;

@@ -446,7 +446,7 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     </message>
     <message>
         <source>Channel</source>
-        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor. Designed to hold seven characters but flexible.</extracomment>
+        <extracomment>Text displayed below the LCD to set the output MIDI channel in the Instrument Editor (designed to hold seven characters but flexible) as well in the Settings tab of the MidiControlDialog .</extracomment>
         <translation>Kanal</translation>
     </message>
     <message>
@@ -456,7 +456,7 @@ Label of the tab in pattern/song/drumkit properties dialog containing * artifact
     </message>
     <message>
         <source>MIDI Output</source>
-        <extracomment>Text displayed in the left part of the row of the Instrument Editor concerned with MIDI output parameters. Designed to hold eleven characters but flexible.</extracomment>
+        <extracomment>Text displayed in the left part of the row of the Instrument Editor concerned with MIDI output parameters (Designed to hold eleven characters but flexible) as well as in the header of the Settings tab of the MidiControlDialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1433,6 +1433,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Clea&amp;r</source>
         <extracomment>Text displayed on the Clear button in the pattern fill dialog of the song editor. The character after the &apos;&amp;&apos; symbol can be used as a hotkey and the &apos;&amp;&apos; symbol itself will not be displayed. Note that this button will be displayed in combination with &quot;Cancel&quot; and &quot;Fill&quot; and the symbol after &apos;&amp;&apos; should be different in all three translations.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI Input</source>
+        <extracomment>Text displayed in the header of the Settings tab of the MidiControlDialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply and restart driver</source>
+        <extracomment>Text displayed on the buttons used to restart audio or MIDI driver in * the Preferences dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <extracomment>Combo box item - e.g. used in the Settings tab of the MidiControl - * indicating that every option is permissible.</extracomment>
+        <translation>Alla</translation>
     </message>
 </context>
 <context>
@@ -3001,6 +3016,37 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
 </context>
 <context>
+    <name>MidiActionTable</name>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>press button to record midi event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incoming Event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Para. 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E. Para.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MidiControlDialog</name>
     <message>
         <source>Incoming</source>
@@ -3038,35 +3084,32 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Outgoing</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>MidiTable</name>
     <message>
-        <source>Action</source>
+        <source>Midi Actions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>press button to record midi event</source>
+        <source>&amp;Ignore note-off</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Incoming Event</source>
+        <source>&amp;Discard MIDI messages after action has been triggered</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Para. 1</source>
+        <source>&amp;Use output note as input note</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Para. 2</source>
+        <source>&amp;Enable MIDI feedback</source>
+        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Para. 3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>E. Para.</source>
+        <source>MIDI driver settings can be found in the Preferences Dialog</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3960,10 +4003,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Kunde inte starta ljud drivrutin</translation>
     </message>
     <message>
-        <source>Unable to start audio driver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Import Theme</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4064,14 +4103,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Metronome volym</translation>
     </message>
     <message>
-        <source>All</source>
-        <translation>Alla</translation>
-    </message>
-    <message>
-        <source>Channel</source>
-        <translation>Kanal</translation>
-    </message>
-    <message>
         <source>&amp;Appearance</source>
         <translation>&amp;Utseende</translation>
     </message>
@@ -4129,70 +4160,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Alt+D</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>9</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>10</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>11</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>12</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>13</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>14</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>15</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4341,10 +4308,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Apply and restart output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;MIDI System</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4354,22 +4317,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore note-off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Enable MIDI feedback</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Use output note as input note</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4578,6 +4525,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Enforce instrument name instead of type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Further MIDI settings can be found in the MIDI Control Dialog</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

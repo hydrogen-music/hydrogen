@@ -65,6 +65,7 @@ public:
 		explicit MainToolBar(QWidget *parent);
 		~MainToolBar();
 
+		void setMidiControlDialogVisible( bool bVisible );
 		/** Unlike all other widgets we have provide visibility buttons for,
 		 * #PreferencesDialog is a transient widget we can not check visibility
 		 * on. */

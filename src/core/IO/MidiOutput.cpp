@@ -64,4 +64,11 @@ MidiOutput::HandledOutput MidiOutput::sendMessage( const MidiMessage& msg ) {
 
 	return handledOutput;
 }
+
+QString MidiOutput::HandledOutput::toQString() const {
+	return QString( "timestamp: %1, msg type: %2, nData1: %3, nData2: %4, nChannel: %5" )
+		.arg( timestamp.toString( "HH:mm:ss.zzz" ) )
+		.arg( MidiMessage::TypeToQString( type ) ).arg( nData1 ).arg( nData2 )
+		.arg( nChannel );
+}
 };

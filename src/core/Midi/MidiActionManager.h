@@ -54,6 +54,49 @@ namespace H2Core
 class MidiActionManager : public H2Core::Object<MidiActionManager>
 {
 	H2_OBJECT(MidiActionManager)
+
+	public:
+
+		MidiActionManager();
+		~MidiActionManager();
+		/**
+		 * If #__instance equals 0, a new MidiActionManager
+		 * singleton will be created and stored in it.
+		 *
+		 * It is called in H2Core::Hydrogen::create_instance().
+		 */
+		static void create_instance();
+		/**
+		 * Returns a pointer to the current MidiActionManager
+		 * singleton stored in #__instance.
+		 */
+		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
+
+		/**
+		 * Handles multiple actions at once and calls handleAction()
+		 * on them.
+		 *
+		 * \return true - if at least one MidiAction was handled
+		 *   successfully. Calling functions should treat the event
+		 *   resulting in @a actions as consumed.
+		 */
+		bool handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& actions );
+		/**
+		 * The handleAction method is the heart of the
+		 * MidiActionManager class. It executes the operations that
+		 * are needed to carry the desired MidiAction.
+		 *
+		 * @return true - if @a MidiAction was handled successfully.
+		 */
+		bool handleMidiAction( const std::shared_ptr<MidiAction> MidiAction );
+
+		const std::set<MidiAction::Type>& getMidiActions() const {
+			return m_midiActions;
+		}
+
+		/** \return -1 in case the @a couldn't be found. */
+		int getParameterNumber( const MidiAction::Type& type ) const;
+
 	private:
 		/**
 		 * Object holding the current MidiActionManager
@@ -75,106 +118,64 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 * performing the desired MidiAction and an integer specifying how
 		 * many additional MidiAction parameters are required to do so.
 		 */
-	std::map<MidiAction::Type, std::pair<action_f,int>> m_midiActionMap;
+		std::map<MidiAction::Type, std::pair<action_f,int>> m_midiActionMap;
 		bool play( std::shared_ptr<MidiAction> );
-		bool play_pause_toggle( std::shared_ptr<MidiAction> );
-		bool play_stop_toggle( std::shared_ptr<MidiAction> );
+		bool playPauseToggle( std::shared_ptr<MidiAction> );
+		bool playStopToggle( std::shared_ptr<MidiAction> );
 		bool stop( std::shared_ptr<MidiAction> );
 		bool pause( std::shared_ptr<MidiAction> );
-		bool record_ready( std::shared_ptr<MidiAction> );
-		bool record_strobe_toggle( std::shared_ptr<MidiAction> );
-		bool record_strobe( std::shared_ptr<MidiAction> );
-		bool record_exit( std::shared_ptr<MidiAction> );
+		bool recordReady( std::shared_ptr<MidiAction> );
+		bool recordStrobeToggle( std::shared_ptr<MidiAction> );
+		bool recordStrobe( std::shared_ptr<MidiAction> );
+		bool recordExit( std::shared_ptr<MidiAction> );
 		bool mute( std::shared_ptr<MidiAction> );
 		bool unmute( std::shared_ptr<MidiAction> );
-		bool mute_toggle( std::shared_ptr<MidiAction> );
-		bool strip_mute_toggle( std::shared_ptr<MidiAction> );
-		bool strip_solo_toggle( std::shared_ptr<MidiAction> );
-		bool next_bar( std::shared_ptr<MidiAction> );
-		bool previous_bar( std::shared_ptr<MidiAction> );
-		bool bpm_increase( std::shared_ptr<MidiAction> );
-		bool bpm_decrease( std::shared_ptr<MidiAction> );
-		bool bpm_cc_relative( std::shared_ptr<MidiAction> );
-		bool bpm_fine_cc_relative( std::shared_ptr<MidiAction> );
-		bool master_volume_relative( std::shared_ptr<MidiAction>);
-		bool master_volume_absolute( std::shared_ptr<MidiAction> );
-		bool strip_volume_relative( std::shared_ptr<MidiAction> );
-		bool strip_volume_absolute( std::shared_ptr<MidiAction> );
-		bool effect_level_relative( std::shared_ptr<MidiAction> );
-		bool effect_level_absolute( std::shared_ptr<MidiAction> );
-		bool select_next_pattern( std::shared_ptr<MidiAction> );
-	bool select_only_next_pattern( std::shared_ptr<MidiAction> );
-	bool select_only_next_pattern_cc_absolute( std::shared_ptr<MidiAction> );
-		bool select_next_pattern_cc_absolute( std::shared_ptr<MidiAction> );
-		bool select_next_pattern_relative( std::shared_ptr<MidiAction> );
-		bool select_and_play_pattern( std::shared_ptr<MidiAction> );
-		bool pan_relative( std::shared_ptr<MidiAction> );
-		bool pan_absolute( std::shared_ptr<MidiAction> );
-	bool pan_absolute_sym( std::shared_ptr<MidiAction> );
-		bool instrument_pitch( std::shared_ptr<MidiAction> );
-		bool filter_cutoff_level_absolute( std::shared_ptr<MidiAction> );
+		bool muteToggle( std::shared_ptr<MidiAction> );
+		bool stripMuteToggle( std::shared_ptr<MidiAction> );
+		bool stripSoloToggle( std::shared_ptr<MidiAction> );
+		bool nextBar( std::shared_ptr<MidiAction> );
+		bool previousBar( std::shared_ptr<MidiAction> );
+		bool bpmIncrease( std::shared_ptr<MidiAction> );
+		bool bpmDecrease( std::shared_ptr<MidiAction> );
+		bool bpmCcRelative( std::shared_ptr<MidiAction> );
+		bool bpmFineCcRelative( std::shared_ptr<MidiAction> );
+		bool masterVolumeRelative( std::shared_ptr<MidiAction>);
+		bool masterVolumeAbsolute( std::shared_ptr<MidiAction> );
+		bool stripVolumeRelative( std::shared_ptr<MidiAction> );
+		bool stripVolumeAbsolute( std::shared_ptr<MidiAction> );
+		bool effectLevelRelative( std::shared_ptr<MidiAction> );
+		bool effectLevelAbsolute( std::shared_ptr<MidiAction> );
+		bool selectNextPattern( std::shared_ptr<MidiAction> );
+		bool selectOnlyNextPattern( std::shared_ptr<MidiAction> );
+		bool selectOnlyNextPatternCcAbsolute( std::shared_ptr<MidiAction> );
+		bool selectNextPatternCcAbsolute( std::shared_ptr<MidiAction> );
+		bool selectNextPatternRelative( std::shared_ptr<MidiAction> );
+		bool selectAndPlayPattern( std::shared_ptr<MidiAction> );
+		bool panRelative( std::shared_ptr<MidiAction> );
+		bool panAbsolute( std::shared_ptr<MidiAction> );
+		bool panAbsoluteSym( std::shared_ptr<MidiAction> );
+		bool instrumentPitch( std::shared_ptr<MidiAction> );
+		bool filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> );
 		bool beatcounter( std::shared_ptr<MidiAction> );
-		bool tap_tempo( std::shared_ptr<MidiAction> );
-		bool playlist_song( std::shared_ptr<MidiAction> );
-		bool playlist_next_song( std::shared_ptr<MidiAction> );
-		bool playlist_previous_song( std::shared_ptr<MidiAction> );
-		bool toggle_metronome( std::shared_ptr<MidiAction> );
-		bool select_instrument( std::shared_ptr<MidiAction> );
-		bool undo_action( std::shared_ptr<MidiAction> );
-		bool redo_action( std::shared_ptr<MidiAction> );
-		bool gain_level_absolute( std::shared_ptr<MidiAction> );
-		bool pitch_level_absolute( std::shared_ptr<MidiAction> );
-		bool clear_selected_instrument( std::shared_ptr<MidiAction> );
-		bool clear_pattern( std::shared_ptr<MidiAction> );
+		bool tapTempo( std::shared_ptr<MidiAction> );
+		bool playlistSong( std::shared_ptr<MidiAction> );
+		bool playlistNextSong( std::shared_ptr<MidiAction> );
+		bool playlistPreviousSong( std::shared_ptr<MidiAction> );
+		bool toggleMetronome( std::shared_ptr<MidiAction> );
+		bool selectInstrument( std::shared_ptr<MidiAction> );
+		bool undoAction( std::shared_ptr<MidiAction> );
+		bool redoAction( std::shared_ptr<MidiAction> );
+		bool gainLevelAbsolute( std::shared_ptr<MidiAction> );
+		bool pitchLevelAbsolute( std::shared_ptr<MidiAction> );
+		bool clearSelectedInstrument( std::shared_ptr<MidiAction> );
+		bool clearPattern( std::shared_ptr<MidiAction> );
 		bool loadNextDrumkit( std::shared_ptr<MidiAction> );
 		bool loadPrevDrumkit( std::shared_ptr<MidiAction> );
 
+		bool setSongFromPlaylist( int nSongNumber );
+		bool nextPatternSelection( int nPatternNumber );
+		bool onlyNextPatternSelection( int nPatternNumber );
+
 		int m_nLastBpmChangeCCParameter;
-
-	bool setSongFromPlaylist( int nSongNumber );
-	bool nextPatternSelection( int nPatternNumber );
-	bool onlyNextPatternSelection( int nPatternNumber );
-
-	public:
-
-		/**
-		 * Handles multiple actions at once and calls handleAction()
-		 * on them.
-		 *
-		 * \return true - if at least one MidiAction was handled
-		 *   successfully. Calling functions should treat the event
-		 *   resulting in @a actions as consumed.
-		 */
-	bool handleMidiActions( const std::vector<std::shared_ptr<MidiAction>>& actions );
-		/**
-		 * The handleAction method is the heart of the
-		 * MidiActionManager class. It executes the operations that
-		 * are needed to carry the desired MidiAction.
-		 *
-		 * @return true - if @a MidiAction was handled successfully.
-		 */
-		bool handleMidiAction( const std::shared_ptr<MidiAction> MidiAction );
-		/**
-		 * If #__instance equals 0, a new MidiActionManager
-		 * singleton will be created and stored in it.
-		 *
-		 * It is called in H2Core::Hydrogen::create_instance().
-		 */
-		static void create_instance();
-		/**
-		 * Returns a pointer to the current MidiActionManager
-		 * singleton stored in #__instance.
-		 */
-		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
-
-		const std::set<MidiAction::Type>& getMidiActions() const {
-			return m_midiActions;
-		}
-
-		/** \return -1 in case the @a couldn't be found. */
-		int getParameterNumber( const MidiAction::Type& type ) const;
-
-		MidiActionManager();
-		~MidiActionManager();
 };
 #endif

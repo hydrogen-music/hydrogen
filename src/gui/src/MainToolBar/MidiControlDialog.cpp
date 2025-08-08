@@ -25,10 +25,12 @@ https://www.gnu.org/licenses
 #include "MidiControlDialog.h"
 
 #include "MainToolBar.h"
+#include "MidiActionTable.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Preferences/Preferences.h>
@@ -40,6 +42,7 @@ using namespace H2Core;
 MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	: QDialog( pParent )
 {
+	const auto pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setMinimumSize( MidiControlDialog::nColumnActionWidth +
@@ -59,6 +62,186 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 
 	m_pTabWidget = new QTabWidget( this );
 	pMainLayout->addWidget( m_pTabWidget );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	const QColor borderColor( 80, 80, 80 );
+	const int nHeaderTextSize = 20;
+
+	auto pSettingsWidget = new QWidget( m_pTabWidget );
+	m_pTabWidget->addTab( pSettingsWidget, pCommonStrings->getSettings() );
+	auto pSettingsLayout = new QVBoxLayout( pSettingsWidget );
+	pSettingsWidget->setLayout( pSettingsLayout );
+
+	auto pConfigWidget = new QWidget( pSettingsWidget );
+	pConfigWidget->setStyleSheet( QString( "\
+#MidiInputSettings {\
+    border-right: 1px solid %1;\
+}" ).arg( borderColor.name() ) );
+	pSettingsLayout->addWidget( pConfigWidget );
+	auto pConfigLayout = new QHBoxLayout( pConfigWidget );
+	pConfigLayout->setSpacing( 0 );
+	pConfigWidget->setLayout( pConfigLayout );
+
+	auto pInputSettingsWidget = new QWidget( pConfigWidget );
+	pInputSettingsWidget->setObjectName( "MidiInputSettings" );
+	pConfigLayout->addWidget( pInputSettingsWidget );
+	auto pInputSettingsLayout = new QVBoxLayout( pInputSettingsWidget );
+	pInputSettingsLayout->setAlignment( Qt::AlignTop );
+	pInputSettingsWidget->setLayout( pInputSettingsLayout );
+
+	auto pInputLabel = new QLabel( pCommonStrings->getMidiInputLabel() );
+	pInputLabel->setAlignment( Qt::AlignCenter );
+	pInputLabel->setFixedHeight( 32 );
+	pInputLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nHeaderTextSize ) );
+	pInputSettingsLayout->addWidget( pInputLabel );
+
+	// Well, `border-bottom` does not seem to work on QLabel.
+	auto pInputSeparator = new QWidget( pInputSettingsWidget );
+	pInputSeparator->setFixedHeight( 1 );
+	pInputSeparator->setStyleSheet( QString( "\
+background-color: %1;" ).arg( borderColor.name() ) );
+	pInputSettingsLayout->addWidget( pInputSeparator );
+
+	auto pInputChannelFilterWidget = new QWidget( pInputSettingsWidget );
+	pInputSettingsLayout->addWidget( pInputChannelFilterWidget );
+	auto pInputChannelFilterLayout = new QHBoxLayout( pInputChannelFilterWidget );
+	pInputChannelFilterWidget->setLayout( pInputChannelFilterLayout );
+
+	auto pInputChannelFilterLabel = new QLabel(
+		pCommonStrings->getMidiOutChannelLabel() );
+	pInputChannelFilterLayout->addWidget( pInputChannelFilterLabel );
+	auto pInputChannelFilterComboBox = new QComboBox( pInputChannelFilterWidget );
+	pInputChannelFilterLayout->addWidget( pInputChannelFilterComboBox );
+	pInputChannelFilterComboBox->addItem( pCommonStrings->getAllLabel() );
+	for ( int ii = 0; ii <= 15; ++ii ) {
+		pInputChannelFilterComboBox->addItem( QString::number( ii ) );
+	}
+	if ( pPref->m_nMidiChannelFilter == -1 ) {
+		pInputChannelFilterComboBox->setCurrentIndex( 0 );
+	} else {
+		pInputChannelFilterComboBox->setCurrentIndex(
+			pPref->m_nMidiChannelFilter + 1 );
+	}
+	connect( pInputChannelFilterComboBox,
+			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
+		auto pPref = Preferences::get_instance();
+		if ( pPref->m_nMidiChannelFilter !=
+			 pInputChannelFilterComboBox->currentIndex() - 1 ) {
+			pPref->m_nMidiChannelFilter =
+				pInputChannelFilterComboBox->currentIndex() - 1;
+		}
+	} );
+
+	auto pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
+	pInputSettingsLayout->addWidget( pInputIgnoreNoteOffCheckBox );
+	connect( pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->m_bMidiNoteOffIgnore =
+			pInputIgnoreNoteOffCheckBox->isChecked();
+	} );
+
+	auto pInputDiscardAfterActionOffCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputDiscardAfterActionOffCheckBox->setChecked(
+		pPref->m_bMidiDiscardNoteAfterAction );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pInputDiscardAfterActionOffCheckBox->setText(
+		tr( "&Discard MIDI messages after action has been triggered" ) );
+	pInputSettingsLayout->addWidget( pInputDiscardAfterActionOffCheckBox );
+	connect( pInputDiscardAfterActionOffCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->m_bMidiDiscardNoteAfterAction =
+			pInputDiscardAfterActionOffCheckBox->isChecked();
+	} );
+
+	auto pInputNoteAsOutputCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pInputNoteAsOutputCheckBox->setText( tr( "&Use output note as input note" ) );
+	pInputSettingsLayout->addWidget( pInputNoteAsOutputCheckBox );
+	connect( pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->m_bMidiFixedMapping =
+			pInputNoteAsOutputCheckBox->isChecked();
+	} );
+
+	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
+	pConfigLayout->addWidget( pOutputSettingsWidget );
+	auto pOutputSettingsLayout = new QVBoxLayout( pOutputSettingsWidget );
+	pOutputSettingsLayout->setAlignment( Qt::AlignTop );
+	pOutputSettingsWidget->setLayout( pOutputSettingsLayout );
+
+	auto pOutputLabel = new QLabel( pCommonStrings->getMidiOutLabel() );
+	pOutputLabel->setAlignment( Qt::AlignCenter );
+	pOutputLabel->setFixedHeight( 32 );
+	pOutputLabel->setStyleSheet( QString( "\
+font-size: %1px;" ).arg( nHeaderTextSize ) );
+	pOutputSettingsLayout->addWidget( pOutputLabel );
+
+	// Well, `border-bottom` does not seem to work on QLabel.
+	auto pOutputSeparator = new QWidget( pOutputSettingsWidget );
+	pOutputSeparator->setFixedHeight( 1 );
+	pOutputSeparator->setStyleSheet( QString( "\
+background-color: %1;" ).arg( borderColor.name() ) );
+	pOutputSettingsLayout->addWidget( pOutputSeparator );
+
+	auto pOutputEnableMidiFeedbackCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
+	/*: The character after the '&' symbol can be used as a shortcut via the Alt
+	 *  modifier. It should not coincide with any other shortcut in the Settings
+	 *  tab of the MidiControlDialog. If in question, you can just drop the
+	 *  '&'. */
+	pOutputEnableMidiFeedbackCheckBox->setText( tr( "&Enable MIDI feedback" ) );
+	pOutputSettingsLayout->addWidget( pOutputEnableMidiFeedbackCheckBox );
+	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->m_bEnableMidiFeedback =
+			pOutputEnableMidiFeedbackCheckBox->isChecked();
+	} );
+
+	const int nLinkHeight = 24;
+
+	auto pPreferencesLinkWidget = new QWidget( pSettingsWidget );
+	pPreferencesLinkWidget->setFixedHeight( nLinkHeight );
+	pSettingsLayout->addWidget( pPreferencesLinkWidget );
+	auto pPreferencesLinkLayout = new QHBoxLayout( pPreferencesLinkWidget );
+	pPreferencesLinkLayout->setContentsMargins( 0, 0, 0, 0 );
+
+	pPreferencesLinkLayout->addStretch();
+	auto pPreferencesLinkLabel = new QLabel(
+		tr( "MIDI driver settings can be found in the Preferences Dialog" ) );
+	pPreferencesLinkLabel->setFixedHeight( nLinkHeight );
+	pPreferencesLinkLayout->addWidget( pPreferencesLinkLabel );
+	auto pPreferencesLinkButton = new QToolButton( pPreferencesLinkWidget );
+	pPreferencesLinkButton->setFixedSize( nLinkHeight, nLinkHeight );
+	pPreferencesLinkLayout->addWidget( pPreferencesLinkButton );
+	pPreferencesLinkButton->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/black/cog.svg" ) );
+	connect( pPreferencesLinkButton, &QToolButton::clicked, [&]() {
+		HydrogenApp::get_instance()->showPreferencesDialog();
+	} );
+
+	////////////////////////////////////////////////////////////////////////////
+
+	m_pMidiActionTable = new MidiActionTable( this );
+	m_pTabWidget->addTab( m_pMidiActionTable, tr( "Midi Actions" ) );
+
+	connect( m_pMidiActionTable, &MidiActionTable::changed, [=]() {
+		m_pMidiActionTable->saveMidiActionTable();
+		H2Core::EventQueue::get_instance()->pushEvent(
+			H2Core::Event::Type::MidiMapChanged, 0 );
+	});
+
+	////////////////////////////////////////////////////////////////////////////
 
 	auto pInputWidget = new QWidget( m_pTabWidget );
 	m_pTabWidget->addTab( pInputWidget, tr( "Incoming" ) );
@@ -130,6 +313,8 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 		updateInputTable();
 	});
 
+	////////////////////////////////////////////////////////////////////////////
+
 	auto pOutputWidget = new QWidget( m_pTabWidget );
 	m_pTabWidget->addTab( pOutputWidget, tr( "Outgoing" ) );
 	auto pOutputLayout = new QVBoxLayout( pOutputWidget );
@@ -157,6 +342,15 @@ MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	m_pOutputBinButton = addBinButton( pOutputWidget );
 	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
 		Hydrogen::get_instance()->getMidiDriver()->clearHandledOutput();
+		updateOutputTable();
+	});
+
+	////////////////////////////////////////////////////////////////////////////
+
+	// Since we only update the message tables in case they are visible, we have
+	// to ensure to update them when bringing them into view.
+	connect( m_pTabWidget, &QTabWidget::currentChanged, [&]() {
+		updateInputTable();
 		updateOutputTable();
 	});
 
@@ -251,6 +445,10 @@ void MidiControlDialog::updateIcons() {
 }
 
 void MidiControlDialog::updateInputTable() {
+	if ( ! m_pMidiInputTable->isVisible() ) {
+		return;
+	}
+
 	const auto handledInputs = Hydrogen::get_instance()->getAudioEngine()->
 		getMidiDriver()->getHandledInputs();
 
@@ -353,7 +551,7 @@ void MidiControlDialog::updateInputTable() {
 
 	// Table is in prestine shape. We just add the missing rows.
 	if ( ! bInvalid ) {
-		for ( int ii = nOldRowCount - 1; ii < handledInputs.size(); ++ii ) {
+		for ( int ii = nOldRowCount; ii < handledInputs.size(); ++ii ) {
 			addRow( handledInputs[ ii ], ii );
 		}
 	}
@@ -375,6 +573,10 @@ void MidiControlDialog::updateInputTable() {
 }
 
 void MidiControlDialog::updateOutputTable() {
+	if ( ! m_pMidiOutputTable->isVisible() ) {
+		return;
+	}
+
 	const auto handledOutputs = Hydrogen::get_instance()->getAudioEngine()->
 		getMidiDriver()->getHandledOutputs();
 
@@ -451,7 +653,7 @@ void MidiControlDialog::updateOutputTable() {
 
 	// Table is in prestine shape. We just add the missing rows.
 	if ( ! bInvalid ) {
-		for ( int ii = nOldRowCount - 1; ii < handledOutputs.size(); ++ii ) {
+		for ( int ii = nOldRowCount; ii < handledOutputs.size(); ++ii ) {
 			addRow( handledOutputs[ ii ], ii );
 		}
 	}

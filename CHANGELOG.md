@@ -77,10 +77,16 @@ All notable changes to this project will be documented in this file.
 - Prerelease version suffix (alpha, beta, rc..) are now appended to the shared
   library of the core, `libhydrogen-core-X.X.X.so/.dll`.
 - Preferences dialog can now be smoothly resized.
-- MIDI action `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as their OSC
-  counterparts - do now wrap transport around the beginning and end of a song if
-  loop mode is enabled. In pattern mode they move transport to be beginning and
-  next is updating pending stacked patterns.
+- MIDI:
+  - Actions `>>_NEXT_BAR` and `<<_PREVIOUS_BAR` - as well as their OSC
+    counterparts - do now wrap transport around the beginning and end of a song
+    if loop mode is enabled. In pattern mode they move transport to be beginning
+    and next is updating pending stacked patterns.
+  - A MIDI control dialog listing all incoming and outgoing messages is now
+    accessible via a button in the main toolbar.
+  - All MIDI settings, which do not require a driver restart, were moved into
+    the MIDI control dialog.
+  - The MIDI channel presented in the Instrument Editor and the Settings is now zero-based (previously, it started at `1`).
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.

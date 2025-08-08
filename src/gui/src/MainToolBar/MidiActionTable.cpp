@@ -19,12 +19,12 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#include "MidiTable.h"
+#include "MidiActionTable.h"
 
-#include "LCDCombo.h"
-#include "LCDSpinBox.h"
-#include "MidiSenseWidget.h"
 #include "../Skin.h"
+#include "../Widgets/LCDCombo.h"
+#include "../Widgets/LCDSpinBox.h"
+#include "../Widgets/MidiSenseWidget.h"
 
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Hydrogen.h>
@@ -38,7 +38,7 @@
 
 #include <QHeaderView>
 
-MidiTable::MidiTable( QWidget *pParent )
+MidiActionTable::MidiActionTable( QWidget *pParent )
 	: QTableWidget( pParent )
 	, m_nRowHeight( 29 )
 	, m_nColumn0Width( 25 )
@@ -48,14 +48,14 @@ MidiTable::MidiTable( QWidget *pParent )
 	, m_nSpinBoxWidth( 60 )
  {
 	m_nRowCount = 0;
-	setupMidiTable();
+	setupMidiActionTable();
 
 	m_pUpdateTimer = new QTimer( this );
 	m_nCurrentMidiAutosenseRow = 0;
 }
 
 
-MidiTable::~MidiTable()
+MidiActionTable::~MidiActionTable()
 {
 	for( int myRow = 0; myRow <=  m_nRowCount ; myRow++ ) {
 		delete cellWidget( myRow, 0 );
@@ -68,7 +68,7 @@ MidiTable::~MidiTable()
 	}
 }
 
-void MidiTable::midiSensePressed( int nRow ){
+void MidiActionTable::midiSensePressed( int nRow ){
 
 	m_nCurrentMidiAutosenseRow = nRow;
 	MidiSenseWidget midiSenseWidget( this );
@@ -103,12 +103,12 @@ void MidiTable::midiSensePressed( int nRow ){
 // the spinBoxes is reset after the end of updateTable(). In addition,
 // the function is only called frequently when interacting the the
 // table via mouse. This won't happen too often.
-void MidiTable::paintEvent( QPaintEvent* ev ) {
+void MidiActionTable::paintEvent( QPaintEvent* ev ) {
 	QTableWidget::paintEvent( ev );
 	updateTable();
 }
 
-void MidiTable::updateTable() {
+void MidiActionTable::updateTable() {
 	if( m_nRowCount > 0 ) {
 		// Ensure that the last row is empty
 		LCDCombo* pEventCombo =  dynamic_cast<LCDCombo*>( cellWidget( m_nRowCount - 1, 1 ) );
@@ -132,11 +132,11 @@ void MidiTable::updateTable() {
 	}
 }
 
-void MidiTable::sendChanged() {
+void MidiActionTable::sendChanged() {
 	emit changed();
 }
 
-void MidiTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
+void MidiActionTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 							 const QString& eventString, int eventParameter)
 {
 	MidiActionManager *pActionHandler = MidiActionManager::get_instance();
@@ -168,7 +168,7 @@ void MidiTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 				return;
 			}
 		}
-		ERRORLOG( QString( "Unable to midiSenseButton of initial row [%1] in MidiTable!" )
+		ERRORLOG( QString( "Unable to midiSenseButton of initial row [%1] in MidiActionTable!" )
 				  .arg( oldRowCount ) );
 	});
 	setCellWidget( oldRowCount, 0, midiSenseButton );
@@ -243,7 +243,7 @@ void MidiTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 			 this, SLOT( sendChanged() ) );
 }
 
-void MidiTable::setupMidiTable()
+void MidiActionTable::setupMidiActionTable()
 {
 	const auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
 
@@ -315,7 +315,7 @@ void MidiTable::setupMidiTable()
 }
 
 
-void MidiTable::saveMidiTable()
+void MidiActionTable::saveMidiActionTable()
 {
 	auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
@@ -374,7 +374,7 @@ void MidiTable::saveMidiTable()
 	}
 }
 
-void MidiTable::updateRow( int nRow ) {
+void MidiActionTable::updateRow( int nRow ) {
 	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
 	LCDCombo* pActionCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
 

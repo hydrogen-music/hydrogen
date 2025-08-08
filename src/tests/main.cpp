@@ -74,6 +74,8 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	pPref->setUseRelativeFilenamesForPlaylists( true );
 	
 	H2Core::Hydrogen::create_instance();
+	H2Core::Hydrogen::get_instance()->setGUIState(
+		H2Core::Hydrogen::GUIState::headless );
 	// Prevent the EventQueue from flooding the log since we will push
 	// more events in a short period of time than it is able to handle.
 	EventQueue::get_instance()->setSilent( true );

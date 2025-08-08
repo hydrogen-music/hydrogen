@@ -118,18 +118,22 @@ CommonStrings::CommonStrings(){
 	  ADSR in the Instrument Editor. Designed to hold seven characters
 	  but flexible.*/
 	m_sReleaseLabel = tr( "Release" );
-	/*: Text displayed below the LCD to set the output MIDI channel
-	  in the Instrument Editor. Designed to hold seven characters but
-	  flexible.*/
+	/*: Text displayed below the LCD to set the output MIDI channel in the
+	  Instrument Editor (designed to hold seven characters but flexible) as well
+	  in the Settings tab of the MidiControlDialog .*/
 	m_sMidiOutChannelLabel = tr( "Channel" );
 	/*: Text displayed below the LCD to set the output MIDI note
 	  in the Instrument Editor. Designed to hold four characters but
 	  flexible.*/
 	m_sMidiOutNoteLabel = tr( "Note" );
-	/*: Text displayed in the left part of the row of the Instrument
-	  Editor concerned with MIDI output parameters. Designed to hold
-	  eleven characters but flexible.*/
+	/*: Text displayed in the left part of the row of the Instrument Editor
+	  concerned with MIDI output parameters (Designed to hold eleven characters
+	  but flexible) as well as in the header of the Settings tab of the
+	  MidiControlDialog.*/
 	m_sMidiOutLabel = tr( "MIDI Output" );
+	/*: Text displayed in the header of the Settings tab of the
+	  MidiControlDialog.*/
+	m_sMidiInputLabel = tr( "MIDI Input" );
 	/*: Text displayed in the Instrument Editor in the row of the
 	  pitch widget. Designed to hold five characters but flexible.*/
 	m_sPitchLabel = tr( "Pitch" );
@@ -244,6 +248,12 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed below the rotary in the FX Mixerline. Designed
 	  to hold six characters but flexible.*/
 	m_sReturnLabel = tr( "Return" );
+	/*: Text displayed on the buttons used to restart audio or MIDI driver in
+	 *  the Preferences dialog. */
+	m_sDriverRestartButton = tr( "Apply and restart driver" );
+	/*: Combo box item - e.g. used in the Settings tab of the MidiControl -
+	 *  indicating that every option is permissible. */
+	m_sAllLabel = tr( "All" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/
