@@ -313,6 +313,18 @@ void AudioEngine::startPlayback()
 	}
 
 	setState( State::Playing );
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+		 m_pMidiDriver != nullptr ) {
+		MidiMessage midiMessage;
+		if ( m_pTransportPosition->getTick() > 0 ) {
+			midiMessage.setType( MidiMessage::Type::Continue );
+		}
+		else {
+			midiMessage.setType( MidiMessage::Type::Start );
+		}
+		m_pMidiDriver->sendMessage( midiMessage );
+	}
 	
 	handleSelectedPattern();
 }
@@ -328,6 +340,13 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 	}
 
 	setState( State::Ready, trigger );
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+		 m_pMidiDriver != nullptr ) {
+		MidiMessage midiMessage;
+		midiMessage.setType( MidiMessage::Type::Stop );
+		m_pMidiDriver->sendMessage( midiMessage );
+	}
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
