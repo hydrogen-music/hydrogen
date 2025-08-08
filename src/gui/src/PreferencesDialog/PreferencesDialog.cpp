@@ -645,16 +645,26 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	sval->setFixedWidth( nColorLCDWidth );
 	vval->setFixedWidth( nColorLCDWidth );
 
+	// We initialize the tree by expanding the "Widget" node and
+	// selecting the first color. This looks more nice than with no
+	// color selected at all and works better with the Shotlist.
+	colorTree->expandItem( pWidgetItem );
+	colorTree->setCurrentItem( pDefaultItem );
+	if ( pDefaultItem != nullptr ) {
+		m_nCurrentId = pDefaultItem->getId();
+	}
+	updateAppearanceTab( m_currentTheme );
+
 	connect( colorTree, SIGNAL(itemSelectionChanged()),
 			 this, SLOT(colorTreeSelectionChanged()) );
 	connect( colorButton, SIGNAL(colorChanged()),
 			 this, SLOT(colorButtonChanged()) );
-	connect(rslider, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
-	connect(gslider, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
-	connect(bslider, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
-	connect(hslider, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
-	connect(sslider, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
-	connect(vslider, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
+	connect(rslider, SIGNAL(sliderMoved(int)), SLOT(rsliderChanged(int)));
+	connect(gslider, SIGNAL(sliderMoved(int)), SLOT(gsliderChanged(int)));
+	connect(bslider, SIGNAL(sliderMoved(int)), SLOT(bsliderChanged(int)));
+	connect(hslider, SIGNAL(sliderMoved(int)), SLOT(hsliderChanged(int)));
+	connect(sslider, SIGNAL(sliderMoved(int)), SLOT(ssliderChanged(int)));
+	connect(vslider, SIGNAL(sliderMoved(int)), SLOT(vsliderChanged(int)));
 
 	connect(rval, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
 	connect(gval, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
@@ -662,16 +672,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(hval, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
 	connect(sval, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
 	connect(vval, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
-	
-	// We initialize the tree by expanding the "Widget" node and
-	// selecting the first color. This looks more nice than with no
-	// color selected at all and works better with the Shotlist.
-	colorTree->expandItem( pWidgetItem );
-	colorTree->setCurrentItem( pDefaultItem );
-
-	updateColorTree();
-
-	updateAppearanceTab( m_currentTheme );
 
 	m_pShortcuts = std::make_shared<H2Core::Shortcuts>( pPref->getShortcuts() );
 	initializeShortcutsTab();
