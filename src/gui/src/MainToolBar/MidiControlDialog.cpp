@@ -124,7 +124,8 @@ background-color: %1;" ).arg( borderColor.name() ) );
 		pInputChannelFilterComboBox->setCurrentIndex(
 			pPref->m_nMidiChannelFilter + 1 );
 	}
-	connect( pInputChannelFilterComboBox, &QComboBox::currentIndexChanged, [=]() {
+	connect( pInputChannelFilterComboBox,
+			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
 		auto pPref = Preferences::get_instance();
 		if ( pPref->m_nMidiChannelFilter !=
 			 pInputChannelFilterComboBox->currentIndex() - 1 ) {
