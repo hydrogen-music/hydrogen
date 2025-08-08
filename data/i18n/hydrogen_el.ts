@@ -1439,6 +1439,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed in the header of the Settings tab of the MidiControlDialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Apply and restart driver</source>
+        <extracomment>Text displayed on the buttons used to restart audio or MIDI driver in * the Preferences dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4033,10 +4038,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Σφάλμα στο ξεκίνημα του οδηγού ήχου</translation>
     </message>
     <message>
-        <source>Unable to start audio driver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Import Theme</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4417,10 +4418,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply and restart output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -248,6 +248,9 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed below the rotary in the FX Mixerline. Designed
 	  to hold six characters but flexible.*/
 	m_sReturnLabel = tr( "Return" );
+	/*: Text displayed on the buttons used to restart audio or MIDI driver in
+	 *  the Preferences dialog. */
+	m_sDriverRestartButton = tr( "Apply and restart driver" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/

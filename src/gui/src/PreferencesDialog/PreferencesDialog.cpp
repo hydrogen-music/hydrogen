@@ -343,6 +343,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	resampleComboBox->setSize( audioTabWidgetSizeBottom );
 	resampleComboBox->setCurrentIndex( static_cast<int>(pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode() ) );
 
+	restartAudioDriverBtn->setText( pCommonStrings->getDriverRestartButton() );
+
 	updateAudioDriverInfo();
 
 	//////////////////////////////////////////////////////////////////
@@ -368,73 +370,20 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		Preferences::midiDriverToQString( Preferences::MidiDriver::Jack ) );
 #endif
 
-	const auto nMidiIndex = m_pMidiDriverComboBox->findText(
-		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
-	if ( nMidiIndex > -1 ) {
-		m_pMidiDriverComboBox->setCurrentIndex( nMidiIndex );
-	}
-	else {
-		driverInfoLbl->setText( tr("Select your MIDI Driver" ) );
-		ERRORLOG( QString( "Unknown MIDI input from preferences [%1]" )
-				  .arg( Preferences::midiDriverToQString( pPref->m_midiDriver ) ) );
-	}
 	connect( static_cast<QComboBox*>(m_pMidiDriverComboBox),
 			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		m_bMidiDriverRestartRequired = true;
 	});
 
 	midiPortChannelComboBox->setSize( midiTabWidgetSize );
-	midiPortChannelComboBox->setEnabled( false );
 	midiPortComboBox->setSize( midiTabWidgetSize );
-	midiPortComboBox->setEnabled( false );
 	connect( static_cast<QComboBox*>(midiPortComboBox),
 			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		m_bMidiDriverRestartRequired = true;
 	});
 	
-	// MIDI tab - list midi input ports
-	midiPortComboBox->clear();
-	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		std::vector<QString> midiOutputPorts = pHydrogen->getMidiDriver()->
-			getExternalPortList( MidiBaseDriver::PortType::Output );
-
-		if ( midiOutputPorts.size() != 0 ) {
-			midiPortComboBox->setEnabled( true );
-			midiPortChannelComboBox->setEnabled( true );
-		}
-		for (uint i = 0; i < midiOutputPorts.size(); i++) {
-			QString sPortName = midiOutputPorts[i];
-			midiPortComboBox->addItem( sPortName );
-
-			if ( sPortName == pPref->m_sMidiPortName ) {
-				midiPortComboBox->setCurrentIndex( i + 1 );
-			}
-		}
-	}
-	
-	// MIDI tab - list midi output ports
 	midiOutportComboBox->setSize( midiTabWidgetSize );
-	midiOutportComboBox->clear();
-	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		std::vector<QString> midiInputPorts = pHydrogen->getMidiDriver()->
-			getExternalPortList( MidiBaseDriver::PortType::Input );
-
-		if ( midiInputPorts.size() != 0 ) {
-			midiOutportComboBox->setEnabled( true );
-			midiPortChannelComboBox->setEnabled( true );
-		}
-		for (uint i = 0; i < midiInputPorts.size(); i++) {
-			QString sPortName = midiInputPorts[i];
-			midiOutportComboBox->addItem( sPortName );
-
-			if ( sPortName == pPref->m_sMidiOutputPortName ) {
-				midiOutportComboBox->setCurrentIndex( i + 1 );
-			}
-		}
-	}
-	connect( static_cast<QComboBox*>(midiOutportComboBox),
+		connect( static_cast<QComboBox*>(midiOutportComboBox),
 			 QOverload<int>::of(&QComboBox::activated), [&]( int ) {
 		m_bMidiDriverRestartRequired = true;
 	});
@@ -445,6 +394,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
 	}
+
+	updateMidiDriverInfo();
+
+	restartMidiDriverButton->setText( pCommonStrings->getDriverRestartButton() );
+	restartMidiDriverButton->setMaximumWidth( width() / 2 );
 
 	//////
 	// OSC tab
@@ -724,7 +678,7 @@ void PreferencesDialog::on_cancelBtn_clicked() {
 	reject();
 }
 
-void PreferencesDialog::updateAudioDriverPreferences() {
+void PreferencesDialog::writeAudioDriverPreferences() {
 	auto pPref = Preferences::get_instance();
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
@@ -863,6 +817,51 @@ void PreferencesDialog::updateAudioDriverPreferences() {
 	}
 }
 
+void PreferencesDialog::writeMidiDriverPreferences() {
+	auto pPref = Preferences::get_instance();
+
+	bool bMidiOptionAltered = false;
+	if ( m_pMidiDriverComboBox->currentText() !=
+		 Preferences::midiDriverToQString( pPref->m_midiDriver ) ) {
+		pPref->m_midiDriver = Preferences::parseMidiDriver(
+			m_pMidiDriverComboBox->currentText() );
+		bMidiOptionAltered = true;
+		m_bMidiDriverRestartRequired = true;
+	}
+
+	QString sNewMidiPortName = midiPortComboBox->currentText();
+	if ( midiPortComboBox->currentIndex() == 0 ) {
+		sNewMidiPortName = Preferences::getNullMidiPort();
+	}
+	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
+		pPref->m_sMidiPortName = sNewMidiPortName;
+		bMidiOptionAltered = true;
+		m_bMidiDriverRestartRequired = true;
+	}
+
+	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
+	if ( midiOutportComboBox->currentIndex() == 0 ) {
+		sNewMidiOutputPortName = Preferences::getNullMidiPort();
+	}
+	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
+		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
+		bMidiOptionAltered = true;
+		m_bMidiDriverRestartRequired = true;
+	}
+
+	if ( pPref->m_nMidiChannelFilter !=
+		 midiPortChannelComboBox->currentIndex() - 1 ) {
+		pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
+		bMidiOptionAltered = true;
+	}
+
+	if ( bMidiOptionAltered ) {
+		m_changes = static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::MidiTab );
+	}
+
+
+}
 
 void PreferencesDialog::on_okBtn_clicked()
 {
@@ -876,18 +875,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	//////////////////////////////////////////////////////////////////
 	bool bAudioOptionAltered = false;
 
-	updateAudioDriverPreferences();
-
-	if ( m_bAudioDriverRestartRequired || m_bMidiDriverRestartRequired ) {
-		if ( QMessageBox::information(
-				 this, "Hydrogen",
-				 tr( "Driver restart required.\n Restart driver?"),
-				 QMessageBox::Ok | QMessageBox::Cancel,
-				 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
-			// Don't save the Preferences and don't close the PreferencesDialog
-			return;
-		}
-	}
+	writeAudioDriverPreferences();
 
 	// Check whether the current audio driver is valid
 	if ( pHydrogen->getAudioOutput() == nullptr ||
@@ -944,43 +932,18 @@ void PreferencesDialog::on_okBtn_clicked()
 	//////////////////////////////////////////////////////////////////
 	// MIDI tab
 	//////////////////////////////////////////////////////////////////
-	bool bMidiOptionAltered = false;
-	if ( m_pMidiDriverComboBox->currentText() !=
-		 Preferences::midiDriverToQString( pPref->m_midiDriver) ) {
-		pPref->m_midiDriver = Preferences::parseMidiDriver(
-			m_pMidiDriverComboBox->currentText() );
-		bMidiOptionAltered = true;
-	}
 
-	QString sNewMidiPortName = midiPortComboBox->currentText();
-	if ( midiPortComboBox->currentIndex() == 0 ) {
-		sNewMidiPortName = Preferences::getNullMidiPort();
-	}
-	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
-		pPref->m_sMidiPortName = sNewMidiPortName;
-		bMidiOptionAltered = true;
-		m_bMidiDriverRestartRequired = true;
-	}
-	
-	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
-	if ( midiOutportComboBox->currentIndex() == 0 ) {
-		sNewMidiOutputPortName = Preferences::getNullMidiPort();
-	}
-	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
-		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
-		bMidiOptionAltered = true;
-		m_bMidiDriverRestartRequired = true;
-	}
+	writeMidiDriverPreferences();
 
-	if ( pPref->m_nMidiChannelFilter !=
-		 midiPortChannelComboBox->currentIndex() - 1 ) {
-		pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
-		bMidiOptionAltered = true;
-	}
-
-	if ( bMidiOptionAltered ) {
-		m_changes = static_cast<H2Core::Preferences::Changes>(
-			m_changes | H2Core::Preferences::Changes::MidiTab );
+	if ( m_bAudioDriverRestartRequired || m_bMidiDriverRestartRequired ) {
+		if ( QMessageBox::information(
+				 this, "Hydrogen",
+				 tr( "Driver restart required.\n Restart driver?"),
+				 QMessageBox::Ok | QMessageBox::Cancel,
+				 QMessageBox::Cancel ) == QMessageBox::Cancel ) {
+			// Don't save the Preferences and don't close the PreferencesDialog
+			return;
+		}
 	}
 	
 	//////////////////////////////////////////////////////////////////
@@ -1332,6 +1295,79 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 	}
 	
 	driverInfoLbl->setText( sInfo );
+}
+
+void PreferencesDialog::updateMidiDriverInfo() {
+	const auto pPref = Preferences::get_instance();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
+
+	const auto nMidiIndex = m_pMidiDriverComboBox->findText(
+		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
+	if ( nMidiIndex > -1 ) {
+		m_pMidiDriverComboBox->setCurrentIndex( nMidiIndex );
+	}
+	else {
+		driverInfoLbl->setText( tr("Select your MIDI Driver" ) );
+		ERRORLOG( QString( "Unknown MIDI input from preferences [%1]" )
+				  .arg( Preferences::midiDriverToQString( pPref->m_midiDriver ) ) );
+	}
+
+	// List MIDI input ports
+	midiPortComboBox->clear();
+	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
+	if ( pHydrogen->getMidiDriver() != nullptr ) {
+		const auto midiOutputPorts = pHydrogen->getMidiDriver()->
+			getExternalPortList( MidiBaseDriver::PortType::Output );
+
+		if ( midiOutputPorts.size() != 0 ) {
+			midiPortComboBox->setEnabled( true );
+			midiPortChannelComboBox->setEnabled( true );
+
+			for ( uint i = 0; i < midiOutputPorts.size(); i++) {
+				const QString sPortName = midiOutputPorts[i];
+				midiPortComboBox->addItem( sPortName );
+
+				if ( sPortName == pPref->m_sMidiPortName ) {
+					midiPortComboBox->setCurrentIndex( i + 1 );
+				}
+			}
+		}
+		else {
+			midiPortComboBox->setEnabled( false );
+		}
+	}
+	else {
+		midiPortComboBox->setEnabled( false );
+	}
+
+	// List MIDI output ports
+	midiOutportComboBox->clear();
+	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
+	if ( pHydrogen->getMidiDriver() != nullptr ) {
+		const auto midiInputPorts = pHydrogen->getMidiDriver()->
+			getExternalPortList( MidiBaseDriver::PortType::Input );
+
+		if ( midiInputPorts.size() != 0 ) {
+			midiOutportComboBox->setEnabled( true );
+			midiPortChannelComboBox->setEnabled( true );
+
+			for ( uint i = 0; i < midiInputPorts.size(); i++) {
+				const QString sPortName = midiInputPorts[i];
+				midiOutportComboBox->addItem( sPortName );
+
+				if ( sPortName == pPref->m_sMidiOutputPortName ) {
+					midiOutportComboBox->setCurrentIndex( i + 1 );
+				}
+			}
+		}
+		else {
+			midiOutportComboBox->setEnabled( false );
+		}
+	}
+	else {
+		midiOutportComboBox->setEnabled( false );
+	}
 }
 
 void PreferencesDialog::setAudioDriverInfoOss() {
@@ -1760,9 +1796,10 @@ void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
 
 void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	
-	updateAudioDriverPreferences();
+
+	writeAudioDriverPreferences();
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->restartAudioDriver();
 
@@ -1771,11 +1808,25 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 	if ( pHydrogen->getAudioOutput() == nullptr ||
 		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
 		QMessageBox::critical( this, "Hydrogen",
-							   tr( "Unable to start audio driver" ) );
+							   pCommonStrings->getAudioDriverStartError() );
 	}
-	
+
 	m_bAudioDriverRestartRequired = false;
 	updateAudioDriverInfo();
+}
+
+void PreferencesDialog::on_restartMidiDriverButton_clicked()
+{
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	
+	writeMidiDriverPreferences();
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->restartMidiDriver();
+
+	QApplication::restoreOverrideCursor();
+
+	m_bMidiDriverRestartRequired = false;
+	updateMidiDriverInfo();
 }
 
 void PreferencesDialog::styleComboBoxActivated( int index )

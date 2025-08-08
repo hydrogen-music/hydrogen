@@ -1440,6 +1440,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed in the header of the Settings tab of the MidiControlDialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Apply and restart driver</source>
+        <extracomment>Text displayed on the buttons used to restart audio or MIDI driver in * the Preferences dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4034,10 +4039,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
         <translation>Error iniciando controlador de audio</translation>
     </message>
     <message>
-        <source>Unable to start audio driver</source>
-        <translation>No se pudo iniciar el controlador de audio</translation>
-    </message>
-    <message>
         <source>Import Theme</source>
         <translation>Importar Tema</translation>
     </message>
@@ -4417,10 +4418,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
         <translation>Crear &amp;puertos de salida en JACK para cada instrumento</translation>
-    </message>
-    <message>
-        <source>Apply and restart output</source>
-        <translation>Aplicar y reiniciar salida</translation>
     </message>
     <message>
         <source>&amp;MIDI System</source>

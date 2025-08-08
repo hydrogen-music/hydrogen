@@ -1440,6 +1440,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Text displayed in the header of the Settings tab of the MidiControlDialog.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Apply and restart driver</source>
+        <extracomment>Text displayed on the buttons used to restart audio or MIDI driver in * the Preferences dialog.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentView</name>
@@ -4036,10 +4041,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Erreur au lancement du pilote audio</translation>
     </message>
     <message>
-        <source>Unable to start audio driver</source>
-        <translation>Impossible de démarrer le pilote audio</translation>
-    </message>
-    <message>
         <source>Import Theme</source>
         <translation>Importer un thème</translation>
     </message>
@@ -4443,10 +4444,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
         <translation>Créer des ports de sortie JACK &amp;par-instrument</translation>
-    </message>
-    <message>
-        <source>Apply and restart output</source>
-        <translation>Appliquer et redémarrer la sortie</translation>
     </message>
     <message>
         <source>Numbers of autosaves per hour (set 0 to deactivated)</source>
