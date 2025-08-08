@@ -2531,8 +2531,6 @@ bool CoreActionController::setBpm( float fBpm ) {
 	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
-	
-	EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, -1 );
 
 	return true;
 }
