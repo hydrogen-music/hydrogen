@@ -469,15 +469,20 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	indicateNotePlaybackComboBox->setSize( appearanceTabWidgetSize );
 	indicateEffectiveNoteLengthComboBox->setSize( appearanceTabWidgetSize );
 
+	// Since there is no signal to distinct user interactions from batch updates
+	// in QSpinBox, we have to set the value before connecting it.
+	coloringMethodAuxSpinBox->setValue(
+		m_currentTheme.m_interface.m_nVisiblePatternColors );
+
 	connect( styleComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( styleComboBoxActivated(int) ) );
-	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this,
+	connect( uiLayoutComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( onUILayoutChanged(int) ) );
-	connect( uiScalingPolicyComboBox, SIGNAL( currentIndexChanged(int) ), this,
+	connect( uiScalingPolicyComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( uiScalingPolicyComboBoxCurrentIndexChanged(int) ) );
-	connect( mixerFalloffComboBox, SIGNAL( currentIndexChanged(int) ), this,
+	connect( mixerFalloffComboBox, SIGNAL( activated(int) ), this,
 			 SLOT( mixerFalloffComboBoxCurrentIndexChanged(int) ) );
-	connect( iconColorComboBox, SIGNAL(currentIndexChanged(int)), this,
+	connect( iconColorComboBox, SIGNAL(activated(int)), this,
 			 SLOT( onIconColorChanged(int)) );
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)),
 			 this, SLOT( onColorNumberChanged( int ) ) );
@@ -510,7 +515,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	coloringMethodCombo->clear();
 	coloringMethodCombo->addItem(tr("Automatic"));
 	coloringMethodCombo->addItem(tr("Custom"));
-	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ),
+	connect( coloringMethodCombo, SIGNAL( activated(int) ),
 			 this, SLOT( onColoringMethodChanged(int) ) );
 
 	indicateNotePlaybackComboBox->clear();
@@ -522,7 +527,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
 	}
-	connect( indicateNotePlaybackComboBox, SIGNAL( currentIndexChanged(int) ),
+	connect( indicateNotePlaybackComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onIndicateNotePlaybackChanged(int) ) );
 
 	indicateEffectiveNoteLengthComboBox->clear();
@@ -535,7 +540,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		indicateNotePlaybackComboBox->setCurrentIndex( 1 );
 	}
-	connect( indicateEffectiveNoteLengthComboBox, SIGNAL( currentIndexChanged(int) ),
+	connect( indicateEffectiveNoteLengthComboBox, SIGNAL( activated(int) ),
 			 this, SLOT( onIndicateEffectiveNoteLengthChanged(int) ) );
 
 	// Appearance tab - Colors
