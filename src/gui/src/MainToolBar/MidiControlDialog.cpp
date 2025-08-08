@@ -175,6 +175,25 @@ background-color: %1;" ).arg( borderColor.name() ) );
 			pInputNoteAsOutputCheckBox->isChecked();
 	} );
 
+	auto pInputMidiClockCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
+	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
+	pInputSettingsLayout->addWidget( pInputMidiClockCheckBox );
+	connect( pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiClockInputHandling(
+			pInputMidiClockCheckBox->isChecked() );
+	} );
+
+	auto pInputMidiTransportCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
+	pInputMidiTransportCheckBox->setText(
+		tr( "Handle MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER" ) );
+	pInputSettingsLayout->addWidget( pInputMidiTransportCheckBox );
+	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiTransportInputHandling(
+			pInputMidiTransportCheckBox->isChecked() );
+	} );
+
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
 	pConfigLayout->addWidget( pOutputSettingsWidget );
 	auto pOutputSettingsLayout = new QVBoxLayout( pOutputSettingsWidget );
@@ -206,6 +225,25 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bEnableMidiFeedback =
 			pOutputEnableMidiFeedbackCheckBox->isChecked();
+	} );
+
+	auto pOutputMidiClockCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+	pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
+	pOutputSettingsLayout->addWidget( pOutputMidiClockCheckBox );
+	connect( pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiClockOutputSend(
+			pOutputMidiClockCheckBox->isChecked() );
+	} );
+
+	auto pOutputMidiTransportCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
+	pOutputMidiTransportCheckBox->setText(
+		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION_POINTER" ) );
+	pOutputSettingsLayout->addWidget( pOutputMidiTransportCheckBox );
+	connect( pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiTransportOutputSend(
+			pOutputMidiTransportCheckBox->isChecked() );
 	} );
 
 	const int nLinkHeight = 24;
