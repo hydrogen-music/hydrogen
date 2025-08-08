@@ -4597,6 +4597,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Enforce instrument name instead of type</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Further MIDI settings can be found in the MIDI Control Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

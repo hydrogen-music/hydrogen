@@ -4637,6 +4637,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Enforce instrument name instead of type</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Further MIDI settings can be found in the MIDI Control Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

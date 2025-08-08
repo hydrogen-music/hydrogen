@@ -44,6 +44,7 @@
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../MainToolBar/MainToolBar.h"
+#include "../Skin.h"
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../Widgets/FileDialog.h"
@@ -399,6 +400,16 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	restartMidiDriverButton->setText( pCommonStrings->getDriverRestartButton() );
 	restartMidiDriverButton->setMaximumWidth( width() / 2 );
+
+	midiControlDialogLinkButton->setIcon(
+		QIcon( Skin::getSvgImagePath() + "/icons/black/midi-logo.svg" ) );
+	connect( midiControlDialogLinkButton, &QToolButton::clicked, [&]() {
+		HydrogenApp::get_instance()->getMainToolBar()
+			->setMidiControlDialogVisible( true );
+		// Since the PreferencesDialog is a modal, we have to close it in order
+		// to properly interact with the MidiControlDialog.
+		on_cancelBtn_clicked();
+	});
 
 	//////
 	// OSC tab
