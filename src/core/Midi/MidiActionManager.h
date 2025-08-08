@@ -26,6 +26,7 @@
 #include <core/Object.h>
 
 #include <QString>
+#include <QTime>
 
 #include <cassert>
 #include <map>
@@ -56,6 +57,10 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 	H2_OBJECT(MidiActionManager)
 
 	public:
+
+		/** When calculating the tempo based on incoming MIDI clock messages, we
+		 * for this amount of messages until we average. */
+		static constexpr int nMidiClockIntervals = 24;
 
 		MidiActionManager();
 		~MidiActionManager();
@@ -178,5 +183,14 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool onlyNextPatternSelection( int nPatternNumber );
 
 		int m_nLastBpmChangeCCParameter;
+
+		//! Members required to handle incoming MIDI clock messages.
+		//! @{
+		QTime m_lastTick;
+		std::vector<int> m_tickIntervals;
+		int m_nTickIntervalIndex;
+		/** Whether we already retrieved #nMidiClockTicks events in a row. */
+		bool m_bMidiClockReady;
+		//! @}
 };
 #endif

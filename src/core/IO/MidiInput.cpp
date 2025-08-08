@@ -66,13 +66,13 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 
 	// exclude all midi channel filter independent messages
 	auto type = msg.getType();
-	if (  MidiMessage::Type::Sysex == type
-		  || MidiMessage::Type::Start == type
-		  || MidiMessage::Type::Continue == type
-		  || MidiMessage::Type::Stop == type
-		  || MidiMessage::Type::SongPos == type
-		  || MidiMessage::Type::QuarterFrame == type
-		) {
+	if ( MidiMessage::Type::Continue == type ||
+		 MidiMessage::Type::QuarterFrame == type ||
+		 MidiMessage::Type::SongPos == type ||
+		 MidiMessage::Type::Start == type ||
+		 MidiMessage::Type::Stop == type ||
+		 MidiMessage::Type::Sysex == type ||
+		 MidiMessage::Type::TimingClock == type ) {
 		bIsChannelValid = true;
 	}
 
