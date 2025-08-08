@@ -487,27 +487,28 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)),
 			 this, SLOT( onColorNumberChanged( int ) ) );
 
-	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( InterfaceTheme::nMaxPatternColors );
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>(
+		InterfaceTheme::nMaxPatternColors );
 	int nButtonSize = fontSizeComboBox->height();
 	// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
 	// Using a fixed one size resizing of the widget seems to happen
 	// after the constructor is called.
 	float fLineWidth = 308;
-	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
+	int nButtonsPerLine = std::floor(
+		fLineWidth / static_cast<float>(nButtonSize + 6) );
 
 	colorSelectionGrid->setHorizontalSpacing( 4 );
 	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
-		ColorSelectionButton* bbutton =
-			new ColorSelectionButton( this, m_currentTheme.m_interface.m_patternColors[ ii ],
-									  nButtonSize );
+		ColorSelectionButton* bbutton = new ColorSelectionButton(
+			this, m_currentTheme.m_interface.m_patternColors[ ii ], nButtonSize );
 		bbutton->pretendToHide();
 		connect( bbutton, &ColorSelectionButton::colorChanged, this,
 				 &PreferencesDialog::onColorSelectionClicked );
-		colorSelectionGrid->addWidget( bbutton,
-									   std::floor( static_cast<float>( ii ) /
-												   static_cast<float>( nButtonsPerLine ) ),
-									   (ii % nButtonsPerLine) + 1,
-									   Qt::AlignRight ); //+1 to take the hspace into account.
+		//+1 to take the hspace into account
+		colorSelectionGrid->addWidget(
+			bbutton, std::floor( static_cast<float>( ii ) /
+								 static_cast<float>( nButtonsPerLine ) ),
+			(ii % nButtonsPerLine) + 1, Qt::AlignRight );
 		m_colorSelectionButtons[ ii ] = bbutton;
 	}
 	
