@@ -102,6 +102,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		/** \return -1 in case the @a couldn't be found. */
 		int getParameterNumber( const MidiAction::Type& type ) const;
 
+		void setPendingStart( bool bPending );
+
 	private:
 		/**
 		 * Object holding the current MidiActionManager
@@ -191,6 +193,18 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		int m_nTickIntervalIndex;
 		/** Whether we already retrieved #nMidiClockTicks events in a row. */
 		bool m_bMidiClockReady;
+
+		/** In MIDI sync mode as speficied in MIDI 1.0 - if both MIDI clock and
+		 * transport handling is enabled by the user - starting transport after
+		 * receiving CONTINUE or START MIDI messages will only start at the next
+		 * MIDI clock tick. This state indicates that we have received the
+		 * former message. */
+		bool m_bPendingStart;
 		//! @}
 };
+inline void MidiActionManager::setPendingStart( bool bPending ) {
+	if ( m_bPendingStart != bPending ) {
+		m_bPendingStart = bPending;
+	}
+}
 #endif

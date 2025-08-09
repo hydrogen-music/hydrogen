@@ -45,6 +45,7 @@ MidiActionManager* MidiActionManager::__instance = nullptr;
 
 MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
 									   , m_bMidiClockReady( false )
+									   , m_bPendingStart( false )
 {
 	__instance = this;
 
@@ -486,6 +487,15 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
 		pAudioEngine->lock( RIGHT_HERE );
 		pAudioEngine->setNextBpm( fBpm );
 		pAudioEngine->unlock();
+	}
+
+	if ( m_bPendingStart ) {
+		if ( pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Ready ) {
+			pHydrogen->sequencerPlay();
+		}
+
+		m_bPendingStart = false;
 	}
 
 	return true;

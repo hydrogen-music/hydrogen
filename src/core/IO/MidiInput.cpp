@@ -113,24 +113,45 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		handleProgramChangeMessage( msg, pHandledInput );
 		break;
 
-	case MidiMessage::Type::Start: /* Start from position 0 */
-		if ( pPref->getMidiTransportInputHandling() &&
-			 pAudioEngine->getState() != AudioEngine::State::Playing ) {
+	case MidiMessage::Type::Start:
+		// Start from position 0
+		if ( pPref->getMidiTransportInputHandling() ) {
 			CoreActionController::locateToColumn( 0 );
-			MidiActionManager::get_instance()->handleMidiAction(
-				std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+			// According to the MIDI Spec 1.0 v4.2.1 Start and Continue indicate
+			// that transport is about to start. But the actual start is done on
+			// the next MIDI clock tick.
+			if ( ! pPref->getMidiClockInputHandling() ) {
+				// Start right away
+				MidiActionManager::get_instance()->handleMidiAction(
+					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+			}
+			else {
+				MidiActionManager::get_instance()->setPendingStart( true );
+			}
 		}
 		break;
 
-	case MidiMessage::Type::Continue: /* Just start */ {
+	case MidiMessage::Type::Continue: {
+		// Start transport at the current position.
 		if ( pPref->getMidiTransportInputHandling() ) {
-			MidiActionManager::get_instance()->handleMidiAction(
-				std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+			// According to the MIDI Spec 1.0 v4.2.1 Start and Continue indicate
+			// that transport is about to start. But the actual start is done on
+			// the next MIDI clock tick.
+			if ( ! pPref->getMidiClockInputHandling() ) {
+				// Start right away
+				MidiActionManager::get_instance()->handleMidiAction(
+					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+			}
+			else {
+				MidiActionManager::get_instance()->setPendingStart( true );
+			}
 		}
 		break;
 	}
 
-	case MidiMessage::Type::Stop: /* Stop in current position i.e. Pause */ {
+	case MidiMessage::Type::Stop: {
+		// Stop in current position i.e. Pause. According to the MIDI Spec 1.0
+		// v4.2.1 stopping should always be done immediately.
 		if ( pPref->getMidiTransportInputHandling() ) {
 			MidiActionManager::get_instance()->handleMidiAction(
 				std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
