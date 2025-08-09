@@ -473,6 +473,40 @@ void AlsaMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	snd_seq_drain_output(seq_handle);
 }
 
+void AlsaMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg ) {
+	if ( seq_handle == nullptr ) {
+		ERRORLOG( "seq_handle = NULL " );
+		return;
+	}
+
+	snd_seq_event_t ev;
+	snd_seq_ev_clear(&ev);
+
+	if ( msg.getType() == MidiMessage::Type::Start ) {
+		ev.type = SND_SEQ_EVENT_START;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Continue ) {
+		ev.type = SND_SEQ_EVENT_CONTINUE;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Stop ) {
+		ev.type = SND_SEQ_EVENT_STOP;
+	}
+	else if ( msg.getType() == MidiMessage::Type::TimingClock ) {
+		ev.type = SND_SEQ_EVENT_CLOCK;
+	}
+	else {
+		ERRORLOG( QString( "Unsupported event [%1]" )
+				  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		ev.type = SND_SEQ_EVENT_NONE;
+	}
+
+	snd_seq_ev_set_source(&ev, outPortId);
+	snd_seq_ev_set_subs(&ev);
+	snd_seq_ev_set_direct(&ev);
+
+	snd_seq_event_output_direct(seq_handle, &ev);
+}
+
 std::vector<QString> AlsaMidiDriver::getExternalPortList( const PortType& portType ) {
 	std::vector<QString> portList;
 

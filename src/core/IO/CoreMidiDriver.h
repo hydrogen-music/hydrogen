@@ -71,6 +71,7 @@ private:
 	void sendMidiPacket (MIDIPacketList *packetList);
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
 	void sendNoteOffMessage( const MidiMessage& msg ) override;
+	void sendSystemRealTimeMessage( const MidiMessage& msg ) override {};
 };
 
 }

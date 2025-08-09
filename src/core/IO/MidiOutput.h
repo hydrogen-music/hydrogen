@@ -70,6 +70,7 @@ class MidiOutput : public virtual Object<MidiOutput>
 		virtual void sendControlChangeMessage( const MidiMessage& msg ) = 0;
 		virtual void sendNoteOffMessage( const MidiMessage& msg ) = 0;
 		virtual void sendNoteOnMessage( const MidiMessage& msg ) = 0;
+		virtual void sendSystemRealTimeMessage( const MidiMessage& msg ) = 0;
 };
 
 };

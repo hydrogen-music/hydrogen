@@ -72,6 +72,7 @@ private:
 	void sendControlChangeMessage( const MidiMessage& msg ) override;
 	void sendNoteOnMessage( const MidiMessage& msg ) override;
 	void sendNoteOffMessage( const MidiMessage& msg ) override;
+	void sendSystemRealTimeMessage( const MidiMessage& msg ) override {};
 
 	void lock();
 	void unlock();
