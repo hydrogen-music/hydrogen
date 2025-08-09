@@ -27,6 +27,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Playlist.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -66,13 +67,13 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 
 	// exclude all midi channel filter independent messages
 	auto type = msg.getType();
-	if (  MidiMessage::Type::Sysex == type
-		  || MidiMessage::Type::Start == type
-		  || MidiMessage::Type::Continue == type
-		  || MidiMessage::Type::Stop == type
-		  || MidiMessage::Type::SongPos == type
-		  || MidiMessage::Type::QuarterFrame == type
-		) {
+	if ( MidiMessage::Type::Continue == type ||
+		 MidiMessage::Type::QuarterFrame == type ||
+		 MidiMessage::Type::SongPos == type ||
+		 MidiMessage::Type::Start == type ||
+		 MidiMessage::Type::Stop == type ||
+		 MidiMessage::Type::Sysex == type ||
+		 MidiMessage::Type::TimingClock == type ) {
 		bIsChannelValid = true;
 	}
 
@@ -112,33 +113,99 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		handleProgramChangeMessage( msg, pHandledInput );
 		break;
 
-	case MidiMessage::Type::Start: /* Start from position 0 */
-		if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+	case MidiMessage::Type::Start:
+		// Start from position 0
+		if ( pPref->getMidiTransportInputHandling() ) {
 			CoreActionController::locateToColumn( 0 );
-			MidiActionManager::get_instance()->handleMidiAction(
-				std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+			// According to the MIDI Spec 1.0 v4.2.1 Start and Continue indicate
+			// that transport is about to start. But the actual start is done on
+			// the next MIDI clock tick.
+			if ( ! pPref->getMidiClockInputHandling() ) {
+				// Start right away
+				MidiActionManager::get_instance()->handleMidiAction(
+					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+			}
+			else {
+				MidiActionManager::get_instance()->setPendingStart( true );
+			}
 		}
 		break;
 
-	case MidiMessage::Type::Continue: /* Just start */ {
-		MidiActionManager::get_instance()->handleMidiAction(
-			std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+	case MidiMessage::Type::Continue: {
+		// Start transport at the current position.
+		if ( pPref->getMidiTransportInputHandling() ) {
+			// According to the MIDI Spec 1.0 v4.2.1 Start and Continue indicate
+			// that transport is about to start. But the actual start is done on
+			// the next MIDI clock tick.
+			if ( ! pPref->getMidiClockInputHandling() ) {
+				// Start right away
+				MidiActionManager::get_instance()->handleMidiAction(
+					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
+			}
+			else {
+				MidiActionManager::get_instance()->setPendingStart( true );
+			}
+		}
 		break;
 	}
 
-	case MidiMessage::Type::Stop: /* Stop in current position i.e. Pause */ {
-		MidiActionManager::get_instance()->handleMidiAction(
-			std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
+	case MidiMessage::Type::Stop: {
+		// Stop in current position i.e. Pause. According to the MIDI Spec 1.0
+		// v4.2.1 stopping should always be done immediately.
+		if ( pPref->getMidiTransportInputHandling() ) {
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
+		}
 		break;
 	}
+
+	case MidiMessage::Type::SongPos:
+		if ( pPref->getMidiTransportInputHandling() ) {
+			// A song position provided via MIDI has the lowest resolution of a
+			// 1/16 note / 6 MIDI clocks. 24 MIDI clocks make a quarter.
+			CoreActionController::locateToTick(
+				msg.getData1() * 6 * H2Core::nTicksPerQuarter / 24, true );
+		}
+		break;
+
+	case MidiMessage::Type::SongSelect:
+		if ( pPref->getMidiTransportInputHandling() ) {
+			// According to the MIDI 1.0 spec Version 4.2.1 this message
+ 			// indicates which "song or sequence is to be played". Since
+ 			// Hydrogen has both concepts of songs and sequences, we let the
+ 			// user choose via the song mode.
+ 			if ( pHydrogen->getMode() == Song::Mode::Song ) {
+				if ( pHydrogen->getPlaylist() == nullptr ||
+					 pHydrogen->getPlaylist()->size() == 0 ) {
+					WARNINGLOG( "In Song Mode the SONG_SELECT MIDI message is used to select songs from the current playlist. But you do not have a playlist yet." );
+				}
+				else {
+					auto pAction = std::make_shared<MidiAction>(
+						MidiAction::Type::PlaylistSong );
+					pAction->setParameter1( QString::number( msg.getData1() ) );
+					MidiActionManager::get_instance()->handleMidiAction( pAction );
+				}
+			}
+			else {
+				auto pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::SelectNextPattern );
+				pAction->setParameter1( QString::number( msg.getData1() ) );
+				MidiActionManager::get_instance()->handleMidiAction( pAction );
+			}
+		}
+		break;
+
+	case MidiMessage::Type::TimingClock:
+		if ( pPref->getMidiClockInputHandling() ) {
+			MidiActionManager::get_instance()->handleMidiAction(
+				std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick ));
+		}
+		break;
 
 	case MidiMessage::Type::ChannelPressure:
 	case MidiMessage::Type::PitchWheel:
-	case MidiMessage::Type::SongPos:
 	case MidiMessage::Type::QuarterFrame:
-	case MidiMessage::Type::SongSelect:
 	case MidiMessage::Type::TuneRequest:
-	case MidiMessage::Type::TimingClock:
 	case MidiMessage::Type::ActiveSensing:
 	case MidiMessage::Type::Reset:
 		INFOLOG( QString( "MIDI message of type [%1] is not supported by Hydrogen" )

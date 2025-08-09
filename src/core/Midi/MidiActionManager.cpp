@@ -43,8 +43,16 @@ using namespace H2Core;
 
 MidiActionManager* MidiActionManager::__instance = nullptr;
 
-MidiActionManager::MidiActionManager() {
+MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
+									   , m_bMidiClockReady( false )
+									   , m_bPendingStart( false )
+{
 	__instance = this;
+
+	m_tickIntervals.resize( MidiActionManager::nMidiClockIntervals );
+	for ( int ii = 0; ii < m_tickIntervals.size(); ++ii ) {
+		m_tickIntervals[ ii ] = 0;
+	}
 
 	m_nLastBpmChangeCCParameter = -1;
 	/*
@@ -198,6 +206,9 @@ MidiActionManager::MidiActionManager() {
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::TapTempo,
 					   std::make_pair( &MidiActionManager::tapTempo, 0 ) ));
+	m_midiActionMap.insert(
+		std::make_pair( MidiAction::Type::TimingClockTick,
+					   std::make_pair( &MidiActionManager::timingClockTick, 0 ) ));
 	m_midiActionMap.insert(
 		std::make_pair( MidiAction::Type::ToggleMetronome,
 					   std::make_pair( &MidiActionManager::toggleMetronome, 0 ) ));
@@ -428,6 +439,65 @@ bool MidiActionManager::tapTempo( std::shared_ptr<MidiAction>  ) {
 	}
 	
 	pHydrogen->onTapTempoAccelEvent();
+	return true;
+}
+
+bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	// Preventive measure to avoid bad things.
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
+	const auto tick = QTime::currentTime();
+	const int nIntervalMs = m_lastTick.msecsTo( tick );
+	m_lastTick = tick;
+
+	if ( nIntervalMs >= 60000.0 * 2 / static_cast<float>(MIN_BPM) / 24.0 ) {
+		// Waiting time was too long. We start all over again.
+		m_bMidiClockReady = false;
+		m_nTickIntervalIndex = 0;
+	}
+
+	m_tickIntervals[
+		std::clamp( m_nTickIntervalIndex, 0,
+					static_cast<int>(m_tickIntervals.size()) - 1 ) ] = nIntervalMs;
+
+	++m_nTickIntervalIndex;
+	if ( m_nTickIntervalIndex >= MidiActionManager::nMidiClockIntervals ) {
+		m_nTickIntervalIndex = 0;
+
+		// We got at least 10 messages. Let's start averaging.
+		if ( ! m_bMidiClockReady ) {
+			m_bMidiClockReady = true;
+		}
+	}
+
+	if ( m_bMidiClockReady ) {
+		float fAverageInterval = 0;
+		for ( const auto& nnInterval : m_tickIntervals ) {
+			fAverageInterval += static_cast<float>(nnInterval);
+		}
+		const float fBpm = 60000.0 * m_tickIntervals.size() /
+			fAverageInterval / 24.0;
+
+		pAudioEngine->lock( RIGHT_HERE );
+		pAudioEngine->setNextBpm( fBpm );
+		pAudioEngine->unlock();
+	}
+
+	if ( m_bPendingStart ) {
+		if ( pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Ready ) {
+			pHydrogen->sequencerPlay();
+		}
+
+		m_bPendingStart = false;
+	}
+
 	return true;
 }
 

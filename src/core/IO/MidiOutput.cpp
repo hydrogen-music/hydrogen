@@ -52,6 +52,13 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 		sendNoteOffMessage( msg );
 		break;
 
+	case MidiMessage::Type::Start:
+	case MidiMessage::Type::Continue:
+	case MidiMessage::Type::Stop:
+	case MidiMessage::Type::TimingClock:
+		sendSystemRealTimeMessage( msg );
+		break;
+
 	default:
 		// Not handled, we won't send the corresponding event.
 		pHandledOutput->type = MidiMessage::Type::Unknown;

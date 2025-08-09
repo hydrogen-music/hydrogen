@@ -475,6 +475,11 @@ void MainToolBar::loopModeActivationEvent() {
 	updateLoopMode();
 }
 
+void MainToolBar::midiClockActivationEvent() {
+	updateBpmSpinBox();
+	m_pBpmTap->updateBpmTap();
+}
+
 void MainToolBar::metronomeEvent( int nValue ) {
 	const auto pPref = H2Core::Preferences::get_instance();
 
@@ -746,25 +751,60 @@ void MainToolBar::jackTimebaseBtnClicked()
 
 void MainToolBar::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
 			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
-		CoreActionController::locateToColumn(
-			std::max( nCurrentColumn, 0 ) + 1 );
+		if ( nCurrentColumn < pSong->getPatternGroupVector()->size() - 1 ) {
+			// Not within the last column
+			CoreActionController::locateToColumn(
+				std::max( nCurrentColumn, 0 ) + 1 );
+		}
+		else {
+			// Last one. If looping is enabled, we jump to the first column. If
+			// not, we "reach" the end of the song by stopping.
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				CoreActionController::locateToColumn( 0 );
+			} else {
+				stopBtnClicked();
+			}
+		}
 	}
 }
 
 void MainToolBar::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
 			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
-		CoreActionController::locateToColumn(
-			std::max( nCurrentColumn - 1, 0 ) );
+		int nNewColumn;
+		if ( nCurrentColumn > 0 ) {
+			nNewColumn = std::max( nCurrentColumn - 1, 0 );
+		}
+		else {
+			// Within the first column we either jump to the last one if loop
+			// mode is enabled, or to the beginning of the song.
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				nNewColumn = pSong->getPatternGroupVector()->size() - 1;
+			} else {
+				nNewColumn = 0;
+			}
+		}
+		CoreActionController::locateToColumn( nNewColumn );
 	}
 }
 
 void MainToolBar::updateBpmSpinBox() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	m_pBpmSpinBox->setIsActive(
@@ -776,6 +816,10 @@ void MainToolBar::updateBpmSpinBox() {
 	switch ( pHydrogen->getTempoSource() ) {
 	case H2Core::Hydrogen::Tempo::Jack:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Midi:
+		m_pBpmSpinBox->setToolTip(
+			pCommonStrings->getTimelineDisabledMidiClock() );
 		break;
 	case H2Core::Hydrogen::Tempo::Timeline:
 		m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
