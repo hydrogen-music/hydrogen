@@ -27,6 +27,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
+#include <core/Basics/Playlist.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -146,6 +147,33 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		}
 		break;
 
+	case MidiMessage::Type::SongSelect:
+		if ( pPref->getMidiTransportInputHandling() ) {
+			// According to the MIDI 1.0 spec Version 4.2.1 this message
+ 			// indicates which "song or sequence is to be played". Since
+ 			// Hydrogen has both concepts of songs and sequences, we let the
+ 			// user choose via the song mode.
+ 			if ( pHydrogen->getMode() == Song::Mode::Song ) {
+				if ( pHydrogen->getPlaylist() == nullptr ||
+					 pHydrogen->getPlaylist()->size() == 0 ) {
+					WARNINGLOG( "In Song Mode the SONG_SELECT MIDI message is used to select songs from the current playlist. But you do not have a playlist yet." );
+				}
+				else {
+					auto pAction = std::make_shared<MidiAction>(
+						MidiAction::Type::PlaylistSong );
+					pAction->setParameter1( QString::number( msg.getData1() ) );
+					MidiActionManager::get_instance()->handleMidiAction( pAction );
+				}
+			}
+			else {
+				auto pAction = std::make_shared<MidiAction>(
+					MidiAction::Type::SelectNextPattern );
+				pAction->setParameter1( QString::number( msg.getData1() ) );
+				MidiActionManager::get_instance()->handleMidiAction( pAction );
+			}
+		}
+		break;
+
 	case MidiMessage::Type::TimingClock:
 		if ( pPref->getMidiClockInputHandling() ) {
 			MidiActionManager::get_instance()->handleMidiAction(
@@ -156,7 +184,6 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	case MidiMessage::Type::ChannelPressure:
 	case MidiMessage::Type::PitchWheel:
 	case MidiMessage::Type::QuarterFrame:
-	case MidiMessage::Type::SongSelect:
 	case MidiMessage::Type::TuneRequest:
 	case MidiMessage::Type::ActiveSensing:
 	case MidiMessage::Type::Reset:

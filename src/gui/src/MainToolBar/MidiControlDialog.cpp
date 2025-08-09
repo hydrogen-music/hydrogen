@@ -186,8 +186,12 @@ background-color: %1;" ).arg( borderColor.name() ) );
 
 	auto pInputMidiTransportCheckBox = new QCheckBox( pInputSettingsWidget );
 	pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
+	/*: The character combination "\n" indicates a new line and must be
+	 *  conserved. All the capitalized words that follow are defined in the MIDI
+	 *  standard. Only translate them if you are sure the translated versions
+	 *  are of common usage. */
 	pInputMidiTransportCheckBox->setText(
-		tr( "Handle MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
+		tr( "Handle MIDI sync message\nSTART, STOP, CONTINUE, SONG_POSITION, SONG_SELECT" ) );
 	pInputSettingsLayout->addWidget( pInputMidiTransportCheckBox );
 	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->setMidiTransportInputHandling(

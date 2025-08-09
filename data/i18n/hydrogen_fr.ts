@@ -3165,11 +3165,14 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Handle MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
+        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Send MIDI START, STOP, CONTINUE, and SONG_POSITION</source>
+        <source>Handle MIDI sync message
+START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
+        <extracomment>The character combination &quot;
+&quot; indicates a new line and must be * conserved. All the capitalized words that follow are defined in the MIDI * standard. Only translate them if you are sure the translated versions * are of common usage.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
