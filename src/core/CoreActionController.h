@@ -553,6 +553,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/** Enable or disable tempo control using MIDI clock. */
 		static bool setMidiClockInputHandling( bool bHandle );
 
+		/** Enable or disable sending MIDI clock messages. */
+		static bool setMidiClockOutputSend( bool bHandle );
+
 private:
 	static bool sendMasterVolumeFeedback();
 	static bool sendStripVolumeFeedback( int nStrip );

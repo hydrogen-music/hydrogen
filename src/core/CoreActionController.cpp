@@ -2788,4 +2788,36 @@ bool CoreActionController::setMidiClockInputHandling( bool bHandle ) {
 
 	return true;
 }
+
+bool CoreActionController::setMidiClockOutputSend( bool bHandle ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	ASSERT_HYDROGEN
+
+	auto pPref = Preferences::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return false;
+	}
+
+	if ( pPref->getMidiClockOutputSend() == bHandle ) {
+		return false;
+	}
+
+	pPref->setMidiClockOutputSend( bHandle );
+
+	// Jump start sending MIDI clock messages. Else they would only be send on
+	// the next tempo change or start of the audio engine.
+	auto pMidiDriver = pHydrogen->getAudioEngine()->getMidiDriver();
+	if ( pMidiDriver != nullptr ) {
+		if ( bHandle ) {
+			pMidiDriver->startMidiClockStream(
+				pHydrogen->getAudioEngine()->getTransportPosition()->getBpm() );
+		}
+		else {
+			pMidiDriver->stopMidiClockStream();
+		}
+	}
+
+	return true;
+}
 }

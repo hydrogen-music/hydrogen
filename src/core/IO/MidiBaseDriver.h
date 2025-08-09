@@ -70,6 +70,22 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 		std::vector< std::shared_ptr<MidiInput::HandledInput> > getHandledInputs();
 		std::vector< std::shared_ptr<MidiOutput::HandledOutput> > getHandledOutputs();
 
+		/** In an ideal MIDI device the audio engine would be driven by either
+		 * an internal or external clock providing the next tick on predefined
+		 * rate/tempo. But in Hydrogen we do not process tick by tick in the
+		 * audio engine but act on a buffer of frames (which can be converted
+		 * into ticks) the audio driver provided us for the current process
+		 * cycle. These buffers are a lot bigger than the resolution of a MIDI
+		 * clock thus #H2Core::AudioEngine can not itself trigger those
+		 * messages.
+		 *
+		 * Instead, we use a timer sending them at a predefined rate (which we
+		 * have to change every time a new tempo is encountered). That is far
+		 * from ideal as it easily allows for clock drifts. But hopefully it is
+		 * enough to be useful. */
+		void startMidiClockStream( float fBpm );
+		void stopMidiClockStream();
+
 		virtual QString toQString( const QString& sPrefix = "",
 								   bool bShort = true ) const override {
 			return "";

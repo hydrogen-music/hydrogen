@@ -236,7 +236,7 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
 	pOutputSettingsLayout->addWidget( pOutputMidiClockCheckBox );
 	connect( pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->setMidiClockOutputSend(
+		CoreActionController::setMidiClockOutputSend(
 			pOutputMidiClockCheckBox->isChecked() );
 	} );
 

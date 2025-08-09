@@ -790,6 +790,11 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 			 trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, 0 );
 		}
+
+		if ( Preferences::get_instance()->getMidiClockOutputSend() &&
+			 m_pMidiDriver != nullptr ) {
+			m_pMidiDriver->startMidiClockStream( fNewBpm );
+		}
 	}
 
 	const float fOldTickSize = pPos->getTickSize();
