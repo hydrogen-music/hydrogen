@@ -751,21 +751,55 @@ void MainToolBar::jackTimebaseBtnClicked()
 
 void MainToolBar::fastForwardBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
 			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
-		CoreActionController::locateToColumn(
-			std::max( nCurrentColumn, 0 ) + 1 );
+		if ( nCurrentColumn < pSong->getPatternGroupVector()->size() - 1 ) {
+			// Not within the last column
+			CoreActionController::locateToColumn(
+				std::max( nCurrentColumn, 0 ) + 1 );
+		}
+		else {
+			// Last one. If looping is enabled, we jump to the first column. If
+			// not, we "reach" the end of the song by stopping.
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				CoreActionController::locateToColumn( 0 );
+			} else {
+				stopBtnClicked();
+			}
+		}
 	}
 }
 
 void MainToolBar::rewindBtnClicked() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		const int nCurrentColumn =
 			pHydrogen->getAudioEngine()->getTransportPosition()->getColumn();
-		CoreActionController::locateToColumn(
-			std::max( nCurrentColumn - 1, 0 ) );
+		int nNewColumn;
+		if ( nCurrentColumn > 0 ) {
+			nNewColumn = std::max( nCurrentColumn - 1, 0 );
+		}
+		else {
+			// Within the first column we either jump to the last one if loop
+			// mode is enabled, or to the beginning of the song.
+			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+				nNewColumn = pSong->getPatternGroupVector()->size() - 1;
+			} else {
+				nNewColumn = 0;
+			}
+		}
+		CoreActionController::locateToColumn( nNewColumn );
 	}
 }
 
