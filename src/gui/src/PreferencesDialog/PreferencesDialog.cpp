@@ -1579,6 +1579,10 @@ void PreferencesDialog::onLevel3FontComboBoxActivated( int ) {
 }
 
 void PreferencesDialog::onRejected() {
+	if ( m_changes == Preferences::Changes::None ) {
+		// No need to reload the previous state.
+		return;
+	}
 
 	auto pPref = CoreActionController::loadPreferences(
 		Filesystem::usr_config_path() );
