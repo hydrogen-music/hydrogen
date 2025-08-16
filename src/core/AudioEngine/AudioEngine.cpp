@@ -313,6 +313,18 @@ void AudioEngine::startPlayback()
 	}
 
 	setState( State::Playing );
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+		 m_pMidiDriver != nullptr ) {
+		MidiMessage midiMessage;
+		if ( m_pTransportPosition->getTick() > 0 ) {
+			midiMessage.setType( MidiMessage::Type::Continue );
+		}
+		else {
+			midiMessage.setType( MidiMessage::Type::Start );
+		}
+		m_pMidiDriver->sendMessage( midiMessage );
+	}
 	
 	handleSelectedPattern();
 }
@@ -328,6 +340,13 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 	}
 
 	setState( State::Ready, trigger );
+
+	if ( Preferences::get_instance()->getMidiTransportOutputSend() &&
+		 m_pMidiDriver != nullptr ) {
+		MidiMessage midiMessage;
+		midiMessage.setType( MidiMessage::Type::Stop );
+		m_pMidiDriver->sendMessage( midiMessage );
+	}
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
@@ -758,10 +777,9 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 	// there is no external application controling tempo of Hydrogen, we are
 	// free to apply a new tempo. This was set by the user either via UI or
 	// MIDI/OSC message.
-	if ( pHydrogen->getJackTimebaseState() !=
-		 JackAudioDriver::Timebase::Listener &&
-		 ( ( pSong != nullptr && ! pSong->getIsTimelineActivated() ) ||
-				pHydrogen->getMode() != Song::Mode::Song ) &&
+	const auto tempoSource = pHydrogen->getTempoSource();
+	if ( ( tempoSource == Hydrogen::Tempo::Midi ||
+		   tempoSource == Hydrogen::Tempo::Song ) &&
 		 fNewBpm != m_fNextBpm ) {
 		fNewBpm = m_fNextBpm;
 	}
@@ -771,6 +789,11 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<TransportPosition> pPos,
 		if ( pPos == m_pTransportPosition &&
 			 trigger != Event::Trigger::Suppress ) {
 			EventQueue::get_instance()->pushEvent( Event::Type::TempoChanged, 0 );
+		}
+
+		if ( Preferences::get_instance()->getMidiClockOutputSend() &&
+			 m_pMidiDriver != nullptr ) {
+			m_pMidiDriver->startMidiClockStream( fNewBpm );
 		}
 	}
 
@@ -1222,8 +1245,20 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 			AE_ERRORLOG( "Unable to retrieve tempo from JACK server" );
 		}
 	}
+	else if ( Preferences::get_instance()->getMidiClockInputHandling() ) {
+		// Change in speed due to incoming MIDI clock messages.
+		if ( pAudioEngine->getNextBpm() != fBpm ) {
+#if AUDIO_ENGINE_DEBUG
+			AE_DEBUGLOG( QString( "BPM changed via MIDI clock [%1] -> [%2]." )
+					  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+			// We do not return AudioEngine::m_fNextBpm since it is considered
+			// transient until applied in updateBpmAndTickSize(). It's not the
+			// current tempo.
+#endif
+		}
+	}
 	else if ( pSong->getIsTimelineActivated() &&
-				pHydrogen->getMode() == Song::Mode::Song ) {
+			  pHydrogen->getMode() == Song::Mode::Song ) {
 
 		const float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {

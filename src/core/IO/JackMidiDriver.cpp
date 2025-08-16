@@ -360,6 +360,33 @@ void JackMidiDriver::sendNoteOffMessage( const MidiMessage& msg ) {
 	JackMidiOutEvent(buffer, 3);
 }
 
+void JackMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg ) {
+	uint8_t buffer[4];
+
+	if ( msg.getType() == MidiMessage::Type::Start ) {
+		buffer[ 0 ] = 0xFA;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Continue ) {
+		buffer[ 0 ] = 0xFB;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Stop ) {
+		buffer[ 0 ] = 0xFC;
+	}
+	else if ( msg.getType() == MidiMessage::Type::TimingClock ) {
+		buffer[ 0 ] = 0xF8;
+	}
+	else {
+		ERRORLOG( QString( "Unsupported event [%1]" )
+				  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		return;
+	}
+	buffer[1] = 0;
+	buffer[2] = 0;
+	buffer[3] = 0;
+
+	JackMidiOutEvent(buffer, 3);
+}
+
 QString JackMidiDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

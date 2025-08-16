@@ -483,6 +483,36 @@ void PortMidiDriver::sendNoteOffMessage( const MidiMessage& msg )
 	}
 }
 
+void PortMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg ) {
+	if ( m_pMidiOut == nullptr ) {
+		return;
+	}
+
+	PmEvent event;
+	event.timestamp = 0;
+
+	if ( msg.getType() == MidiMessage::Type::Start ) {
+		event.message = Pm_Message( 0xFA, 0, 0 );
+	}
+	else if ( msg.getType() == MidiMessage::Type::Continue ) {
+		event.message = Pm_Message( 0xFB, 0, 0 );
+	}
+	else if ( msg.getType() == MidiMessage::Type::Stop ) {
+		event.message = Pm_Message( 0xFC, 0, 0 );
+	}
+	else if ( msg.getType() == MidiMessage::Type::TimingClock ) {
+		event.message = Pm_Message( 0xF8, 0, 0 );
+	}
+	else {
+		ERRORLOG( QString( "Unsupported event [%1]" )
+				  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		return;
+	}
+
+	Pm_Write( m_pMidiOut, &event, 1 );
+}
+
+
 bool PortMidiDriver::appendSysExData( MidiMessage* pMidiMessage,
 									  const PmMessage& msg ) {
 	// End of exception byte indicating the end of a SysEx message.

@@ -277,6 +277,40 @@ void CoreMidiDriver::sendControlChangeMessage( const MidiMessage& msg ) {
 	sendMidiPacket( &packetList );
 }
 
+void CoreMidiDriver::sendSystemRealTimeMessage( const MidiMessage& msg ) {
+	if (cmH2Dst == 0 ) {
+		ERRORLOG( "cmH2Dst = 0 " );
+		return;
+	}
+
+	MIDIPacketList packetList;
+	packetList.numPackets = 1;
+
+	packetList.packet->timeStamp = 0;
+	packetList.packet->length = 3;
+	if ( msg.getType() == MidiMessage::Type::Start ) {
+		packetList.packet->data[ 0 ] = 0xFA;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Continue ) {
+		packetList.packet->data[ 0 ] = 0xFB;
+	}
+	else if ( msg.getType() == MidiMessage::Type::Stop ) {
+		packetList.packet->data[ 0 ] = 0xFC;
+	}
+	else if ( msg.getType() == MidiMessage::Type::TimingClock ) {
+		packetList.packet->data[ 0 ] = 0xF8;
+	}
+	else {
+		ERRORLOG( QString( "Unsupported event [%1]" )
+				  .arg( MidiMessage::TypeToQString( msg.getType() ) ) );
+		return;
+	}
+	packetList.packet->data[1] = 0;
+	packetList.packet->data[2] = 0;
+
+	sendMidiPacket( &packetList );
+}
+
 
 void CoreMidiDriver::sendMidiPacket (MIDIPacketList *packetList)
 {

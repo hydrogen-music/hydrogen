@@ -105,8 +105,15 @@ void MidiControlButton::updateActivation() {
 
 	// No MIDI driver or device -> turn off
 	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
-	m_bMidiInputEnabled = pMidiDriver->isInputActive();
-	m_bMidiOutputEnabled = pMidiDriver->isOutputActive();
+	if ( pMidiDriver != nullptr ) {
+		m_bMidiInputEnabled = pMidiDriver->isInputActive();
+		m_bMidiOutputEnabled = pMidiDriver->isOutputActive();
+	}
+	else {
+		m_bMidiInputEnabled = false;
+		m_bMidiOutputEnabled = false;
+	}
+
 	update();
 }
 

@@ -26,6 +26,7 @@
 #include <core/Object.h>
 
 #include <QString>
+#include <QTime>
 
 #include <cassert>
 #include <map>
@@ -56,6 +57,10 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 	H2_OBJECT(MidiActionManager)
 
 	public:
+
+		/** When calculating the tempo based on incoming MIDI clock messages, we
+		 * for this amount of messages until we average. */
+		static constexpr int nMidiClockIntervals = 24;
 
 		MidiActionManager();
 		~MidiActionManager();
@@ -96,6 +101,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		/** \return -1 in case the @a couldn't be found. */
 		int getParameterNumber( const MidiAction::Type& type ) const;
+
+		void setPendingStart( bool bPending );
 
 	private:
 		/**
@@ -171,11 +178,33 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool clearPattern( std::shared_ptr<MidiAction> );
 		bool loadNextDrumkit( std::shared_ptr<MidiAction> );
 		bool loadPrevDrumkit( std::shared_ptr<MidiAction> );
+		bool timingClockTick( std::shared_ptr<MidiAction> );
 
 		bool setSongFromPlaylist( int nSongNumber );
 		bool nextPatternSelection( int nPatternNumber );
 		bool onlyNextPatternSelection( int nPatternNumber );
 
 		int m_nLastBpmChangeCCParameter;
+
+		//! Members required to handle incoming MIDI clock messages.
+		//! @{
+		QTime m_lastTick;
+		std::vector<int> m_tickIntervals;
+		int m_nTickIntervalIndex;
+		/** Whether we already retrieved #nMidiClockTicks events in a row. */
+		bool m_bMidiClockReady;
+
+		/** In MIDI sync mode as speficied in MIDI 1.0 - if both MIDI clock and
+		 * transport handling is enabled by the user - starting transport after
+		 * receiving CONTINUE or START MIDI messages will only start at the next
+		 * MIDI clock tick. This state indicates that we have received the
+		 * former message. */
+		bool m_bPendingStart;
+		//! @}
 };
+inline void MidiActionManager::setPendingStart( bool bPending ) {
+	if ( m_bPendingStart != bPending ) {
+		m_bPendingStart = bPending;
+	}
+}
 #endif

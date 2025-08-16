@@ -104,6 +104,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 			StripVolumeAbsolute,
 			StripVolumeRelative,
 			TapTempo,
+			TimingClockTick,
 			ToggleMetronome,
 			UndoAction,
 			Unmute

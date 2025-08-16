@@ -87,6 +87,17 @@ All notable changes to this project will be documented in this file.
   - All MIDI settings, which do not require a driver restart, were moved into
     the MIDI control dialog.
   - The MIDI channel presented in the Instrument Editor and the Settings is now zero-based (previously, it started at `1`).
+  - Hydrogen does now only act on MIDI `START`, `CONTINUE`, and `STOP` messages,
+    if "handling MIDI transport" is checked in the settings. Using this option
+    it does now support `SONG_POSITION_POINTER` and `SONG_SELECT` as well.
+  - `SONG_SELECT` messages will choose a pattern in pattern mode and a song from
+    the current playlist in song mode.
+  - When activating "handling MIDI clock" Hydrogen will adopt the tempo provided
+    via MIDI Clock.
+  - Only with both "handling MIDI clock" and "handling MIDI transport" activated
+    Hydrogen will offer compliant MIDI sync support (#1598).
+  - Hydrogen does also send `MIDI Clock`, `START`, `CONTINUE`, and `STOP`
+    messages if the corresponding settings are checked.
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.

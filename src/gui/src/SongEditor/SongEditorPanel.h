@@ -91,6 +91,7 @@ class SongEditorPanel : public QWidget,
 		 */
 		virtual void gridCellToggledEvent() override;
 		virtual void jackTimebaseStateChangedEvent( int nState ) override;
+		virtual void midiClockActivationEvent() override;
 		virtual void nextPatternsChangedEvent() override;
 		virtual void patternEditorLockedEvent() override;
 		virtual void patternModifiedEvent() override;
@@ -122,7 +123,6 @@ class SongEditorPanel : public QWidget,
 		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
-		void timelineBtnClicked();
 		void viewTimelineBtnClicked();
 		void viewPlaybackTrackBtnClicked();
 		void editPlaybackTrackBtnClicked();
@@ -140,9 +140,6 @@ class SongEditorPanel : public QWidget,
 		virtual void resizeEvent( QResizeEvent *ev ) override;
 
 		void resyncExternalScrollBar();
-
-		void setTimelineActive( bool bActive );
-		void setTimelineEnabled( bool bEnabled );
 
 		void updateIcons();
 		void updateJacktimebaseState();

@@ -145,8 +145,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getStatusDisabled() const { return m_sStatusDisabled; }
 		
 	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
-	const QString& getTimelineDisabledPatternMode() const { return m_sTimelineDisabledPatternMode; }
-	const QString& getTimelineDisabledTimebaseListener() const { return m_sTimelineDisabledTimebaseListener; }
+	const QString& getTimelineDisabledPatternMode() const {
+		return m_sTimelineDisabledPatternMode; }
+	const QString& getTimelineDisabledMidiClock() const {
+		return m_sTimelineDisabledMidiClock; }
+	const QString& getTimelineDisabledTimebaseListener() const {
+		return m_sTimelineDisabledTimebaseListener; }
 	const QString& getPatternEditorLocked() const { return m_sPatternEditorLocked; }
 
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
@@ -449,6 +453,7 @@ private:
 	QString m_sStatusDisabled;
 	QString m_sTimelineEnabled;
 	QString m_sTimelineDisabledPatternMode;
+	QString m_sTimelineDisabledMidiClock;
 	QString m_sTimelineDisabledTimebaseListener;
 	QString m_sPatternEditorLocked;
 	

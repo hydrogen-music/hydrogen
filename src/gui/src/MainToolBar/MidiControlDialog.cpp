@@ -175,6 +175,29 @@ background-color: %1;" ).arg( borderColor.name() ) );
 			pInputNoteAsOutputCheckBox->isChecked();
 	} );
 
+	auto pInputMidiClockCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
+	pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
+	pInputSettingsLayout->addWidget( pInputMidiClockCheckBox );
+	connect( pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+		CoreActionController::setMidiClockInputHandling(
+			pInputMidiClockCheckBox->isChecked() );
+	} );
+
+	auto pInputMidiTransportCheckBox = new QCheckBox( pInputSettingsWidget );
+	pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
+	/*: The character combination "\n" indicates a new line and must be
+	 *  conserved. All the capitalized words that follow are defined in the MIDI
+	 *  standard. Only translate them if you are sure the translated versions
+	 *  are of common usage. */
+	pInputMidiTransportCheckBox->setText(
+		tr( "Handle MIDI sync message\nSTART, STOP, CONTINUE, SONG_POSITION, SONG_SELECT" ) );
+	pInputSettingsLayout->addWidget( pInputMidiTransportCheckBox );
+	connect( pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiTransportInputHandling(
+			pInputMidiTransportCheckBox->isChecked() );
+	} );
+
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
 	pConfigLayout->addWidget( pOutputSettingsWidget );
 	auto pOutputSettingsLayout = new QVBoxLayout( pOutputSettingsWidget );
@@ -206,6 +229,25 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bEnableMidiFeedback =
 			pOutputEnableMidiFeedbackCheckBox->isChecked();
+	} );
+
+	auto pOutputMidiClockCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+	pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
+	pOutputSettingsLayout->addWidget( pOutputMidiClockCheckBox );
+	connect( pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
+		CoreActionController::setMidiClockOutputSend(
+			pOutputMidiClockCheckBox->isChecked() );
+	} );
+
+	auto pOutputMidiTransportCheckBox = new QCheckBox( pOutputSettingsWidget );
+	pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
+	pOutputMidiTransportCheckBox->setText(
+		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
+	pOutputSettingsLayout->addWidget( pOutputMidiTransportCheckBox );
+	connect( pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
+		Preferences::get_instance()->setMidiTransportOutputSend(
+			pOutputMidiTransportCheckBox->isChecked() );
 	} );
 
 	const int nLinkHeight = 24;
@@ -309,7 +351,10 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	};
 	m_pInputBinButton = addBinButton( pInputWidget );
 	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
-		Hydrogen::get_instance()->getMidiDriver()->clearHandledInput();
+		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
+			pMidiDriver->clearHandledInput();
+		}
 		updateInputTable();
 	});
 
@@ -341,7 +386,10 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	pOutputLayout->addWidget( m_pMidiOutputTable );
 	m_pOutputBinButton = addBinButton( pOutputWidget );
 	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
-		Hydrogen::get_instance()->getMidiDriver()->clearHandledOutput();
+		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
+			pMidiDriver->clearHandledOutput();
+		}
 		updateOutputTable();
 	});
 
@@ -449,8 +497,12 @@ void MidiControlDialog::updateInputTable() {
 		return;
 	}
 
-	const auto handledInputs = Hydrogen::get_instance()->getAudioEngine()->
-		getMidiDriver()->getHandledInputs();
+	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+
+	std::vector< std::shared_ptr<MidiInput::HandledInput> > handledInputs;
+	if ( pMidiDriver != nullptr ) {
+		handledInputs = pMidiDriver->getHandledInputs();
+	}
 
 	const int nOldRowCount = m_pMidiInputTable->rowCount();
 	m_pMidiInputTable->setRowCount( handledInputs.size() );
@@ -584,8 +636,12 @@ void MidiControlDialog::updateOutputTable() {
 		return;
 	}
 
-	const auto handledOutputs = Hydrogen::get_instance()->getAudioEngine()->
-		getMidiDriver()->getHandledOutputs();
+	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+
+	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > handledOutputs;
+	if ( pMidiDriver != nullptr ) {
+		handledOutputs = pMidiDriver->getHandledOutputs();
+	}
 
 	const int nOldRowCount = m_pMidiOutputTable->rowCount();
 	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
