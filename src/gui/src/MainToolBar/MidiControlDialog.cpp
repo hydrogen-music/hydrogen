@@ -351,7 +351,10 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	};
 	m_pInputBinButton = addBinButton( pInputWidget );
 	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
-		Hydrogen::get_instance()->getMidiDriver()->clearHandledInput();
+		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
+			pMidiDriver->clearHandledInput();
+		}
 		updateInputTable();
 	});
 
@@ -383,7 +386,10 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	pOutputLayout->addWidget( m_pMidiOutputTable );
 	m_pOutputBinButton = addBinButton( pOutputWidget );
 	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
-		Hydrogen::get_instance()->getMidiDriver()->clearHandledOutput();
+		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+		if ( pMidiDriver != nullptr ) {
+			pMidiDriver->clearHandledOutput();
+		}
 		updateOutputTable();
 	});
 
@@ -491,8 +497,12 @@ void MidiControlDialog::updateInputTable() {
 		return;
 	}
 
-	const auto handledInputs = Hydrogen::get_instance()->getAudioEngine()->
-		getMidiDriver()->getHandledInputs();
+	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+
+	std::vector< std::shared_ptr<MidiInput::HandledInput> > handledInputs;
+	if ( pMidiDriver != nullptr ) {
+		handledInputs = pMidiDriver->getHandledInputs();
+	}
 
 	const int nOldRowCount = m_pMidiInputTable->rowCount();
 	m_pMidiInputTable->setRowCount( handledInputs.size() );
@@ -626,8 +636,12 @@ void MidiControlDialog::updateOutputTable() {
 		return;
 	}
 
-	const auto handledOutputs = Hydrogen::get_instance()->getAudioEngine()->
-		getMidiDriver()->getHandledOutputs();
+	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
+
+	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > handledOutputs;
+	if ( pMidiDriver != nullptr ) {
+		handledOutputs = pMidiDriver->getHandledOutputs();
+	}
 
 	const int nOldRowCount = m_pMidiOutputTable->rowCount();
 	m_pMidiOutputTable->setRowCount( handledOutputs.size() );

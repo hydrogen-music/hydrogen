@@ -609,15 +609,13 @@ bool CoreActionController::handleOutgoingControlChanges( const std::vector<int>&
 	const auto pPref = Preferences::get_instance();
 	auto pMidiDriver = pHydrogen->getMidiDriver();
 
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "no song set" );
+	if ( pHydrogen->getSong() == nullptr || pMidiDriver == nullptr ) {
 		return false;
 	}
 
 	MidiMessage::ControlChange controlChange;
 	for ( const auto& param : params ) {
-		if ( pMidiDriver != nullptr &&
-			 pPref->m_bEnableMidiFeedback && param >= 0 ){
+		if ( pPref->m_bEnableMidiFeedback && param >= 0 ){
 			controlChange.nParameter = param;
 			controlChange.nValue = nValue;
 			// For now the MIDI feedback channel is always 0.
