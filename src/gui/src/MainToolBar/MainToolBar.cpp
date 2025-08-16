@@ -390,21 +390,37 @@ void MainToolBar::setPreferencesVisibilityState( bool bChecked ) {
 
 void MainToolBar::updateActions() {
 	const auto pPref = Preferences::get_instance();
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	const auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogenApp == nullptr ) {
+		return;
+	}
 
 	m_pMidiControlButton->setChecked( m_pMidiControlDialog->isVisible() );
 
-	m_pShowPlaylistEditorAction->setChecked(
-		pH2App->getPlaylistEditor()->isVisible() );
-	m_pShowDirectorAction->setChecked( pH2App->getDirector()->isVisible() );
-	m_pShowMixerAction->setChecked( pH2App->getMixer()->isVisible() );
-	m_pShowInstrumentRackAction->setChecked(
-		pH2App->getInstrumentRack()->isVisible() );
-	m_pShowAutomationAction->setChecked(
-		pH2App->getSongEditorPanel()->getAutomationPathView()->isVisible() );
-	m_pShowPlaybackTrackAction->setChecked(
-		pH2App->getSongEditorPanel()->getPlaybackTrackWaveDisplay()->isVisible() );
+	if ( pHydrogenApp->getPlaylistEditor() != nullptr ) {
+		m_pShowPlaylistEditorAction->setChecked(
+			pHydrogenApp->getPlaylistEditor()->isVisible() );
+	}
+	if ( pHydrogenApp->getDirector() != nullptr ) {
+		m_pShowDirectorAction->setChecked(
+			pHydrogenApp->getDirector()->isVisible() );
+	}
+	if ( pHydrogenApp->getMixer() != nullptr ) {
+		m_pShowMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
+	}
+	if ( pHydrogenApp->getInstrumentRack() != nullptr ) {
+		m_pShowInstrumentRackAction->setChecked(
+			pHydrogenApp->getInstrumentRack()->isVisible() );
+	}
+	if ( pHydrogenApp->getSongEditorPanel() != nullptr ) {
+		m_pShowAutomationAction->setChecked(
+			pHydrogenApp->getSongEditorPanel()->getAutomationPathView()
+			->isVisible() );
+		m_pShowPlaybackTrackAction->setChecked(
+			pHydrogenApp->getSongEditorPanel()->getPlaybackTrackWaveDisplay()
+			->isVisible() );
+	}
 
 	m_pMetronomeButton->setChecked( pPref->m_bUseMetronome );
 
