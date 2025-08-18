@@ -2375,6 +2375,8 @@ void MainForm::updatePreferencesEvent( int nValue ) {
 			m_pDrumkitAction->setChecked( true );
 		}
 
+		updateRecentUsedSongList();
+
 	} else {
 		ERRORLOG( QString( "Unknown event parameter [%1] MainForm::updatePreferencesEvent" )
 				  .arg( nValue ) );
