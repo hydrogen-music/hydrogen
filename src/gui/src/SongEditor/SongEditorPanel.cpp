@@ -561,6 +561,22 @@ void SongEditorPanel::updateEditors( Editor::Update update )
 	resyncExternalScrollBar();
 }
 
+void SongEditorPanel::updateAutomationPathVisibility() {
+	if ( Preferences::get_instance()->getShowAutomationArea() ) {
+		m_pAutomationPathScrollView->show();
+		m_pAutomationCombo->show();
+	}
+	else {
+		m_pAutomationPathScrollView->hide();
+		m_pAutomationCombo->hide();
+	}
+
+	HydrogenApp::get_instance()->getMainForm()->updateAutomationPathVisibility();
+
+	// Update visibility buttons.
+	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
+}
+
 void SongEditorPanel::updatePlaybackTrack()
 {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -800,6 +816,25 @@ void SongEditorPanel::timelineUpdateEvent( int nValue ) {
 	updateEditors( Editor::Update::Transient );
 }
 
+void SongEditorPanel::updatePreferencesEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		// new preferences loaded within the core
+		const auto pPref = H2Core::Preferences::get_instance();
+		if ( pPref->getShowPlaybackTrack() ) {
+			showPlaybackTrack();
+		}
+		else {
+			showTimeline();
+		}
+
+		auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+		if ( pPref->getShowAutomationArea() !=
+			 pSongEditorPanel->getAutomationPathView()->isVisible() ) {
+			pSongEditorPanel->updateAutomationPathVisibility();
+		}
+	}
+}
+
 void SongEditorPanel::updateSongEvent( int nValue ) {
 
 	if ( nValue != 0 ) {
@@ -1015,25 +1050,17 @@ void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, flo
 	HydrogenApp::get_instance()->pushUndoCommand( pUndoAction );
 }
 
-void SongEditorPanel::toggleAutomationAreaVisibility()
-{
+void SongEditorPanel::toggleAutomationAreaVisibility() {
 	auto pPref = Preferences::get_instance();
 	
 	if ( ! pPref->getShowAutomationArea() )	{
-		m_pAutomationPathScrollView->show();
-		m_pAutomationCombo->show();
 		pPref->setShowAutomationArea( true );
 	}
 	else {
-		m_pAutomationPathScrollView->hide();
-		m_pAutomationCombo->hide();
 		pPref->setShowAutomationArea( false );
 	}
 
-	HydrogenApp::get_instance()->getMainForm()->updateAutomationPathVisibility();
-
-	// Update visibility buttons.
-	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
+	updateAutomationPathVisibility();
 }
 
 void SongEditorPanel::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
