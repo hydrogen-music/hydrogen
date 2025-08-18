@@ -1326,23 +1326,19 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		auto layout = pPref->getTheme().m_interface.m_layout;
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
-		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp, SetWidth + SetHeight );
+		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp,
+							 SetWidth + SetHeight );
 
 		// MAINFORM
 		WindowProperties mainFormProp = pPref->getMainFormProperties();
 		setWindowProperties( m_pMainForm, mainFormProp );
 
-		m_pSplitter->setOrientation( Qt::Vertical );
-		m_pSplitter->setOpaqueResize( true );
-
 		// SONG EDITOR
 		WindowProperties songEditorProp = pPref->getSongEditorProperties();
-		setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
+ 		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
+		m_pSplitter->setSizes(
+			QList<int>() << songEditorProp.height << patternEditorProp.height );
 
-		// PATTERN EDITOR
-		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
-		setWindowProperties( m_pPatternEditorPanel, patternEditorProp, SetWidth + SetHeight );
-		
 		WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
 		m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
