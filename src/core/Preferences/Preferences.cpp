@@ -2238,11 +2238,12 @@ WindowProperties::WindowProperties( int _x, int _y, int _width, int _height,
 }
 
 WindowProperties::WindowProperties(const WindowProperties & other)
-		: x(other.x),
-		y(other.y),
-		width(other.width),
-		height(other.height),
-		visible(other.visible)
+		: x( other.x )
+		, y( other.y )
+		, width( other.width )
+		, height( other.height )
+		, visible( other.visible )
+		, m_geometry( other.m_geometry )
 {}
 
 WindowProperties::~WindowProperties() {
