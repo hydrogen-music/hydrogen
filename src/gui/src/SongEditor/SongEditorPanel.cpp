@@ -1030,6 +1030,8 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 		pPref->setShowAutomationArea( false );
 	}
 
+	HydrogenApp::get_instance()->getMainForm()->updateAutomationPathVisibility();
+
 	// Update visibility buttons.
 	HydrogenApp::get_instance()->getMainToolBar()->updateActions();
 }

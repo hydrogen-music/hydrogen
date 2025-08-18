@@ -247,6 +247,12 @@ void MainForm::updateMenuBar() {
 		pHydrogenApp->getInstrumentRack()->isVisible() );
 }
 
+void MainForm::updateAutomationPathVisibility() {
+	m_pViewAutomationPathAction->setChecked(
+		HydrogenApp::get_instance()->getSongEditorPanel()
+		->getAutomationPathView()->isVisible() );
+}
+
 ///
 /// Create the menubar
 ///

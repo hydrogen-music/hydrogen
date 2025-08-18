@@ -66,6 +66,7 @@ class MainForm :  public QMainWindow,
 		~MainForm();
 
 		void updateMenuBar();
+		void updateAutomationPathVisibility();
 
 		virtual void errorEvent( int nErrorCode ) override;
 		virtual void updateSongEvent( int nValue ) override;
