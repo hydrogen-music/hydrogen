@@ -1367,6 +1367,18 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		m_pMainToolBar->updateActions();
 
+		// Update all parts of the GUI wired to the PreferencesDialog.
+		changePreferences(
+			static_cast<Preferences::Changes>(
+				Preferences::Changes::Font |
+				Preferences::Changes::Colors |
+				Preferences::Changes::AppearanceTab |
+				Preferences::Changes::GeneralTab |
+				Preferences::Changes::AudioTab |
+				Preferences::Changes::MidiTab |
+				Preferences::Changes::OscTab |
+				Preferences::Changes::ShortcutTab ) );
+
 		// Inform the user about which file was loaded.
 		showStatusBarMessage( tr("Preferences loaded.") + 
 							  QString(" From: ") + sPreferencesFilename );

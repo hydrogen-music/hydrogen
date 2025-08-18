@@ -1596,8 +1596,6 @@ void PreferencesDialog::onRejected() {
 		// startup. There is no user-level Preferences file yet.
 		Preferences::get_instance()->setTheme( m_previousTheme );
 	}
-
-	HydrogenApp::get_instance()->changePreferences( m_changes );
 }
 
 void PreferencesDialog::onFontSizeChanged( int nIndex ) {
