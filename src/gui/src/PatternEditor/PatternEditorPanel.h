@@ -188,6 +188,7 @@ class PatternEditorPanel : public QWidget,
 		virtual void songModeActivationEvent() override;
 		virtual void stackedModeActivationEvent( int ) override;
 		virtual void stateChangedEvent( const H2Core::AudioEngine::State& ) override;
+		virtual void updatePreferencesEvent( int ) override;
 		virtual void updateSongEvent( int nValue ) override;
 		// ~ Implements EventListener interface
 

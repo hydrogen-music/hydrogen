@@ -1480,6 +1480,26 @@ void PatternEditorPanel::dropEvent( QDropEvent *event )
 	m_pSidebar->dropEvent( event );
 }
 
+void PatternEditorPanel::updatePreferencesEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		// new preferences loaded within the core
+		const auto pPref = H2Core::Preferences::get_instance();
+		const auto fGridWidth = pPref->getPatternEditorGridWidth();
+		if ( m_pDrumPatternEditor->getGridWidth() != fGridWidth ) {
+			m_pDrumPatternEditor->setGridWidth( fGridWidth );
+			m_pPianoRollEditor->setGridWidth( fGridWidth );
+			m_pNoteVelocityEditor->setGridWidth( fGridWidth );
+			m_pNoteLeadLagEditor->setGridWidth( fGridWidth );
+			m_pNoteKeyOctaveEditor->setGridWidth( fGridWidth );
+			m_pNoteProbabilityEditor->setGridWidth( fGridWidth );
+			m_pNotePanEditor->setGridWidth( fGridWidth );
+			m_pPatternEditorRuler->setGridWidth( fGridWidth );
+
+			updateEditors( Editor::Update::Background );
+		}
+	}
+}
+
 void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
