@@ -832,6 +832,18 @@ void SongEditorPanel::updatePreferencesEvent( int nValue ) {
 			 pSongEditorPanel->getAutomationPathView()->isVisible() ) {
 			pSongEditorPanel->updateAutomationPathVisibility();
 		}
+
+		const int nNewGridWidth = pPref->getSongEditorGridWidth();
+		if ( m_pSongEditor->getGridWidth() != nNewGridWidth ) {
+			m_pSongEditor->setGridWidth( nNewGridWidth );
+			m_pPositionRuler->setGridWidth( nNewGridWidth );
+			m_pAutomationPathView->setGridWidth( nNewGridWidth );
+		}
+		// MaxBars might have change.
+		m_pSongEditor->updateWidth();
+		updateEditors( Editor::Update::Background );
+
+		updatePlaybackTrack();
 	}
 }
 
