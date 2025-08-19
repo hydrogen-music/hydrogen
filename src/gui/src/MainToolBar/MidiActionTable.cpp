@@ -153,7 +153,7 @@ void MidiActionTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 	
 	int oldRowCount = m_nRowCount;
 
-	++m_nRowCount;
+	setRowCount( ++m_nRowCount );
 
 	QString sIconPath( Skin::getSvgImagePath() );
 	if ( H2Core::Preferences::get_instance()->getTheme().m_interface.m_iconColor ==
@@ -250,10 +250,13 @@ void MidiActionTable::setupMidiActionTable()
 {
 	const auto pMidiMap = H2Core::Preferences::get_instance()->getMidiMap();
 
+	clear();
+
 	QStringList items;
 	items << "" << tr("Incoming Event")  << tr("E. Para.")
 		  << tr("Action") <<  tr("Para. 1") << tr("Para. 2") << tr("Para. 3");
 
+	m_nRowCount = 0;
 	setRowCount( 0 );
 	setColumnCount( 7 );
 

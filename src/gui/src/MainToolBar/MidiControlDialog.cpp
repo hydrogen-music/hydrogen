@@ -399,7 +399,7 @@ void MidiControlDialog::updatePreferencesEvent( int nValue ) {
 		m_pOutputEnableMidiFeedbackCheckBox->setChecked(
 			pPref->m_bEnableMidiFeedback );
 
-		m_pMidiActionTable->update();
+		m_pMidiActionTable->setupMidiActionTable();
 	}
 }
 
