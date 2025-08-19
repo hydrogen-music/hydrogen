@@ -326,6 +326,7 @@ class PatternEditorPanel : public QWidget,
 		void updateDB();
 		void updateQuantization( QInputEvent* pEvent );
 
+		void updateResolutionCombo();
 		/** If set by the user, type labels in the sidebar will only be shown in
 		 * case there is a note not associated with the current drumkit in
 		 * #m_pPattern. */
