@@ -35,7 +35,6 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 								  , m_nXRuns( 0 )
 								  , m_bCpuLoadWarning( false )
 {
-	const auto pPref = Preferences::get_instance();
 	const auto pSong = Hydrogen::get_instance()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
