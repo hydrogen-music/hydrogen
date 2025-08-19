@@ -38,6 +38,7 @@
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/PortAudioDriver.h>
+#include <core/OscServer.h>
 #include <core/Sampler/Sampler.h>
 
 #include "../CommonStrings.h"
@@ -411,7 +412,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	incomingOscPortSpinBox->setSize( QSize( 66, 24 ) );
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
 
-	if ( pPref->m_nOscTemporaryPort != -1 ) {
+	if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
 		oscTemporaryPortLabel->show();
 		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
 										.append( m_sColorRed )
@@ -420,7 +421,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 										.append( "</font></i></b>" ) );
 		oscTemporaryPort->show();
 		oscTemporaryPort->setEnabled( false );
-		oscTemporaryPort->setText( QString::number( pPref->m_nOscTemporaryPort ) );
+		oscTemporaryPort->setText(
+			QString::number( OscServer::get_instance()->getTemporaryPort() ) );
 	} else {
 		oscTemporaryPortLabel->hide();
 		oscTemporaryPort->hide();
@@ -1873,7 +1875,7 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 		enableOscFeedbackCheckbox->show();
 		incomingOscPortSpinBox->show();
 		incomingOscPortLabel->show();
-		if ( Preferences::get_instance()->m_nOscTemporaryPort != -1 ) {
+		if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
 			oscTemporaryPortLabel->show();
 			oscTemporaryPort->show();
 		}

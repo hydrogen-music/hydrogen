@@ -134,7 +134,7 @@ public:
 	 * Creates all the instances used within Hydrogen in the right
 	 * order.
 	 */
-	static void		create_instance();
+	static void		create_instance( int nOscPort );
 	/**
 	 * Returns the current Hydrogen instance #__instance.
 	 */

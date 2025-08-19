@@ -40,6 +40,7 @@
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Midi/SMF.h>
+#include <core/OscServer.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -2169,7 +2170,7 @@ void MainForm::errorEvent( int nErrorCode )
 		
 	case Hydrogen::OSC_CANNOT_CONNECT_TO_PORT:
 		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) )
-			.arg( Preferences::get_instance()->m_nOscTemporaryPort );
+			.arg( OscServer::get_instance()->getTemporaryPort() );
 		break;
 
 	case Hydrogen::PLAYBACK_TRACK_INVALID:

@@ -283,10 +283,6 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if ( parser.getOscPort() != -1 ) {
-			pPref->m_nOscTemporaryPort = parser.getOscPort();
-		}
-
 		if( ! parser.getInstallDrumkitPath().isEmpty() ){
 			if ( ! H2Core::Drumkit::install( parser.getInstallDrumkitPath() ) ) {
 				___ERRORLOG( QString( "Unable to install drumkit [%1]" )
@@ -426,7 +422,7 @@ int main(int argc, char *argv[])
 #endif
 
 		// Hydrogen here to honor all preferences.
-		H2Core::Hydrogen::create_instance();
+		H2Core::Hydrogen::create_instance( parser.getOscPort() );
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		
 		pHydrogen->startNsmClient();

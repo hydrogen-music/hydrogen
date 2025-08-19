@@ -346,14 +346,6 @@ public:
 	 * updated.
 	 */
 	bool				m_bOscFeedbackEnabled;
-	/**
-	 * In case #m_nOscServerPort is already occupied by another
-	 * client, the alternative - random - port number provided by the
-	 * OSC server will be stored in this variable. If the connection
-	 * using the default port succeeded, the variable will be set to
-	 * -1.
-	 */
-	int					m_nOscTemporaryPort;
 	/** Port number the OscServer will be started at. */
 	int					m_nOscServerPort;
 
