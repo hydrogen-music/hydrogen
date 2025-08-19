@@ -1497,6 +1497,10 @@ void PatternEditorPanel::updatePreferencesEvent( int nValue ) {
 
 			updateEditors( Editor::Update::Background );
 		}
+
+		m_pHearNotesAction->setChecked( pPref->getHearNewNotes() );
+		m_pQuantizeAction->setChecked( pPref->getQuantizeEvents() );
+		updateTypeLabelVisibility();
 	}
 }
 
