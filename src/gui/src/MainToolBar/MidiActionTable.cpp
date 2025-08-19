@@ -47,6 +47,14 @@ MidiActionTable::MidiActionTable( QWidget *pParent )
 	, m_nDefaultComboWidth( 146 )
 	, m_nSpinBoxWidth( 60 )
  {
+	 // Add an "empty" action used to reset the combo box.
+	 m_availableActions << "";
+
+	 const auto pActionHandler = MidiActionManager::get_instance();
+	 for ( const auto& ttype : pActionHandler->getMidiActions() ) {
+		m_availableActions << MidiAction::typeToQString( ttype );
+	}
+
 	m_nRowCount = 0;
 	setupMidiActionTable();
 
@@ -194,16 +202,11 @@ void MidiActionTable::insertNewRow(std::shared_ptr<MidiAction> pAction,
 	connect( eventParameterSpinner, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( sendChanged() ) );
 
-	QStringList availableActions;
-	for ( const auto& ttype : pActionHandler->getMidiActions() ) {
-		availableActions << MidiAction::typeToQString( ttype );
-	}
-
 	LCDCombo *actionBox = new LCDCombo(this);
 	actionBox->setMinimumSize( QSize( m_nMinComboWidth, m_nRowHeight ) );
 	actionBox->setMaximumSize( QSize( m_nMaxComboWidth, m_nRowHeight ) );
 	actionBox->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-	actionBox->insertItems( oldRowCount, availableActions );
+	actionBox->insertItems( oldRowCount, m_availableActions );
 	actionBox->setCurrentIndex(
 		actionBox->findText( MidiAction::typeToQString( pAction->getType() ) ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
