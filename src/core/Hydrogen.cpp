@@ -1355,18 +1355,6 @@ void Hydrogen::recreateOscServer() {
 #endif
 }
 
-void Hydrogen::startNsmClient()
-{
-#ifdef H2CORE_HAVE_OSC
-	//NSM has to be started before jack driver gets created
-	NsmClient* pNsmClient = NsmClient::get_instance();
-
-	if(pNsmClient){
-		pNsmClient->createInitialClient();
-	}
-#endif
-}
-
 void Hydrogen::setIsModified( bool bIsModified ) {
 	if ( getSong() != nullptr ) {
 		if ( getSong()->getIsModified() != bIsModified ) {

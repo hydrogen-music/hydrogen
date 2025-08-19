@@ -141,7 +141,6 @@ Preferences::Preferences()
 #ifdef H2CORE_HAVE_OSC
 	, m_sNsmClientId( "" )
 #endif
-	, m_sH2ProcessName( "" )
 	, m_bUseTheRubberbandBpmChangeEvent( false )
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
@@ -322,7 +321,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 #ifdef H2CORE_HAVE_OSC
 	, m_sNsmClientId( pOther->m_sNsmClientId )
 #endif
-	, m_sH2ProcessName( pOther->m_sH2ProcessName )
 	, m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad )
 	, m_bUseTheRubberbandBpmChangeEvent( pOther->m_bUseTheRubberbandBpmChangeEvent )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
@@ -1810,8 +1808,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_sNsmClientId: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_sNsmClientId ) )
 #endif
-			.append( QString( "%1%2m_sH2ProcessName: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sH2ProcessName ) )
 			.append( QString( "%1%2m_bSearchForRubberbandOnLoad: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( "%1%2m_bUseTheRubberbandBpmChangeEvent: %3\n" ).arg( sPrefix )
@@ -2056,8 +2052,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sNsmClientId: %1" )
 					 .arg( m_sNsmClientId ) )
 #endif
-			.append( QString( ", m_sH2ProcessName: %1" )
-					 .arg( m_sH2ProcessName ) )
 			.append( QString( ", m_bSearchForRubberbandOnLoad: %1" )
 					 .arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( ", m_bUseTheRubberbandBpmChangeEvent: %1" )

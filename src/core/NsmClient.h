@@ -119,7 +119,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 		 * management. This particular state will be indicated by
 		 * setting #m_bUnderSessionManagement to true.
 		 */
-		void createInitialClient();
+		void createInitialClient( const QString& sProcessName );
 
 		/** Causes the NSM client to not process events anymore.
 		 *

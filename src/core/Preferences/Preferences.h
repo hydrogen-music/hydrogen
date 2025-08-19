@@ -458,8 +458,6 @@ public:
 	const QString&	getNsmClientId(void) const;
 	void			setNsmClientId(const QString& nsmClientId);
 #endif
-	const QString&	getH2ProcessName() const;
-	void			setH2ProcessName(const QString& processName);
 
 	int				getRubberBandBatchMode() const;
 	void			setRubberBandBatchMode( int val );
@@ -658,8 +656,6 @@ private:
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 		QString			m_sNsmClientId;
 #endif
-		/** Name of hydrogen's main process */
-		QString			m_sH2ProcessName;
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -1238,13 +1234,6 @@ inline void Preferences::setLastOpenTab(int n){
 	m_nLastOpenTab = n;
 }
 
-inline void Preferences::setH2ProcessName(const QString& processName){
-	m_sH2ProcessName = processName;
-}
-
-inline const QString& Preferences::getH2ProcessName() const {
-	return m_sH2ProcessName;
-}
 inline void Preferences::setTheme( const Theme& theme ) {
 	m_theme = theme;
 }

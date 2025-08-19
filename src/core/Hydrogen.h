@@ -307,7 +307,6 @@ public:
 	/** Destroys and recreates the OscServer singleton in order to
 		adopt a new OSC port.*/
 	void			recreateOscServer();
-	void			startNsmClient();
 
 	// beatconter
 	void			setBeatCounterTotalBeats( int nTotalBeats );

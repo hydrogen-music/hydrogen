@@ -276,8 +276,7 @@ void NsmClient::shutdown()
 	NsmClient::bNsmShutdown = true;
 }
 
-void NsmClient::createInitialClient()
-{
+void NsmClient::createInitialClient( const QString& sProcessName ) {
 	/*
 	 * Make first contact with NSM server.
 	 */
@@ -285,8 +284,7 @@ void NsmClient::createInitialClient()
 	nsm_client_t* pNsm = nullptr;
 
 	const auto pPref = H2Core::Preferences::get_instance();
-	QString H2ProcessName = pPref->getH2ProcessName();
-	QByteArray byteArray = H2ProcessName.toLatin1();
+	QByteArray byteArray = sProcessName.toLatin1();
 
 	const char *nsm_url = getenv( "NSM_URL" );
 
