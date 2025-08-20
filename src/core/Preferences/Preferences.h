@@ -454,11 +454,6 @@ public:
 	/** @param layers Sets #m_nMaxLayers.*/
 	void			setMaxLayers( const int layers );
 
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-	const QString&	getNsmClientId(void) const;
-	void			setNsmClientId(const QString& nsmClientId);
-#endif
-
 	int				getRubberBandBatchMode() const;
 	void			setRubberBandBatchMode( int val );
 
@@ -652,10 +647,6 @@ private:
 	/** Maximum number of layers to be used in the Instrument
 	 *  editor. */
 	int					m_nMaxLayers;
-
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-		QString			m_sNsmClientId;
-#endif
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -1181,16 +1172,6 @@ inline void Preferences::setMaxLayers( const int layers ){
 inline int Preferences::getMaxLayers() const {
 	return m_nMaxLayers;
 }
-
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-inline void Preferences::setNsmClientId(const QString& nsmClientId){
-	m_sNsmClientId = nsmClientId;
-}
-
-inline const QString& Preferences::getNsmClientId(void) const {
-	return m_sNsmClientId;
-}
-#endif
 
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;

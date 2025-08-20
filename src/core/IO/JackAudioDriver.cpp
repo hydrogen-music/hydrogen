@@ -31,7 +31,6 @@
 #include <cmath>
 #include <jack/metadata.h>
 
-#include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
@@ -42,10 +41,12 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Globals.h>
 #include <core/EventQueue.h>
+#include <core/Globals.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/NsmClient.h>
+#include <core/Preferences/Preferences.h>
 
 #define JACK_DEBUG 0
 
@@ -1169,9 +1170,9 @@ int JackAudioDriver::init( unsigned bufferSize )
 	auto pPreferences = Preferences::get_instance();
 
 #ifdef H2CORE_HAVE_OSC
-	QString sNsmClientId = pPreferences->getNsmClientId();
+	const QString sNsmClientId = NsmClient::get_instance()->getClientId();
 
-	if( !sNsmClientId.isEmpty() ){
+	if ( ! sNsmClientId.isEmpty() ) {
 		m_sClientName = sNsmClientId;
 	}
 #endif

@@ -138,9 +138,6 @@ Preferences::Preferences()
 	, m_recentFX( QStringList() )
 	, m_nMaxBars( 400 )
 	, m_nMaxLayers( 16 )
-#ifdef H2CORE_HAVE_OSC
-	, m_sNsmClientId( "" )
-#endif
 	, m_bUseTheRubberbandBpmChangeEvent( false )
 	, m_bShowInstrumentPeaks( true )
 	, m_nPatternEditorGridResolution( 8 )
@@ -318,9 +315,6 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	, m_bQuantizeEvents( pOther->m_bQuantizeEvents )
 	, m_nMaxBars( pOther->m_nMaxBars )
 	, m_nMaxLayers( pOther->m_nMaxLayers )
-#ifdef H2CORE_HAVE_OSC
-	, m_sNsmClientId( pOther->m_sNsmClientId )
-#endif
 	, m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad )
 	, m_bUseTheRubberbandBpmChangeEvent( pOther->m_bUseTheRubberbandBpmChangeEvent )
 	, m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks )
@@ -1804,10 +1798,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( s ).arg( m_nMaxBars ) )
 			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_nMaxLayers ) )
-#ifdef H2CORE_HAVE_OSC
-			.append( QString( "%1%2m_sNsmClientId: %3\n" ).arg( sPrefix )
-					 .arg( s ).arg( m_sNsmClientId ) )
-#endif
 			.append( QString( "%1%2m_bSearchForRubberbandOnLoad: %3\n" ).arg( sPrefix )
 					 .arg( s ).arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( "%1%2m_bUseTheRubberbandBpmChangeEvent: %3\n" ).arg( sPrefix )
@@ -2048,10 +2038,6 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nMaxBars ) )
 			.append( QString( ", m_nMaxLayers: %1" )
 					 .arg( m_nMaxLayers ) )
-#ifdef H2CORE_HAVE_OSC
-			.append( QString( ", m_sNsmClientId: %1" )
-					 .arg( m_sNsmClientId ) )
-#endif
 			.append( QString( ", m_bSearchForRubberbandOnLoad: %1" )
 					 .arg( m_bSearchForRubberbandOnLoad ) )
 			.append( QString( ", m_bUseTheRubberbandBpmChangeEvent: %1" )
