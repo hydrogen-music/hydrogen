@@ -2176,8 +2176,13 @@ void MainForm::errorEvent( int nErrorCode )
 		break;
 		
 	case Hydrogen::OSC_CANNOT_CONNECT_TO_PORT:
+#ifdef H2CORE_HAVE_OSC
 		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) )
 			.arg( OscServer::get_instance()->getTemporaryPort() );
+#else
+		// Not translated since this one should never the triggered.
+		msg = "Missing OSC support";
+#endif
 		break;
 
 	case Hydrogen::PLAYBACK_TRACK_INVALID:
