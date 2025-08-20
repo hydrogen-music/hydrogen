@@ -45,7 +45,7 @@ MidiActionTable::MidiActionTable( QWidget *pParent )
 	, m_nMinComboWidth( 100 )
 	, m_nMaxComboWidth( 1460 )
 	, m_nDefaultComboWidth( 146 )
-	, m_nSpinBoxWidth( 60 )
+	, m_nSpinBoxWidth( 75 )
  {
 	 // Add an "empty" action used to reset the combo box.
 	 m_availableActions << "";

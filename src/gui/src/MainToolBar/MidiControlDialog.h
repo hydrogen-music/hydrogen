@@ -50,7 +50,7 @@ public:
 		static constexpr int nColumnInstrumentWidth = 220;
 		static constexpr int nColumnTimestampWidth = 120;
 		static constexpr int nColumnTypeWidth = 220;
-		static constexpr int nColumnValueWidth = 70;
+		static constexpr int nColumnValueWidth = 80;
 
 		explicit MidiControlDialog( QWidget* pParent );
 		~MidiControlDialog();
