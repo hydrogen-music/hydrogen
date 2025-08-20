@@ -96,6 +96,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 					const QString& sPlaylistFilename )
 	: QMainWindow( nullptr )
 	, m_sPreviousAutoSaveSongFile( "" )
+	, m_bUnsavedChangesHandled( false )
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -662,19 +663,9 @@ void MainForm::action_donate()
 	}
 }
 
-/// return true if the app needs to be closed.
-bool MainForm::action_file_exit()
-{
-	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Song ) ||
-		 ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) {
-		return false;
-	}
-
+void MainForm::action_file_exit() {
 	closeAll();
-	return true;
 }
-
-
 
 void MainForm::action_file_new()
 {
@@ -1801,14 +1792,14 @@ void MainForm::action_drumkit_save_to_session() {
 ///
 /// Window close event
 ///
-void MainForm::closeEvent( QCloseEvent* ev )
-{
-	if ( action_file_exit() == false ) {
+void MainForm::closeEvent( QCloseEvent* ev ) {
+	if ( ! handleUnsavedChangesDuringShutdown() ) {
 		// don't close!!!
 		ev->ignore();
 		return;
 	}
 
+	closeAll();
 	ev->accept();
 }
 
@@ -1862,6 +1853,10 @@ void MainForm::saveWindowProperties() {
 }
 
 void MainForm::closeAll(){
+	if ( ! handleUnsavedChangesDuringShutdown() ) {
+		return;
+	}
+
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::shutdown );
 
@@ -1918,6 +1913,18 @@ bool MainForm::nullDriverCheck() {
 							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
 		return false;
 	}
+
+	return true;
+}
+
+bool MainForm::handleUnsavedChangesDuringShutdown() {
+	if ( ! m_bUnsavedChangesHandled &&
+		 ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Song ) ||
+		   ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) ) {
+		return false;
+	}
+
+	m_bUnsavedChangesHandled = true;
 
 	return true;
 }

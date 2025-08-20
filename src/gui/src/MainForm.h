@@ -166,7 +166,7 @@ public slots:
 		bool action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as( int nPatternRow = -1 );
-		bool action_file_exit();
+		void action_file_exit();
 
 		void action_file_export();
 		void action_file_export_midi();
@@ -255,6 +255,7 @@ public slots:
 		void onFixMissingSamples();
 
 	private:
+		bool handleUnsavedChangesDuringShutdown();
 		void updateRecentUsedSongList();
 
 		void loadDrumkit( const QString& sFileName, bool bLoad );
@@ -331,6 +332,10 @@ public slots:
 		written unless we take care of them.*/
 	QString m_sPreviousAutoSaveSongFile;
 	QString m_sPreviousAutoSavePlaylistFile;
+
+		/** Whether unsaved changes in the current song and playlist have
+		 * already been handled during shutdown. */
+		bool m_bUnsavedChangesHandled;
 
 	/**
 	 * Maps an incoming @a pKeyEvent to actions via #Shortcuts
