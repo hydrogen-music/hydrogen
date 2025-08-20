@@ -117,7 +117,7 @@ inline float PatternEditorRuler::getGridWidth() const {
 	return m_fGridWidth;
 }
 inline void PatternEditorRuler::setGridWidth( float fGridWidth ) {
-	if ( m_fGridWidth = fGridWidth ) {
+	if ( m_fGridWidth != fGridWidth ) {
 		m_fGridWidth = fGridWidth;
 	}
 }
