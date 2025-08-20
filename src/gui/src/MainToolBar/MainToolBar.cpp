@@ -940,7 +940,8 @@ void MainToolBar::updateStyleSheet() {
 	const auto colorTheme =
 		H2Core::Preferences::get_instance()->getTheme().m_color;
 
-	const QColor colorBackground = colorTheme.m_baseColor;
+	const QColor colorBackground =
+		colorTheme.m_songEditor_backgroundColor.darker( 110 );
 
 	QColor colorBackgroundChecked, colorBackgroundHovered;
 	if ( Skin::moreBlackThanWhite( colorBackground ) ) {
