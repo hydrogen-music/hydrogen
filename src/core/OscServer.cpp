@@ -1433,8 +1433,8 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", SAVE_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "f", SAVE_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "", SAVE_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "f", SAVE_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "", SAVE_PREFERENCES_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "f", SAVE_PREFERENCES_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "f", QUIT_Handler);
 
