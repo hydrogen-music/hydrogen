@@ -2373,7 +2373,7 @@ void MainForm::updatePreferencesEvent( int nValue ) {
 	if ( nValue == 0 ) {
 		// Write the state of the GUI to the Preferences.
 		saveWindowProperties();
-		CoreActionController::savePreferences();
+		Preferences::get_instance()->save();
 	}
 	else if ( nValue == 1 ) {
 		
