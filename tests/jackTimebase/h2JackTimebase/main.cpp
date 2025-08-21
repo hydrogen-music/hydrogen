@@ -300,6 +300,7 @@ int main(int argc, char *argv[])
 
 		signal(SIGINT, signal_handler);
 
+#ifdef H2CORE_HAVE_OSC
 		auto pOscServer = OscServer::get_instance();
 		pOscServer->getServerThread()->add_method(
 			"/h2JackTimebase/StartTestJackDriver", "", startTestJackDriver );
@@ -307,6 +308,7 @@ int main(int argc, char *argv[])
 			"/h2JackTimebase/TransportTests", "", runTransportTests );
 		pOscServer->getServerThread()->add_method(
 			nullptr, nullptr, OscServer::generic_handler, nullptr );
+#endif
 
 		while ( ! bQuit ) {
 			auto pEvent = pQueue->popEvent();
