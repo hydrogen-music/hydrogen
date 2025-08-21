@@ -163,7 +163,7 @@ void Playlist::saveTo( XMLNode& node ) const
 	for ( const auto& pEntry : m_entries ) {
 		QString sSongPath = pEntry->getSongPath();
 		QString sScriptPath = pEntry->getScriptPath();
-		if ( Preferences::get_instance()->isPlaylistUsingRelativeFilenames() ) {
+		if ( Preferences::get_instance()->getUseRelativeFilenamesForPlaylists() ) {
 			if ( ! sSongPath.isEmpty() ) {
 				sSongPath = fileInfo.absoluteDir().relativeFilePath( sSongPath );
 			}

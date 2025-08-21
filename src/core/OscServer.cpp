@@ -375,14 +375,16 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer() : m_bInitialized( false )
+OscServer::OscServer( int nOscPort ) : m_bInitialized( false )
+									 , m_nTemporaryPort( nOscPort )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( pPref->getOscServerEnabled() ) {
 		int nPort;
-		if ( pPref->m_nOscTemporaryPort != -1  ) {
-			nPort = pPref->m_nOscTemporaryPort;
+		// Check whether an alternative value was provided via CLI argument.
+		if ( nOscPort != -1  ) {
+			nPort = nOscPort;
 		} else {
 			nPort = pPref->getOscServerPort();
 		}
@@ -403,7 +405,7 @@ OscServer::OscServer() : m_bInitialized( false )
 			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.")
 					  .arg( nPort ).arg( nTmpPort ) );
 
-			pPref->m_nOscTemporaryPort = nTmpPort;
+			m_nTemporaryPort = nTmpPort;
 			
 			H2Core::EventQueue::get_instance()->pushEvent(
 				H2Core::Event::Type::Error, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
@@ -425,10 +427,10 @@ OscServer::~OscServer(){
 	__instance = nullptr;
 }
 
-void OscServer::create_instance()
+void OscServer::create_instance( int nOscPort )
 {
 	if( __instance == nullptr ) {
-		__instance = new OscServer();
+		__instance = new OscServer( nOscPort );
 	}
 }
 
@@ -1435,8 +1437,8 @@ bool OscServer::start() {
 
 	int nOscPortUsed;
 	const auto pPref = H2Core::Preferences::get_instance();
-	if ( pPref->m_nOscTemporaryPort != -1 ) {
-		nOscPortUsed = pPref->m_nOscTemporaryPort;
+	if ( m_nTemporaryPort != -1 ) {
+		nOscPortUsed = m_nTemporaryPort;
 	} else {
 		nOscPortUsed = pPref->getOscServerPort();
 	}

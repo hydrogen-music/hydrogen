@@ -346,14 +346,6 @@ public:
 	 * updated.
 	 */
 	bool				m_bOscFeedbackEnabled;
-	/**
-	 * In case #m_nOscServerPort is already occupied by another
-	 * client, the alternative - random - port number provided by the
-	 * OSC server will be stored in this variable. If the connection
-	 * using the default port succeeded, the variable will be set to
-	 * -1.
-	 */
-	int					m_nOscTemporaryPort;
 	/** Port number the OscServer will be started at. */
 	int					m_nOscServerPort;
 
@@ -421,7 +413,7 @@ public:
 	const QString&	getPreferredLanguage() const;
 	void			setPreferredLanguage( const QString& sLanguage );
 
-	bool			isPlaylistUsingRelativeFilenames() const;
+	bool			getUseRelativeFilenamesForPlaylists() const;
 	void			setUseRelativeFilenamesForPlaylists( bool value );
 
 	bool			getShowDevelWarning() const;
@@ -462,13 +454,6 @@ public:
 	/** @param layers Sets #m_nMaxLayers.*/
 	void			setMaxLayers( const int layers );
 
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-	const QString&	getNsmClientId(void) const;
-	void			setNsmClientId(const QString& nsmClientId);
-#endif
-	const QString&	getH2ProcessName() const;
-	void			setH2ProcessName(const QString& processName);
-
 	int				getRubberBandBatchMode() const;
 	void			setRubberBandBatchMode( int val );
 
@@ -491,7 +476,7 @@ public:
 	bool			isFXTabVisible() const;
 	void			setFXTabVisible( bool value );
 
-	bool			hideKeyboardCursor() const;
+	bool			getHideKeyboardCursor() const;
 	void			setHideKeyboardCursor( bool b );
 
 	void			setShowPlaybackTrack( bool val);
@@ -662,12 +647,6 @@ private:
 	/** Maximum number of layers to be used in the Instrument
 	 *  editor. */
 	int					m_nMaxLayers;
-
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-		QString			m_sNsmClientId;
-#endif
-		/** Name of hydrogen's main process */
-		QString			m_sH2ProcessName;
 
 		/** In case the rubberband binary was not found in common places, this
 		 * variable indicated - if `true` - that Hydrogen should continue
@@ -939,7 +918,7 @@ inline void Preferences::setPreferredLanguage( const QString& sLanguage ) {
 }
 
 inline void Preferences::setUseRelativeFilenamesForPlaylists( bool value ) {
-	m_bUseRelativeFilenamesForPlaylists= value;
+	m_bUseRelativeFilenamesForPlaylists = value;
 }
 
 inline void Preferences::setShowDevelWarning( bool value ) {
@@ -962,11 +941,11 @@ inline void Preferences::setHideKeyboardCursor( bool value ) {
 	m_bHideKeyboardCursor = value;
 }
 
-inline bool Preferences::hideKeyboardCursor() const {
+inline bool Preferences::getHideKeyboardCursor() const {
 	return m_bHideKeyboardCursor;
 }
 
-inline bool Preferences::isPlaylistUsingRelativeFilenames() const {
+inline bool Preferences::getUseRelativeFilenamesForPlaylists() const {
 	return m_bUseRelativeFilenamesForPlaylists;
 }
 
@@ -1194,16 +1173,6 @@ inline int Preferences::getMaxLayers() const {
 	return m_nMaxLayers;
 }
 
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-inline void Preferences::setNsmClientId(const QString& nsmClientId){
-	m_sNsmClientId = nsmClientId;
-}
-
-inline const QString& Preferences::getNsmClientId(void) const {
-	return m_sNsmClientId;
-}
-#endif
-
 inline bool Preferences::getOscServerEnabled() const {
 	return m_bOscServerEnabled;
 }
@@ -1246,13 +1215,6 @@ inline void Preferences::setLastOpenTab(int n){
 	m_nLastOpenTab = n;
 }
 
-inline void Preferences::setH2ProcessName(const QString& processName){
-	m_sH2ProcessName = processName;
-}
-
-inline const QString& Preferences::getH2ProcessName() const {
-	return m_sH2ProcessName;
-}
 inline void Preferences::setTheme( const Theme& theme ) {
 	m_theme = theme;
 }

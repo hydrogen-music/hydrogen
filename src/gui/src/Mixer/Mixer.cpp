@@ -440,6 +440,23 @@ void Mixer::selectedInstrumentChangedEvent() {
 	updateMixer();
 }
 
+void Mixer::updatePreferencesEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		// new preferences loaded within the core
+		const auto pPref = H2Core::Preferences::get_instance();
+
+		if ( pPref->isFXTabVisible() ) {
+			m_pFXFrame->show();
+		}
+		else {
+			m_pFXFrame->hide();
+		}
+
+		m_pShowFXPanelBtn->setChecked( pPref->isFXTabVisible() );
+		m_pShowPeaksBtn->setChecked( pPref->showInstrumentPeaks() );
+	}
+}
+
 void Mixer::updateSongEvent( int ) {
 	updateMixer();
 }

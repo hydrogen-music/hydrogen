@@ -72,8 +72,10 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
 	pPref->m_nBufferSize = 1024;
 	pPref->setUseRelativeFilenamesForPlaylists( true );
-	
-	H2Core::Hydrogen::create_instance();
+
+	// Use a dedicated OSC port to not cause conflicts with (JACK) integration
+	// tests running in a different shell.
+	H2Core::Hydrogen::create_instance( 4563 );
 	H2Core::Hydrogen::get_instance()->setGUIState(
 		H2Core::Hydrogen::GUIState::headless );
 	// Prevent the EventQueue from flooding the log since we will push

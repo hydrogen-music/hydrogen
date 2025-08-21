@@ -345,35 +345,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionCombo->insertSeparator( 10 );
 	m_pResolutionCombo->insertItem( 11, tr( "off" ) );
 
-	int nIndex;
-
-	if ( m_nResolution == 4 * H2Core::nTicksPerQuarter ) {
-		nIndex = 11;
-	} else if ( ! m_bIsUsingTriplets ) {
-		switch ( m_nResolution ) {
-			case  4: nIndex = 0; break;
-			case  8: nIndex = 1; break;
-			case 16: nIndex = 2; break;
-			case 32: nIndex = 3; break;
-			case 64: nIndex = 4; break;
-			default:
-				nIndex = 0;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
-		}
-	} else {
-		switch ( m_nResolution ) {
-			case  8: nIndex = 6; break;
-			case 16: nIndex = 7; break;
-			case 32: nIndex = 8; break;
-			case 64: nIndex = 9; break;
-			default:
-				nIndex = 6;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
-		}
-	}
-	m_pResolutionCombo->setCurrentIndex( nIndex );
-	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ),
-			 this, SLOT( gridResolutionChanged( int ) ) );
+	connect( static_cast<QComboBox*>(m_pResolutionCombo),
+			 QOverload<int>::of( &QComboBox::activated ), [&]( int nIndex ) {
+				 gridResolutionChanged( nIndex );
+			 });
 	m_pToolBar->addWidget( m_pResolutionCombo );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -432,6 +407,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorHScrollBarContainer = new QWidget();
 	m_pPatternEditorHScrollBarContainer->setLayout( pPatternEditorHScrollBarLayout );
 
+	updateResolutionCombo();
 	updatePatternInfo();
 	updateDB();
 	updateIcons();
@@ -1480,6 +1456,31 @@ void PatternEditorPanel::dropEvent( QDropEvent *event )
 	m_pSidebar->dropEvent( event );
 }
 
+void PatternEditorPanel::updatePreferencesEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		// new preferences loaded within the core
+		const auto pPref = H2Core::Preferences::get_instance();
+		const auto fGridWidth = pPref->getPatternEditorGridWidth();
+		if ( m_pDrumPatternEditor->getGridWidth() != fGridWidth ) {
+			m_pDrumPatternEditor->setGridWidth( fGridWidth );
+			m_pPianoRollEditor->setGridWidth( fGridWidth );
+			m_pNoteVelocityEditor->setGridWidth( fGridWidth );
+			m_pNoteLeadLagEditor->setGridWidth( fGridWidth );
+			m_pNoteKeyOctaveEditor->setGridWidth( fGridWidth );
+			m_pNoteProbabilityEditor->setGridWidth( fGridWidth );
+			m_pNotePanEditor->setGridWidth( fGridWidth );
+			m_pPatternEditorRuler->setGridWidth( fGridWidth );
+
+			updateEditors( Editor::Update::Background );
+		}
+
+		m_pHearNotesAction->setChecked( pPref->getHearNewNotes() );
+		m_pQuantizeAction->setChecked( pPref->getQuantizeEvents() );
+		updateTypeLabelVisibility();
+		updateResolutionCombo();
+	}
+}
+
 void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
@@ -2082,6 +2083,43 @@ void PatternEditorPanel::updateQuantization( QInputEvent* pEvent ) {
 		getVisibleEditor()->updateEditor( Editor::Update::Background );
 		getVisiblePropertiesRuler()->updateEditor( Editor::Update::Background );
 	}
+}
+
+void PatternEditorPanel::updateResolutionCombo() {
+	const auto pPref = Preferences::get_instance();
+	m_nResolution = pPref->getPatternEditorGridResolution();
+	m_bIsUsingTriplets = pPref->isPatternEditorUsingTriplets();
+
+	int nIndex;
+	if ( m_nResolution == 4 * H2Core::nTicksPerQuarter ) {
+		nIndex = 11;
+	}
+	else if ( ! m_bIsUsingTriplets ) {
+		switch ( m_nResolution ) {
+			case  4: nIndex = 0; break;
+			case  8: nIndex = 1; break;
+			case 16: nIndex = 2; break;
+			case 32: nIndex = 3; break;
+			case 64: nIndex = 4; break;
+			default:
+				nIndex = 0;
+				ERRORLOG( QString( "Wrong grid resolution: %1" )
+						  .arg( m_nResolution ) );
+		}
+	}
+	else {
+		switch ( m_nResolution ) {
+			case  8: nIndex = 6; break;
+			case 16: nIndex = 7; break;
+			case 32: nIndex = 8; break;
+			case 64: nIndex = 9; break;
+			default:
+				nIndex = 6;
+				ERRORLOG( QString( "Wrong grid resolution: %1" )
+						  .arg( m_nResolution ) );
+		}
+	}
+	m_pResolutionCombo->setCurrentIndex( nIndex );
 }
 
 void PatternEditorPanel::updateTypeLabelVisibility() {

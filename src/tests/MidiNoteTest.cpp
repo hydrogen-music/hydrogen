@@ -50,11 +50,6 @@ class MidiNoteTest : public CppUnit::TestCase {
 
 	public:
 
-	void setUp() override
-	{
-		Hydrogen::create_instance();
-	}
-
 	void testDefaultValues() {
 		___INFOLOG( "" );
 		CPPUNIT_ASSERT( ( OCTAVE_DEFAULT + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE ==

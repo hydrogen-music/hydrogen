@@ -48,8 +48,8 @@ class DrumPatternEditor : public PatternEditor,
 		DrumPatternEditor( QWidget* parent );
 		~DrumPatternEditor();
 
-		void moveCursorDown( QKeyEvent* ev, Editor::Step step );
-		void moveCursorUp( QKeyEvent* ev, Editor::Step step );
+		void moveCursorDown( QKeyEvent* ev, Editor::Step step ) override;
+		void moveCursorUp( QKeyEvent* ev, Editor::Step step ) override;
 
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk

@@ -257,9 +257,6 @@ int main(int argc, char *argv[])
 		Preferences::create_instance();
 		auto pPref = Preferences::get_instance();
 		pPref->setOscServerEnabled( true );
-		if ( nOscPort != -1 ) {
-			pPref->m_nOscTemporaryPort = nOscPort;
-		}
 		if ( timebaseState == JackAudioDriver::Timebase::Controller ) {
 			pPref->m_bJackTimebaseMode = Preferences::USE_JACK_TIMEBASE_CONTROL;
 		} else {
@@ -275,7 +272,7 @@ int main(int argc, char *argv[])
 			H2Core::Preferences::USE_JACK_TRANSPORT;
 		pPref->m_nBufferSize = 1024;
 
-		Hydrogen::create_instance();
+		Hydrogen::create_instance( nOscPort );
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		std::shared_ptr<Song> pSong = nullptr;
 
@@ -303,6 +300,7 @@ int main(int argc, char *argv[])
 
 		signal(SIGINT, signal_handler);
 
+#ifdef H2CORE_HAVE_OSC
 		auto pOscServer = OscServer::get_instance();
 		pOscServer->getServerThread()->add_method(
 			"/h2JackTimebase/StartTestJackDriver", "", startTestJackDriver );
@@ -310,6 +308,7 @@ int main(int argc, char *argv[])
 			"/h2JackTimebase/TransportTests", "", runTransportTests );
 		pOscServer->getServerThread()->add_method(
 			nullptr, nullptr, OscServer::generic_handler, nullptr );
+#endif
 
 		while ( ! bQuit ) {
 			auto pEvent = pQueue->popEvent();

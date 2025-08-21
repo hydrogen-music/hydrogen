@@ -79,7 +79,7 @@ int main(int argc, char** argv){
 	QString filename = argv[1];
 
 	H2Core::Preferences::create_instance();
-	H2Core::Hydrogen::create_instance();
+	H2Core::Hydrogen::create_instance( -1 );
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 
 	// Tell the core that we are done initializing the most basic parts.

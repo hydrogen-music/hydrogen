@@ -252,7 +252,6 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 		auto pPref = H2Core::Preferences::get_instance();
-		pPref->setH2ProcessName( QString(argv[0]) );
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
 		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
@@ -281,10 +280,6 @@ int main(int argc, char *argv[])
 				pPref->getThemeWritable().m_interface.m_layout =
 					H2Core::InterfaceTheme::Layout::SinglePane;
 			}
-		}
-
-		if ( parser.getOscPort() != -1 ) {
-			pPref->m_nOscTemporaryPort = parser.getOscPort();
 		}
 
 		if( ! parser.getInstallDrumkitPath().isEmpty() ){
@@ -426,10 +421,16 @@ int main(int argc, char *argv[])
 #endif
 
 		// Hydrogen here to honor all preferences.
-		H2Core::Hydrogen::create_instance();
+		H2Core::Hydrogen::create_instance( parser.getOscPort() );
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		
-		pHydrogen->startNsmClient();
+#ifdef H2CORE_HAVE_OSC
+		auto pNsmClient = NsmClient::get_instance();
+		if ( pNsmClient != nullptr ) {
+			// We provide the process name as argument.
+			pNsmClient->createInitialClient( QString( argv[0] ) );
+		}
+#endif
 
 		// If the NSM_URL variable is present, Hydrogen will not
 		// initialize the audio driver and leaves this to the callback

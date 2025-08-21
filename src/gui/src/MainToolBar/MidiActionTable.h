@@ -70,6 +70,7 @@ private:
 	int m_nDefaultComboWidth;
 	int m_nSpinBoxWidth;
 
+		QStringList m_availableActions;
 };
 
 #endif

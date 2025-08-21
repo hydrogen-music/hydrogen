@@ -112,67 +112,67 @@ background-color: %1;" ).arg( borderColor.name() ) );
 	auto pInputChannelFilterLabel = new QLabel(
 		pCommonStrings->getMidiOutChannelLabel() );
 	pInputChannelFilterLayout->addWidget( pInputChannelFilterLabel );
-	auto pInputChannelFilterComboBox = new QComboBox( pInputChannelFilterWidget );
-	pInputChannelFilterLayout->addWidget( pInputChannelFilterComboBox );
-	pInputChannelFilterComboBox->addItem( pCommonStrings->getAllLabel() );
+	m_pInputChannelFilterComboBox = new QComboBox( pInputChannelFilterWidget );
+	pInputChannelFilterLayout->addWidget( m_pInputChannelFilterComboBox );
+	m_pInputChannelFilterComboBox->addItem( pCommonStrings->getAllLabel() );
 	for ( int ii = 0; ii <= 15; ++ii ) {
-		pInputChannelFilterComboBox->addItem( QString::number( ii ) );
+		m_pInputChannelFilterComboBox->addItem( QString::number( ii ) );
 	}
 	if ( pPref->m_nMidiChannelFilter == -1 ) {
-		pInputChannelFilterComboBox->setCurrentIndex( 0 );
+		m_pInputChannelFilterComboBox->setCurrentIndex( 0 );
 	} else {
-		pInputChannelFilterComboBox->setCurrentIndex(
+		m_pInputChannelFilterComboBox->setCurrentIndex(
 			pPref->m_nMidiChannelFilter + 1 );
 	}
-	connect( pInputChannelFilterComboBox,
+	connect( m_pInputChannelFilterComboBox,
 			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
 		auto pPref = Preferences::get_instance();
 		if ( pPref->m_nMidiChannelFilter !=
-			 pInputChannelFilterComboBox->currentIndex() - 1 ) {
+			 m_pInputChannelFilterComboBox->currentIndex() - 1 ) {
 			pPref->m_nMidiChannelFilter =
-				pInputChannelFilterComboBox->currentIndex() - 1;
+				m_pInputChannelFilterComboBox->currentIndex() - 1;
 		}
 	} );
 
-	auto pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
-	pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	m_pInputIgnoreNoteOffCheckBox = new QCheckBox( pInputSettingsWidget );
+	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt
 	 *  modifier. It should not coincide with any other shortcut in the Settings
 	 *  tab of the MidiControlDialog. If in question, you can just drop the
 	 *  '&'. */
-	pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
-	pInputSettingsLayout->addWidget( pInputIgnoreNoteOffCheckBox );
-	connect( pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
+	m_pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
+	pInputSettingsLayout->addWidget( m_pInputIgnoreNoteOffCheckBox );
+	connect( m_pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiNoteOffIgnore =
-			pInputIgnoreNoteOffCheckBox->isChecked();
+			m_pInputIgnoreNoteOffCheckBox->isChecked();
 	} );
 
-	auto pInputDiscardAfterActionOffCheckBox = new QCheckBox( pInputSettingsWidget );
-	pInputDiscardAfterActionOffCheckBox->setChecked(
+	m_pInputDiscardAfterActionCheckBox = new QCheckBox( pInputSettingsWidget );
+	m_pInputDiscardAfterActionCheckBox->setChecked(
 		pPref->m_bMidiDiscardNoteAfterAction );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt
 	 *  modifier. It should not coincide with any other shortcut in the Settings
 	 *  tab of the MidiControlDialog. If in question, you can just drop the
 	 *  '&'. */
-	pInputDiscardAfterActionOffCheckBox->setText(
+	m_pInputDiscardAfterActionCheckBox->setText(
 		tr( "&Discard MIDI messages after action has been triggered" ) );
-	pInputSettingsLayout->addWidget( pInputDiscardAfterActionOffCheckBox );
-	connect( pInputDiscardAfterActionOffCheckBox, &QAbstractButton::toggled, [=]() {
+	pInputSettingsLayout->addWidget( m_pInputDiscardAfterActionCheckBox );
+	connect( m_pInputDiscardAfterActionCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiDiscardNoteAfterAction =
-			pInputDiscardAfterActionOffCheckBox->isChecked();
+			m_pInputDiscardAfterActionCheckBox->isChecked();
 	} );
 
-	auto pInputNoteAsOutputCheckBox = new QCheckBox( pInputSettingsWidget );
-	pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
+	m_pInputNoteAsOutputCheckBox = new QCheckBox( pInputSettingsWidget );
+	m_pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt
 	 *  modifier. It should not coincide with any other shortcut in the Settings
 	 *  tab of the MidiControlDialog. If in question, you can just drop the
 	 *  '&'. */
-	pInputNoteAsOutputCheckBox->setText( tr( "&Use output note as input note" ) );
-	pInputSettingsLayout->addWidget( pInputNoteAsOutputCheckBox );
-	connect( pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [=]() {
+	m_pInputNoteAsOutputCheckBox->setText( tr( "&Use output note as input note" ) );
+	pInputSettingsLayout->addWidget( m_pInputNoteAsOutputCheckBox );
+	connect( m_pInputNoteAsOutputCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bMidiFixedMapping =
-			pInputNoteAsOutputCheckBox->isChecked();
+			m_pInputNoteAsOutputCheckBox->isChecked();
 	} );
 
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
@@ -195,17 +195,17 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 background-color: %1;" ).arg( borderColor.name() ) );
 	pOutputSettingsLayout->addWidget( pOutputSeparator );
 
-	auto pOutputEnableMidiFeedbackCheckBox = new QCheckBox( pOutputSettingsWidget );
-	pOutputEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
+	m_pOutputEnableMidiFeedbackCheckBox = new QCheckBox( pOutputSettingsWidget );
+	m_pOutputEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
 	/*: The character after the '&' symbol can be used as a shortcut via the Alt
 	 *  modifier. It should not coincide with any other shortcut in the Settings
 	 *  tab of the MidiControlDialog. If in question, you can just drop the
 	 *  '&'. */
-	pOutputEnableMidiFeedbackCheckBox->setText( tr( "&Enable MIDI feedback" ) );
-	pOutputSettingsLayout->addWidget( pOutputEnableMidiFeedbackCheckBox );
-	connect( pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
+	m_pOutputEnableMidiFeedbackCheckBox->setText( tr( "&Enable MIDI feedback" ) );
+	pOutputSettingsLayout->addWidget( m_pOutputEnableMidiFeedbackCheckBox );
+	connect( m_pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
 		Preferences::get_instance()->m_bEnableMidiFeedback =
-			pOutputEnableMidiFeedbackCheckBox->isChecked();
+			m_pOutputEnableMidiFeedbackCheckBox->isChecked();
 	} );
 
 	const int nLinkHeight = 24;
@@ -377,6 +377,30 @@ void MidiControlDialog::midiInputEvent() {
 
 void MidiControlDialog::midiOutputEvent() {
 	updateOutputTable();
+}
+
+void MidiControlDialog::updatePreferencesEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		// new preferences loaded within the core
+		const auto pPref = H2Core::Preferences::get_instance();
+
+		if ( pPref->m_nMidiChannelFilter == -1 ) {
+			m_pInputChannelFilterComboBox->setCurrentIndex( 0 );
+		}
+		else {
+			m_pInputChannelFilterComboBox->setCurrentIndex(
+				pPref->m_nMidiChannelFilter + 1 );
+		}
+
+		m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+		m_pInputDiscardAfterActionCheckBox->setChecked(
+			pPref->m_bMidiDiscardNoteAfterAction );
+		m_pInputNoteAsOutputCheckBox->setChecked( pPref->m_bMidiFixedMapping );
+		m_pOutputEnableMidiFeedbackCheckBox->setChecked(
+			pPref->m_bEnableMidiFeedback );
+
+		m_pMidiActionTable->setupMidiActionTable();
+	}
 }
 
 void MidiControlDialog::onPreferencesChanged(

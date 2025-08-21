@@ -173,7 +173,7 @@ Hydrogen::~Hydrogen()
 	__instance = nullptr;
 }
 
-void Hydrogen::create_instance()
+void Hydrogen::create_instance( int nOscPort )
 {
 	// Create all the other instances that we need
 	// ....and in the right order
@@ -184,7 +184,7 @@ void Hydrogen::create_instance()
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance();
+	OscServer::create_instance( nOscPort );
 #endif
 
 	if ( __instance == nullptr ) {
@@ -1343,22 +1343,14 @@ void Hydrogen::recreateOscServer() {
 		delete pOscServer;
 	}
 
-	OscServer::create_instance();
+	// This function is called in response to altering the OSC port in the
+	// preferences dialog and pressing Ok/apply. We want the specified port to
+	// be set and overwrite a potential value the user might have provided as
+	// CLI argument.
+	OscServer::create_instance( -1 );
 	
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
-	}
-#endif
-}
-
-void Hydrogen::startNsmClient()
-{
-#ifdef H2CORE_HAVE_OSC
-	//NSM has to be started before jack driver gets created
-	NsmClient* pNsmClient = NsmClient::get_instance();
-
-	if(pNsmClient){
-		pNsmClient->createInitialClient();
 	}
 #endif
 }

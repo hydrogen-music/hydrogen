@@ -119,7 +119,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 		 * elements already deleted.*/
 		virtual std::vector<Elem> getElementsAtPoint(
 			const QPoint& point, int nCursorMargin, bool bIncludeHovered,
-			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) {
+			std::shared_ptr<H2Core::Pattern> pPattern = nullptr ) override {
 			___ERRORLOG( "To be implemented by parent" );
 			return std::vector<Elem>(); }
 		/** Retrieve the position a particular element is located at. */
@@ -204,7 +204,7 @@ class Base : public SelectionWidget<Elem>, public QWidget
 			return false;
 		}
 
-		virtual Editor::Input getInput() const {
+		virtual Editor::Input getInput() const override {
 			___ERRORLOG( "To be implemented by parent" );
 			return Editor::Input::Select;
 		}

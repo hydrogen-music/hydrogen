@@ -40,6 +40,7 @@
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Midi/SMF.h>
+#include <core/OscServer.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -95,6 +96,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFilename,
 					const QString& sPlaylistFilename )
 	: QMainWindow( nullptr )
 	, m_sPreviousAutoSaveSongFile( "" )
+	, m_bUnsavedChangesHandled( false )
 {
 	const auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
@@ -245,6 +247,12 @@ void MainForm::updateMenuBar() {
 	m_pViewMixerAction->setChecked( pHydrogenApp->getMixer()->isVisible() );
 	m_pViewInstrumentRackAction->setChecked(
 		pHydrogenApp->getInstrumentRack()->isVisible() );
+}
+
+void MainForm::updateAutomationPathVisibility() {
+	m_pViewAutomationPathAction->setChecked(
+		HydrogenApp::get_instance()->getSongEditorPanel()
+		->getAutomationPathView()->isVisible() );
 }
 
 ///
@@ -655,19 +663,9 @@ void MainForm::action_donate()
 	}
 }
 
-/// return true if the app needs to be closed.
-bool MainForm::action_file_exit()
-{
-	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Song ) ||
-		 ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) {
-		return false;
-	}
-
+void MainForm::action_file_exit() {
 	closeAll();
-	return true;
 }
-
-
 
 void MainForm::action_file_new()
 {
@@ -1794,14 +1792,14 @@ void MainForm::action_drumkit_save_to_session() {
 ///
 /// Window close event
 ///
-void MainForm::closeEvent( QCloseEvent* ev )
-{
-	if ( action_file_exit() == false ) {
+void MainForm::closeEvent( QCloseEvent* ev ) {
+	if ( ! handleUnsavedChangesDuringShutdown() ) {
 		// don't close!!!
 		ev->ignore();
 		return;
 	}
 
+	closeAll();
 	ev->accept();
 }
 
@@ -1855,6 +1853,10 @@ void MainForm::saveWindowProperties() {
 }
 
 void MainForm::closeAll(){
+	if ( ! handleUnsavedChangesDuringShutdown() ) {
+		return;
+	}
+
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::shutdown );
 
@@ -1911,6 +1913,18 @@ bool MainForm::nullDriverCheck() {
 							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
 		return false;
 	}
+
+	return true;
+}
+
+bool MainForm::handleUnsavedChangesDuringShutdown() {
+	if ( ! m_bUnsavedChangesHandled &&
+		 ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Song ) ||
+		   ! HydrogenApp::handleUnsavedChanges( Filesystem::Type::Playlist ) ) ) {
+		return false;
+	}
+
+	m_bUnsavedChangesHandled = true;
 
 	return true;
 }
@@ -2162,8 +2176,13 @@ void MainForm::errorEvent( int nErrorCode )
 		break;
 		
 	case Hydrogen::OSC_CANNOT_CONNECT_TO_PORT:
+#ifdef H2CORE_HAVE_OSC
 		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) )
-			.arg( Preferences::get_instance()->m_nOscTemporaryPort );
+			.arg( OscServer::get_instance()->getTemporaryPort() );
+#else
+		// Not translated since this one should never the triggered.
+		msg = "Missing OSC support";
+#endif
 		break;
 
 	case Hydrogen::PLAYBACK_TRACK_INVALID:
@@ -2368,6 +2387,8 @@ void MainForm::updatePreferencesEvent( int nValue ) {
 			m_pInstrumentAction->setChecked( false );
 			m_pDrumkitAction->setChecked( true );
 		}
+
+		updateRecentUsedSongList();
 
 	} else {
 		ERRORLOG( QString( "Unknown event parameter [%1] MainForm::updatePreferencesEvent" )

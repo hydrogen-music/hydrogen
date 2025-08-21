@@ -903,6 +903,9 @@ bool CoreActionController::setPreferences( std::shared_ptr<Preferences> pPrefere
 		pPreferences->m_fMetronomeVolume );
 
 	InstrumentComponent::setMaxLayers( pPreferences->getMaxLayers() );
+	pHydrogen->restartAudioDriver();
+	pHydrogen->restartMidiDriver();
+	pHydrogen->recreateOscServer();
 
 	// If the GUI is active, we have to update it to reflect the
 	// changes in the preferences.
