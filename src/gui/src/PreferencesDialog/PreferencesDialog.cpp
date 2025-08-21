@@ -412,6 +412,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	incomingOscPortSpinBox->setSize( QSize( 66, 24 ) );
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
 
+#ifdef H2CORE_HAVE_OSC
 	if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
 		oscTemporaryPortLabel->show();
 		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
@@ -424,6 +425,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		oscTemporaryPort->setText(
 			QString::number( OscServer::get_instance()->getTemporaryPort() ) );
 	} else {
+#else
+	{
+#endif
 		oscTemporaryPortLabel->hide();
 		oscTemporaryPort->hide();
 	}
@@ -1875,10 +1879,12 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 		enableOscFeedbackCheckbox->show();
 		incomingOscPortSpinBox->show();
 		incomingOscPortLabel->show();
+#ifdef H2CORE_HAVE_OSC
 		if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
 			oscTemporaryPortLabel->show();
 			oscTemporaryPort->show();
 		}
+#endif
 	} else {
 		enableOscFeedbackCheckbox->hide();
 		incomingOscPortSpinBox->hide();
