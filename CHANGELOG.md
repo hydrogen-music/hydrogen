@@ -195,6 +195,13 @@ All notable changes to this project will be documented in this file.
 - `LASH` support has been dropped (#1649).
 - `cmake` option `MAX_NOTES` has been dropped.
 
+## [1.2.7] - XXXX-XX-XX
+
+### Fixed
+
+- OSC endpoint `/Hydrogen/SAVE_PREFERENCES` does now actually save the
+  preferences (instead of the song).
+
 ## [1.2.6] - 2025-07-29
 
 ### Added
