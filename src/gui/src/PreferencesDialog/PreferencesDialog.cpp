@@ -177,8 +177,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// General tab
 	QSize generalTabWidgetSize( 60, 24 );
 	
-	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
-	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
+	useRelativePlaylistPathsCheckbox->setChecked(
+		pPref->getUseRelativeFilenamesForPlaylists() );
+	hideKeyboardCursor->setChecked( pPref->getHideKeyboardCursor() );
 
 	m_pBeatCounterDriftCompensationSpinBox->setSize( generalTabWidgetSize );
 	m_pBeatCounterDriftCompensationSpinBox->setValue(
@@ -992,13 +993,13 @@ void PreferencesDialog::on_okBtn_clicked()
 	//////////////////////////////////////////////////////////////////
 	bool bGeneralOptionAltered = false;
 	
-	if ( pPref->isPlaylistUsingRelativeFilenames() !=
+	if ( pPref->getUseRelativeFilenamesForPlaylists() !=
 		 useRelativePlaylistPathsCheckbox->isChecked() ) {
 		pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
 		bGeneralOptionAltered = true;
 	}
 	
-	if ( pPref->hideKeyboardCursor() != hideKeyboardCursor->isChecked() ) {
+	if ( pPref->getHideKeyboardCursor() != hideKeyboardCursor->isChecked() ) {
 		pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
 		bGeneralOptionAltered = true;
 	}

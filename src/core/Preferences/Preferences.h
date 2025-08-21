@@ -413,7 +413,7 @@ public:
 	const QString&	getPreferredLanguage() const;
 	void			setPreferredLanguage( const QString& sLanguage );
 
-	bool			isPlaylistUsingRelativeFilenames() const;
+	bool			getUseRelativeFilenamesForPlaylists() const;
 	void			setUseRelativeFilenamesForPlaylists( bool value );
 
 	bool			getShowDevelWarning() const;
@@ -476,7 +476,7 @@ public:
 	bool			isFXTabVisible() const;
 	void			setFXTabVisible( bool value );
 
-	bool			hideKeyboardCursor() const;
+	bool			getHideKeyboardCursor() const;
 	void			setHideKeyboardCursor( bool b );
 
 	void			setShowPlaybackTrack( bool val);
@@ -918,7 +918,7 @@ inline void Preferences::setPreferredLanguage( const QString& sLanguage ) {
 }
 
 inline void Preferences::setUseRelativeFilenamesForPlaylists( bool value ) {
-	m_bUseRelativeFilenamesForPlaylists= value;
+	m_bUseRelativeFilenamesForPlaylists = value;
 }
 
 inline void Preferences::setShowDevelWarning( bool value ) {
@@ -941,11 +941,11 @@ inline void Preferences::setHideKeyboardCursor( bool value ) {
 	m_bHideKeyboardCursor = value;
 }
 
-inline bool Preferences::hideKeyboardCursor() const {
+inline bool Preferences::getHideKeyboardCursor() const {
 	return m_bHideKeyboardCursor;
 }
 
-inline bool Preferences::isPlaylistUsingRelativeFilenames() const {
+inline bool Preferences::getUseRelativeFilenamesForPlaylists() const {
 	return m_bUseRelativeFilenamesForPlaylists;
 }
 

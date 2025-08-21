@@ -392,7 +392,7 @@ inline bool HydrogenApp::hideKeyboardCursor()
 inline void HydrogenApp::setHideKeyboardCursor( bool bHidden )
 {
 	if ( bHidden && ! m_bHideKeyboardCursor ) {
-		if ( H2Core::Preferences::get_instance()->hideKeyboardCursor() ) {
+		if ( H2Core::Preferences::get_instance()->getHideKeyboardCursor() ) {
 			m_bHideKeyboardCursor = true;
 		}
 	} else {
