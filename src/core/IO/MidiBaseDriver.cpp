@@ -107,15 +107,4 @@ std::vector< std::shared_ptr<MidiOutput::HandledOutput> > MidiBaseDriver::getHan
 
 	return std::move( outputs );
 }
-
-void MidiBaseDriver::startMidiClockStream( float fBpm ) {
-	// 24 MIDI Clock messages should make up a quarter.
-	const float nInterval = 60000 / fBpm / 24.0;
-
-	DEBUGLOG( "not implemented yet" );
-}
-
-void MidiBaseDriver::stopMidiClockStream() {
-	DEBUGLOG( "not implemented yet" );
-}
 };

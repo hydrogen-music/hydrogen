@@ -22,12 +22,24 @@
 
 #include <core/IO/MidiOutput.h>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiMessage.h>
+
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
 
 namespace H2Core
 {
 
-MidiOutput::MidiOutput() {
+MidiOutput::MidiOutput() : m_bSendClockTick( false )
+						 , m_bNotifyOnNextTick( false )
+						 , m_interval( 20.0 )
+						 , m_lastTick( TimePoint() )
+						 , m_nTickCount( 0 )
+						 , m_pClockThread( nullptr )
+{
 }
 
 MidiOutput::~MidiOutput() {
@@ -72,6 +84,97 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	pHandledOutput->nChannel = msg.getChannel();
 
 	return pHandledOutput;
+}
+
+
+void MidiOutput::startMidiClockStream( float fBpm ) {
+	// Ensure there is just a single thread.
+	if ( ! m_bSendClockTick || m_pClockThread == nullptr ) {
+		m_bSendClockTick = false;
+		if ( m_pClockThread != nullptr ) {
+			m_pClockThread->join();
+			m_pClockThread = nullptr;
+		}
+	}
+
+	// 24 MIDI Clock messages should make up a quarter.
+	const float fInterval = 60000 / fBpm / 24.0;
+	m_interval = std::chrono::duration<float>(fInterval);
+	DEBUGLOG( "Starting MIDI clock" );
+
+	m_bSendClockTick = true;
+	m_nTickCount = 0;
+	m_pClockThread = std::make_shared<std::thread>( MidiOutput::midiClockStream );
+}
+
+void MidiOutput::stopMidiClockStream() {
+	DEBUGLOG( "Stopping MIDI clock" );
+	m_bSendClockTick = false;
+
+	if ( m_pClockThread != nullptr ) {
+		m_pClockThread->join();
+		m_pClockThread = nullptr;
+	}
+
+	// By resetting the time point of the last MIDI clock message sent the next
+	// call to startMidiClockStream() will send a message right away instead of
+	// waiting for the provided interval or logging failure to do so.
+	m_lastTick = TimePoint();
+}
+
+void MidiOutput::waitForNextMidiClockTick() {
+	if ( ! m_bSendClockTick || m_pClockThread == nullptr ) {
+		return;
+	}
+
+    std::unique_lock lock{ m_midiClockMutex };
+
+	m_bNotifyOnNextTick = true;
+
+	m_midiClockCV.wait( lock, [&]{ return ! m_bNotifyOnNextTick; });
+}
+
+void MidiOutput::midiClockStream() {
+	auto pMidiDriver = Hydrogen::get_instance()->getAudioEngine()->getMidiDriver();
+
+	while ( pMidiDriver->m_bSendClockTick ) {
+		auto start = Clock::now();
+
+		if ( pMidiDriver->m_lastTick != TimePoint() ) {
+			if ( start - pMidiDriver->m_lastTick >= pMidiDriver->m_interval ) {
+				WARNINGLOG( QString( "MIDI Clock message could not be sent in time. Duration: [%1], Interval: [%2]" )
+							.arg( ( pMidiDriver->m_lastTick - start ).count() )
+							.arg( pMidiDriver->m_interval.count() ) );
+			}
+			else {
+				// Compensate for the processing time.
+				std::this_thread::sleep_for(
+					pMidiDriver->m_interval - ( start - pMidiDriver->m_lastTick ) );
+			}
+		}
+
+		// Send event
+		pMidiDriver->sendSystemRealTimeMessage(
+			MidiMessage( MidiMessage::Type::TimingClock, 0, 0, 0 ) );
+
+		pMidiDriver->m_lastTick = Clock::now();
+
+		// Send notification - if required.
+		//
+		// A notification on a tick event is only required for starting
+		// transport. This occurs very seldomly compared to sending a tick
+		// without. It is not 100% clean but we omit locking the mutex when
+		// accessing the atomic shared data pMidiDriver->m_bNotifyOnNextTick because of its
+		// average cost.
+		if ( pMidiDriver->m_bNotifyOnNextTick ) {
+			std::scoped_lock lock{ pMidiDriver->m_midiClockMutex };
+
+			pMidiDriver->m_bNotifyOnNextTick = false;
+
+			pMidiDriver->m_midiClockCV.notify_all();
+		}
+
+	}
 }
 
 QString MidiOutput::HandledOutput::toQString() const {
