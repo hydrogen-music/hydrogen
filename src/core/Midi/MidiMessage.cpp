@@ -26,6 +26,13 @@
 namespace H2Core
 {
 
+MidiMessage::MidiMessage( Type type, int nData1, int nData2, int nChannel )
+	: m_type( type )
+	, m_nData1( nData1 )
+	, m_nData2( nData2 )
+	, m_nChannel( nChannel ) {
+}
+
 void MidiMessage::clear() {
 	m_type = Type::Unknown;
 	m_nData1 = -1;

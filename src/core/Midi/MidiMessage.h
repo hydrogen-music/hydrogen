@@ -111,6 +111,7 @@ class MidiMessage
 			, m_nData1( -1 )
 			, m_nData2( -1 )
 			, m_nChannel( -1 ) {}
+		MidiMessage( Type type, int nData1, int Data2, int nChannel );
 
 		/** Reset message */
 		void clear();
