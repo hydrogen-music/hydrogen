@@ -39,6 +39,10 @@ void LoopBackMidiDriver::close() {
 	m_bActive = false;
 
 	if ( m_pMessageHandler != nullptr ) {
+		{
+			std::scoped_lock lock{ m_messageHandlerMutex };
+			m_messageHandlerCV.notify_all();
+		}
 		m_pMessageHandler->join();
 		m_pMessageHandler = nullptr;
 	}
@@ -146,7 +150,12 @@ void LoopBackMidiDriver::messageHandler( void* pInstance ) {
 	while ( pDriver->m_bActive ) {
 		std::unique_lock lock{ pDriver->m_messageHandlerMutex };
 		pDriver->m_messageHandlerCV.wait(
-			lock, [&]{ return pDriver->m_messageQueue.size() > 0; } );
+			lock, [&]{ return pDriver->m_messageQueue.size() > 0 ||
+					! pDriver->m_bActive; } );
+
+		if ( ! pDriver->m_bActive ) {
+			return;
+		}
 
 		while ( pDriver->m_messageQueue.size() > 0 ) {
 			const auto midiMessage = pDriver->m_messageQueue.front();
