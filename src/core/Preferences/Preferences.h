@@ -191,7 +191,8 @@ public:
 		CoreMidi,
 		Jack,
 		None,
-		PortMidi
+		PortMidi,
+		LoopBack
 	};
 	static MidiDriver parseMidiDriver( const QString& sDriver );
 	static QString midiDriverToQString( const MidiDriver& driver );

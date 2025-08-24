@@ -1484,6 +1484,8 @@ Preferences::MidiDriver Preferences::parseMidiDriver( const QString& sDriver ) {
 		return MidiDriver::CoreMidi;
 	}
 	else {
+		// The LoopBack driver is only used in unit tests. Thus, it should not
+		// be written to disk and does not have to be parsed.
 		if ( Logger::isAvailable() ) {
 			ERRORLOG( QString( "Unable to parse driver [%1]" ). arg( sDriver ) );
 		}
@@ -1503,6 +1505,8 @@ QString Preferences::midiDriverToQString( const Preferences::MidiDriver& driver 
 		return "nullptr";
 	case MidiDriver::PortMidi:
 		return "PortMidi";
+	case MidiDriver::LoopBack:
+		return "LoopBack";
 	default:
 		return "Unhandled driver type";
 	}

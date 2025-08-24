@@ -57,6 +57,7 @@
 #include <core/IO/FakeDriver.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
+#include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
 #include <core/IO/OssDriver.h>
@@ -1168,6 +1169,10 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 		m_pMidiDriver = std::make_shared<JackMidiDriver>();
 		m_pMidiDriver->open();
 #endif
+	}
+	else if ( pPref->m_midiDriver == Preferences::MidiDriver::LoopBack ) {
+		m_pMidiDriver = std::make_shared<LoopBackMidiDriver>();
+		m_pMidiDriver->open();
 	}
 
 	this->unlock();
