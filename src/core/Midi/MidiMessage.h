@@ -145,6 +145,9 @@ class MidiMessage
 		void setSysexData( std::vector<unsigned char> data );
 		void appendToSysexData( unsigned char newData );
 
+		bool operator==( const MidiMessage& other ) const;
+		bool operator!=( const MidiMessage& other ) const;
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 *   every new line

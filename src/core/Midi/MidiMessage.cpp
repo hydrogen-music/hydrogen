@@ -184,6 +184,28 @@ MidiMessage MidiMessage::from( const NoteOff& noteOff ) {
 	return msg;
 }
 
+bool MidiMessage::operator==( const MidiMessage& other ) const {
+	if ( m_type != other.m_type ||
+		 m_nData1 != other.m_nData1 ||
+		 m_nData2 != other.m_nData2 ||
+		 m_nChannel != other.m_nChannel ||
+		 m_sysexData.size() != other.m_sysexData.size() ) {
+		return false;
+	}
+
+	for ( int ii = 0; ii < m_sysexData.size(); ++ii ) {
+		if ( m_sysexData[ ii ] != other.m_sysexData[ ii ] ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool MidiMessage::operator!=( const MidiMessage& other ) const {
+	return ! MidiMessage::operator==( other );
+}
+
 QString MidiMessage::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;
