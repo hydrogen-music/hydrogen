@@ -104,6 +104,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		void setPendingStart( bool bPending );
 
+		void resetTimingClockTicks();
+
 	private:
 		/**
 		 * Object holding the current MidiActionManager

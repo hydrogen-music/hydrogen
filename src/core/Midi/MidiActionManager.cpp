@@ -501,6 +501,11 @@ bool MidiActionManager::timingClockTick( std::shared_ptr<MidiAction> ) {
 	return true;
 }
 
+void MidiActionManager::resetTimingClockTicks() {
+	m_bMidiClockReady = false;
+	m_nTickIntervalIndex = 0;
+}
+
 bool MidiActionManager::selectNextPattern( std::shared_ptr<MidiAction> pAction ) {
 	bool ok;
 	return nextPatternSelection( pAction->getParameter1().toInt(&ok,10) );
