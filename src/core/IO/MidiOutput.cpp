@@ -89,18 +89,15 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 
 void MidiOutput::startMidiClockStream( float fBpm ) {
 	// Ensure there is just a single thread.
-	if ( ! m_bSendClockTick || m_pClockThread == nullptr ) {
-		m_bSendClockTick = false;
-		if ( m_pClockThread != nullptr ) {
-			m_pClockThread->join();
-			m_pClockThread = nullptr;
-		}
+	m_bSendClockTick = false;
+	if ( m_pClockThread != nullptr ) {
+		m_pClockThread->join();
+		m_pClockThread = nullptr;
 	}
 
 	// 24 MIDI Clock messages should make up a quarter.
 	const float fInterval = 60000 / fBpm / 24.0;
-	m_interval = std::chrono::duration<float>(fInterval);
-	DEBUGLOG( "Starting MIDI clock" );
+	m_interval = std::chrono::duration<float, std::milli>(fInterval);
 
 	m_bSendClockTick = true;
 	m_nTickCount = 0;
@@ -156,6 +153,7 @@ void MidiOutput::midiClockStream() {
 		// Send event
 		pMidiDriver->sendSystemRealTimeMessage(
 			MidiMessage( MidiMessage::Type::TimingClock, 0, 0, 0 ) );
+		++pMidiDriver->m_nTickCount;
 
 		pMidiDriver->m_lastTick = Clock::now();
 
