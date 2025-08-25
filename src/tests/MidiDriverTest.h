@@ -29,14 +29,20 @@
 class MidiDriverTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiDriverTest );
 	CPPUNIT_TEST( testLoopBackMidiDriver );
+	CPPUNIT_TEST( testMidiClock );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 		virtual void setUp();
 		virtual void tearDown();
 
-		// Check that drivers can be switched without any crashes.
+		/** Check that drivers can be switched without any crashes. */
 		void testLoopBackMidiDriver();
+
+		/** Sends MIDI clock ticks at a specific tempo and checks whether the
+		 * AudioEngine adopts the same tempo via the incoming MIDI messages of
+		 * the #LoopBackMidiDriver. */
+		void testMidiClock();
 
 	private:
 

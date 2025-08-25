@@ -21,16 +21,22 @@
 
 #include "MidiDriverTest.h"
 
+#include <chrono>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiMessage.h>
 
 void MidiDriverTest::setUp() {
 	auto pPref = H2Core::Preferences::get_instance();
 	m_previousDriver = pPref->m_midiDriver;
 	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
+
+	pPref->setMidiClockInputHandling( true );
+	pPref->setMidiClockOutputSend( true );
 
 	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
 	pAudioEngine->stopMidiDriver( H2Core::Event::Trigger::Suppress );
@@ -40,6 +46,9 @@ void MidiDriverTest::setUp() {
 void MidiDriverTest::tearDown() {
 	auto pPref = H2Core::Preferences::get_instance();
 	pPref->m_midiDriver = m_previousDriver;
+
+	pPref->setMidiClockInputHandling( false );
+	pPref->setMidiClockOutputSend( false );
 
 	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
 	pAudioEngine->stopMidiDriver( H2Core::Event::Trigger::Suppress );
@@ -75,6 +84,62 @@ void MidiDriverTest::testLoopBackMidiDriver() {
 	CPPUNIT_ASSERT( backlogMessages.size() == messages.size() );
 	for ( int ii = 0; ii < messages.size(); ++ii ) {
 		CPPUNIT_ASSERT( messages[ ii ] == backlogMessages[ ii ] );
+	}
+
+	___INFOLOG("done");
+}
+
+void MidiDriverTest::testMidiClock() {
+	___INFOLOG("");
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiActionManager = MidiActionManager::get_instance();
+	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
+
+	auto pMidiDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(
+		pAudioEngine->getMidiDriver().get() );
+	CPPUNIT_ASSERT( pMidiDriver != nullptr );
+
+	const std::vector<float> referenceTempos{
+		80.0, 123.4, 210.1 };
+	const float fTolerance = 5;
+
+	for ( const auto& ffTempo : referenceTempos ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		const auto fOldTempo = pAudioEngine->getNextBpm();
+		pAudioEngine->unlock();
+
+		pMidiDriver->startMidiClockStream( ffTempo );
+
+		const int nMaxTries = 500;
+		int nnTry = 0;
+		float fCurrentTempo;
+		// Wait till we received enough ticks to synchronize.
+		while ( nnTry < nMaxTries ) {
+			pAudioEngine->lock( RIGHT_HERE );
+			fCurrentTempo = pAudioEngine->getNextBpm();
+			pAudioEngine->unlock();
+
+			if ( std::abs( fCurrentTempo - fOldTempo ) > fTolerance ) {
+				break;
+			}
+
+			std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+			++nnTry;
+		}
+		CPPUNIT_ASSERT( nnTry < nMaxTries );
+
+		if ( std::abs( fCurrentTempo - ffTempo ) >= fTolerance ) {
+			___ERRORLOG( QString( "Current tempo [%1] exceeds references [%2] by [%3 (%4 tolerance)]" )
+						 .arg( fCurrentTempo ).arg( ffTempo )
+						 .arg( std::abs( fCurrentTempo - ffTempo ) )
+						 .arg( fTolerance ) );
+		}
+		CPPUNIT_ASSERT( std::abs( fCurrentTempo - ffTempo ) < fTolerance );
+
+		pMidiDriver->stopMidiClockStream();
+		pMidiActionManager->resetTimingClockTicks();
 	}
 
 	___INFOLOG("done");
