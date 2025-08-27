@@ -41,6 +41,10 @@ namespace H2Core {
 class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiActionTest );
 	CPPUNIT_TEST( testBeatCounterAction );
+	CPPUNIT_TEST( testBpmCcRelativeAction );
+	CPPUNIT_TEST( testBpmDecreaseAction );
+	CPPUNIT_TEST( testBpmFineCcRelativeAction );
+	CPPUNIT_TEST( testBpmIncreaseAction );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -48,6 +52,10 @@ class MidiActionTest : public CppUnit::TestCase {
 		virtual void tearDown();
 
 		void testBeatCounterAction();
+		void testBpmCcRelativeAction();
+		void testBpmDecreaseAction();
+		void testBpmFineCcRelativeAction();
+		void testBpmIncreaseAction();
 
 	private:
 		void sendMessage( const H2Core::MidiMessage& msg );

@@ -90,6 +90,165 @@ void MidiActionTest::testBeatCounterAction() {
 	___INFOLOG("done");
 }
 
+void MidiActionTest::testBpmCcRelativeAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	////////////////////////////////////////////////////////////////////////////
+	// Setting up MIDI action mappings. We use CC event with various values.
+	const int nParameter = 1;
+	const int nDiff = 3;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmCcRelative );
+	pAction->setParameter1( QString::number( nDiff ) );
+
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	// Since we do not have a proper audio driver here picking up the new BPM
+	// during the next process cycle, we just check whether the next value did
+	// change.
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fOldTempoBC = 120;
+	pAudioEngine->setNextBpm( fOldTempoBC );
+	pAudioEngine->unlock();
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	pAudioEngine->unlock();
+
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
+	CPPUNIT_ASSERT( fNewTempoBC == fOldTempoBC - nDiff );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testBpmDecreaseAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	////////////////////////////////////////////////////////////////////////////
+	// Setting up MIDI action mappings. We use CC event with various values.
+	const int nParameter = 1;
+	const int nValue = 1;
+	const int nDiff = 5;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmDecr );
+	pAction->setValue( QString::number( nValue ) );
+	pAction->setParameter1( QString::number( nDiff ) );
+
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	// Since we do not have a proper audio driver here picking up the new BPM
+	// during the next process cycle, we just check whether the next value did
+	// change.
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fOldTempoBC = 120;
+	pAudioEngine->setNextBpm( fOldTempoBC );
+	pAudioEngine->unlock();
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	pAudioEngine->unlock();
+
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
+	CPPUNIT_ASSERT( fNewTempoBC == fOldTempoBC - nDiff );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testBpmFineCcRelativeAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	////////////////////////////////////////////////////////////////////////////
+	// Setting up MIDI action mappings. We use CC event with various values.
+	const int nParameter = 1;
+	const int nDiff = 2;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::BpmFineCcRelative );
+	pAction->setParameter1( QString::number( nDiff ) );
+
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	// Since we do not have a proper audio driver here picking up the new BPM
+	// during the next process cycle, we just check whether the next value did
+	// change.
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fOldTempoBC = 120;
+	pAudioEngine->setNextBpm( fOldTempoBC );
+	pAudioEngine->unlock();
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	pAudioEngine->unlock();
+
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
+	CPPUNIT_ASSERT(
+		std::abs( fNewTempoBC - (
+					  fOldTempoBC - 0.01 * static_cast<float>(nDiff) ) ) < 0.01 );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testBpmIncreaseAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	////////////////////////////////////////////////////////////////////////////
+	// Setting up MIDI action mappings. We use CC event with various values.
+	const int nParameter = 1;
+	const int nValue = 1;
+	const int nDiff = 7;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmIncr );
+	pAction->setValue( QString::number( nValue ) );
+	pAction->setParameter1( QString::number( nDiff ) );
+
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	// Since we do not have a proper audio driver here picking up the new BPM
+	// during the next process cycle, we just check whether the next value did
+	// change.
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fOldTempoBC = 120;
+	pAudioEngine->setNextBpm( fOldTempoBC );
+	pAudioEngine->unlock();
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	pAudioEngine->unlock();
+
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
+	CPPUNIT_ASSERT( fNewTempoBC == fOldTempoBC + nDiff );
+
+	___INFOLOG("done");
+}
+
 void MidiActionTest::sendMessage( const MidiMessage& msg ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
