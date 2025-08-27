@@ -3234,6 +3234,9 @@ QString AudioEngine::getDriverNames() const {
 				nullptr ) {
 		sMidiDriver = "JACK";
 #endif
+	} else if ( std::dynamic_pointer_cast<LoopBackMidiDriver>(m_pMidiDriver) !=
+				nullptr ) {
+		sMidiDriver = "LoopBack";
 	}
 		
 	auto res = QString( "%1|%2" )
