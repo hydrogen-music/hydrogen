@@ -22,6 +22,7 @@
 #include "MidiActionTest.h"
 
 #include <chrono>
+#include <thread>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
@@ -51,12 +52,6 @@ void MidiActionTest::testBeatCounterAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
-
-	auto pDriver = dynamic_cast<LoopBackMidiDriver*>(
-		pAudioEngine->getMidiDriver().get() );
-	CPPUNIT_ASSERT( pDriver != nullptr );
-
 	////////////////////////////////////////////////////////////////////////////
 	// Setting up MIDI action mappings. We use CC event with various values.
 	const int nBeatCounterPara = 0;
@@ -76,13 +71,13 @@ void MidiActionTest::testBeatCounterAction() {
 
 	const auto beatCounterMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
-	pDriver->sendMessage( beatCounterMessage );
+	sendMessage( beatCounterMessage );
 	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-	pDriver->sendMessage( beatCounterMessage );
+	sendMessage( beatCounterMessage );
 	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-	pDriver->sendMessage( beatCounterMessage );
+	sendMessage( beatCounterMessage );
 	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-	pDriver->sendMessage( beatCounterMessage );
+	sendMessage( beatCounterMessage );
 	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -93,4 +88,29 @@ void MidiActionTest::testBeatCounterAction() {
 	CPPUNIT_ASSERT( fNewTempoBC != fOldTempoBC );
 
 	___INFOLOG("done");
+}
+
+void MidiActionTest::sendMessage( const MidiMessage& msg ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
+
+	auto pDriver = dynamic_cast<LoopBackMidiDriver*>(
+		pAudioEngine->getMidiDriver().get() );
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	pDriver->clearBacklogMessages();
+	pDriver->sendMessage( msg );
+
+	// Wait till the LoopBackMidiDriver did send, receive, and handle the
+	// message.
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( pDriver->getBacklogMessages().size() == 0 ) {
+		CPPUNIT_ASSERT( nnTry < nMaxTries );
+
+		++nnTry;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+	}
 }

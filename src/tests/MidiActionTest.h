@@ -26,6 +26,10 @@
 
 #include <core/Preferences/Preferences.h>
 
+namespace H2Core {
+	class MidiMessage;
+}
+
 /** Runs all available MIDI actions to check for potential crashes or dead
  * locks. These actions are not triggered directly but via incoming MIDI events
  * emulated using the #H2Core::LoopBackMidiDriver - for a more realistic test
@@ -46,6 +50,7 @@ class MidiActionTest : public CppUnit::TestCase {
 		void testBeatCounterAction();
 
 	private:
+		void sendMessage( const H2Core::MidiMessage& msg );
 
 		H2Core::Preferences::MidiDriver m_previousDriver;
 };
