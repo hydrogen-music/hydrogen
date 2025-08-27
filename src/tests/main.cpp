@@ -70,6 +70,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	H2Core::Preferences::create_instance();
 	auto pPref = H2Core::Preferences::get_instance();
 	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = Preferences::MidiDriver::LoopBack;
 	pPref->m_nBufferSize = 1024;
 	pPref->setUseRelativeFilenamesForPlaylists( true );
 	
