@@ -26,20 +26,24 @@
 
 #include <core/Preferences/Preferences.h>
 
+/** Runs all available MIDI actions to check for potential crashes or dead
+ * locks. These actions are not triggered directly but via incoming MIDI events
+ * emulated using the #H2Core::LoopBackMidiDriver - for a more realistic test
+ * scenario.
+ *
+ * Instead of loading a MIDI mapping from a config file, we create it locally.
+ * This 1. increases coverage for #MidiMap routines too and 2. is more easy to
+ * maintain and comprehend. */
 class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiActionTest );
-	CPPUNIT_TEST( testMidiActions );
+	CPPUNIT_TEST( testBeatCounterAction );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 		virtual void setUp();
 		virtual void tearDown();
 
-		/** Runs all available MIDI actions to check for potential crashes or
-		 * dead locks. These actions are not triggered directly but via incoming
-		 * MIDI events emulated using the #H2Core::LoopBackMidiDriver - for a
-		 * more realistic test scenario. */
-		void testMidiActions();
+		void testBeatCounterAction();
 
 	private:
 

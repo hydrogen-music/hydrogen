@@ -35,29 +35,14 @@ using namespace H2Core;
 
 void MidiActionTest::setUp() {
 	auto pPref = Preferences::get_instance();
-	m_previousDriver = pPref->m_midiDriver;
-	pPref->m_midiDriver = Preferences::MidiDriver::LoopBack;
 	pPref->m_nMidiChannelFilter = -1;
-
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	pAudioEngine->stopMidiDriver( Event::Trigger::Suppress );
-	pAudioEngine->startMidiDriver( Event::Trigger::Suppress );
 }
 
 void MidiActionTest::tearDown() {
-	auto pPref = Preferences::get_instance();
-	pPref->m_midiDriver = m_previousDriver;
-	pPref->getMidiMap()->reset();
-
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	pAudioEngine->stopMidiDriver( Event::Trigger::Suppress );
-	pAudioEngine->startMidiDriver( Event::Trigger::Suppress );
+	Preferences::get_instance()->getMidiMap()->reset();
 }
 
-// Instead of loading a MIDI mapping from a config file, we create it locally.
-// This 1. increases coverage for #MidiMap routines too and 2. is more
-// easy to maintain and comprehend.
-void MidiActionTest::testMidiActions() {
+void MidiActionTest::testBeatCounterAction() {
 	___INFOLOG("");
 
 	auto pHydrogen = Hydrogen::get_instance();
