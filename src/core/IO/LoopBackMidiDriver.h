@@ -60,6 +60,7 @@ class LoopBackMidiDriver : public Object<LoopBackMidiDriver>
 
 		/** Creates a copy of all messages in the backlog. */
 		std::vector<MidiMessage> getBacklogMessages();
+		void clearBacklogMessages();
 
 		QString toQString( const QString& sPrefix = "", bool bShort = true );
 
