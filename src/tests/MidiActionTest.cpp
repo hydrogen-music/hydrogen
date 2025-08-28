@@ -25,14 +25,19 @@
 #include <thread>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/Midi/MidiActionManager.h>
@@ -336,6 +341,549 @@ void MidiActionTest::testClearSelectedInstrumentAction() {
 							  nParameter, 0, 0 ) );
 	pHydrogen->setSelectedInstrumentNumber(
 		nSelectedInstrument, Event::Trigger::Suppress );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testEffectLevelAbsoluteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nFxValue = 25;
+	const int nFxId = 1;
+	const int nInstrumentNumber = 3;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::EffectLevelAbsolute );
+	pAction->setValue( QString::number( nFxValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setParameter2( QString::number( nFxId ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const float fOldValue = 0.92;
+	pInstrument->setFxLevel( fOldValue, nFxId );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nFxValue, 0 ) );
+	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pInstrument->getFxLevel( nFxId ) )
+				.arg( static_cast<float>(nFxValue / 127.0) ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getFxLevel( nFxId ) -
+							  ( static_cast<float>(nFxValue) / 127.0 ) ) < 0.01 );
+	pInstrument->setFxLevel( fOldValue, nFxId );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testEffectLevelRelativeAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nFxValue = 1;
+	const int nFxId = 1;
+	const int nInstrumentNumber = 3;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::EffectLevelRelative );
+	pAction->setValue( QString::number( nFxValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setParameter2( QString::number( nFxId ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const float fOldValue = 0.92;
+	pInstrument->setFxLevel( fOldValue, nFxId );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nFxValue, 0 ) );
+	CPPUNIT_ASSERT( pInstrument->getFxLevel( nFxId ) != fOldValue );
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pInstrument->getFxLevel( nFxId ) )
+				.arg( fOldValue + 0.05 ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getFxLevel( nFxId ) -
+							  ( fOldValue + 0.05 ) ) <= 0.01 );
+	pInstrument->setFxLevel( fOldValue, nFxId );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testFilterCutoffLevelAbsoluteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nCutoffValue = 101;
+	const int nInstrumentNumber = 3;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::FilterCutoffLevelAbsolute );
+	pAction->setValue( QString::number( nCutoffValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const float fOldValue = 0.92;
+	pInstrument->setFilterCutoff( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nCutoffValue, 0 ) );
+	CPPUNIT_ASSERT( pInstrument->getFilterCutoff() != fOldValue );
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pInstrument->getFilterCutoff() )
+				.arg( static_cast<float>(nCutoffValue) / 127.0 ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getFilterCutoff() -
+							  ( static_cast<float>(nCutoffValue) / 127.0 ) ) <=
+					0.01 );
+	pInstrument->setFilterCutoff( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testGainLevelAbsoluteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nGainValue = 101;
+	const int nInstrumentNumber = 3;
+	const int nComponentId = 0;
+	const int nLayerId = 0;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::GainLevelAbsolute );
+	pAction->setValue( QString::number( nGainValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setParameter2( QString::number( nComponentId ) );
+	pAction->setParameter3( QString::number( nLayerId ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+	auto pComponent = pInstrument->getComponent( nComponentId );
+	CPPUNIT_ASSERT( pComponent != nullptr );
+	auto pLayer = pComponent->getLayer( nLayerId );
+	CPPUNIT_ASSERT( pLayer != nullptr );
+
+	const float fOldValue = 0.92;
+	pLayer->setGain( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nGainValue, 0 ) );
+	CPPUNIT_ASSERT( pLayer->getGain() != fOldValue );
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pLayer->getGain() )
+				.arg( 5.0 * static_cast<float>(nGainValue) / 127.0 ) );
+	CPPUNIT_ASSERT( std::abs( pLayer->getGain() -
+							  5.0 * ( static_cast<float>(nGainValue) / 127.0 ) ) <=
+					0.01 );
+	pLayer->setGain( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testInstrumentPitchAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nPitchValue = 101;
+	const int nInstrumentNumber = 3;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::InstrumentPitch );
+	pAction->setValue( QString::number( nPitchValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const float fOldValue = 0.92;
+	pInstrument->setPitchOffset( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nPitchValue, 0 ) );
+	CPPUNIT_ASSERT( pInstrument->getPitchOffset() != fOldValue );
+	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
+		( static_cast<float>(nPitchValue) / 127.0 ) + Instrument::fPitchMin;
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pInstrument->getPitchOffset() ).arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getPitchOffset() - fRef ) <= 0.01 );
+	pInstrument->setPitchOffset( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testLoadNextDrumkitAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::LoadNextDrumkit );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pOldDrumkit = pSong->getDrumkit();
+	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	auto pNewDrumkit = pSong->getDrumkit();
+	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
+	CPPUNIT_ASSERT( pNewDrumkit != pOldDrumkit );
+
+	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pOldDrumkit ) );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testLoadPrevDrumkitAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::LoadPrevDrumkit );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pOldDrumkit = pSong->getDrumkit();
+	CPPUNIT_ASSERT( pOldDrumkit != nullptr );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	auto pNewDrumkit = pSong->getDrumkit();
+	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
+	CPPUNIT_ASSERT( pNewDrumkit != pOldDrumkit );
+
+	CPPUNIT_ASSERT( CoreActionController::setDrumkit( pOldDrumkit ) );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testMasterVolumeAbsoluteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nVolumeValue = 102;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::MasterVolumeAbsolute );
+	pAction->setValue( QString::number( nVolumeValue ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = 0.92;
+	pSong->setVolume( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nVolumeValue, 0 ) );
+	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
+
+	const float fRef = 1.5 * static_cast<float>(nVolumeValue) / 127.0;
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pSong->getVolume() ).arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pSong->getVolume() - fRef ) <= 0.01 );
+	pSong->setVolume( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testMasterVolumeRelativeAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nVolumeValue = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::MasterVolumeRelative );
+	pAction->setValue( QString::number( nVolumeValue ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const float fOldValue = 0.92;
+	pSong->setVolume( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nVolumeValue, 0 ) );
+	CPPUNIT_ASSERT( pSong->getVolume() != fOldValue );
+
+	const float fRef = fOldValue + 0.05;
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pSong->getVolume() ).arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pSong->getVolume() - fRef ) <= 0.01 );
+	pSong->setVolume( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testMuteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Mute );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const bool bOldValue = false;
+	pSong->setIsMuted( bOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
+	pSong->setIsMuted( bOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testMuteToggleAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::MuteToggle );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const bool bOldValue = false;
+	pSong->setIsMuted( bOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pSong->getIsMuted() == bOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testNextBarAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::NextBar );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	const int nPatternNumber = 0;
+	const int nColumn = 5;
+	CPPUNIT_ASSERT( CoreActionController::activateSongMode( true ) );
+	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
+						GridPoint( nColumn, nPatternNumber ) ) );
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pPatternGroupVector = pSong->getPatternGroupVector();
+	___INFOLOG( QString( "number of columns: [%1]" )
+				.arg( pPatternGroupVector->size() ) );
+	CPPUNIT_ASSERT( pPatternGroupVector->size() == nColumn + 1 );
+
+	const int nOldValue = 2;
+	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const int nNewValue = pAudioEngine->getTransportPosition()->getColumn();
+	pAudioEngine->unlock();
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( nNewValue ).arg( nOldValue ) );
+	CPPUNIT_ASSERT( nNewValue == nOldValue + 1 );
+
+	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
+						GridPoint( nColumn, nPatternNumber ) ) );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPitchLevelAbsoluteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nPitchValue = 101;
+	const int nInstrumentNumber = 3;
+	const int nComponentId = 0;
+	const int nLayerId = 0;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PitchLevelAbsolute );
+	pAction->setValue( QString::number( nPitchValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pAction->setParameter2( QString::number( nComponentId ) );
+	pAction->setParameter3( QString::number( nLayerId ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+	auto pComponent = pInstrument->getComponent( nComponentId );
+	CPPUNIT_ASSERT( pComponent != nullptr );
+	auto pLayer = pComponent->getLayer( nLayerId );
+	CPPUNIT_ASSERT( pLayer != nullptr );
+
+	const float fOldValue = 0.92;
+	pLayer->setPitch( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nPitchValue, 0 ) );
+	CPPUNIT_ASSERT( pLayer->getPitch() != fOldValue );
+
+	const float fRef = ( Instrument::fPitchMax - Instrument::fPitchMin ) *
+		( static_cast<float>(nPitchValue) / 127.0 ) + Instrument::fPitchMin;
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pLayer->getPitch() ).arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pLayer->getPitch() - fRef ) <= 0.01 );
+	pLayer->setPitch( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPreviousBarAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::PreviousBar );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	const int nPatternNumber = 0;
+	const int nColumn = 4;
+	CPPUNIT_ASSERT( CoreActionController::activateSongMode( true ) );
+	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
+						GridPoint( nColumn, nPatternNumber ) ) );
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pPatternGroupVector = pSong->getPatternGroupVector();
+	___INFOLOG( QString( "number of columns: [%1]" )
+				.arg( pPatternGroupVector->size() ) );
+	CPPUNIT_ASSERT( pPatternGroupVector->size() == ( nColumn + 1 ) );
+
+	const int nOldValue = 2;
+	CPPUNIT_ASSERT( CoreActionController::locateToColumn( nOldValue ) );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	pAudioEngine->lock( RIGHT_HERE );
+	const int nNewValue = pAudioEngine->getTransportPosition()->getColumn();
+	pAudioEngine->unlock();
+
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( nNewValue ).arg( nOldValue ) );
+	CPPUNIT_ASSERT( nNewValue == nOldValue - 1 );
+
+	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
+						GridPoint( nColumn, nPatternNumber ) ) );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testUnmuteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Unmute );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	const bool bOldValue = true;
+	pSong->setIsMuted( bOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pSong->getIsMuted() != bOldValue );
+	pSong->setIsMuted( false );
 
 	___INFOLOG("done");
 }

@@ -47,6 +47,21 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testBpmIncreaseAction );
 	CPPUNIT_TEST( testClearPatternAction );
 	CPPUNIT_TEST( testClearSelectedInstrumentAction );
+	CPPUNIT_TEST( testEffectLevelAbsoluteAction );
+	CPPUNIT_TEST( testEffectLevelRelativeAction );
+	CPPUNIT_TEST( testFilterCutoffLevelAbsoluteAction );
+	CPPUNIT_TEST( testGainLevelAbsoluteAction );
+	CPPUNIT_TEST( testInstrumentPitchAction );
+	CPPUNIT_TEST( testLoadNextDrumkitAction );
+	CPPUNIT_TEST( testLoadPrevDrumkitAction );
+	CPPUNIT_TEST( testMasterVolumeAbsoluteAction );
+	CPPUNIT_TEST( testMasterVolumeRelativeAction );
+	CPPUNIT_TEST( testMuteAction );
+	CPPUNIT_TEST( testMuteToggleAction );
+	CPPUNIT_TEST( testNextBarAction );
+	CPPUNIT_TEST( testPitchLevelAbsoluteAction );
+	CPPUNIT_TEST( testPreviousBarAction );
+	CPPUNIT_TEST( testUnmuteAction );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -60,6 +75,21 @@ class MidiActionTest : public CppUnit::TestCase {
 		void testBpmIncreaseAction();
 		void testClearPatternAction();
 		void testClearSelectedInstrumentAction();
+		void testEffectLevelAbsoluteAction();
+		void testEffectLevelRelativeAction();
+		void testFilterCutoffLevelAbsoluteAction();
+		void testGainLevelAbsoluteAction();
+		void testInstrumentPitchAction();
+		void testLoadNextDrumkitAction();
+		void testLoadPrevDrumkitAction();
+		void testMasterVolumeAbsoluteAction();
+		void testMasterVolumeRelativeAction();
+		void testMuteAction();
+		void testMuteToggleAction();
+		void testNextBarAction();
+		void testPitchLevelAbsoluteAction();
+		void testPreviousBarAction();
+		void testUnmuteAction();
 
 	private:
 		void sendMessage( const H2Core::MidiMessage& msg );
