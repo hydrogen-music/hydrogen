@@ -25,7 +25,14 @@
 #include <thread>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/Midi/MidiActionManager.h>
@@ -52,8 +59,6 @@ void MidiActionTest::testBeatCounterAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	////////////////////////////////////////////////////////////////////////////
-	// Setting up MIDI action mappings. We use CC event with various values.
 	const int nBeatCounterPara = 0;
 	pMidiMap->registerCCEvent( nBeatCounterPara, std::make_shared<MidiAction>(
 								   MidiAction::Type::BeatCounter ) );
@@ -98,8 +103,6 @@ void MidiActionTest::testBpmCcRelativeAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	////////////////////////////////////////////////////////////////////////////
-	// Setting up MIDI action mappings. We use CC event with various values.
 	const int nParameter = 1;
 	const int nDiff = 3;
 	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::BpmCcRelative );
@@ -136,8 +139,6 @@ void MidiActionTest::testBpmDecreaseAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	////////////////////////////////////////////////////////////////////////////
-	// Setting up MIDI action mappings. We use CC event with various values.
 	const int nParameter = 1;
 	const int nValue = 1;
 	const int nDiff = 5;
@@ -176,8 +177,6 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	////////////////////////////////////////////////////////////////////////////
-	// Setting up MIDI action mappings. We use CC event with various values.
 	const int nParameter = 1;
 	const int nDiff = 2;
 	auto pAction = std::make_shared<MidiAction>(
@@ -217,8 +216,6 @@ void MidiActionTest::testBpmIncreaseAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	////////////////////////////////////////////////////////////////////////////
-	// Setting up MIDI action mappings. We use CC event with various values.
 	const int nParameter = 1;
 	const int nValue = 1;
 	const int nDiff = 7;
@@ -245,6 +242,100 @@ void MidiActionTest::testBpmIncreaseAction() {
 
 	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
 	CPPUNIT_ASSERT( fNewTempoBC == fOldTempoBC + nDiff );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testClearPatternAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	pMidiMap->registerCCEvent(
+		nParameter, std::make_shared<MidiAction>( MidiAction::Type::ClearPattern ) );
+
+	const int nPatternNumber = pHydrogen->getSelectedPatternNumber();
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	// We first add note and then ensure it is gone after triggering the action.
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pPattern = pSong->getPatternList()->get( nPatternNumber );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+
+	pPattern->insertNote( std::make_shared<Note>( nullptr, 0 ) );
+	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 0 );
+
+	// Check robustness against having no pattern selected (should not happen).
+	pHydrogen->setSelectedPatternNumber( -1, true /* bNeedsLock */,
+										 Event::Trigger::Suppress );
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	pHydrogen->setSelectedPatternNumber( nPatternNumber, true /* bNeedsLock */,
+										 Event::Trigger::Suppress );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testClearSelectedInstrumentAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nParameterClearPattern = 2;
+	pMidiMap->registerCCEvent(
+		nParameter, std::make_shared<MidiAction>(
+			MidiAction::Type::ClearSelectedInstrument ) );
+	pMidiMap->registerCCEvent(
+		nParameterClearPattern, std::make_shared<MidiAction>(
+			MidiAction::Type::ClearPattern ) );
+
+	// We reset the whole pattern to have a clean canvas.
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameterClearPattern, 0, 0 ) );
+
+	// We first add note and then ensure it is gone after triggering the action.
+	const int nPatternNumber = pHydrogen->getSelectedPatternNumber();
+	const int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nSelectedInstrument );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+	auto pAnotherInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nSelectedInstrument + 1 );
+	CPPUNIT_ASSERT( pAnotherInstrument != nullptr );
+	CPPUNIT_ASSERT( pAnotherInstrument != pInstrument );
+
+	auto pPattern = pSong->getPatternList()->get( nPatternNumber );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 0 );
+
+	pPattern->insertNote( std::make_shared<Note>( pInstrument, 0 ) );
+	pPattern->insertNote( std::make_shared<Note>( pAnotherInstrument, 0 ) );
+	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 2 );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pPattern->getNotes()->size() == 1 );
+
+	// Check robustness against having no pattern selected (should not happen).
+	pHydrogen->setSelectedInstrumentNumber( -1, Event::Trigger::Suppress );
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	pHydrogen->setSelectedInstrumentNumber(
+		nSelectedInstrument, Event::Trigger::Suppress );
 
 	___INFOLOG("done");
 }

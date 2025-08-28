@@ -45,6 +45,8 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testBpmDecreaseAction );
 	CPPUNIT_TEST( testBpmFineCcRelativeAction );
 	CPPUNIT_TEST( testBpmIncreaseAction );
+	CPPUNIT_TEST( testClearPatternAction );
+	CPPUNIT_TEST( testClearSelectedInstrumentAction );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -56,6 +58,8 @@ class MidiActionTest : public CppUnit::TestCase {
 		void testBpmDecreaseAction();
 		void testBpmFineCcRelativeAction();
 		void testBpmIncreaseAction();
+		void testClearPatternAction();
+		void testClearSelectedInstrumentAction();
 
 	private:
 		void sendMessage( const H2Core::MidiMessage& msg );
