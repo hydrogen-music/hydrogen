@@ -75,7 +75,22 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testRecordReadyAction );
 	CPPUNIT_TEST( testRecordStrobeAction );
 	CPPUNIT_TEST( testRecordStrobeToggleAction );
+	CPPUNIT_TEST( testRedoAction );
+	CPPUNIT_TEST( testSelectAndPlayPatternAction );
+	CPPUNIT_TEST( testSelectInstrumentAction );
+	CPPUNIT_TEST( testSelectNextPatternAction );
+	CPPUNIT_TEST( testSelectNextPatternCcAbsoluteAction );
+	CPPUNIT_TEST( testSelectNextPatternRelativeAction );
+	CPPUNIT_TEST( testSelectOnlyNextPatternAction );
+	CPPUNIT_TEST( testSelectOnlyNextPatternCcAbsoluteAction );
 	CPPUNIT_TEST( testStopAction );
+	CPPUNIT_TEST( testStripMuteToggleAction );
+	CPPUNIT_TEST( testStripSoloToggleAction );
+	CPPUNIT_TEST( testStripVolumeAbsoluteAction );
+	CPPUNIT_TEST( testStripVolumeRelativeAction );
+	CPPUNIT_TEST( testTapTempoAction );
+	CPPUNIT_TEST( testToggleMetronomeAction );
+	CPPUNIT_TEST( testUndoAction );
 	CPPUNIT_TEST( testUnmuteAction );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -118,7 +133,24 @@ class MidiActionTest : public CppUnit::TestCase {
 		void testRecordReadyAction();
 		void testRecordStrobeAction();
 		void testRecordStrobeToggleAction();
+		void testRedoAction();
+		void testSelectAndPlayPatternAction();
+		void testSelectInstrumentAction();
+		void testSelectNextPatternAction();
+		void testSelectNextPatternCcAbsoluteAction();
+		void testSelectNextPatternRelativeAction();
+		void testSelectOnlyNextPatternAction();
+		void testSelectOnlyNextPatternCcAbsoluteAction();
 		void testStopAction();
+		void testStripMuteToggleAction();
+		void testStripSoloToggleAction();
+		void testStripVolumeAbsoluteAction();
+		void testStripVolumeRelativeAction();
+		void testTapTempoAction();
+		// For MidiAction::Type::TimingClockTick there is a specialized unit
+		// test in MidiDriver test.
+		void testToggleMetronomeAction();
+		void testUndoAction();
 		void testUnmuteAction();
 
 	private:
