@@ -2903,7 +2903,7 @@ void AudioEngineTests::stopJackAudioDriver() {
 		throwException( "[stopJackAudioDriver] Engine must not be locked and in state testing yet!" );
 	}
 
-	// We rely on the driver set via the Preferences (most probably FakeDriver).
+	// We rely on the driver set via the Preferences (most probably FakeAudioDriver).
 	pHydrogen->restartAudioDriver();
 
 #ifdef H2CORE_HAVE_JACK

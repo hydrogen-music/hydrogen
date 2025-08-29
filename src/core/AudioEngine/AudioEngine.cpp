@@ -54,7 +54,7 @@
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
 #include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeDriver.h>
+#include <core/IO/FakeAudioDriver.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
 #include <core/IO/LoopBackMidiDriver.h>
@@ -975,7 +975,7 @@ AudioOutput* AudioEngine::createAudioDriver( const Preferences::AudioDriver& dri
 	}
 	else if ( driver == Preferences::AudioDriver::Fake ) {
 		AE_WARNINGLOG( "*** Using FAKE audio driver ***" );
-		pAudioDriver = new FakeDriver( m_AudioProcessCallback );
+		pAudioDriver = new FakeAudioDriver( m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Disk ) {
 		pAudioDriver = new DiskWriterDriver( m_AudioProcessCallback );
@@ -3188,7 +3188,7 @@ QString AudioEngine::getDriverNames() const {
 	else if ( dynamic_cast<AlsaAudioDriver*>(m_pAudioDriver) != nullptr ) {
 		audioDriver = Preferences::AudioDriver::Alsa;
 	}
-	else if ( dynamic_cast<FakeDriver*>(m_pAudioDriver) != nullptr ) {
+	else if ( dynamic_cast<FakeAudioDriver*>(m_pAudioDriver) != nullptr ) {
 		audioDriver = Preferences::AudioDriver::Fake;
 	}
 	else if ( dynamic_cast<NullDriver*>(m_pAudioDriver) != nullptr ) {

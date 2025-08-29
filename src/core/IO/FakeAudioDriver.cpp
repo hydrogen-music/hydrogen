@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/IO/FakeDriver.h>
+#include <core/IO/FakeAudioDriver.h>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
@@ -31,7 +31,7 @@ using TimePoint = std::chrono::time_point<Clock>;
 
 namespace H2Core {
 
-FakeDriver::FakeDriver( audioProcessCallback processCallback )
+FakeAudioDriver::FakeAudioDriver( audioProcessCallback processCallback )
 		: AudioOutput()
 		, m_processCallback( processCallback )
 		, m_pOut_L( nullptr )
@@ -42,10 +42,10 @@ FakeDriver::FakeDriver( audioProcessCallback processCallback )
 		, m_nSampleRate( 44100 ) {
 }
 
-FakeDriver::~FakeDriver() {
+FakeAudioDriver::~FakeAudioDriver() {
 }
 
-int FakeDriver::init( unsigned nBufferSize ) {
+int FakeAudioDriver::init( unsigned nBufferSize ) {
 
 	m_nBufferSize = nBufferSize;
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
@@ -63,7 +63,7 @@ int FakeDriver::init( unsigned nBufferSize ) {
 	return 0;
 }
 
-int FakeDriver::connect() {
+int FakeAudioDriver::connect() {
 	if ( m_pCallbackHandler != nullptr ) {
 		m_bActive = false;
 		m_pCallbackHandler->join();
@@ -72,12 +72,12 @@ int FakeDriver::connect() {
 
 	m_bActive = true;
 	m_pCallbackHandler = std::make_shared< std::thread >(
-		FakeDriver::processCallback, ( void* )this );
+		FakeAudioDriver::processCallback, ( void* )this );
 
 	return 0;
 }
 
-void FakeDriver::disconnect() {
+void FakeAudioDriver::disconnect() {
 	m_bActive = false;
 
 	if ( m_pCallbackHandler != nullptr ) {
@@ -92,23 +92,23 @@ void FakeDriver::disconnect() {
 	m_pOut_R = nullptr;
 }
 
-unsigned FakeDriver::getSampleRate() {
+unsigned FakeAudioDriver::getSampleRate() {
 	return m_nSampleRate;
 }
 
-float* FakeDriver::getOut_L() {
+float* FakeAudioDriver::getOut_L() {
 	return m_pOut_L;
 }
 
-float* FakeDriver::getOut_R() {
+float* FakeAudioDriver::getOut_R() {
 	return m_pOut_R;
 }
 
-QString FakeDriver::toQString( const QString& sPrefix, bool bShort ) const {
+QString FakeAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
-		sOutput = QString( "%1[FakeDriver]\n" ).arg( sPrefix )
+		sOutput = QString( "%1[FakeAudioDriver]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_processInterval: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_processInterval.count() ) )
 			.append( QString( "%1%2m_nBufferSize: %3\n" ).arg( sPrefix ).arg( s )
@@ -116,7 +116,7 @@ QString FakeDriver::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nSampleRate: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nSampleRate ) );
 	} else {
-		sOutput = QString( "[FakeDriver]" )
+		sOutput = QString( "[FakeAudioDriver]" )
 			.append( QString( ", m_processIntercal: %1" )
 					 .arg( m_processInterval.count() ) )
 			.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
@@ -126,8 +126,8 @@ QString FakeDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-void FakeDriver::processCallback( void* pInstance ) {
-	auto pDriver = static_cast<FakeDriver*>( pInstance );
+void FakeAudioDriver::processCallback( void* pInstance ) {
+	auto pDriver = static_cast<FakeAudioDriver*>( pInstance );
 	if ( pDriver == nullptr ) {
 		ERRORLOG( "Invalid instance provided. Shutting down." );
 		return;

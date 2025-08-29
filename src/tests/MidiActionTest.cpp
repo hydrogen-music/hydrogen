@@ -109,7 +109,7 @@ void MidiActionTest::testBpmCcRelativeAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
@@ -152,7 +152,7 @@ void MidiActionTest::testBpmDecreaseAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
@@ -197,7 +197,7 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
@@ -243,7 +243,7 @@ void MidiActionTest::testBpmIncreaseAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
@@ -922,7 +922,7 @@ void MidiActionTest::testPauseAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -1003,7 +1003,7 @@ void MidiActionTest::testPlayAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -1037,7 +1037,7 @@ void MidiActionTest::testPlayPauseToggleAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -1077,7 +1077,7 @@ void MidiActionTest::testPlayStopToggleAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );
@@ -1161,7 +1161,7 @@ void MidiActionTest::testStopAction() {
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
 
-	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	CoreActionController::activateSongMode( false );

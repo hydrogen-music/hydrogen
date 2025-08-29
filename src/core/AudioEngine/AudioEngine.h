@@ -31,7 +31,7 @@
 #include <core/IO/AudioOutput.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeDriver.h>
+#include <core/IO/FakeAudioDriver.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
@@ -466,7 +466,7 @@ public:
 	friend bool CoreActionController::replaceInstrument(
 		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 	/** Is allowed to set m_state to State::Ready via setState()*/
-	friend int FakeDriver::connect();
+	friend int FakeAudioDriver::connect();
 
 	friend class AudioEngineTests;
 		friend class JackAudioDriver;

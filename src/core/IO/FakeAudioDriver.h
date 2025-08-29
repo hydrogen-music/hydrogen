@@ -34,12 +34,12 @@ namespace H2Core {
 /** Fake audio driver. Used only for profiling and unit tests.
  *
  * \ingroup docCore docAudioDriver docMIDI */
-class FakeDriver : Object<FakeDriver>, public AudioOutput
+class FakeAudioDriver : Object<FakeAudioDriver>, public AudioOutput
 {
-	H2_OBJECT(FakeDriver)
+	H2_OBJECT(FakeAudioDriver)
 public:
-	FakeDriver( audioProcessCallback processCallback );
-	~FakeDriver();
+	FakeAudioDriver( audioProcessCallback processCallback );
+	~FakeAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
 	virtual int connect() override;
@@ -76,7 +76,7 @@ private:
 
 };
 
-inline const std::chrono::duration<float>& FakeDriver::getProcessInterval() const {
+inline const std::chrono::duration<float>& FakeAudioDriver::getProcessInterval() const {
 	return m_processInterval;
 }
 
