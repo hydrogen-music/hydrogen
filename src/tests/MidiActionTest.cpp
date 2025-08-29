@@ -771,6 +771,120 @@ void MidiActionTest::testNextBarAction() {
 	___INFOLOG("done");
 }
 
+void MidiActionTest::testPanAbsoluteAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nPanValue = 101;
+	const int nInstrumentNumber = 2;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PanAbsolute );
+	pAction->setValue( QString::number( nPanValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const float fOldValue = 0.92;
+	pInstrument->setPanWithRangeFrom0To1( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nPanValue, 0 ) );
+	CPPUNIT_ASSERT( pInstrument->getPanWithRangeFrom0To1() != fOldValue );
+	const float fRef = static_cast<float>(nPanValue) / 127.0;
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pInstrument->getPanWithRangeFrom0To1() ).arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getPanWithRangeFrom0To1() - fRef ) <=
+					0.01 );
+	pInstrument->setPanWithRangeFrom0To1( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPanAbsoluteSymAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nPanValue = 101;
+	const int nInstrumentNumber = 2;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PanAbsoluteSym );
+	pAction->setValue( QString::number( nPanValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const float fOldValue = 0.92;
+	pInstrument->setPan( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nPanValue, 0 ) );
+	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
+	const float fRef = static_cast<float>(nPanValue) / 127.0;
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pInstrument->getPan() ).arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getPan() - fRef ) <=
+					0.01 );
+	pInstrument->setPan( fOldValue );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPanRelativeAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	const int nPanValue = 1;
+	const int nInstrumentNumber = 2;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PanRelative );
+	pAction->setValue( QString::number( nPanValue ) );
+	pAction->setParameter1( QString::number( nInstrumentNumber ) );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()
+		->get( nInstrumentNumber );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	const float fOldValue = 0.82;
+	pInstrument->setPan( fOldValue );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, nPanValue, 0 ) );
+	CPPUNIT_ASSERT( pInstrument->getPan() != fOldValue );
+	const float fRef = fOldValue + 0.1;
+	___INFOLOG( QString( "new value: [%1], ref: [%2]" )
+				.arg( pInstrument->getPan() ).arg( fRef ) );
+	CPPUNIT_ASSERT( std::abs( pInstrument->getPan() - fRef ) <=
+					0.01 );
+	pInstrument->setPan( fOldValue );
+
+	___INFOLOG("done");
+}
+
 void MidiActionTest::testPitchLevelAbsoluteAction() {
 	___INFOLOG("");
 
