@@ -1307,6 +1307,112 @@ void MidiActionTest::testPreviousBarAction() {
 	___INFOLOG("done");
 }
 
+void MidiActionTest::testRecordExitAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	pHydrogen->setRecordEnabled( true );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordExit );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testRecordReadyAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	pHydrogen->setRecordEnabled( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordReady );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+
+	pHydrogen->sequencerPlay();
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+
+	pHydrogen->sequencerStop();
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testRecordStrobeAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	pHydrogen->setRecordEnabled( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::RecordStrobe );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
+
+	pHydrogen->setRecordEnabled( false );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testRecordStrobeToggleAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	pHydrogen->setRecordEnabled( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::RecordStrobeToggle );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( pHydrogen->getRecordEnabled() );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	CPPUNIT_ASSERT( ! pHydrogen->getRecordEnabled() );
+
+	___INFOLOG("done");
+}
+
 void MidiActionTest::testStopAction() {
 	___INFOLOG("");
 
