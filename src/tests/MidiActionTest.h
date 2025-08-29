@@ -65,6 +65,9 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testPauseAction );
 	CPPUNIT_TEST( testPitchLevelAbsoluteAction );
 	CPPUNIT_TEST( testPlayAction );
+	CPPUNIT_TEST( testPlaylistNextSongAction );
+	CPPUNIT_TEST( testPlaylistPrevSongAction );
+	CPPUNIT_TEST( testPlaylistSongAction );
 	CPPUNIT_TEST( testPlayPauseToggleAction );
 	CPPUNIT_TEST( testPlayStopToggleAction );
 	CPPUNIT_TEST( testPreviousBarAction );
@@ -101,6 +104,9 @@ class MidiActionTest : public CppUnit::TestCase {
 		void testPauseAction();
 		void testPitchLevelAbsoluteAction();
 		void testPlayAction();
+		void testPlaylistNextSongAction();
+		void testPlaylistPrevSongAction();
+		void testPlaylistSongAction();
 		void testPlayPauseToggleAction();
 		void testPlayStopToggleAction();
 		void testPreviousBarAction();

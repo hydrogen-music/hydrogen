@@ -21,6 +21,8 @@
 
 #include "MidiActionTest.h"
 
+#include "TestHelper.h"
+
 #include <chrono>
 #include <thread>
 
@@ -36,6 +38,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
@@ -1024,6 +1027,158 @@ void MidiActionTest::testPlayAction() {
 
 	pAudioEngine->stop();
 	CoreActionController::activateSongMode( true );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPlaylistNextSongAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPreviousSong = pHydrogen->getSong();
+	auto pPreviousPlaylist = pHydrogen->getPlaylist();
+
+	auto pPlaylist = CoreActionController::loadPlaylist(
+		H2TEST_FILE( "/playlist/test.h2playlist" ) );
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
+	const int nOldSongNumber = 0;
+	CPPUNIT_ASSERT( CoreActionController::loadSong(
+						pPlaylist->getSongFilenameByNumber( nOldSongNumber ) ) );
+	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
+
+	auto pOldSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pOldSong != nullptr );
+	const auto sOldSongName = pOldSong->getName();
+
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PlaylistNextSong );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	auto pNewSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pNewSong != nullptr );
+	CPPUNIT_ASSERT( pNewSong != pOldSong );
+	const auto sNewSongName = pNewSong->getName();
+	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
+
+	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPreviousPlaylist ) );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPlaylistPrevSongAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPreviousSong = pHydrogen->getSong();
+	auto pPreviousPlaylist = pHydrogen->getPlaylist();
+
+	auto pPlaylist = CoreActionController::loadPlaylist(
+		H2TEST_FILE( "/playlist/test.h2playlist" ) );
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
+	const int nOldSongNumber = 1;
+	CPPUNIT_ASSERT( CoreActionController::loadSong(
+						pPlaylist->getSongFilenameByNumber( nOldSongNumber ) ) );
+	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
+
+	auto pOldSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pOldSong != nullptr );
+	const auto sOldSongName = pOldSong->getName();
+
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PlaylistPrevSong );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+
+	auto pNewSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pNewSong != nullptr );
+	CPPUNIT_ASSERT( pNewSong != pOldSong );
+	const auto sNewSongName = pNewSong->getName();
+	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
+
+	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPreviousPlaylist ) );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPlaylistSongAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPreviousSong = pHydrogen->getSong();
+	auto pPreviousPlaylist = pHydrogen->getPlaylist();
+
+	auto pPlaylist = CoreActionController::loadPlaylist(
+		H2TEST_FILE( "/playlist/test.h2playlist" ) );
+	CPPUNIT_ASSERT( pPlaylist != nullptr );
+	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPlaylist ) );
+	const int nOldSongNumber = 0;
+	const int nNewSongNumber = 1;
+	CPPUNIT_ASSERT( CoreActionController::loadSong(
+						pPlaylist->getSongFilenameByNumber( nOldSongNumber ) ) );
+	CPPUNIT_ASSERT( CoreActionController::activatePlaylistSong( nOldSongNumber ) );
+
+	auto pOldSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pOldSong != nullptr );
+	const auto sOldSongName = pOldSong->getName();
+
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	const int nParameterOldSong = 1;
+	auto pActionOldSong = std::make_shared<MidiAction>(
+		MidiAction::Type::PlaylistSong );
+	pActionOldSong->setParameter1( QString::number( nOldSongNumber ) );
+	pMidiMap->registerCCEvent( nParameterOldSong, pActionOldSong );
+
+	const int nParameterNewSong = 2;
+	auto pActionNewSong = std::make_shared<MidiAction>(
+		MidiAction::Type::PlaylistSong );
+	pActionNewSong->setParameter1( QString::number( nNewSongNumber ) );
+	pMidiMap->registerCCEvent( nParameterNewSong, pActionNewSong );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameterNewSong, 0, 0 ) );
+
+	auto pNewSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pNewSong != nullptr );
+	CPPUNIT_ASSERT( pNewSong != pOldSong );
+	const auto sNewSongName = pNewSong->getName();
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( sOldSongName )
+				.arg( sNewSongName ) );
+	CPPUNIT_ASSERT( sNewSongName != sOldSongName );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameterOldSong, 0, 0 ) );
+
+	auto pNewSongRevert = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pNewSongRevert != nullptr );
+	CPPUNIT_ASSERT( pNewSongRevert != pNewSong );
+	CPPUNIT_ASSERT( pNewSongRevert != pOldSong );
+	const auto sNewSongNameRevert = pNewSongRevert->getName();
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( sNewSongName )
+				.arg( sNewSongNameRevert ) );
+	CPPUNIT_ASSERT( sNewSongNameRevert != sNewSongName );
+	CPPUNIT_ASSERT( sNewSongNameRevert != sOldSongName );
+
+	CPPUNIT_ASSERT( CoreActionController::setPlaylist( pPreviousPlaylist ) );
+	CPPUNIT_ASSERT( CoreActionController::setSong( pPreviousSong ) );
 
 	___INFOLOG("done");
 }
