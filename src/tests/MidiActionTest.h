@@ -123,6 +123,7 @@ class MidiActionTest : public CppUnit::TestCase {
 
 	private:
 		void sendMessage( const H2Core::MidiMessage& msg );
+		void waitForAudioDriver();
 
 		H2Core::Preferences::MidiDriver m_previousDriver;
 };
