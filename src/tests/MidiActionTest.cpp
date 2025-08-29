@@ -913,6 +913,40 @@ void MidiActionTest::testPanRelativeAction() {
 	___INFOLOG("done");
 }
 
+void MidiActionTest::testPauseAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	CoreActionController::activateSongMode( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Pause );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	pAudioEngine->play();
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
+
+	CoreActionController::activateSongMode( true );
+
+	___INFOLOG("done");
+}
+
 void MidiActionTest::testPitchLevelAbsoluteAction() {
 	___INFOLOG("");
 
@@ -961,6 +995,119 @@ void MidiActionTest::testPitchLevelAbsoluteAction() {
 	___INFOLOG("done");
 }
 
+void MidiActionTest::testPlayAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	CoreActionController::activateSongMode( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Play );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	pAudioEngine->stop();
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
+
+	pAudioEngine->stop();
+	CoreActionController::activateSongMode( true );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPlayPauseToggleAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	CoreActionController::activateSongMode( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PlayPauseToggle );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	pAudioEngine->stop();
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+	CPPUNIT_ASSERT( pTransportPosition->getFrame() != 0 );
+
+	CoreActionController::activateSongMode( true );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testPlayStopToggleAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	CoreActionController::activateSongMode( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>(
+		MidiAction::Type::PlayStopToggle );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	pAudioEngine->stop();
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
+
+	CoreActionController::activateSongMode( true );
+
+	___INFOLOG("done");
+}
+
 void MidiActionTest::testPreviousBarAction() {
 	___INFOLOG("");
 
@@ -1001,6 +1148,40 @@ void MidiActionTest::testPreviousBarAction() {
 
 	CPPUNIT_ASSERT( CoreActionController::toggleGridCell(
 						GridPoint( nColumn, nPatternNumber ) ) );
+
+	___INFOLOG("done");
+}
+
+void MidiActionTest::testStopAction() {
+	___INFOLOG("");
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
+	auto pMidiMap = Preferences::get_instance()->getMidiMap();
+	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	CoreActionController::activateSongMode( false );
+
+	const int nParameter = 1;
+	auto pAction = std::make_shared<MidiAction>( MidiAction::Type::Stop );
+	pMidiMap->registerCCEvent( nParameter, pAction );
+
+	pAudioEngine->play();
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
+
+	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
+							  nParameter, 0, 0 ) );
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+	CPPUNIT_ASSERT( pTransportPosition->getFrame() == 0 );
+
+	CoreActionController::activateSongMode( true );
 
 	___INFOLOG("done");
 }

@@ -62,8 +62,13 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testPanAbsoluteAction );
 	CPPUNIT_TEST( testPanAbsoluteSymAction );
 	CPPUNIT_TEST( testPanRelativeAction );
+	CPPUNIT_TEST( testPauseAction );
 	CPPUNIT_TEST( testPitchLevelAbsoluteAction );
+	CPPUNIT_TEST( testPlayAction );
+	CPPUNIT_TEST( testPlayPauseToggleAction );
+	CPPUNIT_TEST( testPlayStopToggleAction );
 	CPPUNIT_TEST( testPreviousBarAction );
+	CPPUNIT_TEST( testStopAction );
 	CPPUNIT_TEST( testUnmuteAction );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -93,8 +98,13 @@ class MidiActionTest : public CppUnit::TestCase {
 		void testPanAbsoluteAction();
 		void testPanAbsoluteSymAction();
 		void testPanRelativeAction();
+		void testPauseAction();
 		void testPitchLevelAbsoluteAction();
+		void testPlayAction();
+		void testPlayPauseToggleAction();
+		void testPlayStopToggleAction();
 		void testPreviousBarAction();
+		void testStopAction();
 		void testUnmuteAction();
 
 	private:
