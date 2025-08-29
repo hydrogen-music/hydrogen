@@ -52,6 +52,12 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
+		/** Some of our unit tests have been designed when `FakeAudioDriver` was
+		 * not able to properly call the processCallback in a separate thread.
+		 * To still support these tests, we provide a method stop this
+		 * processing. */
+		void deactivate();
+
 		const std::chrono::duration<float>& getProcessInterval() const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;

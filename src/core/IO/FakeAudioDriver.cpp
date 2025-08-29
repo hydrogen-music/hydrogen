@@ -104,6 +104,15 @@ float* FakeAudioDriver::getOut_R() {
 	return m_pOut_R;
 }
 
+void FakeAudioDriver::deactivate() {
+	m_bActive = false;
+
+	if ( m_pCallbackHandler != nullptr ) {
+		m_pCallbackHandler->join();
+		m_pCallbackHandler = nullptr;
+	}
+}
+
 QString FakeAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
@@ -132,6 +141,8 @@ void FakeAudioDriver::processCallback( void* pInstance ) {
 		ERRORLOG( "Invalid instance provided. Shutting down." );
 		return;
 	}
+
+	const auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	while ( pDriver->m_bActive ) {
 		// process...

@@ -20,16 +20,19 @@
  *
  */
 
+#include "TransportTest.h"
+
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/IO/FakeAudioDriver.h>
 #include <core/Preferences/Preferences.h>
 
 #include <iostream>
 
-#include "TransportTest.h"
 #include "TestHelper.h"
 
 #include "assertions/AudioFile.h"
@@ -53,6 +56,7 @@ void TransportTest::tearDown() {
 	auto pPref = H2Core::Preferences::get_instance();
 	pPref->m_nBufferSize = 1024;
 	pPref->m_nSampleRate = 44100;
+	Hydrogen::get_instance()->restartAudioDriver();
 }
 
 void TransportTest::testFrameToTickConversion() {
@@ -333,6 +337,14 @@ void TransportTest::testUpdateTransportPosition() {
 
 void TransportTest::perform( std::function<void()> func ) {
 	try {
+		// Stop the processing of the callback of the AudioEngine. TransportTest
+		// was written before `FakeAudioDriver` was a proper driver.
+		auto pDriver = dynamic_cast<FakeAudioDriver*>(
+			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver() );
+		if ( pDriver != nullptr ) {
+			pDriver->deactivate();
+		}
+
 		func();
 	} catch ( std::exception& err ) {
 		CppUnit::Message msg( err.what() );
