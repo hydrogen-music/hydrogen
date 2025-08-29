@@ -24,15 +24,16 @@
 #define FAKE_DRIVER_H
 
 #include <core/IO/AudioOutput.h>
-#include <inttypes.h>
 
-namespace H2Core
-{
-/**
- * Fake audio driver. Used only for profiling.
- */
-/** \ingroup docCore docAudioDriver */
-/** \ingroup docCore docMIDI */
+#include <chrono>
+#include <memory>
+#include <thread>
+
+namespace H2Core {
+
+/** Fake audio driver. Used only for profiling and unit tests.
+ *
+ * \ingroup docCore docAudioDriver docMIDI */
 class FakeDriver : Object<FakeDriver>, public AudioOutput
 {
 	H2_OBJECT(FakeDriver)
@@ -51,18 +52,33 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
-	void processCallback();
+		const std::chrono::duration<float>& getProcessInterval() const;
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+
 private:
-	audioProcessCallback m_processCallback;
-	unsigned m_nBufferSize;
-	unsigned m_nSampleRate;
-	float* m_pOut_L;
-	float* m_pOut_R;
+		static void processCallback( void* pInstance );
+
+		bool m_bActive;
+		std::shared_ptr< std::thread > m_pCallbackHandler;
+
+		/** Time that needs to elapse between two runs of the processCallback in
+		 * order to properly simulate an audio driver. */
+		std::chrono::duration<float> m_processInterval;
+		/** Point in time the last run of the process callback did finish. */
+		std::chrono::time_point< std::chrono::high_resolution_clock > m_lastRun;
+
+		audioProcessCallback m_processCallback;
+		unsigned m_nBufferSize;
+		unsigned m_nSampleRate;
+		float* m_pOut_L;
+		float* m_pOut_R;
 
 };
 
+inline const std::chrono::duration<float>& FakeDriver::getProcessInterval() const {
+	return m_processInterval;
+}
 
 };
 

@@ -105,8 +105,12 @@ void MidiActionTest::testBpmCcRelativeAction() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
 	const int nDiff = 3;
@@ -115,23 +119,26 @@ void MidiActionTest::testBpmCcRelativeAction() {
 
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
-	// Since we do not have a proper audio driver here picking up the new BPM
-	// during the next process cycle, we just check whether the next value did
-	// change.
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fOldTempoBC = 120;
-	pAudioEngine->setNextBpm( fOldTempoBC );
+	const auto fOldBpm = 120;
+	pAudioEngine->setNextBpm( fOldBpm );
 	pAudioEngine->unlock();
+
+	// Wait for the audio engine to pick up the new tempo.
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	const auto fNewBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
-	CPPUNIT_ASSERT( fNewTempoBC == fOldTempoBC - nDiff );
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
+	CPPUNIT_ASSERT( fNewBpm == fOldBpm - nDiff );
 
 	___INFOLOG("done");
 }
@@ -141,8 +148,12 @@ void MidiActionTest::testBpmDecreaseAction() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
 	const int nValue = 1;
@@ -153,23 +164,26 @@ void MidiActionTest::testBpmDecreaseAction() {
 
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
-	// Since we do not have a proper audio driver here picking up the new BPM
-	// during the next process cycle, we just check whether the next value did
-	// change.
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fOldTempoBC = 120;
-	pAudioEngine->setNextBpm( fOldTempoBC );
+	const auto fOldBpm = 130;
+	pAudioEngine->setNextBpm( fOldBpm );
 	pAudioEngine->unlock();
+
+	// Wait for the audio engine to pick up the new tempo.
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	const auto fNewBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
-	CPPUNIT_ASSERT( fNewTempoBC == fOldTempoBC - nDiff );
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
+	CPPUNIT_ASSERT( fNewBpm == fOldBpm - nDiff );
 
 	___INFOLOG("done");
 }
@@ -179,8 +193,12 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
 	const int nDiff = 2;
@@ -190,25 +208,28 @@ void MidiActionTest::testBpmFineCcRelativeAction() {
 
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
-	// Since we do not have a proper audio driver here picking up the new BPM
-	// during the next process cycle, we just check whether the next value did
-	// change.
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fOldTempoBC = 120;
-	pAudioEngine->setNextBpm( fOldTempoBC );
+	const auto fOldBpm = 140;
+	pAudioEngine->setNextBpm( fOldBpm );
 	pAudioEngine->unlock();
+
+	// Wait for the audio engine to pick up the new tempo.
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	const auto fNewBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
 	CPPUNIT_ASSERT(
-		std::abs( fNewTempoBC - (
-					  fOldTempoBC - 0.01 * static_cast<float>(nDiff) ) ) < 0.01 );
+		std::abs( fNewBpm - (
+					  fOldBpm - 0.01 * static_cast<float>(nDiff) ) ) < 0.01 );
 
 	___INFOLOG("done");
 }
@@ -218,8 +239,12 @@ void MidiActionTest::testBpmIncreaseAction() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
 	auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	pMidiMap->reset();
+
+	auto pDriver = dynamic_cast<FakeDriver*>(pAudioEngine->getAudioDriver());
+	CPPUNIT_ASSERT( pDriver != nullptr );
 
 	const int nParameter = 1;
 	const int nValue = 1;
@@ -230,23 +255,26 @@ void MidiActionTest::testBpmIncreaseAction() {
 
 	pMidiMap->registerCCEvent( nParameter, pAction );
 
-	// Since we do not have a proper audio driver here picking up the new BPM
-	// during the next process cycle, we just check whether the next value did
-	// change.
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fOldTempoBC = 120;
-	pAudioEngine->setNextBpm( fOldTempoBC );
+	const auto fOldBpm = 150;
+	pAudioEngine->setNextBpm( fOldBpm );
 	pAudioEngine->unlock();
+
+	// Wait for the audio engine to pick up the new tempo.
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+	CPPUNIT_ASSERT( pTransportPosition->getBpm() == fOldBpm );
 
 	sendMessage( MidiMessage( MidiMessage::Type::ControlChange,
 							  nParameter, 0, 0 ) );
 
+	std::this_thread::sleep_for( pDriver->getProcessInterval() );
+
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto fNewTempoBC = pAudioEngine->getNextBpm();
+	const auto fNewBpm = pTransportPosition->getBpm();
 	pAudioEngine->unlock();
 
-	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldTempoBC ).arg( fNewTempoBC ) );
-	CPPUNIT_ASSERT( fNewTempoBC == fOldTempoBC + nDiff );
+	___INFOLOG( QString( "[%1] -> [%2]" ).arg( fOldBpm ).arg( fNewBpm ) );
+	CPPUNIT_ASSERT( fNewBpm == fOldBpm + nDiff );
 
 	___INFOLOG("done");
 }
