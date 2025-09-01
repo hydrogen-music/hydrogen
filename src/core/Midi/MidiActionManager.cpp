@@ -316,8 +316,8 @@ bool MidiActionManager::playStopToggle( std::shared_ptr<MidiAction> pAction ) {
 		break;
 
 	case AudioEngine::State::Playing:
-		CoreActionController::locateToColumn( 0 );
 		pHydrogen->sequencerStop();
+		CoreActionController::locateToColumn( 0 );
 		break;
 
 	default:
