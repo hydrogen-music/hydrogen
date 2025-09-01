@@ -70,6 +70,20 @@ void MidiDriverTest::testLoopBackMidiDriver() {
 		pAudioEngine->getMidiDriver().get() );
 	CPPUNIT_ASSERT( pDriver != nullptr );
 
+	// Ensure the MIDI driver is ready. Else, we would loose some initial
+	// messages on slow machines/OSs.
+	const int nMaxTries = 200;
+	int nnTry = 0;
+	while ( ! pDriver->isOutputActive() ) {
+		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+
+		++nnTry;
+		if ( nnTry > nMaxTries ) {
+			break;
+		}
+	}
+	CPPUNIT_ASSERT( nnTry <= nMaxTries );
+
 	// We send more MIDI output messages than the queue can hold. Afterwards, we
 	// expect all messages sent to be found in the backlog.
 	std::vector<H2Core::MidiMessage> messages;
@@ -82,6 +96,19 @@ void MidiDriverTest::testLoopBackMidiDriver() {
 	for ( const auto& mmessage : messages ) {
 		pDriver->sendMessage( H2Core::MidiMessage( mmessage ) );
 	}
+
+	// Ensure all messages have been properly handled. Again, this is required
+	// for slow machines (Windows ones).
+	nnTry = 0;
+	while ( pDriver->getMessageQueueSize() > 0 ) {
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+
+		++nnTry;
+		if ( nnTry > nMaxTries ) {
+			break;
+		}
+	}
+	CPPUNIT_ASSERT( nnTry <= nMaxTries );
 
 	const auto backlogMessages = pDriver->getBacklogMessages();
 	CPPUNIT_ASSERT( backlogMessages.size() == messages.size() );

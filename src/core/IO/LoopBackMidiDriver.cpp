@@ -88,6 +88,12 @@ void LoopBackMidiDriver::clearBacklogMessages() {
 	m_backlogQueue.clear();
 }
 
+int LoopBackMidiDriver::getMessageQueueSize() {
+	std::scoped_lock lock{ m_messageHandlerMutex };
+
+	return m_messageQueue.size();
+}
+
 QString LoopBackMidiDriver::toQString( const QString& sPrefix, bool bShort ) {
     std::scoped_lock lock{ m_messageHandlerMutex };
 
