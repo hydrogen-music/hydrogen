@@ -1419,14 +1419,20 @@ bool MidiActionManager::redoAction( std::shared_ptr<MidiAction> ) {
 
 bool MidiActionManager::loadNextDrumkit( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
+	// shape.
 	return CoreActionController::setDrumkit(
-		pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() );
+		std::make_shared<Drumkit>(
+			pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() ) );
 }
 
 bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
+	// shape.
 	return CoreActionController::setDrumkit(
-		pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() );
+		std::make_shared<Drumkit>(
+			pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() ) );
 }
 
 int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const {
