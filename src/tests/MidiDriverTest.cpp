@@ -24,6 +24,7 @@
 #include <chrono>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportPosition.h>
 #include <core/Basics/Event.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
@@ -36,7 +37,9 @@ void MidiDriverTest::setUp() {
 	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
 
 	pPref->setMidiClockInputHandling( true );
-	pPref->setMidiClockOutputSend( true );
+	// We do not want the AudioEngine itself to adjust the TimingClock based on
+	// tempo changes but want to do it ourselves in here.
+	pPref->setMidiClockOutputSend( false );
 
 	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
 	pAudioEngine->stopMidiDriver( H2Core::Event::Trigger::Suppress );
@@ -94,6 +97,7 @@ void MidiDriverTest::testMidiClock() {
 
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTransportPosition = pAudioEngine->getTransportPosition();
 	auto pMidiActionManager = MidiActionManager::get_instance();
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
@@ -107,36 +111,36 @@ void MidiDriverTest::testMidiClock() {
 
 	for ( const auto& ffTempo : referenceTempos ) {
 		pAudioEngine->lock( RIGHT_HERE );
-		const auto fOldTempo = pAudioEngine->getNextBpm();
+		const auto fOldBpm = pTransportPosition->getBpm();
 		pAudioEngine->unlock();
 
 		pMidiDriver->startMidiClockStream( ffTempo );
 
-		const int nMaxTries = 500;
+		const int nMaxTries = 50;
 		int nnTry = 0;
-		float fCurrentTempo;
+		float fCurrentBpm;
 		// Wait till we received enough ticks to synchronize.
 		while ( nnTry < nMaxTries ) {
 			pAudioEngine->lock( RIGHT_HERE );
-			fCurrentTempo = pAudioEngine->getNextBpm();
+			fCurrentBpm = pTransportPosition->getBpm();
 			pAudioEngine->unlock();
 
-			if ( std::abs( fCurrentTempo - fOldTempo ) > fTolerance ) {
+			if ( std::abs( fCurrentBpm - fOldBpm ) > fTolerance ) {
 				break;
 			}
 
-			std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+			std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
 			++nnTry;
 		}
 		CPPUNIT_ASSERT( nnTry < nMaxTries );
 
-		if ( std::abs( fCurrentTempo - ffTempo ) >= fTolerance ) {
+		if ( std::abs( fCurrentBpm - ffTempo ) >= fTolerance ) {
 			___ERRORLOG( QString( "Current tempo [%1] exceeds references [%2] by [%3 (%4 tolerance)]" )
-						 .arg( fCurrentTempo ).arg( ffTempo )
-						 .arg( std::abs( fCurrentTempo - ffTempo ) )
+						 .arg( fCurrentBpm ).arg( ffTempo )
+						 .arg( std::abs( fCurrentBpm - ffTempo ) )
 						 .arg( fTolerance ) );
 		}
-		CPPUNIT_ASSERT( std::abs( fCurrentTempo - ffTempo ) < fTolerance );
+		CPPUNIT_ASSERT( std::abs( fCurrentBpm - ffTempo ) < fTolerance );
 
 		pMidiDriver->stopMidiClockStream();
 		pMidiActionManager->resetTimingClockTicks();
