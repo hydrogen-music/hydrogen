@@ -2016,10 +2016,28 @@ void MidiActionTest::sendMessage( const MidiMessage& msg ) {
 void MidiActionTest::waitForAudioDriver() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pDriver = dynamic_cast<FakeAudioDriver*>(pAudioEngine->getAudioDriver());
-	CPPUNIT_ASSERT( pDriver != nullptr );
 
-	// Wait for the audio engine to pick up the new tempo or state.
-	std::this_thread::sleep_for( pDriver->getProcessInterval() +
-								 std::chrono::milliseconds( 20 ) );
+	// The realtime frames are update in each loop of the process cycle. By
+	// checking for a new value, we ensure a whole process cycle - including the
+	// adoption of a new tempo or state - has passed.
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto nOldRealtimeFrame = pAudioEngine->getRealtimeFrame();
+	pAudioEngine->unlock();
+
+	int nNewRealtimeFrame;
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( nnTry < nMaxTries ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		nNewRealtimeFrame = pAudioEngine->getRealtimeFrame();
+		pAudioEngine->unlock();
+
+		if ( nNewRealtimeFrame != nOldRealtimeFrame ) {
+			break;
+		}
+
+		++nnTry;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 5 ) );
+	}
+	CPPUNIT_ASSERT( nnTry < nMaxTries );
 }
