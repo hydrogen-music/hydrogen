@@ -95,6 +95,9 @@ void MidiDriverTest::testLoopBackMidiDriver() {
 
 	for ( const auto& mmessage : messages ) {
 		pDriver->sendMessage( H2Core::MidiMessage( mmessage ) );
+		// On Windows we need an additional sleep or the LoopBackMidiDriver has
+		// no chance to acquire its mutex and its message queue will run over.
+		std::this_thread::sleep_for( std::chrono::milliseconds( 2 ) );
 	}
 
 	// Ensure all messages have been properly handled. Again, this is required
@@ -170,7 +173,12 @@ void MidiDriverTest::testMidiClock() {
 		CPPUNIT_ASSERT( std::abs( fCurrentBpm - ffTempo ) < fTolerance );
 
 		pMidiDriver->stopMidiClockStream();
+
+		pAudioEngine->lock( RIGHT_HERE );
 		pMidiActionManager->resetTimingClockTicks();
+		// Flush any BPM changes that are still transient.
+		pAudioEngine->setNextBpm( fCurrentBpm );
+		pAudioEngine->unlock();
 	}
 
 	___INFOLOG("done");
