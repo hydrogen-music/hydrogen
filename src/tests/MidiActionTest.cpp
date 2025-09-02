@@ -94,6 +94,9 @@ void MidiActionTest::testBeatCounterAction() {
 	sendMessage( beatCounterMessage );
 	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 
+	// Wait for the audio engine to adopt the new tempo.
+	waitForAudioDriver();
+
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewTempoBC = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
@@ -1884,6 +1887,9 @@ void MidiActionTest::testTapTempoAction() {
 	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
 	sendMessage( tapTempoMessage );
 	std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
+
+	// Wait for the audio engine to adopt the new tempo.
+	waitForAudioDriver();
 
 	pAudioEngine->lock( RIGHT_HERE );
 	const auto fNewBpm = pTransportPosition->getBpm();
