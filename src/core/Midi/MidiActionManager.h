@@ -60,7 +60,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		/** When calculating the tempo based on incoming MIDI clock messages, we
 		 * for this amount of messages until we average. */
-		static constexpr int nMidiClockIntervals = 24;
+		static constexpr int nMidiClockIntervals = 10;
 
 		MidiActionManager();
 		~MidiActionManager();
