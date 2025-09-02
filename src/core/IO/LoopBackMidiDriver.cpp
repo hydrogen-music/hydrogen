@@ -65,8 +65,12 @@ void LoopBackMidiDriver::open() {
 		close();
 	}
 
+	std::unique_lock lock{ m_messageHandlerMutex };
+
 	m_pMessageHandler = std::make_shared< std::thread >(
 		LoopBackMidiDriver::messageHandler, ( void* )this );
+
+	m_messageHandlerCV.wait( lock, [&]{ return m_bActive; } );
 }
 
 std::vector<MidiMessage> LoopBackMidiDriver::getBacklogMessages() {
@@ -153,10 +157,8 @@ void LoopBackMidiDriver::messageHandler( void* pInstance ) {
 	}
 
 	// Signal the instance that we are ready.
-	{
-		std::scoped_lock lock{ pDriver->m_messageHandlerMutex };
-		pDriver->m_bActive = true;
-	}
+	pDriver->m_bActive = true;
+	pDriver->m_messageHandlerCV.notify_all();
 
 	// Immediately provide output MIDI events as input events.
 	while ( pDriver->m_bActive ) {
