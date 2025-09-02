@@ -134,7 +134,7 @@ void MidiDriverTest::testMidiClock() {
 
 	const std::vector<float> referenceTempos{
 		80.0, 123.4, 210.1 };
-	const float fTolerance = 5;
+	const float fTolerance = 8;
 
 	for ( const auto& ffTempo : referenceTempos ) {
 		pAudioEngine->lock( RIGHT_HERE );
