@@ -28,7 +28,6 @@
 #include <core/IO/JackAudioDriver.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
-#include <core/Timehelper.h>
 #include <core/Timeline.h>
 
 #include <stdint.h> // for uint32_t et al
@@ -507,7 +506,7 @@ private:
 	int			m_nBeatCounterEventCount;		///< beatcounter event
 	int			m_nBeatCounterBeatCount;		///< beatcounter beat to count
 	std::vector<double>			m_beatCounterDiffs;	///< beat diff
-	timeval 		m_beatCounterActivationTime;		///< timeval
+	std::chrono::time_point< std::chrono::high_resolution_clock > m_lastBeatCounterTimePoint;
 	int			m_nBeatCounterDriftCompensation;		///ms default 0
 	int			m_nBeatCounterStartOffset;		///ms default 0
 	// ~ beatcounter

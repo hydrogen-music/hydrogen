@@ -21,14 +21,6 @@
  */
 #include <core/config.h>
 
-#ifdef WIN32
-#    include "core/Timehelper.h"
-#else
-#    include <unistd.h>
-#    include <sys/time.h>
-#endif
-
-
 #include <pthread.h>
 #include <cassert>
 #include <cstdio>
@@ -104,7 +96,7 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 					 , m_nBeatCounterTotalBeats( 4 )
 					 , m_nBeatCounterEventCount( 1 )
 					 , m_nBeatCounterBeatCount( 1 )
-					 , m_beatCounterActivationTime( {0,0} )
+					 , m_lastBeatCounterTimePoint( TimePoint() )
 					 , m_lastTapTempoTimePoint( TimePoint() )
 					 , m_fTapTempoAverageBpm( MIN_BPM )
 					 , m_nTapTempoEventsAveraged( 0 )
@@ -912,32 +904,28 @@ void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 
 bool Hydrogen::handleBeatCounter()
 {
-	if ( m_nBeatCounterBeatCount == 1 ) {
-		// Reset or initialize
-		gettimeofday( &m_beatCounterActivationTime, nullptr );
-	}
-	timeval lastTime = m_beatCounterActivationTime;
-
 	auto pEventQueue = EventQueue::get_instance();
 
+	const auto now = Clock::now();
+	double fTimeDeltaSeconds;
+	if ( m_nBeatCounterBeatCount == 1 ) {
+		// Reset or initialize
+		m_lastBeatCounterTimePoint = now;
+		fTimeDeltaSeconds = 0;
+	}
+	else {
+		fTimeDeltaSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+			now - m_lastBeatCounterTimePoint -
+			std::chrono::duration<double, std::milli>(m_nBeatCounterDriftCompensation)
+			).count() / 1000.0;
+	}
+
 	m_nBeatCounterEventCount++;
-
-	// Get new time
-	gettimeofday( &m_beatCounterActivationTime, nullptr );
-
-	// time difference
-	const double fLastBeatTime = static_cast<double>(
-		lastTime.tv_sec + static_cast<double>(lastTime.tv_usec * US_DIVIDER) +
-		static_cast<double>(m_nBeatCounterDriftCompensation) * .0001 );
-	const double fCurrentBeatTime = static_cast<double>(
-		m_beatCounterActivationTime.tv_sec +
-		static_cast<double>(m_beatCounterActivationTime.tv_usec * US_DIVIDER) );
-	const double fTimeDelta = m_nBeatCounterBeatCount == 1 ? 0 :
-		fCurrentBeatTime - fLastBeatTime;
+	m_lastBeatCounterTimePoint = now;
 
 	// In case of too big differences, we reset the beatconter. If the user
 	// waits long enough, she can start anew.
-	if ( fTimeDelta > 3.001 * 1/m_fBeatCounterBeatLength ) {
+	if ( fTimeDeltaSeconds > 3.001 * 1/m_fBeatCounterBeatLength ) {
 		m_nBeatCounterEventCount = 1;
 		m_nBeatCounterBeatCount = 1;
 
@@ -946,7 +934,7 @@ bool Hydrogen::handleBeatCounter()
 	}
 
 	// Only accept differences big enough
-	if ( m_nBeatCounterBeatCount != 1 && fTimeDelta <= .001 ) {
+	if ( m_nBeatCounterBeatCount != 1 && fTimeDeltaSeconds <= .001 ) {
 		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 		return false;
 	}
@@ -954,7 +942,7 @@ bool Hydrogen::handleBeatCounter()
 	// Store the difference for later usage.
 	if ( m_nBeatCounterBeatCount > 1 &&
 		 m_nBeatCounterBeatCount <= m_beatCounterDiffs.size() ) {
-		m_beatCounterDiffs[ m_nBeatCounterBeatCount - 2 ] = fTimeDelta;
+		m_beatCounterDiffs[ m_nBeatCounterBeatCount - 2 ] = fTimeDeltaSeconds;
 	}
 
 	// Compute and reset
@@ -1576,10 +1564,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( const auto& dd : m_beatCounterDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "]\n%1%2m_beatCounterActivationTime: %3" ).arg( sPrefix ).arg( s )
-					 .arg( static_cast<long>(m_beatCounterActivationTime.tv_sec ) ) )
-			.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nBeatCounterDriftCompensation ) )
+		sOutput.append( QString( "%1%2m_nBeatCounterDriftCompensation: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( "%1%2m_nBeatCounterStartOffset: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nBeatCounterStartOffset ) )
 			.append( QString( "%1%2m_fTapTempoAverageBpm: %3\n" ).arg( sPrefix ).arg( s )
@@ -1657,9 +1643,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( const auto& dd : m_beatCounterDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "], m_beatCounterActivationTime: %1" ).arg( static_cast<long>( m_beatCounterActivationTime.tv_sec ) ) )
-			.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
-					 .arg( m_nBeatCounterDriftCompensation ) )
+		sOutput.append( QString( ", m_nBeatCounterDriftCompensation: %1" )
+						 .arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( ", m_nBeatCounterStartOffset: %1" )
 					 .arg( m_nBeatCounterStartOffset ) )
 			.append( QString( ", m_fTapTempoAverageBpm: %1" )
