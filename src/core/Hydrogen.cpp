@@ -38,7 +38,6 @@
 #include <cmath>
 #include <algorithm>
 #include <thread>
-#include <chrono>
 
 #include <core/Hydrogen.h>
 
@@ -105,14 +104,17 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 					 , m_nBeatCounterTotalBeats( 4 )
 					 , m_nBeatCounterEventCount( 1 )
 					 , m_nBeatCounterBeatCount( 1 )
+					 , m_beatCounterActivationTime( {0,0} )
+					 , m_lastTapTempoTimePoint( TimePoint() )
+					 , m_fTapTempoAverageBpm( MIN_BPM )
+					 , m_nTapTempoEventsAveraged( 0 )
 					 , m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::startup )
 					 , m_lastMidiEvent( MidiMessage::Event::Null )
 					 , m_nLastMidiEventParameter( 0 )
-					 , m_beatCounterActivationTime( {0,0} )
-					 , m_oldEngineMode( Song::Mode::Song ) 
+					 , m_oldEngineMode( Song::Mode::Song )
 					 , m_bOldLoopEnabled( false )
 					 , m_nLastRecordedMIDINoteTick( 0 )
 					 , m_bRecordEnabled( false )
@@ -743,69 +745,45 @@ std::shared_ptr<MidiBaseDriver> Hydrogen::getMidiDriver() const {
 }
 
 void Hydrogen::onTapTempoAccelEvent() {
-	static TimePoint oldTimePoint;
-
 	const auto now = Clock::now();
 
 	const float fInterval = std::chrono::duration_cast<std::chrono::milliseconds>(
-		now - oldTimePoint ).count();
+		now - m_lastTapTempoTimePoint ).count();
 
-	oldTimePoint = now;
+	m_lastTapTempoTimePoint = now;
 
-	// We multiply by a factor of two in order to allow for tempi
-	// smaller than the minimum one enter the calculation of the
-	// average. Else the minimum one could not be reached via tap
-	// tempo and it is clambed anyway.
-	if ( fInterval >= 60000.0 * 2 / static_cast<float>(MIN_BPM) ) {
+	const float fBpm = 60000.0 / fInterval;
+
+	// We divide by a factor of two in order to allow for tempi smaller than
+	// the minimum one enter the calculation of the average. Else the minimum
+	// one could not be reached via tap tempo and it is clambed anyway.
+	//
+	// This also covers the initial tap tempo handling with
+	// m_lastTapTempoTimePoint being initialized to TimePoint().
+	if ( fBpm <= static_cast<float>(MIN_BPM) / 2.0 ) {
+		// Reset the average.
+		m_nTapTempoEventsAveraged = 0;
 		return;
 	}
 
-	static float fOldBpm1 = -1;
-	static float fOldBpm2 = -1;
-	static float fOldBpm3 = -1;
-	static float fOldBpm4 = -1;
-	static float fOldBpm5 = -1;
-	static float fOldBpm6 = -1;
-	static float fOldBpm7 = -1;
-	static float fOldBpm8 = -1;
-
-	float fBPM = 60000.0 / fInterval;
-
-	if ( fabs( fOldBpm1 - fBPM ) > 20 ) {	// troppa differenza, niente media
-		fOldBpm1 = fBPM;
-		fOldBpm2 = fBPM;
-		fOldBpm3 = fBPM;
-		fOldBpm4 = fBPM;
-		fOldBpm5 = fBPM;
-		fOldBpm6 = fBPM;
-		fOldBpm7 = fBPM;
-		fOldBpm8 = fBPM;
+	if ( std::abs( fBpm - m_fTapTempoAverageBpm ) > Hydrogen::nTapTempoMaxDiff ) {
+		// New speed diverges too much. We reset the tempo instead.
+		m_nTapTempoEventsAveraged = 0;
 	}
 
-	if ( fOldBpm1 == -1 ) {
-		fOldBpm1 = fBPM;
-		fOldBpm2 = fBPM;
-		fOldBpm3 = fBPM;
-		fOldBpm4 = fBPM;
-		fOldBpm5 = fBPM;
-		fOldBpm6 = fBPM;
-		fOldBpm7 = fBPM;
-		fOldBpm8 = fBPM;
+	if ( m_nTapTempoEventsAveraged == 0 ) {
+		m_fTapTempoAverageBpm = fBpm;
+	}
+	else {
+		m_fTapTempoAverageBpm =
+			( fBpm + static_cast<float>(m_nTapTempoEventsAveraged) *
+			  m_fTapTempoAverageBpm ) /
+			static_cast<float>(m_nTapTempoEventsAveraged + 1);
 	}
 
-	fBPM = ( fBPM + fOldBpm1 + fOldBpm2 + fOldBpm3 + fOldBpm4 + fOldBpm5
-			 + fOldBpm6 + fOldBpm7 + fOldBpm8 ) / 9.0;
+	++m_nTapTempoEventsAveraged;
 
-	fOldBpm8 = fOldBpm7;
-	fOldBpm7 = fOldBpm6;
-	fOldBpm6 = fOldBpm5;
-	fOldBpm5 = fOldBpm4;
-	fOldBpm4 = fOldBpm3;
-	fOldBpm3 = fOldBpm2;
-	fOldBpm2 = fOldBpm1;
-	fOldBpm1 = fBPM;
-
-	CoreActionController::setBpm( fBPM );
+	CoreActionController::setBpm( m_fTapTempoAverageBpm );
 }
 
 void Hydrogen::restartLadspaFX()
@@ -1604,6 +1582,10 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( "%1%2m_nBeatCounterStartOffset: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nBeatCounterStartOffset ) )
+			.append( QString( "%1%2m_fTapTempoAverageBpm: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_fTapTempoAverageBpm ) )
+			.append( QString( "%1%2m_nTapTempoEventsAveraged: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nTapTempoEventsAveraged ) )
 			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s )
@@ -1680,6 +1662,10 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nBeatCounterDriftCompensation ) )
 			.append( QString( ", m_nBeatCounterStartOffset: %1" )
 					 .arg( m_nBeatCounterStartOffset ) )
+			.append( QString( ", m_fTapTempoAverageBpm: %1" )
+					 .arg( m_fTapTempoAverageBpm ) )
+			.append( QString( ", m_nTapTempoEventsAveraged: %1" )
+					 .arg( m_nTapTempoEventsAveraged ) )
 			.append( QString( ", m_oldEngineMode: %1" )
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )

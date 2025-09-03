@@ -98,6 +98,9 @@ All notable changes to this project will be documented in this file.
     Hydrogen will offer compliant MIDI sync support (#1598).
   - Hydrogen does also send `MIDI Clock`, `START`, `CONTINUE`, and `STOP`
     messages if the corresponding settings are checked.
+  - `TAP_TEMPO` is now using a cumulative average (reset on tempo deviations
+    larger than 20 bpm) to increase precision and is supported on Windows as
+    well.
 - PlaylistEditor:
   - All actions can now be undone and redone.
   - Songs can be loaded by keyboard selection and pressing Enter key.

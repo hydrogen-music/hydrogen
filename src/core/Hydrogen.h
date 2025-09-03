@@ -33,6 +33,7 @@
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
+#include <chrono>
 #include <memory>
 
 namespace H2Core
@@ -52,6 +53,11 @@ class Hydrogen : public H2Core::Object<Hydrogen>
 {
 	H2_OBJECT(Hydrogen)
 public:
+
+	/** If the new tap tempo interval results in a tempo deviating more than
+	 * this value from the current average, the average will be reset to the
+	 * newest tempo. */
+	static constexpr int nTapTempoMaxDiff = 20;
 	
 	/** Specifies where the #AudioEngine does get its current tempo
 		updates from.*/
@@ -506,6 +512,11 @@ private:
 	int			m_nBeatCounterStartOffset;		///ms default 0
 	// ~ beatcounter
 
+		std::chrono::time_point< std::chrono::high_resolution_clock > m_lastTapTempoTimePoint;
+		float m_fTapTempoAverageBpm;
+		/** Number of events constituting #m_fTapTempoAverageBpm. This is
+		 * required to calculate the cumulative average. */
+		long m_nTapTempoEventsAveraged;
 
 	// used for song export
 	Song::Mode		m_oldEngineMode;
