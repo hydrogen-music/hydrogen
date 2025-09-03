@@ -88,6 +88,8 @@
 #include "OscServer.h"
 #endif
 
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
 
 namespace H2Core
 {
@@ -740,19 +742,15 @@ std::shared_ptr<MidiBaseDriver> Hydrogen::getMidiDriver() const {
 	return m_pAudioEngine->getMidiDriver();
 }
 
-void Hydrogen::onTapTempoAccelEvent()
-{
-#ifndef WIN32
-	static timeval oldTimeVal;
+void Hydrogen::onTapTempoAccelEvent() {
+	static TimePoint oldTimePoint;
 
-	struct timeval now;
-	gettimeofday(&now, nullptr);
+	const auto now = Clock::now();
 
-	float fInterval =
-			(now.tv_sec - oldTimeVal.tv_sec) * 1000.0
-			+ (now.tv_usec - oldTimeVal.tv_usec) / 1000.0;
+	const float fInterval = std::chrono::duration_cast<std::chrono::milliseconds>(
+		now - oldTimePoint ).count();
 
-	oldTimeVal = now;
+	oldTimePoint = now;
 
 	// We multiply by a factor of two in order to allow for tempi
 	// smaller than the minimum one enter the calculation of the
@@ -808,8 +806,6 @@ void Hydrogen::onTapTempoAccelEvent()
 	fOldBpm1 = fBPM;
 
 	CoreActionController::setBpm( fBPM );
-#endif
-
 }
 
 void Hydrogen::restartLadspaFX()
