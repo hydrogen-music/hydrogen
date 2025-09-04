@@ -86,13 +86,12 @@ void MidiActionTest::testBeatCounterAction() {
 	const auto beatCounterMessage = MidiMessage(
 		MidiMessage::Type::ControlChange, nBeatCounterPara, 0, 0 );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+	std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+	std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+	std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
 	sendMessage( beatCounterMessage );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 
 	// Wait for the audio engine to adopt the new tempo.
 	waitForAudioDriver();
