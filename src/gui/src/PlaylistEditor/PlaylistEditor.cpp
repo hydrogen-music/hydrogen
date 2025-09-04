@@ -40,7 +40,6 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
-#include <core/Midi/MidiActionManager.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/Timeline.h>
 
@@ -952,8 +951,7 @@ bool PlaylistEditor::eventFilter( QObject *o, QEvent *e )
 
 bool PlaylistEditor::handleKeyEvent( QKeyEvent* pKeyEvent ) {
 	auto pShortcuts = Preferences::get_instance()->getShortcuts();
-	auto pActionManager = MidiActionManager::get_instance();
-	
+
 	int nKey = pKeyEvent->key();
 
 	if ( nKey == Qt::Key_Escape ) {

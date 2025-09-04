@@ -39,16 +39,12 @@
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
-using namespace H2Core;
-
-MidiActionManager* MidiActionManager::__instance = nullptr;
+namespace H2Core {
 
 MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
 									   , m_bMidiClockReady( false )
 									   , m_bPendingStart( false )
 {
-	__instance = this;
-
 	m_tickIntervals.resize( MidiActionManager::nMidiClockIntervals );
 	for ( int ii = 0; ii < m_tickIntervals.size(); ++ii ) {
 		m_tickIntervals[ ii ] = 0;
@@ -230,14 +226,6 @@ MidiActionManager::MidiActionManager() : m_nTickIntervalIndex( 0 )
 
 
 MidiActionManager::~MidiActionManager() {
-	//INFOLOG( "ActionManager delete" );
-	__instance = nullptr;
-}
-
-void MidiActionManager::create_instance() {
-	if ( __instance == nullptr ) {
-		__instance = new MidiActionManager;
-	}
 }
 
 bool MidiActionManager::play( std::shared_ptr<MidiAction> pAction ) {
@@ -1528,3 +1516,4 @@ bool MidiActionManager::handleMidiAction( const std::shared_ptr<MidiAction> pAct
 
 	return false;
 }
+};

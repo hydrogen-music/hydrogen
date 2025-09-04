@@ -129,6 +129,7 @@ Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
 	m_pTimeline = std::make_shared<Timeline>();
 
 	m_pAudioEngine = new AudioEngine();
+	m_pMidiActionManager = std::make_shared<MidiActionManager>();
 	m_pPlaylist = std::make_shared<Playlist>();
 
 	// Prevent double creation caused by calls from MIDI thread
@@ -176,7 +177,6 @@ void Hydrogen::create_instance()
 	Logger::create_instance();
 	Preferences::create_instance();
 	EventQueue::create_instance();
-	MidiActionManager::create_instance();
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();

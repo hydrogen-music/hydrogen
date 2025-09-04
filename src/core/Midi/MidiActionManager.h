@@ -34,10 +34,7 @@
 #include <set>
 #include <vector>
 
-namespace H2Core
-{
-	class Hydrogen;
-}
+namespace H2Core {
 
 /**
 * @class MidiActionManager
@@ -64,18 +61,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		MidiActionManager();
 		~MidiActionManager();
-		/**
-		 * If #__instance equals 0, a new MidiActionManager
-		 * singleton will be created and stored in it.
-		 *
-		 * It is called in H2Core::Hydrogen::create_instance().
-		 */
-		static void create_instance();
-		/**
-		 * Returns a pointer to the current MidiActionManager
-		 * singleton stored in #__instance.
-		 */
-		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
 		/**
 		 * Handles multiple actions at once and calls handleAction()
@@ -107,14 +92,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		void resetTimingClockTicks();
 
 	private:
-		/**
-		 * Object holding the current MidiActionManager
-		 * singleton. It is initialized with NULL, set with
-		 * create_instance(), and accessed with
-		 * get_instance().
-		 */
-		static MidiActionManager *__instance;
-
 		/** Holds all Actions which Hydrogen is able to interpret. */
 		std::set<MidiAction::Type> m_midiActions;
 
@@ -204,9 +181,13 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool m_bPendingStart;
 		//! @}
 };
+
 inline void MidiActionManager::setPendingStart( bool bPending ) {
 	if ( m_bPendingStart != bPending ) {
 		m_bPendingStart = bPending;
 	}
 }
+
+};
+
 #endif

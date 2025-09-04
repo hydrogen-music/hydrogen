@@ -41,6 +41,7 @@ namespace H2Core
 	class AudioOutput;
 	class Drumkit;
 	class MidiBaseDriver;
+	class MidiActionManager;
 	class Playlist;
 	class SoundLibraryDatabase;
 
@@ -159,6 +160,7 @@ public:
 	 * return central instance of the audio engine
 	 */
 	AudioEngine*		getAudioEngine() const;
+		std::shared_ptr<MidiActionManager> getMidiActionManager() const;
 	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
@@ -573,6 +575,7 @@ private:
 	 * Central instance of the audio engine. 
 	 */
 	AudioEngine*	m_pAudioEngine;
+		std::shared_ptr<MidiActionManager> m_pMidiActionManager;
 
 	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
 
@@ -614,6 +617,9 @@ inline bool Hydrogen::getIsExportSessionActive() const
 
 inline AudioEngine* Hydrogen::getAudioEngine() const {
 	return m_pAudioEngine;
+}
+inline std::shared_ptr<MidiActionManager> Hydrogen::getMidiActionManager() const {
+	return m_pMidiActionManager;
 }
 
 inline const Hydrogen::GUIState& Hydrogen::getGUIState() const {

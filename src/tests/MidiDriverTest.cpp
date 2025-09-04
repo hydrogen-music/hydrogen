@@ -128,7 +128,7 @@ void MidiDriverTest::testMidiClock() {
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pTransportPosition = pAudioEngine->getTransportPosition();
-	auto pMidiActionManager = MidiActionManager::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
 
 	auto pMidiDriver = dynamic_cast<H2Core::LoopBackMidiDriver*>(

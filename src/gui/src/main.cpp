@@ -32,7 +32,6 @@
 #include <core/Helpers/Translations.h>
 #include <core/Hydrogen.h>
 #include <core/Logger.h>
-#include <core/Midi/MidiActionManager.h>
 #ifdef H2CORE_HAVE_OSC
   #include <core/NsmClient.h>
 #endif
@@ -519,8 +518,6 @@ int main(int argc, char *argv[])
 		delete pMainForm;
 		delete pQApp;
 		delete H2Core::EventQueue::get_instance();
-
-		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
 		std::cout << "\nBye..." << std::endl;

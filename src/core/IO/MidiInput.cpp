@@ -81,8 +81,9 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		return pHandledInput;
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	if ( ! pHydrogen->getSong() ) {
 		ERRORLOG( "No song loaded, skipping note" );
 		return pHandledInput;
@@ -122,11 +123,11 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 			// the next MIDI clock tick.
 			if ( ! pPref->getMidiClockInputHandling() ) {
 				// Start right away
-				MidiActionManager::get_instance()->handleMidiAction(
+				pMidiActionManager->handleMidiAction(
 					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
 			}
 			else {
-				MidiActionManager::get_instance()->setPendingStart( true );
+				pMidiActionManager->setPendingStart( true );
 			}
 		}
 		break;
@@ -139,11 +140,11 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 			// the next MIDI clock tick.
 			if ( ! pPref->getMidiClockInputHandling() ) {
 				// Start right away
-				MidiActionManager::get_instance()->handleMidiAction(
+				pMidiActionManager->handleMidiAction(
 					std::make_shared<MidiAction>( MidiAction::Type::Play ) );
 			}
 			else {
-				MidiActionManager::get_instance()->setPendingStart( true );
+				pMidiActionManager->setPendingStart( true );
 			}
 		}
 		break;
@@ -153,7 +154,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 		// Stop in current position i.e. Pause. According to the MIDI Spec 1.0
 		// v4.2.1 stopping should always be done immediately.
 		if ( pPref->getMidiTransportInputHandling() ) {
-			MidiActionManager::get_instance()->handleMidiAction(
+			pMidiActionManager->handleMidiAction(
 				std::make_shared<MidiAction>( MidiAction::Type::Pause ) );
 		}
 		break;
@@ -183,21 +184,21 @@ std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 					auto pAction = std::make_shared<MidiAction>(
 						MidiAction::Type::PlaylistSong );
 					pAction->setParameter1( QString::number( msg.getData1() ) );
-					MidiActionManager::get_instance()->handleMidiAction( pAction );
+					pMidiActionManager->handleMidiAction( pAction );
 				}
 			}
 			else {
 				auto pAction = std::make_shared<MidiAction>(
 					MidiAction::Type::SelectNextPattern );
 				pAction->setParameter1( QString::number( msg.getData1() ) );
-				MidiActionManager::get_instance()->handleMidiAction( pAction );
+				pMidiActionManager->handleMidiAction( pAction );
 			}
 		}
 		break;
 
 	case MidiMessage::Type::TimingClock:
 		if ( pPref->getMidiClockInputHandling() ) {
-			MidiActionManager::get_instance()->handleMidiAction(
+			pMidiActionManager->handleMidiAction(
 				std::make_shared<MidiAction>( MidiAction::Type::TimingClockTick ));
 		}
 		break;
@@ -233,7 +234,7 @@ void MidiInput::handleControlChangeMessage(
 	const MidiMessage& msg, std::shared_ptr<HandledInput> pHandledInput )
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiActionManager = MidiActionManager::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 
 	for ( const auto& ppAction : pMidiMap->getCCActions( msg.getData1() ) ) {
@@ -257,7 +258,7 @@ void MidiInput::handleProgramChangeMessage(
 	const MidiMessage& msg, std::shared_ptr<HandledInput> pHandledInput )
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pMidiActionManager = MidiActionManager::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 
 	for ( const auto& ppAction : pMidiMap->getPCActions() ) {
@@ -285,9 +286,9 @@ void MidiInput::handleNoteOnMessage(
 	}
 
 	const auto pPref = Preferences::get_instance();
-	auto pMidiActionManager = MidiActionManager::get_instance();
 	const auto pMidiMap = pPref->getMidiMap();
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
 	pHydrogen->setLastMidiEvent( MidiMessage::Event::Note );
 	pHydrogen->setLastMidiEventParameter( msg.getData1() );
@@ -367,9 +368,9 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg,
 		240	127	id	6	68	6	1	hr	mn	sc	fr	ff	247
 	*/
 
-	auto pMidiActionManager = MidiActionManager::get_instance();
-	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	const auto pMidiMap = Preferences::get_instance()->getMidiMap();
 
 	const auto sysexData = msg.getSysexData();
 
