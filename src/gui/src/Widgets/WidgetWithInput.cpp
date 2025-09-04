@@ -29,12 +29,8 @@
 
 #include <core/Hydrogen.h>
 
-#ifdef WIN32
-#    include "core/Timehelper.h"
-#else
-#    include <unistd.h>
-#    include <sys/time.h>
-#endif
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
 
 WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps,
 								  const QString& sBaseToolTip, int nScrollSpeed,
@@ -56,14 +52,11 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps,
 	, m_nWidgetHeight( 20 )
 	, m_nWidgetWidth( 20 )
 	, m_sInputBuffer( "" )
-	, m_inputBufferTimeout( 2.0 )
 	, m_bModifyOnChange( bModifyOnChange ) {
 	
 	setAttribute( Qt::WA_Hover );
 	setFocusPolicy( Qt::ClickFocus );
 	setBaseToolTip( sBaseToolTip );
-	
-	gettimeofday( &m_inputBufferTimeval, nullptr );
 }
 
 WidgetWithInput::~WidgetWithInput() {}
@@ -282,43 +275,49 @@ void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
 			fIncrement *= m_nScrollSpeed;
 		}
 		setValue( m_fValue + fIncrement, true );
-	} else if ( ev->key() == Qt::Key_PageUp ) {
+	}
+	else if ( ev->key() == Qt::Key_PageUp ) {
 		setValue( m_fValue + fIncrement * m_nScrollSpeedFast, true );
-	} else if ( ev->key() == Qt::Key_Home ) {
+	}
+	else if ( ev->key() == Qt::Key_Home ) {
 		setValue( m_fMax, true );
-	} else if ( ev->key() == Qt::Key_Left || ev->key() == Qt::Key_Down ) {
+	}
+	else if ( ev->key() == Qt::Key_Left || ev->key() == Qt::Key_Down ) {
 		if ( ev->modifiers() == Qt::ControlModifier ) {
 			fIncrement *= m_nScrollSpeedFast;
 		} else {
 			fIncrement *= m_nScrollSpeed;
 		}
 		setValue( m_fValue - fIncrement, true );
-	} else if ( ev->key() == Qt::Key_PageDown ) {
+	}
+	else if ( ev->key() == Qt::Key_PageDown ) {
 		setValue( m_fValue - fIncrement * m_nScrollSpeedFast, true );
-	} else if ( ev->key() == Qt::Key_Home ) {
+	}
+	else if ( ev->key() == Qt::Key_Home ) {
 		setValue( m_fMin, true );
-	} else if ( ( ev->key() >= Qt::Key_0 && ev->key() <= Qt::Key_9 ) || ev->key() == Qt::Key_Minus || ev->key() == Qt::Key_Period ) {
+	}
+	else if ( ( ev->key() >= Qt::Key_0 && ev->key() <= Qt::Key_9 ) ||
+			  ev->key() == Qt::Key_Minus || ev->key() == Qt::Key_Period ) {
 
-		timeval now;
-		gettimeofday( &now, nullptr );
+		const auto now = Clock::now();
+
 		// Flush the input buffer if there was no user input for X
-		// seconds
-		if ( ( static_cast<double>( now.tv_sec ) +
-			   static_cast<double>( now.tv_usec * US_DIVIDER ))  -
-			 ( static_cast<double>( m_inputBufferTimeval.tv_sec ) +
-			   static_cast<double>( m_inputBufferTimeval.tv_usec * US_DIVIDER ) ) >
-			 m_inputBufferTimeout ) {
+		// seconds.
+		if ( now - m_lastInputEvent > WidgetWithInput::nInputTimeout ) {
 			m_sInputBuffer.clear();
 		}
-		m_inputBufferTimeval = now;
+		m_lastInputEvent = now;
 
 		if ( ev->key() == Qt::Key_Period  ) {
 			m_sInputBuffer += ".";
-		} else if ( ev->key() == Qt::Key_Minus ) {
+		}
+		else if ( ev->key() == Qt::Key_Minus ) {
 			m_sInputBuffer += "-";
-		} else {
+		}
+		else {
 			m_sInputBuffer += QString::number( ev->key() - 48 );
 		}
+
 
 		bool bOk;
 		float fNewValue = m_sInputBuffer.toFloat( &bOk );
@@ -327,18 +326,24 @@ void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
 		}
 		setValue( fNewValue, true );
 		update();
-	} else if (  ev->key() == Qt::Key_Escape ) {
+	}
+	else if (  ev->key() == Qt::Key_Escape ) {
 		// reset the input buffer
 		m_sInputBuffer.clear();
 		QToolTip::hideText();
 		return;
-	} else {
+	}
+	else {
 		// return without showing a tooltop
 		return;
 	}
 	
 	QPoint p( mapToGlobal( QPoint( 0,0 ) ) );
-	QToolTip::showText( QPoint( p.x() + width(), p.y() ), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ), this, geometry(), m_inputBufferTimeout * 1000 );
+	QToolTip::showText(
+		QPoint( p.x() + width(), p.y() ),
+		QString( "%1" ).arg( m_fValue, 0, 'f', 2 ), this, geometry(),
+		std::chrono::duration_cast<std::chrono::milliseconds>(
+			WidgetWithInput::nInputTimeout).count() );
 }
 
 void WidgetWithInput::setMin( float fMin )

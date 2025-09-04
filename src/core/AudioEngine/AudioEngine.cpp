@@ -22,13 +22,6 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 
-#ifdef WIN32
-#    include "core/Timehelper.h"
-#else
-#    include <unistd.h>
-#    include <sys/time.h>
-#endif
-
 #include <limits>
 #include <sstream>
 
@@ -47,15 +40,10 @@
 #include <core/FX/Effects.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Random.h>
-#include <core/Hydrogen.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
-#include <core/IO/AudioOutput.h>
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
-#include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeAudioDriver.h>
-#include <core/IO/JackAudioDriver.h>
 #include <core/IO/JackMidiDriver.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/MidiBaseDriver.h>
@@ -64,10 +52,11 @@
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
-#include <core/Preferences/Preferences.h>
-#include <core/Sampler/Sampler.h>
 
 #define AUDIO_ENGINE_DEBUG 0
+
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
 
 namespace H2Core
 {
@@ -81,15 +70,6 @@ namespace H2Core
 #define AE_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
 		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
 					   QString( "%1" ).arg( x ), "\033[34;1m" ); }
-
-/** Gets the current time.
- * \return Current time obtained by gettimeofday()*/
-inline timeval currentTime2()
-{
-	struct timeval now;
-	gettimeofday( &now, nullptr );
-	return now;
-}
 
 AudioEngine::AudioEngine()
 		: m_pSampler( nullptr )
@@ -1524,7 +1504,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		   dynamic_cast<JackAudioDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) ) {
 		return 0;
 	}
-	timeval startTimeval = currentTime2();
+
+	const auto startTimePoint = Clock::now();
 	const auto sDrivers = pAudioEngine->getDriverNames();
 
 	pAudioEngine->clearAudioBuffers( nframes );
@@ -1642,11 +1623,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		}
 	}
 
-	timeval finishTimeval = currentTime2();
+	const auto finishTimePoint = Clock::now();
 	pAudioEngine->m_fProcessTime =
-			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
-			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
-	
+		std::chrono::duration_cast< std::chrono::milliseconds >(
+			finishTimePoint - startTimePoint).count();
+
 #ifdef CONFIG_DEBUG
 	if ( pAudioEngine->m_fProcessTime > pAudioEngine->m_fMaxProcessTime ) {
 		___WARNINGLOG( "" );
@@ -1691,7 +1672,7 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 	}
 
 #ifdef H2CORE_HAVE_LADSPA
-	timeval ladspaTime_start = currentTime2();
+	const auto ladspaStartTimePoint = Clock::now();
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		auto pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -1721,10 +1702,10 @@ void AudioEngine::processAudio( uint32_t nFrames ) {
 		}
 	}
 
-	timeval ladspaTime_end = currentTime2();
+	const auto ladspaEndTimePoint = Clock::now();
 	m_fLadspaTime =
-			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
-			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
+		std::chrono::duration_cast< std::chrono::milliseconds >(
+			ladspaEndTimePoint - ladspaStartTimePoint).count();
 #else
 	m_fLadspaTime = 0.0;
 #endif

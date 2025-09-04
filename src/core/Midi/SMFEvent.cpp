@@ -22,7 +22,7 @@
 
 #include "SMFEvent.h"
 
-#include <core/Timehelper.h>
+#include <QDate>
 
 #include "math.h"
 
@@ -297,15 +297,12 @@ QByteArray SMFCopyRightNoticeMetaEvent::getBuffer() const
 {
 	SMFBuffer buf;
 	QString sCopyRightString;
-	
-	time_t now = time(nullptr);
-	tm *ltm = localtime(&now);						// Extract the local system time.
-	
+
 	// Construct the copyright string in the form "(C) [Author] [CurrentYear]"
 	sCopyRightString.append("(C) ");				// Start with the copyright symbol and a separator space.
 	sCopyRightString.append( m_sAuthor );			// add the author
 	sCopyRightString.append(" ");					// add a separator space
-	sCopyRightString.append( QString::number( 1900 + ltm->tm_year, 10 ) );	// and finish with the year.
+	sCopyRightString.append( QString::number( QDate::currentDate().year() ) );	// and finish with the year.
 	
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );

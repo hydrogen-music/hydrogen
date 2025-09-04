@@ -23,6 +23,7 @@
 #ifndef WIDGET_WITH_INPUT_H
 #define WIDGET_WITH_INPUT_H
 
+#include <chrono>
 #include <memory>
 
 #include <QtGui>
@@ -31,7 +32,6 @@
 #include "MidiLearnable.h"
 
 #include <core/Basics/Event.h>
-#include <core/Timehelper.h>
 
 /** Base class for active user input widget, which are not based on
  * a high-level Qt widget.
@@ -61,6 +61,11 @@ class WidgetWithInput : public QWidget, public MidiLearnable {
 	Q_OBJECT
 
 public:
+		/** Number of seconds before #m_sInputBuffer will be flushed (happens
+			asynchronically whenever the next key input occurs.)*/
+		static constexpr std::chrono::duration<float> nInputTimeout =
+			std::chrono::duration<float>(2);
+
 	WidgetWithInput( QWidget* parent, bool bUseIntSteps,
 					 const QString& sBaseToolTip, int nScrollSpeed,
 					 int nScrollSpeedFast, float fMin, float fMax,
@@ -135,10 +140,7 @@ protected:
 
 	/** All key input will be appended to this string.*/
 	QString m_sInputBuffer;
-	timeval m_inputBufferTimeval;
-	/** Number of seconds before #m_sInputBuffer will be flushed
-		(happens asynchronically whenever the next key input occurs.)*/
-	double m_inputBufferTimeout;
+		std::chrono::time_point< std::chrono::high_resolution_clock > m_lastInputEvent;
 
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/
